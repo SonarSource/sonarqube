@@ -160,7 +160,7 @@ class DataChangeIT {
       }
     };
 
-    assertThatThrownBy(() -> change.execute())
+    assertThatThrownBy(change::execute)
       .isInstanceOf(SQLException.class);
   }
 
@@ -437,8 +437,7 @@ class DataChangeIT {
         new PhoneNumberRow(1, "1"),
         new PhoneNumberRow(1, "32234"),
         new PhoneNumberRow(1, "42343"),
-        new PhoneNumberRow(2, "432423")
-      );
+        new PhoneNumberRow(2, "432423"));
   }
 
   private Set<PhoneNumberRow> getPhoneNumberRows() {
@@ -449,7 +448,8 @@ class DataChangeIT {
       .collect(toSet());
   }
 
-  private record PhoneNumberRow(long personId, String phoneNumber){}
+  private record PhoneNumberRow(long personId, String phoneNumber) {
+  }
 
   @Test
   void display_current_row_details_if_error_during_mass_update() throws Exception {

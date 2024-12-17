@@ -90,10 +90,10 @@ public class HealthCheckerImplTest {
   public void checkNode_returns_RED_status_if_at_least_one_RED_status_returned_by_NodeHealthCheck() {
     List<Health.Status> statuses = new ArrayList<>();
     Stream.of(
-        IntStream.range(0, 1 + random.nextInt(20)).mapToObj(i -> RED), // at least 1 RED
-        IntStream.range(0, random.nextInt(20)).mapToObj(i -> YELLOW), // between 0 and 19 YELLOW
-        IntStream.range(0, random.nextInt(20)).mapToObj(i -> GREEN) // between 0 and 19 GREEN
-      ).flatMap(s -> s)
+      IntStream.range(0, 1 + random.nextInt(20)).mapToObj(i -> RED), // at least 1 RED
+      IntStream.range(0, random.nextInt(20)).mapToObj(i -> YELLOW), // between 0 and 19 YELLOW
+      IntStream.range(0, random.nextInt(20)).mapToObj(i -> GREEN) // between 0 and 19 GREEN
+    ).flatMap(s -> s)
       .forEach(statuses::add);
     Collections.shuffle(statuses);
     HealthCheckerImpl underTest = newNodeHealthCheckerImpl(statuses.stream());
@@ -121,7 +121,7 @@ public class HealthCheckerImplTest {
     when(nodeInformation.isStandalone()).thenReturn(true);
     HealthCheckerImpl underTest = new HealthCheckerImpl(nodeInformation, new NodeHealthCheck[0], new ClusterHealthCheck[0], sharedHealthState);
 
-    assertThatThrownBy(() -> underTest.checkCluster())
+    assertThatThrownBy(underTest::checkCluster)
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Clustering is not enabled");
   }
@@ -131,7 +131,7 @@ public class HealthCheckerImplTest {
     when(nodeInformation.isStandalone()).thenReturn(false);
     HealthCheckerImpl underTest = new HealthCheckerImpl(nodeInformation, new NodeHealthCheck[0], new ClusterHealthCheck[0], null);
 
-    assertThatThrownBy(() -> underTest.checkCluster())
+    assertThatThrownBy(underTest::checkCluster)
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("HealthState instance can't be null when clustering is enabled");
   }
@@ -175,10 +175,10 @@ public class HealthCheckerImplTest {
     when(nodeInformation.isStandalone()).thenReturn(false);
     List<Health.Status> statuses = new ArrayList<>();
     Stream.of(
-        IntStream.range(0, 1 + random.nextInt(20)).mapToObj(i -> RED), // at least 1 RED
-        IntStream.range(0, random.nextInt(20)).mapToObj(i -> YELLOW), // between 0 and 19 YELLOW
-        IntStream.range(0, random.nextInt(20)).mapToObj(i -> GREEN) // between 0 and 19 GREEN
-      ).flatMap(s -> s)
+      IntStream.range(0, 1 + random.nextInt(20)).mapToObj(i -> RED), // at least 1 RED
+      IntStream.range(0, random.nextInt(20)).mapToObj(i -> YELLOW), // between 0 and 19 YELLOW
+      IntStream.range(0, random.nextInt(20)).mapToObj(i -> GREEN) // between 0 and 19 GREEN
+    ).flatMap(s -> s)
       .forEach(statuses::add);
     Collections.shuffle(statuses);
     HealthCheckerImpl underTest = newClusterHealthCheckerImpl(statuses.stream());

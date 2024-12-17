@@ -131,7 +131,7 @@ public class CreateActionIT {
     TestRequest request = ws.newRequest();
     Optional.ofNullable(nameParameter).ifPresent(t -> request.setParam(PARAM_NAME, ""));
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("The 'name' parameter is missing");
   }

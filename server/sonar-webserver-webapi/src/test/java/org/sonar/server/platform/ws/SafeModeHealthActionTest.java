@@ -69,7 +69,7 @@ class SafeModeHealthActionTest {
     when(systemPasscode.isValid(any())).thenReturn(false);
     TestRequest request = underTest.newRequest();
 
-    expectForbiddenException(() -> request.execute());
+    expectForbiddenException(request::execute);
   }
 
   @ParameterizedTest

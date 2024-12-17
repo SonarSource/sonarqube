@@ -76,7 +76,7 @@ public class NewSizeMeasuresStep implements ComputationStep {
     new PathAwareCrawler<>(
       FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
         .buildFor(List.of(duplicationFormula)))
-      .visit(treeRootHolder.getRoot());
+          .visit(treeRootHolder.getRoot());
   }
 
   private static class NewSizeCounter implements Counter<NewSizeCounter> {
@@ -131,7 +131,7 @@ public class NewSizeMeasuresStep implements ComputationStep {
         duplicationCounters.addBlock(duplication.getOriginal());
         Arrays.stream(duplication.getDuplicates())
           .filter(InnerDuplicate.class::isInstance)
-          .map(duplicate -> (InnerDuplicate) duplicate)
+          .map(InnerDuplicate.class::cast)
           .forEach(duplicate -> duplicationCounters.addBlock(duplicate.getTextBlock()));
       }
 

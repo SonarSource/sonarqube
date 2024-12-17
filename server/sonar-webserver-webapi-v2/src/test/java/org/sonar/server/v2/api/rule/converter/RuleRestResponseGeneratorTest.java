@@ -43,6 +43,8 @@ import org.sonar.server.common.rule.service.RuleInformation;
 import org.sonar.server.common.text.MacroInterpreter;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.rule.RuleDescriptionFormatter;
+import org.sonar.server.v2.api.rule.resource.Parameter;
+import org.sonar.server.v2.api.rule.response.RuleDescriptionSectionRestResponse;
 import org.sonar.server.v2.api.rule.response.RuleRestResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,7 +66,6 @@ public class RuleRestResponseGeneratorTest {
   @InjectMocks
   private RuleRestResponseGenerator ruleRestResponseGenerator;
 
-
   @Test
   public void toRuleRestResponse_shouldReturnSameFieldForStandardMapping() {
     when(macroInterpreter.interpret(Mockito.anyString())).thenAnswer(invocation -> "interpreted" + invocation.getArgument(0));
@@ -78,7 +79,8 @@ public class RuleRestResponseGeneratorTest {
     assertThat(ruleRestResponse.key()).isEqualTo(dto.getKey().toString());
     assertThat(ruleRestResponse.repositoryKey()).isEqualTo(dto.getRepositoryKey());
     assertThat(ruleRestResponse.name()).isEqualTo(dto.getName());
-    assertThat(ruleRestResponse.descriptionSections()).extracting(s -> s.key(), s -> s.content(), s -> s.context())
+    assertThat(ruleRestResponse.descriptionSections())
+      .extracting(RuleDescriptionSectionRestResponse::key, RuleDescriptionSectionRestResponse::content, RuleDescriptionSectionRestResponse::context)
       .containsExactly(dto.getRuleDescriptionSectionDtos().stream().map(s -> tuple(s.getKey(), "interpreted" + "html" + s.getContent(), s.getContext())).toArray(Tuple[]::new));
     assertThat(ruleRestResponse.severity()).isEqualTo(dto.getSeverityString());
     assertThat(ruleRestResponse.type().name()).isEqualTo(RuleType.valueOf(dto.getType()).name());
@@ -123,7 +125,7 @@ public class RuleRestResponseGeneratorTest {
     RuleParamDto ruleParamDto2 = RuleTesting.newRuleParam(dto);
     RuleRestResponse ruleRestResponse = ruleRestResponseGenerator.toRuleRestResponse(new RuleInformation(dto, List.of(ruleParamDto1, ruleParamDto2)));
 
-    assertThat(ruleRestResponse.parameters()).extracting(p -> p.key(), p -> p.htmlDescription(), p -> p.defaultValue())
+    assertThat(ruleRestResponse.parameters()).extracting(Parameter::key, Parameter::htmlDescription, Parameter::defaultValue)
       .containsExactlyInAnyOrder(tuple(ruleParamDto1.getName(), ruleParamDto1.getDescription(), ruleParamDto1.getDefaultValue()),
         tuple(ruleParamDto2.getName(), ruleParamDto2.getDescription(), ruleParamDto2.getDefaultValue()));
   }
@@ -140,7 +142,8 @@ public class RuleRestResponseGeneratorTest {
 
     RuleRestResponse ruleRestResponse = ruleRestResponseGenerator.toRuleRestResponse(new RuleInformation(dto, List.of()));
     assertThat(ruleRestResponse.name()).isEqualTo(dto.getAdHocName());
-    assertThat(ruleRestResponse.descriptionSections()).extracting(r -> r.key(), r -> r.content(), r -> r.context())
+    assertThat(ruleRestResponse.descriptionSections())
+      .extracting(RuleDescriptionSectionRestResponse::key, RuleDescriptionSectionRestResponse::content, RuleDescriptionSectionRestResponse::context)
       .containsExactly(tuple("default", "interpreted" + dto.getAdHocDescription(), null));
     assertThat(ruleRestResponse.severity()).isEqualTo(dto.getAdHocSeverity());
     assertThat(ruleRestResponse.type().name()).isEqualTo(RuleType.valueOf(dto.getAdHocType()).name());
@@ -158,7 +161,8 @@ public class RuleRestResponseGeneratorTest {
 
     RuleRestResponse ruleRestResponse = ruleRestResponseGenerator.toRuleRestResponse(new RuleInformation(dto, List.of()));
     assertThat(ruleRestResponse.name()).isEqualTo(dto.getAdHocName());
-    assertThat(ruleRestResponse.descriptionSections()).extracting(r -> r.key(), r -> r.content(), r -> r.context())
+    assertThat(ruleRestResponse.descriptionSections())
+      .extracting(RuleDescriptionSectionRestResponse::key, RuleDescriptionSectionRestResponse::content, RuleDescriptionSectionRestResponse::context)
       .containsExactly(tuple("default", "interpreted" + dto.getAdHocDescription(), null));
     assertThat(ruleRestResponse.severity()).isEqualTo(dto.getAdHocSeverity());
     assertThat(ruleRestResponse.type().name()).isEqualTo(RuleType.valueOf(dto.getAdHocType()).name());

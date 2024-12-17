@@ -145,7 +145,7 @@ class QualityGateMeasuresStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThatThrownBy(() -> qualityGateStatusHolder.getStatus())
+    assertThatThrownBy(qualityGateStatusHolder::getStatus)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Quality gate status has not been set yet");
   }

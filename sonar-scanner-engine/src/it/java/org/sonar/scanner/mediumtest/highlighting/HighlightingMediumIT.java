@@ -94,9 +94,9 @@ public class HighlightingMediumIT {
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .put("sonar.it.savedatatwice", "true")
-        .build());;
+        .build());
 
-    assertThatThrownBy(() -> analysisBuilder.execute())
+    assertThatThrownBy(analysisBuilder::execute)
       .isInstanceOf(UnsupportedOperationException.class)
       .hasMessageContaining("Trying to save highlighting twice for the same file is not supported");
   }
@@ -123,7 +123,7 @@ public class HighlightingMediumIT {
         .put("sonar.sources", "src")
         .build());
 
-    assertThatThrownBy(() -> analysisBuilder.execute())
+    assertThatThrownBy(analysisBuilder::execute)
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Error processing line 2")
       .hasCauseInstanceOf(IllegalArgumentException.class);

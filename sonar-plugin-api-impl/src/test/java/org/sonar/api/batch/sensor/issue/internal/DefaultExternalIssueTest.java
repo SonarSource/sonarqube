@@ -167,7 +167,7 @@ public class DefaultExternalIssueTest {
       .type(RuleType.BUG)
       .severity(Severity.BLOCKER);
 
-    assertThatThrownBy(() -> issue.save())
+    assertThatThrownBy(issue::save)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("External issues must have a message");
   }

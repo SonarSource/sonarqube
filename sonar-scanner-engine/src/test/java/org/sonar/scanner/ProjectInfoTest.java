@@ -73,7 +73,7 @@ class ProjectInfoTest {
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "");
     settings.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "version");
 
-    assertThatThrownBy(() -> underTest.start())
+    assertThatThrownBy(underTest::start)
       .isInstanceOf(RuntimeException.class);
   }
 
@@ -83,7 +83,7 @@ class ProjectInfoTest {
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
     settings.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, version);
 
-    assertThatThrownBy(() -> underTest.start())
+    assertThatThrownBy(underTest::start)
       .isInstanceOf(MessageException.class)
       .hasMessage("\"" + version + "\" is not a valid project version. " +
         "The maximum length is 100 characters.");
@@ -95,7 +95,7 @@ class ProjectInfoTest {
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
     settings.setProperty(CoreProperties.BUILD_STRING_PROPERTY, buildString);
 
-    assertThatThrownBy(() -> underTest.start())
+    assertThatThrownBy(underTest::start)
       .isInstanceOf(MessageException.class)
       .hasMessage("\"" + buildString + "\" is not a valid buildString. " +
         "The maximum length is 100 characters.");

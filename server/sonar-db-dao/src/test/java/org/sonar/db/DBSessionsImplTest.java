@@ -33,6 +33,7 @@ import java.util.stream.IntStream;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
+import org.apache.ibatis.session.SqlSession;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -408,7 +409,7 @@ class DBSessionsImplTest {
     return dbSession;
   }
 
-  private static DbSessionCaller[] DIRTYING_CALLS = {
+  private static final DbSessionCaller[] DIRTYING_CALLS = {
     session -> session.insert(secure().nextAlphabetic(3)),
     session -> session.insert(secure().nextAlphabetic(2), new Object()),
     session -> session.update(secure().nextAlphabetic(3)),
@@ -417,17 +418,11 @@ class DBSessionsImplTest {
     session -> session.delete(secure().nextAlphabetic(3), new Object()),
   };
 
-  private static DbSessionCaller[] COMMIT_CALLS = {
-    session -> session.commit(),
+  private static final DbSessionCaller[] COMMIT_CALLS = {SqlSession::commit,
     session -> session.commit(new Random().nextBoolean()),
   };
 
-  private static DbSessionCaller[] ROLLBACK_CALLS = {
-    session -> session.rollback(),
-    session -> session.rollback(new Random().nextBoolean()),
-  };
-
-  private static DbSessionCaller[] NEUTRAL_CALLS = {
+  private static final DbSessionCaller[] NEUTRAL_CALLS = {
     session -> session.selectOne(secure().nextAlphabetic(3)),
     session -> session.selectOne(secure().nextAlphabetic(3), new Object()),
     session -> session.select(secure().nextAlphabetic(3), mock(ResultHandler.class)),
@@ -439,11 +434,7 @@ class DBSessionsImplTest {
     session -> session.selectMap(secure().nextAlphabetic(3), secure().nextAlphabetic(3)),
     session -> session.selectMap(secure().nextAlphabetic(3), new Object(), secure().nextAlphabetic(3)),
     session -> session.selectMap(secure().nextAlphabetic(3), new Object(), secure().nextAlphabetic(3), new RowBounds()),
-    session -> session.getMapper(Object.class),
-    session -> session.getConfiguration(),
-    session -> session.getConnection(),
-    session -> session.clearCache(),
-    session -> session.flushStatements()
+    session -> session.getMapper(Object.class), SqlSession::getConfiguration, SqlSession::getConnection, SqlSession::clearCache, SqlSession::flushStatements
   };
 
   private interface DbSessionCaller {

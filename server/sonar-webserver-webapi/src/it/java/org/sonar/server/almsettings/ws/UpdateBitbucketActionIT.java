@@ -99,7 +99,7 @@ public class UpdateBitbucketActionIT {
       .setParam("key", almSettingDto.getKey())
       .setParam("url", "https://bitbucket.enterprise-unicorn.com");
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Please provide the Personal Access Token to update the URL.");
   }
@@ -126,14 +126,14 @@ public class UpdateBitbucketActionIT {
   public void fail_when_key_does_not_match_existing_alm_setting() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
-    
+
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", "unknown")
       .setParam("url", "https://bitbucket.enterprise-unicorn.com")
       .setParam("personalAccessToken", "0123456789")
       .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("DevOps Platform setting with key 'unknown' cannot be found");
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining("DevOps Platform setting with key 'unknown' cannot be found");
   }
 
   @Test
@@ -149,8 +149,8 @@ public class UpdateBitbucketActionIT {
       .setParam("url", "https://bitbucket.enterprise-unicorn.com")
       .setParam("personalAccessToken", "0123456789")
       .execute())
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining(format("An DevOps Platform setting with key '%s' already exists", almSetting2.getKey()));
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining(format("An DevOps Platform setting with key '%s' already exists", almSetting2.getKey()));
   }
 
   @Test
@@ -165,7 +165,7 @@ public class UpdateBitbucketActionIT {
       .setParam("url", "https://bitbucket.enterprise-unicorn.com")
       .setParam("personalAccessToken", "0123456789")
       .execute())
-      .isInstanceOf(ForbiddenException.class);
+        .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

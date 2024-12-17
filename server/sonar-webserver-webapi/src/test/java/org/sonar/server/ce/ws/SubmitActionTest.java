@@ -93,13 +93,13 @@ public class SubmitActionTest {
 
     String devOpsPlatformUrl = "https://github.com";
     String devOpsPlatformProjectIdentifier = "foo/bar";
-    
+
     String[] characteristics = {
       buildCharacteristicParam(BRANCH, "foo"),
       buildCharacteristicParam(PULL_REQUEST, "123"),
       buildCharacteristicParam("unsupported", "bar"),
       buildCharacteristicParam(DEVOPS_PLATFORM_URL, devOpsPlatformUrl),
-      buildCharacteristicParam(DEVOPS_PLATFORM_PROJECT_IDENTIFIER,  devOpsPlatformProjectIdentifier) };
+      buildCharacteristicParam(DEVOPS_PLATFORM_PROJECT_IDENTIFIER, devOpsPlatformProjectIdentifier)};
     Ce.SubmitResponse submitResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
       .setParam("projectName", "My Project")
@@ -186,7 +186,7 @@ public class SubmitActionTest {
       .setMediaType(MediaTypes.PROTOBUF)
       .setMethod("POST");
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(ServerException.class)
       .hasMessage("Error message");
   }

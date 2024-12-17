@@ -651,18 +651,17 @@ class IssueDaoIT {
       i -> i.setStatus(STATUS_REOPENED).setEffort(60L).replaceAllImpacts(List.of(createImpact(RELIABILITY, INFO), createImpact(SECURITY,
         BLOCKER))));
     db.issues().insert(rule, project, file,
-      i -> i.setStatus(STATUS_RESOLVED).setEffort(60L).setResolution(RESOLUTION_WONT_FIX).replaceAllImpacts(List.of(createImpact(MAINTAINABILITY, HIGH), createImpact(RELIABILITY, INFO), createImpact(SECURITY, BLOCKER))));
+      i -> i.setStatus(STATUS_RESOLVED).setEffort(60L).setResolution(RESOLUTION_WONT_FIX)
+        .replaceAllImpacts(List.of(createImpact(MAINTAINABILITY, HIGH), createImpact(RELIABILITY, INFO), createImpact(SECURITY, BLOCKER))));
     db.issues().insert(rule, project, file,
-      i -> i.setStatus(STATUS_RESOLVED).setEffort(60L).setResolution(RESOLUTION_WONT_FIX).replaceAllImpacts(List.of(createImpact(SECURITY
-        , HIGH))));
+      i -> i.setStatus(STATUS_RESOLVED).setEffort(60L).setResolution(RESOLUTION_WONT_FIX).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH))));
     // issues in ignored status
     db.issues().insert(rule, project, file,
       i -> i.setStatus(Issue.STATUS_CLOSED).setEffort(60L).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH))));
     db.issues().insert(rule, project, file,
       i -> i.setStatus(STATUS_RESOLVED).setEffort(60L).setResolution(RESOLUTION_FALSE_POSITIVE).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH))));
 
-    Collection<IssueImpactSeverityGroupDto> result = underTest.selectIssueImpactSeverityGroupsByComponent(db.getSession(), file, inLeak ?
-      1L : Long.MAX_VALUE);
+    Collection<IssueImpactSeverityGroupDto> result = underTest.selectIssueImpactSeverityGroupsByComponent(db.getSession(), file, inLeak ? 1L : Long.MAX_VALUE);
 
     assertThat(result).hasSize(6);
     assertThat(result.stream().filter(IssueImpactSeverityGroupDto::isInLeak)).hasSize(inLeak ? 6 : 0);
@@ -1096,8 +1095,7 @@ class IssueDaoIT {
 
     underTest.updateIfBeforeSelectedDate(db.getSession(), issueDto);
 
-    assertThat(underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1).getImpacts()).extracting(i -> i.getSoftwareQuality(),
-      i -> i.getSeverity())
+    assertThat(underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1).getImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
       .containsExactlyInAnyOrder(tuple(RELIABILITY, MEDIUM), tuple(SECURITY, LOW));
   }
 
@@ -1111,7 +1109,7 @@ class IssueDaoIT {
     underTest.insert(db.getSession(), issueDto);
 
     assertThat(underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1).getImpacts()).extracting(ImpactDto::getSoftwareQuality,
-        ImpactDto::getSeverity, ImpactDto::isManualSeverity)
+      ImpactDto::getSeverity, ImpactDto::isManualSeverity)
       .containsExactlyInAnyOrder(tuple(MAINTAINABILITY, MEDIUM, true), tuple(RELIABILITY, HIGH, false));
   }
 

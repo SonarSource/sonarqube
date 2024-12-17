@@ -87,7 +87,6 @@ public class DefaultAdHocRuleTest {
     verify(storage).store(any(DefaultAdHocRule.class));
   }
 
-
   @Test
   public void fail_to_store_if_no_engine_id() {
     SensorStorage storage = mock(SensorStorage.class);
@@ -99,7 +98,7 @@ public class DefaultAdHocRuleTest {
       .severity(Severity.BLOCKER)
       .type(RuleType.CODE_SMELL);
 
-    assertThatThrownBy(() -> rule.save())
+    assertThatThrownBy(rule::save)
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Engine id is mandatory");
   }
@@ -115,7 +114,7 @@ public class DefaultAdHocRuleTest {
       .severity(Severity.BLOCKER)
       .type(RuleType.CODE_SMELL);
 
-    assertThatThrownBy(() -> rule.save())
+    assertThatThrownBy(rule::save)
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Rule id is mandatory");
   }
@@ -131,7 +130,7 @@ public class DefaultAdHocRuleTest {
       .severity(Severity.BLOCKER)
       .type(RuleType.CODE_SMELL);
 
-    assertThatThrownBy(() -> rule.save())
+    assertThatThrownBy(rule::save)
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Name is mandatory");
   }
@@ -146,7 +145,7 @@ public class DefaultAdHocRuleTest {
       .description("desc")
       .type(RuleType.CODE_SMELL);
 
-    assertThatThrownBy(() -> rule.save())
+    assertThatThrownBy(rule::save)
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Impact should be provided, or Severity and Type instead");
   }
@@ -161,7 +160,7 @@ public class DefaultAdHocRuleTest {
       .description("desc")
       .severity(Severity.BLOCKER);
 
-    assertThatThrownBy(() -> rule.save())
+    assertThatThrownBy(rule::save)
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Impact should be provided, or Severity and Type instead");
   }

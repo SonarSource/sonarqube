@@ -89,7 +89,7 @@ public class HealthActionTest {
   public void request_fails_with_ForbiddenException_when_anonymous() {
     TestRequest request = underTest.newRequest();
 
-    expectForbiddenException(() -> request.execute());
+    expectForbiddenException(request::execute);
 
   }
 
@@ -98,7 +98,7 @@ public class HealthActionTest {
     when(systemPasscode.isValid(any())).thenReturn(false);
     TestRequest request = underTest.newRequest();
 
-    expectForbiddenException(() -> request.execute());
+    expectForbiddenException(request::execute);
   }
 
   @Test
@@ -108,7 +108,7 @@ public class HealthActionTest {
     when(healthChecker.checkCluster()).thenReturn(randomStatusMinimalClusterHealth());
     TestRequest request = underTest.newRequest();
 
-    expectForbiddenException(() -> request.execute());
+    expectForbiddenException(request::execute);
   }
 
   @Test
@@ -269,13 +269,13 @@ public class HealthActionTest {
       .setStatus(NodeHealth.Status.values()[random.nextInt(NodeHealth.Status.values().length)]);
     IntStream.range(0, random.nextInt(4)).mapToObj(i -> secure().nextAlphabetic(5)).forEach(builder::addCause);
     return builder.setDetails(
-        newNodeDetailsBuilder()
-          .setType(random.nextBoolean() ? NodeDetails.Type.APPLICATION : NodeDetails.Type.SEARCH)
-          .setName(secure().nextAlphanumeric(3))
-          .setHost(secure().nextAlphanumeric(4))
-          .setPort(1 + random.nextInt(3))
-          .setStartedAt(1 + random.nextInt(23))
-          .build())
+      newNodeDetailsBuilder()
+        .setType(random.nextBoolean() ? NodeDetails.Type.APPLICATION : NodeDetails.Type.SEARCH)
+        .setName(secure().nextAlphanumeric(3))
+        .setHost(secure().nextAlphanumeric(4))
+        .setPort(1 + random.nextInt(3))
+        .setStartedAt(1 + random.nextInt(23))
+        .build())
       .build();
   }
 
@@ -284,13 +284,13 @@ public class HealthActionTest {
       .setStatus(NodeHealth.Status.values()[random.nextInt(NodeHealth.Status.values().length)]);
     IntStream.range(0, random.nextInt(4)).mapToObj(i -> secure().nextAlphabetic(5)).forEach(builder::addCause);
     return builder.setDetails(
-        newNodeDetailsBuilder()
-          .setType(type)
-          .setName(name)
-          .setHost(host)
-          .setPort(port)
-          .setStartedAt(started)
-          .build())
+      newNodeDetailsBuilder()
+        .setType(type)
+        .setName(name)
+        .setHost(host)
+        .setPort(port)
+        .setStartedAt(started)
+        .build())
       .build();
   }
 

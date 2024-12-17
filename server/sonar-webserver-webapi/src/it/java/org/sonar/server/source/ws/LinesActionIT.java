@@ -102,7 +102,7 @@ public class LinesActionIT {
     TestRequest request = tester.newRequest()
       .setParam("uuid", file.uuid());
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class);
   }
 
@@ -319,8 +319,8 @@ public class LinesActionIT {
       .setParam("key", file.getKey())
       .setParam("branch", "another_branch")
       .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
   }
 
   @Test
@@ -334,8 +334,8 @@ public class LinesActionIT {
       .setParam("uuid", file.uuid())
       .setParam("branch", "another_branch")
       .execute())
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Parameter 'uuid' cannot be used at the same time as 'branch' or 'pullRequest'");
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Parameter 'uuid' cannot be used at the same time as 'branch' or 'pullRequest'");
   }
 
   @Test
@@ -347,8 +347,8 @@ public class LinesActionIT {
     assertThatThrownBy(() -> tester.newRequest()
       .setParam("uuid", branch.getUuid())
       .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Component id '%s' not found", branch.getUuid()));
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining(format("Component id '%s' not found", branch.getUuid()));
   }
 
   @Test

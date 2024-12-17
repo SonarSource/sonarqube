@@ -84,7 +84,7 @@ public class WebhookCustomDnsTest {
     Optional<InetAddress> inet6Address = Collections.list(NetworkInterface.getNetworkInterfaces())
       .stream()
       .flatMap(ni -> Collections.list(ni.getInetAddresses()).stream())
-      .filter(i -> i instanceof Inet6Address).findAny();
+      .filter(Inet6Address.class::isInstance).findAny();
 
     if (!inet6Address.isPresent()) {
       return;

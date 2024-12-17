@@ -147,7 +147,7 @@ public class CopyActionIT {
       .setParam(PARAM_SOURCE_NAME, qualityGate.getName())
       .setParam(PARAM_NAME, "new-name")
       .execute())
-      .isInstanceOf(ForbiddenException.class);
+        .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -157,8 +157,8 @@ public class CopyActionIT {
     assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_NAME, "new-name")
       .execute())
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("The 'sourceName' parameter is missing");
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("The 'sourceName' parameter is missing");
   }
 
   @Test
@@ -169,8 +169,8 @@ public class CopyActionIT {
       .setParam(PARAM_SOURCE_NAME, "unknown")
       .setParam(PARAM_NAME, "new-name")
       .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("No quality gate has been found for name unknown");
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining("No quality gate has been found for name unknown");
   }
 
   @Test
@@ -183,14 +183,14 @@ public class CopyActionIT {
       .setParam(PARAM_SOURCE_NAME, qualityGate.getName());
     ofNullable(nameParameter).ifPresent(t -> request.setParam(PARAM_NAME, t));
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("The 'name' parameter is missing");
   }
 
   @DataProvider
   public static Object[][] nullOrEmpty() {
-    return new Object[][]{
+    return new Object[][] {
       {null},
       {""},
       {"  "}
@@ -207,7 +207,7 @@ public class CopyActionIT {
       .setParam(PARAM_SOURCE_NAME, qualityGate.getName())
       .setParam(PARAM_NAME, existingQualityGate.getName())
       .execute())
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Name has already been taken");
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Name has already been taken");
   }
 }

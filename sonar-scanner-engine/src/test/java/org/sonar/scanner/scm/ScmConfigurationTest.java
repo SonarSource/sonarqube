@@ -131,8 +131,7 @@ class ScmConfigurationTest {
       arguments(true, true, true),
       arguments(true, false, true),
       arguments(false, true, true),
-      arguments(false, false, false)
-    );
+      arguments(false, false, false));
   }
 
   @Test
@@ -143,7 +142,7 @@ class ScmConfigurationTest {
     ScmProvider[] providers = {scmProvider, scmProvider};
     ScmConfiguration underTest = new ScmConfiguration(inputModuleHierarchy, settings, analysisWarnings, providers);
 
-    assertThatThrownBy(() -> underTest.start())
+    assertThatThrownBy(underTest::start)
       .isInstanceOf(MessageException.class)
       .hasMessageContaining("SCM provider autodetection failed. "
         + "Both key2 and key2 claim to support this project. "
@@ -154,7 +153,7 @@ class ScmConfigurationTest {
   void fail_when_considerOldScmUrl_finds_invalid_provider_in_link() {
     when(settings.get(ScannerProperties.LINKS_SOURCES_DEV)).thenReturn(Optional.of("scm:invalid"));
 
-    assertThatThrownBy(() -> underTest.start())
+    assertThatThrownBy(underTest::start)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("no SCM provider found for this key");
   }

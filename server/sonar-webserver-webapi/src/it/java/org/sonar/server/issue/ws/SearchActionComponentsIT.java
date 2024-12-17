@@ -27,13 +27,13 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Languages;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueDto;
@@ -64,7 +64,6 @@ import org.sonarqube.ws.Issues.SearchWsResponse;
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.db.component.ComponentQualifiers.APP;
 import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
@@ -73,6 +72,7 @@ import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
+import static org.sonar.db.component.ComponentQualifiers.APP;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
@@ -92,7 +92,7 @@ class SearchActionComponentsIT {
   private final DbTester db = DbTester.create();
   @RegisterExtension
   private final EsTester es = EsTester.create();
-  
+
   private final Configuration config = Mockito.mock(Configuration.class);
 
   private final DbClient dbClient = db.getDbClient();
@@ -709,17 +709,17 @@ class SearchActionComponentsIT {
 
   private void allowAnyoneOnProjects(ProjectDto... projects) {
     userSession.registerProjects(projects);
-    Arrays.stream(projects).forEach(p -> permissionIndexer.allowOnlyAnyone(p));
+    Arrays.stream(projects).forEach(permissionIndexer::allowOnlyAnyone);
   }
 
   private void allowAnyoneOnPortfolios(ComponentDto... portfolios) {
     userSession.registerPortfolios(portfolios);
-    Arrays.stream(portfolios).forEach(p -> permissionIndexer.allowOnlyAnyone(p));
+    Arrays.stream(portfolios).forEach(permissionIndexer::allowOnlyAnyone);
   }
 
   private void allowAnyoneOnApplication(ProjectDto application, ProjectDto... projects) {
     userSession.registerApplication(application);
-    Arrays.stream(projects).forEach(p -> permissionIndexer.allowOnlyAnyone(p));
+    Arrays.stream(projects).forEach(permissionIndexer::allowOnlyAnyone);
   }
 
   private void indexIssues() {

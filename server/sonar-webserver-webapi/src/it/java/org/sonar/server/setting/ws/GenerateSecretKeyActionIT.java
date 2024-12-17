@@ -83,11 +83,10 @@ public class GenerateSecretKeyActionIT {
   public void throw_ForbiddenException_if_not_system_administrator() {
     userSession.logIn().setNonSystemAdministrator();
 
-    assertThatThrownBy(() -> call())
+    assertThatThrownBy(this::call)
       .isInstanceOf(ForbiddenException.class)
       .hasMessage("Insufficient privileges");
   }
-
 
   private GenerateSecretKeyWsResponse call() {
     return ws.newRequest()

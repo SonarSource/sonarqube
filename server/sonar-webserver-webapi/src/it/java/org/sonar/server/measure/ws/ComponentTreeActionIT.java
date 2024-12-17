@@ -1192,7 +1192,7 @@ class ComponentTreeActionIT {
       .setParam(PARAM_QUALIFIERS, "BRC")
       .setParam(PARAM_METRIC_KEYS, complexity.getKey());
 
-    assertThatThrownBy(() -> testRequest.execute()).isInstanceOf(IllegalArgumentException.class)
+    assertThatThrownBy(testRequest::execute).isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Value of parameter 'qualifiers' (BRC) must be one of: [UTS, FIL, DIR, TRK]");
   }
 

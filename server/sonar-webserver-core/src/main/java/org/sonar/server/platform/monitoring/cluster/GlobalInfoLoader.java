@@ -32,7 +32,7 @@ public class GlobalInfoLoader {
 
   public GlobalInfoLoader(SystemInfoSection[] sections) {
     this.globalSections = Arrays.stream(sections)
-      .filter(section -> section instanceof Global)
+      .filter(Global.class::isInstance)
       .toList();
   }
 

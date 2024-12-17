@@ -51,7 +51,7 @@ class OffsetBasedPaginationTest {
   @Test
   void forOffset_whenZeroOffset_shouldStartOffsetAtZero() {
     assertThat(OffsetBasedPagination.forOffset(0, 100))
-      .extracting(p -> p.getOffset(), p -> p.getPageSize())
+      .extracting(OffsetBasedPagination::getOffset, OffsetBasedPagination::getPageSize)
       .containsExactly(0, 100);
   }
 

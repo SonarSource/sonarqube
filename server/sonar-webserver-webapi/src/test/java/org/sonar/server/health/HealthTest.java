@@ -42,7 +42,7 @@ public class HealthTest {
   public void build_throws_NPE_if_status_is_null() {
     Health.Builder builder = Health.builder();
 
-    expectStatusNotNullNPE(() -> builder.build());
+    expectStatusNotNullNPE(builder::build);
   }
 
   @Test

@@ -95,7 +95,7 @@ public class ScanPropertiesTest {
   public void validate_fails_if_metadata_file_location_is_not_absolute() {
     settings.setProperty("sonar.scanner.metadataFilePath", "relative");
 
-    assertThatThrownBy(() -> underTest.validate())
+    assertThatThrownBy(underTest::validate)
       .isInstanceOf(MessageException.class)
       .hasMessage("Property 'sonar.scanner.metadataFilePath' must point to an absolute path: relative");
   }

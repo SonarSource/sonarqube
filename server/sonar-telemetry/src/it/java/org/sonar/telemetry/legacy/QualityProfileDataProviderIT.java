@@ -51,8 +51,8 @@ public class QualityProfileDataProviderIT {
     QProfileDto qProfile1 = createQualityProfile(false, null);
     dbTester.qualityProfiles().setAsDefault(qProfile1);
     Assertions.assertThat(underTest.retrieveQualityProfilesData())
-      .extracting(p -> p.uuid(), p -> p.isDefault(), p -> p.isBuiltIn(), p -> p.builtInParent(),
-        p -> p.rulesActivatedCount(), p -> p.rulesDeactivatedCount(), p -> p.rulesOverriddenCount())
+      .extracting(TelemetryData.QualityProfile::uuid, TelemetryData.QualityProfile::isDefault, TelemetryData.QualityProfile::isBuiltIn, TelemetryData.QualityProfile::builtInParent,
+        TelemetryData.QualityProfile::rulesActivatedCount, TelemetryData.QualityProfile::rulesDeactivatedCount, TelemetryData.QualityProfile::rulesOverriddenCount)
       .containsExactlyInAnyOrder(tuple(qProfile1.getKee(), true, false, false, null, null, null));
   }
 
@@ -64,8 +64,8 @@ public class QualityProfileDataProviderIT {
 
     dbTester.qualityProfiles().setAsDefault(childProfile);
     Assertions.assertThat(underTest.retrieveQualityProfilesData())
-      .extracting(p -> p.uuid(), p -> p.isDefault(), p -> p.isBuiltIn(), p -> p.builtInParent(),
-        p -> p.rulesActivatedCount(), p -> p.rulesDeactivatedCount(), p -> p.rulesOverriddenCount())
+      .extracting(TelemetryData.QualityProfile::uuid, TelemetryData.QualityProfile::isDefault, TelemetryData.QualityProfile::isBuiltIn, TelemetryData.QualityProfile::builtInParent,
+        TelemetryData.QualityProfile::rulesActivatedCount, TelemetryData.QualityProfile::rulesDeactivatedCount, TelemetryData.QualityProfile::rulesOverriddenCount)
       .containsExactlyInAnyOrder(
         tuple(rootProfile.getKee(), false, false, false, null, null, null),
         tuple(childProfile.getKee(), true, false, false, null, null, null));
@@ -82,11 +82,10 @@ public class QualityProfileDataProviderIT {
     dbTester.qualityProfiles().associateWithProject(projectData.getProjectDto(), associatedProfile);
 
     Assertions.assertThat(underTest.retrieveQualityProfilesData())
-      .extracting(p -> p.uuid(), p -> p.isDefault())
+      .extracting(TelemetryData.QualityProfile::uuid, TelemetryData.QualityProfile::isDefault)
       .containsExactlyInAnyOrder(
         tuple(associatedProfile.getKee(), false),
-        tuple(unassociatedProfile.getKee(), false)
-      );
+        tuple(unassociatedProfile.getKee(), false));
   }
 
   @Test
@@ -101,11 +100,10 @@ public class QualityProfileDataProviderIT {
     dbTester.qualityProfiles().setAsDefault(rootBuiltinProfile, childProfile, grandChildProfile);
 
     Assertions.assertThat(underTest.retrieveQualityProfilesData())
-      .extracting(p -> p.uuid(), p -> p.isBuiltIn(), p -> p.builtInParent())
+      .extracting(TelemetryData.QualityProfile::uuid, TelemetryData.QualityProfile::isBuiltIn, TelemetryData.QualityProfile::builtInParent)
       .containsExactlyInAnyOrder(tuple(rootBuiltinProfile.getKee(), true, null),
         tuple(childProfile.getKee(), false, true),
-        tuple(grandChildProfile.getKee(), false, true)
-      );
+        tuple(grandChildProfile.getKee(), false, true));
   }
 
   @Test
@@ -122,11 +120,11 @@ public class QualityProfileDataProviderIT {
     dbTester.qualityProfiles().setAsDefault(childProfile);
 
     Assertions.assertThat(underTest.retrieveQualityProfilesData())
-      .extracting(p -> p.uuid(), p -> p.rulesActivatedCount(), p -> p.rulesDeactivatedCount(), p -> p.rulesOverriddenCount())
+      .extracting(TelemetryData.QualityProfile::uuid, TelemetryData.QualityProfile::rulesActivatedCount, TelemetryData.QualityProfile::rulesDeactivatedCount,
+        TelemetryData.QualityProfile::rulesOverriddenCount)
       .containsExactlyInAnyOrder(
         tuple(rootBuiltinProfile.getKee(), null, null, null),
-        tuple(childProfile.getKee(), 1, 1, 0)
-      );
+        tuple(childProfile.getKee(), 1, 1, 0));
   }
 
   @Test
@@ -137,7 +135,6 @@ public class QualityProfileDataProviderIT {
     QProfileDto childProfile = createQualityProfile(false, rootBuiltinProfile.getKee());
     RuleDto rule = dbTester.rules().insert();
     RuleParamDto initialRuleParam = dbTester.rules().insertRuleParam(rule, p -> p.setName("key").setDefaultValue("initial"));
-
 
     ActiveRuleDto activeRuleDto = dbTester.qualityProfiles().activateRule(rootBuiltinProfile, rule);
     dbTester.getDbClient().activeRuleDao().insertParam(dbTester.getSession(), activeRuleDto, newParam(activeRuleDto, initialRuleParam, "key", "value"));
@@ -150,7 +147,8 @@ public class QualityProfileDataProviderIT {
     dbTester.qualityProfiles().setAsDefault(childProfile);
 
     Assertions.assertThat(underTest.retrieveQualityProfilesData())
-      .extracting(p -> p.uuid(), p -> p.rulesActivatedCount(), p -> p.rulesDeactivatedCount(), p -> p.rulesOverriddenCount())
+      .extracting(TelemetryData.QualityProfile::uuid, TelemetryData.QualityProfile::rulesActivatedCount, TelemetryData.QualityProfile::rulesDeactivatedCount,
+        TelemetryData.QualityProfile::rulesOverriddenCount)
       .containsExactlyInAnyOrder(
         tuple(rootBuiltinProfile.getKee(), null, null, null),
         tuple(childProfile.getKee(), 0, 0, 1));

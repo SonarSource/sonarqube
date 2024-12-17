@@ -30,7 +30,6 @@ import static org.sonar.server.language.LanguageTesting.newLanguage;
 
 public class QProfileReferenceTest {
 
-
   @Test
   public void fromKey_creates_reference_by_key() {
     QProfileReference ref = QProfileReference.fromKey("foo");
@@ -42,7 +41,7 @@ public class QProfileReferenceTest {
   public void getLanguage_throws_ISE_on_reference_by_key() {
     QProfileReference ref = QProfileReference.fromKey("foo");
 
-    assertThatThrownBy(() -> ref.getLanguage())
+    assertThatThrownBy(ref::getLanguage)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Language is not defined. Please call hasKey().");
   }
@@ -51,7 +50,7 @@ public class QProfileReferenceTest {
   public void getName_throws_ISE_on_reference_by_key() {
     QProfileReference ref = QProfileReference.fromKey("foo");
 
-    assertThatThrownBy(() -> ref.getName())
+    assertThatThrownBy(ref::getName)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Name is not defined. Please call hasKey().");
   }
@@ -68,7 +67,7 @@ public class QProfileReferenceTest {
   public void getKey_throws_ISE_on_reference_by_name() {
     QProfileReference ref = QProfileReference.fromName("js", "Sonar way");
 
-    assertThatThrownBy(() -> ref.getKey())
+    assertThatThrownBy(ref::getKey)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Key is not defined. Please call hasKey().");
   }

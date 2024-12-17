@@ -36,8 +36,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.utils.MessageException;
 import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.utils.MessageException;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.updatecenter.common.PluginManifest;
@@ -201,7 +201,7 @@ public class PluginJarLoaderTest {
 
     String dir = getDirName(fs.getInstalledExternalPluginsDir());
 
-    assertThatThrownBy(() -> underTest.loadPlugins())
+    assertThatThrownBy(underTest::loadPlugins)
       .isInstanceOf(MessageException.class)
       .hasMessageContaining("Found a plugin 'plugin1' in the directory '" + dir + "' with the same key [plugin1] as a built-in feature 'plugin1'. "
         + "Please remove '" + new File(dir, jar.getName()) + "'");
@@ -213,7 +213,7 @@ public class PluginJarLoaderTest {
     createJar(fs.getInstalledBundledPluginsDir(), "plugin1", "main", null);
     String dir = getDirName(fs.getDownloadedPluginsDir());
 
-    assertThatThrownBy(() -> underTest.loadPlugins())
+    assertThatThrownBy(underTest::loadPlugins)
       .isInstanceOf(MessageException.class)
       .hasMessage("Fail to update plugin: plugin1. Built-in feature with same key already exists: plugin1. "
         + "Move or delete plugin from " + dir + " directory");
@@ -226,7 +226,7 @@ public class PluginJarLoaderTest {
 
     String dir = getDirName(fs.getInstalledExternalPluginsDir());
 
-    assertThatThrownBy(() -> underTest.loadPlugins())
+    assertThatThrownBy(underTest::loadPlugins)
       .isInstanceOf(MessageException.class)
       .hasMessageContaining("Found two versions of the plugin 'plugin1' [plugin1] in the directory '" + dir + "'. Please remove ")
       .hasMessageContaining(jar2.getName())
@@ -239,7 +239,7 @@ public class PluginJarLoaderTest {
     File jar2 = createJar(fs.getInstalledBundledPluginsDir(), "plugin1", "main", null);
     String dir = getDirName(fs.getInstalledBundledPluginsDir());
 
-    assertThatThrownBy(() -> underTest.loadPlugins())
+    assertThatThrownBy(underTest::loadPlugins)
       .isInstanceOf(MessageException.class)
       .hasMessageContaining("Found two versions of the plugin plugin1 [plugin1] in the directory " + dir + ". Please remove one of ")
       .hasMessageContaining(jar2.getName())
@@ -250,7 +250,7 @@ public class PluginJarLoaderTest {
   public void fail_when_sqale_plugin_is_installed() throws Exception {
     copyTestPluginTo("fake-sqale-plugin", fs.getInstalledExternalPluginsDir());
 
-    assertThatThrownBy(() -> underTest.loadPlugins())
+    assertThatThrownBy(underTest::loadPlugins)
       .isInstanceOf(MessageException.class)
       .hasMessage("The following plugin is no longer compatible with this version of SonarQube: 'sqale'");
   }
@@ -261,7 +261,7 @@ public class PluginJarLoaderTest {
     createJar(fs.getInstalledExternalPluginsDir(), "scmgit", "main", null);
     createJar(fs.getInstalledExternalPluginsDir(), "scmsvn", "main", null);
 
-    assertThatThrownBy(() -> underTest.loadPlugins())
+    assertThatThrownBy(underTest::loadPlugins)
       .isInstanceOf(MessageException.class)
       .hasMessage("The following plugins are no longer compatible with this version of SonarQube: 'scmgit', 'scmsvn', 'sqale'");
   }
@@ -270,7 +270,7 @@ public class PluginJarLoaderTest {
   public void fail_when_report_is_installed() throws Exception {
     copyTestPluginTo("fake-report-plugin", fs.getInstalledExternalPluginsDir());
 
-    assertThatThrownBy(() -> underTest.loadPlugins())
+    assertThatThrownBy(underTest::loadPlugins)
       .isInstanceOf(MessageException.class)
       .hasMessage("The following plugin is no longer compatible with this version of SonarQube: 'report'");
   }
@@ -279,7 +279,7 @@ public class PluginJarLoaderTest {
   public void fail_when_views_is_installed() throws Exception {
     copyTestPluginTo("fake-views-plugin", fs.getInstalledExternalPluginsDir());
 
-    assertThatThrownBy(() -> underTest.loadPlugins())
+    assertThatThrownBy(underTest::loadPlugins)
       .isInstanceOf(MessageException.class)
       .hasMessage("The following plugin is no longer compatible with this version of SonarQube: 'views'");
   }
@@ -289,7 +289,7 @@ public class PluginJarLoaderTest {
     when(sonarRuntime.getApiVersion()).thenReturn(org.sonar.api.utils.Version.parse("1.0"));
     copyTestPluginTo("test-base-plugin", fs.getInstalledExternalPluginsDir());
 
-    assertThatThrownBy(() -> underTest.loadPlugins())
+    assertThatThrownBy(underTest::loadPlugins)
       .hasMessage("Plugin Base Plugin [testbase] requires at least Sonar Plugin API version 4.5.4 (current: 1.0)");
   }
 

@@ -25,9 +25,9 @@ import org.junit.Test;
 import org.sonar.core.platform.ListContainer;
 import org.sonar.server.common.health.DbConnectionNodeCheck;
 import org.sonar.server.common.health.EsStatusNodeCheck;
-import org.sonar.server.health.HealthCheckerImpl;
 import org.sonar.server.common.health.NodeHealthCheck;
 import org.sonar.server.common.health.WebServerSafemodeNodeCheck;
+import org.sonar.server.health.HealthCheckerImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -54,7 +54,7 @@ public class SafeModeHealthCheckerModuleTest {
     underTest.configure(container);
 
     List<Class<?>> checks = container.getAddedObjects().stream()
-      .filter(o -> o instanceof Class)
+      .filter(Class.class::isInstance)
       .map(o -> (Class<?>) o)
       .filter(NodeHealthCheck.class::isAssignableFrom)
       .collect(Collectors.toList());

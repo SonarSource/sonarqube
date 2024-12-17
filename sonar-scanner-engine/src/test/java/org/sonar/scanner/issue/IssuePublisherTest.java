@@ -226,7 +226,7 @@ public class IssuePublisherTest {
 
     ArgumentCaptor<ScannerReport.ExternalIssue> argument = ArgumentCaptor.forClass(ScannerReport.ExternalIssue.class);
     verify(reportPublisher.getWriter()).appendComponentExternalIssue(eq(file.scannerId()), argument.capture());
-    assertThat(argument.getValue().getImpactsList()).extracting(i -> i.getSoftwareQuality(), i -> i.getSeverity())
+    assertThat(argument.getValue().getImpactsList()).extracting(ScannerReport.Impact::getSoftwareQuality, ScannerReport.Impact::getSeverity)
       .containsExactly(tuple(MAINTAINABILITY.name(), org.sonar.api.issue.impact.Severity.LOW.name()));
     assertThat(argument.getValue().getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR.name());
   }

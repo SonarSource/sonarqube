@@ -54,7 +54,7 @@ public class AuthorizationDocTest {
 
   @Test
   public void projectUuidOf_fails_with_NPE_if_argument_is_null() {
-    assertThatThrownBy(() ->  AuthorizationDoc.entityUuidOf(null))
+    assertThatThrownBy(() -> AuthorizationDoc.entityUuidOf(null))
       .isInstanceOf(NullPointerException.class);
   }
 
@@ -85,7 +85,7 @@ public class AuthorizationDocTest {
     IndexType.IndexMainType mainType = IndexType.main(Index.simple("foo"), "bar");
     AuthorizationDoc underTest = AuthorizationDoc.fromDto(mainType, dto);
 
-    assertThatThrownBy(() -> underTest.getId())
+    assertThatThrownBy(underTest::getId)
       .isInstanceOf(NullPointerException.class)
       .hasMessage("entityUuid can't be null");
   }

@@ -44,7 +44,6 @@ import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 @RunWith(DataProviderRunner.class)
 public class NewIndexTest {
 
-
   private static final String SOME_INDEX_NAME = secure().nextAlphabetic(5).toLowerCase();
   private final MapSettings settings = new MapSettings();
   private final SettingsConfiguration defaultSettingsConfiguration = newBuilder(settings.asConfig()).build();
@@ -191,7 +190,7 @@ public class NewIndexTest {
   public void fail_when_nested_with_no_field(NewIndex<?> newIndex, TypeMapping typeMapping) {
     NestedFieldBuilder<TypeMapping> nestedFieldBuilder = typeMapping.nestedFieldBuilder("measures");
 
-    assertThatThrownBy(() -> nestedFieldBuilder.build())
+    assertThatThrownBy(nestedFieldBuilder::build)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("At least one sub-field must be declared in nested property 'measures'");
   }
@@ -307,7 +306,7 @@ public class NewIndexTest {
     SettingsConfiguration settingsConfiguration = newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build();
     IndexMainType mainType = IndexType.main(index, "foo");
 
-    assertThatThrownBy(() ->  new SimplestNewIndex(mainType, settingsConfiguration))
+    assertThatThrownBy(() -> new SimplestNewIndex(mainType, settingsConfiguration))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("The property 'sonar.search.replicas' is not an int value: For input string: \"ꝱꝲꝳପ\"");
   }

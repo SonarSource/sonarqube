@@ -80,7 +80,8 @@ public class CreateActionIT {
   private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
   private final IdentityProviderRepository identityProviderRepository = mock();
   private final UserService userService = new UserService(db.getDbClient(), new AvatarResolverImpl(), managedInstanceService, managedInstanceChecker, mock(UserDeactivator.class),
-    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), new NoOpAuditPersister(), localAuthentication), identityProviderRepository);
+    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), new NoOpAuditPersister(), localAuthentication),
+    identityProviderRepository);
   private final WsActionTester tester = new WsActionTester(new CreateAction(userSessionRule, managedInstanceChecker, userService));
 
   @Before
@@ -305,15 +306,13 @@ public class CreateActionIT {
   public void fail_when_password_is_set_on_none_local_user() {
     logInAsSystemAdministrator();
 
-    TestRequest request =tester.newRequest()
-      .setParam("login","john")
-      .setParam("name","John")
+    TestRequest request = tester.newRequest()
+      .setParam("login", "john")
+      .setParam("name", "John")
       .setParam("password", "1234")
       .setParam("local", "false");
 
-    assertThatThrownBy(() -> {
-      request.execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Password should only be set on local user");
   }

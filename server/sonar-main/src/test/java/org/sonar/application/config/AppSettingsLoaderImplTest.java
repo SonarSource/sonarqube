@@ -113,7 +113,7 @@ public class AppSettingsLoaderImplTest {
     FileUtils.forceMkdir(propsFileAsDir);
     AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(system, new String[0], homeDir, serviceLoaderWrapper);
 
-    assertThatThrownBy(() -> underTest.load())
+    assertThatThrownBy(underTest::load)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Cannot open file " + propsFileAsDir.getAbsolutePath());
   }

@@ -100,7 +100,7 @@ class ActivateRuleActionIT {
       .setParam(PARAM_RULE, RuleTesting.newRule().getKey().toString())
       .setParam(PARAM_KEY, secure().nextAlphanumeric(UUID_SIZE));
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(UnauthorizedException.class);
   }
 
@@ -113,7 +113,7 @@ class ActivateRuleActionIT {
       .setParam(PARAM_RULE, RuleTesting.newRule().getKey().toString())
       .setParam(PARAM_KEY, qualityProfile.getKee());
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class);
   }
 
@@ -128,7 +128,7 @@ class ActivateRuleActionIT {
       .setParam(PARAM_RULE, RuleTesting.newRule().getKey().toString())
       .setParam(PARAM_KEY, qualityProfile.getKee());
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Operation forbidden for built-in Quality Profile 'Xoo profile' with language 'xoo'");
   }
@@ -144,7 +144,7 @@ class ActivateRuleActionIT {
       .setParam(PARAM_RULE, rule.getKey().toString())
       .setParam(PARAM_KEY, qualityProfile.getKee());
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(BadRequestException.class)
       .hasMessage(String.format("Operation forbidden for rule '%s' imported from an external rule engine.", rule.getKey()));
   }
@@ -162,7 +162,7 @@ class ActivateRuleActionIT {
       .setParam(PARAM_SEVERITY, "BLOCKER")
       .setParam(PARAM_IMPACTS, "MAINTAINABILITY=BLOCKER");
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(BadRequestException.class)
       .hasMessage("'severity' and 'impacts' parameters can't be provided both at the same time");
   }
@@ -179,7 +179,7 @@ class ActivateRuleActionIT {
       .setParam(PARAM_KEY, qualityProfile.getKee())
       .setParam(PARAM_IMPACTS, "MAINTAINABILITY=UNKNOWN_SEVERITY");
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Unexpected value for parameter 'impacts': MAINTAINABILITY=UNKNOWN_SEVERITY");
   }
@@ -198,7 +198,7 @@ class ActivateRuleActionIT {
       .setParam(PARAM_KEY, qualityProfile.getKee())
       .setParam(PARAM_IMPACTS, "MAINTAINABILITY=BLOCKER;SECURITY=MEDIUM");
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Only impacts defined on the rule can be overridden. (MAINTAINABILITY)");
   }

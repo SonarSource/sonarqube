@@ -139,18 +139,18 @@ public class SearchActionIT {
     assertThat(ws.newRequest()
       .setParam("q", "user-%_%-")
       .executeProtobuf(SearchWsResponse.class).getUsersList())
-      .extracting(User::getLogin)
-      .containsExactlyInAnyOrder(user.getLogin());
+        .extracting(User::getLogin)
+        .containsExactlyInAnyOrder(user.getLogin());
     assertThat(ws.newRequest()
       .setParam("q", "user@MAIL.com")
       .executeProtobuf(SearchWsResponse.class).getUsersList())
-      .extracting(User::getLogin)
-      .containsExactlyInAnyOrder(user.getLogin());
+        .extracting(User::getLogin)
+        .containsExactlyInAnyOrder(user.getLogin());
     assertThat(ws.newRequest()
       .setParam("q", "user-name")
       .executeProtobuf(SearchWsResponse.class).getUsersList())
-      .extracting(User::getLogin)
-      .containsExactlyInAnyOrder(user.getLogin());
+        .extracting(User::getLogin)
+        .containsExactlyInAnyOrder(user.getLogin());
   }
 
   @Test
@@ -265,14 +265,14 @@ public class SearchActionIT {
     userSession.logIn().setSystemAdministrator();
     assertThat(ws.newRequest()
       .executeProtobuf(SearchWsResponse.class).getUsersList())
-      .extracting(User::getLogin, User::getTokensCount)
-      .containsExactlyInAnyOrder(tuple(user.getLogin(), 2));
+        .extracting(User::getLogin, User::getTokensCount)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), 2));
 
     userSession.logIn();
     assertThat(ws.newRequest()
       .executeProtobuf(SearchWsResponse.class).getUsersList())
-      .extracting(User::getLogin, User::hasTokensCount)
-      .containsExactlyInAnyOrder(tuple(user.getLogin(), false));
+        .extracting(User::getLogin, User::hasTokensCount)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), false));
   }
 
   @Test
@@ -282,14 +282,14 @@ public class SearchActionIT {
     userSession.logIn().setSystemAdministrator();
     assertThat(ws.newRequest()
       .executeProtobuf(SearchWsResponse.class).getUsersList())
-      .extracting(User::getLogin, User::getEmail)
-      .containsExactlyInAnyOrder(tuple(user.getLogin(), user.getEmail()));
+        .extracting(User::getLogin, User::getEmail)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), user.getEmail()));
 
     userSession.logIn();
     assertThat(ws.newRequest()
       .executeProtobuf(SearchWsResponse.class).getUsersList())
-      .extracting(User::getLogin, User::hasEmail)
-      .containsExactlyInAnyOrder(tuple(user.getLogin(), false));
+        .extracting(User::getLogin, User::hasEmail)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), false));
   }
 
   @Test
@@ -317,14 +317,14 @@ public class SearchActionIT {
     userSession.logIn().setSystemAdministrator();
     assertThat(ws.newRequest()
       .executeProtobuf(SearchWsResponse.class).getUsersList())
-      .extracting(User::getLogin, u -> u.getGroups().getGroupsList())
-      .containsExactlyInAnyOrder(tuple(user.getLogin(), asList(group1.getName(), group2.getName())));
+        .extracting(User::getLogin, u -> u.getGroups().getGroupsList())
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), asList(group1.getName(), group2.getName())));
 
     userSession.logIn();
     assertThat(ws.newRequest()
       .executeProtobuf(SearchWsResponse.class).getUsersList())
-      .extracting(User::getLogin, User::hasGroups)
-      .containsExactlyInAnyOrder(tuple(user.getLogin(), false));
+        .extracting(User::getLogin, User::hasGroups)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), false));
   }
 
   @Test
@@ -347,14 +347,14 @@ public class SearchActionIT {
     userSession.logIn().setSystemAdministrator();
     assertThat(ws.newRequest()
       .executeProtobuf(SearchWsResponse.class).getUsersList())
-      .extracting(User::getLogin, User::getExternalIdentity)
-      .containsExactlyInAnyOrder(tuple(user.getLogin(), user.getExternalLogin()));
+        .extracting(User::getLogin, User::getExternalIdentity)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), user.getExternalLogin()));
 
     userSession.logIn();
     assertThat(ws.newRequest()
       .executeProtobuf(SearchWsResponse.class).getUsersList())
-      .extracting(User::getLogin, User::hasExternalIdentity)
-      .containsExactlyInAnyOrder(tuple(user.getLogin(), false));
+        .extracting(User::getLogin, User::hasExternalIdentity)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), false));
   }
 
   @Test
@@ -403,18 +403,18 @@ public class SearchActionIT {
     userSession.logIn(user);
     assertThat(ws.newRequest().setParam("q", user.getLogin())
       .executeProtobuf(SearchWsResponse.class).getUsersList())
-      .extracting(User::getLogin, User::getName, User::getEmail, User::getExternalIdentity, User::getExternalProvider,
-        User::hasScmAccounts, User::hasAvatar, User::hasGroups, User::getTokensCount, User::hasLastConnectionDate, User::hasManaged)
-      .containsExactlyInAnyOrder(
-        tuple(user.getLogin(), user.getName(), user.getEmail(), user.getExternalLogin(), user.getExternalIdentityProvider(), true, true, true, 2, true, true));
+        .extracting(User::getLogin, User::getName, User::getEmail, User::getExternalIdentity, User::getExternalProvider,
+          User::hasScmAccounts, User::hasAvatar, User::hasGroups, User::getTokensCount, User::hasLastConnectionDate, User::hasManaged)
+        .containsExactlyInAnyOrder(
+          tuple(user.getLogin(), user.getName(), user.getEmail(), user.getExternalLogin(), user.getExternalIdentityProvider(), true, true, true, 2, true, true));
 
     userSession.logIn(otherUser);
     assertThat(ws.newRequest().setParam("q", user.getLogin())
       .executeProtobuf(SearchWsResponse.class).getUsersList())
-      .extracting(User::getLogin, User::getName, User::hasEmail, User::hasExternalIdentity, User::hasExternalProvider,
-        User::hasScmAccounts, User::hasAvatar, User::hasGroups, User::hasTokensCount, User::hasLastConnectionDate)
-      .containsExactlyInAnyOrder(
-        tuple(user.getLogin(), user.getName(), false, false, true, true, true, false, false, false));
+        .extracting(User::getLogin, User::getName, User::hasEmail, User::hasExternalIdentity, User::hasExternalProvider,
+          User::hasScmAccounts, User::hasAvatar, User::hasGroups, User::hasTokensCount, User::hasLastConnectionDate)
+        .containsExactlyInAnyOrder(
+          tuple(user.getLogin(), user.getName(), false, false, true, true, true, false, false, false));
   }
 
   @Test
@@ -527,8 +527,8 @@ public class SearchActionIT {
     assertThat(ws.newRequest()
       .setParam("q", "user-%_%-")
       .executeProtobuf(SearchWsResponse.class).getUsersList())
-      .extracting(User::getLogin)
-      .containsExactlyInAnyOrder(user.getLogin());
+        .extracting(User::getLogin)
+        .containsExactlyInAnyOrder(user.getLogin());
 
     assertUserWithFilter(SearchAction.LAST_CONNECTION_DATE_FROM, lastConnection.minus(1, ChronoUnit.DAYS), user.getLogin(), true);
     assertUserWithFilter(SearchAction.LAST_CONNECTION_DATE_FROM, lastConnection.plus(1, ChronoUnit.DAYS), user.getLogin(), false);
@@ -587,14 +587,12 @@ public class SearchActionIT {
   }
 
   private void mockUsersAsManaged(String... userUuids) {
-    when(managedInstanceService.getUserUuidToManaged(any(), any())).thenAnswer(invocation ->
-      {
-        Set<?> allUsersUuids = invocation.getArgument(1, Set.class);
-        return allUsersUuids.stream()
-          .map(userUuid -> (String) userUuid)
-          .collect(toMap(identity(), userUuid -> Set.of(userUuids).contains(userUuid)));
-      }
-    );
+    when(managedInstanceService.getUserUuidToManaged(any(), any())).thenAnswer(invocation -> {
+      Set<?> allUsersUuids = invocation.getArgument(1, Set.class);
+      return allUsersUuids.stream()
+        .map(String.class::cast)
+        .collect(toMap(identity(), userUuid -> Set.of(userUuids).contains(userUuid)));
+    });
   }
 
   @Test

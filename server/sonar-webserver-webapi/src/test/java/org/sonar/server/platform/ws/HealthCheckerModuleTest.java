@@ -30,9 +30,9 @@ import org.sonar.server.common.health.ClusterHealthCheck;
 import org.sonar.server.common.health.DbConnectionNodeCheck;
 import org.sonar.server.common.health.EsStatusClusterCheck;
 import org.sonar.server.common.health.EsStatusNodeCheck;
-import org.sonar.server.health.HealthCheckerImpl;
 import org.sonar.server.common.health.NodeHealthCheck;
 import org.sonar.server.common.health.WebServerStatusNodeCheck;
+import org.sonar.server.health.HealthCheckerImpl;
 import org.sonar.server.platform.NodeInformation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,7 +67,7 @@ public class HealthCheckerModuleTest {
     underTest.configure(container);
 
     List<Class<?>> checks = container.getAddedObjects().stream()
-      .filter(o -> o instanceof Class)
+      .filter(Class.class::isInstance)
       .map(o -> (Class<?>) o)
       .filter(NodeHealthCheck.class::isAssignableFrom).collect(Collectors.toList());
     assertThat(checks).containsOnly(WebServerStatusNodeCheck.class, DbConnectionNodeCheck.class, EsStatusNodeCheck.class, CeStatusNodeCheck.class);
@@ -81,7 +81,7 @@ public class HealthCheckerModuleTest {
     underTest.configure(container);
 
     List<Class<?>> checks = container.getAddedObjects().stream()
-      .filter(o -> o instanceof Class)
+      .filter(Class.class::isInstance)
       .map(o -> (Class<?>) o)
       .filter(NodeHealthCheck.class::isAssignableFrom).collect(Collectors.toList());
     assertThat(checks).containsOnly(WebServerStatusNodeCheck.class, DbConnectionNodeCheck.class, CeStatusNodeCheck.class);

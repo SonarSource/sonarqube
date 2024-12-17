@@ -43,7 +43,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
-import org.sonar.db.newcodeperiod.NewCodePeriodDbTester;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.project.ProjectDto;
@@ -132,8 +131,8 @@ public class SetActionIT {
       .setParam("project", project.getKey())
       .setParam("type", "specific_analysis")
       .execute())
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Invalid type 'SPECIFIC_ANALYSIS'. Projects can only be set with types: [PREVIOUS_VERSION, NUMBER_OF_DAYS, REFERENCE_BRANCH]");
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Invalid type 'SPECIFIC_ANALYSIS'. Projects can only be set with types: [PREVIOUS_VERSION, NUMBER_OF_DAYS, REFERENCE_BRANCH]");
   }
 
   @Test
@@ -146,8 +145,8 @@ public class SetActionIT {
       .setParam("branch", DEFAULT_MAIN_BRANCH_NAME)
       .setParam("type", "number_of_days")
       .execute())
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("New code definition type 'NUMBER_OF_DAYS' requires a value");
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("New code definition type 'NUMBER_OF_DAYS' requires a value");
   }
 
   @Test
@@ -160,8 +159,8 @@ public class SetActionIT {
       .setParam("type", "specific_analysis")
       .setParam("branch", DEFAULT_MAIN_BRANCH_NAME)
       .execute())
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("New code definition type 'SPECIFIC_ANALYSIS' requires a value");
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("New code definition type 'SPECIFIC_ANALYSIS' requires a value");
   }
 
   @Test
@@ -175,8 +174,8 @@ public class SetActionIT {
       .setParam("branch", DEFAULT_MAIN_BRANCH_NAME)
       .setParam("value", "unknown")
       .execute())
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Failed to parse number of days: unknown");
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Failed to parse number of days: unknown");
   }
 
   @Test
@@ -189,8 +188,7 @@ public class SetActionIT {
       .setParam("type", "number_of_days")
       .setParam("branch", DEFAULT_MAIN_BRANCH_NAME)
       .setParam("value", "92");
-    assertThatThrownBy(() -> request
-      .execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Failed to set the New Code Definition. The given value is not compatible with the Clean as You Code methodology. "
         + "Please refer to the documentation for compliant options.");
@@ -221,8 +219,8 @@ public class SetActionIT {
       .setParam("branch", DEFAULT_MAIN_BRANCH_NAME)
       .setParam("value", "unknown")
       .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("Analysis 'unknown' is not found");
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining("Analysis 'unknown' is not found");
   }
 
   @Test
@@ -242,9 +240,9 @@ public class SetActionIT {
       .setParam("branch", DEFAULT_MAIN_BRANCH_NAME)
       .setParam("value", analysisBranch.getUuid())
       .execute())
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Analysis '" + analysisBranch.getUuid() + "' does not belong to branch '" + DEFAULT_MAIN_BRANCH_NAME +
-        "' of project '" + project.getKey() + "'");
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Analysis '" + analysisBranch.getUuid() + "' does not belong to branch '" + DEFAULT_MAIN_BRANCH_NAME +
+          "' of project '" + project.getKey() + "'");
   }
 
   // validation of project/branch
@@ -253,8 +251,8 @@ public class SetActionIT {
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("branch", "branch")
       .execute())
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("If branch key is specified, project key needs to be specified too");
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("If branch key is specified, project key needs to be specified too");
   }
 
   @Test
@@ -263,8 +261,8 @@ public class SetActionIT {
       .setParam("type", "previous_version")
       .setParam("project", "unknown")
       .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("Project 'unknown' not found");
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining("Project 'unknown' not found");
   }
 
   @Test
@@ -277,8 +275,8 @@ public class SetActionIT {
       .setParam("type", "previous_version")
       .setParam("branch", "unknown")
       .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("Branch 'unknown' in project '" + project.getKey() + "' not found");
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining("Branch 'unknown' in project '" + project.getKey() + "' not found");
   }
 
   // permission
@@ -290,8 +288,8 @@ public class SetActionIT {
       .setParam("project", project.getKey())
       .setParam("type", "previous_version")
       .execute())
-      .isInstanceOf(ForbiddenException.class)
-      .hasMessageContaining("Insufficient privileges");
+        .isInstanceOf(ForbiddenException.class)
+        .hasMessageContaining("Insufficient privileges");
   }
 
   @Test
@@ -299,8 +297,8 @@ public class SetActionIT {
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("type", "previous_version")
       .execute())
-      .isInstanceOf(ForbiddenException.class)
-      .hasMessageContaining("Insufficient privileges");
+        .isInstanceOf(ForbiddenException.class)
+        .hasMessageContaining("Insufficient privileges");
   }
 
   // success cases

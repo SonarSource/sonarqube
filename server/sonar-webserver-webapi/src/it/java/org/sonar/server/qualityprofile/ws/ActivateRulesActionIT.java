@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
@@ -136,7 +135,7 @@ class ActivateRulesActionIT {
       .setMethod("POST")
       .setParam(PARAM_TARGET_KEY, secure().nextAlphanumeric(UUID_SIZE));
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(UnauthorizedException.class);
   }
 
@@ -148,7 +147,7 @@ class ActivateRulesActionIT {
       .setMethod("POST")
       .setParam(PARAM_TARGET_KEY, qualityProfile.getKee());
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(BadRequestException.class);
   }
 

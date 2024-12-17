@@ -201,22 +201,22 @@ public class UsersActionIT {
       .setParam(PARAM_GROUP_NAME, group.getName())
       .execute()
       .getInput()).isSimilarTo("""
-      {
-        "users": [
-          {"login": "ada", "name": "Ada Lovelace", "selected": true}
-        ]
-      }""");
+        {
+          "users": [
+            {"login": "ada", "name": "Ada Lovelace", "selected": true}
+          ]
+        }""");
 
     assertJson(newUsersRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(Param.SELECTED, SelectionMode.SELECTED.value())
       .execute()
       .getInput()).isSimilarTo("""
-      {
-        "users": [
-          {"login": "ada", "name": "Ada Lovelace", "selected": true}
-        ]
-      }""");
+        {
+          "users": [
+            {"login": "ada", "name": "Ada Lovelace", "selected": true}
+          ]
+        }""");
   }
 
   @Test
@@ -255,18 +255,18 @@ public class UsersActionIT {
       .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
       .getInput()).isSimilarTo("""
-      {
-        "p": 1,
-        "ps": 1,
-        "total": 2,
-        "paging": {
-          "pageIndex": 1,
-          "pageSize": 1,
-          "total": 2
-        },  "users": [
-          {"login": "ada", "name": "Ada Lovelace", "selected": true}
-        ]
-      }""");
+        {
+          "p": 1,
+          "ps": 1,
+          "total": 2,
+          "paging": {
+            "pageIndex": 1,
+            "pageSize": 1,
+            "total": 2
+          },  "users": [
+            {"login": "ada", "name": "Ada Lovelace", "selected": true}
+          ]
+        }""");
 
     assertJson(newUsersRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
@@ -275,18 +275,18 @@ public class UsersActionIT {
       .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
       .getInput()).isSimilarTo("""
-      {
-        "p": 2,
-        "ps": 1,
-        "total": 2,
-        "paging": {
-          "pageIndex": 2,
-          "pageSize": 1,
-          "total": 2
-        },  "users": [
-          {"login": "grace", "name": "Grace Hopper", "selected": false}
-        ]
-      }""");
+        {
+          "p": 2,
+          "ps": 1,
+          "total": 2,
+          "paging": {
+            "pageIndex": 2,
+            "pageSize": 1,
+            "total": 2
+          },  "users": [
+            {"login": "grace", "name": "Grace Hopper", "selected": false}
+          ]
+        }""");
   }
 
   @Test
@@ -303,58 +303,58 @@ public class UsersActionIT {
       .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
       .getInput()).isSimilarTo("""
-      {
-        "users": [
-          {"login": "ada.login", "name": "Ada Lovelace", "selected": true},
-          {"login": "grace", "name": "Grace Hopper", "selected": false}
-        ]
-      }
-      """);
+        {
+          "users": [
+            {"login": "ada.login", "name": "Ada Lovelace", "selected": true},
+            {"login": "grace", "name": "Grace Hopper", "selected": false}
+          ]
+        }
+        """);
 
     assertJson(newUsersRequest().setParam(PARAM_GROUP_NAME, group.getName())
       .setParam("q", ".logi")
       .execute()
       .getInput()).isSimilarTo("""
-      {
-        "users": [
-          {
-            "login": "ada.login",
-            "name": "Ada Lovelace",
-            "selected": true
-          }
-        ]
-      }
-      """);
+        {
+          "users": [
+            {
+              "login": "ada.login",
+              "name": "Ada Lovelace",
+              "selected": true
+            }
+          ]
+        }
+        """);
 
     assertJson(newUsersRequest().setParam(PARAM_GROUP_NAME, group.getName())
       .setParam("q", "OvE")
       .execute()
       .getInput()).isSimilarTo("""
-      {
-        "users": [
-          {
-            "login": "ada.login",
-            "name": "Ada Lovelace",
-            "selected": true
-          }
-        ]
-      }
-      """);
+        {
+          "users": [
+            {
+              "login": "ada.login",
+              "name": "Ada Lovelace",
+              "selected": true
+            }
+          ]
+        }
+        """);
 
     assertJson(newUsersRequest().setParam(PARAM_GROUP_NAME, group.getName())
       .setParam("q", "mail")
       .execute()
       .getInput()).isSimilarTo("""
-      {
-        "users": [
-          {
-            "login": "ada.login",
-            "name": "Ada Lovelace",
-            "selected": true
-          }
-        ]
-      }
-      """);
+        {
+          "users": [
+            {
+              "login": "ada.login",
+              "name": "Ada Lovelace",
+              "selected": true
+            }
+          ]
+        }
+        """);
   }
 
   @Test
@@ -385,14 +385,12 @@ public class UsersActionIT {
   }
 
   private void mockUsersAsManaged(String... userUuids) {
-    when(managedInstanceService.getUserUuidToManaged(any(), any())).thenAnswer(invocation ->
-      {
-        Set<?> allUsersUuids = invocation.getArgument(1, Set.class);
-        return allUsersUuids.stream()
-          .map(userUuid -> (String) userUuid)
-          .collect(toMap(identity(), userUuid -> Set.of(userUuids).contains(userUuid)));
-      }
-    );
+    when(managedInstanceService.getUserUuidToManaged(any(), any())).thenAnswer(invocation -> {
+      Set<?> allUsersUuids = invocation.getArgument(1, Set.class);
+      return allUsersUuids.stream()
+        .map(String.class::cast)
+        .collect(toMap(identity(), userUuid -> Set.of(userUuids).contains(userUuid)));
+    });
   }
 
 }

@@ -192,7 +192,7 @@ public class WebServiceEngine implements LocalConnector, Startable {
   }
 
   private static boolean isRequestAbortedByClient(Exception exception) {
-    return Throwables.getCausalChain(exception).stream().anyMatch(t -> t instanceof ClientAbortException);
+    return Throwables.getCausalChain(exception).stream().anyMatch(ClientAbortException.class::isInstance);
   }
 
   private static boolean isResponseCommitted(Response response) {

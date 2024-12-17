@@ -113,7 +113,8 @@ public class UserServiceIT {
     settings.asConfig(), new NoOpAuditPersister(), localAuthentication);
 
   private final IdentityProviderRepository identityProviderRepository = mock();
-  private final UserService userService = new UserService(db.getDbClient(), new AvatarResolverImpl(), managedInstanceService, managedInstanceChecker, userDeactivator, userUpdater, identityProviderRepository);
+  private final UserService userService = new UserService(db.getDbClient(), new AvatarResolverImpl(), managedInstanceService, managedInstanceChecker, userDeactivator, userUpdater,
+    identityProviderRepository);
 
   @Before
   public void setUp() {
@@ -844,9 +845,10 @@ public class UserServiceIT {
     assertThat(updatedUser.getExternalId()).isEqualTo("prov_id");
     assertThat(updatedUser.getExternalLogin()).isEqualTo("prov_login");
   }
+
   @DataProvider
   public static Object[][] updateUserProvider() {
-    return new Object[][]{
+    return new Object[][] {
       {new UpdateUser().setName("new name")},
       {new UpdateUser().setEmail("newEmail@test.com")},
       {new UpdateUser().setName("new name").setEmail("newEmail@test.com")}};
@@ -882,14 +884,12 @@ public class UserServiceIT {
   }
 
   private void mockUsersAsManaged(String... userUuids) {
-    when(managedInstanceService.getUserUuidToManaged(any(), any())).thenAnswer(invocation ->
-      {
-        Set<?> allUsersUuids = invocation.getArgument(1, Set.class);
-        return allUsersUuids.stream()
-          .map(userUuid -> (String) userUuid)
-          .collect(toMap(identity(), userUuid -> Set.of(userUuids).contains(userUuid)));
-      }
-    );
+    when(managedInstanceService.getUserUuidToManaged(any(), any())).thenAnswer(invocation -> {
+      Set<?> allUsersUuids = invocation.getArgument(1, Set.class);
+      return allUsersUuids.stream()
+        .map(String.class::cast)
+        .collect(toMap(identity(), userUuid -> Set.of(userUuids).contains(userUuid)));
+    });
   }
 
   private static UsersSearchRequest.Builder getBuilderWithDefaultsPageSize() {

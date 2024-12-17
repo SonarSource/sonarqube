@@ -44,7 +44,6 @@ import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 public class NewRegularIndexTest {
   private static final String SOME_INDEX_NAME = secure().nextAlphabetic(10).toLowerCase(Locale.ENGLISH);
 
-
   private MapSettings settings = new MapSettings();
   private SettingsConfiguration defaultSettingsConfiguration = newBuilder(settings.asConfig()).build();
 
@@ -53,7 +52,7 @@ public class NewRegularIndexTest {
   public void getMainType_fails_with_ISE_if_createTypeMapping_with_IndexMainType_has_not_been_called(Index index) {
     NewRegularIndex newIndex = new NewRegularIndex(index, defaultSettingsConfiguration);
 
-    assertThatThrownBy(() ->  newIndex.getMainType())
+    assertThatThrownBy(newIndex::getMainType)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Main type has not been defined");
   }
@@ -88,7 +87,7 @@ public class NewRegularIndexTest {
 
     assertThatThrownBy(() -> underTest.createTypeMapping(IndexType.relation(IndexType.main(index, "donut"), "bar")))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("main type of relation must be "+ mainType);
+      .hasMessage("main type of relation must be " + mainType);
   }
 
   @Test
@@ -96,7 +95,7 @@ public class NewRegularIndexTest {
   public void build_fails_with_ISE_if_no_mainType_is_defined(Index index) {
     NewRegularIndex underTest = new NewRegularIndex(index, defaultSettingsConfiguration);
 
-    assertThatThrownBy(() -> underTest.build())
+    assertThatThrownBy(underTest::build)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Mapping for main type must be defined");
   }
@@ -115,7 +114,7 @@ public class NewRegularIndexTest {
     NewRegularIndex underTest = new NewRegularIndex(index, defaultSettingsConfiguration);
     underTest.createTypeMapping(IndexType.main(index, "foo"));
 
-    assertThatThrownBy(() -> underTest.build())
+    assertThatThrownBy(underTest::build)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("At least one relation must be defined when index accepts relations");
   }

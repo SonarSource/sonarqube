@@ -72,7 +72,7 @@ public class MarketplaceActionIT {
     userSessionRule.anonymous();
     TestRequest request = ws.newRequest();
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(UnauthorizedException.class)
       .hasMessageContaining("Authentication is required");
   }
@@ -82,7 +82,7 @@ public class MarketplaceActionIT {
     userSessionRule.logIn();
     TestRequest request = ws.newRequest();
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class)
       .hasMessageContaining("Insufficient privileges");
   }

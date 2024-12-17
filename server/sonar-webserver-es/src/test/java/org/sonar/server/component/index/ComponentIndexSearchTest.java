@@ -24,10 +24,10 @@ import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.project.ProjectDto;
@@ -110,7 +110,7 @@ public class ComponentIndexSearchTest {
     List<ProjectData> projects = IntStream.range(0, 9)
       .mapToObj(i -> db.components().insertPrivateProject(p -> p.setName("project " + i)))
       .toList();
-    ProjectDto[] projectDtos = projects.stream().map(p -> p.getProjectDto()).toArray(ProjectDto[]::new);
+    ProjectDto[] projectDtos = projects.stream().map(ProjectData::getProjectDto).toArray(ProjectDto[]::new);
     index(projectDtos);
 
     SearchIdResult<String> result = underTest.search(ComponentQuery.builder().build(), new SearchOptions().setPage(2, 3));

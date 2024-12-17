@@ -92,7 +92,7 @@ public class MapBasedRawMeasureRepositoryTest {
 
   @Test
   public void add_throws_NPE_if_Component_argument_is_null() {
-    assertThatThrownBy(() ->  underTest.add(null, metric1, SOME_MEASURE))
+    assertThatThrownBy(() -> underTest.add(null, metric1, SOME_MEASURE))
       .isInstanceOf(NullPointerException.class);
   }
 
@@ -153,7 +153,7 @@ public class MapBasedRawMeasureRepositoryTest {
   public static Object[][] measures() {
     return MEASURES.stream()
       .map(c -> new Measure[] {c})
-      .toArray(i -> new Object[i][]);
+      .toArray(Object[][]::new);
   }
 
   @Test

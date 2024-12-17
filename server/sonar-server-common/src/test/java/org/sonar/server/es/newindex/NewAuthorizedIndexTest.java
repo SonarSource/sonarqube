@@ -60,7 +60,7 @@ public class NewAuthorizedIndexTest {
   public void build_fails_if_no_relation_mapping_has_been_created() {
     NewAuthorizedIndex underTest = new NewAuthorizedIndex(someIndex, defaultSettingsConfiguration);
 
-    assertThatThrownBy(() -> underTest.build())
+    assertThatThrownBy(underTest::build)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("At least one relation mapping must be defined");
   }

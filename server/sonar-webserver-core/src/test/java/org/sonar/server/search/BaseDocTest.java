@@ -37,7 +37,6 @@ import static org.junit.Assert.fail;
 public class BaseDocTest {
   private final IndexType.IndexMainType someType = IndexType.main(Index.simple("bar"), "donut");
 
-
   @Test
   public void getField() {
     Map<String, Object> fields = new HashMap<>();
@@ -125,7 +124,7 @@ public class BaseDocTest {
 
     };
 
-    assertThatThrownBy(() -> doc.getFields())
+    assertThatThrownBy(doc::getFields)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("parent must be set on a doc associated to a IndexRelationType (see BaseDoc#setParent(String))");
   }

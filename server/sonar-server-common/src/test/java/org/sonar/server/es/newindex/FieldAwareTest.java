@@ -30,17 +30,11 @@ public class FieldAwareTest {
 
   @Test
   public void indexType_is_a_reserved_field_name_whatever_the_case() {
-    Stream<BiConsumer<TestFieldAware, String>> fieldSetters = Stream.of(
-      (testFieldAware, fieldName) -> testFieldAware.createBooleanField(fieldName),
-      (testFieldAware, fieldName) -> testFieldAware.createByteField(fieldName),
-      (testFieldAware, fieldName) -> testFieldAware.createDateTimeField(fieldName),
-      (testFieldAware, fieldName) -> testFieldAware.createDoubleField(fieldName),
-      (testFieldAware, fieldName) -> testFieldAware.createIntegerField(fieldName),
-      (testFieldAware, fieldName) -> testFieldAware.createLongField(fieldName),
+    Stream<BiConsumer<TestFieldAware, String>> fieldSetters = Stream.of(FieldAware::createBooleanField, FieldAware::createByteField, FieldAware::createDateTimeField,
+      FieldAware::createDoubleField, FieldAware::createIntegerField, FieldAware::createLongField,
       (testFieldAware, fieldName) -> testFieldAware.keywordFieldBuilder(fieldName).build(),
       (testFieldAware, fieldName) -> testFieldAware.textFieldBuilder(fieldName).build(),
-      (testFieldAware, fieldName) -> testFieldAware.nestedFieldBuilder(fieldName).addKeywordField("foo").build()
-    );
+      (testFieldAware, fieldName) -> testFieldAware.nestedFieldBuilder(fieldName).addKeywordField("foo").build());
 
     fieldSetters.forEach(c -> {
       TestFieldAware underTest = new TestFieldAware();

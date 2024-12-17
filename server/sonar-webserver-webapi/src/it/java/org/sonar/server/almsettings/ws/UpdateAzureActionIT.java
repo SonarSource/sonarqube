@@ -119,7 +119,7 @@ public class UpdateAzureActionIT {
       .setParam("key", almSettingDto.getKey())
       .setParam("url", AZURE_URL);
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Please provide the Personal Access Token to update the URL.");
   }
@@ -134,8 +134,8 @@ public class UpdateAzureActionIT {
       .setParam("personalAccessToken", "0123456789")
       .setParam("url", AZURE_URL)
       .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("DevOps Platform setting with key 'unknown' cannot be found");
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining("DevOps Platform setting with key 'unknown' cannot be found");
   }
 
   @Test
@@ -151,8 +151,8 @@ public class UpdateAzureActionIT {
       .setParam("personalAccessToken", "0123456789")
       .setParam("url", AZURE_URL)
       .execute())
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining(format("An DevOps Platform setting with key '%s' already exists", almSetting2.getKey()));
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining(format("An DevOps Platform setting with key '%s' already exists", almSetting2.getKey()));
   }
 
   @Test
@@ -166,7 +166,7 @@ public class UpdateAzureActionIT {
       .setParam("newKey", "Azure Server - Infra Team")
       .setParam("personalAccessToken", "0123456789")
       .execute())
-      .isInstanceOf(ForbiddenException.class);
+        .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

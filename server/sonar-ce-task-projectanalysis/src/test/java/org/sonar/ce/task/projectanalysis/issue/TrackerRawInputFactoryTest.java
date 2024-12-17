@@ -209,7 +209,8 @@ class TrackerRawInputFactoryTest {
 
     assertThat(locations.getFlow(0).getLocation(0).getMsg()).isEqualTo("loc1");
     assertThat(locations.getFlow(0).getLocation(0).getMsgFormattingCount()).isEqualTo(1);
-    assertThat(locations.getFlow(0).getLocation(0).getMsgFormatting(0)).extracting(m -> m.getStart(), m -> m.getEnd(), m -> m.getType())
+    assertThat(locations.getFlow(0).getLocation(0).getMsgFormatting(0))
+      .extracting(DbIssues.MessageFormatting::getStart, DbIssues.MessageFormatting::getEnd, DbIssues.MessageFormatting::getType)
       .containsExactly(0, 4, DbIssues.MessageFormattingType.CODE);
 
     assertThat(locations.getFlow(1).hasDescription()).isFalse();
@@ -395,8 +396,7 @@ class TrackerRawInputFactoryTest {
       Arguments.of(IssueType.CODE_SMELL, RuleType.CODE_SMELL, STATUS_OPEN),
       Arguments.of(IssueType.BUG, RuleType.BUG, STATUS_OPEN),
       Arguments.of(IssueType.VULNERABILITY, RuleType.VULNERABILITY, STATUS_OPEN),
-      Arguments.of(IssueType.SECURITY_HOTSPOT, RuleType.SECURITY_HOTSPOT, STATUS_TO_REVIEW)
-    );
+      Arguments.of(IssueType.SECURITY_HOTSPOT, RuleType.SECURITY_HOTSPOT, STATUS_TO_REVIEW));
   }
 
   @ParameterizedTest
@@ -570,7 +570,8 @@ class TrackerRawInputFactoryTest {
   }
 
   private void registerRule(RuleKey ruleKey, String name) {
-    registerRule(ruleKey, name, r -> {});
+    registerRule(ruleKey, name, r -> {
+    });
   }
 
   private void registerRule(RuleKey ruleKey, String name, Consumer<DumbRule> dumbRulePopulator) {

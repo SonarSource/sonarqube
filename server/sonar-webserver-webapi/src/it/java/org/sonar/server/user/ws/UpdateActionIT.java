@@ -266,9 +266,7 @@ public class UpdateActionIT {
 
     TestRequest request = ws.newRequest()
       .setParam("login", USER_LOGIN);
-    assertThatThrownBy(() -> {
-      request.execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage("User 'john' doesn't exist");
   }
@@ -280,9 +278,7 @@ public class UpdateActionIT {
     TestRequest request = ws.newRequest()
       .setParam("login", USER_LOGIN)
       .setParam("email", "invalid-email");
-    assertThatThrownBy(() -> {
-      request.execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Email 'invalid-email' is not valid");
   }

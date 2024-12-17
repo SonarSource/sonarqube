@@ -54,10 +54,10 @@ import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.db.component.ComponentQualifiers.PROJECT;
-import static org.sonar.db.component.ComponentQualifiers.VIEW;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.VIEW;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
@@ -303,7 +303,7 @@ public class ResetActionIT {
       .setParam("keys", "foo")
       .setParam("component", "unknown");
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Component key 'unknown' not found");
   }
@@ -317,7 +317,7 @@ public class ResetActionIT {
     TestRequest request = ws.newRequest()
       .setParam("keys", settingKey)
       .setParam("component", project.getKey());
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage(format("Setting '%s' can only be used in sonar.properties", settingKey));
   }
@@ -392,9 +392,9 @@ public class ResetActionIT {
 
   private void assertUserPropertyExists(String key, UserDto user) {
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-        .setKey(key)
-        .setUserUuid(user.getUuid())
-        .build(),
+      .setKey(key)
+      .setUserUuid(user.getUuid())
+      .build(),
       dbSession)).isNotEmpty();
   }
 

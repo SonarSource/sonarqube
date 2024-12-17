@@ -780,7 +780,7 @@ class PurgeCommandsIT {
 
     purgeCommands.deleteReportSchedules(mainBranch.getUuid());
     assertThat(dbTester.getDbClient().reportScheduleDao().selectAll(dbTester.getSession())).hasSize(1)
-      .extracting(r -> r.getUuid()).containsExactly("uuid2");
+      .extracting(ReportScheduleDto::getUuid).containsExactly("uuid2");
   }
 
   @Test
@@ -799,25 +799,22 @@ class PurgeCommandsIT {
 
     purgeCommands.deleteReportSubscriptions(mainBranch.getUuid());
     assertThat(dbTester.getDbClient().reportSubscriptionDao().selectAll(dbTester.getSession())).hasSize(1)
-      .extracting(r -> r.getUuid()).containsExactly("uuid2");
+      .extracting(ReportSubscriptionDto::getUuid).containsExactly("uuid2");
   }
 
   @Test
   void deleteAnticipatedTransitions_shouldDeleteAnticipatedTransitionsOlderThanDate() {
     ComponentDto projectDto = ComponentTesting.newPrivateProjectDto();
-    //dates at the boundary of the deletion threshold set to 30 days
+    // dates at the boundary of the deletion threshold set to 30 days
     Instant okCreationDate = Instant.now().minus(29, ChronoUnit.DAYS);
     Instant oldCreationDate = Instant.now().minus(31, ChronoUnit.DAYS);
 
-    dbTester.getDbClient().anticipatedTransitionDao().insert(dbTester.getSession(), getAnticipatedTransitionsDto(projectDto.uuid() + "ok"
-      , projectDto.uuid(), okCreationDate));
-    dbTester.getDbClient().anticipatedTransitionDao().insert(dbTester.getSession(), getAnticipatedTransitionsDto(projectDto.uuid() + "old"
-      , projectDto.uuid(), oldCreationDate));
+    dbTester.getDbClient().anticipatedTransitionDao().insert(dbTester.getSession(), getAnticipatedTransitionsDto(projectDto.uuid() + "ok", projectDto.uuid(), okCreationDate));
+    dbTester.getDbClient().anticipatedTransitionDao().insert(dbTester.getSession(), getAnticipatedTransitionsDto(projectDto.uuid() + "old", projectDto.uuid(), oldCreationDate));
 
     underTest.deleteAnticipatedTransitions(projectDto.uuid(), Instant.now().minus(30, ChronoUnit.DAYS).toEpochMilli());
 
-    List<AnticipatedTransitionDto> anticipatedTransitionDtos =
-      dbTester.getDbClient().anticipatedTransitionDao().selectByProjectUuid(dbTester.getSession(), projectDto.uuid());
+    List<AnticipatedTransitionDto> anticipatedTransitionDtos = dbTester.getDbClient().anticipatedTransitionDao().selectByProjectUuid(dbTester.getSession(), projectDto.uuid());
 
     assertThat(anticipatedTransitionDtos).hasSize(1);
     assertThat(anticipatedTransitionDtos.get(0).getUuid()).isEqualTo(projectDto.uuid() + "ok");
@@ -973,13 +970,13 @@ class PurgeCommandsIT {
   }
 
   private static Object[] projects() {
-    return new Object[]{
+    return new Object[] {
       ComponentTesting.newPrivateProjectDto(), ComponentTesting.newPublicProjectDto(),
     };
   }
 
   private static Object[] views() {
-    return new Object[]{
+    return new Object[] {
       ComponentTesting.newPortfolio(), ComponentTesting.newApplication()
     };
   }
