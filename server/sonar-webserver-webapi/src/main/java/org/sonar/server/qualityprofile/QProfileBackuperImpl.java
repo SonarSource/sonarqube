@@ -222,7 +222,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       .setPreventReactivation(true)
       .setType(RuleType.valueOf(r.getType()))
       .setMarkdownDescription(r.getDescription())
-      .setCleanCodeAttribute(CleanCodeAttribute.valueOf(r.getCleanCodeAttribute()))
+      .setCleanCodeAttribute(r.getCleanCodeAttribute() == null ? null : CleanCodeAttribute.valueOf(r.getCleanCodeAttribute()))
       .setParameters(r.getParameters());
   }
 

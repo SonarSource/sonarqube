@@ -232,7 +232,8 @@ public class RuleCreator {
     if (type == RuleType.SECURITY_HOTSPOT.getDbConstant()) {
       ruleDto.setType(type).setSeverity(severity);
     } else {
-      ruleDto.setCleanCodeAttribute(ofNullable(newRule.getCleanCodeAttribute()).orElse(CleanCodeAttribute.CONVENTIONAL));
+      CleanCodeAttribute cleanCodeAttributeFromTemplate = ofNullable(templateRuleDto.getCleanCodeAttribute()).orElse(CleanCodeAttribute.CONVENTIONAL);
+      ruleDto.setCleanCodeAttribute(ofNullable(newRule.getCleanCodeAttribute()).orElse(cleanCodeAttributeFromTemplate));
 
       if (!CollectionUtils.isEmpty(newRule.getImpacts())) {
         newRule.getImpacts().stream()

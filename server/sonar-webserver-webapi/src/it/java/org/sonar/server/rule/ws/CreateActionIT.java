@@ -134,8 +134,8 @@ public class CreateActionIT {
               "type": "STRING"
             }
           ],
-          "cleanCodeAttribute": "CONVENTIONAL",
-          "cleanCodeAttributeCategory": "CONSISTENT",
+          "cleanCodeAttribute": "CLEAR",
+          "cleanCodeAttributeCategory": "INTENTIONAL",
           "impacts": [
             {
               "softwareQuality": "RELIABILITY",

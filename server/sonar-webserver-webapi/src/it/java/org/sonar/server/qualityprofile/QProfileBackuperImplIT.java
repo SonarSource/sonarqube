@@ -474,6 +474,44 @@ class QProfileBackuperImplIT {
   }
 
   @Test
+  void restore_custom_rule_without_clean_code_attribute() {
+    when(ruleCreator.restore(any(), anyList())).then(invocation -> {
+      List<NewCustomRule> newRuleList = invocation.getArgument(1);
+      return newRuleList.stream().map(newRule -> {
+        RuleDto rule = db.rules().insert(newRule.ruleKey())
+                .setCleanCodeAttribute(newRule.getCleanCodeAttribute())
+                .setName(newRule.name());
+        return db.rules().update(rule);
+      }).toList();
+    });
+
+    Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
+            "<profile>" +
+            "<name>custom rule</name>" +
+            "<language>js</language>" +
+            "<rules><rule>" +
+            "<repositoryKey>sonarjs</repositoryKey>" +
+            "<key>s001</key>" +
+            "<type>CODE_SMELL</type>" +
+            "<priority>CRITICAL</priority>" +
+            "<name>custom rule name</name>" +
+            "<templateKey>rule_mc8</templateKey>" +
+            "<description>custom rule description</description>" +
+            "<parameters><parameter>" +
+            "<key>bar</key>" +
+            "<value>baz</value>" +
+            "</parameter>" +
+            "</parameters>" +
+            "</rule></rules></profile>");
+
+    underTest.restore(db.getSession(), backup, (String) null);
+
+    assertThat(reset.calledActivations).hasSize(1);
+    RuleDto rule = db.getDbClient().ruleDao().selectByKey( db.getSession(), RuleKey.of("sonarjs", "s001")).get();
+    assertThat(rule.getCleanCodeAttribute()).isNull();
+  }
+
+  @Test
   void restore_skips_rule_without_template_key_and_db_definition() {
     String ruleUuid = db.rules().insert(RuleKey.of("sonarjs", "s001")).getUuid();
     Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
