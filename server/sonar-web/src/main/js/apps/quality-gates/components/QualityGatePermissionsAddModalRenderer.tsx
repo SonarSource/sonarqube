@@ -25,6 +25,7 @@ import { translate } from '../../../helpers/l10n';
 import { Group as UserGroup, isUser } from '../../../types/quality-gates';
 import { UserBase } from '../../../types/users';
 import { QGPermissionOption } from '../utils';
+import './QualityGatePermissionsAddModalRender.css';
 
 export interface QualityGatePermissionsAddModalRendererProps {
   handleSearch: (q: string) => void;
