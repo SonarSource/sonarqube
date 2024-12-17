@@ -40,6 +40,7 @@ public class DbVersion202501 implements DbVersion {
         MigrateConfidentialHeaderProperty.class)
       .add(2025_01_001, "Delete removed complexity measures from 'project_measures' table", DeleteRemovedComplexityMeasuresFromProjectMeasures.class)
       .add(2025_01_002, "Delete removed complexity metrics from 'metrics' table", DeleteRemovedComplexityMetrics.class)
+      .add(2025_01_003, "Create index on 'rule_tags' table", CreateIndexOnRuleTagsTable.class)
     ;
   }
 }
