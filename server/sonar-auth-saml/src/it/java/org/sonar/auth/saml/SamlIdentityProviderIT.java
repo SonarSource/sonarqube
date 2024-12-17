@@ -72,7 +72,7 @@ public class SamlIdentityProviderIT {
   public LogTester log = new LogTester();
 
   private final MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, SamlSettings.definitions()));
-  private final SamlIdentityProvider underTest = new SamlIdentityProvider(new SamlSettings(settings.asConfig()), new SamlMessageIdChecker(db.getDbClient()));
+  private final SamlIdentityProvider underTest = new SamlIdentityProvider(new SamlSettings(settings.asConfig()), null);  //TODO pass a real authenticator
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private HttpServletRequest request = mock(HttpServletRequest.class);
 

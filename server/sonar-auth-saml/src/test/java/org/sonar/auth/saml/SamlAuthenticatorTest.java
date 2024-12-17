@@ -41,7 +41,7 @@ public class SamlAuthenticatorTest {
 
   private SamlSettings samlSettings = new SamlSettings(settings.asConfig());
 
-  private final SamlAuthenticator underTest = new SamlAuthenticator(samlSettings, mock(SamlMessageIdChecker.class));
+  private final SamlAuthenticator underTest = new SamlAuthenticator(samlSettings, mock(SamlMessageIdChecker.class), null, null, null); //TODO
 
   @Test
   public void authentication_status_with_errors_returned_when_init_fails() {

@@ -19,7 +19,6 @@
  */
 package org.sonar.auth.saml;
 
-import com.onelogin.saml2.Auth;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -28,10 +27,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 
 import static org.sonar.auth.saml.SamlSettings.GROUP_NAME_ATTRIBUTE;
 import static org.sonar.auth.saml.SamlSettings.USER_EMAIL_ATTRIBUTE;
@@ -46,30 +46,24 @@ public final class SamlStatusChecker {
     throw new IllegalStateException("This Utility class cannot be instantiated");
   }
 
-  public static SamlAuthenticationStatus getSamlAuthenticationStatus(String samlResponse, Auth auth, SamlSettings samlSettings) {
+  public static SamlAuthenticationStatus getSamlAuthenticationStatus(String samlResponse, Saml2AuthenticatedPrincipal principal, SamlSettings samlSettings) {
 
     SamlAuthenticationStatus samlAuthenticationStatus = new SamlAuthenticationStatus();
 
-    try {
-      auth.processResponse();
-    } catch (Exception e) {
-      samlAuthenticationStatus.getErrors().add(e.getMessage());
-    }
+    Map<String, List<String>> attributes = principal.getAttributes().entrySet().stream()
+      .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().stream().map(Objects::toString).collect(Collectors.toList())));
 
-    samlAuthenticationStatus.getErrors().addAll(auth.getErrors().stream().filter(Objects::nonNull).toList());
-    if (auth.getLastErrorReason() != null) {
-      samlAuthenticationStatus.getErrors().add(auth.getLastErrorReason());
-    }
     if (samlAuthenticationStatus.getErrors().isEmpty()) {
-      samlAuthenticationStatus.getErrors().addAll(generateMappingErrors(auth, samlSettings));
+      samlAuthenticationStatus.getErrors().addAll(generateMappingErrors(principal, samlSettings));
     }
-    samlAuthenticationStatus.setAvailableAttributes(auth.getAttributes());
-    samlAuthenticationStatus.setMappedAttributes(getAttributesMapping(auth, samlSettings));
+    samlAuthenticationStatus.setAvailableAttributes(attributes);
 
-    samlAuthenticationStatus.setSignatureEnabled(isSignatureEnabled(auth, samlSettings));
-    samlAuthenticationStatus.setEncryptionEnabled(isEncryptionEnabled(auth, samlResponse));
+    samlAuthenticationStatus.setMappedAttributes(getAttributesMapping(principal, samlSettings));
 
-    samlAuthenticationStatus.setWarnings(samlAuthenticationStatus.getErrors().isEmpty() ? generateWarnings(auth, samlSettings) : new ArrayList<>());
+    samlAuthenticationStatus.setSignatureEnabled(isSignatureEnabled(samlSettings));
+    samlAuthenticationStatus.setEncryptionEnabled(isEncryptionEnabled(samlResponse));
+
+    samlAuthenticationStatus.setWarnings(samlAuthenticationStatus.getErrors().isEmpty() ? generateMappingWarnings(principal, samlSettings) : new ArrayList<>());
     samlAuthenticationStatus.setStatus(samlAuthenticationStatus.getErrors().isEmpty() ? "success" : "error");
 
     return samlAuthenticationStatus;
@@ -84,80 +78,67 @@ public final class SamlStatusChecker {
     return samlAuthenticationStatus;
   }
 
-  private static Map<String, Collection<String>> getAttributesMapping(Auth auth, SamlSettings samlSettings) {
+  private static Map<String, Collection<String>> getAttributesMapping(Saml2AuthenticatedPrincipal saml2AuthenticatedPrincipal, SamlSettings samlSettings) {
     Map<String, Collection<String>> attributesMapping = new HashMap<>();
 
-    attributesMapping.put("User login value", auth.getAttribute(samlSettings.getUserLogin()));
-    attributesMapping.put("User name value", auth.getAttribute(samlSettings.getUserName()));
+    attributesMapping.put("User login value", saml2AuthenticatedPrincipal.getAttribute(samlSettings.getUserLogin()));
+    attributesMapping.put("User name value", saml2AuthenticatedPrincipal.getAttribute(samlSettings.getUserName()));
 
-    samlSettings.getUserEmail().ifPresent(emailFieldName -> attributesMapping.put("User email value", auth.getAttribute(emailFieldName)));
+    samlSettings.getUserEmail().ifPresent(emailFieldName -> attributesMapping.put("User email value", saml2AuthenticatedPrincipal.getAttribute(emailFieldName)));
 
-    samlSettings.getGroupName().ifPresent(groupFieldName -> attributesMapping.put("Groups value", auth.getAttribute(groupFieldName)));
+    samlSettings.getGroupName().ifPresent(groupFieldName -> attributesMapping.put("Groups value", saml2AuthenticatedPrincipal.getAttribute(groupFieldName)));
 
     return attributesMapping;
   }
 
-  private static List<String> generateWarnings(Auth auth, SamlSettings samlSettings) {
-    List<String> warnings = new ArrayList<>(generateMappingWarnings(auth, samlSettings));
-    generatePrivateKeyWarning(auth, samlSettings).ifPresent(warnings::add);
-    return warnings;
-  }
-
-  private static List<String> generateMappingWarnings(Auth auth, SamlSettings samlSettings) {
+  private static List<String> generateMappingWarnings(Saml2AuthenticatedPrincipal principal, SamlSettings samlSettings) {
     Map<String, String> mappings = Map.of(
       USER_EMAIL_ATTRIBUTE, samlSettings.getUserEmail().orElse(""),
       GROUP_NAME_ATTRIBUTE, samlSettings.getGroupName().orElse(""));
 
-    return generateMissingMappingMessages(mappings, auth);
+    return generateMissingMappingMessages(mappings, principal);
   }
 
-  private static Optional<String> generatePrivateKeyWarning(Auth auth, SamlSettings samlSettings) {
-    if (samlSettings.getServiceProviderPrivateKey().isPresent() && auth.getSettings().getSPkey() == null) {
-      return Optional.of("Error in parsing service provider private key, please make sure that it is in PKCS 8 format.");
-    }
-    return Optional.empty();
-  }
-
-  private static List<String> generateMappingErrors(Auth auth, SamlSettings samlSettings) {
+  private static List<String> generateMappingErrors(Saml2AuthenticatedPrincipal principal, SamlSettings samlSettings) {
     Map<String, String> mappings = Map.of(
       USER_NAME_ATTRIBUTE, samlSettings.getUserName(),
       USER_LOGIN_ATTRIBUTE, samlSettings.getUserLogin());
 
-    List<String> mappingErrors = generateMissingMappingMessages(mappings, auth);
+    List<String> mappingErrors = generateMissingMappingMessages(mappings, principal);
     if (mappingErrors.isEmpty()) {
-      mappingErrors = generateEmptyMappingsMessages(mappings, auth);
+      mappingErrors = generateEmptyMappingsMessages(mappings, principal);
     }
 
     return mappingErrors;
   }
 
-  private static List<String> generateMissingMappingMessages(Map<String, String> mappings, Auth auth) {
+  private static List<String> generateMissingMappingMessages( Map<String, String> mappings, Saml2AuthenticatedPrincipal principal) {
     return mappings.entrySet()
       .stream()
-      .filter(entry -> !entry.getValue().isEmpty() && (auth.getAttribute(entry.getValue()) == null || auth.getAttribute(entry.getValue()).isEmpty()))
+      .filter(entry -> !entry.getValue().isEmpty() && (principal.getAttribute(entry.getValue()) == null || principal.getAttribute(entry.getValue()).isEmpty()))
       .map(entry -> String.format("Mapping not found for the property %s, the field %s is not available in the SAML response.", entry.getKey(), entry.getValue()))
       .toList();
   }
 
-  private static List<String> generateEmptyMappingsMessages(Map<String, String> mappings, Auth auth) {
+  private static List<String> generateEmptyMappingsMessages(Map<String, String> mappings, Saml2AuthenticatedPrincipal principal) {
     return mappings.entrySet()
       .stream()
-      .filter(entry -> (auth.getAttribute(entry.getValue()).size() == 1 && auth.getAttribute(entry.getValue()).contains("")))
+      .filter(entry -> (principal.getAttribute(entry.getValue()).size() == 1 && principal.getAttribute(entry.getValue()).contains("")))
       .map(entry -> String.format("Mapping found for the property %s, but the field %s is empty in the SAML response.", entry.getKey(), entry.getValue()))
       .toList();
   }
 
-  private static boolean isSignatureEnabled(Auth auth, SamlSettings samlSettings) {
-    return auth.isAuthenticated() && samlSettings.isSignRequestsEnabled();
+  private static boolean isSignatureEnabled(SamlSettings samlSettings) {
+    return samlSettings.isSignRequestsEnabled();
   }
 
-  private static boolean isEncryptionEnabled(Auth auth, @Nullable String samlResponse) {
+  private static boolean isEncryptionEnabled(@Nullable String samlResponse) {
     if (samlResponse != null) {
       byte[] decoded = Base64.getDecoder().decode(samlResponse);
       String decodedResponse = new String(decoded, StandardCharsets.UTF_8);
       Matcher matcher = encryptedAssertionPattern.matcher(decodedResponse);
       //We assume that the presence of an encrypted assertion means that the response is encrypted
-      return matcher.find() && auth.isAuthenticated();
+      return matcher.find();
     }
     return false;
   }

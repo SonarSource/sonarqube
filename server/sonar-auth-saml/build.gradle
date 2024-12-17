@@ -18,12 +18,14 @@ dependencies {
     compileOnlyApi project(':sonar-core')
 
     implementation 'javax.servlet:javax.servlet-api:4.0.1'
+    implementation 'org.springframework.security:spring-security-saml2-service-provider'
 
     testImplementation 'com.tngtech.java:junit-dataprovider'
     testImplementation 'junit:junit'
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
     testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
     testImplementation testFixtures(project(':server:sonar-db-dao'))
 

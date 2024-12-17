@@ -19,28 +19,21 @@
  */
 package org.sonar.auth.saml;
 
-import java.util.List;
-import org.sonar.api.config.PropertyDefinition;
-import org.sonar.core.platform.Module;
+import javax.annotation.Nullable;
+import org.sonar.api.server.ServerSide;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 
-public class SamlModule extends Module {
+@ServerSide
+public class RelyingPartyRegistrationRepositoryProvider {
 
-  @Override
-  protected void configureModule() {
-    add(
-      PrincipalToUserIdentityConverter.class,
-      RelyingPartyRegistrationRepositoryProvider.class,
-      SamlAuthenticator.class,
-      SamlConfiguration.class,
-      SamlIdentityProvider.class,
-      SamlMessageIdChecker.class,
-      SamlResponseAuthenticator.class,
-      SamlSettings.class,
-      RedirectToUrlProvider.class,
-      SonarqubeSaml2ResponseValidator.class
-    );
-    List<PropertyDefinition> definitions = SamlSettings.definitions();
-    add(definitions.toArray(new Object[definitions.size()]));
+  private final SamlSettings samlSettings;
+
+  public RelyingPartyRegistrationRepositoryProvider(SamlSettings samlSettings) {
+    this.samlSettings = samlSettings;
+  }
+
+  RelyingPartyRegistrationRepository provide(@Nullable String callbackUrl) {
+    return new SonarqubeRelyingPartyRegistrationRepository(samlSettings, callbackUrl);
   }
 
 }

@@ -37,12 +37,12 @@ public class SamlIdentityProvider implements OAuth2IdentityProvider {
 
   public static final String RSA_SHA_256_URL = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
 
+  private final SamlAuthenticator samlAuthenticator;
   private final SamlSettings samlSettings;
-  private final SamlMessageIdChecker samlMessageIdChecker;
 
-  public SamlIdentityProvider(SamlSettings samlSettings, SamlMessageIdChecker samlMessageIdChecker) {
+  public SamlIdentityProvider(SamlSettings samlSettings, SamlAuthenticator samlAuthenticator) {
     this.samlSettings = samlSettings;
-    this.samlMessageIdChecker = samlMessageIdChecker;
+    this.samlAuthenticator = samlAuthenticator;
   }
 
   @Override
@@ -75,7 +75,6 @@ public class SamlIdentityProvider implements OAuth2IdentityProvider {
 
   @Override
   public void init(InitContext context) {
-    SamlAuthenticator samlAuthenticator = new SamlAuthenticator(samlSettings, samlMessageIdChecker);
     samlAuthenticator.initLogin(context.getCallbackUrl(), context.generateCsrfState(),
       context.getHttpRequest(), context.getHttpResponse());
   }
@@ -91,8 +90,7 @@ public class SamlIdentityProvider implements OAuth2IdentityProvider {
     //
     HttpRequest processedRequest = useProxyHeadersInRequest(context.getHttpRequest());
 
-    SamlAuthenticator samlAuthenticator = new SamlAuthenticator(samlSettings, samlMessageIdChecker);
-    UserIdentity userIdentity = samlAuthenticator.buildUserIdentity(context, processedRequest);
+    UserIdentity userIdentity = samlAuthenticator.onCallback(context, processedRequest);
     context.authenticate(userIdentity);
     context.redirectToRequestedPage();
 
