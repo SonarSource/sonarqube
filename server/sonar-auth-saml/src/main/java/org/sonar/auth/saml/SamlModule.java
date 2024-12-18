@@ -29,8 +29,10 @@ public class SamlModule extends Module {
   protected void configureModule() {
     add(
       PrincipalToUserIdentityConverter.class,
+      RedirectToUrlProvider.class,
       RelyingPartyRegistrationRepositoryProvider.class,
       SamlAuthenticator.class,
+      SamlAuthStatusPageGenerator.class,
       SamlConfiguration.class,
       SamlCertificateConverter.class,
       SamlIdentityProvider.class,
@@ -38,7 +40,7 @@ public class SamlModule extends Module {
       SamlPrivateKeyConverter.class,
       SamlResponseAuthenticator.class,
       SamlSettings.class,
-      RedirectToUrlProvider.class,
+      SamlStatusChecker.class,
       SonarqubeSaml2ResponseValidator.class
     );
     List<PropertyDefinition> definitions = SamlSettings.definitions();

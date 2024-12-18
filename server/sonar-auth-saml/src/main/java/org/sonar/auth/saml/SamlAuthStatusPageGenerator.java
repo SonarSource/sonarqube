@@ -26,19 +26,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 import org.json.JSONObject;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.http.HttpRequest;
 
-public final class SamlAuthStatusPageGenerator {
+@ServerSide
+final class SamlAuthStatusPageGenerator {
 
   private static final String WEB_CONTEXT = "WEB_CONTEXT";
   private static final String SAML_AUTHENTICATION_STATUS = "%SAML_AUTHENTICATION_STATUS%";
   private static final String HTML_TEMPLATE_NAME = "samlAuthResult.html";
 
-  private SamlAuthStatusPageGenerator() {
-    throw new IllegalStateException("This Utility class cannot be instantiated");
-  }
-
-  public static String getSamlAuthStatusHtml(HttpRequest request, SamlAuthenticationStatus samlAuthenticationStatus) {
+  public String getSamlAuthStatusHtml(HttpRequest request, SamlAuthenticationStatus samlAuthenticationStatus) {
     Map<String, String> substitutionsMap = getSubstitutionsMap(request, samlAuthenticationStatus);
     String htmlTemplate = getPlainTemplate();
 

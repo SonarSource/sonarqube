@@ -31,6 +31,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ServerSide;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 
 import static org.sonar.auth.saml.SamlSettings.GROUP_NAME_ATTRIBUTE;
@@ -38,15 +39,17 @@ import static org.sonar.auth.saml.SamlSettings.USER_EMAIL_ATTRIBUTE;
 import static org.sonar.auth.saml.SamlSettings.USER_LOGIN_ATTRIBUTE;
 import static org.sonar.auth.saml.SamlSettings.USER_NAME_ATTRIBUTE;
 
-public final class SamlStatusChecker {
+@ServerSide
+final class SamlStatusChecker {
+  private final SamlSettings samlSettings;
 
   private static final Pattern encryptedAssertionPattern = Pattern.compile("<saml:EncryptedAssertion|<EncryptedAssertion");
 
-  private SamlStatusChecker() {
-    throw new IllegalStateException("This Utility class cannot be instantiated");
+  SamlStatusChecker(SamlSettings samlSettings) {
+    this.samlSettings = samlSettings;
   }
 
-  public static SamlAuthenticationStatus getSamlAuthenticationStatus(String samlResponse, Saml2AuthenticatedPrincipal principal, SamlSettings samlSettings) {
+  public SamlAuthenticationStatus getSamlAuthenticationStatus(String samlResponse, Saml2AuthenticatedPrincipal principal) {
 
     SamlAuthenticationStatus samlAuthenticationStatus = new SamlAuthenticationStatus();
 
@@ -70,7 +73,7 @@ public final class SamlStatusChecker {
 
   }
 
-  public static SamlAuthenticationStatus getSamlAuthenticationStatus(String errorMessage) {
+  public SamlAuthenticationStatus getSamlAuthenticationStatus(String errorMessage) {
     SamlAuthenticationStatus samlAuthenticationStatus = new SamlAuthenticationStatus();
     samlAuthenticationStatus.getErrors().add(errorMessage);
     samlAuthenticationStatus.setStatus("error");

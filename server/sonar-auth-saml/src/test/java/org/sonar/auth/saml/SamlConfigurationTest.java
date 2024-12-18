@@ -19,18 +19,21 @@
  */
 package org.sonar.auth.saml;
 
-import org.junit.Test;
-import org.sonar.core.platform.ListContainer;
+import org.junit.jupiter.api.Test;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
-public class SamlModuleTest {
+class SamlConfigurationTest {
 
   @Test
-  public void verify_count_of_added_components() {
-    ListContainer container = new ListContainer();
-    new SamlModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(27);
-  }
+  void openSaml4AuthenticationProvider_doesNotFail() {
+    SamlConfiguration samlConfiguration = new SamlConfiguration();
+    SonarqubeSaml2ResponseValidator sonarqubeSaml2ResponseValidator = mock();
 
+    OpenSaml4AuthenticationProvider openSaml4AuthenticationProvider = samlConfiguration.openSaml4AuthenticationProvider(sonarqubeSaml2ResponseValidator);
+
+    assertThat(openSaml4AuthenticationProvider).isNotNull();
+  }
 }

@@ -39,7 +39,6 @@ import static org.sonar.auth.saml.SamlSettings.GROUP_NAME_ATTRIBUTE;
 import static org.sonar.auth.saml.SamlSettings.USER_EMAIL_ATTRIBUTE;
 import static org.sonar.auth.saml.SamlSettings.USER_LOGIN_ATTRIBUTE;
 import static org.sonar.auth.saml.SamlSettings.USER_NAME_ATTRIBUTE;
-import static org.sonar.auth.saml.SamlStatusChecker.getSamlAuthenticationStatus;
 
 public class SamlStatusCheckerTest {
 
@@ -73,7 +72,7 @@ public class SamlStatusCheckerTest {
 
   @Test
   public void authentication_status_has_errors_when_no_idp_certificate_is_provided() {
-    samlAuthenticationStatus = getSamlAuthenticationStatus("error message");
+    samlAuthenticationStatus = new SamlStatusChecker(null).getSamlAuthenticationStatus("error message");
 
     assertThat(samlAuthenticationStatus.getStatus()).isEqualTo("error");
     assertThat(samlAuthenticationStatus.getErrors()).containsExactly("error message");
@@ -84,7 +83,7 @@ public class SamlStatusCheckerTest {
     setSettings();
     Saml2AuthenticatedPrincipal principal = PRINCIPAL_WITH_ALL_ATTRIBUTES;
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, principal, new SamlSettings(settings.asConfig()));
+    samlAuthenticationStatus = new SamlStatusChecker(new SamlSettings(settings.asConfig())).getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, principal);
 
     assertThat("success").isEqualTo(samlAuthenticationStatus.getStatus());
     assertThat(samlAuthenticationStatus.getErrors()).isEmpty();
@@ -114,7 +113,7 @@ public class SamlStatusCheckerTest {
     Saml2AuthenticationException saml2AuthenticationException = new Saml2AuthenticationException(
       new Saml2Error("Error in Authentication", "Authentication failed due to a missing parameter."));
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(saml2AuthenticationException.getMessage());
+    samlAuthenticationStatus = new SamlStatusChecker(new SamlSettings(settings.asConfig())).getSamlAuthenticationStatus(saml2AuthenticationException.getMessage());
 
     assertThat("error").isEqualTo(samlAuthenticationStatus.getStatus());
     assertThat(samlAuthenticationStatus.getErrors()).containsExactly("Authentication failed due to a missing parameter.");
@@ -127,7 +126,7 @@ public class SamlStatusCheckerTest {
     settings.setProperty(USER_EMAIL_ATTRIBUTE, "wrongEmailField");
     settings.setProperty("sonar.auth.saml.sp.privateKey.secured", (String) null);
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES, new SamlSettings(settings.asConfig()));
+    samlAuthenticationStatus = new SamlStatusChecker(new SamlSettings(settings.asConfig())).getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES);
 
     assertThat("success").isEqualTo(samlAuthenticationStatus.getStatus());
 
@@ -144,7 +143,7 @@ public class SamlStatusCheckerTest {
     settings.setProperty(USER_LOGIN_ATTRIBUTE, "wrongLoginField");
     settings.setProperty(USER_NAME_ATTRIBUTE, "wrongNameField");
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES, new SamlSettings(settings.asConfig()));
+    samlAuthenticationStatus = new SamlStatusChecker(new SamlSettings(settings.asConfig())).getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES);
 
     assertThat("error").isEqualTo(samlAuthenticationStatus.getStatus());
     assertThat(samlAuthenticationStatus.getWarnings()).isEmpty();
@@ -159,7 +158,7 @@ public class SamlStatusCheckerTest {
     setSettings();
     Saml2AuthenticatedPrincipal principal = buildPrincipal("", "", List.of("user@sonar.com"), List.of("group1", "group2"));
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, principal, new SamlSettings(settings.asConfig()));
+    samlAuthenticationStatus = new SamlStatusChecker(new SamlSettings(settings.asConfig())).getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, principal);
 
     assertThat("error").isEqualTo(samlAuthenticationStatus.getStatus());
     assertThat(samlAuthenticationStatus.getWarnings()).isEmpty();
@@ -177,7 +176,7 @@ public class SamlStatusCheckerTest {
     settings.setProperty(GROUP_NAME_ATTRIBUTE, (String) null);
 
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES, new SamlSettings(settings.asConfig()));
+    samlAuthenticationStatus = new SamlStatusChecker(new SamlSettings(settings.asConfig())).getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES);
 
     assertThat("success").isEqualTo(samlAuthenticationStatus.getStatus());
     assertThat(samlAuthenticationStatus.getErrors()).isEmpty();
@@ -189,7 +188,7 @@ public class SamlStatusCheckerTest {
     setSettings();
     settings.setProperty("sonar.auth.saml.sp.privateKey.secured", (String) null);
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES, new SamlSettings(settings.asConfig()));
+    samlAuthenticationStatus = new SamlStatusChecker(new SamlSettings(settings.asConfig())).getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES);
 
     assertThat("success").isEqualTo(samlAuthenticationStatus.getStatus());
     assertThat(samlAuthenticationStatus.getErrors()).isEmpty();
@@ -203,7 +202,7 @@ public class SamlStatusCheckerTest {
     setSettings();
     settings.setProperty("sonar.auth.saml.signature.enabled", true);
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES, new SamlSettings(settings.asConfig()));
+    samlAuthenticationStatus = new SamlStatusChecker(new SamlSettings(settings.asConfig())).getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES);
 
     assertThat(samlAuthenticationStatus.isSignatureEnabled()).isTrue();
   }
@@ -213,7 +212,7 @@ public class SamlStatusCheckerTest {
     setSettings();
     settings.setProperty("sonar.auth.saml.signature.enabled", false);
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES, new SamlSettings(settings.asConfig()));
+    samlAuthenticationStatus = new SamlStatusChecker(new SamlSettings(settings.asConfig())).getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES);
 
     assertThat(samlAuthenticationStatus.isSignatureEnabled()).isFalse();
   }
@@ -222,7 +221,7 @@ public class SamlStatusCheckerTest {
   public void givenEncryptionEnabled_whenUserIsAuthenticated_thenSamlStatusReportsItEnabled() {
     setSettings();
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_ENCRYPTED_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES, new SamlSettings(settings.asConfig()));
+    samlAuthenticationStatus = new SamlStatusChecker(new SamlSettings(settings.asConfig())).getSamlAuthenticationStatus(BASE64_ENCRYPTED_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES);
 
     assertThat(samlAuthenticationStatus.isEncryptionEnabled()).isTrue();
   }
@@ -231,7 +230,7 @@ public class SamlStatusCheckerTest {
   public void givenEncryptionDisabled_whenUserIsAuthenticated_thenSamlStatusReportsItDisabled() {
     setSettings();
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES, new SamlSettings(settings.asConfig()));
+    samlAuthenticationStatus = new SamlStatusChecker(new SamlSettings(settings.asConfig())).getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES);
 
     assertThat(samlAuthenticationStatus.isEncryptionEnabled()).isFalse();
   }
@@ -241,7 +240,7 @@ public class SamlStatusCheckerTest {
     setSettings();
     settings.setProperty("sonar.auth.saml.signature.enabled", true);
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus("error");
+    samlAuthenticationStatus = new SamlStatusChecker(new SamlSettings(settings.asConfig())).getSamlAuthenticationStatus("error");
 
     assertThat(samlAuthenticationStatus.isEncryptionEnabled()).isFalse();
     assertThat(samlAuthenticationStatus.isSignatureEnabled()).isFalse();
@@ -251,7 +250,7 @@ public class SamlStatusCheckerTest {
   public void whenSamlResponseIsNull_thenEncryptionIsReportedDisabled() {
     setSettings();
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(null, PRINCIPAL_WITH_ALL_ATTRIBUTES, new SamlSettings(settings.asConfig()));
+    samlAuthenticationStatus = new SamlStatusChecker(new SamlSettings(settings.asConfig())).getSamlAuthenticationStatus(null, PRINCIPAL_WITH_ALL_ATTRIBUTES);
 
     assertThat(samlAuthenticationStatus.isEncryptionEnabled()).isFalse();
   }

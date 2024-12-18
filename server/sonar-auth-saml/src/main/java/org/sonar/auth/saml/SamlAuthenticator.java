@@ -20,6 +20,7 @@
 package org.sonar.auth.saml;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ServerSide;
@@ -30,9 +31,6 @@ import org.sonar.api.server.http.HttpResponse;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 
-import static org.sonar.auth.saml.SamlAuthStatusPageGenerator.getSamlAuthStatusHtml;
-import static org.sonar.auth.saml.SamlStatusChecker.getSamlAuthenticationStatus;
-
 @ServerSide
 public class SamlAuthenticator {
 
@@ -40,17 +38,20 @@ public class SamlAuthenticator {
 
   private static final String STATE_REQUEST_PARAMETER = "RelayState";
 
-  private final SamlSettings samlSettings;
   private final RedirectToUrlProvider redirectToUrlProvider;
   private final SamlResponseAuthenticator samlResponseAuthenticator;
   private final PrincipalToUserIdentityConverter principalToUserIdentityConverter;
+  private final SamlStatusChecker samlStatusChecker;
+  private final SamlAuthStatusPageGenerator samlAuthStatusPageGenerator;
 
-  public SamlAuthenticator(SamlSettings samlSettings, RedirectToUrlProvider redirectToUrlProvider,
-    SamlResponseAuthenticator samlResponseAuthenticator, PrincipalToUserIdentityConverter principalToUserIdentityConverter) {
-    this.samlSettings = samlSettings;
+  public SamlAuthenticator(RedirectToUrlProvider redirectToUrlProvider,
+    SamlResponseAuthenticator samlResponseAuthenticator, PrincipalToUserIdentityConverter principalToUserIdentityConverter, SamlStatusChecker samlStatusChecker,
+    SamlAuthStatusPageGenerator samlAuthStatusPageGenerator) {
     this.redirectToUrlProvider = redirectToUrlProvider;
     this.samlResponseAuthenticator = samlResponseAuthenticator;
     this.principalToUserIdentityConverter = principalToUserIdentityConverter;
+    this.samlStatusChecker = samlStatusChecker;
+    this.samlAuthStatusPageGenerator = samlAuthStatusPageGenerator;
   }
 
   public void initLogin(String callbackUrl, String relayState, HttpRequest request, HttpResponse response) {
@@ -58,7 +59,7 @@ public class SamlAuthenticator {
     try {
       response.sendRedirect(redirectToUrl);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new UncheckedIOException(e);
     }
   }
 
@@ -71,15 +72,18 @@ public class SamlAuthenticator {
     return principalToUserIdentityConverter.convertToUserIdentity(principal);
   }
 
-  public String getAuthenticationStatusPage(HttpRequest request, HttpResponse response) {
+  public String getAuthenticationStatusPage(HttpRequest request) {
     try {
       Saml2AuthenticatedPrincipal principal = samlResponseAuthenticator.authenticate(request, request.getRequestURL());
       String samlResponse = request.getParameter("SAMLResponse");
-      return getSamlAuthStatusHtml(request, getSamlAuthenticationStatus(samlResponse, principal, samlSettings));
+      SamlAuthenticationStatus samlAuthenticationStatus = samlStatusChecker.getSamlAuthenticationStatus(samlResponse, principal);
+      return samlAuthStatusPageGenerator.getSamlAuthStatusHtml(request, samlAuthenticationStatus);
     } catch (Saml2AuthenticationException e) {
-      return getSamlAuthStatusHtml(request, getSamlAuthenticationStatus(e.getMessage()));
+      SamlAuthenticationStatus samlAuthenticationStatus = samlStatusChecker.getSamlAuthenticationStatus(e.getMessage());
+      return samlAuthStatusPageGenerator.getSamlAuthStatusHtml(request, samlAuthenticationStatus);
     } catch (IllegalStateException e) {
-      return getSamlAuthStatusHtml(request, getSamlAuthenticationStatus(String.format("%s due to: %s", e.getMessage(), e.getCause().getMessage())));
+      SamlAuthenticationStatus samlAuthenticationStatus = samlStatusChecker.getSamlAuthenticationStatus(String.format("%s due to: %s", e.getMessage(), e.getCause().getMessage()));
+      return samlAuthStatusPageGenerator.getSamlAuthStatusHtml(request, samlAuthenticationStatus);
     }
   }
 }

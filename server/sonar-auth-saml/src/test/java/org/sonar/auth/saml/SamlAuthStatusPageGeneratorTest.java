@@ -25,15 +25,22 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.sonar.api.server.http.HttpRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.auth.saml.SamlAuthStatusPageGenerator.getSamlAuthStatusHtml;
 
+@ExtendWith(MockitoExtension.class)
 public class SamlAuthStatusPageGeneratorTest {
+
+  @InjectMocks
+  private SamlAuthStatusPageGenerator samlAuthStatusPageGenerator;
+
 
   @Test
   public void getSamlAuthStatusHtml_whenCalled_shouldGeneratePageWithData() {
@@ -49,7 +56,7 @@ public class SamlAuthStatusPageGeneratorTest {
     when(samlAuthenticationStatus.isSignatureEnabled()).thenReturn(false);
     when(request.getContextPath()).thenReturn("context");
 
-    String decodedDataResponse = getDecodedDataResponse(getSamlAuthStatusHtml(request, samlAuthenticationStatus));
+    String decodedDataResponse = getDecodedDataResponse(samlAuthStatusPageGenerator.getSamlAuthStatusHtml(request, samlAuthenticationStatus));
 
     assertThat(decodedDataResponse).contains(
       "\"encryptionEnabled\":false",

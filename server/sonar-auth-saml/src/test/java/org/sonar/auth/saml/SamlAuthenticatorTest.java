@@ -19,78 +19,144 @@
  */
 package org.sonar.auth.saml;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.junit.Test;
-import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.server.http.HttpRequest;
-import org.sonar.api.server.http.HttpResponse;
-import org.sonar.api.utils.System2;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.sonar.api.server.authentication.OAuth2IdentityProvider;
+import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.server.http.JakartaHttpRequest;
 import org.sonar.server.http.JakartaHttpResponse;
+import org.springframework.security.saml2.core.Saml2Error;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.junit.Assert.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 public class SamlAuthenticatorTest {
 
-  private MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, SamlSettings.definitions()));
+  public static final String CALLBACK_URL = "callbackUrl";
+  public static final String RELAY_STATE = "relayState";
+  public static final String REDIRECT_URL = "redirectUrl";
 
-  private SamlSettings samlSettings = new SamlSettings(settings.asConfig());
+  @Mock
+  private RedirectToUrlProvider redirectToUrlProvider;
+  @Mock
+  private SamlResponseAuthenticator samlResponseAuthenticator;
+  @Mock
+  private PrincipalToUserIdentityConverter principalToUserIdentityConverter;
+  @Mock
+  private SamlStatusChecker samlStatusChecker;
+  @Mock
+  private SamlAuthStatusPageGenerator samlAuthStatusPageGenerator;
+  @Mock
+  private SamlAuthenticationStatus samlAuthenticationStatus;
 
-  private final SamlAuthenticator underTest = new SamlAuthenticator(samlSettings, null, null, null); //TODO
+  @InjectMocks
+  private SamlAuthenticator samlAuthenticator;
+
+  @Mock
+  private JakartaHttpRequest request;
+  @Mock
+  private JakartaHttpResponse response;
 
   @Test
-  public void authentication_status_with_errors_returned_when_init_fails() {
-    HttpRequest request = new JakartaHttpRequest(mock(HttpServletRequest.class));
-    HttpResponse response = new JakartaHttpResponse(mock(HttpServletResponse.class));
-    when(request.getContextPath()).thenReturn("context");
+  void initLogin_generatesUrlAndSendsRedirect() throws IOException {
+    when(redirectToUrlProvider.getRedirectToUrl(request, CALLBACK_URL, RELAY_STATE)).thenReturn(REDIRECT_URL);
 
-    String authenticationStatus = underTest.getAuthenticationStatusPage(request, response);
+    samlAuthenticator.initLogin(CALLBACK_URL, RELAY_STATE, request, response);
 
-    assertFalse(authenticationStatus.isEmpty());
+    verify(response).sendRedirect(REDIRECT_URL);
   }
 
   @Test
-  public void givenPrivateKeyIsNotPkcs8Encrypted_whenInitializingTheAuthentication_thenExceptionIsThrown() {
-    initBasicSamlSettings();
+  void initLogin_whenIoException_convertsToRuntimeException() throws IOException {
+    when(redirectToUrlProvider.getRedirectToUrl(request, CALLBACK_URL, RELAY_STATE)).thenReturn(REDIRECT_URL);
 
-    settings.setProperty("sonar.auth.saml.signature.enabled", true);
-    settings.setProperty("sonar.auth.saml.sp.certificate.secured", "CERTIFICATE");
-    settings.setProperty("sonar.auth.saml.sp.privateKey.secured", "Not a PKCS8 key");
+    IOException ioException = new IOException();
+    doThrow(ioException).when(response).sendRedirect(REDIRECT_URL);
 
-    assertThatIllegalStateException()
-      .isThrownBy(() -> underTest.initLogin("", "", mock(JakartaHttpRequest.class), mock(JakartaHttpResponse.class)))
-      .withMessage("Failed to create a SAML Auth")
-      .havingCause()
-      .withMessage("Error in parsing service provider private key, please make sure that it is in PKCS 8 format.");
+    assertThatException()
+      .isThrownBy(() -> samlAuthenticator.initLogin(CALLBACK_URL, RELAY_STATE, request, response))
+      .isInstanceOf(UncheckedIOException.class)
+      .withCause(ioException);
   }
 
   @Test
-  public void givenMissingSpCertificate_whenInitializingTheAuthentication_thenExceptionIsThrown() {
-    initBasicSamlSettings();
+  void onCallback_verifiesCsrfStateAndAuthenticates() {
+    OAuth2IdentityProvider.CallbackContext context = mock();
+    when(context.getCallbackUrl()).thenReturn(CALLBACK_URL);
 
-    settings.setProperty("sonar.auth.saml.signature.enabled", true);
-    settings.setProperty("sonar.auth.saml.sp.privateKey.secured", "PRIVATE_KEY");
+    Saml2AuthenticatedPrincipal principal = mock();
+    when(samlResponseAuthenticator.authenticate(request, CALLBACK_URL)).thenReturn(principal);
 
-    assertThatIllegalStateException()
-      .isThrownBy(() -> underTest.initLogin("", "", mock(JakartaHttpRequest.class), mock(JakartaHttpResponse.class)))
-      .withMessage("Failed to create a SAML Auth")
-      .havingCause()
-      .withMessage("Service provider certificate is missing");
+    UserIdentity userIdentity = mock();
+    when(principalToUserIdentityConverter.convertToUserIdentity(principal)).thenReturn(userIdentity);
+
+    UserIdentity actualUserIdentity = samlAuthenticator.onCallback(context, request);
+
+    verify(context).verifyCsrfState("RelayState");
+    verify(samlResponseAuthenticator).authenticate(request, CALLBACK_URL);
+    assertThat(actualUserIdentity).isEqualTo(userIdentity);
   }
 
-  private void initBasicSamlSettings() {
-    settings.setProperty("sonar.auth.saml.applicationId", "MyApp");
-    settings.setProperty("sonar.auth.saml.providerId", "http://localhost:8080/auth/realms/sonarqube");
-    settings.setProperty("sonar.auth.saml.loginUrl", "http://localhost:8080/auth/realms/sonarqube/protocol/saml");
-    settings.setProperty("sonar.auth.saml.certificate.secured", "ABCDEFG");
-    settings.setProperty("sonar.auth.saml.user.login", "login");
-    settings.setProperty("sonar.auth.saml.user.name", "name");
-    settings.setProperty("sonar.auth.saml.enabled", true);
+  @Test
+  void getAuthenticationStatusPage_returnsHtml() {
+    String samlResponse = "samlResponse";
+    when(request.getRequestURL()).thenReturn("url");
+    when(request.getParameter("SAMLResponse")).thenReturn(samlResponse);
+
+    Saml2AuthenticatedPrincipal principal = mock();
+    when(samlResponseAuthenticator.authenticate(request, request.getRequestURL())).thenReturn(principal);
+
+    when(samlStatusChecker.getSamlAuthenticationStatus(samlResponse, principal)).thenReturn(samlAuthenticationStatus);
+    when(samlAuthStatusPageGenerator.getSamlAuthStatusHtml(request, samlAuthenticationStatus)).thenReturn("html");
+
+    String authenticationStatusPage = samlAuthenticator.getAuthenticationStatusPage(request);
+
+    assertThat(authenticationStatusPage).isEqualTo("html");
+  }
+
+  @Test
+  void getAuthenticationStatusPage_whenSaml2AuthenticationException_returnsHtml() {
+    when(request.getRequestURL()).thenReturn("url");
+
+    String errorMessage = "error";
+    when(samlResponseAuthenticator.authenticate(request, request.getRequestURL())).thenThrow(new Saml2AuthenticationException(new Saml2Error("erorCode", errorMessage)));
+
+    when(samlStatusChecker.getSamlAuthenticationStatus(errorMessage)).thenReturn(samlAuthenticationStatus);
+    when(samlAuthStatusPageGenerator.getSamlAuthStatusHtml(request, samlAuthenticationStatus)).thenReturn("html");
+
+    String authenticationStatusPage = samlAuthenticator.getAuthenticationStatusPage(request);
+
+    assertThat(authenticationStatusPage).isEqualTo("html");
+  }
+
+  @Test
+  void getAuthenticationStatusPage_whenIllegalStateException_returnsHtml() {
+    when(request.getRequestURL()).thenReturn("url");
+
+    RuntimeException runtimeException = new RuntimeException("error");
+    IllegalStateException illegalStateException = new IllegalStateException(runtimeException);
+    when(samlResponseAuthenticator.authenticate(request, request.getRequestURL())).thenThrow(illegalStateException);
+
+    when(samlStatusChecker.getSamlAuthenticationStatus(any())).thenReturn(samlAuthenticationStatus);
+    when(samlAuthStatusPageGenerator.getSamlAuthStatusHtml(request, samlAuthenticationStatus)).thenReturn("html");
+
+    String authenticationStatusPage = samlAuthenticator.getAuthenticationStatusPage(request);
+
+    assertThat(authenticationStatusPage).isEqualTo("html");
+    verify(samlAuthStatusPageGenerator).getSamlAuthStatusHtml(request, samlAuthenticationStatus);
   }
 
 }
