@@ -33,7 +33,8 @@ public interface ComponentMapper {
   List<ComponentDto> selectByKeyCaseInsensitive(@Param("key") String key);
 
   @CheckForNull
-  ComponentDto selectByKeyAndBranchOrPr(@Param("key") String key, @Nullable @Param("branch") String branch, @Nullable @Param("pullRequest") String pullRequest);
+  ComponentDto selectByKeyAndBranchOrPr(@Param("key") String key, @Nullable @Param("branch") String branch, @Nullable @Param("pullRequest"
+  ) String pullRequest);
 
   @CheckForNull
   ComponentDto selectByUuid(@Param("uuid") String uuid);
@@ -58,7 +59,8 @@ public interface ComponentMapper {
 
   int countByQuery(@Param("query") ComponentQuery query);
 
-  List<ComponentDto> selectDescendants(@Param("query") ComponentTreeQuery query, @Param("baseUuid") String baseUuid, @Param("baseUuidPath") String baseUuidPath);
+  List<ComponentDto> selectDescendants(@Param("query") ComponentTreeQuery query, @Param("baseUuid") String baseUuid, @Param("baseUuidPath"
+  ) String baseUuidPath);
 
   List<ComponentDto> selectChildren(@Param("branchUuid") String branchUuid, @Param("uuidPaths") Set<String> uuidPaths);
 
@@ -111,5 +113,7 @@ public interface ComponentMapper {
 
   List<KeyWithUuidDto> selectComponentsFromBranchesThatHaveOpenIssues(@Param("branchUuids") List<String> branchUuids);
 
-  short checkIfAnyOfComponentsWithQualifiers(@Param("componentKeys") Collection<String> componentKeys, @Param("qualifiers") Set<String> qualifiers);
+  short checkIfAnyOfComponentsWithQualifiers(@Param("componentKeys") Collection<String> componentKeys,
+    @Param("qualifiers") Set<String> qualifiers);
+
 }

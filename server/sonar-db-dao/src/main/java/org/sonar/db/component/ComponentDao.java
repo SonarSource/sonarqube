@@ -61,7 +61,8 @@ public class ComponentDao implements Dao {
   }
 
   public ComponentDto selectOrFailByUuid(DbSession session, String uuid) {
-    return selectByUuid(session, uuid).orElseThrow(() -> new RowNotFoundException(String.format("Component with uuid '%s' not found", uuid)));
+    return selectByUuid(session, uuid).orElseThrow(() -> new RowNotFoundException(String.format("Component with uuid '%s' not found",
+      uuid)));
   }
 
   public List<ComponentDto> selectByUuids(DbSession session, Collection<String> uuids) {
@@ -99,18 +100,24 @@ public class ComponentDao implements Dao {
    */
 
   /**
-   * @throws IllegalArgumentException if parameter query#getComponentIds() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
-   * @throws IllegalArgumentException if parameter query#getComponentKeys() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
-   * @throws IllegalArgumentException if parameter query#getMainComponentUuids() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
+   * @throws IllegalArgumentException if parameter query#getComponentIds() has more than
+   * {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
+   * @throws IllegalArgumentException if parameter query#getComponentKeys() has more than
+   * {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
+   * @throws IllegalArgumentException if parameter query#getMainComponentUuids() has more than
+   * {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
    */
   public List<ComponentDto> selectByQuery(DbSession dbSession, ComponentQuery query, Pagination pagination) {
     return selectByQueryImpl(dbSession, query, pagination);
   }
 
   /**
-   * @throws IllegalArgumentException if parameter query#getComponentIds() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
-   * @throws IllegalArgumentException if parameter query#getComponentKeys() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
-   * @throws IllegalArgumentException if parameter query#getMainComponentUuids() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
+   * @throws IllegalArgumentException if parameter query#getComponentIds() has more than
+   * {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
+   * @throws IllegalArgumentException if parameter query#getComponentKeys() has more than
+   * {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
+   * @throws IllegalArgumentException if parameter query#getMainComponentUuids() has more than
+   * {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
    */
   public int countByQuery(DbSession session, ComponentQuery query) {
     return countByQueryImpl(session, query);
@@ -158,7 +165,8 @@ public class ComponentDao implements Dao {
   /**
    * If no branch or pull request is provided, returns components in the main branch
    */
-  public List<ComponentDto> selectByKeys(DbSession session, Collection<String> keys, @Nullable String branch, @Nullable String pullRequest) {
+  public List<ComponentDto> selectByKeys(DbSession session, Collection<String> keys, @Nullable String branch,
+    @Nullable String pullRequest) {
     checkState(branch == null || pullRequest == null, "Can't set both branch and pull request");
     return executeLargeInputs(keys, subKeys -> mapper(session).selectByKeysAndBranchOrPr(subKeys, branch, pullRequest));
   }
@@ -250,8 +258,10 @@ public class ComponentDao implements Dao {
    * Returns components with open issues from P/Rs that use a certain branch as reference (reference branch).
    * Excludes components from the current branch.
    */
-  public List<KeyWithUuidDto> selectComponentsFromPullRequestsTargetingCurrentBranchThatHaveOpenIssues(DbSession dbSession, String referenceBranchUuid, String currentBranchUuid) {
-    return mapper(dbSession).selectComponentsFromPullRequestsTargetingCurrentBranchThatHaveOpenIssues(referenceBranchUuid, currentBranchUuid);
+  public List<KeyWithUuidDto> selectComponentsFromPullRequestsTargetingCurrentBranchThatHaveOpenIssues(DbSession dbSession,
+    String referenceBranchUuid, String currentBranchUuid) {
+    return mapper(dbSession).selectComponentsFromPullRequestsTargetingCurrentBranchThatHaveOpenIssues(referenceBranchUuid,
+      currentBranchUuid);
   }
 
   /**
@@ -329,7 +339,8 @@ public class ComponentDao implements Dao {
     mapper(session).setPrivateForBranchUuid(branchUuid, isPrivate);
   }
 
-  public void setPrivateForBranchUuid(DbSession session, String branchUuid, boolean isPrivate, String qualifier, String componentKey, String componentName) {
+  public void setPrivateForBranchUuid(DbSession session, String branchUuid, boolean isPrivate, String qualifier, String componentKey,
+    String componentName) {
     ComponentNewValue componentNewValue = new ComponentNewValue(branchUuid, componentName, componentKey, isPrivate, qualifier);
     //TODO we should log change to the visibility in EntityDao, not ComponentDao
     auditPersister.updateComponentVisibility(session, componentNewValue);
@@ -351,5 +362,4 @@ public class ComponentDao implements Dao {
     checkThatNotTooManyConditions(query.getComponentKeys(), "Too many component keys in query");
     checkThatNotTooManyConditions(query.getComponentUuids(), "Too many component UUIDs in query");
   }
-
 }

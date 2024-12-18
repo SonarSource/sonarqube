@@ -162,9 +162,10 @@
             and gr.group_uuid = gu.group_uuid
         )
       )
-      and <foreach collection="entityUuids" open="(" close=")" item="element" index="index" separator=" or ">
-            gr.entity_uuid=#{element, jdbcType=VARCHAR}
-          </foreach>
+      and gr.entity_uuid in
+      <foreach collection="entityUuids" open="(" close=")" item="element" index="index" separator=",">
+        #{element, jdbcType=VARCHAR}
+      </foreach>
 
     union
 
@@ -177,8 +178,9 @@
     where
       ur.role=#{role, jdbcType=VARCHAR}
       and ur.user_uuid=#{userUuid, jdbcType=INTEGER}
-      and <foreach collection="entityUuids" open="(" close=")" item="element" index="index" separator=" or ">
-        entity.uuid=#{element, jdbcType=VARCHAR}
+      and entity.uuid in
+      <foreach collection="entityUuids" open="(" close=")" item="element" index="index" separator=",">
+        #{element, jdbcType=VARCHAR}
       </foreach>
 
     union
@@ -191,9 +193,9 @@
     entity.uuid
     from
     (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity
-    where
-    <foreach collection="entityUuids" open="(" close=")" item="element" index="index" separator=" or ">
-      entity.uuid=#{element ,jdbcType=VARCHAR}
+    where entity.uuid in
+    <foreach collection="entityUuids" open="(" close=")" item="element" index="index" separator=",">
+      #{element ,jdbcType=VARCHAR}
     </foreach>
     and entity.isPrivate = ${_false}
     and #{role, jdbcType=VARCHAR} in ('user','codeviewer')
@@ -207,9 +209,10 @@
     where
       gr.role=#{role, jdbcType=VARCHAR}
       and gr.group_uuid is null
-      and <foreach collection="entityUuids" open="(" close=")" item="element" index="index" separator=" or ">
-            gr.entity_uuid=#{element, jdbcType=VARCHAR}
-          </foreach>
+      and gr.entity_uuid in
+      <foreach collection="entityUuids" open="(" close=")" item="element" index="index" separator=",">
+        #{element, jdbcType=VARCHAR}
+      </foreach>
 
     union
 
