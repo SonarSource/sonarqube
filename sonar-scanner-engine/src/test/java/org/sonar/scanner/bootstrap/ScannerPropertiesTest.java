@@ -20,12 +20,18 @@
 package org.sonar.scanner.bootstrap;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class ScannerPropertiesTest {
+class ScannerPropertiesTest {
+
+  @RegisterExtension
+  LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @Test
   public void initialization() {
@@ -60,6 +66,10 @@ public class ScannerPropertiesTest {
     ScannerProperties underTest = new ScannerProperties(map);
 
     assertThat(underTest.property("prop-1")).isEqualTo("foo");
+
+    assertThat(logTester.logs(Level.WARN))
+      .contains(
+        "Property 'prop-1' is encrypted. The encryption of scanner properties is deprecated and will soon be removed.");
   }
 
 }

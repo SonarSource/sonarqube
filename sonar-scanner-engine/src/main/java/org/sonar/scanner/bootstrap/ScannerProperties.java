@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.internal.Encryption;
 
 import static org.sonar.api.CoreProperties.ENCRYPTION_SECRET_KEY_PATH;
@@ -33,6 +35,7 @@ import static org.sonar.api.CoreProperties.PROJECT_KEY_PROPERTY;
  */
 @Immutable
 public class ScannerProperties {
+  private static final Logger LOG = LoggerFactory.getLogger(ScannerProperties.class);
 
   private final Map<String, String> properties;
   private final Encryption encryption;
@@ -43,6 +46,7 @@ public class ScannerProperties {
     for (Map.Entry<String, String> entry : properties.entrySet()) {
       String value = entry.getValue();
       if (value != null && encryption.isEncrypted(value)) {
+        LOG.warn("Property '{}' is encrypted. The encryption of scanner properties is deprecated and will soon be removed.", entry.getKey());
         try {
           value = encryption.decrypt(value);
         } catch (Exception e) {
