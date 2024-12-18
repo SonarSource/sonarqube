@@ -107,6 +107,7 @@ import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDismissedMessagesDao;
 import org.sonar.db.user.UserGroupDao;
 import org.sonar.db.user.UserTokenDao;
+import org.sonar.db.user.ai.UserAiToolUsageDao;
 import org.sonar.db.webhook.WebhookDao;
 import org.sonar.db.webhook.WebhookDeliveryDao;
 
@@ -135,6 +136,7 @@ public class DbClient {
   private final UserDao userDao;
   private final UserGroupDao userGroupDao;
   private final UserTokenDao userTokenDao;
+  private final UserAiToolUsageDao userAiToolUsageDao;
   private final GroupMembershipDao groupMembershipDao;
   private final RoleDao roleDao;
   private final GroupPermissionDao groupPermissionDao;
@@ -232,6 +234,7 @@ public class DbClient {
     userDao = getDao(map, UserDao.class);
     userGroupDao = getDao(map, UserGroupDao.class);
     userTokenDao = getDao(map, UserTokenDao.class);
+    userAiToolUsageDao = getDao(map, UserAiToolUsageDao.class);
     groupMembershipDao = getDao(map, GroupMembershipDao.class);
     roleDao = getDao(map, RoleDao.class);
     groupPermissionDao = getDao(map, GroupPermissionDao.class);
@@ -410,6 +413,10 @@ public class DbClient {
 
   public UserDao userDao() {
     return userDao;
+  }
+
+  public UserAiToolUsageDao userAiToolUsageDao() {
+    return userAiToolUsageDao;
   }
 
   public UserGroupDao userGroupDao() {

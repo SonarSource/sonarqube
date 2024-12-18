@@ -107,6 +107,7 @@ import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDismissedMessagesDao;
 import org.sonar.db.user.UserGroupDao;
 import org.sonar.db.user.UserTokenDao;
+import org.sonar.db.user.ai.UserAiToolUsageDao;
 import org.sonar.db.webhook.WebhookDao;
 import org.sonar.db.webhook.WebhookDeliveryDao;
 
@@ -196,6 +197,7 @@ public class DaoModule extends Module {
     SnapshotDao.class,
     SessionTokensDao.class,
     TelemetryMetricsSentDao.class,
+    UserAiToolUsageDao.class,
     UserDao.class,
     UserDismissedMessagesDao.class,
     UserGroupDao.class,

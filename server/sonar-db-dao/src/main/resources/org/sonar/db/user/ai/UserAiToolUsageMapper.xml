@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.user.ai.UserAiToolUsageMapper">
+
+  <sql id="columns">
+    uatu.uuid as uuid,
+    uatu.user_uuid as "userUuid",
+    uatu.activated_at as "activatedAt",
+    uatu.last_activity_at as "lastActivityAt"
+  </sql>
+
+  <select id="selectAll" parameterType="String" resultType="org.sonar.db.user.ai.UserAiToolUsageDto">
+    select
+    <include refid="columns"/>
+    from user_ai_tool_usages uatu
+  </select>
+
+  <insert id="insert" parameterType="org.sonar.db.user.ai.UserAiToolUsageDto" useGeneratedKeys="false">
+    insert into user_ai_tool_usages
+    (
+      uuid,
+      user_uuid,
+      activated_at,
+      last_activity_at
+    )
+    values (
+      #{uuid, jdbcType=VARCHAR},
+      #{userUuid, jdbcType=VARCHAR},
+      #{activatedAt, jdbcType=BIGINT},
+      #{lastActivityAt, jdbcType=BIGINT}
+    )
+  </insert>
+
+</mapper>

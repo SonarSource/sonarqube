@@ -183,6 +183,7 @@ import org.sonar.db.user.UserTelemetryDto;
 import org.sonar.db.user.UserTokenCount;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.db.user.UserTokenMapper;
+import org.sonar.db.user.ai.UserAiToolUsageMapper;
 import org.sonar.db.webhook.WebhookDeliveryMapper;
 import org.sonar.db.webhook.WebhookMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -359,6 +360,7 @@ public class MyBatis {
       SessionTokenMapper.class,
       SnapshotMapper.class,
       TelemetryMetricsSentMapper.class,
+      UserAiToolUsageMapper.class,
       UserDismissedMessagesMapper.class,
       UserGroupMapper.class,
       UserMapper.class,
