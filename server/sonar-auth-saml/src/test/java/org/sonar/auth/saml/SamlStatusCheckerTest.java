@@ -19,14 +19,11 @@
  */
 package org.sonar.auth.saml;
 
-import com.onelogin.saml2.Auth;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
-
-import static org.mockito.Mockito.mock;
 
 public class SamlStatusCheckerTest {
 
@@ -54,7 +51,7 @@ public class SamlStatusCheckerTest {
 
   private final MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, SamlSettings.definitions()));
 
-  private final Auth auth = mock(Auth.class);
+  //private final Auth auth = mock(Auth.class);
 
   private SamlAuthenticationStatus samlAuthenticationStatus;
   //TODO

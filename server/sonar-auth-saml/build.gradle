@@ -6,9 +6,6 @@ configurations {
 
 dependencies {
     // please keep the list ordered
-
-    api "com.onelogin:java-saml"
-
     compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
     compileOnlyApi 'com.squareup.okhttp3:okhttp'
     compileOnlyApi 'jakarta.servlet:jakarta.servlet-api'

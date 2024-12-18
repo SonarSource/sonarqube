@@ -19,14 +19,8 @@
  */
 package org.sonar.auth.saml;
 
-import com.onelogin.saml2.Auth;
-import org.joda.time.Instant;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.user.SamlMessageIdDto;
-
-import static java.util.Objects.requireNonNull;
 
 @ServerSide
 public class SamlMessageIdChecker {
@@ -37,6 +31,8 @@ public class SamlMessageIdChecker {
     this.dbClient = dbClient;
   }
 
+  //TODO
+/*
   public void check(Auth auth) {
     String messageId = requireNonNull(auth.getLastMessageId(), "Message ID is missing");
     Instant lastAssertionNotOnOrAfter = auth.getLastAssertionNotOnOrAfter().stream()
@@ -54,5 +50,5 @@ public class SamlMessageIdChecker {
       dbSession.commit();
     }
   }
-
+*/
 }
