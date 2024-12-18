@@ -41,7 +41,7 @@ public class SamlAuthenticatorTest {
 
   private SamlSettings samlSettings = new SamlSettings(settings.asConfig());
 
-  private final SamlAuthenticator underTest = new SamlAuthenticator(samlSettings, mock(SamlMessageIdChecker.class), null, null, null); //TODO
+  private final SamlAuthenticator underTest = new SamlAuthenticator(samlSettings, null, null, null); //TODO
 
   @Test
   public void authentication_status_with_errors_returned_when_init_fails() {
@@ -63,7 +63,7 @@ public class SamlAuthenticatorTest {
     settings.setProperty("sonar.auth.saml.sp.privateKey.secured", "Not a PKCS8 key");
 
     assertThatIllegalStateException()
-      .isThrownBy(() -> underTest.initLogin("","", mock(JakartaHttpRequest.class), mock(JakartaHttpResponse.class)))
+      .isThrownBy(() -> underTest.initLogin("", "", mock(JakartaHttpRequest.class), mock(JakartaHttpResponse.class)))
       .withMessage("Failed to create a SAML Auth")
       .havingCause()
       .withMessage("Error in parsing service provider private key, please make sure that it is in PKCS 8 format.");
@@ -77,7 +77,7 @@ public class SamlAuthenticatorTest {
     settings.setProperty("sonar.auth.saml.sp.privateKey.secured", "PRIVATE_KEY");
 
     assertThatIllegalStateException()
-      .isThrownBy(() -> underTest.initLogin("","", mock(JakartaHttpRequest.class), mock(JakartaHttpResponse.class)))
+      .isThrownBy(() -> underTest.initLogin("", "", mock(JakartaHttpRequest.class), mock(JakartaHttpResponse.class)))
       .withMessage("Failed to create a SAML Auth")
       .havingCause()
       .withMessage("Service provider certificate is missing");

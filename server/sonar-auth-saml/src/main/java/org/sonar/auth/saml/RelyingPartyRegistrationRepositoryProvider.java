@@ -30,7 +30,7 @@ public class RelyingPartyRegistrationRepositoryProvider {
   private final SamlCertificateConverter samlCertificateConverter;
   private final SamlPrivateKeyConverter samlPrivateKeyConverter;
 
-  public RelyingPartyRegistrationRepositoryProvider(SamlSettings samlSettings, SamlCertificateConverter samlCertificateConverter, SamlPrivateKeyConverter samlPrivateKeyConverter) {
+  RelyingPartyRegistrationRepositoryProvider(SamlSettings samlSettings, SamlCertificateConverter samlCertificateConverter, SamlPrivateKeyConverter samlPrivateKeyConverter) {
     this.samlSettings = samlSettings;
     this.samlCertificateConverter = samlCertificateConverter;
     this.samlPrivateKeyConverter = samlPrivateKeyConverter;

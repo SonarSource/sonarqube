@@ -102,7 +102,7 @@ class SamlPrivateKeyConverterTest {
   void toPrivateKey_whenPrivateKeyIsInvalid_throwsException() {
     assertThatRuntimeException()
       .isThrownBy(() -> samlPrivateKeyConverter.toPrivateKey("invalidKey"))
-      .withMessage("bla");
+      .withMessage("Error while loading private key, please check the format");
   }
 
 

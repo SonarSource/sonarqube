@@ -39,7 +39,7 @@ class SamlPrivateKeyConverter {
       KeyFactory keyFactory = KeyFactory.getInstance("RSA");
       return keyFactory.generatePrivate(keySpec);
     } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Error while loading private key, please check the format", e);
     }
   }
 

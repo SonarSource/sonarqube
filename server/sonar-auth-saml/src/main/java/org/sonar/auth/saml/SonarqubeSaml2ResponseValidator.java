@@ -19,8 +19,14 @@
  */
 package org.sonar.auth.saml;
 
+import com.google.common.annotations.VisibleForTesting;
+import jakarta.inject.Inject;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Supplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ResponseValidatorResult;
@@ -31,29 +37,48 @@ import static org.springframework.security.saml2.provider.service.authentication
 
 class SonarqubeSaml2ResponseValidator implements Converter<ResponseToken, Saml2ResponseValidatorResult> {
 
-  private final Converter<ResponseToken, Saml2ResponseValidatorResult> delegate = createDefaultResponseValidator();
+  private static final Logger LOGGER = LoggerFactory.getLogger(SonarqubeSaml2ResponseValidator.class);
+
+  private final Converter<ResponseToken, Saml2ResponseValidatorResult> delegate;
+  private final SamlMessageIdChecker samlMessageIdChecker;
 
   private Supplier<String> validInResponseToSupplier;
 
+  @Inject
+  SonarqubeSaml2ResponseValidator(SamlMessageIdChecker samlMessageIdChecker) {
+    this(samlMessageIdChecker, createDefaultResponseValidator());
+  }
+
+  @VisibleForTesting
+  SonarqubeSaml2ResponseValidator(SamlMessageIdChecker samlMessageIdChecker, Converter<ResponseToken, Saml2ResponseValidatorResult> delegate) {
+    this.samlMessageIdChecker = samlMessageIdChecker;
+    this.delegate = delegate;
+  }
+
   @Override
   public Saml2ResponseValidatorResult convert(ResponseToken responseToken) {
-    Saml2ResponseValidatorResult result = delegate.convert(responseToken);
+    Saml2ResponseValidatorResult validationResults = delegate.convert(responseToken);
 
+    List<Saml2Error> errors = new ArrayList<>(getValidationErrorsWithoutInResponseTo(responseToken, validationResults));
+    samlMessageIdChecker.validateMessageIdWasNotAlreadyUsed(responseToken.getResponse().getID()).ifPresent(errors::add);
+
+    LOGGER.debug("Saml validation errors: {}", errors);
+    return Saml2ResponseValidatorResult.failure(errors);
+  }
+
+  private Collection<Saml2Error> getValidationErrorsWithoutInResponseTo(ResponseToken responseToken, Saml2ResponseValidatorResult validationResults) {
     String inResponseTo = responseToken.getResponse().getInResponseTo();
     validInResponseToSupplier = () -> inResponseTo;
+    return removeInResponseToError(validationResults);
+  }
 
-    Collection<Saml2Error> errors = removeInResponseToErrorIfPresent(result);
-
-    return Saml2ResponseValidatorResult.failure(errors);
+  private Collection<Saml2Error> removeInResponseToError(Saml2ResponseValidatorResult result) {
+    return result.getErrors().stream()
+      .filter(error -> !INVALID_IN_RESPONSE_TO.equals(error.getErrorCode()))
+      .toList();
   }
 
   public Supplier<String> getValidInResponseToSupplier() {
     return validInResponseToSupplier;
-  }
-
-  private Collection<Saml2Error> removeInResponseToErrorIfPresent(Saml2ResponseValidatorResult result) {
-    return result.getErrors().stream()
-      .filter(error -> !error.getErrorCode().equals(INVALID_IN_RESPONSE_TO))
-      .toList();
   }
 }

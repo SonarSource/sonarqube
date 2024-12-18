@@ -34,15 +34,15 @@ public class SamlConfiguration {
   @Bean
   OpenSaml4AuthenticationProvider openSaml4AuthenticationProvider(SonarqubeSaml2ResponseValidator sonarqubeSaml2ResponseValidator){
     OpenSaml4AuthenticationProvider openSaml4AuthenticationProvider = new OpenSaml4AuthenticationProvider();
-    openSaml4AuthenticationProvider.setAssertionValidator(createIgnoringAssertionValidator(sonarqubeSaml2ResponseValidator));
+    openSaml4AuthenticationProvider.setAssertionValidator(createIgnoringResponseToAssertionValidator(sonarqubeSaml2ResponseValidator));
     openSaml4AuthenticationProvider.setResponseValidator(sonarqubeSaml2ResponseValidator);
     return openSaml4AuthenticationProvider;
   }
 
-  private static Converter<OpenSaml4AuthenticationProvider.AssertionToken, Saml2ResponseValidatorResult> createIgnoringAssertionValidator(
+  private static Converter<OpenSaml4AuthenticationProvider.AssertionToken, Saml2ResponseValidatorResult> createIgnoringResponseToAssertionValidator(
     Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2ResponseValidatorResult> customResponseValidator) {
-
-    return OpenSaml4AuthenticationProvider.createDefaultAssertionValidatorWithParameters(validationContextParameterConsumer(((SonarqubeSaml2ResponseValidator) customResponseValidator)));
+    Consumer<Map<String, Object>> validationContextParameters = validationContextParameterConsumer(((SonarqubeSaml2ResponseValidator) customResponseValidator));
+    return OpenSaml4AuthenticationProvider.createDefaultAssertionValidatorWithParameters(validationContextParameters);
   }
 
   private static Consumer<Map<String, Object>> validationContextParameterConsumer(SonarqubeSaml2ResponseValidator saml2CustomResponseValidator) {

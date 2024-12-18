@@ -41,15 +41,13 @@ public class SamlAuthenticator {
   private static final String STATE_REQUEST_PARAMETER = "RelayState";
 
   private final SamlSettings samlSettings;
-  private final SamlMessageIdChecker samlMessageIdChecker;
   private final RedirectToUrlProvider redirectToUrlProvider;
   private final SamlResponseAuthenticator samlResponseAuthenticator;
   private final PrincipalToUserIdentityConverter principalToUserIdentityConverter;
 
-  public SamlAuthenticator(SamlSettings samlSettings, SamlMessageIdChecker samlMessageIdChecker, RedirectToUrlProvider redirectToUrlProvider,
+  public SamlAuthenticator(SamlSettings samlSettings, RedirectToUrlProvider redirectToUrlProvider,
     SamlResponseAuthenticator samlResponseAuthenticator, PrincipalToUserIdentityConverter principalToUserIdentityConverter) {
     this.samlSettings = samlSettings;
-    this.samlMessageIdChecker = samlMessageIdChecker;
     this.redirectToUrlProvider = redirectToUrlProvider;
     this.samlResponseAuthenticator = samlResponseAuthenticator;
     this.principalToUserIdentityConverter = principalToUserIdentityConverter;
@@ -69,10 +67,6 @@ public class SamlAuthenticator {
 
     Saml2AuthenticatedPrincipal principal = samlResponseAuthenticator.authenticate(processedRequest, context.getCallbackUrl());
 
-    //LOGGER.trace("Name ID : {}", getNameId(auth)); //TODO extract nameid
-    // this.checkMessageId(auth);
-
-    //TODO create class to convert Saml2AuthenticatedPrincipal to UserIdentity
     LOGGER.trace("Attributes received : {}", principal.getAttributes());
     return principalToUserIdentityConverter.convertToUserIdentity(principal);
   }
