@@ -112,7 +112,7 @@ public final class SamlStatusChecker {
     return mappingErrors;
   }
 
-  private static List<String> generateMissingMappingMessages( Map<String, String> mappings, Saml2AuthenticatedPrincipal principal) {
+  private static List<String> generateMissingMappingMessages(Map<String, String> mappings, Saml2AuthenticatedPrincipal principal) {
     return mappings.entrySet()
       .stream()
       .filter(entry -> !entry.getValue().isEmpty() && (principal.getAttribute(entry.getValue()) == null || principal.getAttribute(entry.getValue()).isEmpty()))

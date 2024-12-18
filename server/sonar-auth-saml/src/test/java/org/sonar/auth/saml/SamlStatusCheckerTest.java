@@ -21,9 +21,25 @@ package org.sonar.auth.saml;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
+import org.springframework.security.saml2.core.Saml2Error;
+import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
+
+import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.auth.saml.SamlSettings.GROUP_NAME_ATTRIBUTE;
+import static org.sonar.auth.saml.SamlSettings.USER_EMAIL_ATTRIBUTE;
+import static org.sonar.auth.saml.SamlSettings.USER_LOGIN_ATTRIBUTE;
+import static org.sonar.auth.saml.SamlSettings.USER_NAME_ATTRIBUTE;
+import static org.sonar.auth.saml.SamlStatusChecker.getSamlAuthenticationStatus;
 
 public class SamlStatusCheckerTest {
 
@@ -48,74 +64,60 @@ public class SamlStatusCheckerTest {
     """;
   public static final String BASE64_ENCRYPTED_SAML_RESPONSE = new String(Base64.getEncoder().encode(ENCRYPTED_SAML_RESPONSE.getBytes()), StandardCharsets.UTF_8);
   public static final String BASE64_SAML_RESPONSE = new String(Base64.getEncoder().encode(PLAIN_SAML_RESPONSE.getBytes()), StandardCharsets.UTF_8);
+  public static final Saml2AuthenticatedPrincipal PRINCIPAL_WITH_ALL_ATTRIBUTES = buildPrincipal("userName", "login", List.of("user@sonar.com"), List.of("group1", "group2"));
 
   private final MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, SamlSettings.definitions()));
 
-  //private final Auth auth = mock(Auth.class);
-
   private SamlAuthenticationStatus samlAuthenticationStatus;
-  //TODO
-  /*
-  @Before
-  public void setUp() {
-    when(auth.getErrors()).thenReturn(new ArrayList<>());
-    when(auth.getSettings()).thenReturn(new Saml2Settings());
-    when(auth.getAttributes()).thenReturn(getResponseAttributes());
-  }
 
-@Test
+
+  @Test
   public void authentication_status_has_errors_when_no_idp_certificate_is_provided() {
     samlAuthenticationStatus = getSamlAuthenticationStatus("error message");
 
-    assertEquals("error", samlAuthenticationStatus.getStatus());
-    assertFalse(samlAuthenticationStatus.getErrors().isEmpty());
-    assertEquals("error message", samlAuthenticationStatus.getErrors().get(0));
+    assertThat(samlAuthenticationStatus.getStatus()).isEqualTo("error");
+    assertThat(samlAuthenticationStatus.getErrors()).containsExactly("error message");
   }
 
   @Test
   public void authentication_status_is_success_when_no_errors() {
     setSettings();
+    Saml2AuthenticatedPrincipal principal = PRINCIPAL_WITH_ALL_ATTRIBUTES;
 
-    getResponseAttributes().forEach((key, value) -> when(auth.getAttribute(key)).thenReturn(value));
+    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, principal, new SamlSettings(settings.asConfig()));
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, auth, new SamlSettings(settings.asConfig()));
+    assertThat("success").isEqualTo(samlAuthenticationStatus.getStatus());
+    assertThat(samlAuthenticationStatus.getErrors()).isEmpty();
+  }
 
-    assertEquals("success", samlAuthenticationStatus.getStatus());
-    assertTrue(samlAuthenticationStatus.getErrors().isEmpty());
+  private Map<String, List<String>> getResponseAttributes() {
+    return Map.of(
+      "login", Collections.singletonList("loginId"),
+      "name", Collections.singletonList("userName"),
+      "email", Collections.singletonList("user@sonar.com"),
+      "groups", List.of("group1", "group2"));
+  }
+
+  private static Saml2AuthenticatedPrincipal buildPrincipal(String name, String login, List<Object> emails, List<Object> groups) {
+    return new DefaultSaml2AuthenticatedPrincipal("unused",
+      Map.of("name", List.of(name),
+        "login", List.of(login),
+        "email", emails,
+        "groups", groups)
+    );
   }
 
   @Test
   public void authentication_status_is_unsuccessful_when_errors_are_reported() {
     setSettings();
-    when(auth.getErrors()).thenReturn(Collections.singletonList("Error in Authentication"));
-    when(auth.getLastErrorReason()).thenReturn("Authentication failed due to a missing parameter.");
-    when(auth.getAttributes()).thenReturn(getEmptyAttributes());
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, auth, new SamlSettings(settings.asConfig()));
+    Saml2AuthenticationException saml2AuthenticationException = new Saml2AuthenticationException(
+      new Saml2Error("Error in Authentication", "Authentication failed due to a missing parameter."));
 
-    assertEquals("error", samlAuthenticationStatus.getStatus());
-    assertFalse(samlAuthenticationStatus.getErrors().isEmpty());
-    assertEquals(2, samlAuthenticationStatus.getErrors().size());
-    assertTrue(samlAuthenticationStatus.getErrors().contains("Authentication failed due to a missing parameter."));
-    assertTrue(samlAuthenticationStatus.getErrors().contains("Error in Authentication"));
-  }
+    samlAuthenticationStatus = getSamlAuthenticationStatus(saml2AuthenticationException.getMessage());
 
-  @Test
-  public void authentication_status_is_unsuccessful_when_processResponse_throws_exception() {
-    setSettings();
-    try {
-      doThrow(new Exception("Exception when processing the response")).when(auth).processResponse();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    when(auth.getAttributes()).thenReturn(getEmptyAttributes());
-
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, auth, new SamlSettings(settings.asConfig()));
-
-    assertEquals("error", samlAuthenticationStatus.getStatus());
-    assertFalse(samlAuthenticationStatus.getErrors().isEmpty());
-    assertEquals(1, samlAuthenticationStatus.getErrors().size());
-    assertTrue(samlAuthenticationStatus.getErrors().contains("Exception when processing the response"));
+    assertThat("error").isEqualTo(samlAuthenticationStatus.getStatus());
+    assertThat(samlAuthenticationStatus.getErrors()).containsExactly("Authentication failed due to a missing parameter.");
   }
 
   @Test
@@ -125,17 +127,15 @@ public class SamlStatusCheckerTest {
     settings.setProperty(USER_EMAIL_ATTRIBUTE, "wrongEmailField");
     settings.setProperty("sonar.auth.saml.sp.privateKey.secured", (String) null);
 
-    getResponseAttributes().forEach((key, value) -> when(auth.getAttribute(key)).thenReturn(value));
+    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES, new SamlSettings(settings.asConfig()));
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, auth, new SamlSettings(settings.asConfig()));
+    assertThat("success").isEqualTo(samlAuthenticationStatus.getStatus());
 
-    assertEquals("success", samlAuthenticationStatus.getStatus());
-    assertTrue(samlAuthenticationStatus.getErrors().isEmpty());
-    assertEquals(2, samlAuthenticationStatus.getWarnings().size());
-    assertTrue(samlAuthenticationStatus.getWarnings()
-      .contains(String.format("Mapping not found for the property %s, the field %s is not available in the SAML response.", GROUP_NAME_ATTRIBUTE, "wrongGroupField")));
-    assertTrue(samlAuthenticationStatus.getWarnings()
-      .contains(String.format("Mapping not found for the property %s, the field %s is not available in the SAML response.", USER_EMAIL_ATTRIBUTE, "wrongEmailField")));
+    assertThat(samlAuthenticationStatus.getErrors()).isEmpty();
+    assertThat(samlAuthenticationStatus.getWarnings()).containsExactlyInAnyOrder(
+      format("Mapping not found for the property %s, the field %s is not available in the SAML response.", GROUP_NAME_ATTRIBUTE, "wrongGroupField"),
+      format("Mapping not found for the property %s, the field %s is not available in the SAML response.", USER_EMAIL_ATTRIBUTE, "wrongEmailField")
+    );
   }
 
   @Test
@@ -143,34 +143,30 @@ public class SamlStatusCheckerTest {
     setSettings();
     settings.setProperty(USER_LOGIN_ATTRIBUTE, "wrongLoginField");
     settings.setProperty(USER_NAME_ATTRIBUTE, "wrongNameField");
-    getResponseAttributes().forEach((key, value) -> when(auth.getAttribute(key)).thenReturn(value));
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, auth, new SamlSettings(settings.asConfig()));
+    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES, new SamlSettings(settings.asConfig()));
 
-    assertEquals("error", samlAuthenticationStatus.getStatus());
-    assertTrue(samlAuthenticationStatus.getWarnings().isEmpty());
-    assertEquals(2, samlAuthenticationStatus.getErrors().size());
-    assertTrue(samlAuthenticationStatus.getErrors()
-      .contains(String.format("Mapping not found for the property %s, the field %s is not available in the SAML response.", USER_LOGIN_ATTRIBUTE, "wrongLoginField")));
-    assertTrue(samlAuthenticationStatus.getErrors()
-      .contains(String.format("Mapping not found for the property %s, the field %s is not available in the SAML response.", USER_NAME_ATTRIBUTE, "wrongNameField")));
+    assertThat("error").isEqualTo(samlAuthenticationStatus.getStatus());
+    assertThat(samlAuthenticationStatus.getWarnings()).isEmpty();
+    assertThat(samlAuthenticationStatus.getErrors()).containsExactlyInAnyOrder(
+      format("Mapping not found for the property %s, the field %s is not available in the SAML response.", USER_LOGIN_ATTRIBUTE, "wrongLoginField"),
+      format("Mapping not found for the property %s, the field %s is not available in the SAML response.", USER_NAME_ATTRIBUTE, "wrongNameField")
+    );
   }
 
   @Test
   public void authentication_has_errors_when_login_and_name_are_empty() {
     setSettings();
-    when(auth.getAttributes()).thenReturn(getEmptyAttributes());
-    getEmptyAttributes().forEach((key, value) -> when(auth.getAttribute(key)).thenReturn(value));
+    Saml2AuthenticatedPrincipal principal = buildPrincipal("", "", List.of("user@sonar.com"), List.of("group1", "group2"));
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, auth, new SamlSettings(settings.asConfig()));
+    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, principal, new SamlSettings(settings.asConfig()));
 
-    assertEquals("error", samlAuthenticationStatus.getStatus());
-    assertTrue(samlAuthenticationStatus.getWarnings().isEmpty());
-    assertEquals(2, samlAuthenticationStatus.getErrors().size());
-    assertTrue(samlAuthenticationStatus.getErrors()
-      .contains(String.format("Mapping found for the property %s, but the field %s is empty in the SAML response.", USER_LOGIN_ATTRIBUTE, "login")));
-    assertTrue(samlAuthenticationStatus.getErrors()
-      .contains(String.format("Mapping found for the property %s, but the field %s is empty in the SAML response.", USER_NAME_ATTRIBUTE, "name")));
+    assertThat("error").isEqualTo(samlAuthenticationStatus.getStatus());
+    assertThat(samlAuthenticationStatus.getWarnings()).isEmpty();
+    assertThat(samlAuthenticationStatus.getErrors()).containsExactlyInAnyOrder(
+      format("Mapping found for the property %s, but the field %s is empty in the SAML response.", USER_LOGIN_ATTRIBUTE, "login"),
+      format("Mapping found for the property %s, but the field %s is empty in the SAML response.", USER_NAME_ATTRIBUTE, "name")
+    );
   }
 
   @Test
@@ -179,108 +175,85 @@ public class SamlStatusCheckerTest {
     settings.setProperty("sonar.auth.saml.sp.privateKey.secured", (String) null);
     settings.setProperty(USER_EMAIL_ATTRIBUTE, (String) null);
     settings.setProperty(GROUP_NAME_ATTRIBUTE, (String) null);
-    getResponseAttributes().forEach((key, value) -> when(auth.getAttribute(key)).thenReturn(value));
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, auth, new SamlSettings(settings.asConfig()));
 
-    assertEquals("success", samlAuthenticationStatus.getStatus());
-    assertTrue(samlAuthenticationStatus.getErrors().isEmpty());
-    assertTrue(samlAuthenticationStatus.getWarnings().isEmpty());
-  }
+    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES, new SamlSettings(settings.asConfig()));
 
-  @Test
-  public void authentication_has_warnings_when_the_private_key_is_invalid_but_auth_completes() {
-    setSettings();
-    getResponseAttributes().forEach((key, value) -> when(auth.getAttribute(key)).thenReturn(value));
-
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, auth, new SamlSettings(settings.asConfig()));
-
-    assertEquals("success", samlAuthenticationStatus.getStatus());
-    assertTrue(samlAuthenticationStatus.getErrors().isEmpty());
-    assertFalse(samlAuthenticationStatus.getWarnings().isEmpty());
-    assertTrue(samlAuthenticationStatus.getWarnings()
-      .contains(String.format("Error in parsing service provider private key, please make sure that it is in PKCS 8 format.")));
+    assertThat("success").isEqualTo(samlAuthenticationStatus.getStatus());
+    assertThat(samlAuthenticationStatus.getErrors()).isEmpty();
+    assertThat(samlAuthenticationStatus.getWarnings()).isEmpty();
   }
 
   @Test
   public void mapped_attributes_are_complete_when_mapping_fields_are_correct() {
     setSettings();
     settings.setProperty("sonar.auth.saml.sp.privateKey.secured", (String) null);
-    getResponseAttributes().forEach((key, value) -> when(auth.getAttribute(key)).thenReturn(value));
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, auth, new SamlSettings(settings.asConfig()));
+    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES, new SamlSettings(settings.asConfig()));
 
-    assertEquals("success", samlAuthenticationStatus.getStatus());
-    assertTrue(samlAuthenticationStatus.getErrors().isEmpty());
-    assertTrue(samlAuthenticationStatus.getWarnings().isEmpty());
-    assertEquals(4, samlAuthenticationStatus.getAvailableAttributes().size());
-    assertEquals(4, samlAuthenticationStatus.getMappedAttributes().size());
-
-    assertTrue(samlAuthenticationStatus.getAvailableAttributes().keySet().containsAll(Set.of("login", "name", "email", "groups")));
-    assertTrue(samlAuthenticationStatus.getMappedAttributes().keySet().containsAll(Set.of("User login value", "User name value", "User email value", "Groups value")));
+    assertThat("success").isEqualTo(samlAuthenticationStatus.getStatus());
+    assertThat(samlAuthenticationStatus.getErrors()).isEmpty();
+    assertThat(samlAuthenticationStatus.getWarnings()).isEmpty();
+    assertThat(samlAuthenticationStatus.getAvailableAttributes()).containsOnlyKeys("login", "name", "email", "groups");
+    assertThat(samlAuthenticationStatus.getMappedAttributes()).containsOnlyKeys("User login value", "User name value", "User email value", "Groups value");
   }
 
   @Test
   public void givenSignatureEnabled_whenUserIsAuthenticated_thenSamlStatusReportsItEnabled() {
     setSettings();
     settings.setProperty("sonar.auth.saml.signature.enabled", true);
-    when(auth.isAuthenticated()).thenReturn(true);
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, auth, new SamlSettings(settings.asConfig()));
+    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES, new SamlSettings(settings.asConfig()));
 
-    assertTrue(samlAuthenticationStatus.isSignatureEnabled());
+    assertThat(samlAuthenticationStatus.isSignatureEnabled()).isTrue();
   }
 
   @Test
   public void givenSignatureDisabled_whenUserIsAuthenticated_thenSamlStatusReportsItDisabled() {
     setSettings();
     settings.setProperty("sonar.auth.saml.signature.enabled", false);
-    when(auth.isAuthenticated()).thenReturn(true);
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, auth, new SamlSettings(settings.asConfig()));
+    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES, new SamlSettings(settings.asConfig()));
 
-    assertFalse(samlAuthenticationStatus.isSignatureEnabled());
+    assertThat(samlAuthenticationStatus.isSignatureEnabled()).isFalse();
   }
 
   @Test
   public void givenEncryptionEnabled_whenUserIsAuthenticated_thenSamlStatusReportsItEnabled() {
     setSettings();
-    when(auth.isAuthenticated()).thenReturn(true);
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_ENCRYPTED_SAML_RESPONSE, auth, new SamlSettings(settings.asConfig()));
+    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_ENCRYPTED_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES, new SamlSettings(settings.asConfig()));
 
-    assertTrue(samlAuthenticationStatus.isEncryptionEnabled());
+    assertThat(samlAuthenticationStatus.isEncryptionEnabled()).isTrue();
   }
 
   @Test
   public void givenEncryptionDisabled_whenUserIsAuthenticated_thenSamlStatusReportsItDisabled() {
     setSettings();
-    when(auth.isAuthenticated()).thenReturn(true);
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, auth, new SamlSettings(settings.asConfig()));
+    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES, new SamlSettings(settings.asConfig()));
 
-    assertFalse(samlAuthenticationStatus.isEncryptionEnabled());
+    assertThat(samlAuthenticationStatus.isEncryptionEnabled()).isFalse();
   }
 
   @Test
   public void whenUserIsNotAuthenticated_thenBothSignatureAndEncryptionAreReportedDisabled() {
     setSettings();
-    when(auth.isAuthenticated()).thenReturn(false);
     settings.setProperty("sonar.auth.saml.signature.enabled", true);
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(BASE64_ENCRYPTED_SAML_RESPONSE, auth, new SamlSettings(settings.asConfig()));
+    samlAuthenticationStatus = getSamlAuthenticationStatus("error");
 
-    assertFalse(samlAuthenticationStatus.isEncryptionEnabled());
-    assertFalse(samlAuthenticationStatus.isSignatureEnabled());
+    assertThat(samlAuthenticationStatus.isEncryptionEnabled()).isFalse();
+    assertThat(samlAuthenticationStatus.isSignatureEnabled()).isFalse();
   }
 
   @Test
   public void whenSamlResponseIsNull_thenEncryptionIsReportedDisabled() {
     setSettings();
 
-    samlAuthenticationStatus = getSamlAuthenticationStatus(null, auth, new SamlSettings(settings.asConfig()));
+    samlAuthenticationStatus = getSamlAuthenticationStatus(null, PRINCIPAL_WITH_ALL_ATTRIBUTES, new SamlSettings(settings.asConfig()));
 
-    assertFalse(samlAuthenticationStatus.isEncryptionEnabled());
+    assertThat(samlAuthenticationStatus.isEncryptionEnabled()).isFalse();
   }
 
   private void setSettings() {
@@ -295,21 +268,4 @@ public class SamlStatusCheckerTest {
     settings.setProperty("sonar.auth.saml.user.email", "email");
     settings.setProperty("sonar.auth.saml.group.name", "groups");
   }
-
-  private Map<String, List<String>> getResponseAttributes() {
-    return Map.of(
-      "login", Collections.singletonList("loginId"),
-      "name", Collections.singletonList("userName"),
-      "email", Collections.singletonList("user@sonar.com"),
-      "groups", List.of("group1", "group2"));
-  }
-
-  private Map<String, List<String>> getEmptyAttributes() {
-    return Map.of(
-      "login", Collections.singletonList(""),
-      "name", Collections.singletonList(""),
-      "email", Collections.singletonList(""),
-      "groups", Collections.singletonList(""));
-  }
-*/
 }
