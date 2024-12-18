@@ -21,7 +21,6 @@ package org.sonar.server.qualitygate;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -239,53 +238,6 @@ public class RegisterQualityGatesIT {
       logTester.logs(Level.INFO)).contains("Quality Gate's conditions of [Sonar way] has been updated");
   }
 
-  @Test
-  public void register_sonar_way_legacy_qg_if_not_exists_and_existing_instance() {
-    insertMetrics();
-    QualityGateDto builtin = new QualityGateDto().setName(SonarWayQualityGate.NAME).setBuiltIn(true).setUuid(Uuids.createFast());
-    qualityGateDao.insert(dbSession, builtin);
-    createBuiltInConditions(builtin);
-    dbSession.commit();
-
-    underTest.start();
-
-    var qualityGateDto = qualityGateDao.selectByName(dbSession, RegisterQualityGates.SONAR_WAY_LEGACY_NAME);
-    assertThat(qualityGateDto).isNotNull();
-
-    verifyCorrectSonarWayLegacyQualityGate();
-    assertThat(
-      logTester.logs(Level.INFO)).contains("Sonar way (legacy) Quality Gate has been created");
-
-  }
-
-  @Test
-  @UseDataProvider("data")
-  public void do_not_register_sonar_way_legacy_qg(boolean isNewInstance, boolean hasSonarWayLegacyQG) {
-    insertMetrics();
-    QualityGateDto builtin = new QualityGateDto().setName(SonarWayQualityGate.NAME).setBuiltIn(true).setUuid(Uuids.createFast());
-    qualityGateDao.insert(dbSession, builtin);
-    if (!isNewInstance) {
-      createBuiltInConditions(builtin);
-    }
-    if (hasSonarWayLegacyQG) {
-      QualityGateDto sonarWayLegacy = new QualityGateDto().setName(RegisterQualityGates.SONAR_WAY_LEGACY_NAME).setBuiltIn(false).setUuid(Uuids.createFast());
-      qualityGateDao.insert(dbSession, sonarWayLegacy);
-    }
-    dbSession.commit();
-
-    underTest.start();
-
-    var qualityGateDto = qualityGateDao.selectByName(dbSession, RegisterQualityGates.SONAR_WAY_LEGACY_NAME);
-    if (hasSonarWayLegacyQG) {
-      assertThat(qualityGateDto).isNotNull();
-    } else {
-      assertThat(qualityGateDto).isNull();
-    }
-
-    assertThat(
-      logTester.logs(Level.INFO)).doesNotContain("Sonar way (legacy) quality gate has been created");
-  }
-
   @DataProvider
   public static Object[][] data() {
     return new Object[][] {
@@ -328,29 +280,6 @@ public class RegisterQualityGatesIT {
         QualityGateConditionDto::getErrorThreshold)
       .containsExactlyInAnyOrder(
         tuple(newViolations.getUuid(), OPERATOR_GREATER_THAN, "0"),
-        tuple(newCoverage.getUuid(), OPERATOR_LESS_THAN, "80"),
-        tuple(newDuplication.getUuid(), OPERATOR_GREATER_THAN, "3"),
-        tuple(newSecurityHotspots.getUuid(), OPERATOR_LESS_THAN, "100"));
-  }
-
-  private void verifyCorrectSonarWayLegacyQualityGate() {
-    MetricDto newReliability = metricDao.selectByKey(dbSession, NEW_RELIABILITY_RATING_KEY);
-    MetricDto newSecurity = metricDao.selectByKey(dbSession, NEW_SECURITY_RATING_KEY);
-    MetricDto newMaintainability = metricDao.selectByKey(dbSession, NEW_MAINTAINABILITY_RATING_KEY);
-    MetricDto newCoverage = metricDao.selectByKey(dbSession, NEW_COVERAGE_KEY);
-    MetricDto newDuplication = metricDao.selectByKey(dbSession, NEW_DUPLICATED_LINES_DENSITY_KEY);
-    MetricDto newSecurityHotspots = metricDao.selectByKey(dbSession, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY);
-    QualityGateDto qualityGateDto = qualityGateDao.selectByName(dbSession, RegisterQualityGates.SONAR_WAY_LEGACY_NAME);
-    assertThat(qualityGateDto).isNotNull();
-    assertThat(qualityGateDto.getCreatedAt()).isNotNull();
-    assertThat(qualityGateDto.isBuiltIn()).isFalse();
-    assertThat(gateConditionDao.selectForQualityGate(dbSession, qualityGateDto.getUuid()))
-      .extracting(QualityGateConditionDto::getMetricUuid, QualityGateConditionDto::getOperator,
-        QualityGateConditionDto::getErrorThreshold)
-      .containsExactlyInAnyOrder(
-        tuple(newReliability.getUuid(), OPERATOR_GREATER_THAN, "1"),
-        tuple(newSecurity.getUuid(), OPERATOR_GREATER_THAN, "1"),
-        tuple(newMaintainability.getUuid(), OPERATOR_GREATER_THAN, "1"),
         tuple(newCoverage.getUuid(), OPERATOR_LESS_THAN, "80"),
         tuple(newDuplication.getUuid(), OPERATOR_GREATER_THAN, "3"),
         tuple(newSecurityHotspots.getUuid(), OPERATOR_LESS_THAN, "100"));

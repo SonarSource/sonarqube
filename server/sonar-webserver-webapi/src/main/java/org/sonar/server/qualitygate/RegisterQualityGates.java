@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -49,24 +48,11 @@ import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.measure.Rating;
 import org.sonar.server.qualitygate.builtin.BuiltInQualityGate;
-import org.sonar.server.qualitygate.builtin.SonarWayQualityGate;
 
-import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toMap;
-import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
-import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_GREATER_THAN;
-import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_LESS_THAN;
 
 public class RegisterQualityGates implements Startable {
-
-  static final String SONAR_WAY_LEGACY_NAME = "Sonar way (legacy)";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RegisterQualityGates.class);
 
@@ -97,8 +83,6 @@ public class RegisterQualityGates implements Startable {
 
       List<QualityGateDto> newBuiltinQualityGates = createBuiltInQualityGates(dbSession, builtinQualityGates);
       builtinQualityGates.addAll(newBuiltinQualityGates);
-
-      createLegacyQualityGate(dbSession, builtinQualityGates);
       updateQualityGates(dbSession, builtinQualityGates);
       cleanupQualityGates(dbSession);
 
@@ -120,40 +104,6 @@ public class RegisterQualityGates implements Startable {
         return qualityGate;
       })
       .toList();
-  }
-
-  private void createLegacyQualityGate(DbSession dbSession, List<QualityGateDto> builtinQualityGates) {
-    Optional<QualityGateDto> existingSonarWay = builtinQualityGates.stream().filter(qg -> SonarWayQualityGate.NAME.equals(qg.getName())).findFirst();
-
-    if (existingSonarWay.isEmpty()) {
-      return;
-    }
-
-    // Create sonar way (legacy) only if it is not a new instance (a new instance has a Sonar way QG and no conditions) and if it is
-    // not already present
-    // FIXME:: The logic explained above doesn't make any sense as after upgrade - legacy Quality Gate will created,
-    // FIXME:: There is open bug ticket to address this issue: SONAR-23753
-    boolean shouldCreateLegacy = qualityGateConditionDao.countByQualityGateUuid(dbSession, existingSonarWay.get().getUuid()) > 0;
-
-    if (!shouldCreateLegacy) {
-      return;
-    }
-
-    QualityGateDto sonarWayLegacyQualityGate = qualityGateDao.selectByName(dbSession, SONAR_WAY_LEGACY_NAME);
-
-    if (sonarWayLegacyQualityGate == null) {
-      sonarWayLegacyQualityGate = createQualityGate(dbSession, SONAR_WAY_LEGACY_NAME, false, false);
-      addConditionsToQualityGate(dbSession, sonarWayLegacyQualityGate, asList(
-        new QualityGateCondition().setMetricKey(NEW_SECURITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold(Integer.toString(Rating.A.getIndex())),
-        new QualityGateCondition().setMetricKey(NEW_RELIABILITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold(Integer.toString(Rating.A.getIndex())),
-        new QualityGateCondition().setMetricKey(NEW_MAINTAINABILITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold(Integer.toString(Rating.A.getIndex())),
-        new QualityGateCondition().setMetricKey(NEW_COVERAGE_KEY).setOperator(OPERATOR_LESS_THAN).setErrorThreshold("80"),
-        new QualityGateCondition().setMetricKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold("3"),
-        new QualityGateCondition().setMetricKey(NEW_SECURITY_HOTSPOTS_REVIEWED_KEY).setOperator(OPERATOR_LESS_THAN).setErrorThreshold("100")));
-      LOGGER.info("Sonar way (legacy) Quality Gate has been created");
-    } else {
-      LOGGER.info("Sonar way legacy Gate uuid: {} ", sonarWayLegacyQualityGate.getUuid());
-    }
   }
 
   private void updateQualityGates(DbSession dbSession, List<QualityGateDto> builtinQualityGates) {
