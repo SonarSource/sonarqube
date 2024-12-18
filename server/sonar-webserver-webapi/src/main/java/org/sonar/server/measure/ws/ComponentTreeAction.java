@@ -151,7 +151,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
   static final String ALL_METRIC_SORT_FILTER = "all";
   static final String WITH_MEASURES_ONLY_METRIC_SORT_FILTER = "withMeasuresOnly";
   static final Set<String> METRIC_SORT_FILTERS = ImmutableSortedSet.of(ALL_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER);
-  private static final int MAX_METRIC_KEYS = 25;
+  private static final int MAX_METRIC_KEYS = 75;
   private static final String COMMA_JOIN_SEPARATOR = ", ";
   private static final Set<String> QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE = Set.of(ComponentQualifiers.FILE, ComponentQualifiers.UNIT_TEST_FILE);
 
@@ -182,6 +182,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE)
       .setChangelog(
+        new Change("10.8", format("Number of metric keys is limited to %s", 75)),
         new Change("10.8", String.format("The following metrics are not deprecated anymore: %s",
           MeasuresWsModule.getUndeprecatedMetricsinSonarQube108())),
         new Change("10.8", String.format("Added new accepted values for the 'metricKeys' param: %s",
