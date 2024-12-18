@@ -24,6 +24,8 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 
 @Immutable
@@ -34,14 +36,17 @@ public class ActiveRule {
   private final String pluginKey;
   private final long updatedAt;
   private final String qProfileKey;
+  private final Map<SoftwareQuality, Severity> impacts;
 
-  public ActiveRule(RuleKey ruleKey, String severity, Map<String, String> params, long updatedAt, @Nullable String pluginKey, String qProfileKey) {
+  public ActiveRule(RuleKey ruleKey, String severity, Map<String, String> params, long updatedAt, @Nullable String pluginKey, String qProfileKey,
+    Map<SoftwareQuality, Severity> impacts) {
     this.ruleKey = ruleKey;
     this.severity = severity;
     this.pluginKey = pluginKey;
     this.params = ImmutableMap.copyOf(params);
     this.updatedAt = updatedAt;
     this.qProfileKey = qProfileKey;
+    this.impacts = impacts;
   }
 
   public RuleKey getRuleKey() {
@@ -67,5 +72,9 @@ public class ActiveRule {
 
   public String getQProfileKey() {
     return qProfileKey;
+  }
+
+  public Map<SoftwareQuality, Severity> getImpacts() {
+    return impacts;
   }
 }

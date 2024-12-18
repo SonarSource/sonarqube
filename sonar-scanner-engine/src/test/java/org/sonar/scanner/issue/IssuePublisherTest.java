@@ -53,6 +53,7 @@ import org.sonar.scanner.report.ReportPublisher;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -62,7 +63,6 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.batch.sensor.issue.MessageFormatting.Type.CODE;
 import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
 import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
-import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IssuePublisherTest {
@@ -136,21 +136,23 @@ public class IssuePublisherTest {
       .overrideImpact(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH)
       .overrideImpact(RELIABILITY, org.sonar.api.issue.impact.Severity.LOW);
 
-    when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class))).thenReturn(true);
+    when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class), anyString())).thenReturn(true);
 
     boolean added = moduleIssues.initAndAddIssue(issue);
 
     assertThat(added).isTrue();
     ArgumentCaptor<ScannerReport.Issue> argument = ArgumentCaptor.forClass(ScannerReport.Issue.class);
     verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.scannerId()), argument.capture());
-    assertThat(argument.getValue().getSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.CRITICAL);
+    assertThat(argument.getValue().getOverriddenSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.CRITICAL);
     assertThat(argument.getValue().getQuickFixAvailable()).isTrue();
     assertThat(argument.getValue().getRuleDescriptionContextKey()).isEqualTo(ruleDescriptionContextKey);
     assertThat(argument.getValue().getCodeVariantsList()).containsExactly("variant1", "variant2");
 
-    ScannerReport.Impact impact1 = ScannerReport.Impact.newBuilder().setSoftwareQuality(MAINTAINABILITY.name()).setSeverity("HIGH").build();
-    ScannerReport.Impact impact2 = ScannerReport.Impact.newBuilder().setSoftwareQuality(RELIABILITY.name()).setSeverity("LOW").build();
-    assertThat(argument.getValue().getOverridenImpactsList()).containsExactlyInAnyOrder(impact1, impact2);
+    ScannerReport.Impact impact1 = ScannerReport.Impact.newBuilder().setSoftwareQuality(ScannerReport.SoftwareQuality.MAINTAINABILITY)
+      .setSeverity(ScannerReport.ImpactSeverity.ImpactSeverity_HIGH).build();
+    ScannerReport.Impact impact2 = ScannerReport.Impact.newBuilder().setSoftwareQuality(ScannerReport.SoftwareQuality.RELIABILITY)
+      .setSeverity(ScannerReport.ImpactSeverity.ImpactSeverity_LOW).build();
+    assertThat(argument.getValue().getOverriddenImpactsList()).containsExactlyInAnyOrder(impact1, impact2);
   }
 
   @Test
@@ -169,7 +171,7 @@ public class IssuePublisherTest {
       .addFlow(List.of(new DefaultIssueLocation().on(file)), NewIssue.FlowType.EXECUTION, null)
       .forRule(JAVA_RULE_KEY);
 
-    when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class))).thenReturn(true);
+    when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class), anyString())).thenReturn(true);
     moduleIssues.initAndAddIssue(issue);
 
     ArgumentCaptor<ScannerReport.Issue> argument = ArgumentCaptor.forClass(ScannerReport.Issue.class);
@@ -227,75 +229,24 @@ public class IssuePublisherTest {
     ArgumentCaptor<ScannerReport.ExternalIssue> argument = ArgumentCaptor.forClass(ScannerReport.ExternalIssue.class);
     verify(reportPublisher.getWriter()).appendComponentExternalIssue(eq(file.scannerId()), argument.capture());
     assertThat(argument.getValue().getImpactsList()).extracting(ScannerReport.Impact::getSoftwareQuality, ScannerReport.Impact::getSeverity)
-      .containsExactly(tuple(MAINTAINABILITY.name(), org.sonar.api.issue.impact.Severity.LOW.name()));
+      .containsExactly(tuple(ScannerReport.SoftwareQuality.MAINTAINABILITY, ScannerReport.ImpactSeverity.ImpactSeverity_LOW));
     assertThat(argument.getValue().getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR.name());
   }
 
   @Test
-  public void use_severity_from_active_rule_if_no_severity_on_issue() {
+  public void dont_store_severity_if_no_severity_override_on_issue() {
     initModuleIssues();
 
     DefaultIssue issue = new DefaultIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
       .forRule(JAVA_RULE_KEY);
-    when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class))).thenReturn(true);
+    when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class), eq("INFO"))).thenReturn(true);
     moduleIssues.initAndAddIssue(issue);
 
     ArgumentCaptor<ScannerReport.Issue> argument = ArgumentCaptor.forClass(ScannerReport.Issue.class);
     verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.scannerId()), argument.capture());
-    assertThat(argument.getValue().getSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.INFO);
-    assertThat(argument.getValue().getOverridenImpactsList()).isEmpty();
-  }
-
-  @Test
-  public void initAndAddIssue_whenImpactsOverriddenOnActiveRule_shouldOverrideIssue() {
-    activeRulesBuilder.addRule(new NewActiveRule.Builder()
-      .setRuleKey(NOSONAR_RULE_KEY)
-      .setSeverity(Severity.INFO)
-      .setImpact(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH)
-      .setQProfileKey("qp-1")
-      .build());
-    initModuleIssues();
-
-    DefaultIssue issue = new DefaultIssue(project)
-      .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
-      .forRule(NOSONAR_RULE_KEY);
-    when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class))).thenReturn(true);
-    moduleIssues.initAndAddIssue(issue);
-
-    ArgumentCaptor<ScannerReport.Issue> argument = ArgumentCaptor.forClass(ScannerReport.Issue.class);
-    verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.scannerId()), argument.capture());
-    assertThat(argument.getValue().getSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.INFO);
-    assertThat(argument.getValue().getOverridenImpactsList()).extracting(ScannerReport.Impact::getSoftwareQuality, ScannerReport.Impact::getSeverity)
-      .containsExactly(tuple(MAINTAINABILITY.name(), org.sonar.api.issue.impact.Severity.HIGH.name()));
-  }
-
-  @Test
-  public void initAndAddIssue_whenImpactsOverriddenOnActiveRuleAndInIssue_shouldCombineOverriddenImpacts() {
-    activeRulesBuilder.addRule(new NewActiveRule.Builder()
-      .setRuleKey(NOSONAR_RULE_KEY)
-      .setSeverity(Severity.INFO)
-      .setImpact(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH)
-      .setImpact(SECURITY, org.sonar.api.issue.impact.Severity.INFO)
-      .setQProfileKey("qp-1")
-      .build());
-    initModuleIssues();
-
-    DefaultIssue issue = new DefaultIssue(project)
-      .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
-      .overrideImpact(RELIABILITY, org.sonar.api.issue.impact.Severity.MEDIUM)
-      .overrideImpact(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW)
-      .forRule(NOSONAR_RULE_KEY);
-    when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class))).thenReturn(true);
-    moduleIssues.initAndAddIssue(issue);
-
-    ArgumentCaptor<ScannerReport.Issue> argument = ArgumentCaptor.forClass(ScannerReport.Issue.class);
-    verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.scannerId()), argument.capture());
-    assertThat(argument.getValue().getSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.INFO);
-    assertThat(argument.getValue().getOverridenImpactsList()).extracting(ScannerReport.Impact::getSoftwareQuality, ScannerReport.Impact::getSeverity)
-      .containsExactlyInAnyOrder(tuple(MAINTAINABILITY.name(), org.sonar.api.issue.impact.Severity.LOW.name()),
-        tuple(RELIABILITY.name(), org.sonar.api.issue.impact.Severity.MEDIUM.name()),
-        tuple(SECURITY.name(), org.sonar.api.issue.impact.Severity.INFO.name()));
+    assertThat(argument.getValue().hasOverriddenSeverity()).isFalse();
+    assertThat(argument.getValue().getOverriddenImpactsList()).isEmpty();
   }
 
   @Test
@@ -304,7 +255,7 @@ public class IssuePublisherTest {
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message(""))
       .forRule(JAVA_RULE_KEY);
 
-    when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class))).thenReturn(false);
+    when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class), anyString())).thenReturn(false);
 
     boolean added = moduleIssues.initAndAddIssue(issue);
 
@@ -344,7 +295,7 @@ public class IssuePublisherTest {
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message(""))
       .forRule(NOSONAR_RULE_KEY);
 
-    when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class))).thenReturn(true);
+    when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class), anyString())).thenReturn(true);
 
     boolean added = moduleIssues.initAndAddIssue(issue);
 

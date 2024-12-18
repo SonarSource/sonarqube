@@ -59,7 +59,8 @@ public class NewAdHocRuleTest {
   public void constructor_whenAdhocRuleHasProvidedImpact_shouldMapTypeAndSeverityAccordingly() {
     NewAdHocRule adHocRule = new NewAdHocRule(ScannerReport.AdHocRule.newBuilder()
       .setEngineId("eslint").setRuleId("no-cond-assign").setName("name")
-      .addDefaultImpacts(ScannerReport.Impact.newBuilder().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY.name()).setSeverity(Severity.LOW.name()).build())
+      .addDefaultImpacts(
+        ScannerReport.Impact.newBuilder().setSoftwareQuality(ScannerReport.SoftwareQuality.MAINTAINABILITY).setSeverity(ScannerReport.ImpactSeverity.ImpactSeverity_LOW).build())
       .build());
 
     assertThat(adHocRule.getRuleType()).isEqualTo(RuleType.CODE_SMELL);
@@ -84,8 +85,8 @@ public class NewAdHocRuleTest {
       .setEngineId("eslint").setRuleId("no-cond-assign").setName("name")
       .setType(ScannerReport.IssueType.CODE_SMELL)
       .setSeverity(Constants.Severity.MINOR)
-      .addDefaultImpacts(ScannerReport.Impact.newBuilder().setSoftwareQuality(SoftwareQuality.RELIABILITY.name())
-        .setSeverity(Severity.HIGH.name()).build())
+      .addDefaultImpacts(ScannerReport.Impact.newBuilder().setSoftwareQuality(ScannerReport.SoftwareQuality.RELIABILITY)
+        .setSeverity(ScannerReport.ImpactSeverity.ImpactSeverity_HIGH).build())
       .build());
 
     assertThat(adHocRule.getDefaultImpacts())

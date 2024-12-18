@@ -21,13 +21,16 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
@@ -37,6 +40,7 @@ import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.issue.filter.IssueFilter;
+import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRule;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.core.issue.DefaultIssue;
@@ -47,13 +51,11 @@ import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.scanner.protocol.Constants;
-import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Impact;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueType;
 import org.sonar.server.rule.CommonRuleKeys;
 
-import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
@@ -146,7 +148,7 @@ public class TrackerRawInputFactory {
 
     private boolean isOnInactiveRule(ScannerReport.Issue reportIssue) {
       RuleKey ruleKey = RuleKey.of(reportIssue.getRuleRepository(), reportIssue.getRuleKey());
-      return !activeRulesHolder.get(ruleKey).isPresent();
+      return activeRulesHolder.get(ruleKey).isEmpty();
     }
 
     private boolean isIssueOnUnsupportedCommonRule(ScannerReport.Issue issue) {
@@ -176,9 +178,7 @@ public class TrackerRawInputFactory {
         Rule rule = ruleRepository.getByKey(ruleKey);
         issue.setMessage(rule.getName());
       }
-      if (reportIssue.getSeverity() != Severity.UNSET_SEVERITY) {
-        issue.setSeverity(reportIssue.getSeverity().name());
-      }
+      issue.setSeverity(replaceDefaultWithOverriddenSeverity(issue.ruleKey(), reportIssue));
       if (Double.compare(reportIssue.getGap(), 0D) != 0) {
         issue.setGap(reportIssue.getGap());
       }
@@ -198,24 +198,56 @@ public class TrackerRawInputFactory {
       issue.setRuleDescriptionContextKey(reportIssue.hasRuleDescriptionContextKey() ? reportIssue.getRuleDescriptionContextKey() : null);
       issue.setCodeVariants(reportIssue.getCodeVariantsList());
 
-      issue.replaceImpacts(replaceDefaultWithOverridenImpacts(issue.ruleKey(), reportIssue.getOverridenImpactsList()));
+      issue.replaceImpacts(replaceDefaultWithOverriddenImpactsForIssue(issue.ruleKey(), reportIssue.getOverriddenImpactsList()));
       return issue;
     }
 
-    private Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> replaceDefaultWithOverridenImpacts(RuleKey ruleKey, List<Impact> overridenImpactsList) {
-      Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> overridenImpactMap = getOverridenImpactMap(overridenImpactsList);
-      return ruleRepository.getByKey(ruleKey).getDefaultImpacts().entrySet()
-        .stream()
-        .collect(toMap(
-          Map.Entry::getKey,
-          entry -> overridenImpactMap.containsKey(entry.getKey()) ? overridenImpactMap.get(entry.getKey()) : entry.getValue()));
+    private String replaceDefaultWithOverriddenSeverity(RuleKey ruleKey, ScannerReport.Issue reportIssue) {
+      if (reportIssue.hasOverriddenSeverity()) {
+        return reportIssue.getOverriddenSeverity().name();
+      } else {
+        // Rule can't be inactive (see contract of IssueVisitor)
+        ActiveRule activeRule = activeRulesHolder.get(ruleKey).orElseThrow(() -> new IllegalStateException("Rule " + ruleKey + " is not active"));
+        return activeRule.getSeverity();
+      }
     }
 
-    private static Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> getOverridenImpactMap(List<Impact> overridenImpactsList) {
-      return overridenImpactsList.stream()
-        .collect(toMap(
-          impact -> SoftwareQuality.valueOf(impact.getSoftwareQuality()),
-          impact -> org.sonar.api.issue.impact.Severity.valueOf(impact.getSeverity())));
+    private Map<SoftwareQuality, Severity> replaceDefaultWithOverriddenImpactsForIssue(RuleKey ruleKey, List<Impact> overriddenImpactsList) {
+      // Rule can't be inactive (see contract of IssueVisitor)
+      ActiveRule activeRule = activeRulesHolder.get(ruleKey).orElseThrow(() -> new IllegalStateException("Rule " + ruleKey + " is not active"));
+      return replaceDefaultWithOverriddenImpacts(ruleKey, activeRule, overriddenImpactsList);
+    }
+
+    private Map<SoftwareQuality, Severity> replaceDefaultWithOverriddenImpactsForExternalIssue(RuleKey ruleKey, List<Impact> overriddenImpactsList) {
+      return replaceDefaultWithOverriddenImpacts(ruleKey, null, overriddenImpactsList);
+    }
+
+    private Map<SoftwareQuality, Severity> replaceDefaultWithOverriddenImpacts(RuleKey ruleKey, @Nullable ActiveRule activeRule,
+      List<Impact> overriddenImpactsList) {
+      EnumMap<SoftwareQuality, Severity> impacts = new EnumMap<>(SoftwareQuality.class);
+      impacts.putAll(ruleRepository.getByKey(ruleKey).getDefaultImpacts());
+      if (activeRule != null) {
+        // Override default impacts with the ones possibly defined in the quality profile
+        overrideImpacts(impacts, activeRule.getImpacts());
+      }
+      // Override default impacts with the ones possibly defined at the issue level
+      overrideImpacts(impacts, toMap(overriddenImpactsList));
+      return impacts;
+    }
+
+    private void overrideImpacts(EnumMap<SoftwareQuality, Severity> impacts, Map<SoftwareQuality, Severity> overridenImpactMap) {
+      overridenImpactMap.forEach((softwareQuality, severity) -> {
+        if (impacts.containsKey(softwareQuality)) {
+          impacts.put(softwareQuality, severity);
+        }
+      });
+    }
+
+    private static Map<SoftwareQuality, Severity> toMap(List<Impact> overriddenImpactsList) {
+      return overriddenImpactsList.stream()
+        .collect(Collectors.toMap(
+          impact -> SoftwareQuality.valueOf(impact.getSoftwareQuality().name()),
+          impact -> org.sonar.ce.task.projectanalysis.issue.ImpactMapper.mapImpactSeverity(impact.getSeverity())));
     }
 
     private DbIssues.Flow.Builder convertLocations(ScannerReport.Flow flow) {
@@ -230,7 +262,6 @@ public class TrackerRawInputFactory {
       return dbFlowBuilder;
     }
 
-
     private DefaultIssue toExternalIssue(LineHashSequence lineHashSeq, ScannerReport.ExternalIssue reportExternalIssue, Map<RuleKey, ScannerReport.AdHocRule> adHocRuleMap) {
       DefaultIssue issue = new DefaultIssue();
       RuleKey ruleKey = RuleKey.of(RuleKey.EXTERNAL_RULE_REPO_PREFIX + reportExternalIssue.getEngineId(), reportExternalIssue.getRuleId());
@@ -240,7 +271,7 @@ public class TrackerRawInputFactory {
       Rule existingRule = ruleRepository.getByKey(ruleKey);
       issue.setSeverity(determineDeprecatedSeverity(reportExternalIssue, existingRule));
       issue.setType(determineDeprecatedType(reportExternalIssue, existingRule));
-      issue.replaceImpacts(replaceDefaultWithOverridenImpacts(issue.ruleKey(), reportExternalIssue.getImpactsList()));
+      issue.replaceImpacts(replaceDefaultWithOverriddenImpactsForExternalIssue(issue.ruleKey(), reportExternalIssue.getImpactsList()));
 
       init(issue, issue.type() == RuleType.SECURITY_HOTSPOT ? STATUS_TO_REVIEW : STATUS_OPEN);
 
@@ -282,32 +313,22 @@ public class TrackerRawInputFactory {
     }
 
     private Optional<DbIssues.FlowType> toFlowType(ScannerReport.FlowType flowType) {
-      switch (flowType) {
-        case DATA:
-          return Optional.of(DbIssues.FlowType.DATA);
-        case EXECUTION:
-          return Optional.of(DbIssues.FlowType.EXECUTION);
-        case UNDEFINED:
-          return Optional.empty();
-        default:
-          throw new IllegalArgumentException("Unrecognized type: " + flowType);
-      }
+      return switch (flowType) {
+        case DATA -> Optional.of(DbIssues.FlowType.DATA);
+        case EXECUTION -> Optional.of(DbIssues.FlowType.EXECUTION);
+        case UNDEFINED -> Optional.empty();
+        default -> throw new IllegalArgumentException("Unrecognized type: " + flowType);
+      };
     }
 
     private RuleType toRuleType(IssueType type) {
-      switch (type) {
-        case BUG:
-          return RuleType.BUG;
-        case CODE_SMELL:
-          return RuleType.CODE_SMELL;
-        case VULNERABILITY:
-          return RuleType.VULNERABILITY;
-        case SECURITY_HOTSPOT:
-          return RuleType.SECURITY_HOTSPOT;
-        case UNRECOGNIZED:
-        default:
-          throw new IllegalStateException("Invalid issue type: " + type);
-      }
+      return switch (type) {
+        case BUG -> RuleType.BUG;
+        case CODE_SMELL -> RuleType.CODE_SMELL;
+        case VULNERABILITY -> RuleType.VULNERABILITY;
+        case SECURITY_HOTSPOT -> RuleType.SECURITY_HOTSPOT;
+        default -> throw new IllegalStateException("Invalid issue type: " + type);
+      };
     }
 
     private DefaultIssue init(DefaultIssue issue, String initialStatus) {
@@ -325,7 +346,7 @@ public class TrackerRawInputFactory {
       if (source.getComponentRef() != 0 && source.getComponentRef() != component.getReportAttributes().getRef()) {
         // SONAR-10781 Component might not exist because on PR, only changed components are included in the report
         Optional<Component> optionalComponent = treeRootHolder.getOptionalComponentByRef(source.getComponentRef());
-        if (!optionalComponent.isPresent()) {
+        if (optionalComponent.isEmpty()) {
           return Optional.empty();
         }
         target.setComponentId(optionalComponent.get().getUuid());
@@ -379,7 +400,6 @@ public class TrackerRawInputFactory {
     }
 
   }
-
 
   private static DbIssues.MessageFormattings convertMessageFormattings(List<ScannerReport.MessageFormatting> msgFormattings) {
     DbIssues.MessageFormattings.Builder builder = DbIssues.MessageFormattings.newBuilder();

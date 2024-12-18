@@ -60,6 +60,12 @@ class LoadQualityProfilesStepTest {
       .setRuleRepository(XOO_X1.repository())
       .setRuleKey(XOO_X1.rule())
       .setSeverity(Constants.Severity.BLOCKER)
+      .addImpacts(ScannerReport.Impact.newBuilder()
+        .setSoftwareQuality(ScannerReport.SoftwareQuality.MAINTAINABILITY)
+        .setSeverity(ScannerReport.ImpactSeverity.ImpactSeverity_LOW))
+      .addImpacts(ScannerReport.Impact.newBuilder()
+        .setSoftwareQuality(ScannerReport.SoftwareQuality.RELIABILITY)
+        .setSeverity(ScannerReport.ImpactSeverity.ImpactSeverity_BLOCKER))
       .setCreatedAt(1000L)
       .setUpdatedAt(1200L);
     batch1.getMutableParamsByKey().put("p1", "v1");
@@ -74,6 +80,9 @@ class LoadQualityProfilesStepTest {
 
     ActiveRule ar1 = activeRulesHolder.get(XOO_X1).get();
     assertThat(ar1.getSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(ar1.getImpacts()).contains(
+      MapEntry.entry(org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW),
+      MapEntry.entry(org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.BLOCKER));
     assertThat(ar1.getParams()).containsExactly(MapEntry.entry("p1", "v1"));
     assertThat(ar1.getPluginKey()).isEqualTo("xoo");
     assertThat(ar1.getUpdatedAt()).isEqualTo(1200L);

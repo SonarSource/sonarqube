@@ -151,8 +151,8 @@ class DefaultSensorStorageTest {
       .forMetric(CoreMetrics.LINES)
       .withValue(10);
     assertThatThrownBy(() -> underTest.store(defaultMeasure))
-        .isInstanceOf(UnsupportedOperationException.class)
-        .hasMessage("Unknown metric: lines");
+      .isInstanceOf(UnsupportedOperationException.class)
+      .hasMessage("Unknown metric: lines");
   }
 
   @Test
@@ -392,8 +392,8 @@ class DefaultSensorStorageTest {
         .containsExactlyInAnyOrder("ruleId", "name", Constants.Severity.MAJOR, ScannerReport.IssueType.CODE_SMELL, "description");
       assertThat(adhocRule.getDefaultImpactsList()).hasSize(2).extracting(ScannerReport.Impact::getSoftwareQuality, ScannerReport.Impact::getSeverity)
         .containsExactlyInAnyOrder(
-          Tuple.tuple(SoftwareQuality.MAINTAINABILITY.name(), Severity.HIGH.name()),
-          Tuple.tuple(SoftwareQuality.RELIABILITY.name(), Severity.MEDIUM.name()));
+          Tuple.tuple(ScannerReport.SoftwareQuality.MAINTAINABILITY, ScannerReport.ImpactSeverity.ImpactSeverity_HIGH),
+          Tuple.tuple(ScannerReport.SoftwareQuality.RELIABILITY, ScannerReport.ImpactSeverity.ImpactSeverity_MEDIUM));
       assertThat(adhocRule.getCleanCodeAttribute())
         .isEqualTo(CleanCodeAttribute.CLEAR.name());
     }

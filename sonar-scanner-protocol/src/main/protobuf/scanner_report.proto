@@ -100,6 +100,7 @@ message ActiveRule {
   int64 createdAt = 5;
   int64 updatedAt = 6;
   string q_profile_key = 7;
+  repeated Impact impacts = 8;
 }
 
 message ComponentLink {
@@ -196,7 +197,7 @@ message Issue {
   string rule_key = 2;
   // Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
   string msg = 3;
-  Severity severity = 4;
+  optional Severity overriddenSeverity = 4;
   double gap = 5;
   // Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
   // Will be identical to the first location of the first flow
@@ -206,7 +207,7 @@ message Issue {
   optional string ruleDescriptionContextKey = 9;
   repeated MessageFormatting msgFormatting = 10;
   repeated string codeVariants = 11;
-  repeated Impact overridenImpacts = 12;
+  repeated Impact overriddenImpacts = 12;
 }
 
 message ExternalIssue {
@@ -373,8 +374,30 @@ message AnalysisWarning {
 }
 
 message Impact {
-  string software_quality = 1;
-  string severity = 2;
+  SoftwareQuality software_quality = 1;
+  ImpactSeverity severity = 2;
+}
+
+enum ImpactSeverity {
+  // Zero is required in order to not get first entry as a default value
+  // See http://androiddevblog.com/protocol-buffers-pitfall-adding-enum-values/
+  ImpactSeverity_UNKNOWN_IMPACT_SEVERITY = 0;
+  ImpactSeverity_LOW = 1;
+  ImpactSeverity_MEDIUM = 2;
+  ImpactSeverity_HIGH = 3;
+  // INFO and BLOCKER conflicts with Severity enum, so we use different values prefixed with enum name
+  // See https://github.com/protocolbuffers/protobuf/issues/5425
+  ImpactSeverity_INFO = 4;
+  ImpactSeverity_BLOCKER = 5;
+}
+
+enum SoftwareQuality {
+  // Zero is required in order to not get first entry as a default value
+  // See http://androiddevblog.com/protocol-buffers-pitfall-adding-enum-values/
+  UNKNOWN_IMPACT_QUALITY = 0;
+  MAINTAINABILITY = 1;
+  RELIABILITY = 2;
+  SECURITY = 3;
 }
 
 message Dependency {

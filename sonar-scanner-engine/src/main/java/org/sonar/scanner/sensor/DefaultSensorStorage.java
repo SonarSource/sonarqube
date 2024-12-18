@@ -68,6 +68,7 @@ import org.sonar.core.util.CloseableIterator;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.internal.pmd.PmdBlockChunker;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
+import org.sonar.scanner.issue.ImpactMapper;
 import org.sonar.scanner.issue.IssuePublisher;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.FileStructure;
@@ -263,7 +264,6 @@ public class DefaultSensorStorage implements SensorStorage {
       builder.setDescription(description);
     }
 
-
     org.sonar.api.batch.rule.Severity severity = adHocRule.severity();
     if (severity != null) {
       builder.setSeverity(Constants.Severity.valueOf(severity.name()));
@@ -285,8 +285,8 @@ public class DefaultSensorStorage implements SensorStorage {
   private static List<ScannerReport.Impact> mapImpacts(Map<SoftwareQuality, Severity> impactsMap) {
     return impactsMap.entrySet().stream()
       .map(e -> ScannerReport.Impact.newBuilder()
-        .setSoftwareQuality(e.getKey().name())
-        .setSeverity(e.getValue().name()).build())
+        .setSoftwareQuality(ScannerReport.SoftwareQuality.valueOf(e.getKey().name()))
+        .setSeverity(ImpactMapper.mapImpactSeverity(e.getValue())).build())
       .toList();
   }
 
@@ -379,8 +379,7 @@ public class DefaultSensorStorage implements SensorStorage {
 
   private SortedMap<Integer, ScannerReport.LineCoverage.Builder> reloadExistingCoverage(DefaultInputFile inputFile) {
     SortedMap<Integer, ScannerReport.LineCoverage.Builder> coveragePerLine = new TreeMap<>();
-    try (CloseableIterator<ScannerReport.LineCoverage> lineCoverageCloseableIterator =
-           reportPublisher.getReader().readComponentCoverage(inputFile.scannerId())) {
+    try (CloseableIterator<ScannerReport.LineCoverage> lineCoverageCloseableIterator = reportPublisher.getReader().readComponentCoverage(inputFile.scannerId())) {
       while (lineCoverageCloseableIterator.hasNext()) {
         final ScannerReport.LineCoverage lineCoverage = lineCoverageCloseableIterator.next();
         coveragePerLine.put(lineCoverage.getLine(), ScannerReport.LineCoverage.newBuilder(lineCoverage));
@@ -393,8 +392,8 @@ public class DefaultSensorStorage implements SensorStorage {
     void apply(Integer value, ScannerReport.LineCoverage.Builder builder);
   }
 
-  private static void mergeLineCoverageValues(int lineCount, SortedMap<Integer, Integer> valueByLine, SortedMap<Integer,
-    ScannerReport.LineCoverage.Builder> coveragePerLine, LineCoverageOperation op) {
+  private static void mergeLineCoverageValues(int lineCount, SortedMap<Integer, Integer> valueByLine, SortedMap<Integer, ScannerReport.LineCoverage.Builder> coveragePerLine,
+    LineCoverageOperation op) {
     for (Map.Entry<Integer, Integer> lineMeasure : valueByLine.entrySet()) {
       int lineIdx = lineMeasure.getKey();
       if (lineIdx <= lineCount) {

@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectanalysis.qualityprofile;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
@@ -50,7 +51,7 @@ public class ActiveRulesHolderImplTest {
 
   @Test
   public void get_active_rule() {
-    underTest.set(asList(new ActiveRule(RULE_KEY, Severity.BLOCKER, Collections.emptyMap(), SOME_DATE, PLUGIN_KEY, QP_KEY)));
+    underTest.set(asList(new ActiveRule(RULE_KEY, Severity.BLOCKER, Collections.emptyMap(), SOME_DATE, PLUGIN_KEY, QP_KEY, Map.of())));
 
     Optional<ActiveRule> activeRule = underTest.get(RULE_KEY);
     assertThat(activeRule).isPresent();
@@ -61,7 +62,7 @@ public class ActiveRulesHolderImplTest {
   @Test
   public void can_not_set_twice() {
     assertThatThrownBy(() -> {
-      underTest.set(asList(new ActiveRule(RULE_KEY, Severity.BLOCKER, Collections.emptyMap(), SOME_DATE, PLUGIN_KEY, QP_KEY)));
+      underTest.set(asList(new ActiveRule(RULE_KEY, Severity.BLOCKER, Collections.emptyMap(), SOME_DATE, PLUGIN_KEY, QP_KEY, Map.of())));
       underTest.set(Collections.emptyList());
     })
       .isInstanceOf(IllegalStateException.class)
@@ -79,8 +80,8 @@ public class ActiveRulesHolderImplTest {
   public void can_not_set_duplicated_rules() {
     assertThatThrownBy(() -> {
       underTest.set(asList(
-        new ActiveRule(RULE_KEY, Severity.BLOCKER, Collections.emptyMap(), SOME_DATE, PLUGIN_KEY, QP_KEY),
-        new ActiveRule(RULE_KEY, Severity.MAJOR, Collections.emptyMap(), SOME_DATE, PLUGIN_KEY, QP_KEY)));
+        new ActiveRule(RULE_KEY, Severity.BLOCKER, Collections.emptyMap(), SOME_DATE, PLUGIN_KEY, QP_KEY, Map.of()),
+        new ActiveRule(RULE_KEY, Severity.MAJOR, Collections.emptyMap(), SOME_DATE, PLUGIN_KEY, QP_KEY, Map.of())));
     })
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Active rule must not be declared multiple times: java:S001");

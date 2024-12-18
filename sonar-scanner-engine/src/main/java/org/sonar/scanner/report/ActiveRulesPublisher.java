@@ -21,6 +21,7 @@ package org.sonar.scanner.report;
 
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.DefaultActiveRule;
+import org.sonar.scanner.issue.ImpactMapper;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -46,7 +47,12 @@ public class ActiveRulesPublisher implements ReportPublisherStep {
         builder.setCreatedAt(input.createdAt());
         builder.setUpdatedAt(input.updatedAt());
         builder.setQProfileKey(input.qpKey());
-        builder.getMutableParamsByKey().putAll(input.params());
+        builder.putAllParamsByKey(input.params());
+        builder.addAllImpacts(input.impacts().entrySet().stream()
+          .map(entry -> ScannerReport.Impact.newBuilder()
+            .setSoftwareQuality(ScannerReport.SoftwareQuality.valueOf(entry.getKey().name()))
+            .setSeverity(ImpactMapper.mapImpactSeverity(entry.getValue())).build())
+          .toList());
         return builder.build();
       }).toList());
   }

@@ -134,18 +134,10 @@ public class NewAdHocRule {
 
   private static Map<SoftwareQuality, Severity> mapImpacts(List<ScannerReport.Impact> impacts) {
     if (!impacts.isEmpty()) {
-      return impacts.stream()
-        .collect(Collectors.toMap(i -> mapSoftwareQuality(i.getSoftwareQuality()), i -> mapImpactSeverity(i.getSeverity())));
+      return impacts.stream().collect(Collectors.toMap(impact -> SoftwareQuality.valueOf(
+        impact.getSoftwareQuality().name()), impact -> org.sonar.ce.task.projectanalysis.issue.ImpactMapper.mapImpactSeverity(impact.getSeverity())));
     }
     return Collections.emptyMap();
-  }
-
-  private static Severity mapImpactSeverity(String severity) {
-    return Severity.valueOf(severity);
-  }
-
-  private static SoftwareQuality mapSoftwareQuality(String softwareQuality) {
-    return SoftwareQuality.valueOf(softwareQuality);
   }
 
   public RuleKey getKey() {
@@ -209,6 +201,5 @@ public class NewAdHocRule {
   public int hashCode() {
     return key.hashCode();
   }
-
 
 }

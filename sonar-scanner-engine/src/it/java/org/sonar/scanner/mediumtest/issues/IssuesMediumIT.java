@@ -142,7 +142,7 @@ public class IssuesMediumIT {
       .execute();
 
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/HelloJava.xoo"));
-    assertThat(issues.get(0).getSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.CRITICAL);
+    assertThat(issues.get(0).getOverriddenSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.CRITICAL);
   }
 
   @Test

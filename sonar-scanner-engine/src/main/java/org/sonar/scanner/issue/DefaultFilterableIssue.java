@@ -34,12 +34,14 @@ import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 @ThreadSafe
 public class DefaultFilterableIssue implements FilterableIssue {
   private final Issue rawIssue;
+  private final String severity;
   private final InputComponent component;
   private DefaultInputProject project;
 
-  public DefaultFilterableIssue(DefaultInputProject project, Issue rawIssue, InputComponent component) {
+  public DefaultFilterableIssue(DefaultInputProject project, Issue rawIssue, String severity, InputComponent component) {
     this.project = project;
     this.rawIssue = rawIssue;
+    this.severity = severity;
     this.component = component;
   }
 
@@ -55,7 +57,7 @@ public class DefaultFilterableIssue implements FilterableIssue {
 
   @Override
   public String severity() {
-    return rawIssue.getSeverity().name();
+    return severity;
   }
 
   @Override

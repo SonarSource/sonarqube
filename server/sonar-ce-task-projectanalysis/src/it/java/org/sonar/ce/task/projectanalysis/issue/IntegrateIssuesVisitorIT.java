@@ -170,6 +170,7 @@ public class IntegrateIssuesVisitorIT {
 
   @Test
   public void process_new_issue() {
+    // Active rule has severity major
     ruleRepositoryRule.add(RuleTesting.XOO_X1);
     when(analysisMetadataHolder.isBranch()).thenReturn(true);
     ScannerReport.Issue reportIssue = getReportIssue(RuleTesting.XOO_X1);
@@ -180,15 +181,32 @@ public class IntegrateIssuesVisitorIT {
     List<DefaultIssue> issues = newArrayList(protoIssueCache.traverse());
     assertThat(issues).hasSize(1);
     assertThat(issues.get(0).codeVariants()).containsExactlyInAnyOrder("foo", "bar");
+    assertThat(issues.get(0).severity()).isEqualTo(Severity.MAJOR);
+  }
+
+  @Test
+  public void process_new_issue_with_overridden_severity() {
+    // Active rule has severity major
+    ruleRepositoryRule.add(RuleTesting.XOO_X1);
+    when(analysisMetadataHolder.isBranch()).thenReturn(true);
+    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder(getReportIssue(RuleTesting.XOO_X1)).setOverriddenSeverity(Constants.Severity.BLOCKER).build();
+    reportReader.putIssues(FILE_REF, singletonList(reportIssue));
+
+    underTest.visitAny(FILE);
+
+    List<DefaultIssue> issues = newArrayList(protoIssueCache.traverse());
+    assertThat(issues).hasSize(1);
+    assertThat(issues.get(0).codeVariants()).containsExactlyInAnyOrder("foo", "bar");
+    assertThat(issues.get(0).severity()).isEqualTo(Severity.BLOCKER);
   }
 
   @Test
   public void process_existing_issue() {
+    // Active rule has severity major
     RuleKey ruleKey = RuleTesting.XOO_X1;
-    // Issue from db has severity major
+    // Issue from db has severity minor
     addBaseIssue(ruleKey);
 
-    // Issue from report has severity blocker
     ScannerReport.Issue reportIssue = getReportIssue(ruleKey);
     reportReader.putIssues(FILE_REF, singletonList(reportIssue));
 
@@ -196,24 +214,7 @@ public class IntegrateIssuesVisitorIT {
 
     List<DefaultIssue> issues = newArrayList(protoIssueCache.traverse());
     assertThat(issues).hasSize(1);
-    assertThat(issues.get(0).severity()).isEqualTo(Severity.BLOCKER);
-  }
-
-  @Test
-  public void dont_cache_existing_issue_if_unmodified() {
-    RuleKey ruleKey = RuleTesting.XOO_X1;
-    // Issue from db has severity major
-    addBaseIssue(ruleKey);
-
-    // Issue from report has severity blocker
-    ScannerReport.Issue reportIssue = getReportIssue(ruleKey);
-    reportReader.putIssues(FILE_REF, singletonList(reportIssue));
-
-    underTest.visitAny(FILE);
-
-    List<DefaultIssue> issues = newArrayList(protoIssueCache.traverse());
-    assertThat(issues).hasSize(1);
-    assertThat(issues.get(0).severity()).isEqualTo(Severity.BLOCKER);
+    assertThat(issues.get(0).severity()).isEqualTo(Severity.MAJOR);
   }
 
   @Test
@@ -267,7 +268,6 @@ public class IntegrateIssuesVisitorIT {
   @Test
   public void reuse_issues_when_data_unchanged() {
     RuleKey ruleKey = RuleTesting.XOO_X1;
-    // Issue from db has severity major
     addBaseIssue(ruleKey);
 
     // Issue from report has severity blocker
@@ -298,11 +298,11 @@ public class IntegrateIssuesVisitorIT {
     when(branch.getType()).thenReturn(BranchType.BRANCH);
     when(analysisMetadataHolder.getBranch()).thenReturn(branch);
 
+    // Active rule has severity major
     RuleKey ruleKey = RuleTesting.XOO_X1;
-    // Issue from main branch has severity major
+    // Issue from main branch has severity minor
     addBaseIssueOnBranch(ruleKey);
 
-    // Issue from report has severity blocker
     ScannerReport.Issue reportIssue = getReportIssue(ruleKey);
     reportReader.putIssues(FILE_REF, singletonList(reportIssue));
 
@@ -310,7 +310,7 @@ public class IntegrateIssuesVisitorIT {
 
     List<DefaultIssue> issues = newArrayList(protoIssueCache.traverse());
     assertThat(issues).hasSize(1);
-    assertThat(issues.get(0).severity()).isEqualTo(Severity.BLOCKER);
+    assertThat(issues.get(0).severity()).isEqualTo(Severity.MAJOR);
     assertThat(issues.get(0).isNew()).isFalse();
     assertThat(issues.get(0).isCopied()).isTrue();
     assertThat(issues.get(0).changes()).hasSize(1);
@@ -352,7 +352,7 @@ public class IntegrateIssuesVisitorIT {
 
     IssueDto issue = IssueTesting.newIssue(ruleDto, project, file)
       .setKee("ISSUE")
-      .setSeverity(Severity.MAJOR);
+      .setSeverity(Severity.MINOR);
     dbTester.getDbClient().issueDao().insert(dbTester.getSession(), issue);
     dbTester.getSession().commit();
   }
@@ -382,7 +382,6 @@ public class IntegrateIssuesVisitorIT {
       .setRuleRepository(ruleKey.repository())
       .setRuleKey(ruleKey.rule())
       .addAllCodeVariants(Set.of("foo", "bar"))
-      .setSeverity(Constants.Severity.BLOCKER)
       .build();
   }
 }

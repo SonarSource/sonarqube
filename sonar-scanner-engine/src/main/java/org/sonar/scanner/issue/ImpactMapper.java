@@ -17,19 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.qualityprofile;
+package org.sonar.scanner.issue;
 
-import java.util.Map;
-import java.util.Optional;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.scanner.protocol.output.ScannerReport;
 
-import static java.util.Collections.emptyMap;
-
-public class AlwaysActiveRulesHolderImpl implements ActiveRulesHolder {
-  @Override
-  public Optional<ActiveRule> get(RuleKey ruleKey) {
-    return Optional.of(new ActiveRule(ruleKey, Severity.MAJOR, emptyMap(), 1_000L, null, "qp1", Map.of()));
+public class ImpactMapper {
+  private ImpactMapper() {
   }
 
+  public static ScannerReport.ImpactSeverity mapImpactSeverity(Severity severity) {
+    return switch (severity) {
+      case BLOCKER -> ScannerReport.ImpactSeverity.ImpactSeverity_BLOCKER;
+      case HIGH -> ScannerReport.ImpactSeverity.ImpactSeverity_HIGH;
+      case MEDIUM -> ScannerReport.ImpactSeverity.ImpactSeverity_MEDIUM;
+      case LOW -> ScannerReport.ImpactSeverity.ImpactSeverity_LOW;
+      case INFO -> ScannerReport.ImpactSeverity.ImpactSeverity_INFO;
+    };
+  }
 }

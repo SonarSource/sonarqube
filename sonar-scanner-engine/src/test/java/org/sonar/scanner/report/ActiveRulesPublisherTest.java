@@ -26,6 +26,8 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.DefaultActiveRules;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.Constants;
@@ -36,6 +38,7 @@ import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 
 public class ActiveRulesPublisherTest {
 
@@ -55,6 +58,8 @@ public class ActiveRulesPublisherTest {
       .setCreatedAt(1_000L)
       .setUpdatedAt(2_000L)
       .setQProfileKey("qp1")
+      .setImpact(SoftwareQuality.MAINTAINABILITY, Severity.BLOCKER)
+      .setImpact(SoftwareQuality.RELIABILITY, Severity.LOW)
       .build();
     ActiveRules activeRules = new DefaultActiveRules(singletonList(ar));
 
@@ -73,6 +78,10 @@ public class ActiveRulesPublisherTest {
       assertThat(reportAr.getParamsByKeyMap()).hasSize(1);
       assertThat(reportAr.getParamsByKeyMap().entrySet().iterator().next().getKey()).isEqualTo("p1");
       assertThat(reportAr.getParamsByKeyMap().entrySet().iterator().next().getValue()).isEqualTo("v1");
+      assertThat(reportAr.getImpactsList()).extracting(ScannerReport.Impact::getSoftwareQuality, ScannerReport.Impact::getSeverity)
+        .containsExactlyInAnyOrder(
+          tuple(ScannerReport.SoftwareQuality.MAINTAINABILITY, ScannerReport.ImpactSeverity.ImpactSeverity_BLOCKER),
+          tuple(ScannerReport.SoftwareQuality.RELIABILITY, ScannerReport.ImpactSeverity.ImpactSeverity_LOW));
 
       assertThat(readIt.hasNext()).isFalse();
     }

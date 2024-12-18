@@ -53,20 +53,18 @@ public class DefaultFilterableIssueTest {
       .setStartOffset(10)
       .setEndLine(31)
       .setEndOffset(3));
-    builder.setSeverity(Severity.MAJOR);
     return builder.build();
   }
 
   private Issue createIssueWithoutFields() {
     Issue.Builder builder = Issue.newBuilder();
-    builder.setSeverity(Severity.MAJOR);
     return builder.build();
   }
 
   @Test
   public void testRoundTrip() {
     rawIssue = createIssue();
-    issue = new DefaultFilterableIssue(mockedProject, rawIssue, component);
+    issue = new DefaultFilterableIssue(mockedProject, rawIssue, "MAJOR", component);
 
     when(mockedProject.key()).thenReturn("projectKey");
 
@@ -84,7 +82,7 @@ public class DefaultFilterableIssueTest {
   @Test
   public void nullValues() {
     rawIssue = createIssueWithoutFields();
-    issue = new DefaultFilterableIssue(mockedProject, rawIssue, component);
+    issue = new DefaultFilterableIssue(mockedProject, rawIssue, "MAJOR", component);
 
     assertThat(issue.line()).isNull();
     assertThat(issue.gap()).isNull();

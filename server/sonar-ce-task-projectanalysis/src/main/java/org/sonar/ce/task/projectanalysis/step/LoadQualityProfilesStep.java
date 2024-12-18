@@ -24,9 +24,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.task.projectanalysis.issue.ImpactMapper;
 import org.sonar.ce.task.projectanalysis.issue.Rule;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRule;
@@ -71,6 +75,10 @@ public class LoadQualityProfilesStep implements ComputationStep {
   private static ActiveRule convert(ScannerReport.ActiveRule input, Rule rule) {
     RuleKey key = RuleKey.of(input.getRuleRepository(), input.getRuleKey());
     Map<String, String> params = new HashMap<>(input.getParamsByKeyMap());
-    return new ActiveRule(key, input.getSeverity().name(), params, input.getUpdatedAt(), rule.getPluginKey(), input.getQProfileKey());
+    Map<SoftwareQuality, Severity> impacts = input.getImpactsList().stream()
+      .collect(Collectors.toMap(
+        i -> SoftwareQuality.valueOf(i.getSoftwareQuality().name()),
+        i -> ImpactMapper.mapImpactSeverity(i.getSeverity())));
+    return new ActiveRule(key, input.getSeverity().name(), params, input.getUpdatedAt(), rule.getPluginKey(), input.getQProfileKey(), impacts);
   }
 }

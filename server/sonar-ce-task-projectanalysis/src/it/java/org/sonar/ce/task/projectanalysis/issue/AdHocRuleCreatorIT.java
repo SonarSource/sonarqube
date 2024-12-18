@@ -86,8 +86,8 @@ public class AdHocRuleCreatorIT {
       .setSeverity(Constants.Severity.BLOCKER)
       .setType(ScannerReport.IssueType.BUG)
       .setCleanCodeAttribute(CleanCodeAttribute.DISTINCT.name())
-      .addDefaultImpacts(ScannerReport.Impact.newBuilder().setSoftwareQuality(SoftwareQuality.RELIABILITY.name())
-        .setSeverity(org.sonar.api.issue.impact.Severity.LOW.name()).build())
+      .addDefaultImpacts(ScannerReport.Impact.newBuilder().setSoftwareQuality(ScannerReport.SoftwareQuality.RELIABILITY)
+        .setSeverity(ScannerReport.ImpactSeverity.ImpactSeverity_LOW).build())
       .build());
 
     RuleDto rule = underTest.persistAndIndex(dbSession, addHocRule);
@@ -178,8 +178,8 @@ public class AdHocRuleCreatorIT {
       .setDescription(rule.getAdHocDescription())
       .setSeverity(Constants.Severity.valueOf(rule.getAdHocSeverity()))
       .setType(ScannerReport.IssueType.forNumber(rule.getAdHocType()))
-      .addDefaultImpacts(ScannerReport.Impact.newBuilder().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY.name())
-        .setSeverity(org.sonar.api.issue.impact.Severity.HIGH.name()).build())
+      .addDefaultImpacts(ScannerReport.Impact.newBuilder().setSoftwareQuality(ScannerReport.SoftwareQuality.MAINTAINABILITY)
+        .setSeverity(ScannerReport.ImpactSeverity.ImpactSeverity_HIGH).build())
       .setCleanCodeAttribute(CleanCodeAttribute.CLEAR.name())
       .build()));
 

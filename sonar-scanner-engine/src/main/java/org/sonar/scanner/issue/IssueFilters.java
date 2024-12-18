@@ -41,11 +41,11 @@ public class IssueFilters {
     this.project = project;
   }
 
-  public boolean accept(InputComponent component, ScannerReport.Issue rawIssue) {
+  public boolean accept(InputComponent component, ScannerReport.Issue rawIssue, String severity) {
     if (filterChain == null) {
       throw new IllegalStateException("Issue filters must be registered before this class can be used");
     }
-    FilterableIssue fIssue = new DefaultFilterableIssue(project, rawIssue, component);
+    FilterableIssue fIssue = new DefaultFilterableIssue(project, rawIssue, severity, component);
     return filterChain.accept(fIssue);
   }
 
