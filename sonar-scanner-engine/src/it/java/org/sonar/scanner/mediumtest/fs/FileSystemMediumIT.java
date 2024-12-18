@@ -41,6 +41,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.internal.apachecommons.io.FilenameUtils;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.PathUtils;
@@ -449,7 +450,8 @@ class FileSystemMediumIT {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
-    String expectedLog = String.format("File '%s' is bigger than 1MB and as consequence is removed from the analysis scope.", fileGreaterThanLimit.toPath().toRealPath());
+    String expectedLog = String.format("File '%s' is bigger than 1MB and as consequence is removed from the analysis scope.",
+      fileGreaterThanLimit.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS));
     assertThat(logTester.logs()).contains(expectedLog);
   }
 
@@ -999,12 +1001,13 @@ class FileSystemMediumIT {
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
-        .put("sonar.sources", "src," + PathUtils.canonicalPath(xooFile2))
+        .put("sonar.sources", "src," + FilenameUtils.separatorsToUnix(xooFile2.getPath()))
         .build())
       .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
-    String expectedLog = String.format("File '%s' is ignored. It is not located in project basedir '%s'.", xooFile2.toPath().toRealPath(), baseDir.toPath().toRealPath());
+    String expectedLog = String.format("File '%s' is ignored. It is not located in project basedir '%s'.", xooFile2.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS),
+      baseDir.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS));
     assertThat(logTester.logs(Level.WARN)).contains(expectedLog);
   }
 
@@ -1037,17 +1040,18 @@ class FileSystemMediumIT {
 
     writeFile(moduleA, "src/sampleA.xoo", "Sample xoo\ncontent");
     File xooFile2 = writeFile(baseDir, "another.xoo", "Sample xoo 2\ncontent");
+    Path xooFile2Path = xooFile2.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS);
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .put("sonar.modules", "moduleA")
-        .put("moduleA.sonar.sources", "src," + PathUtils.canonicalPath(xooFile2))
+        .put("moduleA.sonar.sources", "src," + FilenameUtils.separatorsToUnix(xooFile2.getPath()))
         .build())
       .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
-    Path xooFile2Path = xooFile2.toPath().toRealPath();
-    Path moduleAPath = new File(baseDir, "moduleA").toPath().toRealPath();
+
+    Path moduleAPath = new File(baseDir, "moduleA").toPath().toRealPath(LinkOption.NOFOLLOW_LINKS);
     assertThat(logTester.logs(Level.WARN))
       .contains(String.format("File '%s' is ignored. It is not located in module basedir '%s'.", xooFile2Path, moduleAPath));
   }
