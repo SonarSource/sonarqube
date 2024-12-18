@@ -119,8 +119,7 @@ public class SpringGlobalContainer extends SpringComponentContainer {
       ScannerCoreExtensionsInstaller.class,
       DefaultGlobalSettingsLoader.class,
       DefaultNewCodePeriodLoader.class,
-      DefaultMetricsRepositoryLoader.class,
-      RuntimeJavaVersion.class);
+      DefaultMetricsRepositoryLoader.class);
   }
 
   @Override
@@ -140,7 +139,6 @@ public class SpringGlobalContainer extends SpringComponentContainer {
     if (!analysisMode.equals("publish")) {
       throw MessageException.of("The preview mode, along with the 'sonar.analysis.mode' parameter, is no more supported. You should stop using this parameter.");
     }
-    getComponentByType(RuntimeJavaVersion.class).checkJavaVersion();
     new SpringScannerContainer(this).execute();
 
     LOG.info("Analysis total time: {}", formatTime(System.currentTimeMillis() - startTime));
