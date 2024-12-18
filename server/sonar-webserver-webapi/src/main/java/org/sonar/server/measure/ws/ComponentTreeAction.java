@@ -183,6 +183,17 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .addPagingParams(100, MAX_SIZE)
       .setChangelog(
         new Change("10.8", format("Number of metric keys is limited to %s", 75)),
+        new Change("10.8", "Portfolio project metrics now also include: 'contains_ai_code', 'reliability_rating_without_aica', " +
+          "'reliability_rating_with_aica', 'software_quality_security_rating_without_aica', 'software_quality_security_rating_with_aica', " +
+          "'security_rating_without_aica', 'security_rating_with_aica', 'new_reliability_rating_without_aica', 'new_reliability_rating_with_aica', " +
+          "'new_software_quality_reliability_rating_without_aica', 'new_software_quality_reliability_rating_with_aica', 'new_security_rating_without_aica', " +
+          "'new_security_rating_with_aica', 'new_software_quality_security_rating_without_aica', 'new_software_quality_security_rating_with_aica', " +
+          "'security_review_rating_without_aica', 'security_review_rating_with_aica', 'sqale_rating_without_aica', 'sqale_rating_with_aica', " +
+          "'new_software_quality_maintainability_rating_without_aica', 'new_software_quality_maintainability_rating_with_aica', 'ncloc_without_aica', " +
+          "'ncloc_with_aica', 'software_quality_reliability_rating_without_aica', 'software_quality_reliability_rating_with_aica', " +
+          "'new_maintainability_rating_without_aica', 'new_maintainability_rating_with_aica', 'software_quality_maintainability_rating_without_aica', " +
+          "'software_quality_maintainability_rating_with_aica', 'new_security_review_rating_without_aica', 'new_security_review_rating_with_aica', " +
+          "'releasability_rating_without_aica', 'releasability_rating_with_aica'"),
         new Change("10.8", String.format("The following metrics are not deprecated anymore: %s",
           MeasuresWsModule.getUndeprecatedMetricsinSonarQube108())),
         new Change("10.8", String.format("Added new accepted values for the 'metricKeys' param: %s",
