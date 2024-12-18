@@ -392,7 +392,7 @@ public class TrackerRawInputFactory {
       } else if (rule.getSeverity() != null) {
         return rule.getSeverity();
       } else if (!rule.getDefaultImpacts().isEmpty()) {
-        org.sonar.api.issue.impact.Severity impactSeverity = ImpactMapper.getBestImpactForBackmapping(rule.getDefaultImpacts()).getValue();
+        Severity impactSeverity = ImpactMapper.getBestImpactForBackmapping(rule.getDefaultImpacts()).getValue();
         return ImpactMapper.convertToDeprecatedSeverity(impactSeverity);
       } else {
         throw new IllegalArgumentException("Cannot determine the severity for issue of rule %s".formatted(reportExternalIssue.getRuleId()));
