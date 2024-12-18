@@ -20,9 +20,6 @@
 package org.sonar.server.issue.workflow;
 
 import com.google.common.collect.Collections2;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -30,22 +27,29 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.time.DateUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.issue.DefaultTransitions;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.TaintChecker;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang3.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_REMOVED;
@@ -59,15 +63,25 @@ import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByScanBuilder;
 
-@RunWith(DataProviderRunner.class)
-public class IssueWorkflowTest {
+class IssueWorkflowTest {
 
-  private IssueFieldsSetter updater = new IssueFieldsSetter();
+  private static final String[] ALL_STATUSES_LEADING_TO_CLOSED = new String[]{STATUS_OPEN, STATUS_REOPENED, STATUS_CONFIRMED, STATUS_RESOLVED};
+  private static final String[] ALL_RESOLUTIONS_BEFORE_CLOSING = new String[]{
+    null,
+    RESOLUTION_FIXED,
+    RESOLUTION_WONT_FIX,
+    RESOLUTION_FALSE_POSITIVE
+  };
+  private static final String[] SUPPORTED_RESOLUTIONS_FOR_UNCLOSING = new String[] {RESOLUTION_FIXED, RESOLUTION_REMOVED};
 
-  private IssueWorkflow underTest = new IssueWorkflow(new FunctionExecutor(updater), updater);
+  private final IssueFieldsSetter updater = new IssueFieldsSetter();
+
+  private final TaintChecker taintChecker = mock(TaintChecker.class);
+
+  private final IssueWorkflow underTest = new IssueWorkflow(new FunctionExecutor(updater), updater, taintChecker);
 
   @Test
-  public void list_statuses() {
+  void list_statuses() {
     underTest.start();
 
     List<String> expectedStatus = new ArrayList<>();
@@ -80,7 +94,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void list_out_transitions_from_status_open() {
+  void list_out_transitions_from_status_open() {
     underTest.start();
 
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_OPEN);
@@ -89,7 +103,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void list_out_transitions_from_status_confirmed() {
+  void list_out_transitions_from_status_confirmed() {
     underTest.start();
 
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_CONFIRMED);
@@ -98,7 +112,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void list_out_transitions_from_status_resolved() {
+  void list_out_transitions_from_status_resolved() {
     underTest.start();
 
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_RESOLVED);
@@ -107,7 +121,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void list_out_transitions_from_status_reopen() {
+  void list_out_transitions_from_status_reopen() {
     underTest.start();
 
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_REOPENED);
@@ -116,7 +130,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void list_no_out_transition_from_status_closed() {
+  void list_no_out_transition_from_status_closed() {
     underTest.start();
 
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_CLOSED).setRuleKey(RuleKey.of("java", "R1  "));
@@ -125,7 +139,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void fail_if_unknown_status_when_listing_transitions() {
+  void fail_if_unknown_status_when_listing_transitions() {
     underTest.start();
 
     DefaultIssue issue = new DefaultIssue().setStatus("xxx");
@@ -138,7 +152,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void automatically_close_resolved_issue() {
+  void automatically_close_resolved_issue() {
     underTest.start();
 
     DefaultIssue issue = new DefaultIssue()
@@ -156,9 +170,9 @@ public class IssueWorkflowTest {
     assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
   }
 
-  @Test
-  @UseDataProvider("allStatusesLeadingToClosed")
-  public void automatically_reopen_closed_issue_to_its_previous_status_from_changelog(String previousStatus) {
+  @ParameterizedTest
+  @MethodSource("allStatusesLeadingToClosed")
+  void automatically_reopen_closed_issue_to_its_previous_status_from_changelog(String previousStatus) {
     DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
       .map(resolution -> {
         DefaultIssue issue = newClosedIssue(resolution);
@@ -179,9 +193,9 @@ public class IssueWorkflowTest {
     });
   }
 
-  @Test
-  @UseDataProvider("allStatusesLeadingToClosed")
-  public void automatically_reopen_closed_issue_to_most_recent_previous_status_from_changelog(String previousStatus) {
+  @ParameterizedTest
+  @MethodSource("allStatusesLeadingToClosed")
+  void automatically_reopen_closed_issue_to_most_recent_previous_status_from_changelog(String previousStatus) {
     DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
       .map(resolution -> {
         DefaultIssue issue = newClosedIssue(resolution);
@@ -205,9 +219,9 @@ public class IssueWorkflowTest {
     });
   }
 
-  @Test
-  @UseDataProvider("allResolutionsBeforeClosing")
-  public void automatically_reopen_closed_issue_to_previous_resolution_from_changelog(String resolutionBeforeClosed) {
+  @ParameterizedTest
+  @MethodSource("allResolutionsBeforeClosing")
+  void automatically_reopen_closed_issue_to_previous_resolution_from_changelog(String resolutionBeforeClosed) {
     String randomPreviousStatus = ALL_STATUSES_LEADING_TO_CLOSED[new Random().nextInt(ALL_STATUSES_LEADING_TO_CLOSED.length)];
     DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
       .map(resolution -> {
@@ -231,7 +245,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void automatically_reopen_closed_issue_to_no_resolution_if_no_previous_one_changelog() {
+  void automatically_reopen_closed_issue_to_no_resolution_if_no_previous_one_changelog() {
     String randomPreviousStatus = ALL_STATUSES_LEADING_TO_CLOSED[new Random().nextInt(ALL_STATUSES_LEADING_TO_CLOSED.length)];
     DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
       .map(resolution -> {
@@ -254,9 +268,9 @@ public class IssueWorkflowTest {
     });
   }
 
-  @Test
-  @UseDataProvider("allResolutionsBeforeClosing")
-  public void automatically_reopen_closed_issue_to_previous_resolution_of_closing_the_issue_if_most_recent_of_all_resolution_changes(String resolutionBeforeClosed) {
+  @ParameterizedTest
+  @MethodSource("allResolutionsBeforeClosing")
+  void automatically_reopen_closed_issue_to_previous_resolution_of_closing_the_issue_if_most_recent_of_all_resolution_changes(String resolutionBeforeClosed) {
     String randomPreviousStatus = ALL_STATUSES_LEADING_TO_CLOSED[new Random().nextInt(ALL_STATUSES_LEADING_TO_CLOSED.length)];
     DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
       .map(resolution -> {
@@ -282,15 +296,12 @@ public class IssueWorkflowTest {
     });
   }
 
-  @DataProvider
-  public static Object[][] allResolutionsBeforeClosing() {
-    return Arrays.stream(ALL_RESOLUTIONS_BEFORE_CLOSING)
-      .map(t -> new Object[] {t})
-      .toArray(Object[][]::new);
+  static Stream<String> allResolutionsBeforeClosing() {
+    return Stream.of(ALL_RESOLUTIONS_BEFORE_CLOSING);
   }
 
   @Test
-  public void do_not_automatically_reopen_closed_issue_which_have_no_previous_status_in_changelog() {
+  void do_not_automatically_reopen_closed_issue_which_have_no_previous_status_in_changelog() {
     DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
       .map(IssueWorkflowTest::newClosedIssue)
       .toArray(DefaultIssue[]::new);
@@ -305,25 +316,70 @@ public class IssueWorkflowTest {
     });
   }
 
-  private static final String[] ALL_STATUSES_LEADING_TO_CLOSED = new String[]{STATUS_OPEN, STATUS_REOPENED, STATUS_CONFIRMED, STATUS_RESOLVED};
-  private static final String[] ALL_RESOLUTIONS_BEFORE_CLOSING = new String[]{
-    null,
-    RESOLUTION_FIXED,
-    RESOLUTION_WONT_FIX,
-    RESOLUTION_FALSE_POSITIVE
-  };
+  @Test
+  void automatically_reopen_taint_vulnerability_when_flow_changed() {
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("issue_key")
+      .setRuleKey(RuleKey.of("xoo", "S001"))
+      .setStatus(STATUS_RESOLVED)
+      .setResolution(RESOLUTION_FALSE_POSITIVE)
+      .setLocationsChanged(true)
+      .setNew(false);
+    when(taintChecker.isTaintVulnerability(issue))
+      .thenReturn(true);
 
-  private static final String[] SUPPORTED_RESOLUTIONS_FOR_UNCLOSING = new String[] {RESOLUTION_FIXED, RESOLUTION_REMOVED};
+    underTest.start();
+    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date()).build());
 
-  @DataProvider
-  public static Object[][] allStatusesLeadingToClosed() {
-    return Arrays.stream(ALL_STATUSES_LEADING_TO_CLOSED)
-      .map(t -> new Object[]{t})
-      .toArray(Object[][]::new);
+    assertThat(issue.issueStatus()).isEqualTo(IssueStatus.OPEN);
+    List<DefaultIssueComment> issueComments = issue.defaultIssueComments();
+    assertThat(issueComments).hasSize(1);
+    DefaultIssueComment defaultIssueComment = issueComments.get(0);
+    assertThat(defaultIssueComment.markdownText()).isEqualTo("Automatically reopened because the vulnerability flow changed.");
   }
 
   @Test
-  public void close_open_dead_issue() {
+  void do_not_automatically_reopen_issue_when_flow_changed_but_not_taint_vulnerability() {
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("issue_key")
+      .setRuleKey(RuleKey.of("xoo", "S001"))
+      .setStatus(STATUS_RESOLVED)
+      .setResolution(RESOLUTION_FALSE_POSITIVE)
+      .setLocationsChanged(true)
+      .setNew(false);
+    when(taintChecker.isTaintVulnerability(issue))
+      .thenReturn(false);
+
+    underTest.start();
+    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date()).build());
+
+    assertThat(issue.issueStatus()).isEqualTo(IssueStatus.FALSE_POSITIVE);
+  }
+
+  @Test
+  void do_not_automatically_reopen_taint_vulnerability_when_flow_did_not_change() {
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("issue_key")
+      .setRuleKey(RuleKey.of("xoo", "S001"))
+      .setStatus(STATUS_RESOLVED)
+      .setResolution(RESOLUTION_FALSE_POSITIVE)
+      .setLocationsChanged(false)
+      .setNew(false);
+    when(taintChecker.isTaintVulnerability(issue))
+      .thenReturn(true);
+
+    underTest.start();
+    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date()).build());
+
+    assertThat(issue.issueStatus()).isEqualTo(IssueStatus.FALSE_POSITIVE);
+  }
+
+  static Stream<String> allStatusesLeadingToClosed() {
+    return Stream.of(ALL_STATUSES_LEADING_TO_CLOSED);
+  }
+
+  @Test
+  void close_open_dead_issue() {
     underTest.start();
 
     DefaultIssue issue = new DefaultIssue()
@@ -341,7 +397,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void close_reopened_dead_issue() {
+  void close_reopened_dead_issue() {
     underTest.start();
 
     DefaultIssue issue = new DefaultIssue()
@@ -359,7 +415,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void close_confirmed_dead_issue() {
+  void close_confirmed_dead_issue() {
     underTest.start();
 
     DefaultIssue issue = new DefaultIssue()
@@ -377,7 +433,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void fail_if_unknown_status_on_automatic_trans() {
+  void fail_if_unknown_status_on_automatic_trans() {
     underTest.start();
 
     DefaultIssue issue = new DefaultIssue()
@@ -394,7 +450,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void flag_as_false_positive() {
+  void flag_as_false_positive() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setStatus(STATUS_OPEN)
@@ -412,7 +468,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void wont_fix() {
+  void wont_fix() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setStatus(STATUS_OPEN)
@@ -430,7 +486,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void doManualTransition_shouldTransitionToResolutionWontFix_whenAccepted() {
+  void doManualTransition_shouldTransitionToResolutionWontFix_whenAccepted() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setStatus(STATUS_OPEN)

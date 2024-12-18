@@ -24,6 +24,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.db.user.UserDto;
 
+@FunctionalInterface
 interface Function {
   interface Context {
     Issue issue();

@@ -77,6 +77,7 @@ import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.index.IssueIndex;
@@ -179,7 +180,7 @@ class SearchActionIT {
   private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null);
   private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession);
   private final IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
-  private final IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
+  private final IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter, mock(TaintChecker.class));
   private final SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, dbClient,
     new TransitionService(userSession, issueWorkflow));
   private final Languages languages = new Languages();

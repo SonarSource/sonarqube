@@ -51,6 +51,7 @@ import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.NewCodePeriodResolver;
+import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.workflow.FunctionExecutor;
@@ -68,6 +69,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
@@ -102,7 +104,7 @@ public class ListActionIT {
 
   private final DbClient dbClient = db.getDbClient();
   private final IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
-  private final IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
+  private final IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter, mock(TaintChecker.class));
   private final SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, dbClient, new TransitionService(userSession, issueWorkflow));
   private final Languages languages = new Languages();
   private final UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());

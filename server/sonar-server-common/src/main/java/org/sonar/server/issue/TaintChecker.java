@@ -89,7 +89,6 @@ public class TaintChecker {
     return repositories;
   }
 
-
   public boolean isTaintVulnerability(DefaultIssue issue) {
     return taintRepositories.contains(issue.getRuleKey().repository())
       && issue.getLocations() != null

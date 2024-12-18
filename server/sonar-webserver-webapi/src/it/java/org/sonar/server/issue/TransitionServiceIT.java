@@ -36,6 +36,7 @@ import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
@@ -51,7 +52,7 @@ public class TransitionServiceIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private IssueFieldsSetter updater = new IssueFieldsSetter();
-  private IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater);
+  private IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater, mock(TaintChecker.class));
 
   private TransitionService underTest = new TransitionService(userSession, workflow);
 

@@ -40,6 +40,10 @@ public class DefaultIssueComment implements Serializable {
   private String markdownText;
   private boolean isNew;
 
+  public static DefaultIssueComment create(String issueKey, String markdownText) {
+    return create(issueKey, null, markdownText);
+  }
+
   public static DefaultIssueComment create(String issueKey, @Nullable String userUuid, String markdownText) {
     DefaultIssueComment comment = new DefaultIssueComment();
     comment.setIssueKey(issueKey);

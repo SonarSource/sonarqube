@@ -47,6 +47,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.Action;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.WebIssueStorage;
@@ -120,7 +121,7 @@ public class BulkChangeActionIT {
 
   private IssueChangeEventService issueChangeEventService = mock(IssueChangeEventService.class);
   private IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
-  private IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
+  private IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter, mock(TaintChecker.class));
   private WebIssueStorage issueStorage = new WebIssueStorage(system2, dbClient,
     new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class)),
     new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null), new SequenceUuidFactory());

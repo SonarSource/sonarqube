@@ -29,8 +29,10 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.TaintChecker;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -55,11 +57,13 @@ public class IssueWorkflow implements Startable {
   private static final String AUTOMATIC_CLOSE_TRANSITION = "automaticclose";
   private final FunctionExecutor functionExecutor;
   private final IssueFieldsSetter updater;
+  private final TaintChecker taintChecker;
   private StateMachine machine;
 
-  public IssueWorkflow(FunctionExecutor functionExecutor, IssueFieldsSetter updater) {
+  public IssueWorkflow(FunctionExecutor functionExecutor, IssueFieldsSetter updater, TaintChecker taintChecker) {
     this.functionExecutor = functionExecutor;
     this.updater = updater;
+    this.taintChecker = taintChecker;
   }
 
   @Override
@@ -238,7 +242,7 @@ public class IssueWorkflow implements Startable {
         .build());
   }
 
-  private static void buildAutomaticTransitions(StateMachine.Builder builder) {
+  private void buildAutomaticTransitions(StateMachine.Builder builder) {
     // Close the "end of life" issues (disabled/deleted rule, deleted component)
     builder
       .transition(Transition.builder(AUTOMATIC_CLOSE_TRANSITION)
@@ -277,7 +281,6 @@ public class IssueWorkflow implements Startable {
         .functions(SetClosed.INSTANCE, SetCloseDate.INSTANCE)
         .automatic()
         .build())
-
       // Reopen issues that are marked as resolved but that are still alive.
       .transition(Transition.builder("automaticreopen")
         .from(STATUS_RESOLVED).to(STATUS_REOPENED)
@@ -285,7 +288,6 @@ public class IssueWorkflow implements Startable {
         .functions(new SetResolution(null), UnsetCloseDate.INSTANCE)
         .automatic()
         .build())
-
       .transition(Transition.builder("automaticuncloseopen")
         .from(STATUS_CLOSED).to(STATUS_OPEN)
         .conditions(
@@ -322,7 +324,6 @@ public class IssueWorkflow implements Startable {
         .functions(RestoreResolutionFunction.INSTANCE, UnsetCloseDate.INSTANCE)
         .automatic()
         .build())
-
       // reopen closed hotspots
       .transition(Transition.builder("automaticunclosetoreview")
         .from(STATUS_CLOSED).to(STATUS_TO_REVIEW)
@@ -341,7 +342,29 @@ public class IssueWorkflow implements Startable {
           IsHotspot.INSTANCE)
         .functions(RestoreResolutionFunction.INSTANCE, UnsetCloseDate.INSTANCE)
         .automatic()
-        .build());
+        .build())
+      .transition(reopenTaintVulnOnFlowChanged());
+  }
+
+  private Transition reopenTaintVulnOnFlowChanged() {
+    return Transition.builder("reopentaintvulnerability")
+      .from(STATUS_RESOLVED)
+      .to(STATUS_REOPENED)
+      .conditions(
+        issue -> taintChecker.isTaintVulnerability((DefaultIssue) issue),
+        issue -> ((DefaultIssue) issue).locationsChanged())
+      .functions(
+        Function.Context::unsetCloseDate,
+        context -> context.setResolution(null),
+        IssueWorkflow::commentOnTaintVulnReopened)
+      .automatic()
+      .build();
+  }
+
+  private static void commentOnTaintVulnReopened(Function.Context context) {
+    DefaultIssue issue = (DefaultIssue) context.issue();
+    DefaultIssueComment defaultIssueComment = DefaultIssueComment.create(issue.key(), "Automatically reopened because the vulnerability flow changed.");
+    issue.addComment(defaultIssueComment);
   }
 
   @Override

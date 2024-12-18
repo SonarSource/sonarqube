@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.Date;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.mockito.Mockito;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -42,6 +41,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.index.IssueIndex;
@@ -64,6 +64,7 @@ import org.sonarqube.ws.Issues.SearchWsResponse;
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
@@ -92,8 +93,8 @@ class SearchActionComponentsIT {
   private final DbTester db = DbTester.create();
   @RegisterExtension
   private final EsTester es = EsTester.create();
-
-  private final Configuration config = Mockito.mock(Configuration.class);
+  
+  private final Configuration config = mock(Configuration.class);
 
   private final DbClient dbClient = db.getDbClient();
   private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession), config);
@@ -101,7 +102,7 @@ class SearchActionComponentsIT {
   private final ViewIndexer viewIndexer = new ViewIndexer(dbClient, es.client());
   private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession);
   private final IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
-  private final IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
+  private final IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter, mock(TaintChecker.class));
   private final SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, dbClient, new TransitionService(userSession, issueWorkflow));
   private final Languages languages = new Languages();
   private final UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());

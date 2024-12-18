@@ -58,7 +58,7 @@ public class TransitionActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private final IssueFieldsSetter updater = new IssueFieldsSetter();
-  private final IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater);
+  private final IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater, mock(TaintChecker.class));
   private final TransitionService transitionService = new TransitionService(userSession, workflow);
   private final Action.Context context = mock(Action.Context.class);
   private final DefaultIssue issue = newIssue().toDefaultIssue();

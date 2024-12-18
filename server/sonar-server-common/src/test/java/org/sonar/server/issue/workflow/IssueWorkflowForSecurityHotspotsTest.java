@@ -37,9 +37,11 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.TaintChecker;
 
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.issue.DefaultTransitions.RESET_AS_TO_REVIEW;
 import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_ACKNOWLEDGED;
 import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_REVIEWED;
@@ -63,7 +65,7 @@ public class IssueWorkflowForSecurityHotspotsTest {
   private static final List<String> RESOLUTION_TYPES = List.of(RESOLUTION_FIXED, RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED);
 
   private final IssueFieldsSetter updater = new IssueFieldsSetter();
-  private final IssueWorkflow underTest = new IssueWorkflow(new FunctionExecutor(updater), updater);
+  private final IssueWorkflow underTest = new IssueWorkflow(new FunctionExecutor(updater), updater, mock(TaintChecker.class));
 
   @Test
   @UseDataProvider("anyResolutionIncludingNone")

@@ -21,6 +21,7 @@ package org.sonar.server.issue.workflow;
 
 import org.sonar.api.issue.Issue;
 
+@FunctionalInterface
 public interface Condition {
 
   boolean matches(Issue issue);
