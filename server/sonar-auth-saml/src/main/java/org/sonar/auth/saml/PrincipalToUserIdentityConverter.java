@@ -20,6 +20,7 @@
 package org.sonar.auth.saml;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.server.ServerSide;
@@ -39,10 +40,11 @@ public class PrincipalToUserIdentityConverter {
 
   UserIdentity convertToUserIdentity(Saml2AuthenticatedPrincipal principal) {
     String login = getAttribute(principal, samlSettings.getUserLogin());
+    String name = getAttribute(principal, samlSettings.getUserName());
 
     UserIdentity.Builder userIdentityBuilder = UserIdentity.builder()
       .setProviderLogin(login)
-      .setName(getAttribute(principal, samlSettings.getUserName()));
+      .setName(name);
     getEmail(principal).ifPresent(userIdentityBuilder::setEmail);
     userIdentityBuilder.setGroups(getGroups(principal));
 
@@ -64,6 +66,7 @@ public class PrincipalToUserIdentityConverter {
 
   private Set<String> toString(List<Object> groups) {
     return groups.stream()
+      .filter(Objects::nonNull)
       .map(Object::toString)
       .collect(toSet());
   }
