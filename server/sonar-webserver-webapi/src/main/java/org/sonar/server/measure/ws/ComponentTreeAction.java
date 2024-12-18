@@ -132,6 +132,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
  */
 public class ComponentTreeAction implements MeasuresWsAction {
   private static final int MAX_SIZE = 500;
+  private static final String NUMBER_OF_KEYS_LIMITED = "Number of metric keys is limited to %s";
   private static final int QUERY_MINIMUM_LENGTH = 3;
   // tree exploration strategies
   static final String ALL_STRATEGY = "all";
@@ -182,7 +183,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE)
       .setChangelog(
-        new Change("10.8", format("Number of metric keys is limited to %s", 75)),
+        new Change("10.8", format(NUMBER_OF_KEYS_LIMITED, 75)),
         new Change("10.8", "Portfolio project metrics now also include: 'contains_ai_code', 'reliability_rating_without_aica', " +
           "'reliability_rating_with_aica', 'software_quality_security_rating_without_aica', 'software_quality_security_rating_with_aica', " +
           "'security_rating_without_aica', 'security_rating_with_aica', 'new_reliability_rating_without_aica', 'new_reliability_rating_with_aica', " +
@@ -202,7 +203,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
           "'software_quality_reliability_issues', 'software_quality_security_issues', 'new_software_quality_maintainability_issues', " +
           "'new_software_quality_reliability_issues', 'new_software_quality_security_issues' instead.",
           MeasuresWsModule.getDeprecatedMetricsInSonarQube108())),
-        new Change("10.7", format("Number of metric keys is limited to %s", 25)),
+        new Change("10.7", format(NUMBER_OF_KEYS_LIMITED, 25)),
         new Change("10.7",
           "Added new accepted values for the 'metricKeys' param: %s".formatted(MeasuresWsModule.getNewMetricsInSonarQube107())),
         new Change("10.5", "Added new accepted values for the 'metricKeys' param: 'new_maintainability_issues', 'new_reliability_issues'," +
@@ -240,7 +241,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
         new Change("8.1", "the response field periods is deprecated. Use period instead."),
         new Change("7.6", format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
         new Change("7.2", "field 'bestValue' is added to the response"),
-        new Change("6.3", format("Number of metric keys is limited to %s", 15)),
+        new Change("6.3", format(NUMBER_OF_KEYS_LIMITED, 15)),
         new Change("6.6", "the response field 'id' is deprecated. Use 'key' instead."),
         new Change("6.6", "the response field 'refId' is deprecated. Use 'refKey' instead."));
 
