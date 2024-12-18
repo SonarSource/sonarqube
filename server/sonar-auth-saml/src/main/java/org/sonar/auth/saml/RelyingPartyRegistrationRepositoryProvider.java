@@ -27,13 +27,17 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 public class RelyingPartyRegistrationRepositoryProvider {
 
   private final SamlSettings samlSettings;
+  private final SamlCertificateConverter samlCertificateConverter;
+  private final SamlPrivateKeyConverter samlPrivateKeyConverter;
 
-  public RelyingPartyRegistrationRepositoryProvider(SamlSettings samlSettings) {
+  public RelyingPartyRegistrationRepositoryProvider(SamlSettings samlSettings, SamlCertificateConverter samlCertificateConverter, SamlPrivateKeyConverter samlPrivateKeyConverter) {
     this.samlSettings = samlSettings;
+    this.samlCertificateConverter = samlCertificateConverter;
+    this.samlPrivateKeyConverter = samlPrivateKeyConverter;
   }
 
   RelyingPartyRegistrationRepository provide(@Nullable String callbackUrl) {
-    return new SonarqubeRelyingPartyRegistrationRepository(samlSettings, callbackUrl);
+    return new SonarqubeRelyingPartyRegistrationRepository(samlSettings, samlCertificateConverter, samlPrivateKeyConverter, callbackUrl);
   }
 
 }

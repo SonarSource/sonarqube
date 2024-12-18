@@ -29,7 +29,7 @@ import static org.springframework.security.saml2.core.Saml2ErrorCodes.INVALID_IN
 import static org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider.ResponseToken;
 import static org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider.createDefaultResponseValidator;
 
-public class SonarqubeSaml2ResponseValidator implements Converter<ResponseToken, Saml2ResponseValidatorResult> {
+class SonarqubeSaml2ResponseValidator implements Converter<ResponseToken, Saml2ResponseValidatorResult> {
 
   private final Converter<ResponseToken, Saml2ResponseValidatorResult> delegate = createDefaultResponseValidator();
 

@@ -30,6 +30,6 @@ public class SamlModuleTest {
   public void verify_count_of_added_components() {
     ListContainer container = new ListContainer();
     new SamlModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(17);
+    assertThat(container.getAddedObjects()).hasSize(25);
   }
 }

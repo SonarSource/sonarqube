@@ -26,13 +26,13 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 
-public class SonarqubeRelyingPartyRegistrationResolver implements RelyingPartyRegistrationResolver {
+class SonarqubeRelyingPartyRegistrationResolver implements RelyingPartyRegistrationResolver {
 
   private final RelyingPartyRegistrationRepositoryProvider relyingPartyRegistrationRepositoryProvider;
   @Nullable
   private final String callbackUrl;
 
-  public SonarqubeRelyingPartyRegistrationResolver(RelyingPartyRegistrationRepositoryProvider relyingPartyRegistrationRepositoryProvider,
+  SonarqubeRelyingPartyRegistrationResolver(RelyingPartyRegistrationRepositoryProvider relyingPartyRegistrationRepositoryProvider,
     @Nullable String callbackUrl) {
     this.relyingPartyRegistrationRepositoryProvider = relyingPartyRegistrationRepositoryProvider;
     this.callbackUrl = callbackUrl;

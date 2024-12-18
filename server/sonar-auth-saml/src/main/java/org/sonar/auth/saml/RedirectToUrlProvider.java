@@ -35,7 +35,7 @@ public class RedirectToUrlProvider {
 
   private final RelyingPartyRegistrationRepositoryProvider relyingPartyRegistrationRepositoryProvider;
 
-  public RedirectToUrlProvider(RelyingPartyRegistrationRepositoryProvider relyingPartyRegistrationRepositoryProvider) {
+  RedirectToUrlProvider(RelyingPartyRegistrationRepositoryProvider relyingPartyRegistrationRepositoryProvider) {
     this.relyingPartyRegistrationRepositoryProvider = relyingPartyRegistrationRepositoryProvider;
   }
 

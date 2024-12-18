@@ -19,16 +19,9 @@
  */
 package org.sonar.auth.saml;
 
-import java.io.ByteArrayInputStream;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
+import com.google.common.annotations.VisibleForTesting;
 import java.security.PrivateKey;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.Base64;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.springframework.security.saml2.core.Saml2X509Credential;
@@ -41,17 +34,23 @@ public class SonarqubeRelyingPartyRegistrationRepository implements RelyingParty
   private static final String ANY_URL = "http://anyurl";
 
   private final SamlSettings samlSettings;
+  private final SamlCertificateConverter samlCertificateConverter;
+  private final SamlPrivateKeyConverter samlPrivateKeyConverter;
 
   @CheckForNull
   private final String callbackUrl;
 
-  public SonarqubeRelyingPartyRegistrationRepository(SamlSettings samlSettings, @Nullable String callbackUrl) {
+  SonarqubeRelyingPartyRegistrationRepository(SamlSettings samlSettings, SamlCertificateConverter samlCertificateConverter, SamlPrivateKeyConverter samlPrivateKeyConverter,
+    @Nullable String callbackUrl) {
     this.samlSettings = samlSettings;
+    this.samlCertificateConverter = samlCertificateConverter;
+    this.samlPrivateKeyConverter = samlPrivateKeyConverter;
     this.callbackUrl = callbackUrl;
   }
 
   @Override
   public RelyingPartyRegistration findByRegistrationId(String registrationId) {
+    X509Certificate x509Certificate = samlCertificateConverter.toX509Certificate(samlSettings.getCertificate());
     RelyingPartyRegistration.Builder builder = RelyingPartyRegistration.withRegistrationId("saml")
       .assertionConsumerServiceLocation(callbackUrl != null ? callbackUrl : ANY_URL)
       .assertionConsumerServiceBinding(Saml2MessageBinding.POST)
@@ -59,72 +58,33 @@ public class SonarqubeRelyingPartyRegistrationRepository implements RelyingParty
       .assertingPartyMetadata(metadata -> metadata
         .entityId(samlSettings.getProviderId())
         .singleSignOnServiceLocation(samlSettings.getLoginUrl())
-        .verificationX509Credentials(c -> c.add(convertStringToSaml2X509Credential(samlSettings.getCertificate())))
+        .verificationX509Credentials(c -> c.add(Saml2X509Credential.verification(x509Certificate)))
         .wantAuthnRequestsSigned(samlSettings.isSignRequestsEnabled())
       );
-
-    if(samlSettings.isSignRequestsEnabled()) {
-      builder
-        .signingX509Credentials(c -> c.add(convertStringToSaml2X509Credential(samlSettings.getServiceProviderCertificate(),
-          samlSettings.getServiceProviderPrivateKey().get(), Saml2X509Credential.Saml2X509CredentialType.SIGNING)))
-        .decryptionX509Credentials(c -> c.add(convertStringToSaml2X509Credential(samlSettings.getServiceProviderCertificate(),
-          samlSettings.getServiceProviderPrivateKey().get(), Saml2X509Credential.Saml2X509CredentialType.DECRYPTION)));
-    }
+    addSignRequestFieldsIfNecessary(builder);
     return builder.build();
   }
 
-  public Saml2X509Credential convertStringToSaml2X509Credential(String certificateString, String privateKey, Saml2X509Credential.Saml2X509CredentialType type){
-    return new Saml2X509Credential(convertStringToPrivateKey(privateKey), getX509Certificate(certificateString), type);
-  }
-
-  public Saml2X509Credential convertStringToSaml2X509Credential(String certificateString){
-    X509Certificate certificate = getX509Certificate(certificateString);
-
-    // Create and return the Saml2X509Credential
-    return Saml2X509Credential.verification(certificate);
-  }
-
-
-  public static PrivateKey convertStringToPrivateKey(String privateKeyString){
-    // Remove the "BEGIN" and "END" lines and any whitespace
-    String cleanedPrivateKeyString = privateKeyString
-      .replace("-----BEGIN PRIVATE KEY-----", "")
-      .replace("-----END PRIVATE KEY-----", "")
-      .replaceAll("\\s+", "");
-
-    // Decode the base64 encoded string
-    byte[] decoded = Base64.getDecoder().decode(cleanedPrivateKeyString);
-
-    // Create a PrivateKey from the decoded bytes
-    PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decoded);
-    KeyFactory keyFactory = null;
-    try {
-      keyFactory = KeyFactory.getInstance("RSA");
-      return keyFactory.generatePrivate(keySpec);
-    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-      throw new RuntimeException(e);
+  private void addSignRequestFieldsIfNecessary(RelyingPartyRegistration.Builder builder) {
+    if (!samlSettings.isSignRequestsEnabled()) {
+      return;
     }
+    String privateKeyString = samlSettings.getServiceProviderPrivateKey().orElseThrow(() -> new IllegalStateException("Sign requests is enabled but private key is missing"));
+    String serviceProviderCertificateString = samlSettings.getServiceProviderCertificate();
+    PrivateKey privateKey = samlPrivateKeyConverter.toPrivateKey(privateKeyString);
+    X509Certificate spX509Certificate = samlCertificateConverter.toX509Certificate(serviceProviderCertificateString);
+    builder
+      .signingX509Credentials(c -> c.add(Saml2X509Credential.signing(privateKey, spX509Certificate)))
+      .decryptionX509Credentials(c -> c.add(Saml2X509Credential.decryption(privateKey, spX509Certificate)));
   }
 
+  @VisibleForTesting
+  SamlSettings getSamlSettings() {
+    return samlSettings;
+  }
 
-  private static X509Certificate getX509Certificate(String certificateString) {
-    String cleanedCertificateString = certificateString
-      .replace("-----BEGIN CERTIFICATE-----", "")
-      .replace("-----END CERTIFICATE-----", "")
-      .replaceAll("\\s+", "");
-
-    // Decode the base64 encoded string
-    byte[] decoded = Base64.getDecoder().decode(cleanedCertificateString);
-
-    // Create an X509Certificate from the decoded bytes
-    CertificateFactory factory;
-    X509Certificate certificate;
-    try {
-      factory = CertificateFactory.getInstance("X.509");
-      certificate = (X509Certificate) factory.generateCertificate(new ByteArrayInputStream(decoded));
-    } catch (CertificateException e) {
-      throw new RuntimeException(e);
-    }
-    return certificate;
+  @VisibleForTesting
+  String getCallbackUrl() {
+    return callbackUrl;
   }
 }

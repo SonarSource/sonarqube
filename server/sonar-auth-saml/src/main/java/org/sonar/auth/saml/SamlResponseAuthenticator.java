@@ -30,12 +30,12 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2A
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
 
 @ServerSide
-public class SamlResponseAuthenticator {
+class SamlResponseAuthenticator {
 
   private final OpenSaml4AuthenticationProvider openSaml4AuthenticationProvider;
   private final RelyingPartyRegistrationRepositoryProvider relyingPartyRegistrationRepositoryProvider;
 
-  public SamlResponseAuthenticator(OpenSaml4AuthenticationProvider openSaml4AuthenticationProvider,
+  SamlResponseAuthenticator(OpenSaml4AuthenticationProvider openSaml4AuthenticationProvider,
     RelyingPartyRegistrationRepositoryProvider relyingPartyRegistrationRepositoryProvider) {
     this.openSaml4AuthenticationProvider = openSaml4AuthenticationProvider;
     this.relyingPartyRegistrationRepositoryProvider = relyingPartyRegistrationRepositoryProvider;
