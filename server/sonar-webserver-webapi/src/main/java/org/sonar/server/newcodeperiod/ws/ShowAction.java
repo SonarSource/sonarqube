@@ -40,8 +40,8 @@ import org.sonarqube.ws.NewCodePeriods;
 
 import static java.lang.String.format;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
+import static org.sonar.server.newcodeperiod.ws.NewCodePeriodsWsUtils.createNewCodePeriodHtmlLink;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
-import static org.sonar.server.ws.WsUtils.createHtmlExternalLink;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.NewCodePeriods.ShowWSResponse;
 
@@ -53,7 +53,7 @@ public class ShowAction implements NewCodePeriodsWsAction {
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
   private final NewCodePeriodDao newCodePeriodDao;
-  private final String newCodeDefinitionDocumentationUrl;
+  private final DocumentationLinkGenerator documentationLinkGenerator;
 
   public ShowAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, NewCodePeriodDao newCodePeriodDao,
     DocumentationLinkGenerator documentationLinkGenerator) {
@@ -61,13 +61,13 @@ public class ShowAction implements NewCodePeriodsWsAction {
     this.userSession = userSession;
     this.componentFinder = componentFinder;
     this.newCodePeriodDao = newCodePeriodDao;
-    this.newCodeDefinitionDocumentationUrl = documentationLinkGenerator.getDocumentationLink("/project-administration/clean-as-you-code-settings/defining-new-code/");
+    this.documentationLinkGenerator = documentationLinkGenerator;
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("show")
-      .setDescription("Shows the " + createHtmlExternalLink(newCodeDefinitionDocumentationUrl, "new code definition") + ".<br> " +
+      .setDescription("Shows the " + createNewCodePeriodHtmlLink(documentationLinkGenerator) + ".<br> " +
         "If the component requested doesn't exist or if no new code definition is set for it, a value is inherited from the project or from the global setting." +
         "Requires one of the following permissions if a component is specified: " +
         "<ul>" +

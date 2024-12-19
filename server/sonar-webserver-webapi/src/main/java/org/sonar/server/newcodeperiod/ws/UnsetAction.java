@@ -32,13 +32,13 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.server.common.newcodeperiod.CaycUtils;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.common.newcodeperiod.CaycUtils;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
-import static org.sonar.server.ws.WsUtils.createHtmlExternalLink;
+import static org.sonar.server.newcodeperiod.ws.NewCodePeriodsWsUtils.createNewCodePeriodHtmlLink;
 
 public class UnsetAction implements NewCodePeriodsWsAction {
   private static final String BRANCH = "branch";
@@ -52,7 +52,7 @@ public class UnsetAction implements NewCodePeriodsWsAction {
   private final ComponentFinder componentFinder;
   private final PlatformEditionProvider editionProvider;
   private final NewCodePeriodDao newCodePeriodDao;
-  private final String newCodeDefinitionDocumentationUrl;
+  private final DocumentationLinkGenerator documentationLinkGenerator;
 
   public UnsetAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder,
     PlatformEditionProvider editionProvider, NewCodePeriodDao newCodePeriodDao, DocumentationLinkGenerator documentationLinkGenerator) {
@@ -61,14 +61,14 @@ public class UnsetAction implements NewCodePeriodsWsAction {
     this.componentFinder = componentFinder;
     this.editionProvider = editionProvider;
     this.newCodePeriodDao = newCodePeriodDao;
-    this.newCodeDefinitionDocumentationUrl = documentationLinkGenerator.getDocumentationLink("/project-administration/clean-as-you-code-settings/defining-new-code/");
+    this.documentationLinkGenerator = documentationLinkGenerator;
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("unset")
       .setPost(true)
-      .setDescription("Unsets the " + createHtmlExternalLink(newCodeDefinitionDocumentationUrl, "new code definition") +
+      .setDescription("Unsets the " + createNewCodePeriodHtmlLink(documentationLinkGenerator) +
         " for a branch, project or global. It requires the inherited New Code Definition to be compatible with the Clean as You Code methodology, " +
         "and one of the following permissions: " +
         "<ul>" +

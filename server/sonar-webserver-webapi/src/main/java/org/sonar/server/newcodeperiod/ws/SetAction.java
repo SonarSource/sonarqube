@@ -40,9 +40,9 @@ import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodParser;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.server.common.newcodeperiod.CaycUtils;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.common.newcodeperiod.CaycUtils;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -51,7 +51,7 @@ import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.PREVIOUS_VERSION;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.SPECIFIC_ANALYSIS;
-import static org.sonar.server.ws.WsUtils.createHtmlExternalLink;
+import static org.sonar.server.newcodeperiod.ws.NewCodePeriodsWsUtils.createNewCodePeriodHtmlLink;
 
 public class SetAction implements NewCodePeriodsWsAction {
   private static final String PARAM_BRANCH = "branch";
@@ -73,7 +73,7 @@ public class SetAction implements NewCodePeriodsWsAction {
   private final ComponentFinder componentFinder;
   private final PlatformEditionProvider editionProvider;
   private final NewCodePeriodDao newCodePeriodDao;
-  private final String newCodeDefinitionDocumentationUrl;
+  private final DocumentationLinkGenerator documentationLinkGenerator;
 
   public SetAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, PlatformEditionProvider editionProvider,
     NewCodePeriodDao newCodePeriodDao, DocumentationLinkGenerator documentationLinkGenerator) {
@@ -82,14 +82,14 @@ public class SetAction implements NewCodePeriodsWsAction {
     this.componentFinder = componentFinder;
     this.editionProvider = editionProvider;
     this.newCodePeriodDao = newCodePeriodDao;
-    this.newCodeDefinitionDocumentationUrl = documentationLinkGenerator.getDocumentationLink("/project-administration/clean-as-you-code-settings/defining-new-code/");
+    this.documentationLinkGenerator = documentationLinkGenerator;
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("set")
       .setPost(true)
-      .setDescription("Updates the " + createHtmlExternalLink(newCodeDefinitionDocumentationUrl, "new code definition") +
+      .setDescription("Updates the " + createNewCodePeriodHtmlLink(documentationLinkGenerator) +
         " on different levels:<br>" +
         BEGIN_LIST +
         BEGIN_ITEM_LIST + "Not providing a project key and a branch key will update the default value at global level. " +

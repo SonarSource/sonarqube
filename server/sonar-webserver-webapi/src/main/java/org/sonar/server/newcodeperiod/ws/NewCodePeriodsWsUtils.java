@@ -19,29 +19,18 @@
  */
 package org.sonar.server.newcodeperiod.ws;
 
-import org.sonar.api.server.ws.WebService;
 import org.sonar.core.documentation.DocumentationLinkGenerator;
 
-import static org.sonar.server.newcodeperiod.ws.NewCodePeriodsWsUtils.createNewCodePeriodHtmlLink;
+import static org.sonar.server.ws.WsUtils.createHtmlExternalLink;
 
-public class NewCodePeriodsWs implements WebService {
+public class NewCodePeriodsWsUtils {
+  public static final String DOCUMENTATION_LINK = "/project-administration/setting-up-clean-as-you-code/#setting-a-new-code-definition";
 
-  private final NewCodePeriodsWsAction[] actions;
-  private final DocumentationLinkGenerator documentationLinkGenerator;
-
-  public NewCodePeriodsWs(DocumentationLinkGenerator documentationLinkGenerator, NewCodePeriodsWsAction... actions) {
-    this.actions = actions;
-    this.documentationLinkGenerator = documentationLinkGenerator;
+  private NewCodePeriodsWsUtils() {
+    // do nothing
   }
 
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/new_code_periods")
-      .setDescription("Manage "+ createNewCodePeriodHtmlLink(documentationLinkGenerator) +".")
-      .setSince("8.0");
-    for (NewCodePeriodsWsAction action : actions) {
-      action.define(controller);
-    }
-    controller.done();
+  public static String createNewCodePeriodHtmlLink(DocumentationLinkGenerator documentationLinkGenerator){
+    return createHtmlExternalLink(documentationLinkGenerator.getDocumentationLink(DOCUMENTATION_LINK), "new code definition");
   }
 }
