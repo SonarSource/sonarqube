@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.converter.Converter;
@@ -56,6 +58,7 @@ class SonarqubeSaml2ResponseValidator implements Converter<ResponseToken, Saml2R
   }
 
   @Override
+  @CheckForNull
   public Saml2ResponseValidatorResult convert(ResponseToken responseToken) {
     Saml2ResponseValidatorResult validationResults = delegate.convert(responseToken);
 
@@ -66,13 +69,16 @@ class SonarqubeSaml2ResponseValidator implements Converter<ResponseToken, Saml2R
     return Saml2ResponseValidatorResult.failure(errors);
   }
 
-  private Collection<Saml2Error> getValidationErrorsWithoutInResponseTo(ResponseToken responseToken, Saml2ResponseValidatorResult validationResults) {
+  private Collection<Saml2Error> getValidationErrorsWithoutInResponseTo(ResponseToken responseToken, @Nullable Saml2ResponseValidatorResult validationResults) {
+    if (validationResults == null) {
+      return List.of();
+    }
     String inResponseTo = responseToken.getResponse().getInResponseTo();
     validInResponseToSupplier = () -> inResponseTo;
     return removeInResponseToError(validationResults);
   }
 
-  private Collection<Saml2Error> removeInResponseToError(Saml2ResponseValidatorResult result) {
+  private static Collection<Saml2Error> removeInResponseToError(Saml2ResponseValidatorResult result) {
     return result.getErrors().stream()
       .filter(error -> !INVALID_IN_RESPONSE_TO.equals(error.getErrorCode()))
       .toList();

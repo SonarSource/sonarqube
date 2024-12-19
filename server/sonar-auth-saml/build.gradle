@@ -14,7 +14,6 @@ dependencies {
     compileOnlyApi project(':server:sonar-webserver-api')
     compileOnlyApi project(':sonar-core')
 
-    implementation 'javax.servlet:javax.servlet-api:4.0.1'
     implementation 'org.springframework.security:spring-security-saml2-service-provider'
 
     testImplementation 'com.tngtech.java:junit-dataprovider'

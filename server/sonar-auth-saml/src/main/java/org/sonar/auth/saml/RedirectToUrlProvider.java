@@ -57,7 +57,7 @@ public class RedirectToUrlProvider {
     return authRequestResolver;
   }
 
-  private UriComponentsBuilder buildSamlLoginRequest(Saml2RedirectAuthenticationRequest authenticationRequest) {
+  private static UriComponentsBuilder buildSamlLoginRequest(Saml2RedirectAuthenticationRequest authenticationRequest) {
     UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(authenticationRequest.getAuthenticationRequestUri());
     addParameter(Saml2ParameterNames.SAML_REQUEST, authenticationRequest.getSamlRequest(), uriBuilder);
     addParameter(Saml2ParameterNames.RELAY_STATE, authenticationRequest.getRelayState(), uriBuilder);
@@ -66,7 +66,7 @@ public class RedirectToUrlProvider {
     return uriBuilder;
   }
 
-  private void addParameter(String name, String value, UriComponentsBuilder builder) {
+  private static void addParameter(String name, String value, UriComponentsBuilder builder) {
     ObjectUtils.requireNonEmpty(name, "name cannot be null");
     if (StringUtils.hasText(value)) {
       builder.queryParam(UriUtils.encode(name, StandardCharsets.ISO_8859_1),

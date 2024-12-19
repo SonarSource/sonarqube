@@ -30,7 +30,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.http.HttpRequest;
 
 @ServerSide
-final class SamlAuthStatusPageGenerator {
+class SamlAuthStatusPageGenerator {
 
   private static final String WEB_CONTEXT = "WEB_CONTEXT";
   private static final String SAML_AUTHENTICATION_STATUS = "%SAML_AUTHENTICATION_STATUS%";

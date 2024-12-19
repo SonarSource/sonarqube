@@ -40,30 +40,9 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class SonarqubeRelyingPartyRegistrationRepositoryTest {
 
-  private static final String VALID_CERTIFICATE_STRING = """
-    -----BEGIN CERTIFICATE-----
-    MIIDqDCCApCgAwIBAgIGAYcJtZATMA0GCSqGSIb3DQEBCwUAMIGUMQswCQYDVQQGEwJVUzETMBEG
-    A1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwNU2FuIEZyYW5jaXNjbzENMAsGA1UECgwET2t0YTEU
-    MBIGA1UECwwLU1NPUHJvdmlkZXIxFTATBgNVBAMMDGRldi05ODIxMjUzNzEcMBoGCSqGSIb3DQEJ
-    ARYNaW5mb0Bva3RhLmNvbTAeFw0yMzAzMjIxNDI0MDZaFw0zMzAzMjIxNDI1MDZaMIGUMQswCQYD
-    VQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwNU2FuIEZyYW5jaXNjbzENMAsG
-    A1UECgwET2t0YTEUMBIGA1UECwwLU1NPUHJvdmlkZXIxFTATBgNVBAMMDGRldi05ODIxMjUzNzEc
-    MBoGCSqGSIb3DQEJARYNaW5mb0Bva3RhLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoC
-    ggEBALNloIuL4r7mUDkZcD7hdYrUw335hlRGWFjMV1OjRFhI/hMw2NUq+KgQjyte6zpE7a9nMlWw
-    lRqkEVAuCW7ZcjO/Wk1TECiKwS2nYN3InPuuF6TCk0/gJSFZuiKXdtUUDod5viNJyEXb0Ol8rtIl
-    TRffbSRiaWPvPykhtDZVObS0QDpBo4wVK1C+G+3e0/P/YCD6g4+zJWFYT4sbY6Ee97xhVwcdO6ZS
-    jfba6lYtmUCUwRPRLQPkM9xAjKinVu5mmNPY8sXuxIRs/yEvhxnhTOnbvnU5oNU5DWI28vAiMOlD
-    SpQTUQZjqLDa9AHyvkWT/j0WU5AI1IFgLqB5gg6dY8UCAwEAATANBgkqhkiG9w0BAQsFAAOCAQEA
-    DRAEvjil9vPgCMJSYl3x5i83is4JlZ6SeN8mXxJfj35pQb+sLa+XrnITnAk6fnYX4NYYEwDGD+Vq
-    AnSIRsJEeMYTnQWMGLp5er88IDltDlfIMSs8WgVxWkJ6R66BVGFQRVo9IJQRVuBXrPTahL43ZBn1
-    SynJxMl9tceAb6Q18ncyK9DpsLfrgpkerPcLjhjWiCl9iEpfUEzGEeLzin9OyfSwTtMWcPLrqgUb
-    nWiSEIvNnGzGVQunZaUF4cLxlstgWJzsWLcuzr0cdSO7eIsAtAMVDqXY1ESpewRYqzDeXmj+eKso
-    k5X4rDjQIGfE0XskScXfKyY7CVklfmW1dCuzdw==
-    -----END CERTIFICATE-----
-    """;
   public static final String APPLICATION_ID = "applicationId";
   public static final String PROVIDER_ID = "providerId";
-  public static final String SSO_URL = "ssoUrl";
+  public static final String SSO_URL = "https://ssoUrl.com";
   public static final String CERTIF_STRING = "certifString";
   private static final String CERTIF_SP_STRING = "certifSpString";
   public static final String PRIVATE_KEY = "privateKey";
@@ -146,6 +125,17 @@ class SonarqubeRelyingPartyRegistrationRepositoryTest {
     assertThatIllegalStateException()
       .isThrownBy(() -> findRegistration(CALLBACK_URL))
       .withMessage("Sign requests is enabled but private key is missing");
+  }
+
+  @Test
+  void findByRegistrationId_whenInvalidUrl_throws() {
+    when(samlSettings.getApplicationId()).thenReturn(APPLICATION_ID);
+    when(samlSettings.getProviderId()).thenReturn(PROVIDER_ID);
+    when(samlSettings.getLoginUrl()).thenReturn("invalid");
+
+    assertThatIllegalStateException()
+      .isThrownBy(() -> findRegistration(CALLBACK_URL))
+      .withMessage("Invalid SAML Login URL");
   }
 
   private static void assertCommonFields(RelyingPartyRegistration registration, X509Certificate certificate, String callbackUrl) {

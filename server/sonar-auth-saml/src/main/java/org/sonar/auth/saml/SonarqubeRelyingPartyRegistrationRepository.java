@@ -20,6 +20,9 @@
 package org.sonar.auth.saml;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import javax.annotation.CheckForNull;
@@ -57,12 +60,20 @@ public class SonarqubeRelyingPartyRegistrationRepository implements RelyingParty
       .entityId(samlSettings.getApplicationId())
       .assertingPartyMetadata(metadata -> metadata
         .entityId(samlSettings.getProviderId())
-        .singleSignOnServiceLocation(samlSettings.getLoginUrl())
+        .singleSignOnServiceLocation(validateLoginUrl(samlSettings.getLoginUrl()))
         .verificationX509Credentials(c -> c.add(Saml2X509Credential.verification(x509Certificate)))
         .wantAuthnRequestsSigned(samlSettings.isSignRequestsEnabled())
       );
     addSignRequestFieldsIfNecessary(builder);
     return builder.build();
+  }
+
+  private static String validateLoginUrl(String url){
+    try {
+      return new URL(url).toURI().toString();
+    } catch (MalformedURLException | URISyntaxException e) {
+      throw new IllegalStateException("Invalid SAML Login URL", e);
+    }
   }
 
   private void addSignRequestFieldsIfNecessary(RelyingPartyRegistration.Builder builder) {

@@ -46,7 +46,7 @@ public class PrincipalToUserIdentityConverter {
       .setProviderLogin(login)
       .setName(name);
     getEmail(principal).ifPresent(userIdentityBuilder::setEmail);
-    userIdentityBuilder.setGroups(getGroups(principal));
+    getGroups(principal).ifPresent(userIdentityBuilder::setGroups);
 
     return userIdentityBuilder.build();
   }
@@ -57,11 +57,11 @@ public class PrincipalToUserIdentityConverter {
       .map(Object::toString);
   }
 
-  private Set<String> getGroups(Saml2AuthenticatedPrincipal principal) {
+  private Optional<Set<String>> getGroups(Saml2AuthenticatedPrincipal principal) {
     return samlSettings.getGroupName()
       .map(principal::getAttribute)
       .map(this::toString)
-      .orElse(Set.of());
+      .filter(set -> !set.isEmpty());
   }
 
   private Set<String> toString(List<Object> groups) {

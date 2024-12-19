@@ -41,9 +41,9 @@ import static org.sonar.auth.saml.SamlSettings.USER_NAME_ATTRIBUTE;
 
 @ServerSide
 final class SamlStatusChecker {
-  private final SamlSettings samlSettings;
+  private static final Pattern ENCRYPTED_ASSERTION_PATTERN = Pattern.compile("<saml:EncryptedAssertion|<EncryptedAssertion|<saml2:EncryptedAssertion");
 
-  private static final Pattern encryptedAssertionPattern = Pattern.compile("<saml:EncryptedAssertion|<EncryptedAssertion");
+  private final SamlSettings samlSettings;
 
   SamlStatusChecker(SamlSettings samlSettings) {
     this.samlSettings = samlSettings;
@@ -54,7 +54,7 @@ final class SamlStatusChecker {
     SamlAuthenticationStatus samlAuthenticationStatus = new SamlAuthenticationStatus();
 
     Map<String, List<String>> attributes = principal.getAttributes().entrySet().stream()
-      .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().stream().map(Objects::toString).collect(Collectors.toList())));
+      .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().stream().map(Objects::toString).toList()));
 
     if (samlAuthenticationStatus.getErrors().isEmpty()) {
       samlAuthenticationStatus.getErrors().addAll(generateMappingErrors(principal, samlSettings));
@@ -77,7 +77,6 @@ final class SamlStatusChecker {
     SamlAuthenticationStatus samlAuthenticationStatus = new SamlAuthenticationStatus();
     samlAuthenticationStatus.getErrors().add(errorMessage);
     samlAuthenticationStatus.setStatus("error");
-
     return samlAuthenticationStatus;
   }
 
@@ -139,7 +138,7 @@ final class SamlStatusChecker {
     if (samlResponse != null) {
       byte[] decoded = Base64.getDecoder().decode(samlResponse);
       String decodedResponse = new String(decoded, StandardCharsets.UTF_8);
-      Matcher matcher = encryptedAssertionPattern.matcher(decodedResponse);
+      Matcher matcher = ENCRYPTED_ASSERTION_PATTERN.matcher(decodedResponse);
       //We assume that the presence of an encrypted assertion means that the response is encrypted
       return matcher.find();
     }

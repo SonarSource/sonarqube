@@ -21,7 +21,6 @@ package org.sonar.auth.saml;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
@@ -85,18 +84,10 @@ public class SamlStatusCheckerTest {
 
     samlAuthenticationStatus = new SamlStatusChecker(new SamlSettings(settings.asConfig())).getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, principal);
 
-    assertThat("success").isEqualTo(samlAuthenticationStatus.getStatus());
+    assertThat(samlAuthenticationStatus.getStatus()).isEqualTo("success");
     assertThat(samlAuthenticationStatus.getErrors()).isEmpty();
   }
-
-  private Map<String, List<String>> getResponseAttributes() {
-    return Map.of(
-      "login", Collections.singletonList("loginId"),
-      "name", Collections.singletonList("userName"),
-      "email", Collections.singletonList("user@sonar.com"),
-      "groups", List.of("group1", "group2"));
-  }
-
+  
   private static Saml2AuthenticatedPrincipal buildPrincipal(String name, String login, List<Object> emails, List<Object> groups) {
     return new DefaultSaml2AuthenticatedPrincipal("unused",
       Map.of("name", List.of(name),
@@ -115,7 +106,7 @@ public class SamlStatusCheckerTest {
 
     samlAuthenticationStatus = new SamlStatusChecker(new SamlSettings(settings.asConfig())).getSamlAuthenticationStatus(saml2AuthenticationException.getMessage());
 
-    assertThat("error").isEqualTo(samlAuthenticationStatus.getStatus());
+    assertThat(samlAuthenticationStatus.getStatus()).isEqualTo("error");
     assertThat(samlAuthenticationStatus.getErrors()).containsExactly("Authentication failed due to a missing parameter.");
   }
 
@@ -128,7 +119,7 @@ public class SamlStatusCheckerTest {
 
     samlAuthenticationStatus = new SamlStatusChecker(new SamlSettings(settings.asConfig())).getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES);
 
-    assertThat("success").isEqualTo(samlAuthenticationStatus.getStatus());
+    assertThat(samlAuthenticationStatus.getStatus()).isEqualTo("success");
 
     assertThat(samlAuthenticationStatus.getErrors()).isEmpty();
     assertThat(samlAuthenticationStatus.getWarnings()).containsExactlyInAnyOrder(
@@ -145,7 +136,7 @@ public class SamlStatusCheckerTest {
 
     samlAuthenticationStatus = new SamlStatusChecker(new SamlSettings(settings.asConfig())).getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES);
 
-    assertThat("error").isEqualTo(samlAuthenticationStatus.getStatus());
+    assertThat(samlAuthenticationStatus.getStatus()).isEqualTo("error");
     assertThat(samlAuthenticationStatus.getWarnings()).isEmpty();
     assertThat(samlAuthenticationStatus.getErrors()).containsExactlyInAnyOrder(
       format("Mapping not found for the property %s, the field %s is not available in the SAML response.", USER_LOGIN_ATTRIBUTE, "wrongLoginField"),
@@ -160,7 +151,7 @@ public class SamlStatusCheckerTest {
 
     samlAuthenticationStatus = new SamlStatusChecker(new SamlSettings(settings.asConfig())).getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, principal);
 
-    assertThat("error").isEqualTo(samlAuthenticationStatus.getStatus());
+    assertThat(samlAuthenticationStatus.getStatus()).isEqualTo("error");
     assertThat(samlAuthenticationStatus.getWarnings()).isEmpty();
     assertThat(samlAuthenticationStatus.getErrors()).containsExactlyInAnyOrder(
       format("Mapping found for the property %s, but the field %s is empty in the SAML response.", USER_LOGIN_ATTRIBUTE, "login"),
@@ -178,7 +169,7 @@ public class SamlStatusCheckerTest {
 
     samlAuthenticationStatus = new SamlStatusChecker(new SamlSettings(settings.asConfig())).getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES);
 
-    assertThat("success").isEqualTo(samlAuthenticationStatus.getStatus());
+    assertThat(samlAuthenticationStatus.getStatus()).isEqualTo("success");
     assertThat(samlAuthenticationStatus.getErrors()).isEmpty();
     assertThat(samlAuthenticationStatus.getWarnings()).isEmpty();
   }
@@ -190,7 +181,7 @@ public class SamlStatusCheckerTest {
 
     samlAuthenticationStatus = new SamlStatusChecker(new SamlSettings(settings.asConfig())).getSamlAuthenticationStatus(BASE64_SAML_RESPONSE, PRINCIPAL_WITH_ALL_ATTRIBUTES);
 
-    assertThat("success").isEqualTo(samlAuthenticationStatus.getStatus());
+    assertThat(samlAuthenticationStatus.getStatus()).isEqualTo("success");
     assertThat(samlAuthenticationStatus.getErrors()).isEmpty();
     assertThat(samlAuthenticationStatus.getWarnings()).isEmpty();
     assertThat(samlAuthenticationStatus.getAvailableAttributes()).containsOnlyKeys("login", "name", "email", "groups");

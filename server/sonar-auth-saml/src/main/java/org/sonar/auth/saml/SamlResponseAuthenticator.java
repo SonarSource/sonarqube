@@ -48,9 +48,9 @@ class SamlResponseAuthenticator {
   }
 
   private Saml2AuthenticationToken processSamlResponse(HttpRequest processedRequest, String callbackUrl) {
-    SonarqubeRelyingPartyRegistrationResolver relyingPartyRegistrationResolver = new SonarqubeRelyingPartyRegistrationResolver(relyingPartyRegistrationRepositoryProvider, callbackUrl);
+    SonarqubeRelyingPartyRegistrationResolver registrationResolver = new SonarqubeRelyingPartyRegistrationResolver(relyingPartyRegistrationRepositoryProvider, callbackUrl);
     HttpServletRequest httpServletRequest = ((JakartaHttpRequest) processedRequest).getDelegate();
-    Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(relyingPartyRegistrationResolver);
+    Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(registrationResolver);
     return converter.convert(httpServletRequest);
   }
 

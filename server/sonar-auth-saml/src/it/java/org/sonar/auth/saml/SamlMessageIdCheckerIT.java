@@ -44,7 +44,7 @@ public class SamlMessageIdCheckerIT {
   private final SamlMessageIdChecker underTest = new SamlMessageIdChecker(db.getDbClient(), clock);
 
   @Test
-  public void check_fails_when_message_id_already_exist() {
+  void check_fails_when_message_id_already_exist() {
     insertMessageInDb();
 
     Optional<Saml2Error> validationErrors = underTest.validateMessageIdWasNotAlreadyUsed("MESSAGE_1");
@@ -55,7 +55,7 @@ public class SamlMessageIdCheckerIT {
   }
 
   @Test
-  public void check_do_not_fail_when_message_id_is_new_and_insert_saml_message_in_db() {
+  void check_do_not_fail_when_message_id_is_new_and_insert_saml_message_in_db() {
     insertMessageInDb();
 
     Optional<Saml2Error> validationErrors = underTest.validateMessageIdWasNotAlreadyUsed("MESSAGE_2");

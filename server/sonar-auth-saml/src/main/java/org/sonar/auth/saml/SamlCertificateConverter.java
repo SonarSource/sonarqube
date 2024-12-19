@@ -29,6 +29,8 @@ import org.sonar.api.server.ServerSide;
 @ServerSide
 class SamlCertificateConverter {
 
+  public static final String SPACES = "\\s+";
+
   X509Certificate toX509Certificate(String certificateString) {
     String cleanedCertificateString = sanitizeCertificateString(certificateString);
 
@@ -37,7 +39,7 @@ class SamlCertificateConverter {
       CertificateFactory factory = CertificateFactory.getInstance("X.509");
       return (X509Certificate) factory.generateCertificate(new ByteArrayInputStream(decoded));
     } catch (CertificateException e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException("Invalid certificate", e);
     }
   }
 
@@ -45,6 +47,6 @@ class SamlCertificateConverter {
     return certificateString
       .replace("-----BEGIN CERTIFICATE-----", "")
       .replace("-----END CERTIFICATE-----", "")
-      .replaceAll("\\s+", "");
+      .replaceAll(SPACES, "");
   }
 }

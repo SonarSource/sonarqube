@@ -25,7 +25,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatRuntimeException;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 class SamlPrivateKeyConverterTest {
 
@@ -100,9 +100,9 @@ class SamlPrivateKeyConverterTest {
 
   @Test
   void toPrivateKey_whenPrivateKeyIsInvalid_throwsException() {
-    assertThatRuntimeException()
+    assertThatIllegalArgumentException()
       .isThrownBy(() -> samlPrivateKeyConverter.toPrivateKey("invalidKey"))
-      .withMessage("Error while loading private key, please check the format");
+      .withMessage("Error while loading PKCS8 private key, please check the format");
   }
 
 
