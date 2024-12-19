@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.measure.ProjectLocDistributionDto;
+import org.sonar.telemetry.legacy.ProjectLocDistributionDto;
 import org.sonar.telemetry.core.Dimension;
 import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.legacy.ProjectLocDistributionDataProvider;
@@ -64,4 +64,3 @@ class TelemetryNclocProviderTest {
     assertThat(telemetryNclocProvider.getValues()).containsEntry("js", 1500L);
   }
 }
-

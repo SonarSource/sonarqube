@@ -37,21 +37,13 @@ public interface MeasureMapper {
 
   List<MeasureDto> selectByComponentUuids(@Param("componentUuids") Collection<String> componentUuids);
 
-  void scrollSelectByComponentUuid(@Param("componentUuid") String componentUuid, ResultHandler<MeasureDto> handler);
+  void scrollSelectByComponentUuids(@Param("componentUuids") Collection<String> componentUuids, ResultHandler<MeasureDto> handler);
 
   Set<MeasureHash> selectMeasureHashesForBranch(@Param("branchUuid") String branchUuid);
-
-  List<MeasureDto> selectBranchMeasuresForProject(@Param("projectUuid") String projectUuid);
 
   void selectTreeByQuery(
     @Param("query") MeasureTreeQuery measureQuery,
     @Param("baseUuid") String baseUuid,
     @Param("baseUuidPath") String baseUuidPath,
     ResultHandler<MeasureDto> resultHandler);
-
-  List<ProjectMainBranchMeasureDto> selectAllForProjectMainBranches();
-
-  List<ProjectMainBranchMeasureDto> selectAllForProjectMainBranchesAssociatedToDefaultQualityProfile();
-
-  List<MeasureDto> selectAllForMainBranches();
 }

@@ -19,6 +19,7 @@
  */
 package org.sonar.db.measure;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +33,7 @@ import org.sonar.db.component.ComponentDto;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
-import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
 public class MeasureDao implements Dao {
 
@@ -91,33 +92,31 @@ public class MeasureDao implements Dao {
     return Optional.empty();
   }
 
+  /**
+   * Get the measures of the specified components and metrics.
+   * This method will scroll through the results and remove the non-requested metrics, to avoid loading all the measures in memory.
+   */
   public List<MeasureDto> selectByComponentUuidsAndMetricKeys(DbSession dbSession, Collection<String> largeComponentUuids,
     Collection<String> metricKeys) {
     if (largeComponentUuids.isEmpty() || metricKeys.isEmpty()) {
       return Collections.emptyList();
     }
 
-    return executeLargeInputs(
-      largeComponentUuids,
-      componentUuids -> mapper(dbSession).selectByComponentUuids(componentUuids)).stream()
-      .map(measureDto -> {
+    List<MeasureDto> result = new ArrayList<>();
+    executeLargeInputsWithoutOutput(largeComponentUuids,
+      componentUuids -> mapper(dbSession).scrollSelectByComponentUuids(componentUuids, resultContext -> {
+        MeasureDto measureDto = resultContext.getResultObject();
         measureDto.getMetricValues().entrySet().removeIf(entry -> !metricKeys.contains(entry.getKey()));
-        return measureDto;
-      })
-      .filter(measureDto -> !measureDto.getMetricValues().isEmpty())
-      .toList();
-  }
+        if (!measureDto.getMetricValues().isEmpty()) {
+          result.add(measureDto);
+        }
+      }));
 
-  public void scrollSelectByComponentUuid(DbSession dbSession, String componentUuid, ResultHandler<MeasureDto> handler) {
-    mapper(dbSession).scrollSelectByComponentUuid(componentUuid, handler);
+    return result;
   }
 
   public Set<MeasureHash> selectMeasureHashesForBranch(DbSession dbSession, String branchUuid) {
     return mapper(dbSession).selectMeasureHashesForBranch(branchUuid);
-  }
-
-  public List<MeasureDto> selectBranchMeasuresForProject(DbSession dbSession, String projectUuid) {
-    return mapper(dbSession).selectBranchMeasuresForProject(projectUuid);
   }
 
   public void selectTreeByQuery(DbSession dbSession, ComponentDto baseComponent, MeasureTreeQuery query,
@@ -128,20 +127,8 @@ public class MeasureDao implements Dao {
     mapper(dbSession).selectTreeByQuery(query, baseComponent.uuid(), query.getUuidPath(baseComponent), resultHandler);
   }
 
-  public List<ProjectMainBranchMeasureDto> selectAllForProjectMainBranches(DbSession dbSession) {
-    return mapper(dbSession).selectAllForProjectMainBranches();
-  }
-
-  public List<ProjectMainBranchMeasureDto> selectAllForProjectMainBranchesAssociatedToDefaultQualityProfile(DbSession dbSession) {
-    return mapper(dbSession).selectAllForProjectMainBranchesAssociatedToDefaultQualityProfile();
-  }
-
-  public List<MeasureDto> selectAllForMainBranches(DbSession dbSession) {
-    return mapper(dbSession).selectAllForMainBranches();
-  }
-
-  public long findNclocOfBiggestBranchForProject(DbSession dbSession, String projectUuid) {
-    List<MeasureDto> branchMeasures = mapper(dbSession).selectBranchMeasuresForProject(projectUuid);
+  public long findNclocOfBiggestBranch(DbSession dbSession, Collection<String> branchUuids) {
+    List<MeasureDto> branchMeasures = selectByComponentUuidsAndMetricKeys(dbSession, branchUuids, List.of(NCLOC_KEY));
 
     long maxncloc = 0;
     for (MeasureDto measure : branchMeasures) {

@@ -91,7 +91,6 @@ import org.sonar.db.issue.NewCodeReferenceIssueDto;
 import org.sonar.db.issue.PrIssueDto;
 import org.sonar.db.measure.LargestBranchNclocDto;
 import org.sonar.db.measure.MeasureMapper;
-import org.sonar.db.measure.ProjectLocDistributionDto;
 import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.measure.ProjectMeasureMapper;
 import org.sonar.db.metric.MetricMapper;
@@ -256,7 +255,6 @@ public class MyBatis {
     confBuilder.loadAlias("AnalysisPropertyValuePerProject", AnalysisPropertyValuePerProject.class);
     confBuilder.loadAlias("ProjectAlmKeyAndProject", ProjectAlmKeyAndProject.class);
     confBuilder.loadAlias("PrAndBranchCountByProjectDto", PrBranchAnalyzedLanguageCountByProjectDto.class);
-    confBuilder.loadAlias("ProjectLocDistribution", ProjectLocDistributionDto.class);
     confBuilder.loadAlias("PurgeableAnalysis", PurgeableAnalysisDto.class);
     confBuilder.loadAlias("PushEvent", PushEventDto.class);
     confBuilder.loadAlias("QualityGateCondition", QualityGateConditionDto.class);

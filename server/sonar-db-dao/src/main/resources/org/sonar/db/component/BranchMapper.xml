@@ -304,4 +304,22 @@
     from dual
   </select>
 
+  <select id="selectMainBranches" resultType="org.sonar.db.component.BranchDto">
+    select <include refid="columns"/>
+    from project_branches pb
+    inner join projects p on p.uuid = pb.project_uuid
+    where
+    p.qualifier = 'TRK'
+    and pb.is_main = ${_true}
+  </select>
+
+  <select id="selectMainBranchesAssociatedToDefaultQualityProfile" resultType="org.sonar.db.component.BranchDto">
+    select <include refid="columns"/>
+    from project_branches pb
+    inner join projects p on p.uuid = pb.project_uuid
+    where
+    pb.is_main = ${_true}
+    and p.uuid not in (select project_uuid from project_qprofiles)
+  </select>
+
 </mapper>

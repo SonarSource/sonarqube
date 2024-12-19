@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.measure.ProjectLocDistributionDto;
+import org.sonar.telemetry.legacy.ProjectLocDistributionDto;
 import org.sonar.telemetry.core.AbstractTelemetryDataProvider;
 import org.sonar.telemetry.core.Dimension;
 import org.sonar.telemetry.core.Granularity;

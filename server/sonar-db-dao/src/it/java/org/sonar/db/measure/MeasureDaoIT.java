@@ -30,12 +30,12 @@ import org.apache.ibatis.session.ResultHandler;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.metric.MetricDto;
 
@@ -52,7 +52,6 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.measure.MeasureTesting.newMeasure;
-import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
 
 class MeasureDaoIT {
 
@@ -306,28 +305,6 @@ class MeasureDaoIT {
   }
 
   @Test
-  void scrollSelectByComponentUuid() {
-    List<MeasureDto> results = new ArrayList<>();
-    MetricDto metric = db.measures().insertMetric();
-    MetricDto metric2 = db.measures().insertMetric();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
-    underTest.insertOrUpdate(db.getSession(), newMeasure(project, metric, 3.14));
-    underTest.insertOrUpdate(db.getSession(), newMeasure(project, metric2, 4.54));
-    underTest.insertOrUpdate(db.getSession(), newMeasure(project2, metric, 99.99));
-    underTest.scrollSelectByComponentUuid(db.getSession(), project.uuid(), context -> results.add(context.getResultObject()));
-
-    assertThat(results).hasSize(1);
-    assertThat(results).flatExtracting(m -> m.getMetricValues().entrySet().stream()
-        .map(entry -> tuple(m.getComponentUuid(), entry.getKey(), entry.getValue()))
-        .toList())
-      .containsExactlyInAnyOrder(
-        tuple(project.uuid(), metric.getKey(), 3.14),
-        tuple(project.uuid(), metric2.getKey(), 4.54)
-      );
-  }
-
-  @Test
   void select_measure_hashes_for_branch() {
     MeasureDto measure1 = new MeasureDto()
       .setComponentUuid("c1")
@@ -351,39 +328,6 @@ class MeasureDaoIT {
 
     assertThat(underTest.selectMeasureHashesForBranch(db.getSession(), "b1"))
       .containsOnly(new MeasureHash("c1", hash1), new MeasureHash("c2", hash2));
-  }
-
-  @Test
-  void select_branch_measures_for_project() {
-
-    // 2 branches on the same project, 1 branch on another project
-    ProjectData projectData = db.components().insertPrivateProject();
-    BranchDto branch1 = projectData.getMainBranchDto();
-    BranchDto branch2 = db.components().insertProjectBranch(projectData.getProjectDto());
-    BranchDto branch3 = db.components().insertPrivateProject().getMainBranchDto();
-
-    // Insert measures for each branch and for a random component on branch1
-    MetricDto metric = db.measures().insertMetric();
-    MeasureDto measure1 = newMeasure(branch1, metric, 3);
-    MeasureDto measure2 = newMeasure(branch2, metric, 4);
-    MeasureDto measure3 = newMeasure(branch3, metric, 5);
-    MeasureDto measure4 = newMeasure(db.components().insertFile(branch1), metric, 6);
-
-    underTest.insertOrUpdate(db.getSession(), measure1);
-    underTest.insertOrUpdate(db.getSession(), measure2);
-    underTest.insertOrUpdate(db.getSession(), measure3);
-    underTest.insertOrUpdate(db.getSession(), measure4);
-
-    List<MeasureDto> measures = underTest.selectBranchMeasuresForProject(db.getSession(), projectData.projectUuid());
-    assertThat(measures).hasSize(2);
-    assertThat(measures)
-      .flatExtracting(m -> m.getMetricValues().entrySet().stream()
-        .map(entry -> tuple(m.getComponentUuid(), m.getBranchUuid(), entry.getKey(), entry.getValue()))
-        .toList())
-      .containsExactlyInAnyOrder(
-        tuple(branch1.getUuid(), branch1.getUuid(), metric.getKey(), 3.0),
-        tuple(branch2.getUuid(), branch2.getUuid(), metric.getKey(), 4.0)
-      );
   }
 
   @Test
@@ -533,135 +477,23 @@ class MeasureDaoIT {
   }
 
   @Test
-  void selectAllForProjectMainBranches() {
-    ProjectData projectData1 = db.components().insertPrivateProject();
-    BranchDto branch1 = projectData1.getMainBranchDto();
-    BranchDto branch2 = db.components().insertProjectBranch(projectData1.getProjectDto());
-
-    ProjectData projectData2 = db.components().insertPrivateProject();
-    BranchDto branch3 = projectData2.getMainBranchDto();
-    BranchDto branch4 = db.components().insertProjectBranch(projectData2.getProjectDto());
-
-    // Insert measures for each branch and for a random component on branch1
-    MetricDto metric = db.measures().insertMetric();
-    MeasureDto measure1 = newMeasure(branch1, metric, 3);
-    MeasureDto measure2 = newMeasure(branch2, metric, 4);
-    MeasureDto measure3 = newMeasure(branch3, metric, 5);
-    MeasureDto measure4 = newMeasure(branch4, metric, 6);
-    MeasureDto measure5 = newMeasure(db.components().insertFile(branch1), metric, 7);
-
-    underTest.insertOrUpdate(db.getSession(), measure1);
-    underTest.insertOrUpdate(db.getSession(), measure2);
-    underTest.insertOrUpdate(db.getSession(), measure3);
-    underTest.insertOrUpdate(db.getSession(), measure4);
-    underTest.insertOrUpdate(db.getSession(), measure5);
-
-    List<ProjectMainBranchMeasureDto> measures = underTest.selectAllForProjectMainBranches(db.getSession());
-    assertThat(measures).hasSize(2);
-    assertThat(measures)
-      .flatExtracting(m -> m.getMetricValues().entrySet().stream()
-        .map(entry -> tuple(m.getProjectUuid(), entry.getKey(), entry.getValue()))
-        .toList())
-      .containsExactlyInAnyOrder(
-        tuple(projectData1.projectUuid(), metric.getKey(), 3.0),
-        tuple(projectData2.projectUuid(), metric.getKey(), 5.0)
-      );
-  }
-
-  @Test
-  void selectAllForProjectMainBranchesAssociatedToDefaultQualityProfile() {
-    ProjectData projectData1 = db.components().insertPrivateProject();
-    BranchDto branch1 = projectData1.getMainBranchDto();
-    BranchDto branch2 = db.components().insertProjectBranch(projectData1.getProjectDto());
-
-    ProjectData projectData2 = db.components().insertPrivateProject();
-    BranchDto branch3 = projectData2.getMainBranchDto();
-
-    // Insert measures for each branch and for a random component on branch1
-    MetricDto metric = db.measures().insertMetric();
-    MeasureDto measure1 = newMeasure(branch1, metric, 3);
-    MeasureDto measure2 = newMeasure(branch2, metric, 4);
-    MeasureDto measure3 = newMeasure(branch3, metric, 5);
-    MeasureDto measure4 = newMeasure(db.components().insertFile(branch1), metric, 7);
-
-    underTest.insertOrUpdate(db.getSession(), measure1);
-    underTest.insertOrUpdate(db.getSession(), measure2);
-    underTest.insertOrUpdate(db.getSession(), measure3);
-    underTest.insertOrUpdate(db.getSession(), measure4);
-
-    db.qualityProfiles().associateWithProject(projectData2.getProjectDto(), newQualityProfileDto());
-
-    List<ProjectMainBranchMeasureDto> measures =
-      underTest.selectAllForProjectMainBranchesAssociatedToDefaultQualityProfile(db.getSession());
-    assertThat(measures).hasSize(1);
-    assertThat(measures)
-      .flatExtracting(m -> m.getMetricValues().entrySet().stream()
-        .map(entry -> tuple(m.getProjectUuid(), entry.getKey(), entry.getValue()))
-        .toList())
-      .containsExactly(
-        tuple(projectData1.projectUuid(), metric.getKey(), 3.0)
-      );
-  }
-
-  @Test
-  void selectAllForMainBranches() {
-    ProjectData projectData1 = db.components().insertPrivateProject();
-    BranchDto branch1 = projectData1.getMainBranchDto();
-    BranchDto branch2 = db.components().insertProjectBranch(projectData1.getProjectDto());
-
-    ProjectData projectData2 = db.components().insertPrivateProject();
-    BranchDto branch3 = projectData2.getMainBranchDto();
-    BranchDto branch4 = db.components().insertProjectBranch(projectData2.getProjectDto());
-
-    // Insert measures for each branch and for a random component on branch1
-    MetricDto metric = db.measures().insertMetric();
-    MeasureDto measure1 = newMeasure(branch1, metric, 3);
-    MeasureDto measure2 = newMeasure(branch2, metric, 4);
-    MeasureDto measure3 = newMeasure(branch3, metric, 5);
-    MeasureDto measure4 = newMeasure(branch4, metric, 6);
-    MeasureDto measure5 = newMeasure(db.components().insertFile(branch1), metric, 7);
-
-    underTest.insertOrUpdate(db.getSession(), measure1);
-    underTest.insertOrUpdate(db.getSession(), measure2);
-    underTest.insertOrUpdate(db.getSession(), measure3);
-    underTest.insertOrUpdate(db.getSession(), measure4);
-    underTest.insertOrUpdate(db.getSession(), measure5);
-
-    List<MeasureDto> measures = underTest.selectAllForMainBranches(db.getSession());
-    assertThat(measures).hasSize(2);
-    assertThat(measures)
-      .flatExtracting(m -> m.getMetricValues().entrySet().stream()
-        .map(entry -> tuple(m.getComponentUuid(), m.getBranchUuid(), entry.getKey(), entry.getValue()))
-        .toList())
-      .containsExactlyInAnyOrder(
-        tuple(branch1.getUuid(), branch1.getUuid(), metric.getKey(), 3.0),
-        tuple(branch3.getUuid(), branch3.getUuid(), metric.getKey(), 5.0)
-      );
-  }
-
-  @Test
-  void findNclocOfBiggestBranchForProject() {
-    // 2 branches on the same project, 1 branch on 2 other projects
+  void findNclocOfBiggestBranch() {
     ProjectData projectData = db.components().insertPrivateProject();
     BranchDto branch1 = projectData.getMainBranchDto();
     BranchDto branch2 = db.components().insertProjectBranch(projectData.getProjectDto());
-    BranchDto branch3 = db.components().insertPrivateProject().getMainBranchDto();
-    ProjectData project2 = db.components().insertPrivateProject();
 
     // Insert measures for each branch and for a random component on branch1
     MetricDto metric = db.measures().insertMetric(metricDto -> metricDto.setKey(CoreMetrics.NCLOC_KEY));
     MeasureDto measure1 = newMeasure(branch1, metric, 3);
     MeasureDto measure2 = newMeasure(branch2, metric, 4);
-    MeasureDto measure3 = newMeasure(branch3, metric, 5);
-    MeasureDto measure4 = newMeasure(db.components().insertFile(branch1), metric, 6);
+    MeasureDto measure3 = newMeasure(db.components().insertFile(branch1), metric, 6);
 
     underTest.insertOrUpdate(db.getSession(), measure1);
     underTest.insertOrUpdate(db.getSession(), measure2);
     underTest.insertOrUpdate(db.getSession(), measure3);
-    underTest.insertOrUpdate(db.getSession(), measure4);
 
-    assertThat(underTest.findNclocOfBiggestBranchForProject(db.getSession(), projectData.projectUuid())).isEqualTo(4);
-    assertThat(underTest.findNclocOfBiggestBranchForProject(db.getSession(), project2.projectUuid())).isZero();
+    assertThat(underTest.findNclocOfBiggestBranch(db.getSession(), List.of(branch1.getUuid(), branch2.getUuid())))
+      .isEqualTo(4);
   }
 
   private MeasureDto newMeasureForMetrics(ComponentDto componentDto, MetricDto... metrics) {

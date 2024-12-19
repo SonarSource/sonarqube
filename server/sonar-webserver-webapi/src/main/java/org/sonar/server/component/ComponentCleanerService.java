@@ -20,11 +20,11 @@
 package org.sonar.server.component;
 
 import java.util.List;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.Indexers;
@@ -61,7 +61,10 @@ public class ComponentCleanerService {
   }
 
   private void updateProjectNcloc(DbSession dbSession, String projectUuid) {
-    long maxncloc = dbClient.measureDao().findNclocOfBiggestBranchForProject(dbSession, projectUuid);
+    List<String> branchUuids = dbClient.branchDao().selectByProjectUuid(dbSession, projectUuid).stream()
+      .map(BranchDto::getUuid)
+      .toList();
+    long maxncloc = dbClient.measureDao().findNclocOfBiggestBranch(dbSession, branchUuids);
     dbClient.projectDao().updateNcloc(dbSession, projectUuid, maxncloc);
   }
 

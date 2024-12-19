@@ -19,10 +19,12 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import java.util.List;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 
 public class ProjectNclocComputationStep implements ComputationStep {
 
@@ -38,7 +40,10 @@ public class ProjectNclocComputationStep implements ComputationStep {
   public void execute(Context context) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String projectUuid = analysisMetadataHolder.getProject().getUuid();
-      long maxncloc = dbClient.measureDao().findNclocOfBiggestBranchForProject(dbSession, projectUuid);
+      List<String> branchUuids = dbClient.branchDao().selectByProjectUuid(dbSession, projectUuid).stream()
+        .map(BranchDto::getUuid)
+        .toList();
+      long maxncloc = dbClient.measureDao().findNclocOfBiggestBranch(dbSession, branchUuids);
       dbClient.projectDao().updateNcloc(dbSession, projectUuid, maxncloc);
       dbSession.commit();
     }

@@ -206,4 +206,12 @@ public class BranchDao implements Dao {
     long yesterday = ZonedDateTime.now(ZoneId.systemDefault()).minusDays(1).toInstant().toEpochMilli();
     return mapper(dbSession).selectBranchMeasuresWithCaycMetric(yesterday);
   }
+
+  public List<BranchDto> selectMainBranches(DbSession dbSession) {
+    return mapper(dbSession).selectMainBranches();
+  }
+
+  public List<BranchDto> selectMainBranchesAssociatedToDefaultQualityProfile(DbSession dbSession) {
+    return mapper(dbSession).selectMainBranchesAssociatedToDefaultQualityProfile();
+  }
 }

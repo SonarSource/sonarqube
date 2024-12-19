@@ -43,7 +43,8 @@ import org.sonar.core.util.rule.RuleChange;
 import org.sonar.core.util.rule.RuleSetChangedEvent;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.measure.ProjectMainBranchMeasureDto;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.pushevent.PushEventDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -280,11 +281,16 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
   private List<ProjectDto> getDefaultQualityProfileAssociatedProjects(DbSession dbSession, String language) {
     Set<String> associatedProjectUuids = new HashSet<>();
 
-    List<ProjectMainBranchMeasureDto> measureDtos = dbClient.measureDao().selectAllForProjectMainBranchesAssociatedToDefaultQualityProfile(dbSession);
-    for (ProjectMainBranchMeasureDto measureDto : measureDtos) {
-      String distribution = (String) measureDto.getMetricValues().get(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY);
+    List<BranchDto> branchDtos = dbClient.branchDao().selectMainBranchesAssociatedToDefaultQualityProfile(dbSession);
+    Map<String, String> branchUuidToProjectUuid = branchDtos.stream().collect(Collectors.toMap(BranchDto::getUuid,
+      BranchDto::getProjectUuid));
+    List<MeasureDto> measureDtos = dbClient.measureDao().selectByComponentUuidsAndMetricKeys(dbSession, branchUuidToProjectUuid.keySet(),
+      List.of(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY));
+
+    for (MeasureDto measureDto : measureDtos) {
+      String distribution = measureDto.getString(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY);
       if (distribution != null && distributionContainsLanguage(distribution, language)) {
-        associatedProjectUuids.add(measureDto.getProjectUuid());
+        associatedProjectUuids.add(branchUuidToProjectUuid.get(measureDto.getComponentUuid()));
       }
     }
 

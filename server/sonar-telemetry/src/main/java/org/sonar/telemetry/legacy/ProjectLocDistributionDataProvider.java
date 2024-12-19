@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.measure.ProjectLocDistributionDto;
 import org.sonar.db.project.ProjectDto;
 
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
@@ -45,7 +45,11 @@ public class ProjectLocDistributionDataProvider {
     List<ProjectLocDistributionDto> branchesWithLargestNcloc = new ArrayList<>();
     List<ProjectDto> projects = dbClient.projectDao().selectProjects(dbSession);
     for (ProjectDto project : projects) {
-      List<MeasureDto> branchMeasures = dbClient.measureDao().selectBranchMeasuresForProject(dbSession, project.getUuid());
+      List<String> branchUuids = dbClient.branchDao().selectByProjectUuid(dbSession, project.getUuid()).stream()
+        .map(BranchDto::getUuid)
+        .toList();
+      List<MeasureDto> branchMeasures = dbClient.measureDao()
+        .selectByComponentUuidsAndMetricKeys(dbSession, branchUuids, List.of(NCLOC_KEY, NCLOC_LANGUAGE_DISTRIBUTION_KEY));
 
       long maxncloc = 0;
       String largestBranchUuid = null;

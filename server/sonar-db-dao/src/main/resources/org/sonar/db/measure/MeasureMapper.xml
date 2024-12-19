@@ -47,28 +47,22 @@
     </foreach>
   </select>
 
-  <select id="scrollSelectByComponentUuid" resultType="org.sonar.db.measure.MeasureDto" fetchSize="${_scrollFetchSize}"
+  <select id="scrollSelectByComponentUuids" parameterType="map" resultType="org.sonar.db.measure.MeasureDto" fetchSize="10"
           resultSetType="FORWARD_ONLY">
     select
     <include refid="columns"/>
     from measures m
     where
-    m.component_uuid = #{componentUuid, jdbcType=VARCHAR}
+    m.component_uuid in
+    <foreach item="componentUuid" collection="componentUuids" open="(" separator="," close=")">
+      #{componentUuid, jdbcType=VARCHAR}
+    </foreach>
   </select>
 
   <select id="selectMeasureHashesForBranch" resultType="org.sonar.db.measure.MeasureHash">
     select component_uuid, json_value_hash
     from measures
     where branch_uuid = #{branchUuid, jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectBranchMeasuresForProject" parameterType="map" resultType="org.sonar.db.measure.MeasureDto">
-    select
-    <include refid="columns"/>
-    from measures m
-    inner join project_branches b on b.uuid = m.component_uuid
-    inner join projects p on p.uuid = b.project_uuid and p.qualifier = 'TRK'
-    where b.project_uuid = #{projectUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectTreeByQuery" parameterType="map" resultType="org.sonar.db.measure.MeasureDto" fetchSize="${_scrollFetchSize}"
@@ -114,32 +108,6 @@
         )
       </if>
     </where>
-  </select>
-
-  <select id="selectAllForProjectMainBranches" resultType="org.sonar.db.measure.ProjectMainBranchMeasureDto">
-    select p.uuid as projectUuid, m.json_value as jsonValue
-    from measures m
-    inner join project_branches pb on pb.uuid = m.component_uuid
-    inner join projects p on p.uuid = pb.project_uuid
-    where
-    p.qualifier = 'TRK'
-    and pb.is_main = ${_true}
-  </select>
-
-  <select id="selectAllForProjectMainBranchesAssociatedToDefaultQualityProfile" resultType="org.sonar.db.measure.ProjectMainBranchMeasureDto">
-    select p.uuid as projectUuid, m.json_value as jsonValue
-    from measures m
-    inner join project_branches pb on pb.uuid = m.component_uuid
-    inner join projects p on p.uuid = pb.project_uuid
-    where
-    pb.is_main = ${_true}
-    and p.uuid not in (select project_uuid from project_qprofiles)
-  </select>
-
-  <select id="selectAllForMainBranches" resultType="org.sonar.db.measure.MeasureDto">
-    select <include refid="columns"/> from measures m
-    inner join project_branches pb on pb.uuid = m.component_uuid and pb.is_main = ${_true}
-    inner join projects p on p.uuid = pb.project_uuid and p.qualifier = 'TRK'
   </select>
 
 </mapper>

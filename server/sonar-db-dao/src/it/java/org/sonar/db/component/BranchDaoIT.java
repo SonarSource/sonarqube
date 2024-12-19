@@ -52,6 +52,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
+import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
 
 class BranchDaoIT {
 
@@ -869,6 +870,40 @@ class BranchDaoIT {
 
     assertThat(branchDtos).hasSize(10);
     assertThat(branchDtos).extracting(BranchDto::isMain).allMatch(b -> true);
+  }
+
+  @Test
+  void selectMainBranches() {
+    ProjectData projectData1 = db.components().insertPrivateProject();
+    BranchDto branch1 = projectData1.getMainBranchDto();
+    db.components().insertProjectBranch(projectData1.getProjectDto());
+
+    ProjectData projectData2 = db.components().insertPrivateProject();
+    BranchDto branch3 = projectData2.getMainBranchDto();
+
+    List<BranchDto> branchDtos = underTest.selectMainBranches(dbSession);
+
+    assertThat(branchDtos).hasSize(2);
+    assertThat(branchDtos).extracting(BranchDto::getUuid, BranchDto::getProjectUuid, BranchDto::isMain).containsExactlyInAnyOrder(
+      tuple(branch1.getUuid(), projectData1.projectUuid(), true),
+      tuple(branch3.getUuid(), projectData2.projectUuid(), true));
+  }
+
+  @Test
+  void selectMainBranchesAssociatedToDefaultQualityProfile() {
+    ProjectData projectData1 = db.components().insertPrivateProject();
+    BranchDto branch1 = projectData1.getMainBranchDto();
+    db.components().insertProjectBranch(projectData1.getProjectDto());
+
+    ProjectData projectData2 = db.components().insertPrivateProject();
+
+    db.qualityProfiles().associateWithProject(projectData2.getProjectDto(), newQualityProfileDto());
+
+    List<BranchDto> branchDtos = underTest.selectMainBranchesAssociatedToDefaultQualityProfile(dbSession);
+
+    assertThat(branchDtos).hasSize(1);
+    assertThat(branchDtos).extracting(BranchDto::getUuid, BranchDto::getProjectUuid, BranchDto::isMain).containsExactly(
+      tuple(branch1.getUuid(), projectData1.projectUuid(), true));
   }
 
   private void insertBranchesForProjectUuids(boolean mainBranch, String... uuids) {
