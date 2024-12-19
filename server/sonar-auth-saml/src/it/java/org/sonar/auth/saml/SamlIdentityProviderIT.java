@@ -19,6 +19,8 @@
  */
 package org.sonar.auth.saml;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -26,12 +28,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
@@ -39,7 +40,6 @@ import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
-import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -53,13 +53,12 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.utils.log.LoggerLevel.ERROR;
 
 public class SamlIdentityProviderIT {
   private static final String SQ_CALLBACK_URL = "http://localhost:9000/oauth2/callback/saml";
 
-  /* IDP private key (keep here for future tests with signature)
------BEGIN PRIVATE KEY-----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-----END PRIVATE KEY-----
+  /** IDP private key (keep here for future tests with signature)
+  -----BEGIN PRIVATE KEY-----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-----END PRIVATE KEY-----
    */
 
   private static final String IDP_CERTIFICATE = "-----BEGIN CERTIFICATE-----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-----END CERTIFICATE-----";
@@ -229,16 +228,14 @@ public class SamlIdentityProviderIT {
 
   @Test
   public void log_clear_error_when_private_key_is_not_pkcs8() {
-    var WRONG_FORMAT_PRIVATE_KEY = "MIIEpAIBAAKCAQEA0haE9+9QtP5JWbj4LymxiLZJk2n+QsHjVy/Lt/PXffGjl0aQ0O5mk13Vf1vlXC/L1FoPMhup5/AkcMHmJxkzXZ/VAHYYJJ78UHt6atxMDicpbOBaYqumE4fg0H4mVEIs4xYwzq/xhuTtpTb00ZCOF2Y/151o0alWcLbYgObZtbCpLxncjkJY8J+CY2v1WyE3VfBgErpseugYpf8GpkrKiM5tkY7DjhkrH+VY2FD8A6G6bkn/o+Ay7Vo3pv/byMyNsHBN9LgvCwQIDtyQJSEvTUK3IY0vcYTCUaITqIrWkj5qrDsuw9gR9Ie11+kzYL/1mE5AWOHmT2qNz7C9gOgJoQIDAQABAoIBAQCY9dRyQEfev5XgQZBRpmWgSDhhoDaDnG9Nt3r3wA4RoLGfHr2poSoF+bfMNrhT2mjpf3i43vNh77JYdpR/uxVvAUQwRctmPmsunfiPfT3SwCilIOQuGxOb/L5ujqqRhmzwGeQHWIrd0ChGtjChtEIAP24UKoN6w3QwNLCFiY7RfTC7+yyO05tKoIhzirCNDBARZPmaIm4ClmIf3Z3xg0Vsgtz7qntd63UoXjSWFA0f9EDJHfxCTaS1r9OrpPsPMNpVOEYDek4le+mWVCBmQABxYDBCycrILQUwpDkGOa6D7tezpjGYyn8Z4HiHzcneNqt/0+g5lG28DWHz9h0TKIjBAoGBAOklXNZmeMpMrQvTOta2cE/ts17SSrnUFWtKqU7ZH9Gs50ZpwzrnNWy+3sCiCCKfa+RylbXjukioKR5qz/qpr28GdD8+dWYNDHraEpk/ZtOfff7TlNpOjiNPXb0OF2t3HDeQs5etUPx5DHgCA58vDK4RlQcIWpZROCeH5vzo7lStAoGBAOauiFYKmbX3FdWsyBerjhbem5X59eNs68KtHxd/Y6INn/uI12gSsOi+Gj9B7yC/N1AKxqaWGN9fPeGy2+mC+BI0tiTWwATNlZyaSXeKBqKThONhgmZWUaX++dczqbWADdtzRUroy5X2lHzG8q6iG0RQtgwnczU1OdBk+UgF1/NFAoGBAJcr0Lx8CQozGWk3d0lNVhmdaNasyCMh7xl4ebtUcZtE31j6rsn8rNlsEYcaCOhaMl0YJxafKGSAFNlSLLS9XbFBoBJ57ylSgKsPx0tynrvNCKc4jaXXlbYzefZhsrHNs5Ab1Tcd/AsYegs+UxbeLPyZDeZXdlVNKHoJVq7aYd6pAoGAC7M2fwaynSQXG2tUCr9MyaQoyAaRjiNsIceeGBcB+qouPxfFtSWdi3B47FRvyH1qVMj3ImPihxHRlaz4snNOGb5KrrulqZizyemZaFK722sYBmBfuMkQAxdXnK6mIOqJyWOjVBVSnhyPk3STwn++WkytrxghI8W7VPKKIjkJpvECgYBBnvWXa8Ez/azEN+Y2Lc1PnU9OpNa/QRPUPApq15dB8Cu9e2Vm6F+CdGKBY8WQvDw7DJd6eOjCfN6ymy1O9vLiooNQJGaO/znncU1r3s42dfpQ8owthILl24GNXnEgth2yYfYPr/EVLoVsbgO0WKFvdsVbSo/upeLzGnVT+DMqfA==";
+    var wrongFormatPrivateKey = "MIIEpAIBAAKCAQEA0haE9+9QtP5JWbj4LymxiLZJk2n+QsHjVy/Lt/PXffGjl0aQ0O5mk13Vf1vlXC/L1FoPMhup5/AkcMHmJxkzXZ/VAHYYJJ78UHt6atxMDicpbOBaYqumE4fg0H4mVEIs4xYwzq/xhuTtpTb00ZCOF2Y/151o0alWcLbYgObZtbCpLxncjkJY8J+CY2v1WyE3VfBgErpseugYpf8GpkrKiM5tkY7DjhkrH+VY2FD8A6G6bkn/o+Ay7Vo3pv/byMyNsHBN9LgvCwQIDtyQJSEvTUK3IY0vcYTCUaITqIrWkj5qrDsuw9gR9Ie11+kzYL/1mE5AWOHmT2qNz7C9gOgJoQIDAQABAoIBAQCY9dRyQEfev5XgQZBRpmWgSDhhoDaDnG9Nt3r3wA4RoLGfHr2poSoF+bfMNrhT2mjpf3i43vNh77JYdpR/uxVvAUQwRctmPmsunfiPfT3SwCilIOQuGxOb/L5ujqqRhmzwGeQHWIrd0ChGtjChtEIAP24UKoN6w3QwNLCFiY7RfTC7+yyO05tKoIhzirCNDBARZPmaIm4ClmIf3Z3xg0Vsgtz7qntd63UoXjSWFA0f9EDJHfxCTaS1r9OrpPsPMNpVOEYDek4le+mWVCBmQABxYDBCycrILQUwpDkGOa6D7tezpjGYyn8Z4HiHzcneNqt/0+g5lG28DWHz9h0TKIjBAoGBAOklXNZmeMpMrQvTOta2cE/ts17SSrnUFWtKqU7ZH9Gs50ZpwzrnNWy+3sCiCCKfa+RylbXjukioKR5qz/qpr28GdD8+dWYNDHraEpk/ZtOfff7TlNpOjiNPXb0OF2t3HDeQs5etUPx5DHgCA58vDK4RlQcIWpZROCeH5vzo7lStAoGBAOauiFYKmbX3FdWsyBerjhbem5X59eNs68KtHxd/Y6INn/uI12gSsOi+Gj9B7yC/N1AKxqaWGN9fPeGy2+mC+BI0tiTWwATNlZyaSXeKBqKThONhgmZWUaX++dczqbWADdtzRUroy5X2lHzG8q6iG0RQtgwnczU1OdBk+UgF1/NFAoGBAJcr0Lx8CQozGWk3d0lNVhmdaNasyCMh7xl4ebtUcZtE31j6rsn8rNlsEYcaCOhaMl0YJxafKGSAFNlSLLS9XbFBoBJ57ylSgKsPx0tynrvNCKc4jaXXlbYzefZhsrHNs5Ab1Tcd/AsYegs+UxbeLPyZDeZXdlVNKHoJVq7aYd6pAoGAC7M2fwaynSQXG2tUCr9MyaQoyAaRjiNsIceeGBcB+qouPxfFtSWdi3B47FRvyH1qVMj3ImPihxHRlaz4snNOGb5KrrulqZizyemZaFK722sYBmBfuMkQAxdXnK6mIOqJyWOjVBVSnhyPk3STwn++WkytrxghI8W7VPKKIjkJpvECgYBBnvWXa8Ez/azEN+Y2Lc1PnU9OpNa/QRPUPApq15dB8Cu9e2Vm6F+CdGKBY8WQvDw7DJd6eOjCfN6ymy1O9vLiooNQJGaO/znncU1r3s42dfpQ8owthILl24GNXnEgth2yYfYPr/EVLoVsbgO0WKFvdsVbSo/upeLzGnVT+DMqfA==";
     setSettings(true);
-    settings.setProperty("sonar.auth.saml.sp.privateKey.secured", WRONG_FORMAT_PRIVATE_KEY);
+    settings.setProperty("sonar.auth.saml.sp.privateKey.secured", wrongFormatPrivateKey);
     DumbCallbackContext callbackContext = new DumbCallbackContext(request, response, "encoded_minimal_response.txt", SQ_CALLBACK_URL);
 
     underTest.callback(callbackContext);
 
-    assertThat(log.getLogs(ERROR))
-      .extracting(LogAndArguments::getFormattedMsg)
-      .contains("Error in parsing service provider private key, please make sure that it is in PKCS 8 format.");
+    assertThat(log.logs(Level.ERROR)).contains("Error in parsing service provider private key, please make sure that it is in PKCS 8 format.");
   }
 
   @Test
@@ -289,31 +286,33 @@ public class SamlIdentityProviderIT {
   @Test
   public void fail_to_callback_when_using_wrong_certificate() {
     setSettings(true);
-    settings.setProperty("sonar.auth.saml.certificate.secured", "-----BEGIN CERTIFICATE-----\n" +
-      "MIIEIzCCAwugAwIBAgIUHUzPjy5E2TmnsmTRT2sIUBRXFF8wDQYJKoZIhvcNAQEF\n" +
-      "BQAwXDELMAkGA1UEBhMCVVMxFDASBgNVBAoMC1NvbmFyU291cmNlMRUwEwYDVQQL\n" +
-      "DAxPbmVMb2dpbiBJZFAxIDAeBgNVBAMMF09uZUxvZ2luIEFjY291bnQgMTMxMTkx\n" +
-      "MB4XDTE4MDcxOTA4NDUwNVoXDTIzMDcxOTA4NDUwNVowXDELMAkGA1UEBhMCVVMx\n" +
-      "FDASBgNVBAoMC1NvbmFyU291cmNlMRUwEwYDVQQLDAxPbmVMb2dpbiBJZFAxIDAe\n" +
-      "BgNVBAMMF09uZUxvZ2luIEFjY291bnQgMTMxMTkxMIIBIjANBgkqhkiG9w0BAQEF\n" +
-      "AAOCAQ8AMIIBCgKCAQEArlpKHm4EkJiQyy+4GtZBixcy7fWnreB96T7cOoWLmWkK\n" +
-      "05FM5M/boWHZsvaNAuHsoCAMzIY3/l+55WbORzAxsloH7rvDaDrdPYQN+sU9bzsD\n" +
-      "ZkmDGDmA3QBSm/h/p5SiMkWU5Jg34toDdM0rmzUStIOMq6Gh/Ykx3fRRSjswy48x\n" +
-      "wfZLy+0wU7lasHqdfk54dVbb7mCm9J3iHZizvOt2lbtzGbP6vrrjpzvZm43ZRgP8\n" +
-      "FapYA8G3lczdIaG4IaLW6kYIRORd0UwI7IAwkao3uIo12rh1T6DLVyzjOs9PdIkb\n" +
-      "HbICN2EehB/ut3wohuPwmwp2UmqopIMVVaBSsmSlYwIDAQABo4HcMIHZMAwGA1Ud\n" +
-      "EwEB/wQCMAAwHQYDVR0OBBYEFAXGFMKYgtpzCpfpBUPQ1H/9AeDrMIGZBgNVHSME\n" +
-      "gZEwgY6AFAXGFMKYgtpzCpfpBUPQ1H/9AeDroWCkXjBcMQswCQYDVQQGEwJVUzEU\n" +
-      "MBIGA1UECgwLU29uYXJTb3VyY2UxFTATBgNVBAsMDE9uZUxvZ2luIElkUDEgMB4G\n" +
-      "A1UEAwwXT25lTG9naW4gQWNjb3VudCAxMzExOTGCFB1Mz48uRNk5p7Jk0U9rCFAU\n" +
-      "VxRfMA4GA1UdDwEB/wQEAwIHgDANBgkqhkiG9w0BAQUFAAOCAQEAPHgi9IdDaTxD\n" +
-      "R5R8KHMdt385Uq8XC5pd0Li6y5RR2k6SKjThCt+eQU7D0Y2CyYU27vfCa2DQV4hJ\n" +
-      "4v4UfQv3NR/fYfkVSsNpxjBXBI3YWouxt2yg7uwdZBdgGYd37Yv3g9PdIZenjOhr\n" +
-      "Ck6WjdleMAWHRgJpocmB4IOESSyTfUul3jFupWnkbnn8c0ue6zwXd7LA1/yjVT2l\n" +
-      "Yh45+lz25aIOlyyo7OUw2TD15LIl8OOIuWRS4+UWy5+VdhXMbmpSEQH+Byod90g6\n" +
-      "A1bKpOFhRBzcxaZ6B2hB4SqjTBzS9zdmJyyFs/WNJxHri3aorcdqG9oUakjJJqqX\n" +
-      "E13skIMV2g==\n" +
-      "-----END CERTIFICATE-----\n");
+    settings.setProperty("sonar.auth.saml.certificate.secured", """
+      -----BEGIN CERTIFICATE-----
+      MIIEIzCCAwugAwIBAgIUHUzPjy5E2TmnsmTRT2sIUBRXFF8wDQYJKoZIhvcNAQEF
+      BQAwXDELMAkGA1UEBhMCVVMxFDASBgNVBAoMC1NvbmFyU291cmNlMRUwEwYDVQQL
+      DAxPbmVMb2dpbiBJZFAxIDAeBgNVBAMMF09uZUxvZ2luIEFjY291bnQgMTMxMTkx
+      MB4XDTE4MDcxOTA4NDUwNVoXDTIzMDcxOTA4NDUwNVowXDELMAkGA1UEBhMCVVMx
+      FDASBgNVBAoMC1NvbmFyU291cmNlMRUwEwYDVQQLDAxPbmVMb2dpbiBJZFAxIDAe
+      BgNVBAMMF09uZUxvZ2luIEFjY291bnQgMTMxMTkxMIIBIjANBgkqhkiG9w0BAQEF
+      AAOCAQ8AMIIBCgKCAQEArlpKHm4EkJiQyy+4GtZBixcy7fWnreB96T7cOoWLmWkK
+      05FM5M/boWHZsvaNAuHsoCAMzIY3/l+55WbORzAxsloH7rvDaDrdPYQN+sU9bzsD
+      ZkmDGDmA3QBSm/h/p5SiMkWU5Jg34toDdM0rmzUStIOMq6Gh/Ykx3fRRSjswy48x
+      wfZLy+0wU7lasHqdfk54dVbb7mCm9J3iHZizvOt2lbtzGbP6vrrjpzvZm43ZRgP8
+      FapYA8G3lczdIaG4IaLW6kYIRORd0UwI7IAwkao3uIo12rh1T6DLVyzjOs9PdIkb
+      HbICN2EehB/ut3wohuPwmwp2UmqopIMVVaBSsmSlYwIDAQABo4HcMIHZMAwGA1Ud
+      EwEB/wQCMAAwHQYDVR0OBBYEFAXGFMKYgtpzCpfpBUPQ1H/9AeDrMIGZBgNVHSME
+      gZEwgY6AFAXGFMKYgtpzCpfpBUPQ1H/9AeDroWCkXjBcMQswCQYDVQQGEwJVUzEU
+      MBIGA1UECgwLU29uYXJTb3VyY2UxFTATBgNVBAsMDE9uZUxvZ2luIElkUDEgMB4G
+      A1UEAwwXT25lTG9naW4gQWNjb3VudCAxMzExOTGCFB1Mz48uRNk5p7Jk0U9rCFAU
+      VxRfMA4GA1UdDwEB/wQEAwIHgDANBgkqhkiG9w0BAQUFAAOCAQEAPHgi9IdDaTxD
+      R5R8KHMdt385Uq8XC5pd0Li6y5RR2k6SKjThCt+eQU7D0Y2CyYU27vfCa2DQV4hJ
+      4v4UfQv3NR/fYfkVSsNpxjBXBI3YWouxt2yg7uwdZBdgGYd37Yv3g9PdIZenjOhr
+      Ck6WjdleMAWHRgJpocmB4IOESSyTfUul3jFupWnkbnn8c0ue6zwXd7LA1/yjVT2l
+      Yh45+lz25aIOlyyo7OUw2TD15LIl8OOIuWRS4+UWy5+VdhXMbmpSEQH+Byod90g6
+      A1bKpOFhRBzcxaZ6B2hB4SqjTBzS9zdmJyyFs/WNJxHri3aorcdqG9oUakjJJqqX
+      E13skIMV2g==
+      -----END CERTIFICATE-----
+      """);
     DumbCallbackContext callbackContext = new DumbCallbackContext(request, response, "encoded_full_response.txt", SQ_CALLBACK_URL);
 
     assertThatThrownBy(() -> underTest.callback(callbackContext))
@@ -363,6 +362,7 @@ public class SamlIdentityProviderIT {
 
     @Override
     public void redirectTo(String url) {
+      // Do nothing
     }
 
     @Override
@@ -396,10 +396,9 @@ public class SamlIdentityProviderIT {
       this.response = response;
       this.expectedCallbackUrl = expectedCallbackUrl;
       Map<String, String[]> parameterMap = new HashMap<>();
-      parameterMap.put("SAMLResponse", new String[]{loadResponse(encodedResponseFile)});
+      parameterMap.put("SAMLResponse", new String[] {loadResponse(encodedResponseFile)});
       when(((JakartaHttpRequest) getHttpRequest()).getDelegate().getParameterMap()).thenReturn(parameterMap);
     }
-
 
     private String loadResponse(String file) {
       try (InputStream json = getClass().getResourceAsStream(SamlIdentityProviderIT.class.getSimpleName() + "/" + file)) {

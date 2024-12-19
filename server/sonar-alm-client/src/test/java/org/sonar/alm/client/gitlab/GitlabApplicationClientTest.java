@@ -41,9 +41,9 @@ import org.sonar.alm.client.ConstantTimeoutConfiguration;
 import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.auth.gitlab.GsonGroup;
+import org.sonar.auth.gitlab.GsonMemberRole;
 import org.sonar.auth.gitlab.GsonProjectMember;
 import org.sonar.auth.gitlab.GsonUser;
-import org.sonar.auth.gitlab.GsonMemberRole;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -167,21 +167,21 @@ public class GitlabApplicationClientTest {
   public void get_branches() {
     MockResponse response = new MockResponse()
       .setResponseCode(200)
-      .setBody("[{\n"
-        + "    \"name\": \"main\",\n"
-        + "    \"default\": true\n"
-        + "},{\n"
-        + "    \"name\": \"other\",\n"
-        + "    \"default\": false\n"
-        + "}]");
+      .setBody("""
+        [{
+            "name": "main",
+            "default": true
+        },{
+            "name": "other",
+            "default": false
+        }]""");
     server.enqueue(response);
 
     assertThat(underTest.getBranches(gitlabUrl, "pat", 12345L))
       .extracting(GitLabBranch::getName, GitLabBranch::isDefault)
       .containsExactly(
         tuple("main", true),
-        tuple("other", false)
-      );
+        tuple("other", false));
   }
 
   @Test
@@ -211,32 +211,33 @@ public class GitlabApplicationClientTest {
   public void search_projects() throws InterruptedException {
     MockResponse projects = new MockResponse()
       .setResponseCode(200)
-      .setBody("[\n"
-        + "  {\n"
-        + "    \"id\": 1,\n"
-        + "    \"name\": \"SonarQube example 1\",\n"
-        + "    \"name_with_namespace\": \"SonarSource / SonarQube / SonarQube example 1\",\n"
-        + "    \"path\": \"sonarqube-example-1\",\n"
-        + "    \"path_with_namespace\": \"sonarsource/sonarqube/sonarqube-example-1\",\n"
-        + "    \"web_url\": \"https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-1\"\n"
-        + "  },\n"
-        + "  {\n"
-        + "    \"id\": 2,\n"
-        + "    \"name\": \"SonarQube example 2\",\n"
-        + "    \"name_with_namespace\": \"SonarSource / SonarQube / SonarQube example 2\",\n"
-        + "    \"path\": \"sonarqube-example-2\",\n"
-        + "    \"path_with_namespace\": \"sonarsource/sonarqube/sonarqube-example-2\",\n"
-        + "    \"web_url\": \"https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-2\"\n"
-        + "  },\n"
-        + "  {\n"
-        + "    \"id\": 3,\n"
-        + "    \"name\": \"SonarQube example 3\",\n"
-        + "    \"name_with_namespace\": \"SonarSource / SonarQube / SonarQube example 3\",\n"
-        + "    \"path\": \"sonarqube-example-3\",\n"
-        + "    \"path_with_namespace\": \"sonarsource/sonarqube/sonarqube-example-3\",\n"
-        + "    \"web_url\": \"https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-3\"\n"
-        + "  }\n"
-        + "]");
+      .setBody("""
+        [
+          {
+            "id": 1,
+            "name": "SonarQube example 1",
+            "name_with_namespace": "SonarSource / SonarQube / SonarQube example 1",
+            "path": "sonarqube-example-1",
+            "path_with_namespace": "sonarsource/sonarqube/sonarqube-example-1",
+            "web_url": "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-1"
+          },
+          {
+            "id": 2,
+            "name": "SonarQube example 2",
+            "name_with_namespace": "SonarSource / SonarQube / SonarQube example 2",
+            "path": "sonarqube-example-2",
+            "path_with_namespace": "sonarsource/sonarqube/sonarqube-example-2",
+            "web_url": "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-2"
+          },
+          {
+            "id": 3,
+            "name": "SonarQube example 3",
+            "name_with_namespace": "SonarSource / SonarQube / SonarQube example 3",
+            "path": "sonarqube-example-3",
+            "path_with_namespace": "sonarsource/sonarqube/sonarqube-example-3",
+            "web_url": "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-3"
+          }
+        ]""");
     projects.addHeader("X-Page", 1);
     projects.addHeader("X-Per-Page", 10);
     projects.addHeader("X-Total", 3);
@@ -251,12 +252,12 @@ public class GitlabApplicationClientTest {
     assertThat(projectList.getProjects()).hasSize(3);
     assertThat(projectList.getProjects()).extracting(
       Project::getId, Project::getName, Project::getNameWithNamespace, Project::getPath, Project::getPathWithNamespace, Project::getWebUrl).containsExactly(
-      tuple(1L, "SonarQube example 1", "SonarSource / SonarQube / SonarQube example 1", "sonarqube-example-1", "sonarsource/sonarqube/sonarqube-example-1",
-        "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-1"),
-      tuple(2L, "SonarQube example 2", "SonarSource / SonarQube / SonarQube example 2", "sonarqube-example-2", "sonarsource/sonarqube/sonarqube-example-2",
-        "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-2"),
-      tuple(3L, "SonarQube example 3", "SonarSource / SonarQube / SonarQube example 3", "sonarqube-example-3", "sonarsource/sonarqube/sonarqube-example-3",
-        "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-3"));
+        tuple(1L, "SonarQube example 1", "SonarSource / SonarQube / SonarQube example 1", "sonarqube-example-1", "sonarsource/sonarqube/sonarqube-example-1",
+          "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-1"),
+        tuple(2L, "SonarQube example 2", "SonarSource / SonarQube / SonarQube example 2", "sonarqube-example-2", "sonarsource/sonarqube/sonarqube-example-2",
+          "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-2"),
+        tuple(3L, "SonarQube example 3", "SonarSource / SonarQube / SonarQube example 3", "sonarqube-example-3", "sonarsource/sonarqube/sonarqube-example-3",
+          "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-3"));
 
     RecordedRequest projectGitlabRequest = server.takeRequest(10, TimeUnit.SECONDS);
     String gitlabUrlCall = projectGitlabRequest.getRequestUrl().toString();
@@ -268,16 +269,17 @@ public class GitlabApplicationClientTest {
   public void search_projects_dont_fail_if_no_x_total() throws InterruptedException {
     MockResponse projects = new MockResponse()
       .setResponseCode(200)
-      .setBody("[\n"
-        + "  {\n"
-        + "    \"id\": 1,\n"
-        + "    \"name\": \"SonarQube example 1\",\n"
-        + "    \"name_with_namespace\": \"SonarSource / SonarQube / SonarQube example 1\",\n"
-        + "    \"path\": \"sonarqube-example-1\",\n"
-        + "    \"path_with_namespace\": \"sonarsource/sonarqube/sonarqube-example-1\",\n"
-        + "    \"web_url\": \"https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-1\"\n"
-        + "  }"
-        + "]");
+      .setBody("""
+        [
+          {
+            "id": 1,
+            "name": "SonarQube example 1",
+            "name_with_namespace": "SonarSource / SonarQube / SonarQube example 1",
+            "path": "sonarqube-example-1",
+            "path_with_namespace": "sonarsource/sonarqube/sonarqube-example-1",
+            "web_url": "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-1"
+          }\
+        ]""");
     projects.addHeader("X-Page", 1);
     projects.addHeader("X-Per-Page", 10);
     server.enqueue(projects);
@@ -291,8 +293,8 @@ public class GitlabApplicationClientTest {
     assertThat(projectList.getProjects()).hasSize(1);
     assertThat(projectList.getProjects()).extracting(
       Project::getId, Project::getName, Project::getNameWithNamespace, Project::getPath, Project::getPathWithNamespace, Project::getWebUrl).containsExactly(
-      tuple(1L, "SonarQube example 1", "SonarSource / SonarQube / SonarQube example 1", "sonarqube-example-1", "sonarsource/sonarqube/sonarqube-example-1",
-        "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-1"));
+        tuple(1L, "SonarQube example 1", "SonarSource / SonarQube / SonarQube example 1", "sonarqube-example-1", "sonarsource/sonarqube/sonarqube-example-1",
+          "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-1"));
 
     RecordedRequest projectGitlabRequest = server.takeRequest(10, TimeUnit.SECONDS);
     String gitlabUrlCall = projectGitlabRequest.getRequestUrl().toString();
@@ -304,16 +306,17 @@ public class GitlabApplicationClientTest {
   public void search_projects_with_case_insensitive_pagination_headers() throws InterruptedException {
     MockResponse projects1 = new MockResponse()
       .setResponseCode(200)
-      .setBody("[\n"
-        + "  {\n"
-        + "    \"id\": 1,\n"
-        + "    \"name\": \"SonarQube example 1\",\n"
-        + "    \"name_with_namespace\": \"SonarSource / SonarQube / SonarQube example 1\",\n"
-        + "    \"path\": \"sonarqube-example-1\",\n"
-        + "    \"path_with_namespace\": \"sonarsource/sonarqube/sonarqube-example-1\",\n"
-        + "    \"web_url\": \"https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-1\"\n"
-        + "  }"
-        + "]");
+      .setBody("""
+        [
+          {
+            "id": 1,
+            "name": "SonarQube example 1",
+            "name_with_namespace": "SonarSource / SonarQube / SonarQube example 1",
+            "path": "sonarqube-example-1",
+            "path_with_namespace": "sonarsource/sonarqube/sonarqube-example-1",
+            "web_url": "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-1"
+          }\
+        ]""");
     projects1.addHeader("x-page", 1);
     projects1.addHeader("x-Per-page", 1);
     projects1.addHeader("X-Total", 2);
@@ -328,8 +331,8 @@ public class GitlabApplicationClientTest {
     assertThat(projectList.getProjects()).hasSize(1);
     assertThat(projectList.getProjects()).extracting(
       Project::getId, Project::getName, Project::getNameWithNamespace, Project::getPath, Project::getPathWithNamespace, Project::getWebUrl).containsExactly(
-      tuple(1L, "SonarQube example 1", "SonarSource / SonarQube / SonarQube example 1", "sonarqube-example-1", "sonarsource/sonarqube/sonarqube-example-1",
-        "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-1"));
+        tuple(1L, "SonarQube example 1", "SonarSource / SonarQube / SonarQube example 1", "sonarqube-example-1", "sonarsource/sonarqube/sonarqube-example-1",
+          "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-1"));
 
     RecordedRequest projectGitlabRequest = server.takeRequest(10, TimeUnit.SECONDS);
     String gitlabUrlCall = projectGitlabRequest.getRequestUrl().toString();

@@ -224,16 +224,18 @@ public class CreateActionIT {
       .execute();
 
     assertThat(response.getStatus()).isEqualTo(409);
-    assertJson(response.getInput()).isSimilarTo("{\n" +
-      "  \"rule\": {\n" +
-      "    \"key\": \"java:MY_CUSTOM\",\n" +
-      "    \"repo\": \"java\",\n" +
-      "    \"name\": \"My custom rule\",\n" +
-      "    \"severity\": \"MAJOR\",\n" +
-      "    \"status\": \"REMOVED\",\n" +
-      "    \"isTemplate\": false\n" +
-      "  }\n" +
-      "}\n");
+    assertJson(response.getInput()).isSimilarTo("""
+      {
+        "rule": {
+          "key": "java:MY_CUSTOM",
+          "repo": "java",
+          "name": "My custom rule",
+          "severity": "MAJOR",
+          "status": "REMOVED",
+          "isTemplate": false
+        }
+      }
+      """);
   }
 
   @Test
@@ -308,11 +310,13 @@ public class CreateActionIT {
       .setParam("type", BUG.name())
       .execute().getInput();
 
-    assertJson(result).isSimilarTo("{\n" +
-      "  \"rule\": {\n" +
-      "    \"severity\": \"MAJOR\"" +
-      "  }\n" +
-      "}\n");
+    assertJson(result).isSimilarTo("""
+      {
+        "rule": {
+          "severity": "MAJOR"\
+        }
+      }
+      """);
   }
 
   @Test

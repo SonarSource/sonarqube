@@ -161,9 +161,10 @@ public class DefaultCpdTokensTest {
       tokens.addToken(inputFile.newRange(1, 2, 1, 5), "foo");
       fail("Expected exception");
     } catch (Exception e) {
-      assertThat(e).hasMessage("Tokens of file src/Foo.java should be provided in order.\n" +
-        "Previous token: Range[from [line=1, lineOffset=6] to [line=1, lineOffset=10]]\n" +
-        "Last token: Range[from [line=1, lineOffset=2] to [line=1, lineOffset=5]]");
+      assertThat(e).hasMessage("""
+        Tokens of file src/Foo.java should be provided in order.
+        Previous token: Range[from [line=1, lineOffset=6] to [line=1, lineOffset=10]]
+        Last token: Range[from [line=1, lineOffset=2] to [line=1, lineOffset=5]]""");
     }
   }
 

@@ -28,16 +28,16 @@ public class GsonTeamTest {
 
   @Test
   public void parse_one_team() {
-    List<GsonTeam> underTest = GsonTeam.parse(
-      "[\n" +
-        "  {\n" +
-        "    \"name\": \"Developers\",\n" +
-        "    \"slug\": \"developers\",\n" +
-        "    \"organization\": {\n" +
-        "      \"login\": \"SonarSource\"\n" +
-        "    }\n" +
-        "  }\n" +
-        "]");
+    List<GsonTeam> underTest = GsonTeam.parse("""
+      [
+        {
+          "name": "Developers",
+          "slug": "developers",
+          "organization": {
+            "login": "SonarSource"
+          }
+        }
+      ]""");
     assertThat(underTest).hasSize(1);
 
     assertThat(underTest.get(0).getId()).isEqualTo("developers");
@@ -46,22 +46,22 @@ public class GsonTeamTest {
 
   @Test
   public void parse_two_teams() {
-    List<GsonTeam> underTest = GsonTeam.parse(
-      "[\n" +
-        "  {\n" +
-        "    \"name\": \"Developers\",\n" +
-        "    \"slug\": \"developers\",\n" +
-        "    \"organization\": {\n" +
-        "      \"login\": \"SonarSource\"\n" +
-        "    }\n" +
-        "  },\n" +
-        "  {\n" +
-        "    \"login\": \"SonarSource Developers\",\n" +
-        "    \"organization\": {\n" +
-        "      \"login\": \"SonarQubeCommunity\"\n" +
-        "    }\n" +
-        "  }\n" +
-        "]");
+    List<GsonTeam> underTest = GsonTeam.parse("""
+      [
+        {
+          "name": "Developers",
+          "slug": "developers",
+          "organization": {
+            "login": "SonarSource"
+          }
+        },
+        {
+          "login": "SonarSource Developers",
+          "organization": {
+            "login": "SonarQubeCommunity"
+          }
+        }
+      ]""");
     assertThat(underTest).hasSize(2);
   }
 

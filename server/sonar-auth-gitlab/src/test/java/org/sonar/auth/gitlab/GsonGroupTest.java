@@ -28,22 +28,23 @@ public class GsonGroupTest {
 
   @Test
   public void test_parse() {
-    List<GsonGroup> groups = GsonGroup.parse("[{\n" +
-      "\"id\": 123456789,\n" +
-      "\"web_url\": \"https://gitlab.com/groups/my-awesome-group/my-project\",\n" +
-      "\"name\": \"my-project\",\n" +
-      "\"path\": \"my-project\",\n" +
-      "\"description\": \"toto\",\n" +
-      "\"visibility\": \"private\",\n" +
-      "\"lfs_enabled\": true,\n" +
-      "\"avatar_url\": null,\n" +
-      "\"request_access_enabled\": false,\n" +
-      "\"full_name\": \"my-awesome-group / my-project\",\n" +
-      "\"full_path\": \"my-awesome-group/my-project\",\n" +
-      "\"parent_id\": 987654321,\n" +
-      "\"ldap_cn\": null,\n" +
-      "\"ldap_access\": null\n" +
-      "}]");
+    List<GsonGroup> groups = GsonGroup.parse("""
+      [{
+      "id": 123456789,
+      "web_url": "https://gitlab.com/groups/my-awesome-group/my-project",
+      "name": "my-project",
+      "path": "my-project",
+      "description": "toto",
+      "visibility": "private",
+      "lfs_enabled": true,
+      "avatar_url": null,
+      "request_access_enabled": false,
+      "full_name": "my-awesome-group / my-project",
+      "full_path": "my-awesome-group/my-project",
+      "parent_id": 987654321,
+      "ldap_cn": null,
+      "ldap_access": null
+      }]""");
 
     assertThat(groups).isNotNull();
     assertThat(groups.size()).isOne();

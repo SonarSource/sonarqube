@@ -28,10 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
-import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.server.component.ComponentType;
-import org.sonar.server.component.ComponentTypes;
-import org.sonar.db.component.ComponentScopes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -39,7 +35,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.api.web.page.Page;
 import org.sonar.api.web.page.Page.Qualifier;
 import org.sonar.api.web.page.PageDefinition;
-import org.sonar.server.component.DefaultComponentTypes;
 import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
@@ -49,6 +44,8 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
@@ -60,6 +57,9 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.ComponentType;
+import org.sonar.server.component.ComponentTypes;
+import org.sonar.server.component.DefaultComponentTypes;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -187,14 +187,16 @@ public class ComponentActionIT {
       .execute()
       .getInput();
 
-    assertJson(json).isSimilarTo("{\n" +
-                                 "  \"key\": \"polop\",\n" +
-                                 "  \"isFavorite\": true,\n" +
-                                 "  \"id\": \"xyz\",\n" +
-                                 "  \"branch\": \"feature1\"," +
-                                 "  \"name\": \"Polop\",\n" +
-                                 "  \"description\": \"test project\"\n" +
-                                 "}\n");
+    assertJson(json).isSimilarTo("""
+      {
+        "key": "polop",
+        "isFavorite": true,
+        "id": "xyz",
+        "branch": "feature1",\
+        "name": "Polop",
+        "description": "test project"
+      }
+      """);
   }
 
   @Test
@@ -218,11 +220,11 @@ public class ComponentActionIT {
       .getInput();
 
     assertJson(json).isSimilarTo("{" +
-                                 "  \"key\": \"" + subportfolio.getKey() + "\"," +
-                                 "  \"isFavorite\": true," +
-                                 "  \"id\": \"" + subportfolio.uuid() + "\"," +
-                                 "  \"name\": \"" + subportfolio.name() + "\"" +
-                                 "}");
+      "  \"key\": \"" + subportfolio.getKey() + "\"," +
+      "  \"isFavorite\": true," +
+      "  \"id\": \"" + subportfolio.uuid() + "\"," +
+      "  \"name\": \"" + subportfolio.name() + "\"" +
+      "}");
   }
 
   @Test
@@ -245,11 +247,11 @@ public class ComponentActionIT {
       .getInput();
 
     assertJson(json).isSimilarTo("{" +
-                                 "  \"key\": \"" + portfolio.getKey() + "\"," +
-                                 "  \"isFavorite\": true," +
-                                 "  \"id\": \"" + portfolio.uuid() + "\"," +
-                                 "  \"name\": \"" + portfolio.name() + "\"" +
-                                 "}");
+      "  \"key\": \"" + portfolio.getKey() + "\"," +
+      "  \"isFavorite\": true," +
+      "  \"id\": \"" + portfolio.uuid() + "\"," +
+      "  \"name\": \"" + portfolio.name() + "\"" +
+      "}");
   }
 
   @Test
@@ -280,14 +282,14 @@ public class ComponentActionIT {
     // access to all projects (project11, project12)
     String json = execute(application1.projectKey());
     assertJson(json).isSimilarTo("{" +
-                                 "\"canBrowseAllChildProjects\":true" +
-                                 "}");
+      "\"canBrowseAllChildProjects\":true" +
+      "}");
 
     // access to some projects (project11)
     json = execute(application2.projectKey());
     assertJson(json).isSimilarTo("{" +
-                                 "\"canBrowseAllChildProjects\":false" +
-                                 "}");
+      "\"canBrowseAllChildProjects\":false" +
+      "}");
   }
 
   @Test
@@ -341,27 +343,27 @@ public class ComponentActionIT {
       .getInput();
 
     assertJson(json).isSimilarTo("{\n" +
-                                 "  \"key\": \"" + fileDto.getKey() + "\",\n" +
-                                 "  \"branch\": \"feature1\",\n" +
-                                 "  \"name\": \"Main.xoo\",\n" +
-                                 "  \"breadcrumbs\": [\n" +
-                                 "    {\n" +
-                                 "      \"key\": \"sample\",\n" +
-                                 "      \"name\": \"Sample\",\n" +
-                                 "      \"qualifier\": \"TRK\"\n" +
-                                 "    },\n" +
-                                 "    {\n" +
-                                 "      \"key\": \"sample:src\",\n" +
-                                 "      \"name\": \"src\",\n" +
-                                 "      \"qualifier\": \"DIR\"\n" +
-                                 "    },\n" +
-                                 "    {\n" +
-                                 "      \"key\": \"" + fileDto.getKey() + "\",\n" +
-                                 "      \"name\": \"Main.xoo\",\n" +
-                                 "      \"qualifier\": \"FIL\"\n" +
-                                 "    }\n" +
-                                 "  ]\n" +
-                                 "}\n");
+      "  \"key\": \"" + fileDto.getKey() + "\",\n" +
+      "  \"branch\": \"feature1\",\n" +
+      "  \"name\": \"Main.xoo\",\n" +
+      "  \"breadcrumbs\": [\n" +
+      "    {\n" +
+      "      \"key\": \"sample\",\n" +
+      "      \"name\": \"Sample\",\n" +
+      "      \"qualifier\": \"TRK\"\n" +
+      "    },\n" +
+      "    {\n" +
+      "      \"key\": \"sample:src\",\n" +
+      "      \"name\": \"src\",\n" +
+      "      \"qualifier\": \"DIR\"\n" +
+      "    },\n" +
+      "    {\n" +
+      "      \"key\": \"" + fileDto.getKey() + "\",\n" +
+      "      \"name\": \"Main.xoo\",\n" +
+      "      \"qualifier\": \"FIL\"\n" +
+      "    }\n" +
+      "  ]\n" +
+      "}\n");
   }
 
   @Test
@@ -566,21 +568,22 @@ public class ComponentActionIT {
 
     String json = execute(project.projectKey());
 
-    assertJson(json).isSimilarTo("{\n" +
-                                 "  \"configuration\": {\n" +
-                                 "    \"showSettings\": true,\n" +
-                                 "    \"showQualityProfiles\": true,\n" +
-                                 "    \"showQualityGates\": true,\n" +
-                                 "    \"showLinks\": true,\n" +
-                                 "    \"showPermissions\": true,\n" +
-                                 "    \"showHistory\": true,\n" +
-                                 "    \"showUpdateKey\": true,\n" +
-                                 "    \"showBackgroundTasks\": true,\n" +
-                                 "    \"canApplyPermissionTemplate\": false,\n" +
-                                 "    \"canBrowseProject\": true,\n" +
-                                 "    \"canUpdateProjectVisibilityToPrivate\": true\n" +
-                                 "  }\n" +
-                                 "}");
+    assertJson(json).isSimilarTo("""
+      {
+        "configuration": {
+          "showSettings": true,
+          "showQualityProfiles": true,
+          "showQualityGates": true,
+          "showLinks": true,
+          "showPermissions": true,
+          "showHistory": true,
+          "showUpdateKey": true,
+          "showBackgroundTasks": true,
+          "canApplyPermissionTemplate": false,
+          "canBrowseProject": true,
+          "canUpdateProjectVisibilityToPrivate": true
+        }
+      }""");
   }
 
   @Test
@@ -595,21 +598,22 @@ public class ComponentActionIT {
 
     String json = execute(project.projectKey());
 
-    assertJson(json).isSimilarTo("{\n" +
-                                 "  \"configuration\": {\n" +
-                                 "    \"showSettings\": true,\n" +
-                                 "    \"showQualityProfiles\": true,\n" +
-                                 "    \"showQualityGates\": true,\n" +
-                                 "    \"showLinks\": true,\n" +
-                                 "    \"showPermissions\": false,\n" +
-                                 "    \"showHistory\": true,\n" +
-                                 "    \"showUpdateKey\": true,\n" +
-                                 "    \"showBackgroundTasks\": true,\n" +
-                                 "    \"canApplyPermissionTemplate\": false,\n" +
-                                 "    \"canBrowseProject\": true,\n" +
-                                 "    \"canUpdateProjectVisibilityToPrivate\": true\n" +
-                                 "  }\n" +
-                                 "}");
+    assertJson(json).isSimilarTo("""
+      {
+        "configuration": {
+          "showSettings": true,
+          "showQualityProfiles": true,
+          "showQualityGates": true,
+          "showLinks": true,
+          "showPermissions": false,
+          "showHistory": true,
+          "showUpdateKey": true,
+          "showBackgroundTasks": true,
+          "canApplyPermissionTemplate": false,
+          "canBrowseProject": true,
+          "canUpdateProjectVisibilityToPrivate": true
+        }
+      }""");
   }
 
   @Test
@@ -818,7 +822,7 @@ public class ComponentActionIT {
     when(pluginRepository.getPluginInfo(any())).thenReturn(new PluginInfo("unused").setVersion(Version.create("1.0")));
     CoreExtensionRepository coreExtensionRepository = mock(CoreExtensionRepository.class);
     when(coreExtensionRepository.isInstalled(any())).thenReturn(false);
-    PageRepository pageRepository = new PageRepository(pluginRepository, coreExtensionRepository, new PageDefinition[]{context -> {
+    PageRepository pageRepository = new PageRepository(pluginRepository, coreExtensionRepository, new PageDefinition[] {context -> {
       for (Page page : pages) {
         context.addPage(page);
       }
@@ -866,7 +870,7 @@ public class ComponentActionIT {
       .setAdmin(true)
       .build();
 
-    return new Page[]{page1, page2, adminPage};
+    return new Page[] {page1, page2, adminPage};
   }
 
   private void verifySuccess(String componentKey) {

@@ -50,31 +50,31 @@ public class DropTableBuilderTest {
   @Test
   public void drop_columns_on_oracle() {
     assertThat(new DropTableBuilder(new Oracle(), "issues")
-      .build()).containsExactly(
-      "BEGIN\n" +
-        "EXECUTE IMMEDIATE 'DROP SEQUENCE issues_seq';\n" +
-        "EXCEPTION\n" +
-        "WHEN OTHERS THEN\n" +
-        "  IF SQLCODE != -2289 THEN\n" +
-        "  RAISE;\n" +
-        "  END IF;\n" +
-        "END;",
-      "BEGIN\n" +
-        "EXECUTE IMMEDIATE 'DROP TRIGGER issues_idt';\n" +
-        "EXCEPTION\n" +
-        "WHEN OTHERS THEN\n" +
-        "  IF SQLCODE != -4080 THEN\n" +
-        "  RAISE;\n" +
-        "  END IF;\n" +
-        "END;",
-      "BEGIN\n" +
-        "EXECUTE IMMEDIATE 'DROP TABLE issues';\n" +
-        "EXCEPTION\n" +
-        "WHEN OTHERS THEN\n" +
-        "  IF SQLCODE != -942 THEN\n" +
-        "  RAISE;\n" +
-        "  END IF;\n" +
-        "END;");
+      .build()).containsExactly("""
+        BEGIN
+        EXECUTE IMMEDIATE 'DROP SEQUENCE issues_seq';
+        EXCEPTION
+        WHEN OTHERS THEN
+          IF SQLCODE != -2289 THEN
+          RAISE;
+          END IF;
+        END;""", """
+        BEGIN
+        EXECUTE IMMEDIATE 'DROP TRIGGER issues_idt';
+        EXCEPTION
+        WHEN OTHERS THEN
+          IF SQLCODE != -4080 THEN
+          RAISE;
+          END IF;
+        END;""", """
+        BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE issues';
+        EXCEPTION
+        WHEN OTHERS THEN
+          IF SQLCODE != -942 THEN
+          RAISE;
+          END IF;
+        END;""");
   }
 
   @Test

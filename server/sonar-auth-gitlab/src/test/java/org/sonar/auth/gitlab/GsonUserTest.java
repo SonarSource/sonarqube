@@ -27,45 +27,46 @@ public class GsonUserTest {
 
   @Test
   public void test_parse() {
-    GsonUser gsonUser = GsonUser.parse("{\n" +
-      "\"id\": 4418804,\n" +
-      "\"name\": \"Pierre Guillot\",\n" +
-      "\"username\": \"pierre-guillot-sonarsource\",\n" +
-      "\"state\": \"active\",\n" +
-      "\"avatar_url\": \"https://secure.gravatar.com/avatar/fe075537af1b94fd1cea160e5359e178?s=80&d=identicon\",\n" +
-      "\"web_url\": \"https://gitlab.com/pierre-guillot-sonarsource\",\n" +
-      "\"created_at\": \"2019-08-06T08:36:09.031Z\",\n" +
-      "\"bio\": null,\n" +
-      "\"location\": null,\n" +
-      "\"public_email\": \"\",\n" +
-      "\"skype\": \"\",\n" +
-      "\"linkedin\": \"\",\n" +
-      "\"twitter\": \"\",\n" +
-      "\"website_url\": \"\",\n" +
-      "\"organization\": null,\n" +
-      "\"last_sign_in_at\": \"2019-08-19T11:53:15.041Z\",\n" +
-      "\"confirmed_at\": \"2019-08-06T08:36:08.246Z\",\n" +
-      "\"last_activity_on\": \"2019-08-23\",\n" +
-      "\"email\": \"pierre.guillot@sonarsource.com\",\n" +
-      "\"theme_id\": 1,\n" +
-      "\"color_scheme_id\": 1,\n" +
-      "\"projects_limit\": 100000,\n" +
-      "\"current_sign_in_at\": \"2019-08-23T09:27:42.853Z\",\n" +
-      "\"identities\": [\n" +
-      "{\n" +
-      "\"provider\": \"github\",\n" +
-      "\"extern_uid\": \"50145663\",\n" +
-      "\"saml_provider_id\": null\n" +
-      "}\n" +
-      "],\n" +
-      "\"can_create_group\": true,\n" +
-      "\"can_create_project\": true,\n" +
-      "\"two_factor_enabled\": false,\n" +
-      "\"external\": false,\n" +
-      "\"private_profile\": false,\n" +
-      "\"shared_runners_minutes_limit\": 50000,\n" +
-      "\"extra_shared_runners_minutes_limit\": null\n" +
-      "}");
+    GsonUser gsonUser = GsonUser.parse("""
+      {
+      "id": 4418804,
+      "name": "Pierre Guillot",
+      "username": "pierre-guillot-sonarsource",
+      "state": "active",
+      "avatar_url": "https://secure.gravatar.com/avatar/fe075537af1b94fd1cea160e5359e178?s=80&d=identicon",
+      "web_url": "https://gitlab.com/pierre-guillot-sonarsource",
+      "created_at": "2019-08-06T08:36:09.031Z",
+      "bio": null,
+      "location": null,
+      "public_email": "",
+      "skype": "",
+      "linkedin": "",
+      "twitter": "",
+      "website_url": "",
+      "organization": null,
+      "last_sign_in_at": "2019-08-19T11:53:15.041Z",
+      "confirmed_at": "2019-08-06T08:36:08.246Z",
+      "last_activity_on": "2019-08-23",
+      "email": "pierre.guillot@sonarsource.com",
+      "theme_id": 1,
+      "color_scheme_id": 1,
+      "projects_limit": 100000,
+      "current_sign_in_at": "2019-08-23T09:27:42.853Z",
+      "identities": [
+      {
+      "provider": "github",
+      "extern_uid": "50145663",
+      "saml_provider_id": null
+      }
+      ],
+      "can_create_group": true,
+      "can_create_project": true,
+      "two_factor_enabled": false,
+      "external": false,
+      "private_profile": false,
+      "shared_runners_minutes_limit": 50000,
+      "extra_shared_runners_minutes_limit": null
+      }""");
 
     assertThat(gsonUser).isNotNull();
     assertThat(gsonUser.getUsername()).isEqualTo("pierre-guillot-sonarsource");

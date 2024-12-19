@@ -95,11 +95,24 @@ public class CpdMediumIT {
     module1Dir.mkdir();
     module2Dir.mkdir();
 
-    String duplicatedStuff = "Sample xoo\ncontent\n"
-      + "foo\nbar\ntoto\ntiti\n"
-      + "foo\nbar\ntoto\ntiti\n"
-      + "bar\ntoto\ntiti\n"
-      + "foo\nbar\ntoto\ntiti";
+    String duplicatedStuff = """
+      Sample xoo
+      content
+      foo
+      bar
+      toto
+      titi
+      foo
+      bar
+      toto
+      titi
+      bar
+      toto
+      titi
+      foo
+      bar
+      toto
+      titi""";
 
     // create duplicated file in both modules
     File xooFile1 = new File(module1Dir, "sample1.xoo");
@@ -142,11 +155,24 @@ public class CpdMediumIT {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    String duplicatedStuff = "Sample xoo\ncontent\n"
-      + "foo\nbar\ntoto\ntiti\n"
-      + "foo\nbar\ntoto\ntiti\n"
-      + "bar\ntoto\ntiti\n"
-      + "foo\nbar\ntoto\ntiti";
+    String duplicatedStuff = """
+      Sample xoo
+      content
+      foo
+      bar
+      toto
+      titi
+      foo
+      bar
+      toto
+      titi
+      bar
+      toto
+      titi
+      foo
+      bar
+      toto
+      titi""";
 
     File xooFile1 = new File(srcDir, "sample1.xoo");
     FileUtils.write(xooFile1, duplicatedStuff, StandardCharsets.UTF_8);
@@ -194,11 +220,24 @@ public class CpdMediumIT {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    String file1 = "Sample xoo\ncontent\n"
-      + "foo\nbar\ntoto\ntiti\n"
-      + "foo\nbar\ntoto\ntiti\n"
-      + "bar\ntoto\ntiti\n"
-      + "foo\nbar\ntoto\ntiti";
+    String file1 = """
+      Sample xoo
+      content
+      foo
+      bar
+      toto
+      titi
+      foo
+      bar
+      toto
+      titi
+      bar
+      toto
+      titi
+      foo
+      bar
+      toto
+      titi""";
 
     String file2 = "string\n";
 
@@ -228,11 +267,24 @@ public class CpdMediumIT {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    String duplicatedStuff = "Sample xoo\ncontent\n"
-      + "foo\nbar\ntoto\ntiti\n"
-      + "foo\nbar\ntoto\ntiti\n"
-      + "bar\ntoto\ntiti\n"
-      + "foo\nbar\ntoto\ntiti";
+    String duplicatedStuff = """
+      Sample xoo
+      content
+      foo
+      bar
+      toto
+      titi
+      foo
+      bar
+      toto
+      titi
+      bar
+      toto
+      titi
+      foo
+      bar
+      toto
+      titi""";
 
     File xooFile1 = new File(srcDir, "sample1.xoo");
     FileUtils.write(xooFile1, duplicatedStuff);
@@ -263,11 +315,24 @@ public class CpdMediumIT {
   @Test
   public void cross_module_duplication() throws IOException {
 
-    String duplicatedStuff = "Sample xoo\ncontent\n"
-      + "foo\nbar\ntoto\ntiti\n"
-      + "foo\nbar\ntoto\ntiti\n"
-      + "bar\ntoto\ntiti\n"
-      + "foo\nbar\ntoto\ntiti";
+    String duplicatedStuff = """
+      Sample xoo
+      content
+      foo
+      bar
+      toto
+      titi
+      foo
+      bar
+      toto
+      titi
+      bar
+      toto
+      titi
+      foo
+      bar
+      toto
+      titi""";
 
     File baseDir = temp.getRoot();
     File baseDirModuleA = new File(baseDir, "moduleA");
@@ -306,11 +371,24 @@ public class CpdMediumIT {
   @Test
   public void warn_user_for_outdated_inherited_scanner_side_exclusions_for_multi_module_project() throws IOException {
 
-    String duplicatedStuff = "Sample xoo\ncontent\n"
-      + "foo\nbar\ntoto\ntiti\n"
-      + "foo\nbar\ntoto\ntiti\n"
-      + "bar\ntoto\ntiti\n"
-      + "foo\nbar\ntoto\ntiti";
+    String duplicatedStuff = """
+      Sample xoo
+      content
+      foo
+      bar
+      toto
+      titi
+      foo
+      bar
+      toto
+      titi
+      bar
+      toto
+      titi
+      foo
+      bar
+      toto
+      titi""";
 
     File baseDir = temp.getRoot();
     File baseDirModuleA = new File(baseDir, "moduleA");
@@ -353,11 +431,24 @@ public class CpdMediumIT {
   @Test
   public void module_level_exclusions_override_parent_for_multi_module_project() throws IOException {
 
-    String duplicatedStuff = "Sample xoo\ncontent\n"
-      + "foo\nbar\ntoto\ntiti\n"
-      + "foo\nbar\ntoto\ntiti\n"
-      + "bar\ntoto\ntiti\n"
-      + "foo\nbar\ntoto\ntiti";
+    String duplicatedStuff = """
+      Sample xoo
+      content
+      foo
+      bar
+      toto
+      titi
+      foo
+      bar
+      toto
+      titi
+      bar
+      toto
+      titi
+      foo
+      bar
+      toto
+      titi""";
 
     File baseDir = temp.getRoot();
     File baseDirModuleA = new File(baseDir, "moduleA");

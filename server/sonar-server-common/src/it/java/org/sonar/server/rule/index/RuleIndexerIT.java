@@ -63,11 +63,12 @@ import static org.sonar.server.security.SecurityStandards.SQ_CATEGORY_KEYS_ORDER
 @RunWith(DataProviderRunner.class)
 public class RuleIndexerIT {
 
-  private static final String VALID_HOTSPOT_RULE_DESCRIPTION = "acme\n" +
-    "<h2>Ask Yourself Whether</h2>\n" +
-    "bar\n" +
-    "<h2>Recommended Secure Coding Practices</h2>\n" +
-    "foo";
+  private static final String VALID_HOTSPOT_RULE_DESCRIPTION = """
+    acme
+    <h2>Ask Yourself Whether</h2>
+    bar
+    <h2>Recommended Secure Coding Practices</h2>
+    foo""";
 
   private static final UuidFactoryFast uuidFactory = UuidFactoryFast.getInstance();
   private static final RuleDescriptionSectionDto RULE_DESCRIPTION_SECTION_DTO = createDefaultRuleDescriptionSection(uuidFactory.create(), VALID_HOTSPOT_RULE_DESCRIPTION);
@@ -205,7 +206,7 @@ public class RuleIndexerIT {
     SQCategory sqCategory1 = sqCategories.toArray(new SQCategory[0])[random.nextInt(sqCategories.size())];
     sqCategories.remove(sqCategory1);
     SQCategory sqCategory2 = sqCategories.toArray(new SQCategory[0])[random.nextInt(sqCategories.size())];
-    return new Object[][]{
+    return new Object[][] {
       {sqCategory1, sqCategory2}
     };
   }

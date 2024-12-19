@@ -85,31 +85,34 @@ public class GitScmProviderTest {
 
   // Sample content for unified diffs
   // http://www.gnu.org/software/diffutils/manual/html_node/Example-Unified.html#Example-Unified
-  private static final String CONTENT_LAO = "The Way that can be told of is not the eternal Way;\n"
-    + "The name that can be named is not the eternal name.\n"
-    + "The Nameless is the origin of Heaven and Earth;\n"
-    + "The Named is the mother of all things.\n"
-    + "Therefore let there always be non-being,\n"
-    + "  so we may see their subtlety,\n"
-    + "And let there always be being,\n"
-    + "  so we may see their outcome.\n"
-    + "The two are the same,\n"
-    + "But after they are produced,\n"
-    + "  they have different names.\n";
+  private static final String CONTENT_LAO = """
+    The Way that can be told of is not the eternal Way;
+    The name that can be named is not the eternal name.
+    The Nameless is the origin of Heaven and Earth;
+    The Named is the mother of all things.
+    Therefore let there always be non-being,
+      so we may see their subtlety,
+    And let there always be being,
+      so we may see their outcome.
+    The two are the same,
+    But after they are produced,
+      they have different names.
+    """;
 
-  private static final String CONTENT_TZU = "The Nameless is the origin of Heaven and Earth;\n"
-    + "The named is the mother of all things.\n"
-    + "\n"
-    + "Therefore let there always be non-being,\n"
-    + "  so we may see their subtlety,\n"
-    + "And let there always be being,\n"
-    + "  so we may see their outcome.\n"
-    + "The two are the same,\n"
-    + "But after they are produced,\n"
-    + "  they have different names.\n"
-    + "They both may be called deep and profound.\n"
-    + "Deeper and more profound,\n"
-    + "The door of all subtleties!";
+  private static final String CONTENT_TZU = """
+    The Nameless is the origin of Heaven and Earth;
+    The named is the mother of all things.
+
+    Therefore let there always be non-being,
+      so we may see their subtlety,
+    And let there always be being,
+      so we may see their outcome.
+    The two are the same,
+    But after they are produced,
+      they have different names.
+    They both may be called deep and profound.
+    Deeper and more profound,
+    The door of all subtleties!""";
 
   private static final String BRANCH_NAME = "branch";
   private static final String TEST_DOC_LINK = "documentation link";
@@ -147,7 +150,8 @@ public class GitScmProviderTest {
   public void returnImplem() {
     JGitBlameCommand jblameCommand = new JGitBlameCommand();
     NativeGitBlameCommand nativeBlameCommand = new NativeGitBlameCommand(System2.INSTANCE, new ProcessWrapperFactory());
-    CompositeBlameCommand compositeBlameCommand = new CompositeBlameCommand(analysisWarnings, new PathResolver(), jblameCommand, nativeBlameCommand, new DefaultBlameStrategy(mock(Configuration.class)));
+    CompositeBlameCommand compositeBlameCommand = new CompositeBlameCommand(analysisWarnings, new PathResolver(), jblameCommand, nativeBlameCommand,
+      new DefaultBlameStrategy(mock(Configuration.class)));
     GitScmProvider gitScmProvider = new GitScmProvider(compositeBlameCommand, analysisWarnings, gitIgnoreCommand, system2, documentationLinkGenerator);
 
     assertThat(gitScmProvider.blameCommand()).isEqualTo(compositeBlameCommand);
@@ -238,8 +242,7 @@ public class GitScmProviderTest {
       .extracting(ChangedFile::getAbsolutFilePath, ChangedFile::getOldRelativeFilePathReference)
       .containsExactlyInAnyOrder(
         tuple(newFileM1AbsolutPath, fileM1),
-        tuple(newFileM2AbsolutPath, fileM2)
-      );
+        tuple(newFileM2AbsolutPath, fileM2));
   }
 
   @Test
@@ -454,8 +457,7 @@ public class GitScmProviderTest {
 
     Map<Path, ChangedFile> changedFiles = Map.of(
       newFileM1AbsolutPath, ChangedFile.of(newFileM1AbsolutPath, fileM1),
-      newFileM2AbsolutPath, ChangedFile.of(newFileM2AbsolutPath, fileM2)
-    );
+      newFileM2AbsolutPath, ChangedFile.of(newFileM2AbsolutPath, fileM2));
 
     Map<Path, Set<Integer>> changedLines = newScmProvider().branchChangedLinesWithFileMovementDetection("master",
       worktree.resolve("project1"), changedFiles);
@@ -463,8 +465,7 @@ public class GitScmProviderTest {
     assertThat(changedLines)
       .containsOnly(
         entry(newFileM1AbsolutPath, Set.of(2)),
-        entry(newFileM2AbsolutPath, Set.of(1))
-      );
+        entry(newFileM2AbsolutPath, Set.of(1)));
   }
 
   @Test
@@ -725,8 +726,7 @@ public class GitScmProviderTest {
     assertThat(provider.branchChangedLines("master", worktree, changedFiles))
       .containsOnly(
         entry(worktree.resolve(f1), Collections.singleton(1)),
-        entry(worktree.resolve(f2), Collections.singleton(2))
-      );
+        entry(worktree.resolve(f2), Collections.singleton(2)));
   }
 
   @Test

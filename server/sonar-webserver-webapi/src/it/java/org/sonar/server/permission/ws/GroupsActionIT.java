@@ -22,18 +22,18 @@ package org.sonar.server.permission.ws;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.ComponentTypesRule;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.component.ComponentTypes;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -297,25 +297,24 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
       .execute()
       .getInput();
 
-    assertJson(result).isSimilarTo(
-      "{\n"
-        + "  \"paging\": {\n"
-        + "    \"pageIndex\": 1,\n"
-        + "    \"pageSize\": 20,\n"
-        + "    \"total\": 2\n"
-        + "  },\n"
-        + "  \"groups\": [\n"
-        + "    {\n"
-        + "      \"name\": \"local-group\",\n"
-        + "      \"managed\": false\n"
-        + "    },\n"
-        + "    {\n"
-        + "      \"name\": \"managed-group\",\n"
-        + "      \"managed\": true\n"
-        + "    }\n"
-        + "  ]\n"
-        + "}"
-    );
+    assertJson(result).isSimilarTo("""
+      {
+        "paging": {
+          "pageIndex": 1,
+          "pageSize": 20,
+          "total": 2
+        },
+        "groups": [
+          {
+            "name": "local-group",
+            "managed": false
+          },
+          {
+            "name": "managed-group",
+            "managed": true
+          }
+        ]
+      }""");
   }
 
   @Test
@@ -375,13 +374,11 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
   }
 
   private void mockGroupsAsManaged(String... groupUuids) {
-    when(managedInstanceService.getGroupUuidToManaged(any(), any())).thenAnswer(invocation ->
-      {
-        Set<?> allGroupUuids = invocation.getArgument(1, Set.class);
-        return allGroupUuids.stream()
-          .map(groupUuid -> (String) groupUuid)
-          .collect(toMap(identity(), userUuid -> Set.of(groupUuids).contains(userUuid)));
-      }
-    );
+    when(managedInstanceService.getGroupUuidToManaged(any(), any())).thenAnswer(invocation -> {
+      Set<?> allGroupUuids = invocation.getArgument(1, Set.class);
+      return allGroupUuids.stream()
+        .map(groupUuid -> (String) groupUuid)
+        .collect(toMap(identity(), userUuid -> Set.of(groupUuids).contains(userUuid)));
+    });
   }
 }

@@ -82,30 +82,31 @@ public class BitbucketCloudRestClientTest {
   public void get_repos() {
     server.enqueue(new MockResponse()
       .setHeader("Content-Type", "application/json;charset=UTF-8")
-      .setBody("{\n" +
-        "  \"values\": [\n" +
-        "    {\n" +
-        "      \"slug\": \"banana\",\n" +
-        "      \"uuid\": \"BANANA-UUID\",\n" +
-        "      \"name\": \"banana\",\n" +
-        "      \"project\": {\n" +
-        "        \"key\": \"HOY\",\n" +
-        "        \"uuid\": \"BANANA-PROJECT-UUID\",\n" +
-        "        \"name\": \"hoy\"\n" +
-        "      }\n" +
-        "    },\n" +
-        "    {\n" +
-        "      \"slug\": \"potato\",\n" +
-        "      \"uuid\": \"POTATO-UUID\",\n" +
-        "      \"name\": \"potato\",\n" +
-        "      \"project\": {\n" +
-        "        \"key\": \"HEY\",\n" +
-        "        \"uuid\": \"POTATO-PROJECT-UUID\",\n" +
-        "        \"name\": \"hey\"\n" +
-        "      }\n" +
-        "    }\n" +
-        "  ]\n" +
-        "}"));
+      .setBody("""
+        {
+          "values": [
+            {
+              "slug": "banana",
+              "uuid": "BANANA-UUID",
+              "name": "banana",
+              "project": {
+                "key": "HOY",
+                "uuid": "BANANA-PROJECT-UUID",
+                "name": "hoy"
+              }
+            },
+            {
+              "slug": "potato",
+              "uuid": "POTATO-UUID",
+              "name": "potato",
+              "project": {
+                "key": "HEY",
+                "uuid": "POTATO-PROJECT-UUID",
+                "name": "hey"
+              }
+            }
+          ]
+        }"""));
 
     RepositoryList repositoryList = underTest.searchRepos("user:apppwd", "", null, 1, 100);
     assertThat(repositoryList.getNext()).isNull();
@@ -122,21 +123,22 @@ public class BitbucketCloudRestClientTest {
   public void get_repo() {
     server.enqueue(new MockResponse()
       .setHeader("Content-Type", "application/json;charset=UTF-8")
-      .setBody(
-        "    {\n" +
-          "      \"slug\": \"banana\",\n" +
-          "      \"uuid\": \"BANANA-UUID\",\n" +
-          "      \"name\": \"banana\",\n" +
-          "      \"mainbranch\": {\n" +
-          "        \"type\": \"branch\",\n" +
-          "        \"name\": \"develop\"\n" +
-          "       }," +
-          "      \"project\": {\n" +
-          "        \"key\": \"HOY\",\n" +
-          "        \"uuid\": \"BANANA-PROJECT-UUID\",\n" +
-          "        \"name\": \"hoy\"\n" +
-          "      }\n" +
-          "    }"));
+      .setBody("""
+            {
+              "slug": "banana",
+              "uuid": "BANANA-UUID",
+              "name": "banana",
+              "mainbranch": {
+                "type": "branch",
+                "name": "develop"
+               },\
+              "project": {
+                "key": "HOY",
+                "uuid": "BANANA-PROJECT-UUID",
+                "name": "hoy"
+              }
+            }\
+        """));
 
     Repository repository = underTest.getRepo("user:apppwd", "workspace", "rep");
     assertThat(repository.getUuid()).isEqualTo("BANANA-UUID");
@@ -279,11 +281,12 @@ public class BitbucketCloudRestClientTest {
 
   @Test
   public void validate_app_password_success() throws Exception {
-    String reposResponse = "{\"pagelen\": 10,\n" +
-      "\"values\": [],\n" +
-      "\"page\": 1,\n" +
-      "\"size\": 0\n" +
-      "}";
+    String reposResponse = """
+      {"pagelen": 10,
+      "values": [],
+      "page": 1,
+      "size": 0
+      }""";
 
     server.enqueue(new MockResponse().setBody(reposResponse));
     server.enqueue(new MockResponse().setBody("OK"));
@@ -357,14 +360,14 @@ public class BitbucketCloudRestClientTest {
 
   @Test
   public void validate_fails_when_ssl_verification_failed() throws IOException {
-    //GIVEN
+    // GIVEN
     OkHttpClient okHttpClient = mock(OkHttpClient.class);
     Call call = mock(Call.class);
     underTest = new BitbucketCloudRestClient(okHttpClient, serverURL, serverURL);
     when(okHttpClient.newCall(any())).thenReturn(call);
     when(call.execute()).thenThrow(new SSLHandshakeException("SSL verification failed"));
-    //WHEN
-    //THEN
+    // WHEN
+    // THEN
     assertThatIllegalArgumentException()
       .isThrownBy(() -> underTest.validate("clientId", "clientSecret", "workspace"))
       .withMessage(UNABLE_TO_CONTACT_BBC_SERVERS);

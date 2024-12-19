@@ -121,21 +121,21 @@ public class BuiltInQPChangeNotificationTemplateTest {
     String languageKey = newLanguageKey();
     String languageName = newLanguageName();
     BuiltInQPChangeNotificationBuilder notification = new BuiltInQPChangeNotificationBuilder()
-        .addProfile(Profile.newBuilder()
-            .setProfileName(profileName)
-            .setLanguageKey(languageKey)
-            .setLanguageName(languageName)
-            .setNewRules(1)
-            .setUpdatedRules(1)
-            .setRemovedRules(1)
-            .build());
+      .addProfile(Profile.newBuilder()
+        .setProfileName(profileName)
+        .setLanguageKey(languageKey)
+        .setLanguageName(languageName)
+        .setNewRules(1)
+        .setUpdatedRules(1)
+        .setRemovedRules(1)
+        .build());
 
     EmailMessage emailMessage = underTest.format(notification.build());
 
     assertThat(emailMessage.getMessage())
-        .contains("\n 1 new rule\n")
-        .contains("\n 1 rule has been updated\n")
-        .contains("\n 1 rule removed\n");
+      .contains("\n 1 new rule\n")
+      .contains("\n 1 rule has been updated\n")
+      .contains("\n 1 rule removed\n");
   }
 
   @Test
@@ -155,11 +155,12 @@ public class BuiltInQPChangeNotificationTemplateTest {
 
     EmailMessage emailMessage = underTest.format(notification.build());
 
-    assertMessage(emailMessage,
-      "\n" +
-        " 2 new rules\n" +
-        " 3 rules have been updated\n" +
-        " 4 rules removed\n");
+    assertMessage(emailMessage, """
+
+       2 new rules
+       3 rules have been updated
+       4 rules removed
+      """);
   }
 
   @Test

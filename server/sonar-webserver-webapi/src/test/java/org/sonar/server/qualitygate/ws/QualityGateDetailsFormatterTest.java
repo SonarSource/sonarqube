@@ -97,20 +97,21 @@ public class QualityGateDetailsFormatterTest {
 
   @Test
   public void fail_when_measure_level_is_unknown() {
-    String measureData = "{\n" +
-      "  \"level\": \"UNKNOWN\",\n" +
-      "  \"conditions\": [\n" +
-      "    {\n" +
-      "      \"metric\": \"new_coverage\",\n" +
-      "      \"op\": \"LT\",\n" +
-      "      \"period\": 1,\n" +
-      "      \"warning\": \"80\",\n" +
-      "      \"error\": \"85\",\n" +
-      "      \"actual\": \"82.2985024398452\",\n" +
-      "      \"level\": \"ERROR\"\n" +
-      "    }\n" +
-      "  ]\n" +
-      "}";
+    String measureData = """
+      {
+        "level": "UNKNOWN",
+        "conditions": [
+          {
+            "metric": "new_coverage",
+            "op": "LT",
+            "period": 1,
+            "warning": "80",
+            "error": "85",
+            "actual": "82.2985024398452",
+            "level": "ERROR"
+          }
+        ]
+      }""";
     underTest = newQualityGateDetailsFormatter(measureData, new SnapshotDto());
 
     assertThatThrownBy(() -> underTest.format())
@@ -120,20 +121,21 @@ public class QualityGateDetailsFormatterTest {
 
   @Test
   public void fail_when_measure_op_is_unknown() {
-    String measureData = "{\n" +
-      "  \"level\": \"ERROR\",\n" +
-      "  \"conditions\": [\n" +
-      "    {\n" +
-      "      \"metric\": \"new_coverage\",\n" +
-      "      \"op\": \"UNKNOWN\",\n" +
-      "      \"period\": 1,\n" +
-      "      \"warning\": \"80\",\n" +
-      "      \"error\": \"85\",\n" +
-      "      \"actual\": \"82.2985024398452\",\n" +
-      "      \"level\": \"ERROR\"\n" +
-      "    }\n" +
-      "  ]\n" +
-      "}";
+    String measureData = """
+      {
+        "level": "ERROR",
+        "conditions": [
+          {
+            "metric": "new_coverage",
+            "op": "UNKNOWN",
+            "period": 1,
+            "warning": "80",
+            "error": "85",
+            "actual": "82.2985024398452",
+            "level": "ERROR"
+          }
+        ]
+      }""";
     underTest = newQualityGateDetailsFormatter(measureData, new SnapshotDto());
 
     assertThatThrownBy(() -> underTest.format())

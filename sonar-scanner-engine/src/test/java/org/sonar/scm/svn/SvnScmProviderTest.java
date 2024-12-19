@@ -51,31 +51,34 @@ public class SvnScmProviderTest {
 
   // Sample content for unified diffs
   // http://www.gnu.org/software/diffutils/manual/html_node/Example-Unified.html#Example-Unified
-  private static final String CONTENT_LAO = "The Way that can be told of is not the eternal Way;\n"
-    + "The name that can be named is not the eternal name.\n"
-    + "The Nameless is the origin of Heaven and Earth;\n"
-    + "The Named is the mother of all things.\n"
-    + "Therefore let there always be non-being,\n"
-    + "  so we may see their subtlety,\n"
-    + "And let there always be being,\n"
-    + "  so we may see their outcome.\n"
-    + "The two are the same,\n"
-    + "But after they are produced,\n"
-    + "  they have different names.\n";
+  private static final String CONTENT_LAO = """
+    The Way that can be told of is not the eternal Way;
+    The name that can be named is not the eternal name.
+    The Nameless is the origin of Heaven and Earth;
+    The Named is the mother of all things.
+    Therefore let there always be non-being,
+      so we may see their subtlety,
+    And let there always be being,
+      so we may see their outcome.
+    The two are the same,
+    But after they are produced,
+      they have different names.
+    """;
 
-  private static final String CONTENT_TZU = "The Nameless is the origin of Heaven and Earth;\n"
-    + "The named is the mother of all things.\n"
-    + "\n"
-    + "Therefore let there always be non-being,\n"
-    + "  so we may see their subtlety,\n"
-    + "And let there always be being,\n"
-    + "  so we may see their outcome.\n"
-    + "The two are the same,\n"
-    + "But after they are produced,\n"
-    + "  they have different names.\n"
-    + "They both may be called deep and profound.\n"
-    + "Deeper and more profound,\n"
-    + "The door of all subtleties!";
+  private static final String CONTENT_TZU = """
+    The Nameless is the origin of Heaven and Earth;
+    The named is the mother of all things.
+
+    Therefore let there always be non-being,
+      so we may see their subtlety,
+    And let there always be being,
+      so we may see their outcome.
+    The two are the same,
+    But after they are produced,
+      they have different names.
+    They both may be called deep and profound.
+    Deeper and more profound,
+    The door of all subtleties!""";
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();

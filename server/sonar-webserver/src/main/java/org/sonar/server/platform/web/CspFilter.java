@@ -74,11 +74,13 @@ public class CspFilter implements Filter {
 
   private static String getAssetsPathScriptCSPHash(String contextPath) {
     final String WEB_CONTEXT_PLACEHOLDER = "WEB_CONTEXT";
-    final String ASSETS_PATH_SCRIPT = "\n" +
-      "      window.__assetsPath = function (filename) {\n" +
-      "        return 'WEB_CONTEXT/' + filename;\n" +
-      "      };\n" +
-      "    ";
+    final String ASSETS_PATH_SCRIPT = """
+
+            window.__assetsPath = function (filename) {
+              return 'WEB_CONTEXT/' + filename;
+            };
+          \
+      """;
 
     String assetsPathScriptWithContextPath = ASSETS_PATH_SCRIPT.replace(WEB_CONTEXT_PLACEHOLDER, contextPath);
     return generateCSPHash(assetsPathScriptWithContextPath);

@@ -191,9 +191,11 @@ public class ScmMediumIT {
     File xooScmFile = new File(baseDir, CHANGED_CONTENT_SCM_ON_SERVER_XOO + ".scm");
     FileUtils.write(xooScmFile,
       // revision,author,dateTime
-      "1,foo,2013-01-04\n" +
-        "1,bar,2013-01-04\n" +
-        "2,biz,2014-01-04\n",
+      """
+        1,foo,2013-01-04
+        1,bar,2013-01-04
+        2,biz,2014-01-04
+        """,
       StandardCharsets.UTF_8);
 
     File sameContentScmOnServer = new File(baseDir, SAME_CONTENT_SCM_ON_SERVER_XOO);
@@ -209,8 +211,10 @@ public class ScmMediumIT {
     xooScmFile = new File(baseDir, SAME_CONTENT_NO_SCM_ON_SERVER_XOO + ".scm");
     FileUtils.write(xooScmFile,
       // revision,author,dateTime
-      "1,foo,2013-01-04\n" +
-        "1,bar,2013-01-04\n",
+      """
+        1,foo,2013-01-04
+        1,bar,2013-01-04
+        """,
       StandardCharsets.UTF_8);
 
     tester.newAnalysis()
@@ -252,8 +256,10 @@ public class ScmMediumIT {
     File xooScmFile = new File(baseDir, SAME_CONTENT_SCM_ON_SERVER_XOO + ".scm");
     FileUtils.write(xooScmFile,
       // revision,author,dateTime
-      "1,foo,2013-01-04\n" +
-        "1,bar,2013-01-04\n",
+      """
+        1,foo,2013-01-04
+        1,bar,2013-01-04
+        """,
       StandardCharsets.UTF_8);
 
     AnalysisBuilder analysisBuilder = tester.newAnalysis()

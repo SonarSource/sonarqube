@@ -28,19 +28,19 @@ public class GsonEmailTest {
 
   @Test
   public void parse() {
-    List<GsonEmail> underTest = GsonEmail.parse(
-      "[\n" +
-        "  {\n" +
-        "    \"email\": \"octocat@github.com\",\n" +
-        "    \"verified\": true,\n" +
-        "    \"primary\": true\n" +
-        "  },\n" +
-        "  {\n" +
-        "    \"email\": \"support@github.com\",\n" +
-        "    \"verified\": false,\n" +
-        "    \"primary\": false\n" +
-        "  }\n" +
-        "]");
+    List<GsonEmail> underTest = GsonEmail.parse("""
+      [
+        {
+          "email": "octocat@github.com",
+          "verified": true,
+          "primary": true
+        },
+        {
+          "email": "support@github.com",
+          "verified": false,
+          "primary": false
+        }
+      ]""");
     assertThat(underTest).hasSize(2);
 
     assertThat(underTest.get(0).getEmail()).isEqualTo("octocat@github.com");

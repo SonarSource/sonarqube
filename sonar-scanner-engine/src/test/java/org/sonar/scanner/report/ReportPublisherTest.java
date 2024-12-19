@@ -39,11 +39,11 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
-import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.ci.CiConfiguration;
 import org.sonar.scanner.ci.DevOpsPlatformInfo;
 import org.sonar.scanner.fs.InputModuleHierarchy;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.scan.ScanProperties;
@@ -146,13 +146,14 @@ public class ReportPublisherTest {
   public void dump_information_about_report_uploading() throws IOException {
     underTest.prepareAndDumpMetadata("TASK-123");
 
-    assertThat(readFileToString(properties.metadataFilePath().toFile(), StandardCharsets.UTF_8)).isEqualTo(
-      "projectKey=org.sonarsource.sonarqube:sonarqube\n" +
-        "serverUrl=https://localhost\n" +
-        "serverVersion=6.4\n" +
-        "dashboardUrl=https://localhost/dashboard?id=org.sonarsource.sonarqube%3Asonarqube\n" +
-        "ceTaskId=TASK-123\n" +
-        "ceTaskUrl=https://localhost/api/ce/task?id=TASK-123\n");
+    assertThat(readFileToString(properties.metadataFilePath().toFile(), StandardCharsets.UTF_8)).isEqualTo("""
+      projectKey=org.sonarsource.sonarqube:sonarqube
+      serverUrl=https://localhost
+      serverVersion=6.4
+      dashboardUrl=https://localhost/dashboard?id=org.sonarsource.sonarqube%3Asonarqube
+      ceTaskId=TASK-123
+      ceTaskUrl=https://localhost/api/ce/task?id=TASK-123
+      """);
   }
 
   @Test
@@ -185,13 +186,14 @@ public class ReportPublisherTest {
 
     underTest.prepareAndDumpMetadata("TASK-123");
 
-    assertThat(readFileToString(properties.metadataFilePath().toFile(), StandardCharsets.UTF_8)).isEqualTo(
-      "projectKey=org.sonarsource.sonarqube:sonarqube\n" +
-        "serverUrl=https://publicserver/sonarqube\n" +
-        "serverVersion=6.4\n" +
-        "dashboardUrl=https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube\n" +
-        "ceTaskId=TASK-123\n" +
-        "ceTaskUrl=https://publicserver/sonarqube/api/ce/task?id=TASK-123\n");
+    assertThat(readFileToString(properties.metadataFilePath().toFile(), StandardCharsets.UTF_8)).isEqualTo("""
+      projectKey=org.sonarsource.sonarqube:sonarqube
+      serverUrl=https://publicserver/sonarqube
+      serverVersion=6.4
+      dashboardUrl=https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube
+      ceTaskId=TASK-123
+      ceTaskUrl=https://publicserver/sonarqube/api/ce/task?id=TASK-123
+      """);
   }
 
   @Test
@@ -204,13 +206,14 @@ public class ReportPublisherTest {
 
     underTest.prepareAndDumpMetadata("TASK-123");
 
-    assertThat(readFileToString(properties.metadataFilePath().toFile(), StandardCharsets.UTF_8)).isEqualTo(
-      "projectKey=org.sonarsource.sonarqube:sonarqube\n" +
-        "serverUrl=https://publicserver/sonarqube\n" +
-        "serverVersion=6.4\n" +
-        "dashboardUrl=https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube&branch=branch-6.7\n" +
-        "ceTaskId=TASK-123\n" +
-        "ceTaskUrl=https://publicserver/sonarqube/api/ce/task?id=TASK-123\n");
+    assertThat(readFileToString(properties.metadataFilePath().toFile(), StandardCharsets.UTF_8)).isEqualTo("""
+      projectKey=org.sonarsource.sonarqube:sonarqube
+      serverUrl=https://publicserver/sonarqube
+      serverVersion=6.4
+      dashboardUrl=https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube&branch=branch-6.7
+      ceTaskId=TASK-123
+      ceTaskUrl=https://publicserver/sonarqube/api/ce/task?id=TASK-123
+      """);
   }
 
   @Test
@@ -225,13 +228,14 @@ public class ReportPublisherTest {
 
     underTest.prepareAndDumpMetadata("TASK-123");
 
-    assertThat(readFileToString(properties.metadataFilePath().toFile(), StandardCharsets.UTF_8)).isEqualTo(
-      "projectKey=org.sonarsource.sonarqube:sonarqube\n" +
-        "serverUrl=https://publicserver/sonarqube\n" +
-        "serverVersion=6.4\n" +
-        "dashboardUrl=https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube&pullRequest=105\n" +
-        "ceTaskId=TASK-123\n" +
-        "ceTaskUrl=https://publicserver/sonarqube/api/ce/task?id=TASK-123\n");
+    assertThat(readFileToString(properties.metadataFilePath().toFile(), StandardCharsets.UTF_8)).isEqualTo("""
+      projectKey=org.sonarsource.sonarqube:sonarqube
+      serverUrl=https://publicserver/sonarqube
+      serverVersion=6.4
+      dashboardUrl=https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube&pullRequest=105
+      ceTaskId=TASK-123
+      ceTaskUrl=https://publicserver/sonarqube/api/ce/task?id=TASK-123
+      """);
   }
 
   @Test

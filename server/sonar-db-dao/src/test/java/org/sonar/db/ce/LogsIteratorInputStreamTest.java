@@ -33,7 +33,10 @@ class LogsIteratorInputStreamTest {
 
   @Test
   void read_from_ClosableIterator_with_several_lines() throws IOException {
-    assertThat(read(create("line1", "line2", "line3"))).isEqualTo("line1" + '\n' + "line2" + '\n' + "line3");
+    assertThat(read(create("line1", "line2", "line3"))).isEqualTo("""
+      line1
+      line2
+      line3""");
   }
 
   @Test
@@ -49,7 +52,16 @@ class LogsIteratorInputStreamTest {
   @Test
   void read_from_ClosableIterator_with_several_empty_lines() throws IOException {
     assertThat(read(create("", "line2", "", "line4", "", "", "", "line8", "")))
-      .isEqualTo('\n' + "line2" + '\n' + '\n' + "line4" + '\n' + '\n' + '\n' + '\n' + "line8" + '\n');
+      .isEqualTo("""
+
+        line2
+
+        line4
+
+
+
+        line8
+        """);
   }
 
   @Test

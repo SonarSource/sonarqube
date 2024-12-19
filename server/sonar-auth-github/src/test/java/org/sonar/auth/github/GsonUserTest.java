@@ -27,13 +27,13 @@ public class GsonUserTest {
 
   @Test
   public void parse_json() {
-    GsonUser user = GsonUser.parse(
-      "{\n" +
-        "  \"login\": \"octocat\",\n" +
-        "  \"id\": 1,\n" +
-        "  \"name\": \"monalisa octocat\",\n" +
-        "  \"email\": \"octocat@github.com\"\n" +
-        "}");
+    GsonUser user = GsonUser.parse("""
+      {
+        "login": "octocat",
+        "id": 1,
+        "name": "monalisa octocat",
+        "email": "octocat@github.com"
+      }""");
     assertThat(user.getId()).isEqualTo("1");
     assertThat(user.getLogin()).isEqualTo("octocat");
     assertThat(user.getName()).isEqualTo("monalisa octocat");

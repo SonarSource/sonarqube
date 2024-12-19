@@ -21,19 +21,19 @@ package org.sonar.server.permission.ws;
 
 import java.util.Set;
 import org.junit.Test;
-import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ProjectData;
-import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.common.avatar.AvatarResolverImpl;
+import org.sonar.server.component.ComponentTypes;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -220,36 +220,38 @@ public class UsersActionIT extends BasePermissionWsIT<UsersAction> {
     }
     loginAsAdmin();
 
-    assertJson(newRequest().setParam(PAGE, "1").setParam(PAGE_SIZE, "2").execute().getInput()).withStrictArrayOrder().isSimilarTo("{\n" +
-      "  \"paging\": {\n" +
-      "    \"pageIndex\": 1,\n" +
-      "    \"pageSize\": 2,\n" +
-      "    \"total\": 10\n" +
-      "  },\n" +
-      "  \"users\": [\n" +
-      "    {\n" +
-      "      \"name\": \"user-0\"\n" +
-      "    },\n" +
-      "    {\n" +
-      "      \"name\": \"user-1\"\n" +
-      "    }\n" +
-      "  ]\n" +
-      "}");
-    assertJson(newRequest().setParam(PAGE, "3").setParam(PAGE_SIZE, "4").execute().getInput()).withStrictArrayOrder().isSimilarTo("{\n" +
-      "  \"paging\": {\n" +
-      "    \"pageIndex\": 3,\n" +
-      "    \"pageSize\": 4,\n" +
-      "    \"total\": 10\n" +
-      "  },\n" +
-      "  \"users\": [\n" +
-      "    {\n" +
-      "      \"name\": \"user-8\"\n" +
-      "    },\n" +
-      "    {\n" +
-      "      \"name\": \"user-9\"\n" +
-      "    }\n" +
-      "  ]\n" +
-      "}");
+    assertJson(newRequest().setParam(PAGE, "1").setParam(PAGE_SIZE, "2").execute().getInput()).withStrictArrayOrder().isSimilarTo("""
+      {
+        "paging": {
+          "pageIndex": 1,
+          "pageSize": 2,
+          "total": 10
+        },
+        "users": [
+          {
+            "name": "user-0"
+          },
+          {
+            "name": "user-1"
+          }
+        ]
+      }""");
+    assertJson(newRequest().setParam(PAGE, "3").setParam(PAGE_SIZE, "4").execute().getInput()).withStrictArrayOrder().isSimilarTo("""
+      {
+        "paging": {
+          "pageIndex": 3,
+          "pageSize": 4,
+          "total": 10
+        },
+        "users": [
+          {
+            "name": "user-8"
+          },
+          {
+            "name": "user-9"
+          }
+        ]
+      }""");
   }
 
   @Test
@@ -316,8 +318,8 @@ public class UsersActionIT extends BasePermissionWsIT<UsersAction> {
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .setParam(PARAM_PROJECT_KEY, project.getKey())
       .execute())
-      .isInstanceOf(BadRequestException.class)
-      .hasMessage("Project id or project key can be provided, not both.");
+        .isInstanceOf(BadRequestException.class)
+        .hasMessage("Project id or project key can be provided, not both.");
   }
 
   @Test
@@ -359,13 +361,11 @@ public class UsersActionIT extends BasePermissionWsIT<UsersAction> {
   }
 
   private void mockUsersAsManaged(String... userUuids) {
-    when(managedInstanceService.getUserUuidToManaged(any(), any())).thenAnswer(invocation ->
-      {
-        Set<?> allUsersUuids = invocation.getArgument(1, Set.class);
-        return allUsersUuids.stream()
-          .map(userUuid -> (String) userUuid)
-          .collect(toMap(identity(), userUuid -> Set.of(userUuids).contains(userUuid)));
-      }
-    );
+    when(managedInstanceService.getUserUuidToManaged(any(), any())).thenAnswer(invocation -> {
+      Set<?> allUsersUuids = invocation.getArgument(1, Set.class);
+      return allUsersUuids.stream()
+        .map(userUuid -> (String) userUuid)
+        .collect(toMap(identity(), userUuid -> Set.of(userUuids).contains(userUuid)));
+    });
   }
 }

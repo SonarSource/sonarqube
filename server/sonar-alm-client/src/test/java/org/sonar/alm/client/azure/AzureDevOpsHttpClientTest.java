@@ -63,17 +63,19 @@ public class AzureDevOpsHttpClientTest {
 
   @Test
   public void check_pat() throws InterruptedException {
-    enqueueResponse(200, " { \"count\": 1,\n" +
-      "  \"value\": [\n" +
-      "    {\n" +
-      "      \"id\": \"3311cd05-3f00-4a5e-b47f-df94a9982b6e\",\n" +
-      "      \"name\": \"Project\",\n" +
-      "      \"description\": \"Project Description\",\n" +
-      "      \"url\": \"https://ado.sonarqube.com/DefaultCollection/_apis/projects/3311cd05-3f00-4a5e-b47f-df94a9982b6e\",\n" +
-      "      \"state\": \"wellFormed\",\n" +
-      "      \"revision\": 63,\n" +
-      "      \"visibility\": \"private\"\n" +
-      "    }]}");
+    enqueueResponse(200, """
+       { "count": 1,
+        "value": [
+          {
+            "id": "3311cd05-3f00-4a5e-b47f-df94a9982b6e",
+            "name": "Project",
+            "description": "Project Description",
+            "url": "https://ado.sonarqube.com/DefaultCollection/_apis/projects/3311cd05-3f00-4a5e-b47f-df94a9982b6e",
+            "state": "wellFormed",
+            "revision": 63,
+            "visibility": "private"
+          }]}\
+      """);
 
     underTest.checkPAT(server.url("").toString(), "token");
 
@@ -108,25 +110,26 @@ public class AzureDevOpsHttpClientTest {
 
   @Test
   public void get_projects() throws InterruptedException {
-    enqueueResponse(200, " { \"count\": 2,\n" +
-      "  \"value\": [\n" +
-      "    {\n" +
-      "      \"id\": \"3311cd05-3f00-4a5e-b47f-df94a9982b6e\",\n" +
-      "      \"name\": \"Project 1\",\n" +
-      "      \"description\": \"Project Description\",\n" +
-      "      \"url\": \"https://ado.sonarqube.com/DefaultCollection/_apis/projects/3311cd05-3f00-4a5e-b47f-df94a9982b6e\",\n" +
-      "      \"state\": \"wellFormed\",\n" +
-      "      \"revision\": 63,\n" +
-      "      \"visibility\": \"private\"\n" +
-      "    }," +
-      "{\n" +
-      "      \"id\": \"3be0f34d-c931-4ff8-8d37-18a83663bd3c\",\n" +
-      "      \"name\": \"Project 2\",\n" +
-      "      \"url\": \"https://ado.sonarqube.com/DefaultCollection/_apis/projects/3be0f34d-c931-4ff8-8d37-18a83663bd3c\",\n" +
-      "      \"state\": \"wellFormed\",\n" +
-      "      \"revision\": 52,\n" +
-      "      \"visibility\": \"private\"\n" +
-      "    }]}");
+    enqueueResponse(200, """
+       { "count": 2,
+        "value": [
+          {
+            "id": "3311cd05-3f00-4a5e-b47f-df94a9982b6e",
+            "name": "Project 1",
+            "description": "Project Description",
+            "url": "https://ado.sonarqube.com/DefaultCollection/_apis/projects/3311cd05-3f00-4a5e-b47f-df94a9982b6e",
+            "state": "wellFormed",
+            "revision": 63,
+            "visibility": "private"
+          },\
+      {
+            "id": "3be0f34d-c931-4ff8-8d37-18a83663bd3c",
+            "name": "Project 2",
+            "url": "https://ado.sonarqube.com/DefaultCollection/_apis/projects/3be0f34d-c931-4ff8-8d37-18a83663bd3c",
+            "state": "wellFormed",
+            "revision": 52,
+            "visibility": "private"
+          }]}""");
 
     GsonAzureProjectList projects = underTest.getProjects(server.url("").toString(), "token");
 
@@ -197,26 +200,27 @@ public class AzureDevOpsHttpClientTest {
 
   @Test
   public void get_repos_with_project_name() throws InterruptedException {
-    enqueueResponse(200, "{\n" +
-      "  \"value\": [\n" +
-      "    {\n" +
-      "      \"id\": \"741248a4-285e-4a6d-af52-1a49d8070638\",\n" +
-      "      \"name\": \"Repository 1\",\n" +
-      "      \"url\": \"https://ado.sonarqube.com/repositories/\",\n" +
-      "      \"project\": {\n" +
-      "        \"id\": \"c88ddb32-ced8-420d-ab34-764133038b34\",\n" +
-      "        \"name\": \"projectName\",\n" +
-      "        \"url\": \"https://ado.sonarqube.com/DefaultCollection/_apis/projects/c88ddb32-ced8-420d-ab34-764133038b34\",\n" +
-      "        \"state\": \"wellFormed\",\n" +
-      "        \"revision\": 29,\n" +
-      "        \"visibility\": \"private\",\n" +
-      "        \"lastUpdateTime\": \"2020-11-11T09:38:03.3Z\"\n" +
-      "      },\n" +
-      "      \"size\": 0\n" +
-      "    }\n" +
-      "  ],\n" +
-      "  \"count\": 1\n" +
-      "}");
+    enqueueResponse(200, """
+      {
+        "value": [
+          {
+            "id": "741248a4-285e-4a6d-af52-1a49d8070638",
+            "name": "Repository 1",
+            "url": "https://ado.sonarqube.com/repositories/",
+            "project": {
+              "id": "c88ddb32-ced8-420d-ab34-764133038b34",
+              "name": "projectName",
+              "url": "https://ado.sonarqube.com/DefaultCollection/_apis/projects/c88ddb32-ced8-420d-ab34-764133038b34",
+              "state": "wellFormed",
+              "revision": 29,
+              "visibility": "private",
+              "lastUpdateTime": "2020-11-11T09:38:03.3Z"
+            },
+            "size": 0
+          }
+        ],
+        "count": 1
+      }""");
 
     GsonAzureRepoList repos = underTest.getRepos(server.url("").toString(), "token", "projectName");
 
@@ -257,18 +261,19 @@ public class AzureDevOpsHttpClientTest {
 
   @Test
   public void get_repo() throws InterruptedException {
-    enqueueResponse(200, "{ " +
-      "  \"id\": \"Repo-Id-1\",\n" +
-      "  \"name\": \"Repo-Name-1\",\n" +
-      "  \"url\": \"https://ado.sonarqube.com/DefaultCollection/Repo-Id-1\",\n" +
-      "  \"project\": {\n" +
-      "    \"id\": \"84ea9d51-0c8a-44ad-be92-b2af7fe2c299\",\n" +
-      "    \"name\": \"Project-Name\",\n" +
-      "    \"description\": \"Project's description\" \n" +
-      "  },\n" +
-      "  \"defaultBranch\": \"refs/heads/default-branch\",\n" +
-      "  \"size\": 0" +
-      "}");
+    enqueueResponse(200, """
+      { \
+        "id": "Repo-Id-1",
+        "name": "Repo-Name-1",
+        "url": "https://ado.sonarqube.com/DefaultCollection/Repo-Id-1",
+        "project": {
+          "id": "84ea9d51-0c8a-44ad-be92-b2af7fe2c299",
+          "name": "Project-Name",
+          "description": "Project's description"\s
+        },
+        "defaultBranch": "refs/heads/default-branch",
+        "size": 0\
+      }""");
 
     GsonAzureRepo repo = underTest.getRepo(server.url("").toString(), "token", "Project-Name", "Repo-Name-1");
 

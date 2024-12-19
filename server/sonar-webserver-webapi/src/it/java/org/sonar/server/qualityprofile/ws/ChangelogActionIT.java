@@ -86,10 +86,10 @@ class ChangelogActionIT {
     RuleChangeDto ruleChange = insertRuleChange(CLEAR, TESTED, rule.getUuid(),
       Set.of(new RuleImpactChangeDto(MAINTAINABILITY, SECURITY, HIGH, MEDIUM)));
     insertChange(profile, ActiveRuleChange.Type.ACTIVATED, user, ImmutableMap.of(
-        "ruleUuid", rule.getUuid(),
-        "severity", "MINOR",
-        "param_foo", "foo_value",
-        "param_bar", "bar_value"),
+      "ruleUuid", rule.getUuid(),
+      "severity", "MINOR",
+      "param_foo", "foo_value",
+      "param_bar", "bar_value"),
       ruleChange);
 
     String response = ws.newRequest()
@@ -154,10 +154,10 @@ class ChangelogActionIT {
     RuleChangeDto ruleChange = insertRuleChange(COMPLETE, FOCUSED, rule.getUuid(),
       Set.of(new RuleImpactChangeDto(MAINTAINABILITY, null, HIGH, null), new RuleImpactChangeDto(null, RELIABILITY, null, LOW)));
     insertChange(profile, ActiveRuleChange.Type.DEACTIVATED, user, ImmutableMap.of(
-        "ruleUuid", rule.getUuid(),
-        "severity", "MINOR",
-        "param_foo", "foo_value",
-        "param_bar", "bar_value"),
+      "ruleUuid", rule.getUuid(),
+      "severity", "MINOR",
+      "param_foo", "foo_value",
+      "param_bar", "bar_value"),
       ruleChange);
 
     String response = ws.newRequest()
@@ -343,9 +343,10 @@ class ChangelogActionIT {
       .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
       .setParam(PARAM_SINCE, "2011-04-25T01:15:43+0100")
       .execute()
-      .getInput()).isSimilarTo("{\n" +
-        "  \"events\": []\n" +
-        "}");
+      .getInput()).isSimilarTo("""
+        {
+          "events": []
+        }""");
   }
 
   @Test
@@ -452,7 +453,7 @@ class ChangelogActionIT {
     system2.setNow(DateUtils.parseDateTime(DATE).getTime());
     RuleDto rule = db.rules().insert();
     UserDto user = db.users().insertUser();
-    //ACTIVATED and DEACTIVATED rules must always appear
+    // ACTIVATED and DEACTIVATED rules must always appear
     insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, user, Map.of("ruleUuid", rule.getUuid()));
     insertChange(qualityProfile, ActiveRuleChange.Type.DEACTIVATED, user, Map.of("ruleUuid", rule.getUuid()));
     // Changes with data must appear in STANDARD mode
@@ -547,7 +548,7 @@ class ChangelogActionIT {
     system2.setNow(DateUtils.parseDateTime(DATE).getTime());
     RuleDto rule = db.rules().insert();
     UserDto user = db.users().insertUser();
-    //ACTIVATED and DEACTIVATED rules must always appear
+    // ACTIVATED and DEACTIVATED rules must always appear
     insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, user, Map.of("ruleUuid", rule.getUuid()));
     insertChange(qualityProfile, ActiveRuleChange.Type.DEACTIVATED, user, Map.of("ruleUuid", rule.getUuid()));
     // Changes without rule_change must not appear in MQR mode
@@ -670,8 +671,7 @@ class ChangelogActionIT {
       """.formatted(DATE, user.getLogin(), user.getName(), rule.getKey(), rule.getName(),
       DATE, user.getLogin(), user.getName(), rule.getKey(), rule.getName(),
       DATE, user.getLogin(), user.getName(), rule.getKey(), rule.getName(),
-      DATE, user.getLogin(), user.getName(), rule.getKey(), rule.getName()
-    ));
+      DATE, user.getLogin(), user.getName(), rule.getKey(), rule.getName()));
   }
 
   @Test
@@ -734,7 +734,7 @@ class ChangelogActionIT {
   }
 
   private void insertChange(QProfileDto profile, ActiveRuleChange.Type type, @Nullable UserDto user, @Nullable Map<String, Object> data,
-                            @Nullable RuleChangeDto ruleChange) {
+    @Nullable RuleChangeDto ruleChange) {
     insertChange(c -> c.setRulesProfileUuid(profile.getRulesProfileUuid())
       .setUserUuid(user == null ? null : user.getUuid())
       .setSqVersion("7.6")

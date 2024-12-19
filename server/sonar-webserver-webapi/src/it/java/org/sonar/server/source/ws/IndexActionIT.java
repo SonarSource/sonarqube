@@ -63,12 +63,13 @@ public class IndexActionIT {
       .setParam("resource", file.getKey())
       .execute();
 
-    assertJson(request.getInput()).isSimilarTo("[\n" +
-      "  {\n" +
-      "    \"1\": \"public class HelloWorld {\",\n" +
-      "    \"2\": \"}\"\n" +
-      "  }\n" +
-      "]");
+    assertJson(request.getInput()).isSimilarTo("""
+      [
+        {
+          "1": "public class HelloWorld {",
+          "2": "}"
+        }
+      ]""");
   }
 
   @Test
@@ -84,12 +85,13 @@ public class IndexActionIT {
       .setParam("to", "5")
       .execute();
 
-    assertJson(request.getInput()).isSimilarTo("[\n" +
-      "  {\n" +
-      "    \"3\": \"public class HelloWorld {\",\n" +
-      "    \"4\": \"}\"\n" +
-      "  }\n" +
-      "]");
+    assertJson(request.getInput()).isSimilarTo("""
+      [
+        {
+          "3": "public class HelloWorld {",
+          "4": "}"
+        }
+      ]""");
   }
 
   @Test
@@ -101,7 +103,7 @@ public class IndexActionIT {
     assertThatThrownBy(() -> tester.newRequest()
       .setParam("resource", file.getKey())
       .execute())
-      .isInstanceOf(ForbiddenException.class);
+        .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -109,7 +111,7 @@ public class IndexActionIT {
     assertThatThrownBy(() -> tester.newRequest()
       .setParam("resource", "unknown")
       .execute())
-      .isInstanceOf(NotFoundException.class);
+        .isInstanceOf(NotFoundException.class);
   }
 
   private static DbFileSources.Data newData(String... lines) {

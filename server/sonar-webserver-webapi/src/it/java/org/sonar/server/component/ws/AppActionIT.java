@@ -69,6 +69,7 @@ public class AppActionIT {
     projectData = db.components().insertPrivateProject();
     mainBranchComponent = projectData.getMainBranchComponent();
   }
+
   @Test
   public void file_info() {
     ComponentDto directory = db.components().insertComponent(newDirectory(mainBranchComponent, "src"));
@@ -134,9 +135,11 @@ public class AppActionIT {
       .execute()
       .getInput();
 
-    assertJson(result).isSimilarTo("{\n" +
-      "  \"measures\": {}\n" +
-      "}\n");
+    assertJson(result).isSimilarTo("""
+      {
+        "measures": {}
+      }
+      """);
   }
 
   @Test
@@ -152,21 +155,22 @@ public class AppActionIT {
     userSession.logIn("john").addProjectPermission(USER, projectData.getProjectDto())
       .registerBranches(projectData.getMainBranchDto());
 
-
     String result = ws.newRequest()
       .setParam("component", file.getKey())
       .execute()
       .getInput();
 
-    assertJson(result).isSimilarTo("{\n" +
-      "  \"measures\": {\n" +
-      "    \"lines\": \"200.0\",\n" +
-      "    \"coverage\": \"95.4\",\n" +
-      "    \"duplicationDensity\": \"7.4\",\n" +
-      "    \"issues\": \"231.0\",\n" +
-      "    \"tests\": \"3.0\"\n" +
-      "  }" +
-      "}\n");
+    assertJson(result).isSimilarTo("""
+      {
+        "measures": {
+          "lines": "200.0",
+          "coverage": "95.4",
+          "duplicationDensity": "7.4",
+          "issues": "231.0",
+          "tests": "3.0"
+        }\
+      }
+      """);
   }
 
   @Test
@@ -200,9 +204,11 @@ public class AppActionIT {
       .execute()
       .getInput();
 
-    assertJson(result).isSimilarTo("{\n" +
-      "  \"canMarkAsFavorite\": true,\n" +
-      "}\n");
+    assertJson(result).isSimilarTo("""
+      {
+        "canMarkAsFavorite": true,
+      }
+      """);
   }
 
   @Test
@@ -215,9 +221,11 @@ public class AppActionIT {
       .execute()
       .getInput();
 
-    assertJson(result).isSimilarTo("{\n" +
-      "  \"canMarkAsFavorite\": false,\n" +
-      "}\n");
+    assertJson(result).isSimilarTo("""
+      {
+        "canMarkAsFavorite": false,
+      }
+      """);
   }
 
   @Test
@@ -234,9 +242,11 @@ public class AppActionIT {
       .execute()
       .getInput();
 
-    assertJson(result).isSimilarTo("{\n" +
-      "  \"fav\": true,\n" +
-      "}\n");
+    assertJson(result).isSimilarTo("""
+      {
+        "fav": true,
+      }
+      """);
   }
 
   @Test
@@ -249,9 +259,11 @@ public class AppActionIT {
       .execute()
       .getInput();
 
-    assertJson(result).isSimilarTo("{\n" +
-      "  \"fav\": false,\n" +
-      "}\n");
+    assertJson(result).isSimilarTo("""
+      {
+        "fav": false,
+      }
+      """);
   }
 
   @Test

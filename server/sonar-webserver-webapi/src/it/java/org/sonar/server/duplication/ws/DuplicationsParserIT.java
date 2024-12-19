@@ -55,12 +55,13 @@ public class DuplicationsParserIT {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file, null, null,
-      format("<duplications>\n" +
-        "  <g>\n" +
-        "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +
-        "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +
-        "  </g>\n" +
-        "</duplications>", file.getKey(), file.getKey()));
+      format("""
+        <duplications>
+          <g>
+            <b s="31" l="5" r="%s"/>
+            <b s="20" l="5" r="%s"/>
+          </g>
+        </duplications>""", file.getKey(), file.getKey()));
     assertThat(blocks).hasSize(1);
 
     List<Duplication> duplications = blocks.get(0).getDuplications();
@@ -84,12 +85,13 @@ public class DuplicationsParserIT {
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));
     List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file1, null, null,
-      format("<duplications>\n" +
-        "  <g>\n" +
-        "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +
-        "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +
-        "  </g>\n" +
-        "</duplications>", file2.getKey(), file1.getKey()));
+      format("""
+        <duplications>
+          <g>
+            <b s="20" l="5" r="%s"/>
+            <b s="31" l="5" r="%s"/>
+          </g>
+        </duplications>""", file2.getKey(), file1.getKey()));
     assertThat(blocks).hasSize(1);
 
     List<Duplication> duplications = blocks.get(0).getDuplications();
@@ -115,13 +117,14 @@ public class DuplicationsParserIT {
     ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto fileOnProject2 = db.components().insertComponent(newFileDto(project2));
     List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file1, null, null,
-      format("<duplications>\n" +
-        "  <g>\n" +
-        "    <b s=\"148\" l=\"24\" r=\"%s\"/>\n" +
-        "    <b s=\"137\" l=\"24\" r=\"%s\"/>\n" +
-        "    <b s=\"111\" l=\"24\" r=\"%s\"/>\n" +
-        "  </g>\n" +
-        "</duplications>", file1.getKey(), fileOnProject2.getKey(), file2.getKey()));
+      format("""
+        <duplications>
+          <g>
+            <b s="148" l="24" r="%s"/>
+            <b s="137" l="24" r="%s"/>
+            <b s="111" l="24" r="%s"/>
+          </g>
+        </duplications>""", file1.getKey(), fileOnProject2.getKey(), file2.getKey()));
     assertThat(blocks).hasSize(1);
 
     List<Duplication> duplications = blocks.get(0).getDuplications();
@@ -158,16 +161,18 @@ public class DuplicationsParserIT {
       .setKey("com.sonarsource.orchestrator:sonar-orchestrator:src/main/java/com/sonar/orchestrator/util/CommandExecutor.java")
       .setLongName("CommandExecutor"));
     List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file1, null, null,
-      format("<duplications>\n" +
-        "  <g>\n" +
-        "    <b s=\"94\" l=\"101\" r=\"%s\"/>\n" +
-        "    <b s=\"83\" l=\"101\" r=\"%s\"/>\n" +
-        "  </g>\n" +
-        "  <g>\n" +
-        "    <b s=\"38\" l=\"40\" r=\"%s\"/>\n" +
-        "    <b s=\"29\" l=\"39\" r=\"%s\"/>\n" +
-        "  </g>\n" +
-        "</duplications>\n", file2.getKey(), file1.getKey(), file2.getKey(), file1.getKey()));
+      format("""
+        <duplications>
+          <g>
+            <b s="94" l="101" r="%s"/>
+            <b s="83" l="101" r="%s"/>
+          </g>
+          <g>
+            <b s="38" l="40" r="%s"/>
+            <b s="29" l="39" r="%s"/>
+          </g>
+        </duplications>
+        """, file2.getKey(), file1.getKey(), file2.getKey(), file1.getKey()));
     assertThat(blocks).hasSize(2);
 
     // Block with smaller line should come first
@@ -184,12 +189,13 @@ public class DuplicationsParserIT {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file, null, null,
-      format("<duplications>\n" +
-        "  <g>\n" +
-        "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +
-        "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +
-        "  </g>\n" +
-        "</duplications>", file.getKey(), "not_existing"));
+      format("""
+        <duplications>
+          <g>
+            <b s="20" l="5" r="%s"/>
+            <b s="31" l="5" r="%s"/>
+          </g>
+        </duplications>""", file.getKey(), "not_existing"));
     assertThat(blocks).hasSize(1);
 
     List<Duplication> duplications = blocks.get(0).getDuplications();
@@ -255,12 +261,13 @@ public class DuplicationsParserIT {
     ComponentDto file1 = db.components().insertComponent(newFileDto(branch, project.uuid()));
     ComponentDto file2 = db.components().insertComponent(newFileDto(branch, project.uuid()));
     List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file1, branchName, null,
-      format("<duplications>\n" +
-        "  <g>\n" +
-        "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +
-        "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +
-        "  </g>\n" +
-        "</duplications>", file2.getKey(), file1.getKey()));
+      format("""
+        <duplications>
+          <g>
+            <b s="20" l="5" r="%s"/>
+            <b s="31" l="5" r="%s"/>
+          </g>
+        </duplications>""", file2.getKey(), file1.getKey()));
     assertThat(blocks).hasSize(1);
 
     List<Duplication> duplications = blocks.get(0).getDuplications();
@@ -290,12 +297,13 @@ public class DuplicationsParserIT {
     ComponentDto file1 = db.components().insertComponent(newFileDto(pullRequest));
     ComponentDto file2 = db.components().insertComponent(newFileDto(pullRequest));
     List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file1, null, pullRequestKey,
-      format("<duplications>\n" +
-        "  <g>\n" +
-        "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +
-        "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +
-        "  </g>\n" +
-        "</duplications>", file2.getKey(), file1.getKey()));
+      format("""
+        <duplications>
+          <g>
+            <b s="20" l="5" r="%s"/>
+            <b s="31" l="5" r="%s"/>
+          </g>
+        </duplications>""", file2.getKey(), file1.getKey()));
     assertThat(blocks).hasSize(1);
 
     List<Duplication> duplications = blocks.get(0).getDuplications();

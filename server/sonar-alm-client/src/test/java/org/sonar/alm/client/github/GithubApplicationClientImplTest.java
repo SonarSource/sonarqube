@@ -644,9 +644,10 @@ public class GithubApplicationClientImplTest {
   public void listRepositories_returns_empty_results() throws IOException {
     String appUrl = "https://github.sonarsource.com";
     AccessToken accessToken = new UserAccessToken(secure().nextAlphanumeric(10));
-    String responseJson = "{\n"
-      + "  \"total_count\": 0\n"
-      + "}";
+    String responseJson = """
+      {
+        "total_count": 0
+      }""";
 
     when(githubApplicationHttpClient.get(appUrl, accessToken, format("/search/repositories?q=%s&page=%s&per_page=%s", "fork:true+org:github", 1, 100)))
       .thenReturn(new OkGetResponse(responseJson));
@@ -851,143 +852,144 @@ public class GithubApplicationClientImplTest {
   public void getRepository_returns_repository() throws IOException {
     String appUrl = "https://github.sonarsource.com";
     AccessToken accessToken = new UserAccessToken(secure().nextAlphanumeric(10));
-    String responseJson = "{\n"
-      + "  \"id\": 1296269,\n"
-      + "  \"node_id\": \"MDEwOlJlcG9zaXRvcnkxMjk2MjY5\",\n"
-      + "  \"name\": \"Hello-World\",\n"
-      + "  \"full_name\": \"octocat/Hello-World\",\n"
-      + "  \"owner\": {\n"
-      + "    \"login\": \"octocat\",\n"
-      + "    \"id\": 1,\n"
-      + "    \"node_id\": \"MDQ6VXNlcjE=\",\n"
-      + "    \"avatar_url\": \"https://github.sonarsource.com/images/error/octocat_happy.gif\",\n"
-      + "    \"gravatar_id\": \"\",\n"
-      + "    \"url\": \"https://github.sonarsource.com/api/v3/users/octocat\",\n"
-      + "    \"html_url\": \"https://github.com/octocat\",\n"
-      + "    \"followers_url\": \"https://github.sonarsource.com/api/v3/users/octocat/followers\",\n"
-      + "    \"following_url\": \"https://github.sonarsource.com/api/v3/users/octocat/following{/other_user}\",\n"
-      + "    \"gists_url\": \"https://github.sonarsource.com/api/v3/users/octocat/gists{/gist_id}\",\n"
-      + "    \"starred_url\": \"https://github.sonarsource.com/api/v3/users/octocat/starred{/owner}{/repo}\",\n"
-      + "    \"subscriptions_url\": \"https://github.sonarsource.com/api/v3/users/octocat/subscriptions\",\n"
-      + "    \"organizations_url\": \"https://github.sonarsource.com/api/v3/users/octocat/orgs\",\n"
-      + "    \"repos_url\": \"https://github.sonarsource.com/api/v3/users/octocat/repos\",\n"
-      + "    \"events_url\": \"https://github.sonarsource.com/api/v3/users/octocat/events{/privacy}\",\n"
-      + "    \"received_events_url\": \"https://github.sonarsource.com/api/v3/users/octocat/received_events\",\n"
-      + "    \"type\": \"User\",\n"
-      + "    \"site_admin\": false\n"
-      + "  },\n"
-      + "  \"private\": false,\n"
-      + "  \"html_url\": \"https://github.com/octocat/Hello-World\",\n"
-      + "  \"description\": \"This your first repo!\",\n"
-      + "  \"fork\": false,\n"
-      + "  \"url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World\",\n"
-      + "  \"archive_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/{archive_format}{/ref}\",\n"
-      + "  \"assignees_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/assignees{/user}\",\n"
-      + "  \"blobs_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/git/blobs{/sha}\",\n"
-      + "  \"branches_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/branches{/branch}\",\n"
-      + "  \"collaborators_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/collaborators{/collaborator}\",\n"
-      + "  \"comments_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/comments{/number}\",\n"
-      + "  \"commits_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/commits{/sha}\",\n"
-      + "  \"compare_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/compare/{base}...{head}\",\n"
-      + "  \"contents_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/contents/{+path}\",\n"
-      + "  \"contributors_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/contributors\",\n"
-      + "  \"deployments_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/deployments\",\n"
-      + "  \"downloads_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/downloads\",\n"
-      + "  \"events_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/events\",\n"
-      + "  \"forks_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/forks\",\n"
-      + "  \"git_commits_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/git/commits{/sha}\",\n"
-      + "  \"git_refs_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/git/refs{/sha}\",\n"
-      + "  \"git_tags_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/git/tags{/sha}\",\n"
-      + "  \"git_url\": \"git:github.com/octocat/Hello-World.git\",\n"
-      + "  \"issue_comment_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/issues/comments{/number}\",\n"
-      + "  \"issue_events_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/issues/events{/number}\",\n"
-      + "  \"issues_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/issues{/number}\",\n"
-      + "  \"keys_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/keys{/key_id}\",\n"
-      + "  \"labels_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/labels{/name}\",\n"
-      + "  \"languages_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/languages\",\n"
-      + "  \"merges_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/merges\",\n"
-      + "  \"milestones_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/milestones{/number}\",\n"
-      + "  \"notifications_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/notifications{?since,all,participating}\",\n"
-      + "  \"pulls_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/pulls{/number}\",\n"
-      + "  \"releases_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/releases{/id}\",\n"
-      + "  \"ssh_url\": \"git@github.com:octocat/Hello-World.git\",\n"
-      + "  \"stargazers_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/stargazers\",\n"
-      + "  \"statuses_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/statuses/{sha}\",\n"
-      + "  \"subscribers_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/subscribers\",\n"
-      + "  \"subscription_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/subscription\",\n"
-      + "  \"tags_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/tags\",\n"
-      + "  \"teams_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/teams\",\n"
-      + "  \"trees_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/git/trees{/sha}\",\n"
-      + "  \"clone_url\": \"https://github.com/octocat/Hello-World.git\",\n"
-      + "  \"mirror_url\": \"git:git.example.com/octocat/Hello-World\",\n"
-      + "  \"hooks_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/hooks\",\n"
-      + "  \"svn_url\": \"https://svn.github.com/octocat/Hello-World\",\n"
-      + "  \"homepage\": \"https://github.com\",\n"
-      + "  \"language\": null,\n"
-      + "  \"forks_count\": 9,\n"
-      + "  \"stargazers_count\": 80,\n"
-      + "  \"watchers_count\": 80,\n"
-      + "  \"size\": 108,\n"
-      + "  \"default_branch\": \"master\",\n"
-      + "  \"open_issues_count\": 0,\n"
-      + "  \"is_template\": true,\n"
-      + "  \"topics\": [\n"
-      + "    \"octocat\",\n"
-      + "    \"atom\",\n"
-      + "    \"electron\",\n"
-      + "    \"api\"\n"
-      + "  ],\n"
-      + "  \"has_issues\": true,\n"
-      + "  \"has_projects\": true,\n"
-      + "  \"has_wiki\": true,\n"
-      + "  \"has_pages\": false,\n"
-      + "  \"has_downloads\": true,\n"
-      + "  \"archived\": false,\n"
-      + "  \"disabled\": false,\n"
-      + "  \"visibility\": \"public\",\n"
-      + "  \"pushed_at\": \"2011-01-26T19:06:43Z\",\n"
-      + "  \"created_at\": \"2011-01-26T19:01:12Z\",\n"
-      + "  \"updated_at\": \"2011-01-26T19:14:43Z\",\n"
-      + "  \"permissions\": {\n"
-      + "    \"admin\": false,\n"
-      + "    \"push\": false,\n"
-      + "    \"pull\": true\n"
-      + "  },\n"
-      + "  \"allow_rebase_merge\": true,\n"
-      + "  \"template_repository\": null,\n"
-      + "  \"allow_squash_merge\": true,\n"
-      + "  \"allow_merge_commit\": true,\n"
-      + "  \"subscribers_count\": 42,\n"
-      + "  \"network_count\": 0,\n"
-      + "  \"anonymous_access_enabled\": false,\n"
-      + "  \"license\": {\n"
-      + "    \"key\": \"mit\",\n"
-      + "    \"name\": \"MIT License\",\n"
-      + "    \"spdx_id\": \"MIT\",\n"
-      + "    \"url\": \"https://github.sonarsource.com/api/v3/licenses/mit\",\n"
-      + "    \"node_id\": \"MDc6TGljZW5zZW1pdA==\"\n"
-      + "  },\n"
-      + "  \"organization\": {\n"
-      + "    \"login\": \"octocat\",\n"
-      + "    \"id\": 1,\n"
-      + "    \"node_id\": \"MDQ6VXNlcjE=\",\n"
-      + "    \"avatar_url\": \"https://github.com/images/error/octocat_happy.gif\",\n"
-      + "    \"gravatar_id\": \"\",\n"
-      + "    \"url\": \"https://github.sonarsource.com/api/v3/users/octocat\",\n"
-      + "    \"html_url\": \"https://github.com/octocat\",\n"
-      + "    \"followers_url\": \"https://github.sonarsource.com/api/v3/users/octocat/followers\",\n"
-      + "    \"following_url\": \"https://github.sonarsource.com/api/v3/users/octocat/following{/other_user}\",\n"
-      + "    \"gists_url\": \"https://github.sonarsource.com/api/v3/users/octocat/gists{/gist_id}\",\n"
-      + "    \"starred_url\": \"https://github.sonarsource.com/api/v3/users/octocat/starred{/owner}{/repo}\",\n"
-      + "    \"subscriptions_url\": \"https://github.sonarsource.com/api/v3/users/octocat/subscriptions\",\n"
-      + "    \"organizations_url\": \"https://github.sonarsource.com/api/v3/users/octocat/orgs\",\n"
-      + "    \"repos_url\": \"https://github.sonarsource.com/api/v3/users/octocat/repos\",\n"
-      + "    \"events_url\": \"https://github.sonarsource.com/api/v3/users/octocat/events{/privacy}\",\n"
-      + "    \"received_events_url\": \"https://github.sonarsource.com/api/v3/users/octocat/received_events\",\n"
-      + "    \"type\": \"Organization\",\n"
-      + "    \"site_admin\": false\n"
-      + "  }"
-      + "}";
+    String responseJson = """
+      {
+        "id": 1296269,
+        "node_id": "MDEwOlJlcG9zaXRvcnkxMjk2MjY5",
+        "name": "Hello-World",
+        "full_name": "octocat/Hello-World",
+        "owner": {
+          "login": "octocat",
+          "id": 1,
+          "node_id": "MDQ6VXNlcjE=",
+          "avatar_url": "https://github.sonarsource.com/images/error/octocat_happy.gif",
+          "gravatar_id": "",
+          "url": "https://github.sonarsource.com/api/v3/users/octocat",
+          "html_url": "https://github.com/octocat",
+          "followers_url": "https://github.sonarsource.com/api/v3/users/octocat/followers",
+          "following_url": "https://github.sonarsource.com/api/v3/users/octocat/following{/other_user}",
+          "gists_url": "https://github.sonarsource.com/api/v3/users/octocat/gists{/gist_id}",
+          "starred_url": "https://github.sonarsource.com/api/v3/users/octocat/starred{/owner}{/repo}",
+          "subscriptions_url": "https://github.sonarsource.com/api/v3/users/octocat/subscriptions",
+          "organizations_url": "https://github.sonarsource.com/api/v3/users/octocat/orgs",
+          "repos_url": "https://github.sonarsource.com/api/v3/users/octocat/repos",
+          "events_url": "https://github.sonarsource.com/api/v3/users/octocat/events{/privacy}",
+          "received_events_url": "https://github.sonarsource.com/api/v3/users/octocat/received_events",
+          "type": "User",
+          "site_admin": false
+        },
+        "private": false,
+        "html_url": "https://github.com/octocat/Hello-World",
+        "description": "This your first repo!",
+        "fork": false,
+        "url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World",
+        "archive_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/{archive_format}{/ref}",
+        "assignees_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/assignees{/user}",
+        "blobs_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/git/blobs{/sha}",
+        "branches_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/branches{/branch}",
+        "collaborators_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/collaborators{/collaborator}",
+        "comments_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/comments{/number}",
+        "commits_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/commits{/sha}",
+        "compare_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/compare/{base}...{head}",
+        "contents_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/contents/{+path}",
+        "contributors_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/contributors",
+        "deployments_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/deployments",
+        "downloads_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/downloads",
+        "events_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/events",
+        "forks_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/forks",
+        "git_commits_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/git/commits{/sha}",
+        "git_refs_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/git/refs{/sha}",
+        "git_tags_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/git/tags{/sha}",
+        "git_url": "git:github.com/octocat/Hello-World.git",
+        "issue_comment_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/issues/comments{/number}",
+        "issue_events_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/issues/events{/number}",
+        "issues_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/issues{/number}",
+        "keys_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/keys{/key_id}",
+        "labels_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/labels{/name}",
+        "languages_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/languages",
+        "merges_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/merges",
+        "milestones_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/milestones{/number}",
+        "notifications_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/notifications{?since,all,participating}",
+        "pulls_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/pulls{/number}",
+        "releases_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/releases{/id}",
+        "ssh_url": "git@github.com:octocat/Hello-World.git",
+        "stargazers_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/stargazers",
+        "statuses_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/statuses/{sha}",
+        "subscribers_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/subscribers",
+        "subscription_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/subscription",
+        "tags_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/tags",
+        "teams_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/teams",
+        "trees_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/git/trees{/sha}",
+        "clone_url": "https://github.com/octocat/Hello-World.git",
+        "mirror_url": "git:git.example.com/octocat/Hello-World",
+        "hooks_url": "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/hooks",
+        "svn_url": "https://svn.github.com/octocat/Hello-World",
+        "homepage": "https://github.com",
+        "language": null,
+        "forks_count": 9,
+        "stargazers_count": 80,
+        "watchers_count": 80,
+        "size": 108,
+        "default_branch": "master",
+        "open_issues_count": 0,
+        "is_template": true,
+        "topics": [
+          "octocat",
+          "atom",
+          "electron",
+          "api"
+        ],
+        "has_issues": true,
+        "has_projects": true,
+        "has_wiki": true,
+        "has_pages": false,
+        "has_downloads": true,
+        "archived": false,
+        "disabled": false,
+        "visibility": "public",
+        "pushed_at": "2011-01-26T19:06:43Z",
+        "created_at": "2011-01-26T19:01:12Z",
+        "updated_at": "2011-01-26T19:14:43Z",
+        "permissions": {
+          "admin": false,
+          "push": false,
+          "pull": true
+        },
+        "allow_rebase_merge": true,
+        "template_repository": null,
+        "allow_squash_merge": true,
+        "allow_merge_commit": true,
+        "subscribers_count": 42,
+        "network_count": 0,
+        "anonymous_access_enabled": false,
+        "license": {
+          "key": "mit",
+          "name": "MIT License",
+          "spdx_id": "MIT",
+          "url": "https://github.sonarsource.com/api/v3/licenses/mit",
+          "node_id": "MDc6TGljZW5zZW1pdA=="
+        },
+        "organization": {
+          "login": "octocat",
+          "id": 1,
+          "node_id": "MDQ6VXNlcjE=",
+          "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+          "gravatar_id": "",
+          "url": "https://github.sonarsource.com/api/v3/users/octocat",
+          "html_url": "https://github.com/octocat",
+          "followers_url": "https://github.sonarsource.com/api/v3/users/octocat/followers",
+          "following_url": "https://github.sonarsource.com/api/v3/users/octocat/following{/other_user}",
+          "gists_url": "https://github.sonarsource.com/api/v3/users/octocat/gists{/gist_id}",
+          "starred_url": "https://github.sonarsource.com/api/v3/users/octocat/starred{/owner}{/repo}",
+          "subscriptions_url": "https://github.sonarsource.com/api/v3/users/octocat/subscriptions",
+          "organizations_url": "https://github.sonarsource.com/api/v3/users/octocat/orgs",
+          "repos_url": "https://github.sonarsource.com/api/v3/users/octocat/repos",
+          "events_url": "https://github.sonarsource.com/api/v3/users/octocat/events{/privacy}",
+          "received_events_url": "https://github.sonarsource.com/api/v3/users/octocat/received_events",
+          "type": "Organization",
+          "site_admin": false
+        }\
+      }""";
 
     when(githubApplicationHttpClient.get(appUrl, accessToken, "/repos/octocat/Hello-World"))
       .thenReturn(new GetResponse() {

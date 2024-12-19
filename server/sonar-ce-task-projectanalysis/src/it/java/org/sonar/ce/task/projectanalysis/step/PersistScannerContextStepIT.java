@@ -94,6 +94,9 @@ public class PersistScannerContextStepIT {
     underTest.execute(new TestComputationStepContext());
 
     assertThat(dbClient.ceScannerContextDao().selectScannerContext(dbTester.getSession(), ANALYSIS_UUID))
-      .contains("1" + '\n' + "2" + '\n' + "3");
+      .contains("""
+        1
+        2
+        3""");
   }
 }
