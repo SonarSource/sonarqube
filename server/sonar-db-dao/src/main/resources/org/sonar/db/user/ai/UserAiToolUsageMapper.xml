@@ -32,4 +32,15 @@
     )
   </insert>
 
+  <delete id="delete" parameterType="org.sonar.db.user.ai.UserAiToolUsageDto">
+    DELETE FROM user_ai_tool_usages
+      WHERE uuid = #{uuid,jdbcType=VARCHAR}
+  </delete>
+
+  <update id="update" parameterType="org.sonar.db.user.ai.UserAiToolUsageDto">
+    UPDATE user_ai_tool_usages SET
+    activated_at=#{activatedAt,jdbcType=BIGINT},
+    last_activity_at=#{lastActivityAt,jdbcType=BIGINT}
+    WHERE uuid=#{uuid}
+  </update>
 </mapper>

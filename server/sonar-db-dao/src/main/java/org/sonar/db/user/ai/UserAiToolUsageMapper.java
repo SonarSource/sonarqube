@@ -26,4 +26,9 @@ public interface UserAiToolUsageMapper {
   void insert(UserAiToolUsageDto userAiToolUsageDto);
 
   List<UserAiToolUsageDto> selectAll();
+
+  void update(UserAiToolUsageDto userAiToolUsageDto);
+
+  void delete(UserAiToolUsageDto userAiToolUsageDto);
+
 }

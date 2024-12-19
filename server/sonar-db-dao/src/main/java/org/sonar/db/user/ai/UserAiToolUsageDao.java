@@ -33,7 +33,16 @@ public class UserAiToolUsageDao implements Dao {
     return mapper(dbSession).selectAll();
   }
 
+  public void update(DbSession dbSession, UserAiToolUsageDto userAiToolUsageDto) {
+    mapper(dbSession).update(userAiToolUsageDto);
+  }
+
+  public void delete(DbSession dbSession, UserAiToolUsageDto userAiToolUsageDto) {
+    mapper(dbSession).delete(userAiToolUsageDto);
+  }
+
   private static UserAiToolUsageMapper mapper(DbSession session) {
     return session.getMapper(UserAiToolUsageMapper.class);
   }
+
 }

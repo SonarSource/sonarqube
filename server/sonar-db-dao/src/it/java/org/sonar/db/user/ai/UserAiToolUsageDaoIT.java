@@ -25,6 +25,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
@@ -78,5 +79,70 @@ class UserAiToolUsageDaoIT {
     assertThat(underTest.selectAll(dbSession))
       .extracting(UserAiToolUsageDto::getUuid, UserAiToolUsageDto::getUserUuid, UserAiToolUsageDto::getActivatedAt, UserAiToolUsageDto::getLastActivityAt)
       .containsExactly(tuple("uuid", "userUuid", 1L, null));
+  }
+
+  @Test
+  void update_shouldUpdateExpectedEntry() {
+    UserAiToolUsageDto dto = new UserAiToolUsageDto()
+      .setUuid("uuid")
+      .setUserUuid("userUuid")
+      .setActivatedAt(1L)
+      .setLastActivityAt(2L);
+
+    UserAiToolUsageDto dto2 = new UserAiToolUsageDto()
+      .setUuid("uuid2")
+      .setUserUuid("userUuid2")
+      .setActivatedAt(1L)
+      .setLastActivityAt(2L);
+
+    underTest.insert(dbSession, dto);
+    underTest.insert(dbSession, dto2);
+
+    dto.setActivatedAt(12L);
+    dto.setLastActivityAt(22L);
+
+    underTest.update(dbSession, dto);
+
+    assertThat(underTest.selectAll(dbSession))
+      .extracting(UserAiToolUsageDto::getUuid, UserAiToolUsageDto::getUserUuid, UserAiToolUsageDto::getActivatedAt, UserAiToolUsageDto::getLastActivityAt)
+      .containsExactlyInAnyOrder(tuple("uuid", "userUuid", 12L, 22L), tuple("uuid2", "userUuid2", 1L, 2L));
+  }
+
+  @Test
+  void delete_shouldRemoveExpectedEntry() {
+    UserAiToolUsageDto dto = new UserAiToolUsageDto()
+      .setUuid("uuid")
+      .setUserUuid("userUuid")
+      .setActivatedAt(1L)
+      .setLastActivityAt(2L);
+
+    UserAiToolUsageDto dto2 = new UserAiToolUsageDto()
+      .setUuid("uuid2")
+      .setUserUuid("userUuid2")
+      .setActivatedAt(1L)
+      .setLastActivityAt(2L);
+
+    underTest.insert(dbSession, dto);
+    underTest.insert(dbSession, dto2);
+
+    underTest.delete(dbSession, dto);
+
+    assertThat(underTest.selectAll(dbSession))
+      .extracting(UserAiToolUsageDto::getUuid)
+      .containsExactlyInAnyOrder("uuid2");
+  }
+
+  @Test
+  void delete_whenTableIsEmpty_shouldNotFail() {
+    UserAiToolUsageDto dto = new UserAiToolUsageDto()
+      .setUuid("uuid")
+      .setUserUuid("userUuid")
+      .setActivatedAt(1L)
+      .setLastActivityAt(2L);
+
+    underTest.insert(dbSession, dto);
+
+    assertThatCode(() -> underTest.delete(dbSession, dto)).doesNotThrowAnyException();
+
   }
 }
