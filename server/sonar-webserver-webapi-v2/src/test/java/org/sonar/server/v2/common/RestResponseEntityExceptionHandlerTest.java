@@ -85,7 +85,7 @@ class RestResponseEntityExceptionHandlerTest {
     assertThat(response.getBody().message()).isEqualTo(ErrorMessages.INVALID_REQUEST_FORMAT.getMessage());
 
     // Verify logging
-    assertThat(logs.logs(Level.ERROR)).contains(ErrorMessages.INVALID_REQUEST_FORMAT.getMessage());
+    assertThat(logs.logs(Level.WARN)).contains(ErrorMessages.INVALID_REQUEST_FORMAT.getMessage());
   }
 
   @Test
@@ -95,16 +95,17 @@ class RestResponseEntityExceptionHandlerTest {
 
     when(fieldError.getDefaultMessage()).thenReturn("<defaultMessage>");
     when(fieldError.getField()).thenReturn("<field>");
+    when(fieldError.getRejectedValue()).thenReturn("<rejectedValue>");
     when(ex.getFieldErrors()).thenReturn(List.of(fieldError));
 
     ResponseEntity<RestError> response = underTest.handleMethodArgumentNotValidException(ex);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     assertThat(response.getBody()).isNotNull();
-    assertThat(response.getBody().message()).isEqualTo("Value {} for field <field> was rejected. Error: <defaultMessage>." /* ErrorMessages.VALIDATION_ERROR.getMessage() */);
+    assertThat(response.getBody().message()).isEqualTo("Value <rejectedValue> for field <field> was rejected. Error: <defaultMessage>." /* ErrorMessages.VALIDATION_ERROR.getMessage() */);
 
     // Verify logging
-    assertThat(logs.logs(Level.ERROR)).contains(ErrorMessages.VALIDATION_ERROR.getMessage());
+    assertThat(logs.logs(Level.INFO)).anyMatch(log -> log.startsWith(ErrorMessages.VALIDATION_ERROR.getMessage()));
   }
 
   @Test
@@ -121,7 +122,7 @@ class RestResponseEntityExceptionHandlerTest {
     assertThat(response.getBody().message()).isEqualTo(ErrorMessages.INVALID_PARAMETER_TYPE.getMessage());
 
     // Verify logging
-    assertThat(logs.logs(Level.ERROR)).contains(ErrorMessages.INVALID_PARAMETER_TYPE.getMessage());
+    assertThat(logs.logs(Level.WARN)).contains(ErrorMessages.INVALID_PARAMETER_TYPE.getMessage());
   }
 
   @Test
@@ -135,7 +136,7 @@ class RestResponseEntityExceptionHandlerTest {
     assertThat(response.getBody().message()).isEqualTo(ErrorMessages.CONVERSION_FAILED.getMessage());
 
     // Verify logging
-    assertThat(logs.logs(Level.ERROR)).contains(ErrorMessages.CONVERSION_FAILED.getMessage());
+    assertThat(logs.logs(Level.INFO)).contains(ErrorMessages.CONVERSION_FAILED.getMessage());
   }
 
   @Test
@@ -149,7 +150,7 @@ class RestResponseEntityExceptionHandlerTest {
     assertThat(response.getBody().message()).isEqualTo(ErrorMessages.METHOD_NOT_SUPPORTED.getMessage());
 
     // Verify logging
-    assertThat(logs.logs(Level.ERROR)).contains(ErrorMessages.METHOD_NOT_SUPPORTED.getMessage());
+    assertThat(logs.logs(Level.WARN)).contains(ErrorMessages.METHOD_NOT_SUPPORTED.getMessage());
   }
 
   @Test
@@ -163,7 +164,7 @@ class RestResponseEntityExceptionHandlerTest {
     assertThat(response.getBody().message()).isEqualTo(ErrorMessages.UNSUPPORTED_MEDIA_TYPE.getMessage());
 
     // Verify logging
-    assertThat(logs.logs(Level.ERROR)).contains(ErrorMessages.UNSUPPORTED_MEDIA_TYPE.getMessage());
+    assertThat(logs.logs(Level.WARN)).contains(ErrorMessages.UNSUPPORTED_MEDIA_TYPE.getMessage());
   }
 
   @Test
@@ -177,7 +178,7 @@ class RestResponseEntityExceptionHandlerTest {
     assertThat(response.getBody().message()).isEqualTo(ErrorMessages.UNACCEPTABLE_MEDIA_TYPE.getMessage());
 
     // Verify logging
-    assertThat(logs.logs(Level.ERROR)).contains(ErrorMessages.UNACCEPTABLE_MEDIA_TYPE.getMessage());
+    assertThat(logs.logs(Level.WARN)).contains(ErrorMessages.UNACCEPTABLE_MEDIA_TYPE.getMessage());
   }
 
   @Test
@@ -191,7 +192,7 @@ class RestResponseEntityExceptionHandlerTest {
     assertThat(response.getBody().message()).isEqualTo(ex.getMessage() /* ErrorMessages.INVALID_INPUT_PROVIDED.getMessage() */);
 
     // Verify logging
-    assertThat(logs.logs(Level.ERROR)).contains(ErrorMessages.INVALID_INPUT_PROVIDED.getMessage());
+    assertThat(logs.logs(Level.WARN)).contains(ErrorMessages.INVALID_INPUT_PROVIDED.getMessage());
   }
 
   @Test
@@ -206,7 +207,7 @@ class RestResponseEntityExceptionHandlerTest {
     assertThat(response.getBody().message()).contains("Value {} for field field was rejected. Error: Field error.");
 
     // Verify logging
-    assertThat(logs.logs(Level.ERROR)).contains(ErrorMessages.BIND_ERROR.getMessage());
+    assertThat(logs.logs(Level.INFO)).anyMatch(log -> log.startsWith(ErrorMessages.BIND_ERROR.getMessage()));
   }
 
   @ParameterizedTest
@@ -219,7 +220,7 @@ class RestResponseEntityExceptionHandlerTest {
     assertThat(response.getBody().message()).isEqualTo(ErrorMessages.BAD_REQUEST.getMessage());
 
     // Verify logging
-    assertThat(logs.logs(Level.ERROR)).contains(ErrorMessages.BAD_REQUEST.getMessage());
+    assertThat(logs.logs(Level.WARN)).contains(ErrorMessages.BAD_REQUEST.getMessage());
   }
 
   static Stream<Arguments> badRequestsProvider() {
@@ -250,7 +251,7 @@ class RestResponseEntityExceptionHandlerTest {
     var ex = AuthenticationException.newBuilder()
       .setSource(AuthenticationEvent.Source.sso())
       .setLogin("mockLogin")
-      .setPublicMessage("Authentication failed")
+      .setPublicMessage("Authentication failed.")
       .build();
     ResponseEntity<RestError> response = underTest.handleAuthenticationException(ex);
 
@@ -259,7 +260,7 @@ class RestResponseEntityExceptionHandlerTest {
     assertThat(response.getBody().message()).isEqualTo(ErrorMessages.AUTHENTICATION_FAILED.getMessage());
 
     // Verify logging
-    assertThat(logs.logs(Level.ERROR)).contains(ErrorMessages.AUTHENTICATION_FAILED.getMessage());
+    assertThat(logs.logs(Level.WARN)).contains(ErrorMessages.AUTHENTICATION_FAILED.getMessage());
   }
 
   // endregion security
@@ -321,7 +322,7 @@ class RestResponseEntityExceptionHandlerTest {
     assertThat(response.getBody().message()).isEqualTo(ErrorMessages.SIZE_EXCEEDED.getMessage());
 
     // Verify logging
-    assertThat(logs.logs(Level.ERROR)).contains(ErrorMessages.SIZE_EXCEEDED.getMessage());
+    assertThat(logs.logs(Level.WARN)).contains(ErrorMessages.SIZE_EXCEEDED.getMessage());
   }
 
   @ParameterizedTest
@@ -332,9 +333,6 @@ class RestResponseEntityExceptionHandlerTest {
     assertThat(response.getStatusCode()).isEqualTo(expectedStatus);
     assertThat(response.getBody()).isNotNull();
     assertThat(response.getBody().message()).isEqualTo(ex.getMessage());
-
-    // Verify logging
-    assertThat(logs.logs(Level.ERROR)).contains(ex.getMessage());
   }
 
   static Stream<Arguments> serverExceptionsProvider() {

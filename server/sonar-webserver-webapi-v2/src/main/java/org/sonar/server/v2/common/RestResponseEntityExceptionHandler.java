@@ -56,61 +56,65 @@ public class RestResponseEntityExceptionHandler {
 
   @ExceptionHandler(HttpMessageNotReadableException.class)
   protected ResponseEntity<RestError> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-    LOGGER.error(ErrorMessages.INVALID_REQUEST_FORMAT.getMessage(), ex);
+    LOGGER.warn(ErrorMessages.INVALID_REQUEST_FORMAT.getMessage(), ex);
     return buildResponse(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_REQUEST_FORMAT);
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   protected ResponseEntity<RestError> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-    LOGGER.error(ErrorMessages.VALIDATION_ERROR.getMessage(), ex);
     String validationErrors = ex.getFieldErrors().stream()
       .map(RestResponseEntityExceptionHandler::handleFieldError)
       .collect(Collectors.joining());
+    LOGGER.atInfo()
+      .setMessage(ErrorMessages.VALIDATION_ERROR.getMessage() + "\n" + validationErrors)
+      .log();
     return buildResponse(HttpStatus.BAD_REQUEST, validationErrors);
   }
 
   @ExceptionHandler(MethodArgumentTypeMismatchException.class)
   protected ResponseEntity<RestError> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
-    LOGGER.error(ErrorMessages.INVALID_PARAMETER_TYPE.getMessage(), ex);
+    LOGGER.warn(ErrorMessages.INVALID_PARAMETER_TYPE.getMessage(), ex);
     return buildResponse(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_PARAMETER_TYPE);
   }
 
   @ExceptionHandler(ConversionFailedException.class)
   protected ResponseEntity<RestError> handleConversionFailedException(ConversionFailedException ex) {
-    LOGGER.error(ErrorMessages.CONVERSION_FAILED.getMessage(), ex);
+    LOGGER.info(ErrorMessages.CONVERSION_FAILED.getMessage(), ex);
     return buildResponse(HttpStatus.BAD_REQUEST, ErrorMessages.CONVERSION_FAILED);
   }
 
   @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
   protected ResponseEntity<RestError> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
-    LOGGER.error(ErrorMessages.METHOD_NOT_SUPPORTED.getMessage(), ex);
+    LOGGER.warn(ErrorMessages.METHOD_NOT_SUPPORTED.getMessage(), ex);
     return buildResponse(HttpStatus.METHOD_NOT_ALLOWED, ErrorMessages.METHOD_NOT_SUPPORTED);
   }
 
   @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
   protected ResponseEntity<RestError> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException ex) {
-    LOGGER.error(ErrorMessages.UNSUPPORTED_MEDIA_TYPE.getMessage(), ex);
+    LOGGER.warn(ErrorMessages.UNSUPPORTED_MEDIA_TYPE.getMessage(), ex);
     return buildResponse(HttpStatus.UNSUPPORTED_MEDIA_TYPE, ErrorMessages.UNSUPPORTED_MEDIA_TYPE);
   }
 
   @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
   protected ResponseEntity<RestError> handleHttpMediaTypeNotAcceptableException(HttpMediaTypeNotAcceptableException ex) {
-    LOGGER.error(ErrorMessages.UNACCEPTABLE_MEDIA_TYPE.getMessage(), ex);
+    LOGGER.warn(ErrorMessages.UNACCEPTABLE_MEDIA_TYPE.getMessage(), ex);
     return buildResponse(HttpStatus.NOT_ACCEPTABLE, ErrorMessages.UNACCEPTABLE_MEDIA_TYPE);
   }
 
   @ExceptionHandler(IllegalArgumentException.class)
   protected ResponseEntity<RestError> handleIllegalArgumentException(IllegalArgumentException ex) {
-    LOGGER.error(ErrorMessages.INVALID_INPUT_PROVIDED.getMessage(), ex);
+    LOGGER.warn(ErrorMessages.INVALID_INPUT_PROVIDED.getMessage(), ex);
     return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
   }
 
   @ExceptionHandler(BindException.class)
   protected ResponseEntity<RestError> handleBindException(BindException ex) {
-    LOGGER.error(ErrorMessages.BIND_ERROR.getMessage(), ex);
     String validationErrors = ex.getFieldErrors().stream()
       .map(RestResponseEntityExceptionHandler::handleFieldError)
       .collect(Collectors.joining());
+    LOGGER.atInfo()
+      .setMessage(ErrorMessages.BIND_ERROR.getMessage() + "\n" + validationErrors)
+      .log();
     return buildResponse(HttpStatus.BAD_REQUEST, validationErrors);
   }
 
@@ -119,8 +123,14 @@ public class RestResponseEntityExceptionHandler {
     ServletRequestBindingException.class,
   })
   protected ResponseEntity<RestError> handleBadRequests(Exception ex) {
-    LOGGER.error(ErrorMessages.BAD_REQUEST.getMessage(), ex);
+    LOGGER.warn(ErrorMessages.BAD_REQUEST.getMessage(), ex);
     return buildResponse(HttpStatus.BAD_REQUEST, ErrorMessages.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(MaxUploadSizeExceededException.class)
+  protected ResponseEntity<RestError> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex) {
+    LOGGER.warn(ErrorMessages.SIZE_EXCEEDED.getMessage(), ex);
+    return buildResponse(HttpStatus.PAYLOAD_TOO_LARGE, ErrorMessages.SIZE_EXCEEDED);
   }
 
   // endregion client
@@ -131,6 +141,12 @@ public class RestResponseEntityExceptionHandler {
   protected ResponseEntity<RestError> handleAccessDeniedException(AccessDeniedException ex) {
     LOGGER.error(ErrorMessages.ACCESS_DENIED.getMessage(), ex);
     return buildResponse(HttpStatus.FORBIDDEN, ErrorMessages.ACCESS_DENIED);
+  }
+
+  @ExceptionHandler(AuthenticationException.class)
+  protected ResponseEntity<RestError> handleAuthenticationException(AuthenticationException ex) {
+    LOGGER.warn(ex.getPublicMessage());
+    return buildResponse(HttpStatus.UNAUTHORIZED, ErrorMessages.AUTHENTICATION_FAILED);
   }
 
   // endregion security
@@ -158,33 +174,20 @@ public class RestResponseEntityExceptionHandler {
     return buildResponse(HttpStatus.SERVICE_UNAVAILABLE, ErrorMessages.REQUEST_TIMEOUT);
   }
 
-  @ExceptionHandler(MaxUploadSizeExceededException.class)
-  protected ResponseEntity<RestError> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex) {
-    LOGGER.error(ErrorMessages.SIZE_EXCEEDED.getMessage(), ex);
-    return buildResponse(HttpStatus.PAYLOAD_TOO_LARGE, ErrorMessages.SIZE_EXCEEDED);
-  }
-
-  @ExceptionHandler(AuthenticationException.class)
-  protected ResponseEntity<RestError> handleAuthenticationException(AuthenticationException ex) {
-    LOGGER.error(ErrorMessages.AUTHENTICATION_FAILED.getMessage(), ex);
-    return buildResponse(HttpStatus.UNAUTHORIZED, ErrorMessages.AUTHENTICATION_FAILED);
-  }
-
   @ExceptionHandler(ServerException.class)
   protected ResponseEntity<RestError> handleServerException(ServerException ex) {
     final HttpStatus httpStatus = Optional.ofNullable(HttpStatus.resolve(ex.httpCode())).orElse(HttpStatus.INTERNAL_SERVER_ERROR);
     final String errorMessage = Optional.ofNullable(ex.getMessage()).orElse(ErrorMessages.INTERNAL_SERVER_ERROR.getMessage());
-    LOGGER.error(errorMessage, ex);
     return buildResponse(httpStatus, errorMessage);
   }
-
-  // endregion server
 
   @ExceptionHandler({Exception.class})
   protected ResponseEntity<RestError> handleUnhandledException(Exception ex) {
     LOGGER.error(ErrorMessages.UNEXPECTED_ERROR.getMessage(), ex);
     return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.UNEXPECTED_ERROR);
   }
+
+  // endregion server
 
   private static ResponseEntity<RestError> buildResponse(HttpStatus httpStatus, ErrorMessages errorMessages) {
     return buildResponse(httpStatus, errorMessages.getMessage());
@@ -200,5 +203,4 @@ public class RestResponseEntityExceptionHandler {
     String defaultMessage = fieldError.getDefaultMessage();
     return String.format("Value %s for field %s was rejected. Error: %s.", rejectedValueAsString, fieldName, defaultMessage);
   }
-
 }
