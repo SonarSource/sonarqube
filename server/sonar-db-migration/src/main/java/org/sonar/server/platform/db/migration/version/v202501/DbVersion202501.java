@@ -44,6 +44,7 @@ public class DbVersion202501 implements DbVersion {
       .add(2025_01_004, "Rename 'Sonar Way' without 0 new issues condition to 'Sonar Way(legacy)'", RenameOldSonarWayToLegacy.class)
       .add(2025_01_005, "Create 'user_ai_tool_usages' table", CreateUserAIToolUsagesTable.class)
       .add(2025_01_006, "Add 'detected_ai_code' column to 'projects' table", AddDetectedAICodeColumnToProjectsTable.class)
+      .add(2025_01_007, "Create table 'migration_logs'", CreateMigrationLogsTable.class)
     ;
   }
 }

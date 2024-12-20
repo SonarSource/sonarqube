@@ -94,6 +94,7 @@ import org.sonar.db.measure.MeasureMapper;
 import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.measure.ProjectMeasureMapper;
 import org.sonar.db.metric.MetricMapper;
+import org.sonar.db.migrationlog.MigrationLogMapper;
 import org.sonar.db.newcodeperiod.NewCodePeriodMapper;
 import org.sonar.db.notification.NotificationQueueDto;
 import org.sonar.db.notification.NotificationQueueMapper;
@@ -320,6 +321,7 @@ public class MyBatis {
       MeasureMapper.class,
       ProjectMeasureMapper.class,
       MetricMapper.class,
+      MigrationLogMapper.class,
       NewCodePeriodMapper.class,
       NotificationQueueMapper.class,
       PermissionTemplateCharacteristicMapper.class,

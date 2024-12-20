@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.migrationlog.MigrationLogMapper">
+
+  <sql id="migrationLogColumns">
+    ml.uuid,
+    ml.step,
+    ml.duration_in_ms as durationInMs,
+    ml.success,
+    ml.started_at as startedAt,
+    ml.target_version as targetVersion
+  </sql>
+
+  <select id="selectAll" resultType="org.sonar.db.migrationlog.MigrationLogDto">
+    SELECT
+    <include refid="migrationLogColumns"/>
+    FROM migration_logs ml
+    ORDER BY ml.started_at ASC
+  </select>
+
+  <insert id="insert" parameterType="Map" useGeneratedKeys="false">
+    INSERT INTO migration_logs (
+      uuid, step, duration_in_ms, success, started_at, target_version)
+    VALUES (
+      #{dto.uuid, jdbcType=VARCHAR},
+      #{dto.step, jdbcType=VARCHAR},
+      #{dto.durationInMs, jdbcType=BIGINT},
+      #{dto.success, jdbcType=INTEGER},
+      #{dto.startedAt, jdbcType=BIGINT},
+      #{dto.targetVersion, jdbcType=VARCHAR}
+    )
+  </insert>
+
+</mapper>

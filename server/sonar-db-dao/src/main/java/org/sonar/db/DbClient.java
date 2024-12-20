@@ -54,6 +54,7 @@ import org.sonar.db.issue.IssueFixedDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.ProjectMeasureDao;
 import org.sonar.db.metric.MetricDao;
+import org.sonar.db.migrationlog.MigrationLogDao;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.db.notification.NotificationQueueDao;
 import org.sonar.db.permission.AuthorizationDao;
@@ -165,6 +166,7 @@ public class DbClient {
   private final DuplicationDao duplicationDao;
   private final NotificationQueueDao notificationQueueDao;
   private final MetricDao metricDao;
+  private final MigrationLogDao migrationLogDao;
   private final GroupDao groupDao;
   private final ExternalGroupDao externalGroupDao;
   private final RuleDao ruleDao;
@@ -263,6 +265,7 @@ public class DbClient {
     regulatoryReportDao = getDao(map, RegulatoryReportDao.class);
     notificationQueueDao = getDao(map, NotificationQueueDao.class);
     metricDao = getDao(map, MetricDao.class);
+    migrationLogDao = getDao(map, MigrationLogDao.class);
     groupDao = getDao(map, GroupDao.class);
     githubOrganizationGroupDao = getDao(map, GithubOrganizationGroupDao.class);
     devopsPermissionsMappingDao = getDao(map, DevOpsPermissionsMappingDao.class);
@@ -525,6 +528,10 @@ public class DbClient {
 
   public MetricDao metricDao() {
     return metricDao;
+  }
+
+  public MigrationLogDao migrationLogDao() {
+    return migrationLogDao;
   }
 
   public GroupDao groupDao() {
