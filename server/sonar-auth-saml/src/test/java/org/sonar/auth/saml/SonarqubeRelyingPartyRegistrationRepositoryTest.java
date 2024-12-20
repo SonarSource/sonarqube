@@ -76,6 +76,40 @@ class SonarqubeRelyingPartyRegistrationRepositoryTest {
   }
 
   @Test
+  void findByRegistrationId_whenSignRequestIsDisabledAndPrivateKeyEmptyButSPCertificatePresent_doesNotThrow() {
+    when(samlSettings.getApplicationId()).thenReturn(APPLICATION_ID);
+    when(samlSettings.getProviderId()).thenReturn(PROVIDER_ID);
+    when(samlSettings.getLoginUrl()).thenReturn(SSO_URL);
+    when(samlSettings.getCertificate()).thenReturn(CERTIF_STRING);
+    when(samlSettings.getServiceProviderPrivateKey()).thenReturn(Optional.empty());
+
+    X509Certificate mockedCertificate = mockCertificate();
+    RelyingPartyRegistration registration = findRegistration(CALLBACK_URL);
+
+    assertCommonFields(registration, mockedCertificate, CALLBACK_URL);
+    assertThat(registration.getAssertingPartyMetadata().getWantAuthnRequestsSigned()).isFalse();
+    assertThat(registration.getSigningX509Credentials()).isEmpty();
+    assertThat(registration.getDecryptionX509Credentials()).isEmpty();
+  }
+
+  @Test
+  void findByRegistrationId_whenSignRequestIsDisabledAndPrivateKeyPresentButSPCertificateNull_doesNotThrow() {
+    when(samlSettings.getApplicationId()).thenReturn(APPLICATION_ID);
+    when(samlSettings.getProviderId()).thenReturn(PROVIDER_ID);
+    when(samlSettings.getLoginUrl()).thenReturn(SSO_URL);
+    when(samlSettings.getCertificate()).thenReturn(CERTIF_STRING);
+    when(samlSettings.getServiceProviderPrivateKey()).thenReturn(Optional.of(PRIVATE_KEY));
+
+    X509Certificate mockedCertificate = mockCertificate();
+    RelyingPartyRegistration registration = findRegistration(CALLBACK_URL);
+
+    assertCommonFields(registration, mockedCertificate, CALLBACK_URL);
+    assertThat(registration.getAssertingPartyMetadata().getWantAuthnRequestsSigned()).isFalse();
+    assertThat(registration.getSigningX509Credentials()).isEmpty();
+    assertThat(registration.getDecryptionX509Credentials()).isEmpty();
+  }
+
+  @Test
   void findByRegistrationId_whenCallbackUrlIsNull_succeeds() {
     when(samlSettings.getApplicationId()).thenReturn(APPLICATION_ID);
     when(samlSettings.getProviderId()).thenReturn(PROVIDER_ID);
@@ -124,7 +158,7 @@ class SonarqubeRelyingPartyRegistrationRepositoryTest {
 
     assertThatIllegalStateException()
       .isThrownBy(() -> findRegistration(CALLBACK_URL))
-      .withMessage("Sign requests is enabled but private key is missing");
+      .withMessage("Sign requests is enabled but SonarQube private key and/or SonarQube certificate is missing");
   }
 
   @Test

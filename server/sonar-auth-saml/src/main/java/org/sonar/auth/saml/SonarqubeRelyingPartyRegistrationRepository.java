@@ -25,6 +25,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.springframework.security.saml2.core.Saml2X509Credential;
@@ -68,7 +69,7 @@ public class SonarqubeRelyingPartyRegistrationRepository implements RelyingParty
     return builder.build();
   }
 
-  private static String validateLoginUrl(String url){
+  private static String validateLoginUrl(String url) {
     try {
       return new URL(url).toURI().toString();
     } catch (MalformedURLException | URISyntaxException e) {
@@ -77,16 +78,32 @@ public class SonarqubeRelyingPartyRegistrationRepository implements RelyingParty
   }
 
   private void addSignRequestFieldsIfNecessary(RelyingPartyRegistration.Builder builder) {
-    if (!samlSettings.isSignRequestsEnabled()) {
+    //(on SQ) to sign request we need SP private key and certificate
+    //(on IDP) to verify request IDP needs SP public key (certificate)
+
+    //(on IDP) to sign response we need IDP private key (embedded)
+    //(on SQ) to verify response we need IDP public key (certificate) !mandatory!
+
+    //(on IDP) encryption: we need SP public key (certificate)
+    //(on SQ) decryption: we need Service Provide private key and certificate
+    Optional<String> serviceProviderPrivateKey = samlSettings.getServiceProviderPrivateKey();
+
+    if (serviceProviderPrivateKey.isEmpty() || samlSettings.getServiceProviderCertificate() == null) {
+      if (samlSettings.isSignRequestsEnabled()) {
+        throw new IllegalStateException("Sign requests is enabled but SonarQube private key and/or SonarQube certificate is missing");
+      }
       return;
     }
-    String privateKeyString = samlSettings.getServiceProviderPrivateKey().orElseThrow(() -> new IllegalStateException("Sign requests is enabled but private key is missing"));
+
+    String privateKeyString = serviceProviderPrivateKey.get();
     String serviceProviderCertificateString = samlSettings.getServiceProviderCertificate();
     PrivateKey privateKey = samlPrivateKeyConverter.toPrivateKey(privateKeyString);
     X509Certificate spX509Certificate = samlCertificateConverter.toX509Certificate(serviceProviderCertificateString);
-    builder
-      .signingX509Credentials(c -> c.add(Saml2X509Credential.signing(privateKey, spX509Certificate)))
-      .decryptionX509Credentials(c -> c.add(Saml2X509Credential.decryption(privateKey, spX509Certificate)));
+    builder.decryptionX509Credentials(c -> c.add(Saml2X509Credential.decryption(privateKey, spX509Certificate)));
+
+    if (samlSettings.isSignRequestsEnabled()) {
+      builder.signingX509Credentials(c -> c.add(Saml2X509Credential.signing(privateKey, spX509Certificate)));
+    }
   }
 
   @VisibleForTesting
