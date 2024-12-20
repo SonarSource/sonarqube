@@ -34,6 +34,7 @@ public class ProjectDto extends EntityDto {
   private CreationMethod creationMethod;
   private boolean containsAiCode;
   private boolean aiCodeFixEnabled = false;
+  private boolean detectedAiCode;
   private long createdAt;
   private long updatedAt;
 
@@ -132,6 +133,15 @@ public class ProjectDto extends EntityDto {
 
   public ProjectDto setContainsAiCode(boolean containsAiCode) {
     this.containsAiCode = containsAiCode;
+    return this;
+  }
+
+  public boolean getDetectedAiCode() {
+    return detectedAiCode;
+  }
+
+  public ProjectDto setDetectedAiCode(boolean detectedAiCode) {
+    this.detectedAiCode = detectedAiCode;
     return this;
   }
 

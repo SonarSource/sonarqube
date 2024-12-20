@@ -295,6 +295,23 @@ class ProjectDaoIT {
   }
 
   @Test
+  void update_detectAiCode() {
+    ProjectDto dto1 = createProject("o1", "p1");
+
+    projectDao.insert(db.getSession(), dto1);
+
+    List<ProjectDto> projectsByUuids = projectDao.selectByUuids(db.getSession(), new HashSet<>(List.of("uuid_o1_p1")));
+    assertThat(projectsByUuids).hasSize(1);
+    assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1", "uuid_o1_p1", "desc_p1", "tag1,tag2", false, false, false);
+
+    projectDao.updateDetectedAiCode(db.getSession(), dto1.getUuid(), true);
+
+    projectsByUuids = projectDao.selectByUuids(db.getSession(), new HashSet<>(List.of("uuid_o1_p1")));
+    assertThat(projectsByUuids).hasSize(1);
+    assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1", "uuid_o1_p1", "desc_p1", "tag1,tag2", false, false, true);
+  }
+
+  @Test
   void update_aiCodeFixEnabledPerProject() {
     ProjectDto dto1 = createProject("o1", "p1").setAiCodeFixEnabled(true);
     ProjectDto dto2 = createProject("o1", "p2");
@@ -523,6 +540,11 @@ class ProjectDaoIT {
   private void assertProject(ProjectDto dto, String name, String kee, String uuid, String desc, @Nullable String tags, boolean isPrivate, boolean containsAiCode) {
     assertThat(dto).extracting("name", "kee", "key", "uuid", "description", "tagsString", "private", "containsAiCode")
       .containsExactly(name, kee, kee, uuid, desc, tags, isPrivate, containsAiCode);
+  }
+
+  private void assertProject(ProjectDto dto, String name, String kee, String uuid, String desc, @Nullable String tags, boolean isPrivate, boolean containsAiCode, boolean detectedAiCode) {
+    assertThat(dto).extracting("name", "kee", "key", "uuid", "description", "tagsString", "private", "containsAiCode", "detectedAiCode")
+      .containsExactly(name, kee, kee, uuid, desc, tags, isPrivate, containsAiCode, detectedAiCode);
   }
 
   private void assertProjectAiCodeFixEnablement(ProjectDto dto, String uuid, boolean isAiCodeFixEnabled) {

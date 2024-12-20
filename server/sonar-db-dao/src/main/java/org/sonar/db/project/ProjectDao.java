@@ -123,6 +123,10 @@ public class ProjectDao implements Dao {
     mapper(session).updateContainsAiCode(uuid, containsAiCode, system2.now());
   }
 
+  public void updateDetectedAiCode(DbSession session, String uuid, boolean detectedAiCode) {
+    mapper(session).updateDetectedAiCode(uuid, detectedAiCode, system2.now());
+  }
+
   public void updateAiCodeFixEnablementForAllProjects(DbSession dbSession, boolean featureEnablement) {
     mapper(dbSession).updateAiCodeFixEnablementForAllProjects(featureEnablement, system2.now());
   }

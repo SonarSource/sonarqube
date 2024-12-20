@@ -12,6 +12,7 @@
       p.private as isPrivate,
       p.creation_method as creationMethod,
       p.contains_ai_code as containsAiCode,
+      p.detected_ai_code as detectedAiCode,
       p.ai_code_fix_enabled as aiCodeFixEnabled,
       p.created_at as createdAt,
       p.updated_at as updatedAt
@@ -188,6 +189,14 @@
   <update id="updateContainsAiCode">
     update projects set
     contains_ai_code = #{containsAiCode,jdbcType=BOOLEAN},
+    updated_at = #{updatedAt,jdbcType=BIGINT}
+    where
+    uuid = #{uuid,jdbcType=VARCHAR}
+  </update>
+
+  <update id="updateDetectedAiCode">
+    update projects set
+    detected_ai_code = #{detectedAiCode,jdbcType=BOOLEAN},
     updated_at = #{updatedAt,jdbcType=BIGINT}
     where
     uuid = #{uuid,jdbcType=VARCHAR}

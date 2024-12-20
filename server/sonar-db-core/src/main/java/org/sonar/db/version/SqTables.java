@@ -118,6 +118,7 @@ public final class SqTables {
     "snapshots",
     "telemetry_metrics_sent",
     "users",
+    "user_ai_tool_usages",
     "user_dismissed_messages",
     "user_roles",
     "user_tokens",
