@@ -33,10 +33,13 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.predicates.AbstractFilePredicate;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.sarif.pojo.ArtifactLocation;
 import org.sonar.sarif.pojo.Location;
@@ -46,11 +49,14 @@ import static org.sonar.api.utils.Preconditions.checkArgument;
 
 @ScannerSide
 public class LocationMapper {
+  private static final Logger LOG = LoggerFactory.getLogger(LocationMapper.class);
+
   private static final int CACHE_SIZE = 500;
   private static final int CACHE_EXPIRY = 60;
 
   private final SensorContext sensorContext;
   private final RegionMapper regionMapper;
+  private final AnalysisWarnings analysisWarnings;
 
   LoadingCache<String, Optional<InputFile>> inputFileCache = CacheBuilder.newBuilder()
     .maximumSize(CACHE_SIZE)
@@ -58,9 +64,10 @@ public class LocationMapper {
     .concurrencyLevel(Runtime.getRuntime().availableProcessors())
     .build(getCacheLoader());
 
-  LocationMapper(SensorContext sensorContext, RegionMapper regionMapper) {
+  LocationMapper(SensorContext sensorContext, RegionMapper regionMapper, AnalysisWarnings analysisWarnings) {
     this.sensorContext = sensorContext;
     this.regionMapper = regionMapper;
+    this.analysisWarnings = analysisWarnings;
   }
 
   void fillIssueInProjectLocation(NewIssueLocation newIssueLocation) {
@@ -74,6 +81,9 @@ public class LocationMapper {
     String fileUri = getFileUriOrThrow(location);
     Optional<InputFile> file = findFile(fileUri);
     if (file.isEmpty()) {
+      String unresolvedLocationWarning = String.format("Unable to resolve Issue location from SARIF physical location %s. Falling back to the project location.", fileUri);
+      analysisWarnings.addUnique(unresolvedLocationWarning);
+      LOG.warn(unresolvedLocationWarning);
       return false;
     }
     InputFile inputFile = file.get();
