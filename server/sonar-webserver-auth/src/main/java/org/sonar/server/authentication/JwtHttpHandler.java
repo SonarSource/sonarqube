@@ -57,6 +57,8 @@ public class JwtHttpHandler {
 
   private static final String CSRF_JWT_PARAM = "xsrfToken";
 
+  private static final String REFRESH_TOKEN_PARAM = "refreshToken";
+
   // Time after which a user will be disconnected
   private static final int SESSION_DISCONNECT_IN_SECONDS = 3 * 30 * 24 * 60 * 60;
 
@@ -161,7 +163,9 @@ public class JwtHttpHandler {
     }
     jwtCsrfVerifier.verifyState(request, (String) token.get(CSRF_JWT_PARAM), token.getSubject());
 
-    if (now.after(addSeconds(getLastRefreshDate(token), SESSION_REFRESH_IN_SECONDS))) {
+    boolean shouldRefreshToken = Optional.ofNullable(token.get(REFRESH_TOKEN_PARAM)).map(Boolean.class::cast)
+            .orElse(true);
+    if (shouldRefreshToken && now.after(addSeconds(getLastRefreshDate(token), SESSION_REFRESH_IN_SECONDS))) {
       refreshToken(dbSession, sessionToken.get(), token, request, response);
     }
 
