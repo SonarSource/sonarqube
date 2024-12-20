@@ -34,7 +34,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
@@ -76,17 +75,17 @@ public class GitIgnoreCommandTest {
     int folder_depth = 10;
     createFolderStructure(projectDir, child_folders_per_folder, 0, folder_depth);
 
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(Level.DEBUG);
 
     GitIgnoreCommand underTest = new GitIgnoreCommand();
     underTest.init(projectDir);
 
     assertThat(underTest
       .isIgnored(projectDir.resolve("folder_0_0/folder_1_0/folder_2_0/folder_3_0/folder_4_0/folder_5_0/folder_6_0/folder_7_0/folder_8_0/folder_9_0/Foo.java")))
-      .isTrue();
+        .isTrue();
     assertThat(underTest
       .isIgnored(projectDir.resolve("folder_0_0/folder_1_0/folder_2_0/folder_3_0/folder_4_0/folder_5_0/folder_6_0/folder_7_0/folder_8_0/folder_9_0/Foo.php")))
-      .isFalse();
+        .isFalse();
 
     int expectedIncludedFiles = (int) Math.pow(child_folders_per_folder, folder_depth) + 1; // The .gitignore file is indexed
     assertThat(logTester.logs(Level.DEBUG)).contains(expectedIncludedFiles + " non excluded files in this Git repository");
@@ -102,7 +101,7 @@ public class GitIgnoreCommandTest {
     Files.write(projectDir.resolve(".gitignore"), Arrays.asList("**/*.java"), UTF_8, TRUNCATE_EXISTING, CREATE);
     createFolderStructure(projectDir, 1, 0, 1);
 
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(Level.DEBUG);
 
     GitIgnoreCommand underTest = new GitIgnoreCommand();
     underTest.init(projectDir);
@@ -128,10 +127,10 @@ public class GitIgnoreCommandTest {
     Files.write(projectDir.resolve(".gitignore"), Arrays.asList("**/*.java"), UTF_8, TRUNCATE_EXISTING, CREATE);
     createFolderStructure(projectDir, 1, 0, 1);
 
-    //clean submodule
+    // clean submodule
     FileUtils.cleanDirectory(new File(projectDir.toString(), "module1"));
 
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(Level.DEBUG);
 
     GitIgnoreCommand underTest = new GitIgnoreCommand();
     underTest.init(projectDir);
@@ -154,7 +153,7 @@ public class GitIgnoreCommandTest {
     int folder_depth = 10;
     createFolderStructure(repoRoot, child_folders_per_folder, 0, folder_depth);
 
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(Level.DEBUG);
 
     GitIgnoreCommand underTest = new GitIgnoreCommand();
     // Define project baseDir as folder_0_0 so that folder_0_1 is excluded
@@ -163,10 +162,10 @@ public class GitIgnoreCommandTest {
 
     assertThat(underTest
       .isIgnored(projectBasedir.resolve("folder_1_0/folder_2_0/folder_3_0/folder_4_0/folder_5_0/folder_6_0/folder_7_0/folder_8_0/folder_9_0/Foo.php")))
-      .isFalse();
+        .isFalse();
     assertThat(underTest
       .isIgnored(repoRoot.resolve("folder_0_1/folder_1_0/folder_2_0/folder_3_0/folder_4_0/folder_5_0/folder_6_0/folder_7_0/folder_8_0/folder_9_0/Foo.php")))
-      .isTrue();
+        .isTrue();
 
     int expectedIncludedFiles = (int) Math.pow(child_folders_per_folder, folder_depth - 1);
     assertThat(logTester.logs(Level.DEBUG)).contains(expectedIncludedFiles + " non excluded files in this Git repository");

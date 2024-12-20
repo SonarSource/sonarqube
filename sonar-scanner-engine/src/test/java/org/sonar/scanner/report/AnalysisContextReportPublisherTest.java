@@ -32,11 +32,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.scanner.bootstrap.GlobalServerSettings;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
@@ -75,7 +75,7 @@ public class AnalysisContextReportPublisherTest {
 
   @Before
   public void prepare() throws IOException {
-    logTester.setLevel(LoggerLevel.INFO);
+    logTester.setLevel(Level.INFO);
     FileStructure fileStructure = new FileStructure(temp.newFolder());
     writer = new ScannerReportWriter(fileStructure);
     when(system2.properties()).thenReturn(new Properties());
@@ -100,7 +100,7 @@ public class AnalysisContextReportPublisherTest {
 
   @Test
   public void dumpServerSideGlobalProps() throws Exception {
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(Level.DEBUG);
     when(globalServerSettings.properties()).thenReturn(ImmutableMap.of(COM_FOO, "bar", SONAR_SKIP, "true"));
     DefaultInputModule rootModule = new DefaultInputModule(ProjectDefinition.create()
       .setBaseDir(temp.newFolder())
@@ -118,7 +118,7 @@ public class AnalysisContextReportPublisherTest {
 
   @Test
   public void dumpServerSideProjectProps() throws Exception {
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(Level.DEBUG);
 
     DefaultInputModule rootModule = new DefaultInputModule(ProjectDefinition.create()
       .setBaseDir(temp.newFolder())
@@ -208,7 +208,7 @@ public class AnalysisContextReportPublisherTest {
   // SONAR-7371
   @Test
   public void dontDumpParentProps() throws Exception {
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(Level.DEBUG);
 
     DefaultInputModule module = new DefaultInputModule(ProjectDefinition.create()
       .setBaseDir(temp.newFolder())
@@ -238,8 +238,7 @@ public class AnalysisContextReportPublisherTest {
       "  - sonar.projectKey=parent",
       "  - sonar.skip=true",
       "Scanner properties of module: foo",
-      "  - sonar.projectKey=foo"
-    );
+      "  - sonar.projectKey=foo");
   }
 
   @Test

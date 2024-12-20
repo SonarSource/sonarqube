@@ -28,7 +28,6 @@ import org.slf4j.event.Level;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -40,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CheckAnyonePermissionsAtStartupTest {
 
   @ClassRule
-  public static LogTester logTester = new LogTester().setLevel(LoggerLevel.WARN);
+  public static LogTester logTester = new LogTester().setLevel(Level.WARN);
   @Rule
   public final DbTester dbTester = DbTester.create(System2.INSTANCE);
   private final DbClient dbClient = dbTester.getDbClient();

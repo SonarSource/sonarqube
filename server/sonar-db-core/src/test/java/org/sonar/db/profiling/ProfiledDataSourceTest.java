@@ -36,7 +36,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,7 +52,7 @@ public class ProfiledDataSourceTest {
 
   @Test
   public void execute_and_log_statement() throws Exception {
-    logTester.setLevel(LoggerLevel.TRACE);
+    logTester.setLevel(Level.TRACE);
 
     Connection connection = mock(Connection.class);
     when(originDataSource.getConnection()).thenReturn(connection);
@@ -78,7 +77,7 @@ public class ProfiledDataSourceTest {
 
   @Test
   public void execute_and_log_prepared_statement_with_parameters() throws Exception {
-    logTester.setLevel(LoggerLevel.TRACE);
+    logTester.setLevel(Level.TRACE);
 
     Connection connection = mock(Connection.class);
     when(originDataSource.getConnection()).thenReturn(connection);
@@ -115,7 +114,7 @@ public class ProfiledDataSourceTest {
 
   @Test
   public void execute_and_log_prepared_statement_without_parameters() throws Exception {
-    logTester.setLevel(LoggerLevel.TRACE);
+    logTester.setLevel(Level.TRACE);
 
     Connection connection = mock(Connection.class);
     when(originDataSource.getConnection()).thenReturn(connection);

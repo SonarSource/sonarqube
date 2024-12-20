@@ -42,7 +42,6 @@ import org.sonar.alm.client.DevopsPlatformHeaders;
 import org.sonar.alm.client.GenericApplicationHttpClient;
 import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.api.testfixtures.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.auth.github.security.AccessToken;
 import org.sonar.auth.github.security.UserAccessToken;
 
@@ -62,7 +61,7 @@ public class GenericApplicationHttpClientTest {
   public MockWebServer server = new MockWebServer();
 
   @ClassRule
-  public static LogTester logTester = new LogTester().setLevel(LoggerLevel.WARN);
+  public static LogTester logTester = new LogTester().setLevel(Level.WARN);
 
   private GenericApplicationHttpClient underTest;
 
@@ -185,7 +184,7 @@ public class GenericApplicationHttpClientTest {
   public void get_returns_empty_endPoint_when_link_header_does_not_have_next_rel() throws IOException {
     server.enqueue(new MockResponse().setBody(randomBody)
       .setHeader("link", "<https://api.github.com/installation/repositories?per_page=5&page=4>; rel=\"prev\", " +
-                         "<https://api.github.com/installation/repositories?per_page=5&page=1>; rel=\"first\""));
+        "<https://api.github.com/installation/repositories?per_page=5&page=1>; rel=\"first\""));
 
     GetResponse response = underTest.get(appUrl, accessToken, randomEndPoint);
 
@@ -223,7 +222,7 @@ public class GenericApplicationHttpClientTest {
     GetResponse response = underTest.get(appUrl, accessToken, randomEndPoint);
 
     assertThat(response.getNextEndPoint()).contains("https://gitlab.com/api/v4/groups?all_available=false"
-                                                    + "&order_by=name&owned=false&page=2&per_page=2&sort=asc&statistics=false&with_custom_attributes=false");
+      + "&order_by=name&owned=false&page=2&per_page=2&sort=asc&statistics=false&with_custom_attributes=false");
   }
 
   @DataProvider
@@ -232,12 +231,12 @@ public class GenericApplicationHttpClientTest {
     return new Object[][] {
       {"<" + expected + ">; rel=\"next\""},
       {"<" + expected + ">; rel=\"next\", " +
-       "<https://api.github.com/installation/repositories?per_page=5&page=1>; rel=\"first\""},
+        "<https://api.github.com/installation/repositories?per_page=5&page=1>; rel=\"first\""},
       {"<https://api.github.com/installation/repositories?per_page=5&page=1>; rel=\"first\", " +
-       "<" + expected + ">; rel=\"next\""},
+        "<" + expected + ">; rel=\"next\""},
       {"<https://api.github.com/installation/repositories?per_page=5&page=1>; rel=\"first\", " +
-       "<" + expected + ">; rel=\"next\", " +
-       "<https://api.github.com/installation/repositories?per_page=5&page=5>; rel=\"last\""},
+        "<" + expected + ">; rel=\"next\", " +
+        "<https://api.github.com/installation/repositories?per_page=5&page=5>; rel=\"last\""},
     };
   }
 

@@ -32,7 +32,6 @@ import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ZipUtils;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.ce.task.projectanalysis.batch.MutableBatchReportDirectoryHolder;
@@ -52,7 +51,6 @@ public class ExtractReportStepIT {
 
   @Rule
   public LogTester logTester = new LogTester();
-
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -74,7 +72,7 @@ public class ExtractReportStepIT {
 
   @Test
   public void unzip_report() throws Exception {
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(Level.DEBUG);
     File reportFile = generateReport();
     try (InputStream input = FileUtils.openInputStream(reportFile)) {
       dbTester.getDbClient().ceTaskInputDao().insert(dbTester.getSession(), TASK_UUID, input);
@@ -95,7 +93,7 @@ public class ExtractReportStepIT {
 
   @Test
   public void unzip_report_should_fail_if_unzip_size_exceed_threshold() throws Exception {
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(Level.DEBUG);
     URL zipBombFile = getClass().getResource("/org/sonar/ce/task/projectanalysis/step/ExtractReportStepIT/zip-bomb.zip");
     try (InputStream input = zipBombFile.openStream()) {
       dbTester.getDbClient().ceTaskInputDao().insert(dbTester.getSession(), TASK_UUID, input);

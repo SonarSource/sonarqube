@@ -45,7 +45,6 @@ import org.slf4j.event.Level;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.platform.Server;
 import org.sonar.api.testfixtures.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.email.EmailSmtpConfiguration;
 import org.sonar.server.issue.notification.EmailMessage;
 import org.sonar.server.issue.notification.EmailTemplate;
@@ -72,7 +71,7 @@ public class EmailNotificationChannelTest {
   public LogTester logTester = new LogTester();
 
   @Rule
-  public final GreenMailRule smtpServer = new GreenMailRule(new ServerSetup[]{ServerSetupTest.SMTP, ServerSetupTest.SMTPS});
+  public final GreenMailRule smtpServer = new GreenMailRule(new ServerSetup[] {ServerSetupTest.SMTP, ServerSetupTest.SMTPS});
 
   private EmailSmtpConfiguration configuration;
   private Server server;
@@ -80,7 +79,7 @@ public class EmailNotificationChannelTest {
 
   @Before
   public void setUp() {
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(Level.DEBUG);
 
     configuration = mock(EmailSmtpConfiguration.class);
     server = mock(Server.class);
@@ -132,7 +131,7 @@ public class EmailNotificationChannelTest {
 
   @Test
   public void sendTestEmailShouldSanitizeLog() throws Exception {
-    logTester.setLevel(LoggerLevel.TRACE);
+    logTester.setLevel(Level.TRACE);
     configure();
     underTest.sendTestEmail("user@nowhere", "Test Message from SonarQube", "This is a message \n containing line breaks \r that should be sanitized when logged.");
 
@@ -315,7 +314,7 @@ public class EmailNotificationChannelTest {
     Set<EmailDeliveryRequest> requests = Stream.of(notification1, notification2, notification3)
       .map(t -> new EmailDeliveryRequest(recipientEmail, t))
       .collect(toSet());
-    EmailNotificationChannel emailNotificationChannel = new EmailNotificationChannel(configuration, server, new EmailTemplate[]{template1, template3}, null,
+    EmailNotificationChannel emailNotificationChannel = new EmailNotificationChannel(configuration, server, new EmailTemplate[] {template1, template3}, null,
       mock(OAuthMicrosoftRestClient.class));
 
     int count = emailNotificationChannel.deliverAll(requests);
@@ -349,7 +348,7 @@ public class EmailNotificationChannelTest {
     when(template11.format(notification1)).thenReturn(emailMessage11);
     when(template12.format(notification1)).thenReturn(emailMessage12);
     EmailDeliveryRequest request = new EmailDeliveryRequest(recipientEmail, notification1);
-    EmailNotificationChannel emailNotificationChannel = new EmailNotificationChannel(configuration, server, new EmailTemplate[]{template11, template12}, null,
+    EmailNotificationChannel emailNotificationChannel = new EmailNotificationChannel(configuration, server, new EmailTemplate[] {template11, template12}, null,
       mock(OAuthMicrosoftRestClient.class));
 
     int count = emailNotificationChannel.deliverAll(Collections.singleton(request));
@@ -362,7 +361,7 @@ public class EmailNotificationChannelTest {
 
   @DataProvider
   public static Object[][] emptyStrings() {
-    return new Object[][]{
+    return new Object[][] {
       {""},
       {"  "},
       {" \n "}

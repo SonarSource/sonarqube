@@ -44,7 +44,6 @@ import org.sonar.alm.client.github.security.AppToken;
 import org.sonar.alm.client.github.security.GithubAppSecurity;
 import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.auth.github.AppInstallationToken;
 import org.sonar.auth.github.ExpiringAppInstallationToken;
 import org.sonar.auth.github.GitHubSettings;
@@ -120,7 +119,7 @@ public class GithubApplicationClientImplTest {
   private static final RateLimit RATE_LIMIT = new RateLimit(Integer.MAX_VALUE, Integer.MAX_VALUE, 0L);
 
   @ClassRule
-  public static LogTester logTester = new LogTester().setLevel(LoggerLevel.WARN);
+  public static LogTester logTester = new LogTester().setLevel(Level.WARN);
 
   private GithubApplicationHttpClient githubApplicationHttpClient = mock();
   private GithubAppSecurity appSecurity = mock();

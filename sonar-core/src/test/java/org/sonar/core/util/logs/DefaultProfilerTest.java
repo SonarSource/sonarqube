@@ -26,10 +26,9 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
-import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -56,11 +55,11 @@ public class DefaultProfilerTest {
     assertThat(underTest.isDebugEnabled()).isFalse();
     assertThat(underTest.isTraceEnabled()).isFalse();
 
-    tester.setLevel(LoggerLevel.DEBUG);
+    tester.setLevel(Level.DEBUG);
     assertThat(underTest.isDebugEnabled()).isTrue();
     assertThat(underTest.isTraceEnabled()).isFalse();
 
-    tester.setLevel(LoggerLevel.TRACE);
+    tester.setLevel(Level.TRACE);
     assertThat(underTest.isDebugEnabled()).isTrue();
     assertThat(underTest.isTraceEnabled()).isTrue();
   }
@@ -69,7 +68,7 @@ public class DefaultProfilerTest {
   @UseDataProvider("logTimeLastValues")
   public void stop_reuses_start_message(boolean logTimeLast) throws InterruptedException {
     underTest.logTimeLast(logTimeLast);
-    tester.setLevel(LoggerLevel.TRACE);
+    tester.setLevel(Level.TRACE);
 
     // trace
     underTest.startTrace("Register rules {}", 1);
@@ -105,7 +104,7 @@ public class DefaultProfilerTest {
   @UseDataProvider("logTimeLastValues")
   public void different_start_and_stop_messages(boolean logTimeLast) {
     underTest.logTimeLast(logTimeLast);
-    tester.setLevel(LoggerLevel.TRACE);
+    tester.setLevel(Level.TRACE);
 
     // start TRACE and stop DEBUG
     underTest.startTrace("Register rules");
@@ -135,7 +134,7 @@ public class DefaultProfilerTest {
   @UseDataProvider("logTimeLastValues")
   public void log_on_at_stop(boolean logTimeLast) {
     underTest.logTimeLast(logTimeLast);
-    tester.setLevel(LoggerLevel.TRACE);
+    tester.setLevel(Level.TRACE);
 
     // trace
     underTest.start();
@@ -179,7 +178,7 @@ public class DefaultProfilerTest {
 
   @Test
   public void startDebug_writes_log_with_context_appended_when_there_is_a_message() {
-    tester.setLevel(LoggerLevel.DEBUG);
+    tester.setLevel(Level.DEBUG);
     addSomeContext(underTest);
     underTest.startDebug("Foo");
 
@@ -188,7 +187,7 @@ public class DefaultProfilerTest {
 
   @Test
   public void startTrace_writes_log_with_context_appended_when_there_is_a_message() {
-    tester.setLevel(LoggerLevel.TRACE);
+    tester.setLevel(Level.TRACE);
     addSomeContext(underTest);
     underTest.startTrace("Foo");
 
@@ -219,7 +218,7 @@ public class DefaultProfilerTest {
 
   @Test
   public void stopTrace_adds_context_after_time_by_default() {
-    tester.setLevel(LoggerLevel.TRACE);
+    tester.setLevel(Level.TRACE);
     addSomeContext(underTest);
     underTest.start().stopTrace("Rules registered");
 
@@ -255,7 +254,7 @@ public class DefaultProfilerTest {
 
   @Test
   public void stopTrace_adds_context_before_time_if_logTimeLast_is_true() {
-    tester.setLevel(LoggerLevel.TRACE);
+    tester.setLevel(Level.TRACE);
     addSomeContext(underTest);
     underTest.logTimeLast(true);
     underTest.start().stopTrace("Rules registered");
@@ -276,16 +275,16 @@ public class DefaultProfilerTest {
     assertThat(tester.logs()).hasSize(2);
     List<String> logs = tester.logs(Level.INFO);
     assertThat(logs.get(0))
-        .startsWith("Foo | a_string=bar | an_int=42 | after_start=true | time=")
-        .endsWith("ms");
+      .startsWith("Foo | a_string=bar | an_int=42 | after_start=true | time=")
+      .endsWith("ms");
     assertThat(logs.get(1))
-        .startsWith("Bar | time=")
-        .endsWith("ms");
+      .startsWith("Bar | time=")
+      .endsWith("ms");
   }
 
   @Test
   public void stopDebug_clears_context() {
-    tester.setLevel(LoggerLevel.DEBUG);
+    tester.setLevel(Level.DEBUG);
     addSomeContext(underTest);
     underTest.logTimeLast(true);
     underTest.start().stopDebug("Foo");
@@ -294,16 +293,16 @@ public class DefaultProfilerTest {
     assertThat(tester.logs()).hasSize(2);
     List<String> logs = tester.logs(Level.DEBUG);
     assertThat(logs.get(0))
-        .startsWith("Foo | a_string=bar | an_int=42 | after_start=true | time=")
-        .endsWith("ms");
+      .startsWith("Foo | a_string=bar | an_int=42 | after_start=true | time=")
+      .endsWith("ms");
     assertThat(logs.get(1))
-        .startsWith("Bar | time=")
-        .endsWith("ms");
+      .startsWith("Bar | time=")
+      .endsWith("ms");
   }
 
   @Test
   public void stopTrace_clears_context() {
-    tester.setLevel(LoggerLevel.TRACE);
+    tester.setLevel(Level.TRACE);
     addSomeContext(underTest);
     underTest.logTimeLast(true);
     underTest.start().stopTrace("Foo");
@@ -312,11 +311,11 @@ public class DefaultProfilerTest {
     assertThat(tester.logs()).hasSize(2);
     List<String> logs = tester.logs(Level.TRACE);
     assertThat(logs.get(0))
-        .startsWith("Foo | a_string=bar | an_int=42 | after_start=true | time=")
-        .endsWith("ms");
+      .startsWith("Foo | a_string=bar | an_int=42 | after_start=true | time=")
+      .endsWith("ms");
     assertThat(logs.get(1))
-        .startsWith("Bar | time=")
-        .endsWith("ms");
+      .startsWith("Bar | time=")
+      .endsWith("ms");
   }
 
   private static void addSomeContext(Profiler profiler) {
