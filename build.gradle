@@ -339,7 +339,7 @@ subprojects {
 
       // https://mvnrepository.com/artifact/ch.qos.logback.access/common
       dependency('ch.qos.logback.access:common:2.0.3')
-      dependency('ch.qos.logback.access:logback-access-tomcat:2.0.4')
+      dependency('ch.qos.logback.access:logback-access-tomcat:2.0.5')
       dependency('commons-beanutils:commons-beanutils:1.9.4') {
         exclude 'commons-logging:commons-logging'
       }
