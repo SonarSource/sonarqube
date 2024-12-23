@@ -332,7 +332,7 @@ subprojects {
       dependency "org.sonarsource.sonarqube:webapp-assets:$webappVersion"
 
       // please keep this list alphabetically ordered
-      dependencySet(group: 'ch.qos.logback', version: '1.5.6') {
+      dependencySet(group: 'ch.qos.logback', version: '1.5.13') {
         entry 'logback-classic'
         entry 'logback-core'
       }
