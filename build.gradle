@@ -257,7 +257,7 @@ subprojects {
       }
     }
   }
-    
+
   configurations {
     bbtCompile.extendsFrom testCompile
     bbtRuntime.extendsFrom testRuntime
@@ -290,7 +290,7 @@ subprojects {
       dependency 'com.sonarsource.dotnet:sonar-vbnet-enterprise-plugin:10.3.0.106239'
       dependency 'com.sonarsource.pli:sonar-pli-plugin:1.16.0.5325'
       dependency 'com.sonarsource.plsql:sonar-plsql-plugin:3.15.0.7123'
-      dependency 'com.sonarsource.plugins.vb:sonar-vb-plugin:2.13.0.5130'
+      dependency 'com.sonarsource.plugins.vb:sonar-vb-plugin:2.14.0.5475'
       dependency 'com.sonarsource.rpg:sonar-rpg-plugin:3.10.0.5337'
       dependency 'com.sonarsource.security:sonar-security-csharp-frontend-plugin:10.10.0.34657'
       dependency 'com.sonarsource.security:sonar-security-java-frontend-plugin:10.10.0.34657'
