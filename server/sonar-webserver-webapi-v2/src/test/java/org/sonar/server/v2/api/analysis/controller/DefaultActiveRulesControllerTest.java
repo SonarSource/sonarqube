@@ -26,6 +26,7 @@ import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.server.rule.ActiveRuleRestReponse;
 import org.sonar.server.v2.api.analysis.service.ActiveRulesHandler;
+import org.springframework.test.json.JsonCompareMode;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.Mockito.mock;
@@ -101,7 +102,7 @@ class DefaultActiveRulesControllerTest {
     mockMvc.perform(get(ACTIVE_RULES_ENDPOINT + "?projectKey=someKey"))
       .andExpectAll(
         status().isOk(),
-        content().json(expectedJson, true));
+        content().json(expectedJson, JsonCompareMode.STRICT));
   }
 
 }

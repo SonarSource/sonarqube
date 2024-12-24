@@ -34,7 +34,7 @@ class NullJarScanner implements JarScanner {
 
   @Override
   public void scan(JarScanType jarScanType, ServletContext servletContext, JarScannerCallback jarScannerCallback) {
-
+    // doing nothing is fast!
   }
 
   @Override

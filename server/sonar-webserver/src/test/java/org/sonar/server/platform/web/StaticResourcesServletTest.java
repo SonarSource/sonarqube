@@ -51,7 +51,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class StaticResourcesServletTest {
+class StaticResourcesServletTest {
 
   @RegisterExtension
   LogTesterJUnit5 logTester = new LogTesterJUnit5();
@@ -94,7 +94,7 @@ public class StaticResourcesServletTest {
   }
 
   @Test
-  public void return_content_if_exists_in_installed_plugin() throws Exception {
+  void return_content_if_exists_in_installed_plugin() throws Exception {
     system.pluginStream = IOUtils.toInputStream("bar", Charset.defaultCharset());
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
@@ -106,7 +106,7 @@ public class StaticResourcesServletTest {
   }
 
   @Test
-  public void return_content_of_folder_of_installed_plugin() throws Exception {
+  void return_content_of_folder_of_installed_plugin() throws Exception {
     system.pluginStream = IOUtils.toInputStream("bar", Charset.defaultCharset());
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
@@ -118,7 +118,7 @@ public class StaticResourcesServletTest {
   }
 
   @Test
-  public void return_content_of_folder_of_installed_core_extension() throws Exception {
+  void return_content_of_folder_of_installed_core_extension() throws Exception {
     system.coreExtensionStream = IOUtils.toInputStream("bar", Charset.defaultCharset());
     when(coreExtensionRepository.isInstalled("coreext")).thenReturn(true);
 
@@ -130,7 +130,7 @@ public class StaticResourcesServletTest {
   }
 
   @Test
-  public void return_content_of_folder_of_installed_core_extension_over_installed_plugin_in_case_of_key_conflict() throws Exception {
+  void return_content_of_folder_of_installed_core_extension_over_installed_plugin_in_case_of_key_conflict() throws Exception {
     system.coreExtensionStream = IOUtils.toInputStream("bar of plugin", Charset.defaultCharset());
     when(coreExtensionRepository.isInstalled("samekey")).thenReturn(true);
     system.coreExtensionStream = IOUtils.toInputStream("bar of core extension", Charset.defaultCharset());
@@ -145,7 +145,7 @@ public class StaticResourcesServletTest {
   }
 
   @Test
-  public void mime_type_is_set_on_response() throws Exception {
+  void mime_type_is_set_on_response() throws Exception {
     system.pluginStream = IOUtils.toInputStream("bar", Charset.defaultCharset());
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
@@ -157,7 +157,7 @@ public class StaticResourcesServletTest {
   }
 
   @Test
-  public void return_404_if_resource_not_found_in_installed_plugin() throws Exception {
+  void return_404_if_resource_not_found_in_installed_plugin() throws Exception {
     system.pluginStream = null;
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
@@ -168,7 +168,7 @@ public class StaticResourcesServletTest {
   }
 
   @Test
-  public void return_404_if_plugin_does_not_exist() throws Exception {
+  void return_404_if_plugin_does_not_exist() throws Exception {
     system.pluginStream = null;
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(false);
 
@@ -179,7 +179,7 @@ public class StaticResourcesServletTest {
   }
 
   @Test
-  public void return_resource_if_exists_in_requested_plugin() throws Exception {
+  void return_resource_if_exists_in_requested_plugin() throws Exception {
     system.pluginStream = IOUtils.toInputStream("bar", Charset.defaultCharset());
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
     when(pluginRepository.getPluginInfo("myplugin")).thenReturn(new PluginInfo("myplugin"));
@@ -192,7 +192,7 @@ public class StaticResourcesServletTest {
   }
 
   @Test
-  public void do_not_fail_nor_log_ERROR_when_response_is_already_committed_and_plugin_does_not_exist() throws Exception {
+  void do_not_fail_nor_log_ERROR_when_response_is_already_committed_and_plugin_does_not_exist() throws Exception {
     system.pluginStream = null;
     system.isCommitted = true;
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(false);
@@ -205,7 +205,7 @@ public class StaticResourcesServletTest {
   }
 
   @Test
-  public void do_not_fail_nor_log_ERROR_when_sendError_throws_IOException_and_plugin_does_not_exist() throws Exception {
+  void do_not_fail_nor_log_ERROR_when_sendError_throws_IOException_and_plugin_does_not_exist() throws Exception {
     system.sendErrorException = new IOException("Simulating sendError throwing IOException");
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(false);
 
@@ -217,7 +217,7 @@ public class StaticResourcesServletTest {
   }
 
   @Test
-  public void do_not_fail_nor_log_ERROR_when_response_is_already_committed_and_resource_does_not_exist_in_installed_plugin() throws Exception {
+  void do_not_fail_nor_log_ERROR_when_response_is_already_committed_and_resource_does_not_exist_in_installed_plugin() throws Exception {
     system.isCommitted = true;
     system.pluginStream = null;
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
@@ -230,7 +230,7 @@ public class StaticResourcesServletTest {
   }
 
   @Test
-  public void do_not_fail_nor_log_not_attempt_to_send_error_if_ClientAbortException_is_raised() throws Exception {
+  void do_not_fail_nor_log_not_attempt_to_send_error_if_ClientAbortException_is_raised() throws Exception {
     system.pluginStreamException = new ClientAbortException("Simulating ClientAbortException");
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
@@ -243,7 +243,7 @@ public class StaticResourcesServletTest {
   }
 
   @Test
-  public void do_not_fail_when_response_is_committed_after_other_error() throws Exception {
+  void do_not_fail_when_response_is_committed_after_other_error() throws Exception {
     system.isCommitted = true;
     system.pluginStreamException = new RuntimeException("Simulating a error");
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);

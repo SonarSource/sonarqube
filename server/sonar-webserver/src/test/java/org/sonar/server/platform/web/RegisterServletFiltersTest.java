@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class RegisterServletFiltersTest {
+class RegisterServletFiltersTest {
   @Test
   void should_not_fail_if_master_filter_is_not_up() {
     MasterServletFilter.setInstance(null);

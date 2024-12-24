@@ -223,7 +223,6 @@ class DefaultWsClient implements WsClient {
   }
 
   @Override
-  @Deprecated
   public WsConnector wsConnector() {
     return wsConnector;
   }

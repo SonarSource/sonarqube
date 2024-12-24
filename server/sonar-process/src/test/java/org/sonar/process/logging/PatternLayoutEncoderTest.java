@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
 
 public class PatternLayoutEncoderTest {
 
@@ -39,11 +38,11 @@ public class PatternLayoutEncoderTest {
     assertThat(underTest.getLayout())
       .isInstanceOf(ch.qos.logback.classic.PatternLayout.class);
 
-    assertThat(((ch.qos.logback.classic.PatternLayout) underTest.getLayout()).getDefaultConverterMap())
-      .contains(
-        entry("m", EscapedMessageConverter.class.getName()),
-        entry("msg", EscapedMessageConverter.class.getName()),
-        entry("message", EscapedMessageConverter.class.getName()));
+    assertThat(((ch.qos.logback.classic.PatternLayout) underTest.getLayout()).getDefaultConverterSupplierMap())
+      .containsKeys("m", "msg", "message")
+      .satisfies(m -> assertThat(m.get("m").get()).isInstanceOf(EscapedMessageConverter.class))
+      .satisfies(m -> assertThat(m.get("msg").get()).isInstanceOf(EscapedMessageConverter.class))
+      .satisfies(m -> assertThat(m.get("message").get()).isInstanceOf(EscapedMessageConverter.class));
   }
 
 }

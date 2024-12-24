@@ -21,15 +21,17 @@ package org.sonar.process.logging;
 
 import ch.qos.logback.classic.PatternLayout;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.pattern.DynamicConverter;
 import ch.qos.logback.core.pattern.PatternLayoutEncoderBase;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class PatternLayoutEncoder extends PatternLayoutEncoderBase<ILoggingEvent> {
 
   @Override
   public void start() {
     PatternLayout patternLayout = new PatternLayout();
-    patternLayout.getDefaultConverterMap().putAll(getEscapedMessageConverterConfig());
+    patternLayout.getDefaultConverterSupplierMap().putAll(getEscapedMessageConverterConfig());
     patternLayout.setContext(context);
     patternLayout.setPattern(getPattern());
     patternLayout.setOutputPatternAsHeader(outputPatternAsHeader);
@@ -38,11 +40,11 @@ public class PatternLayoutEncoder extends PatternLayoutEncoderBase<ILoggingEvent
     super.start();
   }
 
-  private static Map<String, String> getEscapedMessageConverterConfig() {
+  private static Map<String, Supplier<DynamicConverter>> getEscapedMessageConverterConfig() {
     return Map.of(
-      "m", EscapedMessageConverter.class.getName(),
-      "msg", EscapedMessageConverter.class.getName(),
-      "message", EscapedMessageConverter.class.getName());
+      "m", EscapedMessageConverter::new,
+      "msg", EscapedMessageConverter::new,
+      "message", EscapedMessageConverter::new);
   }
 
 }

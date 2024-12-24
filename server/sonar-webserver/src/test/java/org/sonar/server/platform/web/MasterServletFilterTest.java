@@ -19,15 +19,14 @@
  */
 package org.sonar.server.platform.web;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -52,7 +51,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class MasterServletFilterTest {
+class MasterServletFilterTest {
 
   @RegisterExtension
   private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
@@ -153,7 +152,6 @@ public class MasterServletFilterTest {
   @Test
   void display_servlet_filter_patterns_in_INFO_log() {
     HttpFilter filter = new PatternFilter(org.sonar.api.web.UrlPattern.builder().includes("/api/issues").excludes("/batch/projects").build());
-    FilterConfig config = mock(FilterConfig.class);
     MasterServletFilter master = new MasterServletFilter();
 
     master.init(singletonList(filter));

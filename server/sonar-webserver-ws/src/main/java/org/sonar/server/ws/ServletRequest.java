@@ -22,6 +22,8 @@ package org.sonar.server.ws;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HttpHeaders;
+import jakarta.servlet.AsyncContext;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,12 +32,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
-import jakarta.servlet.AsyncContext;
-import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.impl.ws.PartImpl;
 import org.sonar.api.impl.ws.ValidatingRequest;
 import org.sonar.api.server.http.HttpRequest;
-import org.slf4j.LoggerFactory;
 import org.sonar.server.http.JakartaHttpRequest;
 import org.sonarqube.ws.MediaTypes;
 
@@ -136,7 +136,7 @@ public class ServletRequest extends ValidatingRequest {
 
   @Override
   public String toString() {
-    StringBuffer url = source.getRequestURL();
+    StringBuilder url = new StringBuilder(source.getRequestURL());
     String query = source.getQueryString();
     if (query != null) {
       url.append("?").append(query);

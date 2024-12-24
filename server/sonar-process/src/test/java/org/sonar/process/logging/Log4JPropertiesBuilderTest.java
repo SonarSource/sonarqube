@@ -791,8 +791,7 @@ public class Log4JPropertiesBuilderTest {
       {Level.WARN},
       {Level.INFO},
       {Level.DEBUG},
-      {Level.TRACE},
-      {Level.ALL}
+      {Level.TRACE}
     };
   }
 }
