@@ -20,33 +20,33 @@
 package org.sonar.server.platform.web;
 
 import com.google.common.annotations.VisibleForTesting;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import javax.annotation.CheckForNull;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.extension.CoreExtensionRepository;
+import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.platform.PlatformImpl;
 import org.sonarqube.ws.MediaTypes;
 
-import static java.lang.String.format;
 import static jakarta.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static java.lang.String.format;
 
 public class StaticResourcesServlet extends HttpServlet {
 
   private static final Logger LOG = LoggerFactory.getLogger(StaticResourcesServlet.class);
   private static final long serialVersionUID = -2577454614650178426L;
 
-  private final System system;
+  private final transient System system;
 
   @VisibleForTesting
   StaticResourcesServlet(System system) {

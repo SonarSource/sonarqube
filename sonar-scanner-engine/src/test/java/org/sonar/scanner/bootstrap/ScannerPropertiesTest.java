@@ -34,7 +34,7 @@ class ScannerPropertiesTest {
   LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @Test
-  public void initialization() {
+  void initialization() {
     ImmutableMap<String, String> map = ImmutableMap.<String, String>builder()
       .put("prop-1", "{b64}Zm9v")
       .put("sonar.projectKey", "my-project")
@@ -49,7 +49,7 @@ class ScannerPropertiesTest {
   }
 
   @Test
-  public void encryption_fail() {
+  void encryption_fail() {
     ImmutableMap<String, String> map = ImmutableMap.<String, String>builder()
       .put("prop-1", "{aes}Zm9vzxc")
       .build();
@@ -59,7 +59,7 @@ class ScannerPropertiesTest {
   }
 
   @Test
-  public void encryption_ok() {
+  void encryption_ok() {
     ImmutableMap<String, String> map = ImmutableMap.<String, String>builder()
       .put("prop-1", "{b64}Zm9v")
       .build();
