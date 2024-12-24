@@ -114,6 +114,9 @@ allprojects {
       maven {
         url 'https://maven.codelibs.org/'
       }
+      maven {
+        url 'https://build.shibboleth.net/nexus/content/repositories/releases/'
+      }
     }
     ivy {
       if (artifactoryUsername && artifactoryPassword) {
