@@ -20,6 +20,8 @@
 package org.sonar.auth.ldap;
 
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.naming.NamingException;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchResult;
@@ -36,6 +38,8 @@ import org.sonar.api.server.ServerSide;
  */
 @ServerSide
 public class DefaultLdapAuthenticator implements LdapAuthenticator {
+
+  private static final Pattern SANITIZE_PATTERN = Pattern.compile("[\n\r]");
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultLdapAuthenticator.class);
   private final Map<String, LdapContextFactory> contextFactories;
@@ -78,7 +82,7 @@ public class DefaultLdapAuthenticator implements LdapAuthenticator {
         return LdapAuthenticationResult.success(ldapKey);
       }
     }
-    LOG.debug("User {} not found", login);
+    LOG.atDebug().log("User {} not found", getSanitizedLogin(login));
     return LdapAuthenticationResult.failed();
   }
 
@@ -87,14 +91,19 @@ public class DefaultLdapAuthenticator implements LdapAuthenticator {
     try {
       result = ldapUserMapping.createSearch(ldapContextFactory, login).findUnique();
     } catch (NamingException e) {
-      LOG.debug("User {} not found in server <{}>: {}", login, ldapKey, e.toString());
+      LOG.atDebug().log("User {} not found in server <{}>: {}", getSanitizedLogin(login), ldapKey, e.toString());
       return null;
     }
     if (result == null) {
-      LOG.debug("User {} not found in <{}>", login, ldapKey);
+      LOG.atDebug().log("User {} not found in <{}>", getSanitizedLogin(login), ldapKey);
       return null;
     }
     return result;
+  }
+
+  private static String getSanitizedLogin(String login) {
+    Matcher matcher = SANITIZE_PATTERN.matcher(login);
+    return matcher.replaceAll("_");
   }
 
   private boolean isPasswordValid(String password, String ldapKey, LdapContextFactory ldapContextFactory, String principal) {
