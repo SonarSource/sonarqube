@@ -19,10 +19,15 @@
  */
 package org.sonar.server.qualitygate;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.builtin.SonarWayQualityGate;
 
@@ -48,6 +53,25 @@ public class QualityGateFinder {
     return new QualityGateData(defaultQualityGate, true);
   }
 
+  public Map<String, QualityGateData> getEffectiveQualityGateForAllProjects(DbSession dbSession) {
+    List<ProjectDto> allProjects = dbClient.projectDao().selectAll(dbSession);
+    Map<String, String> qgUuidPerProjectUuid =
+      dbClient.projectQgateAssociationDao().selectAll(dbSession).stream()
+        .filter(qga -> qga.getGateUuid() != null)
+        .collect(Collectors.toMap(ProjectQgateAssociationDto::getUuid, ProjectQgateAssociationDto::getGateUuid));
+    Map<String, QualityGateDto> qualityGates =
+      dbClient.qualityGateDao().selectAll(dbSession).stream().collect(Collectors.toMap(QualityGateDto::getUuid, qg -> qg));
+
+    Map<String, QualityGateData> qualityGatesPerProjectUuid =
+      qgUuidPerProjectUuid.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
+        e -> new QualityGateData(qualityGates.get(e.getValue()), false)));
+
+    QualityGateData defaultQualityGateData = new QualityGateData(getDefault(dbSession), true);
+
+    return allProjects.stream().collect(Collectors.toMap(EntityDto::getUuid,
+      p -> Optional.ofNullable(qualityGatesPerProjectUuid.get(p.getUuid())).orElse(defaultQualityGateData)));
+  }
+
   private Optional<QualityGateData> getQualityGateForProject(DbSession dbSession, String projectUuid) {
     return dbClient.projectQgateAssociationDao().selectQGateUuidByProjectUuid(dbSession, projectUuid)
       .map(qualityGateUuid -> dbClient.qualityGateDao().selectByUuid(dbSession, qualityGateUuid))
@@ -68,12 +92,14 @@ public class QualityGateFinder {
     private final String name;
     private final boolean isDefault;
     private final boolean builtIn;
+    private final boolean aiCodeSupported;
 
-    private QualityGateData(QualityGateDto qualityGate, boolean isDefault) {
+    QualityGateData(QualityGateDto qualityGate, boolean isDefault) {
       this.uuid = qualityGate.getUuid();
       this.name = qualityGate.getName();
       this.isDefault = isDefault;
       this.builtIn = qualityGate.isBuiltIn();
+      this.aiCodeSupported = qualityGate.isAiCodeSupported();
     }
 
     public boolean isBuiltIn() {
@@ -90,6 +116,10 @@ public class QualityGateFinder {
 
     public boolean isDefault() {
       return isDefault;
+    }
+
+    public boolean isAiCodeSupported() {
+      return aiCodeSupported;
     }
   }
 

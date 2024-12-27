@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualitygate;
 
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -26,9 +27,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.qualitygate.QualityGateFinder.QualityGateData;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class QualityGateFinderIT {
 
@@ -44,7 +47,7 @@ public class QualityGateFinderIT {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QualityGateDto dbQualityGate = db.qualityGates().createDefaultQualityGate(qg -> qg.setName("Sonar way"));
 
-    QualityGateFinder.QualityGateData result = underTest.getEffectiveQualityGate(dbSession, project);
+    QualityGateData result = underTest.getEffectiveQualityGate(dbSession, project);
 
     assertThat(result.getUuid()).isEqualTo(dbQualityGate.getUuid());
     assertThat(result.isDefault()).isTrue();
@@ -57,10 +60,36 @@ public class QualityGateFinderIT {
     QualityGateDto dbQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("My team QG"));
     db.qualityGates().associateProjectToQualityGate(project, dbQualityGate);
 
-    QualityGateFinder.QualityGateData result = underTest.getEffectiveQualityGate(dbSession, project);
+    QualityGateData result = underTest.getEffectiveQualityGate(dbSession, project);
 
     assertThat(result.getUuid()).isEqualTo(dbQualityGate.getUuid());
     assertThat(result.isDefault()).isFalse();
+  }
+
+  @Test
+  public void return_quality_gates_for_all_projects() {
+    QualityGateDto defaultQualityGate = db.qualityGates().createDefaultQualityGate(qg -> qg.setName("Sonar way"));
+
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    QualityGateDto dbQualityGate1 = db.qualityGates().insertQualityGate(qg -> qg.setName("My team QG").setAiCodeSupported(true));
+    db.qualityGates().associateProjectToQualityGate(project1, dbQualityGate1);
+
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
+    QualityGateDto dbQualityGate2 = db.qualityGates().insertQualityGate(qg -> qg.setName("Another QG").setAiCodeSupported(false));
+    db.qualityGates().associateProjectToQualityGate(project2, dbQualityGate2);
+
+    ProjectDto project3 = db.components().insertPrivateProject().getProjectDto();
+
+    Map<String, QualityGateData> result = underTest.getEffectiveQualityGateForAllProjects(dbSession);
+
+    assertThat(result).containsOnlyKeys(project1.getUuid(), project2.getUuid(), project3.getUuid())
+      .extractingByKeys(project1.getUuid(), project2.getUuid(), project3.getUuid())
+      .extracting(QualityGateData::getUuid, QualityGateData::getName, QualityGateData::isBuiltIn, QualityGateData::isDefault, QualityGateData::isAiCodeSupported)
+      .containsExactly(
+        tuple(dbQualityGate1.getUuid(), dbQualityGate1.getName(), dbQualityGate1.isBuiltIn(), false, dbQualityGate1.isAiCodeSupported()),
+        tuple(dbQualityGate2.getUuid(), dbQualityGate2.getName(), dbQualityGate2.isBuiltIn(), false, dbQualityGate2.isAiCodeSupported()),
+        tuple(defaultQualityGate.getUuid(), defaultQualityGate.getName(), defaultQualityGate.isBuiltIn(), true, defaultQualityGate.isAiCodeSupported())
+      );
   }
 
   @Test
