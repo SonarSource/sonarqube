@@ -47,6 +47,7 @@ import org.sonar.db.event.EventDbTester;
 import org.sonar.db.favorite.FavoriteDbTester;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.measure.MeasureDbTester;
+import org.sonar.db.migrationlog.MigrationLogDbTester;
 import org.sonar.db.newcodeperiod.NewCodePeriodDbTester;
 import org.sonar.db.notification.NotificationDbTester;
 import org.sonar.db.permission.template.PermissionTemplateDbTester;
@@ -86,6 +87,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEach
   private final NotificationDbTester notificationDbTester;
   private final QualityProfileDbTester qualityProfileDbTester;
   private final MeasureDbTester measureDbTester;
+  private final MigrationLogDbTester migrationLogTester;
   private final FileSourceTester fileSourceTester;
   private final PluginDbTester pluginDbTester;
   private final WebhookDbTester webhookDbTester;
@@ -117,6 +119,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEach
     this.notificationDbTester = new NotificationDbTester(this);
     this.qualityProfileDbTester = new QualityProfileDbTester(this);
     this.measureDbTester = new MeasureDbTester(this);
+    this.migrationLogTester = new MigrationLogDbTester(this);
     this.fileSourceTester = new FileSourceTester(this);
     this.pluginDbTester = new PluginDbTester(this);
     this.webhookDbTester = new WebhookDbTester(this);
@@ -233,6 +236,10 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEach
 
   public MeasureDbTester measures() {
     return measureDbTester;
+  }
+
+  public MigrationLogDbTester migrationLogs() {
+    return migrationLogTester;
   }
 
   public FileSourceTester fileSources() {

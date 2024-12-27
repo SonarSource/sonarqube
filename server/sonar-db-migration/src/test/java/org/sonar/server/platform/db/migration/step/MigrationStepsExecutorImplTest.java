@@ -29,16 +29,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
+import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.platform.Server;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.core.platform.SpringComponentContainer;
+import org.sonar.server.platform.db.migration.DatabaseMigrationLoggerContext;
 import org.sonar.server.platform.db.migration.MutableDatabaseMigrationState;
 import org.sonar.server.platform.db.migration.engine.MigrationContainer;
 import org.sonar.server.platform.db.migration.engine.SimpleMigrationContainer;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
-import org.sonar.server.telemetry.TelemetryDbMigrationStepDurationProvider;
-import org.sonar.server.telemetry.TelemetryDbMigrationSuccessProvider;
-import org.sonar.server.telemetry.TelemetryDbMigrationStepsProvider;
-import org.sonar.server.telemetry.TelemetryDbMigrationTotalTimeProvider;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
@@ -58,12 +57,10 @@ class MigrationStepsExecutorImplTest {
   private final MigrationContainer migrationContainer = new SimpleMigrationContainer();
   private final MigrationHistory migrationHistory = mock(MigrationHistory.class);
   private final MutableDatabaseMigrationState databaseMigrationState = mock();
-  private final TelemetryDbMigrationTotalTimeProvider telemetryDbMigrationTotalTimeProvider = new TelemetryDbMigrationTotalTimeProvider();
-  private final TelemetryDbMigrationStepsProvider telemetryDbMigrationStepsProvider = new TelemetryDbMigrationStepsProvider();
-  private final TelemetryDbMigrationSuccessProvider telemetryDbMigrationSuccessProvider = new TelemetryDbMigrationSuccessProvider();
-  private final TelemetryDbMigrationStepDurationProvider telemetryDbMigrationStepDurationProvider = new TelemetryDbMigrationStepDurationProvider();
-  private final MigrationStepsExecutorImpl underTest = new MigrationStepsExecutorImpl(migrationContainer, migrationHistory, databaseMigrationState,
-    telemetryDbMigrationTotalTimeProvider, telemetryDbMigrationStepsProvider, telemetryDbMigrationSuccessProvider, telemetryDbMigrationStepDurationProvider);
+  private final Server server = mock(Server.class);
+  private final DatabaseMigrationLoggerContext databaseMigrationLoggerContext = mock(DatabaseMigrationLoggerContext.class);
+  private final TestSystem2 system2 = new TestSystem2().setNow(System.currentTimeMillis());
+  private final MigrationStepsExecutorImpl underTest = new MigrationStepsExecutorImpl(migrationContainer, migrationHistory, databaseMigrationState, databaseMigrationLoggerContext, server, system2);
   private final NoOpMigrationStatusListener migrationStatusListener = mock();
 
   @BeforeEach
@@ -190,26 +187,6 @@ class MigrationStepsExecutorImplTest {
       assertThat(e.getCause()).isSameAs(RuntimeExceptionFailingMigrationStep.THROWN_EXCEPTION);
       verify(migrationStatusListener, times(1)).onMigrationStepCompleted();
     }
-  }
-
-  @Test
-  void whenExecute_TelemetryDataIsProperlyAdded() {
-    migrationContainer.add(MigrationStep2.class, MigrationStep1.class, MigrationStep3.class);
-    when(databaseMigrationState.getCompletedMigrations()).thenReturn(3);
-
-    List<RegisteredMigrationStep> steps = asList(
-      registeredStepOf(1, MigrationStep2.class),
-      registeredStepOf(2, MigrationStep1.class),
-      registeredStepOf(3, MigrationStep3.class));
-
-    ((SpringComponentContainer) migrationContainer).startComponents();
-
-    underTest.execute(steps, migrationStatusListener);
-
-    assertThat(telemetryDbMigrationTotalTimeProvider.getValue().get()).isPositive();
-    assertThat(telemetryDbMigrationStepsProvider.getValue()).hasValue(3);
-    assertThat(telemetryDbMigrationSuccessProvider.getValue()).hasValue(true);
-
   }
 
   private static RegisteredMigrationStep registeredStepOf(int migrationNumber, Class<? extends MigrationStep> migrationStep1Class) {

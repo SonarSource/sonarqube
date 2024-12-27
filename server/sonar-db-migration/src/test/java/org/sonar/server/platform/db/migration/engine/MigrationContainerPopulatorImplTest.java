@@ -21,16 +21,15 @@ package org.sonar.server.platform.db.migration.engine;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.platform.Server;
+import org.sonar.api.utils.System2;
+import org.sonar.server.platform.db.migration.DatabaseMigrationLoggerContext;
 import org.sonar.server.platform.db.migration.MutableDatabaseMigrationState;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
 import org.sonar.server.platform.db.migration.step.MigrationStepsExecutorImpl;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
-import org.sonar.server.telemetry.TelemetryDbMigrationStepDurationProvider;
-import org.sonar.server.telemetry.TelemetryDbMigrationSuccessProvider;
-import org.sonar.server.telemetry.TelemetryDbMigrationStepsProvider;
-import org.sonar.server.telemetry.TelemetryDbMigrationTotalTimeProvider;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -55,10 +54,9 @@ public class MigrationContainerPopulatorImplTest {
     // add MigrationStepsExecutorImpl's dependencies
     migrationContainer.add(mock(MigrationHistory.class));
     migrationContainer.add(mock(MutableDatabaseMigrationState.class));
-    migrationContainer.add(mock(TelemetryDbMigrationStepsProvider.class));
-    migrationContainer.add(mock(TelemetryDbMigrationTotalTimeProvider.class));
-    migrationContainer.add(mock(TelemetryDbMigrationSuccessProvider.class));
-    migrationContainer.add(mock(TelemetryDbMigrationStepDurationProvider.class));
+    migrationContainer.add(mock(DatabaseMigrationLoggerContext.class));
+    migrationContainer.add(mock(Server.class));
+    migrationContainer.add(mock(System2.class));
 
     migrationContainer.startComponents();
     underTest.populateContainer(migrationContainer);

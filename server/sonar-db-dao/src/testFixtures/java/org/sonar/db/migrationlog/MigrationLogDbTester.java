@@ -17,33 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.telemetry;
+package org.sonar.db.migrationlog;
 
-import java.util.Optional;
-import org.sonar.telemetry.core.AbstractTelemetryDataProvider;
-import org.sonar.telemetry.core.Dimension;
-import org.sonar.telemetry.core.Granularity;
-import org.sonar.telemetry.core.TelemetryDataType;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Consumer;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbTester;
 
-public class TelemetryDbMigrationSuccessProvider extends AbstractTelemetryDataProvider<Boolean> {
+public class MigrationLogDbTester {
+  private final DbClient dbClient;
+  private final DbTester db;
 
-  private Boolean dbMigrationSuccess = null;
-
-  public TelemetryDbMigrationSuccessProvider() {
-    super("db_migration_success", Dimension.INSTALLATION, Granularity.ADHOC, TelemetryDataType.BOOLEAN);
+  public MigrationLogDbTester(DbTester db) {
+    this.dbClient = db.getDbClient();
+    this.db = db;
   }
 
-  public void setDbMigrationSuccess(Boolean dbMigrationSuccess) {
-    this.dbMigrationSuccess = dbMigrationSuccess;
+  @SafeVarargs
+  public final MigrationLogDto insert(Consumer<MigrationLogDto>... consumers) {
+    MigrationLogDto migrationLogDto = new MigrationLogDto();
+    Arrays.stream(consumers).forEach(c -> c.accept(migrationLogDto));
+    dbClient.migrationLogDao().insert(db.getSession(), migrationLogDto);
+    db.commit();
+    return migrationLogDto;
   }
 
-  @Override
-  public Optional<Boolean> getValue() {
-    return Optional.ofNullable(dbMigrationSuccess);
-  }
-
-  @Override
-  public void after() {
-    dbMigrationSuccess = null;
+  public final List<MigrationLogDto> selectAll() {
+    return dbClient.migrationLogDao().selectAll(db.getSession());
   }
 }

@@ -23,17 +23,16 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.platform.Server;
+import org.sonar.api.utils.System2;
 import org.sonar.core.platform.SpringComponentContainer;
+import org.sonar.server.platform.db.migration.DatabaseMigrationLoggerContext;
 import org.sonar.server.platform.db.migration.MutableDatabaseMigrationState;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
 import org.sonar.server.platform.db.migration.step.NoOpMigrationStatusListener;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
-import org.sonar.server.telemetry.TelemetryDbMigrationStepDurationProvider;
-import org.sonar.server.telemetry.TelemetryDbMigrationStepsProvider;
-import org.sonar.server.telemetry.TelemetryDbMigrationSuccessProvider;
-import org.sonar.server.telemetry.TelemetryDbMigrationTotalTimeProvider;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,23 +46,21 @@ class MigrationEngineImplTest {
   private final MutableDatabaseMigrationState databaseMigrationState = mock();
   private final SpringComponentContainer serverContainer = new SpringComponentContainer();
   private final MigrationSteps migrationSteps = mock(MigrationSteps.class);
+  private final DatabaseMigrationLoggerContext databaseMigrationLoggerContext = mock(DatabaseMigrationLoggerContext.class);
+  private final Server server = mock(Server.class);
+  private final System2 system2 = mock(System2.class);
   private final StepRegistry stepRegistry = new StepRegistry();
-  private final TelemetryDbMigrationTotalTimeProvider telemetryDbMigrationTotalTimeProvider = new TelemetryDbMigrationTotalTimeProvider();
-  private final TelemetryDbMigrationStepsProvider telemetryUpgradeStepsProvider = new TelemetryDbMigrationStepsProvider();
-  private final TelemetryDbMigrationSuccessProvider telemetryDbMigrationSuccessProvider = new TelemetryDbMigrationSuccessProvider();
-  private final TelemetryDbMigrationStepDurationProvider telemetryDbMigrationStepDurationProvider = new TelemetryDbMigrationStepDurationProvider();
   private final MigrationEngineImpl underTest = new MigrationEngineImpl(migrationHistory, serverContainer, migrationSteps);
 
   @BeforeEach
   void before() {
-    serverContainer.add(telemetryDbMigrationTotalTimeProvider);
-    serverContainer.add(telemetryUpgradeStepsProvider);
-    serverContainer.add(telemetryDbMigrationSuccessProvider);
     serverContainer.add(migrationSteps);
     serverContainer.add(migrationHistory);
     serverContainer.add(stepRegistry);
     serverContainer.add(databaseMigrationState);
-    serverContainer.add(telemetryDbMigrationStepDurationProvider);
+    serverContainer.add(databaseMigrationLoggerContext);
+    serverContainer.add(server);
+    serverContainer.add(system2);
     serverContainer.startComponents();
   }
 

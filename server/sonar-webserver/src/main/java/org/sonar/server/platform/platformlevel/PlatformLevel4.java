@@ -193,6 +193,8 @@ import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.SystemInfoWriterModule;
 import org.sonar.server.platform.WebCoreExtensionsInstaller;
 import org.sonar.server.platform.db.CheckAnyonePermissionsAtStartup;
+import org.sonar.server.platform.db.migration.DatabaseMigrationPersister;
+import org.sonar.server.platform.db.migration.DatabaseMigrationTelemetry;
 import org.sonar.server.platform.telemetry.TelemetryFipsEnabledProvider;
 import org.sonar.server.platform.telemetry.TelemetryMQRModePropertyProvider;
 import org.sonar.server.platform.telemetry.TelemetryNclocProvider;
@@ -703,6 +705,10 @@ public class PlatformLevel4 extends PlatformLevel {
       CloudUsageDataProvider.class,
       QualityProfileDataProvider.class,
       ProjectLocDistributionDataProvider.class,
+
+      // database migration logging and telemetry
+      DatabaseMigrationPersister.class,
+      DatabaseMigrationTelemetry.class,
 
       // monitoring
       ServerMonitoringMetrics.class,

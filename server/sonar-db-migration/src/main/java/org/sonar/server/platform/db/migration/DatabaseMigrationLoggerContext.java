@@ -17,7 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.telemetry;
+package org.sonar.server.platform.db.migration;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.List;
+
+public class DatabaseMigrationLoggerContext {
+
+  List<MigrationData> migrationData = new ArrayList<>();
+
+  public void addMigrationData(String step, Long durationInMs, boolean success, Long startedAt, String targetVersion) {
+    MigrationData data = new MigrationData(step, durationInMs, success, startedAt, targetVersion);
+    migrationData.add(data);
+  }
+
+  public List<MigrationData> getMigrationData() {
+    return migrationData;
+  }
+
+  public record MigrationData(
+    String step,
+    Long durationInMs,
+    boolean success,
+    Long startedAt,
+    String targetVersion) {
+  }
+
+}

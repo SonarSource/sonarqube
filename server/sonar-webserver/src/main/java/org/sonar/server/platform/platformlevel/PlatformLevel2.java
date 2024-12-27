@@ -33,6 +33,7 @@ import org.sonar.server.platform.StartupMetadataProvider;
 import org.sonar.server.platform.WebCoreExtensionsInstaller;
 import org.sonar.server.platform.db.CheckDatabaseCharsetAtStartup;
 import org.sonar.server.platform.db.migration.DatabaseMigrationExecutorServiceImpl;
+import org.sonar.server.platform.db.migration.DatabaseMigrationLoggerContext;
 import org.sonar.server.platform.db.migration.DatabaseMigrationStateImpl;
 import org.sonar.server.platform.db.migration.MigrationConfigurationModule;
 import org.sonar.server.platform.db.migration.charset.DatabaseCharsetChecker;
@@ -44,10 +45,6 @@ import org.sonar.server.plugins.ServerPluginJarExploder;
 import org.sonar.server.plugins.ServerPluginManager;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.WebServerExtensionInstaller;
-import org.sonar.server.telemetry.TelemetryDbMigrationStepDurationProvider;
-import org.sonar.server.telemetry.TelemetryDbMigrationStepsProvider;
-import org.sonar.server.telemetry.TelemetryDbMigrationSuccessProvider;
-import org.sonar.server.telemetry.TelemetryDbMigrationTotalTimeProvider;
 
 import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
 import static org.sonar.core.extension.PlatformLevelPredicates.hasPlatformLevel;
@@ -90,10 +87,8 @@ public class PlatformLevel2 extends PlatformLevel {
     // Migration state must be kept at level2 to survive moving in and then out of safe mode
     // ExecutorService must be kept at level2 because stopping it when stopping safe mode level causes error making SQ fail
     add(
-      TelemetryDbMigrationTotalTimeProvider.class,
-      TelemetryDbMigrationStepsProvider.class,
-      TelemetryDbMigrationSuccessProvider.class,
-      TelemetryDbMigrationStepDurationProvider.class,
+      DatabaseMigrationLoggerContext.class,
+
       DatabaseMigrationStateImpl.class,
       DatabaseMigrationExecutorServiceImpl.class);
 
