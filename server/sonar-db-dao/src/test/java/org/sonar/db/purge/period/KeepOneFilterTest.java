@@ -23,6 +23,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.purge.DbCleanerTestUtils;
 import org.sonar.db.purge.PurgeableAnalysisDto;
@@ -34,6 +37,9 @@ class KeepOneFilterTest {
   private static List<String> analysisUuids(List<PurgeableAnalysisDto> snapshotDtos) {
     return snapshotDtos.stream().map(PurgeableAnalysisDto::getAnalysisUuid).toList();
   }
+
+  @RegisterExtension
+  private final LogTesterJUnit5 logs = new LogTesterJUnit5();
 
   @Test
   void shouldOnlyOneSnapshotPerInterval() {
@@ -74,6 +80,22 @@ class KeepOneFilterTest {
     assertThat(KeepOneFilter.isDeletable(DbCleanerTestUtils.createAnalysisWithDate("u1", "2011-05-01"))).isTrue();
     assertThat(KeepOneFilter.isDeletable(DbCleanerTestUtils.createAnalysisWithDate("u1", "2011-05-01").setLast(true))).isFalse();
     assertThat(KeepOneFilter.isDeletable(DbCleanerTestUtils.createAnalysisWithDate("u1", "2011-05-01").setHasEvents(true))).isFalse();
+  }
+
+  @Test
+  void log_should_log_debug_message_when_debug_enabled() {
+    KeepOneFilter filter = new KeepOneFilter(DateUtils.parseDate("2011-03-25"), DateUtils.parseDate("2011-08-25"), Calendar.MONTH, "month");
+    logs.setLevel(Level.DEBUG);
+    filter.log();
+    assertThat(logs.logs(Level.DEBUG)).contains("-> Keep one snapshot per month between 2011-03-25 and 2011-08-25");
+  }
+
+  @Test
+  void log_should_not_log_debug_message_when_debug_disabled() {
+    KeepOneFilter filter = new KeepOneFilter(DateUtils.parseDate("2011-03-25"), DateUtils.parseDate("2011-08-25"), Calendar.MONTH, "month");
+    logs.setLevel(Level.INFO);
+    filter.log();
+    assertThat(logs.logs()).isEmpty();
   }
 
 }

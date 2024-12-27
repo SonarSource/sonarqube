@@ -37,8 +37,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.process.cluster.health.NodeDetails.newNodeDetailsBuilder;
 import static org.sonar.process.cluster.health.NodeHealth.newNodeHealthBuilder;
@@ -206,15 +204,16 @@ public class SharedHealthStateImplTest {
 
   @Test
   public void clearMine_clears_entry_into_map_sq_health_state_under_current_client_uuid() {
-    Map<UUID, TimestampedNodeHealth> map = mock(Map.class);
-    doReturn(map).when(hazelcastMember).getReplicatedMap(MAP_SQ_HEALTH_STATE);
+    Map<UUID, TimestampedNodeHealth> map = new HashMap<>();
     UUID uuid = UUID.randomUUID();
+    map.put(uuid, new TimestampedNodeHealth());
+
+    doReturn(map).when(hazelcastMember).getReplicatedMap(MAP_SQ_HEALTH_STATE);
     when(hazelcastMember.getUuid()).thenReturn(uuid);
 
     underTest.clearMine();
 
-    verify(map).remove(uuid);
-    verifyNoMoreInteractions(map);
+    assertThat(map).doesNotContainKey(uuid);
     assertThat(logging.getLogs()).isEmpty();
   }
 

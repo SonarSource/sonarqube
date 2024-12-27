@@ -30,9 +30,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.cluster.hz.HazelcastMember;
 import org.sonar.process.cluster.hz.HazelcastObjects;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static java.util.Objects.requireNonNull;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class SharedHealthStateImpl implements SharedHealthState {
   private static final Logger LOG = LoggerFactory.getLogger(SharedHealthStateImpl.class);
@@ -55,9 +55,10 @@ public class SharedHealthStateImpl implements SharedHealthState {
     requireNonNull(nodeHealth, "nodeHealth can't be null");
 
     Map<UUID, TimestampedNodeHealth> sqHealthState = readReplicatedMap();
-    if (LOG.isTraceEnabled()) {
-      LOG.trace("Reading {} and adding {}", new HashMap<>(sqHealthState), nodeHealth);
-    }
+    LOG.atTrace()
+      .addArgument(() -> new HashMap<>(sqHealthState))
+      .addArgument(nodeHealth)
+      .log("Reading {} and adding {}");
     sqHealthState.put(hzMember.getUuid(), new TimestampedNodeHealth(nodeHealth, hzMember.getClusterTime()));
   }
 
@@ -65,9 +66,10 @@ public class SharedHealthStateImpl implements SharedHealthState {
   public void clearMine() {
     Map<UUID, TimestampedNodeHealth> sqHealthState = readReplicatedMap();
     UUID clientUUID = hzMember.getUuid();
-    if (LOG.isTraceEnabled()) {
-      LOG.trace("Reading {} and clearing for {}", new HashMap<>(sqHealthState), clientUUID);
-    }
+    LOG.atTrace()
+      .addArgument(() -> new HashMap<>(sqHealthState))
+      .addArgument(clientUUID)
+      .log("Reading {} and clearing for {}");
     sqHealthState.remove(clientUUID);
   }
 
@@ -82,9 +84,7 @@ public class SharedHealthStateImpl implements SharedHealthState {
       .filter(ofNonExistentMember(hzMemberUUIDs))
       .map(entry -> entry.getValue().getNodeHealth())
       .collect(Collectors.toSet());
-    if (LOG.isTraceEnabled()) {
-      LOG.trace("Reading {} and keeping {}", new HashMap<>(sqHealthState), existingNodeHealths);
-    }
+    LOG.trace("Reading {} and keeping {}", new HashMap<>(sqHealthState), existingNodeHealths);
     return ImmutableSet.copyOf(existingNodeHealths);
   }
 

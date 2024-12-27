@@ -65,9 +65,7 @@ public class RestResponseEntityExceptionHandler {
     String validationErrors = ex.getFieldErrors().stream()
       .map(RestResponseEntityExceptionHandler::handleFieldError)
       .collect(Collectors.joining());
-    LOGGER.atInfo()
-      .setMessage(ErrorMessages.VALIDATION_ERROR.getMessage() + "\n" + validationErrors)
-      .log();
+    LOGGER.info("{}\n{}", ErrorMessages.VALIDATION_ERROR.getMessage(), validationErrors);
     return buildResponse(HttpStatus.BAD_REQUEST, validationErrors);
   }
 
@@ -112,9 +110,7 @@ public class RestResponseEntityExceptionHandler {
     String validationErrors = ex.getFieldErrors().stream()
       .map(RestResponseEntityExceptionHandler::handleFieldError)
       .collect(Collectors.joining());
-    LOGGER.atInfo()
-      .setMessage(ErrorMessages.BIND_ERROR.getMessage() + "\n" + validationErrors)
-      .log();
+    LOGGER.info("{}\n{}", ErrorMessages.BIND_ERROR.getMessage(), validationErrors);
     return buildResponse(HttpStatus.BAD_REQUEST, validationErrors);
   }
 

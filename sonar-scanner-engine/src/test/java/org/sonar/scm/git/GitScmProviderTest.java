@@ -52,6 +52,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.event.Level;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.scan.filesystem.PathResolver;
@@ -243,6 +244,36 @@ public class GitScmProviderTest {
       .containsExactlyInAnyOrder(
         tuple(newFileM1AbsolutPath, fileM1),
         tuple(newFileM2AbsolutPath, fileM2));
+  }
+
+  @Test
+  public void branchChangedLinesWithFileMovementDetection_should_return_null_when_mergeBaseCommit_is_empty() throws IOException, GitAPIException {
+    logs.setLevel(Level.WARN);
+
+    git.checkout().setOrphan(true).setName("orphan-branch").call();
+    createAndCommitFile("file3.txt");
+
+    Map<Path, ChangedFile> changedFiles = Map.of(
+      worktree.resolve("file1.txt"), ChangedFile.of(worktree.resolve("file1.txt"), null),
+      worktree.resolve("file2-renamed.txt"), ChangedFile.of(worktree.resolve("file2-renamed.txt"), "file2.txt"));
+
+    Map<Path, Set<Integer>> result = newScmProvider().branchChangedLinesWithFileMovementDetection("master", worktree, changedFiles);
+
+    assertThat(logs.logs(Level.WARN)).contains("No merge base found between HEAD and refs/heads/master");
+    assertThat(result).isNull();
+  }
+
+  @Test
+  public void branchChangedFilesWithFileMovementDetection_should_return_null_when_mergeBaseCommit_is_empty() throws IOException, GitAPIException {
+    logs.setLevel(Level.WARN);
+
+    git.checkout().setOrphan(true).setName("orphan-branch").call();
+    createAndCommitFile("file3.txt");
+
+    Set<ChangedFile> result = newScmProvider().branchChangedFilesWithFileMovementDetection("master", worktree);
+
+    assertThat(logs.logs(Level.WARN)).contains("No merge base found between HEAD and refs/heads/master");
+    assertThat(result).isNull();
   }
 
   @Test

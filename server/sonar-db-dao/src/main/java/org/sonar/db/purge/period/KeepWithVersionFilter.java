@@ -44,7 +44,9 @@ class KeepWithVersionFilter implements Filter {
 
   @Override
   public void log() {
-    LoggerFactory.getLogger(getClass()).debug("-> Keep analyses with a version prior to {}", DateUtils.formatDate(before));
+    LoggerFactory.getLogger(getClass()).atDebug()
+      .addArgument(() -> DateUtils.formatDate(before))
+      .log("-> Keep analyses with a version prior to {}");
   }
 
   private static boolean isDeletable(PurgeableAnalysisDto snapshot) {

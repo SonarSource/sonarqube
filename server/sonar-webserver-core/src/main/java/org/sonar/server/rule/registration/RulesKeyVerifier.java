@@ -52,12 +52,12 @@ public class RulesKeyVerifier {
     // Find duplicates in declared deprecated rule keys
     Set<RuleKey> duplicates = findDuplicates(definedDeprecatedRuleKeys);
     checkState(duplicates.isEmpty(), "The following deprecated rule keys are declared at least twice [%s]",
-      duplicates.stream().map(RuleKey::toString).collect(Collectors.joining(",")));
+      duplicates.isEmpty() ? "" : duplicates.stream().map(RuleKey::toString).collect(Collectors.joining(",")));
 
     // Find rule keys that are both deprecated and used
     Set<RuleKey> intersection = intersection(new HashSet<>(definedRuleKeys), new HashSet<>(definedDeprecatedRuleKeys)).immutableCopy();
     checkState(intersection.isEmpty(), "The following rule keys are declared both as deprecated and used key [%s]",
-      intersection.stream().map(RuleKey::toString).collect(Collectors.joining(",")));
+      intersection.isEmpty() ? "" : intersection.stream().map(RuleKey::toString).collect(Collectors.joining(",")));
 
     // Find incorrect usage of deprecated keys
     Map<RuleKey, SingleDeprecatedRuleKey> dbDeprecatedRuleKeysByOldRuleKey = rulesRegistrationContext.getDbDeprecatedKeysByOldRuleKey();
@@ -68,7 +68,7 @@ public class RulesKeyVerifier {
       .collect(Collectors.toSet());
 
     checkState(incorrectRuleKeyMessage.isEmpty(), "An incorrect state of deprecated rule keys has been detected.\n %s",
-      String.join("\n", incorrectRuleKeyMessage));
+      incorrectRuleKeyMessage.isEmpty() ? "" : String.join("\n", incorrectRuleKeyMessage));
   }
 
   private static Stream<String> filterInvalidDeprecatedRuleKeys(Map<RuleKey, SingleDeprecatedRuleKey> dbDeprecatedRuleKeysByOldRuleKey, RulesDefinition.Rule rule) {

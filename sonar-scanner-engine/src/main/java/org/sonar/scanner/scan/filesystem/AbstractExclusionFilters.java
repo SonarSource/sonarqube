@@ -162,7 +162,7 @@ public abstract class AbstractExclusionFilters {
   }
 
   private static void log(String title, PathPattern[] patterns, String indent) {
-    if (patterns.length > 0) {
+    if (patterns.length > 0 && LOG.isInfoEnabled()) {
       LOG.info("{}{} {}", indent, title, Arrays.stream(patterns).map(PathPattern::toString).collect(Collectors.joining(", ")));
     }
   }

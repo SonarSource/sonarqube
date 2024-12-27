@@ -179,7 +179,6 @@ public class BulkIndexerIT {
       .stream()
       .filter(log -> log.contains("Bulk[2 index requests on fakes/_doc, 1 delete requests on fakes/_doc]"))
       .count()).isNotZero();
-
   }
 
   private static class FakeListener implements IndexingListener {

@@ -151,18 +151,17 @@ public class RuleIndexer implements ResilientIndexer {
   private static RuleDoc ruleDocOf(RuleForIndexingDto dto) {
     SecurityStandards securityStandards = SecurityStandards.fromSecurityStandards(dto.getSecurityStandards());
     if (!securityStandards.getIgnoredSQCategories().isEmpty()) {
-      LOG.debug(
-        "Rule {} with CWEs '{}' maps to multiple SQ Security Categories: {}",
-        dto.getRuleKey(),
-        String.join(", ", securityStandards.getCwe()),
-        concat(Stream.of(securityStandards.getSqCategory()), securityStandards.getIgnoredSQCategories().stream())
+      LOG.atDebug()
+        .addArgument(dto::getRuleKey)
+        .addArgument(() -> String.join(", ", securityStandards.getCwe()))
+        .addArgument(() -> concat(Stream.of(securityStandards.getSqCategory()), securityStandards.getIgnoredSQCategories().stream())
           .map(SecurityStandards.SQCategory::getKey)
           .sorted(SQ_CATEGORY_KEYS_ORDERING)
-          .collect(joining(", ")));
+          .collect(joining(", ")))
+        .log("Rule {} with CWEs '{}' maps to multiple SQ Security Categories: {}");
     }
     return RuleDoc.createFrom(dto, securityStandards);
   }
-
 
   private BulkIndexer createBulkIndexer(Size bulkSize, IndexingListener listener) {
     return new BulkIndexer(esClient, TYPE_RULE, bulkSize, listener);

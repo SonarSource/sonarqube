@@ -19,12 +19,11 @@
  */
 package org.sonar.server.platform.db;
 
-import java.util.List;
 import java.util.Optional;
-import org.sonar.api.Startable;
-import org.sonar.api.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.Startable;
+import org.sonar.api.config.Configuration;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 
@@ -64,10 +63,11 @@ public class CheckAnyonePermissionsAtStartup implements Startable {
 
       int total = dbClient.groupPermissionDao().countEntitiesWithAnyonePermissions(dbSession);
       if (total > 0) {
-        List<String> list = dbClient.groupPermissionDao().selectProjectKeysWithAnyonePermissions(dbSession, 3);
-        LOG.warn("Authentication is not enforced, and project permissions assigned to the 'Anyone' group expose {} " +
-            "public project(s) to security risks, including: {}. Unauthenticated visitors have permissions on these project(s).",
-          total, String.join(", ", list));
+        LOG.atWarn()
+          .addArgument(total)
+          .addArgument(String.join(", ", dbClient.groupPermissionDao().selectProjectKeysWithAnyonePermissions(dbSession, 3)))
+          .log("Authentication is not enforced, and project permissions assigned to the 'Anyone' group expose {} "
+            + "public project(s) to security risks, including: {}. Unauthenticated visitors have permissions on these project(s).");
       }
     }
   }

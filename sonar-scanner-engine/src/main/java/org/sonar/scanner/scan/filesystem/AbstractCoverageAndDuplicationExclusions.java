@@ -84,7 +84,7 @@ public abstract class AbstractCoverageAndDuplicationExclusions {
   }
 
   private static void log(String title, Collection<WildcardPattern> patterns, String ident) {
-    if (!patterns.isEmpty()) {
+    if (!patterns.isEmpty() && LOG.isInfoEnabled()) {
       LOG.info("{}{} {}", ident, title, patterns.stream().map(WildcardPattern::toString).collect(Collectors.joining(", ")));
     }
   }

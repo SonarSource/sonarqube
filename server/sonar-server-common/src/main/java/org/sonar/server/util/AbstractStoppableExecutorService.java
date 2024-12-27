@@ -19,8 +19,6 @@
  */
 package org.sonar.server.util;
 
-import org.slf4j.LoggerFactory;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -29,8 +27,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import static java.lang.String.format;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract implementation of StoppableExecutorService that implements the
@@ -54,11 +51,11 @@ public abstract class AbstractStoppableExecutorService<D extends ExecutorService
         delegate.shutdownNow();
         // Wait a while for tasks to respond to being canceled
         if (!delegate.awaitTermination(5, TimeUnit.SECONDS)) {
-          LoggerFactory.getLogger(getClass()).warn(format("Pool %s did not terminate", getClass().getSimpleName()));
+          LoggerFactory.getLogger(getClass()).warn("Pool {} did not terminate", getClass().getSimpleName());
         }
       }
     } catch (InterruptedException ie) {
-      LoggerFactory.getLogger(getClass()).warn(format("Termination of pool %s failed", getClass().getSimpleName()), ie);
+      LoggerFactory.getLogger(getClass()).warn("Termination of pool {} failed", getClass().getSimpleName(), ie);
       // (Re-)Cancel if current thread also interrupted
       delegate.shutdownNow();
     }

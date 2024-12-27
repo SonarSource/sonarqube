@@ -23,12 +23,12 @@ import com.google.common.annotations.VisibleForTesting;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.util.GlobalLockManager;
@@ -83,7 +83,7 @@ public class PushEventsPurgeScheduler implements Startable {
   private void purgeExpiredPushEvents() {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Set<String> uuids = dbClient.pushEventDao().selectUuidsOfExpiredEvents(dbSession, getExpiredTimestamp());
-      LOG.debug(String.format("%s push events to be deleted...", uuids.size()));
+      LOG.debug("{} push events to be deleted...", uuids.size());
       dbClient.pushEventDao().deleteByUuids(dbSession, uuids);
       dbSession.commit();
     }

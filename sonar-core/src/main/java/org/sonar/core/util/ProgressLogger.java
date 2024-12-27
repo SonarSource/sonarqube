@@ -106,7 +106,11 @@ public class ProgressLogger {
 
     private void log() {
       long current = counter.get();
-      logger.info(String.format("%d %s processed (%d items/sec)", current, pluralLabel, 1000 * (current - previousCounter) / periodMs));
+      logger.atInfo()
+        .addArgument(current)
+        .addArgument(pluralLabel)
+        .addArgument(() -> 1000 * (current - previousCounter) / periodMs)
+        .log("{} {} processed ({} items/sec)");
       previousCounter = current;
     }
   }

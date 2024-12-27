@@ -59,12 +59,12 @@ public class DefaultPeriodCleaner {
   }
 
   private List<PurgeableAnalysisDto> delete(String rootUuid, List<PurgeableAnalysisDto> snapshots, DbSession session) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("<- Delete analyses of component {}: {}",
-        rootUuid,
-        snapshots.stream().map(snapshot -> snapshot.getAnalysisUuid() + "@" + DateUtils.formatDateTime(snapshot.getDate()))
-          .collect(Collectors.joining(", ")));
-    }
+    LOG.atDebug()
+      .addArgument(rootUuid)
+      .addArgument(() -> snapshots.stream()
+        .map(snapshot -> snapshot.getAnalysisUuid() + "@" + DateUtils.formatDateTime(snapshot.getDate()))
+        .collect(Collectors.joining(", ")))
+      .log("<- Delete analyses of component {}: {}");
     purgeDao.deleteAnalyses(
       session, profiler,
       snapshots.stream().map(PurgeableAnalysisDto::getAnalysisUuid).toList());

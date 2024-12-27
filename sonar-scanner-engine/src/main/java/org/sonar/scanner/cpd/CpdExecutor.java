@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.cpd;
 
+import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -31,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputComponent;
@@ -103,7 +103,7 @@ public class CpdExecutor {
     }
 
     int filesWithoutBlocks = index.noIndexedFiles() - index.noResources();
-    if (filesWithoutBlocks > 0) {
+    if (filesWithoutBlocks > 0 && LOG.isInfoEnabled()) {
       LOG.info("CPD Executor {} {} had no CPD blocks", filesWithoutBlocks, pluralize(filesWithoutBlocks));
     }
 
@@ -128,7 +128,9 @@ public class CpdExecutor {
   }
 
   void runCpdAnalysis(ExecutorService executorService, DefaultInputFile inputFile, Collection<Block> fileBlocks, long timeout) {
-    LOG.debug("Detection of duplications for {}", inputFile.absolutePath());
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Detection of duplications for {}", inputFile.absolutePath());
+    }
     progressReport.message(String.format("%d/%d - current file: %s", count, total, inputFile.absolutePath()));
 
     List<CloneGroup> duplications;
@@ -199,9 +201,8 @@ public class CpdExecutor {
       if (!duplicate.equals(originBlock)) {
         clonePartCount++;
         if (clonePartCount > MAX_CLONE_PART_PER_GROUP) {
-          LOG.warn("Too many duplication references on file " + component + " for block at line " +
-            originBlock.getStartLine() + ". Keep only the first "
-            + MAX_CLONE_PART_PER_GROUP + " references.");
+          LOG.warn("Too many duplication references on file {} for block at line {}. Keep only the first {} references.",
+            component, originBlock.getStartLine(), MAX_CLONE_PART_PER_GROUP);
           break;
         }
         blockBuilder.clear();

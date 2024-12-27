@@ -22,6 +22,9 @@ package org.sonar.db.purge.period;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.db.purge.DbCleanerTestUtils;
 import org.sonar.db.purge.PurgeableAnalysisDto;
 
@@ -29,6 +32,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.DateUtils.parseDate;
 
 class KeepWithVersionFilterTest {
+
+  @RegisterExtension
+  private final LogTesterJUnit5 logs = new LogTesterJUnit5();
 
   @Test
   void keep_only_analyses_with_a_version() {
@@ -41,4 +47,21 @@ class KeepWithVersionFilterTest {
 
     assertThat(result).extracting(PurgeableAnalysisDto::getAnalysisUuid).containsExactlyInAnyOrder("u2");
   }
+
+  @Test
+  void log_should_log_debug_message_when_debug_enabled() {
+    KeepWithVersionFilter filter = new KeepWithVersionFilter(parseDate("2015-10-18"));
+    logs.setLevel(Level.DEBUG);
+    filter.log();
+    assertThat(logs.logs(Level.DEBUG)).contains("-> Keep analyses with a version prior to 2015-10-18");
+  }
+
+  @Test
+  void log_should_not_log_debug_message_when_debug_disabled() {
+    KeepWithVersionFilter filter = new KeepWithVersionFilter(parseDate("2015-10-18"));
+    logs.setLevel(Level.INFO);
+    filter.log();
+    assertThat(logs.logs()).isEmpty();
+  }
+
 }

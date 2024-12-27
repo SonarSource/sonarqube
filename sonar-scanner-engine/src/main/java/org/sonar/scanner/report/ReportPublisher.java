@@ -43,10 +43,10 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.core.ce.CeTaskCharacteristics;
-import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.ci.CiConfiguration;
 import org.sonar.scanner.fs.InputModuleHierarchy;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -157,7 +157,7 @@ public class ReportPublisher implements Startable {
     logDeprecationWarningIf32bitJava();
     File report = generateReportFile();
     if (properties.shouldKeepReport()) {
-      LOG.info("Analysis report generated in " + reportDir);
+      LOG.info("Analysis report generated in {}", reportDir);
     }
     if (!analysisMode.isMediumTest()) {
       String taskId = upload(report);
@@ -181,13 +181,17 @@ public class ReportPublisher implements Startable {
         publisher.publish(writer);
       }
       long stopTime = System.currentTimeMillis();
-      LOG.info("Analysis report generated in {}ms, dir size={}", stopTime - startTime, humanReadableByteCountSI(FileUtils.sizeOfDirectory(reportDir.toFile())));
+      if (LOG.isInfoEnabled()) {
+        LOG.info("Analysis report generated in {}ms, dir size={}", stopTime - startTime, humanReadableByteCountSI(FileUtils.sizeOfDirectory(reportDir.toFile())));
+      }
 
       startTime = System.currentTimeMillis();
       File reportZip = temp.newFile("scanner-report", ".zip");
       ZipUtils.zipDir(reportDir.toFile(), reportZip);
       stopTime = System.currentTimeMillis();
-      LOG.info("Analysis report compressed in {}ms, zip size={}", stopTime - startTime, humanReadableByteCountSI(FileUtils.sizeOf(reportZip)));
+      if (LOG.isInfoEnabled()) {
+        LOG.info("Analysis report compressed in {}ms, zip size={}", stopTime - startTime, humanReadableByteCountSI(FileUtils.sizeOf(reportZip)));
+      }
       return reportZip;
     } catch (IOException e) {
       throw new IllegalStateException("Unable to prepare analysis report", e);
@@ -218,7 +222,7 @@ public class ReportPublisher implements Startable {
       .setPart("report", filePart);
 
     ciConfiguration.getDevOpsPlatformInfo().ifPresent(devOpsPlatformInfo -> {
-      post.setParam(CHARACTERISTIC, buildCharacteristicParam(DEVOPS_PLATFORM_URL ,devOpsPlatformInfo.getUrl()));
+      post.setParam(CHARACTERISTIC, buildCharacteristicParam(DEVOPS_PLATFORM_URL, devOpsPlatformInfo.getUrl()));
       post.setParam(CHARACTERISTIC, buildCharacteristicParam(DEVOPS_PLATFORM_PROJECT_IDENTIFIER, devOpsPlatformInfo.getProjectIdentifier()));
     });
     String branchName = branchConfiguration.branchName();
@@ -250,7 +254,7 @@ public class ReportPublisher implements Startable {
       throw new RuntimeException(e);
     } finally {
       long stopTime = System.currentTimeMillis();
-      LOG.info("Analysis report uploaded in " + (stopTime - startTime) + "ms");
+      LOG.info("Analysis report uploaded in {}ms", (stopTime - startTime));
     }
   }
 

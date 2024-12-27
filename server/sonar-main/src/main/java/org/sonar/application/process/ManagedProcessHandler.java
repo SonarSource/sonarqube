@@ -211,10 +211,7 @@ public class ManagedProcessHandler {
     // prevent current thread from interrupting itself
     if (thread != null && currentThread != thread) {
       thread.interrupt();
-      if (LOG.isTraceEnabled()) {
-        Exception e = new Exception("(capturing stack trace for debugging purpose)");
-        LOG.trace("{} interrupted {}", currentThread.getName(), thread.getName(), e);
-      }
+      LOG.trace("{} interrupted {}", currentThread.getName(), thread.getName(), new Exception("(capturing stack trace for debugging purpose)"));
     }
   }
 

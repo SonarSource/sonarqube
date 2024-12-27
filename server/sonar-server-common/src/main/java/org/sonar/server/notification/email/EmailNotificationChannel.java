@@ -28,8 +28,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.mail2.jakarta.Email;
 import org.apache.commons.mail2.core.EmailException;
+import org.apache.commons.mail2.jakarta.Email;
 import org.apache.commons.mail2.jakarta.HtmlEmail;
 import org.apache.commons.mail2.jakarta.SimpleEmail;
 import org.slf4j.Logger;
@@ -225,9 +225,9 @@ public class EmailNotificationChannel extends NotificationChannel {
     Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 
     try {
-      LOG.atTrace().setMessage("Sending email: {}")
+      LOG.atTrace()
         .addArgument(() -> sanitizeLog(emailMessage.getMessage()))
-        .log();
+        .log("Sending email: {}");
       String host = resolveHost();
 
       Email email = createEmailWithMessage(emailMessage);

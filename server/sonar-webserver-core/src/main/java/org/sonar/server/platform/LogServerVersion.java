@@ -23,11 +23,11 @@ import com.google.common.base.Joiner;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Version;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.SonarQubeVersion;
 
 @ServerSide
@@ -44,7 +44,9 @@ public class LogServerVersion implements Startable {
   public void start() {
     String scmRevision = read("/build.properties").getProperty("Implementation-Build");
     Version version = sonarQubeVersion.get();
-    LOG.info("SonarQube {}", Joiner.on(" / ").skipNulls().join("Server", version, scmRevision));
+    LOG.atInfo()
+      .addArgument(Joiner.on(" / ").skipNulls().join("Server", version, scmRevision))
+      .log("SonarQube {}");
   }
 
   @Override
@@ -52,7 +54,7 @@ public class LogServerVersion implements Startable {
     // nothing to do
   }
 
-  private static Properties read(String filePath) {
+  static Properties read(String filePath) {
     try (InputStream stream = LogServerVersion.class.getResourceAsStream(filePath)) {
       Properties properties = new Properties();
       properties.load(stream);

@@ -20,10 +20,10 @@
 package org.sonar.scanner.scan;
 
 import java.util.Locale;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.scanner.scan.filesystem.ScannerComponentIdGenerator;
 import org.springframework.context.annotation.Bean;
 
@@ -44,9 +44,11 @@ public class InputProjectProvider {
     workDirectoriesInit.execute(project);
 
     LOG.info("Project key: {}", project.key());
-    LOG.info("Base dir: {}", project.getBaseDir().toAbsolutePath().toString());
-    LOG.info("Working dir: {}", project.getWorkDir().toAbsolutePath().toString());
-    LOG.debug("Project global encoding: {}, default locale: {}", project.getEncoding().displayName(), Locale.getDefault());
+    LOG.info("Base dir: {}", project.getBaseDir().toAbsolutePath());
+    LOG.info("Working dir: {}", project.getWorkDir().toAbsolutePath());
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Project global encoding: {}, default locale: {}", project.getEncoding().displayName(), Locale.getDefault());
+    }
     return project;
   }
 }

@@ -96,8 +96,7 @@ public class DefaultDatabase implements Database {
     JDBC_MAX_LIFETIME.getKey(),
     "sonar.jdbc.leakDetectionThreshold",
     JDBC_MAX_KEEP_ALIVE_TIME.getKey(),
-    JDBC_MAX_IDLE_TIMEOUT.getKey()
-  );
+    JDBC_MAX_IDLE_TIMEOUT.getKey());
 
   private static final Map<String, String> SONAR_JDBC_TO_HIKARI_PROPERTY_MAPPINGS = Map.of(
     JDBC_USERNAME.getKey(), "dataSource.user",
@@ -144,7 +143,9 @@ public class DefaultDatabase implements Database {
   }
 
   private void initDataSource() {
-    LOG.info("Create JDBC data source for {}", properties.getProperty(JDBC_URL.getKey(), DEFAULT_URL));
+    LOG.atInfo()
+      .addArgument(() -> properties.getProperty(JDBC_URL.getKey(), DEFAULT_URL))
+      .log("Create JDBC data source for {}");
     HikariDataSource ds = createHikariDataSource();
     datasource = new ProfiledDataSource(ds, NullConnectionInterceptor.INSTANCE);
     enableSqlLogging(datasource, logbackHelper.getLoggerLevel("sql") == Level.TRACE);

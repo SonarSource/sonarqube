@@ -19,10 +19,10 @@
  */
 package org.sonar.core.extension;
 
+import jakarta.inject.Inject;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +53,9 @@ public class CoreExtensionsLoader {
 
     coreExtensionRepository.setLoadedCoreExtensions(coreExtensions);
     if (!coreExtensions.isEmpty()) {
-      LOG.info("Loaded core extensions: {}", coreExtensions.stream().map(CoreExtension::getName).collect(Collectors.joining(", ")));
+      LOG.atInfo()
+        .addArgument(coreExtensions.stream().map(CoreExtension::getName).collect(Collectors.joining(", ")))
+        .log("Loaded core extensions: {}");
     }
   }
 
@@ -67,6 +69,6 @@ public class CoreExtensionsLoader {
       .collect(Collectors.toSet());
     checkState(duplicatedNames.isEmpty(),
       "Multiple core extensions declare the following names: %s",
-      duplicatedNames.stream().sorted().collect(Collectors.joining(", ")));
+      duplicatedNames.isEmpty() ? "" : duplicatedNames.stream().sorted().collect(Collectors.joining(", ")));
   }
 }

@@ -28,11 +28,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.http.HttpHost;
 import org.elasticsearch.common.settings.Settings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.process.cluster.NodeType;
 import org.springframework.context.annotation.Bean;
 
@@ -65,14 +65,18 @@ public class EsClientProvider {
     if (clusterEnabled && !searchNode) {
       httpHosts = getHttpHosts(config);
 
-      LOGGER.info("Connected to remote Elasticsearch: [{}]", displayedAddresses(httpHosts));
+      LOGGER.atInfo()
+        .addArgument(() -> displayedAddresses(httpHosts))
+        .log("Connected to remote Elasticsearch: [{}]");
     } else {
       // defaults provided in:
       // * in org.sonar.process.ProcessProperties.Property.SEARCH_HOST
       // * in org.sonar.process.ProcessProperties.Property.SEARCH_PORT
       HostAndPort host = HostAndPort.fromParts(config.get(SEARCH_HOST.getKey()).get(), config.getInt(SEARCH_PORT.getKey()).get());
       httpHosts = Collections.singletonList(toHttpHost(host, config));
-      LOGGER.info("Connected to local Elasticsearch: [{}]", displayedAddresses(httpHosts));
+      LOGGER.atInfo()
+        .addArgument(() -> displayedAddresses(httpHosts))
+        .log("Connected to local Elasticsearch: [{}]");
     }
 
     return new EsClient(config.get(CLUSTER_SEARCH_PASSWORD.getKey()).orElse(null),

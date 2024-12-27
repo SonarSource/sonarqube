@@ -31,14 +31,14 @@ import javax.annotation.Nullable;
 import org.apache.ibatis.cursor.Cursor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.db.component.ComponentScopes;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition.StigVersion;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.db.issue.IndexedIssueDto;
 import org.sonar.server.security.SecurityStandards;
 
@@ -183,7 +183,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     try {
       indexCursor.close();
     } catch (IOException e) {
-      LOG.atWarn().setMessage("unable to close the cursor, this may lead to database connexion leak. error is : {}").addArgument(e).log();
+      LOG.atWarn().addArgument(e).log("Unable to close the cursor, this may lead to database connexion leak. Error is: {}");
     }
     session.close();
   }

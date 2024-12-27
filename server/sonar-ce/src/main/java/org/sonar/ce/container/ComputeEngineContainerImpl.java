@@ -226,8 +226,9 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     level4.startComponents();
 
     PlatformEditionProvider editionProvider = level4.getComponentByType(PlatformEditionProvider.class);
-    LoggerFactory.getLogger(ComputeEngineContainerImpl.class)
-      .info("Running {} edition", editionProvider.get().map(EditionProvider.Edition::getLabel).orElse(""));
+    LoggerFactory.getLogger(ComputeEngineContainerImpl.class).atInfo()
+      .addArgument(() -> editionProvider.get().map(EditionProvider.Edition::getLabel).orElse(""))
+      .log("Running {} edition");
   }
 
   private void startupTasks() {

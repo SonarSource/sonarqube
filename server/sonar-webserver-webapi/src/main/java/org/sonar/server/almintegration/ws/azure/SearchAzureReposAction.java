@@ -28,15 +28,14 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
 import org.sonar.alm.client.azure.GsonAzureRepo;
 import org.sonar.alm.client.azure.GsonAzureRepoList;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.pat.AlmPatDto;
@@ -135,7 +134,7 @@ public class SearchAzureReposAction implements AlmIntegrationsWsAction {
         .sorted(comparing(AzureRepo::getName, String::compareToIgnoreCase))
         .toList();
 
-      LOG.debug(repositories.toString());
+      LOG.atDebug().log(repositories::toString);
 
       return SearchAzureReposWsResponse.newBuilder()
         .addAllRepositories(repositories)

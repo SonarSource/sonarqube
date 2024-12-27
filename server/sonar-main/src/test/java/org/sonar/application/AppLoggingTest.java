@@ -240,8 +240,7 @@ public class AppLoggingTest {
     settings.getProps().set(CLUSTER_ENABLED.getKey(), "true");
     underTest.configure();
 
-    assertThat(
-      LoggerFactory.getLogger("com.hazelcast").isInfoEnabled()).isFalse();
+    assertThat(LoggerFactory.getLogger("com.hazelcast").isInfoEnabled()).isFalse();
   }
 
   @Test
@@ -250,10 +249,10 @@ public class AppLoggingTest {
 
     LoggerContext ctx = underTest.configure();
     Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
-    ConsoleAppender appender = (ConsoleAppender<ILoggingEvent>)rootLogger.getAppender("APP_CONSOLE");
+    ConsoleAppender appender = (ConsoleAppender<ILoggingEvent>) rootLogger.getAppender("APP_CONSOLE");
     Encoder<ILoggingEvent> encoder = appender.getEncoder();
     assertThat(encoder).isInstanceOf(LayoutWrappingEncoder.class);
-    assertThat(((LayoutWrappingEncoder)encoder).getLayout()).isInstanceOf(LogbackJsonLayout.class);
+    assertThat(((LayoutWrappingEncoder) encoder).getLayout()).isInstanceOf(LogbackJsonLayout.class);
   }
 
   private void emulateRunFromCommandLine(boolean withAllLogsPrintedToConsole) {

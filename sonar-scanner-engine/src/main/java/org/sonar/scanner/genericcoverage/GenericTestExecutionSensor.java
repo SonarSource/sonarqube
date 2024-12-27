@@ -87,7 +87,7 @@ public class GenericTestExecutionSensor implements Sensor {
       parser.parse(reportFile, context);
       LOG.info("Imported test execution data for {} files", parser.numberOfMatchedFiles());
       int numberOfUnknownFiles = parser.numberOfUnknownFiles();
-      if (numberOfUnknownFiles > 0) {
+      if (numberOfUnknownFiles > 0 && LOG.isInfoEnabled()) {
         LOG.info("Test execution data ignored for {} unknown files, including:\n{}", numberOfUnknownFiles, parser.firstUnknownFiles().stream().collect(Collectors.joining("\n")));
       }
     }

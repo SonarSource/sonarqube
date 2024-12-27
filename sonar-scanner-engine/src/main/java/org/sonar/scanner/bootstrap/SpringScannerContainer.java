@@ -19,8 +19,8 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import javax.annotation.Nullable;
 import jakarta.annotation.Priority;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.FileMetadata;
@@ -160,10 +160,12 @@ public class SpringScannerContainer extends SpringComponentContainer {
 
   private void addSuffixesDeprecatedProperties() {
     add(
-    /* This is needed to support properly the deprecated sonar.rpg.suffixes property when the download optimization feature is enabled.
-       The value of the property is needed at the preprocessing stage, but being defined by an optional analyzer means that at preprocessing
-       it won't be properly available. This will be removed in SQ 11.0 together with the drop of the property from the rpg analyzer.
-       See SONAR-21514 */
+      /*
+       * This is needed to support properly the deprecated sonar.rpg.suffixes property when the download optimization feature is enabled.
+       * The value of the property is needed at the preprocessing stage, but being defined by an optional analyzer means that at preprocessing
+       * it won't be properly available. This will be removed in SQ 11.0 together with the drop of the property from the rpg analyzer.
+       * See SONAR-21514
+       */
       PropertyDefinition.builder("sonar.rpg.file.suffixes")
         .deprecatedKey("sonar.rpg.suffixes")
         .multiValues(true)
@@ -308,8 +310,7 @@ public class SpringScannerContainer extends SpringComponentContainer {
       GitlabCi.class,
       Jenkins.class,
       SemaphoreCi.class,
-      TravisCi.class
-    );
+      TravisCi.class);
 
     add(GitScmSupport.getObjects());
     add(SvnScmSupport.getObjects());

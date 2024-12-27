@@ -23,10 +23,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 public class ComponentKeysTest {
 
@@ -50,12 +52,13 @@ public class ComponentKeysTest {
   @Test
   public void should_log_warning_if_toString_is_not_overridden() {
     Logger log = mock(Logger.class);
+    when(log.isWarnEnabled()).thenReturn(true);
     keys.of(new Object(), log);
     verifyNoInteractions(log);
 
     // only on non-first runs, to avoid false-positives on singletons
     keys.of(new Object(), log);
-    verify(log).warn(startsWith("Bad component key"));
+    verify(log).warn(startsWith("Bad component key"), any(), any());
   }
 
   @Test

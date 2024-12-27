@@ -55,9 +55,10 @@ public class ScmAccountToUserLoader implements CacheLoader<String, UserIdDto> {
           .map(UserIdDto::getLogin)
           .sorted()
           .toList();
-        if (LOGGER.isWarnEnabled()) {
-          LOGGER.warn(String.format("Multiple users share the SCM account '%s': %s", scmAccount, Joiner.on(", ").join(logins)));
-        }
+        LOGGER.atWarn()
+          .addArgument(scmAccount)
+          .addArgument(Joiner.on(", ").join(logins))
+          .log("Multiple users share the SCM account '{}': {}");
       }
       return null;
     }

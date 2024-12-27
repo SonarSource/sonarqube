@@ -22,6 +22,9 @@ package org.sonar.db.purge.period;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.purge.DbCleanerTestUtils;
 import org.sonar.db.purge.PurgeableAnalysisDto;
@@ -29,6 +32,9 @@ import org.sonar.db.purge.PurgeableAnalysisDto;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DeleteAllFilterTest {
+
+  @RegisterExtension
+  private final LogTesterJUnit5 logs = new LogTesterJUnit5();
 
   @Test
   void shouldDeleteAllSnapshotsPriorToDate() {
@@ -41,4 +47,21 @@ class DeleteAllFilterTest {
 
     assertThat(toDelete).extracting("analysisUuid").containsOnly("u1", "u2");
   }
+
+  @Test
+  void log_should_log_debug_message_when_debug_enabled() {
+    DeleteAllFilter filter = new DeleteAllFilter(DateUtils.parseDate("2011-12-25"));
+    logs.setLevel(Level.DEBUG);
+    filter.log();
+    assertThat(logs.logs(Level.DEBUG)).contains("-> Delete data prior to: 2011-12-25");
+  }
+
+  @Test
+  void log_should_not_log_debug_message_when_debug_disabled() {
+    DeleteAllFilter filter = new DeleteAllFilter(DateUtils.parseDate("2011-12-25"));
+    logs.setLevel(Level.INFO);
+    filter.log();
+    assertThat(logs.logs()).isEmpty();
+  }
+
 }

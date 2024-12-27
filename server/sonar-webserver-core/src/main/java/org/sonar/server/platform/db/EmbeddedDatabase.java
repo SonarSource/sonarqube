@@ -80,10 +80,10 @@ public class EmbeddedDatabase implements Startable {
         server = Server.createTcpServer("-tcpPort", port, "-ifExists", "-baseDir", dbHome.getAbsolutePath());
       }
 
-      LOG.info("Starting embedded database on port " + server.getPort() + " with url " + url);
+      LOG.info("Starting embedded database on port {} with url {}", server.getPort(), url);
       server.start();
 
-      LOG.info("Embedded database started. Data stored in: " + dbHome.getAbsolutePath());
+      LOG.info("Embedded database started. Data stored in: {}", dbHome.getAbsolutePath());
     } catch (SQLException e) {
       throw new IllegalStateException("Unable to start database", e);
     }

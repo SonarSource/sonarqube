@@ -46,9 +46,9 @@ import static org.sonar.application.NodeLifecycle.State.RESTARTING;
 import static org.sonar.application.NodeLifecycle.State.STOPPED;
 import static org.sonar.application.NodeLifecycle.State.STOPPING;
 import static org.sonar.application.process.ManagedProcessHandler.Timeout.newTimeout;
+import static org.sonar.process.ProcessProperties.parseTimeoutMs;
 import static org.sonar.process.ProcessProperties.Property.CE_GRACEFUL_STOP_TIMEOUT;
 import static org.sonar.process.ProcessProperties.Property.WEB_GRACEFUL_STOP_TIMEOUT;
-import static org.sonar.process.ProcessProperties.parseTimeoutMs;
 
 public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, ProcessLifecycleListener, AppStateListener {
 
@@ -167,7 +167,6 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
       }
     }
   }
-
 
   /**
    * Tries to start the web leader process. If the process fails to start, the web leader lock is released. If we would not release the lock
@@ -319,10 +318,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
     // prevent current thread from interrupting itself
     if (thread != null && currentThread != thread) {
       thread.interrupt();
-      if (LOG.isTraceEnabled()) {
-        Exception e = new Exception("(capturing stacktrace for debugging purpose)");
-        LOG.trace("{} interrupted {}", currentThread.getName(), thread.getName(), e);
-      }
+      LOG.trace("{} interrupted {}", currentThread.getName(), thread.getName(), new Exception("(capturing stacktrace for debugging purpose)"));
     }
   }
 
@@ -438,11 +434,12 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   }
 
   private static void logThreadRecreated(String threadType, Thread existingThread) {
-    if (LOG.isDebugEnabled()) {
-      Exception e = new Exception("(capturing stack trace for debugging purpose)");
-      LOG.debug("{} thread was not null (currentThread={},existingThread={})",
-        threadType, Thread.currentThread().getName(), existingThread.getName(), e);
-    }
+    LOG.atDebug()
+      .addArgument(threadType)
+      .addArgument(Thread.currentThread().getName())
+      .addArgument(existingThread.getName())
+      .addArgument(new Exception("(capturing stack trace for debugging purpose)"))
+      .log("{} thread was not null (currentThread={},existingThread={})");
   }
 
   private void restartAsync() {

@@ -24,12 +24,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Predicate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.AnnotationUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.ExtensionContainer;
 
 import static java.util.Objects.requireNonNull;
@@ -72,7 +72,7 @@ public abstract class CoreExtensionsInstaller {
     try {
       addDeclaredExtensions(container, extensionFilter, additionalSideFilter, coreExtension);
 
-      LOG.debug("Installed core extension: " + coreExtensionName);
+      LOG.debug("Installed core extension: {}", coreExtensionName);
       coreExtensionRepository.installed(coreExtension);
     } catch (Exception e) {
       throw new RuntimeException("Failed to load core extension " + coreExtensionName, e);

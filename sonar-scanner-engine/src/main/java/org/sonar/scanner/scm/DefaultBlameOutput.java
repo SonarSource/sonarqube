@@ -139,7 +139,7 @@ class DefaultBlameOutput implements BlameOutput {
     if (success && !allFilesToBlame.isEmpty()) {
       LOG.warn("Missing blame information for the following files:");
       for (InputFile f : allFilesToBlame) {
-        LOG.warn("  * " + f);
+        LOG.warn("  * {}", f);
       }
       LOG.warn("This may lead to missing/broken features in SonarQube");
       String docUrl = documentationLinkGenerator.getDocumentationLink(SCM_INTEGRATION_DOCUMENTATION_SUFFIX);
@@ -155,4 +155,3 @@ class DefaultBlameOutput implements BlameOutput {
     return filesCount == 1 ? "source file" : "source files";
   }
 }
-

@@ -22,12 +22,12 @@ package org.sonar.alm.client.bitbucket.bitbucketcloud;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
+import jakarta.inject.Inject;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import javax.annotation.Nullable;
-import jakarta.inject.Inject;
 import okhttp3.Credentials;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
@@ -37,9 +37,9 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import org.sonar.api.server.ServerSide;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.server.ServerSide;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static org.apache.commons.lang3.StringUtils.removeEnd;
@@ -67,7 +67,6 @@ public class BitbucketCloudRestClient {
   private final String bitbucketCloudEndpoint;
   private final String accessTokenEndpoint;
 
-
   @Inject
   public BitbucketCloudRestClient(OkHttpClient bitBucketCloudHttpClient) {
     this(bitBucketCloudHttpClient, ENDPOINT, ACCESS_TOKEN_ENDPOINT);
@@ -86,7 +85,10 @@ public class BitbucketCloudRestClient {
     Token token = validateAccessToken(clientId, clientSecret);
 
     if (token.getScopes() == null || !token.getScopes().contains("pullrequest")) {
-      LOG.info(MISSING_PULL_REQUEST_READ_PERMISSION + String.format(SCOPE, token.getScopes()));
+      LOG.atInfo()
+        .addArgument(MISSING_PULL_REQUEST_READ_PERMISSION)
+        .addArgument(() -> String.format(SCOPE, token.getScopes()))
+        .log("{}{}");
       throw new IllegalArgumentException(ERROR_BBC_SERVERS + ": " + MISSING_PULL_REQUEST_READ_PERMISSION);
     }
 
@@ -117,7 +119,7 @@ public class BitbucketCloudRestClient {
 
       ErrorDetails errorMsg = getTokenError(response.body());
       if (errorMsg.body != null) {
-        LOG.info(String.format(BBC_FAIL_WITH_RESPONSE, response.request().url(), response.code(), errorMsg.body));
+        LOG.atInfo().log(() -> String.format(BBC_FAIL_WITH_RESPONSE, response.request().url(), response.code(), errorMsg.body));
         switch (errorMsg.body) {
           case "invalid_grant":
             throw new IllegalArgumentException(UNABLE_TO_CONTACT_BBC_SERVERS + ": " + OAUTH_CONSUMER_NOT_PRIVATE);
@@ -131,7 +133,7 @@ public class BitbucketCloudRestClient {
             }
         }
       } else {
-        LOG.info(String.format(BBC_FAIL_WITH_RESPONSE, response.request().url(), response.code(), response.message()));
+        LOG.atInfo().log(() -> String.format(BBC_FAIL_WITH_RESPONSE, response.request().url(), response.code(), response.message()));
       }
       throw new IllegalArgumentException(UNABLE_TO_CONTACT_BBC_SERVERS);
 
@@ -194,7 +196,7 @@ public class BitbucketCloudRestClient {
 
   private static void handleError(Response response) throws IOException {
     ErrorDetails error = getError(response.body());
-    LOG.info(String.format(BBC_FAIL_WITH_RESPONSE, response.request().url(), response.code(), error.body));
+    LOG.atInfo().log(() -> String.format(BBC_FAIL_WITH_RESPONSE, response.request().url(), response.code(), error.body));
     if (error.parsedErrorMsg != null) {
       throw new IllegalStateException(ERROR_BBC_SERVERS + ": " + error.parsedErrorMsg);
     } else {

@@ -22,9 +22,9 @@ package org.sonar.core.platform;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
-import org.sonar.core.util.Uuids;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.core.util.Uuids;
 
 public class ComponentKeys {
   private static final Logger LOG = LoggerFactory.getLogger(ComponentKeys.class);
@@ -54,7 +54,7 @@ public class ComponentKeys {
     String key = component.toString();
     if (IDENTITY_HASH_PATTERN.matcher(key).matches()) {
       if (!objectsWithoutToString.add(component.getClass())) {
-        log.warn(String.format("Bad component key: %s. Please implement toString() method on class %s", key, component.getClass().getName()));
+        log.warn("Bad component key: {}. Please implement toString() method on class {}", key, component.getClass().getName());
       }
       key += Uuids.create();
     }

@@ -71,7 +71,9 @@ public class ProjectCleaner {
     if (config.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY).orElse(false)) {
       long duration = System.currentTimeMillis() - start;
       LOG.info("");
-      LOG.atInfo().setMessage(" -------- Profiling for purge: {} --------").addArgument(() -> TimeUtils.formatDuration(duration)).log();
+      LOG.atInfo()
+        .addArgument(() -> TimeUtils.formatDuration(duration))
+        .log(" -------- Profiling for purge: {} --------");
       LOG.info("");
       for (String line : profiler.getProfilingResult(duration)) {
         LOG.info(line);

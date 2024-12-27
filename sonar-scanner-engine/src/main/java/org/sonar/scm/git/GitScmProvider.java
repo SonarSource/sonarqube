@@ -63,13 +63,13 @@ import org.eclipse.jgit.treewalk.FileTreeIterator;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.scm.BlameCommand;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.core.documentation.DocumentationLinkGenerator;
 
 import static java.lang.String.format;
@@ -150,7 +150,9 @@ public class GitScmProvider extends ScmProvider {
 
       Optional<RevCommit> mergeBaseCommit = findMergeBase(repo, targetRef);
       if (mergeBaseCommit.isEmpty()) {
-        LOG.warn(composeNoMergeBaseFoundWarning(targetRef.getName()));
+        if (LOG.isWarnEnabled()) {
+          LOG.warn(composeNoMergeBaseFoundWarning(targetRef.getName()));
+        }
         return null;
       }
       AbstractTreeIterator mergeBaseTree = prepareTreeParser(repo, mergeBaseCommit.get());
@@ -240,7 +242,9 @@ public class GitScmProvider extends ScmProvider {
       Optional<RevCommit> mergeBaseCommit = findMergeBase(repo, targetRef);
 
       if (mergeBaseCommit.isEmpty()) {
-        LOG.warn(composeNoMergeBaseFoundWarning(targetRef.getName()));
+        if (LOG.isWarnEnabled()) {
+          LOG.warn(composeNoMergeBaseFoundWarning(targetRef.getName()));
+        }
         return null;
       }
 
@@ -343,7 +347,7 @@ public class GitScmProvider extends ScmProvider {
       targetRef = getFirstExistingRef(repo, localRef, originRef, upstreamRef, remotesRef);
     }
 
-    if (targetRef == null) {
+    if (targetRef == null && LOG.isWarnEnabled()) {
       LOG.warn(String.format(COULD_NOT_FIND_REF, targetBranchName));
     }
 

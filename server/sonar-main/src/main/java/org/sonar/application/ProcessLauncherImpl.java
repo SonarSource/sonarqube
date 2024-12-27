@@ -231,12 +231,11 @@ public class ProcessLauncherImpl implements ProcessLauncher {
   }
 
   private static <T extends AbstractCommand> void logLaunchedCommand(AbstractCommand<T> command, ProcessBuilder processBuilder) {
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Launch process[{}] from [{}]: {}",
-        command.getProcessId(),
-        command.getWorkDir().getAbsolutePath(),
-        String.join(" ", processBuilder.command()));
-    }
+    LOG.atInfo()
+      .addArgument(command::getProcessId)
+      .addArgument(() -> command.getWorkDir().getAbsolutePath())
+      .addArgument(() -> String.join(" ", processBuilder.command()))
+      .log("Launch process[{}] from [{}]: {}");
   }
 
   private <T extends JvmOptions> ProcessBuilder create(JavaCommand<T> javaCommand) {

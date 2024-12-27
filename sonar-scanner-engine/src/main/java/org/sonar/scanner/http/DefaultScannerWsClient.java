@@ -130,12 +130,11 @@ public class DefaultScannerWsClient implements ScannerWsClient {
   }
 
   private static void logResponseDetailsIfDebug(WsResponse response) {
-    if (!LOG.isDebugEnabled()) {
-      return;
+    if (LOG.isDebugEnabled()) {
+      String content = response.hasContent() ? response.content() : "<no content>";
+      Map<String, List<String>> headers = response.headers();
+      LOG.debug("Error response content: {}, headers: {}", content, headers);
     }
-    String content = response.hasContent() ? response.content() : "<no content>";
-    Map<String, List<String>> headers = response.headers();
-    LOG.debug("Error response content: {}, headers: {}", content, headers);
   }
 
   private void checkAuthenticationWarnings(WsResponse response) {

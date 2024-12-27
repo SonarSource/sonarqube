@@ -241,7 +241,7 @@ public class BulkIndexer {
 
     @Override
     public void afterBulk(long executionId, BulkRequest request, Throwable e) {
-      LOGGER.error("Fail to execute bulk index request: " + request, e);
+      LOGGER.error("Fail to execute bulk index request: {}", request, e);
       stopProfiler(request);
     }
 

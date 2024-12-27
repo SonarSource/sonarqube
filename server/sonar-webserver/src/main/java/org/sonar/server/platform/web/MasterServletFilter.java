@@ -21,13 +21,6 @@ package org.sonar.server.platform.web;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -36,10 +29,17 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.web.HttpFilter;
 import org.sonar.server.http.JakartaHttpRequest;
 import org.sonar.server.http.JakartaHttpResponse;
@@ -89,7 +89,10 @@ public class MasterServletFilter implements Filter {
     LinkedList<HttpFilter> filterList = new LinkedList<>();
     for (HttpFilter extension : filterExtensions) {
       try {
-        LOG.info(String.format("Initializing servlet filter %s [pattern=%s]", extension, extension.doGetPattern().label()));
+        LOG.atInfo()
+          .addArgument(extension)
+          .addArgument(() -> extension.doGetPattern().label())
+          .log("Initializing servlet filter {} [pattern={}]");
         extension.init();
         // As for scim we need to intercept traffic to URLs with path parameters
         // and that use is not properly handled when dealing with inclusions/exclusions of the WebServiceFilter,

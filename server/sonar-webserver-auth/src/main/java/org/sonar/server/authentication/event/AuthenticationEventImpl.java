@@ -37,14 +37,14 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
   public void loginSuccess(HttpRequest request, @Nullable String login, Source source) {
     checkRequest(request);
     requireNonNull(source, "source can't be null");
-    LOGGER.atDebug().setMessage("login success [method|{}][provider|{}|{}][IP|{}|{}][login|{}]")
+    LOGGER.atDebug()
       .addArgument(source::getMethod)
       .addArgument(source::getProvider)
       .addArgument(source::getProviderName)
       .addArgument(request::getRemoteAddr)
       .addArgument(() -> getAllIps(request))
       .addArgument(() -> preventLogFlood(sanitizeLog(emptyIfNull(login))))
-      .log();
+      .log("login success [method|{}][provider|{}|{}][IP|{}|{}][login|{}]");
   }
 
   private static String getAllIps(HttpRequest request) {
@@ -55,38 +55,35 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
   public void loginFailure(HttpRequest request, AuthenticationException e) {
     checkRequest(request);
     requireNonNull(e, "AuthenticationException can't be null");
-    if (!LOGGER.isDebugEnabled()) {
-      return;
+    if (LOGGER.isDebugEnabled()) {
+      Source source = e.getSource();
+      LOGGER.debug("login failure [cause|{}][method|{}][provider|{}|{}][IP|{}|{}][login|{}]",
+        emptyIfNull(e.getMessage()),
+        source.getMethod(), source.getProvider(), source.getProviderName(),
+        request.getRemoteAddr(), getAllIps(request),
+        preventLogFlood(emptyIfNull(e.getLogin())));
     }
-    Source source = e.getSource();
-    LOGGER.debug("login failure [cause|{}][method|{}][provider|{}|{}][IP|{}|{}][login|{}]",
-      emptyIfNull(e.getMessage()),
-      source.getMethod(), source.getProvider(), source.getProviderName(),
-      request.getRemoteAddr(), getAllIps(request),
-      preventLogFlood(emptyIfNull(e.getLogin())));
   }
 
   @Override
   public void logoutSuccess(HttpRequest request, @Nullable String login) {
     checkRequest(request);
-    if (!LOGGER.isDebugEnabled()) {
-      return;
-    }
-    LOGGER.debug("logout success [IP|{}|{}][login|{}]",
-      request.getRemoteAddr(), getAllIps(request),
-      preventLogFlood(emptyIfNull(login)));
+    LOGGER.atDebug()
+      .addArgument(request::getRemoteAddr)
+      .addArgument(() -> getAllIps(request))
+      .addArgument(() -> preventLogFlood(emptyIfNull(login)))
+      .log("logout success [IP|{}|{}][login|{}]");
   }
 
   @Override
   public void logoutFailure(HttpRequest request, String errorMessage) {
     checkRequest(request);
     requireNonNull(errorMessage, "error message can't be null");
-    if (!LOGGER.isDebugEnabled()) {
-      return;
-    }
-    LOGGER.debug("logout failure [error|{}][IP|{}|{}]",
-      emptyIfNull(errorMessage),
-      request.getRemoteAddr(), getAllIps(request));
+    LOGGER.atDebug()
+      .addArgument(() -> emptyIfNull(errorMessage))
+      .addArgument(request::getRemoteAddr)
+      .addArgument(() -> getAllIps(request))
+      .log("logout failure [error|{}][IP|{}|{}]");
   }
 
   private static void checkRequest(HttpRequest request) {

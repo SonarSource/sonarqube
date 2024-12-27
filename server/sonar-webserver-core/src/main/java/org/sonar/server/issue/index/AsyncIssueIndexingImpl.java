@@ -162,16 +162,16 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
   }
 
   private void removeIndexationTasks(DbSession dbSession, Set<String> ceQueueUuids, Set<String> ceActivityUuids) {
-    LOG.atInfo().setMessage("{} pending indexing task found to be deleted...")
-      .addArgument(ceQueueUuids.size())
-      .log();
+    LOG.atInfo()
+      .addArgument(ceQueueUuids::size)
+      .log("{} pending indexing task found to be deleted...");
     for (String uuid : ceQueueUuids) {
       dbClient.ceQueueDao().deleteByUuid(dbSession, uuid);
     }
 
-    LOG.atInfo().setMessage("{} completed indexing task found to be deleted...")
-      .addArgument(ceQueueUuids.size())
-      .log();
+    LOG.atInfo()
+      .addArgument(ceQueueUuids::size)
+      .log("{} completed indexing task found to be deleted...");
     dbClient.ceActivityDao().deleteByUuids(dbSession, ceActivityUuids);
     LOG.info("Indexing task deletion complete.");
 

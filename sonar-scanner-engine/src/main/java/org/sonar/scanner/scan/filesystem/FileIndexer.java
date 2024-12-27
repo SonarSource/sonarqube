@@ -102,8 +102,7 @@ public class FileIndexer {
       language != null ? language.key() : null,
       scannerComponentIdGenerator.getAsInt(),
       sensorStrategy,
-      scmChangedFiles.getOldRelativeFilePath(sourceFile)
-    );
+      scmChangedFiles.getOldRelativeFilePath(sourceFile));
 
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(module.key(), f, module.getEncoding()),
       f -> f.setStatus(statusDetection.findStatusFromScm(f)));
@@ -117,9 +116,7 @@ public class FileIndexer {
     componentStore.put(module.key(), inputFile);
     issueExclusionsLoader.addMulticriteriaPatterns(inputFile);
     String langStr = inputFile.language() != null ? format("with language '%s'", inputFile.language()) : "with no language";
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("'{}' indexed {}{}", inputFile, type == Type.TEST ? "as test " : "", langStr);
-    }
+    LOG.debug("'{}' indexed {}{}", inputFile, type == Type.TEST ? "as test " : "", langStr);
     evaluateCoverageExclusions(moduleCoverageAndDuplicationExclusions, inputFile);
     evaluateDuplicationExclusions(moduleCoverageAndDuplicationExclusions, inputFile);
     if (properties.preloadFileMetadata()) {
@@ -203,6 +200,5 @@ public class FileIndexer {
   private static String pluralizeFiles(int count) {
     return count == 1 ? "file" : "files";
   }
-
 
 }

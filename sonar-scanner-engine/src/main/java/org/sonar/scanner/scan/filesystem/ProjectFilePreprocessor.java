@@ -171,8 +171,7 @@ public class ProjectFilePreprocessor {
     List<Path> processedFiles = new ArrayList<>();
     Files.walkFileTree(path.normalize(), Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
       new DirectoryFileVisitor(file -> filePreprocessor.processFile(module, moduleExclusionFilters, file, type, exclusionCounter,
-        ignoreCommand).ifPresent(processedFiles::add), module, moduleExclusionFilters, inputModuleHierarchy, type)
-    );
+        ignoreCommand).ifPresent(processedFiles::add), module, moduleExclusionFilters, inputModuleHierarchy, type));
     return processedFiles;
   }
 

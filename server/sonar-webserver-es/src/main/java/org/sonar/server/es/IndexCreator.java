@@ -131,7 +131,7 @@ public class IndexCreator implements Startable {
 
   private void createIndex(BuiltIndex<?> builtIndex, boolean useMetadata) {
     Index index = builtIndex.getMainType().getIndex();
-    LOGGER.info(String.format("Create index [%s]", index.getName()));
+    LOGGER.info("Create index [{}]", index.getName());
     Settings.Builder settings = Settings.builder();
     settings.put(builtIndex.getSettings());
     if (useMetadata) {

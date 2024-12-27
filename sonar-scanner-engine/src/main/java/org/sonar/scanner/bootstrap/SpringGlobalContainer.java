@@ -19,10 +19,10 @@
  */
 package org.sonar.scanner.bootstrap;
 
+import jakarta.annotation.Priority;
 import java.time.Clock;
 import java.util.List;
 import java.util.Map;
-import jakarta.annotation.Priority;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -141,7 +141,9 @@ public class SpringGlobalContainer extends SpringComponentContainer {
     }
     new SpringScannerContainer(this).execute();
 
-    LOG.info("Analysis total time: {}", formatTime(System.currentTimeMillis() - startTime));
+    if (LOG.isInfoEnabled()) {
+      LOG.info("Analysis total time: {}", formatTime(System.currentTimeMillis() - startTime));
+    }
   }
 
   private void installRequiredPlugins() {

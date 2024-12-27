@@ -79,16 +79,16 @@ public class UpdateCenterClient {
   private UpdateCenter pluginCenter = null;
   private long lastRefreshDate = 0;
 
-
   public UpdateCenterClient(UriReader uriReader, Configuration config) throws URISyntaxException {
     this.uriReader = uriReader;
     this.uri = new URI(config.get(URL_PROPERTY).get());
     this.isActivated = config.getBoolean(ProcessProperties.Property.SONAR_UPDATECENTER_ACTIVATE.getKey()).get();
     this.periodInMilliseconds = Long.parseLong(config.get(CACHE_TTL_PROPERTY).get());
-    this.product = MetadataLoader.loadEdition(System2.INSTANCE) == SonarEdition.COMMUNITY ?
-      Product.SONARQUBE_COMMUNITY_BUILD : Product.SONARQUBE_SERVER;
+    this.product = MetadataLoader.loadEdition(System2.INSTANCE) == SonarEdition.COMMUNITY ? Product.SONARQUBE_COMMUNITY_BUILD : Product.SONARQUBE_SERVER;
 
-    LOG.info("Update center: {}", uriReader.description(uri));
+    LOG.atInfo()
+      .addArgument(() -> uriReader.description(uri))
+      .log("Update center: {}");
   }
 
   public Optional<UpdateCenter> getUpdateCenter() {

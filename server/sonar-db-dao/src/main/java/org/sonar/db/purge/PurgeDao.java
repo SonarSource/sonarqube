@@ -249,19 +249,20 @@ public class PurgeDao implements Dao {
   }
 
   private static void logProfiling(PurgeProfiler profiler, long start) {
-    if (!LOG.isDebugEnabled()) {
-      return;
+    if (LOG.isDebugEnabled()) {
+      long duration = System.currentTimeMillis() - start;
+      LOG.debug("");
+      LOG.atDebug()
+        .addArgument(() -> TimeUtils.formatDuration(duration))
+        .log(" -------- Profiling for project deletion: {} --------");
+      LOG.debug("");
+      for (String line : profiler.getProfilingResult(duration)) {
+        LOG.debug(line);
+      }
+      LOG.debug("");
+      LOG.debug(" -------- End of profiling for project deletion--------");
+      LOG.debug("");
     }
-    long duration = System.currentTimeMillis() - start;
-    LOG.debug("");
-    LOG.atDebug().setMessage(" -------- Profiling for project deletion: {} --------").addArgument(() -> TimeUtils.formatDuration(duration)).log();
-    LOG.debug("");
-    for (String line : profiler.getProfilingResult(duration)) {
-      LOG.debug(line);
-    }
-    LOG.debug("");
-    LOG.debug(" -------- End of profiling for project deletion--------");
-    LOG.debug("");
   }
 
   private static void deleteBranch(String branchUuid, PurgeCommands commands) {

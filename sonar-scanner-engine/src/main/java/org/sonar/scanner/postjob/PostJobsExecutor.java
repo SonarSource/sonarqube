@@ -51,8 +51,6 @@ public class PostJobsExecutor {
   }
 
   private static void logPostJobs(Collection<PostJobWrapper> postJobs) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug(() -> "Post-jobs : " + postJobs.stream().map(Object::toString).collect(Collectors.joining(" -> ")));
-    }
+    LOG.debug(() -> "Post-jobs : " + postJobs.stream().map(Object::toString).collect(Collectors.joining(" -> ")));
   }
 }

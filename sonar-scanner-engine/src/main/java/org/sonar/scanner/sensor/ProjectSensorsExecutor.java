@@ -42,9 +42,11 @@ public class ProjectSensorsExecutor {
   public void execute() {
     List<ProjectSensorWrapper> sensors = selector.selectSensors();
 
-    LOG.debug("Sensors : {}", sensors.stream()
-      .map(Object::toString)
-      .collect(Collectors.joining(" -> ")));
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Sensors : {}", sensors.stream()
+        .map(Object::toString)
+        .collect(Collectors.joining(" -> ")));
+    }
     for (ProjectSensorWrapper sensor : sensors) {
       SensorId sensorId = getSensorId(sensor);
       executingSensorCtx.setSensorExecuting(sensorId);

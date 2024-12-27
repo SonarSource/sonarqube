@@ -19,14 +19,14 @@
  */
 package org.sonar.server.pushapi;
 
+import jakarta.servlet.AsyncContext;
+import jakarta.servlet.AsyncListener;
+import jakarta.servlet.ServletOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import jakarta.servlet.AsyncContext;
-import jakarta.servlet.AsyncListener;
-import jakarta.servlet.ServletOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +84,7 @@ public abstract class ServerPushClient {
 
   private void handleIOException(IOException e) {
     String remoteAddr = asyncContext.getRequest().getRemoteAddr();
-    LOG.debug(String.format("The server push client %s gone without notice, closing the connection (%s)", remoteAddr, e.getMessage()));
+    LOG.debug("The server push client {} gone without notice, closing the connection ({})", remoteAddr, e.getMessage());
     throw new IllegalStateException(e.getMessage());
   }
 

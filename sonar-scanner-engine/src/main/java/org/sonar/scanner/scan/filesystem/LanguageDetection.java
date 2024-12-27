@@ -87,7 +87,9 @@ public class LanguageDetection {
     PathPattern[] defaultLanguagePatterns = Stream.concat(fileSuffixes, filenamePatterns)
       .distinct()
       .toArray(PathPattern[]::new);
-    LOG.debug("Declared patterns of language {} were converted to {}", language, getDetails(language, defaultLanguagePatterns));
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Declared patterns of language {} were converted to {}", language, getDetails(language, defaultLanguagePatterns));
+    }
     return defaultLanguagePatterns;
   }
 

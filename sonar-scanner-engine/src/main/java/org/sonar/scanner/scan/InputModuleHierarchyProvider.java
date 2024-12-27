@@ -22,11 +22,11 @@ package org.sonar.scanner.scan;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.scanner.scan.filesystem.ScannerComponentIdGenerator;
 import org.springframework.context.annotation.Bean;
 
@@ -62,9 +62,11 @@ public class InputModuleHierarchyProvider {
   private static DefaultInputModule createModule(ProjectDefinition def, int scannerComponentId) {
     LOG.debug("  Init module '{}'", def.getName());
     DefaultInputModule module = new DefaultInputModule(def, scannerComponentId);
-    LOG.debug("    Base dir: {}", module.getBaseDir().toAbsolutePath().toString());
-    LOG.debug("    Working dir: {}", module.getWorkDir().toAbsolutePath().toString());
-    LOG.debug("    Module global encoding: {}, default locale: {}", module.getEncoding().displayName(), Locale.getDefault());
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("    Base dir: {}", module.getBaseDir().toAbsolutePath());
+      LOG.debug("    Working dir: {}", module.getWorkDir().toAbsolutePath());
+      LOG.debug("    Module global encoding: {}, default locale: {}", module.getEncoding().displayName(), Locale.getDefault());
+    }
     return module;
   }
 
