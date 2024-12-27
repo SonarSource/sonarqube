@@ -175,6 +175,10 @@ public class PropertiesDao implements Dao {
     return getMapper(session).selectEntityPropertyByKeyAndUserUuid(key, userUuid);
   }
 
+  public List<PropertyDto> selectProjectPropertyByKey(DbSession session, String key) {
+    return getMapper(session).selectProjectPropertyByKey(key);
+  }
+
   /**
    * Saves the specified property and its value.
    * <p>

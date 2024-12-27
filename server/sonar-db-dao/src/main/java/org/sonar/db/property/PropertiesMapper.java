@@ -40,6 +40,8 @@ public interface PropertiesMapper {
 
   List<PropertyDto> selectEntityPropertyByKeyAndUserUuid(@Param("key") String key, @Param("userUuid") String userUuid);
 
+  List<PropertyDto> selectProjectPropertyByKey(@Param("key") String key);
+
   List<PropertyDto> selectByEntityUuids(@Param("entityUuids") List<String> entityUuids);
 
   List<PropertyDto> selectByQuery(@Param("query") PropertyQuery query);
