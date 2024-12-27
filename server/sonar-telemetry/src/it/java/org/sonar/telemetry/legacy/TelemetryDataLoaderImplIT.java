@@ -148,7 +148,8 @@ class TelemetryDataLoaderImplIT {
   @BeforeEach
   void setUpBuiltInQualityGate() {
     String builtInQgName = "Sonar way";
-    builtInDefaultQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName(builtInQgName).setBuiltIn(true));
+    builtInDefaultQualityGate =
+      db.qualityGates().insertQualityGate(qg -> qg.setName(builtInQgName).setBuiltIn(true).setAiCodeSupported(true));
     when(qualityGateCaycChecker.checkCaycCompliant(any(), any(String.class))).thenReturn(NON_COMPLIANT);
     db.qualityGates().setDefaultQualityGate(builtInDefaultQualityGate);
 
@@ -230,8 +231,8 @@ class TelemetryDataLoaderImplIT {
     db.almSettings().insertGitlabProjectAlmSetting(gitHubAlmSetting, projectData2.getProjectDto(), true);
 
     // quality gates
-    QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate(qg -> qg.setName("QG1").setBuiltIn(true));
-    QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate(qg -> qg.setName("QG2"));
+    QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate(qg -> qg.setName("QG1").setBuiltIn(true).setAiCodeSupported(true));
+    QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate(qg -> qg.setName("QG2").setAiCodeSupported(false));
 
     QualityGateConditionDto condition1 = db.qualityGates().addCondition(qualityGate1, vulnerabilitiesDto, c -> c.setOperator("GT").setErrorThreshold("80"));
     QualityGateConditionDto condition2 = db.qualityGates().addCondition(qualityGate2, securityHotspotsDto, c -> c.setOperator("LT").setErrorThreshold("2"));
@@ -323,14 +324,16 @@ class TelemetryDataLoaderImplIT {
         tuple("branch", NewCodePeriodType.REFERENCE_BRANCH.name(), branch1.uuid()));
 
     assertThat(data.getQualityGates())
-      .extracting(TelemetryData.QualityGate::uuid, TelemetryData.QualityGate::caycStatus,
+      .extracting(TelemetryData.QualityGate::uuid, TelemetryData.QualityGate::caycStatus, TelemetryData.QualityGate::aicaQualified,
         qg -> qg.conditions().stream()
           .map(condition -> tuple(condition.getMetricKey(), condition.getOperator().getDbValue(), condition.getErrorThreshold(), condition.isOnLeakPeriod()))
           .toList())
       .containsExactlyInAnyOrder(
-        tuple(builtInDefaultQualityGate.getUuid(), "non-compliant", Collections.emptyList()),
-        tuple(qualityGate1.getUuid(), "non-compliant", List.of(tuple(vulnerabilitiesDto.getKey(), condition1.getOperator(), condition1.getErrorThreshold(), false))),
-        tuple(qualityGate2.getUuid(), "non-compliant", List.of(tuple(securityHotspotsDto.getKey(), condition2.getOperator(), condition2.getErrorThreshold(), false))));
+        tuple(builtInDefaultQualityGate.getUuid(), "non-compliant", true, Collections.emptyList()),
+        tuple(qualityGate1.getUuid(), "non-compliant", true,
+          List.of(tuple(vulnerabilitiesDto.getKey(), condition1.getOperator(), condition1.getErrorThreshold(), false))),
+        tuple(qualityGate2.getUuid(), "non-compliant", false,
+          List.of(tuple(securityHotspotsDto.getKey(), condition2.getOperator(), condition2.getErrorThreshold(), false))));
 
     assertThat(data.getQualityProfiles())
       .extracting(TelemetryData.QualityProfile::uuid, TelemetryData.QualityProfile::isBuiltIn)

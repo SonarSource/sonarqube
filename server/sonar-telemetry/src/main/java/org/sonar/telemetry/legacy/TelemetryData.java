@@ -372,7 +372,7 @@ public class TelemetryData {
   record Project(String projectUuid, Long lastAnalysis, String language, String qualityProfile, Long loc) {
   }
 
-  record QualityGate(String uuid, String caycStatus, List<Condition> conditions) {
+  record QualityGate(String uuid, String caycStatus, boolean aicaQualified, List<Condition> conditions) {
   }
 
   public record QualityProfile(String uuid, @Nullable String parentUuid, String language, boolean isDefault,

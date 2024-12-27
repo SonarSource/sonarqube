@@ -225,6 +225,7 @@ public class TelemetryDataJsonWriter {
         json.beginObject();
         json.prop("uuid", qualityGate.uuid());
         json.prop("caycStatus", qualityGate.caycStatus());
+        json.prop("aicaQualified", qualityGate.aicaQualified());
         json.name("conditions");
         json.beginArray();
         qualityGate.conditions().forEach(condition -> {

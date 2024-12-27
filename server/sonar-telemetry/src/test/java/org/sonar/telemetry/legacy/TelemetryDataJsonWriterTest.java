@@ -544,6 +544,7 @@ class TelemetryDataJsonWriterTest {
            {
              "uuid": "uuid-0",
              "caycStatus": "non-compliant",
+             "aicaQualified": true,
              "conditions": [
                {
                  "metric": "new_coverage",
@@ -560,6 +561,7 @@ class TelemetryDataJsonWriterTest {
            {
              "uuid": "uuid-1",
              "caycStatus": "compliant",
+             "aicaQualified": true,
              "conditions": [
                {
                  "metric": "new_coverage",
@@ -576,6 +578,7 @@ class TelemetryDataJsonWriterTest {
            {
              "uuid": "uuid-2",
              "caycStatus": "over-compliant",
+             "aicaQualified": false,
              "conditions": [
                {
                  "metric": "new_coverage",
@@ -758,9 +761,9 @@ class TelemetryDataJsonWriterTest {
 
   private List<TelemetryData.QualityGate> attachQualityGates() {
     List<Condition> qualityGateConditions = attachQualityGateConditions();
-    return List.of(new TelemetryData.QualityGate("uuid-0", "non-compliant", qualityGateConditions),
-      new TelemetryData.QualityGate("uuid-1", "compliant", qualityGateConditions),
-      new TelemetryData.QualityGate("uuid-2", "over-compliant", qualityGateConditions));
+    return List.of(new TelemetryData.QualityGate("uuid-0", "non-compliant", true, qualityGateConditions),
+      new TelemetryData.QualityGate("uuid-1", "compliant", true, qualityGateConditions),
+      new TelemetryData.QualityGate("uuid-2", "over-compliant", false, qualityGateConditions));
   }
 
   private List<Condition> attachQualityGateConditions() {

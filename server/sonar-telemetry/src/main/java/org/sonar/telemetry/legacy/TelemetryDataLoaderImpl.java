@@ -19,6 +19,7 @@
  */
 package org.sonar.telemetry.legacy;
 
+import jakarta.inject.Inject;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -34,7 +35,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import jakarta.inject.Inject;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ServerSide;
@@ -407,7 +407,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       List<Condition> conditions = conditionsMap.getOrDefault(qualityGateUuid, Collections.emptyList());
       qualityGates.add(
         new TelemetryData.QualityGate(qualityGateDto.getUuid(), qualityGateCaycChecker.checkCaycCompliant(dbSession,
-          qualityGateDto.getUuid()).toString(), conditions));
+          qualityGateDto.getUuid()).toString(), qualityGateDto.isAiCodeSupported(), conditions));
     }
 
     data.setQualityGates(qualityGates);
