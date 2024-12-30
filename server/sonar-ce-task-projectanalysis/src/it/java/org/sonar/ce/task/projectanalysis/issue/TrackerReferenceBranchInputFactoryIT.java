@@ -20,11 +20,11 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.Collections;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.ce.task.projectanalysis.component.BranchComponentUuidsDelegate;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.db.DbTester;
@@ -35,24 +35,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class TrackerReferenceBranchInputFactoryIT {
+class TrackerReferenceBranchInputFactoryIT {
   private final static String COMPONENT_KEY = "file1";
   private final static String COMPONENT_UUID = "uuid1";
 
-  @Rule
-  public DbTester db = DbTester.create();
+  @RegisterExtension
+  private final DbTester db = DbTester.create();
 
-  private ComponentIssuesLoader componentIssuesLoader = mock(ComponentIssuesLoader.class);
-  private ReferenceBranchComponentUuids referenceBranchComponentUuids = mock(ReferenceBranchComponentUuids.class);
+  private final ComponentIssuesLoader componentIssuesLoader = mock(ComponentIssuesLoader.class);
+  private final BranchComponentUuidsDelegate referenceBranchComponentUuids = mock(BranchComponentUuidsDelegate.class);
   private TrackerReferenceBranchInputFactory underTest;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     underTest = new TrackerReferenceBranchInputFactory(componentIssuesLoader, referenceBranchComponentUuids, db.getDbClient());
   }
 
   @Test
-  public void gets_issues_and_hashes_in_matching_component() {
+  void gets_issues_and_hashes_in_matching_component() {
     DefaultIssue issue1 = new DefaultIssue();
     when(referenceBranchComponentUuids.getComponentUuid(COMPONENT_KEY)).thenReturn(COMPONENT_UUID);
     when(componentIssuesLoader.loadOpenIssuesWithChanges(COMPONENT_UUID)).thenReturn(Collections.singletonList(issue1));
@@ -69,7 +69,7 @@ public class TrackerReferenceBranchInputFactoryIT {
   }
 
   @Test
-  public void gets_nothing_when_there_is_no_matching_component() {
+  void gets_nothing_when_there_is_no_matching_component() {
     Component component = mock(Component.class);
     when(component.getKey()).thenReturn(COMPONENT_KEY);
     when(component.getType()).thenReturn(Component.Type.FILE);

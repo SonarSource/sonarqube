@@ -22,8 +22,8 @@ package org.sonar.ce.task.projectanalysis.source;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.ce.task.projectanalysis.component.BranchComponentUuidsDelegate;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -40,7 +40,7 @@ public class DbLineHashVersionIT {
   public DbTester db = DbTester.create();
 
   private final AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
-  private final ReferenceBranchComponentUuids referenceBranchComponentUuids = mock(ReferenceBranchComponentUuids.class);
+  private final BranchComponentUuidsDelegate referenceBranchComponentUuids = mock(BranchComponentUuidsDelegate.class);
   private final DbLineHashVersion underTest = new DbLineHashVersion(db.getDbClient(), analysisMetadataHolder, referenceBranchComponentUuids);
 
   @Test

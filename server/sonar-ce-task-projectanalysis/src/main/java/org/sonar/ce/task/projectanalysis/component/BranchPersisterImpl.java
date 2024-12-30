@@ -21,8 +21,6 @@ package org.sonar.ce.task.projectanalysis.component;
 
 import java.util.Arrays;
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.db.DbClient;
@@ -30,6 +28,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.protobuf.DbProjectBranches;
 import org.sonar.server.project.Project;
 
@@ -114,10 +113,6 @@ public class BranchPersisterImpl implements BranchPersister {
       .map(BranchDto::getPullRequestData)
       .map(DbProjectBranches.PullRequestData::toBuilder)
       .orElse(DbProjectBranches.PullRequestData.newBuilder());
-  }
-
-  private static <T> T firstNonNull(@Nullable T first, T second) {
-    return (first != null) ? first : second;
   }
 
 }

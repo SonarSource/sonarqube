@@ -33,10 +33,9 @@ import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
+import org.sonar.ce.task.projectanalysis.component.BranchComponentUuidsDelegate;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.filemove.MutableMovedFilesRepositoryRule;
-import org.sonar.ce.task.projectanalysis.period.NewCodeReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
 import org.sonar.ce.task.projectanalysis.source.OriginalFileResolver;
@@ -77,10 +76,8 @@ class ScmInfoDbLoaderIT {
   private final PeriodHolderRule periodHolder = new PeriodHolderRule();
 
   private final Branch branch = mock(Branch.class);
-  private final ReferenceBranchComponentUuids referenceBranchComponentUuids = mock(ReferenceBranchComponentUuids.class);
-  private final NewCodeReferenceBranchComponentUuids newCodeReferenceBranchComponentUuids = mock(NewCodeReferenceBranchComponentUuids.class);
-  private final OriginalFileResolver originalFileResolver = new OriginalFileResolver(analysisMetadataHolder, movedFiles, referenceBranchComponentUuids,
-    newCodeReferenceBranchComponentUuids, periodHolder);
+  private final BranchComponentUuidsDelegate referenceBranchComponentUuids = mock(BranchComponentUuidsDelegate.class);
+  private final OriginalFileResolver originalFileResolver = new OriginalFileResolver(analysisMetadataHolder, movedFiles, referenceBranchComponentUuids);
 
   private final ScmInfoDbLoader underTest = new ScmInfoDbLoader(dbTester.getDbClient(), originalFileResolver);
 
@@ -151,7 +148,7 @@ class ScmInfoDbLoaderIT {
     String targetBranchFileUuid = "targetBranchFileUuid";
     String hash = computeSourceHash(1);
 
-    when(newCodeReferenceBranchComponentUuids.getComponentUuid(FILE.getKey())).thenReturn(targetBranchFileUuid);
+    when(referenceBranchComponentUuids.getComponentUuid(FILE.getKey())).thenReturn(targetBranchFileUuid);
     addFileSourceInDb("henry", DATE_1, "rev-1", hash, targetBranchFileUuid);
 
     DbScmInfo scmInfo = underTest.getScmInfo(FILE).orElseGet(() -> fail("Expected SCM info"));

@@ -24,9 +24,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.ce.task.projectanalysis.component.BranchComponentUuidsDelegate;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.period.NewCodeReferenceBranchComponentUuids;
-import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.filemove.MutableMovedFilesRepositoryRule;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
 import org.sonar.db.DbClient;
@@ -48,8 +47,7 @@ class SourceLinesDiffImplTest {
   private final FileSourceDao fileSourceDao = mock(FileSourceDao.class);
   private final SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
   private final AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
-  private final ReferenceBranchComponentUuids referenceBranchComponentUuids = mock(ReferenceBranchComponentUuids.class);
-  private final NewCodeReferenceBranchComponentUuids newCodeReferenceBranchComponentUuids = mock(NewCodeReferenceBranchComponentUuids.class);
+  private final BranchComponentUuidsDelegate referenceBranchComponentUuids = mock(BranchComponentUuidsDelegate.class);
 
   @RegisterExtension
   private final PeriodHolderRule periodHolder = new PeriodHolderRule();
@@ -57,8 +55,7 @@ class SourceLinesDiffImplTest {
   @RegisterExtension
   private final MutableMovedFilesRepositoryRule movedFiles = new MutableMovedFilesRepositoryRule();
 
-  private final OriginalFileResolver originalFileResolver = new OriginalFileResolver(analysisMetadataHolder, movedFiles, referenceBranchComponentUuids,
-    newCodeReferenceBranchComponentUuids, periodHolder);
+  private final OriginalFileResolver originalFileResolver = new OriginalFileResolver(analysisMetadataHolder, movedFiles, referenceBranchComponentUuids);
 
   private final SourceLinesDiffImpl underTest = new SourceLinesDiffImpl(dbClient, fileSourceDao, sourceLinesHash, originalFileResolver);
 

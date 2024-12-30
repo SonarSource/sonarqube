@@ -21,13 +21,9 @@ package org.sonar.ce.task.projectanalysis.source;
 
 import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.ce.task.projectanalysis.component.BranchComponentUuidsDelegate;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository;
-import org.sonar.ce.task.projectanalysis.period.NewCodeReferenceBranchComponentUuids;
-import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
-
-import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 
 /**
  * Business logic to retrieve the uuid of a file in other branches/analysis.
@@ -36,54 +32,29 @@ import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 public class OriginalFileResolver {
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final MovedFilesRepository movedFilesRepository;
-  private final ReferenceBranchComponentUuids referenceBranchComponentUuids;
-  private final NewCodeReferenceBranchComponentUuids newCodeReferenceBranchComponentUuids;
-  private final PeriodHolder periodHolder;
+  private final BranchComponentUuidsDelegate branchComponentUuidsDelegate;
 
   public OriginalFileResolver(AnalysisMetadataHolder analysisMetadataHolder,
     MovedFilesRepository movedFilesRepository,
-    ReferenceBranchComponentUuids referenceBranchComponentUuids,
-    NewCodeReferenceBranchComponentUuids newCodeReferenceBranchComponentUuids,
-    PeriodHolder periodHolder) {
+    BranchComponentUuidsDelegate branchComponentUuidsDelegate) {
 
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.movedFilesRepository = movedFilesRepository;
-    this.referenceBranchComponentUuids = referenceBranchComponentUuids;
-    this.newCodeReferenceBranchComponentUuids = newCodeReferenceBranchComponentUuids;
-    this.periodHolder = periodHolder;
+    this.branchComponentUuidsDelegate = branchComponentUuidsDelegate;
   }
 
   public Optional<String> getFileUuid(Component file) {
+    String componentUuid = branchComponentUuidsDelegate.getComponentUuid(file.getKey());
     if (analysisMetadataHolder.isPullRequest()) {
-      return Optional.ofNullable(referenceBranchComponentUuids.getComponentUuid(file.getKey()));
+      return Optional.ofNullable(componentUuid);
     }
-    if (analysisMetadataHolder.isFirstAnalysis()) {
-      return getFileUuidForFirstAnalysis(file);
+    if (componentUuid != null && analysisMetadataHolder.isFirstAnalysis()) {
+      return Optional.of(componentUuid);
     }
-    return getOrignalFileIfMoved(file);
+    return getOriginalFileIfMoved(file);
   }
 
-  private Optional<String> getFileUuidForFirstAnalysis(Component file) {
-    if (isNewCodePeriodReferenceBranch()) {
-      String componentUuidFromNewCodeReference = newCodeReferenceBranchComponentUuids.getComponentUuid(file.getKey());
-      if (componentUuidFromNewCodeReference != null) {
-        return Optional.of(componentUuidFromNewCodeReference);
-      }
-    }
-    if (!analysisMetadataHolder.getBranch().isMain()) {
-      String componentUuidFromReferenceBranch = referenceBranchComponentUuids.getComponentUuid(file.getKey());
-      if (componentUuidFromReferenceBranch != null) {
-        return Optional.of(componentUuidFromReferenceBranch);
-      }
-    }
-    return getOrignalFileIfMoved(file);
-  }
-
-  private boolean isNewCodePeriodReferenceBranch() {
-    return periodHolder.hasPeriod() && REFERENCE_BRANCH.name().equals(periodHolder.getPeriod().getMode());
-  }
-
-  private Optional<String> getOrignalFileIfMoved(Component file) {
+  private Optional<String> getOriginalFileIfMoved(Component file) {
     return movedFilesRepository.getOriginalFile(file)
       .map(MovedFilesRepository.OriginalFile::uuid)
       .or(() -> Optional.ofNullable(file.getUuid()));

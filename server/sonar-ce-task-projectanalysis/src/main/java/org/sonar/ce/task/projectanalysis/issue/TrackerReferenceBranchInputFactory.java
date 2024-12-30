@@ -22,8 +22,8 @@ package org.sonar.ce.task.projectanalysis.issue;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.sonar.ce.task.projectanalysis.component.BranchComponentUuidsDelegate;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.LazyInput;
@@ -36,17 +36,17 @@ public class TrackerReferenceBranchInputFactory {
 
   private final ComponentIssuesLoader componentIssuesLoader;
   private final DbClient dbClient;
-  private final ReferenceBranchComponentUuids referenceBranchComponentUuids;
+  private final BranchComponentUuidsDelegate branchComponentUuidsDelegate;
 
-  public TrackerReferenceBranchInputFactory(ComponentIssuesLoader componentIssuesLoader, ReferenceBranchComponentUuids referenceBranchComponentUuids, DbClient dbClient) {
+  public TrackerReferenceBranchInputFactory(ComponentIssuesLoader componentIssuesLoader, BranchComponentUuidsDelegate branchComponentUuidsDelegate, DbClient dbClient) {
     this.componentIssuesLoader = componentIssuesLoader;
-    this.referenceBranchComponentUuids = referenceBranchComponentUuids;
+    this.branchComponentUuidsDelegate = branchComponentUuidsDelegate;
     this.dbClient = dbClient;
     // TODO detect file moves?
   }
 
   public Input<DefaultIssue> create(Component component) {
-    String referenceBranchComponentUuid = referenceBranchComponentUuids.getComponentUuid(component.getKey());
+    String referenceBranchComponentUuid = branchComponentUuidsDelegate.getComponentUuid(component.getKey());
     return new ReferenceLazyInput(component.getType(), referenceBranchComponentUuid);
   }
 

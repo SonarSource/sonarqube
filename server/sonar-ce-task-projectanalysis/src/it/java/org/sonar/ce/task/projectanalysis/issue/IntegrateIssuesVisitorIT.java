@@ -19,16 +19,17 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleKey;
@@ -39,9 +40,9 @@ import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.analysis.ScannerPlugin;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
+import org.sonar.ce.task.projectanalysis.component.BranchComponentUuidsDelegate;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.FileStatuses;
-import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitor;
@@ -83,7 +84,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class IntegrateIssuesVisitorIT {
+class IntegrateIssuesVisitorIT {
 
   private static final String FILE_UUID = "FILE_UUID";
   private static final String FILE_UUID_ON_BRANCH = "FILE_UUID_BRANCH";
@@ -105,17 +106,18 @@ public class IntegrateIssuesVisitorIT {
     .addChildren(FILE)
     .build();
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
+  @TempDir
+  File tempDirectory;
+
+  @RegisterExtension
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-  @Rule
+  @RegisterExtension
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-  @Rule
+  @RegisterExtension
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
-  @Rule
+  @RegisterExtension
   public ActiveRulesHolderRule activeRulesHolderRule = new ActiveRulesHolderRule();
-  @Rule
+  @RegisterExtension
   public RuleRepositoryRule ruleRepositoryRule = new RuleRepositoryRule();
 
   private final AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
@@ -125,9 +127,9 @@ public class IntegrateIssuesVisitorIT {
   private final IssueLifecycle issueLifecycle = new IssueLifecycle(analysisMetadataHolder, issueChangeContext, mock(IssueWorkflow.class), new IssueFieldsSetter(),
     mock(DebtCalculator.class), ruleRepositoryRule);
   private final IssueVisitor issueVisitor = mock(IssueVisitor.class);
-  private final ReferenceBranchComponentUuids mergeBranchComponentsUuids = mock(ReferenceBranchComponentUuids.class);
+  private final BranchComponentUuidsDelegate mergeBranchComponentsUuids = mock(BranchComponentUuidsDelegate.class);
   private final SiblingsIssueMerger issueStatusCopier = mock(SiblingsIssueMerger.class);
-  private final ReferenceBranchComponentUuids referenceBranchComponentUuids = mock(ReferenceBranchComponentUuids.class);
+  private final BranchComponentUuidsDelegate referenceBranchComponentUuids = mock(BranchComponentUuidsDelegate.class);
   private final SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
   private final NewLinesRepository newLinesRepository = mock(NewLinesRepository.class);
   private final TargetBranchComponentUuids targetBranchComponentUuids = mock(TargetBranchComponentUuids.class);
@@ -142,7 +144,7 @@ public class IntegrateIssuesVisitorIT {
 
   private TypeAwareVisitor underTest;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     IssueVisitors issueVisitors = new IssueVisitors(new IssueVisitor[] {issueVisitor});
 
@@ -161,7 +163,8 @@ public class IntegrateIssuesVisitorIT {
     PullRequestTrackerExecution prBranchTracker = new PullRequestTrackerExecution(baseInputFactory, new Tracker<>(), newLinesRepository);
     IssueTrackingDelegator trackingDelegator = new IssueTrackingDelegator(prBranchTracker, mergeBranchTracker, tracker, analysisMetadataHolder);
     treeRootHolder.setRoot(PROJECT);
-    protoIssueCache = new ProtoIssueCache(temp.newFile(), System2.INSTANCE);
+    File temp = new File(tempDirectory, "temp");
+    protoIssueCache = new ProtoIssueCache(temp, System2.INSTANCE);
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
     when(issueChangeContext.date()).thenReturn(new Date());
     underTest = new IntegrateIssuesVisitor(protoIssueCache, rawInputFactory, baseInputFactory, issueLifecycle, issueVisitors, trackingDelegator, issueStatusCopier,
@@ -169,7 +172,7 @@ public class IntegrateIssuesVisitorIT {
   }
 
   @Test
-  public void process_new_issue() {
+  void process_new_issue() {
     // Active rule has severity major
     ruleRepositoryRule.add(RuleTesting.XOO_X1);
     when(analysisMetadataHolder.isBranch()).thenReturn(true);
@@ -185,7 +188,7 @@ public class IntegrateIssuesVisitorIT {
   }
 
   @Test
-  public void process_new_issue_with_overridden_severity() {
+  void process_new_issue_with_overridden_severity() {
     // Active rule has severity major
     ruleRepositoryRule.add(RuleTesting.XOO_X1);
     when(analysisMetadataHolder.isBranch()).thenReturn(true);
@@ -201,7 +204,7 @@ public class IntegrateIssuesVisitorIT {
   }
 
   @Test
-  public void process_existing_issue() {
+  void process_existing_issue() {
     // Active rule has severity major
     RuleKey ruleKey = RuleTesting.XOO_X1;
     // Issue from db has severity minor
@@ -218,7 +221,7 @@ public class IntegrateIssuesVisitorIT {
   }
 
   @Test
-  public void execute_issue_visitors() {
+  void execute_issue_visitors() {
     ruleRepositoryRule.add(RuleTesting.XOO_X1);
     ScannerReport.Issue reportIssue = getReportIssue(RuleTesting.XOO_X1);
     reportReader.putIssues(FILE_REF, singletonList(reportIssue));
@@ -232,7 +235,7 @@ public class IntegrateIssuesVisitorIT {
   }
 
   @Test
-  public void visitAny_whenIsPullRequest_shouldCallExpectedVisitorsRawIssues() {
+  void visitAny_whenIsPullRequest_shouldCallExpectedVisitorsRawIssues() {
     when(analysisMetadataHolder.isPullRequest()).thenReturn(true);
     when(targetBranchComponentUuids.hasTargetBranchAnalysis()).thenReturn(true);
 
@@ -254,7 +257,7 @@ public class IntegrateIssuesVisitorIT {
   }
 
   @Test
-  public void close_unmatched_base_issue() {
+  void close_unmatched_base_issue() {
     RuleKey ruleKey = RuleTesting.XOO_X1;
     addBaseIssue(ruleKey);
 
@@ -266,7 +269,7 @@ public class IntegrateIssuesVisitorIT {
   }
 
   @Test
-  public void reuse_issues_when_data_unchanged() {
+  void reuse_issues_when_data_unchanged() {
     RuleKey ruleKey = RuleTesting.XOO_X1;
     addBaseIssue(ruleKey);
 
@@ -287,7 +290,7 @@ public class IntegrateIssuesVisitorIT {
   }
 
   @Test
-  public void copy_issues_when_creating_new_non_main_branch() {
+  void copy_issues_when_creating_new_non_main_branch() {
     when(mergeBranchComponentsUuids.getComponentUuid(FILE_KEY)).thenReturn(FILE_UUID_ON_BRANCH);
     when(referenceBranchComponentUuids.getReferenceBranchName()).thenReturn("master");
 
@@ -318,8 +321,8 @@ public class IntegrateIssuesVisitorIT {
   }
 
   @Test
-  public void visitAny_whenCacheFileNotFound_shouldThrowException() {
-    temp.delete();
+  void visitAny_whenCacheFileNotFound_shouldThrowException() {
+    tempDirectory.delete();
 
     assertThatThrownBy(() -> underTest.visitAny(FILE))
       .isInstanceOf(IllegalStateException.class)
@@ -327,7 +330,7 @@ public class IntegrateIssuesVisitorIT {
   }
 
   @Test
-  public void visitAny_whenPluginChangedSinceLastAnalysis_shouldNotExecuteIncrementalAnalysis() {
+  void visitAny_whenPluginChangedSinceLastAnalysis_shouldNotExecuteIncrementalAnalysis() {
     RuleKey ruleKey = RuleTesting.XOO_X1;
     addBaseIssue(ruleKey);
     when(fileStatuses.isDataUnchanged(FILE)).thenReturn(true);

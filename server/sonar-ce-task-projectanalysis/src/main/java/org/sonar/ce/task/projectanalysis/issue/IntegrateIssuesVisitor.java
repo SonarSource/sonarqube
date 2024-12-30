@@ -32,10 +32,10 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.ScannerPlugin;
+import org.sonar.ce.task.projectanalysis.component.BranchComponentUuidsDelegate;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.FileStatuses;
-import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.util.cache.DiskCache.CacheAppender;
 import org.sonar.core.issue.DefaultIssue;
@@ -52,7 +52,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   private final IssueVisitors issueVisitors;
   private final IssueTrackingDelegator issueTracking;
   private final SiblingsIssueMerger issueStatusCopier;
-  private final ReferenceBranchComponentUuids referenceBranchComponentUuids;
+  private final BranchComponentUuidsDelegate branchComponentUuidsDelegate;
   private final PullRequestSourceBranchMerger pullRequestSourceBranchMerger;
   private final FileStatuses fileStatuses;
   private final AnalysisMetadataHolder analysisMetadataHolder;
@@ -67,7 +67,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     IssueVisitors issueVisitors,
     IssueTrackingDelegator issueTracking,
     SiblingsIssueMerger issueStatusCopier,
-    ReferenceBranchComponentUuids referenceBranchComponentUuids,
+    BranchComponentUuidsDelegate branchComponentUuidsDelegate,
     PullRequestSourceBranchMerger pullRequestSourceBranchMerger,
     FileStatuses fileStatuses,
     AnalysisMetadataHolder analysisMetadataHolder,
@@ -82,7 +82,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     this.issueVisitors = issueVisitors;
     this.issueTracking = issueTracking;
     this.issueStatusCopier = issueStatusCopier;
-    this.referenceBranchComponentUuids = referenceBranchComponentUuids;
+    this.branchComponentUuidsDelegate = branchComponentUuidsDelegate;
     this.pullRequestSourceBranchMerger = pullRequestSourceBranchMerger;
     this.fileStatuses = fileStatuses;
     this.analysisMetadataHolder = analysisMetadataHolder;
@@ -200,7 +200,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     for (Map.Entry<DefaultIssue, DefaultIssue> entry : matched.entrySet()) {
       DefaultIssue raw = entry.getKey();
       DefaultIssue base = entry.getValue();
-      issueLifecycle.copyExistingOpenIssueFromBranch(raw, base, referenceBranchComponentUuids.getReferenceBranchName());
+      issueLifecycle.copyExistingOpenIssueFromBranch(raw, base, branchComponentUuidsDelegate.getReferenceBranchName());
       newIssuesList.add(raw);
     }
     return newIssuesList;

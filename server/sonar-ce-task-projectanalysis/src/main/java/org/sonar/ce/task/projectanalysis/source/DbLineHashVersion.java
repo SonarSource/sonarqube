@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.ce.task.projectanalysis.component.BranchComponentUuidsDelegate;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.source.LineHashVersion;
@@ -33,12 +33,12 @@ public class DbLineHashVersion {
   private final Map<Component, LineHashVersion> lineHashVersionPerComponent = new HashMap<>();
   private final DbClient dbClient;
   private final AnalysisMetadataHolder analysisMetadataHolder;
-  private final ReferenceBranchComponentUuids referenceBranchComponentUuids;
+  private final BranchComponentUuidsDelegate branchComponentUuidsDelegate;
 
-  public DbLineHashVersion(DbClient dbClient, AnalysisMetadataHolder analysisMetadataHolder, ReferenceBranchComponentUuids referenceBranchComponentUuids) {
+  public DbLineHashVersion(DbClient dbClient, AnalysisMetadataHolder analysisMetadataHolder, BranchComponentUuidsDelegate branchComponentUuidsDelegate) {
     this.dbClient = dbClient;
     this.analysisMetadataHolder = analysisMetadataHolder;
-    this.referenceBranchComponentUuids = referenceBranchComponentUuids;
+    this.branchComponentUuidsDelegate = branchComponentUuidsDelegate;
   }
 
   /**
@@ -74,7 +74,7 @@ public class DbLineHashVersion {
   @CheckForNull
   private String getReferenceComponentUuid(Component component) {
     if (analysisMetadataHolder.isPullRequest()) {
-      return referenceBranchComponentUuids.getComponentUuid(component.getKey());
+      return branchComponentUuidsDelegate.getComponentUuid(component.getKey());
     } else {
       return component.getUuid();
     }
