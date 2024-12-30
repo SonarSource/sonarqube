@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.auth.github.client;
+package org.sonar.auth.github;
 
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
@@ -27,12 +27,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.server.ServerSide;
-import org.sonar.auth.github.ExpiringAppInstallationToken;
-import org.sonar.auth.github.GithubAppConfiguration;
-import org.sonar.auth.github.GithubAppInstallation;
-import org.sonar.auth.github.GithubBinding;
-import org.sonar.auth.github.GsonRepositoryCollaborator;
-import org.sonar.auth.github.GsonRepositoryTeam;
 import org.sonar.auth.github.security.AccessToken;
 import org.sonar.auth.github.security.UserAccessToken;
 

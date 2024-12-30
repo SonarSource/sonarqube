@@ -20,7 +20,6 @@
 package org.sonar.auth.github;
 
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.auth.github.client.GithubApplicationClient;
 
 import static java.lang.Long.parseLong;
 import static java.lang.String.format;

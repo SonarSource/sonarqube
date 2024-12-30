@@ -33,7 +33,7 @@ import org.sonar.alm.client.github.GithubPermissionConverter;
 import org.sonar.auth.github.AppInstallationToken;
 import org.sonar.auth.github.ExpiringAppInstallationToken;
 import org.sonar.auth.github.GitHubSettings;
-import org.sonar.auth.github.client.GithubApplicationClient;
+import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.pat.AlmPatDto;

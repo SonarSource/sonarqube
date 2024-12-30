@@ -29,7 +29,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.auth.github.GithubAppConfiguration;
 import org.sonar.auth.github.GithubAppInstallation;
-import org.sonar.auth.github.client.GithubApplicationClient;
+import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.auth.github.GithubBinding.GsonApp;
 import org.sonar.auth.github.GithubBinding.Permissions;
 import org.sonar.auth.github.GitHubSettings;

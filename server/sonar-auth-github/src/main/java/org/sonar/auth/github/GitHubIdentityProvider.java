@@ -31,7 +31,6 @@ import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.server.http.HttpRequest;
-import org.sonar.auth.github.client.GithubApplicationClient;
 import org.sonar.auth.github.scribe.ScribeServiceBuilder;
 
 import static com.google.common.base.Preconditions.checkState;

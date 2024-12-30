@@ -30,7 +30,6 @@ import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.auth.github.GithubBinding.Permissions;
-import org.sonar.auth.github.client.GithubApplicationClient;
 import org.sonar.auth.github.scribe.ScribeServiceBuilder;
 import org.sonar.db.DbClient;
 import org.sonar.server.property.InternalProperties;

@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
 import org.sonar.api.utils.System2;
 import org.sonar.auth.github.GitHubSettings;
-import org.sonar.auth.github.client.GithubApplicationClient;
+import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeQueueImpl;
 import org.sonar.ce.queue.CeTaskSubmit;

@@ -53,7 +53,7 @@ import org.sonar.auth.github.GithubBinding.GsonInstallations;
 import org.sonar.auth.github.GithubBinding.GsonRepositorySearch;
 import org.sonar.auth.github.GsonRepositoryCollaborator;
 import org.sonar.auth.github.GsonRepositoryTeam;
-import org.sonar.auth.github.client.GithubApplicationClient;
+import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.auth.github.security.AccessToken;
 import org.sonar.auth.github.security.UserAccessToken;
 import org.sonar.server.exceptions.ServerException;

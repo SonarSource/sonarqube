@@ -24,7 +24,7 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import static org.sonar.auth.github.client.GithubApplicationClient.Repository;
+import static org.sonar.auth.github.GithubApplicationClient.Repository;
 
 public class GithubBinding {
 

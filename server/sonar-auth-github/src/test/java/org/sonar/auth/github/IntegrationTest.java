@@ -40,7 +40,6 @@ import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.utils.System2;
-import org.sonar.auth.github.client.GithubApplicationClient;
 import org.sonar.auth.github.scribe.ScribeServiceBuilder;
 import org.sonar.db.DbTester;
 import org.sonar.server.http.JakartaHttpRequest;
