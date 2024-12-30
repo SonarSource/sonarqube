@@ -20,18 +20,16 @@
 package org.sonar.db.project;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
 import org.sonar.db.audit.AuditPersister;
-import org.sonar.db.audit.model.ComponentNewValue;
+import org.sonar.db.audit.model.ProjectNewValue;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
@@ -39,8 +37,6 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 public class ProjectDao implements Dao {
   private final System2 system2;
   private final AuditPersister auditPersister;
-
-  private final Function<String, Set<String>> languageFilters = language -> Set.of(language + "=%", "%;" + language + "=%");
 
   public ProjectDao(System2 system2, AuditPersister auditPersister) {
     this.system2 = system2;
@@ -53,7 +49,7 @@ public class ProjectDao implements Dao {
 
   public void insert(DbSession session, ProjectDto project, boolean track) {
     if (track) {
-      auditPersister.addComponent(session, new ComponentNewValue(project));
+      auditPersister.addComponent(session, new ProjectNewValue(project));
     }
     mapper(session).insert(project);
   }
@@ -123,8 +119,12 @@ public class ProjectDao implements Dao {
     mapper(session).updateVisibility(uuid, isPrivate, system2.now());
   }
 
-  public void updateAiCodeAssurance(DbSession session, String uuid, boolean aiCodeAssurance) {
-    mapper(session).updateAiCodeAssurance(uuid, aiCodeAssurance, system2.now());
+  public void updateContainsAiCode(DbSession session, String uuid, boolean containsAiCode) {
+    mapper(session).updateContainsAiCode(uuid, containsAiCode, system2.now());
+  }
+
+  public void updateAiCodeFixEnablementForAllProjects(DbSession dbSession, boolean featureEnablement) {
+    mapper(dbSession).updateAiCodeFixEnablementForAllProjects(featureEnablement, system2.now());
   }
 
   public void updateTags(DbSession session, ProjectDto project) {
@@ -132,16 +132,12 @@ public class ProjectDao implements Dao {
   }
 
   public void update(DbSession session, ProjectDto project) {
-    auditPersister.updateComponent(session, new ComponentNewValue(project));
+    auditPersister.updateComponent(session, new ProjectNewValue(project));
     mapper(session).update(project);
   }
 
   private static ProjectMapper mapper(DbSession session) {
     return session.getMapper(ProjectMapper.class);
-  }
-
-  public Set<String> selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(DbSession session, String language) {
-    return mapper(session).selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(languageFilters.apply(language));
   }
 
   public void updateNcloc(DbSession dbSession, String projectUuid, long ncloc) {
@@ -164,12 +160,12 @@ public class ProjectDao implements Dao {
     return mapper(session).countProjects();
   }
 
-  public List<ProjectDto> selectProjectsByLanguage(DbSession dbSession, Set<String> setOfLanguages) {
-    Set<String> likeFilters = new HashSet<>();
-    for (String language : setOfLanguages) {
-      likeFilters.addAll(languageFilters.apply(language));
-    }
-    return mapper(dbSession).selectProjectsByLanguage(likeFilters);
+  public int countAiCodeFixEnabledProjects(DbSession session) {
+    return mapper(session).countProjectsByAiCodeFixEnablement(true);
+  }
+
+  public int countAiCodeFixDisabledProjects(DbSession session) {
+    return mapper(session).countProjectsByAiCodeFixEnablement(false);
   }
 
   public List<ProjectDto> selectProjectsByOrganizationUuids(DbSession session, List<String> orgUuids) {

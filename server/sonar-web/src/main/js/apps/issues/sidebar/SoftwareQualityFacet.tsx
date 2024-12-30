@@ -17,9 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
+
+import { FacetHelp } from '../../../components/facets/FacetHelp';
 import { SOFTWARE_QUALITIES } from '../../../helpers/constants';
+import { DocLink } from '../../../helpers/doc-links';
 import { SoftwareQuality } from '../../../types/clean-code-taxonomy';
+import QGMetricsMismatchHelp from './QGMetricsMismatchHelp';
 import { CommonProps, SimpleListStyleFacet } from './SimpleListStyleFacet';
 
 interface Props extends CommonProps {
@@ -35,6 +38,13 @@ export function SoftwareQualityFacet(props: Props) {
       itemNamePrefix="software_quality"
       listItems={SOFTWARE_QUALITIES}
       selectedItems={qualities}
+      help={
+        props.secondLine ? (
+          <QGMetricsMismatchHelp />
+        ) : (
+          <FacetHelp property="impactSoftwareQualities" link={DocLink.CleanCodeSoftwareQualities} />
+        )
+      }
       {...rest}
     />
   );

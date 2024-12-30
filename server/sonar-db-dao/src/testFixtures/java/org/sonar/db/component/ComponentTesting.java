@@ -21,15 +21,13 @@ package org.sonar.db.component;
 
 import java.util.Date;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
@@ -65,12 +63,24 @@ public class ComponentTesting {
       .setKey("FILE_KEY_" + fileUuid)
       .setName(filename)
       .setLongName(path)
-      .setScope(Scopes.FILE)
+      .setScope(ComponentScopes.FILE)
       .setBranchUuid(branch.branchUuid())
-      .setQualifier(Qualifiers.FILE)
+      .setQualifier(ComponentQualifiers.FILE)
       .setPath(path)
       .setCreatedAt(new Date())
       .setLanguage("xoo");
+  }
+
+  public static ComponentDto newDependencyDto(ComponentDto branch, String dependencyUuid) {
+    String name = "NAME_" + dependencyUuid;
+    return newChildComponent(dependencyUuid, branch, branch)
+      .setKey("DEP_KEY_" + dependencyUuid)
+      .setName("NAME_" + dependencyUuid)
+      .setLongName("LONGNAME_" + dependencyUuid)
+      .setScope("DEP")
+      .setBranchUuid(branch.branchUuid())
+      .setQualifier("DEP")
+      .setCreatedAt(new Date());
   }
 
   public static ComponentDto newDirectory(ComponentDto branch, String path) {
@@ -89,8 +99,8 @@ public class ComponentTesting {
       .setLongName(path)
       .setBranchUuid(branch.branchUuid())
       .setPath(path)
-      .setScope(Scopes.DIRECTORY)
-      .setQualifier(Qualifiers.DIRECTORY);
+      .setScope(ComponentScopes.DIRECTORY)
+      .setQualifier(ComponentQualifiers.DIRECTORY);
   }
 
   public static ComponentDto newDirectory(ComponentDto branch, String uuid, String path) {
@@ -102,8 +112,8 @@ public class ComponentTesting {
       .setKey(key)
       .setName(key)
       .setLongName(key)
-      .setScope(Scopes.PROJECT)
-      .setQualifier(Qualifiers.SUBVIEW)
+      .setScope(ComponentScopes.PROJECT)
+      .setQualifier(ComponentQualifiers.SUBVIEW)
       .setPath(null);
   }
 
@@ -137,8 +147,8 @@ public class ComponentTesting {
       .setName("NAME_" + uuid)
       .setLongName("LONG_NAME_" + uuid)
       .setDescription("DESCRIPTION_" + uuid)
-      .setScope(Scopes.PROJECT)
-      .setQualifier(Qualifiers.PROJECT)
+      .setScope(ComponentScopes.PROJECT)
+      .setQualifier(ComponentQualifiers.PROJECT)
       .setPath(null)
       .setLanguage(null)
       .setEnabled(true)
@@ -152,8 +162,8 @@ public class ComponentTesting {
   public static ComponentDto newPortfolio(String uuid) {
     return newPrivateProjectDto(uuid)
       .setUuid(uuid)
-      .setScope(Scopes.PROJECT)
-      .setQualifier(Qualifiers.VIEW)
+      .setScope(ComponentScopes.PROJECT)
+      .setQualifier(ComponentQualifiers.VIEW)
       .setPrivate(false);
   }
 
@@ -171,7 +181,7 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newApplication() {
-    return newPortfolio(Uuids.createFast()).setQualifier(Qualifiers.APP);
+    return newPortfolio(Uuids.createFast()).setQualifier(ComponentQualifiers.APP);
   }
 
   public static ComponentDto newProjectCopy(ProjectData project, ProjectData view) {
@@ -192,8 +202,8 @@ public class ComponentTesting {
       .setName(project.name())
       .setLongName(project.longName())
       .setCopyComponentUuid(project.uuid())
-      .setScope(Scopes.FILE)
-      .setQualifier(Qualifiers.PROJECT)
+      .setScope(ComponentScopes.FILE)
+      .setQualifier(ComponentQualifiers.PROJECT)
       .setPath(null)
       .setLanguage(null);
   }
@@ -204,8 +214,8 @@ public class ComponentTesting {
       .setName(project.name())
       .setLongName(project.longName())
       .setCopyComponentUuid(project.uuid())
-      .setScope(Scopes.FILE)
-      .setQualifier(Qualifiers.PROJECT)
+      .setScope(ComponentScopes.FILE)
+      .setQualifier(ComponentQualifiers.PROJECT)
       .setPath(null)
       .setLanguage(null);
   }
@@ -226,7 +236,7 @@ public class ComponentTesting {
 
 
   public static BranchDto newBranchDto(@Nullable String projectUuid, BranchType branchType) {
-    String key = "branch_" + randomAlphanumeric(248);
+    String key = "branch_" + secure().nextAlphanumeric(248);
     return new BranchDto()
       .setKey(key)
       .setUuid(Uuids.createFast())
@@ -240,7 +250,7 @@ public class ComponentTesting {
   }
 
   public static BranchDto newBranchDto(ComponentDto branchComponent, BranchType branchType, String projectUuid) {
-    String key = "branch_" + randomAlphanumeric(248);
+    String key = "branch_" + secure().nextAlphanumeric(248);
 
     return new BranchDto()
       .setKey(key)
@@ -278,7 +288,7 @@ public class ComponentTesting {
       .setUuid(projectUuid)
       .setName("projectName")
       .setCreationMethod(CreationMethod.LOCAL_API)
-      .setQualifier(Qualifiers.PROJECT);
+      .setQualifier(ComponentQualifiers.PROJECT);
   }
 
   public static ProjectDto newApplicationDto() {
@@ -287,7 +297,7 @@ public class ComponentTesting {
       .setUuid("uuid")
       .setName("appName")
       .setCreationMethod(CreationMethod.LOCAL_API)
-      .setQualifier(Qualifiers.APP);
+      .setQualifier(ComponentQualifiers.APP);
   }
 
   public static ComponentDto newBranchComponent(ProjectDto project, BranchDto branchDto) {
@@ -300,7 +310,7 @@ public class ComponentTesting {
       .setName(project.getName())
       .setLongName(project.getName())
       .setDescription(project.getDescription())
-      .setScope(Scopes.PROJECT)
+      .setScope(ComponentScopes.PROJECT)
       .setQualifier(project.getQualifier())
       .setPath(null)
       .setLanguage(null)
@@ -309,7 +319,7 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newBranchComponent(ComponentDto project, BranchDto branchDto) {
-    checkArgument(project.qualifier().equals(Qualifiers.PROJECT) || project.qualifier().equals(Qualifiers.APP));
+    checkArgument(project.qualifier().equals(ComponentQualifiers.PROJECT) || project.qualifier().equals(ComponentQualifiers.APP));
     String uuid = branchDto.getUuid();
     return new ComponentDto()
       .setUuid(uuid)

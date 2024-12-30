@@ -17,22 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { AlmKeys } from '../../types/alm-settings';
 import { ExtendedSettingDefinition } from '../../types/settings';
 import { Dict } from '../../types/types';
 
 export const ALM_INTEGRATION_CATEGORY = 'almintegration';
-export const CODE_FIX_CATEGORY = 'codefix';
+export const AI_CODE_FIX_CATEGORY = 'ai_codefix';
 export const AUTHENTICATION_CATEGORY = 'authentication';
 export const ANALYSIS_SCOPE_CATEGORY = 'exclusions';
 export const LANGUAGES_CATEGORY = 'languages';
 export const NEW_CODE_PERIOD_CATEGORY = 'new_code_period';
 export const PULL_REQUEST_DECORATION_BINDING_CATEGORY = 'pull_request_decoration_binding';
 export const EMAIL_NOTIFICATION_CATEGORY = 'email_notification';
+export const MODE_CATEGORY = 'mode';
 export const CUSTOMER_CATEGORY = 'customer';
 
 export const CATEGORY_OVERRIDES: Dict<string> = {
   abap: LANGUAGES_CATEGORY,
+  ansible: LANGUAGES_CATEGORY,
   apex: LANGUAGES_CATEGORY,
   azureresourcemanager: LANGUAGES_CATEGORY,
   'c / c++ / objective-c': LANGUAGES_CATEGORY,

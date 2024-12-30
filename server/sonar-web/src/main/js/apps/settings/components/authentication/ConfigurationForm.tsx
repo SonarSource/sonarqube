@@ -19,10 +19,10 @@
  */
 
 import { Button, ButtonVariety, Spinner } from '@sonarsource/echoes-react';
-import { FlagMessage, Modal } from 'design-system';
 import { keyBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { FlagMessage, Modal } from '~design-system';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
 import { AlmAuthDocLinkKeys } from '../../../../helpers/doc-links';
 import { translate } from '../../../../helpers/l10n';

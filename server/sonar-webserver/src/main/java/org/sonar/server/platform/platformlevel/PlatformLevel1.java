@@ -28,6 +28,7 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.core.config.CorePropertyDefinitions;
+import org.sonar.core.documentation.DefaultDocumentationLinkGenerator;
 import org.sonar.core.extension.CoreExtensionRepositoryImpl;
 import org.sonar.core.extension.CoreExtensionsLoader;
 import org.sonar.core.platform.SonarQubeVersion;
@@ -51,8 +52,8 @@ import org.sonar.server.es.EsModule;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
-import org.sonar.server.platform.DefaultNodeInformation;
 import org.sonar.server.platform.ContainerSupportImpl;
+import org.sonar.server.platform.DefaultNodeInformation;
 import org.sonar.server.platform.LogServerVersion;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerFileSystemImpl;
@@ -139,6 +140,8 @@ public class PlatformLevel1 extends PlatformLevel {
       IssueIndexSyncProgressChecker.class,
 
       GlobalLockManagerImpl.class,
+
+      DefaultDocumentationLinkGenerator.class,
 
       new OkHttpClientProvider(),
 

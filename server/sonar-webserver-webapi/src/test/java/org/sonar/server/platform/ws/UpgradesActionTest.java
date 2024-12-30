@@ -30,6 +30,7 @@ import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.updatecenter.common.Plugin;
+import org.sonar.updatecenter.common.Product;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.Sonar;
 import org.sonar.updatecenter.common.SonarUpdate;
@@ -61,7 +62,7 @@ class UpgradesActionTest {
 
   private final WsActionTester tester = new WsActionTester(underTest);
 
-  private static SonarUpdate createSonar_51_update() {
+  private static SonarUpdate createSonar_20251_update() {
     Plugin brandingPlugin = Plugin.factory("branding")
       .setCategory("Integration")
       .setName("Branding")
@@ -84,9 +85,10 @@ class UpgradesActionTest {
       .setTermsConditionsUrl("http://dist.sonarsource.com/SonarSource_Terms_And_Conditions.pdf")
       .setIssueTrackerUrl("http://jira.sonarsource.com/browse/VIEWS");
 
-    Release release = new Release(new Sonar(), Version.create("5.1.0.5498"))
+    Release release = new Release(new Sonar(), Version.create("2025.1.0.5498"))
       .setDate(DateUtils.parseDate("2015-04-02"))
       .setDescription("New overall layout, merge Issues Drilldown [...]")
+      .setProduct(Product.SONARQUBE_SERVER)
       .setDownloadUrl("http://dist.sonar.codehaus.org/sonarqube-5.1.zip")
       .setChangelogUrl("http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=11694&version=20666");
     SonarUpdate sonarUpdate = new SonarUpdate(release);
@@ -139,7 +141,7 @@ class UpgradesActionTest {
 
   @Test
   void verify_JSON_response_against_example() {
-    SonarUpdate sonarUpdate = createSonar_51_update();
+    SonarUpdate sonarUpdate = createSonar_20251_update();
     when(sonarQubeVersion.get()).thenReturn(parse("8.9.0"));
     when(sonar.getLtsRelease()).thenReturn(new Release(sonar, Version.create("8.9.2")));
     when(sonar.getLtaVersion()).thenReturn(new Release(sonar, Version.create("8.9.2")));

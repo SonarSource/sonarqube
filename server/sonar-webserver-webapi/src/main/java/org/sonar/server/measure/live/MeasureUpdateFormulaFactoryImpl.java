@@ -30,6 +30,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
+import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.server.measure.ImpactMeasureBuilder;
 import org.sonar.server.measure.Rating;
 
@@ -81,22 +82,22 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
       (context, issues) -> context.setValue(issues.countUnresolvedByType(RuleType.SECURITY_HOTSPOT, false))),
 
     new MeasureUpdateFormula(CoreMetrics.RELIABILITY_ISSUES, false, true, new ImpactAddChildren(),
-      (context, issues) -> context.setValue(issues.getBySoftwareQuality(SoftwareQuality.RELIABILITY, false))),
+      (context, issues) -> context.setValue(issues.getImpactJsonBySoftwareQuality(SoftwareQuality.RELIABILITY, false))),
 
     new MeasureUpdateFormula(CoreMetrics.MAINTAINABILITY_ISSUES, false, true, new ImpactAddChildren(),
-      (context, issues) -> context.setValue(issues.getBySoftwareQuality(SoftwareQuality.MAINTAINABILITY, false))),
+      (context, issues) -> context.setValue(issues.getImpactJsonBySoftwareQuality(SoftwareQuality.MAINTAINABILITY, false))),
 
     new MeasureUpdateFormula(CoreMetrics.SECURITY_ISSUES, false, true, new ImpactAddChildren(),
-      (context, issues) -> context.setValue(issues.getBySoftwareQuality(SoftwareQuality.SECURITY, false))),
+      (context, issues) -> context.setValue(issues.getImpactJsonBySoftwareQuality(SoftwareQuality.SECURITY, false))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_RELIABILITY_ISSUES, true, true, new ImpactAddChildren(),
-      (context, issues) -> context.setValue(issues.getBySoftwareQuality(SoftwareQuality.RELIABILITY, true))),
+      (context, issues) -> context.setValue(issues.getImpactJsonBySoftwareQuality(SoftwareQuality.RELIABILITY, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_MAINTAINABILITY_ISSUES, true, true, new ImpactAddChildren(),
-      (context, issues) -> context.setValue(issues.getBySoftwareQuality(SoftwareQuality.MAINTAINABILITY, true))),
+      (context, issues) -> context.setValue(issues.getImpactJsonBySoftwareQuality(SoftwareQuality.MAINTAINABILITY, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_SECURITY_ISSUES, true, true, new ImpactAddChildren(),
-      (context, issues) -> context.setValue(issues.getBySoftwareQuality(SoftwareQuality.SECURITY, true))),
+      (context, issues) -> context.setValue(issues.getImpactJsonBySoftwareQuality(SoftwareQuality.SECURITY, true))),
 
     new MeasureUpdateFormula(CoreMetrics.VIOLATIONS, false, new AddChildren(),
       (context, issues) -> context.setValue(issues.countUnresolved(false))),
@@ -279,6 +280,54 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
       asList(CoreMetrics.NEW_TECHNICAL_DEBT, CoreMetrics.NEW_DEVELOPMENT_COST)),
 
     // Metrics based on Software Qualities
+    new MeasureUpdateFormula(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_BLOCKER_ISSUES, false, true, new AddChildren(),
+      (context, issues) -> context.setValue(issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.BLOCKER, false))),
+
+    new MeasureUpdateFormula(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_HIGH_ISSUES, false, true, new AddChildren(),
+      (context, issues) -> context.setValue(issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.HIGH, false))),
+
+    new MeasureUpdateFormula(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MEDIUM_ISSUES, false, true, new AddChildren(),
+      (context, issues) -> context.setValue(issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.MEDIUM, false))),
+
+    new MeasureUpdateFormula(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_LOW_ISSUES, false, true, new AddChildren(),
+      (context, issues) -> context.setValue(issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.LOW, false))),
+
+    new MeasureUpdateFormula(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_INFO_ISSUES, false, true, new AddChildren(),
+      (context, issues) -> context.setValue(issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.INFO, false))),
+
+    new MeasureUpdateFormula(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_BLOCKER_ISSUES, true, true, new AddChildren(),
+      (context, issues) -> context.setValue(issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.BLOCKER, true))),
+
+    new MeasureUpdateFormula(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_HIGH_ISSUES, true, true, new AddChildren(),
+      (context, issues) -> context.setValue(issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.HIGH, true))),
+
+    new MeasureUpdateFormula(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MEDIUM_ISSUES, true, true, new AddChildren(),
+      (context, issues) -> context.setValue(issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.MEDIUM, true))),
+
+    new MeasureUpdateFormula(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_LOW_ISSUES, true, true, new AddChildren(),
+      (context, issues) -> context.setValue(issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.LOW, true))),
+
+    new MeasureUpdateFormula(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_INFO_ISSUES, true, true, new AddChildren(),
+      (context, issues) -> context.setValue(issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.INFO, true))),
+
+    new MeasureUpdateFormula(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES, false, true, new AddChildren(),
+      (context, issues) -> context.setValue(issues.countBySoftwareQuality(SoftwareQuality.MAINTAINABILITY, false))),
+
+    new MeasureUpdateFormula(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES, false, true, new AddChildren(),
+      (context, issues) -> context.setValue(issues.countBySoftwareQuality(SoftwareQuality.RELIABILITY, false))),
+
+    new MeasureUpdateFormula(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES, false, true, new AddChildren(),
+      (context, issues) -> context.setValue(issues.countBySoftwareQuality(SoftwareQuality.SECURITY, false))),
+
+    new MeasureUpdateFormula(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES, true, true, new AddChildren(),
+      (context, issues) -> context.setValue(issues.countBySoftwareQuality(SoftwareQuality.MAINTAINABILITY, true))),
+
+    new MeasureUpdateFormula(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES, true, true, new AddChildren(),
+      (context, issues) -> context.setValue(issues.countBySoftwareQuality(SoftwareQuality.RELIABILITY, true))),
+
+    new MeasureUpdateFormula(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_ISSUES, true, true, new AddChildren(),
+      (context, issues) -> context.setValue(issues.countBySoftwareQuality(SoftwareQuality.SECURITY, true))),
+
     new MeasureUpdateFormula(SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, false, true, new AddChildren(),
       (context, issues) -> context.setValue(issues.sumEffortOfUnresolvedBySoftwareQuality(SoftwareQuality.MAINTAINABILITY, false))),
 

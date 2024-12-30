@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { useIntl } from 'react-intl';
 import {
   ContentCell,
   DestructiveIcon,
@@ -24,9 +26,7 @@ import {
   Note,
   TrashIcon,
   UserGroupIcon,
-} from 'design-system';
-import * as React from 'react';
-import { useIntl } from 'react-intl';
+} from '~design-system';
 import Avatar from '../../../components/ui/Avatar';
 import { Group, isUser } from '../../../types/quality-gates';
 import { UserBase } from '../../../types/users';

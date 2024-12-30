@@ -35,7 +35,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.RemovedMetricConverter;
 import org.sonar.server.user.UserSession;
@@ -47,10 +47,10 @@ import static java.lang.String.format;
 import static java.util.Comparator.comparing;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static org.sonar.api.resources.Qualifiers.APP;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.api.resources.Qualifiers.SUBVIEW;
-import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.db.component.ComponentQualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.SUBVIEW;
+import static org.sonar.db.component.ComponentQualifiers.VIEW;
 import static org.sonar.db.metric.RemovedMetricConverter.DEPRECATED_METRIC_REPLACEMENT;
 import static org.sonar.db.metric.RemovedMetricConverter.REMOVED_METRIC;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KEYS;
@@ -87,13 +87,20 @@ public class SearchAction implements MeasuresWsAction {
       .setResponseExample(getClass().getResource("search-example.json"))
       .setHandler(this)
       .setChangelog(
+        new Change("10.8", format("The following metrics are not deprecated anymore: %s", MeasuresWsModule.getUndeprecatedMetricsinSonarQube108())),
+        new Change("10.8", String.format("Added new accepted values for the 'metricKeys' param: %s",
+          MeasuresWsModule.getNewMetricsInSonarQube108())),
+        new Change("10.8", String.format("The metrics %s are now deprecated. Use 'software_quality_maintainability_issues', " +
+          "'software_quality_reliability_issues', 'software_quality_security_issues', 'new_software_quality_maintainability_issues', " +
+          "'new_software_quality_reliability_issues', 'new_software_quality_security_issues' instead.",
+          MeasuresWsModule.getDeprecatedMetricsInSonarQube108())),
         new Change("10.7", "Added new accepted values for the 'metricKeys' param: %s".formatted(MeasuresWsModule.getNewMetricsInSonarQube107())),
         new Change("10.5", String.format("The metrics %s are now deprecated " +
-                                         "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
+          "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
           MeasuresWsModule.getDeprecatedMetricsInSonarQube105())),
         new Change("10.5", "Added new accepted values for the 'metricKeys' param: 'new_maintainability_issues', 'new_reliability_issues', 'new_security_issues'"),
         new Change("10.4", String.format("The metrics %s are now deprecated " +
-            "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
+          "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
           MeasuresWsModule.getDeprecatedMetricsInSonarQube104())),
         new Change("10.4", "Added new accepted values for the 'metricKeys' param: 'maintainability_issues', 'reliability_issues', 'security_issues'"),
         new Change("10.4", "The metrics 'open_issues', 'reopened_issues' and 'confirmed_issues' are now deprecated in the response. Consume 'violations' instead."),
@@ -128,7 +135,7 @@ public class SearchAction implements MeasuresWsAction {
     private SearchRequest request;
     private List<ComponentDto> projects;
     private List<MetricDto> metrics;
-    private List<LiveMeasureDto> measures;
+    private List<MeasureDto> measures;
 
     ResponseBuilder(Request httpRequest, DbSession dbSession) {
       this.dbSession = dbSession;
@@ -185,10 +192,10 @@ public class SearchAction implements MeasuresWsAction {
         .toList();
     }
 
-    private List<LiveMeasureDto> searchMeasures() {
-      return dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession,
+    private List<MeasureDto> searchMeasures() {
+      return dbClient.measureDao().selectByComponentUuidsAndMetricKeys(dbSession,
         projects.stream().map(ComponentDto::uuid).toList(),
-        metrics.stream().map(MetricDto::getUuid).toList());
+        metrics.stream().map(MetricDto::getKey).toList());
     }
 
     private SearchWsResponse buildResponse() {
@@ -201,21 +208,22 @@ public class SearchAction implements MeasuresWsAction {
     private List<Measure> buildWsMeasures() {
       Map<String, ComponentDto> componentsByUuid = projects.stream().collect(toMap(ComponentDto::uuid, Function.identity()));
       Map<String, String> componentNamesByKey = projects.stream().collect(toMap(ComponentDto::getKey, ComponentDto::name));
-      Map<String, MetricDto> metricsByUuid = metrics.stream().collect(toMap(MetricDto::getUuid, identity()));
+      Map<String, MetricDto> metricsByKey = metrics.stream().collect(toMap(MetricDto::getKey, identity()));
 
-      Function<LiveMeasureDto, MetricDto> dbMeasureToDbMetric = dbMeasure -> metricsByUuid.get(dbMeasure.getMetricUuid());
       Function<Measure, String> byMetricKey = Measure::getMetric;
       Function<Measure, String> byComponentName = wsMeasure -> componentNamesByKey.get(wsMeasure.getComponent());
 
       Measure.Builder measureBuilder = Measure.newBuilder();
       List<Measure> allMeasures = new ArrayList<>();
-      for (LiveMeasureDto measure : measures) {
-        updateMeasureBuilder(measureBuilder, dbMeasureToDbMetric.apply(measure), measure);
-        measureBuilder.setComponent(componentsByUuid.get(measure.getComponentUuid()).getKey());
-        Measure measureMsg = measureBuilder.build();
-        addMeasureIncludingRenamedMetric(measureMsg, allMeasures, measureBuilder);
+      for (MeasureDto measure : measures) {
+        for (String metricKey : measure.getMetricValues().keySet()) {
+          updateMeasureBuilder(measureBuilder, metricsByKey.get(metricKey), measure);
+          measureBuilder.setComponent(componentsByUuid.get(measure.getComponentUuid()).getKey());
+          Measure measureMsg = measureBuilder.build();
+          addMeasureIncludingRenamedMetric(measureMsg, allMeasures, measureBuilder);
 
-        measureBuilder.clear();
+          measureBuilder.clear();
+        }
       }
       return allMeasures.stream()
         .sorted(comparing(byMetricKey).thenComparing(byComponentName))

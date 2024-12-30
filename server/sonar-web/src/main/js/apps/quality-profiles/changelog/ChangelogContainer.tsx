@@ -17,156 +17,93 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Button } from '@sonarsource/echoes-react';
-import { Spinner } from 'design-system';
-import * as React from 'react';
-import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
-import { Location, Router } from '~sonar-aligned/types/router';
-import { ChangelogResponse, getProfileChangelog } from '../../../api/quality-profiles';
+
+import { Button, Spinner } from '@sonarsource/echoes-react';
+import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { parseDate, toISO8601WithOffsetString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
+import { isDefined } from '../../../helpers/types';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
+import { useGetQualityProfileChangelog } from '../../../queries/quality-profiles';
+import { QualityProfileChangelogFilterMode } from '../../../types/quality-profiles';
 import { withQualityProfilesContext } from '../qualityProfilesContext';
-import { Profile, ProfileChangelogEvent } from '../types';
+import { Profile } from '../types';
 import { getProfileChangelogPath } from '../utils';
 import Changelog from './Changelog';
 import ChangelogEmpty from './ChangelogEmpty';
 import ChangelogSearch from './ChangelogSearch';
 
 interface Props {
-  location: Location;
   profile: Profile;
-  router: Router;
   organization: string;
 }
 
-interface State {
-  events?: ProfileChangelogEvent[];
-  loading: boolean;
-  page?: number;
-  total?: number;
-}
+function ChangelogContainer(props: Readonly<Props>) {
+  const { profile } = props;
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
+  const router = useRouter();
+  const {
+    query: { since, to },
+  } = useLocation();
 
-class ChangelogContainer extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { loading: true };
+  const filterMode = isStandardMode
+    ? QualityProfileChangelogFilterMode.STANDARD
+    : QualityProfileChangelogFilterMode.MQR;
 
-  componentDidMount() {
-    this.mounted = true;
-    this.loadChangelog();
-  }
+  const {
+    data: changeLogResponse,
+    isLoading,
+    fetchNextPage,
+  } = useGetQualityProfileChangelog({
+    since,
+    to,
+    profile,
+    filterMode,
+  });
 
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.location !== this.props.location) {
-      this.loadChangelog();
-    }
-  }
+  const events = changeLogResponse?.pages.flatMap((page) => page.events) ?? [];
+  const total = changeLogResponse?.pages[0].paging.total;
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  stopLoading() {
-    if (this.mounted) {
-      this.setState({ loading: false });
-    }
-  }
-
-  loadChangelog() {
-    this.setState({ loading: true });
-    const {
-      location: { query },
-      profile,
-    } = this.props;
-
-    getProfileChangelog(query.since, query.to, profile)
-      .then((r: ChangelogResponse) => {
-        if (this.mounted) {
-          this.setState({
-            events: r.events,
-            total: r.paging.total,
-            page: r.paging.pageIndex,
-            loading: false,
-          });
-        }
-      })
-      .catch(this.stopLoading);
-  }
-
-  loadMore(event: React.SyntheticEvent<HTMLElement>) {
-    event.preventDefault();
-    event.currentTarget.blur();
-
-    if (this.state.page != null) {
-      this.setState({ loading: true });
-      const {
-        location: { query },
-        profile,
-      } = this.props;
-
-      getProfileChangelog(query.since, query.to, profile, this.state.page + 1)
-        .then((r: ChangelogResponse) => {
-          if (this.mounted && this.state.events) {
-            this.setState(({ events = [] }) => ({
-              events: [...events, ...r.events],
-              total: r.paging.total,
-              page: r.paging.pageIndex,
-              loading: false,
-            }));
-          }
-        })
-        .catch(this.stopLoading);
-    }
-  }
-
-  handleDateRangeChange = ({ from, to }: { from?: Date; to?: Date }) => {
-    const path = getProfileChangelogPath(this.props.profile.name, this.props.profile.language, this.props.organization, {
+  const handleDateRangeChange = ({ from, to }: { from?: Date; to?: Date }) => {
+    const path = getProfileChangelogPath(profile.name, profile.language, this.props.organization, {
       since: from && toISO8601WithOffsetString(from),
       to: to && toISO8601WithOffsetString(to),
     });
-    this.props.router.push(path);
+    router.push(path);
   };
 
-  handleReset = () => {
-    const path = getProfileChangelogPath(this.props.profile.name, this.props.profile.language, this.props.organization);
-    this.props.router.push(path);
+  const handleReset = () => {
+    const path = getProfileChangelogPath(profile.name, profile.language, this.props.organization);
+    router.replace(path);
   };
 
-  render() {
-    const { query } = this.props.location;
+  const shouldDisplayFooter = isDefined(events) && isDefined(total) && events.length < total;
 
-    const shouldDisplayFooter =
-      this.state.events != null &&
-      this.state.total != null &&
-      this.state.events.length < this.state.total;
-
-    return (
-      <div className="sw-mt-4">
-        <div className="sw-mb-2 sw-flex sw-gap-4 sw-items-center">
-          <ChangelogSearch
-            dateRange={{
-              from: query.since ? parseDate(query.since) : undefined,
-              to: query.to ? parseDate(query.to) : undefined,
-            }}
-            onDateRangeChange={this.handleDateRangeChange}
-            onReset={this.handleReset}
-          />
-          <Spinner loading={this.state.loading} />
-        </div>
-
-        {this.state.events != null && this.state.events.length === 0 && <ChangelogEmpty />}
-
-        {this.state.events != null && this.state.events.length > 0 && (
-          <Changelog events={this.state.events} organization={this.props.organization} />
-        )}
-
-        {shouldDisplayFooter && (
-          <footer className="sw-text-center sw-mt-2">
-            <Button onClick={this.loadMore.bind(this)}>{translate('show_more')}</Button>
-          </footer>
-        )}
+  return (
+    <div className="sw-mt-4">
+      <div className="sw-mb-2 sw-flex sw-gap-4 sw-items-center">
+        <ChangelogSearch
+          dateRange={{
+            from: since ? parseDate(since) : undefined,
+            to: to ? parseDate(to) : undefined,
+          }}
+          onDateRangeChange={handleDateRangeChange}
+          onReset={handleReset}
+        />
+        <Spinner isLoading={isLoading} />
       </div>
-    );
-  }
+
+      {isDefined(events) && events.length === 0 && <ChangelogEmpty />}
+
+      {isDefined(events) && events.length > 0 && <Changelog events={events} organization={this.props.organization} />}
+
+      {shouldDisplayFooter && (
+        <footer className="sw-text-center sw-mt-2">
+          <Button onClick={() => fetchNextPage()}>{translate('show_more')}</Button>
+        </footer>
+      )}
+    </div>
+  );
 }
 
-export default withQualityProfilesContext(withRouter(ChangelogContainer));
+export default withQualityProfilesContext(ChangelogContainer);

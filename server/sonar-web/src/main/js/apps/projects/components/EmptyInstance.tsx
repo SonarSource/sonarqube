@@ -17,36 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { FishVisual, Highlight } from 'design-system';
-import * as React from 'react';
-import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
-import { Router } from '~sonar-aligned/types/router';
+
+import { Button, ButtonVariety, Text, TextSize } from '@sonarsource/echoes-react';
+import { FishVisual } from '~design-system';
+import { useRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { useCurrentUser } from '../../../app/components/current-user/CurrentUserContext';
 import { translate } from '../../../helpers/l10n';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { Permissions } from '../../../types/permissions';
-import { CurrentUser, isLoggedIn } from '../../../types/users';
+import { isLoggedIn } from '../../../types/users';
 
-export interface EmptyInstanceProps {
-  currentUser: CurrentUser;
-  router: Router;
-}
-
-export function EmptyInstance(props: EmptyInstanceProps) {
-  const { currentUser, router } = props;
+export default function EmptyInstance() {
+  const { currentUser } = useCurrentUser();
+  const router = useRouter();
   const showNewProjectButton =
     isLoggedIn(currentUser) && hasGlobalPermission(currentUser, Permissions.ProjectCreation);
 
   return (
-    <div className="sw-text-center sw-py-8">
+    <div className="sw-flex sw-flex-col sw-items-center sw-py-8">
       <FishVisual />
-      <Highlight as="h3" className="sw-typo-lg-semibold sw-mt-6">
+      <Text isHighlighted size={TextSize.Large} className="sw-mt-6">
         {showNewProjectButton
           ? translate('projects.no_projects.empty_instance.new_project')
           : translate('projects.no_projects.empty_instance')}
-      </Highlight>
+      </Text>
       {showNewProjectButton && (
-        <div>
+        <>
           <p className="sw-mt-2 sw-typo-default">
             {translate('projects.no_projects.empty_instance.how_to_add_projects')}
           </p>
@@ -59,10 +55,8 @@ export function EmptyInstance(props: EmptyInstanceProps) {
           >
             {translate('my_account.create_new.TRK')}
           </Button>
-        </div>
+        </>
       )}
     </div>
   );
 }
-
-export default withRouter(EmptyInstance);

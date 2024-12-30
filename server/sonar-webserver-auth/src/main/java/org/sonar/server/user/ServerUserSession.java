@@ -33,8 +33,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -53,8 +53,8 @@ import static java.util.Objects.requireNonNull;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toSet;
-import static org.sonar.api.resources.Qualifiers.SUBVIEW;
-import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.db.component.ComponentQualifiers.SUBVIEW;
+import static org.sonar.db.component.ComponentQualifiers.VIEW;
 import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
 
 /**
@@ -248,7 +248,7 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   private static boolean isTechnicalProject(ComponentDto componentDto) {
-    return Qualifiers.PROJECT.equals(componentDto.qualifier()) && Scopes.FILE.equals(componentDto.scope());
+    return ComponentQualifiers.PROJECT.equals(componentDto.qualifier()) && ComponentScopes.FILE.equals(componentDto.scope());
   }
 
   private static boolean isPortfolioOrSubPortfolio(ComponentDto componentDto) {
@@ -283,8 +283,8 @@ public class ServerUserSession extends AbstractUserSession {
       Set<String> projectBranchesUuid = dbClient.componentDao()
         .selectDescendants(dbSession, ComponentTreeQuery.builder()
           .setBaseUuid(branchDto.getUuid())
-          .setQualifiers(singleton(Qualifiers.PROJECT))
-          .setScopes(singleton(Scopes.FILE))
+          .setQualifiers(singleton(ComponentQualifiers.PROJECT))
+          .setScopes(singleton(ComponentScopes.FILE))
           .setStrategy(Strategy.CHILDREN).build())
         .stream()
         .map(ComponentDto::getCopyComponentUuid)
@@ -301,7 +301,7 @@ public class ServerUserSession extends AbstractUserSession {
     try (DbSession dbSession = dbClient.openSession(false)) {
       return dbClient.componentDao().selectDescendants(dbSession, ComponentTreeQuery.builder()
         .setBaseUuid(portfolioUuid)
-        .setQualifiers(Arrays.asList(Qualifiers.PROJECT, Qualifiers.SUBVIEW))
+        .setQualifiers(Arrays.asList(ComponentQualifiers.PROJECT, ComponentQualifiers.SUBVIEW))
         .setStrategy(Strategy.CHILDREN).build());
     }
   }
@@ -324,7 +324,7 @@ public class ServerUserSession extends AbstractUserSession {
         hierarchyChildComponents.add(c);
       }
 
-      if (Qualifiers.SUBVIEW.equals(c.qualifier())) {
+      if (ComponentQualifiers.SUBVIEW.equals(c.qualifier())) {
         resolvePortfolioHierarchyComponents(c.uuid(), hierarchyChildComponents);
       }
     });

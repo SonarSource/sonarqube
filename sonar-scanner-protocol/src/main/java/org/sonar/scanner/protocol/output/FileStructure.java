@@ -82,10 +82,6 @@ public class FileStructure {
     return new File(dir, "adhocrules.pb");
   }
 
-  public File cves() {
-    return new File(dir, "cves.pb");
-  }
-
   public File fileFor(Domain domain, int componentRef) {
     return new File(dir, domain.filePrefix + componentRef + domain.fileSuffix);
   }
@@ -94,8 +90,16 @@ public class FileStructure {
     return new File(dir, "context-props.pb");
   }
 
+  public File telemetryEntries() {
+    return new File(dir, "telemetry-entries.pb");
+  }
+
   public File analysisWarnings() {
     return new File(dir, "analysis-warnings.pb");
+  }
+
+  public File dependencies() {
+    return new File(dir, "dependencies.pb");
   }
 
   public File root() {

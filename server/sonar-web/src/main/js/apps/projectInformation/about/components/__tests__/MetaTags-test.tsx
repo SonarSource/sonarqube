@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
@@ -98,7 +99,11 @@ it('should set tags for an app', async () => {
 });
 
 function renderMetaTags(componentOverride: Partial<Component> = {}) {
-  function Component(componentOverride: Partial<Parameters<typeof MetaTags>[0]>) {
+  function Component({
+    componentOverride,
+  }: {
+    componentOverride: Partial<React.ComponentProps<typeof MetaTags>['component']>;
+  }) {
     const [component, setComponent] = React.useState(
       mockComponent({
         configuration: {
@@ -117,5 +122,5 @@ function renderMetaTags(componentOverride: Partial<Component> = {}) {
     return <MetaTags component={component} onComponentChange={handleComponentChange} />;
   }
 
-  return renderComponent(<Component {...componentOverride} />);
+  return renderComponent(<Component componentOverride={componentOverride} />);
 }

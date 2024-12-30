@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { FileInput, FlagMessage, FormField, Modal } from 'design-system';
-import * as React from 'react';
 import { useRef, useState } from 'react';
 import { useIntl } from 'react-intl';
+import { FileInput, FlagMessage, FormField, Modal } from '~design-system';
 import { restoreQualityProfile } from '../../../api/quality-profiles';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 

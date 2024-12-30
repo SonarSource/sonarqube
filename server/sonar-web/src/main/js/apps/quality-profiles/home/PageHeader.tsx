@@ -19,9 +19,9 @@
  */
 
 import { Button, ButtonGroup, ButtonVariety, Heading, Link } from '@sonarsource/echoes-react';
-import { FlagMessage } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
+import { FlagMessage } from '~design-system';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Actions } from '../../../api/quality-profiles';
 import { DocLink } from '../../../helpers/doc-links';

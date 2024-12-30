@@ -20,7 +20,6 @@
 package org.sonar.server.qualitygate.ws;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
@@ -50,7 +49,8 @@ import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse.Status;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -60,7 +60,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
-import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
+import static org.sonar.db.measure.MeasureTesting.newMeasure;
 import static org.sonar.db.measure.MeasureTesting.newProjectMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.COMPLIANT;
@@ -122,7 +122,7 @@ public class ProjectStatusActionIT {
       .setPeriodDate(956789123987L));
     dbClient.projectMeasureDao().insert(dbSession,
       newProjectMeasureDto(gateDetailsMetric, mainBranch, snapshot)
-        .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"), StandardCharsets.UTF_8)));
+        .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"), UTF_8)));
     dbSession.commit();
 
     String response = ws.newRequest()
@@ -149,7 +149,7 @@ public class ProjectStatusActionIT {
     MetricDto gateDetailsMetric = insertGateDetailMetric();
     dbClient.projectMeasureDao().insert(dbSession,
       newProjectMeasureDto(gateDetailsMetric, mainBranch, pastAnalysis)
-        .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"))));
+        .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"), UTF_8)));
     dbClient.projectMeasureDao().insert(dbSession,
       newProjectMeasureDto(gateDetailsMetric, mainBranch, lastAnalysis)
         .setData("not_used"));
@@ -172,9 +172,8 @@ public class ProjectStatusActionIT {
       .setPeriodParam("2015-12-07")
       .setPeriodDate(956789123987L));
     MetricDto gateDetailsMetric = insertGateDetailMetric();
-    dbClient.liveMeasureDao().insert(dbSession,
-      newLiveMeasure(mainBranch, gateDetailsMetric)
-        .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"))));
+    dbClient.measureDao().insert(dbSession,
+      newMeasure(mainBranch, gateDetailsMetric, IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"), UTF_8)));
     dbSession.commit();
     userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto());
 
@@ -203,7 +202,7 @@ public class ProjectStatusActionIT {
     MetricDto gateDetailsMetric = insertGateDetailMetric();
     dbClient.projectMeasureDao().insert(dbSession,
       newProjectMeasureDto(gateDetailsMetric, branch, pastAnalysis)
-        .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"))));
+        .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"), UTF_8)));
     dbClient.projectMeasureDao().insert(dbSession,
       newProjectMeasureDto(gateDetailsMetric, branch, lastAnalysis)
         .setData("not_used"));
@@ -226,9 +225,8 @@ public class ProjectStatusActionIT {
       .setPeriodParam("2015-12-07")
       .setPeriodDate(956789123987L));
     MetricDto gateDetailsMetric = insertGateDetailMetric();
-    dbClient.liveMeasureDao().insert(dbSession,
-      newLiveMeasure(project, gateDetailsMetric)
-        .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"))));
+    dbClient.measureDao().insert(dbSession,
+      newMeasure(project, gateDetailsMetric, IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"), UTF_8)));
     dbSession.commit();
     userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto());
 
@@ -243,7 +241,7 @@ public class ProjectStatusActionIT {
   public void return_live_status_when_branch_is_referenced_by_its_key() throws IOException {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey(branchName));
 
     dbClient.snapshotDao().insert(dbSession, newAnalysis(branch)
@@ -251,9 +249,8 @@ public class ProjectStatusActionIT {
       .setPeriodParam("2015-12-07")
       .setPeriodDate(956789123987L));
     MetricDto gateDetailsMetric = insertGateDetailMetric();
-    dbClient.liveMeasureDao().insert(dbSession,
-      newLiveMeasure(branch, gateDetailsMetric)
-        .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"))));
+    dbClient.measureDao().insert(dbSession,
+      newMeasure(branch, gateDetailsMetric, IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"), UTF_8)));
     dbSession.commit();
     userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto());
 
@@ -269,7 +266,7 @@ public class ProjectStatusActionIT {
   public void return_live_status_when_pull_request_is_referenced_by_its_key() throws IOException {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
-    String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
+    String pullRequestKey = RandomStringUtils.secure().nextAlphanumeric(100);
     ComponentDto pr = db.components().insertProjectBranch(mainBranch, branch -> branch.setBranchType(BranchType.PULL_REQUEST)
       .setKey(pullRequestKey));
 
@@ -278,9 +275,8 @@ public class ProjectStatusActionIT {
       .setPeriodParam("2015-12-07")
       .setPeriodDate(956789123987L));
     MetricDto gateDetailsMetric = insertGateDetailMetric();
-    dbClient.liveMeasureDao().insert(dbSession,
-      newLiveMeasure(pr, gateDetailsMetric)
-        .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"))));
+    dbClient.measureDao().insert(dbSession,
+      newMeasure(pr, gateDetailsMetric, IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"), UTF_8)));
     dbSession.commit();
     userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto());
 

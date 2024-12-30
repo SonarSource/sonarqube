@@ -20,7 +20,7 @@
 package org.sonar.ce.task.projectanalysis.component;
 
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -36,7 +36,7 @@ public class ViewAttributesTest {
     underTest = new ViewAttributes(PORTFOLIO);
 
     assertThat(underTest.getType()).isEqualTo(PORTFOLIO);
-    assertThat(underTest.getType().getQualifier()).isEqualTo(Qualifiers.VIEW);
+    assertThat(underTest.getType().getQualifier()).isEqualTo(ComponentQualifiers.VIEW);
   }
 
   @Test
@@ -44,18 +44,18 @@ public class ViewAttributesTest {
     underTest = new ViewAttributes(APPLICATION);
 
     assertThat(underTest.getType()).isEqualTo(APPLICATION);
-    assertThat(underTest.getType().getQualifier()).isEqualTo(Qualifiers.APP);
+    assertThat(underTest.getType().getQualifier()).isEqualTo(ComponentQualifiers.APP);
   }
 
   @Test
   public void type_from_qualifier() {
-    assertThat(ViewAttributes.Type.fromQualifier(Qualifiers.VIEW)).isEqualTo(PORTFOLIO);
-    assertThat(ViewAttributes.Type.fromQualifier(Qualifiers.APP)).isEqualTo(APPLICATION);
+    assertThat(ViewAttributes.Type.fromQualifier(ComponentQualifiers.VIEW)).isEqualTo(PORTFOLIO);
+    assertThat(ViewAttributes.Type.fromQualifier(ComponentQualifiers.APP)).isEqualTo(APPLICATION);
   }
 
   @Test
   public void fail_if_unknown_view_qualifier() {
-    assertThatThrownBy(() -> ViewAttributes.Type.fromQualifier(Qualifiers.PROJECT))
+    assertThatThrownBy(() -> ViewAttributes.Type.fromQualifier(ComponentQualifiers.PROJECT))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Qualifier 'TRK' is not supported");
   }

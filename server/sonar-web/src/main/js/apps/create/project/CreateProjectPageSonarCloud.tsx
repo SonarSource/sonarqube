@@ -28,7 +28,7 @@ import { translate } from '../../../helpers/l10n';
 import { Organization } from '../../../types/types';
 import { CurrentUser } from '../../../types/users';
 
-import { ButtonPrimary } from 'design-system';
+import { ButtonPrimary } from '~design-system';
 import '../../../../js/app/styles/pages/CreateProject.css';
 import OrganizationInput from '../components/OrganizationInput';
 

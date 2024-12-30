@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Accordion, FlagMessage, SubHeadingHighlight } from 'design-system';
+
 import { map } from 'lodash';
-import * as React from 'react';
+import { Accordion, FlagMessage, SubHeadingHighlight } from '~design-system';
 import { translate } from '../../../../helpers/l10n';
 import { HealthTypes, SysInfoValueObject } from '../../../../types/types';
 import { LogsLevels, getLogsLevel, groupSections } from '../../utils';

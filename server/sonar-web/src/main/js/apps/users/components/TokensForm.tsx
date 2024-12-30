@@ -19,6 +19,8 @@
  */
 
 import { Button, ButtonVariety, Heading, Label, Spinner } from '@sonarsource/echoes-react';
+import { isEmpty } from 'lodash';
+import * as React from 'react';
 import {
   ContentCell,
   GreySeparator,
@@ -26,12 +28,7 @@ import {
   InputSelect,
   Table,
   TableRow,
-} from 'design-system';
-import { isEmpty } from 'lodash';
-import * as React from 'react';
-import { isDeploymentForAmazon, isDeploymentForCodeScan } from '../../../helpers/urls';
-import withAppStateContext from '../../../../js/app/components/app-state/withAppStateContext';
-import { AppState } from '../../../types/appstate';
+} from '~design-system';
 import { getScannableProjects } from '../../../api/components';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { translate } from '../../../helpers/l10n';
@@ -48,6 +45,9 @@ import { TokenExpiration, TokenType } from '../../../types/token';
 import { CurrentUser } from '../../../types/users';
 import TokensFormItem, { TokenDeleteConfirmation } from './TokensFormItem';
 import TokensFormNewToken from './TokensFormNewToken';
+import { isDeploymentForAmazon, isDeploymentForCodeScan } from "../../../helpers/urls";
+import withAppStateContext from "../../../app/components/app-state/withAppStateContext";
+import { AppState } from "../../../types/appstate";
 
 interface Props {
   appState: AppState;

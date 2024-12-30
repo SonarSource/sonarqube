@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { groupBy, orderBy } from 'lodash';
+import { Helmet } from 'react-helmet-async';
 import {
   ActionCell,
   ButtonPrimary,
@@ -33,10 +35,7 @@ import {
   TableRow,
   TableRowInteractive,
   Title,
-} from 'design-system';
-import { groupBy, orderBy } from 'lodash';
-import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
+} from '~design-system';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { Profile } from '../../api/quality-profiles';

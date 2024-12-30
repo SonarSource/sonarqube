@@ -22,14 +22,14 @@ package org.sonar.ce.task;
 import org.junit.Test;
 import org.sonar.db.ce.CeActivityDto;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CeTaskCanceledExceptionTest {
   @Test
   public void message_is_based_on_specified_thread_name() {
     Thread t = new Thread();
-    t.setName(randomAlphabetic(29));
+    t.setName(secure().nextAlphabetic(29));
 
     CeTaskCanceledException underTest = new CeTaskCanceledException(t);
 

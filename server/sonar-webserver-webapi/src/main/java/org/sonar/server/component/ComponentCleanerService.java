@@ -19,11 +19,10 @@
  */
 package org.sonar.server.component;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.resources.Qualifiers;
+import java.util.List;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -68,19 +67,19 @@ public class ComponentCleanerService {
   }
 
   private void updateProjectNcloc(DbSession dbSession, String projectUuid) {
-    long maxncloc = dbClient.liveMeasureDao().findNclocOfBiggestBranchForProject(dbSession, projectUuid);
+    long maxncloc = dbClient.measureDao().findNclocOfBiggestBranchForProject(dbSession, projectUuid);
     dbClient.projectDao().updateNcloc(dbSession, projectUuid, maxncloc);
   }
 
   public void deleteEntity(DbSession dbSession, EntityDto entity, OrganizationDto organization, String user) {
-    logger.info("Cleaning component entries for projectName: {}, projectKey: {}, projectId: {}, organization: {}, orgId: {}, user: {}",
-        entity.getName(), entity.getKey(), entity.getUuid(), organization.getKey(),
-        organization.getUuid(), user);
+      logger.info("Cleaning component entries for projectName: {}, projectKey: {}, projectId: {}, organization: {}, orgId: {}, user: {}",
+              entity.getName(), entity.getKey(), entity.getUuid(), organization.getKey(),
+              organization.getUuid(), user);
 
-    checkArgument(!entity.getQualifier().equals(Qualifiers.SUBVIEW), "Qualifier can't be subview");
+    checkArgument(!entity.getQualifier().equals(ComponentQualifiers.SUBVIEW), "Qualifier can't be subview");
     dbClient.purgeDao().deleteProject(dbSession, entity.getUuid(), entity.getQualifier(), entity.getName(), entity.getKey());
     dbClient.userDao().cleanHomepage(dbSession, entity);
-    if (Qualifiers.PROJECT.equals(entity.getQualifier())) {
+    if (ComponentQualifiers.PROJECT.equals(entity.getQualifier())) {
       dbClient.userTokenDao().deleteByProjectUuid(dbSession, entity.getKey(), entity.getUuid());
     }
     // Note that we do not send an event for each individual branch being deleted with the project

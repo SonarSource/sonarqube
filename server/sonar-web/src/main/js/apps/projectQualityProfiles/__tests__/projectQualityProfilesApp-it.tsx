@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import userEvent from '@testing-library/user-event';
-import { addGlobalSuccessMessage } from 'design-system';
+import { addGlobalSuccessMessage } from '~design-system';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import {
   ProfileProject,
@@ -98,8 +99,8 @@ jest.mock('../../../api/quality-profiles', () => {
   };
 });
 
-jest.mock('design-system', () => ({
-  ...jest.requireActual('design-system'),
+jest.mock('~design-system', () => ({
+  ...jest.requireActual('~design-system'),
   addGlobalSuccessMessage: jest.fn(),
 }));
 
@@ -151,7 +152,7 @@ it('should be able to add and change profile for languages', async () => {
     },
   });
 
-  expect(ui.pageTitle.get()).toBeInTheDocument();
+  expect(await ui.pageTitle.find()).toBeInTheDocument();
   expect(ui.pageDescription.get()).toBeInTheDocument();
   expect(await ui.addLanguageButton.find()).toBeInTheDocument();
   await expect(ui.helpTooltip.get()).toHaveATooltipWithContent(

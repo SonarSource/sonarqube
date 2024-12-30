@@ -26,10 +26,10 @@ import {
   InputSize,
   Select,
 } from '@sonarsource/echoes-react';
-import { FormField, InputField, TextError } from 'design-system/lib';
 import { isEmpty, isUndefined } from 'lodash';
 import React, { useEffect } from 'react';
 import isEmail from 'validator/lib/isEmail';
+import { FormField, InputField, TextError } from '~design-system';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
 type InputType = 'email' | 'number' | 'password' | 'select' | 'text';

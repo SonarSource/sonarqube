@@ -17,11 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React, { useEffect } from 'react';
+
+import { useEffect } from 'react';
 import { Route, useLocation, useNavigate } from 'react-router-dom';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
 import { RawQuery } from '~sonar-aligned/types/router';
-import CodingRulesApp from './components/CodingRulesApp';
 import { parseQuery, serializeQuery } from './query';
+
+const CodingRulesApp = lazyLoadComponent(() => import('./components/CodingRulesApp'));
 
 const EXPECTED_SPLIT_PARTS = 2;
 

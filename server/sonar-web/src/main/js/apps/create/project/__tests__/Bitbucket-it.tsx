@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor, within } from '@testing-library/react';
 
 import userEvent from '@testing-library/user-event';
-import * as React from 'react';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { searchForBitbucketServerRepositories } from '../../../../api/alm-integrations';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
@@ -55,13 +55,8 @@ const ui = {
   }),
   instanceSelector: byLabelText(/alm.configuration.selector.label/),
 };
-const original = window.location;
 
 beforeAll(() => {
-  Object.defineProperty(window, 'location', {
-    configurable: true,
-    value: { replace: jest.fn() },
-  });
   almIntegrationHandler = new AlmIntegrationsServiceMock();
   dopTranslationHandler = new DopTranslationServiceMock();
   newCodePeriodHandler = new NewCodeDefinitionServiceMock();
@@ -72,10 +67,6 @@ beforeEach(() => {
   almIntegrationHandler.reset();
   dopTranslationHandler.reset();
   newCodePeriodHandler.reset();
-});
-
-afterAll(() => {
-  Object.defineProperty(window, 'location', { configurable: true, value: original });
 });
 
 it('should ask for PAT when it is not set yet and show the import project feature afterwards', async () => {
@@ -103,7 +94,7 @@ it('should ask for PAT when it is not set yet and show the import project featur
   expect(screen.getByRole('button', { name: 'save' })).toBeEnabled();
   await user.click(screen.getByRole('button', { name: 'save' }));
 
-  expect(screen.getByText('Bitbucket Project 1')).toBeInTheDocument();
+  expect(await screen.findByText('Bitbucket Project 1')).toBeInTheDocument();
   expect(screen.getByText('Bitbucket Project 2')).toBeInTheDocument();
 });
 

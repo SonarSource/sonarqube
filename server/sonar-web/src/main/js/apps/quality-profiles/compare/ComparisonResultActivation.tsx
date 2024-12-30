@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button } from '@sonarsource/echoes-react';
-import { Spinner } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
+import { Spinner } from '~design-system';
 import { Profile } from '../../../api/quality-profiles';
 import { getRuleDetails } from '../../../api/rules';
 import Tooltip from '../../../components/controls/Tooltip';

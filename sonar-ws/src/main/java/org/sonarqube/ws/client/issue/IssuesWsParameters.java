@@ -44,6 +44,7 @@ public class IssuesWsParameters {
   public static final String ACTION_ANTICIPATED_TRANSITIONS = "anticipated_transitions";
 
   public static final String PARAM_ISSUE = "issue";
+  public static final String PARAM_IMPACT = "impact";
   public static final String PARAM_COMMENT = "comment";
   public static final String PARAM_TEXT = "text";
   public static final String PARAM_ASSIGNEE = "assignee";

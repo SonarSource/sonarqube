@@ -19,7 +19,7 @@
  */
 package org.sonar.server.ws;
 
-import com.google.protobuf.GeneratedMessageV3;
+import com.google.protobuf.GeneratedMessage;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -43,7 +43,7 @@ public class TestResponse {
     return new ByteArrayInputStream(testableResponse.getFlushedOutput());
   }
 
-  public <T extends GeneratedMessageV3> T getInputObject(Class<T> protobufClass) {
+  public <T extends GeneratedMessage> T getInputObject(Class<T> protobufClass) {
     try (InputStream input = getInputStream()) {
       Method parseFromMethod = protobufClass.getMethod("parseFrom", InputStream.class);
       @SuppressWarnings("unchecked")

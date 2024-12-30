@@ -20,7 +20,6 @@
 package org.sonar.db.component;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.api.resources.Scopes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -75,8 +74,8 @@ class ComponentDtoTest {
   @Test
   void is_root_project() {
     assertThat(new ComponentDto().setUuid("uuid").setBranchUuid("branch").isRootProject()).isFalse();
-    assertThat(new ComponentDto().setScope(Scopes.DIRECTORY).setUuid("uuid").setBranchUuid("uuid").isRootProject()).isFalse();
-    assertThat(new ComponentDto().setScope(Scopes.PROJECT).setUuid("uuid").setBranchUuid("uuid").isRootProject()).isTrue();
+    assertThat(new ComponentDto().setScope(ComponentScopes.DIRECTORY).setUuid("uuid").setBranchUuid("uuid").isRootProject()).isFalse();
+    assertThat(new ComponentDto().setScope(ComponentScopes.PROJECT).setUuid("uuid").setBranchUuid("uuid").isRootProject()).isTrue();
   }
 
   @Test

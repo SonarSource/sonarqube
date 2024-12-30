@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
 import UserTokensMock from '../../../../api/mocks/UserTokensMock';
 import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
@@ -30,6 +30,7 @@ import { AlmKeys } from '../../../../types/alm-settings';
 import { Feature } from '../../../../types/features';
 import {
   getCommonNodes,
+  getCopyToClipboardHostURLValue,
   getCopyToClipboardValue,
   getTutorialActionButtons,
   getTutorialBuildButtons,
@@ -62,91 +63,130 @@ it('should follow and complete all steps', async () => {
   expect(await ui.secretsStepTitle.find()).toBeInTheDocument();
 
   // Env variables step
-  expect(getCopyToClipboardValue(0, 'Copy to clipboard')).toMatchSnapshot('sonar token key');
-  expect(getCopyToClipboardValue(1, 'Copy to clipboard')).toMatchSnapshot('sonarqube host url key');
-  expect(getCopyToClipboardValue(2, 'Copy to clipboard')).toMatchSnapshot(
+  expect(
+    getCopyToClipboardValue({ i: 0, name: 'Copy to clipboard', inlineSnippet: true }),
+  ).toMatchSnapshot('sonar token key');
+  expect(
+    getCopyToClipboardValue({ i: 1, name: 'Copy to clipboard', inlineSnippet: true }),
+  ).toMatchSnapshot('sonarqube host url key');
+  expect(getCopyToClipboardHostURLValue({ i: 2, name: 'Copy to clipboard' })).toMatchSnapshot(
     'sonarqube host url value',
   );
 
   // Create/update configuration file step
   // Maven
   await user.click(ui.mavenBuildButton.get());
-  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Maven: .github/workflows/build.yml');
+  expect(getCopyToClipboardValue({ i: 0, name: 'Copy' })).toMatchSnapshot(
+    'Maven: .github/workflows/build.yml',
+  );
 
   // Gradle
   await user.click(ui.gradleBuildButton.get());
-  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Groovy: build.gradle');
+  expect(getCopyToClipboardValue({ i: 0, name: 'Copy' })).toMatchSnapshot('Groovy: build.gradle');
   await user.click(ui.gradleDSLButton(GradleBuildDSL.Kotlin).get());
-  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Kotlin: build.gradle.kts');
-  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('Gradle: .github/workflows/build.yml');
+  expect(getCopyToClipboardValue({ i: 0, name: 'Copy' })).toMatchSnapshot(
+    'Kotlin: build.gradle.kts',
+  );
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
+    'Gradle: .github/workflows/build.yml',
+  );
 
   // .NET
   await user.click(ui.dotnetBuildButton.get());
-  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('.NET: .github/workflows/build.yml');
+  expect(getCopyToClipboardValue({ i: 0, name: 'Copy' })).toMatchSnapshot(
+    '.NET: .github/workflows/build.yml',
+  );
 
   // Cpp
   await user.click(ui.cppBuildButton.get());
-  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+  expect(getCopyToClipboardValue({ i: 0, name: 'Copy' })).toMatchSnapshot(
     'C++ (automatic) and other: sonar-project.properties',
   );
-  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
     'C++ (automatic) and other: .github/workflows/build.yml',
   );
 
   await user.click(ui.autoConfigManual.get());
-  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('C++: sonar-project.properties');
+  expect(getCopyToClipboardValue({ i: 0, name: 'Copy' })).toMatchSnapshot(
+    'C++: sonar-project.properties',
+  );
   await user.click(ui.linuxButton.get());
-  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
     'C++ Linux: .github/workflows/build.yml',
   );
   await user.click(ui.arm64Button.get());
-  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
     'C++ Linux arm64: .github/workflows/build.yml',
   );
   await user.click(ui.windowsButton.get());
-  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
     'C++ Windows: .github/workflows/build.yml',
   );
   await user.click(ui.macosButton.get());
-  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
     'C++ MacOS: .github/workflows/build.yml',
   );
 
   // Objective-C
   await user.click(ui.objCBuildButton.get());
-  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+  expect(getCopyToClipboardValue({ i: 0, name: 'Copy' })).toMatchSnapshot(
     'Objective-C: sonar-project.properties',
   );
 
   await user.click(ui.linuxButton.get());
   await user.click(ui.x86_64Button.get());
-  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
     'Objective-C Linux: .github/workflows/build.yml',
   );
   await user.click(ui.arm64Button.get());
-  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
     'Objective-C Linux arm64: .github/workflows/build.yml',
   );
   await user.click(ui.windowsButton.get());
-  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
     'Objective-C Windows: .github/workflows/build.yml',
   );
   await user.click(ui.macosButton.get());
-  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
     'Objective-C MacOS: .github/workflows/build.yml',
   );
 
   // Dart
   await user.click(ui.dartBuildButton.get());
-  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Dart: .github/workflows/build.yml');
+  expect(getCopyToClipboardValue({ i: 0, name: 'Copy' })).toMatchSnapshot(
+    'Dart: sonar-project.properties',
+  );
+
+  await user.click(ui.linuxButton.get());
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
+    'Dart Linux: .github/workflows/build.yml',
+  );
+  await user.click(ui.windowsButton.get());
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
+    'Dart Windows: .github/workflows/build.yml',
+  );
+  await user.click(ui.macosButton.get());
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
+    'Dart MacOS: .github/workflows/build.yml',
+  );
 
   // Other
   await user.click(ui.otherBuildButton.get());
-  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+  expect(getCopyToClipboardValue({ i: 0, name: 'Copy' })).toMatchSnapshot(
     'C++ (automatic) and other: sonar-project.properties',
   );
-  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
-    'C++ (automatic) and other: .github/workflows/build.yml',
+
+  await user.click(ui.linuxButton.get());
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
+    'C++ (automatic) and other Linux: .github/workflows/build.yml',
+  );
+  await user.click(ui.windowsButton.get());
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
+    'C++ (automatic) and other Windows: .github/workflows/build.yml',
+  );
+  await user.click(ui.macosButton.get());
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
+    'C++ (automatic) and other MacOS: .github/workflows/build.yml',
   );
 
   expect(ui.allSetSentence.get()).toBeInTheDocument();
@@ -161,7 +201,7 @@ it('should generate/delete a new token or use existing one', async () => {
   // Generate token
   await user.click(ui.genTokenDialogButton.get());
   await user.click(ui.generateTokenButton.get());
-  expect(getCopyToClipboardValue()).toEqual('generatedtoken2');
+  expect(getCopyToClipboardValue({ inlineSnippet: true })).toEqual('generatedtoken2');
 
   // Revoke current token and create new one
   await user.click(ui.deleteTokenButton.get());

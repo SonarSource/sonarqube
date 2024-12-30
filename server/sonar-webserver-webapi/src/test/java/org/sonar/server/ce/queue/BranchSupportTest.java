@@ -33,8 +33,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.ce.queue.BranchSupport.ComponentKey;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -53,7 +52,7 @@ public class BranchSupportTest {
 
   @Test
   public void createComponentKey_of_main_branch() {
-    String projectKey = randomAlphanumeric(12);
+    String projectKey = secure().nextAlphanumeric(12);
 
     ComponentKey componentKey = underTestNoBranch.createComponentKey(projectKey, NO_CHARACTERISTICS);
 
@@ -66,7 +65,7 @@ public class BranchSupportTest {
 
   @Test
   public void createComponentKey_whenCharacteristicsIsRandom_returnsComponentKey() {
-    String projectKey = randomAlphanumeric(12);
+    String projectKey = secure().nextAlphanumeric(12);
     Map<String, String> nonEmptyMap = newRandomNonEmptyMap();
 
     ComponentKey componentKey = underTestWithBranch.createComponentKey(projectKey, nonEmptyMap);
@@ -80,7 +79,7 @@ public class BranchSupportTest {
 
   @Test
   public void createComponentKey_whenCharacteristicsIsBranchRelated_delegates() {
-    String projectKey = randomAlphanumeric(12);
+    String projectKey = secure().nextAlphanumeric(12);
     Map<String, String> nonEmptyMap = Map.of(PULL_REQUEST, "PR-2");
     ComponentKey expected = mock(ComponentKey.class);
     when(branchSupportDelegate.createComponentKey(projectKey, nonEmptyMap)).thenReturn(expected);
@@ -121,7 +120,7 @@ public class BranchSupportTest {
   public static Object[][] nullOrNonEmpty() {
     return new Object[][] {
       {null},
-      {randomAlphabetic(5)},
+      {secure().nextAlphabetic(5)},
     };
   }
 

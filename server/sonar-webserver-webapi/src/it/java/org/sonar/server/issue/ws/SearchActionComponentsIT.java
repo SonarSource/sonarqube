@@ -22,10 +22,12 @@ package org.sonar.server.issue.ws;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Date;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.Mockito;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
@@ -59,10 +61,10 @@ import org.sonarqube.ws.Issues.Component;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.api.resources.Qualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.APP;
 import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
@@ -82,17 +84,19 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IN_NEW_CODE
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PULL_REQUEST;
 
-public class SearchActionComponentsIT {
+class SearchActionComponentsIT {
 
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public DbTester db = DbTester.create();
-  @Rule
-  public EsTester es = EsTester.create();
+  @RegisterExtension
+  private final UserSessionRule userSession = UserSessionRule.standalone();
+  @RegisterExtension
+  private final DbTester db = DbTester.create();
+  @RegisterExtension
+  private final EsTester es = EsTester.create();
+  
+  private final Configuration config = Mockito.mock(Configuration.class);
 
   private final DbClient dbClient = db.getDbClient();
-  private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
+  private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession), config);
   private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null);
   private final ViewIndexer viewIndexer = new ViewIndexer(dbClient, es.client());
   private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession);
@@ -111,7 +115,7 @@ public class SearchActionComponentsIT {
       System2.INSTANCE, dbClient));
 
   @Test
-  public void search_all_issues_when_no_parameter() {
+  void search_all_issues_when_no_parameter() {
     RuleDto rule = db.rules().insertIssueRule();
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
@@ -127,7 +131,7 @@ public class SearchActionComponentsIT {
   }
 
   @Test
-  public void issues_on_different_projects() {
+  void issues_on_different_projects() {
     RuleDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
     ProjectData projectData1 = db.components().insertPublicProject();
     ComponentDto project = projectData1.getMainBranchComponent();
@@ -153,7 +157,7 @@ public class SearchActionComponentsIT {
   }
 
   @Test
-  public void search_since_in_new_code_period_on_project() {
+  void search_since_in_new_code_period_on_project() {
     ProjectData projectData = db.components().insertPublicProject(p -> p.setKey("PK1"));
     ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setKey("FK1"));
@@ -176,7 +180,7 @@ public class SearchActionComponentsIT {
   }
 
   @Test
-  public void search_by_file_uuid() {
+  void search_by_file_uuid() {
     ProjectData projectData = db.components().insertPublicProject(p -> p.setKey("PK1"));
     ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setKey("FK1"));
@@ -197,11 +201,11 @@ public class SearchActionComponentsIT {
   }
 
   @Test
-  public void search_by_file_key() {
+  void search_by_file_key() {
     ProjectData projectData = db.components().insertPublicProject(p -> p.setKey("PK1"));
     ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setKey("FK1"));
-    ComponentDto unitTest = db.components().insertComponent(newFileDto(project, null, "F2").setQualifier(Qualifiers.UNIT_TEST_FILE).setKey("FK2"));
+    ComponentDto unitTest = db.components().insertComponent(newFileDto(project, null, "F2").setQualifier(ComponentQualifiers.UNIT_TEST_FILE).setKey("FK2"));
     RuleDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
     IssueDto issueOnFile = db.issues().insertIssue(rule, project, file, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
     IssueDto issueOnTest = db.issues().insertIssue(rule, project, unitTest, i -> i.setKee("2bd4eac2-b650-4037-80bc-7b1182fd47d4"));
@@ -220,7 +224,7 @@ public class SearchActionComponentsIT {
   }
 
   @Test
-  public void search_by_directory_path() {
+  void search_by_directory_path() {
     ProjectData projectData = db.components().insertPublicProject(p -> p.setKey("PK1"));
     ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "D1", "src/main/java/dir"));
@@ -252,7 +256,7 @@ public class SearchActionComponentsIT {
   }
 
   @Test
-  public void search_by_view_uuid() {
+  void search_by_view_uuid() {
     ProjectData projectData = db.components().insertPublicProject(p -> p.setKey("PK1"));
     ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setKey("FK1"));
@@ -272,7 +276,7 @@ public class SearchActionComponentsIT {
   }
 
   @Test
-  public void search_by_sub_view_uuid() {
+  void search_by_sub_view_uuid() {
     ProjectData projectData = db.components().insertPublicProject(p -> p.setKey("PK1"));
     ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setKey("FK1"));
@@ -292,7 +296,7 @@ public class SearchActionComponentsIT {
   }
 
   @Test
-  public void search_by_sub_view_uuid_return_only_authorized_view() {
+  void search_by_sub_view_uuid_return_only_authorized_view() {
     ProjectData projectData = db.components().insertPublicProject(p -> p.setKey("PK1"));
     ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setKey("FK1"));
@@ -312,7 +316,7 @@ public class SearchActionComponentsIT {
   }
 
   @Test
-  public void search_by_application_key() {
+  void search_by_application_key() {
     ProjectData applicationData = db.components().insertPrivateApplication();
     ComponentDto application = applicationData.getMainBranchComponent();
     ProjectData projectData1 = db.components().insertPrivateProject();
@@ -338,7 +342,7 @@ public class SearchActionComponentsIT {
   }
 
   @Test
-  public void search_by_application_key_and_branch() {
+  void search_by_application_key_and_branch() {
     ProjectData applicatioData = db.components().insertPrivateProject(c -> c.setQualifier(APP).setKey("app"));
     ComponentDto application = applicatioData.getMainBranchComponent();
     String appBranch1 = "app-branch1";
@@ -395,7 +399,7 @@ public class SearchActionComponentsIT {
   }
 
   @Test
-  public void ignore_application_without_browse_permission() {
+  void ignore_application_without_browse_permission() {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto application = db.components().insertPublicApplication().getMainBranchComponent();
@@ -413,7 +417,7 @@ public class SearchActionComponentsIT {
   }
 
   @Test
-  public void search_application_without_projects() {
+  void search_application_without_projects() {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
     ProjectData applicationData = db.components().insertPublicApplication();
@@ -431,7 +435,7 @@ public class SearchActionComponentsIT {
   }
 
   @Test
-  public void search_by_application_and_by_new_code_period() {
+  void search_by_application_and_by_new_code_period() {
     Date now = new Date();
     RuleDto rule = db.rules().insertIssueRule();
     ProjectData applicationData = db.components().insertPublicApplication();
@@ -466,7 +470,7 @@ public class SearchActionComponentsIT {
   }
 
   @Test
-  public void search_by_application_and_project() {
+  void search_by_application_and_project() {
     ProjectData projectData1 = db.components().insertPublicProject();
     ComponentDto project1 = projectData1.getMainBranchComponent();
     ProjectData projectData2 = db.components().insertPublicProject();
@@ -493,7 +497,7 @@ public class SearchActionComponentsIT {
   }
 
   @Test
-  public void search_by_application_and_project_and_new_code_period() {
+  void search_by_application_and_project_and_new_code_period() {
     Date now = new Date();
     RuleDto rule = db.rules().insertIssueRule();
     ProjectData applicationData = db.components().insertPublicApplication();
@@ -529,7 +533,7 @@ public class SearchActionComponentsIT {
   }
 
   @Test
-  public void search_by_application_and_by_new_code_period_when_one_project_has_no_leak() {
+  void search_by_application_and_by_new_code_period_when_one_project_has_no_leak() {
     Date now = new Date();
     RuleDto rule = db.rules().insertIssueRule();
     ProjectData applicationData = db.components().insertPublicApplication();
@@ -564,14 +568,14 @@ public class SearchActionComponentsIT {
   }
 
   @Test
-  public void search_by_branch() {
+  void search_by_branch() {
     RuleDto rule = db.rules().insertIssueRule();
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = db.issues().insertIssue(rule, project, file);
 
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
     ComponentDto branchFile = db.components().insertComponent(newFileDto(branch, project.uuid()));
     IssueDto branchIssue = db.issues().insertIssue(rule, branch, branchFile);
@@ -603,13 +607,13 @@ public class SearchActionComponentsIT {
   }
 
   @Test
-  public void return_branch_in_component_list() {
+  void return_branch_in_component_list() {
     RuleDto rule = db.rules().insertIssueRule();
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     IssueDto projectIssue = db.issues().insertIssue(rule, project, projectFile);
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
     ComponentDto branchFile = db.components().insertComponent(newFileDto(branch, project.uuid()));
     IssueDto branchIssue = db.issues().insertIssue(rule, branch, branchFile);
@@ -629,14 +633,14 @@ public class SearchActionComponentsIT {
   }
 
   @Test
-  public void search_by_pull_request() {
+  void search_by_pull_request() {
     RuleDto rule = db.rules().insertIssueRule();
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     IssueDto projectIssue = db.issues().insertIssue(rule, project, projectFile);
 
-    String pullRequestKey = randomAlphanumeric(100);
+    String pullRequestKey = secure().nextAlphanumeric(100);
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
     ComponentDto pullRequestFile = db.components().insertComponent(newFileDto(pullRequest, project.uuid()));
     IssueDto pullRequestIssue = db.issues().insertIssue(rule, pullRequest, pullRequestFile);
@@ -659,7 +663,7 @@ public class SearchActionComponentsIT {
   }
 
   @Test
-  public void search_using_main_branch_name() {
+  void search_using_main_branch_name() {
     RuleDto rule = db.rules().insertIssueRule();
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
@@ -684,7 +688,7 @@ public class SearchActionComponentsIT {
   }
 
   @Test
-  public void does_not_return_branch_issues_on_not_contextualized_search() {
+  void does_not_return_branch_issues_on_not_contextualized_search() {
     RuleDto rule = db.rules().insertIssueRule();
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();

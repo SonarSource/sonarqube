@@ -35,7 +35,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
@@ -218,8 +217,8 @@ public class ProjectStatusAction implements QualityGatesWsAction {
     }
 
     // do not restrict to a specified analysis, use the live measure
-    Optional<LiveMeasureDto> measure = dbClient.liveMeasureDao().selectMeasure(dbSession, projectAndSnapshot.branch.getUuid(), CoreMetrics.QUALITY_GATE_DETAILS_KEY);
-    return measure.map(LiveMeasureDto::getDataAsString);
+    return dbClient.measureDao().selectByComponentUuid(dbSession, projectAndSnapshot.branch.getUuid())
+      .map(m -> m.getString(CoreMetrics.QUALITY_GATE_DETAILS_KEY));
   }
 
   private void checkPermission(ProjectDto project) {

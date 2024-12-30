@@ -17,15 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
 import SettingsServiceMock from '../../../../../api/mocks/SettingsServiceMock';
 import { AvailableFeaturesContext } from '../../../../../app/components/available-features/AvailableFeaturesContext';
+import { getEdition } from '../../../../../helpers/editions';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
 import { AlmKeys } from '../../../../../types/alm-settings';
+import { EditionKey } from '../../../../../types/editions';
 import { Feature } from '../../../../../types/features';
 import { SettingsKey } from '../../../../../types/settings';
 import AlmIntegration from '../AlmIntegration';
@@ -54,7 +56,7 @@ it('should not display the serverBaseURL message when it is defined', async () =
   expect(ui.serverBaseUrlMissingInformation.query()).not.toBeInTheDocument();
 });
 
-it('should not display the serverBaseURL message for Community edition', async () => {
+it(`should not display the serverBaseURL message for ${getEdition(EditionKey.community).name}`, async () => {
   const { ui } = getPageObjects();
   renderAlmIntegration();
   expect(await ui.almHeading.find()).toBeInTheDocument();

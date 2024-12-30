@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { flow } from 'lodash';
-import * as React from 'react';
-import { useCallback } from 'react';
+import { memo, useCallback, useEffect } from 'react';
 import { setIssueAssignee } from '../../api/issues';
 import { useComponent } from '../../app/components/componentContext/withComponentContext';
 import { isInput, isShortcut } from '../../helpers/keyboardEventHelpers';
@@ -44,7 +44,7 @@ interface Props {
   selected: boolean;
 }
 
-export default function Issue(props: Props) {
+function Issue(props: Readonly<Props>) {
   const {
     selected = false,
     issue,
@@ -109,7 +109,7 @@ export default function Issue(props: Props) {
     [issue.actions, issue.key, togglePopup, handleAssignement, onCheck],
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (selected) {
       document.addEventListener('keydown', handleKeyDown, { capture: true });
     }
@@ -132,3 +132,5 @@ export default function Issue(props: Props) {
     />
   );
 }
+
+export default memo(Issue);

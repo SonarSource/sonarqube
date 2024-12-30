@@ -30,7 +30,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.rule.LoadedActiveRule;
+import org.sonar.scanner.rule.LoadedActiveRule;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;

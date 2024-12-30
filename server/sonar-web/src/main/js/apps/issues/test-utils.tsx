@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { waitFor } from '@testing-library/react';
-import React from 'react';
 import { Outlet, Route } from 'react-router-dom';
 import { byPlaceholderText, byRole, byTestId, byText } from '~sonar-aligned/helpers/testSelector';
 import BranchesServiceMock from '../../api/mocks/BranchesServiceMock';
 import ComponentsServiceMock from '../../api/mocks/ComponentsServiceMock';
 import CveServiceMock from '../../api/mocks/CveServiceMock';
-import FixIssueServiceMock from '../../api/mocks/FixIssueServiceMock';
+import FixSuggestionsServiceMock from '../../api/mocks/FixSuggestionsServiceMock';
 import IssuesServiceMock from '../../api/mocks/IssuesServiceMock';
-import SettingsServiceMock from '../../api/mocks/SettingsServiceMock';
+import { ModeServiceMock } from '../../api/mocks/ModeServiceMock';
 import SourcesServiceMock from '../../api/mocks/SourcesServiceMock';
 import UsersServiceMock from '../../api/mocks/UsersServiceMock';
 import { mockComponent } from '../../helpers/mocks/component';
@@ -38,6 +38,7 @@ import {
   SoftwareQuality,
 } from '../../types/clean-code-taxonomy';
 import { Feature } from '../../types/features';
+import { IssueSeverity } from '../../types/issues';
 import { Component } from '../../types/types';
 import { NoticeType } from '../../types/users';
 import IssuesApp from './components/IssuesApp';
@@ -49,14 +50,14 @@ export const cveHandler = new CveServiceMock();
 export const componentsHandler = new ComponentsServiceMock();
 export const sourcesHandler = new SourcesServiceMock();
 export const branchHandler = new BranchesServiceMock();
-export const fixIssueHanlder = new FixIssueServiceMock();
-export const settingsHandler = new SettingsServiceMock();
+export const fixIssueHandler = new FixSuggestionsServiceMock();
+export const modeHandler = new ModeServiceMock();
 
 export const ui = {
   loading: byText('issues.loading_issues'),
   fixGenerated: byText('issues.code_fix.fix_is_being_generated'),
   noFixAvailable: byText('issues.code_fix.something_went_wrong'),
-  suggestedExplanation: byText(fixIssueHanlder.fixSuggestion.explanation),
+  suggestedExplanation: byText(fixIssueHandler.fixSuggestion.explanation),
   issuePageHeadering: byRole('heading', { level: 1, name: 'issues.page' }),
   issueItemAction1: byRole('link', { name: 'Issue with no location message' }),
   issueItemAction2: byRole('link', { name: 'FlowIssue' }),
@@ -110,6 +111,7 @@ export const ui = {
     name: 'issues.facet.impactSoftwareQualities',
   }),
   severityFacet: byRole('button', { name: 'coding_rules.facet.impactSeverities' }),
+  standardSeverityFacet: byRole('button', { name: 'issues.facet.severities' }),
   prioritizedRuleFacet: byRole('button', { name: 'issues.facet.prioritized_rule.category' }),
 
   clearCodeCategoryFacet: byTestId('clear-issues.facet.cleanCodeAttributeCategories'),
@@ -124,6 +126,7 @@ export const ui = {
   clearRuleFacet: byTestId('clear-issues.facet.rules'),
   clearScopeFacet: byTestId('clear-issues.facet.scopes'),
   clearSeverityFacet: byTestId('clear-coding_rules.facet.impactSeverities'),
+  clearStandardSeverityFacet: byTestId('clear-issues.facet.severities'),
   clearIssueStatusFacet: byTestId('clear-issues.facet.issueStatuses'),
   clearTagFacet: byTestId('clear-issues.facet.tags'),
   clearPrioritizedRuleFacet: byTestId('clear-issues.facet.prioritized_rule.category'),
@@ -143,6 +146,9 @@ export const ui = {
   mainScopeFilter: byRole('checkbox', { name: 'issue.scope.MAIN' }),
   mediumSeverityFilter: byRole('checkbox', {
     name: `severity_impact.${SoftwareImpactSeverity.Medium}`,
+  }),
+  majorSeverityFilter: byRole('checkbox', {
+    name: `severity.${IssueSeverity.Major}`,
   }),
   openStatusFilter: byRole('checkbox', { name: 'issue.issue_status.OPEN' }),
   vulnerabilityIssueTypeFilter: byRole('checkbox', { name: 'issue.type.VULNERABILITY' }),
@@ -177,9 +183,7 @@ export const ui = {
 };
 
 export async function waitOnDataLoaded() {
-  await waitFor(() => {
-    expect(ui.loading.query()).not.toBeInTheDocument();
-  });
+  await waitFor(() => expect(ui.loading.query()).not.toBeInTheDocument());
 }
 
 export function renderIssueApp(
@@ -190,8 +194,13 @@ export function renderIssueApp(
     },
   }),
   featureList: Feature[] = [],
+  navigateTo?: string,
 ) {
-  renderApp('issues', <IssuesApp />, { currentUser, featureList });
+  return renderApp('issues', <IssuesApp />, {
+    currentUser,
+    featureList,
+    navigateTo,
+  });
 }
 
 export function renderProjectIssuesApp(
@@ -205,7 +214,7 @@ export function renderProjectIssuesApp(
   }),
   featureList = [Feature.BranchSupport],
 ) {
-  renderAppWithComponentContext(
+  return renderAppWithComponentContext(
     'project/issues',
     () => (
       <Route

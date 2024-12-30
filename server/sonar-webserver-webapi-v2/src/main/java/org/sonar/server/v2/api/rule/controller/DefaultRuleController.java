@@ -71,8 +71,10 @@ public class DefaultRuleController implements RuleController {
       .setName(request.name())
       .setMarkdownDescription(request.markdownDescription())
       .setStatus(ofNullable(request.status()).map(RuleStatusRestEnum::getRuleStatus).orElse(null))
-      .setCleanCodeAttribute(request.cleanCodeAttribute().getCleanCodeAttribute())
+      .setCleanCodeAttribute(request.cleanCodeAttribute() != null ? request.cleanCodeAttribute().getCleanCodeAttribute() : null)
       .setImpacts(request.impacts().stream().map(DefaultRuleController::toNewCustomRuleImpact).toList())
+      .setType(request.type())
+      .setSeverity(request.severity())
       .setPreventReactivation(true);
     if (request.parameters() != null) {
       Map<String, String> params = new HashMap<>();

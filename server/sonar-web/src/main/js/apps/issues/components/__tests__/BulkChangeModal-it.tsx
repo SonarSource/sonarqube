@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import * as React from 'react';
 import { bulkChangeIssues } from '../../../../api/issues';
 import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
 import { mockIssue, mockLoggedInUser } from '../../../../helpers/testMocks';
@@ -113,7 +113,7 @@ it('should disable the submit button unless some change is configured', async ()
   expect(await screen.findByRole('button', { name: 'apply' })).toBeDisabled();
 
   // Add a tag
-  await user.click(screen.getByRole('combobox', { name: 'issue.add_tags' }));
+  await user.click(await screen.findByRole('combobox', { name: 'issue.add_tags' }));
   await user.click(screen.getByText('tag1'));
   await user.click(screen.getByText('tag2'));
 

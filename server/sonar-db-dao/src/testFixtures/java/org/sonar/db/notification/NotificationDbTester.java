@@ -22,7 +22,6 @@ package org.sonar.db.notification;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
@@ -41,16 +40,16 @@ public class NotificationDbTester {
     this.db = db;
   }
 
-  public void assertExists(String channel, String dispatcher, String userUuid, @Nullable ProjectDto project) {
+  public void assertExists(String channel, String dispatcher, String userUuid, @Nullable ProjectDto project, boolean enabled) {
     List<PropertyDto> result = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-        .setKey(String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel))
-        .setEntityUuid(project == null ? null : project.getUuid())
-        .setUserUuid(userUuid)
-        .build(), db.getSession()).stream()
+      .setKey(String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel))
+      .setEntityUuid(project == null ? null : project.getUuid())
+      .setUserUuid(userUuid)
+      .build(), db.getSession()).stream()
       .filter(prop -> project == null ? prop.getEntityUuid() == null : prop.getEntityUuid() != null)
       .toList();
     assertThat(result).hasSize(1);
-    assertThat(result.get(0).getValue()).isEqualTo("true");
+    assertThat(result.get(0).getValue()).isEqualTo(Boolean.toString(enabled));
   }
 
   public void assertDoesNotExist(String channel, String dispatcher, String userUuid, @Nullable ProjectDto project) {

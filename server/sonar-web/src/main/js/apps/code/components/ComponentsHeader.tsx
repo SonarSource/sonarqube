@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ContentCell, NumericalCell, RatingCell } from 'design-system';
-import * as React from 'react';
+
+import { ContentCell, NumericalCell, RatingCell } from '~design-system';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import {
@@ -26,6 +26,7 @@ import {
   OLD_TO_NEW_TAXONOMY_METRICS_MAP,
 } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { ComponentMeasure } from '../../../types/types';
 
 interface ComponentsHeaderProps {
@@ -46,6 +47,7 @@ const SHORT_NAME_METRICS = [
 
 export default function ComponentsHeader(props: ComponentsHeaderProps) {
   const { baseComponent, canBePinned = true, metrics, rootComponent, showAnalysisDate } = props;
+  const { data: isStandardMode = false } = useStandardExperienceModeQuery();
   const isPortfolio = isPortfolioLike(rootComponent.qualifier);
   let columns: string[] = [];
   let Cell: typeof NumericalCell;
@@ -66,7 +68,7 @@ export default function ComponentsHeader(props: ComponentsHeaderProps) {
     Cell = RatingCell;
   } else {
     columns = metrics.map((m: MetricKey) => {
-      const metric = OLD_TO_NEW_TAXONOMY_METRICS_MAP[m] ?? m;
+      const metric = isStandardMode ? m : (OLD_TO_NEW_TAXONOMY_METRICS_MAP[m] ?? m);
 
       return translate(
         'metric',

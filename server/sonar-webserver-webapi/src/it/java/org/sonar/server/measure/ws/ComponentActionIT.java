@@ -31,7 +31,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.PortfolioData;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
@@ -49,7 +49,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_ISSUES;
-import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
@@ -138,7 +137,7 @@ public class ComponentActionIT {
     db.components().insertSnapshot(branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, mainBranch.uuid()));
     MetricDto complexity = db.measures().insertMetric(m1 -> m1.setKey("complexity").setValueType("INT"));
-    LiveMeasureDto measure = db.measures().insertLiveMeasure(file, complexity, m -> m.setValue(12.0d));
+    MeasureDto measure = db.measures().insertMeasure(file, m -> m.addValue(complexity.getKey(), 12.0d));
 
     ComponentWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
@@ -150,7 +149,7 @@ public class ComponentActionIT {
       .containsExactlyInAnyOrder(file.getKey(), branchName);
     assertThat(response.getComponent().getMeasuresList())
       .extracting(Measures.Measure::getMetric, m -> parseDouble(m.getValue()))
-      .containsExactlyInAnyOrder(tuple(complexity.getKey(), measure.getValue()));
+      .containsExactlyInAnyOrder(tuple(complexity.getKey(), measure.getDouble(complexity.getKey())));
   }
 
   @Test
@@ -182,7 +181,7 @@ public class ComponentActionIT {
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, mainBranch.uuid()));
     MetricDto complexity = db.measures().insertMetric(m1 -> m1.setKey("complexity").setValueType("INT"));
-    LiveMeasureDto measure = db.measures().insertLiveMeasure(file, complexity, m -> m.setValue(12.0d));
+    MeasureDto measure = db.measures().insertMeasure(file, m -> m.addValue(complexity.getKey(), 12.0d));
 
     ComponentWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
@@ -194,7 +193,7 @@ public class ComponentActionIT {
       .containsExactlyInAnyOrder(file.getKey(), "pr-123");
     assertThat(response.getComponent().getMeasuresList())
       .extracting(Measures.Measure::getMetric, m -> parseDouble(m.getValue()))
-      .containsExactlyInAnyOrder(tuple(complexity.getKey(), measure.getValue()));
+      .containsExactlyInAnyOrder(tuple(complexity.getKey(), measure.getDouble(complexity.getKey())));
   }
 
   @Test
@@ -236,7 +235,7 @@ public class ComponentActionIT {
     MetricDto metricWithoutDomain = db.measures().insertMetric(m -> m
       .setValueType("INT")
       .setDomain(null));
-    db.measures().insertLiveMeasure(mainBranch, metricWithoutDomain);
+    db.measures().insertMeasure(mainBranch, m -> m.addValue(metricWithoutDomain.getKey(), 123));
 
     ComponentWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, mainBranch.getKey())
@@ -261,6 +260,9 @@ public class ComponentActionIT {
       .setBestValue(7.0d)
       .setOptimizedBestValue(true)
       .setDomain(null));
+
+    // add any measure for the component
+    db.measures().insertMeasure(file);
 
     ComponentWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
@@ -378,7 +380,7 @@ public class ComponentActionIT {
 
     Map<String, Long> reliabilityIssuesMap = Map.of(HIGH.name(), 1L, MEDIUM.name(), 2L, LOW.name(), 3L, "total", 6L);
     String expectedJson = new Gson().toJson(reliabilityIssuesMap);
-    db.measures().insertLiveMeasure(mainBranch, metric, m -> m.setData(expectedJson));
+    db.measures().insertMeasure(mainBranch, m -> m.addValue(metric.getKey(), expectedJson));
 
     db.commit();
 
@@ -400,7 +402,7 @@ public class ComponentActionIT {
       .setPeriodParam("1.0-SNAPSHOT"));
 
     MetricDto accepted_issues = insertAcceptedIssuesMetric();
-    db.measures().insertLiveMeasure(mainBranch, accepted_issues, m -> m.setValue(10d));
+    db.measures().insertMeasure(mainBranch, m -> m.addValue(accepted_issues.getKey(), 10d));
 
     db.commit();
 
@@ -432,9 +434,7 @@ public class ComponentActionIT {
       .setDirection(-1)
       .setQualitative(false)
       .setHidden(false));
-    db.measures().insertLiveMeasure(file, complexity,
-      m -> m.setValue(12.0d)
-        .setData((String) null));
+    db.measures().insertMeasure(file, m -> m.addValue(complexity.getKey(), 12.0d));
 
     MetricDto ncloc = db.measures().insertMetric(m1 -> m1.setKey("ncloc")
       .setShortName("Lines of code")
@@ -444,9 +444,7 @@ public class ComponentActionIT {
       .setDirection(-1)
       .setQualitative(false)
       .setHidden(false));
-    db.measures().insertLiveMeasure(file, ncloc,
-      m -> m.setValue(114.0d)
-        .setData((String) null));
+    db.measures().insertMeasure(file, m -> m.addValue(ncloc.getKey(), 114.0d));
 
     MetricDto newViolations = db.measures().insertMetric(m -> m.setKey("new_violations")
       .setShortName("New issues")
@@ -456,9 +454,7 @@ public class ComponentActionIT {
       .setDirection(-1)
       .setQualitative(true)
       .setHidden(false));
-    db.measures().insertLiveMeasure(file, newViolations,
-      m -> m.setValue(25.0d)
-        .setData((String) null));
+    db.measures().insertMeasure(file, m -> m.addValue(newViolations.getKey(), 25.0d));
 
     String response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())

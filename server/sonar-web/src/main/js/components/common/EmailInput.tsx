@@ -17,36 +17,68 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { InputField, TextError } from 'design-system';
+
+import { IconCheckCircle, IconError, Text } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import isEmail from 'validator/lib/isEmail';
+import { InputField } from '~design-system';
 import { translate } from '../../helpers/l10n';
 import FocusOutHandler from '../controls/FocusOutHandler';
 
 export interface Props {
   id: string;
+  isDisabled?: boolean;
+  isMandotory?: boolean;
   onChange: (email: { isValid: boolean; value: string }) => void;
   value: string;
 }
 
-export default function EmailIput(props: Readonly<Props>) {
-  const { id, value, onChange } = props;
+export type EmailChangeHandlerParams = { isValid: boolean; value: string };
 
-  const [isEmailValid, setIsEmailValid] = React.useState(true);
+export default function EmailIput(props: Readonly<Props>) {
+  const { id, value, onChange, isDisabled, isMandotory = false } = props;
+
+  const [isEmailValid, setIsEmailValid] = React.useState<boolean>();
+
+  React.useEffect(() => {
+    if (!isMandotory) {
+      onChange({ value, isValid: true });
+    }
+  }, []);
 
   return (
-    <FocusOutHandler onFocusOut={() => setIsEmailValid(isEmail(value))}>
-      <InputField
-        id={id}
-        size="full"
-        onChange={({ currentTarget }) => {
-          onChange({ value: currentTarget.value, isValid: isEmail(currentTarget.value) });
-        }}
-        type="email"
-        value={value}
-      />
+    <FocusOutHandler onFocusOut={() => value !== '' && setIsEmailValid(isEmail(value))}>
+      <div className="sw-flex sw-items-center">
+        <InputField
+          id={id}
+          isInvalid={isEmailValid === false}
+          isValid={isEmailValid === true}
+          size="full"
+          onChange={({ currentTarget }) => {
+            const isValid = isMandotory
+              ? isEmail(currentTarget.value)
+              : currentTarget.value === '' || isEmail(currentTarget.value);
+            onChange({ value: currentTarget.value, isValid });
+            if (!isMandotory && currentTarget.value === '') {
+              setIsEmailValid(undefined);
+            } else if (isValid) {
+              setIsEmailValid(true);
+            }
+          }}
+          value={value}
+          disabled={isDisabled === true}
+        />
+        {isEmailValid === false && (
+          <IconError className="sw-ml-2" color="echoes-color-icon-danger" />
+        )}
+        {isEmailValid === true && (
+          <IconCheckCircle color="echoes-color-icon-success" className="sw-ml-2" />
+        )}
+      </div>
       {isEmailValid === false && (
-        <TextError className="sw-mt-2" text={translate('user.email.invalid')} />
+        <Text className="sw-mt-2" colorOverride="echoes-color-text-danger">
+          {translate('users.email.invalid')}
+        </Text>
       )}
     </FocusOutHandler>
   );

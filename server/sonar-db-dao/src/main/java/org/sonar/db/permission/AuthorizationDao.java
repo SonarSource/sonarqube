@@ -30,6 +30,7 @@ import org.sonar.db.EmailSubscriberDto;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsIntoSet;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 
 /**
@@ -150,6 +151,10 @@ public class AuthorizationDao implements Dao {
 
   public Set<EmailSubscriberDto> selectQualityProfileAdministratorLogins(DbSession dbSession) {
     return mapper(dbSession).selectEmailSubscribersWithGlobalPermission(ADMINISTER_QUALITY_PROFILES.getKey());
+  }
+
+  public Set<EmailSubscriberDto> selectQualityGateAdministratorLogins(DbSession dbSession) {
+    return mapper(dbSession).selectEmailSubscribersWithGlobalPermission(ADMINISTER_QUALITY_GATES.getKey());
   }
 
   public Set<EmailSubscriberDto> selectGlobalAdministerEmailSubscribers(DbSession dbSession) {

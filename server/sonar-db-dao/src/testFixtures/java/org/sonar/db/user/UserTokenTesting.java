@@ -21,7 +21,7 @@ package org.sonar.db.user;
 
 import org.sonar.api.utils.System2;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 
 public class UserTokenTesting {
 
@@ -33,21 +33,21 @@ public class UserTokenTesting {
 
   public static UserTokenDto newUserToken() {
     return new UserTokenDto()
-      .setUserUuid("userUuid_" + randomAlphanumeric(40))
-      .setName("name_" + randomAlphanumeric(20))
-      .setTokenHash("hash_" + randomAlphanumeric(30))
+      .setUserUuid("userUuid_" + secure().nextAlphanumeric(40))
+      .setName("name_" + secure().nextAlphanumeric(20))
+      .setTokenHash("hash_" + secure().nextAlphanumeric(30))
       .setCreatedAt(NOW)
       .setType("USER_TOKEN");
   }
 
   public static UserTokenDto newProjectAnalysisToken() {
     return new UserTokenDto()
-      .setUserUuid("userUuid_" + randomAlphanumeric(40))
-      .setName("name_" + randomAlphanumeric(20))
-      .setTokenHash("hash_" + randomAlphanumeric(30))
-      .setProjectUuid("projectUuid_" + randomAlphanumeric(20))
-      .setProjectKey("projectKey_" + randomAlphanumeric(40))
-      .setProjectName("Project " + randomAlphanumeric(40))
+      .setUserUuid("userUuid_" + secure().nextAlphanumeric(40))
+      .setName("name_" + secure().nextAlphanumeric(20))
+      .setTokenHash("hash_" + secure().nextAlphanumeric(30))
+      .setProjectUuid("projectUuid_" + secure().nextAlphanumeric(20))
+      .setProjectKey("projectKey_" + secure().nextAlphanumeric(40))
+      .setProjectName("Project " + secure().nextAlphanumeric(40))
       .setCreatedAt(NOW)
       .setType("PROJECT_ANALYSIS_TOKEN");
   }

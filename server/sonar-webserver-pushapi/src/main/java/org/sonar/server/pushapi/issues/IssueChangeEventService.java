@@ -22,12 +22,14 @@ package org.sonar.server.pushapi.issues;
 import java.util.Collection;
 import java.util.Map;
 import javax.annotation.Nullable;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 
 public interface IssueChangeEventService {
-  void distributeIssueChangeEvent(DefaultIssue issue, @Nullable String severity, @Nullable String type,
+  void distributeIssueChangeEvent(DefaultIssue issue, @Nullable String severity, Map<SoftwareQuality, Severity> impacts, @Nullable String type,
     @Nullable String transitionKey, BranchDto branch, String projectKey);
 
   void distributeIssueChangeEvent(Collection<DefaultIssue> issues, Map<String, ComponentDto> projectsByUuid,

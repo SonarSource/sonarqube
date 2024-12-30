@@ -25,7 +25,7 @@ import java.io.ObjectInputStream;
 import java.util.Random;
 import org.junit.Test;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.process.cluster.health.NodeDetails.newNodeDetailsBuilder;
@@ -121,7 +121,7 @@ public class NodeDetailsTest {
   public void build_throws_NPE_if_host_is_null() {
     builderUnderTest
       .setType(randomType)
-      .setName(randomAlphanumeric(2));
+      .setName(secure().nextAlphanumeric(2));
 
     assertThatThrownBy(() -> builderUnderTest.build())
       .isInstanceOf(NullPointerException.class)
@@ -132,8 +132,8 @@ public class NodeDetailsTest {
   public void build_throws_IAE_if_setPort_not_called() {
     builderUnderTest
       .setType(randomType)
-      .setName(randomAlphanumeric(2))
-      .setHost(randomAlphanumeric(3));
+      .setName(secure().nextAlphanumeric(2))
+      .setHost(secure().nextAlphanumeric(3));
 
     assertThatThrownBy(() -> builderUnderTest.build())
       .isInstanceOf(IllegalArgumentException.class)
@@ -144,8 +144,8 @@ public class NodeDetailsTest {
   public void build_throws_IAE_if_setStarted_not_called() {
     builderUnderTest
       .setType(randomType)
-      .setName(randomAlphanumeric(2))
-      .setHost(randomAlphanumeric(3))
+      .setName(secure().nextAlphanumeric(2))
+      .setHost(secure().nextAlphanumeric(3))
       .setPort(1 + random.nextInt(33));
 
     assertThatThrownBy(() -> builderUnderTest.build())
@@ -190,8 +190,8 @@ public class NodeDetailsTest {
 
   @Test
   public void verify_toString() {
-    String name = randomAlphanumeric(3);
-    String host = randomAlphanumeric(10);
+    String name = secure().nextAlphanumeric(3);
+    String host = secure().nextAlphanumeric(10);
     int port = 1 + random.nextInt(10);
     long startedAt = 1 + random.nextInt(666);
 
@@ -209,8 +209,8 @@ public class NodeDetailsTest {
 
   @Test
   public void verify_getters() {
-    String name = randomAlphanumeric(3);
-    String host = randomAlphanumeric(10);
+    String name = secure().nextAlphanumeric(3);
+    String host = secure().nextAlphanumeric(10);
     int port = 1 + random.nextInt(10);
     long startedAt = 1 + random.nextInt(666);
 

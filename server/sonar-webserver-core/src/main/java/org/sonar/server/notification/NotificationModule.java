@@ -19,20 +19,20 @@
  */
 package org.sonar.server.notification;
 
-import org.sonar.api.config.EmailSettings;
 import org.sonar.core.platform.Module;
 import org.sonar.server.email.EmailSmtpConfiguration;
 import org.sonar.server.notification.email.EmailNotificationChannel;
+import org.sonar.server.oauth.OAuthMicrosoftRestClient;
 
 public class NotificationModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      EmailSettings.class,
       EmailSmtpConfiguration.class,
       NotificationService.class,
       DefaultNotificationManager.class,
       NotificationDaemon.class,
-      EmailNotificationChannel.class);
+      EmailNotificationChannel.class,
+      OAuthMicrosoftRestClient.class);
   }
 }

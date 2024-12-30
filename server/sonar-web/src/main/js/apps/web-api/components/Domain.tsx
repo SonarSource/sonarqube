@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SubTitle } from 'design-system';
+
 import { isEmpty } from 'lodash';
-import * as React from 'react';
+import { SafeHTMLInjection, SubTitle } from '~design-system';
 import { WebApi } from '../../../types/types';
 import { Query, actionsFilter, getActionKey } from '../utils';
 import Action from './Action';
@@ -45,11 +45,9 @@ export default function Domain({ domain, query }: Props) {
       </header>
 
       {!isEmpty(domain.description) && (
-        <div
-          className="sw-mt-3 markdown"
-          // Safe: comes from the backend
-          dangerouslySetInnerHTML={{ __html: domain.description }}
-        />
+        <SafeHTMLInjection htmlAsString={domain.description}>
+          <div className="sw-mt-3 markdown" />
+        </SafeHTMLInjection>
       )}
 
       <div className="sw-mt-4 sw-flex sw-flex-col sw-gap-4">

@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.sonar.alm.client.gitlab.GitLabBranch;
 import org.sonar.alm.client.gitlab.GitlabApplicationClient;
 import org.sonar.alm.client.gitlab.Project;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.auth.gitlab.GitLabSettings;
@@ -40,7 +40,7 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
@@ -126,7 +126,7 @@ public class ImportGitLabProjectActionIT {
     new IndexersImpl(new PermissionIndexer(db.getDbClient(), es.client())),
     Set.of(new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory()),
       new GroupPermissionChanger(db.getDbClient(), new SequenceUuidFactory())));
-  private final PermissionService permissionService = new PermissionServiceImpl(new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT));
+  private final PermissionService permissionService = new PermissionServiceImpl(new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT));
 
   private final GitLabSettings gitlabSettings = mock();
   private final ManagedProjectService managedProjectService = mock();

@@ -19,13 +19,16 @@
  */
 
 import { Spinner } from '@sonarsource/echoes-react';
+import { isEmpty } from 'lodash';
+import { useState } from 'react';
+import { useIntl } from 'react-intl';
 import {
   FlagMessage,
   FormField,
   IllustratedSelectionCard,
   InputSelect,
   SubTitle
-} from 'design-system';
+} from '~design-system';
 import { isEmpty } from 'lodash';
 import * as React from 'react';
 import { useState } from 'react';
@@ -33,11 +36,9 @@ import { Image } from '~sonar-aligned/components/common/Image';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { localizeMetric } from '../../../helpers/measures';
+import { translate } from '../../../helpers/l10n';
 import {
-  DEPRECATED_METRIC_KEYS,
-  useBadgeMetricsQuery,
+  useBadgeMetrics,
   useBadgeTokenQuery,
   useRenewBagdeTokenMutation,
 } from '../../../queries/badges';
@@ -57,6 +58,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
     branchLike,
     component: { key: project, qualifier, configuration },
   } = props;
+  const intl = useIntl();
   const [selectedType, setSelectedType] = useState(BadgeType.measure);
   const [selectedMetric, setSelectedMetric] = useState(MetricKey.alert_status);
   const [selectedFormat, setSelectedFormat] = useState<BadgeFormats>('md');
@@ -65,7 +67,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
     isLoading: isLoadingToken,
     isFetching: isFetchingToken,
   } = useBadgeTokenQuery(project);
-  const { data: metricOptions, isLoading: isLoadingMetrics } = useBadgeMetricsQuery();
+  const { data: metricOptions, isLoading: isLoadingMetrics } = useBadgeMetrics();
   const { mutate: renewToken, isPending: isRenewing } = useRenewBagdeTokenMutation();
   const { hasFeature } = useAvailableFeatures();
   const isLoading = isLoadingMetrics || isLoadingToken || isRenewing;
@@ -93,6 +95,8 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
   };
   const canRenew = configuration?.showSettings;
 
+  const selectedMetricOption = metricOptions.find((m) => m.value === selectedMetric);
+
   return (
     <div>
       <SubTitle>{translate('overview.badges.get_badge')}</SubTitle>
@@ -106,7 +110,10 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
             selected={BadgeType.measure === selectedType}
             image={
               <Image
-                alt={translate('overview.badges', BadgeType.measure, 'alt')}
+                alt={intl.formatMessage(
+                  { id: `overview.badges.${BadgeType.measure}.alt` },
+                  { metric: selectedMetricOption?.label },
+                )}
                 src={getBadgeUrl(BadgeType.measure, fullBadgeOptions, token, true)}
               />
             }
@@ -153,31 +160,19 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
       </Spinner>
 
       {BadgeType.measure === selectedType && (
-        <>
-          <FormField htmlFor="badge-param-customize" label={translate('overview.badges.metric')}>
-            <InputSelect
-              className="sw-w-abs-300"
-              inputId="badge-param-customize"
-              options={metricOptions}
-              onChange={(option) => {
-                if (option) {
-                  setSelectedMetric(option.value);
-                }
-              }}
-              value={metricOptions.find((m) => m.value === selectedMetric)}
-            />
-          </FormField>
-
-          {DEPRECATED_METRIC_KEYS.includes(selectedMetric) && (
-            <FlagMessage className="sw-mb-4" variant="warning">
-              {translateWithParameters(
-                'overview.badges.deprecated_badge_x_y',
-                localizeMetric(selectedMetric),
-                translate('qualifier', qualifier),
-              )}
-            </FlagMessage>
-          )}
-        </>
+        <FormField htmlFor="badge-param-customize" label={translate('overview.badges.metric')}>
+          <InputSelect
+            className="sw-w-abs-300"
+            inputId="badge-param-customize"
+            options={metricOptions}
+            onChange={(option) => {
+              if (option) {
+                setSelectedMetric(option.value);
+              }
+            }}
+            value={selectedMetricOption}
+          />
+        </FormField>
       )}
  </div>
   );

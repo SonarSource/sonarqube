@@ -15,7 +15,7 @@ dependencies {
     implementation project(':server:sonar-webserver-webapi')
     implementation project(':sonar-core')
 
-    testImplementation(platform("org.junit:junit-bom:5.9.1"))
+    testImplementation(platform("org.junit:junit-bom"))
     testImplementation 'com.squareup.okhttp3:mockwebserver'
     testImplementation 'com.tngtech.java:junit-dataprovider'
     testImplementation 'org.assertj:assertj-core'

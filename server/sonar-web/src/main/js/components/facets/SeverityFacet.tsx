@@ -18,17 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Popover } from '@sonarsource/echoes-react';
-import { BareButton, HelperHintIcon } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
+import QGMetricsMismatchHelp from '../../apps/issues/sidebar/QGMetricsMismatchHelp';
 import { IMPACT_SEVERITIES } from '../../helpers/constants';
 import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
-import { SoftwareImpactSeverity } from '../../types/clean-code-taxonomy';
-import DocumentationLink from '../common/DocumentationLink';
 import SoftwareImpactSeverityIcon from '../icon-mappers/SoftwareImpactSeverityIcon';
 import Facet, { BasicProps } from './Facet';
+import { FacetHelp } from './FacetHelp';
 
 export default function SeverityFacet(props: Readonly<BasicProps>) {
   const intl = useIntl();
@@ -47,67 +45,27 @@ export default function SeverityFacet(props: Readonly<BasicProps>) {
     [],
   );
 
-  const isNotBlockerOrInfo = (severity: string) =>
-    severity !== SoftwareImpactSeverity.Blocker && severity !== SoftwareImpactSeverity.Info;
-
   return (
     <Facet
       {...props}
-      stats={Object.fromEntries(
-        Object.entries(props.stats ?? {})
-          .filter(([key]) => isNotBlockerOrInfo(key))
-          .map(([key, value]) => {
-            switch (key) {
-              case SoftwareImpactSeverity.Low:
-                return [key, value + (props.stats?.[SoftwareImpactSeverity.Info] ?? 0)];
-              case SoftwareImpactSeverity.High:
-                return [key, value + (props.stats?.[SoftwareImpactSeverity.Blocker] ?? 0)];
-              default:
-                return [key, value];
-            }
-          }),
-      )}
-      onChange={(values) => {
-        props.onChange({
-          ...values,
-          impactSeverities: (values.impactSeverities as string[] | undefined)
-            ?.map((s) => {
-              switch (s) {
-                case SoftwareImpactSeverity.Low:
-                  return [SoftwareImpactSeverity.Info, SoftwareImpactSeverity.Low];
-                case SoftwareImpactSeverity.High:
-                  return [SoftwareImpactSeverity.Blocker, SoftwareImpactSeverity.High];
-                default:
-                  return s;
-              }
-            })
-            .flat(),
-        });
-      }}
-      values={props.values.filter(isNotBlockerOrInfo)}
-      options={IMPACT_SEVERITIES.filter(isNotBlockerOrInfo)}
+      options={IMPACT_SEVERITIES}
       property="impactSeverities"
       renderName={renderName}
       renderTextName={renderTextName}
       help={
-        <Popover
-          title={intl.formatMessage({ id: 'severity_impact.levels' })}
-          description={
-            <>
-              <p>{intl.formatMessage({ id: 'severity_impact.help.line1' })}</p>
-              <p className="sw-mt-2">{intl.formatMessage({ id: 'severity_impact.help.line2' })}</p>
-            </>
-          }
-          footer={
-            <DocumentationLink to={DocLink.CleanCodeIntroduction}>
-              {intl.formatMessage({ id: 'learn_more' })}
-            </DocumentationLink>
-          }
-        >
-          <BareButton aria-label={intl.formatMessage({ id: 'more_information' })}>
-            <HelperHintIcon />
-          </BareButton>
-        </Popover>
+        props.secondLine ? (
+          <QGMetricsMismatchHelp />
+        ) : (
+          <FacetHelp
+            title={intl.formatMessage({ id: 'severity_impact.levels' })}
+            description={intl.formatMessage(
+              { id: `severity_impact.help.description` },
+              { p1: (text) => <p>{text}</p>, p: (text) => <p className="sw-mt-4">{text}</p> },
+            )}
+            link={DocLink.CleanCodeIntroduction}
+            linkText={intl.formatMessage({ id: 'learn_more' })}
+          />
+        )
       }
     />
   );

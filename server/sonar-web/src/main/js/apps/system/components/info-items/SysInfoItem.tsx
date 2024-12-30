@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ContentCell, Table, TableRow } from 'design-system';
+
 import { map } from 'lodash';
-import * as React from 'react';
+import { ContentCell, Table, TableRow } from '~design-system';
 import { translate } from '../../../../helpers/l10n';
 import { HealthTypes, SysInfoValue } from '../../../../types/types';
 import { HEALTH_FIELD, STATE_FIELD } from '../../utils';

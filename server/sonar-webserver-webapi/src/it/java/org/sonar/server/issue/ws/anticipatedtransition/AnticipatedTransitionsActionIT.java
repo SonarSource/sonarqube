@@ -24,10 +24,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.resources.ResourceTypeTree;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.server.component.ComponentTypeTree;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.component.DefaultResourceTypes;
+import org.sonar.server.component.DefaultComponentTypes;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbTester;
@@ -57,7 +57,7 @@ public class AnticipatedTransitionsActionIT {
   @Rule
   public DbTester db = DbTester.create();
 
-  private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), new ResourceTypes(new ResourceTypeTree[]{DefaultResourceTypes.get()}));
+  private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), new ComponentTypes(new ComponentTypeTree[]{DefaultComponentTypes.get()}));
   private final AnticipatedTransitionsActionValidator validator = new AnticipatedTransitionsActionValidator(db.getDbClient(), componentFinder, userSession);
   private final UuidFactory uuidFactory = new SequenceUuidFactory();
   private final AnticipatedTransitionDao anticipatedTransitionDao = db.getDbClient().anticipatedTransitionDao();

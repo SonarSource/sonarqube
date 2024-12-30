@@ -97,11 +97,6 @@ public class ScannerReportWriter {
     appendDelimitedTo(file, adHocRule, "ad hoc rule");
   }
 
-  public void appendCve(ScannerReport.Cve cve) {
-    File file = fileStructure.cves();
-    appendDelimitedTo(file, cve, "cve");
-  }
-
   public void appendComponentMeasure(int componentRef, ScannerReport.Measure measure) {
     File file = fileStructure.fileFor(FileStructure.Domain.MEASURES, componentRef);
     appendDelimitedTo(file, measure, "measure");
@@ -161,6 +156,17 @@ public class ScannerReportWriter {
     File file = fileStructure.analysisWarnings();
     Protobuf.writeStream(analysisWarnings, file, false);
     return file;
+  }
+
+  public File writeTelemetry(Iterable<ScannerReport.TelemetryEntry> telemetryEntries) {
+    File file = fileStructure.telemetryEntries();
+    Protobuf.writeStream(telemetryEntries, file, false);
+    return file;
+  }
+
+  public void appendDependency(ScannerReport.Dependency dependency) {
+    File file = fileStructure.dependencies();
+    appendDelimitedTo(file, dependency, "dependency");
   }
 
   public File getSourceFile(int componentRef) {

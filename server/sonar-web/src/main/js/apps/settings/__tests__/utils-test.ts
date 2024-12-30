@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { hasMessage } from '../../../helpers/l10n';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockDefinition, mockSettingValue } from '../../../helpers/mocks/settings';
@@ -38,6 +39,14 @@ jest.mock('../../../helpers/l10n', () => ({
   ...jest.requireActual('../../../helpers/l10n'),
   hasMessage: jest.fn(),
 }));
+
+jest.mock('../../../helpers/l10nBundle', () => {
+  const bundle = jest.requireActual('../../../helpers/l10nBundle');
+  return {
+    ...bundle,
+    getIntl: () => ({ formatMessage: jest.fn(({ id }) => `${id}`) }),
+  };
+});
 
 const fields = [
   { key: 'foo', type: 'STRING' } as SettingFieldDefinition,

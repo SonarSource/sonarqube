@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DrilldownLink, Note, SizeIndicator, SubHeading } from 'design-system';
-import * as React from 'react';
+
+import { Heading, Link, LinkHighlight, Text, TextSize } from '@sonarsource/echoes-react';
+import { SizeIndicator } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
@@ -46,23 +47,25 @@ export default function MetaSize({ component, measures }: MetaSizeProps) {
 
   return (
     <>
-      <div className="sw-flex sw-items-baseline">
-        <SubHeading>{localizeMetric(MetricKey.ncloc)}</SubHeading>
+      <div className="sw-mb-2 sw-flex sw-items-baseline">
+        <Heading as="h3">{localizeMetric(MetricKey.ncloc)}</Heading>
         <span className="sw-ml-1">({translate('project.info.main_branch')})</span>
       </div>
       <div className="sw-flex sw-items-center">
         {ncloc && ncloc.value ? (
           <>
-            <DrilldownLink to={url}>
-              <span
+            <Text size={TextSize.Large}>
+              <Link
                 aria-label={translateWithParameters(
                   'project.info.see_more_info_on_x_locs',
                   ncloc.value,
                 )}
+                highlight={LinkHighlight.Default}
+                to={url}
               >
                 {formatMeasure(ncloc.value, MetricType.ShortInteger)}
-              </span>
-            </DrilldownLink>
+              </Link>
+            </Text>
 
             <span className="sw-ml-2">
               <SizeIndicator value={Number(ncloc.value)} size="xs" />
@@ -75,13 +78,17 @@ export default function MetaSize({ component, measures }: MetaSizeProps) {
         {isApp && (
           <span className="sw-inline-flex sw-items-center sw-ml-10">
             {projects ? (
-              <DrilldownLink to={url}>
-                <span>{formatMeasure(projects.value, MetricType.ShortInteger)}</span>
-              </DrilldownLink>
+              <Text size={TextSize.Large}>
+                <Link highlight={LinkHighlight.Default} to={url}>
+                  {formatMeasure(projects.value, MetricType.ShortInteger)}
+                </Link>
+              </Text>
             ) : (
               <span>0</span>
             )}
-            <Note className="sw-ml-1">{translate('metric.projects.name')}</Note>
+            <Text isSubdued className="sw-ml-1">
+              {translate('metric.projects.name')}
+            </Text>
           </span>
         )}
       </div>

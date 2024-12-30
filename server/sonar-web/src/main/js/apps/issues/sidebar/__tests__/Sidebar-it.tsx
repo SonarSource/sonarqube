@@ -17,14 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor } from '@testing-library/react';
-import * as React from 'react';
+import userEvent from '@testing-library/user-event';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { ModeServiceMock } from '../../../../api/mocks/ModeServiceMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockQuery } from '../../../../helpers/mocks/issues';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
+import { byRole } from '../../../../sonar-aligned/helpers/testSelector';
+import { SoftwareImpactSeverity, SoftwareQuality } from '../../../../types/clean-code-taxonomy';
 import { Feature } from '../../../../types/features';
+import { IssueSeverity, IssueType } from '../../../../types/issues';
+import { Mode } from '../../../../types/mode';
 import { GlobalSettingKeys } from '../../../../types/settings';
 import { Sidebar } from '../Sidebar';
 
@@ -37,107 +43,351 @@ jest.mock('../../../../helpers/security-standard', () => {
   };
 });
 
-it('should render correct facets for Projects with PrioritizedRules feature', () => {
-  renderSidebar(
-    {
-      component: mockComponent({ qualifier: ComponentQualifier.Project }),
-    },
-    [Feature.PrioritizedRules],
-  );
+const modeHandler = new ModeServiceMock();
 
-  expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
-    'issues.facet.cleanCodeAttributeCategories',
-    'issues.facet.impactSoftwareQualities',
-    'coding_rules.facet.impactSeverities',
-    // help icon
-    '',
-    'issues.facet.types',
-    'issues.facet.scopes',
-    'issues.facet.issueStatuses',
-    'issues.facet.standards',
-    'issues.facet.createdAt',
-    'issues.facet.languages',
-    'issues.facet.rules',
-    'issues.facet.tags',
-    'issues.facet.directories',
-    'issues.facet.files',
-    'issues.facet.assignees',
-    '',
-    'issues.facet.authors',
-    'issues.facet.prioritized_rule.category',
-  ]);
+beforeEach(() => {
+  modeHandler.reset();
 });
 
-it('should render correct facets for Application', () => {
-  renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.Application }) });
+describe('MQR mode', () => {
+  it('should render correct facets for Projects with PrioritizedRules feature', () => {
+    renderSidebar(
+      {
+        component: mockComponent({ qualifier: ComponentQualifier.Project }),
+      },
+      [Feature.PrioritizedRules],
+    );
 
-  expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
-    'issues.facet.cleanCodeAttributeCategories',
-    'issues.facet.impactSoftwareQualities',
-    'coding_rules.facet.impactSeverities',
+    expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
+      'issues.facet.impactSoftwareQualities',
+      '',
+      'coding_rules.facet.impactSeverities',
+      // help icon
+      '',
+      'issues.facet.cleanCodeAttributeCategories',
+      '',
+      'issues.facet.scopes',
+      'issues.facet.issueStatuses',
+      '',
+      'issues.facet.standards',
+      'issues.facet.createdAt',
+      'issues.facet.languages',
+      'issues.facet.rules',
+      'issues.facet.tags',
+      'issues.facet.directories',
+      'issues.facet.files',
+      'issues.facet.assignees',
+      '',
+      'issues.facet.authors',
+      'issues.facet.prioritized_rule.category',
+    ]);
+  });
+
+  it('should show standard filters if they exist in query', async () => {
+    const user = userEvent.setup();
+    let component = renderSidebar({
+      query: mockQuery({ types: [IssueType.CodeSmell] }),
+    });
+
+    expect(
+      await screen.findByRole('button', { name: 'issues.facet.impactSoftwareQualities' }),
+    ).toBeInTheDocument();
+
+    expect(screen.getByRole('button', { name: 'issues.facet.types' })).toBeInTheDocument();
+    expect(
+      byRole('button', { name: 'issues.facet.types' })
+        .byText('issues.facet.second_line.mode.standard')
+        .get(),
+    ).toBeInTheDocument();
     // help icon
-    '',
-    'issues.facet.types',
-    'issues.facet.scopes',
-    'issues.facet.issueStatuses',
-    'issues.facet.standards',
-    'issues.facet.createdAt',
-    'issues.facet.languages',
-    'issues.facet.rules',
-    'issues.facet.tags',
-    'issues.facet.projects',
-    'issues.facet.assignees',
-    '',
-    'issues.facet.authors',
-  ]);
+    await user.click(byRole('button', { name: 'help' }).getAt(2));
+    expect(screen.getByText('issues.qg_mismatch.title')).toBeInTheDocument();
+
+    expect(
+      screen.queryByRole('button', { name: 'issues.facet.severities' }),
+    ).not.toBeInTheDocument();
+
+    component.unmount();
+
+    component = renderSidebar({
+      query: mockQuery({ severities: [IssueSeverity.Blocker] }),
+    });
+
+    expect(
+      await screen.findByRole('button', { name: 'issues.facet.impactSoftwareQualities' }),
+    ).toBeInTheDocument();
+
+    expect(screen.getByRole('button', { name: 'issues.facet.severities' })).toBeInTheDocument();
+    expect(
+      byRole('button', { name: 'issues.facet.severities' })
+        .byText('issues.facet.second_line.mode.standard')
+        .get(),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'issues.facet.types' })).not.toBeInTheDocument();
+
+    component.unmount();
+
+    renderSidebar({
+      query: mockQuery({
+        types: [IssueType.CodeSmell],
+        severities: [IssueSeverity.Blocker],
+      }),
+    });
+
+    expect(
+      await screen.findByRole('button', { name: 'issues.facet.impactSoftwareQualities' }),
+    ).toBeInTheDocument();
+
+    expect(screen.getByRole('button', { name: 'issues.facet.types' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'issues.facet.severities' })).toBeInTheDocument();
+  });
+
+  it('should render correct facets for Application', () => {
+    renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.Application }) });
+
+    expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
+      'issues.facet.impactSoftwareQualities',
+      '',
+      'coding_rules.facet.impactSeverities',
+      // help icon
+      '',
+      'issues.facet.cleanCodeAttributeCategories',
+      '',
+      'issues.facet.scopes',
+      'issues.facet.issueStatuses',
+      '',
+      'issues.facet.standards',
+      'issues.facet.createdAt',
+      'issues.facet.languages',
+      'issues.facet.rules',
+      'issues.facet.tags',
+      'issues.facet.projects',
+      'issues.facet.assignees',
+      '',
+      'issues.facet.authors',
+    ]);
+  });
+
+  it('should render correct facets for Portfolio', () => {
+    renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.Portfolio }) });
+
+    expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
+      'issues.facet.impactSoftwareQualities',
+      '',
+      'coding_rules.facet.impactSeverities',
+      // help icon
+      '',
+      'issues.facet.cleanCodeAttributeCategories',
+      '',
+      'issues.facet.scopes',
+      'issues.facet.issueStatuses',
+      '',
+      'issues.facet.standards',
+      'issues.facet.createdAt',
+      'issues.facet.languages',
+      'issues.facet.rules',
+      'issues.facet.tags',
+      'issues.facet.projects',
+      'issues.facet.assignees',
+      '',
+      'issues.facet.authors',
+    ]);
+  });
+
+  it('should render correct facets for SubPortfolio', () => {
+    renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.SubPortfolio }) });
+
+    expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
+      'issues.facet.impactSoftwareQualities',
+      '',
+      'coding_rules.facet.impactSeverities',
+      // help icon
+      '',
+      'issues.facet.cleanCodeAttributeCategories',
+      '',
+      'issues.facet.scopes',
+      'issues.facet.issueStatuses',
+      '',
+      'issues.facet.standards',
+      'issues.facet.createdAt',
+      'issues.facet.languages',
+      'issues.facet.rules',
+      'issues.facet.tags',
+      'issues.facet.projects',
+      'issues.facet.assignees',
+      '',
+      'issues.facet.authors',
+    ]);
+  });
 });
 
-it('should render correct facets for Portfolio', () => {
-  renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.Portfolio }) });
+describe('Standard mode', () => {
+  beforeEach(() => {
+    modeHandler.setMode(Mode.Standard);
+  });
 
-  expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
-    'issues.facet.cleanCodeAttributeCategories',
-    'issues.facet.impactSoftwareQualities',
-    'coding_rules.facet.impactSeverities',
+  it('should render correct facets for Projects with PrioritizedRules feature', async () => {
+    renderSidebar(
+      {
+        component: mockComponent({ qualifier: ComponentQualifier.Project }),
+      },
+      [Feature.PrioritizedRules],
+    );
+
+    expect(await screen.findByRole('button', { name: 'issues.facet.types' })).toBeInTheDocument();
+
+    expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
+      'issues.facet.types',
+      'issues.facet.severities',
+      'issues.facet.scopes',
+      'issues.facet.issueStatuses',
+      '',
+      'issues.facet.standards',
+      'issues.facet.createdAt',
+      'issues.facet.languages',
+      'issues.facet.rules',
+      'issues.facet.tags',
+      'issues.facet.directories',
+      'issues.facet.files',
+      'issues.facet.assignees',
+      '',
+      'issues.facet.authors',
+      'issues.facet.prioritized_rule.category',
+    ]);
+  });
+
+  it('should show show mqr filters if they exist in query', async () => {
+    const user = userEvent.setup();
+    let component = renderSidebar({
+      query: mockQuery({ impactSeverities: [SoftwareImpactSeverity.Blocker] }),
+    });
+
+    expect(await screen.findByRole('button', { name: 'issues.facet.types' })).toBeInTheDocument();
+
+    expect(
+      screen.getByRole('button', { name: 'coding_rules.facet.impactSeverities' }),
+    ).toBeInTheDocument();
+    expect(
+      byRole('button', { name: 'coding_rules.facet.impactSeverities' })
+        .byText('issues.facet.second_line.mode.mqr')
+        .get(),
+    ).toBeInTheDocument();
+
     // help icon
-    '',
-    'issues.facet.types',
-    'issues.facet.scopes',
-    'issues.facet.issueStatuses',
-    'issues.facet.standards',
-    'issues.facet.createdAt',
-    'issues.facet.languages',
-    'issues.facet.rules',
-    'issues.facet.tags',
-    'issues.facet.projects',
-    'issues.facet.assignees',
-    '',
-    'issues.facet.authors',
-  ]);
-});
+    await user.click(byRole('button', { name: 'help' }).getAt(0));
+    expect(screen.getByText('issues.qg_mismatch.title')).toBeInTheDocument();
 
-it('should render correct facets for SubPortfolio', () => {
-  renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.SubPortfolio }) });
+    expect(
+      screen.queryByRole('button', { name: 'issues.facet.impactSoftwareQualities' }),
+    ).not.toBeInTheDocument();
 
-  expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
-    'issues.facet.cleanCodeAttributeCategories',
-    'issues.facet.impactSoftwareQualities',
-    'coding_rules.facet.impactSeverities',
-    // help icon
-    '',
-    'issues.facet.types',
-    'issues.facet.scopes',
-    'issues.facet.issueStatuses',
-    'issues.facet.standards',
-    'issues.facet.createdAt',
-    'issues.facet.languages',
-    'issues.facet.rules',
-    'issues.facet.tags',
-    'issues.facet.projects',
-    'issues.facet.assignees',
-    '',
-    'issues.facet.authors',
-  ]);
+    component.unmount();
+
+    component = renderSidebar({
+      query: mockQuery({ impactSoftwareQualities: [SoftwareQuality.Maintainability] }),
+    });
+
+    expect(await screen.findByRole('button', { name: 'issues.facet.types' })).toBeInTheDocument();
+
+    expect(
+      screen.getByRole('button', { name: 'issues.facet.impactSoftwareQualities' }),
+    ).toBeInTheDocument();
+    expect(
+      byRole('button', { name: 'issues.facet.impactSoftwareQualities' })
+        .byText('issues.facet.second_line.mode.mqr')
+        .get(),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'coding_rules.facet.impactSeverities' }),
+    ).not.toBeInTheDocument();
+
+    component.unmount();
+
+    renderSidebar({
+      query: mockQuery({
+        impactSoftwareQualities: [SoftwareQuality.Maintainability],
+        impactSeverities: [SoftwareImpactSeverity.Blocker],
+      }),
+    });
+
+    expect(await screen.findByRole('button', { name: 'issues.facet.types' })).toBeInTheDocument();
+
+    expect(
+      screen.getByRole('button', { name: 'issues.facet.impactSoftwareQualities' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'coding_rules.facet.impactSeverities' }),
+    ).toBeInTheDocument();
+  });
+
+  it('should render correct facets for Application', async () => {
+    renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.Application }) });
+
+    expect(await screen.findByRole('button', { name: 'issues.facet.types' })).toBeInTheDocument();
+
+    expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
+      'issues.facet.types',
+      'issues.facet.severities',
+      'issues.facet.scopes',
+      'issues.facet.issueStatuses',
+      '',
+      'issues.facet.standards',
+      'issues.facet.createdAt',
+      'issues.facet.languages',
+      'issues.facet.rules',
+      'issues.facet.tags',
+      'issues.facet.projects',
+      'issues.facet.assignees',
+      '',
+      'issues.facet.authors',
+    ]);
+  });
+
+  it('should render correct facets for Portfolio', async () => {
+    renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.Portfolio }) });
+
+    expect(await screen.findByRole('button', { name: 'issues.facet.types' })).toBeInTheDocument();
+
+    expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
+      'issues.facet.types',
+      'issues.facet.severities',
+      'issues.facet.scopes',
+      'issues.facet.issueStatuses',
+      '',
+      'issues.facet.standards',
+      'issues.facet.createdAt',
+      'issues.facet.languages',
+      'issues.facet.rules',
+      'issues.facet.tags',
+      'issues.facet.projects',
+      'issues.facet.assignees',
+      '',
+      'issues.facet.authors',
+    ]);
+  });
+
+  it('should render correct facets for SubPortfolio', async () => {
+    renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.SubPortfolio }) });
+
+    expect(await screen.findByRole('button', { name: 'issues.facet.types' })).toBeInTheDocument();
+
+    expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
+      'issues.facet.types',
+      'issues.facet.severities',
+      'issues.facet.scopes',
+      'issues.facet.issueStatuses',
+      '',
+      'issues.facet.standards',
+      'issues.facet.createdAt',
+      'issues.facet.languages',
+      'issues.facet.rules',
+      'issues.facet.tags',
+      'issues.facet.projects',
+      'issues.facet.assignees',
+      '',
+      'issues.facet.authors',
+    ]);
+  });
 });
 
 it.each([

@@ -38,7 +38,7 @@ public class ProjectNclocComputationStep implements ComputationStep {
   public void execute(Context context) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String projectUuid = analysisMetadataHolder.getProject().getUuid();
-      long maxncloc = dbClient.liveMeasureDao().findNclocOfBiggestBranchForProject(dbSession, projectUuid);
+      long maxncloc = dbClient.measureDao().findNclocOfBiggestBranchForProject(dbSession, projectUuid);
       dbClient.projectDao().updateNcloc(dbSession, projectUuid, maxncloc);
       dbSession.commit();
     }

@@ -23,6 +23,7 @@ import org.sonar.ce.task.projectanalysis.purge.IndexPurgeListener;
 import org.sonar.ce.task.projectanalysis.purge.ProjectCleaner;
 import org.sonar.core.platform.Module;
 import org.sonar.db.purge.period.DefaultPeriodCleaner;
+import org.sonar.telemetry.core.TelemetryClient;
 
 /**
  * Globally available components in CE for tasks to use.
@@ -33,6 +34,7 @@ public class CeTaskCommonsModule extends Module {
     add(
       DefaultPeriodCleaner.class,
       ProjectCleaner.class,
-      IndexPurgeListener.class);
+      IndexPurgeListener.class,
+      TelemetryClient.class);
   }
 }

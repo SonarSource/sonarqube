@@ -19,11 +19,17 @@
  */
 package org.sonar.db.qualityprofile;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.db.rule.RuleDto;
@@ -35,17 +41,21 @@ public class ActiveRuleDto {
 
   public static final String INHERITED = ActiveRule.INHERITED;
   public static final String OVERRIDES = ActiveRule.OVERRIDES;
+  private static final Gson GSON = new Gson();
+  private static final Type TYPE = new TypeToken<Map<SoftwareQuality, Severity>>() {
+  }.getType();
 
   private String uuid;
   private String profileUuid;
   private String ruleUuid;
   private Integer severity;
   private String inheritance;
+  private String impacts;
   private long createdAt;
   private long updatedAt;
   private boolean prioritizedRule;
 
-  // These fields do not exists in db, it's only retrieve by joins
+  // These fields do not exist in db, it's only retrieve by joins
   private String repository;
   private String ruleField;
   private String ruleProfileUuid;
@@ -161,6 +171,24 @@ public class ActiveRuleDto {
     return this;
   }
 
+  public Map<SoftwareQuality, Severity> getImpacts() {
+    return impacts != null ? GSON.fromJson(impacts, TYPE) : Map.of();
+  }
+
+  public String getImpactsString() {
+    return this.impacts;
+  }
+
+  public ActiveRuleDto setImpactsString(@Nullable String impacts) {
+    this.impacts = impacts;
+    return this;
+  }
+
+  public ActiveRuleDto setImpacts(Map<SoftwareQuality, Severity> impacts) {
+    this.impacts = !impacts.isEmpty() ? GSON.toJson(impacts, TYPE) : null;
+    return this;
+  }
+
   public boolean isExternal() {
     return this.isExternal;
   }
@@ -170,11 +198,11 @@ public class ActiveRuleDto {
     return this;
   }
 
-  public boolean isPrioritizedRule(){
+  public boolean isPrioritizedRule() {
     return prioritizedRule;
   }
 
-  public ActiveRuleDto setPrioritizedRule(boolean prioritizedRule){
+  public ActiveRuleDto setPrioritizedRule(boolean prioritizedRule) {
     this.prioritizedRule = prioritizedRule;
     return this;
   }
@@ -186,6 +214,7 @@ public class ActiveRuleDto {
     dto.setProfileUuid(profile.getRulesProfileUuid());
     dto.setRuleUuid(ruleDto.getUuid());
     dto.setKey(ActiveRuleKey.of(profile, ruleDto.getKey()));
+    dto.setImpacts(ruleDto.getDefaultImpactsMap());
     return dto;
   }
 

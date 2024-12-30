@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
+import { Spinner, Text } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import { isEqual } from 'date-fns';
-import { Badge, HelperHintIcon, LightLabel, Spinner, themeColor } from 'design-system';
 import * as React from 'react';
+import { Badge, HelperHintIcon, themeColor } from '~design-system';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import { toShortISO8601String } from '../../../helpers/dates';
@@ -120,106 +122,107 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
   }
 
   render() {
-    const byVersionByDay = getAnalysesByVersionByDay(this.props.analyses, this.props.query);
+    const { analyses, query, initializing } = this.props;
+    const byVersionByDay = getAnalysesByVersionByDay(analyses, query);
     const newCodePeriod = this.getNewCodePeriodStartKey(byVersionByDay);
     const hasFilteredData =
       byVersionByDay.length > 1 ||
       (byVersionByDay.length === 1 && Object.keys(byVersionByDay[0].byDay).length > 0);
-    if (this.props.analyses.length === 0 || !hasFilteredData) {
-      return (
-        <div>
-          {this.props.initializing ? (
-            <div className="sw-p-4 sw-typo-default">
-              <Spinner />
-            </div>
-          ) : (
-            <div className="sw-p-4 sw-typo-default">
-              <LightLabel>{translate('no_results')}</LightLabel>
-            </div>
-          )}
-        </div>
-      );
-    }
+    const hasData = analyses.length > 0 && hasFilteredData;
 
     return (
-      <ul
-        className="it__project-activity-versions-list sw-box-border sw-grow sw-shrink-0 sw-py-0 sw-px-4"
-        ref={(element) => (this.scrollContainer = element)}
-        style={{
-          height: 'calc(100vh - 250px)',
-          marginTop:
-            this.props.project.qualifier === ComponentQualifier.Project
-              ? LIST_MARGIN_TOP
-              : undefined,
-        }}
-      >
-        {newCodePeriod.baselineAnalysisKey !== undefined &&
-          newCodePeriod.firstNewCodeAnalysisKey === undefined && (
-            <BaselineMarker className="sw-typo-default sw-mb-2">
-              <span className="sw-py-1/2 sw-px-1">
-                {translate('project_activity.new_code_period_start')}
-              </span>
-              <Tooltip
-                content={translate('project_activity.new_code_period_start.help')}
-                side="top"
-              >
-                <HelperHintIcon className="sw-ml-1" />
-              </Tooltip>
-            </BaselineMarker>
-          )}
+      <>
+        <output>
+          <Spinner isLoading={initializing}>
+            {!hasData && (
+              <div className="sw-p-4 sw-typo-default">
+                <Text isSubdued>{translate('no_results')}</Text>
+              </div>
+            )}
+          </Spinner>
+        </output>
 
-        {byVersionByDay.map((version, idx) => {
-          const days = Object.keys(version.byDay);
-          if (days.length <= 0) {
-            return null;
-          }
-
-          return (
-            <li key={version.key || 'noversion'}>
-              {version.version && (
-                <VersionTagStyled
-                  className={classNames(
-                    'sw-sticky sw-top-0 sw-left-0 sw-pb-1 -sw-ml-4 sw-z-normal',
-                    {
-                      'sw-top-0 sw-pt-0': idx === 0,
-                    },
-                  )}
-                >
+        {hasData && (
+          <ul
+            className="it__project-activity-versions-list sw-box-border sw-overflow-auto sw-grow sw-shrink-0 sw-py-0 sw-px-4"
+            ref={(element) => (this.scrollContainer = element)}
+            style={{
+              height: 'calc(100vh - 250px)',
+              marginTop:
+                this.props.project.qualifier === ComponentQualifier.Project
+                  ? LIST_MARGIN_TOP
+                  : undefined,
+            }}
+          >
+            {newCodePeriod.baselineAnalysisKey !== undefined &&
+              newCodePeriod.firstNewCodeAnalysisKey === undefined && (
+                <BaselineMarker className="sw-typo-default sw-mb-2">
+                  <span className="sw-py-1/2 sw-px-1">
+                    {translate('project_activity.new_code_period_start')}
+                  </span>
                   <Tooltip
-                    mouseEnterDelay={0.5}
-                    content={`${translate('version')} ${version.version}`}
+                    content={translate('project_activity.new_code_period_start.help')}
+                    side="top"
                   >
-                    <Badge className="sw-p-1">{version.version}</Badge>
+                    <HelperHintIcon className="sw-ml-1" />
                   </Tooltip>
-                </VersionTagStyled>
+                </BaselineMarker>
               )}
-              <ul className="it__project-activity-days-list">
-                {days.map((day) => (
-                  <li
-                    className="it__project-activity-day sw-mt-1 sw-mb-4"
-                    data-day={toShortISO8601String(Number(day))}
-                    key={day}
-                  >
-                    <div className="sw-typo-lg-semibold sw-mb-3">
-                      <DateFormatter date={Number(day)} long />
-                    </div>
-                    <ul className="it__project-activity-analyses-list">
-                      {version.byDay[day]?.map((analysis) =>
-                        this.renderAnalysis(analysis, newCodePeriod.firstNewCodeAnalysisKey),
+
+            {byVersionByDay.map((version, idx) => {
+              const days = Object.keys(version.byDay);
+              if (days.length <= 0) {
+                return null;
+              }
+
+              return (
+                <li key={version.key || 'noversion'}>
+                  {version.version && (
+                    <VersionTagStyled
+                      className={classNames(
+                        'sw-sticky sw-top-0 sw-left-0 sw-pb-1 -sw-ml-4 sw-z-normal',
+                        {
+                          'sw-top-0 sw-pt-0': idx === 0,
+                        },
                       )}
-                    </ul>
-                  </li>
-                ))}
-              </ul>
-            </li>
-          );
-        })}
-        {this.props.analysesLoading && (
-          <li className="sw-text-center">
-            <Spinner />
-          </li>
+                    >
+                      <Tooltip
+                        mouseEnterDelay={0.5}
+                        content={`${translate('version')} ${version.version}`}
+                      >
+                        <Badge className="sw-p-1">{version.version}</Badge>
+                      </Tooltip>
+                    </VersionTagStyled>
+                  )}
+                  <ul className="it__project-activity-days-list">
+                    {days.map((day) => (
+                      <li
+                        className="it__project-activity-day sw-mt-1 sw-mb-4"
+                        data-day={toShortISO8601String(Number(day))}
+                        key={day}
+                      >
+                        <div className="sw-typo-lg-semibold sw-mb-3">
+                          <DateFormatter date={Number(day)} long />
+                        </div>
+                        <ul className="it__project-activity-analyses-list">
+                          {version.byDay[day]?.map((analysis) =>
+                            this.renderAnalysis(analysis, newCodePeriod.firstNewCodeAnalysisKey),
+                          )}
+                        </ul>
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              );
+            })}
+            {this.props.analysesLoading && (
+              <li className="sw-text-center">
+                <Spinner />
+              </li>
+            )}
+          </ul>
         )}
-      </ul>
+      </>
     );
   }
 }

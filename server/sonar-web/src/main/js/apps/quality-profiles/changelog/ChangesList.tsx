@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
+
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { ProfileChangelogEvent } from '../types';
 import CleanCodeAttributeChange from './CleanCodeAttributeChange';
 import ParameterChange from './ParameterChange';
@@ -28,7 +29,7 @@ interface Props {
   changes: ProfileChangelogEvent['params'];
 }
 
-export default function ChangesList({ changes }: Props) {
+export default function ChangesList({ changes }: Readonly<Props>) {
   const {
     severity,
     oldCleanCodeAttribute,
@@ -39,15 +40,18 @@ export default function ChangesList({ changes }: Props) {
     ...rest
   } = changes ?? {};
 
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
+
   return (
     <ul className="sw-w-full sw-flex sw-flex-col sw-gap-1">
-      {severity && (
+      {severity && isStandardMode && (
         <li>
           <SeverityChange severity={severity} />
         </li>
       )}
 
-      {oldCleanCodeAttribute &&
+      {!isStandardMode &&
+        oldCleanCodeAttribute &&
         oldCleanCodeAttributeCategory &&
         newCleanCodeAttribute &&
         newCleanCodeAttributeCategory && (
@@ -61,11 +65,12 @@ export default function ChangesList({ changes }: Props) {
           </li>
         )}
 
-      {impactChanges?.map((impactChange, index) => (
-        <li key={index}>
-          <SoftwareImpactChange impactChange={impactChange} />
-        </li>
-      ))}
+      {!isStandardMode &&
+        impactChanges?.map((impactChange, index) => (
+          <li key={index}>
+            <SoftwareImpactChange impactChange={impactChange} />
+          </li>
+        ))}
 
       {Object.keys(rest).map((key) => (
         <li key={key}>

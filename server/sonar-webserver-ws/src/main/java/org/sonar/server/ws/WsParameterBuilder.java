@@ -23,8 +23,8 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-import org.sonar.api.resources.ResourceType;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.server.component.ComponentType;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.i18n.I18n;
 
@@ -71,22 +71,22 @@ public class WsParameterBuilder {
       .setPossibleValues(filteredQualifiers);
   }
 
-  private static Set<String> getRootQualifiers(ResourceTypes resourceTypes) {
-    return resourceTypes.getRoots().stream()
-      .map(ResourceType::getQualifier)
+  private static Set<String> getRootQualifiers(ComponentTypes componentTypes) {
+    return componentTypes.getRoots().stream()
+      .map(ComponentType::getQualifier)
       .collect(Collectors.toCollection(TreeSet::new));
   }
 
-  private static Set<String> getDefaultTemplateQualifiers(ResourceTypes resourceTypes) {
-    return resourceTypes.getRoots().stream()
-      .map(ResourceType::getQualifier)
+  private static Set<String> getDefaultTemplateQualifiers(ComponentTypes componentTypes) {
+    return componentTypes.getRoots().stream()
+      .map(ComponentType::getQualifier)
       .collect(Collectors.toCollection(TreeSet::new));
   }
 
-  private static Set<String> getAllQualifiers(ResourceTypes resourceTypes) {
-    return resourceTypes.getAll().stream()
+  private static Set<String> getAllQualifiers(ComponentTypes componentTypes) {
+    return componentTypes.getAll().stream()
       .filter(r -> !r.getBooleanProperty("ignored"))
-      .map(ResourceType::getQualifier)
+      .map(ComponentType::getQualifier)
       .collect(Collectors.toCollection(TreeSet::new));
   }
 
@@ -117,23 +117,23 @@ public class WsParameterBuilder {
 
   public static class QualifierParameterContext {
     private final I18n i18n;
-    private final ResourceTypes resourceTypes;
+    private final ComponentTypes componentTypes;
 
-    private QualifierParameterContext(I18n i18n, ResourceTypes resourceTypes) {
+    private QualifierParameterContext(I18n i18n, ComponentTypes componentTypes) {
       this.i18n = i18n;
-      this.resourceTypes = resourceTypes;
+      this.componentTypes = componentTypes;
     }
 
-    public static QualifierParameterContext newQualifierParameterContext(I18n i18n, ResourceTypes resourceTypes) {
-      return new QualifierParameterContext(i18n, resourceTypes);
+    public static QualifierParameterContext newQualifierParameterContext(I18n i18n, ComponentTypes componentTypes) {
+      return new QualifierParameterContext(i18n, componentTypes);
     }
 
     public I18n getI18n() {
       return i18n;
     }
 
-    public ResourceTypes getResourceTypes() {
-      return resourceTypes;
+    public ComponentTypes getResourceTypes() {
+      return componentTypes;
     }
   }
 }

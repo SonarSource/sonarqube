@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LabelValueSelectOption, PopupZLevel, SearchSelectDropdown } from 'design-system';
+
 import * as React from 'react';
 import { Options, SingleValue } from 'react-select';
+import { LabelValueSelectOption, PopupZLevel, SearchSelectDropdown } from '~design-system';
 import { getUsers } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import { translate, translateWithParameters } from '../../../helpers/l10n';

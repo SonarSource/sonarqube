@@ -25,6 +25,7 @@ import org.sonar.server.common.platform.LivenessChecker;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,14 +65,13 @@ public class SafeModeLivenessActionTest {
   }
 
   @Test
-  public void liveness_check_failed_expect_500() {
+  public void liveness_check_failed_expect_503() {
     when(systemPasscode.isValid(any())).thenReturn(true);
     when(livenessChecker.liveness()).thenReturn(false);
 
-    TestRequest request = underTest.newRequest();
-    assertThatThrownBy(request::execute)
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Liveness check failed");
+    TestResponse response = underTest.newRequest().execute();
+
+    assertThat(response.getStatus()).isEqualTo(503);
   }
 
   @Test

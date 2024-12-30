@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { searchProjects } from '../../../api/components';
 import { ONE_SECOND } from '../../../helpers/constants';
 import { mockComponent } from '../../../helpers/mocks/component';
@@ -84,7 +85,7 @@ describe('formatDuration', () => {
 
 describe('fetchProjects', () => {
   it('correctly converts the passed arguments to the desired query format', async () => {
-    await utils.fetchProjects({ isFavorite: true, query: {}, isLegacy: true });
+    await utils.fetchProjects({ isFavorite: true, query: {}, isStandardMode: true });
 
     expect(searchProjects).toHaveBeenCalledWith({
       f: 'analysisDate,leakPeriodDate',
@@ -103,7 +104,7 @@ describe('fetchProjects', () => {
         incorrect_property: 'should not appear in post data',
         search: 'foo',
       },
-      isLegacy: true,
+      isStandardMode: true,
     });
 
     expect(searchProjects).toHaveBeenCalledWith({
@@ -116,7 +117,7 @@ describe('fetchProjects', () => {
   });
 
   it('correctly converts the passed arguments to the desired query format for non legacy', async () => {
-    await utils.fetchProjects({ isFavorite: true, query: {}, isLegacy: false });
+    await utils.fetchProjects({ isFavorite: true, query: {}, isStandardMode: false });
 
     expect(searchProjects).toHaveBeenCalledWith({
       f: 'analysisDate,leakPeriodDate',
@@ -135,7 +136,7 @@ describe('fetchProjects', () => {
         incorrect_property: 'should not appear in post data',
         search: 'foo',
       },
-      isLegacy: false,
+      isStandardMode: false,
     });
 
     expect(searchProjects).toHaveBeenCalledWith({
@@ -165,7 +166,7 @@ describe('fetchProjects', () => {
       paging: { total: 2 },
     });
 
-    await utils.fetchProjects({ isFavorite: true, query: {}, isLegacy: true }).then((r) => {
+    await utils.fetchProjects({ isFavorite: true, query: {}, isStandardMode: true }).then((r) => {
       expect(r).toEqual({
         facets: {
           new_coverage: { NO_DATA: 0 },

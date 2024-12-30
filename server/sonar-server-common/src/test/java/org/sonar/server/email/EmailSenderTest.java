@@ -19,13 +19,13 @@
  */
 package org.sonar.server.email;
 
-import java.net.MalformedURLException;
+import java.util.Properties;
 import java.util.Set;
-import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import org.apache.commons.mail.MultiPartEmail;
 import org.junit.Test;
-import org.sonar.api.config.EmailSettings;
+import org.sonar.api.platform.Server;
+import org.sonar.server.oauth.OAuthMicrosoftRestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -33,11 +33,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.email.EmailSmtpConfiguration.EMAIL_CONFIG_SMTP_AUTH_METHOD_OAUTH;
+import static org.sonar.server.email.EmailSmtpConfiguration.EMAIL_CONFIG_SMTP_OAUTH_SCOPE_DEFAULT;
 
 public class EmailSenderTest {
-  private EmailSettings emailSettings = mock(EmailSettings.class);
-  private EmailSender<BasicEmail> sender = new EmailSender<>(emailSettings) {
-    @Override protected void addReportContent(HtmlEmail email, BasicEmail report) throws EmailException, MalformedURLException {
+  private final EmailSmtpConfiguration emailSmtpConfiguration = mock();
+  private final Server server = mock();
+  private final OAuthMicrosoftRestClient oAuthMicrosoftRestClient = mock();
+  private final EmailSender<BasicEmail> sender = new EmailSender<>(emailSmtpConfiguration, server, oAuthMicrosoftRestClient) {
+    @Override protected void addReportContent(HtmlEmail email, BasicEmail report) {
       email.setSubject("Email Subject");
     }
   };
@@ -45,13 +49,14 @@ public class EmailSenderTest {
   @Test
   public void test_email_fields() throws Exception {
     BasicEmail basicEmail = new BasicEmail(Set.of("noreply@nowhere"));
-    when(emailSettings.getSmtpHost()).thenReturn("smtphost");
-    when(emailSettings.getSmtpPort()).thenReturn(25);
-    when(emailSettings.getFrom()).thenReturn("noreply@nowhere");
-    when(emailSettings.getFromName()).thenReturn("My SonarQube");
-    when(emailSettings.getPrefix()).thenReturn("[SONAR]");
-    when(emailSettings.getSmtpUsername()).thenReturn("");
-    when(emailSettings.getSmtpPassword()).thenReturn("");
+    when(emailSmtpConfiguration.getSmtpHost()).thenReturn("smtphost");
+    when(emailSmtpConfiguration.getSmtpPort()).thenReturn(25);
+    when(emailSmtpConfiguration.getSecureConnection()).thenReturn("NONE");
+    when(emailSmtpConfiguration.getFrom()).thenReturn("noreply@nowhere");
+    when(emailSmtpConfiguration.getFromName()).thenReturn("My SonarQube");
+    when(emailSmtpConfiguration.getPrefix()).thenReturn("[SONAR]");
+    when(emailSmtpConfiguration.getSmtpUsername()).thenReturn("");
+    when(emailSmtpConfiguration.getSmtpPassword()).thenReturn("");
 
     MultiPartEmail email = sender.createEmail(basicEmail);
 
@@ -71,9 +76,10 @@ public class EmailSenderTest {
   @Test
   public void support_empty_body() throws Exception {
     BasicEmail basicEmail = new BasicEmail(Set.of("noreply@nowhere"));
-    when(emailSettings.getSmtpHost()).thenReturn("smtphost");
-    when(emailSettings.getSmtpPort()).thenReturn(465);
-    when(emailSettings.getFrom()).thenReturn("noreply@nowhere");
+    when(emailSmtpConfiguration.getSmtpHost()).thenReturn("smtphost");
+    when(emailSmtpConfiguration.getSmtpPort()).thenReturn(465);
+    when(emailSmtpConfiguration.getSecureConnection()).thenReturn("NONE");
+    when(emailSmtpConfiguration.getFrom()).thenReturn("noreply@nowhere");
 
     MultiPartEmail email = sender.createEmail(basicEmail);
 
@@ -83,12 +89,12 @@ public class EmailSenderTest {
   @Test
   public void support_ssl() throws Exception {
     BasicEmail basicEmail = new BasicEmail(Set.of("noreply@nowhere"));
-    when(emailSettings.getSecureConnection()).thenReturn("SSL");
-    when(emailSettings.getSmtpHost()).thenReturn("smtphost");
-    when(emailSettings.getSmtpPort()).thenReturn(466);
-    when(emailSettings.getFrom()).thenReturn("noreply@nowhere");
-    when(emailSettings.getSmtpUsername()).thenReturn("login");
-    when(emailSettings.getSmtpPassword()).thenReturn("pwd");
+    when(emailSmtpConfiguration.getSecureConnection()).thenReturn("SSLTLS");
+    when(emailSmtpConfiguration.getSmtpHost()).thenReturn("smtphost");
+    when(emailSmtpConfiguration.getSmtpPort()).thenReturn(466);
+    when(emailSmtpConfiguration.getFrom()).thenReturn("noreply@nowhere");
+    when(emailSmtpConfiguration.getSmtpUsername()).thenReturn("login");
+    when(emailSmtpConfiguration.getSmtpPassword()).thenReturn("pwd");
 
     MultiPartEmail email = sender.createEmail(basicEmail);
 
@@ -103,12 +109,12 @@ public class EmailSenderTest {
   @Test
   public void support_starttls() throws Exception {
     BasicEmail basicEmail = new BasicEmail(Set.of("noreply@nowhere"));
-    when(emailSettings.getSecureConnection()).thenReturn("STARTTLS");
-    when(emailSettings.getSmtpHost()).thenReturn("smtphost");
-    when(emailSettings.getSmtpPort()).thenReturn(587);
-    when(emailSettings.getFrom()).thenReturn("noreply@nowhere");
-    when(emailSettings.getSmtpUsername()).thenReturn("login");
-    when(emailSettings.getSmtpPassword()).thenReturn("pwd");
+    when(emailSmtpConfiguration.getSecureConnection()).thenReturn("STARTTLS");
+    when(emailSmtpConfiguration.getSmtpHost()).thenReturn("smtphost");
+    when(emailSmtpConfiguration.getSmtpPort()).thenReturn(587);
+    when(emailSmtpConfiguration.getFrom()).thenReturn("noreply@nowhere");
+    when(emailSmtpConfiguration.getSmtpUsername()).thenReturn("login");
+    when(emailSmtpConfiguration.getSmtpPassword()).thenReturn("pwd");
 
     MultiPartEmail email = sender.createEmail(basicEmail);
 
@@ -117,6 +123,38 @@ public class EmailSenderTest {
     assertThat(email.isStartTLSRequired()).isTrue();
     assertThat(email.getHostName()).isEqualTo("smtphost");
     assertThat(email.getSmtpPort()).isEqualTo("587");
+  }
+
+  @Test
+  public void support_oauth() throws Exception {
+    BasicEmail basicEmail = new BasicEmail(Set.of("noreply@nowhere"));
+    when(emailSmtpConfiguration.getSecureConnection()).thenReturn("STARTTLS");
+    when(emailSmtpConfiguration.getSmtpHost()).thenReturn("smtphost");
+    when(emailSmtpConfiguration.getSmtpPort()).thenReturn(587);
+    when(emailSmtpConfiguration.getFrom()).thenReturn("noreply@nowhere");
+    when(emailSmtpConfiguration.getAuthMethod()).thenReturn(EMAIL_CONFIG_SMTP_AUTH_METHOD_OAUTH);
+    when(emailSmtpConfiguration.getSmtpUsername()).thenReturn("login");
+    when(emailSmtpConfiguration.getSmtpPassword()).thenReturn("pwd");
+    when(emailSmtpConfiguration.getOAuthHost()).thenReturn("oauthHost");
+    when(emailSmtpConfiguration.getOAuthClientId()).thenReturn("oauthClientId");
+    when(emailSmtpConfiguration.getOAuthClientSecret()).thenReturn("oauthClientSecret");
+    when(emailSmtpConfiguration.getOAuthTenant()).thenReturn("oauthTenant");
+    when(emailSmtpConfiguration.getOAuthScope()).thenReturn(EMAIL_CONFIG_SMTP_OAUTH_SCOPE_DEFAULT);
+    when(oAuthMicrosoftRestClient.getAccessTokenFromClientCredentialsGrantFlow("oauthHost", "oauthClientId", "oauthClientSecret", "oauthTenant",
+      EMAIL_CONFIG_SMTP_OAUTH_SCOPE_DEFAULT)).thenReturn("token");
+
+    MultiPartEmail email = sender.createEmail(basicEmail);
+
+    assertThat(email.isSSLOnConnect()).isFalse();
+    assertThat(email.isStartTLSEnabled()).isTrue();
+    assertThat(email.isStartTLSRequired()).isTrue();
+    assertThat(email.getHostName()).isEqualTo("smtphost");
+    assertThat(email.getSmtpPort()).isEqualTo("587");
+    Properties emailProperties = email.getMailSession().getProperties();
+    assertThat(emailProperties)
+      .containsEntry("mail.smtp.auth.mechanisms", "XOAUTH2")
+      .containsEntry("mail.smtp.auth.login.disable", "true")
+      .containsEntry("mail.smtp.auth.plain.disable", "true");
   }
 
   @Test

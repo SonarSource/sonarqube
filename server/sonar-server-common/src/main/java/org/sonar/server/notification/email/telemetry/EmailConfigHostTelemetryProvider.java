@@ -24,38 +24,19 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.telemetry.core.AbstractTelemetryDataProvider;
 import org.sonar.telemetry.core.Dimension;
 import org.sonar.telemetry.core.Granularity;
-import org.sonar.telemetry.core.TelemetryDataProvider;
 import org.sonar.telemetry.core.TelemetryDataType;
 
 import static org.sonar.server.email.EmailSmtpConfiguration.EMAIL_CONFIG_SMTP_HOST;
 
-public class EmailConfigHostTelemetryProvider implements TelemetryDataProvider<String> {
+public class EmailConfigHostTelemetryProvider extends AbstractTelemetryDataProvider<String> {
   private final DbClient dbClient;
 
   public EmailConfigHostTelemetryProvider(DbClient dbClient) {
+    super("email_conf_host", Dimension.INSTALLATION, Granularity.WEEKLY, TelemetryDataType.STRING);
     this.dbClient = dbClient;
-  }
-
-  @Override
-  public String getMetricKey() {
-    return "email_conf_host";
-  }
-
-  @Override
-  public Dimension getDimension() {
-    return Dimension.INSTALLATION;
-  }
-
-  @Override
-  public TelemetryDataType getType() {
-    return TelemetryDataType.STRING;
-  }
-
-  @Override
-  public Granularity getGranularity() {
-    return Granularity.WEEKLY;
   }
 
   @Override

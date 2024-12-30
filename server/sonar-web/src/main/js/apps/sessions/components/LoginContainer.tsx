@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { addGlobalErrorMessage } from 'design-system';
 import * as React from 'react';
+import { addGlobalErrorMessage } from '~design-system';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Location } from '~sonar-aligned/types/router';
 import { logIn } from '../../../api/auth';

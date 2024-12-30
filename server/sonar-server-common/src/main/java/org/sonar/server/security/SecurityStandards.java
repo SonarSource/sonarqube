@@ -33,6 +33,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -407,6 +408,10 @@ public final class SecurityStandards {
     map.put("14.5.2", "346");
     CWES_BY_CASA_CATEGORY = Collections.unmodifiableMap(map);
   }
+
+  public static final List<String> CASA_ROOT_CATEGORIES =
+    IntStream.rangeClosed(1, 14).mapToObj(String::valueOf).collect(Collectors.toUnmodifiableList());
+
   private final Set<String> standards;
   private final Set<String> cwe;
   private final Set<String> casaCategories;

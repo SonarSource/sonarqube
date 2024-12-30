@@ -19,17 +19,15 @@
  */
 
 import { Button, IconChevronDown } from '@sonarsource/echoes-react';
-import { Dropdown } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
+import { Dropdown } from '~design-system';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
-import {
-  CCT_SOFTWARE_QUALITY_METRICS,
-  HIDDEN_METRICS,
-  SOFTWARE_QUALITY_RATING_METRICS_MAP,
-} from '../../helpers/constants';
+import { MQR_CONDITIONS_MAP, STANDARD_CONDITIONS_MAP } from '../../apps/quality-gates/utils';
+import { HIDDEN_METRICS } from '../../helpers/constants';
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
+import { useStandardExperienceModeQuery } from '../../queries/mode';
 import { Metric } from '../../types/types';
 import AddGraphMetricPopup from './AddGraphMetricPopup';
 
@@ -41,29 +39,22 @@ interface Props {
   selectedMetrics: string[];
 }
 
-interface State {
-  metrics: string[];
-  query: string;
-  selectedMetrics: string[];
-}
+export default function AddGraphMetric(props: Readonly<Props>) {
+  const [metrics, setMetrics] = React.useState<string[]>([]);
+  const [query, setQuery] = React.useState<string>('');
+  const [selectedMetrics, setSelectedMetrics] = React.useState<string[]>([]);
 
-export default class AddGraphMetric extends React.PureComponent<Props, State> {
-  state: State = {
-    metrics: [],
-    query: '',
-    selectedMetrics: [],
-  };
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
 
-  filterSelected = (query: string, selectedElements: string[]) => {
+  const filterSelected = (query: string, selectedElements: string[]) => {
     return selectedElements.filter((element) =>
-      this.getLocalizedMetricNameFromKey(element).toLowerCase().includes(query.toLowerCase()),
+      getLocalizedMetricNameFromKey(element).toLowerCase().includes(query.toLowerCase()),
     );
   };
 
-  filterMetricsElements = (
-    { metricsTypeFilter, metrics, selectedMetrics }: Props,
-    query: string,
-  ) => {
+  const filterMetricsElements = () => {
+    const { metricsTypeFilter, metrics, selectedMetrics } = props;
+
     return metrics
       .filter((metric) => {
         if (metric.hidden) {
@@ -72,16 +63,17 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
         if (isDiffMetric(metric.key)) {
           return false;
         }
-        if (
-          [MetricType.Data, MetricType.Distribution].includes(metric.type as MetricType) &&
-          !CCT_SOFTWARE_QUALITY_METRICS.includes(metric.key as MetricKey)
-        ) {
+        if ([MetricType.Data, MetricType.Distribution].includes(metric.type as MetricType)) {
           return false;
         }
         if (HIDDEN_METRICS.includes(metric.key as MetricKey)) {
           return false;
         }
-        if (Object.values(SOFTWARE_QUALITY_RATING_METRICS_MAP).includes(metric.key as MetricKey)) {
+        if (
+          isStandardMode
+            ? MQR_CONDITIONS_MAP[metric.key as MetricKey]
+            : STANDARD_CONDITIONS_MAP[metric.key as MetricKey]
+        ) {
           return false;
         }
         if (
@@ -98,78 +90,64 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
       .map((metric) => metric.key);
   };
 
-  getSelectedMetricsElements = (metrics: Metric[], selectedMetrics: string[]) => {
+  const getSelectedMetricsElements = (metrics: Metric[], selectedMetrics: string[]) => {
     return metrics
       .filter(
         (metric) =>
           selectedMetrics.includes(metric.key) &&
-          !Object.values(SOFTWARE_QUALITY_RATING_METRICS_MAP).includes(metric.key as MetricKey),
+          (isStandardMode || !STANDARD_CONDITIONS_MAP[metric.key as MetricKey]),
       )
       .map((metric) => metric.key);
   };
 
-  getLocalizedMetricNameFromKey = (key: string) => {
-    const metric = this.props.metrics.find((m) => m.key === key);
+  const getLocalizedMetricNameFromKey = (key: string) => {
+    const metric = props.metrics.find((m) => m.key === key);
     return metric === undefined ? key : getLocalizedMetricName(metric);
   };
 
-  onSearch = (query: string) => {
-    this.setState({ query });
+  const onSearch = (query: string) => {
+    setQuery(query);
     return Promise.resolve();
   };
 
-  onSelect = (metric: string) => {
-    this.props.onAddMetric(metric);
-    this.setState((state) => {
-      return {
-        selectedMetrics: sortBy([...state.selectedMetrics, metric]),
-        metrics: this.filterMetricsElements(this.props, state.query),
-      };
-    });
+  const onSelect = (metric: string) => {
+    props.onAddMetric(metric);
+    setSelectedMetrics(sortBy([...selectedMetrics, metric]));
+    setMetrics(filterMetricsElements());
   };
 
-  onUnselect = (metric: string) => {
-    this.props.onRemoveMetric(metric);
-    this.setState((state) => {
-      return {
-        metrics: sortBy([...state.metrics, metric]),
-        selectedMetrics: state.selectedMetrics.filter((selected) => selected !== metric),
-      };
-    });
+  const onUnselect = (metric: string) => {
+    props.onRemoveMetric(metric);
+    setSelectedMetrics(selectedMetrics.filter((selected) => selected !== metric));
+    setMetrics(sortBy(metrics, metric));
   };
 
-  render() {
-    const { query } = this.state;
-    const filteredMetrics = this.filterMetricsElements(this.props, query);
-    const selectedMetrics = this.getSelectedMetricsElements(
-      this.props.metrics,
-      this.props.selectedMetrics,
-    );
+  const filteredMetrics = filterMetricsElements();
+  const selectedElements = getSelectedMetricsElements(props.metrics, props.selectedMetrics);
 
-    return (
-      <Dropdown
-        allowResizing
-        size="large"
-        closeOnClick={false}
-        id="activity-graph-custom-metric-selector"
-        overlay={
-          <AddGraphMetricPopup
-            elements={filteredMetrics}
-            filterSelected={this.filterSelected}
-            metricsTypeFilter={this.props.metricsTypeFilter}
-            onSearch={this.onSearch}
-            onSelect={this.onSelect}
-            onUnselect={this.onUnselect}
-            selectedElements={selectedMetrics}
-          />
-        }
-      >
-        <Button suffix={<IconChevronDown />}>
-          <span className="sw-typo-default sw-flex">
-            {translate('project_activity.graphs.custom.add')}
-          </span>
-        </Button>
-      </Dropdown>
-    );
-  }
+  return (
+    <Dropdown
+      allowResizing
+      size="large"
+      closeOnClick={false}
+      id="activity-graph-custom-metric-selector"
+      overlay={
+        <AddGraphMetricPopup
+          elements={filteredMetrics}
+          filterSelected={filterSelected}
+          metricsTypeFilter={props.metricsTypeFilter}
+          onSearch={onSearch}
+          onSelect={onSelect}
+          onUnselect={onUnselect}
+          selectedElements={selectedElements}
+        />
+      }
+    >
+      <Button suffix={<IconChevronDown />}>
+        <span className="sw-typo-default sw-flex">
+          {translate('project_activity.graphs.custom.add')}
+        </span>
+      </Button>
+    </Dropdown>
+  );
 }

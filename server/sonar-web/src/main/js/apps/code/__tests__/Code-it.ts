@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
@@ -35,7 +36,7 @@ import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import { PARENT_COMPONENT_KEY, RULE_1 } from '../../../api/mocks/data/ids';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { MeasuresServiceMock } from '../../../api/mocks/MeasuresServiceMock';
-import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
+import { ModeServiceMock } from '../../../api/mocks/ModeServiceMock';
 import SourcesServiceMock from '../../../api/mocks/SourcesServiceMock';
 import { CCT_SOFTWARE_QUALITY_METRICS } from '../../../helpers/constants';
 import { isDiffMetric } from '../../../helpers/measures';
@@ -57,7 +58,7 @@ jest.mock('../../../components/SourceViewer/helpers/lines', () => {
   const lines = jest.requireActual('../../../components/SourceViewer/helpers/lines');
   return {
     ...lines,
-    LINES_TO_LOAD: 20,
+    LINES_TO_LOAD: 5,
   };
 });
 
@@ -65,15 +66,15 @@ jest.mock('../../../api/quality-gates', () => ({
   getQualityGateProjectStatus: jest.fn(),
 }));
 
-const DEFAULT_LINES_LOADED = 19;
+const DEFAULT_LINES_LOADED = 5;
 const originalScrollTo = window.scrollTo;
 
 const branchesHandler = new BranchesServiceMock();
 const componentsHandler = new ComponentsServiceMock();
 const sourcesHandler = new SourcesServiceMock();
 const issuesHandler = new IssuesServiceMock();
-const settingsHandler = new SettingsServiceMock();
 const measuresHandler = new MeasuresServiceMock();
+const modeHandler = new ModeServiceMock();
 
 const JUPYTER_ISSUE = {
   issue: mockRawIssue(false, {
@@ -130,7 +131,7 @@ beforeEach(() => {
   componentsHandler.reset();
   sourcesHandler.reset();
   issuesHandler.reset();
-  settingsHandler.reset();
+  modeHandler.reset();
   measuresHandler.reset();
 });
 
@@ -295,9 +296,9 @@ it('should correctly show measures for a project', async () => {
   const folderRow = ui.measureRow(/folderA/);
   [
     [MetricKey.ncloc, '2'],
-    [MetricKey.security_issues, '4'],
-    [MetricKey.reliability_issues, '4'],
-    [MetricKey.maintainability_issues, '4'],
+    [MetricKey.software_quality_security_issues, '4'],
+    [MetricKey.software_quality_reliability_issues, '4'],
+    [MetricKey.software_quality_maintainability_issues, '4'],
     [MetricKey.security_hotspots, '2'],
     [MetricKey.coverage, '2.0%'],
     [MetricKey.duplicated_lines_density, '2.0%'],
@@ -309,9 +310,9 @@ it('should correctly show measures for a project', async () => {
   const fileRow = ui.measureRow(/index\.tsx/);
   [
     [MetricKey.ncloc, '—'],
-    [MetricKey.security_issues, '—'],
-    [MetricKey.reliability_issues, '—'],
-    [MetricKey.maintainability_issues, '—'],
+    [MetricKey.software_quality_security_issues, '—'],
+    [MetricKey.software_quality_reliability_issues, '—'],
+    [MetricKey.software_quality_maintainability_issues, '—'],
     [MetricKey.security_hotspots, '—'],
     [MetricKey.coverage, '—'],
     [MetricKey.duplicated_lines_density, '—'],
@@ -359,9 +360,9 @@ it('should correctly show measures for a project when relying on old taxonomy', 
   const folderRow = ui.measureRow(/folderA/);
   [
     [MetricKey.ncloc, '2'],
-    [MetricKey.security_issues, '2'],
-    [MetricKey.reliability_issues, '2'],
-    [MetricKey.maintainability_issues, '2'],
+    [MetricKey.software_quality_security_issues, '2'],
+    [MetricKey.software_quality_reliability_issues, '2'],
+    [MetricKey.software_quality_maintainability_issues, '2'],
     [MetricKey.security_hotspots, '2'],
     [MetricKey.coverage, '2.0%'],
     [MetricKey.duplicated_lines_density, '2.0%'],
@@ -373,9 +374,9 @@ it('should correctly show measures for a project when relying on old taxonomy', 
   const fileRow = ui.measureRow(/index\.tsx/);
   [
     [MetricKey.ncloc, '—'],
-    [MetricKey.security_issues, '—'],
-    [MetricKey.reliability_issues, '—'],
-    [MetricKey.maintainability_issues, '—'],
+    [MetricKey.software_quality_security_issues, '—'],
+    [MetricKey.software_quality_reliability_issues, '—'],
+    [MetricKey.software_quality_maintainability_issues, '—'],
     [MetricKey.security_hotspots, '—'],
     [MetricKey.coverage, '—'],
     [MetricKey.duplicated_lines_density, '—'],
@@ -566,7 +567,7 @@ function getPageObject(user: UserEvent) {
     previewCode: byText('numpy', { exact: false }),
     previewIssueUnderline: byTestId('hljs-sonar-underline'),
     previewIssueIndicator: byRole('button', {
-      name: 'source_viewer.issues_on_line.multiple_issues_same_category.true.1.issue.clean_code_attribute_category.responsible',
+      name: 'source_viewer.issues_on_line.multiple_issues_same_category.true.1.issue.type.code_smell.issue.clean_code_attribute_category.responsible',
     }),
     issuesViewPage: byText('/project/issues?open=some-issue&id=foo'),
     previewMarkdown: byText('Learning a cosine with keras'),
@@ -648,12 +649,10 @@ function generateMeasures(overallValue = '1.0', newValue = '2.0') {
   return keyBy(
     [
       ...[
-        MetricKey.security_issues,
-        MetricKey.reliability_issues,
-        MetricKey.maintainability_issues,
-      ].map((metric) =>
-        mockMeasure({ metric, value: JSON.stringify({ total: 4 }), period: undefined }),
-      ),
+        MetricKey.software_quality_security_issues,
+        MetricKey.software_quality_reliability_issues,
+        MetricKey.software_quality_maintainability_issues,
+      ].map((metric) => mockMeasure({ metric, value: '4', period: undefined })),
       ...[
         MetricKey.ncloc,
         MetricKey.new_lines,

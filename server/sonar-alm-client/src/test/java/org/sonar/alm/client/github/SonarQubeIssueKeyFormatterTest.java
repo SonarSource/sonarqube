@@ -32,7 +32,7 @@ public class SonarQubeIssueKeyFormatterTest {
 
   @Test
   public void should_serializeIssueKey() {
-    String issueKey = RandomStringUtils.randomAlphanumeric(20);
+    String issueKey = RandomStringUtils.secure().nextAlphanumeric(20);
 
     String serialized = SonarQubeIssueKeyFormatter.serialize(issueKey);
 
@@ -42,7 +42,7 @@ public class SonarQubeIssueKeyFormatterTest {
 
   @Test
   public void should_deserializeIssueKey() {
-    String issueKey = RandomStringUtils.randomAlphanumeric(20);
+    String issueKey = RandomStringUtils.secure().nextAlphanumeric(20);
     String message = join("", SONAR_ISSUE_KEY_PREFIX, issueKey, SONAR_ISSUE_KEY_SUFFIX, "a message");
 
     Optional<String> deserialized = SonarQubeIssueKeyFormatter.deserialize(message);
@@ -52,7 +52,7 @@ public class SonarQubeIssueKeyFormatterTest {
 
   @Test
   public void should_notDeserializeIssueKey_when_messageHasWrongFormat() {
-    String issueKey = RandomStringUtils.randomAlphanumeric(20);
+    String issueKey = RandomStringUtils.secure().nextAlphanumeric(20);
     String messageWithoutSuffix = join("", SONAR_ISSUE_KEY_PREFIX, issueKey, "a message");
     String messageWithoutPrefix = join("", issueKey, SONAR_ISSUE_KEY_SUFFIX, "a message");
     String messageWithPrefixSuffixReversed = join("", SONAR_ISSUE_KEY_SUFFIX, issueKey, SONAR_ISSUE_KEY_PREFIX, "a message");

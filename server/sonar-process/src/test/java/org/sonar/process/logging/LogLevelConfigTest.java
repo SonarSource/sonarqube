@@ -32,7 +32,7 @@ import static org.sonar.process.logging.LogLevelConfig.newBuilder;
 
 public class LogLevelConfigTest {
 
-  private final String rootLoggerName = RandomStringUtils.randomAlphabetic(20);
+  private final String rootLoggerName = RandomStringUtils.secure().nextAlphabetic(20);
   private LogLevelConfig.Builder underTest = newBuilder(rootLoggerName);
 
   @Test
@@ -44,11 +44,11 @@ public class LogLevelConfigTest {
 
   @Test
   public void getLoggerName_returns_name_passed_to_builder() {
-    String rootLoggerName = RandomStringUtils.randomAlphabetic(32);
+    String loggerName = RandomStringUtils.secure().nextAlphabetic(32);
 
-    LogLevelConfig logLevelConfig = newBuilder(rootLoggerName).build();
+    LogLevelConfig logLevelConfig = newBuilder(loggerName).build();
 
-    assertThat(logLevelConfig.getRootLoggerName()).isEqualTo(rootLoggerName);
+    assertThat(logLevelConfig.getRootLoggerName()).isEqualTo(loggerName);
   }
 
   @Test

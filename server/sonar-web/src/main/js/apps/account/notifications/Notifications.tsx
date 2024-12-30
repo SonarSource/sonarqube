@@ -19,44 +19,23 @@
  */
 
 import { Heading, Spinner } from '@sonarsource/echoes-react';
-import { FlagMessage, GreySeparator } from 'design-system';
-import { isEmpty, partition } from 'lodash';
-import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import {
-  WithNotificationsProps,
-  withNotifications,
-} from '../../../components/hoc/withNotifications';
+import { FlagMessage, GreySeparator } from '~design-system';
 import { translate } from '../../../helpers/l10n';
+import { useNotificationsQuery } from '../../../queries/notifications';
 import GlobalNotifications from './GlobalNotifications';
 import Projects from './Projects';
 
-export function Notifications({
-  addNotification,
-  channels,
-  globalTypes,
-  loading,
-  notifications,
-  perProjectTypes,
-  removeNotification,
-}: WithNotificationsProps) {
-  const [globalNotifications, projectNotifications] = partition(notifications, (n) =>
-    isEmpty(n.project),
-  );
+export default function Notifications() {
+  const { data: notificationResponse, isLoading } = useNotificationsQuery();
+  const { notifications } = notificationResponse || {
+    channels: [],
+    globalTypes: [],
+    perProjectTypes: [],
+    notifications: [],
+  };
 
-  const emailOnly = channels.length === 1 && channels[0] === 'EmailNotificationChannel';
-
-  const header = emailOnly ? undefined : (
-    <tr>
-      <th className="sw-typo-semibold">{translate('events')}</th>
-
-      {channels.map((channel) => (
-        <th className="sw-typo-semibold sw-text-right" key={channel}>
-          {translate('notification.channel', channel)}
-        </th>
-      ))}
-    </tr>
-  );
+  const projectNotifications = notifications.filter((n) => n.project !== undefined);
 
   return (
     <div className="it__account-body">
@@ -70,35 +49,19 @@ export function Notifications({
         {translate('notification.dispatcher.information')}
       </FlagMessage>
 
-      <Spinner isLoading={loading}>
+      <Spinner isLoading={isLoading}>
         {notifications && (
           <>
             <GreySeparator className="sw-mb-4 sw-mt-6" />
 
-            <GlobalNotifications
-              addNotification={addNotification}
-              channels={channels}
-              header={header}
-              notifications={globalNotifications}
-              removeNotification={removeNotification}
-              types={globalTypes}
-            />
+            <GlobalNotifications />
 
             <GreySeparator className="sw-mb-4 sw-mt-6" />
 
-            <Projects
-              addNotification={addNotification}
-              channels={channels}
-              header={header}
-              notifications={projectNotifications}
-              removeNotification={removeNotification}
-              types={perProjectTypes}
-            />
+            <Projects notifications={projectNotifications} />
           </>
         )}
       </Spinner>
     </div>
   );
 }
-
-export default withNotifications(Notifications);

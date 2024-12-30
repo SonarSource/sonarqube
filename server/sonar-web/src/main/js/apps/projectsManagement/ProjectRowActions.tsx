@@ -17,9 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ActionsDropdown, ItemButton, ItemLink, PopupZLevel, Spinner } from 'design-system';
+
+import {
+  ButtonIcon,
+  ButtonSize,
+  DropdownMenu,
+  IconMoreVertical,
+  Spinner,
+} from '@sonarsource/echoes-react';
 import { noop } from 'lodash';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getComponentNavigation } from '../../api/navigation';
 import { Project } from '../../api/project-management';
@@ -68,44 +75,56 @@ export default function ProjectRowActions({ currentUser, project }: Props) {
 
   return (
     <>
-      <ActionsDropdown
+      <DropdownMenu.Root
         id="project-management-action-dropdown"
-        toggleClassName="it__user-actions-toggle"
         onOpen={handleDropdownOpen}
-        allowResizing
-        ariaLabel={translateWithParameters('projects_management.show_actions_for_x', project.name)}
-        zLevel={PopupZLevel.Global}
-      >
-        <Spinner loading={loading} className="sw-flex sw-ml-3">
+        items={
           <>
-            {hasAccess === true && (
-              <ItemLink to={getComponentPermissionsUrl(project.key)}>
-                {translate(project.managed ? 'show_permissions' : 'edit_permissions')}
-              </ItemLink>
-            )}
-            {hasAccess === false && (!project.managed || currentUser.local) ? (
-              <ItemButton
-                className="it__restore-access"
-                onClick={() => setRestoreAccessModal(true)}
+            <Spinner isLoading={loading} className="sw-flex sw-ml-3 sw-my-2">
+              <>
+                {hasAccess === true && (
+                  <DropdownMenu.ItemLink to={getComponentPermissionsUrl(project.key)}>
+                    {translate(project.managed ? 'show_permissions' : 'edit_permissions')}
+                  </DropdownMenu.ItemLink>
+                )}
+                {hasAccess === false && (!project.managed || currentUser.local) ? (
+                  <DropdownMenu.ItemButton
+                    className="it__restore-access"
+                    onClick={() => setRestoreAccessModal(true)}
+                  >
+                    {translate('global_permissions.restore_access')}
+                  </DropdownMenu.ItemButton>
+                ) : (
+                  hasAccess === false && (
+                    <DropdownMenu.ItemButton isDisabled onClick={noop}>
+                      {translate('global_permissions.no_actions_available')}
+                    </DropdownMenu.ItemButton>
+                  )
+                )}
+              </>
+            </Spinner>
+
+            {!project.managed && (
+              <DropdownMenu.ItemButton
+                className="it__apply-template"
+                onClick={() => setApplyTemplateModal(true)}
               >
-                {translate('global_permissions.restore_access')}
-              </ItemButton>
-            ) : (
-              hasAccess === false && (
-                <ItemButton disabled onClick={noop}>
-                  {translate('global_permissions.no_actions_available')}
-                </ItemButton>
-              )
+                {translate('projects_role.apply_template')}
+              </DropdownMenu.ItemButton>
             )}
           </>
-        </Spinner>
-
-        {!project.managed && (
-          <ItemButton className="it__apply-template" onClick={() => setApplyTemplateModal(true)}>
-            {translate('projects_role.apply_template')}
-          </ItemButton>
-        )}
-      </ActionsDropdown>
+        }
+      >
+        <ButtonIcon
+          Icon={IconMoreVertical}
+          className="it__user-actions-toggle"
+          ariaLabel={translateWithParameters(
+            'projects_management.show_actions_for_x',
+            project.name,
+          )}
+          size={ButtonSize.Medium}
+        />
+      </DropdownMenu.Root>
 
       {restoreAccessModal && (
         <RestoreAccessModal

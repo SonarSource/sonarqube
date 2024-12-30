@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SubnavigationGroup, SubnavigationItem } from 'design-system';
+
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { SubnavigationGroup, SubnavigationItem } from '~design-system';
 import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { WebApi } from '../../../types/types';
 import { Query, actionsFilter, isDomainPathActive, serializeQuery } from '../utils';

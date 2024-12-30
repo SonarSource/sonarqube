@@ -30,7 +30,7 @@ import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskCanceledException;
 import org.sonar.ce.task.CeTaskTimeoutException;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -96,7 +96,7 @@ public class TimeoutCeTaskInterrupterTest {
 
   @Test
   public void check_fails_with_ISE_if_thread_is_executing_a_CeTask_but_on_start_has_not_been_called_on_it() {
-    String taskUuid = randomAlphabetic(15);
+    String taskUuid = secure().nextAlphabetic(15);
     Thread t = new Thread();
     mockWorkerOnThread(t, ceWorker);
     mockWorkerWithTask(ceTask);
@@ -109,7 +109,7 @@ public class TimeoutCeTaskInterrupterTest {
 
   @Test
   public void check_fails_with_ISE_if_thread_is_executing_a_CeTask_but_on_start_and_on_end_have_not_been_called_on_it() {
-    String taskUuid = randomAlphabetic(15);
+    String taskUuid = secure().nextAlphabetic(15);
     Thread t = new Thread();
     mockWorkerOnThread(t, ceWorker);
     mockWorkerWithTask(ceTask);
@@ -124,7 +124,7 @@ public class TimeoutCeTaskInterrupterTest {
 
   @Test
   public void check_throws_CeTaskCanceledException_if_provided_thread_is_interrupted() throws InterruptedException {
-    String threadName = randomAlphabetic(30);
+    String threadName = secure().nextAlphabetic(30);
     ComputingThread t = new ComputingThread(threadName);
     mockWorkerOnThread(t, ceWorker);
     mockWorkerWithTask(ceTask);
@@ -171,7 +171,7 @@ public class TimeoutCeTaskInterrupterTest {
 
   @Test
   public void check_throws_CeTaskCanceledException_if_provided_thread_is_interrupted_even_if_timed_out() throws InterruptedException {
-    String threadName = randomAlphabetic(30);
+    String threadName = secure().nextAlphabetic(30);
     ComputingThread t = new ComputingThread(threadName);
     mockWorkerOnThread(t, ceWorker);
     mockWorkerWithTask(ceTask);
@@ -197,7 +197,7 @@ public class TimeoutCeTaskInterrupterTest {
   }
 
   private static Thread newThreadWithRandomName() {
-    String threadName = randomAlphabetic(30);
+    String threadName = secure().nextAlphabetic(30);
     Thread t = new Thread();
     t.setName(threadName);
     return t;

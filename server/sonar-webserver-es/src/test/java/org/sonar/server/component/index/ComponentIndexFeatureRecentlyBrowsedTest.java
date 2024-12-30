@@ -27,7 +27,7 @@ import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 
 import static com.google.common.collect.ImmutableSet.of;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 
 public class ComponentIndexFeatureRecentlyBrowsedTest extends ComponentIndexTest {
 

@@ -22,7 +22,7 @@ package org.sonar.db.audit;
 import java.security.SecureRandom;
 import java.util.Random;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 
 public class AuditTesting {
 
@@ -46,9 +46,9 @@ public class AuditTesting {
 
   public static AuditDto newAuditDto(long createdAt, String operation) {
     AuditDto auditDto = new AuditDto();
-    auditDto.setUuid(randomAlphanumeric(40));
-    auditDto.setUserUuid(randomAlphanumeric(255));
-    auditDto.setUserLogin(randomAlphanumeric(255));
+    auditDto.setUuid(secure().nextAlphanumeric(40));
+    auditDto.setUserUuid(secure().nextAlphanumeric(255));
+    auditDto.setUserLogin(secure().nextAlphanumeric(255));
     auditDto.setNewValue("{ \"someKey\": \"someValue\",  \"anotherKey\": \"\\\"anotherValue\\\" with quotes \\ \n\t\b\f\r\"}");
     auditDto.setOperation(operation);
     auditDto.setCategory("category");

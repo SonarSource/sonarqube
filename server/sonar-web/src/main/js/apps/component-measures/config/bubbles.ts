@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { MetricKey } from '~sonar-aligned/types/metrics';
 
 export type BubblesByDomain = Record<
@@ -34,19 +35,19 @@ export const newTaxonomyBubbles: BubblesByDomain = {
   Reliability: {
     x: MetricKey.ncloc,
     y: MetricKey.software_quality_reliability_remediation_effort,
-    size: MetricKey.reliability_issues,
+    size: MetricKey.software_quality_reliability_issues,
     colors: [MetricKey.software_quality_reliability_rating],
   },
   Security: {
     x: MetricKey.ncloc,
     y: MetricKey.software_quality_security_remediation_effort,
-    size: MetricKey.security_issues,
+    size: MetricKey.software_quality_security_issues,
     colors: [MetricKey.software_quality_security_rating],
   },
   Maintainability: {
     x: MetricKey.ncloc,
     y: MetricKey.software_quality_maintainability_remediation_effort,
-    size: MetricKey.maintainability_issues,
+    size: MetricKey.software_quality_maintainability_issues,
     colors: [MetricKey.software_quality_maintainability_rating],
   },
   Coverage: {
@@ -76,19 +77,19 @@ export const newTaxonomyWithoutRatingsBubbles: BubblesByDomain = {
   Reliability: {
     x: MetricKey.ncloc,
     y: MetricKey.reliability_remediation_effort,
-    size: MetricKey.reliability_issues,
+    size: MetricKey.software_quality_reliability_issues,
     colors: [MetricKey.reliability_rating],
   },
   Security: {
     x: MetricKey.ncloc,
     y: MetricKey.security_remediation_effort,
-    size: MetricKey.security_issues,
+    size: MetricKey.software_quality_security_issues,
     colors: [MetricKey.security_rating],
   },
   Maintainability: {
     x: MetricKey.ncloc,
     y: MetricKey.sqale_index,
-    size: MetricKey.maintainability_issues,
+    size: MetricKey.software_quality_maintainability_issues,
     colors: [MetricKey.sqale_rating],
   },
   Coverage: {

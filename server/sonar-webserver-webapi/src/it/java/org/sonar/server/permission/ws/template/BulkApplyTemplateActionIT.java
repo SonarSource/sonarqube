@@ -24,14 +24,14 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -56,9 +56,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.resources.Qualifiers.APP;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.db.component.ComponentQualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.VIEW;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
@@ -77,7 +77,7 @@ public class BulkApplyTemplateActionIT extends BasePermissionWsIT<BulkApplyTempl
   private GroupDto group2;
   private PermissionTemplateDto template1;
   private final Indexers indexers = new TestIndexers();
-  private final ResourceTypesRule resourceTypesRule = new ResourceTypesRule().setRootQualifiers(PROJECT, VIEW, APP);
+  private final ComponentTypesRule resourceTypesRule = new ComponentTypesRule().setRootQualifiers(PROJECT, VIEW, APP);
   private final DefaultTemplatesResolver defaultTemplatesResolver = new DefaultTemplatesResolverImpl(db.getDbClient(), resourceTypesRule);
 
   private final ManagedProjectService managedProjectService = mock(ManagedProjectService.class);
@@ -177,7 +177,7 @@ public class BulkApplyTemplateActionIT extends BasePermissionWsIT<BulkApplyTempl
 
     newRequest()
       .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
-      .setParam(PARAM_QUALIFIERS, String.join(",", Qualifiers.PROJECT, Qualifiers.APP))
+      .setParam(PARAM_QUALIFIERS, String.join(",", ComponentQualifiers.PROJECT, ComponentQualifiers.APP))
       .execute();
 
     assertTemplate1AppliedToPrivateProject(privateProject);

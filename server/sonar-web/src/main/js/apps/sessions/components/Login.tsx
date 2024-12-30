@@ -19,21 +19,22 @@
  */
 
 import styled from '@emotion/styled';
-import { Spinner } from '@sonarsource/echoes-react';
+import { LogoSize, LogoSonar, Spinner } from '@sonarsource/echoes-react';
+import { Helmet } from 'react-helmet-async';
+import { FormattedMessage } from 'react-intl';
 import {
   Card,
   FlagMessage,
   PageContentFontWrapper,
+  SafeHTMLInjection,
+  SanitizeLevel,
   Title,
   themeBorder,
   themeColor,
-} from 'design-system';
-import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
-import { Image } from '~sonar-aligned/components/common/Image';
+} from '~design-system';
 import { Location } from '~sonar-aligned/types/router';
+import { SonarQubeProductLogo } from '../../../components/branding/SonarQubeProductLogo';
 import { translate } from '../../../helpers/l10n';
-import { sanitizeUserInput } from '../../../helpers/sanitize';
 import { getReturnUrl } from '../../../helpers/urls';
 import { IdentityProvider } from '../../../types/types';
 import LoginForm from './LoginForm';
@@ -53,12 +54,15 @@ export default function Login(props: Readonly<LoginProps>) {
   const displayError = Boolean(location.query.authorizationError);
 
   return (
-    <div className="sw-flex sw-flex-col sw-items-center" id="login_form">
+    <div className="sw-flex sw-flex-col sw-items-center sw-pt-32" id="login_form">
       <Helmet defer={false} title={translate('login.page')} />
+      <LogoSonar hasText size={LogoSize.Large} />
       <Card className="sw-my-14 sw-p-0 sw-w-abs-350">
         <PageContentFontWrapper className="sw-typo-lg sw-flex sw-flex-col sw-items-center sw-py-8 sw-px-4">
-          <Image alt="" className="sw-mb-6" src="/images/embed-doc/codescan.svg" width={100} />
-          <Title className="sw-mb-6">{translate('login.login_to_sonarqube')}</Title>
+          <SonarQubeProductLogo size={LogoSize.Small} />
+          <Title className="sw-my-6 sw-text-center">
+            <FormattedMessage id="login.login_to_sonarqube" />
+          </Title>
           <Spinner isLoading={loading}>
             <>
               {displayError && (
@@ -68,11 +72,9 @@ export default function Login(props: Readonly<LoginProps>) {
               )}
 
               {message !== undefined && message.length > 0 && (
-                <StyledMessage
-                  className="markdown sw-rounded-2 sw-p-4 sw-mb-6"
-                  // eslint-disable-next-line react/no-danger
-                  dangerouslySetInnerHTML={{ __html: sanitizeUserInput(message) }}
-                />
+                <SafeHTMLInjection htmlAsString={message} sanitizeLevel={SanitizeLevel.USER_INPUT}>
+                  <StyledMessage className="markdown sw-rounded-2 sw-p-4 sw-mb-6" />
+                </SafeHTMLInjection>
               )}
 
               {identityProviders.length > 0 && (

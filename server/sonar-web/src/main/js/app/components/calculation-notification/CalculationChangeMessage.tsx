@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+
 import { FormattedMessage } from 'react-intl';
 import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import DocumentationLink from '../../../components/common/DocumentationLink';
-import DismissableAlert from '../../../components/ui/DismissableAlert';
+import { DismissableAlert } from '../../../components/ui/DismissableAlert';
 import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { Dict } from '../../../types/types';
 
 const SHOW_MESSAGE_PATHS: Dict<ComponentQualifier> = {
@@ -37,9 +37,9 @@ const ALERT_KEY = 'sonarqube.dismissed_calculation_change_alert';
 
 export default function CalculationChangeMessage() {
   const location = useLocation();
-  const { data: isLegacy } = useIsLegacyCCTMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
 
-  if (isLegacy || !Object.keys(SHOW_MESSAGE_PATHS).includes(location.pathname)) {
+  if (isStandardMode || !Object.keys(SHOW_MESSAGE_PATHS).includes(location.pathname)) {
     return null;
   }
 
@@ -49,7 +49,7 @@ export default function CalculationChangeMessage() {
         id={`notification.calculation_change.message.${SHOW_MESSAGE_PATHS[location.pathname]}`}
         values={{
           link: (
-            <DocumentationLink to={DocLink.MetricDefinitions}>
+            <DocumentationLink className="sw-ml-1" to={DocLink.MetricDefinitions}>
               {translate('learn_more')}
             </DocumentationLink>
           ),

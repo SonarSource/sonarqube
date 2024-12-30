@@ -45,7 +45,7 @@ dependencies {
 
   testFixturesApi 'org.junit.jupiter:junit-jupiter-api'
   testFixturesApi testFixtures(project(':server:sonar-db-core'))
-    testFixturesApi testFixtures(project(':server:sonar-db-migration'))
+  testFixturesApi testFixtures(project(':server:sonar-db-migration'))
 
   testFixturesImplementation 'com.h2database:h2'
 
@@ -69,9 +69,10 @@ task createDB(type:JavaExec) {
     mainClass = 'org.sonar.db.createdb.CreateDb'
     classpath = sourceSets.test.runtimeClasspath
     systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
-    if (!project.version.endsWith("-SNAPSHOT")) {
-        systemProperty 'sonar.runtimeVersion', project.version
-    }
+  if (!project.version.endsWith("-SNAPSHOT")) {
+    systemProperty 'sonar.runtimeVersion', project.version
+    systemProperty 'sonar.communityRuntimeVersion', project.version
+  }
 }
 
 task populateDB(type: JavaExec) {

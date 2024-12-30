@@ -77,7 +77,7 @@ import org.sonar.telemetry.legacy.TelemetryData.ProjectStatistics;
 import org.sonar.updatecenter.common.Version;
 
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -123,15 +123,20 @@ class TelemetryDataLoaderImplIT {
   private final QualityGateFinder qualityGateFinder = new QualityGateFinder(db.getDbClient());
 
   private final QualityProfileDataProvider qualityProfileDataProvider = new QualityProfileDataProvider(db.getDbClient(), new QProfileComparison(db.getDbClient()));
+  private final ProjectLocDistributionDataProvider projectLocDistributionDataProvider = new ProjectLocDistributionDataProvider(db.getDbClient());
   private final InternalProperties internalProperties = spy(new MapInternalProperties());
   private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
   private final CloudUsageDataProvider cloudUsageDataProvider = mock(CloudUsageDataProvider.class);
   private final AiCodeAssuranceVerifier aiCodeAssuranceVerifier = mock(AiCodeAssuranceVerifier.class);
 
   private final TelemetryDataLoader communityUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, editionProvider,
-    internalProperties, configuration, containerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService, cloudUsageDataProvider, qualityProfileDataProvider, aiCodeAssuranceVerifier);
+    internalProperties, configuration, containerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService, cloudUsageDataProvider, qualityProfileDataProvider,
+    aiCodeAssuranceVerifier,
+    projectLocDistributionDataProvider);
   private final TelemetryDataLoader commercialUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, editionProvider,
-    internalProperties, configuration, containerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService, cloudUsageDataProvider, qualityProfileDataProvider, aiCodeAssuranceVerifier);
+    internalProperties, configuration, containerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService, cloudUsageDataProvider, qualityProfileDataProvider,
+    aiCodeAssuranceVerifier,
+    projectLocDistributionDataProvider);
 
   private QualityGateDto builtInDefaultQualityGate;
   private MetricDto bugsDto;
@@ -144,7 +149,7 @@ class TelemetryDataLoaderImplIT {
   void setUpBuiltInQualityGate() {
     String builtInQgName = "Sonar way";
     builtInDefaultQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName(builtInQgName).setBuiltIn(true));
-    when(qualityGateCaycChecker.checkCaycCompliant(any(), any())).thenReturn(NON_COMPLIANT);
+    when(qualityGateCaycChecker.checkCaycCompliant(any(), any(String.class))).thenReturn(NON_COMPLIANT);
     db.qualityGates().setDefaultQualityGate(builtInDefaultQualityGate);
 
     bugsDto = db.measures().insertMetric(m -> m.setKey(BUGS_KEY));
@@ -178,33 +183,33 @@ class TelemetryDataLoaderImplIT {
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
     MetricDto nclocDistrib = db.measures().insertMetric(m -> m.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY));
 
-    ProjectData projectData1 = db.components().insertPrivateProject(ComponentDbTester.defaults(), projectDto -> projectDto.setAiCodeAssurance(true));
-    when(aiCodeAssuranceVerifier.isAiCodeAssured(projectData1.getProjectDto().getAiCodeAssurance())).thenReturn(true);
+    ProjectData projectData1 = db.components().insertPrivateProject(ComponentDbTester.defaults(), projectDto -> projectDto.setContainsAiCode(true));
+    when(aiCodeAssuranceVerifier.isAiCodeAssured(projectData1.getProjectDto())).thenReturn(true);
 
     ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
     var branch1 = db.components().insertProjectBranch(mainBranch1, branchDto -> branchDto.setKey("reference"));
     var branch2 = db.components().insertProjectBranch(mainBranch1, branchDto -> branchDto.setKey("custom"));
-    db.measures().insertLiveMeasure(mainBranch1, lines, m -> m.setValue(110d));
-    db.measures().insertLiveMeasure(mainBranch1, ncloc, m -> m.setValue(110d));
-    db.measures().insertLiveMeasure(mainBranch1, coverage, m -> m.setValue(80d));
-    db.measures().insertLiveMeasure(mainBranch1, nclocDistrib, m -> m.setValue(null).setData("java=70;js=30;kotlin=10"));
-    db.measures().insertLiveMeasure(mainBranch1, bugsDto, m -> m.setValue(1d));
-    db.measures().insertLiveMeasure(mainBranch1, vulnerabilitiesDto, m -> m.setValue(1d).setData((String) null));
-    db.measures().insertLiveMeasure(mainBranch1, securityHotspotsDto, m -> m.setValue(1d).setData((String) null));
-    db.measures().insertLiveMeasure(mainBranch1, developmentCostDto, m -> m.setData("50").setValue(null));
-    db.measures().insertLiveMeasure(mainBranch1, technicalDebtDto, m -> m.setValue(5d).setData((String) null));
+    db.measures().insertMeasure(mainBranch1, m -> m.addValue(lines.getKey(), 110d));
+    db.measures().insertMeasure(mainBranch1, m -> m.addValue(ncloc.getKey(), 110d));
+    db.measures().insertMeasure(mainBranch1, m -> m.addValue(coverage.getKey(), 80d));
+    db.measures().insertMeasure(mainBranch1, m -> m.addValue(nclocDistrib.getKey(), "java=70;js=30;kotlin=10"));
+    db.measures().insertMeasure(mainBranch1, m -> m.addValue(bugsDto.getKey(), 1d));
+    db.measures().insertMeasure(mainBranch1, m -> m.addValue(vulnerabilitiesDto.getKey(), 1d));
+    db.measures().insertMeasure(mainBranch1, m -> m.addValue(securityHotspotsDto.getKey(), 1d));
+    db.measures().insertMeasure(mainBranch1, m -> m.addValue(developmentCostDto.getKey(), "50"));
+    db.measures().insertMeasure(mainBranch1, m -> m.addValue(technicalDebtDto.getKey(), 5d));
     // Measures on other branches
-    db.measures().insertLiveMeasure(branch1, technicalDebtDto, m -> m.setValue(6d).setData((String) null));
-    db.measures().insertLiveMeasure(branch2, technicalDebtDto, m -> m.setValue(7d).setData((String) null));
+    db.measures().insertMeasure(branch1, m -> m.addValue(technicalDebtDto.getKey(), 6d));
+    db.measures().insertMeasure(branch2, m -> m.addValue(technicalDebtDto.getKey(), 7d));
 
-    ProjectData projectData2 = db.components().insertPrivateProject(ComponentDbTester.defaults(), projectDto -> projectDto.setAiCodeAssurance(false));
-    when(aiCodeAssuranceVerifier.isAiCodeAssured(projectData2.getProjectDto().getAiCodeAssurance())).thenReturn(false);
+    ProjectData projectData2 = db.components().insertPrivateProject(ComponentDbTester.defaults(), projectDto -> projectDto.setContainsAiCode(false));
+    when(aiCodeAssuranceVerifier.isAiCodeAssured(projectData2.getProjectDto())).thenReturn(false);
 
     ComponentDto mainBranch2 = projectData2.getMainBranchComponent();
-    db.measures().insertLiveMeasure(mainBranch2, lines, m -> m.setValue(200d));
-    db.measures().insertLiveMeasure(mainBranch2, ncloc, m -> m.setValue(200d));
-    db.measures().insertLiveMeasure(mainBranch2, coverage, m -> m.setValue(80d));
-    db.measures().insertLiveMeasure(mainBranch2, nclocDistrib, m -> m.setValue(null).setData("java=180;js=20"));
+    db.measures().insertMeasure(mainBranch2, m -> m.addValue(lines.getKey(), 200d));
+    db.measures().insertMeasure(mainBranch2, m -> m.addValue(ncloc.getKey(), 200d));
+    db.measures().insertMeasure(mainBranch2, m -> m.addValue(coverage.getKey(), 80d));
+    db.measures().insertMeasure(mainBranch2, m -> m.addValue(nclocDistrib.getKey(), "java=180;js=20"));
 
     SnapshotDto project1Analysis = db.components().insertSnapshot(mainBranch1, t -> t.setLast(true).setAnalysisDate(analysisDate));
     SnapshotDto project2Analysis = db.components().insertSnapshot(mainBranch2, t -> t.setLast(true).setAnalysisDate(analysisDate));
@@ -417,16 +422,16 @@ class TelemetryDataLoaderImplIT {
     db.qualityProfiles().associateWithProject(projectData.getProjectDto(), javaQP, kotlinQP, jsQP);
 
     ComponentDto mainBranch = projectData.getMainBranchComponent();
-    db.measures().insertLiveMeasure(mainBranch, lines, m -> m.setValue(110d));
-    db.measures().insertLiveMeasure(mainBranch, ncloc, m -> m.setValue(110d));
-    db.measures().insertLiveMeasure(mainBranch, coverage, m -> m.setValue(80d));
-    db.measures().insertLiveMeasure(mainBranch, nclocDistrib, m -> m.setValue(null).setData("java=70;js=30;kotlin=10"));
+    db.measures().insertMeasure(mainBranch, m -> m.addValue(lines.getKey(), 110d));
+    db.measures().insertMeasure(mainBranch, m -> m.addValue(ncloc.getKey(), 110d));
+    db.measures().insertMeasure(mainBranch, m -> m.addValue(coverage.getKey(), 80d));
+    db.measures().insertMeasure(mainBranch, m -> m.addValue(nclocDistrib.getKey(), "java=70;js=30;kotlin=10"));
 
     ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setBranchType(BRANCH));
-    db.measures().insertLiveMeasure(branch, lines, m -> m.setValue(180d));
-    db.measures().insertLiveMeasure(branch, ncloc, m -> m.setValue(180d));
-    db.measures().insertLiveMeasure(branch, coverage, m -> m.setValue(80d));
-    db.measures().insertLiveMeasure(branch, nclocDistrib, m -> m.setValue(null).setData("java=100;js=50;kotlin=30"));
+    db.measures().insertMeasure(branch, m -> m.addValue(lines.getKey(), 180d));
+    db.measures().insertMeasure(branch, m -> m.addValue(ncloc.getKey(), 180d));
+    db.measures().insertMeasure(branch, m -> m.addValue(coverage.getKey(), 80d));
+    db.measures().insertMeasure(branch, m -> m.addValue(nclocDistrib.getKey(), "java=100;js=50;kotlin=30"));
 
     SnapshotDto project1Analysis = db.components().insertSnapshot(mainBranch, t -> t.setLast(true));
     SnapshotDto project2Analysis = db.components().insertSnapshot(branch, t -> t.setLast(true));
@@ -464,12 +469,12 @@ class TelemetryDataLoaderImplIT {
     db.qualityProfiles().associateWithProject(projectData.getProjectDto(), jsQP);
 
     ComponentDto mainBranch = projectData.getMainBranchComponent();
-    db.measures().insertLiveMeasure(mainBranch, ncloc, m -> m.setValue(110d));
-    db.measures().insertLiveMeasure(mainBranch, nclocDistrib, m -> m.setValue(null).setData("java=70;js=30;kotlin=10"));
+    db.measures().insertMeasure(mainBranch, m -> m.addValue(ncloc.getKey(), 110d));
+    db.measures().insertMeasure(mainBranch, m -> m.addValue(nclocDistrib.getKey(), "java=70;js=30;kotlin=10"));
 
     ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setBranchType(BRANCH));
-    db.measures().insertLiveMeasure(branch, ncloc, m -> m.setValue(180d));
-    db.measures().insertLiveMeasure(branch, nclocDistrib, m -> m.setValue(null).setData("java=100;js=50;kotlin=30"));
+    db.measures().insertMeasure(branch, m -> m.addValue(ncloc.getKey(), 180d));
+    db.measures().insertMeasure(branch, m -> m.addValue(nclocDistrib.getKey(), "java=100;js=50;kotlin=30"));
 
     SnapshotDto project1Analysis = db.components().insertSnapshot(mainBranch, t -> t.setLast(true));
     SnapshotDto project2Analysis = db.components().insertSnapshot(branch, t -> t.setLast(true));
@@ -535,10 +540,11 @@ class TelemetryDataLoaderImplIT {
   @ParameterizedTest
   @MethodSource("values")
   void load_shouldContainCorrectAiCodeAssuranceField(boolean expected) {
-    ProjectDto project1 = db.components().insertPublicProject(componentDto -> {},
-      projectDto -> projectDto.setAiCodeAssurance(expected)).getProjectDto();
+    ProjectDto project1 = db.components().insertPublicProject(componentDto -> {
+    },
+      projectDto -> projectDto.setContainsAiCode(expected)).getProjectDto();
 
-    when(aiCodeAssuranceVerifier.isAiCodeAssured(project1.getAiCodeAssurance())).thenReturn(expected);
+    when(aiCodeAssuranceVerifier.isAiCodeAssured(project1)).thenReturn(expected);
 
     TelemetryData data = communityUnderTest.load();
 
@@ -562,8 +568,8 @@ class TelemetryDataLoaderImplIT {
 
   @Test
   void send_server_id_and_version() {
-    String id = randomAlphanumeric(40);
-    String version = randomAlphanumeric(10);
+    String id = secure().nextAlphanumeric(40);
+    String version = secure().nextAlphanumeric(10);
     server.setId(id);
     server.setVersion(version);
 
@@ -614,9 +620,9 @@ class TelemetryDataLoaderImplIT {
     MetricDto unanalyzedCpp = db.measures().insertMetric(m -> m.setKey(UNANALYZED_CPP_KEY));
     ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
-    db.measures().insertLiveMeasure(project1, unanalyzedC);
-    db.measures().insertLiveMeasure(project2, unanalyzedC);
-    db.measures().insertLiveMeasure(project2, unanalyzedCpp);
+    db.measures().insertMeasure(project1, m -> m.addValue(unanalyzedC.getKey(), 1));
+    db.measures().insertMeasure(project2, m -> m.addValue(unanalyzedC.getKey(), 1));
+    db.measures().insertMeasure(project2, m -> m.addValue(unanalyzedCpp.getKey(), 1));
 
     TelemetryData data = communityUnderTest.load();
 
@@ -631,8 +637,8 @@ class TelemetryDataLoaderImplIT {
     MetricDto unanalyzedCpp = db.measures().insertMetric(m -> m.setKey(UNANALYZED_CPP_KEY));
     ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
-    db.measures().insertLiveMeasure(project1, unanalyzedC);
-    db.measures().insertLiveMeasure(project2, unanalyzedCpp);
+    db.measures().insertMeasure(project1, m -> m.addValue(unanalyzedC.getKey(), 1));
+    db.measures().insertMeasure(project2, m -> m.addValue(unanalyzedCpp.getKey(), 1));
 
     TelemetryData data = communityUnderTest.load();
 
@@ -749,14 +755,12 @@ class TelemetryDataLoaderImplIT {
       Arguments.of(true, "scim"),
       Arguments.of(true, "github"),
       Arguments.of(true, "gitlab"),
-      Arguments.of(false, null)
-    );
+      Arguments.of(false, null));
   }
 
   private static Stream<Arguments> values() {
     return Stream.of(
       Arguments.of(false),
-      Arguments.of(true)
-    );
+      Arguments.of(true));
   }
 }

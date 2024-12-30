@@ -28,7 +28,7 @@ import org.junit.runner.RunWith;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.newindex.SettingsConfiguration;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
@@ -62,7 +62,7 @@ public class IndexDefinitionContextTest {
 
   @DataProvider
   public static Object[][] paarOfIndicesWithSameName() {
-    String indexName = randomAlphabetic(10).toLowerCase(Locale.ENGLISH);
+    String indexName = secure().nextAlphabetic(10).toLowerCase(Locale.ENGLISH);
     return new Object[][] {
       {Index.simple(indexName), Index.simple(indexName)},
       {Index.withRelations(indexName), Index.withRelations(indexName)},

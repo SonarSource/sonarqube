@@ -64,7 +64,7 @@ import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -339,7 +339,7 @@ public class GithubApplicationClientImplTest {
   @Test
   @UseDataProvider("githubServers")
   public void createUserAccessToken_from_authorization_code_returns_access_token(String apiUrl, String appUrl) throws IOException {
-    String token = randomAlphanumeric(10);
+    String token = secure().nextAlphanumeric(10);
     when(githubApplicationHttpClient.post(appUrl, null, "/login/oauth/access_token?client_id=clientId&client_secret=clientSecret&code=code"))
       .thenReturn(new OkGetResponse("access_token=" + token + "&status="));
 
@@ -389,7 +389,7 @@ public class GithubApplicationClientImplTest {
   @Test
   public void listOrganizations_fail_on_failure() throws IOException {
     String appUrl = "https://github.sonarsource.com";
-    AccessToken accessToken = new UserAccessToken(randomAlphanumeric(10));
+    AccessToken accessToken = new UserAccessToken(secure().nextAlphanumeric(10));
 
     when(githubApplicationHttpClient.get(appUrl, accessToken, format("/user/installations?page=%s&per_page=%s", 1, 100)))
       .thenThrow(new IOException("OOPS"));
@@ -421,7 +421,7 @@ public class GithubApplicationClientImplTest {
   @Test
   public void listOrganizations_returns_no_installations() throws IOException {
     String appUrl = "https://github.sonarsource.com";
-    AccessToken accessToken = new UserAccessToken(randomAlphanumeric(10));
+    AccessToken accessToken = new UserAccessToken(secure().nextAlphanumeric(10));
     String responseJson = """
       {
         "total_count": 0
@@ -440,7 +440,7 @@ public class GithubApplicationClientImplTest {
   @Test
   public void listOrganizations_returns_pages_results() throws IOException {
     String appUrl = "https://github.sonarsource.com";
-    AccessToken accessToken = new UserAccessToken(randomAlphanumeric(10));
+    AccessToken accessToken = new UserAccessToken(secure().nextAlphanumeric(10));
     String responseJson = """
       {
         "total_count": 2,
@@ -611,7 +611,7 @@ public class GithubApplicationClientImplTest {
   @Test
   public void listRepositories_fail_on_failure() throws IOException {
     String appUrl = "https://github.sonarsource.com";
-    AccessToken accessToken = new UserAccessToken(randomAlphanumeric(10));
+    AccessToken accessToken = new UserAccessToken(secure().nextAlphanumeric(10));
 
     when(githubApplicationHttpClient.get(appUrl, accessToken, format("/search/repositories?q=%s&page=%s&per_page=%s", "org:test", 1, 100)))
       .thenThrow(new IOException("OOPS"));
@@ -643,7 +643,7 @@ public class GithubApplicationClientImplTest {
   @Test
   public void listRepositories_returns_empty_results() throws IOException {
     String appUrl = "https://github.sonarsource.com";
-    AccessToken accessToken = new UserAccessToken(randomAlphanumeric(10));
+    AccessToken accessToken = new UserAccessToken(secure().nextAlphanumeric(10));
     String responseJson = "{\n"
       + "  \"total_count\": 0\n"
       + "}";
@@ -660,7 +660,7 @@ public class GithubApplicationClientImplTest {
   @Test
   public void listRepositories_returns_pages_results() throws IOException {
     String appUrl = "https://github.sonarsource.com";
-    AccessToken accessToken = new UserAccessToken(randomAlphanumeric(10));
+    AccessToken accessToken = new UserAccessToken(secure().nextAlphanumeric(10));
     String responseJson = """
       {
         "total_count": 2,
@@ -750,7 +750,7 @@ public class GithubApplicationClientImplTest {
   @Test
   public void listRepositories_returns_search_results() throws IOException {
     String appUrl = "https://github.sonarsource.com";
-    AccessToken accessToken = new UserAccessToken(randomAlphanumeric(10));
+    AccessToken accessToken = new UserAccessToken(secure().nextAlphanumeric(10));
     String responseJson = """
       {
         "total_count": 2,
@@ -850,7 +850,7 @@ public class GithubApplicationClientImplTest {
   @Test
   public void getRepository_returns_repository() throws IOException {
     String appUrl = "https://github.sonarsource.com";
-    AccessToken accessToken = new UserAccessToken(randomAlphanumeric(10));
+    AccessToken accessToken = new UserAccessToken(secure().nextAlphanumeric(10));
     String responseJson = "{\n"
       + "  \"id\": 1296269,\n"
       + "  \"node_id\": \"MDEwOlJlcG9zaXRvcnkxMjk2MjY5\",\n"
@@ -1139,13 +1139,13 @@ public class GithubApplicationClientImplTest {
   }
 
   private AppToken mockAppToken() {
-    String jwt = randomAlphanumeric(5);
+    String jwt = secure().nextAlphanumeric(5);
     when(appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey())).thenReturn(new AppToken(jwt));
     return new AppToken(jwt);
   }
 
   private ExpiringAppInstallationToken mockCreateAccessTokenCallingGithub() throws IOException {
-    String token = randomAlphanumeric(5);
+    String token = secure().nextAlphanumeric(5);
     Response response = mock(Response.class);
     when(response.getContent()).thenReturn(Optional.of(format("""
           {

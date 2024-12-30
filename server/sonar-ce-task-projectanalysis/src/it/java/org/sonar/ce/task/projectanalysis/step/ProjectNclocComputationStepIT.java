@@ -50,9 +50,9 @@ public class ProjectNclocComputationStepIT {
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.toString()));
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     BranchDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
-    db.measures().insertLiveMeasure(branch1, ncloc, m -> m.setValue(200d));
+    db.measures().insertMeasure(branch1, m -> m.addValue(ncloc.getKey(), 200d));
     BranchDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
-    db.measures().insertLiveMeasure(branch2, ncloc, m -> m.setValue(10d));
+    db.measures().insertMeasure(branch2, m -> m.addValue(ncloc.getKey(), 10d));
     analysisMetadataHolder.setProject(new Project(project.getUuid(), project.getKey(), project.getName(), project.getDescription(), emptyList()));
     step.execute(TestComputationStepContext.TestStatistics::new);
 

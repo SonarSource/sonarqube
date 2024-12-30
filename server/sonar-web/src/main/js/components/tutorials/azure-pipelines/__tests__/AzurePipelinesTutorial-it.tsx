@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
-import * as React from 'react';
 import UserTokensMock from '../../../../api/mocks/UserTokensMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockLanguage, mockLoggedInUser } from '../../../../helpers/testMocks';
@@ -150,7 +150,9 @@ function assertServiceEndpointStepIsCorrectlyRendered() {
       name: 'onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.title',
     }),
   ).toBeInTheDocument();
-  expect(getCopyToClipboardValue(0, 'Copy to clipboard')).toBe('https://sonarqube.example.com/');
+  expect(getCopyToClipboardValue({ i: 0, name: 'Copy to clipboard', inlineSnippet: true })).toBe(
+    'https://sonarqube.example.com/',
+  );
   expect(
     screen.getByRole('button', { name: 'onboarding.token.generate.long' }),
   ).toBeInTheDocument();
@@ -163,26 +165,34 @@ function assertDotNetStepIsCorrectlyRendered() {
     }),
   ).toBeInTheDocument();
 
-  expect(getCopyToClipboardValue(1, 'Copy to clipboard')).toBe('foo');
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy to clipboard', inlineSnippet: true })).toBe(
+    'foo',
+  );
 }
 
 function assertMavenStepIsCorrectlyRendered() {
-  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('maven, copy additional properties');
+  expect(getCopyToClipboardValue({ i: 0, name: 'Copy' })).toMatchSnapshot(
+    'maven, copy additional properties',
+  );
 }
 
 function assertGradleStepIsCorrectlyRendered() {
-  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('gradle, copy additional properties');
+  expect(getCopyToClipboardValue({ i: 0, name: 'Copy' })).toMatchSnapshot(
+    'gradle, copy additional properties',
+  );
 }
 
 function assertObjCStepIsCorrectlyRendered(os: string, arch: string = 'x86_64') {
-  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+  expect(getCopyToClipboardValue({ i: 0, name: 'Copy' })).toMatchSnapshot(
     `objectivec ${os} ${arch}, copy shell script`,
   );
-  expect(getCopyToClipboardValue(1, 'Copy to clipboard')).toBe('foo');
-  expect(getCopyToClipboardValue(2, 'Copy to clipboard')).toMatchSnapshot(
-    `objectivec ${os} ${arch}, copy additional properties`,
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy to clipboard', inlineSnippet: true })).toBe(
+    'foo',
   );
-  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+  expect(
+    getCopyToClipboardValue({ i: 2, name: 'Copy to clipboard', inlineSnippet: true }),
+  ).toMatchSnapshot(`objectivec ${os} ${arch}, copy additional properties`);
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
     `objectivec ${os} ${arch}, copy build-wrapper command`,
   );
 }
@@ -192,20 +202,24 @@ function assertAutomaticCppStepIsCorrectlyRendered() {
 }
 
 function assertManualCppStepIsCorrectlyRendered(os: string, arch: string = 'x86_64') {
-  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+  expect(getCopyToClipboardValue({ i: 0, name: 'Copy' })).toMatchSnapshot(
     `manual-cpp ${os} ${arch}, copy shell script`,
   );
-  expect(getCopyToClipboardValue(1, 'Copy to clipboard')).toBe('foo');
-  expect(getCopyToClipboardValue(2, 'Copy to clipboard')).toMatchSnapshot(
-    `manual-cpp ${os} ${arch}, copy additional properties`,
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy to clipboard', inlineSnippet: true })).toBe(
+    'foo',
   );
-  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+  expect(
+    getCopyToClipboardValue({ i: 2, name: 'Copy to clipboard', inlineSnippet: true }),
+  ).toMatchSnapshot(`manual-cpp ${os} ${arch}, copy additional properties`);
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy' })).toMatchSnapshot(
     `manual-cpp ${os} ${arch}, copy build-wrapper command`,
   );
 }
 
 function assertOtherStepIsCorrectlyRendered() {
-  expect(getCopyToClipboardValue(1, 'Copy to clipboard')).toBe('foo');
+  expect(getCopyToClipboardValue({ i: 1, name: 'Copy to clipboard', inlineSnippet: true })).toBe(
+    'foo',
+  );
 }
 
 function assertFinishStepIsCorrectlyRendered() {

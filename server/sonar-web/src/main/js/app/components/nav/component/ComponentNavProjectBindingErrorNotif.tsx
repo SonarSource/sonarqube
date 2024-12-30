@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
-import { FlagWarningIcon, Link, themeBorder, themeColor } from 'design-system';
-import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { FlagWarningIcon, Link, themeBorder, themeColor } from '~design-system';
 import { PULL_REQUEST_DECORATION_BINDING_CATEGORY } from '../../../../apps/settings/constants';
 import { translate } from '../../../../helpers/l10n';
 import { getProjectSettingsUrl } from '../../../../helpers/urls';

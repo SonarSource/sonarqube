@@ -19,7 +19,6 @@
  */
 
 import { Heading } from '@sonarsource/echoes-react';
-import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useCurrentLoginUser } from '../../../app/components/current-user/CurrentUserContext';
 import ResetPasswordForm from '../../../components/common/ResetPasswordForm';

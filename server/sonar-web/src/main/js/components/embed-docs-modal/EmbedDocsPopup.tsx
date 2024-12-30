@@ -23,40 +23,15 @@ import * as React from 'react';
 import { Image } from '~sonar-aligned/components/common/Image';
 import { getRedirectUrlForZoho } from "../../api/codescan";
 import { getValue } from "../../api/settings";
+import { useCurrentUser } from '../../app/components/current-user/CurrentUserContext';
+import { CustomEvents } from '../../helpers/constants';
 import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
 import { GlobalSettingKeys } from "../../types/settings";
+import { Permissions } from '../../types/permissions';
 import { SuggestionLink } from '../../types/types';
 import { DocItemLink } from './DocItemLink';
 import { SuggestionsContext } from './SuggestionsContext';
-
-function IconLink({
-  icon = 'embed-doc/sq-icon.svg',
-  link,
-  text,
-}: {
-  icon?: string;
-  link: string;
-  text: string;
-}) {
-  return (
-    <DropdownMenu.ItemLink
-      prefix={
-        <Image
-          alt={text}
-          aria-hidden
-          className="sw-mr-2"
-          height="18"
-          src={`/images/${icon}`}
-          width="18"
-        />
-      }
-      to={link}
-    >
-      {text}
-    </DropdownMenu.ItemLink>
-  );
-}
 
 function Suggestions({ suggestions }: Readonly<{ suggestions: SuggestionLink[] }>) {
   return (
@@ -76,6 +51,7 @@ function Suggestions({ suggestions }: Readonly<{ suggestions: SuggestionLink[] }
 
 export function EmbedDocsPopup({ setAboutCodescanOpen }) {
   const firstItemRef = React.useRef<HTMLAnchorElement>(null);
+  const { currentUser } = useCurrentUser();
   const { suggestions } = React.useContext(SuggestionsContext);
   const [zohoUrl, setZohoUrl] = React.useState<any>();
 
@@ -92,6 +68,14 @@ export function EmbedDocsPopup({ setAboutCodescanOpen }) {
     });
   }, []);
 
+  const runModeTour = () => {
+    document.dispatchEvent(new CustomEvent(CustomEvents.RunTourMode));
+  };
+
+  const isAdminOrQGAdmin =
+    currentUser.permissions?.global.includes(Permissions.Admin) ||
+    currentUser.permissions?.global.includes(Permissions.QualityGateAdmin);
+
   return (
     <>
       {suggestions.length !== 0 && <Suggestions suggestions={suggestions} />}
@@ -102,7 +86,7 @@ export function EmbedDocsPopup({ setAboutCodescanOpen }) {
       </DropdownMenu.ItemLink>
 
       <DropdownMenu.Separator />
-      
+
       <DocItemLink to={DocLink.Documentation}>{translate('docs.documentation')}</DocItemLink>
 
       <DropdownMenu.ItemLink to="/web_api">
@@ -129,17 +113,13 @@ export function EmbedDocsPopup({ setAboutCodescanOpen }) {
 
       <DropdownMenu.GroupLabel>{translate('docs.stay_connected')}</DropdownMenu.GroupLabel>
 
-      <IconLink
-        icon="sonarcloud-square-logo.svg"
-        link="https://www.codescan.io/blog"
-        text="CodeScan Blog "
-      />
+      <DropdownMenu.ItemLink to="https://www.codescan.io/blog">
+        CodeScan Blog
+      </DropdownMenu.ItemLink>
 
-      <IconLink
-        icon="embed-doc/x-icon-black.svg"
-        link="https://twitter.com/CodeScanforSFDC"
-        text="@CodeScanforSFDC"
-      />
+      <DropdownMenu.ItemLink to="https://twitter.com/CodeScanforSFDC">
+        @CodeScanforSFDC
+      </DropdownMenu.ItemLink>
     </>
   );
 }

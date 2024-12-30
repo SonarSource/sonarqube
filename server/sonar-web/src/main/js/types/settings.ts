@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Dict } from './types';
 
 export const enum SettingsKey {
@@ -28,7 +29,7 @@ export const enum SettingsKey {
   LicenceRemainingLocNotificationThreshold = 'sonar.license.notifications.remainingLocThreshold',
   TokenMaxAllowedLifetime = 'sonar.auth.token.max.allowed.lifetime',
   QPAdminCanDisableInheritedRules = 'sonar.qualityProfiles.allowDisableInheritedRules',
-  LegacyMode = 'sonar.legacy.ratings.mode.enabled',
+  MQRMode = 'sonar.multi-quality-mode.enabled',
   CodeSuggestion = 'sonar.ai.suggestions.enabled',
 }
 

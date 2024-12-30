@@ -23,7 +23,7 @@ import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Random;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 
 public class GroupTesting {
 
@@ -35,9 +35,9 @@ public class GroupTesting {
 
   public static GroupDto newGroupDto() {
     return new GroupDto()
-      .setUuid(randomAlphanumeric(40))
-      .setName(randomAlphanumeric(255))
-      .setDescription(randomAlphanumeric(200))
+      .setUuid(secure().nextAlphanumeric(40))
+      .setName(secure().nextAlphanumeric(255))
+      .setDescription(secure().nextAlphanumeric(200))
       .setCreatedAt(new Date(RANDOM.nextLong(Long.MAX_VALUE)))
       .setUpdatedAt(new Date(RANDOM.nextLong(Long.MAX_VALUE)));
   }

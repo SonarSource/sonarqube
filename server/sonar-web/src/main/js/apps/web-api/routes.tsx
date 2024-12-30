@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+
 import { Route } from 'react-router-dom';
-import WebApiApp from './components/WebApiApp';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
+
+const WebApiApp = lazyLoadComponent(() => import('./components/WebApiApp'));
 
 const routes = () => (
   <Route path="web_api">

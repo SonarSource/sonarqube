@@ -23,8 +23,8 @@ import com.google.common.collect.ImmutableMap;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.Map;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
@@ -36,6 +36,7 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -71,39 +72,40 @@ import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFIL
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.server.language.LanguageTesting.newLanguages;
 
-public class CreateActionIT {
+class CreateActionIT {
 
   private static final String XOO_LANGUAGE = "xoo";
   private static final RuleDto RULE = RuleTesting.newXooX1()
     .setSeverity("MINOR")
     .setLanguage(XOO_LANGUAGE);
 
-  @Rule
-  public DbTester db = DbTester.create();
-  @Rule
-  public EsTester es = EsTester.create();
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  @RegisterExtension
+  private final DbTester db = DbTester.create();
+  @RegisterExtension
+  private final EsTester es = EsTester.create();
+  @RegisterExtension
+  private final UserSessionRule userSession = UserSessionRule.standalone();
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-  private RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE);
-  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), dbClient);
-  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, es.client());
-  private ProfileImporter[] profileImporters = createImporters();
-  private QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
+  private final Configuration config = mock(Configuration.class);
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private final RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE, config);
+  private final RuleIndexer ruleIndexer = new RuleIndexer(es.client(), dbClient);
+  private final ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, es.client());
+  private final ProfileImporter[] profileImporters = createImporters();
+  private final QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
-  private RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, null, userSession, mock(Configuration.class), sonarQubeVersion);
-  private QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, ruleIndex, activeRuleIndexer, qualityProfileChangeEventService);
-  private QProfileExporters qProfileExporters = new QProfileExporters(dbClient, null, qProfileRules, profileImporters);
+  private final RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, UuidFactoryImpl.INSTANCE, null, userSession, mock(Configuration.class), sonarQubeVersion);
+  private final QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, ruleIndex, activeRuleIndexer, qualityProfileChangeEventService);
+  private final QProfileExporters qProfileExporters = new QProfileExporters(dbClient, null, qProfileRules, profileImporters);
 
-  private CreateAction underTest = new CreateAction(dbClient, new QProfileFactoryImpl(dbClient, UuidFactoryFast.getInstance(), System2.INSTANCE, activeRuleIndexer),
+  private final CreateAction underTest = new CreateAction(dbClient, new QProfileFactoryImpl(dbClient, UuidFactoryFast.getInstance(), System2.INSTANCE, activeRuleIndexer),
     qProfileExporters, newLanguages(XOO_LANGUAGE), userSession, activeRuleIndexer, profileImporters);
 
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
-  public void definition() {
+  void definition() {
     WebService.Action definition = ws.getDef();
 
     assertThat(definition.responseExampleAsString()).isNotEmpty();
@@ -113,7 +115,7 @@ public class CreateActionIT {
   }
 
   @Test
-  public void create_profile() {
+  void create_profile() {
     logInAsQProfileAdministrator();
 
     CreateWsResponse response = executeRequest("New Profile", XOO_LANGUAGE);
@@ -134,7 +136,7 @@ public class CreateActionIT {
   }
 
   @Test
-  public void create_profile_from_backup_xml() {
+  void create_profile_from_backup_xml() {
     logInAsQProfileAdministrator();
     insertRule(RULE);
 
@@ -147,7 +149,7 @@ public class CreateActionIT {
   }
 
   @Test
-  public void create_profile_with_messages() {
+  void create_profile_with_messages() {
     logInAsQProfileAdministrator();
 
     CreateWsResponse response = executeRequest("Profile with messages", XOO_LANGUAGE, ImmutableMap.of("with_messages", "<xml/>"));
@@ -158,7 +160,7 @@ public class CreateActionIT {
   }
 
   @Test
-  public void fail_if_unsufficient_privileges() {
+  void fail_if_unsufficient_privileges() {
     userSession
       .logIn()
       .addPermission(SCAN);
@@ -173,7 +175,7 @@ public class CreateActionIT {
   }
 
   @Test
-  public void fail_if_import_generate_error() {
+  void fail_if_import_generate_error() {
     logInAsQProfileAdministrator();
 
     assertThatThrownBy(() -> {
@@ -183,7 +185,7 @@ public class CreateActionIT {
   }
 
   @Test
-  public void test_json() {
+  void test_json() {
     logInAsQProfileAdministrator();
 
     TestResponse response = ws.newRequest()

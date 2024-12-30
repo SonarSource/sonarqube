@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { differenceInDays } from 'date-fns';
 import * as React from 'react';
 import { showLicense } from '../../api/editions';
@@ -75,7 +76,7 @@ export class StartupModal extends React.PureComponent<React.PropsWithChildren<Pr
 
   render() {
     const { open } = this.state;
-    return open ? <LicensePromptModal onClose={this.closeLicense} /> : null;
+    return <LicensePromptModal isOpen={open} onClose={this.closeLicense} />;
   }
 }
 

@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { addGlobalErrorMessage } from 'design-system';
+import { addGlobalErrorMessage } from '~design-system';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 
-jest.mock('design-system', () => ({
+jest.mock('~design-system', () => ({
   addGlobalErrorMessage: jest.fn(),
 }));
 

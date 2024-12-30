@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { keepPreviousData } from '@tanstack/react-query';
-import { Highlight, KeyboardHint } from 'design-system';
 import * as React from 'react';
+import { Highlight, KeyboardHint } from '~design-system';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { MetricKey } from '~sonar-aligned/types/metrics';
@@ -30,7 +31,7 @@ import { getComponentMeasureUniqueKey } from '../../../helpers/component';
 import { SOFTWARE_QUALITY_RATING_METRICS_MAP } from '../../../helpers/constants';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
-import { getCCTMeasureValue, isDiffMetric } from '../../../helpers/measures';
+import { isDiffMetric } from '../../../helpers/measures';
 import { RequestData } from '../../../helpers/request';
 import { isDefined } from '../../../helpers/types';
 import { getProjectUrl } from '../../../helpers/urls';
@@ -133,9 +134,8 @@ export default function MeasureContent(props: Readonly<Props>) {
   const measures = measuresData?.component.measures ?? [];
   const measure = measures.find((m) => m.metric === requestedMetric.key);
   const secondaryMeasure = measures.find((m) => m.metric !== requestedMetric.key);
-  const rawMeasureValue =
+  const measureValue =
     measure && (isDiffMetric(measure.metric) ? measure.period?.value : measure.value);
-  const measureValue = getCCTMeasureValue(metric.key, rawMeasureValue);
   const isFileComponent = isFile(baseComponent.qualifier);
 
   const paging = treeData?.pages[treeData?.pages.length - 1].paging;

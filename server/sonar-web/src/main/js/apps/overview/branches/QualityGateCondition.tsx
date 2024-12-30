@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
-import { LinkBox, TextMuted } from 'design-system';
 import * as React from 'react';
 import { Path } from 'react-router-dom';
+import { LinkBox, TextMuted } from '~design-system';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import {
@@ -39,11 +40,12 @@ import {
 import { getOperatorLabel } from '../../../helpers/qualityGates';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
+import { SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { IssueType } from '../../../types/issues';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component, Dict, Metric } from '../../../types/types';
 import { getLocalizedMetricNameNoDiffMetric } from '../../quality-gates/utils';
-import { RATING_TO_SEVERITIES_MAPPING } from '../utils';
+import { MQR_RATING_TO_SEVERITIES_MAPPING, RATING_TO_SEVERITIES_MAPPING } from '../utils';
 
 interface Props {
   branchLike?: BranchLike;
@@ -77,6 +79,22 @@ export class QualityGateCondition extends React.PureComponent<Props> {
     return this.getIssuesUrl(inNewCodePeriod, { types: 'CODE_SMELL' });
   }
 
+  getUrlForSoftwareQualityRatings(quality: SoftwareQuality, isNewCode: boolean) {
+    const { condition } = this.props;
+    const threshold = condition.level === 'ERROR' ? condition.error : condition.warning;
+
+    if (quality === SoftwareQuality.Maintainability) {
+      return this.getIssuesUrl(isNewCode, {
+        impactSoftwareQualities: quality,
+      });
+    }
+
+    return this.getIssuesUrl(isNewCode, {
+      impactSeverities: MQR_RATING_TO_SEVERITIES_MAPPING[Number(threshold) - 1],
+      impactSoftwareQualities: quality,
+    });
+  }
+
   getUrlForBugsOrVulnerabilities(type: string, inNewCodePeriod: boolean) {
     const { condition } = this.props;
     const threshold = condition.level === 'ERROR' ? condition.error : condition.warning;
@@ -105,6 +123,19 @@ export class QualityGateCondition extends React.PureComponent<Props> {
       [MetricKey.new_maintainability_rating]: () => this.getUrlForCodeSmells(true),
       [MetricKey.security_hotspots_reviewed]: () => this.getUrlForSecurityHotspot(false),
       [MetricKey.new_security_hotspots_reviewed]: () => this.getUrlForSecurityHotspot(true),
+      // MQR
+      [MetricKey.new_software_quality_reliability_rating]: () =>
+        this.getUrlForSoftwareQualityRatings(SoftwareQuality.Reliability, true),
+      [MetricKey.new_software_quality_security_rating]: () =>
+        this.getUrlForSoftwareQualityRatings(SoftwareQuality.Security, true),
+      [MetricKey.new_software_quality_maintainability_rating]: () =>
+        this.getUrlForSoftwareQualityRatings(SoftwareQuality.Maintainability, true),
+      [MetricKey.software_quality_reliability_rating]: () =>
+        this.getUrlForSoftwareQualityRatings(SoftwareQuality.Reliability, false),
+      [MetricKey.software_quality_security_rating]: () =>
+        this.getUrlForSoftwareQualityRatings(SoftwareQuality.Security, false),
+      [MetricKey.software_quality_maintainability_rating]: () =>
+        this.getUrlForSoftwareQualityRatings(SoftwareQuality.Maintainability, false),
     };
 
     if (METRICS_TO_URL_MAPPING[metricKey]) {

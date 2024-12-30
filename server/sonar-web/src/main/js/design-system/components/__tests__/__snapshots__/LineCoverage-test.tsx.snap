@@ -1,0 +1,237 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly when covered 1`] = `
+.emotion-0 {
+  color: var(--echoes-color-text-subdued);
+  background-color: var(--line-background);
+  outline: none;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.e19zkvle13:hover .emotion-0 {
+  background-color: rgb(239,242,249);
+}
+
+.emotion-2 {
+  height: 100%;
+  width: 0.25rem;
+  margin-left: 0.125rem;
+  background-color: rgb(166,244,197);
+}
+
+.emotion-2,
+.emotion-2 svg {
+  outline: none;
+}
+
+<tr>
+  <td
+    aria-describedby="tooltip-1"
+    class="emotion-0 emotion-1"
+    data-line-number="16"
+  >
+    <div
+      aria-label="OK"
+      class="emotion-2 emotion-3"
+    />
+  </td>
+</tr>
+`;
+
+exports[`should render correctly when no data 1`] = `
+.emotion-0 {
+  color: var(--echoes-color-text-subdued);
+  background-color: var(--line-background);
+  outline: none;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.e19zkvle13:hover .emotion-0 {
+  background-color: rgb(239,242,249);
+}
+
+<tr>
+  <td
+    class="emotion-0 emotion-1"
+    data-line-number="16"
+  />
+</tr>
+`;
+
+exports[`should render correctly when partially covered with 5/10 conditions 1`] = `
+.emotion-0 {
+  color: var(--echoes-color-text-subdued);
+  background-color: var(--line-background);
+  outline: none;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.e19zkvle13:hover .emotion-0 {
+  background-color: rgb(239,242,249);
+}
+
+.emotion-2 {
+  height: 100%;
+  width: 0.25rem;
+  margin-left: 0.125rem;
+}
+
+.emotion-2,
+.emotion-2 svg {
+  outline: none;
+}
+
+<tr>
+  <td
+    aria-describedby="tooltip-4"
+    class="emotion-0 emotion-1"
+    data-line-number="16"
+  >
+    <div
+      aria-label="OK"
+      class="emotion-2 emotion-3"
+    >
+      <svg
+        fill="none"
+        viewBox="0 0 4 18"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <rect
+          fill="rgb(217,45,32)"
+          height="18"
+          width="4"
+        />
+        <path
+          clip-rule="evenodd"
+          d="M0 0L4 3V6L0 3V0ZM0 6L4 9V12L0 9V6ZM4 15L0 12V15L4 18V15Z"
+          fill="rgb(255,255,255)"
+          fill-rule="evenodd"
+        />
+      </svg>
+    </div>
+  </td>
+</tr>
+`;
+
+exports[`should render correctly when partially covered without conditions 1`] = `
+.emotion-0 {
+  color: var(--echoes-color-text-subdued);
+  background-color: var(--line-background);
+  outline: none;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.e19zkvle13:hover .emotion-0 {
+  background-color: rgb(239,242,249);
+}
+
+.emotion-2 {
+  height: 100%;
+  width: 0.25rem;
+  margin-left: 0.125rem;
+}
+
+.emotion-2,
+.emotion-2 svg {
+  outline: none;
+}
+
+<tr>
+  <td
+    aria-describedby="tooltip-3"
+    class="emotion-0 emotion-1"
+    data-line-number="16"
+  >
+    <div
+      aria-label="OK"
+      class="emotion-2 emotion-3"
+    >
+      <svg
+        fill="none"
+        viewBox="0 0 4 18"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <rect
+          fill="rgb(217,45,32)"
+          height="18"
+          width="4"
+        />
+        <path
+          clip-rule="evenodd"
+          d="M0 0L4 3V6L0 3V0ZM0 6L4 9V12L0 9V6ZM4 15L0 12V15L4 18V15Z"
+          fill="rgb(255,255,255)"
+          fill-rule="evenodd"
+        />
+      </svg>
+    </div>
+  </td>
+</tr>
+`;
+
+exports[`should render correctly when uncovered 1`] = `
+.emotion-0 {
+  color: var(--echoes-color-text-subdued);
+  background-color: var(--line-background);
+  outline: none;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.e19zkvle13:hover .emotion-0 {
+  background-color: rgb(239,242,249);
+}
+
+.emotion-2 {
+  height: 100%;
+  width: 0.25rem;
+  margin-left: 0.125rem;
+  background-color: rgb(217,45,32);
+}
+
+.emotion-2,
+.emotion-2 svg {
+  outline: none;
+}
+
+<tr>
+  <td
+    aria-describedby="tooltip-2"
+    class="emotion-0 emotion-1"
+    data-line-number="16"
+  >
+    <div
+      aria-label="OK"
+      class="emotion-2 emotion-3"
+    />
+  </td>
+</tr>
+`;

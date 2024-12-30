@@ -66,7 +66,9 @@ public class NewCodePeriodResolver {
   }
 
   private boolean isLastAnalysisFromSonarQube94Onwards(DbSession dbSession, String componentUuid) {
-    return dbClient.liveMeasureDao().selectMeasure(dbSession, componentUuid, ANALYSIS_FROM_SONARQUBE_9_4_KEY).isPresent();
+    return dbClient.measureDao().selectByComponentUuid(dbSession, componentUuid)
+      .filter(m -> m.getMetricValues().containsKey(ANALYSIS_FROM_SONARQUBE_9_4_KEY))
+      .isPresent();
   }
 
   private static boolean isLastAnalysisUsingReferenceBranch(SnapshotDto snapshot) {

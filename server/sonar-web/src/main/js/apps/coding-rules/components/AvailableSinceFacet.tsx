@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DatePicker, FacetBox } from 'design-system';
+
 import * as React from 'react';
 import { WrappedComponentProps, injectIntl } from 'react-intl';
+import { DatePicker, FacetBox } from '~design-system';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Query } from '../query';
 
@@ -49,10 +50,10 @@ class AvailableSinceFacet extends React.PureComponent<Props & WrappedComponentPr
     const { open, value } = this.props;
     const headerId = `facet_${this.property}`;
     const count = value ? 1 : undefined;
+
     return (
       <FacetBox
         className="it__search-navigator-facet-box"
-        clearIconLabel={translate('clear')}
         data-property={this.property}
         id={headerId}
         name={translate('coding_rules.facet.available_since')}

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { times } from 'lodash';
@@ -27,13 +28,13 @@ import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { MeasuresServiceMock } from '../../../api/mocks/MeasuresServiceMock';
-import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
+import { ModeServiceMock } from '../../../api/mocks/ModeServiceMock';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockMeasure, mockMetric } from '../../../helpers/testMocks';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
 import { ComponentContextShape } from '../../../types/component';
 import { Feature } from '../../../types/features';
-import { SettingsKey } from '../../../types/settings';
+import { Mode } from '../../../types/mode';
 import routes from '../routes';
 
 jest.mock('lodash', () => ({
@@ -43,8 +44,9 @@ jest.mock('lodash', () => ({
 
 jest.mock('../../../api/metrics', () => {
   const { DEFAULT_METRICS } = jest.requireActual('../../../helpers/mocks/metrics');
+  const { MetricKey } = jest.requireActual('~sonar-aligned/types/metrics');
   const metrics = Object.values(MetricKey).map(
-    (key) => DEFAULT_METRICS[key] ?? mockMetric({ key }),
+    (key: MetricKey) => DEFAULT_METRICS[key] ?? mockMetric({ key }),
   );
   return {
     getAllMetrics: jest.fn().mockResolvedValue(metrics),
@@ -55,14 +57,14 @@ const componentsHandler = new ComponentsServiceMock();
 const measuresHandler = new MeasuresServiceMock();
 const issuesHandler = new IssuesServiceMock();
 const branchHandler = new BranchesServiceMock();
-const settingsHandler = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 
 afterEach(() => {
   componentsHandler.reset();
   measuresHandler.reset();
   issuesHandler.reset();
   branchHandler.reset();
-  settingsHandler.reset();
+  modeHandler.reset();
 });
 
 describe('rendering', () => {
@@ -91,23 +93,22 @@ describe('rendering', () => {
     // Check one of the domains.
     await user.click(ui.maintainabilityDomainBtn.get());
     [
-      'component_measures.metric.new_maintainability_issues.name 5',
+      'component_measures.metric.new_software_quality_maintainability_issues.name 5',
       'Added Technical Debt work_duration.x_minutes.1',
       'Technical Debt Ratio on New Code 1.0%',
-      'Maintainability Rating on New Code metric.has_rating_X.E metric.sqale_rating.tooltip.E.0.0%',
-      'component_measures.metric.maintainability_issues.name 2',
+      'Maintainability Rating on New Code metric.has_rating_X.D metric.software_quality_maintainability_rating.tooltip.D.0.0%',
+      'component_measures.metric.software_quality_maintainability_issues.name 2',
       'Technical Debt work_duration.x_minutes.1',
       'Technical Debt Ratio 1.0%',
-      'Maintainability Rating metric.has_rating_X.E metric.sqale_rating.tooltip.E.0.0%',
+      'Maintainability Rating metric.has_rating_X.D metric.software_quality_maintainability_rating.tooltip.D.0.0%',
       'Effort to Reach Maintainability Rating A work_duration.x_minutes.1',
     ].forEach((measure) => {
       expect(ui.measureLink(measure).get()).toBeInTheDocument();
     });
   });
 
-  // eslint-disable-next-line jest/no-disabled-tests
-  it.skip('should correctly render the default overview and navigation in legacy mode', async () => {
-    settingsHandler.set(SettingsKey.LegacyMode, 'true');
+  it('should correctly render the default overview and navigation in legacy mode', async () => {
+    modeHandler.setMode(Mode.Standard);
     const { ui, user } = getPageObject();
     renderMeasuresApp();
 
@@ -147,8 +148,14 @@ describe('rendering', () => {
   });
 
   it('should correctly revert to old measures when analysis is missing', async () => {
-    measuresHandler.deleteComponentMeasure('foo', MetricKey.maintainability_issues);
-    measuresHandler.deleteComponentMeasure('foo', MetricKey.new_maintainability_issues);
+    measuresHandler.deleteComponentMeasure(
+      'foo',
+      MetricKey.software_quality_maintainability_issues,
+    );
+    measuresHandler.deleteComponentMeasure(
+      'foo',
+      MetricKey.new_software_quality_maintainability_issues,
+    );
     measuresHandler.deleteComponentMeasure(
       'foo',
       MetricKey.software_quality_maintainability_rating,
@@ -165,11 +172,11 @@ describe('rendering', () => {
     // Check one of the domains.
     await user.click(ui.maintainabilityDomainBtn.get());
     [
-      'component_measures.metric.new_code_smells.name 9',
+      'component_measures.leak_awaiting_analysis.name 9',
       'Added Technical Debt work_duration.x_minutes.1',
       'Technical Debt Ratio on New Code 1.0%',
       'Maintainability Rating on New Code metric.has_rating_X.E metric.sqale_rating.tooltip.E.0.0%',
-      'component_measures.metric.code_smells.name 9',
+      'component_measures.awaiting_analysis.name 9',
       'Technical Debt work_duration.x_minutes.1',
       'Technical Debt Ratio 1.0%',
       'Maintainability Rating metric.has_rating_X.E metric.sqale_rating.tooltip.E.0.0%',
@@ -177,7 +184,7 @@ describe('rendering', () => {
     ].forEach((measure) => {
       expect(ui.measureLink(measure).get()).toBeInTheDocument();
     });
-    expect(screen.getByText('overview.missing_project_dataTRK')).toBeInTheDocument();
+    expect(ui.analysisMissingMessage.get()).toBeInTheDocument();
   });
 
   it('should show new counts but not ratings if no rating measures', async () => {
@@ -197,11 +204,11 @@ describe('rendering', () => {
     // Check one of the domains.
     await user.click(ui.maintainabilityDomainBtn.get());
     [
-      'component_measures.metric.new_maintainability_issues.name 5',
+      'component_measures.metric.new_software_quality_maintainability_issues.name 5',
       'Added Technical Debt work_duration.x_minutes.1',
       'Technical Debt Ratio on New Code 1.0%',
       'Maintainability Rating on New Code metric.has_rating_X.E metric.sqale_rating.tooltip.E.0.0%',
-      'component_measures.metric.maintainability_issues.name 2',
+      'component_measures.metric.software_quality_maintainability_issues.name 2',
       'Technical Debt work_duration.x_minutes.1',
       'Technical Debt Ratio 1.0%',
       'Maintainability Rating metric.has_rating_X.E metric.sqale_rating.tooltip.E.0.0%',
@@ -209,12 +216,11 @@ describe('rendering', () => {
     ].forEach((measure) => {
       expect(ui.measureLink(measure).get()).toBeInTheDocument();
     });
-    // expect(screen.getByText('overview.missing_project_dataTRK')).toBeInTheDocument();
+    expect(ui.analysisMissingMessage.get()).toBeInTheDocument();
   });
 
-  // eslint-disable-next-line jest/no-disabled-tests
-  it.skip('should show old measures and no flag message if no rating measures and legacy mode', async () => {
-    settingsHandler.set(SettingsKey.LegacyMode, 'true');
+  it('should show old measures and no flag message if no rating measures and legacy mode', async () => {
+    modeHandler.setMode(Mode.Standard);
     measuresHandler.deleteComponentMeasure(
       'foo',
       MetricKey.software_quality_maintainability_rating,
@@ -347,6 +353,26 @@ describe('rendering', () => {
     expect(await ui.detailsUnavailableText.find()).toBeInTheDocument();
   });
 
+  it('should not render analysis missing if on a pull request and leak measure are available', async () => {
+    const { ui } = getPageObject();
+    renderMeasuresApp('component_measures?id=foo&pullRequest=01');
+    await ui.appLoaded();
+
+    expect(screen.queryByText('overview.missing_project_dataTRK')).not.toBeInTheDocument();
+  });
+
+  it('should render analysis missing if on a pull request and leak measure are missing', async () => {
+    const { ui } = getPageObject();
+    measuresHandler.deleteComponentMeasure(
+      'foo',
+      MetricKey.new_software_quality_maintainability_rating,
+    );
+    renderMeasuresApp('component_measures?id=foo&pullRequest=01');
+    await ui.appLoaded();
+
+    expect(ui.analysisMissingMessage.get()).toBeInTheDocument();
+  });
+
   it('should render a warning message if the user does not have access to all components', async () => {
     const { ui } = getPageObject();
     renderMeasuresApp('component_measures?id=foo&metric=code_smells', {
@@ -418,16 +444,20 @@ describe('rendering', () => {
 
   it('should correctly render a link to the activity page', async () => {
     const { ui, user } = getPageObject();
-    renderMeasuresApp('component_measures?id=foo&metric=new_maintainability_issues');
+    renderMeasuresApp(
+      'component_measures?id=foo&metric=new_software_quality_maintainability_issues',
+    );
     await ui.appLoaded();
 
     expect(ui.goToActivityLink.query()).not.toBeInTheDocument();
     await user.click(
-      ui.measureLink('component_measures.metric.maintainability_issues.name 2').get(),
+      ui
+        .measureLink('component_measures.metric.software_quality_maintainability_issues.name 2')
+        .get(),
     );
     expect(ui.goToActivityLink.get()).toHaveAttribute(
       'href',
-      '/project/activity?id=foo&graph=custom&custom_metrics=maintainability_issues',
+      '/project/activity?id=foo&graph=custom&custom_metrics=software_quality_maintainability_issues',
     );
   });
 
@@ -459,7 +489,9 @@ describe('navigation', () => {
     await user.click(ui.maintainabilityDomainBtn.get());
 
     await user.click(
-      ui.measureLink('component_measures.metric.maintainability_issues.name 2').get(),
+      ui
+        .measureLink('component_measures.metric.software_quality_maintainability_issues.name 2')
+        .get(),
     );
     expect(
       within(ui.measuresRow('folderA').get()).getByRole('cell', { name: '2' }),
@@ -492,7 +524,9 @@ describe('navigation', () => {
 
     await user.click(ui.maintainabilityDomainBtn.get());
     await user.click(
-      ui.measureLink('component_measures.metric.maintainability_issues.name 2').get(),
+      ui
+        .measureLink('component_measures.metric.software_quality_maintainability_issues.name 2')
+        .get(),
     );
 
     // Click list option in view select
@@ -519,7 +553,7 @@ describe('navigation', () => {
     await user.click(
       ui
         .measureLink(
-          'Maintainability Rating on New Code metric.has_rating_X.E metric.sqale_rating.tooltip.E.0.0%',
+          'Maintainability Rating metric.has_rating_X.D metric.software_quality_maintainability_rating.tooltip.D.0.0%',
         )
         .get(),
     );
@@ -548,7 +582,9 @@ describe('navigation', () => {
     // Drilldown to the file level.
     await user.click(ui.maintainabilityDomainBtn.get());
     await user.click(
-      ui.measureLink('component_measures.metric.maintainability_issues.name 2').get(),
+      ui
+        .measureLink('component_measures.metric.software_quality_maintainability_issues.name 2')
+        .get(),
     );
 
     await ui.arrowDown(); // Select the 1st element ("folderA")
@@ -588,13 +624,19 @@ describe('redirects', () => {
   });
 
   it('should redirect old metric route', async () => {
-    measuresHandler.deleteComponentMeasure('foo', MetricKey.maintainability_issues);
-    measuresHandler.deleteComponentMeasure('foo', MetricKey.new_maintainability_issues);
+    measuresHandler.deleteComponentMeasure(
+      'foo',
+      MetricKey.software_quality_maintainability_issues,
+    );
+    measuresHandler.deleteComponentMeasure(
+      'foo',
+      MetricKey.new_software_quality_maintainability_issues,
+    );
 
     const { ui } = getPageObject();
     renderMeasuresApp('component_measures/metric/bugs?id=foo');
     await ui.appLoaded();
-    expect(ui.measureLink('component_measures.metric.bugs.name 0').get()).toHaveAttribute(
+    expect(ui.measureLink('component_measures.awaiting_analysis.name 0').get()).toHaveAttribute(
       'aria-current',
       'true',
     );
@@ -605,13 +647,19 @@ describe('redirects', () => {
     renderMeasuresApp('component_measures/metric/security_issues?id=foo');
     await ui.appLoaded();
     expect(
-      ui.measureLink('component_measures.metric.security_issues.name 1').get(),
+      ui.measureLink('component_measures.metric.software_quality_security_issues.name 1').get(),
     ).toHaveAttribute('aria-current', 'true');
   });
 
   it('should redirect old domain route', async () => {
-    measuresHandler.deleteComponentMeasure('foo', MetricKey.maintainability_issues);
-    measuresHandler.deleteComponentMeasure('foo', MetricKey.new_maintainability_issues);
+    measuresHandler.deleteComponentMeasure(
+      'foo',
+      MetricKey.software_quality_maintainability_issues,
+    );
+    measuresHandler.deleteComponentMeasure(
+      'foo',
+      MetricKey.new_software_quality_maintainability_issues,
+    );
 
     const { ui } = getPageObject();
     renderMeasuresApp('component_measures/domain/bugs?id=foo');
@@ -665,6 +713,7 @@ function getPageObject() {
     seeDataAsListLink: byRole('link', { name: 'component_measures.overview.see_data_as_list' }),
     bubbleChart: byTestId('bubble-chart'),
     newCodePeriodTxt: byText('component_measures.leak_legend.new_code'),
+    analysisMissingMessage: byText('overview.missing_project_dataTRK'),
 
     // Navigation
     overviewDomainLink: byRole('link', {

@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DestructiveIcon, TrashIcon } from 'design-system';
+
+import { ButtonIcon, ButtonVariety, IconDelete } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { translateWithParameters } from '../../../../helpers/l10n';
 import { DefaultSpecializedInputProps, getEmptyValue, getPropertyName } from '../../utils';
@@ -62,15 +63,16 @@ class MultiValueInput extends React.PureComponent<Props> {
 
         {!isLast && (
           <div className="sw-inline-block sw-ml-2">
-            <DestructiveIcon
-              Icon={TrashIcon}
+            <ButtonIcon
+              Icon={IconDelete}
               className="js-remove-value"
-              aria-label={translateWithParameters(
+              ariaLabel={translateWithParameters(
                 'settings.definition.delete_value',
                 getPropertyName(setting.definition),
                 value,
               )}
               onClick={() => this.handleDeleteValue(index)}
+              variety={ButtonVariety.DangerGhost}
             />
           </div>
         )}

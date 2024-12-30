@@ -67,6 +67,11 @@ public class TestAppState implements AppState {
   }
 
   @Override
+  public void tryToReleaseWebLeaderLock() {
+    webLeaderLocked.compareAndSet(true, false);
+  }
+
+  @Override
   public void reset() {
     webLeaderLocked.set(false);
     localProcesses.clear();
@@ -91,5 +96,9 @@ public class TestAppState implements AppState {
   @Override
   public void close() {
     // nothing to do
+  }
+
+  public AtomicBoolean getWebLeaderLocked() {
+    return webLeaderLocked;
   }
 }

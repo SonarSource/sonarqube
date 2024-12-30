@@ -38,6 +38,7 @@ public class ExportRuleDto {
   private String extendedDescription = null;
   private String template = null;
   private Integer severity = null;
+  private String impacts = null;
   private Integer type = null;
   private Boolean prioritizedRule;
   private Set<String> tags = new HashSet<>();
@@ -75,6 +76,10 @@ public class ExportRuleDto {
   @CheckForNull
   public Boolean getPrioritizedRule() {
     return prioritizedRule;
+  }
+
+  public String getImpacts() {
+    return impacts;
   }
 
   public Set<String> getTags() {

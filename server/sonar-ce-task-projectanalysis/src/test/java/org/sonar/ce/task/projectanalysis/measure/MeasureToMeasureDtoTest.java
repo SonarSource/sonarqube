@@ -28,15 +28,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.MutableTreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricImpl;
-import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.ProjectMeasureDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.ce.task.projectanalysis.measure.MeasureToMeasureDto.getMeasureValue;
 
 @RunWith(DataProviderRunner.class)
 public class MeasureToMeasureDtoTest {
@@ -55,10 +54,7 @@ public class MeasureToMeasureDtoTest {
   @Rule
   public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
 
-  @Rule
-  public MutableTreeRootHolderRule treeRootHolder = new MutableTreeRootHolderRule();
-
-  private MeasureToMeasureDto underTest = new MeasureToMeasureDto(analysisMetadataHolder, treeRootHolder);
+  private final MeasureToMeasureDto underTest = new MeasureToMeasureDto(analysisMetadataHolder);
 
   @Before
   public void setUp() {
@@ -171,14 +167,40 @@ public class MeasureToMeasureDtoTest {
   }
 
   @Test
-  public void toLiveMeasureDto() {
-    treeRootHolder.setRoot(SOME_COMPONENT);
+  public void getMeasureValue_returns_null_if_measure_is_empty() {
+    assertThat(getMeasureValue(Measure.newMeasureBuilder().createNoValue())).isNull();
+  }
 
-    LiveMeasureDto liveMeasureDto = underTest.toLiveMeasureDto(
-      Measure.newMeasureBuilder().create(Measure.Level.OK),
-      SOME_LEVEL_METRIC,
-      SOME_COMPONENT);
+  @Test
+  public void getMeasureValue_maps_value_to_1_or_0_and_data_from_data_field_for_BOOLEAN_metric() {
+    assertThat(getMeasureValue(Measure.newMeasureBuilder().create(true, SOME_DATA))).isEqualTo(1d);
+    assertThat(getMeasureValue(Measure.newMeasureBuilder().create(false, SOME_DATA))).isEqualTo(0d);
+  }
 
-    assertThat(liveMeasureDto.getTextValue()).isEqualTo(Measure.Level.OK.name());
+  @Test
+  public void getMeasureValue_maps_value_and_data_from_data_field_for_INT_metric() {
+    assertThat(getMeasureValue(Measure.newMeasureBuilder().create(123, SOME_DATA))).isEqualTo(123.0);
+  }
+
+  @Test
+  public void getMeasureValue_maps_value_and_data_from_data_field_for_LONG_metric() {
+    assertThat(getMeasureValue(Measure.newMeasureBuilder().create((long) 456, SOME_DATA))).isEqualTo(456.0);
+  }
+
+  @Test
+  public void getMeasureValue_maps_value_and_data_from_data_field_for_DOUBLE_metric() {
+    assertThat(getMeasureValue(Measure.newMeasureBuilder().create(789, 1, SOME_DATA))).isEqualTo(789.0);
+  }
+
+  @Test
+  public void getMeasureValue_maps_to_only_data_for_STRING_metric() {
+    assertThat(getMeasureValue(
+      Measure.newMeasureBuilder().create(SOME_STRING))).isEqualTo(SOME_STRING);
+  }
+
+  @Test
+  public void getMeasureValue_maps_name_of_Level_to_data_and_has_no_value_for_LEVEL_metric() {
+    assertThat(getMeasureValue(
+      Measure.newMeasureBuilder().create(Measure.Level.OK))).isEqualTo(Measure.Level.OK.name());
   }
 }

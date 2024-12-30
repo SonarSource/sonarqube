@@ -19,7 +19,7 @@ dependencies {
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 }
 
-artifactoryPublish.skip = false
+artifactoryPublish.skip = !deployCommunity
 publishing {
   publications {
     mavenJava(MavenPublication) {

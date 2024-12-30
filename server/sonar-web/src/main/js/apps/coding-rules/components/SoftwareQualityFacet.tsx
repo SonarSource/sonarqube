@@ -17,9 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import Facet, { BasicProps } from '../../../components/facets/Facet';
+import { FacetHelp } from '../../../components/facets/FacetHelp';
 import { SOFTWARE_QUALITIES } from '../../../helpers/constants';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 
 export default function SoftwareQualityFacet(props: BasicProps) {
@@ -35,6 +38,9 @@ export default function SoftwareQualityFacet(props: BasicProps) {
       property="impactSoftwareQualities"
       renderName={renderName}
       renderTextName={renderName}
+      help={
+        <FacetHelp property="impactSoftwareQualities" link={DocLink.CleanCodeSoftwareQualities} />
+      }
     />
   );
 }

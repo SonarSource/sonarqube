@@ -37,10 +37,12 @@ import org.sonar.ce.task.projectanalysis.component.ConfigurationRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.component.DisabledComponentsHolderImpl;
 import org.sonar.ce.task.projectanalysis.component.FileStatusesImpl;
 import org.sonar.ce.task.projectanalysis.component.PreviousSourceHashRepositoryImpl;
+import org.sonar.ce.task.projectanalysis.dependency.ProjectDependenciesHolderImpl;
 import org.sonar.ce.task.projectanalysis.component.ProjectPersister;
 import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.component.SiblingComponentsWithOpenIssues;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderImpl;
+import org.sonar.ce.task.projectanalysis.duplication.ComputeDuplicationDataMeasure;
 import org.sonar.ce.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolderImpl;
 import org.sonar.ce.task.projectanalysis.duplication.DuplicationMeasures;
 import org.sonar.ce.task.projectanalysis.duplication.DuplicationRepositoryImpl;
@@ -52,8 +54,8 @@ import org.sonar.ce.task.projectanalysis.filemove.MutableMovedFilesRepositoryImp
 import org.sonar.ce.task.projectanalysis.filemove.ScoreMatrixDumperImpl;
 import org.sonar.ce.task.projectanalysis.filemove.SourceSimilarityImpl;
 import org.sonar.ce.task.projectanalysis.filesystem.ComputationTempFolderProvider;
-import org.sonar.ce.task.projectanalysis.issue.AnticipatedTransitionRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.index.IndexDiffResolverImpl;
+import org.sonar.ce.task.projectanalysis.issue.AnticipatedTransitionRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.issue.BaseIssuesLoader;
 import org.sonar.ce.task.projectanalysis.issue.ChangedIssuesRepository;
 import org.sonar.ce.task.projectanalysis.issue.CloseIssuesOnRemovedComponentsVisitor;
@@ -207,6 +209,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       CrossProjectDuplicationStatusHolderImpl.class,
       BatchReportDirectoryHolderImpl.class,
       TreeRootHolderImpl.class,
+      ProjectDependenciesHolderImpl.class,
       PeriodHolderImpl.class,
       PrioritizedRulesHolderImpl.class,
       QualityGateHolderImpl.class,
@@ -328,6 +331,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       // duplication
       IntegrateCrossProjectDuplications.class,
       DuplicationMeasures.class,
+      ComputeDuplicationDataMeasure.class,
 
       // views
       ViewIndex.class,

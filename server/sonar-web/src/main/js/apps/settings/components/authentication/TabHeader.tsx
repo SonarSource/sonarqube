@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { BasicSeparator, SubHeading } from 'design-system';
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
+import { BasicSeparator, SubHeading } from '~design-system';
 import { translate } from '../../../../helpers/l10n';
 
 interface Props {

@@ -3,7 +3,7 @@
 
 <mapper namespace="org.sonar.db.qualitygate.QualityGateMapper">
   <sql id="gateColumns">
-      qg.uuid, qg.name, qg.is_built_in as isBuiltIn, qg.created_at as createdAt, qg.updated_at as updatedAt
+      qg.uuid, qg.name, qg.is_built_in as isBuiltIn, qg.ai_code_supported as aiCodeSupported, qg.created_at as createdAt, qg.updated_at as updatedAt
   </sql>
 
   <sql id="qateWithOrgColumns">
@@ -19,8 +19,9 @@
   </sql>
 
   <insert id="insertQualityGate" parameterType="QualityGate" useGeneratedKeys="false">
-    insert into quality_gates (uuid, name, is_built_in, created_at, updated_at)
-    values (#{uuid, jdbcType=VARCHAR}, #{name, jdbcType=VARCHAR}, #{isBuiltIn, jdbcType=BOOLEAN}, #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP})
+    insert into quality_gates (uuid, name, is_built_in, ai_code_supported, created_at, updated_at)
+    values (#{uuid, jdbcType=VARCHAR}, #{name, jdbcType=VARCHAR}, #{isBuiltIn, jdbcType=BOOLEAN}, #{aiCodeSupported, jdbcType=BOOLEAN},
+    #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP})
   </insert>
 
   <insert id="insertOrgQualityGate" parameterType="Map">
@@ -51,6 +52,14 @@
     where name=#{name, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByNames" parameterType="map" resultType="QualityGate">
+    select
+    <include refid="gateColumns"/>
+    from quality_gates qg
+    where name in
+    <foreach collection="names" open="(" close=")" item="name" separator=",">#{name, jdbcType=VARCHAR}</foreach>
+  </select>
+
   <select id="selectByUuid" parameterType="String" resultType="QualityGate">
     select
     <include refid="gateColumns"/>
@@ -58,7 +67,7 @@
     where uuid=#{uuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByProjectUuid" parameterType="Map" resultType="org.sonar.db.qualitygate.QualityGateDto">
+  <select id="selectByProjectUuid" parameterType="Map" resultType="QualityGate">
     SELECT
     <include refid="gateColumns"/>
     FROM
@@ -67,7 +76,7 @@
     project_qgates pqg ON pqg.quality_gate_uuid = qg.uuid AND pqg.project_uuid = #{projectUuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectBuiltIn" resultType="org.sonar.db.qualitygate.QualityGateDto">
+  <select id="selectBuiltIn" resultType="QualityGate">
     SELECT
       <include refid="gateColumns"/>
     FROM quality_gates qg
@@ -75,7 +84,7 @@
       is_built_in = ${_true}
   </select>
 
-  <select id="selectByUuidAndOrganization" parameterType="Map" resultType="org.sonar.db.qualitygate.QualityGateDto">
+  <select id="selectByUuidAndOrganization" parameterType="Map" resultType="QualityGate">
     SELECT
       <include refid="qateWithOrgColumns"/>
     FROM
@@ -133,16 +142,19 @@
     update quality_gates set
     name=#{name},
     is_built_in=#{isBuiltIn, jdbcType=BOOLEAN},
+    ai_code_supported=#{aiCodeSupported, jdbcType=BOOLEAN},
     updated_at=#{updatedAt, jdbcType=TIMESTAMP}
     where uuid=#{uuid, jdbcType=VARCHAR}
   </update>
 
-  <update id="ensureOneBuiltInQualityGate" parameterType="string">
+  <update id="ensureOnlySonarWayQualityGatesAreBuiltIn" parameterType="string">
     UPDATE quality_gates
     SET
       is_built_in=${_false}
     WHERE
-      is_built_in=${_true} AND name &lt;&gt; #{builtInQualityName, jdbcType=VARCHAR}
+      is_built_in=${_true}
+    AND name not in
+    <foreach collection="names" open="(" close=")" item="name" separator=",">#{name, jdbcType=VARCHAR}</foreach>
   </update>
 
 </mapper>

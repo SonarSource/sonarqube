@@ -23,7 +23,7 @@ import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -67,8 +67,8 @@ public class UpdateActionIT {
   private final Configuration configuration = mock(Configuration.class);
   private final NetworkInterfaceProvider networkInterfaceProvider = mock(NetworkInterfaceProvider.class);
   private final WebhookSupport webhookSupport = new WebhookSupport(userSession, configuration, networkInterfaceProvider);
-  private final ResourceTypes resourceTypes = mock(ResourceTypes.class);
-  private final ComponentFinder componentFinder = new ComponentFinder(dbClient, resourceTypes);
+  private final ComponentTypes componentTypes = mock(ComponentTypes.class);
+  private final ComponentFinder componentFinder = new ComponentFinder(dbClient, componentTypes);
   private final UpdateAction underTest = new UpdateAction(dbClient, userSession, webhookSupport, componentFinder);
   private final WsActionTester wsActionTester = new WsActionTester(underTest);
 

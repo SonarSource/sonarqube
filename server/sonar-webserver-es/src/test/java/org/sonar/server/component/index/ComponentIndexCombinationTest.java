@@ -21,7 +21,7 @@ package org.sonar.server.component.index;
 
 import java.util.stream.IntStream;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.project.ProjectDto;
 
 import static java.util.Collections.singletonList;
@@ -47,23 +47,23 @@ public class ComponentIndexCombinationTest extends ComponentIndexTest {
   public void index_whenQualifierMatchesWhatIsTheIndex_shouldReturnTheProject() {
     ProjectDto project = indexProject("struts", "Apache Struts");
 
-    assertSearchResults(SuggestionQuery.builder().setQuery("struts").setQualifiers(singletonList(Qualifiers.PROJECT)).build(), project);
+    assertSearchResults(SuggestionQuery.builder().setQuery("struts").setQualifiers(singletonList(ComponentQualifiers.PROJECT)).build(), project);
   }
 
   @Test
   public void index_whenQualifierDoesNotMatchWhatIsTheIndex_shouldReturnTheProject() {
     ProjectDto project = indexProject("struts", "Apache Struts");
 
-    SuggestionQuery query = SuggestionQuery.builder().setQuery("struts").setQualifiers(singletonList(Qualifiers.VIEW)).build();
+    SuggestionQuery query = SuggestionQuery.builder().setQuery("struts").setQualifiers(singletonList(ComponentQualifiers.VIEW)).build();
 
-    assertNoSearchResults(query.getQuery(), Qualifiers.VIEW);
+    assertNoSearchResults(query.getQuery(), ComponentQualifiers.VIEW);
   }
 
   @Test
   public void should_limit_the_number_of_results() {
     IntStream.rangeClosed(0, 10).forEach(i -> indexProject("sonarqube" + i, "SonarQube" + i));
 
-    assertSearch(SuggestionQuery.builder().setQuery("sonarqube").setLimit(5).setQualifiers(singletonList(Qualifiers.PROJECT)).build()).hasSize(5);
+    assertSearch(SuggestionQuery.builder().setQuery("sonarqube").setLimit(5).setQualifiers(singletonList(ComponentQualifiers.PROJECT)).build()).hasSize(5);
   }
 
   @Test

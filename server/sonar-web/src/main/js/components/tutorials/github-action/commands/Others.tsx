@@ -17,24 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
+import { NumberedListItem } from '~design-system';
+import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
 import CreateYmlFile from '../../components/CreateYmlFile';
 import DefaultProjectKey from '../../components/DefaultProjectKey';
-import { GITHUB_ACTIONS_RUNS_ON_LINUX } from '../constants';
+import RenderOptions from '../../components/RenderOptions';
+import { OSs } from '../../types';
 import { generateGitHubActionsYaml } from '../utils';
 import MonorepoDocLinkFallback from './MonorepoDocLinkFallback';
 
 export interface OthersProps {
   branchesEnabled?: boolean;
+  buildSteps: string;
   component: Component;
   mainBranchName: string;
   monorepo?: boolean;
 }
 
-function otherYamlSteps(branchesEnabled: boolean) {
-  let output = `
-      - uses: sonarsource/sonarqube-scan-action@v3
+function otherYamlSteps(buildSteps: string, branchesEnabled: boolean) {
+  let output =
+    buildSteps +
+    `
+      - uses: sonarsource/sonarqube-scan-action@v4
         env:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
@@ -48,7 +55,7 @@ function otherYamlSteps(branchesEnabled: boolean) {
   }
 
   output += `
-      # - uses: sonarsource/sonarqube-quality-gate-action@master
+      # - uses: sonarsource/sonarqube-quality-gate-action@v1
       #   timeout-minutes: 5
       #   env:
       #     SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}`;
@@ -57,11 +64,28 @@ function otherYamlSteps(branchesEnabled: boolean) {
 }
 
 export default function Others(props: OthersProps) {
-  const { component, branchesEnabled, mainBranchName, monorepo } = props;
+  const runsOn = {
+    [OSs.Linux]: 'ubuntu-latest',
+    [OSs.MacOS]: 'macos-latest',
+    [OSs.Windows]: 'windows-latest',
+  };
+
+  const { component, branchesEnabled, mainBranchName, monorepo, buildSteps } = props;
+  const [os, setOs] = React.useState<OSs>(OSs.Linux);
+
   return (
     <>
       <DefaultProjectKey component={component} monorepo={monorepo} />
-
+      <NumberedListItem>
+        <span>{translate('onboarding.build.other.os')}</span>
+        <RenderOptions
+          label={translate('onboarding.build.other.os')}
+          checked={os}
+          onCheck={(value: OSs) => setOs(value)}
+          optionLabelKey="onboarding.build.other.os"
+          options={Object.values(OSs)}
+        />
+      </NumberedListItem>
       {monorepo ? (
         <MonorepoDocLinkFallback />
       ) : (
@@ -70,8 +94,8 @@ export default function Others(props: OthersProps) {
           yamlTemplate={generateGitHubActionsYaml(
             mainBranchName,
             !!branchesEnabled,
-            GITHUB_ACTIONS_RUNS_ON_LINUX,
-            otherYamlSteps(!!branchesEnabled),
+            runsOn[os],
+            otherYamlSteps(buildSteps, !!branchesEnabled),
           )}
         />
       )}

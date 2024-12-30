@@ -30,6 +30,7 @@ public class QualityGateDto {
   private String name;
   private String uuid;
   private boolean isBuiltIn;
+  private boolean aiCodeSupported;
   private Date createdAt;
   private Date updatedAt;
 
@@ -65,6 +66,15 @@ public class QualityGateDto {
 
   public QualityGateDto setBuiltIn(boolean builtIn) {
     isBuiltIn = builtIn;
+    return this;
+  }
+
+  public boolean isAiCodeSupported() {
+    return aiCodeSupported;
+  }
+
+  public QualityGateDto setAiCodeSupported(boolean aiCodeSupported) {
+    this.aiCodeSupported = aiCodeSupported;
     return this;
   }
 

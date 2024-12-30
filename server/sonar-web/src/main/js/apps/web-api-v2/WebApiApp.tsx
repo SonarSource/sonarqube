@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { Spinner } from '@sonarsource/echoes-react';
-import { LargeCenteredLayout, PageContentFontWrapper, Title } from 'design-system';
 import { omit } from 'lodash';
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router-dom';
+import { LargeCenteredLayout, PageContentFontWrapper, Title } from '~design-system';
 import { translate } from '../../helpers/l10n';
 import { useOpenAPI } from '../../queries/web-api';
 import ApiFilterContext from './components/ApiFilterContext';

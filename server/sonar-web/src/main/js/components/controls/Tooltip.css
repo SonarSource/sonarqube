@@ -19,7 +19,7 @@
  */
 .tooltip {
   position: absolute;
-  z-index: var(--tooltipZIndex);
+  z-index: 9001;
   display: block;
   height: auto;
   box-sizing: border-box;
@@ -121,7 +121,7 @@
 }
 
 .tooltip .issue-message-highlight-CODE {
-  background-color: var(--whitea18);
+  background-color: rgba(255, 255, 255, 0.18);
 }
 
 @keyframes fadeIn {

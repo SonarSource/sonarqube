@@ -29,7 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.notifications.Notification;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskResult;
@@ -51,7 +51,7 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.server.notification.NotificationService;
 
 import static java.util.Collections.singleton;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
@@ -99,7 +99,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
 
   @Test
   public void onEnd_has_no_effect_if_CeTask_type_is_not_report() {
-    when(ceTaskMock.getType()).thenReturn(randomAlphanumeric(12));
+    when(ceTaskMock.getType()).thenReturn(secure().nextAlphanumeric(12));
 
     fullMockedUnderTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock);
 
@@ -145,8 +145,8 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
 
   @Test
   public void onEnd_fails_with_ISE_if_branch_does_not_exist_in_DB() {
-    String componentUuid = randomAlphanumeric(6);
-    ProjectDto project = new ProjectDto().setUuid(componentUuid).setKey(randomAlphanumeric(5)).setQualifier(Qualifiers.PROJECT).setCreationMethod(CreationMethod.LOCAL_API);
+    String componentUuid = secure().nextAlphanumeric(6);
+    ProjectDto project = new ProjectDto().setUuid(componentUuid).setKey(secure().nextAlphanumeric(5)).setQualifier(ComponentQualifiers.PROJECT).setCreationMethod(CreationMethod.LOCAL_API);
     dbTester.getDbClient().projectDao().insert(dbTester.getSession(), project);
     dbTester.getSession().commit();
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
@@ -164,7 +164,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
   public void onEnd_fails_with_IAE_if_component_is_not_a_branch() {
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
     ComponentDto mainBranch = dbTester.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto directory = dbTester.components().insertComponent(newDirectory(mainBranch, randomAlphanumeric(12)));
+    ComponentDto directory = dbTester.components().insertComponent(newDirectory(mainBranch, secure().nextAlphanumeric(12)));
     ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(mainBranch));
     ComponentDto view = dbTester.components().insertComponent(ComponentTesting.newPortfolio());
     ComponentDto subView = dbTester.components().insertComponent(ComponentTesting.newSubPortfolio(view));
@@ -193,7 +193,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
   public void onEnd_fails_with_RowNotFoundException_if_activity_for_task_does_not_exist_in_DB() {
     ProjectData projectData = dbTester.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
-    String taskUuid = randomAlphanumeric(6);
+    String taskUuid = secure().nextAlphanumeric(6);
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
     when(ceTaskMock.getUuid()).thenReturn(taskUuid);
     when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(mainBranch.uuid(), null, null)));
@@ -208,7 +208,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
 
   @Test
   public void onEnd_creates_notification_with_data_from_activity_and_project_and_deliver_it() {
-    String taskUuid = randomAlphanumeric(12);
+    String taskUuid = secure().nextAlphanumeric(12);
     int createdAt = random.nextInt(999_999);
     long executedAt = random.nextInt(999_999);
     ProjectData project = initMocksToPassConditions(taskUuid, createdAt, executedAt);
@@ -234,7 +234,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
 
   @Test
   public void onEnd_shouldCreateNotificationWithDataFromActivity_whenNonMainBranchIsFailing() {
-    String taskUuid = randomAlphanumeric(12);
+    String taskUuid = secure().nextAlphanumeric(12);
     int createdAt = random.nextInt(999_999);
     long executedAt = random.nextInt(999_999);
 
@@ -264,8 +264,8 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
 
   @Test
   public void onEnd_creates_notification_with_error_message_from_Throwable_argument_message() {
-    initMocksToPassConditions(randomAlphanumeric(12), random.nextInt(999_999), (long) random.nextInt(999_999));
-    String message = randomAlphanumeric(66);
+    initMocksToPassConditions(secure().nextAlphanumeric(12), random.nextInt(999_999), (long) random.nextInt(999_999));
+    String message = secure().nextAlphanumeric(66);
     when(throwableMock.getMessage()).thenReturn(message);
 
     underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock);
@@ -278,7 +278,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
 
   @Test
   public void onEnd_creates_notification_with_null_error_message_if_Throwable_is_null() {
-    String taskUuid = randomAlphanumeric(12);
+    String taskUuid = secure().nextAlphanumeric(12);
     initMocksToPassConditions(taskUuid, random.nextInt(999_999), (long) random.nextInt(999_999));
     Notification notificationMock = mockSerializer();
 
@@ -293,7 +293,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
 
   @Test
   public void onEnd_ignores_null_CeTaskResult_argument() {
-    String taskUuid = randomAlphanumeric(12);
+    String taskUuid = secure().nextAlphanumeric(12);
     initMocksToPassConditions(taskUuid, random.nextInt(999_999), (long) random.nextInt(999_999));
     Notification notificationMock = mockSerializer();
 
@@ -304,7 +304,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
 
   @Test
   public void onEnd_ignores_CeTaskResult_argument() {
-    String taskUuid = randomAlphanumeric(12);
+    String taskUuid = secure().nextAlphanumeric(12);
     initMocksToPassConditions(taskUuid, random.nextInt(999_999), (long) random.nextInt(999_999));
     Notification notificationMock = mockSerializer();
 
@@ -316,7 +316,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
 
   @Test
   public void onEnd_uses_system_data_as_failedAt_if_task_has_no_executedAt() {
-    String taskUuid = randomAlphanumeric(12);
+    String taskUuid = secure().nextAlphanumeric(12);
     initMocksToPassConditions(taskUuid, random.nextInt(999_999), null);
     long now = random.nextInt(999_999);
     when(system2.now()).thenReturn(now);

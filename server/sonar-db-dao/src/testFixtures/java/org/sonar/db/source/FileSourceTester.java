@@ -30,7 +30,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbFileSources;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 
 public class FileSourceTester {
 
@@ -48,10 +48,10 @@ public class FileSourceTester {
       .setUuid(Uuids.createFast())
       .setProjectUuid(file.branchUuid())
       .setFileUuid(file.uuid())
-      .setSrcHash(randomAlphanumeric(50))
-      .setDataHash(randomAlphanumeric(50))
+      .setSrcHash(secure().nextAlphanumeric(50))
+      .setDataHash(secure().nextAlphanumeric(50))
       .setLineHashes(IntStream.range(0, RANDOM.nextInt(21)).mapToObj(String::valueOf).toList())
-      .setRevision(randomAlphanumeric(100))
+      .setRevision(secure().nextAlphanumeric(100))
       .setSourceData(newRandomData(3).build())
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
@@ -68,10 +68,10 @@ public class FileSourceTester {
       .setUuid(Uuids.createFast())
       .setProjectUuid(file.branchUuid())
       .setFileUuid(file.uuid())
-      .setSrcHash(randomAlphanumeric(50))
-      .setDataHash(randomAlphanumeric(50))
+      .setSrcHash(secure().nextAlphanumeric(50))
+      .setDataHash(secure().nextAlphanumeric(50))
       .setLineHashes(IntStream.range(0, numLines).mapToObj(String::valueOf).toList())
-      .setRevision(randomAlphanumeric(100))
+      .setRevision(secure().nextAlphanumeric(100))
       .setSourceData(newRandomData(numLines).build())
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
@@ -86,10 +86,10 @@ public class FileSourceTester {
     for (int i = 1; i <= numberOfLines; i++) {
       dataBuilder.addLinesBuilder()
         .setLine(i)
-        .setScmRevision(randomAlphanumeric(15))
-        .setScmAuthor(randomAlphanumeric(10))
+        .setScmRevision(secure().nextAlphanumeric(15))
+        .setScmAuthor(secure().nextAlphanumeric(10))
         .setScmDate(RANDOM.nextLong(Long.MAX_VALUE))
-        .setSource(randomAlphanumeric(20))
+        .setSource(secure().nextAlphanumeric(20))
         .setLineHits(RANDOM.nextInt(4))
         .setConditions(RANDOM.nextInt(4))
         .setCoveredConditions(RANDOM.nextInt(4))

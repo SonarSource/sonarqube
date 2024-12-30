@@ -17,13 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { first } from 'lodash';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import SystemServiceMock from '../../../../api/mocks/SystemServiceMock';
+import { mockAppState } from '../../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
 import { AppState } from '../../../../types/appstate';
+import { EditionKey } from '../../../../types/editions';
 import routes from '../../routes';
 import { LogsLevels } from '../../utils';
 
@@ -39,10 +42,7 @@ describe('System Info Standalone', () => {
     renderSystemApp();
     await ui.appIsLoaded();
 
-    expect(ui.copyIdInformation.get()).toHaveAttribute(
-      'data-clipboard-text',
-      expect.stringContaining(`Server ID: asd564-asd54a-5dsfg45`),
-    );
+    expect(byText('asd564-asd54a-5dsfg45').get()).toBeInTheDocument();
 
     expect(ui.sectionButton('System').get()).toBeInTheDocument();
     expect(screen.queryByRole('cell', { name: 'High Availability' })).not.toBeInTheDocument();
@@ -103,10 +103,7 @@ describe('System Info Cluster', () => {
     expect(ui.downloadLogsButton.query()).not.toBeInTheDocument();
     expect(ui.downloadSystemInfoButton.get()).toBeInTheDocument();
 
-    expect(ui.copyIdInformation.get()).toHaveAttribute(
-      'data-clipboard-text',
-      expect.stringContaining(`Server ID: asd564-asd54a-5dsfg45`),
-    );
+    expect(byText('asd564-asd54a-5dsfg45').get()).toBeInTheDocument();
 
     // Renders health checks
     expect(ui.healthCauseWarning.get()).toBeInTheDocument();
@@ -130,7 +127,9 @@ describe('System Info Cluster', () => {
 });
 
 function renderSystemApp(appState?: AppState) {
-  return renderAppRoutes('system', routes, { appState });
+  return renderAppRoutes('system', routes, {
+    appState: mockAppState({ edition: EditionKey.developer, ...appState }),
+  });
 }
 
 function getPageObjects() {
@@ -151,7 +150,7 @@ function getPageObjects() {
     versionLabel: (version?: string) =>
       version ? byText(/footer\.version\s*(\d.\d)/) : byText(/footer\.version/),
     ltaDocumentationLinkActive: byRole('link', {
-      name: `footer.version.status.active open_in_new_tab`,
+      name: `footer.version.status.active`,
     }),
   };
 

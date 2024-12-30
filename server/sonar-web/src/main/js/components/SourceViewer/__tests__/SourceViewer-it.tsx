@@ -17,19 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { queryHelpers, screen, within } from '@testing-library/react';
+
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import * as React from 'react';
 import { byLabelText } from '~sonar-aligned/helpers/testSelector';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
+import { ModeServiceMock } from '../../../api/mocks/ModeServiceMock';
 import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
 import { CCT_SOFTWARE_QUALITY_METRICS } from '../../../helpers/constants';
 import { isDiffMetric } from '../../../helpers/measures';
 import { HttpStatus } from '../../../helpers/request';
 import { mockIssue, mockLoggedInUser, mockMeasure } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import { Mode } from '../../../types/mode';
 import { RestUserDetailed } from '../../../types/users';
 import SourceViewer, { Props } from '../SourceViewer';
 import loadIssues from '../helpers/loadIssues';
@@ -56,12 +58,14 @@ jest.mock('../helpers/lines', () => {
 const componentsHandler = new ComponentsServiceMock();
 const issuesHandler = new IssuesServiceMock();
 const usersHandler = new UsersServiceMock();
+const modeHandler = new ModeServiceMock();
 const message = 'First Issue';
 
 beforeEach(() => {
   issuesHandler.reset();
   componentsHandler.reset();
   usersHandler.reset();
+  modeHandler.reset();
   usersHandler.users = [mockLoggedInUser() as unknown as RestUserDetailed];
 });
 
@@ -79,23 +83,13 @@ it('should show a permalink on line number', async () => {
   );
 
   expect(
-    /* eslint-disable-next-line testing-library/prefer-presence-queries */
-    queryHelpers.queryByAttribute(
-      'data-clipboard-text',
-      row,
-      'http://localhost/code?id=foo&selected=foo%3Atest1.js&line=1',
-    ),
+    rowScreen.getByRole('menuitem', { name: 'source_viewer.copy_permalink' }),
   ).toBeInTheDocument();
 
   await user.keyboard('[Escape]');
 
   expect(
-    /* eslint-disable-next-line testing-library/prefer-presence-queries */
-    queryHelpers.queryByAttribute(
-      'data-clipboard-text',
-      row,
-      'http://localhost/code?id=foo&selected=foo%3Atest1.js&line=1',
-    ),
+    rowScreen.queryByRole('menuitem', { name: 'source_viewer.copy_permalink' }),
   ).not.toBeInTheDocument();
 
   row = await screen.findByRole('row', { name: / \* 6$/ });
@@ -230,7 +224,11 @@ it('should show SCM information', async () => {
   expect(within(row).queryByRole('button')).not.toBeInTheDocument();
 });
 
-it('should show issue indicator', async () => {
+it.each([
+  [Mode.MQR, ''],
+  [Mode.Standard, '.legacy'],
+])('should show issue indicator in %s', async (mode, translationKey) => {
+  modeHandler.setMode(mode);
   jest.mocked(loadIssues).mockResolvedValueOnce([
     mockIssue(false, {
       key: 'first-issue',
@@ -258,11 +256,12 @@ it('should show issue indicator', async () => {
   const issueRow = within(row);
   expect(issueRow.getByText('2')).toBeInTheDocument();
 
-  await user.click(
-    issueRow.getByRole('button', {
-      name: 'source_viewer.issues_on_line.multiple_issues_same_category.true.2.issue.clean_code_attribute_category.responsible',
-    }),
-  );
+  const issueIndicator = await issueRow.findByRole('button', {
+    name: `source_viewer.issues_on_line.multiple_issues_same_category${translationKey}.true.2.issue.type.bug.plural.issue.clean_code_attribute_category.responsible`,
+  });
+  await user.click(issueIndicator);
+
+  expect(await screen.findByRole('tooltip')).toBeInTheDocument();
 });
 
 it('should show coverage information', async () => {
@@ -346,14 +345,18 @@ it('should show software quality measures in header', async () => {
   renderSourceViewer({ componentMeasures: generateMeasures(), showMeasures: true });
 
   expect(
-    await byLabelText('source_viewer.issue_link_x.3.metric.security_issues.short_name').find(),
-  ).toBeInTheDocument();
-  expect(
-    await byLabelText('source_viewer.issue_link_x.3.metric.reliability_issues.short_name').find(),
+    await byLabelText(
+      'source_viewer.issue_link_x.3.metric.software_quality_security_issues.short_name',
+    ).find(),
   ).toBeInTheDocument();
   expect(
     await byLabelText(
-      'source_viewer.issue_link_x.3.metric.maintainability_issues.short_name',
+      'source_viewer.issue_link_x.3.metric.software_quality_reliability_issues.short_name',
+    ).find(),
+  ).toBeInTheDocument();
+  expect(
+    await byLabelText(
+      'source_viewer.issue_link_x.3.metric.software_quality_maintainability_issues.short_name',
     ).find(),
   ).toBeInTheDocument();
 });
@@ -367,14 +370,18 @@ it('should show old issue measures in header', async () => {
   });
 
   expect(
-    await byLabelText('source_viewer.issue_link_x.1.metric.security_issues.short_name').find(),
-  ).toBeInTheDocument();
-  expect(
-    await byLabelText('source_viewer.issue_link_x.1.metric.reliability_issues.short_name').find(),
+    await byLabelText(
+      'source_viewer.issue_link_x.1.metric.software_quality_security_issues.short_name',
+    ).find(),
   ).toBeInTheDocument();
   expect(
     await byLabelText(
-      'source_viewer.issue_link_x.1.metric.maintainability_issues.short_name',
+      'source_viewer.issue_link_x.1.metric.software_quality_reliability_issues.short_name',
+    ).find(),
+  ).toBeInTheDocument();
+  expect(
+    await byLabelText(
+      'source_viewer.issue_link_x.1.metric.software_quality_maintainability_issues.short_name',
     ).find(),
   ).toBeInTheDocument();
 });
@@ -397,12 +404,10 @@ it('should show correct message when component does not exist', async () => {
 function generateMeasures(qualitiesValue = '3.0', overallValue = '1.0', newValue = '2.0') {
   return [
     ...[
-      MetricKey.security_issues,
-      MetricKey.reliability_issues,
-      MetricKey.maintainability_issues,
-    ].map((metric) =>
-      mockMeasure({ metric, value: JSON.stringify({ total: qualitiesValue }), period: undefined }),
-    ),
+      MetricKey.software_quality_security_issues,
+      MetricKey.software_quality_reliability_issues,
+      MetricKey.software_quality_maintainability_issues,
+    ].map((metric) => mockMeasure({ metric, value: qualitiesValue, period: undefined })),
     ...[
       MetricKey.ncloc,
       MetricKey.new_lines,

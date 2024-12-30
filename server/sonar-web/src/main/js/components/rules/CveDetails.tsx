@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ContentCell, Table, TableRow } from 'design-system';
-import React from 'react';
+
+import { ContentCell, Table, TableRow } from '~design-system';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { Cve } from '../../types/cves';
 import DateFormatter from '../intl/DateFormatter';

@@ -17,17 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
+import { AiCodeAssuranceStatus } from '../../../../../api/ai-code-assurance';
 import { MeasuresServiceMock } from '../../../../../api/mocks/MeasuresServiceMock';
-import SettingsServiceMock from '../../../../../api/mocks/SettingsServiceMock';
+import { ModeServiceMock } from '../../../../../api/mocks/ModeServiceMock';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { mockCurrentUser, mockLoggedInUser, mockMeasure } from '../../../../../helpers/testMocks';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
-import { SettingsKey } from '../../../../../types/settings';
+import { Mode } from '../../../../../types/mode';
 import { CurrentUser } from '../../../../../types/users';
 import { Project } from '../../../types';
 import ProjectCard from '../ProjectCard';
@@ -51,7 +52,19 @@ const PROJECT: Project = {
   tags: [],
   visibility: Visibility.Public,
   isScannable: false,
-  isAiCodeAssured: true,
+  aiCodeAssurance: AiCodeAssuranceStatus.AI_CODE_ASSURED,
+};
+
+const PROJECT_CONTAINS_AI_CODE: Project = {
+  analysisDate: '2017-01-01',
+  key: 'foo',
+  measures: MEASURES,
+  name: 'Foo',
+  qualifier: ComponentQualifier.Project,
+  tags: [],
+  visibility: Visibility.Public,
+  isScannable: false,
+  aiCodeAssurance: AiCodeAssuranceStatus.CONTAINS_AI_CODE,
 };
 
 const PROJECT_WITH_AI_CODE_DISABLED: Project = {
@@ -63,17 +76,17 @@ const PROJECT_WITH_AI_CODE_DISABLED: Project = {
   tags: [],
   visibility: Visibility.Public,
   isScannable: false,
-  isAiCodeAssured: false,
+  aiCodeAssurance: AiCodeAssuranceStatus.NONE,
 };
 
 const USER_LOGGED_OUT = mockCurrentUser();
 const USER_LOGGED_IN = mockLoggedInUser();
 
-const settingsHandler = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 const measuresHandler = new MeasuresServiceMock();
 
 beforeEach(() => {
-  settingsHandler.reset();
+  modeHandler.reset();
   measuresHandler.reset();
 });
 
@@ -95,8 +108,14 @@ it('should display private badge', () => {
   expect(screen.getByText('visibility.private')).toBeInTheDocument();
 });
 
-it('should display ai code assurance badge when isAiCodeAssured is true', () => {
+it('should display ai code assurance badge when ai code assurance is true and quality gate is compliant', () => {
   const project: Project = { ...PROJECT, visibility: Visibility.Private };
+  renderProjectCard(project);
+  expect(screen.getByText('ai_code_assurance')).toBeInTheDocument();
+});
+
+it('should display ai code badge when ai code assurance is true and quality gate is not compliant', () => {
+  const project: Project = { ...PROJECT_CONTAINS_AI_CODE, visibility: Visibility.Private };
   renderProjectCard(project);
   expect(screen.getByText('ai_code')).toBeInTheDocument();
 });
@@ -120,16 +139,7 @@ it('should not display configure analysis button for logged in user and without 
 
 it('should display applications', () => {
   renderProjectCard({ ...PROJECT, qualifier: ComponentQualifier.Application });
-  expect(screen.getAllByText('qualifier.APP')).toHaveLength(2);
-});
-
-it('should display 3 projects', () => {
-  renderProjectCard({
-    ...PROJECT,
-    qualifier: ComponentQualifier.Application,
-    measures: { ...MEASURES, projects: '3' },
-  });
-  expect(screen.getByText(/x_projects_.3/)).toBeInTheDocument();
+  expect(screen.getByText('qualifier.APP')).toBeInTheDocument();
 });
 
 describe('upgrade scenario (awaiting scan)', () => {
@@ -170,7 +180,6 @@ describe('upgrade scenario (awaiting scan)', () => {
       value: '3',
     }),
   };
-
   beforeEach(() => {
     measuresHandler.setComponents({
       component: mockComponent({ key: PROJECT.key }),
@@ -181,26 +190,17 @@ describe('upgrade scenario (awaiting scan)', () => {
       [PROJECT.key]: oldRatings,
     });
   });
-
   it('should not display awaiting analysis badge and do not display old measures', async () => {
     measuresHandler.registerComponentMeasures({
-      [PROJECT.key]: {
-        ...newRatings,
-        ...oldRatings,
-      },
+      [PROJECT.key]: newRatings,
     });
     renderProjectCard({
       ...PROJECT,
       measures: {
         ...MEASURES,
-        [MetricKey.security_issues]: JSON.stringify({ LOW: 0, MEDIUM: 0, HIGH: 1, total: 1 }),
-        [MetricKey.reliability_issues]: JSON.stringify({ LOW: 0, MEDIUM: 2, HIGH: 0, total: 2 }),
-        [MetricKey.maintainability_issues]: JSON.stringify({
-          LOW: 3,
-          MEDIUM: 0,
-          HIGH: 0,
-          total: 3,
-        }),
+        [MetricKey.software_quality_security_issues]: '1',
+        [MetricKey.software_quality_reliability_issues]: '2',
+        [MetricKey.software_quality_maintainability_issues]: '3',
         [MetricKey.software_quality_maintainability_rating]: '2',
         [MetricKey.software_quality_reliability_rating]: '2',
         [MetricKey.software_quality_security_rating]: '2',
@@ -212,13 +212,13 @@ describe('upgrade scenario (awaiting scan)', () => {
     expect(screen.getByText('1')).toBeInTheDocument();
     expect(screen.getByText('2')).toBeInTheDocument();
     expect(screen.getByText('3')).toBeInTheDocument();
-    await waitFor(() => expect(screen.getAllByText('A')).toHaveLength(3));
+    await waitFor(() => expect(screen.getAllByText('B')).toHaveLength(3));
     await waitFor(() => expect(screen.getAllByText('C')).toHaveLength(1));
     expect(screen.queryByText('projects.awaiting_scan')).not.toBeInTheDocument();
     expect(screen.queryByText('4')).not.toBeInTheDocument();
     expect(screen.queryByText('5')).not.toBeInTheDocument();
     expect(screen.queryByText('6')).not.toBeInTheDocument();
-    expect(screen.queryByText('B')).not.toBeInTheDocument();
+    expect(screen.queryByText('A')).not.toBeInTheDocument();
   });
 
   it('should display awaiting analysis badge and show the old measures', async () => {
@@ -247,22 +247,16 @@ describe('upgrade scenario (awaiting scan)', () => {
       ...PROJECT,
       measures: {
         ...MEASURES,
-        [MetricKey.security_issues]: JSON.stringify({ LOW: 0, MEDIUM: 0, HIGH: 1, total: 1 }),
-        [MetricKey.reliability_issues]: JSON.stringify({ LOW: 0, MEDIUM: 2, HIGH: 0, total: 2 }),
-        [MetricKey.maintainability_issues]: JSON.stringify({
-          LOW: 3,
-          MEDIUM: 0,
-          HIGH: 0,
-          total: 3,
-        }),
+        [MetricKey.software_quality_security_issues]: '1',
+        [MetricKey.software_quality_reliability_issues]: '2',
+        [MetricKey.software_quality_maintainability_issues]: '3',
         [MetricKey.code_smells]: '4',
         [MetricKey.bugs]: '5',
         [MetricKey.vulnerabilities]: '6',
       },
     });
-    expect(await screen.findByText('1')).toBeInTheDocument();
-    expect(screen.queryByText('projects.awaiting_scan')).not.toBeInTheDocument();
-
+    expect(await screen.findByText('projects.awaiting_scan')).toBeInTheDocument();
+    expect(screen.getByText('1')).toBeInTheDocument();
     expect(screen.getByText('2')).toBeInTheDocument();
     expect(screen.getByText('3')).toBeInTheDocument();
     expect(screen.queryByText('4')).not.toBeInTheDocument();
@@ -315,9 +309,8 @@ describe('upgrade scenario (awaiting scan)', () => {
     expect(screen.queryByText('projects.awaiting_scan')).not.toBeInTheDocument();
   });
 
-  // eslint-disable-next-line jest/no-disabled-tests
-  it.skip('should not display awaiting analysis badge if legacy mode is enabled', async () => {
-    settingsHandler.set(SettingsKey.LegacyMode, 'true');
+  it('should not display awaiting analysis badge if legacy mode is enabled', async () => {
+    modeHandler.setMode(Mode.Standard);
     renderProjectCard({
       ...PROJECT,
       measures: {
@@ -335,9 +328,8 @@ describe('upgrade scenario (awaiting scan)', () => {
     expect(screen.queryByText('projects.awaiting_scan')).not.toBeInTheDocument();
   });
 
-  // eslint-disable-next-line jest/no-disabled-tests
-  it.skip('should not display new values if legacy mode is enabled', async () => {
-    settingsHandler.set(SettingsKey.LegacyMode, 'true');
+  it('should not display new values if legacy mode is enabled', async () => {
+    modeHandler.setMode(Mode.Standard);
     measuresHandler.registerComponentMeasures({
       [PROJECT.key]: {
         ...newRatings,
@@ -348,14 +340,9 @@ describe('upgrade scenario (awaiting scan)', () => {
       ...PROJECT,
       measures: {
         ...MEASURES,
-        [MetricKey.security_issues]: JSON.stringify({ LOW: 0, MEDIUM: 0, HIGH: 1, total: 1 }),
-        [MetricKey.reliability_issues]: JSON.stringify({ LOW: 0, MEDIUM: 2, HIGH: 0, total: 2 }),
-        [MetricKey.maintainability_issues]: JSON.stringify({
-          LOW: 3,
-          MEDIUM: 0,
-          HIGH: 0,
-          total: 3,
-        }),
+        [MetricKey.software_quality_security_issues]: '1',
+        [MetricKey.software_quality_reliability_issues]: '2',
+        [MetricKey.software_quality_maintainability_issues]: '3',
         [MetricKey.software_quality_maintainability_rating]: '2',
         [MetricKey.software_quality_reliability_rating]: '2',
         [MetricKey.software_quality_security_rating]: '2',
@@ -378,7 +365,5 @@ describe('upgrade scenario (awaiting scan)', () => {
 });
 
 function renderProjectCard(project: Project, user: CurrentUser = USER_LOGGED_OUT, type?: string) {
-  renderComponent(
-    <ProjectCard currentUser={user} handleFavorite={jest.fn()} project={project} type={type} />,
-  );
+  renderComponent(<ProjectCard project={project} type={type} />, '', { currentUser: user });
 }

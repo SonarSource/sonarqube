@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { LinkStandalone } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import * as React from 'react';
 import Measure from '~sonar-aligned/components/measure/Measure';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';

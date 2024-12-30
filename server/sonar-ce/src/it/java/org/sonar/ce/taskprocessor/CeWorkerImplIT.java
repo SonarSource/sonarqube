@@ -53,7 +53,7 @@ import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -397,7 +397,7 @@ class CeWorkerImplIT {
 
   @Test
   void call_sets_and_restores_thread_name_with_information_of_worker_when_there_is_no_task_to_process() throws Exception {
-    String threadName = randomAlphabetic(3);
+    String threadName = secure().nextAlphabetic(3);
     when(queue.peek(anyString(), anyBoolean())).thenAnswer(invocation -> {
       assertThat(Thread.currentThread().getName())
         .isEqualTo("Worker " + ordinal + " (UUID=" + workerUuid + ") on " + threadName);
@@ -411,7 +411,7 @@ class CeWorkerImplIT {
 
   @Test
   void call_sets_and_restores_thread_name_with_information_of_worker_when_a_task_is_processed() throws Exception {
-    String threadName = randomAlphabetic(3);
+    String threadName = secure().nextAlphabetic(3);
     when(queue.peek(anyString(), anyBoolean())).thenAnswer(invocation -> {
       assertThat(Thread.currentThread().getName())
         .isEqualTo("Worker " + ordinal + " (UUID=" + workerUuid + ") on " + threadName);
@@ -426,7 +426,7 @@ class CeWorkerImplIT {
 
   @Test
   void call_sets_and_restores_thread_name_with_information_of_worker_when_an_error_occurs() throws Exception {
-    String threadName = randomAlphabetic(3);
+    String threadName = secure().nextAlphabetic(3);
     CeTask ceTask = createCeTask(submitter);
     when(queue.peek(anyString(), anyBoolean())).thenAnswer(invocation -> {
       assertThat(Thread.currentThread().getName())
@@ -446,7 +446,7 @@ class CeWorkerImplIT {
     reset(ceWorkerController);
     when(ceWorkerController.isEnabled(underTest)).thenReturn(false);
 
-    String threadName = randomAlphabetic(3);
+    String threadName = secure().nextAlphabetic(3);
     Thread newThread = createThreadNameVerifyingThread(threadName);
 
     newThread.start();
@@ -587,7 +587,7 @@ class CeWorkerImplIT {
   void isExecutedBy_returns_false_unless_a_thread_is_currently_executing_a_task() throws InterruptedException {
     CountDownLatch inCallLatch = new CountDownLatch(1);
     CountDownLatch assertionsDoneLatch = new CountDownLatch(1);
-    String taskType = randomAlphabetic(12);
+    String taskType = secure().nextAlphabetic(12);
     CeTask ceTask = mock(CeTask.class);
     when(ceTask.getType()).thenReturn(taskType);
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.of(ceTask));
@@ -673,7 +673,7 @@ class CeWorkerImplIT {
   void getCurrentTask_returns_empty_unless_a_thread_is_currently_executing_a_task() throws InterruptedException {
     CountDownLatch inCallLatch = new CountDownLatch(1);
     CountDownLatch assertionsDoneLatch = new CountDownLatch(1);
-    String taskType = randomAlphabetic(12);
+    String taskType = secure().nextAlphabetic(12);
     CeTask ceTask = mock(CeTask.class);
     when(ceTask.getType()).thenReturn(taskType);
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.of(ceTask));

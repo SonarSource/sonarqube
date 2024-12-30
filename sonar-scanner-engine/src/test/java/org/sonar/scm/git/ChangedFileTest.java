@@ -26,8 +26,7 @@ import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 
-import static org.apache.commons.lang3.RandomStringUtils.random;
-import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ChangedFileTest {
@@ -82,12 +81,12 @@ public class ChangedFileTest {
   private DefaultIndexedFile composeDefaultIndexFile(Path path, String oldRelativePath) {
     return new DefaultIndexedFile(
       path,
-      random(5),
-      random(5),
-      random(5),
+      secure().next(5),
+      secure().next(5),
+      secure().next(5),
       InputFile.Type.MAIN,
-      random(5),
-      Integer.parseInt(randomNumeric(5)),
+      secure().next(5),
+      Integer.parseInt(secure().nextNumeric(5)),
       new SensorStrategy(),
       oldRelativePath);
   }

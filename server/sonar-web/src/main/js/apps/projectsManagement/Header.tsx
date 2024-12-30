@@ -17,14 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { Title } from 'design-system';
-import * as React from 'react';
 import { useState } from 'react';
+import { Title } from '~design-system';
 import { Visibility } from '~sonar-aligned/types/component';
 import { translate } from '../../helpers/l10n';
 import ChangeDefaultVisibilityForm from './ChangeDefaultVisibilityForm';
-import CreateProjectForm from "./CreateProjectForm";
 
 export interface Props {
   defaultProjectVisibility?: Visibility;

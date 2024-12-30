@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { isEqual, isNil, omitBy } from 'lodash';
 import { RawQuery } from '~sonar-aligned/types/router';
 import { isValidDate, parseDate, toISO8601WithOffsetString, toShortISO8601String } from './dates';

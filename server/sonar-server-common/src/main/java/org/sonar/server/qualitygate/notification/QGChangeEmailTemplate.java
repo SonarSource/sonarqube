@@ -23,9 +23,9 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
-import org.sonar.api.config.EmailSettings;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.platform.Server;
 import org.sonar.server.issue.notification.EmailMessage;
 import org.sonar.server.issue.notification.EmailTemplate;
 import org.sonar.server.measure.Rating;
@@ -37,10 +37,10 @@ import org.sonar.server.measure.Rating;
  */
 public class QGChangeEmailTemplate implements EmailTemplate {
 
-  private final EmailSettings configuration;
+  private final Server server;
 
-  public QGChangeEmailTemplate(EmailSettings configuration) {
-    this.configuration = configuration;
+  public QGChangeEmailTemplate( Server server) {
+    this.server = server;
   }
 
   @Override
@@ -123,7 +123,7 @@ public class QGChangeEmailTemplate implements EmailTemplate {
       }
     }
 
-    messageBody.append("\n").append("More details at: ").append(configuration.getServerBaseURL()).append("/dashboard?id=").append(projectKey);
+    messageBody.append("\n").append("More details at: ").append(server.getPublicRootUrl()).append("/dashboard?id=").append(projectKey);
     if (branchName != null) {
       messageBody.append("&branch=").append(branchName);
     }

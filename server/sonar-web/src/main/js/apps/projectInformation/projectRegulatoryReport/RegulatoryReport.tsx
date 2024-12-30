@@ -18,6 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { isEmpty, orderBy } from 'lodash';
+import * as React from 'react';
+import { useState } from 'react';
+import { FormattedMessage } from 'react-intl';
 import {
   BasicSeparator,
   DownloadButton,
@@ -25,11 +29,7 @@ import {
   FormField,
   InputSelect,
   SubTitle,
-} from 'design-system';
-import { isEmpty, orderBy } from 'lodash';
-import * as React from 'react';
-import { useState } from 'react';
-import { FormattedMessage } from 'react-intl';
+} from '~design-system';
 import { isMainBranch } from '~sonar-aligned/helpers/branch-like';
 import { getBranches } from '../../../api/branches';
 import { getRegulatoryReportUrl } from '../../../api/regulatory-report';

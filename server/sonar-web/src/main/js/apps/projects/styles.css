@@ -19,7 +19,7 @@
  */
 
 .projects-leak-sorting-option.is-focused {
-  background-color: var(--leakSecondaryColor);
+  background-color: #f1e8cb;
 }
 
 .project-filters-list {

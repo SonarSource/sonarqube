@@ -23,7 +23,7 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -31,7 +31,7 @@ import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -61,7 +61,7 @@ public class ShowActionIT {
   private ComponentDto mainBranchComponentDto = ComponentTesting.newBranchComponent(project, ComponentTesting.newMainBranchDto(project.getUuid()));
   private ComponentDto file = ComponentTesting.newFileDto(mainBranchComponentDto);
   private ShowAction underTest = new ShowAction(sourceService, dbClient, userSessionRule,
-    new ComponentFinder(dbClient, new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT)));
+    new ComponentFinder(dbClient, new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT)));
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Before

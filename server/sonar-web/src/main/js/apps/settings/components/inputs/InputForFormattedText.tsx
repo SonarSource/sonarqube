@@ -19,18 +19,19 @@
  */
 
 import styled from '@emotion/styled';
+import * as React from 'react';
 import {
   ButtonSecondary,
   HtmlFormatter,
   InputTextArea,
   PencilIcon,
+  SafeHTMLInjection,
+  SanitizeLevel,
   themeBorder,
   themeColor,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import FormattingTipsWithLink from '../../../../components/common/FormattingTipsWithLink';
 import { translate } from '../../../../helpers/l10n';
-import { sanitizeUserInput } from '../../../../helpers/sanitize';
 import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
 
 function InputForFormattedText(
@@ -64,10 +65,12 @@ function InputForFormattedText(
   ) : (
     <>
       <HtmlFormatter>
-        <FormattedPreviewBox
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: sanitizeUserInput(formattedValue ?? '') }}
-        />
+        <SafeHTMLInjection
+          htmlAsString={formattedValue ?? ''}
+          sanitizeLevel={SanitizeLevel.USER_INPUT}
+        >
+          <FormattedPreviewBox />
+        </SafeHTMLInjection>
       </HtmlFormatter>
 
       <ButtonSecondary className="sw-mt-2" onClick={props.onEditing} icon={<PencilIcon />}>

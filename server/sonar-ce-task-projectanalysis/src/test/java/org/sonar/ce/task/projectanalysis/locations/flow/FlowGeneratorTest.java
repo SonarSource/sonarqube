@@ -35,7 +35,7 @@ import org.sonar.db.protobuf.DbIssues;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -139,9 +139,9 @@ public class FlowGeneratorTest {
     when(treeRootHolder.getComponentByUuid(componentId)).thenReturn(component);
     return DbIssues.Location.newBuilder()
       .setComponentId(componentId)
-      .setChecksum("hash" + randomAlphanumeric(10))
+      .setChecksum("hash" + secure().nextAlphanumeric(10))
       .setTextRange(textRange)
-      .setMsg("msg" + randomAlphanumeric(15))
+      .setMsg("msg" + secure().nextAlphanumeric(15))
       .build();
   }
 

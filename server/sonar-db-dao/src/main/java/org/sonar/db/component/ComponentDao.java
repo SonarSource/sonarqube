@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
@@ -218,7 +217,7 @@ public class ComponentDao implements Dao {
     SELECT ALL
    */
   public List<UuidWithBranchUuidDto> selectAllViewsAndSubViews(DbSession session) {
-    return mapper(session).selectUuidsForQualifiers(Qualifiers.APP, Qualifiers.VIEW, Qualifiers.SUBVIEW);
+    return mapper(session).selectUuidsForQualifiers(ComponentQualifiers.APP, ComponentQualifiers.VIEW, ComponentQualifiers.SUBVIEW);
   }
 
   /**

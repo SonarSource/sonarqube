@@ -20,8 +20,8 @@
 
 import { Spinner } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { ItemButton } from 'design-system';
 import * as React from 'react';
+import { ItemButton } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {

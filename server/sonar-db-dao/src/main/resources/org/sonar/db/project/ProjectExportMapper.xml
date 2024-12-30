@@ -132,6 +132,7 @@
           i.code_variants as codeVariantsString,
           ii.software_quality as ii_softwareQuality,
           ii.severity as ii_severity,
+          ii.manual_severity as ii_manualSeverity,
           rdi.software_quality as rdi_softwareQuality,
           rdi.severity as rdi_severity
         from issues i

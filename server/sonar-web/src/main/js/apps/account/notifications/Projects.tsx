@@ -19,25 +19,16 @@
  */
 
 import { Button, ButtonVariety, Heading } from '@sonarsource/echoes-react';
-import { InputSearch, Note } from 'design-system';
-import { groupBy, sortBy, uniqBy } from 'lodash';
+import { sortBy, uniqBy } from 'lodash';
 import * as React from 'react';
+import { InputSearch, Note } from '~design-system';
 import { translate } from '../../../helpers/l10n';
-import {
-  Notification,
-  NotificationProject,
-  NotificationProjectType,
-} from '../../../types/notifications';
+import { Notification, NotificationProject } from '../../../types/notifications';
 import ProjectModal from './ProjectModal';
 import ProjectNotifications from './ProjectNotifications';
 
 export interface Props {
-  addNotification: (n: Notification) => void;
-  channels: string[];
-  header?: React.JSX.Element;
   notifications: Notification[];
-  removeNotification: (n: Notification) => void;
-  types: NotificationProjectType[];
 }
 
 interface State {
@@ -92,16 +83,6 @@ export default class Projects extends React.PureComponent<Props, State> {
     this.setState({ showModal: true });
   };
 
-  removeNotification = (removed: Notification, allProjects: NotificationProject[]) => {
-    const projectToRemove = allProjects.find((p) => p.project === removed.project);
-
-    if (projectToRemove) {
-      this.handleAddProject(projectToRemove);
-    }
-
-    this.props.removeNotification(removed);
-  };
-
   render() {
     const { notifications } = this.props;
     const { addedProjects, search } = this.state;
@@ -110,7 +91,6 @@ export default class Projects extends React.PureComponent<Props, State> {
       isNotificationProject,
     ) as NotificationProject[];
 
-    const notificationsByProject = groupBy(notifications, (n) => n.project);
     const allProjects = uniqBy([...addedProjects, ...projects], (project) => project.project);
 
     const filteredProjects = sortBy(allProjects, 'projectName').filter((p) =>
@@ -154,16 +134,7 @@ export default class Projects extends React.PureComponent<Props, State> {
           )}
 
           {filteredProjects.map((project) => (
-            <ProjectNotifications
-              addNotification={this.props.addNotification}
-              channels={this.props.channels}
-              header={this.props.header}
-              key={project.project}
-              notifications={notificationsByProject[project.project] || []}
-              project={project}
-              removeNotification={(n) => this.removeNotification(n, allProjects)}
-              types={this.props.types}
-            />
+            <ProjectNotifications key={project.project} project={project} />
           ))}
         </div>
       </section>

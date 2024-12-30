@@ -1,7 +1,19 @@
 {
   "extends": "sonarqube",
-  "plugins": ["header", "typescript-sort-keys", "eslint-plugin-local-rules"],
-  "ignorePatterns": ["eslint-local-rules/**/*"],
+  "plugins": [
+    "header",
+    "typescript-sort-keys",
+    "eslint-plugin-local-rules"
+  ],
+  "ignorePatterns": [
+    "babel.config.js",
+    "jest.config.js",
+    "vite.config.mjs",
+    "tailwind*.js",
+    "script/**/*",
+    "config/**/*",
+    "eslint-local-rules/**/*"
+  ],
   "root": true,
   "parserOptions": {
     "project": "./tsconfig.json"
@@ -33,7 +45,29 @@
         " * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.",
         " "
       ],
-      1
+      2
+    ],
+    "react/forbid-component-props": [
+      "error",
+      {
+        "forbid": [
+          {
+            "propName": "dangerouslySetInnerHTML",
+            "message": "Use the SafeHTMLInjection component instead of 'dangerouslySetInnerHTML', to prevent CSS injection along other XSS attacks"
+          }
+        ]
+      }
+    ],
+    "react/forbid-dom-props": [
+      "error",
+      {
+        "forbid": [
+          {
+            "propName": "dangerouslySetInnerHTML",
+            "message": "Use the SafeHTMLInjection component instead of 'dangerouslySetInnerHTML', to prevent CSS injection along other XSS attacks"
+          }
+        ]
+      }
     ],
     "react/forbid-elements": [
       "warn",
@@ -47,6 +81,7 @@
       }
     ],
     "react/jsx-curly-brace-presence": "warn",
+    "react/react-in-jsx-scope": "off",
     "testing-library/render-result-naming-convention": "off",
     "typescript-sort-keys/interface": "error",
     /* Local rules, defined in ./eslint-local-rules/ */

@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { noop } from 'lodash';
+import * as React from 'react';
+import { Options, SingleValue } from 'react-select';
 import {
   LabelValueSelectOption,
   SearchSelectDropdown,
   addGlobalSuccessMessage,
-} from 'design-system';
-import { noop } from 'lodash';
-import * as React from 'react';
-import { Options, SingleValue } from 'react-select';
+} from '~design-system';
 import { assignSecurityHotspot } from '../../../api/security-hotspots';
 import { getUsers } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';

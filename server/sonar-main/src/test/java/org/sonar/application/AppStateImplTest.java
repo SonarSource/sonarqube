@@ -70,6 +70,15 @@ public class AppStateImplTest {
   }
 
   @Test
+  public void tryToReleaseWebLeaderLock_shouldReleaseLock() {
+    underTest.tryToLockWebLeader();
+
+    underTest.tryToReleaseWebLeaderLock();
+
+    assertThat(underTest.tryToLockWebLeader()).isTrue();
+  }
+
+  @Test
   public void reset_initializes_all_flags() {
     underTest.setOperational(ProcessId.ELASTICSEARCH);
     assertThat(underTest.tryToLockWebLeader()).isTrue();

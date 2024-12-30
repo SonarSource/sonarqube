@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Badge, Link, SubHeading } from 'design-system';
+
+import { Heading, LinkStandalone, Tooltip } from '@sonarsource/echoes-react';
 import React, { useContext, useEffect } from 'react';
+import { Badge } from '~design-system';
 import { ComponentQualityProfile } from '~sonar-aligned/types/component';
 import { searchRules } from '../../../../api/rules';
 import { LanguagesContext } from '../../../../app/components/languages/LanguagesContext';
-import Tooltip from '../../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../../helpers/urls';
 import { Languages } from '../../../../types/languages';
@@ -62,10 +63,9 @@ export function MetaQualityProfiles({ organization, profiles }: Readonly<Props>)
   }, [profiles]);
 
   return (
-    <div>
-      <SubHeading id="quality-profiles-list">{translate('overview.quality_profiles')}</SubHeading>
-
-      <ul className="sw-flex sw-flex-col sw-gap-2" aria-labelledby="quality-profiles-list">
+    <section>
+      <Heading as="h3">{translate('overview.quality_profiles')}</Heading>
+      <ul className="sw-mt-2 sw-flex sw-flex-col sw-gap-3">
         {profiles.map((profile) => (
           <ProfileItem
             key={profile.key}
@@ -76,7 +76,7 @@ export function MetaQualityProfiles({ organization, profiles }: Readonly<Props>)
           />
         ))}
       </ul>
-    </div>
+    </section>
   );
 }
 
@@ -96,43 +96,42 @@ function ProfileItem({
   const count = deprecatedByKey[profile.key] || 0;
 
   return (
-    <li>
-      <div className="sw-grid sw-grid-cols-[1fr_3fr]">
-        <span>{languageName}</span>
-        <div>
-          {profile.deleted ? (
-            <Tooltip
-              key={profile.key}
-              content={translateWithParameters('overview.deleted_profile', profile.name)}
-            >
-              <div className="project-info-deleted-profile">{profile.name}</div>
-            </Tooltip>
-          ) : (
-            <>
-              <Link to={getQualityProfileUrl(profile.name, profile.language, organization)}>
-                <span
-                  aria-label={translateWithParameters(
-                    'overview.link_to_x_profile_y',
-                    languageName,
-                    profile.name,
-                  )}
-                >
-                  {profile.name}
-                </span>
-              </Link>
-              {count > 0 && (
-                <Tooltip
-                  key={profile.key}
-                  content={translateWithParameters('overview.deprecated_profile', count)}
-                >
-                  <span className="sw-ml-6">
-                    <Badge variant="deleted">{translate('deprecated')}</Badge>
-                  </span>
-                </Tooltip>
+    <li className="sw-grid sw-grid-cols-[1fr_3fr]">
+      <span>{languageName}</span>
+      <div>
+        {profile.deleted ? (
+          <Tooltip
+            key={profile.key}
+            content={translateWithParameters('overview.deleted_profile', profile.name)}
+          >
+            <div className="project-info-deleted-profile">{profile.name}</div>
+          </Tooltip>
+        ) : (
+          <>
+            <LinkStandalone
+              aria-label={translateWithParameters(
+                'overview.link_to_x_profile_y',
+                languageName,
+                profile.name,
               )}
-            </>
-          )}
-        </div>
+              to={getQualityProfileUrl(profile.name, profile.language, organization)}
+            >
+              {profile.name}
+            </LinkStandalone>
+            {count > 0 && (
+              <Tooltip
+                key={profile.key}
+                content={translateWithParameters('overview.deprecated_profile', count)}
+              >
+                <span>
+                  <Badge className="sw-ml-6" variant="deleted">
+                    {translate('deprecated')}
+                  </Badge>
+                </span>
+              </Tooltip>
+            )}
+          </>
+        )}
       </div>
     </li>
   );

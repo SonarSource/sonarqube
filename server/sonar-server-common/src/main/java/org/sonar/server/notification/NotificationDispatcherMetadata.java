@@ -37,6 +37,8 @@ public final class NotificationDispatcherMetadata {
 
   public static final String GLOBAL_NOTIFICATION = "globalNotification";
   public static final String PER_PROJECT_NOTIFICATION = "perProjectNotification";
+  public static final String ENABLED_BY_DEFAULT_NOTIFICATION = "enabledByDefaultNotification";
+  public static final String PERMISSION_RESTRICTION = "permissionRestriction";
 
   private String dispatcherKey;
   private Map<String, String> properties;

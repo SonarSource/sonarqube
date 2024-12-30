@@ -113,7 +113,7 @@ public class AddCommentActionIT {
 
     call(issueDto.getKey(), "please fix it");
 
-    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
+    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class), eq(true));
     verifyContentOfPreloadedSearchResponseData(issueDto);
 
     IssueChangeDto issueComment = dbClient.issueChangeDao().selectByTypeAndIssueKeys(dbTester.getSession(), singletonList(issueDto.getKey()), TYPE_COMMENT).get(0);

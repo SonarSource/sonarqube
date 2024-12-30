@@ -31,7 +31,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric.Level;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.server.component.ws.FilterParser.Criterion;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 import org.sonar.server.measure.index.ProjectMeasuresQuery.Operator;
@@ -121,7 +121,7 @@ class ProjectMeasuresQueryFactory {
     Operator operator = criterion.getOperator();
     String value = criterion.getValue();
     checkArgument(EQ.equals(operator), "Only equals operator is available for qualifier criteria");
-    String qualifier = Stream.of(Qualifiers.APP, Qualifiers.PROJECT).filter(q -> q.equalsIgnoreCase(value)).findFirst()
+    String qualifier = Stream.of(ComponentQualifiers.APP, ComponentQualifiers.PROJECT).filter(q -> q.equalsIgnoreCase(value)).findFirst()
       .orElseThrow(() -> new IllegalArgumentException(format("Unknown qualifier : '%s'", value)));
     query.setQualifiers(Sets.newHashSet(qualifier));
   }

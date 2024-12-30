@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -64,7 +64,7 @@ public class ComponentIndexHighlightTest extends ComponentIndexTest {
 
     SuggestionQuery query = SuggestionQuery.builder()
       .setQuery(search)
-      .setQualifiers(Collections.singletonList(Qualifiers.PROJECT))
+      .setQualifiers(Collections.singletonList(ComponentQualifiers.PROJECT))
       .build();
     Stream<ComponentHitsPerQualifier> results = index.searchSuggestions(query, features.get()).getQualifiers();
 

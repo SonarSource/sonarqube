@@ -53,4 +53,10 @@ public interface MigrationHistory extends Startable {
    */
   void done(RegisteredMigrationStep dbMigration);
 
+  /**
+   * Returns the initial version of the database.
+   *
+   * @return a long >= 0 or -1 if the migration history is empty.
+   */
+  long getInitialDbVersion();
 }

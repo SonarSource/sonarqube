@@ -18,7 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { LinkStandalone } from '@sonarsource/echoes-react';
+import { Link, LinkHighlight } from '@sonarsource/echoes-react';
+import { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { FormattedMessage } from 'react-intl';
+import { OptionProps, SingleValueProps, components } from 'react-select';
 import {
   ButtonPrimary,
   FlagMessage,
@@ -26,37 +30,39 @@ import {
   InputSelect,
   LargeCenteredLayout,
   LightLabel,
-  Link,
   PageContentFontWrapper,
-  PageTitle,
   RadioButton,
   Spinner,
   Title,
-} from 'design-system';
-import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
-import { FormattedMessage } from 'react-intl';
-import { OptionProps, components } from 'react-select';
+} from '~design-system';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
+import { AiCodeAssuranceStatus } from '../../api/ai-code-assurance';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../app/components/available-features/withAvailableFeatures';
 import DisableableSelectOption from '../../components/common/DisableableSelectOption';
 import DocumentationLink from '../../components/common/DocumentationLink';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
+import AIAssuredIcon, { AiIconColor } from '../../components/icon-mappers/AIAssuredIcon';
+import { AiIconVariant } from '../../components/illustrations/AiAssuredIllustration';
+import AiCodeAssuranceBanner from '../../components/ui/AiCodeAssuranceBanner';
 import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
 import { LabelValueSelectOption } from '../../helpers/search';
 import { getQualityGateUrl } from '../../helpers/urls';
-import { useProjectAiCodeAssuredQuery } from '../../queries/ai-code-assurance';
-import { useLocation } from '../../sonar-aligned/components/hoc/withRouter';
-import { queryToSearchString } from '../../sonar-aligned/helpers/urls';
+import { useProjectAiCodeAssuranceStatusQuery } from '../../queries/ai-code-assurance';
+import {
+  useAssociateGateWithProjectMutation,
+  useDissociateGateWithProjectMutation,
+} from '../../queries/quality-gates';
 import { ComponentQualifier } from '../../sonar-aligned/types/component';
 import { Feature } from '../../types/features';
 import { Component, Organization, QualityGate } from '../../types/types';
 import BuiltInQualityGateBadge from '../quality-gates/components/BuiltInQualityGateBadge';
+import AiAssuranceSuccessMessage from './AiAssuranceSuccessMessage';
+import AiAssuranceWarningMessage from './AiAssuranceWarningMessage';
 import { USE_SYSTEM_DEFAULT } from './constants';
 
 export interface ProjectQualityGateAppRendererProps extends WithAvailableFeaturesProps {
@@ -68,7 +74,6 @@ export interface ProjectQualityGateAppRendererProps extends WithAvailableFeature
   onSelect: (id: string) => void;
   onSubmit: () => void;
   selectedQualityGateName: string;
-  submitting: boolean;
 }
 
 function hasConditionOnNewCode(qualityGate: QualityGate): boolean {
@@ -77,58 +82,93 @@ function hasConditionOnNewCode(qualityGate: QualityGate): boolean {
 
 interface QualityGateOption extends LabelValueSelectOption {
   organizationKey: string;
+  isAiAssured: boolean;
   isDisabled: boolean;
 }
 
-function renderQualitygateOption(props: OptionProps<QualityGateOption, false>) {
+function renderOption(data: QualityGateOption) {
   return (
-    <components.Option {...props}>
-      <div>
-        <DisableableSelectOption
-          className="sw-w-[100px]"
-          option={props.data}
-          disabledReason={translate('project_quality_gate.no_condition.reason')}
-          disableTooltipOverlay={() => (
-            <FormattedMessage
-              id="project_quality_gate.no_condition"
-              defaultMessage={translate('project_quality_gate.no_condition')}
-              values={{
-                link: (
-                  <Link to={getQualityGateUrl(props.data.organizationKey, props.data.label)}>
-                    {translate('project_quality_gate.no_condition.link')}
-                  </Link>
-                ),
-              }}
-            />
-          )}
+    <div className="sw-flex sw-items-center sw-justify-between">
+      <DisableableSelectOption
+        className="sw-mr-2"
+        option={data}
+        disabledReason={translate('project_quality_gate.no_condition.reason')}
+        disableTooltipOverlay={() => (
+          <FormattedMessage
+            id="project_quality_gate.no_condition"
+            defaultMessage={translate('project_quality_gate.no_condition')}
+            values={{
+              link: (
+                <Link to={getQualityGateUrl(data.organizationKey, data.label)}>
+                  {translate('project_quality_gate.no_condition.link')}
+                </Link>
+              ),
+            }}
+          />
+        )}
+      />
+      {data.isAiAssured && (
+        <AIAssuredIcon
+          variant={AiIconVariant.Default}
+          color={AiIconColor.Subdued}
+          width={16}
+          height={16}
         />
-      </div>
-    </components.Option>
+      )}
+    </div>
   );
 }
 
+function renderQualityGateOption(props: OptionProps<QualityGateOption, false>) {
+  return <components.Option {...props}>{renderOption(props.data)}</components.Option>;
+}
+
+function singleValueRenderer(props: SingleValueProps<QualityGateOption, false>) {
+  return <components.SingleValue {...props}>{renderOption(props.data)}</components.SingleValue>;
+}
+
 function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRendererProps>) {
-  const {
-    organization,
-    allQualityGates,
-    component,
-    currentQualityGate,
-    loading,
-    selectedQualityGateName,
-    submitting,
-  } = props;
+  const { organization, allQualityGates, component, currentQualityGate, loading, selectedQualityGateName } =
+    props;
   const defaultQualityGate = allQualityGates?.find((g) => g.isDefault);
+  const [isUserEditing, setIsUserEditing] = useState(false);
 
-  const location = useLocation();
+  const { data: aiAssuranceStatus, refetch: refetchAiCodeAssuranceStatus } =
+    useProjectAiCodeAssuranceStatusQuery(
+      { project: component.key },
+      {
+        enabled:
+          component.qualifier === ComponentQualifier.Project &&
+          props.hasFeature(Feature.AiCodeAssurance),
+      },
+    );
 
-  const { data: isAiAssured } = useProjectAiCodeAssuredQuery(
-    { project: component.key },
-    {
-      enabled:
-        component.qualifier === ComponentQualifier.Project &&
-        props.hasFeature(Feature.AiCodeAssurance),
-    },
-  );
+  const { mutateAsync: associateGateWithProject, isPending: associateIsPending } =
+    useAssociateGateWithProjectMutation();
+  const { mutateAsync: dissociateGateWithProject, isPending: dissociateisPending } =
+    useDissociateGateWithProjectMutation();
+  const submitting = associateIsPending || dissociateisPending;
+
+  const handleSubmit = async () => {
+    const { allQualityGates, currentQualityGate, selectedQualityGateName } = props;
+
+    if (allQualityGates === undefined || currentQualityGate === undefined) {
+      return;
+    }
+
+    if (selectedQualityGateName === USE_SYSTEM_DEFAULT) {
+      await dissociateGateWithProject({
+        projectKey: component.key,
+      });
+    } else {
+      await associateGateWithProject({
+        gateName: selectedQualityGateName,
+        projectKey: component.key,
+      });
+    }
+
+    props.onSubmit();
+  };
 
   if (loading) {
     return <Spinner />;
@@ -154,9 +194,14 @@ function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRend
   const options: QualityGateOption[] = allQualityGates.map((g) => ({
     organizationKey: organization.kee,
     isDisabled: g.conditions === undefined || g.conditions.length === 0,
+    isAiAssured: g.isAiCodeSupported ?? false,
     label: g.name,
     value: g.name,
   }));
+
+  const containsAiCode =
+    aiAssuranceStatus === AiCodeAssuranceStatus.AI_CODE_ASSURED ||
+    aiAssuranceStatus === AiCodeAssuranceStatus.CONTAINS_AI_CODE;
 
   return (
     <LargeCenteredLayout id="project-quality-gate">
@@ -177,14 +222,86 @@ function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRend
         </header>
 
         <div className="sw-flex sw-flex-col sw-items-start">
-          <div>
-            <PageTitle as="h2" text={translate('project_quality_gate.subtitle')} />
-          </div>
+          {aiAssuranceStatus === AiCodeAssuranceStatus.AI_CODE_ASSURED && (
+            <AiCodeAssuranceBanner
+              className="sw-mb-10 sw-w-abs-800"
+              iconVariant={AiIconVariant.Check}
+              title={
+                <FormattedMessage id="project_quality_gate.ai_generated_code_protected.title" />
+              }
+              description={
+                <FormattedMessage
+                  id="project_quality_gate.ai_generated_code_protected.description"
+                  values={{
+                    p: (text) => <p>{text}</p>,
+                    link: (text) => (
+                      <DocumentationLink
+                        highlight={LinkHighlight.Default}
+                        className="sw-inline-block"
+                        shouldOpenInNewTab
+                        to={DocLink.AiCodeAssurance}
+                      >
+                        {text}
+                      </DocumentationLink>
+                    ),
+                  }}
+                />
+              }
+            />
+          )}
+
+          {aiAssuranceStatus === AiCodeAssuranceStatus.CONTAINS_AI_CODE && (
+            <AiCodeAssuranceBanner
+              className="sw-mb-10 sw-w-abs-800"
+              iconVariant={AiIconVariant.Default}
+              title={
+                <FormattedMessage id="project_quality_gate.ai_generated_code_not_protected.title" />
+              }
+              description={
+                <FormattedMessage
+                  id="project_quality_gate.ai_generated_code_not_protected.description"
+                  values={{
+                    p: (text) => <p>{text}</p>,
+                    link: (text) => (
+                      <DocumentationLink
+                        highlight={LinkHighlight.Default}
+                        shouldOpenInNewTab
+                        to={DocLink.AiCodeAssurance}
+                      >
+                        {text}
+                      </DocumentationLink>
+                    ),
+                    linkSonarWay: (text) => (
+                      <Link
+                        highlight={LinkHighlight.Default}
+                        to={{
+                          pathname: '/quality_gates/show/Sonar%20way%20for%20AI%20Code',
+                        }}
+                      >
+                        {text}
+                      </Link>
+                    ),
+                    linkQualifyDoc: (text) => (
+                      <DocumentationLink
+                        highlight={LinkHighlight.Default}
+                        shouldOpenInNewTab
+                        to={DocLink.AiCodeAssuranceQualifyQualityGate}
+                      >
+                        {text}
+                      </DocumentationLink>
+                    ),
+                  }}
+                />
+              }
+            />
+          )}
 
           <form
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
-              props.onSubmit();
+              await handleSubmit();
+              setIsUserEditing(false);
+              refetchAiCodeAssuranceStatus();
             }}
             id="project_quality_gate"
           >
@@ -194,8 +311,11 @@ function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRend
               <RadioButton
                 className="it__project-quality-default sw-items-start"
                 checked={usesDefault}
-                disabled={submitting || isAiAssured}
-                onCheck={() => props.onSelect(USE_SYSTEM_DEFAULT)}
+                disabled={submitting}
+                onCheck={() => {
+                  setIsUserEditing(true);
+                  props.onSelect(USE_SYSTEM_DEFAULT);
+                }}
                 value={USE_SYSTEM_DEFAULT}
               >
                 <div>
@@ -204,10 +324,34 @@ function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRend
                   </div>
                   <div>
                     <LightLabel>
-                      {translate('current_noun')}:{defaultQualityGate.name}
-                      {defaultQualityGate.isBuiltIn && <BuiltInQualityGateBadge />}
+                      {translate('current_noun')}: {defaultQualityGate.name}
+                      {defaultQualityGate.isAiCodeSupported && (
+                        <AIAssuredIcon
+                          className="sw-ml-1"
+                          variant={AiIconVariant.Default}
+                          color={AiIconColor.Subdued}
+                          width={16}
+                          height={16}
+                        />
+                      )}
+                      {defaultQualityGate.isBuiltIn && (
+                        <BuiltInQualityGateBadge className="sw-ml-1" />
+                      )}
                     </LightLabel>
                   </div>
+                  {containsAiCode &&
+                    isUserEditing &&
+                    usesDefault &&
+                    defaultQualityGate.isAiCodeSupported === true && (
+                      <AiAssuranceSuccessMessage className="sw-mt-1" />
+                    )}
+
+                  {containsAiCode &&
+                    isUserEditing &&
+                    usesDefault &&
+                    defaultQualityGate.isAiCodeSupported === false && (
+                      <AiAssuranceWarningMessage className="sw-mt-1" />
+                    )}
                 </div>
               </RadioButton>
             </div>
@@ -216,8 +360,9 @@ function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRend
               <RadioButton
                 className="it__project-quality-specific sw-items-start sw-mt-1"
                 checked={!usesDefault}
-                disabled={submitting || isAiAssured}
+                disabled={submitting}
                 onCheck={(value: string) => {
+                  setIsUserEditing(true);
                   if (usesDefault) {
                     props.onSelect(value);
                   }
@@ -235,11 +380,13 @@ function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRend
                   size="large"
                   className="it__project-quality-gate-select"
                   components={{
-                    Option: renderQualitygateOption,
+                    Option: renderQualityGateOption,
+                    SingleValue: singleValueRenderer,
                   }}
                   isClearable={usesDefault}
-                  isDisabled={submitting || usesDefault || isAiAssured}
+                  isDisabled={submitting || usesDefault}
                   onChange={({ value }: QualityGateOption) => {
+                    setIsUserEditing(true);
                     props.onSelect(value);
                   }}
                   aria-label={translate('project_quality_gate.select_specific_qg')}
@@ -247,48 +394,20 @@ function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRend
                   value={options.find((o) => o.value === selectedQualityGateName)}
                 />
               </div>
+              {containsAiCode &&
+                isUserEditing &&
+                !usesDefault &&
+                selectedQualityGate?.isAiCodeSupported === true && (
+                  <AiAssuranceSuccessMessage className="sw-mt-1 sw-ml-6" />
+                )}
 
-              {isAiAssured && (
-                <>
-                  <p className="sw-w-abs-400 sw-mt-6">
-                    <FormattedMessage
-                      id="project_quality_gate.ai_assured.message1"
-                      defaultMessage={translate('project_quality_gate.ai_assured.message1')}
-                      values={{
-                        link: (
-                          <DocumentationLink to={DocLink.AiCodeAssurance}>
-                            {translate('project_quality_gate.ai_assured.message1.link')}
-                          </DocumentationLink>
-                        ),
-                      }}
-                    />
-                  </p>
-                  <p className="sw-w-abs-400 sw-mt-6">
-                    <FormattedMessage
-                      id="project_quality_gate.ai_assured.message2"
-                      defaultMessage={translate('project_quality_gate.ai_assured.message2')}
-                      values={{
-                        link: (
-                          <LinkStandalone
-                            className="sw-shrink-0"
-                            to={{
-                              pathname:
-                                '/project/admin/extension/developer-server/ai-project-settings',
-                              search: queryToSearchString({
-                                ...location.query,
-                                qualifier: ComponentQualifier.Project,
-                              }),
-                            }}
-                          >
-                            {translate('project_quality_gate.ai_assured.message2.link')}
-                          </LinkStandalone>
-                        ),
-                        value: <b>{translate('false')}</b>,
-                      }}
-                    />
-                  </p>
-                </>
-              )}
+              {containsAiCode &&
+                isUserEditing &&
+                !usesDefault &&
+                selectedQualityGate &&
+                selectedQualityGate.isAiCodeSupported === false && (
+                  <AiAssuranceWarningMessage className="sw-mt-1 sw-ml-6" />
+                )}
 
               {selectedQualityGate && !hasConditionOnNewCode(selectedQualityGate) && (
                 <FlagMessage variant="warning">
@@ -313,11 +432,7 @@ function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRend
             </div>
 
             <div>
-              <ButtonPrimary
-                form="project_quality_gate"
-                disabled={submitting || isAiAssured}
-                type="submit"
-              >
+              <ButtonPrimary form="project_quality_gate" disabled={submitting} type="submit">
                 {translate('save')}
               </ButtonPrimary>
               <Spinner loading={submitting} />

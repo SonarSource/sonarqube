@@ -17,20 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { getCve } from '../../../api/cves';
-import { getRuleDetails } from '../../../api/rules';
-import { getSecurityHotspotDetails } from '../../../api/security-hotspots';
+
+import { useState } from 'react';
 import { get } from '../../../helpers/storage';
-import { Cve } from '../../../types/cves';
+import { useSecurityHotspotDetailsQuery } from '../../../queries/hotspots';
+import { useRuleDetailsQuery } from '../../../queries/rules';
 import { Standards } from '../../../types/security';
-import {
-  Hotspot,
-  HotspotStatusFilter,
-  HotspotStatusOption,
-} from '../../../types/security-hotspots';
+import { HotspotStatusFilter, HotspotStatusOption } from '../../../types/security-hotspots';
 import { Component } from '../../../types/types';
-import { RuleDescriptionSection } from '../../coding-rules/rule';
 import { SHOW_STATUS_DIALOG_STORAGE_KEY } from '../constants';
 import { getStatusFilterFromStatusOption } from '../utils';
 import HotspotViewerRenderer from './HotspotViewerRenderer';
@@ -47,124 +41,65 @@ interface Props {
   standards?: Standards;
 }
 
-interface State {
-  cve?: Cve;
-  hotspot?: Hotspot;
-  lastStatusChangedTo?: HotspotStatusOption;
-  loading: boolean;
-  ruleDescriptionSections?: RuleDescriptionSection[];
-  ruleLanguage?: string;
-  showStatusUpdateSuccessModal: boolean;
-}
+export default function HotspotViewer(props: Readonly<Props>) {
+  const {
+    hotspotKey,
+    component,
+    cveId,
+    hotspotsReviewedMeasure,
+    selectedHotspotLocation,
+    standards,
+  } = props;
 
-export default class HotspotViewer extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State;
+  const [lastStatusChangedTo, setLastStatusChangedTo] = useState<HotspotStatusOption>();
+  const [showStatusUpdateSuccessModal, setShowStatusUpdateSuccessModal] = useState(false);
 
-  constructor(props: Props) {
-    super(props);
-    this.state = { loading: false, showStatusUpdateSuccessModal: false };
-  }
+  const { data: hotspot, refetch } = useSecurityHotspotDetailsQuery({ key: hotspotKey });
+  const { data: rule, isLoading } = useRuleDetailsQuery(
+    { key: hotspot?.rule.key! },
+    { enabled: hotspot !== undefined },
+  );
 
-  componentDidMount() {
-    this.mounted = true;
-    this.fetchHotspot();
-  }
+  const ruleLanguage = rule?.rule.lang;
+  const ruleDescriptionSections = rule?.rule.descriptionSections;
 
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.hotspotKey !== this.props.hotspotKey) {
-      this.fetchHotspot();
-    }
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  fetchHotspot = async () => {
-    this.setState({ loading: true });
-
-    try {
-      const hotspot = await getSecurityHotspotDetails(this.props.hotspotKey);
-      const ruleDetails = await getRuleDetails({ key: hotspot.rule.key, organization: this.props.component.organization }).then((r) => r.rule);
-      let cve;
-      if (typeof this.props.cveId === 'string') {
-        cve = await getCve(this.props.cveId);
-      }
-
-      if (this.mounted) {
-        this.setState({
-          hotspot,
-          loading: false,
-          ruleLanguage: ruleDetails.lang,
-          ruleDescriptionSections: ruleDetails.descriptionSections,
-          cve,
-        });
-      }
-    } catch (error) {
-      if (this.mounted) {
-        this.setState({ loading: false });
-      }
-    }
-  };
-
-  handleHotspotUpdate = async (statusUpdate = false, statusOption?: HotspotStatusOption) => {
-    const { hotspotKey } = this.props;
-
+  const handleHotspotUpdate = async (statusUpdate = false, statusOption?: HotspotStatusOption) => {
     if (statusUpdate) {
-      this.setState({
-        lastStatusChangedTo: statusOption,
-        showStatusUpdateSuccessModal: get(SHOW_STATUS_DIALOG_STORAGE_KEY) !== 'false',
-      });
-      await this.props.onUpdateHotspot(hotspotKey);
+      setLastStatusChangedTo(statusOption);
+      setShowStatusUpdateSuccessModal(get(SHOW_STATUS_DIALOG_STORAGE_KEY) !== 'false');
+      await props.onUpdateHotspot(hotspotKey);
     } else {
-      await this.fetchHotspot();
+      refetch();
     }
   };
 
-  handleSwitchFilterToStatusOfUpdatedHotspot = () => {
-    const { lastStatusChangedTo } = this.state;
-
+  const handleSwitchFilterToStatusOfUpdatedHotspot = () => {
     if (lastStatusChangedTo) {
-      this.props.onSwitchStatusFilter(getStatusFilterFromStatusOption(lastStatusChangedTo));
+      props.onSwitchStatusFilter(getStatusFilterFromStatusOption(lastStatusChangedTo));
     }
   };
 
-  handleCloseStatusUpdateSuccessModal = () => {
-    this.setState({ showStatusUpdateSuccessModal: false });
+  const handleCloseStatusUpdateSuccessModal = () => {
+    setShowStatusUpdateSuccessModal(false);
   };
 
-  render() {
-    const { component, hotspotsReviewedMeasure, selectedHotspotLocation, standards } = this.props;
-
-    const {
-      hotspot,
-      ruleDescriptionSections,
-      ruleLanguage,
-      cve,
-      loading,
-      showStatusUpdateSuccessModal,
-      lastStatusChangedTo,
-    } = this.state;
-
-    return (
-      <HotspotViewerRenderer
-        component={component}
-        hotspot={hotspot}
-        hotspotsReviewedMeasure={hotspotsReviewedMeasure}
-        lastStatusChangedTo={lastStatusChangedTo}
-        loading={loading}
-        onCloseStatusUpdateSuccessModal={this.handleCloseStatusUpdateSuccessModal}
-        onLocationClick={this.props.onLocationClick}
-        onSwitchFilterToStatusOfUpdatedHotspot={this.handleSwitchFilterToStatusOfUpdatedHotspot}
-        onUpdateHotspot={this.handleHotspotUpdate}
-        ruleDescriptionSections={ruleDescriptionSections}
-        ruleLanguage={ruleLanguage}
-        cve={cve}
-        selectedHotspotLocation={selectedHotspotLocation}
-        showStatusUpdateSuccessModal={showStatusUpdateSuccessModal}
-        standards={standards}
-      />
-    );
-  }
+  return (
+    <HotspotViewerRenderer
+      component={component}
+      hotspot={hotspot}
+      hotspotsReviewedMeasure={hotspotsReviewedMeasure}
+      lastStatusChangedTo={lastStatusChangedTo}
+      loading={isLoading}
+      onCloseStatusUpdateSuccessModal={handleCloseStatusUpdateSuccessModal}
+      onLocationClick={props.onLocationClick}
+      onSwitchFilterToStatusOfUpdatedHotspot={handleSwitchFilterToStatusOfUpdatedHotspot}
+      onUpdateHotspot={handleHotspotUpdate}
+      ruleDescriptionSections={ruleDescriptionSections}
+      ruleLanguage={ruleLanguage}
+      cveId={cveId}
+      selectedHotspotLocation={selectedHotspotLocation}
+      showStatusUpdateSuccessModal={showStatusUpdateSuccessModal}
+      standards={standards}
+    />
+  );
 }

@@ -17,18 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { useState } from 'react';
+import { useIntl } from 'react-intl';
 import {
   ButtonPrimary,
   ButtonSecondary,
-  HighlightRing,
   InputTextArea,
   ItemDivider,
   PageContentFontWrapper,
   Spinner,
-} from 'design-system';
-import * as React from 'react';
-import { useState } from 'react';
-import { useIntl } from 'react-intl';
+} from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { IssueActions, IssueTransition } from '../../../types/issues';
 import { Issue } from '../../../types/types';
@@ -37,7 +36,6 @@ import { IssueTransitionItem } from './IssueTransitionItem';
 import './IssueTransitionOverlay.css';
 
 export type Props = {
-  guideStepIndex: number;
   issue: Pick<Issue, 'transitions' | 'actions'>;
   loading?: boolean;
   onClose: () => void;
@@ -45,7 +43,7 @@ export type Props = {
 };
 
 export function IssueTransitionOverlay(props: Readonly<Props>) {
-  const { issue, onClose, onSetTransition, loading, guideStepIndex } = props;
+  const { issue, onClose, onSetTransition, loading } = props;
   const intl = useIntl();
 
   const [comment, setComment] = useState('');
@@ -79,33 +77,24 @@ export function IssueTransitionOverlay(props: Readonly<Props>) {
   return (
     <ul className="sw-flex sw-flex-col issues-status-panel">
       {filteredTransitionsRecommended.map((transition) => (
-        <HighlightRing
+        <IssueTransitionItem
           key={transition}
-          data-guiding-id={transition === IssueTransition.Accept ? 'issue-accept-transition' : ''}
-        >
-          <IssueTransitionItem
-            transition={transition}
-            selected={
-              selectedTransition === transition ||
-              (guideStepIndex === 1 && transition === IssueTransition.Accept)
-            }
-            onSelectTransition={selectTransition}
-          />
-        </HighlightRing>
+          transition={transition}
+          selected={selectedTransition === transition}
+          onSelectTransition={selectTransition}
+        />
       ))}
       {filteredTransitionsRecommended.length > 0 && filteredTransitionsDeprecated.length > 0 && (
         <ItemDivider />
       )}
-      <HighlightRing data-guiding-id="issue-deprecated-transitions">
-        {filteredTransitionsDeprecated.map((transition) => (
-          <IssueTransitionItem
-            key={transition}
-            transition={transition}
-            selected={selectedTransition === transition || guideStepIndex === 2}
-            onSelectTransition={selectTransition}
-          />
-        ))}
-      </HighlightRing>
+      {filteredTransitionsDeprecated.map((transition) => (
+        <IssueTransitionItem
+          key={transition}
+          transition={transition}
+          selected={selectedTransition === transition}
+          onSelectTransition={selectTransition}
+        />
+      ))}
 
       {selectedTransition && (
         <>

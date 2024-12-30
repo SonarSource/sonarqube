@@ -84,7 +84,7 @@ public class SamlValidationRedirectionFilter extends HttpFilter {
       String nonce = SamlValidationCspHeaders.addCspHeadersWithNonceToResponse(response);
 
       String template = StringUtils.replaceEachRepeatedly(redirectionPageTemplate,
-        new String[]{"%NONCE%", "%WEB_CONTEXT%", "%VALIDATION_URL%", "%SAML_RESPONSE%", "%CSRF_TOKEN%"},
+        new String[]{"%NONCE%", "WEB_CONTEXT", "%VALIDATION_URL%", "%SAML_RESPONSE%", "%CSRF_TOKEN%"},
         new String[]{nonce, server.getContextPath(), redirectionEndpointUrl.toString(), samlResponse, csrfToken});
 
       response.setContentType("text/html");

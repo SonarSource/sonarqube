@@ -32,7 +32,7 @@
 .permissions-table .divider::after {
   display: block;
   content: '';
-  background: var(--barBorderColor);
+  background: #e6e6e6;
   height: 1px;
   width: 100%;
 }

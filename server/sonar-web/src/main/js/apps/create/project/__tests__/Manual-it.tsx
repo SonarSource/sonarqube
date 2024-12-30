@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
 import DopTranslationServiceMock from '../../../../api/mocks/DopTranslationServiceMock';
+import { ModeServiceMock } from '../../../../api/mocks/ModeServiceMock';
 import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
 import { ProjectsServiceMock } from '../../../../api/mocks/ProjectsServiceMock';
 import { getNewCodeDefinition } from '../../../../api/newCodeDefinition';
@@ -91,7 +93,7 @@ const ui = {
 };
 
 async function fillFormAndNext(displayName: string, user: UserEvent) {
-  expect(ui.manualProjectHeader.get()).toBeInTheDocument();
+  expect(await ui.manualProjectHeader.find()).toBeInTheDocument();
 
   await user.click(ui.displayNameField.get());
   await user.keyboard(displayName);
@@ -104,6 +106,7 @@ let almSettingsHandler: AlmSettingsServiceMock;
 let dopTranslationHandler: DopTranslationServiceMock;
 let newCodePeriodHandler: NewCodeDefinitionServiceMock;
 let projectHandler: ProjectsServiceMock;
+let modeHandler: ModeServiceMock;
 
 const original = window.location;
 
@@ -116,6 +119,7 @@ beforeAll(() => {
   dopTranslationHandler = new DopTranslationServiceMock();
   newCodePeriodHandler = new NewCodeDefinitionServiceMock();
   projectHandler = new ProjectsServiceMock();
+  modeHandler = new ModeServiceMock();
 });
 
 beforeEach(() => {
@@ -124,6 +128,7 @@ beforeEach(() => {
   dopTranslationHandler.reset();
   newCodePeriodHandler.reset();
   projectHandler.reset();
+  modeHandler.reset();
 });
 
 afterAll(() => {
@@ -217,7 +222,7 @@ it('should navigate back to the Projects page when clicking cancel or close', as
   const user = userEvent.setup();
   renderCreateProject();
 
-  await user.click(ui.cancelButton.get());
+  await user.click(await ui.cancelButton.find());
   expect(await ui.projectsPageTitle.find()).toBeInTheDocument();
 
   await user.click(ui.createProjectsButton.get());

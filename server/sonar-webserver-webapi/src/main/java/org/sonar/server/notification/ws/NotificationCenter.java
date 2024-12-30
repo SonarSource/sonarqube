@@ -22,6 +22,7 @@ package org.sonar.server.notification.ws;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,6 +85,18 @@ public class NotificationCenter {
       }
     }
     return keys.build();
+  }
+
+  public Map<String, String> getValueByDispatchers(String propertyKey) {
+    Map<String, String> valueByDispatchers = new java.util.HashMap<>();
+    for (NotificationDispatcherMetadata metadata : dispatchersMetadata) {
+      String dispatcherKey = metadata.getDispatcherKey();
+      String value = metadata.getProperty(propertyKey);
+      if (value != null) {
+        valueByDispatchers.put(dispatcherKey, value);
+      }
+    }
+    return valueByDispatchers;
   }
 
 }

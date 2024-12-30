@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Card } from 'design-system/lib';
+import { Card } from '~design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';

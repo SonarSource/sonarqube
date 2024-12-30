@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.elasticsearch.search.SearchHit;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -41,7 +42,7 @@ import static java.util.TimeZone.getTimeZone;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 
 public class IssueIndexTestCommon {
 
@@ -53,13 +54,16 @@ public class IssueIndexTestCommon {
   @RegisterExtension
   public DbTester db = DbTester.create(system2);
 
+  final Configuration config = mock(Configuration.class);
+
   private final AsyncIssueIndexing asyncIssueIndexing = mock(AsyncIssueIndexing.class);
   protected final IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), asyncIssueIndexing);
   protected final RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
   protected final PermissionIndexerTester authorizationIndexer = new PermissionIndexerTester(es, issueIndexer);
   protected final ViewIndexer viewIndexer = new ViewIndexer(db.getDbClient(), es.client());
 
-  protected final IssueIndex underTest = new IssueIndex(es.client(), system2, userSessionRule, new WebAuthorizationTypeSupport(userSessionRule));
+  protected final IssueIndex underTest = new IssueIndex(es.client(), system2, userSessionRule,
+    new WebAuthorizationTypeSupport(userSessionRule), config);
 
   /**
    * Execute the search request and return the document ids of results.

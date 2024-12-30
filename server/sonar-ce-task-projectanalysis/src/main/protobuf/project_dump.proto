@@ -80,10 +80,7 @@ message Measure {
 
 message LiveMeasure {
   int64 component_ref = 1;
-  int32 metric_ref = 2;
-  DoubleValue double_value = 3;
-  string text_value = 4;
-  DoubleValue variation = 5;
+  string json_value = 2;
 }
 
 message DoubleValue {
@@ -134,6 +131,7 @@ message Issue {
 message Impact {
   SoftwareQuality software_quality = 1;
   Severity severity = 2;
+  bool manual_severity = 3;
 }
 
 // Stream of issues changelog stored in file issues_changelog.pb
@@ -256,3 +254,4 @@ enum Severity {
   INFO = 3;
   BLOCKER = 4;
 }
+

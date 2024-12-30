@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import org.apache.commons.lang3.time.DateUtils;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueStatus;
@@ -36,6 +37,7 @@ import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
+import org.sonar.core.issue.DefaultImpact;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
@@ -51,6 +53,7 @@ import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBu
 import static org.sonar.db.protobuf.DbIssues.MessageFormattingType.CODE;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.issue.IssueFieldsSetter.ASSIGNEE;
+import static org.sonar.server.issue.IssueFieldsSetter.IMPACT_SEVERITY;
 import static org.sonar.server.issue.IssueFieldsSetter.SEVERITY;
 import static org.sonar.server.issue.IssueFieldsSetter.STATUS;
 import static org.sonar.server.issue.IssueFieldsSetter.TECHNICAL_DEBT;
@@ -238,6 +241,49 @@ class IssueFieldsSetterTest {
     assertThat(updated).isFalse();
     assertThat(issue.currentChange()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
+  }
+
+  @Test
+  void set_manual_impact_severity_whenExistingImpactMatchesRequested_shouldUpdateManualImpactSeverity() {
+    issue.replaceImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.LOW));
+    boolean updated = underTest.setImpactManualSeverity(issue, SoftwareQuality.MAINTAINABILITY, Severity.BLOCKER, context);
+
+    assertThat(updated).isTrue();
+    issue.getImpacts().stream().filter(impact -> impact.softwareQuality().equals(SoftwareQuality.MAINTAINABILITY)).forEach(impact -> {
+      assertThat(impact.severity()).isEqualTo(Severity.BLOCKER);
+      assertThat(impact.manualSeverity()).isTrue();
+    });
+    FieldDiffs.Diff diff = issue.currentChange().get(IMPACT_SEVERITY);
+    assertThat(diff.oldValue()).isEqualTo("MAINTAINABILITY:LOW");
+    assertThat(diff.newValue()).isEqualTo("MAINTAINABILITY:BLOCKER");
+  }
+
+  @Test
+  void set_manual_impact_severity_whenExistingImpactHasSameSeverityButNoManualFlag_shouldUpdateManualImpactSeverity() {
+    issue.replaceImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.LOW));
+    boolean updated = underTest.setImpactManualSeverity(issue, SoftwareQuality.MAINTAINABILITY, Severity.LOW, context);
+
+    assertThat(updated).isTrue();
+    issue.getImpacts().stream().filter(impact -> impact.softwareQuality().equals(SoftwareQuality.MAINTAINABILITY)).forEach(impact -> {
+      assertThat(impact.severity()).isEqualTo(Severity.LOW);
+      assertThat(impact.manualSeverity()).isTrue();
+    });
+    assertThat(issue.currentChange()).isNull();
+  }
+
+  @Test
+  void set_manual_impact_severity_whenExistingImpactHasDifferentSeverity_shouldUpdateManualImpactSeverity() {
+    issue.addImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW, true);
+    boolean updated = underTest.setImpactManualSeverity(issue, SoftwareQuality.MAINTAINABILITY, Severity.BLOCKER, context);
+
+    assertThat(updated).isTrue();
+    issue.getImpacts().stream().filter(impact -> impact.softwareQuality().equals(SoftwareQuality.MAINTAINABILITY)).forEach(impact -> {
+      assertThat(impact.severity()).isEqualTo(Severity.BLOCKER);
+      assertThat(impact.manualSeverity()).isTrue();
+    });
+    FieldDiffs.Diff diff = issue.currentChange().get(IMPACT_SEVERITY);
+    assertThat(diff.oldValue()).isEqualTo("MAINTAINABILITY:LOW");
+    assertThat(diff.newValue()).isEqualTo("MAINTAINABILITY:BLOCKER");
   }
 
   @Test
@@ -577,13 +623,101 @@ class IssueFieldsSetterTest {
 
   @Test
   void setImpacts_whenImpactAdded_shouldBeUpdated() {
-    Map<SoftwareQuality, Severity> currentImpacts = Map.of(SoftwareQuality.RELIABILITY, Severity.LOW);
-    Map<SoftwareQuality, Severity> newImpacts = Map.of(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
+    Set<DefaultImpact> currentImpacts = Set.of(new DefaultImpact(SoftwareQuality.RELIABILITY, Severity.LOW, false));
+    Set<DefaultImpact> newImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH, false));
 
-    issue.replaceImpacts(newImpacts);
+    newImpacts
+      .forEach(e -> issue.addImpact(e.softwareQuality(), e.severity(), e.manualSeverity()));
     boolean updated = underTest.setImpacts(issue, currentImpacts, context);
     assertThat(updated).isTrue();
-    assertThat(issue.impacts()).isEqualTo(newImpacts);
+    assertThat(issue.getImpacts()).isEqualTo(newImpacts);
+    assertThat(issue.changes()).isEmpty();
+  }
+
+  @Test
+  void setImpacts_whenImpactExists_shouldNotBeUpdated() {
+    Set<DefaultImpact> currentImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW, false));
+    Set<DefaultImpact> newImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW, false));
+
+    newImpacts
+      .forEach(e -> issue.addImpact(e.softwareQuality(), e.severity(), e.manualSeverity()));
+    boolean updated = underTest.setImpacts(issue, currentImpacts, context);
+    assertThat(updated).isFalse();
+    assertThat(issue.getImpacts()).isEqualTo(newImpacts);
+  }
+
+  @Test
+  void setImpacts_whenImpactExistsWithManualSeverity_shouldNotBeUpdated() {
+    Set<DefaultImpact> currentImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH, true));
+    Set<DefaultImpact> newImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW, false));
+
+    newImpacts
+      .forEach(e -> issue.addImpact(e.softwareQuality(), e.severity(), e.manualSeverity()));
+    boolean updated = underTest.setImpacts(issue, currentImpacts, context);
+    assertThat(updated).isFalse();
+    assertThat(issue.getImpacts()).isEqualTo(currentImpacts);
+  }
+
+  @Test
+  void setImpacts_whenImpactExistsWithManualSeverityAndNewImpact_shouldBeUpdated() {
+    Set<DefaultImpact> currentImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH, true));
+    Set<DefaultImpact> newImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW, false),
+      new DefaultImpact(SoftwareQuality.RELIABILITY, Severity.HIGH, false));
+
+    newImpacts
+      .forEach(e -> issue.addImpact(e.softwareQuality(), e.severity(), e.manualSeverity()));
+    boolean updated = underTest.setImpacts(issue, currentImpacts, context);
+    assertThat(updated).isTrue();
+    assertThat(issue.getImpacts()).isEqualTo(Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH, true),
+      new DefaultImpact(SoftwareQuality.RELIABILITY, Severity.HIGH, false)));
+    assertThat(issue.changes()).isEmpty();
+  }
+
+  @Test
+  void setImpacts_whenIssueHasManualSeverityAndHasEquivalentImpact_ImpactShouldBeSetToManualSeverity() {
+    Set<DefaultImpact> currentImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH, false));
+    Set<DefaultImpact> newImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW, false));
+
+    newImpacts
+      .forEach(e -> issue.addImpact(e.softwareQuality(), e.severity(), e.manualSeverity()));
+    issue.setManualSeverity(true);
+    issue.setSeverity(org.sonar.api.rule.Severity.BLOCKER);
+    issue.setType(RuleType.CODE_SMELL);
+    boolean updated = underTest.setImpacts(issue, currentImpacts, context);
+    assertThat(updated).isTrue();
+    assertThat(issue.getImpacts()).isEqualTo(Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.BLOCKER, true)));
+    assertThat(issue.changes()).hasSize(1).extracting(f -> f.diffs().get("impactSeverity").oldValue(), f -> f.diffs().get("impactSeverity").newValue())
+      .containsExactly(Tuple.tuple("MAINTAINABILITY:LOW", "MAINTAINABILITY:BLOCKER"));
+  }
+
+  @Test
+  void setImpacts_whenIssueHasManualSeverityAndHasNoEquivalentImpact_ImpactShouldNotBeUpdated() {
+    Set<DefaultImpact> currentImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW, false));
+    Set<DefaultImpact> newImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW, false));
+
+    newImpacts
+      .forEach(e -> issue.addImpact(e.softwareQuality(), e.severity(), e.manualSeverity()));
+    issue.setManualSeverity(true);
+    issue.setSeverity(org.sonar.api.rule.Severity.BLOCKER);
+    issue.setType(RuleType.BUG);
+    boolean updated = underTest.setImpacts(issue, currentImpacts, context);
+    assertThat(updated).isFalse();
+    assertThat(issue.changes()).isEmpty();
+  }
+
+  @Test
+  void setImpacts_whenIssueHasManualSeverityAndImpactHasManualSeverity_ImpactShouldNotBeUpdated() {
+    Set<DefaultImpact> currentImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW, true));
+    Set<DefaultImpact> newImpacts = Set.of(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW, true));
+
+    newImpacts
+      .forEach(e -> issue.addImpact(e.softwareQuality(), e.severity(), e.manualSeverity()));
+    issue.setManualSeverity(true);
+    issue.setSeverity(org.sonar.api.rule.Severity.BLOCKER);
+    issue.setType(RuleType.BUG);
+    boolean updated = underTest.setImpacts(issue, currentImpacts, context);
+    assertThat(updated).isFalse();
+    assertThat(issue.changes()).isEmpty();
   }
 
   @Test

@@ -17,12 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
-import * as React from 'react';
 
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
+import { MeasuresServiceMock } from '../../../../../api/mocks/MeasuresServiceMock';
+import { ModeServiceMock } from '../../../../../api/mocks/ModeServiceMock';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
+import { Mode } from '../../../../../types/mode';
 import { Dict } from '../../../../../types/types';
 import ProjectCardMeasures, { ProjectCardMeasuresProps } from '../ProjectCardMeasures';
 
@@ -31,10 +34,46 @@ jest.mock('date-fns', () => ({
   differenceInMilliseconds: () => 1000 * 60 * 60 * 24 * 30 * 8, // ~ 8 months
 }));
 
+const measuresHandler = new MeasuresServiceMock();
+const modeHandler = new ModeServiceMock();
+
+beforeEach(() => {
+  measuresHandler.reset();
+  modeHandler.reset();
+});
+
 describe('Overall measures', () => {
-  it('should be rendered properly', () => {
+  it('should be rendered properly', async () => {
     renderProjectCardMeasures();
-    expect(screen.getByTitle('metric.security_issues.short_name')).toBeInTheDocument();
+    expect(
+      await screen.findByTitle('metric.software_quality_security_issues.short_name'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTitle('metric.software_quality_reliability_issues.short_name'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTitle('metric.software_quality_maintainability_issues.short_name'),
+    ).toBeInTheDocument();
+    expect(screen.queryByTitle('metric.vulnerabilities.short_name')).not.toBeInTheDocument();
+    expect(screen.queryByTitle('metric.bugs.short_name')).not.toBeInTheDocument();
+    expect(screen.queryByTitle('metric.code_smells.short_name')).not.toBeInTheDocument();
+  });
+
+  it('should be rendered properly in Standard mode', async () => {
+    modeHandler.setMode(Mode.Standard);
+    renderProjectCardMeasures();
+    expect(await screen.findByTitle('metric.vulnerabilities.short_name')).toBeInTheDocument();
+    expect(screen.getByTitle('metric.bugs.short_name')).toBeInTheDocument();
+    expect(screen.getByTitle('metric.code_smells.short_name')).toBeInTheDocument();
+    expect(
+      screen.queryByTitle('metric.software_quality_security_issues.short_name'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTitle('metric.software_quality_software_quality_reliability_issues.short_name'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTitle('metric.software_quality_maintainability_issues.short_name'),
+    ).not.toBeInTheDocument();
   });
 
   it("should be not be rendered if there's no line of code", () => {
@@ -68,9 +107,9 @@ function renderProjectCardMeasures(
     [MetricKey.code_smells]: '132',
     [MetricKey.coverage]: '88.3',
     [MetricKey.duplicated_lines_density]: '9.8',
-    [MetricKey.maintainability_issues]: JSON.stringify({ total: 10 }),
-    [MetricKey.reliability_issues]: JSON.stringify({ total: 10 }),
-    [MetricKey.security_issues]: JSON.stringify({ total: 10 }),
+    [MetricKey.software_quality_maintainability_issues]: '10',
+    [MetricKey.software_quality_reliability_issues]: '10',
+    [MetricKey.software_quality_security_issues]: '10',
     [MetricKey.ncloc]: '2053',
     [MetricKey.reliability_rating]: '1.0',
     [MetricKey.security_rating]: '1.0',

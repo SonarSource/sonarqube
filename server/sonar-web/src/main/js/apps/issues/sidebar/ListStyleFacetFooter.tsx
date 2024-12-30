@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { useTheme } from '@emotion/react';
-import { DiscreetLink, Theme, themeColor } from 'design-system';
-import * as React from 'react';
+
+import { DiscreetLink } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricType } from '~sonar-aligned/types/metrics';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -41,15 +40,13 @@ export function ListStyleFacetFooter({
   showMoreAriaLabel,
   total,
 }: Props) {
-  const theme = useTheme() as Theme;
-
   const hasMore = total > nbShown;
   const allShown = Boolean(total && total === nbShown);
 
   return (
     <div
       className="sw-mb-2 sw-mt-2 sw-text-center"
-      style={{ color: themeColor('graphCursorLineColor')({ theme }) }}
+      style={{ color: 'var(--echoes-color-text-subdued)' }}
     >
       {translateWithParameters('x_show', formatMeasure(nbShown, MetricType.Integer))}
 

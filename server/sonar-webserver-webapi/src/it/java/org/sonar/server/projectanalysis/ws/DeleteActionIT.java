@@ -93,7 +93,7 @@ public class DeleteActionIT {
 
   @Test
   public void fail_when_analysis_is_new_code_period_baseline() {
-    String analysisUuid = RandomStringUtils.randomAlphabetic(12);
+    String analysisUuid = RandomStringUtils.secure().nextAlphabetic(12);
     ProjectData project = db.components().insertPrivateProject();
     SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project.getMainBranchDto()).setUuid(analysisUuid).setLast(false));
     db.newCodePeriods().insert(new NewCodePeriodDto()

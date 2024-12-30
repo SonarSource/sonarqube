@@ -18,15 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Note, SeparatorCircleIcon, TextSubdued } from 'design-system';
-import * as React from 'react';
-import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
-import IssueSeverityIcon from '../../../components/icon-mappers/IssueSeverityIcon';
-import IssueTypeIcon from '../../../components/icon-mappers/IssueTypeIcon';
+import { Note } from '~design-system';
 import TagsList from '../../../components/tags/TagsList';
-import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
-import { IssueSeverity } from '../../../types/issues';
 import { Dict, RuleDetails } from '../../../types/types';
 import RuleDetailsTagsPopup from './RuleDetailsTagsPopup';
 
@@ -46,68 +40,6 @@ export default function RuleDetailsHeaderActions(props: Readonly<Props>) {
 
   return (
     <Note className="sw-flex sw-flex-wrap sw-items-center sw-gap-2 sw-typo-sm">
-      {/* Type */}
-      <DocHelpTooltip
-        content={
-          <>
-            <p className="sw-mb-4">{translate('coding_rules.type.deprecation.title')}</p>
-            <p>{translate('coding_rules.type.deprecation.filter_by')}</p>
-          </>
-        }
-        links={[
-          {
-            href: DocLink.RulesOverview,
-            label: translate('learn_more'),
-          },
-        ]}
-      >
-        <TextSubdued
-          className="it__coding-rules-detail-property sw-flex sw-items-center sw-gap-1"
-          data-meta="type"
-        >
-          <IssueTypeIcon
-            fill="iconTypeDisabled"
-            type={ruleDetails.type}
-            aria-hidden
-            width={12}
-            height={12}
-          />
-          {translate('issue.type', ruleDetails.type)}
-        </TextSubdued>
-      </DocHelpTooltip>
-      <SeparatorCircleIcon />
-
-      {/* Severity */}
-      <DocHelpTooltip
-        content={
-          <>
-            <p className="sw-mb-4">{translate('coding_rules.severity.deprecation.title')}</p>
-            <p>{translate('coding_rules.severity.deprecation.filter_by')}</p>
-          </>
-        }
-        links={[
-          {
-            href: DocLink.RulesOverview,
-            label: translate('learn_more'),
-          },
-        ]}
-      >
-        <TextSubdued
-          className="it__coding-rules-detail-property sw-flex sw-items-center sw-gap-1"
-          data-meta="severity"
-        >
-          <IssueSeverityIcon
-            fill="iconSeverityDisabled"
-            severity={ruleDetails.severity as IssueSeverity}
-            aria-hidden
-            width={12}
-            height={12}
-          />
-          {translate('severity', ruleDetails.severity)}
-        </TextSubdued>
-      </DocHelpTooltip>
-      <SeparatorCircleIcon />
-
       {/* Tags */}
       <div className="it__coding-rules-detail-property" data-meta="tags">
         <TagsList

@@ -20,21 +20,17 @@
 package org.sonar.ce.task.projectanalysis.measure;
 
 import javax.annotation.CheckForNull;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
-import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.ProjectMeasureDto;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 
 public class MeasureToMeasureDto {
 
   private final AnalysisMetadataHolder analysisMetadataHolder;
-  private final TreeRootHolder treeRootHolder;
 
-  public MeasureToMeasureDto(AnalysisMetadataHolder analysisMetadataHolder, TreeRootHolder treeRootHolder) {
+  public MeasureToMeasureDto(AnalysisMetadataHolder analysisMetadataHolder) {
     this.analysisMetadataHolder = analysisMetadataHolder;
-    this.treeRootHolder = treeRootHolder;
   }
 
   public ProjectMeasureDto toProjectMeasureDto(Measure measure, Metric metric, Component component) {
@@ -50,14 +46,12 @@ public class MeasureToMeasureDto {
     return out;
   }
 
-  public LiveMeasureDto toLiveMeasureDto(Measure measure, Metric metric, Component component) {
-    LiveMeasureDto out = new LiveMeasureDto();
-    out.setMetricUuid(metric.getUuid());
-    out.setComponentUuid(component.getUuid());
-    out.setProjectUuid(treeRootHolder.getRoot().getUuid());
-    out.setValue(valueAsDouble(measure));
-    out.setData(data(measure));
-    return out;
+  public static Object getMeasureValue(Measure measure) {
+    Double doubleValue = valueAsDouble(measure);
+    if (doubleValue != null) {
+      return doubleValue;
+    }
+    return data(measure);
   }
 
   private static void setAlert(ProjectMeasureDto projectMeasureDto, QualityGateStatus qualityGateStatus) {

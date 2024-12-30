@@ -76,19 +76,19 @@ public class SearchActionIT {
     userSession.addProjectPermission(UserRole.USER, project3);
 
     MetricDto complexity = db.measures().insertMetric(m -> m.setKey("complexity").setValueType(INT.name()));
-    db.measures().insertLiveMeasure(project1, complexity, m -> m.setValue(12.0d));
-    db.measures().insertLiveMeasure(project2, complexity, m -> m.setValue(35.0d));
-    db.measures().insertLiveMeasure(project3, complexity, m -> m.setValue(42.0d));
+    db.measures().insertMeasure(project1, m -> m.addValue(complexity.getKey(), 12.0d));
+    db.measures().insertMeasure(project2, m -> m.addValue(complexity.getKey(), 35.0d));
+    db.measures().insertMeasure(project3, m -> m.addValue(complexity.getKey(), 42.0d));
 
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.name()));
-    db.measures().insertLiveMeasure(project1, ncloc, m -> m.setValue(114.0d));
-    db.measures().insertLiveMeasure(project2, ncloc, m -> m.setValue(217.0d));
-    db.measures().insertLiveMeasure(project3, ncloc, m -> m.setValue(1984.0d));
+    db.measures().insertMeasure(project1, m -> m.addValue(ncloc.getKey(), 114.0d));
+    db.measures().insertMeasure(project2, m -> m.addValue(ncloc.getKey(), 217.0d));
+    db.measures().insertMeasure(project3, m -> m.addValue(ncloc.getKey(), 1984.0d));
 
     MetricDto newViolations = db.measures().insertMetric(m -> m.setKey("new_violations").setValueType(INT.name()));
-    db.measures().insertLiveMeasure(project1, newViolations, m -> m.setValue(25.0d));
-    db.measures().insertLiveMeasure(project2, newViolations, m -> m.setValue(25.0d));
-    db.measures().insertLiveMeasure(project3, newViolations, m -> m.setValue(255.0d));
+    db.measures().insertMeasure(project1, m -> m.addValue(newViolations.getKey(), 25.0d));
+    db.measures().insertMeasure(project2, m -> m.addValue(newViolations.getKey(), 25.0d));
+    db.measures().insertMeasure(project3, m -> m.addValue(newViolations.getKey(), 255.0d));
 
     List<String> projectKeys = Arrays.asList(project1.getKey(), project2.getKey(), project3.getKey());
 
@@ -106,7 +106,7 @@ public class SearchActionIT {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
-    db.measures().insertLiveMeasure(project, coverage, m -> m.setValue(15.5d));
+    db.measures().insertMeasure(project, m -> m.addValue(coverage.getKey(), 15.5d));
 
     SearchWsResponse result = call(singletonList(project.getKey()), singletonList(coverage.getKey()));
 
@@ -124,7 +124,7 @@ public class SearchActionIT {
     MetricDto acceptedIssues = db.measures().insertMetric(m -> m.setValueType(INT.name())
       .setKey("accepted_issues")
       .setShortName("Accepted Issues"));
-    db.measures().insertLiveMeasure(project, acceptedIssues, m -> m.setValue(10d));
+    db.measures().insertMeasure(project, m -> m.addValue(acceptedIssues.getKey(), 10d));
 
     SearchWsResponse result = call(singletonList(project.getKey()), singletonList("wont_fix_issues"));
 
@@ -140,11 +140,11 @@ public class SearchActionIT {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto matchBestValue = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()).setBestValue(15.5d));
-    db.measures().insertLiveMeasure(project, matchBestValue, m -> m.setValue(15.5d));
+    db.measures().insertMeasure(project, m -> m.addValue(matchBestValue.getKey(), 15.5d));
     MetricDto doesNotMatchBestValue = db.measures().insertMetric(m -> m.setValueType(INT.name()).setBestValue(50d));
-    db.measures().insertLiveMeasure(project, doesNotMatchBestValue, m -> m.setValue(40d));
+    db.measures().insertMeasure(project, m -> m.addValue(doesNotMatchBestValue.getKey(), 40d));
     MetricDto noBestValue = db.measures().insertMetric(m -> m.setValueType(INT.name()).setBestValue(null));
-    db.measures().insertLiveMeasure(project, noBestValue, m -> m.setValue(123d));
+    db.measures().insertMeasure(project, m -> m.addValue(noBestValue.getKey(), 123d));
 
     SearchWsResponse result = call(singletonList(project.getKey()),
       asList(matchBestValue.getKey(), doesNotMatchBestValue.getKey(), noBestValue.getKey()));
@@ -163,7 +163,7 @@ public class SearchActionIT {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey("new_metric").setValueType(FLOAT.name()));
-    db.measures().insertLiveMeasure(project, coverage, m -> m.setValue(10d));
+    db.measures().insertMeasure(project, m -> m.addValue(coverage.getKey(), 10d));
 
     SearchWsResponse result = call(singletonList(project.getKey()), singletonList(coverage.getKey()));
 
@@ -185,12 +185,12 @@ public class SearchActionIT {
     userSession.addProjectPermission(UserRole.USER, project1);
     userSession.addProjectPermission(UserRole.USER, project2);
     userSession.addProjectPermission(UserRole.USER, project3);
-    db.measures().insertLiveMeasure(project1, coverage, m -> m.setValue(5.5d));
-    db.measures().insertLiveMeasure(project2, coverage, m -> m.setValue(6.5d));
-    db.measures().insertLiveMeasure(project3, coverage, m -> m.setValue(7.5d));
-    db.measures().insertLiveMeasure(project1, complexity, m -> m.setValue(10d));
-    db.measures().insertLiveMeasure(project2, complexity, m -> m.setValue(15d));
-    db.measures().insertLiveMeasure(project3, complexity, m -> m.setValue(20d));
+    db.measures().insertMeasure(project1, m -> m.addValue(coverage.getKey(), 5.5d));
+    db.measures().insertMeasure(project2, m -> m.addValue(coverage.getKey(), 6.5d));
+    db.measures().insertMeasure(project3, m -> m.addValue(coverage.getKey(), 7.5d));
+    db.measures().insertMeasure(project1, m -> m.addValue(complexity.getKey(), 10d));
+    db.measures().insertMeasure(project2, m -> m.addValue(complexity.getKey(), 15d));
+    db.measures().insertMeasure(project3, m -> m.addValue(complexity.getKey(), 20d));
 
     SearchWsResponse result = call(asList(project1.getKey(), project2.getKey(), project3.getKey()), asList(coverage.getKey(), complexity.getKey()));
 
@@ -205,7 +205,7 @@ public class SearchActionIT {
     ComponentDto view = db.components().insertPrivatePortfolio();
     userSession.addProjectPermission(UserRole.USER, view);
     MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
-    db.measures().insertLiveMeasure(view, coverage, m -> m.setValue(15.5d));
+    db.measures().insertMeasure(view, m -> m.addValue(coverage.getKey(), 15.5d));
 
     SearchWsResponse result = call(singletonList(view.getKey()), singletonList(coverage.getKey()));
 
@@ -221,7 +221,7 @@ public class SearchActionIT {
     ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, application);
     MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
-    db.measures().insertLiveMeasure(application, coverage, m -> m.setValue(15.5d));
+    db.measures().insertMeasure(application, m -> m.addValue(coverage.getKey(), 15.5d));
 
     SearchWsResponse result = call(singletonList(application.getKey()), singletonList(coverage.getKey()));
 
@@ -239,7 +239,7 @@ public class SearchActionIT {
     userSession.addProjectPermission(UserRole.USER, view);
     userSession.addProjectPermission(UserRole.USER, subView);
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
-    db.measures().insertLiveMeasure(subView, metric, m -> m.setValue(15.5d));
+    db.measures().insertMeasure(subView, m -> m.addValue(metric.getKey(), 15.5d));
 
     SearchWsResponse result = call(singletonList(subView.getKey()), singletonList(metric.getKey()));
 
@@ -255,8 +255,8 @@ public class SearchActionIT {
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
-    db.measures().insertLiveMeasure(project1, metric, m -> m.setValue(15.5d));
-    db.measures().insertLiveMeasure(project2, metric, m -> m.setValue(42.0d));
+    db.measures().insertMeasure(project1, m -> m.addValue(metric.getKey(), 15.5d));
+    db.measures().insertMeasure(project2, m -> m.addValue(metric.getKey(), 42.0d));
     Arrays.stream(new ComponentDto[] {project1}).forEach(p -> userSession.addProjectPermission(UserRole.USER, p));
 
     SearchWsResponse result = call(asList(project1.getKey(), project2.getKey()), singletonList(metric.getKey()));
@@ -269,7 +269,7 @@ public class SearchActionIT {
     MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project);
-    db.measures().insertLiveMeasure(branch, coverage, m -> m.setValue(10d));
+    db.measures().insertMeasure(branch, m -> m.addValue(coverage.getKey(), 10d));
     userSession.addProjectPermission(UserRole.USER, project);
 
     SearchWsResponse result = call(singletonList(branch.getKey()), singletonList(coverage.getKey()));

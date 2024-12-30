@@ -17,7 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
+import { groupBy, omit } from 'lodash';
+import * as React from 'react';
 import {
   LAYOUT_GLOBAL_NAV_HEIGHT,
   LAYOUT_PROJECT_NAV_HEIGHT,
@@ -26,16 +29,13 @@ import {
   getTabPanelId,
   themeColor,
   themeShadow,
-} from 'design-system';
-import { groupBy, omit } from 'lodash';
-import * as React from 'react';
+} from '~design-system';
 import { useComponent } from '../../../app/components/componentContext/withComponentContext';
 import RuleDescription from '../../../components/rules/RuleDescription';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { useRefreshBranchStatus } from '../../../queries/branch';
-import { Cve } from '../../../types/cves';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
 import { RuleDescriptionSection, RuleDescriptionSections } from '../../coding-rules/rule';
 import useStickyDetection from '../hooks/useStickyDetection';
@@ -44,7 +44,7 @@ import StatusReviewButton from './status/StatusReviewButton';
 interface Props {
   activityTabContent: React.ReactNode;
   codeTabContent: React.ReactNode;
-  cve: Cve | undefined;
+  cveId?: string;
   hotspot: Hotspot;
   onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
   ruleDescriptionSections?: RuleDescriptionSection[];
@@ -74,7 +74,7 @@ export default function HotspotViewerTabs(props: Props) {
     hotspot,
     ruleDescriptionSections,
     ruleLanguage,
-    cve,
+    cveId,
   } = props;
 
   const { component } = useComponent();
@@ -167,8 +167,7 @@ export default function HotspotViewerTabs(props: Props) {
     document.addEventListener('keydown', handleKeyboardNavigation);
 
     return () => document.removeEventListener('keydown', handleKeyboardNavigation);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [handleKeyboardNavigation]);
 
   React.useEffect(() => {
     setCurrentTab(tabs[0]);
@@ -217,7 +216,7 @@ export default function HotspotViewerTabs(props: Props) {
           <RuleDescription
             language={ruleLanguage}
             sections={rootCauseDescriptionSections}
-            cve={cve}
+            cveId={cveId}
           />
         )}
 

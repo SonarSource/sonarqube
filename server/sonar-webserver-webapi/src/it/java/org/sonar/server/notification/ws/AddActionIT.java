@@ -78,7 +78,7 @@ class AddActionIT {
   private final WsActionTester ws = new WsActionTester(new AddAction(new NotificationCenter(
     new NotificationDispatcherMetadata[] {},
     new NotificationChannel[] {emailChannel, twitterChannel, defaultChannel}),
-    new NotificationUpdater(dbClient), dispatchers, dbClient, TestComponentFinder.from(db), userSession));
+    new NotificationUpdater(dbClient, dispatchers), dispatchers, dbClient, TestComponentFinder.from(db), userSession));
 
   @Test
   void add_to_email_channel_by_default() {
@@ -88,7 +88,7 @@ class AddActionIT {
 
     call(NOTIF_MY_NEW_ISSUES, null, null, null);
 
-    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), null);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), null, true);
   }
 
   @Test
@@ -99,7 +99,7 @@ class AddActionIT {
 
     call(NOTIF_NEW_QUALITY_GATE_STATUS, twitterChannel.getKey(), null, null);
 
-    db.notifications().assertExists(twitterChannel.getKey(), NOTIF_NEW_QUALITY_GATE_STATUS, userSession.getUuid(), null);
+    db.notifications().assertExists(twitterChannel.getKey(), NOTIF_NEW_QUALITY_GATE_STATUS, userSession.getUuid(), null, true);
   }
 
   @Test
@@ -113,7 +113,7 @@ class AddActionIT {
 
     call(NOTIF_MY_NEW_ISSUES, null, project.getKey(), null);
 
-    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), project);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), project, true);
   }
 
   @Test
@@ -127,7 +127,7 @@ class AddActionIT {
 
     call(NOTIF_MY_NEW_ISSUES, null, project.getKey(), null);
 
-    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), project);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), project, true);
   }
 
   @Test
@@ -142,8 +142,8 @@ class AddActionIT {
 
     call(NOTIF_MY_NEW_ISSUES, null, null, null);
 
-    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), project);
-    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), null);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), project, true);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), null, true);
   }
 
   @Test
@@ -158,8 +158,8 @@ class AddActionIT {
     userSession.addProjectPermission(USER, project);
     call(NOTIF_MY_NEW_ISSUES, null, project.getKey(), null);
 
-    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), project);
-    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), null);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), project, true);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), null, true);
   }
 
   @Test
@@ -174,8 +174,8 @@ class AddActionIT {
 
     call(NOTIF_MY_NEW_ISSUES, null, project.getKey(), null);
 
-    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), project);
-    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), null);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), project, true);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), null, true);
   }
 
   @Test
@@ -197,7 +197,7 @@ class AddActionIT {
 
     call(NOTIF_MY_NEW_ISSUES, null, null, user.getLogin());
 
-    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getUuid(), null);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getUuid(), null, true);
   }
 
   @Test

@@ -17,6 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+export enum AiCodeFixFeatureEnablement {
+  disabled = 'DISABLED',
+  allProjects = 'ENABLED_FOR_ALL_PROJECTS',
+  someProjects = 'ENABLED_FOR_SOME_PROJECTS',
+}
+
 interface SuggestedChange {
   endLine: number;
   newCode: string;

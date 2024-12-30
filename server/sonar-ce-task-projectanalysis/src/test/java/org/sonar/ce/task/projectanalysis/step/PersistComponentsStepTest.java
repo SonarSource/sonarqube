@@ -24,6 +24,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.component.BranchPersister;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.MutableDisabledComponentsHolder;
+import org.sonar.ce.task.projectanalysis.dependency.ProjectDependenciesHolder;
 import org.sonar.ce.task.projectanalysis.component.ProjectPersister;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.step.TestComputationStepContext;
@@ -32,7 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
 
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -47,20 +48,24 @@ public class PersistComponentsStepTest {
     Component component = mock(Component.class);
     DbClient dbClient = mock(DbClient.class);
     ComponentDao componentDao = mock(ComponentDao.class);
-    String projectKey = randomAlphabetic(20);
+    String projectKey = secure().nextAlphabetic(20);
 
     doReturn(component).when(treeRootHolder).getRoot();
     doReturn(projectKey).when(component).getKey();
     doReturn(componentDao).when(dbClient).componentDao();
     doReturn(emptyList()).when(componentDao).selectByBranchUuid(eq(projectKey), any(DbSession.class));
 
-    assertThatThrownBy(() -> new PersistComponentsStep(
+    var underTest = new PersistComponentsStep(
       dbClient,
       treeRootHolder,
       System2.INSTANCE,
       mock(MutableDisabledComponentsHolder.class),
       mock(BranchPersister.class),
-      mock(ProjectPersister.class)).execute(new TestComputationStepContext()))
+      mock(ProjectPersister.class),
+      mock(ProjectDependenciesHolder.class));
+
+    var context = new TestComputationStepContext();
+    assertThatThrownBy(() -> underTest.execute(context))
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("The project '" + projectKey + "' is not stored in the database, during a project analysis");
   }

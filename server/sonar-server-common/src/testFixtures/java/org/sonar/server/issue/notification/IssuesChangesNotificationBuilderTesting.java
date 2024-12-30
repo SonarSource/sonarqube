@@ -35,7 +35,7 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.User
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.UserChange;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
@@ -75,7 +75,7 @@ public class IssuesChangesNotificationBuilderTesting {
 
   static ChangedIssue newChangedIssue(String key, Project project, Rule rule) {
     return new ChangedIssue.Builder(key)
-      .setNewStatus(randomAlphabetic(19))
+      .setNewStatus(secure().nextAlphabetic(19))
       .setProject(project)
       .setRule(rule)
       .build();
@@ -94,7 +94,7 @@ public class IssuesChangesNotificationBuilderTesting {
   }
 
   static Rule newRule(String ruleName, RuleType ruleType) {
-    return new Rule(RuleKey.of(randomAlphabetic(6), randomAlphabetic(7)), ruleType, ruleName);
+    return new Rule(RuleKey.of(secure().nextAlphabetic(6), secure().nextAlphabetic(7)), ruleType, ruleName);
   }
 
   static Rule newRandomNotAHotspotRule(String ruleName) {
@@ -114,7 +114,7 @@ public class IssuesChangesNotificationBuilderTesting {
   }
 
   static UserChange newUserChange() {
-    return new UserChange(new Random().nextLong(), new User(randomAlphabetic(4), randomAlphabetic(5), randomAlphabetic(6)));
+    return new UserChange(new Random().nextLong(), new User(secure().nextAlphabetic(4), secure().nextAlphabetic(5), secure().nextAlphabetic(6)));
   }
 
   static AnalysisChange newAnalysisChange() {

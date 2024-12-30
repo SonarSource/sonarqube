@@ -255,7 +255,7 @@ public class PopulateDb {
         // create live measure for the branch
         projectLiveMeasureMetrics.stream()
           .map(sqContext.metricDtosByKey::get)
-          .forEach(metricDto -> sqContext.dbTester().measures().insertLiveMeasureWithSensibleValues(branchAndComponentDto.compo, metricDto));
+          .forEach(metricDto -> sqContext.dbTester().measures().insertMeasureWithSensibleValues(branchAndComponentDto.compo, metricDto));
 
         // create snapshots for the current branch
         long time = System2.INSTANCE.now();
@@ -270,7 +270,7 @@ public class PopulateDb {
           // insert project measure for the snapshot
           projectProjectMeasureMetrics.stream()
             .map(sqContext.metricDtosByKey::get)
-            .forEach(metricDto -> sqContext.dbTester().measures().insertMeasureWithSensibleValues(branchAndComponentDto.compo, snapshotDto, metricDto));
+            .forEach(metricDto -> sqContext.dbTester().measures().insertProjectMeasureWithSensibleValues(branchAndComponentDto.compo, snapshotDto, metricDto));
         }
         SnapshotDto lastSnapshotDto = snapshots.get(0);
         lastSnapshotDto.setLast(true);
@@ -300,7 +300,7 @@ public class PopulateDb {
           // create live measure for this file
           fileLiveMeasureMetrics.stream()
             .map(sqContext.metricDtosByKey::get)
-            .forEach(metricDto -> sqContext.dbTester().measures().insertLiveMeasureWithSensibleValues(fileComponentDto, metricDto));
+            .forEach(metricDto -> sqContext.dbTester().measures().insertMeasureWithSensibleValues(fileComponentDto, metricDto));
         }
 
         sqContext.dbTester.forceCommit();

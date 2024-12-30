@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import userEvent from '@testing-library/user-event';
 import { last } from 'lodash';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
@@ -162,7 +163,7 @@ it('cannot set specific analysis setting', async () => {
   await ui.appIsLoaded();
 
   expect(await ui.specificAnalysisRadio.find()).toBeChecked();
-  expect(ui.baselineSpecificAnalysisDate.get()).toBeInTheDocument();
+  expect(await ui.baselineSpecificAnalysisDate.find()).toBeInTheDocument();
 
   expect(ui.specificAnalysisRadio.get()).toHaveClass('disabled');
   expect(ui.specificAnalysisWarning.get()).toBeInTheDocument();
@@ -393,6 +394,7 @@ function getPageObjects() {
     branchNCDsBanner: byText(/new_code_definition.auto_update.branch.message/),
     dismissButton: byLabelText('dismiss'),
     baselineSpecificAnalysisDate: byText(/January 10, 2018/),
+    missingReferenceBranchWarning: byText('baseline.reference_branch.does_not_exist'),
   };
 
   async function appIsLoaded() {

@@ -19,16 +19,16 @@
  */
 package org.sonar.server.issue.notification;
 
-import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.platform.Server;
 
 /**
  * Creates email message for notification "new-issues".
  */
 public class NewIssuesEmailTemplate extends AbstractNewIssuesEmailTemplate {
 
-  public NewIssuesEmailTemplate(EmailSettings settings) {
-    super(settings);
+  public NewIssuesEmailTemplate(Server server) {
+    super(server);
   }
 
   @Override

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { times } from 'lodash';
@@ -28,15 +29,14 @@ import {
   byText,
 } from '~sonar-aligned/helpers/testSelector';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
-import {
-  CCT_SOFTWARE_QUALITY_METRICS,
-  DEPRECATED_ACTIVITY_METRICS,
-} from '../../../helpers/constants';
+import { modeHandler } from '../../../apps/issues/test-utils';
+import { CCT_SOFTWARE_QUALITY_METRICS } from '../../../helpers/constants';
 import { parseDate } from '../../../helpers/dates';
 import { mockHistoryItem, mockMeasureHistory } from '../../../helpers/mocks/project-activity';
 import { mockMetric } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { ComponentPropsType } from '../../../helpers/testUtils';
+import { Mode } from '../../../types/mode';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';
 import { Metric } from '../../../types/types';
 import GraphsHeader from '../GraphsHeader';
@@ -54,7 +54,11 @@ describe('rendering', () => {
     expect(await screen.findByText('loading')).toBeInTheDocument();
   });
 
-  it('should show the correct legend items', async () => {
+  it.each([
+    [Mode.MQR, MetricKey.software_quality_maintainability_issues],
+    [Mode.Standard, MetricKey.code_smells],
+  ])('should show the correct legend items in %s mode', async (mode, metric) => {
+    modeHandler.setMode(mode);
     const { ui, user } = getPageObject();
     renderActivityGraph();
 
@@ -65,12 +69,12 @@ describe('rendering', () => {
     // Switch to custom graph.
     await ui.changeGraphType(GraphType.custom);
     await ui.openAddMetrics();
-    await ui.clickOnMetric(MetricKey.bugs);
+    await ui.clickOnMetric(metric);
     await ui.clickOnMetric(MetricKey.test_failures);
     await user.keyboard('{Escape}');
 
     // These legend items are interactive (interaction tested below).
-    expect(ui.legendRemoveMetricBtn(MetricKey.bugs).get()).toBeInTheDocument();
+    expect(ui.legendRemoveMetricBtn(metric).get()).toBeInTheDocument();
     expect(ui.legendRemoveMetricBtn(MetricKey.test_failures).get()).toBeInTheDocument();
 
     // Shows warning for metrics with no data.
@@ -97,7 +101,7 @@ describe('data table modal', () => {
     await ui.closeDataTable();
     await ui.changeGraphType(GraphType.coverage);
 
-    await ui.openDataTable();
+    await ui.openDataTable(true);
     expect(ui.dataTable.get()).toBeInTheDocument();
     expect(ui.dataTableColHeaders.getAll()).toHaveLength(4);
     expect(ui.dataTableRows.getAll()).toHaveLength(HISTORY_COUNT + 1);
@@ -117,70 +121,79 @@ describe('data table modal', () => {
   });
 });
 
-it('should correctly handle adding/removing custom metrics', async () => {
-  const { ui } = getPageObject();
-  renderActivityGraph();
+it.each([
+  [
+    Mode.MQR,
+    MetricKey.software_quality_reliability_issues,
+    MetricKey.software_quality_maintainability_issues,
+    MetricKey.software_quality_security_issues,
+  ],
+  [Mode.Standard, MetricKey.bugs, MetricKey.code_smells, MetricKey.vulnerabilities],
+])(
+  'should correctly handle adding/removing custom metrics in $s mode',
+  async (mode, bugs, codeSmells, vulnerabilities) => {
+    modeHandler.setMode(mode);
+    const { ui } = getPageObject();
+    renderActivityGraph();
 
-  // Change graph type to "Custom".
-  await ui.changeGraphType(GraphType.custom);
+    // Change graph type to "Custom".
+    await ui.changeGraphType(GraphType.custom);
 
-  // Open the "Add metrics" dropdown button; select some metrics.
-  await ui.openAddMetrics();
+    // Open the "Add metrics" dropdown button; select some metrics.
+    await ui.openAddMetrics();
 
-  // We should not see DATA type or New Code metrics.
-  expect(ui.newBugsCheckbox.query()).not.toBeInTheDocument();
-  expect(ui.burnedBudgetCheckbox.query()).not.toBeInTheDocument();
+    // We should not see DATA type or New Code metrics.
+    expect(ui.metricCheckbox(`new_${bugs}`).query()).not.toBeInTheDocument();
+    expect(ui.burnedBudgetCheckbox.query()).not.toBeInTheDocument();
 
-  // Select 3 Int types.
-  await ui.clickOnMetric(MetricKey.bugs);
-  await ui.clickOnMetric(MetricKey.code_smells);
-  await ui.clickOnMetric(MetricKey.confirmed_issues);
-  // Select 1 Percent type.
-  await ui.clickOnMetric(MetricKey.coverage);
+    // Select 3 Int types.
+    await ui.clickOnMetric(bugs);
+    await ui.clickOnMetric(codeSmells);
+    await ui.clickOnMetric(MetricKey.accepted_issues);
+    // Select 1 Percent type.
+    await ui.clickOnMetric(MetricKey.coverage);
 
-  // We should see 2 graphs, correctly labelled.
-  expect(ui.graphs.getAll()).toHaveLength(2);
+    // We should see 2 graphs, correctly labelled.
+    expect(ui.graphs.getAll()).toHaveLength(2);
 
-  // old types and confirmed metrics should be deprecated and show a badge (both in dropdown and in legend)
-  expect(ui.deprecatedBadge.getAll()).toHaveLength(6);
+    // We cannot select anymore Int types. It should hide options, and show an alert.
+    expect(ui.metricCheckbox(vulnerabilities).query()).not.toBeInTheDocument();
+    expect(ui.hiddenOptionsAlert.get()).toBeInTheDocument();
 
-  // We cannot select anymore Int types. It should hide options, and show an alert.
-  expect(ui.vulnerabilityCheckbox.query()).not.toBeInTheDocument();
-  expect(ui.hiddenOptionsAlert.get()).toBeInTheDocument();
+    // Select 2 more Percent types.
+    await ui.clickOnMetric(MetricKey.duplicated_lines_density);
+    await ui.clickOnMetric(MetricKey.test_success_density);
 
-  // Select 2 more Percent types.
-  await ui.clickOnMetric(MetricKey.duplicated_lines_density);
-  await ui.clickOnMetric(MetricKey.test_success_density);
+    // We cannot select anymore options. It should disable all remaining options, and
+    // show a different alert.
+    expect(ui.maxOptionsAlert.get()).toBeInTheDocument();
+    expect(ui.metricCheckbox(vulnerabilities).get()).toBeDisabled();
 
-  // We cannot select anymore options. It should disable all remaining options, and
-  // show a different alert.
-  expect(ui.maxOptionsAlert.get()).toBeInTheDocument();
-  expect(ui.vulnerabilityCheckbox.get()).toBeDisabled();
+    // Disable a few options.
+    await ui.clickOnMetric(bugs);
+    await ui.clickOnMetric(codeSmells);
+    await ui.clickOnMetric(MetricKey.coverage);
 
-  // Disable a few options.
-  await ui.clickOnMetric(MetricKey.bugs);
-  await ui.clickOnMetric(MetricKey.code_smells);
-  await ui.clickOnMetric(MetricKey.coverage);
+    // Search for option and select it
+    await ui.searchForMetric('condition');
+    expect(ui.metricCheckbox(MetricKey.branch_coverage).query()).not.toBeInTheDocument();
+    await ui.clickOnMetric(MetricKey.conditions_to_cover);
 
-  // Search for option and select it
-  await ui.searchForMetric('maintainability');
-  expect(ui.vulnerabilityCheckbox.query()).not.toBeInTheDocument();
-  await ui.clickOnMetric(MetricKey.maintainability_issues);
+    // Disable percentage metrics by clicking on the legend items.
+    await ui.removeMetric(MetricKey.duplicated_lines_density);
+    await ui.removeMetric(MetricKey.test_success_density);
 
-  // Disable percentage metrics by clicking on the legend items.
-  await ui.removeMetric(MetricKey.duplicated_lines_density);
-  await ui.removeMetric(MetricKey.test_success_density);
+    // We should see 1 graph
+    expect(ui.graphs.getAll()).toHaveLength(1);
 
-  // We should see 1 graph
-  expect(ui.graphs.getAll()).toHaveLength(1);
+    // Disable final number metrics
+    await ui.removeMetric(MetricKey.accepted_issues);
+    await ui.removeMetric(MetricKey.conditions_to_cover);
 
-  // Disable final number metrics
-  await ui.removeMetric(MetricKey.confirmed_issues);
-  await ui.removeMetric(MetricKey.maintainability_issues);
-
-  // Should show message that there's no data to be rendered.
-  expect(ui.noDataText.get()).toBeInTheDocument();
-});
+    // Should show message that there's no data to be rendered.
+    expect(ui.noDataText.get()).toBeInTheDocument();
+  },
+);
 
 function getPageObject() {
   const user = userEvent.setup();
@@ -190,18 +203,17 @@ function getPageObject() {
 
     // Add/remove metrics.
     addMetricBtn: byRole('button', { name: 'project_activity.graphs.custom.add' }),
-    deprecatedBadge: byText('deprecated'),
-    maintainabilityIssuesCheckbox: byRole('checkbox', { name: MetricKey.maintainability_issues }),
+    maintainabilityIssuesCheckbox: byRole('checkbox', {
+      name: MetricKey.software_quality_maintainability_issues,
+    }),
     newBugsCheckbox: byRole('checkbox', { name: MetricKey.new_bugs }),
     burnedBudgetCheckbox: byRole('checkbox', { name: MetricKey.burned_budget }),
-    vulnerabilityCheckbox: byRole('checkbox', {
-      name: `${MetricKey.vulnerabilities} (deprecated)`,
-    }),
     hiddenOptionsAlert: byText('project_activity.graphs.custom.type_x_message', {
       exact: false,
     }),
     maxOptionsAlert: byText('project_activity.graphs.custom.add_metric_info'),
     filterMetrics: byPlaceholderText('search.search_for_metrics'),
+    metricCheckbox: (name: string) => byRole('checkbox', { name }),
     legendRemoveMetricBtn: (key: string) =>
       byRole('button', { name: `project_activity.graphs.custom.remove_metric.${key}` }),
     getLegendItem: (name: string) => {
@@ -216,7 +228,7 @@ function getPageObject() {
     noDataText: byText('project_activity.graphs.custom.no_history'),
 
     // Data in table.
-    openInTableBtn: byRole('button', { name: 'project_activity.graphs.open_in_table' }),
+    openInTableRegion: byRole('region', { name: /project_activity.graphs.open_in_table/ }),
     closeDataTableBtn: byRole('button', { name: 'close' }),
     dataTable: byRole('table'),
     dataTableRows: byRole('row'),
@@ -242,17 +254,20 @@ function getPageObject() {
         await user.type(ui.filterMetrics.get(), text);
       },
       async clickOnMetric(name: MetricKey) {
-        await user.click(
-          screen.getByRole('checkbox', {
-            name: DEPRECATED_ACTIVITY_METRICS.includes(name) ? `${name} (deprecated)` : name,
-          }),
-        );
+        await user.click(ui.metricCheckbox(name).get());
       },
       async removeMetric(metric: MetricKey) {
         await user.click(ui.legendRemoveMetricBtn(metric).get());
       },
-      async openDataTable() {
-        await user.click(ui.openInTableBtn.get());
+      async openDataTable(tabFromGraphSelection = false) {
+        // tab to graph selection and close popup
+        if (!tabFromGraphSelection) {
+          await user.tab();
+          await user.keyboard('{escape}');
+        }
+        // tab to graph region and open data table
+        await user.tab();
+        await user.keyboard('{enter}');
       },
       async closeDataTable() {
         await user.click(ui.closeDataTableBtn.get());
@@ -272,18 +287,22 @@ function renderActivityGraph(
     const measuresHistory: MeasureHistory[] = [];
     const metrics: Metric[] = [];
     [
+      MetricKey.accepted_issues,
       MetricKey.violations,
       MetricKey.bugs,
       MetricKey.code_smells,
-      MetricKey.confirmed_issues,
-      MetricKey.maintainability_issues,
       MetricKey.vulnerabilities,
+      MetricKey.software_quality_maintainability_issues,
+      MetricKey.software_quality_reliability_issues,
+      MetricKey.software_quality_security_issues,
       MetricKey.blocker_violations,
       MetricKey.lines_to_cover,
       MetricKey.uncovered_lines,
       MetricKey.coverage,
       MetricKey.duplicated_lines_density,
       MetricKey.test_success_density,
+      MetricKey.branch_coverage,
+      MetricKey.conditions_to_cover,
     ].forEach((metric) => {
       const history = times(HISTORY_COUNT - 2, (i) => {
         const date = parseDate(START_DATE);

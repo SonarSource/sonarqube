@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { FacetBox, FacetItem } from 'design-system';
-import * as React from 'react';
 import { useIntl } from 'react-intl';
+import { FacetBox, FacetItem } from '~design-system';
 import { Dict } from '../../../types/types';
 import { Query, formatFacetStat } from '../utils';
 import { FacetItemsList } from './FacetItemsList';
@@ -44,7 +43,6 @@ export function PrioritizedRuleFacet(props: Readonly<PrioritizedRuleFacetProps>)
   return (
     <FacetBox
       className="it__search-navigator-facet-box it__search-navigator-facet-header"
-      clearIconLabel={intl.formatMessage({ id: 'clear' })}
       count={value ? 1 : 0}
       onClear={() => props.onChange({ [property]: undefined })}
       onClick={() => onToggle(property)}

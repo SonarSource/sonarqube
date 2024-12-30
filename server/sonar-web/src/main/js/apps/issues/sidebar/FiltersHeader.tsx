@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { BasicSeparator, PageTitle } from 'design-system';
-import * as React from 'react';
+import { BasicSeparator, PageTitle } from '~design-system';
+import ModeBanner from '../../../components/common/ModeBanner';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -40,6 +41,7 @@ export function FiltersHeader({ displayReset, onReset }: Props) {
         )}
       </div>
 
+      <ModeBanner as="facetBanner" />
       <BasicSeparator className="sw-mt-4" />
     </div>
   );

@@ -28,7 +28,7 @@ import org.sonar.db.ce.CeActivityDto;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CeTaskTimeoutExceptionTest {
-  private String message = RandomStringUtils.randomAlphabetic(50);
+  private String message = RandomStringUtils.secure().nextAlphabetic(50);
   private CeTaskTimeoutException underTest = new CeTaskTimeoutException(message);
 
   @Test

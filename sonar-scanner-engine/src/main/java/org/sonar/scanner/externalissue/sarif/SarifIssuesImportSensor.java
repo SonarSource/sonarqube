@@ -35,7 +35,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.config.PropertyDefinition.ConfigScope;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.scanner.sensor.ProjectSensor;
 import org.sonar.api.utils.MessageException;
@@ -66,7 +66,7 @@ public class SarifIssuesImportSensor implements ProjectSensor {
         .name("SARIF report paths")
         .description("List of comma-separated paths (absolute or relative) containing a SARIF report with issues created by external rule engines.")
         .category(CoreProperties.CATEGORY_EXTERNAL_ISSUES)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .build());
   }
 

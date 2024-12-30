@@ -1,4 +1,6 @@
 {
-  "extends": "../../tsconfig.base",
-  "include": ["./react.tsx"]
+  "extends": "../../tsconfig",
+  "include": [
+    "./react.tsx"
+  ]
 }

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ButtonPrimary } from 'design-system/lib';
 import { Helmet } from 'react-helmet-async';
 import OrganizationsList from './OrganizationsList';
 import { Organization } from "../../../types/types";
@@ -29,6 +28,7 @@ import withAppStateContext from "../../../app/components/app-state/withAppStateC
 import withCurrentUserContext from "../../../app/components/current-user/withCurrentUserContext";
 import { GlobalSettingKeys } from "../../../types/settings";
 import "../projects/account.css";
+import { ButtonPrimary } from "~design-system";
 
 interface Props {
   appState: AppState;

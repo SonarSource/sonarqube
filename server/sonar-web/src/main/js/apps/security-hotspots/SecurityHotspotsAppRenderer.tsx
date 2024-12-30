@@ -20,6 +20,8 @@
 
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
+import { isEmpty } from 'lodash';
+import { Helmet } from 'react-helmet-async';
 import {
   LAYOUT_FOOTER_HEIGHT,
   LAYOUT_GLOBAL_NAV_HEIGHT,
@@ -29,10 +31,7 @@ import {
   Spinner,
   themeBorder,
   themeColor,
-} from 'design-system';
-import { isEmpty } from 'lodash';
-import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
+} from '~design-system';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { isBranch } from '~sonar-aligned/helpers/branch-like';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
@@ -54,7 +53,7 @@ import './SecurityHotspotsAppRenderer.css';
 
 export interface SecurityHotspotsAppRendererProps {
   branchLike?: BranchLike;
-  component: Component;
+  component?: Component;
   filterByCWE?: string;
   filterByCategory?: {
     category: string;
@@ -107,10 +106,13 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
     standards,
   } = props;
 
-  const isProject = component.qualifier === ComponentQualifier.Project;
-
   const { top: topScroll } = useFollowScroll();
 
+  if (component === undefined) {
+    return null;
+  }
+
+  const isProject = component.qualifier === ComponentQualifier.Project;
   const distanceFromBottom = topScroll + window.innerHeight - document.body.clientHeight;
 
   const footerVisibleHeight =

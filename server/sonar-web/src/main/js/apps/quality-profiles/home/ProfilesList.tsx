@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ContentCell, FlagMessage, HelperHintIcon, Table, TableRow } from 'design-system';
+
+import { Button, ButtonVariety, IconQuestionMark, Tooltip } from '@sonarsource/echoes-react';
 import { groupBy, pick, sortBy } from 'lodash';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
-import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
+import { ContentCell, FlagMessage, Table, TableRow } from '~design-system';
 import { Language } from '../../../types/languages';
 import { Dict } from '../../../types/types';
 import { Profile } from '../types';
@@ -62,12 +63,15 @@ export default function ProfilesList(props: Readonly<Props>) {
           </ContentCell>
           <ContentCell>
             {intl.formatMessage({ id: 'quality_profiles.list.projects' })}
-            <HelpTooltip
-              className="sw-ml-1"
-              overlay={intl.formatMessage({ id: 'quality_profiles.list.projects.help' })}
-            >
-              <HelperHintIcon />
-            </HelpTooltip>
+            <Tooltip content={intl.formatMessage({ id: 'quality_profiles.list.projects.help' })}>
+              <Button
+                className="sw-p-0 sw-h-fit sw-min-h-fit"
+                aria-label={intl.formatMessage({ id: 'help' })}
+                variety={ButtonVariety.DefaultGhost}
+              >
+                <IconQuestionMark color="echoes-color-icon-subdued" />
+              </Button>
+            </Tooltip>
           </ContentCell>
           <ContentCell>{intl.formatMessage({ id: 'quality_profiles.list.rules' })}</ContentCell>
           <ContentCell>{intl.formatMessage({ id: 'quality_profiles.list.updated' })}</ContentCell>

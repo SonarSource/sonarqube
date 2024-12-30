@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+
 import { Route } from 'react-router-dom';
-import ProjectQualityGateApp from './ProjectQualityGateApp';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
+
+const ProjectQualityGateApp = lazyLoadComponent(() => import('./ProjectQualityGateApp'));
 
 const routes = () => <Route path="project/quality_gate" element={<ProjectQualityGateApp />} />;
 

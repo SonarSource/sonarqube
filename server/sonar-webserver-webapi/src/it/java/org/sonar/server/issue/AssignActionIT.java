@@ -32,6 +32,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.IssueDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -55,6 +56,7 @@ public class AssignActionIT {
 
   private final IssueChangeContext issueChangeContext = issueChangeContextByUserBuilder(new Date(), "user_uuid").build();
   private final DefaultIssue issue = new DefaultIssue().setKey("ABC").setAssigneeUuid(ISSUE_CURRENT_ASSIGNEE_UUID);
+  private final IssueDto issueDto = new IssueDto().setKee("ABC").setAssigneeUuid(ISSUE_CURRENT_ASSIGNEE_UUID);
   private Action.Context context;
 
   private final AssignAction underTest = new AssignAction(db.getDbClient(), new IssueFieldsSetter());
@@ -62,7 +64,7 @@ public class AssignActionIT {
   @Before
   public void setUp() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    context = new ActionContext(issue, issueChangeContext, project);
+    context = new ActionContext(issue, issueDto, issueChangeContext, project);
   }
 
   @Test

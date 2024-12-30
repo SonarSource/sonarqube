@@ -22,12 +22,12 @@ package org.sonar.server.projectdump.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.web.UserRole;
 import org.sonar.ce.task.CeTask;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.ce.projectdump.ExportSubmitter;
@@ -57,7 +57,7 @@ public class ExportActionIT {
   public DbTester db = DbTester.create();
 
   private final ExportSubmitter exportSubmitter = mock(ExportSubmitter.class);
-  private final ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW);
+  private final ComponentTypesRule resourceTypes = new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT, ComponentQualifiers.VIEW);
   private final ProjectDumpWsSupport projectDumpWsSupport = new ProjectDumpWsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), resourceTypes));
   private final ExportAction underTest = new ExportAction(projectDumpWsSupport, userSession, exportSubmitter);
   private final WsActionTester actionTester = new WsActionTester(underTest);

@@ -17,22 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { CenteredLayout, Spinner } from 'design-system';
+
 import { differenceBy } from 'lodash';
 import * as React from 'react';
 import { createPortal } from 'react-dom';
 import { Helmet } from 'react-helmet-async';
+import { useIntl } from 'react-intl';
 import { Outlet } from 'react-router-dom';
+import { CenteredLayout, Spinner } from '~design-system';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { getTasksForComponent } from '../../api/ce';
 import { getComponentData } from '../../api/components';
 import { getComponentNavigation } from '../../api/navigation';
-import { translateWithParameters } from '../../helpers/l10n';
 import { HttpStatus } from '../../helpers/request';
 import { getPortfolioUrl, getProjectUrl, getPullRequestUrl } from '../../helpers/urls';
 import { useCurrentBranchQuery } from '../../queries/branch';
-import { useIsLegacyCCTMode } from '../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../queries/mode';
+import { ProjectAlmBindingConfigurationErrors } from '../../types/alm-settings';
 import { Branch } from '../../types/branch-like';
 import { isFile } from '../../types/component';
 import { Task, TaskStatuses, TaskTypes } from '../../types/tasks';
@@ -47,7 +49,6 @@ import ComponentNav from './nav/component/ComponentNav';
 import { getOrganization, getOrganizationNavigation } from "../../api/organizations";
 import { ComponentQualifier } from "~sonar-aligned/types/component";
 import { Feature } from "../../types/features";
-import { ProjectAlmBindingConfigurationErrors } from "../../types/alm-settings";
 import { getValues } from '../../api/settings';
 
 const FETCH_STATUS_WAIT_TIME = 3000;
@@ -63,6 +64,8 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
   } = useLocation();
   const router = useRouter();
 
+  const intl = useIntl();
+
   const [comparisonBranchesEnabled, setComparisonBranchesEnabled] = React.useState<boolean>();
   const [organization, setOrganization] = React.useState<Organization>();
   const [component, setComponent] = React.useState<Component>();
@@ -76,8 +79,8 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
     fixedInPullRequest ? component : undefined,
   );
 
-  //prefetch isLegacyCCTMode
-  useIsLegacyCCTMode();
+  //prefetch isStandardExperienceMode
+  useStandardExperienceModeQuery();
 
   const isInTutorials = pathname.includes('tutorials');
 
@@ -301,9 +304,9 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
     <div>
       <Helmet
         defer={false}
-        titleTemplate={translateWithParameters(
-          'page_title.template.with_instance',
-          component?.name ?? '',
+        titleTemplate={intl.formatMessage(
+          { id: 'page_title.template.with_instance' },
+          { project: component?.name ?? '' },
         )}
       />
       {component && organization &&

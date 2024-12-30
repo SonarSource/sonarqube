@@ -32,7 +32,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.metric.MetricDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.protobuf.DbIssues;
@@ -118,18 +117,12 @@ public class IssueSnippetsActionIT {
   public void should_add_measures_to_components() {
     ComponentDto file = insertFile(mainBranchComponent, "file");
 
-    MetricDto lines = db.measures().insertMetric(m -> m.setKey(LINES_KEY));
-    db.measures().insertLiveMeasure(file, lines, m -> m.setValue(200d));
-    MetricDto duplicatedLines = db.measures().insertMetric(m -> m.setKey(DUPLICATED_LINES_DENSITY_KEY));
-    db.measures().insertLiveMeasure(file, duplicatedLines, m -> m.setValue(7.4));
-    MetricDto tests = db.measures().insertMetric(m -> m.setKey(TESTS_KEY));
-    db.measures().insertLiveMeasure(file, tests, m -> m.setValue(3d));
-    MetricDto technicalDebt = db.measures().insertMetric(m -> m.setKey(TECHNICAL_DEBT_KEY));
-    db.measures().insertLiveMeasure(file, technicalDebt, m -> m.setValue(182d));
-    MetricDto issues = db.measures().insertMetric(m -> m.setKey(VIOLATIONS_KEY));
-    db.measures().insertLiveMeasure(file, issues, m -> m.setValue(231d));
-    MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
-    db.measures().insertLiveMeasure(file, coverage, m -> m.setValue(95.4d));
+    db.measures().insertMeasure(file, m -> m.addValue(LINES_KEY, 200d));
+    db.measures().insertMeasure(file, m -> m.addValue(DUPLICATED_LINES_DENSITY_KEY, 7.4));
+    db.measures().insertMeasure(file, m -> m.addValue(TESTS_KEY, 3d));
+    db.measures().insertMeasure(file, m -> m.addValue(TECHNICAL_DEBT_KEY, 182d));
+    db.measures().insertMeasure(file, m -> m.addValue(VIOLATIONS_KEY, 231d));
+    db.measures().insertMeasure(file, m -> m.addValue(COVERAGE_KEY, 95.4d));
 
     DbFileSources.Data fileSources = FileSourceTesting.newFakeData(10).build();
     fileSourceTester.insertFileSource(file, 10, dto -> dto.setSourceData(fileSources));

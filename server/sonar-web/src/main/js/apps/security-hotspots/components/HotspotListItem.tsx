@@ -17,16 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
-import {
-  BareButton,
-  ExecutionFlowIcon,
-  SubnavigationItem,
-  themeColor,
-  themeContrast,
-} from 'design-system';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { BareButton, ExecutionFlowIcon, SubnavigationItem, themeColor } from '~design-system';
 import SingleFileLocationNavigator from '../../../components/locations/SingleFileLocationNavigator';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RawHotspot } from '../../../types/security-hotspots';
@@ -122,7 +117,7 @@ const StyledHotspotTitle = styled(BareButton)`
 `;
 
 const StyledHotspotInfo = styled.div`
-  color: ${themeContrast('pageContentLight')};
+  color: var(--echoes-color-text-subdued);
 `;
 
 const StyledSeparator = styled.div`

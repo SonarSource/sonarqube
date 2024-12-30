@@ -21,8 +21,8 @@ package org.sonar.db.component;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang3.RandomStringUtils.randomAscii;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 
 public class SnapshotTesting {
 
@@ -43,19 +43,19 @@ public class SnapshotTesting {
 
   public static SnapshotDto newAnalysis(String uuid) {
     return new SnapshotDto()
-      .setUuid(randomAlphanumeric(40))
+      .setUuid(secure().nextAlphanumeric(40))
       .setRootComponentUuid(uuid)
       .setStatus(SnapshotDto.STATUS_PROCESSED)
       .setCreatedAt(System.currentTimeMillis())
       .setAnalysisDate(System.currentTimeMillis())
-      .setRevision(randomAlphanumeric(50))
+      .setRevision(secure().nextAlphanumeric(50))
       .setLast(true);
   }
 
   public static SnapshotDto newSnapshot() {
     return new SnapshotDto()
-      .setUuid(randomAlphanumeric(40))
-      .setRootComponentUuid(randomAlphanumeric(40))
+      .setUuid(secure().nextAlphanumeric(40))
+      .setRootComponentUuid(secure().nextAlphanumeric(40))
       .setStatus(randomAscii(1))
       .setCreatedAt(System.currentTimeMillis())
       .setAnalysisDate(System.currentTimeMillis())

@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FacetBox, FacetItem } from 'design-system';
+
 import { isEqual, sortBy, without } from 'lodash';
-import * as React from 'react';
 import { useIntl } from 'react-intl';
+import { FacetBox, FacetItem } from '~design-system';
+import { FacetHelp } from '../../../components/facets/FacetHelp';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { ISSUE_STATUSES } from '../../../helpers/constants';
+import { DocLink } from '../../../helpers/doc-links';
 import { IssueStatus } from '../../../types/issues';
 import { formatFacetStat } from '../utils';
 import { FacetItemsList } from './FacetItemsList';
@@ -51,7 +53,6 @@ export function IssueStatusFacet(props: Readonly<Props>) {
   return (
     <FacetBox
       className="it__search-navigator-facet-box it__search-navigator-facet-header"
-      clearIconLabel={intl.formatMessage({ id: 'clear' })}
       count={nbSelectedItems}
       countLabel={intl.formatMessage({ id: 'x_selected' }, { '0': nbSelectedItems })}
       data-property={property}
@@ -65,7 +66,7 @@ export function IssueStatusFacet(props: Readonly<Props>) {
       }
       onClick={() => props.onToggle(property)}
       open={open}
-      help={help}
+      help={help ?? <FacetHelp property="issueStatuses" link={DocLink.IssueStatuses} />}
     >
       <FacetItemsList labelledby={headerId}>
         {ISSUE_STATUSES.map((item) => {

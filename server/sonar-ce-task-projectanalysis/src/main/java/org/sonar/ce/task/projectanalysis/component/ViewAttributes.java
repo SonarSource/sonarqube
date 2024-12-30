@@ -21,7 +21,7 @@ package org.sonar.ce.task.projectanalysis.component;
 
 import java.util.Arrays;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 
 import static java.util.Objects.requireNonNull;
 
@@ -29,7 +29,7 @@ import static java.util.Objects.requireNonNull;
 public class ViewAttributes {
 
   public enum Type {
-    PORTFOLIO(Qualifiers.VIEW), APPLICATION(Qualifiers.APP);
+    PORTFOLIO(ComponentQualifiers.VIEW), APPLICATION(ComponentQualifiers.APP);
 
     private final String qualifier;
 

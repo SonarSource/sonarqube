@@ -33,8 +33,8 @@ public class TelemetryMetricsSentTesting {
 
   public static TelemetryMetricsSentDto newTelemetryMetricsSentDto() {
     return new TelemetryMetricsSentDto(
-      RandomStringUtils.randomAlphanumeric(40), // key
-      RandomStringUtils.randomAlphanumeric(30) // dimension
+      RandomStringUtils.secure().nextAlphanumeric(40), // key
+      RandomStringUtils.secure().nextAlphanumeric(30) // dimension
       ).setLastSent(RANDOM.nextLong());
   }
 }

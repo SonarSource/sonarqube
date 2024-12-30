@@ -26,18 +26,23 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.util.cache.DoubleCache;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.toLevel;
+import static org.sonar.ce.task.projectanalysis.measure.ValueType.BOOLEAN;
+import static org.sonar.ce.task.projectanalysis.measure.ValueType.DOUBLE;
+import static org.sonar.ce.task.projectanalysis.measure.ValueType.INT;
+import static org.sonar.ce.task.projectanalysis.measure.ValueType.LEVEL;
+import static org.sonar.ce.task.projectanalysis.measure.ValueType.LONG;
+import static org.sonar.ce.task.projectanalysis.measure.ValueType.NO_VALUE;
+import static org.sonar.ce.task.projectanalysis.measure.ValueType.STRING;
 
 public interface Measure {
-
-  enum ValueType {
-    NO_VALUE, BOOLEAN, INT, LONG, DOUBLE, STRING, LEVEL
-  }
 
   enum Level {
     OK("Passed"),
@@ -78,51 +83,51 @@ public interface Measure {
   ValueType getValueType();
 
   /**
-   * The value of this measure as a boolean if the type is {@link Measure.ValueType#BOOLEAN}.
+   * The value of this measure as a boolean if the type is {@link ValueType#BOOLEAN}.
    *
-   * @throws IllegalStateException if the value type of the measure is not {@link Measure.ValueType#BOOLEAN}
+   * @throws IllegalStateException if the value type of the measure is not {@link ValueType#BOOLEAN}
    */
   boolean getBooleanValue();
 
   /**
-   * The value of this measure as a int if the type is {@link Measure.ValueType#INT}.
+   * The value of this measure as a int if the type is {@link ValueType#INT}.
    *
-   * @throws IllegalStateException if the value type of the measure is not {@link Measure.ValueType#INT}
+   * @throws IllegalStateException if the value type of the measure is not {@link ValueType#INT}
    */
   int getIntValue();
 
   /**
-   * The value of this measure as a long if the type is {@link Measure.ValueType#LONG}.
+   * The value of this measure as a long if the type is {@link ValueType#LONG}.
    *
-   * @throws IllegalStateException if the value type of the measure is not {@link Measure.ValueType#LONG}
+   * @throws IllegalStateException if the value type of the measure is not {@link ValueType#LONG}
    */
   long getLongValue();
 
   /**
-   * The value of this measure as a double if the type is {@link Measure.ValueType#DOUBLE}.
+   * The value of this measure as a double if the type is {@link ValueType#DOUBLE}.
    *
-   * @throws IllegalStateException if the value type of the measure is not {@link Measure.ValueType#DOUBLE}
+   * @throws IllegalStateException if the value type of the measure is not {@link ValueType#DOUBLE}
    */
   double getDoubleValue();
 
   /**
-   * The value of this measure as a String if the type is {@link Measure.ValueType#STRING}.
+   * The value of this measure as a String if the type is {@link ValueType#STRING}.
    *
-   * @throws IllegalStateException if the value type of the measure is not {@link Measure.ValueType#STRING}
+   * @throws IllegalStateException if the value type of the measure is not {@link ValueType#STRING}
    */
   String getStringValue();
 
   /**
-   * The value of this measure as a Level if the type is {@link Measure.ValueType#LEVEL}.
+   * The value of this measure as a Level if the type is {@link ValueType#LEVEL}.
    *
-   * @throws IllegalStateException if the value type of the measure is not {@link Measure.ValueType#LEVEL}
+   * @throws IllegalStateException if the value type of the measure is not {@link ValueType#LEVEL}
    */
   Level getLevelValue();
 
   /**
    * The data of this measure if it exists.
    * <p>
-   * If the measure type is {@link Measure.ValueType#STRING}, the value returned by this function is the same as {@link #getStringValue()}.
+   * If the measure type is {@link ValueType#STRING}, the value returned by this function is the same as {@link #getStringValue()}.
    * </p>
    */
   String getData();
@@ -141,7 +146,7 @@ public interface Measure {
   QualityGateStatus getQualityGateStatus();
 
   default boolean isEmpty() {
-    return getValueType() == ValueType.NO_VALUE && getData() == null;
+    return getValueType() == NO_VALUE && getData() == null;
   }
 
   static NewMeasureBuilder newMeasureBuilder() {
@@ -178,37 +183,37 @@ public interface Measure {
 
     @Override
     public boolean getBooleanValue() {
-      checkValueType(ValueType.BOOLEAN, valueType);
+      checkValueType(BOOLEAN, valueType);
       return value != null && value.intValue() == 1;
     }
 
     @Override
     public int getIntValue() {
-      checkValueType(ValueType.INT, valueType);
+      checkValueType(INT, valueType);
       return value.intValue();
     }
 
     @Override
     public long getLongValue() {
-      checkValueType(ValueType.LONG, valueType);
+      checkValueType(LONG, valueType);
       return value.longValue();
     }
 
     @Override
     public double getDoubleValue() {
-      checkValueType(ValueType.DOUBLE, valueType);
+      checkValueType(DOUBLE, valueType);
       return value;
     }
 
     @Override
     public String getStringValue() {
-      checkValueType(ValueType.STRING, valueType);
+      checkValueType(STRING, valueType);
       return data;
     }
 
     @Override
     public Level getLevelValue() {
-      checkValueType(ValueType.LEVEL, valueType);
+      checkValueType(LEVEL, valueType);
       return dataLevel;
     }
 
@@ -267,25 +272,25 @@ public interface Measure {
 
     @Override
     public boolean getBooleanValue() {
-      MeasureImpl.checkValueType(ValueType.BOOLEAN, valueType);
+      MeasureImpl.checkValueType(BOOLEAN, valueType);
       return value != null && value.intValue() == 1;
     }
 
     @Override
     public int getIntValue() {
-      MeasureImpl.checkValueType(ValueType.INT, valueType);
+      MeasureImpl.checkValueType(INT, valueType);
       return value.intValue();
     }
 
     @Override
     public long getLongValue() {
-      MeasureImpl.checkValueType(ValueType.LONG, valueType);
+      MeasureImpl.checkValueType(LONG, valueType);
       return value.longValue();
     }
 
     @Override
     public double getDoubleValue() {
-      MeasureImpl.checkValueType(ValueType.DOUBLE, valueType);
+      MeasureImpl.checkValueType(DOUBLE, valueType);
       return value;
     }
 
@@ -341,7 +346,7 @@ public interface Measure {
   class NoValueMeasureImpl implements Measure {
     @Override
     public ValueType getValueType() {
-      return ValueType.NO_VALUE;
+      return NO_VALUE;
     }
 
     @Override
@@ -392,7 +397,7 @@ public interface Measure {
     @Override
     public String toString() {
       return toStringHelper(this)
-        .add("valueType", ValueType.NO_VALUE)
+        .add("valueType", NO_VALUE)
         .toString();
     }
   }
@@ -406,7 +411,7 @@ public interface Measure {
     }
 
     public Measure create(boolean value, @Nullable String data) {
-      return createInternal(ValueType.BOOLEAN, value ? 1.0D : 0.0D, data);
+      return createInternal(BOOLEAN, value ? 1.0D : 0.0D, data);
     }
 
     public Measure create(boolean value) {
@@ -414,7 +419,7 @@ public interface Measure {
     }
 
     public Measure create(int value, @Nullable String data) {
-      return createInternal(ValueType.INT, value, data);
+      return createInternal(INT, value, data);
     }
 
     public Measure create(int value) {
@@ -422,7 +427,7 @@ public interface Measure {
     }
 
     public Measure create(long value, @Nullable String data) {
-      return createInternal(ValueType.LONG, value, data);
+      return createInternal(LONG, value, data);
     }
 
     public Measure create(long value) {
@@ -432,7 +437,7 @@ public interface Measure {
     public Measure create(double value, int decimalScale, @Nullable String data) {
       checkArgument(!Double.isNaN(value), "NaN is not allowed as a Measure value");
       double scaledValue = scale(value, decimalScale);
-      return createInternal(ValueType.DOUBLE, scaledValue, data);
+      return createInternal(DOUBLE, scaledValue, data);
     }
 
     private Measure createInternal(ValueType type, double value, @Nullable String data) {
@@ -452,18 +457,34 @@ public interface Measure {
     }
 
     public Measure create(String value) {
-      return new MeasureImpl(ValueType.STRING, null, requireNonNull(value), null, qualityGateStatus);
+      return new MeasureImpl(STRING, null, requireNonNull(value), null, qualityGateStatus);
     }
 
     public Measure create(Level level) {
-      return new MeasureImpl(ValueType.LEVEL, null, null, requireNonNull(level), qualityGateStatus);
+      return new MeasureImpl(LEVEL, null, null, requireNonNull(level), qualityGateStatus);
+    }
+
+    public Measure create(Metric metric, @Nullable Object value) {
+      if (value == null) {
+        return createNoValue();
+      }
+
+      return switch (metric.getType().getValueType()) {
+        case INT -> create(((Double) value).intValue());
+        case LONG -> create(((Double) value).longValue());
+        case DOUBLE -> create((Double) value);
+        case BOOLEAN -> create(Double.compare((Double) value, 1.0D) == 0);
+        case STRING -> create((String) value);
+        case LEVEL -> toLevel((String) value).map(this::create).orElse(createNoValue());
+        case NO_VALUE -> createNoValue();
+      };
     }
 
     public Measure createNoValue() {
       if (qualityGateStatus == null) {
         return new NoValueMeasureImpl();
       }
-      return new MeasureImpl(ValueType.NO_VALUE, null, null, null, qualityGateStatus);
+      return new MeasureImpl(NO_VALUE, null, null, null, qualityGateStatus);
     }
 
     private static double scale(double value, int decimalScale) {
@@ -495,26 +516,14 @@ public interface Measure {
     }
 
     public Measure create() {
-      Double value;
-      switch (source.getValueType()) {
-        case DOUBLE:
-          value = source.getDoubleValue();
-          break;
-        case INT:
-          value = (double) source.getIntValue();
-          break;
-        case LONG:
-          value = (double) source.getLongValue();
-          break;
-        case BOOLEAN:
-          value = source.getBooleanValue() ? 1.0 : 0.0;
-          break;
-        case NO_VALUE:
-        default:
-          value = null;
-          break;
-      }
-      Level level = source.getValueType() == ValueType.LEVEL ? source.getLevelValue() : null;
+      Double value = switch (source.getValueType()) {
+        case DOUBLE -> source.getDoubleValue();
+        case INT -> (double) source.getIntValue();
+        case LONG -> (double) source.getLongValue();
+        case BOOLEAN -> source.getBooleanValue() ? 1.0 : 0.0;
+        default -> null;
+      };
+      Level level = source.getValueType() == LEVEL ? source.getLevelValue() : null;
       QualityGateStatus status = source.hasQualityGateStatus() ? source.getQualityGateStatus() : qualityGateStatus;
       return new MeasureImpl(source.getValueType(), value, source.getData(), level, status);
     }

@@ -28,6 +28,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -36,7 +37,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.jetbrains.annotations.NotNull;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
@@ -112,14 +112,14 @@ public final class IssueDto implements Serializable {
   // populate only when retrieving closed issue for issue tracking
   private String closedChangeData;
 
-  private Set<ImpactDto> impacts = new HashSet<>();
+  private Set<ImpactDto> impacts = new LinkedHashSet<>();
 
-  //non-persisted fields
-  private Set<ImpactDto> ruleDefaultImpacts = new HashSet<>();
+  // non-persisted fields
+  private Set<ImpactDto> ruleDefaultImpacts = new LinkedHashSet<>();
   private CleanCodeAttribute cleanCodeAttribute;
   private CleanCodeAttribute ruleCleanCodeAttribute;
 
-  //issues dependency fields, one-one relationship
+  // issues dependency fields, one-one relationship
   private String cveId;
 
   public IssueDto() {
@@ -130,7 +130,7 @@ public final class IssueDto implements Serializable {
    * On batch side, component keys and uuid are useless
    */
   public static IssueDto toDtoForComputationInsert(DefaultIssue issue, String ruleUuid, long now) {
-    return new IssueDto()
+    IssueDto issueDto = new IssueDto()
       .setKee(issue.key())
       .setType(issue.type())
       .setLine(issue.line())
@@ -162,20 +162,14 @@ public final class IssueDto implements Serializable {
       .setQuickFixAvailable(issue.isQuickFixAvailable())
       .setIsNewCodeReferenceIssue(issue.isNewCodeReferenceIssue())
       .setCodeVariants(issue.codeVariants())
-      .replaceAllImpacts(mapToImpactDto(issue.impacts()))
       .setCleanCodeAttribute(issue.getCleanCodeAttribute())
       // technical dates
       .setCreatedAt(now)
       .setUpdatedAt(now)
       .setCveId(issue.getCveId());
-  }
 
-  @NotNull
-  private static Set<ImpactDto> mapToImpactDto(Map<SoftwareQuality, Severity> impacts) {
-    return impacts.entrySet().stream().map(e -> new ImpactDto()
-        .setSoftwareQuality(e.getKey())
-        .setSeverity(e.getValue()))
-      .collect(Collectors.toSet());
+    issue.getImpacts().forEach(i -> issueDto.addImpact(new ImpactDto(i.softwareQuality(), i.severity(), i.manualSeverity())));
+    return issueDto;
   }
 
   /**
@@ -189,7 +183,7 @@ public final class IssueDto implements Serializable {
 
   public static IssueDto toDtoForUpdate(DefaultIssue issue, long now) {
     // Invariant fields, like key and rule, can't be updated
-    return new IssueDto()
+    IssueDto issueDto = new IssueDto()
       .setKee(issue.key())
       .setType(issue.type())
       .setLine(issue.line())
@@ -220,11 +214,14 @@ public final class IssueDto implements Serializable {
       .setQuickFixAvailable(issue.isQuickFixAvailable())
       .setIsNewCodeReferenceIssue(issue.isNewCodeReferenceIssue())
       .setCodeVariants(issue.codeVariants())
-      .replaceAllImpacts(mapToImpactDto(issue.impacts()))
       .setCleanCodeAttribute(issue.getCleanCodeAttribute())
       .setPrioritizedRule(issue.isPrioritizedRule())
       // technical date
       .setUpdatedAt(now);
+
+    issue.getImpacts().forEach(i -> issueDto.addImpact(new ImpactDto(i.softwareQuality(), i.severity(), i.manualSeverity())));
+    return issueDto;
+
   }
 
   public String getKey() {
@@ -833,12 +830,10 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
-
   public IssueDto setRuleDefaultImpacts(Set<ImpactDto> ruleDefaultImpacts) {
     this.ruleDefaultImpacts = new HashSet<>(ruleDefaultImpacts);
     return this;
   }
-
 
   public IssueDto replaceAllImpacts(Collection<ImpactDto> newImpacts) {
     Set<SoftwareQuality> newSoftwareQuality = newImpacts.stream().map(ImpactDto::getSoftwareQuality).collect(Collectors.toSet());
@@ -928,7 +923,7 @@ public final class IssueDto implements Serializable {
     issue.setIsNewCodeReferenceIssue(isNewCodeReferenceIssue);
     issue.setCodeVariants(getCodeVariants());
     issue.setCleanCodeAttribute(cleanCodeAttribute);
-    impacts.forEach(i -> issue.addImpact(i.getSoftwareQuality(), i.getSeverity()));
+    impacts.forEach(i -> issue.addImpact(i.getSoftwareQuality(), i.getSeverity(), i.isManualSeverity()));
     issue.setCveId(cveId);
     return issue;
   }

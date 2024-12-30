@@ -33,7 +33,7 @@ import org.mockito.Mockito;
 import org.sonar.process.ProcessId;
 import org.sonar.process.System2;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
@@ -72,7 +72,7 @@ public class AbstractCommandTest {
 
     };
 
-    assertThatThrownBy(() -> underTest.setEnvVariable(null, randomAlphanumeric(30)))
+    assertThatThrownBy(() -> underTest.setEnvVariable(null, secure().nextAlphanumeric(30)))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("key can't be null");
   }
@@ -84,7 +84,7 @@ public class AbstractCommandTest {
 
     };
 
-    assertThatThrownBy(() -> underTest.setEnvVariable(randomAlphanumeric(30), null))
+    assertThatThrownBy(() -> underTest.setEnvVariable(secure().nextAlphanumeric(30), null))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("value can't be null");
   }
@@ -107,8 +107,8 @@ public class AbstractCommandTest {
     File workDir = temp.newFolder();
     System2 system2 = Mockito.mock(System2.class);
     Map<String, String> env = new HashMap<>();
-    String key1 = randomAlphanumeric(3);
-    env.put(key1, randomAlphanumeric(9));
+    String key1 = secure().nextAlphanumeric(3);
+    env.put(key1, secure().nextAlphanumeric(9));
     when(system2.getenv()).thenReturn(env);
     AbstractCommand underTest = new AbstractCommand(ProcessId.ELASTICSEARCH, workDir, system2) {
 

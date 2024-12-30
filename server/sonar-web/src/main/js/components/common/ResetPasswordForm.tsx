@@ -19,8 +19,8 @@
  */
 
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { FlagMessage, FormField, InputField } from 'design-system';
 import * as React from 'react';
+import { FlagMessage, FormField, InputField } from '~design-system';
 import { changePassword } from '../../api/users';
 import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../helpers/l10n';

@@ -20,7 +20,7 @@
 package org.sonar.ce.task.projectanalysis.component;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -72,7 +72,7 @@ public class ProjectPersister {
     projectDto.setDescription(root.getDescription());
     projectDto.setUpdatedAt(system2.now());
     projectDto.setKey(root.getKey());
-    projectDto.setQualifier(root.getType().equals(Component.Type.PROJECT) ? Qualifiers.PROJECT : Qualifiers.APP);
+    projectDto.setQualifier(root.getType().equals(Component.Type.PROJECT) ? ComponentQualifiers.PROJECT : ComponentQualifiers.APP);
     return projectDto;
   }
 }

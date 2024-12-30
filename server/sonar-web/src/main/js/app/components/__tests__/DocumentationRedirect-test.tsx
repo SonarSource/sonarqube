@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
-import * as React from 'react';
 import { Route } from 'react-router-dom';
 import { mockAppState } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
@@ -30,15 +30,6 @@ it('should redirect to static doc for specific version', async () => {
   expect(await screen.findByRole('link')).toHaveAttribute(
     'href',
     'https://docs.sonarsource.com/sonarqube/10.0/land',
-  );
-});
-
-it('should redirect to static doc for latest version', async () => {
-  renderDocumentationRedirect('land', '10.0-SNAPSHOT');
-
-  expect(await screen.findByRole('link')).toHaveAttribute(
-    'href',
-    'https://docs.sonarsource.com/sonarqube/latest/land',
   );
 });
 

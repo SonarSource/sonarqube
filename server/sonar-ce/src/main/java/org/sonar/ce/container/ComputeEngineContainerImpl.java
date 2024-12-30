@@ -26,10 +26,8 @@ import javax.annotation.CheckForNull;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
-import org.sonar.api.config.EmailSettings;
 import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.profile.BuiltInQualityProfileAnnotationLoader;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.api.utils.Durations;
@@ -46,7 +44,6 @@ import org.sonar.ce.analysis.cache.cleaning.AnalysisCacheCleaningModule;
 import org.sonar.ce.async.SynchronousAsyncExecution;
 import org.sonar.ce.cleaning.CeCleaningModule;
 import org.sonar.ce.configuration.WorkerCountProviderImpl;
-import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.issue.index.NoAsyncIssueIndexing;
 import org.sonar.ce.logging.CeProcessLogging;
 import org.sonar.ce.monitoring.CEQueueStatusImpl;
@@ -62,12 +59,12 @@ import org.sonar.ce.task.projectanalysis.taskprocessor.AuditPurgeTaskModule;
 import org.sonar.ce.task.projectanalysis.taskprocessor.IssueSyncTaskModule;
 import org.sonar.ce.taskprocessor.CeProcessingScheduler;
 import org.sonar.ce.taskprocessor.CeTaskProcessorModule;
-import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.documentation.DefaultDocumentationLinkGenerator;
 import org.sonar.core.extension.CoreExtensionRepositoryImpl;
 import org.sonar.core.extension.CoreExtensionsLoader;
 import org.sonar.core.language.LanguagesProvider;
+import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.core.platform.Container;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
@@ -87,6 +84,8 @@ import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.Props;
 import org.sonar.process.logging.LogbackHelper;
+import org.sonar.server.component.ComponentTypes;
+import org.sonar.server.component.DefaultComponentTypes;
 import org.sonar.server.component.index.EntityDefinitionIndexer;
 import org.sonar.server.config.ConfigurationProvider;
 import org.sonar.server.email.EmailSmtpConfiguration;
@@ -110,11 +109,11 @@ import org.sonar.server.l18n.ServerI18n;
 import org.sonar.server.log.ServerLogging;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.metric.IssueCountMetrics;
-import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.server.metric.UnanalyzedLanguageMetrics;
 import org.sonar.server.notification.DefaultNotificationManager;
 import org.sonar.server.notification.NotificationService;
 import org.sonar.server.notification.email.EmailNotificationChannel;
+import org.sonar.server.oauth.OAuthMicrosoftRestClient;
 import org.sonar.server.organization.BillingValidationsProxyImpl;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.platform.DefaultNodeInformation;
@@ -297,7 +296,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // DB
       new DaoModule(),
-      ReadOnlyPropertiesDao.class,
       DBSessionsImpl.class,
       DbClient.class,
 
@@ -310,6 +308,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       new OkHttpClientProvider(),
       computeEngineStatus,
       NoOpAuditPersister.class,
+
+      DefaultDocumentationLinkGenerator.class,
 
       CoreExtensionRepositoryImpl.class,
       CoreExtensionsLoader.class,
@@ -326,9 +326,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       DatabaseSettingLoader.class,
       DatabaseSettingsEnabler.class,
       UrlSettings.class,
-
-      // add ReadOnlyPropertiesDao at level2 again so that it shadows PropertiesDao
-      ReadOnlyPropertiesDao.class,
 
       // plugins
       PluginClassloaderFactory.class,
@@ -357,10 +354,11 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   private static void populateLevel4(Container container, Props props) {
     container.add(
       RuleDescriptionFormatter.class,
-      ResourceTypes.class,
-      DefaultResourceTypes.get(),
+      ComponentTypes.class,
+      DefaultComponentTypes.get(),
       BillingValidationsProxyImpl.class,
       WorkerCountProviderImpl.class,
+
       // quality profile
       ActiveRuleIndexer.class,
       BuiltInQualityProfileAnnotationLoader.class,
@@ -412,8 +410,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // Notifications
       QGChangeEmailTemplate.class,
-      EmailSettings.class,
       EmailSmtpConfiguration.class,
+      OAuthMicrosoftRestClient.class,
       NotificationService.class,
       DefaultNotificationManager.class,
       EmailNotificationChannel.class,
@@ -452,9 +450,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       QualityGateFinder.class,
       QualityGateEvaluatorImpl.class,
 
-      new AnalysisCacheCleaningModule(),
-
-      DefaultDocumentationLinkGenerator.class
+      new AnalysisCacheCleaningModule()
 
     );
 

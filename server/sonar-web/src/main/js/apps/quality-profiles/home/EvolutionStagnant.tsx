@@ -19,9 +19,8 @@
  */
 
 import { Heading } from '@sonarsource/echoes-react';
-import { DiscreetLink, FlagMessage, Note } from 'design-system';
-import * as React from 'react';
 import { useIntl } from 'react-intl';
+import { DiscreetLink, FlagMessage, Note } from '~design-system';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import { isDefined } from '../../../helpers/types';
 import { Profile } from '../types';

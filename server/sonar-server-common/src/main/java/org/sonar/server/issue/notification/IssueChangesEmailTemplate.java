@@ -36,7 +36,7 @@ import java.util.SortedSet;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
-import org.sonar.api.config.EmailSettings;
+import org.sonar.api.platform.Server;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.i18n.I18n;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.ChangedIssue;
@@ -74,11 +74,11 @@ public abstract class IssueChangesEmailTemplate implements EmailTemplate {
   private static final String URL_ENCODED_COMMA = urlEncode(",");
 
   private final I18n i18n;
-  private final EmailSettings settings;
+  private final Server server;
 
-  protected IssueChangesEmailTemplate(I18n i18n, EmailSettings settings) {
+  protected IssueChangesEmailTemplate(I18n i18n, Server server) {
     this.i18n = i18n;
-    this.settings = settings;
+    this.server = server;
   }
 
   /**
@@ -195,7 +195,7 @@ public abstract class IssueChangesEmailTemplate implements EmailTemplate {
 
   BiConsumer<StringBuilder, Collection<ChangedIssue>> projectIssuePageHref(String projectParams) {
     return (s, issues) -> {
-      s.append(settings.getServerBaseURL()).append("/project/issues?").append(projectParams)
+      s.append(server.getPublicRootUrl()).append("/project/issues?").append(projectParams)
         .append("&issues=");
 
       Iterator<ChangedIssue> issueIterator = issues.iterator();
@@ -214,7 +214,7 @@ public abstract class IssueChangesEmailTemplate implements EmailTemplate {
 
   BiConsumer<StringBuilder, Collection<ChangedIssue>> securityHotspotPageHref(String projectParams) {
     return (s, issues) -> {
-      s.append(settings.getServerBaseURL()).append("/security_hotspots?").append(projectParams)
+      s.append(server.getPublicRootUrl()).append("/security_hotspots?").append(projectParams)
         .append("&hotspots=");
 
       Iterator<ChangedIssue> issueIterator = issues.iterator();
@@ -246,7 +246,7 @@ public abstract class IssueChangesEmailTemplate implements EmailTemplate {
         .append('"').append(i18n.message(Locale.ENGLISH, notificationI18nKey, notificationI18nKey)).append('"')
         .append(" notifications from SonarQube.");
       s.append(" Click ");
-      link(s, s1 -> s1.append(settings.getServerBaseURL()).append("/account/notifications"), s1 -> s1.append("here"));
+      link(s, s1 -> s1.append(server.getPublicRootUrl()).append("/account/notifications"), s1 -> s1.append("here"));
       s.append(" to edit your email preferences.");
       s.append("</small>");
     });

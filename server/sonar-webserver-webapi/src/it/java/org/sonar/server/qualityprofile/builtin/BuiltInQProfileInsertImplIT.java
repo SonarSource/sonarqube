@@ -21,21 +21,26 @@ package org.sonar.server.qualityprofile.builtin;
 
 import java.util.Arrays;
 import java.util.List;
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nullable;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.PropertyType;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.NewBuiltInQualityProfile;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
-import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -55,31 +60,36 @@ import org.sonar.server.util.TypeValidations;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.api.issue.impact.Severity.BLOCKER;
+import static org.sonar.api.issue.impact.Severity.HIGH;
+import static org.sonar.api.issue.impact.Severity.INFO;
+import static org.sonar.db.rule.RuleTesting.newRule;
 
-public class BuiltInQProfileInsertImplIT {
+class BuiltInQProfileInsertImplIT {
 
-  @Rule
+  @RegisterExtension
   public BuiltInQProfileRepositoryRule builtInQProfileRepository = new BuiltInQProfileRepositoryRule();
-  @Rule
-  public DbTester db = DbTester.create();
+  @RegisterExtension
+  public static DbTester db = DbTester.create();
 
   private final System2 system2 = new AlwaysIncreasingSystem2();
-  private final UuidFactory uuidFactory = new SequenceUuidFactory();
+  private final UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
   private final TypeValidations typeValidations = new TypeValidations(singletonList(new StringTypeValidation()));
   private final DbSession dbSession = db.getSession();
-  private final DbSession batchDbSession = db.getDbClient().openSession(true);
+  private static final DbSession batchDbSession = db.getDbClient().openSession(true);
   private final ServerRuleFinder ruleFinder = new DefaultRuleFinder(db.getDbClient(), mock(RuleDescriptionFormatter.class));
   private final ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
-  private final BuiltInQProfileInsertImpl underTest = new BuiltInQProfileInsertImpl(db.getDbClient(), ruleFinder, system2, uuidFactory, typeValidations, activeRuleIndexer, sonarQubeVersion);
+  private final BuiltInQProfileInsertImpl underTest = new BuiltInQProfileInsertImpl(db.getDbClient(), ruleFinder, system2, uuidFactory, typeValidations, activeRuleIndexer,
+    sonarQubeVersion);
 
-  @After
-  public void tearDown() {
+  @AfterAll
+  public static void tearDown() {
     batchDbSession.close();
   }
 
   @Test
-  public void insert_active_rules_and_changelog() {
+  void insert_active_rules_and_changelog() {
     RuleDto rule1 = db.rules().insert(r -> r.setLanguage("xoo"));
     RuleDto rule2 = db.rules().insert(r -> r.setLanguage("xoo"));
 
@@ -106,7 +116,39 @@ public class BuiltInQProfileInsertImplIT {
   }
 
   @Test
-  public void insert_default_qp() {
+  void insert_active_rules_with_impacts() {
+    RuleDto rule1 = db.rules().insert(newRule()
+      .replaceAllDefaultImpacts(Set.of(
+        new ImpactDto(SoftwareQuality.SECURITY, INFO),
+        new ImpactDto(SoftwareQuality.RELIABILITY, BLOCKER)))
+      .setLanguage("xoo")
+      .setSeverity(Severity.MINOR));
+    RuleDto rule2 = db.rules().insert(newRule().setLanguage("xoo").setSeverity(Severity.MAJOR));
+
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("the name", "xoo");
+
+    newQp.activateRule(rule1.getRepositoryKey(), rule1.getRuleKey());
+    newQp.activateRule(rule2.getRepositoryKey(), rule2.getRuleKey());
+    newQp.done();
+
+    BuiltInQProfile builtIn = builtInQProfileRepository.create(context.profile("xoo", "the name"), rule1, rule2);
+    call(builtIn);
+
+    verifyTableSize("rules_profiles", 1);
+    verifyTableSize("org_qprofiles", 1);
+    verifyTableSize("active_rules", 2);
+    verifyTableSize("active_rule_parameters", 0);
+    verifyTableSize("qprofile_changes", 2);
+    verifyTableSize("default_qprofiles", 0);
+
+    QProfileDto profile = verifyProfileInDb(builtIn);
+    verifyActiveRuleInDb(profile, rule1, Severity.MINOR, Map.of(SoftwareQuality.SECURITY, INFO, SoftwareQuality.RELIABILITY, BLOCKER));
+    verifyActiveRuleInDb(profile, rule2, Severity.MAJOR, Map.of(SoftwareQuality.MAINTAINABILITY, HIGH));
+  }
+
+  @Test
+  void insert_default_qp() {
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     context.createBuiltInQualityProfile("the name", "xoo")
       .setDefault(true)
@@ -126,7 +168,7 @@ public class BuiltInQProfileInsertImplIT {
   }
 
   @Test
-  public void insert_active_rules_with_params() {
+  void insert_active_rules_with_params() {
     RuleDto rule1 = db.rules().insert(r -> r.setLanguage("xoo"));
     RuleParamDto param1 = db.rules().insertRuleParam(rule1, p -> p.setType(PropertyType.STRING.name()));
     RuleParamDto param2 = db.rules().insertRuleParam(rule1, p -> p.setType(PropertyType.STRING.name()));
@@ -151,7 +193,7 @@ public class BuiltInQProfileInsertImplIT {
   }
 
   @Test
-  public void flag_profile_as_default_if_declared_as_default_by_api() {
+  void flag_profile_as_default_if_declared_as_default_by_api() {
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("the name", "xoo").setDefault(true);
     newQp.done();
@@ -166,7 +208,7 @@ public class BuiltInQProfileInsertImplIT {
   }
 
   @Test
-  public void existing_default_profile_must_not_be_changed() {
+  void existing_default_profile_must_not_be_changed() {
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("the name", "xoo").setDefault(true);
     newQp.done();
@@ -183,7 +225,7 @@ public class BuiltInQProfileInsertImplIT {
   }
 
   @Test
-  public void dont_flag_profile_as_default_if_not_declared_as_default_by_api() {
+  void dont_flag_profile_as_default_if_not_declared_as_default_by_api() {
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("the name", "xoo").setDefault(false);
     newQp.done();
@@ -198,6 +240,11 @@ public class BuiltInQProfileInsertImplIT {
   // TODO test lot of active_rules, params, orgas
 
   private void verifyActiveRuleInDb(QProfileDto profile, RuleDto rule, String expectedSeverity, RuleParamDto... paramDtos) {
+    verifyActiveRuleInDb(profile, rule, expectedSeverity, null, paramDtos);
+  }
+
+  private void verifyActiveRuleInDb(QProfileDto profile, RuleDto rule, String expectedSeverity,
+    @Nullable Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> expectedImpacts, RuleParamDto... paramDtos) {
     ActiveRuleDto activeRule = db.getDbClient().activeRuleDao().selectByKey(dbSession, ActiveRuleKey.of(profile, rule.getKey())).get();
     assertThat(activeRule.getUuid()).isNotNull();
     assertThat(activeRule.getInheritance()).isNull();
@@ -205,6 +252,8 @@ public class BuiltInQProfileInsertImplIT {
     assertThat(activeRule.getRuleUuid()).isEqualTo(rule.getUuid());
     assertThat(activeRule.getProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
     assertThat(activeRule.getSeverityString()).isEqualTo(expectedSeverity);
+    assertThat(activeRule.getImpacts()).isEqualTo(
+      expectedImpacts != null ? expectedImpacts : Map.of(SoftwareQuality.MAINTAINABILITY, HIGH));
     assertThat(activeRule.getCreatedAt()).isPositive();
     assertThat(activeRule.getUpdatedAt()).isPositive();
 

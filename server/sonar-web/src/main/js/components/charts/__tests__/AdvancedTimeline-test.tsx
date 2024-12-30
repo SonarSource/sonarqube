@@ -17,19 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { TooltipProvider } from '@sonarsource/echoes-react';
 import { render } from '@testing-library/react';
-import * as React from 'react';
 import { MetricType } from '~sonar-aligned/types/metrics';
 import { AdvancedTimeline, PropsWithoutTheme } from '../AdvancedTimeline';
 
 // Replace scaleTime with scaleUtc to avoid timezone-dependent snapshots
 jest.mock('d3-scale', () => {
-  const { scaleUtc, ...others } = jest.requireActual('d3-scale');
-
+  const d3scale = jest.requireActual('d3-scale');
   return {
-    ...others,
-    scaleTime: scaleUtc,
+    ...d3scale,
+    scaleTime: d3scale.scaleUtc,
   };
 });
 

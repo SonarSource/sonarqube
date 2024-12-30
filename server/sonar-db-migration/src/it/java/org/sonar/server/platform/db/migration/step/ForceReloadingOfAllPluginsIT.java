@@ -28,7 +28,7 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.CoreDbTester;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.platform.db.migration.step.ForceReloadingOfAllPlugins.OVERWRITE_HASH;
 
@@ -74,8 +74,8 @@ class ForceReloadingOfAllPluginsIT {
     Map<String, Object> map = new HashMap<>();
     String uuid = uuidFactory.create();
     map.put("UUID", uuid);
-    map.put("KEE", randomAlphabetic(20));
-    map.put("FILE_HASH", randomAlphabetic(32));
+    map.put("KEE", secure().nextAlphabetic(20));
+    map.put("FILE_HASH", secure().nextAlphabetic(32));
     map.put("CREATED_AT", System.currentTimeMillis());
     map.put("UPDATED_AT", System.currentTimeMillis());
     map.put("TYPE", "EXTERNAL");

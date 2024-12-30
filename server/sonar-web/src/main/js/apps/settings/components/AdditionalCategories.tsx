@@ -17,24 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { ExtendedSettingDefinition } from '../../../types/settings';
 import { Component } from '../../../types/types';
 import {
+  AI_CODE_FIX_CATEGORY,
   ANALYSIS_SCOPE_CATEGORY,
   AUTHENTICATION_CATEGORY,
-  CODE_FIX_CATEGORY,
   EMAIL_NOTIFICATION_CATEGORY,
   LANGUAGES_CATEGORY,
+  MODE_CATEGORY,
   NEW_CODE_PERIOD_CATEGORY,
 } from '../constants';
+import AiCodeFixAdmin from './ai-codefix/AiCodeFixAdminCategory';
 import { AnalysisScope } from './AnalysisScope';
-import CodeFixAdmin from './CodeFixAdmin';
-import Languages from './Languages';
-import NewCodeDefinition from './NewCodeDefinition';
 import Authentication from './authentication/Authentication';
 import EmailNotification from './email-notification/EmailNotification';
+import Languages from './Languages';
+import { Mode } from './Mode';
+import NewCodeDefinition from './NewCodeDefinition';
 
 export interface AdditionalCategoryComponentProps {
   categories: string[];
@@ -79,9 +82,9 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     displayTab: false,
   },
   {
-    key: CODE_FIX_CATEGORY,
-    name: translate('property.category.codefix'),
-    renderComponent: getCodeFixComponent,
+    key: AI_CODE_FIX_CATEGORY,
+    name: translate('property.category.aicodefix'),
+    renderComponent: getAiCodeFixComponent,
     availableGlobally: true,
     availableForProject: false,
     displayTab: true,
@@ -102,6 +105,14 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     availableForProject: false,
     displayTab: true,
   },
+  {
+    key: MODE_CATEGORY,
+    name: translate('settings.mode.title'),
+    renderComponent: getModeComponent,
+    availableGlobally: true,
+    availableForProject: false,
+    displayTab: true,
+  },
 ];
 
 function getLanguagesComponent(props: AdditionalCategoryComponentProps) {
@@ -116,8 +127,8 @@ function getAnalysisScopeComponent(props: AdditionalCategoryComponentProps) {
   return <AnalysisScope {...props} />;
 }
 
-function getCodeFixComponent(props: AdditionalCategoryComponentProps) {
-  return <CodeFixAdmin {...props} />;
+function getAiCodeFixComponent(props: AdditionalCategoryComponentProps) {
+  return <AiCodeFixAdmin {...props} />;
 }
 
 function getAuthenticationComponent(props: AdditionalCategoryComponentProps) {
@@ -126,4 +137,8 @@ function getAuthenticationComponent(props: AdditionalCategoryComponentProps) {
 
 function getEmailNotificationComponent() {
   return <EmailNotification />;
+}
+
+function getModeComponent() {
+  return <Mode />;
 }

@@ -60,7 +60,7 @@ import org.sonar.scanner.scm.ScmConfiguration;
 import org.sonar.scanner.scm.ScmRevision;
 
 import static java.util.Collections.emptyMap;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
@@ -179,7 +179,7 @@ public class MetadataPublisherTest {
 
   @DataProvider
   public static Object[][] projectVersions() {
-    String version = randomAlphabetic(15);
+    String version = secure().nextAlphabetic(15);
     return new Object[][] {
       {null, ""},
       {"", ""},
@@ -201,7 +201,7 @@ public class MetadataPublisherTest {
 
   @DataProvider
   public static Object[][] buildStrings() {
-    String randomBuildString = randomAlphabetic(15);
+    String randomBuildString = secure().nextAlphabetic(15);
     return new Object[][] {
       {null, ""},
       {"", ""},

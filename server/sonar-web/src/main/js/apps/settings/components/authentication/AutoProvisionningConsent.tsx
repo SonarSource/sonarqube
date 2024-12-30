@@ -19,10 +19,10 @@
  */
 
 import { Button, ButtonVariety, RadioButtonGroup } from '@sonarsource/echoes-react';
-import { FormField, Modal } from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { FormField, Modal } from '~design-system';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
 import { DocLink } from '../../../../helpers/doc-links';
 import { useUpdateGitHubConfigurationMutation } from '../../../../queries/dop-translation';

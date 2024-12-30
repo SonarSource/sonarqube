@@ -17,16 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Tooltip, TooltipSide } from '@sonarsource/echoes-react';
+
 import {
-  ActionsDropdown,
-  ItemButton,
-  ItemDangerButton,
-  ItemDivider,
-  ItemDownload,
-  ItemLink,
-  PopupZLevel,
-} from 'design-system';
+  ButtonIcon,
+  DropdownMenu,
+  IconMoreVertical,
+  Tooltip,
+  TooltipSide,
+} from '@sonarsource/echoes-react';
 import { some } from 'lodash';
 import * as React from 'react';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
@@ -210,109 +208,123 @@ class ProfileActions extends React.PureComponent<Props, State> {
 
     return (
       <>
-        <ActionsDropdown
-          allowResizing
+        <DropdownMenu.Root
           id={`quality-profile-actions-${profile.key}`}
           className="it__quality-profiles__actions-dropdown"
-          toggleClassName="it__quality-profiles__actions-dropdown-toggle"
-          ariaLabel={translateWithParameters(
-            'quality_profiles.actions',
-            profile.name,
-            profile.languageName,
-          )}
-          zLevel={PopupZLevel.Global}
+          items={
+            <>
+              {actions.edit && (
+                <DropdownMenu.ItemLink
+                  className="it__quality-profiles__activate-more-rules"
+                  to={activateMoreUrl}
+                >
+                  {translate('quality_profiles.activate_more_rules')}
+                </DropdownMenu.ItemLink>
+              )}
+
+              {!profile.isBuiltIn && (
+                <DropdownMenu.ItemLinkDownload
+                  download={`${profile.key}.xml`}
+                  to={backupUrl}
+                  className="it__quality-profiles__backup"
+                >
+                  {translate('backup_verb')}
+                </DropdownMenu.ItemLinkDownload>
+              )}
+
+              {isComparable && (
+                <DropdownMenu.ItemLink
+                  className="it__quality-profiles__compare"
+                  to={getProfileComparePath(profile.name, profile.language, this.props.organization)}
+                >
+                  {translate('compare')}
+                </DropdownMenu.ItemLink>
+              )}
+
+              {actions.copy && (
+                <>
+                  <Tooltip
+                    content={translateWithParameters('quality_profiles.extend_help', profile.name)}
+                    side={TooltipSide.Left}
+                  >
+                    <DropdownMenu.ItemButton
+                      className="it__quality-profiles__extend"
+                      onClick={this.handleExtendClick}
+                    >
+                      {translate('extend')}
+                    </DropdownMenu.ItemButton>
+                  </Tooltip>
+
+                  <Tooltip
+                    content={translateWithParameters('quality_profiles.copy_help', profile.name)}
+                    side={TooltipSide.Left}
+                  >
+                    <DropdownMenu.ItemButton
+                      className="it__quality-profiles__copy"
+                      onClick={this.handleCopyClick}
+                    >
+                      {translate('copy')}
+                    </DropdownMenu.ItemButton>
+                  </Tooltip>
+                </>
+              )}
+
+              {actions.edit && (
+                <DropdownMenu.ItemButton
+                  className="it__quality-profiles__rename"
+                  onClick={this.handleRenameClick}
+                >
+                  {translate('rename')}
+                </DropdownMenu.ItemButton>
+              )}
+
+              {actions.setAsDefault &&
+                (hasNoActiveRules ? (
+                  <Tooltip
+                    content={translate('quality_profiles.cannot_set_default_no_rules')}
+                    side={TooltipSide.Left}
+                  >
+                    <DropdownMenu.ItemButton
+                      className="it__quality-profiles__set-as-default"
+                      onClick={this.handleSetDefaultClick}
+                      isDisabled
+                    >
+                      {translate('set_as_default')}
+                    </DropdownMenu.ItemButton>
+                  </Tooltip>
+                ) : (
+                  <DropdownMenu.ItemButton
+                    className="it__quality-profiles__set-as-default"
+                    onClick={this.handleSetDefaultClick}
+                  >
+                    {translate('set_as_default')}
+                  </DropdownMenu.ItemButton>
+                ))}
+
+              {actions.delete && (
+                <>
+                  <DropdownMenu.Separator />
+                  <DropdownMenu.ItemButtonDestructive
+                    className="it__quality-profiles__delete"
+                    onClick={this.handleDeleteClick}
+                  >
+                    {translate('delete')}
+                  </DropdownMenu.ItemButtonDestructive>
+                </>
+              )}
+            </>
+          }
         >
-          {actions.edit && (
-            <ItemLink className="it__quality-profiles__activate-more-rules" to={activateMoreUrl}>
-              {translate('quality_profiles.activate_more_rules')}
-            </ItemLink>
-          )}
-
-          {!profile.isBuiltIn && (
-            <ItemDownload
-              download={`${profile.key}.xml`}
-              href={backupUrl}
-              className="it__quality-profiles__backup"
-            >
-              {translate('backup_verb')}
-            </ItemDownload>
-          )}
-
-          {isComparable && (
-            <ItemLink
-              className="it__quality-profiles__compare"
-              to={getProfileComparePath(profile.name, profile.language, this.props.organization)}
-            >
-              {translate('compare')}
-            </ItemLink>
-          )}
-
-          {actions.copy && (
-            <>
-              <Tooltip
-                content={translateWithParameters('quality_profiles.extend_help', profile.name)}
-                side={TooltipSide.Left}
-              >
-                <ItemButton
-                  className="it__quality-profiles__extend"
-                  onClick={this.handleExtendClick}
-                >
-                  {translate('extend')}
-                </ItemButton>
-              </Tooltip>
-
-              <Tooltip
-                content={translateWithParameters('quality_profiles.copy_help', profile.name)}
-                side={TooltipSide.Left}
-              >
-                <ItemButton className="it__quality-profiles__copy" onClick={this.handleCopyClick}>
-                  {translate('copy')}
-                </ItemButton>
-              </Tooltip>
-            </>
-          )}
-
-          {actions.edit && (
-            <ItemButton className="it__quality-profiles__rename" onClick={this.handleRenameClick}>
-              {translate('rename')}
-            </ItemButton>
-          )}
-
-          {actions.setAsDefault &&
-            (hasNoActiveRules ? (
-              <Tooltip
-                content={translate('quality_profiles.cannot_set_default_no_rules')}
-                side={TooltipSide.Left}
-              >
-                <ItemButton
-                  className="it__quality-profiles__set-as-default"
-                  onClick={this.handleSetDefaultClick}
-                  disabled
-                >
-                  {translate('set_as_default')}
-                </ItemButton>
-              </Tooltip>
-            ) : (
-              <ItemButton
-                className="it__quality-profiles__set-as-default"
-                onClick={this.handleSetDefaultClick}
-              >
-                {translate('set_as_default')}
-              </ItemButton>
-            ))}
-
-          {actions.delete && (
-            <>
-              <ItemDivider />
-              <ItemDangerButton
-                className="it__quality-profiles__delete"
-                onClick={this.handleDeleteClick}
-              >
-                {translate('delete')}
-              </ItemDangerButton>
-            </>
-          )}
-        </ActionsDropdown>
+          <ButtonIcon
+            Icon={IconMoreVertical}
+            className="it__quality-profiles__actions-dropdown-toggle"
+            ariaLabel={translateWithParameters(
+              'quality_profiles.actions',
+              profile.name,
+              profile.languageName,
+            )}
+          />
+        </DropdownMenu.Root>
 
         {openModal === ProfileActionModals.Copy && (
           <ProfileModalForm

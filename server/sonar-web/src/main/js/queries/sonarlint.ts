@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { useMutation } from '@tanstack/react-query';
-import { addGlobalErrorMessage, addGlobalSuccessMessage } from 'design-system/lib';
+import { addGlobalErrorMessage, addGlobalSuccessMessage } from '~design-system';
 import { useCurrentUser } from '../app/components/current-user/CurrentUserContext';
 import { translate } from '../helpers/l10n';
 import { generateSonarLintUserToken, openFixOrIssueInSonarLint } from '../helpers/sonarlint';

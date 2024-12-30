@@ -22,7 +22,7 @@ package org.sonar.server.projectanalysis.ws;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -141,7 +141,7 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
 
   private void checkRequest(CreateEventRequest request, ProjectDto project) {
     userSession.checkEntityPermission(UserRole.ADMIN, project);
-    checkArgument(EventCategory.VERSION != request.getCategory() || Qualifiers.PROJECT.equals(project.getQualifier()), "A version event must be created on a project");
+    checkArgument(EventCategory.VERSION != request.getCategory() || ComponentQualifiers.PROJECT.equals(project.getQualifier()), "A version event must be created on a project");
     checkVersionName(request.getCategory(), request.getName());
   }
 

@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor } from '@testing-library/react';
 
 import userEvent from '@testing-library/user-event';
-import * as React from 'react';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { getGithubRepositories } from '../../../../api/alm-integrations';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
@@ -127,7 +127,7 @@ it('should show import project feature when the authentication is successfull', 
 
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  await user.click(ui.organizationSelector.get());
+  await user.click(await ui.organizationSelector.find());
   await user.click(byRole('option', { name: /org-1/ }).get());
 
   expect(await ui.project1.find()).toBeInTheDocument();
@@ -180,7 +180,7 @@ it('should import several projects', async () => {
 
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  await user.click(ui.organizationSelector.get());
+  await user.click(await ui.organizationSelector.find());
   await user.click(byRole('option', { name: /org-1/ }).get());
 
   expect(await ui.project1.find()).toBeInTheDocument();
@@ -246,7 +246,7 @@ it('should show search filter when the authentication is successful', async () =
 
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  await user.click(ui.organizationSelector.get());
+  await user.click(await ui.organizationSelector.find());
   await user.click(byRole('option', { name: /org-1/ }).get());
 
   const inputSearch = screen.getByRole('searchbox');
@@ -272,7 +272,7 @@ it('should have load more', async () => {
 
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  await user.click(ui.organizationSelector.get());
+  await user.click(await ui.organizationSelector.find());
   await user.click(byRole('option', { name: /org-1/ }).get());
 
   const loadMore = await screen.findByRole('button', { name: 'show_more' });
@@ -302,7 +302,7 @@ it('should show no result message when there are no projects', async () => {
 
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  await user.click(ui.organizationSelector.get());
+  await user.click(await ui.organizationSelector.find());
   await user.click(byRole('option', { name: /org-1/ }).get());
 
   expect(screen.getByText('no_results')).toBeInTheDocument();

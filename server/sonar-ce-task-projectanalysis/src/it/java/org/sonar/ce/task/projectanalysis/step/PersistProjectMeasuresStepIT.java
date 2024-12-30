@@ -211,7 +211,7 @@ public class PersistProjectMeasuresStepIT extends BaseStepTest {
 
   private TestComputationStepContext execute() {
     TestComputationStepContext context = new TestComputationStepContext();
-    new PersistProjectMeasuresStep(dbClient, metricRepository, new MeasureToMeasureDto(analysisMetadataHolder, treeRootHolder), treeRootHolder, measureRepository)
+    new PersistProjectMeasuresStep(dbClient, metricRepository, new MeasureToMeasureDto(analysisMetadataHolder), treeRootHolder, measureRepository)
       .execute(context);
     return context;
   }
@@ -236,6 +236,6 @@ public class PersistProjectMeasuresStepIT extends BaseStepTest {
 
   @Override
   protected ComputationStep step() {
-    return new PersistProjectMeasuresStep(dbClient, metricRepository, new MeasureToMeasureDto(analysisMetadataHolder, treeRootHolder), treeRootHolder, measureRepository);
+    return new PersistProjectMeasuresStep(dbClient, metricRepository, new MeasureToMeasureDto(analysisMetadataHolder), treeRootHolder, measureRepository);
   }
 }

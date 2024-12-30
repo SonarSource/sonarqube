@@ -19,9 +19,9 @@
  */
 
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { CardWithPrimaryBackground, SubHeadingHighlight } from 'design-system';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { CardWithPrimaryBackground, SubHeadingHighlight } from '~design-system';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import ModalButton from '../../../components/controls/ModalButton';
 import { DocLink } from '../../../helpers/doc-links';

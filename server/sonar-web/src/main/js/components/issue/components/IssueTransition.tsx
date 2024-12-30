@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
+import * as React from 'react';
 import {
   Dropdown,
   DropdownMenuWrapper,
@@ -25,11 +27,9 @@ import {
   PopupPlacement,
   PopupZLevel,
   SearchSelectDropdownControl,
-} from 'design-system';
-import * as React from 'react';
-import { addIssueComment, setIssueTransition } from '../../../api/issues';
-import { SESSION_STORAGE_TRANSITION_GUIDE_KEY } from '../../../apps/issues/components/IssueNewStatusAndTransitionGuide';
+} from '~design-system';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { useIssueCommentMutation, useIssueTransitionMutation } from '../../../queries/issues';
 import { Issue } from '../../../types/types';
 import StatusHelper from '../../shared/StatusHelper';
 import { updateIssue } from '../actions';
@@ -45,9 +45,9 @@ interface Props {
 export default function IssueTransition(props: Readonly<Props>) {
   const { isOpen, issue, onChange, togglePopup } = props;
 
-  const guideStepIndex = +(sessionStorage.getItem(SESSION_STORAGE_TRANSITION_GUIDE_KEY) ?? 0);
-  const guideIsRunning = sessionStorage.getItem(SESSION_STORAGE_TRANSITION_GUIDE_KEY) !== null;
   const [transitioning, setTransitioning] = React.useState(false);
+  const { mutateAsync: setIssueTransition } = useIssueTransitionMutation();
+  const { mutateAsync: addIssueComment } = useIssueCommentMutation();
 
   async function handleSetTransition(transition: string, comment?: string) {
     setTransitioning(true);
@@ -81,15 +81,12 @@ export default function IssueTransition(props: Readonly<Props>) {
         id="issue-transition"
         onClose={handleClose}
         openDropdown={isOpen}
-        withClickOutHandler={!guideIsRunning}
-        withFocusOutHandler={!guideIsRunning}
         overlay={
           <IssueTransitionOverlay
             issue={issue}
             onClose={handleClose}
             onSetTransition={handleSetTransition}
             loading={transitioning}
-            guideStepIndex={guideStepIndex}
           />
         }
         placement={PopupPlacement.Bottom}

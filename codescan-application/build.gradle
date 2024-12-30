@@ -2,7 +2,7 @@ import org.sonar.build.LicenseReader
 
 plugins {
   id "com.github.hierynomus.license-report"
-  id "com.github.johnrengelman.shadow"
+  id "com.gradleup.shadow"
   id "de.undercouch.download"
   id "org.cyclonedx.bom"
 }

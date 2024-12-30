@@ -74,7 +74,7 @@ import org.sonarqube.ws.Projects;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -532,8 +532,8 @@ public class ImportBitbucketServerProjectActionIT {
   private Repository mockBitbucketServerRepo(Project project, BranchesList branchesList) {
     Repository bbsResult = new Repository();
     bbsResult.setProject(project);
-    bbsResult.setSlug(randomAlphanumeric(5));
-    bbsResult.setName(randomAlphanumeric(5));
+    bbsResult.setSlug(secure().nextAlphanumeric(5));
+    bbsResult.setName(secure().nextAlphanumeric(5));
     bbsResult.setId(random.nextLong(100));
     when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(bbsResult);
     when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(branchesList);
@@ -542,9 +542,9 @@ public class ImportBitbucketServerProjectActionIT {
 
   private Project getGsonBBSProject() {
     return new Project()
-      .setKey(randomAlphanumeric(5))
+      .setKey(secure().nextAlphanumeric(5))
       .setId(random.nextLong(100))
-      .setName(randomAlphanumeric(5));
+      .setName(secure().nextAlphanumeric(5));
   }
 
   private ProjectDto getProjectDto(Projects.CreateWsResponse.Project result) {

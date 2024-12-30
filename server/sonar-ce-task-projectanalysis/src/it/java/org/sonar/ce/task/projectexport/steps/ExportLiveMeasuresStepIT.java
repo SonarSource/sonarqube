@@ -33,6 +33,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 
@@ -50,10 +51,9 @@ public class ExportLiveMeasuresStepIT {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final ComponentRepositoryImpl componentRepository = new ComponentRepositoryImpl();
-  private final MutableMetricRepository metricRepository = new MutableMetricRepositoryImpl();
   private final ProjectHolder projectHolder = mock(ProjectHolder.class);
   private final FakeDumpWriter dumpWriter = new FakeDumpWriter();
-  private final ExportLiveMeasuresStep underTest = new ExportLiveMeasuresStep(dbTester.getDbClient(), projectHolder, componentRepository, metricRepository, dumpWriter);
+  private final ExportLiveMeasuresStep underTest = new ExportLiveMeasuresStep(dbTester.getDbClient(), projectHolder, componentRepository, dumpWriter);
 
   @Before
   public void before() {
@@ -69,7 +69,6 @@ public class ExportLiveMeasuresStepIT {
 
     assertThat(dumpWriter.getWrittenMessagesOf(DumpElement.LIVE_MEASURES)).isEmpty();
     assertThat(logTester.logs(Level.DEBUG)).contains("0 live measures exported");
-    assertThat(metricRepository.getRefByUuid()).isEmpty();
   }
 
   @Test
@@ -77,22 +76,22 @@ public class ExportLiveMeasuresStepIT {
     ComponentDto project = createProject(true);
     componentRepository.register(1, project.uuid(), false);
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setKey("metric1").setValueType(INT.name()));
-    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setValue(4711.0d));
+    MeasureDto measure = dbTester.measures().insertMeasure(project, m -> m.addValue(metric.getKey(), 4711.0d));
     when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDtoByMainBranch(project));
     when(projectHolder.branches()).thenReturn(newArrayList(new BranchDto()
       .setProjectUuid(project.uuid())
       .setUuid(project.uuid())
       .setKey("master")
       .setBranchType(BranchType.BRANCH)));
+
     underTest.execute(new TestComputationStepContext());
 
     List<ProjectDump.LiveMeasure> exportedMeasures = dumpWriter.getWrittenMessagesOf(DumpElement.LIVE_MEASURES);
     assertThat(exportedMeasures).hasSize(1);
     assertThat(exportedMeasures)
-      .extracting(ProjectDump.LiveMeasure::getMetricRef, m -> m.getDoubleValue().getValue(), ProjectDump.LiveMeasure::hasVariation)
-      .containsOnly(tuple(0, 4711.0d, false));
+      .extracting(ProjectDump.LiveMeasure::getJsonValue)
+      .containsOnly(measure.getJsonValue());
     assertThat(logTester.logs(Level.DEBUG)).contains("1 live measures exported");
-    assertThat(metricRepository.getRefByUuid()).containsOnlyKeys(metric.getUuid());
   }
 
   @Test
@@ -100,26 +99,7 @@ public class ExportLiveMeasuresStepIT {
     ComponentDto project = createProject(false);
     componentRepository.register(1, project.uuid(), false);
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()));
-    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setValue(4711.0d));
-    when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDtoByMainBranch(project));
-    when(projectHolder.branches()).thenReturn(newArrayList(new BranchDto()
-      .setProjectUuid(project.uuid())
-      .setUuid(project.uuid())
-      .setKey("master")
-      .setBranchType(BranchType.BRANCH)));
-
-    underTest.execute(new TestComputationStepContext());
-
-    List<ProjectDump.LiveMeasure> exportedMeasures = dumpWriter.getWrittenMessagesOf(DumpElement.LIVE_MEASURES);
-    assertThat(exportedMeasures).isEmpty();
-  }
-
-  @Test
-  public void do_not_export_measures_on_disabled_metrics() {
-    ComponentDto project = createProject(true);
-    componentRepository.register(1, project.uuid(), false);
-    MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setEnabled(false));
-    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setValue(4711.0d));
+    dbTester.measures().insertMeasure(project, m -> m.addValue(metric.getKey(), 4711.0d));
     when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDtoByMainBranch(project));
     when(projectHolder.branches()).thenReturn(newArrayList(new BranchDto()
       .setProjectUuid(project.uuid())
@@ -138,7 +118,7 @@ public class ExportLiveMeasuresStepIT {
     ComponentDto project = createProject(true);
     componentRepository.register(1, project.uuid(), false);
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setKey("new_metric").setValueType(INT.name()));
-    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setProjectUuid(project.uuid()).setValue(7.0d).setData("test"));
+    MeasureDto measure = dbTester.measures().insertMeasure(project, m -> m.addValue(metric.getKey(), "test"));
     when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDtoByMainBranch(project));
     when(projectHolder.branches()).thenReturn(newArrayList(new BranchDto()
       .setProjectUuid(project.uuid())
@@ -153,18 +133,11 @@ public class ExportLiveMeasuresStepIT {
     assertThat(exportedMeasures)
       .extracting(
         ProjectDump.LiveMeasure::getComponentRef,
-        ProjectDump.LiveMeasure::getMetricRef,
-        m -> m.getDoubleValue().getValue(),
-        ProjectDump.LiveMeasure::getTextValue,
-        m -> m.getVariation().getValue())
+        ProjectDump.LiveMeasure::getJsonValue)
       .containsOnly(tuple(
         1L,
-        0,
-        0.0d,
-        "test",
-        7.0d));
+        measure.getJsonValue()));
     assertThat(logTester.logs(Level.DEBUG)).contains("1 live measures exported");
-    assertThat(metricRepository.getRefByUuid()).containsOnlyKeys(metric.getUuid());
   }
 
   @Test
@@ -172,7 +145,7 @@ public class ExportLiveMeasuresStepIT {
     ComponentDto project = createProject(true);
     componentRepository.register(1, project.uuid(), false);
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()));
-    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setProjectUuid(project.uuid()).setValue(null).setData((String) null));
+    dbTester.measures().insertMeasure(project, m -> m.addValue(metric.getKey(), null));
     when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDtoByMainBranch(project));
     when(projectHolder.branches()).thenReturn(newArrayList(new BranchDto()
       .setProjectUuid(project.uuid())
@@ -186,15 +159,9 @@ public class ExportLiveMeasuresStepIT {
     assertThat(exportedMeasures).hasSize(1);
     assertThat(exportedMeasures)
       .extracting(
-        ProjectDump.LiveMeasure::hasDoubleValue,
-        ProjectDump.LiveMeasure::getTextValue,
-        ProjectDump.LiveMeasure::hasVariation)
-      .containsOnly(tuple(
-        false,
-        "",
-        false));
+        ProjectDump.LiveMeasure::getJsonValue)
+      .containsOnly("{}");
     assertThat(logTester.logs(Level.DEBUG)).contains("1 live measures exported");
-    assertThat(metricRepository.getRefByUuid()).containsOnlyKeys(metric.getUuid());
   }
 
   @Test

@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import { Route } from 'react-router-dom';
 import { byDisplayValue, byRole, byTestId, byText } from '~sonar-aligned/helpers/testSelector';
 import { MetricKey } from '~sonar-aligned/types/metrics';
@@ -371,7 +371,7 @@ describe('navigation', () => {
     renderSecurityHotspotsApp();
 
     await user.keyboard('{ArrowLeft}');
-    expect(ui.codeContent.get()).toBeInTheDocument();
+    expect(await ui.codeContent.find()).toBeInTheDocument();
 
     await user.keyboard('{ArrowRight}');
     expect(ui.riskContent.get()).toBeInTheDocument();

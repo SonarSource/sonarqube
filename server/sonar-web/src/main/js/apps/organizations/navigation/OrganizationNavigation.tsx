@@ -21,10 +21,9 @@ import * as React from 'react';
 import OrganizationNavigationHeader from './OrganizationNavigationHeader';
 import OrganizationNavigationMenu from './OrganizationNavigationMenu';
 import OrganizationNavigationMeta from './OrganizationNavigationMeta';
-import { rawSizes } from '../../../app/theme';
 import { Organization } from "../../../types/types";
 import { getRawNotificationsForOrganization } from '../../../api/codescan';
-import { addGlobalErrorMessage, addGlobalWarningMessage, TopBar } from "design-system";
+import { addGlobalErrorMessage, addGlobalWarningMessage, TopBar } from "~design-system";
 
 interface Props {
   location: { pathname: string };
@@ -33,8 +32,6 @@ interface Props {
 }
 
 export function OrganizationNavigation({ location, organization, userOrganizations }: Props) {
-  const { contextNavHeightRaw } = rawSizes;
-
   React.useEffect(() => {
     const fetchNotifications = async () => {
       const notifications = await getRawNotificationsForOrganization(organization.kee);

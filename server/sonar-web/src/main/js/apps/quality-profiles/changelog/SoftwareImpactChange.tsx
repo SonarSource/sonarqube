@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
+
 import { useIntl } from 'react-intl';
+import SoftwareImpactSeverityIcon from '../../../components/icon-mappers/SoftwareImpactSeverityIcon';
 import { ProfileChangelogEventImpactChange } from '../types';
 
 interface Props {
@@ -31,9 +32,19 @@ export default function SoftwareImpactChange({ impactChange }: Readonly<Props>) 
   const intl = useIntl();
 
   const labels = {
-    oldSeverity: intl.formatMessage({ id: `severity.${oldSeverity}` }),
+    oldSeverity: (
+      <>
+        <SoftwareImpactSeverityIcon severity={oldSeverity} />{' '}
+        {intl.formatMessage({ id: `severity_impact.${oldSeverity}` })}
+      </>
+    ),
     oldSoftwareQuality: intl.formatMessage({ id: `software_quality.${oldSoftwareQuality}` }),
-    newSeverity: intl.formatMessage({ id: `severity.${newSeverity}` }),
+    newSeverity: (
+      <>
+        <SoftwareImpactSeverityIcon severity={newSeverity} />{' '}
+        {intl.formatMessage({ id: `severity_impact.${newSeverity}` })}
+      </>
+    ),
     newSoftwareQuality: intl.formatMessage({ id: `software_quality.${newSoftwareQuality}` }),
   };
 

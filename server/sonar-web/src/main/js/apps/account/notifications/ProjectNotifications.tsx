@@ -17,77 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import { Link, Table } from 'design-system';
-import * as React from 'react';
-import { translate } from '../../../helpers/l10n';
+
+import { Link } from '~design-system';
+import NotificationsList from '../../../components/notifications/NotificationsList';
 import { getProjectUrl } from '../../../helpers/urls';
-import {
-  Notification,
-  NotificationProject,
-  NotificationProjectType,
-} from '../../../types/notifications';
-import NotificationsList from './NotificationsList';
+import { NotificationProject } from '../../../types/notifications';
 
 interface Props {
-  addNotification: (n: Notification) => void;
-  channels: string[];
-  header?: React.JSX.Element;
-  notifications: Notification[];
   project: NotificationProject;
-  removeNotification: (n: Notification) => void;
-  types: NotificationProjectType[];
 }
 
-export default function ProjectNotifications({
-  addNotification,
-  channels,
-  header,
-  notifications,
-  project,
-  removeNotification,
-  types,
-}: Readonly<Props>) {
-  const getCheckboxId = (type: string, channel: string) => {
-    return `project-notification-${project.project}-${type}-${channel}`;
-  };
-
-  const handleAddNotification = ({ channel, type }: { channel: string; type: string }) => {
-    addNotification({ ...project, channel, type });
-  };
-
-  const handleRemoveNotification = ({ channel, type }: { channel: string; type: string }) => {
-    removeNotification({
-      ...project,
-      channel,
-      type,
-    });
-  };
-
+export default function ProjectNotifications({ project }: Readonly<Props>) {
   return (
     <div className="sw-my-6">
       <div className="sw-mb-4">
         <Link to={getProjectUrl(project.project)}>{project.projectName}</Link>
       </div>
-      {!header && (
-        <div className="sw-typo-semibold sw-mb-2">{translate('notifications.send_email')}</div>
-      )}
 
-      <Table
-        className={classNames('sw-w-full', { 'sw-mt-4': header })}
-        columnCount={2}
-        header={header ?? null}
-      >
-        <NotificationsList
-          channels={channels}
-          checkboxId={getCheckboxId}
-          notifications={notifications}
-          onAdd={handleAddNotification}
-          onRemove={handleRemoveNotification}
-          project
-          types={types}
-        />
-      </Table>
+      <NotificationsList project={project.project} />
     </div>
   );
 }

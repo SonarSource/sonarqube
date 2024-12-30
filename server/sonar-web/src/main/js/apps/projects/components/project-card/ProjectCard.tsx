@@ -19,8 +19,10 @@
  */
 
 import styled from '@emotion/styled';
-import { Link, LinkStandalone } from '@sonarsource/echoes-react';
+import { IconSparkle, Link, LinkStandalone, Tooltip } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
+import { isEmpty } from 'lodash';
+import { FormattedMessage, useIntl } from 'react-intl';
 import {
   Badge,
   Card,
@@ -33,53 +35,46 @@ import {
   Tags,
   themeBorder,
   themeColor,
-} from 'design-system';
-import { isEmpty } from 'lodash';
-import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
+} from '~design-system';
 import Measure from '~sonar-aligned/components/measure/Measure';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { Status } from '~sonar-aligned/types/common';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
+import { AiCodeAssuranceStatus } from '../../../../api/ai-code-assurance';
 import ChangeInCalculation from '../../../../app/components/ChangeInCalculationPill';
+import { useCurrentUser } from '../../../../app/components/current-user/CurrentUserContext';
 import Favorite from '../../../../components/controls/Favorite';
-import Tooltip from '../../../../components/controls/Tooltip';
+import AIAssuredIcon, { AiIconColor } from '../../../../components/icon-mappers/AIAssuredIcon';
 import DateFromNow from '../../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { isDefined } from '../../../../helpers/types';
 import { getProjectUrl } from '../../../../helpers/urls';
-import { CurrentUser, isLoggedIn } from '../../../../types/users';
+import { isLoggedIn } from '../../../../types/users';
 import { Project } from '../../types';
 import ProjectCardLanguages from './ProjectCardLanguages';
 import ProjectCardMeasures from './ProjectCardMeasures';
 
 interface Props {
-  currentUser: CurrentUser;
-  handleFavorite: (component: string, isFavorite: boolean) => void;
   project: Project;
   type?: string;
 }
 
-function renderFirstLine(
-  project: Props['project'],
-  handleFavorite: Props['handleFavorite'],
-  isNewCode: boolean,
-) {
+function renderFirstLine(project: Props['project'], isNewCode: boolean) {
   const { analysisDate, isFavorite, key, measures, name, qualifier, tags, visibility } = project;
   const noSoftwareQualityMetrics = [
-    MetricKey.reliability_issues,
-    MetricKey.maintainability_issues,
-    MetricKey.security_issues,
+    MetricKey.software_quality_reliability_issues,
+    MetricKey.software_quality_maintainability_issues,
+    MetricKey.software_quality_security_issues,
   ].every((key) => measures[key] === undefined);
-  // const noRatingMetrics = [
-  //   MetricKey.software_quality_reliability_rating,
-  //   MetricKey.software_quality_maintainability_rating,
-  //   MetricKey.software_quality_security_rating,
-  // ].every((key) => measures[key] === undefined);
+  const noRatingMetrics = [
+    MetricKey.software_quality_reliability_rating,
+    MetricKey.software_quality_maintainability_rating,
+    MetricKey.software_quality_security_rating,
+  ].every((key) => measures[key] === undefined);
   const awaitingScan =
-    noSoftwareQualityMetrics &&
+    (noSoftwareQualityMetrics || noRatingMetrics) &&
     !isNewCode &&
     !isEmpty(analysisDate) &&
     measures.ncloc !== undefined;
@@ -96,7 +91,6 @@ function renderFirstLine(
               component={key}
               componentName={name}
               favorite={isFavorite}
-              handleFavorite={handleFavorite}
               qualifier={qualifier}
             />
           )}
@@ -131,11 +125,28 @@ function renderFirstLine(
             </span>
           </Tooltip>
 
-          {project.isAiCodeAssured && (
-            <Tooltip content={translate('projects.ai_code.content')}>
+          {project.aiCodeAssurance === AiCodeAssuranceStatus.CONTAINS_AI_CODE && (
+            <Tooltip content={translate('projects.ai_code.tooltip.content')}>
+              <span>
+                <Badge className="sw-ml-2">
+                  <IconSparkle className="sw-mr-1 sw-fon" />
+                  {translate('ai_code')}
+                </Badge>
+              </span>
+            </Tooltip>
+          )}
+
+          {project.aiCodeAssurance === AiCodeAssuranceStatus.AI_CODE_ASSURED && (
+            <Tooltip content={translate('projects.ai_code_assurance.tooltip.content')}>
               <span>
                 <Badge variant="new" className="sw-ml-2">
-                  {translate('ai_code')}
+                  <AIAssuredIcon
+                    className="sw-mr-1 sw-align-bottom"
+                    color={AiIconColor.Default}
+                    width={16}
+                    height={16}
+                  />
+                  {translate('ai_code_assurance')}
                 </Badge>
               </span>
             </Tooltip>
@@ -165,7 +176,6 @@ function renderFirstLine(
               <span className="sw-typo-semibold" title={formattedAnalysisDate}>
                 <FormattedMessage
                   id="projects.last_analysis_on_x"
-                  defaultMessage={translate('projects.last_analysis_on_x')}
                   values={{
                     date: <DateFromNow className="sw-typo-default" date={analysisDate} />,
                   }}
@@ -238,12 +248,13 @@ function renderFirstLine(
   );
 }
 
-function renderSecondLine(
-  currentUser: Props['currentUser'],
-  project: Props['project'],
-  isNewCode: boolean,
-) {
+function SecondLine({
+  project,
+  isNewCode,
+}: Readonly<{ isNewCode: boolean; project: Props['project'] }>) {
   const { analysisDate, key, leakPeriodDate, measures, qualifier, isScannable } = project;
+  const intl = useIntl();
+  const { currentUser } = useCurrentUser();
 
   if (!isEmpty(analysisDate) && (!isNewCode || !isEmpty(leakPeriodDate))) {
     return (
@@ -268,7 +279,14 @@ function renderSecondLine(
         isEmpty(analysisDate) &&
         isLoggedIn(currentUser) &&
         isScannable && (
-          <Link className="sw-ml-2 sw-typo-semibold" to={getProjectUrl(key)}>
+          <Link
+            aria-label={intl.formatMessage(
+              { id: 'projects.configure_analysis_for_x' },
+              { project: project.name },
+            )}
+            className="sw-ml-2 sw-typo-semibold"
+            to={getProjectUrl(key)}
+          >
             {translate('projects.configure_analysis')}
           </Link>
         )}
@@ -277,7 +295,7 @@ function renderSecondLine(
 }
 
 export default function ProjectCard(props: Readonly<Props>) {
-  const { currentUser, type, project } = props;
+  const { type, project } = props;
   const isNewCode = type === 'leak';
 
   return (
@@ -287,11 +305,11 @@ export default function ProjectCard(props: Readonly<Props>) {
       )}
       data-key={project.key}
     >
-      {renderFirstLine(project, props.handleFavorite, isNewCode)}
+      {renderFirstLine(project, isNewCode)}
 
       <SubnavigationFlowSeparator className="sw-my-3" />
 
-      {renderSecondLine(currentUser, project, isNewCode)}
+      <SecondLine project={project} isNewCode={isNewCode} />
     </ProjectCardWrapper>
   );
 }

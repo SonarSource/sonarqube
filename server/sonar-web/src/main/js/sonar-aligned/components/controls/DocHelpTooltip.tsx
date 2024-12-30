@@ -19,9 +19,9 @@
  */
 
 import classNames from 'classnames';
-import { HelperHintIcon } from 'design-system';
 import { first, last } from 'lodash';
 import * as React from 'react';
+import { HelperHintIcon } from '~design-system';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import Link from '../../../components/common/Link';
 import Tooltip, { Placement } from '../../../components/controls/Tooltip';

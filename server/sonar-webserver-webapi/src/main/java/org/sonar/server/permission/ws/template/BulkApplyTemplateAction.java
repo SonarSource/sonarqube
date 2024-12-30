@@ -26,8 +26,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -78,17 +78,17 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
   private final PermissionTemplateService permissionTemplateService;
   private final PermissionWsSupport wsSupport;
   private final I18n i18n;
-  private final ResourceTypes resourceTypes;
+  private final ComponentTypes componentTypes;
   private final ManagedProjectService managedProjectService;
 
   public BulkApplyTemplateAction(DbClient dbClient, UserSession userSession, PermissionTemplateService permissionTemplateService, PermissionWsSupport wsSupport, I18n i18n,
-    ResourceTypes resourceTypes, ManagedProjectService managedProjectService) {
+    ComponentTypes componentTypes, ManagedProjectService managedProjectService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.permissionTemplateService = permissionTemplateService;
     this.wsSupport = wsSupport;
     this.i18n = i18n;
-    this.resourceTypes = resourceTypes;
+    this.componentTypes = componentTypes;
     this.managedProjectService = managedProjectService;
   }
 
@@ -110,8 +110,8 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
         "</ul>")
       .setExampleValue("apac");
 
-    createRootQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes))
-      .setDefaultValue(Qualifiers.PROJECT);
+    createRootQualifiersParameter(action, newQualifierParameterContext(i18n, componentTypes))
+      .setDefaultValue(ComponentQualifiers.PROJECT);
 
     WsParameters.createTemplateParameters(action);
 
@@ -208,7 +208,7 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
     private String templateName;
     private String organization;
     private String query;
-    private Collection<String> qualifiers = singleton(Qualifiers.PROJECT);
+    private Collection<String> qualifiers = singleton(ComponentQualifiers.PROJECT);
     private String visibility;
     private String analyzedBefore;
     private boolean onProvisionedOnly = false;

@@ -36,7 +36,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
@@ -84,12 +83,12 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
   @Override
   public EvaluatedQualityGate refreshGateStatus(ComponentDto project, QualityGate gate, MeasureMatrix measureMatrix, Configuration configuration) {
     QualityGateEvaluator.Measures measures = metricKey -> {
-      Optional<LiveMeasureDto> liveMeasureDto = measureMatrix.getMeasure(project, metricKey);
-      if (!liveMeasureDto.isPresent()) {
+      Optional<MeasureMatrix.Measure> measure = measureMatrix.getMeasure(project, metricKey);
+      if (measure.isEmpty()) {
         return Optional.empty();
       }
-      MetricDto metric = measureMatrix.getMetricByUuid(liveMeasureDto.get().getMetricUuid());
-      return Optional.of(new LiveMeasure(liveMeasureDto.get(), metric));
+      MetricDto metric = measureMatrix.getMetric(measure.get().getMetricKey());
+      return Optional.of(new LiveMeasure(measure.get(), metric));
     };
 
     EvaluatedQualityGate evaluatedGate = evaluator.evaluate(gate, measures, configuration);
@@ -110,11 +109,11 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
   }
 
   private static class LiveMeasure implements QualityGateEvaluator.Measure {
-    private final LiveMeasureDto dto;
+    private final MeasureMatrix.Measure measure;
     private final MetricDto metric;
 
-    LiveMeasure(LiveMeasureDto dto, MetricDto metric) {
-      this.dto = dto;
+    LiveMeasure(MeasureMatrix.Measure measure, MetricDto metric) {
+      this.measure = measure;
       this.metric = metric;
     }
 
@@ -125,15 +124,16 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
 
     @Override
     public OptionalDouble getValue() {
-      if (dto.getValue() == null) {
+      Double doubleValue = measure.doubleValue();
+      if (doubleValue == null) {
         return OptionalDouble.empty();
       }
-      return OptionalDouble.of(dto.getValue());
+      return OptionalDouble.of(doubleValue);
     }
 
     @Override
     public Optional<String> getStringValue() {
-      return Optional.ofNullable(dto.getTextValue());
+      return Optional.ofNullable(measure.stringValue());
     }
   }
 }

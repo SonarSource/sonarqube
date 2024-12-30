@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -62,10 +62,10 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toMap;
-import static org.sonar.api.resources.Qualifiers.APP;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.api.resources.Qualifiers.SUBVIEW;
-import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.db.component.ComponentQualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.SUBVIEW;
+import static org.sonar.db.component.ComponentQualifiers.VIEW;
 import static org.sonar.db.user.TokenType.PROJECT_ANALYSIS_TOKEN;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
@@ -80,13 +80,13 @@ public class SearchAction implements ComponentsWsAction {
   private final UserSession userSession;
   private final ComponentIndex componentIndex;
   private final DbClient dbClient;
-  private final ResourceTypes resourceTypes;
+  private final ComponentTypes componentTypes;
   private final I18n i18n;
 
-  public SearchAction(ComponentIndex componentIndex, DbClient dbClient, ResourceTypes resourceTypes, I18n i18n, UserSession userSession) {
+  public SearchAction(ComponentIndex componentIndex, DbClient dbClient, ComponentTypes componentTypes, I18n i18n, UserSession userSession) {
     this.componentIndex = componentIndex;
     this.dbClient = dbClient;
-    this.resourceTypes = resourceTypes;
+    this.componentTypes = componentTypes;
     this.i18n = i18n;
     this.userSession = userSession;
   }
@@ -114,15 +114,15 @@ public class SearchAction implements ComponentsWsAction {
         DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH + " (inclusive) characters. In case longer value is provided it will be truncated.")
       .setExampleValue("sonar");
 
-    action
-      .createParam(PARAM_ORGANIZATION)
-      .setDescription("Organization key")
-      .setRequired(false)
-      .setInternal(true)
-      .setExampleValue("my-org")
-      .setSince("6.3");
+      action
+              .createParam(PARAM_ORGANIZATION)
+              .setDescription("Organization key")
+              .setRequired(false)
+              .setInternal(true)
+              .setExampleValue("my-org")
+              .setSince("6.3");
 
-    createQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes), VALID_QUALIFIERS)
+    createQualifiersParameter(action, newQualifierParameterContext(i18n, componentTypes), VALID_QUALIFIERS)
       .setRequired(true);
   }
 

@@ -76,6 +76,11 @@ import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
+import static org.sonar.api.issue.impact.Severity.BLOCKER;
+import static org.sonar.api.issue.impact.Severity.HIGH;
+import static org.sonar.api.issue.impact.Severity.INFO;
+import static org.sonar.api.issue.impact.Severity.MEDIUM;
+import static org.sonar.api.issue.impact.Severity.values;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
@@ -219,6 +224,12 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexing is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change("10.8", "The response fields 'severity' and 'type' are not deprecated anymore.."),
+        new Change("10.8", "The fields 'severity' and 'type' are not deprecated anymore."),
+        new Change("10.8", format("The parameters '%s' and '%s' are not deprecated anymore.", PARAM_SEVERITIES, PARAM_TYPES)),
+        new Change("10.8", format("Possible values '%s' and '%s' for response field 'impactSeverities' of 'facets' have been added.", INFO.name(), BLOCKER.name())),
+        new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added.", INFO.name(), BLOCKER.name())),
+        new Change("10.8", format("Parameter '%s' now supports values: '%s','%s'.", PARAM_SEVERITIES, INFO.name(), BLOCKER.name())),
         new Change("10.7", format(NEW_FACET_ADDED_MESSAGE, PARAM_CASA)),
         new Change("10.7", format(NEW_PARAM_ADDED_MESSAGE, PARAM_CASA)),
         new Change("10.7", format(NEW_FACET_ADDED_MESSAGE, PARAM_STIG_ASD_V5R3)),
@@ -312,8 +323,7 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_SEVERITIES)
       .setDescription("Comma-separated list of severities")
       .setExampleValue(Severity.BLOCKER + "," + Severity.CRITICAL)
-      .setPossibleValues(Severity.ALL)
-      .setDeprecatedSince("10.4");
+      .setPossibleValues(Severity.ALL);
     action.createParam(PARAM_IMPACT_SOFTWARE_QUALITIES)
       .setSince("10.2")
       .setDescription("Comma-separated list of Software Qualities")
@@ -322,8 +332,8 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_IMPACT_SEVERITIES)
       .setSince("10.2")
       .setDescription("Comma-separated list of Software Quality Severities")
-      .setExampleValue(org.sonar.api.issue.impact.Severity.HIGH + "," + org.sonar.api.issue.impact.Severity.MEDIUM)
-      .setPossibleValues(org.sonar.api.issue.impact.Severity.values());
+      .setExampleValue(HIGH + "," + MEDIUM)
+      .setPossibleValues(values());
     action.createParam(PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES)
       .setSince("10.2")
       .setDescription("Comma-separated list of Clean Code Attribute Categories")
@@ -337,8 +347,7 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_RESOLUTIONS)
       .setDescription("Comma-separated list of resolutions")
       .setExampleValue(RESOLUTION_FIXED + "," + RESOLUTION_REMOVED)
-      .setPossibleValues(RESOLUTIONS)
-      .setDeprecatedSince("10.4");
+      .setPossibleValues(RESOLUTIONS);
     action.createParam(PARAM_RESOLVED)
       .setDescription("To match resolved or unresolved issues")
       .setBooleanPossibleValues();
@@ -354,7 +363,6 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_TYPES)
       .setDescription("Comma-separated list of types.")
       .setSince("5.5")
-      .setDeprecatedSince("10.4")
       .setPossibleValues(ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS)
       .setExampleValue(format("%s,%s", RuleType.CODE_SMELL, RuleType.BUG));
     action.createParam(PARAM_OWASP_ASVS_LEVEL)
@@ -608,7 +616,7 @@ public class SearchAction implements IssuesWsAction {
 
     // FIXME allow long in Paging
     Paging paging = forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) getTotalHits(result).value);
-    return searchResponseFormat.formatSearch(additionalFields, data, paging, facets, issueMap);
+    return searchResponseFormat.formatSearch(additionalFields, data, paging, facets, issueMap, userSession.isLoggedIn());
   }
 
   private static TotalHits getTotalHits(SearchResponse response) {
@@ -616,15 +624,21 @@ public class SearchAction implements IssuesWsAction {
       "results"));
   }
 
-  private static SearchOptions createSearchOptionsFromRequest(SearchRequest request) {
+  private SearchOptions createSearchOptionsFromRequest(SearchRequest request) {
     SearchOptions options = new SearchOptions();
     options.setPage(request.getPage(), request.getPageSize());
 
     List<String> facets = request.getFacets();
-    if (facets != null && !facets.isEmpty()) {
-      options.addFacets(facets);
+
+    if (facets == null || facets.isEmpty()) {
+      return options;
     }
 
+    List<String> requestedFacets = new ArrayList<>(facets);
+    if (!userSession.isLoggedIn()) {
+      requestedFacets.remove(PARAM_AUTHOR);
+    }
+    options.addFacets(requestedFacets);
     return options;
   }
 
@@ -632,7 +646,7 @@ public class SearchAction implements IssuesWsAction {
     addMandatoryValuesToFacet(facets, PARAM_SEVERITIES, Severity.ALL);
     addMandatoryValuesToFacet(facets, PARAM_STATUSES, ISSUE_STATUSES);
     addMandatoryValuesToFacet(facets, PARAM_IMPACT_SOFTWARE_QUALITIES, enumToStringCollection(SoftwareQuality.values()));
-    addMandatoryValuesToFacet(facets, PARAM_IMPACT_SEVERITIES, enumToStringCollection(org.sonar.api.issue.impact.Severity.values()));
+    addMandatoryValuesToFacet(facets, PARAM_IMPACT_SEVERITIES, enumToStringCollection(values()));
     addMandatoryValuesToFacet(facets, PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES, enumToStringCollection(CleanCodeAttributeCategory.values()));
 
     addMandatoryValuesToFacet(facets, PARAM_RESOLUTIONS, concat(singletonList(""), RESOLUTIONS));

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { waitFor } from '@testing-library/react';
+
 import userEvent from '@testing-library/user-event';
 import {
   byLabelText,
@@ -31,9 +31,11 @@ import { renderAppRoutes } from '../../helpers/testReactTestingUtils';
 import {
   CleanCodeAttribute,
   CleanCodeAttributeCategory,
+  SoftwareImpactSeverity,
   SoftwareQuality,
 } from '../../types/clean-code-taxonomy';
 import { Feature } from '../../types/features';
+import { IssueSeverity, IssueType } from '../../types/issues';
 import { CurrentUser } from '../../types/users';
 import routes from './routes';
 
@@ -44,13 +46,14 @@ const selectors = {
   rulesList: byRole('list', { name: 'list_of_rules' }),
   ruleListItemLink: (name: string) => byRole('link', { name }),
   getAllRuleListItems: () =>
-    byRole('list', { name: 'list_of_rules' })
+    byLabelText('list_of_rules')
       .byRole('listitem')
       .getAll()
       .filter((item) => !!item.getAttribute('data-rule')),
   currentListItem: byRole('listitem', { current: true }),
 
   // Filters
+  filtersHeading: byRole('heading', { name: 'filters' }),
   searchInput: byRole('searchbox', { name: 'search.search_for_rules' }),
   clearAllFiltersButton: byRole('button', { name: 'clear_all_filters' }),
 
@@ -64,18 +67,20 @@ const selectors = {
   repositoriesFacet: byRole('button', { name: 'coding_rules.facet.repositories' }),
   softwareQualitiesFacet: byRole('button', { name: 'coding_rules.facet.impactSoftwareQualities' }),
   severetiesFacet: byRole('button', { name: 'coding_rules.facet.impactSeverities' }),
+  standardSeveritiesFacet: byRole('button', { name: 'coding_rules.facet.severities' }),
   statusesFacet: byRole('button', { name: 'coding_rules.facet.statuses' }),
   standardsFacet: byRole('button', { name: 'issues.facet.standards' }),
-  standardsOwasp2017Top10Facet: byRole('button', { name: 'issues.facet.owaspTop10' }),
-  standardsOwasp2021Top10Facet: byRole('button', { name: 'issues.facet.owaspTop10_2021' }),
-  standardsCweFacet: byRole('button', { name: 'issues.facet.cwe' }),
+  securityHotspotFacet: byRole('button', { name: 'coding_rules.filters.security_hotspots' }),
+  standardsOwasp2017Top10Facet: byText('issues.facet.owaspTop10'),
+  standardsOwasp2021Top10Facet: byText('issues.facet.owaspTop10_2021'),
+  standardsCweFacet: byText('issues.facet.cwe'),
   availableSinceFacet: byRole('button', { name: 'coding_rules.facet.available_since' }),
   templateFacet: byRole('button', { name: 'coding_rules.facet.template' }),
   qpFacet: byRole('button', { name: 'coding_rules.facet.qprofile' }),
   prioritizedRuleFacet: byRole('button', { name: 'coding_rules.facet.prioritizedRule' }),
   facetClear: (name: string) => byTestId(name),
-  facetSearchInput: (name: string) => byRole('searchbox', { name }),
-  facetItem: (name: string | RegExp) => byRole('checkbox', { name }),
+  facetSearchInput: (name: string) => byLabelText(name),
+  facetItem: (name: string | RegExp) => byRole('checkbox', { name, hidden: true }),
   availableSinceDateField: byPlaceholderText('date'),
   qpActiveRadio: byRole('radio', { name: `active` }),
   qpInactiveRadio: byRole('radio', { name: `inactive` }),
@@ -116,6 +121,11 @@ const selectors = {
   extendDescriptionButton: byRole('button', { name: 'coding_rules.extend_description' }),
   extendDescriptionTextbox: byRole('textbox', { name: 'coding_rules.extend_description' }),
   prioritizedRuleCell: byRole('cell', { name: /coding_rules.prioritized_rule.title/ }),
+  oldSeverityCustomizedCell: byRole('cell', { name: /coding_rules.severity_customized.message/ }),
+  newSeverityCustomizedCell: byRole('cell', {
+    name: /coding_rules.impact_customized.message/,
+  }).byText('coding_rules.impact_customized.message'),
+  qualityProfileRow: byRole('table', { name: 'coding_rules.quality_profiles' }).byRole('row'),
   saveButton: byRole('button', { name: 'save' }),
   cancelButton: byRole('button', { name: 'cancel' }),
   removeButton: byRole('button', { name: 'remove' }),
@@ -124,6 +134,11 @@ const selectors = {
   ruleCleanCodeAttribute: (attribute: CleanCodeAttribute) =>
     byText(new RegExp(`rule\\.clean_code_attribute\\.${attribute}$`)),
   ruleSoftwareQuality: (quality: SoftwareQuality) => byText(`software_quality.${quality}`),
+  ruleSoftwareQualityPill: (quality: SoftwareQuality, severity: SoftwareImpactSeverity) =>
+    byRole('button', { name: `software_quality.${quality} severity_impact.${severity}` }),
+  ruleIssueTypePill: (issueType: IssueType) => byRole('banner').byText(`issue.type.${issueType}`),
+  ruleIssueTypePillSeverity: (severity: IssueSeverity) =>
+    byRole('banner').byLabelText(`severity.${severity}`),
 
   // Rule tags
   tagsDropdown: byLabelText(/tags_list_x/).byRole('button'),
@@ -148,13 +163,18 @@ const selectors = {
   }),
 
   // Rule Quality Profiles
-  qpLink: (name: string) => byRole('link', { name }),
-  activateButton: byRole('button', { name: 'coding_rules.activate' }),
-  deactivateButton: byRole('button', { name: /coding_rules.deactivate_in_quality_profile/ }),
-  oldSeveritySelect: byRole('combobox', { name: 'severity' }),
+  qpLink: (name: string) => byLabelText(name),
+  activateButton: byRole('button', { name: 'coding_rules.activate', hidden: true }),
+  deactivateButton: byRole('button', {
+    name: /coding_rules.deactivate_in_quality_profile/,
+    hidden: true,
+  }),
   qualityProfileSelect: byRole('combobox', { name: 'coding_rules.quality_profile' }),
-  prioritizedSwitch: byRole('switch'),
-  selectValue: byText(/severity\./),
+  oldSeveritySelect: byRole('combobox', { name: 'coding_rules.custom_severity.choose_severity' }),
+  newSeveritySelect: (quality: SoftwareQuality) =>
+    byRole('combobox', { name: `software_quality.${quality}` }),
+  notRecommendedSeverity: byText('coding_rules.custom_severity.not_recommended'),
+  prioritizedSwitch: byRole('checkbox', { name: 'coding_rules.prioritized_rule.switch_label' }),
   activateQPDialog: byRole('dialog', { name: 'coding_rules.activate_in_quality_profile' }),
   changeButton: (profile: string) =>
     byRole('button', { name: `coding_rules.change_details_x.${profile}` }),
@@ -182,6 +202,8 @@ const selectors = {
   deleteCustomRuleDialog: byRole('alertdialog', { name: 'coding_rules.delete_rule' }),
   ruleNameTextbox: byRole('textbox', { name: 'name' }),
   keyTextbox: byRole('textbox', { name: 'key' }),
+  cctIssueTypeSelect: byRole('combobox', { name: 'coding_rules.custom.type.label' }),
+  standardIssueTypeSelect: byRole('combobox', { name: 'type' }),
   cleanCodeCategorySelect: byRole('combobox', { name: 'category' }),
   cleanCodeAttributeSelect: byRole('combobox', { name: 'attribute' }),
   cleanCodeQualityCheckbox: (quality: SoftwareQuality) =>
@@ -193,6 +215,7 @@ const selectors = {
       'combobox',
       { name: 'severity' },
     ),
+  standardSeveritySelect: byRole('combobox', { name: 'severity' }),
   statusSelect: byRole('combobox', { name: 'coding_rules.filters.status' }),
   descriptionTextbox: byRole('textbox', { name: 'description' }),
   createButton: byRole('button', { name: 'create' }),
@@ -207,15 +230,19 @@ export function getPageObjects() {
 
   const ui = {
     ...selectors,
-    async appLoaded() {
-      await waitFor(() => {
-        expect(selectors.loading.query()).not.toBeInTheDocument();
-      });
+
+    async listLoaded() {
+      expect(await selectors.filtersHeading.find()).toBeInTheDocument();
+      expect(await selectors.rulesList.find()).toBeInTheDocument();
+    },
+
+    async facetsLoaded() {
+      expect(await selectors.filtersHeading.find()).toBeInTheDocument();
     },
 
     async detailsloaded() {
       expect(await byRole('heading', { level: 1 }).find()).toBeInTheDocument();
-      await ui.appLoaded();
+      await ui.facetsLoaded();
     },
 
     async bulkActivate(rulesCount: number, profile: Profile) {

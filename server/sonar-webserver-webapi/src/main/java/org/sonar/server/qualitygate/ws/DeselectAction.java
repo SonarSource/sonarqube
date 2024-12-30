@@ -27,8 +27,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.server.ai.code.assurance.AiCodeAssuranceVerifier;
-import org.sonar.server.exceptions.ForbiddenException;
 
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -37,12 +35,10 @@ public class DeselectAction implements QualityGatesWsAction {
 
   private final DbClient dbClient;
   private final QualityGatesWsSupport wsSupport;
-  private final AiCodeAssuranceVerifier aiCodeAssuranceVerifier;
 
-  public DeselectAction(DbClient dbClient, QualityGatesWsSupport wsSupport, AiCodeAssuranceVerifier aiCodeAssuranceVerifier) {
+  public DeselectAction(DbClient dbClient, QualityGatesWsSupport wsSupport) {
     this.wsSupport = wsSupport;
     this.dbClient = dbClient;
-    this.aiCodeAssuranceVerifier = aiCodeAssuranceVerifier;
   }
 
   @Override
@@ -58,9 +54,10 @@ public class DeselectAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setHandler(this)
       .setChangelog(
+        new Change("10.8", "Allow to change the Quality Gate of a project flagged as containing AI code."),
         new Change("10.7", "It is not possible anymore to change the Quality Gate of a project flagged as containing AI code."),
-        new Change("8.3", "The parameter 'projectId' was removed"),
-        new Change("6.6", "The parameter 'gateId' was removed"));
+        new Change("6.6", "The parameter 'gateId' was removed"),
+        new Change("8.3", "The parameter 'projectId' was removed"));
 
     action.createParam(PARAM_PROJECT_KEY)
       .setRequired(true)
@@ -83,9 +80,6 @@ public class DeselectAction implements QualityGatesWsAction {
 
   private void dissociateProject(DbSession dbSession, OrganizationDto organization, ProjectDto project) {
     wsSupport.checkCanAdminProject(organization, project);
-    if (aiCodeAssuranceVerifier.isAiCodeAssured(project)) {
-      throw new ForbiddenException("Quality gate cannot be changed for project with AI Code Assurance enabled.");
-    }
     dbClient.projectQgateAssociationDao().deleteByProjectUuid(dbSession, project.getUuid());
     dbSession.commit();
   }

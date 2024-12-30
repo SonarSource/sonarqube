@@ -17,20 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Select } from '@sonarsource/echoes-react';
 import { groupBy, sortBy } from 'lodash';
 import * as React from 'react';
+import { useIntl } from 'react-intl';
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import { translate } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';
+import { MetricKey } from '../../../sonar-aligned/types/metrics';
 import { Dict, Metric } from '../../../types/types';
-import { getLocalizedMetricNameNoDiffMetric } from '../utils';
+import { getLocalizedMetricNameNoDiffMetric, STANDARD_CONDITIONS_MAP } from '../utils';
 
 interface Props {
   metrics: Dict<Metric>;
   metricsArray: Metric[];
   onMetricChange: (metric: Metric) => void;
   selectedMetric?: Metric;
+  similarMetricFromAnotherMode?: string;
 }
 
 export function MetricSelect({
@@ -38,7 +42,10 @@ export function MetricSelect({
   metricsArray,
   metrics,
   onMetricChange,
+  similarMetricFromAnotherMode,
 }: Readonly<Props>) {
+  const intl = useIntl();
+
   const handleChange = (key: string | null) => {
     if (isDefined(key)) {
       const selectedMetric = metricsArray.find((metric) => metric.key === key);
@@ -58,7 +65,19 @@ export function MetricSelect({
       data={options}
       value={selectedMetric?.key}
       onChange={handleChange}
-      ariaLabel={translate('quality_gates.conditions.fails_when')}
+      ariaLabel={intl.formatMessage({ id: 'quality_gates.conditions.fails_when' })}
+      labelError={
+        Boolean(similarMetricFromAnotherMode) &&
+        intl.formatMessage(
+          { id: 'quality_gates.add_condition.metric_from_other_mode' },
+          {
+            isStandardMode: Boolean(
+              STANDARD_CONDITIONS_MAP[similarMetricFromAnotherMode as MetricKey],
+            ),
+            metric: intl.formatMessage({ id: `metric.${similarMetricFromAnotherMode}.name` }),
+          },
+        )
+      }
       isSearchable
       isNotClearable
     />

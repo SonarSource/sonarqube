@@ -20,39 +20,36 @@
 
 import { ScaleTime } from 'd3-scale';
 import { TimeMachineResponse } from '../api/time-machine';
-import { SOFTWARE_QUALITY_RATING_METRICS_MAP } from './constants';
+import { MQR_CONDITIONS_MAP, STANDARD_CONDITIONS_MAP } from '../apps/quality-gates/utils';
 
-export const mergeRatingMeasureHistory = (
+export const mergeMeasureHistory = (
   historyData: TimeMachineResponse | undefined,
   parseDateFn: (date: string) => Date,
-  isLegacy = false,
+  isStandardMode = false,
 ) => {
-  const softwareQualityMeasures = Object.values(SOFTWARE_QUALITY_RATING_METRICS_MAP);
-  const softwareQualityMeasuresMap = new Map<
+  const standardMeasuresMap = new Map<
     string,
     { history: { date: string; value?: string }[]; index: number; splitDate?: Date }
   >();
-  if (isLegacy) {
+  if (isStandardMode) {
     return (
-      historyData?.measures
-        ?.filter((m) => !softwareQualityMeasures.includes(m.metric))
-        .map((measure) => ({
-          metric: measure.metric,
-          history: measure.history.map((historyItem) => ({
-            date: parseDateFn(historyItem.date),
-            value: historyItem.value,
-          })),
-        })) ?? []
+      historyData?.measures.map((measure) => ({
+        metric: measure.metric,
+        history: measure.history.map((historyItem) => ({
+          date: parseDateFn(historyItem.date),
+          value: historyItem.value,
+        })),
+      })) ?? []
     );
   }
 
   const historyDataFiltered =
     historyData?.measures?.filter((measure) => {
-      if (softwareQualityMeasures.includes(measure.metric)) {
+      if (MQR_CONDITIONS_MAP[measure.metric]) {
         const splitPointIndex = measure.history.findIndex(
           (historyItem) => historyItem.value != null,
         );
-        softwareQualityMeasuresMap.set(measure.metric, {
+        standardMeasuresMap.set(measure.metric, {
           history: measure.history,
           index: measure.history.findIndex((historyItem) => historyItem.value != null),
           splitDate:
@@ -72,20 +69,24 @@ export const mergeRatingMeasureHistory = (
   });
 
   return historyDataFiltered.map((measure) => {
-    const softwareQualityMetric = softwareQualityMeasuresMap.get(
-      SOFTWARE_QUALITY_RATING_METRICS_MAP[measure.metric],
-    );
+    const metric = STANDARD_CONDITIONS_MAP[measure.metric];
+    const softwareQualityMetric = standardMeasuresMap.get(metric as string);
+    if (softwareQualityMetric !== undefined && metric) {
+      return {
+        metric,
+        splitPointDate: softwareQualityMetric.splitDate,
+        history: measure.history
+          .slice(0, softwareQualityMetric.index)
+          .map(historyMapper)
+          .concat(
+            softwareQualityMetric.history.slice(softwareQualityMetric.index).map(historyMapper),
+          ),
+      };
+    }
+
     return {
       metric: measure.metric,
-      splitPointDate: softwareQualityMetric ? softwareQualityMetric.splitDate : undefined,
-      history: softwareQualityMetric
-        ? measure.history
-            .slice(0, softwareQualityMetric.index)
-            .map(historyMapper)
-            .concat(
-              softwareQualityMetric.history.slice(softwareQualityMetric.index).map(historyMapper),
-            )
-        : measure.history.map(historyMapper),
+      history: measure.history.map(historyMapper),
     };
   });
 };

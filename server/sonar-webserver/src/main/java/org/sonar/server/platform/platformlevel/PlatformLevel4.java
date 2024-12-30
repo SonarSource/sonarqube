@@ -43,7 +43,6 @@ import org.sonar.alm.client.gitlab.GitlabApplicationHttpClient;
 import org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator;
 import org.sonar.alm.client.gitlab.GitlabHeaders;
 import org.sonar.alm.client.gitlab.GitlabPaginatedHttpClient;
-import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.auth.bitbucket.BitbucketModule;
 import org.sonar.auth.github.GitHubModule;
@@ -57,13 +56,12 @@ import org.sonar.ce.task.projectanalysis.taskprocessor.AuditPurgeTaskProcessor;
 import org.sonar.ce.task.projectanalysis.taskprocessor.IssueSyncTaskProcessor;
 import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
 import org.sonar.ce.task.projectexport.taskprocessor.ProjectExportTaskProcessor;
-import org.sonar.core.component.DefaultResourceTypes;
-import org.sonar.core.documentation.DefaultDocumentationLinkGenerator;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.language.LanguagesProvider;
 import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.platform.SpringComponentContainer;
+import org.sonar.server.ai.code.assurance.AiCodeAssuranceEntitlement;
 import org.sonar.server.ai.code.assurance.AiCodeAssuranceVerifier;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierImpl;
@@ -106,6 +104,8 @@ import org.sonar.server.common.text.MacroInterpreter;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
+import org.sonar.server.component.ComponentTypes;
+import org.sonar.server.component.DefaultComponentTypes;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.component.index.EntityDefinitionIndexer;
@@ -149,6 +149,7 @@ import org.sonar.server.issue.notification.MyNewIssuesEmailTemplate;
 import org.sonar.server.issue.notification.MyNewIssuesNotificationHandler;
 import org.sonar.server.issue.notification.NewIssuesEmailTemplate;
 import org.sonar.server.issue.notification.NewIssuesNotificationHandler;
+import org.sonar.server.issue.notification.NewModesNotificationsModule;
 import org.sonar.server.issue.ws.IssueWsModule;
 import org.sonar.server.language.LanguageValidation;
 import org.sonar.server.language.ws.LanguageWs;
@@ -188,8 +189,8 @@ import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.SystemInfoWriterModule;
 import org.sonar.server.platform.WebCoreExtensionsInstaller;
 import org.sonar.server.platform.db.CheckAnyonePermissionsAtStartup;
-import org.sonar.server.platform.telemetry.ProjectCppAutoconfigTelemetryProvider;
 import org.sonar.server.platform.telemetry.TelemetryFipsEnabledProvider;
+import org.sonar.server.platform.telemetry.TelemetryMQRModePropertyProvider;
 import org.sonar.server.platform.telemetry.TelemetryNclocProvider;
 import org.sonar.server.platform.telemetry.TelemetryPortfolioConfidentialFlagProvider;
 import org.sonar.server.platform.telemetry.TelemetryUserEnabledProvider;
@@ -289,9 +290,10 @@ import org.sonar.server.webhook.WebhookQGChangeEventListener;
 import org.sonar.server.webhook.ws.WebhooksWsModule;
 import org.sonar.server.ws.WebServiceEngine;
 import org.sonar.server.ws.ws.WebServicesWsModule;
-import org.sonar.telemetry.TelemetryClient;
 import org.sonar.telemetry.TelemetryDaemon;
+import org.sonar.telemetry.core.TelemetryClient;
 import org.sonar.telemetry.legacy.CloudUsageDataProvider;
+import org.sonar.telemetry.legacy.ProjectLocDistributionDataProvider;
 import org.sonar.telemetry.legacy.QualityProfileDataProvider;
 import org.sonar.telemetry.legacy.TelemetryDataJsonWriter;
 import org.sonar.telemetry.legacy.TelemetryDataLoaderImpl;
@@ -326,20 +328,20 @@ public class PlatformLevel4 extends PlatformLevel {
       PluginUninstaller.class,
       PluginDownloader.class,
       PageRepository.class,
-      ResourceTypes.class,
-      DefaultResourceTypes.get(),
+      ComponentTypes.class,
+      DefaultComponentTypes.get(),
       SettingsChangeNotifier.class,
       ServerWs.class,
       IndexDefinitions.class,
       WebAnalyticsLoaderImpl.class,
       new MonitoringWsModule(),
       DefaultBranchNameResolver.class,
-      DefaultDocumentationLinkGenerator.class,
       DelegatingManagedServices.class,
       DelegatingDevOpsProjectCreatorFactory.class,
 
       // ai code assurance
       AiCodeAssuranceVerifier.class,
+      AiCodeAssuranceEntitlement.class,
 
       // batch
       new BatchWsModule(),
@@ -542,6 +544,7 @@ public class PlatformLevel4 extends PlatformLevel {
       BuiltInQPChangeNotificationTemplate.class,
       BuiltInQPChangeNotificationHandler.class,
 
+      new NewModesNotificationsModule(),
       new NotificationModule(),
       new NotificationWsModule(),
       new EmailsWsModule(),
@@ -679,8 +682,8 @@ public class PlatformLevel4 extends PlatformLevel {
       IndexersImpl.class,
 
       // new telemetry metrics
-      ProjectCppAutoconfigTelemetryProvider.class,
       TelemetryVersionProvider.class,
+      TelemetryMQRModePropertyProvider.class,
       TelemetryNclocProvider.class,
       TelemetryUserEnabledProvider.class,
       TelemetryFipsEnabledProvider.class,
@@ -694,6 +697,7 @@ public class PlatformLevel4 extends PlatformLevel {
       TelemetryClient.class,
       CloudUsageDataProvider.class,
       QualityProfileDataProvider.class,
+      ProjectLocDistributionDataProvider.class,
 
       // monitoring
       ServerMonitoringMetrics.class,

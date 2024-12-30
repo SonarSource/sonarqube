@@ -27,10 +27,10 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceType;
-import org.sonar.api.resources.ResourceTypeTree;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.server.component.ComponentType;
+import org.sonar.server.component.ComponentTypeTree;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
@@ -46,7 +46,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Users.CurrentWsResponse;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -64,8 +64,8 @@ public class CurrentActionHomepageIT {
 
   private final PlatformEditionProvider platformEditionProvider = mock(PlatformEditionProvider.class);
   private final HomepageTypesImpl homepageTypes = new HomepageTypesImpl();
-  private final PermissionService permissionService = new PermissionServiceImpl(new ResourceTypes(new ResourceTypeTree[] {
-    ResourceTypeTree.builder().addType(ResourceType.builder(Qualifiers.PROJECT).build()).build()}));
+  private final PermissionService permissionService = new PermissionServiceImpl(new ComponentTypes(new ComponentTypeTree[] {
+    ComponentTypeTree.builder().addType(ComponentType.builder(ComponentQualifiers.PROJECT).build()).build()}));
   private final WsActionTester ws = new WsActionTester(
     new CurrentAction(userSessionRule, dbClient, new AvatarResolverImpl(), homepageTypes, platformEditionProvider, permissionService));
 
@@ -176,7 +176,7 @@ public class CurrentActionHomepageIT {
   public void return_homepage_when_set_to_a_branch() {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter(branch.uuid()));
     userSessionRule.logIn(user).addProjectPermission(USER, projectData.getProjectDto());

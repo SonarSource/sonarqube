@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import * as React from 'react';
 import { AutoSizerProps } from 'react-virtualized';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
+import { ModeServiceMock } from '../../../../api/mocks/ModeServiceMock';
 import { ProjectsServiceMock } from '../../../../api/mocks/ProjectsServiceMock';
-import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { save } from '../../../../helpers/storage';
 import { mockAppState, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
@@ -63,12 +63,12 @@ jest.mock('../../../../helpers/storage', () => {
 const BASE_PATH = 'projects';
 
 const projectHandler = new ProjectsServiceMock();
-const settingsHandler = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 
 beforeEach(() => {
   jest.clearAllMocks();
   projectHandler.reset();
-  settingsHandler.reset();
+  modeHandler.reset();
 });
 
 it('renders correctly', async () => {
@@ -86,7 +86,8 @@ it('changes sort and perspective', async () => {
   await user.click(await ui.sortSelect.find());
   await user.click(screen.getByText('projects.sorting.size'));
 
-  const projects = ui.projects.getAll();
+  const projects = await ui.projects.findAll();
+  expect(save).toHaveBeenCalledWith(LS_PROJECTS_SORT, '"size"');
 
   expect(await within(projects[0]).findByRole('link')).toHaveTextContent(
     'sonarlint-omnisharp-dotnet',
@@ -101,9 +102,9 @@ it('changes sort and perspective', async () => {
     20,
   );
 
-  expect(save).toHaveBeenCalledWith(LS_PROJECTS_VIEW, 'leak');
+  expect(save).toHaveBeenCalledWith(LS_PROJECTS_VIEW, '"leak"');
   // sort should also be updated
-  expect(save).toHaveBeenCalledWith(LS_PROJECTS_SORT, MetricKey.new_lines);
+  expect(save).toHaveBeenCalledWith(LS_PROJECTS_SORT, `"${MetricKey.new_lines}"`);
 });
 
 it('handles showing favorite projects on load', async () => {
@@ -115,7 +116,7 @@ it('handles showing favorite projects on load', async () => {
 
   await user.click(ui.allToggleOption.get());
 
-  expect(ui.projects.getAll()).toHaveLength(20);
+  expect(await ui.projects.findAll()).toHaveLength(20);
 });
 
 function renderProjects(navigateTo?: string) {

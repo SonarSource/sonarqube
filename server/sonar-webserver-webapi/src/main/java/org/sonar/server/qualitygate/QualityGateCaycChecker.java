@@ -20,6 +20,7 @@
 package org.sonar.server.qualitygate;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,35 +53,30 @@ public class QualityGateCaycChecker {
 
   static final Map<String, Double> BEST_VALUE_REQUIREMENTS = Stream.of(
     NEW_VIOLATIONS,
-    NEW_SECURITY_HOTSPOTS_REVIEWED
-  ).collect(toMap(Metric::getKey, Metric::getBestValue));
+    NEW_SECURITY_HOTSPOTS_REVIEWED).collect(toMap(Metric::getKey, Metric::getBestValue));
 
   static final Set<String> EXISTENCY_REQUIREMENTS = Set.of(
     NEW_DUPLICATED_LINES_DENSITY_KEY,
-    NEW_COVERAGE_KEY
-  );
+    NEW_COVERAGE_KEY);
   public static final Set<Metric<? extends Serializable>> CAYC_METRICS = Set.of(
     NEW_VIOLATIONS,
     NEW_SECURITY_HOTSPOTS_REVIEWED,
     NEW_DUPLICATED_LINES_DENSITY,
-    NEW_COVERAGE
-  );
+    NEW_COVERAGE);
 
   // To be removed after transition
   static final Map<String, Double> LEGACY_BEST_VALUE_REQUIREMENTS = Stream.of(
     NEW_MAINTAINABILITY_RATING,
     NEW_RELIABILITY_RATING,
     NEW_SECURITY_HOTSPOTS_REVIEWED,
-    NEW_SECURITY_RATING
-  ).collect(toMap(Metric::getKey, Metric::getBestValue));
+    NEW_SECURITY_RATING).collect(toMap(Metric::getKey, Metric::getBestValue));
   static final Set<Metric<? extends Serializable>> LEGACY_CAYC_METRICS = Set.of(
     NEW_MAINTAINABILITY_RATING,
     NEW_RELIABILITY_RATING,
     NEW_SECURITY_HOTSPOTS_REVIEWED,
     NEW_SECURITY_RATING,
     NEW_DUPLICATED_LINES_DENSITY,
-    NEW_COVERAGE
-  );
+    NEW_COVERAGE);
 
   private final DbClient dbClient;
 
@@ -89,18 +85,23 @@ public class QualityGateCaycChecker {
   }
 
   public QualityGateCaycStatus checkCaycCompliant(DbSession dbSession, String qualityGateUuid) {
-    var conditionsByMetricId = dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGateUuid)
+    Collection<QualityGateConditionDto> conditions = dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGateUuid);
+    var metrics = dbClient.metricDao().selectByUuids(dbSession, conditions.stream().map(QualityGateConditionDto::getMetricUuid).collect(Collectors.toSet()))
+      .stream()
+      .filter(MetricDto::isEnabled)
+      .toList();
+
+    return checkCaycCompliant(conditions, metrics);
+  }
+
+  public QualityGateCaycStatus checkCaycCompliant(Collection<QualityGateConditionDto> conditions, List<MetricDto> metrics) {
+    var conditionsByMetricId = conditions
       .stream()
       .collect(Collectors.toMap(QualityGateConditionDto::getMetricUuid, Function.identity()));
 
     if (conditionsByMetricId.size() < CAYC_METRICS.size()) {
       return NON_COMPLIANT;
     }
-
-    var metrics = dbClient.metricDao().selectByUuids(dbSession, conditionsByMetricId.keySet())
-      .stream()
-      .filter(MetricDto::isEnabled)
-      .toList();
 
     var caycStatus = checkCaycConditions(metrics, conditionsByMetricId, false);
     if (caycStatus == NON_COMPLIANT) {

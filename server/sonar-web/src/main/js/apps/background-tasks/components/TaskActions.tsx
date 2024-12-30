@@ -17,8 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ActionCell, ActionsDropdown, ItemButton, ItemDangerButton } from 'design-system';
+
+import {
+  ButtonIcon,
+  ButtonVariety,
+  DropdownMenu,
+  IconMoreVertical,
+} from '@sonarsource/echoes-react';
 import * as React from 'react';
+import { ActionCell, ItemDangerButton } from '~design-system';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Task, TaskStatuses, TaskTypes } from '../../../types/tasks';
@@ -92,7 +99,7 @@ export default class TaskActions extends React.PureComponent<Props, State> {
   render() {
     const { component, task, taskIndex } = this.props;
 
-    const canFilter = component === undefined && task.componentName;
+    const canFilter = component === undefined && Boolean(task.componentName);
     const canCancel = task.status === TaskStatuses.Pending || (task.status === TaskStatuses.InProgress && task.type === TaskTypes.Report);
     const canShowStacktrace = task.errorMessage !== undefined;
     const canShowWarnings = task.warningCount !== undefined && task.warningCount > 0;
@@ -105,49 +112,63 @@ export default class TaskActions extends React.PureComponent<Props, State> {
 
     return (
       <ActionCell>
-        <ActionsDropdown
+        <DropdownMenu.Root
           id={`task-${task.id}-actions`}
-          ariaLabel={translateWithParameters(
-            'background_tasks.show_actions_for_task_x_in_list',
-            taskIndex,
-          )}
           className="js-task-action"
-        >
-          {canFilter && task.componentName && (
-            <ItemButton className="js-task-filter" onClick={this.handleFilterClick}>
-              {translateWithParameters(
-                'background_tasks.filter_by_component_x',
-                task.componentName,
+          items={
+            <>
+              {canFilter && task.componentName && (
+                <DropdownMenu.ItemButton
+                  className="js-task-filter"
+                  onClick={this.handleFilterClick}
+                >
+                  {translateWithParameters(
+                    'background_tasks.filter_by_component_x',
+                    task.componentName,
+                  )}
+                </DropdownMenu.ItemButton>
               )}
-            </ItemButton>
-          )}
-          {canCancel && (
-            <ItemDangerButton className="js-task-cancel" onClick={this.handleCancelClick}>
-              {translate('background_tasks.cancel_task')}
-            </ItemDangerButton>
-          )}
-          {task.hasScannerContext && (
-            <ItemButton
-              className="js-task-show-scanner-context"
-              onClick={this.handleShowScannerContextClick}
-            >
-              {translate('background_tasks.show_scanner_context')}
-            </ItemButton>
-          )}
-          {canShowStacktrace && (
-            <ItemButton
-              className="js-task-show-stacktrace"
-              onClick={this.handleShowStacktraceClick}
-            >
-              {translate('background_tasks.show_stacktrace')}
-            </ItemButton>
-          )}
-          {canShowWarnings && (
-            <ItemButton className="js-task-show-warnings" onClick={this.handleShowWarningsClick}>
-              {translate('background_tasks.show_warnings')}
-            </ItemButton>
-          )}
-        </ActionsDropdown>
+              {canCancel && (
+                <ItemDangerButton className="js-task-cancel" onClick={this.handleCancelClick}>
+                  {translate('background_tasks.cancel_task')}
+                </ItemDangerButton>
+              )}
+              {task.hasScannerContext && (
+                <DropdownMenu.ItemButton
+                  className="js-task-show-scanner-context"
+                  onClick={this.handleShowScannerContextClick}
+                >
+                  {translate('background_tasks.show_scanner_context')}
+                </DropdownMenu.ItemButton>
+              )}
+              {canShowStacktrace && (
+                <DropdownMenu.ItemButton
+                  className="js-task-show-stacktrace"
+                  onClick={this.handleShowStacktraceClick}
+                >
+                  {translate('background_tasks.show_stacktrace')}
+                </DropdownMenu.ItemButton>
+              )}
+              {canShowWarnings && (
+                <DropdownMenu.ItemButton
+                  className="js-task-show-warnings"
+                  onClick={this.handleShowWarningsClick}
+                >
+                  {translate('background_tasks.show_warnings')}
+                </DropdownMenu.ItemButton>
+              )}
+            </>
+          }
+        >
+          <ButtonIcon
+            Icon={IconMoreVertical}
+            ariaLabel={translateWithParameters(
+              'background_tasks.show_actions_for_task_x_in_list',
+              taskIndex,
+            )}
+            variety={ButtonVariety.Default}
+          />
+        </DropdownMenu.Root>
 
         <ConfirmModal
           cancelButtonText={translate('close')}

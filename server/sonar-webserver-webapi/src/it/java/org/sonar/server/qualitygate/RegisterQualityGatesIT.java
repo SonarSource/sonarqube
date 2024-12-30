@@ -32,7 +32,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -43,6 +43,8 @@ import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.qualitygate.builtin.BuiltInQualityGate;
+import org.sonar.server.qualitygate.builtin.SonarWayQualityGate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -58,8 +60,6 @@ import static org.sonar.api.measures.Metric.ValueType.PERCENT;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_GREATER_THAN;
 import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_LESS_THAN;
-import static org.sonar.server.qualitygate.QualityGate.BUILTIN_QUALITY_GATE_NAME;
-import static org.sonar.server.qualitygate.QualityGate.SONAR_WAY_LEGACY_QUALITY_GATE_NAME;
 
 @RunWith(DataProviderRunner.class)
 public class RegisterQualityGatesIT {
@@ -76,8 +76,11 @@ public class RegisterQualityGatesIT {
   private final MetricDao metricDao = dbClient.metricDao();
   private final QualityGateConditionsUpdater qualityGateConditionsUpdater = new QualityGateConditionsUpdater(dbClient);
 
-  private final RegisterQualityGates underTest = new RegisterQualityGates(dbClient, qualityGateConditionsUpdater,
-    UuidFactoryFast.getInstance(), System2.INSTANCE);
+  private final RegisterQualityGates underTest = new RegisterQualityGates(dbClient,
+    new BuiltInQualityGate[] {new SonarWayQualityGate()},
+    qualityGateConditionsUpdater,
+    new SequenceUuidFactory(),
+    System2.INSTANCE);
 
   @Test
   public void register_default_gate() {
@@ -87,9 +90,9 @@ public class RegisterQualityGatesIT {
 
     verifyCorrectBuiltInQualityGate();
     assertThat(
-      logTester.logs(Level.INFO)).contains("Built-in quality gate [Sonar way] has been created");
+      logTester.logs(Level.INFO)).contains("Quality Gate [Sonar way] has been created");
     assertThat(
-      logTester.logs(Level.INFO)).contains("Built-in quality gate's conditions of [Sonar way] has been updated");
+      logTester.logs(Level.INFO)).contains("Quality Gate's conditions of [Sonar way] has been updated");
   }
 
   @Test
@@ -101,7 +104,7 @@ public class RegisterQualityGatesIT {
     assertThat(db.countRowsOfTable("quality_gates")).isOne();
     verifyCorrectBuiltInQualityGate();
     assertThat(
-      logTester.logs(Level.INFO)).contains("Built-in quality gate's conditions of [Sonar way] has been updated");
+      logTester.logs(Level.INFO)).contains("Quality Gate's conditions of [Sonar way] has been updated");
   }
 
   @Test
@@ -120,7 +123,7 @@ public class RegisterQualityGatesIT {
 
     verifyCorrectBuiltInQualityGate();
     assertThat(
-      logTester.logs(Level.INFO)).contains("Built-in quality gate's conditions of [Sonar way] has been updated");
+      logTester.logs(Level.INFO)).contains("Quality Gate's conditions of [Sonar way] has been updated");
   }
 
   @Test
@@ -128,7 +131,7 @@ public class RegisterQualityGatesIT {
     insertMetrics();
     QualityGateDto builtInQualityGate = db.qualityGates().insertBuiltInQualityGate();
     createBuiltInConditions(builtInQualityGate);
-    //Conditions added twice as found in some DB instances
+    // Conditions added twice as found in some DB instances
     createBuiltInConditionsWithoutCheckingDuplicates(builtInQualityGate);
     dbSession.commit();
 
@@ -136,7 +139,7 @@ public class RegisterQualityGatesIT {
 
     verifyCorrectBuiltInQualityGate();
     assertThat(
-      logTester.logs(Level.INFO)).contains("Built-in quality gate's conditions of [Sonar way] has been updated");
+      logTester.logs(Level.INFO)).contains("Quality Gate's conditions of [Sonar way] has been updated");
   }
 
   @Test
@@ -153,7 +156,7 @@ public class RegisterQualityGatesIT {
 
     verifyCorrectBuiltInQualityGate();
     assertThat(
-      logTester.logs(Level.INFO)).contains("Built-in quality gate's conditions of [Sonar way] has been updated");
+      logTester.logs(Level.INFO)).contains("Quality Gate's conditions of [Sonar way] has been updated");
   }
 
   @Test
@@ -172,7 +175,7 @@ public class RegisterQualityGatesIT {
 
     verifyCorrectBuiltInQualityGate();
     assertThat(
-      logTester.logs(Level.INFO)).contains("Quality gate [Sonar way] has been set as built-in");
+      logTester.logs(Level.INFO)).contains("Quality Gate [Sonar way] builtin flag has been updated to [true]");
   }
 
   @Test
@@ -204,15 +207,16 @@ public class RegisterQualityGatesIT {
 
     underTest.start();
 
-    QualityGateDto oldQualityGate = qualityGateDao.selectByName(dbSession, qualityGateName);
+    QualityGateDto oldQualityGate = qualityGateDao.selectByUuid(dbSession, builtin.getUuid());
     assertThat(oldQualityGate).isNotNull();
+    assertThat(oldQualityGate.getName()).startsWith("IncorrectQualityGate (backup from");
     assertThat(oldQualityGate.isBuiltIn()).isFalse();
-    var qualityGateDto = qualityGateDao.selectByName(dbSession, BUILTIN_QUALITY_GATE_NAME);
+    var qualityGateDto = qualityGateDao.selectByName(dbSession, SonarWayQualityGate.NAME);
     assertThat(qualityGateDto).isNotNull();
     assertThat(
-      logTester.logs(Level.INFO)).contains("Built-in quality gate [Sonar way] has been created");
+      logTester.logs(Level.INFO)).contains("Quality Gate [Sonar way] has been created");
     assertThat(
-      logTester.logs(Level.INFO)).contains("Built-in quality gate's conditions of [Sonar way] has been updated");
+      logTester.logs(Level.INFO)).contains("Quality Gate's conditions of [Sonar way] has been updated");
   }
 
   @Test
@@ -232,25 +236,25 @@ public class RegisterQualityGatesIT {
     // No exception thrown
     verifyCorrectBuiltInQualityGate();
     assertThat(
-      logTester.logs(Level.INFO)).contains("Built-in quality gate's conditions of [Sonar way] has been updated");
+      logTester.logs(Level.INFO)).contains("Quality Gate's conditions of [Sonar way] has been updated");
   }
 
   @Test
   public void register_sonar_way_legacy_qg_if_not_exists_and_existing_instance() {
     insertMetrics();
-    QualityGateDto builtin = new QualityGateDto().setName(BUILTIN_QUALITY_GATE_NAME).setBuiltIn(true).setUuid(Uuids.createFast());
+    QualityGateDto builtin = new QualityGateDto().setName(SonarWayQualityGate.NAME).setBuiltIn(true).setUuid(Uuids.createFast());
     qualityGateDao.insert(dbSession, builtin);
     createBuiltInConditions(builtin);
     dbSession.commit();
 
     underTest.start();
 
-    var qualityGateDto = qualityGateDao.selectByName(dbSession, SONAR_WAY_LEGACY_QUALITY_GATE_NAME);
+    var qualityGateDto = qualityGateDao.selectByName(dbSession, RegisterQualityGates.SONAR_WAY_LEGACY_NAME);
     assertThat(qualityGateDto).isNotNull();
 
     verifyCorrectSonarWayLegacyQualityGate();
     assertThat(
-      logTester.logs(Level.INFO)).contains("Sonar way (legacy) quality gate has been created");
+      logTester.logs(Level.INFO)).contains("Sonar way (legacy) Quality Gate has been created");
 
   }
 
@@ -258,22 +262,22 @@ public class RegisterQualityGatesIT {
   @UseDataProvider("data")
   public void do_not_register_sonar_way_legacy_qg(boolean isNewInstance, boolean hasSonarWayLegacyQG) {
     insertMetrics();
-    QualityGateDto builtin = new QualityGateDto().setName(BUILTIN_QUALITY_GATE_NAME).setBuiltIn(true).setUuid(Uuids.createFast());
+    QualityGateDto builtin = new QualityGateDto().setName(SonarWayQualityGate.NAME).setBuiltIn(true).setUuid(Uuids.createFast());
     qualityGateDao.insert(dbSession, builtin);
-    if(!isNewInstance) {
+    if (!isNewInstance) {
       createBuiltInConditions(builtin);
     }
-    if(hasSonarWayLegacyQG) {
-      QualityGateDto sonarWayLegacy = new QualityGateDto().setName(SONAR_WAY_LEGACY_QUALITY_GATE_NAME).setBuiltIn(true).setUuid(Uuids.createFast());
+    if (hasSonarWayLegacyQG) {
+      QualityGateDto sonarWayLegacy = new QualityGateDto().setName(RegisterQualityGates.SONAR_WAY_LEGACY_NAME).setBuiltIn(false).setUuid(Uuids.createFast());
       qualityGateDao.insert(dbSession, sonarWayLegacy);
     }
     dbSession.commit();
 
     underTest.start();
 
-    var qualityGateDto = qualityGateDao.selectByName(dbSession, SONAR_WAY_LEGACY_QUALITY_GATE_NAME);
-    if(hasSonarWayLegacyQG) {
-     assertThat(qualityGateDto).isNotNull();
+    var qualityGateDto = qualityGateDao.selectByName(dbSession, RegisterQualityGates.SONAR_WAY_LEGACY_NAME);
+    if (hasSonarWayLegacyQG) {
+      assertThat(qualityGateDto).isNotNull();
     } else {
       assertThat(qualityGateDto).isNull();
     }
@@ -315,7 +319,7 @@ public class RegisterQualityGatesIT {
     MetricDto newDuplication = metricDao.selectByKey(dbSession, NEW_DUPLICATED_LINES_DENSITY_KEY);
     MetricDto newSecurityHotspots = metricDao.selectByKey(dbSession, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY);
 
-    QualityGateDto qualityGateDto = qualityGateDao.selectByName(dbSession, BUILTIN_QUALITY_GATE_NAME);
+    QualityGateDto qualityGateDto = qualityGateDao.selectByName(dbSession, SonarWayQualityGate.NAME);
     assertThat(qualityGateDto).isNotNull();
     assertThat(qualityGateDto.getCreatedAt()).isNotNull();
     assertThat(qualityGateDto.isBuiltIn()).isTrue();
@@ -336,7 +340,7 @@ public class RegisterQualityGatesIT {
     MetricDto newCoverage = metricDao.selectByKey(dbSession, NEW_COVERAGE_KEY);
     MetricDto newDuplication = metricDao.selectByKey(dbSession, NEW_DUPLICATED_LINES_DENSITY_KEY);
     MetricDto newSecurityHotspots = metricDao.selectByKey(dbSession, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY);
-    QualityGateDto qualityGateDto = qualityGateDao.selectByName(dbSession, SONAR_WAY_LEGACY_QUALITY_GATE_NAME);
+    QualityGateDto qualityGateDto = qualityGateDao.selectByName(dbSession, RegisterQualityGates.SONAR_WAY_LEGACY_NAME);
     assertThat(qualityGateDto).isNotNull();
     assertThat(qualityGateDto.getCreatedAt()).isNotNull();
     assertThat(qualityGateDto.isBuiltIn()).isFalse();

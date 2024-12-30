@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import { byLabelText, byRole } from '~sonar-aligned/helpers/testSelector';
 import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
+import { ModeServiceMock } from '../../../api/mocks/ModeServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { ComponentContext } from '../../../app/components/componentContext/ComponentContext';
 import { mockComponent } from '../../../helpers/mocks/component';
@@ -34,6 +35,7 @@ import ProjectBranchesApp from '../ProjectBranchesApp';
 
 const handler = new BranchesServiceMock();
 const settingsHandler = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 
 const ui = new (class UI {
   branchTabContent = byRole('tabpanel', { name: 'project_branch_pull_request.tabs.branches' });
@@ -88,6 +90,7 @@ beforeEach(() => {
   });
   handler.reset();
   settingsHandler.reset();
+  modeHandler.reset();
 });
 
 afterEach(() => {

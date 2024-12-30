@@ -50,8 +50,9 @@ dependencies {
   testImplementation testFixtures(project(':server:sonar-webserver-es'))
   testImplementation testFixtures(project(':server:sonar-webserver-ws'))
   testImplementation project(':sonar-testing-harness')
-  testFixturesApi testFixtures(project(':server:sonar-db-dao'))
 
+  testFixturesApi testFixtures(project(':server:sonar-db-dao'))
+  testFixturesImplementation testFixtures(project(':server:sonar-server-common'))
   testFixturesImplementation 'org.junit.jupiter:junit-jupiter-api'
 
 

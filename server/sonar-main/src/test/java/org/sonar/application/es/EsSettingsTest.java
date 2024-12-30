@@ -43,7 +43,7 @@ import org.sonar.process.Props;
 import org.sonar.process.System2;
 
 import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -111,7 +111,7 @@ public class EsSettingsTest {
   public void constructor_logs_warning_if_env_variable_ES_JVM_OPTIONS_is_set_and_non_empty() {
     this.listAppender = ListAppender.attachMemoryAppenderToLoggerOf(EsSettings.class);
     Props props = minimalProps();
-    when(system.getenv("ES_JVM_OPTIONS")).thenReturn(randomAlphanumeric(2));
+    when(system.getenv("ES_JVM_OPTIONS")).thenReturn(secure().nextAlphanumeric(2));
     new EsSettings(props, new EsInstallation(props), system);
 
     assertThat(listAppender.getLogs())
@@ -122,11 +122,11 @@ public class EsSettingsTest {
 
   private Props minimalProps() {
     Props props = new Props(new Properties());
-    props.set(PATH_HOME.getKey(), randomAlphanumeric(12));
-    props.set(PATH_DATA.getKey(), randomAlphanumeric(12));
-    props.set(PATH_TEMP.getKey(), randomAlphanumeric(12));
-    props.set(PATH_LOGS.getKey(), randomAlphanumeric(12));
-    props.set(CLUSTER_NAME.getKey(), randomAlphanumeric(12));
+    props.set(PATH_HOME.getKey(), secure().nextAlphanumeric(12));
+    props.set(PATH_DATA.getKey(), secure().nextAlphanumeric(12));
+    props.set(PATH_TEMP.getKey(), secure().nextAlphanumeric(12));
+    props.set(PATH_LOGS.getKey(), secure().nextAlphanumeric(12));
+    props.set(CLUSTER_NAME.getKey(), secure().nextAlphanumeric(12));
     return props;
   }
 

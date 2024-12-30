@@ -146,10 +146,6 @@ public class IssueDoc extends BaseDoc {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN);
   }
 
-  /**
-   * @deprecated since 10.2
-   */
-  @Deprecated(since = "10.2")
   public RuleType type() {
     return RuleType.valueOf(getField(IssueIndexDefinition.FIELD_ISSUE_TYPE));
   }
@@ -216,10 +212,6 @@ public class IssueDoc extends BaseDoc {
     return this;
   }
 
-  /**
-   * @deprecated since 10.2
-   */
-  @Deprecated(since = "10.2")
   public IssueDoc setSeverity(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, s);
     setField(IssueIndexDefinition.FIELD_ISSUE_SEVERITY_VALUE, Severity.ALL.indexOf(s));
@@ -301,7 +293,6 @@ public class IssueDoc extends BaseDoc {
     return this;
   }
 
-  @Deprecated(since = "10.2")
   public IssueDoc setType(RuleType type) {
     setField(IssueIndexDefinition.FIELD_ISSUE_TYPE, type.toString());
     return this;
@@ -455,11 +446,11 @@ public class IssueDoc extends BaseDoc {
     return this;
   }
 
-  public boolean isPrioritizedRule(){
+  public boolean isPrioritizedRule() {
     return getField(IssueIndexDefinition.FIELD_PRIORITIZED_RULE);
   }
 
-  public IssueDoc setPrioritizedRule(boolean prioritizedRule){
+  public IssueDoc setPrioritizedRule(boolean prioritizedRule) {
     setField(IssueIndexDefinition.FIELD_PRIORITIZED_RULE, prioritizedRule);
     return this;
   }

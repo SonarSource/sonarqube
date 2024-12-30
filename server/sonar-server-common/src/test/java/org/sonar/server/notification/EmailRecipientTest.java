@@ -22,7 +22,7 @@ package org.sonar.server.notification;
 import org.junit.Test;
 import org.sonar.server.notification.NotificationManager.EmailRecipient;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -30,7 +30,7 @@ public class EmailRecipientTest {
 
   @Test
   public void constructor_fails_with_NPE_if_login_is_null() {
-    String email = randomAlphabetic(12);
+    String email = secure().nextAlphabetic(12);
 
     assertThatThrownBy(() -> new EmailRecipient(null, email))
       .isInstanceOf(NullPointerException.class)
@@ -39,7 +39,7 @@ public class EmailRecipientTest {
 
   @Test
   public void constructor_fails_with_NPE_if_email_is_null() {
-    String login = randomAlphabetic(12);
+    String login = secure().nextAlphabetic(12);
 
     assertThatThrownBy(() -> new EmailRecipient(login, null))
       .isInstanceOf(NullPointerException.class)
@@ -48,8 +48,8 @@ public class EmailRecipientTest {
 
   @Test
   public void equals_is_based_on_login_and_email() {
-    String login = randomAlphabetic(11);
-    String email = randomAlphabetic(12);
+    String login = secure().nextAlphabetic(11);
+    String email = secure().nextAlphabetic(12);
     EmailRecipient underTest = new EmailRecipient(login, email);
 
     assertThat(underTest)
@@ -57,30 +57,30 @@ public class EmailRecipientTest {
       .isNotNull()
       .isNotEqualTo(new Object())
       .isNotEqualTo(new EmailRecipient(email, login))
-      .isNotEqualTo(new EmailRecipient(randomAlphabetic(5), email))
-      .isNotEqualTo(new EmailRecipient(login, randomAlphabetic(5)))
-      .isNotEqualTo(new EmailRecipient(randomAlphabetic(5), randomAlphabetic(6)));
+      .isNotEqualTo(new EmailRecipient(secure().nextAlphabetic(5), email))
+      .isNotEqualTo(new EmailRecipient(login, secure().nextAlphabetic(5)))
+      .isNotEqualTo(new EmailRecipient(secure().nextAlphabetic(5), secure().nextAlphabetic(6)));
   }
 
   @Test
   public void hashcode_is_based_on_login_and_email() {
-    String login = randomAlphabetic(11);
-    String email = randomAlphabetic(12);
+    String login = secure().nextAlphabetic(11);
+    String email = secure().nextAlphabetic(12);
     EmailRecipient underTest = new EmailRecipient(login, email);
 
     assertThat(underTest.hashCode())
       .isEqualTo(new EmailRecipient(login, email).hashCode())
       .isNotEqualTo(new Object().hashCode())
       .isNotEqualTo(new EmailRecipient(email, login).hashCode())
-      .isNotEqualTo(new EmailRecipient(randomAlphabetic(5), email).hashCode())
-      .isNotEqualTo(new EmailRecipient(login, randomAlphabetic(5)).hashCode())
-      .isNotEqualTo(new EmailRecipient(randomAlphabetic(5), randomAlphabetic(6)).hashCode());
+      .isNotEqualTo(new EmailRecipient(secure().nextAlphabetic(5), email).hashCode())
+      .isNotEqualTo(new EmailRecipient(login, secure().nextAlphabetic(5)).hashCode())
+      .isNotEqualTo(new EmailRecipient(secure().nextAlphabetic(5), secure().nextAlphabetic(6)).hashCode());
   }
 
   @Test
   public void verify_to_String() {
-    String login = randomAlphabetic(11);
-    String email = randomAlphabetic(12);
+    String login = secure().nextAlphabetic(11);
+    String email = secure().nextAlphabetic(12);
 
     assertThat(new EmailRecipient(login, email)).hasToString("EmailRecipient{'" + login + "':'" + email + "'}");
   }

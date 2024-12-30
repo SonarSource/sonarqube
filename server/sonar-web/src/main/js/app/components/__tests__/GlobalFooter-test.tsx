@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { addDays, subDays } from 'date-fns';
-import * as React from 'react';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import SystemServiceMock from '../../../api/mocks/SystemServiceMock';
+import { getEdition } from '../../../helpers/editions';
 import { mockAppState } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { AppState } from '../../../types/appstate';
@@ -30,20 +31,22 @@ import GlobalFooter from '../GlobalFooter';
 
 const systemMock = new SystemServiceMock();
 
+const COMMUNITY = getEdition(EditionKey.community).name;
+
 afterEach(() => {
   systemMock.reset();
 });
 
 it('should render the logged-in information', async () => {
-  renderGlobalFooter();
+  renderGlobalFooter({}, { edition: EditionKey.community });
 
   expect(ui.databaseWarningMessage.query()).not.toBeInTheDocument();
 
   expect(ui.footerListItems.getAll()).toHaveLength(7);
 
-  expect(byText('Community Edition').get()).toBeInTheDocument();
-  expect(ui.versionLabel('4.2').get()).toBeInTheDocument();
-  expect(await ui.ltaDocumentationLinkActive.find()).toBeInTheDocument();
+  expect(byText(COMMUNITY).get()).toBeInTheDocument();
+  expect(await ui.versionLabel('4.2').find()).toBeInTheDocument();
+  expect(ui.ltaDocumentationLinkActive.query()).not.toBeInTheDocument();
   expect(ui.apiLink.get()).toBeInTheDocument();
 });
 
@@ -80,18 +83,18 @@ it('should not render missing logged-in information', () => {
 
   expect(ui.footerListItems.getAll()).toHaveLength(5);
 
-  expect(byText('Community Edition').query()).not.toBeInTheDocument();
+  expect(byText(COMMUNITY).query()).not.toBeInTheDocument();
   expect(ui.versionLabel().query()).not.toBeInTheDocument();
 });
 
 it('should not render the logged-in information', () => {
-  renderGlobalFooter({ hideLoggedInInfo: true });
+  renderGlobalFooter({ hideLoggedInInfo: true }, { edition: EditionKey.community });
 
   expect(ui.databaseWarningMessage.query()).not.toBeInTheDocument();
 
   expect(ui.footerListItems.getAll()).toHaveLength(4);
 
-  expect(byText('Community Edition').query()).not.toBeInTheDocument();
+  expect(byText(COMMUNITY).query()).not.toBeInTheDocument();
   expect(ui.versionLabel().query()).not.toBeInTheDocument();
   expect(ui.apiLink.query()).not.toBeInTheDocument();
 });
@@ -109,7 +112,7 @@ function renderGlobalFooter(
   return renderComponent(<GlobalFooter {...props} />, '/', {
     appState: mockAppState({
       productionDatabase: true,
-      edition: EditionKey.community,
+      edition: EditionKey.developer,
       version: '4.2',
       ...appStateOverride,
     }),
@@ -132,9 +135,9 @@ const ui = {
   pluginsLink: byRole('link', { name: 'opens_in_new_window footer.plugins' }),
   apiLink: byRole('link', { name: 'footer.web_api' }),
   ltaDocumentationLinkActive: byRole('link', {
-    name: `footer.version.status.active open_in_new_tab`,
+    name: `footer.version.status.active`,
   }),
   ltaDocumentationLinkInactive: byRole('link', {
-    name: `footer.version.status.inactive open_in_new_tab`,
+    name: `footer.version.status.inactive`,
   }),
 };

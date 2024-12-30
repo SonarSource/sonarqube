@@ -20,10 +20,10 @@
 
 import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { CoverageIndicator, DuplicationsIndicator, LightLabel, TextError } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { To } from 'react-router-dom';
+import { CoverageIndicator, DuplicationsIndicator, LightLabel, TextError } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import { duplicationRatingConverter, getLeakValue } from '../../../components/measure/utils';

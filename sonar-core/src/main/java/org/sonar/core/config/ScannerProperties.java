@@ -22,7 +22,7 @@ package org.sonar.core.config;
 import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.config.PropertyDefinition.ConfigScope;
 
 import static java.util.Arrays.asList;
 import static org.sonar.api.PropertyType.BOOLEAN;
@@ -58,14 +58,14 @@ public class ScannerProperties {
         .description("Disable the retrieval of blame information from Source Control Manager")
         .category(CoreProperties.CATEGORY_SCM)
         .type(BOOLEAN)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .defaultValue(String.valueOf(false))
         .build(),
       PropertyDefinition.builder(CoreProperties.SCM_PROVIDER_KEY)
         .name("Key of the SCM provider for this project")
         .description("Force the provider to be used to get SCM information for this project. By default auto-detection is done. Example: svn, git.")
         .category(CoreProperties.CATEGORY_SCM)
-        .onlyOnQualifiers(Qualifiers.PROJECT)
+        .onlyOnConfigScopes(ConfigScope.PROJECT)
         .build(),
       PropertyDefinition.builder(ORGANIZATION)
               .name("Organization key")

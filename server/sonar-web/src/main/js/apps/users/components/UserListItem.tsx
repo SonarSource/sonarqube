@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   ButtonIcon,
   ButtonSize,
@@ -24,8 +25,8 @@ import {
   IconMoreVertical,
   Spinner,
 } from '@sonarsource/echoes-react';
-import { ActionCell, Avatar, ContentCell, TableRow } from 'design-system';
 import * as React from 'react';
+import { ActionCell, Avatar, ContentCell, TableRow } from '~design-system';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { useUserTokensQuery } from '../../../queries/users';
@@ -35,6 +36,7 @@ import TokensFormModal from './TokensFormModal';
 import UserActions from './UserActions';
 import UserListItemIdentity from './UserListItemIdentity';
 import UserScmAccounts from './UserScmAccounts';
+import ViewGroupsModal from './ViewGroupsModal';
 
 export interface UserListItemProps {
   identityProvider?: IdentityProvider;
@@ -78,6 +80,29 @@ export default function UserListItem(props: Readonly<UserListItemProps>) {
         <DateFromNow date={sonarLintLastConnectionDate ?? ''} hourPrecision />
       </ContentCell>
       <ContentCell>
+        <Spinner isLoading={groupsAreLoading}>
+          {groupsCount}
+          <ButtonIcon
+            Icon={IconMoreVertical}
+            tooltipContent={
+              manageProvider === undefined
+                ? translate('users.update_groups')
+                : translate('users.view_groups')
+            }
+            className="it__user-groups sw-ml-2"
+            ariaLabel={translateWithParameters(
+              manageProvider === undefined
+                ? 'users.update_users_groups'
+                : 'users.view_users_groups',
+              user.login,
+            )}
+            onClick={() => setOpenGroupForm(true)}
+            size={ButtonSize.Medium}
+            variety={ButtonVariety.DefaultGhost}
+          />
+        </Spinner>
+      </ContentCell>
+      <ContentCell>
         <Spinner isLoading={tokensAreLoading}>
           {tokens?.length}
 
@@ -98,6 +123,12 @@ export default function UserListItem(props: Readonly<UserListItemProps>) {
       </ActionCell>
 
       {openTokenForm && <TokensFormModal onClose={() => setOpenTokenForm(false)} user={user} />}
+      {openGroupForm && manageProvider === undefined && (
+        <GroupsForm onClose={() => setOpenGroupForm(false)} user={user} />
+      )}
+      {openGroupForm && manageProvider !== undefined && (
+        <ViewGroupsModal onClose={() => setOpenGroupForm(false)} user={user} />
+      )}
     </TableRow>
   );
 }

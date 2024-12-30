@@ -25,7 +25,7 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -58,10 +58,10 @@ public class CeTaskComponentTest {
 
   @Test
   public void equals_is_based_on_all_fields() {
-    String uuid = randomAlphabetic(2);
-    String key = randomAlphabetic(3);
-    String name = randomAlphabetic(4);
-    String somethingElse = randomAlphabetic(5);
+    String uuid = secure().nextAlphabetic(2);
+    String key = secure().nextAlphabetic(3);
+    String name = secure().nextAlphabetic(4);
+    String somethingElse = secure().nextAlphabetic(5);
     CeTask.Component underTest = new CeTask.Component(uuid, key, name);
 
     assertThat(underTest)
@@ -77,10 +77,10 @@ public class CeTaskComponentTest {
 
   @Test
   public void hashcode_is_based_on_all_fields() {
-    String uuid = randomAlphabetic(2);
-    String key = randomAlphabetic(3);
-    String name = randomAlphabetic(4);
-    String somethingElse = randomAlphabetic(5);
+    String uuid = secure().nextAlphabetic(2);
+    String key = secure().nextAlphabetic(3);
+    String name = secure().nextAlphabetic(4);
+    String somethingElse = secure().nextAlphabetic(5);
     CeTask.Component underTest = new CeTask.Component(uuid, key, name);
 
     assertThat(underTest)

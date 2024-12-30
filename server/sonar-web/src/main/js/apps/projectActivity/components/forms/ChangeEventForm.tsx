@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { InputField, Modal } from 'design-system';
 import * as React from 'react';
+import { InputField, Modal } from '~design-system';
 import { translate } from '../../../../helpers/l10n';
 import { useChangeEventMutation } from '../../../../queries/project-analyses';
 import { AnalysisEvent } from '../../../../types/project-activity';

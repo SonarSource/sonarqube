@@ -24,6 +24,7 @@ import com.google.common.io.Resources;
 import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -41,6 +42,7 @@ import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Strings.emptyToNull;
+import static java.lang.String.format;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_ASSIGN;
@@ -75,6 +77,8 @@ public class AssignAction implements IssuesWsAction {
       .setDescription("Assign/Unassign an issue. Requires authentication and Browse permission on project")
       .setSince("3.6")
       .setChangelog(
+        new Change("10.8", "The response fields 'severity' and 'type' are not deprecated anymore."),
+        new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added.", Severity.INFO.name(), Severity.BLOCKER.name())),
         new Change("10.4", "The response fields 'severity' and 'type' are deprecated. Please use 'impacts' instead."),
         new Change("10.4", "The response fields 'status' and 'resolution' are deprecated. Please use 'issueStatus' instead."),
         new Change("10.4", "Add 'issueStatus' field to the response."),
@@ -102,7 +106,7 @@ public class AssignAction implements IssuesWsAction {
     String assignee = getAssignee(request);
     String key = request.mandatoryParam(PARAM_ISSUE);
     SearchResponseData preloadedResponseData = assign(key, assignee);
-    responseWriter.write(key, preloadedResponseData, request, response);
+    responseWriter.write(key, preloadedResponseData, request, response, true);
   }
 
   private SearchResponseData assign(String issueKey, @Nullable String login) {

@@ -21,25 +21,25 @@ dependencies {
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
   compileOnlyApi 'javax.annotation:javax.annotation-api'
 
-    testImplementation 'com.squareup.okhttp3:mockwebserver'
-    testImplementation 'com.squareup.okio:okio'
-    testImplementation 'commons-io:commons-io'
-    testImplementation 'org.apache.commons:commons-lang3'
-    testImplementation 'junit:junit'
-    testImplementation 'org.assertj:assertj-core'
-    testImplementation 'org.hamcrest:hamcrest-core'
-    testImplementation 'org.mockito:mockito-core'
-    testImplementation project(':sonar-testing-harness')
+  testImplementation 'com.squareup.okhttp3:mockwebserver'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'commons-io:commons-io'
+  testImplementation 'org.apache.commons:commons-lang3'
+  testImplementation 'junit:junit'
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.hamcrest:hamcrest'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation project(':sonar-testing-harness')
 
-    testFixturesApi 'junit:junit'
-    testFixturesApi 'com.google.guava:guava'
-    testFixturesApi 'org.assertj:assertj-core'
-    testFixturesApi 'org.junit.jupiter:junit-jupiter-api'
-    testFixturesApi 'org.sonarsource.orchestrator:sonar-orchestrator-junit4'
-    testFixturesApi 'commons-io:commons-io'
+  testFixturesApi 'junit:junit'
+  testFixturesApi 'com.google.guava:guava'
+  testFixturesApi 'org.assertj:assertj-core'
+  testFixturesApi 'org.junit.jupiter:junit-jupiter-api'
+  testFixturesApi 'org.sonarsource.orchestrator:sonar-orchestrator-junit4'
+  testFixturesApi 'commons-io:commons-io'
 }
 
-artifactoryPublish.skip = false
+artifactoryPublish.skip = !deployCommunity
 
 publishing {
   publications {

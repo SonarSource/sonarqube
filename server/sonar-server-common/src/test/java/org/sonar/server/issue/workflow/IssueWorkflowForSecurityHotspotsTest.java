@@ -38,7 +38,7 @@ import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.IssueFieldsSetter;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.issue.DefaultTransitions.RESET_AS_TO_REVIEW;
 import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_ACKNOWLEDGED;
@@ -81,7 +81,7 @@ public class IssueWorkflowForSecurityHotspotsTest {
     return Stream.of(
       Issue.RESOLUTIONS.stream(),
       Issue.SECURITY_HOTSPOT_RESOLUTIONS.stream(),
-      Stream.of(randomAlphabetic(12), null))
+      Stream.of(secure().nextAlphabetic(12), null))
       .flatMap(t -> t)
       .map(t -> new Object[] {t})
       .toArray(Object[][]::new);
@@ -123,7 +123,7 @@ public class IssueWorkflowForSecurityHotspotsTest {
     return Stream.of(
       Issue.RESOLUTIONS.stream(),
       Issue.SECURITY_HOTSPOT_RESOLUTIONS.stream(),
-      Stream.of(randomAlphabetic(12)))
+      Stream.of(secure().nextAlphabetic(12)))
       .flatMap(t -> t)
       .filter(t -> !RESOLUTION_TYPES.contains(t))
       .map(t -> new Object[] {t})

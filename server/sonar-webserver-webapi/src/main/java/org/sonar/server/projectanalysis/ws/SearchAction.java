@@ -22,8 +22,8 @@ package org.sonar.server.projectanalysis.ws;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -62,7 +62,7 @@ import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchAction implements ProjectAnalysesWsAction {
-  private static final Set<String> ALLOWED_QUALIFIERS = Set.of(Qualifiers.PROJECT, Qualifiers.APP, Qualifiers.VIEW);
+  private static final Set<String> ALLOWED_QUALIFIERS = Set.of(ComponentQualifiers.PROJECT, ComponentQualifiers.APP, ComponentQualifiers.VIEW);
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
@@ -192,14 +192,14 @@ public class SearchAction implements ProjectAnalysesWsAction {
 
   private void checkPermission(ComponentDto project) {
     userSession.checkComponentPermission(UserRole.USER, project);
-    if (Scopes.PROJECT.equals(project.scope()) && Qualifiers.APP.equals(project.qualifier())) {
+    if (ComponentScopes.PROJECT.equals(project.scope()) && ComponentQualifiers.APP.equals(project.qualifier())) {
       userSession.checkChildProjectsPermission(UserRole.USER, project);
     }
   }
 
   private void addProject(SearchData.Builder data) {
     ComponentDto project = loadComponent(data.getDbSession(), data.getRequest());
-    checkArgument(Scopes.PROJECT.equals(project.scope()) && ALLOWED_QUALIFIERS.contains(project.qualifier()), "A project, portfolio or application is required");
+    checkArgument(ComponentScopes.PROJECT.equals(project.scope()) && ALLOWED_QUALIFIERS.contains(project.qualifier()), "A project, portfolio or application is required");
     data.setProject(project);
   }
 

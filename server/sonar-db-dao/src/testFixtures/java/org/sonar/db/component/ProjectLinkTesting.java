@@ -23,8 +23,7 @@ import java.security.SecureRandom;
 import java.util.Random;
 import org.sonar.core.util.Uuids;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 
 public class ProjectLinkTesting {
 
@@ -37,7 +36,7 @@ public class ProjectLinkTesting {
   }
 
   public static ProjectLinkDto newCustomLinkDto() {
-    String nameAndType = randomAlphabetic(20);
+    String nameAndType = secure().nextAlphabetic(20);
     return newCommonLinkDto()
       .setName(nameAndType)
       .setType(nameAndType);
@@ -47,7 +46,7 @@ public class ProjectLinkTesting {
     return new ProjectLinkDto()
       .setUuid(Uuids.createFast())
       .setProjectUuid(Uuids.createFast())
-      .setHref(randomAlphanumeric(128))
+      .setHref(secure().nextAlphanumeric(128))
       .setCreatedAt(System.currentTimeMillis())
       .setUpdatedAt(System.currentTimeMillis());
   }

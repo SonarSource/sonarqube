@@ -22,38 +22,19 @@ package org.sonar.server.notification.email.telemetry;
 import java.util.Optional;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.telemetry.core.AbstractTelemetryDataProvider;
 import org.sonar.telemetry.core.Dimension;
 import org.sonar.telemetry.core.Granularity;
-import org.sonar.telemetry.core.TelemetryDataProvider;
 import org.sonar.telemetry.core.TelemetryDataType;
 
 import static org.sonar.server.email.EmailSmtpConfiguration.EMAIL_CONFIG_SMTP_AUTH_METHOD;
 
-public class EmailConfigAuthMethodTelemetryProvider implements TelemetryDataProvider<String> {
+public class EmailConfigAuthMethodTelemetryProvider extends AbstractTelemetryDataProvider<String> {
   private final DbClient dbClient;
 
   public EmailConfigAuthMethodTelemetryProvider(DbClient dbClient) {
+    super("email_conf_auth_method", Dimension.INSTALLATION, Granularity.WEEKLY, TelemetryDataType.STRING);
     this.dbClient = dbClient;
-  }
-
-  @Override
-  public String getMetricKey() {
-    return "email_conf_auth_method";
-  }
-
-  @Override
-  public Dimension getDimension() {
-    return Dimension.INSTALLATION;
-  }
-
-  @Override
-  public Granularity getGranularity() {
-    return Granularity.WEEKLY;
-  }
-
-  @Override
-  public TelemetryDataType getType() {
-    return TelemetryDataType.STRING;
   }
 
   @Override

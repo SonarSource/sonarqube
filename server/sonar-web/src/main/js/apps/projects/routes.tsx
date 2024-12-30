@@ -17,13 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+
 import { Navigate, Route } from 'react-router-dom';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
 import { save } from '../../helpers/storage';
-import CreateProjectPage from '../create/project/CreateProjectPage';
-import DefaultPageSelector from './components/DefaultPageSelector';
-import FavoriteProjectsContainer from './components/FavoriteProjectsContainer';
 import { PROJECTS_ALL, PROJECTS_DEFAULT_FILTER } from './utils';
+
+const DefaultPageSelector = lazyLoadComponent(() => import('./components/DefaultPageSelector'));
+const FavoriteProjectsContainer = lazyLoadComponent(
+  () => import('./components/FavoriteProjectsContainer'),
+);
+const CreateProjectPage = lazyLoadComponent(() => import('../create/project/CreateProjectPage'));
 
 function PersistNavigate() {
   save(PROJECTS_DEFAULT_FILTER, PROJECTS_ALL);

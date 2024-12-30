@@ -29,7 +29,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -75,8 +75,8 @@ public class GithubAppConfigurationTest {
   @DataProvider
   public static Object[][] incompleteConfigurationParametersSonarQube() {
     long applicationId = new Random().nextLong();
-    String privateKey = randomAlphabetic(9);
-    String apiEndpoint = randomAlphabetic(11);
+    String privateKey = secure().nextAlphabetic(9);
+    String apiEndpoint = secure().nextAlphabetic(11);
 
     return generateNullCombination(new Object[] {
       applicationId,
@@ -88,8 +88,8 @@ public class GithubAppConfigurationTest {
   @Test
   public void toString_displays_complete_configuration() {
     long id = 34;
-    String privateKey = randomAlphabetic(3);
-    String apiEndpoint = randomAlphabetic(7);
+    String privateKey = secure().nextAlphabetic(3);
+    String apiEndpoint = secure().nextAlphabetic(7);
 
     GithubAppConfiguration underTest = new GithubAppConfiguration(id, privateKey, apiEndpoint);
 
@@ -107,7 +107,7 @@ public class GithubAppConfigurationTest {
 
   @Test
   public void toString_displays_privateKey_as_stars() {
-    GithubAppConfiguration underTest = new GithubAppConfiguration(null, randomAlphabetic(555), null);
+    GithubAppConfiguration underTest = new GithubAppConfiguration(null, secure().nextAlphabetic(555), null);
 
     assertThat(underTest)
       .hasToString(
@@ -117,8 +117,8 @@ public class GithubAppConfigurationTest {
   @Test
   public void equals_is_not_implemented() {
     long applicationId = new Random().nextLong();
-    String privateKey = randomAlphabetic(8);
-    String apiEndpoint = randomAlphabetic(7);
+    String privateKey = secure().nextAlphabetic(8);
+    String apiEndpoint = secure().nextAlphabetic(7);
 
     GithubAppConfiguration underTest = new GithubAppConfiguration(applicationId, privateKey, apiEndpoint);
 
@@ -130,8 +130,8 @@ public class GithubAppConfigurationTest {
   @Test
   public void hashcode_is_based_on_all_fields() {
     long applicationId = new Random().nextLong();
-    String privateKey = randomAlphabetic(8);
-    String apiEndpoint = randomAlphabetic(7);
+    String privateKey = secure().nextAlphabetic(8);
+    String apiEndpoint = secure().nextAlphabetic(7);
 
     GithubAppConfiguration underTest = new GithubAppConfiguration(applicationId, privateKey, apiEndpoint);
 
@@ -140,7 +140,7 @@ public class GithubAppConfigurationTest {
   }
 
   private GithubAppConfiguration newValidConfiguration(long applicationId) {
-    return new GithubAppConfiguration(applicationId, randomAlphabetic(6), randomAlphabetic(6));
+    return new GithubAppConfiguration(applicationId, secure().nextAlphabetic(6), secure().nextAlphabetic(6));
   }
 
   private static Object[][] generateNullCombination(Object[] objects) {

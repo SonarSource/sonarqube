@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { InputField, InputSelect } from 'design-system';
+
 import * as React from 'react';
+import { InputField, InputSelect } from '~design-system';
 import { LabelValueSelectOption } from '../../../helpers/search';
 import { Metric } from '../../../types/types';
 
@@ -44,7 +45,7 @@ export default class ThresholdInput extends React.PureComponent<Props> {
   };
 
   renderRatingInput() {
-    const { name, value } = this.props;
+    const { name, value, disabled } = this.props;
 
     const options = [
       { label: 'A', value: '1' },
@@ -55,6 +56,7 @@ export default class ThresholdInput extends React.PureComponent<Props> {
 
     return (
       <InputSelect
+        isDisabled={disabled}
         className="sw-w-abs-150"
         inputId="condition-threshold"
         name={name}

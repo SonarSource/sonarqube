@@ -20,22 +20,21 @@
 package org.sonar.server.pushapi.qualityprofile;
 
 import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
-import org.sonar.db.measure.LiveMeasureDto;
-import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.pushevent.PushEventDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -45,28 +44,23 @@ import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
-import org.sonarqube.ws.Common;
 
 import static java.util.List.of;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
-import static org.sonar.api.measures.Metric.ValueType.STRING;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.db.rule.RuleTesting.newTemplateRule;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
 
-public class QualityProfileChangeEventServiceImplTest {
+class QualityProfileChangeEventServiceImplTest {
 
-  private final Random random = new SecureRandom();
-
-  @Rule
-  public DbTester db = DbTester.create();
-
-  public final QualityProfileChangeEventServiceImpl underTest = new QualityProfileChangeEventServiceImpl(db.getDbClient());
+  @RegisterExtension
+  private final DbTester db = DbTester.create();
+  private final QualityProfileChangeEventServiceImpl underTest = new QualityProfileChangeEventServiceImpl(db.getDbClient());
 
   @Test
-  public void distributeRuleChangeEvent() {
+  void distributeRuleChangeEvent() {
     QProfileDto qualityProfileDto = QualityProfileTesting.newQualityProfileDto();
 
     RuleDto templateRule = newTemplateRule(RuleKey.of("xoo", "template-key"));
@@ -80,6 +74,7 @@ public class QualityProfileChangeEventServiceImplTest {
     db.rules().insert(rule1);
 
     ActiveRuleChange activeRuleChange = changeActiveRule(qualityProfileDto, rule1, "paramChangeKey", "paramChangeValue");
+    activeRuleChange.setNewImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.LOW));
 
     Collection<QProfileDto> profiles = Collections.singleton(qualityProfileDto);
 
@@ -99,22 +94,24 @@ public class QualityProfileChangeEventServiceImplTest {
 
     assertThat(ruleSetChangedEvent)
       .contains("\"activatedRules\":[{\"key\":\"repo:ruleKey\"," +
-                "\"language\":\"xoo\"," +
-                "\"templateKey\":\"xoo:template-key\"," +
-                "\"params\":[{\"key\":\"paramChangeKey\",\"value\":\"paramChangeValue\"}]}]," +
-                "\"deactivatedRules\":[]");
+        "\"language\":\"xoo\"," +
+        "\"templateKey\":\"xoo:template-key\"," +
+        "\"params\":[{\"key\":\"paramChangeKey\",\"value\":\"paramChangeValue\"}]," +
+        "\"impacts\":[{\"softwareQuality\":\"MAINTAINABILITY\",\"severity\":\"LOW\"}]}]," +
+        "\"deactivatedRules\":[]");
   }
 
   @Test
-  public void distributeRuleChangeEvent_when_project_has_only_default_quality_profiles() {
+  void distributeRuleChangeEvent_when_project_has_only_default_quality_profiles() {
     String language = "xoo";
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     RuleDto templateRule = insertTemplateRule();
     QProfileDto defaultQualityProfile = insertDefaultQualityProfile(language);
     RuleDto rule = insertCustomRule(templateRule, language, "<div>line1\nline2</div>");
-    ActiveRuleChange activeRuleChange = changeActiveRule(defaultQualityProfile, rule, "paramChangeKey", "paramChangeValue");
-    insertQualityProfileLiveMeasure(mainBranch, projectData.getProjectDto(), language, NCLOC_LANGUAGE_DISTRIBUTION_KEY);
+    ActiveRuleChange activeRuleChange = changeActiveRule(defaultQualityProfile, rule, "paramChangeKey", "paramChangeValue")
+      .setNewImpacts(Map.of(SoftwareQuality.RELIABILITY, Severity.MEDIUM));
+    db.measures().insertMeasure(mainBranch, m -> m.addValue(NCLOC_LANGUAGE_DISTRIBUTION_KEY, language + "=100"));
 
     db.getSession().commit();
 
@@ -133,10 +130,11 @@ public class QualityProfileChangeEventServiceImplTest {
 
     assertThat(ruleSetChangedEvent)
       .contains("\"activatedRules\":[{\"key\":\"repo:ruleKey\"," +
-                "\"language\":\"xoo\"," +
-                "\"templateKey\":\"xoo:template-key\"," +
-                "\"params\":[{\"key\":\"paramChangeKey\",\"value\":\"paramChangeValue\"}]}]," +
-                "\"deactivatedRules\":[]");
+        "\"language\":\"xoo\"," +
+        "\"templateKey\":\"xoo:template-key\"," +
+        "\"params\":[{\"key\":\"paramChangeKey\",\"value\":\"paramChangeValue\"}]," +
+        "\"impacts\":[{\"softwareQuality\":\"RELIABILITY\",\"severity\":\"MEDIUM\"}]}]," +
+        "\"deactivatedRules\":[]");
   }
 
   private Deque<PushEventDto> getProjectEvents(ProjectDto projectDto) {
@@ -181,7 +179,7 @@ public class QualityProfileChangeEventServiceImplTest {
   }
 
   @Test
-  public void publishRuleActivationToSonarLintClients() {
+  void publishRuleActivationToSonarLintClients() {
     ProjectDto projectDto = new ProjectDto().setUuid("project-uuid");
     QProfileDto activatedQualityProfile = QualityProfileTesting.newQualityProfileDto();
     activatedQualityProfile.setLanguage("xoo");
@@ -189,8 +187,8 @@ public class QualityProfileChangeEventServiceImplTest {
     RuleDto rule1 = db.rules().insert(r -> r.setLanguage("xoo").setRepositoryKey("repo").setRuleKey("ruleKey"));
     RuleParamDto rule1Param = db.rules().insertRuleParam(rule1);
 
-    ActiveRuleDto activeRule1 = db.qualityProfiles().activateRule(activatedQualityProfile, rule1);
-    ActiveRuleParamDto activeRuleParam1 = ActiveRuleParamDto.createFor(rule1Param).setValue(randomAlphanumeric(20));
+    ActiveRuleDto activeRule1 = db.qualityProfiles().activateRule(activatedQualityProfile, rule1, ar -> ar.setImpacts(Map.of(SoftwareQuality.SECURITY, Severity.BLOCKER)));
+    ActiveRuleParamDto activeRuleParam1 = ActiveRuleParamDto.createFor(rule1Param).setValue(secure().nextAlphanumeric(20));
     db.getDbClient().activeRuleDao().insertParam(db.getSession(), activeRule1, activeRuleParam1);
     db.getSession().commit();
 
@@ -200,7 +198,7 @@ public class QualityProfileChangeEventServiceImplTest {
     RuleParamDto rule2Param = db.rules().insertRuleParam(rule2);
 
     ActiveRuleDto activeRule2 = db.qualityProfiles().activateRule(deactivatedQualityProfile, rule2);
-    ActiveRuleParamDto activeRuleParam2 = ActiveRuleParamDto.createFor(rule2Param).setValue(randomAlphanumeric(20));
+    ActiveRuleParamDto activeRuleParam2 = ActiveRuleParamDto.createFor(rule2Param).setValue(secure().nextAlphanumeric(20));
     db.getDbClient().activeRuleDao().insertParam(db.getSession(), activeRule2, activeRuleParam2);
     db.getSession().commit();
 
@@ -217,29 +215,9 @@ public class QualityProfileChangeEventServiceImplTest {
 
     assertThat(ruleSetChangedEvent)
       .contains("\"activatedRules\":[{\"key\":\"repo:ruleKey\"," +
-                "\"language\":\"xoo\",\"severity\":\"" + Common.Severity.forNumber(rule1.getSeverity()).name() + "\"," +
-                "\"params\":[{\"key\":\"" + activeRuleParam1.getKey() + "\",\"value\":\"" + activeRuleParam1.getValue() + "\"}]}]," +
-                "\"deactivatedRules\":[\"repo2:ruleKey2\"]");
-  }
-
-  private void insertQualityProfileLiveMeasure(ComponentDto branch, ProjectDto projectDto, String language, String metricKey) {
-    MetricDto metric = insertMetric(metricKey);
-
-    Consumer<LiveMeasureDto> configureLiveMeasure = liveMeasure -> liveMeasure
-      .setMetricUuid(metric.getUuid())
-      .setComponentUuid(branch.uuid())
-      .setProjectUuid(projectDto.getUuid())
-      .setData(language + "=" + random.nextInt(10));
-
-    db.measures().insertLiveMeasure(branch, metric, configureLiveMeasure);
-  }
-
-  private MetricDto insertMetric(String metricKey) {
-    Consumer<MetricDto> configureMetric = metric -> metric
-      .setUuid("uuid")
-      .setValueType(STRING.name())
-      .setKey(metricKey);
-
-    return db.measures().insertMetric(configureMetric);
+        "\"language\":\"xoo\",\"severity\":\"" + activeRule1.getSeverityString() + "\"," +
+        "\"params\":[{\"key\":\"" + activeRuleParam1.getKey() + "\",\"value\":\"" + activeRuleParam1.getValue() + "\"}]," +
+        "\"impacts\":[{\"softwareQuality\":\"SECURITY\",\"severity\":\"BLOCKER\"}]}]," +
+        "\"deactivatedRules\":[\"repo2:ruleKey2\"]");
   }
 }

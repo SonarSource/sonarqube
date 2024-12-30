@@ -28,8 +28,7 @@ import {
   LightPrimary,
   TextMuted,
   Title,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import { Image } from '~sonar-aligned/components/common/Image';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';

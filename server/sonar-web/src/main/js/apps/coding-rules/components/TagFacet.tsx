@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { uniq } from 'lodash';
 import * as React from 'react';
 import { getRuleTags } from '../../../api/rules';
@@ -57,8 +58,6 @@ export default class TagFacet extends React.PureComponent<Props> {
         getFacetItemText={this.getTagName}
         getSearchResultKey={(tag) => tag}
         getSearchResultText={(tag) => tag}
-        showMoreAriaLabel={translate('coding_rules.facet.tag.show_more')}
-        showLessAriaLabel={translate('coding_rules.facet.tag.show_less')}
         onChange={this.props.onChange}
         onSearch={this.handleSearch}
         onToggle={this.props.onToggle}

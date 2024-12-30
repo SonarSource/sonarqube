@@ -27,7 +27,7 @@ import java.util.stream.IntStream;
 import org.assertj.core.api.AbstractCharSequenceAssert;
 import org.junit.Test;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.ThrowableAssert.ThrowingCallable;
@@ -36,7 +36,7 @@ public class HealthTest {
 
   private final Random random = new Random();
   private final Health.Status anyStatus = Health.Status.values()[random.nextInt(Health.Status.values().length)];
-  private final Set<String> randomCauses = IntStream.range(0, random.nextInt(5)).mapToObj(s -> randomAlphanumeric(3)).collect(Collectors.toSet());
+  private final Set<String> randomCauses = IntStream.range(0, random.nextInt(5)).mapToObj(s -> secure().nextAlphanumeric(3)).collect(Collectors.toSet());
 
   @Test
   public void build_throws_NPE_if_status_is_null() {

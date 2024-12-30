@@ -99,12 +99,13 @@ public class CreateAction implements RulesWsAction {
       .setSince("4.4")
       .setChangelog(
         new Change("5.5", "Creating manual rule is not more possible"),
-        new Change("10.0","Drop deprecated keys: 'custom_key', 'template_key', 'markdown_description', 'prevent_reactivation'"),
+        new Change("10.0", "Drop deprecated keys: 'custom_key', 'template_key', 'markdown_description', 'prevent_reactivation'"),
         new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"),
         new Change("10.2", "Fields 'type' and 'severity' are deprecated in the response. Use 'impacts' instead."),
         new Change("10.4", String.format("Add '%s' and '%s' parameters to the request", PARAM_IMPACTS, PARAM_CLEAN_CODE_ATTRIBUTE)),
         new Change("10.4", String.format("Parameters '%s' and '%s' are deprecated. Use '%s' instead.", PARAM_TYPE, PARAM_SEVERITY, PARAM_IMPACTS)),
-        new Change("10.4", String.format("Parameter '%s' is deprecated. Use api/rules/update endpoint instead.", PARAM_PREVENT_REACTIVATION)))
+        new Change("10.4", String.format("Parameter '%s' is deprecated. Use api/rules/update endpoint instead.", PARAM_PREVENT_REACTIVATION)),
+        new Change("10.8", String.format("The parameters '%s' and '%s' are not deprecated anymore.", PARAM_TYPE, PARAM_SEVERITY)))
       .setHandler(this);
 
     action
@@ -136,9 +137,7 @@ public class CreateAction implements RulesWsAction {
     action
       .createParam(PARAM_SEVERITY)
       .setPossibleValues(Severity.ALL)
-      .setDescription("Rule severity")
-      .setDeprecatedSince("10.4");
-
+      .setDescription("Rule severity");
     action
       .createParam(PARAM_STATUS)
       .setPossibleValues(
@@ -162,8 +161,7 @@ public class CreateAction implements RulesWsAction {
     action.createParam(PARAM_TYPE)
       .setPossibleValues(RuleType.names())
       .setDescription("Rule type")
-      .setSince("6.7")
-      .setDeprecatedSince("10.4");
+      .setSince("6.7");
 
     action.createParam(PARAM_CLEAN_CODE_ATTRIBUTE)
       .setDescription("Clean code attribute")
@@ -201,7 +199,7 @@ public class CreateAction implements RulesWsAction {
   private static NewCustomRule toNewCustomRule(Request request) {
     RuleKey templateKey = RuleKey.parse(request.mandatoryParam(PARAM_TEMPLATE_KEY));
     NewCustomRule newRule = NewCustomRule.createForCustomRule(
-        RuleKey.of(templateKey.repository(), request.mandatoryParam(PARAM_CUSTOM_KEY)), templateKey)
+      RuleKey.of(templateKey.repository(), request.mandatoryParam(PARAM_CUSTOM_KEY)), templateKey)
       .setName(request.mandatoryParam(PARAM_NAME))
       .setMarkdownDescription(request.mandatoryParam(PARAM_DESCRIPTION))
       .setStatus(RuleStatus.valueOf(request.mandatoryParam(PARAM_STATUS)))

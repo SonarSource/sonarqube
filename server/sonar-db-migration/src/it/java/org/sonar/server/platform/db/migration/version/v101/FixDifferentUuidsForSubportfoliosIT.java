@@ -27,7 +27,6 @@ import javax.annotation.Nullable;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.MigrationDbTester;
 
 import static java.util.stream.Collectors.toSet;
@@ -46,7 +45,7 @@ class FixDifferentUuidsForSubportfoliosIT {
   @Test
   void execute_shouldUpdatePortfoliosAndPortfolioProjectsAndPortfolioReferenceTable() throws SQLException {
     insertPortfolio("pfKey", PF_UUID);
-    insertComponent(SUB_PF_KEY, NEW_SUBPF_UUID, PF_UUID, Qualifiers.SUBVIEW);
+    insertComponent(SUB_PF_KEY, NEW_SUBPF_UUID, PF_UUID, "SVW");
     insertSubPortfolio(SUB_PF_KEY, PF_UUID, PF_UUID, OLD_UUID);
     insertPortfolioProject("projUuid", OLD_UUID);
     insertPortfolioReference("refUuid", OLD_UUID);
@@ -61,7 +60,7 @@ class FixDifferentUuidsForSubportfoliosIT {
   @Test
   void execute_shouldBeRentrant() throws SQLException {
     insertPortfolio("pfKey", PF_UUID);
-    insertComponent(SUB_PF_KEY, NEW_SUBPF_UUID, PF_UUID, Qualifiers.SUBVIEW);
+    insertComponent(SUB_PF_KEY, NEW_SUBPF_UUID, PF_UUID, "SVW");
     insertSubPortfolio(SUB_PF_KEY, PF_UUID, PF_UUID, OLD_UUID);
     insertPortfolioProject("projUuid", OLD_UUID);
     insertPortfolioReference("refUuid", OLD_UUID);
@@ -78,8 +77,8 @@ class FixDifferentUuidsForSubportfoliosIT {
   void execute_shouldFixUuidForSubPortfolioAtDifferentLevels() throws SQLException {
     insertPortfolio("pfKey", PF_UUID);
 
-    insertComponent(SUB_PF_KEY, NEW_SUBPF_UUID, PF_UUID, Qualifiers.SUBVIEW);
-    insertComponent("child_subpfkey", NEW_CHILD_SUBPF_UUID, PF_UUID, Qualifiers.SUBVIEW);
+    insertComponent(SUB_PF_KEY, NEW_SUBPF_UUID, PF_UUID, "SVW");
+    insertComponent("child_subpfkey", NEW_CHILD_SUBPF_UUID, PF_UUID, "SVW");
 
     insertSubPortfolio(SUB_PF_KEY, PF_UUID, PF_UUID, OLD_UUID);
     insertSubPortfolio("child_subpfkey", OLD_UUID, PF_UUID, OLD_CHILD_SUBPF_UUID);
@@ -100,7 +99,6 @@ class FixDifferentUuidsForSubportfoliosIT {
       .map(row -> (String) row.get(field))
       .collect(toSet());
   }
-
 
   private String insertComponent(String key, String uuid, String branchUuid, String qualifier) {
     Map<String, Object> map = new HashMap<>();
@@ -135,7 +133,6 @@ class FixDifferentUuidsForSubportfoliosIT {
     map.put("PARENT_UUID", parentUuid);
     map.put("CREATED_AT", System.currentTimeMillis());
     map.put("UPDATED_AT", System.currentTimeMillis());
-
 
     db.executeInsert("portfolios", map);
     return uuid;

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 /* eslint-disable no-console */
 
 /**
@@ -49,7 +50,7 @@ const STANDARDS_JSON_FILE = path.join(
   'main',
   'js',
   'helpers',
-  'standards.json'
+  'standards.json',
 );
 
 const xmlContent = readXMLContent(process.argv[2]);
@@ -76,11 +77,11 @@ function getCWEs(xml) {
   const weaknesses = document.window.document.querySelectorAll('Weaknesses Weakness');
   const cwes = {
     unknown: {
-      title: 'No CWE associated'
-    }
+      title: 'No CWE associated',
+    },
   };
 
-  weaknesses.forEach(weakness => {
+  weaknesses.forEach((weakness) => {
     const id = weakness.getAttribute('ID');
     const title = weakness.getAttribute('Name');
     let description = '';
@@ -119,7 +120,7 @@ function writeToStandardsJson(cwes) {
     fs.writeFileSync(STANDARDS_JSON_FILE, JSON.stringify(json, undefined, 2));
   } catch (e) {
     console.error(
-      chalk.red(`Failed to write data to standards.json ('${STANDARDS_JSON_FILE}') file`)
+      chalk.red(`Failed to write data to standards.json ('${STANDARDS_JSON_FILE}') file`),
     );
     throw e;
   }

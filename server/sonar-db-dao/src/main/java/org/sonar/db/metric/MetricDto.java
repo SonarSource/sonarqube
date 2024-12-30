@@ -21,6 +21,7 @@ package org.sonar.db.metric;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.measures.Metric;
 
 import static org.sonar.db.metric.MetricValidator.checkMetricDescription;
 import static org.sonar.db.metric.MetricValidator.checkMetricDomain;
@@ -202,4 +203,10 @@ public class MetricDto {
     return this;
   }
 
+  public boolean isNumeric() {
+    return switch (Metric.ValueType.valueOf(valueType)) {
+      case INT, MILLISEC, WORK_DUR, FLOAT, PERCENT, RATING, BOOL -> true;
+      default -> false;
+    };
+  }
 }

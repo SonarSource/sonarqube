@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { Route, useOutletContext } from 'react-router-dom';
@@ -27,6 +28,14 @@ import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
 import { AdminPagesContext } from '../../../types/admin';
 import { AdminContainer, AdminContainerProps } from '../AdminContainer';
 import AdminContext from '../AdminContext';
+
+jest.mock('../../../helpers/l10nBundle', () => {
+  const bundle = jest.requireActual('../../../helpers/l10nBundle');
+  return {
+    ...bundle,
+    getIntl: () => ({ formatMessage: jest.fn() }),
+  };
+});
 
 jest.mock('../../../api/navigation', () => ({
   getSettingsNavigation: jest

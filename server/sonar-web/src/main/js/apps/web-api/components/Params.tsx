@@ -17,8 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ContentCell, DarkLabel, HtmlFormatter, Note, Table, TableRow } from 'design-system';
+
 import * as React from 'react';
+import {
+  ContentCell,
+  DarkLabel,
+  HtmlFormatter,
+  Note,
+  SafeHTMLInjection,
+  Table,
+  TableRow,
+} from '~design-system';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { WebApi } from '../../../types/types';
 import DeprecatedBadge from './DeprecatedBadge';
@@ -108,11 +117,9 @@ export default class Params extends React.PureComponent<Props> {
               {this.renderKey(param)}
 
               <ContentCell>
-                <div
-                  className="markdown"
-                  // Safe: comes from the backend
-                  dangerouslySetInnerHTML={{ __html: param.description }}
-                />
+                <SafeHTMLInjection htmlAsString={param.description}>
+                  <div className="markdown" />
+                </SafeHTMLInjection>
               </ContentCell>
 
               <ContentCell>

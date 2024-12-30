@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { NumberedListItem } from 'design-system';
+
 import * as React from 'react';
+import { NumberedListItem } from '~design-system';
 import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
 import { CompilationInfo } from '../../components/CompilationInfo';
@@ -100,7 +101,7 @@ export default function CFamily(props: Readonly<CFamilyProps>) {
   const [arch, setArch] = React.useState<Arch>(Arch.X86_64);
 
   if (config.buildTool === BuildTools.Cpp && config.autoConfig === AutoConfig.Automatic) {
-    return <Others {...props} />;
+    return <Others buildSteps="" {...props} />;
   }
 
   const runsOn = {

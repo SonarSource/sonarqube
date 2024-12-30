@@ -1,0 +1,691 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should highlight code content correctly 1`] = `
+.emotion-0 {
+  background-color: rgb(252,252,253);
+  border: 1px solid rgb(225,230,243);
+  border-radius: 0.5rem;
+  position: relative;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.emotion-0.code-snippet-simple-oneline {
+  margin-top: 0;
+  margin-bottom: 0;
+  border-radius: 0.25rem;
+}
+
+.emotion-3 {
+  box-sizing: border-box;
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  padding: var(--echoes-dimension-space-0) var(--button-padding);
+  height: var(--button-height);
+  min-height: var(--button-height);
+  overflow: hidden;
+  font: var(--echoes-typography-others-label);
+  color: var(--button-color);
+  -webkit-text-decoration: none;
+  text-decoration: none;
+  background-color: var(--button-background);
+  border: var(--button-border);
+  border-radius: var(--echoes-border-radius-400);
+  outline: none;
+  cursor: pointer;
+  --button-color: var(--echoes-color-text-default);
+  --button-border: var(--echoes-color-border-bold) solid var(--echoes-border-width-default);
+  --button-background: var(--echoes-color-background-default);
+  --button-background-hover: var(--echoes-color-background-default-hover);
+  --button-background-active: var(--echoes-color-background-default-active);
+  --button-background-focus: var(--echoes-color-background-default);
+  --button-background-disabled: var(--echoes-color-background-disabled);
+  --button-padding: var(--echoes-dimension-space-150);
+  --button-height: var(--echoes-sizes-buttons-large);
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  font: var(--echoes-typography-text-default-regular);
+  right: 1.5rem;
+  top: 1.5rem;
+  position: absolute;
+}
+
+.emotion-3:focus,
+.emotion-3:focus-visible {
+  background-color: var(--button-background-focus);
+  outline: var(--echoes-color-focus-default) solid var(--echoes-focus-border-width-default);
+  outline-offset: var(--echoes-focus-border-offset-default);
+}
+
+.emotion-3:hover {
+  background-color: var(--button-background-hover);
+}
+
+.emotion-3:active {
+  background-color: var(--button-background-active);
+}
+
+.emotion-3:disabled,
+.emotion-3:disabled:has(:hover, :active, :focus, :focus-visible) {
+  color: var(--echoes-color-text-disabled);
+  background-color: var(--button-background-disabled);
+  border: none;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.code-snippet-highlighted-oneline .emotion-3 {
+  bottom: 0.5rem;
+}
+
+.emotion-5 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: var(--echoes-dimension-space-75);
+  overflow: hidden;
+}
+
+.emotion-7 {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  display: inline-block;
+  font-size: calc(1em + 4px);
+  font-style: normal;
+  font-weight: normal;
+  height: calc(2em - 16px);
+  line-height: calc(2em - 16px);
+  text-align: center;
+  vertical-align: bottom;
+  width: calc(2em - 16px);
+  font-family: 'Material Symbols Rounded';
+}
+
+.emotion-9 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emotion-11 code {
+  font: var(--echoes-typography-code-default);
+  background: rgb(252,252,253);
+  color: rgb(51,53,60);
+}
+
+.emotion-11 code.hljs {
+  padding: unset;
+}
+
+.emotion-11 .hljs-meta,
+.emotion-11 .hljs-variable {
+  color: rgb(51,53,60);
+}
+
+.emotion-11 .hljs-doctag,
+.emotion-11 .hljs-title,
+.emotion-11 .hljs-title.class_,
+.emotion-11 .hljs-title.function_ {
+  color: rgb(34,84,192);
+}
+
+.emotion-11 .hljs-comment {
+  font: var(--echoes-typography-code-comment);
+  color: rgb(109,111,119);
+}
+
+.emotion-11 .hljs-keyword,
+.emotion-11 .hljs-tag,
+.emotion-11 .hljs-type {
+  color: rgb(152,29,150);
+}
+
+.emotion-11 .hljs-literal,
+.emotion-11 .hljs-number {
+  color: rgb(126,83,5);
+}
+
+.emotion-11 .hljs-string {
+  color: rgb(32,105,31);
+}
+
+.emotion-11 .hljs-meta .hljs-keyword {
+  color: rgb(47,103,48);
+}
+
+.emotion-11 .sonar-underline {
+  -webkit-text-decoration: underline rgb(253,162,155);
+  text-decoration: underline rgb(253,162,155);
+  -webkit-text-decoration: underline rgb(253,162,155) wavy;
+  text-decoration: underline rgb(253,162,155) wavy;
+  text-decoration-thickness: 2px;
+  text-decoration-skip-ink: none;
+}
+
+.emotion-11.code-wrap {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.emotion-11.code-wrap.wrap-words {
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.emotion-11 mark {
+  font-weight: 400;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  background-color: rgb(197,205,223);
+  color: rgb(217,45,32);
+}
+
+<div>
+  <div
+    class="sw-code fs-mask emotion-0 emotion-1"
+  >
+    <button
+      class="sw-select-none emotion-2 emotion-3 emotion-4"
+      data-state="closed"
+      type="button"
+    >
+      <span
+        class="emotion-5 emotion-6"
+      >
+        <span
+          aria-hidden="true"
+          class="emotion-7 emotion-8"
+        >
+          
+        </span>
+        <span
+          class="emotion-9 emotion-10"
+        >
+          Copy
+        </span>
+      </span>
+    </button>
+    <span
+      class="hljs sw-overflow-auto sw-pr-24 sw-flex emotion-11 emotion-12"
+    >
+      <pre>
+        &lt;prop&gt;foobar&lt;prop&gt;
+      </pre>
+    </span>
+  </div>
+</div>
+`;
+
+exports[`should show full size when multiline with no editing 1`] = `
+.emotion-0 {
+  background-color: rgb(252,252,253);
+  border: 1px solid rgb(225,230,243);
+  border-radius: 0.5rem;
+  position: relative;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.emotion-0.code-snippet-simple-oneline {
+  margin-top: 0;
+  margin-bottom: 0;
+  border-radius: 0.25rem;
+}
+
+.emotion-3 {
+  box-sizing: border-box;
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  padding: var(--echoes-dimension-space-0) var(--button-padding);
+  height: var(--button-height);
+  min-height: var(--button-height);
+  overflow: hidden;
+  font: var(--echoes-typography-others-label);
+  color: var(--button-color);
+  -webkit-text-decoration: none;
+  text-decoration: none;
+  background-color: var(--button-background);
+  border: var(--button-border);
+  border-radius: var(--echoes-border-radius-400);
+  outline: none;
+  cursor: pointer;
+  --button-color: var(--echoes-color-text-default);
+  --button-border: var(--echoes-color-border-bold) solid var(--echoes-border-width-default);
+  --button-background: var(--echoes-color-background-default);
+  --button-background-hover: var(--echoes-color-background-default-hover);
+  --button-background-active: var(--echoes-color-background-default-active);
+  --button-background-focus: var(--echoes-color-background-default);
+  --button-background-disabled: var(--echoes-color-background-disabled);
+  --button-padding: var(--echoes-dimension-space-150);
+  --button-height: var(--echoes-sizes-buttons-large);
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  font: var(--echoes-typography-text-default-regular);
+  right: 1.5rem;
+  top: 1.5rem;
+  position: absolute;
+}
+
+.emotion-3:focus,
+.emotion-3:focus-visible {
+  background-color: var(--button-background-focus);
+  outline: var(--echoes-color-focus-default) solid var(--echoes-focus-border-width-default);
+  outline-offset: var(--echoes-focus-border-offset-default);
+}
+
+.emotion-3:hover {
+  background-color: var(--button-background-hover);
+}
+
+.emotion-3:active {
+  background-color: var(--button-background-active);
+}
+
+.emotion-3:disabled,
+.emotion-3:disabled:has(:hover, :active, :focus, :focus-visible) {
+  color: var(--echoes-color-text-disabled);
+  background-color: var(--button-background-disabled);
+  border: none;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.code-snippet-highlighted-oneline .emotion-3 {
+  bottom: 0.5rem;
+}
+
+.emotion-5 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: var(--echoes-dimension-space-75);
+  overflow: hidden;
+}
+
+.emotion-7 {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  display: inline-block;
+  font-size: calc(1em + 4px);
+  font-style: normal;
+  font-weight: normal;
+  height: calc(2em - 16px);
+  line-height: calc(2em - 16px);
+  text-align: center;
+  vertical-align: bottom;
+  width: calc(2em - 16px);
+  font-family: 'Material Symbols Rounded';
+}
+
+.emotion-9 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emotion-11 code {
+  font: var(--echoes-typography-code-default);
+  background: rgb(252,252,253);
+  color: rgb(51,53,60);
+}
+
+.emotion-11 code.hljs {
+  padding: unset;
+}
+
+.emotion-11 .hljs-meta,
+.emotion-11 .hljs-variable {
+  color: rgb(51,53,60);
+}
+
+.emotion-11 .hljs-doctag,
+.emotion-11 .hljs-title,
+.emotion-11 .hljs-title.class_,
+.emotion-11 .hljs-title.function_ {
+  color: rgb(34,84,192);
+}
+
+.emotion-11 .hljs-comment {
+  font: var(--echoes-typography-code-comment);
+  color: rgb(109,111,119);
+}
+
+.emotion-11 .hljs-keyword,
+.emotion-11 .hljs-tag,
+.emotion-11 .hljs-type {
+  color: rgb(152,29,150);
+}
+
+.emotion-11 .hljs-literal,
+.emotion-11 .hljs-number {
+  color: rgb(126,83,5);
+}
+
+.emotion-11 .hljs-string {
+  color: rgb(32,105,31);
+}
+
+.emotion-11 .hljs-meta .hljs-keyword {
+  color: rgb(47,103,48);
+}
+
+.emotion-11 .sonar-underline {
+  -webkit-text-decoration: underline rgb(253,162,155);
+  text-decoration: underline rgb(253,162,155);
+  -webkit-text-decoration: underline rgb(253,162,155) wavy;
+  text-decoration: underline rgb(253,162,155) wavy;
+  text-decoration-thickness: 2px;
+  text-decoration-skip-ink: none;
+}
+
+.emotion-11.code-wrap {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.emotion-11.code-wrap.wrap-words {
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.emotion-11 mark {
+  font-weight: 400;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  background-color: rgb(197,205,223);
+  color: rgb(217,45,32);
+}
+
+<div>
+  <div
+    class="sw-code fs-mask emotion-0 emotion-1"
+  >
+    <button
+      class="sw-select-none emotion-2 emotion-3 emotion-4"
+      data-state="closed"
+      type="button"
+    >
+      <span
+        class="emotion-5 emotion-6"
+      >
+        <span
+          aria-hidden="true"
+          class="emotion-7 emotion-8"
+        >
+          
+        </span>
+        <span
+          class="emotion-9 emotion-10"
+        >
+          Copy
+        </span>
+      </span>
+    </button>
+    <span
+      class="hljs sw-overflow-auto sw-pr-24 sw-flex emotion-11 emotion-12"
+    >
+      <pre>
+        foo
+bar
+      </pre>
+    </span>
+  </div>
+</div>
+`;
+
+exports[`should show reduced size when single line with no editing 1`] = `
+.emotion-0 {
+  background-color: rgb(252,252,253);
+  border: 1px solid rgb(225,230,243);
+  border-radius: 0.5rem;
+  position: relative;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.emotion-0.code-snippet-simple-oneline {
+  margin-top: 0;
+  margin-bottom: 0;
+  border-radius: 0.25rem;
+}
+
+.emotion-3 {
+  box-sizing: border-box;
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  padding: var(--echoes-dimension-space-0) var(--button-padding);
+  height: var(--button-height);
+  min-height: var(--button-height);
+  overflow: hidden;
+  font: var(--echoes-typography-others-label);
+  color: var(--button-color);
+  -webkit-text-decoration: none;
+  text-decoration: none;
+  background-color: var(--button-background);
+  border: var(--button-border);
+  border-radius: var(--echoes-border-radius-400);
+  outline: none;
+  cursor: pointer;
+  --button-color: var(--echoes-color-text-default);
+  --button-border: var(--echoes-color-border-bold) solid var(--echoes-border-width-default);
+  --button-background: var(--echoes-color-background-default);
+  --button-background-hover: var(--echoes-color-background-default-hover);
+  --button-background-active: var(--echoes-color-background-default-active);
+  --button-background-focus: var(--echoes-color-background-default);
+  --button-background-disabled: var(--echoes-color-background-disabled);
+  --button-padding: var(--echoes-dimension-space-150);
+  --button-height: var(--echoes-sizes-buttons-large);
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  font: var(--echoes-typography-text-default-regular);
+  right: 1.5rem;
+  top: 1.5rem;
+  position: absolute;
+  bottom: 1rem;
+  top: 1rem;
+}
+
+.emotion-3:focus,
+.emotion-3:focus-visible {
+  background-color: var(--button-background-focus);
+  outline: var(--echoes-color-focus-default) solid var(--echoes-focus-border-width-default);
+  outline-offset: var(--echoes-focus-border-offset-default);
+}
+
+.emotion-3:hover {
+  background-color: var(--button-background-hover);
+}
+
+.emotion-3:active {
+  background-color: var(--button-background-active);
+}
+
+.emotion-3:disabled,
+.emotion-3:disabled:has(:hover, :active, :focus, :focus-visible) {
+  color: var(--echoes-color-text-disabled);
+  background-color: var(--button-background-disabled);
+  border: none;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.code-snippet-highlighted-oneline .emotion-3 {
+  bottom: 0.5rem;
+}
+
+.emotion-5 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: var(--echoes-dimension-space-75);
+  overflow: hidden;
+}
+
+.emotion-7 {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  display: inline-block;
+  font-size: calc(1em + 4px);
+  font-style: normal;
+  font-weight: normal;
+  height: calc(2em - 16px);
+  line-height: calc(2em - 16px);
+  text-align: center;
+  vertical-align: bottom;
+  width: calc(2em - 16px);
+  font-family: 'Material Symbols Rounded';
+}
+
+.emotion-9 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emotion-11 code {
+  font: var(--echoes-typography-code-default);
+  background: rgb(252,252,253);
+  color: rgb(51,53,60);
+}
+
+.emotion-11 code.hljs {
+  padding: unset;
+}
+
+.emotion-11 .hljs-meta,
+.emotion-11 .hljs-variable {
+  color: rgb(51,53,60);
+}
+
+.emotion-11 .hljs-doctag,
+.emotion-11 .hljs-title,
+.emotion-11 .hljs-title.class_,
+.emotion-11 .hljs-title.function_ {
+  color: rgb(34,84,192);
+}
+
+.emotion-11 .hljs-comment {
+  font: var(--echoes-typography-code-comment);
+  color: rgb(109,111,119);
+}
+
+.emotion-11 .hljs-keyword,
+.emotion-11 .hljs-tag,
+.emotion-11 .hljs-type {
+  color: rgb(152,29,150);
+}
+
+.emotion-11 .hljs-literal,
+.emotion-11 .hljs-number {
+  color: rgb(126,83,5);
+}
+
+.emotion-11 .hljs-string {
+  color: rgb(32,105,31);
+}
+
+.emotion-11 .hljs-meta .hljs-keyword {
+  color: rgb(47,103,48);
+}
+
+.emotion-11 .sonar-underline {
+  -webkit-text-decoration: underline rgb(253,162,155);
+  text-decoration: underline rgb(253,162,155);
+  -webkit-text-decoration: underline rgb(253,162,155) wavy;
+  text-decoration: underline rgb(253,162,155) wavy;
+  text-decoration-thickness: 2px;
+  text-decoration-skip-ink: none;
+}
+
+.emotion-11.code-wrap {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.emotion-11.code-wrap.wrap-words {
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.emotion-11 mark {
+  font-weight: 400;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  background-color: rgb(197,205,223);
+  color: rgb(217,45,32);
+}
+
+<div>
+  <div
+    class="sw-code sw-py-6 code-snippet-highlighted-oneline fs-mask emotion-0 emotion-1"
+  >
+    <button
+      class="sw-select-none emotion-2 emotion-3 emotion-4"
+      data-state="closed"
+      type="button"
+    >
+      <span
+        class="emotion-5 emotion-6"
+      >
+        <span
+          aria-hidden="true"
+          class="emotion-7 emotion-8"
+        >
+          
+        </span>
+        <span
+          class="emotion-9 emotion-10"
+        >
+          Copy
+        </span>
+      </span>
+    </button>
+    <span
+      class="hljs sw-overflow-auto sw-pr-24 sw-flex emotion-11 emotion-12"
+    >
+      <code>
+        foobar
+      </code>
+    </span>
+  </div>
+</div>
+`;

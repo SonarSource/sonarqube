@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -140,7 +140,7 @@ public class TagsAction implements IssuesWsAction {
       return Optional.empty();
     }
     return Optional.of(componentFinder.getEntityByKey(dbSession, entityKey))
-      .filter(e -> !e.getQualifier().equals(Qualifiers.SUBVIEW));
+      .filter(e -> !e.getQualifier().equals(ComponentQualifiers.SUBVIEW));
   }
 
   private void checkIfAnyComponentsNeedIssueSync(DbSession session, @Nullable String projectKey) {
@@ -157,15 +157,15 @@ public class TagsAction implements IssuesWsAction {
       .types(ISSUE_TYPE_NAMES);
     if (entity != null) {
       switch (entity.getQualifier()) {
-        case Qualifiers.PROJECT -> issueQueryBuilder.projectUuids(Set.of(entity.getUuid()));
-        case Qualifiers.VIEW, Qualifiers.APP -> issueQueryBuilder.viewUuids(Set.of(entity.getUuid()));
+        case ComponentQualifiers.PROJECT -> issueQueryBuilder.projectUuids(Set.of(entity.getUuid()));
+        case ComponentQualifiers.VIEW, ComponentQualifiers.APP -> issueQueryBuilder.viewUuids(Set.of(entity.getUuid()));
         default -> throw new IllegalArgumentException(String.format("Entity of type '%s' is not supported", entity.getQualifier()));
       }
 
       if (branch != null && !branch.isMain()) {
         issueQueryBuilder.branchUuid(branch.getUuid());
         issueQueryBuilder.mainBranch(false);
-      } else if (Qualifiers.APP.equals(entity.getQualifier())) {
+      } else if (ComponentQualifiers.APP.equals(entity.getQualifier())) {
         dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, entity.getUuid())
           .ifPresent(b -> issueQueryBuilder.branchUuid(b.getUuid()));
       }

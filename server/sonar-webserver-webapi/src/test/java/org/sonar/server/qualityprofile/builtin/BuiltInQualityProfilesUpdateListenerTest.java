@@ -36,7 +36,7 @@ import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.builtin.BuiltInQPChangeNotificationBuilder.Profile;
 
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
@@ -175,7 +175,7 @@ public class BuiltInQualityProfilesUpdateListenerTest {
   }
 
   private static String randomLowerCaseText() {
-    return randomAlphanumeric(20).toLowerCase();
+    return secure().nextAlphanumeric(20).toLowerCase();
   }
 
   private void enableNotificationInGlobalSettings() {

@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { SpotlightTour, SpotlightTourStep } from 'design-system';
 import React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { SpotlightTour, SpotlightTourStep } from '~design-system';
 import { dismissNotice } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import DocumentationLink from '../../../components/common/DocumentationLink';
@@ -50,12 +51,12 @@ export default function CaYCConditionsSimplificationGuide({ qualityGate }: Props
     {
       target: '[data-guiding-id="caycConditionsSimplification"]',
       content: (
-        <>
-          <p className="sw-mb-4">
-            {translate('quality_gates.cayc.condition_simplification_tour.page_2.content1')}
-          </p>
-          <p>{translate('quality_gates.cayc.condition_simplification_tour.page_2.content2')}</p>
-        </>
+        <FormattedMessage
+          id="quality_gates.cayc.condition_simplification_tour.page_2.content"
+          values={{ p: (text) => <p>{text}</p> }}
+        >
+          {(text) => <div className="sw-gap-2 sw-flex sw-flex-col">{text}</div>}
+        </FormattedMessage>
       ),
       title: translate('quality_gates.cayc.condition_simplification_tour.page_2.title'),
       placement: 'right',
@@ -67,7 +68,7 @@ export default function CaYCConditionsSimplificationGuide({ qualityGate }: Props
           <p className="sw-mb-4">
             {translate('quality_gates.cayc.condition_simplification_tour.page_3.content1')}
           </p>
-          <DocumentationLink to={DocLink.IssueResolutions}>
+          <DocumentationLink to={DocLink.IssueStatuses}>
             {translate('quality_gates.cayc.condition_simplification_tour.page_3.content2')}
           </DocumentationLink>
         </>

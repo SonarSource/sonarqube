@@ -21,7 +21,7 @@ import { Button, ButtonVariety, Modal } from "@sonarsource/echoes-react";
 import { translate } from "../../helpers/l10n";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
-import { addGlobalErrorMessage, addGlobalSuccessMessage, FlagMessage, FormField, InputField } from "design-system";
+import { addGlobalErrorMessage, addGlobalSuccessMessage, FlagMessage, FormField, InputField } from "~design-system";
 import MandatoryFieldsExplanation from "../../components/ui/MandatoryFieldsExplanation";
 import { OrganizationContextProps } from "../organizations/OrganizationContext";
 import { useOutletContext } from "react-router-dom";

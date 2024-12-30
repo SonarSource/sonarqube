@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 export function collapsePath(path: string, limit = 30): string {
   if (typeof path !== 'string') {
     return '';

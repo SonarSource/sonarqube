@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Popover } from '@sonarsource/echoes-react';
-import { Pill, PillVariant } from 'design-system';
 import * as React from 'react';
+import { Pill, PillVariant } from '~design-system';
 import DocumentationLink from '../../components/common/DocumentationLink';
 import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
+import { useStandardExperienceModeQuery } from '../../queries/mode';
 import { ComponentQualifier } from '../../sonar-aligned/types/component';
 
 interface Props {
@@ -31,11 +33,11 @@ interface Props {
 
 export default function ChangeInCalculation({ qualifier }: Readonly<Props>) {
   const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
-  // const { data: isLegacy, isLoading } = useIsLegacyCCTMode();
+  const { data: isStandardMode, isLoading } = useStandardExperienceModeQuery();
 
-  // if (isLegacy || isLoading) {
-  //   return null;
-  // }
+  if (isStandardMode || isLoading) {
+    return null;
+  }
 
   return (
     <Popover

@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 /* eslint-disable react/no-unused-prop-types */
 import { Link, Spinner } from '@sonarsource/echoes-react';
-import { DarkLabel, FlagMessage, InputSelect, LightPrimary, Title } from 'design-system';
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { DarkLabel, FlagMessage, InputSelect, LightPrimary, Title } from '~design-system';
 import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { useAppState } from '../../../../app/components/app-state/withAppStateContext';
 import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';

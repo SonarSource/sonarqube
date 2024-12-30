@@ -18,6 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import * as React from 'react';
+import { useCallback, useState } from 'react';
+import { FormattedMessage } from 'react-intl';
 import {
   ButtonPrimary,
   ButtonSecondary,
@@ -25,10 +28,7 @@ import {
   CodeSnippet,
   InputTextArea,
   Spinner,
-} from 'design-system';
-import * as React from 'react';
-import { useCallback, useState } from 'react';
-import { FormattedMessage } from 'react-intl';
+} from '~design-system';
 import { encryptValue } from '../../../api/settings';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { DocLink } from '../../../helpers/doc-links';

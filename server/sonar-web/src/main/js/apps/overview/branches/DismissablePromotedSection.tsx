@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
-import { ButtonIcon, ButtonSize, ButtonVariety, IconX } from '@sonarsource/echoes-react';
-import { ButtonPrimary, ButtonSecondary, themeBorder, themeColor } from 'design-system';
-import React, { useState } from 'react';
+import { ButtonIcon, ButtonSize, ButtonVariety, Heading, IconX } from '@sonarsource/echoes-react';
+import { useState } from 'react';
+import { ButtonPrimary, ButtonSecondary, themeBorder, themeColor } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -61,7 +62,7 @@ export default function DismissablePromotedSection({
   return (
     <StyledWrapper className="sw-p-4 sw-pl-6 sw-my-6 sw-rounded-2">
       <div className="sw-flex sw-justify-between sw-mb-2">
-        <StyledTitle className="sw-body-md-highlight">{title}</StyledTitle>
+        <StyledHeading as="h3">{title}</StyledHeading>
 
         <ButtonIcon
           Icon={IconX}
@@ -71,7 +72,7 @@ export default function DismissablePromotedSection({
           variety={ButtonVariety.DefaultGhost}
         />
       </div>
-      <p className="sw-body-sm sw-mb-4">{content}</p>
+      <p className="sw-mb-4">{content}</p>
 
       <div>
         <ButtonPrimary className="sw-mr-2" onClick={handlePrimaryButtonClick}>
@@ -88,6 +89,6 @@ const StyledWrapper = styled.div`
   border: ${themeBorder('default')};
 `;
 
-const StyledTitle = styled.p`
+const StyledHeading = styled(Heading)`
   color: ${themeColor('primary')};
 `;

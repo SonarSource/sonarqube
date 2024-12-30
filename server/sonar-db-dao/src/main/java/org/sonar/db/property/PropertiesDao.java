@@ -64,13 +64,24 @@ public class PropertiesDao implements Dao {
     this.auditPersister = auditPersister;
   }
 
-  public Set<EmailSubscriberDto> findEmailSubscribersForNotification(DbSession dbSession, String notificationDispatcherKey, String notificationChannelKey,
+  public Set<EmailSubscriberDto> findEnabledEmailSubscribersForNotification(DbSession dbSession, String notificationDispatcherKey, String notificationChannelKey,
     @Nullable String projectKey) {
-    return getMapper(dbSession).findEmailRecipientsForNotification(NOTIFICATION_PREFIX + notificationDispatcherKey + "." + notificationChannelKey, projectKey, null);
+    return getMapper(dbSession).findEmailRecipientsForNotification(NOTIFICATION_PREFIX + notificationDispatcherKey + "." + notificationChannelKey, projectKey, null,
+      Boolean.toString(true));
+  }
+
+  public Set<EmailSubscriberDto> findEnabledEmailSubscribersForNotification(DbSession dbSession, String notificationDispatcherKey, String notificationChannelKey,
+    @Nullable String projectKey, Set<String> logins) {
+    return findEmailSubscribersForNotification(dbSession, notificationDispatcherKey, notificationChannelKey, projectKey, logins, true);
+  }
+
+  public Set<EmailSubscriberDto> findDisabledEmailSubscribersForNotification(DbSession dbSession, String notificationDispatcherKey, String notificationChannelKey,
+    @Nullable String projectKey, Set<String> logins) {
+    return findEmailSubscribersForNotification(dbSession, notificationDispatcherKey, notificationChannelKey, projectKey, logins, false);
   }
 
   public Set<EmailSubscriberDto> findEmailSubscribersForNotification(DbSession dbSession, String notificationDispatcherKey, String notificationChannelKey,
-    @Nullable String projectKey, Set<String> logins) {
+    @Nullable String projectKey, Set<String> logins, boolean enabled) {
     if (logins.isEmpty()) {
       return Collections.emptySet();
     }
@@ -79,7 +90,7 @@ public class PropertiesDao implements Dao {
       logins,
       loginsPartition -> {
         String notificationKey = NOTIFICATION_PREFIX + notificationDispatcherKey + "." + notificationChannelKey;
-        return getMapper(dbSession).findEmailRecipientsForNotification(notificationKey, projectKey, loginsPartition);
+        return getMapper(dbSession).findEmailRecipientsForNotification(notificationKey, projectKey, loginsPartition, Boolean.toString(enabled));
       },
       partitionSize -> projectKey == null ? partitionSize : (partitionSize / 2));
   }

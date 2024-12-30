@@ -19,8 +19,9 @@
  */
 package org.sonar.server.developers.ws;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
@@ -40,7 +41,7 @@ import org.sonarqube.ws.Developers.SearchEventsWsResponse.Event;
 
 import static java.lang.String.format;
 import static java.lang.String.join;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
@@ -53,25 +54,26 @@ import static org.sonar.db.event.EventTesting.newEvent;
 import static org.sonar.server.developers.ws.SearchEventsAction.PARAM_FROM;
 import static org.sonar.server.developers.ws.SearchEventsAction.PARAM_PROJECTS;
 
-public class SearchEventsActionQualityGateIT {
+class SearchEventsActionQualityGateIT {
 
-  @Rule
-  public DbTester db = DbTester.create();
-  @Rule
-  public EsTester es = EsTester.create();
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().logIn();
-
+  @RegisterExtension
+  private final DbTester db = DbTester.create();
+  @RegisterExtension
+  private final EsTester es = EsTester.create();
+  @RegisterExtension
+  private final UserSessionRule userSession = UserSessionRule.standalone().logIn();
+  
   private static final long ANY_TIMESTAMP = 1666666666L;
 
+  private final Configuration config = mock(Configuration.class);
   private final Server server = mock(Server.class);
-  private final IssueIndex issueIndex = new IssueIndex(es.client(), null, userSession, null);
+  private final IssueIndex issueIndex = new IssueIndex(es.client(), null, userSession, null, config);
   private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
   private final WsActionTester ws = new WsActionTester(new SearchEventsAction(db.getDbClient(), userSession, server, issueIndex,
     issueIndexSyncProgressChecker));
 
   @Test
-  public void quality_gate_events() {
+  void quality_gate_events() {
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
@@ -95,11 +97,11 @@ public class SearchEventsActionQualityGateIT {
   }
 
   @Test
-  public void branch_quality_gate_events() {
+  void branch_quality_gate_events() {
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
     insertSuccessfulActivity(project, 1_500_000_000_000L);
     SnapshotDto branchAnalysis = insertSuccessfulActivity(branch, 1_500_000_000_000L);
@@ -121,7 +123,7 @@ public class SearchEventsActionQualityGateIT {
   }
 
   @Test
-  public void does_not_return_quality_gate_events_on_pull_request() {
+  void does_not_return_quality_gate_events_on_pull_request() {
     userSession.logIn().setSystemAdministrator();
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
@@ -139,7 +141,7 @@ public class SearchEventsActionQualityGateIT {
   }
 
   @Test
-  public void return_only_latest_quality_gate_event() {
+  void return_only_latest_quality_gate_event() {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setName("My Project")).getMainBranchComponent();
     userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
     SnapshotDto a1 = insertSuccessfulActivity(project, 1_500_000_000_000L);
@@ -157,7 +159,7 @@ public class SearchEventsActionQualityGateIT {
   }
 
   @Test
-  public void return_link_to_dashboard_for_quality_gate_event() {
+  void return_link_to_dashboard_for_quality_gate_event() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
     SnapshotDto analysis = insertSuccessfulActivity(project, 1_500_000_000_000L);
@@ -174,7 +176,7 @@ public class SearchEventsActionQualityGateIT {
   }
 
   @Test
-  public void encode_link() {
+  void encode_link() {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("M&M's")).getMainBranchComponent();
     userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
     SnapshotDto analysis = insertSuccessfulActivity(project, 1_500_000_000_000L);
@@ -191,7 +193,7 @@ public class SearchEventsActionQualityGateIT {
   }
 
   @Test
-  public void filter_quality_gate_event() {
+  void filter_quality_gate_event() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
     SnapshotDto analysis = insertSuccessfulActivity(project, 1_500_000_000_000L);
@@ -209,7 +211,7 @@ public class SearchEventsActionQualityGateIT {
   }
 
   @Test
-  public void filter_by_from_date_inclusive() {
+  void filter_by_from_date_inclusive() {
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project1));
     ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
@@ -237,7 +239,7 @@ public class SearchEventsActionQualityGateIT {
   }
 
   @Test
-  public void return_one_quality_gate_change_per_project() {
+  void return_one_quality_gate_change_per_project() {
     ComponentDto project1 = db.components().insertPrivateProject(p -> p.setName("p1")).getMainBranchComponent();
     userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project1));
     ComponentDto project2 = db.components().insertPrivateProject(p -> p.setName("p2")).getMainBranchComponent();
@@ -279,7 +281,7 @@ public class SearchEventsActionQualityGateIT {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setComponentUuid(mainBranchUuid);
-    queueDto.setUuid(randomAlphanumeric(40));
+    queueDto.setUuid(secure().nextAlphanumeric(40));
     queueDto.setCreatedAt(ANY_TIMESTAMP);
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(status);

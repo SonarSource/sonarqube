@@ -36,10 +36,10 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import org.sonar.alm.client.TimeoutConfiguration;
-import org.sonar.api.server.ServerSide;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.alm.client.TimeoutConfiguration;
+import org.sonar.api.server.ServerSide;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -70,8 +70,8 @@ public class BitbucketServerRestClient {
   }
 
   public void validateUrl(String serverUrl) {
-    HttpUrl url = buildUrl(serverUrl, "/rest/api/1.0/repos");
-    doGet("", url, body -> buildGson().fromJson(body, RepositoryList.class));
+    HttpUrl url = buildUrl(serverUrl, "/status");
+    doGet("", url, body -> buildGson().fromJson(body, BitbucketServerStatus.class));
   }
 
   public void validateToken(String serverUrl, String token) {

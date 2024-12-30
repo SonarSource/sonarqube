@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
@@ -280,6 +280,6 @@ public class PortfolioDao implements Dao {
   }
 
   private static String qualifier(PortfolioDto portfolioDto) {
-    return portfolioDto.isRoot() ? Qualifiers.VIEW : Qualifiers.SUBVIEW;
+    return portfolioDto.isRoot() ? ComponentQualifiers.VIEW : ComponentQualifiers.SUBVIEW;
   }
 }

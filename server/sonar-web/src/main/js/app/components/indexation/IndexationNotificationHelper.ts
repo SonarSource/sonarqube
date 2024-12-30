@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { getIndexationStatus } from '../../../api/ce';
 import { get, remove, save } from '../../../helpers/storage';
 import { IndexationStatus } from '../../../types/indexation';
@@ -24,6 +25,7 @@ import { IndexationStatus } from '../../../types/indexation';
 const POLLING_INTERVAL_MS = 5000;
 const LS_INDEXATION_COMPLETED_NOTIFICATION_SHOULD_BE_DISPLAYED =
   'display_indexation_completed_notification';
+const LS_LAST_INDEXATION_SQS_VERSION = 'last_indexation_sqs_version';
 
 export default class IndexationNotificationHelper {
   private static interval?: NodeJS.Timeout;
@@ -72,5 +74,13 @@ export default class IndexationNotificationHelper {
     return JSON.parse(
       get(LS_INDEXATION_COMPLETED_NOTIFICATION_SHOULD_BE_DISPLAYED) ?? false.toString(),
     );
+  }
+
+  static saveLastIndexationSQSVersion(version: string) {
+    save(LS_LAST_INDEXATION_SQS_VERSION, version);
+  }
+
+  static getLastIndexationSQSVersion() {
+    return get(LS_LAST_INDEXATION_SQS_VERSION);
   }
 }

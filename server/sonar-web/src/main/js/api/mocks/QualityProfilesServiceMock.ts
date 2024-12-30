@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { cloneDeep } from 'lodash';
 import { ProfileChangelogEvent } from '../../apps/quality-profiles/types';
 import { RequestData } from '../../helpers/request';
@@ -37,20 +38,17 @@ import {
 } from '../../types/clean-code-taxonomy';
 import { SearchRulesResponse } from '../../types/coding-rules';
 import { IssueSeverity } from '../../types/issues';
+import { QualityProfileChangelogFilterMode } from '../../types/quality-profiles';
 import { SearchRulesQuery } from '../../types/rules';
 import { Dict, Paging, ProfileInheritanceDetails, RuleDetails } from '../../types/types';
 import {
-  CompareResponse,
-  Profile,
-  ProfileProject,
-  SearchQualityProfilesParameters,
-  SearchQualityProfilesResponse,
   activateRule,
   addGroup,
   addUser,
   associateProject,
   changeProfileParent,
   compareProfiles,
+  CompareResponse,
   copyProfile,
   createQualityProfile,
   deactivateRule,
@@ -63,12 +61,16 @@ import {
   getProfileProjects,
   getQualityProfile,
   getQualityProfileExporterUrl,
+  Profile,
+  ProfileProject,
   removeGroup,
   removeUser,
   renameProfile,
   restoreQualityProfile,
   searchGroups,
   searchQualityProfiles,
+  SearchQualityProfilesParameters,
+  SearchQualityProfilesResponse,
   searchUsers,
   setDefaultProfile,
 } from '../quality-profiles';
@@ -294,6 +296,37 @@ export default class QualityProfilesServiceMock {
         params: {
           severity: IssueSeverity.Critical,
           credentialWords: 'foo,bar',
+        },
+      }),
+      mockQualityProfileChangelogEvent({
+        date: '2019-02-23T03:12:32+0100',
+        action: 'UPDATED',
+        ruleKey: 'c:rule4',
+        ruleName: 'Rule 5',
+        params: {
+          newCleanCodeAttribute: CleanCodeAttribute.Complete,
+          newCleanCodeAttributeCategory: CleanCodeAttributeCategory.Intentional,
+          oldCleanCodeAttribute: CleanCodeAttribute.Lawful,
+          oldCleanCodeAttributeCategory: CleanCodeAttributeCategory.Responsible,
+          impactChanges: [
+            {
+              newSeverity: SoftwareImpactSeverity.Medium,
+              newSoftwareQuality: SoftwareQuality.Reliability,
+            },
+            {
+              oldSeverity: SoftwareImpactSeverity.High,
+              oldSoftwareQuality: SoftwareQuality.Maintainability,
+            },
+          ],
+        },
+      }),
+      mockQualityProfileChangelogEvent({
+        date: '2019-01-23T03:12:32+0100',
+        action: 'UPDATED',
+        ruleKey: 'c:rule6',
+        ruleName: 'Rule 6',
+        params: {
+          severity: IssueSeverity.Critical,
         },
       }),
     ];
@@ -682,9 +715,16 @@ export default class QualityProfilesServiceMock {
     return this.reply({});
   };
 
-  handleGetProfileChangelog: typeof getProfileChangelog = (since, to, { language }, page) => {
+  handleGetProfileChangelog: typeof getProfileChangelog = (data) => {
+    const {
+      profile: { language },
+      since,
+      to,
+      page,
+      filterMode = QualityProfileChangelogFilterMode.MQR,
+    } = data;
     const PAGE_SIZE = 50;
-    const p = page || 1;
+    const p = page ?? 1;
     const events = this.changelogEvents.filter((event) => {
       if (event.ruleKey.split(':')[0] !== language) {
         return false;
@@ -695,6 +735,23 @@ export default class QualityProfilesServiceMock {
       if (to && new Date(to) <= new Date(event.date)) {
         return false;
       }
+      if (
+        filterMode === QualityProfileChangelogFilterMode.MQR &&
+        event.action === 'UPDATED' &&
+        event.params &&
+        !Object.keys(event.params).includes('impactChanges')
+      ) {
+        return false;
+      }
+
+      if (
+        filterMode === QualityProfileChangelogFilterMode.STANDARD &&
+        event.action === 'UPDATED' &&
+        !event.params?.severity
+      ) {
+        return false;
+      }
+
       return true;
     });
 

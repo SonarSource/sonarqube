@@ -27,7 +27,7 @@
 }
 
 .quality-gate-permissions .permission-list-item:hover {
-  background-color: var(--rowHoverHighlight);
+  background-color: #ecf6fe;
 }
 
 .quality-gate-section tbody {
@@ -62,15 +62,15 @@
 }
 
 .bordered-bottom-cayc {
-  border-bottom: 1px solid var(--whitea18);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .cayc-warning-header {
-  color: var(--alertTextWarning);
+  color: #6f4f17;
 }
 
 .cayc-success-header {
-  color: var(--alertTextSuccess);
+  color: #215821;
 }
 
 .cayc-over-compliant-header {
@@ -82,11 +82,11 @@
 }
 
 .red-text {
-  color: var(--red);
+  color: #d02f3a;
 }
 
 .green-text {
-  color: var(--success500);
+  color: #008223;
 }
 
 .strike-through {

@@ -35,7 +35,7 @@ import org.joda.time.DateTime;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -95,9 +95,9 @@ public class ProjectMeasuresIndexerIT {
     assertThat(scope.getIndexType().getType()).isEqualTo(TYPE_AUTHORIZATION);
 
     Predicate<IndexPermissions> projectPredicate = scope.getEntityPredicate();
-    IndexPermissions project = new IndexPermissions("P1", Qualifiers.PROJECT);
-    IndexPermissions app = new IndexPermissions("P1", Qualifiers.APP);
-    IndexPermissions file = new IndexPermissions("F1", Qualifiers.FILE);
+    IndexPermissions project = new IndexPermissions("P1", ComponentQualifiers.PROJECT);
+    IndexPermissions app = new IndexPermissions("P1", ComponentQualifiers.APP);
+    IndexPermissions file = new IndexPermissions("F1", ComponentQualifiers.FILE);
     assertThat(projectPredicate.test(project)).isTrue();
     assertThat(projectPredicate.test(app)).isTrue();
     assertThat(projectPredicate.test(file)).isFalse();
@@ -209,7 +209,7 @@ public class ProjectMeasuresIndexerIT {
     BranchDto branchDto = db.components().insertProjectBranch(project1.getProjectDto());
     underTest.indexOnAnalysis(branchDto.getUuid());
 
-    assertThatIndexContainsOnly(new ProjectDto[] {});
+    assertThatIndexContainsOnly(new ProjectDto[]{});
   }
 
   @Test
@@ -266,8 +266,8 @@ public class ProjectMeasuresIndexerIT {
     BranchDto oldMainBranchDto = projectData.getMainBranchDto();
     BranchDto newMainBranchDto = db.components().insertProjectBranch(project);
     MetricDto nloc = db.measures().insertMetric(m -> m.setKey(CoreMetrics.NCLOC_KEY));
-    db.measures().insertLiveMeasure(oldMainBranchDto, nloc, e -> e.setValue(1d));
-    db.measures().insertLiveMeasure(newMainBranchDto, nloc, e -> e.setValue(2d));
+    db.measures().insertMeasure(oldMainBranchDto, e -> e.addValue(nloc.getKey(), 1d));
+    db.measures().insertMeasure(newMainBranchDto, e -> e.addValue(nloc.getKey(), 2d));
     indexProject(project, CREATION);
     assertThatProjectHasMeasure(project, CoreMetrics.NCLOC_KEY, 1d);
 
@@ -286,7 +286,7 @@ public class ProjectMeasuresIndexerIT {
     indexProject(project, CREATION);
     assertThatIndexContainsOnly(project);
 
-    db.getDbClient().purgeDao().deleteProject(db.getSession(), project.getUuid(), Qualifiers.PROJECT, project.getName(), project.getKey());
+    db.getDbClient().purgeDao().deleteProject(db.getSession(), project.getUuid(), ComponentQualifiers.PROJECT, project.getName(), project.getKey());
     IndexingResult result = indexProject(project, DELETION);
 
     assertThat(es.countDocuments(TYPE_PROJECT_MEASURES)).isZero();
@@ -394,9 +394,9 @@ public class ProjectMeasuresIndexerIT {
     List<Map<String, Object>> documents = es.getDocuments(TYPE_PROJECT_MEASURES).stream().map(SearchHit::getSourceAsMap).toList();
 
     List<Tuple> expected = Arrays.stream(projectDatas).map(
-      projectData -> tuple(
-        projectData.getProjectDto().getKey(),
-        projectData.getProjectDto().getCreatedAt()))
+        projectData -> tuple(
+          projectData.getProjectDto().getKey(),
+          projectData.getProjectDto().getCreatedAt()))
       .toList();
     assertThat(documents)
       .extracting(hit -> hit.get("key"), hit -> stringDateToMilliseconds((String) hit.get("createdAt")))

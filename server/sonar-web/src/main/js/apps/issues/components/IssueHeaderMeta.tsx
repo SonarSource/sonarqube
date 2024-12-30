@@ -17,13 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Tooltip } from '@sonarsource/echoes-react';
-import { LightLabel, Note, SeparatorCircleIcon } from 'design-system';
-import React from 'react';
+import { LightLabel, Note, SeparatorCircleIcon } from '~design-system';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import IssuePrioritized from '../../../components/issue/components/IssuePrioritized';
-import IssueSeverity from '../../../components/issue/components/IssueSeverity';
-import IssueType from '../../../components/issue/components/IssueType';
 import { translate } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
 
@@ -62,10 +60,10 @@ export default function IssueHeaderMeta({ issue }: Readonly<Props>) {
           </LightLabel>
         </span>
       </div>
-      <SeparatorCircleIcon />
 
       {(issue.codeVariants?.length ?? 0) > 0 && (
         <>
+          <SeparatorCircleIcon />
           <div className="sw-flex sw-gap-1">
             <span>{translate('issue.code_variants')}</span>
             <Tooltip content={issue.codeVariants?.join(', ')}>
@@ -78,9 +76,6 @@ export default function IssueHeaderMeta({ issue }: Readonly<Props>) {
         </>
       )}
 
-      <IssueType issue={issue} />
-      <SeparatorCircleIcon data-guiding-id="issue-4" />
-      <IssueSeverity issue={issue} />
       {issue.prioritizedRule && (
         <>
           <SeparatorCircleIcon />

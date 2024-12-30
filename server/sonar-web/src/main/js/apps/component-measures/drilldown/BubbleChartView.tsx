@@ -17,18 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
+import { Heading, IconQuestionMark, LinkStandalone } from '@sonarsource/echoes-react';
+import * as React from 'react';
 import {
   BubbleColorVal,
-  HelperHintIcon,
-  Highlight,
-  Link,
   BubbleChart as OriginalBubbleChart,
   themeColor,
   themeContrast,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricKey } from '~sonar-aligned/types/metrics';
@@ -38,7 +37,7 @@ import {
   translate,
   translateWithParameters,
 } from '../../../helpers/l10n';
-import { getCCTMeasureValue, isDiffMetric } from '../../../helpers/measures';
+import { isDiffMetric } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
@@ -167,9 +166,11 @@ export default function BubbleChartView(props: Readonly<Props>) {
       <div className="sw-flex sw-justify-between sw-gap-3">
         <div>
           <div className="sw-flex sw-items-center sw-whitespace-nowrap">
-            <Highlight className="it__measure-overview-bubble-chart-title">{title}</Highlight>
+            <Heading as="h3" className="it__measure-overview-bubble-chart-title">
+              {title}
+            </Heading>
             <HelpTooltip className="sw-ml-2" overlay={getDescription(domain)}>
-              <HelperHintIcon />
+              <IconQuestionMark />
             </HelpTooltip>
           </div>
 
@@ -180,7 +181,7 @@ export default function BubbleChartView(props: Readonly<Props>) {
           )}
           {(isView(component?.qualifier) || isProject(component?.qualifier)) && (
             <div className="sw-mt-2">
-              <Link
+              <LinkStandalone
                 to={getComponentDrilldownUrl({
                   componentKey: component.key,
                   branchLike,
@@ -189,7 +190,7 @@ export default function BubbleChartView(props: Readonly<Props>) {
                 })}
               >
                 {translate('component_measures.overview.see_data_as_list')}
-              </Link>
+              </LinkStandalone>
             </div>
           )}
         </div>
@@ -256,9 +257,7 @@ const getMeasureVal = (component: ComponentMeasureEnhanced, metric: Metric) => {
   if (!measure) {
     return undefined;
   }
-  return Number(
-    getCCTMeasureValue(metric.key, isDiffMetric(metric.key) ? measure.leak : measure.value),
-  );
+  return Number(isDiffMetric(metric.key) ? measure.leak : measure.value);
 };
 
 const getTooltip = (
@@ -297,7 +296,7 @@ const getTooltip = (
 };
 
 const BubbleChartWrapper = styled.div`
-  color: ${themeColor('pageContentLight')};
+  color: var(--echoes-color-text-subdued);
 `;
 
 const YAxis = styled.div`

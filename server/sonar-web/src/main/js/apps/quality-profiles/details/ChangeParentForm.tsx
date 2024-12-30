@@ -17,6 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { sortBy } from 'lodash';
+import * as React from 'react';
 import {
   ButtonPrimary,
   FlagMessage,
@@ -24,9 +27,7 @@ import {
   InputSelect,
   LabelValueSelectOption,
   Modal,
-} from 'design-system';
-import { sortBy } from 'lodash';
-import * as React from 'react';
+} from '~design-system';
 import { changeProfileParent } from '../../../api/quality-profiles';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';

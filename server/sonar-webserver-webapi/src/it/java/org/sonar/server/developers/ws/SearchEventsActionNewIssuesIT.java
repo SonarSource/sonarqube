@@ -25,8 +25,9 @@ import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Random;
 import java.util.stream.Stream;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.rules.RuleType;
 import org.sonar.db.DbTester;
@@ -50,7 +51,7 @@ import org.sonarqube.ws.Developers.SearchEventsWsResponse.Event;
 
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
@@ -61,30 +62,31 @@ import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.developers.ws.SearchEventsAction.PARAM_FROM;
 import static org.sonar.server.developers.ws.SearchEventsAction.PARAM_PROJECTS;
 
-public class SearchEventsActionNewIssuesIT {
+class SearchEventsActionNewIssuesIT {
 
   private static final RuleType[] RULE_TYPES_EXCEPT_HOTSPOT = Stream.of(RuleType.values())
     .filter(r -> r != RuleType.SECURITY_HOTSPOT)
     .toArray(RuleType[]::new);
 
-  @Rule
-  public DbTester db = DbTester.create();
-  @Rule
-  public EsTester es = EsTester.create();
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  @RegisterExtension
+  private final DbTester db = DbTester.create();
+  @RegisterExtension
+  private final EsTester es = EsTester.create();
+  @RegisterExtension
+  private final UserSessionRule userSession = UserSessionRule.standalone();
 
-  private Server server = mock(Server.class);
-
-  private IssueIndex issueIndex = new IssueIndex(es.client(), null, null, null);
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
-  private IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
-  private WsActionTester ws = new WsActionTester(new SearchEventsAction(db.getDbClient(), userSession, server, issueIndex,
+  private final Server server = mock(Server.class);
+  private final Configuration config = mock(Configuration.class);
+  private final IssueIndex issueIndex = new IssueIndex(es.client(), null, null, null, config);
+  private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()),
+    null);
+  private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
+  private final WsActionTester ws = new WsActionTester(new SearchEventsAction(db.getDbClient(), userSession, server, issueIndex,
     issueIndexSyncProgressChecker));
   private final Random random = new SecureRandom();
 
   @Test
-  public void issue_event() {
+  void issue_event() {
     userSession.logIn();
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
@@ -112,7 +114,7 @@ public class SearchEventsActionNewIssuesIT {
   }
 
   @Test
-  public void many_issues_events() {
+  void many_issues_events() {
     userSession.logIn();
     long from = 1_500_000_000_000L;
     ProjectData projectData = db.components().insertPrivateProject(p -> p.setName("SonarQube"));
@@ -135,7 +137,7 @@ public class SearchEventsActionNewIssuesIT {
   }
 
   @Test
-  public void does_not_return_old_issue() {
+  void does_not_return_old_issue() {
     userSession.logIn();
     ProjectData project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project.getProjectDto());
@@ -153,7 +155,7 @@ public class SearchEventsActionNewIssuesIT {
   }
 
   @Test
-  public void return_link_to_issue_search_for_new_issues_event() {
+  void return_link_to_issue_search_for_new_issues_event() {
     userSession.logIn("my_login");
     ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("my_project")).getMainBranchComponent();
     userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
@@ -172,7 +174,7 @@ public class SearchEventsActionNewIssuesIT {
   }
 
   @Test
-  public void branch_issues_events() {
+  void branch_issues_events() {
     userSession.logIn().setSystemAdministrator();
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
@@ -208,7 +210,7 @@ public class SearchEventsActionNewIssuesIT {
   }
 
   @Test
-  public void pull_request_issues_events() {
+  void pull_request_issues_events() {
     userSession.logIn().setSystemAdministrator();
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
@@ -245,7 +247,7 @@ public class SearchEventsActionNewIssuesIT {
   }
 
   @Test
-  public void encode_link() {
+  void encode_link() {
     userSession.logIn("rågnar").setSystemAdministrator();
     long from = 1_500_000_000_000L;
     ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("M&M's")).getMainBranchComponent();
@@ -306,7 +308,7 @@ public class SearchEventsActionNewIssuesIT {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setComponentUuid(mainBranchUuid);
-    queueDto.setUuid(randomAlphanumeric(40));
+    queueDto.setUuid(secure().nextAlphanumeric(40));
     queueDto.setCreatedAt(random.nextLong(Long.MAX_VALUE));
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(status);

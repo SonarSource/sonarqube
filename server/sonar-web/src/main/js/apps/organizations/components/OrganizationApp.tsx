@@ -35,7 +35,7 @@ import { hasGlobalPermission } from "../../../helpers/users";
 import { Permissions } from "../../../types/permissions";
 import { CurrentUser } from "../../../types/users";
 import NotFound from "../../../app/components/NotFound";
-import { FlagMessage } from "design-system";
+import { FlagMessage } from "~design-system";
 import { createPortal } from "react-dom";
 
 interface OrganizationAppProps {

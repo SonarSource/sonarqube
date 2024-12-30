@@ -19,10 +19,10 @@
  */
 
 import { Heading } from '@sonarsource/echoes-react';
-import { DiscreetLink, Link, Note } from 'design-system';
 import { noop, sortBy } from 'lodash';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
+import { DiscreetLink, Link, Note } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricType } from '~sonar-aligned/types/metrics';
 import { listRules } from '../../../api/rules';

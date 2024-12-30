@@ -20,33 +20,17 @@
 package org.sonar.server.telemetry;
 
 import java.util.Optional;
+import org.sonar.telemetry.core.AbstractTelemetryDataProvider;
 import org.sonar.telemetry.core.Dimension;
 import org.sonar.telemetry.core.Granularity;
-import org.sonar.telemetry.core.TelemetryDataProvider;
 import org.sonar.telemetry.core.TelemetryDataType;
 
-public class TelemetryDbMigrationSuccessProvider implements TelemetryDataProvider<Boolean> {
+public class TelemetryDbMigrationSuccessProvider extends AbstractTelemetryDataProvider<Boolean> {
 
   private Boolean dbMigrationSuccess = null;
 
-  @Override
-  public String getMetricKey() {
-    return "db_migration_success";
-  }
-
-  @Override
-  public TelemetryDataType getType() {
-    return TelemetryDataType.BOOLEAN;
-  }
-
-  @Override
-  public Granularity getGranularity() {
-    return Granularity.ADHOC;
-  }
-
-  @Override
-  public Dimension getDimension() {
-    return Dimension.INSTALLATION;
+  public TelemetryDbMigrationSuccessProvider() {
+    super("db_migration_success", Dimension.INSTALLATION, Granularity.ADHOC, TelemetryDataType.BOOLEAN);
   }
 
   public void setDbMigrationSuccess(Boolean dbMigrationSuccess) {

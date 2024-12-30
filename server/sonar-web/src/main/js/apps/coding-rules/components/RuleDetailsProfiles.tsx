@@ -19,31 +19,32 @@
  */
 
 import styled from '@emotion/styled';
+import { LinkStandalone, Text, Tooltip } from '@sonarsource/echoes-react';
+import { filter, isEqual } from 'lodash';
+import { FormattedMessage } from 'react-intl';
 import {
   ActionCell,
   CellComponent,
   ContentCell,
   DiscreetLink,
   InheritanceIcon,
-  Link,
   Note,
   SeparatorCircleIcon,
   SubTitle,
   Table,
   TableRow,
   TableRowInteractive,
-  TextSubdued,
-} from 'design-system';
-import { filter } from 'lodash';
-import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
+} from '~design-system';
 import { Profile } from '../../../api/quality-profiles';
+import { SOFTWARE_QUALITIES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import {
   useActivateRuleMutation,
   useDeactivateRuleMutation,
 } from '../../../queries/quality-profiles';
+import { SoftwareImpact } from '../../../types/clean-code-taxonomy';
 import { Dict, RuleActivation, RuleDetails } from '../../../types/types';
 import BuiltInQualityProfileBadge from '../../quality-profiles/components/BuiltInQualityProfileBadge';
 import ActivatedRuleActions from './ActivatedRuleActions';
@@ -63,10 +64,15 @@ const MANDATORY_COLUMNS_COUNT = 2;
 
 const PROFILES_HEADING_ID = 'rule-details-profiles-heading';
 
+const softwareQualityOrderMap = new Map(
+  SOFTWARE_QUALITIES.map((quality, index) => [quality, index]),
+);
+
 export default function RuleDetailsProfiles(props: Readonly<Props>) {
   const { activations = [], referencedProfiles, ruleDetails, canDeactivateInherited } = props;
   const { mutate: activateRule } = useActivateRuleMutation(props.onActivate);
   const { mutate: deactivateRule } = useDeactivateRuleMutation(props.onDeactivate);
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
 
   const canActivate = Object.values(referencedProfiles).some((profile) =>
     Boolean(profile.actions?.edit && profile.language === ruleDetails.lang),
@@ -142,25 +148,122 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
         )
       : null;
 
+    const sortImpacts = (a: SoftwareImpact, b: SoftwareImpact) => {
+      const indexA = softwareQualityOrderMap.get(a.softwareQuality) ?? -1;
+      const indexB = softwareQualityOrderMap.get(b.softwareQuality) ?? -1;
+      return indexA - indexB;
+    };
+
     return (
       <TableRowInteractive key={profile.key}>
         <ContentCell className="sw-flex sw-flex-col sw-gap-2">
           <div className="sw-self-start sw-flex sw-gap-2 sw-items-center">
-            <Link
+            <LinkStandalone
               className="sw-truncate sw-max-w-64"
               aria-label={profile.name}
               title={profile.name}
               to={getQualityProfileUrl(profile.name, profile.language, props.organization)}
             >
               {profile.name}
-            </Link>
+            </LinkStandalone>
 
             {activation.prioritizedRule && (
               <>
                 <SeparatorCircleIcon />
-                <TextSubdued>{translate('coding_rules.prioritized_rule.title')}</TextSubdued>
+                <Text isSubdued>{translate('coding_rules.prioritized_rule.title')}</Text>
               </>
             )}
+            {!isStandardMode &&
+              Boolean(activation.impacts?.length) &&
+              !isEqual(
+                [...activation.impacts].sort(sortImpacts),
+                [...ruleDetails.impacts].sort(sortImpacts),
+              ) && (
+                <>
+                  <SeparatorCircleIcon />
+                  <Tooltip
+                    content={
+                      <>
+                        {[...activation.impacts].sort(sortImpacts).map((impact) => {
+                          const ruleImpact = ruleDetails.impacts.find(
+                            (i) => i.softwareQuality === impact.softwareQuality,
+                          );
+                          if (!ruleImpact || ruleImpact.severity === impact.severity) {
+                            return null;
+                          }
+                          return (
+                            <Text
+                              as="div"
+                              colorOverride="echoes-color-text-on-color"
+                              key={impact.softwareQuality}
+                            >
+                              <FormattedMessage
+                                id="coding_rules.impact_customized.detail"
+                                values={{
+                                  softwareQuality: (
+                                    <Text isHighlighted colorOverride="echoes-color-text-on-color">
+                                      <FormattedMessage
+                                        id={`software_quality.${impact.softwareQuality}`}
+                                      />
+                                    </Text>
+                                  ),
+                                  recommended: (
+                                    <Text
+                                      isHighlighted
+                                      colorOverride="echoes-color-text-on-color"
+                                      className="sw-lowercase"
+                                    >
+                                      <FormattedMessage
+                                        id={`severity_impact.${ruleImpact?.severity}`}
+                                      />
+                                    </Text>
+                                  ),
+                                  customized: (
+                                    <Text
+                                      isHighlighted
+                                      colorOverride="echoes-color-text-on-color"
+                                      className="sw-lowercase"
+                                    >
+                                      <FormattedMessage id={`severity_impact.${impact.severity}`} />
+                                    </Text>
+                                  ),
+                                }}
+                              />
+                            </Text>
+                          );
+                        })}
+                      </>
+                    }
+                  >
+                    <Text isSubdued>{translate('coding_rules.impact_customized.message')}</Text>
+                  </Tooltip>
+                </>
+              )}
+
+            {isStandardMode &&
+              activation.severity &&
+              activation.severity !== ruleDetails.severity && (
+                <>
+                  <SeparatorCircleIcon />
+                  <Text isSubdued>
+                    <FormattedMessage
+                      id="coding_rules.severity_customized.message"
+                      values={{
+                        recommended: (
+                          <Text isHighlighted className="sw-lowercase">
+                            <FormattedMessage id={`severity.${ruleDetails.severity}`} />
+                          </Text>
+                        ),
+                        customized: (
+                          <Text isHighlighted className="sw-lowercase">
+                            <FormattedMessage id={`severity.${activation.severity}`} />
+                          </Text>
+                        ),
+                      }}
+                    />
+                  </Text>
+                </>
+              )}
 
             {profile.isBuiltIn && <BuiltInQualityProfileBadge />}
           </div>

@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ClipboardIconButton, CodeSnippet, NumberedListItem } from 'design-system';
-import React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { ClipboardIconButton, CodeSnippet, NumberedListItem } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
 import { GradleBuildDSL } from '../types';

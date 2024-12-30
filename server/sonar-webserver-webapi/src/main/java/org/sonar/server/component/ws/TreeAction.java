@@ -33,8 +33,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -96,18 +96,18 @@ public class TreeAction implements ComponentsWsAction {
   private static final String PATH_SORT = "path";
   private static final String QUALIFIER_SORT = "qualifier";
   private static final Set<String> SORTS = ImmutableSortedSet.of(NAME_SORT, PATH_SORT, QUALIFIER_SORT);
-  private static final Set<String> PROJECT_OR_APP_QUALIFIERS = ImmutableSortedSet.of(Qualifiers.PROJECT, Qualifiers.APP);
+  private static final Set<String> PROJECT_OR_APP_QUALIFIERS = ImmutableSortedSet.of(ComponentQualifiers.PROJECT, ComponentQualifiers.APP);
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
-  private final ResourceTypes resourceTypes;
+  private final ComponentTypes componentTypes;
   private final UserSession userSession;
   private final I18n i18n;
 
-  public TreeAction(DbClient dbClient, ComponentFinder componentFinder, ResourceTypes resourceTypes, UserSession userSession, I18n i18n) {
+  public TreeAction(DbClient dbClient, ComponentFinder componentFinder, ComponentTypes componentTypes, UserSession userSession, I18n i18n) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
-    this.resourceTypes = resourceTypes;
+    this.componentTypes = componentTypes;
     this.userSession = userSession;
     this.i18n = i18n;
   }
@@ -156,7 +156,7 @@ public class TreeAction implements ComponentsWsAction {
       .setMinimumLength(QUERY_MINIMUM_LENGTH)
       .setExampleValue("FILE_NAM");
 
-    createQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes));
+    createQualifiersParameter(action, newQualifierParameterContext(i18n, componentTypes));
 
     action.createParam(PARAM_STRATEGY)
       .setDescription("Strategy to search for base component descendants:" +
@@ -318,7 +318,7 @@ public class TreeAction implements ComponentsWsAction {
     List<String> requestQualifiers = request.getQualifiers();
     List<String> childrenQualifiers = null;
     if (LEAVES_STRATEGY.equals(request.getStrategy())) {
-      childrenQualifiers = resourceTypes.getLeavesQualifiers(baseQualifier);
+      childrenQualifiers = componentTypes.getLeavesQualifiers(baseQualifier);
     }
 
     if (requestQualifiers == null) {

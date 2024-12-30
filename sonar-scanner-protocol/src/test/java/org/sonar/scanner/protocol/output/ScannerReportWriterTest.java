@@ -21,12 +21,10 @@ package org.sonar.scanner.protocol.output;
 
 import com.google.common.collect.Iterators;
 import java.io.File;
-import java.time.Instant;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.Protobuf;
 import org.sonar.scanner.protocol.Constants;
@@ -36,19 +34,19 @@ import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.Hi
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ScannerReportWriterTest {
+class ScannerReportWriterTest {
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  @TempDir
+  public File temp;
   private ScannerReportWriter underTest;
 
-  @Before
-  public void setUp() throws Exception {
-    underTest = new ScannerReportWriter(new FileStructure(temp.newFolder()));
+  @BeforeEach
+  void setUp() {
+    underTest = new ScannerReportWriter(new FileStructure(temp));
   }
 
   @Test
-  public void write_metadata() {
+  void write_metadata() {
     ScannerReport.Metadata.Builder metadata = ScannerReport.Metadata.newBuilder()
       .setAnalysisDate(15000000L)
       .setProjectKey("PROJECT_A")
@@ -62,7 +60,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_component() {
+  void write_component() {
     // no data yet
     assertThat(underTest.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isFalse();
 
@@ -88,7 +86,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_issues() {
+  void write_issues() {
     // no data yet
     assertThat(underTest.hasComponentData(FileStructure.Domain.ISSUES, 1)).isFalse();
 
@@ -108,7 +106,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_external_issues() {
+  void write_external_issues() {
     // no data yet
     assertThat(underTest.hasComponentData(FileStructure.Domain.EXTERNAL_ISSUES, 1)).isFalse();
 
@@ -128,9 +126,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_adhoc_rule() {
-
-    // write data
+  void write_adhoc_rule() {
     ScannerReport.AdHocRule rule = ScannerReport.AdHocRule.newBuilder()
       .setEngineId("eslint")
       .setRuleId("123")
@@ -149,30 +145,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_cve() {
-
-    // write data
-    ScannerReport.Cve cve = ScannerReport.Cve.newBuilder()
-      .setCveId("CVE-2023-20863")
-      .setDescription("In spring framework versions prior to 5.2.24 release+ ,5.3.27+ and 6.0.8+ , it is possible for a user to provide a specially crafted SpEL expression that may cause a denial-of-service (DoS) condition.")
-      .setCvssScore(6.5f)
-      .setEpssScore(0.00306f)
-      .setEpssPercentile(0.70277f)
-      .setPublishedDate(Instant.parse("2023-04-13T20:15:00Z").toEpochMilli())
-      .setLastModifiedDate(Instant.parse("2024-02-04T02:22:24.474Z").toEpochMilli())
-      .addCwe("CWE-400")
-      .build();
-    underTest.appendCve(cve);
-
-    File file = underTest.getFileStructure().cves();
-    assertThat(file).exists().isFile();
-    try (CloseableIterator<ScannerReport.Cve> read = Protobuf.readStream(file, ScannerReport.Cve.parser())) {
-      assertThat(Iterators.size(read)).isOne();
-    }
-  }
-
-  @Test
-  public void write_changed_lines() {
+  void write_changed_lines() {
     assertThat(underTest.hasComponentData(FileStructure.Domain.CHANGED_LINES, 1)).isFalse();
 
     ScannerReport.ChangedLines changedLines = ScannerReport.ChangedLines.newBuilder()
@@ -189,7 +162,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_measures() {
+  void write_measures() {
     assertThat(underTest.hasComponentData(FileStructure.Domain.MEASURES, 1)).isFalse();
 
     ScannerReport.Measure measure = ScannerReport.Measure.newBuilder()
@@ -207,7 +180,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_scm() {
+  void write_scm() {
     assertThat(underTest.hasComponentData(FileStructure.Domain.CHANGESETS, 1)).isFalse();
 
     ScannerReport.Changesets scm = ScannerReport.Changesets.newBuilder()
@@ -232,7 +205,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_duplications() {
+  void write_duplications() {
     assertThat(underTest.hasComponentData(FileStructure.Domain.DUPLICATIONS, 1)).isFalse();
 
     ScannerReport.Duplication duplication = ScannerReport.Duplication.newBuilder()
@@ -261,7 +234,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_duplication_blocks() {
+  void write_duplication_blocks() {
     assertThat(underTest.hasComponentData(FileStructure.Domain.CPD_TEXT_BLOCKS, 1)).isFalse();
 
     ScannerReport.CpdTextBlock duplicationBlock = ScannerReport.CpdTextBlock.newBuilder()
@@ -287,7 +260,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_symbols() {
+  void write_symbols() {
     // no data yet
     assertThat(underTest.hasComponentData(FileStructure.Domain.SYMBOLS, 1)).isFalse();
 
@@ -319,7 +292,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_syntax_highlighting() {
+  void write_syntax_highlighting() {
     // no data yet
     assertThat(underTest.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, 1)).isFalse();
 
@@ -336,7 +309,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_line_significant_code() {
+  void write_line_significant_code() {
     // no data yet
     assertThat(underTest.hasComponentData(FileStructure.Domain.SGNIFICANT_CODE, 1)).isFalse();
 
@@ -351,7 +324,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_coverage() {
+  void write_coverage() {
     // no data yet
     assertThat(underTest.hasComponentData(FileStructure.Domain.COVERAGES, 1)).isFalse();
 
@@ -364,6 +337,46 @@ public class ScannerReportWriterTest {
         .build()));
 
     assertThat(underTest.hasComponentData(FileStructure.Domain.COVERAGES, 1)).isTrue();
+  }
+
+  @Test
+  void write_telemetry() {
+    List<ScannerReport.TelemetryEntry> input = List.of(
+      ScannerReport.TelemetryEntry.newBuilder()
+        .setKey("key")
+        .setValue("value").build(),
+      ScannerReport.TelemetryEntry.newBuilder()
+        .setKey("key2")
+        .setValue("value2").build());
+
+    underTest.writeTelemetry(input);
+
+    try (CloseableIterator<ScannerReport.TelemetryEntry> telemetryIterator = Protobuf.readStream(underTest.getFileStructure().telemetryEntries(),
+      ScannerReport.TelemetryEntry.parser())) {
+
+      assertThat(telemetryIterator).toIterable()
+        .containsExactlyElementsOf(input)
+        .hasSize(input.size());
+    }
+  }
+
+  @Test
+  void write_dependencies() {
+    ScannerReport.Dependency dependency = ScannerReport.Dependency.newBuilder()
+      .setKey("mvn+com.fasterxml.jackson.core:jackson-databind$2.9.7")
+      .setName("jackson-databind")
+      .setFullName("com.fasterxml.jackson.core:jackson-databind")
+      .setDescription("General data-binding functionality for Jackson: works on core streaming API")
+      .setVersion("2.9.7")
+      .addParentDependencyKey("mvn+org.springframework:spring-webmvc$5.1.3.RELEASE")
+      .build();
+    underTest.appendDependency(dependency);
+
+    File file = underTest.getFileStructure().dependencies();
+    assertThat(file).exists().isFile();
+    try (CloseableIterator<ScannerReport.Dependency> read = Protobuf.readStream(file, ScannerReport.Dependency.parser())) {
+      assertThat(Iterators.size(read)).isOne();
+    }
   }
 
 }

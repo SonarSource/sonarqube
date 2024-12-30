@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { IntlShape } from 'react-intl';
 import { MetricType } from '~sonar-aligned/types/metrics';
-import { getMessages } from '../../../helpers/l10nBundle';
+import { getIntl, getMessages } from '../../../helpers/l10nBundle';
 import { Dict } from '../../../types/types';
 import { formatMeasure } from '../measures';
 
@@ -32,10 +34,18 @@ jest.unmock('../../../helpers/l10n');
 jest.mock('../../../helpers/l10nBundle', () => ({
   getCurrentLocale: jest.fn().mockReturnValue('us'),
   getMessages: jest.fn().mockReturnValue({}),
+  getIntl: jest.fn().mockReturnValue({ formatMessage: jest.fn(({ id }) => `${id}`) }),
 }));
 
-const resetMessages = (messages: Dict<string>) =>
+const resetMessages = (messages: Dict<string>) => {
   jest.mocked(getMessages).mockReturnValue(messages);
+
+  jest.mocked(getIntl).mockReturnValue({
+    formatMessage: jest.fn(({ id }) => {
+      return id ? (messages[id] ?? id) : `${id}`;
+    }),
+  } as unknown as IntlShape);
+};
 
 beforeAll(() => {
   resetMessages({

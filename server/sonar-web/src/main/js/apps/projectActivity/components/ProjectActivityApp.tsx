@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Spinner } from '@sonarsource/echoes-react';
 import React from 'react';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
@@ -31,14 +32,14 @@ import {
   getHistoryMetrics,
   isCustomGraph,
 } from '../../../components/activity-graph/utils';
-import { mergeRatingMeasureHistory } from '../../../helpers/activity-graph';
-import { SOFTWARE_QUALITY_RATING_METRICS } from '../../../helpers/constants';
+import { mergeMeasureHistory } from '../../../helpers/activity-graph';
 import { parseDate } from '../../../helpers/dates';
-import useApplicationLeakQuery from '../../../queries/applications';
+import { useApplicationLeakQuery } from '../../../queries/applications';
 import { useCurrentBranchQuery } from '../../../queries/branch';
+import { StaleTime } from '../../../queries/common';
 import { useAllMeasuresHistoryQuery } from '../../../queries/measures';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { useAllProjectAnalysesQuery } from '../../../queries/project-analyses';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
 import { isApplication, isProject } from '../../../types/component';
 import { MeasureHistory, ParsedAnalysis } from '../../../types/project-activity';
 import { Query, parseQuery, serializeUrlQuery } from '../utils';
@@ -58,22 +59,28 @@ export const PROJECT_ACTIVITY_GRAPH = 'sonar_project_activity.graph';
 
 export function ProjectActivityApp() {
   const { query, pathname } = useLocation();
-  const parsedQuery = parseQuery(query);
+  const { data: isStandardMode, isLoading: isLoadingStandardMode } =
+    useStandardExperienceModeQuery();
+  const parsedQuery = parseQuery(query, isStandardMode);
   const router = useRouter();
   const { component } = useComponent();
   const metrics = useMetrics();
-  const { data: branchLike, isFetching: isFetchingBranch } = useCurrentBranchQuery(component);
+  const { data: branchLike, isFetching: isFetchingBranch } = useCurrentBranchQuery(
+    component,
+    StaleTime.LONG,
+  );
   const enabled =
     component?.key !== undefined &&
     (isPortfolioLike(component?.qualifier) || (Boolean(branchLike) && !isFetchingBranch));
 
-  const { data: appLeaks } = useApplicationLeakQuery(
-    component?.key ?? '',
-    isApplication(component?.qualifier),
-  );
+  const { data: appLeaks } = useApplicationLeakQuery(component?.key ?? '', {
+    enabled: isApplication(component?.qualifier),
+  });
 
-  const { data: analysesData, isLoading: isLoadingAnalyses } = useAllProjectAnalysesQuery(enabled);
-  const { data: isLegacy, isLoading: isLoadingLegacy } = useIsLegacyCCTMode();
+  const { data: analysesData, isLoading: isLoadingAnalyses } = useAllProjectAnalysesQuery({
+    enabled,
+    staleTime: StaleTime.LONG,
+  });
 
   const { data: historyData, isLoading: isLoadingHistory } = useAllMeasuresHistoryQuery(
     {
@@ -81,14 +88,15 @@ export function ProjectActivityApp() {
       branchParams: getBranchLikeQuery(branchLike),
       metrics: getHistoryMetrics(query.graph || DEFAULT_GRAPH, parsedQuery.customMetrics).join(','),
     },
-    { enabled },
+    { enabled, staleTime: StaleTime.LONG },
   );
 
   const analyses = React.useMemo(() => analysesData ?? [], [analysesData]);
 
   const measuresHistory = React.useMemo(
-    () => (isLoadingLegacy ? [] : mergeRatingMeasureHistory(historyData, parseDate, isLegacy)),
-    [historyData, isLegacy, isLoadingLegacy],
+    () =>
+      isLoadingStandardMode ? [] : mergeMeasureHistory(historyData, parseDate, isStandardMode),
+    [historyData, isStandardMode, isLoadingStandardMode],
   );
 
   const leakPeriodDate = React.useMemo(() => {
@@ -118,10 +126,13 @@ export function ProjectActivityApp() {
   }, [component?.qualifier, metrics]);
 
   const handleUpdateQuery = (newQuery: Query) => {
-    const q = serializeUrlQuery({
-      ...parsedQuery,
-      ...newQuery,
-    });
+    const q = serializeUrlQuery(
+      {
+        ...parsedQuery,
+        ...newQuery,
+      },
+      isStandardMode,
+    );
 
     router.push({
       pathname,
@@ -133,20 +144,12 @@ export function ProjectActivityApp() {
     });
   };
 
-  const firstSoftwareQualityRatingMetric = historyData?.measures.find((m) =>
-    SOFTWARE_QUALITY_RATING_METRICS.includes(m.metric),
-  );
-
   return (
     component && (
-      <Spinner isLoading={isLoadingLegacy}>
+      <Spinner isLoading={isLoadingStandardMode}>
         <ProjectActivityAppRenderer
           analyses={analyses}
-          isLegacy={
-            isLegacy ||
-            !firstSoftwareQualityRatingMetric ||
-            firstSoftwareQualityRatingMetric.history.every((h) => h.value === undefined)
-          }
+          isStandardMode={isStandardMode}
           analysesLoading={isLoadingAnalyses}
           graphLoading={isLoadingHistory}
           leakPeriodDate={leakPeriodDate}

@@ -19,7 +19,7 @@
  */
 
 import styled from '@emotion/styled';
-import { LAYOUT_GLOBAL_NAV_HEIGHT, Table, themeColor } from 'design-system';
+import { LAYOUT_GLOBAL_NAV_HEIGHT, Table, themeColor } from '~design-system';
 
 export const LAYOUT_ADMIN_NAV_HEIGHT = 92;
 

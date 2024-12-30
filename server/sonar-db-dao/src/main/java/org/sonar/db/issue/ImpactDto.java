@@ -27,14 +27,20 @@ import org.sonar.api.issue.impact.SoftwareQuality;
 public class ImpactDto implements Serializable {
   private SoftwareQuality softwareQuality;
   private Severity severity;
+  private boolean manualSeverity;
 
   public ImpactDto() {
     // nothing to do
   }
 
-  public ImpactDto(SoftwareQuality softwareQuality, Severity severity) {
+  public ImpactDto(SoftwareQuality softwareQuality, Severity severity, boolean manualSeverity) {
     this.softwareQuality = softwareQuality;
     this.severity = severity;
+    this.manualSeverity = manualSeverity;
+  }
+
+  public ImpactDto(SoftwareQuality softwareQuality, Severity severity) {
+    this(softwareQuality, severity, false);
   }
 
   public SoftwareQuality getSoftwareQuality() {
@@ -55,6 +61,15 @@ public class ImpactDto implements Serializable {
     return this;
   }
 
+  public boolean isManualSeverity() {
+    return manualSeverity;
+  }
+
+  public ImpactDto setManualSeverity(boolean manualSeverity) {
+    this.manualSeverity = manualSeverity;
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -67,12 +82,13 @@ public class ImpactDto implements Serializable {
 
     ImpactDto impactDto = (ImpactDto) o;
     return Objects.equals(softwareQuality, impactDto.softwareQuality)
-      && Objects.equals(severity, impactDto.severity);
+      && Objects.equals(severity, impactDto.severity)
+      && Objects.equals(manualSeverity, impactDto.manualSeverity);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(softwareQuality, severity);
+    return Objects.hash(softwareQuality, severity, manualSeverity);
   }
 
 }

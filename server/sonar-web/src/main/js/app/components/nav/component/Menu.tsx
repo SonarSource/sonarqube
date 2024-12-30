@@ -19,8 +19,7 @@
  */
 
 import { DropdownMenu } from '@sonarsource/echoes-react';
-import { DisabledTabLink, NavBarTabLink, NavBarTabs } from 'design-system';
-import * as React from 'react';
+import { DisabledTabLink, NavBarTabLink, NavBarTabs } from '~design-system';
 import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import { getBranchLikeQuery, isPullRequest } from '~sonar-aligned/helpers/branch-like';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
@@ -218,6 +217,19 @@ export function Menu(props: Readonly<Props>) {
     );
   };
 
+  const renderDependenciesLink = () => {
+    const isEnabled = false; // SONAR-23577 Temporarily hide dependencies page
+    const isPortfolio = isPortfolioLike(qualifier);
+    return (
+      isEnabled &&
+      !isPortfolio &&
+      renderMenuLink({
+        label: translate('layout.dependencies'),
+        pathname: '/dependencies',
+      })
+    );
+  };
+
   const renderSecurityReports = () => {
     if (isPullRequest(branchLike)) {
       return null;
@@ -265,13 +277,14 @@ export function Menu(props: Readonly<Props>) {
       >
         <NavBarTabLink
           active={isSettingsActive}
+          preventDefault // not really a link, we just use the same style to be consistent
           text={
             hasMessage('layout.settings', component.qualifier)
               ? translate('layout.settings', component.qualifier)
               : translate('layout.settings')
           }
+          to={{}} // not really a link, we just use the same style to be consistent
           withChevron
-          to={{ search: new URLSearchParams(query).toString() }}
         />
       </DropdownMenu.Root>
     );
@@ -550,6 +563,7 @@ export function Menu(props: Readonly<Props>) {
         {renderBreakdownLink()}
         {renderIssuesLink()}
         {renderSecurityHotspotsLink()}
+        {renderDependenciesLink()}
         {renderSecurityReports()}
         {renderComponentMeasuresLink()}
         {renderCodeLink()}

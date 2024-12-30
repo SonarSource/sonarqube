@@ -17,7 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { LinkStandalone } from '@sonarsource/echoes-react';
+import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
 import {
   ButtonPrimary,
   Card,
@@ -28,9 +31,7 @@ import {
   Spinner,
   SubTitle,
   Title,
-} from 'design-system';
-import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
+} from '~design-system';
 import { Location } from '~sonar-aligned/types/router';
 import UserPasswordInput, {
   PasswordChangeHandlerParams,

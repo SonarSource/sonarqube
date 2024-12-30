@@ -20,7 +20,6 @@
 
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
-import { colors } from '../app/theme';
 import { AlmKeys } from '../types/alm-settings';
 import {
   CleanCodeAttribute,
@@ -88,15 +87,15 @@ export const ISSUE_TYPES: IssueType[] = [
 ];
 
 export const CCT_SOFTWARE_QUALITY_METRICS = [
-  MetricKey.security_issues,
-  MetricKey.reliability_issues,
-  MetricKey.maintainability_issues,
+  MetricKey.software_quality_security_issues,
+  MetricKey.software_quality_reliability_issues,
+  MetricKey.software_quality_maintainability_issues,
 ];
 
 export const LEAK_CCT_SOFTWARE_QUALITY_METRICS = [
-  MetricKey.new_security_issues,
-  MetricKey.new_reliability_issues,
-  MetricKey.new_maintainability_issues,
+  MetricKey.new_software_quality_security_issues,
+  MetricKey.new_software_quality_reliability_issues,
+  MetricKey.new_software_quality_maintainability_issues,
 ];
 
 export const OLD_TAXONOMY_METRICS = [
@@ -133,9 +132,18 @@ export const LEAK_OLD_TAXONOMY_RATINGS = [
 ];
 
 export const OLD_TO_NEW_TAXONOMY_METRICS_MAP: { [key in MetricKey]?: MetricKey } = {
-  [MetricKey.vulnerabilities]: MetricKey.security_issues,
-  [MetricKey.bugs]: MetricKey.reliability_issues,
-  [MetricKey.code_smells]: MetricKey.maintainability_issues,
+  [MetricKey.vulnerabilities]: MetricKey.software_quality_security_issues,
+  [MetricKey.bugs]: MetricKey.software_quality_reliability_issues,
+  [MetricKey.code_smells]: MetricKey.software_quality_maintainability_issues,
+};
+
+export const SOFTWARE_QUALITIES_ISSUES_KEYS_MAP: Record<string, MetricKey> = {
+  [MetricKey.maintainability_issues]: MetricKey.software_quality_maintainability_issues,
+  [MetricKey.new_maintainability_issues]: MetricKey.new_software_quality_maintainability_issues,
+  [MetricKey.reliability_issues]: MetricKey.software_quality_reliability_issues,
+  [MetricKey.new_reliability_issues]: MetricKey.new_software_quality_reliability_issues,
+  [MetricKey.security_issues]: MetricKey.software_quality_security_issues,
+  [MetricKey.new_security_issues]: MetricKey.new_software_quality_security_issues,
 };
 
 export const RESOLUTIONS = [
@@ -154,6 +162,29 @@ export const SOURCE_SCOPES = [
 export const RULE_TYPES: RuleType[] = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
 
 export const RULE_STATUSES = ['READY', 'BETA', 'DEPRECATED'];
+
+/**
+ * @deprecated Legacy colors. Equivalents should be added to the Echoes design system soon
+ */
+const colors = {
+  success300: '#6CD46C',
+  success300a20: 'rgba(108, 212, 108, 0.2)',
+  success500: '#008223',
+  successVariant: '#C6E056',
+  successVarianta20: 'rgba(198, 224, 86, 0.2)',
+  successVariantDark: '#809E00',
+
+  warning: '#B95E04',
+  warningVariant: '#F4D348',
+  warningVarianta20: 'rgba(244, 211, 72, 0.2)',
+  warningVariantDark: '#B18F00',
+  warningAccent: '#F69D53',
+  warningAccenta20: 'rgba(246, 157, 83, 0.2)',
+
+  error400: '#F0878E',
+  error400a20: 'rgba(240, 135, 142, 0.2)',
+  error700: '#B81723',
+};
 
 export const RATING_COLORS = [
   { fill: colors.success300, fillTransparent: colors.success300a20, stroke: colors.success500 },
@@ -177,15 +208,7 @@ export const HIDDEN_METRICS = [
   MetricKey.high_impact_accepted_issues,
 ];
 
-export const DEPRECATED_ACTIVITY_METRICS = [
-  ...OLD_TAXONOMY_METRICS,
-  MetricKey.blocker_violations,
-  MetricKey.critical_violations,
-  MetricKey.major_violations,
-  MetricKey.minor_violations,
-  MetricKey.info_violations,
-  MetricKey.confirmed_issues,
-];
+export const DEPRECATED_ACTIVITY_METRICS = [MetricKey.confirmed_issues];
 
 export const SOFTWARE_QUALITY_RATING_METRICS_MAP: Record<string, MetricKey> = {
   [MetricKey.sqale_rating]: MetricKey.software_quality_maintainability_rating,
@@ -258,9 +281,15 @@ export const IMPORT_COMPATIBLE_ALMS = [
   AlmKeys.GitLab,
 ];
 
-export const GRADLE_SCANNER_VERSION = '5.1.0.4882';
+export const GRADLE_SCANNER_VERSION = '6.0.1.5171';
 
 export const ONE_SECOND = 1000;
+
+export enum CustomEvents {
+  OpenHelpMenu = 'open-help-menu',
+  CloseHelpMenu = 'close-help-menu',
+  RunTourMode = 'runTour-mode',
+}
 
 export const WHITELIST_VALUE_AMAZON = "AMAZON";
 export const WHITELIST_VALUE_CODESCAN = "CODESCAN";

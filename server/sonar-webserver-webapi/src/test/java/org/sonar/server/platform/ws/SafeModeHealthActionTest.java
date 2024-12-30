@@ -24,7 +24,9 @@ import java.util.Random;
 import java.util.stream.IntStream;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.health.Health;
@@ -35,7 +37,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.System;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,15 +45,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 
-public class SafeModeHealthActionTest {
+class SafeModeHealthActionTest {
 
-  private final Random random = new Random();
-  private HealthChecker healthChecker = mock(HealthChecker.class);
-  private SystemPasscode systemPasscode = mock(SystemPasscode.class);
-  private WsActionTester underTest = new WsActionTester(new SafeModeHealthAction(new HealthActionSupport(healthChecker), systemPasscode));
+  private final HealthChecker healthChecker = mock(HealthChecker.class);
+  private final SystemPasscode systemPasscode = mock(SystemPasscode.class);
+  private final WsActionTester underTest = new WsActionTester(new SafeModeHealthAction(new HealthActionSupport(healthChecker), systemPasscode));
 
   @Test
-  public void verify_definition() {
+  void verify_definition() {
     WebService.Action definition = underTest.getDef();
 
     assertThat(definition.key()).isEqualTo("health");
@@ -64,19 +65,20 @@ public class SafeModeHealthActionTest {
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_PassCode_disabled_or_incorrect() {
+  void request_fails_with_ForbiddenException_when_PassCode_disabled_or_incorrect() {
     when(systemPasscode.isValid(any())).thenReturn(false);
     TestRequest request = underTest.newRequest();
 
     expectForbiddenException(() -> request.execute());
   }
 
-  @Test
-  public void request_succeeds_when_valid_passcode() {
+  @ParameterizedTest
+  @EnumSource(Health.Status.class)
+  void request_succeeds_when_valid_passcode(Health.Status healthStatus) {
     authenticateWithPasscode();
     when(healthChecker.checkNode())
       .thenReturn(Health.builder()
-        .setStatus(Health.Status.values()[random.nextInt(Health.Status.values().length)])
+        .setStatus(healthStatus)
         .build());
     TestRequest request = underTest.newRequest();
 
@@ -84,7 +86,7 @@ public class SafeModeHealthActionTest {
   }
 
   @Test
-  public void verify_response_example() {
+  void verify_response_example() {
     authenticateWithPasscode();
     when(healthChecker.checkNode())
       .thenReturn(Health.builder()
@@ -99,34 +101,34 @@ public class SafeModeHealthActionTest {
       .isSimilarTo(underTest.getDef().responseExampleAsString());
   }
 
-  @Test
-  public void request_returns_status_and_causes_from_HealthChecker_checkNode_method() {
+  @ParameterizedTest
+  @EnumSource(Health.Status.class)
+  void request_returns_status_and_causes_from_HealthChecker_checkNode_method(Health.Status healthStatus) {
     authenticateWithPasscode();
-    Health.Status randomStatus = Health.Status.values()[new Random().nextInt(Health.Status.values().length)];
     Health.Builder builder = Health.builder()
-      .setStatus(randomStatus);
-    IntStream.range(0, new Random().nextInt(5)).mapToObj(i -> RandomStringUtils.randomAlphanumeric(3)).forEach(builder::addCause);
+      .setStatus(healthStatus);
+    IntStream.range(0, new Random().nextInt(5)).mapToObj(i -> RandomStringUtils.secure().nextAlphanumeric(3)).forEach(builder::addCause);
     Health health = builder.build();
     when(healthChecker.checkNode()).thenReturn(health);
     TestRequest request = underTest.newRequest();
 
     System.HealthResponse healthResponse = request.executeProtobuf(System.HealthResponse.class);
-    assertThat(healthResponse.getHealth().name()).isEqualTo(randomStatus.name());
+    assertThat(healthResponse.getHealth().name()).isEqualTo(healthStatus.name());
     assertThat(health.getCauses()).isEqualTo(health.getCauses());
   }
 
-  @Test
-  public void response_contains_status_and_causes_from_HealthChecker_checkCluster() {
+  @ParameterizedTest
+  @EnumSource(Health.Status.class)
+  void response_contains_status_and_causes_from_HealthChecker_checkCluster(Health.Status healthStatus) {
     authenticateWithPasscode();
-    Health.Status randomStatus = Health.Status.values()[random.nextInt(Health.Status.values().length)];
-    String[] causes = IntStream.range(0, random.nextInt(33)).mapToObj(i -> randomAlphanumeric(4)).toArray(String[]::new);
+    String[] causes = IntStream.range(0, new Random().nextInt(33)).mapToObj(i -> secure().nextAlphanumeric(4)).toArray(String[]::new);
     Health.Builder healthBuilder = Health.builder()
-      .setStatus(randomStatus);
+      .setStatus(healthStatus);
     Arrays.stream(causes).forEach(healthBuilder::addCause);
     when(healthChecker.checkNode()).thenReturn(healthBuilder.build());
 
     System.HealthResponse clusterHealthResponse = underTest.newRequest().executeProtobuf(System.HealthResponse.class);
-    assertThat(clusterHealthResponse.getHealth().name()).isEqualTo(randomStatus.name());
+    assertThat(clusterHealthResponse.getHealth().name()).isEqualTo(healthStatus.name());
     assertThat(clusterHealthResponse.getCausesList())
       .extracting(System.Cause::getMessage)
       .containsOnly(causes);

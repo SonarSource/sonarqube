@@ -17,18 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Spinner } from '@sonarsource/echoes-react';
-import {
-  Card,
-  FlagMessage,
-  HelperHintIcon,
-  KeyboardHint,
-  LargeCenteredLayout,
-  LightLabel,
-} from 'design-system';
+
+import { IconQuestionMark, Spinner, Text } from '@sonarsource/echoes-react';
 import { difference, intersection } from 'lodash';
-import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { Card, FlagMessage, KeyboardHint, LargeCenteredLayout } from '~design-system';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
@@ -49,7 +42,7 @@ import {
   areCCTMeasuresComputed,
   areSoftwareQualityRatingsComputed,
 } from '../../../helpers/measures';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { BranchLike } from '../../../types/branch-like';
 import { isApplication } from '../../../types/component';
 import { Component, ComponentMeasure, Dict, Metric } from '../../../types/types';
@@ -109,7 +102,8 @@ export default function CodeAppRenderer(props: Readonly<Props>) {
 
   const showComponentList = sourceViewer === undefined && components.length > 0 && !showSearch;
 
-  const { data: isLegacy, isLoading: isLoadingLegacy } = useIsLegacyCCTMode();
+  const { data: isStandardMode, isLoading: isLoadingStandardMode } =
+    useStandardExperienceModeQuery();
 
   const metricKeys = intersection(
     getCodeMetrics(component.qualifier, branchLike, { newCode: newCodeSelected }),
@@ -124,10 +118,10 @@ export default function CodeAppRenderer(props: Readonly<Props>) {
   );
 
   const filteredMetrics = difference(metricKeys, [
-    ...(allComponentsHaveSoftwareQualityMeasures
+    ...(allComponentsHaveSoftwareQualityMeasures && !isStandardMode
       ? OLD_TAXONOMY_METRICS
       : CCT_SOFTWARE_QUALITY_METRICS),
-    ...(allComponentsHaveRatings && !isLegacy
+    ...(allComponentsHaveRatings && !isStandardMode
       ? [...OLD_TAXONOMY_RATINGS, ...LEAK_OLD_TAXONOMY_RATINGS]
       : SOFTWARE_QUALITY_RATING_METRICS),
   ]).map((key) => metrics[key]);
@@ -144,9 +138,7 @@ export default function CodeAppRenderer(props: Readonly<Props>) {
   return (
     <LargeCenteredLayout className="sw-py-8 sw-typo-lg" id="code-page">
       <Helmet defer={false} title={sourceViewer !== undefined ? sourceViewer.name : defaultTitle} />
-
       <A11ySkipTarget anchor="code_main" />
-
       {!canBrowseAllChildProjects && isPortfolio && (
         <FlagMessage variant="warning" className="it__portfolio_warning sw-mb-4">
           {translate('code_viewer.not_all_measures_are_shown')}
@@ -154,12 +146,12 @@ export default function CodeAppRenderer(props: Readonly<Props>) {
             className="sw-ml-2"
             overlay={translate('code_viewer.not_all_measures_are_shown.help')}
           >
-            <HelperHintIcon />
+            <IconQuestionMark />
           </HelpTooltip>
         </FlagMessage>
       )}
 
-      <Spinner isLoading={loading || isLoadingLegacy}>
+      <Spinner isLoading={loading || isLoadingStandardMode}>
         {!allComponentsHaveSoftwareQualityMeasures && (
           <AnalysisMissingInfoMessage
             qualifier={component.qualifier}
@@ -184,12 +176,12 @@ export default function CodeAppRenderer(props: Readonly<Props>) {
 
             {!hasComponents && sourceViewer === undefined && (
               <div className="sw-flex sw-align-center sw-flex-col sw-fixed sw-top-1/2">
-                <LightLabel>
+                <Text isSubdued>
                   {translate(
                     'code_viewer.no_source_code_displayed_due_to_empty_analysis',
                     component.qualifier,
                   )}
-                </LightLabel>
+                </Text>
               </div>
             )}
 

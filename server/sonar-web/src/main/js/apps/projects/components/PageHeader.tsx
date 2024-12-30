@@ -19,8 +19,7 @@
  */
 
 import { ButtonGroup } from '@sonarsource/echoes-react';
-import { InputSearch, LightLabel, LightPrimary } from 'design-system';
-import * as React from 'react';
+import { InputSearch, LightLabel, LightPrimary } from '~design-system';
 import { RawQuery } from '~sonar-aligned/types/router';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
 import Tooltip from '../../../components/controls/Tooltip';

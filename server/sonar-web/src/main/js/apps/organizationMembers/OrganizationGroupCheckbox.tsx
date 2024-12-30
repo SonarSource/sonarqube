@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { Checkbox } from 'design-system';
+import { Checkbox } from '~design-system';
 import * as React from 'react';
 import { Group } from '../../types/types';
 

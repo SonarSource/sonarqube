@@ -38,7 +38,7 @@ import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
@@ -152,8 +152,8 @@ public class IssueIndexerIT {
     assertThat(scope.getIndexType().getType()).isEqualTo(TYPE_AUTHORIZATION);
 
     Predicate<IndexPermissions> projectPredicate = scope.getEntityPredicate();
-    IndexPermissions project = new IndexPermissions("P1", Qualifiers.PROJECT);
-    IndexPermissions file = new IndexPermissions("F1", Qualifiers.FILE);
+    IndexPermissions project = new IndexPermissions("P1", ComponentQualifiers.PROJECT);
+    IndexPermissions file = new IndexPermissions("F1", ComponentQualifiers.FILE);
     assertThat(projectPredicate.test(project)).isTrue();
     assertThat(projectPredicate.test(file)).isFalse();
   }

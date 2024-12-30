@@ -20,9 +20,9 @@
 
 import { Spinner } from '@sonarsource/echoes-react';
 import { isBefore, sub } from 'date-fns';
-import { ButtonLink, Card, FlagMessage, Tabs, themeBorder } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { ButtonLink, Card, FlagMessage, Tabs, themeBorder } from '~design-system';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { DocLink } from '../../../helpers/doc-links';

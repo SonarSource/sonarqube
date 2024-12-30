@@ -17,17 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { InputField } from 'design-system';
+
 import * as React from 'react';
+import { InputField } from '~design-system';
 import { KeyboardKeys } from '../../../../helpers/keycodes';
 import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
 
-export interface SimpleInputProps extends DefaultSpecializedInputProps {
-  innerRef: React.ForwardedRef<HTMLInputElement>;
+interface SimpleInputProps extends DefaultSpecializedInputProps {
   value: string | number;
 }
 
-class SimpleInput extends React.PureComponent<SimpleInputProps> {
+type InternalProps = SimpleInputProps & {
+  innerRef: React.ForwardedRef<HTMLInputElement>;
+};
+
+class SimpleInput extends React.PureComponent<InternalProps> {
   handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.props.onChange(event.currentTarget.value);
   };
@@ -83,7 +87,7 @@ class SimpleInput extends React.PureComponent<SimpleInputProps> {
 }
 
 export default React.forwardRef(
-  (props: Omit<SimpleInputProps, 'innerRef'>, ref: React.ForwardedRef<HTMLInputElement>) => (
+  (props: SimpleInputProps, ref: React.ForwardedRef<HTMLInputElement>) => (
     <SimpleInput innerRef={ref} {...props} />
   ),
 );

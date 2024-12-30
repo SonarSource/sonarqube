@@ -53,7 +53,7 @@ import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Common;
 
 import static java.util.Collections.singleton;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.web.UserRole.ADMIN;
@@ -170,7 +170,7 @@ public class TaskActionIT {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto());
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setBranchType(BRANCH).setKey(branchName));
     db.components().insertSnapshot(branch);
     CeActivityDto activity = createAndPersistArchivedTask(mainBranch);

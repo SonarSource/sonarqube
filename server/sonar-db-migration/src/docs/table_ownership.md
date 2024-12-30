@@ -49,7 +49,7 @@ Important read: [Data Ownership Principles](https://xtranet-sonarsource.atlassia
 | issues | Analysis Experience Squad |
 | issues_fixed | Analysis Experience Squad |
 | issues_impacts | Analysis Experience Squad |
-| live_measures | Analysis Experience Squad |
+| measures | Analysis Experience Squad |
 | metrics |  |
 | new_code_periods | Dev and Team Workflow Squad |
 | new_code_reference_issues |  |
@@ -67,8 +67,9 @@ Important read: [Data Ownership Principles](https://xtranet-sonarsource.atlassia
 | project_alm_settings | Integration Squad |
 | project_badge_token | Dev and Team Workflow Squad |
 | project_branches |  |
+| project_dependencies | Analysis Experience Squad |
 | project_links | Dev and Team Workflow Squad |
-| project_measures |  |
+| project_measures | Analysis Experience Squad |
 | project_qgates | Dev and Team Workflow Squad |
 | project_qprofiles | Dev and Team Workflow Squad |
 | projects |  |

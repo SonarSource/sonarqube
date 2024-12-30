@@ -21,15 +21,16 @@ package org.sonar.server.issue.ws;
 
 import com.google.protobuf.ProtocolStringList;
 import java.util.function.Consumer;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.component.ComponentFinder;
@@ -57,31 +58,33 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.test.JsonAssert.assertJson;
 
-public class TagsActionIT {
+class TagsActionIT {
 
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public DbTester db = DbTester.create();
-  @Rule
-  public EsTester es = EsTester.create();
+  @RegisterExtension
+  private final UserSessionRule userSession = UserSessionRule.standalone();
+  @RegisterExtension
+  private final DbTester db = DbTester.create();
+  @RegisterExtension
+  private final EsTester es = EsTester.create();
+  
+  private final Configuration config = mock(Configuration.class);
 
-  private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
+  private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession), config);
   private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
   private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
   private final ViewIndexer viewIndexer = new ViewIndexer(db.getDbClient(), es.client());
   private final PermissionIndexerTester permissionIndexer = new PermissionIndexerTester(es, issueIndexer);
-  private final ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT);
+  private final ComponentTypesRule resourceTypes = new ComponentTypesRule().setRootQualifiers(PROJECT);
 
   private final WsActionTester ws = new WsActionTester(new TagsAction(issueIndex, issueIndexSyncProgressChecker, db.getDbClient(), new ComponentFinder(db.getDbClient(), resourceTypes)));
 
   @Test
-  public void search_tags() {
+  void search_tags() {
     RuleDto rule = db.rules().insertIssueRule();
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
@@ -97,7 +100,7 @@ public class TagsActionIT {
   }
 
   @Test
-  public void search_tags_ignores_hotspots() {
+  void search_tags_ignores_hotspots() {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     RuleDto issueRule = db.rules().insertIssueRule();
@@ -113,7 +116,7 @@ public class TagsActionIT {
   }
 
   @Test
-  public void search_tags_by_query() {
+  void search_tags_by_query() {
     RuleDto rule = db.rules().insertIssueRule();
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
@@ -126,7 +129,7 @@ public class TagsActionIT {
   }
 
   @Test
-  public void search_tags_by_query_ignores_hotspots() {
+  void search_tags_by_query_ignores_hotspots() {
     RuleDto issueRule = db.rules().insertIssueRule();
     RuleDto hotspotRule = db.rules().insertHotspotRule();
     ProjectData projectData = db.components().insertPrivateProject();
@@ -146,7 +149,7 @@ public class TagsActionIT {
   }
 
   @Test
-  public void search_tags_by_project() {
+  void search_tags_by_project() {
     RuleDto rule = db.rules().insertIssueRule();
     ProjectData projectData1 = db.components().insertPrivateProject();
     ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
@@ -163,7 +166,7 @@ public class TagsActionIT {
   }
 
   @Test
-  public void search_tags_by_branch_equals_main_branch() {
+  void search_tags_by_branch_equals_main_branch() {
     RuleDto rule = db.rules().insertIssueRule();
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
@@ -179,7 +182,7 @@ public class TagsActionIT {
   }
 
   @Test
-  public void search_tags_by_branch() {
+  void search_tags_by_branch() {
     RuleDto rule = db.rules().insertIssueRule();
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
@@ -195,7 +198,7 @@ public class TagsActionIT {
   }
 
   @Test
-  public void search_tags_by_branch_not_exist_fall_back_to_main_branch() {
+  void search_tags_by_branch_not_exist_fall_back_to_main_branch() {
     RuleDto rule = db.rules().insertIssueRule();
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
@@ -211,7 +214,7 @@ public class TagsActionIT {
   }
 
   @Test
-  public void search_all_tags_by_query() {
+  void search_all_tags_by_query() {
     RuleDto rule = db.rules().insertIssueRule();
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
@@ -227,7 +230,7 @@ public class TagsActionIT {
   }
 
   @Test
-  public void search_tags_by_project_ignores_hotspots() {
+  void search_tags_by_project_ignores_hotspots() {
     RuleDto issueRule = db.rules().insertIssueRule();
     RuleDto hotspotRule = db.rules().insertHotspotRule();
     ProjectData projectData1 = db.components().insertPrivateProject();
@@ -246,7 +249,7 @@ public class TagsActionIT {
   }
 
   @Test
-  public void search_tags_by_portfolio() {
+  void search_tags_by_portfolio() {
     ComponentDto portfolio = db.components().insertPrivatePortfolio();
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
@@ -261,7 +264,7 @@ public class TagsActionIT {
   }
 
   @Test
-  public void search_tags_by_portfolio_ignores_hotspots() {
+  void search_tags_by_portfolio_ignores_hotspots() {
     ComponentDto portfolio = db.components().insertPrivatePortfolio();
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
@@ -278,7 +281,7 @@ public class TagsActionIT {
   }
 
   @Test
-  public void search_tags_by_application() {
+  void search_tags_by_application() {
     ProjectData applicationData = db.components().insertPrivateApplication();
     ComponentDto application = applicationData.getMainBranchComponent();
     ProjectData projectData = db.components().insertPrivateProject();
@@ -295,7 +298,7 @@ public class TagsActionIT {
   }
 
   @Test
-  public void search_tags_by_application_ignores_hotspots() {
+  void search_tags_by_application_ignores_hotspots() {
     ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();
@@ -312,7 +315,7 @@ public class TagsActionIT {
   }
 
   @Test
-  public void return_limited_size() {
+  void return_limited_size() {
     RuleDto rule = db.rules().insertIssueRule();
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
@@ -329,7 +332,7 @@ public class TagsActionIT {
   }
 
   @Test
-  public void do_not_return_issues_without_permission() {
+  void do_not_return_issues_without_permission() {
     RuleDto rule = db.rules().insertIssueRule();
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch1 = projectData.getMainBranchComponent();
@@ -346,7 +349,7 @@ public class TagsActionIT {
   }
 
   @Test
-  public void empty_list() {
+  void empty_list() {
     TagsResponse result = ws.newRequest().executeProtobuf(TagsResponse.class);
 
     assertThat(result.getTagsList()).isEmpty();
@@ -357,7 +360,7 @@ public class TagsActionIT {
   }
 
   @Test
-  public void fail_when_project_parameter_does_not_match_a_project() {
+  void fail_when_project_parameter_does_not_match_a_project() {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
@@ -374,7 +377,7 @@ public class TagsActionIT {
   }
 
   @Test
-  public void json_example() {
+  void json_example() {
     RuleDto rule = db.rules().insertIssueRule();
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
@@ -390,7 +393,7 @@ public class TagsActionIT {
   }
 
   @Test
-  public void definition() {
+  void definition() {
     userSession.logIn();
     Action action = ws.getDef();
     assertThat(action.description()).isNotEmpty();

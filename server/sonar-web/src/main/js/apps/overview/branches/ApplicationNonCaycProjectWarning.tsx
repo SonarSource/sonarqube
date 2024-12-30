@@ -19,7 +19,6 @@
  */
 
 import { Link } from '@sonarsource/echoes-react';
-import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { getProjectQueryUrl } from '../../../helpers/urls';

@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SubnavigationGroup, SubnavigationItem } from 'design-system';
+
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { SubnavigationGroup, SubnavigationItem } from '~design-system';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
@@ -28,7 +29,7 @@ import { translate } from '../../../helpers/l10n';
 import { getGlobalSettingsUrl, getProjectSettingsUrl } from '../../../helpers/urls';
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
-import { CATEGORY_OVERRIDES } from '../constants';
+import { AI_CODE_FIX_CATEGORY, CATEGORY_OVERRIDES } from '../constants';
 import { getCategoryName } from '../utils';
 import { ADDITIONAL_CATEGORIES } from './AdditionalCategories';
 import { ALL_CUSTOMER_CATEGORIES } from './AllCustomerCategories';
@@ -80,7 +81,7 @@ function CategoriesList(props: Readonly<CategoriesListProps>) {
             c.displayTab &&
             availableForCurrentMenu &&
             (props.hasFeature(Feature.BranchSupport) || !c.requiresBranchSupport) &&
-            (props.hasFeature(Feature.FixSuggestions) || c.key !== 'codefix')
+            (props.hasFeature(Feature.FixSuggestions) || c.key !== AI_CODE_FIX_CATEGORY)
           );
         }),
       );

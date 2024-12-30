@@ -19,7 +19,6 @@
  */
 
 import { LinkStandalone } from '@sonarsource/echoes-react';
-import React from 'react';
 import { Image } from '~sonar-aligned/components/common/Image';
 import { isPullRequest } from '~sonar-aligned/helpers/branch-like';
 import { translate, translateWithParameters } from '../../../../../helpers/l10n';

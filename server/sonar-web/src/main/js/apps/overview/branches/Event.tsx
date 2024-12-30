@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Badge, QualityGateIndicator } from 'design-system';
+
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Badge, QualityGateIndicator } from '~design-system';
 import { isDefinitionChangeEvent } from '../../../components/activity-graph/DefinitionChangeEventInner';
 import { isRichQualityGateEvent } from '../../../components/activity-graph/RichQualityGateEventInner';
 import {

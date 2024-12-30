@@ -21,8 +21,8 @@ package org.sonar.server.rule.registration;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
@@ -50,7 +50,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-public class QualityProfileChangesUpdaterTest {
+class QualityProfileChangesUpdaterTest {
 
   public static final String RULE_UUID = "ruleUuid";
   private final DbClient dbClient = mock();
@@ -62,7 +62,7 @@ public class QualityProfileChangesUpdaterTest {
 
   private final QualityProfileChangesUpdater underTest = new QualityProfileChangesUpdater(dbClient, UuidFactoryImpl.INSTANCE, sonarQubeVersion);
 
-  @Before
+  @BeforeEach
   public void before() {
     when(dbClient.ruleChangeDao()).thenReturn(ruleChangeDao);
     when(dbClient.qProfileChangeDao()).thenReturn(qualityProfileChangeDao);
@@ -70,14 +70,14 @@ public class QualityProfileChangesUpdaterTest {
   }
 
   @Test
-  public void updateWithoutCommit_whenNoRuleChanges_thenDontInteractWithDatabase() {
+  void updateWithoutCommit_whenNoRuleChanges_thenDontInteractWithDatabase() {
     underTest.createQprofileChangesForRuleUpdates(mock(), Set.of());
 
     verifyNoInteractions(dbClient);
   }
 
   @Test
-  public void updateWithoutCommit_whenOneRuleChangedItsAttribute_thenInsertRuleChangeButNotImpactChange() {
+  void updateWithoutCommit_whenOneRuleChangedItsAttribute_thenInsertRuleChangeButNotImpactChange() {
     PluginRuleUpdate pluginRuleUpdate = new PluginRuleUpdate();
     pluginRuleUpdate.setNewCleanCodeAttribute(CleanCodeAttribute.CLEAR);
     pluginRuleUpdate.setOldCleanCodeAttribute(CleanCodeAttribute.TESTED);
@@ -85,21 +85,20 @@ public class QualityProfileChangesUpdaterTest {
 
     underTest.createQprofileChangesForRuleUpdates(dbSession, Set.of(pluginRuleUpdate));
 
-    verify(ruleChangeDao).insert(argThat(dbSession::equals), argThat(ruleChangeDto ->
-      ruleChangeDto.getNewCleanCodeAttribute() == CleanCodeAttribute.CLEAR
-        && ruleChangeDto.getOldCleanCodeAttribute() == CleanCodeAttribute.TESTED
-        && ruleChangeDto.getRuleUuid().equals(RULE_UUID)
-        && ruleChangeDto.getRuleImpactChanges().isEmpty()));
+    verify(ruleChangeDao).insert(argThat(dbSession::equals), argThat(ruleChangeDto -> ruleChangeDto.getNewCleanCodeAttribute() == CleanCodeAttribute.CLEAR
+      && ruleChangeDto.getOldCleanCodeAttribute() == CleanCodeAttribute.TESTED
+      && ruleChangeDto.getRuleUuid().equals(RULE_UUID)
+      && ruleChangeDto.getRuleImpactChanges().isEmpty()));
   }
 
   @Test
-  public void updateWithoutCommit_whenTwoRulesChangedTheirImpactsAndAttributes_thenInsertRuleChangeAndImpactChange() {
+  void updateWithoutCommit_whenTwoRulesChangedTheirImpactsAndAttributes_thenInsertRuleChangeAndImpactChange() {
     PluginRuleUpdate pluginRuleUpdate = new PluginRuleUpdate();
     pluginRuleUpdate.setNewCleanCodeAttribute(CleanCodeAttribute.CLEAR);
     pluginRuleUpdate.setOldCleanCodeAttribute(CleanCodeAttribute.TESTED);
     pluginRuleUpdate.setRuleUuid(RULE_UUID);
 
-    //testing here detecting the change with 2 the same software qualities
+    // testing here detecting the change with 2 the same software qualities
     pluginRuleUpdate.addNewImpact(SoftwareQuality.RELIABILITY, Severity.LOW);
     pluginRuleUpdate.addOldImpact(SoftwareQuality.RELIABILITY, Severity.MEDIUM);
 
@@ -108,7 +107,7 @@ public class QualityProfileChangesUpdaterTest {
     pluginRuleUpdate2.setOldCleanCodeAttribute(CleanCodeAttribute.DISTINCT);
     pluginRuleUpdate2.setRuleUuid("ruleUuid2");
 
-    //testing here detecting the change with 2 the different software qualities
+    // testing here detecting the change with 2 the different software qualities
     pluginRuleUpdate2.addNewImpact(SoftwareQuality.SECURITY, Severity.HIGH);
     pluginRuleUpdate2.addOldImpact(SoftwareQuality.RELIABILITY, Severity.MEDIUM);
 
@@ -123,22 +122,33 @@ public class QualityProfileChangesUpdaterTest {
     assertThat(firstChange.getNewCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR);
     assertThat(firstChange.getOldCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.TESTED);
     assertThat(firstChange.getRuleUuid()).isEqualTo(RULE_UUID);
-    assertThat(firstChange.getRuleImpactChanges()).hasSize(1);
-    assertThat(firstChange.getRuleImpactChanges()).extracting(RuleImpactChangeDto::getNewSoftwareQuality,
-        RuleImpactChangeDto::getOldSoftwareQuality, RuleImpactChangeDto::getOldSeverity, RuleImpactChangeDto::getNewSeverity)
-      .containsExactly(tuple(SoftwareQuality.RELIABILITY, SoftwareQuality.RELIABILITY, Severity.MEDIUM, Severity.LOW));
+    assertThat(firstChange.getRuleImpactChanges()).isEmpty();
 
     assertThat(secondChange.getNewCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.EFFICIENT);
     assertThat(secondChange.getOldCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.DISTINCT);
     assertThat(secondChange.getRuleUuid()).isEqualTo("ruleUuid2");
     assertThat(secondChange.getRuleImpactChanges()).hasSize(1);
     assertThat(secondChange.getRuleImpactChanges()).extracting(RuleImpactChangeDto::getNewSoftwareQuality,
-        RuleImpactChangeDto::getOldSoftwareQuality, RuleImpactChangeDto::getOldSeverity, RuleImpactChangeDto::getNewSeverity)
+      RuleImpactChangeDto::getOldSoftwareQuality, RuleImpactChangeDto::getOldSeverity, RuleImpactChangeDto::getNewSeverity)
       .containsExactly(tuple(SoftwareQuality.SECURITY, SoftwareQuality.RELIABILITY, Severity.MEDIUM, Severity.HIGH));
   }
 
   @Test
-  public void updateWithoutCommit_whenOneRuleBelongingToTwoQualityProfilesChanged_thenInsertOneRuleChangeAndTwoQualityProfileChanges() {
+  void updateWithoutCommit_whenImpactsSeverityIsChanged_shouldNotCreateRuleChange() {
+    PluginRuleUpdate pluginRuleUpdate = new PluginRuleUpdate();
+    pluginRuleUpdate.setRuleUuid(RULE_UUID);
+
+    // testing here detecting the change with 2 the same software qualities
+    pluginRuleUpdate.addNewImpact(SoftwareQuality.RELIABILITY, Severity.LOW);
+    pluginRuleUpdate.addOldImpact(SoftwareQuality.RELIABILITY, Severity.MEDIUM);
+
+    underTest.createQprofileChangesForRuleUpdates(dbSession, Set.of(pluginRuleUpdate));
+
+    verifyNoInteractions(ruleChangeDao);
+  }
+
+  @Test
+  void updateWithoutCommit_whenOneRuleBelongingToTwoQualityProfilesChanged_thenInsertOneRuleChangeAndTwoQualityProfileChanges() {
     List<ActiveRuleDto> activeRuleDtos = List.of(
       new ActiveRuleDto().setProfileUuid("profileUuid1").setRuleUuid(RULE_UUID),
       new ActiveRuleDto().setProfileUuid("profileUuid2").setRuleUuid(RULE_UUID));
@@ -152,8 +162,7 @@ public class QualityProfileChangesUpdaterTest {
     underTest.createQprofileChangesForRuleUpdates(dbSession, Set.of(pluginRuleUpdate));
 
     verify(qualityProfileChangeDao, times(1)).bulkInsert(argThat(dbSession::equals),
-      argThat(qProfileChangeDtos ->
-        qProfileChangeDtos.stream()
-          .allMatch(dto -> "UPDATED".equals(dto.getChangeType()) && dto.getRuleChange() != null)));
+      argThat(qProfileChangeDtos -> qProfileChangeDtos.stream()
+        .allMatch(dto -> "UPDATED".equals(dto.getChangeType()) && dto.getRuleChange() != null)));
   }
 }

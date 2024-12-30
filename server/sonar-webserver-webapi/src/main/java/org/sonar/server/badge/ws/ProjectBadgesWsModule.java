@@ -20,6 +20,7 @@
 package org.sonar.server.badge.ws;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.telemetry.TelemetryBadgeProvider;
 
 public class ProjectBadgesWsModule extends Module {
 
@@ -32,6 +33,7 @@ public class ProjectBadgesWsModule extends Module {
       TokenAction.class,
       SvgGenerator.class,
       ProjectBadgesSupport.class,
-      TokenRenewAction.class);
+      TokenRenewAction.class,
+      TelemetryBadgeProvider.class);
   }
 }

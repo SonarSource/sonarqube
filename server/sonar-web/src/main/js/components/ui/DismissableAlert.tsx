@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
-import { Banner, Variant } from 'design-system';
 import * as React from 'react';
+import { Banner, Variant } from '~design-system';
 import { get, save } from '../../helpers/storage';
 
 export interface DismissableAlertProps {
@@ -31,7 +32,7 @@ export interface DismissableAlertProps {
 
 export const DISMISSED_ALERT_STORAGE_KEY = 'sonarqube.dismissed_alert';
 
-export default function DismissableAlert(props: DismissableAlertProps) {
+export function DismissableAlert(props: DismissableAlertProps) {
   const { alertKey, children, className, variant } = props;
   const [show, setShow] = React.useState(false);
 

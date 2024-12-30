@@ -23,7 +23,6 @@ import com.google.common.base.Joiner;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Date;
-import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -39,9 +38,11 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleTagFormat;
 import org.sonar.api.utils.Duration;
+import org.sonar.core.issue.DefaultImpact;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.rule.ImpactSeverityMapper;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserIdDto;
@@ -49,6 +50,7 @@ import org.sonar.db.user.UserIdDto;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.server.rule.internal.ImpactMapper.convertToSoftwareQuality;
 
 /**
  * Updates issue fields and chooses if changes must be kept in history.
@@ -85,6 +87,7 @@ public class IssueFieldsSetter {
   public static final String LINE = "line";
   public static final String TAGS = "tags";
   public static final String CODE_VARIANTS = "code_variants";
+  public static final String IMPACT_SEVERITY = "impactSeverity";
 
   private static final Joiner CHANGELOG_LIST_JOINER = Joiner.on(" ").skipNulls();
 
@@ -117,6 +120,9 @@ public class IssueFieldsSetter {
     return setSeverity(issue, currentSeverity, context);
   }
 
+  /**
+   * @return true if the 'severity' or 'manualSeverity' flag has been changed, else return false
+   */
   public boolean setManualSeverity(DefaultIssue issue, String severity, IssueChangeContext context) {
     if (!issue.manualSeverity() || !Objects.equals(severity, issue.severity())) {
       issue.setFieldChange(context, SEVERITY, issue.severity(), severity);
@@ -128,6 +134,30 @@ public class IssueFieldsSetter {
       return true;
     }
     return false;
+  }
+
+  /**
+   * @return true if the 'severity' or 'manualSeverity' flag of the Impact has been changed, else return false
+   */
+  public boolean setImpactManualSeverity(DefaultIssue issue, SoftwareQuality softwareQuality, Severity severity,
+    IssueChangeContext context) {
+    Map<SoftwareQuality, Severity> oldImpacts = issue.impacts();
+    if ((oldImpacts.containsKey(softwareQuality)
+      && (!Objects.equals(oldImpacts.get(softwareQuality), severity) || !hasManualSeverity(issue, softwareQuality)))) {
+      issue.addImpact(softwareQuality, severity, true);
+      issue.setFieldChange(context, IMPACT_SEVERITY,
+        softwareQuality + ":" + oldImpacts.get(softwareQuality),
+        softwareQuality + ":" + severity);
+      issue.setUpdateDate(context.date());
+      issue.setChanged(true);
+      issue.setSendNotifications(true);
+      return true;
+    }
+    return false;
+  }
+
+  private static boolean hasManualSeverity(DefaultIssue issue, SoftwareQuality softwareQuality) {
+    return issue.getImpacts().stream().filter(i -> i.softwareQuality().equals(softwareQuality)).anyMatch(DefaultImpact::manualSeverity);
   }
 
   public boolean assign(DefaultIssue issue, @Nullable UserDto user, IssueChangeContext context) {
@@ -262,7 +292,7 @@ public class IssueFieldsSetter {
 
   public boolean setIssueStatus(DefaultIssue issue, @Nullable IssueStatus previousIssueStatus, @Nullable IssueStatus newIssueStatus, IssueChangeContext context) {
     if (!Objects.equals(newIssueStatus, previousIssueStatus)) {
-      //Currently, issue status is not persisted in database, but is considered as an issue change
+      // Currently, issue status is not persisted in database, but is considered as an issue change
       issue.setFieldChange(context, ISSUE_STATUS, previousIssueStatus, issue.issueStatus());
       return true;
     }
@@ -346,8 +376,8 @@ public class IssueFieldsSetter {
 
     for (int i = 0; i < l1c.getMessageFormattingCount(); i++) {
       if (l1c.getMessageFormatting(i).getStart() != l2.getMessageFormatting(i).getStart()
-          || l1c.getMessageFormatting(i).getEnd() != l2.getMessageFormatting(i).getEnd()
-          || l1c.getMessageFormatting(i).getType() != l2.getMessageFormatting(i).getType()) {
+        || l1c.getMessageFormatting(i).getEnd() != l2.getMessageFormatting(i).getEnd()
+        || l1c.getMessageFormatting(i).getType() != l2.getMessageFormatting(i).getType()) {
         return false;
       }
     }
@@ -372,7 +402,7 @@ public class IssueFieldsSetter {
   public void setPrioritizedRule(DefaultIssue issue, boolean prioritizedRule, IssueChangeContext context) {
     if (!Objects.equals(prioritizedRule, issue.isPrioritizedRule())) {
       issue.setPrioritizedRule(prioritizedRule);
-      if (!issue.isNew()){
+      if (!issue.isNew()) {
         issue.setUpdateDate(context.date());
         issue.setChanged(true);
       }
@@ -463,14 +493,34 @@ public class IssueFieldsSetter {
     return false;
   }
 
-  public boolean setImpacts(DefaultIssue issue, Map<SoftwareQuality, Severity> previousImpacts, IssueChangeContext context) {
-    Map<SoftwareQuality, Severity> currentImpacts = new EnumMap<>(issue.impacts());
-    if (!previousImpacts.equals(currentImpacts)) {
-      issue.replaceImpacts(currentImpacts);
+  public boolean setImpacts(DefaultIssue issue, Set<DefaultImpact> previousImpacts, IssueChangeContext context) {
+    previousImpacts
+      .stream().filter(DefaultImpact::manualSeverity)
+      .forEach(i -> issue.addImpact(i.softwareQuality(), i.severity(), true));
+
+    // If the severity of the issue is manually set but not the impact, we need to update the impacts with the same severity.
+    // This happens for user migrating from lower than 10.8 and having already customized the rule severity
+    if (issue.manualSeverity()
+      && issue.severity() != null
+      && issue.getImpacts().stream().noneMatch(DefaultImpact::manualSeverity)) {
+      issue.getImpacts()
+        .stream()
+        .filter(i -> convertToSoftwareQuality(issue.type()).equals(i.softwareQuality()))
+        .forEach(i -> {
+          Severity newSeverity = ImpactSeverityMapper.mapImpactSeverity(issue.severity());
+          issue.addImpact(i.softwareQuality(), newSeverity, true);
+          issue.setFieldChange(context, IMPACT_SEVERITY,
+            i.softwareQuality() + ":" + i.severity(),
+            i.softwareQuality() + ":" + newSeverity);
+        });
+    }
+
+    if (!previousImpacts.equals(issue.getImpacts())) {
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
       return true;
     }
+
     return false;
   }
 

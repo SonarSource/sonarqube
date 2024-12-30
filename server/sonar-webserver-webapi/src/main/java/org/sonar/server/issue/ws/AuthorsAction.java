@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -113,7 +113,7 @@ public class AuthorsAction implements IssuesWsAction {
       return Optional.empty();
     }
     return Optional.of(dbClient.entityDao().selectByKey(dbSession, projectKey)
-      .filter(e -> !e.getQualifier().equals(Qualifiers.SUBVIEW))
+      .filter(e -> !e.getQualifier().equals(ComponentQualifiers.SUBVIEW))
       .orElseThrow(() -> new NotFoundException("Entity not found: " + projectKey)));
   }
 
@@ -121,9 +121,9 @@ public class AuthorsAction implements IssuesWsAction {
     IssueQuery.Builder issueQueryBuilder = IssueQuery.builder();
     ofNullable(entity).ifPresent(p -> {
       switch (p.getQualifier()) {
-        case Qualifiers.PROJECT -> issueQueryBuilder.projectUuids(Set.of(p.getUuid()));
-        case Qualifiers.VIEW -> issueQueryBuilder.viewUuids(Set.of(p.getUuid()));
-        case Qualifiers.APP -> {
+        case ComponentQualifiers.PROJECT -> issueQueryBuilder.projectUuids(Set.of(p.getUuid()));
+        case ComponentQualifiers.VIEW -> issueQueryBuilder.viewUuids(Set.of(p.getUuid()));
+        case ComponentQualifiers.APP -> {
           BranchDto appMainBranch = dbClient.branchDao().selectMainBranchByProjectUuid(session, entity.getUuid())
             .orElseThrow(() -> new IllegalStateException("Couldn't find main branch for APP " + entity.getUuid()));
           issueQueryBuilder.viewUuids(Set.of(appMainBranch.getUuid()));

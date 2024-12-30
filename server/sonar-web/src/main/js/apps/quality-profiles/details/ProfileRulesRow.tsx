@@ -17,58 +17,66 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ContentCell, Link, Note, NumericalCell, TableRow } from 'design-system';
-import * as React from 'react';
+
+import { ContentCell, Link, Note, NumericalCell, TableRow } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricType } from '~sonar-aligned/types/metrics';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';
 import { getRulesUrl } from '../../../helpers/urls';
 import { RulesFacetName } from '../../../types/rules';
+import { RuleType } from '../../../types/types';
 
 interface Props {
   organization: string;
   className?: string;
   count: number | null;
-  propertyName:
+  propertyName?:
     | RulesFacetName.CleanCodeAttributeCategories
     | RulesFacetName.ImpactSoftwareQualities;
-  propertyValue: string;
+  propertyValue?: string;
   qprofile: string;
   title: string;
   total: number | null;
+  type?: RuleType;
 }
 
 export default function ProfileRulesRow(props: Readonly<Props>) {
+  const { qprofile, count, className, propertyName, propertyValue, title, total, type } = props;
+
+  const typeOrCCTQuery = {
+    ...(propertyName ? { [propertyName]: propertyValue } : {}),
+    ...(type ? { types: type } : {}),
+  };
   const activeRulesUrl = getRulesUrl({
-    qprofile: props.qprofile,
+    qprofile,
     activation: 'true',
-    [props.propertyName]: props.propertyValue,
+    ...typeOrCCTQuery,
   }, props.organization);
   const inactiveRulesUrl = getRulesUrl({
-    qprofile: props.qprofile,
+    qprofile,
     activation: 'false',
-    [props.propertyName]: props.propertyValue,
+    ...typeOrCCTQuery,
   }, props.organization);
   let inactiveCount = null;
-  if (props.count != null && props.total != null) {
-    inactiveCount = props.total - props.count;
+  if (count != null && total != null) {
+    inactiveCount = total - count;
   }
 
   return (
-    <TableRow className={props.className}>
-      <ContentCell className="sw-pl-4">{props.title}</ContentCell>
+    <TableRow className={className}>
+      <ContentCell className="sw-pl-4">{title}</ContentCell>
       <NumericalCell>
-        {isDefined(props.count) && props.count > 0 ? (
+        {isDefined(count) && count > 0 ? (
           <Link
             aria-label={translateWithParameters(
               'quality_profile.rules.see_x_active_x_rules',
-              props.count,
+              count,
               props.title,
             )}
             to={activeRulesUrl}
           >
-            {formatMeasure(props.count, MetricType.ShortInteger)}
+            {formatMeasure(count, MetricType.ShortInteger)}
           </Link>
         ) : (
           <Note>0</Note>
@@ -80,7 +88,7 @@ export default function ProfileRulesRow(props: Readonly<Props>) {
             aria-label={translateWithParameters(
               'quality_profile.rules.see_x_inactive_x_rules',
               inactiveCount,
-              props.title,
+              title,
             )}
             to={inactiveRulesUrl}
           >

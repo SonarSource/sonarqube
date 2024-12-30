@@ -17,15 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
 import { byRole } from '~sonar-aligned/helpers/testSelector';
 import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
-import { AiCodeAssuredServiceMock } from '../../../api/mocks/AiCodeAssuredServiceMock';
+import {
+  AiCodeAssuredServiceMock,
+  PROJECT_WITH_AI_ASSURED_QG,
+  PROJECT_WITHOUT_AI_ASSURED_QG,
+} from '../../../api/mocks/AiCodeAssuredServiceMock';
 import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import CodingRulesServiceMock from '../../../api/mocks/CodingRulesServiceMock';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import { MeasuresServiceMock } from '../../../api/mocks/MeasuresServiceMock';
+import { ModeServiceMock } from '../../../api/mocks/ModeServiceMock';
 import NotificationsMock from '../../../api/mocks/NotificationsMock';
 import { ProjectBadgesServiceMock } from '../../../api/mocks/ProjectBadgesServiceMock';
 import ProjectLinksServiceMock from '../../../api/mocks/ProjectLinksServiceMock';
@@ -55,14 +61,14 @@ const badgesHandler = new ProjectBadgesServiceMock();
 const notificationsHandler = new NotificationsMock();
 const branchesHandler = new BranchesServiceMock();
 const aiCodeAssurance = new AiCodeAssuredServiceMock();
+const modeHandler = new ModeServiceMock();
 
 const ui = {
   projectPageTitle: byRole('heading', { name: 'project.info.title' }),
   applicationPageTitle: byRole('heading', { name: 'application.info.title' }),
-  qualityGateList: byRole('list', { name: 'project.info.quality_gate' }),
-  qualityProfilesList: byRole('list', { name: 'overview.quality_profiles' }),
-  externalLinksList: byRole('list', { name: 'overview.external_links' }),
-  link: byRole('link'),
+  qualityGateHeader: byRole('heading', { name: 'project.info.quality_gate' }),
+  qualityProfilesHeader: byRole('heading', { name: 'overview.quality_profiles' }),
+  externalLinksHeader: byRole('heading', { name: 'overview.external_links' }),
   tags: byRole('generic', { name: /tags:/ }),
   size: byRole('link', { name: /project.info.see_more_info_on_x_locs/ }),
   newKeyInput: byRole('textbox'),
@@ -79,11 +85,14 @@ afterEach(() => {
   notificationsHandler.reset();
   branchesHandler.reset();
   aiCodeAssurance.reset();
+  modeHandler.reset();
 });
 
 it('should show fields for project', async () => {
   measuresHandler.registerComponentMeasures({
-    'my-project': { [MetricKey.ncloc]: mockMeasure({ metric: MetricKey.ncloc, value: '1000' }) },
+    [PROJECT_WITH_AI_ASSURED_QG]: {
+      [MetricKey.ncloc]: mockMeasure({ metric: MetricKey.ncloc, value: '1000' }),
+    },
   });
   linksHandler.projectLinks = [{ id: '1', name: 'test', type: '', url: 'http://test.com' }];
   renderProjectInformationApp(
@@ -91,17 +100,18 @@ it('should show fields for project', async () => {
       visibility: Visibility.Private,
       description: 'Test description',
       tags: ['bar'],
+      key: PROJECT_WITH_AI_ASSURED_QG,
     },
     { currentUser: mockLoggedInUser(), featureList: [Feature.AiCodeAssurance] },
   );
   expect(await ui.projectPageTitle.find()).toBeInTheDocument();
-  expect(ui.qualityGateList.get()).toBeInTheDocument();
-  expect(ui.link.getAll(ui.qualityGateList.get())).toHaveLength(1);
-  expect(ui.link.getAll(ui.qualityProfilesList.get())).toHaveLength(1);
-  expect(ui.link.getAll(ui.externalLinksList.get())).toHaveLength(1);
-  expect(screen.getByText('project.info.ai_code_assurance.title')).toBeInTheDocument();
+  expect(ui.qualityGateHeader.get()).toBeInTheDocument();
+  expect(byRole('link', { name: /project.info.quality_gate.link_label/ }).getAll()).toHaveLength(1);
+  expect(byRole('link', { name: /overview.link_to_x_profile_y/ }).getAll()).toHaveLength(1);
+  expect(byRole('link', { name: 'test' }).getAll()).toHaveLength(1);
+  expect(screen.getByText('project.info.ai_code_assurance_on.title')).toBeInTheDocument();
   expect(screen.getByText('Test description')).toBeInTheDocument();
-  expect(screen.getByText('my-project')).toBeInTheDocument();
+  expect(screen.getByText(PROJECT_WITH_AI_ASSURED_QG)).toBeInTheDocument();
   expect(screen.getByText('visibility.private')).toBeInTheDocument();
   expect(ui.tags.get()).toHaveTextContent('bar');
   expect(ui.size.get()).toHaveTextContent('1short_number_suffix.k');
@@ -124,9 +134,9 @@ it('should show application fields', async () => {
     { currentUser: mockLoggedInUser() },
   );
   expect(await ui.applicationPageTitle.find()).toBeInTheDocument();
-  expect(ui.qualityGateList.query()).not.toBeInTheDocument();
-  expect(ui.qualityProfilesList.query()).not.toBeInTheDocument();
-  expect(ui.externalLinksList.query()).not.toBeInTheDocument();
+  expect(ui.qualityGateHeader.query()).not.toBeInTheDocument();
+  expect(ui.qualityProfilesHeader.query()).not.toBeInTheDocument();
+  expect(ui.externalLinksHeader.query()).not.toBeInTheDocument();
   expect(screen.getByText('Test description')).toBeInTheDocument();
   expect(screen.getByText('my-project')).toBeInTheDocument();
   expect(screen.getByText('visibility.private')).toBeInTheDocument();
@@ -149,7 +159,7 @@ it('should hide some fields for application', async () => {
   expect(ui.tags.get()).toHaveTextContent('no_tags');
 });
 
-it('should not display ai code assurence', async () => {
+it('should not display ai code assurance', async () => {
   renderProjectInformationApp(
     {
       key: 'no-ai',
@@ -157,7 +167,37 @@ it('should not display ai code assurence', async () => {
     { featureList: [Feature.AiCodeAssurance] },
   );
   expect(await ui.projectPageTitle.find()).toBeInTheDocument();
-  expect(screen.queryByText('project.info.ai_code_assurance.title')).not.toBeInTheDocument();
+  expect(screen.queryByText('project.info.ai_code_assurance_on.title')).not.toBeInTheDocument();
+  expect(screen.queryByText('project.info.ai_code_assurance_off.title')).not.toBeInTheDocument();
+});
+
+it('should display it contains ai code', async () => {
+  renderProjectInformationApp(
+    {
+      key: PROJECT_WITHOUT_AI_ASSURED_QG,
+    },
+    { featureList: [Feature.AiCodeAssurance] },
+  );
+  expect(await ui.projectPageTitle.find()).toBeInTheDocument();
+  expect(screen.getByText('project.info.ai_code_assurance_off.title')).toBeInTheDocument();
+});
+
+it('should display ai code fix section if enabled', async () => {
+  renderProjectInformationApp({
+    isAiCodeFixEnabled: true,
+  });
+  expect(await ui.projectPageTitle.find()).toBeInTheDocument();
+  expect(screen.getByText('project.info.ai_code_fix.title')).toBeInTheDocument();
+  expect(screen.getByText('project.info.ai_code_fix.message')).toBeInTheDocument();
+});
+
+it('should not display ai code fix section if disabled', async () => {
+  renderProjectInformationApp({
+    isAiCodeFixEnabled: false,
+  });
+  expect(await ui.projectPageTitle.find()).toBeInTheDocument();
+  expect(screen.queryByText('project.info.ai_code_fix.title')).not.toBeInTheDocument();
+  expect(screen.queryByText('project.info.ai_code_fix.message')).not.toBeInTheDocument();
 });
 
 it('should not show field that is not configured', async () => {
@@ -166,8 +206,8 @@ it('should not show field that is not configured', async () => {
     qualityProfiles: [],
   });
   expect(await ui.projectPageTitle.find()).toBeInTheDocument();
-  expect(ui.qualityGateList.query()).not.toBeInTheDocument();
-  expect(ui.qualityProfilesList.query()).not.toBeInTheDocument();
+  expect(ui.qualityGateHeader.query()).not.toBeInTheDocument();
+  expect(ui.qualityProfilesHeader.query()).not.toBeInTheDocument();
   expect(screen.getByText('visibility.public')).toBeInTheDocument();
   expect(ui.tags.get()).toHaveTextContent('no_tags');
   expect(screen.getByText('project.info.empty_description')).toBeInTheDocument();
@@ -180,8 +220,8 @@ it('should hide visibility if public', async () => {
     qualityProfiles: [],
   });
   expect(await ui.projectPageTitle.find()).toBeInTheDocument();
-  expect(ui.qualityGateList.query()).not.toBeInTheDocument();
-  expect(ui.qualityProfilesList.query()).not.toBeInTheDocument();
+  expect(ui.qualityGateHeader.query()).not.toBeInTheDocument();
+  expect(ui.qualityProfilesHeader.query()).not.toBeInTheDocument();
   expect(screen.getByText('visibility.public')).toBeInTheDocument();
   expect(ui.tags.get()).toHaveTextContent('no_tags');
   expect(screen.getByText('project.info.empty_description')).toBeInTheDocument();

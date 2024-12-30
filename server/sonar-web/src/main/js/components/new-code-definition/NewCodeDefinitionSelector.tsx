@@ -17,16 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
-import {
-  FlagMessage,
-  PageContentFontWrapper,
-  RadioButton,
-  SelectionCard,
-  themeColor,
-} from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
+import { FlagMessage, PageContentFontWrapper, RadioButton, SelectionCard } from '~design-system';
 import { getNewCodeDefinition } from '../../api/newCodeDefinition';
 import { translate } from '../../helpers/l10n';
 import {
@@ -54,7 +49,6 @@ export default function NewCodeDefinitionSelector(props: Props) {
   const [globalNcd, setGlobalNcd] = React.useState<NewCodeDefinition | null>(null);
   const [selectedNcdType, setSelectedNcdType] = React.useState<NewCodeDefinitionType | null>(null);
   const [days, setDays] = React.useState<string>('');
-  const [isChanged, setIsChanged] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     const numberOfDays = getNumberOfDaysDefaultValue(globalNcd);
@@ -75,7 +69,6 @@ export default function NewCodeDefinitionSelector(props: Props) {
     (newNcdType: NewCodeDefinitionType) => {
       if (newNcdType && newNcdType !== selectedNcdType) {
         setSelectedNcdType(newNcdType);
-        setIsChanged(true);
       }
     },
     [selectedNcdType],
@@ -157,7 +150,6 @@ export default function NewCodeDefinitionSelector(props: Props) {
           disabled={Boolean(
             !selectedNcdType || selectedNcdType === NewCodeDefinitionType.Inherited,
           )}
-          isChanged={isChanged}
           isValid={isCompliant}
           onChangeDays={setDays}
           onSelect={handleNcdChanged}
@@ -191,5 +183,5 @@ export default function NewCodeDefinitionSelector(props: Props) {
 }
 
 const StyledGlobalSettingWrapper = styled.div<{ selected: boolean }>`
-  color: ${({ selected }) => (selected ? 'inherit' : themeColor('selectionCardDisabledText'))};
+  color: ${({ selected }) => (selected ? 'inherit' : 'var(--echoes-color-text-subdued)')};
 `;

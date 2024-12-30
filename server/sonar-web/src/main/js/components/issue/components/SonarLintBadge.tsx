@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
-import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
 import Link from '../../common/Link';
@@ -43,6 +43,7 @@ function SonarLintBadgeFull() {
       mouseLeaveDelay={0.5}
     >
       <LinkStandalone
+        className="sw-flex sw-items-center"
         highlight={LinkHighlight.Default}
         iconLeft={
           <SonarLintLogo
@@ -51,10 +52,8 @@ function SonarLintBadgeFull() {
             description={translate('issue.quick_fix_available_with_sonarlint_no_link')}
           />
         }
+        shouldOpenInNewTab
         to={SONARLINT_URL}
-        className="sw-flex sw-items-center"
-        isExternal
-        hasExternalIcon
       >
         {translate('issue.quick_fix')}
       </LinkStandalone>

@@ -32,8 +32,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.issue.impact.Severity;
@@ -49,7 +50,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactory;
-import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbTester;
 import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -89,7 +90,7 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -112,45 +113,46 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_QPROFILE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_RULE_KEY;
 import static org.sonarqube.ws.Rules.Rule.DescriptionSection.Context.newBuilder;
 
-public class SearchActionIT {
+class SearchActionIT {
 
   private static final String JAVA = "java";
 
-  @org.junit.Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  @RegisterExtension
+  private final UserSessionRule userSession = UserSessionRule.standalone();
 
   private final System2 system2 = new AlwaysIncreasingSystem2();
-  @org.junit.Rule
-  public DbTester db = DbTester.create(system2);
-  @org.junit.Rule
-  public EsTester es = EsTester.create();
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
+  @RegisterExtension
+  private final EsTester es = EsTester.create();
+  private final Configuration config = mock(Configuration.class);
 
-  private final RuleIndex ruleIndex = new RuleIndex(es.client(), system2);
+  private final RuleIndex ruleIndex = new RuleIndex(es.client(), system2, config);
   private final RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
   private final ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
   private final Languages languages = LanguageTesting.newLanguages(JAVA, "js");
   private final RuleQueryFactory ruleQueryFactory = new RuleQueryFactory(db.getDbClient());
-  private final MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
+  private static final MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
   private final QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
   private final RuleMapper ruleMapper = new RuleMapper(languages, macroInterpreter, new RuleDescriptionFormatter());
   private final SearchAction underTest = new SearchAction(ruleIndex, ruleQueryFactory, db.getDbClient(),
     new RulesResponseFormatter(db.getDbClient(), new RuleWsSupport(db.getDbClient(), userSession), ruleMapper, languages));
   private final TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
-  private final RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db.getDbClient(), typeValidations, userSession,
+  private final RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db.getDbClient(), UuidFactoryImpl.INSTANCE, typeValidations, userSession,
     mock(Configuration.class), sonarQubeVersion);
   private final QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, ruleIndex, activeRuleIndexer,
     qualityProfileChangeEventService);
   private final WsActionTester ws = new WsActionTester(underTest);
-  private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
+  private final UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
 
-  @Before
-  public void before() {
+  @BeforeAll
+  static void before() {
     doReturn("interpreted").when(macroInterpreter).interpret(anyString());
   }
 
   @Test
-  public void test_definition() {
+  void test_definition() {
     WebService.Action def = ws.getDef();
 
     assertThat(def.isPost()).isFalse();
@@ -167,7 +169,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void return_empty_result() {
+  void return_empty_result() {
     Rules.SearchResponse response = ws.newRequest()
       .setParam(WebService.Param.FIELDS, "actives")
       .executeProtobuf(Rules.SearchResponse.class);
@@ -181,7 +183,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void return_all_rules() {
+  void return_all_rules() {
     RuleDto rule1 = db.rules().insert(r1 -> r1.setLanguage("java").setNoteUserUuid(null));
     RuleDto rule2 = db.rules().insert(r1 -> r1.setLanguage("java").setNoteUserUuid(null));
     indexRules();
@@ -191,7 +193,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void return_note_login() {
+  void return_note_login() {
     UserDto user1 = db.users().insertUser();
     RuleDto rule1 = db.rules().insert(r -> r.setNoteUserUuid(user1.getUuid()));
     UserDto disableUser = db.users().insertDisabledUser();
@@ -210,7 +212,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void dont_fail_if_note_author_no_longer_exists() {
+  void dont_fail_if_note_author_no_longer_exists() {
     // note: this can only happen due to DB corruption (user deleted)
     RuleDto rule1 = db.rules().insert(r -> r.setNoteUserUuid("non-existent"));
     indexRules();
@@ -226,7 +228,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void filter_by_rule_key() {
+  void filter_by_rule_key() {
     RuleDto rule1 = db.rules().insert(r1 -> r1.setLanguage("java").setNoteUserUuid(null));
     db.rules().insert(r1 -> r1.setLanguage("java").setNoteUserUuid(null));
     indexRules();
@@ -236,7 +238,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void filter_by_rule_name() {
+  void filter_by_rule_name() {
     RuleDto rule1 = db.rules().insert(r1 -> r1.setName("Best rule ever").setNoteUserUuid(null));
     RuleDto rule2 = db.rules().insert(r1 -> r1.setName("Some other stuff").setNoteUserUuid(null));
     indexRules();
@@ -255,7 +257,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void filter_by_rule_name_requires_all_words_to_match() {
+  void filter_by_rule_name_requires_all_words_to_match() {
     RuleDto rule1 = db.rules().insert(r1 -> r1.setName("Best rule ever").setNoteUserUuid(null));
     RuleDto rule2 = db.rules().insert(r1 -> r1.setName("Some other stuff").setNoteUserUuid(null));
     indexRules();
@@ -266,7 +268,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void filter_by_rule_name_does_not_interpret_query() {
+  void filter_by_rule_name_does_not_interpret_query() {
     RuleDto rule1 = db.rules().insert(r1 -> r1.setName("Best rule for-ever").setNoteUserUuid(null));
     RuleDto rule2 = db.rules().insert(r1 -> r1.setName("Some other stuff").setNoteUserUuid(null));
     indexRules();
@@ -276,7 +278,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void filter_by_rule_description() {
+  void filter_by_rule_description() {
     RuleDto rule1 = db.rules().insert(
       newRule(createDefaultRuleDescriptionSection(uuidFactory.create(), "This is the <bold>best</bold> rule now&amp;for<b>ever</b>"))
         .setNoteUserUuid(null));
@@ -289,7 +291,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void filter_with_context_specific_rule_description() {
+  void filter_with_context_specific_rule_description() {
     RuleDescriptionSectionDto section1context1 = createRuleDescriptionSectionWithContext(RESOURCES_SECTION_KEY, "<div>I want to fix with Spring</div>", "ctx1");
     RuleDescriptionSectionDto section1context2 = createRuleDescriptionSectionWithContext(RESOURCES_SECTION_KEY, "<div>Another context</div>", "ctx2");
 
@@ -306,7 +308,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void filter_by_rule_name_or_descriptions_requires_all_words_to_match_anywhere() {
+  void filter_by_rule_name_or_descriptions_requires_all_words_to_match_anywhere() {
     RuleDto rule1 = db.rules().insert(newRuleWithoutDescriptionSection().setName("Best rule ever").setNoteUserUuid(null)
       .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "This is a good rule")));
     db.rules().insert(newRuleWithoutDescriptionSection().setName("Another thing").setNoteUserUuid(null)
@@ -318,7 +320,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void return_all_rule_fields_by_default() {
+  void return_all_rule_fields_by_default() {
     OffsetDateTime dateTime = OffsetDateTime.now(Clock.fixed(Instant.ofEpochMilli(1687816800000L), ZoneId.systemDefault()));
 
     RuleDto rule = db.rules().insert(
@@ -329,6 +331,9 @@ public class SearchActionIT {
       r -> r.setName("Name"),
       r -> r.setRepositoryKey("repo_key"),
       r -> r.setSeverity("MINOR"),
+      r -> r.replaceAllDefaultImpacts(List.of(
+        new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.BLOCKER),
+        new ImpactDto(SoftwareQuality.SECURITY, Severity.INFO))),
       r -> r.setLanguage("java"));
     indexRules();
 
@@ -341,12 +346,19 @@ public class SearchActionIT {
     assertThat(result.getName()).isEqualTo("Name");
     assertThat(result.getRepo()).isEqualTo("repo_key");
     assertThat(result.getSeverity()).isEqualTo("MINOR");
+    assertThat(result.getImpacts().getImpactsList()).containsExactlyInAnyOrder(
+      Common.Impact.newBuilder()
+        .setSoftwareQuality(Common.SoftwareQuality.MAINTAINABILITY)
+        .setSeverity(Common.ImpactSeverity.ImpactSeverity_BLOCKER).build(),
+      Common.Impact.newBuilder()
+        .setSoftwareQuality(Common.SoftwareQuality.SECURITY)
+        .setSeverity(Common.ImpactSeverity.ImpactSeverity_INFO).build());
     assertThat(result.getType().name()).isEqualTo(RuleType.valueOf(rule.getType()).name());
     assertThat(result.getLang()).isEqualTo("java");
   }
 
   @Test
-  public void return_subset_of_fields() {
+  void return_subset_of_fields() {
     RuleDto rule = db.rules().insert(r -> r.setLanguage("java"));
     indexRules();
 
@@ -376,7 +388,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void return_deprecatedKeys_in_response_on_demand() {
+  void return_deprecatedKeys_in_response_on_demand() {
     RuleDto rule1 = db.rules().insert(r -> r.setLanguage("java"));
     db.rules().insertDeprecatedKey(r -> r.setRuleUuid(rule1.getUuid()).setOldRuleKey("oldrulekey").setOldRepositoryKey("oldrepositorykey"));
     db.rules().insertDeprecatedKey(r -> r.setRuleUuid(rule1.getUuid()).setOldRuleKey("oldrulekey2").setOldRepositoryKey("oldrepositorykey2"));
@@ -409,7 +421,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void should_filter_on_specific_tags() {
+  void should_filter_on_specific_tags() {
     RuleDto rule1 = db.rules().insert(r -> r.setLanguage("java").setTags(Set.of("tag1", "tag2")));
     db.rules().insert(r -> r.setLanguage("java"));
     indexRules();
@@ -421,7 +433,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void when_searching_for_several_tags_combine_them_with_OR() {
+  void when_searching_for_several_tags_combine_them_with_OR() {
     RuleDto bothTagsRule = db.rules().insert(r -> r.setLanguage("java"), setTags("tag1", "tag2"));
     RuleDto oneTagRule = db.rules().insert(r -> r.setLanguage("java"), setTags("tag1"));
     RuleDto otherTagRule = db.rules().insert(r -> r.setLanguage("java"), setTags("tag2"));
@@ -435,7 +447,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void should_list_tags_in_tags_facet() {
+  void should_list_tags_in_tags_facet() {
     String[] tags = get101Tags();
     db.rules().insert(setSystemTags("x"), setTags(tags));
     indexRules();
@@ -450,7 +462,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void should_list_tags_ordered_by_count_then_by_name_in_tags_facet() {
+  void should_list_tags_ordered_by_count_then_by_name_in_tags_facet() {
     db.rules().insert(setSystemTags("tag7", "tag5", "tag3", "tag1", "tag9"), setTags("tag2", "tag4", "tag6", "tag8", "tagA"));
     db.rules().insert(setSystemTags("tag2"), setTags());
     indexRules();
@@ -465,7 +477,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void should_include_selected_matching_tag_in_facet() {
+  void should_include_selected_matching_tag_in_facet() {
     db.rules().insert(
       setSystemTags("tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tagA", "x"),
       r -> r.setNoteUserUuid(null));
@@ -479,7 +491,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void execute_whenFacetIsSoftwareQuality_shouldReturnCorrectMatch() {
+  void execute_whenFacetIsSoftwareQuality_shouldReturnCorrectMatch() {
     db.rules().insert(
       r -> r.replaceAllDefaultImpacts(List.of(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH))));
     db.rules().insert(
@@ -495,7 +507,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void execute_whenFacetIsImpactSeverity_shouldReturnCorrectMatch() {
+  void execute_whenFacetIsImpactSeverity_shouldReturnCorrectMatch() {
     db.rules().insert(
       r -> r.replaceAllDefaultImpacts(List.of(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH))));
     db.rules().insert(
@@ -512,7 +524,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void execute_whenFacetIsCleanCodeAttributeCategories_shouldReturnCorrectMatch() {
+  void execute_whenFacetIsCleanCodeAttributeCategories_shouldReturnCorrectMatch() {
     db.rules().insert(
       r -> r.setCleanCodeAttribute(CleanCodeAttribute.COMPLETE)
         .replaceAllDefaultImpacts(List.of(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.HIGH))));
@@ -531,7 +543,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void should_included_selected_non_matching_tag_in_facet() {
+  void should_included_selected_non_matching_tag_in_facet() {
     RuleDto rule = db.rules().insert(setSystemTags("tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tagA"));
     indexRules();
 
@@ -543,7 +555,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void should_return_specific_tags() {
+  void should_return_specific_tags() {
     RuleDto rule = db.rules().insert(r -> r.setLanguage("java"), setTags("tag1", "tag2"));
     indexRules();
 
@@ -557,7 +569,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returnRuleCleanCodeFields_whenEndpointIsCalled() {
+  void returnRuleCleanCodeFields_whenEndpointIsCalled() {
     RuleDto rule = db.rules()
       .insert();
     indexRules();
@@ -578,7 +590,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void should_return_specified_fields() {
+  void should_return_specified_fields() {
     when(macroInterpreter.interpret(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
 
     RuleDescriptionSectionDto section1context1 = createRuleDescriptionSectionWithContext(RESOURCES_SECTION_KEY, "<div>I want to fix with Spring</div>", "ctx1");
@@ -627,8 +639,8 @@ public class SearchActionIT {
   }
 
   @Test
-  public void return_lang_key_field_when_language_name_is_not_available() {
-    String unknownLanguage = "unknown_" + randomAlphanumeric(5);
+  void return_lang_key_field_when_language_name_is_not_available() {
+    String unknownLanguage = "unknown_" + secure().nextAlphanumeric(5);
     RuleDto rule = db.rules().insert(r -> r.setLanguage(unknownLanguage));
 
     indexRules();
@@ -647,7 +659,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_debt_rules_with_default_and_overridden_debt_values() {
+  void search_debt_rules_with_default_and_overridden_debt_values() {
     db.rules().insert(r -> r.setLanguage("java")
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefRemediationGapMultiplier("1h")
@@ -681,7 +693,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_debt_rules_with_default_linear_offset_and_overridden_constant_debt() {
+  void search_debt_rules_with_default_linear_offset_and_overridden_constant_debt() {
     db.rules().insert(r -> r.setLanguage("java")
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefRemediationGapMultiplier("1h")
@@ -715,7 +727,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_debt_rules_with_default_linear_offset_and_overridden_linear_debt() {
+  void search_debt_rules_with_default_linear_offset_and_overridden_linear_debt() {
     db.rules().insert(r -> r.setLanguage("java")
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefRemediationGapMultiplier("1h")
@@ -749,7 +761,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_template_rules() {
+  void search_template_rules() {
     RuleDto templateRule = db.rules().insert(r -> r.setLanguage("java")
       .setIsTemplate(true));
     RuleDto rule = db.rules().insert(r -> r.setLanguage("java")
@@ -773,7 +785,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_custom_rules_from_template_key() {
+  void search_custom_rules_from_template_key() {
     RuleDto templateRule = db.rules().insert(r -> r.setLanguage("java")
       .setIsTemplate(true));
     RuleDto rule = db.rules().insert(r -> r.setLanguage("java")
@@ -797,7 +809,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void do_not_return_external_rule() {
+  void do_not_return_external_rule() {
     db.rules().insert(r -> r.setIsExternal(true));
     indexRules();
 
@@ -810,7 +822,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_all_active_rules() {
+  void search_all_active_rules() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage("java"));
     RuleDto rule = db.rules().insert(r -> r.setLanguage("java").setNoteUserUuid(null));
     RuleActivation activation = RuleActivation.create(rule.getUuid(), BLOCKER, null);
@@ -834,7 +846,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_profile_active_rules() {
+  void search_profile_active_rules() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage("java"));
     QProfileDto waterproofProfile = db.qualityProfiles().insert(p -> p.setLanguage("java"));
     RuleDto rule = db.rules().insert(r -> r.setLanguage("java"));
@@ -882,7 +894,7 @@ public class SearchActionIT {
       tuple(ruleParam1.getName(), ruleParam1.getDefaultValue()),
       tuple(ruleParam2.getName(), ruleParam2.getDefaultValue()));
 
-    String unknownProfile = "unknown_profile" + randomAlphanumeric(5);
+    String unknownProfile = "unknown_profile" + secure().nextAlphanumeric(5);
 
     assertThatThrownBy(() -> {
       ws.newRequest()
@@ -895,7 +907,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_for_active_rules_when_parameter_value_is_null() {
+  void search_for_active_rules_when_parameter_value_is_null() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage("java"));
 
     RuleDto rule = db.rules().insert(r -> r.setLanguage("java"));
@@ -944,7 +956,7 @@ public class SearchActionIT {
    * only rules of the quality profiles' language are relevant
    */
   @Test
-  public void facet_filtering_when_searching_for_inactive_rules() {
+  void facet_filtering_when_searching_for_inactive_rules() {
     QProfileDto profile = db.qualityProfiles().insert(q -> q.setLanguage("language1"));
 
     // on same language, not activated => match
@@ -1046,7 +1058,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void statuses_facet_should_be_sticky() {
+  void statuses_facet_should_be_sticky() {
     RuleDto rule1 = db.rules().insert(r -> r.setLanguage("java"));
     RuleDto rule2 = db.rules().insert(r -> r.setLanguage("java").setStatus(RuleStatus.BETA));
     RuleDto rule3 = db.rules().insert(r -> r.setLanguage("java").setStatus(RuleStatus.DEPRECATED));
@@ -1066,7 +1078,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void paging() {
+  void paging() {
     for (int i = 0; i < 12; i++) {
       db.rules().insert(r -> r.setLanguage("java"));
     }
@@ -1080,7 +1092,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void compare_to_another_profile() {
+  void compare_to_another_profile() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(JAVA));
     QProfileDto anotherProfile = db.qualityProfiles().insert(p -> p.setLanguage(JAVA));
     RuleDto commonRule = db.rules().insertRule(r -> r.setLanguage(JAVA));

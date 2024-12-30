@@ -18,10 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Button, ButtonGroup, ButtonVariety } from '@sonarsource/echoes-react';
-import { FlagMessage, RadioButton } from 'design-system';
+import {
+  Button,
+  ButtonGroup,
+  ButtonVariety,
+  Label,
+  RadioButtonGroup,
+} from '@sonarsource/echoes-react';
 import { noop } from 'lodash';
 import * as React from 'react';
+import { FlagMessage } from '~design-system';
 import GlobalNewCodeDefinitionDescription from '../../../components/new-code-definition/GlobalNewCodeDefinitionDescription';
 import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';
@@ -96,97 +102,100 @@ export default function ProjectNewCodeDefinitionSelector(
   }
 
   return (
-    <form className="it__project-baseline-selector" onSubmit={props.onSubmit}>
-      <div className="sw-mb-4 sw-mt-8" role="radiogroup">
-        <RadioButton
-          checked={!overrideGlobalNewCodeDefinition}
-          className="sw-mb-4"
-          onCheck={() => props.onToggleSpecificSetting(false)}
-          value="general"
-        >
-          <span>{translate('project_baseline.global_setting')}</span>
-        </RadioButton>
-
-        <div className="sw-ml-6">
-          <GlobalNewCodeDefinitionDescription globalNcd={globalNewCodeDefinition} />
-        </div>
-
-        <RadioButton
-          checked={overrideGlobalNewCodeDefinition}
-          className="sw-mt-8"
-          onCheck={() => props.onToggleSpecificSetting(true)}
-          value="specific"
-        >
-          {translate('project_baseline.specific_setting')}
-        </RadioButton>
-      </div>
-
-      <div className="sw-flex sw-flex-col sw-gap-4" role="radiogroup">
-        <NewCodeDefinitionPreviousVersionOption
-          disabled={!overrideGlobalNewCodeDefinition}
-          onSelect={props.onSelectSetting}
-          selected={
-            overrideGlobalNewCodeDefinition &&
-            selectedNewCodeDefinitionType === NewCodeDefinitionType.PreviousVersion
+    <form className="it__project-baseline-selector " onSubmit={props.onSubmit}>
+      <fieldset>
+        <legend className="sw-mb-4">
+          <Label>{translate('project_baseline.page.question')}</Label>
+        </legend>
+        <RadioButtonGroup
+          id="new-code-baseline-radiogroup"
+          onChange={(value: 'general' | 'specific') =>
+            props.onToggleSpecificSetting(value === 'specific')
           }
+          value={overrideGlobalNewCodeDefinition ? 'specific' : 'general'}
+          options={[
+            {
+              value: 'general',
+              label: translate('project_baseline.global_setting'),
+              helpText: (
+                <GlobalNewCodeDefinitionDescription
+                  className="sw-mt-2 sw-mb-6"
+                  globalNcd={globalNewCodeDefinition}
+                />
+              ),
+            },
+            { value: 'specific', label: translate('project_baseline.specific_setting') },
+          ]}
         />
 
-        <NewCodeDefinitionDaysOption
-          currentDaysValue={
-            newCodeDefinitionType === NewCodeDefinitionType.NumberOfDays
-              ? newCodeDefinitionValue
-              : undefined
-          }
-          days={days}
-          disabled={!overrideGlobalNewCodeDefinition}
-          isChanged={isChanged}
-          isValid={isValid}
-          onChangeDays={props.onSelectDays}
-          onSelect={props.onSelectSetting}
-          previousNonCompliantValue={previousNonCompliantValue}
-          selected={
-            overrideGlobalNewCodeDefinition &&
-            selectedNewCodeDefinitionType === NewCodeDefinitionType.NumberOfDays
-          }
-          settingLevel={NewCodeDefinitionLevels.Project}
-          updatedAt={projectNcdUpdatedAt}
-        />
-
-        {branchesEnabled && (
-          <NewCodeDefinitionSettingReferenceBranch
-            branchList={branchList.map(branchToOption)}
+        <div className="sw-flex sw-flex-col sw-gap-4" role="radiogroup">
+          <NewCodeDefinitionPreviousVersionOption
             disabled={!overrideGlobalNewCodeDefinition}
-            onChangeReferenceBranch={props.onSelectReferenceBranch}
             onSelect={props.onSelectSetting}
-            referenceBranch={referenceBranch ?? ''}
             selected={
               overrideGlobalNewCodeDefinition &&
-              selectedNewCodeDefinitionType === NewCodeDefinitionType.ReferenceBranch
+              selectedNewCodeDefinitionType === NewCodeDefinitionType.PreviousVersion
+            }
+          />
+
+          <NewCodeDefinitionDaysOption
+            currentDaysValue={
+              newCodeDefinitionType === NewCodeDefinitionType.NumberOfDays
+                ? newCodeDefinitionValue
+                : undefined
+            }
+            days={days}
+            disabled={!overrideGlobalNewCodeDefinition}
+            isValid={isValid}
+            onChangeDays={props.onSelectDays}
+            onSelect={props.onSelectSetting}
+            previousNonCompliantValue={previousNonCompliantValue}
+            selected={
+              overrideGlobalNewCodeDefinition &&
+              selectedNewCodeDefinitionType === NewCodeDefinitionType.NumberOfDays
             }
             settingLevel={NewCodeDefinitionLevels.Project}
+            updatedAt={projectNcdUpdatedAt}
           />
-        )}
 
-        {!branchesEnabled && newCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis && (
-          <NewCodeDefinitionSettingAnalysis
-            analysis={analysis ?? ''}
-            branch={branch.name}
-            component={component}
-            onSelect={noop}
-            selected={
-              overrideGlobalNewCodeDefinition &&
-              selectedNewCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis
-            }
-          />
-        )}
-      </div>
+          {branchesEnabled && (
+            <NewCodeDefinitionSettingReferenceBranch
+              branchList={branchList.map(branchToOption)}
+              disabled={!overrideGlobalNewCodeDefinition}
+              onChangeReferenceBranch={props.onSelectReferenceBranch}
+              onSelect={props.onSelectSetting}
+              referenceBranch={referenceBranch ?? ''}
+              selected={
+                overrideGlobalNewCodeDefinition &&
+                selectedNewCodeDefinitionType === NewCodeDefinitionType.ReferenceBranch
+              }
+              settingLevel={NewCodeDefinitionLevels.Project}
+            />
+          )}
+
+          {!branchesEnabled && newCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis && (
+            <NewCodeDefinitionSettingAnalysis
+              analysis={analysis ?? ''}
+              branch={branch.name}
+              component={component}
+              onSelect={noop}
+              selected={
+                overrideGlobalNewCodeDefinition &&
+                selectedNewCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis
+              }
+            />
+          )}
+        </div>
+      </fieldset>
 
       <div className="sw-mt-4">
-        {isChanged && (
-          <FlagMessage variant="info" className="sw-mb-4">
-            {translate('baseline.next_analysis_notice')}
-          </FlagMessage>
-        )}
+        <output>
+          {isChanged && (
+            <FlagMessage variant="info" className="sw-mb-4">
+              {translate('baseline.next_analysis_notice')}
+            </FlagMessage>
+          )}
+        </output>
 
         <ButtonGroup className="sw-flex">
           <Button

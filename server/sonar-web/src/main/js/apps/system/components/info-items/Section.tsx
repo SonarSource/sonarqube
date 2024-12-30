@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ContentCell, SubHeading, Table, TableRow } from 'design-system';
+
 import { map } from 'lodash';
-import * as React from 'react';
+import { ContentCell, SubHeading, Table, TableRow } from '~design-system';
 import { SysInfoValueObject } from '../../../../types/types';
 import SysInfoItem from './SysInfoItem';
 

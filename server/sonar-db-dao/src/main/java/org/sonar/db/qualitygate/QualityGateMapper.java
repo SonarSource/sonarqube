@@ -36,7 +36,9 @@ public interface QualityGateMapper {
 
   QualityGateDto selectByName(String name);
 
-  QualityGateDto selectBuiltIn();
+  List<QualityGateDto> selectByNames(@Param("names") Collection<String> names);
+
+  List<QualityGateDto> selectBuiltIn();
 
   void delete(String uuid);
 
@@ -44,9 +46,9 @@ public interface QualityGateMapper {
 
   void update(QualityGateDto qGate);
 
-  void deleteOrgQualityGatesByQualityGateUuid(String uuid);
+  void ensureOnlySonarWayQualityGatesAreBuiltIn(@Param("names") Collection<String> sonarWayQualityGatesName);
 
-  void ensureOneBuiltInQualityGate(String builtInQualityName);
+  void deleteOrgQualityGatesByQualityGateUuid(String uuid);
 
   void selectQualityGateFindings(String qualityGateUuid, ResultHandler<QualityGateFindingDto> handler);
 
@@ -59,4 +61,7 @@ public interface QualityGateMapper {
   QualityGateDto selectDefault(@Param("organizationUuid") String organizationUuid);
 
   QualityGateDto selectByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  long countByNameStarting(String name);
+
 }

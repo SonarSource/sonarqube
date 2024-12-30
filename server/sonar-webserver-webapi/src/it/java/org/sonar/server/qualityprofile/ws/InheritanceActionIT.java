@@ -23,8 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -35,6 +35,7 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -70,35 +71,37 @@ import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
-public class InheritanceActionIT {
+class InheritanceActionIT {
 
-  @Rule
-  public DbTester db = DbTester.create();
-  @Rule
-  public EsTester es = EsTester.create();
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  @RegisterExtension
+  private final DbTester db = DbTester.create();
+  @RegisterExtension
+  private final EsTester es = EsTester.create();
+  @RegisterExtension
+  private final UserSessionRule userSession = UserSessionRule.standalone();
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-  private EsClient esClient = es.client();
-  private RuleIndexer ruleIndexer = new RuleIndexer(esClient, dbClient);
-  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, esClient);
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private final EsClient esClient = es.client();
+  private final RuleIndexer ruleIndexer = new RuleIndexer(esClient, dbClient);
+  private final ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, esClient);
+  private final Configuration config = mock(Configuration.class);
 
-  private RuleIndex ruleIndex = new RuleIndex(esClient, System2.INSTANCE);
-  private QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
+  private final RuleIndex ruleIndex = new RuleIndex(esClient, System2.INSTANCE, config);
+  private final QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
-  private RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, new TypeValidations(new ArrayList<>()), userSession, mock(Configuration.class), sonarQubeVersion);
-  private QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, ruleIndex, activeRuleIndexer, qualityProfileChangeEventService);
-  private QProfileTree qProfileTree = new QProfileTreeImpl(dbClient, ruleActivator, System2.INSTANCE, activeRuleIndexer, mock(QualityProfileChangeEventService.class));
+  private final RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, UuidFactoryImpl.INSTANCE, new TypeValidations(new ArrayList<>()), userSession,
+    mock(Configuration.class), sonarQubeVersion);
+  private final QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, ruleIndex, activeRuleIndexer, qualityProfileChangeEventService);
+  private final QProfileTree qProfileTree = new QProfileTreeImpl(dbClient, ruleActivator, System2.INSTANCE, activeRuleIndexer, mock(QualityProfileChangeEventService.class));
 
-  private WsActionTester ws = new WsActionTester(new InheritanceAction(
+  private final WsActionTester ws = new WsActionTester(new InheritanceAction(
     dbClient,
     new QProfileWsSupport(dbClient, userSession),
     new Languages()));
 
   @Test
-  public void inheritance_nominal() {
+  void inheritance_nominal() {
     RuleDto rule1 = createRule("xoo", "rule1");
     RuleDto rule2 = createRule("xoo", "rule2");
     RuleDto rule3 = createRule("xoo", "rule3");
@@ -140,7 +143,7 @@ public class InheritanceActionIT {
   }
 
   @Test
-  public void inheritance_parent_child() throws Exception {
+  void inheritance_parent_child() throws Exception {
     String language = "java";
     RuleDto rule1 = db.rules().insert(r -> r.setLanguage(language));
     RuleDto rule2 = db.rules().insert(r -> r.setLanguage(language));
@@ -174,7 +177,7 @@ public class InheritanceActionIT {
   }
 
   @Test
-  public void handle_whenNoRulesActivated_shouldReturnExpectedInactivateRulesForLanguage() throws IOException {
+  void handle_whenNoRulesActivated_shouldReturnExpectedInactivateRulesForLanguage() throws IOException {
     String language = "java";
     QProfileDto qualityProfile = db.qualityProfiles().insert(p -> p.setLanguage(language));
     RuleDto rule = db.rules().insert(r -> r.setLanguage(language));
@@ -194,7 +197,7 @@ public class InheritanceActionIT {
   }
 
   @Test
-  public void inheritance_ignores_removed_rules() throws Exception {
+  void inheritance_ignores_removed_rules() throws Exception {
     RuleDto rule = db.rules().insert(r -> r.setStatus(RuleStatus.REMOVED));
     ruleIndexer.commitAndIndex(db.getSession(), rule.getUuid());
 
@@ -217,7 +220,7 @@ public class InheritanceActionIT {
   }
 
   @Test
-  public void inheritance_no_family() {
+  void inheritance_no_family() {
     // Simple profile, no parent, no child
     QProfileDto remi = createProfile("xoo", "Nobodys Boy", "xoo-nobody-s-boy-01234");
 
@@ -231,7 +234,7 @@ public class InheritanceActionIT {
   }
 
   @Test
-  public void fail_if_not_found() {
+  void fail_if_not_found() {
     assertThatThrownBy(() -> {
       ws.newRequest()
         .setParam(PARAM_LANGUAGE, "xoo")
@@ -242,7 +245,7 @@ public class InheritanceActionIT {
   }
 
   @Test
-  public void definition() {
+  void definition() {
     WebService.Action definition = ws.getDef();
 
     assertThat(definition.key()).isEqualTo("inheritance");

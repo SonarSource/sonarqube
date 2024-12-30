@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BasicSeparator, FacetItem } from 'design-system';
+
 import * as React from 'react';
+import { BasicSeparator, FacetItem } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { CodeScope } from '../../../helpers/urls';
 import { Query } from '../utils';
@@ -50,16 +51,17 @@ export function PeriodFilter(props: PeriodFilterProps) {
   }, [newCodeSelected, onChange]);
 
   return (
-    <FacetItemsList label={translate('issues.facet', PROPERTY)}>
-      <FacetItem
-        active={newCodeSelected}
-        className="it__search-navigator-facet"
-        name={translate('issues.new_code')}
-        onClick={handleClick}
-        value={newCodeSelected ? CodeScope.New : CodeScope.Overall}
-      />
-
+    <>
+      <FacetItemsList label={translate('issues.facet', PROPERTY)}>
+        <FacetItem
+          active={newCodeSelected}
+          className="it__search-navigator-facet"
+          name={translate('issues.new_code')}
+          onClick={handleClick}
+          value={newCodeSelected ? CodeScope.New : CodeScope.Overall}
+        />
+      </FacetItemsList>
       <BasicSeparator className="sw-mb-5 sw-mt-4" />
-    </FacetItemsList>
+    </>
   );
 }

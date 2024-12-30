@@ -17,9 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { Text, TextSize } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
+import { isEmpty } from 'lodash';
+import { FormattedMessage, useIntl } from 'react-intl';
 import {
   LightLabel,
   NoDataIcon,
@@ -28,10 +31,7 @@ import {
   TrendUpCircleIcon,
   getTabPanelId,
   themeColor,
-} from 'design-system';
-import { isEmpty } from 'lodash';
-import React from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
+} from '~design-system';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import {

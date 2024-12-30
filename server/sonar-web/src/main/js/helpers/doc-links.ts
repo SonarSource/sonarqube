@@ -20,12 +20,16 @@
 
 import { AlmKeys } from '../types/alm-settings';
 
+export const COMMUNITY_FORUM_URL = 'https://community.sonarsource.com/c/help/sq';
+
 export const DOC_URL = 'https://docs.sonarsource.com/sonarqube/latest';
 
 export enum DocLink {
   AccountTokens = 'https://knowledgebase.autorabit.com/codescan/docs/generate-a-security-token/',
   ActiveVersions = '/server-upgrade-and-maintenance/upgrade/upgrade-the-server/active-versions/',
   AiCodeAssurance = 'https://knowledgebase.autorabit.com/codescan/docs',
+  AiCodeFixEnabling = '/instance-administration/system-functions/managing-ai-features/#enabling-ai-generated-fix-suggestions',
+  AiCodeAssuranceQualifyQualityGate = '/instance-administration/analysis-functions/ai-standards/#apply-qualified-quality-gate',
   AlmAzureIntegration = '/devops-platform-integration/azure-devops-integration/',
   AlmBitBucketCloudAuth = '/instance-administration/authentication/bitbucket-cloud/',
   AlmBitBucketCloudIntegration = '/devops-platform-integration/bitbucket-integration/bitbucket-cloud-integration/',
@@ -67,13 +71,16 @@ export enum DocLink {
   MainBranchAnalysis = '/project-administration/maintaining-the-branches-of-your-project/',
   ManagingPortfolios = '/project-administration/managing-portfolios/',
   MetricDefinitions = '/user-guide/code-metrics/metrics-definition/',
+  ModeMQR = '/instance-administration/analysis-functions/instance-mode/mqr-mode',
+  ModeStandard = '/instance-administration/analysis-functions/instance-mode/standard-experience',
   Monorepos = '/project-administration/monorepos/',
-  NewCodeDefinition = '/project-administration/clean-as-you-code-settings/defining-new-code/',
-  NewCodeDefinitionOptions = '/project-administration/clean-as-you-code-settings/defining-new-code/#new-code-definition-options',
+  NewCodeDefinition = '/core-concepts/clean-as-you-code/about-new-code/',
+  NewCodeDefinitionOptions = '/core-concepts/clean-as-you-code/about-new-code/#new-code-definition-options',
   Portfolios = '/user-guide/viewing-reports/portfolios/',
   PullRequestAnalysis = '/codescan/docs',
   QualityGates = '/codescan/docs/customising-quality-gates',
   Root = '/',
+  RuleSeverity = '/instance-administration/analysis-functions/quality-profiles/#rule-severity',
   RulesOverview = '/user-guide/rules/overview',
   SecurityHotspots = '/codescan/docs',
   SecurityReports = '/user-guide/viewing-reports/security-reports/',

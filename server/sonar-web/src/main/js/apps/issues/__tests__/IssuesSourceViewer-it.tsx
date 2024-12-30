@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { keyBy } from 'lodash';
@@ -29,6 +30,7 @@ import { IssueStatus } from '../../../types/issues';
 import {
   componentsHandler,
   issuesHandler,
+  modeHandler,
   renderProjectIssuesApp,
   sourcesHandler,
   usersHandler,
@@ -40,6 +42,7 @@ beforeEach(() => {
   componentsHandler.reset();
   sourcesHandler.reset();
   usersHandler.reset();
+  modeHandler.reset();
   window.scrollTo = jest.fn();
   window.HTMLElement.prototype.scrollTo = jest.fn();
 });
@@ -102,9 +105,8 @@ describe('issues source viewer', () => {
   it('should show source across components', async () => {
     const user = userEvent.setup();
     renderProjectIssuesApp('project/issues?issues=issue101&open=issue101&id=myproject');
-    await waitOnDataLoaded();
 
-    expect(screen.getByLabelText('test1.js')).toBeInTheDocument();
+    expect(await screen.findByLabelText('test1.js')).toBeInTheDocument();
     expect(screen.getByLabelText('test2.js')).toBeInTheDocument();
 
     // Both line 1 of test1.js and test2.js should be rendered after expanding lines above snippet in test2.js
@@ -118,8 +120,8 @@ describe('issues source viewer', () => {
     renderProjectIssuesApp('project/issues?issues=issue1&open=issue1&id=myproject');
     await waitOnDataLoaded();
 
+    expect(await ui.line45.find()).toBeInTheDocument();
     expect(ui.line44.query()).not.toBeInTheDocument();
-    expect(ui.line45.get()).toBeInTheDocument();
     expect(ui.line199.query()).not.toBeInTheDocument();
 
     // Expand lines below snippet
@@ -141,7 +143,7 @@ describe('issues source viewer', () => {
 
     expect(ui.line199.query()).not.toBeInTheDocument();
 
-    await user.click(ui.expandAllLines.get());
+    await user.click(await ui.expandAllLines.find());
 
     // All lines should be rendered now
     expect(ui.line199.get()).toBeInTheDocument();
@@ -152,11 +154,11 @@ describe('issues source viewer', () => {
     renderProjectIssuesApp('project/issues?issues=issue1&open=issue1&id=myproject');
     await waitOnDataLoaded();
 
+    // There currently are two snippet shown
+    expect(await screen.findAllByRole('table')).toHaveLength(2);
+
     // Line 44 is between both snippets, it should not be shown
     expect(ui.line44.query()).not.toBeInTheDocument();
-
-    // There currently are two snippet shown
-    expect(screen.getAllByRole('table')).toHaveLength(2);
 
     // Expand lines above second snippet
     await user.click(ui.expandLinesAbove.get());
@@ -174,10 +176,9 @@ describe('issues source viewer', () => {
       issuesHandler.setIssueList([JUPYTER_ISSUE]);
       sourcesHandler.setSource('{not a JSON file}');
       renderProjectIssuesApp('project/issues?issues=some-issue&open=some-issue&id=myproject');
-      await waitOnDataLoaded();
 
       // Preview tab should be shown
-      expect(ui.preview.get()).toBeChecked();
+      expect(await ui.preview.find()).toBeChecked();
       expect(ui.code.get()).toBeInTheDocument();
 
       expect(
@@ -203,10 +204,9 @@ describe('issues source viewer', () => {
         },
       ]);
       renderProjectIssuesApp('project/issues?issues=some-issue&open=some-issue&id=myproject');
-      await waitOnDataLoaded();
 
       // Preview tab should be shown
-      expect(ui.preview.get()).toBeChecked();
+      expect(await ui.preview.find()).toBeChecked();
       expect(ui.code.get()).toBeInTheDocument();
 
       expect(
@@ -219,10 +219,9 @@ describe('issues source viewer', () => {
     it('should show preview tab when jupyter notebook issue', async () => {
       issuesHandler.setIssueList([JUPYTER_ISSUE]);
       renderProjectIssuesApp('project/issues?issues=some-issue&open=some-issue&id=myproject');
-      await waitOnDataLoaded();
 
       // Preview tab should be shown
-      expect(ui.preview.get()).toBeChecked();
+      expect(await ui.preview.find()).toBeChecked();
       expect(ui.code.get()).toBeInTheDocument();
 
       expect(
@@ -248,9 +247,8 @@ describe('issues source viewer', () => {
       ]);
       const user = userEvent.setup();
       renderProjectIssuesApp('project/issues?issues=some-issue&open=some-issue&id=myproject');
-      await waitOnDataLoaded();
 
-      await user.click(ui.code.get());
+      await user.click(await ui.code.find());
 
       expect(screen.getAllByRole('button', { name: 'Issue on Jupyter Notebook' })).toHaveLength(2);
       expect(screen.queryByText('Another unrelated issue')).not.toBeInTheDocument();
@@ -272,10 +270,9 @@ describe('issues source viewer', () => {
         },
       ]);
       renderProjectIssuesApp('project/issues?issues=some-issue&open=some-issue&id=myproject');
-      await waitOnDataLoaded();
 
       // Preview tab should be shown
-      expect(ui.preview.get()).toBeChecked();
+      expect(await ui.preview.find()).toBeChecked();
       expect(ui.code.get()).toBeInTheDocument();
 
       expect(

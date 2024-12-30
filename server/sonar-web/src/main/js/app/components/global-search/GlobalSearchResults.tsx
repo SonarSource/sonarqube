@@ -17,13 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ItemDivider, ItemHeader } from 'design-system';
+
 import * as React from 'react';
+import { useIntl } from 'react-intl';
+import { ItemDivider, ItemHeader } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import GlobalSearchShowMore from './GlobalSearchShowMore';
 import { ComponentResult, More, Results, sortQualifiers } from './utils';
 
 export interface Props {
+  loading: boolean;
   loadingMore?: string;
   more: More;
   onMoreClick: (qualifier: string) => void;
@@ -36,6 +39,7 @@ export interface Props {
 }
 
 export default function GlobalSearchResults(props: Props): React.ReactElement<Props> {
+  const intl = useIntl();
   const qualifiers = Object.keys(props.results);
   const renderedComponents: React.ReactNode[] = [];
   const allowMore = props.query.length !== 1;
@@ -71,5 +75,22 @@ export default function GlobalSearchResults(props: Props): React.ReactElement<Pr
     }
   });
 
-  return renderedComponents.length > 0 ? <>{renderedComponents}</> : props.renderNoResults();
+  const resultCount = Object.values(props.results).reduce(
+    (acc, components) => acc + (components?.length ?? 0),
+    0,
+  );
+
+  return (
+    <>
+      <output aria-busy={props.loading || Boolean(props.loadingMore)}>
+        {renderedComponents.length === 0 && props.renderNoResults()}
+        {renderedComponents.length > 0 && (
+          <span className="sw-sr-only">
+            {intl.formatMessage({ id: 'results_shown_x' }, { count: resultCount })}
+          </span>
+        )}
+      </output>
+      {renderedComponents.length > 0 && renderedComponents}
+    </>
+  );
 }

@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { DismissableFlagMessage, Link } from 'design-system';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { DismissableFlagMessage, Link } from '~design-system';
 import { MessageTypes, checkMessageDismissed, setMessageDismissed } from '../../api/messages';
 import { DocLink } from '../../helpers/doc-links';
 import { useDocUrl } from '../../helpers/docs';

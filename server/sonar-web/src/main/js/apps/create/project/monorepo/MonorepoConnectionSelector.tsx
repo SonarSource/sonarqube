@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Title } from 'design-system';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { GroupBase } from 'react-select';
+import { Title } from '~design-system';
 import { LabelValueSelectOption } from '../../../../helpers/search';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { DopSetting } from '../../../../types/dop-translation';

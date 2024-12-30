@@ -42,8 +42,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.stream;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.sonar.api.rule.RuleKey.EXTERNAL_RULE_REPO_PREFIX;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
@@ -69,7 +68,7 @@ public class RuleTesting {
   }
 
   public static RuleDto newRule() {
-    return newRule(RuleKey.of(randomAlphanumeric(30), randomAlphanumeric(30)));
+    return newRule(RuleKey.of(secure().nextAlphanumeric(30), secure().nextAlphanumeric(30)));
   }
 
   public static RuleDto newRule(RuleDescriptionSectionDto... ruleDescriptionSectionDtos) {
@@ -79,7 +78,7 @@ public class RuleTesting {
   public static RuleDto newRule(RuleKey key, RuleDescriptionSectionDto... ruleDescriptionSectionDtos) {
     RuleDto ruleDto = newRuleWithoutDescriptionSection(key);
     if (ruleDescriptionSectionDtos.length == 0) {
-      ruleDto.addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "description_" + randomAlphabetic(5)));
+      ruleDto.addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "description_" + secure().nextAlphabetic(5)));
     } else {
       stream(ruleDescriptionSectionDtos).forEach(ruleDto::addRuleDescriptionSectionDto);
     }
@@ -95,8 +94,8 @@ public class RuleTesting {
     return new RuleDto()
       .setRepositoryKey(ruleKey.repository())
       .setRuleKey(ruleKey.rule())
-      .setUuid("rule_uuid_" + randomAlphanumeric(5))
-      .setName("name_" + randomAlphanumeric(5))
+      .setUuid("rule_uuid_" + secure().nextAlphanumeric(5))
+      .setName("name_" + secure().nextAlphanumeric(5))
       .setDescriptionFormat(RuleDto.Format.HTML)
       .setType(CODE_SMELL)
       .setCleanCodeAttribute(CleanCodeAttribute.CLEAR)
@@ -109,9 +108,9 @@ public class RuleTesting {
       .setIsTemplate(false)
       .setIsExternal(false)
       .setIsAdHoc(false)
-      .setSystemTags(newHashSet("tag_" + randomAlphanumeric(5), "tag_" + randomAlphanumeric(5)))
-      .setLanguage("lang_" + randomAlphanumeric(3))
-      .setGapDescription("gapDescription_" + randomAlphanumeric(5))
+      .setSystemTags(newHashSet("tag_" + secure().nextAlphanumeric(5), "tag_" + secure().nextAlphanumeric(5)))
+      .setLanguage("lang_" + secure().nextAlphanumeric(3))
+      .setGapDescription("gapDescription_" + secure().nextAlphanumeric(5))
       .setDefRemediationBaseEffort(RANDOM.nextInt(10) + "h")
       // voluntarily offset the remediation to be able to detect issues
       .setDefRemediationGapMultiplier((RANDOM.nextInt(10) + 10) + "h")
@@ -119,36 +118,36 @@ public class RuleTesting {
       .setRemediationBaseEffort(RANDOM.nextInt(10) + "h")
       .setRemediationGapMultiplier(RANDOM.nextInt(10) + "h")
       .setRemediationFunction("LINEAR_OFFSET")
-      .setTags(newHashSet("tag_" + randomAlphanumeric(5), "tag_" + randomAlphanumeric(5)))
-      .setNoteData("noteData_" + randomAlphanumeric(5))
-      .setNoteUserUuid("noteUserUuid_" + randomAlphanumeric(5))
+      .setTags(newHashSet("tag_" + secure().nextAlphanumeric(5), "tag_" + secure().nextAlphanumeric(5)))
+      .setNoteData("noteData_" + secure().nextAlphanumeric(5))
+      .setNoteUserUuid("noteUserUuid_" + secure().nextAlphanumeric(5))
       .setNoteCreatedAt(System.currentTimeMillis() - 200)
       .setNoteUpdatedAt(System.currentTimeMillis() - 150)
-      .setAdHocName("adHocName_" + randomAlphanumeric(5))
-      .setAdHocDescription("adHocDescription_" + randomAlphanumeric(5))
+      .setAdHocName("adHocName_" + secure().nextAlphanumeric(5))
+      .setAdHocDescription("adHocDescription_" + secure().nextAlphanumeric(5))
       .setAdHocSeverity(Severity.ALL.get(RANDOM.nextInt(Severity.ALL.size())))
       .setAdHocType(RuleType.values()[RANDOM.nextInt(RuleType.values().length - 1)])
       .setCreatedAt(currentTimeMillis)
       .setUpdatedAt(currentTimeMillis + 5)
       .setScope(Scope.MAIN)
-      .setEducationPrinciples(Set.of(randomAlphanumeric(5), randomAlphanumeric(5)));
+      .setEducationPrinciples(Set.of(secure().nextAlphanumeric(5), secure().nextAlphanumeric(5)));
   }
 
   public static RuleParamDto newRuleParam(RuleDto rule) {
     return new RuleParamDto()
       .setRuleUuid(rule.getUuid())
-      .setName("name_" + randomAlphabetic(5))
-      .setDefaultValue("default_" + randomAlphabetic(5))
-      .setDescription("description_" + randomAlphabetic(5))
+      .setName("name_" + secure().nextAlphabetic(5))
+      .setDefaultValue("default_" + secure().nextAlphabetic(5))
+      .setDescription("description_" + secure().nextAlphabetic(5))
       .setType(RuleParamType.STRING.type());
   }
 
   public static DeprecatedRuleKeyDto newDeprecatedRuleKey() {
     return new DeprecatedRuleKeyDto()
       .setUuid(uuidFactory.create())
-      .setOldRepositoryKey(randomAlphanumeric(50))
-      .setOldRuleKey(randomAlphanumeric(50))
-      .setRuleUuid(randomAlphanumeric(40))
+      .setOldRepositoryKey(secure().nextAlphanumeric(50))
+      .setOldRuleKey(secure().nextAlphanumeric(50))
+      .setRuleUuid(secure().nextAlphanumeric(40))
       .setCreatedAt(System.currentTimeMillis());
   }
 
@@ -166,7 +165,7 @@ public class RuleTesting {
   }
 
   public static RuleDto newCustomRule(RuleDto templateRule) {
-    return newCustomRule(templateRule, "description_" + randomAlphabetic(5));
+    return newCustomRule(templateRule, "description_" + secure().nextAlphabetic(5));
   }
 
   public static RuleDto newCustomRule(RuleDto templateRule, String description) {

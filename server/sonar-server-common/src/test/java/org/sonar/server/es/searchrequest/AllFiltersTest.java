@@ -29,7 +29,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.junit.Test;
 import org.sonar.server.es.searchrequest.TopAggregationDefinition.FilterScope;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
@@ -59,7 +59,7 @@ public class AllFiltersTest {
 
   @Test
   public void addFilter_fails_if_fieldname_is_null() {
-    String name = randomAlphabetic(12);
+    String name = secure().nextAlphabetic(12);
     RequestFiltersComputer.AllFilters allFilters = RequestFiltersComputer.newAllFilters();
 
     BoolQueryBuilder boolQuery = boolQuery();
@@ -70,27 +70,26 @@ public class AllFiltersTest {
 
   @Test
   public void addFilter_fails_if_field_with_name_already_exists() {
-    String name1 = randomAlphabetic(12);
-    String name2 = randomAlphabetic(15);
+    String name = secure().nextAlphabetic(15);
     FilterScope filterScope1 = mock(FilterScope.class);
     FilterScope filterScope2 = mock(FilterScope.class);
     RequestFiltersComputer.AllFilters allFilters = RequestFiltersComputer.newAllFilters();
-    allFilters.addFilter(name2, filterScope1, boolQuery());
+    allFilters.addFilter(name, filterScope1, boolQuery());
 
     Stream.<ThrowingCallable>of(
       // exact same call
-      () -> allFilters.addFilter(name2, filterScope1, boolQuery()),
+      () -> allFilters.addFilter(name, filterScope1, boolQuery()),
       // call with a different fieldName
-      () -> allFilters.addFilter(name2, filterScope2, boolQuery()))
+      () -> allFilters.addFilter(name, filterScope2, boolQuery()))
       .forEach(t -> assertThatThrownBy(t)
         .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("A filter with name " + name2 + " has already been added"));
+        .hasMessage("A filter with name " + name + " has already been added"));
   }
 
   @Test
   public void addFilter_does_not_add_filter_if_QueryBuilder_is_null() {
-    String name = randomAlphabetic(12);
-    String name2 = randomAlphabetic(14);
+    String name = secure().nextAlphabetic(12);
+    String name2 = secure().nextAlphabetic(14);
     RequestFiltersComputer.AllFilters allFilters = RequestFiltersComputer.newAllFilters();
     BoolQueryBuilder query = boolQuery();
     allFilters.addFilter(name, mock(FilterScope.class), query)

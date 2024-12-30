@@ -69,8 +69,8 @@ public class CredentialsLocalAuthentication {
   }
 
   void generateHashToAvoidEnumerationAttack(){
-    String randomSalt = RandomStringUtils.randomAlphabetic(DUMMY_PASSWORD_AND_SALT_SIZE);
-    String randomPassword = RandomStringUtils.randomAlphabetic(DUMMY_PASSWORD_AND_SALT_SIZE);
+    String randomSalt = RandomStringUtils.secure().nextAlphabetic(DUMMY_PASSWORD_AND_SALT_SIZE);
+    String randomPassword = RandomStringUtils.secure().nextAlphabetic(DUMMY_PASSWORD_AND_SALT_SIZE);
     hashFunctions.get(HashMethod.PBKDF2).encryptPassword(randomSalt, randomPassword);
   }
 

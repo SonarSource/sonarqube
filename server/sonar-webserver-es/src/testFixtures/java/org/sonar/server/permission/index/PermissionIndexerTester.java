@@ -22,8 +22,7 @@ package org.sonar.server.permission.index;
 import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.stream.Stream;
-import org.assertj.core.api.Assertions;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.GroupDto;
@@ -43,7 +42,7 @@ public class PermissionIndexerTester {
 
   public PermissionIndexerTester allowOnlyAnyone(ComponentDto... portfolios) {
     stream(portfolios)
-      .forEach(p -> Preconditions.checkArgument(p.qualifier().equals(Qualifiers.VIEW), "Permission should be applied on a portfolio"));
+      .forEach(p -> Preconditions.checkArgument(p.qualifier().equals(ComponentQualifiers.VIEW), "Permission should be applied on a portfolio"));
     return allow(stream(portfolios).map(project -> new IndexPermissions(project.uuid(), project.qualifier()).allowAnyone()).toList());
   }
 

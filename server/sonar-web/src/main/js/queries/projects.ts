@@ -17,16 +17,72 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
-import { searchProjects } from '../api/components';
+
+import {
+  infiniteQueryOptions,
+  queryOptions,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
+import { getScannableProjects, searchProjects } from '../api/components';
 import { createProject, deleteProject } from '../api/project-management';
-import { createQueryHook } from './common';
+import { Query } from '../apps/projects/query';
+import { convertToQueryData, defineFacets } from '../apps/projects/utils';
+import { getNextPagingParam } from '../helpers/react-query';
+import { createInfiniteQueryHook, createQueryHook, StaleTime } from './common';
 import { invalidateMeasuresByComponentKey } from './measures';
+
+export const PROJECTS_PAGE_SIZE = 50;
+
+export const useProjectsQuery = createInfiniteQueryHook(
+  ({
+    isFavorite,
+    query,
+    pageIndex = 1,
+    isStandardMode,
+  }: {
+    isFavorite: boolean;
+    isStandardMode: boolean;
+    pageIndex?: number;
+    query: Query;
+  }) => {
+    const queryClient = useQueryClient();
+    const data = convertToQueryData(query, isFavorite, isStandardMode, {
+      ps: PROJECTS_PAGE_SIZE,
+      facets: defineFacets(query, isStandardMode).join(),
+      f: 'analysisDate,leakPeriodDate',
+    });
+
+    return infiniteQueryOptions({
+      queryKey: ['project', 'list', data] as const,
+      queryFn: ({ pageParam: pageIndex }) => {
+        return searchProjects({ ...data, p: pageIndex }).then((response) => {
+          response.components.forEach((project) => {
+            queryClient.setQueryData(['project', 'details', project.key], project);
+          });
+          return response;
+        });
+      },
+      staleTime: StaleTime.LONG,
+      getNextPageParam: getNextPagingParam,
+      getPreviousPageParam: getNextPagingParam,
+      initialPageParam: pageIndex,
+    });
+  },
+);
 
 export const useProjectQuery = createQueryHook((key: string) => {
   return queryOptions({
-    queryKey: ['project', key],
-    queryFn: ({ queryKey: [, key] }) => searchProjects({ filter: `query=${key}` }),
+    queryKey: ['project', 'details', key],
+    queryFn: ({ queryKey: [_1, _2, key] }) => searchProjects({ filter: `query=${key}` }),
+  });
+});
+
+export const useMyScannableProjectsQuery = createQueryHook(() => {
+  return queryOptions({
+    queryKey: ['project', 'my-scannable'],
+    queryFn: () => getScannableProjects(),
+    staleTime: StaleTime.NEVER,
   });
 });
 

@@ -18,30 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Button, ButtonVariety, Modal, Select } from '@sonarsource/echoes-react';
+import { Button, ButtonVariety, Checkbox, Modal, Select, Text } from '@sonarsource/echoes-react';
+import * as React from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 import {
   FlagMessage,
   FormField,
   InputField,
-  InputSelect,
   InputTextArea,
-  LabelValueSelectOption,
   Note,
-  Switch,
-  DestructiveIcon,
-  TrashIcon,
-} from 'design-system';
-import * as React from 'react';
-import { useIntl } from 'react-intl';
+  SafeHTMLInjection,
+  SanitizeLevel,
+} from '~design-system';
 import { Profile } from '../../../api/quality-profiles';
 import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { DocLink } from '../../../helpers/doc-links';
-import { sanitizeString } from '../../../helpers/sanitize';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { useActivateRuleMutation } from '../../../queries/quality-profiles';
+import { SoftwareImpactSeverity, SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { Feature } from '../../../types/features';
 import { IssueSeverity } from '../../../types/issues';
-import { Dict, Rule, RuleActivation, RuleDetails } from '../../../types/types';
+import { Rule, RuleActivation, RuleDetails } from '../../../types/types';
 import { sortProfiles } from '../../quality-profiles/utils';
 import { SeveritySelect } from './SeveritySelect';
 
@@ -77,15 +75,17 @@ export default function ActivationFormModal(props: Readonly<Props>) {
   const [changedPrioritizedRule, setChangedPrioritizedRule] = React.useState<boolean | undefined>(
     undefined,
   );
-  const [changedProfile, setChangedProfile] = React.useState<ProfileWithDepth | undefined>(
-    undefined,
-  );
+  const [changedProfile, setChangedProfile] = React.useState<string | undefined>(undefined);
   const [changedParams, setChangedParams] = React.useState<Record<string, string> | undefined>(
     undefined,
   );
   const [changedSeverity, setChangedSeverity] = React.useState<IssueSeverity | undefined>(
     undefined,
   );
+  const [changedImpactSeveritiesMap, setChangedImpactSeverities] = React.useState<
+    Map<SoftwareQuality, SoftwareImpactSeverity>
+  >(new Map());
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
 
   const profilesWithDepth = React.useMemo(() => {
     return getQualityProfilesWithDepth(profiles, rule.lang);
@@ -93,12 +93,23 @@ export default function ActivationFormModal(props: Readonly<Props>) {
 
   const prioritizedRule =
     changedPrioritizedRule ?? (activation ? activation.prioritizedRule : false);
-  const profile = changedProfile ?? profilesWithDepth[0];
+  const profile = profiles.find((p) => p.key === changedProfile) ?? profilesWithDepth[0];
   const params = changedParams ?? getRuleParams({ activation, rule });
   const allParams = getAllParams({ rule });
   const severity =
     changedSeverity ?? ((activation ? activation.severity : rule.severity) as IssueSeverity);
-  const profileOptions = profilesWithDepth.map((p) => ({ label: p.name, value: p }));
+  const impacts = new Map<SoftwareQuality, SoftwareImpactSeverity>([
+    ...rule.impacts.map((impact) => [impact.softwareQuality, impact.severity] as const),
+    ...(activation?.impacts
+      ?.filter((impact) => rule.impacts.some((i) => i.softwareQuality === impact.softwareQuality))
+      .map((impact) => [impact.softwareQuality, impact.severity] as const) ?? []),
+    ...changedImpactSeveritiesMap,
+  ]);
+  const profileOptions = profilesWithDepth.map((p) => ({
+    label: p.name,
+    value: p.key,
+    prefix: '   '.repeat(p.depth),
+  }));
   const isCustomRule = !!(rule as RuleDetails).templateKey;
   const activeInAllProfiles = profilesWithDepth.length <= 0;
   const isUpdateMode = !!activation;
@@ -109,6 +120,7 @@ export default function ActivationFormModal(props: Readonly<Props>) {
       setChangedProfile(undefined);
       setChangedParams(undefined);
       setChangedSeverity(undefined);
+      setChangedImpactSeverities(new Map());
     }
   }, [isOpen]);
 
@@ -119,8 +131,11 @@ export default function ActivationFormModal(props: Readonly<Props>) {
       key: profile?.key ?? '',
       params: getParamsFromMap(params),
       rule: rule.key,
-      severity,
+      severity: isStandardMode ? severity : undefined,
       prioritizedRule,
+      impacts: !isStandardMode
+        ? (Object.fromEntries(impacts) as Record<SoftwareQuality, SoftwareImpactSeverity>)
+        : undefined,
     };
     activateRule(data);
   };
@@ -207,39 +222,65 @@ export default function ActivationFormModal(props: Readonly<Props>) {
       }
       content={
         <form className="sw-pb-10" id={FORM_ID} onSubmit={handleFormSubmit}>
+          <Text as="div">
+            <FormattedMessage
+              id="coding_rules.rule_name.title"
+              values={{
+                name: <Text isSubdued>{rule.name}</Text>,
+              }}
+            />
+          </Text>
+
           {!isUpdateMode && activeInAllProfiles && (
-            <FlagMessage className="sw-mb-2" variant="info">
+            <FlagMessage className="sw-mt-4 sw-mb-6" variant="info">
               {intl.formatMessage({ id: 'coding_rules.active_in_all_profiles' })}
             </FlagMessage>
           )}
 
-          <FormField
-            ariaLabel={intl.formatMessage({ id: 'coding_rules.quality_profile' })}
-            label={intl.formatMessage({ id: 'coding_rules.quality_profile' })}
-            htmlFor="coding-rules-quality-profile-select-input"
-          >
-            <InputSelect
-              id="coding-rules-quality-profile-select"
-              inputId="coding-rules-quality-profile-select-input"
-              isClearable={false}
-              isDisabled={submitting || profilesWithDepth.length < MIN_PROFILES_TO_ENABLE_SELECT}
-              onChange={({ value }: LabelValueSelectOption<ProfileWithDepth>) => {
-                setChangedProfile(value);
-              }}
-              getOptionLabel={({ value }: LabelValueSelectOption<ProfileWithDepth>) =>
-                '   '.repeat(value.depth) + value.name
-              }
-              options={profileOptions}
-              value={profileOptions.find(({ value }) => value.key === profile?.key)}
-            />
-          </FormField>
+          {profilesWithDepth.length >= MIN_PROFILES_TO_ENABLE_SELECT ? (
+            <FormField
+              className="sw-mt-4"
+              ariaLabel={intl.formatMessage({ id: 'coding_rules.quality_profile' })}
+              label={intl.formatMessage({ id: 'coding_rules.quality_profile' })}
+              htmlFor="coding-rules-quality-profile-select"
+            >
+              <Select
+                id="coding-rules-quality-profile-select"
+                isNotClearable
+                isDisabled={submitting}
+                onChange={(value) => setChangedProfile(value ?? undefined)}
+                data={profileOptions}
+                value={profile?.key}
+              />
+            </FormField>
+          ) : (
+            <>
+              {(isUpdateMode || !activeInAllProfiles) && (
+                <Text as="div" className="sw-mb-6">
+                  <FormattedMessage
+                    id="coding_rules.quality_profile.title"
+                    values={{
+                      name: <Text isSubdued>{profile?.name}</Text>,
+                    }}
+                  />
+                </Text>
+              )}
+            </>
+          )}
 
           {hasFeature(Feature.PrioritizedRules) && (
             <FormField
               ariaLabel={intl.formatMessage({ id: 'coding_rules.prioritized_rule.title' })}
               label={intl.formatMessage({ id: 'coding_rules.prioritized_rule.title' })}
-              description={
-                <div className="sw-text-xs">
+            >
+              <Checkbox
+                onCheck={(checked) => setChangedPrioritizedRule(!!checked)}
+                label={intl.formatMessage({ id: 'coding_rules.prioritized_rule.switch_label' })}
+                id="coding-rules-prioritized-rule"
+                checked={prioritizedRule}
+              />
+              {prioritizedRule && (
+                <FlagMessage className="sw-mt-2" variant="info">
                   {intl.formatMessage({ id: 'coding_rules.prioritized_rule.note' })}
                   <DocumentationLink
                     className="sw-ml-2 sw-whitespace-nowrap"
@@ -247,49 +288,100 @@ export default function ActivationFormModal(props: Readonly<Props>) {
                   >
                     {intl.formatMessage({ id: 'learn_more' })}
                   </DocumentationLink>
-                </div>
-              }
-            >
-              <label
-                id="coding-rules-prioritized-rule"
-                className="sw-flex sw-items-center sw-gap-2"
-              >
-                <Switch
-                  onChange={setChangedPrioritizedRule}
-                  name={intl.formatMessage({ id: 'coding_rules.prioritized_rule.title' })}
-                  value={prioritizedRule}
-                />
-                <span className="sw-text-xs">
-                  {intl.formatMessage({ id: 'coding_rules.prioritized_rule.switch_label' })}
-                </span>
-              </label>
+                </FlagMessage>
+              )}
             </FormField>
           )}
 
-          <FormField
-            ariaLabel={intl.formatMessage({ id: 'severity_deprecated' })}
-            label={intl.formatMessage({ id: 'severity_deprecated' })}
-            htmlFor="coding-rules-severity-select"
-          >
-            <SeveritySelect
-              isDisabled={submitting}
-              onChange={({ value }: LabelValueSelectOption<IssueSeverity>) => {
-                setChangedSeverity(value);
-              }}
-              severity={severity}
-            />
-            <FlagMessage className="sw-mb-4 sw-mt-2" variant="info">
-              <div>
-                {intl.formatMessage({ id: 'coding_rules.severity_deprecated' })}
-                <DocumentationLink
-                  className="sw-ml-2 sw-whitespace-nowrap"
-                  to={DocLink.CleanCodeIntroduction}
-                >
-                  {intl.formatMessage({ id: 'learn_more' })}
-                </DocumentationLink>
-              </div>
-            </FlagMessage>
-          </FormField>
+          {isStandardMode && (
+            <>
+              <FormField label={intl.formatMessage({ id: 'coding_rules.custom_severity.title' })}>
+                <Text>
+                  <FormattedMessage
+                    id="coding_rules.custom_severity.description.standard"
+                    values={{
+                      link: (
+                        <DocumentationLink to={DocLink.RuleSeverity}>
+                          {intl.formatMessage({
+                            id: 'coding_rules.custom_severity.description.standard.link',
+                          })}
+                        </DocumentationLink>
+                      ),
+                    }}
+                  />
+                </Text>
+              </FormField>
+
+              <FormField
+                ariaLabel={intl.formatMessage({
+                  id: 'coding_rules.custom_severity.choose_severity',
+                })}
+                label={intl.formatMessage({ id: 'coding_rules.custom_severity.choose_severity' })}
+                htmlFor="coding-rules-custom-severity-select"
+              >
+                <SeveritySelect
+                  id="coding-rules-custom-severity-select"
+                  isDisabled={submitting}
+                  recommendedSeverity={rule.severity}
+                  onChange={(value: string) => {
+                    setChangedSeverity(value as IssueSeverity);
+                  }}
+                  severity={severity}
+                />
+              </FormField>
+            </>
+          )}
+
+          {!isStandardMode && (
+            <>
+              <FormField label={intl.formatMessage({ id: 'coding_rules.custom_severity.title' })}>
+                <Text>
+                  <FormattedMessage
+                    id="coding_rules.custom_severity.description.mqr"
+                    values={{
+                      link: (
+                        <DocumentationLink to={DocLink.RuleSeverity}>
+                          {intl.formatMessage({
+                            id: 'coding_rules.custom_severity.description.mqr.link',
+                          })}
+                        </DocumentationLink>
+                      ),
+                    }}
+                  />
+                </Text>
+              </FormField>
+
+              {Object.values(SoftwareQuality).map((quality) => {
+                const impact = rule.impacts.find((impact) => impact.softwareQuality === quality);
+                const id = `coding-rules-custom-severity-${quality}-select`;
+                return (
+                  <FormField
+                    htmlFor={id}
+                    key={quality}
+                    disabled={!impact}
+                    ariaLabel={intl.formatMessage({ id: `software_quality.${quality}` })}
+                    label={intl.formatMessage({ id: `software_quality.${quality}` })}
+                  >
+                    <SeveritySelect
+                      id={id}
+                      impactSeverity
+                      isDisabled={submitting || !impact}
+                      recommendedSeverity={impact?.severity ?? ''}
+                      onChange={(value: string) => {
+                        setChangedImpactSeverities(
+                          new Map(changedImpactSeveritiesMap).set(
+                            quality,
+                            value as SoftwareImpactSeverity,
+                          ),
+                        );
+                      }}
+                      severity={impacts.get(quality) ?? ''}
+                    />
+                  </FormField>
+                );
+              })}
+            </>
+          )}
 
           {isCustomRule ? (
             <Note as="p" className="sw-my-4">
@@ -368,11 +460,12 @@ export default function ActivationFormModal(props: Readonly<Props>) {
                   />
                 )}
                 {param.htmlDesc !== undefined && (
-                  <Note
-                    as="div"
-                    // eslint-disable-next-line react/no-danger
-                    dangerouslySetInnerHTML={{ __html: sanitizeString(param.htmlDesc) }}
-                  />
+                  <SafeHTMLInjection
+                    htmlAsString={param.htmlDesc}
+                    sanitizeLevel={SanitizeLevel.FORBID_SVG_MATHML}
+                  >
+                    <Note as="div" />
+                  </SafeHTMLInjection>
                 )}
               </FormField>
             ))
@@ -383,10 +476,7 @@ export default function ActivationFormModal(props: Readonly<Props>) {
   );
 }
 
-function getQualityProfilesWithDepth(
-  profiles: Profile[] = [],
-  ruleLang?: string,
-): ProfileWithDepth[] {
+function getQualityProfilesWithDepth(profiles: Profile[], ruleLang?: string): ProfileWithDepth[] {
   return sortProfiles(
     profiles.filter(
       (profile) =>
@@ -409,8 +499,8 @@ function getRuleParams({
   activation?: RuleActivation;
   rule: RuleDetails | Rule;
 }) {
-  const params: Dict<any> = {};
-  if (rule?.params) {
+  const params: Record<string, string> = {};
+  if (rule.params) {
     for (const param of rule.params) {
       if (param.type == "KEY_VALUE_MAP") {
         let paramsArray: String[] = [];

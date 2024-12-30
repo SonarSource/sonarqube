@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import { createPortal } from 'react-dom';
 import { Helmet } from 'react-helmet-async';
@@ -25,7 +26,8 @@ import { getSettingsNavigation } from '../../api/navigation';
 import { getPendingPlugins } from '../../api/plugins';
 import { getSystemStatus, waitSystemUPStatus } from '../../api/system';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
-import { translate, translateWithParameters } from '../../helpers/l10n';
+import { translate } from '../../helpers/l10n';
+import { getIntl } from '../../helpers/l10nBundle';
 import { AdminPagesContext } from '../../types/admin';
 import { AppState } from '../../types/appstate';
 import { PendingPluginResult } from '../../types/plugins';
@@ -45,6 +47,7 @@ interface State {
 }
 
 export class AdminContainer extends React.PureComponent<AdminContainerProps, State> {
+  intl = getIntl();
   mounted = false;
   portalAnchor: Element | null = null;
   state: State = {
@@ -132,9 +135,9 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
       <>
         <Helmet
           defer={false}
-          titleTemplate={translateWithParameters(
-            'page_title.template.with_category',
-            translate('layout.settings'),
+          titleTemplate={this.intl.formatMessage(
+            { id: 'page_title.template.with_category' },
+            { page: translate('layout.settings') },
           )}
         />
         {this.portalAnchor &&

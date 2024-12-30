@@ -17,15 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { sortBy } from 'lodash';
 import { MetricKey } from '~sonar-aligned/types/metrics';
+import { SOFTWARE_QUALITY_RATING_METRICS_MAP } from '../../helpers/constants';
 import { getLocalizedMetricName } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
 import { CaycStatus, Condition, Dict, Group, Metric, QualityGate } from '../../types/types';
 import { UserBase } from '../../types/users';
 
 interface GroupedByMetricConditions {
-  caycConditions: Condition[];
+  builtInNewCodeConditions: Condition[];
+  builtInOverallConditions: Condition[];
   newCodeConditions: Condition[];
   overallCodeConditions: Condition[];
 }
@@ -134,6 +137,14 @@ export const CAYC_CONDITION_ORDER_PRIORITIES: Dict<number> = {
   [MetricKey.new_duplicated_lines_density]: 4,
 };
 
+export const AI_SUPPORTED_CONDITION_ORDER_PRIORITIES: Dict<number> = {
+  [MetricKey.software_quality_security_rating]: 1,
+  [MetricKey.security_rating]: 1,
+  [MetricKey.security_hotspots_reviewed]: 2,
+  [MetricKey.software_quality_reliability_rating]: 3,
+  [MetricKey.reliability_rating]: 3,
+};
+
 const CAYC_CONDITIONS_WITHOUT_FIXED_VALUE: AllCaycMetricKeys[] = [
   MetricKey.new_duplicated_lines_density,
   MetricKey.new_coverage,
@@ -146,6 +157,33 @@ const CAYC_CONDITIONS_WITH_FIXED_VALUE: AllCaycMetricKeys[] = [
   MetricKey.new_maintainability_rating,
 ];
 const NON_EDITABLE_CONDITIONS: MetricKey[] = [MetricKey.prioritized_rule_issues];
+
+export const STANDARD_CONDITIONS_MAP: Partial<Record<MetricKey, MetricKey>> = {
+  [MetricKey.new_blocker_violations]: MetricKey.new_software_quality_blocker_issues,
+  [MetricKey.new_critical_violations]: MetricKey.new_software_quality_high_issues,
+  [MetricKey.new_major_violations]: MetricKey.new_software_quality_medium_issues,
+  [MetricKey.new_minor_violations]: MetricKey.new_software_quality_low_issues,
+  [MetricKey.new_info_violations]: MetricKey.new_software_quality_info_issues,
+  [MetricKey.blocker_violations]: MetricKey.software_quality_blocker_issues,
+  [MetricKey.critical_violations]: MetricKey.software_quality_high_issues,
+  [MetricKey.major_violations]: MetricKey.software_quality_medium_issues,
+  [MetricKey.minor_violations]: MetricKey.software_quality_low_issues,
+  [MetricKey.info_violations]: MetricKey.software_quality_info_issues,
+  [MetricKey.new_vulnerabilities]: MetricKey.new_software_quality_security_issues,
+  [MetricKey.new_bugs]: MetricKey.new_software_quality_reliability_issues,
+  [MetricKey.new_code_smells]: MetricKey.new_software_quality_maintainability_issues,
+  [MetricKey.vulnerabilities]: MetricKey.software_quality_security_issues,
+  [MetricKey.bugs]: MetricKey.software_quality_reliability_issues,
+  [MetricKey.code_smells]: MetricKey.software_quality_maintainability_issues,
+  ...SOFTWARE_QUALITY_RATING_METRICS_MAP,
+};
+
+export const MQR_CONDITIONS_MAP: Partial<Record<MetricKey, MetricKey | null>> = {
+  ...Object.fromEntries(
+    Object.entries(STANDARD_CONDITIONS_MAP).map(([key, value]) => [value, key]),
+  ),
+  [MetricKey.high_impact_accepted_issues]: null,
+};
 
 export function isConditionWithFixedValue(condition: Condition) {
   return CAYC_CONDITIONS_WITH_FIXED_VALUE.includes(condition.metric as OptimizedCaycMetricKeys);
@@ -205,12 +243,19 @@ export function getWeakMissingAndNonCaycConditions(conditions: Condition[]) {
 function groupConditionsByMetric(
   conditions: Condition[],
   isBuiltInQG = false,
+  isAiSupportedQG = false,
 ): GroupedByMetricConditions {
   return conditions.reduce(
     (result, condition) => {
       const isNewCode = isDiffMetric(condition.metric);
       if (condition.isCaycCondition && isBuiltInQG) {
-        result.caycConditions.push(condition);
+        result.builtInNewCodeConditions.push(condition);
+      } else if (
+        isBuiltInQG &&
+        isAiSupportedQG &&
+        Object.keys(AI_SUPPORTED_CONDITION_ORDER_PRIORITIES).includes(condition.metric)
+      ) {
+        result.builtInOverallConditions.push(condition);
       } else if (isNewCode) {
         result.newCodeConditions.push(condition);
       } else {
@@ -222,7 +267,8 @@ function groupConditionsByMetric(
     {
       overallCodeConditions: [] as Condition[],
       newCodeConditions: [] as Condition[],
-      caycConditions: [] as Condition[],
+      builtInOverallConditions: [] as Condition[],
+      builtInNewCodeConditions: [] as Condition[],
     },
   );
 }
@@ -231,8 +277,9 @@ export function groupAndSortByPriorityConditions(
   conditions: Condition[],
   metrics: Dict<Metric>,
   isBuiltInQG = false,
+  isAiCodeSupportedQG = false,
 ): GroupedByMetricConditions {
-  const groupedConditions = groupConditionsByMetric(conditions, isBuiltInQG);
+  const groupedConditions = groupConditionsByMetric(conditions, isBuiltInQG, isAiCodeSupportedQG);
 
   const sortFns = [
     (condition: Condition) => CAYC_CONDITION_ORDER_PRIORITIES[condition.metric],
@@ -244,7 +291,14 @@ export function groupAndSortByPriorityConditions(
     groupedConditions.overallCodeConditions,
     sortFns,
   );
-  groupedConditions.caycConditions = sortBy(groupedConditions.caycConditions, sortFns);
+  groupedConditions.builtInNewCodeConditions = sortBy(
+    groupedConditions.builtInNewCodeConditions,
+    sortFns,
+  );
+  groupedConditions.builtInOverallConditions = sortBy(
+    groupedConditions.builtInOverallConditions,
+    (condition: Condition) => AI_SUPPORTED_CONDITION_ORDER_PRIORITIES[condition.metric],
+  );
 
   return groupedConditions;
 }

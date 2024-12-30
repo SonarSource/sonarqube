@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { QualifierIcon } from 'design-system';
+
 import { omit } from 'lodash';
 import * as React from 'react';
+import { QualifierIcon } from '~design-system';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { getFiles } from '../../../api/components';

@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { SpotlightTour, SpotlightTourStep } from 'design-system';
-import React from 'react';
+import { SpotlightTour, SpotlightTourStep } from '~design-system';
 import { DocLink } from '../../../helpers/doc-links';
 import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';

@@ -31,6 +31,7 @@ public final class QProfileChangeQuery {
   private final String profileUuid;
   private Long fromIncluded;
   private Long toExcluded;
+  private String filterMode;
   private int offset = 0;
   private int limit = 100;
 
@@ -58,6 +59,15 @@ public final class QProfileChangeQuery {
 
   public void setToExcluded(@Nullable Long l) {
     this.toExcluded = l;
+  }
+
+  @CheckForNull
+  public String getFilterMode() {
+    return filterMode;
+  }
+
+  public void setFilterMode(@Nullable String filterMode) {
+    this.filterMode = filterMode;
   }
 
   public int getOffset() {

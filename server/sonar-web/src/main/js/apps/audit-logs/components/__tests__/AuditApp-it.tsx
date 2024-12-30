@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import userEvent from '@testing-library/user-event';
 import { getDate, getMonth, getYear, subDays } from 'date-fns';
 import { byPlaceholderText, byRole, byTestId, byText } from '~sonar-aligned/helpers/testSelector';
@@ -49,6 +50,14 @@ jest.mock('../../../../helpers/dates', () => {
   return {
     ...jest.requireActual('../../../../helpers/dates'),
     now: jest.fn(() => new Date('2020-07-21T12:00:00Z')),
+  };
+});
+
+jest.mock('../../../../helpers/l10nBundle', () => {
+  const bundle = jest.requireActual('../../../../helpers/l10nBundle');
+  return {
+    ...bundle,
+    getIntl: () => ({ formatMessage: jest.fn(({ id }) => `${id}`) }),
   };
 });
 

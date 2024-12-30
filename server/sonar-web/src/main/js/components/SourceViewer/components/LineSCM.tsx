@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { memo, useCallback, useState } from 'react';
 import {
   LineMeta,
   LineSCMStyled,
   LineSCMStyledDiv,
   OutsideClickHandler,
   PopupPlacement,
-} from 'design-system';
-import React, { memo, useCallback, useState } from 'react';
+} from '~design-system';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { SourceLine } from '../../../types/types';
 import Tooltip from '../../controls/Tooltip';

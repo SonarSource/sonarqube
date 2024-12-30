@@ -34,7 +34,6 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.rule.ws.RuleQueryFactory;
 import org.sonar.server.user.UserSession;
 
-import static java.lang.Boolean.TRUE;
 import static java.lang.String.format;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_03;
 import static org.sonar.server.qualityprofile.ws.BulkChangeWsResponse.writeResponse;
@@ -78,6 +77,8 @@ public class ActivateRulesAction implements QProfileWsAction {
       .setPost(true)
       .setSince("4.4")
       .setChangelog(
+        new Change("10.8",
+          format("The parameters '%s', '%s', '%s', and '%s'  are not deprecated anymore.", PARAM_SEVERITIES, PARAM_TARGET_SEVERITY, PARAM_ACTIVE_SEVERITIES, PARAM_TYPES)),
         new Change("10.6", format("Add parameter '%s'.", PARAM_PRIORITIZED_RULE)),
         new Change("10.2", format("Parameters '%s', '%s', '%s', and '%s' are now deprecated.", PARAM_SEVERITIES, PARAM_TARGET_SEVERITY, PARAM_ACTIVE_SEVERITIES, PARAM_TYPES)),
         new Change("10.0", "Parameter 'sansTop25' is deprecated"))
@@ -92,7 +93,6 @@ public class ActivateRulesAction implements QProfileWsAction {
 
     activate.createParam(PARAM_TARGET_SEVERITY)
       .setDescription("Severity to set on the activated rules")
-      .setDeprecatedSince("10.2")
       .setPossibleValues(Severity.ALL);
 
     activate.createParam(PARAM_PRIORITIZED_RULE)

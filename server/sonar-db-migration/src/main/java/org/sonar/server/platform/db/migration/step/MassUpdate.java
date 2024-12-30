@@ -38,7 +38,7 @@ public class MassUpdate {
      *
      * @return true if the row must be updated, else false. If false, then the update parameter must not be touched.
      */
-    boolean handle(Select.Row row, SqlStatement update) throws SQLException;
+    boolean handle(Select.Row row, Upsert update) throws SQLException;
   }
 
   @FunctionalInterface
@@ -49,7 +49,7 @@ public class MassUpdate {
      * @param updateIndex 0-based
      * @return true if the row must be updated, else false. If false, then the update parameter must not be touched.
      */
-    boolean handle(Select.Row row, SqlStatement update, int updateIndex) throws SQLException;
+    boolean handle(Select.Row row, Upsert update, int updateIndex) throws SQLException;
   }
 
   private final Database db;

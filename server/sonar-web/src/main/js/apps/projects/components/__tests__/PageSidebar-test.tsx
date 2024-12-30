@@ -17,21 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import * as React from 'react';
-import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
+import { ModeServiceMock } from '../../../../api/mocks/ModeServiceMock';
 import { CurrentUserContext } from '../../../../app/components/current-user/CurrentUserContext';
 import { mockCurrentUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { SettingsKey } from '../../../../types/settings';
+import { Mode } from '../../../../types/mode';
 import { CurrentUser } from '../../../../types/users';
 import PageSidebar, { PageSidebarProps } from '../PageSidebar';
 
-const settingsHandler = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 
 beforeEach(() => {
-  settingsHandler.reset();
+  modeHandler.reset();
 });
 
 it('should render the right facets for overview', () => {
@@ -85,22 +85,25 @@ it('should allow to clear all filters', async () => {
 });
 
 it('should show legacy filters', async () => {
-  settingsHandler.set(SettingsKey.LegacyMode, 'true');
+  modeHandler.setMode(Mode.Standard);
   renderPageSidebar();
 
   expect(await screen.findAllByText(/projects.facets.rating_option/)).toHaveLength(20);
+  expect(screen.getByText('projects.facets.security.description')).toBeInTheDocument();
+  expect(screen.getByText('projects.facets.reliability.description')).toBeInTheDocument();
   expect(screen.getByText('projects.facets.rating_option.security.legacy.1')).toBeInTheDocument();
   expect(
     screen.getByText('projects.facets.rating_option.reliability.legacy.1'),
   ).toBeInTheDocument();
 });
 
-// eslint-disable-next-line jest/no-disabled-tests
-it.skip('should show non legacy filters', async () => {
-  settingsHandler.set(SettingsKey.LegacyMode, 'false');
+it('should show non legacy filters', async () => {
+  modeHandler.setMode(Mode.MQR);
   renderPageSidebar();
 
   expect(await screen.findAllByText(/projects.facets.rating_option/)).toHaveLength(20);
+  expect(screen.queryByText('projects.facets.security.description')).not.toBeInTheDocument();
+  expect(screen.queryByText('projects.facets.reliability.description')).not.toBeInTheDocument();
   expect(screen.getByText('projects.facets.rating_option.security.1')).toBeInTheDocument();
   expect(screen.getByText('projects.facets.rating_option.reliability.1')).toBeInTheDocument();
 });

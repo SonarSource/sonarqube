@@ -27,6 +27,12 @@
         </case>
       </discriminator>
     </collection>
+        <collection property="impacts" column="ii_softwareQuality" notNullColumn="ii_softwareQuality"
+                    javaType="java.util.Set" ofType="Impact">
+      <result property="softwareQuality" column="ii_softwareQuality"/>
+      <result property="severity" column="ii_severity"/>
+      <result property="manualSeverity" column="ii_manualSeverity"/>
+    </collection>
   </resultMap>
 
   <sql id="issueColumns">
@@ -44,6 +50,7 @@
     r.security_standards as securityStandards,
     r.name as ruleName,
     i.issue_creation_date as creationDate,
+    <include refid="org.sonar.db.issue.IssueMapper.issueImpactsColumns"/>
     <include refid="org.sonar.db.issue.IssueMapper.isNewCodeReferenceIssue"/>
   </sql>
 
@@ -59,6 +66,7 @@
     inner join components p on p.uuid=i.component_uuid
     left join issue_changes ic on ic.issue_key = i.kee
     left join new_code_reference_issues n on i.kee = n.issue_key
+    left outer join issues_impacts ii on i.kee = ii.issue_key
     where i.project_uuid=#{branchUuid,jdbcType=VARCHAR}
     and i.status !='CLOSED'
     <!--BUG, VULNERABILITY, SECURITY_HOTSPOT    -->

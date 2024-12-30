@@ -17,17 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, ButtonVariety, Modal } from '@sonarsource/echoes-react';
+import { FormEvent, useState } from 'react';
+import { useIntl } from 'react-intl';
+import { isEmail } from 'validator';
 import {
   addGlobalErrorMessage,
   addGlobalSuccessMessage,
   FormField,
   InputField,
   InputTextArea,
-} from 'design-system';
-import React, { FormEvent, useState } from 'react';
-import { useIntl } from 'react-intl';
-import { isEmail } from 'validator';
+} from '~design-system';
 import { useCurrentLoginUser } from '../../../../app/components/current-user/CurrentUserContext';
 import { translate } from '../../../../helpers/l10n';
 import { useSendTestEmailMutation } from '../../../../queries/emails';

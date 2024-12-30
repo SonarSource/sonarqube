@@ -26,7 +26,8 @@ import java.util.Map;
 import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.batch.rule.LoadedActiveRule;
+import org.sonar.scanner.rule.LoadedActiveRule;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.scanner.WsTestUtil;
@@ -82,6 +83,10 @@ public class DefaultActiveRulesLoaderTest {
       .filteredOn(r -> r.getRuleKey().equals(EXAMPLE_KEY))
       .extracting(LoadedActiveRule::getSeverity)
       .containsExactly(SEVERITY_VALUE);
+    assertThat(activeRules)
+      .filteredOn(r -> r.getRuleKey().equals(EXAMPLE_KEY))
+      .extracting(LoadedActiveRule::getImpacts)
+      .containsExactlyInAnyOrder(Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH));
 
     WsTestUtil.verifyCall(wsClient, urlOfPage(1));
     WsTestUtil.verifyCall(wsClient, urlOfPage(2));
@@ -119,6 +124,9 @@ public class DefaultActiveRulesLoaderTest {
         if (EXAMPLE_KEY.equals(key)) {
           activeBuilder.addParams(Rules.Active.Param.newBuilder().setKey(FORMAT_KEY).setValue(FORMAT_VALUE));
           activeBuilder.setSeverity(SEVERITY_VALUE);
+          activeBuilder.setImpacts(Rules.Impacts.newBuilder().addImpacts(Common.Impact.newBuilder()
+            .setSoftwareQuality(Common.SoftwareQuality.MAINTAINABILITY)
+            .setSeverity(Common.ImpactSeverity.HIGH).build()).build());
         }
         ActiveList activeList = Rules.ActiveList.newBuilder().addActiveList(activeBuilder).build();
         actives.putAllActives(Map.of(key.toString(), activeList));

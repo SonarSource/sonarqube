@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ContentCell, Table, TableRow, TableSeparator } from 'design-system';
 import { partition } from 'lodash';
 import * as React from 'react';
+import { ContentCell, Table, TableRow, TableSeparator } from '~design-system';
 import UseQuery from '../../helpers/UseQuery';
 import { translate } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';

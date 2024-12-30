@@ -24,16 +24,19 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ProjectData;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
@@ -42,6 +45,7 @@ import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.TaintChecker;
@@ -79,7 +83,7 @@ public class PullActionIT {
   private final TaintChecker taintChecker = mock(TaintChecker.class);
   private final PullActionProtobufObjectGenerator pullActionProtobufObjectGenerator = new PullActionProtobufObjectGenerator();
 
-  private final ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private final ComponentTypesRule resourceTypes = new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT);
   private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), resourceTypes);
 
   private final IssueDbTester issueDbTester = new IssueDbTester(db);
@@ -204,7 +208,8 @@ public class PullActionIT {
       .setIssueCreationTime(NOW)
       .setStatus(Issue.STATUS_RESOLVED)
       .setLocations(mainLocation.build())
-      .setType(Common.RuleType.BUG.getNumber()));
+      .setType(Common.RuleType.BUG.getNumber())
+      .replaceAllImpacts(List.of(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.MEDIUM))));
     loginWithBrowsePermission(issueDto);
 
     TestRequest request = tester.newRequest()
@@ -223,6 +228,8 @@ public class PullActionIT {
     assertThat(issueLite.getResolved()).isTrue();
     assertThat(issueLite.getRuleKey()).isEqualTo("java:S1000");
     assertThat(issueLite.getType()).isEqualTo(Common.RuleType.forNumber(issueDto.getType()));
+    assertThat(issueLite.getImpactsList()).extracting(Common.Impact::getSoftwareQuality, Common.Impact::getSeverity)
+      .containsExactly(Tuple.tuple(Common.SoftwareQuality.MAINTAINABILITY, Common.ImpactSeverity.MEDIUM));
 
     Issues.Location location = issueLite.getMainLocation();
     assertThat(location.getMessage()).isEqualTo(issueDto.getMessage());
@@ -419,7 +426,7 @@ public class PullActionIT {
       .setComponent(correctFile)
       .setType(2));
 
-    //this one should not be returned - it is a different rule repository
+    // this one should not be returned - it is a different rule repository
     issueDbTester.insertIssue(p -> p.setSeverity("MINOR")
       .setManualSeverity(true)
       .setMessage("openIssue")

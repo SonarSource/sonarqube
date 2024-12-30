@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { render, screen } from '@testing-library/react';
-import React from 'react';
 import { MemoryRouter, Params, Route, Routes } from 'react-router-dom';
 import { CatchAll } from '../../../helpers/testReactTestingUtils';
 import { Dict } from '../../../types/types';

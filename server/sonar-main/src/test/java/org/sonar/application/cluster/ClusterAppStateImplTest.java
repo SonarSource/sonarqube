@@ -77,6 +77,17 @@ public class ClusterAppStateImplTest {
   }
 
   @Test
+  public void tryToReleaseWebLeaderLock_shouldReleaseLock() {
+    try (ClusterAppStateImpl underTest = createClusterAppState()) {
+      underTest.tryToLockWebLeader();
+      assertThat(underTest.getLeaderHostName()).isPresent();
+
+      underTest.tryToReleaseWebLeaderLock();
+      assertThat(underTest.getLeaderHostName()).isEmpty();
+    }
+  }
+
+  @Test
   public void check_if_elasticsearch_is_operational_on_cluster() {
     AppStateListener listener = mock(AppStateListener.class);
     EsConnector esConnectorMock = mock(EsConnector.class);

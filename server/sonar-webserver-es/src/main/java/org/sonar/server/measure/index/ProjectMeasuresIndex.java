@@ -55,7 +55,7 @@ import org.elasticsearch.search.aggregations.metrics.Sum;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.NestedSortBuilder;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.server.es.EsClient;
@@ -275,7 +275,7 @@ public class ProjectMeasuresIndex {
 
     BoolQueryBuilder esFilter = boolQuery()
       .filter(termQuery(FIELD_INDEX_TYPE, TYPE_PROJECT_MEASURES.getName()))
-      .filter(termQuery(FIELD_QUALIFIER, Qualifiers.PROJECT));
+      .filter(termQuery(FIELD_QUALIFIER, ComponentQualifiers.PROJECT));
     searchSourceBuilder.query(esFilter);
     searchSourceBuilder.aggregation(AggregationBuilders.terms(FIELD_LANGUAGES)
       .field(FIELD_LANGUAGES)
@@ -388,7 +388,7 @@ public class ProjectMeasuresIndex {
   private static AbstractAggregationBuilder<?> createQualifierFacet() {
     return filters(
       FILTER_QUALIFIER,
-      Stream.of(Qualifiers.APP, Qualifiers.PROJECT)
+      Stream.of(ComponentQualifiers.APP, ComponentQualifiers.PROJECT)
         .map(qualifier -> new KeyedFilter(qualifier, termQuery(FIELD_QUALIFIER, qualifier)))
         .toArray(KeyedFilter[]::new));
   }

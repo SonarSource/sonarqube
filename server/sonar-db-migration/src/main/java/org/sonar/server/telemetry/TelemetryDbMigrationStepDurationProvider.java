@@ -21,33 +21,17 @@ package org.sonar.server.telemetry;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.sonar.telemetry.core.AbstractTelemetryDataProvider;
 import org.sonar.telemetry.core.Dimension;
 import org.sonar.telemetry.core.Granularity;
-import org.sonar.telemetry.core.TelemetryDataProvider;
 import org.sonar.telemetry.core.TelemetryDataType;
 
-public class TelemetryDbMigrationStepDurationProvider implements TelemetryDataProvider<Long> {
+public class TelemetryDbMigrationStepDurationProvider extends AbstractTelemetryDataProvider<Long> {
 
   private final Map<String, Long> dbMigrationStepDurations = new HashMap<>();
 
-  @Override
-  public String getMetricKey() {
-    return "db_migration_step_duration";
-  }
-
-  @Override
-  public Dimension getDimension() {
-    return Dimension.INSTALLATION;
-  }
-
-  @Override
-  public Granularity getGranularity() {
-    return Granularity.ADHOC;
-  }
-
-  @Override
-  public TelemetryDataType getType() {
-    return TelemetryDataType.INTEGER;
+  public TelemetryDbMigrationStepDurationProvider() {
+    super("db_migration_step_duration", Dimension.INSTALLATION, Granularity.ADHOC, TelemetryDataType.INTEGER);
   }
 
   @Override

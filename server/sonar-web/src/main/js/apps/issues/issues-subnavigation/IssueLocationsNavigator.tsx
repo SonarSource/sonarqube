@@ -17,14 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
+import { Fragment, useCallback, useRef } from 'react';
 import {
   BareButton,
   ExecutionFlowAccordion,
   SubnavigationFlowSeparator,
   themeBorder,
-} from 'design-system';
-import React, { Fragment, useCallback, useRef } from 'react';
+} from '~design-system';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Flow, FlowType, Issue } from '../../../types/types';
 import { getLocations, getTypedFlows } from '../utils';

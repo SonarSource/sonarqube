@@ -27,7 +27,7 @@ dependencies {
   testImplementation 'org.assertj:assertj-core'
   testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.junit.jupiter:junit-jupiter-params'
-  testImplementation 'org.hamcrest:hamcrest-core'
+  testImplementation 'org.hamcrest:hamcrest'
   testImplementation 'org.mockito:mockito-core'
   testImplementation 'org.simpleframework:simple'
   testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
@@ -40,7 +40,7 @@ dependencies {
 }
 
 // Used by sonar-db-core to run DB Unit Tests
-artifactoryPublish.skip = false
+artifactoryPublish.skip = !deployCommunity
 publishing {
   publications {
     mavenJava(MavenPublication) {

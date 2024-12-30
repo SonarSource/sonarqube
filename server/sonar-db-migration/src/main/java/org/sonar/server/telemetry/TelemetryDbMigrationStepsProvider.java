@@ -20,33 +20,17 @@
 package org.sonar.server.telemetry;
 
 import java.util.Optional;
+import org.sonar.telemetry.core.AbstractTelemetryDataProvider;
 import org.sonar.telemetry.core.Dimension;
 import org.sonar.telemetry.core.Granularity;
-import org.sonar.telemetry.core.TelemetryDataProvider;
 import org.sonar.telemetry.core.TelemetryDataType;
 
-public class TelemetryDbMigrationStepsProvider implements TelemetryDataProvider<Integer> {
+public class TelemetryDbMigrationStepsProvider extends AbstractTelemetryDataProvider<Integer> {
 
   private Integer dbMigrationCompletedSteps = null;
 
-  @Override
-  public String getMetricKey() {
-    return "db_migration_completed_steps";
-  }
-
-  @Override
-  public Granularity getGranularity() {
-    return Granularity.ADHOC;
-  }
-
-  @Override
-  public Dimension getDimension() {
-    return Dimension.INSTALLATION;
-  }
-
-  @Override
-  public TelemetryDataType getType() {
-    return TelemetryDataType.INTEGER;
+  public TelemetryDbMigrationStepsProvider() {
+    super("db_migration_completed_steps", Dimension.INSTALLATION, Granularity.ADHOC, TelemetryDataType.INTEGER);
   }
 
   public void setDbMigrationCompletedSteps(Integer dbMigrationCompletedSteps) {

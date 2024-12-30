@@ -76,6 +76,7 @@ import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.report.ScannerReportUtils;
 import org.sonar.scanner.repository.ContextPropertiesCache;
+import org.sonar.scanner.repository.TelemetryCache;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static java.lang.Math.max;
@@ -115,20 +116,21 @@ public class DefaultSensorStorage implements SensorStorage {
   private final ReportPublisher reportPublisher;
   private final SonarCpdBlockIndex index;
   private final ContextPropertiesCache contextPropertiesCache;
+  private final TelemetryCache telemetryCache;
   private final Configuration settings;
   private final ScannerMetrics scannerMetrics;
   private final BranchConfiguration branchConfiguration;
   private final Set<String> alreadyLogged = new HashSet<>();
 
-  public DefaultSensorStorage(MetricFinder metricFinder, IssuePublisher moduleIssues, Configuration settings,
-    ReportPublisher reportPublisher, SonarCpdBlockIndex index,
-    ContextPropertiesCache contextPropertiesCache, ScannerMetrics scannerMetrics, BranchConfiguration branchConfiguration) {
+  public DefaultSensorStorage(MetricFinder metricFinder, IssuePublisher moduleIssues, Configuration settings, ReportPublisher reportPublisher, SonarCpdBlockIndex index,
+    ContextPropertiesCache contextPropertiesCache, TelemetryCache telemetryCache, ScannerMetrics scannerMetrics, BranchConfiguration branchConfiguration) {
     this.metricFinder = metricFinder;
     this.moduleIssues = moduleIssues;
     this.settings = settings;
     this.reportPublisher = reportPublisher;
     this.index = index;
     this.contextPropertiesCache = contextPropertiesCache;
+    this.telemetryCache = telemetryCache;
     this.scannerMetrics = scannerMetrics;
     this.branchConfiguration = branchConfiguration;
   }
@@ -151,7 +153,8 @@ public class DefaultSensorStorage implements SensorStorage {
     }
 
     if (component instanceof InputDir || (component instanceof DefaultInputModule defaultInputModule && defaultInputModule.definition().getParent() != null)) {
-      logOnce(measure.metric().key(), "Storing measures on folders or modules is deprecated. Provided value of metric '{}' is ignored.", measure.metric().key());
+      logOnce(measure.metric().key(), "Storing measures on folders or modules is deprecated. Provided value of metric '{}' is ignored.",
+        measure.metric().key());
       return;
     }
 
@@ -166,7 +169,8 @@ public class DefaultSensorStorage implements SensorStorage {
     }
 
     if (!measure.isFromCore() && NEWLY_CORE_METRICS_KEYS.contains(measure.metric().key())) {
-      logOnce(measure.metric().key(), "Metric '{}' is an internal metric computed by SonarQube. Provided value is ignored.", measure.metric().key());
+      logOnce(measure.metric().key(), "Metric '{}' is an internal metric computed by SonarQube. Provided value is ignored.",
+        measure.metric().key());
       return;
     }
 
@@ -361,8 +365,10 @@ public class DefaultSensorStorage implements SensorStorage {
     SortedMap<Integer, ScannerReport.LineCoverage.Builder> coveragePerLine = reloadExistingCoverage(inputFile);
 
     int lineCount = inputFile.lines();
-    mergeLineCoverageValues(lineCount, defaultCoverage.hitsByLine(), coveragePerLine, (value, builder) -> builder.setHits(builder.getHits() || value > 0));
-    mergeLineCoverageValues(lineCount, defaultCoverage.conditionsByLine(), coveragePerLine, (value, builder) -> builder.setConditions(max(value, builder.getConditions())));
+    mergeLineCoverageValues(lineCount, defaultCoverage.hitsByLine(), coveragePerLine,
+      (value, builder) -> builder.setHits(builder.getHits() || value > 0));
+    mergeLineCoverageValues(lineCount, defaultCoverage.conditionsByLine(), coveragePerLine,
+      (value, builder) -> builder.setConditions(max(value, builder.getConditions())));
     mergeLineCoverageValues(lineCount, defaultCoverage.coveredConditionsByLine(), coveragePerLine,
       (value, builder) -> builder.setCoveredConditions(max(value, builder.getCoveredConditions())));
 
@@ -373,7 +379,8 @@ public class DefaultSensorStorage implements SensorStorage {
 
   private SortedMap<Integer, ScannerReport.LineCoverage.Builder> reloadExistingCoverage(DefaultInputFile inputFile) {
     SortedMap<Integer, ScannerReport.LineCoverage.Builder> coveragePerLine = new TreeMap<>();
-    try (CloseableIterator<ScannerReport.LineCoverage> lineCoverageCloseableIterator = reportPublisher.getReader().readComponentCoverage(inputFile.scannerId())) {
+    try (CloseableIterator<ScannerReport.LineCoverage> lineCoverageCloseableIterator =
+           reportPublisher.getReader().readComponentCoverage(inputFile.scannerId())) {
       while (lineCoverageCloseableIterator.hasNext()) {
         final ScannerReport.LineCoverage lineCoverage = lineCoverageCloseableIterator.next();
         coveragePerLine.put(lineCoverage.getLine(), ScannerReport.LineCoverage.newBuilder(lineCoverage));
@@ -386,8 +393,8 @@ public class DefaultSensorStorage implements SensorStorage {
     void apply(Integer value, ScannerReport.LineCoverage.Builder builder);
   }
 
-  private static void mergeLineCoverageValues(int lineCount, SortedMap<Integer, Integer> valueByLine, SortedMap<Integer, ScannerReport.LineCoverage.Builder> coveragePerLine,
-    LineCoverageOperation op) {
+  private static void mergeLineCoverageValues(int lineCount, SortedMap<Integer, Integer> valueByLine, SortedMap<Integer,
+    ScannerReport.LineCoverage.Builder> coveragePerLine, LineCoverageOperation op) {
     for (Map.Entry<Integer, Integer> lineMeasure : valueByLine.entrySet()) {
       int lineIdx = lineMeasure.getKey();
       if (lineIdx <= lineCount) {
@@ -435,6 +442,10 @@ public class DefaultSensorStorage implements SensorStorage {
   @Override
   public void storeProperty(String key, String value) {
     contextPropertiesCache.put(key, value);
+  }
+
+  public void storeTelemetry(String key, String value) {
+    telemetryCache.put(key, value);
   }
 
   @Override

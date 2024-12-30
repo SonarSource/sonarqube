@@ -17,22 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
-import { LAYOUT_FOOTER_HEIGHT, ToggleButton } from 'design-system';
 import { cloneDeep, debounce, groupBy } from 'lodash';
 import * as React from 'react';
 import { Location } from 'react-router-dom';
+import { LAYOUT_FOOTER_HEIGHT, ToggleButton } from '~design-system';
 import { dismissNotice } from '../../api/users';
 import { CurrentUserContextInterface } from '../../app/components/current-user/CurrentUserContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
-import IssueGuide from '../../apps/issues/components/IssueGuide';
 import IssueHeader from '../../apps/issues/components/IssueHeader';
 import StyledHeader from '../../apps/issues/components/StyledHeader';
 import { fillBranchLike } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';
 import { withUseGetFixSuggestionsIssues } from '../../queries/fix-suggestions';
-import { Cve } from '../../types/cves';
 import { Issue, RuleDetails } from '../../types/types';
 import { CurrentUser, NoticeType } from '../../types/users';
 import ScreenPositionHelper from '../common/ScreenPositionHelper';
@@ -46,7 +45,7 @@ interface IssueTabViewerProps extends CurrentUserContextInterface {
   aiSuggestionAvailable: boolean;
   codeTabContent?: React.ReactNode;
   currentUser: CurrentUser;
-  cve?: Cve;
+  cveId?: string;
   extendedDescription?: string;
   issue: Issue;
   location: Location;
@@ -199,7 +198,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
       ruleDescriptionContextKey,
       extendedDescription,
       activityTabContent,
-      cve,
+      cveId,
       issue,
       suggestionTabContent,
       aiSuggestionAvailable,
@@ -243,7 +242,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
               descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ??
               descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE]
             ).concat(descriptionSectionsByKey[RuleDescriptionSections.INTRODUCTION] ?? [])}
-            cve={cve}
+            cveId={cveId}
           />
         ),
       },
@@ -381,10 +380,6 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
             }}
             className="sw-overflow-y-auto"
           >
-            <IssueGuide
-              // See IssueGuide for an explanation on why we want top > 0.
-              run={top > 0}
-            />
             <StyledHeader
               headerHeight={this.headerNode?.clientHeight ?? 0}
               className="sw-z-issue-header"

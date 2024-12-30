@@ -24,8 +24,10 @@ import {
   DropdownMenuAlign,
   IconQuestionMark,
 } from '@sonarsource/echoes-react';
-import { Modal } from 'design-system';
+import { Modal } from '~design-system';
 import * as React from 'react';
+import { useEffect, useState } from 'react';
+import { CustomEvents } from '../../helpers/constants';
 import { translate } from '../../helpers/l10n';
 import { getBaseUrl } from '../../helpers/system';
 import { EmbedDocsPopup } from './EmbedDocsPopup';

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { cloneDeep, pick } from 'lodash';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import { Visibility } from '~sonar-aligned/types/component';
@@ -119,6 +120,7 @@ export default class ComponentsServiceMock {
           const query = data.filter.split('query=')[1];
           return c.key.includes(query) || c.name.includes(query);
         }
+        return true;
       })
       .map((c) => c);
 
@@ -163,6 +165,10 @@ export default class ComponentsServiceMock {
       return sourceFile;
     }
     throw new Error(`Couldn't find source file for key ${key}`);
+  };
+
+  registerProject = (project: ComponentRaw) => {
+    this.projects.push(project);
   };
 
   registerComponent = (component: Component, ancestors: Component[] = []) => {

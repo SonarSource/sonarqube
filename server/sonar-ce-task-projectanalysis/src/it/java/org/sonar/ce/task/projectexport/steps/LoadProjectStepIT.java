@@ -21,7 +21,7 @@ package org.sonar.ce.task.projectexport.steps;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectexport.taskprocessor.ProjectDescriptor;
@@ -56,7 +56,7 @@ public class LoadProjectStepIT {
     // insert a module, but not a project
     dbTester.executeInsert("projects",
       "kee", PROJECT_KEY,
-      "qualifier", Qualifiers.APP,
+      "qualifier", ComponentQualifiers.APP,
       "uuid", "not_used",
       "private", false,
       "creation_method", CreationMethod.LOCAL_API.name(),

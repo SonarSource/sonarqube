@@ -22,7 +22,7 @@ package org.sonar.server.permission;
 import org.junit.Test;
 import org.sonar.db.user.GroupDto;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GroupUuidOrAnyoneTest {
@@ -39,7 +39,7 @@ public class GroupUuidOrAnyoneTest {
 
   @Test
   public void for_returns_isAnyone_false_if_id_is_not_null() {
-    String uuid = randomAlphabetic(10);
+    String uuid = secure().nextAlphabetic(10);
     GroupDto dto = new GroupDto();
     dto.setUuid(uuid);
 

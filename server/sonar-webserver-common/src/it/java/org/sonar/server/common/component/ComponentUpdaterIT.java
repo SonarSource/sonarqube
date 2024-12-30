@@ -26,8 +26,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.SequenceUuidFactory;
@@ -37,7 +42,8 @@ import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.property.PropertyDto;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -61,7 +67,7 @@ import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.project.DefaultBranchNameResolver;
 
 import static java.util.stream.IntStream.rangeClosed;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -72,10 +78,12 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.resources.Qualifiers.APP;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.db.component.ComponentQualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.VIEW;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
+import static org.sonar.server.common.component.ComponentUpdater.ENABLED_FOR_ALL_PROJECTS;
+import static org.sonar.server.common.component.ComponentUpdater.SUGGESTION_FEATURE_ENABLED_PROPERTY;
 
 public class ComponentUpdaterIT {
 
@@ -110,7 +118,7 @@ public class ComponentUpdaterIT {
     new IndexersImpl(new PermissionIndexer(db.getDbClient(), es.client())),
     Set.of(new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory()),
       new GroupPermissionChanger(db.getDbClient(), new SequenceUuidFactory())));
-  private final PermissionService permissionService = new PermissionServiceImpl(new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT));
+  private final PermissionService permissionService = new PermissionServiceImpl(new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT));
 
   private final ComponentUpdater underTest = new ComponentUpdater(db.getDbClient(), i18n, system2,
     permissionTemplateService,
@@ -134,8 +142,8 @@ public class ComponentUpdaterIT {
     assertThat(loaded.getKey()).isEqualTo(DEFAULT_PROJECT_KEY);
     assertThat(loaded.name()).isEqualTo(DEFAULT_PROJECT_NAME);
     assertThat(loaded.longName()).isEqualTo(DEFAULT_PROJECT_NAME);
-    assertThat(loaded.qualifier()).isEqualTo(Qualifiers.PROJECT);
-    assertThat(loaded.scope()).isEqualTo(Scopes.PROJECT);
+    assertThat(loaded.qualifier()).isEqualTo(ComponentQualifiers.PROJECT);
+    assertThat(loaded.scope()).isEqualTo(ComponentScopes.PROJECT);
     assertThat(loaded.uuid()).isNotNull();
     assertThat(loaded.branchUuid()).isEqualTo(loaded.uuid());
     assertThat(loaded.isPrivate()).isEqualTo(PRIVATE_COMPONENT.isPrivate());
@@ -375,7 +383,7 @@ public class ComponentUpdaterIT {
   }
 
   private void createComponent_shouldFail_whenCreatingComponentWithExistingKeyButDifferentCase(String qualifier) {
-    String existingKey = randomAlphabetic(5).toUpperCase();
+    String existingKey = secure().nextAlphabetic(5).toUpperCase();
     db.components().insertPrivateProject(component -> component.setKey(existingKey));
     String newKey = existingKey.toLowerCase();
 
@@ -397,7 +405,7 @@ public class ComponentUpdaterIT {
 
   @Test
   public void createComponent_shouldFail_whenCreatingComponentWithMultipleExistingKeyButDifferentCase() {
-    String existingKey = randomAlphabetic(5).toUpperCase();
+    String existingKey = secure().nextAlphabetic(5).toUpperCase();
     String existingKeyLowerCase = existingKey.toLowerCase();
     db.components().insertPrivateProject(component -> component.setKey(existingKey));
     db.components().insertPrivateProject(component -> component.setKey(existingKeyLowerCase));
@@ -420,7 +428,7 @@ public class ComponentUpdaterIT {
 
   @Test
   public void createComponent_shouldFail_whenCreatingComponentWithMultipleExistingPortfolioKeysButDifferentCase() {
-    String existingKey = randomAlphabetic(5).toUpperCase();
+    String existingKey = secure().nextAlphabetic(5).toUpperCase();
     String existingKeyLowerCase = existingKey.toLowerCase();
     db.components().insertPrivatePortfolio(portfolio -> portfolio.setKey(existingKey));
     db.components().insertPrivatePortfolio(portfolio -> portfolio.setKey(existingKeyLowerCase));
@@ -530,7 +538,28 @@ public class ComponentUpdaterIT {
       .creationMethod(CreationMethod.LOCAL_API)
       .build();
     ProjectDto projectDto = underTest.create(db.getSession(), creationParameters).projectDto();
+    assertThat(projectDto.getAiCodeFixEnabled()).isFalse();
     assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.LOCAL_API);
+  }
+
+  @ParameterizedTest
+  @NullSource
+  @ValueSource(strings = {"DISABLED", "ENABLED_FOR_ALL_PROJECTS", "ENABLED_FOR_SOME_PROJECTS"})
+  void create_whenAiCodeFixEnabledForAllProjects_setAiCodeFixEnabled(String enablementOption) {
+    Optional.ofNullable(enablementOption).ifPresent(s -> {
+      db.properties()
+        .insertProperty(SUGGESTION_FEATURE_ENABLED_PROPERTY, enablementOption, null);
+    });
+
+    ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
+      .newComponent(DEFAULT_COMPONENT)
+      .creationMethod(CreationMethod.LOCAL_API)
+      .mainBranchName("main")
+      .build();
+
+    ProjectDto projectDto = underTest.create(db.getSession(), creationParameters).projectDto();
+    assertThat(projectDto.getAiCodeFixEnabled()).isEqualTo(ENABLED_FOR_ALL_PROJECTS.equals(enablementOption));
+    db.getDbClient().purgeDao().deleteProject(db.getSession(), projectDto.getUuid(), projectDto.getQualifier(), projectDto.getName(), projectDto.getKey());
   }
 
   @Test

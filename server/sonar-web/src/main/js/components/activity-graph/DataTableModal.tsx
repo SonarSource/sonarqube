@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
-import { FlagMessage, Modal } from 'design-system';
 import { filter, slice, sortBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { FlagMessage, Modal } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { ParsedAnalysis, Serie } from '../../types/project-activity';
@@ -195,7 +196,7 @@ const StyledTable = styled.table`
     vertical-align: top;
     line-height: 18px;
     padding: 8px 10px;
-    border-bottom: 1px solid var(--barBorderColor);
+    border-bottom: 1px solid #e6e6e6;
     font-weight: 600;
   }
 
@@ -207,7 +208,7 @@ const StyledTable = styled.table`
 
   & > tfoot > tr > td {
     font-size: 93%;
-    color: var(--secondFontColor);
+    color: #656565;
     padding: 5px;
   }
 

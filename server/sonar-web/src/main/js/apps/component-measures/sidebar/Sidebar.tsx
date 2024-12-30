@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
+import * as React from 'react';
 import {
   LAYOUT_FOOTER_HEIGHT,
   LAYOUT_GLOBAL_NAV_HEIGHT,
@@ -27,15 +29,14 @@ import {
   SubnavigationItem,
   themeBorder,
   themeColor,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { translate } from '../../../helpers/l10n';
 import useFollowScroll from '../../../hooks/useFollowScroll';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { Domain } from '../../../types/measures';
 import { MeasureEnhanced } from '../../../types/types';
-import { PROJECT_OVERVEW, Query, isProjectOverview, populateDomainsFromMeasures } from '../utils';
+import { PROJECT_OVERVIEW, Query, isProjectOverview, populateDomainsFromMeasures } from '../utils';
 import DomainSubnavigation from './DomainSubnavigation';
 
 interface Props {
@@ -49,8 +50,8 @@ interface Props {
 export default function Sidebar(props: Readonly<Props>) {
   const { showFullMeasures, updateQuery, componentKey, selectedMetric, measures } = props;
   const { top: topScroll, scrolledOnce } = useFollowScroll();
-  const { data: isLegacy } = useIsLegacyCCTMode();
-  const domains = populateDomainsFromMeasures(measures, isLegacy);
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
+  const domains = populateDomainsFromMeasures(measures, isStandardMode);
 
   const handleChangeMetric = React.useCallback(
     (metric: string) => {
@@ -60,7 +61,7 @@ export default function Sidebar(props: Readonly<Props>) {
   );
 
   const handleProjectOverviewClick = () => {
-    handleChangeMetric(PROJECT_OVERVEW);
+    handleChangeMetric(PROJECT_OVERVIEW);
   };
 
   const distanceFromBottom = topScroll + window.innerHeight - document.body.scrollHeight;
@@ -96,7 +97,7 @@ export default function Sidebar(props: Readonly<Props>) {
             ariaCurrent={isProjectOverview(selectedMetric)}
             onClick={handleProjectOverviewClick}
           >
-            {translate('component_measures.overview', PROJECT_OVERVEW, 'subnavigation')}
+            {translate('component_measures.overview', PROJECT_OVERVIEW, 'subnavigation')}
           </SubnavigationItem>
         </SubnavigationGroup>
 

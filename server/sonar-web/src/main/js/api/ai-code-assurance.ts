@@ -21,7 +21,13 @@
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getJSON } from '~sonar-aligned/helpers/request';
 
-export function isProjectAiCodeAssured(project: string): Promise<boolean> {
+export enum AiCodeAssuranceStatus {
+  CONTAINS_AI_CODE = 'CONTAINS_AI_CODE',
+  AI_CODE_ASSURED = 'AI_CODE_ASSURED',
+  NONE = 'NONE',
+}
+
+export function getProjectAiCodeAssuranceStatus(project: string): Promise<AiCodeAssuranceStatus> {
   return getJSON('/api/projects/get_ai_code_assurance', { project })
     .then((response) => response.aiCodeAssurance)
     .catch(throwGlobalError);

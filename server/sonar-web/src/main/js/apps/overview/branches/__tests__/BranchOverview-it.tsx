@@ -17,20 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor } from '@testing-library/react';
-import * as React from 'react';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
-import { AiCodeAssuredServiceMock } from '../../../../api/mocks/AiCodeAssuredServiceMock';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
 import ApplicationServiceMock from '../../../../api/mocks/ApplicationServiceMock';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
 import { MeasuresServiceMock } from '../../../../api/mocks/MeasuresServiceMock';
 import MessagesServiceMock from '../../../../api/mocks/MessagesServiceMock';
+import { ModeServiceMock } from '../../../../api/mocks/ModeServiceMock';
 import { ProjectActivityServiceMock } from '../../../../api/mocks/ProjectActivityServiceMock';
 import { QualityGatesServiceMock } from '../../../../api/mocks/QualityGatesServiceMock';
-import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { TimeMachineServiceMock } from '../../../../api/mocks/TimeMachineServiceMock';
 import UsersServiceMock from '../../../../api/mocks/UsersServiceMock';
 import { PARENT_COMPONENT_KEY } from '../../../../api/mocks/data/ids';
@@ -47,15 +46,14 @@ import { mockLoggedInUser, mockMeasure, mockPaging } from '../../../../helpers/t
 import { renderComponent, RenderContext } from '../../../../helpers/testReactTestingUtils';
 import { ComponentPropsType } from '../../../../helpers/testUtils';
 import { SoftwareQuality } from '../../../../types/clean-code-taxonomy';
-import { Feature } from '../../../../types/features';
+import { Mode } from '../../../../types/mode';
 import { ProjectAnalysisEventCategory } from '../../../../types/project-activity';
-import { SettingsKey } from '../../../../types/settings';
 import { CaycStatus } from '../../../../types/types';
 import BranchOverview, { NO_CI_DETECTED } from '../BranchOverview';
 import { getPageObjects } from '../test-utils';
 
 const almHandler = new AlmSettingsServiceMock();
-const settingsHandler = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
 let branchesHandler: BranchesServiceMock;
 let measuresHandler: MeasuresServiceMock;
 let applicationHandler: ApplicationServiceMock;
@@ -63,7 +61,6 @@ let projectActivityHandler: ProjectActivityServiceMock;
 let usersHandler: UsersServiceMock;
 let timeMarchineHandler: TimeMachineServiceMock;
 let qualityGatesHandler: QualityGatesServiceMock;
-let aiCodeAssuranceHandler: AiCodeAssuredServiceMock;
 let messageshandler: MessagesServiceMock;
 
 jest.mock('../../../../api/ce', () => ({
@@ -125,7 +122,6 @@ beforeAll(() => {
       },
     ],
   });
-  aiCodeAssuranceHandler = new AiCodeAssuredServiceMock();
   messageshandler = new MessagesServiceMock();
 });
 
@@ -139,8 +135,7 @@ afterEach(() => {
   timeMarchineHandler.reset();
   qualityGatesHandler.reset();
   almHandler.reset();
-  settingsHandler.reset();
-  aiCodeAssuranceHandler.reset();
+  modeHandler.reset();
   messageshandler.reset();
 });
 
@@ -322,21 +317,12 @@ describe('project overview', () => {
       'overview.measures.software_impact.improve_rating_tooltip.A.software_quality.RELIABILITY.software_quality.reliability.A.overview.measures.software_impact.severity.LOW.improve_tooltip',
     );
 
-    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability, 'E', 2);
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability, 'D', 2);
     await ui.expectSoftwareImpactMeasureCardRatingTooltip(
       SoftwareQuality.Maintainability,
-      'E',
-      'overview.measures.software_impact.improve_rating_tooltip.MAINTAINABILITY.software_quality.MAINTAINABILITY.software_quality.maintainability.E.overview.measures.software_impact.severity.HIGH.improve_tooltip',
+      'D',
+      'overview.measures.software_impact.improve_rating_tooltip.MAINTAINABILITY.software_quality.MAINTAINABILITY.software_quality.maintainability.D.overview.measures.software_impact.severity.HIGH.improve_tooltip',
     );
-  });
-
-  it('should show unsolved message when project is AI assured', async () => {
-    const { user, ui } = getPageObjects();
-    renderBranchOverview({ branch: undefined }, { featureList: [Feature.AiCodeAssurance] });
-    expect(await ui.unsolvedOverallMessage.find()).toBeInTheDocument();
-    await user.click(ui.dismissUnsolvedButton.get());
-
-    expect(ui.unsolvedOverallMessage.query()).not.toBeInTheDocument();
   });
 
   // eslint-disable-next-line jest/expect-expect
@@ -346,19 +332,22 @@ describe('project overview', () => {
 
     await user.click(await ui.overallCodeButton.find());
 
-    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability, 'E', 2, '');
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability, 'D', 2, '');
   });
 
   it('should render old measures if software impact are missing', async () => {
     // Make as if new analysis after upgrade is missing
-    measuresHandler.deleteComponentMeasure('foo', MetricKey.maintainability_issues);
+    measuresHandler.deleteComponentMeasure(
+      'foo',
+      MetricKey.software_quality_maintainability_issues,
+    );
     measuresHandler.deleteComponentMeasure(
       'foo',
       MetricKey.software_quality_maintainability_rating,
     );
-    measuresHandler.deleteComponentMeasure('foo', MetricKey.security_issues);
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_security_issues);
     measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_security_rating);
-    measuresHandler.deleteComponentMeasure('foo', MetricKey.reliability_issues);
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_reliability_issues);
     measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_reliability_rating);
 
     const { user, ui } = getPageObjects();
@@ -390,18 +379,21 @@ describe('project overview', () => {
 
   it('should render missing software impact measure cards if both software qualities and old measures are missing', async () => {
     // Make as if no measures at all
-    measuresHandler.deleteComponentMeasure('foo', MetricKey.maintainability_issues);
+    measuresHandler.deleteComponentMeasure(
+      'foo',
+      MetricKey.software_quality_maintainability_issues,
+    );
     measuresHandler.deleteComponentMeasure('foo', MetricKey.code_smells);
     measuresHandler.deleteComponentMeasure(
       'foo',
       MetricKey.software_quality_maintainability_rating,
     );
 
-    measuresHandler.deleteComponentMeasure('foo', MetricKey.security_issues);
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_security_issues);
     measuresHandler.deleteComponentMeasure('foo', MetricKey.vulnerabilities);
     measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_security_rating);
 
-    measuresHandler.deleteComponentMeasure('foo', MetricKey.reliability_issues);
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_reliability_issues);
     measuresHandler.deleteComponentMeasure('foo', MetricKey.bugs);
     measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_reliability_rating);
 
@@ -431,13 +423,13 @@ describe('project overview', () => {
   });
 
   it.each([
-    ['security_issues', MetricKey.security_issues],
-    ['reliability_issues', MetricKey.reliability_issues],
-    ['maintainability_issues', MetricKey.maintainability_issues],
+    [MetricKey.software_quality_security_issues],
+    [MetricKey.software_quality_reliability_issues],
+    [MetricKey.software_quality_maintainability_issues],
   ])(
     'should display info about missing analysis if a project is not computed for %s',
     async (missingMetricKey) => {
-      measuresHandler.deleteComponentMeasure('foo', missingMetricKey as MetricKey);
+      measuresHandler.deleteComponentMeasure('foo', missingMetricKey);
       const { user, ui } = getPageObjects();
       renderBranchOverview();
 
@@ -453,8 +445,7 @@ describe('project overview', () => {
     },
   );
 
-  // eslint-disable-next-line jest/no-disabled-tests
-  it.skip('should display info about missing analysis if a project did not compute ratings', async () => {
+  it('should display info about missing analysis if a project did not compute ratings', async () => {
     measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_security_rating);
     measuresHandler.deleteComponentMeasure(
       'foo',
@@ -487,9 +478,8 @@ describe('project overview', () => {
     ).toBeInTheDocument();
   });
 
-  // eslint-disable-next-line jest/no-disabled-tests
-  it.skip('should display old measures if in legacy mode', async () => {
-    settingsHandler.set(SettingsKey.LegacyMode, 'true');
+  it('should display old measures if in legacy mode', async () => {
+    modeHandler.setMode(Mode.Standard);
     const { user, ui } = getPageObjects();
     renderBranchOverview();
 
@@ -528,7 +518,7 @@ describe('project overview', () => {
       MetricKey.software_quality_maintainability_rating,
     );
     measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_reliability_rating);
-    settingsHandler.set(SettingsKey.LegacyMode, 'true');
+    modeHandler.setMode(Mode.Standard);
     const { user, ui } = getPageObjects();
     renderBranchOverview();
 
@@ -725,9 +715,9 @@ describe('application overview', () => {
   });
 
   it.each([
-    ['security_issues', MetricKey.security_issues],
-    ['reliability_issues', MetricKey.reliability_issues],
-    ['maintainability_issues', MetricKey.maintainability_issues],
+    [MetricKey.software_quality_security_issues],
+    [MetricKey.software_quality_reliability_issues],
+    [MetricKey.software_quality_maintainability_issues],
   ])(
     'should ask to reanalyze all projects if a project is not computed for %s',
     async (missingMetricKey) => {
@@ -757,7 +747,9 @@ it.each([
     // wait for loading
     await screen.findByText('overview.quality_gate');
 
-    expect(screen.queryByText('overview.project.next_steps.set_up_ci') === null).toBe(expected);
+    await waitFor(() => {
+      expect(screen.queryByText('overview.project.next_steps.set_up_ci') === null).toBe(expected);
+    });
   },
 );
 

@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { HotspotRatingEnum } from 'design-system';
+
+import { HotspotRatingEnum } from '~design-system';
 import { mockHotspot, mockRawHotspot } from '../../../helpers/mocks/security-hotspots';
 import { mockUser } from '../../../helpers/testMocks';
 import {

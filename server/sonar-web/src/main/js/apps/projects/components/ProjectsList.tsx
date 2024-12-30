@@ -18,23 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Spinner } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import * as React from 'react';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import { List, ListRowProps } from 'react-virtualized/dist/commonjs/List';
-import EmptySearch from '../../../components/common/EmptySearch';
 import ListFooter from '../../../components/controls/ListFooter';
 import { translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
-import { useMeasuresForProjectsQuery } from '../../../queries/measures';
-import { CurrentUser } from '../../../types/users';
+import { MeasuresForProjects } from '../../../types/measures';
 import { Query } from '../query';
 import { Project } from '../types';
-import { defineMetrics } from '../utils';
-import EmptyFavoriteSearch from './EmptyFavoriteSearch';
-import EmptyInstance from './EmptyInstance';
-import NoFavoriteProjects from './NoFavoriteProjects';
 import ProjectCard from './project-card/ProjectCard';
 
 const PROJECT_CARD_HEIGHT = 181;
@@ -43,37 +35,18 @@ const PROJECT_LIST_FOOTER_HEIGHT = 90;
 
 interface Props {
   cardType?: string;
-  currentUser: CurrentUser;
-  handleFavorite: (component: string, isFavorite: boolean) => void;
   isFavorite: boolean;
   isFiltered: boolean;
   loadMore: () => void;
   loading: boolean;
+  measures: MeasuresForProjects[];
   projects: Omit<Project, 'measures'>[];
   query: Query;
   total?: number;
 }
 
 export default function ProjectsList(props: Readonly<Props>) {
-  const {
-    currentUser,
-    isFavorite,
-    handleFavorite,
-    cardType,
-    isFiltered,
-    query,
-    loading,
-    projects,
-    total,
-    loadMore,
-  } = props;
-  const { data: measures, isLoading: measuresLoading } = useMeasuresForProjectsQuery(
-    {
-      projectKeys: projects.map((p) => p.key),
-      metricKeys: defineMetrics(query),
-    },
-    { enabled: projects.length > 0 },
-  );
+  const { cardType, measures, loading, projects, total, loadMore } = props;
 
   const renderRow = ({ index, key, style }: ListRowProps) => {
     if (index === projects.length) {
@@ -115,8 +88,6 @@ export default function ProjectsList(props: Readonly<Props>) {
       >
         <div className="sw-h-full" role="gridcell">
           <ProjectCard
-            currentUser={currentUser}
-            handleFavorite={handleFavorite}
             key={project.key}
             project={{ ...project, measures: componentMeasures }}
             type={cardType}
@@ -126,41 +97,32 @@ export default function ProjectsList(props: Readonly<Props>) {
     );
   };
 
-  if (projects.length === 0) {
-    if (isFiltered) {
-      return isFavorite ? <EmptyFavoriteSearch query={query} /> : <EmptySearch />;
-    }
-    return isFavorite ? <NoFavoriteProjects /> : <EmptyInstance currentUser={currentUser} />;
-  }
-
   return (
-    <Spinner isLoading={loading || measuresLoading}>
-      <AutoSizer>
-        {({ height, width }) => (
-          <List
-            aria-label={translate('project_plural')}
-            height={height}
-            overscanRowCount={2}
-            rowCount={projects.length + 1}
-            rowHeight={({ index }) => {
-              if (index === 0) {
-                // first card, double top and bottom margin
-                return PROJECT_CARD_HEIGHT + PROJECT_CARD_MARGIN * 2;
-              }
-              if (index === projects.length) {
-                // Footer card, no margin
-                return PROJECT_LIST_FOOTER_HEIGHT;
-              }
-              // all other cards, only bottom margin
-              return PROJECT_CARD_HEIGHT + PROJECT_CARD_MARGIN;
-            }}
-            rowRenderer={renderRow}
-            style={{ outline: 'none' }}
-            tabIndex={-1}
-            width={width}
-          />
-        )}
-      </AutoSizer>
-    </Spinner>
+    <AutoSizer>
+      {({ height, width }) => (
+        <List
+          aria-label={translate('project_plural')}
+          height={height}
+          overscanRowCount={2}
+          rowCount={projects.length + 1}
+          rowHeight={({ index }) => {
+            if (index === 0) {
+              // first card, double top and bottom margin
+              return PROJECT_CARD_HEIGHT + PROJECT_CARD_MARGIN * 2;
+            }
+            if (index === projects.length) {
+              // Footer card, no margin
+              return PROJECT_LIST_FOOTER_HEIGHT;
+            }
+            // all other cards, only bottom margin
+            return PROJECT_CARD_HEIGHT + PROJECT_CARD_MARGIN;
+          }}
+          rowRenderer={renderRow}
+          style={{ outline: 'none' }}
+          tabIndex={-1}
+          width={width}
+        />
+      )}
+    </AutoSizer>
   );
 }

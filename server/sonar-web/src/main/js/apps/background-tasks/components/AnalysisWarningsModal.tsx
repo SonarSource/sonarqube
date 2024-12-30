@@ -17,13 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { FlagMessage, HtmlFormatter, Modal, Spinner } from 'design-system';
 import * as React from 'react';
+import {
+  FlagMessage,
+  HtmlFormatter,
+  Modal,
+  SafeHTMLInjection,
+  SanitizeLevel,
+  Spinner,
+} from '~design-system';
 import { dismissAnalysisWarning, getTask } from '../../../api/ce';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { translate } from '../../../helpers/l10n';
-import { sanitizeStringRestricted } from '../../../helpers/sanitize';
 import { TaskWarning } from '../../../types/tasks';
 import { CurrentUser } from '../../../types/users';
 
@@ -118,11 +125,9 @@ export class AnalysisWarningsModal extends React.PureComponent<Props, State> {
               <div className="sw-flex sw-items-center sw-mt-2">
                 <FlagMessage variant="warning">
                   <HtmlFormatter>
-                    <span
-                      // eslint-disable-next-line react/no-danger
-                      dangerouslySetInnerHTML={{
-                        __html: sanitizeStringRestricted(message.trim().replace(/\n/g, '<br />')),
-                      }}
+                    <SafeHTMLInjection
+                      htmlAsString={message.trim().replace(/\n/g, '<br />')}
+                      sanitizeLevel={SanitizeLevel.RESTRICTED}
                     />
                   </HtmlFormatter>
                 </FlagMessage>

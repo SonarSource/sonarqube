@@ -19,6 +19,10 @@
  */
 
 import { Checkbox } from '@sonarsource/echoes-react';
+import { sortBy } from 'lodash';
+import { OpenAPIV3 } from 'openapi-types';
+import { Fragment, useContext, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Badge,
   BasicSeparator,
@@ -27,11 +31,7 @@ import {
   SubnavigationAccordion,
   SubnavigationItem,
   SubnavigationSubheading,
-} from 'design-system';
-import { sortBy } from 'lodash';
-import { OpenAPIV3 } from 'openapi-types';
-import React, { Fragment, useContext, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+} from '~design-system';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';

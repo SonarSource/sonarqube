@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 export interface CurrentUser {
   dismissedNotices: { [key: string]: boolean };
   isLoggedIn: boolean;
@@ -39,6 +40,8 @@ export enum NoticeType {
   QG_CAYC_CONDITIONS_SIMPLIFICATION = 'qualityGateCaYCConditionsSimplification',
   OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION = 'overviewZeroNewIssuesSimplification',
   ONBOARDING_CAYC_BRANCH_SUMMARY_GUIDE = 'onboardingDismissCaycBranchSummaryGuide',
+  MQR_MODE_ADVERTISEMENT_BANNER = 'showNewModesBanner',
+  MODE_TOUR = 'showNewModesTour',
 }
 
 export interface UserOrgGroup {

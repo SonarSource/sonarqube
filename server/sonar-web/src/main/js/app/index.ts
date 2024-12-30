@@ -18,14 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-/* NOTE: esbuild will transpile the _syntax_ down to what the TARGET_BROWSERS (in config/utils) */
-/* understand. It will _not_, however, polyfill missing API methods, such as                    */
-/* String.prototype.replaceAll. This is why we also import core-js.                             */
-import 'core-js/stable';
-/*                                                                                              */
 import axios from 'axios';
-import { addGlobalErrorMessage } from 'design-system';
 import 'react-day-picker/dist/style.css';
+import { addGlobalErrorMessage } from '~design-system';
 import { getAvailableFeatures } from '../api/features';
 import { getGlobalNavigation } from '../api/navigation';
 import { getCurrentUser } from '../api/users';
@@ -66,10 +61,17 @@ async function initApplication() {
     throw error;
   });
 
-  const [l10nBundle, currentUser, appState, availableFeatures] = await Promise.all([
-    loadL10nBundle(),
+  const appState = isMainApp()
+    ? await getGlobalNavigation().catch((error) => {
+        // eslint-disable-next-line no-console
+        console.error(error);
+        return undefined;
+      })
+    : undefined;
+
+  const [l10nBundle, currentUser, availableFeatures] = await Promise.all([
+    loadL10nBundle(appState),
     isMainApp() ? getCurrentUser() : undefined,
-    isMainApp() ? getGlobalNavigation() : undefined,
     isMainApp() ? getAvailableFeatures() : undefined,
   ]).catch((error) => {
     // eslint-disable-next-line no-console

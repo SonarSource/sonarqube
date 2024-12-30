@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { omit } from 'lodash';
 import { To } from 'react-router-dom';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
@@ -551,8 +552,26 @@ export function mockCompareResult(overrides: Partial<CompareResponse> = {}): Com
         impacts: [],
         key: 'java:S1698',
         name: '== and != should not be used when equals is overridden',
-        left: { params: {}, severity: 'MINOR' },
-        right: { params: {}, severity: 'CRITICAL' },
+        left: {
+          params: {},
+          severity: 'MINOR',
+          impacts: [
+            {
+              softwareQuality: SoftwareQuality.Security,
+              severity: SoftwareImpactSeverity.Blocker,
+            },
+          ],
+        },
+        right: {
+          params: {},
+          severity: 'CRITICAL',
+          impacts: [
+            {
+              softwareQuality: SoftwareQuality.Security,
+              severity: SoftwareImpactSeverity.Low,
+            },
+          ],
+        },
       },
     ],
     ...overrides,
@@ -641,6 +660,9 @@ export function mockRuleActivation(overrides: Partial<RuleActivation> = {}): Rul
     qProfile: 'baz',
     severity: 'MAJOR',
     prioritizedRule: false,
+    impacts: [
+      { softwareQuality: SoftwareQuality.Maintainability, severity: SoftwareImpactSeverity.Medium },
+    ],
     ...overrides,
   };
 }

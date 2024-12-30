@@ -17,14 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { extent, max } from 'd3-array';
 import { ScaleTime, scaleLinear, scalePoint, scaleTime } from 'd3-scale';
 import { area, curveBasis, line as d3Line } from 'd3-shape';
-import { CSSColor, DraggableIcon, themeColor } from 'design-system';
 import { flatten, sortBy, throttle } from 'lodash';
 import * as React from 'react';
 import Draggable, { DraggableBounds, DraggableCore, DraggableData } from 'react-draggable';
+import { CSSColor, DraggableIcon, themeColor } from '~design-system';
 import { MetricType } from '~sonar-aligned/types/metrics';
 import { Chart } from '../../types/types';
 import { LINE_CHART_DASHES } from '../activity-graph/utils';
@@ -43,7 +44,7 @@ export interface Props {
   width: number;
 }
 
-export type PropsWithDefaults = Props & typeof ZoomTimeLine.defaultProps;
+const DEFAULT_PADDING = [0, 0, 18, 0];
 
 interface State {
   newZoomStart?: number;
@@ -53,11 +54,7 @@ interface State {
 type XScale = ScaleTime<number, number>;
 
 export class ZoomTimeLine extends React.PureComponent<Props, State> {
-  static defaultProps = {
-    padding: [0, 0, 18, 0],
-  };
-
-  constructor(props: PropsWithDefaults) {
+  constructor(props: Props) {
     super(props);
 
     this.state = {};
@@ -93,7 +90,7 @@ export class ZoomTimeLine extends React.PureComponent<Props, State> {
   };
 
   getScales = () => {
-    const { padding } = this.props as PropsWithDefaults;
+    const { padding = DEFAULT_PADDING } = this.props;
 
     const availableWidth = this.props.width - padding[1] - padding[3];
     const availableHeight = this.props.height - padding[0] - padding[2];
@@ -279,7 +276,7 @@ export class ZoomTimeLine extends React.PureComponent<Props, State> {
           y={options.yDim[1]}
         />
         <DraggableIcon
-          fill="graphZoomHandleColor"
+          fill="var(--echoes-color-icon-subdued)"
           x={options.direction === 'right' ? -7 : -9}
           y={16}
         />
@@ -356,9 +353,9 @@ export class ZoomTimeLine extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { padding } = this.props as PropsWithDefaults;
+    const { padding = DEFAULT_PADDING, height, width } = this.props;
 
-    if (!this.props.width || !this.props.height) {
+    if (width === 0 || height === 0) {
       return <div />;
     }
 
@@ -390,7 +387,7 @@ const ZoomHighlight = styled.rect`
 const ZoomHighlightHandle = styled.rect`
   cursor: ew-resize;
   fill-opacity: 1;
-  fill: ${themeColor('graphZoomHandleColor')};
+  fill: var(--echoes-color-icon-subdued);
   stroke: none;
 `;
 

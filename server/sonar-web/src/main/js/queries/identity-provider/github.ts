@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { addGlobalSuccessMessage } from 'design-system';
 import { isEqual, keyBy, partition, pick, unionBy } from 'lodash';
 import { useContext } from 'react';
+import { addGlobalSuccessMessage } from '~design-system';
 import {
   addGithubRolesMapping,
   checkConfigurationValidity,

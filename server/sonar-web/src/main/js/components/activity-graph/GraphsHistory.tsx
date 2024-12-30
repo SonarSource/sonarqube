@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Spinner, Text } from '@sonarsource/echoes-react';
 import { isEqual, uniqBy } from 'lodash';
 import * as React from 'react';
@@ -68,65 +69,60 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
   render() {
     const { analyses, graph, loading, series, ariaLabel, canShowDataAsTable } = this.props;
     const isCustom = isCustomGraph(graph);
-
-    if (loading) {
-      return (
-        <div className="sw-flex sw-justify-center sw-flex-col sw-items-stretch sw-grow">
-          <div className="sw-text-center">
-            <Spinner isLoading={loading} />
-          </div>
-        </div>
-      );
-    }
-
-    if (!hasHistoryData(series)) {
-      return (
-        <div className="sw-flex sw-items-center sw-justify-center sw-h-full">
-          <Text isSubdued>
-            {translate(
-              isCustom
-                ? 'project_activity.graphs.custom.no_history'
-                : 'component_measures.no_history',
-            )}
-          </Text>
-        </div>
-      );
-    }
     const showAreas = [GraphType.coverage, GraphType.duplications].includes(graph);
+
     return (
-      <div className="sw-flex sw-justify-center sw-flex-col sw-items-stretch sw-grow">
-        {this.props.graphs.map((graphSeries, idx) => {
-          return (
-            <GraphHistory
-              analyses={analyses}
-              canShowDataAsTable={canShowDataAsTable}
-              graph={graph}
-              graphEndDate={this.props.graphEndDate}
-              graphStartDate={this.props.graphStartDate}
-              isCustom={isCustom}
-              key={idx}
-              leakPeriodDate={this.props.leakPeriodDate}
-              measuresHistory={this.props.measuresHistory}
-              metricsType={getSeriesMetricType(graphSeries)}
-              removeCustomMetric={this.props.removeCustomMetric}
-              selectedDate={this.state.selectedDate}
-              series={graphSeries}
-              graphDescription={
-                ariaLabel ??
-                translateWithParameters(
-                  'project_activity.graphs.explanation_x',
-                  uniqBy(graphSeries, 'name')
-                    .map(({ translatedName }) => translatedName)
-                    .join(', '),
-                )
-              }
-              showAreas={showAreas}
-              updateGraphZoom={this.props.updateGraphZoom}
-              updateSelectedDate={this.props.updateSelectedDate}
-              updateTooltip={this.updateTooltip}
-            />
-          );
-        })}
+      <div className="sw-flex sw-justify-center sw-flex-col sw-items-stretch sw-text-center sw-grow">
+        <output aria-busy={loading}>
+          <Spinner isLoading={loading}>
+            {!hasHistoryData(series) && (
+              <Text isSubdued className="sw-max-w-full">
+                {translate(
+                  isCustom
+                    ? 'project_activity.graphs.custom.no_history'
+                    : 'component_measures.no_history',
+                )}
+              </Text>
+            )}
+          </Spinner>
+        </output>
+
+        {hasHistoryData(series) && !loading && (
+          <>
+            {this.props.graphs.map((graphSeries, idx) => {
+              return (
+                <GraphHistory
+                  analyses={analyses}
+                  canShowDataAsTable={canShowDataAsTable}
+                  graph={graph}
+                  graphEndDate={this.props.graphEndDate}
+                  graphStartDate={this.props.graphStartDate}
+                  isCustom={isCustom}
+                  key={idx}
+                  leakPeriodDate={this.props.leakPeriodDate}
+                  measuresHistory={this.props.measuresHistory}
+                  metricsType={getSeriesMetricType(graphSeries)}
+                  removeCustomMetric={this.props.removeCustomMetric}
+                  selectedDate={this.state.selectedDate}
+                  series={graphSeries}
+                  graphDescription={
+                    ariaLabel ??
+                    translateWithParameters(
+                      'project_activity.graphs.explanation_x',
+                      uniqBy(graphSeries, 'name')
+                        .map(({ translatedName }) => translatedName)
+                        .join(', '),
+                    )
+                  }
+                  showAreas={showAreas}
+                  updateGraphZoom={this.props.updateGraphZoom}
+                  updateSelectedDate={this.props.updateSelectedDate}
+                  updateTooltip={this.updateTooltip}
+                />
+              );
+            })}
+          </>
+        )}
       </div>
     );
   }

@@ -17,14 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+
 import { Route } from 'react-router-dom';
-import ChangelogContainer from './changelog/ChangelogContainer';
-import ComparisonContainer from './compare/ComparisonContainer';
-import ProfileContainer from './components/ProfileContainer';
-import QualityProfilesApp from './components/QualityProfilesApp';
-import ProfileDetails from './details/ProfileDetails';
-import HomeContainer from './home/HomeContainer';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
+
+const QualityProfilesApp = lazyLoadComponent(() => import('./components/QualityProfilesApp'));
+const HomeContainer = lazyLoadComponent(() => import('./home/HomeContainer'));
+const ProfileContainer = lazyLoadComponent(() => import('./components/ProfileContainer'));
+const ProfileDetails = lazyLoadComponent(() => import('./details/ProfileDetails'));
+const ChangelogContainer = lazyLoadComponent(() => import('./changelog/ChangelogContainer'));
+const ComparisonContainer = lazyLoadComponent(() => import('./compare/ComparisonContainer'));
 
 export enum QualityProfilePath {
   SHOW = 'show',

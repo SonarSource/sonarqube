@@ -38,7 +38,7 @@ import org.sonar.duplications.block.ByteArray;
 import static com.google.common.base.Strings.padStart;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -293,7 +293,7 @@ public class IntegrateCrossProjectDuplicationsTest {
     for (int i = 0; i < 110; i++) {
       duplicatedBlocks.add(
         blockBuilder
-          .setResourceId(randomAlphanumeric(16))
+          .setResourceId(secure().nextAlphanumeric(16))
           .build());
     }
 

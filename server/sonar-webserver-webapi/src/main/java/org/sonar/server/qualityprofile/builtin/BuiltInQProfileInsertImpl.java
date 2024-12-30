@@ -40,6 +40,7 @@ import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -102,7 +103,6 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     activeRuleIndexer.commitAndIndex(batchDbSession, changes);
   }
 
-
   private void associateToOrganizations(DbSession dbSession, DbSession batchDbSession, BuiltInQProfile builtIn, RulesProfileDto rulesProfileDto) {
     List<String> orgUuids = dbClient.organizationDao().selectAllUuids(dbSession);
     Set<String> orgUuidsWithoutDefault = dbClient.defaultQProfileDao().selectUuidsOfOrganizationsWithoutDefaultProfile(dbSession, builtIn.getLanguage());
@@ -156,6 +156,8 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     dto.setRuleUuid(ruleDefinitionDto.getUuid());
     dto.setKey(ActiveRuleKey.of(rulesProfileDto, ruleDefinitionDto.getKey()));
     dto.setSeverity(firstNonNull(activeRule.getSeverity(), ruleDefinitionDto.getSeverityString()));
+    dto.setImpacts(ruleDefinitionDto.getDefaultImpacts().stream()
+      .collect(Collectors.toMap(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)));
     dto.setUpdatedAt(now);
     dto.setCreatedAt(now);
     dbClient.activeRuleDao().insert(batchDbSession, dto);

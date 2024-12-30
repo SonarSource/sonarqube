@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import * as React from 'react';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { getGitlabProjects } from '../../../../api/alm-integrations';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
@@ -83,13 +83,7 @@ const ui = {
   globalSettingRadio: byRole('radio', { name: 'new_code_definition.global_setting' }),
 };
 
-const original = window.location;
-
 beforeAll(() => {
-  Object.defineProperty(window, 'location', {
-    configurable: true,
-    value: { replace: jest.fn() },
-  });
   almIntegrationHandler = new AlmIntegrationsServiceMock();
   dopTranslationHandler = new DopTranslationServiceMock();
   newCodePeriodHandler = new NewCodeDefinitionServiceMock();
@@ -100,10 +94,6 @@ beforeEach(() => {
   almIntegrationHandler.reset();
   dopTranslationHandler.reset();
   newCodePeriodHandler.reset();
-});
-
-afterAll(() => {
-  Object.defineProperty(window, 'location', { configurable: true, value: original });
 });
 
 it('should ask for PAT when it is not set yet and show the import project feature afterwards', async () => {

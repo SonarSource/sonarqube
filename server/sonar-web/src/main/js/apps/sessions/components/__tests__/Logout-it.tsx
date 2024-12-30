@@ -19,8 +19,7 @@
  */
 
 import { screen, waitFor } from '@testing-library/react';
-import { addGlobalErrorMessage } from 'design-system';
-import * as React from 'react';
+import { addGlobalErrorMessage } from '~design-system';
 import { logOut } from '../../../../api/auth';
 import RecentHistory from '../../../../app/components/RecentHistory';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
@@ -30,8 +29,8 @@ jest.mock('../../../../api/auth', () => ({
   logOut: jest.fn().mockResolvedValue(true),
 }));
 
-jest.mock('design-system', () => ({
-  ...jest.requireActual('design-system'),
+jest.mock('~design-system', () => ({
+  ...jest.requireActual('~design-system'),
   addGlobalErrorMessage: jest.fn(),
 }));
 

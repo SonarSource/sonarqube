@@ -20,20 +20,14 @@
 
 import styled from '@emotion/styled';
 import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
-import {
-  FlagMessage,
-  LAYOUT_VIEWPORT_MIN_WIDTH,
-  PageContentFontWrapper,
-  themeBorder,
-  themeColor,
-} from 'design-system';
-import React from 'react';
 import { useIntl } from 'react-intl';
+import { FlagMessage, LAYOUT_VIEWPORT_MIN_WIDTH, themeBorder, themeColor } from '~design-system';
 import InstanceMessage from '../../components/common/InstanceMessage';
 import AppVersionStatus from '../../components/shared/AppVersionStatus';
-import { DocLink } from '../../helpers/doc-links';
+import { COMMUNITY_FORUM_URL, DocLink } from '../../helpers/doc-links';
 import { useDocUrl } from '../../helpers/docs';
 import { getEdition } from '../../helpers/editions';
+import { EditionKey } from '../../types/editions';
 import GlobalFooterBranding from './GlobalFooterBranding';
 import { useAppState } from './app-state/withAppStateContext';
 
@@ -48,9 +42,11 @@ export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooter
 
   const docUrl = useDocUrl();
 
+  const isCommunityBuildRunning = appState.edition === EditionKey.community;
+
   return (
     <StyledFooter className="sw-p-6" id="footer">
-      <PageContentFontWrapper className="sw-typo-default sw-h-full sw-flex sw-flex-col sw-items-stretch">
+      <div className="sw-typo-default sw-h-full sw-flex sw-flex-col sw-items-stretch">
         {appState?.productionDatabase === false && (
           <FlagMessage className="sw-mb-4" id="evaluation_warning" variant="warning">
             <p>
@@ -80,19 +76,25 @@ export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooter
             )}
 
             <li>
-              <LinkStandalone
-                highlight={LinkHighlight.CurrentColor}
-                to="https://www.gnu.org/licenses/lgpl-3.0.txt"
-              >
-                {intl.formatMessage({ id: 'footer.license' })}
-              </LinkStandalone>
+              {isCommunityBuildRunning ? (
+                <LinkStandalone
+                  highlight={LinkHighlight.CurrentColor}
+                  to="https://www.gnu.org/licenses/lgpl-3.0.txt"
+                >
+                  {intl.formatMessage({ id: 'footer.license.lgplv3' })}
+                </LinkStandalone>
+              ) : (
+                <LinkStandalone
+                  highlight={LinkHighlight.CurrentColor}
+                  to="https://www.sonarsource.com/legal/sonarqube/terms-and-conditions/"
+                >
+                  {intl.formatMessage({ id: 'footer.license.sqs' })}
+                </LinkStandalone>
+              )}
             </li>
 
             <li>
-              <LinkStandalone
-                highlight={LinkHighlight.CurrentColor}
-                to="https://community.sonarsource.com/c/help/sq"
-              >
+              <LinkStandalone highlight={LinkHighlight.CurrentColor} to={COMMUNITY_FORUM_URL}>
                 {intl.formatMessage({ id: 'footer.community' })}
               </LinkStandalone>
             </li>
@@ -121,12 +123,13 @@ export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooter
             )}
           </ul>
         </div>
-      </PageContentFontWrapper>
+      </div>
     </StyledFooter>
   );
 }
 
 const StyledFooter = styled.div`
+  color: var(--echoes-color-text-subdued);
   background-color: ${themeColor('backgroundSecondary')};
   border-top: ${themeBorder('default')};
   box-sizing: border-box;

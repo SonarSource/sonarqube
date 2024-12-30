@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -40,7 +40,7 @@ import org.sonar.db.Pagination;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse;
@@ -185,7 +185,7 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
     Set<String> mainBranchUuids = branches.stream().map(BranchDto::getUuid).collect(Collectors.toSet());
     List<SnapshotDto> snapshots = dbClient.snapshotDao()
       .selectLastAnalysesByRootComponentUuids(dbSession, mainBranchUuids);
-    List<LiveMeasureDto> qualityGates = dbClient.liveMeasureDao()
+    List<MeasureDto> qualityGates = dbClient.measureDao()
       .selectByComponentUuidsAndMetricKeys(dbSession, mainBranchUuids, singletonList(CoreMetrics.ALERT_STATUS_KEY));
 
     data
@@ -202,7 +202,7 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
   private ProjectsResult searchProjects(DbSession dbSession, SearchMyProjectsRequest request) {
     String userUuid = requireNonNull(userSession.getUuid(), "Current user must be authenticated");
 
-    List<String> entitiesUuid = dbClient.roleDao().selectEntityUuidsByPermissionAndUserUuidAndQualifier(dbSession, UserRole.ADMIN, userUuid, Set.of(Qualifiers.PROJECT));
+    List<String> entitiesUuid = dbClient.roleDao().selectEntityUuidsByPermissionAndUserUuidAndQualifier(dbSession, UserRole.ADMIN, userUuid, Set.of(ComponentQualifiers.PROJECT));
 
     ImmutableSet<String> subSetEntityUuids = ImmutableSet.copyOf(entitiesUuid.subList(0, Math.min(entitiesUuid.size(), DatabaseUtils.PARTITION_SIZE_FOR_ORACLE)));
     Pagination pagination = Pagination.forPage(request.page).andSize(request.pageSize);

@@ -21,19 +21,15 @@ package org.sonar.server.platform.telemetry;
 
 import java.util.Optional;
 import org.sonar.core.fips.FipsDetector;
+import org.sonar.telemetry.core.AbstractTelemetryDataProvider;
+import org.sonar.telemetry.core.Dimension;
+import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.core.TelemetryDataType;
-import org.sonar.telemetry.core.common.DailyInstallationMetricProvider;
 
-public class TelemetryFipsEnabledProvider extends DailyInstallationMetricProvider<Boolean> {
+public class TelemetryFipsEnabledProvider extends AbstractTelemetryDataProvider<Boolean> {
 
-  @Override
-  public String getMetricKey() {
-    return "is_fips_enabled";
-  }
-
-  @Override
-  public TelemetryDataType getType() {
-    return TelemetryDataType.BOOLEAN;
+  public TelemetryFipsEnabledProvider() {
+    super("is_fips_enabled", Dimension.INSTALLATION, Granularity.DAILY, TelemetryDataType.BOOLEAN);
   }
 
   @Override

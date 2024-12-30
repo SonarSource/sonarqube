@@ -19,9 +19,9 @@
  */
 
 import { DropdownMenu, DropdownMenuAlign } from '@sonarsource/echoes-react';
-import { LightLabel, NavBarTabLink, NavBarTabs, TopBar } from 'design-system';
 import * as React from 'react';
 import { Location } from 'react-router-dom';
+import { LightLabel, NavBarTabLink, NavBarTabs, TopBar } from '~design-system';
 import withLocation from '../../../../components/hoc/withLocation';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';

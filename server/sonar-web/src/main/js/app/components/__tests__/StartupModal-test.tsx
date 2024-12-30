@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import userEvent from '@testing-library/user-event';
-import * as React from 'react';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { showLicense } from '../../../api/editions';
+import { getEdition } from '../../../helpers/editions';
 import { save } from '../../../helpers/storage';
 import { mockAppState, mockCurrentUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
@@ -74,7 +75,7 @@ it('should check license and open on its own', async () => {
 
 it.each([
   [
-    'community edition',
+    getEdition(EditionKey.community).name,
     { appState: mockAppState({ canAdmin: true, edition: EditionKey.community }) },
   ],
   ['Cannot admin', { appState: mockAppState({ canAdmin: false, edition: EditionKey.enterprise }) }],

@@ -24,6 +24,7 @@ import com.google.common.io.Resources;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -39,6 +40,7 @@ import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.user.UserSession;
 
+import static java.lang.String.format;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_TAGS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
@@ -57,7 +59,7 @@ public class SetTagsAction implements IssuesWsAction {
   private final OperationResponseWriter responseWriter;
 
   public SetTagsAction(UserSession userSession, DbClient dbClient, IssueFinder issueFinder, IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater,
-                       OperationResponseWriter responseWriter) {
+    OperationResponseWriter responseWriter) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.issueFinder = issueFinder;
@@ -74,6 +76,8 @@ public class SetTagsAction implements IssuesWsAction {
       .setDescription("Set tags on an issue. <br/>" +
         "Requires authentication and Browse permission on project")
       .setChangelog(
+        new Change("10.8", "The response fields 'severity' and 'type' are not deprecated anymore."),
+        new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added.", Severity.INFO.name(), Severity.BLOCKER.name())),
         new Change("10.4", "The response fields 'severity' and 'type' are deprecated. Please use 'impacts' instead."),
         new Change("10.4", "The response fields 'status' and 'resolution' are deprecated. Please use 'issueStatus' instead."),
         new Change("10.4", "Add 'issueStatus' field to the response."),
@@ -100,7 +104,7 @@ public class SetTagsAction implements IssuesWsAction {
     String key = request.mandatoryParam(PARAM_ISSUE);
     List<String> tags = MoreObjects.firstNonNull(request.paramAsStrings(PARAM_TAGS), Collections.emptyList());
     SearchResponseData preloadedSearchResponseData = setTags(key, tags);
-    responseWriter.write(key, preloadedSearchResponseData, request, response);
+    responseWriter.write(key, preloadedSearchResponseData, request, response, true);
   }
 
   private SearchResponseData setTags(String issueKey, List<String> tags) {

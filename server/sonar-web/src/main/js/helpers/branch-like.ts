@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { orderBy } from 'lodash';
 import { isBranch, isMainBranch, isPullRequest } from '~sonar-aligned/helpers/branch-like';
 import { Branch, BranchLike, BranchLikeTree, PullRequest } from '../types/branch-like';

@@ -9,12 +9,16 @@ sonar {
 dependencies {
     compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
+    implementation project(':sonar-core')
+    implementation project(':server:sonar-process')
+
     implementation 'com.fasterxml.jackson.core:jackson-databind'
 
-    testImplementation(platform("org.junit:junit-bom:5.9.1"))
+    testImplementation(platform("org.junit:junit-bom"))
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.junit.jupiter:junit-jupiter-params'
+    testImplementation 'org.mockito:mockito-core'
 
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }

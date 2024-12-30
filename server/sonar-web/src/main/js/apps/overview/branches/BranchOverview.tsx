@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { sortBy, uniq } from 'lodash';
 import * as React from 'react';
 import { getBranchLikeQuery, isMainBranch } from '~sonar-aligned/helpers/branch-like';
@@ -41,6 +42,7 @@ import {
 } from '../../../helpers/qualityGates';
 import { isDefined } from '../../../helpers/types';
 import { useMeasuresAndLeakQuery } from '../../../queries/measures';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import {
   useApplicationQualityGateStatus,
   useProjectQualityGateStatus,
@@ -69,6 +71,7 @@ const FROM_DATE = toISO8601WithOffsetString(new Date().setFullYear(new Date().ge
 
 export default function BranchOverview(props: Readonly<Props>) {
   const { grc, component, branch, branchesEnabled } = props;
+  const { data: isStandardMode = false } = useStandardExperienceModeQuery();
   const { graph: initialGraph } = getActivityGraph(
     BRANCH_OVERVIEW_ACTIVITY_GRAPH,
     props.component.key,
@@ -282,7 +285,7 @@ export default function BranchOverview(props: Readonly<Props>) {
   };
 
   const loadHistoryMeasures = React.useCallback(() => {
-    const graphMetrics = getHistoryMetrics(graph, []);
+    const graphMetrics = getHistoryMetrics(graph, [], isStandardMode);
     const metrics = uniq([...HISTORY_METRICS_LIST, ...graphMetrics]);
 
     return getAllTimeMachineData({
@@ -376,11 +379,10 @@ export default function BranchOverview(props: Readonly<Props>) {
   }, [branch, loadHistory, loadStatus]);
 
   const projectIsEmpty =
-    loadingStatus === false &&
-    (measures === undefined ||
-      measures.find((measure) =>
-        ([MetricKey.lines, MetricKey.new_lines] as string[]).includes(measure.metric.key),
-      ) === undefined);
+    !loadingStatus &&
+    measures?.find((measure) =>
+      ([MetricKey.lines, MetricKey.new_lines] as string[]).includes(measure.metric.key),
+    ) === undefined;
 
   return (
     <BranchOverviewRenderer

@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
@@ -77,10 +77,6 @@ const ui = {
 };
 
 beforeAll(() => {
-  Object.defineProperty(window, 'location', {
-    configurable: true,
-    value: { replace: jest.fn() },
-  });
   almIntegrationHandler = new AlmIntegrationsServiceMock();
   almSettingsHandler = new AlmSettingsServiceMock();
   componentsHandler = new ComponentsServiceMock();
@@ -131,7 +127,7 @@ describe('github monorepo project setup', () => {
     expect(await ui.dopSettingSelector.find()).toBeInTheDocument();
     expect(ui.monorepoProjectTitle.query()).not.toBeInTheDocument();
 
-    await user.click(ui.organizationSelector.get());
+    await user.click(await ui.organizationSelector.find());
     await user.click(byRole('option', { name: 'org-1' }).get());
 
     expect(ui.monorepoProjectTitle.query()).not.toBeInTheDocument();
@@ -157,7 +153,7 @@ describe('github monorepo project setup', () => {
     expect(await ui.dopSettingSelector.find()).toBeInTheDocument();
     expect(ui.monorepoProjectTitle.query()).not.toBeInTheDocument();
 
-    await user.click(ui.organizationSelector.get());
+    await user.click(await ui.organizationSelector.find());
     await user.click(byRole('option', { name: 'org-1' }).get());
 
     expect(ui.monorepoProjectTitle.query()).not.toBeInTheDocument();
@@ -178,7 +174,7 @@ describe('github monorepo project setup', () => {
     expect(await ui.dopSettingSelector.find()).toBeInTheDocument();
     expect(ui.monorepoProjectTitle.query()).not.toBeInTheDocument();
 
-    await user.click(ui.organizationSelector.get());
+    await user.click(await ui.organizationSelector.find());
     await user.click(byRole('option', { name: 'org-1' }).get());
 
     expect(ui.monorepoProjectTitle.query()).not.toBeInTheDocument();
@@ -206,7 +202,7 @@ describe('github monorepo project setup', () => {
     expect(ui.submitButton.get()).toBeEnabled();
 
     await user.type(projects[0], '-1');
-    expect(ui.submitButton.get()).toBeDisabled();
+    await waitFor(() => expect(ui.submitButton.get()).toBeDisabled());
     await user.clear(projects[1]);
     expect(ui.submitButton.get()).toBeDisabled();
 

@@ -19,32 +19,32 @@
  */
 package org.sonar.db.ce;
 
+import java.time.Instant;
 import java.util.Random;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class CeActivityDtoTest {
   private static final String STR_40_CHARS = "0123456789012345678901234567890123456789";
-  private static final String STR_100_CHARS = randomAlphabetic(100);
+  private static final String STR_100_CHARS = secure().nextAlphabetic(100);
   private final CeActivityDto underTest = new CeActivityDto();
 
   @Test
   void constructor_from_CeQueueDto_populates_fields() {
-    long now = new Random().nextLong();
+    long now = Instant.now().toEpochMilli();
     CeQueueDto ceQueueDto = new CeQueueDto()
-      .setUuid(randomAlphanumeric(10))
-      .setTaskType(randomAlphanumeric(11))
-      .setComponentUuid(randomAlphanumeric(12))
-      .setEntityUuid(randomAlphanumeric(13))
-      .setSubmitterUuid(randomAlphanumeric(14))
-      .setWorkerUuid(randomAlphanumeric(15))
+      .setUuid(secure().nextAlphanumeric(10))
+      .setTaskType(secure().nextAlphanumeric(11))
+      .setComponentUuid(secure().nextAlphanumeric(12))
+      .setEntityUuid(secure().nextAlphanumeric(13))
+      .setSubmitterUuid(secure().nextAlphanumeric(14))
+      .setWorkerUuid(secure().nextAlphanumeric(15))
       .setCreatedAt(now + 9_999)
       .setStartedAt(now + 865);
 
@@ -132,9 +132,9 @@ class CeActivityDtoTest {
 
   @Test
   void setErrorMessage_truncates_to_1000_after_removing_char_zero() {
-    String before = randomAlphanumeric(50);
-    String after = randomAlphanumeric(950);
-    String truncated = randomAlphanumeric(1 + new Random().nextInt(50));
+    String before = secure().nextAlphanumeric(50);
+    String after = secure().nextAlphanumeric(950);
+    String truncated = secure().nextAlphanumeric(1 + new Random().nextInt(50));
     underTest.setErrorMessage(before + "\u0000" + after + truncated);
 
     assertThat(underTest.getErrorMessage()).isEqualTo(before + after);

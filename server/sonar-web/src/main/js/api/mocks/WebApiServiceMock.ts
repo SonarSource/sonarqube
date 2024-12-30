@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { cloneDeep } from 'lodash';
 import { OpenAPIV3 } from 'openapi-types';
 import { mockAction } from '../../helpers/mocks/webapi';
+import { MetricKey } from '../../sonar-aligned/types/metrics';
 import { fetchOpenAPI, fetchWebApi } from '../web-api';
 import { openApiTestData } from './data/web-api';
 
@@ -46,6 +48,44 @@ const BASE_DOMAINS = [
     description: 'internal stuff',
     internal: false,
     path: 'internal/thing1',
+    since: '1.3',
+  },
+  {
+    path: 'api/project_badges',
+    actions: [
+      mockAction({
+        key: 'measure',
+        params: [
+          {
+            key: 'metric',
+            description: 'Badge Metric key',
+            required: true,
+            internal: false,
+            possibleValues: [
+              MetricKey.bugs,
+              MetricKey.software_quality_reliability_issues,
+              MetricKey.code_smells,
+              MetricKey.software_quality_maintainability_issues,
+              MetricKey.vulnerabilities,
+              MetricKey.software_quality_security_issues,
+              MetricKey.sqale_rating,
+              MetricKey.software_quality_maintainability_rating,
+              MetricKey.security_rating,
+              MetricKey.software_quality_security_rating,
+              MetricKey.reliability_rating,
+              MetricKey.software_quality_reliability_rating,
+              MetricKey.coverage,
+              MetricKey.duplicated_lines_density,
+              MetricKey.alert_status,
+              MetricKey.security_hotspots,
+              MetricKey.ncloc,
+            ],
+          },
+        ],
+      }),
+    ],
+    description: 'Badges API',
+    internal: false,
     since: '1.3',
   },
 ];

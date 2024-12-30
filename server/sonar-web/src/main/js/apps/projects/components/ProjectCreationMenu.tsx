@@ -17,8 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, ButtonVariety, IconChevronDown } from '@sonarsource/echoes-react';
 import * as React from 'react';
+import {
+  ButtonSecondary,
+  Dropdown,
+  ItemDivider,
+  ItemLink,
+  PopupPlacement,
+  PopupZLevel,
+} from '~design-system';
 import { getAlmSettings } from '../../../api/alm-settings';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { IMPORT_COMPATIBLE_ALMS } from '../../../helpers/constants';

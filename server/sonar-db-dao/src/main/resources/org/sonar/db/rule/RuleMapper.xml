@@ -140,6 +140,14 @@
     </collection>
   </resultMap>
 
+  <resultMap id="ruleResultMapImpactsOnly" type="org.sonar.db.rule.RuleDto" autoMapping="true">
+    <id property="uuid" column="r_uuid"/>
+    <collection property="defaultImpacts" column="rdi_softwareQuality" notNullColumn="rdi_softwareQuality" javaType="java.util.Set" ofType="Impact">
+     <result property="softwareQuality" column="rdi_softwareQuality"/>
+     <result property="severity" column="rdi_severity"/>
+    </collection>
+  </resultMap>
+
   <select id="selectEnabled" resultMap="ruleResultMap">
     select
       <include refid="selectJoinedTablesColumns"/>
@@ -330,13 +338,17 @@
     order by r.uuid
   </select>
 
-  <select id="selectByLanguage" parameterType="String" resultType="org.sonar.db.rule.RuleDto" fetchSize="${_scrollFetchSize}"
+  <select id="selectByLanguage" parameterType="String" resultMap="ruleResultMapImpactsOnly" fetchSize="${_scrollFetchSize}"
           resultSetType="FORWARD_ONLY">
     select
-      r.uuid as uuid,
+      rdi.rule_uuid as "rdi_ruleUuid",
+      rdi.software_quality as "rdi_softwareQuality",
+      rdi.severity as "rdi_severity",
+      r.uuid as r_uuid,
       <include refid="ruleColumns"/>
     from
       rules r
+    <include refid="leftOuterJoinRulesDefaultImpacts"/>
     <include refid="leftOuterJoinRulesMetadata"/>
     where
       <include refid="conditionNotExternalRulesByLanguage" />

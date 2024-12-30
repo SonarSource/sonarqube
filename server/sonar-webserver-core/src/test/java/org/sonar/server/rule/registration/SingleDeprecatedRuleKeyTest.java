@@ -26,9 +26,8 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
-import org.sonar.server.rule.registration.SingleDeprecatedRuleKey;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
@@ -40,10 +39,10 @@ public class SingleDeprecatedRuleKeyTest {
   public void test_creation_from_DeprecatedRuleKeyDto() {
     // Creation from DeprecatedRuleKeyDto
     DeprecatedRuleKeyDto deprecatedRuleKeyDto = new DeprecatedRuleKeyDto()
-      .setOldRuleKey(randomAlphanumeric(50))
-      .setOldRepositoryKey(randomAlphanumeric(50))
-      .setRuleUuid(randomAlphanumeric(50))
-      .setUuid(randomAlphanumeric(40));
+      .setOldRuleKey(secure().nextAlphanumeric(50))
+      .setOldRepositoryKey(secure().nextAlphanumeric(50))
+      .setRuleUuid(secure().nextAlphanumeric(50))
+      .setUuid(secure().nextAlphanumeric(40));
 
     SingleDeprecatedRuleKey singleDeprecatedRuleKey = SingleDeprecatedRuleKey.from(deprecatedRuleKeyDto);
 
@@ -61,15 +60,15 @@ public class SingleDeprecatedRuleKeyTest {
   public void test_creation_from_RulesDefinitionRule() {
     // Creation from RulesDefinition.Rule
     ImmutableSet<RuleKey> deprecatedRuleKeys = ImmutableSet.of(
-      RuleKey.of(randomAlphanumeric(50), randomAlphanumeric(50)),
-      RuleKey.of(randomAlphanumeric(50), randomAlphanumeric(50)),
-      RuleKey.of(randomAlphanumeric(50), randomAlphanumeric(50)));
+      RuleKey.of(secure().nextAlphanumeric(50), secure().nextAlphanumeric(50)),
+      RuleKey.of(secure().nextAlphanumeric(50), secure().nextAlphanumeric(50)),
+      RuleKey.of(secure().nextAlphanumeric(50), secure().nextAlphanumeric(50)));
 
     RulesDefinition.Repository repository = mock(RulesDefinition.Repository.class);
-    when(repository.key()).thenReturn(randomAlphanumeric(50));
+    when(repository.key()).thenReturn(secure().nextAlphanumeric(50));
 
     RulesDefinition.Rule rule = mock(RulesDefinition.Rule.class);
-    when(rule.key()).thenReturn(randomAlphanumeric(50));
+    when(rule.key()).thenReturn(secure().nextAlphanumeric(50));
     when(rule.deprecatedRuleKeys()).thenReturn(deprecatedRuleKeys);
     when(rule.repository()).thenReturn(repository);
 
@@ -87,9 +86,9 @@ public class SingleDeprecatedRuleKeyTest {
   @Test
   public void test_equality() {
     DeprecatedRuleKeyDto deprecatedRuleKeyDto1 = new DeprecatedRuleKeyDto()
-      .setOldRuleKey(randomAlphanumeric(50))
-      .setOldRepositoryKey(randomAlphanumeric(50))
-      .setUuid(randomAlphanumeric(40))
+      .setOldRuleKey(secure().nextAlphanumeric(50))
+      .setOldRepositoryKey(secure().nextAlphanumeric(50))
+      .setUuid(secure().nextAlphanumeric(40))
       .setRuleUuid("some-uuid");
 
     DeprecatedRuleKeyDto deprecatedRuleKeyDto1WithoutUuid = new DeprecatedRuleKeyDto()
@@ -97,9 +96,9 @@ public class SingleDeprecatedRuleKeyTest {
       .setOldRepositoryKey(deprecatedRuleKeyDto1.getOldRepositoryKey());
 
     DeprecatedRuleKeyDto deprecatedRuleKeyDto2 = new DeprecatedRuleKeyDto()
-      .setOldRuleKey(randomAlphanumeric(50))
-      .setOldRepositoryKey(randomAlphanumeric(50))
-      .setUuid(randomAlphanumeric(40));
+      .setOldRuleKey(secure().nextAlphanumeric(50))
+      .setOldRepositoryKey(secure().nextAlphanumeric(50))
+      .setUuid(secure().nextAlphanumeric(40));
 
     SingleDeprecatedRuleKey singleDeprecatedRuleKey1 = SingleDeprecatedRuleKey.from(deprecatedRuleKeyDto1);
     SingleDeprecatedRuleKey singleDeprecatedRuleKey2 = SingleDeprecatedRuleKey.from(deprecatedRuleKeyDto2);

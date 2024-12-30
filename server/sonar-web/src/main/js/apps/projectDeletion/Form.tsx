@@ -19,8 +19,7 @@
  */
 
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { addGlobalSuccessMessage } from 'design-system';
-import * as React from 'react';
+import { addGlobalSuccessMessage } from '~design-system';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Router } from '~sonar-aligned/types/router';
 import ConfirmButton from '../../components/controls/ConfirmButton';

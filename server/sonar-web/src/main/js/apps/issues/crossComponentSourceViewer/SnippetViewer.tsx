@@ -17,7 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
+import { debounce, throttle } from 'lodash';
+import React from 'react';
 import {
   CodeViewerExpander,
   SonarCodeColorizer,
@@ -26,9 +29,7 @@ import {
   UnfoldUpIcon,
   themeColor,
   withTheme,
-} from 'design-system';
-import { debounce, throttle } from 'lodash';
-import React from 'react';
+} from '~design-system';
 import Line from '../../../components/SourceViewer/components/Line';
 import { symbolsByLine } from '../../../components/SourceViewer/helpers/indexing';
 import { getSecondaryIssueLocationsForLine } from '../../../components/SourceViewer/helpers/issueLocations';

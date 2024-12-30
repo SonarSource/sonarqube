@@ -21,6 +21,7 @@ package org.sonar.db.rule;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +32,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.issue.ImpactDto;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -156,8 +157,8 @@ class RuleDtoTest {
   @Test
   void addRuleDescriptionSectionDto_whenSameSectionAndContext_shouldThrowError() {
     RuleDto dto = new RuleDto();
-    String contextKey = randomAlphanumeric(50);
-    String displayName = randomAlphanumeric(50);
+    String contextKey = secure().nextAlphanumeric(50);
+    String displayName = secure().nextAlphanumeric(50);
     RuleDescriptionSectionDto section1 = createSection(SECTION_KEY, contextKey, displayName);
     dto.addRuleDescriptionSectionDto(section1);
     RuleDescriptionSectionDto section2 = createSection(SECTION_KEY, contextKey, displayName);
@@ -212,6 +213,25 @@ class RuleDtoTest {
       .containsExactlyInAnyOrder(
         tuple(SoftwareQuality.MAINTAINABILITY, Severity.HIGH),
         tuple(SoftwareQuality.SECURITY, Severity.LOW));
+  }
+
+  @Test
+  void getDefaultImpactsMap_shouldReturnExpectedResult() {
+    RuleDto dto = new RuleDto();
+    dto.addDefaultImpact(newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM));
+    dto.addDefaultImpact(newImpactDto(SoftwareQuality.SECURITY, Severity.HIGH));
+    dto.addDefaultImpact(newImpactDto(SoftwareQuality.RELIABILITY, Severity.LOW));
+
+    assertThat(dto.getDefaultImpactsMap())
+      .containsExactlyInAnyOrderEntriesOf(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM,
+        SoftwareQuality.SECURITY, Severity.HIGH,
+        SoftwareQuality.RELIABILITY, Severity.LOW));
+  }
+
+  @Test
+  void getDefaultImpactsMap_whenIsEmpty_shouldReturnEmptyMap() {
+    RuleDto dto = new RuleDto();
+    assertThat(dto.getDefaultImpactsMap()).isEmpty();
   }
 
   @Test

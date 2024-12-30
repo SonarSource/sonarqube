@@ -31,7 +31,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.db.DbSession;
@@ -86,7 +86,7 @@ public class LiveMeasureComputerImplIT {
 
     project = db.components().insertPublicProject().getMainBranchComponent();
     branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.uuid()).get();
-    db.measures().insertLiveMeasure(project, metric2, lm -> lm.setValue(1d));
+    db.measures().insertMeasure(project, m -> m.addValue(metric2.getKey(), 1d));
 
     when(componentIndexFactory.create(any(), any())).thenReturn(componentIndex);
     when(measureUpdateFormulaFactory.getFormulaMetrics()).thenReturn(Set.of(toMetric(metric1), toMetric(metric2)));
@@ -104,11 +104,14 @@ public class LiveMeasureComputerImplIT {
     assertThat(treeUpdater.getMeasureMatrix()).isNotNull();
 
     // measure matrix was loaded with formula's metrics and measures
-    assertThat(treeUpdater.getMeasureMatrix().getMetricByUuid(metric2.getUuid())).isNotNull();
+    assertThat(treeUpdater.getMeasureMatrix().getMetric(metric2.getKey())).isNotNull();
     assertThat(treeUpdater.getMeasureMatrix().getMeasure(project, metric2.getKey()).get().getValue()).isEqualTo(1d);
 
     // new measures were persisted
-    assertThat(db.getDbClient().liveMeasureDao().selectMeasure(db.getSession(), project.uuid(), metric1.getKey()).get().getValue()).isEqualTo(2d);
+    assertThat(db.getDbClient().measureDao().selectByComponentUuid(db.getSession(), project.uuid()))
+      .isPresent()
+      .get()
+      .satisfies(measure -> assertThat(measure.getMetricValues()).containsEntry(metric1.getKey(),2D));
   }
 
   @Test
@@ -134,7 +137,7 @@ public class LiveMeasureComputerImplIT {
     when(componentIndex.getAllUuids()).thenReturn(Set.of(project.uuid()));
 
     MetricDto alertStatusMetric = db.measures().insertMetric(m -> m.setKey(ALERT_STATUS_KEY));
-    db.measures().insertLiveMeasure(project, alertStatusMetric, lm -> lm.setData("OK"));
+    db.measures().insertMeasure(project, m -> m.getMetricValues().put(alertStatusMetric.getKey(), "OK"));
 
     when(qGateComputer.loadQualityGate(db.getSession(), db.components().getProjectDtoByMainBranch(project), branch)).thenReturn(qualityGate);
     when(qGateComputer.refreshGateStatus(eq(project), eq(qualityGate), any(MeasureMatrix.class), eq(configuration))).thenReturn(newQualityGate);
@@ -155,7 +158,7 @@ public class LiveMeasureComputerImplIT {
   }
 
   private SnapshotDto markProjectAsAnalyzed(ComponentDto p, @Nullable Long periodDate) {
-    assertThat(p.qualifier()).isEqualTo(Qualifiers.PROJECT);
+    assertThat(p.qualifier()).isEqualTo(ComponentQualifiers.PROJECT);
     return db.components().insertSnapshot(p, s -> s.setPeriodDate(periodDate));
   }
 

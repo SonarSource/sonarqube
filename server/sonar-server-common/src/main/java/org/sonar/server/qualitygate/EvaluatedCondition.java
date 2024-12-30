@@ -29,18 +29,39 @@ import static java.util.Objects.requireNonNull;
 @Immutable
 public class EvaluatedCondition {
   private final Condition condition;
+  private Condition originalCondition;
   private final EvaluationStatus status;
   @Nullable
   private final String value;
+  private final boolean missingMeasure;
 
   public EvaluatedCondition(Condition condition, EvaluationStatus status, @Nullable String value) {
+    this(condition, status, value, false);
+  }
+
+  public EvaluatedCondition(Condition condition, EvaluationStatus status, @Nullable String value, boolean measureMissing) {
+    this(condition, condition, status, value, measureMissing);
+  }
+
+  public EvaluatedCondition(Condition condition, Condition originalCondition, EvaluationStatus status, @Nullable String value, boolean measureMissing) {
     this.condition = requireNonNull(condition, "condition can't be null");
+    this.originalCondition = originalCondition;
     this.status = requireNonNull(status, "status can't be null");
     this.value = value;
+    this.missingMeasure = measureMissing;
   }
 
   public Condition getCondition() {
     return condition;
+  }
+
+  public Condition getOriginalCondition() {
+    return originalCondition;
+  }
+
+  public EvaluatedCondition setOriginalCondition(Condition originalCondition) {
+    this.originalCondition = originalCondition;
+    return this;
   }
 
   public EvaluationStatus getStatus() {
@@ -74,9 +95,14 @@ public class EvaluatedCondition {
   public String toString() {
     return "EvaluatedCondition{" +
       "condition=" + condition +
+      ", originalCondition=" + originalCondition +
       ", status=" + status +
       ", value=" + (value == null ? null : ('\'' + value + '\'')) +
       '}';
+  }
+
+  public boolean isMissingMeasure() {
+    return missingMeasure;
   }
 
   /**
@@ -86,7 +112,9 @@ public class EvaluatedCondition {
     /**
      * No measure found or measure had no value. The condition has not been evaluated and therefor ignored in
      * the computation of the Quality Gate status.
+     * @deprecated since 10.8, the value is never used in the code
      */
+    @Deprecated(since = "10.8")
     NO_VALUE,
     /**
      * Condition evaluated as OK, error thresholds hasn't been reached.

@@ -17,15 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Heading, LinkStandalone } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { BasicSeparator, SubHeading, SubTitle } from 'design-system';
-import React, { PropsWithChildren, useEffect, useState } from 'react';
+import { PropsWithChildren, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { useLocation } from 'react-router-dom';
+import { BasicSeparator } from '~design-system';
 import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
+import { AiCodeAssuranceStatus } from '../../../api/ai-code-assurance';
 import { getProjectLinks } from '../../../api/projectLinks';
 import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
 import { translate } from '../../../helpers/l10n';
-import { useProjectAiCodeAssuredQuery } from '../../../queries/ai-code-assurance';
+import { useProjectAiCodeAssuranceStatusQuery } from '../../../queries/ai-code-assurance';
 import { Feature } from '../../../types/features';
 import { Component, Measure, ProjectLink } from '../../../types/types';
 import MetaDescription from './components/MetaDescription';
@@ -46,9 +50,11 @@ export interface AboutProjectProps {
 export default function AboutProject(props: AboutProjectProps) {
   const { component, measures = [] } = props;
   const { hasFeature } = useAvailableFeatures();
+  const { search } = useLocation();
+
   const isApp = component.qualifier === ComponentQualifier.Application;
   const [links, setLinks] = useState<ProjectLink[] | undefined>(undefined);
-  const { data: isAiAssured } = useProjectAiCodeAssuredQuery(
+  const { data: aiAssuranceStatus } = useProjectAiCodeAssuranceStatusQuery(
     { project: component.key },
     {
       enabled:
@@ -67,16 +73,16 @@ export default function AboutProject(props: AboutProjectProps) {
 
   return (
     <>
-      <div>
-        <SubTitle>{translate(isApp ? 'application' : 'project', 'about.title')}</SubTitle>
-      </div>
+      <Heading className="sw-mb-4" as="h2">
+        {translate(isApp ? 'application' : 'project', 'about.title')}
+      </Heading>
 
       {!isApp &&
         (component.qualityGate ||
           (component.qualityProfiles && component.qualityProfiles.length > 0)) && (
           <ProjectInformationSection className="sw-pt-0 sw-flex sw-flex-col sw-gap-4">
             {component.qualityGate && (
-              <MetaQualityGate organization={component.organization} qualityGate={component.qualityGate} isAiAssured={isAiAssured} />
+              <MetaQualityGate organization={component.organization} qualityGate={component.qualityGate} />
             )}
 
             {component.qualityProfiles && component.qualityProfiles.length > 0 && (
@@ -85,12 +91,46 @@ export default function AboutProject(props: AboutProjectProps) {
           </ProjectInformationSection>
         )}
 
-      {isAiAssured === true && (
+      {aiAssuranceStatus === AiCodeAssuranceStatus.AI_CODE_ASSURED && (
         <ProjectInformationSection>
-          <SubHeading>{translate('project.info.ai_code_assurance.title')}</SubHeading>
+          <Heading className="sw-mb-2" as="h3">
+            {translate('project.info.ai_code_assurance_on.title')}
+          </Heading>
           <span>
-            <FormattedMessage id="projects.ai_code.content" />
+            <FormattedMessage id="projects.ai_code_assurance_on.content" />
           </span>
+        </ProjectInformationSection>
+      )}
+
+      {aiAssuranceStatus === AiCodeAssuranceStatus.CONTAINS_AI_CODE && (
+        <ProjectInformationSection>
+          <Heading className="sw-mb-2" as="h3">
+            {translate('project.info.ai_code_assurance_off.title')}
+          </Heading>
+          <span>
+            <FormattedMessage id="projects.ai_code_assurance_off.content" />
+          </span>
+          {component.configuration?.showSettings && (
+            <p className="sw-pt-2">
+              <LinkStandalone
+                to={{
+                  pathname: '/project/quality_gate',
+                  search,
+                }}
+              >
+                <FormattedMessage id="projects.ai_code_assurance.edit_quality_gate" />
+              </LinkStandalone>
+            </p>
+          )}
+        </ProjectInformationSection>
+      )}
+
+      {component.isAiCodeFixEnabled === true && (
+        <ProjectInformationSection>
+          <Heading className="sw-mb-2" as="h3">
+            {translate('project.info.ai_code_fix.title')}
+          </Heading>
+          <FormattedMessage id="project.info.ai_code_fix.message" />
         </ProjectInformationSection>
       )}
 
@@ -135,7 +175,7 @@ function ProjectInformationSection(props: PropsWithChildren<ProjectInformationSe
   const { children, className, last = false } = props;
   return (
     <>
-      <div className={classNames('sw-py-4', className)}>{children}</div>
+      <section className={classNames('sw-py-4', className)}>{children}</section>
       {!last && <BasicSeparator />}
     </>
   );

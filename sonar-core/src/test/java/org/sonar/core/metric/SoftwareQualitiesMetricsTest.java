@@ -28,10 +28,16 @@ class SoftwareQualitiesMetricsTest {
   void getMetrics() {
     assertThat(new SoftwareQualitiesMetrics().getMetrics())
       .containsExactlyInAnyOrder(
+        SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES,
+        SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES,
         SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING,
         SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING,
+        SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES,
+        SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES,
         SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING,
         SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING,
+        SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES,
+        SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_ISSUES,
         SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING,
         SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING,
         SoftwareQualitiesMetrics.EFFORT_TO_REACH_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_A,
@@ -42,6 +48,17 @@ class SoftwareQualitiesMetricsTest {
         SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT,
         SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT,
         SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO,
-        SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO);
+        SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO,
+        SoftwareQualitiesMetrics.SOFTWARE_QUALITY_BLOCKER_ISSUES,
+        SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_BLOCKER_ISSUES,
+        SoftwareQualitiesMetrics.SOFTWARE_QUALITY_HIGH_ISSUES,
+        SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_HIGH_ISSUES,
+        SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MEDIUM_ISSUES,
+        SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MEDIUM_ISSUES,
+        SoftwareQualitiesMetrics.SOFTWARE_QUALITY_LOW_ISSUES,
+        SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_LOW_ISSUES,
+        SoftwareQualitiesMetrics.SOFTWARE_QUALITY_INFO_ISSUES,
+        SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_INFO_ISSUES
+      );
   }
 }

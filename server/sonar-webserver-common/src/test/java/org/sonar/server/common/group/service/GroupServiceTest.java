@@ -60,7 +60,7 @@ import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static java.lang.String.format;
 import static java.util.function.Function.identity;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -356,7 +356,7 @@ public class GroupServiceTest {
   public static Object[][] invalidGroupNames() {
     return new Object[][] {
       {"", "Group name cannot be empty"},
-      {randomAlphanumeric(256), "Group name cannot be longer than 255 characters"},
+      {secure().nextAlphanumeric(256), "Group name cannot be longer than 255 characters"},
       {"Anyone", "Anyone group cannot be used"},
     };
   }

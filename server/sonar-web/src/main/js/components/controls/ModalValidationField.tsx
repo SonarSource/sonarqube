@@ -17,9 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
-import { FlagErrorIcon, FlagSuccessIcon, FormField, Note, themeColor } from 'design-system';
+import { IconCheckCircle, IconError } from '@sonarsource/echoes-react';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { FormField, Note, themeColor } from '~design-system';
 import { translate } from '../../helpers/l10n';
 
 interface Props {
@@ -33,7 +36,7 @@ interface Props {
   touched: boolean | undefined;
 }
 
-export default function ModalValidationField(props: Props) {
+export default function ModalValidationField(props: Readonly<Props>) {
   const { description, dirty, error, label, id, required } = props;
 
   const isValid = dirty && props.touched && error === undefined;
@@ -47,12 +50,20 @@ export default function ModalValidationField(props: Props) {
     >
       <div className="sw-flex sw-items-center sw-justify-between">
         {props.children({ isInvalid: showError, isValid })}
-        {showError && <FlagErrorIcon className="sw-ml-2" />}
-        {isValid && <FlagSuccessIcon className="sw-ml-2" />}
+        {showError && <IconError color="echoes-color-icon-danger" className="sw-ml-2" />}
+        {isValid && <IconCheckCircle color="echoes-color-icon-success" className="sw-ml-2" />}
       </div>
 
-      {showError && <StyledNote className="sw-mt-2">{error}</StyledNote>}
-      {description && <Note className="sw-mt-2">{description}</Note>}
+      <div aria-live="assertive">
+        {isValid && (
+          <span className="sw-mt-2 sw-sr-only">
+            <FormattedMessage id="valid_input" />
+          </span>
+        )}
+        {showError && <StyledNote className="sw-mt-2">{error}</StyledNote>}
+      </div>
+
+      {description !== undefined && <Note className="sw-mt-2">{description}</Note>}
     </FormField>
   );
 }

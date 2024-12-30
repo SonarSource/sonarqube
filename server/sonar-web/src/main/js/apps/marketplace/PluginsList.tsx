@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Card, Table, TableRow } from 'design-system';
+
 import { sortBy } from 'lodash';
-import * as React from 'react';
+import { Card, Table, TableRow } from '~design-system';
 import { translate } from '../../helpers/l10n';
 import { PendingPlugin, Plugin, isAvailablePlugin, isInstalledPlugin } from '../../types/plugins';
 import PluginAvailable from './components/PluginAvailable';

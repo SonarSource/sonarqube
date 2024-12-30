@@ -278,6 +278,8 @@ public class TelemetryDataJsonWriter {
     json.prop("kubernetesVersion", cloudUsage.kubernetesVersion());
     json.prop("kubernetesPlatform", cloudUsage.kubernetesPlatform());
     json.prop("kubernetesProvider", cloudUsage.kubernetesProvider());
+    json.prop("isHelmAutoscalingEnabled", cloudUsage.isHelmAutoscalingEnabled());
+    json.prop("isOnOpenshift", cloudUsage.isOnOpenshift());
     json.prop("officialHelmChart", cloudUsage.officialHelmChart());
     json.prop("containerRuntime", cloudUsage.containerRuntime());
     json.prop("officialImage", cloudUsage.officialImage());

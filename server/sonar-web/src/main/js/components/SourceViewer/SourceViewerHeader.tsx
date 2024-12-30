@@ -20,6 +20,7 @@
 
 import styled from '@emotion/styled';
 import { LinkStandalone } from '@sonarsource/echoes-react';
+import { useIntl } from 'react-intl';
 import {
   ClipboardIconButton,
   DrilldownLink,
@@ -35,9 +36,7 @@ import {
   QualifierIcon,
   themeBorder,
   themeColor,
-} from 'design-system';
-import * as React from 'react';
-import { useIntl } from 'react-intl';
+} from '~design-system';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import {
@@ -58,6 +57,7 @@ import { omitNil } from '../../helpers/request';
 import { getBaseUrl } from '../../helpers/system';
 import { isDefined } from '../../helpers/types';
 import { getBranchLikeUrl, getCodeUrl } from '../../helpers/urls';
+import { useStandardExperienceModeQuery } from '../../queries/mode';
 import type { BranchLike } from '../../types/branch-like';
 import { IssueType } from '../../types/issues';
 import type { Measure, SourceViewerFile } from '../../types/types';
@@ -75,6 +75,7 @@ interface Props {
 
 export default function SourceViewerHeader(props: Readonly<Props>) {
   const intl = useIntl();
+  const { data: isStandardMode = false } = useStandardExperienceModeQuery();
 
   const { showMeasures, branchLike, hidePinOption, openComponent, componentMeasures } = props;
   const { key, measures, path, project, projectName, q } = props.sourceViewerFile;
@@ -85,7 +86,7 @@ export default function SourceViewerHeader(props: Readonly<Props>) {
   const rawSourcesLink = `${getBaseUrl()}/api/sources/raw?${query}`;
 
   const renderIssueMeasures = () => {
-    const areCCTMeasuresComputed = areCCTMeasuresComputedFn(componentMeasures);
+    const areCCTMeasuresComputed = !isStandardMode && areCCTMeasuresComputedFn(componentMeasures);
 
     return (
       componentMeasures &&
@@ -99,9 +100,7 @@ export default function SourceViewerHeader(props: Readonly<Props>) {
               const measure = componentMeasures.find(
                 (m) => m.metric === (areCCTMeasuresComputed ? metric : deprecatedMetric),
               );
-              const measureValue = areCCTMeasuresComputed
-                ? JSON.parse(measure?.value ?? 'null').total
-                : (measure?.value ?? 0);
+              const measureValue = measure?.value ?? 0;
 
               const linkUrl = getComponentIssuesUrl(project, {
                 ...getBranchLikeQuery(branchLike),
@@ -112,7 +111,9 @@ export default function SourceViewerHeader(props: Readonly<Props>) {
                   : { types: getIssueTypeBySoftwareQuality(quality) }),
               });
 
-              const qualityTitle = intl.formatMessage({ id: `metric.${metric}.short_name` });
+              const qualityTitle = intl.formatMessage({
+                id: `metric.${isStandardMode ? deprecatedMetric : metric}.short_name`,
+              });
 
               return (
                 <div className="sw-flex sw-flex-col sw-gap-1" key={quality}>

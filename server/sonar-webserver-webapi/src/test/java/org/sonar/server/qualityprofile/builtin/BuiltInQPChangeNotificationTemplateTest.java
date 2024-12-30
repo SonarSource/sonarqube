@@ -26,7 +26,7 @@ import org.sonar.api.platform.Server;
 import org.sonar.server.issue.notification.EmailMessage;
 import org.sonar.server.qualityprofile.builtin.BuiltInQPChangeNotificationBuilder.Profile;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -40,7 +40,7 @@ public class BuiltInQPChangeNotificationTemplateTest {
 
   @Before
   public void setUp() {
-    when(server.getPublicRootUrl()).thenReturn("http://" + randomAlphanumeric(10));
+    when(server.getPublicRootUrl()).thenReturn("http://" + secure().nextAlphanumeric(10));
   }
 
   @Test
@@ -164,12 +164,12 @@ public class BuiltInQPChangeNotificationTemplateTest {
 
   @Test
   public void notification_contains_many_profiles() {
-    String profileName1 = "profile1_" + randomAlphanumeric(20);
-    String languageKey1 = "langkey1_" + randomAlphanumeric(20);
-    String languageName1 = "langName1_" + randomAlphanumeric(20);
-    String profileName2 = "profile2_" + randomAlphanumeric(20);
-    String languageKey2 = "langkey2_" + randomAlphanumeric(20);
-    String languageName2 = "langName2_" + randomAlphanumeric(20);
+    String profileName1 = "profile1_" + secure().nextAlphanumeric(20);
+    String languageKey1 = "langkey1_" + secure().nextAlphanumeric(20);
+    String languageName1 = "langName1_" + secure().nextAlphanumeric(20);
+    String profileName2 = "profile2_" + secure().nextAlphanumeric(20);
+    String languageKey2 = "langkey2_" + secure().nextAlphanumeric(20);
+    String languageName2 = "langName2_" + secure().nextAlphanumeric(20);
     BuiltInQPChangeNotificationBuilder notification = new BuiltInQPChangeNotificationBuilder()
       .addProfile(Profile.newBuilder()
         .setProfileName(profileName1)
@@ -196,13 +196,13 @@ public class BuiltInQPChangeNotificationTemplateTest {
 
   @Test
   public void notification_contains_profiles_sorted_by_language_then_by_profile_name() {
-    String languageKey1 = "langkey1_" + randomAlphanumeric(20);
-    String languageName1 = "langName1_" + randomAlphanumeric(20);
-    String languageKey2 = "langKey2_" + randomAlphanumeric(20);
-    String languageName2 = "langName2_" + randomAlphanumeric(20);
-    String profileName1 = "profile1_" + randomAlphanumeric(20);
-    String profileName2 = "profile2_" + randomAlphanumeric(20);
-    String profileName3 = "profile3_" + randomAlphanumeric(20);
+    String languageKey1 = "langkey1_" + secure().nextAlphanumeric(20);
+    String languageName1 = "langName1_" + secure().nextAlphanumeric(20);
+    String languageKey2 = "langKey2_" + secure().nextAlphanumeric(20);
+    String languageName2 = "langName2_" + secure().nextAlphanumeric(20);
+    String profileName1 = "profile1_" + secure().nextAlphanumeric(20);
+    String profileName2 = "profile2_" + secure().nextAlphanumeric(20);
+    String profileName3 = "profile3_" + secure().nextAlphanumeric(20);
     BuiltInQPChangeNotificationBuilder notification = new BuiltInQPChangeNotificationBuilder()
       .addProfile(Profile.newBuilder().setProfileName(profileName3).setLanguageKey(languageKey2).setLanguageName(languageName2).build())
       .addProfile(Profile.newBuilder().setProfileName(profileName2).setLanguageKey(languageKey1).setLanguageName(languageName1).build())
@@ -270,14 +270,14 @@ public class BuiltInQPChangeNotificationTemplateTest {
   }
 
   private static String newProfileName() {
-    return "profileName_" + randomAlphanumeric(20);
+    return "profileName_" + secure().nextAlphanumeric(20);
   }
 
   private static String newLanguageName() {
-    return "languageName_" + randomAlphanumeric(20);
+    return "languageName_" + secure().nextAlphanumeric(20);
   }
 
   private static String newLanguageKey() {
-    return "languageKey_" + randomAlphanumeric(20);
+    return "languageKey_" + secure().nextAlphanumeric(20);
   }
 }

@@ -19,16 +19,20 @@
  */
 package org.sonar.server.rule.ws;
 
-import org.junit.Rule;
-import org.junit.Test;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
@@ -49,6 +53,7 @@ import org.sonarqube.ws.Rules;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
@@ -68,17 +73,17 @@ import static org.sonar.server.rule.ws.UpdateAction.PARAM_REMEDIATION_FN_TYPE;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_TAGS;
 import static org.sonar.test.JsonAssert.assertJson;
 
-public class UpdateActionIT {
+class UpdateActionIT {
 
   private static final long PAST = 10000L;
 
-  @Rule
+  @RegisterExtension
   public DbTester db = DbTester.create();
 
-  @Rule
+  @RegisterExtension
   public EsTester es = EsTester.create();
 
-  @Rule
+  @RegisterExtension
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private final DbClient dbClient = db.getDbClient();
@@ -95,7 +100,7 @@ public class UpdateActionIT {
   private final WsActionTester ws = new WsActionTester(underTest);
 
   @Test
-  public void check_definition() {
+  void check_definition() {
     assertThat(ws.getDef().isPost()).isTrue();
     assertThat(ws.getDef().isInternal()).isFalse();
     assertThat(ws.getDef().responseExampleAsString()).isNotNull();
@@ -103,7 +108,7 @@ public class UpdateActionIT {
   }
 
   @Test
-  public void update_custom_rule() {
+  void update_custom_rule() {
     logInAsQProfileAdministrator();
     RuleDto templateRule = db.rules().insert(
       r -> r.setRuleKey(RuleKey.of("java", "S001")),
@@ -156,7 +161,7 @@ public class UpdateActionIT {
   }
 
   @Test
-  public void update_tags() {
+  void update_tags() {
     logInAsQProfileAdministrator();
 
     RuleDto rule = db.rules().insert(setSystemTags("stag1", "stag2"), setTags("tag1", "tag2"), r -> r.setNoteData(null).setNoteUserUuid(null));
@@ -175,7 +180,7 @@ public class UpdateActionIT {
   }
 
   @Test
-  public void update_rule_remediation_function() {
+  void update_rule_remediation_function() {
     logInAsQProfileAdministrator();
 
     RuleDto rule = db.rules().insert(
@@ -217,7 +222,7 @@ public class UpdateActionIT {
   }
 
   @Test
-  public void update_note() {
+  void update_note() {
     UserDto userHavingUpdatingNote = db.users().insertUser();
     RuleDto rule = db.rules().insert(m -> m.setNoteData("old data").setNoteUserUuid(userHavingUpdatingNote.getUuid()));
     UserDto userAuthenticated = db.users().insertUser();
@@ -241,7 +246,7 @@ public class UpdateActionIT {
   }
 
   @Test
-  public void fail_to_update_custom_when_description_is_empty() {
+  void fail_to_update_custom_when_description_is_empty() {
     logInAsQProfileAdministrator();
     RuleDto templateRule = db.rules().insert(
       r -> r.setRuleKey(RuleKey.of("java", "S001")),
@@ -269,7 +274,7 @@ public class UpdateActionIT {
   }
 
   @Test
-  public void throw_IllegalArgumentException_if_trying_to_update_builtin_rule_description() {
+  void throw_IllegalArgumentException_if_trying_to_update_builtin_rule_description() {
     logInAsQProfileAdministrator();
     RuleDto rule = db.rules().insert();
 
@@ -285,7 +290,7 @@ public class UpdateActionIT {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_profile_administrator() {
+  void throw_ForbiddenException_if_not_profile_administrator() {
     userSession.logIn();
 
     assertThatThrownBy(() -> {
@@ -295,7 +300,7 @@ public class UpdateActionIT {
   }
 
   @Test
-  public void throw_UnauthorizedException_if_not_logged_in() {
+  void throw_UnauthorizedException_if_not_logged_in() {
     assertThatThrownBy(() -> {
       ws.newRequest().setMethod("POST").execute();
     })
@@ -303,7 +308,7 @@ public class UpdateActionIT {
   }
 
   @Test
-  public void returnRuleCleanCodeFields_whenEndpointIsCalled() {
+  void returnRuleCleanCodeFields_whenEndpointIsCalled() {
     UserDto userAuthenticated = db.users().insertUser();
     userSession.logIn(userAuthenticated).addPermission(ADMINISTER_QUALITY_PROFILES);
 
@@ -323,6 +328,98 @@ public class UpdateActionIT {
     // selected fields
     assertThat(updateResponse.getRule()).extracting(Rules.Rule::getCleanCodeAttribute).isEqualTo(Common.CleanCodeAttribute.CLEAR);
     assertThat(updateResponse.getRule()).extracting(Rules.Rule::getCleanCodeAttributeCategory).isEqualTo(Common.CleanCodeAttributeCategory.INTENTIONAL);
+  }
+
+  @Test
+  void update_whenImpactProvided_shouldAlsoUpdateStandardSeverity() {
+    logInAsQProfileAdministrator();
+
+    RuleDto templateRule = db.rules().insert(
+      r -> r.setRuleKey(RuleKey.of("java", "S001")),
+      r -> r.setIsTemplate(true),
+      r -> r.setCreatedAt(PAST),
+      r -> r.setUpdatedAt(PAST));
+
+    RuleDto rule = db.rules().insert(ruleDto -> ruleDto
+      .setTemplateUuid(templateRule.getUuid())
+      .setType(RuleType.BUG)
+      .setSeverity(Severity.MAJOR)
+      .replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH))));
+
+    Rules.UpdateResponse updateResponse = ws.newRequest().setMethod("POST")
+      .setParam("key", rule.getKey().toString())
+      .setParam("impacts", "RELIABILITY=BLOCKER")
+      .executeProtobuf(Rules.UpdateResponse.class);
+
+    Rules.Rule ruleResponse = updateResponse.getRule();
+    assertThat(ruleResponse)
+      .extracting(r -> r.getImpacts().getImpactsList().stream().findFirst()
+        .orElseThrow(() -> new IllegalStateException("Impact is a mandatory field in the response.")))
+      .extracting(Common.Impact::getSoftwareQuality, Common.Impact::getSeverity)
+      .containsExactly(Common.SoftwareQuality.RELIABILITY, Common.ImpactSeverity.ImpactSeverity_BLOCKER);
+    assertThat(ruleResponse.getSeverity()).isEqualTo("BLOCKER");
+  }
+
+  @Test
+  void update_whenMultipleImpactsProvided_shouldOnlyUpdateExisting() {
+    logInAsQProfileAdministrator();
+
+    RuleDto templateRule = db.rules().insert(
+      r -> r.setRuleKey(RuleKey.of("java", "S001")),
+      r -> r.setIsTemplate(true),
+      r -> r.setCreatedAt(PAST),
+      r -> r.setUpdatedAt(PAST));
+
+    RuleDto rule = db.rules().insert(ruleDto -> ruleDto
+      .setTemplateUuid(templateRule.getUuid())
+      .setType(RuleType.BUG)
+      .setSeverity(Severity.MAJOR)
+      .replaceAllDefaultImpacts(List.of(
+        new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.MEDIUM),
+        new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM))));
+
+    Rules.UpdateResponse updateResponse = ws.newRequest().setMethod("POST")
+      .setParam("key", rule.getKey().toString())
+      .setParam("impacts", "RELIABILITY=BLOCKER;SECURITY=BLOCKER;MAINTAINABILITY=BLOCKER")
+      .executeProtobuf(Rules.UpdateResponse.class);
+
+    Rules.Rule ruleResponse = updateResponse.getRule();
+    assertThat(ruleResponse.getImpacts().getImpactsList())
+      .extracting(Common.Impact::getSoftwareQuality, Common.Impact::getSeverity)
+      .containsExactlyInAnyOrder(
+        tuple(Common.SoftwareQuality.RELIABILITY, Common.ImpactSeverity.ImpactSeverity_BLOCKER),
+        tuple(Common.SoftwareQuality.SECURITY, Common.ImpactSeverity.ImpactSeverity_BLOCKER));
+    assertThat(ruleResponse.getSeverity()).isEqualTo("BLOCKER");
+  }
+
+  @Test
+  void update_whenImpactsDontMatch_shouldNotUpdateAnything() {
+    logInAsQProfileAdministrator();
+
+    RuleDto templateRule = db.rules().insert(
+      r -> r.setRuleKey(RuleKey.of("java", "S001")),
+      r -> r.setIsTemplate(true),
+      r -> r.setCreatedAt(PAST),
+      r -> r.setUpdatedAt(PAST));
+
+    RuleDto rule = db.rules().insert(ruleDto -> ruleDto
+      .setTemplateUuid(templateRule.getUuid())
+      .setType(RuleType.BUG)
+      .setSeverity(Severity.MAJOR)
+      .replaceAllDefaultImpacts(List.of(
+        new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.MEDIUM))));
+
+    Rules.UpdateResponse updateResponse = ws.newRequest().setMethod("POST")
+      .setParam("key", rule.getKey().toString())
+      .setParam("impacts", "SECURITY=BLOCKER")
+      .executeProtobuf(Rules.UpdateResponse.class);
+
+    Rules.Rule ruleResponse = updateResponse.getRule();
+    assertThat(ruleResponse.getImpacts().getImpactsList())
+      .extracting(Common.Impact::getSoftwareQuality, Common.Impact::getSeverity)
+      .containsExactlyInAnyOrder(
+        tuple(Common.SoftwareQuality.RELIABILITY, Common.ImpactSeverity.MEDIUM));
+    assertThat(ruleResponse.getSeverity()).isEqualTo("MAJOR");
   }
 
   private void logInAsQProfileAdministrator() {

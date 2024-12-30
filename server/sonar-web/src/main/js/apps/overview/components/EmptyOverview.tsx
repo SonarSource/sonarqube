@@ -18,18 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import styled from '@emotion/styled';
-import { Link, Spinner } from '@sonarsource/echoes-react';
-import { FlagMessage, LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
+import { Spinner } from '@sonarsource/echoes-react';
 import * as React from 'react';
-import { Navigate } from 'react-router-dom';
+import { FlagMessage, LargeCenteredLayout, PageContentFontWrapper } from '~design-system';
 import { isBranch, isMainBranch } from '~sonar-aligned/helpers/branch-like';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { getScannableProjects } from '../../../api/components';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { getBranchLikeDisplayName } from '../../../helpers/branch-like';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { getProjectTutorialLocation } from '../../../helpers/urls';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { useBranchesQuery } from '../../../queries/branch';
 import { useTaskForComponentQuery } from '../../../queries/component';
@@ -38,7 +35,6 @@ import { Permissions } from '../../../types/permissions';
 import { TaskTypes } from '../../../types/tasks';
 import { Component } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
-import { Helmet } from "react-helmet-async";
 
 export interface EmptyOverviewProps {
   branchLike?: BranchLike;

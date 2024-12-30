@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { IssueIndicatorButton, LineIssuesIndicatorIcon, LineMeta } from 'design-system';
+
 import { uniq } from 'lodash';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
+import { IssueIndicatorButton, LineIssuesIndicatorIcon, LineMeta } from '~design-system';
 import Tooltip from '../../../components/controls/Tooltip';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { Issue, SourceLine } from '../../../types/types';
 
 const MOUSE_LEAVE_DELAY = 0.25;
@@ -38,25 +40,34 @@ export function LineIssuesIndicator(props: LineIssuesIndicatorProps) {
   const { issues, issuesOpen, line, as = 'td' } = props;
   const hasIssues = issues.length > 0;
   const intl = useIntl();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
 
   if (!hasIssues) {
     return <LineMeta />;
   }
 
   const issueAttributeCategories = uniq(issues.map((issue) => issue.cleanCodeAttributeCategory));
+  const issueTypes = uniq(issues.map((issue) => issue.type));
   let tooltipContent;
 
-  if (issueAttributeCategories.length > 1) {
+  if (isStandardMode ? issueTypes.length > 1 : issueAttributeCategories.length > 1) {
     tooltipContent = intl.formatMessage(
       { id: 'source_viewer.issues_on_line.multiple_issues' },
       { show: !issuesOpen },
     );
   } else {
     tooltipContent = intl.formatMessage(
-      { id: 'source_viewer.issues_on_line.multiple_issues_same_category' },
+      {
+        id: `source_viewer.issues_on_line.multiple_issues_same_category${isStandardMode ? '.legacy' : ''}`,
+      },
       {
         show: !issuesOpen,
         count: issues.length,
+        issueType: intl
+          .formatMessage({
+            id: `issue.type.${issueTypes[0]}${issues.length > 1 ? '.plural' : ''}`,
+          })
+          .toLowerCase(),
         category: intl
           .formatMessage({
             id: `issue.clean_code_attribute_category.${issueAttributeCategories[0]}`,

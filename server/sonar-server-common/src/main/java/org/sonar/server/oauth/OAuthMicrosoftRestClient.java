@@ -26,11 +26,7 @@ import java.util.concurrent.ExecutionException;
 
 public class OAuthMicrosoftRestClient {
 
-  private OAuthMicrosoftRestClient() {
-    // Only static method
-  }
-
-  public static String getAccessTokenFromClientCredentialsGrantFlow(String host, String clientId, String clientSecret, String tenant, String scope) {
+  public String getAccessTokenFromClientCredentialsGrantFlow(String host, String clientId, String clientSecret, String tenant, String scope) {
     final OAuth20Service service = new ServiceBuilder(clientId)
       .apiSecret(clientSecret)
       .defaultScope(scope)

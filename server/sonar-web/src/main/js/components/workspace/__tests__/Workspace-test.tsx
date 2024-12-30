@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
@@ -45,6 +46,9 @@ jest.mock('../../../api/rules', () => ({
 
 // Simplify the SourceViewer
 jest.mock('../../SourceViewer/SourceViewer', () => {
+  const { useEffect } = jest.requireActual('react');
+  const { ComponentQualifier } = jest.requireActual('~sonar-aligned/types/component');
+
   function SourceViewer({
     component,
     onLoaded,
@@ -53,7 +57,7 @@ jest.mock('../../SourceViewer/SourceViewer', () => {
     onLoaded: (component: { path: string; q: string }) => void;
   }) {
     // Trigger the "loadComponent" to update the name of the component
-    React.useEffect(() => {
+    useEffect(() => {
       onLoaded({ path: `path/to/component/${component}`, q: ComponentQualifier.File });
     }, [component, onLoaded]);
 

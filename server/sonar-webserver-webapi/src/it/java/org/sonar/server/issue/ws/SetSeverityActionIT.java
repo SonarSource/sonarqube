@@ -20,10 +20,14 @@
 package org.sonar.server.issue.ws;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nullable;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -35,6 +39,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
@@ -67,23 +72,25 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
+import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newIssue;
 
-public class SetSeverityActionIT {
+class SetSeverityActionIT {
 
-  @Rule
+  @RegisterExtension
   public DbTester dbTester = DbTester.create();
-  @Rule
+  @RegisterExtension
   public EsTester es = EsTester.create();
-  @Rule
+  @RegisterExtension
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private System2 system2 = mock(System2.class);
@@ -105,26 +112,191 @@ public class SetSeverityActionIT {
     responseWriter));
 
   @Test
-  public void set_severity() {
-    IssueDto issueDto = issueDbTester.insertIssue(i -> i.setSeverity(MAJOR));
+  void set_severity_whenSetSeverity_shouldAlsoUpdateImpactSeverity() {
+    IssueDto issueDto = issueDbTester.insertIssue(i -> i.setSeverity(MAJOR).setType(CODE_SMELL)
+      .replaceAllImpacts(List.of(new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM, false))));
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
-    call(issueDto.getKey(), MINOR);
+    call(issueDto.getKey(), MINOR, null);
 
-    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
+    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class), eq(true));
     verifyContentOfPreloadedSearchResponseData(issueDto);
-    verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any(), any(), any(), any());
+    verify(issueChangeEventService).distributeIssueChangeEvent(any(), eq(MINOR), eq(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.LOW)), any(), any(), any(), any());
 
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
     assertThat(issueReloaded.getSeverity()).isEqualTo(MINOR);
     assertThat(issueReloaded.isManualSeverity()).isTrue();
+    Set<ImpactDto> impacts = issueReloaded.getImpacts();
+    assertThat(impacts).hasSize(1);
+    ImpactDto impact = impacts.iterator().next();
+    assertThat(impact.getSoftwareQuality()).isEqualTo(SoftwareQuality.MAINTAINABILITY);
+    assertThat(impact.getSeverity()).isEqualTo(Severity.LOW);
+    assertThat(impact.isManualSeverity()).isTrue();
     assertThat(issueChangePostProcessor.calledComponents())
       .extracting(ComponentDto::uuid)
       .containsExactlyInAnyOrder(issueDto.getComponentUuid());
   }
 
   @Test
-  public void set_severity_is_not_distributed_for_pull_request() {
+  void set_severity_whenSetSeverityAndTypeNotMatch_shouldNotUpdateImpactSeverity() {
+    IssueDto issueDto = issueDbTester.insertIssue(i -> i.setSeverity(MAJOR).setType(BUG));
+    setUserWithBrowseAndAdministerIssuePermission(issueDto);
+
+    call(issueDto.getKey(), MINOR, null);
+
+    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class),
+      any(Response.class), eq(true));
+    verifyContentOfPreloadedSearchResponseData(issueDto);
+    verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any(), any(), any(), any(), any());
+
+    IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
+    assertThat(issueReloaded.getSeverity()).isEqualTo(MINOR);
+    assertThat(issueReloaded.isManualSeverity()).isTrue();
+
+    Set<ImpactDto> impacts = issueReloaded.getImpacts();
+    assertThat(impacts).hasSize(1);
+    ImpactDto impact = impacts.iterator().next();
+    assertThat(impact.getSoftwareQuality()).isEqualTo(SoftwareQuality.MAINTAINABILITY);
+    assertThat(impact.getSeverity()).isEqualTo(Severity.HIGH);
+    assertThat(impact.isManualSeverity()).isFalse();
+  }
+
+  @Test
+  void set_severity_whenIssueHasNuImpacts_shouldProperlyUpdate() {
+    IssueDto issueDto = issueDbTester.insertIssue(i -> i.setSeverity(MAJOR).setType(CODE_SMELL).replaceAllImpacts(List.of()));
+    setUserWithBrowseAndAdministerIssuePermission(issueDto);
+
+    call(issueDto.getKey(), null, "MAINTAINABILITY=LOW");
+
+    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class),
+      any(Response.class), eq(true));
+    verifyContentOfPreloadedSearchResponseData(issueDto);
+    verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any(), any(), any(), any(), any());
+
+    IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
+    assertThat(issueReloaded.getSeverity()).isEqualTo(MINOR);
+    assertThat(issueReloaded.isManualSeverity()).isTrue();
+    Set<ImpactDto> impacts = issueReloaded.getImpacts();
+    assertThat(impacts).hasSize(1);
+    ImpactDto impact = impacts.iterator().next();
+    assertThat(impact.getSoftwareQuality()).isEqualTo(SoftwareQuality.MAINTAINABILITY);
+    assertThat(impact.getSeverity()).isEqualTo(Severity.LOW);
+    assertThat(impact.isManualSeverity()).isTrue();
+    assertThat(issueChangePostProcessor.calledComponents())
+      .extracting(ComponentDto::uuid)
+      .containsExactlyInAnyOrder(issueDto.getComponentUuid());
+  }
+
+  @Test
+  void set_severity_whenSetImpactSeverity_shouldAlsoUpdateSeverity() {
+    IssueDto issueDto = issueDbTester.insertIssue(i -> i.setSeverity(MAJOR).setType(CODE_SMELL));
+    setUserWithBrowseAndAdministerIssuePermission(issueDto);
+
+    call(issueDto.getKey(), null, "MAINTAINABILITY=LOW");
+
+    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class),
+      any(Response.class), eq(true));
+    verifyContentOfPreloadedSearchResponseData(issueDto);
+    verify(issueChangeEventService).distributeIssueChangeEvent(any(), eq(MINOR), eq(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.LOW)), any(), any(), any(), any());
+
+    IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
+    assertThat(issueReloaded.getSeverity()).isEqualTo(MINOR);
+    assertThat(issueReloaded.isManualSeverity()).isTrue();
+    Set<ImpactDto> impacts = issueReloaded.getImpacts();
+    assertThat(impacts).hasSize(1);
+    ImpactDto impact = impacts.iterator().next();
+    assertThat(impact.getSoftwareQuality()).isEqualTo(SoftwareQuality.MAINTAINABILITY);
+    assertThat(impact.getSeverity()).isEqualTo(Severity.LOW);
+    assertThat(impact.isManualSeverity()).isTrue();
+    assertThat(issueChangePostProcessor.calledComponents())
+      .extracting(ComponentDto::uuid)
+      .containsExactlyInAnyOrder(issueDto.getComponentUuid());
+  }
+
+  @Test
+  void set_severity_whenIssueTypeNotMatchSoftwareQuality_shouldNotUpdateImpactSeverity() {
+    IssueDto issueDto = issueDbTester.insertIssue(i -> i.setSeverity(MAJOR).setType(BUG));
+    setUserWithBrowseAndAdministerIssuePermission(issueDto);
+
+    call(issueDto.getKey(), null, "MAINTAINABILITY=LOW");
+
+    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class),
+      any(Response.class), eq(true));
+    verifyContentOfPreloadedSearchResponseData(issueDto);
+    verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any(), any(), any(), any(), any());
+
+    IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
+    assertThat(issueReloaded.getSeverity()).isEqualTo(MAJOR);
+    assertThat(issueReloaded.isManualSeverity()).isFalse();
+    Set<ImpactDto> impacts = issueReloaded.getImpacts();
+    assertThat(impacts).hasSize(1);
+    ImpactDto impact = impacts.iterator().next();
+    assertThat(impact.getSoftwareQuality()).isEqualTo(SoftwareQuality.MAINTAINABILITY);
+    assertThat(impact.getSeverity()).isEqualTo(Severity.LOW);
+    assertThat(impact.isManualSeverity()).isTrue();
+    assertThat(issueChangePostProcessor.calledComponents())
+      .extracting(ComponentDto::uuid)
+      .containsExactlyInAnyOrder(issueDto.getComponentUuid());
+  }
+
+  @Test
+  void set_severity_whenImpactAndManualFlagNotChanged_shouldNotTriggerUpdate() {
+    IssueDto issueDto = issueDbTester.insertIssue(i -> i.replaceAllImpacts(List.of(new ImpactDto(SoftwareQuality.MAINTAINABILITY,
+      Severity.LOW, true))));
+    setUserWithBrowseAndAdministerIssuePermission(issueDto);
+
+    call(issueDto.getKey(), null, "MAINTAINABILITY=LOW");
+
+    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class),
+      any(Response.class), eq(true));
+
+    verify(issueChangeEventService, times(0)).distributeIssueChangeEvent(any(), any(), any(), any(), any(), any(), any());
+  }
+
+  @Test
+  void set_severity_whenWrongSoftwareQualityReceived_shouldThrowException() {
+    IssueDto issueDto = issueDbTester.insertIssue(i -> i.setSeverity(MAJOR));
+    setUserWithBrowseAndAdministerIssuePermission(issueDto);
+    String key = issueDto.getKey();
+
+    assertThatThrownBy(() -> call(key, null, "SECURITY=HIGH"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Issue does not support impact SECURITY");
+  }
+
+  @Test
+  void set_severity_whenSeverityAndImpactsReceived_shouldThrowException() {
+    IssueDto issueDto = issueDbTester.insertIssue(i -> i.setSeverity(MAJOR).setType(CODE_SMELL));
+    setUserWithBrowseAndAdministerIssuePermission(issueDto);
+    String key = issueDto.getKey();
+
+    assertThatThrownBy(() -> call(key, "BLOCKER", "MAINTAINABILITY=LOW"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Parameters 'severity' and 'impact' cannot be used at the same time");
+  }
+
+  @Test
+  void set_severity_whenWrongImpactFormat_shouldThrowException() {
+    IssueDto issueDto = issueDbTester.insertIssue(i -> i.setSeverity(MAJOR).setType(CODE_SMELL));
+    setUserWithBrowseAndAdministerIssuePermission(issueDto);
+    String key = issueDto.getKey();
+
+    assertThatThrownBy(() -> call(key, null, "MAINTAINABILITY"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Invalid impact format: MAINTAINABILITY");
+    assertThatThrownBy(() -> call(key, null, "MAINTAINABILITY=HIGH,RELIABILITY=LOW"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Invalid impact format: MAINTAINABILITY=HIGH,RELIABILITY=LOW");
+    assertThatThrownBy(() -> call(key, null, "MAINTAINABILITY:HIGH"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Invalid impact format: MAINTAINABILITY:HIGH");
+    assertThatThrownBy(() -> call(key, null, "MAINTAINABILITY=MAJOR"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("No enum constant org.sonar.api.issue.impact.Severity.MAJOR");
+  }
+
+  @Test
+  void set_severity_is_not_distributed_for_pull_request() {
     RuleDto rule = dbTester.rules().insertIssueRule();
     ComponentDto mainBranch = dbTester.components().insertPrivateProject().getMainBranchComponent();
 
@@ -138,84 +310,87 @@ public class SetSeverityActionIT {
 
     setUserWithBrowseAndAdministerIssuePermission(issue);
 
-    call(issue.getKey(), MINOR);
+    call(issue.getKey(), MINOR, null);
 
     verifyNoInteractions(issueChangeEventService);
   }
 
   @Test
-  public void insert_entry_in_changelog_when_setting_severity() {
-    IssueDto issueDto = issueDbTester.insertIssue(i -> i.setSeverity(MAJOR));
+  void insert_entry_in_changelog_when_setting_severity() {
+    IssueDto issueDto = issueDbTester.insertIssue(i -> i.setSeverity(MAJOR).setType(CODE_SMELL));
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
-    call(issueDto.getKey(), MINOR);
+    call(issueDto.getKey(), MINOR, null);
 
     List<FieldDiffs> fieldDiffs = dbClient.issueChangeDao().selectChangelogByIssue(dbTester.getSession(), issueDto.getKey());
     assertThat(fieldDiffs).hasSize(1);
-    assertThat(fieldDiffs.get(0).diffs()).hasSize(1);
+    assertThat(fieldDiffs.get(0).diffs()).hasSize(2);
     assertThat(fieldDiffs.get(0).diffs().get("severity").newValue()).isEqualTo(MINOR);
     assertThat(fieldDiffs.get(0).diffs().get("severity").oldValue()).isEqualTo(MAJOR);
+    assertThat(fieldDiffs.get(0).diffs().get("impactSeverity").oldValue()).isEqualTo("MAINTAINABILITY:HIGH");
+    assertThat(fieldDiffs.get(0).diffs().get("impactSeverity").newValue()).isEqualTo("MAINTAINABILITY:LOW");
   }
 
   @Test
-  public void fail_if_bad_severity() {
+  void fail_if_bad_severity() {
     IssueDto issueDto = issueDbTester.insertIssue(i -> i.setSeverity("unknown"));
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
-
-    assertThatThrownBy(() -> call(issueDto.getKey(), "unknown"))
+    String key = issueDto.getKey();
+    assertThatThrownBy(() -> call(key, "unknown", null))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Value of parameter 'severity' (unknown) must be one of: [INFO, MINOR, MAJOR, CRITICAL, BLOCKER]");
   }
 
   @Test
-  public void fail_NFE_if_hotspot() {
+  void fail_NFE_if_hotspot() {
     IssueDto hotspot = issueDbTester.insertHotspot(h -> h.setSeverity("CRITICAL"));
     setUserWithBrowseAndAdministerIssuePermission(hotspot);
 
     String hotspotKey = hotspot.getKey();
-    assertThatThrownBy(() -> call(hotspotKey, "MAJOR"))
+    assertThatThrownBy(() -> call(hotspotKey, "MAJOR", null))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Issue with key '%s' does not exist", hotspotKey);
   }
 
   @Test
-  public void fail_when_not_authenticated() {
-    assertThatThrownBy(() -> call("ABCD", MAJOR))
+  void fail_when_not_authenticated() {
+    assertThatThrownBy(() -> call("ABCD", MAJOR, null))
       .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
-  public void fail_when_missing_browse_permission() {
+  void fail_when_missing_browse_permission() {
     IssueDto issueDto = issueDbTester.insertIssue();
     logInAndAddProjectPermission(issueDto, ISSUE_ADMIN);
-
-    assertThatThrownBy(() -> call(issueDto.getKey(), MAJOR))
+    String key = issueDto.getKey();
+    assertThatThrownBy(() -> call(key, MAJOR, null))
       .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
-  public void fail_when_missing_administer_issue_permission() {
+  void fail_when_missing_administer_issue_permission() {
     IssueDto issueDto = issueDbTester.insertIssue();
     logInAndAddProjectPermission(issueDto, USER);
-
-    assertThatThrownBy(() -> call(issueDto.getKey(), MAJOR))
+    String key = issueDto.getKey();
+    assertThatThrownBy(() -> call(key, MAJOR, null))
       .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
-  public void test_definition() {
+  void test_definition() {
     WebService.Action action = tester.getDef();
     assertThat(action.key()).isEqualTo("set_severity");
     assertThat(action.isPost()).isTrue();
     assertThat(action.isInternal()).isFalse();
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.params()).hasSize(3);
     assertThat(action.responseExample()).isNotNull();
   }
 
-  private TestResponse call(@Nullable String issueKey, @Nullable String severity) {
+  private TestResponse call(@Nullable String issueKey, @Nullable String severity, @Nullable String impact) {
     TestRequest request = tester.newRequest();
     ofNullable(issueKey).ifPresent(issue -> request.setParam("issue", issue));
     ofNullable(severity).ifPresent(value -> request.setParam("severity", value));
+    ofNullable(impact).ifPresent(value -> request.setParam("impact", value));
     return request.execute();
   }
 

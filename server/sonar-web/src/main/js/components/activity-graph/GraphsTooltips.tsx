@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Table, TableSeparator, ThemeProp, themeColor, withTheme } from 'design-system';
+
 import * as React from 'react';
+import { Table, TableSeparator, ThemeProp, themeColor, withTheme } from '~design-system';
 import { Popup, PopupPlacement } from '../../components/ui/popups';
 import { isDefined } from '../../helpers/types';
 import { AnalysisEvent, GraphType, MeasureHistory, Serie } from '../../types/project-activity';
@@ -112,7 +113,7 @@ export class GraphsTooltipsClass extends React.PureComponent<Props> {
           <Table
             columnCount={COLUMNS}
             noHeaderTopBorder
-            style={{ color: themeColor('dropdownMenuSubTitle')({ theme }) }}
+            style={{ color: 'var(--echoes-color-text-subdued)' }}
           >
             {addSeparator && <TableSeparator />}
             {events?.length > 0 && (

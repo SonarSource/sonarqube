@@ -70,7 +70,7 @@ public class QGChangeEventListenersImplTest {
   private final QGChangeEventListener listener3 = mock(QGChangeEventListener.class);
   private final List<QGChangeEventListener> listeners = Arrays.asList(listener1, listener2, listener3);
 
-  private final String project1Uuid = RandomStringUtils.randomAlphabetic(6);
+  private final String project1Uuid = RandomStringUtils.secure().nextAlphabetic(6);
   private final BranchDto project1 = newBranchDto(project1Uuid);
   private final DefaultIssue component1Issue = newDefaultIssue(project1Uuid);
   private final List<DefaultIssue> oneIssueOnComponent1 = singletonList(component1Issue);
@@ -167,9 +167,9 @@ public class QGChangeEventListenersImplTest {
 
   @Test
   public void broadcastOnIssueChange_passes_immutable_set_of_ChangedIssues() {
-    QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl(Set.of(listener1));
+    var qgChangeEventListeners = new QGChangeEventListenersImpl(Set.of(listener1));
 
-    underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent), false);
+    qgChangeEventListeners.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent), false);
 
     ArgumentCaptor<Set<ChangedIssue>> changedIssuesCaptor = newSetCaptor();
     inOrder.verify(listener1).onIssueChanges(same(component1QGChangeEvent), changedIssuesCaptor.capture());
@@ -178,9 +178,9 @@ public class QGChangeEventListenersImplTest {
 
   @Test
   public void broadcastOnIssueChange_has_no_effect_when_no_listener() {
-    QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl(Set.of());
+    var qgChangeEventListeners = new QGChangeEventListenersImpl(Set.of());
 
-    underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent), false);
+    qgChangeEventListeners.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent), false);
 
     verifyNoInteractions(listener1, listener2, listener3);
   }

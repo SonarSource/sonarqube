@@ -24,7 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.DumpWriter;
 import org.sonar.ce.task.projectexport.steps.ProjectHolder;
@@ -77,7 +77,7 @@ public class ExportComponentsStep implements ComputationStep {
         String qualifier = getString(rs, 2);
         String uuidPath = getString(rs, 3);
         componentBuilder.clear();
-        componentRepository.register(ref, uuid, Qualifiers.FILE.equals(qualifier));
+        componentRepository.register(ref, uuid, ComponentQualifiers.FILE.equals(qualifier));
         ProjectDump.Component component = componentBuilder
           .setRef(ref)
           .setUuid(uuid)

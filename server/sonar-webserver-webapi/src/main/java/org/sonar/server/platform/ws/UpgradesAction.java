@@ -57,6 +57,7 @@ public class UpgradesAction implements SystemWsAction {
   private static final String PROPERTY_DEVELOPER_DOWNLOAD_URL = "downloadDeveloperUrl";
   private static final String PROPERTY_ENTERPRISE_DOWNLOAD_URL = "downloadEnterpriseUrl";
   private static final String PROPERTY_DATACENTER_DOWNLOAD_URL = "downloadDatacenterUrl";
+  private static final String PROPERTY_PRODUCT = "product";
   private static final String OBJECT_PLUGINS = "plugins";
   private static final String ARRAY_REQUIRE_UPDATE = "requireUpdate";
   private static final String ARRAY_INCOMPATIBLE = "incompatible";
@@ -89,6 +90,7 @@ public class UpgradesAction implements SystemWsAction {
     jsonWriter.prop(PROPERTY_DEVELOPER_DOWNLOAD_URL, release.getDownloadUrl(Release.Edition.DEVELOPER));
     jsonWriter.prop(PROPERTY_ENTERPRISE_DOWNLOAD_URL, release.getDownloadUrl(Release.Edition.ENTERPRISE));
     jsonWriter.prop(PROPERTY_DATACENTER_DOWNLOAD_URL, release.getDownloadUrl(Release.Edition.DATACENTER));
+    jsonWriter.prop(PROPERTY_PRODUCT, release.getProduct().name());
   }
 
   @Override

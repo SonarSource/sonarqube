@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -49,8 +50,8 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.server.qualityprofile.builtin.QProfileName;
 import org.sonar.server.common.rule.RuleCreator;
+import org.sonar.server.qualityprofile.builtin.QProfileName;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,6 +61,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.issue.impact.Severity.BLOCKER;
+import static org.sonar.api.issue.impact.Severity.INFO;
+import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.db.rule.RuleTesting.newRuleWithoutDescriptionSection;
@@ -101,6 +106,12 @@ class QProfileBackuperImplIT {
       "<key>" + rule.getRuleKey() + "</key>" +
       "<type>" + RuleType.valueOf(rule.getType()).name() + "</type>" +
       "<priority>" + activeRule.getSeverityString() + "</priority>" +
+      "<impacts>" +
+      "<impact>" +
+      "<softwareQuality>MAINTAINABILITY</softwareQuality>" +
+      "<severity>HIGH</severity>" +
+      "</impact>" +
+      "</impacts>" +
       "<parameters></parameters>" +
       "</rule>" +
       "</rules>" +
@@ -125,6 +136,12 @@ class QProfileBackuperImplIT {
       "<key>" + rule.getRuleKey() + "</key>" +
       "<type>" + RuleType.valueOf(rule.getType()).name() + "</type>" +
       "<priority>" + activeRule.getSeverityString() + "</priority>" +
+      "<impacts>" +
+      "<impact>" +
+      "<softwareQuality>MAINTAINABILITY</softwareQuality>" +
+      "<severity>HIGH</severity>" +
+      "</impact>" +
+      "</impacts>" +
       "<prioritizedRule>true</prioritizedRule>" +
       "<parameters></parameters>" +
       "</rule>" +
@@ -148,6 +165,12 @@ class QProfileBackuperImplIT {
         "<key>" + rule.getRuleKey() + "</key>" +
         "<type>" + RuleType.valueOf(rule.getType()).name() + "</type>" +
         "<priority>" + activeRule.getSeverityString() + "</priority>" +
+        "<impacts>" +
+        "<impact>" +
+        "<softwareQuality>MAINTAINABILITY</softwareQuality>" +
+        "<severity>HIGH</severity>" +
+        "</impact>" +
+        "</impacts>" +
         "<parameters><parameter>" +
         "<key>" + param.getName() + "</key>" +
         "<value>20</value>" +
@@ -195,6 +218,12 @@ class QProfileBackuperImplIT {
       "<key>" + rule.getKey().rule() + "</key>" +
       "<type>" + RuleType.valueOf(rule.getType()) + "</type>" +
       "<priority>" + activeRule.getSeverityString() + "</priority>" +
+      "<impacts>" +
+      "<impact>" +
+      "<softwareQuality>MAINTAINABILITY</softwareQuality>" +
+      "<severity>HIGH</severity>" +
+      "</impact>" +
+      "</impacts>" +
       "<name>" + rule.getName() + "</name>" +
       "<templateKey>" + templateRule.getKey().rule() + "</templateKey>" +
       "<description>" + rule.getDefaultRuleDescriptionSection().getContent() + "</description>" +
@@ -225,6 +254,12 @@ class QProfileBackuperImplIT {
       "<key>" + rule.getKey().rule() + "</key>" +
       "<type>" + RuleType.valueOf(rule.getType()) + "</type>" +
       "<priority>" + activeRule.getSeverityString() + "</priority>" +
+      "<impacts>" +
+      "<impact>" +
+      "<softwareQuality>MAINTAINABILITY</softwareQuality>" +
+      "<severity>HIGH</severity>" +
+      "</impact>" +
+      "</impacts>" +
       "<parameters><parameter>" +
       "<key>" + param.getName() + "</key>" +
       "<value>20</value>" +
@@ -390,14 +425,12 @@ class QProfileBackuperImplIT {
       Arguments.of(true, true, true),
       Arguments.of(false, false, false),
       Arguments.of(false, null, false),
-      Arguments.of(false, true, true)
-    );
+      Arguments.of(false, true, true));
   }
-
 
   @Test
   void restore_custom_rule() {
-    when(ruleCreator.create(any(), anyList())).then(invocation -> Collections.singletonList(db.rules().insert(RuleKey.of("sonarjs", "s001"))));
+    when(ruleCreator.restore(any(), anyList())).then(invocation -> Collections.singletonList(db.rules().insert(RuleKey.of("sonarjs", "s001"))));
 
     Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
       "<profile>" +
@@ -456,6 +489,48 @@ class QProfileBackuperImplIT {
     assertThat(activation.getRuleUuid()).isEqualTo(ruleUuid);
     assertThat(activation.getSeverity()).isEqualTo("BLOCKER");
     assertThat(activation.getParameter("bar")).isEqualTo("baz");
+  }
+
+  @Test
+  void restore_should_override_impacts() {
+    String ruleUuid = db.rules().insert(RuleKey.of("sonarjs", "s001")).getUuid();
+
+    Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
+      "<profile><name>foo</name>" +
+      "<language>js</language>" +
+      "<rules>" +
+      "<rule>" +
+      "<repositoryKey>sonarjs</repositoryKey>" +
+      "<key>s001</key>" +
+      "<priority>BLOCKER</priority>" +
+      "<impacts>" +
+      "<impact>" +
+      "<softwareQuality>MAINTAINABILITY</softwareQuality>" +
+      "<severity>BLOCKER</severity>" +
+      "</impact>" +
+      "<impact>" +
+      "<softwareQuality>SECURITY</softwareQuality>" +
+      "<severity>INFO</severity>" +
+      "</impact>" +
+      "</impacts>" +
+      "<parameters>" +
+      "<parameter><key>bar</key><value>baz</value></parameter>" +
+      "</parameters>" +
+      "</rule>" +
+      "</rules>" +
+      "</profile>");
+
+    underTest.restore(db.getSession(), backup, (String) null);
+
+    assertThat(reset.calledActivations).hasSize(1);
+    RuleActivation activation = reset.calledActivations.get(0);
+    assertThat(activation.getSeverity()).isEqualTo("BLOCKER");
+    assertThat(activation.getRuleUuid()).isEqualTo(ruleUuid);
+    assertThat(activation.getImpactSeverities()).isEqualTo(Map.of(MAINTAINABILITY, BLOCKER, SECURITY, INFO));
+    db.getDbClient().activeRuleDao().selectByRuleUuid(db.getSession(), ruleUuid).forEach(ar -> {
+      assertThat(ar.getSeverityString()).isEqualTo("BLOCKER");
+      assertThat(ar.getImpactsString()).isEqualTo("{\"MAINTAINABILITY\":\"BLOCKER\",\"SECURITY\":\"INFO\"}");
+    });
   }
 
   @Test

@@ -20,6 +20,9 @@
 
 import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
+import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { SingleValue } from 'react-select';
 import {
   ButtonPrimary,
   ButtonSecondary,
@@ -37,10 +40,7 @@ import {
   ToggleButton,
   ToggleButtonsOption,
   TrashIcon,
-} from 'design-system';
-import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { SingleValue } from 'react-select';
+} from '~design-system';
 import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import { generateToken, getTokens, revokeToken } from '../../../api/user-tokens';
 import { DocLink } from '../../../helpers/doc-links';

@@ -47,7 +47,7 @@ import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliver
 
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -219,10 +219,10 @@ public class FPOrAcceptedNotificationHandlerTest {
   @UseDataProvider("FPorWontFixResolutionWithCorrespondingIssueStatus")
   public void deliver_checks_by_projectKey_if_notifications_have_subscribed_assignee_to_FPorWontFix_notifications(String newResolution,
     IssueStatus newIssueStatus) {
-    Project projectKey1 = newProject(randomAlphabetic(4));
-    Project projectKey2 = newProject(randomAlphabetic(5));
-    Project projectKey3 = newProject(randomAlphabetic(6));
-    Project projectKey4 = newProject(randomAlphabetic(7));
+    Project projectKey1 = newProject(secure().nextAlphabetic(4));
+    Project projectKey2 = newProject(secure().nextAlphabetic(5));
+    Project projectKey3 = newProject(secure().nextAlphabetic(6));
+    Project projectKey4 = newProject(secure().nextAlphabetic(7));
     Change changeMock = mock(Change.class);
     // some notifications with some issues on project1
     Stream<IssuesChangesNotificationBuilder> project1Notifications = IntStream.range(0, 5)
@@ -264,7 +264,7 @@ public class FPOrAcceptedNotificationHandlerTest {
   @Test
   @UseDataProvider("FPorWontFixResolutionWithCorrespondingIssueStatus")
   public void deliver_does_not_send_email_request_for_notifications_a_subscriber_is_the_changeAuthor_of(String newResolution, IssueStatus newIssueStatus) {
-    Project project = newProject(randomAlphabetic(5));
+    Project project = newProject(secure().nextAlphabetic(5));
     User subscriber1 = newUser("subscriber1");
     User subscriber2 = newUser("subscriber2");
     User subscriber3 = newUser("subscriber3");
@@ -477,12 +477,12 @@ public class FPOrAcceptedNotificationHandlerTest {
     return IntStream.range(0, 5)
       .mapToObj(i -> {
         ChangedIssue.Builder builder = new ChangedIssue.Builder("key_" + i)
-          .setAssignee(new User(randomAlphabetic(3), randomAlphabetic(4), randomAlphabetic(5)))
-          .setNewStatus(randomAlphabetic(12))
-          .setRule(newRandomNotAHotspotRule(randomAlphabetic(8)))
-          .setProject(new Project.Builder(randomAlphabetic(9))
-            .setKey(randomAlphabetic(10))
-            .setProjectName(randomAlphabetic(11))
+          .setAssignee(new User(secure().nextAlphabetic(3), secure().nextAlphabetic(4), secure().nextAlphabetic(5)))
+          .setNewStatus(secure().nextAlphabetic(12))
+          .setRule(newRandomNotAHotspotRule(secure().nextAlphabetic(8)))
+          .setProject(new Project.Builder(secure().nextAlphabetic(9))
+            .setKey(secure().nextAlphabetic(10))
+            .setProjectName(secure().nextAlphabetic(11))
             .build());
         consumer.accept(builder);
         return builder.build();

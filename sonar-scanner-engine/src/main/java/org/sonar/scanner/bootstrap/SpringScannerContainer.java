@@ -79,6 +79,7 @@ import org.sonar.scanner.report.MetadataPublisher;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.report.ScannerFileStructureProvider;
 import org.sonar.scanner.report.SourcePublisher;
+import org.sonar.scanner.report.TelemetryPublisher;
 import org.sonar.scanner.report.TestExecutionPublisher;
 import org.sonar.scanner.repository.ContextPropertiesCache;
 import org.sonar.scanner.repository.DefaultProjectRepositoriesLoader;
@@ -86,6 +87,7 @@ import org.sonar.scanner.repository.DefaultQualityProfileLoader;
 import org.sonar.scanner.repository.ProjectRepositoriesProvider;
 import org.sonar.scanner.repository.QualityProfilesProvider;
 import org.sonar.scanner.repository.ReferenceBranchSupplier;
+import org.sonar.scanner.repository.TelemetryCache;
 import org.sonar.scanner.repository.language.DefaultLanguagesLoader;
 import org.sonar.scanner.repository.language.DefaultLanguagesRepository;
 import org.sonar.scanner.repository.settings.DefaultProjectSettingsLoader;
@@ -235,6 +237,7 @@ public class SpringScannerContainer extends SpringComponentContainer {
 
       // context
       ContextPropertiesCache.class,
+      TelemetryCache.class,
 
       MutableProjectSettings.class,
       SonarGlobalPropertiesFilter.class,
@@ -258,6 +261,7 @@ public class SpringScannerContainer extends SpringComponentContainer {
       ActiveRulesPublisher.class,
       ComponentsPublisher.class,
       ContextPropertiesPublisher.class,
+      TelemetryPublisher.class,
       AnalysisCachePublisher.class,
       TestExecutionPublisher.class,
       SourcePublisher.class,

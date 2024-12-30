@@ -19,8 +19,7 @@
  */
 
 import styled from '@emotion/styled';
-import { themeBorder } from 'design-system';
-import * as React from 'react';
+import { themeBorder } from '~design-system';
 import { SettingDefinitionAndValue } from '../../../types/settings';
 import { Component } from '../../../types/types';
 import Definition from './Definition';

@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useIntl } from 'react-intl';
 import { Outlet, useSearchParams } from 'react-router-dom';
 import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import ProfileHeader from '../details/ProfileHeader';
 import { useQualityProfilesContext } from '../qualityProfilesContext';
 import ProfileNotFound from './ProfileNotFound';
@@ -34,6 +36,8 @@ export default function ProfileContainer() {
 
   const context = useQualityProfilesContext();
   const { organization, profiles } = context;
+
+  const intl = useIntl();
 
   // try to find a quality profile with the given key
   // if managed to find one, redirect to a new version
@@ -62,9 +66,9 @@ export default function ProfileContainer() {
       <Helmet
         defer={false}
         title={profile.name}
-        titleTemplate={translateWithParameters(
-          'page_title.template.with_category',
-          translate('quality_profiles.page'),
+        titleTemplate={intl.formatMessage(
+          { id: 'page_title.template.with_category' },
+          { page: translate('quality_profiles.page') },
         )}
       />
       <ProfileHeader

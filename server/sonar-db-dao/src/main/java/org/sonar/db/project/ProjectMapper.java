@@ -21,7 +21,6 @@ package org.sonar.db.project;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
@@ -60,7 +59,9 @@ public interface ProjectMapper {
   void updateVisibility(@Param("uuid") String uuid, @Param("isPrivate") boolean isPrivate,
           @Param("updatedAt") long updatedAt);
 
-  void updateAiCodeAssurance(@Param("uuid") String uuid, @Param("aiCodeAssurance") boolean aiCodeAssurance, @Param("updatedAt") long updatedAt);
+  void updateContainsAiCode(@Param("uuid") String uuid, @Param("containsAiCode") boolean containsAiCode, @Param("updatedAt") long updatedAt);
+
+  void updateAiCodeFixEnablementForAllProjects(@Param("aiCodeFixEnabled") boolean aiCodeFixEnabled, @Param("updatedAt") long updatedAt);
 
   List<ProjectDto> selectAllApplications();
 
@@ -68,8 +69,6 @@ public interface ProjectMapper {
 
   @CheckForNull
   ProjectDto selectByBranchUuid(String branchUuid);
-
-  Set<String> selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(@Param("languageFilters") Set<String> languageFilters);
 
   void updateNcloc(@Param("projectUuid") String projectUuid, @Param("ncloc") long ncloc);
 
@@ -80,7 +79,7 @@ public interface ProjectMapper {
 
   int countProjects();
 
-  List<ProjectDto> selectProjectsByLanguage(@Param("languageFilters") Set<String> languageFilters);
+  int countProjectsByAiCodeFixEnablement(@Param("aiCodeFixEnabled") boolean aiCodeFixEnabled);
 
   List<ProjectDto> selectProjectsByOrganizationUuids(@Param("orgUuids") List<String> orgUuids);
 }

@@ -62,6 +62,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.batch.sensor.issue.MessageFormatting.Type.CODE;
 import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
 import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IssuePublisherTest {
@@ -149,7 +150,7 @@ public class IssuePublisherTest {
 
     ScannerReport.Impact impact1 = ScannerReport.Impact.newBuilder().setSoftwareQuality(MAINTAINABILITY.name()).setSeverity("HIGH").build();
     ScannerReport.Impact impact2 = ScannerReport.Impact.newBuilder().setSoftwareQuality(RELIABILITY.name()).setSeverity("LOW").build();
-    assertThat(argument.getValue().getOverridenImpactsList()).containsExactly(impact1, impact2);
+    assertThat(argument.getValue().getOverridenImpactsList()).containsExactlyInAnyOrder(impact1, impact2);
   }
 
   @Test
@@ -243,6 +244,58 @@ public class IssuePublisherTest {
     ArgumentCaptor<ScannerReport.Issue> argument = ArgumentCaptor.forClass(ScannerReport.Issue.class);
     verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.scannerId()), argument.capture());
     assertThat(argument.getValue().getSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.INFO);
+    assertThat(argument.getValue().getOverridenImpactsList()).isEmpty();
+  }
+
+  @Test
+  public void initAndAddIssue_whenImpactsOverriddenOnActiveRule_shouldOverrideIssue() {
+    activeRulesBuilder.addRule(new NewActiveRule.Builder()
+      .setRuleKey(NOSONAR_RULE_KEY)
+      .setSeverity(Severity.INFO)
+      .setImpact(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH)
+      .setQProfileKey("qp-1")
+      .build());
+    initModuleIssues();
+
+    DefaultIssue issue = new DefaultIssue(project)
+      .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
+      .forRule(NOSONAR_RULE_KEY);
+    when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class))).thenReturn(true);
+    moduleIssues.initAndAddIssue(issue);
+
+    ArgumentCaptor<ScannerReport.Issue> argument = ArgumentCaptor.forClass(ScannerReport.Issue.class);
+    verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.scannerId()), argument.capture());
+    assertThat(argument.getValue().getSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.INFO);
+    assertThat(argument.getValue().getOverridenImpactsList()).extracting(ScannerReport.Impact::getSoftwareQuality, ScannerReport.Impact::getSeverity)
+      .containsExactly(tuple(MAINTAINABILITY.name(), org.sonar.api.issue.impact.Severity.HIGH.name()));
+  }
+
+  @Test
+  public void initAndAddIssue_whenImpactsOverriddenOnActiveRuleAndInIssue_shouldCombineOverriddenImpacts() {
+    activeRulesBuilder.addRule(new NewActiveRule.Builder()
+      .setRuleKey(NOSONAR_RULE_KEY)
+      .setSeverity(Severity.INFO)
+      .setImpact(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH)
+      .setImpact(SECURITY, org.sonar.api.issue.impact.Severity.INFO)
+      .setQProfileKey("qp-1")
+      .build());
+    initModuleIssues();
+
+    DefaultIssue issue = new DefaultIssue(project)
+      .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
+      .overrideImpact(RELIABILITY, org.sonar.api.issue.impact.Severity.MEDIUM)
+      .overrideImpact(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW)
+      .forRule(NOSONAR_RULE_KEY);
+    when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class))).thenReturn(true);
+    moduleIssues.initAndAddIssue(issue);
+
+    ArgumentCaptor<ScannerReport.Issue> argument = ArgumentCaptor.forClass(ScannerReport.Issue.class);
+    verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.scannerId()), argument.capture());
+    assertThat(argument.getValue().getSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.INFO);
+    assertThat(argument.getValue().getOverridenImpactsList()).extracting(ScannerReport.Impact::getSoftwareQuality, ScannerReport.Impact::getSeverity)
+      .containsExactlyInAnyOrder(tuple(MAINTAINABILITY.name(), org.sonar.api.issue.impact.Severity.LOW.name()),
+        tuple(RELIABILITY.name(), org.sonar.api.issue.impact.Severity.MEDIUM.name()),
+        tuple(SECURITY.name(), org.sonar.api.issue.impact.Severity.INFO.name()));
   }
 
   @Test

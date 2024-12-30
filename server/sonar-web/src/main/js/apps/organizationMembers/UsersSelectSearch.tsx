@@ -24,7 +24,7 @@ import { components, OptionProps, SingleValueProps } from 'react-select';
 import { isUserActive, UserActive } from "../../types/users";
 import { searchMembers } from "../../api/organizations";
 import { Organization } from "../../types/types";
-import { SearchSelect } from "design-system";
+import { SearchSelect } from "~design-system";
 
 export const MIN_QUERY_LENGTH = 2;
 

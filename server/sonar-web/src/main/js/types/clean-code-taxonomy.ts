@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 export enum SoftwareImpactSeverity {
   Blocker = 'BLOCKER',
   High = 'HIGH',
@@ -49,6 +50,7 @@ export enum CleanCodeAttribute {
   Trustworthy = 'TRUSTWORTHY',
 }
 
+// The order here is important. Please be mindful about the order when adding new software qualities.
 export enum SoftwareQuality {
   Security = 'SECURITY',
   Reliability = 'RELIABILITY',

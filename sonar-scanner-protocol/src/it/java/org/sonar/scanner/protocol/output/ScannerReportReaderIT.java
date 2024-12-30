@@ -370,7 +370,33 @@ public class ScannerReportReaderIT {
   }
 
   @Test
+  public void read_dependencies() {
+    ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
+    ScannerReport.Dependency dep = ScannerReport.Dependency.newBuilder()
+      .build();
+    writer.appendDependency(dep);
+
+    assertThat(underTest.readDependencies()).toIterable().hasSize(1);
+  }
+
+  @Test
   public void return_null_when_no_file_source() {
     assertThat(underTest.readFileSource(UNKNOWN_COMPONENT_REF)).isNull();
+  }
+
+  @Test
+  public void readTelemetryEntries_whenFileExists() {
+    ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
+    ScannerReport.TelemetryEntry.Builder telemetry = ScannerReport.TelemetryEntry.newBuilder()
+      .setKey("key")
+      .setValue("value");
+    writer.writeTelemetry(List.of(telemetry.build()));
+
+    assertThat(underTest.readTelemetryEntries()).toIterable().hasSize(1);
+  }
+
+  @Test
+  public void readTelemetryEntries_whenFileDoesntExists() {
+    assertThat(underTest.readTelemetryEntries()).toIterable().isEmpty();
   }
 }

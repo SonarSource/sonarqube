@@ -19,7 +19,6 @@
  */
 package org.sonar.db.ce;
 
-import java.util.Random;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -48,7 +47,7 @@ class UpdateIfTest {
 
   @Test
   void newProperties_constructor_fails_with_IAE_if_workerUuid_is_41_or_more() {
-    String workerUuid = RandomStringUtils.randomAlphanumeric(41 + new Random().nextInt(5));
+    String workerUuid = RandomStringUtils.secure().nextAlphanumeric(41);
 
     assertThatThrownBy(() -> new UpdateIf.NewProperties(CeQueueDto.Status.PENDING, workerUuid, 123, 456))
       .isInstanceOf(IllegalArgumentException.class)

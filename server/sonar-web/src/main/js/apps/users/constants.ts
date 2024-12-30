@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { translate } from '../../helpers/l10n';
 import { LabelValueSelectOption } from '../../helpers/search';
 import { UserActivity } from './types';

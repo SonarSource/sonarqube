@@ -19,15 +19,14 @@
  */
 
 import { Link } from '@sonarsource/echoes-react';
+import { FormattedMessage } from 'react-intl';
 import {
   ClipboardIconButton,
   CodeSnippet,
   NumberedList,
   NumberedListItem,
   SubHeading,
-} from 'design-system';
-import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
+} from '~design-system';
 import { DocLink } from '../../../../helpers/doc-links';
 import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';

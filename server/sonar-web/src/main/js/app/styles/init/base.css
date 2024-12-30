@@ -106,8 +106,8 @@ code,
 kbd,
 samp,
 tt {
-  font-family: var(--sourceCodeFontFamily);
-  font-size: var(--smallFontSize);
+  font-family: Consolas, 'Ubuntu Mono', 'Liberation Mono', Menlo, Courier, monospace;
+  font-size: 12px;
   line-height: 18px;
 }
 
@@ -122,5 +122,5 @@ hr {
   padding: 0;
   height: 1px;
   border: none;
-  background-color: var(--barBorderColor);
+  background-color: #e6e6e6;
 }

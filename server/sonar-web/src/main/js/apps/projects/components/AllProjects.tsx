@@ -20,206 +20,154 @@
 
 import styled from '@emotion/styled';
 import { Heading, Spinner } from '@sonarsource/echoes-react';
+import { chunk, keyBy, last, mapValues, omitBy, pick } from 'lodash';
+import { useEffect, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { useIntl } from 'react-intl';
 import {
   LAYOUT_FOOTER_HEIGHT,
   LargeCenteredLayout,
   PageContentFontWrapper,
   themeBorder,
   themeColor,
-} from 'design-system';
-import { keyBy, mapValues, omitBy, pick } from 'lodash';
-import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
-import { useSearchParams } from 'react-router-dom';
+} from '~design-system';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
-import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
-import { Location, RawQuery, Router } from '~sonar-aligned/types/router';
+import { RawQuery } from '~sonar-aligned/types/router';
 import { searchProjects } from '../../../api/components';
-import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
-import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
+import { useAppState } from '../../../app/components/app-state/withAppStateContext';
+import { useCurrentUser } from '../../../app/components/current-user/CurrentUserContext';
+import EmptySearch from '../../../components/common/EmptySearch';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import '../../../components/search-navigator.css';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { translate } from '../../../helpers/l10n';
-import { get, save } from '../../../helpers/storage';
 import { isDefined } from '../../../helpers/types';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
-import { AppState } from '../../../types/appstate';
-import { CurrentUser, isLoggedIn } from '../../../types/users';
-import { Query, hasFilterParams, parseUrlQuery } from '../query';
+import useLocalStorage from '../../../hooks/useLocalStorage';
+import { useMeasuresForProjectsQuery } from '../../../queries/measures';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
+import {
+  PROJECTS_PAGE_SIZE,
+  useMyScannableProjectsQuery,
+  useProjectsQuery,
+} from '../../../queries/projects';
+import { isLoggedIn } from '../../../types/users';
+import { hasFilterParams, parseUrlQuery } from '../query';
 import '../styles.css';
-import { Facets, Project } from '../types';
-import { SORTING_SWITCH, convertToQueryData, fetchProjects, parseSorting } from '../utils';
+import {
+  SORTING_SWITCH,
+  convertToQueryData,
+  defineMetrics,
+  getFacetsMap,
+  parseSorting,
+} from '../utils';
+import EmptyFavoriteSearch from './EmptyFavoriteSearch';
+import EmptyInstance from './EmptyInstance';
+import NoFavoriteProjects from './NoFavoriteProjects';
 import PageHeader from './PageHeader';
 import PageSidebar from './PageSidebar';
 import ProjectsList from './ProjectsList';
 
-interface Props {
-  organization: string;
-  appState: AppState;
-  currentUser: CurrentUser;
-  isFavorite: boolean;
-  isLegacy: boolean;
-  location: Location;
-  router: Router;
-}
-
-interface State {
-  facets?: Facets;
-  loading: boolean;
-  pageIndex?: number;
-  projects?: Omit<Project, 'measures'>[];
-  query: Query;
-  total?: number;
-}
-
 export const LS_PROJECTS_SORT = 'sonarqube.projects.sort';
 export const LS_PROJECTS_VIEW = 'sonarqube.projects.view';
 
-export class AllProjects extends React.PureComponent<Props, State> {
-  mounted = false;
+function AllProjects({ organization, isFavorite }: Readonly<{ isFavorite: boolean }>) {
+  const appState = useAppState();
+  const { currentUser } = useCurrentUser();
+  const router = useRouter();
+  const intl = useIntl();
+  const { query, pathname } = useLocation();
+  const parsedQuery = parseUrlQuery(query);
+  const querySort = parsedQuery.sort ?? 'name';
+  const queryView = parsedQuery.view ?? 'overall';
+  const [projectsSort, setProjectsSort] = useLocalStorage(LS_PROJECTS_SORT);
+  const [projectsView, setProjectsView] = useLocalStorage(LS_PROJECTS_VIEW);
+  const { data: isStandardMode = false, isLoading: loadingMode } = useStandardExperienceModeQuery();
 
-  constructor(props: Props) {
-    super(props);
-    this.state = { loading: true, query: {} };
-  }
+  const {
+    data: projectPages,
+    isLoading: loadingProjects,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useProjectsQuery(
+    {
+      isFavorite,
+      query: parsedQuery,
+      isStandardMode,
+    },
+    { refetchOnMount: 'always' },
+  );
+  const { data: { projects: scannableProjects = [] } = {}, isLoading: loadingScannableProjects } =
+    useMyScannableProjectsQuery();
+  const { projects, facets, paging } = useMemo(
+    () => ({
+      projects:
+        projectPages?.pages
+          .flatMap((page) => page.components)
+          .map((project) => ({
+            ...project,
+            isScannable: scannableProjects.find((p) => p.key === project.key) !== undefined,
+          })) ?? [],
+      facets: getFacetsMap(
+        projectPages?.pages[projectPages?.pages.length - 1]?.facets ?? [],
+        isStandardMode,
+      ),
+      paging: projectPages?.pages[projectPages?.pages.length - 1]?.paging,
+    }),
+    [projectPages, scannableProjects, isStandardMode],
+  );
 
-  componentDidMount() {
-    this.mounted = true;
+  // Fetch measures by using chunks of 50
+  const measureQueries = useMeasuresForProjectsQuery({
+    projectKeys: projects.map((p) => p.key),
+    metricKeys: defineMetrics(parsedQuery),
+  });
+  const measuresForLastChunkAreLoading = Boolean(last(measureQueries)?.isLoading);
+  const measures = measureQueries
+    .map((q) => q.data)
+    .flat()
+    .filter(isDefined);
 
-    if (this.props.isFavorite && !isLoggedIn(this.props.currentUser)) {
-      handleRequiredAuthentication();
-      return;
+  // When measures for latest page are loading, we don't want to show them
+  const readyProjects = useMemo(() => {
+    if (measuresForLastChunkAreLoading) {
+      return chunk(projects, PROJECTS_PAGE_SIZE).slice(0, -1).flat();
     }
 
-    this.handleQueryChange();
-  }
+    return projects;
+  }, [projects, measuresForLastChunkAreLoading]);
 
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.location.query !== this.props.location.query) {
-      this.handleQueryChange();
+  const isLoading =
+    loadingMode ||
+    loadingProjects ||
+    loadingScannableProjects ||
+    Boolean(measureQueries[0]?.isLoading);
+
+  // Set sort and view from LS if not present in URL
+  useEffect(() => {
+    const hasViewParams = parsedQuery.view ?? parsedQuery.sort;
+    const hasSavedOptions = projectsSort ?? projectsView;
+
+    if (hasViewParams === undefined && hasSavedOptions) {
+      router.replace({ pathname, query: { ...query, sort: projectsSort, view: projectsView } });
     }
-  }
+  }, [projectsSort, projectsView, router, parsedQuery, query, pathname]);
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  fetchMoreProjects = () => {
-    const { isFavorite, isLegacy, organization } = this.props;
-    const { pageIndex, projects, query } = this.state;
-
-    if (isDefined(pageIndex) && pageIndex !== 0 && projects && Object.keys(query).length !== 0) {
-      this.setState({ loading: true });
-
-      fetchProjects({ isFavorite, query, pageIndex: pageIndex + 1, isLegacy, organization }).then((response) => {
-        if (this.mounted) {
-          this.setState({
-            loading: false,
-            pageIndex: pageIndex + 1,
-            projects: [...projects, ...response.projects],
-          });
-        }
-      }, this.stopLoading);
-    }
-  };
-
-  getSort = () => this.state.query.sort ?? 'name';
-
-  getView = () => this.state.query.view ?? 'overall';
-
-  handleClearAll = () => {
-    const { pathname, query } = this.props.location;
-
-    const queryWithoutFilters = pick(query, ['view', 'sort']);
-
-    this.props.router.push({ pathname, query: queryWithoutFilters });
-  };
-
-  handleFavorite = (key: string, isFavorite: boolean) => {
-    this.setState(({ projects }) => {
-      if (!projects) {
-        return null;
-      }
-
-      return {
-        projects: projects.map((p) => (p.key === key ? { ...p, isFavorite } : p)),
-      };
-    });
-  };
-
-  handlePerspectiveChange = ({ view }: { view?: string }) => {
-    const query: {
-      sort?: string;
-      view: string | undefined;
-    } = {
-      view: view === 'overall' ? undefined : view,
-    };
-
-    if (this.state.query.view === 'leak' || view === 'leak') {
-      if (isDefined(this.state.query.sort)) {
-        const sort = parseSorting(this.state.query.sort);
-
-        if (isDefined(SORTING_SWITCH[sort.sortValue])) {
-          query.sort = (sort.sortDesc ? '-' : '') + SORTING_SWITCH[sort.sortValue];
-        }
-      }
-
-      this.props.router.push({ pathname: this.props.location.pathname, query });
-    } else {
-      this.updateLocationQuery(query);
-    }
-
-    save(LS_PROJECTS_SORT, query.sort);
-    save(LS_PROJECTS_VIEW, query.view);
-  };
-
-  handleQueryChange(initialMount: boolean) {
-    const { isFavorite, isLegacy, organization } = this.props;
-
-    const queryRaw = this.props.location.query;
-    const query = parseUrlQuery(queryRaw);
-    const savedOptions = getStorageOptions();
-    const savedOptionsSet = savedOptions.sort || savedOptions.view;
-
-    this.setState({ loading: true, query });
-
-    // if there is no visualization parameters (sort, view, visualization), but there are saved preferences in the localStorage
-    if (initialMount && savedOptionsSet) {
-      this.props.router.replace({ pathname: this.props.location.pathname, query: savedOptions });
-      //this.setState({ loading: false });
-    }
-
-    fetchProjects({ isFavorite, query, isLegacy, organization }).then((response) => {
-      // We ignore the request if the query changed since the time it was initiated
-      // If that happened, another query will be initiated anyway
-      if (this.mounted && queryRaw === this.props.location.query) {
-        this.setState({
-          facets: response.facets,
-          loading: false,
-          pageIndex: 1,
-          projects: response.projects,
-          total: response.total,
-        });
-      }
-    }, this.stopLoading);
-  }
-
-  handleSortChange = (sort: string, desc: boolean) => {
-    const asString = (desc ? '-' : '') + sort;
-    this.updateLocationQuery({ sort: asString });
-    save(LS_PROJECTS_SORT, asString);
-  };
-
-  loadSearchResultCount = (property: string, values: string[]) => {
-    const { isFavorite, isLegacy } = this.props;
-    const { query = {} } = this.state;
-
-    const data = convertToQueryData({ ...query, [property]: values }, isFavorite, isLegacy, {
-      ps: 1,
-      facets: property,
-    });
+  /*
+   * Needs refactoring to query
+   */
+  const loadSearchResultCount = (property: string, values: string[]) => {
+    const data = convertToQueryData(
+      { ...parsedQuery, [property]: values },
+      organization,
+      isFavorite,
+      isStandardMode,
+      {
+        ps: 1,
+        facets: property,
+      },
+    );
 
     return searchProjects(data).then(({ facets }) => {
       const values = facets.find((facet) => facet.property === property)?.values ?? [];
@@ -228,18 +176,45 @@ export class AllProjects extends React.PureComponent<Props, State> {
     });
   };
 
-  stopLoading = () => {
-    if (this.mounted) {
-      this.setState({ loading: false });
+  const updateLocationQuery = (newQuery: RawQuery) => {
+    const nextQuery = omitBy({ ...query, ...newQuery }, (x) => !x);
+    router.push({ pathname, query: nextQuery });
+  };
+
+  const handleClearAll = () => {
+    const queryWithoutFilters = pick(query, ['view', 'sort']);
+    router.push({ pathname, query: queryWithoutFilters });
+  };
+
+  const handleSortChange = (sort: string, desc: boolean) => {
+    const asString = (desc ? '-' : '') + sort;
+    updateLocationQuery({ sort: asString });
+    setProjectsSort(asString);
+  };
+
+  const handlePerspectiveChange = ({ view }: { view?: string }) => {
+    const query: {
+      sort?: string;
+      view: string | undefined;
+    } = {
+      view: view === 'overall' ? undefined : view,
+    };
+
+    if (isDefined(parsedQuery.sort)) {
+      const sort = parseSorting(parsedQuery.sort);
+
+      if (isDefined(SORTING_SWITCH[sort.sortValue])) {
+        query.sort = (sort.sortDesc ? '-' : '') + SORTING_SWITCH[sort.sortValue];
+      }
     }
+
+    router.push({ pathname, query });
+
+    setProjectsSort(query.sort);
+    setProjectsView(query.view);
   };
 
-  updateLocationQuery = (newQuery: RawQuery) => {
-    const query = omitBy({ ...this.props.location.query, ...newQuery }, (x) => !x);
-    this.props.router.push({ pathname: this.props.location.pathname, query });
-  };
-
-  renderSide = () => (
+  const renderSide = () => (
     <SideBarStyle>
       <ScreenPositionHelper className="sw-z-filterbar">
         {({ top }) => (
@@ -256,15 +231,13 @@ export class AllProjects extends React.PureComponent<Props, State> {
               />
 
               <PageSidebar
-                applicationsEnabled={this.props.appState.qualifiers.includes(
-                  ComponentQualifier.Application,
-                )}
-                facets={this.state.facets}
-                loadSearchResultCount={this.loadSearchResultCount}
-                onClearAll={this.handleClearAll}
-                onQueryChange={this.updateLocationQuery}
-                query={this.state.query}
-                view={this.getView()}
+                applicationsEnabled={appState.qualifiers.includes(ComponentQualifier.Application)}
+                facets={facets}
+                loadSearchResultCount={loadSearchResultCount}
+                onClearAll={handleClearAll}
+                onQueryChange={updateLocationQuery}
+                query={parsedQuery}
+                view={queryView}
               />
             </div>
           </section>
@@ -273,123 +246,100 @@ export class AllProjects extends React.PureComponent<Props, State> {
     </SideBarStyle>
   );
 
-  renderHeader = () => (
+  const renderHeader = () => (
     <PageHeaderWrapper className="sw-w-full">
       <PageHeader
-        showHomepageIcon={!this.props.organization}
-        currentUser={this.props.currentUser}
-        onPerspectiveChange={this.handlePerspectiveChange}
-        onQueryChange={this.updateLocationQuery}
-        onSortChange={this.handleSortChange}
-        query={this.state.query}
-        selectedSort={this.getSort()}
-        total={this.state.total}
-        view={this.getView()}
+        showHomepageIcon={!organization}
+        currentUser={currentUser}
+        onPerspectiveChange={handlePerspectiveChange}
+        onQueryChange={updateLocationQuery}
+        onSortChange={handleSortChange}
+        query={parsedQuery}
+        selectedSort={querySort}
+        total={paging?.total}
+        view={queryView}
       />
     </PageHeaderWrapper>
   );
 
-  renderMain = () => {
-    if (this.state.loading && this.state.projects === undefined) {
-      return <Spinner />;
-    }
-
+  const renderMain = () => {
+    const isFiltered = hasFilterParams(parsedQuery);
     return (
       <div className="it__layout-page-main-inner it__projects-list sw-h-full">
-        {this.state.projects && (
+        <output>
+          <Spinner isLoading={isLoading}>
+            {readyProjects.length === 0 && isFiltered && isFavorite && (
+              <EmptyFavoriteSearch query={parsedQuery} />
+            )}
+            {readyProjects.length === 0 && isFiltered && !isFavorite && <EmptySearch />}
+            {readyProjects.length === 0 && !isFiltered && isFavorite && <NoFavoriteProjects />}
+            {readyProjects.length === 0 && !isFiltered && !isFavorite && <EmptyInstance />}
+            {readyProjects.length > 0 && (
+              <span className="sw-sr-only">
+                {intl.formatMessage({ id: 'projects.x_projects_found' }, { count: paging?.total })}
+              </span>
+            )}
+          </Spinner>
+        </output>
+        {readyProjects.length > 0 && (
           <ProjectsList
-            cardType={this.getView()}
-            currentUser={this.props.currentUser}
-            handleFavorite={this.handleFavorite}
-            isFavorite={this.props.isFavorite}
-            isFiltered={hasFilterParams(this.state.query)}
-            loading={this.state.loading}
-            loadMore={this.fetchMoreProjects}
-            projects={this.state.projects}
-            query={this.state.query}
-            total={this.state.total}
+            cardType={queryView}
+            isFavorite={isFavorite}
+            isFiltered={hasFilterParams(parsedQuery)}
+            loading={isFetchingNextPage || measuresForLastChunkAreLoading}
+            loadMore={fetchNextPage}
+            measures={measures}
+            projects={readyProjects}
+            query={parsedQuery}
+            total={paging?.total}
           />
         )}
       </div>
     );
   };
 
-  render() {
-    return (
-      <StyledWrapper id="projects-page">
-        <Helmet defer={false} title={translate('projects.page')} />
-
-        <Heading as="h1" className="sw-sr-only">
-          {translate('projects.page')}
-        </Heading>
-
-        <LargeCenteredLayout>
-          <PageContentFontWrapper className="sw-flex sw-w-full sw-typo-lg">
-            {this.renderSide()}
-
-            <main className="sw-flex sw-flex-col sw-box-border sw-min-w-0 sw-pl-12 sw-pt-6 sw-flex-1">
-              <A11ySkipTarget anchor="projects_main" />
-
-              <Heading as="h2" className="sw-sr-only">
-                {translate('list_of_projects')}
-              </Heading>
-
-              {this.renderHeader()}
-
-              {this.renderMain()}
-            </main>
-          </PageContentFontWrapper>
-        </LargeCenteredLayout>
-      </StyledWrapper>
-    );
-  }
-}
-
-function getStorageOptions() {
-  const options: {
-    sort?: string;
-    view?: string;
-  } = {};
-
-  if (get(LS_PROJECTS_SORT) !== null) {
-    options.sort = get(LS_PROJECTS_SORT) ?? undefined;
-  }
-
-  if (get(LS_PROJECTS_VIEW) !== null) {
-    options.view = get(LS_PROJECTS_VIEW) ?? undefined;
-  }
-
-  return options;
-}
-
-function AllProjectsWrapper(props: Readonly<Omit<Props, 'isLegacy'>>) {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const savedOptions = getStorageOptions();
-  const { data: isLegacy, isLoading } = useIsLegacyCCTMode();
-
-  React.useEffect(
-    () => {
-      const hasViewParams = searchParams.get('sort') ?? searchParams.get('view');
-      const hasSavedOptions = savedOptions.sort ?? savedOptions.view;
-
-      if (!isDefined(hasViewParams) && isDefined(hasSavedOptions)) {
-        setSearchParams(savedOptions);
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      /* Run once on mount only */
-    ],
-  );
-
   return (
-    <Spinner isLoading={isLoading}>
-      <AllProjects {...props} isLegacy={isLegacy ?? false} />
-    </Spinner>
+    <StyledWrapper id="projects-page">
+      <Helmet defer={false} title={translate('projects.page')} />
+
+      <Heading as="h1" className="sw-sr-only">
+        {translate('projects.page')}
+      </Heading>
+
+      <LargeCenteredLayout>
+        <PageContentFontWrapper className="sw-flex sw-w-full sw-typo-lg">
+          {renderSide()}
+
+          <main className="sw-flex sw-flex-col sw-box-border sw-min-w-0 sw-pl-12 sw-pt-6 sw-flex-1">
+            <A11ySkipTarget anchor="projects_main" />
+
+            <Heading as="h2" className="sw-sr-only">
+              {translate('list_of_projects')}
+            </Heading>
+
+            {renderHeader()}
+
+            {renderMain()}
+          </main>
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
+    </StyledWrapper>
   );
 }
 
-export default withRouter(withCurrentUserContext(withAppStateContext(AllProjectsWrapper)));
+function withRedirectWrapper(Component: React.ComponentType<{ isFavorite: boolean }>) {
+  return function Wrapper(props: Readonly<{ isFavorite: boolean }>) {
+    const { currentUser } = useCurrentUser();
+    if (props.isFavorite && !isLoggedIn(currentUser)) {
+      handleRequiredAuthentication();
+      return null;
+    }
+
+    return <Component {...props} />;
+  };
+}
+
+export default withRedirectWrapper(AllProjects);
 
 const StyledWrapper = styled.div`
   background-color: ${themeColor('backgroundPrimary')};

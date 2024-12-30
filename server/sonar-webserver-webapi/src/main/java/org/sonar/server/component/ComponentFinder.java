@@ -24,10 +24,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceType;
-import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.resources.Scopes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -51,11 +49,11 @@ public class ComponentFinder {
   private static final String LABEL_ENTITY_NOT_FOUND = "Component '%s' not found";
 
   private final DbClient dbClient;
-  private final ResourceTypes resourceTypes;
+  private final ComponentTypes componentTypes;
 
-  public ComponentFinder(DbClient dbClient, ResourceTypes resourceTypes) {
+  public ComponentFinder(DbClient dbClient, ComponentTypes componentTypes) {
     this.dbClient = dbClient;
-    this.resourceTypes = resourceTypes;
+    this.componentTypes = componentTypes;
   }
 
   public ComponentDto getByUuidOrKey(DbSession dbSession, @Nullable String componentUuid, @Nullable String componentKey, ParamNames parameterNames) {
@@ -104,7 +102,7 @@ public class ComponentFinder {
 
   public ProjectDto getProjectByUuid(DbSession dbSession, String projectUuid) {
     return dbClient.projectDao().selectByUuid(dbSession, projectUuid)
-      .filter(p -> Qualifiers.PROJECT.equals(p.getQualifier()))
+      .filter(p -> ComponentQualifiers.PROJECT.equals(p.getQualifier()))
       .orElseThrow(() -> new NotFoundException(String.format(LABEL_PROJECT_NOT_FOUND, projectUuid)));
   }
 
@@ -221,22 +219,22 @@ public class ComponentFinder {
   }
 
   private ComponentDto checkIsProject(ComponentDto component) {
-    Set<String> rootQualifiers = getRootQualifiers(resourceTypes);
+    Set<String> rootQualifiers = getRootQualifiers(componentTypes);
 
-    checkRequest(component.scope().equals(Scopes.PROJECT) && rootQualifiers.contains(component.qualifier()),
+    checkRequest(component.scope().equals(ComponentScopes.PROJECT) && rootQualifiers.contains(component.qualifier()),
       format(
         "Component '%s' (id: %s) must be a project%s.",
         component.getKey(), component.uuid(),
-        rootQualifiers.contains(Qualifiers.VIEW) ? " or a view" : ""));
+        rootQualifiers.contains(ComponentQualifiers.VIEW) ? " or a view" : ""));
 
     return component;
   }
 
-  private static Set<String> getRootQualifiers(ResourceTypes resourceTypes) {
-    Collection<ResourceType> rootTypes = resourceTypes.getRoots();
+  private static Set<String> getRootQualifiers(ComponentTypes componentTypes) {
+    Collection<ComponentType> rootTypes = componentTypes.getRoots();
     return rootTypes
       .stream()
-      .map(ResourceType::getQualifier)
+      .map(ComponentType::getQualifier)
       .collect(Collectors.toSet());
   }
 

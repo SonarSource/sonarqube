@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { uniqBy } from 'lodash';
 import * as React from 'react';
+import { useIntl } from 'react-intl';
 import { RawQuery } from '~sonar-aligned/types/router';
 import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
 import { translate } from '../../../helpers/l10n';
@@ -39,6 +41,7 @@ interface Props {
 
 export function LanguagesFilter(props: Props) {
   const { facet, languages, loadSearchResultCount, query, onQueryChange, value = [] } = props;
+  const intl = useIntl();
 
   const searchOptions = React.useMemo(() => {
     // add any language that presents in the facet, but might not be installed
@@ -102,7 +105,7 @@ export function LanguagesFilter(props: Props) {
 
   return (
     <ListStyleFacet<Language>
-      facetHeader={translate('projects.facets.languages')}
+      facetHeader={intl.formatMessage({ id: 'projects.facets.languages' })}
       fetching={false}
       getFacetItemText={renderLanguageName}
       getSearchResultKey={(language) => language.key}

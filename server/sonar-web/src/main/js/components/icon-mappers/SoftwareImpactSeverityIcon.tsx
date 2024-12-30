@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import * as React from 'react';
 import {
   IconProps,
   SoftwareImpactSeverityBlockerIcon,
@@ -24,10 +26,11 @@ import {
   SoftwareImpactSeverityInfoIcon,
   SoftwareImpactSeverityLowIcon,
   SoftwareImpactSeverityMediumIcon,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import { translate } from '../../helpers/l10n';
+import { useStandardExperienceModeQuery } from '../../queries/mode';
 import { SoftwareImpactSeverity } from '../../types/clean-code-taxonomy';
+import { IssueSeverity } from '../../types/issues';
 import { Dict } from '../../types/types';
 
 interface Props extends IconProps {
@@ -40,12 +43,16 @@ const defaultIconSize = 14;
 const severityIcons: Dict<(props: IconProps) => React.ReactElement> = {
   [SoftwareImpactSeverity.Blocker]: SoftwareImpactSeverityBlockerIcon,
   [SoftwareImpactSeverity.High]: SoftwareImpactSeverityHighIcon,
+  [IssueSeverity.Critical]: SoftwareImpactSeverityHighIcon,
   [SoftwareImpactSeverity.Medium]: SoftwareImpactSeverityMediumIcon,
+  [IssueSeverity.Major]: SoftwareImpactSeverityMediumIcon,
   [SoftwareImpactSeverity.Low]: SoftwareImpactSeverityLowIcon,
+  [IssueSeverity.Minor]: SoftwareImpactSeverityLowIcon,
   [SoftwareImpactSeverity.Info]: SoftwareImpactSeverityInfoIcon,
 };
 
 export default function SoftwareImpactSeverityIcon({ severity, ...iconProps }: Readonly<Props>) {
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
   if (typeof severity !== 'string' || !severityIcons[severity]) {
     return null;
   }
@@ -56,7 +63,7 @@ export default function SoftwareImpactSeverityIcon({ severity, ...iconProps }: R
       {...iconProps}
       width={iconProps?.width ?? defaultIconSize}
       height={iconProps?.height ?? defaultIconSize}
-      aria-label={translate('severity_impact', severity)}
+      aria-label={translate(isStandardMode ? 'severity' : 'severity_impact', severity)}
     />
   );
 }

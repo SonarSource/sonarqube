@@ -33,8 +33,7 @@ import org.sonar.server.es.IndexType;
 import org.sonar.server.es.IndexType.IndexMainType;
 import org.sonar.server.es.newindex.FakeIndexDefinition;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(DataProviderRunner.class)
@@ -43,7 +42,7 @@ public class MetadataIndexIT {
   @Rule
   public EsTester es = EsTester.createCustom(new MetadataIndexDefinitionBridge(), new FakeIndexDefinition());
   private final MetadataIndex underTest = new MetadataIndexImpl(es.client());
-  private final String indexName = randomAlphabetic(20).toLowerCase(Locale.ENGLISH);
+  private final String indexName = secure().nextAlphabetic(20).toLowerCase(Locale.ENGLISH);
   private final Index index = new Random().nextBoolean() ? Index.simple(indexName) : Index.withRelations(indexName);
 
   @Test
@@ -76,7 +75,7 @@ public class MetadataIndexIT {
 
   @Test
   public void hash_should_be_able_to_be_automatically_set() {
-    String hash = randomAlphanumeric(20);
+    String hash = secure().nextAlphanumeric(20);
     underTest.setHash(index, hash);
     assertThat(underTest.getHash(index)).hasValue(hash);
   }

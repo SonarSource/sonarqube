@@ -8,12 +8,14 @@
     {
       "name": "Simple Java project analyzed with the SonarQube Runner",
       "key": "somple-java",
-      "selected": true
+      "selected": true,
+      "aiCodeAssurance": "CONTAINS_AI_CODE"
     },
     {
       "name": "My Project",
       "key": "my-project",
-      "selected": false
+      "selected": false,
+      "aiCodeAssurance": "CONTAINS_AI_CODE"
     }
   ]
 }

@@ -23,6 +23,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -260,6 +262,11 @@ public class RuleDto {
 
   public Set<ImpactDto> getDefaultImpacts() {
     return defaultImpacts;
+  }
+
+  public Map<SoftwareQuality, Severity> getDefaultImpactsMap() {
+    return defaultImpacts.stream()
+      .collect(Collectors.toMap(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity));
   }
 
   public RuleDto addDefaultImpact(ImpactDto defaultImpactDto) {

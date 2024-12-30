@@ -23,7 +23,9 @@
     "associateProjects": true,
     "delete": true,
     "manageConditions": true,
-    "delegate": true
+    "delegate": true,
+    "manageAiCodeAssurance": true
   },
-  "caycStatus": "non-compliant"
+  "caycStatus": "non-compliant",
+  "isAiCodeSupported": false
 }

@@ -324,6 +324,14 @@ class DefaultIssueTest {
   }
 
   @Test
+  void addImpact_shouldReplaceExistingSoftwareQuality() {
+    issue.addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
+    issue.addImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW, true);
+    assertThat(issue.getImpacts())
+      .containsExactly(new DefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW, true));
+  }
+
+  @Test
   void prioritizedRule_shouldHaveCorrectDefaultValue() {
     assertThat(issue.isPrioritizedRule()).isFalse();
     issue.setPrioritizedRule(true);

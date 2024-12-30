@@ -28,7 +28,7 @@
 
 .system-info-copy-paste-id-info {
   max-width: 550px;
-  padding: var(--gridSize) calc(2 * var(--gridSize));
+  padding: 8px calc(2 * 8px);
   clear: both;
   line-height: 1.8;
 }

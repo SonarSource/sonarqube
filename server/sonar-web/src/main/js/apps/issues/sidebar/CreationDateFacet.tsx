@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { isSameDay } from 'date-fns';
-import { BarChart, DateRangePicker, FacetBox, FacetItem, Note } from 'design-system';
 import { isEmpty, max } from 'lodash';
 import * as React from 'react';
 import { WrappedComponentProps, injectIntl } from 'react-intl';
+import { BarChart, DateRangePicker, FacetBox, FacetItem, Note } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricType } from '~sonar-aligned/types/metrics';
 import { longFormatterOption } from '../../../components/intl/DateFormatter';
@@ -278,7 +279,6 @@ export class CreationDateFacetClass extends React.PureComponent<Props & WrappedC
     return (
       <FacetBox
         className="it__search-navigator-facet-box it__search-navigator-facet-header"
-        clearIconLabel={translate('clear')}
         count={count}
         countLabel={translateWithParameters('x_selected', count)}
         data-property={this.property}

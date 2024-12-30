@@ -33,19 +33,19 @@
 }
 
 .search-navigator-facet-box {
-  background-color: var(--barBackgroundColor);
-  font-size: var(--baseFontSize);
+  background-color: #f3f3f3;
+  font-size: 13px;
 }
 
 .search-navigator-facet-box.leak-facet-box {
-  background-color: var(--leakPrimaryColor);
-  border: 1px solid var(--leakSecondaryColor);
+  background-color: #fbf3d5;
+  border: 1px solid #f1e8cb;
 }
 
 .search-navigator-facet-box.is-inner {
   margin-left: 8px;
   padding-left: 12px;
-  border-left: 1px solid var(--barBorderColor);
+  border-left: 1px solid #e6e6e6;
 }
 
 .search-navigator-facet-box.is-inner .search-navigator-facet-header {
@@ -69,7 +69,7 @@
 
 .search-navigator-facet-box-forbidden .search-navigator-facet-header {
   cursor: default;
-  color: var(--gray60);
+  color: #888;
 }
 
 .search-navigator-facet,
@@ -79,9 +79,9 @@ button.search-navigator-facet {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  height: calc(3.5 * var(--gridSize));
+  height: calc(3.5 * 8px);
   margin-bottom: 1px;
-  padding: 0 calc(0.75 * var(--gridSize));
+  padding: 0 calc(0.75 * 8px);
   border: 1px solid transparent;
   border-radius: 2px;
   box-sizing: border-box;
@@ -97,13 +97,13 @@ button.search-navigator-facet {
 }
 
 button.search-navigator-facet .facet-name {
-  color: var(--baseFontColor);
+  color: #333;
 }
 
 button.search-navigator-facet:hover,
 button.search-navigator-facet:focus,
 .search-navigator-facet.active {
-  border-color: var(--blue);
+  border-color: #4b9fd5;
 }
 
 .search-navigator-facet.facet-category {
@@ -112,7 +112,7 @@ button.search-navigator-facet:focus,
 }
 
 .search-navigator-facet.facet-category .facet-name {
-  color: var(--secondFontColor);
+  color: #656565;
 }
 
 .search-navigator-facet .facet-name {
@@ -120,8 +120,8 @@ button.search-navigator-facet:focus,
   min-width: 0;
   line-height: 16px;
   padding: 1px 0; /* needed to fit small ratings and levels */
-  color: var(--secondFontColor);
-  font-size: var(--smallFontSize);
+  color: #656565;
+  font-size: 12px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -130,9 +130,9 @@ button.search-navigator-facet:focus,
 .search-navigator-facet .facet-stat {
   display: flex;
   align-items: center;
-  margin-left: var(--gridSize);
-  color: var(--secondFontColor);
-  font-size: var(--smallFontSize);
+  margin-left: 8px;
+  color: #656565;
+  font-size: 12px;
 }
 
 .search-navigator-facet .facet-toggle {
@@ -148,33 +148,33 @@ button.search-navigator-facet:focus,
 }
 
 .search-navigator-facet .facet-toggle:hover {
-  color: var(--baseFontColor);
+  color: #333;
 }
 
 .search-navigator-facet .facet-toggle-active.facet-toggle-green {
-  background-color: var(--green);
+  background-color: #00aa00;
   color: #ffffff;
 }
 
 .search-navigator-facet .facet-toggle-active.facet-toggle-red {
-  background-color: var(--red);
+  background-color: #d02f3a;
   color: #ffffff;
 }
 
 .leak-facet-box .search-navigator-facet .facet-name {
-  background-color: var(--leakPrimaryColor);
+  background-color: #fbf3d5;
 }
 
 .leak-facet-box .search-navigator-facet .facet-stat {
-  background-color: var(--leakPrimaryColor);
+  background-color: #fbf3d5;
 }
 
 .leak-facet-box .search-navigator-facet .facet-stat:before {
-  background-image: linear-gradient(to right, rgba(251, 243, 213, 0), var(--leakPrimaryColor) 75%);
+  background-image: linear-gradient(to right, rgba(251, 243, 213, 0), #fbf3d5 75%);
 }
 
 .search-navigator-facet.active {
-  background-color: var(--veryLightBlue);
+  background-color: #f2faff;
   text-decoration: none;
 }
 
@@ -188,13 +188,13 @@ button.search-navigator-facet:focus,
 }
 
 .search-navigator-facet.compare .facet-toggle.facet-toggle-green {
-  background-color: var(--green);
+  background-color: #00aa00;
   color: #ffffff;
 }
 
 .search-navigator-facet.compare .facet-toggle.facet-toggle-red {
   background-color: transparent;
-  color: var(--secondFontColor);
+  color: #656565;
 }
 
 .search-navigator-facet-half {
@@ -210,7 +210,7 @@ button.search-navigator-facet:focus,
   display: block;
   flex-shrink: 0;
   padding: 8px 1px;
-  color: var(--baseFontColor);
+  color: #333;
   font-weight: 600;
   overflow: hidden;
   white-space: nowrap;
@@ -218,14 +218,14 @@ button.search-navigator-facet:focus,
 
 .search-navigator-facet-header > button {
   border-bottom: none;
-  color: var(--baseFontColor);
+  color: #333;
   cursor: pointer;
   font-weight: inherit;
 }
 
 .search-navigator-facet-header > button:focus,
 .search-navigator-facet-header > button:hover {
-  color: var(--darkBlue);
+  color: #236a97;
 }
 
 .search-navigator-facet-header > h3,
@@ -258,31 +258,31 @@ button.search-navigator-facet:focus,
 }
 
 .search-navigator-facet-list {
-  padding-bottom: var(--gridSize);
+  padding-bottom: 8px;
   font-size: 0;
 }
 
 .search-navigator-facet-list-title {
-  margin: 0 var(--gridSize) calc(var(--gridSize) / 2);
-  font-size: var(--smallFontSize);
+  margin: 0 8px calc(8px / 2);
+  font-size: 12px;
   font-weight: bold;
 }
 
 .search-navigator-facet-list + .search-navigator-facet-list > .search-navigator-facet-list-title {
-  border-top: 1px solid var(--barBorderColor);
-  padding-top: var(--gridSize);
+  border-top: 1px solid #e6e6e6;
+  padding-top: 8px;
 }
 
 .search-navigator-facet-empty {
   margin: 0 0 0 0;
   padding: 0 10px 10px;
-  color: var(--baseFontColor);
-  font-size: var(--smallFontSize);
+  color: #333;
+  font-size: 12px;
 }
 
 .search-navigator-facet-footer {
   display: block;
-  padding-bottom: var(--gridSize);
+  padding-bottom: 8px;
   border-bottom: none;
 }
 
@@ -294,7 +294,7 @@ button.search-navigator-facet:focus,
 .search-navigator-filters {
   position: relative;
   padding: 5px 10px;
-  background-color: var(--barBackgroundColor);
+  background-color: #f3f3f3;
 }
 
 .search-navigator-filters:before,
@@ -311,7 +311,7 @@ button.search-navigator-facet:focus,
 .search-navigator-filters-header {
   margin-bottom: 12px;
   padding-bottom: 11px;
-  border-bottom: 1px solid var(--barBorderColor);
+  border-bottom: 1px solid #e6e6e6;
 }
 .search-navigator-intro {
   width: 500px;

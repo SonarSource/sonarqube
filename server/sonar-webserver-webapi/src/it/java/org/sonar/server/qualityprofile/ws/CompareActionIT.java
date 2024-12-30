@@ -19,9 +19,12 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -45,22 +48,22 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileComparison;
-import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.api.issue.impact.Severity.BLOCKER;
 import static org.sonar.api.issue.impact.Severity.HIGH;
+import static org.sonar.api.issue.impact.Severity.LOW;
+import static org.sonar.api.issue.impact.Severity.MEDIUM;
+import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 
-public class CompareActionIT {
+class CompareActionIT {
 
-  @Rule
-  public DbTester db = DbTester.create();
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  @RegisterExtension
+  private final DbTester db = DbTester.create();
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession session = db.getSession();
@@ -69,7 +72,7 @@ public class CompareActionIT {
     new CompareAction(db.getDbClient(), new QProfileComparison(db.getDbClient()), new Languages(LanguageTesting.newLanguage("xoo", "Xoo"))));
 
   @Test
-  public void compare_nominal() {
+  void compare_nominal() {
     createRepository("blah", "xoo", "Blah");
 
     RuleDto rule1 = createRule("xoo", "rule1");
@@ -77,6 +80,7 @@ public class CompareActionIT {
     RuleDto rule3 = createRule("xoo", "rule3");
     RuleDto rule4 = createRuleWithParam("xoo", "rule4");
     RuleDto rule5 = createRule("xoo", "rule5");
+    RuleDto rule6 = createRuleWithImpacts("xoo", "rule6", List.of(new ImpactDto(SECURITY, BLOCKER)));
 
     /*
      * Profile 1:
@@ -84,12 +88,14 @@ public class CompareActionIT {
      * - rule 2 active (only in this profile) => "inLeft"
      * - rule 4 active with different parameters => "modified"
      * - rule 5 active with different severity => "modified"
+     * - rule 6 active with different impacts => "modified"
      */
     QProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
     createActiveRule(rule1, profile1);
     createActiveRule(rule2, profile1);
     createActiveRuleWithParam(rule4, profile1, "polop");
     createActiveRuleWithSeverity(rule5, profile1, Severity.MINOR);
+    createActiveRuleWithImpacts(rule6, profile1, Map.of(SECURITY, BLOCKER));
     session.commit();
 
     /*
@@ -97,12 +103,14 @@ public class CompareActionIT {
      * - rule 1 active (on both profiles) => "same"
      * - rule 3 active (only in this profile) => "inRight"
      * - rule 4 active with different parameters => "modified"
+     * - rule 6 active with different impacts => "modified"
      */
     QProfileDto profile2 = createProfile("xoo", "Profile 2", "xoo-profile-2-12345");
     createActiveRule(rule1, profile2);
     createActiveRule(rule3, profile2);
     createActiveRuleWithParam(rule4, profile2, "palap");
     createActiveRuleWithSeverity(rule5, profile2, Severity.MAJOR);
+    createActiveRuleWithImpacts(rule6, profile2, Map.of(SECURITY, HIGH));
     session.commit();
 
     ws.newRequest()
@@ -112,7 +120,7 @@ public class CompareActionIT {
   }
 
   @Test
-  public void compare_whenSecurityHotspot_shouldReturnEmptyCleanCodeInformation() {
+  void compare_whenSecurityHotspot_shouldReturnEmptyCleanCodeInformation() {
     createRepository("blah", "xoo", "Blah");
 
     RuleDto rule1 = createSecurityHotspot("xoo", "rule1");
@@ -132,7 +140,7 @@ public class CompareActionIT {
   }
 
   @Test
-  public void compare_param_on_left() {
+  void compare_param_on_left() {
     RuleDto rule1 = createRuleWithParam("xoo", "rule1");
     createRepository("blah", "xoo", "Blah");
     QProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
@@ -148,7 +156,7 @@ public class CompareActionIT {
   }
 
   @Test
-  public void compare_param_on_right() {
+  void compare_param_on_right() {
     RuleDto rule1 = createRuleWithParam("xoo", "rule1");
     createRepository("blah", "xoo", "Blah");
     QProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
@@ -164,7 +172,38 @@ public class CompareActionIT {
   }
 
   @Test
-  public void fail_on_missing_left_param() {
+  void compare_impacts() {
+    RuleDto rule1 = createRuleWithImpacts("xoo", "impactRule", List.of(new ImpactDto(SECURITY, MEDIUM)));
+    createRepository("blah", "xoo", "Blah");
+    QProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
+    createActiveRuleWithImpacts(rule1, profile1, Map.of(SECURITY, MEDIUM, RELIABILITY, HIGH));
+    QProfileDto profile2 = createProfile("xoo", "Profile 2", "xoo-profile-2-12345");
+    createActiveRuleWithImpacts(rule1, profile2, Map.of(SECURITY, BLOCKER));
+    session.commit();
+
+    ws.newRequest()
+      .setParam("leftKey", profile1.getKee())
+      .setParam("rightKey", profile2.getKee())
+      .execute().assertJson(this.getClass(), "compare_impacts.json");
+  }
+
+  @Test
+  void compare_impacts_left_only_should_return_impacts_based_on_rule_impacts() {
+    RuleDto rule1 = createRuleWithImpacts("xoo", "impactRule", List.of(new ImpactDto(SECURITY, MEDIUM)));
+    createRepository("blah", "xoo", "Blah");
+    QProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
+    createActiveRuleWithImpacts(rule1, profile1, Map.of(SECURITY, LOW, RELIABILITY, HIGH));
+    QProfileDto profile2 = createProfile("xoo", "Profile 2", "xoo-profile-2-12345");
+    session.commit();
+
+    ws.newRequest()
+      .setParam("leftKey", profile1.getKee())
+      .setParam("rightKey", profile2.getKee())
+      .execute().assertJson(this.getClass(), "compare_impacts_left_only.json");
+  }
+
+  @Test
+  void fail_on_missing_left_param() {
     assertThatThrownBy(() -> {
       ws.newRequest()
         .setParam("rightKey", "polop")
@@ -174,7 +213,7 @@ public class CompareActionIT {
   }
 
   @Test
-  public void fail_on_missing_right_param() {
+  void fail_on_missing_right_param() {
     assertThatThrownBy(() -> {
       ws.newRequest()
         .setParam("leftKey", "polop")
@@ -184,7 +223,7 @@ public class CompareActionIT {
   }
 
   @Test
-  public void fail_on_left_profile_not_found() {
+  void fail_on_left_profile_not_found() {
     createProfile("xoo", "Right", "xoo-right-12345");
 
     assertThatThrownBy(() -> {
@@ -197,7 +236,7 @@ public class CompareActionIT {
   }
 
   @Test
-  public void fail_on_right_profile_not_found() {
+  void fail_on_right_profile_not_found() {
     createProfile("xoo", "Left", "xoo-left-12345");
 
     assertThatThrownBy(() -> {
@@ -210,7 +249,7 @@ public class CompareActionIT {
   }
 
   @Test
-  public void definition() {
+  void definition() {
     WebService.Action definition = ws.getDef();
     assertThat(definition).isNotNull();
     assertThat(definition.isPost()).isFalse();
@@ -234,6 +273,21 @@ public class CompareActionIT {
       .setStatus(RuleStatus.READY)
       .setCleanCodeAttribute(CleanCodeAttribute.EFFICIENT)
       .addDefaultImpact(new ImpactDto(SoftwareQuality.RELIABILITY, HIGH));
+    RuleDto ruleDto = rule;
+    dbClient.ruleDao().insert(session, ruleDto);
+    return ruleDto;
+  }
+
+  private RuleDto createRuleWithImpacts(String lang, String id, Collection<ImpactDto> impacts) {
+    RuleDto rule = createFor(RuleKey.of("blah", id))
+      .setUuid(Uuids.createFast())
+      .setName(StringUtils.capitalize(id))
+      .setLanguage(lang)
+      .setSeverity(Severity.BLOCKER)
+      .setScope(Scope.MAIN)
+      .setStatus(RuleStatus.READY)
+      .setCleanCodeAttribute(CleanCodeAttribute.EFFICIENT)
+      .replaceAllDefaultImpacts(impacts);
     RuleDto ruleDto = rule;
     dbClient.ruleDao().insert(session, ruleDto);
     return ruleDto;
@@ -269,7 +323,17 @@ public class CompareActionIT {
 
   private ActiveRuleDto createActiveRule(RuleDto rule, QProfileDto profile) {
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
-      .setSeverity(rule.getSeverityString());
+      .setSeverity(rule.getSeverityString())
+      .setImpacts(rule.getDefaultImpactsMap());
+    dbClient.activeRuleDao().insert(session, activeRule);
+    return activeRule;
+  }
+
+  private ActiveRuleDto createActiveRuleWithImpacts(RuleDto rule, QProfileDto profile, Map<SoftwareQuality,
+    org.sonar.api.issue.impact.Severity> impacts) {
+    ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
+      .setSeverity(rule.getSeverityString())
+      .setImpacts(impacts);
     dbClient.activeRuleDao().insert(session, activeRule);
     return activeRule;
   }
@@ -284,7 +348,8 @@ public class CompareActionIT {
 
   private ActiveRuleDto createActiveRuleWithSeverity(RuleDto rule, QProfileDto profile, String severity) {
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
-      .setSeverity(severity);
+      .setSeverity(severity)
+      .setImpacts(rule.getDefaultImpactsMap());
     dbClient.activeRuleDao().insert(session, activeRule);
     return activeRule;
   }

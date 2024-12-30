@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 module.exports = {
   meta: {
     messages: {
@@ -32,7 +33,7 @@ module.exports = {
             n.type === 'MethodDefinition' ||
             (n.type === 'PropertyDefinition' &&
               n.value &&
-              n.value.type === 'ArrowFunctionExpression')
+              n.value.type === 'ArrowFunctionExpression'),
         );
         if (methods.length === 1 && methods[0].key.name === 'render') {
           context.report({ node, messageId: 'convertClassToFunctionComponent' });

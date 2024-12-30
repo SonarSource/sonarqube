@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import {
   QualityGateStatusCondition,
@@ -78,10 +79,7 @@ export function getDisplayMetrics(metrics: Metric[]) {
   return metrics.filter(
     (metric) =>
       !metric.hidden &&
-      ([...CCT_SOFTWARE_QUALITY_METRICS, ...LEAK_CCT_SOFTWARE_QUALITY_METRICS].includes(
-        metric.key as MetricKey,
-      ) ||
-        ![MetricType.Data, MetricType.Distribution].includes(metric.type as MetricType)),
+      ![MetricType.Data, MetricType.Distribution].includes(metric.type as MetricType),
   );
 }
 
@@ -129,6 +127,18 @@ export function areSoftwareQualityRatingsComputed(measures?: Measure[] | Measure
   );
 }
 
+export function areLeakSoftwareQualityRatingsComputed(measures?: Measure[] | MeasureEnhanced[]) {
+  return [
+    MetricKey.new_software_quality_reliability_rating,
+    MetricKey.new_software_quality_security_rating,
+    MetricKey.new_software_quality_maintainability_rating,
+  ].every((metric) =>
+    measures?.find((measure) =>
+      isMeasureEnhanced(measure) ? measure.metric.key === metric : measure.metric === metric,
+    ),
+  );
+}
+
 export function areLeakAndOverallCCTMeasuresComputed(measures?: Measure[] | MeasureEnhanced[]) {
   return areLeakCCTMeasuresComputed(measures) && areCCTMeasuresComputed(measures);
 }
@@ -136,18 +146,6 @@ export function areLeakAndOverallCCTMeasuresComputed(measures?: Measure[] | Meas
 function isMeasureEnhanced(measure: Measure | MeasureEnhanced): measure is MeasureEnhanced {
   return (measure.metric as Metric)?.key !== undefined;
 }
-
-export const getCCTMeasureValue = (key: string, value?: string) => {
-  if (
-    CCT_SOFTWARE_QUALITY_METRICS.concat(LEAK_CCT_SOFTWARE_QUALITY_METRICS).includes(
-      key as MetricKey,
-    ) &&
-    value !== undefined
-  ) {
-    return JSON.parse(value).total;
-  }
-  return value;
-};
 
 type RatingValue = 'A' | 'B' | 'C' | 'D' | 'E';
 const RATING_VALUES: RatingValue[] = ['A', 'B', 'C', 'D', 'E'];

@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { KeyboardHint } from 'design-system';
-import * as React from 'react';
+
+import { KeyboardHint } from '~design-system';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
 import { translate } from '../../../helpers/l10n';
 import { Paging } from '../../../types/types';

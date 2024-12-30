@@ -27,13 +27,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.internal.ImpactMapper;
@@ -56,6 +59,9 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.sonar.api.server.rule.internal.ImpactMapper.convertToDeprecatedSeverity;
+import static org.sonar.api.server.rule.internal.ImpactMapper.convertToRuleType;
+import static org.sonar.core.rule.ImpactSeverityMapper.mapImpactSeverity;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 
 @ServerSide
@@ -110,6 +116,9 @@ public class RuleUpdater {
     if (update.isChangeSeverity()) {
       updateSeverity(update, rule);
     }
+    if (update.isChangeImpacts()) {
+      updateImpactSeverityAndStandardSeverityIfTypeMatch(update, rule);
+    }
     if (update.isChangeStatus()) {
       updateStatus(update, rule);
     }
@@ -130,7 +139,24 @@ public class RuleUpdater {
       .stream()
       .filter(i -> i.getSoftwareQuality().equals(ImpactMapper.convertToSoftwareQuality(rule.getEnumType())))
       .findFirst()
-      .ifPresent(i -> i.setSeverity(ImpactMapper.convertToImpactSeverity(severity)));
+      .ifPresent(i -> i.setSeverity(mapImpactSeverity(severity)));
+  }
+
+  private static void updateImpactSeverityAndStandardSeverityIfTypeMatch(RuleUpdate update, RuleDto rule) {
+    Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts = update.getImpactSeverities();
+    if (impacts.isEmpty()) {
+      throw new IllegalArgumentException("Impacts are is missing");
+    }
+    impacts.forEach((key, value) -> rule.getDefaultImpacts()
+      .stream()
+      .filter(i -> i.getSoftwareQuality().equals(key))
+      .findFirst()
+      .ifPresent(i -> {
+        i.setSeverity(value);
+        if (Objects.equals(convertToRuleType(key), RuleType.valueOf(rule.getType()))) {
+          rule.setSeverity(convertToDeprecatedSeverity(value));
+        }
+      }));
   }
 
   private static void updateName(RuleUpdate update, RuleDto rule) {

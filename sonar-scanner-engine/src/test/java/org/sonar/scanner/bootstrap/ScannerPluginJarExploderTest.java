@@ -50,6 +50,7 @@ public class ScannerPluginJarExploderTest {
     PluginFiles pluginFiles = mock(PluginFiles.class);
     when(pluginFiles.createTempDir()).thenReturn(tempDir);
     underTest = new ScannerPluginJarExploder(pluginFiles);
+    underTest.setLockRetrySleep(5L);
   }
 
   @Test

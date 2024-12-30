@@ -25,10 +25,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.sonar.api.batch.rule.LoadedActiveRule;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.DefaultActiveRules;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -88,6 +89,12 @@ public class ActiveRulesProvider {
     if (activeRule.getParams() != null) {
       for (Map.Entry<String, String> params : activeRule.getParams().entrySet()) {
         builder.setParam(params.getKey(), params.getValue());
+      }
+    }
+
+    if (activeRule.getImpacts() != null) {
+      for (Map.Entry<SoftwareQuality, Severity> impact : activeRule.getImpacts().entrySet()) {
+        builder.setImpact(impact.getKey(), impact.getValue());
       }
     }
 

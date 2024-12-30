@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { addGlobalSuccessMessage } from 'design-system';
 import * as React from 'react';
+import { addGlobalSuccessMessage } from '~design-system';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import {
   getReportStatus,

@@ -20,50 +20,46 @@
 package org.sonar.scanner.protocol.output;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class FileStructureTest {
+class FileStructureTest {
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  @TempDir
+  public File temp;
 
   @Test
-  public void fail_if_dir_does_not_exist() throws Exception {
-    File dir = temp.newFolder();
+  void fail_if_dir_does_not_exist() {
+    File dir = temp;
     FileUtils.deleteQuietly(dir);
-    try {
-      new FileStructure(dir);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessageContaining("Directory of analysis report does not exist");
-    }
+
+    assertThatThrownBy(() -> new FileStructure(dir))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Directory of analysis report does not exist");
   }
 
   @Test
-  public void fail_if_invalid_dir() throws Exception {
+  void fail_if_invalid_dir() {
     // not a dir but a file
-    File dir = temp.newFile();
-    try {
-      new FileStructure(dir);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessageContaining("Directory of analysis report does not exist");
-    }
+    File dir = new File(temp, "newFile");
+
+    assertThatThrownBy(() -> new FileStructure(dir))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Directory of analysis report does not exist");
   }
 
   @Test
-  public void locate_files() throws Exception {
-    File dir = temp.newFolder();
-    FileUtils.write(new File(dir, "metadata.pb"), "metadata content");
-    FileUtils.write(new File(dir, "issues-3.pb"), "external issues of component 3");
-    FileUtils.write(new File(dir, "external-issues-3.pb"), "issues of component 3");
-    FileUtils.write(new File(dir, "component-42.pb"), "details of component 42");
+  void locate_files() throws Exception {
+    File dir = temp;
+    FileUtils.write(new File(dir, "metadata.pb"), "metadata content", Charset.defaultCharset());
+    FileUtils.write(new File(dir, "issues-3.pb"), "external issues of component 3", Charset.defaultCharset());
+    FileUtils.write(new File(dir, "external-issues-3.pb"), "issues of component 3", Charset.defaultCharset());
+    FileUtils.write(new File(dir, "component-42.pb"), "details of component 42", Charset.defaultCharset());
 
     FileStructure structure = new FileStructure(dir);
     assertThat(structure.metadataFile()).exists().isFile();
@@ -75,12 +71,22 @@ public class FileStructureTest {
   }
 
   @Test
-  public void contextProperties_file() throws Exception {
-    File dir = temp.newFolder();
+  void contextProperties_file() throws Exception {
+    File dir = temp;
     File file = new File(dir, "context-props.pb");
-    FileUtils.write(file, "content");
+    FileUtils.write(file, "content", Charset.defaultCharset());
 
     FileStructure structure = new FileStructure(dir);
     assertThat(structure.contextProperties()).exists().isFile().isEqualTo(file);
+  }
+
+  @Test
+  void telemetryFile_hasTheCorrectName() throws Exception {
+    File dir = temp;
+    File file = new File(dir, "telemetry-entries.pb");
+    FileUtils.write(file, "content", Charset.defaultCharset());
+
+    FileStructure structure = new FileStructure(dir);
+    assertThat(structure.telemetryEntries()).exists().isFile().isEqualTo(file);
   }
 }

@@ -54,6 +54,8 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.Version;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.cache.AnalysisCacheEnabled;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.sensor.noop.NoOpNewAnalysisError;
@@ -75,10 +77,15 @@ public class ProjectSensorContext implements SensorContext {
   private final WriteCache writeCache;
   private final ReadCache readCache;
   private final AnalysisCacheEnabled analysisCacheEnabled;
+  private final ExecutingSensorContext executingSensorContext;
+  private final ScannerPluginRepository pluginRepo;
 
-  public ProjectSensorContext(DefaultInputProject project, Configuration config, Settings mutableSettings, FileSystem fs, ActiveRules activeRules,
-    DefaultSensorStorage sensorStorage, SonarRuntime sonarRuntime, BranchConfiguration branchConfiguration, WriteCache writeCache, ReadCache readCache,
-    AnalysisCacheEnabled analysisCacheEnabled, UnchangedFilesHandler unchangedFilesHandler) {
+  public ProjectSensorContext(DefaultInputProject project, Configuration config, Settings mutableSettings, FileSystem fs,
+                              ActiveRules activeRules,
+                              DefaultSensorStorage sensorStorage, SonarRuntime sonarRuntime, BranchConfiguration branchConfiguration,
+                              WriteCache writeCache, ReadCache readCache,
+                              AnalysisCacheEnabled analysisCacheEnabled, UnchangedFilesHandler unchangedFilesHandler,
+                              ExecutingSensorContext executingSensorContext, ScannerPluginRepository pluginRepo) {
     this.project = project;
     this.config = config;
     this.mutableSettings = mutableSettings;
@@ -91,6 +98,8 @@ public class ProjectSensorContext implements SensorContext {
     this.analysisCacheEnabled = analysisCacheEnabled;
     this.skipUnchangedFiles = branchConfiguration.isPullRequest();
     this.unchangedFilesHandler = unchangedFilesHandler;
+    this.executingSensorContext = executingSensorContext;
+    this.pluginRepo = pluginRepo;
   }
 
   @Override
@@ -215,8 +224,12 @@ public class ProjectSensorContext implements SensorContext {
   }
 
   @Override
-  public void addTelemetryProperty(String s, String s1) {
-    //NOOP
+  public void addTelemetryProperty(String key, String value) {
+    if (isSonarSourcePlugin()) {
+      this.sensorStorage.storeTelemetry(key, value);
+    } else {
+      throw new IllegalStateException("Telemetry properties can only be added by SonarSource plugins");
+    }
   }
 
   @Override
@@ -227,5 +240,14 @@ public class ProjectSensorContext implements SensorContext {
   @Override
   public boolean canSkipUnchangedFiles() {
     return this.skipUnchangedFiles;
+  }
+
+  private boolean isSonarSourcePlugin() {
+    SensorId sensorExecuting = executingSensorContext.getSensorExecuting();
+    if (sensorExecuting != null) {
+      PluginInfo pluginInfo = pluginRepo.getPluginInfo(sensorExecuting.getPluginKey());
+      return "sonarsource".equalsIgnoreCase(pluginInfo.getOrganizationName());
+    }
+    return false;
   }
 }

@@ -19,6 +19,7 @@ jar {
   manifest {
     attributes(
       'Plugin-Key': 'xoo',
+      'Plugin-Organization': 'SonarSource',
       'Plugin-Version': project.version,
       'Plugin-Class': 'org.sonar.xoo.XooPlugin',
       'Plugin-ChildFirstClassLoader': 'false',
@@ -32,7 +33,7 @@ jar {
   }
 }
 
-artifactoryPublish.skip = false
+artifactoryPublish.skip = !deployCommunity
 
 publishing {
   publications {

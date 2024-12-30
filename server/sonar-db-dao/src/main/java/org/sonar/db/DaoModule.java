@@ -42,6 +42,7 @@ import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.dependency.CveCweDao;
 import org.sonar.db.dependency.CveDao;
 import org.sonar.db.dependency.IssuesDependencyDao;
+import org.sonar.db.dependency.ProjectDependenciesDao;
 import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.entity.EntityDao;
 import org.sonar.db.es.EsQueueDao;
@@ -52,7 +53,7 @@ import org.sonar.db.issue.AnticipatedTransitionDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueFixedDao;
-import org.sonar.db.measure.LiveMeasureDao;
+import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.ProjectMeasureDao;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
@@ -158,7 +159,7 @@ public class DaoModule extends Module {
     IssueDao.class,
     IssueFixedDao.class,
     IssuesDependencyDao.class,
-    LiveMeasureDao.class,
+    MeasureDao.class,
     ProjectMeasureDao.class,
     MetricDao.class,
     NewCodePeriodDao.class,
@@ -170,6 +171,7 @@ public class DaoModule extends Module {
     PluginDao.class,
     ProjectDao.class,
     ProjectBadgeTokenDao.class,
+    ProjectDependenciesDao.class,
     ProjectExportDao.class,
     PortfolioDao.class,
     ProjectLinkDao.class,

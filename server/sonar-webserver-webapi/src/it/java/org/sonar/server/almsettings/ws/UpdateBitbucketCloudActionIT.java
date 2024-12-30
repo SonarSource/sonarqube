@@ -22,7 +22,7 @@ package org.sonar.server.almsettings.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.Encryption;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
@@ -54,7 +54,7 @@ public class UpdateBitbucketCloudActionIT {
   private final Encryption encryption = mock(Encryption.class);
 
   private final WsActionTester ws = new WsActionTester(new UpdateBitbucketCloudAction(db.getDbClient(), userSession,
-    new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), mock(ResourceTypes.class)),
+    new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), mock(ComponentTypes.class)),
       mock(MultipleAlmFeature.class))));
 
   @Test

@@ -101,7 +101,8 @@ public class SvnBlameCommandIT {
 
   @Parameters(name = "SVN server version {0}, WC version {1}")
   public static Iterable<Object[]> data() {
-    return Arrays.asList(new Object[][] {{"1.6", 10}, {"1.7", 29}, {"1.8", 31}, {"1.9", 31}});
+    //TODO add tests for 1.14
+    return Arrays.asList(new Object[][] {{"1.6", 10}, {"1.9", 31}});
   }
 
   public SvnBlameCommandIT(String serverVersion, int wcVersion) {

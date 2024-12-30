@@ -19,10 +19,10 @@
  */
 
 import { Spinner } from '@sonarsource/echoes-react';
-import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import { debounce } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { LargeCenteredLayout, PageContentFontWrapper } from '~design-system';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Location, RawQuery, Router } from '~sonar-aligned/types/router';
 import {

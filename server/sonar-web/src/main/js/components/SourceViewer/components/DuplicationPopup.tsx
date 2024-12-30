@@ -17,15 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { groupBy, sortBy } from 'lodash';
+import React, { Fragment, PureComponent } from 'react';
 import {
   DiscreetLink,
   DuplicationHighlight,
   FlagMessage,
   StandoutLink as Link,
   QualifierIcon,
-} from 'design-system';
-import { groupBy, sortBy } from 'lodash';
-import React, { Fragment, PureComponent } from 'react';
+} from '~design-system';
 import { isPullRequest } from '~sonar-aligned/helpers/branch-like';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { translate } from '../../../helpers/l10n';

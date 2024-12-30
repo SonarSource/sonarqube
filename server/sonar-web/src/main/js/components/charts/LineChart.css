@@ -24,12 +24,12 @@
 
 .line-chart-point {
   fill: #fff;
-  stroke: var(--blue);
+  stroke: #4b9fd5;
   stroke-width: 2px;
 }
 
 .line-chart-tick {
-  fill: var(--secondFontColor);
+  fill: #656565;
 }
 
 .line-chart-tick-x {

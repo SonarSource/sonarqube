@@ -19,7 +19,6 @@
  */
 
 import { Link } from '@sonarsource/echoes-react';
-import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';

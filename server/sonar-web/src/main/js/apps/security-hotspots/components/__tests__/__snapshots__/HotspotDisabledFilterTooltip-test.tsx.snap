@@ -33,7 +33,7 @@ exports[`should render correctly and stop event propagation 1`] = `
   vertical-align: text-bottom!important;
 }
 
-.e1vbniy50 .emotion-0 {
+.e4r8l5e0 .emotion-0 {
   --color: rgb(189,198,255);
   --active: rgb(209,215,254);
   --border: 1px solid rgb(159,169,237);

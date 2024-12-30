@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 export enum NotificationGlobalType {
   CeReportTaskFailure = 'CeReportTaskFailure',
   ChangesOnMyIssue = 'ChangesOnMyIssue',
   NewAlerts = 'NewAlerts',
   MyNewIssues = 'SQ-MyNewIssues',
+  QualityGateConditionsMismatch = 'QualityGateConditionsMismatch',
 }
 
 export enum NotificationProjectType {

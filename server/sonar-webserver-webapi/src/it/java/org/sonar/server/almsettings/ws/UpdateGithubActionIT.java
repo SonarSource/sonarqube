@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.internal.Encryption;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbSession;
@@ -48,7 +48,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -70,7 +70,7 @@ public class UpdateGithubActionIT {
   private final Encryption encryption = mock(Encryption.class);
 
   private final WsActionTester ws = new WsActionTester(new UpdateGithubAction(db.getDbClient(), userSession,
-    new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), mock(ResourceTypes.class)),
+    new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), mock(ComponentTypes.class)),
       mock(MultipleAlmFeature.class))));
 
   private AlmSettingDto almSettingDto;
@@ -267,7 +267,7 @@ public class UpdateGithubActionIT {
   @Test
   @UseDataProvider("secretParams")
   public void update_withSecretChange_shouldAuditDevOpsPlatformSecret(String secretParam) {
-    buildTestRequestWithoutSecrets().setParam(secretParam, randomAlphanumeric(10)).execute();
+    buildTestRequestWithoutSecrets().setParam(secretParam, secure().nextAlphanumeric(10)).execute();
     SecretNewValue expected = new SecretNewValue("DevOpsPlatform", GITHUB.getId());
     ArgumentCaptor<SecretNewValue> captor = ArgumentCaptor.forClass(SecretNewValue.class);
 

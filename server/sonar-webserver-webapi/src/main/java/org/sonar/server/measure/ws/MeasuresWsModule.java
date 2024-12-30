@@ -21,6 +21,7 @@ package org.sonar.server.measure.ws;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.core.platform.Module;
 
@@ -71,5 +72,45 @@ public class MeasuresWsModule extends Module {
       SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT)
       .map(e -> "'" + e.getKey() + "'")
       .collect(Collectors.joining(", "));
+  }
+
+  public static String getNewMetricsInSonarQube108() {
+    return Stream.of(
+      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_BLOCKER_ISSUES,
+      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_HIGH_ISSUES,
+      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_INFO_ISSUES,
+      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MEDIUM_ISSUES,
+      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_LOW_ISSUES,
+      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES,
+      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES,
+      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES,
+
+      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_BLOCKER_ISSUES,
+      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_HIGH_ISSUES,
+      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_INFO_ISSUES,
+      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MEDIUM_ISSUES,
+      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_LOW_ISSUES,
+      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES,
+      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES,
+      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_ISSUES)
+      .map(e -> "'" + e.getKey() + "'")
+      .collect(Collectors.joining(", "));
+  }
+
+  public static String getDeprecatedMetricsInSonarQube108() {
+    return Stream.of(
+      CoreMetrics.MAINTAINABILITY_ISSUES_KEY,
+      CoreMetrics.RELIABILITY_ISSUES_KEY,
+      CoreMetrics.SECURITY_ISSUES_KEY,
+
+      CoreMetrics.NEW_MAINTAINABILITY_ISSUES_KEY,
+      CoreMetrics.NEW_RELIABILITY_ISSUES_KEY,
+      CoreMetrics.NEW_SECURITY_ISSUES_KEY)
+      .map(e -> "'" + e + "'")
+      .collect(Collectors.joining(", "));
+  }
+
+  public static String getUndeprecatedMetricsinSonarQube108() {
+    return getDeprecatedMetricsInSonarQube104() + ", " + getDeprecatedMetricsInSonarQube105();
   }
 }

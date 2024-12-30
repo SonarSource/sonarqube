@@ -17,14 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { mockRestUser } from '../../../helpers/testMocks';
+import { Mode } from '../../../types/mode';
 import {
   branchHandler,
   componentsHandler,
   issuesHandler,
+  modeHandler,
   renderIssueApp,
   ui,
   usersHandler,
@@ -41,23 +44,27 @@ jest.mock('../sidebar/Sidebar', () => {
   };
 });
 
-jest.mock('../../../components/common/ScreenPositionHelper', () => ({
-  __esModule: true,
-  default: class ScreenPositionHelper extends React.Component<{
-    children: (args: { top: number }) => React.ReactNode;
-  }> {
-    render() {
-      // eslint-disable-next-line testing-library/no-node-access
-      return this.props.children({ top: 10 });
-    }
-  },
-}));
+jest.mock('../../../components/common/ScreenPositionHelper', () => {
+  const React = jest.requireActual('react');
+  return {
+    __esModule: true,
+    default: class ScreenPositionHelper extends React.Component<{
+      children: (args: { top: number }) => React.ReactNode;
+    }> {
+      render() {
+        // eslint-disable-next-line testing-library/no-node-access
+        return this.props.children({ top: 10 });
+      }
+    },
+  };
+});
 
 beforeEach(() => {
   issuesHandler.reset();
   componentsHandler.reset();
   branchHandler.reset();
   usersHandler.reset();
+  modeHandler.reset();
   usersHandler.users = [
     mockRestUser({
       login: 'bob.marley',
@@ -110,7 +117,14 @@ it('should be able to add or update comment', async () => {
   expect(screen.queryByText('activity comment new')).not.toBeInTheDocument();
 });
 
-it('should be able to show changelog', async () => {
+it.each([
+  [Mode.MQR, 'issue.changelog.impactSeverity.MAINTAINABILITY.BLOCKER.HIGH'],
+  [
+    Mode.Standard,
+    'issue.changelog.changed_to.issue.changelog.field.severity.BLOCKER (issue.changelog.was.MAJOR)',
+  ],
+])('should be able to show changelog in %s', async (mode, message) => {
+  modeHandler.setMode(mode);
   const user = userEvent.setup();
   issuesHandler.setIsAdmin(true);
   renderIssueApp();
@@ -135,6 +149,8 @@ it('should be able to show changelog', async () => {
       'issue.changelog.changed_to.issue.changelog.field.issueStatus.ACCEPTED (issue.changelog.was.OPEN)',
     ),
   ).toBeInTheDocument();
+  // Severities and Software Quality Severities
+  expect(screen.getByText(message)).toBeInTheDocument();
   expect(
     screen.queryByText(
       'issue.changelog.changed_to.issue.changelog.field.status.RESOLVED (issue.changelog.was.REOPENED)',

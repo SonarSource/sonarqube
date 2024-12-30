@@ -35,7 +35,7 @@ public class UserAnonymizer {
 
   @Inject
   public UserAnonymizer(DbClient dbClient) {
-    this(dbClient, () -> "sq-removed-" + RandomStringUtils.randomAlphanumeric(LOGIN_RANDOM_LENGTH));
+    this(dbClient, () -> "sq-removed-" + RandomStringUtils.secure().nextAlphanumeric(LOGIN_RANDOM_LENGTH));
   }
 
   public UserAnonymizer(DbClient dbClient, Supplier<String> randomNameGenerator) {

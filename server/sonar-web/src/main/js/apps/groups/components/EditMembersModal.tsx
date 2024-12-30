@@ -17,15 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Modal, TextMuted } from 'design-system';
+
 import { find } from 'lodash';
 import * as React from 'react';
 import '../../../app/styles/pages/GroupListItem.css';
+import { FlagMessage, Modal, TextMuted } from '~design-system';
 import SelectList, {
   SelectListFilter,
   SelectListSearchParams,
 } from '../../../components/controls/SelectList';
 import { translate } from '../../../helpers/l10n';
+import { definitions } from '../../../helpers/mocks/definitions-list';
 import {
   useAddGroupMembershipMutation,
   useGroupMembersQuery,
@@ -34,6 +36,10 @@ import {
 } from '../../../queries/group-memberships';
 import { Group } from '../../../types/types';
 import { RestUserBase } from '../../../types/users';
+import useSamlConfiguration from '../../settings/components/authentication/hook/useSamlConfiguration';
+import { SAML } from '../../settings/components/authentication/SamlAuthenticationTab';
+
+const samlDefinitions = definitions.filter((def) => def.subCategory === SAML);
 
 interface Props {
   organization: string;
@@ -56,6 +62,8 @@ export default function EditMembersModal(props: Readonly<Props>) {
     filter,
   });
   const emptyQueryCache = useRemoveGroupMembersQueryFromCache();
+
+  const { samlEnabled } = useSamlConfiguration(samlDefinitions);
 
   const users: (RestUserBase & { selected?: boolean })[] =
     data?.pages.flatMap((page) => page.users) ?? [];
@@ -114,20 +122,27 @@ export default function EditMembersModal(props: Readonly<Props>) {
     <Modal
       headerTitle={<span style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}>{modalHeader}</span>}
       body={
-        <SelectList
-          elements={users.map((user) => user.id)}
-          elementsTotalCount={data?.pages[0].page.total}
-          needToReload={changedUsers.size > 0 && filter !== SelectListFilter.All}
-          onSearch={onSearch}
-          onSelect={handleSelect}
-          onUnselect={handleUnselect}
-          renderElement={renderElement}
-          selectedElements={users
-            .filter((u) => (changedUsers.has(u.id) ? changedUsers.get(u.id) : u.selected))
-            .map((u) => u.id)}
-          withPaging
-          loading={isLoading}
-        />
+        <>
+          {samlEnabled && (
+            <FlagMessage className="sw-mb-2" variant="warning">
+              {translate('users.update_groups.saml_enabled')}
+            </FlagMessage>
+          )}
+          <SelectList
+            elements={users.map((user) => user.id)}
+            elementsTotalCount={data?.pages[0].page.total}
+            needToReload={changedUsers.size > 0 && filter !== SelectListFilter.All}
+            onSearch={onSearch}
+            onSelect={handleSelect}
+            onUnselect={handleUnselect}
+            renderElement={renderElement}
+            selectedElements={users
+              .filter((u) => (changedUsers.has(u.id) ? changedUsers.get(u.id) : u.selected))
+              .map((u) => u.id)}
+            withPaging
+            loading={isLoading}
+          />
+        </>
       }
       secondaryButtonLabel={translate('done')}
       onClose={props.onClose}

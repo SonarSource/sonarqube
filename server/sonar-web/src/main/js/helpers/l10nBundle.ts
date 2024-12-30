@@ -17,11 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { IntlShape, createIntl, createIntlCache } from 'react-intl';
 import { fetchL10nBundle } from '../api/l10n';
+import { AppState } from '../types/appstate';
+import { EditionKey } from '../types/editions';
 import { L10nBundle, L10nBundleRequestParams } from '../types/l10nBundle';
+import { ProductName } from '../types/system';
 import { Dict } from '../types/types';
 import { toISO8601WithOffsetString } from './dates';
+import { isDefined } from './types';
 
 const DEFAULT_LOCALE = 'en';
 const DEFAULT_MESSAGES: Dict<string> = {
@@ -47,7 +52,7 @@ export function getCurrentL10nBundle() {
   return getL10nBundleFromCache();
 }
 
-export async function loadL10nBundle() {
+export async function loadL10nBundle(appState: AppState | undefined) {
   const browserLocale = getPreferredLanguage();
   const cachedBundle = getL10nBundleFromCache();
 
@@ -90,6 +95,17 @@ export async function loadL10nBundle() {
     {
       locale: effectiveLocale,
       messages,
+
+      /*
+       * This sets a default value for translations, so devs do not need to pass the {productName}
+       * value to every instance of FormattedMessage.
+       * It is a bit of a hack, abusing this config item that is normally for tag replacement only,
+       * hence the ts-expect-error tag
+       */
+      defaultRichTextElements: {
+        // @ts-expect-error
+        productName: getProductName(appState),
+      },
     },
     cache,
   );
@@ -107,4 +123,14 @@ function getL10nBundleFromCache(): L10nBundle {
 
 function persistL10nBundleInCache(bundle: L10nBundle) {
   (window as unknown as any).sonarQubeL10nBundle = bundle;
+}
+
+function getProductName(appState?: AppState) {
+  if (isDefined(appState?.edition)) {
+    return appState?.edition === EditionKey.community
+      ? ProductName.SonarQubeCommunityBuild
+      : ProductName.SonarQubeServer;
+  }
+
+  return 'SonarQube';
 }

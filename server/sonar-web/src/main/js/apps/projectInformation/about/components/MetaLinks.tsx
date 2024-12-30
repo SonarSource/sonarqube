@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { SubHeading } from 'design-system';
-import React from 'react';
+import { Heading } from '@sonarsource/echoes-react';
 import MetaLink from '../../../../components/common/MetaLink';
 import { translate } from '../../../../helpers/l10n';
 import { orderLinks } from '../../../../helpers/projectLinks';
@@ -34,8 +33,8 @@ export default function MetaLinks({ links }: Readonly<Props>) {
 
   return (
     <>
-      <SubHeading id="external-links">{translate('overview.external_links')}</SubHeading>
-      <ul className="sw-flex sw-flex-col sw-gap-2" aria-labelledby="external-links">
+      <Heading as="h3">{translate('overview.external_links')}</Heading>
+      <ul className="sw-mt-2 sw-flex sw-flex-col sw-gap-3">
         {orderedLinks.map((link) => (
           <MetaLink key={link.id} link={link} />
         ))}

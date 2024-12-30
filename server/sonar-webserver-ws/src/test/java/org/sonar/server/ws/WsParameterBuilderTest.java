@@ -22,8 +22,8 @@ package org.sonar.server.ws;
 import com.google.common.collect.Sets;
 import java.util.Collection;
 import org.junit.Test;
-import org.sonar.api.resources.ResourceType;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.server.component.ComponentType;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewParam;
 import org.sonar.core.i18n.I18n;
@@ -41,9 +41,9 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_Q
 
 public class WsParameterBuilderTest {
 
-  private ResourceTypes resourceTypes = mock(ResourceTypes.class);
-  private static final ResourceType Q1 = ResourceType.builder("Q1").build();
-  private static final ResourceType Q2 = ResourceType.builder("Q2").build();
+  private ComponentTypes componentTypes = mock(ComponentTypes.class);
+  private static final ComponentType Q1 = ComponentType.builder("Q1").build();
+  private static final ComponentType Q2 = ComponentType.builder("Q2").build();
 
   private I18n i18n = mock(I18n.class);
   private NewAction newAction = mock(NewAction.class);
@@ -51,7 +51,7 @@ public class WsParameterBuilderTest {
 
   @Test
   public void test_createRootQualifierParameter() {
-    when(resourceTypes.getRoots()).thenReturn(asList(Q1, Q2));
+    when(componentTypes.getRoots()).thenReturn(asList(Q1, Q2));
     when(newAction.createParam(PARAM_QUALIFIER)).thenReturn(newParam);
     when(newParam.setDescription(startsWith("Project qualifier. Filter the results with the specified qualifier. "
       + "Possible values are:"
@@ -59,14 +59,14 @@ public class WsParameterBuilderTest {
       + "<li>Q2 - null</li></ul>"))).thenReturn(newParam);
     when(newParam.setPossibleValues(any(Collection.class))).thenReturn(newParam);
     NewParam newParam = WsParameterBuilder
-      .createRootQualifierParameter(newAction, newQualifierParameterContext(i18n, resourceTypes));
+      .createRootQualifierParameter(newAction, newQualifierParameterContext(i18n, componentTypes));
 
     assertThat(newParam).isNotNull();
   }
 
   @Test
   public void test_createRootQualifiersParameter() {
-    when(resourceTypes.getRoots()).thenReturn(asList(Q1, Q2));
+    when(componentTypes.getRoots()).thenReturn(asList(Q1, Q2));
     when(newAction.createParam(PARAM_QUALIFIERS)).thenReturn(newParam);
     when(newParam.setDescription(startsWith("Comma-separated list of component qualifiers. Filter the results with the specified qualifiers. " +
       "Possible values are:"
@@ -74,14 +74,14 @@ public class WsParameterBuilderTest {
       + "<li>Q2 - null</li></ul>"))).thenReturn(newParam);
     when(newParam.setPossibleValues(any(Collection.class))).thenReturn(newParam);
     NewParam newParam = WsParameterBuilder
-      .createRootQualifiersParameter(newAction, newQualifierParameterContext(i18n, resourceTypes));
+      .createRootQualifiersParameter(newAction, newQualifierParameterContext(i18n, componentTypes));
 
     assertThat(newParam).isNotNull();
   }
 
   @Test
   public void test_createDefaultTemplateQualifierParameter() {
-    when(resourceTypes.getRoots()).thenReturn(asList(Q1, Q2));
+    when(componentTypes.getRoots()).thenReturn(asList(Q1, Q2));
     when(newAction.createParam(PARAM_QUALIFIER)).thenReturn(newParam);
     when(newParam.setDescription(startsWith("Project qualifier. Filter the results with the specified qualifier. "
       + "Possible values are:"
@@ -89,14 +89,14 @@ public class WsParameterBuilderTest {
       + "<li>Q2 - null</li></ul>"))).thenReturn(newParam);
     when(newParam.setPossibleValues(any(Collection.class))).thenReturn(newParam);
     NewParam newParam = WsParameterBuilder
-      .createDefaultTemplateQualifierParameter(newAction, newQualifierParameterContext(i18n, resourceTypes));
+      .createDefaultTemplateQualifierParameter(newAction, newQualifierParameterContext(i18n, componentTypes));
 
     assertThat(newParam).isNotNull();
   }
 
   @Test
   public void test_createQualifiersParameter() {
-    when(resourceTypes.getAll()).thenReturn(asList(Q1, Q2));
+    when(componentTypes.getAll()).thenReturn(asList(Q1, Q2));
     when(newAction.createParam(PARAM_QUALIFIERS)).thenReturn(newParam);
     when(newParam.setDescription(startsWith("Comma-separated list of component qualifiers. Filter the results with the specified qualifiers. "
       + "Possible values are:"
@@ -104,21 +104,21 @@ public class WsParameterBuilderTest {
       + "<li>Q2 - null</li></ul>"))).thenReturn(newParam);
     when(newParam.setPossibleValues(any(Collection.class))).thenReturn(newParam);
     NewParam newParam = WsParameterBuilder
-      .createQualifiersParameter(newAction, newQualifierParameterContext(i18n, resourceTypes));
+      .createQualifiersParameter(newAction, newQualifierParameterContext(i18n, componentTypes));
 
     assertThat(newParam).isNotNull();
   }
 
   @Test
   public void test_createQualifiersParameter_with_filter() {
-    when(resourceTypes.getAll()).thenReturn(asList(Q1, Q2));
+    when(componentTypes.getAll()).thenReturn(asList(Q1, Q2));
     when(newAction.createParam(PARAM_QUALIFIERS)).thenReturn(newParam);
     when(newParam.setDescription(startsWith("Comma-separated list of component qualifiers. Filter the results with the specified qualifiers. "
       + "Possible values are:"
       + "<ul><li>Q1 - null</li></ul>"))).thenReturn(newParam);
     when(newParam.setPossibleValues(any(Collection.class))).thenReturn(newParam);
     NewParam newParam = WsParameterBuilder
-      .createQualifiersParameter(newAction, newQualifierParameterContext(i18n, resourceTypes), Sets.newHashSet(Q1.getQualifier()));
+      .createQualifiersParameter(newAction, newQualifierParameterContext(i18n, componentTypes), Sets.newHashSet(Q1.getQualifier()));
 
     assertThat(newParam).isNotNull();
   }
@@ -126,25 +126,25 @@ public class WsParameterBuilderTest {
 
   @Test
   public void createQualifiersParameter_whenIgnoreIsSetToTrue_shouldNotReturnQualifier(){
-    when(resourceTypes.getAll()).thenReturn(asList(Q1, Q2,ResourceType.builder("Q3").setProperty("ignored", true).build()));
+    when(componentTypes.getAll()).thenReturn(asList(Q1, Q2, ComponentType.builder("Q3").setProperty("ignored", true).build()));
     when(newAction.createParam(PARAM_QUALIFIERS)).thenReturn(newParam);
     when(newParam.setPossibleValues(any(Collection.class))).thenReturn(newParam);
     when(newParam.setDescription(any())).thenReturn(newParam);
     NewParam newParam = WsParameterBuilder
-      .createQualifiersParameter(newAction, newQualifierParameterContext(i18n, resourceTypes));
+      .createQualifiersParameter(newAction, newQualifierParameterContext(i18n, componentTypes));
 
     verify(newParam).setPossibleValues(Sets.newHashSet(Q1.getQualifier(), Q2.getQualifier()));
   }
 
   @Test
   public void createQualifiersParameter_whenIgnoreIsSetToFalse_shouldReturnQualifier(){
-    ResourceType q3Qualifier = ResourceType.builder("Q3").setProperty("ignored", false).build();
-    when(resourceTypes.getAll()).thenReturn(asList(Q1, Q2, q3Qualifier));
+    ComponentType q3Qualifier = ComponentType.builder("Q3").setProperty("ignored", false).build();
+    when(componentTypes.getAll()).thenReturn(asList(Q1, Q2, q3Qualifier));
     when(newAction.createParam(PARAM_QUALIFIERS)).thenReturn(newParam);
     when(newParam.setPossibleValues(any(Collection.class))).thenReturn(newParam);
     when(newParam.setDescription(any())).thenReturn(newParam);
     NewParam newParam = WsParameterBuilder
-      .createQualifiersParameter(newAction, newQualifierParameterContext(i18n, resourceTypes));
+      .createQualifiersParameter(newAction, newQualifierParameterContext(i18n, componentTypes));
 
     verify(newParam).setPossibleValues(Sets.newHashSet(Q1.getQualifier(), Q2.getQualifier(), q3Qualifier.getQualifier()));
   }

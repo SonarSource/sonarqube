@@ -24,8 +24,9 @@ import java.time.Clock;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.IntStream;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rules.RuleType;
@@ -36,8 +37,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.es.EsTester;
 import org.sonar.server.common.avatar.AvatarResolverImpl;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.index.IssueIndex;
@@ -58,6 +59,7 @@ import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -66,32 +68,38 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 
-public class SearchActionFacetsIT {
+class SearchActionFacetsIT {
 
   private static final String[] ISSUE_STATUSES = Issue.STATUSES.stream().filter(s -> !Issue.STATUS_TO_REVIEW.equals(s)).filter(s -> !Issue.STATUS_REVIEWED.equals(s))
     .toArray(String[]::new);
 
-  @Rule
-  public UserSessionRule userSession = standalone();
-  @Rule
-  public DbTester db = DbTester.create();
-  @Rule
-  public EsTester es = EsTester.create();
+  @RegisterExtension
+  private final UserSessionRule userSession = standalone();
+  @RegisterExtension
+  private final DbTester db = DbTester.create();
+  @RegisterExtension
+  private final EsTester es = EsTester.create();
 
-  private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
-  private PermissionIndexer permissionIndexer = new PermissionIndexer(db.getDbClient(), es.client(), issueIndexer);
-  private IssueQueryFactory issueQueryFactory = new IssueQueryFactory(db.getDbClient(), Clock.systemUTC(), userSession);
-  private SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, db.getDbClient(), new TransitionService(userSession, null));
-  private Languages languages = new Languages();
-  private UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
-  private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), languages, new TextRangeResponseFormatter(), userFormatter);
-  private IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = new IssueIndexSyncProgressChecker(db.getDbClient());
-  private WsActionTester ws = new WsActionTester(
+  private final Configuration config = mock(Configuration.class);
+
+  private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession,
+    new WebAuthorizationTypeSupport(userSession), config);
+  private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()),
+    null);
+  private final PermissionIndexer permissionIndexer = new PermissionIndexer(db.getDbClient(), es.client(), issueIndexer);
+  private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(db.getDbClient(), Clock.systemUTC(), userSession);
+  private final SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, db.getDbClient(),
+    new TransitionService(userSession, null));
+  private final Languages languages = new Languages();
+  private final UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
+  private final SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), languages,
+    new TextRangeResponseFormatter(), userFormatter);
+  private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = new IssueIndexSyncProgressChecker(db.getDbClient());
+  private final WsActionTester ws = new WsActionTester(
     new SearchAction(userSession, issueIndex, issueQueryFactory, issueIndexSyncProgressChecker, searchResponseLoader, searchResponseFormat, System2.INSTANCE, db.getDbClient()));
 
   @Test
-  public void display_all_facets() {
+  void display_all_facets() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
@@ -128,7 +136,7 @@ public class SearchActionFacetsIT {
   }
 
   @Test
-  public void display_projects_facet() {
+  void display_projects_facet() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
@@ -147,7 +155,7 @@ public class SearchActionFacetsIT {
   }
 
   @Test
-  public void projects_facet_is_sticky() {
+  void projects_facet_is_sticky() {
     ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto project3 = db.components().insertPublicProject().getMainBranchComponent();
@@ -172,7 +180,7 @@ public class SearchActionFacetsIT {
   }
 
   @Test
-  public void display_directory_facet_using_project() {
+  void display_directory_facet_using_project() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src/main/java/dir"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
@@ -193,7 +201,7 @@ public class SearchActionFacetsIT {
   }
 
   @Test
-  public void fail_to_display_directory_facet_when_no_project_is_set() {
+  void fail_to_display_directory_facet_when_no_project_is_set() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
@@ -212,7 +220,7 @@ public class SearchActionFacetsIT {
   }
 
   @Test
-  public void display_files_facet_with_project() {
+  void display_files_facet_with_project() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));
@@ -235,7 +243,7 @@ public class SearchActionFacetsIT {
   }
 
   @Test
-  public void fail_to_display_fileUuids_facet_when_no_project_is_set() {
+  void fail_to_display_fileUuids_facet_when_no_project_is_set() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
@@ -254,7 +262,7 @@ public class SearchActionFacetsIT {
   }
 
   @Test
-  public void check_facets_max_size_for_issues() {
+  void check_facets_max_size_for_issues() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     Random random = new Random();
     IntStream.rangeClosed(1, 110)
@@ -306,7 +314,7 @@ public class SearchActionFacetsIT {
   }
 
   @Test
-  public void check_projects_facet_max_size() {
+  void check_projects_facet_max_size() {
     RuleDto rule = db.rules().insertIssueRule();
     IntStream.rangeClosed(1, 110)
       .forEach(i -> {
@@ -325,7 +333,7 @@ public class SearchActionFacetsIT {
   }
 
   @Test
-  public void display_zero_valued_facets_for_selected_items_having_no_issue() {
+  void display_zero_valued_facets_for_selected_items_having_no_issue() {
     ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project1));
@@ -372,7 +380,7 @@ public class SearchActionFacetsIT {
   }
 
   @Test
-  public void assignedToMe_facet_must_escape_login_of_authenticated_user() {
+  void assignedToMe_facet_must_escape_login_of_authenticated_user() {
     // login looks like an invalid regexp
     UserDto user = db.users().insertUser(u -> u.setLogin("foo["));
     userSession.logIn(user);
@@ -389,7 +397,7 @@ public class SearchActionFacetsIT {
   }
 
   @Test
-  public void assigned_to_me_facet_is_sticky_relative_to_assignees() {
+  void assigned_to_me_facet_is_sticky_relative_to_assignees() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));

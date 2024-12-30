@@ -19,13 +19,12 @@
  */
 package org.sonar.api.batch.rule.internal;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.batch.rule.ActiveRule;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 
 @Immutable
@@ -36,6 +35,7 @@ public class DefaultActiveRule implements ActiveRule {
   private final String language;
   private final String templateRuleKey;
   private final Map<String, String> params;
+  private final Map<SoftwareQuality, Severity> impacts;
   private final long createdAt;
   private final long updatedAt;
   private final String qProfileKey;
@@ -46,12 +46,13 @@ public class DefaultActiveRule implements ActiveRule {
     this.internalKey = newActiveRule.internalKey;
     this.templateRuleKey = newActiveRule.templateRuleKey;
     this.ruleKey = newActiveRule.ruleKey;
-    this.params = Collections.unmodifiableMap(new HashMap<>(newActiveRule.params));
+    this.params = Map.copyOf(newActiveRule.params);
+    this.impacts = Map.copyOf(newActiveRule.impacts);
     this.language = newActiveRule.language;
     this.createdAt = newActiveRule.createdAt;
     this.updatedAt = newActiveRule.updatedAt;
     this.qProfileKey = newActiveRule.qProfileKey;
-    this.deprecatedKeys = Collections.unmodifiableSet(new HashSet<>(newActiveRule.deprecatedKeys));
+    this.deprecatedKeys = Set.copyOf(newActiveRule.deprecatedKeys);
   }
 
   @Override
@@ -62,6 +63,10 @@ public class DefaultActiveRule implements ActiveRule {
   @Override
   public String severity() {
     return severity;
+  }
+
+  public Map<SoftwareQuality, Severity> impacts() {
+    return impacts;
   }
 
   @Override

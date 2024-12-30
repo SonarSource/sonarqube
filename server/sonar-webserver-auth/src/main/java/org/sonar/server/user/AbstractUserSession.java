@@ -33,11 +33,11 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.ResourceForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.defaultString;
-import static org.sonar.api.resources.Qualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.APP;
 import static org.sonar.server.user.UserSession.IdentityProvider.SONARQUBE;
 
 public abstract class AbstractUserSession implements UserSession {
@@ -156,7 +156,7 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
-  public final <T extends EntityDto>  List<T> keepAuthorizedEntities(String permission, Collection<T> projects) {
+  public final <T extends EntityDto> List<T> keepAuthorizedEntities(String permission, Collection<T> projects) {
     if (isRoot()) {
       return new ArrayList<>(projects);
     }
@@ -166,7 +166,7 @@ public abstract class AbstractUserSession implements UserSession {
   /**
    * Naive implementation, to be overridden if needed
    */
-  protected  <T extends EntityDto> List<T> doKeepAuthorizedEntities(String permission, Collection<T> entities) {
+  protected <T extends EntityDto> List<T> doKeepAuthorizedEntities(String permission, Collection<T> entities) {
     boolean allowPublicComponent = PUBLIC_PERMISSIONS.contains(permission);
     return entities.stream()
       .filter(c -> (allowPublicComponent && !c.isPrivate()) || hasEntityPermission(permission, c.getUuid()))
@@ -219,6 +219,15 @@ public abstract class AbstractUserSession implements UserSession {
     }
 
     throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
+  }
+
+  @Override
+  public UserSession checkEntityPermissionOrElseThrowResourceForbiddenException(String projectPermission, EntityDto entity) {
+    if (hasEntityPermission(projectPermission, entity)) {
+      return this;
+    }
+
+    throw new ResourceForbiddenException();
   }
 
   @Override

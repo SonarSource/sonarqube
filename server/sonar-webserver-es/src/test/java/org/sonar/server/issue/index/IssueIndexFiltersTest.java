@@ -22,9 +22,12 @@ package org.sonar.server.issue.index;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.assertj.core.api.Fail;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.rule.Severity;
@@ -40,10 +43,13 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doReturn;
+import static org.sonar.api.issue.impact.Severity.BLOCKER;
+import static org.sonar.api.issue.impact.Severity.HIGH;
+import static org.sonar.api.issue.impact.Severity.LOW;
 import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
 import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
 import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
-import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.rules.CleanCodeAttributeCategory.ADAPTABLE;
 import static org.sonar.api.rules.CleanCodeAttributeCategory.CONSISTENT;
 import static org.sonar.api.rules.CleanCodeAttributeCategory.INTENTIONAL;
@@ -51,6 +57,8 @@ import static org.sonar.api.rules.CleanCodeAttributeCategory.RESPONSIBLE;
 import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
+import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_ENABLED;
+import static org.sonar.db.component.ComponentQualifiers.APP;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.rule.RuleTesting.newRule;
@@ -757,27 +765,34 @@ class IssueIndexFiltersTest extends IssueIndexTestCommon {
     assertThatSearchReturnsOnly(IssueQuery.builder().newCodeOnReference(true), "I1");
   }
 
-  @Test
-  void filter_by_cwe() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void filter_by_cwe(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
     indexIssues(
-      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setCwe(asList("20", "564", "89", "943")),
-      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setCwe(singletonList("943")),
+      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setCwe(asList("20", "564",
+        "89", "943")),
+      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setCwe(singletonList("943")),
       newDoc("I3", project.uuid(), file));
 
     assertThatSearchReturnsOnly(IssueQuery.builder().cwe(singletonList("20")), "I1");
   }
 
-  @Test
-  void filter_by_owaspAsvs40_category() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void filter_by_owaspAsvs40_category(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
     indexIssues(
-      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(asList("1.1.1", "1.2.2", "2.2.2")),
-      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(asList("1.1.1", "1.2.2")),
+      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setOwaspAsvs40(asList("1.1.1"
+        , "1.2.2", "2.2.2")),
+      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setOwaspAsvs40(asList("1.1.1"
+        , "1.2.2")),
       newDoc("I3", project.uuid(), file));
 
     assertThatSearchReturnsOnly(IssueQuery.builder().owaspAsvs40(singletonList("1")), "I1", "I2");
@@ -785,14 +800,18 @@ class IssueIndexFiltersTest extends IssueIndexTestCommon {
     assertThatSearchReturnsOnly(IssueQuery.builder().owaspAsvs40(singletonList("3")));
   }
 
-  @Test
-  void filter_by_owaspAsvs40_specific_requirement() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void filter_by_owaspAsvs40_specific_requirement(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
     indexIssues(
-      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(asList("1.1.1", "1.2.2", "2.2.2")),
-      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(asList("1.1.1", "1.2.2")),
+      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setOwaspAsvs40(asList("1.1.1"
+        , "1.2.2", "2.2.2")),
+      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setOwaspAsvs40(asList("1.1.1"
+        , "1.2.2")),
       newDoc("I3", project.uuid(), file));
 
     assertThatSearchReturnsOnly(IssueQuery.builder().owaspAsvs40(singletonList("1.1.1")), "I1", "I2");
@@ -800,16 +819,22 @@ class IssueIndexFiltersTest extends IssueIndexTestCommon {
     assertThatSearchReturnsOnly(IssueQuery.builder().owaspAsvs40(singletonList("3.3.3")));
   }
 
-  @Test
-  void filter_by_owaspAsvs40_level() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void filter_by_owaspAsvs40_level(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
     indexIssues(
-      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(asList("2.1.1", "1.1.1", "1.11.3")),
-      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(asList("1.1.1", "1.11.3")),
-      newDoc("I3", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(singletonList("1.11.3")),
-      newDoc("IError1", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(asList("5.5.1", "7.2.2", "10.2.6")),
+      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setOwaspAsvs40(asList("2.1.1"
+        , "1.1.1", "1.11.3")),
+      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, BLOCKER)).setOwaspAsvs40(asList("1.1" +
+        ".1", "1.11.3")),
+      newDoc("I3", project.uuid(), file).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, LOW)).setOwaspAsvs40(singletonList(
+        "1.11.3")),
+      newDoc("IError1", project.uuid(), file).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setOwaspAsvs40(asList("5" +
+        ".5.1", "7.2.2", "10.2.6")),
       newDoc("IError2", project.uuid(), file));
 
     assertThatSearchReturnsOnly(
@@ -822,40 +847,49 @@ class IssueIndexFiltersTest extends IssueIndexTestCommon {
       "I1", "I2");
   }
 
-  @Test
-  void filter_by_owaspTop10() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void filter_by_owaspTop10(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
     indexIssues(
-      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setOwaspTop10(asList("a1", "a2")),
-      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setCwe(singletonList("a3")),
+      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setOwaspTop10(asList("a1",
+        "a2")),
+      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setCwe(singletonList("a3")),
       newDoc("I3", project.uuid(), file));
 
     assertThatSearchReturnsOnly(IssueQuery.builder().owaspTop10(singletonList("a1")), "I1");
   }
 
-  @Test
-  void filter_by_sansTop25() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void filter_by_sansTop25(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
     indexIssues(
-      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setSansTop25(asList("porous-defenses", "risky-resource", "insecure-interaction")),
-      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setSansTop25(singletonList("porous-defenses")),
+      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setSansTop25(asList("porous" +
+        "-defenses", "risky-resource", "insecure-interaction")),
+      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setSansTop25(singletonList(
+        "porous-defenses")),
       newDoc("I3", project.uuid(), file));
 
     assertThatSearchReturnsOnly(IssueQuery.builder().sansTop25(singletonList("risky-resource")), "I1");
   }
 
-  @Test
-  void filter_by_sonarSecurity() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void filter_by_sonarSecurity(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
     indexIssues(
-      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setSonarSourceSecurityCategory(SQCategory.BUFFER_OVERFLOW),
-      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setSonarSourceSecurityCategory(SQCategory.DOS),
+      newDoc("I1", project.uuid(), file).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setSonarSourceSecurityCategory(SQCategory.BUFFER_OVERFLOW),
+      newDoc("I2", project.uuid(), file).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setSonarSourceSecurityCategory(SQCategory.DOS),
       newDoc("I3", project.uuid(), file));
 
     assertThatSearchReturnsOnly(IssueQuery.builder().sonarsourceSecurity(singletonList("buffer-overflow")), "I1");
@@ -882,7 +916,7 @@ class IssueIndexFiltersTest extends IssueIndexTestCommon {
 
     indexIssues(
       newDoc("I1", project.uuid(), file).setImpacts(Map.of(
-        MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH,
+        MAINTAINABILITY, HIGH,
         SECURITY, org.sonar.api.issue.impact.Severity.LOW,
         RELIABILITY, org.sonar.api.issue.impact.Severity.MEDIUM)),
 
@@ -890,7 +924,7 @@ class IssueIndexFiltersTest extends IssueIndexTestCommon {
         MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW,
         SECURITY, org.sonar.api.issue.impact.Severity.LOW)),
       newDoc("I3", project.uuid(), file).setImpacts(Map.of(
-        RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH)),
+        RELIABILITY, HIGH)),
       newDoc("I4", project.uuid(), file).setImpacts(Map.of(
         MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW)));
 
@@ -900,7 +934,7 @@ class IssueIndexFiltersTest extends IssueIndexTestCommon {
     assertThatSearchReturnsOnly(IssueQuery.builder().impactSoftwareQualities(Set.of(MAINTAINABILITY.name(), RELIABILITY.name())),
       "I1", "I2", "I3", "I4");
 
-    assertThatSearchReturnsOnly(IssueQuery.builder().impactSeverities(Set.of(org.sonar.api.issue.impact.Severity.HIGH.name())),
+    assertThatSearchReturnsOnly(IssueQuery.builder().impactSeverities(Set.of(HIGH.name())),
       "I1", "I3");
 
     assertThatSearchReturnsOnly(IssueQuery.builder().impactSeverities(Set.of(org.sonar.api.issue.impact.Severity.LOW.name(), org.sonar.api.issue.impact.Severity.MEDIUM.name())),
@@ -908,7 +942,7 @@ class IssueIndexFiltersTest extends IssueIndexTestCommon {
 
     assertThatSearchReturnsOnly(IssueQuery.builder()
       .impactSoftwareQualities(Set.of(MAINTAINABILITY.name()))
-      .impactSeverities(Set.of(org.sonar.api.issue.impact.Severity.HIGH.name())),
+        .impactSeverities(Set.of(HIGH.name())),
       "I1");
 
   }

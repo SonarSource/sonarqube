@@ -28,10 +28,9 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric.ValueType;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.measure.ImpactMeasureBuilder;
 
@@ -44,7 +43,7 @@ import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.NAME_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.PATH_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.QUALIFIER_SORT;
-import static org.sonar.server.measure.ws.ComponentTreeData.Measure.createFromMeasureDto;
+import static org.sonar.server.measure.ws.ComponentTreeData.Measure.createFromMetricValue;
 
 class ComponentTreeSortTest {
   private static final String NUM_METRIC_KEY = "violations";
@@ -93,11 +92,11 @@ class ComponentTreeSortTest {
     // same number than path field
     double currentValue = 9;
     for (ComponentDto component : components) {
-      measuresByComponentUuidAndMetric.put(component.uuid(), violationsMetric, createFromMeasureDto(new LiveMeasureDto().setValue(currentValue)));
-      measuresByComponentUuidAndMetric.put(component.uuid(), newViolationsMetric, createFromMeasureDto(new LiveMeasureDto().setValue(currentValue)));
-      measuresByComponentUuidAndMetric.put(component.uuid(), sqaleIndexMetric, createFromMeasureDto(new LiveMeasureDto().setData(String.valueOf(currentValue))));
-      measuresByComponentUuidAndMetric.put(component.uuid(), reliabilityIssueMetric, createFromMeasureDto(new LiveMeasureDto().setData(buildJsonImpact((int) currentValue))));
-      measuresByComponentUuidAndMetric.put(component.uuid(), newReliabilityIssueMetric, createFromMeasureDto(new LiveMeasureDto().setData(buildJsonImpact((int) currentValue))));
+      measuresByComponentUuidAndMetric.put(component.uuid(), violationsMetric, createFromMetricValue(violationsMetric, currentValue));
+      measuresByComponentUuidAndMetric.put(component.uuid(), newViolationsMetric, createFromMetricValue(newViolationsMetric, currentValue));
+      measuresByComponentUuidAndMetric.put(component.uuid(), sqaleIndexMetric, createFromMetricValue(sqaleIndexMetric, currentValue));
+      measuresByComponentUuidAndMetric.put(component.uuid(), reliabilityIssueMetric, createFromMetricValue(reliabilityIssueMetric, buildJsonImpact((int) currentValue)));
+      measuresByComponentUuidAndMetric.put(component.uuid(), newReliabilityIssueMetric, createFromMetricValue(newReliabilityIssueMetric, buildJsonImpact((int) currentValue)));
       currentValue--;
     }
   }
@@ -165,9 +164,9 @@ class ComponentTreeSortTest {
   @Test
   void sort_by_name_ascending_in_case_of_equality() {
     components = newArrayList(
-      newComponentWithoutSnapshotId("PROJECT 12", Qualifiers.PROJECT, "PROJECT_PATH_1"),
-      newComponentWithoutSnapshotId("PROJECT 11", Qualifiers.PROJECT, "PROJECT_PATH_1"),
-      newComponentWithoutSnapshotId("PROJECT 0", Qualifiers.PROJECT, "PROJECT_PATH_2"));
+      newComponentWithoutSnapshotId("PROJECT 12", ComponentQualifiers.PROJECT, "PROJECT_PATH_1"),
+      newComponentWithoutSnapshotId("PROJECT 11", ComponentQualifiers.PROJECT, "PROJECT_PATH_1"),
+      newComponentWithoutSnapshotId("PROJECT 0", ComponentQualifiers.PROJECT, "PROJECT_PATH_2"));
 
     ComponentTreeRequest wsRequest = newRequest(newArrayList(PATH_SORT), false, null);
 
@@ -179,10 +178,10 @@ class ComponentTreeSortTest {
   @Test
   void sort_by_alert_status_ascending() {
     components = newArrayList(
-      newComponentWithoutSnapshotId("PROJECT OK 1", Qualifiers.PROJECT, "PROJECT_OK_PATH_1"),
-      newComponentWithoutSnapshotId("PROJECT ERROR 1", Qualifiers.PROJECT, "PROJECT_ERROR_PATH_1"),
-      newComponentWithoutSnapshotId("PROJECT OK 2", Qualifiers.PROJECT, "PROJECT_OK_PATH_2"),
-      newComponentWithoutSnapshotId("PROJECT ERROR 2", Qualifiers.PROJECT, "PROJECT_ERROR_PATH_2"));
+      newComponentWithoutSnapshotId("PROJECT OK 1", ComponentQualifiers.PROJECT, "PROJECT_OK_PATH_1"),
+      newComponentWithoutSnapshotId("PROJECT ERROR 1", ComponentQualifiers.PROJECT, "PROJECT_ERROR_PATH_1"),
+      newComponentWithoutSnapshotId("PROJECT OK 2", ComponentQualifiers.PROJECT, "PROJECT_OK_PATH_2"),
+      newComponentWithoutSnapshotId("PROJECT ERROR 2", ComponentQualifiers.PROJECT, "PROJECT_ERROR_PATH_2"));
     metrics = singletonList(newMetricDto()
       .setKey(CoreMetrics.ALERT_STATUS_KEY)
       .setValueType(ValueType.LEVEL.name()));
@@ -191,7 +190,7 @@ class ComponentTreeSortTest {
     for (int i = 0; i < components.size(); i++) {
       ComponentDto component = components.get(i);
       String alertStatus = statuses.get(i % 2);
-      measuresByComponentUuidAndMetric.put(component.uuid(), metrics.get(0), createFromMeasureDto(new LiveMeasureDto().setData(alertStatus)));
+      measuresByComponentUuidAndMetric.put(component.uuid(), metrics.get(0), createFromMetricValue(metrics.get(0), alertStatus));
     }
     ComponentTreeRequest wsRequest = newRequest(newArrayList(METRIC_SORT, NAME_SORT), true, CoreMetrics.ALERT_STATUS_KEY);
 

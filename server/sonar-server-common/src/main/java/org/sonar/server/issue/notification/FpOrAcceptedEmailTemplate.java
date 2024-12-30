@@ -20,8 +20,8 @@
 package org.sonar.server.issue.notification;
 
 import javax.annotation.CheckForNull;
-import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.platform.Server;
 import org.sonar.core.i18n.I18n;
 import org.sonar.server.issue.notification.FPOrAcceptedNotification.FpPrAccepted;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.User;
@@ -37,8 +37,8 @@ public class FpOrAcceptedEmailTemplate extends IssueChangesEmailTemplate {
 
   private static final String NOTIFICATION_NAME_I18N_KEY = "notification.dispatcher.NewFalsePositiveIssue";
 
-  public FpOrAcceptedEmailTemplate(I18n i18n, EmailSettings settings) {
-    super(i18n, settings);
+  public FpOrAcceptedEmailTemplate(I18n i18n, Server server) {
+    super(i18n, server);
   }
 
   @Override

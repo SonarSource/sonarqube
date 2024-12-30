@@ -1,7 +1,7 @@
 {
   "upgrades": [
     {
-      "version": "5.1 (build 5498)",
+      "version": "2025.1 (build 5498)",
       "description": "New overall layout, merge Issues Drilldown [...]",
       "releaseDate": "2015-04-02",
       "changeLogUrl": "http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=11694&version=20666",

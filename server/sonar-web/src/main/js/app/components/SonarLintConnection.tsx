@@ -19,6 +19,9 @@
  */
 
 import { Button, ButtonVariety, IconCheck, LinkStandalone } from '@sonarsource/echoes-react';
+import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { useSearchParams } from 'react-router-dom';
 import {
   Card,
   CardSeparator,
@@ -29,11 +32,9 @@ import {
   Note,
   OrderedList,
   Title,
-} from 'design-system';
-import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { useSearchParams } from 'react-router-dom';
+} from '~design-system';
 import { Image } from '~sonar-aligned/components/common/Image';
+import { SonarQubeConnectionIllustration } from '../../components/branding/SonarQubeConnectionIllustration';
 import { whenLoggedIn } from '../../components/hoc/whenLoggedIn';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { portIsValid, sendUserToken } from '../../helpers/sonarlint';
@@ -142,7 +143,7 @@ export function SonarLintConnection({ appState, currentUser }: Readonly<Props>) 
         <>
           <Title>{translate('sonarlint-connection.request.title')}</Title>
           <p className="sw-my-4">
-            {translateWithParameters('sonarlint-connection.request.description', ideName)}
+            <FormattedMessage id="sonarlint-connection.request.description" values={{ ideName }} />
           </p>
           <p className="sw-mb-10">{translate('sonarlint-connection.request.description2')}</p>
 
@@ -175,7 +176,7 @@ export function SonarLintConnection({ appState, currentUser }: Readonly<Props>) 
 
       {status === Status.tokenError && (
         <>
-          <Image alt="sonarlint-token-error" className="sw-my-4 sw-pt-2" src="/images/cross.svg" />
+          <Image aria-hidden className="sw-my-4 sw-pt-2" src="/images/cross.svg" />
           <Title>{translate('sonarlint-connection.token-error.title')}</Title>
           <p className="sw-my-4">{translate('sonarlint-connection.token-error.description')}</p>
           <p className="sw-mb-4">
@@ -196,11 +197,7 @@ export function SonarLintConnection({ appState, currentUser }: Readonly<Props>) 
 
       {status === Status.tokenCreated && newToken && (
         <>
-          <Image
-            alt="sonarlint-connection-error"
-            className="sw-my-4 sw-pt-2"
-            src="/images/check.svg"
-          />
+          <Image aria-hidden className="sw-my-4 sw-pt-2" src="/images/check.svg" />
           <Title>{translate('sonarlint-connection.connection-error.title')}</Title>
           <p className="sw-my-6">
             {translate('sonarlint-connection.connection-error.description')}

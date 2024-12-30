@@ -81,11 +81,13 @@ public class RulesRegistrant implements Startable {
   private final NewRuleCreator newRuleCreator;
   private final QualityProfileChangesUpdater qualityProfileChangesUpdater;
   private final SonarQubeVersion sonarQubeVersion;
+  private final ActiveRulesImpactInitializer activeRulesImpactInitializer;
 
   public RulesRegistrant(RuleDefinitionsLoader defLoader, QProfileRules qProfileRules, DbClient dbClient, RuleIndexer ruleIndexer,
     ActiveRuleIndexer activeRuleIndexer, System2 system2, WebServerRuleFinder webServerRuleFinder,
     MetadataIndex metadataIndex, RulesKeyVerifier rulesKeyVerifier, StartupRuleUpdater startupRuleUpdater,
-    NewRuleCreator newRuleCreator, QualityProfileChangesUpdater qualityProfileChangesUpdater, SonarQubeVersion sonarQubeVersion) {
+    NewRuleCreator newRuleCreator, QualityProfileChangesUpdater qualityProfileChangesUpdater, SonarQubeVersion sonarQubeVersion,
+    ActiveRulesImpactInitializer activeRulesImpactInitializer) {
     this.defLoader = defLoader;
     this.qProfileRules = qProfileRules;
     this.dbClient = dbClient;
@@ -99,34 +101,35 @@ public class RulesRegistrant implements Startable {
     this.newRuleCreator = newRuleCreator;
     this.qualityProfileChangesUpdater = qualityProfileChangesUpdater;
     this.sonarQubeVersion = sonarQubeVersion;
+    this.activeRulesImpactInitializer = activeRulesImpactInitializer;
   }
 
   @Override
   public void start() {
     Profiler profiler = Profiler.create(LOG).startInfo("Register rules");
     try (DbSession dbSession = dbClient.openSession(true)) {
-      List<RulesDefinition.Repository> rulesRepositories = new ArrayList<>(defLoader.load().repositories());
-
+      List<RulesDefinition.Repository> repositories = defLoader.load().repositories();
       RulesRegistrationContext rulesRegistrationContext = RulesRegistrationContext.create(dbClient, dbSession);
-      rulesKeyVerifier.verifyRuleKeyConsistency(rulesRepositories, rulesRegistrationContext);
+      rulesKeyVerifier.verifyRuleKeyConsistency(repositories, rulesRegistrationContext);
 
-      for (RulesDefinition.Repository repoDef : rulesRepositories) {
+      for (RulesDefinition.Repository repoDef : repositories) {
         if (repoDef.language() == null) {
           throw new IllegalStateException("Language is mandatory for repository " + repoDef.key());
         }
         Set<PluginRuleUpdate> pluginRuleUpdates = registerRules(rulesRegistrationContext, repoDef.rules(), dbSession);
         if (!repoDef.isExternal()) {
           // External rules are not part of quality profiles
+          activeRulesImpactInitializer.createImpactsOnActiveRules(rulesRegistrationContext, repoDef, dbSession);
           qualityProfileChangesUpdater.createQprofileChangesForRuleUpdates(dbSession, pluginRuleUpdates);
         }
         dbSession.commit();
       }
+      activeRulesImpactInitializer.markInitialPopulationDone();
       processRemainingDbRules(rulesRegistrationContext, dbSession);
-      List<ActiveRuleChange> changes = removeActiveRulesOnStillExistingRepositories(dbSession, rulesRegistrationContext, rulesRepositories);
+      List<ActiveRuleChange> changes = removeActiveRulesOnStillExistingRepositories(dbSession, rulesRegistrationContext, repositories);
       dbSession.commit();
 
-      persistRepositories(dbSession, rulesRepositories);
-
+      persistRepositories(dbSession, repositories);
       // FIXME lack of resiliency, active rules index is corrupted if rule index fails
       // to be updated. Only a single DB commit should be executed.
       ruleIndexer.commitAndIndex(dbSession, rulesRegistrationContext.getAllModified().map(RuleDto::getUuid).collect(Collectors.toSet()));

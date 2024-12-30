@@ -19,8 +19,10 @@
  */
 package org.sonar.server.platform.db.migration.version.v100;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 
@@ -42,6 +44,13 @@ public class PopulateNclocForForProjects extends DataChange {
 
   @Override
   protected void execute(Context context) throws SQLException {
+    try (Connection c = getDatabase().getDataSource().getConnection()) {
+      // the table is deleted in 10.8, this check ensures the migration re-entrance
+      if (!DatabaseUtils.tableExists("live_measures", c)) {
+        return;
+      }
+    }
+
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select(SELECT_QUERY);
     massUpdate.update("update projects set ncloc = ? where uuid = ?");

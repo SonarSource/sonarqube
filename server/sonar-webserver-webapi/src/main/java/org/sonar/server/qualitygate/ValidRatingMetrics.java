@@ -22,6 +22,7 @@ package org.sonar.server.qualitygate;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.core.metric.SoftwareQualitiesMetrics;
 
 import static org.sonar.api.measures.Metric.ValueType.RATING;
 
@@ -32,11 +33,20 @@ public class ValidRatingMetrics {
     .map(org.sonar.api.measures.Metric::getKey)
     .collect(Collectors.toSet());
 
+  private static final Set<String> SOFTWARE_QUALITY_RATING_METRICS = new SoftwareQualitiesMetrics().getMetrics().stream()
+    .filter(metric -> metric.getType().equals(RATING))
+    .map(org.sonar.api.measures.Metric::getKey)
+    .collect(Collectors.toSet());
+
   private ValidRatingMetrics() {
     // only static methods
   }
 
   public static boolean isCoreRatingMetric(String metricKey) {
     return CORE_RATING_METRICS.contains(metricKey);
+  }
+
+  public static boolean isSoftwareQualityRatingMetric(String metricKey) {
+    return SOFTWARE_QUALITY_RATING_METRICS.contains(metricKey);
   }
 }

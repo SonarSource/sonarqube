@@ -20,7 +20,7 @@
 package org.sonar.server.measure.ws;
 
 import javax.annotation.Nullable;
-import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.Measures;
@@ -42,10 +42,22 @@ class MeasureDtoToWsMeasure {
     updateMeasureBuilder(measureBuilder, metricDto, value, projectMeasureDto.getData(), onNewCode);
   }
 
-  static void updateMeasureBuilder(Measure.Builder measureBuilder, MetricDto metricDto, LiveMeasureDto measureDto) {
-    double value = measureDto.getValue() == null ? Double.NaN : measureDto.getValue();
+  static void updateMeasureBuilder(Measure.Builder measureBuilder, MetricDto metricDto, MeasureDto measureDto) {
+    double doubleValue;
+    String stringValue = null;
+    if (metricDto.isNumeric()) {
+      doubleValue = doubleValue(measureDto, metricDto.getKey());
+    } else {
+      doubleValue = Double.NaN;
+      stringValue = measureDto.getString(metricDto.getKey());
+    }
     boolean onNewCode = metricDto.getKey().startsWith("new_");
-    updateMeasureBuilder(measureBuilder, metricDto, value, measureDto.getDataAsString(), onNewCode);
+    updateMeasureBuilder(measureBuilder, metricDto, doubleValue, stringValue, onNewCode);
+  }
+
+  private static double doubleValue(MeasureDto measure, String metricKey) {
+    Double value = measure.getDouble(metricKey);
+    return value == null ? Double.NaN : value;
   }
 
   static void updateMeasureBuilder(Measure.Builder measureBuilder, MetricDto metric, double doubleValue, @Nullable String stringValue, boolean onNewCode) {

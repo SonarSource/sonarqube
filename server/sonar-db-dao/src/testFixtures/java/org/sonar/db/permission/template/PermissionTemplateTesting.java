@@ -27,8 +27,8 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.permission.PermissionsTestHelper;
 
 import static java.util.Arrays.stream;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang3.RandomStringUtils.randomAscii;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 
 public class PermissionTemplateTesting {
 
@@ -37,7 +37,7 @@ public class PermissionTemplateTesting {
   @SafeVarargs
   public static PermissionTemplateDto newPermissionTemplateDto(Consumer<PermissionTemplateDto>... populators) {
     PermissionTemplateDto dto = new PermissionTemplateDto()
-      .setName(randomAlphanumeric(60))
+      .setName(secure().nextAlphanumeric(60))
       .setDescription(randomAscii(500))
       .setUuid(Uuids.create())
       .setCreatedAt(new Date())

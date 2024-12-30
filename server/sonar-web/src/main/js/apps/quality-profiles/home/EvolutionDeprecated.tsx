@@ -19,10 +19,10 @@
  */
 
 import { Heading } from '@sonarsource/echoes-react';
-import { DiscreetLink, FlagMessage, Note } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
+import { DiscreetLink, FlagMessage, Note } from '~design-system';
 import { isDefined } from '../../../helpers/types';
 import { getDeprecatedActiveRulesUrl } from '../../../helpers/urls';
 import { Profile } from '../types';

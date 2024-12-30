@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as Echoes from '@sonarsource/echoes-react';
-import { OpenNewTabIcon } from 'design-system';
 import * as React from 'react';
 import { Link as ReactRouterDomLink, LinkProps as ReactRouterDomLinkProps } from 'react-router-dom';
 import { isWebUri } from 'valid-url';
+import { OpenNewTabIcon } from '~design-system';
 import { translate } from '../../helpers/l10n';
 
 type OriginalLinkProps = ReactRouterDomLinkProps & React.RefAttributes<HTMLAnchorElement>;

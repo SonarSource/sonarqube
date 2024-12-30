@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.core.documentation.DocumentationLinkGenerator;
 
@@ -53,7 +54,7 @@ public class ExternalIssueReportValidator {
   public void validate(ExternalIssueReport report, Path reportPath) {
     if (report.rules != null && report.issues != null) {
       Set<String> ruleIds = validateRules(report.rules, reportPath);
-      validateIssuesCctFormat(report.issues, ruleIds, reportPath);
+      validateIssuesNewFormat(report.issues, ruleIds, reportPath);
     } else if (report.rules == null && report.issues != null) {
       String documentationLink = documentationLinkGenerator.getDocumentationLink(DOCUMENTATION_SUFFIX);
       LOGGER.warn("External issues were imported with a deprecated format which will be removed soon. " +
@@ -64,7 +65,7 @@ public class ExternalIssueReportValidator {
     }
   }
 
-  private static void validateIssuesCctFormat(ExternalIssueReport.Issue[] issues, Set<String> ruleIds, Path reportPath) {
+  private static void validateIssuesNewFormat(ExternalIssueReport.Issue[] issues, Set<String> ruleIds, Path reportPath) {
     for (ExternalIssueReport.Issue issue : issues) {
       mandatoryField(issue.ruleId, ISSUE_RULE_ID, reportPath);
       checkRuleExistsInReport(ruleIds, issue, reportPath);
@@ -90,8 +91,19 @@ public class ExternalIssueReportValidator {
       mandatoryField(rule.id, "id", reportPath);
       mandatoryField(rule.name, "name", reportPath);
       mandatoryField(rule.engineId, "engineId", reportPath);
-      mandatoryField(rule.cleanCodeAttribute, "cleanCodeAttribute", reportPath);
-      checkImpactsArray(rule.impacts, reportPath);
+      validateTypeOrImpacts(reportPath, rule);
+
+      if (rule.impacts != null) {
+        checkImpactsArray(rule.impacts, reportPath);
+        validateImpactsOnSecurityHostpots(rule.impacts, rule.type, reportPath);
+      }
+      if (rule.type != null) {
+        mandatoryField(rule.severity, SEVERITY, reportPath);
+      }
+
+      if (rule.severity != null) {
+        mandatoryField(rule.type, TYPE, reportPath);
+      }
 
       if (!ruleIds.add(rule.id)) {
         throw new IllegalStateException(String.format("Failed to parse report '%s': found duplicate rule ID '%s'.", reportPath, rule.id));
@@ -99,6 +111,18 @@ public class ExternalIssueReportValidator {
     }
 
     return ruleIds;
+  }
+
+  private static void validateImpactsOnSecurityHostpots(ExternalIssueReport.Impact[] impacts, String type, Path reportPath) {
+    if (impacts.length > 0 && RuleType.SECURITY_HOTSPOT.name().equals(type)) {
+      throw new IllegalStateException(String.format("Failed to parse report '%s': impacts should not be provided for rule type 'SECURITY_HOTSPOT'.", reportPath));
+    }
+  }
+
+  private static void validateTypeOrImpacts(Path reportPath, ExternalIssueReport.Rule rule) {
+    if (rule.type == null && rule.impacts == null) {
+      throw new IllegalStateException(String.format("Failed to parse report '%s': either type, impacts or both should be provided.", reportPath));
+    }
   }
 
   private static void checkNoField(@Nullable Object value, String fieldName, Path reportPath) {

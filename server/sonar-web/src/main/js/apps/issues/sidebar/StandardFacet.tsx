@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 /* eslint-disable react/no-unused-prop-types */
 
-import { FacetBox, FacetItem, Note, TextMuted } from 'design-system';
 import { omit, sortBy, without } from 'lodash';
 import * as React from 'react';
+import { FacetBox, FacetItem, Note, TextMuted } from '~design-system';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import {
@@ -508,13 +509,11 @@ export class StandardFacet extends React.PureComponent<Props, State> {
 
   render() {
     const { open } = this.props;
-
     const count = this.getValues().length;
 
     return (
       <FacetBox
         className="it__search-navigator-facet-box it__search-navigator-facet-header"
-        clearIconLabel={translate('clear')}
         count={count}
         countLabel={translateWithParameters('x_selected', count)}
         data-property={this.property}

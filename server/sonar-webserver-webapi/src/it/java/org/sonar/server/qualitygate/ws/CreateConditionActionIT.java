@@ -58,7 +58,6 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPE
 @RunWith(DataProviderRunner.class)
 public class CreateConditionActionIT {
 
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -116,8 +115,8 @@ public class CreateConditionActionIT {
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
       .execute())
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining(format("Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName()));
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining(format("Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName()));
   }
 
   @Test
@@ -132,8 +131,8 @@ public class CreateConditionActionIT {
       .setParam(PARAM_OPERATOR, "ABC")
       .setParam(PARAM_ERROR, "90")
       .execute())
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Value of parameter 'op' (ABC) must be one of: [LT, GT]");
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Value of parameter 'op' (ABC) must be one of: [LT, GT]");
   }
 
   @Test
@@ -149,8 +148,8 @@ public class CreateConditionActionIT {
       .setParam(PARAM_OPERATOR, operator)
       .setParam(PARAM_ERROR, "90")
       .execute())
-      .isInstanceOf(BadRequestException.class)
-      .hasMessageContaining(format("Operator %s is not allowed for this metric.", operator));
+        .isInstanceOf(BadRequestException.class)
+        .hasMessageContaining(format("Operator %s is not allowed for this metric.", operator));
   }
 
   @Test
@@ -222,8 +221,8 @@ public class CreateConditionActionIT {
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
       .execute())
-      .isInstanceOf(ForbiddenException.class)
-      .hasMessageContaining("Insufficient privileges");
+        .isInstanceOf(ForbiddenException.class)
+        .hasMessageContaining("Insufficient privileges");
   }
 
   @Test

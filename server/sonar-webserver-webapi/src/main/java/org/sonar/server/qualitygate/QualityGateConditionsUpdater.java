@@ -25,13 +25,12 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
-import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -40,6 +39,7 @@ import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.Rating;
+import org.sonar.server.metric.StandardToMQRMetrics;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.Double.parseDouble;
@@ -56,14 +56,15 @@ import static org.sonar.api.measures.Metric.DIRECTION_NONE;
 import static org.sonar.api.measures.Metric.DIRECTION_WORST;
 import static org.sonar.api.measures.Metric.ValueType.RATING;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.throwBadRequestException;
 import static org.sonar.server.measure.Rating.E;
 import static org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN;
 import static org.sonar.server.qualitygate.Condition.Operator.LESS_THAN;
 import static org.sonar.server.qualitygate.ValidRatingMetrics.isCoreRatingMetric;
+import static org.sonar.server.qualitygate.ValidRatingMetrics.isSoftwareQualityRatingMetric;
 
 public class QualityGateConditionsUpdater {
-  public static final Set<String> INVALID_METRIC_KEYS = Stream.concat(Stream.of(ALERT_STATUS_KEY, SECURITY_HOTSPOTS_KEY, NEW_SECURITY_HOTSPOTS_KEY),
-    new SoftwareQualitiesMetrics().getMetrics().stream().map(Metric::getKey))
+  public static final Set<String> INVALID_METRIC_KEYS = Stream.of(ALERT_STATUS_KEY, SECURITY_HOTSPOTS_KEY, NEW_SECURITY_HOTSPOTS_KEY)
     .collect(Collectors.toUnmodifiableSet());
 
   private static final Map<Integer, Set<Condition.Operator>> VALID_OPERATORS_BY_DIRECTION = Map.of(
@@ -86,14 +87,16 @@ public class QualityGateConditionsUpdater {
 
   public QualityGateConditionsUpdater(DbClient dbClient) {
     this.dbClient = dbClient;
+
   }
 
   public QualityGateConditionDto createCondition(DbSession dbSession, QualityGateDto qualityGate, String metricKey, String operator,
     String errorThreshold) {
     MetricDto metric = getNonNullMetric(dbSession, metricKey);
     validateCondition(metric, operator, errorThreshold);
-    checkConditionDoesNotExistOnSameMetric(getConditions(dbSession, qualityGate.getUuid()), metric);
-
+    Collection<QualityGateConditionDto> conditions = getConditions(dbSession, qualityGate.getUuid());
+    checkConditionDoesNotExistOnSameMetric(conditions, metric);
+    checkConditionDoesNotExistOnEquivalentMetric(dbSession, conditions, metric);
     QualityGateConditionDto newCondition = new QualityGateConditionDto().setQualityGateUuid(qualityGate.getUuid())
       .setUuid(Uuids.create())
       .setMetricUuid(metric.getUuid()).setMetricKey(metric.getKey())
@@ -107,7 +110,11 @@ public class QualityGateConditionsUpdater {
     String errorThreshold) {
     MetricDto metric = getNonNullMetric(dbSession, metricKey);
     validateCondition(metric, operator, errorThreshold);
-
+    Collection<QualityGateConditionDto> otherConditions = getConditions(dbSession, condition.getQualityGateUuid())
+      .stream()
+      .filter(c -> !c.getUuid().equals(condition.getUuid()))
+      .toList();
+    checkConditionDoesNotExistOnEquivalentMetric(dbSession, otherConditions, metric);
     condition
       .setMetricUuid(metric.getUuid())
       .setMetricKey(metric.getKey())
@@ -169,6 +176,23 @@ public class QualityGateConditionsUpdater {
     checkRequest(!conditionExists, format("Condition on metric '%s' already exists.", metric.getShortName()));
   }
 
+  private void checkConditionDoesNotExistOnEquivalentMetric(DbSession dbSession, Collection<QualityGateConditionDto> conditions, MetricDto metric) {
+    Optional<String> equivalentMetric = StandardToMQRMetrics.getEquivalentMetric(metric.getKey());
+
+    if (conditions.isEmpty() || equivalentMetric.isEmpty()) {
+      return;
+    }
+
+    MetricDto equivalentMetricDto = dbClient.metricDao().selectByKey(dbSession, equivalentMetric.get());
+    boolean conditionExists = conditions.stream()
+      .anyMatch(c -> equivalentMetricDto != null && c.getMetricUuid().equals(equivalentMetricDto.getUuid()));
+
+    if (conditionExists) {
+      throwBadRequestException(
+        format("Condition for metric '%s' already exists on equivalent metric '%s''.", metric.getKey(), equivalentMetricDto.getKey()));
+    }
+  }
+
   private static boolean isAllowedOperator(String operator, MetricDto metric) {
     if (VALID_OPERATORS_BY_DIRECTION.containsKey(metric.getDirection())) {
       return VALID_OPERATORS_BY_DIRECTION.get(metric.getDirection()).contains(Condition.Operator.fromDbValue(operator));
@@ -204,7 +228,7 @@ public class QualityGateConditionsUpdater {
     if (!metric.getValueType().equals(RATING.name())) {
       return;
     }
-    if (!isCoreRatingMetric(metric.getKey())) {
+    if (!isCoreRatingMetric(metric.getKey()) && !isSoftwareQualityRatingMetric(metric.getKey())) {
       errors.add(format("The metric '%s' cannot be used", metric.getShortName()));
     }
     if (!isValidRating(errorThreshold)) {

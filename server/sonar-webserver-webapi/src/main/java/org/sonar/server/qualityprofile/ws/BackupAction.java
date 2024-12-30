@@ -56,7 +56,9 @@ public class BackupAction implements QProfileWsAction {
       .setDescription("Backup a quality profile in XML form. The exported profile can be restored through api/qualityprofiles/restore.")
       .setResponseExample(getClass().getResource("backup-example.xml"))
       .setHandler(this)
-      .setChangelog(new Change("10.3", "The 'priority' and 'type' fields of the rule XML object are deprecated."));
+      .setChangelog(
+        new Change("10.8", "The 'priority' and 'type' fields of the rule XML object are not deprecated anymore."),
+        new Change("10.3", "The 'priority' and 'type' fields of the rule XML object are deprecated."));
 
     QProfileReference.defineParams(action, languages);
     QProfileWsSupport.createOrganizationParam(action).setSince("6.4");

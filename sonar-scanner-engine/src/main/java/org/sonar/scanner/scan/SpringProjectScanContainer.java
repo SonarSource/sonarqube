@@ -31,7 +31,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.measures.Metrics;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.resources.ResourceTypes;
 import org.sonar.core.config.ScannerProperties;
 import org.sonar.core.language.LanguagesProvider;
 import org.sonar.core.metric.ScannerMetrics;
@@ -99,8 +98,6 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
       ProjectConfigurationProvider.class,
 
       ScanProperties.class,
-
-      ResourceTypes.class,
 
       // lang
       LanguagesProvider.class,

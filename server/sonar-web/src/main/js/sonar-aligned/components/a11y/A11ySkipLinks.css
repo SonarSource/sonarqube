@@ -20,7 +20,7 @@
 .a11y-skip-link {
   width: 0;
   height: 0;
-  padding: var(--gridSize);
+  padding: 8px;
   position: absolute;
   left: -9999px;
   top: -9999px;
@@ -36,6 +36,6 @@
   left: 6px;
   top: 6px;
   color: white;
-  background-color: var(--globalNavBarBg);
+  background-color: #262626;
   text-decoration: underline;
 }

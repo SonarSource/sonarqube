@@ -150,8 +150,5 @@ module.exports = {
     preflight: false, // disable preflight
   },
   plugins: [echoesUtilities],
-  content: [
-    path.resolve(__dirname, './src/**/!(__tests__|@types|api)/*.{ts,tsx}'),
-    path.resolve(__dirname, './design-system/src/**/!(__tests__|@types|theme|helpers)/*.{ts,tsx}'),
-  ],
+  content: [path.resolve(__dirname, './src/**/!(__tests__|@types|api)/*.{ts,tsx}')],
 };

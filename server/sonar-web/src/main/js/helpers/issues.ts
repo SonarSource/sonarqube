@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BugIcon, CodeSmellIcon, SecurityHotspotIcon, VulnerabilityIcon } from 'design-system';
+
 import { flatten, sortBy } from 'lodash';
+import { BugIcon, CodeSmellIcon, SecurityHotspotIcon, VulnerabilityIcon } from '~design-system';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { SoftwareQuality } from '../types/clean-code-taxonomy';
 import { IssueType, RawIssue } from '../types/issues';
@@ -176,19 +177,19 @@ export function getIssueTypeBySoftwareQuality(quality: SoftwareQuality): IssueTy
 
 export const SOFTWARE_QUALITIES_METRIC_KEYS_MAP = {
   [SoftwareQuality.Security]: {
-    metric: MetricKey.security_issues,
+    metric: MetricKey.software_quality_security_issues,
     deprecatedMetric: MetricKey.vulnerabilities,
     rating: MetricKey.security_rating,
     newRating: MetricKey.new_security_rating,
   },
   [SoftwareQuality.Reliability]: {
-    metric: MetricKey.reliability_issues,
+    metric: MetricKey.software_quality_reliability_issues,
     deprecatedMetric: MetricKey.bugs,
     rating: MetricKey.reliability_rating,
     newRating: MetricKey.new_reliability_rating,
   },
   [SoftwareQuality.Maintainability]: {
-    metric: MetricKey.maintainability_issues,
+    metric: MetricKey.software_quality_maintainability_issues,
     deprecatedMetric: MetricKey.code_smells,
     rating: MetricKey.sqale_rating,
     newRating: MetricKey.new_maintainability_rating,

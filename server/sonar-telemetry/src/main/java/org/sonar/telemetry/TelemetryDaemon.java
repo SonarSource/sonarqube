@@ -38,12 +38,13 @@ import org.sonar.db.DbSession;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.util.AbstractStoppableScheduledExecutorServiceImpl;
 import org.sonar.server.util.GlobalLockManager;
+import org.sonar.telemetry.core.TelemetryClient;
 import org.sonar.telemetry.legacy.TelemetryData;
 import org.sonar.telemetry.legacy.TelemetryDataJsonWriter;
 import org.sonar.telemetry.legacy.TelemetryDataLoader;
 import org.sonar.telemetry.metrics.TelemetryMetricsLoader;
-import org.sonar.telemetry.metrics.schema.BaseMessage;
-import org.sonar.telemetry.metrics.util.MessageSerializer;
+import org.sonar.telemetry.core.schema.BaseMessage;
+import org.sonar.telemetry.core.MessageSerializer;
 
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_ENABLE;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_FREQUENCY_IN_SECONDS;

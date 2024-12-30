@@ -158,13 +158,13 @@ class PurgeCommands {
         });
     profiler.stop();
 
-    profiler.start("purgeDisabledComponents (live_measures)");
-      executeLargeInputs(
-        purgeMapper.selectDisabledComponentsWithLiveMeasures(rootComponentUuid),
-        input -> {
-          purgeMapper.deleteLiveMeasuresByComponentUuids(input);
-          return input;
-        });
+    profiler.start("purgeDisabledComponents (measures)");
+    executeLargeInputs(
+      purgeMapper.selectDisabledComponentsWithMeasures(rootComponentUuid),
+      input -> {
+        purgeMapper.deleteMeasuresByComponentUuids(input);
+        return input;
+      });
     profiler.stop();
 
     session.commit();
@@ -449,9 +449,9 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  void deleteLiveMeasures(String rootUuid) {
-    profiler.start("deleteLiveMeasures (live_measures)");
-    purgeMapper.deleteLiveMeasuresByProjectUuid(rootUuid);
+  void deleteMeasures(String rootUuid) {
+    profiler.start("deleteMeasures (measures)");
+    purgeMapper.deleteMeasuresByBranchUuid(rootUuid);
     session.commit();
     profiler.stop();
   }

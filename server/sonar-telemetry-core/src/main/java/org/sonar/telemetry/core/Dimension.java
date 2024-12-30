@@ -30,7 +30,8 @@ public enum Dimension {
   INSTALLATION("installation"),
   USER("user"),
   PROJECT("project"),
-  LANGUAGE("language");
+  LANGUAGE("language"),
+  ANALYSIS("analysis");
 
   private final String value;
 

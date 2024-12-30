@@ -29,8 +29,7 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class UpdateUserLocalValueInUsersIT {
@@ -82,10 +81,10 @@ class UpdateUserLocalValueInUsersIT {
     Map<String, Object> map = new HashMap<>();
     String uuid = uuidFactory.create();
     map.put("UUID", uuid);
-    map.put("LOGIN", randomAlphabetic(20));
-    map.put("EXTERNAL_LOGIN", randomAlphabetic(20));
+    map.put("LOGIN", secure().nextAlphabetic(20));
+    map.put("EXTERNAL_LOGIN", secure().nextAlphabetic(20));
     map.put("EXTERNAL_IDENTITY_PROVIDER", "sonarqube");
-    map.put("EXTERNAL_ID", randomNumeric(5));
+    map.put("EXTERNAL_ID", secure().nextNumeric(5));
     map.put("CREATED_AT", System.currentTimeMillis());
     map.put("USER_LOCAL", userLocal);
     map.put("RESET_PASSWORD", false);

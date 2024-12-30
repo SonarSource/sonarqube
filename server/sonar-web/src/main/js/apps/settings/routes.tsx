@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+
 import { Route } from 'react-router-dom';
-import SettingsApp from './components/SettingsApp';
-import EncryptionApp from './encryption/EncryptionApp';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
+
+const SettingsApp = lazyLoadComponent(() => import('./components/SettingsApp'));
+const EncryptionApp = lazyLoadComponent(() => import('./encryption/EncryptionApp'));
 
 const routes = () => (
   <Route path="settings">

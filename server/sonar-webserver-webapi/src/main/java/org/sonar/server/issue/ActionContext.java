@@ -22,14 +22,17 @@ package org.sonar.server.issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.IssueDto;
 
 public class ActionContext implements Action.Context {
   private final DefaultIssue issue;
+  private final IssueDto issueDto;
   private final IssueChangeContext changeContext;
   private final ComponentDto project;
 
-  public ActionContext(DefaultIssue issue, IssueChangeContext changeContext, ComponentDto project) {
+  public ActionContext(DefaultIssue issue, IssueDto issueDto, IssueChangeContext changeContext, ComponentDto project) {
     this.issue = issue;
+    this.issueDto = issueDto;
     this.changeContext = changeContext;
     this.project = project;
   }
@@ -37,6 +40,11 @@ public class ActionContext implements Action.Context {
   @Override
   public DefaultIssue issue() {
     return issue;
+  }
+
+  @Override
+  public IssueDto issueDto() {
+    return issueDto;
   }
 
   @Override

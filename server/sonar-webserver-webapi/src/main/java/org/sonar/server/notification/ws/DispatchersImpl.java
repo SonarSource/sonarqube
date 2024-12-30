@@ -20,9 +20,12 @@
 package org.sonar.server.notification.ws;
 
 import java.util.List;
+import java.util.Map;
 import org.sonar.api.Startable;
 
+import static org.sonar.server.notification.NotificationDispatcherMetadata.ENABLED_BY_DEFAULT_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
+import static org.sonar.server.notification.NotificationDispatcherMetadata.PERMISSION_RESTRICTION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
 
 public class DispatchersImpl implements Dispatchers, Startable {
@@ -31,6 +34,8 @@ public class DispatchersImpl implements Dispatchers, Startable {
 
   private List<String> projectDispatchers;
   private List<String> globalDispatchers;
+  private List<String> enabledByDefaultDispatchers;
+  private Map<String, String> permissionRestrictedDispatchers;
 
   public DispatchersImpl(NotificationCenter notificationCenter) {
     this.notificationCenter = notificationCenter;
@@ -47,6 +52,16 @@ public class DispatchersImpl implements Dispatchers, Startable {
   }
 
   @Override
+  public List<String> getEnabledByDefaultDispatchers() {
+    return enabledByDefaultDispatchers;
+  }
+
+  @Override
+  public Map<String, String> getPermissionRestrictedDispatchers() {
+    return permissionRestrictedDispatchers;
+  }
+
+  @Override
   public void start() {
     this.globalDispatchers = notificationCenter.getDispatcherKeysForProperty(GLOBAL_NOTIFICATION, "true")
       .stream()
@@ -56,6 +71,8 @@ public class DispatchersImpl implements Dispatchers, Startable {
       .stream()
       .sorted()
       .toList();
+    this.enabledByDefaultDispatchers = notificationCenter.getDispatcherKeysForProperty(ENABLED_BY_DEFAULT_NOTIFICATION, "true");
+    this.permissionRestrictedDispatchers = notificationCenter.getValueByDispatchers(PERMISSION_RESTRICTION);
   }
 
   @Override

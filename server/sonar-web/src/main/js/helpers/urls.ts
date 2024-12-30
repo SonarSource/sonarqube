@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Path, To } from 'react-router-dom';
 import {
   getBranchLikeQuery,
@@ -273,10 +274,8 @@ export function getQualityProfileUrl(name: string, language: string, organizatio
 }
 
 export function getQualityGateUrl(organizationKey: string, name: string): To {
-  // This is a workaround for the react router bug: https://github.com/remix-run/react-router/issues/10814
-  const qualityGateName = name.replace(/%/g, '%25');
   return {
-    pathname: `/organizations/${organizationKey}/quality_gates/show/` + encodeURIComponent(qualityGateName),
+    pathname: `/organizations/${organizationKey}/quality_gates/show/` + encodeURIComponent(name),
   };
 }
 

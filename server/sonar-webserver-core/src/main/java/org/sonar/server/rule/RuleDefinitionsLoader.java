@@ -19,8 +19,6 @@
  */
 package org.sonar.server.rule;
 
-import java.util.Objects;
-import java.util.function.Predicate;
 import org.sonar.api.impl.server.RulesDefinitionContext;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.server.plugins.ServerPluginRepository;

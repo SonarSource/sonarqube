@@ -33,7 +33,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.config.PropertyDefinition.ConfigScope;
 import org.sonar.api.scanner.ScannerSide;
 
 @ScannerSide
@@ -54,7 +54,7 @@ public class ExternalIssuesImportSensor implements Sensor {
         .name("Issues report paths")
         .description("List of comma-separated paths (absolute or relative) containing report with issues created by external rule engines.")
         .category(CoreProperties.CATEGORY_EXTERNAL_ISSUES)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .build());
   }
 

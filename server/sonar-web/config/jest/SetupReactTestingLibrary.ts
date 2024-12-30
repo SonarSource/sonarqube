@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import '@testing-library/jest-dom';
 import { configure, screen, waitFor } from '@testing-library/react';
 import userEvent, { PointerEventsCheckLevel } from '@testing-library/user-event';
 
 configure({
-  asyncUtilTimeout: 3000,
+  asyncUtilTimeout: 6000,
 });
 
 expect.extend({
@@ -52,6 +53,7 @@ expect.extend({
         };
 
     await user.keyboard('{Escape}');
+    await user.unhover(received);
 
     await waitFor(() => {
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();

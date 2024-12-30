@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { PopupPlacement, Tags } from 'design-system';
+
 import * as React from 'react';
+import { PopupPlacement, Tags } from '~design-system';
 import { setIssueTags } from '../../../api/issues';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import { translate } from '../../../helpers/l10n';

@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { translate } from "../../helpers/l10n";
 import { formatMeasure } from "~sonar-aligned/helpers/measures";
-import { InputSearch } from "design-system";
+import { InputSearch } from "~design-system";
 
 export interface Props {
   handleSearch: (query?: string) => void;

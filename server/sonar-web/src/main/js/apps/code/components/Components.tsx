@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ContentCell, Table, TableRow } from 'design-system';
+
 import { sortBy, times } from 'lodash';
-import * as React from 'react';
+import { ContentCell, Table, TableRow } from '~design-system';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import withKeyboardNavigation from '../../../components/hoc/withKeyboardNavigation';
 import { getComponentMeasureUniqueKey } from '../../../helpers/component';

@@ -19,7 +19,7 @@
  */
 import { ButtonIcon, ButtonVariety, IconQuestionMark } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import {FlagMessage, FormField, InputField} from 'design-system';
+import {FlagMessage, FormField, InputField} from '~design-system';
 import { debounce } from 'lodash';
 import * as React from 'react';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';

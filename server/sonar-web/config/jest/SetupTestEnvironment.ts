@@ -17,24 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import React from 'react';
 
 (window as any).React = React;
 
-const MockObserver = {
-  observe: jest.fn(),
-  unobserve: jest.fn(),
-  disconnect: jest.fn(),
-};
-
-const content = document.createElement('div');
-content.id = 'content';
-document.documentElement.appendChild(content);
-
 const baseUrl = '';
 (window as any).baseUrl = baseUrl;
-
-Element.prototype.scrollIntoView = () => {};
 
 jest.mock('../../src/main/js/helpers/l10n', () => ({
   ...jest.requireActual('../../src/main/js/helpers/l10n'),
@@ -44,12 +33,28 @@ jest.mock('../../src/main/js/helpers/l10n', () => ({
     [messageKey, ...parameters].join('.'),
 }));
 
+global.___loader = {
+  enqueue: jest.fn(),
+};
+
+const MockObserver = {
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+};
+
 const MockIntersectionObserverEntries = [{ isIntersecting: true }];
 
 (window as any).IntersectionObserver = jest.fn().mockImplementation((callback) => {
   callback(MockIntersectionObserverEntries, MockObserver);
   return MockObserver;
 });
+
+Element.prototype.scrollIntoView = () => {};
+
+const content = document.createElement('div');
+content.id = 'content';
+document.documentElement.appendChild(content);
 
 // ResizeObserver
 

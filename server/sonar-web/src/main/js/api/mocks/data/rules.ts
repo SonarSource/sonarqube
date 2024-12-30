@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { RuleDescriptionSections } from '../../../apps/coding-rules/rule';
 import { mockRule, mockRuleActivation, mockRuleDetails } from '../../../helpers/testMocks';
 import {
@@ -101,6 +102,12 @@ export function mockRuleDetailsList() {
         { key: '1', type: 'TEXT', htmlDesc: 'html description for key 1' },
         { key: '2', type: 'NUMBER', defaultValue: 'default value for key 2' },
       ],
+      impacts: [
+        {
+          softwareQuality: SoftwareQuality.Maintainability,
+          severity: SoftwareImpactSeverity.Medium,
+        },
+      ],
     }),
     mockRuleDetails({
       key: RULE_2,
@@ -157,6 +164,12 @@ export function mockRuleDetailsList() {
           content: resourceContent,
         },
       ],
+      impacts: [
+        {
+          softwareQuality: SoftwareQuality.Maintainability,
+          severity: SoftwareImpactSeverity.Medium,
+        },
+      ],
     }),
     mockRuleDetails({
       key: RULE_6,
@@ -166,6 +179,16 @@ export function mockRuleDetailsList() {
       name: 'Bad Python rule',
       isExternal: true,
       descriptionSections: undefined,
+      impacts: [
+        {
+          softwareQuality: SoftwareQuality.Maintainability,
+          severity: SoftwareImpactSeverity.Medium,
+        },
+        {
+          softwareQuality: SoftwareQuality.Security,
+          severity: SoftwareImpactSeverity.Low,
+        },
+      ],
     }),
     mockRuleDetails({
       key: RULE_7,
@@ -194,6 +217,12 @@ export function mockRuleDetailsList() {
           content: resourceContent,
         },
       ],
+      impacts: [
+        {
+          softwareQuality: SoftwareQuality.Maintainability,
+          severity: SoftwareImpactSeverity.Low,
+        },
+      ],
     }),
     mockRuleDetails({
       key: RULE_8,
@@ -213,6 +242,9 @@ export function mockRuleDetailsList() {
       key: RULE_9,
       type: 'BUG',
       severity: 'MINOR',
+      impacts: [
+        { softwareQuality: SoftwareQuality.Reliability, severity: SoftwareImpactSeverity.Low },
+      ],
       lang: 'py',
       langName: 'Python',
       tags: ['awesome', 'cute'],
@@ -238,6 +270,16 @@ export function mockRuleDetailsList() {
         {
           key: RuleDescriptionSections.RESOURCES,
           content: resourceContent,
+        },
+      ],
+      impacts: [
+        {
+          softwareQuality: SoftwareQuality.Maintainability,
+          severity: SoftwareImpactSeverity.Low,
+        },
+        {
+          softwareQuality: SoftwareQuality.Reliability,
+          severity: SoftwareImpactSeverity.High,
         },
       ],
       educationPrinciples: ['defense_in_depth', 'never_trust_user_input'],
@@ -266,7 +308,19 @@ export function mockRuleDetailsList() {
 export function mockRulesActivationsInQP() {
   return {
     [RULE_1]: [mockRuleActivation({ qProfile: QP_1 }), mockRuleActivation({ qProfile: QP_6 })],
-    [RULE_7]: [mockRuleActivation({ qProfile: QP_2 })],
+    [RULE_7]: [
+      mockRuleActivation({
+        qProfile: QP_2,
+        impacts: [
+          {
+            softwareQuality: SoftwareQuality.Maintainability,
+            severity: SoftwareImpactSeverity.Medium,
+          },
+          { softwareQuality: SoftwareQuality.Reliability, severity: SoftwareImpactSeverity.High },
+          { softwareQuality: SoftwareQuality.Security, severity: SoftwareImpactSeverity.High },
+        ],
+      }),
+    ],
     [RULE_8]: [mockRuleActivation({ qProfile: QP_2 })],
     [RULE_9]: [
       mockRuleActivation({
@@ -276,11 +330,41 @@ export function mockRulesActivationsInQP() {
           { key: '2', value: 'default value for key 2' },
         ],
         inherit: 'INHERITED',
+        impacts: [
+          { softwareQuality: SoftwareQuality.Reliability, severity: SoftwareImpactSeverity.Medium },
+        ],
       }),
     ],
     [RULE_10]: [
-      mockRuleActivation({ qProfile: QP_2, inherit: 'OVERRIDES', prioritizedRule: true }),
-      mockRuleActivation({ qProfile: QP_2_Parent, severity: 'MINOR' }),
+      mockRuleActivation({
+        qProfile: QP_2,
+        inherit: 'OVERRIDES',
+        impacts: [
+          {
+            softwareQuality: SoftwareQuality.Maintainability,
+            severity: SoftwareImpactSeverity.Medium,
+          },
+          {
+            softwareQuality: SoftwareQuality.Reliability,
+            severity: SoftwareImpactSeverity.Info,
+          },
+        ],
+        prioritizedRule: true,
+      }),
+      mockRuleActivation({
+        qProfile: QP_2_Parent,
+        severity: 'MINOR',
+        impacts: [
+          {
+            softwareQuality: SoftwareQuality.Maintainability,
+            severity: SoftwareImpactSeverity.Low,
+          },
+          {
+            softwareQuality: SoftwareQuality.Reliability,
+            severity: SoftwareImpactSeverity.Blocker,
+          },
+        ],
+      }),
     ],
     [RULE_11]: [
       mockRuleActivation({ qProfile: QP_4 }),

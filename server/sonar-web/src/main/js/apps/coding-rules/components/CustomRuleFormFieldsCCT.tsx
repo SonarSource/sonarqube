@@ -17,17 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  Checkbox,
-  FormField,
-  Highlight,
-  InputSelect,
-  LightPrimary,
-  RequiredIcon,
-  TextError,
-} from 'design-system';
-import React from 'react';
+
+import { Checkbox, Select, Text } from '@sonarsource/echoes-react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useIntl } from 'react-intl';
+import { FormField, RequiredIcon } from '~design-system';
 import SoftwareImpactSeverityIcon from '../../../components/icon-mappers/SoftwareImpactSeverityIcon';
 import {
   CLEAN_CODE_ATTRIBUTES_BY_CATEGORY,
@@ -64,14 +58,16 @@ export function CleanCodeCategoryField(props: Readonly<Props<CleanCodeAttributeC
       label={intl.formatMessage({ id: 'category' })}
       htmlFor="coding-rules-custom-clean-code-category"
     >
-      <InputSelect
-        options={categories}
-        inputId="coding-rules-custom-clean-code-category"
-        onChange={(option) => props.onChange(option?.value as CleanCodeAttributeCategory)}
-        isClearable={false}
+      <Select
+        data={categories}
+        id="coding-rules-custom-clean-code-category"
+        onChange={(option) =>
+          option ? props.onChange(option as CleanCodeAttributeCategory) : undefined
+        }
         isDisabled={disabled}
         isSearchable={false}
-        value={categories.find((category) => category.value === value)}
+        isNotClearable
+        value={categories.find((category) => category.value === value)?.value}
       />
     </FormField>
   );
@@ -81,7 +77,7 @@ export function CleanCodeAttributeField(
   props: Readonly<Props<CleanCodeAttribute> & { category: CleanCodeAttributeCategory }>,
 ) {
   const { value, disabled, category, onChange } = props;
-  const initialAttribute = React.useRef(value);
+  const initialAttribute = useRef(value);
   const intl = useIntl();
 
   const attributes = CLEAN_CODE_ATTRIBUTES_BY_CATEGORY[category].map((attribute) => ({
@@ -90,7 +86,7 @@ export function CleanCodeAttributeField(
   }));
 
   // Set default CC attribute when category changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (CLEAN_CODE_ATTRIBUTES_BY_CATEGORY[category].includes(value)) {
       return;
     }
@@ -110,37 +106,37 @@ export function CleanCodeAttributeField(
       label={intl.formatMessage({ id: 'attribute' })}
       htmlFor="coding-rules-custom-clean-code-attribute"
     >
-      <InputSelect
-        options={attributes}
-        inputId="coding-rules-custom-clean-code-attribute"
-        onChange={(option) => props.onChange(option?.value as CleanCodeAttribute)}
-        isClearable={false}
+      <Select
+        data={attributes}
+        id="coding-rules-custom-clean-code-attribute"
+        onChange={(option) => props.onChange(option as CleanCodeAttribute)}
         isDisabled={disabled}
         isSearchable={false}
-        value={attributes.find((attribute) => attribute.value === value)}
+        isNotClearable
+        value={attributes.find((attribute) => attribute.value === value)?.value}
       />
     </FormField>
   );
 }
 
 export function SoftwareQualitiesFields(
-  props: Readonly<Props<SoftwareImpact[]> & { error: boolean }>,
+  props: Readonly<Props<SoftwareImpact[]> & { error: boolean; qualityUpdateDisabled: boolean }>,
 ) {
-  const { value, disabled, error } = props;
+  const { value, disabled, error, qualityUpdateDisabled } = props;
   const intl = useIntl();
 
-  const severities = React.useMemo(
+  const severities = useMemo(
     () =>
       IMPACT_SEVERITIES.map((severity) => ({
         value: severity,
         label: intl.formatMessage({ id: `severity_impact.${severity}` }),
-        Icon: <SoftwareImpactSeverityIcon severity={severity} />,
+        prefix: <SoftwareImpactSeverityIcon severity={severity} />,
       })),
     [intl],
   );
 
-  const handleSoftwareQualityChange = (quality: SoftwareQuality, checked: boolean) => {
-    if (checked) {
+  const handleSoftwareQualityChange = (quality: SoftwareQuality, checked: boolean | string) => {
+    if (checked === true) {
       props.onChange([
         ...value,
         { softwareQuality: quality, severity: SoftwareImpactSeverity.Low },
@@ -161,19 +157,19 @@ export function SoftwareQualitiesFields(
   return (
     <fieldset className="sw-mt-2 sw-mb-4 sw-relative">
       <legend className="sw-w-full sw-flex sw-justify-between sw-gap-6 sw-mb-4">
-        <Highlight className="sw-w-full">
+        <Text isHighlighted className="sw-w-full">
           {intl.formatMessage({ id: 'software_quality' })}
           <RequiredIcon aria-label={intl.formatMessage({ id: 'required' })} className="sw-ml-1" />
-        </Highlight>
-        <Highlight className="sw-w-full">
+        </Text>
+        <Text isHighlighted className="sw-w-full">
           {intl.formatMessage({ id: 'severity' })}
           <RequiredIcon aria-label={intl.formatMessage({ id: 'required' })} className="sw-ml-1" />
-        </Highlight>
+        </Text>
       </legend>
       {SOFTWARE_QUALITIES.map((quality) => {
         const selectedQuality = value.find((impact) => impact.softwareQuality === quality);
         const selectedSeverity = selectedQuality
-          ? severities.find((severity) => severity.value === selectedQuality.severity)
+          ? severities.find((severity) => severity.value === selectedQuality.severity)?.value
           : null;
 
         return (
@@ -185,38 +181,42 @@ export function SoftwareQualitiesFields(
               )}
             </legend>
             <Checkbox
-              className="sw-w-full"
+              className="sw-w-full sw-items-center"
+              isDisabled={qualityUpdateDisabled}
               checked={Boolean(selectedQuality)}
               onCheck={(checked) => {
                 handleSoftwareQualityChange(quality, checked);
               }}
-              label={quality}
-            >
-              <LightPrimary className="sw-ml-3">
-                {intl.formatMessage({ id: `software_quality.${quality}` })}
-              </LightPrimary>
-            </Checkbox>
-            <InputSelect
+              label={
+                <Text className="sw-ml-3">
+                  {intl.formatMessage({ id: `software_quality.${quality}` })}
+                </Text>
+              }
+            />
+
+            <Select
+              id={`coding-rules-custom-software-impact-severity-${quality}`}
               aria-label={intl.formatMessage({ id: 'severity' })}
               className="sw-w-full"
-              options={severities}
+              data={severities}
               placeholder={intl.formatMessage({ id: 'none' })}
-              onChange={(option) =>
-                handleSeverityChange(quality, option?.value as SoftwareImpactSeverity)
-              }
-              isClearable={false}
+              onChange={(option) => handleSeverityChange(quality, option as SoftwareImpactSeverity)}
               isDisabled={disabled || !selectedQuality}
               isSearchable={false}
+              isNotClearable
               value={selectedSeverity}
+              valueIcon={<SoftwareImpactSeverityIcon severity={selectedSeverity} />}
             />
           </fieldset>
         );
       })}
       {error && (
-        <TextError
+        <Text
+          colorOverride="echoes-color-text-danger"
           className="sw-font-regular sw-absolute sw--bottom-3"
-          text={intl.formatMessage({ id: 'coding_rules.custom_rule.select_software_quality' })}
-        />
+        >
+          {intl.formatMessage({ id: 'coding_rules.custom_rule.select_software_quality' })}
+        </Text>
       )}
     </fieldset>
   );

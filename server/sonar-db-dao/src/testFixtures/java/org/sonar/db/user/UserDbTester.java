@@ -28,7 +28,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
@@ -49,7 +49,7 @@ import org.sonar.db.scim.ScimUserDto;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 
@@ -169,7 +169,7 @@ public class UserDbTester {
   }
 
   public void markGroupAsGithubManaged(String groupUuid) {
-    db.getDbClient().externalGroupDao().insert(db.getSession(), new ExternalGroupDto(groupUuid, randomAlphanumeric(20), "github"));
+    db.getDbClient().externalGroupDao().insert(db.getSession(), new ExternalGroupDto(groupUuid, secure().nextAlphanumeric(20), "github"));
     db.commit();
   }
 
@@ -417,7 +417,7 @@ public class UserDbTester {
     checkArgument(project.isPrivate() || !PUBLIC_PERMISSIONS.contains(permission),
       "%s can't be granted on a public project", permission);
     EntityDto entityDto;
-    if (project.qualifier().equals(Qualifiers.VIEW) || project.qualifier().equals(Qualifiers.SUBVIEW)) {
+    if (project.qualifier().equals(ComponentQualifiers.VIEW) || project.qualifier().equals(ComponentQualifiers.SUBVIEW)) {
       entityDto = db.getDbClient().portfolioDao().selectByUuid(db.getSession(), project.uuid())
         .orElseThrow();
     } else {

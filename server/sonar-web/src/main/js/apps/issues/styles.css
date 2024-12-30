@@ -22,6 +22,6 @@
   vertical-align: top;
   line-height: 18px;
   box-sizing: border-box;
-  background-color: var(--issueBgColor);
+  background-color: #f2dede;
   transition: background-color 0.3s ease;
 }

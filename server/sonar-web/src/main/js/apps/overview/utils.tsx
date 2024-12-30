@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { memoize } from 'lodash';
-import React from 'react';
 import { IntlShape } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
@@ -26,7 +26,7 @@ import { RawQuery } from '~sonar-aligned/types/router';
 import { ISSUETYPE_METRIC_KEYS_MAP } from '../../helpers/issues';
 import { translate } from '../../helpers/l10n';
 import { parseAsString } from '../../helpers/query';
-import { SoftwareQuality } from '../../types/clean-code-taxonomy';
+import { SoftwareImpactSeverity, SoftwareQuality } from '../../types/clean-code-taxonomy';
 import { IssueType } from '../../types/issues';
 import { AnalysisMeasuresVariations, MeasureHistory } from '../../types/project-activity';
 import { QualityGateStatusConditionEnhanced } from '../../types/quality-gates';
@@ -42,9 +42,9 @@ export const BRANCH_OVERVIEW_METRICS: string[] = [
   MetricKey.accepted_issues,
   MetricKey.new_accepted_issues,
   MetricKey.high_impact_accepted_issues,
-  MetricKey.maintainability_issues,
-  MetricKey.reliability_issues,
-  MetricKey.security_issues,
+  MetricKey.software_quality_maintainability_issues,
+  MetricKey.software_quality_reliability_issues,
+  MetricKey.software_quality_security_issues,
 
   // bugs
   MetricKey.bugs,
@@ -167,6 +167,13 @@ export const RATING_TO_SEVERITIES_MAPPING = [
   'BLOCKER',
 ];
 
+export const MQR_RATING_TO_SEVERITIES_MAPPING = [
+  `${SoftwareImpactSeverity.Blocker},${SoftwareImpactSeverity.High},${SoftwareImpactSeverity.Medium},${SoftwareImpactSeverity.Info}`,
+  `${SoftwareImpactSeverity.Blocker},${SoftwareImpactSeverity.High},${SoftwareImpactSeverity.Medium}`,
+  `${SoftwareImpactSeverity.Blocker},${SoftwareImpactSeverity.High}`,
+  `${SoftwareImpactSeverity.Blocker}`,
+];
+
 export const RATING_METRICS_MAPPING: Dict<IssueType> = {
   [MetricKey.reliability_rating]: IssueType.Bug,
   [MetricKey.new_reliability_rating]: IssueType.Bug,
@@ -190,7 +197,7 @@ export const METRICS_REPORTED_IN_OVERVIEW_CARDS = [
 ];
 
 export function softwareQualityToMeasure(softwareQuality: SoftwareQuality): MetricKey {
-  return (softwareQuality.toLowerCase() + '_issues') as MetricKey;
+  return `software_quality_${softwareQuality.toLowerCase()}_issues` as MetricKey;
 }
 
 export function getIssueRatingName(type: IssueType) {

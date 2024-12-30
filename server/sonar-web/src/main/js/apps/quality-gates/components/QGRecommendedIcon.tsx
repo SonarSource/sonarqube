@@ -18,12 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import styled from '@emotion/styled';
 import { IconRecommended } from '@sonarsource/echoes-react';
-import { themeColor } from 'design-system';
 
-const QGRecommendedIcon = styled(IconRecommended)`
-  color: ${themeColor('primary')};
-`;
+interface Props {
+  className?: string;
+  isDisabled?: boolean;
+}
 
-export default QGRecommendedIcon;
+export default function QGRecommendedIcon({ isDisabled = false, className }: Readonly<Props>) {
+  return (
+    <IconRecommended
+      color={isDisabled ? `echoes-color-icon-disabled` : `echoes-color-icon-accent`}
+      className={className}
+    />
+  );
+}

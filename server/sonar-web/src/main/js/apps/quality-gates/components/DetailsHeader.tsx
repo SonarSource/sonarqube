@@ -17,25 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
-  ActionsDropdown,
-  Badge,
-  ButtonSecondary,
-  DangerButtonPrimary,
-  ItemButton,
-  ItemDangerButton,
-  ItemDivider,
-  SubTitle,
-} from 'design-system';
+  ButtonIcon,
+  DropdownMenu,
+  DropdownMenuAlign,
+  IconMoreVertical,
+  Tooltip,
+} from '@sonarsource/echoes-react';
 import { countBy } from 'lodash';
 import * as React from 'react';
-import Tooltip from '../../../components/controls/Tooltip';
+import { useCallback } from 'react';
+import { Badge, ButtonSecondary, DangerButtonPrimary, SubTitle } from '~design-system';
+import { AiCodeAssuranceStatus } from '../../../api/ai-code-assurance';
+import LegacyTooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
-import { useSetQualityGateAsDefaultMutation } from '../../../queries/quality-gates';
+import {
+  useGetAllQualityGateProjectsQuery,
+  useSetAiSupportedQualityGateMutation,
+  useSetQualityGateAsDefaultMutation,
+} from '../../../queries/quality-gates';
 import { CaycStatus, QualityGate } from '../../../types/types';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
 import CopyQualityGateForm from './CopyQualityGateForm';
 import DeleteQualityGateForm from './DeleteQualityGateForm';
+import DisqualifyAiQualityGateForm from './DisqualifyAiQualityGateForm';
 import RenameQualityGateForm from './RenameQualityGateForm';
 
 interface Props {
@@ -47,6 +53,7 @@ export default function DetailsHeader({ organization, qualityGate }: Readonly<Pr
   const [isRenameFormOpen, setIsRenameFormOpen] = React.useState(false);
   const [isCopyFormOpen, setIsCopyFormOpen] = React.useState(false);
   const [isRemoveFormOpen, setIsRemoveFormOpen] = React.useState(false);
+  const [isQualifyAiFormOpen, setIsQualifyAiFormOpen] = React.useState(false);
   const actions = qualityGate.actions ?? {};
   const actionsCount = countBy([
     actions.rename,
@@ -55,12 +62,41 @@ export default function DetailsHeader({ organization, qualityGate }: Readonly<Pr
     actions.setAsDefault,
   ])['true'];
   const { mutateAsync: setQualityGateAsDefault } = useSetQualityGateAsDefaultMutation(organization);
+  const { mutateAsync: setAiSupportedQualityGate } = useSetAiSupportedQualityGateMutation();
+  const { data: qualityGateProjectsHavingAiCode = [], isLoading: isCountLoading } =
+    useGetAllQualityGateProjectsQuery(
+      { gateName: qualityGate.name, selected: 'selected' },
+      {
+        select: (data) =>
+          data.results.filter((p) => p.aiCodeAssurance === AiCodeAssuranceStatus.AI_CODE_ASSURED),
+      },
+    );
 
   const handleSetAsDefaultClick = () => {
     if (!qualityGate.isDefault) {
       setQualityGateAsDefault({ name: qualityGate.name });
     }
   };
+
+  const handleSetQualityGateAiCodeAssurance = () => {
+    if (
+      (qualityGateProjectsHavingAiCode?.length > 0 && qualityGate.isAiCodeSupported) ||
+      (qualityGate.isDefault && qualityGate.isAiCodeSupported)
+    ) {
+      setIsQualifyAiFormOpen(true);
+      return;
+    }
+
+    updateQualityGateAiCodeAssurance();
+  };
+
+  const updateQualityGateAiCodeAssurance = useCallback(() => {
+    setAiSupportedQualityGate({
+      isQualityGateAiSupported: !qualityGate.isAiCodeSupported,
+      name: qualityGate.name,
+    });
+    setIsQualifyAiFormOpen(false);
+  }, [qualityGate.isAiCodeSupported, qualityGate.name, setAiSupportedQualityGate]);
 
   return (
     <>
@@ -82,7 +118,7 @@ export default function DetailsHeader({ organization, qualityGate }: Readonly<Pr
               </ButtonSecondary>
             )}
             {actions.copy && (
-              <Tooltip
+              <LegacyTooltip
                 content={
                   qualityGate.caycStatus === CaycStatus.NonCompliant
                     ? translate('quality_gates.cannot_copy_no_cayc')
@@ -95,10 +131,10 @@ export default function DetailsHeader({ organization, qualityGate }: Readonly<Pr
                 >
                   {translate('copy')}
                 </ButtonSecondary>
-              </Tooltip>
+              </LegacyTooltip>
             )}
             {actions.setAsDefault && (
-              <Tooltip
+              <LegacyTooltip
                 content={
                   qualityGate.caycStatus === CaycStatus.NonCompliant
                     ? translate('quality_gates.cannot_set_default_no_cayc')
@@ -111,7 +147,7 @@ export default function DetailsHeader({ organization, qualityGate }: Readonly<Pr
                 >
                   {translate('set_as_default')}
                 </ButtonSecondary>
-              </Tooltip>
+              </LegacyTooltip>
             )}
             {actions.delete && (
               <DangerButtonPrimary onClick={() => setIsRemoveFormOpen(true)}>
@@ -122,53 +158,70 @@ export default function DetailsHeader({ organization, qualityGate }: Readonly<Pr
         )}
 
         {actionsCount > 1 && (
-          <ActionsDropdown allowResizing id="quality-gate-actions">
-            {actions.rename && (
-              <ItemButton onClick={() => setIsRenameFormOpen(true)}>
-                {translate('rename')}
-              </ItemButton>
-            )}
-            {actions.copy && (
-              <Tooltip
-                content={
-                  qualityGate.caycStatus === CaycStatus.NonCompliant
-                    ? translate('quality_gates.cannot_copy_no_cayc')
-                    : null
-                }
-              >
-                <ItemButton
-                  disabled={qualityGate.caycStatus === CaycStatus.NonCompliant}
-                  onClick={() => setIsCopyFormOpen(true)}
-                >
-                  {translate('copy')}
-                </ItemButton>
-              </Tooltip>
-            )}
-            {actions.setAsDefault && (
-              <Tooltip
-                content={
-                  qualityGate.caycStatus === CaycStatus.NonCompliant
-                    ? translate('quality_gates.cannot_set_default_no_cayc')
-                    : null
-                }
-              >
-                <ItemButton
-                  disabled={qualityGate.caycStatus === CaycStatus.NonCompliant}
-                  onClick={handleSetAsDefaultClick}
-                >
-                  {translate('set_as_default')}
-                </ItemButton>
-              </Tooltip>
-            )}
-            {actions.delete && (
+          <DropdownMenu.Root
+            align={DropdownMenuAlign.End}
+            id="quality-gate-actions"
+            items={
               <>
-                <ItemDivider />
-                <ItemDangerButton onClick={() => setIsRemoveFormOpen(true)}>
-                  {translate('delete')}
-                </ItemDangerButton>
+                {actions.rename && (
+                  <DropdownMenu.ItemButton onClick={() => setIsRenameFormOpen(true)}>
+                    {translate('rename')}
+                  </DropdownMenu.ItemButton>
+                )}
+                {actions.copy && (
+                  <Tooltip
+                    content={
+                      qualityGate.caycStatus === CaycStatus.NonCompliant
+                        ? translate('quality_gates.cannot_copy_no_cayc')
+                        : null
+                    }
+                  >
+                    <DropdownMenu.ItemButton
+                      isDisabled={qualityGate.caycStatus === CaycStatus.NonCompliant}
+                      onClick={() => setIsCopyFormOpen(true)}
+                    >
+                      {translate('copy')}
+                    </DropdownMenu.ItemButton>
+                  </Tooltip>
+                )}
+                {actions.setAsDefault && (
+                  <Tooltip
+                    content={
+                      qualityGate.caycStatus === CaycStatus.NonCompliant
+                        ? translate('quality_gates.cannot_set_default_no_cayc')
+                        : null
+                    }
+                  >
+                    <DropdownMenu.ItemButton
+                      isDisabled={qualityGate.caycStatus === CaycStatus.NonCompliant}
+                      onClick={handleSetAsDefaultClick}
+                    >
+                      {translate('set_as_default')}
+                    </DropdownMenu.ItemButton>
+                  </Tooltip>
+                )}
+                {actions.manageAiCodeAssurance && !isCountLoading && (
+                  <DropdownMenu.ItemButton onClick={handleSetQualityGateAiCodeAssurance}>
+                    {translate(
+                      qualityGate.isAiCodeSupported
+                        ? 'quality_gates.actions.disqualify_for_ai_code_assurance'
+                        : 'quality_gates.actions.qualify_for_ai_code_assurance',
+                    )}
+                  </DropdownMenu.ItemButton>
+                )}
+                {actions.delete && (
+                  <>
+                    <DropdownMenu.Separator />
+                    <DropdownMenu.ItemButtonDestructive onClick={() => setIsRemoveFormOpen(true)}>
+                      {translate('delete')}
+                    </DropdownMenu.ItemButtonDestructive>
+                  </>
+                )}
               </>
-            )}
-          </ActionsDropdown>
+            }
+          >
+            <ButtonIcon Icon={IconMoreVertical} ariaLabel={translate('actions')} />
+          </DropdownMenu.Root>
         )}
       </div>
 
@@ -193,6 +246,14 @@ export default function DetailsHeader({ organization, qualityGate }: Readonly<Pr
           onClose={() => setIsRemoveFormOpen(false)}
           qualityGate={qualityGate}
           organization={organization}
+        />
+      )}
+      {isQualifyAiFormOpen && (
+        <DisqualifyAiQualityGateForm
+          onClose={() => setIsQualifyAiFormOpen(false)}
+          isDefault={qualityGate.isDefault}
+          onConfirm={updateQualityGateAiCodeAssurance}
+          count={qualityGateProjectsHavingAiCode.length}
         />
       )}
     </>

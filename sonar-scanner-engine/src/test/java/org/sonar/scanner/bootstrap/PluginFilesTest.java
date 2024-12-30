@@ -276,7 +276,7 @@ class PluginFilesTest {
 
     FileAndMd5() throws IOException {
       this.file = Files.createTempFile(tempDir, "jar", null);
-      Files.write(this.file, RandomStringUtils.random(3).getBytes());
+      Files.write(this.file, RandomStringUtils.secure().next(3).getBytes());
       try (InputStream fis = Files.newInputStream(this.file)) {
         this.md5 = DigestUtils.md5Hex(fis);
       } catch (IOException e) {

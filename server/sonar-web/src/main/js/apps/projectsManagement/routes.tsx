@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+
 import { Route } from 'react-router-dom';
-import ProjectManagementApp from './ProjectManagementApp';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
+
+const ProjectManagementApp = lazyLoadComponent(() => import('./ProjectManagementApp'));
 
 const routes = () => <Route path="projects_management" element={<ProjectManagementApp />} />;
 

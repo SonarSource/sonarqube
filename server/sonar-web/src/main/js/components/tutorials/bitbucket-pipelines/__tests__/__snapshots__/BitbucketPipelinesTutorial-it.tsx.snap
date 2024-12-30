@@ -30,14 +30,12 @@ pipelines:
 `;
 
 exports[`should follow and complete all steps: C++ (automatic) and other: .github/workflows/build.yml 1`] = `
-"image: maven:3.3.9
-
-definitions:
+"definitions:
   steps:
     - step: &build-step
         name: SonarQube analysis
         script:
-          - pipe: sonarsource/sonarqube-scan:2.0.1
+          - pipe: sonarsource/sonarqube-scan:3.0.2
             variables:
               SONAR_HOST_URL: \${SONAR_HOST_URL} # Get the value from the repository/workspace variable.
               SONAR_TOKEN: \${SONAR_TOKEN} # Get the value from the repository/workspace variable. You shouldn't set secret in clear text here.
@@ -59,14 +57,12 @@ pipelines:
 `;
 
 exports[`should follow and complete all steps: C++ (automatic) and other: bitbucket-pipelines.yml 1`] = `
-"image: maven:3.3.9
-
-definitions:
+"definitions:
   steps:
     - step: &build-step
         name: SonarQube analysis
         script:
-          - pipe: sonarsource/sonarqube-scan:2.0.1
+          - pipe: sonarsource/sonarqube-scan:3.0.2
             variables:
               SONAR_HOST_URL: \${SONAR_HOST_URL} # Get the value from the repository/workspace variable.
               SONAR_TOKEN: \${SONAR_TOKEN} # Get the value from the repository/workspace variable. You shouldn't set secret in clear text here.
@@ -298,7 +294,7 @@ pipelines:
 
 exports[`should follow and complete all steps: Groovy: build.gradle 1`] = `
 "plugins {
-  id "org.sonarqube" version "5.1.0.4882"
+  id "org.sonarqube" version "6.0.1.5171"
 }
 
 sonar {
@@ -311,7 +307,7 @@ sonar {
 
 exports[`should follow and complete all steps: Kotlin: build.gradle.kts 1`] = `
 "plugins {
-  id("org.sonarqube") version "5.1.0.4882"
+  id("org.sonarqube") version "6.0.1.5171"
 }
     
 sonar {

@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SpotlightTour, SpotlightTourStep } from 'design-system';
-import React from 'react';
+
 import { FormattedMessage } from 'react-intl';
+import { SpotlightTour, SpotlightTourStep } from '~design-system';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {

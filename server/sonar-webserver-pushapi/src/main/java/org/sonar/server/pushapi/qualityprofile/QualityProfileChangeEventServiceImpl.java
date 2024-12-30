@@ -35,6 +35,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.util.ParamChange;
@@ -42,6 +43,7 @@ import org.sonar.core.util.rule.RuleChange;
 import org.sonar.core.util.rule.RuleSetChangedEvent;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.measure.ProjectMainBranchMeasureDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.pushevent.PushEventDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -103,15 +105,17 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
       Map<String, List<ActiveRuleParamDto>> paramsByActiveRuleUuid = dbClient.activeRuleDao().selectParamsByActiveRuleUuids(dbSession, activeRuleUuids)
         .stream().collect(Collectors.groupingBy(ActiveRuleParamDto::getActiveRuleUuid));
 
-      Map<String, String> activeRuleUuidByRuleUuid = activeRuleDtos.stream().collect(Collectors.toMap(ActiveRuleDto::getRuleUuid, ActiveRuleDto::getUuid));
+      Map<String, OrgActiveRuleDto> activeRuleByRuleUuid = activeRuleDtos.stream().collect(Collectors.toMap(ActiveRuleDto::getRuleUuid,
+        r -> r));
 
       List<String> ruleUuids = activeRuleDtos.stream().map(ActiveRuleDto::getRuleUuid).toList();
       List<RuleDto> ruleDtos = dbClient.ruleDao().selectByUuids(dbSession, ruleUuids);
 
       for (RuleDto ruleDto : ruleDtos) {
-        String activeRuleUuid = activeRuleUuidByRuleUuid.get(ruleDto.getUuid());
+        OrgActiveRuleDto activeRule = activeRuleByRuleUuid.get(ruleDto.getUuid());
+        String activeRuleUuid = activeRule.getUuid();
         List<ActiveRuleParamDto> params = paramsByActiveRuleUuid.getOrDefault(activeRuleUuid, new ArrayList<>());
-        RuleChange ruleChange = toRuleChange(ruleDto, params);
+        RuleChange ruleChange = toRuleChange(ruleDto, activeRule, params);
         ruleChanges.add(ruleChange);
       }
     }
@@ -135,11 +139,12 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
   }
 
   @NotNull
-  private RuleChange toRuleChange(RuleDto ruleDto, List<ActiveRuleParamDto> activeRuleParamDtos) {
+  private RuleChange toRuleChange(RuleDto ruleDto, OrgActiveRuleDto activeRule, List<ActiveRuleParamDto> activeRuleParamDtos) {
     RuleChange ruleChange = new RuleChange();
     ruleChange.setKey(ruleDto.getKey().toString());
     ruleChange.setLanguage(ruleDto.getLanguage());
-    ruleChange.setSeverity(ruleDto.getSeverityString());
+    ruleChange.setSeverity(activeRule.getSeverityString());
+    activeRule.getImpacts().forEach(ruleChange::addImpact);
 
     List<ParamChange> paramChanges = new ArrayList<>();
     for (ActiveRuleParamDto activeRuleParam : activeRuleParamDtos) {
@@ -176,6 +181,8 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
       ruleChange.setKey(activeRule.getRuleKey().toString());
       ruleChange.setSeverity(arc.getSeverity());
       ruleChange.setLanguage(language);
+
+      arc.getNewImpacts().forEach(ruleChange::addImpact);
 
       Optional<String> templateKey = templateKey(arc);
       templateKey.ifPresent(ruleChange::setTemplateKey);
@@ -271,8 +278,21 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
   }
 
   private List<ProjectDto> getDefaultQualityProfileAssociatedProjects(DbSession dbSession, String language) {
-    Set<String> associatedProjectUuids = dbClient.projectDao().selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(dbSession, language);
+    Set<String> associatedProjectUuids = new HashSet<>();
+
+    List<ProjectMainBranchMeasureDto> measureDtos = dbClient.measureDao().selectAllForProjectMainBranchesAssociatedToDefaultQualityProfile(dbSession);
+    for (ProjectMainBranchMeasureDto measureDto : measureDtos) {
+      String distribution = (String) measureDto.getMetricValues().get(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY);
+      if (distribution != null && distributionContainsLanguage(distribution, language)) {
+        associatedProjectUuids.add(measureDto.getProjectUuid());
+      }
+    }
+
     return dbClient.projectDao().selectByUuids(dbSession, associatedProjectUuids);
+  }
+
+  private static boolean distributionContainsLanguage(String distribution, String language) {
+    return distribution.startsWith(language + "=") || distribution.contains(";" + language + "=");
   }
 
   private List<ProjectDto> getManuallyAssociatedQualityProfileProjects(DbSession dbSession, List<QProfileDto> profiles) {
@@ -296,9 +316,6 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
       .map(ProjectQprofileAssociationDto::getProjectUuid)
       .collect(Collectors.toSet());
   }
-
-
-
 
   private static byte[] serializeIssueToPushEvent(RuleSetChangedEvent event) {
     return GSON.toJson(event).getBytes(UTF_8);

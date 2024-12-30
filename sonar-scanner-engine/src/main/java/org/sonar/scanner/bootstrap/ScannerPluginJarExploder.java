@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.bootstrap;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -36,6 +37,7 @@ import static org.sonar.core.util.FileUtils.deleteQuietly;
 
 public class ScannerPluginJarExploder extends PluginJarExploder {
 
+  private static long lockRetrySleep = 200L;
   private final PluginFiles pluginFiles;
 
   public ScannerPluginJarExploder(PluginFiles pluginFiles) {
@@ -76,6 +78,11 @@ public class ScannerPluginJarExploder extends PluginJarExploder {
     return destDir;
   }
 
+  @VisibleForTesting
+  static void setLockRetrySleep(long sleep) {
+    lockRetrySleep = sleep;
+  }
+
   private static FileLock createLockWithRetries(FileChannel channel) throws IOException {
     int tryCount = 0;
     while (tryCount++ < 10) {
@@ -85,7 +92,7 @@ public class ScannerPluginJarExploder extends PluginJarExploder {
         // ignore overlapping file exception
       }
       try {
-        Thread.sleep(200L * tryCount);
+        Thread.sleep(lockRetrySleep * tryCount);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       }

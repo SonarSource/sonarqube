@@ -262,18 +262,10 @@ public final class IndexedIssueDto {
     return this;
   }
 
-  /**
-   * @deprecated since 10.2
-   */
-  @Deprecated(since = "10.2")
   public Integer getIssueType() {
     return issueType;
   }
 
-  /**
-   * @deprecated since 10.2
-   */
-  @Deprecated(since = "10.2")
   public IndexedIssueDto setIssueType(Integer issueType) {
     this.issueType = issueType;
     return this;
@@ -351,11 +343,11 @@ public final class IndexedIssueDto {
     return this;
   }
 
-  public boolean isPrioritizedRule(){
+  public boolean isPrioritizedRule() {
     return prioritizedRule;
   }
 
-  public IndexedIssueDto setPrioritizedRule(boolean prioritizedRule){
+  public IndexedIssueDto setPrioritizedRule(boolean prioritizedRule) {
     this.prioritizedRule = prioritizedRule;
     return this;
   }

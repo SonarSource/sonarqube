@@ -23,8 +23,8 @@ import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.config.PropertyDefinition.ConfigScope;
 import org.sonar.api.config.PropertyFieldDefinition;
-import org.sonar.api.resources.Qualifiers;
 
 public final class IssueExclusionProperties {
 
@@ -64,7 +64,7 @@ public final class IssueExclusionProperties {
         .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
         .name("Ignore Issues on Multiple Criteria")
         .description("Patterns to ignore issues on certain components and for certain coding rules." + PROPERTY_RULE_KEY_PATTERN_HELP)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .index(3)
         .fields(
           PropertyFieldDefinition.build(RULE_KEY)
@@ -85,7 +85,7 @@ public final class IssueExclusionProperties {
         .name("Ignore Issues in Blocks")
         .description("Patterns to ignore all issues on specific blocks of code, " +
           "while continuing to scan and mark issues on the remainder of the file.")
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .index(2)
         .fields(
           PropertyFieldDefinition.build(BEGIN_BLOCK_REGEXP)
@@ -105,7 +105,7 @@ public final class IssueExclusionProperties {
         .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
         .name("Ignore Issues on Files")
         .description("Patterns to ignore all issues on files that contain a block of code matching a given regular expression.")
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .index(1)
         .fields(
           PropertyFieldDefinition.build(FILE_REGEXP)
@@ -120,7 +120,7 @@ public final class IssueExclusionProperties {
         .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
         .name("Restrict Scope of Coding Rules")
         .description("Patterns to restrict the application of a rule to only certain components, ignoring all others." + PROPERTY_RULE_KEY_PATTERN_HELP)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .index(4)
         .fields(
           PropertyFieldDefinition.build(RULE_KEY)

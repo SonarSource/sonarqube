@@ -17,17 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import { ModeServiceMock } from '../../../../api/mocks/ModeServiceMock';
 import QualityProfilesServiceMock from '../../../../api/mocks/QualityProfilesServiceMock';
 import { mockQualityProfileChangelogEvent } from '../../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
+import { Mode } from '../../../../types/mode';
 import routes from '../../routes';
 
 jest.mock('../../../../api/quality-profiles');
 
 const serviceMock = new QualityProfilesServiceMock();
+const modeHandler = new ModeServiceMock();
 const ui = {
   row: byRole('row'),
   cell: byRole('cell'),
@@ -75,47 +79,57 @@ afterEach(() => {
   jest.useRealTimers();
 
   serviceMock.reset();
+  modeHandler.reset();
 });
 
-it('should see the changelog', async () => {
+it('should see the changelog in MQR', async () => {
   const user = userEvent.setup();
 
   renderChangeLog();
 
   const rows = await ui.row.findAll();
-  expect(rows).toHaveLength(6);
+  expect(rows).toHaveLength(7);
   expect(ui.emptyPage.query()).not.toBeInTheDocument();
   ui.checkRow(1, 'May 23, 2019', 'System', 'quality_profiles.changelog.ACTIVATED', 'Rule 0');
-  ui.checkRow(
-    2,
-    'April 23, 2019',
-    'System',
-    'quality_profiles.changelog.DEACTIVATED',
-    'Rule 0issue.clean_code_attribute_category.RESPONSIBLEsoftware_quality.SECURITYsoftware_quality.MAINTAINABILITY',
-    [/quality_profiles.deprecated_severity_set_to severity.MAJOR/],
-  );
-  ui.checkRow(
-    3,
-    '',
-    '',
-    '',
-    'Rule 1issue.clean_code_attribute_category.RESPONSIBLEsoftware_quality.SECURITYsoftware_quality.MAINTAINABILITY',
-    [
-      /quality_profiles.deprecated_severity_set_to severity.CRITICAL/,
-      /quality_profiles.changelog.cca_and_category_changed.*COMPLETE.*INTENTIONAL.*LAWFUL.*RESPONSIBLE/,
-      /quality_profiles.changelog.impact_added.severity.*MEDIUM.*RELIABILITY/,
-      /quality_profiles.changelog.impact_removed.severity.HIGH.*MAINTAINABILITY/,
-    ],
-  );
+  ui.checkRow(2, 'April 23, 2019', 'System', 'quality_profiles.changelog.DEACTIVATED', 'Rule 0', [
+    /^$/, // Should be empty
+  ]);
+  ui.checkRow(3, '', '', '', 'Rule 1', [
+    /quality_profiles.changelog.cca_and_category_changed.*COMPLETE.*INTENTIONAL.*LAWFUL.*RESPONSIBLE/,
+    /quality_profiles.changelog.impact_added.severity_impact.*MEDIUM.*RELIABILITY/,
+    /quality_profiles.changelog.impact_removed.severity_impact.HIGH.*MAINTAINABILITY/,
+  ]);
+  ui.checkRow(6, 'February 23, 2019', 'System', 'quality_profiles.changelog.UPDATED', 'Rule 5', [
+    /quality_profiles.changelog.cca_and_category_changed.*COMPLETE.*INTENTIONAL.*LAWFUL.*RESPONSIBLE/,
+    /quality_profiles.changelog.impact_added.severity_impact.*MEDIUM.*RELIABILITY/,
+    /quality_profiles.changelog.impact_removed.severity_impact.HIGH.*MAINTAINABILITY/,
+  ]);
   await user.click(ui.link.get(rows[1]));
   expect(screen.getByText('/coding_rules?rule_key=c%3Arule0')).toBeInTheDocument();
+});
+
+it('should return standard mode changelogs only', async () => {
+  modeHandler.setMode(Mode.Standard);
+  renderChangeLog();
+
+  const rows = await ui.row.findAll();
+  expect(rows).toHaveLength(7);
+  ui.checkRow(1, 'May 23, 2019', 'System', 'quality_profiles.changelog.ACTIVATED', 'Rule 0', [
+    /^$/,
+  ]);
+  ui.checkRow(2, 'April 23, 2019', 'System', 'quality_profiles.changelog.DEACTIVATED', 'Rule 0', [
+    /quality_profiles.severity_set_to severity.MAJOR/,
+  ]);
+  ui.checkRow(6, 'January 23, 2019', 'System', 'quality_profiles.changelog.UPDATED', 'Rule 6', [
+    /quality_profiles.severity_set_to severity.CRITICAL/,
+  ]);
 });
 
 it('should filter the changelog', async () => {
   const user = userEvent.setup();
   renderChangeLog();
 
-  expect(await ui.row.findAll()).toHaveLength(6);
+  expect(await ui.row.findAll()).toHaveLength(7);
   await user.click(ui.startDate.get());
   await user.click(screen.getByRole('gridcell', { name: '20' }));
   await user.click(document.body);
@@ -125,7 +139,7 @@ it('should filter the changelog', async () => {
   await user.click(document.body);
   expect(await ui.row.findAll()).toHaveLength(4);
   await user.click(ui.reset.get());
-  expect(await ui.row.findAll()).toHaveLength(6);
+  expect(await ui.row.findAll()).toHaveLength(7);
 });
 
 it('should load more', async () => {
@@ -143,7 +157,7 @@ it('should load more', async () => {
   await user.click(ui.showMore.get());
   expect(await ui.row.findAll()).toHaveLength(101);
   await user.click(ui.reset.get());
-  expect(await ui.row.findAll()).toHaveLength(51);
+  expect(await ui.row.findAll()).toHaveLength(101); // Reset should not reset the page
 });
 
 it('should see short changelog for php', async () => {
@@ -152,7 +166,7 @@ it('should see short changelog for php', async () => {
   const rows = await ui.row.findAll();
   expect(rows).toHaveLength(2);
   ui.checkRow(1, 'May 23, 2019', 'System', 'quality_profiles.changelog.DEACTIVATED', 'PHP Rule', [
-    /quality_profiles.deprecated_severity_set_to severity.CRITICAL/,
+    /^((?!severity.CRITICAL).)*$/, // Should not contain severity.CRITICAL
     /quality_profiles.changelog.cca_and_category_changed.*COMPLETE.*INTENTIONAL.*CLEAR.*RESPONSIBLE/,
   ]);
   expect(ui.showMore.query()).not.toBeInTheDocument();

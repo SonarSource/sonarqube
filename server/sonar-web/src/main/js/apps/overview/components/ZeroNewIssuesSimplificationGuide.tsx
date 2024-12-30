@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SpotlightTour, SpotlightTourStep } from 'design-system';
+
+import { Link } from '@sonarsource/echoes-react';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { SpotlightTour, SpotlightTourStep } from '~design-system';
 import { dismissNotice } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
-import Link from '../../../components/common/Link';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { QualityGate } from '../../../types/types';
 import { NoticeType } from '../../../types/users';
 
@@ -42,29 +43,16 @@ export default function ZeroNewIssuesSimplificationGuide({ qualityGate }: Readon
     {
       target: `[data-guiding-id="overviewZeroNewIssuesSimplification"]`,
       content: (
-        <>
-          <p className="sw-mb-4">
-            <FormattedMessage
-              id="overview.quality_gates.conditions.condition_simplification_tour.content1"
-              defaultMessage={translate(
-                'overview.quality_gates.conditions.condition_simplification_tour.content1',
-              )}
-              values={{
-                link: (
-                  <Link to={`/quality_gates/show/${qualityGate.name}`}>
-                    {translateWithParameters(
-                      'overview.quality_gates.conditions.condition_simplification_tour.content1.link',
-                      qualityGate.name,
-                    )}
-                  </Link>
-                ),
-              }}
-            />
-          </p>
-          <p>
-            {translate('overview.quality_gates.conditions.condition_simplification_tour.content2')}
-          </p>
-        </>
+        <div className="sw-mb-4 sw-flex sw-flex-col sw-gap-2">
+          <FormattedMessage
+            id="overview.quality_gates.conditions.condition_simplification_tour.content"
+            values={{
+              p: (text) => <p>{text}</p>,
+              link: (text) => <Link to={`/quality_gates/show/${qualityGate.name}`}>{text}</Link>,
+              qualityGateName: qualityGate.name,
+            }}
+          />
+        </div>
       ),
       title: translate('overview.quality_gates.conditions.condition_simplification_tour.title'),
       placement: 'right',

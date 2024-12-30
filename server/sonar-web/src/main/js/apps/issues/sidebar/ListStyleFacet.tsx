@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FacetBox, FacetItem, FlagMessage, InputSearch, Note } from 'design-system';
+
 import { max, sortBy, values, without } from 'lodash';
 import * as React from 'react';
+import { FacetBox, FacetItem, FlagMessage, InputSearch, Note } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricType } from '~sonar-aligned/types/metrics';
 import { RawQuery } from '~sonar-aligned/types/router';
@@ -287,6 +288,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
       showMoreAriaLabel,
       showLessAriaLabel,
       values,
+      facetHeader,
     } = this.props;
 
     if (!stats) {
@@ -359,9 +361,13 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
         <ListStyleFacetFooter
           nbShown={limitedList.length + selectedBelowLimit.length}
           showLess={this.state.showFullList ? this.hideFullList : undefined}
-          showLessAriaLabel={showLessAriaLabel}
+          showMoreAriaLabel={
+            showMoreAriaLabel ?? translateWithParameters('show_more_filter_x', facetHeader)
+          }
+          showLessAriaLabel={
+            showLessAriaLabel ?? translateWithParameters('show_less_filter_x', facetHeader)
+          }
           showMore={this.showFullList}
-          showMoreAriaLabel={showMoreAriaLabel}
           total={sortedItems.length}
         />
 
@@ -480,7 +486,6 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
     return (
       <FacetBox
         className="it__search-navigator-facet-box it__search-navigator-facet-header"
-        clearIconLabel={translate('clear')}
         count={nbSelectedItems}
         countLabel={translateWithParameters('x_selected', nbSelectedItems)}
         data-property={property}
@@ -499,7 +504,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
           <span className="it__search-navigator-facet-list">
             {this.renderSearch()}
 
-            <output aria-live="polite">
+            <output role={query ? 'status' : ''}>
               {showList ? this.renderList() : this.renderSearchResults()}
             </output>
 

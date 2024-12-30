@@ -4,7 +4,7 @@
 <mapper namespace="org.sonar.db.qualitygate.ProjectQgateAssociationMapper">
 
 <select id="selectProjects" parameterType="map" resultType="ProjectQgateAssociation">
-    SELECT proj.uuid as uuid, proj.kee as "key", proj.name as name, qg.uuid as gateUuid, proj.ai_code_assurance as aiCodeAssurance
+    SELECT proj.uuid as uuid, proj.kee as "key", proj.name as name, qg.uuid as gateUuid, proj.contains_ai_code as containsAiCode, qg.ai_code_supported as aiCodeSupportedByQg
     FROM projects proj
     LEFT JOIN project_qgates prqg ON prqg.project_uuid=proj.uuid AND prqg.quality_gate_uuid = #{query.gateUuid, jdbcType=VARCHAR}
     LEFT JOIN quality_gates qg ON qg.uuid = prqg.quality_gate_uuid

@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { useTheme } from '@emotion/react';
 import classNames from 'classnames';
-import { Theme, themeColor } from 'design-system';
-import * as React from 'react';
+import { Theme, themeColor } from '~design-system';
 import { LINE_CHART_DASHES } from './utils';
 
 interface Props {

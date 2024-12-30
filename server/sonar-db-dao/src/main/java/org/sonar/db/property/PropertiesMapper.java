@@ -28,7 +28,7 @@ import org.sonar.db.EmailSubscriberDto;
 public interface PropertiesMapper {
 
   Set<EmailSubscriberDto> findEmailRecipientsForNotification(@Param("notifKey") String notificationKey, @Nullable @Param("projectKey") String projectKey,
-    @Nullable @Param("logins") List<String> logins);
+    @Nullable @Param("logins") List<String> logins, @Param("notifValue") String notificationValue);
 
   List<PropertyDto> selectGlobalProperties();
 

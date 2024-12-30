@@ -21,20 +21,24 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.MapDifference.ValueDifference;
+import java.util.List;
+import java.util.Map;
 import org.assertj.core.data.MapEntry;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDto;
@@ -55,15 +59,22 @@ import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.api.issue.impact.Severity.BLOCKER;
+import static org.sonar.api.issue.impact.Severity.LOW;
+import static org.sonar.api.issue.impact.Severity.MEDIUM;
+import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 
-public class QProfileComparisonIT {
+class QProfileComparisonIT {
 
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().anonymous();
-  @Rule
-  public DbTester dbTester = DbTester.create();
-  @Rule
-  public EsTester es = EsTester.create();
+  @RegisterExtension
+  private final UserSessionRule userSession = UserSessionRule.standalone().anonymous();
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create();
+  @RegisterExtension
+  private final EsTester es = EsTester.create();
+
+  private final Configuration config = mock(Configuration.class);
 
   private DbSession dbSession;
   private QProfileRules qProfileRules;
@@ -74,21 +85,21 @@ public class QProfileComparisonIT {
   private QProfileDto left;
   private QProfileDto right;
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     DbClient db = dbTester.getDbClient();
     dbSession = db.openSession(false);
-    RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE);
+    RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE, config);
     ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db, es.client());
     QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
     SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
-    RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db, new TypeValidations(singletonList(new IntegerTypeValidation())),
+    RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db, UuidFactoryImpl.INSTANCE, new TypeValidations(singletonList(new IntegerTypeValidation())),
       userSession, mock(Configuration.class), sonarQubeVersion);
     qProfileRules = new QProfileRulesImpl(db, ruleActivator, ruleIndex, activeRuleIndexer, qualityProfileChangeEventService);
     comparison = new QProfileComparison(db);
 
-    xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR");
-    xooRule2 = RuleTesting.newXooX2().setSeverity("MAJOR");
+    xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR").replaceAllDefaultImpacts(List.of(new ImpactDto(SECURITY, LOW)));
+    xooRule2 = RuleTesting.newXooX2().setSeverity("MAJOR").replaceAllDefaultImpacts(List.of(new ImpactDto(MAINTAINABILITY, BLOCKER)));
     db.ruleDao().insert(dbSession, xooRule1);
     db.ruleDao().insert(dbSession, xooRule2);
     db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
@@ -103,13 +114,13 @@ public class QProfileComparisonIT {
     dbSession.commit();
   }
 
-  @After
-  public void after() {
+  @AfterEach
+  void after() {
     dbSession.close();
   }
 
   @Test
-  public void compare_empty_profiles() {
+  void compare_empty_profiles() {
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);
     assertThat(result.left().getKee()).isEqualTo(left.getKee());
     assertThat(result.right().getKee()).isEqualTo(right.getKee());
@@ -117,12 +128,14 @@ public class QProfileComparisonIT {
     assertThat(result.inLeft()).isEmpty();
     assertThat(result.inRight()).isEmpty();
     assertThat(result.modified()).isEmpty();
-    assertThat(result.collectRuleKeys()).isEmpty();
+    assertThat(result.getImpactedRules()).isEmpty();
   }
 
   @Test
-  public void compare_same() {
+  void compare_same() {
     RuleActivation commonActivation = RuleActivation.create(xooRule1.getUuid(), Severity.CRITICAL,
+      Map.of(SECURITY, BLOCKER),
+      false,
       ImmutableMap.of("min", "7", "max", "42"));
     qProfileRules.activateAndCommit(dbSession, left, singleton(commonActivation));
     qProfileRules.activateAndCommit(dbSession, right, singleton(commonActivation));
@@ -134,11 +147,11 @@ public class QProfileComparisonIT {
     assertThat(result.inLeft()).isEmpty();
     assertThat(result.inRight()).isEmpty();
     assertThat(result.modified()).isEmpty();
-    assertThat(result.collectRuleKeys()).containsOnly(xooRule1.getKey());
+    assertThat(result.getImpactedRules()).containsOnlyKeys(xooRule1.getKey());
   }
 
   @Test
-  public void compare_only_left() {
+  void compare_only_left() {
     RuleActivation activation = RuleActivation.create(xooRule1.getUuid());
     qProfileRules.activateAndCommit(dbSession, left, singleton(activation));
 
@@ -149,11 +162,11 @@ public class QProfileComparisonIT {
     assertThat(result.inLeft()).isNotEmpty().containsOnlyKeys(xooRule1.getKey());
     assertThat(result.inRight()).isEmpty();
     assertThat(result.modified()).isEmpty();
-    assertThat(result.collectRuleKeys()).containsOnly(xooRule1.getKey());
+    assertThat(result.getImpactedRules()).containsOnlyKeys(xooRule1.getKey());
   }
 
   @Test
-  public void compare_only_right() {
+  void compare_only_right() {
     qProfileRules.activateAndCommit(dbSession, right, singleton(RuleActivation.create(xooRule1.getUuid())));
 
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);
@@ -163,11 +176,11 @@ public class QProfileComparisonIT {
     assertThat(result.inLeft()).isEmpty();
     assertThat(result.inRight()).isNotEmpty().containsOnlyKeys(xooRule1.getKey());
     assertThat(result.modified()).isEmpty();
-    assertThat(result.collectRuleKeys()).containsOnly(xooRule1.getKey());
+    assertThat(result.getImpactedRules()).containsOnlyKeys(xooRule1.getKey());
   }
 
   @Test
-  public void compare_disjoint() {
+  void compare_disjoint() {
     qProfileRules.activateAndCommit(dbSession, left, singleton(RuleActivation.create(xooRule1.getUuid())));
     qProfileRules.activateAndCommit(dbSession, right, singleton(RuleActivation.create(xooRule2.getUuid())));
 
@@ -178,11 +191,11 @@ public class QProfileComparisonIT {
     assertThat(result.inLeft()).isNotEmpty().containsOnlyKeys(xooRule1.getKey());
     assertThat(result.inRight()).isNotEmpty().containsOnlyKeys(xooRule2.getKey());
     assertThat(result.modified()).isEmpty();
-    assertThat(result.collectRuleKeys()).containsOnly(xooRule1.getKey(), xooRule2.getKey());
+    assertThat(result.getImpactedRules()).containsOnlyKeys(xooRule1.getKey(), xooRule2.getKey());
   }
 
   @Test
-  public void compare_modified_severity() {
+  void compare_modified_severity() {
     qProfileRules.activateAndCommit(dbSession, left, singleton(RuleActivation.create(xooRule1.getUuid(), Severity.CRITICAL, null)));
     qProfileRules.activateAndCommit(dbSession, right, singleton(RuleActivation.create(xooRule1.getUuid(), Severity.BLOCKER, null)));
 
@@ -193,7 +206,7 @@ public class QProfileComparisonIT {
     assertThat(result.inLeft()).isEmpty();
     assertThat(result.inRight()).isEmpty();
     assertThat(result.modified()).isNotEmpty().containsOnlyKeys(xooRule1.getKey());
-    assertThat(result.collectRuleKeys()).containsOnly(xooRule1.getKey());
+    assertThat(result.getImpactedRules()).containsOnlyKeys(xooRule1.getKey());
 
     ActiveRuleDiff activeRuleDiff = result.modified().get(xooRule1.getKey());
     assertThat(activeRuleDiff.leftSeverity()).isEqualTo(Severity.CRITICAL);
@@ -202,7 +215,32 @@ public class QProfileComparisonIT {
   }
 
   @Test
-  public void compare_modified_param() {
+  void compare_modified_impacts() {
+    qProfileRules.activateAndCommit(dbSession, left, singleton(RuleActivation.create(xooRule1.getUuid(), null,
+      Map.of(SECURITY, BLOCKER), null, null)));
+    qProfileRules.activateAndCommit(dbSession, right, singleton(RuleActivation.create(xooRule1.getUuid(), null,
+      Map.of(SECURITY, MEDIUM), null, null)));
+
+    QProfileComparisonResult result = comparison.compare(dbSession, left, right);
+    assertThat(result.left().getKee()).isEqualTo(left.getKee());
+    assertThat(result.right().getKee()).isEqualTo(right.getKee());
+    assertThat(result.same()).isEmpty();
+    assertThat(result.inLeft()).isEmpty();
+    assertThat(result.inRight()).isEmpty();
+    assertThat(result.modified()).isNotEmpty().containsOnlyKeys(xooRule1.getKey());
+    assertThat(result.getImpactedRules()).containsOnlyKeys(xooRule1.getKey());
+
+    ActiveRuleDiff activeRuleDiff = result.modified().get(xooRule1.getKey());
+    assertThat(activeRuleDiff.impactDifference().entriesDiffering()).isNotEmpty();
+    ValueDifference<org.sonar.api.issue.impact.Severity> impactdiff = activeRuleDiff.impactDifference().entriesDiffering().get(SECURITY);
+    assertThat(impactdiff.leftValue()).isEqualTo(BLOCKER);
+    assertThat(impactdiff.rightValue()).isEqualTo(MEDIUM);
+
+    assertThat(activeRuleDiff.paramDifference().areEqual()).isTrue();
+  }
+
+  @Test
+  void compare_modified_param() {
     qProfileRules.activateAndCommit(dbSession, left, singleton(RuleActivation.create(xooRule1.getUuid(), null, ImmutableMap.of("max", "20"))));
     qProfileRules.activateAndCommit(dbSession, right, singleton(RuleActivation.create(xooRule1.getUuid(), null, ImmutableMap.of("max", "30"))));
 
@@ -213,7 +251,7 @@ public class QProfileComparisonIT {
     assertThat(result.inLeft()).isEmpty();
     assertThat(result.inRight()).isEmpty();
     assertThat(result.modified()).isNotEmpty().containsOnlyKeys(xooRule1.getKey());
-    assertThat(result.collectRuleKeys()).containsOnly(xooRule1.getKey());
+    assertThat(result.getImpactedRules()).containsOnlyKeys(xooRule1.getKey());
 
     ActiveRuleDiff activeRuleDiff = result.modified().get(xooRule1.getKey());
     assertThat(activeRuleDiff.leftSeverity()).isEqualTo(activeRuleDiff.rightSeverity()).isEqualTo(xooRule1.getSeverityString());
@@ -225,7 +263,7 @@ public class QProfileComparisonIT {
   }
 
   @Test
-  public void compare_different_params() {
+  void compare_different_params() {
     qProfileRules.activateAndCommit(dbSession, left, singleton(RuleActivation.create(xooRule1.getUuid(), null, ImmutableMap.of("max", "20"))));
     qProfileRules.activateAndCommit(dbSession, right, singleton(RuleActivation.create(xooRule1.getUuid(), null, ImmutableMap.of("min", "5"))));
 
@@ -236,7 +274,7 @@ public class QProfileComparisonIT {
     assertThat(result.inLeft()).isEmpty();
     assertThat(result.inRight()).isEmpty();
     assertThat(result.modified()).isNotEmpty().containsOnlyKeys(xooRule1.getKey());
-    assertThat(result.collectRuleKeys()).containsOnly(xooRule1.getKey());
+    assertThat(result.getImpactedRules()).containsOnlyKeys(xooRule1.getKey());
 
     ActiveRuleDiff activeRuleDiff = result.modified().get(xooRule1.getKey());
     assertThat(activeRuleDiff.leftSeverity()).isEqualTo(activeRuleDiff.rightSeverity()).isEqualTo(xooRule1.getSeverityString());

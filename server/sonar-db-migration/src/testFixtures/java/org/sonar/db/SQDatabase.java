@@ -186,6 +186,7 @@ public class SQDatabase extends DefaultDatabase {
     container.add(UuidFactoryFast.getInstance());
     container.add(System2.INSTANCE);
     container.add(MapSettings.class);
+    container.add(NoOpMigrationEsClient.class);
 
     container.startComponents();
     MigrationContainer migrationContainer = new MigrationContainerImpl(container, H2StepExecutor.class);

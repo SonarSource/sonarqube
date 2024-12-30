@@ -21,6 +21,8 @@
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Spinner } from '@sonarsource/echoes-react';
+import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
 import {
   FlagMessage,
   LargeCenteredLayout,
@@ -28,9 +30,7 @@ import {
   PageContentFontWrapper,
   themeBorder,
   themeColor,
-} from 'design-system';
-import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
+} from '~design-system';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { getBranchLikeQuery, isPullRequest } from '~sonar-aligned/helpers/branch-like';
@@ -44,7 +44,12 @@ import { enhanceMeasure } from '../../../components/measure/utils';
 import '../../../components/search-navigator.css';
 import AnalysisMissingInfoMessage from '../../../components/shared/AnalysisMissingInfoMessage';
 import { translate } from '../../../helpers/l10n';
-import { areCCTMeasuresComputed } from '../../../helpers/measures';
+import {
+  areCCTMeasuresComputed,
+  areLeakCCTMeasuresComputed,
+  areLeakSoftwareQualityRatingsComputed,
+  areSoftwareQualityRatingsComputed,
+} from '../../../helpers/measures';
 import { useCurrentBranchQuery } from '../../../queries/branch';
 import { useMeasuresComponentQuery } from '../../../queries/measures';
 
@@ -100,6 +105,10 @@ export default function ComponentMeasuresApp() {
   const leakPeriod =
     componentWithMeasures?.qualifier === ComponentQualifier.Project ? period : undefined;
   const displayOverview = hasBubbleChart(bubblesByDomain, query.metric);
+
+  const showMissingAnalysisMessage = isPullRequest(branchLike)
+    ? !areLeakCCTMeasuresComputed(measures) || !areLeakSoftwareQualityRatingsComputed(measures)
+    : !areCCTMeasuresComputed(measures) || !areSoftwareQualityRatingsComputed(measures);
 
   if (!component) {
     return null;
@@ -223,7 +232,7 @@ export default function ComponentMeasuresApp() {
                   />
                 </FlagMessage>
               )}
-              {!areCCTMeasuresComputed(measures) && (
+              {showMissingAnalysisMessage && (
                 <AnalysisMissingInfoMessage
                   className="sw-mb-4"
                   qualifier={component?.qualifier as ComponentQualifier}

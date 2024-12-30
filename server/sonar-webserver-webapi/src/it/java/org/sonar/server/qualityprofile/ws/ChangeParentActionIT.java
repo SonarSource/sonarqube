@@ -21,9 +21,9 @@ package org.sonar.server.qualityprofile.ws;
 
 import java.util.Collections;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -35,6 +35,7 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -65,7 +66,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters;
 
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -74,14 +75,14 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARENT_QUALITY_PROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
-public class ChangeParentActionIT {
+class ChangeParentActionIT {
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public EsTester es = EsTester.create();
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final EsTester es = EsTester.create();
+  @RegisterExtension
+  private final UserSessionRule userSession = UserSessionRule.standalone();
 
   private DbClient dbClient;
   private DbSession dbSession;
@@ -89,22 +90,23 @@ public class ChangeParentActionIT {
   private RuleIndexer ruleIndexer;
   private ActiveRuleIndexer activeRuleIndexer;
   private WsActionTester ws;
-  private Language language = LanguageTesting.newLanguage(randomAlphanumeric(20));
-  private String ruleRepository = randomAlphanumeric(5);
+  private final Language language = LanguageTesting.newLanguage(secure().nextAlphanumeric(20));
+  private final String ruleRepository = secure().nextAlphanumeric(5);
   private QProfileTreeImpl qProfileTree;
-  private SonarQubeVersion sonarQubeVersion;
+  private final Configuration config = mock(Configuration.class);
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     dbClient = db.getDbClient();
     dbSession = db.getSession();
     EsClient esClient = es.client();
-    ruleIndex = new RuleIndex(esClient, System2.INSTANCE);
+    ruleIndex = new RuleIndex(esClient, System2.INSTANCE, config);
     ruleIndexer = new RuleIndexer(esClient, dbClient);
     activeRuleIndexer = new ActiveRuleIndexer(dbClient, esClient);
     TypeValidations typeValidations = new TypeValidations(Collections.emptyList());
-    sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
-    RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, typeValidations, userSession, mock(Configuration.class), sonarQubeVersion);
+    var sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
+    RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, UuidFactoryImpl.INSTANCE, typeValidations, userSession, mock(Configuration.class),
+      sonarQubeVersion);
     qProfileTree = new QProfileTreeImpl(dbClient, ruleActivator, System2.INSTANCE, activeRuleIndexer, mock(QualityProfileChangeEventService.class));
     ChangeParentAction underTest = new ChangeParentAction(
       dbClient,
@@ -120,7 +122,7 @@ public class ChangeParentActionIT {
   }
 
   @Test
-  public void definition() {
+  void definition() {
     WebService.Action definition = ws.getDef();
     assertThat(definition.isPost()).isTrue();
     assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder(
@@ -128,7 +130,7 @@ public class ChangeParentActionIT {
   }
 
   @Test
-  public void change_parent_with_no_parent_before() {
+  void change_parent_with_no_parent_before() {
     QProfileDto parent1 = createProfile();
     QProfileDto child = createProfile();
 
@@ -156,7 +158,7 @@ public class ChangeParentActionIT {
   }
 
   @Test
-  public void replace_existing_parent() {
+  void replace_existing_parent() {
     QProfileDto parent1 = createProfile();
     QProfileDto parent2 = createProfile();
     QProfileDto child = createProfile();
@@ -188,7 +190,7 @@ public class ChangeParentActionIT {
   }
 
   @Test
-  public void remove_parent() {
+  void remove_parent() {
     QProfileDto parent = createProfile();
     QProfileDto child = createProfile();
 
@@ -214,7 +216,7 @@ public class ChangeParentActionIT {
   }
 
   @Test
-  public void change_parent_with_names() {
+  void change_parent_with_names() {
     QProfileDto parent1 = createProfile();
     QProfileDto parent2 = createProfile();
     QProfileDto child = createProfile();
@@ -270,7 +272,7 @@ public class ChangeParentActionIT {
   }
 
   @Test
-  public void remove_parent_with_empty_key() {
+  void remove_parent_with_empty_key() {
     QProfileDto parent = createProfile();
     QProfileDto child = createProfile();
 
@@ -298,7 +300,7 @@ public class ChangeParentActionIT {
   }
 
   @Test
-  public void as_qprofile_editor() {
+  void as_qprofile_editor() {
     QProfileDto parent1 = createProfile();
     QProfileDto parent2 = createProfile();
     QProfileDto child = createProfile();
@@ -330,7 +332,7 @@ public class ChangeParentActionIT {
   }
 
   @Test
-  public void fail_if_built_in_profile() {
+  void fail_if_built_in_profile() {
     QProfileDto child = db.qualityProfiles().insert(p -> p
       .setLanguage(language.getKey())
       .setIsBuiltIn(true));
@@ -349,7 +351,7 @@ public class ChangeParentActionIT {
   }
 
   @Test
-  public void fail_if_missing_permission() {
+  void fail_if_missing_permission() {
     userSession.logIn(db.users().insertUser());
 
     QProfileDto child = createProfile();
@@ -373,7 +375,7 @@ public class ChangeParentActionIT {
   }
 
   private RuleDto createRule() {
-    RuleDto rule = RuleTesting.newRule(RuleKey.of(ruleRepository, randomAlphanumeric(5)))
+    RuleDto rule = RuleTesting.newRule(RuleKey.of(ruleRepository, secure().nextAlphanumeric(5)))
       .setLanguage(language.getKey())
       .setSeverity(Severity.BLOCKER)
       .setStatus(RuleStatus.READY);

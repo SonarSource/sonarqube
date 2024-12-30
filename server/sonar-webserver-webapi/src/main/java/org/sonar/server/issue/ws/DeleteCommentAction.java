@@ -60,6 +60,7 @@ public class DeleteCommentAction implements IssuesWsAction {
         "Requires authentication and the following permission: 'Browse' on the project of the specified issue.")
       .setSince("3.6")
       .setChangelog(
+        new Change("10.8", "The response fields 'severity' and 'type' are not deprecated anymore."),
         new Change("10.4", "The response fields 'severity' and 'type' are deprecated. Please use 'impacts' instead."),
         new Change("10.4", "The response fields 'status' and 'resolution' are deprecated. Please use 'issueStatus' instead."),
         new Change("10.4", "Add 'issueStatus' field to the response."),
@@ -88,7 +89,7 @@ public class DeleteCommentAction implements IssuesWsAction {
       CommentData commentData = loadCommentData(dbSession, request);
       deleteComment(dbSession, commentData);
       IssueDto issueDto = commentData.getIssueDto();
-      responseWriter.write(issueDto.getKey(), new SearchResponseData(issueDto), request, response);
+      responseWriter.write(issueDto.getKey(), new SearchResponseData(issueDto), request, response, true);
     }
   }
 

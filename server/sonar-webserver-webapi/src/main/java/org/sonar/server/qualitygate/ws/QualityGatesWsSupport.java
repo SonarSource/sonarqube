@@ -34,7 +34,6 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.Qualitygates;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -70,22 +69,6 @@ public class QualityGatesWsSupport {
 
   boolean isQualityGateAdmin(OrganizationDto organization) {
     return userSession.hasPermission(ADMINISTER_QUALITY_GATES, organization);
-  }
-
-  Qualitygates.Actions getActions(DbSession dbSession, OrganizationDto organization, QualityGateDto qualityGate, @Nullable QualityGateDto defaultQualityGate) {
-    boolean isDefault = defaultQualityGate != null && Objects.equals(defaultQualityGate.getUuid(), qualityGate.getUuid());
-    boolean isBuiltIn = qualityGate.isBuiltIn();
-    boolean isQualityGateAdmin = isQualityGateAdmin(organization);
-    boolean canLimitedEdit = isQualityGateAdmin || hasLimitedPermission(dbSession, qualityGate);
-    return Qualitygates.Actions.newBuilder()
-      .setCopy(isQualityGateAdmin)
-      .setRename(!isBuiltIn && isQualityGateAdmin)
-      .setManageConditions(!isBuiltIn && canLimitedEdit)
-      .setDelete(!isDefault && !isBuiltIn && isQualityGateAdmin)
-      .setSetAsDefault(!isDefault && isQualityGateAdmin)
-      .setAssociateProjects(!isDefault && isQualityGateAdmin)
-      .setDelegate(!isBuiltIn && canLimitedEdit)
-      .build();
   }
 
   void checkCanEdit(QualityGateDto qualityGate) {

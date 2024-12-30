@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Avatar, ContentCell, Note, TableRowInteractive } from 'design-system';
-import * as React from 'react';
+import { Avatar, ContentCell, Note, TableRowInteractive } from '~design-system';
 import { Image } from '~sonar-aligned/components/common/Image';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';

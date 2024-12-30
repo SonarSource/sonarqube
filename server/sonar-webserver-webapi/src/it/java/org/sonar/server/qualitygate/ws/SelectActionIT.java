@@ -20,7 +20,6 @@
 package org.sonar.server.qualitygate.ws;
 
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.DbClient;
@@ -29,20 +28,15 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.ai.code.assurance.AiCodeAssuranceVerifier;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
@@ -57,15 +51,9 @@ class SelectActionIT {
 
   private final DbClient dbClient = db.getDbClient();
   private final ComponentFinder componentFinder = TestComponentFinder.from(db);
-  private final AiCodeAssuranceVerifier aiCodeAssuranceVerifier = mock(AiCodeAssuranceVerifier.class);
   private final SelectAction underTest = new SelectAction(dbClient,
-    new QualityGatesWsSupport(db.getDbClient(), userSession, componentFinder), aiCodeAssuranceVerifier);
+    new QualityGatesWsSupport(db.getDbClient(), userSession, componentFinder));
   private final WsActionTester ws = new WsActionTester(underTest);
-
-  @BeforeEach
-  void setUp() {
-    when(aiCodeAssuranceVerifier.isAiCodeAssured(any())).thenReturn(false);
-  }
 
   @Test
   void select_by_key() {
@@ -209,23 +197,6 @@ class SelectActionIT {
       .setParam("projectKey", project.getKey())
       .execute())
       .isInstanceOf(ForbiddenException.class);
-  }
-
-  @Test
-  void whenAiCodeAssuranceIsSet_failIfEditionIsDeveloperOrHigher() {
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ProjectDto projectDto = db.components().insertProjectWithAiCode().getProjectDto();
-    when(aiCodeAssuranceVerifier.isAiCodeAssured(projectDto)).thenReturn(true);
-
-    userSession.logIn().addProjectPermission(ADMIN, projectDto);
-
-    TestRequest request = ws.newRequest()
-      .setParam(PARAM_GATE_NAME, qualityGate.getName())
-      .setParam("projectKey", projectDto.getKey());
-
-    assertThatThrownBy(request::execute)
-      .isInstanceOf(ForbiddenException.class)
-      .hasMessage("Quality gate cannot be changed for project with AI Code Assurance enabled.");
   }
 
   private void assertSelected(QualityGateDto qualityGate, ProjectDto project) {

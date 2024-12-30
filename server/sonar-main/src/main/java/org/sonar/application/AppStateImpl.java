@@ -56,6 +56,11 @@ public class AppStateImpl implements AppState {
   }
 
   @Override
+  public void tryToReleaseWebLeaderLock() {
+    webLeaderLocked.compareAndSet(true, false);
+  }
+
+  @Override
   public void reset() {
     webLeaderLocked.set(false);
     processes.clear();
@@ -80,4 +85,5 @@ public class AppStateImpl implements AppState {
   public void close() {
     // nothing to do
   }
+
 }

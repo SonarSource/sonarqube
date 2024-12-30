@@ -53,6 +53,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -84,6 +85,8 @@ import static org.elasticsearch.search.aggregations.AggregationBuilders.filters;
 import static org.elasticsearch.search.aggregations.AggregationBuilders.reverseNested;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
+import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_DEFAULT_VALUE;
+import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_ENABLED;
 import static org.sonar.server.es.EsUtils.SCROLL_TIME_IN_MINUTES;
 import static org.sonar.server.es.EsUtils.optimizeScrollRequest;
 import static org.sonar.server.es.EsUtils.scrollIds;
@@ -124,6 +127,14 @@ public class RuleIndex {
   public static final String FACET_IMPACT_SOFTWARE_QUALITY = "impactSoftwareQualities";
   public static final String FACET_IMPACT_SEVERITY = "impactSeverities";
 
+  private static final BoolQueryBuilder SECURITY_IMPACT_AND_HOTSPOT_FILTER =
+    boolQuery()
+      .should(
+        nestedQuery(FIELD_RULE_IMPACTS, termsQuery(FIELD_RULE_IMPACT_SOFTWARE_QUALITY, SoftwareQuality.SECURITY.name()), ScoreMode.Avg))
+      .should(termsQuery(FIELD_RULE_TYPE, SECURITY_HOTSPOT.name()))
+      .minimumShouldMatch(1);
+
+
   private static final int MAX_FACET_SIZE = 100;
 
   public static final List<String> ALL_STATUSES_EXCEPT_REMOVED = Arrays.stream(RuleStatus.values())
@@ -135,10 +146,13 @@ public class RuleIndex {
 
   private final EsClient client;
   private final System2 system2;
+  private final Configuration config;
 
-  public RuleIndex(EsClient client, System2 system2) {
+
+  public RuleIndex(EsClient client, System2 system2, Configuration config) {
     this.client = client;
     this.system2 = system2;
+    this.config = config;
   }
 
   public SearchIdResult<String> search(RuleQuery query, SearchOptions options) {
@@ -235,7 +249,7 @@ public class RuleIndex {
   }
 
   /* Build main filter (match based) */
-  private static Map<String, QueryBuilder> buildFilters(RuleQuery query) {
+  private Map<String, QueryBuilder> buildFilters(RuleQuery query) {
     Map<String, QueryBuilder> filters = new HashMap<>();
 
     /* Add enforced filter on main type Rule */
@@ -381,12 +395,14 @@ public class RuleIndex {
     allFilters.put(FIELD_RULE_IMPACTS, nestedQuery(FIELD_ISSUE_IMPACTS, impactsFilter, ScoreMode.Avg));
   }
 
-  private static void addSecurityStandardFilter(Map<String, QueryBuilder> filters, String key, Collection<String> values) {
+  private void addSecurityStandardFilter(Map<String, QueryBuilder> filters, String key, Collection<String> values) {
     if (isNotEmpty(values)) {
       filters.put(key,
         boolQuery()
           .must(QueryBuilders.termsQuery(key, values))
-          .must(QueryBuilders.termsQuery(FIELD_RULE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
+          .must(isMQRMode() ?
+            SECURITY_IMPACT_AND_HOTSPOT_FILTER :
+            QueryBuilders.termsQuery(FIELD_RULE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
     }
   }
 
@@ -456,7 +472,7 @@ public class RuleIndex {
     return filter;
   }
 
-  private static Map<String, AggregationBuilder> getFacets(RuleQuery query, SearchOptions options, QueryBuilder queryBuilder,
+  private Map<String, AggregationBuilder> getFacets(RuleQuery query, SearchOptions options, QueryBuilder queryBuilder,
     Map<String, QueryBuilder> filters) {
     Map<String, AggregationBuilder> aggregations = new HashMap<>();
     StickyFacetBuilder stickyFacetBuilder = stickyFacetBuilder(queryBuilder, filters);
@@ -474,7 +490,7 @@ public class RuleIndex {
     return aggregations;
   }
 
-  private static void addDefaultFacets(RuleQuery query, SearchOptions options, Map<String, AggregationBuilder> aggregations,
+  private void addDefaultFacets(RuleQuery query, SearchOptions options, Map<String, AggregationBuilder> aggregations,
     StickyFacetBuilder stickyFacetBuilder) {
     if (options.getFacets().contains(FACET_LANGUAGES) || options.getFacets().contains(FACET_OLD_DEFAULT)) {
       Collection<String> languages = query.getLanguages();
@@ -574,16 +590,20 @@ public class RuleIndex {
     return boolQueryBuilder;
   }
 
-  private static Function<TermsAggregationBuilder, AggregationBuilder> filterSecurityCategories() {
-    return termsAggregation -> AggregationBuilders.filter(
-      "filter_by_rule_types_" + termsAggregation.getName(),
-      termsQuery(FIELD_RULE_TYPE,
-        VULNERABILITY.name(),
-        SECURITY_HOTSPOT.name()))
-      .subAggregation(termsAggregation);
+  private Function<TermsAggregationBuilder, AggregationBuilder> filterSecurityCategories() {
+    if (isMQRMode()) {
+      return termsAggregation -> AggregationBuilders.filter("filter_by_security_impact_" + termsAggregation.getName(),
+        SECURITY_IMPACT_AND_HOTSPOT_FILTER).subAggregation(termsAggregation);
+
+    } else {
+      return termsAggregation -> AggregationBuilders.filter(
+          "filter_by_rule_types_" + termsAggregation.getName(),
+          termsQuery(FIELD_RULE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name()))
+        .subAggregation(termsAggregation);
+    }
   }
 
-  private static void addDefaultSecurityFacets(RuleQuery query, SearchOptions options, Map<String, AggregationBuilder> aggregations,
+  private void addDefaultSecurityFacets(RuleQuery query, SearchOptions options, Map<String, AggregationBuilder> aggregations,
     StickyFacetBuilder stickyFacetBuilder) {
     if (options.getFacets().contains(FACET_CWE)) {
       Collection<String> categories = query.getCwe();
@@ -744,5 +764,9 @@ public class RuleIndex {
 
   private static boolean isEmpty(@Nullable Collection<?> list) {
     return list == null || list.isEmpty();
+  }
+
+  private boolean isMQRMode() {
+    return config.getBoolean(MULTI_QUALITY_MODE_ENABLED).orElse(MULTI_QUALITY_MODE_DEFAULT_VALUE);
   }
 }

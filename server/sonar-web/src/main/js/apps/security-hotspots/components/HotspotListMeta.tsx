@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
 import { HotspotStatusFilter } from '../../../types/security-hotspots';
@@ -43,7 +42,7 @@ export default function HotspotListMeta(props: Readonly<HotspotListMetaProps>) {
   } = props;
 
   return (
-    <output aria-live="polite">
+    <output>
       <span className="sw-sr-only">
         {(hotspotsTotal === 0 || !hasSelectedHotspot) &&
           !loading &&

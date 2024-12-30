@@ -21,6 +21,7 @@ package org.sonar.db.qualitygate;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.core.util.UuidFactory;
@@ -61,6 +62,10 @@ public class QualityGateDao implements Dao {
     return mapper(session).selectByName(name);
   }
 
+  public List<QualityGateDto> selectByNames(DbSession session, Collection<String> names) {
+    return mapper(session).selectByNames(names);
+  }
+
   @CheckForNull
   public QualityGateDto selectByUuid(DbSession session, String uuid) {
     return mapper(session).selectByUuid(uuid);
@@ -94,15 +99,15 @@ public class QualityGateDao implements Dao {
     mapper(session).update(qGate.setUpdatedAt(new Date()));
   }
 
-  public void ensureOneBuiltInQualityGate(DbSession dbSession, String builtInName) {
-    mapper(dbSession).ensureOneBuiltInQualityGate(builtInName);
+  public void ensureOnlySonarWayQualityGatesAreBuiltIn(DbSession dbSession, String... builtInName) {
+    mapper(dbSession).ensureOnlySonarWayQualityGatesAreBuiltIn(List.of(builtInName));
   }
 
   public void selectQualityGateFindings(DbSession dbSession, String qualityGateUuid, ResultHandler<QualityGateFindingDto> handler) {
     mapper(dbSession).selectQualityGateFindings(qualityGateUuid, handler);
   }
 
-  public QualityGateDto selectBuiltIn(DbSession dbSession) {
+  public List<QualityGateDto> selectBuiltIn(DbSession dbSession) {
     return mapper(dbSession).selectBuiltIn();
   }
 

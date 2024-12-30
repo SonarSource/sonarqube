@@ -30,6 +30,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.event.Level;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.core.documentation.DocumentationLinkGenerator;
@@ -85,16 +86,6 @@ public class ExternalIssueReportValidatorTest {
   }
 
   @Test
-  public void validate_whenMissingMandatoryCleanCodeAttributeField_shouldThrowException() throws IOException {
-    ExternalIssueReport report = read(REPORTS_LOCATION);
-    report.rules[0].cleanCodeAttribute = null;
-
-    assertThatThrownBy(() -> validator.validate(report, reportPath))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'cleanCodeAttribute'.");
-  }
-
-  @Test
   public void validate_whenMissingEngineIdField_shouldThrowException() throws IOException {
     ExternalIssueReport report = read(REPORTS_LOCATION);
     report.rules[0].engineId = null;
@@ -115,13 +106,66 @@ public class ExternalIssueReportValidatorTest {
   }
 
   @Test
-  public void validate_whenMissingImpactsField_shouldThrowException() throws IOException {
+  public void validate_whenMissingImpactsAndTypeField_shouldThrowException() throws IOException {
     ExternalIssueReport report = read(REPORTS_LOCATION);
     report.rules[0].impacts = null;
+    report.rules[0].type = null;
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'impacts'.");
+      .hasMessage("Failed to parse report 'report-path': either type, impacts or both should be provided.");
+  }
+
+  @Test
+  public void validate_whenImpactIsProvided_shouldNotBeEmpty() throws IOException {
+    ExternalIssueReport report = read(REPORTS_LOCATION);
+    report.rules[0].impacts = new ExternalIssueReport.Impact[0];
+    report.rules[0].type = null;
+
+    assertThatThrownBy(() -> validator.validate(report, reportPath))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Failed to parse report 'report-path': mandatory array 'impacts' not populated.");
+  }
+
+  @Test
+  public void validate_whenSecurityHotspotAndImpactIsProvided_shouldThrowException() throws IOException {
+    ExternalIssueReport report = read(REPORTS_LOCATION);
+    report.rules[0].impacts = new ExternalIssueReport.Impact[] {
+      new ExternalIssueReport.Impact()
+    };
+    report.rules[0].type = RuleType.SECURITY_HOTSPOT.name();
+
+    assertThatThrownBy(() -> validator.validate(report, reportPath))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Failed to parse report 'report-path': impacts should not be provided for rule type 'SECURITY_HOTSPOT'.");
+  }
+
+  @Test
+  public void validate_whenTypeIsProvidedAndNotSeverity_shouldThrowException() throws IOException {
+    ExternalIssueReport report = read(REPORTS_LOCATION);
+    report.rules[0].impacts = new ExternalIssueReport.Impact[] {
+      new ExternalIssueReport.Impact()
+    };
+    report.rules[0].type = null;
+    report.rules[0].severity = "MAJOR";
+
+    assertThatThrownBy(() -> validator.validate(report, reportPath))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'type'.");
+  }
+
+  @Test
+  public void validate_whenSeverityIsProvidedAndNotType_shouldThrowException() throws IOException {
+    ExternalIssueReport report = read(REPORTS_LOCATION);
+    report.rules[0].impacts = new ExternalIssueReport.Impact[] {
+      new ExternalIssueReport.Impact()
+    };
+    report.rules[0].type = "CODE_SMELL";
+    report.rules[0].severity = null;
+
+    assertThatThrownBy(() -> validator.validate(report, reportPath))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'severity'.");
   }
 
   @Test

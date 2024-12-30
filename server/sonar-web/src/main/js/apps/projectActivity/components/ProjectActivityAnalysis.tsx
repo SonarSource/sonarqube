@@ -17,20 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
-import classNames from 'classnames';
 import {
-  ActionsDropdown,
-  HelperHintIcon,
-  ItemButton,
-  ItemDangerButton,
-  ItemDivider,
-  PopupZLevel,
-  themeBorder,
-  themeColor,
-} from 'design-system';
+  ButtonIcon,
+  ButtonSize,
+  ButtonVariety,
+  DropdownMenu,
+  IconMoreVertical,
+} from '@sonarsource/echoes-react';
+import classNames from 'classnames';
 import * as React from 'react';
 import { WrappedComponentProps, injectIntl } from 'react-intl';
+import { HelperHintIcon, themeBorder, themeColor } from '~design-system';
 import ClickEventBoundary from '../../../components/controls/ClickEventBoundary';
 import Tooltip from '../../../components/controls/Tooltip';
 import { formatterOption } from '../../../components/intl/DateTimeFormatter';
@@ -133,44 +132,54 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
               </ActivityTime>
             </div>
 
-            {(canAddVersion || canAddEvent || canDeleteAnalyses) && (
-              <ClickEventBoundary>
-                <div>
-                  <ActionsDropdown
+          {(canAddVersion || canAddEvent || canDeleteAnalyses) && (
+            <ClickEventBoundary>
+              <div className="sw-h-page sw-grow-0 sw-shrink-0 sw-mr-4 sw-relative">
+                <DropdownMenu.Root
+                  id="it__analysis-actions"
+                  items={
+                    <>
+                      {canAddVersion && (
+                        <DropdownMenu.ItemButton
+                          className="js-add-version"
+                          onClick={() => setDialog(Dialog.AddVersion)}
+                        >
+                          {translate('project_activity.add_version')}
+                        </DropdownMenu.ItemButton>
+                      )}
+                      {canAddEvent && (
+                        <DropdownMenu.ItemButton
+                          className="js-add-event"
+                          onClick={() => setDialog(Dialog.AddEvent)}
+                        >
+                          {translate('project_activity.add_custom_event')}
+                        </DropdownMenu.ItemButton>
+                      )}
+                      {(canAddVersion || canAddEvent) && canDeleteAnalyses && (
+                        <DropdownMenu.Separator />
+                      )}
+                      {canDeleteAnalyses && (
+                        <DropdownMenu.ItemButtonDestructive
+                          className="js-delete-analysis"
+                          onClick={() => setDialog(Dialog.RemoveAnalysis)}
+                        >
+                          {translate('project_activity.delete_analysis')}
+                        </DropdownMenu.ItemButtonDestructive>
+                      )}
+                    </>
+                  }
+                >
+                  <ButtonIcon
+                    Icon={IconMoreVertical}
                     ariaLabel={translateWithParameters(
                       'project_activity.analysis_X_actions',
                       analysis.buildString ?? formatDate(parsedDate, formatterOption),
                     )}
-                    buttonSize="small"
-                    id="it__analysis-actions"
-                    zLevel={PopupZLevel.Absolute}
-                  >
-                    {canAddVersion && (
-                      <ItemButton
-                        className="js-add-version"
-                        onClick={() => setDialog(Dialog.AddVersion)}
-                      >
-                        {translate('project_activity.add_version')}
-                      </ItemButton>
-                    )}
-                    {canAddEvent && (
-                      <ItemButton
-                        className="js-add-event"
-                        onClick={() => setDialog(Dialog.AddEvent)}
-                      >
-                        {translate('project_activity.add_custom_event')}
-                      </ItemButton>
-                    )}
-                    {(canAddVersion || canAddEvent) && canDeleteAnalyses && <ItemDivider />}
-                    {canDeleteAnalyses && (
-                      <ItemDangerButton
-                        className="js-delete-analysis"
-                        onClick={() => setDialog(Dialog.RemoveAnalysis)}
-                      >
-                        {translate('project_activity.delete_analysis')}
-                      </ItemDangerButton>
-                    )}
-                  </ActionsDropdown>
+                    className="-sw-mt-1"
+                    size={ButtonSize.Medium}
+                    variety={ButtonVariety.PrimaryGhost}
+                  />
+                </DropdownMenu.Root>
 
                   {[Dialog.AddEvent, Dialog.AddVersion].includes(dialog as Dialog) && (
                     <AddEventForm

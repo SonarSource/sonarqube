@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ContentCell, NumericalCell, Table, TableRow, Title } from 'design-system';
-import * as React from 'react';
+
+import { ContentCell, NumericalCell, Table, TableRow, Title } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { Condition as ConditionType, Dict, Metric, QualityGate } from '../../../types/types';
 import Condition from './Condition';
@@ -70,7 +70,7 @@ export default function ConditionsTable({
   return (
     <Table
       columnCount={4}
-      columnWidths={['300px', 'auto', 'auto', 'auto']}
+      columnWidths={['auto', '150px', '150px', '200px']}
       className="sw-my-2"
       header={<Header />}
       data-test={`quality-gates__conditions-${scope}`}

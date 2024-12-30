@@ -36,7 +36,7 @@ import org.sonar.server.common.health.ClusterHealthCheck;
 import org.sonar.server.common.health.NodeHealthCheck;
 import org.sonar.server.platform.NodeInformation;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.same;
@@ -106,7 +106,7 @@ public class HealthCheckerImplTest {
   @Test
   public void checkNode_returns_causes_of_all_NodeHealthCheck_whichever_their_status() {
     NodeHealthCheck[] nodeHealthChecks = IntStream.range(0, 1 + random.nextInt(20))
-      .mapToObj(s -> new HardcodedHealthNodeCheck(IntStream.range(0, random.nextInt(3)).mapToObj(i -> randomAlphanumeric(3)).toArray(String[]::new)))
+      .mapToObj(s -> new HardcodedHealthNodeCheck(IntStream.range(0, random.nextInt(3)).mapToObj(i -> secure().nextAlphanumeric(3)).toArray(String[]::new)))
       .map(NodeHealthCheck.class::cast)
       .toArray(NodeHealthCheck[]::new);
     String[] expected = Arrays.stream(nodeHealthChecks).map(NodeHealthCheck::check).flatMap(s -> s.getCauses().stream()).toArray(String[]::new);
@@ -192,7 +192,7 @@ public class HealthCheckerImplTest {
   public void checkCluster_returns_causes_of_all_ClusterHealthChecks_whichever_their_status() {
     when(nodeInformation.isStandalone()).thenReturn(false);
     List<String[]> causesGroups = IntStream.range(0, 1 + random.nextInt(20))
-      .mapToObj(s -> IntStream.range(0, random.nextInt(3)).mapToObj(i -> randomAlphanumeric(3)).toArray(String[]::new))
+      .mapToObj(s -> IntStream.range(0, random.nextInt(3)).mapToObj(i -> secure().nextAlphanumeric(3)).toArray(String[]::new))
       .toList();
     ClusterHealthCheck[] clusterHealthChecks = causesGroups.stream()
       .map(HardcodedHealthClusterCheck::new)
@@ -242,8 +242,8 @@ public class HealthCheckerImplTest {
       .setStatus(NodeHealth.Status.values()[random.nextInt(NodeHealth.Status.values().length)])
       .setDetails(newNodeDetailsBuilder()
         .setType(random.nextBoolean() ? NodeDetails.Type.APPLICATION : NodeDetails.Type.SEARCH)
-        .setName(randomAlphanumeric(10))
-        .setHost(randomAlphanumeric(5))
+        .setName(secure().nextAlphanumeric(10))
+        .setHost(secure().nextAlphanumeric(5))
         .setPort(1 + random.nextInt(333))
         .setStartedAt(1 + random.nextInt(444))
         .build())

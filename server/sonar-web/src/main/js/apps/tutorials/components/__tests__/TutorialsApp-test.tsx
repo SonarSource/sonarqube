@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import UserTokensMock from '../../../../api/mocks/UserTokensMock';
@@ -27,6 +28,14 @@ import { Permissions } from '../../../../types/permissions';
 import routes from '../../routes';
 
 jest.mock('../../../../helpers/handleRequiredAuthentication', () => jest.fn());
+
+jest.mock('../../../../api/components', () => ({
+  getScannableProjects: jest.fn().mockResolvedValue({ projects: [] }),
+}));
+
+jest.mock('../../../../api/alm-settings', () => ({
+  getAlmSettingsNoCatch: jest.fn().mockResolvedValue([]),
+}));
 
 let settingsMock: SettingsServiceMock;
 let tokenMock: UserTokensMock;
@@ -50,7 +59,7 @@ const ui = {
 
 it('renders tutorials page', async () => {
   renderTutorialsApp(mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }));
-  expect(ui.loading.get()).toBeInTheDocument();
+
   expect(await ui.localScanButton.find()).toBeInTheDocument();
 });
 

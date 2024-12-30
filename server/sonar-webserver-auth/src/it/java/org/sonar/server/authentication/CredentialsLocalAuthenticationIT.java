@@ -36,7 +36,7 @@ import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -85,7 +85,7 @@ public class CredentialsLocalAuthenticationIT {
 
   @Test
   public void authentication_with_bcrypt_with_correct_password_should_work() {
-    String password = randomAlphanumeric(60);
+    String password = secure().nextAlphanumeric(60);
 
     UserDto user = newUserDto()
       .setHashMethod(BCRYPT.name())
@@ -96,7 +96,7 @@ public class CredentialsLocalAuthenticationIT {
 
   @Test
   public void authentication_with_sha1_should_throw_AuthenticationException() {
-    String password = randomAlphanumeric(60);
+    String password = secure().nextAlphanumeric(60);
 
     byte[] saltRandom = new byte[20];
     RANDOM.nextBytes(saltRandom);
@@ -116,7 +116,7 @@ public class CredentialsLocalAuthenticationIT {
   @Test
   public void authentication_with_bcrypt_with_incorrect_password_should_throw_AuthenticationException() {
     DbSession dbSession = db.getSession();
-    String password = randomAlphanumeric(60);
+    String password = secure().nextAlphanumeric(60);
 
     UserDto user = newUserDto()
       .setHashMethod(BCRYPT.name())
@@ -141,7 +141,7 @@ public class CredentialsLocalAuthenticationIT {
 
   @Test
   public void authentication_upgrade_hash_function_when_BCRYPT_was_used() {
-    String password = randomAlphanumeric(60);
+    String password = secure().nextAlphanumeric(60);
 
     UserDto user = newUserDto()
       .setLogin("myself")
@@ -163,7 +163,7 @@ public class CredentialsLocalAuthenticationIT {
 
   @Test
   public void authentication_updates_db_if_PBKDF2_iterations_changes() {
-    String password = randomAlphanumeric(60);
+    String password = secure().nextAlphanumeric(60);
 
     UserDto user = newUserDto().setLogin("myself");
     db.users().insertUser(user);
@@ -182,7 +182,7 @@ public class CredentialsLocalAuthenticationIT {
 
   @Test
   public void authentication_with_pbkdf2_with_correct_password_should_work() {
-    String password = randomAlphanumeric(60);
+    String password = secure().nextAlphanumeric(60);
     UserDto user = newUserDto()
       .setHashMethod(PBKDF2.name());
 
@@ -199,7 +199,7 @@ public class CredentialsLocalAuthenticationIT {
     settings.clear();
     CredentialsLocalAuthentication underTest = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
 
-    String password = randomAlphanumeric(60);
+    String password = secure().nextAlphanumeric(60);
     UserDto user = newUserDto()
       .setHashMethod(PBKDF2.name());
 
@@ -227,7 +227,7 @@ public class CredentialsLocalAuthenticationIT {
   @Test
   public void authentication_with_pbkdf2_with_invalid_hash_should_throw_AuthenticationException() {
     DbSession dbSession = db.getSession();
-    String password = randomAlphanumeric(60);
+    String password = secure().nextAlphanumeric(60);
 
     UserDto userInvalidHash = newUserDto()
       .setHashMethod(PBKDF2.name())
@@ -264,7 +264,7 @@ public class CredentialsLocalAuthenticationIT {
 
   @Test
   public void authentication_with_pbkdf2_with_empty_salt_should_throw_AuthenticationException() {
-    String password = randomAlphanumeric(60);
+    String password = secure().nextAlphanumeric(60);
     DbSession dbSession = db.getSession();
 
     UserDto user = newUserDto()

@@ -29,7 +29,9 @@ import javax.annotation.Nullable;
 import org.sonarqube.ws.UserTokens;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
+import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.usergroups.AddUserRequest;
 import org.sonarqube.ws.client.users.ChangePasswordRequest;
@@ -126,6 +128,7 @@ public class UserTester {
       new org.sonarqube.ws.client.permissions.AddUserRequest()
         .setLogin(u.getLogin())
         .setPermission("admin"));
+    dismissModesTour(u);
     return u;
   }
 
@@ -137,7 +140,15 @@ public class UserTester {
     User user = generate(populators);
     session.wsClient().permissions().addUser(new org.sonarqube.ws.client.permissions.AddUserRequest().setLogin(user.getLogin()).setPermission("admin"));
     session.wsClient().userGroups().addUser(new AddUserRequest().setLogin(user.getLogin()).setName("sonar-administrators"));
+    dismissModesTour(user);
     return user;
+  }
+
+  private void dismissModesTour(User user) {
+    WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
+      .url(session.wsClient().wsConnector().baseUrl())
+      .credentials(user.getLogin(), user.getLogin())
+      .build()).users().dismissNotice("showNewModesTour");
   }
 
   public UsersService service() {

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { CCT_SOFTWARE_QUALITY_METRICS } from '../constants';
 import {
@@ -26,6 +27,14 @@ import {
 } from '../measures';
 import { mockQualityGateStatusCondition } from '../mocks/quality-gates';
 import { mockMeasure, mockMeasureEnhanced, mockMetric } from '../testMocks';
+
+jest.mock('../l10nBundle', () => {
+  const bundle = jest.requireActual('../l10nBundle');
+  return {
+    ...bundle,
+    getIntl: () => ({ formatMessage: jest.fn(({ id }) => `${id}`) }),
+  };
+});
 
 describe('enhanceConditionWithMeasure', () => {
   it('should correctly map enhance conditions with measure data', () => {

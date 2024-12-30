@@ -42,13 +42,14 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.email.EmailSmtpConfiguration;
-import org.sonar.server.oauth.OAuthMicrosoftRestClient;
 import org.sonar.server.issue.notification.EmailMessage;
 import org.sonar.server.issue.notification.EmailTemplate;
 import org.sonar.server.notification.NotificationChannel;
+import org.sonar.server.oauth.OAuthMicrosoftRestClient;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.server.email.EmailSmtpConfiguration.EMAIL_CONFIG_SMTP_AUTH_METHOD_OAUTH;
 
 /**
  * References:
@@ -99,18 +100,20 @@ public class EmailNotificationChannel extends NotificationChannel {
   private static final String SUBJECT_DEFAULT = "Notification";
   private static final String SMTP_HOST_NOT_CONFIGURED_DEBUG_MSG = "SMTP host was not configured - email will not be sent";
   private static final String MAIL_SENT_FROM = "%sMail sent from: %s";
-  private static final String OAUTH_AUTH_METHOD = "OAUTH";
 
   private final EmailSmtpConfiguration configuration;
   private final Server server;
   private final EmailTemplate[] templates;
   private final DbClient dbClient;
+  private final OAuthMicrosoftRestClient oAuthMicrosoftRestClient;
 
-  public EmailNotificationChannel(EmailSmtpConfiguration configuration, Server server, EmailTemplate[] templates, DbClient dbClient) {
+  public EmailNotificationChannel(EmailSmtpConfiguration configuration, Server server, EmailTemplate[] templates, DbClient dbClient,
+    OAuthMicrosoftRestClient oAuthMicrosoftRestClient) {
     this.configuration = configuration;
     this.server = server;
     this.templates = templates;
     this.dbClient = dbClient;
+    this.oAuthMicrosoftRestClient = oAuthMicrosoftRestClient;
   }
 
   public boolean isActivated() {
@@ -297,7 +300,7 @@ public class EmailNotificationChannel extends NotificationChannel {
     configureSecureConnection(email);
     email.setSocketConnectionTimeout(SOCKET_TIMEOUT);
     email.setSocketTimeout(SOCKET_TIMEOUT);
-    if (OAUTH_AUTH_METHOD.equals(configuration.getAuthMethod())) {
+    if (EMAIL_CONFIG_SMTP_AUTH_METHOD_OAUTH.equals(configuration.getAuthMethod())) {
       setOauthAuthentication(email);
     } else if (StringUtils.isNotBlank(configuration.getSmtpUsername()) || StringUtils.isNotBlank(configuration.getSmtpPassword())) {
       setBasicAuthentication(email);
@@ -305,7 +308,7 @@ public class EmailNotificationChannel extends NotificationChannel {
   }
 
   private void setOauthAuthentication(Email email) throws EmailException {
-    String token = OAuthMicrosoftRestClient.getAccessTokenFromClientCredentialsGrantFlow(configuration.getOAuthHost(), configuration.getOAuthClientId(),
+    String token = oAuthMicrosoftRestClient.getAccessTokenFromClientCredentialsGrantFlow(configuration.getOAuthHost(), configuration.getOAuthClientId(),
       configuration.getOAuthClientSecret(), configuration.getOAuthTenant(), configuration.getOAuthScope());
     email.setAuthentication(configuration.getSmtpUsername(), token);
     Properties props = email.getMailSession().getProperties();

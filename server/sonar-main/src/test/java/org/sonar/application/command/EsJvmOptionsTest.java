@@ -31,7 +31,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.sonar.process.Props;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -100,7 +100,7 @@ public class EsJvmOptionsTest {
 
   @Test
   public void constructor_forces_boostrap_checks_if_jdbc_url_property_is_not_h2() throws IOException {
-    properties.put("sonar.jdbc.url", randomAlphanumeric(53));
+    properties.put("sonar.jdbc.url", secure().nextAlphanumeric(53));
     File tmpDir = temporaryFolder.newFolder();
     EsJvmOptions underTest = new EsJvmOptions(new Props(properties), tmpDir);
 
@@ -147,7 +147,7 @@ public class EsJvmOptionsTest {
 
   @Test
   public void boostrap_checks_can_be_set_true_if_jdbc_other_than_h2() throws IOException {
-    properties.put("sonar.jdbc.url", randomAlphanumeric(53));
+    properties.put("sonar.jdbc.url", secure().nextAlphanumeric(53));
     properties.put("sonar.es.bootstrap.checks.disable", "true");
 
     File tmpDir = temporaryFolder.newFolder();
@@ -160,7 +160,7 @@ public class EsJvmOptionsTest {
 
   @Test
   public void boostrap_checks_can_be_set_false_if_jdbc_other_than_h2() throws IOException {
-    properties.put("sonar.jdbc.url", randomAlphanumeric(53));
+    properties.put("sonar.jdbc.url", secure().nextAlphanumeric(53));
     properties.put("sonar.es.bootstrap.checks.disable", "false");
 
     File tmpDir = temporaryFolder.newFolder();

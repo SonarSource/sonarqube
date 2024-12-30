@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
+import * as React from 'react';
 import {
   DangerButtonPrimary,
   DestructiveIcon,
@@ -26,15 +28,15 @@ import {
   LightLabel,
   Modal,
   PencilIcon,
+  SafeHTMLInjection,
+  SanitizeLevel,
   TrashIcon,
   themeBorder,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import IssueChangelogDiff from '../../../components/issue/components/IssueChangelogDiff';
 import Avatar from '../../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { sanitizeUserInput } from '../../../helpers/sanitize';
 import { Hotspot, ReviewHistoryType } from '../../../types/security-hotspots';
 import { getHotspotReviewHistory } from '../utils';
 import HotspotCommentModal from './HotspotCommentModal';
@@ -45,7 +47,7 @@ export interface HotspotReviewHistoryProps {
   onEditComment: (key: string, comment: string) => void;
 }
 
-export default function HotspotReviewHistory(props: HotspotReviewHistoryProps) {
+export default function HotspotReviewHistory(props: Readonly<HotspotReviewHistoryProps>) {
   const { hotspot } = props;
   const history = getHotspotReviewHistory(hotspot);
   const [editCommentKey, setEditCommentKey] = React.useState('');
@@ -86,11 +88,9 @@ export default function HotspotReviewHistory(props: HotspotReviewHistoryProps) {
 
             {type === ReviewHistoryType.Comment && key && html && markdown && (
               <div className="sw-mt-2 sw-flex sw-justify-between">
-                <CommentBox
-                  className="sw-pl-2 sw-ml-2 sw-typo-default"
-                  // eslint-disable-next-line react/no-danger
-                  dangerouslySetInnerHTML={{ __html: sanitizeUserInput(html) }}
-                />
+                <SafeHTMLInjection htmlAsString={html} sanitizeLevel={SanitizeLevel.USER_INPUT}>
+                  <CommentBox className="sw-pl-2 sw-ml-2 sw-typo-default" />
+                </SafeHTMLInjection>
 
                 {updatable && (
                   <div className="sw-flex sw-gap-6">

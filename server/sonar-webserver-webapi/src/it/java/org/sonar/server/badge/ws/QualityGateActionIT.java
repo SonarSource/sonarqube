@@ -42,7 +42,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
-import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -51,7 +51,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -91,7 +91,7 @@ public class QualityGateActionIT {
 
     userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
-    db.measures().insertLiveMeasure(project, metric, m -> m.setData(OK.name()));
+    db.measures().insertMeasure(project, m -> m.addValue(metric.getKey(), OK.name()));
 
     TestResponse response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -107,7 +107,7 @@ public class QualityGateActionIT {
 
     userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
-    db.measures().insertLiveMeasure(project, metric, m -> m.setData(ERROR.name()));
+    db.measures().insertMeasure(project, m -> m.addValue(metric.getKey(), ERROR.name()));
 
     TestResponse response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -144,7 +144,7 @@ public class QualityGateActionIT {
     userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
 
-    db.measures().insertLiveMeasure(projectData, metric, m -> m.setData(OK.name()));
+    db.measures().insertMeasure(projectData, m -> m.addValue(metric.getKey(), OK.name()));
     ProjectDto project = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), projectData.getProjectDto().getKey())
       .orElseThrow(() -> new IllegalStateException("project not found"));
 
@@ -175,15 +175,15 @@ public class QualityGateActionIT {
 
     userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
-    LiveMeasureDto liveMeasure = db.measures().insertLiveMeasure(project, metric, m -> m.setData(OK.name()));
+    MeasureDto measure = db.measures().insertMeasure(project, m -> m.addValue(metric.getKey(), OK.name()));
 
     TestResponse response = ws.newRequest()
       .setParam("project", project.getKey())
       .execute();
     String eTagOK = response.getHeader("ETag");
 
-    liveMeasure.setData(ERROR.name());
-    db.getDbClient().liveMeasureDao().insertOrUpdate(db.getSession(), liveMeasure);
+    measure.addValue(metric.getKey(), ERROR.name());
+    db.getDbClient().measureDao().insertOrUpdate(db.getSession(), measure);
     db.commit();
 
     response = ws.newRequest()
@@ -204,7 +204,7 @@ public class QualityGateActionIT {
 
     userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
-    db.measures().insertLiveMeasure(project, metric, m -> m.setData(OK.name()));
+    db.measures().insertMeasure(project, m -> m.addValue(metric.getKey(), OK.name()));
 
     TestResponse response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -227,10 +227,10 @@ public class QualityGateActionIT {
 
     userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
-    db.measures().insertLiveMeasure(project, metric, m -> m.setData(OK.name()));
-    String branchName = randomAlphanumeric(248);
+    db.measures().insertMeasure(project, m -> m.addValue(metric.getKey(), OK.name()));
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
-    db.measures().insertLiveMeasure(branch, metric, m -> m.setData(ERROR.name()));
+    db.measures().insertMeasure(branch, m -> m.addValue(metric.getKey(), ERROR.name()));
 
     TestResponse response = ws.newRequest()
       .setParam("project", branch.getKey())
@@ -247,7 +247,7 @@ public class QualityGateActionIT {
 
     userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
-    db.measures().insertLiveMeasure(application, metric, m -> m.setData(ERROR.name()));
+    db.measures().insertMeasure(application, m -> m.addValue(metric.getKey(), ERROR.name()));
 
     TestResponse response = ws.newRequest()
       .setParam("project", application.getKey())
@@ -343,7 +343,7 @@ public class QualityGateActionIT {
 
     userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
-    db.measures().insertLiveMeasure(project, metric, m -> m.setValue(null).setData((String) null));
+    db.measures().insertMeasure(project);
 
     TestResponse response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -360,7 +360,7 @@ public class QualityGateActionIT {
 
     userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
-    db.measures().insertLiveMeasure(project, metric, m -> m.setData("UNKNOWN"));
+    db.measures().insertMeasure(project, m -> m.addValue(metric.getKey(), "UNKNOWN"));
 
     assertThatThrownBy(() -> {
       ws.newRequest()

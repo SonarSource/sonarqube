@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 export interface SystemUpgradeDownloadUrls {
   downloadDatacenterUrl?: string;
   downloadDeveloperUrl?: string;
@@ -24,9 +25,20 @@ export interface SystemUpgradeDownloadUrls {
   downloadUrl: string;
 }
 
+export enum ProductName {
+  SonarQubeCommunityBuild = 'SonarQube Community Build',
+  SonarQubeServer = 'SonarQube Server',
+}
+
+export enum ProductNameForUpgrade {
+  SonarQubeCommunityBuild = 'SONARQUBE_COMMUNITY_BUILD',
+  SonarQubeServer = 'SONARQUBE_SERVER',
+}
+
 export interface SystemUpgrade extends SystemUpgradeDownloadUrls {
   changeLogUrl?: string;
   description?: string;
+  product?: ProductNameForUpgrade;
   releaseDate?: string;
   version: string;
 }

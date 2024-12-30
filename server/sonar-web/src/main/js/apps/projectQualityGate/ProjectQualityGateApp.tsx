@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { addGlobalSuccessMessage } from 'design-system';
+
 import * as React from 'react';
+import { addGlobalSuccessMessage } from '~design-system';
 import {
-  associateGateWithProject,
-  dissociateGateWithProject,
   fetchQualityGate,
   fetchQualityGates,
   getGateForProject,
@@ -47,7 +46,6 @@ interface State {
   currentQualityGate?: QualityGate;
   loading: boolean;
   selectedQualityGateName: string;
-  submitting: boolean;
 }
 
 class ProjectQualityGateApp extends React.PureComponent<Props, State> {
@@ -55,7 +53,6 @@ class ProjectQualityGateApp extends React.PureComponent<Props, State> {
   state: State = {
     loading: true,
     selectedQualityGateName: USE_SYSTEM_DEFAULT,
-    submitting: false,
   };
 
   componentDidMount() {
@@ -142,43 +139,19 @@ class ProjectQualityGateApp extends React.PureComponent<Props, State> {
     this.setState({ selectedQualityGateName });
   };
 
-  handleSubmit = async () => {
-    const { component } = this.props;
-    const { allQualityGates, currentQualityGate, selectedQualityGateName } = this.state;
-
-    if (allQualityGates === undefined || currentQualityGate === undefined) {
-      return;
-    }
-
-    this.setState({ submitting: true });
-
-    if (selectedQualityGateName === USE_SYSTEM_DEFAULT) {
-      await dissociateGateWithProject({
-        organization: component.organization,
-        projectKey: component.key,
-      }).catch(() => {
-        /* noop */
-      });
-    } else {
-      await associateGateWithProject({
-        organization: component.organization,
-        gateName: selectedQualityGateName,
-        projectKey: component.key,
-      }).catch(() => {
-        /* noop */
-      });
-    }
+  handleSubmit = () => {
+    const { allQualityGates, selectedQualityGateName } = this.state;
 
     if (this.mounted) {
       addGlobalSuccessMessage(translate('project_quality_gate.successfully_updated'));
 
       const newGate =
         selectedQualityGateName === USE_SYSTEM_DEFAULT
-          ? allQualityGates.find((gate) => gate.isDefault)
-          : allQualityGates.find((gate) => gate.name === selectedQualityGateName);
+          ? allQualityGates?.find((gate) => gate.isDefault)
+          : allQualityGates?.find((gate) => gate.name === selectedQualityGateName);
 
       if (newGate) {
-        this.setState({ currentQualityGate: newGate, submitting: false });
+        this.setState({ currentQualityGate: newGate });
         this.props.onComponentChange({ qualityGate: newGate });
       }
     }
@@ -191,8 +164,7 @@ class ProjectQualityGateApp extends React.PureComponent<Props, State> {
 
     const { component } = this.props;
 
-    const { allQualityGates, currentQualityGate, loading, selectedQualityGateName, submitting } =
-      this.state;
+    const { allQualityGates, currentQualityGate, loading, selectedQualityGateName } = this.state;
 
     return (
       <ProjectQualityGateAppRenderer
@@ -204,7 +176,6 @@ class ProjectQualityGateApp extends React.PureComponent<Props, State> {
         onSubmit={this.handleSubmit}
         onSelect={this.handleSelect}
         selectedQualityGateName={selectedQualityGateName}
-        submitting={submitting}
       />
     );
   }

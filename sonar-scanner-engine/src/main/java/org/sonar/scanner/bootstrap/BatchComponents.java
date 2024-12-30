@@ -25,7 +25,6 @@ import io.codescan.sonarqube.codescanhosted.scanner.ProjectBranchesLoaderImpl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.sarif.SarifSerializerImpl;
 import org.sonar.scanner.cpd.JavaCpdBlockIndexerSensor;
@@ -57,7 +56,6 @@ public class BatchComponents {
     components.add(CodeScanBranchParamsValidator.class);
     components.add(CodeScanBranchConfigurationLoader.class);
 
-    components.add(DefaultResourceTypes.get());
     components.addAll(CorePropertyDefinitions.all());
     components.add(ZeroCoverageSensor.class);
     components.add(JavaCpdBlockIndexerSensor.class);

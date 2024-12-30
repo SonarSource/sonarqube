@@ -30,7 +30,6 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.server.measure.DebtRatingGrid;
 import org.sonar.server.measure.Rating;
 
@@ -88,8 +87,11 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
     FormulaContextImpl context = new FormulaContextImpl(matrix, components, debtRatingGrid);
 
     components.getSortedTree().forEach(c -> {
-      IssueCounter issueCounter = new IssueCounter(dbClient.issueDao().selectIssueGroupsByComponent(dbSession, c, beginningOfLeak),
-        dbClient.issueDao().selectIssueImpactGroupsByComponent(dbSession, c, beginningOfLeak));
+      IssueCounter issueCounter = new IssueCounter(
+        dbClient.issueDao().selectIssueGroupsByComponent(dbSession, c, beginningOfLeak),
+        dbClient.issueDao().selectIssueImpactGroupsByComponent(dbSession, c, beginningOfLeak),
+        dbClient.issueDao().selectIssueImpactSeverityGroupsByComponent(dbSession, c, beginningOfLeak)
+        );
       for (MeasureUpdateFormula formula : formulaFactory.getFormulas()) {
         if (shouldComputeMetric(formula, useLeakFormulas, components.getBranch(), matrix)) {
           context.change(c, formula);
@@ -153,7 +155,7 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
       List<ComponentDto> children = componentIndex.getChildren(currentComponent);
       return children.stream()
         .flatMap(c -> matrix.getMeasure(c, currentFormula.getMetric().getKey()).stream())
-        .map(LiveMeasureDto::getValue)
+        .map(MeasureMatrix.Measure::doubleValue)
         .filter(Objects::nonNull)
         .toList();
     }
@@ -162,7 +164,7 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
       List<ComponentDto> children = componentIndex.getChildren(currentComponent);
       return children.stream()
         .flatMap(c -> matrix.getMeasure(c, currentFormula.getMetric().getKey()).stream())
-        .map(LiveMeasureDto::getTextValue)
+        .map(MeasureMatrix.Measure::stringValue)
         .filter(Objects::nonNull)
         .toList();
     }
@@ -184,7 +186,7 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
       return componentIndex.getChildren(currentComponent)
         .stream()
         .map(c -> matrix.getMeasure(c, SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY).or(() -> matrix.getMeasure(c, SECURITY_HOTSPOTS_KEY)))
-        .mapToLong(lmOpt -> lmOpt.flatMap(lm -> Optional.ofNullable(lm.getValue())).orElse(0D).longValue())
+        .mapToLong(lmOpt -> lmOpt.map(FormulaContextImpl::getDoubleOrZero).orElse(0D).longValue())
         .sum();
     }
 
@@ -201,7 +203,7 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
       return componentIndex.getChildren(currentComponent)
         .stream()
         .map(c -> matrix.getMeasure(c, NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY).or(() -> matrix.getMeasure(c, NEW_SECURITY_HOTSPOTS_KEY)))
-        .mapToLong(lmOpt -> lmOpt.flatMap(lm -> Optional.ofNullable(lm.getValue())).orElse(0D).longValue())
+        .mapToLong(lmOpt -> lmOpt.map(FormulaContextImpl::getDoubleOrZero).orElse(0D).longValue())
         .sum();
     }
 
@@ -213,20 +215,18 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
     }
 
     private long getHotspotsReviewed(ComponentDto c, String metricKey, String percMetricKey, String hotspotsMetricKey) {
-      Optional<LiveMeasureDto> measure = matrix.getMeasure(c, metricKey);
-      return measure.map(lm -> Optional.ofNullable(lm.getValue()).orElse(0D).longValue())
+      Optional<MeasureMatrix.Measure> measure = matrix.getMeasure(c, metricKey);
+      return measure.map(lm -> getDoubleOrZero(lm).longValue())
         .orElseGet(() -> matrix.getMeasure(c, percMetricKey)
           .flatMap(percentage -> matrix.getMeasure(c, hotspotsMetricKey)
             .map(hotspots -> {
-              double perc = Optional.ofNullable(percentage.getValue()).orElse(0D) / 100D;
-              double toReview = Optional.ofNullable(hotspots.getValue()).orElse(0D);
+              double perc = getDoubleOrZero(percentage) / 100D;
+              double toReview = getDoubleOrZero(hotspots);
               double reviewed = (toReview * perc) / (1D - perc);
               return Math.round(reviewed);
             }))
           .orElse(0L));
     }
-
-
 
     @Override
     public ComponentDto getComponent() {
@@ -240,14 +240,12 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
 
     @Override
     public Optional<Double> getValue(Metric metric) {
-      Optional<LiveMeasureDto> measure = matrix.getMeasure(currentComponent, metric.getKey());
-      return measure.map(LiveMeasureDto::getValue);
+      return matrix.getMeasure(currentComponent, metric.getKey()).map(MeasureMatrix.Measure::doubleValue);
     }
 
     @Override
     public Optional<String> getText(Metric metric) {
-      Optional<LiveMeasureDto> measure = matrix.getMeasure(currentComponent, metric.getKey());
-      return measure.map(LiveMeasureDto::getTextValue);
+      return matrix.getMeasure(currentComponent, metric.getKey()).map(MeasureMatrix.Measure::stringValue);
     }
 
     @Override
@@ -266,6 +264,10 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
     public void setValue(String value) {
       String metricKey = currentFormula.getMetric().getKey();
       matrix.setValue(currentComponent, metricKey, value);
+    }
+
+    private static Double getDoubleOrZero(MeasureMatrix.Measure lm) {
+      return Optional.ofNullable(lm.doubleValue()).orElse(0D);
     }
   }
 }

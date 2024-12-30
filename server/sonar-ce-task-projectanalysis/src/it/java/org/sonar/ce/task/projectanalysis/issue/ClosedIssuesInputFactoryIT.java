@@ -30,7 +30,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.db.DbClient;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -45,7 +45,7 @@ public class ClosedIssuesInputFactoryIT {
 
   @Test
   public void underTest_returns_inputFactory_loading_closed_issues_only_when_getIssues_is_called() {
-    String componentUuid = randomAlphanumeric(12);
+    String componentUuid = secure().nextAlphanumeric(12);
     ReportComponent component = ReportComponent.builder(Component.Type.FILE, 1).setUuid(componentUuid).build();
     when(movedFilesRepository.getOriginalFile(component)).thenReturn(Optional.empty());
 
@@ -61,11 +61,11 @@ public class ClosedIssuesInputFactoryIT {
 
   @Test
   public void underTest_returns_inputFactory_loading_closed_issues_from_moved_component_when_present() {
-    String componentUuid = randomAlphanumeric(12);
-    String originalComponentUuid = randomAlphanumeric(12);
+    String componentUuid = secure().nextAlphanumeric(12);
+    String originalComponentUuid = secure().nextAlphanumeric(12);
     ReportComponent component = ReportComponent.builder(Component.Type.FILE, 1).setUuid(componentUuid).build();
     when(movedFilesRepository.getOriginalFile(component))
-      .thenReturn(Optional.of(new MovedFilesRepository.OriginalFile(originalComponentUuid, randomAlphanumeric(2))));
+      .thenReturn(Optional.of(new MovedFilesRepository.OriginalFile(originalComponentUuid, secure().nextAlphanumeric(2))));
 
     Input<DefaultIssue> input = underTest.create(component);
 
@@ -79,7 +79,7 @@ public class ClosedIssuesInputFactoryIT {
 
   @Test
   public void underTest_returns_inputFactory_which_caches_loaded_issues() {
-    String componentUuid = randomAlphanumeric(12);
+    String componentUuid = secure().nextAlphanumeric(12);
     ReportComponent component = ReportComponent.builder(Component.Type.FILE, 1).setUuid(componentUuid).build();
     when(movedFilesRepository.getOriginalFile(component)).thenReturn(Optional.empty());
 

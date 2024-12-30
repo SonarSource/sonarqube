@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -82,12 +82,12 @@ public class ServerIdTest {
   @DataProvider
   public static Object[][] wrongFormatWithDatabaseId() {
     String onlySplitChar = repeat(SPLIT_CHARACTER + "", DATABASE_ID_LENGTH);
-    String startWithSplitChar = SPLIT_CHARACTER + randomAlphabetic(DATABASE_ID_LENGTH - 1);
+    String startWithSplitChar = SPLIT_CHARACTER + secure().nextAlphabetic(DATABASE_ID_LENGTH - 1);
 
     Stream<String> databaseIds = Stream.of(
             OLD_UUID_FORMAT,
-      randomAlphabetic(NOT_UUID_DATASET_ID_LENGTH),
-      randomAlphabetic(UUID_DATASET_ID_LENGTH),
+      secure().nextAlphabetic(NOT_UUID_DATASET_ID_LENGTH),
+      secure().nextAlphabetic(UUID_DATASET_ID_LENGTH),
       repeat(SPLIT_CHARACTER + "", NOT_UUID_DATASET_ID_LENGTH),
       repeat(SPLIT_CHARACTER + "", UUID_DATASET_ID_LENGTH));
 
@@ -95,8 +95,8 @@ public class ServerIdTest {
       .flatMap(datasetId -> Stream.of(
         startWithSplitChar + SPLIT_CHARACTER + datasetId,
         onlySplitChar + SPLIT_CHARACTER + datasetId,
-        startWithSplitChar + randomAlphabetic(1) + datasetId,
-        onlySplitChar + randomAlphabetic(1) + datasetId))
+        startWithSplitChar + secure().nextAlphabetic(1) + datasetId,
+        onlySplitChar + secure().nextAlphabetic(1) + datasetId))
       .flatMap(serverId -> Stream.of(
         serverId,
         " " + serverId,
@@ -132,9 +132,9 @@ public class ServerIdTest {
   public static Object[][] validOldFormatServerIds() {
     return new Object[][] {
       {OLD_UUID_FORMAT},
-      {randomAlphabetic(NOT_UUID_DATASET_ID_LENGTH)},
+      {secure().nextAlphabetic(NOT_UUID_DATASET_ID_LENGTH)},
       {repeat(SPLIT_CHARACTER + "", NOT_UUID_DATASET_ID_LENGTH)},
-      {randomAlphabetic(UUID_DATASET_ID_LENGTH)},
+      {secure().nextAlphabetic(UUID_DATASET_ID_LENGTH)},
       {repeat(SPLIT_CHARACTER + "", UUID_DATASET_ID_LENGTH)}
     };
   }
@@ -155,37 +155,37 @@ public class ServerIdTest {
   @DataProvider
   public static Object[][] validServerIdWithDatabaseId() {
     return new Object[][] {
-      {randomAlphabetic(DATABASE_ID_LENGTH), randomAlphabetic(NOT_UUID_DATASET_ID_LENGTH)},
-      {randomAlphabetic(DATABASE_ID_LENGTH), randomAlphabetic(UUID_DATASET_ID_LENGTH)},
-      {randomAlphabetic(DATABASE_ID_LENGTH), repeat(SPLIT_CHARACTER + "", NOT_UUID_DATASET_ID_LENGTH)},
-      {randomAlphabetic(DATABASE_ID_LENGTH), repeat(SPLIT_CHARACTER + "", UUID_DATASET_ID_LENGTH)},
-      {randomAlphabetic(DATABASE_ID_LENGTH), OLD_UUID_FORMAT},
+      {secure().nextAlphabetic(DATABASE_ID_LENGTH), secure().nextAlphabetic(NOT_UUID_DATASET_ID_LENGTH)},
+      {secure().nextAlphabetic(DATABASE_ID_LENGTH), secure().nextAlphabetic(UUID_DATASET_ID_LENGTH)},
+      {secure().nextAlphabetic(DATABASE_ID_LENGTH), repeat(SPLIT_CHARACTER + "", NOT_UUID_DATASET_ID_LENGTH)},
+      {secure().nextAlphabetic(DATABASE_ID_LENGTH), repeat(SPLIT_CHARACTER + "", UUID_DATASET_ID_LENGTH)},
+      {secure().nextAlphabetic(DATABASE_ID_LENGTH), OLD_UUID_FORMAT},
     };
   }
 
   @Test
   public void parse_does_not_support_deprecated_server_id_with_database_id() {
-    assertThatThrownBy(() -> ServerId.parse(randomAlphabetic(DATABASE_ID_LENGTH) + SPLIT_CHARACTER + randomAlphabetic(DEPRECATED_SERVER_ID_LENGTH)))
+    assertThatThrownBy(() -> ServerId.parse(secure().nextAlphabetic(DATABASE_ID_LENGTH) + SPLIT_CHARACTER + secure().nextAlphabetic(DEPRECATED_SERVER_ID_LENGTH)))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("serverId does not have a supported length");
   }
 
   @Test
   public void of_throws_NPE_if_datasetId_is_null() {
-    assertThatThrownBy(() -> ServerId.of(randomAlphabetic(DATABASE_ID_LENGTH), null))
+    assertThatThrownBy(() -> ServerId.of(secure().nextAlphabetic(DATABASE_ID_LENGTH), null))
       .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void of_throws_IAE_if_datasetId_is_empty() {
-    assertThatThrownBy(() -> ServerId.of(randomAlphabetic(DATABASE_ID_LENGTH), ""))
+    assertThatThrownBy(() -> ServerId.of(secure().nextAlphabetic(DATABASE_ID_LENGTH), ""))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Illegal datasetId length (0)");
   }
 
   @Test
   public void of_throws_IAE_if_databaseId_is_empty() {
-    assertThatThrownBy(() -> ServerId.of("", randomAlphabetic(UUID_DATASET_ID_LENGTH)))
+    assertThatThrownBy(() -> ServerId.of("", secure().nextAlphabetic(UUID_DATASET_ID_LENGTH)))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Illegal databaseId length (0)");
   }
@@ -193,7 +193,7 @@ public class ServerIdTest {
   @Test
   @UseDataProvider("datasetIdSupportedLengths")
   public void of_accepts_null_databaseId(int datasetIdLength) {
-    String datasetId = randomAlphabetic(datasetIdLength);
+    String datasetId = secure().nextAlphabetic(datasetIdLength);
     ServerId serverId = ServerId.of(null, datasetId);
 
     assertThat(serverId.getDatabaseId()).isEmpty();
@@ -203,8 +203,8 @@ public class ServerIdTest {
   @Test
   @UseDataProvider("illegalDatabaseIdLengths")
   public void of_throws_IAE_if_databaseId_length_is_not_8(int illegalDatabaseIdLengths) {
-    String databaseId = randomAlphabetic(illegalDatabaseIdLengths);
-    String datasetId = randomAlphabetic(UUID_DATASET_ID_LENGTH);
+    String databaseId = secure().nextAlphabetic(illegalDatabaseIdLengths);
+    String datasetId = secure().nextAlphabetic(UUID_DATASET_ID_LENGTH);
 
     assertThatThrownBy(() -> ServerId.of(databaseId, datasetId))
       .isInstanceOf(IllegalArgumentException.class)
@@ -222,8 +222,8 @@ public class ServerIdTest {
   @Test
   @UseDataProvider("illegalDatasetIdLengths")
   public void of_throws_IAE_if_datasetId_length_is_not_8(int illegalDatasetIdLengths) {
-    String datasetId = randomAlphabetic(illegalDatasetIdLengths);
-    String databaseId = randomAlphabetic(DATABASE_ID_LENGTH);
+    String datasetId = secure().nextAlphabetic(illegalDatasetIdLengths);
+    String databaseId = secure().nextAlphabetic(DATABASE_ID_LENGTH);
 
     assertThatThrownBy(() -> ServerId.of(databaseId, datasetId))
       .isInstanceOf(IllegalArgumentException.class)
@@ -243,10 +243,10 @@ public class ServerIdTest {
   @Test
   @UseDataProvider("datasetIdSupportedLengths")
   public void equals_is_based_on_databaseId_and_datasetId(int datasetIdLength) {
-    String databaseId = randomAlphabetic(DATABASE_ID_LENGTH - 1) + 'a';
-    String otherDatabaseId = randomAlphabetic(DATABASE_ID_LENGTH - 1) + 'b';
-    String datasetId = randomAlphabetic(datasetIdLength - 1) + 'a';
-    String otherDatasetId = randomAlphabetic(datasetIdLength - 1) + 'b';
+    String databaseId = secure().nextAlphabetic(DATABASE_ID_LENGTH - 1) + 'a';
+    String otherDatabaseId = secure().nextAlphabetic(DATABASE_ID_LENGTH - 1) + 'b';
+    String datasetId = secure().nextAlphabetic(datasetIdLength - 1) + 'a';
+    String otherDatasetId = secure().nextAlphabetic(datasetIdLength - 1) + 'b';
 
     ServerId newServerId = ServerId.of(databaseId, datasetId);
     assertThat(newServerId)
@@ -269,10 +269,10 @@ public class ServerIdTest {
   @Test
   @UseDataProvider("datasetIdSupportedLengths")
   public void hashcode_is_based_on_databaseId_and_datasetId(int datasetIdLength) {
-    String databaseId = randomAlphabetic(DATABASE_ID_LENGTH - 1) + 'a';
-    String otherDatabaseId = randomAlphabetic(DATABASE_ID_LENGTH - 1) + 'b';
-    String datasetId = randomAlphabetic(datasetIdLength - 1) + 'a';
-    String otherDatasetId = randomAlphabetic(datasetIdLength - 1) + 'b';
+    String databaseId = secure().nextAlphabetic(DATABASE_ID_LENGTH - 1) + 'a';
+    String otherDatabaseId = secure().nextAlphabetic(DATABASE_ID_LENGTH - 1) + 'b';
+    String datasetId = secure().nextAlphabetic(datasetIdLength - 1) + 'a';
+    String otherDatasetId = secure().nextAlphabetic(datasetIdLength - 1) + 'b';
 
     ServerId newServerId = ServerId.of(databaseId, datasetId);
     assertThat(newServerId)

@@ -19,8 +19,8 @@
  */
 
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { FlagMessage, FormField, InputField, Modal, addGlobalSuccessMessage } from 'design-system';
 import * as React from 'react';
+import { FlagMessage, FormField, InputField, Modal, addGlobalSuccessMessage } from '~design-system';
 import { changePassword } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import UserPasswordInput, {

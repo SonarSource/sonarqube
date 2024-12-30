@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, ButtonGroup, ButtonVariety } from '@sonarsource/echoes-react';
-import { Checkbox, Modal, Note } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Checkbox, Modal, Note } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { save } from '../../../helpers/storage';

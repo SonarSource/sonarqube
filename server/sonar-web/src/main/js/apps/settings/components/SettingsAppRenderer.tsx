@@ -19,12 +19,13 @@
  */
 
 import styled from '@emotion/styled';
-import { LargeCenteredLayout, PageContentFontWrapper, themeBorder } from 'design-system';
 import { uniqBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { LargeCenteredLayout, PageContentFontWrapper, themeBorder } from '~design-system';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Location } from '~sonar-aligned/types/router';
+import ModeBanner from '../../../components/common/ModeBanner';
 import { translate } from '../../../helpers/l10n';
 import { ExtendedSettingDefinition } from '../../../types/settings';
 import { Component } from '../../../types/types';
@@ -71,6 +72,8 @@ function SettingsAppRenderer(props: Readonly<SettingsAppRendererProps>) {
   return (
     <LargeCenteredLayout id="settings-page">
       <Helmet defer={false} title={translate('settings.page')} />
+
+      <ModeBanner as="wideBanner" />
 
       <PageContentFontWrapper className="sw-my-8">
         <PageHeader component={component} definitions={definitions} />

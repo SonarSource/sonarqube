@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { FormField, InputField } from 'design-system';
+import { FormField, InputField } from '~design-system';
 import * as React from 'react';
 import { isWebUri } from 'valid-url';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';

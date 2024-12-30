@@ -19,9 +19,8 @@
  */
 
 import { LinkStandalone as Link } from '@sonarsource/echoes-react';
-import { FlagMessage } from 'design-system';
-import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { FlagMessage } from '~design-system';
 import { DocLink } from '../../../helpers/doc-links';
 import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';

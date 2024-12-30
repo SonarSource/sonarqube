@@ -17,12 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { Badge, CommentIcon, SeparatorCircleIcon, themeColor } from 'design-system';
 import * as React from 'react';
+import { Badge, CommentIcon, SeparatorCircleIcon } from '~design-system';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
+import { useLocation } from '../../../sonar-aligned/components/hoc/withRouter';
 import { Issue } from '../../../types/types';
 import Tooltip from '../../controls/Tooltip';
 import DateFromNow from '../../intl/DateFromNow';
@@ -39,8 +42,10 @@ interface Props {
 
 export default function IssueMetaBar(props: Readonly<Props>) {
   const { issue, showLine } = props;
+  const location = useLocation();
 
   const { externalRulesRepoNames } = React.useContext(WorkspaceContext);
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
 
   const ruleEngine =
     (issue.externalRuleEngine && externalRulesRepoNames[issue.externalRuleEngine]) ||
@@ -140,14 +145,17 @@ export default function IssueMetaBar(props: Readonly<Props>) {
       <IssueMetaListItem className={issueMetaListItemClassNames}>
         <DateFromNow date={issue.creationDate} />
       </IssueMetaListItem>
+      {!isStandardMode && (location.query.types || location.query.severities) && (
+        <>
+          <SeparatorCircleIcon aria-hidden as="li" />
 
-      <SeparatorCircleIcon aria-hidden as="li" />
+          <IssueType issue={issue} height={12} width={12} />
 
-      <IssueType issue={issue} height={12} width={12} />
+          <SeparatorCircleIcon data-guiding-id="issue-4" aria-hidden as="li" />
 
-      <SeparatorCircleIcon data-guiding-id="issue-4" aria-hidden as="li" />
-
-      <IssueSeverity issue={issue} height={12} width={12} />
+          <IssueSeverity issue={issue} height={12} width={12} />
+        </>
+      )}
 
       {issue.prioritizedRule && (
         <>
@@ -163,5 +171,5 @@ export default function IssueMetaBar(props: Readonly<Props>) {
 }
 
 const IssueMetaListItem = styled.li`
-  color: ${themeColor('pageContentLight')};
+  color: var(--echoes-color-text-subdued);
 `;

@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.core.platform.SonarQubeVersion;
@@ -53,8 +54,11 @@ public class QualityProfileChangesUpdater {
     List<QProfileChangeDto> changesToPersist = pluginRuleUpdates.stream()
       .flatMap(pluginRuleUpdate -> {
         RuleChangeDto ruleChangeDto = createNewRuleChange(pluginRuleUpdate);
-        insertRuleChange(dbSession, ruleChangeDto);
 
+        if (!hasChanges(ruleChangeDto)) {
+          return Stream.empty();
+        }
+        insertRuleChange(dbSession, ruleChangeDto);
         return findQualityProfilesForRule(dbSession, pluginRuleUpdate.getRuleUuid()).stream()
           .map(qualityProfileUuid -> buildQprofileChangeDtoForRuleChange(qualityProfileUuid, ruleChangeDto));
       }).toList();
@@ -62,6 +66,10 @@ public class QualityProfileChangesUpdater {
     if (!changesToPersist.isEmpty()) {
       dbClient.qProfileChangeDao().bulkInsert(dbSession, changesToPersist);
     }
+  }
+
+  private static boolean hasChanges(RuleChangeDto ruleChangeDto) {
+    return ruleChangeDto.getNewCleanCodeAttribute() != ruleChangeDto.getOldCleanCodeAttribute() || !ruleChangeDto.getRuleImpactChanges().isEmpty();
   }
 
   private RuleChangeDto createNewRuleChange(PluginRuleUpdate pluginRuleUpdate) {
@@ -81,23 +89,13 @@ public class QualityProfileChangesUpdater {
       .map(ActiveRuleDto::getProfileUuid)
       .collect(Collectors.toSet());
   }
+
   private void insertRuleChange(DbSession dbSession, RuleChangeDto ruleChangeDto) {
     dbClient.ruleChangeDao().insert(dbSession, ruleChangeDto);
   }
 
   private static Set<RuleImpactChangeDto> createRuleImpactChanges(PluginRuleUpdate pluginRuleUpdate, RuleChangeDto ruleChangeDto) {
     Set<RuleImpactChangeDto> ruleImpactChangeDtos = new HashSet<>();
-
-    pluginRuleUpdate.getMatchingSoftwareQualities().stream()
-      .map(softwareQuality -> {
-        RuleImpactChangeDto ruleImpactChangeDto = new RuleImpactChangeDto();
-        ruleImpactChangeDto.setRuleChangeUuid(ruleChangeDto.getUuid());
-        ruleImpactChangeDto.setOldSeverity(pluginRuleUpdate.getOldImpacts().get(softwareQuality));
-        ruleImpactChangeDto.setOldSoftwareQuality(softwareQuality);
-        ruleImpactChangeDto.setNewSeverity(pluginRuleUpdate.getNewImpacts().get(softwareQuality));
-        ruleImpactChangeDto.setNewSoftwareQuality(softwareQuality);
-        return ruleImpactChangeDto;
-      }).forEach(ruleImpactChangeDtos::add);
 
     Iterator<SoftwareQuality> removedIterator = (Sets.difference(pluginRuleUpdate.getOldImpacts().keySet(), pluginRuleUpdate.getMatchingSoftwareQualities())).iterator();
     Iterator<SoftwareQuality> addedIterator = (Sets.difference(pluginRuleUpdate.getNewImpacts().keySet(), pluginRuleUpdate.getMatchingSoftwareQualities())).iterator();

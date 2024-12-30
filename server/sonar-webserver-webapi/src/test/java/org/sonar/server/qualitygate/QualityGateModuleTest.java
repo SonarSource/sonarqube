@@ -29,6 +29,6 @@ public class QualityGateModuleTest {
   public void verify_count_of_added_components() {
     ListContainer container = new ListContainer();
     new QualityGateModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(5);
+    assertThat(container.getAddedObjects()).hasSize(8);
   }
 }

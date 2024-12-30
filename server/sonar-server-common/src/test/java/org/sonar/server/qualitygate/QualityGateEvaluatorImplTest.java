@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.ConfigurationBridge;
@@ -34,25 +34,28 @@ import org.sonar.api.measures.Metric;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
 
-public class QualityGateEvaluatorImplTest {
+class QualityGateEvaluatorImplTest {
   private final MapSettings settings = new MapSettings();
   private final Configuration configuration = new ConfigurationBridge(settings);
-  private final QualityGateEvaluator underTest = new QualityGateEvaluatorImpl();
+  QualityGateFallbackManager qualityGateFallbackManager = mock(QualityGateFallbackManager.class);
+  private final QualityGateEvaluator underTest = new QualityGateEvaluatorImpl(qualityGateFallbackManager);
 
   @Test
-  public void getMetricKeys_includes_by_default_new_lines() {
+  void getMetricKeys_includes_by_default_new_lines() {
     QualityGate gate = mock(QualityGate.class);
     assertThat(underTest.getMetricKeys(gate)).containsExactly(NEW_LINES_KEY);
   }
 
   @Test
-  public void getMetricKeys_includes_metrics_from_qgate() {
+  void getMetricKeys_includes_metrics_from_qgate() {
     Set<String> metricKeys = ImmutableSet.of("foo", "bar", "baz");
     Set<Condition> conditions = metricKeys.stream().map(key -> {
       Condition condition = mock(Condition.class);
@@ -66,7 +69,40 @@ public class QualityGateEvaluatorImplTest {
   }
 
   @Test
-  public void evaluated_conditions_are_sorted() {
+  void getMetricKeys_shouldIncludeFallbackConditionsMetricKeys() {
+    Set<String> metricKeys = ImmutableSet.of("foo", "bar", "baz");
+    when(qualityGateFallbackManager.getFallbackCondition(any())).thenReturn(Optional.of(new Condition("fallback", Condition.Operator.GREATER_THAN, "0")));
+    Set<Condition> conditions = metricKeys.stream().map(key -> {
+      Condition condition = mock(Condition.class);
+      when(condition.getMetricKey()).thenReturn(key);
+      return condition;
+    }).collect(Collectors.toSet());
+
+    QualityGate gate = mock(QualityGate.class);
+    when(gate.getConditions()).thenReturn(conditions);
+    assertThat(underTest.getMetricKeys(gate)).containsAll(metricKeys);
+    assertThat(underTest.getMetricKeys(gate)).contains("fallback");
+  }
+
+  @Test
+  void evaluate_whenConditionHasNoDataAndHasFallBack_shouldEvaluateFallbackInstead() {
+    when(qualityGateFallbackManager.getFallbackCondition(any())).thenReturn(Optional.of(new Condition("fallback", Condition.Operator.GREATER_THAN, "0")));
+    Condition condition = mock(Condition.class);
+    when(condition.getMetricKey()).thenReturn("foo");
+
+    QualityGate gate = mock(QualityGate.class);
+    when(gate.getConditions()).thenReturn(Set.of(condition));
+    QualityGateEvaluator.Measures measures = mock(QualityGateEvaluator.Measures.class);
+    when(measures.get("foo")).thenReturn(Optional.empty());
+    when(measures.get("fallback")).thenReturn(Optional.of(new FakeMeasure(1)));
+
+    assertThat(underTest.evaluate(gate, measures, configuration).getEvaluatedConditions())
+      .extracting(x -> x.getCondition().getMetricKey(), x -> x.getOriginalCondition().getMetricKey())
+      .containsExactly(tuple("fallback", "foo"));
+  }
+
+  @Test
+  void evaluated_conditions_are_sorted() {
     Set<String> metricKeys = ImmutableSet.of("foo", "bar", NEW_MAINTAINABILITY_RATING_KEY);
     Set<Condition> conditions = metricKeys.stream().map(key -> {
       Condition condition = mock(Condition.class);
@@ -79,11 +115,11 @@ public class QualityGateEvaluatorImplTest {
     QualityGateEvaluator.Measures measures = mock(QualityGateEvaluator.Measures.class);
 
     assertThat(underTest.evaluate(gate, measures, configuration).getEvaluatedConditions()).extracting(x -> x.getCondition().getMetricKey())
-    .containsExactly(NEW_MAINTAINABILITY_RATING_KEY, "bar", "foo");
+      .containsExactly(NEW_MAINTAINABILITY_RATING_KEY, "bar", "foo");
   }
 
   @Test
-  public void evaluate_is_OK_for_empty_qgate() {
+  void evaluate_is_OK_for_empty_qgate() {
     QualityGate gate = mock(QualityGate.class);
     QualityGateEvaluator.Measures measures = mock(QualityGateEvaluator.Measures.class);
     EvaluatedQualityGate evaluatedQualityGate = underTest.evaluate(gate, measures, configuration);
@@ -91,7 +127,7 @@ public class QualityGateEvaluatorImplTest {
   }
 
   @Test
-  public void evaluate_is_ERROR() {
+  void evaluate_is_ERROR() {
     Condition condition = new Condition(NEW_MAINTAINABILITY_RATING_KEY, Condition.Operator.GREATER_THAN, "0");
 
     QualityGate gate = mock(QualityGate.class);
@@ -102,7 +138,7 @@ public class QualityGateEvaluatorImplTest {
   }
 
   @Test
-  public void evaluate_for_small_changes() {
+  void evaluate_for_small_changes() {
     Condition condition = new Condition(NEW_DUPLICATED_LINES_KEY, Condition.Operator.GREATER_THAN, "0");
 
     Map<String, QualityGateEvaluator.Measure> notSmallChange = new HashMap<>();

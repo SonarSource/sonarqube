@@ -32,7 +32,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.InternalPropertiesDao;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -65,8 +65,8 @@ public class GlobalLockManagerImplTest {
   }
 
   @Test
-  public void tryLock_fails_with_IAE_if_name_length_is_more_than_max_or_more() {
-    String badLockName = RandomStringUtils.random(LOCK_NAME_MAX_LENGTH + 1 + new Random().nextInt(96));
+  public void tryLock_fails_with_IAE_if_name_length_is_more_than_max() {
+    String badLockName = RandomStringUtils.secure().next(LOCK_NAME_MAX_LENGTH + 1);
 
     expectBadLockNameIAE(() -> underTest.tryLock(badLockName), badLockName);
   }
@@ -74,7 +74,7 @@ public class GlobalLockManagerImplTest {
   @Test
   public void tryLock_accepts_name_with_allowed_length() {
     for (int i = 1; i <= LOCK_NAME_MAX_LENGTH; i++) {
-      String lockName = RandomStringUtils.random(i);
+      String lockName = RandomStringUtils.secure().next(i);
       assertThatNoException().isThrownBy(() -> underTest.tryLock(lockName));
     }
   }
@@ -106,14 +106,14 @@ public class GlobalLockManagerImplTest {
   @UseDataProvider("randomValidDuration")
   public void tryLock_with_duration_accepts_name_with_length_15_or_less(int randomValidDuration) {
     for (int i = 1; i <= 15; i++) {
-      underTest.tryLock(RandomStringUtils.random(i), randomValidDuration);
+      underTest.tryLock(RandomStringUtils.secure().next(i), randomValidDuration);
     }
   }
 
   @Test
   @UseDataProvider("randomValidDuration")
-  public void tryLock_with_duration_fails_with_IAE_if_name_length_is_36_or_more(int randomValidDuration) {
-    String badLockName = RandomStringUtils.random(LOCK_NAME_MAX_LENGTH + 1 + new Random().nextInt(65));
+  public void tryLock_with_duration_fails_with_IAE_if_name_length_is_more_than_36(int randomValidDuration) {
+    String badLockName = RandomStringUtils.secure().next(LOCK_NAME_MAX_LENGTH + 1);
 
     expectBadLockNameIAE(() -> underTest.tryLock(badLockName, randomValidDuration), badLockName);
   }
@@ -127,7 +127,7 @@ public class GlobalLockManagerImplTest {
   @Test
   @UseDataProvider("randomValidLockName")
   public void tryLock_with_duration_fails_with_IAE_if_duration_is_less_than_0(String randomValidLockName) {
-    int negativeDuration = -1 - new Random().nextInt(100);
+    int negativeDuration = -1;
 
     expectBadDuration(() -> underTest.tryLock(randomValidLockName, negativeDuration), negativeDuration);
   }
@@ -151,7 +151,7 @@ public class GlobalLockManagerImplTest {
   @DataProvider
   public static Object[][] randomValidLockName() {
     return new Object[][] {
-      {randomAlphabetic(1 + new Random().nextInt(LOCK_NAME_MAX_LENGTH))}
+      {secure().nextAlphabetic(1 + new Random().nextInt(LOCK_NAME_MAX_LENGTH))}
     };
   }
 

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
@@ -414,7 +415,7 @@ function getPageObject() {
           name: `background_tasks.show_actions_for_task_x_in_list.${rowIndex}`,
         }),
       );
-      await user.click(within(row).getByRole('menuitem', { name: label }));
+      await user.click(screen.getByRole('menuitem', { name: label }));
     },
   };
 

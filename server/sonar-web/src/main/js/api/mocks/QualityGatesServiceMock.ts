@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { cloneDeep, flatten, omit, remove } from 'lodash';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { Project } from '../../apps/quality-gates/components/Projects';
+import { MQR_CONDITIONS_MAP, STANDARD_CONDITIONS_MAP } from '../../apps/quality-gates/utils';
 import {
   mockQualityGate,
   mockQualityGateApplicationStatus,
@@ -33,6 +35,7 @@ import {
   SearchPermissionsParameters,
 } from '../../types/quality-gates';
 import { CaycStatus, Condition, QualityGate } from '../../types/types';
+import { AiCodeAssuranceStatus } from '../ai-code-assurance';
 import {
   addGroup,
   addUser,
@@ -45,6 +48,7 @@ import {
   dissociateGateWithProject,
   fetchQualityGate,
   fetchQualityGates,
+  getAllQualityGateProjects,
   getApplicationQualityGate,
   getGateForProject,
   getQualityGateProjectStatus,
@@ -52,6 +56,7 @@ import {
   searchGroups,
   searchProjects,
   searchUsers,
+  setQualityGateAiQualified,
   setQualityGateAsDefault,
   updateCondition,
 } from '../quality-gates';
@@ -118,9 +123,12 @@ export class QualityGatesServiceMock {
             error: '3',
           },
         ],
+        hasStandardConditions: true,
+        hasMQRConditions: false,
         isDefault: true,
         isBuiltIn: false,
         caycStatus: CaycStatus.Compliant,
+        isAiCodeSupported: false,
       }),
       mockQualityGate({
         name: 'SonarSource way - CFamily',
@@ -139,19 +147,31 @@ export class QualityGatesServiceMock {
             error: '0',
             isCaycCondition: true,
           },
-          { id: 'AXJMbIUHPAOIsUIE3eNs', metric: 'new_security_rating', op: 'GT', error: '1' },
-          { id: 'AXJMbIUHPAOIsUIE3eNy', metric: 'new_security_rating', op: 'GT', error: '0' },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eOl',
+            metric: MetricKey.new_software_quality_security_rating,
+            op: 'GT',
+            error: '1',
+          },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eOd',
+            metric: MetricKey.new_software_quality_security_rating,
+            op: 'GT',
+            error: '0',
+          },
           { id: 'deprecated', metric: 'function_complexity', op: 'LT', error: '1' },
         ],
         isDefault: false,
         isBuiltIn: false,
+        hasStandardConditions: false,
+        hasMQRConditions: true,
         caycStatus: CaycStatus.NonCompliant,
       }),
       mockQualityGate({
         name: 'Sonar way',
         conditions: [
           {
-            id: 'AXJMbIUHPAOIsUIE3eNs',
+            id: 'AXJMbIUHPAOIsUIE3eQQ',
             metric: 'new_violations',
             op: 'GT',
             error: '0',
@@ -181,28 +201,115 @@ export class QualityGatesServiceMock {
         ],
         isDefault: false,
         isBuiltIn: true,
+        hasStandardConditions: false,
+        hasMQRConditions: false,
+        caycStatus: CaycStatus.Compliant,
+        isAiCodeSupported: false,
+      }),
+      mockQualityGate({
+        name: 'Sonar way for AI code',
+        conditions: [
+          {
+            id: 'AXJMbIUHPAOIsUIE3eQQ',
+            metric: 'new_violations',
+            op: 'GT',
+            error: '0',
+            isCaycCondition: true,
+          },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eOF',
+            metric: 'new_coverage',
+            op: 'LT',
+            error: '80',
+            isCaycCondition: true,
+          },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eOG',
+            metric: 'new_duplicated_lines_density',
+            op: 'GT',
+            error: '3',
+            isCaycCondition: true,
+          },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eOk',
+            metric: 'new_security_hotspots_reviewed',
+            op: 'LT',
+            error: '100',
+            isCaycCondition: true,
+          },
+          {
+            id: '0cf34ce4-7760-4bbb-8d8c-41e32b1913c8',
+            metric: 'software_quality_security_rating',
+            op: 'GT',
+            error: '1',
+            isCaycCondition: false,
+          },
+          {
+            id: 'fc3d8a6e-e020-48a8-8bcb-ceccd1f9ca63',
+            metric: 'security_hotspots_reviewed',
+            op: 'LT',
+            error: '100',
+            isCaycCondition: false,
+          },
+          {
+            id: 'eae5888d-92d6-463a-bd81-9911debaa88d',
+            metric: 'software_quality_reliability_rating',
+            op: 'GT',
+            error: '3',
+            isCaycCondition: false,
+          },
+        ],
+        isDefault: false,
+        isBuiltIn: true,
+        hasStandardConditions: false,
+        hasMQRConditions: false,
+        isAiCodeSupported: true,
         caycStatus: CaycStatus.Compliant,
       }),
       mockQualityGate({
         name: 'Non Cayc QG',
         conditions: [
-          { id: 'AXJMbIUHPAOIsUIE3eNs', metric: 'new_security_rating', op: 'GT', error: '1' },
-          { id: 'AXJMbIUHPAOIsUIE3eOD', metric: 'new_reliability_rating', op: 'GT', error: '1' },
-          { id: 'AXJMbIUHPAOIsUIE3eOF', metric: 'new_coverage', op: 'LT', error: '80' },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eCC',
+            metric: MetricKey.new_software_quality_security_rating,
+            op: 'LT',
+            error: '80',
+          },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eOD',
+            metric: MetricKey.new_software_quality_reliability_rating,
+            op: 'LT',
+            error: '80',
+          },
+          { id: 'AXJMbIUHPAOIsUIE3eOA', metric: MetricKey.new_coverage, op: 'LT', error: '80' },
         ],
         isDefault: false,
         isBuiltIn: false,
         caycStatus: CaycStatus.NonCompliant,
+        hasStandardConditions: false,
+        hasMQRConditions: true,
       }),
       mockQualityGate({
         name: 'Non Cayc Compliant QG',
         conditions: [
-          { id: 'AXJMbIUHPAOIsUIE3eNs', metric: 'new_security_rating', op: 'GT', error: '1' },
-          { id: 'AXJMbIUHPAOIsUIE3eOD', metric: 'new_reliability_rating', op: 'GT', error: '1' },
-          { id: 'AXJMbIUHPAOIsUIE3eOF', metric: 'new_coverage', op: 'LT', error: '80' },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eDD',
+            metric: MetricKey.new_software_quality_security_rating,
+            op: 'GT',
+            error: '1',
+          },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eDA',
+            metric: MetricKey.new_software_quality_reliability_rating,
+            op: 'GT',
+            error: '1',
+          },
+          { id: 'AXJMbIUHPAOIsUIE3eDK', metric: MetricKey.new_coverage, op: 'LT', error: '80' },
         ],
         isDefault: false,
         isBuiltIn: false,
+        hasStandardConditions: false,
+        hasMQRConditions: true,
         caycStatus: CaycStatus.Compliant,
       }),
       mockQualityGate({
@@ -234,6 +341,8 @@ export class QualityGatesServiceMock {
         ],
         isDefault: false,
         isBuiltIn: false,
+        hasStandardConditions: true,
+        hasMQRConditions: false,
         caycStatus: CaycStatus.OverCompliant,
       }),
       mockQualityGate({
@@ -241,15 +350,53 @@ export class QualityGatesServiceMock {
         conditions: [],
         isDefault: false,
         isBuiltIn: false,
+        hasStandardConditions: false,
+        hasMQRConditions: false,
         caycStatus: CaycStatus.NonCompliant,
       }),
       mockQualityGate({
         name: 'QG without new code conditions',
         conditions: [
-          { id: 'AXJMbIUHPAOIsUIE3eNs', metric: 'security_rating', op: 'GT', error: '1' },
+          { id: 'AXJMbIUHPAOIsUIE3eAA', metric: 'security_rating', op: 'GT', error: '1' },
         ],
         isDefault: false,
         isBuiltIn: false,
+        hasStandardConditions: true,
+        hasMQRConditions: false,
+        caycStatus: CaycStatus.NonCompliant,
+      }),
+      mockQualityGate({
+        name: 'QG with MQR conditions',
+        conditions: [
+          {
+            id: 'AXJMbIUHPAOIsUIE3eWW',
+            metric: MetricKey.software_quality_security_rating,
+            op: 'GT',
+            error: '1',
+          },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eW1',
+            metric: MetricKey.new_software_quality_blocker_issues,
+            op: 'GT',
+            error: '1',
+          },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eW2',
+            metric: MetricKey.new_software_quality_high_issues,
+            op: 'GT',
+            error: '1',
+          },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eW3',
+            metric: MetricKey.high_impact_accepted_issues,
+            op: 'GT',
+            error: '1',
+          },
+        ],
+        isDefault: false,
+        isBuiltIn: false,
+        hasStandardConditions: false,
+        hasMQRConditions: true,
         caycStatus: CaycStatus.NonCompliant,
       }),
     ];
@@ -257,12 +404,48 @@ export class QualityGatesServiceMock {
     this.list = cloneDeep(this.readOnlyList);
 
     this.projects = [
-      { key: 'test1', name: 'test1', selected: false, isAiCodeAssured: false },
-      { key: 'test2', name: 'test2', selected: false, isAiCodeAssured: false },
-      { key: 'test3', name: 'test3', selected: true, isAiCodeAssured: false },
-      { key: 'test4', name: 'test4', selected: true, isAiCodeAssured: false },
-      { key: 'test5', name: 'test5', selected: true, isAiCodeAssured: true },
-      { key: 'test6', name: 'test6', selected: false, isAiCodeAssured: true },
+      {
+        key: 'test1',
+        name: 'test1',
+        selected: false,
+        aiCodeAssurance: AiCodeAssuranceStatus.NONE,
+      },
+      {
+        key: 'test2',
+        name: 'test2',
+        selected: false,
+        aiCodeAssurance: AiCodeAssuranceStatus.NONE,
+      },
+      {
+        key: 'test3',
+        name: 'test3',
+        selected: true,
+        aiCodeAssurance: AiCodeAssuranceStatus.NONE,
+      },
+      {
+        key: 'test4',
+        name: 'test4',
+        selected: true,
+        aiCodeAssurance: AiCodeAssuranceStatus.NONE,
+      },
+      {
+        key: 'test5',
+        name: 'test5',
+        selected: true,
+        aiCodeAssurance: AiCodeAssuranceStatus.CONTAINS_AI_CODE,
+      },
+      {
+        key: 'test6',
+        name: 'test6',
+        selected: false,
+        aiCodeAssurance: AiCodeAssuranceStatus.CONTAINS_AI_CODE,
+      },
+      {
+        key: 'test7',
+        name: 'test7',
+        selected: true,
+        aiCodeAssurance: AiCodeAssuranceStatus.AI_CODE_ASSURED,
+      },
     ];
 
     this.getGateForProjectGateName = 'SonarSource way';
@@ -278,6 +461,9 @@ export class QualityGatesServiceMock {
     jest.mocked(updateCondition).mockImplementation(this.updateConditionHandler);
     jest.mocked(deleteCondition).mockImplementation(this.deleteConditionHandler);
     jest.mocked(searchProjects).mockImplementation(this.searchProjectsHandler);
+    jest
+      .mocked(getAllQualityGateProjects)
+      .mockImplementation(this.getAllQualityGateProjectsHandler);
     jest.mocked(searchUsers).mockImplementation(this.searchUsersHandler);
     jest.mocked(searchGroups).mockImplementation(this.searchGroupsHandler);
     jest.mocked(associateGateWithProject).mockImplementation(this.selectHandler);
@@ -286,6 +472,7 @@ export class QualityGatesServiceMock {
     jest.mocked(getGateForProject).mockImplementation(this.projectGateHandler);
     jest.mocked(getQualityGateProjectStatus).mockImplementation(this.handleQualityGetProjectStatus);
     jest.mocked(getApplicationQualityGate).mockImplementation(this.handleGetApplicationQualityGate);
+    jest.mocked(setQualityGateAiQualified).mockImplementation(this.handleSetQualityGateAiQualified);
 
     this.qualityGateProjectStatus = mockQualityGateProjectStatus({});
     this.applicationQualityGate = mockQualityGateApplicationStatus({});
@@ -334,6 +521,7 @@ export class QualityGatesServiceMock {
       delete: q.isBuiltIn ? false : this.isAdmin,
       manageConditions: this.isAdmin,
       delegate: this.isAdmin,
+      manageAiCodeAssurance: this.isAdmin && !q.isBuiltIn,
     };
   }
 
@@ -464,6 +652,10 @@ export class QualityGatesServiceMock {
 
     conditions.push(newCondition);
     qg.conditions = conditions;
+    qg.hasMQRConditions =
+      qg.hasMQRConditions || MQR_CONDITIONS_MAP[metric as MetricKey] !== undefined;
+    qg.hasStandardConditions =
+      qg.hasStandardConditions || STANDARD_CONDITIONS_MAP[metric as MetricKey] !== undefined;
     return this.reply(newCondition);
   };
 
@@ -478,6 +670,17 @@ export class QualityGatesServiceMock {
     condition.error = error;
     condition.isCaycCondition = isCaycCondition;
 
+    const qg = this.list.find((qg) => qg.conditions?.find((c) => c.id === id));
+
+    if (qg) {
+      qg.hasMQRConditions =
+        qg.conditions?.some((c) => MQR_CONDITIONS_MAP[c.metric as MetricKey] !== undefined) ||
+        false;
+      qg.hasStandardConditions =
+        qg.conditions?.some((c) => STANDARD_CONDITIONS_MAP[c.metric as MetricKey] !== undefined) ||
+        false;
+    }
+
     return this.reply(condition);
   };
 
@@ -485,6 +688,18 @@ export class QualityGatesServiceMock {
     this.list.forEach((q) => {
       remove(q.conditions || [], (c) => c.id === id);
     });
+
+    const qg = this.list.find((qg) => qg.conditions?.find((c) => c.id === id));
+
+    if (qg) {
+      qg.hasMQRConditions =
+        qg.conditions?.some((c) => MQR_CONDITIONS_MAP[c.metric as MetricKey] !== undefined) ||
+        false;
+      qg.hasStandardConditions =
+        qg.conditions?.some((c) => STANDARD_CONDITIONS_MAP[c.metric as MetricKey] !== undefined) ||
+        false;
+    }
+
     return Promise.resolve();
   };
 
@@ -510,6 +725,27 @@ export class QualityGatesServiceMock {
     const response = {
       paging: { pageIndex: 1, pageSize: 3, total: 55 },
       results: filteredProjects,
+    };
+    return this.reply(response);
+  };
+
+  getAllQualityGateProjectsHandler = async ({
+    gateName,
+    selected,
+    query,
+  }: {
+    gateName: string;
+    query: string | undefined;
+    selected: string;
+  }) => {
+    const initialResponse = await this.searchProjectsHandler({ gateName: '', query, selected });
+
+    const response = {
+      paging: { pageIndex: 3, pageSize: 3, total: 55 },
+      results:
+        gateName === 'SonarSource way'
+          ? initialResponse.results.filter((p) => p.aiCodeAssurance !== 'AI_CODE_ASSURED')
+          : initialResponse.results,
     };
     return this.reply(response);
   };
@@ -584,6 +820,15 @@ export class QualityGatesServiceMock {
     if (qg) {
       qg.caycStatus = caycStatus;
     }
+  };
+
+  handleSetQualityGateAiQualified = (gateName: string, aiCodeAssurance: boolean) => {
+    const targetQG = this.list.find((q) => q.name === gateName);
+    if (targetQG === undefined) {
+      return Promise.reject(new Error(`No quality gate has been found for name ${gateName}`));
+    }
+    targetQG.isAiCodeSupported = aiCodeAssurance;
+    return this.reply(undefined);
   };
 
   reply<T>(response: T): Promise<T> {

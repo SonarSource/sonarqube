@@ -50,10 +50,14 @@ public class ServerProcessLoggingTest {
   private ServerProcessLogging getServerProcessLoggingFakeImpl(ProcessId processId, String threadIdFieldPattern) {
     return new ServerProcessLogging(processId, threadIdFieldPattern) {
       @Override
-      protected void extendLogLevelConfiguration(LogLevelConfig.Builder logLevelConfigBuilder) {}
+      protected void extendLogLevelConfiguration(LogLevelConfig.Builder logLevelConfigBuilder) {
+        //Not needed for this test
+      }
 
       @Override
-      protected void extendConfigure(Props props) {}
+      protected void extendConfigure(Props props) {
+        //Not needed for this test
+      }
     };
   }
 }

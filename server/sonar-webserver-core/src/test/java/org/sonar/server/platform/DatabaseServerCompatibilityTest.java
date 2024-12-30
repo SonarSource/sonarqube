@@ -25,11 +25,13 @@ import org.junit.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.MessageException;
+import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class DatabaseServerCompatibilityTest {
@@ -37,34 +39,39 @@ public class DatabaseServerCompatibilityTest {
   @Rule
   public LogTester logTester = new LogTester();
 
+  private final DatabaseVersion version = mock(DatabaseVersion.class);
+  private final DocumentationLinkGenerator documentationLinkGenerator = mock(DocumentationLinkGenerator.class);
+  private final DatabaseServerCompatibility compatibility = new DatabaseServerCompatibility(version, documentationLinkGenerator);
+
   @Test
   public void fail_if_requires_downgrade() {
-    DatabaseVersion version = mock(DatabaseVersion.class);
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_DOWNGRADE);
-    var compatibility = new DatabaseServerCompatibility(version);
+
     assertThatThrownBy(compatibility::start)
       .isInstanceOf(MessageException.class)
       .hasMessage("Database was upgraded to a more recent version of SonarQube. "
         + "A backup must probably be restored or the DB settings are incorrect.");
+    verifyNoInteractions(documentationLinkGenerator);
   }
 
   @Test
   public void fail_if_requires_firstly_to_upgrade_to_lta() {
-    DatabaseVersion version = mock(DatabaseVersion.class);
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_UPGRADE);
     when(version.getVersion()).thenReturn(Optional.of(12L));
-    var compatibility = new DatabaseServerCompatibility(version);
+
     assertThatThrownBy(compatibility::start)
       .isInstanceOf(MessageException.class)
       .hasMessage("The version of SonarQube you are trying to upgrade from is too old. Please upgrade to the 9.9 Long-Term Active version first.");
+    verifyNoInteractions(documentationLinkGenerator);
   }
 
   @Test
   public void log_warning_if_requires_upgrade() {
-    DatabaseVersion version = mock(DatabaseVersion.class);
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_UPGRADE);
     when(version.getVersion()).thenReturn(Optional.of(DatabaseVersion.MIN_UPGRADE_VERSION));
-    new DatabaseServerCompatibility(version).start();
+    when(documentationLinkGenerator.getDocumentationLink("/setup/upgrading")).thenReturn("https://docs.sonarsource.com/sonarqube/latest/setup/upgrading");
+
+    compatibility.start();
 
     assertThat(logTester.logs()).hasSize(4);
     assertThat(logTester.logs(Level.WARN)).contains(
@@ -78,9 +85,8 @@ public class DatabaseServerCompatibilityTest {
 
   @Test
   public void do_nothing_if_up_to_date() {
-    DatabaseVersion version = mock(DatabaseVersion.class);
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.UP_TO_DATE);
-    new DatabaseServerCompatibility(version).start();
+    compatibility.start();
     // no error
   }
 }

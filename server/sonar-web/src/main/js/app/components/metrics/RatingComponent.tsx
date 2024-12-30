@@ -19,15 +19,15 @@
  */
 
 import { Spinner, Tooltip } from '@sonarsource/echoes-react';
-import { MetricsRatingBadge, RatingEnum } from 'design-system';
 import * as React from 'react';
+import { MetricsRatingBadge, RatingEnum } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import { getLeakValue } from '../../../components/measure/utils';
 import { SOFTWARE_QUALITY_RATING_METRICS_MAP } from '../../../helpers/constants';
 import { isDiffMetric } from '../../../helpers/measures';
 import { useMeasureQuery } from '../../../queries/measures';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { BranchLike } from '../../../types/branch-like';
 
 type SizeType = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -59,7 +59,7 @@ function isNewRatingMetric(metricKey: MetricKey) {
 }
 
 const useGetMetricKeyForRating = (ratingMetric: RatingMetricKeys): MetricKey | null => {
-  const { data: isLegacy, isLoading } = useIsLegacyCCTMode();
+  const { data: isStandardMode, isLoading } = useStandardExperienceModeQuery();
 
   const hasSoftwareQualityRating = !!SOFTWARE_QUALITY_RATING_METRICS_MAP[ratingMetric];
 
@@ -70,7 +70,7 @@ const useGetMetricKeyForRating = (ratingMetric: RatingMetricKeys): MetricKey | n
   if (isLoading) {
     return null;
   }
-  return isLegacy || !hasSoftwareQualityRating
+  return isStandardMode || !hasSoftwareQualityRating
     ? ratingMetric
     : SOFTWARE_QUALITY_RATING_METRICS_MAP[ratingMetric];
 };
@@ -88,7 +88,7 @@ export default function RatingComponent(props: Readonly<Props>) {
   } = props;
 
   const metricKey = useGetMetricKeyForRating(ratingMetric as RatingMetricKeys);
-  const { data: isLegacy } = useIsLegacyCCTMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
   const { data: targetMeasure, isLoading: isLoadingTargetMeasure } = useMeasureQuery(
     { componentKey, metricKey: metricKey ?? '', branchLike },
     { enabled: !forceMetric && !!metricKey },
@@ -98,7 +98,8 @@ export default function RatingComponent(props: Readonly<Props>) {
     { componentKey, metricKey: ratingMetric, branchLike },
     {
       enabled:
-        forceMetric || (!isLegacy && !isNewRatingMetric(ratingMetric) && targetMeasure === null),
+        forceMetric ||
+        (!isStandardMode && !isNewRatingMetric(ratingMetric) && targetMeasure === null),
     },
   );
 

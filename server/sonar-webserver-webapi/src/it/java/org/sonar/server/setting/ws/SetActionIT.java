@@ -34,9 +34,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.config.PropertyDefinition.ConfigScope;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.PropertyFieldDefinition;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -45,6 +45,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.portfolio.PortfolioDto;
@@ -72,6 +73,7 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.auth.github.GitHubSettings.GITHUB_API_URL;
 import static org.sonar.auth.github.GitHubSettings.GITHUB_WEB_URL;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_URL;
+import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_ENABLED;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
@@ -306,7 +308,7 @@ public class SetActionIT {
       .subCategory("subCat")
       .type(PropertyType.PROPERTY_SET)
       .defaultValue("default")
-      .onQualifiers(Qualifiers.PROJECT)
+      .onConfigScopes(ConfigScope.PROJECT)
       .fields(List.of(
         PropertyFieldDefinition.build("firstField")
           .name("First Field")
@@ -329,8 +331,8 @@ public class SetActionIT {
     logInAsProjectAdministrator(project);
 
     callForComponentPropertySet("my.key", List.of(
-        GSON.toJson(Map.of("firstField", "firstValue", "secondField", "secondValue")),
-        GSON.toJson(Map.of("firstField", "anotherFirstValue", "secondField", "anotherSecondValue"))),
+      GSON.toJson(Map.of("firstField", "firstValue", "secondField", "secondValue")),
+      GSON.toJson(Map.of("firstField", "anotherFirstValue", "secondField", "anotherSecondValue"))),
       project.getKey());
 
     assertThat(dbClient.propertiesDao().selectGlobalProperties(dbSession)).hasSize(3);
@@ -734,7 +736,7 @@ public class SetActionIT {
       .subCategory("subCat")
       .type(PropertyType.INTEGER)
       .defaultValue("default")
-      .onlyOnQualifiers(Qualifiers.PROJECT)
+      .onlyOnConfigScopes(ConfigScope.PROJECT)
       .build());
 
     assertThatThrownBy(() -> callForGlobalSetting("my.key", "42"))
@@ -752,10 +754,10 @@ public class SetActionIT {
       .subCategory("subCat")
       .type(PropertyType.STRING)
       .defaultValue("default")
-      .onQualifiers(Qualifiers.PROJECT)
+      .onConfigScopes(ConfigScope.PROJECT)
       .build());
     ComponentDto view = db.components().insertPublicPortfolio();
-    i18n.put("qualifier." + Qualifiers.VIEW, "View");
+    i18n.put("qualifier." + ComponentQualifiers.VIEW, "View");
 
     assertThatThrownBy(() -> {
       logInAsPortfolioAdministrator(db.components().getPortfolioDto(view));
@@ -776,7 +778,7 @@ public class SetActionIT {
       .subCategory("subCat")
       .type(PropertyType.STRING)
       .defaultValue("default")
-      .onQualifiers(Qualifiers.PROJECT)
+      .onConfigScopes(ConfigScope.PROJECT)
       .build());
     i18n.put("qualifier." + portfolio.getQualifier(), "CptLabel");
     logInAsPortfolioAdministrator(portfolio);
@@ -926,8 +928,8 @@ public class SetActionIT {
       GSON.toJson(Map.of("firstField", "firstValue", "secondField", "secondValue")),
       GSON.toJson(Map.of("firstField", "", "secondField", "")),
       GSON.toJson(Map.of("firstField", "yetFirstValue", "secondField", "yetSecondValue")))))
-      .isInstanceOf(BadRequestException.class)
-      .hasMessage("A non empty value must be provided");
+        .isInstanceOf(BadRequestException.class)
+        .hasMessage("A non empty value must be provided");
   }
 
   @Test
@@ -1095,7 +1097,7 @@ public class SetActionIT {
       .defaultValue("default")
       .fields(List.of(PropertyFieldDefinition.build("firstField").name("First Field").type(PropertyType.STRING).build()))
       .build());
-    i18n.put("qualifier." + Qualifiers.PROJECT, "Project");
+    i18n.put("qualifier." + ComponentQualifiers.PROJECT, "Project");
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     logInAsProjectAdministrator(project);
 
@@ -1137,6 +1139,7 @@ public class SetActionIT {
       {GITLAB_AUTH_URL},
       {GITHUB_API_URL},
       {GITHUB_WEB_URL},
+      {MULTI_QUALITY_MODE_ENABLED},
     };
   }
 

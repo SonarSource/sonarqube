@@ -28,7 +28,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.event.Level;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.step.TestComputationStepContext;
@@ -55,7 +55,7 @@ public class ExportNewCodePeriodsStepIT {
     .setUuid(ANOTHER_PROJECT_UUID)
     .setUuidPath(UUID_PATH_OF_ROOT)
     .setBranchUuid(ANOTHER_PROJECT_UUID)
-    .setQualifier(Qualifiers.PROJECT)
+    .setQualifier(ComponentQualifiers.PROJECT)
     .setName("another_project")
     .setKey("another_project");
 

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { cloneDeep } from 'lodash';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import { MetricKey } from '~sonar-aligned/types/metrics';
@@ -34,20 +35,20 @@ const defaultMeasures = mockFullMeasureData(defaultComponents, mockIssuesList())
 const defaultPeriod = mockPeriod();
 
 export class MeasuresServiceMock {
-  #components: ComponentTree;
-  #measures: MeasureRecords;
-  #period: Period;
+  components: ComponentTree;
+  measures: MeasureRecords;
+  period: Period;
   reset: () => void;
 
   constructor(components?: ComponentTree, measures?: MeasureRecords, period?: Period) {
-    this.#components = components ?? cloneDeep(defaultComponents);
-    this.#measures = measures ?? cloneDeep(defaultMeasures);
-    this.#period = period ?? cloneDeep(defaultPeriod);
+    this.components = components ?? cloneDeep(defaultComponents);
+    this.measures = measures ?? cloneDeep(defaultMeasures);
+    this.period = period ?? cloneDeep(defaultPeriod);
 
     this.reset = () => {
-      this.#components = components ?? cloneDeep(defaultComponents);
-      this.#measures = measures ?? cloneDeep(defaultMeasures);
-      this.#period = period ?? cloneDeep(defaultPeriod);
+      this.components = components ?? cloneDeep(defaultComponents);
+      this.measures = measures ?? cloneDeep(defaultMeasures);
+      this.period = period ?? cloneDeep(defaultPeriod);
     };
 
     jest.mocked(getMeasures).mockImplementation(this.handleGetMeasures);
@@ -57,19 +58,19 @@ export class MeasuresServiceMock {
   }
 
   registerComponentMeasures = (measures: MeasureRecords) => {
-    this.#measures = measures;
+    this.measures = measures;
   };
 
   deleteComponentMeasure = (componentKey: string, measureKey: MetricKey) => {
-    delete this.#measures[componentKey][measureKey];
+    delete this.measures[componentKey][measureKey];
   };
 
   getComponentMeasures = () => {
-    return this.#measures;
+    return this.measures;
   };
 
   setComponents = (components: ComponentTree) => {
-    this.#components = components;
+    this.components = components;
   };
 
   findComponentTree = (key: string, from?: ComponentTree): ComponentTree => {
@@ -80,7 +81,7 @@ export class MeasuresServiceMock {
       return node.children.find((child) => recurse(child));
     };
 
-    const tree = recurse(from ?? this.#components);
+    const tree = recurse(from ?? this.components);
     if (!tree) {
       throw new Error(`Couldn't find component tree for key ${key}`);
     }
@@ -89,8 +90,8 @@ export class MeasuresServiceMock {
   };
 
   filterMeasures = (componentKey: string, metricKeys: string[]) => {
-    return this.#measures[componentKey]
-      ? Object.values(this.#measures[componentKey]).filter(({ metric }) =>
+    return this.measures[componentKey]
+      ? Object.values(this.measures[componentKey]).filter(({ metric }) =>
           metricKeys.includes(metric),
         )
       : [];
@@ -123,7 +124,7 @@ export class MeasuresServiceMock {
         ...component,
         measures,
       },
-      period: this.#period,
+      period: this.period,
       metrics,
     });
   };

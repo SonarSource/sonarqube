@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -86,7 +86,7 @@ public class ComponentIndexSearchTest {
     index(project.getProjectDto());
     index(db.components().getPortfolioDto(portfolio));
 
-    SearchIdResult<String> result = underTest.search(ComponentQuery.builder().setQualifiers(singleton(Qualifiers.PROJECT)).build(), new SearchOptions());
+    SearchIdResult<String> result = underTest.search(ComponentQuery.builder().setQualifiers(singleton(ComponentQualifiers.PROJECT)).build(), new SearchOptions());
 
     assertThat(result.getUuids()).containsExactlyInAnyOrder(project.projectUuid());
   }

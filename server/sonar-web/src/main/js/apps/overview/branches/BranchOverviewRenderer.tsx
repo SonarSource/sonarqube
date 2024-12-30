@@ -17,27 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { CardSeparator, CenteredLayout, PageContentFontWrapper } from 'design-system';
+
 import * as React from 'react';
 import { useState } from 'react';
+import { CardSeparator, CenteredLayout, PageContentFontWrapper } from '~design-system';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
-import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import AnalysisMissingInfoMessage from '../../../components/shared/AnalysisMissingInfoMessage';
 import { parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
-import { areCCTMeasuresComputed, isDiffMetric } from '../../../helpers/measures';
+import {
+  areCCTMeasuresComputed,
+  areSoftwareQualityRatingsComputed,
+  isDiffMetric,
+} from '../../../helpers/measures';
 import { CodeScope } from '../../../helpers/urls';
-import { useProjectAiCodeAssuredQuery } from '../../../queries/ai-code-assurance';
 import { useDismissNoticeMutation } from '../../../queries/users';
-import { MetricKey } from '../../../sonar-aligned/types/metrics';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch } from '../../../types/branch-like';
-import { isProject } from '../../../types/component';
-import { Feature } from '../../../types/features';
 import { Analysis, GraphType, MeasureHistory } from '../../../types/project-activity';
 import { QualityGateStatus } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced, Metric, Period, QualityGate } from '../../../types/types';
@@ -46,7 +46,6 @@ import { AnalysisStatus } from '../components/AnalysisStatus';
 import LastAnalysisLabel from '../components/LastAnalysisLabel';
 import { Status } from '../utils';
 import ActivityPanel from './ActivityPanel';
-import { AiCodeAssuranceWarrning } from './AiCodeAssuranceWarrning';
 import BranchMetaTopBar from './BranchMetaTopBar';
 import CaycPromotionGuide from './CaycPromotionGuide';
 import DismissablePromotedSection from './DismissablePromotedSection';
@@ -80,7 +79,7 @@ export interface BranchOverviewRendererProps {
   grc: boolean;
 }
 
-export default function BranchOverviewRenderer(props: BranchOverviewRendererProps) {
+export default function BranchOverviewRenderer(props: Readonly<BranchOverviewRendererProps>) {
   const {
     analyses,
     appLeak,
@@ -106,7 +105,6 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
   const router = useRouter();
 
   const { currentUser } = React.useContext(CurrentUserContext);
-  const { hasFeature } = useAvailableFeatures();
 
   const { mutateAsync: dismissNotice } = useDismissNoticeMutation();
 
@@ -117,25 +115,15 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
     currentUser.isLoggedIn &&
       !!currentUser.dismissedNotices[NoticeType.ONBOARDING_CAYC_BRANCH_SUMMARY_GUIDE],
   );
-  const { data: isAiCodeAssured } = useProjectAiCodeAssuredQuery(
-    { project: component.key },
-    { enabled: isProject(component.qualifier) && hasFeature(Feature.AiCodeAssurance) },
-  );
 
   const tab = query.codeScope === CodeScope.Overall ? CodeScope.Overall : CodeScope.New;
   const leakPeriod = component.qualifier === ComponentQualifier.Application ? appLeak : period;
   const isNewCodeTab = tab === CodeScope.New;
   const hasNewCodeMeasures = measures.some((m) => isDiffMetric(m.metric.key));
-  const hasOverallFindings = measures.some(
-    (m) =>
-      [MetricKey.violations, MetricKey.security_hotspots].includes(m.metric.key as MetricKey) &&
-      m.value !== '0',
-  );
 
   // Check if any potentially missing uncomputed measure is not present
-  // const isMissingMeasures =
-  //   !areCCTMeasuresComputed(measures) || !areSoftwareQualityRatingsComputed(measures);
-  const isMissingMeasures = !areCCTMeasuresComputed(measures);
+  const isMissingMeasures =
+    !areCCTMeasuresComputed(measures) || !areSoftwareQualityRatingsComputed(measures);
 
   const selectTab = (tab: CodeScope) => {
     router.replace({ query: { ...query, codeScope: tab } });
@@ -249,9 +237,6 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                   <LastAnalysisLabel analysisDate={branch?.analysisDate} />
                 </div>
                 <AnalysisStatus component={component} />
-                {hasOverallFindings && isAiCodeAssured && (
-                  <AiCodeAssuranceWarrning projectKey={component.key} />
-                )}
                 <div className="sw-flex sw-flex-col sw-mt-6">
                   <TabsPanel
                     grc={grc}

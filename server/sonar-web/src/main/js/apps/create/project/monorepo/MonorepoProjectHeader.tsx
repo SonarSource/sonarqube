@@ -19,9 +19,8 @@
  */
 
 import { LinkStandalone } from '@sonarsource/echoes-react';
-import { LightPrimary, Title } from 'design-system';
-import React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { LightPrimary, Title } from '~design-system';
 import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import { DocLink } from '../../../../helpers/doc-links';
 import { useDocUrl } from '../../../../helpers/docs';
@@ -47,7 +46,7 @@ export function MonorepoProjectHeader() {
         </LightPrimary>
       </div>
       <div className="sw-mt-3">
-        <LinkStandalone isExternal to={useDocUrl(DocLink.Monorepos)}>
+        <LinkStandalone shouldOpenInNewTab to={useDocUrl(DocLink.Monorepos)}>
           <FormattedMessage id="onboarding.create_project.monorepo.doc_link" />
         </LinkStandalone>
       </div>

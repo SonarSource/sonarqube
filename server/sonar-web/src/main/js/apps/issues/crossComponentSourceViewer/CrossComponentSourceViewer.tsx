@@ -19,9 +19,9 @@
  */
 
 import { Spinner } from '@sonarsource/echoes-react';
-import { FlagMessage } from 'design-system';
 import { findLastIndex, keyBy } from 'lodash';
 import * as React from 'react';
+import { FlagMessage } from '~design-system';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getComponentForSourceViewer, getDuplications, getSources } from '../../../api/components';

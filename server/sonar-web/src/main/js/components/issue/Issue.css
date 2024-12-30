@@ -19,9 +19,9 @@
  */
 .issue {
   position: relative;
-  padding-top: var(--gridSize);
-  padding-bottom: var(--gridSize);
-  background-color: var(--issueBgColor);
+  padding-top: 8px;
+  padding-bottom: 8px;
+  background-color: #f2dede;
   transition: all 0.3s ease;
   border: 2px solid transparent;
   cursor: pointer;
@@ -35,7 +35,7 @@
 .issue-message-box.selected {
   box-shadow: none;
   outline: none;
-  border: 2px solid var(--blue) !important;
+  border: 2px solid #4b9fd5 !important;
 }
 
 .issue + .issue,
@@ -56,17 +56,17 @@
 
 .issue-message .button-plain {
   line-height: 18px;
-  font-size: var(--baseFontSize);
+  font-size: 13px;
   font-weight: 600;
   text-align: left;
 }
 
 .issue-message {
   flex: 1;
-  padding-left: var(--gridSize);
-  padding-right: var(--gridSize);
+  padding-left: 8px;
+  padding-right: 8px;
   line-height: 18px;
-  font-size: var(--baseFontSize);
+  font-size: 13px;
   font-weight: 600;
   text-overflow: ellipsis;
 }
@@ -84,13 +84,13 @@
 }
 
 .issue-meta {
-  line-height: var(--smallFontSize);
-  font-size: var(--smallFontSize);
+  line-height: 12px;
+  font-size: 12px;
   display: flex;
 }
 
 .issue-meta + .issue-meta {
-  margin-left: var(--gridSize);
+  margin-left: 8px;
 }
 
 .issue-meta-label {
@@ -112,8 +112,8 @@
 
 .issue-comments {
   margin-top: 5px;
-  padding-left: var(--gridSize);
-  font-size: var(--smallFontSize);
+  padding-left: 8px;
+  font-size: 12px;
 }
 
 .issue-comment {
@@ -128,7 +128,7 @@
   flex-shrink: 0;
   max-width: 130px;
   line-height: 18px;
-  color: var(--secondFontColor);
+  color: #656565;
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -139,7 +139,7 @@
   flex-shrink: 0;
   line-height: 18px;
   white-space: nowrap;
-  color: var(--secondFontColor);
+  color: #656565;
 }
 
 .issue-comment-actions {
@@ -151,7 +151,7 @@
 
 .issue-comment-bubble-popup {
   width: 440px;
-  font-size: var(--smallFontSize);
+  font-size: 12px;
 }
 
 .issue-comment-form-text textarea {
@@ -208,7 +208,7 @@
 }
 
 .issue:not(.selected) .location-index {
-  background-color: var(--gray60);
+  background-color: #888;
 }
 
 .issue .menu:not(.issues-similar-issues-menu):not(.issue-changelog) {
@@ -217,27 +217,27 @@
 }
 
 .issue-message-box {
-  background-color: var(--issueBgColor);
+  background-color: #f2dede;
   border: 2px solid transparent;
   margin: 10px 0px;
 }
 
 .issue-message-highlight-CODE {
-  background-color: var(--whitea60);
+  background-color: rgba(255, 255, 255, 0.6);
   border-radius: 4px;
-  font-family: var(--sourceCodeFontFamily);
+  font-family: Consolas, 'Ubuntu Mono', 'Liberation Mono', Menlo, Courier, monospace;
   font-weight: 400;
   line-height: 1.4em;
   padding: 2px 2px 0;
 }
 
 .issue-message-box.secondary-issue {
-  background-color: var(--secondIssueBgColor);
+  background-color: #f8eeee;
 }
 
 .issue-message-box.secondary-issue:hover,
 .issue:hover {
-  border: 2px dashed var(--blue);
+  border: 2px dashed #4b9fd5;
   outline: 0;
   cursor: pointer;
 }
@@ -252,15 +252,15 @@
 }
 
 .issue-comment-tile {
-  background-color: var(--barBackgroundColor);
+  background-color: #f3f3f3;
 }
 
 .issue .button-link {
-  color: var(--veryDarkBlue);
+  color: #0e516f;
 }
 
 .issue .button-link:hover,
 .issue .button-link:focus,
 .issue .button-link:active {
-  color: var(--darkBlue);
+  color: #236a97;
 }

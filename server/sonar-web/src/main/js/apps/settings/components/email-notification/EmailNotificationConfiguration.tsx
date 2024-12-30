@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { NumberedList, NumberedListItem } from 'design-system/lib';
 import { noop } from 'lodash';
 import React, { useCallback, useEffect } from 'react';
+import { NumberedList, NumberedListItem } from '~design-system';
 import { translate } from '../../../../helpers/l10n';
 import {
   useSaveEmailConfigurationMutation,

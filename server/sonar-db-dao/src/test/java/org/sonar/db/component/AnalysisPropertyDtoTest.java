@@ -21,7 +21,7 @@ package org.sonar.db.component;
 
 import org.junit.jupiter.api.Test;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -68,10 +68,10 @@ class AnalysisPropertyDtoTest {
   @Test
   void test_equality() {
     underTest = new AnalysisPropertyDto()
-      .setUuid(randomAlphanumeric(40))
-      .setAnalysisUuid(randomAlphanumeric(40))
-      .setKey(randomAlphanumeric(512))
-      .setValue(randomAlphanumeric(10000));
+      .setUuid(secure().nextAlphanumeric(40))
+      .setAnalysisUuid(secure().nextAlphanumeric(40))
+      .setKey(secure().nextAlphanumeric(512))
+      .setValue(secure().nextAlphanumeric(10000));
 
     assertThat(underTest)
       .isEqualTo(
@@ -109,10 +109,10 @@ class AnalysisPropertyDtoTest {
   @Test
   void test_hashcode() {
     underTest = new AnalysisPropertyDto()
-      .setUuid(randomAlphanumeric(40))
-      .setAnalysisUuid(randomAlphanumeric(40))
-      .setKey(randomAlphanumeric(512))
-      .setValue(randomAlphanumeric(10000));
+      .setUuid(secure().nextAlphanumeric(40))
+      .setAnalysisUuid(secure().nextAlphanumeric(40))
+      .setKey(secure().nextAlphanumeric(512))
+      .setValue(secure().nextAlphanumeric(10000));
 
     assertThat(underTest.hashCode()).isEqualTo(
       new AnalysisPropertyDto()

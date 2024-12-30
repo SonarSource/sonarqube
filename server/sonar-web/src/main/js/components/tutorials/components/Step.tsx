@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 /* eslint-disable jsx-a11y/no-static-element-interactions, jsx-a11y/no-noninteractive-tabindex */
 import styled from '@emotion/styled';
-import { Card, TutorialStep, TutorialStepList, themeBorder, themeColor } from 'design-system';
 import * as React from 'react';
+import { Card, TutorialStep, TutorialStepList, themeBorder, themeColor } from '~design-system';
 
 interface Props {
   finished?: boolean;

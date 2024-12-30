@@ -23,7 +23,7 @@ import java.security.SecureRandom;
 import java.util.Random;
 import org.sonar.core.util.Uuids;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 
 public class PluginTesting {
 
@@ -41,7 +41,7 @@ public class PluginTesting {
     return new PluginDto()
       .setUuid(uuid)
       .setKee(uuid)
-      .setFileHash(randomAlphanumeric(32))
+      .setFileHash(secure().nextAlphanumeric(32))
       .setCreatedAt(RANDOM.nextLong(Long.MAX_VALUE))
       .setUpdatedAt(RANDOM.nextLong(Long.MAX_VALUE));
   }

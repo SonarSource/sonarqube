@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskCanceledException;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -34,7 +34,7 @@ public class SimpleCeTaskInterrupterTest {
 
   @Test
   public void check_throws_CeTaskCanceledException_if_provided_thread_is_interrupted() throws InterruptedException {
-    String threadName = randomAlphabetic(30);
+    String threadName = secure().nextAlphabetic(30);
     ComputingThread t = new ComputingThread(threadName);
 
     try {

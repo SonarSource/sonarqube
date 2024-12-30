@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
-import { HotspotRating, LightLabel } from 'design-system';
 import React from 'react';
+import { HotspotRating, LightLabel } from '~design-system';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';

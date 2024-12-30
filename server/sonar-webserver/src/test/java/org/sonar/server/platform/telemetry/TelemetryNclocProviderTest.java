@@ -25,36 +25,29 @@ import org.mockito.Mockito;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.ProjectLocDistributionDto;
-import org.sonar.db.metric.MetricDto;
 import org.sonar.telemetry.core.Dimension;
 import org.sonar.telemetry.core.Granularity;
+import org.sonar.telemetry.legacy.ProjectLocDistributionDataProvider;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
 import static org.sonar.server.platform.telemetry.TelemetryNclocProvider.METRIC_KEY;
 
 class TelemetryNclocProviderTest {
 
-  DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
+  private final DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
+  private final ProjectLocDistributionDataProvider projectLocDistributionDataProvider = mock(ProjectLocDistributionDataProvider.class);
   private final DbSession dbSession = mock(DbSession.class);
 
   @Test
   void getValues_returnsTheRightLanguageDistribution() {
-    TelemetryNclocProvider telemetryNclocProvider = new TelemetryNclocProvider(dbClient);
+    TelemetryNclocProvider telemetryNclocProvider = new TelemetryNclocProvider(dbClient, projectLocDistributionDataProvider);
 
     when(dbClient.openSession(false)).thenReturn(dbSession);
 
-    when(dbClient.metricDao().selectByKeys(dbSession, asList(NCLOC_KEY, NCLOC_LANGUAGE_DISTRIBUTION_KEY))).thenReturn(Arrays.asList(
-      new MetricDto().setKey(NCLOC_KEY).setUuid("ncloc_uuid"),
-      new MetricDto().setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY).setUuid("ncloc_distribution_uuid")
-    ));
-
-    when(dbClient.liveMeasureDao().selectLargestBranchesLocDistribution(dbSession, "ncloc_uuid", "ncloc_distribution_uuid")).thenReturn(Arrays.asList(
+    when(projectLocDistributionDataProvider.getProjectLocDistribution(dbSession)).thenReturn(Arrays.asList(
       new ProjectLocDistributionDto("project1", "branch1-p1", "java=5000;xml=1000;js=1000"),
       new ProjectLocDistributionDto("project2", "branch1-p2", "java=10000;csharp=2000"),
       new ProjectLocDistributionDto("project3", "branch1-p3", "java=7000;js=500")
@@ -71,3 +64,4 @@ class TelemetryNclocProviderTest {
     assertThat(telemetryNclocProvider.getValues()).containsEntry("js", 1500L);
   }
 }
+

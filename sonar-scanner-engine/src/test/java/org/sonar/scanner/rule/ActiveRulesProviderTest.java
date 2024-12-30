@@ -25,11 +25,16 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.assertj.core.groups.Tuple;
 import org.junit.Test;
+import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.rule.LoadedActiveRule;
+import org.sonar.api.batch.rule.internal.DefaultActiveRule;
 import org.sonar.api.batch.rule.internal.DefaultActiveRules;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
@@ -50,6 +55,8 @@ public class ActiveRulesProviderTest {
     LoadedActiveRule r2 = mockRule("rule2");
     LoadedActiveRule r3 = mockRule("rule3");
 
+    r1.setImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
+
     List<LoadedActiveRule> qp1Rules = ImmutableList.of(r1, r2);
     List<LoadedActiveRule> qp2Rules = ImmutableList.of(r2, r3);
     List<LoadedActiveRule> qp3Rules = ImmutableList.of(r1, r3);
@@ -64,6 +71,13 @@ public class ActiveRulesProviderTest {
     assertThat(activeRules.findAll()).hasSize(3);
     assertThat(activeRules.findAll()).extracting("ruleKey").containsOnly(
       RuleKey.of("rule1", "rule1"), RuleKey.of("rule2", "rule2"), RuleKey.of("rule3", "rule3"));
+
+    Map<String, ActiveRule> activeRuleByKey = activeRules.findAll().stream().collect(Collectors.toMap(e -> e.ruleKey().rule(), e -> e));
+    assertThat(((DefaultActiveRule) activeRuleByKey.get("rule1")).impacts())
+      .containsExactlyInAnyOrderEntriesOf(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
+
+    assertThat(((DefaultActiveRule) activeRuleByKey.get("rule2")).impacts()).isEmpty();
+    assertThat(((DefaultActiveRule) activeRuleByKey.get("rule3")).impacts()).isEmpty();
 
     verify(loader).load("qp1");
     verify(loader).load("qp2");

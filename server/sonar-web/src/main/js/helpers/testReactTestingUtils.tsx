@@ -22,7 +22,6 @@ import { EchoesProvider } from '@sonarsource/echoes-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Matcher, RenderResult, render, screen, within } from '@testing-library/react';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
-import { ToastMessageContainer } from 'design-system';
 import { omit } from 'lodash';
 import * as React from 'react';
 import { HelmetProvider } from 'react-helmet-async';
@@ -37,6 +36,7 @@ import {
   createRoutesFromElements,
   parsePath,
 } from 'react-router-dom';
+import { ToastMessageContainer } from '~design-system';
 import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import AdminContext from '../app/components/AdminContext';
 import AppStateContextProvider from '../app/components/app-state/AppStateContextProvider';
@@ -221,10 +221,17 @@ function renderRoutedApp(
 
   const router = createMemoryRouter(
     createRoutesFromElements(
-      <>
+      <Route
+        element={
+          <>
+            <Outlet />
+            <ToastMessageContainer />
+          </>
+        }
+      >
         {children}
         <Route path="*" element={<CatchAll />} />
-      </>,
+      </Route>,
     ),
     { initialEntries: [path] },
   );
@@ -239,7 +246,6 @@ function renderRoutedApp(
                 <AppStateContextProvider appState={appState}>
                   <IndexationContextProvider>
                     <QueryClientProvider client={queryClient}>
-                      <ToastMessageContainer />
                       <EchoesProvider tooltipsDelayDuration={0}>
                         <RouterProvider router={router} />
                       </EchoesProvider>

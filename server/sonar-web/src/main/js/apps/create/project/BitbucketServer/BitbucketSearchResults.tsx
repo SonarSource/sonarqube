@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FlagMessage, Spinner } from 'design-system';
-import * as React from 'react';
+
+import { FlagMessage, Spinner } from '~design-system';
 import { translate } from '../../../../helpers/l10n';
 import { BitbucketProject, BitbucketRepository } from '../../../../types/alm-integration';
 import BitbucketProjectAccordion from './BitbucketProjectAccordion';

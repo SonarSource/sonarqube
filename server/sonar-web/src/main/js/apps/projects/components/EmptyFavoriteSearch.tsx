@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FishVisual, Highlight, StandoutLink } from 'design-system';
-import * as React from 'react';
+
+import { Link, Text, TextSize } from '@sonarsource/echoes-react';
 import { FormattedMessage } from 'react-intl';
+import { FishVisual } from '~design-system';
 import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { translate } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';
@@ -27,25 +28,25 @@ import { Query } from '../query';
 
 export default function EmptyFavoriteSearch({ query }: { query: Query }) {
   return (
-    <div aria-live="assertive" className="sw-py-8 sw-text-center">
+    <div className="sw-flex sw-flex-col sw-items-center sw-py-8">
       <FishVisual />
-      <Highlight as="h3" className="sw-typo-lg-semibold sw-mt-6">
+      <Text isHighlighted size={TextSize.Large} className="sw-mt-6">
         {translate('no_results_search.favorites')}
-      </Highlight>
+      </Text>
       <div className="sw-my-4 sw-typo-default">
         <FormattedMessage
           defaultMessage={translate('no_results_search.favorites.2')}
           id="no_results_search.favorites.2"
           values={{
             url: (
-              <StandoutLink
+              <Link
                 to={{
                   pathname: '/projects',
                   search: queryToSearchString(query as Dict<string | undefined | number>),
                 }}
               >
                 {translate('all')}
-              </StandoutLink>
+              </Link>
             ),
           }}
         />

@@ -52,7 +52,7 @@ import org.sonar.db.rule.RuleDto;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -215,7 +215,7 @@ public class ComponentIssuesLoaderIT {
     System2 system2 = mock(System2.class);
     DbClient dbClient = mock(DbClient.class);
     Configuration configuration = newConfiguration("0");
-    String componentUuid = randomAlphabetic(15);
+    String componentUuid = secure().nextAlphabetic(15);
     ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClient, null, null, configuration, system2, issueChangesToDeleteRepository);
 
     assertThat(underTest.loadClosedIssues(componentUuid)).isEmpty();
@@ -388,7 +388,7 @@ public class ComponentIssuesLoaderIT {
       i++;
     }
     IntStream.range(0, random.nextInt(5))
-      .forEach(i -> diffs.add(new Diff(randomAlphabetic(10), random.nextBoolean() ? null : randomAlphabetic(11), random.nextBoolean() ? null : randomAlphabetic(12))));
+      .forEach(i -> diffs.add(new Diff(secure().nextAlphabetic(10), random.nextBoolean() ? null : secure().nextAlphabetic(11), random.nextBoolean() ? null : secure().nextAlphabetic(12))));
     Collections.shuffle(diffs);
 
     FieldDiffs res = new FieldDiffs();

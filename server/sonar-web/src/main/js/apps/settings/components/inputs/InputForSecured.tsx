@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button } from '@sonarsource/echoes-react';
-import { LockIcon } from 'design-system';
 import * as React from 'react';
+import { LockIcon } from '~design-system';
 import { translate } from '../../../../helpers/l10n';
 import {
   DefaultInputProps,
@@ -34,13 +35,16 @@ interface State {
 }
 
 interface Props extends DefaultInputProps {
-  innerRef: React.ForwardedRef<HTMLElement>;
   input: React.ComponentType<
     React.PropsWithChildren<DefaultSpecializedInputProps> & React.RefAttributes<HTMLElement>
   >;
 }
 
-class InputForSecured extends React.PureComponent<Props, State> {
+type InternalProps = Props & {
+  innerRef: React.ForwardedRef<HTMLElement>;
+};
+
+class InputForSecured extends React.PureComponent<InternalProps, State> {
   state: State = {
     changing: !this.props.setting.hasValue,
   };
@@ -107,8 +111,6 @@ class InputForSecured extends React.PureComponent<Props, State> {
   }
 }
 
-export default React.forwardRef(
-  (props: Omit<Props, 'innerRef'>, ref: React.ForwardedRef<HTMLElement>) => (
-    <InputForSecured innerRef={ref} {...props} />
-  ),
-);
+export default React.forwardRef((props: Props, ref: React.ForwardedRef<HTMLElement>) => (
+  <InputForSecured innerRef={ref} {...props} />
+));

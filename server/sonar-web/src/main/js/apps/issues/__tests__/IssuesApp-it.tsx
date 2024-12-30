@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen, within } from '@testing-library/react';
+
+import { screen, waitForElementToBeRemoved, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { IssueType } from '../../../types/issues';
@@ -62,7 +62,7 @@ describe('issues app', () => {
         canBrowseAllChildProjects: false,
         qualifier: ComponentQualifier.Portfolio,
       });
-      expect(screen.getByText('issues.not_all_issue_show')).toBeInTheDocument();
+      expect(await screen.findByText('issues.not_all_issue_show')).toBeInTheDocument();
 
       await user.keyboard('{ArrowRight}');
 
@@ -74,6 +74,18 @@ describe('issues app', () => {
 
       expect(await ui.fixedIssuesHeading.find()).toBeInTheDocument();
     });
+
+    it('should show issue type if old filter exists', async () => {
+      const component = renderProjectIssuesApp('project/issues?id=my-project');
+
+      expect(await ui.issueItem1.find()).not.toHaveTextContent('issue.type.VULNERABILITY');
+
+      component.unmount();
+
+      renderProjectIssuesApp('project/issues?id=my-project&types=VULNERABILITY');
+
+      expect(await ui.issueItem1.find()).toHaveTextContent('issue.type.VULNERABILITY');
+    });
   });
 
   describe('navigation', () => {
@@ -81,13 +93,15 @@ describe('issues app', () => {
       const user = userEvent.setup();
       renderIssueApp();
 
+      await waitForElementToBeRemoved(screen.queryByText('issues.loading_issues'));
+
       // Navigate to 2nd issue
       await user.keyboard('{ArrowDown}');
 
       // Select it
       await user.keyboard('{ArrowRight}');
       expect(
-        screen.getByRole('heading', { name: issuesHandler.list[1].issue.message }),
+        await screen.findByRole('heading', { name: issuesHandler.list[1].issue.message }),
       ).toBeInTheDocument();
 
       // Go back
@@ -116,7 +130,7 @@ describe('issues app', () => {
 
       // Are rule headers present?
       expect(screen.getByRole('heading', { level: 1, name: 'Fix that' })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: 'advancedRuleId' })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /^advancedRuleId/ })).toBeInTheDocument();
 
       // Select the "why is this an issue" tab and check its content
       await user.click(
@@ -168,7 +182,7 @@ describe('issues app', () => {
 
       // Are rule headers present?
       expect(screen.getByRole('heading', { level: 1, name: 'Fix this' })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: 'simpleRuleId' })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /^simpleRuleId/ })).toBeInTheDocument();
 
       // Select the "why is this an issue tab" and check its content
       await user.click(
@@ -181,7 +195,7 @@ describe('issues app', () => {
 
       // Are rule headers present?
       expect(screen.getByRole('heading', { level: 1, name: 'Issue on file' })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: 'simpleRuleId' })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /^simpleRuleId/ })).toBeInTheDocument();
 
       // The "Where is the issue" tab should be selected by default. Check its content
       expect(screen.getAllByRole('button', { name: 'Issue on file' })).toHaveLength(2); // there will be 2 buttons one in concise issue and other in code viewer
@@ -227,10 +241,10 @@ describe('issues app', () => {
       renderIssueApp(currentUser);
 
       // Check that the bulk button has correct behavior
-      expect(screen.getByRole('button', { name: 'bulk_change' })).toBeDisabled();
+      expect(await screen.findByRole('button', { name: 'bulk_change' })).toBeDisabled();
 
       // Select all issues
-      await user.click(screen.getByRole('checkbox', { name: 'issues.select_all_issues' }));
+      await user.click(await screen.findByRole('checkbox', { name: 'issues.select_all_issues' }));
       expect(
         screen.getByRole('button', { name: 'issues.bulk_change_X_issues.11' }),
       ).toBeInTheDocument();

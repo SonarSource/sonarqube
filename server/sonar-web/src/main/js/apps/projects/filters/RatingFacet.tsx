@@ -17,15 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Spinner } from '@sonarsource/echoes-react';
-import { MetricsRatingBadge, RatingEnum } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
+import { MetricsRatingBadge, RatingEnum } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricType } from '~sonar-aligned/types/metrics';
 import { RawQuery } from '~sonar-aligned/types/router';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { Facet } from '../types';
 import RangeFacetBase from './RangeFacetBase';
 
@@ -40,6 +41,7 @@ interface Props {
 
 export default function RatingFacet(props: Readonly<Props>) {
   const { facet, maxFacetValue, name, property, value } = props;
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
 
   const renderAccessibleLabel = React.useCallback(
     (option: number) => {
@@ -65,7 +67,7 @@ export default function RatingFacet(props: Readonly<Props>) {
       facet={facet}
       header={translate('metric_domain', name)}
       description={
-        hasDescription(property)
+        hasDescription(property, isStandardMode)
           ? translate(`projects.facets.${property.replace('new_', '')}.description`)
           : undefined
       }
@@ -81,8 +83,13 @@ export default function RatingFacet(props: Readonly<Props>) {
   );
 }
 
-const hasDescription = (property: string) => {
-  return ['maintainability', 'new_maintainability', 'security_review'].includes(property);
+const hasDescription = (property: string, isStandardMode = false) => {
+  return [
+    'maintainability',
+    'new_maintainability',
+    'security_review',
+    ...(isStandardMode ? ['security', 'new_security', 'reliability', 'new_reliability'] : []),
+  ].includes(property);
 };
 
 function renderOption(option: string | number, property: string) {
@@ -93,7 +100,7 @@ function RatingOption({
   option,
   property,
 }: Readonly<{ option: string | number; property: string }>) {
-  const { data: isLegacy, isLoading } = useIsLegacyCCTMode();
+  const { data: isStandardMode, isLoading } = useStandardExperienceModeQuery();
   const intl = useIntl();
 
   const ratingFormatted = formatMeasure(option, MetricType.Rating);
@@ -108,7 +115,7 @@ function RatingOption({
       />
       <span className="sw-ml-2">
         {intl.formatMessage({
-          id: `projects.facets.rating_option.${propertyWithoutPrefix}${isLegacy && isSecurityOrReliability ? '.legacy' : ''}.${option}`,
+          id: `projects.facets.rating_option.${propertyWithoutPrefix}${isStandardMode && isSecurityOrReliability ? '.legacy' : ''}.${option}`,
         })}
       </span>
     </Spinner>

@@ -19,15 +19,16 @@
  */
 
 import { IconBug, IconCodeSmell, IconVulnerability } from '@sonarsource/echoes-react';
-import { FacetBox, FacetItem } from 'design-system';
 import { orderBy, without } from 'lodash';
 import * as React from 'react';
+import { FacetBox, FacetItem } from '~design-system';
 import { ISSUE_TYPES } from '../../../helpers/constants';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';
 import { Query, formatFacetStat } from '../utils';
 import { FacetItemsList } from './FacetItemsList';
 import { MultipleSelectionHint } from './MultipleSelectionHint';
+import QGMetricsMismatchHelp from './QGMetricsMismatchHelp';
 
 interface Props {
   fetching: boolean;
@@ -35,6 +36,7 @@ interface Props {
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
+  secondLine?: string;
   stats: Dict<number> | undefined;
   types: string[];
 }
@@ -108,7 +110,7 @@ export class TypeFacet extends React.PureComponent<Props> {
   };
 
   render() {
-    const { fetching, open, types } = this.props;
+    const { fetching, open, types, secondLine } = this.props;
 
     const nbSelectableItems = AVAILABLE_TYPES.filter(this.getStat.bind(this)).length;
     const nbSelectedItems = types.length;
@@ -117,7 +119,6 @@ export class TypeFacet extends React.PureComponent<Props> {
     return (
       <FacetBox
         className="it__search-navigator-facet-box it__search-navigator-facet-header"
-        clearIconLabel={translate('clear')}
         count={nbSelectedItems}
         countLabel={translateWithParameters('x_selected', nbSelectedItems)}
         data-property={this.property}
@@ -127,6 +128,8 @@ export class TypeFacet extends React.PureComponent<Props> {
         onClear={this.handleClear}
         onClick={this.handleHeaderClick}
         open={open}
+        help={Boolean(secondLine) && <QGMetricsMismatchHelp />}
+        secondLine={secondLine}
       >
         <FacetItemsList labelledby={typeFacetHeaderId}>
           {AVAILABLE_TYPES.map(this.renderItem)}

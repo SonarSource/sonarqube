@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
-import { LinkHighlight, LinkStandalone, Tooltip } from '@sonarsource/echoes-react';
-import { Badge, TextBold, TextSubdued, themeColor } from 'design-system';
-import * as React from 'react';
+import { LinkHighlight, LinkStandalone, Text, Tooltip } from '@sonarsource/echoes-react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { Badge, themeColor } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { getComponentIssuesUrl } from '~sonar-aligned/helpers/urls';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
@@ -31,8 +31,9 @@ import {
   getIssueTypeBySoftwareQuality,
 } from '../../../helpers/issues';
 import { isDefined } from '../../../helpers/types';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { Branch } from '../../../types/branch-like';
-import { SoftwareImpactMeasureData, SoftwareQuality } from '../../../types/clean-code-taxonomy';
+import { SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced } from '../../../types/types';
 import { Status, softwareQualityToMeasure } from '../utils';
@@ -51,17 +52,15 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
   const { component, conditions, softwareQuality, ratingMetricKey, measures, branch } = props;
 
   const intl = useIntl();
-  // const { data: isLegacy } = useIsLegacyCCTMode();
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
 
   // Find measure for this software quality
   const metricKey = softwareQualityToMeasure(softwareQuality);
-  const measureRaw = measures.find((m) => m.metric.key === metricKey);
-  const measure = JSON.parse(measureRaw?.value ?? 'null') as SoftwareImpactMeasureData;
+  const measure = isStandardMode ? undefined : measures.find((m) => m.metric.key === metricKey);
   const alternativeMeasure = measures.find(
     (m) => m.metric.key === SOFTWARE_QUALITIES_METRIC_KEYS_MAP[softwareQuality].deprecatedMetric,
   );
-
-  const count = formatMeasure(measure?.total ?? alternativeMeasure?.value, MetricType.ShortInteger);
+  const count = formatMeasure(measure?.value ?? alternativeMeasure?.value, MetricType.ShortInteger);
 
   const totalLinkHref = getComponentIssuesUrl(component.key, {
     ...DEFAULT_ISSUES_QUERY,
@@ -84,7 +83,8 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
     >
       <div className="sw-flex sw-items-center">
         <ColorBold className="sw-typo-semibold">
-          {intl.formatMessage({ id: `software_quality.${softwareQuality}` })}
+          {!isStandardMode && intl.formatMessage({ id: `software_quality.${softwareQuality}` })}
+          {alternativeMeasure && isStandardMode && alternativeMeasure.metric.name}
         </ColorBold>
         {failed && (
           <Badge className="sw-h-fit sw-ml-2" variant="deleted">
@@ -96,7 +96,7 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
         <div className="sw-flex sw-mt-4">
           <div className="sw-flex sw-gap-1 sw-items-center">
             {count ? (
-              <Tooltip content={countTooltipOverlay}>
+              <Tooltip content={countTooltipOverlay} isOpen={isStandardMode ? false : undefined}>
                 <LinkStandalone
                   data-testid={`overview__software-impact-${softwareQuality}`}
                   aria-label={intl.formatMessage(
@@ -118,11 +118,11 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
                 </LinkStandalone>
               </Tooltip>
             ) : (
-              <StyledDash className="sw-font-bold" name="-" />
+              <StyledDash isHighlighted>-</StyledDash>
             )}
-            <TextSubdued className="sw-self-end sw-typo-default sw-pb-1">
+            <Text isSubdued className="sw-self-end sw-typo-default sw-pb-1">
               {intl.formatMessage({ id: 'overview.measures.software_impact.total_open_issues' })}
-            </TextSubdued>
+            </Text>
           </div>
 
           <div className="sw-flex-grow sw-flex sw-justify-end">
@@ -139,7 +139,7 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
   );
 }
 
-const StyledDash = styled(TextBold)`
+const StyledDash = styled(Text)`
   font-size: 36px;
 `;
 const ColorBold = styled.h2`

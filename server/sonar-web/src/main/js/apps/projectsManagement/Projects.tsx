@@ -19,8 +19,7 @@
  */
 
 import classNames from 'classnames';
-import { ActionCell, ContentCell, Table, TableRow } from 'design-system';
-import * as React from 'react';
+import { ActionCell, ContentCell, Table, TableRow } from '~design-system';
 import { Project } from '../../api/project-management';
 import { translate } from '../../helpers/l10n';
 import { LoggedInUser } from '../../types/users';

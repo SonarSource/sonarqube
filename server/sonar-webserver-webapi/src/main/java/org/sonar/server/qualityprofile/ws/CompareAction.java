@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -48,6 +51,9 @@ import org.sonar.server.qualityprofile.QProfileComparison.ActiveRuleDiff;
 import org.sonar.server.qualityprofile.QProfileComparison.QProfileComparisonResult;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
+import static org.sonar.api.issue.impact.Severity.BLOCKER;
+import static org.sonar.api.issue.impact.Severity.INFO;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 
@@ -96,7 +102,9 @@ public class CompareAction implements QProfileWsAction {
       .setChangelog(
         new Change("10.3", String.format("Added '%s' and '%s' fields", ATTRIBUTE_CLEAN_CODE_ATTRIBUTE_CATEGORY, ATTRIBUTE_IMPACTS)),
         new Change("10.3", String.format("Dropped '%s' field from '%s', '%s' and '%s' objects",
-          ATTRIBUTE_SEVERITY, ATTRIBUTE_SAME, ATTRIBUTE_IN_LEFT, ATTRIBUTE_IN_RIGHT)));
+          ATTRIBUTE_SEVERITY, ATTRIBUTE_SAME, ATTRIBUTE_IN_LEFT, ATTRIBUTE_IN_RIGHT)),
+        new Change("10.8", "'impacts' are part of the 'left' and 'right' sections of the 'modified' array"),
+        new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added", INFO.name(), BLOCKER.name())));
 
     compare.createParam(PARAM_LEFT_KEY)
       .setDescription("Profile key.")
@@ -122,8 +130,7 @@ public class CompareAction implements QProfileWsAction {
 
       QProfileComparisonResult result = comparator.compare(dbSession, left, right);
 
-      List<RuleDto> referencedRules = dbClient.ruleDao().selectByKeys(dbSession, new ArrayList<>(result.collectRuleKeys()));
-      Map<RuleKey, RuleDto> rulesByKey = Maps.uniqueIndex(referencedRules, RuleDto::getKey);
+      Map<RuleKey, RuleDto> rulesByKey = result.getImpactedRules();
       Map<String, RuleRepositoryDto> repositoriesByKey = Maps.uniqueIndex(dbClient.ruleRepositoryDao().selectAll(dbSession), RuleRepositoryDto::getKey);
       writeResult(response.newJsonWriter(), result, rulesByKey, repositoriesByKey);
     }
@@ -163,10 +170,11 @@ public class CompareAction implements QProfileWsAction {
   private void writeRules(JsonWriter json, Map<RuleKey, ActiveRuleDto> activeRules, Map<RuleKey, RuleDto> rulesByKey,
     Map<String, RuleRepositoryDto> repositoriesByKey) {
     json.beginArray();
-    for (RuleKey key : activeRules.keySet()) {
+    for (ActiveRuleDto activeRuleDto : activeRules.values()) {
       json.beginObject();
-      RuleDto rule = rulesByKey.get(key);
+      RuleDto rule = rulesByKey.get(activeRuleDto.getRuleKey());
       writeRule(json, rule, repositoriesByKey.get(rule.getRepositoryKey()));
+      writeActiveRuleImpacts(json, rule, activeRuleDto);
       json.endObject();
     }
     json.endArray();
@@ -191,15 +199,23 @@ public class CompareAction implements QProfileWsAction {
     if (cleanCodeAttribute != null) {
       json.prop(ATTRIBUTE_CLEAN_CODE_ATTRIBUTE_CATEGORY, cleanCodeAttribute.getAttributeCategory().toString());
     }
+  }
+
+  private static void writeActiveRuleImpacts(JsonWriter json, RuleDto rule, ActiveRuleDto activeRuleDto) {
     json.name(ATTRIBUTE_IMPACTS);
     json.beginArray();
-    for (ImpactDto impact : rule.getDefaultImpacts()) {
+    List<ImpactDto> effectiveImpacts = QProfileComparison.computeEffectiveImpacts(rule, activeRuleDto.getImpacts());
+    writeImpacts(json, effectiveImpacts);
+    json.endArray();
+  }
+
+  private static void writeImpacts(JsonWriter json, List<ImpactDto> effectiveImpacts) {
+    for (ImpactDto impact : effectiveImpacts) {
       json.beginObject();
       json.prop(ATTRIBUTE_IMPACT_SOFTWARE_QUALITY, impact.getSoftwareQuality().toString());
       json.prop(ATTRIBUTE_IMPACT_SEVERITY, impact.getSeverity().toString());
       json.endObject();
     }
-    json.endArray();
   }
 
   private void writeDifferences(JsonWriter json, Map<RuleKey, ActiveRuleDiff> modified, Map<RuleKey, RuleDto> rulesByKey,
@@ -214,6 +230,13 @@ public class CompareAction implements QProfileWsAction {
 
       json.name(ATTRIBUTE_LEFT).beginObject();
       json.prop(ATTRIBUTE_SEVERITY, value.leftSeverity());
+
+      List<ImpactDto> leftImpacts = getLeftImpactDtos(value);
+      json.name(ATTRIBUTE_IMPACTS);
+      json.beginArray();
+      writeImpacts(json, leftImpacts);
+      json.endArray();
+
       json.name(ATTRIBUTE_PARAMS).beginObject();
       for (Entry<String, ValueDifference<String>> valueDiff : value.paramDifference().entriesDiffering().entrySet()) {
         json.prop(valueDiff.getKey(), valueDiff.getValue().leftValue());
@@ -228,6 +251,14 @@ public class CompareAction implements QProfileWsAction {
 
       json.name(ATTRIBUTE_RIGHT).beginObject();
       json.prop(ATTRIBUTE_SEVERITY, value.rightSeverity());
+
+      List<ImpactDto> rightImpacts = getRightImpactDtos(value);
+
+      json.name(ATTRIBUTE_IMPACTS);
+      json.beginArray();
+      writeImpacts(json, rightImpacts);
+      json.endArray();
+
       json.name(ATTRIBUTE_PARAMS).beginObject();
       for (Entry<String, ValueDifference<String>> valueDiff : value.paramDifference().entriesDiffering().entrySet()) {
         json.prop(valueDiff.getKey(), valueDiff.getValue().rightValue());
@@ -244,6 +275,28 @@ public class CompareAction implements QProfileWsAction {
       json.endObject();
     }
     json.endArray();
+  }
+
+  private static @NotNull List<ImpactDto> getRightImpactDtos(ActiveRuleDiff activeRuleDiff) {
+    List<ImpactDto> rightImpacts = new ArrayList<>();
+    for (Entry<SoftwareQuality, ValueDifference<Severity>> valueDiff : activeRuleDiff.impactDifference().entriesDiffering().entrySet()) {
+      rightImpacts.add(new ImpactDto(valueDiff.getKey(), valueDiff.getValue().rightValue()));
+    }
+    for (Entry<SoftwareQuality, Severity> valueDiff : activeRuleDiff.impactDifference().entriesOnlyOnRight().entrySet()) {
+      rightImpacts.add(new ImpactDto(valueDiff.getKey(), valueDiff.getValue()));
+    }
+    return rightImpacts;
+  }
+
+  private static @NotNull List<ImpactDto> getLeftImpactDtos(ActiveRuleDiff activeRuleDiff) {
+    List<ImpactDto> leftImpacts = new ArrayList<>();
+    for (Entry<SoftwareQuality, ValueDifference<Severity>> valueDiff : activeRuleDiff.impactDifference().entriesDiffering().entrySet()) {
+      leftImpacts.add(new ImpactDto(valueDiff.getKey(), valueDiff.getValue().leftValue()));
+    }
+    for (Entry<SoftwareQuality, Severity> valueDiff : activeRuleDiff.impactDifference().entriesOnlyOnLeft().entrySet()) {
+      leftImpacts.add(new ImpactDto(valueDiff.getKey(), valueDiff.getValue()));
+    }
+    return leftImpacts;
   }
 
 }

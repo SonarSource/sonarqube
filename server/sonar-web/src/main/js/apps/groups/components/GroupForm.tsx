@@ -19,9 +19,9 @@
  */
 
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { FormField, InputField, InputTextArea, Modal } from 'design-system';
 import * as React from 'react';
 import { useState } from 'react';
+import { FormField, InputField, InputTextArea, Modal } from '~design-system';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';
 import { useCreateGroupMutation, useUpdateGroupMutation } from '../../../queries/groups';

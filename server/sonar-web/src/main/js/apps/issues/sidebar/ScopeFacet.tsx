@@ -19,9 +19,9 @@
  */
 
 import { IconFile, IconFileCode } from '@sonarsource/echoes-react';
-import { FacetBox, FacetItem } from 'design-system';
 import { without } from 'lodash';
-import * as React from 'react';
+import { useIntl } from 'react-intl';
+import { FacetBox, FacetItem } from '~design-system';
 import { SOURCE_SCOPES } from '../../../helpers/constants';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';
@@ -40,6 +40,7 @@ export interface ScopeFacetProps {
 
 export function ScopeFacet(props: ScopeFacetProps) {
   const { fetching, open, scopes = [], stats = {} } = props;
+  const intl = useIntl();
 
   const nbSelectableItems = SOURCE_SCOPES.filter(({ scope }) => stats[scope]).length;
   const nbSelectedItems = scopes.length;
@@ -49,13 +50,12 @@ export function ScopeFacet(props: ScopeFacetProps) {
   return (
     <FacetBox
       className="it__search-navigator-facet-box it__search-navigator-facet-header"
-      clearIconLabel={translate('clear')}
       count={nbSelectedItems}
       countLabel={translateWithParameters('x_selected', nbSelectedItems)}
       data-property={property}
       id={headerId}
       loading={fetching}
-      name={translate('issues.facet.scopes')}
+      name={intl.formatMessage({ id: 'issues.facet.scopes' })}
       onClear={() => props.onChange({ scopes: [] })}
       onClick={() => props.onToggle('scopes')}
       open={open}

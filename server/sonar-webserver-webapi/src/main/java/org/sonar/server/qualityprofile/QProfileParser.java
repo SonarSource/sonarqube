@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,12 +37,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.text.XmlWriter;
 import org.sonar.db.qualityprofile.ExportRuleDto;
 import org.sonar.db.qualityprofile.ExportRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
+
+import static org.sonar.server.qualityprofile.QProfileUtils.parseImpactsToMap;
 
 @ServerSide
 public class QProfileParser {
@@ -53,6 +58,10 @@ public class QProfileParser {
   private static final String ATTRIBUTE_REPOSITORY_KEY = "repositoryKey";
   private static final String ATTRIBUTE_KEY = "key";
   private static final String ATTRIBUTE_PRIORITY = "priority";
+  private static final String ATTRIBUTE_IMPACTS = "impacts";
+  private static final String ATTRIBUTE_IMPACT = "impact";
+  private static final String ATTRIBUTE_SEVERITY = "severity";
+  private static final String ATTRIBUTE_SOFTWARE_QUALITY = "softwareQuality";
   private static final String ATTRIBUTE_PRIORITIZED_RULE = "prioritizedRule";
   private static final String ATTRIBUTE_TEMPLATE_KEY = "templateKey";
   private static final String ATTRIBUTE_TYPE = "type";
@@ -76,6 +85,16 @@ public class QProfileParser {
       xml.prop(ATTRIBUTE_KEY, ruleToExport.getRuleKey().rule());
       xml.prop(ATTRIBUTE_TYPE, ruleToExport.getRuleType().name());
       xml.prop(ATTRIBUTE_PRIORITY, ruleToExport.getSeverityString());
+      if (StringUtils.isNotEmpty(ruleToExport.getImpacts())) {
+        xml.begin(ATTRIBUTE_IMPACTS);
+        parseImpactsToMap(ruleToExport.getImpacts()).forEach((quality, severity) -> {
+          xml.begin(ATTRIBUTE_IMPACT);
+          xml.prop(ATTRIBUTE_SOFTWARE_QUALITY, quality.name());
+          xml.prop(ATTRIBUTE_SEVERITY, severity.name());
+          xml.end();
+        });
+        xml.end();
+      }
       if (Boolean.TRUE.equals(ruleToExport.getPrioritizedRule())) {
         xml.prop(ATTRIBUTE_PRIORITIZED_RULE, ruleToExport.getPrioritizedRule());
       }
@@ -181,6 +200,11 @@ public class QProfileParser {
         rule.setDescription(StringUtils.trim(ruleCursor.collectDescendantText(false)));
       } else if (StringUtils.equals(ATTRIBUTE_PRIORITY, nodeName)) {
         rule.setSeverity(StringUtils.trim(ruleCursor.collectDescendantText(false)));
+      } else if (StringUtils.equals(ATTRIBUTE_IMPACTS, nodeName)) {
+        SMInputCursor impactsCursor = ruleCursor.childElementCursor(ATTRIBUTE_IMPACT);
+        Map<SoftwareQuality, Severity> impacts = new EnumMap<>(SoftwareQuality.class);
+        readImpacts(impactsCursor, impacts);
+        rule.setImpacts(impacts);
       } else if (StringUtils.equals(ATTRIBUTE_PRIORITIZED_RULE, nodeName)) {
         rule.setPrioritizedRule(Boolean.valueOf(StringUtils.trim(ruleCursor.collectDescendantText(false))));
       } else if (StringUtils.equals(ATTRIBUTE_PARAMETERS, nodeName)) {
@@ -206,6 +230,25 @@ public class QProfileParser {
       }
       if (key != null) {
         parameters.put(key, value);
+      }
+    }
+  }
+
+  private static void readImpacts(SMInputCursor impactsCursor, Map<SoftwareQuality, Severity> impacts) throws XMLStreamException {
+    while (impactsCursor.getNext() != null) {
+      SMInputCursor impactCursor = impactsCursor.childElementCursor();
+      SoftwareQuality softwareQuality = null;
+      Severity severity = null;
+      while (impactCursor.getNext() != null) {
+        String nodeName = impactCursor.getLocalName();
+        if (StringUtils.equals(ATTRIBUTE_SOFTWARE_QUALITY, nodeName)) {
+          softwareQuality = SoftwareQuality.valueOf(StringUtils.trim(impactCursor.collectDescendantText(false)));
+        } else if (StringUtils.equals(ATTRIBUTE_SEVERITY, nodeName)) {
+          severity = Severity.valueOf(StringUtils.trim(impactCursor.collectDescendantText(false)));
+        }
+      }
+      if (softwareQuality != null && severity != null) {
+        impacts.put(softwareQuality, severity);
       }
     }
   }

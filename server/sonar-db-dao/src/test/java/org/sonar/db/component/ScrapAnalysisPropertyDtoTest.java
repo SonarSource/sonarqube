@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ScrapAnalysisPropertyDtoTest {
@@ -40,7 +40,7 @@ class ScrapAnalysisPropertyDtoTest {
   @ValueSource(ints = {1, 2000, 4000})
   void test_text_set(int value) {
     ScrapAnalysisPropertyDto underTest = new ScrapAnalysisPropertyDto();
-    String text = randomAlphanumeric(value);
+    String text = secure().nextAlphanumeric(value);
 
     underTest.setTextValue(text);
     assertThat(underTest.getValue()).isEqualTo(text);
@@ -50,7 +50,7 @@ class ScrapAnalysisPropertyDtoTest {
   @ValueSource(ints = {1, 2000, 4000})
   void test_clob_set(int value) {
     ScrapAnalysisPropertyDto underTest = new ScrapAnalysisPropertyDto();
-    String text = randomAlphanumeric(4000 + value);
+    String text = secure().nextAlphanumeric(4000 + value);
 
     underTest.setClobValue(text);
     assertThat(underTest.getValue()).isEqualTo(text);

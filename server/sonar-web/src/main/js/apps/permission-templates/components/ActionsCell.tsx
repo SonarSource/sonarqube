@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ActionsDropdown, ItemButton, ItemLink, PopupZLevel } from 'design-system';
+
+import { ButtonIcon, DropdownMenu, IconMoreVertical } from '@sonarsource/echoes-react';
 import { difference } from 'lodash';
 import * as React from 'react';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
@@ -123,14 +124,14 @@ class ActionsCell extends React.PureComponent<Props, State> {
 
   renderSetDefaultLink(qualifier: string, child: React.ReactNode) {
     return (
-      <ItemButton
+      <DropdownMenu.ItemButton
         className="js-set-default"
         data-qualifier={qualifier}
         key={qualifier}
         onClick={this.setDefault(qualifier)}
       >
         {child}
-      </ItemButton>
+      </DropdownMenu.ItemButton>
     );
   }
 
@@ -159,38 +160,44 @@ class ActionsCell extends React.PureComponent<Props, State> {
 
     return (
       <>
-        <ActionsDropdown
-          allowResizing
+        <DropdownMenu.Root
           id={`permission-template-actions-${t.id}`}
-          zLevel={PopupZLevel.Global}
-          toggleClassName="it__permission-actions"
-          ariaLabel={translateWithParameters('permission_templates.show_actions_for_x', t.name)}
+          items={
+            <>
+              {this.renderSetDefaultsControl()}
+
+              {!this.props.fromDetails && (
+                <DropdownMenu.ItemLink
+                  to={{
+                    pathname: `/organizations/${organization.kee}/${PERMISSION_TEMPLATES_PATH}`,
+                    search: queryToSearchString({ id: t.id }),
+                  }}
+                >
+                  {translate('edit_permissions')}
+                </DropdownMenu.ItemLink>
+              )}
+
+              <DropdownMenu.ItemButton className="js-update" onClick={this.handleUpdateClick}>
+                {translate('update_details')}
+              </DropdownMenu.ItemButton>
+
+              {t.defaultFor.length === 0 && (
+                <DropdownMenu.ItemButtonDestructive
+                  className="js-delete"
+                  onClick={this.handleDeleteClick}
+                >
+                  {translate('delete')}
+                </DropdownMenu.ItemButtonDestructive>
+              )}
+            </>
+          }
         >
-          <>
-            {this.renderSetDefaultsControl()}
-
-            {!this.props.fromDetails && (
-              <ItemLink
-                to={{
-                  pathname: `/organizations/${organization.kee}/${PERMISSION_TEMPLATES_PATH}`,
-                  search: queryToSearchString({ id: t.id }),
-                }}
-              >
-                {translate('edit_permissions')}
-              </ItemLink>
-            )}
-
-            <ItemButton className="js-update" onClick={this.handleUpdateClick}>
-              {translate('update_details')}
-            </ItemButton>
-
-            {t.defaultFor.length === 0 && (
-              <ItemButton className="js-delete" onClick={this.handleDeleteClick}>
-                {translate('delete')}
-              </ItemButton>
-            )}
-          </>
-        </ActionsDropdown>
+          <ButtonIcon
+            Icon={IconMoreVertical}
+            ariaLabel={translateWithParameters('permission_templates.show_actions_for_x', t.name)}
+            className="it__permission-actions"
+          />
+        </DropdownMenu.Root>
 
         {this.state.updateModal && (
           <Form

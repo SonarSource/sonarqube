@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 // For now lets enable it on this extension
 // once we have made the refactoring we can add it to sonar-web and all other extension.
 module.exports = {

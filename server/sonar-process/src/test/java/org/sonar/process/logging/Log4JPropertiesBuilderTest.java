@@ -39,7 +39,7 @@ import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 
 import static java.lang.String.valueOf;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertThrows;
@@ -65,7 +65,7 @@ public class Log4JPropertiesBuilderTest {
   @Test
   public void constructor_sets_status_to_ERROR() throws IOException {
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
+    String logPattern = secure().nextAlphanumeric(15);
     Properties properties = newLog4JPropertiesBuilder().rootLoggerConfig(esRootLoggerConfig).logDir(logDir).logPattern(logPattern).build();
 
     assertThat(properties.getProperty("status")).isEqualTo("ERROR");
@@ -79,7 +79,7 @@ public class Log4JPropertiesBuilderTest {
   @Test
   public void get_always_returns_a_new_object() throws IOException {
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
+    String logPattern = secure().nextAlphanumeric(15);
 
     Properties previous = newLog4JPropertiesBuilder().rootLoggerConfig(esRootLoggerConfig).logDir(logDir).logPattern(logPattern).build();
     for (int i = 0; i < 2 + new Random().nextInt(5); i++) {
@@ -100,7 +100,7 @@ public class Log4JPropertiesBuilderTest {
 
   @Test
   public void buildLogPattern_puts_threadIdFieldPattern_from_RootLoggerConfig_non_null() {
-    String threadIdFieldPattern = RandomStringUtils.randomAlphabetic(5);
+    String threadIdFieldPattern = RandomStringUtils.secure().nextAlphabetic(5);
 
     String pattern = newLog4JPropertiesBuilder().buildLogPattern(
       newRootLoggerConfigBuilder()
@@ -135,7 +135,7 @@ public class Log4JPropertiesBuilderTest {
   @Test
   public void configureGlobalFileLog_sets_properties_for_daily_time_rolling_policy_with_max_7_files_for_empty_props() throws Exception {
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
+    String logPattern = secure().nextAlphanumeric(15);
     var underTest = newLog4JPropertiesBuilder()
       .rootLoggerConfig(esRootLoggerConfig)
       .logDir(logDir)
@@ -209,8 +209,8 @@ public class Log4JPropertiesBuilderTest {
   @Test
   public void configureGlobalFileLog_throws_MessageException_when_property_is_not_supported() throws Exception {
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
-    String invalidPropertyValue = randomAlphanumeric(3);
+    String logPattern = secure().nextAlphanumeric(15);
+    String invalidPropertyValue = secure().nextAlphanumeric(3);
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder(
       ROLLING_POLICY_PROPERTY, invalidPropertyValue)
       .rootLoggerConfig(esRootLoggerConfig)
@@ -225,8 +225,8 @@ public class Log4JPropertiesBuilderTest {
   @Test
   public void configureGlobalFileLog_sets_properties_for_time_rolling_policy_with_max_7_files_when_property_starts_with_time_colon() throws Exception {
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
-    String timePattern = randomAlphanumeric(6);
+    String logPattern = secure().nextAlphanumeric(15);
+    String timePattern = secure().nextAlphanumeric(6);
 
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder(
       ROLLING_POLICY_PROPERTY, "time:" + timePattern)
@@ -240,8 +240,8 @@ public class Log4JPropertiesBuilderTest {
   @Test
   public void configureGlobalFileLog_sets_properties_for_time_rolling_policy_when_property_starts_with_time_colon_and_specified_max_number_of_files() throws Exception {
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
-    String timePattern = randomAlphanumeric(6);
+    String logPattern = secure().nextAlphanumeric(15);
+    String timePattern = secure().nextAlphanumeric(6);
     int maxFile = 1 + new Random().nextInt(10);
 
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder(
@@ -257,8 +257,8 @@ public class Log4JPropertiesBuilderTest {
   @Test
   public void configureGlobalFileLog_sets_properties_for_size_rolling_policy_with_max_7_files_when_property_starts_with_size_colon() throws Exception {
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
-    String sizePattern = randomAlphanumeric(6);
+    String logPattern = secure().nextAlphanumeric(15);
+    String sizePattern = secure().nextAlphanumeric(6);
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder(
       ROLLING_POLICY_PROPERTY, "size:" + sizePattern)
       .rootLoggerConfig(esRootLoggerConfig)
@@ -271,8 +271,8 @@ public class Log4JPropertiesBuilderTest {
   @Test
   public void configureGlobalFileLog_sets_properties_for_size_rolling_policy_when_property_starts_with_size_colon_and_specified_max_number_of_files() throws Exception {
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
-    String sizePattern = randomAlphanumeric(6);
+    String logPattern = secure().nextAlphanumeric(15);
+    String sizePattern = secure().nextAlphanumeric(6);
     int maxFile = 1 + new Random().nextInt(10);
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder(
       ROLLING_POLICY_PROPERTY, "size:" + sizePattern,
@@ -287,7 +287,7 @@ public class Log4JPropertiesBuilderTest {
   @Test
   public void configureGlobalFileLog_sets_properties_for_no_rolling_policy_when_property_is_none() throws Exception {
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
+    String logPattern = secure().nextAlphanumeric(15);
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder(
       ROLLING_POLICY_PROPERTY, "none")
       .rootLoggerConfig(esRootLoggerConfig)
@@ -306,7 +306,7 @@ public class Log4JPropertiesBuilderTest {
   @Test
   public void enable_all_logs_to_stdout_write_additionally_Console_appender() throws IOException {
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
+    String logPattern = secure().nextAlphanumeric(15);
 
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder(ROLLING_POLICY_PROPERTY, "none")
       .enableAllLogsToConsole(true)
@@ -384,9 +384,9 @@ public class Log4JPropertiesBuilderTest {
 
   @Test
   public void apply_fails_with_IAE_if_LogLevelConfig_does_not_have_rootLoggerName_of_Log4J() throws IOException {
-    LogLevelConfig logLevelConfig = LogLevelConfig.newBuilder(randomAlphanumeric(2)).build();
+    LogLevelConfig logLevelConfig = LogLevelConfig.newBuilder(secure().nextAlphanumeric(2)).build();
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
+    String logPattern = secure().nextAlphanumeric(15);
 
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder()
       .rootLoggerConfig(esRootLoggerConfig)
@@ -403,7 +403,7 @@ public class Log4JPropertiesBuilderTest {
   public void apply_fails_with_IAE_if_global_property_has_unsupported_level() throws IOException {
     LogLevelConfig config = newLogLevelConfig().rootLevelFor(ProcessId.WEB_SERVER).build();
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
+    String logPattern = secure().nextAlphanumeric(15);
 
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder("sonar.log.level", "ERROR")
       .rootLoggerConfig(esRootLoggerConfig)
@@ -420,7 +420,7 @@ public class Log4JPropertiesBuilderTest {
   public void apply_fails_with_IAE_if_process_property_has_unsupported_level() throws IOException {
     LogLevelConfig config = newLogLevelConfig().rootLevelFor(ProcessId.WEB_SERVER).build();
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
+    String logPattern = secure().nextAlphanumeric(15);
 
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder("sonar.log.level.web", "ERROR")
       .rootLoggerConfig(esRootLoggerConfig)
@@ -437,7 +437,7 @@ public class Log4JPropertiesBuilderTest {
   public void apply_sets_root_logger_to_INFO_if_no_property_is_set() throws IOException {
     LogLevelConfig config = newLogLevelConfig().rootLevelFor(ProcessId.WEB_SERVER).build();
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
+    String logPattern = secure().nextAlphanumeric(15);
 
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder()
       .rootLoggerConfig(esRootLoggerConfig)
@@ -454,7 +454,7 @@ public class Log4JPropertiesBuilderTest {
   public void apply_sets_root_logger_to_global_property_if_set() throws IOException {
     LogLevelConfig config = newLogLevelConfig().rootLevelFor(ProcessId.WEB_SERVER).build();
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
+    String logPattern = secure().nextAlphanumeric(15);
 
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder("sonar.log.level", "TRACE")
       .rootLoggerConfig(esRootLoggerConfig)
@@ -469,7 +469,7 @@ public class Log4JPropertiesBuilderTest {
   public void apply_sets_root_logger_to_process_property_if_set() throws IOException {
     LogLevelConfig config = newLogLevelConfig().rootLevelFor(ProcessId.WEB_SERVER).build();
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
+    String logPattern = secure().nextAlphanumeric(15);
 
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder("sonar.log.level.web", "DEBUG")
       .rootLoggerConfig(esRootLoggerConfig)
@@ -484,7 +484,7 @@ public class Log4JPropertiesBuilderTest {
   public void apply_sets_root_logger_to_process_property_over_global_property_if_both_set() throws IOException {
     LogLevelConfig config = newLogLevelConfig().rootLevelFor(ProcessId.WEB_SERVER).build();
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
+    String logPattern = secure().nextAlphanumeric(15);
 
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder("sonar.log.level", "DEBUG",
       "sonar.log.level.web", "TRACE")
@@ -500,7 +500,7 @@ public class Log4JPropertiesBuilderTest {
   public void apply_sets_domain_property_over_process_and_global_property_if_all_set() throws IOException {
     LogLevelConfig config = newLogLevelConfig().levelByDomain("foo", ProcessId.WEB_SERVER, LogDomain.ES).build();
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
+    String logPattern = secure().nextAlphanumeric(15);
 
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder(
       "sonar.log.level", "DEBUG",
@@ -518,7 +518,7 @@ public class Log4JPropertiesBuilderTest {
   public void apply_sets_domain_property_over_process_property_if_both_set() throws IOException {
     LogLevelConfig config = newLogLevelConfig().levelByDomain("foo", ProcessId.WEB_SERVER, LogDomain.ES).build();
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
+    String logPattern = secure().nextAlphanumeric(15);
 
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder(
       "sonar.log.level.web", "DEBUG",
@@ -535,7 +535,7 @@ public class Log4JPropertiesBuilderTest {
   public void apply_sets_domain_property_over_global_property_if_both_set() throws IOException {
     LogLevelConfig config = newLogLevelConfig().levelByDomain("foo", ProcessId.WEB_SERVER, LogDomain.ES).build();
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
+    String logPattern = secure().nextAlphanumeric(15);
 
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder(
       "sonar.log.level", "DEBUG",
@@ -551,7 +551,7 @@ public class Log4JPropertiesBuilderTest {
   @Test
   public void apply_fails_with_IAE_if_domain_property_has_unsupported_level() throws IOException {
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
+    String logPattern = secure().nextAlphanumeric(15);
 
     LogLevelConfig config = newLogLevelConfig().levelByDomain("foo", ProcessId.WEB_SERVER, LogDomain.JMX).build();
 
@@ -571,7 +571,7 @@ public class Log4JPropertiesBuilderTest {
   public void apply_accepts_any_level_as_hardcoded_level(Level level) throws IOException {
     LogLevelConfig config = newLogLevelConfig().immutableLevel("bar", level).build();
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
+    String logPattern = secure().nextAlphanumeric(15);
 
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder()
       .rootLoggerConfig(esRootLoggerConfig)
@@ -585,7 +585,7 @@ public class Log4JPropertiesBuilderTest {
   @Test
   public void apply_set_level_to_OFF_if_sonar_global_level_is_not_set() throws IOException {
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
+    String logPattern = secure().nextAlphanumeric(15);
 
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder()
       .rootLoggerConfig(esRootLoggerConfig)
@@ -637,7 +637,7 @@ public class Log4JPropertiesBuilderTest {
   public void apply_does_not_create_loggers_property_if_only_root_level_is_defined() throws IOException {
     LogLevelConfig logLevelConfig = newLogLevelConfig().rootLevelFor(ProcessId.APP).build();
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
+    String logPattern = secure().nextAlphanumeric(15);
 
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder()
       .rootLoggerConfig(esRootLoggerConfig)
@@ -660,7 +660,7 @@ public class Log4JPropertiesBuilderTest {
       .build();
 
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
+    String logPattern = secure().nextAlphanumeric(15);
 
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder()
       .rootLoggerConfig(esRootLoggerConfig)
@@ -674,7 +674,7 @@ public class Log4JPropertiesBuilderTest {
   @Test
   public void apply_does_not_set_level_if_sonar_global_level_is_TRACE() throws IOException {
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
+    String logPattern = secure().nextAlphanumeric(15);
 
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder("sonar.log.level", Level.TRACE.toString())
       .rootLoggerConfig(esRootLoggerConfig)
@@ -687,7 +687,7 @@ public class Log4JPropertiesBuilderTest {
 
   private void setLevelToOff(Level globalLogLevel) throws IOException {
     File logDir = temporaryFolder.newFolder();
-    String logPattern = randomAlphanumeric(15);
+    String logPattern = secure().nextAlphanumeric(15);
 
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder("sonar.log.level", globalLogLevel.toString())
       .rootLoggerConfig(esRootLoggerConfig)

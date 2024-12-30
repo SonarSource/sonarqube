@@ -58,10 +58,9 @@ public class DefaultGroupMembershipController implements GroupMembershipControll
 
     SearchResults<UserGroupDto> groupMembershipSearchResults = searchMembership(groupsSearchRestRequest, restPage);
 
-    List<GroupMembershipRestResponse> groupMembershipRestRespons = toRestGroupMembershipResponse(groupMembershipSearchResults);
-    return new GroupsMembershipSearchRestResponse(groupMembershipRestRespons,
-      new PageRestResponse(restPage.pageIndex(), restPage.pageSize(), groupMembershipSearchResults.total())
-    );
+    List<GroupMembershipRestResponse> groupMembershipRestResponse = toRestGroupMembershipResponse(groupMembershipSearchResults);
+    return new GroupsMembershipSearchRestResponse(groupMembershipRestResponse,
+      new PageRestResponse(restPage.pageIndex(), restPage.pageSize(), groupMembershipSearchResults.total()));
   }
 
   private SearchResults<UserGroupDto> searchMembership(GroupsMembershipSearchRestRequest groupsSearchRestRequest, RestPage restPage) {

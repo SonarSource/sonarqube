@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { addGlobalErrorMessage } from 'design-system';
+import { addGlobalErrorMessage } from '~design-system';
 import handleRequiredAuthentication from '../../helpers/handleRequiredAuthentication';
 import { HttpStatus, parseError } from '../../helpers/request';
 

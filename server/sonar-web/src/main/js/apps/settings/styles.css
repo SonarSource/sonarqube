@@ -49,12 +49,12 @@
 .settings-sub-categories-list > li + li {
   margin: 30px -20px 0;
   padding: 30px 20px;
-  border-top: 1px solid var(--barBorderColor);
+  border-top: 1px solid #e6e6e6;
 }
 
 .settings-sub-category-name {
   margin-bottom: 20px;
-  font-size: var(--bigFontSize);
+  font-size: 16px;
 }
 
 .settings-large-input {

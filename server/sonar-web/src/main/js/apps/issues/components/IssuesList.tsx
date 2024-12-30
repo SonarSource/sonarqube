@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Spinner } from 'design-system';
+
 import { groupBy } from 'lodash';
 import * as React from 'react';
+import { Spinner } from '~design-system';
 import IssueItem from '../../../components/issue/Issue';
 import { BranchLike } from '../../../types/branch-like';
 import { Component, Issue } from '../../../types/types';
@@ -59,13 +60,11 @@ export default class IssuesList extends React.PureComponent<Props, State> {
     }
   }
 
-  renderIssueComponentList = (issues: Issue[], index: number) => {
+  renderIssueComponentList = ([key, issues]: [string, Issue[]]) => {
     const { branchLike, checked, component, openPopup, selectedIssue } = this.props;
     return (
-      <React.Fragment key={index}>
-        <li>
-          <ComponentBreadcrumbs component={component} issue={issues[0]} />
-        </li>
+      <li key={key}>
+        <ComponentBreadcrumbs component={component} issue={issues[0]} />
         <ul>
           {issues.map((issue) => (
             <IssueItem
@@ -82,7 +81,7 @@ export default class IssuesList extends React.PureComponent<Props, State> {
             />
           ))}
         </ul>
-      </React.Fragment>
+      </li>
     );
   };
 
@@ -100,6 +99,6 @@ export default class IssuesList extends React.PureComponent<Props, State> {
 
     const issuesByComponent = groupBy(issues, (issue) => `(${issue.component} : ${issue.branch})`);
 
-    return <ul>{Object.values(issuesByComponent).map(this.renderIssueComponentList)}</ul>;
+    return <ul>{Object.entries(issuesByComponent).map(this.renderIssueComponentList)}</ul>;
   }
 }

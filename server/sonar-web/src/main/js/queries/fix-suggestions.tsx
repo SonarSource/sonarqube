@@ -17,17 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import { some } from 'lodash';
 import React, { useContext } from 'react';
-import { getFixSuggestionsIssues, getSuggestions } from '../api/fix-suggestions';
+import {
+  getFixSuggestionServiceInfo,
+  getFixSuggestionsIssues,
+  getSuggestions,
+  ServiceInfo,
+  updateFeatureEnablement,
+} from '../api/fix-suggestions';
 import { useAvailableFeatures } from '../app/components/available-features/withAvailableFeatures';
 import { CurrentUserContext } from '../app/components/current-user/CurrentUserContext';
 import { Feature } from '../types/features';
-import { SettingsKey } from '../types/settings';
 import { Issue } from '../types/types';
 import { isLoggedIn } from '../types/users';
-import { useGetValueQuery } from './settings';
+import { useComponentDataQuery } from './component';
 import { useRawSourceQuery } from './sources';
 
 const UNKNOWN = -1;
@@ -144,14 +151,9 @@ export function useGetFixSuggestionsIssuesQuery(issue: Issue) {
   const { currentUser } = useContext(CurrentUserContext);
   const { hasFeature } = useAvailableFeatures();
 
-  const { data: codeFixSetting } = useGetValueQuery(
-    {
-      key: SettingsKey.CodeSuggestion,
-    },
-    { staleTime: Infinity },
-  );
-
-  const isCodeFixEnabled = codeFixSetting?.value === 'true';
+  const isCodeFixEnabled =
+    useComponentDataQuery({ component: issue.project }).data?.component?.isAiCodeFixEnabled ||
+    false;
 
   return useQuery({
     queryKey: ['code-suggestions', 'issues', 'details', issue.key],
@@ -180,4 +182,17 @@ export function withUseGetFixSuggestionsIssues<P extends { issue: Issue }>(
     const { data } = useGetFixSuggestionsIssuesQuery(props.issue);
     return <Component aiSuggestionAvailable={data?.aiSuggestion === 'AVAILABLE'} {...props} />;
   };
+}
+
+export function useGetServiceInfoQuery() {
+  return useQuery<ServiceInfo, AxiosError>({
+    queryKey: ['fix-suggestions', 'service-info'],
+    queryFn: getFixSuggestionServiceInfo,
+  });
+}
+
+export function useUpdateFeatureEnablementMutation() {
+  return useMutation({
+    mutationFn: updateFeatureEnablement,
+  });
 }

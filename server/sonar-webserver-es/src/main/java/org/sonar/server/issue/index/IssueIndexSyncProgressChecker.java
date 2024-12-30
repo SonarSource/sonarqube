@@ -28,9 +28,9 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.EsIndexSyncInProgressException;
 
-import static org.sonar.api.resources.Qualifiers.APP;
-import static org.sonar.api.resources.Qualifiers.SUBVIEW;
-import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.db.component.ComponentQualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.SUBVIEW;
+import static org.sonar.db.component.ComponentQualifiers.VIEW;
 
 public class IssueIndexSyncProgressChecker {
   private static final ImmutableSet<String> APP_VIEW_OR_SUBVIEW = ImmutableSet.<String>builder().add(VIEW, SUBVIEW, APP).build();

@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BasicSeparator, Note, SubTitle } from 'design-system';
+
 import { groupBy, sortBy } from 'lodash';
 import * as React from 'react';
+import { BasicSeparator, Note, SafeHTMLInjection, SanitizeLevel, SubTitle } from '~design-system';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Location } from '~sonar-aligned/types/router';
-import { sanitizeStringRestricted } from '../../../helpers/sanitize';
 import { SettingDefinitionAndValue } from '../../../types/settings';
 import { Component } from '../../../types/types';
 import { SUB_CATEGORY_EXCLUSIONS } from '../constants';
@@ -93,15 +93,16 @@ class SubCategoryDefinitionsList extends React.PureComponent<SubCategoryDefiniti
                 {subCategory.name}
               </SubTitle>
             )}
+
             {subCategory.description != null && (
-              <Note
-                className="markdown"
-                // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{
-                  __html: sanitizeStringRestricted(subCategory.description),
-                }}
-              />
+              <SafeHTMLInjection
+                htmlAsString={subCategory.description}
+                sanitizeLevel={SanitizeLevel.RESTRICTED}
+              >
+                <Note className="markdown" />
+              </SafeHTMLInjection>
             )}
+
             <BasicSeparator className="sw-mt-6" />
             <DefinitionsList
               component={component}

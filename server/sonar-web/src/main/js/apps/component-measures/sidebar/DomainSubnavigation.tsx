@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   HelperHintIcon,
   SubnavigationAccordion,
   SubnavigationItem,
   SubnavigationSubheading,
-} from 'design-system';
-import React from 'react';
+} from '~design-system';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import {
   getLocalizedCategoryMetricName,
@@ -32,6 +32,7 @@ import {
   hasMessage,
   translate,
 } from '../../../helpers/l10n';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { MeasureEnhanced } from '../../../types/types';
 import { useBubbleChartMetrics } from '../hooks';
 import {
@@ -54,6 +55,7 @@ interface Props {
 
 export default function DomainSubnavigation(props: Readonly<Props>) {
   const { componentKey, domain, onChange, open, selected, showFullMeasures, measures } = props;
+  const { data: isStandardMode = false } = useStandardExperienceModeQuery();
   const helperMessageKey = `component_measures.domain_subnavigation.${domain.name}.help`;
   const helper = hasMessage(helperMessageKey) ? translate(helperMessageKey) : undefined;
   const items = addMeasureCategories(domain.name, domain.measures);
@@ -112,7 +114,7 @@ export default function DomainSubnavigation(props: Readonly<Props>) {
             key={item.metric.key}
             componentKey={componentKey}
             measure={item}
-            name={getMetricSubnavigationName(item.metric, translateMetric)}
+            name={getMetricSubnavigationName(item.metric, translateMetric, false, isStandardMode)}
             onChange={onChange}
             selected={selected}
           />

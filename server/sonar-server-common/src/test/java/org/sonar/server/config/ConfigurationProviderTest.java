@@ -36,9 +36,9 @@ import static org.sonar.api.config.PropertyDefinition.builder;
 @RunWith(DataProviderRunner.class)
 public class ConfigurationProviderTest {
   private static final String[] EMPTY_STRING_ARRAY = {};
-  private final String nonDeclaredKey = RandomStringUtils.randomAlphabetic(3);
-  private final String nonMultivalueKey = RandomStringUtils.randomAlphabetic(3);
-  private final String multivalueKey = RandomStringUtils.randomAlphabetic(3);
+  private final String nonDeclaredKey = RandomStringUtils.secure().nextAlphabetic(3);
+  private final String nonMultivalueKey = RandomStringUtils.secure().nextAlphabetic(3);
+  private final String multivalueKey = RandomStringUtils.secure().nextAlphabetic(3);
   private final MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE,
     builder(nonMultivalueKey).multiValues(false).build(),
     builder(multivalueKey).multiValues(true).build()));

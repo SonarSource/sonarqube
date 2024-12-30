@@ -39,7 +39,7 @@ import org.apache.commons.io.IOUtils;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.core.i18n.I18n;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -58,7 +58,7 @@ public class SettingValidations {
     "sonar.security.config.pythonsecurity",
     "sonar.security.config.roslyn.sonaranalyzer.security.cs"
   );
-  private static final Set<String> SUPPORTED_QUALIFIERS = Set.of(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP, Qualifiers.SUBVIEW);
+  private static final Set<String> SUPPORTED_QUALIFIERS = Set.of(ComponentQualifiers.PROJECT, ComponentQualifiers.VIEW, ComponentQualifiers.APP, ComponentQualifiers.SUBVIEW);
 
   private final PropertyDefinitions definitions;
   private final DbClient dbClient;

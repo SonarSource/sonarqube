@@ -19,8 +19,7 @@
  */
 
 import { IconBranch, IconGitBranch, IconProps, IconPullrequest } from '@sonarsource/echoes-react';
-import { StyledMutedText } from 'design-system';
-import * as React from 'react';
+import { StyledMutedText } from '~design-system';
 import { isMainBranch, isPullRequest } from '~sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../types/branch-like';
 

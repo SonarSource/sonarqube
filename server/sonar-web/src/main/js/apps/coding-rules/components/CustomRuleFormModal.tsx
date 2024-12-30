@@ -17,42 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Button, ButtonVariety, Modal, ModalSize, Select, Text } from '@sonarsource/echoes-react';
 import { HttpStatusCode } from 'axios';
+import { SyntheticEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ButtonPrimary,
   FlagMessage,
   FormField,
   InputField,
-  InputSelect,
   InputTextArea,
   LabelValueSelectOption,
-  LightLabel,
-  Modal,
-} from 'design-system';
-import * as React from 'react';
-import { Status } from '~sonar-aligned/types/common';
+  SafeHTMLInjection,
+  SanitizeLevel,
+} from '~design-system';
 import FormattingTips from '../../../components/common/FormattingTips';
+import IssueTypeIcon from '../../../components/icon-mappers/IssueTypeIcon';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
-import { RULE_STATUSES } from '../../../helpers/constants';
+import { RULE_STATUSES, RULE_TYPES } from '../../../helpers/constants';
 import { csvEscape } from '../../../helpers/csv';
 import { translate } from '../../../helpers/l10n';
-import { sanitizeString } from '../../../helpers/sanitize';
 import { latinize } from '../../../helpers/strings';
+import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { useCreateRuleMutation, useUpdateRuleMutation } from '../../../queries/rules';
 import {
   CleanCodeAttribute,
   CleanCodeAttributeCategory,
   SoftwareImpact,
 } from '../../../types/clean-code-taxonomy';
-import { Dict, RuleDetails, RuleParameter } from '../../../types/types';
+import { CustomRuleType, Dict, RuleDetails, RuleParameter, RuleType } from '../../../types/types';
 import {
   CleanCodeAttributeField,
   CleanCodeCategoryField,
   SoftwareQualitiesFields,
 } from './CustomRuleFormFieldsCCT';
+import { SeveritySelect } from './SeveritySelect';
 
 interface Props {
   customRule?: RuleDetails;
+  isOpen: boolean;
   onClose: () => void;
   templateRule: RuleDetails;
   organization: string;
@@ -61,21 +63,29 @@ interface Props {
 const FORM_ID = 'custom-rule-form';
 
 export default function CustomRuleFormModal(props: Readonly<Props>) {
-  const { customRule, templateRule, organization } = props;
-  const [description, setDescription] = React.useState(customRule?.mdDesc ?? '');
-  const [key, setKey] = React.useState(customRule?.key ?? '');
-  const [keyModifiedByUser, setKeyModifiedByUser] = React.useState(false);
-  const [name, setName] = React.useState(customRule?.name ?? '');
-  const [params, setParams] = React.useState(getParams(customRule));
-  const [reactivating, setReactivating] = React.useState(false);
-  const [status, setStatus] = React.useState(customRule?.status ?? templateRule.status);
-  const [ccCategory, setCCCategory] = React.useState<CleanCodeAttributeCategory>(
+  const { customRule, templateRule, isOpen, organization } = props;
+  const { data: isStandardMode } = useStandardExperienceModeQuery();
+  const [description, setDescription] = useState(customRule?.mdDesc ?? '');
+  const [key, setKey] = useState(customRule?.key ?? '');
+  const [keyModifiedByUser, setKeyModifiedByUser] = useState(false);
+  const [name, setName] = useState(customRule?.name ?? '');
+  const [params, setParams] = useState(getParams(customRule));
+  const [reactivating, setReactivating] = useState(false);
+  const [status, setStatus] = useState(customRule?.status ?? templateRule.status);
+  const [ccCategory, setCCCategory] = useState<CleanCodeAttributeCategory>(
     templateRule.cleanCodeAttributeCategory ?? CleanCodeAttributeCategory.Consistent,
   );
-  const [ccAttribute, setCCAtribute] = React.useState<CleanCodeAttribute>(
+  const [ccAttribute, setCCAttribute] = useState<CleanCodeAttribute>(
     templateRule.cleanCodeAttribute ?? CleanCodeAttribute.Conventional,
   );
-  const [impacts, setImpacts] = React.useState<SoftwareImpact[]>(templateRule?.impacts ?? []);
+  const [impacts, setImpacts] = useState<SoftwareImpact[]>(templateRule?.impacts ?? []);
+  const [standardSeverity, setStandardSeverity] = useState(
+    customRule?.severity ?? templateRule.severity,
+  );
+  const [standardType, setStandardType] = useState(customRule?.type ?? templateRule.type);
+  const [cctType, setCCTType] = useState<CustomRuleType>(
+    standardType === 'SECURITY_HOTSPOT' ? CustomRuleType.SECURITY_HOTSPOT : CustomRuleType.ISSUE,
+  );
   const customRulesSearchParams = {
     f: 'name,severity,params',
     template_key: templateRule.key,
@@ -91,15 +101,20 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
       setReactivating(response.status === HttpStatusCode.Conflict);
     },
   );
-  const warningRef = React.useRef<HTMLDivElement>(null);
+  const warningRef = useRef<HTMLDivElement>(null);
 
   const submitting = updatingRule || creatingRule;
-  const hasError = impacts.length === 0;
+  const hasError =
+    !isStandardMode && impacts.length === 0 && cctType !== CustomRuleType.SECURITY_HOTSPOT;
+  const isDisabledInUpdate = submitting || customRule !== undefined;
 
   const submit = () => {
+    const isSecurityHotspot =
+      standardType === 'SECURITY_HOTSPOT' || cctType === CustomRuleType.SECURITY_HOTSPOT;
     const stringifiedParams = Object.keys(params)
       .map((key) => `${key}=${csvEscape(params[key])}`)
       .join(';');
+
     const ruleData = {
       organization,
       name,
@@ -107,43 +122,57 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
       markdownDescription: description,
     };
 
+    const standardRule = {
+      type: standardType,
+      ...(isSecurityHotspot ? {} : { severity: standardSeverity }),
+    };
+
+    const cctRule = isSecurityHotspot
+      ? { type: cctType as RuleType }
+      : {
+          cleanCodeAttribute: ccAttribute,
+          impacts,
+        };
+
     if (customRule) {
       updateRule({
         ...ruleData,
+        ...(isStandardMode ? standardRule : cctRule),
         params: stringifiedParams,
         key: customRule.key,
       });
     } else if (reactivating) {
       updateRule({
         ...ruleData,
+        ...(isStandardMode ? standardRule : cctRule),
         params: stringifiedParams,
         key: `${templateRule.repo}:${key}`,
       });
     } else {
       createRule({
         ...ruleData,
+        impacts: [], // impacts are required in createRule
+        ...(isStandardMode ? standardRule : cctRule),
         key: `${templateRule.repo}:${key}`,
         templateKey: templateRule.key,
-        cleanCodeAttribute: ccAttribute,
-        impacts,
         parameters: Object.entries(params).map(([key, value]) => ({ key, defaultValue: value })),
       });
     }
   };
 
   // If key changes, then most likely user did it to create a new rule instead of reactivating one
-  React.useEffect(() => {
+  useEffect(() => {
     setReactivating(false);
   }, [key]);
 
   // scroll to warning when it appears
-  React.useEffect(() => {
+  useEffect(() => {
     if (reactivating) {
       warningRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [reactivating]);
 
-  const NameField = React.useMemo(
+  const NameField = useMemo(
     () => (
       <FormField
         ariaLabel={translate('name')}
@@ -155,9 +184,7 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
           autoFocus
           disabled={submitting}
           id="coding-rules-custom-rule-creation-name"
-          onChange={({
-            currentTarget: { value: name },
-          }: React.SyntheticEvent<HTMLInputElement>) => {
+          onChange={({ currentTarget: { value: name } }: SyntheticEvent<HTMLInputElement>) => {
             setName(name);
             setKey(keyModifiedByUser ? key : latinize(name).replace(/[^A-Za-z0-9]/g, '_'));
           }}
@@ -171,7 +198,7 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
     [key, keyModifiedByUser, name, submitting],
   );
 
-  const KeyField = React.useMemo(
+  const KeyField = useMemo(
     () => (
       <FormField
         ariaLabel={translate('key')}
@@ -185,7 +212,7 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
           <InputField
             disabled={submitting}
             id="coding-rules-custom-rule-creation-key"
-            onChange={(event: React.SyntheticEvent<HTMLInputElement>) => {
+            onChange={(event: SyntheticEvent<HTMLInputElement>) => {
               setKey(event.currentTarget.value);
               setKeyModifiedByUser(true);
             }}
@@ -200,7 +227,7 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
     [customRule, key, submitting],
   );
 
-  const DescriptionField = React.useMemo(
+  const DescriptionField = useMemo(
     () => (
       <FormField
         ariaLabel={translate('description')}
@@ -211,7 +238,7 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
         <InputTextArea
           disabled={submitting}
           id="coding-rules-custom-rule-creation-html-description"
-          onChange={(event: React.SyntheticEvent<HTMLTextAreaElement>) =>
+          onChange={(event: SyntheticEvent<HTMLTextAreaElement>) =>
             setDescription(event.currentTarget.value)
           }
           required
@@ -225,8 +252,34 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
     [description, submitting],
   );
 
-  const StatusField = React.useMemo(() => {
-    const statusesOptions = RULE_STATUSES.map((status: Status) => ({
+  const CCTIssueTypeField = useMemo(() => {
+    const typeOptions = Object.values(CustomRuleType).map((value) => ({
+      label: translate(`coding_rules.custom.type.option.${value}`),
+      value,
+    }));
+
+    return (
+      <FormField
+        ariaLabel={translate('coding_rules.custom.type.label')}
+        label={translate('coding_rules.custom.type.label')}
+        htmlFor="coding-rules-custom-rule-type"
+      >
+        <Select
+          isRequired
+          id="coding-rules-custom-rule-type"
+          isDisabled={isDisabledInUpdate}
+          aria-labelledby="coding-rules-custom-rule-type"
+          onChange={(value) => (value ? setCCTType(value as CustomRuleType) : '')}
+          data={typeOptions}
+          isSearchable={false}
+          value={typeOptions.find((s) => s.value === cctType)?.value}
+        />
+      </FormField>
+    );
+  }, [cctType, isDisabledInUpdate]);
+
+  const StatusField = useMemo(() => {
+    const statusesOptions = RULE_STATUSES.map((status) => ({
       label: translate('rules.status', status),
       value: status,
     }));
@@ -237,32 +290,77 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
         label={translate('coding_rules.filters.status')}
         htmlFor="coding-rules-custom-rule-status"
       >
-        <InputSelect
-          inputId="coding-rules-custom-rule-status"
-          isClearable={false}
+        <Select
+          isRequired
+          id="coding-rules-custom-rule-status"
           isDisabled={submitting}
           aria-labelledby="coding-rules-custom-rule-status"
-          onChange={({ value }: LabelValueSelectOption<Status>) => setStatus(value)}
-          options={statusesOptions}
+          onChange={(value) => (value ? setStatus(value) : undefined)}
+          data={statusesOptions}
           isSearchable={false}
-          value={statusesOptions.find((s) => s.value === status)}
+          value={statusesOptions.find((s) => s.value === status)?.value}
         />
       </FormField>
     );
   }, [status, submitting]);
 
-  const handleParameterChange = React.useCallback(
-    (event: React.SyntheticEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const StandardTypeField = useMemo(() => {
+    const ruleTypeOption: LabelValueSelectOption<RuleType>[] = RULE_TYPES.map((type) => ({
+      label: translate('issue.type', type),
+      value: type,
+      prefix: <IssueTypeIcon type={type} />,
+    }));
+    return (
+      <FormField
+        ariaLabel={translate('type')}
+        label={translate('type')}
+        htmlFor="coding-rules-custom-rule-type"
+      >
+        <Select
+          id="coding-rules-custom-rule-type"
+          isNotClearable
+          isDisabled={isDisabledInUpdate}
+          isSearchable={false}
+          onChange={(value) => setStandardType(value as RuleType)}
+          data={ruleTypeOption}
+          value={ruleTypeOption.find((t) => t.value === standardType)?.value}
+          valueIcon={<IssueTypeIcon type={standardType} />}
+        />
+      </FormField>
+    );
+  }, [isDisabledInUpdate, standardType]);
+
+  const StandardSeverityField = useMemo(
+    () => (
+      <FormField
+        ariaLabel={translate('severity')}
+        label={translate('severity')}
+        htmlFor="coding-rules-severity-select"
+      >
+        <SeveritySelect
+          id="coding-rules-severity-select"
+          isDisabled={submitting}
+          onChange={(value) => setStandardSeverity(value)}
+          severity={standardSeverity}
+          recommendedSeverity={customRule?.severity ? undefined : templateRule.severity}
+        />
+      </FormField>
+    ),
+    [customRule?.severity, standardSeverity, submitting, templateRule.severity],
+  );
+
+  const handleParameterChange = useCallback(
+    (event: SyntheticEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name, value } = event.currentTarget;
       setParams({ ...params, [name]: value });
     },
     [params],
   );
 
-  const renderParameterField = React.useCallback(
+  const renderParameterField = useCallback(
     (param: RuleParameter) => {
       // Gets the actual value from params from the state.
-      // Without it, we have a issue with string 'constructor' as key
+      // Without it, we have an issue with string 'constructor' as key
       const actualValue = new Map(Object.entries(params)).get(param.key) ?? '';
 
       return (
@@ -296,11 +394,14 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
               value={actualValue}
             />
           )}
+
           {param.htmlDesc !== undefined && (
-            <LightLabel
-              // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{ __html: sanitizeString(param.htmlDesc) }}
-            />
+            <SafeHTMLInjection
+              htmlAsString={param.htmlDesc}
+              sanitizeLevel={SanitizeLevel.FORBID_SVG_MATHML}
+            >
+              <Text isSubdued />
+            </SafeHTMLInjection>
           )}
         </FormField>
       );
@@ -318,13 +419,15 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
   }
   return (
     <Modal
-      headerTitle={header}
-      onClose={props.onClose}
-      body={
+      size={ModalSize.Wide}
+      isOpen={isOpen}
+      title={header}
+      onOpenChange={props.onClose}
+      content={
         <form
           className="sw-flex sw-flex-col sw-justify-stretch sw-pb-4"
           id={FORM_ID}
-          onSubmit={(event: React.SyntheticEvent<HTMLFormElement>) => {
+          onSubmit={(event: SyntheticEvent<HTMLFormElement>) => {
             event.preventDefault();
             submit();
           }}
@@ -341,28 +444,39 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
 
           {NameField}
           {KeyField}
-          {/* do not allow to change CCT fields of existing rule */}
-          {!customRule && !reactivating && (
+          {isStandardMode && (
             <>
-              <div className="sw-flex sw-justify-between sw-gap-6">
-                <CleanCodeCategoryField
-                  value={ccCategory}
-                  disabled={submitting}
-                  onChange={setCCCategory}
-                />
-                <CleanCodeAttributeField
-                  value={ccAttribute}
-                  category={ccCategory}
-                  disabled={submitting}
-                  onChange={setCCAtribute}
-                />
-              </div>
-              <SoftwareQualitiesFields
-                error={hasError}
-                value={impacts}
-                onChange={setImpacts}
-                disabled={submitting}
-              />
+              {StandardTypeField}
+              {standardType !== 'SECURITY_HOTSPOT' && StandardSeverityField}
+            </>
+          )}
+          {!isStandardMode && (
+            <>
+              {CCTIssueTypeField}
+              {cctType !== 'SECURITY_HOTSPOT' && (
+                <>
+                  <div className="sw-flex sw-justify-between sw-gap-6">
+                    <CleanCodeCategoryField
+                      value={ccCategory}
+                      disabled={isDisabledInUpdate}
+                      onChange={setCCCategory}
+                    />
+                    <CleanCodeAttributeField
+                      value={ccAttribute}
+                      category={ccCategory}
+                      disabled={isDisabledInUpdate}
+                      onChange={setCCAttribute}
+                    />
+                  </div>
+                  <SoftwareQualitiesFields
+                    error={hasError}
+                    value={impacts}
+                    onChange={setImpacts}
+                    disabled={submitting}
+                    qualityUpdateDisabled={isDisabledInUpdate}
+                  />
+                </>
+              )}
             </>
           )}
           {StatusField}
@@ -371,12 +485,20 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
         </form>
       }
       primaryButton={
-        <ButtonPrimary disabled={submitting || hasError} type="submit" form={FORM_ID}>
+        <Button
+          variety={ButtonVariety.Primary}
+          isDisabled={submitting || hasError}
+          type="submit"
+          form={FORM_ID}
+        >
           {buttonText}
-        </ButtonPrimary>
+        </Button>
       }
-      loading={submitting}
-      secondaryButtonLabel={translate('cancel')}
+      secondaryButton={
+        <Button onClick={props.onClose} variety={ButtonVariety.Default}>
+          {translate('cancel')}
+        </Button>
+      }
     />
   );
 }

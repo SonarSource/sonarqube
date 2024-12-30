@@ -456,7 +456,7 @@ public class ActivityActionIT {
     logInAsSystemAdministrator();
     ProjectData project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
-    String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
+    String pullRequestKey = RandomStringUtils.secure().nextAlphanumeric(100);
     ComponentDto pullRequest = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setBranchType(BranchType.PULL_REQUEST).setKey(pullRequestKey));
     SnapshotDto analysis = db.components().insertSnapshot(pullRequest);
     CeActivityDto activity = insertActivity("T1", project.projectUuid(), project.getMainBranchComponent().uuid(), SUCCESS, analysis);

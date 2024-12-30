@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.qualitygate;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.InputStream;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -44,13 +45,13 @@ public class QualityGateCheck implements Startable {
 
   private static final Logger LOG = LoggerFactory.getLogger(QualityGateCheck.class);
   private static final EnumSet<TaskStatus> TASK_TERMINAL_STATUSES = EnumSet.of(TaskStatus.SUCCESS, TaskStatus.FAILED, TaskStatus.CANCELED);
-  private static final int POLLING_INTERVAL_IN_MS = 5000;
 
   private final DefaultScannerWsClient wsClient;
   private final GlobalAnalysisMode analysisMode;
   private final CeTaskReportDataHolder ceTaskReportDataHolder;
   private final ScanProperties properties;
 
+  private int pollingIntervalInSeconds = 5000;
   private long qualityGateTimeoutInMs;
   private boolean enabled;
 
@@ -102,6 +103,11 @@ public class QualityGateCheck implements Startable {
     }
   }
 
+  @VisibleForTesting
+  void setPollingIntervalInSeconds(int pollingIntervalInSeconds) {
+    this.pollingIntervalInSeconds = pollingIntervalInSeconds;
+  }
+
   private Ce.Task waitForCeTaskToFinish(String taskId) {
     GetRequest getTaskResultReq = new GetRequest("api/ce/task")
       .setMediaType(MediaTypes.PROTOBUF)
@@ -116,8 +122,8 @@ public class QualityGateCheck implements Startable {
           return task;
         }
 
-        Thread.sleep(POLLING_INTERVAL_IN_MS);
-        currentTime += POLLING_INTERVAL_IN_MS;
+        Thread.sleep(pollingIntervalInSeconds);
+        currentTime += pollingIntervalInSeconds;
       } catch (HttpException e) {
         throw MessageException.of(String.format("Failed to get CE Task status - %s", DefaultScannerWsClient.createErrorMessage(e)));
       } catch (InterruptedException e) {

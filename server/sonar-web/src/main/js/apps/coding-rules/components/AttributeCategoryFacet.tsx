@@ -17,9 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import Facet, { BasicProps } from '../../../components/facets/Facet';
+import { FacetHelp } from '../../../components/facets/FacetHelp';
 import { CLEAN_CODE_CATEGORIES } from '../../../helpers/constants';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 
 export default function AttributeCategoryFacet(props: BasicProps) {
@@ -35,6 +38,13 @@ export default function AttributeCategoryFacet(props: BasicProps) {
       property="cleanCodeAttributeCategories"
       renderName={renderName}
       renderTextName={renderName}
+      help={
+        <FacetHelp
+          property="cleanCodeAttributeCategories"
+          noDescription
+          link={DocLink.CleanCodeDefinition}
+        />
+      }
     />
   );
 }

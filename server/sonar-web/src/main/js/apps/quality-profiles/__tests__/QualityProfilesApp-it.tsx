@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import { ModeServiceMock } from '../../../api/mocks/ModeServiceMock';
 import QualityProfilesServiceMock from '../../../api/mocks/QualityProfilesServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
-import { mockPaging, mockRule } from '../../../helpers/testMocks';
+import { mockCompareResult, mockPaging, mockRule } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
 import routes from '../routes';
 
@@ -30,11 +32,13 @@ jest.mock('../../../api/quality-profiles');
 jest.mock('../../../api/rules');
 
 const serviceMock = new QualityProfilesServiceMock();
-const settingsMock = new SettingsServiceMock();
+const modeHandler = new ModeServiceMock();
+const settingsHandler = new SettingsServiceMock();
 
 beforeEach(() => {
   serviceMock.reset();
-  settingsMock.reset();
+  modeHandler.reset();
+  settingsHandler.reset();
 });
 
 const ui = {
@@ -329,9 +333,55 @@ it('should be able to compare profiles', async () => {
   expect(ui.comparisonDiffTableHeading(1, 'java quality profile #2').get()).toBeInTheDocument();
   expect(ui.comparisonModifiedTableHeading(1).get()).toBeInTheDocument();
 
+  expect(
+    ui.comparisonModifiedTableHeading(1).byLabelText('severity_impact.BLOCKER').get(),
+  ).toBeInTheDocument();
+  expect(
+    ui.comparisonModifiedTableHeading(1).byLabelText('severity_impact.LOW').get(),
+  ).toBeInTheDocument();
+
   // java quality profile is not editable
   expect(ui.activeRuleButton('java quality profile').query()).not.toBeInTheDocument();
   expect(ui.deactivateRuleButton('java quality profile').query()).not.toBeInTheDocument();
+});
+
+it('should be able to compare profiles without impacts', async () => {
+  // From the list page
+  const user = userEvent.setup();
+  serviceMock.comparisonResult = mockCompareResult({
+    modified: [
+      {
+        impacts: [],
+        key: 'java:S1698',
+        name: '== and != should not be used when equals is overridden',
+        left: {
+          params: {},
+          severity: 'MINOR',
+        },
+        right: {
+          params: {},
+          severity: 'CRITICAL',
+        },
+      },
+    ],
+  });
+  serviceMock.setAdmin();
+  renderQualityProfiles();
+
+  await user.click(await ui.listProfileActions('java quality profile', 'Java').find());
+  expect(ui.compareButton.get()).toBeInTheDocument();
+  await user.click(ui.compareButton.get());
+  await user.click(ui.compareDropdown.get());
+  await user.click(byRole('option', { name: 'java quality profile #2' }).get());
+
+  expect(await ui.comparisonModifiedTableHeading(1).find()).toBeInTheDocument();
+
+  expect(
+    ui
+      .comparisonModifiedTableHeading(1)
+      .byLabelText(/severity_impact/)
+      .query(),
+  ).not.toBeInTheDocument();
 });
 
 it('should be able to activate or deactivate rules in comparison page', async () => {

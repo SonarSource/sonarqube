@@ -3,7 +3,7 @@ DISCLAIMER
 Plugins are not provided by SonarSource and are therefore installed at your own risk. SonarSource disclaims all liability for installing and using such plugins.
 
 
-COMMUNITY EDITION
+COMMUNITY BUILD
 
 Administrators can either:
 

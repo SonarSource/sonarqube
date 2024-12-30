@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Badge, FlagErrorIcon, FormField, InputSelect, SelectionCard } from 'design-system';
-import * as React from 'react';
+
+import { FormattedMessage } from 'react-intl';
 import { MenuPlacement, OptionProps, components } from 'react-select';
+import { Badge, FlagErrorIcon, FormField, InputSelect, SelectionCard } from '~design-system';
 import Tooltip from '../../../components/controls/Tooltip';
 import { NewCodeDefinitionLevels } from '../../../components/new-code-definition/utils';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { NewCodeDefinitionType } from '../../../types/new-code-definition';
 
 export interface BaselineSettingReferenceBranchProps {
@@ -60,10 +61,12 @@ function renderBranchOption(props: OptionProps<BranchOption, false>) {
     <components.Option {...props}>
       {option.isInvalid ? (
         <Tooltip
-          content={translateWithParameters(
-            'baseline.reference_branch.does_not_exist',
-            option.value,
-          )}
+          content={
+            <FormattedMessage
+              id="baseline.reference_branch.does_not_exist"
+              values={{ branch: option.value }}
+            />
+          }
         >
           <span>
             {option.value} <FlagErrorIcon className="sw-ml-2" />

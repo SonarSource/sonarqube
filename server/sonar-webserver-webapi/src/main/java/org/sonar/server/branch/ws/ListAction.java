@@ -35,7 +35,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
@@ -94,9 +94,9 @@ public class ListAction implements BranchWsAction {
         .toList();
       List<String> branchUuids = branches.stream().map(BranchDto::getUuid).toList();
 
-      Map<String, LiveMeasureDto> qualityGateMeasuresByComponentUuids = dbClient.liveMeasureDao()
+      Map<String, MeasureDto> qualityGateMeasuresByComponentUuids = dbClient.measureDao()
         .selectByComponentUuidsAndMetricKeys(dbSession, branchUuids, singletonList(ALERT_STATUS_KEY)).stream()
-        .collect(Collectors.toMap(LiveMeasureDto::getComponentUuid, Function.identity()));
+        .collect(Collectors.toMap(MeasureDto::getComponentUuid, Function.identity()));
       Map<String, String> analysisDateByBranchUuid = dbClient.snapshotDao()
         .selectLastAnalysesByRootComponentUuids(dbSession, branchUuids).stream()
         .collect(Collectors.toMap(SnapshotDto::getRootComponentUuid, s -> formatDateTime(s.getCreatedAt())));
@@ -109,7 +109,7 @@ public class ListAction implements BranchWsAction {
   }
 
   private static void addBranch(ProjectBranches.ListWsResponse.Builder response, BranchDto branch,
-    @Nullable LiveMeasureDto qualityGateMeasure, @Nullable String analysisDate) {
+    @Nullable MeasureDto qualityGateMeasure, @Nullable String analysisDate) {
     ProjectBranches.Branch.Builder builder = toBranchBuilder(branch);
     setBranchStatus(builder, qualityGateMeasure);
     if (analysisDate != null) {
@@ -129,10 +129,10 @@ public class ListAction implements BranchWsAction {
     return builder;
   }
 
-  private static void setBranchStatus(ProjectBranches.Branch.Builder builder, @Nullable LiveMeasureDto qualityGateMeasure) {
+  private static void setBranchStatus(ProjectBranches.Branch.Builder builder, @Nullable MeasureDto qualityGateMeasure) {
     ProjectBranches.Status.Builder statusBuilder = ProjectBranches.Status.newBuilder();
     if (qualityGateMeasure != null) {
-      ofNullable(qualityGateMeasure.getDataAsString()).ifPresent(statusBuilder::setQualityGateStatus);
+      ofNullable(qualityGateMeasure.getString(ALERT_STATUS_KEY)).ifPresent(statusBuilder::setQualityGateStatus);
     }
 
     builder.setStatus(statusBuilder);

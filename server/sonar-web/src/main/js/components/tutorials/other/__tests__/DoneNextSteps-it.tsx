@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import React from 'react';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import { getEdition } from '../../../../helpers/editions';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import { EditionKey } from '../../../../types/editions';
@@ -35,7 +35,7 @@ const ui = {
   nextStepLinks: byRole('link'),
 };
 
-describe('Community Edition', () => {
+describe(`${getEdition(EditionKey.community).name}`, () => {
   it('should inform the user about available next steps', async () => {
     renderDoneNextSteps();
 

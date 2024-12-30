@@ -78,8 +78,7 @@ message Rule {
   optional string mdDesc = 7;
   optional string mdNote = 8;
   optional string noteLogin = 9;
-  // Deprecated since 10.2, replace by impacts
-  optional string severity = 10 [deprecated = true];
+  optional string severity = 10;
   optional sonarqube.ws.commons.RuleStatus status = 11;
   optional string internalKey = 12;
   optional bool isTemplate = 13;
@@ -107,8 +106,7 @@ message Rule {
   optional string debtRemFnType = 34 [deprecated = true];
   reserved 35;
   reserved 36;
-  // Deprecated since 10.2, replace by impacts
-  optional sonarqube.ws.commons.RuleType type = 37 [deprecated = true];
+  optional sonarqube.ws.commons.RuleType type = 37;
   optional string defaultRemFnType = 38;
   optional string defaultRemFnGapMultiplier = 39;
   optional string defaultRemFnBaseEffort = 40;
@@ -192,6 +190,7 @@ message Active {
   optional string createdAt = 6;
   optional string updatedAt = 7;
   optional bool prioritizedRule = 8;
+  optional Impacts impacts = 9;
 
   message Param {
     optional string key = 1;

@@ -65,7 +65,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -142,10 +142,10 @@ public class AssignActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
-    UserDto userDto = insertUser(randomAlphanumeric(10));
+    UserDto userDto = insertUser(secure().nextAlphanumeric(10));
     userSessionRule.logIn(userDto).registerProjects(projectData.getProjectDto());
 
-    UserDto assignee = insertUser(randomAlphanumeric(15));
+    UserDto assignee = insertUser(secure().nextAlphanumeric(15));
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(assignee), any(IssueChangeContext.class))).thenReturn(true);
 
     executeRequest(hotspot, assignee.getLogin(), null);
@@ -158,11 +158,11 @@ public class AssignActionIT {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    UserDto assignee = insertUser(randomAlphanumeric(15));
+    UserDto assignee = insertUser(secure().nextAlphanumeric(15));
 
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setAssigneeUuid(assignee.getUuid()));
 
-    UserDto userDto = insertUser(randomAlphanumeric(10));
+    UserDto userDto = insertUser(secure().nextAlphanumeric(10));
     userSessionRule.logIn(userDto).registerProjects(projectData.getProjectDto());
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), isNull(), any(IssueChangeContext.class))).thenReturn(true);
 
@@ -178,7 +178,7 @@ public class AssignActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
-    UserDto me = insertUser(randomAlphanumeric(10));
+    UserDto me = insertUser(secure().nextAlphanumeric(10));
     userSessionRule.logIn(me).registerProjects(projectData.getProjectDto());
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(me), any(IssueChangeContext.class))).thenReturn(true);
@@ -193,7 +193,7 @@ public class AssignActionIT {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    UserDto me = insertUser(randomAlphanumeric(10));
+    UserDto me = insertUser(secure().nextAlphanumeric(10));
     userSessionRule.logIn(me).registerProjects(projectData.getProjectDto());
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setAssigneeUuid(me.getUuid()));
 
@@ -210,8 +210,8 @@ public class AssignActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project.getMainBranchComponent()));
     IssueDto hotspot = dbTester.issues().insertHotspot(project.getMainBranchComponent(), file);
 
-    insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project.getProjectDto(), UserRole.USER);
-    UserDto assignee = insertUserWithProjectUserPermission(randomAlphanumeric(15), project.getProjectDto());
+    insertAndLoginAsUserWithProjectUserPermission(secure().nextAlphanumeric(10), project.getProjectDto(), UserRole.USER);
+    UserDto assignee = insertUserWithProjectUserPermission(secure().nextAlphanumeric(15), project.getProjectDto());
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(assignee), any(IssueChangeContext.class))).thenReturn(true);
 
@@ -224,10 +224,10 @@ public class AssignActionIT {
   public void wsExecution_whenUnassignedForPrivateProject() {
     ProjectData project = dbTester.components().insertPrivateProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project.getMainBranchComponent()));
-    UserDto assignee = insertUser(randomAlphanumeric(15));
+    UserDto assignee = insertUser(secure().nextAlphanumeric(15));
     IssueDto hotspot = dbTester.issues().insertHotspot(project.getMainBranchComponent(), file, h -> h.setAssigneeUuid(assignee.getUuid()));
 
-    insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project.getProjectDto(), UserRole.USER);
+    insertAndLoginAsUserWithProjectUserPermission(secure().nextAlphanumeric(10), project.getProjectDto(), UserRole.USER);
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), isNull(), any(IssueChangeContext.class))).thenReturn(true);
 
@@ -243,9 +243,9 @@ public class AssignActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(branch, project.getMainBranchComponent().uuid()));
     IssueDto hotspot = dbTester.issues().insertHotspot(branch, file);
 
-    insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project.getProjectDto(), UserRole.USER);
+    insertAndLoginAsUserWithProjectUserPermission(secure().nextAlphanumeric(10), project.getProjectDto(), UserRole.USER);
     userSessionRule.addProjectBranchMapping(project.projectUuid(), branch);
-    UserDto assignee = insertUserWithProjectUserPermission(randomAlphanumeric(15), project.getProjectDto());
+    UserDto assignee = insertUserWithProjectUserPermission(secure().nextAlphanumeric(15), project.getProjectDto());
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(assignee), any(IssueChangeContext.class))).thenReturn(true);
 
@@ -260,8 +260,8 @@ public class AssignActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project.getMainBranchComponent()));
     IssueDto hotspot = dbTester.issues().insertHotspot(project.getMainBranchComponent(), file);
 
-    insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project.getProjectDto(), UserRole.USER);
-    UserDto assignee = insertUser(randomAlphanumeric(15));
+    insertAndLoginAsUserWithProjectUserPermission(secure().nextAlphanumeric(10), project.getProjectDto(), UserRole.USER);
+    UserDto assignee = insertUser(secure().nextAlphanumeric(15));
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(assignee), any(IssueChangeContext.class))).thenReturn(true);
 
@@ -278,9 +278,9 @@ public class AssignActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(branch, project.getMainBranchComponent()));
     IssueDto hotspot = dbTester.issues().insertHotspot(branch, file);
 
-    insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project.getProjectDto(), UserRole.USER);
+    insertAndLoginAsUserWithProjectUserPermission(secure().nextAlphanumeric(10), project.getProjectDto(), UserRole.USER);
     userSessionRule.addProjectBranchMapping(project.projectUuid(), branch);
-    UserDto assignee = insertUser(randomAlphanumeric(15));
+    UserDto assignee = insertUser(secure().nextAlphanumeric(15));
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(assignee), any(IssueChangeContext.class))).thenReturn(true);
 
@@ -296,7 +296,7 @@ public class AssignActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project.getMainBranchComponent()));
     IssueDto hotspot = dbTester.issues().insertHotspot(project.getMainBranchComponent(), file);
 
-    UserDto me = insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project.getProjectDto(), UserRole.USER);
+    UserDto me = insertAndLoginAsUserWithProjectUserPermission(secure().nextAlphanumeric(10), project.getProjectDto(), UserRole.USER);
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(me), any(IssueChangeContext.class))).thenReturn(true);
 
@@ -312,10 +312,10 @@ public class AssignActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
-    UserDto userDto = insertUser(randomAlphanumeric(10));
+    UserDto userDto = insertUser(secure().nextAlphanumeric(10));
     userSessionRule.logIn(userDto).registerProjects(projectData.getProjectDto());
 
-    UserDto assignee = insertUser(randomAlphanumeric(15));
+    UserDto assignee = insertUser(secure().nextAlphanumeric(15));
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(assignee), any(IssueChangeContext.class))).thenReturn(true);
 
@@ -332,10 +332,10 @@ public class AssignActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
-    UserDto userDto = insertUser(randomAlphanumeric(10));
+    UserDto userDto = insertUser(secure().nextAlphanumeric(10));
     userSessionRule.logIn(userDto).registerProjects(projectData.getProjectDto());
 
-    UserDto assignee = insertUser(randomAlphanumeric(15));
+    UserDto assignee = insertUser(secure().nextAlphanumeric(15));
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(assignee), any(IssueChangeContext.class))).thenReturn(false);
 
@@ -352,10 +352,10 @@ public class AssignActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
-    UserDto userDto = insertUser(randomAlphanumeric(10));
+    UserDto userDto = insertUser(secure().nextAlphanumeric(10));
     userSessionRule.logIn(userDto).registerProjects(projectData.getProjectDto());
 
-    UserDto assignee = insertUser(randomAlphanumeric(15));
+    UserDto assignee = insertUser(secure().nextAlphanumeric(15));
     when(branchDto.getBranchType()).thenReturn(BranchType.BRANCH);
     String projectUuid = "projectUuid";
     when(branchDto.getProjectUuid()).thenReturn(projectUuid);
@@ -372,10 +372,10 @@ public class AssignActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
-    UserDto userDto = insertUser(randomAlphanumeric(10));
+    UserDto userDto = insertUser(secure().nextAlphanumeric(10));
     userSessionRule.logIn(userDto).registerProjects(projectData.getProjectDto());
 
-    UserDto assignee = insertUser(randomAlphanumeric(15));
+    UserDto assignee = insertUser(secure().nextAlphanumeric(15));
     when(branchDto.getBranchType()).thenReturn(BranchType.PULL_REQUEST);
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(assignee), any(IssueChangeContext.class))).thenReturn(true);
 
@@ -391,10 +391,10 @@ public class AssignActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
-    UserDto userDto = insertUser(randomAlphanumeric(10));
+    UserDto userDto = insertUser(secure().nextAlphanumeric(10));
     userSessionRule.logIn(userDto).registerProjects(projectData.getProjectDto());
 
-    String notExistingUserLogin = randomAlphanumeric(10);
+    String notExistingUserLogin = secure().nextAlphanumeric(10);
 
     assertThatThrownBy(() -> executeRequest(hotspot, notExistingUserLogin, null))
       .isInstanceOf(NotFoundException.class)
@@ -412,7 +412,7 @@ public class AssignActionIT {
       h.setResolution(resolution);
     });
 
-    UserDto userDto = insertUser(randomAlphanumeric(10));
+    UserDto userDto = insertUser(secure().nextAlphanumeric(10));
     userSessionRule.logIn(userDto).registerProjects(projectData.getProjectDto());
 
     String login = userSessionRule.getLogin();
@@ -442,7 +442,7 @@ public class AssignActionIT {
       h.setResolution(resolution);
     });
 
-    UserDto userDto = insertUser(randomAlphanumeric(10));
+    UserDto userDto = insertUser(secure().nextAlphanumeric(10));
     userSessionRule.logIn(userDto).registerProjects(projectData.getProjectDto());
 
     String login = userSessionRule.getLogin();
@@ -465,7 +465,7 @@ public class AssignActionIT {
 
     userSessionRule.anonymous();
 
-    UserDto assignee = insertUser(randomAlphanumeric(15));
+    UserDto assignee = insertUser(secure().nextAlphanumeric(15));
 
     String login = assignee.getLogin();
     assertThatThrownBy(() -> executeRequest(hotspot, login, null))
@@ -479,7 +479,7 @@ public class AssignActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project.getMainBranchComponent()));
     IssueDto hotspot = dbTester.issues().insertHotspot(project.getMainBranchComponent(), file);
 
-    UserDto me = insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project.getProjectDto(), UserRole.CODEVIEWER);
+    UserDto me = insertAndLoginAsUserWithProjectUserPermission(secure().nextAlphanumeric(10), project.getProjectDto(), UserRole.CODEVIEWER);
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(me), any(IssueChangeContext.class))).thenReturn(true);
 
@@ -493,10 +493,10 @@ public class AssignActionIT {
   public void wsExecution_whenHotspotDoesNotExist_shouldFail() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
-    UserDto me = insertUser(randomAlphanumeric(10));
+    UserDto me = insertUser(secure().nextAlphanumeric(10));
     userSessionRule.logIn().registerProjects(projectData.getProjectDto());
 
-    String notExistingHotspotKey = randomAlphanumeric(10);
+    String notExistingHotspotKey = secure().nextAlphanumeric(10);
     String login = me.getLogin();
     assertThatThrownBy(() -> executeRequest(notExistingHotspotKey, login, null))
       .isInstanceOf(NotFoundException.class)
@@ -514,7 +514,7 @@ public class AssignActionIT {
       .setStatus(status)
       .setType(ruleType));
 
-    UserDto me = insertUser(randomAlphanumeric(10));
+    UserDto me = insertUser(secure().nextAlphanumeric(10));
     userSessionRule.logIn().registerProjects(projectData.getProjectDto());
 
     String login = me.getLogin();
@@ -546,7 +546,7 @@ public class AssignActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto issue = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_CLOSED));
-    UserDto me = insertUser(randomAlphanumeric(10));
+    UserDto me = insertUser(secure().nextAlphanumeric(10));
     userSessionRule.logIn().registerProjects(projectData.getProjectDto());
 
     String login = me.getLogin();

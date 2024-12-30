@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ContentCell, Note } from 'design-system';
-import * as React from 'react';
+
 import { FormattedMessage } from 'react-intl';
+import { ContentCell, Note } from '~design-system';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
 import { isValidDate, parseDate } from '../../../helpers/dates';

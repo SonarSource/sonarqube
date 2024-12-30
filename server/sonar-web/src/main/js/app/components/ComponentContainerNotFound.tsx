@@ -19,9 +19,8 @@
  */
 
 import { Link } from '@sonarsource/echoes-react';
-import { Card, CenteredLayout, SubHeading } from 'design-system';
-import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { Card, CenteredLayout, SubHeading } from '~design-system';
 import { translate } from '../../helpers/l10n';
 
 export interface ComponentContainerNotFoundProps {

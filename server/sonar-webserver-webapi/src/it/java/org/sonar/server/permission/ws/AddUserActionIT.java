@@ -22,11 +22,11 @@ package org.sonar.server.permission.ws;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
@@ -36,6 +36,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.ws.TestRequest;
@@ -57,8 +58,8 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_U
 public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
 
   private UserDto user;
-  private final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private final PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
+  private final ComponentTypes componentTypes = new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT);
+  private final PermissionService permissionService = new PermissionServiceImpl(componentTypes);
   private final WsParameters wsParameters = new WsParameters(permissionService);
   private final Configuration configuration = mock(Configuration.class);
   private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
@@ -416,5 +417,31 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Entity not found");
+  }
+
+  @Test
+  public void adding_permission_to_user_fails_if_not_authenticated_and_existing_login() {
+    userSession.anonymous();
+
+    TestRequest request = newRequest()
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey());
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessage("Authentication is required");
+  }
+
+  @Test
+  public void adding_permission_to_user_fails_if_not_authenticated_and_non_existing_login() {
+    userSession.anonymous();
+
+    TestRequest request = newRequest()
+      .setParam(PARAM_USER_LOGIN, "non-existing-login")
+      .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey());
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessage("Authentication is required");
   }
 }

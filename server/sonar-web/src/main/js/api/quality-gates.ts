@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getJSON } from '~sonar-aligned/helpers/request';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
@@ -31,6 +32,25 @@ import {
 } from '../types/quality-gates';
 import { Condition, Paging, QualityGate, QualityGatePreview } from '../types/types';
 import { UserBase } from '../types/users';
+import { AiCodeAssuranceStatus } from './ai-code-assurance';
+
+export interface SearchQualityGateProjectsData {
+  gateName: string;
+  page?: number;
+  pageSize?: number;
+  query?: string;
+  selected?: string;
+}
+
+export interface SearchQualityGateProjectsResponse {
+  paging: Paging;
+  results: Array<{
+    aiCodeAssurance: AiCodeAssuranceStatus;
+    key: string;
+    name: string;
+    selected: boolean;
+  }>;
+}
 
 export function fetchQualityGates(data: {
   organization: string;
@@ -69,6 +89,16 @@ export function setQualityGateAsDefault(data: { organization: string; name: stri
   return post('/api/qualitygates/set_as_default', data).catch(throwGlobalError);
 }
 
+export function setQualityGateAiQualified(
+  gateName: string,
+  aiCodeAssurance: boolean,
+): Promise<void> {
+  return post('/api/qualitygates/set_ai_code_assurance', {
+    aiCodeAssurance,
+    gateName,
+  }).catch(throwGlobalError);
+}
+
 export function createCondition(
   data: {
     organization: string;
@@ -96,18 +126,29 @@ export function getGateForProject(data: { organization: string; project: string 
   );
 }
 
-export function searchProjects(data: {
-  gateName: string;
-  organization?: string;
-  page?: number;
-  pageSize?: number;
-  query?: string;
-  selected?: string;
-}): Promise<{
-  paging: Paging;
-  results: Array<{ isAiCodeAssured: boolean; key: string; name: string; selected: boolean }>;
-}> {
+export function searchProjects(
+  data: SearchQualityGateProjectsData,
+): Promise<SearchQualityGateProjectsResponse> {
   return getJSON('/api/qualitygates/search', data).catch(throwGlobalError);
+}
+
+export function getAllQualityGateProjects(
+  data: SearchQualityGateProjectsData,
+  prev?: SearchQualityGateProjectsResponse,
+): Promise<SearchQualityGateProjectsResponse> {
+  return searchProjects({ ...data, pageSize: 1000 }).then((r) => {
+    const result = prev
+      ? {
+          results: [...prev.results, ...r.results],
+          paging: r.paging,
+        }
+      : r;
+
+    if (result.paging.pageIndex * result.paging.pageSize >= result.paging.total) {
+      return result;
+    }
+    return getAllQualityGateProjects({ ...data, page: result.paging.pageIndex + 1 }, result);
+  });
 }
 
 export function associateGateWithProject(data: {

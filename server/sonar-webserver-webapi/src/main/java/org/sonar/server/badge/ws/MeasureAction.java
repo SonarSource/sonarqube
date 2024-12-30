@@ -31,10 +31,11 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.badge.ws.SvgGenerator.Color;
 import org.sonar.server.measure.Rating;
+import org.sonar.server.telemetry.TelemetryBadgeProvider;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -51,9 +52,16 @@ import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
 import static org.sonar.api.measures.Metric.Level;
+import static org.sonar.api.measures.Metric.ValueType;
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
-import static org.sonar.api.measures.Metric.ValueType;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING_KEY;
 import static org.sonar.server.badge.ws.SvgFormatter.formatDuration;
 import static org.sonar.server.badge.ws.SvgFormatter.formatNumeric;
 import static org.sonar.server.badge.ws.SvgFormatter.formatPercent;
@@ -62,28 +70,38 @@ import static org.sonar.server.measure.Rating.B;
 import static org.sonar.server.measure.Rating.C;
 import static org.sonar.server.measure.Rating.D;
 import static org.sonar.server.measure.Rating.E;
-import static org.sonar.server.measure.Rating.valueOf;
 
 public class MeasureAction extends AbstractProjectBadgesWsAction {
 
   private static final String PARAM_METRIC = "metric";
 
   private static final Map<String, String> METRIC_NAME_BY_KEY = ImmutableMap.<String, String>builder()
-    .put(BUGS_KEY, "bugs")
-    .put(CODE_SMELLS_KEY, "code smells")
     .put(COVERAGE_KEY, "coverage")
     .put(DUPLICATED_LINES_DENSITY_KEY, "duplicated lines")
     .put(NCLOC_KEY, "lines of code")
-    .put(SQALE_RATING_KEY, "maintainability")
     .put(ALERT_STATUS_KEY, "quality gate")
-    .put(RELIABILITY_RATING_KEY, "reliability")
     .put(SECURITY_HOTSPOTS_KEY, "security hotspots")
+
+    // Standard mode
+    .put(BUGS_KEY, "bugs")
+    .put(CODE_SMELLS_KEY, "code smells")
+    .put(VULNERABILITIES_KEY, "vulnerabilities")
+    .put(SQALE_RATING_KEY, "maintainability")
+    .put(RELIABILITY_RATING_KEY, "reliability")
     .put(SECURITY_RATING_KEY, "security")
     .put(TECHNICAL_DEBT_KEY, "technical debt")
-    .put(VULNERABILITIES_KEY, "vulnerabilities")
+
+    // MQR mode
+    .put(SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY, "reliability issues")
+    .put(SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY, "maintainability issues")
+    .put(SOFTWARE_QUALITY_SECURITY_ISSUES_KEY, "security issues")
+    .put(SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY, "maintainability")
+    .put(SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, "reliability")
+    .put(SOFTWARE_QUALITY_SECURITY_RATING_KEY, "security")
+    .put(SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY, "technical debt")
     .build();
 
-  private static final String[] DEPRECATED_METRIC_KEYS = {BUGS_KEY, CODE_SMELLS_KEY, SECURITY_HOTSPOTS_KEY, VULNERABILITIES_KEY};
+  private static final String[] UNDEPRECATED_METRIC_KEYS = {BUGS_KEY, CODE_SMELLS_KEY, SECURITY_HOTSPOTS_KEY, VULNERABILITIES_KEY};
 
   private static final Map<Level, String> QUALITY_GATE_MESSAGE_BY_STATUS = new EnumMap<>(Map.of(
     OK, "passed",
@@ -101,10 +119,13 @@ public class MeasureAction extends AbstractProjectBadgesWsAction {
     E, Color.RATING_E));
 
   private final DbClient dbClient;
+  private final TelemetryBadgeProvider telemetryBadgeProvider;
 
-  public MeasureAction(DbClient dbClient, ProjectBadgesSupport support, SvgGenerator svgGenerator) {
+  public MeasureAction(DbClient dbClient, ProjectBadgesSupport support, SvgGenerator svgGenerator,
+    TelemetryBadgeProvider telemetryBadgeProvider) {
     super(support, svgGenerator);
     this.dbClient = dbClient;
+    this.telemetryBadgeProvider = telemetryBadgeProvider;
   }
 
   @Override
@@ -114,8 +135,10 @@ public class MeasureAction extends AbstractProjectBadgesWsAction {
       .setDescription("Generate badge for project's measure as an SVG.<br/>" +
         "Requires 'Browse' permission on the specified project.")
       .setSince("7.1")
-      .setChangelog(new Change("10.4", String.format("The following metric keys are now deprecated: %s", String.join(", ",
-        DEPRECATED_METRIC_KEYS))))
+      .setChangelog(new Change("10.8", format("The following metric keys are not deprecated anymore: %s", String.join(", ",
+        UNDEPRECATED_METRIC_KEYS))))
+      .setChangelog(new Change("10.4", format("The following metric keys are now deprecated: %s", String.join(", ",
+        UNDEPRECATED_METRIC_KEYS))))
       .setResponseExample(Resources.getResource(getClass(), "measure-example.svg"));
     support.addProjectAndBranchParams(action);
     action.createParam(PARAM_METRIC)
@@ -131,27 +154,28 @@ public class MeasureAction extends AbstractProjectBadgesWsAction {
       BranchDto branch = support.getBranch(dbSession, request);
       MetricDto metric = dbClient.metricDao().selectByKey(dbSession, metricKey);
       checkState(metric != null && metric.isEnabled(), "Metric '%s' hasn't been found", metricKey);
-      LiveMeasureDto measure = getMeasure(dbSession, branch, metricKey);
+      MeasureDto measure = getMeasure(dbSession, branch);
+      telemetryBadgeProvider.incrementForMetric(metricKey);
       return generateSvg(metric, measure);
     }
   }
 
-  private LiveMeasureDto getMeasure(DbSession dbSession, BranchDto branch, String metricKey) {
-    return dbClient.liveMeasureDao().selectMeasure(dbSession, branch.getUuid(), metricKey)
+  private MeasureDto getMeasure(DbSession dbSession, BranchDto branch) {
+    return dbClient.measureDao().selectByComponentUuid(dbSession, branch.getUuid())
       .orElseThrow(() -> new ProjectBadgesException("Measure has not been found"));
   }
 
-  private String generateSvg(MetricDto metric, LiveMeasureDto measure) {
+  private String generateSvg(MetricDto metric, MeasureDto measure) {
     String metricType = metric.getValueType();
     switch (ValueType.valueOf(metricType)) {
       case INT:
-        return generateBadge(metric, formatNumeric(getNonNullValue(measure, LiveMeasureDto::getValue).longValue()), Color.DEFAULT);
+        return generateBadge(metric, formatNumeric(getNonNullValue(measure, m -> m.getLong(metric.getKey()))), Color.DEFAULT);
       case PERCENT:
-        return generateBadge(metric, formatPercent(getNonNullValue(measure, LiveMeasureDto::getValue)), Color.DEFAULT);
+        return generateBadge(metric, formatPercent(getNonNullValue(measure, m -> m.getDouble(metric.getKey()))), Color.DEFAULT);
       case LEVEL:
         return generateQualityGate(metric, measure);
       case WORK_DUR:
-        return generateBadge(metric, formatDuration(getNonNullValue(measure, LiveMeasureDto::getValue).longValue()), Color.DEFAULT);
+        return generateBadge(metric, formatDuration(getNonNullValue(measure, m -> m.getLong(metric.getKey()))), Color.DEFAULT);
       case RATING:
         return generateRating(metric, measure);
       default:
@@ -159,13 +183,13 @@ public class MeasureAction extends AbstractProjectBadgesWsAction {
     }
   }
 
-  private String generateQualityGate(MetricDto metric, LiveMeasureDto measure) {
-    Level qualityGate = Level.valueOf(getNonNullValue(measure, LiveMeasureDto::getTextValue));
+  private String generateQualityGate(MetricDto metric, MeasureDto measure) {
+    Level qualityGate = Level.valueOf(getNonNullValue(measure, m -> m.getString(metric.getKey())));
     return generateBadge(metric, QUALITY_GATE_MESSAGE_BY_STATUS.get(qualityGate), COLOR_BY_QUALITY_GATE_STATUS.get(qualityGate));
   }
 
-  private String generateRating(MetricDto metric, LiveMeasureDto measure) {
-    Rating rating = valueOf(getNonNullValue(measure, LiveMeasureDto::getValue).intValue());
+  private String generateRating(MetricDto metric, MeasureDto measure) {
+    Rating rating = Rating.valueOf(getNonNullValue(measure, m -> m.getInt(metric.getKey())).intValue());
     return generateBadge(metric, rating.name(), COLOR_BY_RATING.get(rating));
   }
 
@@ -173,7 +197,7 @@ public class MeasureAction extends AbstractProjectBadgesWsAction {
     return svgGenerator.generateBadge(METRIC_NAME_BY_KEY.get(metric.getKey()), value, color);
   }
 
-  private static <P> P getNonNullValue(LiveMeasureDto measure, Function<LiveMeasureDto, P> function) {
+  private static <P> P getNonNullValue(MeasureDto measure, Function<MeasureDto, P> function) {
     P value = function.apply(measure);
     checkState(value != null, "Measure has not been found");
     return value;

@@ -18,9 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { MainAppBar, SonarQubeLogo } from 'design-system';
+import { LogoSize } from '@sonarsource/echoes-react';
 import * as React from 'react';
+import { MainAppBar } from '~design-system';
 import { Image } from '~sonar-aligned/components/common/Image';
+import { SonarQubeProductLogo } from '../../../../components/branding/SonarQubeProductLogo';
 import { translate } from '../../../../helpers/l10n';
 
 function LogoWithAriaText() {
@@ -35,7 +37,7 @@ function LogoWithAriaText() {
       {customLogoUrl ? (
         <Image alt={title} src={customLogoUrl} width={120} />
       ) : (
-        <SonarQubeLogo />
+        <SonarQubeProductLogo hasText size={LogoSize.Large} />
       )}
     </div>
   );

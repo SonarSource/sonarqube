@@ -271,7 +271,7 @@ public class PurgeDao implements Dao {
     commands.deleteFileSources(branchUuid);
     commands.deleteCeActivity(branchUuid);
     commands.deleteCeQueue(branchUuid);
-    commands.deleteLiveMeasures(branchUuid);
+    commands.deleteMeasures(branchUuid);
     commands.deleteNewCodePeriodsForBranch(branchUuid);
     commands.deleteBranch(branchUuid);
     commands.deleteApplicationBranchProjects(branchUuid);
@@ -294,7 +294,7 @@ public class PurgeDao implements Dao {
     commands.deleteCeQueue(projectUuid);
     commands.deleteWebhooks(projectUuid);
     commands.deleteWebhookDeliveries(projectUuid);
-    commands.deleteLiveMeasures(projectUuid);
+    commands.deleteMeasures(projectUuid);
     commands.deleteProjectAlmSettings(projectUuid);
     commands.deletePermissions(projectUuid);
     commands.deleteNewCodePeriodsForProject(projectUuid);

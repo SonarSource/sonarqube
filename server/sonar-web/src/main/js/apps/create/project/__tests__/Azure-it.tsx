@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import * as React from 'react';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { searchAzureRepositories } from '../../../../api/alm-integrations';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
@@ -60,13 +60,7 @@ const ui = {
   }),
 };
 
-const original = window.location;
-
 beforeAll(() => {
-  Object.defineProperty(window, 'location', {
-    configurable: true,
-    value: { replace: jest.fn() },
-  });
   almIntegrationHandler = new AlmIntegrationsServiceMock();
   dopTranslationHandler = new DopTranslationServiceMock();
   newCodePeriodHandler = new NewCodeDefinitionServiceMock();
@@ -77,9 +71,6 @@ beforeEach(() => {
   almIntegrationHandler.reset();
   dopTranslationHandler.reset();
   newCodePeriodHandler.reset();
-});
-afterAll(() => {
-  Object.defineProperty(window, 'location', { configurable: true, value: original });
 });
 
 it('should ask for PAT when it is not set yet and show the import project feature afterwards', async () => {
@@ -99,7 +90,7 @@ it('should ask for PAT when it is not set yet and show the import project featur
   await user.keyboard('secret');
   await user.click(screen.getByRole('button', { name: 'save' }));
 
-  expect(screen.getByText('Azure project')).toBeInTheDocument();
+  expect(await screen.findByText('Azure project')).toBeInTheDocument();
   expect(screen.getByText('Azure project 2')).toBeInTheDocument();
   // eslint-disable-next-line jest-dom/prefer-in-document
   expect(screen.getAllByText('onboarding.create_project.repository_imported')).toHaveLength(1);

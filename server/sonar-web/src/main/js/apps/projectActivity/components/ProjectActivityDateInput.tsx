@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Button } from '@sonarsource/echoes-react';
-import { DateRangePicker, PopupZLevel } from 'design-system';
+
+import { Button, ButtonGroup, Label } from '@sonarsource/echoes-react';
 import * as React from 'react';
+import { DateRangePicker, PopupZLevel } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { Query } from '../utils';
 
@@ -40,7 +41,8 @@ export default class ProjectActivityDateInput extends React.PureComponent<Props>
 
   render() {
     return (
-      <div className="sw-flex">
+      <ButtonGroup>
+        <Label htmlFor="date-from">{translate('project_activity.filter_date_range')}</Label>
         <DateRangePicker
           className="sw-w-abs-350"
           startClearButtonLabel={translate('clear.start')}
@@ -59,7 +61,7 @@ export default class ProjectActivityDateInput extends React.PureComponent<Props>
         >
           {translate('project_activity.reset_dates')}
         </Button>
-      </div>
+      </ButtonGroup>
     );
   }
 }

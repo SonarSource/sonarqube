@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { NumericalCell } from 'design-system';
-import * as React from 'react';
+
+import { NumericalCell } from '~design-system';
 import Measure from '~sonar-aligned/components/measure/Measure';
-import { getCCTMeasureValue, isDiffMetric } from '../../../helpers/measures';
+import { isDiffMetric } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentMeasureEnhanced, MeasureEnhanced, Metric } from '../../../types/types';
 
@@ -35,8 +35,7 @@ export default function MeasureCell({ component, measure, metric, branchLike }: 
   const getValue = (item: { leak?: string; value?: string }) =>
     isDiffMetric(metric.key) ? item.leak : item.value;
 
-  const rawValue = getValue(measure || component);
-  const value = getCCTMeasureValue(metric.key, rawValue);
+  const value = getValue(measure || component);
 
   return (
     <NumericalCell className="sw-py-3">

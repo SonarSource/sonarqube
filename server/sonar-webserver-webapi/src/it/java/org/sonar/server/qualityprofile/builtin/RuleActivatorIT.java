@@ -20,25 +20,33 @@
 package org.sonar.server.qualityprofile.builtin;
 
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
+import org.sonar.db.qualityprofile.QProfileChangeDto;
+import org.sonar.db.qualityprofile.QProfileChangeQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.rule.RuleChangeDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleImpactChangeDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventService;
@@ -59,12 +67,15 @@ import static java.util.Map.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
+import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 import static org.sonar.server.qualityprofile.ActiveRuleInheritance.INHERITED;
 import static org.sonar.server.qualityprofile.ActiveRuleInheritance.OVERRIDES;
 
 /**
  * Class org.sonar.server.qualityprofile.builtin.RuleActivator is mostly covered in
- * org.sonar.server.qualityprofile.builtin.BuiltInQProfileUpdateImplTest
+ * org.sonar.server.qualityprofile.builtin.BuiltInQProfileUpdateImplIT
  */
 class RuleActivatorIT {
   @RegisterExtension
@@ -80,7 +91,7 @@ class RuleActivatorIT {
 
   private final QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
-  private final RuleActivator underTest = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession,
+  private final RuleActivator underTest = new RuleActivator(system2, db.getDbClient(), UuidFactoryImpl.INSTANCE, typeValidations, userSession,
     mock(Configuration.class), sonarQubeVersion);
 
   @Test
@@ -90,12 +101,12 @@ class RuleActivatorIT {
 
     QProfileDto parentProfile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
     ActiveRuleDto parentActiveRuleDto = activateRuleInDb(RulesProfileDto.from(parentProfile), rule,
-      RulePriority.valueOf(Severity.BLOCKER), false, null);
+      RulePriority.valueOf(Severity.BLOCKER), Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), false, null);
     ActiveRuleParamDto parentActiveRuleParam = activateRuleParamInDb(parentActiveRuleDto, ruleParam, "10");
 
     QProfileDto childProfile = createChildProfile(parentProfile);
     ActiveRuleDto childActiveRuleDto = activateRuleInDb(RulesProfileDto.from(childProfile), rule,
-      RulePriority.valueOf(Severity.MINOR), true, OVERRIDES);
+      RulePriority.valueOf(Severity.MINOR), Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW), true, OVERRIDES);
     ActiveRuleParamDto childActiveRuleParam = activateRuleParamInDb(childActiveRuleDto, ruleParam, "15");
 
     DbSession session = db.getSession();
@@ -117,23 +128,25 @@ class RuleActivatorIT {
     ActiveRuleChange activeRuleResult = result.get(0);
     assertThat(activeRuleResult.getParameters()).containsEntry("min", "10");
     assertThat(activeRuleResult.getSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(activeRuleResult.getNewImpacts()).isEqualTo(Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH));
     assertThat(activeRuleResult.isPrioritizedRule()).isFalse();
     assertThat(activeRuleResult.getInheritance()).isEqualTo(ActiveRuleInheritance.INHERITED);
   }
 
   @Test
   void request_new_severity_and_prioritized_rule_and_param_for_child_rule() {
-    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.BLOCKER));
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.BLOCKER)
+      .replaceAllDefaultImpacts(List.of(newImpactDto(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER))));
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
 
     QProfileDto parentProfile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
     ActiveRuleDto parentActiveRuleDto = activateRuleInDb(RulesProfileDto.from(parentProfile), rule,
-      RulePriority.valueOf(Severity.BLOCKER), null, null);
+      RulePriority.valueOf(Severity.BLOCKER), Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER), null, null);
     ActiveRuleParamDto parentActiveRuleParam = activateRuleParamInDb(parentActiveRuleDto, ruleParam, "10");
 
     QProfileDto childProfile = createChildProfile(parentProfile);
     ActiveRuleDto childActiveRuleDto = activateRuleInDb(RulesProfileDto.from(childProfile), rule,
-      RulePriority.valueOf(Severity.BLOCKER), null, INHERITED);
+      RulePriority.valueOf(Severity.BLOCKER), Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER), null, INHERITED);
     ActiveRuleParamDto childActiveRuleParam = activateRuleParamInDb(childActiveRuleDto, ruleParam, "10");
 
     DbSession session = db.getSession();
@@ -155,8 +168,140 @@ class RuleActivatorIT {
     ActiveRuleChange activeRuleResult = result.get(0);
     assertThat(activeRuleResult.getParameters()).containsEntry("min", "15");
     assertThat(activeRuleResult.getSeverity()).isEqualTo(Severity.MINOR);
+    assertThat(activeRuleResult.getNewImpacts()).containsExactlyEntriesOf(Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
     assertThat(activeRuleResult.isPrioritizedRule()).isTrue();
     assertThat(activeRuleResult.getInheritance()).isEqualTo(OVERRIDES);
+  }
+
+  @Test
+  void activate_whenOnlyOneImpactAndImpactDoesntMatchRuleType_shouldNotOverrideSeverity() {
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.BLOCKER)
+      .replaceAllDefaultImpacts(List.of(newImpactDto(SECURITY, org.sonar.api.issue.impact.Severity.BLOCKER))));
+    RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
+
+    QProfileDto parentProfile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
+    ActiveRuleDto parentActiveRuleDto = activateRuleInDb(RulesProfileDto.from(parentProfile), rule,
+      RulePriority.valueOf(Severity.BLOCKER), Map.of(SECURITY, org.sonar.api.issue.impact.Severity.BLOCKER), null, null);
+    ActiveRuleParamDto parentActiveRuleParam = activateRuleParamInDb(parentActiveRuleDto, ruleParam, "10");
+
+    QProfileDto childProfile = createChildProfile(parentProfile);
+    ActiveRuleDto childActiveRuleDto = activateRuleInDb(RulesProfileDto.from(childProfile), rule,
+      RulePriority.valueOf(Severity.BLOCKER), Map.of(SECURITY, org.sonar.api.issue.impact.Severity.BLOCKER), null, INHERITED);
+    ActiveRuleParamDto childActiveRuleParam = activateRuleParamInDb(childActiveRuleDto, ruleParam, "10");
+
+    DbSession session = db.getSession();
+    RuleActivation request = RuleActivation.createOverrideImpacts(rule.getUuid(), Map.of(SECURITY, org.sonar.api.issue.impact.Severity.LOW), of("min", "15"));
+    RuleActivationContext context = new RuleActivationContext.Builder()
+      .setProfiles(asList(parentProfile, childProfile))
+      .setBaseProfile(RulesProfileDto.from(childProfile))
+      .setDate(NOW)
+      .setDescendantProfilesSupplier((profiles, ruleUuids) -> new Result(emptyList(), emptyList(), emptyList()))
+      .setRules(singletonList(rule))
+      .setRuleParams(singletonList(ruleParam))
+      .setActiveRules(asList(parentActiveRuleDto, childActiveRuleDto))
+      .setActiveRuleParams(asList(parentActiveRuleParam, childActiveRuleParam))
+      .build();
+
+    List<ActiveRuleChange> result = underTest.activate(session, request, context);
+
+    assertThat(result).hasSize(1);
+    ActiveRuleChange activeRuleResult = result.get(0);
+    assertThat(activeRuleResult.getSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(activeRuleResult.getNewImpacts()).containsExactlyEntriesOf(Map.of(SECURITY, org.sonar.api.issue.impact.Severity.LOW));
+    assertThat(activeRuleResult.getInheritance()).isEqualTo(OVERRIDES);
+  }
+
+  @Test
+  void activate_whenTwoImpactsAndImpactsDoesntMatchRuleType_shouldNotOverrideSeverity() {
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.BLOCKER)
+      .replaceAllDefaultImpacts(
+        List.of(newImpactDto(SECURITY, org.sonar.api.issue.impact.Severity.BLOCKER), new ImpactDto(RELIABILITY, org.sonar.api.issue.impact.Severity.BLOCKER))));
+    RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
+
+    QProfileDto parentProfile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
+    ActiveRuleDto parentActiveRuleDto = activateRuleInDb(RulesProfileDto.from(parentProfile), rule,
+      RulePriority.valueOf(Severity.BLOCKER), Map.of(SECURITY, org.sonar.api.issue.impact.Severity.BLOCKER, RELIABILITY, org.sonar.api.issue.impact.Severity.BLOCKER), null, null);
+    ActiveRuleParamDto parentActiveRuleParam = activateRuleParamInDb(parentActiveRuleDto, ruleParam, "10");
+
+    QProfileDto childProfile = createChildProfile(parentProfile);
+    ActiveRuleDto childActiveRuleDto = activateRuleInDb(RulesProfileDto.from(childProfile), rule,
+      RulePriority.valueOf(Severity.BLOCKER), Map.of(SECURITY, org.sonar.api.issue.impact.Severity.BLOCKER, RELIABILITY, org.sonar.api.issue.impact.Severity.BLOCKER), null,
+      INHERITED);
+    ActiveRuleParamDto childActiveRuleParam = activateRuleParamInDb(childActiveRuleDto, ruleParam, "10");
+
+    DbSession session = db.getSession();
+    RuleActivation request = RuleActivation.createOverrideImpacts(rule.getUuid(),
+      Map.of(SECURITY, org.sonar.api.issue.impact.Severity.LOW, RELIABILITY, org.sonar.api.issue.impact.Severity.LOW), of("min", "15"));
+    RuleActivationContext context = new RuleActivationContext.Builder()
+      .setProfiles(asList(parentProfile, childProfile))
+      .setBaseProfile(RulesProfileDto.from(childProfile))
+      .setDate(NOW)
+      .setDescendantProfilesSupplier((profiles, ruleUuids) -> new Result(emptyList(), emptyList(), emptyList()))
+      .setRules(singletonList(rule))
+      .setRuleParams(singletonList(ruleParam))
+      .setActiveRules(asList(parentActiveRuleDto, childActiveRuleDto))
+      .setActiveRuleParams(asList(parentActiveRuleParam, childActiveRuleParam))
+      .build();
+
+    List<ActiveRuleChange> result = underTest.activate(session, request, context);
+
+    assertThat(result).hasSize(1);
+    ActiveRuleChange activeRuleResult = result.get(0);
+    assertThat(activeRuleResult.getSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(activeRuleResult.getNewImpacts())
+      .containsExactlyInAnyOrderEntriesOf(Map.of(SECURITY, org.sonar.api.issue.impact.Severity.LOW, RELIABILITY, org.sonar.api.issue.impact.Severity.LOW));
+    assertThat(activeRuleResult.getInheritance()).isEqualTo(OVERRIDES);
+  }
+
+  private static ImpactDto newImpactDto(SoftwareQuality security, org.sonar.api.issue.impact.Severity severity) {
+    return new ImpactDto().setSoftwareQuality(security).setSeverity(severity);
+  }
+
+  @Test
+  void activate_whenImpactSeveritiesIsOverridden_shouldMapToRuleSeverity() {
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.BLOCKER)
+      .replaceAllDefaultImpacts(List.of(newImpactDto(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER))));
+    RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
+
+    QProfileDto parentProfile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
+    ActiveRuleDto parentActiveRuleDto = activateRuleInDb(RulesProfileDto.from(parentProfile), rule,
+      RulePriority.valueOf(Severity.BLOCKER), Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER), null, null);
+    ActiveRuleParamDto parentActiveRuleParam = activateRuleParamInDb(parentActiveRuleDto, ruleParam, "10");
+
+    QProfileDto childProfile = createChildProfile(parentProfile);
+    ActiveRuleDto childActiveRuleDto = activateRuleInDb(RulesProfileDto.from(childProfile), rule,
+      RulePriority.valueOf(Severity.BLOCKER), Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER), null, INHERITED);
+    ActiveRuleParamDto childActiveRuleParam = activateRuleParamInDb(childActiveRuleDto, ruleParam, "10");
+
+    DbSession session = db.getSession();
+    RuleActivation request = RuleActivation.createOverrideImpacts(rule.getUuid(), Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW), of("min", "15"));
+    RuleActivationContext context = new RuleActivationContext.Builder()
+      .setProfiles(asList(parentProfile, childProfile))
+      .setBaseProfile(RulesProfileDto.from(childProfile))
+      .setDate(NOW)
+      .setDescendantProfilesSupplier((profiles, ruleUuids) -> new Result(emptyList(), emptyList(), emptyList()))
+      .setRules(singletonList(rule))
+      .setRuleParams(singletonList(ruleParam))
+      .setActiveRules(asList(parentActiveRuleDto, childActiveRuleDto))
+      .setActiveRuleParams(asList(parentActiveRuleParam, childActiveRuleParam))
+      .build();
+
+    List<ActiveRuleChange> result = underTest.activate(session, request, context);
+
+    assertThat(result).hasSize(1);
+    ActiveRuleChange activeRuleResult = result.get(0);
+    assertThat(activeRuleResult.getSeverity()).isEqualTo(Severity.MINOR);
+    assertThat(activeRuleResult.getNewImpacts()).containsExactlyEntriesOf(Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
+    assertThat(activeRuleResult.getInheritance()).isEqualTo(OVERRIDES);
+
+    List<QProfileChangeDto> qProfileChangeDtos = db.getDbClient().qProfileChangeDao().selectByQuery(session, new QProfileChangeQuery(childProfile.getKee()));
+    assertThat(qProfileChangeDtos).hasSize(1);
+    assertThat(qProfileChangeDtos.get(0).getChangeType()).isEqualTo("UPDATED");
+    assertThat(qProfileChangeDtos.get(0).getDataAsMap()).containsEntry("severity", Severity.MINOR);
+    RuleChangeDto ruleChange = qProfileChangeDtos.get(0).getRuleChange();
+    RuleImpactChangeDto expected = new RuleImpactChangeDto(MAINTAINABILITY, MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW, org.sonar.api.issue.impact.Severity.BLOCKER);
+    expected.setRuleChangeUuid(ruleChange.getUuid());
+    assertThat(ruleChange.getRuleImpactChanges()).containsExactly(expected);
   }
 
   @Test
@@ -186,6 +331,7 @@ class RuleActivatorIT {
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getParameters()).containsEntry("min", "10");
     assertThat(result.get(0).getSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(result.get(0).getNewImpacts()).containsExactlyEntriesOf(Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH));
     assertThat(result.get(0).getInheritance()).isNull();
   }
 
@@ -210,18 +356,17 @@ class RuleActivatorIT {
       .setActiveRuleParams(emptyList())
       .build();
 
-
     assertThrows("xoo rule repo:rule cannot be activated on xoo2 profile qp", BadRequestException.class,
       () -> underTest.activate(session, resetRequest, context));
   }
 
-
-  private ActiveRuleDto activateRuleInDb(RulesProfileDto ruleProfile, RuleDto rule, RulePriority severity,
+  private ActiveRuleDto activateRuleInDb(RulesProfileDto ruleProfile, RuleDto rule, RulePriority severity, Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts,
     @Nullable Boolean prioritizedRule, @Nullable ActiveRuleInheritance inheritance) {
     ActiveRuleDto dto = new ActiveRuleDto()
       .setKey(ActiveRuleKey.of(ruleProfile, RuleKey.of(rule.getRepositoryKey(), rule.getRuleKey())))
       .setProfileUuid(ruleProfile.getUuid())
       .setSeverity(severity.name())
+      .setImpacts(impacts)
       .setPrioritizedRule(TRUE.equals(prioritizedRule))
       .setRuleUuid(rule.getUuid())
       .setInheritance(inheritance != null ? inheritance.name() : null)
@@ -245,9 +390,9 @@ class RuleActivatorIT {
 
   private QProfileDto createChildProfile(QProfileDto parent) {
     return db.qualityProfiles().insert(p -> p
-        .setLanguage(parent.getLanguage())
-        .setParentKee(parent.getKee())
-        .setName("Child of " + parent.getName()))
+      .setLanguage(parent.getLanguage())
+      .setParentKee(parent.getKee())
+      .setName("Child of " + parent.getName()))
       .setIsBuiltIn(false);
   }
 }

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { BuildTools, GradleBuildDSL, OSs, TutorialModes } from './types';
@@ -27,8 +28,30 @@ const CI_TRANSLATE_MAP: Partial<Record<TutorialModes, string>> = {
   [TutorialModes.GitLabCI]: 'gitlab_ci',
 };
 
-export function getCopyToClipboardValue(i = 0, name = 'copy_to_clipboard') {
-  return screen.getAllByRole('button', { name })[i].getAttribute('data-clipboard-text');
+interface GetCopyToClipboardValueArgs {
+  i?: number;
+  inlineSnippet?: boolean;
+  name?: string;
+}
+
+export function getCopyToClipboardValue({
+  i = 0,
+  inlineSnippet = false,
+  name = 'copy_to_clipboard',
+}: GetCopyToClipboardValueArgs = {}) {
+  const button = screen.getAllByRole('button', { name })[i];
+
+  return inlineSnippet
+    ? button.previousSibling?.firstChild?.textContent
+    : button.nextSibling?.firstChild?.textContent;
+}
+
+export function getCopyToClipboardHostURLValue({
+  i = 0,
+  name = 'copy_to_clipboard',
+}: Omit<GetCopyToClipboardValueArgs, 'inlineSnippet'> = {}) {
+  return screen.getAllByRole('button', { name })[i].nextSibling?.nextSibling?.firstChild
+    ?.textContent;
 }
 
 export function getCommonNodes(ci: TutorialModes) {
@@ -48,9 +71,11 @@ export function getCommonNodes(ci: TutorialModes) {
     expiresInSelect: byRole('combobox', { name: '' }),
     tokenValue: byText('generatedtoken2'),
     linkToRepo: byRole('link', {
-      name: `onboarding.tutorial.with.${CI_TRANSLATE_MAP[ci]}.${
-        ci === TutorialModes.GitHubActions ? 'secret' : 'variables'
-      }.intro.link open_in_new_tab`,
+      name: new RegExp(
+        `onboarding.tutorial.with.${CI_TRANSLATE_MAP[ci]}.${
+          ci === TutorialModes.GitHubActions ? 'secret' : 'variables'
+        }.intro.link`,
+      ),
     }),
     allSetSentence: byText('onboarding.tutorial.ci_outro.done'),
   };

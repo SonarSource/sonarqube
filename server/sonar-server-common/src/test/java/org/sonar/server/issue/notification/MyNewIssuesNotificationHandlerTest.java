@@ -37,7 +37,7 @@ import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliver
 import static com.google.common.collect.ImmutableSet.of;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -134,7 +134,7 @@ public class MyNewIssuesNotificationHandlerTest {
   public void deliver_has_no_effect_if_no_notification_has_assignee() {
     when(emailNotificationChannel.isActivated()).thenReturn(true);
     Set<MyNewIssuesNotification> notifications = IntStream.range(0, 1 + new Random().nextInt(10))
-      .mapToObj(i -> newNotification(randomAlphabetic(5 + i), null))
+      .mapToObj(i -> newNotification(secure().nextAlphabetic(5 + i), null))
       .collect(toSet());
 
     int deliver = underTest.deliver(notifications);
@@ -152,8 +152,8 @@ public class MyNewIssuesNotificationHandlerTest {
 
   @Test
   public void deliver_has_no_effect_if_no_notification_has_subscribed_assignee_to_MyNewIssue_notifications() {
-    String projectKey = randomAlphabetic(12);
-    String assignee = randomAlphabetic(10);
+    String projectKey = secure().nextAlphabetic(12);
+    String assignee = secure().nextAlphabetic(10);
     MyNewIssuesNotification notification = newNotification(projectKey, assignee);
     when(emailNotificationChannel.isActivated()).thenReturn(true);
     when(notificationManager.findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey, of(assignee), ALL_MUST_HAVE_ROLE_USER))
@@ -170,12 +170,12 @@ public class MyNewIssuesNotificationHandlerTest {
 
   @Test
   public void deliver_ignores_notification_without_projectKey() {
-    String projectKey = randomAlphabetic(10);
+    String projectKey = secure().nextAlphabetic(10);
     Set<MyNewIssuesNotification> withProjectKey = IntStream.range(0, 1 + new Random().nextInt(5))
-      .mapToObj(i -> newNotification(projectKey, randomAlphabetic(11 + i)))
+      .mapToObj(i -> newNotification(projectKey, secure().nextAlphabetic(11 + i)))
       .collect(toSet());
     Set<MyNewIssuesNotification> noProjectKey = IntStream.range(0, 1 + new Random().nextInt(5))
-      .mapToObj(i -> newNotification(null, randomAlphabetic(11 + i)))
+      .mapToObj(i -> newNotification(null, secure().nextAlphabetic(11 + i)))
       .collect(toSet());
     Set<MyNewIssuesNotification> noProjectKeyNoAssignee = randomSetOfNotifications(null, null);
     Set<EmailRecipient> authorizedRecipients = withProjectKey.stream()
@@ -204,9 +204,9 @@ public class MyNewIssuesNotificationHandlerTest {
 
   @Test
   public void deliver_ignores_notification_without_assignee() {
-    String projectKey = randomAlphabetic(10);
+    String projectKey = secure().nextAlphabetic(10);
     Set<MyNewIssuesNotification> withAssignee = IntStream.range(0, 1 + new Random().nextInt(5))
-      .mapToObj(i -> newNotification(projectKey, randomAlphabetic(11 + i)))
+      .mapToObj(i -> newNotification(projectKey, secure().nextAlphabetic(11 + i)))
       .collect(toSet());
     Set<MyNewIssuesNotification> noAssignee = randomSetOfNotifications(projectKey, null);
     Set<MyNewIssuesNotification> noProjectKeyNoAssignee = randomSetOfNotifications(null, null);
@@ -236,10 +236,10 @@ public class MyNewIssuesNotificationHandlerTest {
 
   @Test
   public void deliver_checks_by_projectKey_if_notifications_have_subscribed_assignee_to_MyNewIssue_notifications() {
-    String projectKey1 = randomAlphabetic(10);
-    String assignee1 = randomAlphabetic(11);
-    String projectKey2 = randomAlphabetic(12);
-    String assignee2 = randomAlphabetic(13);
+    String projectKey1 = secure().nextAlphabetic(10);
+    String assignee1 = secure().nextAlphabetic(11);
+    String projectKey2 = secure().nextAlphabetic(12);
+    String assignee2 = secure().nextAlphabetic(13);
     Set<MyNewIssuesNotification> notifications1 = randomSetOfNotifications(projectKey1, assignee1);
     Set<MyNewIssuesNotification> notifications2 = randomSetOfNotifications(projectKey2, assignee2);
     when(emailNotificationChannel.isActivated()).thenReturn(true);
@@ -260,9 +260,9 @@ public class MyNewIssuesNotificationHandlerTest {
 
   @Test
   public void deliver_ignores_notifications_which_assignee_has_no_subscribed_to_MyNewIssue_notifications() {
-    String projectKey = randomAlphabetic(5);
-    String assignee1 = randomAlphabetic(6);
-    String assignee2 = randomAlphabetic(7);
+    String projectKey = secure().nextAlphabetic(5);
+    String assignee1 = secure().nextAlphabetic(6);
+    String assignee2 = secure().nextAlphabetic(7);
     Set<String> assignees = of(assignee1, assignee2);
     // assignee1 is not authorized
     Set<MyNewIssuesNotification> assignee1Notifications = randomSetOfNotifications(projectKey, assignee1);
@@ -289,12 +289,12 @@ public class MyNewIssuesNotificationHandlerTest {
 
   @Test
   public void deliver_returns_sum_of_delivery_counts_when_multiple_projects() {
-    String projectKey1 = randomAlphabetic(5);
-    String projectKey2 = randomAlphabetic(6);
-    String projectKey3 = randomAlphabetic(7);
-    String assignee1 = randomAlphabetic(8);
-    String assignee2 = randomAlphabetic(9);
-    String assignee3 = randomAlphabetic(10);
+    String projectKey1 = secure().nextAlphabetic(5);
+    String projectKey2 = secure().nextAlphabetic(6);
+    String projectKey3 = secure().nextAlphabetic(7);
+    String assignee1 = secure().nextAlphabetic(8);
+    String assignee2 = secure().nextAlphabetic(9);
+    String assignee3 = secure().nextAlphabetic(10);
     // assignee1 has subscribed to project1 only, no notification on project3
     Set<MyNewIssuesNotification> assignee1Project1 = randomSetOfNotifications(projectKey1, assignee1);
     Set<MyNewIssuesNotification> assignee1Project2 = randomSetOfNotifications(projectKey2, assignee1);

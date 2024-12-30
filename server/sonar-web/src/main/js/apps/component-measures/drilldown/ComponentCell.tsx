@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ContentCell, HoverLink, Note, QualifierIcon } from 'design-system';
-import * as React from 'react';
+
 import { To } from 'react-router-dom';
+import { ContentCell, HoverLink, Note, QualifierIcon } from '~design-system';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { fillBranchLike } from '../../../helpers/branch-like';

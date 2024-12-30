@@ -26,8 +26,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -59,26 +59,27 @@ import static org.sonar.api.rules.CleanCodeAttribute.COMPLETE;
 import static org.sonar.api.rules.CleanCodeAttribute.FOCUSED;
 import static org.sonar.api.rules.CleanCodeAttribute.TESTED;
 import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_FILTER_MODE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SINCE;
 
-public class ChangelogActionIT {
+class ChangelogActionIT {
 
   private static final String DATE = "2011-04-25T01:15:42+0100";
 
   private final TestSystem2 system2 = new TestSystem2().setNow(DateUtils.parseDateTime(DATE).getTime());
 
-  @Rule
-  public DbTester db = DbTester.create(system2);
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
+  @RegisterExtension
+  private final UserSessionRule userSession = UserSessionRule.standalone();
 
   private final QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession);
   private final WsActionTester ws = new WsActionTester(new ChangelogAction(wsSupport, new Languages(), db.getDbClient()));
 
   @Test
-  public void return_change_with_all_fields() {
+  void return_change_with_all_fields() {
     QProfileDto profile = db.qualityProfiles().insert();
     UserDto user = db.users().insertUser();
     RuleDto rule = db.rules().insert(RuleKey.of("java", "S001"));
@@ -146,7 +147,7 @@ public class ChangelogActionIT {
   }
 
   @Test
-  public void call_shouldReturnRemovedOrAddedImpacts() {
+  void call_shouldReturnRemovedOrAddedImpacts() {
     QProfileDto profile = db.qualityProfiles().insert();
     UserDto user = db.users().insertUser();
     RuleDto rule = db.rules().insert(RuleKey.of("java", "S001"));
@@ -216,7 +217,7 @@ public class ChangelogActionIT {
   }
 
   @Test
-  public void call_whenNoChangeData_shouldIncludeRuleUuid() {
+  void call_whenNoChangeData_shouldIncludeRuleUuid() {
     String ruleUuid = "ruleUuid";
     QProfileDto profile = db.qualityProfiles().insert();
     UserDto user = db.users().insertUser();
@@ -234,7 +235,7 @@ public class ChangelogActionIT {
   }
 
   @Test
-  public void find_changelog_by_profile_key() {
+  void find_changelog_by_profile_key() {
     QProfileDto profile = db.qualityProfiles().insert();
     RuleDto rule = db.rules().insert();
     UserDto user = db.users().insertUser();
@@ -266,7 +267,7 @@ public class ChangelogActionIT {
   }
 
   @Test
-  public void find_changelog_by_language_and_name() {
+  void find_changelog_by_language_and_name() {
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     RuleDto rule = db.rules().insert();
     UserDto user = db.users().insertUser();
@@ -298,7 +299,7 @@ public class ChangelogActionIT {
   }
 
   @Test
-  public void changelog_empty() {
+  void changelog_empty() {
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     String response = ws.newRequest()
       .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
@@ -310,7 +311,7 @@ public class ChangelogActionIT {
   }
 
   @Test
-  public void changelog_filter_by_since() {
+  void changelog_filter_by_since() {
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:42+0100").getTime());
     RuleDto rule = db.rules().insert();
@@ -348,7 +349,7 @@ public class ChangelogActionIT {
   }
 
   @Test
-  public void sort_changelog_events_in_reverse_chronological_order() {
+  void sort_changelog_events_in_reverse_chronological_order() {
     QProfileDto profile = db.qualityProfiles().insert();
     system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:42+0100").getTime());
     RuleDto rule1 = db.rules().insert();
@@ -392,7 +393,7 @@ public class ChangelogActionIT {
   }
 
   @Test
-  public void changelog_on_no_more_existing_rule() {
+  void changelog_on_no_more_existing_rule() {
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     UserDto user = db.users().insertUser();
     insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, user,
@@ -417,7 +418,7 @@ public class ChangelogActionIT {
   }
 
   @Test
-  public void changelog_on_no_more_existing_user() {
+  void changelog_on_no_more_existing_user() {
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     RuleDto rule = db.rules().insert();
     insertChange(c -> c.setRulesProfileUuid(qualityProfile.getRulesProfileUuid())
@@ -446,7 +447,235 @@ public class ChangelogActionIT {
   }
 
   @Test
-  public void changelog_example() {
+  void changelog_filter_by_STANDARD_mode() {
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
+    system2.setNow(DateUtils.parseDateTime(DATE).getTime());
+    RuleDto rule = db.rules().insert();
+    UserDto user = db.users().insertUser();
+    //ACTIVATED and DEACTIVATED rules must always appear
+    insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, user, Map.of("ruleUuid", rule.getUuid()));
+    insertChange(qualityProfile, ActiveRuleChange.Type.DEACTIVATED, user, Map.of("ruleUuid", rule.getUuid()));
+    // Changes with data must appear in STANDARD mode
+    insertChange(qualityProfile, ActiveRuleChange.Type.UPDATED, user, Map.of("severity", "BLOCKER", "ruleUuid", rule.getUuid()));
+    // Changes without data must not appear in STANDARD mode
+    RuleChangeDto ruleChange = insertRuleChange(TESTED, CLEAR, rule.getUuid(),
+      Set.of(new RuleImpactChangeDto(MAINTAINABILITY, SECURITY, HIGH, MEDIUM), new RuleImpactChangeDto(null, RELIABILITY, null, LOW)));
+    insertChange(qualityProfile, ActiveRuleChange.Type.UPDATED, user, null, ruleChange);
+
+    String response = ws.newRequest()
+      .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
+      .setParam(PARAM_FILTER_MODE, QProfileChangelogFilterMode.STANDARD.name())
+      .execute()
+      .getInput();
+
+    assertJson(response).isSimilarTo("""
+      {
+        "total": 3,
+        "p": 1,
+        "ps": 50,
+        "paging": {
+          "pageIndex": 1,
+          "pageSize": 50,
+          "total": 3
+        },
+        "events": [
+          {
+            "date": "%s",
+            "sonarQubeVersion": "7.6",
+            "action": "ACTIVATED",
+            "authorLogin": "%s",
+            "authorName": "%s",
+            "ruleKey": "%s",
+            "ruleName": "%s",
+            "cleanCodeAttributeCategory": "INTENTIONAL",
+            "impacts": [
+              {
+                "softwareQuality": "MAINTAINABILITY",
+                "severity": "HIGH"
+              }
+            ],
+            "params": {}
+          },
+          {
+            "date": "%s",
+            "sonarQubeVersion": "7.6",
+            "action": "DEACTIVATED",
+            "authorLogin": "%s",
+            "authorName": "%s",
+            "ruleKey": "%s",
+            "ruleName": "%s",
+            "cleanCodeAttributeCategory": "INTENTIONAL",
+            "impacts": [
+              {
+                "softwareQuality": "MAINTAINABILITY",
+                "severity": "HIGH"
+              }
+            ],
+            "params": {}
+          },
+          {
+            "date": "%s",
+            "sonarQubeVersion": "7.6",
+            "action": "UPDATED",
+            "authorLogin": "%s",
+            "authorName": "%s",
+            "ruleKey": "%s",
+            "ruleName": "%s",
+            "cleanCodeAttributeCategory": "INTENTIONAL",
+            "impacts": [
+              {
+                "softwareQuality": "MAINTAINABILITY",
+                "severity": "HIGH"
+              }
+            ],
+            "params": {
+              "severity": "BLOCKER"
+            }
+          }
+        ]
+      }
+      """.formatted(
+      DATE, user.getLogin(), user.getName(), rule.getKey(), rule.getName(),
+      DATE, user.getLogin(), user.getName(), rule.getKey(), rule.getName(),
+      DATE, user.getLogin(), user.getName(), rule.getKey(), rule.getName()));
+  }
+
+  @Test
+  void changelog_filter_by_MQR_mode() {
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
+    system2.setNow(DateUtils.parseDateTime(DATE).getTime());
+    RuleDto rule = db.rules().insert();
+    UserDto user = db.users().insertUser();
+    //ACTIVATED and DEACTIVATED rules must always appear
+    insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, user, Map.of("ruleUuid", rule.getUuid()));
+    insertChange(qualityProfile, ActiveRuleChange.Type.DEACTIVATED, user, Map.of("ruleUuid", rule.getUuid()));
+    // Changes without rule_change must not appear in MQR mode
+    insertChange(qualityProfile, ActiveRuleChange.Type.UPDATED, user, Map.of("severity", "BLOCKER", "ruleUuid", rule.getUuid()));
+    // Changes with param changes must appear in MQR mode
+    insertChange(qualityProfile, ActiveRuleChange.Type.UPDATED, user, Map.of("param_format", "^[A-Z][a-zA-Z0-9]*", "ruleUuid",
+      rule.getUuid()));
+    // Changes with rule_change must appear in MQR mode
+    RuleChangeDto ruleChange = insertRuleChange(TESTED, CLEAR, rule.getUuid(),
+      Set.of(new RuleImpactChangeDto(MAINTAINABILITY, SECURITY, HIGH, MEDIUM), new RuleImpactChangeDto(null, RELIABILITY, null, LOW)));
+    insertChange(qualityProfile, ActiveRuleChange.Type.UPDATED, user, null, ruleChange);
+
+    String response = ws.newRequest()
+      .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
+      .setParam(PARAM_FILTER_MODE, QProfileChangelogFilterMode.MQR.name())
+      .execute()
+      .getInput();
+
+    assertJson(response).isSimilarTo("""
+      {
+        "total": 4,
+        "p": 1,
+        "ps": 50,
+        "paging": {
+          "pageIndex": 1,
+          "pageSize": 50,
+          "total": 4
+        },
+        "events": [
+          {
+            "date": "%s",
+            "sonarQubeVersion": "7.6",
+            "action": "ACTIVATED",
+            "authorLogin": "%s",
+            "authorName": "%s",
+            "ruleKey": "%s",
+            "ruleName": "%s",
+            "cleanCodeAttributeCategory": "INTENTIONAL",
+            "impacts": [
+              {
+                "softwareQuality": "MAINTAINABILITY",
+                "severity": "HIGH"
+              }
+            ],
+            "params": {}
+          },
+          {
+            "date": "%s",
+            "sonarQubeVersion": "7.6",
+            "action": "DEACTIVATED",
+            "authorLogin": "%s",
+            "authorName": "%s",
+            "ruleKey": "%s",
+            "ruleName": "%s",
+            "cleanCodeAttributeCategory": "INTENTIONAL",
+            "impacts": [
+              {
+                "softwareQuality": "MAINTAINABILITY",
+                "severity": "HIGH"
+              }
+            ],
+            "params": {}
+          },
+          {
+            "date": "%s",
+            "sonarQubeVersion": "7.6",
+            "action": "UPDATED",
+            "authorLogin": "%s",
+            "authorName": "%s",
+            "ruleKey": "%s",
+            "ruleName": "%s",
+            "cleanCodeAttributeCategory": "INTENTIONAL",
+            "impacts": [
+              {
+                "softwareQuality": "MAINTAINABILITY",
+                "severity": "HIGH"
+              }
+            ],
+            "params": {
+              "format": "^[A-Z][a-zA-Z0-9]*"
+            }
+          },
+          {
+            "date": "%s",
+            "sonarQubeVersion": "7.6",
+            "action": "UPDATED",
+            "authorLogin": "%s",
+            "authorName": "%s",
+            "ruleKey": "%s",
+            "ruleName": "%s",
+            "cleanCodeAttributeCategory": "INTENTIONAL",
+            "impacts": [
+              {
+                "softwareQuality": "MAINTAINABILITY",
+                "severity": "HIGH"
+              }
+            ],
+            "params": {
+              "oldCleanCodeAttribute": "TESTED",
+              "newCleanCodeAttribute": "CLEAR",
+              "oldCleanCodeAttributeCategory": "ADAPTABLE",
+              "newCleanCodeAttributeCategory": "INTENTIONAL",
+              "impactChanges": [
+                {
+                  "oldSoftwareQuality": "SECURITY",
+                  "newSoftwareQuality": "MAINTAINABILITY",
+                  "oldSeverity": "MEDIUM",
+                  "newSeverity": "HIGH"
+                },
+                {
+                  "oldSoftwareQuality": "RELIABILITY",
+                  "oldSeverity": "LOW"
+                }
+              ]
+            }
+          }
+        ]
+      }
+      """.formatted(DATE, user.getLogin(), user.getName(), rule.getKey(), rule.getName(),
+      DATE, user.getLogin(), user.getName(), rule.getKey(), rule.getName(),
+      DATE, user.getLogin(), user.getName(), rule.getKey(), rule.getName(),
+      DATE, user.getLogin(), user.getName(), rule.getKey(), rule.getName()
+    ));
+  }
+
+  @Test
+  void changelog_example() {
     QProfileDto profile = db.qualityProfiles().insert();
     String profileUuid = profile.getRulesProfileUuid();
 
@@ -487,13 +716,13 @@ public class ChangelogActionIT {
   }
 
   @Test
-  public void definition() {
+  void definition() {
     WebService.Action definition = ws.getDef();
 
     assertThat(definition.isPost()).isFalse();
     assertThat(definition.responseExampleAsString()).isNotEmpty();
     assertThat(definition.params()).extracting(WebService.Param::key)
-      .containsExactlyInAnyOrder("qualityProfile", "language", "since", "to", "p", "ps");
+      .containsExactlyInAnyOrder("qualityProfile", "language", "filterMode", "since", "to", "p", "ps");
     WebService.Param profileName = definition.param("qualityProfile");
     assertThat(profileName.deprecatedSince()).isNullOrEmpty();
     WebService.Param language = definition.param("language");

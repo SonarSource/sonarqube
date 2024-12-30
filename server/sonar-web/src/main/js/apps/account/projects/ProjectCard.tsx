@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   Card,
   DiscreetLink,
@@ -25,8 +26,7 @@ import {
   QualityGateIndicator,
   SubHeading,
   UnorderedList,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { Status } from '~sonar-aligned/types/common';
 import { MetricType } from '~sonar-aligned/types/metrics';

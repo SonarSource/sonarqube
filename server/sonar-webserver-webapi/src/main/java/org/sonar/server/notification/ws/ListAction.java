@@ -29,6 +29,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -99,16 +101,42 @@ public class ListAction implements NotificationsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       checkPermissions(request);
       UserDto user = getUser(dbSession, request);
-
+      Set<String> globalPermissions = getGlobalPermissions(dbSession, user);
       return Optional
         .of(ListResponse.newBuilder())
         .map(r -> r.addAllChannels(channels))
-        .map(r -> r.addAllGlobalTypes(dispatchers.getGlobalDispatchers()))
-        .map(r -> r.addAllPerProjectTypes(dispatchers.getProjectDispatchers()))
-        .map(addNotifications(dbSession, user))
+        .map(r -> r.addAllGlobalTypes(getAllowedGlobalDispatchers(globalPermissions)))
+        .map(r -> r.addAllPerProjectTypes(getAllowedProjectDispatchers(globalPermissions)))
+        .map(addNotifications(dbSession, user, globalPermissions))
         .map(ListResponse.Builder::build)
         .orElseThrow();
     }
+  }
+
+  private Set<String> getGlobalPermissions(DbSession dbSession, UserDto userDto) {
+    return dbClient.authorizationDao().selectOrganizationPermissions(dbSession, null /* TODO */, userDto.getUuid());
+  }
+
+  private List<String> getAllowedGlobalDispatchers(Set<String> globalPermissions) {
+    return dispatchers.getGlobalDispatchers()
+      .stream()
+      .filter(d -> hasUserPermission(globalPermissions, d))
+      .toList();
+  }
+
+  private List<String> getAllowedProjectDispatchers(Set<String> globalPermissions) {
+    return dispatchers.getProjectDispatchers()
+      .stream()
+      .filter(d -> hasUserPermission(globalPermissions, d))
+      .toList();
+  }
+
+  private boolean hasUserPermission(Set<String> globalPermissions, String dispatcher) {
+    if (!dispatchers.getPermissionRestrictedDispatchers().containsKey(dispatcher)) {
+      return true;
+    }
+    String globalPermission = dispatchers.getPermissionRestrictedDispatchers().get(dispatcher);
+    return globalPermissions.contains(globalPermission);
   }
 
   private UserDto getUser(DbSession dbSession, Request request) {
@@ -116,7 +144,7 @@ public class ListAction implements NotificationsWsAction {
     return checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' not found", login);
   }
 
-  private UnaryOperator<ListResponse.Builder> addNotifications(DbSession dbSession, UserDto user) {
+  private UnaryOperator<ListResponse.Builder> addNotifications(DbSession dbSession, UserDto user, Set<String> globalPermissions) {
     return response -> {
       List<PropertyDto> properties = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setUserUuid(user.getUuid()).build(),
         dbSession);
@@ -127,11 +155,19 @@ public class ListAction implements NotificationsWsAction {
 
       Notification.Builder notification = Notification.newBuilder();
 
-      properties.stream()
+      Set<PropertyDto> notificationProps = properties.stream()
         .filter(isNotification)
-        .filter(channelAndDispatcherAuthorized())
-        .filter(isComponentInDb)
-        .map(toWsNotification(notification, entitiesByUuid))
+        .filter(channelAndDispatcherAuthorized(globalPermissions))
+        .filter(isComponentInDb).collect(Collectors.toSet());
+
+      Set<Notification> activeNotifications = notificationProps.stream()
+        .filter(prop -> Boolean.parseBoolean(prop.getValue()))
+        .map(p -> toWsNotification(notification, entitiesByUuid, p.getKey(), p.getEntityUuid()))
+        .collect(Collectors.toSet());
+
+      Set<Notification> notificationsEnabledByDefault = getEnabledByDefaultNotifications(notificationProps, notification, entitiesByUuid, globalPermissions);
+
+      Stream.concat(activeNotifications.stream(), notificationsEnabledByDefault.stream())
         .sorted(comparing(Notification::getProject, nullsFirst(naturalOrder()))
           .thenComparing(Notification::getChannel)
           .thenComparing(Notification::getType))
@@ -141,17 +177,39 @@ public class ListAction implements NotificationsWsAction {
     };
   }
 
-  private Predicate<PropertyDto> channelAndDispatcherAuthorized() {
+  private Set<Notification> getEnabledByDefaultNotifications(Set<PropertyDto> notificationProps, Builder notificationBuilder, Map<String, EntityDto> entitiesByUuid,
+    Set<String> globalPermissions) {
+    Set<String> disabledNotifications = notificationProps.stream()
+      .filter(prop -> !Boolean.parseBoolean(prop.getValue()))
+      .map(PropertyDto::getKey)
+      .collect(Collectors.toSet());
+
+    return dispatchers.getEnabledByDefaultDispatchers()
+      .stream()
+      .filter(d -> hasUserPermission(globalPermissions, d))
+      .flatMap(dispatcher -> channels.stream()
+        .filter(channel -> !isNotificationDisabled(disabledNotifications, dispatcher, channel))
+        .map(channel -> toWsNotification(notificationBuilder, entitiesByUuid, "notification.%s.%s".formatted(dispatcher, channel), null)))
+      .collect(Collectors.toSet());
+  }
+
+  private static boolean isNotificationDisabled(Set<String> disabledNotification, String dispatcher, String channel) {
+    return disabledNotification.contains("notification.%s.%s".formatted(dispatcher, channel));
+  }
+
+  private Predicate<PropertyDto> channelAndDispatcherAuthorized(Set<String> globalPermissions) {
     return prop -> {
       List<String> key = PROPERTY_KEY_SPLITTER.splitToList(prop.getKey());
       return key.size() == 3
         && channels.contains(key.get(2))
-        && isDispatcherAuthorized(prop, key.get(1));
+        && isDispatcherAuthorized(prop, key.get(1), globalPermissions);
     };
   }
 
-  private boolean isDispatcherAuthorized(PropertyDto prop, String dispatcher) {
-    return (prop.getEntityUuid() != null && dispatchers.getProjectDispatchers().contains(dispatcher)) || dispatchers.getGlobalDispatchers().contains(dispatcher);
+  private boolean isDispatcherAuthorized(PropertyDto prop, String dispatcher, Set<String> globalPermissions) {
+    return ((prop.getEntityUuid() != null && dispatchers.getProjectDispatchers().contains(dispatcher))
+      || dispatchers.getGlobalDispatchers().contains(dispatcher))
+      && hasUserPermission(globalPermissions, dispatcher);
   }
 
   private Map<String, EntityDto> searchProjects(DbSession dbSession, List<PropertyDto> properties) {
@@ -167,17 +225,14 @@ public class ListAction implements NotificationsWsAction {
       .collect(Collectors.toMap(EntityDto::getUuid, Function.identity()));
   }
 
-  private static Function<PropertyDto, Notification> toWsNotification(Notification.Builder notification,
-    Map<String, EntityDto> projectsByUuid) {
-    return property -> {
-      notification.clear();
-      List<String> propertyKey = Splitter.on(".").splitToList(property.getKey());
-      notification.setType(propertyKey.get(1));
-      notification.setChannel(propertyKey.get(2));
-      ofNullable(property.getEntityUuid()).ifPresent(componentUuid -> populateProjectFields(notification, componentUuid, projectsByUuid));
-
-      return notification.build();
-    };
+  private static Notification toWsNotification(Builder notification,
+    Map<String, EntityDto> projectsByUuid, String key, @Nullable String entityUuid) {
+    notification.clear();
+    List<String> propertyKey = Splitter.on(".").splitToList(key);
+    notification.setType(propertyKey.get(1));
+    notification.setChannel(propertyKey.get(2));
+    ofNullable(entityUuid).ifPresent(componentUuid -> populateProjectFields(notification, componentUuid, projectsByUuid));
+    return notification.build();
   }
 
   private static void populateProjectFields(Builder notification, String componentUuid, Map<String, EntityDto> projectsByUuid) {

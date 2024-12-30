@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { cloneDeep, isArray, isObject, isString } from 'lodash';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import { HousekeepingPolicy } from '../../apps/audit-logs/utils';
@@ -121,6 +122,15 @@ export const DEFAULT_DEFINITIONS_MOCK = [
     description: 'Lets do it',
     type: SettingType.BOOLEAN,
   }),
+  mockDefinition({
+    category: 'Mode',
+    defaultValue: 'true',
+    key: 'sonar.multi-quality-mode.enabled',
+    name: 'Enable Multi-Quality Rule Mode',
+    options: [],
+    subCategory: 'Mode',
+    type: SettingType.BOOLEAN,
+  }),
 ];
 
 export default class SettingsServiceMock {
@@ -136,10 +146,6 @@ export default class SettingsServiceMock {
     {
       key: SettingsKey.QPAdminCanDisableInheritedRules,
       value: 'true',
-    },
-    {
-      key: 'sonar.old_world',
-      value: 'false',
     },
   ];
 

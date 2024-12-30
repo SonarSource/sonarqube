@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import * as dates from '../../../helpers/dates';
 import { mockMeasureHistory, mockSerie } from '../../../helpers/mocks/project-activity';
@@ -105,6 +106,13 @@ describe('getDisplayedHistoryMetrics', () => {
       customMetrics,
     );
   });
+  it('should return Legacy graphs', () => {
+    expect(utils.getDisplayedHistoryMetrics(GraphType.issues, [], true)).toEqual([
+      MetricKey.bugs,
+      MetricKey.code_smells,
+      MetricKey.vulnerabilities,
+    ]);
+  });
 });
 
 describe('getHistoryMetrics', () => {
@@ -122,6 +130,16 @@ describe('getHistoryMetrics', () => {
       GraphType.coverage,
     ]);
     expect(utils.getHistoryMetrics(GraphType.custom, customMetrics)).toEqual(customMetrics);
+  });
+  it('should return legacy metrics', () => {
+    expect(utils.getHistoryMetrics(utils.DEFAULT_GRAPH, [], true)).toEqual([
+      MetricKey.bugs,
+      MetricKey.code_smells,
+      MetricKey.vulnerabilities,
+      MetricKey.reliability_rating,
+      MetricKey.security_rating,
+      MetricKey.sqale_rating,
+    ]);
   });
 });
 

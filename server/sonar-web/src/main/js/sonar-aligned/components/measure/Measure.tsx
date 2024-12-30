@@ -19,9 +19,9 @@
  */
 
 import classNames from 'classnames';
-import { QualityGateIndicator, RatingEnum } from 'design-system';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { useIntl } from 'react-intl';
+import { QualityGateIndicator, RatingEnum } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { Status } from '~sonar-aligned/types/common';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';

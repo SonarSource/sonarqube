@@ -24,7 +24,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.Test;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric.Level;
 
@@ -34,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.qualitygate.EvaluatedQualityGate.newBuilder;
 
-public class EvaluatedQualityGateTest {
+class EvaluatedQualityGateTest {
   private static final String QUALITY_GATE_ID = "qg_id";
   private static final String QUALITY_GATE_NAME = "qg_name";
   private static final QualityGate NO_CONDITION_QUALITY_GATE = new QualityGate(QUALITY_GATE_ID, QUALITY_GATE_NAME, emptySet());
@@ -50,12 +51,12 @@ public class EvaluatedQualityGateTest {
   private final Level randomStatus = Level.values()[random.nextInt(Level.values().length)];
   private final EvaluatedCondition.EvaluationStatus randomEvaluationStatus = EvaluatedCondition.EvaluationStatus.values()[random
     .nextInt(EvaluatedCondition.EvaluationStatus.values().length)];
-  private final String randomValue = random.nextBoolean() ? null : RandomStringUtils.randomAlphanumeric(3);
+  private final String randomValue = random.nextBoolean() ? null : RandomStringUtils.secure().nextAlphanumeric(3);
 
   private EvaluatedQualityGate.Builder builder = newBuilder();
 
   @Test
-  public void build_fails_with_NPE_if_status_not_set() {
+  void build_fails_with_NPE_if_status_not_set() {
     builder.setQualityGate(NO_CONDITION_QUALITY_GATE);
 
     assertThatThrownBy(() -> builder.build())
@@ -64,21 +65,21 @@ public class EvaluatedQualityGateTest {
   }
 
   @Test
-  public void addCondition_fails_with_NPE_if_condition_is_null() {
+  void addCondition_fails_with_NPE_if_condition_is_null() {
     assertThatThrownBy(() -> builder.addEvaluatedCondition(null, EvaluatedCondition.EvaluationStatus.ERROR, "a_value"))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("condition can't be null");
   }
 
   @Test
-  public void addCondition_fails_with_NPE_if_status_is_null() {
+  void addCondition_fails_with_NPE_if_status_is_null() {
     assertThatThrownBy(() -> builder.addEvaluatedCondition(new Condition("metric_key", Condition.Operator.LESS_THAN, "2"), null, "a_value"))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("status can't be null");
   }
 
   @Test
-  public void addCondition_accepts_null_value() {
+  void addCondition_accepts_null_value() {
     builder.addEvaluatedCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.NO_VALUE, null);
 
     assertThat(builder.getEvaluatedConditions())
@@ -86,12 +87,12 @@ public class EvaluatedQualityGateTest {
   }
 
   @Test
-  public void getEvaluatedConditions_returns_empty_with_no_condition_added_to_builder() {
+  void getEvaluatedConditions_returns_empty_with_no_condition_added_to_builder() {
     assertThat(builder.getEvaluatedConditions()).isEmpty();
   }
 
   @Test
-  public void build_fails_with_IAE_if_condition_added_and_no_on_QualityGate() {
+  void build_fails_with_IAE_if_condition_added_and_no_on_QualityGate() {
     builder.setQualityGate(NO_CONDITION_QUALITY_GATE)
       .setStatus(randomStatus)
       .addEvaluatedCondition(CONDITION_1, randomEvaluationStatus, randomValue);
@@ -102,7 +103,7 @@ public class EvaluatedQualityGateTest {
   }
 
   @Test
-  public void build_fails_with_IAE_if_condition_is_missing_for_one_defined_in_QualityGate() {
+  void build_fails_with_IAE_if_condition_is_missing_for_one_defined_in_QualityGate() {
     builder.setQualityGate(ONE_CONDITION_QUALITY_GATE)
       .setStatus(randomStatus);
 
@@ -112,7 +113,16 @@ public class EvaluatedQualityGateTest {
   }
 
   @Test
-  public void getEvaluatedConditions_is_sorted() {
+  void build_whenConditionIsAFallback_shouldNotThrowException() {
+    builder.setQualityGate(ONE_CONDITION_QUALITY_GATE).setStatus(randomStatus)
+      .addEvaluatedCondition(new EvaluatedCondition(CONDITION_2, CONDITION_1, randomEvaluationStatus, randomValue, false));
+
+    Assertions.assertThat(builder.build()
+      .getEvaluatedConditions()).hasSize(1);
+  }
+
+  @Test
+  void getEvaluatedConditions_is_sorted() {
     EvaluatedQualityGate underTest = builder
       .setQualityGate(ALL_CONDITIONS_QUALITY_GATE)
       .setStatus(randomStatus)
@@ -128,7 +138,7 @@ public class EvaluatedQualityGateTest {
   }
 
   @Test
-  public void verify_getters() {
+  void verify_getters() {
     EvaluatedQualityGate underTest = builder
       .setQualityGate(ONE_CONDITION_QUALITY_GATE)
       .setStatus(randomStatus)
@@ -142,7 +152,7 @@ public class EvaluatedQualityGateTest {
   }
 
   @Test
-  public void verify_getters_when_no_condition() {
+  void verify_getters_when_no_condition() {
     EvaluatedQualityGate underTest = builder
       .setQualityGate(NO_CONDITION_QUALITY_GATE)
       .setStatus(randomStatus)
@@ -154,7 +164,7 @@ public class EvaluatedQualityGateTest {
   }
 
   @Test
-  public void verify_getters_when_multiple_conditions() {
+  void verify_getters_when_multiple_conditions() {
     QualityGate qualityGate = new QualityGate(QUALITY_GATE_ID, QUALITY_GATE_NAME, ImmutableSet.of(CONDITION_1, CONDITION_2));
     EvaluatedQualityGate underTest = builder
       .setQualityGate(qualityGate)
@@ -171,7 +181,7 @@ public class EvaluatedQualityGateTest {
   }
 
   @Test
-  public void equals_is_based_on_all_fields() {
+  void equals_is_based_on_all_fields() {
     EvaluatedQualityGate.Builder builder = this.builder
       .setQualityGate(ONE_CONDITION_QUALITY_GATE)
       .setStatus(Level.ERROR)
@@ -193,7 +203,7 @@ public class EvaluatedQualityGateTest {
   }
 
   @Test
-  public void hashcode_is_based_on_all_fields() {
+  void hashcode_is_based_on_all_fields() {
     EvaluatedQualityGate.Builder builder = this.builder
       .setQualityGate(ONE_CONDITION_QUALITY_GATE)
       .setStatus(Level.ERROR)

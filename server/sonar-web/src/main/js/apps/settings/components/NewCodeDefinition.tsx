@@ -112,7 +112,9 @@ export default function NewCodeDefinition() {
                     </p>
 
                     <p className="sw-mt-4">
-                      <strong>{translate('settings.new_code_period.question')}</strong>
+                      <strong id="new_code_period_label" aria-hidden>
+                        {translate('settings.new_code_period.question')}
+                      </strong>
                     </p>
                   </div>
                 </div>
@@ -120,41 +122,52 @@ export default function NewCodeDefinition() {
                 <div className="settings-definition-right">
                   <Spinner isLoading={isLoading}>
                     <form className="sw-flex sw-flex-col sw-items-stretch" onSubmit={onSubmit}>
-                      <NewCodeDefinitionPreviousVersionOption
-                        isDefault
-                        onSelect={setSelectedNewCodeDefinitionType}
-                        selected={
-                          selectedNewCodeDefinitionType === NewCodeDefinitionType.PreviousVersion
-                        }
-                      />
-                      <NewCodeDefinitionDaysOption
-                        className="sw-mt-2 sw-mb-4"
-                        days={numberOfDays}
-                        currentDaysValue={
-                          newCodeDefinition?.type === NewCodeDefinitionType.NumberOfDays
-                            ? newCodeDefinition?.value
-                            : undefined
-                        }
-                        previousNonCompliantValue={newCodeDefinition?.previousNonCompliantValue}
-                        projectKey={newCodeDefinition?.projectKey}
-                        updatedAt={newCodeDefinition?.updatedAt}
-                        isChanged={isFormTouched}
-                        isValid={isValid}
-                        onChangeDays={setNumberOfDays}
-                        onSelect={setSelectedNewCodeDefinitionType}
-                        selected={
-                          selectedNewCodeDefinitionType === NewCodeDefinitionType.NumberOfDays
-                        }
-                        settingLevel={NewCodeDefinitionLevels.Global}
-                      />
-                      <div className="sw-mt-4">
-                        <p
-                          className={classNames('sw-mb-2', {
-                            'sw-invisible': !isFormTouched,
-                          })}
-                        >
-                          {translate('baseline.next_analysis_notice')}
-                        </p>
+                      <fieldset>
+                        <legend className="sw-sr-only">
+                          {translate('settings.new_code_period.question')}
+                        </legend>
+                        <div role="radiogroup">
+                          <NewCodeDefinitionPreviousVersionOption
+                            isDefault
+                            onSelect={setSelectedNewCodeDefinitionType}
+                            selected={
+                              selectedNewCodeDefinitionType ===
+                              NewCodeDefinitionType.PreviousVersion
+                            }
+                          />
+                          <NewCodeDefinitionDaysOption
+                            className="sw-mt-2 sw-mb-4"
+                            days={numberOfDays}
+                            currentDaysValue={
+                              newCodeDefinition?.type === NewCodeDefinitionType.NumberOfDays
+                                ? newCodeDefinition?.value
+                                : undefined
+                            }
+                            previousNonCompliantValue={newCodeDefinition?.previousNonCompliantValue}
+                            projectKey={newCodeDefinition?.projectKey}
+                            updatedAt={newCodeDefinition?.updatedAt}
+                            isValid={isValid}
+                            onChangeDays={setNumberOfDays}
+                            onSelect={setSelectedNewCodeDefinitionType}
+                            selected={
+                              selectedNewCodeDefinitionType === NewCodeDefinitionType.NumberOfDays
+                            }
+                            settingLevel={NewCodeDefinitionLevels.Global}
+                          />
+                        </div>
+                      </fieldset>
+
+                      <div
+                        className="sw-mt-4"
+                        aria-live="polite"
+                        aria-atomic="true"
+                        aria-relevant="additions"
+                      >
+                        {isFormTouched && (
+                          <p className={classNames('sw-mb-2')}>
+                            {translate('baseline.next_analysis_notice')}
+                          </p>
+                        )}
                         <Spinner className="sw-mr-2" isLoading={isSaving} />
                         {!isSaving && (
                           <ButtonGroup>

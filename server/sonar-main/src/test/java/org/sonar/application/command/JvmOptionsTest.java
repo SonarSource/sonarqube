@@ -41,8 +41,7 @@ import org.sonar.process.MessageException;
 import org.sonar.process.Props;
 
 import static java.lang.String.valueOf;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
@@ -51,9 +50,9 @@ import static org.assertj.core.api.Assertions.fail;
 public class JvmOptionsTest {
 
   private final Random random = new Random();
-  private final String randomPropertyName = randomAlphanumeric(3);
-  private final String randomPrefix = "-" + randomAlphabetic(5).toLowerCase(Locale.ENGLISH);
-  private final String randomValue = randomAlphanumeric(4).toLowerCase(Locale.ENGLISH);
+  private final String randomPropertyName = secure().nextAlphanumeric(3);
+  private final String randomPrefix = "-" + secure().nextAlphabetic(5).toLowerCase(Locale.ENGLISH);
+  private final String randomValue = secure().nextAlphanumeric(4).toLowerCase(Locale.ENGLISH);
   private final Properties properties = new Properties();
   private final JvmOptions underTest = new JvmOptions();
 
@@ -98,7 +97,7 @@ public class JvmOptionsTest {
 
   @Test
   public void constructor_throws_IAE_if_any_option_prefix_does_not_start_with_dash() {
-    String invalidPrefix = randomAlphanumeric(3);
+    String invalidPrefix = secure().nextAlphanumeric(3);
     Map<String, String> mandatoryJvmOptions = shuffleThenToMap(
       Stream.of(
         IntStream.range(0, random.nextInt(10)).mapToObj(i -> new Option("-B", valueOf(i))),
@@ -146,7 +145,7 @@ public class JvmOptionsTest {
 
   @Test
   public void add_throws_IAE_if_argument_does_not_start_with_dash() {
-    expectJvmOptionNotEmptyAndStartByDashIAE(() -> underTest.add(randomAlphanumeric(3)));
+    expectJvmOptionNotEmptyAndStartByDashIAE(() -> underTest.add(secure().nextAlphanumeric(3)));
 
   }
 
@@ -162,10 +161,10 @@ public class JvmOptionsTest {
   public void add_throws_MessageException_if_option_starts_with_prefix_of_mandatory_option_but_has_different_value() {
     String[] optionOverrides = {
       randomPrefix,
-      randomPrefix + randomAlphanumeric(1),
-      randomPrefix + randomAlphanumeric(2),
-      randomPrefix + randomAlphanumeric(3),
-      randomPrefix + randomAlphanumeric(4),
+      randomPrefix + secure().nextAlphanumeric(1),
+      randomPrefix + secure().nextAlphanumeric(2),
+      randomPrefix + secure().nextAlphanumeric(3),
+      randomPrefix + secure().nextAlphanumeric(4),
       randomPrefix + randomValue.substring(1),
       randomPrefix + randomValue.substring(2),
       randomPrefix + randomValue.substring(3)
@@ -187,10 +186,10 @@ public class JvmOptionsTest {
   public void add_checks_against_mandatory_options_is_case_sensitive() {
     String[] optionOverrides = {
       randomPrefix,
-      randomPrefix + randomAlphanumeric(1),
-      randomPrefix + randomAlphanumeric(2),
-      randomPrefix + randomAlphanumeric(3),
-      randomPrefix + randomAlphanumeric(4),
+      randomPrefix + secure().nextAlphanumeric(1),
+      randomPrefix + secure().nextAlphanumeric(2),
+      randomPrefix + secure().nextAlphanumeric(3),
+      randomPrefix + secure().nextAlphanumeric(4),
       randomPrefix + randomValue.substring(1),
       randomPrefix + randomValue.substring(2),
       randomPrefix + randomValue.substring(3)
@@ -267,10 +266,10 @@ public class JvmOptionsTest {
       randomPrefix + randomValue.substring(1),
       randomPrefix + randomValue.substring(2),
       randomPrefix + randomValue.substring(3),
-      randomPrefix + randomValue.substring(3) + randomAlphanumeric(1),
-      randomPrefix + randomValue.substring(3) + randomAlphanumeric(2),
-      randomPrefix + randomValue.substring(3) + randomAlphanumeric(3),
-      randomPrefix + randomValue + randomAlphanumeric(1)
+      randomPrefix + randomValue.substring(3) + secure().nextAlphanumeric(1),
+      randomPrefix + randomValue.substring(3) + secure().nextAlphanumeric(2),
+      randomPrefix + randomValue.substring(3) + secure().nextAlphanumeric(3),
+      randomPrefix + randomValue + secure().nextAlphanumeric(1)
     };
 
     JvmOptions underTest = new JvmOptions(ImmutableMap.of(randomPrefix, randomValue));
@@ -296,10 +295,10 @@ public class JvmOptionsTest {
       randomPrefix + randomValue.substring(1),
       randomPrefix + randomValue.substring(2),
       randomPrefix + randomValue.substring(3),
-      randomPrefix + randomValue.substring(3) + randomAlphanumeric(1),
-      randomPrefix + randomValue.substring(3) + randomAlphanumeric(2),
-      randomPrefix + randomValue.substring(3) + randomAlphanumeric(3),
-      randomPrefix + randomValue + randomAlphanumeric(1)
+      randomPrefix + randomValue.substring(3) + secure().nextAlphanumeric(1),
+      randomPrefix + randomValue.substring(3) + secure().nextAlphanumeric(2),
+      randomPrefix + randomValue.substring(3) + secure().nextAlphanumeric(3),
+      randomPrefix + randomValue + secure().nextAlphanumeric(1)
     };
 
     JvmOptions underTest = new JvmOptions(ImmutableMap.of(randomPrefix, randomValue));
@@ -313,7 +312,7 @@ public class JvmOptionsTest {
   @Test
   public void addFromMandatoryProperty_reports_all_overriding_options_in_single_exception() {
     String overriding1 = randomPrefix;
-    String overriding2 = randomPrefix + randomValue + randomAlphanumeric(1);
+    String overriding2 = randomPrefix + randomValue + secure().nextAlphanumeric(1);
     properties.setProperty(randomPropertyName, "-foo " + overriding1 + " -bar " + overriding2);
 
     JvmOptions underTest = new JvmOptions(ImmutableMap.of(randomPrefix, randomValue));

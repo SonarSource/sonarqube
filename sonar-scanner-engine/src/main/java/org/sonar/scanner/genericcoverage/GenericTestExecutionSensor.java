@@ -23,13 +23,13 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.resources.Qualifiers;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.config.PropertyDefinition.ConfigScope;
 import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 
@@ -61,7 +61,7 @@ public class GenericTestExecutionSensor implements Sensor {
         .name("Unit tests results report paths")
         .description("List of comma-separated paths (absolute or relative) containing unit tests results report.")
         .category(CATEGORY_CODE_COVERAGE)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .multiValues(true)
         .deprecatedKey(OLD_UNIT_TEST_REPORT_PATHS_PROPERTY_KEY)
         .build());

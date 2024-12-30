@@ -23,7 +23,7 @@ import OrganizationNavigationAdministration from './OrganizationNavigationAdmini
 import { getQualityGatesUrl } from '../../../helpers/urls';
 import { translate } from "../../../helpers/l10n";
 import { Organization } from "../../../types/types";
-import { NavBarTabLink, NavBarTabs } from "design-system";
+import { NavBarTabLink, NavBarTabs } from "~design-system";
 import { getProfilesPath } from "../../quality-profiles/utils";
 
 interface OwnProps {

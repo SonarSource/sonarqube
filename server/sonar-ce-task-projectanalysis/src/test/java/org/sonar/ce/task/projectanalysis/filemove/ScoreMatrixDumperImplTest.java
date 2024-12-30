@@ -38,7 +38,7 @@ import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.projectanalysis.filemove.ScoreMatrix.ScoreFile;
 import org.sonar.server.platform.ServerFileSystem;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -96,7 +96,7 @@ public class ScoreMatrixDumperImplTest {
 
   @Test
   public void dumpAsCsv_has_no_effect_if_configuration_is_empty() throws IOException {
-    String taskUuid = randomAlphabetic(6);
+    String taskUuid = secure().nextAlphabetic(6);
     when(ceTask.getUuid()).thenReturn(taskUuid);
 
     underTest.dumpAsCsv(A_SCORE_MATRIX);
@@ -107,7 +107,7 @@ public class ScoreMatrixDumperImplTest {
   @Test
   @UseDataProvider("notTruePropertyValues")
   public void dumpAsCsv_has_no_effect_if_property_is_not_true(String value) throws IOException {
-    String taskUuid = randomAlphabetic(6);
+    String taskUuid = secure().nextAlphabetic(6);
     when(ceTask.getUuid()).thenReturn(taskUuid);
     settings.setProperty("sonar.filemove.dumpCsv", value);
 
@@ -119,7 +119,7 @@ public class ScoreMatrixDumperImplTest {
   @DataProvider
   public static Object[][] notTruePropertyValues() {
     return new Object[][] {
-      {randomAlphabetic(6)},
+      {secure().nextAlphabetic(6)},
       {"false"},
     };
   }

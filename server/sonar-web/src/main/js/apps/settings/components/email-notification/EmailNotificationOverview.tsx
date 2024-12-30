@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { BasicSeparator, CodeSnippet } from 'design-system/lib';
-import React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { BasicSeparator, CodeSnippet } from '~design-system';
 import { translate } from '../../../../helpers/l10n';
 import { AuthMethod, EmailConfiguration } from '../../../../types/system';
 import EmailTestModal from './EmailTestModal';

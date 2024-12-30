@@ -19,6 +19,8 @@
  */
 package org.sonar.xoo.rule;
 
+import java.util.HashMap;
+import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
@@ -125,10 +127,16 @@ public class XooRulesDefinition implements RulesDefinition {
     ruleWithParameters.createParam("integer").setType(RuleParamType.INTEGER);
     ruleWithParameters.createParam("float").setType(RuleParamType.FLOAT);
 
+    Map<SoftwareQuality, Severity> customImpacts = getCustomImpactsForOneIssuePerLine();
     NewRule oneIssuePerLine = repo.createRule(OneIssuePerLineSensor.RULE_KEY).setName("One Issue Per Line")
       .setCleanCodeAttribute(CleanCodeAttribute.COMPLETE)
-      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.INFO)
       .setTags("line");
+    if (!customImpacts.isEmpty()) {
+      customImpacts.forEach(oneIssuePerLine::addDefaultImpact);
+    } else {
+      oneIssuePerLine.addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.INFO);
+    }
+
     addDescriptionSectionsWithoutContexts(oneIssuePerLine, "Generate an issue on each line of a file. It requires the metric \"lines\".");
     addHowToFixSectionsWithContexts(oneIssuePerLine);
     oneIssuePerLine
@@ -342,6 +350,18 @@ public class XooRulesDefinition implements RulesDefinition {
     addAllDescriptionSections(hotspotWithCodeVariants, "Search for a given variant in Xoo files");
 
     repo.done();
+  }
+
+  private Map<SoftwareQuality, Severity> getCustomImpactsForOneIssuePerLine() {
+    Map<SoftwareQuality, Severity> customImpacts = new HashMap<>();
+    if (configuration != null && configuration.get("sonar.xoo.OneIssuePerLine.impacts").isPresent()) {
+      String[] impacts = configuration.get("sonar.xoo.OneIssuePerLine.impacts").get().split(",");
+      for (String impact : impacts) {
+        String[] impactArray = impact.split(":");
+        customImpacts.put(SoftwareQuality.valueOf(impactArray[0]), Severity.valueOf(impactArray[1]));
+      }
+    }
+    return customImpacts;
   }
 
   private void addSecurityStandard(NewRule rule, String standard) {

@@ -35,18 +35,18 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.AnalysisPropertyDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PersistAnalysisPropertiesStepIT {
-  private static final String SNAPSHOT_UUID = randomAlphanumeric(40);
-  private static final String SMALL_VALUE1 = randomAlphanumeric(50);
-  private static final String SMALL_VALUE2 = randomAlphanumeric(50);
-  private static final String SMALL_VALUE3 = randomAlphanumeric(50);
-  private static final String BIG_VALUE = randomAlphanumeric(5000);
+  private static final String SNAPSHOT_UUID = secure().nextAlphanumeric(40);
+  private static final String SMALL_VALUE1 = secure().nextAlphanumeric(50);
+  private static final String SMALL_VALUE2 = secure().nextAlphanumeric(50);
+  private static final String SMALL_VALUE3 = secure().nextAlphanumeric(50);
+  private static final String BIG_VALUE = secure().nextAlphanumeric(5000);
   private static final String VALUE_PREFIX_FOR_PR_PROPERTIES = "pr_";
   private static final List<ScannerReport.ContextProperty> PROPERTIES = Arrays.asList(
     newContextProperty("key1", "value1"),

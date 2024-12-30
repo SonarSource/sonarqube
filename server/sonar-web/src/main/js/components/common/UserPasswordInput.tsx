@@ -17,19 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import styled from '@emotion/styled';
-import { IconCheck, IconX } from '@sonarsource/echoes-react';
-import {
-  FlagErrorIcon,
-  FlagSuccessIcon,
-  FormField,
-  InputField,
-  InputSizeKeys,
-  LightLabel,
-  TextError,
-  themeColor,
-} from 'design-system';
+
+import { IconCheck, IconCheckCircle, IconError, IconX, Text } from '@sonarsource/echoes-react';
 import * as React from 'react';
+import { FormField, InputField, InputSizeKeys } from '~design-system';
 import { translate } from '../../helpers/l10n';
 import FocusOutHandler from '../controls/FocusOutHandler';
 
@@ -82,13 +73,17 @@ export default function UserPasswordInput(props: Readonly<Props>) {
               type="password"
               value={value}
             />
-            {isInvalid && <FlagErrorIcon className="sw-ml-2" />}
-            {isValid && <FlagSuccessIcon className="sw-ml-2" />}
+            {isInvalid && <IconError className="sw-ml-2" color="echoes-color-icon-danger" />}
+            {isValid && <IconCheckCircle color="echoes-color-icon-success" className="sw-ml-2" />}
           </div>
+          {isInvalid && (
+            <Text colorOverride="echoes-color-text-danger" className="sw-mt-2">
+              {translate('user.password.invalid')}
+            </Text>
+          )}
+          {isFocused && <PasswordConstraint value={value} />}
         </FormField>
       </FocusOutHandler>
-      {isInvalid && <TextError className="sw-mt-2" text={translate('user.password.invalid')} />}
-      {isFocused && <PasswordConstraint value={value} />}
 
       <FormField
         className="sw-mt-4"
@@ -115,11 +110,15 @@ export default function UserPasswordInput(props: Readonly<Props>) {
             type="password"
             value={confirmValue}
           />
-          {passwordDontMatch && <FlagErrorIcon className="sw-ml-2" />}
-          {passwordMatch && <FlagSuccessIcon className="sw-ml-2" />}
+          {passwordDontMatch && <IconError className="sw-ml-2" color="echoes-color-icon-danger" />}
+          {passwordMatch && (
+            <IconCheckCircle color="echoes-color-icon-success" className="sw-ml-2" />
+          )}
         </div>
         {passwordDontMatch && (
-          <TextError className="sw-mt-2" text={translate('user.password.do_not_match')} />
+          <Text colorOverride="echoes-color-text-danger" className="sw-mt-2">
+            {translate('user.password.do_not_match')}
+          </Text>
         )}
       </FormField>
     </>
@@ -129,7 +128,7 @@ export default function UserPasswordInput(props: Readonly<Props>) {
 function PasswordConstraint({ value }: Readonly<{ value: string }>) {
   return (
     <div className="sw-mt-2">
-      <LightLabel>{translate('user.password.conditions')}</LightLabel>
+      <Text isSubdued>{translate('user.password.conditions')}</Text>
       <ul className="sw-list-none sw-p-0 sw-mt-1">
         <Condition
           condition={contains12Characters(value)}
@@ -160,15 +159,15 @@ function Condition({ condition, label }: Readonly<{ condition: boolean; label: s
   return (
     <li className="sw-mb-1">
       {condition ? (
-        <SuccessLabel>
+        <Text colorOverride="echoes-color-text-success" data-testid="valid-condition">
           <IconCheck className="sw-mr-1" />
           {label}
-        </SuccessLabel>
+        </Text>
       ) : (
-        <LightLabel>
+        <Text isSubdued data-testid="failed-condition">
           <IconX className="sw-mr-1" />
           {label}
-        </LightLabel>
+        </Text>
       )}
     </li>
   );
@@ -189,7 +188,3 @@ const isPasswordValid = (password: string) =>
 
 const isPasswordConfirmed = (password: string, confirm: string) =>
   password === confirm && password !== '';
-
-const SuccessLabel = styled(LightLabel)`
-  color: ${themeColor('textSuccess')};
-`;

@@ -30,7 +30,7 @@ import org.junit.runner.RunWith;
 import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexType;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Fail.fail;
@@ -40,7 +40,7 @@ public class AuthorizationDocTest {
 
   @Test
   public void idOf_returns_argument_with_a_prefix() {
-    String s = randomAlphabetic(12);
+    String s = secure().nextAlphabetic(12);
 
     assertThat(AuthorizationDoc.idOf(s)).isEqualTo("auth_" + s);
   }
@@ -62,13 +62,19 @@ public class AuthorizationDocTest {
   public void projectUuidOf_returns_substring_if_starts_with_id_prefix() {
     assertThat(AuthorizationDoc.entityUuidOf("auth_")).isEmpty();
 
-    String id = randomAlphabetic(1 + new Random().nextInt(10));
+    String id = "u";
+    assertThat(AuthorizationDoc.entityUuidOf("auth_" + id)).isEqualTo(id);
+
+    id = "uuid";
+    assertThat(AuthorizationDoc.entityUuidOf("auth_" + id)).isEqualTo(id);
+
+    id = "aMuchLongerUuid";
     assertThat(AuthorizationDoc.entityUuidOf("auth_" + id)).isEqualTo(id);
   }
 
   @Test
   public void projectUuidOf_returns_argument_if_does_not_starts_with_id_prefix() {
-    String id = randomAlphabetic(1 + new Random().nextInt(10));
+    String id = "uuid";
     assertThat(AuthorizationDoc.entityUuidOf(id)).isEqualTo(id);
     assertThat(AuthorizationDoc.entityUuidOf("")).isEmpty();
   }
@@ -102,7 +108,7 @@ public class AuthorizationDocTest {
 
   @Test
   public void fromDto_of_allowAnyone_is_false_and_no_user_nor_group() {
-    IndexPermissions underTest = new IndexPermissions(randomAlphabetic(3), randomAlphabetic(4));
+    IndexPermissions underTest = new IndexPermissions(secure().nextAlphabetic(3), secure().nextAlphabetic(4));
 
     AuthorizationDoc doc = AuthorizationDoc.fromDto(IndexType.main(Index.simple("foo"), "bar"), underTest);
 
@@ -116,7 +122,7 @@ public class AuthorizationDocTest {
 
   @Test
   public void fromDto_defines_userIds_and_groupIds_if_allowAnyone_is_false() {
-    IndexPermissions underTest = new IndexPermissions(randomAlphabetic(3), randomAlphabetic(4));
+    IndexPermissions underTest = new IndexPermissions(secure().nextAlphabetic(3), secure().nextAlphabetic(4));
     IntStream.range(0, 1 + new Random().nextInt(5)).mapToObj(String::valueOf).forEach(underTest::addUserUuid);
     IntStream.range(0, 1 + new Random().nextInt(5)).mapToObj(Integer::toString).forEach(underTest::addGroupUuid);
 
@@ -132,7 +138,7 @@ public class AuthorizationDocTest {
 
   @Test
   public void fromDto_ignores_userIds_and_groupUuids_if_allowAnyone_is_true() {
-    IndexPermissions underTest = new IndexPermissions(randomAlphabetic(3), randomAlphabetic(4));
+    IndexPermissions underTest = new IndexPermissions(secure().nextAlphabetic(3), secure().nextAlphabetic(4));
     IntStream.range(0, 1 + new Random().nextInt(5)).mapToObj(String::valueOf).forEach(underTest::addUserUuid);
     IntStream.range(0, 1 + new Random().nextInt(5)).mapToObj(Integer::toString).forEach(underTest::addGroupUuid);
     underTest.allowAnyone();
@@ -157,13 +163,13 @@ public class AuthorizationDocTest {
 
   @DataProvider
   public static Object[][] dtos() {
-    IndexPermissions allowAnyone = new IndexPermissions(randomAlphabetic(3), randomAlphabetic(4));
+    IndexPermissions allowAnyone = new IndexPermissions(secure().nextAlphabetic(3), secure().nextAlphabetic(4));
     allowAnyone.allowAnyone();
-    IndexPermissions someUserIds = new IndexPermissions(randomAlphabetic(3), randomAlphabetic(4));
+    IndexPermissions someUserIds = new IndexPermissions(secure().nextAlphabetic(3), secure().nextAlphabetic(4));
     IntStream.range(0, 1 + new Random().nextInt(5)).mapToObj(String::valueOf).forEach(someUserIds::addUserUuid);
-    IndexPermissions someGroupUuids = new IndexPermissions(randomAlphabetic(3), randomAlphabetic(4));
+    IndexPermissions someGroupUuids = new IndexPermissions(secure().nextAlphabetic(3), secure().nextAlphabetic(4));
     IntStream.range(0, 1 + new Random().nextInt(5)).mapToObj(Integer::toString).forEach(someGroupUuids::addGroupUuid);
-    IndexPermissions someGroupUuidAndUserIs = new IndexPermissions(randomAlphabetic(3), randomAlphabetic(4));
+    IndexPermissions someGroupUuidAndUserIs = new IndexPermissions(secure().nextAlphabetic(3), secure().nextAlphabetic(4));
     IntStream.range(0, 1 + new Random().nextInt(5)).mapToObj(String::valueOf).forEach(someGroupUuidAndUserIs::addUserUuid);
     IntStream.range(0, 1 + new Random().nextInt(5)).mapToObj(Integer::toString).forEach(someGroupUuidAndUserIs::addGroupUuid);
     return new Object[][] {

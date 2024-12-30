@@ -19,7 +19,6 @@
  */
 
 import { render, screen } from '@testing-library/react';
-import * as React from 'react';
 import { mockBranch, mockMainBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
 import BranchLikeIcon, { BranchLikeIconProps } from '../../icon-mappers/BranchLikeIcon';
 

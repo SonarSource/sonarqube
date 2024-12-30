@@ -38,6 +38,8 @@ import org.sonarqube.ws.Rules.ShowResponse;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
+import static org.sonar.api.issue.impact.Severity.BLOCKER;
+import static org.sonar.api.issue.impact.Severity.INFO;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
@@ -86,7 +88,9 @@ public class ShowAction implements RulesWsAction {
         new Change("10.0", "The field 'defaultDebtRemFnType' has been deprecated, use 'defaultRemFnType' instead"),
         new Change("10.0", "The field 'debtRemFnType' has been deprecated, use 'remFnType' instead"),
         new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"),
-        new Change("10.2", "The field 'severity' and 'type' in the response have been deprecated, use 'impacts' instead."));
+        new Change("10.2", "The field 'severity' and 'type' in the response have been deprecated, use 'impacts' instead."),
+        new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added.", INFO.name(), BLOCKER.name())),
+        new Change("10.8", "The field 'severity' and 'type' in the response  are not deprecated anymore."));
 
     action
       .createParam(PARAM_KEY)

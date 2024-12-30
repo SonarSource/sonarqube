@@ -24,7 +24,7 @@ import {
   PageContentFontWrapper,
   themeBorder,
   themeColor,
-} from 'design-system';
+} from '~design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 

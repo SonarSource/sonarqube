@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Note } from 'design-system';
+
 import { find, without } from 'lodash';
 import * as React from 'react';
+import { Note } from '~design-system';
+import { AiCodeAssuranceStatus } from '../../../api/ai-code-assurance';
 import {
   associateGateWithProject,
   dissociateGateWithProject,
@@ -35,6 +37,7 @@ import { QualityGate } from '../../../types/types';
 interface Props {
   organization?: string;
   canEdit?: boolean;
+  onUpdate: () => void;
   qualityGate: QualityGate;
 }
 
@@ -48,7 +51,7 @@ interface State {
 
 // exported for testing
 export interface Project {
-  isAiCodeAssured: boolean;
+  aiCodeAssurance: AiCodeAssuranceStatus;
   key: string;
   name: string;
   selected: boolean;
@@ -118,6 +121,7 @@ export default class Projects extends React.PureComponent<Props, State> {
           needToReload: true,
           selectedProjects: [...prevState.selectedProjects, key],
         }));
+        this.props.onUpdate();
       }
     });
 
@@ -131,6 +135,7 @@ export default class Projects extends React.PureComponent<Props, State> {
           needToReload: true,
           selectedProjects: without(prevState.selectedProjects, key),
         }));
+        this.props.onUpdate();
       }
     });
 
@@ -145,7 +150,8 @@ export default class Projects extends React.PureComponent<Props, State> {
             {project.name}
             <br />
             <Note>{project.key}</Note>
-            {project.isAiCodeAssured && (
+            {(project.aiCodeAssurance === AiCodeAssuranceStatus.CONTAINS_AI_CODE ||
+              project.aiCodeAssurance === AiCodeAssuranceStatus.AI_CODE_ASSURED) && (
               <p>
                 <Note>{translate('quality_gates.projects.ai_assured_message')}</Note>
               </p>
@@ -168,9 +174,6 @@ export default class Projects extends React.PureComponent<Props, State> {
     return (
       <SelectList
         elements={this.state.projects.map((project) => project.key)}
-        disabledElements={this.state.projects
-          .filter((project) => project.isAiCodeAssured)
-          .map((project) => project.key)}
         elementsTotalCount={this.state.projectsTotalCount}
         labelAll={translate('quality_gates.projects.all')}
         labelSelected={translate('quality_gates.projects.with')}

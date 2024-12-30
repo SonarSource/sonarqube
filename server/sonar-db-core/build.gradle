@@ -58,7 +58,7 @@ test {
     systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
 }
 
-artifactoryPublish.skip = false
+artifactoryPublish.skip = !deployCommunity
 
 // Used by core plugins
 publishing {

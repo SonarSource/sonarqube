@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
-import { FacetBox, FacetItem } from 'design-system';
 import { orderBy, sortBy, without } from 'lodash';
 import * as React from 'react';
+import { FacetBox, FacetItem } from '~design-system';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricType } from '~sonar-aligned/types/metrics';
 import { FacetKey } from '../../apps/coding-rules/query';
@@ -36,6 +37,7 @@ export interface BasicProps {
   onChange: (changes: Dict<string | string[] | undefined>) => void;
   onToggle: (facet: FacetKey) => void;
   open: boolean;
+  secondLine?: string;
   stats?: Dict<number>;
   values: string[];
 }
@@ -43,6 +45,7 @@ export interface BasicProps {
 interface Props extends BasicProps {
   disabled?: boolean;
   disabledHelper?: string;
+  headerName?: string;
   options?: string[];
   property: FacetKey;
   renderFooter?: () => React.ReactNode;
@@ -101,10 +104,12 @@ export default class Facet extends React.PureComponent<Props> {
       open,
       property,
       renderTextName = defaultRenderName,
+      secondLine,
       stats,
       help,
       values,
       fetching,
+      headerName,
     } = this.props;
     const items =
       this.props.options ||
@@ -126,10 +131,9 @@ export default class Facet extends React.PureComponent<Props> {
         })}
         data-property={property}
         loading={fetching}
-        clearIconLabel={translate('clear')}
         count={values.length}
         id={headerId}
-        name={translate('coding_rules.facet', property)}
+        name={headerName ?? translate('coding_rules.facet', property)}
         onClear={this.handleClear}
         onClick={disabled ? undefined : this.handleHeaderClick}
         open={open && !disabled}
@@ -137,6 +141,7 @@ export default class Facet extends React.PureComponent<Props> {
         disabledHelper={disabledHelper}
         tooltipComponent={Tooltip}
         help={help}
+        secondLine={secondLine}
       >
         {open && items !== undefined && (
           <FacetItemsList labelledby={headerId}>{items.map(this.renderItem)}</FacetItemsList>

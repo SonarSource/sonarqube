@@ -19,8 +19,7 @@
  */
 
 import { Popover } from '@sonarsource/echoes-react';
-import { Pill, PillVariant } from 'design-system';
-import React from 'react';
+import { Pill, PillVariant } from '~design-system';
 import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
 import { CleanCodeAttribute, CleanCodeAttributeCategory } from '../../types/clean-code-taxonomy';

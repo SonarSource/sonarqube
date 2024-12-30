@@ -261,10 +261,10 @@ public class ExportAdHocRulesStepIT {
       .setCleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL)
       .addDefaultImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(org.sonar.api.issue.impact.Severity.MEDIUM))
       .addDefaultImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH))
-      .setAdHocName("ad_hoc_rule" + RandomStringUtils.randomAlphabetic(10))
+      .setAdHocName("ad_hoc_rule" + RandomStringUtils.secure().nextAlphabetic(10))
       .setAdHocType(RuleType.VULNERABILITY)
       .setAdHocSeverity(Severity.CRITICAL)
-      .setAdHocDescription("ad hoc description: " + RandomStringUtils.randomAlphanumeric(100));
+      .setAdHocDescription("ad hoc description: " + RandomStringUtils.secure().nextAlphanumeric(100));
     return insertRule(ruleName, ruleDto);
   }
 
@@ -278,9 +278,9 @@ public class ExportAdHocRulesStepIT {
   private RuleDto insertRule(String ruleName, RuleDto partiallyInitRuleDto) {
     RuleKey ruleKey = RuleKey.of("plugin1", ruleName);
     partiallyInitRuleDto
-      .setName("ruleName" + RandomStringUtils.randomAlphanumeric(10))
+      .setName("ruleName" + RandomStringUtils.secure().nextAlphanumeric(10))
       .setRuleKey(ruleKey)
-      .setPluginKey("pluginKey" + RandomStringUtils.randomAlphanumeric(10))
+      .setPluginKey("pluginKey" + RandomStringUtils.secure().nextAlphanumeric(10))
       .setStatus(RuleStatus.READY)
       .setScope(RuleDto.Scope.ALL);
 

@@ -19,14 +19,21 @@
  */
 package org.sonar.db.dependency;
 
+import javax.annotation.Nullable;
+
 public record CveDto(
   String uuid,
   String id,
   String description,
-  double cvssScore,
-  double epssScore,
-  double epssPercentile,
+  @Nullable
+  Double cvssScore,
+  @Nullable
+  Double epssScore,
+  @Nullable
+  Double epssPercentile,
+  @Nullable
   Long publishedAt,
+  @Nullable
   Long lastModifiedAt,
   Long createdAt,
   Long updatedAt

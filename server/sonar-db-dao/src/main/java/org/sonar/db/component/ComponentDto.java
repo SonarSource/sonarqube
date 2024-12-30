@@ -27,7 +27,6 @@ import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.sonar.api.resources.Scopes;
 import org.sonar.db.WildcardPosition;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -269,7 +268,7 @@ public class ComponentDto {
   }
 
   public boolean isRootProject() {
-    return uuid.equals(branchUuid) && Scopes.PROJECT.equals(scope);
+    return uuid.equals(branchUuid) && ComponentScopes.PROJECT.equals(scope);
   }
 
   public boolean isPrivate() {

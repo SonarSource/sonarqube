@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import {
   CodeSyntaxHighlighter,
@@ -25,8 +26,7 @@ import {
   SuggestedLineWrapper,
   themeBorder,
   themeColor,
-} from 'design-system';
-import React from 'react';
+} from '~design-system';
 import { LineTypeEnum } from '../../queries/fix-suggestions';
 
 type LineType = 'code' | 'added' | 'removed';
@@ -101,7 +101,7 @@ export function IssueSuggestionLine({
 
 const LineNumberStyled = styled.div`
   &:hover {
-    color: ${themeColor('codeLineMetaHover')};
+    color: var(--echoes-color-text-subdued);
   }
 
   &:focus-visible {

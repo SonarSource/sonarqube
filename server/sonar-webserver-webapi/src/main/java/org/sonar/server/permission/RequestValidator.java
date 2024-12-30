@@ -25,8 +25,8 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.ResourceType;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.server.component.ComponentType;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.exceptions.BadRequestException;
 
@@ -59,12 +59,12 @@ public class RequestValidator {
       format("The '%s' parameter for global permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION, GlobalPermission.ALL_ON_ONE_LINE, permission));
   }
 
-  public static void validateQualifier(@Nullable String qualifier, ResourceTypes resourceTypes) {
+  public static void validateQualifier(@Nullable String qualifier, ComponentTypes componentTypes) {
     if (qualifier == null) {
       return;
     }
-    Set<String> rootQualifiers = resourceTypes.getRoots().stream()
-      .map(ResourceType::getQualifier)
+    Set<String> rootQualifiers = componentTypes.getRoots().stream()
+      .map(ComponentType::getQualifier)
       .collect(Collectors.toSet());
     checkRequest(rootQualifiers.contains(qualifier),
       format("The '%s' parameter must be one of %s. '%s' was passed.", PARAM_QUALIFIER, rootQualifiers, qualifier));

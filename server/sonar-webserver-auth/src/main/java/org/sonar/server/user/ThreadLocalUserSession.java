@@ -147,6 +147,12 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
+  public UserSession checkEntityPermissionOrElseThrowResourceForbiddenException(String projectPermission, EntityDto entity) {
+    get().checkEntityPermissionOrElseThrowResourceForbiddenException(projectPermission, entity);
+    return this;
+  }
+
+  @Override
   public UserSession checkChildProjectsPermission(String projectPermission, ComponentDto component) {
     get().checkChildProjectsPermission(projectPermission, component);
     return this;

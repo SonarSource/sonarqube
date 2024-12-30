@@ -30,10 +30,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceType;
-import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.resources.Scopes;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.server.component.ComponentType;
+import org.sonar.server.component.ComponentTypes;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -47,7 +47,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
@@ -79,7 +79,7 @@ import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 
 public class ComponentAction implements NavigationWsAction {
 
-  private static final Set<String> MODULE_OR_DIR_QUALIFIERS = Set.of(Qualifiers.MODULE, Qualifiers.DIRECTORY);
+  private static final Set<String> MODULE_OR_DIR_QUALIFIERS = Set.of(ComponentQualifiers.MODULE, ComponentQualifiers.DIRECTORY);
   static final String PARAM_COMPONENT = "component";
   private static final String PARAM_BRANCH = "branch";
   private static final String PARAM_PULL_REQUEST = "pullRequest";
@@ -91,21 +91,21 @@ public class ComponentAction implements NavigationWsAction {
   /**
    * The concept of "visibility" will only be configured for these qualifiers.
    */
-  private static final Set<String> QUALIFIERS_WITH_VISIBILITY = Set.of(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP);
+  private static final Set<String> QUALIFIERS_WITH_VISIBILITY = Set.of(ComponentQualifiers.PROJECT, ComponentQualifiers.VIEW, ComponentQualifiers.APP);
 
   private final DbClient dbClient;
   private final PageRepository pageRepository;
-  private final ResourceTypes resourceTypes;
+  private final ComponentTypes componentTypes;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
   private final QualityGateFinder qualityGateFinder;
   private final Configuration config;
 
-  public ComponentAction(DbClient dbClient, PageRepository pageRepository, ResourceTypes resourceTypes, UserSession userSession,
+  public ComponentAction(DbClient dbClient, PageRepository pageRepository, ComponentTypes componentTypes, UserSession userSession,
     ComponentFinder componentFinder, QualityGateFinder qualityGateFinder, Configuration config) {
     this.dbClient = dbClient;
     this.pageRepository = pageRepository;
-    this.resourceTypes = resourceTypes;
+    this.componentTypes = componentTypes;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
     this.qualityGateFinder = qualityGateFinder;
@@ -219,10 +219,10 @@ public class ComponentAction implements NavigationWsAction {
     if (branchKey != null) {
       json.prop("branch", branchKey);
     }
-    if (Qualifiers.APP.equals(component.qualifier())) {
+    if (ComponentQualifiers.APP.equals(component.qualifier())) {
       json.prop("canBrowseAllChildProjects", userSession.hasChildProjectsPermission(USER, component));
     }
-    if (Qualifiers.VIEW.equals(component.qualifier()) || Qualifiers.SUBVIEW.equals(component.qualifier())) {
+    if (ComponentQualifiers.VIEW.equals(component.qualifier()) || ComponentQualifiers.SUBVIEW.equals(component.qualifier())) {
       json.prop("canBrowseAllChildProjects", userSession.hasPortfolioChildProjectsPermission(USER, component));
     }
     if (QUALIFIERS_WITH_VISIBILITY.contains(component.qualifier())) {
@@ -247,12 +247,12 @@ public class ComponentAction implements NavigationWsAction {
   }
 
   private static boolean isSubview(ComponentDto component) {
-    return Qualifiers.SUBVIEW.equals(component.qualifier()) && Scopes.PROJECT.equals(component.scope());
+    return ComponentQualifiers.SUBVIEW.equals(component.qualifier()) && ComponentScopes.PROJECT.equals(component.scope());
   }
 
   private void writeProfiles(JsonWriter json, DbSession dbSession, ComponentDto component) {
-    Set<QualityProfile> qualityProfiles = dbClient.liveMeasureDao().selectMeasure(dbSession, component.branchUuid(), QUALITY_PROFILES_KEY)
-      .map(LiveMeasureDto::getDataAsString)
+    Set<QualityProfile> qualityProfiles = dbClient.measureDao().selectByComponentUuid(dbSession, component.branchUuid())
+      .map(m -> m.getString(QUALITY_PROFILES_KEY))
       .map(data -> QPMeasureData.fromJson(data).getProfiles())
       .orElse(emptySortedSet());
     Map<String, QProfileDto> dtoByQPKey = dbClient.qualityProfileDao().selectByUuids(dbSession, qualityProfiles.stream().map(QualityProfile::getQpKey).toList())
@@ -300,8 +300,8 @@ public class ComponentAction implements NavigationWsAction {
   }
 
   private void writeConfigPageAccess(JsonWriter json, boolean isProjectAdmin, ComponentDto component) {
-    boolean isProject = Qualifiers.PROJECT.equals(component.qualifier());
-    boolean showBackgroundTasks = isProjectAdmin && (isProject || Qualifiers.VIEW.equals(component.qualifier()) || Qualifiers.APP.equals(component.qualifier()));
+    boolean isProject = ComponentQualifiers.PROJECT.equals(component.qualifier());
+    boolean showBackgroundTasks = isProjectAdmin && (isProject || ComponentQualifiers.VIEW.equals(component.qualifier()) || ComponentQualifiers.APP.equals(component.qualifier()));
     boolean isQualityProfileAdmin = userSession.hasPermission(ADMINISTER_QUALITY_PROFILES, component.getOrganizationUuid());
     boolean isQualityGateAdmin = userSession.hasPermission(ADMINISTER_QUALITY_GATES, component.getOrganizationUuid());
     boolean isGlobalAdmin = userSession.hasPermission(ADMINISTER, component.getOrganizationUuid());
@@ -324,8 +324,8 @@ public class ComponentAction implements NavigationWsAction {
   }
 
   private boolean componentTypeHasProperty(ComponentDto component, String resourceTypeProperty) {
-    ResourceType resourceType = resourceTypes.get(component.qualifier());
-    return resourceType != null && resourceType.getBooleanProperty(resourceTypeProperty);
+    ComponentType componentType = componentTypes.get(component.qualifier());
+    return componentType != null && componentType.getBooleanProperty(resourceTypeProperty);
   }
 
   private void writeBreadCrumbs(JsonWriter json, DbSession session, ComponentDto component) {

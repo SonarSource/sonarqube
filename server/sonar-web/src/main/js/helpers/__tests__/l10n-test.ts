@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { IntlShape } from 'react-intl';
 import { Dict } from '../../types/types';
 import {
   getLocalizedCategoryMetricName,
@@ -29,18 +31,30 @@ import {
   translate,
   translateWithParameters,
 } from '../l10n';
-import { getMessages } from '../l10nBundle';
+import { getIntl, getMessages } from '../l10nBundle';
 
 const MSG = 'my_message';
 
 jest.unmock('../l10n');
 
-jest.mock('../l10nBundle', () => ({
-  getMessages: jest.fn().mockReturnValue({}),
-}));
+jest.mock('../l10nBundle', () => {
+  const bundle = jest.requireActual('../l10nBundle');
+  return {
+    ...bundle,
+    getIntl: jest.fn().mockReturnValue({ formatMessage: jest.fn(({ id }) => `${id}`) }),
+    getMessages: jest.fn().mockReturnValue({}),
+  };
+});
 
-const resetMessages = (messages: Dict<string>) =>
-  (getMessages as jest.Mock).mockReturnValue(messages);
+const resetMessages = (messages: Dict<string>) => {
+  jest.mocked(getMessages).mockReturnValue(messages);
+
+  jest.mocked(getIntl).mockReturnValue({
+    formatMessage: jest.fn(({ id }) => {
+      return id ? (messages[id] ?? id) : `${id}`;
+    }),
+  } as unknown as IntlShape);
+};
 
 beforeEach(() => {
   resetMessages({});
@@ -80,6 +94,13 @@ describe('translate', () => {
     expect(translate('random')).toBe('random');
     expect(translate('random', 'key')).toBe('random.key');
     expect(translate('composite.random', 'key')).toBe('composite.random.key');
+  });
+
+  it('should fall back to the old system when intl is undefined', () => {
+    jest.mocked(getIntl).mockReturnValueOnce(undefined as unknown as IntlShape);
+    resetMessages({ exists: 'this exists' });
+
+    expect(translate('exists')).toBe('this exists');
   });
 });
 

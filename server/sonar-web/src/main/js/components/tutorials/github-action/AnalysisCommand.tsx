@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
+
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
@@ -25,7 +25,6 @@ import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
 import { BuildTools, TutorialConfig } from '../types';
 import CFamily from './commands/CFamily';
-import Dart from './commands/Dart';
 import DotNet from './commands/DotNet';
 import Gradle from './commands/Gradle';
 import JavaMaven from './commands/JavaMaven';
@@ -83,8 +82,12 @@ export function AnalysisCommand(props: Readonly<AnalysisCommandProps>) {
       );
     case BuildTools.Dart:
       return (
-        <Dart
+        <Others
           branchesEnabled={branchSupportEnabled}
+          buildSteps={`
+      # The analysis requires to retrieve dependencies and build successfully
+      - name: Build project
+        run: <commands to build your project>`}
           mainBranchName={mainBranchName}
           monorepo={monorepo}
           component={component}
@@ -94,6 +97,7 @@ export function AnalysisCommand(props: Readonly<AnalysisCommandProps>) {
       return (
         <Others
           branchesEnabled={branchSupportEnabled}
+          buildSteps=""
           mainBranchName={mainBranchName}
           monorepo={monorepo}
           component={component}

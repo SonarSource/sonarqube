@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { Button } from '@sonarsource/echoes-react';
-import { Popup, PopupPlacement, PopupZLevel } from 'design-system';
 import * as React from 'react';
+import { Popup, PopupPlacement, PopupZLevel } from '~design-system';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import EscKeydownHandler from '../../../../../components/controls/EscKeydownHandler';
 import FocusOutHandler from '../../../../../components/controls/FocusOutHandler';

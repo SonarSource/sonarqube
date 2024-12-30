@@ -35,8 +35,8 @@ import java.util.stream.Stream;
 import org.elasticsearch.common.util.set.Sets;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.platform.Server;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.i18n.I18n;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.AnalysisChange;
@@ -52,7 +52,7 @@ import org.sonar.test.html.HtmlParagraphAssert;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -82,9 +82,9 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   private static final String[] SECURITY_HOTSPOTS_STATUSES = {STATUS_TO_REVIEW, STATUS_REVIEWED};
 
 
-  private I18n i18n = mock(I18n.class);
-  private EmailSettings emailSettings = mock(EmailSettings.class);
-  private ChangesOnMyIssuesEmailTemplate underTest = new ChangesOnMyIssuesEmailTemplate(i18n, emailSettings);
+  private final I18n i18n = mock(I18n.class);
+  private final Server server = mock();
+  private final ChangesOnMyIssuesEmailTemplate underTest = new ChangesOnMyIssuesEmailTemplate(i18n, server);
 
   @Test
   public void format_returns_null_on_Notification() {
@@ -307,11 +307,11 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   }
 
   private void format_set_html_message_with_footer(Change change, String issueStatus, Function<HtmlParagraphAssert, HtmlListAssert> skipContent, RuleType ruleType) {
-    String wordingNotification = randomAlphabetic(20);
-    String host = randomAlphabetic(15);
+    String wordingNotification = secure().nextAlphabetic(20);
+    String host = secure().nextAlphabetic(15);
     when(i18n.message(Locale.ENGLISH, "notification.dispatcher.ChangesOnMyIssue", "notification.dispatcher.ChangesOnMyIssue"))
       .thenReturn(wordingNotification);
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
     Project project = newProject("foo");
     Rule rule = newRule("bar", ruleType);
     Set<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(4))
@@ -393,11 +393,11 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   @Test
   public void formats_returns_html_message_for_single_issue_on_master_when_analysis_change() {
     Project project = newProject("1");
-    String ruleName = randomAlphabetic(8);
-    String host = randomAlphabetic(15);
+    String ruleName = secure().nextAlphabetic(8);
+    String host = secure().nextAlphabetic(15);
     ChangedIssue changedIssue = newChangedIssue("key", randomValidStatus(), project, ruleName, randomRuleTypeHotspotExcluded());
     AnalysisChange analysisChange = newAnalysisChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.of(changedIssue)));
 
@@ -414,13 +414,13 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   public void user_input_content_should_be_html_escape() {
     Project project = new Project.Builder("uuid").setProjectName("</projectName>").setKey("project_key").build();
     String ruleName = "</RandomRule>";
-    String host = randomAlphabetic(15);
+    String host = secure().nextAlphabetic(15);
     Rule rule = newRule(ruleName, randomRuleTypeHotspotExcluded());
     List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> newChangedIssue("issue_" + i, randomValidStatus(), project, rule))
-      .collect(toList());
+      .toList();
     UserChange userChange = newUserChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.copyOf(changedIssues)));
 
@@ -445,11 +445,11 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   @Test
   public void formats_returns_html_message_for_single_issue_on_master_when_user_change() {
     Project project = newProject("1");
-    String ruleName = randomAlphabetic(8);
-    String host = randomAlphabetic(15);
+    String ruleName = secure().nextAlphabetic(8);
+    String host = secure().nextAlphabetic(15);
     ChangedIssue changedIssue = newChangedIssue("key", randomValidStatus(), project, ruleName, randomRuleTypeHotspotExcluded());
     UserChange userChange = newUserChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.of(changedIssue)));
 
@@ -464,14 +464,14 @@ public class ChangesOnMyIssuesEmailTemplateTest {
 
   @Test
   public void formats_returns_html_message_for_single_issue_on_branch_when_analysis_change() {
-    String branchName = randomAlphabetic(6);
+    String branchName = secure().nextAlphabetic(6);
     Project project = newBranch("1", branchName);
-    String ruleName = randomAlphabetic(8);
-    String host = randomAlphabetic(15);
+    String ruleName = secure().nextAlphabetic(8);
+    String host = secure().nextAlphabetic(15);
     String key = "key";
     ChangedIssue changedIssue = newChangedIssue(key, randomValidStatus(), project, ruleName, randomRuleTypeHotspotExcluded());
     AnalysisChange analysisChange = newAnalysisChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.of(changedIssue)));
 
@@ -487,14 +487,14 @@ public class ChangesOnMyIssuesEmailTemplateTest {
 
   @Test
   public void formats_returns_html_message_for_single_issue_on_branch_when_user_change() {
-    String branchName = randomAlphabetic(6);
+    String branchName = secure().nextAlphabetic(6);
     Project project = newBranch("1", branchName);
-    String ruleName = randomAlphabetic(8);
-    String host = randomAlphabetic(15);
+    String ruleName = secure().nextAlphabetic(8);
+    String host = secure().nextAlphabetic(15);
     String key = "key";
     ChangedIssue changedIssue = newChangedIssue(key, randomValidStatus(), project, ruleName, randomRuleTypeHotspotExcluded());
     UserChange userChange = newUserChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.of(changedIssue)));
 
@@ -511,15 +511,15 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   @Test
   public void formats_returns_html_message_for_multiple_issues_of_same_rule_on_same_project_on_master_when_analysis_change() {
     Project project = newProject("1");
-    String ruleName = randomAlphabetic(8);
-    String host = randomAlphabetic(15);
+    String ruleName = secure().nextAlphabetic(8);
+    String host = secure().nextAlphabetic(15);
     Rule rule = newRule(ruleName, randomRuleTypeHotspotExcluded());
     String issueStatus = randomValidStatus();
     List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> newChangedIssue("issue_" + i, issueStatus, project, rule))
-      .collect(toList());
+      .toList();
     AnalysisChange analysisChange = newAnalysisChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.copyOf(changedIssues)));
 
@@ -538,14 +538,14 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   @Test
   public void formats_returns_html_message_for_multiple_issues_of_same_rule_on_same_project_on_master_when_user_change() {
     Project project = newProject("1");
-    String ruleName = randomAlphabetic(8);
-    String host = randomAlphabetic(15);
+    String ruleName = secure().nextAlphabetic(8);
+    String host = secure().nextAlphabetic(15);
     Rule rule = newRule(ruleName, randomRuleTypeHotspotExcluded());
     List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> newChangedIssue("issue_" + i, randomValidStatus(), project, rule))
-      .collect(toList());
+      .toList();
     UserChange userChange = newUserChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.copyOf(changedIssues)));
 
@@ -563,17 +563,17 @@ public class ChangesOnMyIssuesEmailTemplateTest {
 
   @Test
   public void formats_returns_html_message_for_multiple_issues_of_same_rule_on_same_project_on_branch_when_analysis_change() {
-    String branchName = randomAlphabetic(19);
+    String branchName = secure().nextAlphabetic(19);
     Project project = newBranch("1", branchName);
-    String ruleName = randomAlphabetic(8);
-    String host = randomAlphabetic(15);
+    String ruleName = secure().nextAlphabetic(8);
+    String host = secure().nextAlphabetic(15);
     Rule rule = newRule(ruleName, randomRuleTypeHotspotExcluded());
     String status = randomValidStatus();
     List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> newChangedIssue("issue_" + i, status, project, rule))
-      .collect(toList());
+      .toList();
     AnalysisChange analysisChange = newAnalysisChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.copyOf(changedIssues)));
 
@@ -591,16 +591,16 @@ public class ChangesOnMyIssuesEmailTemplateTest {
 
   @Test
   public void formats_returns_html_message_for_multiple_issues_of_same_rule_on_same_project_on_branch_when_user_change() {
-    String branchName = randomAlphabetic(19);
+    String branchName = secure().nextAlphabetic(19);
     Project project = newBranch("1", branchName);
-    String ruleName = randomAlphabetic(8);
-    String host = randomAlphabetic(15);
+    String ruleName = secure().nextAlphabetic(8);
+    String host = secure().nextAlphabetic(15);
     Rule rule = newRandomNotAHotspotRule(ruleName);
     List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> newChangedIssue("issue_" + i, randomValidStatus(), project, rule))
-      .collect(toList());
+      .toList();
     UserChange userChange = newUserChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.copyOf(changedIssues)));
 
@@ -624,13 +624,13 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     Project project2 = newProject("B");
     Project project2Branch1 = newBranch("B", "a");
     Project project3 = newProject("C");
-    String host = randomAlphabetic(15);
+    String host = secure().nextAlphabetic(15);
     List<ChangedIssue> changedIssues = Stream.of(project1, project1Branch1, project1Branch2, project2, project2Branch1, project3)
-      .map(project -> newChangedIssue("issue_" + project.getUuid(), randomValidStatus(), project, newRule(randomAlphabetic(2), randomRuleTypeHotspotExcluded())))
+      .map(project -> newChangedIssue("issue_" + project.getUuid(), randomValidStatus(), project, newRule(secure().nextAlphabetic(2), randomRuleTypeHotspotExcluded())))
       .collect(toList());
     Collections.shuffle(changedIssues);
     UserChange userChange = newUserChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.copyOf(changedIssues)));
 
@@ -660,14 +660,14 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     Rule rule3 = newRandomNotAHotspotRule("b");
     Rule rule4 = newRandomNotAHotspotRule("X");
 
-    String host = randomAlphabetic(15);
+    String host = secure().nextAlphabetic(15);
     String issueStatus = randomValidStatus();
     List<ChangedIssue> changedIssues = Stream.of(rule1, rule2, rule3, rule4)
       .map(rule -> newChangedIssue("issue_" + rule.getName(), issueStatus, project, rule))
       .collect(toList());
     Collections.shuffle(changedIssues);
     AnalysisChange analysisChange = newAnalysisChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.copyOf(changedIssues)));
 
@@ -696,13 +696,13 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     Rule hotspot3 = newSecurityHotspotRule("N");
     Rule hotspot4 = newSecurityHotspotRule("M");
 
-    String host = randomAlphabetic(15);
+    String host = secure().nextAlphabetic(15);
     List<ChangedIssue> changedIssues = Stream.of(rule1, rule2, rule3, rule4, hotspot1, hotspot2, hotspot3, hotspot4)
       .map(rule -> newChangedIssue("issue_" + rule.getName(), randomValidStatus(), project, rule))
       .collect(toList());
     Collections.shuffle(changedIssues);
     UserChange userChange = newUserChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.copyOf(changedIssues)));
 
@@ -731,7 +731,7 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     Rule rule1 = newRandomNotAHotspotRule("1");
     Rule rule2 = newRandomNotAHotspotRule("a");
 
-    String host = randomAlphabetic(15);
+    String host = secure().nextAlphabetic(15);
     String issueStatusClosed = STATUS_CLOSED;
     String otherIssueStatus = STATUS_RESOLVED;
 
@@ -745,7 +745,7 @@ public class ChangesOnMyIssuesEmailTemplateTest {
 
     Collections.shuffle(changedIssues);
     AnalysisChange analysisChange = newAnalysisChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.copyOf(changedIssues)));
 
@@ -793,7 +793,7 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     Rule hotspot2 = newSecurityHotspotRule("h2");
 
     String status = randomValidStatus();
-    String host = randomAlphabetic(15);
+    String host = secure().nextAlphabetic(15);
     List<ChangedIssue> changedIssues = Stream.of(
       IntStream.range(0, 39).mapToObj(i -> newChangedIssue("39_" + i, status, project1, rule1)),
       IntStream.range(0, 40).mapToObj(i -> newChangedIssue("40_" + i, status, project1, rule2)),
@@ -808,7 +808,7 @@ public class ChangesOnMyIssuesEmailTemplateTest {
       .collect(toList());
     Collections.shuffle(changedIssues);
     UserChange userChange = newUserChange();
-    when(emailSettings.getServerBaseURL()).thenReturn(host);
+    when(server.getPublicRootUrl()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.copyOf(changedIssues)));
 

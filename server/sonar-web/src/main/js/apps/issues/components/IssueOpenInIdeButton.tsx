@@ -19,9 +19,9 @@
  */
 
 import { DropdownMenu } from '@sonarsource/echoes-react';
-import { addGlobalErrorMessage, addGlobalSuccessMessage, ButtonSecondary } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { addGlobalErrorMessage, addGlobalSuccessMessage, ButtonSecondary } from '~design-system';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';

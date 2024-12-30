@@ -19,47 +19,47 @@
  */
 .rating {
   display: inline-flex;
-  width: var(--controlHeight);
-  height: var(--controlHeight);
-  border-radius: var(--controlHeight);
+  width: 24px;
+  height: 24px;
+  border-radius: 24px;
   box-sizing: border-box;
-  font-size: var(--bigFontSize);
+  font-size: 16px;
   font-weight: 400;
   align-items: center;
   justify-content: center;
 }
 
 .rating-muted {
-  background-color: var(--gray71) !important;
-  color: var(--white) !important;
+  background-color: #b4b4b4 !important;
+  color: #ffffff !important;
 }
 
 a > .rating-A,
 .rating-A {
-  color: var(--blacka75);
-  background-color: var(--success300);
+  color: rgba(0, 0, 0, 0.75);
+  background-color: #6cd46c;
 }
 
 a > .rating-B,
 .rating-B {
-  color: var(--blacka75);
-  background-color: var(--successVariant);
+  color: rgba(0, 0, 0, 0.75);
+  background-color: #c6e056;
 }
 
 a > .rating-C,
 .rating-C {
-  color: var(--blacka75);
-  background-color: var(--warningVariant);
+  color: rgba(0, 0, 0, 0.75);
+  background-color: #f4d348;
 }
 
 a > .rating-D,
 .rating-D {
-  color: var(--blacka75);
-  background-color: var(--warningAccent);
+  color: rgba(0, 0, 0, 0.75);
+  background-color: #f69d53;
 }
 
 a > .rating-E,
 .rating-E {
-  color: var(--blacka75);
-  background-color: var(--error400);
+  color: rgba(0, 0, 0, 0.75);
+  background-color: #f0878e;
 }

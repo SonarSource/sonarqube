@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import {
   ButtonSecondary,
   FlagMessage,
@@ -25,9 +27,7 @@ import {
   InputField,
   InputTextArea,
   Link,
-} from 'design-system';
-import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
+} from '~design-system';
 import { DocLink } from '../../../../helpers/doc-links';
 import { useDocUrl } from '../../../../helpers/docs';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';

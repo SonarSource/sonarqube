@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { NumberedListItem } from 'design-system';
 import * as React from 'react';
+import { NumberedListItem } from '~design-system';
 import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
 import RenderOptions from '../../components/RenderOptions';

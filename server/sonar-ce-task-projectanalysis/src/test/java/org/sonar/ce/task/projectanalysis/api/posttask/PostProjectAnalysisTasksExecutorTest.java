@@ -198,7 +198,7 @@ public class PostProjectAnalysisTasksExecutorTest {
   @Test
   public void date_comes_from_AnalysisMetadataHolder() {
     analysisMetadataHolder.setAnalysisDate(8_465_132_498L);
-    analysisMetadataHolder.setUuid(RandomStringUtils.randomAlphanumeric(40));
+    analysisMetadataHolder.setUuid(RandomStringUtils.secure().nextAlphanumeric(40));
 
     underTest.finished(true);
 
@@ -211,7 +211,7 @@ public class PostProjectAnalysisTasksExecutorTest {
   @Test
   public void analysisDate_and_analysisUuid_comes_from_AnalysisMetadataHolder_when_set() {
     analysisMetadataHolder.setAnalysisDate(8465132498L);
-    analysisMetadataHolder.setUuid(RandomStringUtils.randomAlphanumeric(40));
+    analysisMetadataHolder.setUuid(RandomStringUtils.secure().nextAlphanumeric(40));
 
     underTest.finished(true);
 
@@ -361,7 +361,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     verify(postProjectAnalysisTask).finished(taskContextCaptor.capture());
     PostProjectAnalysisTask.LogStatistics logStatistics = taskContextCaptor.getValue().getLogStatistics();
 
-    String key = RandomStringUtils.randomAlphabetic(10);
+    String key = RandomStringUtils.secure().nextAlphabetic(10);
     logStatistics.add(key, new Object());
     assertThat(catchThrowable(() -> logStatistics.add(key, "bar")))
       .isInstanceOf(IllegalArgumentException.class)

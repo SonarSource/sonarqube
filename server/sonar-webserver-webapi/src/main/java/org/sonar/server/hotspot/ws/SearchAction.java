@@ -37,7 +37,7 @@ import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.jetbrains.annotations.NotNull;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -99,7 +99,7 @@ import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchAction implements HotspotsWsAction {
-  private static final Set<String> SUPPORTED_QUALIFIERS = Set.of(Qualifiers.PROJECT, Qualifiers.APP);
+  private static final Set<String> SUPPORTED_QUALIFIERS = Set.of(ComponentQualifiers.PROJECT, ComponentQualifiers.APP);
   private static final String PARAM_PROJECT = "project";
   private static final String PARAM_PROJECT_KEY = "projectKey";
   private static final String PARAM_STATUS = "status";
@@ -412,7 +412,7 @@ public class SearchAction implements HotspotsWsAction {
       ProjectDto projectOrApp = projectOrAppAndBranch.getProject();
       BranchDto projectOrAppBranch = projectOrAppAndBranch.getBranch();
 
-      if (Qualifiers.APP.equals(projectOrApp.getQualifier())) {
+      if (ComponentQualifiers.APP.equals(projectOrApp.getQualifier())) {
         builder.viewUuids(singletonList(projectOrAppBranch.getUuid()));
         if (wsRequest.isInNewCodePeriod() && wsRequest.getPullRequest().isEmpty()) {
           addInNewCodePeriodFilterByProjects(builder, dbSession, projectOrAppBranch);

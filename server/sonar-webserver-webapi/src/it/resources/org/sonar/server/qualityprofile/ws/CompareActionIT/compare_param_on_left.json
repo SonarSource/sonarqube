@@ -20,12 +20,14 @@
          "name" : "Rule1",
          "left" : {
             "severity" : "BLOCKER",
+            "impacts": [],
             "params" : {
                "param_rule1" : "polop"
             }
          },
          "right" : {
-            "severity" : "BLOCKER"
+            "severity" : "BLOCKER",
+            "impacts": []
          }
       }
    ]

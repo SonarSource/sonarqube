@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ContentCell, NumericalCell, TableRow } from 'design-system';
+
 import { sortBy } from 'lodash';
-import * as React from 'react';
+import { ContentCell, NumericalCell, TableRow } from '~design-system';
 import { StickyTable } from '../../../app/components/admin/StickyTable';
 import '../../../app/styles/pages/GroupListItem.css';
 import { translate } from '../../../helpers/l10n';

@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { setImmediate } from 'timers';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { parseIssueFromResponse } from '../../../helpers/issues';
 import { mockComponent } from '../../../helpers/mocks/component';

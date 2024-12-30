@@ -21,7 +21,7 @@ package org.sonar.ce.task.projectanalysis.metric;
 
 import java.util.function.Function;
 import javax.annotation.Nonnull;
-import org.sonar.ce.task.projectanalysis.measure.Measure;
+import org.sonar.ce.task.projectanalysis.measure.ValueType;
 import org.sonar.ce.task.projectanalysis.util.cache.DoubleCache;
 import org.sonar.db.metric.MetricDto;
 
@@ -37,7 +37,7 @@ public enum MetricDtoToMetric implements Function<MetricDto, Metric> {
   public Metric apply(@Nonnull MetricDto metricDto) {
     Metric.MetricType metricType = Metric.MetricType.valueOf(metricDto.getValueType());
     Integer decimalScale = null;
-    if (metricType.getValueType() == Measure.ValueType.DOUBLE) {
+    if (metricType.getValueType() == ValueType.DOUBLE) {
       decimalScale = firstNonNull(metricDto.getDecimalScale(), DEFAULT_DECIMAL_SCALE);
     }
 

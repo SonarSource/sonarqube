@@ -17,14 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import * as React from 'react';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import DopTranslationServiceMock from '../../../api/mocks/DopTranslationServiceMock';
 import GithubProvisioningServiceMock from '../../../api/mocks/GithubProvisioningServiceMock';
 import GroupMembershipsServiceMock from '../../../api/mocks/GroupMembersipsServiceMock';
 import GroupsServiceMock from '../../../api/mocks/GroupsServiceMock';
+import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import SystemServiceMock from '../../../api/mocks/SystemServiceMock';
 import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
 import { mockGitHubConfiguration } from '../../../helpers/mocks/dop-translation';
@@ -42,6 +43,7 @@ const groupMembershipsHandler = new GroupMembershipsServiceMock();
 const userHandler = new UsersServiceMock(groupMembershipsHandler);
 const dopTranslationHandler = new DopTranslationServiceMock();
 const githubHandler = new GithubProvisioningServiceMock(dopTranslationHandler);
+const settingsHandler = new SettingsServiceMock();
 
 const ui = {
   createGroupButton: byRole('button', { name: 'groups.create_group' }),
@@ -96,6 +98,8 @@ const ui = {
     name: 'local-group local 3',
   }),
 
+  samlWarning: byText('users.update_groups.saml_enabled'),
+
   githubProvisioningPending: byText(/synchronization_pending/),
   githubProvisioningInProgress: byText(/synchronization_in_progress/),
   githubProvisioningSuccess: byText(/synchronization_successful/),
@@ -103,6 +107,7 @@ const ui = {
 };
 
 beforeEach(() => {
+  settingsHandler.reset();
   handler.reset();
   systemHandler.reset();
   dopTranslationHandler.reset();
@@ -274,6 +279,42 @@ describe('in non managed mode', () => {
     await user.click(await ui.showMore.find());
 
     expect(await screen.findAllByRole('row')).toHaveLength(16);
+  });
+
+  it('should display a warning if SAML is enabled', async () => {
+    [
+      {
+        key: 'sonar.auth.saml.signature.enabled',
+        value: 'false',
+      },
+      {
+        key: 'sonar.auth.saml.enabled',
+        value: 'true',
+      },
+      {
+        key: 'sonar.auth.saml.applicationId',
+        value: 'sonarqube',
+      },
+      {
+        key: 'sonar.auth.saml.providerName',
+        value: 'SAML',
+      },
+    ].forEach((setting: any) => settingsHandler.set(setting.key, setting.value));
+
+    const user = userEvent.setup();
+    renderGroupsApp();
+
+    expect(await ui.localGroupRow.find()).toBeInTheDocument();
+
+    await user.click(ui.localGroupEditMembersButton.get());
+
+    expect(await ui.membersDialog.find()).toBeInTheDocument();
+
+    expect(await ui.getMembers()).toHaveLength(3);
+    expect(ui.samlWarning.get()).toBeInTheDocument();
+
+    await user.click(ui.doneButton.get());
+    expect(ui.membersDialog.query()).not.toBeInTheDocument();
   });
 });
 

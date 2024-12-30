@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.event.Level;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.step.TestComputationStepContext;
@@ -159,7 +159,7 @@ public class ExportSettingsStepIT {
 
   private void insertProperties(@Nullable String entityKey, @Nullable String entityName, PropertyDto... dtos) {
     for (PropertyDto dto : dtos) {
-      dbTester.getDbClient().propertiesDao().saveProperty(dbTester.getSession(), dto, null, entityKey, entityName, Qualifiers.VIEW);
+      dbTester.getDbClient().propertiesDao().saveProperty(dbTester.getSession(), dto, null, entityKey, entityName, ComponentQualifiers.VIEW);
     }
     dbTester.commit();
   }

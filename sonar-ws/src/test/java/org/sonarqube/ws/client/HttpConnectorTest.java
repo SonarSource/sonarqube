@@ -19,6 +19,9 @@
  */
 package org.sonarqube.ws.client;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -26,7 +29,6 @@ import java.net.Proxy;
 import java.net.SocketTimeoutException;
 import java.util.Base64;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPOutputStream;
 import javax.net.ssl.SSLSocketFactory;
@@ -45,6 +47,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
 import org.sonarqube.ws.MediaTypes;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -56,6 +59,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.HttpConnector.newBuilder;
 
+@RunWith(DataProviderRunner.class)
 public class HttpConnectorTest {
 
   @Rule
@@ -249,9 +253,9 @@ public class HttpConnectorTest {
   }
 
   @Test
-  public void systemPassCode_sets_header_when_value_is_not_null() throws InterruptedException {
+  @UseDataProvider("nonNullPasswords")
+  public void systemPassCode_sets_header_when_value_is_not_null(String systemPassCode) throws InterruptedException {
     answerHelloWorld();
-    String systemPassCode = new Random().nextBoolean() ? "" : RandomStringUtils.randomAlphanumeric(21);
     underTest = HttpConnector.newBuilder()
       .url(serverUrl)
       .systemPassCode(systemPassCode)
@@ -555,6 +559,14 @@ public class HttpConnectorTest {
     // HTTP
     assertThat(connectionSpecs.get(1).tlsVersions()).isNull();
     assertThat(connectionSpecs.get(1).isTls()).isFalse();
+  }
+
+  @DataProvider()
+  public static Object[][] nonNullPasswords() {
+    return new Object[][] {
+      {""},
+      {RandomStringUtils.secure().nextAlphanumeric(21)}
+    };
   }
 
   private void answerHelloWorld() {

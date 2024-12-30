@@ -19,37 +19,44 @@
  */
 
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { addGlobalSuccessMessage } from 'design-system';
+import { useIntl } from 'react-intl';
+import { addGlobalSuccessMessage } from '~design-system';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import {
+  associateGateWithProject,
   copyQualityGate,
   createCondition,
   createQualityGate,
   deleteCondition,
   deleteQualityGate,
+  dissociateGateWithProject,
   fetchQualityGate,
   fetchQualityGates,
+  getAllQualityGateProjects,
   getApplicationQualityGate,
   getGateForProject,
   getQualityGateProjectStatus,
   renameQualityGate,
+  setQualityGateAiQualified,
   setQualityGateAsDefault,
   updateCondition,
 } from '../api/quality-gates';
 import { getCorrectCaycCondition } from '../apps/quality-gates/utils';
 import { translate } from '../helpers/l10n';
 import { Condition, QualityGate } from '../types/types';
-import { createQueryHook } from './common';
+import { createQueryHook, StaleTime } from './common';
 
 const QUERY_STALE_TIME = 5 * 60 * 1000;
 
 const qualityQuery = {
   all: () => ['quality-gate'] as const,
-  list: (organization) => ['quality-gate', 'list', organization] as const,
-  details: () => ['quality-gate', 'details'] as const,
+  list: (organization) => [...qualityQuery.all(), 'list', organization] as const,
+  details: () => [...qualityQuery.all(), 'details'] as const,
   detail: (name?: string) => [...qualityQuery.details(), name ?? ''] as const,
-  projectsAssoc: () => ['quality-gate', 'project-assoc'] as const,
+  projectsAssoc: () => [...qualityQuery.all(), 'project-assoc'] as const,
   projectAssoc: (project: string) => [...qualityQuery.projectsAssoc(), project] as const,
+  allProjectsSearch: (qualityGate: string) =>
+    [...qualityQuery.all(), 'all-project-search', qualityGate] as const,
 };
 
 // This is internal to "enable" query when searching from the project page
@@ -83,15 +90,26 @@ export function useComponentQualityGateQuery(organization: string, project: stri
   return useQualityGateQueryInner(organization, name);
 }
 
-export function useQualityGatesQuery(organization: string) {
-  return useQuery({
+export const useQualityGatesQuery = createQueryHook((organization: string) => {
+  return queryOptions({
     queryKey: qualityQuery.list(organization),
     queryFn: () => {
       return fetchQualityGates({ organization });
     },
-    staleTime: QUERY_STALE_TIME,
+    staleTime: StaleTime.LONG,
   });
-}
+});
+
+export const useGetAllQualityGateProjectsQuery = createQueryHook(
+  (data: Parameters<typeof getAllQualityGateProjects>[0]) => {
+    return queryOptions({
+      queryKey: qualityQuery.allProjectsSearch(data?.gateName ?? ''),
+      queryFn: () => {
+        return getAllQualityGateProjects(data);
+      },
+    });
+  },
+);
 
 export function useCreateQualityGateMutation(organization: string) {
   const queryClient = useQueryClient();
@@ -159,6 +177,53 @@ export function useDeleteQualityGateMutation(organization: string, name: string)
       queryClient.invalidateQueries({ queryKey: qualityQuery.list(organization) });
       queryClient.invalidateQueries({ queryKey: qualityQuery.projectsAssoc() });
       queryClient.removeQueries({ queryKey: qualityQuery.detail(name) });
+    },
+  });
+}
+
+export function useSetAiSupportedQualityGateMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      name,
+      isQualityGateAiSupported,
+    }: {
+      isQualityGateAiSupported: boolean;
+      name: string;
+    }) => {
+      return setQualityGateAiQualified(name, isQualityGateAiSupported);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qualityQuery.all() });
+    },
+  });
+}
+
+export function useAssociateGateWithProjectMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { gateName: string; projectKey: string }) => {
+      return associateGateWithProject(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qualityQuery.projectsAssoc() });
+      queryClient.invalidateQueries({ queryKey: ['project', 'list'] });
+    },
+  });
+}
+
+export function useDissociateGateWithProjectMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { projectKey: string }) => {
+      return dissociateGateWithProject(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qualityQuery.projectsAssoc() });
+      queryClient.invalidateQueries({ queryKey: ['project', 'list'] });
     },
   });
 }
@@ -240,7 +305,43 @@ export function useUpdateConditionMutation(organization: string, gateName: strin
   });
 }
 
-export function useDeleteConditionMutation(organization: string, gateName: string) {
+export function useUpdateOrDeleteConditionsMutation(organization: string, gateName: string, isSingleMetric = false) {
+  const queryClient = useQueryClient();
+  const intl = useIntl();
+
+  return useMutation({
+    mutationFn: (
+      conditions: (Omit<Condition, 'metric'> & { metric: string | null | undefined })[],
+    ) => {
+      const promiseArr = conditions.map((condition) =>
+        condition.metric
+          ? updateCondition(condition as Condition)
+          : deleteCondition({ id: condition.id }),
+      );
+
+      return Promise.all(promiseArr);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
+      queryClient.invalidateQueries({ queryKey: qualityQuery.detail(gateName) });
+      addGlobalSuccessMessage(
+        intl.formatMessage(
+          {
+            id: isSingleMetric
+              ? 'quality_gates.condition_updated'
+              : 'quality_gates.conditions_updated_to_the_mode',
+          },
+          { qualityGateName: gateName },
+        ),
+      );
+    },
+    onError: () => {
+      queryClient.invalidateQueries({ queryKey: qualityQuery.detail(gateName) });
+    },
+  });
+}
+
+export function useDeleteConditionMutation(gateName: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -283,3 +384,13 @@ export const useApplicationQualityGateStatus = createQueryHook(
     });
   },
 );
+
+/**
+ * @deprecated This is only for component that has not been migrated to react-query
+ */
+export function useInvalidateQualityGateQuery() {
+  const queryClient = useQueryClient();
+  return () => {
+    queryClient.invalidateQueries({ queryKey: qualityQuery.all() });
+  };
+}

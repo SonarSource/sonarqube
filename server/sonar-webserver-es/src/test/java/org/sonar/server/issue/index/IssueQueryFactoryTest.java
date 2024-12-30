@@ -28,7 +28,7 @@ import java.util.Date;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.db.DbTester;
@@ -44,7 +44,7 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -52,7 +52,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.ANALYSIS_FROM_SONARQUBE_9_4_KEY;
-import static org.sonar.api.resources.Qualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.APP;
 import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
@@ -243,7 +243,7 @@ public class IssueQueryFactoryTest {
       .setPeriodParam("master"));
 
     MetricDto analysisMetric = db.measures().insertMetric(m -> m.setKey(ANALYSIS_FROM_SONARQUBE_9_4_KEY));
-    db.measures().insertLiveMeasure(project, analysisMetric, measure -> measure.setData("true"));
+    db.measures().insertMeasure(project, measure -> measure.addValue(analysisMetric.getKey(), "true"));
 
     SearchRequest request = new SearchRequest()
       .setComponentUuids(Collections.singletonList(file.uuid()))
@@ -423,7 +423,7 @@ public class IssueQueryFactoryTest {
     ProjectData applicationData = db.components().insertPublicApplication();
     ComponentDto application = applicationData.getMainBranchComponent();
     MetricDto analysisMetric = db.measures().insertMetric(m -> m.setKey(ANALYSIS_FROM_SONARQUBE_9_4_KEY));
-    db.measures().insertLiveMeasure(project4, analysisMetric, measure -> measure.setData("true"));
+    db.measures().insertMeasure(project4, measure -> measure.addValue(analysisMetric.getKey(), "true"));
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
     db.components().insertComponents(newProjectCopy("PC3", project3, application));
@@ -510,7 +510,7 @@ public class IssueQueryFactoryTest {
   @Test
   public void param_componentUuids_enables_search_by_test_file() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(newFileDto(project).setQualifier(Qualifiers.UNIT_TEST_FILE));
+    ComponentDto file = db.components().insertComponent(newFileDto(project).setQualifier(ComponentQualifiers.UNIT_TEST_FILE));
     SearchRequest request = new SearchRequest()
       .setComponentUuids(asList(file.uuid()));
 
@@ -523,7 +523,7 @@ public class IssueQueryFactoryTest {
   public void search_issue_from_branch() {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey(branchName));
 
     assertThat(underTest.create(new SearchRequest()
@@ -542,7 +542,7 @@ public class IssueQueryFactoryTest {
   @Test
   public void search_file_issue_from_branch() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
 
@@ -570,7 +570,7 @@ public class IssueQueryFactoryTest {
   @Test
   public void search_issue_on_component_only_from_branch() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
 

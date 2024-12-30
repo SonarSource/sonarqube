@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BasicSeparator, CenteredLayout, PageContentFontWrapper, Spinner } from 'design-system';
+
 import { uniq } from 'lodash';
-import * as React from 'react';
+import { BasicSeparator, CenteredLayout, PageContentFontWrapper, Spinner } from '~design-system';
 import { enhanceConditionWithMeasure, enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
 import { useBranchStatusQuery } from '../../../queries/branch';

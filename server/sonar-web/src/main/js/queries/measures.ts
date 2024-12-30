@@ -22,9 +22,10 @@ import {
   infiniteQueryOptions,
   QueryClient,
   queryOptions,
+  useQueries,
   useQueryClient,
 } from '@tanstack/react-query';
-import { groupBy, isUndefined, omitBy } from 'lodash';
+import { chunk, groupBy, isUndefined, omitBy } from 'lodash';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import { getComponentTree } from '../api/components';
 import {
@@ -37,7 +38,8 @@ import { getNextPageParam, getPreviousPageParam } from '../helpers/react-query';
 import { getBranchLikeQuery } from '../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../types/branch-like';
 import { Measure } from '../types/types';
-import { createInfiniteQueryHook, createQueryHook } from './common';
+import { createInfiniteQueryHook, createQueryHook, StaleTime } from './common';
+import { PROJECTS_PAGE_SIZE } from './projects';
 
 export const invalidateMeasuresByComponentKey = (
   componentKey: string,
@@ -209,31 +211,39 @@ export const useComponentTreeQuery = createInfiniteQueryHook(
   },
 );
 
-export const useMeasuresForProjectsQuery = createQueryHook(
-  ({ projectKeys, metricKeys }: { metricKeys: string[]; projectKeys: string[] }) => {
-    const queryClient = useQueryClient();
-
-    return queryOptions({
-      queryKey: ['measures', 'list', 'projects', projectKeys, metricKeys],
-      queryFn: async () => {
-        const measures = await getMeasuresForProjects(projectKeys, metricKeys);
-        const measuresMapByProjectKey = groupBy(measures, 'component');
-        projectKeys.forEach((projectKey) => {
-          const measuresForProject = measuresMapByProjectKey[projectKey] ?? [];
-          const measuresMapByMetricKey = groupBy(measuresForProject, 'metric');
-          metricKeys.forEach((metricKey) => {
-            const measure = measuresMapByMetricKey[metricKey]?.[0] ?? null;
-            queryClient.setQueryData<Measure>(
-              ['measures', 'details', projectKey, 'branchLike', {}, metricKey],
-              measure,
-            );
+export function useMeasuresForProjectsQuery({
+  projectKeys,
+  metricKeys,
+}: {
+  metricKeys: string[];
+  projectKeys: string[];
+}) {
+  const queryClient = useQueryClient();
+  return useQueries({
+    queries: chunk(projectKeys, PROJECTS_PAGE_SIZE).map((projectsChunk) =>
+      queryOptions({
+        queryKey: ['measures', 'list', 'projects', projectsChunk, metricKeys],
+        staleTime: StaleTime.SHORT,
+        queryFn: async () => {
+          const measures = await getMeasuresForProjects(projectsChunk, metricKeys);
+          const measuresMapByProjectKey = groupBy(measures, 'component');
+          projectsChunk.forEach((projectKey) => {
+            const measuresForProject = measuresMapByProjectKey[projectKey] ?? [];
+            const measuresMapByMetricKey = groupBy(measuresForProject, 'metric');
+            metricKeys.forEach((metricKey) => {
+              const measure = measuresMapByMetricKey[metricKey]?.[0] ?? null;
+              queryClient.setQueryData<Measure>(
+                ['measures', 'details', projectKey, 'branchLike', {}, metricKey],
+                measure,
+              );
+            });
           });
-        });
-        return measures;
-      },
-    });
-  },
-);
+          return measures;
+        },
+      }),
+    ),
+  });
+}
 
 export const useMeasuresAndLeakQuery = createQueryHook(
   ({

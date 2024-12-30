@@ -28,6 +28,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
@@ -56,21 +57,23 @@ import static org.mockito.Mockito.verify;
 class QProfileRulesImplIT {
 
   @RegisterExtension
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  private final UserSessionRule userSession = UserSessionRule.standalone();
   @RegisterExtension
-  public DbTester db = DbTester.create();
+  private final DbTester db = DbTester.create();
   @RegisterExtension
-  public EsTester es = EsTester.create();
+  private final EsTester es = EsTester.create();
 
-  private RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE);
-  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
+  private final Configuration config = mock(Configuration.class);
+
+  private final RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE, config);
+  private final ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
-  private RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db.getDbClient(),
+  private final RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db.getDbClient(), UuidFactoryImpl.INSTANCE,
     new TypeValidations(singletonList(new IntegerTypeValidation())),
     userSession, mock(Configuration.class), sonarQubeVersion);
-  private QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
+  private final QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
 
-  private QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, ruleIndex, activeRuleIndexer,
+  private final QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, ruleIndex, activeRuleIndexer,
     qualityProfileChangeEventService);
 
   @Test

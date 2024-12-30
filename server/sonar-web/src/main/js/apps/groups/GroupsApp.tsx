@@ -18,10 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { InputSearch, LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
-import * as React from 'react';
 import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { InputSearch, LargeCenteredLayout, PageContentFontWrapper } from '~design-system';
 import GitHubSynchronisationWarning from '../../app/components/GitHubSynchronisationWarning';
 import GitLabSynchronisationWarning from '../../app/components/GitLabSynchronisationWarning';
 import withCurrentUserContext from "../../app/components/current-user/withCurrentUserContext";

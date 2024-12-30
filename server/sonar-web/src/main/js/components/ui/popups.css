@@ -17,17 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 .popup {
   position: absolute;
-  z-index: var(--popupZIndex);
+  z-index: 5000;
   margin-top: -16px;
   margin-left: 8px;
-  padding: var(--gridSize);
-  border: 1px solid var(--neutral200);
+  padding: 8px;
+  border: 1px solid var(--echoes-color-border-weak);
   border-radius: 3px;
   box-sizing: border-box;
   background-color: #ffffff;
-  box-shadow: var(--defaultShadow);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
   cursor: default;
 }
 
@@ -49,7 +50,7 @@
   top: 15px;
   left: -6px;
   border-left-width: 0;
-  border-right-color: var(--barBorderColor);
+  border-right-color: #e6e6e6;
 }
 
 .popup-arrow:after {
@@ -76,7 +77,7 @@
   border-left-width: 6px;
   border-top-width: 0;
   border-right-color: transparent;
-  border-bottom-color: var(--barBorderColor);
+  border-bottom-color: #e6e6e6;
 }
 
 .popup.is-bottom .popup-arrow.is-left {
@@ -110,7 +111,7 @@
   border-left-width: 6px;
   border-top-width: 0;
   border-right-color: transparent;
-  border-bottom-color: var(--barBorderColor);
+  border-bottom-color: #e6e6e6;
 }
 
 .popup.is-bottom-right .popup-arrow:after {
@@ -138,7 +139,7 @@
   border-left-width: 6px;
   border-top-width: 0;
   border-right-color: transparent;
-  border-bottom-color: var(--barBorderColor);
+  border-bottom-color: #e6e6e6;
 }
 
 .popup.is-bottom-left .popup-arrow:after {
@@ -165,7 +166,7 @@
   top: 8px;
   border-right-width: 0;
   border-left-width: 6px;
-  border-left-color: var(--barBorderColor);
+  border-left-color: #e6e6e6;
   border-right-color: transparent;
 }
 
@@ -193,7 +194,7 @@
   top: 8px;
   border-left-width: 0;
   border-right-width: 6px;
-  border-right-color: var(--barBorderColor);
+  border-right-color: #e6e6e6;
   border-left-color: transparent;
 }
 
@@ -221,7 +222,7 @@
   top: calc(100% - 15px);
   border-left-width: 0;
   border-right-width: 6px;
-  border-right-color: var(--barBorderColor);
+  border-right-color: #e6e6e6;
   border-left-color: transparent;
 }
 
@@ -247,7 +248,7 @@
   bottom: -6px;
   top: auto;
   left: 8px;
-  border-color: var(--barBorderColor) transparent transparent;
+  border-color: #e6e6e6 transparent transparent;
   border-width: 6px 6px 0 6px;
 }
 
@@ -262,7 +263,7 @@
 /* #region .popup & .menu or .multi-select */
 .popup:not(.no-padding) > .menu,
 .popup:not(.no-padding) > .multi-select {
-  margin: calc(-1 * var(--gridSize));
+  margin: calc(-1 * 8px);
 }
 /* #endregion */
 

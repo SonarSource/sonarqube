@@ -21,9 +21,6 @@ package org.sonar.server.hotspot.ws;
 
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,9 +35,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
@@ -88,8 +87,7 @@ import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -117,9 +115,7 @@ import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CASA;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STIG_ASD_V5R3;
 
-@SuppressWarnings("ALL")
-@RunWith(DataProviderRunner.class)
-public class SearchActionIT {
+class SearchActionIT {
 
   private static final String PARAM_PROJECT = "project";
   private static final String PARAM_STATUS = "status";
@@ -144,16 +140,18 @@ public class SearchActionIT {
   private static final int ONE_MINUTE = 60_000;
   private static final List<String> RESOLUTION_TYPES = List.of(RESOLUTION_FIXED, RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED);
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
-  @Rule
-  public EsTester es = EsTester.create();
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final EsTester es = EsTester.create();
+  @RegisterExtension
+  private final UserSessionRule userSessionRule = UserSessionRule.standalone();
+  private final Configuration config = mock(Configuration.class);
 
   private final TestSystem2 system2 = new TestSystem2();
   private final DbClient dbClient = dbTester.getDbClient();
-  private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule, new WebAuthorizationTypeSupport(userSessionRule));
+  private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule,
+    new WebAuthorizationTypeSupport(userSessionRule), config);
   private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), mock(AsyncIssueIndexing.class));
   private final ViewIndexer viewIndexer = new ViewIndexer(dbClient, es.client());
   private final PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
@@ -165,7 +163,7 @@ public class SearchActionIT {
   private final WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
-  public void verify_ws_def() {
+  void verify_ws_def() {
     WebService.Param onlyMineParam = actionTester.getDef().param(PARAM_ONLY_MINE);
     WebService.Param pciDss32Param = actionTester.getDef().param(PARAM_PCI_DSS_32);
     WebService.Param pciDss40Param = actionTester.getDef().param(PARAM_PCI_DSS_40);
@@ -203,7 +201,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void fails_with_IAE_if_parameters_project_and_hotspots_are_missing() {
+  void fails_with_IAE_if_parameters_project_and_hotspots_are_missing() {
     TestRequest request = actionTester.newRequest();
 
     assertThatThrownBy(request::execute)
@@ -212,10 +210,10 @@ public class SearchActionIT {
   }
 
   @Test
-  public void fail_with_IAE_if_parameter_branch_is_used_without_parameter_project() {
+  void fail_with_IAE_if_parameter_branch_is_used_without_parameter_project() {
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_HOTSPOTS, randomAlphabetic(2))
-      .setParam(PARAM_BRANCH, randomAlphabetic(1));
+      .setParam(PARAM_HOTSPOTS, secure().nextAlphabetic(2))
+      .setParam(PARAM_BRANCH, secure().nextAlphabetic(1));
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
@@ -223,10 +221,10 @@ public class SearchActionIT {
   }
 
   @Test
-  public void fail_with_IAE_if_parameter_pullRequest_is_used_without_parameter_project() {
+  void fail_with_IAE_if_parameter_pullRequest_is_used_without_parameter_project() {
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_HOTSPOTS, randomAlphabetic(2))
-      .setParam(PARAM_PULL_REQUEST, randomAlphabetic(1));
+      .setParam(PARAM_HOTSPOTS, secure().nextAlphabetic(2))
+      .setParam(PARAM_PULL_REQUEST, secure().nextAlphabetic(1));
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
@@ -234,22 +232,22 @@ public class SearchActionIT {
   }
 
   @Test
-  public void fail_with_IAE_if_both_parameters_pullRequest_and_branch_are_provided() {
+  void fail_with_IAE_if_both_parameters_pullRequest_and_branch_are_provided() {
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_PROJECT, randomAlphabetic(2))
-      .setParam(PARAM_BRANCH, randomAlphabetic(1))
-      .setParam(PARAM_PULL_REQUEST, randomAlphabetic(1));
+      .setParam(PARAM_PROJECT, secure().nextAlphabetic(2))
+      .setParam(PARAM_BRANCH, secure().nextAlphabetic(1))
+      .setParam(PARAM_PULL_REQUEST, secure().nextAlphabetic(1));
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Only one of parameters 'branch' and 'pullRequest' can be provided");
   }
 
-  @Test
-  @UseDataProvider("badStatuses")
-  public void fails_with_IAE_if_status_parameter_is_neither_TO_REVIEW_or_REVIEWED(String badStatus) {
+  @ParameterizedTest
+  @MethodSource("badStatuses")
+  void fails_with_IAE_if_status_parameter_is_neither_TO_REVIEW_or_REVIEWED(String badStatus) {
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_PROJECT, randomAlphabetic(13))
+      .setParam(PARAM_PROJECT, secure().nextAlphabetic(13))
       .setParam(PARAM_STATUS, badStatus);
 
     assertThatThrownBy(request::execute)
@@ -257,22 +255,21 @@ public class SearchActionIT {
       .hasMessage("Value of parameter 'status' (" + badStatus + ") must be one of: [TO_REVIEW, REVIEWED]");
   }
 
-  @DataProvider
-  public static Object[][] badStatuses() {
+  static Object[][] badStatuses() {
     return Stream.concat(
       Issue.STATUSES.stream(),
-      Stream.of(randomAlphabetic(3)))
+      Stream.of(secure().nextAlphabetic(3)))
       .filter(t -> !STATUS_REVIEWED.equals(t))
       .filter(t -> !STATUS_TO_REVIEW.equals(t))
       .map(t -> new Object[] {t})
       .toArray(Object[][]::new);
   }
 
-  @Test
-  @UseDataProvider("validStatusesAndResolutions")
-  public void fail_with_IAE_if_parameter_status_is_specified_with_hotspots_parameter(String status, @Nullable String notUsed) {
+  @ParameterizedTest
+  @MethodSource("validStatusesAndResolutions")
+  void fail_with_IAE_if_parameter_status_is_specified_with_hotspots_parameter(String status, @Nullable String notUsed) {
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_HOTSPOTS, randomAlphabetic(12))
+      .setParam(PARAM_HOTSPOTS, secure().nextAlphabetic(12))
       .setParam(PARAM_STATUS, status);
 
     assertThatThrownBy(request::execute)
@@ -280,11 +277,11 @@ public class SearchActionIT {
       .hasMessage("Parameter 'status' can't be used with parameter 'hotspots'");
   }
 
-  @Test
-  @UseDataProvider("badResolutions")
-  public void fails_with_IAE_if_resolution_parameter_is_neither_FIXED_nor_SAFE(String badResolution) {
+  @ParameterizedTest
+  @MethodSource("badResolutions")
+  void fails_with_IAE_if_resolution_parameter_is_neither_FIXED_nor_SAFE(String badResolution) {
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_PROJECT, randomAlphabetic(13))
+      .setParam(PARAM_PROJECT, secure().nextAlphabetic(13))
       .setParam(PARAM_STATUS, STATUS_TO_REVIEW)
       .setParam(PARAM_RESOLUTION, badResolution);
 
@@ -293,23 +290,22 @@ public class SearchActionIT {
       .hasMessage("Value of parameter 'resolution' (" + badResolution + ") must be one of: [FIXED, SAFE, ACKNOWLEDGED]");
   }
 
-  @DataProvider
-  public static Object[][] badResolutions() {
+  static Object[][] badResolutions() {
     return Stream.of(
       Issue.RESOLUTIONS.stream(),
       Issue.SECURITY_HOTSPOT_RESOLUTIONS.stream(),
-      Stream.of(randomAlphabetic(4)))
+      Stream.of(secure().nextAlphabetic(4)))
       .flatMap(t -> t)
       .filter(t -> !RESOLUTION_TYPES.contains(t))
       .map(t -> new Object[] {t})
       .toArray(Object[][]::new);
   }
 
-  @Test
-  @UseDataProvider("fixedOrSafeResolution")
-  public void fails_with_IAE_if_resolution_is_provided_with_status_TO_REVIEW(String resolution) {
+  @ParameterizedTest
+  @MethodSource("fixedOrSafeResolution")
+  void fails_with_IAE_if_resolution_is_provided_with_status_TO_REVIEW(String resolution) {
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_PROJECT, randomAlphabetic(13))
+      .setParam(PARAM_PROJECT, secure().nextAlphabetic(13))
       .setParam(PARAM_STATUS, STATUS_TO_REVIEW)
       .setParam(PARAM_RESOLUTION, resolution);
 
@@ -318,11 +314,11 @@ public class SearchActionIT {
       .hasMessage("Value '" + resolution + "' of parameter 'resolution' can only be provided if value of parameter 'status' is 'REVIEWED'");
   }
 
-  @Test
-  @UseDataProvider("fixedOrSafeResolution")
-  public void fails_with_IAE_if_resolution_is_provided_with_hotspots_parameter(String resolution) {
+  @ParameterizedTest
+  @MethodSource("fixedOrSafeResolution")
+  void fails_with_IAE_if_resolution_is_provided_with_hotspots_parameter(String resolution) {
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_HOTSPOTS, randomAlphabetic(13))
+      .setParam(PARAM_HOTSPOTS, secure().nextAlphabetic(13))
       .setParam(PARAM_RESOLUTION, resolution);
 
     assertThatThrownBy(request::execute)
@@ -330,8 +326,7 @@ public class SearchActionIT {
       .hasMessage("Parameter 'resolution' can't be used with parameter 'hotspots'");
   }
 
-  @DataProvider
-  public static Object[][] fixedOrSafeResolution() {
+  static Object[][] fixedOrSafeResolution() {
     return new Object[][] {
       {RESOLUTION_SAFE},
       {RESOLUTION_FIXED}
@@ -339,8 +334,8 @@ public class SearchActionIT {
   }
 
   @Test
-  public void fails_with_NotFoundException_if_project_does_not_exist() {
-    String key = randomAlphabetic(12);
+  void fails_with_NotFoundException_if_project_does_not_exist() {
+    String key = secure().nextAlphabetic(12);
     TestRequest request = actionTester.newRequest()
       .setParam(PARAM_PROJECT, key);
 
@@ -350,7 +345,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void fails_with_NotFoundException_if_project_is_neither_a_project_nor_an_application() {
+  void fails_with_NotFoundException_if_project_is_neither_a_project_nor_an_application() {
     ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto directory = dbTester.components().insertComponent(ComponentTesting.newDirectory(project, "foo"));
     ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
@@ -367,7 +362,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void fails_with_ForbiddenException_if_project_is_private_and_not_allowed() {
+  void fails_with_ForbiddenException_if_project_is_private_and_not_allowed() {
     ProjectData projectData = dbTester.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -380,7 +375,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void fails_with_ForbiddenException_if_application_is_private_and_not_allowed() {
+  void fails_with_ForbiddenException_if_application_is_private_and_not_allowed() {
     ProjectData projectData = dbTester.components().insertPrivateApplication();
     ComponentDto application = projectData.getMainBranchComponent();
 
@@ -393,7 +388,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void succeeds_on_public_project() {
+  void succeeds_on_public_project() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -407,7 +402,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void succeeds_on_public_application() {
+  void succeeds_on_public_application() {
     ProjectData applicationData = dbTester.components().insertPublicApplication();
     ComponentDto application = applicationData.getMainBranchComponent();
     userSessionRule.registerApplication(applicationData.getProjectDto());
@@ -420,7 +415,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void succeeds_on_private_project_with_permission() {
+  void succeeds_on_private_project_with_permission() {
     ProjectData projectData = dbTester.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -434,7 +429,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void succeeds_on_private_application_with_permission() {
+  void succeeds_on_private_application_with_permission() {
     ProjectData applicationData = dbTester.components().insertPrivateApplication();
     ComponentDto application = applicationData.getMainBranchComponent();
     userSessionRule.logIn().registerApplication(applicationData.getProjectDto()).addProjectPermission(USER, applicationData.getProjectDto());
@@ -446,7 +441,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void does_not_fail_if_rule_of_hotspot_does_not_exist_in_DB() {
+  void does_not_fail_if_rule_of_hotspot_does_not_exist_in_DB() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -475,7 +470,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_no_hotspot_component_nor_rule_when_project_has_no_hotspot() {
+  void returns_no_hotspot_component_nor_rule_when_project_has_no_hotspot() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -497,7 +492,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotspot_components_when_project_has_hotspots() {
+  void returns_hotspot_components_when_project_has_hotspots() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -531,7 +526,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_single_component_when_all_hotspots_are_on_project() {
+  void returns_single_component_when_all_hotspots_are_on_project() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -557,7 +552,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotspots_of_specified_project() {
+  void returns_hotspots_of_specified_project() {
     ProjectData projectData1 = dbTester.components().insertPublicProject();
     ComponentDto project1 = projectData1.getMainBranchComponent();
     ProjectData projectData2 = dbTester.components().insertPublicProject();
@@ -580,7 +575,7 @@ public class SearchActionIT {
 
     assertThat(responseProject1.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
-      .doesNotContainAnyElementsOf(Arrays.stream(hotspots2).map(IssueDto::getKey).collect(toList()));
+      .doesNotContainAnyElementsOf(Arrays.stream(hotspots2).map(IssueDto::getKey).toList());
     assertThat(responseProject1.getComponentsList())
       .extracting(Component::getKey)
       .containsOnly(project1.getKey(), file1.getKey());
@@ -597,7 +592,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_only_hotspots_to_review_or_reviewed_of_project() {
+  void returns_only_hotspots_to_review_or_reviewed_of_project() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
 
@@ -621,7 +616,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotspots_of_specified_application() {
+  void returns_hotspots_of_specified_application() {
     ProjectData application1 = dbTester.components().insertPublicApplication();
     ProjectData application2 = dbTester.components().insertPublicApplication();
     ProjectData project1 = dbTester.components().insertPublicProject();
@@ -665,7 +660,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotspots_of_specified_application_branch() {
+  void returns_hotspots_of_specified_application_branch() {
     ProjectData applicationData = dbTester.components().insertPublicApplication();
     ComponentDto application = applicationData.getMainBranchComponent();
     ComponentDto applicationBranch = dbTester.components().insertProjectBranch(application, b -> b.setKey("appBranch"));
@@ -712,7 +707,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotspot_of_branch_or_pullRequest() {
+  void returns_hotspot_of_branch_or_pullRequest() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -763,9 +758,9 @@ public class SearchActionIT {
     verify(issueIndexSyncProgressChecker, times(3)).checkIfComponentNeedIssueSync(any(), eq(project.getKey()));
   }
 
-  @Test
-  @UseDataProvider("onlyMineParamValues")
-  public void returns_hotspots_of_specified_project_assigned_to_current_user_if_only_mine_is_set(String onlyMineParameter, boolean shouldFilter) {
+  @ParameterizedTest
+  @MethodSource("onlyMineParamValues")
+  void returns_hotspots_of_specified_project_assigned_to_current_user_if_only_mine_is_set(String onlyMineParameter, boolean shouldFilter) {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project1 = projectData.getMainBranchComponent();
     String assigneeUuid = this.userSessionRule.logIn().registerProjects(projectData.getProjectDto()).getUuid();
@@ -775,7 +770,7 @@ public class SearchActionIT {
     IssueDto[] assigneeHotspots = IntStream.range(0, 1 + RANDOM.nextInt(10))
       .mapToObj(i -> {
         RuleDto rule = newRule(SECURITY_HOTSPOT);
-        insertHotspot(rule, project1, file1, randomAlphabetic(5));
+        insertHotspot(rule, project1, file1, secure().nextAlphabetic(5));
         return insertHotspot(rule, project1, file1, assigneeUuid);
       })
       .toArray(IssueDto[]::new);
@@ -804,8 +799,7 @@ public class SearchActionIT {
     }
   }
 
-  @DataProvider
-  public static Object[][] onlyMineParamValues() {
+  static Object[][] onlyMineParamValues() {
     return new Object[][] {
       {"yes", true},
       {"true", true},
@@ -815,7 +809,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void fail_if_hotspots_provided_with_onlyMine_param() {
+  void fail_if_hotspots_provided_with_onlyMine_param() {
     ProjectData projectData = dbTester.components().insertPrivateProject();
 
     userSessionRule.registerProjects(projectData.getProjectDto());
@@ -830,7 +824,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void fail_if_user_not_authenticated_with_onlyMine_param() {
+  void fail_if_user_not_authenticated_with_onlyMine_param() {
     ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
 
     userSessionRule.anonymous();
@@ -844,7 +838,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotpots_with_any_status_if_no_status_nor_resolution_parameter() {
+  void returns_hotpots_with_any_status_if_no_status_nor_resolution_parameter() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -864,7 +858,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotpots_reviewed_as_safe_and_fixed_if_status_is_REVIEWED_and_resolution_is_not_set() {
+  void returns_hotpots_reviewed_as_safe_and_fixed_if_status_is_REVIEWED_and_resolution_is_not_set() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -885,7 +879,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotpots_reviewed_as_safe_if_status_is_REVIEWED_and_resolution_is_SAFE() {
+  void returns_hotpots_reviewed_as_safe_if_status_is_REVIEWED_and_resolution_is_SAFE() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -906,7 +900,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotpots_reviewed_as_fixed_if_status_is_REVIEWED_and_resolution_is_FIXED() {
+  void returns_hotpots_reviewed_as_fixed_if_status_is_REVIEWED_and_resolution_is_FIXED() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -927,7 +921,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_only_unresolved_hotspots_when_status_is_TO_REVIEW() {
+  void returns_only_unresolved_hotspots_when_status_is_TO_REVIEW() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -937,9 +931,12 @@ public class SearchActionIT {
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto unresolvedHotspot = insertHotspot(rule, project, file, t -> t.setResolution(null));
     // unrealistic case since a resolution must be set, but shows a limit of current implementation (resolution is enough)
-    IssueDto badlyResolved = insertHotspot(rule, project, file, t -> t.setStatus(STATUS_TO_REVIEW).setResolution(randomAlphabetic(5)));
-    IssueDto badlyReviewed = insertHotspot(rule, project, file, t -> t.setStatus(STATUS_REVIEWED).setResolution(null));
-    IssueDto badlyClosedHotspot = insertHotspot(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setResolution(null));
+    //Badly Resolved
+    insertHotspot(rule, project, file, t -> t.setStatus(STATUS_TO_REVIEW).setResolution("Resolution"));
+    //Badly Reviewed
+    insertHotspot(rule, project, file, t -> t.setStatus(STATUS_REVIEWED).setResolution(null));
+    //Badly Closed
+    insertHotspot(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setResolution(null));
     indexIssues();
 
     SearchWsResponse response = newRequest(project, STATUS_TO_REVIEW, null, null, null)
@@ -969,9 +966,9 @@ public class SearchActionIT {
     return hotspots.stream();
   }
 
-  @Test
-  @UseDataProvider("validStatusesAndResolutions")
-  public void returns_fields_of_hotspot(String status, @Nullable String resolution) {
+  @ParameterizedTest
+  @MethodSource("validStatusesAndResolutions")
+  void returns_fields_of_hotspot(String status, @Nullable String resolution) {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -981,11 +978,11 @@ public class SearchActionIT {
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = insertHotspot(rule, project, file,
       t -> t
-        .setStatus(randomAlphabetic(11))
+        .setStatus(secure().nextAlphabetic(11))
         .setLine(RANDOM.nextInt(230))
-        .setMessage(randomAlphabetic(10))
-        .setAssigneeUuid(randomAlphabetic(9))
-        .setAuthorLogin(randomAlphabetic(8))
+        .setMessage(secure().nextAlphabetic(10))
+        .setAssigneeUuid(secure().nextAlphabetic(9))
+        .setAuthorLogin(secure().nextAlphabetic(8))
         .setStatus(status)
         .setResolution(resolution));
     indexIssues();
@@ -1011,8 +1008,7 @@ public class SearchActionIT {
     assertThat(actual.getUpdateDate()).isEqualTo(formatDateTime(hotspot.getIssueUpdateDate()));
   }
 
-  @DataProvider
-  public static Object[][] validStatusesAndResolutions() {
+  static Object[][] validStatusesAndResolutions() {
     return new Object[][] {
       {STATUS_TO_REVIEW, null},
       {STATUS_REVIEWED, RESOLUTION_FIXED},
@@ -1020,9 +1016,9 @@ public class SearchActionIT {
     };
   }
 
-  @Test
-  @UseDataProvider("allSQCategories")
-  public void returns_SQCategory_and_VulnerabilityProbability_of_rule(Set<String> securityStandards, SQCategory expected) {
+  @ParameterizedTest
+  @MethodSource("allSQCategories")
+  void returns_SQCategory_and_VulnerabilityProbability_of_rule(Set<String> securityStandards, SQCategory expected) {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1042,8 +1038,7 @@ public class SearchActionIT {
     assertThat(actual.getVulnerabilityProbability()).isEqualTo(expected.getVulnerability().name());
   }
 
-  @DataProvider
-  public static Object[][] allSQCategories() {
+  static Object[][] allSQCategories() {
     Stream<Object[]> allCategoriesButOTHERS = SecurityStandards.CWES_BY_SQ_CATEGORY.entrySet()
       .stream()
       .map(t -> new Object[] {
@@ -1057,7 +1052,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void does_not_fail_when_hotspot_has_none_of_the_nullable_fields() {
+  void does_not_fail_when_hotspot_has_none_of_the_nullable_fields() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1087,7 +1082,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_details_of_components() {
+  void returns_details_of_components() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1138,10 +1133,10 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_branch_field_of_components_of_branch() {
+  void returns_branch_field_of_components_of_branch() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = dbTester.components().insertProjectBranch(project, b -> b.setKey(branchName));
     userSessionRule.registerProjects(projectData.getProjectDto());
     indexPermissions();
@@ -1175,10 +1170,10 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_pullRequest_field_of_components_of_pullRequest() {
+  void returns_pullRequest_field_of_components_of_pullRequest() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
-    String pullRequestKey = randomAlphanumeric(100);
+    String pullRequestKey = secure().nextAlphanumeric(100);
     ComponentDto pullRequest = dbTester.components().insertProjectBranch(project, t -> t.setBranchType(BranchType.PULL_REQUEST)
       .setKey(pullRequestKey));
     userSessionRule.registerProjects(projectData.getProjectDto());
@@ -1213,7 +1208,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotspots_ordered_by_vulnerabilityProbability_score_then_rule_uuid() {
+  void returns_hotspots_ordered_by_vulnerabilityProbability_score_then_rule_uuid() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1252,7 +1247,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotspots_ordered_by_file_path_then_line_then_key() {
+  void returns_hotspots_ordered_by_file_path_then_line_then_key() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1287,7 +1282,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotspot_with_secondary_locations() {
+  void returns_hotspot_with_secondary_locations() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1334,7 +1329,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_first_page_with_100_results_by_default() {
+  void returns_first_page_with_100_results_by_default() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1361,7 +1356,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_specified_page_with_100_results_by_default() {
+  void returns_specified_page_with_100_results_by_default() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1374,7 +1369,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_specified_page_with_specified_number_of_results() {
+  void returns_specified_page_with_specified_number_of_results() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1433,7 +1428,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_empty_if_none_of_hotspot_keys_exist() {
+  void returns_empty_if_none_of_hotspot_keys_exist() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1454,7 +1449,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_specified_hotspots() {
+  void returns_specified_hotspots() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1479,7 +1474,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotspots_with_specified_sonarsourceSecurity_category() {
+  void returns_hotspots_with_specified_sonarsourceSecurity_category() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1503,7 +1498,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotspots_with_specified_cwes() {
+  void returns_hotspots_with_specified_cwes() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1527,7 +1522,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotspots_with_specified_owaspTop10_category() {
+  void returns_hotspots_with_specified_owaspTop10_category() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1551,7 +1546,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotspots_with_specified_stig_category() {
+  void returns_hotspots_with_specified_stig_category() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1575,7 +1570,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void executeProtobuf_WhenHotspotHasCwe_shoultReturnExpectedHotspotOnCasaParam() {
+  void executeProtobuf_WhenHotspotHasCwe_shoultReturnExpectedHotspotOnCasaParam() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1606,7 +1601,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotspots_with_specified_pciDss_category() {
+  void returns_hotspots_with_specified_pciDss_category() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1639,7 +1634,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotspots_with_specified_owaspAsvs_category() {
+  void returns_hotspots_with_specified_owaspAsvs_category() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1672,7 +1667,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotspots_with_specified_owaspAsvs_level() {
+  void returns_hotspots_with_specified_owaspAsvs_level() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1729,7 +1724,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotspots_with_specified_owasp2021Top10_category() {
+  void returns_hotspots_with_specified_owasp2021Top10_category() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1753,7 +1748,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotspots_with_specified_sansTop25_category() {
+  void returns_hotspots_with_specified_sansTop25_category() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1777,7 +1772,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_whenMoreThan500KeysPassed_throwException() {
+  void search_whenMoreThan500KeysPassed_throwException() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
     userSessionRule.registerProjects(projectData.getProjectDto());
@@ -1791,7 +1786,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotspots_with_specified_files() {
+  void returns_hotspots_with_specified_files() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1815,7 +1810,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotspots_on_the_leak_period_when_inNewCodePeriod_is_true() {
+  void returns_hotspots_on_the_leak_period_when_inNewCodePeriod_is_true() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1873,7 +1868,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotspots_on_the_leak_period_when_inNewCodePeriod_is_true_and_branch_uses_reference_branch() {
+  void returns_hotspots_on_the_leak_period_when_inNewCodePeriod_is_true_and_branch_uses_reference_branch() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -1916,7 +1911,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_nothing_when_inNewCodePeriod_is_true_and_no_period_exists() {
+  void returns_nothing_when_inNewCodePeriod_is_true_and_no_period_exists() {
     long referenceDate = 800_996_999_332L;
 
     system2.setNow(referenceDate + 10_000);
@@ -1949,7 +1944,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_all_issues_when_inNewCodePeriod_is_true_and_is_pr() {
+  void returns_all_issues_when_inNewCodePeriod_is_true_and_is_pr() {
     long referenceDate = 800_996_999_332L;
 
     system2.setNow(referenceDate + 10_000);
@@ -1982,7 +1977,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_issues_when_inNewCodePeriod_is_true_and_is_application_for_main_branch() {
+  void returns_issues_when_inNewCodePeriod_is_true_and_is_application_for_main_branch() {
     long referenceDate = 800_996_999_332L;
 
     system2.setNow(referenceDate + 10_000);
@@ -2027,7 +2022,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_issues_when_inNewCodePeriod_is_true_and_is_application_for_branch_other_than_main() {
+  void returns_issues_when_inNewCodePeriod_is_true_and_is_application_for_branch_other_than_main() {
     long referenceDate = 800_996_999_332L;
 
     system2.setNow(referenceDate + 10_000);
@@ -2087,7 +2082,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void verify_response_example() {
+  void verify_response_example() {
     ProjectData projectData = dbTester.components().insertPublicProject(componentDto -> componentDto
       .setName("test-project")
       .setLongName("test-project")
@@ -2127,7 +2122,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void returns_hotspots_with_ruleKey() {
+  void returns_hotspots_with_ruleKey() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 

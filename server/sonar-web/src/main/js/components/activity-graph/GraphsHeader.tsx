@@ -37,7 +37,7 @@ interface Props {
   selectedMetrics?: string[];
 }
 
-export default function GraphsHeader(props: Props) {
+export default function GraphsHeader(props: Readonly<Props>) {
   const {
     className,
     graph,

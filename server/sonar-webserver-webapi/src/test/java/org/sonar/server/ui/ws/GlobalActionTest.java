@@ -27,9 +27,9 @@ import org.mockito.MockedStatic;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.platform.Server;
-import org.sonar.api.resources.ResourceType;
-import org.sonar.api.resources.ResourceTypeTree;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.server.component.ComponentType;
+import org.sonar.server.component.ComponentTypeTree;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.web.page.Page;
 import org.sonar.api.web.page.PageDefinition;
 import org.sonar.core.documentation.DocumentationLinkGenerator;
@@ -88,15 +88,15 @@ class GlobalActionTest {
 
   @Test
   void return_qualifiers() {
-    init(new Page[]{}, new ResourceTypeTree[]{
-      ResourceTypeTree.builder()
-        .addType(ResourceType.builder("POL").build())
-        .addType(ResourceType.builder("LOP").build())
+    init(new Page[]{}, new ComponentTypeTree[]{
+      ComponentTypeTree.builder()
+        .addType(ComponentType.builder("POL").build())
+        .addType(ComponentType.builder("LOP").build())
         .addRelations("POL", "LOP")
         .build(),
-      ResourceTypeTree.builder()
-        .addType(ResourceType.builder("PAL").build())
-        .addType(ResourceType.builder("LAP").build())
+      ComponentTypeTree.builder()
+        .addType(ComponentType.builder("PAL").build())
+        .addType(ComponentType.builder("LAP").build())
         .addRelations("PAL", "LAP")
         .build()
     });
@@ -162,7 +162,7 @@ class GlobalActionTest {
 
   @Test
   void the_returned_global_pages_do_not_include_administration_pages() {
-    init(createPages(), new ResourceTypeTree[]{});
+    init(createPages(), new ComponentTypeTree[]{});
 
     assertJson(call()).isSimilarTo("{" +
       "  \"globalPages\": [" +
@@ -279,15 +279,15 @@ class GlobalActionTest {
     settings.setProperty("sonar.lf.enableGravatar", true);
     settings.setProperty("sonar.updatecenter.activate", false);
     settings.setProperty("sonar.technicalDebt.ratingGrid", "0.05,0.1,0.2,0.5");
-    init(createPages(), new ResourceTypeTree[]{
-      ResourceTypeTree.builder()
-        .addType(ResourceType.builder("POL").build())
-        .addType(ResourceType.builder("LOP").build())
+    init(createPages(), new ComponentTypeTree[]{
+      ComponentTypeTree.builder()
+        .addType(ComponentType.builder("POL").build())
+        .addType(ComponentType.builder("LOP").build())
         .addRelations("POL", "LOP")
         .build(),
-      ResourceTypeTree.builder()
-        .addType(ResourceType.builder("PAL").build())
-        .addType(ResourceType.builder("LAP").build())
+      ComponentTypeTree.builder()
+        .addType(ComponentType.builder("PAL").build())
+        .addType(ComponentType.builder("LAP").build())
         .addRelations("PAL", "LAP")
         .build()
     });
@@ -355,10 +355,10 @@ class GlobalActionTest {
   }
 
   private void init() {
-    init(new org.sonar.api.web.page.Page[]{}, new ResourceTypeTree[]{});
+    init(new org.sonar.api.web.page.Page[]{}, new ComponentTypeTree[]{});
   }
 
-  private void init(org.sonar.api.web.page.Page[] pages, ResourceTypeTree[] resourceTypeTrees) {
+  private void init(org.sonar.api.web.page.Page[] pages, ComponentTypeTree[] componentTypeTrees) {
     when(dbClient.getDatabase().getDialect()).thenReturn(new H2());
     when(server.getVersion()).thenReturn("6.42");
     PluginRepository pluginRepository = mock(PluginRepository.class);
@@ -372,7 +372,7 @@ class GlobalActionTest {
       }
     }});
     pageRepository.start();
-    GlobalAction wsAction = new GlobalAction(pageRepository, settings.asConfig(), new ResourceTypes(resourceTypeTrees), server,
+    GlobalAction wsAction = new GlobalAction(pageRepository, settings.asConfig(), new ComponentTypes(componentTypeTrees), server,
       nodeInformation, dbClient, userSession, editionProvider, webAnalyticsLoader,
       indexSyncProgressChecker, defaultAdminCredentialsVerifier, documentationLinkGenerator);
     ws = new WsActionTester(wsAction);

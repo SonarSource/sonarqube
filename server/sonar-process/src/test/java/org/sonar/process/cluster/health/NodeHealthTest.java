@@ -27,7 +27,7 @@ import java.util.Random;
 import java.util.stream.IntStream;
 import org.junit.Test;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.process.cluster.health.NodeHealth.newNodeHealthBuilder;
@@ -73,7 +73,7 @@ public class NodeHealthTest {
   public void clearClauses_clears_clauses_of_builder() {
     NodeHealth.Builder underTest = testSupport.randomBuilder();
     NodeHealth original = underTest
-      .addCause(randomAlphanumeric(3))
+      .addCause(secure().nextAlphanumeric(3))
       .build();
 
     underTest.clearCauses();
@@ -96,7 +96,7 @@ public class NodeHealthTest {
       .clearCauses()
       .setStatus(newRandomStatus)
       .setDetails(newNodeDetails);
-    String[] newCauses = IntStream.range(0, 1 + random.nextInt(2)).mapToObj(i -> randomAlphanumeric(4)).toArray(String[]::new);
+    String[] newCauses = IntStream.range(0, 1 + random.nextInt(2)).mapToObj(i -> secure().nextAlphanumeric(4)).toArray(String[]::new);
     Arrays.stream(newCauses).forEach(builder::addCause);
 
     NodeHealth newNodeHealth = builder.build();
@@ -158,7 +158,7 @@ public class NodeHealthTest {
   @Test
   public void verify_toString() {
     NodeDetails nodeDetails = testSupport.randomNodeDetails();
-    String cause = randomAlphanumeric(4);
+    String cause = secure().nextAlphanumeric(4);
     NodeHealth.Builder builder = builderUnderTest
       .setStatus(randomStatus)
       .setDetails(nodeDetails)
@@ -176,7 +176,7 @@ public class NodeHealthTest {
     NodeHealth.Builder builder = builderUnderTest
       .setStatus(randomStatus)
       .setDetails(nodeDetails);
-    String[] causes = IntStream.range(0, random.nextInt(10)).mapToObj(i -> randomAlphanumeric(4)).toArray(String[]::new);
+    String[] causes = IntStream.range(0, random.nextInt(10)).mapToObj(i -> secure().nextAlphanumeric(4)).toArray(String[]::new);
     Arrays.stream(causes).forEach(builder::addCause);
 
     NodeHealth underTest = builder.build();

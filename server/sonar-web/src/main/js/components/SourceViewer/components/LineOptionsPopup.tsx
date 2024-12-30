@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DropdownMenu, ItemCopy } from 'design-system';
-import React, { memo } from 'react';
+
+import { memo } from 'react';
+import { DropdownMenu, ItemCopy } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { SourceLine } from '../../../types/types';
 import { getLineCodeAsPlainText } from '../helpers/lines';

@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
 import { throttle, uniqueId } from 'lodash';
 import * as React from 'react';
 import { createPortal, findDOMNode } from 'react-dom';
-import { rawSizes } from '../../app/theme';
 import { ONE_SECOND } from '../../helpers/constants';
 import { translate } from '../../helpers/l10n';
 import EscKeydownHandler from './EscKeydownHandler';
@@ -90,7 +90,7 @@ function isMeasured(state: State): state is OwnState & Measurements {
  * - `placement` is now `align` and `side`, based on the {@link Echoes.TooltipAlign | TooltipAlign} and {@link Echoes.TooltipSide | TooltipSide} enums.
  * - `visible` is now `isOpen`
  */
-export default function Tooltip(props: TooltipProps) {
+export default function LegacyTooltip(props: TooltipProps) {
   // `overlay` is a ReactNode, so it can be `undefined` or `null`. This allows to easily
   // render a tooltip conditionally. More generally, we avoid rendering empty tooltips.
   return props.content != null && props.content !== '' ? (
@@ -340,7 +340,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
     // We can live with a tooltip that's slightly positioned over the toggle
     // node. Only trigger if it really starts overlapping, as the re-positioning
     // is quite expensive, needing 2 re-renders.
-    const threshold = rawSizes.grid;
+    const threshold = 8;
     switch (this.getPlacement()) {
       case 'left':
       case 'right':

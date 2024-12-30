@@ -15,7 +15,9 @@
         "java"
       ],
       "visibility": "public",
-      "isAiCodeAssured": false
+      "isAiCodeAssured": false,
+      "aiCodeAssurance": "CONTAINS_AI_CODE",
+      "isAiCodeFixEnabled": false
     },
     {
       "key": "another_project",
@@ -24,7 +26,9 @@
       "isFavorite": false,
       "tags": [],
       "visibility": "public",
-      "isAiCodeAssured": false
+      "isAiCodeAssured": false,
+      "aiCodeAssurance": "CONTAINS_AI_CODE",
+      "isAiCodeFixEnabled": false
     },
     {
       "key": "third_project",
@@ -37,7 +41,9 @@
         "java"
       ],
       "visibility": "public",
-      "isAiCodeAssured": false
+      "isAiCodeAssured": false,
+      "aiCodeAssurance": "CONTAINS_AI_CODE",
+      "isAiCodeFixEnabled": false
     }
   ],
   "facets": [

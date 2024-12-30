@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getJSON } from '~sonar-aligned/helpers/request';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
@@ -34,6 +35,7 @@ import {
   SourceLine,
   SourceViewerFile,
 } from '../types/types';
+import { AiCodeAssuranceStatus } from './ai-code-assurance';
 
 export interface BaseSearchProjectsParameters {
   organization: string;
@@ -55,8 +57,9 @@ export interface ProjectBase {
 
 export interface ComponentRaw {
   organization: string;
+  aiCodeAssurance?: AiCodeAssuranceStatus;
   analysisDate?: string;
-  isAiCodeAssured?: boolean;
+  isAiCodeFixEnabled?: boolean;
   isFavorite?: boolean;
   key: string;
   leakPeriodDate?: string;

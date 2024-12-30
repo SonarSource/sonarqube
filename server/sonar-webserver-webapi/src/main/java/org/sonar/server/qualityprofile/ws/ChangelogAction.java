@@ -48,9 +48,15 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleImpactChangeDto;
 import org.sonar.db.user.UserDto;
 
+import static java.lang.String.format;
+import static org.sonar.api.issue.impact.Severity.BLOCKER;
+import static org.sonar.api.issue.impact.Severity.INFO;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
+import static org.sonar.server.qualityprofile.ws.QProfileChangelogFilterMode.MQR;
+import static org.sonar.server.qualityprofile.ws.QProfileChangelogFilterMode.STANDARD;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_FILTER_MODE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SINCE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TO;
 
@@ -70,7 +76,8 @@ public class ChangelogAction implements QProfileWsAction {
   public void define(NewController context) {
     NewAction wsAction = context.createAction("changelog")
       .setSince("5.2")
-      .setDescription("Get the history of changes on a quality profile: rule activation/deactivation, change in parameters/severity. " +
+      .setDescription("Get the history of changes on a quality profile: rule activation/deactivation, change in " +
+        "parameters/severity/impacts. " +
         "Events are ordered by date in descending order (most recent first).")
       .setChangelog(
         new Change("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead"),
@@ -78,13 +85,23 @@ public class ChangelogAction implements QProfileWsAction {
         new Change("10.3", "Added fields 'cleanCodeAttributeCategory', 'impacts' to response"),
         new Change("10.3", "Added fields 'oldCleanCodeAttribute', 'newCleanCodeAttribute', 'oldCleanCodeAttributeCategory', " +
           "'newCleanCodeAttributeCategory' and 'impactChanges' to 'params' section of response"),
-        new Change("10.3", "Added field 'sonarQubeVersion' to 'params' section of response"))
+        new Change("10.3", "Added field 'sonarQubeVersion' to 'params' section of response"),
+        new Change("10.8", format("Added parameter '%s'", PARAM_FILTER_MODE)),
+        new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added", INFO.name(), BLOCKER.name())))
       .setHandler(this)
       .setResponseExample(getClass().getResource("changelog-example.json"));
 
     QProfileReference.defineParams(wsAction, languages);
 
     wsAction.addPagingParams(50, MAX_PAGE_SIZE);
+
+    wsAction.createParam(PARAM_FILTER_MODE)
+      .setDescription(format("If specified, will return changelog events related to %s or %s mode. " +
+        "If not specified, all the events are returned", MQR, STANDARD))
+      .setRequired(false)
+      .setPossibleValues(QProfileChangelogFilterMode.values())
+      .setSince("10.8")
+      .setExampleValue(MQR);
 
     wsAction.createParam(PARAM_SINCE)
       .setDescription("Start date for the changelog (inclusive). <br>" +
@@ -118,6 +135,7 @@ public class ChangelogAction implements QProfileWsAction {
       int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
       query.setPage(page, pageSize);
 
+      query.setFilterMode(request.param(PARAM_FILTER_MODE));
       int total = dbClient.qProfileChangeDao().countByQuery(dbSession, query);
 
       List<QProfileChangeDto> changelogs = load(dbSession, query);
@@ -220,10 +238,8 @@ public class ChangelogAction implements QProfileWsAction {
       json
         .prop("oldCleanCodeAttribute", nameOrNull(ruleChange.getOldCleanCodeAttribute()))
         .prop("newCleanCodeAttribute", nameOrNull(ruleChange.getNewCleanCodeAttribute()))
-        .prop("oldCleanCodeAttributeCategory", ruleChange.getOldCleanCodeAttribute() == null ? null :
-          nameOrNull(ruleChange.getOldCleanCodeAttribute().getAttributeCategory()))
-        .prop("newCleanCodeAttributeCategory", ruleChange.getNewCleanCodeAttribute() == null ? null :
-          nameOrNull(ruleChange.getNewCleanCodeAttribute().getAttributeCategory()));
+        .prop("oldCleanCodeAttributeCategory", ruleChange.getOldCleanCodeAttribute() == null ? null : nameOrNull(ruleChange.getOldCleanCodeAttribute().getAttributeCategory()))
+        .prop("newCleanCodeAttributeCategory", ruleChange.getNewCleanCodeAttribute() == null ? null : nameOrNull(ruleChange.getNewCleanCodeAttribute().getAttributeCategory()));
 
       if (ruleChange.getRuleImpactChanges() != null) {
         json.name("impactChanges").beginArray();

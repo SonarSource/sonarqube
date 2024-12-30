@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.api.notifications.Notification;
 import org.sonar.server.qualityprofile.builtin.BuiltInQPChangeNotificationBuilder.Profile;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -45,9 +45,9 @@ public class BuiltInQPChangeNotificationTest {
 
   @Test
   public void serialize_and_parse_single_profile() {
-    String profileName = randomAlphanumeric(20);
-    String languageKey = randomAlphanumeric(20);
-    String languageName = randomAlphanumeric(20);
+    String profileName = secure().nextAlphanumeric(20);
+    String languageKey = secure().nextAlphanumeric(20);
+    String languageName = secure().nextAlphanumeric(20);
     int newRules = RANDOM.nextInt(5000);
     int updatedRules = RANDOM.nextInt(5000);
     int removedRules = RANDOM.nextInt(5000);
@@ -76,12 +76,12 @@ public class BuiltInQPChangeNotificationTest {
 
   @Test
   public void serialize_and_parse_multiple_profiles() {
-    String profileName1 = randomAlphanumeric(20);
-    String languageKey1 = randomAlphanumeric(20);
-    String languageName1 = randomAlphanumeric(20);
-    String profileName2 = randomAlphanumeric(20);
-    String languageKey2 = randomAlphanumeric(20);
-    String languageName2 = randomAlphanumeric(20);
+    String profileName1 = secure().nextAlphanumeric(20);
+    String languageKey1 = secure().nextAlphanumeric(20);
+    String languageName1 = secure().nextAlphanumeric(20);
+    String profileName2 = secure().nextAlphanumeric(20);
+    String languageKey2 = secure().nextAlphanumeric(20);
+    String languageName2 = secure().nextAlphanumeric(20);
 
     BuiltInQPChangeNotification notification = new BuiltInQPChangeNotificationBuilder()
       .addProfile(Profile.newBuilder()
@@ -103,9 +103,9 @@ public class BuiltInQPChangeNotificationTest {
 
   @Test
   public void serialize_and_parse_max_values() {
-    String profileName = randomAlphanumeric(20);
-    String languageKey = randomAlphanumeric(20);
-    String languageName = randomAlphanumeric(20);
+    String profileName = secure().nextAlphanumeric(20);
+    String languageKey = secure().nextAlphanumeric(20);
+    String languageName = secure().nextAlphanumeric(20);
     int newRules = Integer.MAX_VALUE;
     int updatedRules = Integer.MAX_VALUE;
     int removedRules = Integer.MAX_VALUE;

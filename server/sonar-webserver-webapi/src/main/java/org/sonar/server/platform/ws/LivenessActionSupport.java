@@ -19,6 +19,8 @@
  */
 package org.sonar.server.platform.ws;
 
+import javax.servlet.http.HttpServletResponse;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.common.platform.LivenessChecker;
@@ -46,6 +48,8 @@ public class LivenessActionSupport {
         "</p>")
       .setSince("9.1")
       .setInternal(true)
+      .setChangelog(new Change("10.8", "The endpoint doesn't log an error anymore when the liveness check fails. " +
+        "The failed HTTP status code changed from 500 to 503."))
       .setContentType(Response.ContentType.NO_CONTENT)
       .setHandler(handler);
   }
@@ -54,7 +58,7 @@ public class LivenessActionSupport {
     if (livenessChecker.liveness()) {
       response.noContent();
     } else {
-      throw new IllegalStateException("Liveness check failed");
+      response.stream().setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
     }
   }
 

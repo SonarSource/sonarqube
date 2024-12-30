@@ -25,10 +25,14 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
@@ -60,6 +64,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.INFO;
@@ -69,6 +75,7 @@ import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
+import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_ENABLED;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.db.rule.RuleTesting.setCleanCodeAttribute;
@@ -99,23 +106,24 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_RISKY_RESOURCE;
 
-public class RuleIndexIT {
+class RuleIndexIT {
 
   private final System2 system2 = new AlwaysIncreasingSystem2();
 
-  @Rule
-  public EsTester es = EsTester.create();
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  @RegisterExtension
+  private final EsTester es = EsTester.create();
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
   private final RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
   private final ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
+  private final Configuration config = mock(Configuration.class);
 
-  private final RuleIndex underTest = new RuleIndex(es.client(), system2);
+  private final RuleIndex underTest = new RuleIndex(es.client(), system2, config);
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
   @Test
-  public void search_all_rules() {
+  void search_all_rules() {
     createRule();
     createRule();
     index();
@@ -127,7 +135,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_by_key() {
+  void search_by_key() {
     RuleDto js1 = createRule(
       setRepositoryKey("javascript"),
       setRuleKey("X001"));
@@ -153,7 +161,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_by_case_insensitive_key() {
+  void search_by_case_insensitive_key() {
     RuleDto ruleDto = createRule(
       setRepositoryKey("javascript"),
       setRuleKey("X001"));
@@ -164,7 +172,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void filter_by_key() {
+  void filter_by_key() {
     createRule(
       setRepositoryKey("javascript"),
       setRuleKey("X001"));
@@ -187,7 +195,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_name_by_query() {
+  void search_name_by_query() {
     createRule(setName("testing the partial match and matching of rule"));
     index();
 
@@ -209,7 +217,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_name_with_protected_chars() {
+  void search_name_with_protected_chars() {
     RuleDto rule = createRule(setName("ja#va&sc\"r:ipt"));
     index();
 
@@ -219,7 +227,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_content_by_query() {
+  void search_content_by_query() {
     // it's important to set all the fields being used by the search (name, desc, key, lang, ...),
     // otherwise the generated random values may raise false-positives
     RuleDto rule1 = insertJavaRule("My great rule CWE-123 which makes your code 1000 times better!", "123", "rule 123");
@@ -276,7 +284,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_by_any_of_repositories() {
+  void search_by_any_of_repositories() {
     RuleDto findbugs = createRule(
       setRepositoryKey("findbugs"),
       setRuleKey("S001"));
@@ -299,7 +307,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void filter_by_tags() {
+  void filter_by_tags() {
     RuleDto rule1 = createRule(setSystemTags("tag1s"), setTags("tag1"));
     RuleDto rule2 = createRule(setSystemTags("tag2s"), setTags("tag2"));
     index();
@@ -323,7 +331,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void tags_facet_supports_selected_value_with_regexp_special_characters() {
+  void tags_facet_supports_selected_value_with_regexp_special_characters() {
     createRule(r -> r.setTags(of("misra++")));
     index();
 
@@ -336,7 +344,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_by_types() {
+  void search_by_types() {
     createRule(setType(CODE_SMELL));
     RuleDto vulnerability = createRule(setType(VULNERABILITY));
     RuleDto bug1 = createRule(setType(BUG));
@@ -368,7 +376,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_by_is_template() {
+  void search_by_is_template() {
     RuleDto ruleNoTemplate = createRule(setIsTemplate(false));
     RuleDto ruleIsTemplate = createRule(setIsTemplate(true));
     index();
@@ -395,7 +403,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_by_is_external() {
+  void search_by_is_external() {
     RuleDto ruleIsNotExternal = createRule(setIsExternal(false));
     RuleDto ruleIsExternal = createRule(setIsExternal(true));
     index();
@@ -412,7 +420,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_by_template_key() {
+  void search_by_template_key() {
     RuleDto template = createRule(setIsTemplate(true));
     RuleDto customRule = createRule(setTemplateId(template.getUuid()));
     index();
@@ -433,7 +441,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_by_any_of_languages() {
+  void search_by_any_of_languages() {
     createRule(setLanguage("java"));
     RuleDto javascript = createRule(setLanguage("js"));
     index();
@@ -455,11 +463,15 @@ public class RuleIndexIT {
     assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(2);
   }
 
-  @Test
-  public void search_by_security_cwe_return_vulnerabilities_and_hotspots_only() {
-    RuleDto rule1 = createRule(setSecurityStandards(of("cwe:543", "cwe:123", "owaspTop10:a1")), r -> r.setType(VULNERABILITY));
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void search_by_security_cwe_return_correct_data_based_on_mode(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
+    RuleDto rule1 = createRule(setSecurityStandards(of("cwe:543", "cwe:123", "owaspTop10:a1")),
+      r -> r.setType(VULNERABILITY).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.SECURITY, Severity.HIGH))));
     RuleDto rule2 = createRule(setSecurityStandards(of("cwe:543", "owaspTop10:a1")), r -> r.setType(SECURITY_HOTSPOT));
-    createRule(setSecurityStandards(of("owaspTop10:a1")), r -> r.setType(CODE_SMELL));
+    createRule(setSecurityStandards(of("owaspTop10:a1")),
+      r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH))));
     index();
 
     RuleQuery query = new RuleQuery().setCwe(of("543"));
@@ -467,11 +479,15 @@ public class RuleIndexIT {
     assertThat(results.getUuids()).containsOnly(rule1.getUuid(), rule2.getUuid());
   }
 
-  @Test
-  public void search_by_security_owaspTop10_2017_return_vulnerabilities_and_hotspots_only() {
-    RuleDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10:a10", "cwe:543")), r -> r.setType(VULNERABILITY));
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void search_by_security_owaspTop10_2017_return_correct_data_based_on_mode(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
+    RuleDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10:a10", "cwe:543")),
+      r -> r.setType(VULNERABILITY).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.SECURITY, Severity.HIGH))));
     RuleDto rule2 = createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:543")), r -> r.setType(SECURITY_HOTSPOT));
-    createRule(setSecurityStandards(of("cwe:543")), r -> r.setType(CODE_SMELL));
+    createRule(setSecurityStandards(of("cwe:543")),
+      r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH))));
     index();
 
     RuleQuery query = new RuleQuery().setOwaspTop10(of("a5", "a10"));
@@ -479,12 +495,15 @@ public class RuleIndexIT {
     assertThat(results.getUuids()).containsOnly(rule1.getUuid(), rule2.getUuid());
   }
 
-  @Test
-  public void search_by_security_owaspTop10_2021_return_vulnerabilities_and_hotspots_only() {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void search_by_security_owaspTop10_2021_return_correct_data_based_on_mode(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     RuleDto rule1 = createRule(setSecurityStandards(of("owaspTop10-2021:a1", "owaspTop10-2021:a10", "cwe:543")),
-      r -> r.setType(VULNERABILITY));
+      r -> r.setType(VULNERABILITY).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.SECURITY, Severity.HIGH))));
     RuleDto rule2 = createRule(setSecurityStandards(of("owaspTop10-2021:a10", "cwe:543")), r -> r.setType(SECURITY_HOTSPOT));
-    createRule(setSecurityStandards(of("cwe:543")), r -> r.setType(CODE_SMELL));
+    createRule(setSecurityStandards(of("cwe:543")),
+      r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH))));
     index();
 
     RuleQuery query = new RuleQuery().setOwaspTop10For2021(of("a5", "a10"));
@@ -492,11 +511,15 @@ public class RuleIndexIT {
     assertThat(results.getUuids()).containsOnly(rule1.getUuid(), rule2.getUuid());
   }
 
-  @Test
-  public void search_by_security_sansTop25_return_vulnerabilities_and_hotspots_only() {
-    RuleDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10:a10", "cwe:89")), r -> r.setType(VULNERABILITY));
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void search_by_security_sansTop25_return_correct_data_based_on_mode(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
+    RuleDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10:a10", "cwe:89")),
+      r -> r.setType(VULNERABILITY).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.SECURITY, Severity.HIGH))));
     RuleDto rule2 = createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:829")), r -> r.setType(SECURITY_HOTSPOT));
-    createRule(setSecurityStandards(of("cwe:306")), r -> r.setType(CODE_SMELL));
+    createRule(setSecurityStandards(of("cwe:306")),
+      r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH))));
     index();
 
     RuleQuery query = new RuleQuery().setSansTop25(of(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE));
@@ -504,10 +527,14 @@ public class RuleIndexIT {
     assertThat(results.getUuids()).containsOnly(rule1.getUuid(), rule2.getUuid());
   }
 
-  @Test
-  public void search_by_security_sonarsource_return_vulnerabilities_and_hotspots_only() {
-    RuleDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10-2021:a10", "cwe:89")), r -> r.setType(VULNERABILITY));
-    createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:829")), r -> r.setType(CODE_SMELL));
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void search_by_security_sonarsource_return_correct_data_based_on_mode(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
+    RuleDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10-2021:a10", "cwe:89")),
+      r -> r.setType(VULNERABILITY).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.SECURITY, Severity.HIGH))));
+    createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:829")),
+      r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH))));
     RuleDto rule3 = createRule(setSecurityStandards(of("cwe:601")), r -> r.setType(SECURITY_HOTSPOT));
     index();
 
@@ -517,8 +544,34 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_by_security_sonarsource_return_complete_list_of_facets() {
+  void search_by_security_should_count_issues_based_on_the_mode() {
 
+    //Should not be counted in MQR mode as it has no security impact
+    RuleDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10-2021:a10", "cwe:89")), r -> r.setType(VULNERABILITY));
+
+    //Should not be counted in Standard mode because it is not a Vulnerability type
+    RuleDto rule2 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10-2021:a10", "cwe:89")),
+      r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.SECURITY, Severity.HIGH))));
+
+    //Hotspots should be counted in both modes
+    RuleDto rule3 = createRule(setSecurityStandards(of("cwe:601")), r -> r.setType(SECURITY_HOTSPOT));
+    index();
+
+    RuleQuery query = new RuleQuery().setSonarsourceSecurity(of("sql-injection", "open-redirect"));
+
+    doReturn(Optional.of(true)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
+    SearchIdResult<String> results = underTest.search(query, new SearchOptions().addFacets("sonarsourceSecurity"));
+    assertThat(results.getUuids()).containsOnly(rule2.getUuid(), rule3.getUuid());
+
+    doReturn(Optional.of(false)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
+    results = underTest.search(query, new SearchOptions().addFacets("sonarsourceSecurity"));
+    assertThat(results.getUuids()).containsOnly(rule1.getUuid(), rule3.getUuid());
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void search_by_security_sonarsource_return_complete_list_of_facets(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     List<RuleDto> rules = new ArrayList<>();
 
     // Creation of one rule for each standard security category defined (except other)
@@ -526,6 +579,10 @@ public class RuleIndexIT {
       rules.add(createRule(setSecurityStandards(of("cwe:" + sqCategorySetEntry.getValue().iterator().next())),
         r -> r.setType(SECURITY_HOTSPOT)));
     }
+
+    // Should be ignore because it is not a hotspot, and not a vulnerability (in Standard mode) and not having Security impact (in MQR mode)
+    createRule(setSecurityStandards(of("cwe:787")),
+      r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH))));
     index();
 
     RuleQuery query = new RuleQuery();
@@ -537,7 +594,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void compare_to_another_profile() {
+  void compare_to_another_profile() {
     String xoo = "xoo";
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(xoo));
     QProfileDto anotherProfile = db.qualityProfiles().insert(p -> p.setLanguage(xoo));
@@ -574,7 +631,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_by_any_of_severities() {
+  void search_by_any_of_severities() {
     createRule(setSeverity(BLOCKER));
     RuleDto info = createRule(setSeverity(INFO));
     index();
@@ -597,7 +654,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_by_any_of_statuses() {
+  void search_by_any_of_statuses() {
     createRule(setStatus(RuleStatus.BETA));
     RuleDto ready = createRule(setStatus(RuleStatus.READY));
     index();
@@ -620,7 +677,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void activation_parameter_is_ignored_if_profile_is_not_set() {
+  void activation_parameter_is_ignored_if_profile_is_not_set() {
     RuleDto rule1 = createJavaRule();
     RuleDto rule2 = createJavaRule();
     QProfileDto profile1 = createJavaProfile();
@@ -632,7 +689,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_by_activation() {
+  void search_by_activation() {
     RuleDto rule1 = createJavaRule();
     RuleDto rule2 = createJavaRule();
     RuleDto rule3 = createJavaRule();
@@ -679,7 +736,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_by_activation_and_inheritance() {
+  void search_by_activation_and_inheritance() {
     RuleDto rule1 = createJavaRule();
     RuleDto rule2 = createJavaRule();
     RuleDto rule3 = createJavaRule();
@@ -714,7 +771,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_by_activation_and_severity() {
+  void search_by_activation_and_severity() {
     RuleDto major = createRule(setSeverity(MAJOR));
     RuleDto minor = createRule(setSeverity(MINOR));
     createRule(setSeverity(INFO));
@@ -737,7 +794,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void facet_by_activation_severity_is_ignored_when_profile_is_not_specified() {
+  void facet_by_activation_severity_is_ignored_when_profile_is_not_specified() {
     RuleDto rule = createJavaRule();
     QProfileDto profile = createJavaProfile();
     db.qualityProfiles().activateRule(profile, rule);
@@ -759,7 +816,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void listTags_should_return_tags() {
+  void listTags_should_return_tags() {
     createRule(setSystemTags("sys1", "sys2"), setTags("tag1"));
     createRule(setSystemTags(), setTags("tag2"));
 
@@ -769,14 +826,14 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void fail_to_list_tags_when_size_greater_than_500() {
-    assertThatThrownBy(() -> underTest.listTags(null, null, 501))
+  void fail_to_list_tags_when_size_greater_than_500() {
+    assertThatThrownBy(() -> underTest.listTags(null, 501))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Page size must be lower than or equals to 500");
   }
 
   @Test
-  public void available_since() {
+  void available_since() {
     RuleDto ruleOld = createRule(setCreatedAt(-2_000L));
     RuleDto ruleOlder = createRule(setCreatedAt(-1_000L));
     index();
@@ -794,7 +851,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_by_clean_code_attribute() {
+  void search_by_clean_code_attribute() {
     RuleDto ruleDto = createRule(setRepositoryKey("php"), setCleanCodeAttribute(CleanCodeAttribute.FOCUSED));
     index();
 
@@ -812,7 +869,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_by_software_quality() {
+  void search_by_software_quality() {
     ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH);
     RuleDto phpRule = createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
     index();
@@ -829,7 +886,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_by_severity() {
+  void search_by_severity() {
     ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.BLOCKER);
     RuleDto phpRule = createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
     index();
@@ -844,7 +901,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_should_support_clean_code_attribute_category_facet() {
+  void search_should_support_clean_code_attribute_category_facet() {
     createRule(setRepositoryKey("php"), setCleanCodeAttribute(CleanCodeAttribute.FOCUSED));
     createRule(setRepositoryKey("php"), setCleanCodeAttribute(CleanCodeAttribute.LOGICAL));
     index();
@@ -859,7 +916,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_should_support_clean_code_attribute_category_facet_with_filtering() {
+  void search_should_support_clean_code_attribute_category_facet_with_filtering() {
     RuleDto php = createRule(setRepositoryKey("php"), setCleanCodeAttribute(CleanCodeAttribute.FOCUSED));
     RuleDto php1 = createRule(setRepositoryKey("php"), setCleanCodeAttribute(CleanCodeAttribute.LOGICAL));
     RuleDto java = createRule(setRepositoryKey("java"), setCleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL));
@@ -876,7 +933,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_should_support_software_quality_facet() {
+  void search_should_support_software_quality_facet() {
     ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH);
     ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW);
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
@@ -896,7 +953,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_should_support_software_quality_facet_with_filtering() {
+  void search_should_support_software_quality_facet_with_filtering() {
     ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH);
     ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW);
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
@@ -917,7 +974,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_whenFilteringOnSeverityAndSoftwareQuality_shouldReturnFacet() {
+  void search_whenFilteringOnSeverityAndSoftwareQuality_shouldReturnFacet() {
     ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH);
     ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW);
     ImpactDto impactDto3 = new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.LOW);
@@ -955,7 +1012,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_should_support_severity_facet() {
+  void search_should_support_severity_facet() {
     ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH);
     ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW);
     ImpactDto impactDto3 = new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.BLOCKER);
@@ -978,7 +1035,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_should_support_severity_facet_with_filters() {
+  void search_should_support_severity_facet_with_filters() {
     ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH);
     ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW);
     ImpactDto impactDto3 = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.INFO);
@@ -1005,7 +1062,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_should_support_software_quality_and_severity_facets_with_filtering() {
+  void search_should_support_software_quality_and_severity_facets_with_filtering() {
     ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH);
     ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW);
     ImpactDto impactDto3 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.BLOCKER);
@@ -1034,7 +1091,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void global_facet_on_repositories_and_tags() {
+  void global_facet_on_repositories_and_tags() {
     createRule(setRepositoryKey("php"), setSystemTags("sysTag"), setTags());
     createRule(setRepositoryKey("php"), setSystemTags(), setTags("tag1"));
     createRule(setRepositoryKey("javascript"), setSystemTags(), setTags("tag1", "tag2"));
@@ -1082,7 +1139,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void sticky_facets_base() {
+  void sticky_facets_base() {
     setupStickyFacets();
 
     RuleQuery query = new RuleQuery();
@@ -1094,7 +1151,7 @@ public class RuleIndexIT {
    * Facet with no filters at all
    */
   @Test
-  public void sticky_facets_no_filters() {
+  void sticky_facets_no_filters() {
     setupStickyFacets();
     RuleQuery query = new RuleQuery();
 
@@ -1113,7 +1170,7 @@ public class RuleIndexIT {
    * -- lang facet should still have all language
    */
   @Test
-  public void sticky_facets_with_1_filter() {
+  void sticky_facets_with_1_filter() {
     setupStickyFacets();
     RuleQuery query = new RuleQuery().setLanguages(ImmutableList.of("cpp"));
 
@@ -1127,7 +1184,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void languages_facet_should_return_top_100_items() {
+  void languages_facet_should_return_top_100_items() {
     rangeClosed(1, 101).forEach(i -> db.rules().insert(r -> r.setLanguage("lang" + i)));
     index();
 
@@ -1137,7 +1194,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void repositories_facet_should_return_top_100_items() {
+  void repositories_facet_should_return_top_100_items() {
     rangeClosed(1, 101).forEach(i -> db.rules().insert(r -> r.setRepositoryKey("repo" + i)));
     index();
 
@@ -1147,7 +1204,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void tags_facet_should_find_tags() {
+  void tags_facet_should_find_tags() {
     createRule(setSystemTags(), setTags("bla"));
     index();
 
@@ -1159,7 +1216,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void tags_facet_should_return_top_100_items() {
+  void tags_facet_should_return_top_100_items() {
     // default number of items returned in tag facet = 100
     String[] tags = get101Tags();
     createRule(setSystemTags(tags));
@@ -1174,7 +1231,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void tags_facet_should_include_matching_selected_items() {
+  void tags_facet_should_include_matching_selected_items() {
     // default number of items returned in tag facet = 100
     String[] tags = get101Tags();
     createRule(setSystemTags(tags));
@@ -1194,7 +1251,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void tags_facet_should_be_available() {
+  void tags_facet_should_be_available() {
     RuleQuery query = new RuleQuery();
     SearchOptions options = new SearchOptions().addFacets(singletonList(FACET_TAGS));
 
@@ -1209,7 +1266,7 @@ public class RuleIndexIT {
    * -- repository for cpp & T2
    */
   @Test
-  public void sticky_facets_with_2_filters() {
+  void sticky_facets_with_2_filters() {
     setupStickyFacets();
 
     RuleQuery query = new RuleQuery()
@@ -1234,7 +1291,7 @@ public class RuleIndexIT {
    * -- type
    */
   @Test
-  public void sticky_facets_with_3_filters() {
+  void sticky_facets_with_3_filters() {
     setupStickyFacets();
 
     RuleQuery query = new RuleQuery()
@@ -1254,7 +1311,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void sort_by_name() {
+  void sort_by_name() {
     RuleDto abcd = createRule(setName("abcd"));
     RuleDto abc = createRule(setName("ABC"));
     RuleDto fgh = createRule(setName("FGH"));
@@ -1272,7 +1329,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void default_sort_is_by_updated_at_desc() {
+  void default_sort_is_by_updated_at_desc() {
     long currentTimeMillis = System.currentTimeMillis();
 
     RuleDto old = createRule(setCreatedAt(1000L), setUpdatedAt(currentTimeMillis + 1000L));
@@ -1285,7 +1342,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void fail_sort_by_language() {
+  void fail_sort_by_language() {
     try {
       // Sorting on a field not tagged as sortable
       new RuleQuery().setSortField(RuleIndexDefinition.FIELD_RULE_LANGUAGE);
@@ -1296,7 +1353,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void paging() {
+  void paging() {
     createRule();
     createRule();
     createRule();
@@ -1323,7 +1380,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void search_all_keys_by_query() {
+  void search_all_keys_by_query() {
     createRule(setRepositoryKey("javascript"), setRuleKey("X001"));
     createRule(setRepositoryKey("cobol"), setRuleKey("X001"));
     createRule(setRepositoryKey("php"), setRuleKey("S002"));
@@ -1340,7 +1397,7 @@ public class RuleIndexIT {
   }
 
   @Test
-  public void searchAll_keys_by_profile() {
+  void searchAll_keys_by_profile() {
     RuleDto rule1 = createRule();
     RuleDto rule2 = createRule();
     RuleDto rule3 = createRule();

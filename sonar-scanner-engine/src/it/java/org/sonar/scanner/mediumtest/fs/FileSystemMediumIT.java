@@ -337,9 +337,10 @@ public class FileSystemMediumIT {
 
     int nbFiles = 100;
     int ruleCount = 100000;
+    String fileContent = StringUtils.repeat(StringUtils.repeat("a", 100) + "\n", ruleCount / 1000);
     for (int nb = 1; nb <= nbFiles; nb++) {
       File xooFile = new File(srcDir, "sample" + nb + ".xoo");
-      FileUtils.write(xooFile, StringUtils.repeat(StringUtils.repeat("a", 100) + "\n", ruleCount / 1000));
+      FileUtils.write(xooFile, fileContent);
     }
 
     AnalysisResult result = tester.newAnalysis()

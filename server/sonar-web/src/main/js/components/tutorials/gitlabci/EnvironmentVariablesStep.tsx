@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { FormattedMessage } from 'react-intl';
 import {
   BasicSeparator,
   ClipboardIconButton,
@@ -25,9 +27,7 @@ import {
   NumberedListItem,
   TutorialStep,
   UnorderedList,
-} from 'design-system';
-import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
+} from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';

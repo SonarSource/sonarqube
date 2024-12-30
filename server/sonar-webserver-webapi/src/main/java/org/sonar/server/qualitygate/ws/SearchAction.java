@@ -37,6 +37,7 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.ai.code.assurance.AiCodeAssuranceVerifier;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates;
+import org.sonarqube.ws.Qualitygates.SearchResponse.AiCodeAssurance;
 
 import static org.sonar.api.server.ws.WebService.Param.SELECTED;
 import static org.sonar.api.utils.Paging.forPageIndex;
@@ -70,6 +71,8 @@ public class SearchAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "search-example.json"))
       .setChangelog(
+        new Change("10.8", "Field 'isAiCodeAssured' response field has been deprecated. Use 'aiCodeAssurance' instead."),
+        new Change("10.8", "New field 'aiCodeAssurance' in the response."),
         new Change("10.0", "deprecated 'more' response field has been removed"),
         new Change("10.0", "Parameter 'gateId' is removed. Use 'gateName' instead."),
         new Change("8.4", "Parameter 'gateName' added"),
@@ -137,11 +140,14 @@ public class SearchAction implements QualityGatesWsAction {
         .build();
 
       for (ProjectQgateAssociationDto project : paginatedProjects) {
+        AiCodeAssurance aiCodeAssurance = AiCodeAssurance.valueOf(aiCodeAssuranceVerifier.getAiCodeAssurance(project.getContainsAiCode(),
+          project.isAiCodeSupportedByQg()).name());
         createResponse.addResultsBuilder()
           .setName(project.getName())
           .setKey(project.getKey())
           .setSelected(project.getGateUuid() != null)
-          .setIsAiCodeAssured(aiCodeAssuranceVerifier.isAiCodeAssured(project.getAiCodeAssurance()));
+          .setIsAiCodeAssured(AiCodeAssurance.AI_CODE_ASSURED.equals(aiCodeAssurance))
+          .setAiCodeAssurance(aiCodeAssurance);
       }
 
       writeProtobuf(createResponse.build(), request, response);

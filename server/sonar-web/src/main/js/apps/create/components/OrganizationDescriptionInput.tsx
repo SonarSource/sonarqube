@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { IconQuestionMark } from '@sonarsource/echoes-react';
-import {FlagMessage, FormField, InputTextArea} from 'design-system';
+import {FlagMessage, FormField, InputTextArea} from '~design-system';
 import { debounce } from 'lodash';
 import * as React from 'react';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';

@@ -19,6 +19,7 @@
  */
 
 import { LinkHighlight, LinkStandalone, Spinner } from '@sonarsource/echoes-react';
+import * as React from 'react';
 import {
   Breadcrumbs,
   FlagMessage,
@@ -27,8 +28,7 @@ import {
   LightPrimary,
   SubTitle,
   Title,
-} from 'design-system';
-import * as React from 'react';
+} from '~design-system';
 import { Image } from '~sonar-aligned/components/common/Image';
 import { isMainBranch } from '~sonar-aligned/helpers/branch-like';
 import { AnalysisStatus } from '../../apps/overview/components/AnalysisStatus';

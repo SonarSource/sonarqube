@@ -71,6 +71,7 @@ class QualityGateCheckTest {
   @BeforeEach
   void before() {
     underTest = new QualityGateCheck(wsClient, analysisMode, reportMetadataHolder, properties);
+    underTest.setPollingIntervalInSeconds(200);
     logTester.setLevel(Level.DEBUG);
   }
 

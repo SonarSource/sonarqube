@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { cloneDeep, uniqueId } from 'lodash';
 import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
 
@@ -35,6 +36,7 @@ import {
   ASSIGNEE_ME,
   IssueDeprecatedStatus,
   IssueResolution,
+  IssueSeverity,
   IssueStatus,
   IssueTransition,
   IssueType,
@@ -416,6 +418,15 @@ export default class IssuesServiceMock {
         );
       })
       .filter((item) => {
+        if (!query.severities) {
+          return true;
+        }
+
+        return query.severities
+          .split(',')
+          .some((severity: string) => item.issue.severity.toLowerCase() === severity.toLowerCase());
+      })
+      .filter((item) => {
         if (!query.assignees) {
           return true;
         }
@@ -509,8 +520,27 @@ export default class IssuesServiceMock {
     return this.getActionsResponse({ type: data.type }, data.issue);
   };
 
-  handleSetIssueSeverity = (data: { issue: string; severity: string }) => {
-    return this.getActionsResponse({ severity: data.severity }, data.issue);
+  handleSetIssueSeverity = (data: { impact?: string; issue: string; severity?: string }) => {
+    const issueDataSelected = this.list.find((l) => l.issue.key === data.issue);
+
+    if (!issueDataSelected) {
+      throw new Error(`Coulnd't find issue for key ${data.issue}`);
+    }
+
+    const parsedImpact = data.impact?.split('=');
+
+    return this.getActionsResponse(
+      data.impact
+        ? {
+            impacts: issueDataSelected.issue.impacts.map((impact) =>
+              impact.softwareQuality === parsedImpact?.[0]
+                ? { ...impact, severity: parsedImpact?.[1] as SoftwareImpactSeverity }
+                : impact,
+            ),
+          }
+        : { severity: data.severity },
+      data.issue,
+    );
   };
 
   handleSetIssueAssignee = (data: { assignee?: string; issue: string }) => {
@@ -676,6 +706,26 @@ export default class IssuesServiceMock {
               key: 'issueStatus',
               newValue: IssueStatus.Accepted,
               oldValue: IssueStatus.Open,
+            },
+          ],
+        }),
+        mockIssueChangelog({
+          creationDate: '2018-12-01',
+          diffs: [
+            {
+              key: 'severity',
+              newValue: IssueSeverity.Blocker,
+              oldValue: IssueSeverity.Major,
+            },
+          ],
+        }),
+        mockIssueChangelog({
+          creationDate: '2018-12-02',
+          diffs: [
+            {
+              key: 'impactSeverity',
+              newValue: `${SoftwareQuality.Maintainability}:${SoftwareImpactSeverity.Blocker}`,
+              oldValue: `${SoftwareQuality.Maintainability}:${SoftwareImpactSeverity.High}`,
             },
           ],
         }),

@@ -22,40 +22,17 @@ package org.sonar.server.platform.telemetry;
 import java.util.Optional;
 import org.sonar.db.DbClient;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.telemetry.core.AbstractTelemetryDataProvider;
 import org.sonar.telemetry.core.Dimension;
 import org.sonar.telemetry.core.Granularity;
-import org.sonar.telemetry.core.TelemetryDataProvider;
 import org.sonar.telemetry.core.TelemetryDataType;
 
-import static org.sonar.telemetry.core.Dimension.INSTALLATION;
-import static org.sonar.telemetry.core.Granularity.WEEKLY;
-import static org.sonar.telemetry.core.TelemetryDataType.BOOLEAN;
-
-public class TelemetryPortfolioConfidentialFlagProvider implements TelemetryDataProvider<Boolean> {
+public class TelemetryPortfolioConfidentialFlagProvider extends AbstractTelemetryDataProvider<Boolean> {
   private final DbClient dbClient;
 
   public TelemetryPortfolioConfidentialFlagProvider(DbClient dbClient) {
+    super("portfolio_reports_confidential_flag", Dimension.INSTALLATION, Granularity.WEEKLY, TelemetryDataType.BOOLEAN);
     this.dbClient = dbClient;
-  }
-
-  @Override
-  public String getMetricKey() {
-    return "portfolio_reports_confidential_flag";
-  }
-
-  @Override
-  public Dimension getDimension() {
-    return INSTALLATION;
-  }
-
-  @Override
-  public Granularity getGranularity() {
-    return WEEKLY;
-  }
-
-  @Override
-  public TelemetryDataType getType() {
-    return BOOLEAN;
   }
 
   @Override

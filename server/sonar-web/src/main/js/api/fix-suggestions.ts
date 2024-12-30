@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { axiosToCatch } from '../helpers/request';
-import { SuggestedFix } from '../types/fix-suggestions';
+import { AiCodeFixFeatureEnablement, SuggestedFix } from '../types/fix-suggestions';
 
 export interface FixParam {
   issueId: string;
@@ -29,10 +30,43 @@ export interface AiIssue {
   id: string;
 }
 
+export type SuggestionServiceStatus =
+  | 'SUCCESS'
+  | 'TIMEOUT'
+  | 'UNAUTHORIZED'
+  | 'CONNECTION_ERROR'
+  | 'SERVICE_ERROR';
+
+export type SubscriptionType = 'EARLY_ACCESS' | 'PAID' | 'NOT_PAID';
+
+export interface ServiceInfo {
+  isEnabled?: boolean;
+  status: SuggestionServiceStatus;
+  subscriptionType?: SubscriptionType;
+}
+
+export interface UpdateFeatureEnablementParams {
+  changes: {
+    disabledProjectKeys: string[];
+    enabledProjectKeys: string[];
+  };
+  enablement: AiCodeFixFeatureEnablement;
+}
+
 export function getSuggestions(data: FixParam): Promise<SuggestedFix> {
   return axiosToCatch.post<SuggestedFix>('/api/v2/fix-suggestions/ai-suggestions', data);
 }
 
 export function getFixSuggestionsIssues(data: FixParam): Promise<AiIssue> {
   return axiosToCatch.get(`/api/v2/fix-suggestions/issues/${data.issueId}`);
+}
+
+export function getFixSuggestionServiceInfo(): Promise<ServiceInfo> {
+  return axiosToCatch.get(`/api/v2/fix-suggestions/service-info`);
+}
+
+export function updateFeatureEnablement(
+  featureEnablementParams: UpdateFeatureEnablementParams,
+): Promise<void> {
+  return axiosToCatch.patch(`/api/v2/fix-suggestions/feature-enablements`, featureEnablementParams);
 }

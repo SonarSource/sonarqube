@@ -27,16 +27,16 @@ import org.sonar.api.ce.measure.Measure;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.ce.task.projectanalysis.measure.Measure.ValueType.BOOLEAN;
-import static org.sonar.ce.task.projectanalysis.measure.Measure.ValueType.DOUBLE;
-import static org.sonar.ce.task.projectanalysis.measure.Measure.ValueType.INT;
-import static org.sonar.ce.task.projectanalysis.measure.Measure.ValueType.LONG;
-import static org.sonar.ce.task.projectanalysis.measure.Measure.ValueType.STRING;
+import static org.sonar.ce.task.projectanalysis.measure.ValueType.BOOLEAN;
+import static org.sonar.ce.task.projectanalysis.measure.ValueType.DOUBLE;
+import static org.sonar.ce.task.projectanalysis.measure.ValueType.INT;
+import static org.sonar.ce.task.projectanalysis.measure.ValueType.LONG;
+import static org.sonar.ce.task.projectanalysis.measure.ValueType.STRING;
 
 @Immutable
 public class MeasureImpl implements Measure {
 
-  private static final EnumSet<org.sonar.ce.task.projectanalysis.measure.Measure.ValueType> ALLOWED_VALUE_TYPES = EnumSet.of(INT, LONG, DOUBLE, STRING, BOOLEAN);
+  private static final EnumSet<org.sonar.ce.task.projectanalysis.measure.ValueType> ALLOWED_VALUE_TYPES = EnumSet.of(INT, LONG, DOUBLE, STRING, BOOLEAN);
 
   private final org.sonar.ce.task.projectanalysis.measure.Measure measure;
 
@@ -75,7 +75,7 @@ public class MeasureImpl implements Measure {
     return measure.getBooleanValue();
   }
 
-  private void checkValueType(org.sonar.ce.task.projectanalysis.measure.Measure.ValueType expected) {
+  private void checkValueType(org.sonar.ce.task.projectanalysis.measure.ValueType expected) {
     if (measure.getValueType() != expected) {
       throw new IllegalStateException(format("Value can not be converted to %s because current value type is a %s",
         expected.toString().toLowerCase(Locale.US),

@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectexport.component;
 
 import java.util.Set;
+import org.sonar.db.component.ComponentQualifiers;
 
 /**
  * Holds the references of components which are present in the dump.
@@ -32,7 +33,7 @@ public interface ComponentRepository {
   long getRef(String uuid);
 
   /**
-   * Uuids of the components of type FILE (ie. Qualifiers = {@link org.sonar.api.resources.Qualifiers#FILE}) known to
+   * Uuids of the components of type FILE (ie. Qualifiers = {@link ComponentQualifiers#FILE}) known to
    * the repository.
    */
   Set<String> getFileUuids();

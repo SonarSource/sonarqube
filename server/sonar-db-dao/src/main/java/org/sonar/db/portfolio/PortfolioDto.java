@@ -21,7 +21,7 @@ package org.sonar.db.portfolio;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.entity.EntityDto;
 
 public class PortfolioDto extends EntityDto {
@@ -82,9 +82,9 @@ public class PortfolioDto extends EntityDto {
   @Override
   public String getQualifier() {
     if (isRoot()) {
-      return Qualifiers.VIEW;
+      return ComponentQualifiers.VIEW;
     }
-    return Qualifiers.SUBVIEW;
+    return ComponentQualifiers.SUBVIEW;
   }
 
   public String getSelectionMode() {

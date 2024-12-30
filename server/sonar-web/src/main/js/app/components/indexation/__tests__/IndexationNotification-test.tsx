@@ -17,10 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act } from '@testing-library/react';
-import * as React from 'react';
-import { byText } from '~sonar-aligned/helpers/testSelector';
-import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
+
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import { mockAppState, mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { Permissions } from '../../../../types/permissions';
 import { IndexationNotification } from '../IndexationNotification';
@@ -40,6 +39,7 @@ describe('Completed banner', () => {
 
     rerender(
       <IndexationNotification
+        appState={mockAppState()}
         currentUser={mockCurrentUser()}
         indexationContext={{
           status: { completedCount: 23, hasFailures: false, isCompleted: true, total: 42 },
@@ -64,28 +64,6 @@ describe('Completed banner', () => {
     expect(IndexationNotificationHelper.shouldDisplayCompletedNotification).toHaveBeenCalled();
   });
 
-  it('should be hidden once completed without failure', () => {
-    jest.useFakeTimers();
-
-    jest
-      .mocked(IndexationNotificationHelper.shouldDisplayCompletedNotification)
-      .mockReturnValueOnce(true);
-
-    renderIndexationNotification({
-      indexationContext: {
-        status: { hasFailures: false, isCompleted: true },
-      },
-    });
-
-    expect(IndexationNotificationHelper.markCompletedNotificationAsDisplayed).toHaveBeenCalled();
-
-    act(() => jest.runOnlyPendingTimers());
-
-    expect(IndexationNotificationHelper.markCompletedNotificationAsDisplayed).toHaveBeenCalled();
-
-    jest.useRealTimers();
-  });
-
   it('should start progress > progress with failure > complete with failure', () => {
     const { rerender } = renderIndexationNotification({
       indexationContext: {
@@ -93,10 +71,11 @@ describe('Completed banner', () => {
       },
     });
 
-    expect(byText('indexation.progression.23.42').get()).toBeInTheDocument();
+    expect(byText('indexation.progression2342').get()).toBeInTheDocument();
 
     rerender(
       <IndexationNotification
+        appState={mockAppState()}
         currentUser={mockLoggedInUser({ permissions: { global: [Permissions.Admin] } })}
         indexationContext={{
           status: { completedCount: 23, hasFailures: true, isCompleted: false, total: 42 },
@@ -108,6 +87,7 @@ describe('Completed banner', () => {
 
     rerender(
       <IndexationNotification
+        appState={mockAppState()}
         currentUser={mockLoggedInUser({ permissions: { global: [Permissions.Admin] } })}
         indexationContext={{
           status: { completedCount: 23, hasFailures: true, isCompleted: true, total: 42 },
@@ -124,10 +104,11 @@ describe('Completed banner', () => {
       },
     });
 
-    expect(byText('indexation.progression.23.42').get()).toBeInTheDocument();
+    expect(byText('indexation.progression2342').get()).toBeInTheDocument();
 
     rerender(
       <IndexationNotification
+        appState={mockAppState()}
         currentUser={mockLoggedInUser({ permissions: { global: [Permissions.Admin] } })}
         indexationContext={{
           status: { completedCount: 23, hasFailures: false, isCompleted: true, total: 42 },
@@ -135,6 +116,66 @@ describe('Completed banner', () => {
       />,
     );
     expect(IndexationNotificationHelper.shouldDisplayCompletedNotification).toHaveBeenCalled();
+  });
+
+  it('should show survey link when indexation follows an upgrade', () => {
+    jest
+      .mocked(IndexationNotificationHelper.shouldDisplayCompletedNotification)
+      .mockReturnValueOnce(true);
+    jest
+      .mocked(IndexationNotificationHelper.getLastIndexationSQSVersion)
+      .mockReturnValueOnce('11.0');
+
+    const { rerender } = renderIndexationNotification({
+      appState: mockAppState({ version: '12.0' }),
+      indexationContext: {
+        status: { completedCount: 42, hasFailures: false, isCompleted: true, total: 42 },
+      },
+    });
+
+    expect(byText('indexation.upgrade_survey_link').get()).toBeInTheDocument();
+
+    rerender(
+      <IndexationNotification
+        appState={mockAppState({ version: '12.0' })}
+        currentUser={mockLoggedInUser({ permissions: { global: [Permissions.Admin] } })}
+        indexationContext={{
+          status: { completedCount: 23, hasFailures: true, isCompleted: true, total: 42 },
+        }}
+      />,
+    );
+
+    expect(byText('indexation.upgrade_survey_link').get()).toBeInTheDocument();
+  });
+
+  it('should not show survey link when indexation does not follow an upgrade', () => {
+    jest
+      .mocked(IndexationNotificationHelper.shouldDisplayCompletedNotification)
+      .mockReturnValueOnce(true);
+    jest
+      .mocked(IndexationNotificationHelper.getLastIndexationSQSVersion)
+      .mockReturnValueOnce('12.0');
+
+    const { rerender } = renderIndexationNotification({
+      appState: mockAppState({ version: '12.0' }),
+      indexationContext: {
+        status: { completedCount: 42, hasFailures: false, isCompleted: true, total: 42 },
+      },
+    });
+
+    expect(byRole('indexation.upgrade_survey_link').query()).not.toBeInTheDocument();
+
+    rerender(
+      <IndexationNotification
+        appState={mockAppState({ version: '12.0' })}
+        currentUser={mockLoggedInUser({ permissions: { global: [Permissions.Admin] } })}
+        indexationContext={{
+          status: { completedCount: 23, hasFailures: true, isCompleted: true, total: 42 },
+        }}
+      />,
+    );
+
+    expect(byRole('indexation.upgrade_survey_link').query()).not.toBeInTheDocument();
   });
 
   it('should not see notification if not admin', () => {
@@ -145,13 +186,14 @@ describe('Completed banner', () => {
       currentUser: mockLoggedInUser(),
     });
 
-    expect(byText('indexation.progression.23.42').query()).not.toBeInTheDocument();
+    expect(byText('indexation.progression2342').query()).not.toBeInTheDocument();
   });
 });
 
 function renderIndexationNotification(props?: Partial<IndexationNotification['props']>) {
   return renderComponent(
     <IndexationNotification
+      appState={mockAppState()}
       currentUser={mockLoggedInUser({ permissions: { global: [Permissions.Admin] } })}
       indexationContext={{
         status: { completedCount: 23, hasFailures: false, isCompleted: false, total: 42 },

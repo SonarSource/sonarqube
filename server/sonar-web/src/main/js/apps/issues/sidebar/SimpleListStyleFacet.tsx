@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FacetBox, FacetItem } from 'design-system';
+
 import { without } from 'lodash';
 import * as React from 'react';
+import { useIntl } from 'react-intl';
+import { FacetBox, FacetItem } from '~design-system';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';
 import { Query, formatFacetStat } from '../utils';
@@ -33,6 +35,7 @@ export interface CommonProps {
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
+  secondLine?: string;
   stats: Dict<number> | undefined;
 }
 
@@ -49,6 +52,7 @@ export function SimpleListStyleFacet(props: Props) {
     fetching,
     open,
     selectedItems = [],
+    secondLine,
     stats = {},
     needIssueSync,
     property,
@@ -57,6 +61,7 @@ export function SimpleListStyleFacet(props: Props) {
     help,
     renderIcon,
   } = props;
+  const intl = useIntl();
 
   const nbSelectableItems = listItems.filter((item) => stats[item]).length;
   const nbSelectedItems = selectedItems.length;
@@ -65,17 +70,17 @@ export function SimpleListStyleFacet(props: Props) {
   return (
     <FacetBox
       className="it__search-navigator-facet-box it__search-navigator-facet-header"
-      clearIconLabel={translate('clear')}
       count={nbSelectedItems}
       countLabel={translateWithParameters('x_selected', nbSelectedItems)}
       data-property={property}
       id={headerId}
       loading={fetching}
-      name={translate('issues.facet', property)}
+      name={intl.formatMessage({ id: `issues.facet.${property}` })}
       onClear={() => props.onChange({ [property]: [] })}
       onClick={() => props.onToggle(property)}
       open={open}
       help={help}
+      secondLine={secondLine}
     >
       <FacetItemsList labelledby={headerId}>
         {listItems.map((item) => {
