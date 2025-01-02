@@ -45,6 +45,7 @@ import static org.sonar.process.ProcessProperties.Property.HTTP_AUTH_NTLM_DOMAIN
 import static org.sonar.process.ProcessProperties.Property.HTTP_NON_PROXY_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.HTTP_PROXY_HOST;
 import static org.sonar.process.ProcessProperties.Property.HTTP_PROXY_PORT;
+import static org.sonar.process.ProcessProperties.Property.JDBC_ADDITIONAL_LIB_PATHS;
 import static org.sonar.process.ProcessProperties.Property.JDBC_DRIVER_PATH;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
@@ -144,8 +145,19 @@ public class CommandFactoryImpl implements CommandFactory {
     if (driverPath != null) {
       command.addClasspath(driverPath);
     }
+    addToClassPathAdditionalMSSQLLibraries(command);
     command.suppressEnvVariable(ENV_VAR_JAVA_TOOL_OPTIONS);
     return command;
+  }
+
+  private void addToClassPathAdditionalMSSQLLibraries(JavaCommand<? extends JvmOptions> command) {
+    String additionalLibPath = props.value(JDBC_ADDITIONAL_LIB_PATHS.getKey());
+    if (additionalLibPath == null || additionalLibPath.isEmpty()) {
+      return;
+    }
+    for (String path : additionalLibPath.split(";")) {
+      command.addClasspath(path);
+    }
   }
 
   @Override
@@ -168,6 +180,7 @@ public class CommandFactoryImpl implements CommandFactory {
     if (driverPath != null) {
       command.addClasspath(driverPath);
     }
+    addToClassPathAdditionalMSSQLLibraries(command);
     command.suppressEnvVariable(ENV_VAR_JAVA_TOOL_OPTIONS);
     return command;
   }

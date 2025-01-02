@@ -239,9 +239,10 @@ public class CommandFactoryImplTest {
     Properties props = new Properties();
     File driverFile = temp.newFile();
     props.setProperty("sonar.jdbc.driverPath", driverFile.getAbsolutePath());
+    props.setProperty("sonar.jdbc.additionalLibPaths", "a.jar;b.jar");
 
     JavaCommand command = newFactory(props).createWebCommand(true);
-    assertThat(command.getClasspath()).hasSize(2);
+    assertThat(command.getClasspath()).hasSize(4);
     assertThat(command.getClasspath().get(0).toString()).startsWith("./lib/sonar-application-");
     assertThat(command.getClasspath().get(1)).isEqualTo(driverFile.getAbsolutePath());
   }

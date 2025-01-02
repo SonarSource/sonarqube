@@ -33,6 +33,7 @@ import org.sonar.process.Props;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.application.config.JdbcSettings.Provider;
+import static org.sonar.process.ProcessProperties.Property.JDBC_ADDITIONAL_LIB_PATHS;
 import static org.sonar.process.ProcessProperties.Property.JDBC_DRIVER_PATH;
 import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
@@ -42,7 +43,7 @@ public class JdbcSettingsTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private JdbcSettings underTest = new JdbcSettings();
+  private final JdbcSettings underTest = new JdbcSettings();
   private File homeDir;
 
   @Before
@@ -136,12 +137,15 @@ public class JdbcSettingsTest {
 
   @Test
   public void checkAndComplete_sets_driver_path_for_mssql() throws Exception {
-    File driverFile = new File(homeDir, "lib/jdbc/mssql/sqljdbc4.jar");
+    File driverFile = new File(homeDir, "lib/jdbc/mssql/mssql-jdbc.jar");
+    File additionalDriveFile = new File(homeDir, "lib/jdbc/mssql/entraid.jar");
     FileUtils.touch(driverFile);
+    FileUtils.touch(additionalDriveFile);
 
     Props props = newProps(JDBC_URL.getKey(), "jdbc:sqlserver://localhost/sonar;SelectMethod=Cursor");
     underTest.accept(props);
     assertThat(props.nonNullValueAsFile(JDBC_DRIVER_PATH.getKey())).isEqualTo(driverFile);
+    assertThat(props.nonNullValueAsFile(JDBC_ADDITIONAL_LIB_PATHS.getKey())).isEqualTo(additionalDriveFile);
   }
 
   @Test

@@ -37,6 +37,7 @@ import org.sonar.process.Props;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.sonar.process.ProcessProperties.Property.JDBC_ADDITIONAL_LIB_PATHS;
 import static org.sonar.process.ProcessProperties.Property.JDBC_DRIVER_PATH;
 import static org.sonar.process.ProcessProperties.Property.JDBC_EMBEDDED_PORT;
 import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
@@ -63,6 +64,17 @@ public class JdbcSettings implements Consumer<Props> {
     Provider provider = resolveProviderAndEnforceNonnullJdbcUrl(props);
     String driverPath = driverPath(homeDir, provider);
     props.set(JDBC_DRIVER_PATH.getKey(), driverPath);
+    if (provider == Provider.SQLSERVER) {
+      List<String> additionalPaths = additionalMsSqlLibPaths(homeDir);
+      String libPathsToBeAddedToClasspath = String.join(";", additionalPaths);
+      props.set(JDBC_ADDITIONAL_LIB_PATHS.getKey(), libPathsToBeAddedToClasspath);
+    }
+  }
+
+  private static List<String> additionalMsSqlLibPaths(File homeDir) {
+    File dir = new File(homeDir, Provider.SQLSERVER.path);
+    List<File> files = new ArrayList<>(FileUtils.listFiles(dir, new String[] {"jar"}, false));
+    return files.stream().filter(f -> !f.getName().startsWith("mssql-jdbc")).map(File::getAbsolutePath).toList();
   }
 
   String driverPath(File homeDir, Provider provider) {
@@ -75,8 +87,11 @@ public class JdbcSettings implements Consumer<Props> {
     if (files.isEmpty()) {
       throw new MessageException("Directory does not contain JDBC driver: " + dirPath);
     }
-    if (files.size() > 1) {
+    if (files.size() > 1 && Provider.SQLSERVER != provider) {
       throw new MessageException("Directory must contain only one JAR file: " + dirPath);
+    } else if (Provider.SQLSERVER == provider) {
+      return files.stream().filter(f -> f.getName().startsWith("mssql-jdbc")).findFirst()
+        .orElseThrow(() -> new MessageException("Directory does not contain JDBC driver: " + dirPath)).getAbsolutePath();
     }
     return files.get(0).getAbsolutePath();
   }
