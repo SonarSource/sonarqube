@@ -10,6 +10,7 @@
     p.alm_repo as almRepo,
     p.alm_slug as almSlug,
     p.summary_comment_enabled as summaryCommentEnabled,
+    p.inline_annotations_enabled as inlineAnnotationsEnabled,
     p.monorepo as monorepo,
     p.created_at as createdAt,
     p.updated_at as updatedAt
@@ -98,6 +99,7 @@
       alm_repo,
       alm_slug,
       summary_comment_enabled,
+      inline_annotations_enabled,
       monorepo,
       created_at,
       updated_at
@@ -109,6 +111,7 @@
       #{dto.almRepo, jdbcType=VARCHAR},
       #{dto.almSlug, jdbcType=VARCHAR},
       #{dto.summaryCommentEnabled, jdbcType=BOOLEAN},
+      #{dto.inlineAnnotationsEnabled, jdbcType=BOOLEAN},
       #{dto.monorepo, jdbcType=BOOLEAN},
       #{now, jdbcType=BIGINT},
       #{now, jdbcType=BIGINT}
@@ -125,6 +128,7 @@
       alm_repo,
       alm_slug,
       summary_comment_enabled,
+      inline_annotations_enabled,
       monorepo,
       created_at,
       updated_at
@@ -136,6 +140,7 @@
       #{dto.almRepo, jdbcType=VARCHAR},
       #{dto.almSlug, jdbcType=VARCHAR},
       #{dto.summaryCommentEnabled, jdbcType=NUMERIC},
+      #{dto.inlineAnnotationsEnabled, jdbcType=NUMERIC},
       #{dto.monorepo, jdbcType=NUMERIC},
       #{now, jdbcType=BIGINT},
       #{now, jdbcType=BIGINT}
@@ -149,6 +154,7 @@
       alm_repo = #{dto.almRepo, jdbcType=VARCHAR},
       alm_slug = #{dto.almSlug, jdbcType=VARCHAR},
       summary_comment_enabled = #{dto.summaryCommentEnabled, jdbcType=BOOLEAN},
+      inline_annotations_enabled = #{dto.inlineAnnotationsEnabled, jdbcType=BOOLEAN},
       monorepo = #{dto.monorepo, jdbcType=BOOLEAN},
       updated_at = #{now, jdbcType=BIGINT}
     WHERE
@@ -163,6 +169,7 @@
       alm_repo = #{dto.almRepo, jdbcType=VARCHAR},
       alm_slug = #{dto.almSlug, jdbcType=VARCHAR},
       summary_comment_enabled = #{dto.summaryCommentEnabled, jdbcType=NUMERIC},
+      inline_annotations_enabled = #{dto.inlineAnnotationsEnabled, jdbcType=NUMERIC},
       monorepo = #{dto.monorepo, jdbcType=NUMERIC},
       updated_at = #{now, jdbcType=BIGINT}
     WHERE

@@ -48,6 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.almsettings.AlmSettingsTesting.newAzureProjectAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newBitbucketProjectAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubProjectAlmSettingDto;
 
@@ -80,10 +81,11 @@ class ProjectAlmSettingDaoIT {
       .extracting(ProjectAlmSettingDto::getUuid, ProjectAlmSettingDto::getAlmSettingUuid, ProjectAlmSettingDto::getProjectUuid,
         ProjectAlmSettingDto::getAlmRepo, ProjectAlmSettingDto::getAlmSlug,
         ProjectAlmSettingDto::getCreatedAt, ProjectAlmSettingDto::getUpdatedAt,
-        ProjectAlmSettingDto::getSummaryCommentEnabled, ProjectAlmSettingDto::getMonorepo)
+        ProjectAlmSettingDto::getSummaryCommentEnabled, ProjectAlmSettingDto::getInlineAnnotationsEnabled,
+        ProjectAlmSettingDto::getMonorepo)
       .containsExactly(A_UUID, githubAlmSettingDto.getUuid(), project.getUuid(),
         githubProjectAlmSettingDto.getAlmRepo(), githubProjectAlmSettingDto.getAlmSlug(),
-        A_DATE, A_DATE, githubProjectAlmSettingDto.getSummaryCommentEnabled(), false);
+        A_DATE, A_DATE, githubProjectAlmSettingDto.getSummaryCommentEnabled(), null, false);
 
     assertThat(underTest.selectByProject(dbSession, anotherProject)).isNotPresent();
   }
@@ -105,8 +107,8 @@ class ProjectAlmSettingDaoIT {
     Set<String> slugs = new HashSet<>();
     slugs.add("slug1");
     assertThat(underTest.selectByAlmSettingAndSlugs(dbSession, almSettingsDto, slugs))
-      .extracting(ProjectAlmSettingDto::getProjectUuid, ProjectAlmSettingDto::getSummaryCommentEnabled)
-      .containsExactly(tuple(project.getUuid(), bitbucketProjectAlmSettingDto2.getSummaryCommentEnabled()));
+      .extracting(ProjectAlmSettingDto::getProjectUuid, ProjectAlmSettingDto::getSummaryCommentEnabled, ProjectAlmSettingDto::getInlineAnnotationsEnabled)
+      .containsExactly(tuple(project.getUuid(), bitbucketProjectAlmSettingDto2.getSummaryCommentEnabled(), bitbucketProjectAlmSettingDto2.getInlineAnnotationsEnabled()));
   }
 
   @Test
@@ -302,7 +304,7 @@ class ProjectAlmSettingDaoIT {
   }
 
   @Test
-  void update_existing_binding() {
+  void update_existing_github_binding() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
@@ -322,6 +324,30 @@ class ProjectAlmSettingDaoIT {
       .containsExactly(projectAlmSettingDto.getUuid(), anotherGithubAlmSetting.getUuid(), project.getUuid(),
         newProjectAlmSettingDto.getAlmRepo(), newProjectAlmSettingDto.getAlmSlug(),
         A_DATE, A_DATE_LATER, newProjectAlmSettingDto.getSummaryCommentEnabled());
+  }
+
+  @Test
+  void update_existing_azure_binding() {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    AlmSettingDto azureAlmSetting = db.almSettings().insertAzureAlmSetting();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectAlmSettingDto projectAlmSettingDto = db.almSettings().insertAzureProjectAlmSetting(azureAlmSetting, project);
+    AlmSettingDto anotherAzureAlmSetting = db.almSettings().insertAzureAlmSetting();
+
+    system2.setNow(A_DATE_LATER);
+    ProjectAlmSettingDto newProjectAlmSettingDto = newAzureProjectAlmSettingDto(anotherAzureAlmSetting, project)
+      .setInlineAnnotationsEnabled(false);
+    underTest.insertOrUpdate(dbSession, newProjectAlmSettingDto, azureAlmSetting.getKey(), project.getName(), project.getKey());
+
+    assertThat(underTest.selectByProject(dbSession, project).get())
+      .extracting(ProjectAlmSettingDto::getUuid, ProjectAlmSettingDto::getAlmSettingUuid, ProjectAlmSettingDto::getProjectUuid,
+        ProjectAlmSettingDto::getAlmRepo, ProjectAlmSettingDto::getAlmSlug,
+        ProjectAlmSettingDto::getCreatedAt, ProjectAlmSettingDto::getUpdatedAt,
+        ProjectAlmSettingDto::getInlineAnnotationsEnabled, ProjectAlmSettingDto::getSummaryCommentEnabled)
+      .containsExactly(projectAlmSettingDto.getUuid(), anotherAzureAlmSetting.getUuid(), project.getUuid(),
+        newProjectAlmSettingDto.getAlmRepo(), newProjectAlmSettingDto.getAlmSlug(),
+        A_DATE, A_DATE_LATER, newProjectAlmSettingDto.getInlineAnnotationsEnabled(),
+        newProjectAlmSettingDto.getSummaryCommentEnabled());
   }
 
   @Test

@@ -62,6 +62,12 @@ public class ProjectAlmSettingDto {
   private Boolean summaryCommentEnabled;
 
   /**
+   * Boolean flag which enable/disable adding inline comments to files
+   * It will be null when the ALM is other than Azure DevOps
+   */
+  private Boolean inlineAnnotationsEnabled;
+
+  /**
    * Boolean to know if this SonarQube project is part of a monorepo
    * default value is false
    */
@@ -125,6 +131,15 @@ public class ProjectAlmSettingDto {
     return this;
   }
 
+  public Boolean getInlineAnnotationsEnabled() {
+    return inlineAnnotationsEnabled;
+  }
+
+  public ProjectAlmSettingDto setInlineAnnotationsEnabled(@Nullable Boolean inlineAnnotationsEnabled) {
+    this.inlineAnnotationsEnabled = inlineAnnotationsEnabled;
+    return this;
+  }
+
   public Boolean getMonorepo() {
     return monorepo;
   }
@@ -149,4 +164,6 @@ public class ProjectAlmSettingDto {
   void setCreatedAt(long createdAt) {
     this.createdAt = createdAt;
   }
+
+
 }

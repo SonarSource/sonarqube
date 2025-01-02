@@ -101,7 +101,7 @@ public class AlmSettingsTesting {
       .setMonorepo(monorepo);
   }
 
-  static ProjectAlmSettingDto newAzureProjectAlmSettingDto(AlmSettingDto azureAlmSetting, ProjectDto project) {
+  public static ProjectAlmSettingDto newAzureProjectAlmSettingDto(AlmSettingDto azureAlmSetting, ProjectDto project) {
     return new ProjectAlmSettingDto()
       .setAlmSettingUuid(azureAlmSetting.getUuid())
       .setProjectUuid(project.getUuid())
