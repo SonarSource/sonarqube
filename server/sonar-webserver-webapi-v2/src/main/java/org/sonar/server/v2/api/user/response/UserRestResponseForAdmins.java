@@ -44,6 +44,8 @@ public record UserRestResponseForAdmins(
   @Nullable
   String externalProvider,
   @Nullable
+  String externalId,
+  @Nullable
   String avatar,
   @Nullable
   @Schema(accessMode = Schema.AccessMode.READ_ONLY)

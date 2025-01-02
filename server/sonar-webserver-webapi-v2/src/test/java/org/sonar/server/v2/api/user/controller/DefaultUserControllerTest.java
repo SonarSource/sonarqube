@@ -246,6 +246,7 @@ public class DefaultUserControllerTest {
       userInformation.managed(),
       userInformation.userDto().getExternalLogin(),
       userInformation.userDto().getExternalIdentityProvider(),
+      userInformation.userDto().getExternalId(),
       userInformation.avatar().orElse(""),
       formatDateTime(userInformation.userDto().getLastConnectionDate()),
       formatDateTime(userInformation.userDto().getLastSonarlintConnectionDate()),
@@ -507,10 +508,17 @@ public class DefaultUserControllerTest {
     UpdateUser userUpdate = performPatchCallAndVerifyResponse("{\"externalProvider\":\"newExternalProvider\"}");
     assertThat(userUpdate.externalIdentityProvider()).isEqualTo("newExternalProvider");
   }
+
   @Test
   public void updateUser_whenExternalProviderLoginIsProvided_shouldUpdate() throws Exception {
     UpdateUser userUpdate = performPatchCallAndVerifyResponse("{\"externalLogin\":\"newExternalProviderLogin\"}");
     assertThat(userUpdate.externalIdentityProviderLogin()).isEqualTo("newExternalProviderLogin");
+  }
+
+  @Test
+  public void updateUser_whenExternalProviderIdIsProvided_shouldUpdate() throws Exception {
+    UpdateUser userUpdate = performPatchCallAndVerifyResponse("{\"externalId\":\"newExternalProviderId12334\"}");
+    assertThat(userUpdate.externalIdentityProviderId()).isEqualTo("newExternalProviderId12334");
   }
 
   @Test

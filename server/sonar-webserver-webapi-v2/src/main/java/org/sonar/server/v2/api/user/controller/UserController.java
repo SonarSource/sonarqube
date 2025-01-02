@@ -101,8 +101,7 @@ public interface UserController {
   @PatchMapping(path = "/{id}", consumes = JSON_MERGE_PATCH_CONTENT_TYPE, produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Update a user", description = """
-    Update a user.
-    Allows updating user's name, email and SCM accounts.
+    Update users attributes.
     """)
   UserRestResponse updateUser(@PathVariable("id") String id, @Valid @RequestBody UserUpdateRestRequest updateRequest);
 

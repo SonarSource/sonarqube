@@ -131,6 +131,7 @@ public class DefaultUserController implements UserController {
     updateRequest.getScmAccounts().applyIfDefined(update::setScmAccounts);
     updateRequest.getExternalProvider().applyIfDefined(update::setExternalIdentityProvider);
     updateRequest.getExternalLogin().applyIfDefined(update::setExternalIdentityProviderLogin);
+    updateRequest.getExternalId().applyIfDefined(update::setExternalIdentityProviderId);
     return update;
   }
 

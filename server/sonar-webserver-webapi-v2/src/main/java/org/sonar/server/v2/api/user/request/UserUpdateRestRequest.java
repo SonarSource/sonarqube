@@ -35,6 +35,7 @@ public class UserUpdateRestRequest {
   private UpdateField<List<String>> scmAccounts = UpdateField.undefined();
   private UpdateField<String> externalProvider = UpdateField.undefined();
   private UpdateField<String> externalLogin = UpdateField.undefined();
+  private UpdateField<String> externalId = UpdateField.undefined();
 
   @Size(min = 2, max = 100)
   @Schema(description = "User login")
@@ -90,12 +91,22 @@ public class UserUpdateRestRequest {
   }
 
   @Size(min = 1, max = 255)
-  @Schema(implementation = String.class, description = "New external login, usually the login used in the authentication system. If not provided previous identity will be used.")
+  @Schema(implementation = String.class, description = "New external login, usually the login used in the authentication system.")
   public UpdateField<String> getExternalLogin() {
     return externalLogin;
   }
 
   public void setExternalLogin(@Nullable String externalLogin) {
     this.externalLogin = UpdateField.withValue(externalLogin);
+  }
+
+  @Size(min = 1, max = 255)
+  @Schema(implementation = String.class, description = "New external id in the authentication system.")
+  public UpdateField<String> getExternalId() {
+    return externalId;
+  }
+
+  public void setExternalId(@Nullable String externalId) {
+    this.externalId = UpdateField.withValue(externalId);
   }
 }

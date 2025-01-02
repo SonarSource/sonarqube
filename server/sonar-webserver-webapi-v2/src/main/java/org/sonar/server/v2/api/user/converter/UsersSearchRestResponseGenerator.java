@@ -73,8 +73,9 @@ public class UsersSearchRestResponseGenerator implements UsersSearchResponseGene
     String email = userDto.getEmail();
     String externalIdentityProvider = userDto.getExternalIdentityProvider();
     if (userSession.isSystemAdministrator() || Objects.equals(userSession.getUuid(), userDto.getUuid())) {
-      String externalLogin = userDto.getExternalLogin();
       Boolean managed = userInformation.managed();
+      String externalLogin = userDto.getExternalLogin();
+      String externalId = userDto.getExternalId();
       String sqLastConnectionDate = toDateTime(userDto.getLastConnectionDate());
       String slLastConnectionDate = toDateTime(userDto.getLastSonarlintConnectionDate());
       List<String> scmAccounts = userInformation.userDto().getSortedScmAccounts();
@@ -88,6 +89,7 @@ public class UsersSearchRestResponseGenerator implements UsersSearchResponseGene
         managed,
         externalLogin,
         externalIdentityProvider,
+        externalId,
         avatar,
         sqLastConnectionDate,
         slLastConnectionDate,

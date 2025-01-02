@@ -93,6 +93,7 @@ public class UsersSearchRestResponseGeneratorTest {
       userInformation.managed(),
       userDto.getExternalLogin(),
       userDto.getExternalIdentityProvider(),
+      userDto.getExternalId(),
       userInformation.avatar().orElse(null),
       toDateTime(userDto.getLastConnectionDate()),
       toDateTime(userDto.getLastSonarlintConnectionDate()),
