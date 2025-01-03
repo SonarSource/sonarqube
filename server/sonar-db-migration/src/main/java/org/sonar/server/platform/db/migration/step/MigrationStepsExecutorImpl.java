@@ -68,14 +68,13 @@ public class MigrationStepsExecutorImpl implements MigrationStepsExecutor {
       }
       allStepsExecuted = true;
     } finally {
-      long dbMigrationDuration = 0L;
       if (allStepsExecuted) {
-        dbMigrationDuration = globalProfiler.stopInfo(GLOBAL_END_MESSAGE,
+        globalProfiler.stopInfo(GLOBAL_END_MESSAGE,
           databaseMigrationState.getCompletedMigrations(),
           databaseMigrationState.getTotalMigrations(),
           "success");
       } else {
-        dbMigrationDuration = globalProfiler.stopError(GLOBAL_END_MESSAGE,
+        globalProfiler.stopError(GLOBAL_END_MESSAGE,
           databaseMigrationState.getCompletedMigrations(),
           databaseMigrationState.getTotalMigrations(),
           "failure");
