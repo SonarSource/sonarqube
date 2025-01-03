@@ -20,14 +20,10 @@
 package org.sonar.auth.saml;
 
 import java.util.regex.Pattern;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
-import org.sonar.api.server.http.HttpRequest;
-import org.sonar.server.http.JakartaHttpRequest;
 
 @ServerSide
 public class SamlIdentityProvider implements OAuth2IdentityProvider {
@@ -81,39 +77,11 @@ public class SamlIdentityProvider implements OAuth2IdentityProvider {
 
   @Override
   public void callback(CallbackContext context) {
-    //
-    // Workaround for onelogin/java-saml validation not taking into account running a reverse proxy configuration. This change
-    // makes the validation take into account 'X-Forwarded-Proto' and 'Host' headers set by the reverse proxy
-    // More details here:
-    // - https://github.com/onelogin/java-saml/issues/198
-    // - https://github.com/onelogin/java-saml/issues/95
-    //
-    HttpRequest processedRequest = useProxyHeadersInRequest(context.getHttpRequest());
 
-    UserIdentity userIdentity = samlAuthenticator.onCallback(context, processedRequest);
+    UserIdentity userIdentity = samlAuthenticator.onCallback(context, context.getHttpRequest());
     context.authenticate(userIdentity);
     context.redirectToRequestedPage();
 
   }
 
-  private static HttpRequest useProxyHeadersInRequest(HttpRequest request) {
-    String forwardedScheme = request.getHeader("X-Forwarded-Proto");
-    if (forwardedScheme != null) {
-      HttpServletRequest httpServletRequest = new HttpServletRequestWrapper(((JakartaHttpRequest) request).getDelegate()) {
-        @Override
-        public String getScheme() {
-          return forwardedScheme;
-        }
-
-        @Override
-        public StringBuffer getRequestURL() {
-          StringBuffer originalURL = ((HttpServletRequest) getRequest()).getRequestURL();
-          return new StringBuffer(HTTPS_PATTERN.matcher(originalURL.toString()).replaceFirst(forwardedScheme + "://"));
-        }
-      };
-      return new JakartaHttpRequest(httpServletRequest);
-    }
-
-    return request;
-  }
 }
