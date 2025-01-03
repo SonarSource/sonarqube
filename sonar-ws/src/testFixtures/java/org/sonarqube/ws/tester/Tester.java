@@ -69,10 +69,10 @@ import static org.sonarqube.ws.client.HttpConnector.DEFAULT_READ_TIMEOUT_MILLISE
  * <li>clean-up system administrators/roots</li>
  * <li>clean-up the properties that are not defined (no PropertyDefinition)</li>
  * </ul>
- *
  * When used with JUnit5, the tester can be started and stopped in the same pattern as Junit4 for @ClassRule or @Rule using the flag  #useJunit5ClassInitialization
  */
 public class Tester extends ExternalResource implements TesterSession, BeforeEachCallback, AfterEachCallback, BeforeAllCallback, AfterAllCallback {
+  private static final String ADMIN_CRYPTED_PASSWORD = "$2a$12$uCkkXmhW5ThVK8mpBvnXOOJRLd64LJeHTeCkSuB3lfaR2N0AYBaSi";
   static final String FORCE_AUTHENTICATION_PROPERTY_NAME = "sonar.forceAuthentication";
 
   private final Orchestrator orchestrator;
@@ -138,6 +138,12 @@ public class Tester extends ExternalResource implements TesterSession, BeforeEac
     beforeCalled = true;
   }
 
+  public void updateRootSession(String userName, String password) {
+    rootSession = new TesterSessionImpl(orchestrator,
+      httpConnectorBuilder -> httpConnectorBuilder.readTimeoutMilliseconds(readTimeoutMilliseconds),
+      httpConnectorBuilder -> httpConnectorBuilder.credentials(userName, password));
+  }
+
   @Override
   public void after() {
     waitForCeTasksToFinish();
@@ -167,8 +173,20 @@ public class Tester extends ExternalResource implements TesterSession, BeforeEac
 
   public void deactivateScim() {
     try (Connection connection = orchestrator.getDatabase().openConnection();
-         PreparedStatement preparedStatement = connection.prepareStatement("delete from internal_properties where kee = ?")) {
+      PreparedStatement preparedStatement = connection.prepareStatement("delete from internal_properties where kee = ?")) {
       preparedStatement.setString(1, "sonar.scim.enabled");
+      preparedStatement.execute();
+    } catch (SQLException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  public void resetRootPassword() {
+    try (Connection connection = orchestrator.getDatabase().openConnection();
+      PreparedStatement preparedStatement = connection.prepareStatement("update users set crypted_password=?, hash_method='BCRYPT', salt=null, reset_password=? where login =?")) {
+      preparedStatement.setString(1, ADMIN_CRYPTED_PASSWORD);
+      preparedStatement.setBoolean(2, true);
+      preparedStatement.setString(3, "admin");
       preparedStatement.execute();
     } catch (SQLException e) {
       throw new IllegalStateException(e);

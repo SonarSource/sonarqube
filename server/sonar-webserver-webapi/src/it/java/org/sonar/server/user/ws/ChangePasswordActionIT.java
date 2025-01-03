@@ -19,14 +19,18 @@
  */
 package org.sonar.server.user.ws;
 
-import java.io.IOException;
-import java.util.Optional;
-import javax.annotation.Nullable;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.WriteListener;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import java.io.IOException;
+import java.util.Optional;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.http.HttpRequest;
@@ -68,13 +72,14 @@ import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_PREVIOUS_PASS
 
 public class ChangePasswordActionIT {
 
-  private static final String OLD_PASSWORD = "1234";
-  private static final String NEW_PASSWORD = "12345";
+  private static final String OLD_PASSWORD = "1234567890_aA";
+  private static final String NEW_PASSWORD = "1234567890_bB";
 
-  @Rule
-  public DbTester db = DbTester.create();
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn();
+  @RegisterExtension
+  private final DbTester db = DbTester.create();
+
+  @RegisterExtension
+  private final UserSessionRule userSessionRule = UserSessionRule.standalone().logIn();
 
   private final ArgumentCaptor<UserDto> userDtoCaptor = ArgumentCaptor.forClass(UserDto.class);
 
@@ -93,10 +98,11 @@ public class ChangePasswordActionIT {
 
   private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
 
-  private final ChangePasswordAction underTest = new ChangePasswordAction(db.getDbClient(), userUpdater, userSessionRule, localAuthentication, jwtHttpHandler, managedInstanceChecker);
+  private final ChangePasswordAction underTest = new ChangePasswordAction(db.getDbClient(), userUpdater, userSessionRule, localAuthentication, jwtHttpHandler,
+    managedInstanceChecker);
   private ServletOutputStream responseOutputStream;
 
-  @Before
+  @BeforeEach
   public void setUp() throws IOException {
     db.users().insertDefaultGroup();
     responseOutputStream = new StringOutputStream();
@@ -178,7 +184,7 @@ public class ChangePasswordActionIT {
     UserTestData admin = createLocalUser();
     userSessionRule.logIn(admin.userDto()).setSystemAdministrator();
 
-    assertThatThrownBy(() -> executeTest("polop", null, "polop"))
+    assertThatThrownBy(() -> executeTest("polop", null, NEW_PASSWORD))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("User with login 'polop' has not been found");
     assertThat(findSessionTokenDto(db.getSession(), admin.getSessionTokenUuid())).isPresent();
@@ -191,7 +197,7 @@ public class ChangePasswordActionIT {
     userSessionRule.logIn(user);
 
     String userLogin = user.getLogin();
-    assertThatThrownBy(() -> executeTest(userLogin, null, "polop"))
+    assertThatThrownBy(() -> executeTest(userLogin, null, NEW_PASSWORD))
       .isInstanceOf(NotFoundException.class)
       .hasMessage(format("User with login '%s' has not been found", userLogin));
     verifyNoInteractions(jwtHttpHandler);
@@ -266,6 +272,28 @@ public class ChangePasswordActionIT {
     assertThat(responseOutputStream).hasToString("{\"result\":\"new_password_same_as_old\"}");
     assertThat(findSessionTokenDto(db.getSession(), user.getSessionTokenUuid())).isPresent();
     verifyNoInteractions(jwtHttpHandler);
+  }
+
+  public static Stream<Arguments> invalidPasswords() {
+    return Stream.of(
+      Arguments.of("12345678901", "Password must be at least 12 characters long"),
+      Arguments.of("123456789012", "Password must contain at least one uppercase character"),
+      Arguments.of("12345678901A", "Password must contain at least one lowercase character"),
+      Arguments.of("1234567890aA", "Password must contain at least one special character"),
+      Arguments.of("abcdefghiaA%", "Password must contain at least one digit")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("invalidPasswords")
+  void changePassword_whenPasswordDoesNotMatchSecurityRequirements_shouldThrowWithExpectedMessage(String newPassword, String expectedMessage) {
+    UserTestData user = createLocalUser(OLD_PASSWORD);
+    userSessionRule.logIn(user.userDto());
+
+    executeTest(user.getLogin(), OLD_PASSWORD, newPassword);
+
+    verify(response).setStatus(HTTP_BAD_REQUEST);
+    assertThat(responseOutputStream).hasToString("{\"result\":\"" + expectedMessage + "\"}");
   }
 
   @Test
