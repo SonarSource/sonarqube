@@ -70,7 +70,7 @@ import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_PASSWORD;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_PREVIOUS_PASSWORD;
 
-public class ChangePasswordActionIT {
+class ChangePasswordActionIT {
 
   private static final String OLD_PASSWORD = "1234567890_aA";
   private static final String NEW_PASSWORD = "1234567890_bB";
@@ -103,14 +103,14 @@ public class ChangePasswordActionIT {
   private ServletOutputStream responseOutputStream;
 
   @BeforeEach
-  public void setUp() throws IOException {
+  void setUp() throws IOException {
     db.users().insertDefaultGroup();
     responseOutputStream = new StringOutputStream();
     doReturn(responseOutputStream).when(response).getOutputStream();
   }
 
   @Test
-  public void a_user_can_update_his_password() {
+  void a_user_can_update_his_password() {
     UserTestData user = createLocalUser(OLD_PASSWORD);
     String oldCryptedPassword = findEncryptedPassword(user.getLogin());
     userSessionRule.logIn(user.userDto());
@@ -127,7 +127,7 @@ public class ChangePasswordActionIT {
   }
 
   @Test
-  public void system_administrator_can_update_password_of_user() {
+  void system_administrator_can_update_password_of_user() {
     UserTestData admin = createLocalUser();
     userSessionRule.logIn(admin.userDto()).setSystemAdministrator();
     UserTestData user = createLocalUser();
@@ -153,7 +153,7 @@ public class ChangePasswordActionIT {
   }
 
   @Test
-  public void fail_to_update_someone_else_password_if_not_admin() {
+  void fail_to_update_someone_else_password_if_not_admin() {
     UserTestData user = createLocalUser();
     userSessionRule.logIn(user.getLogin());
     UserTestData anotherLocalUser = createLocalUser();
@@ -167,7 +167,7 @@ public class ChangePasswordActionIT {
   }
 
   @Test
-  public void fail_to_update_someone_else_password_if_not_admin_and_user_doesnt_exist() {
+  void fail_to_update_someone_else_password_if_not_admin_and_user_doesnt_exist() {
     UserTestData user = createLocalUser();
     userSessionRule.logIn(user.getLogin());
 
@@ -180,7 +180,7 @@ public class ChangePasswordActionIT {
   }
 
   @Test
-  public void fail_to_update_unknown_user() {
+  void fail_to_update_unknown_user() {
     UserTestData admin = createLocalUser();
     userSessionRule.logIn(admin.userDto()).setSystemAdministrator();
 
@@ -192,7 +192,7 @@ public class ChangePasswordActionIT {
   }
 
   @Test
-  public void fail_on_disabled_user() {
+  void fail_on_disabled_user() {
     UserDto user = db.users().insertUser(u -> u.setActive(false));
     userSessionRule.logIn(user);
 
@@ -204,7 +204,7 @@ public class ChangePasswordActionIT {
   }
 
   @Test
-  public void fail_to_update_password_on_self_without_login() {
+  void fail_to_update_password_on_self_without_login() {
     when(request.getParameter(PARAM_PASSWORD)).thenReturn("new password");
     when(request.getParameter(PARAM_PREVIOUS_PASSWORD)).thenReturn(NEW_PASSWORD);
 
@@ -215,7 +215,7 @@ public class ChangePasswordActionIT {
   }
 
   @Test
-  public void fail_to_update_password_on_self_without_old_password() {
+  void fail_to_update_password_on_self_without_old_password() {
     UserTestData user = createLocalUser();
     userSessionRule.logIn(user.userDto());
 
@@ -227,7 +227,7 @@ public class ChangePasswordActionIT {
   }
 
   @Test
-  public void fail_to_update_password_on_self_without_new_password() {
+  void fail_to_update_password_on_self_without_new_password() {
     UserTestData user = createLocalUser();
     userSessionRule.logIn(user.userDto());
 
@@ -240,7 +240,7 @@ public class ChangePasswordActionIT {
   }
 
   @Test
-  public void fail_to_update_password_on_self_with_bad_old_password() {
+  void fail_to_update_password_on_self_with_bad_old_password() {
     UserTestData user = createLocalUser();
     userSessionRule.logIn(user.userDto());
 
@@ -252,7 +252,7 @@ public class ChangePasswordActionIT {
   }
 
   @Test
-  public void fail_to_update_password_on_external_auth() {
+  void fail_to_update_password_on_external_auth() {
     UserDto admin = db.users().insertUser();
     userSessionRule.logIn(admin).setSystemAdministrator();
     UserDto user = db.users().insertUser(u -> u.setLocal(false));
@@ -263,7 +263,7 @@ public class ChangePasswordActionIT {
   }
 
   @Test
-  public void fail_to_update_to_same_password() {
+  void fail_to_update_to_same_password() {
     UserTestData user = createLocalUser(OLD_PASSWORD);
     userSessionRule.logIn(user.userDto());
 
@@ -274,7 +274,7 @@ public class ChangePasswordActionIT {
     verifyNoInteractions(jwtHttpHandler);
   }
 
-  public static Stream<Arguments> invalidPasswords() {
+  static Stream<Arguments> invalidPasswords() {
     return Stream.of(
       Arguments.of("12345678901", "Password must be at least 12 characters long"),
       Arguments.of("123456789012", "Password must contain at least one uppercase character"),
@@ -297,7 +297,7 @@ public class ChangePasswordActionIT {
   }
 
   @Test
-  public void changePassword_whenInstanceIsManagedAndUserUpdate_shouldThrow() {
+  void changePassword_whenInstanceIsManagedAndUserUpdate_shouldThrow() {
     doThrow(BadRequestException.create("Operation not allowed when the instance is externally managed.")).when(managedInstanceChecker).throwIfInstanceIsManaged();
 
     UserTestData user = createLocalUser(OLD_PASSWORD);
@@ -308,7 +308,7 @@ public class ChangePasswordActionIT {
   }
 
   @Test
-  public void changePassword_whenInstanceIsManagedAndAdminUpdate_shouldThrow() {
+  void changePassword_whenInstanceIsManagedAndAdminUpdate_shouldThrow() {
     doThrow(BadRequestException.create("Operation not allowed when the instance is externally managed.")).when(managedInstanceChecker).throwIfInstanceIsManaged();
 
     UserDto admin = db.users().insertUser();
@@ -321,7 +321,7 @@ public class ChangePasswordActionIT {
   }
 
   @Test
-  public void verify_definition() {
+  void verify_definition() {
     String controllerKey = "foo";
     WebService.Context context = new WebService.Context();
     WebService.NewController newController = context.createController(controllerKey);
