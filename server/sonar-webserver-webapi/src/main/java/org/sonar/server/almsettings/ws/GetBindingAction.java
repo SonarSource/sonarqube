@@ -63,7 +63,9 @@ public class GetBindingAction implements AlmSettingsWsAction {
       .setChangelog(
         new Change("8.6", "Azure binding now contains the project and repository names"),
         new Change("8.7", "Azure binding now contains a monorepo flag for monorepo feature in Enterprise Edition and above"),
-        new Change("10.1", "Permission needed changed from 'Administer' to 'Browse'"))
+        new Change("10.1", "Permission needed changed from 'Administer' to 'Browse'"),
+        new Change("2025.1", "Azure binding now contains a inlineAnnotationsEnabled flag for inline annotations feature")
+      )
       .setHandler(this);
 
     action
@@ -96,6 +98,7 @@ public class GetBindingAction implements AlmSettingsWsAction {
       ofNullable(projectAlmSetting.getAlmSlug()).ifPresent(builder::setSlug);
       ofNullable(projectAlmSetting.getSummaryCommentEnabled()).ifPresent(builder::setSummaryCommentEnabled);
       ofNullable(projectAlmSetting.getMonorepo()).ifPresent(builder::setMonorepo);
+      ofNullable(projectAlmSetting.getInlineAnnotationsEnabled()).ifPresent(builder::setInlineAnnotationsEnabled);
       return builder.build();
     }
   }

@@ -76,6 +76,7 @@ message GetBindingWsResponse {
   optional string slug = 5;
   optional bool summaryCommentEnabled = 6;
   optional bool monorepo = 7;
+  optional bool inlineAnnotationsEnabled = 8;
 }
 
 enum Alm {
