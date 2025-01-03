@@ -107,6 +107,7 @@ public class AlmSettingsTesting {
       .setProjectUuid(project.getUuid())
       .setAlmSlug(secure().nextAlphanumeric(256))
       .setAlmRepo(secure().nextAlphanumeric(256))
+      .setInlineAnnotationsEnabled(true)
       .setMonorepo(false);
   }
 
