@@ -155,6 +155,7 @@ class AzureDevOpsProjectCreatorTest {
     assertThat(createdProjectAlmSettingDto.getAlmSlug()).isEqualTo(DEVOPS_PROJECT_NAME);
     assertThat(createdProjectAlmSettingDto.getProjectUuid()).isEqualTo(PROJECT_UUID);
     assertThat(createdProjectAlmSettingDto.getMonorepo()).isTrue();
+    assertThat(createdProjectAlmSettingDto.getInlineAnnotationsEnabled()).isTrue();
   }
 
   @Test

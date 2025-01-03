@@ -117,6 +117,7 @@ public class AzureDevOpsProjectCreator implements DevOpsProjectCreator {
       .setAlmRepo(repository.getName())
       .setAlmSlug(repository.getProject().getName())
       .setProjectUuid(projectDto.getUuid())
+      .setInlineAnnotationsEnabled(true)
       .setMonorepo(monorepo);
     dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(), projectDto.getName(), projectDto.getKey());
   }
