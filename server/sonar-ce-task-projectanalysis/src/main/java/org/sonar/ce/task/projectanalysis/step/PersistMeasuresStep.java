@@ -51,6 +51,8 @@ import org.sonar.db.measure.MeasureHash;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.sonar.api.measures.CoreMetrics.DUPLICATIONS_DATA_KEY;
+import static org.sonar.api.measures.CoreMetrics.EXECUTABLE_LINES_DATA_KEY;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA_KEY;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 
 public class PersistMeasuresStep implements ComputationStep {
@@ -59,6 +61,13 @@ public class PersistMeasuresStep implements ComputationStep {
   private static final int MAX_TRANSACTION_SIZE = 50_000_000;
   private static final Predicate<Measure> NON_EMPTY_MEASURE = measure ->
     measure.getValueType() != ValueType.NO_VALUE || measure.getData() != null;
+
+  /**
+   * List of metrics that should not be persisted
+   */
+  private static final Set<String> NOT_TO_PERSIST = Set.of(
+    EXECUTABLE_LINES_DATA_KEY,
+    NCLOC_DATA_KEY);
 
   private final DbClient dbClient;
   private final MetricRepository metricRepository;
@@ -146,6 +155,9 @@ public class PersistMeasuresStep implements ComputationStep {
     Map<String, Measure> measures = measureRepository.getRawMeasures(component);
     for (Map.Entry<String, Measure> measuresByMetricKey : measures.entrySet()) {
       String metricKey = measuresByMetricKey.getKey();
+      if (shouldNotPersist(metricKey)) {
+        continue;
+      }
       Metric metric = metricRepository.getByKey(metricKey);
       Predicate<Measure> notBestValueOptimized = BestValueOptimization.from(metric, component).negate();
       Measure measure = measuresByMetricKey.getValue();
@@ -166,6 +178,10 @@ public class PersistMeasuresStep implements ComputationStep {
     }
 
     return measureDto;
+  }
+
+  private static boolean shouldNotPersist(String metricKey) {
+    return NOT_TO_PERSIST.contains(metricKey);
   }
 
   private void persist(Collection<MeasureDto> inserts, Collection<MeasureDto> updates) {
