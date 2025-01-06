@@ -72,6 +72,8 @@ public class ProjectFilePreprocessor {
   private final Map<DefaultInputModule, List<Path>> mainSourcesByModule = new HashMap<>();
   private final Map<DefaultInputModule, List<Path>> testSourcesByModule = new HashMap<>();
 
+  private final ProgressReport progressReport = new ProgressReport("Report about progress of file preprocessing",
+    TimeUnit.SECONDS.toMillis(10));
   private int totalFilesPreprocessed = 0;
 
   public ProjectFilePreprocessor(AnalysisWarnings analysisWarnings, ScmConfiguration scmConfiguration, InputModuleHierarchy inputModuleHierarchy,
@@ -93,9 +95,8 @@ public class ProjectFilePreprocessor {
   }
 
   public void execute() {
-    ProgressReport progressReport = new ProgressReport("Report about progress of file preprocessing",
-      TimeUnit.SECONDS.toMillis(10));
     progressReport.start("Preprocessing files...");
+    progressReport.message(() -> String.format("Preprocessed %s files", totalFilesPreprocessed));
     ExclusionCounter exclusionCounter = new ExclusionCounter();
 
     if (useScmExclusion) {

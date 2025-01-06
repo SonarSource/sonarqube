@@ -42,7 +42,7 @@ public class ProgressReportTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private ProgressReport underTest = new ProgressReport(THREAD_NAME, 1);
+  private final ProgressReport underTest = new ProgressReport(THREAD_NAME, 1);
 
   @Test
   public void stop_thread_on_stop() {
@@ -66,15 +66,28 @@ public class ProgressReportTest {
     underTest.message("Some message");
     boolean logged = false;
     while (!logged) {
-      logged = containsWithRetry("Some message");
+      logged = waitForMessageStartingWith("Some message");
     }
     underTest.stop("stop");
-    assertThat(containsWithRetry("stop")).isTrue();
+    assertThat(waitForMessageStartingWith("stop")).isTrue();
   }
 
-  private boolean containsWithRetry(String message) {
+  @Test
+  public void do_log_message_supplier() {
+    logTester.setLevel(Level.DEBUG);
+    underTest.start("start");
+    underTest.message(() -> "Some message " + System.currentTimeMillis());
+    boolean logged = false;
+    while (!logged) {
+      logged = waitForMessageStartingWith("Some message ");
+    }
+    underTest.stop("stop");
+    assertThat(waitForMessageStartingWith("stop")).isTrue();
+  }
+
+  private boolean waitForMessageStartingWith(String message) {
     try {
-      Awaitility.await().atMost(5, TimeUnit.SECONDS).until(() -> logTester.logs().contains(message));
+      Awaitility.await().atMost(5, TimeUnit.SECONDS).until(() -> logTester.logs().stream().anyMatch(s -> s.startsWith(message)));
     } catch (ConditionTimeoutException e) {
       return false;
     }

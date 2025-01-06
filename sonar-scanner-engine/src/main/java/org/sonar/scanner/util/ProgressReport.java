@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.util;
 
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,7 @@ public class ProgressReport implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(ProgressReport.class);
   private final long period;
   private long startTime;
-  private String message = "";
+  private Supplier<String> messageSupplier = () -> "";
   private final Thread thread;
   private String stopMessage = null;
 
@@ -44,7 +45,7 @@ public class ProgressReport implements Runnable {
     while (!Thread.interrupted()) {
       try {
         Thread.sleep(period);
-        log(message);
+        log(messageSupplier.get());
       } catch (InterruptedException e) {
         break;
       }
@@ -61,7 +62,11 @@ public class ProgressReport implements Runnable {
   }
 
   public void message(String message) {
-    this.message = message;
+    this.message(() -> message);
+  }
+
+  public void message(Supplier<String> messageSupplier) {
+    this.messageSupplier = messageSupplier;
   }
 
   public void stop(@Nullable String stopMessage) {
