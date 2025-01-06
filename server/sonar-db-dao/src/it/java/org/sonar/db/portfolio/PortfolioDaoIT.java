@@ -434,18 +434,6 @@ class PortfolioDaoIT {
   }
 
   @Test
-  void select_root_reference_to_app_main_branch() {
-    PortfolioDto portfolio1 = db.components().insertPrivatePortfolioDto("portfolio1");
-    ProjectData appData1 = db.components().insertPrivateApplication(p -> p.setKey("app1"));
-    ProjectDto app1 = appData1.getProjectDto();
-    db.components().addPortfolioApplicationBranch(portfolio1.getUuid(), app1.getUuid(), appData1.getMainBranchDto().getUuid());
-
-    assertThat(portfolioDao.selectRootOfReferencersToMainBranch(db.getSession(), app1.getUuid()))
-      .extracting(PortfolioDto::getKey)
-      .containsExactly(portfolio1.getKey());
-  }
-
-  @Test
   void select_root_reference_to_app_with_branches() {
     PortfolioDto portfolio = db.components().insertPrivatePortfolioDto("portfolio1");
     ProjectDto app = db.components().insertPrivateApplication(p -> p.setKey("app").setName("app")).getProjectDto();
@@ -453,7 +441,7 @@ class PortfolioDaoIT {
 
     db.components().addPortfolioApplicationBranch(portfolio.getUuid(), app.getUuid(), branch.getUuid());
 
-    assertThat(portfolioDao.selectRootOfReferencersToAppBranch(db.getSession(), app.getUuid(), branch.getKey()))
+    assertThat(portfolioDao.selectRootOfReferencersToAppBranch(db.getSession(), branch.getUuid()))
       .extracting(PortfolioDto::getKey)
       .containsExactly(portfolio.getKey());
   }

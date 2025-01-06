@@ -201,33 +201,14 @@
     pr.reference_uuid=#{referenceUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectRootOfReferencersToMainBranch" resultType="Portfolio">
-    SELECT distinct
-    <include refid="portfolioColumns"/>
-    FROM portfolios c
-    INNER JOIN portfolio_references pr on pr.portfolio_uuid = c.uuid
-    INNER JOIN portfolios p on p.uuid = c.root_uuid
-    LEFT JOIN project_branches pb ON pr.branch_uuid = pb.uuid
-    where
-    pr.reference_uuid=#{referenceUuid,jdbcType=VARCHAR}
-    AND
-    (pr.branch_uuid is null
-    OR
-    pb.is_main = ${_true}
-    )
-  </select>
-
   <select id="selectRootOfReferencersToAppBranch" resultType="Portfolio">
     SELECT distinct
     <include refid="portfolioColumns"/>
     FROM portfolios c
     INNER JOIN portfolio_references pr on pr.portfolio_uuid = c.uuid
     INNER JOIN portfolios p on p.uuid = c.root_uuid
-    INNER JOIN project_branches pb on pb.uuid = pr.branch_uuid
     WHERE
-    pr.reference_uuid=#{appUuid,jdbcType=VARCHAR}
-    AND
-    pb.kee = #{appBranchKey,jdbcType=VARCHAR}
+    pr.branch_uuid=#{appBranchUuid,jdbcType=VARCHAR}
   </select>
 
   <sql id="applicationProjectColumns">

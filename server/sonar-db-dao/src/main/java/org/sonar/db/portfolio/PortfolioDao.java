@@ -195,12 +195,8 @@ public class PortfolioDao implements Dao {
     return mapper(dbSession).selectRootOfReferencers(referenceUuid);
   }
 
-  public List<PortfolioDto> selectRootOfReferencersToMainBranch(DbSession dbSession, String referenceUuid) {
-    return mapper(dbSession).selectRootOfReferencersToMainBranch(referenceUuid);
-  }
-
-  public List<PortfolioDto> selectRootOfReferencersToAppBranch(DbSession dbSession, String appUuid, String appBranchKey) {
-    return mapper(dbSession).selectRootOfReferencersToAppBranch(appUuid, appBranchKey);
+  public List<PortfolioDto> selectRootOfReferencersToAppBranch(DbSession dbSession, String appBranchUuid) {
+    return mapper(dbSession).selectRootOfReferencersToAppBranch(appBranchUuid);
   }
 
   public void deleteReferencesTo(DbSession dbSession, String referenceUuid) {
