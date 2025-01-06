@@ -145,7 +145,7 @@ public class DefaultScannerWsClientTest {
     assertThatThrownBy(() -> client.call(request))
       .isInstanceOf(MessageException.class)
       .hasMessage("Not authorized. Analyzing this project requires authentication. Please check the user token in the property 'sonar.token' " +
-        "or the credentials in the properties 'sonar.login' and 'sonar.password'.");
+        "or 'sonar.login' (deprecated).");
 
     List<String> debugLogs = logTester.logs(Level.DEBUG);
     assertThat(debugLogs).hasSize(3);
@@ -165,7 +165,7 @@ public class DefaultScannerWsClientTest {
     assertThatThrownBy(() -> client.call(request))
       .isInstanceOf(MessageException.class)
       .hasMessage("Not authorized. Analyzing this project requires authentication. Please check the user token in the property 'sonar.token' " +
-        "or the credentials in the properties 'sonar.login' and 'sonar.password'.");
+        "or 'sonar.login' (deprecated).");
   }
 
   @Test
@@ -180,7 +180,7 @@ public class DefaultScannerWsClientTest {
       new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings);
     assertThatThrownBy(() -> client.call(request))
       .isInstanceOf(MessageException.class)
-      .hasMessage("Not authorized. Please check the user token in the property 'sonar.token' or the credentials in the properties 'sonar.login' and 'sonar.password'.");
+      .hasMessage("Not authorized. Please check the user token in the property 'sonar.token' or 'sonar.login' (deprecated).");
   }
 
   @Test

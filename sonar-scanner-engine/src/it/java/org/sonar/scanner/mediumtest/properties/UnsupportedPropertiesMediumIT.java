@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.mediumtest.branch;
+package org.sonar.scanner.mediumtest.properties;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
@@ -33,9 +33,10 @@ import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class DeprecatedBranchMediumIT {
+class UnsupportedPropertiesMediumIT {
 
   @TempDir
   private File temp;
@@ -69,11 +70,7 @@ class DeprecatedBranchMediumIT {
 
   @Test
   void scanProjectWithBranch() throws IOException {
-    File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
-
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    prepareContent();
 
     assertThatThrownBy(() -> tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
@@ -84,5 +81,27 @@ class DeprecatedBranchMediumIT {
       .isInstanceOf(MessageException.class)
       .hasMessage("The 'sonar.branch' parameter is no longer supported. You should stop using it. " +
         "Branch analysis is available in Developer Edition and above. See https://www.sonarsource.com/plans-and-pricing/developer/ for more information.");
+  }
+
+  @Test
+  void scanProjectWithPassword() throws IOException {
+    prepareContent();
+
+    assertThatThrownBy(() -> tester.newAnalysis()
+      .properties(ImmutableMap.<String, String>builder()
+        .putAll(commonProps)
+        .put("sonar.password", "anything")
+        .build())
+      .execute())
+      .isInstanceOf(MessageException.class)
+      .hasMessage("The property 'sonar.password' is no longer supported. Please pass a token with the 'sonar.token' property instead.");
+  }
+
+  private void prepareContent() throws IOException {
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", UTF_8);
   }
 }

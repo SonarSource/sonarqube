@@ -25,6 +25,7 @@ import java.util.Optional;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
+import org.sonar.scanner.http.ScannerWsClientProvider;
 
 import static org.sonar.core.config.ScannerProperties.BRANCH_NAME;
 import static org.sonar.core.config.ScannerProperties.FILE_SIZE_LIMIT;
@@ -103,5 +104,22 @@ public class ScanProperties {
    */
   public void validate() {
     metadataFilePath();
+    validatePassword();
+    validateBranch();
+  }
+
+  private void validateBranch() {
+    configuration.get("sonar.branch").ifPresent(deprecatedBranch -> {
+      throw MessageException.of("The 'sonar.branch' parameter is no longer supported. You should stop using it. " +
+        "Branch analysis is available in Developer Edition and above. See https://www.sonarsource.com/plans-and-pricing/developer/ for more information.");
+    });
+  }
+
+  private void validatePassword() {
+    configuration.get("sonar.password")
+      .ifPresent(p -> {
+        throw MessageException.of(String.format("The property 'sonar.password' is no longer supported. " +
+          "Please pass a token with the '%s' property instead.", ScannerWsClientProvider.TOKEN_PROPERTY));
+      });
   }
 }

@@ -96,7 +96,7 @@ public class ScannerWsClientProvider {
       .responseTimeoutMilliseconds(parseDurationProperty(responseTimeout, SONAR_SCANNER_RESPONSE_TIMEOUT))
       .userAgent(env.toString())
       .url(url)
-      .credentials(login, scannerProps.property(CoreProperties.PASSWORD))
+      .token(login)
       .setSSLSocketFactory(sslContext.getSslSocketFactory())
       .setTrustManager(sslContext.getTrustManager().orElseThrow());
 

@@ -337,11 +337,6 @@ public class SpringScannerContainer extends SpringComponentContainer {
     ScanProperties properties = getComponentByType(ScanProperties.class);
     properties.validate();
 
-    properties.get("sonar.branch").ifPresent(deprecatedBranch -> {
-      throw MessageException.of("The 'sonar.branch' parameter is no longer supported. You should stop using it. " +
-        "Branch analysis is available in Developer Edition and above. See https://www.sonarsource.com/plans-and-pricing/developer/ for more information.");
-    });
-
     BranchConfiguration branchConfig = getComponentByType(BranchConfiguration.class);
     if (branchConfig.branchType() == BranchType.PULL_REQUEST && LOG.isInfoEnabled()) {
       LOG.info("Pull request {} for merge into {} from {}", branchConfig.pullRequestKey(), pullRequestBaseToDisplayName(branchConfig.targetBranchName()),

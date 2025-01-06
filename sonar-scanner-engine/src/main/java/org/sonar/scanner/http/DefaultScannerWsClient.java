@@ -106,13 +106,13 @@ public class DefaultScannerWsClient implements ScannerWsClient {
       response.close();
       if (hasCredentials) {
         // credentials are not valid
-        throw MessageException.of(format("Not authorized. Please check the user token in the property '%s' or the credentials in the properties '%s' and '%s'.",
-          ScannerWsClientProvider.TOKEN_PROPERTY, CoreProperties.LOGIN, CoreProperties.PASSWORD));
+        throw MessageException.of(format("Not authorized. Please check the user token in the property '%s' or '%s' (deprecated).",
+          ScannerWsClientProvider.TOKEN_PROPERTY, CoreProperties.LOGIN));
       }
       // not authenticated - see https://jira.sonarsource.com/browse/SONAR-4048
       throw MessageException.of(format("Not authorized. Analyzing this project requires authentication. " +
-        "Please check the user token in the property '%s' or the credentials in the properties '%s' and '%s'.",
-        ScannerWsClientProvider.TOKEN_PROPERTY, CoreProperties.LOGIN, CoreProperties.PASSWORD));
+        "Please check the user token in the property '%s' or '%s' (deprecated).",
+        ScannerWsClientProvider.TOKEN_PROPERTY, CoreProperties.LOGIN));
     }
     if (code == HTTP_FORBIDDEN) {
       logResponseDetailsIfDebug(response);

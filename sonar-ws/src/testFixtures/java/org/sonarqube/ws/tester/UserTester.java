@@ -66,11 +66,10 @@ public class UserTester {
       });
   }
 
-  public final String generateToken(String login) {
+  public final UserTokens.GenerateWsResponse generateToken(String login) {
     int id = ID_GENERATOR.getAndIncrement();
     String name = "token" + id;
-    session.wsClient().userTokens().generate(new GenerateRequest().setLogin(login).setName(name));
-    return name;
+    return session.wsClient().userTokens().generate(new GenerateRequest().setLogin(login).setName(name));
   }
 
   public final String generateToken(String login, String type, @Nullable String projectKey) {
@@ -81,6 +80,7 @@ public class UserTester {
     return response.getToken();
   }
 
+  @SafeVarargs
   public final String generateToken(String login, Consumer<GenerateRequest>... populators) {
     int id = ID_GENERATOR.getAndIncrement();
     String name = "token" + id;
