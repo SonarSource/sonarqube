@@ -42,7 +42,6 @@ import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.authentication.JwtHttpHandler;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
-import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UpdateUser;
@@ -83,16 +82,14 @@ public class ChangePasswordAction extends HttpFilter implements BaseUsersWsActio
   private final UserSession userSession;
   private final CredentialsLocalAuthentication localAuthentication;
   private final JwtHttpHandler jwtHttpHandler;
-  private final ManagedInstanceChecker managedInstanceChecker;
 
   public ChangePasswordAction(DbClient dbClient, UserUpdater userUpdater, UserSession userSession, CredentialsLocalAuthentication localAuthentication,
-    JwtHttpHandler jwtHttpHandler, ManagedInstanceChecker managedInstanceChecker) {
+    JwtHttpHandler jwtHttpHandler) {
     this.dbClient = dbClient;
     this.userUpdater = userUpdater;
     this.userSession = userSession;
     this.localAuthentication = localAuthentication;
     this.jwtHttpHandler = jwtHttpHandler;
-    this.managedInstanceChecker = managedInstanceChecker;
   }
 
   @Override
@@ -141,7 +138,6 @@ public class ChangePasswordAction extends HttpFilter implements BaseUsersWsActio
 
       if (login.equals(userSession.getLogin())) {
         user = getUserOrThrow(dbSession, login);
-        managedInstanceChecker.throwIfInstanceIsManaged();
         String previousPassword = getParamOrThrow(request, PARAM_PREVIOUS_PASSWORD);
         checkPreviousPassword(dbSession, user, previousPassword);
         checkNewPasswordSameAsOld(newPassword, previousPassword);
@@ -149,10 +145,8 @@ public class ChangePasswordAction extends HttpFilter implements BaseUsersWsActio
       } else {
         userSession.checkIsSystemAdministrator();
         user = getUserOrThrow(dbSession, login);
-        managedInstanceChecker.throwIfInstanceIsManaged();
         dbClient.sessionTokensDao().deleteByUser(dbSession, user);
       }
-
       updatePassword(dbSession, user, newPassword);
       setResponseStatus(response, HTTP_NO_CONTENT);
     } catch (BadRequestException badRequestException) {

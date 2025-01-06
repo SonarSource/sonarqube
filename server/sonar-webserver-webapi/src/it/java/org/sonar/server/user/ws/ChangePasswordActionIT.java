@@ -44,8 +44,6 @@ import org.sonar.db.user.SessionTokenDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.authentication.JwtHttpHandler;
-import org.sonar.server.common.management.ManagedInstanceChecker;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -61,7 +59,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -96,10 +93,7 @@ class ChangePasswordActionIT {
 
   private final JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
 
-  private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
-
-  private final ChangePasswordAction underTest = new ChangePasswordAction(db.getDbClient(), userUpdater, userSessionRule, localAuthentication, jwtHttpHandler,
-    managedInstanceChecker);
+  private final ChangePasswordAction underTest = new ChangePasswordAction(db.getDbClient(), userUpdater, userSessionRule, localAuthentication, jwtHttpHandler);
   private ServletOutputStream responseOutputStream;
 
   @BeforeEach
@@ -259,7 +253,6 @@ class ChangePasswordActionIT {
 
     executeTest(user.getLogin(), "I dunno", NEW_PASSWORD);
     verify(response).setStatus(HTTP_BAD_REQUEST);
-    assertThat(responseOutputStream).hasToString("{\"result\":\"Password cannot be changed when external authentication is used\"}");
   }
 
   @Test
@@ -294,30 +287,6 @@ class ChangePasswordActionIT {
 
     verify(response).setStatus(HTTP_BAD_REQUEST);
     assertThat(responseOutputStream).hasToString("{\"result\":\"" + expectedMessage + "\"}");
-  }
-
-  @Test
-  void changePassword_whenInstanceIsManagedAndUserUpdate_shouldThrow() {
-    doThrow(BadRequestException.create("Operation not allowed when the instance is externally managed.")).when(managedInstanceChecker).throwIfInstanceIsManaged();
-
-    UserTestData user = createLocalUser(OLD_PASSWORD);
-    userSessionRule.logIn(user.userDto());
-    executeTest(user.getLogin(), OLD_PASSWORD, NEW_PASSWORD);
-    verify(response).setStatus(HTTP_BAD_REQUEST);
-    assertThat(responseOutputStream).hasToString("{\"result\":\"Operation not allowed when the instance is externally managed.\"}");
-  }
-
-  @Test
-  void changePassword_whenInstanceIsManagedAndAdminUpdate_shouldThrow() {
-    doThrow(BadRequestException.create("Operation not allowed when the instance is externally managed.")).when(managedInstanceChecker).throwIfInstanceIsManaged();
-
-    UserDto admin = db.users().insertUser();
-    userSessionRule.logIn(admin).setSystemAdministrator();
-    UserDto user = db.users().insertUser(u -> u.setLocal(false));
-
-    executeTest(user.getLogin(), OLD_PASSWORD, NEW_PASSWORD);
-    verify(response).setStatus(HTTP_BAD_REQUEST);
-    assertThat(responseOutputStream).hasToString("{\"result\":\"Operation not allowed when the instance is externally managed.\"}");
   }
 
   @Test
