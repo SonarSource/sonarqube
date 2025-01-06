@@ -306,6 +306,19 @@
       and eg.external_identity_provider = #{managedInstanceProvider, jdbcType=VARCHAR}
   </select>
 
+
+  <select id="countEntityPermissionsObtainedViaGroup" parameterType="map" resultType="org.sonar.db.permission.UserAndPermissionDto">
+    select
+      gu.user_uuid,
+      gr.role
+    from group_roles gr
+    inner join groups_users gu on gr.group_uuid = gu.group_uuid
+    where
+      gr.entity_uuid = #{entityUuid, jdbcType=VARCHAR}
+    and
+
+  </select>
+
   <select id="selectEntityPermissionsOfAnonymous" parameterType="map" resultType="String">
     <include refid="sql_selectEntityPermissionsOfAnonymous"/>
   </select>

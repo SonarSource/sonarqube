@@ -19,16 +19,19 @@
  */
 package org.sonar.server.permission.ws;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
@@ -135,7 +138,11 @@ public class PermissionWsSupport {
       return;
     }
 
-    Set<String> groupUuidsWithPermission = dbClient.groupPermissionDao().selectGroupUuidsWithPermissionOnEntity(dbSession, entityDto.getUuid(), UserRole.USER);
+    if (hasBrowsePermissionViaUser(dbSession, userSession, entityDto).contains(UserRole.USER)) {
+      return;
+    }
+
+    Set<String> groupUuidsWithPermission = findGroupsWithBrowsePermission(dbSession, entityDto);
     boolean isUserInAnotherGroupWithPermissionForThisProject = userSession.getGroups().stream()
       .map(GroupDto::getUuid)
       .anyMatch(groupDtoUuid -> groupUuidsWithPermission.contains(groupDtoUuid) && !groupDtoUuid.equals(group.getUuid()));
@@ -145,14 +152,39 @@ public class PermissionWsSupport {
     }
   }
 
-  public void checkRemovingOwnBrowsePermissionOnPrivateProject(UserSession userSession, @Nullable EntityDto entityDto, String permission, UserId user) {
-    if (isUpdatingBrowsePermissionOnPrivateProject(permission, entityDto) && user.getLogin().equals(userSession.getLogin())) {
-      throw BadRequestException.create(ERROR_REMOVING_OWN_BROWSE_PERMISSION);
+  private List<String> hasBrowsePermissionViaUser(DbSession dbSession, UserSession userSession, EntityDto entityDto) {
+    String userUuid = Objects.requireNonNull(userSession.getUuid(), "The user must be authenticated");
+    return dbClient.userPermissionDao().selectEntityPermissionsOfUser(dbSession, userUuid, entityDto.getUuid());
+  }
+
+  public void checkRemovingOwnBrowsePermissionOnPrivateProject(DbSession dbSession, UserSession userSession, @Nullable EntityDto entityDto, String permission, UserId user) {
+    if (!user.getLogin().equals(userSession.getLogin())) {
+      return;
     }
+    if (userSession.isSystemAdministrator() || !isUpdatingBrowsePermissionOnPrivateProject(permission, entityDto)) {
+      return;
+    }
+    if (userHasBrowsePermissionViaGroup(dbSession, userSession.getGroups(), entityDto)) {
+      return;
+    }
+    throw BadRequestException.create(ERROR_REMOVING_OWN_BROWSE_PERMISSION);
   }
 
   public static boolean isUpdatingBrowsePermissionOnPrivateProject(String permission, @Nullable EntityDto entityDto) {
     return entityDto != null && entityDto.isPrivate() && permission.equals(UserRole.USER);
+  }
+
+  private boolean userHasBrowsePermissionViaGroup(DbSession dbSession, Collection<GroupDto> groups, EntityDto entityDto) {
+    Set<String> groupUuidsWithPermission = findGroupsWithBrowsePermission(dbSession, entityDto);
+
+    return groups.stream()
+      .map(GroupDto::getUuid)
+      .anyMatch(groupUuidsWithPermission::contains);
+
+  }
+
+  private Set<String> findGroupsWithBrowsePermission(DbSession dbSession,EntityDto entityDto) {
+    return dbClient.groupPermissionDao().selectGroupUuidsWithPermissionOnEntity(dbSession, entityDto.getUuid(), UserRole.USER);
   }
 
 }

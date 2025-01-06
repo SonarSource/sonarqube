@@ -441,14 +441,9 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
     db.users().insertEntityPermissionOnGroup(projectAdminGroup, UserRole.USER, project);
     db.users().insertEntityPermissionOnGroup(projectAdminGroup, UserRole.ADMIN, project);
 
-    userSession.logIn(user).setGroups(projectAdminGroup).addProjectPermission(UserRole.USER, project).addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn(user).setGroups(projectAdminGroup).addProjectPermission(UserRole.ADMIN, project);
 
-    TestRequest testRequest = newRequest()
-      .setParam(PARAM_PROJECT_ID, project.getUuid())
-      .setParam(PARAM_GROUP_NAME, projectAdminGroup.getName())
-      .setParam(PARAM_PERMISSION, UserRole.USER);
-
-    assertThatThrownBy(testRequest::execute)
+    assertThatThrownBy(() -> removeBrowsePermissionFromGroup(project, projectAdminGroup))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Permission 'Browse' cannot be removed from a private project for a project administrator.");
   }
@@ -463,16 +458,36 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
     db.users().insertEntityPermissionOnGroup(projectAdminGroup, UserRole.ADMIN, project);
     db.users().insertEntityPermissionOnGroup(otherProjectAdminGroup, UserRole.USER, project);
     db.users().insertEntityPermissionOnGroup(otherProjectAdminGroup, UserRole.ADMIN, project);
-    userSession.logIn(user).setGroups(projectAdminGroup, otherProjectAdminGroup).addProjectPermission(UserRole.USER, project).addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn(user).setGroups(projectAdminGroup, otherProjectAdminGroup).addProjectPermission(UserRole.ADMIN, project);
 
+    removeBrowsePermissionFromGroup(project, projectAdminGroup);
+
+    assertThat(db.users().selectGroupPermissions(projectAdminGroup, project)).containsOnly(UserRole.ADMIN);
+    assertThat(db.users().selectGroupPermissions(otherProjectAdminGroup, project)).containsExactlyInAnyOrder(UserRole.USER, UserRole.ADMIN);
+  }
+
+  @Test
+  public void wsAction_whenRemovingOwnBrowsePermissionAndHavePermissionAtUserLevel_shouldRemovePermission() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    UserDto user = db.users().insertUser();
+    GroupDto projectAdminGroup = db.users().insertGroup();
+    db.users().insertMember(projectAdminGroup, user);
+    db.users().insertEntityPermissionOnGroup(projectAdminGroup, UserRole.USER, project);
+    db.users().insertEntityPermissionOnGroup(projectAdminGroup, UserRole.ADMIN, project);
+    db.users().insertProjectPermissionOnUser(user, UserRole.USER, project);
+    userSession.logIn(user).addProjectPermission(UserRole.ADMIN, project);
+
+    removeBrowsePermissionFromGroup(project, projectAdminGroup);
+
+    assertThat(db.users().selectGroupPermissions(projectAdminGroup, project)).containsOnly(UserRole.ADMIN);
+  }
+
+  private void removeBrowsePermissionFromGroup(ProjectDto project, GroupDto projectAdminGroup) {
     newRequest()
       .setParam(PARAM_PROJECT_ID, project.getUuid())
       .setParam(PARAM_GROUP_NAME, projectAdminGroup.getName())
       .setParam(PARAM_PERMISSION, UserRole.USER)
       .execute();
-
-    assertThat(db.users().selectGroupPermissions(projectAdminGroup, project)).containsOnly(UserRole.ADMIN);
-    assertThat(db.users().selectGroupPermissions(otherProjectAdminGroup, project)).containsExactlyInAnyOrder(UserRole.USER, UserRole.ADMIN);
   }
 
   private void unsafeInsertProjectPermissionOnAnyone(String perm, ProjectDto project) {

@@ -21,21 +21,23 @@ package org.sonar.server.permission.ws;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.ComponentTypesRule;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.component.ComponentTypes;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 
 import static java.util.Objects.requireNonNull;
@@ -121,20 +123,62 @@ public class RemoveUserActionIT extends BasePermissionWsIT<RemoveUserAction> {
   }
 
   @Test
-  public void wsAction_whenPrivateProjectAdminRemovesOwnBrowsePermission_shouldFail() {
+  public void wsAction_whenSystemAdminRemovesOwnBrowsePermission_shouldSucceed() {
     loginAsAdmin();
     UserDto admin = db.users().insertUser(requireNonNull(userSession.getLogin()));
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     db.users().insertProjectPermissionOnUser(admin, GlobalPermission.ADMINISTER.getKey(), project);
 
-    TestRequest request = newRequest()
-      .setParam(PARAM_USER_LOGIN, userSession.getLogin())
-      .setParam(PARAM_PROJECT_ID, project.getUuid())
-      .setParam(PARAM_PERMISSION, UserRole.USER);
+    TestRequest request = removeBrowseRight(project);
+
+    request.execute();
+    assertThat(db.users().selectPermissionsOfUser(user)).isEmpty();
+  }
+
+  @Test
+  public void wsAction_whenPrivateProjectAdminRemovesOwnBrowsePermissionButHasPermissionViaGroup_shouldSucceed() {
+    UserSessionRule userSessionRule = userSession.logIn();
+
+    UserDto admin = db.users().insertUser(requireNonNull(userSession.getLogin()));
+    GroupDto projectAdmins = createGroupAndAddUser(admin, userSessionRule);
+
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    db.users().insertProjectPermissionOnUser(admin, UserRole.USER, project);
+    db.users().insertEntityPermissionOnGroup(projectAdmins, UserRole.USER, project);
+    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
+
+    TestRequest request = removeBrowseRight(project);
+
+    request.execute();
+    assertThat(db.users().selectEntityPermissionOfUser(user, project.getUuid())).isEmpty();
+  }
+
+  private GroupDto createGroupAndAddUser(UserDto admin, UserSessionRule userSessionRule) {
+    GroupDto projectAdmins = db.users().insertGroup("project admins");
+    db.users().insertMember(projectAdmins, admin);
+    userSessionRule.setGroups(projectAdmins);
+    return projectAdmins;
+  }
+
+  @Test
+  public void wsAction_whenPrivateProjectAdminRemovesOwnBrowsePermission_shouldFail() {
+    userSession.logIn();
+    UserDto admin = db.users().insertUser(requireNonNull(userSession.getLogin()));
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    db.users().insertProjectPermissionOnUser(admin, GlobalPermission.ADMINISTER.getKey(), project);
+
+    TestRequest request = removeBrowseRight(project);
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Permission 'Browse' cannot be removed from a private project for a project administrator.");
+  }
+
+  private TestRequest removeBrowseRight(ProjectDto project) {
+    return newRequest()
+      .setParam(PARAM_USER_LOGIN, userSession.getLogin())
+      .setParam(PARAM_PROJECT_ID, project.getUuid())
+      .setParam(PARAM_PERMISSION, UserRole.USER);
   }
 
   @Test
