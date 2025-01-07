@@ -47,13 +47,13 @@ import org.sonar.auth.github.ExpiringAppInstallationToken;
 import org.sonar.auth.github.GitHubSettings;
 import org.sonar.auth.github.GithubAppConfiguration;
 import org.sonar.auth.github.GithubAppInstallation;
+import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.auth.github.GithubBinding;
 import org.sonar.auth.github.GithubBinding.GsonGithubRepository;
 import org.sonar.auth.github.GithubBinding.GsonInstallations;
 import org.sonar.auth.github.GithubBinding.GsonRepositorySearch;
 import org.sonar.auth.github.GsonRepositoryCollaborator;
 import org.sonar.auth.github.GsonRepositoryTeam;
-import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.auth.github.security.AccessToken;
 import org.sonar.auth.github.security.UserAccessToken;
 import org.sonar.server.exceptions.ServerException;
@@ -327,9 +327,9 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
 
       Optional<String> content = response.getContent();
       Optional<UserAccessToken> accessToken = content.flatMap(c -> Arrays.stream(c.split("&"))
-          .filter(t -> t.startsWith("access_token="))
-          .map(t -> t.split("=")[1])
-          .findAny())
+        .filter(t -> t.startsWith("access_token="))
+        .map(t -> t.split("=")[1])
+        .findAny())
         .map(UserAccessToken::new);
 
       if (accessToken.isPresent()) {
@@ -389,7 +389,7 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
           resp -> GSON.fromJson(resp, REPOSITORY_COLLABORATORS_LIST_TYPE)));
   }
 
-  private <E> List<E> executePaginatedQuery(String appUrl, AccessToken token, String query, Function<String, List<E>> responseDeserializer) {
+  protected <E> List<E> executePaginatedQuery(String appUrl, AccessToken token, String query, Function<String, List<E>> responseDeserializer) {
     return githubPaginatedHttpClient.get(appUrl, token, query, responseDeserializer);
   }
 
