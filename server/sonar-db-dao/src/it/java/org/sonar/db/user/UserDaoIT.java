@@ -465,7 +465,7 @@ class UserDaoIT {
       .setResetPassword(true)
       .setSalt("12345")
       .setCryptedPassword("abcde")
-      .setHashMethod("BCRYPT")
+      .setHashMethod("PBKDF2")
       .setExternalLogin("johngithub")
       .setExternalIdentityProvider("github")
       .setExternalId("EXT_ID")
@@ -485,7 +485,7 @@ class UserDaoIT {
     assertThat(reloaded.getSortedScmAccounts()).containsExactly("jo.hn", "john2", "johndoo");
     assertThat(reloaded.getSalt()).isEqualTo("12345");
     assertThat(reloaded.getCryptedPassword()).isEqualTo("abcde");
-    assertThat(reloaded.getHashMethod()).isEqualTo("BCRYPT");
+    assertThat(reloaded.getHashMethod()).isEqualTo("PBKDF2");
     assertThat(reloaded.getExternalLogin()).isEqualTo("johngithub");
     assertThat(reloaded.getExternalIdentityProvider()).isEqualTo("github");
     assertThat(reloaded.getExternalId()).isEqualTo("EXT_ID");

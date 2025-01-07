@@ -32,7 +32,6 @@ dependencies {
   api 'org.slf4j:slf4j-api'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
   api 'org.sonarsource.update-center:sonar-update-center-common'
-  api 'org.mindrot:jbcrypt'
 
   api project(':server:sonar-ce-common')
   api project(':server:sonar-ce-task')

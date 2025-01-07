@@ -72,7 +72,8 @@ import static org.sonarqube.ws.client.HttpConnector.DEFAULT_READ_TIMEOUT_MILLISE
  * When used with JUnit5, the tester can be started and stopped in the same pattern as Junit4 for @ClassRule or @Rule using the flag  #useJunit5ClassInitialization
  */
 public class Tester extends ExternalResource implements TesterSession, BeforeEachCallback, AfterEachCallback, BeforeAllCallback, AfterAllCallback {
-  private static final String ADMIN_CRYPTED_PASSWORD = "$2a$12$uCkkXmhW5ThVK8mpBvnXOOJRLd64LJeHTeCkSuB3lfaR2N0AYBaSi";
+  private static final String ADMIN_CRYPTED_PASSWORD = "100000$R9xDN18ebKxA3ZTaputi6wDt+fcKhP2h3GgAjGbcBlCSlkMLENxw9wziHS46QIW3fWOjEMpeyEts+pNuPXSbYA==";
+  private static final String ADMIN_SALT = "pSDhsn3IM3KCa74CRRf7T7Vx+OE=";
   static final String FORCE_AUTHENTICATION_PROPERTY_NAME = "sonar.forceAuthentication";
 
   private final Orchestrator orchestrator;
@@ -183,10 +184,11 @@ public class Tester extends ExternalResource implements TesterSession, BeforeEac
 
   public void resetRootPassword() {
     try (Connection connection = orchestrator.getDatabase().openConnection();
-      PreparedStatement preparedStatement = connection.prepareStatement("update users set crypted_password=?, hash_method='BCRYPT', salt=null, reset_password=? where login =?")) {
+      PreparedStatement preparedStatement = connection.prepareStatement("update users set crypted_password=?, hash_method='PBKDF2', salt=?, reset_password=? where login =?")) {
       preparedStatement.setString(1, ADMIN_CRYPTED_PASSWORD);
-      preparedStatement.setBoolean(2, true);
-      preparedStatement.setString(3, "admin");
+      preparedStatement.setString(2, ADMIN_SALT);
+      preparedStatement.setBoolean(3, true);
+      preparedStatement.setString(4, "admin");
       preparedStatement.execute();
     } catch (SQLException e) {
       throw new IllegalStateException(e);

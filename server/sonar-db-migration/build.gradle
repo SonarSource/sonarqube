@@ -28,7 +28,6 @@ dependencies {
   testImplementation 'org.assertj:assertj-core'
   testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.junit.jupiter:junit-jupiter-params'
-  testImplementation 'org.mindrot:jbcrypt'
   testImplementation 'org.mockito:mockito-core'
   testImplementation 'org.xmlunit:xmlunit-core'
   testImplementation 'org.xmlunit:xmlunit-matchers'

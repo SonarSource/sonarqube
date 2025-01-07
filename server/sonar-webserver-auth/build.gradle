@@ -18,7 +18,6 @@ dependencies {
   api project(':server:sonar-webserver-api')
   api project(':sonar-plugin-api-impl')
   api project(':server:sonar-auth-ldap')
-  api 'org.mindrot:jbcrypt'
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
   compileOnlyApi 'jakarta.servlet:jakarta.servlet-api'

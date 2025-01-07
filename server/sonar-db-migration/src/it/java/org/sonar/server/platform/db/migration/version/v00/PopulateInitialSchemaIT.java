@@ -103,14 +103,14 @@ class PopulateInitialSchemaIT {
       .containsEntry("EXTERNAL_LOGIN", "admin")
       .containsEntry("EXT_IDENT_PROVIDER", "sonarqube")
       .containsEntry("USER_LOCAL", true)
-      .containsEntry("CRYPTED_PASSWORD", "$2a$12$uCkkXmhW5ThVK8mpBvnXOOJRLd64LJeHTeCkSuB3lfaR2N0AYBaSi")
-      .containsEntry("HASH_METHOD", "BCRYPT")
+      .containsEntry("CRYPTED_PASSWORD", "100000$R9xDN18ebKxA3ZTaputi6wDt+fcKhP2h3GgAjGbcBlCSlkMLENxw9wziHS46QIW3fWOjEMpeyEts+pNuPXSbYA==")
+      .containsEntry("SALT", "pSDhsn3IM3KCa74CRRf7T7Vx+OE=")
+      .containsEntry("HASH_METHOD", "PBKDF2")
       .containsEntry("CREATED_AT", NOW)
       .containsEntry("RESET_PASSWORD", true)
       .containsEntry("UPDATED_AT", NOW);
 
     assertThat(cols.get("EMAIL")).isNull();
-    assertThat(cols.get("SALT")).isNull();
   }
 
   private void verifyGroup(String expectedName, String expectedDescription) {

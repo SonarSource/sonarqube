@@ -28,7 +28,6 @@ import javax.annotation.Nullable;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.mindrot.jbcrypt.BCrypt;
 import org.sonar.api.config.Configuration;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -59,12 +58,11 @@ public class CredentialsLocalAuthentication {
   private final EnumMap<HashMethod, HashFunction> hashFunctions = new EnumMap<>(HashMethod.class);
 
   public enum HashMethod {
-    BCRYPT, PBKDF2
+    PBKDF2
   }
 
   public CredentialsLocalAuthentication(DbClient dbClient, Configuration configuration) {
     this.dbClient = dbClient;
-    hashFunctions.put(HashMethod.BCRYPT, new BcryptFunction());
     hashFunctions.put(HashMethod.PBKDF2, new PBKDF2Function(configuration.getInt(PBKDF2_ITERATIONS_PROP).orElse(null)));
   }
 
@@ -242,31 +240,6 @@ public class CredentialsLocalAuthentication {
       } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
         throw new RuntimeException(e);
       }
-    }
-  }
-
-  /**
-   * Implementation of deprecated bcrypt hash function
-   */
-  private static final class BcryptFunction implements HashFunction {
-    @Override
-    public AuthenticationResult checkCredentials(UserDto user, String password) {
-      if (user.getCryptedPassword() == null) {
-        return new AuthenticationResult(false, ERROR_NULL_PASSWORD_IN_DB);
-      }
-      // This behavior is overridden in most of integration tests for performance reasons, any changes to BCrypt calls should be propagated to
-      // Byteman classes
-      if (!BCrypt.checkpw(password, user.getCryptedPassword())) {
-        return new AuthenticationResult(false, ERROR_WRONG_PASSWORD);
-      }
-      return new AuthenticationResult(true, "");
-    }
-
-    @Override
-    public void storeHashPassword(UserDto user, String password) {
-      user.setHashMethod(HashMethod.BCRYPT.name())
-        .setCryptedPassword(BCrypt.hashpw(password, BCrypt.gensalt(12)))
-        .setSalt(null);
     }
   }
 }

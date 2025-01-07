@@ -21,13 +21,11 @@ package org.sonar.server.authentication;
 
 import java.security.SecureRandom;
 import java.util.Base64;
-import java.util.Optional;
 import java.util.Random;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mindrot.jbcrypt.BCrypt;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -41,7 +39,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.authentication.CredentialsLocalAuthentication.HashMethod.BCRYPT;
 import static org.sonar.server.authentication.CredentialsLocalAuthentication.HashMethod.PBKDF2;
 
 public class CredentialsLocalAuthenticationIT {
@@ -84,17 +81,6 @@ public class CredentialsLocalAuthenticationIT {
   }
 
   @Test
-  public void authentication_with_bcrypt_with_correct_password_should_work() {
-    String password = secure().nextAlphanumeric(60);
-
-    UserDto user = newUserDto()
-      .setHashMethod(BCRYPT.name())
-      .setCryptedPassword(BCrypt.hashpw(password, BCrypt.gensalt(12)));
-
-    underTest.authenticate(db.getSession(), user, password, AuthenticationEvent.Method.BASIC);
-  }
-
-  @Test
   public void authentication_with_sha1_should_throw_AuthenticationException() {
     String password = secure().nextAlphanumeric(60);
 
@@ -114,51 +100,17 @@ public class CredentialsLocalAuthenticationIT {
   }
 
   @Test
-  public void authentication_with_bcrypt_with_incorrect_password_should_throw_AuthenticationException() {
-    DbSession dbSession = db.getSession();
+  public void authentication_with_bcrypt_should_throw_AuthenticationException() {
     String password = secure().nextAlphanumeric(60);
 
     UserDto user = newUserDto()
-      .setHashMethod(BCRYPT.name())
-      .setCryptedPassword(BCrypt.hashpw(password, BCrypt.gensalt(12)));
+      .setHashMethod("BCRYPT")
+      .setCryptedPassword(password);
 
-    assertThatThrownBy(() -> underTest.authenticate(dbSession, user, "WHATEVER", AuthenticationEvent.Method.BASIC))
-      .isInstanceOf(AuthenticationException.class)
-      .hasMessage(CredentialsLocalAuthentication.ERROR_WRONG_PASSWORD);
-  }
-
-  @Test
-  public void authentication_with_bcrypt_with_empty_password_should_throw_AuthenticationException() {
-    DbSession dbSession = db.getSession();
-    UserDto user = newUserDto()
-      .setCryptedPassword(null)
-      .setHashMethod(BCRYPT.name());
-
-    assertThatThrownBy(() -> underTest.authenticate(dbSession, user, "WHATEVER", AuthenticationEvent.Method.BASIC))
-      .isInstanceOf(AuthenticationException.class)
-      .hasMessage(CredentialsLocalAuthentication.ERROR_NULL_PASSWORD_IN_DB);
-  }
-
-  @Test
-  public void authentication_upgrade_hash_function_when_BCRYPT_was_used() {
-    String password = secure().nextAlphanumeric(60);
-
-    UserDto user = newUserDto()
-      .setLogin("myself")
-      .setHashMethod(BCRYPT.name())
-      .setCryptedPassword(BCrypt.hashpw(password, BCrypt.gensalt(12)))
-      .setSalt(null);
-    db.users().insertUser(user);
-
-    underTest.authenticate(db.getSession(), user, password, AuthenticationEvent.Method.BASIC);
-
-    Optional<UserDto> myself = db.users().selectUserByLogin("myself");
-    assertThat(myself).isPresent();
-    assertThat(myself.get().getHashMethod()).isEqualTo(PBKDF2.name());
-    assertThat(myself.get().getSalt()).isNotNull();
-
-    // authentication must work with upgraded hash method
-    underTest.authenticate(db.getSession(), user, password, AuthenticationEvent.Method.BASIC);
+    DbSession session = db.getSession();
+    assertThatExceptionOfType(AuthenticationException.class)
+      .isThrownBy(() -> underTest.authenticate(session, user, password, AuthenticationEvent.Method.BASIC))
+      .withMessage("Unknown hash method [BCRYPT]");
   }
 
   @Test

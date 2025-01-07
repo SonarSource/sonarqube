@@ -92,7 +92,7 @@ class UserDaoWithPersisterIT {
       .setResetPassword(true)
       .setSalt("12345")
       .setCryptedPassword("abcde")
-      .setHashMethod("BCRYPT")
+      .setHashMethod("PBKDF2")
       .setExternalLogin("johngithub")
       .setExternalIdentityProvider("github")
       .setExternalId("EXT_ID")
