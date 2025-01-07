@@ -28,7 +28,6 @@ import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.issue.internal.DefaultNoSonarFilter;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.api.utils.MessageException;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.core.platform.SpringComponentContainer;

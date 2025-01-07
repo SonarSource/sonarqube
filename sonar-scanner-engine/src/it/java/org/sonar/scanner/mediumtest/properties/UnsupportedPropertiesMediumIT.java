@@ -72,12 +72,13 @@ class UnsupportedPropertiesMediumIT {
   void scanProjectWithBranch() throws IOException {
     prepareContent();
 
-    assertThatThrownBy(() -> tester.newAnalysis()
+    ScannerMediumTester.AnalysisBuilder analysisBuilder = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .putAll(commonProps)
         .put("sonar.branch", "branch")
-        .build())
-      .execute())
+        .build());
+
+    assertThatThrownBy(analysisBuilder::execute)
       .isInstanceOf(MessageException.class)
       .hasMessage("The 'sonar.branch' parameter is no longer supported. You should stop using it. " +
         "Branch analysis is available in Developer Edition and above. See https://www.sonarsource.com/plans-and-pricing/developer/ for more information.");
@@ -87,12 +88,13 @@ class UnsupportedPropertiesMediumIT {
   void scanProjectWithPassword() throws IOException {
     prepareContent();
 
-    assertThatThrownBy(() -> tester.newAnalysis()
+    ScannerMediumTester.AnalysisBuilder analysisBuilder = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .putAll(commonProps)
         .put("sonar.password", "anything")
-        .build())
-      .execute())
+        .build());
+
+    assertThatThrownBy(analysisBuilder::execute)
       .isInstanceOf(MessageException.class)
       .hasMessage("The property 'sonar.password' is no longer supported. Please pass a token with the 'sonar.token' property instead.");
   }
