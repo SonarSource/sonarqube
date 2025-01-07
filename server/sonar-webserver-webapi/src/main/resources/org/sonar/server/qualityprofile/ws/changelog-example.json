@@ -25,7 +25,8 @@
         }
       ],
       "params" : {
-        "severity" : "CRITICAL"
+        "severity" : "CRITICAL",
+        "prioritizedRule" : "true"
       }
     },
     {
@@ -62,6 +63,7 @@
       "date" : "2014-09-12T15:20:46+0200",
       "params" : {
         "severity" : "MAJOR",
+        "prioritizedRule" : "false",
         "format" : "^[A-Z][a-zA-Z0-9]*",
         "oldCleanCodeAttribute": "TESTED",
         "newCleanCodeAttribute": "CLEAR",

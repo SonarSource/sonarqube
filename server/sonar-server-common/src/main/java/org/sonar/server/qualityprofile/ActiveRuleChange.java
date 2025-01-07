@@ -186,6 +186,9 @@ public class ActiveRuleChange {
     if (StringUtils.isNotEmpty(severity)) {
       data.put("severity", severity);
     }
+    if (prioritizedRule != null) {
+      data.put("prioritizedRule", prioritizedRule.toString());
+    }
     dto.setData(data);
     return dto;
   }

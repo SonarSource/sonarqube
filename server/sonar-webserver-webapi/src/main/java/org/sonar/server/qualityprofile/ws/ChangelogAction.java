@@ -87,7 +87,9 @@ public class ChangelogAction implements QProfileWsAction {
           "'newCleanCodeAttributeCategory' and 'impactChanges' to 'params' section of response"),
         new Change("10.3", "Added field 'sonarQubeVersion' to 'params' section of response"),
         new Change("10.8", format("Added parameter '%s'", PARAM_FILTER_MODE)),
-        new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added", INFO.name(), BLOCKER.name())))
+        new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added", INFO.name()
+          , BLOCKER.name())),
+        new Change("2025.1", "Added field 'prioritizedRule' to 'params' section of response"))
       .setHandler(this)
       .setResponseExample(getClass().getResource("changelog-example.json"));
 
@@ -227,6 +229,7 @@ public class ChangelogAction implements QProfileWsAction {
   private static void writeChanges(JsonWriter json, QProfileChangeDto change) {
     json.name("params").beginObject()
       .prop("severity", change.getDataAsMap().get("severity"));
+    json.prop("prioritizedRule", change.getDataAsMap().get("prioritizedRule"));
     change.getDataAsMap().entrySet().stream()
       .filter(entry -> entry.getKey().startsWith("param_"))
       .forEach(param -> json.prop(param.getKey().replace("param_", ""), param.getValue()));

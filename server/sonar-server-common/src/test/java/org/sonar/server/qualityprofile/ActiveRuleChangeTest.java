@@ -22,7 +22,7 @@ package org.sonar.server.qualityprofile;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
@@ -53,6 +53,7 @@ public class ActiveRuleChangeTest {
       new RuleDto().replaceAllDefaultImpacts(List.of(new ImpactDto(SoftwareQuality.RELIABILITY, Severity.LOW), new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH))));
     underTest.setOldImpacts(Map.of(SoftwareQuality.SECURITY, Severity.LOW, SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
     underTest.setNewImpacts(Map.of(SoftwareQuality.RELIABILITY, Severity.HIGH, SoftwareQuality.MAINTAINABILITY, Severity.BLOCKER));
+    underTest.setPrioritizedRule(true);
 
     QProfileChangeDto result = underTest.toDto(A_USER_UUID);
 
@@ -60,6 +61,7 @@ public class ActiveRuleChangeTest {
     assertThat(result.getRulesProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
     assertThat(result.getUserUuid()).isEqualTo(A_USER_UUID);
     assertThat(result.getDataAsMap()).containsEntry("ruleUuid", ruleUuid);
+    assertThat(result.getData()).contains("prioritizedRule=true");
 
     Set<RuleImpactChangeDto> ruleImpactChanges = result.getRuleChange().getRuleImpactChanges();
 

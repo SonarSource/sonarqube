@@ -88,6 +88,7 @@ class ChangelogActionIT {
     insertChange(profile, ActiveRuleChange.Type.ACTIVATED, user, ImmutableMap.of(
       "ruleUuid", rule.getUuid(),
       "severity", "MINOR",
+      "prioritizedRule", "true",
       "param_foo", "foo_value",
       "param_bar", "bar_value"),
       ruleChange);
@@ -125,6 +126,7 @@ class ChangelogActionIT {
             ],
             "params": {
               "severity": "MINOR",
+              "prioritizedRule": "true",
               "foo": "foo_value",
               "bar": "bar_value",
               "oldCleanCodeAttribute": "CLEAR",
@@ -687,7 +689,7 @@ class ChangelogActionIT {
       .setUserUuid(user1.getUuid())
       .setSqVersion("8.3.1")
       .setChangeType(ActiveRuleChange.Type.ACTIVATED.name())
-      .setData(ImmutableMap.of("severity", "CRITICAL", "ruleUuid", rule1.getUuid())));
+      .setData(ImmutableMap.of("severity", "CRITICAL", "prioritizedRule", "true", "ruleUuid", rule1.getUuid())));
 
     system2.setNow(DateUtils.parseDateTime("2015-02-23T17:58:18+0100").getTime());
     RuleDto rule2 = db.rules().insert(RuleKey.of("java", "S2162"), r -> r.setName("\"equals\" methods should be symmetric and work for subclasses"));
@@ -704,7 +706,8 @@ class ChangelogActionIT {
     RuleChangeDto ruleChange = insertRuleChange(TESTED, CLEAR, rule3.getUuid(),
       Set.of(new RuleImpactChangeDto(MAINTAINABILITY, SECURITY, HIGH, MEDIUM), new RuleImpactChangeDto(null, RELIABILITY, null, LOW)));
     insertChange(profile, ActiveRuleChange.Type.ACTIVATED, user3,
-      ImmutableMap.of("severity", "MAJOR", "param_format", "^[A-Z][a-zA-Z0-9]*", "ruleUuid", rule3.getUuid()), ruleChange);
+      ImmutableMap.of("severity", "MAJOR", "prioritizedRule", "false", "param_format", "^[A-Z][a-zA-Z0-9]*", "ruleUuid", rule3.getUuid())
+      , ruleChange);
 
     ws.newRequest()
       .setMethod("GET")
