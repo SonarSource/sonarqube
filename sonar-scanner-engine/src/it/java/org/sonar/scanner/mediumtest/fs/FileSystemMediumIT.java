@@ -54,11 +54,11 @@ import org.sonar.xoo.global.DeprecatedGlobalSensor;
 import org.sonar.xoo.global.GlobalProjectSensor;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
-import static java.lang.String.format;
 import static java.nio.file.Files.createDirectory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.assertj.core.api.AssertionsForClassTypes.catchThrowableOfType;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.slf4j.event.Level.DEBUG;
@@ -456,22 +456,71 @@ class FileSystemMediumIT {
   }
 
   @Test
-  void analysisFailsSymbolicLinkWithoutTargetIsInTheFolder() throws IOException {
+  void analysisDoesNotFailOnBrokenSymlink() throws IOException {
+    prepareBrokenSymlinkTestScenario();
+
+    AnalysisBuilder analysisBuilder = tester.newAnalysis().properties(builder.build());
+
+    assertThat(catchThrowableOfType(Exception.class, analysisBuilder::execute)).isNull();
+  }
+
+  @Test
+  void analysisWarnsAndIgnoresBrokenSymlink() throws IOException {
+    Path link = prepareBrokenSymlinkTestScenario();
+
+    AnalysisResult result = tester.newAnalysis().properties(builder.build()).execute();
+
+    String logMessage = String.format("File '%s' is ignored. It is a symbolic link targeting a file that does not exist.", link.toRealPath(LinkOption.NOFOLLOW_LINKS));
+    assertThat(logTester.logs(Level.WARN)).contains(logMessage);
+    InputFile fileA = result.inputFile("src/target_link.xoo");
+    assertThat(fileA).isNull();
+  }
+
+  @Test
+  void analysisIgnoresSymbolicLinkWithTargetOutsideBaseDir() throws IOException {
     assumeFalse(SystemUtils.IS_OS_WINDOWS);
     File srcDir = new File(baseDir, "src");
     assertThat(srcDir.mkdir()).isTrue();
 
-    File target = writeFile(srcDir, "target.xoo");
+    File otherDir = createDirectory(temp.toPath().resolve("other_dir")).toFile();
+    File targetOutside = writeFile(otherDir, "target_outside.xoo");
+
     Path link = Paths.get(srcDir.getPath(), "target_link.xoo");
+    Files.createSymbolicLink(link, targetOutside.toPath());
+
+    AnalysisResult result = tester.newAnalysis().properties(builder.build()).execute();
+
+    String logMessage = String.format("File '%s' is ignored. It is a symbolic link targeting a file not located in project basedir.", link.toRealPath(LinkOption.NOFOLLOW_LINKS));
+    assertThat(logTester.logs(Level.WARN)).contains(logMessage);
+    InputFile fileA = result.inputFile("src/target_link.xoo");
+    assertThat(fileA).isNull();
+  }
+
+  @Test
+  void analysisIgnoresSymbolicLinkWithTargetOutsideModule() throws IOException {
+    assumeFalse(SystemUtils.IS_OS_WINDOWS);
+    File baseDirModuleA = new File(baseDir, "module_a");
+    File baseDirModuleB = new File(baseDir, "module_b");
+    File srcDirA = new File(baseDirModuleA, "src");
+    assertThat(srcDirA.mkdirs()).isTrue();
+    File srcDirB = new File(baseDirModuleB, "src");
+    assertThat(srcDirB.mkdirs()).isTrue();
+
+    File target = writeFile(srcDirA, "target.xoo", "Sample xoo\ncontent");
+    Path link = Paths.get(srcDirB.getPath(), "target_link.xoo");
     Files.createSymbolicLink(link, target.toPath());
-    Files.delete(target.toPath());
 
-    AnalysisBuilder analysis = tester.newAnalysis()
-      .properties(builder.build());
+    builder = ImmutableMap.<String, String>builder()
+      .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+      .put("sonar.projectKey", "com.foo.project")
+      .put("sonar.modules", "module_a,module_b");
 
-    assertThatThrownBy(analysis::execute)
-      .isExactlyInstanceOf(IllegalStateException.class)
-      .hasMessageEndingWith(format("Unable to read file %s", link));
+    AnalysisResult result = tester.newAnalysis().properties(builder.build()).execute();
+
+    String logMessage = String.format("File '%s' is ignored. It is a symbolic link targeting a file not located in module basedir.", link.toRealPath(LinkOption.NOFOLLOW_LINKS));
+    assertThat(logTester.logs(Level.INFO)).contains(logMessage);
+    InputFile fileA = result.inputFile("module_b/src/target_link.xoo");
+    assertThat(fileA).isNull();
   }
 
   @Test
@@ -1289,6 +1338,19 @@ class FileSystemMediumIT {
     raf.setLength(1024 * 1024 + 1);
     raf.close();
     return file;
+  }
+
+  private Path prepareBrokenSymlinkTestScenario() throws IOException {
+    assumeFalse(SystemUtils.IS_OS_WINDOWS);
+    File srcDir = new File(baseDir, "src");
+    assertThat(srcDir.mkdir()).isTrue();
+
+    File target = writeFile(srcDir, "target.xoo");
+    Path link = Paths.get(srcDir.getPath(), "target_link.xoo");
+    Files.createSymbolicLink(link, target.toPath());
+    Files.delete(target.toPath());
+
+    return link;
   }
 
 }

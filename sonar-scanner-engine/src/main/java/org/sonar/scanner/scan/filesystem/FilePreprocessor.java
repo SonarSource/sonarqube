@@ -59,6 +59,11 @@ public class FilePreprocessor {
     InputFile.Type type, ProjectFilePreprocessor.ExclusionCounter exclusionCounter, @CheckForNull IgnoreCommand ignoreCommand) throws IOException {
     // get case of real file without resolving link
     Path realAbsoluteFile = sourceFile.toRealPath(LinkOption.NOFOLLOW_LINKS).toAbsolutePath().normalize();
+
+    if (!isValidSymbolicLink(realAbsoluteFile, module.getBaseDir())) {
+      return Optional.empty();
+    }
+
     Path projectRelativePath = project.getBaseDir().relativize(realAbsoluteFile);
     Path moduleRelativePath = module.getBaseDir().relativize(realAbsoluteFile);
     boolean included = isFileIncluded(moduleExclusionFilters, realAbsoluteFile, projectRelativePath, moduleRelativePath, type);
@@ -135,5 +140,29 @@ public class FilePreprocessor {
 
   private boolean isFileSizeBiggerThanLimit(Path filePath) throws IOException {
     return Files.size(filePath) > properties.fileSizeLimit() * 1024L * 1024L;
+  }
+
+  private boolean isValidSymbolicLink(Path absolutePath, Path moduleBaseDirectory) throws IOException {
+    if (!Files.isSymbolicLink(absolutePath)) {
+      return true;
+    }
+
+    Path target = Files.readSymbolicLink(absolutePath);
+    if (!Files.exists(target)) {
+      LOG.warn("File '{}' is ignored. It is a symbolic link targeting a file that does not exist.", absolutePath);
+      return false;
+    }
+
+    if (!target.startsWith(project.getBaseDir())) {
+      LOG.warn("File '{}' is ignored. It is a symbolic link targeting a file not located in project basedir.", absolutePath);
+      return false;
+    }
+
+    if (!target.startsWith(moduleBaseDirectory)) {
+      LOG.info("File '{}' is ignored. It is a symbolic link targeting a file not located in module basedir.", absolutePath);
+      return false;
+    }
+
+    return true;
   }
 }
