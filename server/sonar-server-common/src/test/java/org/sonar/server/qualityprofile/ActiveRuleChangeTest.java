@@ -39,12 +39,12 @@ import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfil
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.UPDATED;
 
-public class ActiveRuleChangeTest {
+class ActiveRuleChangeTest {
 
   private static final String A_USER_UUID = "A_USER_UUID";
 
   @Test
-  public void toDto() {
+  void toDto() {
     QProfileDto profile = newQualityProfileDto();
     ActiveRuleKey key = ActiveRuleKey.of(profile, RuleKey.of("P1", "R1"));
     String ruleUuid = Uuids.createFast();
@@ -73,7 +73,7 @@ public class ActiveRuleChangeTest {
   }
 
   @Test
-  public void toDto_whenIdenticalImpacts_shouldNotReturnImpactChanges() {
+  void toDto_whenIdenticalImpacts_shouldNotReturnImpactChanges() {
     QProfileDto profile = newQualityProfileDto();
     ActiveRuleKey key = ActiveRuleKey.of(profile, RuleKey.of("P1", "R1"));
     String ruleUuid = Uuids.createFast();
@@ -89,7 +89,7 @@ public class ActiveRuleChangeTest {
   }
 
   @Test
-  public void toDto_whenRuleChangeDtoIsActivated_shouldNotReturnImpactChanges() {
+  void toDto_whenRuleChangeDtoIsActivated_shouldNotReturnImpactChanges() {
     QProfileDto profile = newQualityProfileDto();
     ActiveRuleKey key = ActiveRuleKey.of(profile, RuleKey.of("P1", "R1"));
     String ruleUuid = Uuids.createFast();
@@ -107,7 +107,7 @@ public class ActiveRuleChangeTest {
   }
 
   @Test
-  public void toDto_whenRuleChangeDtoIsActivatedAndSameImpacts_shouldNotReturnImpactChanges() {
+  void toDto_whenRuleChangeDtoIsActivatedAndSameImpacts_shouldNotReturnImpactChanges() {
     QProfileDto profile = newQualityProfileDto();
     ActiveRuleKey key = ActiveRuleKey.of(profile, RuleKey.of("P1", "R1"));
     String ruleUuid = Uuids.createFast();
