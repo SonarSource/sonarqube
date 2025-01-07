@@ -38,8 +38,6 @@ public class LogMessageIfInvalidSamlSetup extends DataChange {
   @VisibleForTesting
   static final String SERVICE_PROVIDER_PRIVATE_KEY = "sonar.auth.saml.sp.privateKey.secured";
 
-  private static final String SAML_DOC_URL = "https://docs.sonarsource.com/sonarqube-server/2025.1/instance-administration/authentication/saml/overview/";
-
   public LogMessageIfInvalidSamlSetup(Database db) {
     super(db);
   }
@@ -63,8 +61,7 @@ public class LogMessageIfInvalidSamlSetup extends DataChange {
     // With oneLogin library, setting the private key was enough to decrypt the response
     // With Spring security, both the private key and the certificate are needed to decrypt the response
     if (serviceProviderPrivateKey && !serviceProviderCertificate) {
-      LOG.warn("We detected an invalid SAML configuration that will prevent users to login with SAML: Service provider certificate is needed to decrypt SAML response. " +
-        "Please refer to the documentation for more information: {}", SAML_DOC_URL);
+      LOG.warn("We detected an invalid SAML configuration that will prevent users to login with SAML: Service provider certificate is needed to decrypt SAML response.");
     }
   }
 

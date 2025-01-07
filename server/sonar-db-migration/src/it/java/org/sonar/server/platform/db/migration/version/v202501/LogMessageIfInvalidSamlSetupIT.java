@@ -106,8 +106,7 @@ class LogMessageIfInvalidSamlSetupIT {
   void execute_whenSignatureNotEnabledAndPrivateKeyAndNoCertificate_warns() throws Exception {
     definePrivateKey();
     underTest.execute();
-    assertThat(logTester.logs()).containsExactly("We detected an invalid SAML configuration that will prevent users to login with SAML: Service provider certificate is needed to decrypt SAML response." +
-      " Please refer to the documentation for more information: https://docs.sonarsource.com/sonarqube-server/2025.1/instance-administration/authentication/saml/overview/");
+    assertThat(logTester.logs()).containsExactly("We detected an invalid SAML configuration that will prevent users to login with SAML: Service provider certificate is needed to decrypt SAML response.");
   }
 
   @Test
