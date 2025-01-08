@@ -30,7 +30,6 @@ import java.time.ZoneId;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.MockedStatic;
@@ -66,6 +65,9 @@ public class SamlIdentityProviderIT {
    */
 
   private static final String IDP_CERTIFICATE = "-----BEGIN CERTIFICATE-----MIIF5zCCA8+gAwIBAgIUIXv9OVs/XUicgR1bsV9uccYhHfowDQYJKoZIhvcNAQELBQAwgYIxCzAJBgNVBAYTAkFVMQ8wDQYDVQQIDAZHRU5FVkExEDAOBgNVBAcMB1ZFUk5JRVIxDjAMBgNVBAoMBVNPTkFSMQ0wCwYDVQQLDARRVUJFMQ8wDQYDVQQDDAZaaXBlbmcxIDAeBgkqhkiG9w0BCQEWEW5vcmVwbHlAZ21haWwuY29tMB4XDTIyMDYxMzEzMTQyN1oXDTMyMDYxMDEzMTQyN1owgYIxCzAJBgNVBAYTAkFVMQ8wDQYDVQQIDAZHRU5FVkExEDAOBgNVBAcMB1ZFUk5JRVIxDjAMBgNVBAoMBVNPTkFSMQ0wCwYDVQQLDARRVUJFMQ8wDQYDVQQDDAZaaXBlbmcxIDAeBgkqhkiG9w0BCQEWEW5vcmVwbHlAZ21haWwuY29tMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAu3nFXYvIYedpR84aZkdo/3yB5XHM+YCFJcDsVO10zEblLknfQsiMPa1Xd9Ustnpxw6P/SyzIJmO9jiMOdeCeY98a74jP7d4JPaO6h3l9IbWAcYeijQg956nlsVFY3FHDGr+7Pb8QcOAyV3v89jiF9DFB8wXS+5UfYr2OfoRRb4li39ezDyDdl5OLlM11nEss2z1mEv+sUUloTcyrgj37Psgewkvyym6tFGSgkV9Za4SVRhHFyThY1VFrYZSJFTnapUYaRc7kMxzwX/AAHUDJrmYcaVc5B8ODp4w2AxDJheQyCVfXjPFaUqBMG2U/rYfVXu0Za7Pn/vUo4UaSThwCBKDehCwz+65TLdA+NxyGDxnvY/SksOyLLGCmu8tKkXdu0pznnIhBXEGvjUIVS7d6a/8geg91NoTWau3i0RF+Dw/5N9DSzpld15bPtb5Ce3Bie19uvfvuH9eg+D8x/hfF6f3il4sPlIKdO/OVdM28LRfmDqmqQNPudvbqz7xy4ARuxk6ARa4d+aT9zovpwvxNGTr7h1mdgOUtUCdIXL3SHNjdwdAAz0uCWzvExbFu+NQ+V5+Xnkx71hyPFv9+DLVGIu7JhdYs806wKshO13Nga38ig6gu37lpVhfpZXhKywUiigG6LXAeyWWkMk+vlf9McZdMBD16dZP4kTsvP+rPVnUCAwEAAaNTMFEwHQYDVR0OBBYEFI5UVLtTySvbGqH7UP8xTL4wxZq3MB8GA1UdIwQYMBaAFI5UVLtTySvbGqH7UP8xTL4wxZq3MA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggIBABAtXsKNWx0sDDFA53qZ1zRyWKWAMoh95pawFCrKgTEW4ZrA73pa790eE1Y+vT6qUXKI4li9skIDa+6psCdxhZIrHPRAnVZVeB2373Bxr5bw/XQ8elRCjWeMULbYJ9tgsLV0I9CiEP0a6Tm8t0yDVXNUfx36E5fkgLSrxoRo8XJzxHbJCnLVXHdaNBxOT7jVcom6Wo4PB2bsjVzhHm6amn5hZp4dMHm0Mv0ln1wH8jVnizHQBLsGMzvvl58+9s1pP17ceRDkpNDz+EQyA+ZArqkW1MqtwVhbzz8QgMprhflKkArrsC7v06Jv8fqUbn9LvtYK9IwHTX7J8dFcsO/gUC5PevYT3nriN3Azb20ggSQ1yOEMozvj5T96S6itfHPit7vyEQ84JPrEqfuQDZQ/LKZQqfvuXX1aAG3TU3TMWB9VMMFsTuMFS8bfrhMX77g0Ud4qJcBOYOH3hR59agSdd2QZNLP3zZsYQHLLQkq94jdTXKTqm/w7mlPFKV59HjTbHBhTtxBHMft/mvvLEuC9KKFfAOXYQ6V+s9Nk0BW4ggEfewaX58OBuy7ISqRtRFPGia18YRzzHqkhjubJYMPkIfYpFVd+C0II3F0kdy8TtpccjyKo9bcHMLxO4n8PDAl195CPthMi8gUvT008LGEotr+3kXsouTEZTT0glXKLdO2W-----END CERTIFICATE-----";
+
+  // New certificated used to update some tests, valid until September 18, 2034
+  private static final String IDP_CERTIFICATE_2 = "-----BEGIN CERTIFICATE-----MIIDqDCCApCgAwIBAgIGAZIFhzJmMA0GCSqGSIb3DQEBCwUAMIGUMQswCQYDVQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwNU2FuIEZyYW5jaXNjbzENMAsGA1UECgwET2t0YTEUMBIGA1UECwwLU1NPUHJvdmlkZXIxFTATBgNVBAMMDGRldi0xMTMzMTk2MjEcMBoGCSqGSIb3DQEJARYNaW5mb0Bva3RhLmNvbTAeFw0yNDA5MTgxNDI1MzlaFw0zNDA5MTgxNDI2MzhaMIGUMQswCQYDVQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwNU2FuIEZyYW5jaXNjbzENMAsGA1UECgwET2t0YTEUMBIGA1UECwwLU1NPUHJvdmlkZXIxFTATBgNVBAMMDGRldi0xMTMzMTk2MjEcMBoGCSqGSIb3DQEJARYNaW5mb0Bva3RhLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALE389oPoZcLywrVdBxNv6Pqi+7npiEFfmojzXxoNXBfcsO7em/f6ys736KS8ibXCacwve0fb/zd9UMO+KTPyA/YEkTC02c8LbDT5LjBp0mjShzKzX2qbdzRgCsFfiKwqcAtoS/351nXFR+dfZzJ5Qb1o/Tonz9P0iUKiVJpb6WiF7TWKrofsj4tAoGzGtoyfUmOTuG7TbxDrYMd3ApkhvcfRc/6ZLkst+A8iB0jvqMVviQxkb7dYwSvXYYSR9UQ7/3P5IY5vkNoJyIG/YcteSBJYq/0F9M8BEIam3r6LSrHXnwD4/9aJpuDWOuadSCPiwOwHQv31thLbXu9TcLWIRsCAwEAATANBgkqhkiG9w0BAQsFAAOCAQEAaFGH+0Mbcs6+ZaqTUlJ7Pn+prejlJpy1UV/8qGzCr1oNx/gPwTqnCvxFc8uAspbpnUjByGQYFfa/QCtP8d8YuHqJgs+yIUl8K8WdWDgl+suhnDQKTGfCin56ov/YcadSdBRV+OldZpPyJ3LmV9MkP3OkMU7+A1y26Yiu00p+JyNdMethfszu0Y25vrT8fZNlKBpH5kwPbmRicgMN3R+tNGtjgwMtQhZmqDi1c0SSEwtwRz7KHoCfdZN+sCnOv0DGbcuPVZyCWKIA0nzhvVriQYQlRKBU3ydBYF5USsrTqCDzrhaGbj+KTFo6F4fjT37fT/mDhh+GKCQubNyGIWDROg==-----END CERTIFICATE-----";
 
   //Certificate valid until June 13, 2032
   private static final String SP_CERTIFICATE = "MIICoTCCAYkCBgGBXPscaDANBgkqhkiG9w0BAQsFADAUMRIwEAYDVQQDDAlzb25hcnF1YmUwHhcNMjIwNjEzMTIxMTA5WhcNMzIwNjEzMTIxMjQ5WjAUMRIwEAYDVQQDDAlzb25hcnF1YmUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDSFoT371C0/klZuPgvKbGItkmTaf5CweNXL8u389d98aOXRpDQ7maTXdV/W+VcL8vUWg8yG6nn8CRwweYnGTNdn9UAdhgknvxQe3pq3EwOJyls4Fpiq6YTh+DQfiZUQizjFjDOr/GG5O2lNvTRkI4XZj/XnWjRqVZwttiA5tm1sKkvGdyOQljwn4Jja/VbITdV8GASumx66Bil/wamSsqIzm2RjsOOGSsf5VjYUPwDobpuSf+j4DLtWjem/9vIzI2wcE30uC8LBAgO3JAlIS9NQrchjS9xhMJRohOoitaSPmqsOy7D2BH0h7XX6TNgv/WYTkBY4eZPao3PsL2A6AmhAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAMBmTHUK4w+DX21tmhqdwq0WqLH5ZAkwtiocDxFXiJ4GRrUWUh3BaXsgOHB8YYnNTDfScjaU0sZMEyfC0su1zsN8B7NFckg7RcZCHuBYdgIEAmvK4YM6s6zNsiKKwt66p2MNeL+o0acrT2rYjQ1L5QDj0gpfJQAT4N7xTZfuSc2iwjotaQfvcgsO8EZlcDVrL4UuyWLbuRUlSQjxHWGYaxCW+I3enK1+8fGpF3O+k9ZQ8xt5nJsalpsZvHcPLA4IBOmjsSHqSkhg4EIAWL/sJZ1KNct4hHh5kToUTu+Q6e949VeBkWgj4O+rcGDgiN2frGiEEc0EMv8KCSENRRRrO2k=";
@@ -209,17 +211,33 @@ public class SamlIdentityProviderIT {
   }
 
   @Test
-  @Ignore("Test is broken. The feature was tested on a real instance and throught end to end tests and it is working. SONAR-24058.")
   public void callback_on_encrypted_response() {
-    setSettings(true);
-    DumbCallbackContext callbackContext = new DumbCallbackContext(request, response, "encoded_encrypted_response.txt", SQ_CALLBACK_URL);
+    setInstanceTime("2025-01-08T08:30:35.438Z");
+
+    setSettingsForEncryptedTest();
+
+    DumbCallbackContext callbackContext = new DumbCallbackContext(request, response, "encoded_encrypted_response.txt", "https://cadic.eu.ngrok.io/oauth2/callback/saml");
 
     underTest.callback(callbackContext);
 
-    assertThat(callbackContext.userIdentity.getName()).isEqualTo("John Doe");
+    assertThat(callbackContext.userIdentity.getName()).isEqualTo("John");
     assertThat(callbackContext.userIdentity.getEmail()).isEqualTo("johndoe@email.com");
-    assertThat(callbackContext.userIdentity.getProviderLogin()).isEqualTo("johndoe");
-    assertThat(callbackContext.userIdentity.getGroups()).containsExactlyInAnyOrder("developer", "product-manager");
+    assertThat(callbackContext.userIdentity.getProviderLogin()).isEqualTo("johndoe@email.com");
+    assertThat(callbackContext.userIdentity.getGroups()).containsExactlyInAnyOrder("developer", "product-manager", "Everyone");
+  }
+
+  private void setSettingsForEncryptedTest() {
+    settings.setProperty("sonar.auth.saml.applicationId", "MyApp");
+    settings.setProperty("sonar.auth.saml.providerId", "http://www.okta.com/exkjqwugrhZFnkHAj5d7");
+    settings.setProperty("sonar.auth.saml.loginUrl", "http://localhost:8080/auth/realms/sonarqube/protocol/saml");
+    settings.setProperty("sonar.auth.saml.certificate.secured", IDP_CERTIFICATE_2);
+    settings.setProperty("sonar.auth.saml.sp.privateKey.secured", SP_PRIVATE_KEY);
+    settings.setProperty("sonar.auth.saml.sp.certificate.secured", SP_CERTIFICATE);
+    settings.setProperty("sonar.auth.saml.user.login", "login");
+    settings.setProperty("sonar.auth.saml.user.name", "name");
+    settings.setProperty("sonar.auth.saml.user.email", "email");
+    settings.setProperty("sonar.auth.saml.group.name", "groups");
+    settings.setProperty("sonar.auth.saml.enabled", true);
   }
 
   @Test
