@@ -52,15 +52,18 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
 
   private final CeQueue ceQueue;
   private final DbClient dbClient;
+  private final AsyncIssueIndexCreationTelemetry asyncIssueIndexCreationTelemetry;
 
-  public AsyncIssueIndexingImpl(CeQueue ceQueue, DbClient dbClient) {
+  public AsyncIssueIndexingImpl(CeQueue ceQueue, DbClient dbClient, AsyncIssueIndexCreationTelemetry asyncIssueIndexCreationTelemetry) {
     this.ceQueue = ceQueue;
     this.dbClient = dbClient;
+    this.asyncIssueIndexCreationTelemetry = asyncIssueIndexCreationTelemetry;
   }
 
   @Override
   public void triggerOnIndexCreation() {
 
+    final int nbTask;
     try (DbSession dbSession = dbClient.openSession(false)) {
 
       // remove already existing indexing task, if any
@@ -92,7 +95,10 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
 
       ceQueue.massSubmit(tasks);
       dbSession.commit();
+      nbTask = tasks.size();
     }
+
+    asyncIssueIndexCreationTelemetry.startIndexCreationMonitoringToSendTelemetry(nbTask);
   }
 
   @Override

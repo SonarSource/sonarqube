@@ -54,6 +54,7 @@ import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH_TYPE;
 import static org.sonar.db.ce.CeTaskTypes.BRANCH_ISSUE_SYNC;
@@ -72,8 +73,9 @@ public class AsyncIssueIndexingImplTest {
   private final DbClient dbClient = dbTester.getDbClient();
   private final CeQueue ceQueue = mock(CeQueue.class);
   private final UuidFactory uuidFactory = new SequenceUuidFactory();
+  private final AsyncIssueIndexCreationTelemetry asyncIssueIndexCreationTelemetry = mock();
 
-  private final AsyncIssueIndexingImpl underTest = new AsyncIssueIndexingImpl(ceQueue, dbClient);
+  private final AsyncIssueIndexingImpl underTest = new AsyncIssueIndexingImpl(ceQueue, dbClient, asyncIssueIndexCreationTelemetry);
 
   @Before
   public void before() {
@@ -100,6 +102,7 @@ public class AsyncIssueIndexingImplTest {
     verify(ceQueue, times(1)).massSubmit(anyCollection());
     assertThat(logTester.logs(Level.INFO))
       .contains("1 branch found in need of issue sync.");
+    verify(asyncIssueIndexCreationTelemetry, times(1)).startIndexCreationMonitoringToSendTelemetry(1);
   }
 
   @Test
@@ -122,6 +125,8 @@ public class AsyncIssueIndexingImplTest {
     verify(ceQueue, times(1)).massSubmit(anyCollection());
     assertThat(logTester.logs(Level.INFO))
       .contains("2 branch(es) found in need of issue sync for project.");
+
+    verifyNoInteractions(asyncIssueIndexCreationTelemetry);
   }
 
   @Test
@@ -129,12 +134,14 @@ public class AsyncIssueIndexingImplTest {
     underTest.triggerOnIndexCreation();
 
     assertThat(logTester.logs(Level.INFO)).contains("0 branch found in need of issue sync.");
+    verifyNoInteractions(asyncIssueIndexCreationTelemetry);
   }
 
   @Test
   public void triggerForProject_no_branch() {
     underTest.triggerForProject("some-random-uuid");
     assertThat(logTester.logs(Level.INFO)).contains("0 branch(es) found in need of issue sync for project.");
+    verifyNoInteractions(asyncIssueIndexCreationTelemetry);
   }
 
   @Test

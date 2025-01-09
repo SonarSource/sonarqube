@@ -100,6 +100,10 @@ public class CeActivityDao implements Dao {
     return mapper(dbSession).hasAnyFailedOrCancelledIssueSyncTask() > 0;
   }
 
+  public int countFailedOrCancelledIssueSyncTasks(DbSession dbSession) {
+    return mapper(dbSession).countFailedOrCancelledIssueSyncTasks();
+  }
+
   private static CeActivityMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(CeActivityMapper.class);
   }

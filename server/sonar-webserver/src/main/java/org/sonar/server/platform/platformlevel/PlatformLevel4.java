@@ -142,8 +142,10 @@ import org.sonar.server.issue.RemoveTagsAction;
 import org.sonar.server.issue.SetSeverityAction;
 import org.sonar.server.issue.SetTypeAction;
 import org.sonar.server.issue.TransitionAction;
+import org.sonar.server.issue.index.AsyncIssueIndexCreationTelemetry;
 import org.sonar.server.issue.index.AsyncIssueIndexingImpl;
 import org.sonar.server.issue.index.IssueIndexDefinition;
+import org.sonar.server.issue.index.IssueIndexMonitoringScheduler;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.notification.IssuesChangesNotificationModule;
@@ -498,6 +500,8 @@ public class PlatformLevel4 extends PlatformLevel {
       // issues
       IssueIndexDefinition.class,
       AsyncIssueIndexingImpl.class,
+      IssueIndexMonitoringScheduler.class,
+      AsyncIssueIndexCreationTelemetry.class,
       IssueIndexer.class,
       IssueIteratorFactory.class,
       PermissionIndexer.class,

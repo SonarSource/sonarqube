@@ -53,5 +53,7 @@ public interface CeActivityMapper {
 
   short hasAnyFailedOrCancelledIssueSyncTask();
 
+  int countFailedOrCancelledIssueSyncTasks();
+
   List<CeActivityDto> selectByTaskType(@Param("taskType") String taskType);
 }

@@ -850,6 +850,60 @@ class CeActivityDaoIT {
     assertThat(underTest.hasAnyFailedOrCancelledIssueSyncTask(db.getSession())).isFalse();
   }
 
+  @Test
+  void countFailedOrCancelledIssueSyncTasks() {
+    assertThat(underTest.countFailedOrCancelledIssueSyncTasks(db.getSession())).isZero();
+
+    insert("TASK_1", REPORT, ENTITY_1, SUCCESS);
+    insert("TASK_2", REPORT, ENTITY_1, FAILED);
+
+    ProjectDto projectDto1 = db.components().insertPrivateProject(
+      branchDto -> branchDto.setNeedIssueSync(false), c -> {
+      }, p -> {
+      }).getProjectDto();
+    insert("TASK_3", CeTaskTypes.BRANCH_ISSUE_SYNC, projectDto1.getUuid(), projectDto1.getUuid(), SUCCESS);
+
+    ProjectDto projectDto2 = db.components().insertPrivateProject(branchDto -> branchDto.setNeedIssueSync(false), c -> {
+    }, p -> {
+    }).getProjectDto();
+    insert("TASK_4", CeTaskTypes.BRANCH_ISSUE_SYNC, projectDto2.getUuid(), projectDto2.getUuid(), SUCCESS);
+
+    assertThat(underTest.countFailedOrCancelledIssueSyncTasks(db.getSession())).isZero();
+
+    ProjectDto projectDto3 = db.components().insertPrivateProject(branchDto -> branchDto.setNeedIssueSync(false), c -> {
+    }, p -> {
+    }).getProjectDto();
+    insert("TASK_5", CeTaskTypes.BRANCH_ISSUE_SYNC, projectDto3.getUuid(), projectDto3.getUuid(), SUCCESS);
+
+    BranchDto projectBranch1 = db.components()
+      .insertProjectBranch(projectDto3, branchDto -> branchDto.setNeedIssueSync(true));
+
+    insert("TASK_6", CeTaskTypes.BRANCH_ISSUE_SYNC, projectBranch1.getUuid(), projectDto3.getUuid(), FAILED);
+
+    BranchDto projectBranch2 = db.components()
+      .insertProjectBranch(projectDto3, branchDto -> branchDto.setNeedIssueSync(true));
+
+    insert("TASK_7", CeTaskTypes.BRANCH_ISSUE_SYNC, projectBranch2.getUuid(), projectDto3.getUuid(), CANCELED);
+
+    // failed task and project branch still exists and need sync
+    assertThat(underTest.countFailedOrCancelledIssueSyncTasks(db.getSession())).isEqualTo(2);
+
+    // assume branch has been re-analysed
+    db.getDbClient().branchDao().updateNeedIssueSync(db.getSession(), projectBranch1.getUuid(), false);
+
+    // assume branch has been re-analysed
+    db.getDbClient().branchDao().updateNeedIssueSync(db.getSession(), projectBranch2.getUuid(), false);
+
+    assertThat(underTest.countFailedOrCancelledIssueSyncTasks(db.getSession())).isZero();
+
+    // assume branch has been deleted
+    db.getDbClient().purgeDao().deleteBranch(db.getSession(), projectBranch1.getUuid());
+    db.getDbClient().purgeDao().deleteBranch(db.getSession(), projectBranch2.getUuid());
+
+    // associated branch does not exist, so there is no failures - either it has been deleted or purged or reanalysed
+    assertThat(underTest.countFailedOrCancelledIssueSyncTasks(db.getSession())).isZero();
+  }
+
   private CeActivityDto insert(String uuid, String type, @Nullable String mainComponentUuid, CeActivityDto.Status status) {
     return insert(uuid, type, mainComponentUuid, mainComponentUuid, status);
   }

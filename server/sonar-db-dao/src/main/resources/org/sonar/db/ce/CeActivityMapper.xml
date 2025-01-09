@@ -255,6 +255,21 @@
     and ca.is_last = ${_true}
   </select>
 
+  <select id="countFailedOrCancelledIssueSyncTasks" parameterType="map" resultType="int">
+    select
+      count(1)
+    from
+      ce_activity ca
+    inner join
+      project_branches pb
+    on
+      ca.component_uuid = pb.uuid
+    where
+      ca.task_type = 'ISSUE_SYNC'
+      and ca.status in ('FAILED', 'CANCELED')
+      and pb.need_issue_sync = ${_true}
+  </select>
+
   <sql id="hasAnyFailedOrCancelledIssueSyncTaskSql">
     select
     case when exists
