@@ -52,6 +52,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.issue.impact.Severity.LOW;
+import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
 import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
 import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 import static org.sonar.api.rule.RuleStatus.BETA;
@@ -285,6 +286,32 @@ class ActiveRuleDaoIT {
         asList(RuleType.CODE_SMELL.getDbConstant(), RuleType.SECURITY_HOTSPOT.getDbConstant(), RuleType.BUG.getDbConstant()),
         singletonList(profile1.getKee())))
       .isEmpty();
+  }
+
+  @Test
+  void selectByHotspotAndSoftwareQualityAndProfileUuids_shouldReturnExpectedResult() {
+    RuleDto rule1 = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY.getDbConstant())
+      .replaceAllDefaultImpacts(List.of(new ImpactDto(SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM))));
+    ActiveRuleDto activeRule1 = createFor(profile2, rule1).setSeverity(MAJOR);
+    underTest.insert(dbSession, activeRule1);
+    RuleDto rule2 = db.rules().insert(r -> r.setType(RuleType.SECURITY_HOTSPOT.getDbConstant()));
+    ActiveRuleDto activeRule2 = createFor(profile2, rule2).setSeverity(MAJOR);
+    underTest.insert(dbSession, activeRule2);
+
+    // Creating extra rules to ensure that the query is filtering by the right rules
+    RuleDto rule3 = db.rules().insert(r -> r.setType(RuleType.CODE_SMELL.getDbConstant())
+      .replaceAllDefaultImpacts(List.of(new ImpactDto(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM))));
+    ActiveRuleDto activeRule3 = createFor(profile2, rule3).setSeverity(MAJOR);
+    underTest.insert(dbSession, activeRule3);
+
+    RuleDto rule4 = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY.getDbConstant())
+      .replaceAllDefaultImpacts(List.of(new ImpactDto(SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM))));
+    ActiveRuleDto activeRule4 = createFor(profile1, rule4).setSeverity(MAJOR);
+    underTest.insert(dbSession, activeRule4);
+
+    assertThat(underTest.selectByHotspotAndSoftwareQualityAndProfileUuids(dbSession, SECURITY.name(), singletonList(profile2.getKee())))
+      .extracting(OrgActiveRuleDto::getRuleUuid)
+      .containsExactlyInAnyOrder(rule1.getUuid(), rule2.getUuid());
   }
 
   @Test

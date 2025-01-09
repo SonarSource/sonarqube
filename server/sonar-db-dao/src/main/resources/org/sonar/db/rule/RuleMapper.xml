@@ -264,6 +264,21 @@
     order by r.uuid
   </select>
 
+  <select id="selectByHotspotAndSoftwareQualityAndLanguages" parameterType="map" resultMap="ruleResultMap">
+    SELECT
+    <include refid="selectJoinedTablesColumns"/>
+    FROM rules r
+    <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDefaultImpacts"/>
+    <include refid="leftOuterJoinRulesTags"/>
+    WHERE
+      r.status != 'REMOVED' AND r.is_external=${_false} AND r.is_template=${_false}
+      AND (rdi.software_quality=#{softwareQuality, jdbcType=VARCHAR} OR r.rule_type = 4)
+      AND r.language IN
+    <foreach collection="languages" item="language" separator="," open="(" close=")">#{language, jdbcType=VARCHAR}</foreach>
+    ORDER BY r.uuid
+  </select>
+
   <select id="selectByLanguage" parameterType="String" resultMap="ruleResultMapImpactsOnly" fetchSize="${_scrollFetchSize}"
           resultSetType="FORWARD_ONLY">
     select

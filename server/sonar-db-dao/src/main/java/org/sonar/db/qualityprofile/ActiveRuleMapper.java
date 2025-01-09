@@ -56,6 +56,9 @@ public interface ActiveRuleMapper {
 
   List<OrgActiveRuleDto> selectByTypeAndProfileUuids(@Param("types") List<Integer> types, @Param("profileUuids") List<String> uuids);
 
+  List<OrgActiveRuleDto> selectByHotspotAndSoftwareQualityAndProfileUuids(@Param("softwareQuality") String softwareQuality, @Param(
+    "profileUuids") List<String> uuids);
+
   List<ActiveRuleDto> selectByRuleProfileUuid(@Param("ruleProfileUuid") String uuid);
 
   List<ActiveRuleDto> selectByRuleUuidsAndRuleProfileUuids(

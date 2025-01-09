@@ -48,6 +48,9 @@ public interface RuleMapper {
 
   List<RuleDto> selectByTypeAndLanguages(@Param("types") List<Integer> types, @Param("languages") List<String> languages);
 
+  List<RuleDto> selectByHotspotAndSoftwareQualityAndLanguages(@Param("softwareQuality") String softwareQuality,
+    @Param("languages") List<String> languages);
+
   List<RuleDto> selectByLanguage(@Param("language") String language);
 
   Long countByLanguage(@Param("language") String language);

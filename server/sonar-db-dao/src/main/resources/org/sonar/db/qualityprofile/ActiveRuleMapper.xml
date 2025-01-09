@@ -144,6 +144,19 @@
       and oqp.uuid in <foreach collection="profileUuids" item="uuid" separator="," open="(" close=")">#{uuid, jdbcType=VARCHAR}</foreach>
   </select>
 
+    <select id="selectByHotspotAndSoftwareQualityAndProfileUuids" parameterType="Map"
+            resultType="org.sonar.db.qualityprofile.OrgActiveRuleDto">
+    SELECT
+    <include refid="orgActiveRuleColumns"/>
+    FROM active_rules a
+    INNER JOIN rules_profiles rp ON rp.uuid = a.profile_uuid
+    INNER JOIN org_qprofiles oqp ON oqp.rules_profile_uuid = rp.uuid
+    INNER JOIN rules r ON r.uuid = a.rule_uuid AND r.status != 'REMOVED'
+    WHERE
+      (a.impacts LIKE CONCAT('%', #{softwareQuality, jdbcType=VARCHAR}, '%') OR r.rule_type = 4)
+      AND oqp.uuid IN <foreach collection="profileUuids" item="uuid" separator="," open="(" close=")">#{uuid, jdbcType=VARCHAR}</foreach>
+  </select>
+
   <select id="selectByRuleProfileUuid" parameterType="string" resultType="org.sonar.db.qualityprofile.ActiveRuleDto">
     select
     <include refid="activeRuleColumns"/>

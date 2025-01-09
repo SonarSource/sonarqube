@@ -96,6 +96,10 @@ public class RuleDao implements Dao {
     return executeLargeInputs(languages, chunk -> mapper(session).selectByTypeAndLanguages(types, chunk));
   }
 
+  public List<RuleDto> selectByHotspotAndSoftwareQualityAndLanguages(DbSession session, String softwareQuality, List<String> languages) {
+    return executeLargeInputs(languages, chunk -> mapper(session).selectByHotspotAndSoftwareQualityAndLanguages(softwareQuality, chunk));
+  }
+
   public List<RuleDto> selectByLanguage(DbSession session, String language) {
     return mapper(session).selectByLanguage(language);
   }
