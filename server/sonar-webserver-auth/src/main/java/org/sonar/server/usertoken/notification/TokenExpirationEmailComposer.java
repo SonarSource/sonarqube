@@ -31,6 +31,8 @@ import org.sonar.server.email.EmailSmtpConfiguration;
 import org.sonar.server.oauth.OAuthMicrosoftRestClient;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.sonar.db.user.TokenType.PROJECT_ANALYSIS_TOKEN;
 
 public class TokenExpirationEmailComposer extends EmailSender<TokenExpirationEmail> {
@@ -43,11 +45,15 @@ public class TokenExpirationEmailComposer extends EmailSender<TokenExpirationEma
     email.addTo(emailData.getRecipients().toArray(String[]::new));
     UserTokenDto token = emailData.getUserToken();
     if (token.isExpired()) {
-      email.setSubject(format("Your token \"%s\" has expired.", token.getName()));
+      email.setSubject(format("%sYour token \"%s\" has expired.", getEmailPrefix(), token.getName()));
     } else {
-      email.setSubject(format("Your token \"%s\" will expire.", token.getName()));
+      email.setSubject(format("%sYour token \"%s\" will expire.", getEmailPrefix(), token.getName()));
     }
     email.setHtmlMsg(composeEmailBody(token));
+  }
+
+  private String getEmailPrefix() {
+    return defaultIfBlank(trimToEmpty(emailSmtpConfiguration.getPrefix()) + " ", "");
   }
 
   private String composeEmailBody(UserTokenDto token) {

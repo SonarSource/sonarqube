@@ -23,10 +23,14 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.stream.Stream;
 import org.apache.commons.mail2.core.EmailException;
 import org.apache.commons.mail2.jakarta.HtmlEmail;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.platform.Server;
 import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserTokenDto;
@@ -37,19 +41,19 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class TokenExpirationEmailComposerTest {
+class TokenExpirationEmailComposerTest {
   private final EmailSmtpConfiguration emailSmtpConfiguration = mock();
   private final Server server = mock();
   private final long createdAt = LocalDate.parse("2022-01-01").atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
   private final TokenExpirationEmailComposer underTest = new TokenExpirationEmailComposer(emailSmtpConfiguration, server, mock(OAuthMicrosoftRestClient.class));
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     when(server.getPublicRootUrl()).thenReturn("http://localhost");
   }
 
   @Test
-  public void composer_email_with_expiring_project_token() throws EmailException {
+  void composer_email_with_expiring_project_token() throws EmailException {
     long expiredDate = LocalDate.now().atStartOfDay(ZoneOffset.UTC).plusDays(7).toInstant().toEpochMilli();
     var token = createToken("projectToken", "projectA", expiredDate);
     var emailData = new TokenExpirationEmail("admin@sonarsource.com", token);
@@ -71,7 +75,7 @@ public class TokenExpirationEmailComposerTest {
   }
 
   @Test
-  public void composer_email_with_expired_global_token() throws EmailException {
+  void composer_email_with_expired_global_token() throws EmailException {
     long expiredDate = LocalDate.now().atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
     var token = createToken("globalToken", null, expiredDate);
     var emailData = new TokenExpirationEmail("admin@sonarsource.com", token);
@@ -90,6 +94,27 @@ public class TokenExpirationEmailComposerTest {
           + "Don't forget to update the token in the locations where it is in use. This may include the CI pipeline that analyzes your projects, the IDE settings that connect SonarLint to SonarQube, and any places where you make calls to web services.",
         parseDate(expiredDate)));
   }
+
+
+  @ParameterizedTest
+  @MethodSource("tokenExpirationAndExpectedEmailSubject")
+  void addReportContent_givenConfigurationHasPrefixAndIsAboutToExpire_addPrefixToEmailSubject(long expiredDate, String expectedSubject) throws EmailException {
+    var token = createToken("projectToken", "projectA", expiredDate);
+    var emailData = new TokenExpirationEmail("admin@sonarsource.com", token);
+    HtmlEmail email = mock();
+    when(emailSmtpConfiguration.getPrefix()).thenReturn("[PREFIX]");
+    underTest.addReportContent(email, emailData);
+    verify(email).setSubject(expectedSubject);
+  }
+
+
+  private static Stream<Arguments> tokenExpirationAndExpectedEmailSubject() {
+    return Stream.of(
+      Arguments.of(LocalDate.now().atStartOfDay(ZoneOffset.UTC).plusDays(7).toInstant().toEpochMilli(), "[PREFIX] Your token \"projectToken\" will expire."),
+      Arguments.of(LocalDate.now().atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(), "[PREFIX] Your token \"projectToken\" has expired.")
+    );
+  }
+
 
   private UserTokenDto createToken(String name, String project, long expired) {
     var token = new UserTokenDto();
