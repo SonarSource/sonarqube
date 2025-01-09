@@ -34,6 +34,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.PortfolioData;
 import org.sonar.db.component.ProjectData;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -59,6 +61,7 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newDirectoryOnBranch;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
@@ -240,6 +243,19 @@ public class ShowActionIT {
     ShowWsResponse result = newRequest(publicProject.getKey());
     assertThat(result.getComponent().hasVisibility()).isTrue();
     assertThat(result.getComponent().getVisibility()).isEqualTo("public");
+  }
+
+  @Test
+  public void should_return_analysis_date_for_portfolio_project() {
+    ProjectData project = db.components().insertPrivateProject();
+    db.components().insertSnapshot(project.getMainBranchDto(), c -> c.setAnalysisDate(12345L).setCreatedAt(12345L));
+    PortfolioData portfolio = db.components().insertPrivatePortfolioData();
+    ComponentDto projectSnapshot = db.components().insertComponent(newProjectCopy(project, portfolio));
+
+    userSession.addPortfolioPermission(USER, portfolio.getPortfolioDto());
+
+    ShowWsResponse result = newRequest(projectSnapshot.getKey());
+    assertThat(result.getComponent().getAnalysisDate()).isEqualTo(formatDateTime(new Date(12345L)));
   }
 
   @Test
