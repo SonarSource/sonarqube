@@ -53,7 +53,7 @@ class UpdateDefaultAdminPasswordIfInvalidHashMechanismIT {
     assertThat(db.select("select * from users where login = 'admin'"))
       .hasSize(1)
       .extracting(t -> t.get("hash_method"), t -> t.get("salt"), t -> t.get("crypted_password"))
-      .containsOnly(tuple("PBKDF2", "", "$2a$12$uCkkXmhW5ThVK8mpBvnXOOJRLd64LJeHTeCkSuB3lfaR2N0AYBaSi"));
+      .containsOnly(tuple("PBKDF2", "salt", "$2a$12$uCkkXmhW5ThVK8mpBvnXOOJRLd64LJeHTeCkSuB3lfaR2N0AYBaSi"));
   }
 
   @Test
@@ -80,7 +80,7 @@ class UpdateDefaultAdminPasswordIfInvalidHashMechanismIT {
     map.put("external_identity_provider", "sonarqube");
     map.put("user_local", true);
     map.put("crypted_password", "$2a$12$uCkkXmhW5ThVK8mpBvnXOOJRLd64LJeHTeCkSuB3lfaR2N0AYBaSi");
-    map.put("salt", "");
+    map.put("salt", "salt");
     map.put("active", active);
     map.put("hash_method", hashAlgorithm);
     map.put("reset_password", true);
