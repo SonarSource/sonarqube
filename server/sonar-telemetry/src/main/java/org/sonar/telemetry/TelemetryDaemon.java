@@ -38,13 +38,13 @@ import org.sonar.db.DbSession;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.util.AbstractStoppableScheduledExecutorServiceImpl;
 import org.sonar.server.util.GlobalLockManager;
+import org.sonar.telemetry.core.MessageSerializer;
 import org.sonar.telemetry.core.TelemetryClient;
+import org.sonar.telemetry.core.schema.BaseMessage;
 import org.sonar.telemetry.legacy.TelemetryData;
 import org.sonar.telemetry.legacy.TelemetryDataJsonWriter;
 import org.sonar.telemetry.legacy.TelemetryDataLoader;
 import org.sonar.telemetry.metrics.TelemetryMetricsLoader;
-import org.sonar.telemetry.core.schema.BaseMessage;
-import org.sonar.telemetry.core.MessageSerializer;
 
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_ENABLE;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_FREQUENCY_IN_SECONDS;
@@ -116,29 +116,27 @@ public class TelemetryDaemon extends AbstractStoppableScheduledExecutorServiceIm
 
   private Runnable telemetryCommand() {
     return () -> {
+      if (!lockManager.tryLock(LOCK_NAME, lockDuration())) {
+        return;
+      }
+
+      long now = system2.now();
       try {
-
-        if (!lockManager.tryLock(LOCK_NAME, lockDuration())) {
-          return;
-        }
-
-        long now = system2.now();
         if (shouldUploadStatistics(now)) {
           uploadLegacyTelemetry();
           uploadMetrics();
-
-          updateTelemetryProps(now);
+          writeTelemetrySequence();
         }
       } catch (Exception e) {
         LOG.debug("Error while checking SonarQube statistics: {}", e.getMessage(), e);
+      } finally {
+        writeLastPing(now);
       }
       // do not check at start up to exclude test instance which are not up for a long time
     };
   }
 
-  private void updateTelemetryProps(long now) {
-    internalProperties.write(I_PROP_LAST_PING, String.valueOf(now));
-
+  private void writeTelemetrySequence() {
     Optional<String> currentSequence = internalProperties.read(I_PROP_MESSAGE_SEQUENCE);
     if (currentSequence.isEmpty()) {
       internalProperties.write(I_PROP_MESSAGE_SEQUENCE, String.valueOf(1));
@@ -147,6 +145,10 @@ public class TelemetryDaemon extends AbstractStoppableScheduledExecutorServiceIm
 
     long current = Long.parseLong(currentSequence.get());
     internalProperties.write(I_PROP_MESSAGE_SEQUENCE, String.valueOf(current + 1));
+  }
+
+  private void writeLastPing(long now) {
+    internalProperties.write(I_PROP_LAST_PING, String.valueOf(now));
   }
 
   private void optOut() {

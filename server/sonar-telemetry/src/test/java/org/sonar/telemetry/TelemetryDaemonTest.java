@@ -99,7 +99,7 @@ class TelemetryDaemonTest {
   }
 
   @Test
-  void send_data_via_client_at_startup_after_initial_delay() throws IOException {
+  void start_sendsDataAtStartupAfterInitialDelay() throws IOException {
     initTelemetrySettingsToDefaultValues();
     when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
@@ -112,18 +112,8 @@ class TelemetryDaemonTest {
     verify(dataJsonWriter).writeTelemetryData(any(JsonWriter.class), same(SOME_TELEMETRY_DATA));
   }
 
-  private void mockDataJsonWriterDoingSomething() {
-    doAnswer(t -> {
-      JsonWriter json = t.getArgument(0);
-      json.beginObject().prop("foo", "bar").endObject();
-      return null;
-    })
-      .when(dataJsonWriter)
-      .writeTelemetryData(any(), any());
-  }
-
   @Test
-  void check_if_should_send_data_periodically() throws IOException {
+  void start_shouldCheckIfDataSentPeriodically() throws IOException {
     initTelemetrySettingsToDefaultValues();
     when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
     long now = system2.now();
@@ -146,7 +136,7 @@ class TelemetryDaemonTest {
   }
 
   @Test
-  void do_not_send_data_if_last_ping_earlier_than_one_day_ago() throws IOException {
+  void start_whenLastPingEarlierThanOneDayAgo_shouldNotSendData() throws IOException {
     initTelemetrySettingsToDefaultValues();
     when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
@@ -161,7 +151,24 @@ class TelemetryDaemonTest {
   }
 
   @Test
-  void send_data_if_last_ping_is_over_one_day_ago() throws IOException {
+  void start_whenExceptionThrown_shouldNotRepeatedlySendDataAndLastPingPropIsStillSet() throws IOException {
+    initTelemetrySettingsToDefaultValues();
+    when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
+    settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
+    long today = parseDate("2017-08-01").getTime();
+    system2.setNow(today);
+    settings.removeProperty("telemetry.lastPing");
+    mockDataJsonWriterDoingSomething();
+    when(dataLoader.load()).thenThrow(new IllegalStateException("Some error was thrown."));
+
+    underTest.start();
+
+    verify(client, after(2_000).never()).upload(anyString());
+    verify(internalProperties, timeout(4_000)).write("telemetry.lastPing", String.valueOf(today));
+  }
+
+  @Test
+  void start_whenLastPingOverOneDayAgo_shouldSendData() throws IOException {
     initTelemetrySettingsToDefaultValues();
     when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
@@ -180,7 +187,7 @@ class TelemetryDaemonTest {
   }
 
   @Test
-  void opt_out_sent_once() throws IOException {
+  void start_whenOptOut_shouldSendOnceAndLogsPresent() throws IOException {
     initTelemetrySettingsToDefaultValues();
     when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
@@ -196,7 +203,7 @@ class TelemetryDaemonTest {
   }
 
   @Test
-  void write_sequence_as_one_if_not_previously_present() {
+  void start_whenSequenceNotPresent_shouldBeSetToOne() {
     initTelemetrySettingsToDefaultValues();
     when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
@@ -208,7 +215,7 @@ class TelemetryDaemonTest {
   }
 
   @Test
-  void write_sequence_correctly_incremented() {
+  void start_whenSequencePresent_shouldIncrementCorrectly() {
     initTelemetrySettingsToDefaultValues();
     when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
@@ -223,6 +230,16 @@ class TelemetryDaemonTest {
     internalProperties.write("telemetry.lastPing", String.valueOf(system2.now() - ONE_DAY));
 
     verify(internalProperties, timeout(4_000)).write("telemetry.messageSeq", "11");
+  }
+
+  private void mockDataJsonWriterDoingSomething() {
+    doAnswer(t -> {
+      JsonWriter json = t.getArgument(0);
+      json.beginObject().prop("foo", "bar").endObject();
+      return null;
+    })
+      .when(dataJsonWriter)
+      .writeTelemetryData(any(), any());
   }
 
   private void initTelemetrySettingsToDefaultValues() {
