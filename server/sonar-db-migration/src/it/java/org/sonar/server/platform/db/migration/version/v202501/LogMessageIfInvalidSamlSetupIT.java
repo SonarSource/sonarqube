@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.db.migration.version.v202501;
 
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -148,8 +147,8 @@ class LogMessageIfInvalidSamlSetupIT {
   }
 
   private void defineProperty(String property, String value) {
-    db.executeInsert("properties", "prop_key", property, "is_empty", "false",
-      "text_value", value, "uuid", UUID.randomUUID(), "created_at", 1_000_000_000_000L);
+    db.executeInsert("properties", "prop_key", property, "is_empty", false,
+      "text_value", value, "uuid", property, "created_at", 1_000_000_000_000L);
   }
 
   private void disableSaml(){
