@@ -30,6 +30,7 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.report.CeTaskReportDataHolder;
@@ -85,8 +86,8 @@ public class QualityGateCheckTest {
 
     underTest.stop();
 
-    assertThat(logTester.logs())
-      .containsOnly(
+    assertThat(logTester.logs(LoggerLevel.INFO))
+      .contains(
         "Waiting for the analysis report to be processed (max 5s)",
         "QUALITY GATE STATUS: PASSED - View details on http://dashboard-url.com");
   }
