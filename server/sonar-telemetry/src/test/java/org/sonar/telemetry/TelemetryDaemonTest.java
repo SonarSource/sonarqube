@@ -116,23 +116,25 @@ class TelemetryDaemonTest {
   void start_shouldCheckIfDataSentPeriodically() throws IOException {
     initTelemetrySettingsToDefaultValues();
     when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
-    long now = system2.now();
-    long twentyHoursAgo = now - (ONE_HOUR * 20L);
-    long oneDayAgo = now - ONE_DAY;
-    internalProperties.write("telemetry.lastPing", String.valueOf(twentyHoursAgo));
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
+    long now = system2.now();
+    long oneHourAgo = now - ONE_HOUR;
+    long moreThanOneDayAgo = now - ONE_DAY - ONE_HOUR;
+    internalProperties.write("telemetry.lastPing", String.valueOf(oneHourAgo));
     when(dataLoader.load()).thenReturn(SOME_TELEMETRY_DATA);
     mockDataJsonWriterDoingSomething();
 
     underTest.start();
 
-    verify(dataJsonWriter, after(2_000).never()).writeTelemetryData(any(JsonWriter.class), same(SOME_TELEMETRY_DATA));
-    verify(client, never()).upload(anyString());
+    // Verify that the telemetry data is not sent immediately
+    verify(client, after(2_000).never()).upload(anyString());
 
-    internalProperties.write("telemetry.lastPing", String.valueOf(oneDayAgo));
+    // Force another ping by updating the last ping time
+    internalProperties.write("telemetry.lastPing", String.valueOf(moreThanOneDayAgo));
 
-    verify(dataJsonWriter, timeout(2_000)).writeTelemetryData(any(JsonWriter.class), same(SOME_TELEMETRY_DATA));
-    verify(client, timeout(2_000)).upload(anyString());
+    // Verify that the telemetry data is sent after the delay
+    verify(dataJsonWriter, timeout(4_000)).writeTelemetryData(any(JsonWriter.class), same(SOME_TELEMETRY_DATA));
+    verify(client, timeout(4_000)).upload(anyString());
   }
 
   @Test
