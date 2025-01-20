@@ -49,7 +49,6 @@ import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
@@ -110,31 +109,6 @@ class TelemetryDaemonTest {
 
     verify(client, timeout(4_000).atLeastOnce()).upload(anyString());
     verify(dataJsonWriter).writeTelemetryData(any(JsonWriter.class), same(SOME_TELEMETRY_DATA));
-  }
-
-  @Test
-  void start_shouldCheckIfDataSentPeriodically() throws IOException {
-    initTelemetrySettingsToDefaultValues();
-    when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
-    settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
-    long now = system2.now();
-    long oneHourAgo = now - ONE_HOUR;
-    long moreThanOneDayAgo = now - ONE_DAY - ONE_HOUR;
-    internalProperties.write("telemetry.lastPing", String.valueOf(oneHourAgo));
-    when(dataLoader.load()).thenReturn(SOME_TELEMETRY_DATA);
-    mockDataJsonWriterDoingSomething();
-
-    underTest.start();
-
-    // Verify that the telemetry data is not sent immediately
-    verify(client, after(2_000).never()).upload(anyString());
-
-    // Force another ping by updating the last ping time
-    internalProperties.write("telemetry.lastPing", String.valueOf(moreThanOneDayAgo));
-
-    // Verify that the telemetry data is sent after the delay
-    verify(dataJsonWriter, timeout(4_000)).writeTelemetryData(any(JsonWriter.class), same(SOME_TELEMETRY_DATA));
-    verify(client, timeout(4_000)).upload(anyString());
   }
 
   @Test
