@@ -447,8 +447,10 @@ subprojects {
       }
       //transitive dependency of SVNKit, to be re-assessed when updating SVNKit
       dependency 'org.apache.sshd:sshd-core:2.14.0'
-      dependency 'org.assertj:assertj-core:3.26.3'
-      dependency 'org.assertj:assertj-guava:3.26.3'
+      dependencySet(group: 'org.assertj', version: '3.27.3') {
+        entry 'assertj-core'
+        entry 'assertj-guava'
+      }
       dependencySet(group: 'org.bouncycastle', version: '1.80') {
         entry 'bcpkix-jdk18on'
         entry 'bcprov-jdk18on'
