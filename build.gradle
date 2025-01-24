@@ -501,7 +501,7 @@ subprojects {
         entry 'log4j-over-slf4j'
         entry 'slf4j-api'
       }
-      dependency 'org.postgresql:postgresql:42.7.4'
+      dependency 'org.postgresql:postgresql:42.7.5'
       dependency 'org.reflections:reflections:0.10.2'
       dependency 'org.simpleframework:simple:5.1.6'
       dependency 'org.sonarsource.git.blame:git-files-blame:1.1.0.1835'
