@@ -467,7 +467,7 @@ subprojects {
       }
       dependency "org.elasticsearch.plugin:transport-netty4-client:${elasticSearchClientVersion}"
       dependency 'org.elasticsearch:mocksocket:1.2'
-      dependency 'org.eclipse.jgit:org.eclipse.jgit:7.0.0.202409031743-r'
+      dependency 'org.eclipse.jgit:org.eclipse.jgit:7.1.0.202411261347-r'
       dependency "org.codelibs.elasticsearch.module:analysis-common:7.17.22"
       dependency "org.codelibs.elasticsearch.module:reindex:7.17.22"
       dependency 'org.tmatesoft.svnkit:svnkit:1.10.11'
@@ -475,7 +475,7 @@ subprojects {
       dependency 'org.jsoup:jsoup:1.18.3'
       // JUnit 5
       dependency 'org.junit:junit-bom:5.11.3'
-      dependencySet(group: 'org.junit.jupiter', version: '5.11.3') {
+      dependencySet(group: 'org.junit.jupiter', version: '5.11.4') {
         entry 'junit-jupiter-api'
         entry 'junit-jupiter-engine'
         entry 'junit-jupiter-params'
