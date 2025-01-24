@@ -481,7 +481,7 @@ subprojects {
         entry 'junit-jupiter-params'
         entry 'junit-vintage-engine'
       }
-      dependencySet(group: 'org.junit.platform', version: '1.11.3') {
+      dependencySet(group: 'org.junit.platform', version: '1.11.4') {
         entry 'junit-platform-suite-api'
         entry 'junit-platform-suite-engine'
       }
