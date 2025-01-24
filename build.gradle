@@ -232,7 +232,7 @@ subprojects {
     protobufVersion = '4.29.0'
     springVersion = '6.2.1'
     springSecurityVersion = '6.4.1'
-    elasticSearchClientVersion = '7.17.25'
+    elasticSearchClientVersion = '7.17.27'
   }
 
   sonar {
