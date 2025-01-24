@@ -494,7 +494,7 @@ subprojects {
       }
       dependency "org.springframework:spring-test:${springVersion}"
       dependency "org.springframework.security:spring-security-saml2-service-provider:${springSecurityVersion}"
-      dependency 'org.mybatis:mybatis:3.5.17'
+      dependency 'org.mybatis:mybatis:3.5.19'
       dependencySet(group: 'org.slf4j', version: '2.0.16') {
         entry 'jcl-over-slf4j'
         entry 'jul-to-slf4j'
