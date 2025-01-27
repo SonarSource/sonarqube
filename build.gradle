@@ -366,7 +366,7 @@ subprojects {
       dependency('com.googlecode.json-simple:json-simple:1.1.1') {
         exclude 'junit:junit'
       }
-      dependency 'io.github.hakky54:sslcontext-kickstart:8.3.7'
+      dependency 'io.github.hakky54:sslcontext-kickstart:9.0.0'
       dependency 'io.prometheus:simpleclient:0.16.0'
       dependency 'io.prometheus:simpleclient_common:0.16.0'
       dependency 'io.prometheus:simpleclient_servlet:0.16.0'
