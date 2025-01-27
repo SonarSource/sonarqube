@@ -156,7 +156,7 @@ public class ProjectMeasuresIndexer implements EventIndexer, AnalysisIndexer, Ne
     List<String> projectToDelete = new ArrayList<>(projectUuids);
 
     for (String projectUuid : projectUuids) {
-      try (ProjectMeasuresIndexerIterator rowIt = ProjectMeasuresIndexerIterator.create(dbSession, projectUuid)) {
+      try (ProjectMeasuresIndexerIterator rowIt = ProjectMeasuresIndexerIterator.create(dbSession, dbClient, projectUuid)) {
         while (rowIt.hasNext()) {
           bulkIndexer.add(toProjectMeasuresDoc(rowIt.next()).toIndexRequest());
           projectToDelete.remove(projectUuid);
@@ -183,7 +183,7 @@ public class ProjectMeasuresIndexer implements EventIndexer, AnalysisIndexer, Ne
         }
       }
 
-      try (ProjectMeasuresIndexerIterator rowIt = ProjectMeasuresIndexerIterator.create(dbSession, projectUuid)) {
+      try (ProjectMeasuresIndexerIterator rowIt = ProjectMeasuresIndexerIterator.create(dbSession, dbClient, projectUuid)) {
         BulkIndexer bulkIndexer = createBulkIndexer(size, IndexingListener.FAIL_ON_ERROR);
         bulkIndexer.start();
         while (rowIt.hasNext()) {

@@ -308,7 +308,7 @@ class ProjectMeasuresIndexerIteratorIT {
   }
 
   private Map<String, ProjectMeasures> createResultSetAndReturnDocsById(@Nullable String projectUuid) {
-    ProjectMeasuresIndexerIterator it = ProjectMeasuresIndexerIterator.create(dbTester.getSession(), projectUuid);
+    ProjectMeasuresIndexerIterator it = ProjectMeasuresIndexerIterator.create(dbTester.getSession(), dbTester.getDbClient(), projectUuid);
     Map<String, ProjectMeasures> docsById = Maps.uniqueIndex(it, pm -> pm.getProject().getUuid());
     it.close();
     return docsById;

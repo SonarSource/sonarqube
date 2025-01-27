@@ -37,11 +37,13 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DatabaseUtils;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.ComponentQualifiers;
 
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
@@ -104,36 +106,27 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     WHERE pb.project_uuid = ?
     AND pb.is_main = ?""";
 
-  private static final String SQL_NCLOC_LANGUAGE_DISTRIBUTION = """
-    SELECT m.component_uuid, m.branch_uuid, m.json_value
-    FROM measures m
-    WHERE m.branch_uuid = ?""";
-
-  private static final String SQL_BRANCH_BY_NCLOC = """
-    SELECT m.component_uuid, m.json_value
-    FROM measures m
-    INNER JOIN project_branches pb ON m.component_uuid = pb.uuid
-    WHERE pb.project_uuid = ?""";
-
   private static final boolean ENABLED = true;
-  public static final int JSON_VALUE_FIELD = 2;
 
   private final DbSession dbSession;
+  private final DbClient dbClient;
   private final PreparedStatement measuresStatement;
   private final Iterator<Project> projects;
   private final List<String> metrics;
 
-  private ProjectMeasuresIndexerIterator(DbSession dbSession, PreparedStatement measuresStatement, List<Project> projects, List<String> metrics) {
+  private ProjectMeasuresIndexerIterator(DbSession dbSession, DbClient dbClient, PreparedStatement measuresStatement,
+    List<Project> projects, List<String> metrics) {
     this.dbSession = dbSession;
+    this.dbClient = dbClient;
     this.measuresStatement = measuresStatement;
     this.projects = projects.iterator();
     this.metrics = metrics;
   }
 
-  public static ProjectMeasuresIndexerIterator create(DbSession session, @Nullable String projectUuid) {
+  public static ProjectMeasuresIndexerIterator create(DbSession session, DbClient dbClient, @Nullable String projectUuid) {
     List<Project> projects = selectProjects(session, projectUuid);
-    PreparedStatement projectsStatement = createMeasuresStatement(session);
-    return new ProjectMeasuresIndexerIterator(session, projectsStatement, projects, selectMetrics(session));
+    PreparedStatement measuresStatement = createMeasuresStatement(session);
+    return new ProjectMeasuresIndexerIterator(session, dbClient, measuresStatement, projects, selectMetrics(session));
   }
 
   private static List<String> selectMetrics(DbSession session) {
@@ -234,14 +227,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     String projectUuid = project.getUuid();
     try {
       Measures measures = getMeasures(projectUuid);
-
-      Optional<String> biggestBranch = project.getNcloc()
-        .flatMap(ncloc -> selectProjectBranchForNcloc(dbSession, projectUuid, ncloc));
-
-      if (biggestBranch.isPresent()) {
-        readNclocDistributionFromBiggestBranch(biggestBranch.get(), measures);
-      }
-
+      project.getNcloc().ifPresent(ncloc -> readNclocDistributionFromBiggestBranch(projectUuid, ncloc, measures));
       return measures;
     } catch (Exception e) {
       throw new IllegalStateException(String.format("Fail to execute request to select measures of project %s", projectUuid), e);
@@ -285,62 +271,18 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     }
   }
 
-  private void readNclocDistributionFromBiggestBranch(String biggestBranch, Measures measures) throws SQLException {
-    try (PreparedStatement prepareNclocByLanguageStatement = prepareNclocByLanguageStatement(dbSession, biggestBranch);
-         ResultSet rs = prepareNclocByLanguageStatement.executeQuery()) {
-      if (rs.next()) {
-        readNclocDistributionKey(rs, measures);
-      }
-    }
-  }
-
-  private static PreparedStatement prepareNclocByLanguageStatement(DbSession session, String branchUuid) {
-    try {
-      PreparedStatement stmt = session.getConnection().prepareStatement(SQL_NCLOC_LANGUAGE_DISTRIBUTION);
-      stmt.setString(1, branchUuid);
-      return stmt;
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to execute request to select ncloc_language_distribution measure", e);
-    }
-  }
-
-  private static Optional<String> selectProjectBranchForNcloc(DbSession session, String projectUuid, long ncloc) {
-    try (PreparedStatement nclocStatement = session.getConnection().prepareStatement(SQL_BRANCH_BY_NCLOC)) {
-      nclocStatement.setString(1, projectUuid);
-
-      try (ResultSet rs = nclocStatement.executeQuery()) {
-        return readBranchMeasures(rs, ncloc);
-      }
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to execute request to select the project biggest branch", e);
-    }
-  }
-
-  private static Optional<String> readBranchMeasures(ResultSet rs, long ncloc) throws SQLException {
-    while (rs.next()) {
-      String jsonValue = rs.getString(JSON_VALUE_FIELD);
-      Map<String, Object> metricValues = GSON.fromJson(jsonValue, new TypeToken<Map<String, Object>>() {
-      }.getType());
-
-      if (metricValues.containsKey(NCLOC_KEY)) {
-        Object nclocValue = metricValues.get(NCLOC_KEY);
-        if (nclocValue instanceof Double branchNcloc && branchNcloc == ncloc) {
-          return Optional.of(rs.getString(1));
+  private void readNclocDistributionFromBiggestBranch(String projectUuid, long ncloc, Measures measures) {
+    List<String> branchUuids = dbClient.branchDao().selectByProjectUuid(dbSession, projectUuid).stream().map(BranchDto::getUuid).toList();
+    List<MeasureDto> measureDtos = dbClient.measureDao().selectByComponentUuidsAndMetricKeys(dbSession, branchUuids,
+      List.of(NCLOC_KEY, NCLOC_LANGUAGE_DISTRIBUTION_KEY));
+    for (MeasureDto measureDto : measureDtos) {
+      Long branchNcloc = measureDto.getLong(NCLOC_KEY);
+      if (branchNcloc != null && branchNcloc == ncloc) {
+        String nclocLanguageDistribution = measureDto.getString(NCLOC_LANGUAGE_DISTRIBUTION_KEY);
+        if (nclocLanguageDistribution != null) {
+          measures.setNclocByLanguages(nclocLanguageDistribution);
         }
-      }
-    }
-    return Optional.empty();
-  }
-
-  private static void readNclocDistributionKey(ResultSet rs, Measures measures) throws SQLException {
-    String jsonValue = rs.getString(3);
-    Map<String, Object> metricValues = GSON.fromJson(jsonValue, new TypeToken<Map<String, Object>>() {
-    }.getType());
-
-    if (metricValues.containsKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY)) {
-      Object distribution = metricValues.get(NCLOC_LANGUAGE_DISTRIBUTION_KEY);
-      if (distribution instanceof String stringDistribution) {
-        measures.setNclocByLanguages(stringDistribution);
+        break;
       }
     }
   }
