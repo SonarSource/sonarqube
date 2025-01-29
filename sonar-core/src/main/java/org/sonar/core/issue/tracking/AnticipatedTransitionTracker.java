@@ -22,8 +22,7 @@ package org.sonar.core.issue.tracking;
 import java.util.Collection;
 
 /**
- * A simplified version of {@link Tracker}, which doesn't use line hash sequences nor block hash sequences and
- * only has two steps instead of 5 steps.
+ * Alternative version of {@link Tracker} used to detect issues to be updated when an anticipated transition from SonarQube IDE is found.
  */
 public class AnticipatedTransitionTracker<RAW extends Trackable, BASE extends Trackable> extends AbstractTracker<RAW, BASE> {
 
