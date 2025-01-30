@@ -106,6 +106,7 @@ import org.sonar.server.issue.notification.NewIssuesNotificationHandler;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.l18n.ServerI18n;
+import org.sonar.server.log.DistributedServerLogging;
 import org.sonar.server.log.ServerLogging;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.metric.IssueCountMetrics;
@@ -417,7 +418,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       new ReportAnalysisFailureNotificationModule(),
 
       // System
-      ServerLogging.class,
       CEQueueStatusImpl.class,
 
       // SonarSource editions
@@ -462,10 +462,12 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
         // system info
         DbSection.class,
+        DistributedServerLogging.class,
         ProcessInfoProvider.class);
     } else {
       container.add(
         new CeCleaningModule(),
+        ServerLogging.class,
         StandaloneCeDistributedInformation.class);
     }
   }

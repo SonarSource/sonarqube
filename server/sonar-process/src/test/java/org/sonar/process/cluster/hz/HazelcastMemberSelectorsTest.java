@@ -21,6 +21,7 @@ package org.sonar.process.cluster.hz;
 
 import com.hazelcast.cluster.Member;
 import com.hazelcast.cluster.MemberSelector;
+import java.util.UUID;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,5 +62,38 @@ public class HazelcastMemberSelectorsTest {
 
     when(member.getAttribute(PROCESS_KEY.getKey())).thenReturn(APP.getKey());
     assertThat(underTest.select(member)).isTrue();
+  }
+
+  @Test
+  public void selectorForMember_whenUuidMatches_returnTrue() {
+    Member member = mock();
+    Member member2 = mock();
+    UUID uuid1 = uuidFromInt(0);
+    when(member.getUuid()).thenReturn(uuid1);
+    when(member2.getUuid()).thenReturn(uuid1);
+
+    MemberSelector underTest = HazelcastMemberSelectors.selectorForMember(member);
+    boolean found = underTest.select(member2);
+
+    assertThat(found).isTrue();
+  }
+
+  private UUID uuidFromInt(int digit) {
+    return UUID.fromString("00000000-0000-0000-0000-00000000000" + digit);
+  }
+
+  @Test
+  public void selectorForMember_whenUuidDoesntMatch_returnTrue() {
+    Member member = mock();
+    Member member2 = mock();
+    UUID uuid1 = uuidFromInt(0);
+    UUID uuid2 = uuidFromInt(1);
+    when(member.getUuid()).thenReturn(uuid1);
+    when(member2.getUuid()).thenReturn(uuid2);
+
+    MemberSelector underTest = HazelcastMemberSelectors.selectorForMember(member);
+    boolean found = underTest.select(member2);
+
+    assertThat(found).isFalse();
   }
 }

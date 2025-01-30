@@ -157,6 +157,7 @@ import org.sonar.server.issue.notification.NewModesNotificationsModule;
 import org.sonar.server.issue.ws.IssueWsModule;
 import org.sonar.server.language.LanguageValidation;
 import org.sonar.server.language.ws.LanguageWs;
+import org.sonar.server.log.DistributedServerLogging;
 import org.sonar.server.log.ServerLogging;
 import org.sonar.server.loginmessage.LoginMessageFeature;
 import org.sonar.server.management.DelegatingManagedServices;
@@ -330,7 +331,8 @@ public class PlatformLevel4 extends PlatformLevel {
       MetadataIndexImpl.class,
       EsDbCompatibilityImpl.class);
 
-    addIfCluster(new NodeHealthModule());
+    addIfCluster(new NodeHealthModule(),
+      DistributedServerLogging.class);
 
     add(
       RuleDescriptionFormatter.class,
@@ -571,7 +573,6 @@ public class PlatformLevel4 extends PlatformLevel {
       new ProjectAnalysisWsModule(),
 
       // System
-      ServerLogging.class,
       new ChangeLogLevelServiceModule(getWebServer()),
       new HealthCheckerModule(getWebServer()),
       new SystemWsModule(),
@@ -743,6 +744,8 @@ public class PlatformLevel4 extends PlatformLevel {
 
     // system info
     add(new SystemInfoWriterModule(getWebServer()));
+
+    addIfStandalone(ServerLogging.class);
 
     addAll(level4AddedComponents);
   }

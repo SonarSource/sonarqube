@@ -32,15 +32,14 @@ import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.NODE_NAME;
 
 public class DistributedAnswerTest {
 
-
-  private final Member member = newMember(UUID.randomUUID());
+  private final Member member = newMember(uuidFromInt(9));
   private final DistributedAnswer<String> underTest = new DistributedAnswer<>();
 
   @Test
   public void getMembers_return_all_members() {
     underTest.setAnswer(member, "foo");
-    underTest.setTimedOut(newMember(UUID.randomUUID()));
-    underTest.setFailed(newMember(UUID.randomUUID()), new IOException("BOOM"));
+    underTest.setTimedOut(newMember(uuidFromInt(0)));
+    underTest.setFailed(newMember(uuidFromInt(1)), new IOException("BOOM"));
 
     assertThat(underTest.getMembers()).hasSize(3);
   }
@@ -100,7 +99,7 @@ public class DistributedAnswerTest {
 
   @Test
   public void propagateExceptions_does_nothing_if_no_errors() {
-    underTest.setAnswer(newMember(UUID.randomUUID()), "bar");
+    underTest.setAnswer(newMember(uuidFromInt(3)), "bar");
 
     // no errors
     underTest.propagateExceptions();
@@ -108,8 +107,8 @@ public class DistributedAnswerTest {
 
   @Test
   public void propagateExceptions_throws_ISE_if_at_least_one_timeout() {
-    UUID uuid = UUID.randomUUID();
-    UUID otherUuid = UUID.randomUUID();
+    UUID uuid = uuidFromInt(4);
+    UUID otherUuid = uuidFromInt(5);
 
     underTest.setAnswer(newMember(uuid), "baz");
     underTest.setTimedOut(newMember(otherUuid));
@@ -121,8 +120,8 @@ public class DistributedAnswerTest {
 
   @Test
   public void propagateExceptions_throws_ISE_if_at_least_one_failure() {
-    UUID foo = UUID.randomUUID();
-    UUID bar = UUID.randomUUID();
+    UUID foo = uuidFromInt(0);
+    UUID bar = uuidFromInt(1);
 
     underTest.setAnswer(newMember(bar), "baz");
     underTest.setFailed(newMember(foo), new IOException("BOOM"));
@@ -130,6 +129,22 @@ public class DistributedAnswerTest {
     assertThatThrownBy(underTest::propagateExceptions)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Distributed cluster action in cluster nodes " + foo + " (other nodes may have timed out)");
+  }
+
+  @Test
+  public void getSingleAnswer_returns_first_answer() {
+    underTest.setAnswer(newMember(uuidFromInt(0)), "foo");
+
+    assertThat(underTest.getSingleAnswer()).isNotEmpty();
+  }
+
+  private UUID uuidFromInt(int digit) {
+    return UUID.fromString("00000000-0000-0000-0000-00000000000" + digit);
+  }
+
+  @Test
+  public void getSingleAnswer_whenNoAnswer_returnEmptyOptional() {
+    assertThat(underTest.getSingleAnswer()).isEmpty();
   }
 
   private static Member newMember(UUID uuid) {

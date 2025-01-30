@@ -22,18 +22,13 @@ package org.sonar.server.platform.ws;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Comparator;
-import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.platform.EditionProvider;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.process.ProcessId;
 import org.sonar.server.log.ServerLogging;
 import org.sonar.server.user.UserSession;
@@ -44,21 +39,18 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
 public class LogsAction implements SystemWsAction {
-  /**
-   * @deprecated since 10.4, use {@link #NAME} instead.
-   */
-  @Deprecated(since = "10.4", forRemoval = true)
-  private static final String PROCESS_PROPERTY = "process";
   private static final String NAME = "name";
   private static final String ACCESS_LOG = "access";
   private static final String DEPRECATION_LOG = "deprecation";
 
   private final UserSession userSession;
   private final ServerLogging serverLogging;
+  private final PlatformEditionProvider editionProvider;
 
-  public LogsAction(UserSession userSession, ServerLogging serverLogging) {
+  public LogsAction(UserSession userSession, ServerLogging serverLogging, PlatformEditionProvider editionProvider) {
     this.userSession = userSession;
     this.serverLogging = serverLogging;
+    this.editionProvider = editionProvider;
   }
 
   @Override
@@ -73,13 +65,14 @@ public class LogsAction implements SystemWsAction {
       .setResponseExample(getClass().getResource("logs-example.log"))
       .setSince("5.2")
       .setChangelog(
+        new Change("2025.2", format("Added support for Data Center Edition for all possible values of '%s' except 'es'.", NAME)),
+        new Change("2025.2", "Removed deprecated 'process' property."),
         new Change("10.4", "Add support for deprecation logs in process property."),
-        new Change("10.4", format("Deprecate property '%s' in favor of '%s'.", PROCESS_PROPERTY, NAME)))
+        new Change("10.4", format("Deprecate property 'process' in favor of '%s'.", NAME)))
       .setHandler(this);
 
     action
       .createParam(NAME)
-      .setDeprecatedKey(PROCESS_PROPERTY, "10.4")
       .setPossibleValues(values)
       .setDefaultValue(ProcessId.APP.getKey())
       .setSince("6.2")
@@ -88,31 +81,36 @@ public class LogsAction implements SystemWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    userSession.checkIsSystemAdministrator();
+    boolean nodeToNodeCall = serverLogging.isValidNodeToNodeCall(wsRequest.getHeaders());
+    if (!nodeToNodeCall) {
+      userSession.checkIsSystemAdministrator();
+    }
 
     String logName = wsRequest.mandatoryParam(NAME);
     String filePrefix = getFilePrefix(logName);
 
-    File logsDir = serverLogging.getLogsDir();
-
-    Optional<Path> path = getLogFilePath(filePrefix, logsDir);
-
-    if (path.isEmpty()) {
-      wsResponse.stream().setStatus(HttpURLConnection.HTTP_NOT_FOUND);
-      return;
+    if (!nodeToNodeCall && editionProvider.get().orElseThrow() == EditionProvider.Edition.DATACENTER) {
+      buildAndSendLogsForDataCenterEdition(wsResponse, filePrefix, logName);
+    } else {
+      buildAndSendLogsForSingleNode(wsResponse, filePrefix);
     }
+  }
 
-    File file = new File(logsDir, path.get().getFileName().toString());
+  private void buildAndSendLogsForDataCenterEdition(Response wsResponse, String filePrefix, String logName) throws IOException {
+    File zipfile = serverLogging.getDistributedLogs(filePrefix, logName);
 
-    // filenames are defined in the enum LogProcess. Still to prevent any vulnerability,
-    // path is double-checked to prevent returning any file present on the file system.
-    if (file.exists() && file.getParentFile().equals(logsDir)) {
+    wsResponse.stream().setMediaType(MediaTypes.ZIP);
+    FileUtils.copyFile(zipfile, wsResponse.stream().output());
+  }
+
+  private void buildAndSendLogsForSingleNode(Response wsResponse, String filePrefix) throws IOException {
+    File file = serverLogging.getLogsForSingleNode(filePrefix);
+    if (file == null) {
+      wsResponse.stream().setStatus(HttpURLConnection.HTTP_NOT_FOUND);
+    } else {
       wsResponse.stream().setMediaType(MediaTypes.TXT);
       FileUtils.copyFile(file, wsResponse.stream().output());
-    } else {
-      wsResponse.stream().setStatus(HttpURLConnection.HTTP_NOT_FOUND);
     }
-
   }
 
   private static String getFilePrefix(String logName) {
@@ -120,21 +118,6 @@ public class LogsAction implements SystemWsAction {
       case ACCESS_LOG -> ACCESS_LOG;
       case DEPRECATION_LOG -> DEPRECATION_LOG;
       default -> ProcessId.fromKey(logName).getLogFilenamePrefix();
-    };
-  }
-
-  private static Optional<Path> getLogFilePath(String filePrefix, File logsDir) throws IOException {
-    try (Stream<Path> stream = Files.list(Paths.get(logsDir.getPath()))) {
-      return stream
-        .filter(hasMatchingLogFiles(filePrefix))
-        .max(Comparator.comparing(Path::toString));
-    }
-  }
-
-  private static Predicate<Path> hasMatchingLogFiles(String filePrefix) {
-    return p -> {
-      String stringPath = p.getFileName().toString();
-      return stringPath.startsWith(filePrefix) && stringPath.endsWith(".log");
     };
   }
 }

@@ -90,4 +90,12 @@ public class DistributedAnswer<T> {
       throw new IllegalStateException("Distributed cluster action timed out in cluster nodes " + timedOutMemberNames);
     }
   }
+
+  /**
+   * Returns any answer. No guarantees are made on the order. Use this method if you only expect exactly one answer.
+   * @return the first answer, if any
+   */
+  public Optional<T> getSingleAnswer() {
+    return answers.values().stream().findFirst();
+  }
 }

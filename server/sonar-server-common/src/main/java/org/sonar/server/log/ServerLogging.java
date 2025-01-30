@@ -22,16 +22,26 @@ package org.sonar.server.log;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.google.common.annotations.VisibleForTesting;
-import java.io.File;
 import jakarta.inject.Inject;
-import org.sonar.api.Startable;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.Startable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.Database;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.logging.LogbackHelper;
 
 import static org.sonar.api.utils.log.LoggerLevel.TRACE;
@@ -40,7 +50,6 @@ import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 @ServerSide
 @ComputeEngineSide
 public class ServerLogging implements Startable {
-
   /** Used for Hazelcast's distributed queries in cluster mode */
   private static ServerLogging instance;
   private final LogbackHelper helper;
@@ -75,6 +84,17 @@ public class ServerLogging implements Startable {
     instance.changeLevel(level);
   }
 
+  public static int getWebAPIPortFromHazelcastQuery() {
+    Optional<String> port = instance.config.get(ProcessProperties.Property.WEB_PORT.getKey());
+    return port.map(Integer::parseInt).orElse(9000);
+  }
+
+  public static String getWebAPIAddressFromHazelcastQuery() {
+    return instance.config.get(ProcessProperties.Property.WEB_HOST.getKey())
+      .orElseGet(() -> instance.config.get(ProcessProperties.Property.CLUSTER_NODE_HOST.getKey())
+      .orElseThrow(() -> new IllegalStateException("No web host found in configuration")));
+  }
+
   public void changeLevel(LoggerLevel level) {
     Level logbackLevel = Level.toLevel(level.name());
     database.enableSqlLogging(level == TRACE);
@@ -93,4 +113,45 @@ public class ServerLogging implements Startable {
     return new File(config.get(PATH_LOGS.getKey()).get());
   }
 
+  public Optional<Path> getLogFilePath(String filePrefix, File logsDir) throws IOException {
+    try (Stream<Path> stream = Files.list(Paths.get(logsDir.getPath()))) {
+      return stream
+        .filter(hasMatchingLogFiles(filePrefix))
+        .max(Comparator.comparing(Path::toString));
+    }
+  }
+
+  public Predicate<Path> hasMatchingLogFiles(String filePrefix) {
+    return p -> {
+      String stringPath = p.getFileName().toString();
+      return stringPath.startsWith(filePrefix) && stringPath.endsWith(".log");
+    };
+  }
+
+  public File getLogsForSingleNode(String filePrefix) throws IOException {
+    File logsDir = getLogsDir();
+    Optional<Path> path = getLogFilePath(filePrefix, logsDir);
+
+    if (path.isEmpty()) {
+      return null;
+    }
+
+    File file = new File(logsDir, path.get().getFileName().toString());
+
+    // filenames are defined in the enum LogProcess. Still to prevent any vulnerability,
+    // path is double-checked to prevent returning any file present on the file system.
+    if (file.exists() && file.getParentFile().equals(logsDir)) {
+      return file;
+    } else {
+      return null;
+    }
+  }
+
+  public File getDistributedLogs(String filePrefix, String logName) {
+    throw new UnsupportedOperationException("This method should not be called on a standalone instance of SonarQube");
+  }
+
+  public boolean isValidNodeToNodeCall(Map<String, String> headers) {
+    return false;
+  }
 }

@@ -25,6 +25,9 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,6 +37,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.Database;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.logging.LogLevelConfig;
 import org.sonar.process.logging.LogbackHelper;
 
@@ -58,11 +62,11 @@ public class ServerLoggingTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private final String rootLoggerName = RandomStringUtils.secure().nextAlphabetic(20);
-  private LogbackHelper logbackHelper = spy(new LogbackHelper());
-  private MapSettings settings = new MapSettings();
+  private final LogbackHelper logbackHelper = spy(new LogbackHelper());
+  private final MapSettings settings = new MapSettings();
   private final ServerProcessLogging serverProcessLogging = mock(ServerProcessLogging.class);
   private final Database database = mock(Database.class);
-  private ServerLogging underTest = new ServerLogging(logbackHelper, settings.asConfig(), serverProcessLogging, database);
+  private final ServerLogging underTest = new ServerLogging(logbackHelper, settings.asConfig(), serverProcessLogging, database);
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -131,5 +135,100 @@ public class ServerLoggingTest {
     assertThatThrownBy(() -> underTest.changeLevel(WARN))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("WARN log level is not supported (allowed levels are [TRACE, DEBUG, INFO])");
+  }
+
+  @Test
+  public void getLogsForSingleNode_shouldReturnFile() throws IOException {
+    File dir = temp.newFolder();
+    settings.setProperty(PATH_LOGS.getKey(), dir.getAbsolutePath());
+    File file = new File(dir, "ce.log");
+    file.createNewFile();
+
+    File ce = underTest.getLogsForSingleNode("ce");
+
+    assertThat(ce).isFile();
+  }
+
+  @Test
+  public void getLogFilePath_whenMatchingFileDoesNotExist_shouldReturnEmpty() throws IOException {
+    File dir = temp.newFolder();
+    settings.setProperty(PATH_LOGS.getKey(), dir.getAbsolutePath());
+    File file = new File(dir, "ce.log");
+    file.createNewFile();
+
+    Optional<Path> path = underTest.getLogFilePath("web", dir);
+
+    assertThat(path).isEmpty();
+  }
+
+  @Test
+  public void getLogFilePath_whenMatchingFileExists_shouldReturnPath() throws IOException {
+    File dir = temp.newFolder();
+    settings.setProperty(PATH_LOGS.getKey(), dir.getAbsolutePath());
+    File file = new File(dir, "web.log");
+    file.createNewFile();
+
+    Optional<Path> path = underTest.getLogFilePath("web", dir);
+
+    assertThat(path).isNotEmpty();
+  }
+
+  @Test
+  public void hasMatchingLogFiles_shouldReturnFalse() {
+    boolean result = underTest.hasMatchingLogFiles("ce").test(Path.of("web.log"));
+
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  public void hasMatchingLogFiles_shouldReturnTrue() {
+    boolean result = underTest.hasMatchingLogFiles("ce").test(Path.of("ce.log"));
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  public void getLogsForSingleNode_whenNoFiles_shouldReturnNull() throws IOException {
+    File dir = temp.newFolder();
+    settings.setProperty(PATH_LOGS.getKey(), dir.getAbsolutePath());
+
+    File ce = underTest.getLogsForSingleNode("web");
+
+    assertThat(ce).isNull();
+  }
+
+  @Test
+  public void getDistributedLogs_shouldReturnException() {
+    assertThatThrownBy(() -> underTest.getDistributedLogs("a", "b"))
+      .isInstanceOf(UnsupportedOperationException.class)
+      .hasMessage("This method should not be called on a standalone instance of SonarQube");
+  }
+
+  @Test
+  public void isValidNodeToNodeCall_shouldReturnFalse() {
+    assertThat(underTest.isValidNodeToNodeCall(Map.of("node_to_node_secret", "secret"))).isFalse();
+  }
+
+  @Test
+  public void getWebAPIPortFromHazelcastQuery_shouldReturnPortByDefault() {
+    underTest.start();
+
+    assertThat(ServerLogging.getWebAPIPortFromHazelcastQuery()).isEqualTo(9000);
+  }
+
+  @Test
+  public void getWebAPIPortFromHazelcastQuery_whenPortSpecified_shouldReturnPort() {
+    underTest.start();
+
+    settings.setProperty(ProcessProperties.Property.WEB_PORT.getKey(), "8000");
+    assertThat(ServerLogging.getWebAPIPortFromHazelcastQuery()).isEqualTo(8000);
+  }
+
+  @Test
+  public void getWebAPIAddressFromHazelcastQuery_whenSpecified_shouldReturnAddress() {
+    underTest.start();
+    settings.setProperty(ProcessProperties.Property.CLUSTER_NODE_HOST.getKey(), "anyhost");
+
+    assertThat(ServerLogging.getWebAPIAddressFromHazelcastQuery()).isEqualTo("anyhost");
   }
 }
