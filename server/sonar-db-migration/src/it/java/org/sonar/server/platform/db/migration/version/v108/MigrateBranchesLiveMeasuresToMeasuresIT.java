@@ -22,6 +22,7 @@ package org.sonar.server.platform.db.migration.version.v108;
 import com.google.gson.Gson;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -266,6 +267,64 @@ class MigrateBranchesLiveMeasuresToMeasuresIT {
     assertThat(jsonValue).hasSize(5).containsAllEntriesOf(expectedExistingMetrics).containsAllEntriesOf(expectedNewMetrics);
     assertThat(logTester.logs(Level.DEBUG)).contains("Failed to migrate metric reliability_issues with value {\"LOW\":3,\"MEDIUM\":0," +
       "\"HIGH\":4,\"total\":98723987498723987429874928748748}");
+  }
+
+  @Test
+  void should_not_migrate_large_measures() throws SQLException {
+    String nclocMetricUuid = insertMetric("ncloc", "INT");
+    String metricWithDataUuid = insertMetric("metric_with_data", "DATA");
+    String metricWithLargeDataUuid = insertMetric("metric_with_large_data", "DATA");
+
+    String branch1 = "branch_1";
+    insertNotMigratedBranch(branch1);
+    String component1 = uuidFactory.create();
+    insertMeasure(branch1, component1, nclocMetricUuid, Map.of("value", 120));
+    byte[] largeValue = createLargeValue(999_999);
+    insertMeasure(branch1, component1, metricWithDataUuid, Map.of("measure_data", largeValue));
+    insertMeasure(branch1, component1, metricWithLargeDataUuid, Map.of("measure_data", createLargeValue(1_000_000)));
+
+    underTest.execute();
+
+    assertBranchMigrated(branch1);
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(1);
+
+    assertThat(db.select(format(SELECT_MEASURE, component1)))
+      .hasSize(1)
+      .extracting(t -> t.get("component_uuid"), t -> t.get("branch_uuid"),
+        t -> t.get("json_value"), t -> t.get("json_value_hash"))
+      .containsOnly(tuple(component1, branch1, "{\"ncloc\":120.0,\"metric_with_data\":\"" +
+        new String(largeValue, StandardCharsets.UTF_8) + "\"}", -8442559321192521885L));
+  }
+
+  @Test
+  void should_not_migrate_not_persisted_metrics() throws SQLException {
+    String devCostMetricUuid = insertMetric(CoreMetrics.DEVELOPMENT_COST_KEY, "STRING");
+    String nclocDataMetricUuid = insertMetric(CoreMetrics.NCLOC_DATA_KEY, "STRING");
+    String executableLinesDataMetricUuid = insertMetric(CoreMetrics.EXECUTABLE_LINES_DATA_KEY, "STRING");
+
+    String branch1 = "branch_1";
+    insertNotMigratedBranch(branch1);
+    String component1 = uuidFactory.create();
+    insertMeasure(branch1, component1, devCostMetricUuid, Map.of("text_value", "123"));
+    insertMeasure(branch1, component1, nclocDataMetricUuid, Map.of("text_value", "456"));
+    insertMeasure(branch1, component1, executableLinesDataMetricUuid, Map.of("text_value", "789"));
+
+    underTest.execute();
+
+    assertBranchMigrated(branch1);
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(1);
+
+    assertThat(db.select(format(SELECT_MEASURE, component1)))
+      .hasSize(1)
+      .extracting(t -> t.get("component_uuid"), t -> t.get("branch_uuid"),
+        t -> t.get("json_value"), t -> t.get("json_value_hash"))
+      .containsOnly(tuple(component1, branch1, "{\"development_cost\":\"123\"}", -4081454374503046534L));
+  }
+
+  private byte[] createLargeValue(int size) {
+    byte[] value = new byte[size];
+    Arrays.fill(value, (byte) 'a');
+    return value;
   }
 
   private void assertBranchMigrated(String branch) {

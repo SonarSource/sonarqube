@@ -34,6 +34,10 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Database;
 import org.sonar.db.DatabaseUtils;
+import org.sonar.db.dialect.H2;
+import org.sonar.db.dialect.MsSql;
+import org.sonar.db.dialect.Oracle;
+import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 import org.sonar.server.platform.db.migration.step.Select;
@@ -58,6 +62,8 @@ public abstract class AbstractMigrateLiveMeasuresToMeasures extends DataChange {
     FROM live_measures lm
     INNER JOIN metrics m ON m.uuid = lm.metric_uuid
     WHERE lm.project_uuid = ?
+    AND (lm.measure_data is null OR %s(lm.measure_data) < 1000000)
+    AND m.name NOT IN ('executable_lines_data', 'ncloc_data')
     ORDER BY lm.component_uuid
     """;
 
@@ -119,9 +125,11 @@ public abstract class AbstractMigrateLiveMeasuresToMeasures extends DataChange {
     LOGGER.info("Starting the migration of {} {}s (total number of {}s: {})", uuids.size(), item, item, total);
     int migrated = 0;
 
+    String selectQuery = String.format(SELECT_QUERY, getByteLengthFunction());
+
     for (String uuid : uuids) {
       try {
-        migrateItem(uuid, context);
+        migrateItem(uuid, context, selectQuery);
       } catch (Exception e) {
         LOGGER.error(format("Migration of %s %s failed", item, uuid));
         throw e;
@@ -134,14 +142,24 @@ public abstract class AbstractMigrateLiveMeasuresToMeasures extends DataChange {
     }
   }
 
-  private void migrateItem(String uuid, Context context) throws SQLException {
+  private String getByteLengthFunction() {
+    return switch (getDialect().getId()) {
+      case PostgreSql.ID -> "OCTET_LENGTH";
+      case MsSql.ID -> "DATALENGTH";
+      case Oracle.ID -> "DBMS_LOB.GETLENGTH";
+      case H2.ID -> "LENGTH";
+      default -> throw new IllegalStateException("Unsupported dialect: " + getDialect().getId());
+    };
+  }
+
+  private void migrateItem(String uuid, Context context, String selectQuery) throws SQLException {
     LOGGER.debug("Migrating {} {}...", item, uuid);
 
     Map<String, Object> measureValues = new HashMap<>();
     AtomicReference<String> componentUuid = new AtomicReference<>(null);
 
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select(SELECT_QUERY).setString(1, uuid);
+    massUpdate.select(selectQuery).setString(1, uuid);
     massUpdate.update(INSERT_QUERY);
     massUpdate.execute((row, update) -> {
       boolean shouldUpdate = false;
