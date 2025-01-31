@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -243,7 +244,7 @@ public class SpringComponentContainer implements StartableContainer {
 
   private void stopChildren() {
     // loop over a copy of list of children in reverse order
-    Lists.reverse(new ArrayList<>(this.children)).forEach(SpringComponentContainer::stopComponents);
+    Lists.reverse(new ArrayList<>(this.children)).stream().filter(Objects::nonNull).forEach(SpringComponentContainer::stopComponents);
   }
 
   public SpringComponentContainer createChild() {
