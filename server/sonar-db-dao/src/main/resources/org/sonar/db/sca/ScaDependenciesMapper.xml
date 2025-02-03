@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.db.sca.ScaDependenciesMapper">
+  <sql id="scaDependenciesColumns">
+    sd.uuid as uuid,
+    sd.component_uuid as componentUuid,
+    sd.package_url as packageUrl,
+    sd.package_manager as packageManager,
+    sd.package_name as packageName,
+    sd.version as version,
+    sd.direct as direct,
+    sd.scope as scope,
+    sd.dependency_file_path as dependencyFilePath,
+    sd.license_expression as licenseExpression,
+    sd.known as known,
+    sd.created_at as createdAt,
+    sd.updated_at as updatedAt
+  </sql>
+
+  <insert id="insert" parameterType="org.sonar.db.sca.ScaDependencyDto" useGeneratedKeys="false">
+    insert into sca_dependencies (
+      uuid,
+      component_uuid,
+      package_url,
+      package_manager,
+      package_name,
+      version,
+      direct,
+      scope,
+      dependency_file_path,
+      license_expression,
+      known,
+      created_at,
+      updated_at
+    ) values (
+      #{uuid,jdbcType=VARCHAR},
+      #{componentUuid,jdbcType=VARCHAR},
+      #{packageUrl,jdbcType=VARCHAR},
+      #{packageManager,jdbcType=VARCHAR},
+      #{packageName,jdbcType=VARCHAR},
+      #{version,jdbcType=VARCHAR},
+      #{direct,jdbcType=BOOLEAN},
+      #{scope,jdbcType=VARCHAR},
+      #{dependencyFilePath,jdbcType=VARCHAR},
+      #{licenseExpression,jdbcType=VARCHAR},
+      #{known,jdbcType=BOOLEAN},
+      #{createdAt,jdbcType=BIGINT},
+      #{updatedAt,jdbcType=BIGINT}
+    )
+  </insert>
+
+  <delete id="deleteByUuid" parameterType="string">
+    delete from sca_dependencies
+    where uuid = #{uuid,jdbcType=VARCHAR}
+  </delete>
+
+  <select id="selectByUuid" parameterType="string" resultType="org.sonar.db.sca.ScaDependencyDto">
+    select <include refid="scaDependenciesColumns"/>
+    from sca_dependencies pd
+    where sd.uuid = #{uuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByBranchUuid" parameterType="string" resultType="org.sonar.db.sca.ScaDependencyDto">
+    select <include refid="scaDependenciesColumns"/>
+    from sca_dependencies sd
+    inner join components c on sd.component_uuid = c.uuid
+    where c.branch_uuid = #{branchUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.sca.ScaDependencyDto">
+    select <include refid="scaDependenciesColumns"/>
+    <include refid="sqlSelectByQuery" />
+    ORDER BY c.kee ASC
+    <include refid="org.sonar.db.common.Common.pagination"/>
+  </select>
+
+  <select id="countByQuery" resultType="int">
+    select count(sd.uuid)
+    <include refid="sqlSelectByQuery" />
+  </select>
+
+  <sql id="sqlSelectByQuery">
+    from sca_dependencies sd
+    inner join components c on sd.component_uuid = c.uuid
+    where c.branch_uuid = #{query.branchUuid,jdbcType=VARCHAR}
+    <if test="query.query() != null">
+      AND (
+        c.kee = #{query.query,jdbcType=VARCHAR}
+        OR lower(c.long_name) LIKE #{query.likeQuery} ESCAPE '/'
+      )
+    </if>
+  </sql>
+
+  <update id="update" parameterType="org.sonar.db.sca.ScaDependencyDto" useGeneratedKeys="false">
+    update sca_dependencies
+    set
+      uuid = #{uuid, jdbcType=VARCHAR},
+      component_uuid = #{componentUuid, jdbcType=VARCHAR},
+      package_url = #{packageUrl, jdbcType=VARCHAR},
+      package_manager = #{packageManager, jdbcType=VARCHAR},
+      package_name = #{packageName, jdbcType=VARCHAR},
+      version = #{version, jdbcType=VARCHAR},
+      direct = #{direct, jdbcType=BOOLEAN},
+      scope = #{scope, jdbcType=VARCHAR},
+      dependency_file_path = #{dependencyFilePath, jdbcType=VARCHAR},
+      license_expression = #{licenseExpression, jdbcType=VARCHAR},
+      known = #{known, jdbcType=BOOLEAN},
+      updated_at = #{updatedAt, jdbcType=BIGINT}
+    where
+      uuid = #{uuid, jdbcType=VARCHAR}
+  </update>
+
+</mapper>

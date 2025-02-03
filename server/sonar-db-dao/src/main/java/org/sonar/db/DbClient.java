@@ -89,6 +89,7 @@ import org.sonar.db.report.ReportSubscriptionDao;
 import org.sonar.db.rule.RuleChangeDao;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleRepositoryDao;
+import org.sonar.db.sca.ScaDependenciesDao;
 import org.sonar.db.scannercache.ScannerAnalysisCacheDao;
 import org.sonar.db.schemamigration.SchemaMigrationDao;
 import org.sonar.db.scim.ScimGroupDao;
@@ -202,6 +203,7 @@ public class DbClient {
   private final IssueFixedDao issueFixedDao;
   private final TelemetryMetricsSentDao telemetryMetricsSentDao;
   private final ProjectDependenciesDao projectDependenciesDao;
+  private final ScaDependenciesDao scaDependenciesDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -299,6 +301,7 @@ public class DbClient {
     issueFixedDao = getDao(map, IssueFixedDao.class);
     telemetryMetricsSentDao = getDao(map, TelemetryMetricsSentDao.class);
     projectDependenciesDao = getDao(map, ProjectDependenciesDao.class);
+    scaDependenciesDao = getDao(map, ScaDependenciesDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -665,5 +668,9 @@ public class DbClient {
 
   public ProjectDependenciesDao projectDependenciesDao() {
     return projectDependenciesDao;
+  }
+
+  public ScaDependenciesDao scaDependenciesDao() {
+    return scaDependenciesDao;
   }
 }
