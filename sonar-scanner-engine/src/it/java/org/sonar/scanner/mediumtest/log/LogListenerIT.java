@@ -124,7 +124,7 @@ public class LogListenerIT {
     }
 
     Matcher matcher = simpleTimePattern.matcher(msg);
-    assertThat(matcher.find()).isFalse();
+    assertThat(matcher.find()).as("Offending log message: " + msg).isFalse();
   }
 
   @Test
