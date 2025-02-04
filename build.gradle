@@ -283,8 +283,8 @@ subprojects {
       // bundled plugin list -- keep it alphabetically ordered
       dependency 'com.sonarsource.abap:sonar-abap-plugin:3.15.1.6010'
       dependency 'com.sonarsource.cobol:sonar-cobol-plugin:5.8.0.8309'
-      dependency 'com.sonarsource.cpp:sonar-cfamily-dependencies-plugin:6.62.0.78645'
-      dependency 'com.sonarsource.cpp:sonar-cfamily-plugin:6.62.0.78645'
+      dependency 'com.sonarsource.cpp:sonar-cfamily-dependencies-plugin:6.63.0.79828'
+      dependency 'com.sonarsource.cpp:sonar-cfamily-plugin:6.63.0.79828'
       dependency 'com.sonarsource.dart:sonar-dart-plugin:1.0.0.1952'
       dependency 'com.sonarsource.dbd:sonar-dbd-plugin:1.36.1.13250'
       dependency 'com.sonarsource.dbd:sonar-dbd-java-frontend-plugin:1.36.1.13250'
