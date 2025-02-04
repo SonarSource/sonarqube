@@ -19,15 +19,17 @@
  */
 package org.sonar.server.telemetry;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import org.sonar.telemetry.core.AbstractTelemetryDataProvider;
 import org.sonar.telemetry.core.Dimension;
 import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.core.TelemetryDataType;
 
 public class TelemetryBadgeProvider extends AbstractTelemetryDataProvider<Integer> {
-  private final Map<String, Integer> badgesCounters = new HashMap<>();
+  private final Map<String, AtomicInteger> badgesCounters = new ConcurrentHashMap<>();
 
   public TelemetryBadgeProvider() {
     super("project_badges_count", Dimension.INSTALLATION, Granularity.ADHOC, TelemetryDataType.INTEGER);
@@ -35,7 +37,7 @@ public class TelemetryBadgeProvider extends AbstractTelemetryDataProvider<Intege
 
   @Override
   public Map<String, Integer> getValues() {
-    return badgesCounters;
+    return badgesCounters.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get()));
   }
 
   @Override
@@ -44,6 +46,9 @@ public class TelemetryBadgeProvider extends AbstractTelemetryDataProvider<Intege
   }
 
   public void incrementForMetric(String metricKey) {
-    badgesCounters.merge(metricKey, 1, Integer::sum);
+    badgesCounters.merge(metricKey, new AtomicInteger(1), (oldValue, newValue) -> {
+      oldValue.addAndGet(newValue.get());
+      return oldValue;
+    });
   }
 }
