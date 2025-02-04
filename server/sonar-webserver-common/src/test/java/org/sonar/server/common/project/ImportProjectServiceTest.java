@@ -85,7 +85,7 @@ class ImportProjectServiceTest {
 
     assertThatThrownBy(() -> importProjectService.importProject(request))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("ALM setting not found");
+      .hasMessage("devOpsPlatformSettingId value not found, must be the ID of the DevOps Platform configuration");
 
   }
 

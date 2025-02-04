@@ -35,7 +35,8 @@ public record BoundProjectCreateRestRequest(
   String projectName,
 
   @NotEmpty
-  @Schema(description = "Identifier of DevOps platform configuration to use.")
+  @Schema(description = "Identifier of DevOps platform configuration to use. " +
+          "Use /dop-translation/dop-settings to retrieve the settings and their ID")
   String devOpsPlatformSettingId,
 
   @NotEmpty

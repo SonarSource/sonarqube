@@ -61,7 +61,8 @@ public class ImportProjectService {
   public ImportedProject importProject(ImportProjectRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       checkNewCodeDefinitionParam(request.newCodeDefinitionType(), request.newCodeDefinitionValue());
-      AlmSettingDto almSetting = dbClient.almSettingDao().selectByUuid(dbSession, request.almSettingId()).orElseThrow(() -> new IllegalArgumentException("ALM setting not found"));
+      AlmSettingDto almSetting = dbClient.almSettingDao().selectByUuid(dbSession, request.almSettingId()).orElseThrow(() ->
+              new IllegalArgumentException("devOpsPlatformSettingId value not found, must be the ID of the DevOps Platform configuration"));
       DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(almSetting.getAlm(), almSetting.getUrl(), request.repositoryIdentifier(),
         request.projectIdentifier());
 
