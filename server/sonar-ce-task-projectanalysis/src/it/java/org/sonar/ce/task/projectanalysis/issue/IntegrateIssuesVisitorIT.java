@@ -39,7 +39,7 @@ import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.analysis.ScannerPlugin;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
+import org.sonar.ce.common.scanner.ScannerReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.BranchComponentUuidsDelegate;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.FileStatuses;
@@ -114,7 +114,7 @@ class IntegrateIssuesVisitorIT {
   @RegisterExtension
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @RegisterExtension
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  public ScannerReportReaderRule reportReader = new ScannerReportReaderRule();
   @RegisterExtension
   public ActiveRulesHolderRule activeRulesHolderRule = new ActiveRulesHolderRule();
   @RegisterExtension

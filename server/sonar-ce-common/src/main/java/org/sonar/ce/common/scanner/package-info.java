@@ -17,20 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.batch;
+@ParametersAreNonnullByDefault
+package org.sonar.ce.common.scanner;
 
-import java.io.File;
-import java.util.Objects;
-
-public class ImmutableBatchReportDirectoryHolder implements BatchReportDirectoryHolder {
-  private final File directory;
-
-  public ImmutableBatchReportDirectoryHolder(File directory) {
-    this.directory = Objects.requireNonNull(directory);
-  }
-
-  @Override
-  public File getDirectory() {
-    return directory;
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

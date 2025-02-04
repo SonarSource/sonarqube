@@ -17,7 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.ce.task.projectanalysis.batch;
+package org.sonar.ce.task.projectanalysis.scanner;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.File;
+import java.util.Objects;
+
+public class ImmutableScannerReportDirectoryHolder implements ScannerReportDirectoryHolder {
+  private final File directory;
+
+  public ImmutableScannerReportDirectoryHolder(File directory) {
+    this.directory = Objects.requireNonNull(directory);
+  }
+
+  @Override
+  public File getDirectory() {
+    return directory;
+  }
+}

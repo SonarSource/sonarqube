@@ -38,7 +38,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
+import org.sonar.ce.common.scanner.ScannerReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
@@ -84,7 +84,7 @@ class TrackerRawInputFactoryTest {
   @RegisterExtension
   private final TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(PROJECT);
   @RegisterExtension
-  private final BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  private final ScannerReportReaderRule reportReader = new ScannerReportReaderRule();
   @RegisterExtension
   private final ActiveRulesHolderRule activeRulesHolder = new ActiveRulesHolderRule();
   @RegisterExtension

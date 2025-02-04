@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.batch;
+package org.sonar.ce.task.projectanalysis.scanner;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,30 +29,30 @@ import javax.annotation.CheckForNull;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.LineReaderIterator;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.LineSgnificantCode;
-import org.sonar.scanner.protocol.output.ScannerReportReader;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class BatchReportReaderImpl implements BatchReportReader {
+public class ScannerReportReaderImpl implements ScannerReportReader {
 
-  private final BatchReportDirectoryHolder batchReportDirectoryHolder;
-  private ScannerReportReader delegate;
+  private final ScannerReportDirectoryHolder scannerReportDirectoryHolder;
+  private org.sonar.scanner.protocol.output.ScannerReportReader delegate;
   // caching of metadata which are read often
   private ScannerReport.Metadata metadata;
 
-  public BatchReportReaderImpl(BatchReportDirectoryHolder batchReportDirectoryHolder) {
-    this.batchReportDirectoryHolder = batchReportDirectoryHolder;
+  public ScannerReportReaderImpl(ScannerReportDirectoryHolder scannerReportDirectoryHolder) {
+    this.scannerReportDirectoryHolder = scannerReportDirectoryHolder;
   }
 
   private void ensureInitialized() {
     if (this.delegate == null) {
-      FileStructure fileStructure = new FileStructure(batchReportDirectoryHolder.getDirectory());
-      this.delegate = new ScannerReportReader(fileStructure);
+      FileStructure fileStructure = new FileStructure(scannerReportDirectoryHolder.getDirectory());
+      this.delegate = new org.sonar.scanner.protocol.output.ScannerReportReader(fileStructure);
     }
   }
 

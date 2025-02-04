@@ -28,7 +28,7 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactory;
@@ -47,13 +47,13 @@ import static org.mockito.Mockito.when;
 class SendAnalysisTelemetryStepTest {
 
   private final TelemetryClient telemetryClient = mock();
-  private final BatchReportReader batchReportReader = mock();
+  private final ScannerReportReader scannerReportReader = mock();
   private final UuidFactory uuidFactory = mock();
   private final Server server = mock();
   private final ComputationStep.Context context = mock();
   private final Configuration configuration = mock();
   private final AnalysisMetadataHolder analysisMetadataHolder = mock();
-  private final SendAnalysisTelemetryStep underTest = new SendAnalysisTelemetryStep(telemetryClient, batchReportReader, uuidFactory,
+  private final SendAnalysisTelemetryStep underTest = new SendAnalysisTelemetryStep(telemetryClient, scannerReportReader, uuidFactory,
     server, configuration, analysisMetadataHolder);
 
   {
@@ -65,7 +65,7 @@ class SendAnalysisTelemetryStepTest {
 
   @Test
   void execute_whenNoMetrics_dontSendAnything() {
-    when(batchReportReader.readTelemetryEntries()).thenReturn(CloseableIterator.emptyCloseableIterator());
+    when(scannerReportReader.readTelemetryEntries()).thenReturn(CloseableIterator.emptyCloseableIterator());
 
     underTest.execute(context);
 
@@ -77,7 +77,7 @@ class SendAnalysisTelemetryStepTest {
     Set<ScannerReport.TelemetryEntry> telemetryEntries = Set.of(
       ScannerReport.TelemetryEntry.newBuilder().setKey("key1").setValue("value1").build(),
       ScannerReport.TelemetryEntry.newBuilder().setKey("key2").setValue("value2").build());
-    when(batchReportReader.readTelemetryEntries()).thenReturn(CloseableIterator.from(telemetryEntries.iterator()));
+    when(scannerReportReader.readTelemetryEntries()).thenReturn(CloseableIterator.from(telemetryEntries.iterator()));
 
     underTest.execute(context);
 
@@ -90,7 +90,7 @@ class SendAnalysisTelemetryStepTest {
     Set<ScannerReport.TelemetryEntry> telemetryEntries = Set.of(
       ScannerReport.TelemetryEntry.newBuilder().setKey("key1").setValue("value1").build(),
       ScannerReport.TelemetryEntry.newBuilder().setKey("key2").setValue("value2").build());
-    when(batchReportReader.readTelemetryEntries()).thenReturn(CloseableIterator.from(telemetryEntries.iterator()));
+    when(scannerReportReader.readTelemetryEntries()).thenReturn(CloseableIterator.from(telemetryEntries.iterator()));
 
     underTest.execute(context);
 
@@ -103,7 +103,7 @@ class SendAnalysisTelemetryStepTest {
     for (int i = 0; i < 2000; i++) {
       telemetryEntries.add(ScannerReport.TelemetryEntry.newBuilder().setKey(String.valueOf(i)).setValue("value" + i).build());
     }
-    when(batchReportReader.readTelemetryEntries()).thenReturn(CloseableIterator.from(telemetryEntries.iterator()));
+    when(scannerReportReader.readTelemetryEntries()).thenReturn(CloseableIterator.from(telemetryEntries.iterator()));
 
     underTest.execute(context);
 

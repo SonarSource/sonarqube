@@ -20,7 +20,7 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import org.sonar.ce.task.CeTask;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
@@ -29,11 +29,11 @@ import org.sonar.db.DbSession;
 import static java.util.Collections.singleton;
 
 public class PersistScannerContextStep implements ComputationStep {
-  private final BatchReportReader reportReader;
+  private final ScannerReportReader reportReader;
   private final DbClient dbClient;
   private final CeTask ceTask;
 
-  public PersistScannerContextStep(BatchReportReader reportReader, DbClient dbClient, CeTask ceTask) {
+  public PersistScannerContextStep(ScannerReportReader reportReader, DbClient dbClient, CeTask ceTask) {
     this.reportReader = reportReader;
     this.dbClient = dbClient;
     this.ceTask = ceTask;

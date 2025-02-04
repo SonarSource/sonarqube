@@ -28,8 +28,8 @@ import org.sonar.ce.task.log.CeTaskMessagesImpl;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisFromSonarQube94Visitor;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderImpl;
 import org.sonar.ce.task.projectanalysis.api.posttask.PostProjectAnalysisTasksExecutor;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportDirectoryHolderImpl;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderImpl;
+import org.sonar.ce.task.projectanalysis.scanner.ScannerReportDirectoryHolderImpl;
+import org.sonar.ce.task.projectanalysis.scanner.ScannerReportReaderImpl;
 import org.sonar.ce.task.projectanalysis.component.BranchComponentUuidsDelegate;
 import org.sonar.ce.task.projectanalysis.component.BranchLoader;
 import org.sonar.ce.task.projectanalysis.component.BranchPersisterImpl;
@@ -208,7 +208,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       // holders
       AnalysisMetadataHolderImpl.class,
       CrossProjectDuplicationStatusHolderImpl.class,
-      BatchReportDirectoryHolderImpl.class,
+      ScannerReportDirectoryHolderImpl.class,
       TreeRootHolderImpl.class,
       PeriodHolderImpl.class,
       PrioritizedRulesHolderImpl.class,
@@ -218,7 +218,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       ActiveRulesHolderImpl.class,
       MeasureComputersHolderImpl.class,
       MutableTaskResultHolderImpl.class,
-      BatchReportReaderImpl.class,
+      ScannerReportReaderImpl.class,
       ReferenceBranchComponentUuids.class,
       NewCodeReferenceBranchComponentUuids.class,
       BranchComponentUuidsDelegate.class,

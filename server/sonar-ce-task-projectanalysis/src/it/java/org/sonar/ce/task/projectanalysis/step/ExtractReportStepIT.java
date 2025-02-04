@@ -33,8 +33,8 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.ce.task.CeTask;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportDirectoryHolderImpl;
-import org.sonar.ce.task.projectanalysis.batch.MutableBatchReportDirectoryHolder;
+import org.sonar.ce.task.projectanalysis.scanner.ScannerReportDirectoryHolderImpl;
+import org.sonar.ce.task.projectanalysis.scanner.MutableScannerReportDirectoryHolder;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskTypes;
@@ -55,7 +55,7 @@ public class ExtractReportStepIT {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private MutableBatchReportDirectoryHolder reportDirectoryHolder = new BatchReportDirectoryHolderImpl();
+  private MutableScannerReportDirectoryHolder reportDirectoryHolder = new ScannerReportDirectoryHolderImpl();
   private CeTask ceTask = new CeTask.Builder()
     .setType(CeTaskTypes.REPORT)
     .setUuid(TASK_UUID)

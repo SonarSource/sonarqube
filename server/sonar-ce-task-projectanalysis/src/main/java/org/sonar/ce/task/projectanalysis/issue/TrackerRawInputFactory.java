@@ -36,7 +36,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.internal.ImpactMapper;
 import org.sonar.api.utils.Duration;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.issue.filter.IssueFilter;
@@ -63,13 +63,13 @@ import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 public class TrackerRawInputFactory {
   private static final long DEFAULT_EXTERNAL_ISSUE_EFFORT = 0L;
   private final TreeRootHolder treeRootHolder;
-  private final BatchReportReader reportReader;
+  private final ScannerReportReader reportReader;
   private final IssueFilter issueFilter;
   private final SourceLinesHashRepository sourceLinesHash;
   private final RuleRepository ruleRepository;
   private final ActiveRulesHolder activeRulesHolder;
 
-  public TrackerRawInputFactory(TreeRootHolder treeRootHolder, BatchReportReader reportReader, SourceLinesHashRepository sourceLinesHash,
+  public TrackerRawInputFactory(TreeRootHolder treeRootHolder, ScannerReportReader reportReader, SourceLinesHashRepository sourceLinesHash,
     IssueFilter issueFilter, RuleRepository ruleRepository, ActiveRulesHolder activeRulesHolder) {
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;

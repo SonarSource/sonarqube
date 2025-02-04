@@ -33,8 +33,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
+import org.sonar.ce.common.scanner.ScannerReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
@@ -69,7 +69,7 @@ public class MeasureRepositoryImplIT {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  public ScannerReportReaderRule reportReader = new ScannerReportReaderRule();
 
   private static final String FILE_COMPONENT_KEY = "file cpt key";
   private static final ReportComponent FILE_COMPONENT = ReportComponent.builder(Component.Type.FILE, 1).setKey(FILE_COMPONENT_KEY).build();
@@ -92,8 +92,8 @@ public class MeasureRepositoryImplIT {
   private MeasureRepositoryImpl underTest = new MeasureRepositoryImpl(dbClient, reportReader, metricRepository, reportMetricValidator);
 
   private DbClient mockedDbClient = mock(DbClient.class);
-  private BatchReportReader mockBatchReportReader = mock(BatchReportReader.class);
-  private MeasureRepositoryImpl underTestWithMock = new MeasureRepositoryImpl(mockedDbClient, mockBatchReportReader, metricRepository, reportMetricValidator);
+  private ScannerReportReader mockScannerReportReader = mock(ScannerReportReader.class);
+  private MeasureRepositoryImpl underTestWithMock = new MeasureRepositoryImpl(mockedDbClient, mockScannerReportReader, metricRepository, reportMetricValidator);
 
   private DbSession dbSession = dbTester.getSession();
 
@@ -292,7 +292,7 @@ public class MeasureRepositoryImplIT {
       underTestWithMock.getRawMeasure(null, metric1);
       fail("an NPE should have been raised");
     } catch (NullPointerException e) {
-      verifyNoMoreInteractions(mockBatchReportReader);
+      verifyNoMoreInteractions(mockScannerReportReader);
     }
   }
 
@@ -302,7 +302,7 @@ public class MeasureRepositoryImplIT {
       underTestWithMock.getRawMeasure(FILE_COMPONENT, null);
       fail("an NPE should have been raised");
     } catch (NullPointerException e) {
-      verifyNoMoreInteractions(mockBatchReportReader);
+      verifyNoMoreInteractions(mockScannerReportReader);
     }
   }
 

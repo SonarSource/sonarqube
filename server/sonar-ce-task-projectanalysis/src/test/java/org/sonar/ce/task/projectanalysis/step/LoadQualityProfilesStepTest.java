@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
+import org.sonar.ce.common.scanner.ScannerReportReaderRule;
 import org.sonar.ce.task.projectanalysis.issue.DumbRule;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepositoryRule;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRule;
@@ -41,7 +41,7 @@ import static org.sonar.db.rule.RuleTesting.XOO_X2;
 class LoadQualityProfilesStepTest {
 
   @RegisterExtension
-  private final BatchReportReaderRule batchReportReader = new BatchReportReaderRule();
+  private final ScannerReportReaderRule batchReportReader = new ScannerReportReaderRule();
 
   @RegisterExtension
   private final RuleRepositoryRule ruleRepository = new RuleRepositoryRule();

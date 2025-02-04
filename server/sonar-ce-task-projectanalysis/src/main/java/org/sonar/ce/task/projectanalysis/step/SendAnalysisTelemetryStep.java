@@ -24,7 +24,7 @@ import java.util.Set;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactory;
@@ -41,16 +41,16 @@ import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_ENABL
 public class SendAnalysisTelemetryStep implements ComputationStep {
 
   private final TelemetryClient telemetryClient;
-  private final BatchReportReader batchReportReader;
+  private final ScannerReportReader scannerReportReader;
   private final Server server;
   private final UuidFactory uuidFactory;
   private final Configuration config;
   private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public SendAnalysisTelemetryStep(TelemetryClient telemetryClient, BatchReportReader batchReportReader,
+  public SendAnalysisTelemetryStep(TelemetryClient telemetryClient, ScannerReportReader scannerReportReader,
     UuidFactory uuidFactory, Server server, Configuration configuration, AnalysisMetadataHolder analysisMetadataHolder) {
     this.telemetryClient = telemetryClient;
-    this.batchReportReader = batchReportReader;
+    this.scannerReportReader = scannerReportReader;
     this.server = server;
     this.uuidFactory = uuidFactory;
     this.config = configuration;
@@ -62,7 +62,7 @@ public class SendAnalysisTelemetryStep implements ComputationStep {
     if (!config.getBoolean(SONAR_TELEMETRY_ENABLE.getKey()).orElse(false)) {
       return;
     }
-    try (CloseableIterator<ScannerReport.TelemetryEntry> it = batchReportReader.readTelemetryEntries()) {
+    try (CloseableIterator<ScannerReport.TelemetryEntry> it = scannerReportReader.readTelemetryEntries()) {
       Set<Metric> metrics = new HashSet<>();
       String projectUuid = analysisMetadataHolder.getProject().getUuid();
       String analysisType = analysisMetadataHolder.isPullRequest() ? "pull_request" : "branch";

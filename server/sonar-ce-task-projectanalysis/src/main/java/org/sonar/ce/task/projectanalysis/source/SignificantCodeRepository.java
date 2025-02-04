@@ -24,12 +24,12 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.hash.LineRange;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport.LineSgnificantCode;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 
 public class SignificantCodeRepository {
-  private final BatchReportReader reportReader;
+  private final ScannerReportReader reportReader;
 
-  public SignificantCodeRepository(BatchReportReader reportReader) {
+  public SignificantCodeRepository(ScannerReportReader reportReader) {
     this.reportReader = reportReader;
   }
 

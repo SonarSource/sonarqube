@@ -26,8 +26,8 @@ import org.mockito.Mockito;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
+import org.sonar.ce.common.scanner.ScannerReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
@@ -64,7 +64,7 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  public ScannerReportReaderRule reportReader = new ScannerReportReaderRule();
 
   private ProjectData project;
 
@@ -85,7 +85,7 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
   public void no_effect_if_branch_is_not_main() {
     DbClient dbClient = mock(DbClient.class);
     TreeRootHolder treeRootHolder = mock(TreeRootHolder.class);
-    BatchReportReader reportReader = mock(BatchReportReader.class);
+    ScannerReportReader reportReader = mock(ScannerReportReader.class);
     UuidFactory uuidFactory = mock(UuidFactory.class);
     mockBranch(false);
     PersistProjectLinksStep underTest = new PersistProjectLinksStep(analysisMetadataHolder, dbClient, treeRootHolder, reportReader, uuidFactory);

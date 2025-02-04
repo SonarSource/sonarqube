@@ -31,7 +31,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.log.CeTaskMessages.Message;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
+import org.sonar.ce.common.scanner.ScannerReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
@@ -65,7 +65,7 @@ public class HandleUnanalyzedLanguagesStepTest {
   private static final Component ROOT_PROJECT = ReportComponent.builder(PROJECT, PROJECT_REF).build();
 
   @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  public ScannerReportReaderRule reportReader = new ScannerReportReaderRule();
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(ROOT_PROJECT);
   @Rule

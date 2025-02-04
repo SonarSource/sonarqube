@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
@@ -56,13 +56,13 @@ public class LoadCrossProjectDuplicationsRepositoryStep implements ComputationSt
   private static final Logger LOGGER = LoggerFactory.getLogger(LoadCrossProjectDuplicationsRepositoryStep.class);
 
   private final TreeRootHolder treeRootHolder;
-  private final BatchReportReader reportReader;
+  private final ScannerReportReader reportReader;
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final IntegrateCrossProjectDuplications integrateCrossProjectDuplications;
   private final CrossProjectDuplicationStatusHolder crossProjectDuplicationStatusHolder;
   private final DbClient dbClient;
 
-  public LoadCrossProjectDuplicationsRepositoryStep(TreeRootHolder treeRootHolder, BatchReportReader reportReader,
+  public LoadCrossProjectDuplicationsRepositoryStep(TreeRootHolder treeRootHolder, ScannerReportReader reportReader,
     AnalysisMetadataHolder analysisMetadataHolder, CrossProjectDuplicationStatusHolder crossProjectDuplicationStatusHolder,
     IntegrateCrossProjectDuplications integrateCrossProjectDuplications, DbClient dbClient) {
     this.treeRootHolder = treeRootHolder;

@@ -26,7 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
+import org.sonar.ce.common.scanner.ScannerReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.period.Period;
@@ -45,7 +45,7 @@ public class NewLinesRepositoryTest {
   private final static ReportComponent FILE = ReportComponent.builder(Component.Type.FILE, 1).build();
 
   @Rule
-  public BatchReportReaderRule reader = new BatchReportReaderRule();
+  public ScannerReportReaderRule reader = new ScannerReportReaderRule();
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
   @Rule

@@ -17,28 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.batch;
+@ParametersAreNonnullByDefault
+package org.sonar.ce.task.projectanalysis.scanner;
 
-import java.io.File;
-import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
-public class BatchReportDirectoryHolderImplTest {
-
-  @Test
-  public void getDirectory_throws_ISE_if_holder_is_empty() {
-    assertThatThrownBy(() ->  new BatchReportDirectoryHolderImpl().getDirectory())
-      .isInstanceOf(IllegalStateException.class);
-  }
-
-  @Test
-  public void getDirectory_returns_File_set_with_setDirectory() {
-    File file = new File("");
-    BatchReportDirectoryHolderImpl holder = new BatchReportDirectoryHolderImpl();
-    holder.setDirectory(file);
-
-    assertThat(holder.getDirectory()).isSameAs(file);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

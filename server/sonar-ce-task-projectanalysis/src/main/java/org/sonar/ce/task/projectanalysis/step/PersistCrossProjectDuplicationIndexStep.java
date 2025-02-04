@@ -20,7 +20,7 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
@@ -44,12 +44,12 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
-  private final BatchReportReader reportReader;
+  private final ScannerReportReader reportReader;
   private final CrossProjectDuplicationStatusHolder crossProjectDuplicationStatusHolder;
 
   public PersistCrossProjectDuplicationIndexStep(CrossProjectDuplicationStatusHolder crossProjectDuplicationStatusHolder, DbClient dbClient,
     TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
-    BatchReportReader reportReader) {
+    ScannerReportReader reportReader) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;

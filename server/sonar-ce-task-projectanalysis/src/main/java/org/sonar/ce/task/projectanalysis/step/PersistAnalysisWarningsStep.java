@@ -22,7 +22,7 @@ package org.sonar.ce.task.projectanalysis.step;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.sonar.ce.task.log.CeTaskMessages;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -34,10 +34,10 @@ public class PersistAnalysisWarningsStep implements ComputationStep {
 
   static final String DESCRIPTION = "Propagate analysis warnings from scanner report";
 
-  private final BatchReportReader reportReader;
+  private final ScannerReportReader reportReader;
   private final CeTaskMessages ceTaskMessages;
 
-  public PersistAnalysisWarningsStep(BatchReportReader reportReader, CeTaskMessages ceTaskMessages) {
+  public PersistAnalysisWarningsStep(ScannerReportReader reportReader, CeTaskMessages ceTaskMessages) {
     this.reportReader = reportReader;
     this.ceTaskMessages = ceTaskMessages;
   }

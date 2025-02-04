@@ -26,7 +26,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.log.CeTaskMessages;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
@@ -55,7 +55,7 @@ public class HandleUnanalyzedLanguagesStep implements ComputationStep {
     " current SonarQube edition. Please consider <a target=\"_blank\" href=\"https://www.sonarsource.com/plans-and-pricing/developer/?referrer=sonarqube-cpp\">upgrading to" +
     " Developer Edition</a> to find Bugs, Code Smells, Vulnerabilities and Security Hotspots in %s.";
 
-  private final BatchReportReader reportReader;
+  private final ScannerReportReader reportReader;
   private final CeTaskMessages ceTaskMessages;
   private final PlatformEditionProvider editionProvider;
   private final System2 system;
@@ -64,7 +64,7 @@ public class HandleUnanalyzedLanguagesStep implements ComputationStep {
   private final Metric unanalyzedCMetric;
   private final Metric unanalyzedCppMetric;
 
-  public HandleUnanalyzedLanguagesStep(BatchReportReader reportReader, CeTaskMessages ceTaskMessages, PlatformEditionProvider editionProvider,
+  public HandleUnanalyzedLanguagesStep(ScannerReportReader reportReader, CeTaskMessages ceTaskMessages, PlatformEditionProvider editionProvider,
     System2 system, TreeRootHolder treeRootHolder, MetricRepository metricRepository, MeasureRepository measureRepository) {
     this.reportReader = reportReader;
     this.ceTaskMessages = ceTaskMessages;

@@ -22,7 +22,7 @@ package org.sonar.ce.task.projectanalysis.step;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
@@ -48,14 +48,14 @@ import static com.google.common.base.Preconditions.checkArgument;
 public class LoadDuplicationsFromReportStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
-  private final BatchReportReader batchReportReader;
+  private final ScannerReportReader scannerReportReader;
   private final DuplicationRepository duplicationRepository;
 
-  public LoadDuplicationsFromReportStep(TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder, BatchReportReader batchReportReader,
+  public LoadDuplicationsFromReportStep(TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder, ScannerReportReader scannerReportReader,
     DuplicationRepository duplicationRepository) {
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
-    this.batchReportReader = batchReportReader;
+    this.scannerReportReader = scannerReportReader;
     this.duplicationRepository = duplicationRepository;
   }
 
@@ -107,7 +107,7 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
 
     @Override
     public void visitFile(Component file) {
-      try (CloseableIterator<ScannerReport.Duplication> duplications = batchReportReader.readComponentDuplications(file.getReportAttributes().getRef())) {
+      try (CloseableIterator<ScannerReport.Duplication> duplications = scannerReportReader.readComponentDuplications(file.getReportAttributes().getRef())) {
         int idGenerator = 1;
         while (duplications.hasNext()) {
           loadDuplications(file, duplications.next(), idGenerator);

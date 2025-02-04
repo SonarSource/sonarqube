@@ -32,7 +32,7 @@ import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolderRule;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
+import org.sonar.ce.common.scanner.ScannerReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.ce.task.projectanalysis.component.MutableTreeRootHolderRule;
@@ -87,7 +87,7 @@ public class BuildComponentTreeStepIT {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule().setMetadata(createReportMetadata(NO_SCANNER_PROJECT_VERSION, NO_SCANNER_BUILD_STRING));
+  public ScannerReportReaderRule reportReader = new ScannerReportReaderRule().setMetadata(createReportMetadata(NO_SCANNER_PROJECT_VERSION, NO_SCANNER_BUILD_STRING));
   @Rule
   public MutableTreeRootHolderRule treeRootHolder = new MutableTreeRootHolderRule();
   @Rule

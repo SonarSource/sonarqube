@@ -23,18 +23,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 
 public class PersistScannerAnalysisCacheStep implements ComputationStep {
   private static final Logger LOGGER = LoggerFactory.getLogger(PersistScannerAnalysisCacheStep.class);
-  private final BatchReportReader reportReader;
+  private final ScannerReportReader reportReader;
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
 
-  public PersistScannerAnalysisCacheStep(BatchReportReader reportReader, DbClient dbClient, TreeRootHolder treeRootHolder) {
+  public PersistScannerAnalysisCacheStep(ScannerReportReader reportReader, DbClient dbClient, TreeRootHolder treeRootHolder) {
     this.reportReader = reportReader;
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;

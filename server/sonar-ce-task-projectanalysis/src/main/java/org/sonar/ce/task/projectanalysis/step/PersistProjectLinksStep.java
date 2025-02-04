@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.step.ComputationStep;
@@ -48,11 +48,11 @@ public class PersistProjectLinksStep implements ComputationStep {
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
-  private final BatchReportReader reportReader;
+  private final ScannerReportReader reportReader;
   private final UuidFactory uuidFactory;
 
   public PersistProjectLinksStep(AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient, TreeRootHolder treeRootHolder,
-    BatchReportReader reportReader, UuidFactory uuidFactory) {
+    ScannerReportReader reportReader, UuidFactory uuidFactory) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;

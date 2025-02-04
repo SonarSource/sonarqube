@@ -29,7 +29,7 @@ import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.issue.ImpactMapper;
 import org.sonar.ce.task.projectanalysis.issue.Rule;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
@@ -41,12 +41,12 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 
 public class LoadQualityProfilesStep implements ComputationStep {
 
-  private final BatchReportReader batchReportReader;
+  private final ScannerReportReader scannerReportReader;
   private final ActiveRulesHolderImpl activeRulesHolder;
   private final RuleRepository ruleRepository;
 
-  public LoadQualityProfilesStep(BatchReportReader batchReportReader, ActiveRulesHolderImpl activeRulesHolder, RuleRepository ruleRepository) {
-    this.batchReportReader = batchReportReader;
+  public LoadQualityProfilesStep(ScannerReportReader scannerReportReader, ActiveRulesHolderImpl activeRulesHolder, RuleRepository ruleRepository) {
+    this.scannerReportReader = scannerReportReader;
     this.activeRulesHolder = activeRulesHolder;
     this.ruleRepository = ruleRepository;
   }
@@ -54,7 +54,7 @@ public class LoadQualityProfilesStep implements ComputationStep {
   @Override
   public void execute(ComputationStep.Context context) {
     List<ActiveRule> activeRules = new ArrayList<>();
-    try (CloseableIterator<ScannerReport.ActiveRule> batchActiveRules = batchReportReader.readActiveRules()) {
+    try (CloseableIterator<ScannerReport.ActiveRule> batchActiveRules = scannerReportReader.readActiveRules()) {
       while (batchActiveRules.hasNext()) {
         ScannerReport.ActiveRule scannerReportActiveRule = batchActiveRules.next();
         Optional<Rule> rule = ruleRepository.findByKey(RuleKey.of(scannerReportActiveRule.getRuleRepository(), scannerReportActiveRule.getRuleKey()));

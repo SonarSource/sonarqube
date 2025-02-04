@@ -22,7 +22,7 @@ package org.sonar.ce.task.projectanalysis.step;
 import java.util.List;
 import javax.annotation.Nullable;
 import jakarta.inject.Inject;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
@@ -70,17 +70,17 @@ public class CoverageMeasuresStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
-  private final BatchReportReader reportReader;
+  private final ScannerReportReader reportReader;
   private final Metric linesToCoverMetric;
   private final Metric uncoveredLinesMetric;
   private final Metric conditionsToCoverMetric;
   private final Metric uncoveredConditionsMetric;
 
   /**
-   * Constructor used when processing a Report (ie. a {@link BatchReportReader} instance is available in the container)
+   * Constructor used when processing a Report (ie. a {@link ScannerReportReader} instance is available in the container)
    */
   @Inject
-  public CoverageMeasuresStep(TreeRootHolder treeRootHolder, MetricRepository metricRepository, MeasureRepository measureRepository, @Nullable BatchReportReader reportReader) {
+  public CoverageMeasuresStep(TreeRootHolder treeRootHolder, MetricRepository metricRepository, MeasureRepository measureRepository, @Nullable ScannerReportReader reportReader) {
     this.treeRootHolder = treeRootHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
@@ -103,9 +103,9 @@ public class CoverageMeasuresStep implements ComputationStep {
 
   private class FileCoverageVisitor extends TypeAwareVisitorAdapter {
 
-    private final BatchReportReader reportReader;
+    private final ScannerReportReader reportReader;
 
-    private FileCoverageVisitor(BatchReportReader reportReader) {
+    private FileCoverageVisitor(ScannerReportReader reportReader) {
       super(CrawlerDepthLimit.FILE, Order.POST_ORDER);
       this.reportReader = reportReader;
     }

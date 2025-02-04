@@ -58,6 +58,7 @@ dependencies {
   testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
   testImplementation project(':sonar-testing-harness')
   testImplementation testFixtures(project(':server:sonar-server-common'))
+  testImplementation testFixtures(project(':server:sonar-ce-common'))
 
   testFixturesApi 'junit:junit'
   testFixturesApi 'org.assertj:assertj-core'

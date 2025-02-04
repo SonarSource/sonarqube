@@ -28,7 +28,7 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.FileStatuses;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesDiff;
@@ -40,14 +40,14 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ScmInfoRepositoryImpl.class);
 
-  private final BatchReportReader scannerReportReader;
+  private final ScannerReportReader scannerReportReader;
   private final Map<Component, Optional<ScmInfo>> scmInfoCache = new HashMap<>();
   private final ScmInfoDbLoader scmInfoDbLoader;
   private final AnalysisMetadataHolder analysisMetadata;
   private final SourceLinesDiff sourceLinesDiff;
   private final FileStatuses fileStatuses;
 
-  public ScmInfoRepositoryImpl(BatchReportReader scannerReportReader, AnalysisMetadataHolder analysisMetadata, ScmInfoDbLoader scmInfoDbLoader,
+  public ScmInfoRepositoryImpl(ScannerReportReader scannerReportReader, AnalysisMetadataHolder analysisMetadata, ScmInfoDbLoader scmInfoDbLoader,
     SourceLinesDiff sourceLinesDiff, FileStatuses fileStatuses) {
     this.scannerReportReader = scannerReportReader;
     this.analysisMetadata = analysisMetadata;

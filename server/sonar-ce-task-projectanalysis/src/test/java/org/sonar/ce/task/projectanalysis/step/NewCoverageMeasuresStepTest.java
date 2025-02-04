@@ -26,7 +26,7 @@ import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
+import org.sonar.ce.common.scanner.ScannerReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.FileAttributes;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
@@ -94,7 +94,7 @@ public class NewCoverageMeasuresStepTest {
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
   @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  public ScannerReportReaderRule reportReader = new ScannerReportReaderRule();
 
   private NewLinesRepository newLinesRepository = mock(NewLinesRepository.class);
   private NewCoverageMeasuresStep underTest = new NewCoverageMeasuresStep(treeRootHolder, measureRepository, metricRepository, newLinesRepository, reportReader);

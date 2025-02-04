@@ -30,7 +30,7 @@ import org.sonar.api.utils.ZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.CeTask;
-import org.sonar.ce.task.projectanalysis.batch.MutableBatchReportDirectoryHolder;
+import org.sonar.ce.task.projectanalysis.scanner.MutableScannerReportDirectoryHolder;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbInputStream;
 import org.sonar.db.DbClient;
@@ -41,7 +41,7 @@ import static org.sonar.core.util.FileUtils.humanReadableByteCountSI;
 
 /**
  * Extracts the content zip file of the {@link CeTask} to a temp directory and adds a {@link File}
- * representing that temp directory to the {@link MutableBatchReportDirectoryHolder}.
+ * representing that temp directory to the {@link MutableScannerReportDirectoryHolder}.
  */
 public class ExtractReportStep implements ComputationStep {
 
@@ -51,10 +51,10 @@ public class ExtractReportStep implements ComputationStep {
   private final DbClient dbClient;
   private final CeTask task;
   private final TempFolder tempFolder;
-  private final MutableBatchReportDirectoryHolder reportDirectoryHolder;
+  private final MutableScannerReportDirectoryHolder reportDirectoryHolder;
 
   public ExtractReportStep(DbClient dbClient, CeTask task, TempFolder tempFolder,
-    MutableBatchReportDirectoryHolder reportDirectoryHolder) {
+    MutableScannerReportDirectoryHolder reportDirectoryHolder) {
     this.dbClient = dbClient;
     this.task = task;
     this.tempFolder = tempFolder;

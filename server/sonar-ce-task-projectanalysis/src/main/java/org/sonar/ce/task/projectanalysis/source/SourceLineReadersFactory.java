@@ -26,7 +26,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.duplication.DuplicationRepository;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
@@ -45,12 +45,12 @@ import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 public class SourceLineReadersFactory {
-  private final BatchReportReader reportReader;
+  private final ScannerReportReader reportReader;
   private final ScmInfoRepository scmInfoRepository;
   private final DuplicationRepository duplicationRepository;
   private final NewLinesRepository newLinesRepository;
 
-  public SourceLineReadersFactory(BatchReportReader reportReader, ScmInfoRepository scmInfoRepository, DuplicationRepository duplicationRepository,
+  public SourceLineReadersFactory(ScannerReportReader reportReader, ScmInfoRepository scmInfoRepository, DuplicationRepository duplicationRepository,
     NewLinesRepository newLinesRepository) {
     this.reportReader = reportReader;
     this.scmInfoRepository = scmInfoRepository;

@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.source;
 
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.util.CloseableIterator;
 
@@ -28,7 +29,7 @@ public interface SourceLinesRepository {
    * Creates a iterator over the source lines of a given component from the report.
    * <p>
    * The returned {@link CloseableIterator} will wrap the {@link CloseableIterator} returned by
-   * {@link org.sonar.ce.task.projectanalysis.batch.BatchReportReader#readFileSource(int)} but enforces that the number
+   * {@link ScannerReportReader#readFileSource(int)} but enforces that the number
    * of lines specified by {@link org.sonar.scanner.protocol.output.ScannerReport.Component#getLines()} is respected, adding
    * an extra empty last line if required.
    * </p>

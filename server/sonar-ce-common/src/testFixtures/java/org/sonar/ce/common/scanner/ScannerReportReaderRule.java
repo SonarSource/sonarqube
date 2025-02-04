@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.batch;
+package org.sonar.ce.common.scanner;
 
 import com.google.common.base.Preconditions;
 import java.io.ByteArrayInputStream;
@@ -41,7 +41,7 @@ import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.LineSgnificantCode;
 
-public class BatchReportReaderRule implements TestRule, BatchReportReader, AfterEachCallback {
+public class ScannerReportReaderRule implements TestRule, ScannerReportReader, AfterEachCallback {
   private ScannerReport.Metadata metadata;
   private List<String> scannerLogs;
   private List<ScannerReport.ActiveRule> activeRules = new ArrayList<>();
@@ -99,7 +99,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader, After
     return CloseableIterator.from(contextProperties.iterator());
   }
 
-  public BatchReportReaderRule putContextProperties(List<ScannerReport.ContextProperty> contextProperties) {
+  public ScannerReportReaderRule putContextProperties(List<ScannerReport.ContextProperty> contextProperties) {
     this.contextProperties = Objects.requireNonNull(contextProperties);
     return this;
   }
@@ -125,7 +125,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader, After
     this.analysisCache = cache;
   }
 
-  public BatchReportReaderRule setMetadata(ScannerReport.Metadata metadata) {
+  public ScannerReportReaderRule setMetadata(ScannerReport.Metadata metadata) {
     this.metadata = metadata;
     return this;
   }
@@ -138,7 +138,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader, After
     return CloseableIterator.from(scannerLogs.iterator());
   }
 
-  public BatchReportReaderRule setScannerLogs(@Nullable List<String> logs) {
+  public ScannerReportReaderRule setScannerLogs(@Nullable List<String> logs) {
     this.scannerLogs = logs;
     return this;
   }
@@ -151,7 +151,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader, After
     return CloseableIterator.from(activeRules.iterator());
   }
 
-  public BatchReportReaderRule putActiveRules(List<ScannerReport.ActiveRule> activeRules) {
+  public ScannerReportReaderRule putActiveRules(List<ScannerReport.ActiveRule> activeRules) {
     this.activeRules = activeRules;
     return this;
   }
@@ -161,7 +161,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader, After
     return closeableIterator(this.measures.get(componentRef));
   }
 
-  public BatchReportReaderRule putMeasures(int componentRef, List<ScannerReport.Measure> measures) {
+  public ScannerReportReaderRule putMeasures(int componentRef, List<ScannerReport.Measure> measures) {
     this.measures.put(componentRef, measures);
     return this;
   }
@@ -172,7 +172,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader, After
     return changesets.get(componentRef);
   }
 
-  public BatchReportReaderRule putChangesets(ScannerReport.Changesets changesets) {
+  public ScannerReportReaderRule putChangesets(ScannerReport.Changesets changesets) {
     this.changesets.put(changesets.getComponentRef(), changesets);
     return this;
   }
@@ -182,7 +182,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader, After
     return components.get(componentRef);
   }
 
-  public BatchReportReaderRule putComponent(ScannerReport.Component component) {
+  public ScannerReportReaderRule putComponent(ScannerReport.Component component) {
     this.components.put(component.getRef(), component);
     return this;
   }
@@ -202,17 +202,17 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader, After
     return closeableIterator(adHocRules);
   }
 
-  public BatchReportReaderRule putAdHocRules(List<ScannerReport.AdHocRule> adHocRules) {
+  public ScannerReportReaderRule putAdHocRules(List<ScannerReport.AdHocRule> adHocRules) {
     this.adHocRules = adHocRules;
     return this;
   }
 
-  public BatchReportReaderRule putIssues(int componentRef, List<ScannerReport.Issue> issues) {
+  public ScannerReportReaderRule putIssues(int componentRef, List<ScannerReport.Issue> issues) {
     this.issues.put(componentRef, issues);
     return this;
   }
 
-  public BatchReportReaderRule putExternalIssues(int componentRef, List<ScannerReport.ExternalIssue> externalIssues) {
+  public ScannerReportReaderRule putExternalIssues(int componentRef, List<ScannerReport.ExternalIssue> externalIssues) {
     this.externalIssues.put(componentRef, externalIssues);
     return this;
   }
@@ -222,7 +222,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader, After
     return closeableIterator(this.duplications.get(componentRef));
   }
 
-  public BatchReportReaderRule putDuplications(int componentRef, ScannerReport.Duplication... duplications) {
+  public ScannerReportReaderRule putDuplications(int componentRef, ScannerReport.Duplication... duplications) {
     this.duplications.put(componentRef, Arrays.asList(duplications));
     return this;
   }
@@ -232,7 +232,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader, After
     return closeableIterator(this.duplicationBlocks.get(componentRef));
   }
 
-  public BatchReportReaderRule putDuplicationBlocks(int componentRef, List<ScannerReport.CpdTextBlock> duplicationBlocks) {
+  public ScannerReportReaderRule putDuplicationBlocks(int componentRef, List<ScannerReport.CpdTextBlock> duplicationBlocks) {
     this.duplicationBlocks.put(componentRef, duplicationBlocks);
     return this;
   }
@@ -246,12 +246,12 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader, After
     return list == null ? CloseableIterator.emptyCloseableIterator() : CloseableIterator.from(list.iterator());
   }
 
-  public BatchReportReaderRule putSymbols(int componentRef, List<ScannerReport.Symbol> symbols) {
+  public ScannerReportReaderRule putSymbols(int componentRef, List<ScannerReport.Symbol> symbols) {
     this.symbols.put(componentRef, symbols);
     return this;
   }
 
-  public BatchReportReaderRule putSignificantCode(int fileRef, List<ScannerReport.LineSgnificantCode> significantCode) {
+  public ScannerReportReaderRule putSignificantCode(int fileRef, List<ScannerReport.LineSgnificantCode> significantCode) {
     this.significantCode.put(fileRef, significantCode);
     return this;
   }
@@ -262,7 +262,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader, After
     return list == null ? Optional.empty() : Optional.of(CloseableIterator.from(list.iterator()));
   }
 
-  public BatchReportReaderRule putChangedLines(int fileRef, ScannerReport.ChangedLines fileChangedLines) {
+  public ScannerReportReaderRule putChangedLines(int fileRef, ScannerReport.ChangedLines fileChangedLines) {
     changedLines.put(fileRef, fileChangedLines);
     return this;
   }
@@ -277,7 +277,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader, After
     return closeableIterator(analysisWarnings);
   }
 
-  public BatchReportReaderRule setAnalysisWarnings(List<ScannerReport.AnalysisWarning> analysisWarnings) {
+  public ScannerReportReaderRule setAnalysisWarnings(List<ScannerReport.AnalysisWarning> analysisWarnings) {
     this.analysisWarnings = new ArrayList<>(analysisWarnings);
     return this;
   }
@@ -287,7 +287,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader, After
     return closeableIterator(this.syntaxHighlightings.get(fileRef));
   }
 
-  public BatchReportReaderRule putSyntaxHighlighting(int fileRef, List<ScannerReport.SyntaxHighlightingRule> syntaxHighlightings) {
+  public ScannerReportReaderRule putSyntaxHighlighting(int fileRef, List<ScannerReport.SyntaxHighlightingRule> syntaxHighlightings) {
     this.syntaxHighlightings.put(fileRef, syntaxHighlightings);
     return this;
   }
@@ -297,7 +297,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader, After
     return closeableIterator(this.coverages.get(fileRef));
   }
 
-  public BatchReportReaderRule putCoverage(int fileRef, List<ScannerReport.LineCoverage> coverages) {
+  public ScannerReportReaderRule putCoverage(int fileRef, List<ScannerReport.LineCoverage> coverages) {
     this.coverages.put(fileRef, coverages);
     return this;
   }
@@ -312,13 +312,13 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader, After
     return Optional.of(CloseableIterator.from(lines.iterator()));
   }
 
-  public BatchReportReaderRule putFileSourceLines(int fileRef, @Nullable String... lines) {
+  public ScannerReportReaderRule putFileSourceLines(int fileRef, @Nullable String... lines) {
     Preconditions.checkNotNull(lines);
     this.fileSources.put(fileRef, Arrays.asList(lines));
     return this;
   }
 
-  public BatchReportReaderRule putFileSourceLines(int fileRef, List<String> lines) {
+  public ScannerReportReaderRule putFileSourceLines(int fileRef, List<String> lines) {
     this.fileSources.put(fileRef, lines);
     return this;
   }
@@ -333,7 +333,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader, After
     return CloseableIterator.from(telemetryEntries.iterator());
   }
 
-  public BatchReportReaderRule putTelemetry(List<ScannerReport.TelemetryEntry> telemetryEntries) {
+  public ScannerReportReaderRule putTelemetry(List<ScannerReport.TelemetryEntry> telemetryEntries) {
     this.telemetryEntries = telemetryEntries;
     return this;
   }

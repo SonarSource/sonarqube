@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
@@ -35,13 +35,13 @@ import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepository;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 
 public class NewLinesRepository {
-  private final BatchReportReader reportReader;
+  private final ScannerReportReader reportReader;
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final ScmInfoRepository scmInfoRepository;
   private final PeriodHolder periodHolder;
   private final Map<Component, Optional<Set<Integer>>> reportChangedLinesCache = new HashMap<>();
 
-  public NewLinesRepository(BatchReportReader reportReader, AnalysisMetadataHolder analysisMetadataHolder, PeriodHolder periodHolder, ScmInfoRepository scmInfoRepository) {
+  public NewLinesRepository(ScannerReportReader reportReader, AnalysisMetadataHolder analysisMetadataHolder, PeriodHolder periodHolder, ScmInfoRepository scmInfoRepository) {
     this.reportReader = reportReader;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.scmInfoRepository = scmInfoRepository;

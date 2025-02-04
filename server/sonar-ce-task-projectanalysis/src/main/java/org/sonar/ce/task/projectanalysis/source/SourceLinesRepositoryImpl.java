@@ -20,7 +20,7 @@
 package org.sonar.ce.task.projectanalysis.source;
 
 import java.util.Optional;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.util.CloseableIterator;
 
@@ -31,9 +31,9 @@ import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 
 public class SourceLinesRepositoryImpl implements SourceLinesRepository {
 
-  private final BatchReportReader reportReader;
+  private final ScannerReportReader reportReader;
 
-  public SourceLinesRepositoryImpl(BatchReportReader reportReader) {
+  public SourceLinesRepositoryImpl(ScannerReportReader reportReader) {
     this.reportReader = reportReader;
   }
 

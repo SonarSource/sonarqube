@@ -17,25 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.batch;
+package org.sonar.ce.task.projectanalysis.scanner;
 
 import java.io.File;
-import java.util.Objects;
 
-public class BatchReportDirectoryHolderImpl implements MutableBatchReportDirectoryHolder {
-
-  private File directory = null;
-
-  @Override
-  public void setDirectory(File newDirectory) {
-    this.directory = Objects.requireNonNull(newDirectory);
-  }
-
-  @Override
-  public File getDirectory() {
-    if (this.directory == null) {
-      throw new IllegalStateException("Directory has not been set yet");
-    }
-    return this.directory;
-  }
+public interface MutableScannerReportDirectoryHolder extends ScannerReportDirectoryHolder {
+  /**
+   * Sets the File of the directory in the {@link ScannerReportDirectoryHolder}. Settings a File more than once is allowed but it
+   * can never be set to {@code null}.
+   *
+   * @param newDirectory a {@link File}, can not be {@code null}
+   *
+   * @throws NullPointerException if {@code newDirectory} is {@code null}
+   */
+  void setDirectory(File newDirectory);
 }

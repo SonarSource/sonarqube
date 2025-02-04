@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.measure.MapBasedRawMeasureRepository.OverridePolicy;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
@@ -41,13 +41,13 @@ import static org.sonar.ce.task.projectanalysis.component.ComponentFunctions.toC
 public class MeasureRepositoryImpl implements MeasureRepository {
   private final MapBasedRawMeasureRepository<String> delegate = new MapBasedRawMeasureRepository<>(toComponentUuid());
   private final DbClient dbClient;
-  private final BatchReportReader reportReader;
+  private final ScannerReportReader reportReader;
   private final MetricRepository metricRepository;
   private final ReportMetricValidator reportMetricValidator;
 
   private final Set<Integer> loadedComponents = new HashSet<>();
 
-  public MeasureRepositoryImpl(DbClient dbClient, BatchReportReader reportReader, MetricRepository metricRepository,
+  public MeasureRepositoryImpl(DbClient dbClient, ScannerReportReader reportReader, MetricRepository metricRepository,
     ReportMetricValidator reportMetricValidator) {
     this.dbClient = dbClient;
     this.reportReader = reportReader;

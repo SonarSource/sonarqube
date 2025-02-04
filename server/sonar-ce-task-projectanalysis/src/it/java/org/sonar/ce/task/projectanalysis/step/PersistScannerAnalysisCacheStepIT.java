@@ -24,7 +24,7 @@ import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
+import org.sonar.ce.common.scanner.ScannerReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.step.ComputationStep;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 
 public class PersistScannerAnalysisCacheStepIT {
   @Rule
-  public BatchReportReaderRule reader = new BatchReportReaderRule();
+  public ScannerReportReaderRule reader = new ScannerReportReaderRule();
   @Rule
   public DbTester dbTester = DbTester.create();
   private final DbClient client = dbTester.getDbClient();

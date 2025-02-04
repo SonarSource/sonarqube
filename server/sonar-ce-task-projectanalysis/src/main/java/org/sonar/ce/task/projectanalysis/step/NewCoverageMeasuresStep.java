@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
@@ -70,10 +70,10 @@ public class NewCoverageMeasuresStep implements ComputationStep {
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
   private final NewLinesRepository newLinesRepository;
-  private final BatchReportReader reportReader;
+  private final ScannerReportReader reportReader;
 
   public NewCoverageMeasuresStep(TreeRootHolder treeRootHolder,
-    MeasureRepository measureRepository, MetricRepository metricRepository, NewLinesRepository newLinesRepository, BatchReportReader reportReader) {
+    MeasureRepository measureRepository, MetricRepository metricRepository, NewLinesRepository newLinesRepository, ScannerReportReader reportReader) {
     this.treeRootHolder = treeRootHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
@@ -123,14 +123,14 @@ public class NewCoverageMeasuresStep implements ComputationStep {
 
   public static class NewLinesAndConditionsCoverageFormula implements Formula<NewCoverageCounter> {
     private final NewLinesRepository newLinesRepository;
-    private final BatchReportReader reportReader;
+    private final ScannerReportReader reportReader;
 
-    private NewLinesAndConditionsCoverageFormula(NewLinesRepository newLinesRepository, BatchReportReader reportReader) {
+    private NewLinesAndConditionsCoverageFormula(NewLinesRepository newLinesRepository, ScannerReportReader reportReader) {
       this.newLinesRepository = newLinesRepository;
       this.reportReader = reportReader;
     }
 
-    public static Iterable<Formula<NewCoverageCounter>> from(NewLinesRepository newLinesRepository, BatchReportReader reportReader) {
+    public static Iterable<Formula<NewCoverageCounter>> from(NewLinesRepository newLinesRepository, ScannerReportReader reportReader) {
       return Collections.singleton(new NewLinesAndConditionsCoverageFormula(newLinesRepository, reportReader));
     }
 
@@ -181,9 +181,9 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     private final IntValue newConditions = new IntValue();
     private final IntValue newCoveredConditions = new IntValue();
     private final NewLinesRepository newLinesRepository;
-    private final BatchReportReader reportReader;
+    private final ScannerReportReader reportReader;
 
-    NewCoverageCounter(NewLinesRepository newLinesRepository, BatchReportReader reportReader) {
+    NewCoverageCounter(NewLinesRepository newLinesRepository, ScannerReportReader reportReader) {
       this.newLinesRepository = newLinesRepository;
       this.reportReader = reportReader;
     }

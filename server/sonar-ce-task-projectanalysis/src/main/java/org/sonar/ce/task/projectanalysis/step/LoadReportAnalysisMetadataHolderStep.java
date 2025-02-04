@@ -26,7 +26,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.ScannerPlugin;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.BranchLoader;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.platform.PluginRepository;
@@ -48,13 +48,13 @@ import static java.util.stream.Collectors.toMap;
  */
 public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
   private final CeTask ceTask;
-  private final BatchReportReader reportReader;
+  private final ScannerReportReader reportReader;
   private final MutableAnalysisMetadataHolder analysisMetadata;
   private final DbClient dbClient;
   private final BranchLoader branchLoader;
   private final PluginRepository pluginRepository;
 
-  public LoadReportAnalysisMetadataHolderStep(CeTask ceTask, BatchReportReader reportReader, MutableAnalysisMetadataHolder analysisMetadata,
+  public LoadReportAnalysisMetadataHolderStep(CeTask ceTask, ScannerReportReader reportReader, MutableAnalysisMetadataHolder analysisMetadata,
     DbClient dbClient, BranchLoader branchLoader, PluginRepository pluginRepository) {
     this.ceTask = ceTask;
     this.reportReader = reportReader;

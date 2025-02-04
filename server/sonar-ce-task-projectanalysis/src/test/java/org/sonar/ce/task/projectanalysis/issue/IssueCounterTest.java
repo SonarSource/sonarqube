@@ -32,7 +32,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
+import org.sonar.ce.common.scanner.ScannerReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
@@ -173,7 +173,7 @@ class IssueCounterTest {
   private static final Component PROJECT = builder(Component.Type.PROJECT, 4).addChildren(FILE1, FILE2, FILE3).build();
 
   @RegisterExtension
-  private final BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  private final ScannerReportReaderRule reportReader = new ScannerReportReaderRule();
 
   @RegisterExtension
   private final TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();

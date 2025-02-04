@@ -37,7 +37,7 @@ import org.sonar.api.ce.posttask.Project;
 import org.sonar.api.ce.posttask.QualityGate;
 import org.sonar.api.ce.posttask.ScannerContext;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.qualitygate.Condition;
 import org.sonar.ce.task.projectanalysis.qualitygate.ConditionStatus;
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateHolder;
@@ -69,10 +69,10 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
   private final QualityGateHolder qualityGateHolder;
   private final QualityGateStatusHolder qualityGateStatusHolder;
   private final PostProjectAnalysisTask[] postProjectAnalysisTasks;
-  private final BatchReportReader reportReader;
+  private final ScannerReportReader reportReader;
 
   public PostProjectAnalysisTasksExecutor(org.sonar.ce.task.CeTask ceTask, AnalysisMetadataHolder analysisMetadataHolder, QualityGateHolder qualityGateHolder,
-    QualityGateStatusHolder qualityGateStatusHolder, BatchReportReader reportReader, @Nullable PostProjectAnalysisTask[] postProjectAnalysisTasks) {
+    QualityGateStatusHolder qualityGateStatusHolder, ScannerReportReader reportReader, @Nullable PostProjectAnalysisTask[] postProjectAnalysisTasks) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.qualityGateHolder = qualityGateHolder;
     this.qualityGateStatusHolder = qualityGateStatusHolder;

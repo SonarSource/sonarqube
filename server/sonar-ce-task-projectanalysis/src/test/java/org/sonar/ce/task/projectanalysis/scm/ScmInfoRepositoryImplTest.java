@@ -34,8 +34,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
+import org.sonar.ce.common.scanner.ScannerReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.Component.Status;
 import org.sonar.ce.task.projectanalysis.component.Component.Type;
@@ -70,7 +70,7 @@ public class ScmInfoRepositoryImplTest {
   @Rule
   public LogTester logTester = new LogTester();
   @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  public ScannerReportReaderRule reportReader = new ScannerReportReaderRule();
   @Rule
   public AnalysisMetadataHolderRule analysisMetadata = new AnalysisMetadataHolderRule();
 
@@ -261,12 +261,12 @@ public class ScmInfoRepositoryImplTest {
   @Test
   @UseDataProvider("allTypeComponentButFile")
   public void do_not_query_db_nor_report_if_component_type_is_not_FILE(Component component) {
-    BatchReportReader batchReportReader = mock(BatchReportReader.class);
-    ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(batchReportReader, analysisMetadata, dbLoader, diff, fileStatuses);
+    ScannerReportReader scannerReportReader = mock(ScannerReportReader.class);
+    ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(scannerReportReader, analysisMetadata, dbLoader, diff, fileStatuses);
 
     assertThat(underTest.getScmInfo(component)).isEmpty();
 
-    verifyNoInteractions(batchReportReader, dbLoader);
+    verifyNoInteractions(scannerReportReader, dbLoader);
   }
 
   @DataProvider

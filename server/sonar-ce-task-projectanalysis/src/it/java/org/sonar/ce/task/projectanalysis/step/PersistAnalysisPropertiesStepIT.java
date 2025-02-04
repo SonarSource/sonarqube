@@ -27,7 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactoryFast;
@@ -66,14 +66,14 @@ public class PersistAnalysisPropertiesStepIT {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private BatchReportReader batchReportReader = mock(BatchReportReader.class);
+  private ScannerReportReader scannerReportReader = mock(ScannerReportReader.class);
   private AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
-  private PersistAnalysisPropertiesStep underTest = new PersistAnalysisPropertiesStep(dbTester.getDbClient(), analysisMetadataHolder, batchReportReader,
+  private PersistAnalysisPropertiesStep underTest = new PersistAnalysisPropertiesStep(dbTester.getDbClient(), analysisMetadataHolder, scannerReportReader,
     UuidFactoryFast.getInstance());
 
   @Test
   public void persist_should_stores_sonarDotAnalysisDot_and_sonarDotPullRequestDot_properties() {
-    when(batchReportReader.readContextProperties()).thenReturn(CloseableIterator.from(PROPERTIES.iterator()));
+    when(scannerReportReader.readContextProperties()).thenReturn(CloseableIterator.from(PROPERTIES.iterator()));
     when(analysisMetadataHolder.getUuid()).thenReturn(SNAPSHOT_UUID);
     when(analysisMetadataHolder.getScmRevision()).thenReturn(Optional.of(SCM_REV_ID));
 
@@ -99,7 +99,7 @@ public class PersistAnalysisPropertiesStepIT {
   @Test
   public void persist_filtering_of_properties_is_case_sensitive() {
     when(analysisMetadataHolder.getScmRevision()).thenReturn(Optional.of(SCM_REV_ID));
-    when(batchReportReader.readContextProperties()).thenReturn(CloseableIterator.from(ImmutableList.of(
+    when(scannerReportReader.readContextProperties()).thenReturn(CloseableIterator.from(ImmutableList.of(
       newContextProperty("sonar.ANALYSIS.foo", "foo"),
       newContextProperty("sonar.anaLysis.bar", "bar"),
       newContextProperty("sonar.anaLYSIS.doo", "doh"),
@@ -116,7 +116,7 @@ public class PersistAnalysisPropertiesStepIT {
   @Test
   public void persist_should_store_nothing_if_there_are_no_context_properties() {
     when(analysisMetadataHolder.getScmRevision()).thenReturn(Optional.of(SCM_REV_ID));
-    when(batchReportReader.readContextProperties()).thenReturn(CloseableIterator.emptyCloseableIterator());
+    when(scannerReportReader.readContextProperties()).thenReturn(CloseableIterator.emptyCloseableIterator());
     when(analysisMetadataHolder.getUuid()).thenReturn(SNAPSHOT_UUID);
 
     underTest.execute(new TestComputationStepContext());

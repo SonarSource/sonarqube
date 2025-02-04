@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactory;
@@ -46,11 +46,11 @@ public class PersistAnalysisPropertiesStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final AnalysisMetadataHolder analysisMetadataHolder;
-  private final BatchReportReader reportReader;
+  private final ScannerReportReader reportReader;
   private final UuidFactory uuidFactory;
 
   public PersistAnalysisPropertiesStep(DbClient dbClient, AnalysisMetadataHolder analysisMetadataHolder,
-                                       BatchReportReader reportReader, UuidFactory uuidFactory) {
+                                       ScannerReportReader reportReader, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.reportReader = reportReader;

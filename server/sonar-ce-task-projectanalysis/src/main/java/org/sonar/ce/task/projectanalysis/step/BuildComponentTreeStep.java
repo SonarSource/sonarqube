@@ -23,7 +23,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ComponentKeyGenerator;
 import org.sonar.ce.task.projectanalysis.component.ComponentTreeBuilder;
@@ -41,18 +41,18 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 /**
- * Populates the {@link MutableTreeRootHolder} and {@link MutableAnalysisMetadataHolder} from the {@link BatchReportReader}
+ * Populates the {@link MutableTreeRootHolder} and {@link MutableAnalysisMetadataHolder} from the {@link ScannerReportReader}
  */
 public class BuildComponentTreeStep implements ComputationStep {
 
   private static final String DEFAULT_PROJECT_VERSION = "not provided";
 
   private final DbClient dbClient;
-  private final BatchReportReader reportReader;
+  private final ScannerReportReader reportReader;
   private final MutableTreeRootHolder treeRootHolder;
   private final MutableAnalysisMetadataHolder analysisMetadataHolder;
 
-  public BuildComponentTreeStep(DbClient dbClient, BatchReportReader reportReader, MutableTreeRootHolder treeRootHolder,
+  public BuildComponentTreeStep(DbClient dbClient, ScannerReportReader reportReader, MutableTreeRootHolder treeRootHolder,
     MutableAnalysisMetadataHolder analysisMetadataHolder) {
     this.dbClient = dbClient;
     this.reportReader = reportReader;

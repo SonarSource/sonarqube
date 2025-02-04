@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.batch;
+package org.sonar.ce.common.scanner;
 
 import java.io.InputStream;
 import java.util.Optional;
@@ -25,7 +25,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
-public interface BatchReportReader {
+public interface ScannerReportReader {
   ScannerReport.Metadata readMetadata();
 
   @CheckForNull

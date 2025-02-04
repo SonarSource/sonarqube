@@ -30,7 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
@@ -75,8 +75,8 @@ public class MapBasedRawMeasureRepositoryTest {
   private MetricRepository metricRepository = mock(MetricRepository.class);
   private MapBasedRawMeasureRepository<Integer> underTest = new MapBasedRawMeasureRepository<>(component -> component.getReportAttributes().getRef());
   private DbClient mockedDbClient = mock(DbClient.class);
-  private BatchReportReader mockBatchReportReader = mock(BatchReportReader.class);
-  private MeasureRepositoryImpl underTestWithMock = new MeasureRepositoryImpl(mockedDbClient, mockBatchReportReader, metricRepository, reportMetricValidator);
+  private ScannerReportReader mockScannerReportReader = mock(ScannerReportReader.class);
+  private MeasureRepositoryImpl underTestWithMock = new MeasureRepositoryImpl(mockedDbClient, mockScannerReportReader, metricRepository, reportMetricValidator);
 
   @Before
   public void setUp() {
@@ -221,7 +221,7 @@ public class MapBasedRawMeasureRepositoryTest {
       underTestWithMock.getRawMeasure(null, metric1);
       fail("an NPE should have been raised");
     } catch (NullPointerException e) {
-      verifyNoMoreInteractions(mockBatchReportReader);
+      verifyNoMoreInteractions(mockScannerReportReader);
     }
   }
 
@@ -231,7 +231,7 @@ public class MapBasedRawMeasureRepositoryTest {
       underTestWithMock.getRawMeasure(FILE_COMPONENT, null);
       fail("an NPE should have been raised");
     } catch (NullPointerException e) {
-      verifyNoMoreInteractions(mockBatchReportReader);
+      verifyNoMoreInteractions(mockScannerReportReader);
     }
   }
 

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.batch;
+package org.sonar.ce.task.projectanalysis.scanner;
 
 import com.google.common.collect.ImmutableList;
 import java.io.File;
@@ -36,7 +36,7 @@ import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class BatchReportReaderImplTest {
+public class ScannerReportReaderImplTest {
   private static final int COMPONENT_REF = 1;
   private static final ScannerReport.Changesets CHANGESETS = ScannerReport.Changesets.newBuilder().setComponentRef(COMPONENT_REF).build();
   private static final ScannerReport.Measure MEASURE = ScannerReport.Measure.newBuilder().build();
@@ -54,12 +54,12 @@ public class BatchReportReaderImplTest {
   public JUnitTempFolder tempFolder = new JUnitTempFolder();
 
   private ScannerReportWriter writer;
-  private BatchReportReaderImpl underTest;
+  private ScannerReportReaderImpl underTest;
 
   @Before
   public void setUp() {
-    BatchReportDirectoryHolder holder = new ImmutableBatchReportDirectoryHolder(tempFolder.newDir());
-    underTest = new BatchReportReaderImpl(holder);
+    ScannerReportDirectoryHolder holder = new ImmutableScannerReportDirectoryHolder(tempFolder.newDir());
+    underTest = new ScannerReportReaderImpl(holder);
     FileStructure fileStructure = new FileStructure(holder.getDirectory());
     writer = new ScannerReportWriter(fileStructure);
   }
