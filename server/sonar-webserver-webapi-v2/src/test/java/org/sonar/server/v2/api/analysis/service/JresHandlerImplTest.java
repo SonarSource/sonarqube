@@ -106,6 +106,15 @@ class JresHandlerImplTest {
     assertThat(result).isEmpty();
   }
 
+  @Test
+  void getJresMetadata_shoudBeCaseInsensitive() {
+    List<JreInfoRestResponse> resultList = jresHandler.getJresMetadata("LiNux", "AARCH64");
+
+    assertThat(resultList).hasSize(1);
+    JreInfoRestResponse result = resultList.get(0);
+    assertThat(result).usingRecursiveComparison().isEqualTo(JRE_METADATA.get("2"));
+  }
+
   @ParameterizedTest
   @ValueSource(strings = {"1", "2", "3"})
   void getJreMetadata(String id) {
@@ -127,4 +136,5 @@ class JresHandlerImplTest {
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Unable to find JRE 'jre1'");
   }
+
 }

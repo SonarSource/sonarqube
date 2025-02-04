@@ -21,23 +21,23 @@ package org.sonar.server.v2.api.analysis.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
+import jakarta.annotation.PostConstruct;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
-import jakarta.annotation.PostConstruct;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.v2.api.analysis.response.JreInfoRestResponse;
+import org.sonar.server.v2.common.model.Arch;
+import org.sonar.server.v2.common.model.OS;
 
-import static java.lang.String.join;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
 public class JresHandlerImpl implements JresHandler {
@@ -93,56 +93,6 @@ public class JresHandlerImpl implements JresHandler {
       return new FileInputStream("jres/" + jreFilename);
     } catch (FileNotFoundException fileNotFoundException) {
       throw new NotFoundException(String.format("Unable to find JRE '%s'", jreFilename));
-    }
-  }
-
-  enum OS {
-    WINDOWS("win", "windows", "win32"),
-    LINUX("linux"),
-    MACOS("mac", "macos", "darwin"),
-    ALPINE("alpine");
-
-    private final List<String> aliases;
-
-    OS(String... aliases) {
-      this.aliases = Arrays.stream(aliases).toList();
-    }
-
-    private static OS from(String alias) {
-      return Arrays.stream(values())
-        .filter(os -> os.aliases.contains(alias))
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException(String.format("Unsupported OS: '%s'. Supported values are '%s'", alias, join(", ", supportedValues()))));
-    }
-
-    private static List<String> supportedValues() {
-      return Arrays.stream(values())
-        .flatMap(os -> os.aliases.stream())
-        .toList();
-    }
-  }
-
-  enum Arch {
-    X64("x86_64", "x86-64", "amd64", "x64"),
-    AARCH64("arm64", "aarch64");
-
-    private final List<String> aliases;
-
-    Arch(String... aliases) {
-      this.aliases = Arrays.stream(aliases).toList();
-    }
-
-    private static Arch from(String alias) {
-      return Arrays.stream(values())
-        .filter(arch -> arch.aliases.contains(alias))
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException(String.format("Unsupported architecture: '%s'. Supported values are '%s'", alias, join(", ", supportedValues()))));
-    }
-
-    private static List<String> supportedValues() {
-      return Arrays.stream(values())
-        .flatMap(arch -> arch.aliases.stream())
-        .toList();
     }
   }
 }
