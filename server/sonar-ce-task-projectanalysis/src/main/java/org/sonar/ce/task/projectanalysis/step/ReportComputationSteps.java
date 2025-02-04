@@ -54,6 +54,9 @@ public class ReportComputationSteps extends AbstractComputationSteps {
 
     SendAnalysisTelemetryStep.class,
 
+    // Dependencies
+    BuildSoftwareCompositionAnalysisStep.class,
+
     // Pre analysis operations
     PreMeasuresComputationChecksStep.class,
     SqUpgradeDetectionEventsStep.class,

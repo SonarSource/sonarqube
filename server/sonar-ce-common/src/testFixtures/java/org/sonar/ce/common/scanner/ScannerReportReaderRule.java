@@ -21,6 +21,7 @@ package org.sonar.ce.common.scanner;
 
 import com.google.common.base.Preconditions;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,6 +64,7 @@ public class ScannerReportReaderRule implements TestRule, ScannerReportReader, A
   private List<ScannerReport.AnalysisWarning> analysisWarnings = Collections.emptyList();
   private byte[] analysisCache;
   private List<ScannerReport.TelemetryEntry> telemetryEntries = new ArrayList<>();
+  private File dependencyFilesZip;
 
   @Override
   public Statement apply(final Statement statement, Description description) {
@@ -335,6 +337,19 @@ public class ScannerReportReaderRule implements TestRule, ScannerReportReader, A
 
   public ScannerReportReaderRule putTelemetry(List<ScannerReport.TelemetryEntry> telemetryEntries) {
     this.telemetryEntries = telemetryEntries;
+    return this;
+  }
+
+  @Override
+  public File readDependencyFilesZip() {
+    if (dependencyFilesZip == null) {
+      return null;
+    }
+    return this.dependencyFilesZip;
+  }
+
+  public ScannerReportReaderRule putDependencyFilesZip(File dependencyFilesZip) {
+    this.dependencyFilesZip = dependencyFilesZip;
     return this;
   }
 }

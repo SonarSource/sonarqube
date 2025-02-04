@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.common.scanner;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
@@ -72,4 +73,6 @@ public interface ScannerReportReader {
   CloseableIterator<ScannerReport.AnalysisWarning> readAnalysisWarnings();
 
   CloseableIterator<ScannerReport.TelemetryEntry> readTelemetryEntries();
+
+  File readDependencyFilesZip();
 }

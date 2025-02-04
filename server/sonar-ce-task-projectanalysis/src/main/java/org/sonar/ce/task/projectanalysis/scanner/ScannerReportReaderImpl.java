@@ -233,4 +233,10 @@ public class ScannerReportReaderImpl implements ScannerReportReader {
     ensureInitialized();
     return delegate.readTelemetryEntries();
   }
+
+  @Override
+  public File readDependencyFilesZip() {
+    ensureInitialized();
+    return delegate.readDependencyFilesZip();
+  }
 }

@@ -218,6 +218,14 @@ public class ScannerReportReader {
     return Protobuf.readStream(file, ScannerReport.AnalysisWarning.parser());
   }
 
+  public File readDependencyFilesZip() {
+    File file = fileStructure.dependencyFilesZip();
+    if (fileExists(file)) {
+      return file;
+    }
+    return null;
+  }
+
   private static boolean fileExists(File file) {
     return file.exists() && file.isFile();
   }

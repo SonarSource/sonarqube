@@ -389,4 +389,27 @@ public class ScannerReportReaderIT {
   public void readTelemetryEntries_whenFileDoesntExists() {
     assertThat(underTest.readTelemetryEntries()).toIterable().isEmpty();
   }
+
+  @Test
+  public void readDependencyFilesZip_withNoFile_returnsNull() {
+    assertThat(underTest.readDependencyFilesZip()).isNull();
+  }
+
+  @Test
+  public void readDependencyFilesZip_withFile_returnsFile() throws IOException {
+    ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
+
+    temp.create();
+    File tempFile = temp.newFile("dependency-files.zip");
+    byte[] expectedBytes = "hello world!".getBytes();
+    try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+      fos.write(expectedBytes);
+    }
+
+    writer.writeScaFile(tempFile);
+
+    assertThat(underTest.readDependencyFilesZip()).isNotNull();
+    var returnBytes = FileUtils.readFileToByteArray(underTest.readDependencyFilesZip());
+    assertThat(returnBytes).isEqualTo(expectedBytes);
+  }
 }

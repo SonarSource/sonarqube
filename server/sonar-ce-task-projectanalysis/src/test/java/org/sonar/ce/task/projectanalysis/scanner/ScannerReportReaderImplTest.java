@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.scanner;
 
 import com.google.common.collect.ImmutableList;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -299,5 +300,21 @@ public class ScannerReportReaderImplTest {
     CloseableIterator<ScannerReport.AnalysisWarning> res = underTest.readAnalysisWarnings();
     assertThat(res).toIterable().containsExactlyElementsOf(warnings);
     res.close();
+  }
+
+  @Test
+  public void verify_readDependencyFilesZip() throws IOException {
+    File tempDir = tempFolder.newDir();
+    File tempFile = new File(tempDir, "dependency-files.zip");
+    byte[] expectedBytes = "hello world!".getBytes();
+    try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+      fos.write(expectedBytes);
+    }
+
+    writer.writeScaFile(tempFile);
+
+    assertThat(underTest.readDependencyFilesZip()).isNotNull();
+    var returnBytes = FileUtils.readFileToByteArray(underTest.readDependencyFilesZip());
+    assertThat(returnBytes).isEqualTo(expectedBytes);
   }
 }
