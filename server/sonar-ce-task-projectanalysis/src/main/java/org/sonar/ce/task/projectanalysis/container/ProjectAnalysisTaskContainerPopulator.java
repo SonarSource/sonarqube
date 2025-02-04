@@ -41,7 +41,6 @@ import org.sonar.ce.task.projectanalysis.component.ProjectPersister;
 import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.component.SiblingComponentsWithOpenIssues;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderImpl;
-import org.sonar.ce.task.projectanalysis.dependency.ProjectDependenciesHolderImpl;
 import org.sonar.ce.task.projectanalysis.duplication.ComputeDuplicationDataMeasure;
 import org.sonar.ce.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolderImpl;
 import org.sonar.ce.task.projectanalysis.duplication.DuplicationMeasures;
@@ -211,7 +210,6 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       CrossProjectDuplicationStatusHolderImpl.class,
       BatchReportDirectoryHolderImpl.class,
       TreeRootHolderImpl.class,
-      ProjectDependenciesHolderImpl.class,
       PeriodHolderImpl.class,
       PrioritizedRulesHolderImpl.class,
       QualityGateHolderImpl.class,

@@ -119,9 +119,6 @@ public final class IssueDto implements Serializable {
   private CleanCodeAttribute cleanCodeAttribute;
   private CleanCodeAttribute ruleCleanCodeAttribute;
 
-  // issues dependency fields, one-one relationship
-  private String cveId;
-
   public IssueDto() {
     // nothing to do
   }
@@ -166,8 +163,7 @@ public final class IssueDto implements Serializable {
       .setPrioritizedRule(issue.isPrioritizedRule())
       // technical dates
       .setCreatedAt(now)
-      .setUpdatedAt(now)
-      .setCveId(issue.getCveId());
+      .setUpdatedAt(now);
 
     issue.getImpacts().forEach(i -> issueDto.addImpact(new ImpactDto(i.softwareQuality(), i.severity(), i.manualSeverity())));
     return issueDto;
@@ -873,15 +869,6 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
-  public String getCveId() {
-    return cveId;
-  }
-
-  public IssueDto setCveId(@Nullable String cveId) {
-    this.cveId = cveId;
-    return this;
-  }
-
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
@@ -925,7 +912,6 @@ public final class IssueDto implements Serializable {
     issue.setCodeVariants(getCodeVariants());
     issue.setCleanCodeAttribute(cleanCodeAttribute);
     impacts.forEach(i -> issue.addImpact(i.getSoftwareQuality(), i.getSeverity(), i.isManualSeverity()));
-    issue.setCveId(cveId);
     return issue;
   }
 }

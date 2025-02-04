@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.step;
 import java.util.Arrays;
 import java.util.List;
 import org.sonar.ce.task.container.TaskContainer;
-import org.sonar.ce.task.projectanalysis.dependency.PersistProjectDependenciesStep;
 import org.sonar.ce.task.projectanalysis.filemove.FileMoveDetectionStep;
 import org.sonar.ce.task.projectanalysis.filemove.PullRequestFileMoveDetectionStep;
 import org.sonar.ce.task.projectanalysis.language.HandleUnanalyzedLanguagesStep;
@@ -54,9 +53,6 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     LoadQualityProfilesStep.class,
 
     SendAnalysisTelemetryStep.class,
-
-    // Dependencies
-    BuildProjectDependenciesStep.class,
 
     // Pre analysis operations
     PreMeasuresComputationChecksStep.class,
@@ -109,7 +105,6 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     // Persist data
     PersistScannerAnalysisCacheStep.class,
     PersistComponentsStep.class,
-    PersistProjectDependenciesStep.class,
     PersistAnalysisStep.class,
     PersistAnalysisPropertiesStep.class,
     PersistProjectMeasuresStep.class,

@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.sonar.api.utils.System2;
@@ -38,8 +37,6 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.BatchSession;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.dependency.CveDto;
-import org.sonar.db.dependency.IssuesDependencyDto;
 import org.sonar.db.issue.AnticipatedTransitionMapper;
 import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDao;
@@ -154,10 +151,6 @@ public class PersistIssuesStep implements ComputationStep {
 
   private void insertAdditionalIssueData(IssueDao issueDao, DbSession dbSession, IssueDto issueDto) {
     issueDao.insertIssueImpacts(dbSession, issueDto);
-    if (issueDto.getCveId() != null) {
-      Consumer<CveDto> insertIssueDependency = cveDto -> dbClient.issuesDependencyDao().insert(dbSession, new IssuesDependencyDto(issueDto.getKey(), cveDto.uuid()));
-      dbClient.cveDao().selectById(dbSession, issueDto.getCveId()).ifPresent(insertIssueDependency);
-    }
   }
 
   private void persistUpdatedIssues(IssueStatistics statistics, List<DefaultIssue> updatedIssues, IssueDao issueDao,

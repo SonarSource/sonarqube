@@ -17,12 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.dependency;
+package org.sonar.server.platform.db.migration.version.v202502;
 
-public interface CveMapper {
-  void insert(CveDto cveDto);
+import java.sql.Connection;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.DatabaseUtils;
+import org.sonar.server.platform.db.migration.sql.DropTableBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-  CveDto selectById(String id);
+public class DropIssuesDependencyTable extends DdlChange {
 
-  void update(CveDto cveDto);
+  private static final String TABLE_NAME = "issues_dependency";
+
+  public DropIssuesDependencyTable(Database db) {
+    super(db);
+  }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    try (Connection c = getDatabase().getDataSource().getConnection()) {
+      if (DatabaseUtils.tableExists(TABLE_NAME, c)) {
+        context.execute(new DropTableBuilder(getDialect(), TABLE_NAME).build());
+      }
+    }
+  }
 }

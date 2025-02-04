@@ -359,24 +359,4 @@ class ScannerReportWriterTest {
         .hasSize(input.size());
     }
   }
-
-  @Test
-  void write_dependencies() {
-    ScannerReport.Dependency dependency = ScannerReport.Dependency.newBuilder()
-      .setKey("mvn+com.fasterxml.jackson.core:jackson-databind$2.9.7")
-      .setName("jackson-databind")
-      .setFullName("com.fasterxml.jackson.core:jackson-databind")
-      .setDescription("General data-binding functionality for Jackson: works on core streaming API")
-      .setVersion("2.9.7")
-      .addParentDependencyKey("mvn+org.springframework:spring-webmvc$5.1.3.RELEASE")
-      .build();
-    underTest.appendDependency(dependency);
-
-    File file = underTest.getFileStructure().dependencies();
-    assertThat(file).exists().isFile();
-    try (CloseableIterator<ScannerReport.Dependency> read = Protobuf.readStream(file, ScannerReport.Dependency.parser())) {
-      assertThat(Iterators.size(read)).isOne();
-    }
-  }
-
 }

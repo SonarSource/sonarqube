@@ -301,7 +301,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
       .containsExactlyInAnyOrder(Tuple.tuple(SoftwareQuality.SECURITY, Severity.MEDIUM));
     assertThat(result.isPrioritizedRule()).isTrue();
 
-    List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList(issueKey));
+    List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, List.of(issueKey));
     assertThat(changes).extracting(IssueChangeDto::getChangeType).containsExactly(IssueChangeDto.TYPE_COMMENT, IssueChangeDto.TYPE_FIELD_CHANGE);
     assertThat(context.getStatistics().getAll()).contains(
       entry("inserts", "1"), entry("updates", "0"), entry("merged", "0"));

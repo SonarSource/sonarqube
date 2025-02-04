@@ -21,7 +21,6 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -41,8 +40,6 @@ import org.sonar.ce.task.projectanalysis.component.MutableDisabledComponentsHold
 import org.sonar.ce.task.projectanalysis.component.ProjectPersister;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
-import org.sonar.ce.task.projectanalysis.dependency.MutableProjectDependenciesHolderRule;
-import org.sonar.ce.task.projectanalysis.dependency.ProjectDependencyImpl;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
@@ -75,8 +72,6 @@ public class ReportPersistComponentsStepIT extends BaseStepTest {
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
-  @Rule
-  public MutableProjectDependenciesHolderRule projectDepsHolder = new MutableProjectDependenciesHolderRule();
 
   private final System2 system2 = mock(System2.class);
   private final DbClient dbClient = db.getDbClient();
@@ -91,7 +86,7 @@ public class ReportPersistComponentsStepIT extends BaseStepTest {
 
     BranchPersister branchPersister = mock(BranchPersister.class);
     ProjectPersister projectPersister = mock(ProjectPersister.class);
-    underTest = new PersistComponentsStep(dbClient, treeRootHolder, system2, disabledComponentsHolder, branchPersister, projectPersister, projectDepsHolder);
+    underTest = new PersistComponentsStep(dbClient, treeRootHolder, system2, disabledComponentsHolder, branchPersister, projectPersister);
   }
 
   @Override
@@ -116,7 +111,6 @@ public class ReportPersistComponentsStepIT extends BaseStepTest {
       .addChildren(directory)
       .build();
     treeRootHolder.setRoot(treeRoot);
-    projectDepsHolder.setDependencies(List.of());
 
     underTest.execute(new TestComputationStepContext());
 
@@ -166,7 +160,6 @@ public class ReportPersistComponentsStepIT extends BaseStepTest {
       .addChildren(directory)
       .build();
     treeRootHolder.setRoot(treeRoot);
-    projectDepsHolder.setDependencies(List.of());
 
     underTest.execute(new TestComputationStepContext());
 
@@ -209,7 +202,6 @@ public class ReportPersistComponentsStepIT extends BaseStepTest {
             .setName("pom.xml")
             .build())
         .build());
-    projectDepsHolder.setDependencies(List.of());
 
     underTest.execute(new TestComputationStepContext());
 
@@ -236,7 +228,6 @@ public class ReportPersistComponentsStepIT extends BaseStepTest {
                 .build())
             .build())
         .build());
-    projectDepsHolder.setDependencies(List.of());
 
     underTest.execute(new TestComputationStepContext());
 
@@ -276,7 +267,6 @@ public class ReportPersistComponentsStepIT extends BaseStepTest {
                 .build())
             .build())
         .build());
-    projectDepsHolder.setDependencies(List.of());
 
     underTest.execute(new TestComputationStepContext());
 
@@ -306,7 +296,6 @@ public class ReportPersistComponentsStepIT extends BaseStepTest {
                 .build())
             .build())
         .build());
-    projectDepsHolder.setDependencies(List.of());
 
     underTest.execute(new TestComputationStepContext());
 
@@ -346,7 +335,6 @@ public class ReportPersistComponentsStepIT extends BaseStepTest {
                 .build())
             .build())
         .build());
-    projectDepsHolder.setDependencies(List.of());
 
     underTest.execute(new TestComputationStepContext());
 
@@ -383,7 +371,6 @@ public class ReportPersistComponentsStepIT extends BaseStepTest {
     treeRootHolder.setRoot(
       builder(PROJECT, 1).setUuid(project.uuid()).setKey(project.getKey())
         .build());
-    projectDepsHolder.setDependencies(List.of());
 
     underTest.execute(new TestComputationStepContext());
 
@@ -423,7 +410,6 @@ public class ReportPersistComponentsStepIT extends BaseStepTest {
                 .build())
             .build())
         .build());
-    projectDepsHolder.setDependencies(List.of());
 
     underTest.execute(new TestComputationStepContext());
 
@@ -472,7 +458,6 @@ public class ReportPersistComponentsStepIT extends BaseStepTest {
     ComponentDto project = prepareProject(p -> p.setPrivate(true));
     ComponentDto dir = db.components().insertComponent(newDirectory(project, "DEFG", "Directory").setKey("DIR").setPrivate(true));
     treeRootHolder.setRoot(createSampleProjectComponentTree(project));
-    projectDepsHolder.setDependencies(List.of());
 
     underTest.execute(new TestComputationStepContext());
 
@@ -480,32 +465,6 @@ public class ReportPersistComponentsStepIT extends BaseStepTest {
       .forEach(uuid -> assertThat(dbClient.componentDao().selectByUuid(db.getSession(), uuid).get().isPrivate())
         .describedAs("for uuid " + uuid)
         .isTrue());
-  }
-
-  @Test
-  public void persist_dependencies() {
-    ComponentDto projectDto = prepareProject();
-    treeRootHolder.setRoot(asTreeRoot(projectDto).build());
-    projectDepsHolder.setDependencies(List.of(ProjectDependencyImpl.builder()
-        .setUuid("DEFG")
-        .setKey(PROJECT_KEY + ":mvn+com.google.guava:guava$28.2-jre")
-        .setName("guava")
-        .setFullName("com.google.guava:guava")
-        .setDescription("Some long description about Guava")
-        .setVersion("28.2-jre")
-        .setPackageManager("mvn")
-      .build()));
-
-    underTest.execute(new TestComputationStepContext());
-
-    ComponentDto depByKey = dbClient.componentDao().selectByKey(db.getSession(), PROJECT_KEY + ":mvn+com.google.guava:guava$28.2-jre").get();
-    assertThat(depByKey.getKey()).isEqualTo(PROJECT_KEY + ":mvn+com.google.guava:guava$28.2-jre");
-    assertThat(depByKey.name()).isEqualTo("guava");
-    assertThat(depByKey.longName()).isEqualTo("com.google.guava:guava");
-    assertThat(depByKey.description()).isEqualTo("Some long description about Guava");
-    assertThat(depByKey.path()).isNull();
-    assertThat(depByKey.qualifier()).isEqualTo("DEP");
-    assertThat(depByKey.scope()).isEqualTo("DEP");
   }
 
   private ReportComponent createSampleProjectComponentTree(ComponentDto project) {

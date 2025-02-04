@@ -17,37 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.dependency;
+package org.sonar.server.platform.db.migration.version.v202502;
 
-import java.util.List;
-import java.util.Map;
+import java.sql.SQLException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.MigrationDbTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-class IssuesDependencyDaoIT {
+class DropCvesTableIT {
+  public static final String TABLE_NAME = "cves";
 
   @RegisterExtension
-  private final DbTester db = DbTester.create(System2.INSTANCE);
-
-  private final IssuesDependencyDao issuesDependencyDao = db.getDbClient().issuesDependencyDao();
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropCvesTable.class);
+  private final DropCvesTable underTest = new DropCvesTable(db.database());
 
   @Test
-  void insert_shouldPersistIssuesDependency() {
-    var issuesDependencyDto = new IssuesDependencyDto("ISSUE_UUID", "CVE_UUID");
+  void execute_shouldDropTable() throws SQLException {
+    db.assertTableExists(TABLE_NAME);
+    underTest.execute();
+    db.assertTableDoesNotExist(TABLE_NAME);
+  }
 
-    issuesDependencyDao.insert(db.getSession(), issuesDependencyDto);
-
-    List<Map<String, Object>> result = db.select(db.getSession(), "select * from issues_dependency");
-    assertThat(result).hasSize(1);
-    assertThat(result.get(0)).containsExactlyInAnyOrderEntriesOf(
-      Map.of(
-        "issue_uuid", issuesDependencyDto.issueUuid(),
-        "cve_uuid", issuesDependencyDto.cveUuid())
-    );
-
+  @Test
+  void execute_shouldSupportReentrantMigrationExecution() throws SQLException {
+    db.assertTableExists(TABLE_NAME);
+    underTest.execute();
+    underTest.execute();
+    db.assertTableDoesNotExist(TABLE_NAME);
   }
 }

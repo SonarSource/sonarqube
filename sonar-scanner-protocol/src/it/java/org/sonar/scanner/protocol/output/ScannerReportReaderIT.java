@@ -370,16 +370,6 @@ public class ScannerReportReaderIT {
   }
 
   @Test
-  public void read_dependencies() {
-    ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
-    ScannerReport.Dependency dep = ScannerReport.Dependency.newBuilder()
-      .build();
-    writer.appendDependency(dep);
-
-    assertThat(underTest.readDependencies()).toIterable().hasSize(1);
-  }
-
-  @Test
   public void return_null_when_no_file_source() {
     assertThat(underTest.readFileSource(UNKNOWN_COMPONENT_REF)).isNull();
   }

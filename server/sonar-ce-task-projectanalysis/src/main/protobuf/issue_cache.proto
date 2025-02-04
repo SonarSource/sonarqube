@@ -87,7 +87,6 @@ message Issue {
   repeated Impact impacts = 49;
   optional string clean_code_attribute = 50;
   optional bool is_prioritized_rule = 51;
-  optional string cve_id = 52;
 }
 
 message Comment {

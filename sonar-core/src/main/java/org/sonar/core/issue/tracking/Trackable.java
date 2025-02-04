@@ -50,7 +50,4 @@ public interface Trackable {
    * Functional update date for the issue. See {@link DefaultIssue#updateDate()}
    */
   Date getUpdateDate();
-
-  @CheckForNull
-  String getCveId();
 }

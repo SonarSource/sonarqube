@@ -17,7 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.dependency;
+package org.sonar.server.platform.db.migration.version.v202502;
 
-public record CveCweDto(String cveUuid, String cwe) {
+import org.junit.jupiter.api.Test;
+
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationNotEmpty;
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+
+class DbVersion202502Test {
+
+  private final DbVersion202502 underTest = new DbVersion202502();
+
+  @Test
+  void migrationNumber_starts_at_2025_02_000() {
+    verifyMinimumMigrationNumber(underTest, 2025_02_000);
+  }
+
+  @Test
+  void verify_migration_is_not_empty() {
+    verifyMigrationNotEmpty(underTest);
+  }
 }

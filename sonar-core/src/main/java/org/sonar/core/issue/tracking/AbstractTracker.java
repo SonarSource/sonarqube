@@ -61,13 +61,11 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
     private final RuleKey ruleKey;
     private final String lineHash;
     private final Integer line;
-    private final String cveId;
 
     protected LineAndLineHashKey(Trackable trackable) {
       this.ruleKey = trackable.getRuleKey();
       this.line = trackable.getLine();
       this.lineHash = Objects.toString(trackable.getLineHash(), "");
-      this.cveId = trackable.getCveId();
     }
 
     @Override
@@ -83,12 +81,12 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
       return Objects.equals(line, that.line)
         && lineHash.equals(that.lineHash)
         && ruleKey.equals(that.ruleKey)
-        && Objects.equals(cveId, that.cveId);
+        ;
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(ruleKey, lineHash, line != null ? line : 0, cveId);
+      return Objects.hash(ruleKey, lineHash, line != null ? line : 0);
     }
   }
 
@@ -97,14 +95,12 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
     private final String lineHash;
     private final String message;
     private final Integer line;
-    private final String cveId;
 
     protected LineAndLineHashAndMessage(Trackable trackable) {
       this.ruleKey = trackable.getRuleKey();
       this.line = trackable.getLine();
       this.message = trackable.getMessage();
       this.lineHash = Objects.toString(trackable.getLineHash(), "");
-      this.cveId = trackable.getCveId();
     }
 
     @Override
@@ -121,12 +117,12 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
         && lineHash.equals(that.lineHash)
         && Objects.equals(message, that.message)
         && ruleKey.equals(that.ruleKey)
-        && Objects.equals(cveId, that.cveId);
+        ;
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(ruleKey, lineHash, message, line != null ? line : 0, cveId);
+      return Objects.hash(ruleKey, lineHash, message, line != null ? line : 0);
     }
   }
 
@@ -134,13 +130,11 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
     private final RuleKey ruleKey;
     private final String message;
     private final String lineHash;
-    private final String cveId;
 
     LineHashAndMessageKey(Trackable trackable) {
       this.ruleKey = trackable.getRuleKey();
       this.message = trackable.getMessage();
       this.lineHash = Objects.toString(trackable.getLineHash(), "");
-      this.cveId = trackable.getCveId();
     }
 
     @Override
@@ -156,12 +150,12 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
       return lineHash.equals(that.lineHash)
         && Objects.equals(message, that.message)
         && ruleKey.equals(that.ruleKey)
-        && Objects.equals(cveId, that.cveId);
+        ;
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(ruleKey, message, lineHash, cveId);
+      return Objects.hash(ruleKey, message, lineHash);
     }
   }
 
@@ -169,13 +163,11 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
     private final RuleKey ruleKey;
     private final String message;
     private final Integer line;
-    private final String cveId;
 
     LineAndMessageKey(Trackable trackable) {
       this.ruleKey = trackable.getRuleKey();
       this.message = trackable.getMessage();
       this.line = trackable.getLine();
-      this.cveId = trackable.getCveId();
     }
 
     @Override
@@ -191,7 +183,7 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
       return Objects.equals(line, that.line)
         && Objects.equals(message, that.message)
         && ruleKey.equals(that.ruleKey)
-        && Objects.equals(cveId, that.cveId);
+        ;
     }
 
     @Override
@@ -203,12 +195,10 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
   protected static class LineHashKey implements SearchKey {
     private final RuleKey ruleKey;
     private final String lineHash;
-    private final String cveId;
 
     LineHashKey(Trackable trackable) {
       this.ruleKey = trackable.getRuleKey();
       this.lineHash = Objects.toString(trackable.getLineHash(), "");
-      this.cveId = trackable.getCveId();
     }
 
     @Override
@@ -221,12 +211,14 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
       }
       LineHashKey that = (LineHashKey) o;
       // start with most discriminant field
-      return lineHash.equals(that.lineHash) && ruleKey.equals(that.ruleKey) && Objects.equals(cveId, that.cveId);
+      return lineHash.equals(that.lineHash)
+        && ruleKey.equals(that.ruleKey)
+        ;
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(ruleKey, lineHash, cveId);
+      return Objects.hash(ruleKey, lineHash);
     }
   }
 

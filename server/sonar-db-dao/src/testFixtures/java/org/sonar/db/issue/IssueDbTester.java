@@ -32,7 +32,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
-import org.sonar.db.dependency.IssuesDependencyDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 
@@ -254,11 +253,6 @@ public class IssueDbTester {
 
   public void insertNewCodeReferenceIssue(IssueDto issue) {
     db.getDbClient().issueDao().insertAsNewCodeOnReferenceBranch(db.getSession(), IssueTesting.newCodeReferenceIssue(issue));
-    db.commit();
-  }
-
-  public void insertIssuesDependency(IssuesDependencyDto issuesDependencyDto) {
-    db.getDbClient().issuesDependencyDao().insert(db.getSession(), issuesDependencyDto);
     db.commit();
   }
 }

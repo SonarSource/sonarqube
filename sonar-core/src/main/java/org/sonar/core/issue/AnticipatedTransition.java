@@ -119,12 +119,6 @@ public class AnticipatedTransition implements Trackable {
     return Date.from(Instant.now());
   }
 
-  @Nullable
-  @Override
-  public String getCveId() {
-    return null;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {

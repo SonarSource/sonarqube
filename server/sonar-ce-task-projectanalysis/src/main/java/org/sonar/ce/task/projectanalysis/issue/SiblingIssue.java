@@ -38,15 +38,9 @@ public class SiblingIssue implements Trackable {
   private final String prKey;
   private final BranchType branchType;
   private final Date updateDate;
-  private final String cveId;
 
   SiblingIssue(String key, @Nullable Integer line, @Nullable String message, @Nullable String lineHash, RuleKey ruleKey, String status, String prKey, BranchType branchType,
     Date updateDate) {
-    this(key, line, message, lineHash, ruleKey, status, prKey, branchType, updateDate, null);
-  }
-
-  SiblingIssue(String key, @Nullable Integer line, @Nullable String message, @Nullable String lineHash, RuleKey ruleKey, String status, String prKey, BranchType branchType,
-    Date updateDate, @Nullable String cveId) {
     this.key = key;
     this.line = line;
     this.message = message;
@@ -56,7 +50,6 @@ public class SiblingIssue implements Trackable {
     this.prKey = prKey;
     this.branchType = branchType;
     this.updateDate = updateDate;
-    this.cveId = cveId;
   }
 
   public String getKey() {
@@ -102,12 +95,6 @@ public class SiblingIssue implements Trackable {
   @Override
   public Date getUpdateDate() {
     return updateDate;
-  }
-
-  @CheckForNull
-  @Override
-  public String getCveId() {
-    return cveId;
   }
 
   @Override

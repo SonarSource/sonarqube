@@ -17,24 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.dependency;
+package org.sonar.server.platform.db.migration.version.v202502;
 
-import java.util.List;
+import java.sql.Connection;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.DatabaseUtils;
+import org.sonar.server.platform.db.migration.sql.DropTableBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class EmptyProjectDependenciesHolder implements ProjectDependenciesHolder {
+public class DropCvesTable extends DdlChange {
 
-  @Override
-  public boolean isEmpty() {
-    return true;
+  private static final String TABLE_NAME = "cves";
+
+  public DropCvesTable(Database db) {
+    super(db);
   }
 
   @Override
-  public List<ProjectDependency> getDependencies() {
-    return List.of();
-  }
-
-  @Override
-  public int getSize() {
-    return 0;
+  public void execute(Context context) throws SQLException {
+    try (Connection c = getDatabase().getDataSource().getConnection()) {
+      if (DatabaseUtils.tableExists(TABLE_NAME, c)) {
+        context.execute(new DropTableBuilder(getDialect(), TABLE_NAME).build());
+      }
+    }
   }
 }

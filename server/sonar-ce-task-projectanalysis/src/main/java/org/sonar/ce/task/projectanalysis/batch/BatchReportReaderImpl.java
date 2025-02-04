@@ -233,10 +233,4 @@ public class BatchReportReaderImpl implements BatchReportReader {
     ensureInitialized();
     return delegate.readTelemetryEntries();
   }
-
-  @Override
-  public CloseableIterator<ScannerReport.Dependency> readDependencies() {
-    ensureInitialized();
-    return delegate.readDependencies();
-  }
 }

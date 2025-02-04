@@ -27,8 +27,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.db.component.ComponentScopes;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.component.BranchPersister;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -37,22 +35,21 @@ import org.sonar.ce.task.projectanalysis.component.MutableDisabledComponentsHold
 import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitor;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
-import org.sonar.ce.task.projectanalysis.dependency.ProjectDependenciesHolder;
-import org.sonar.ce.task.projectanalysis.dependency.ProjectDependency;
 import org.sonar.ce.task.projectanalysis.component.ProjectPersister;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.db.component.ComponentUpdateDto;
 
 import static java.util.Optional.ofNullable;
-import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
-import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
 import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 
 /**
  * Persist report components
@@ -64,18 +61,15 @@ public class PersistComponentsStep implements ComputationStep {
   private final MutableDisabledComponentsHolder disabledComponentsHolder;
   private final BranchPersister branchPersister;
   private final ProjectPersister projectPersister;
-  private final ProjectDependenciesHolder projectDependenciesHolder;
 
   public PersistComponentsStep(DbClient dbClient, TreeRootHolder treeRootHolder, System2 system2,
-    MutableDisabledComponentsHolder disabledComponentsHolder, BranchPersister branchPersister, ProjectPersister projectPersister,
-    ProjectDependenciesHolder projectDependenciesHolder) {
+    MutableDisabledComponentsHolder disabledComponentsHolder, BranchPersister branchPersister, ProjectPersister projectPersister) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.system2 = system2;
     this.disabledComponentsHolder = disabledComponentsHolder;
     this.branchPersister = branchPersister;
     this.projectPersister = projectPersister;
-    this.projectDependenciesHolder = projectDependenciesHolder;
   }
 
   @Override
@@ -174,15 +168,6 @@ public class PersistComponentsStep implements ComputationStep {
       ComponentDto dto = createForProject(project);
       ComponentDto persistedProject = persistComponent(dto);
       path.current().setDto(persistedProject);
-
-      persistDependencies(persistedProject);
-    }
-
-    private void persistDependencies(ComponentDto projectDto) {
-      for (ProjectDependency dep : projectDependenciesHolder.getDependencies()) {
-        ComponentDto dto = createForDependency(dep, projectDto);
-        persistComponent(dto, false);
-      }
     }
 
     @Override
@@ -337,26 +322,6 @@ public class PersistComponentsStep implements ComputationStep {
       setRootAndParentModule(res, path);
 
       return res;
-    }
-
-    private ComponentDto createForDependency(ProjectDependency dependency, ComponentDto projectDto) {
-      ComponentDto componentDto = new ComponentDto();
-      componentDto.setUuid(dependency.getUuid());
-      componentDto.setKey(dependency.getKey());
-      componentDto.setEnabled(true);
-      componentDto.setCreatedAt(new Date(system2.now()));
-
-      componentDto.setScope("DEP");
-      componentDto.setQualifier("DEP");
-      componentDto.setName(dependency.getName());
-      componentDto.setLongName(dependency.getFullName());
-      componentDto.setDescription(dependency.getDescription());
-
-      var projectUuid = projectDto.uuid();
-      componentDto.setBranchUuid(projectUuid);
-      componentDto.setUuidPath(UUID_PATH_OF_ROOT + projectUuid + UUID_PATH_SEPARATOR);
-
-      return componentDto;
     }
 
     private ComponentDto createBase(Component component) {

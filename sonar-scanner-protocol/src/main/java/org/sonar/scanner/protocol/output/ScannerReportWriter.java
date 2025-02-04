@@ -164,11 +164,6 @@ public class ScannerReportWriter {
     return file;
   }
 
-  public void appendDependency(ScannerReport.Dependency dependency) {
-    File file = fileStructure.dependencies();
-    appendDelimitedTo(file, dependency, "dependency");
-  }
-
   public File getSourceFile(int componentRef) {
     return fileStructure.fileFor(FileStructure.Domain.SOURCE, componentRef);
   }

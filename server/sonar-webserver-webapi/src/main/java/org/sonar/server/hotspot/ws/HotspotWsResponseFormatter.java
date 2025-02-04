@@ -113,7 +113,6 @@ public class HotspotWsResponseFormatter {
       builder.setCreationDate(formatDateTime(hotspot.getIssueCreationDate()));
       builder.setUpdateDate(formatDateTime(hotspot.getIssueUpdateDate()));
       completeHotspotLocations(hotspot, builder, searchResponseData);
-      ofNullable(hotspot.getCveId()).ifPresent(builder::setCveId);
       hotspotsList.add(builder.build());
     }
     return hotspotsList;
