@@ -149,7 +149,7 @@ public class PersistIssuesStep implements ComputationStep {
     issueDtos.forEach(issueDto -> insertAdditionalIssueData(issueDao, dbSession, issueDto));
   }
 
-  private void insertAdditionalIssueData(IssueDao issueDao, DbSession dbSession, IssueDto issueDto) {
+  private static void insertAdditionalIssueData(IssueDao issueDao, DbSession dbSession, IssueDto issueDto) {
     issueDao.insertIssueImpacts(dbSession, issueDto);
   }
 
