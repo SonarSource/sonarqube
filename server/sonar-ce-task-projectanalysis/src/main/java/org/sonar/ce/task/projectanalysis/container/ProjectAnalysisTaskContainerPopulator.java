@@ -22,6 +22,8 @@ package org.sonar.ce.task.projectanalysis.container;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
+
+import org.sonar.ce.common.sca.ScaHolderImpl;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.container.TaskContainer;
 import org.sonar.ce.task.log.CeTaskMessagesImpl;
@@ -223,6 +225,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       NewCodeReferenceBranchComponentUuids.class,
       BranchComponentUuidsDelegate.class,
       SiblingComponentsWithOpenIssues.class,
+      ScaHolderImpl.class,
 
       // repositories
       PreviousSourceHashRepositoryImpl.class,

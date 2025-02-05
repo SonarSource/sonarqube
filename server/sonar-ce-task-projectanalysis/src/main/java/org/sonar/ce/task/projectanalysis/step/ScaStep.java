@@ -20,6 +20,8 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import javax.annotation.Nullable;
+
+import org.sonar.ce.common.sca.ScaHolder;
 import org.sonar.ce.common.sca.ScaStepProvider;
 import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.step.ComputationStep;
@@ -31,12 +33,16 @@ public class ScaStep implements ComputationStep {
 
   @Autowired(required = false)
   public ScaStep(ScannerReportReader reportReader) {
-    this(reportReader, null);
+    this(reportReader, null, null);
   }
 
   @Autowired(required = false)
-  public ScaStep(ScannerReportReader reportReader, @Nullable ScaStepProvider provider) {
-    this.wrapped = provider != null ? provider.get(reportReader) : null;
+  public ScaStep(ScannerReportReader reportReader, @Nullable ScaStepProvider provider, @Nullable ScaHolder scaHolder ) {
+    if (provider != null && scaHolder != null ){
+      this.wrapped = provider.get(reportReader, scaHolder);
+    } else {
+      this.wrapped = null;
+    }
   }
 
   @Override

@@ -17,7 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.ce.common.batch;
+package org.sonar.ce.common.sca;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
+import org.sonar.db.sca.ScaDependencyDto;
+
+public interface ScaHolder {
+  void setDependencies(List<ScaDependencyDto> dependencies);
+  List<ScaDependencyDto> getDependencies();
+}

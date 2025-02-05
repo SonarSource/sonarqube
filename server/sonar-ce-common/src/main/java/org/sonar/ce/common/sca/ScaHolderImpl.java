@@ -19,15 +19,21 @@
  */
 package org.sonar.ce.common.sca;
 
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.ce.common.scanner.ScannerReportReader;
-import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.db.sca.ScaDependencyDto;
 
-/**
- * When an implementation of this interface is available in the ioc container, the Compute Engine will use the value returned by
- * {@link #get(ScannerReportReader, ScaHolder)} as an extra step for software composition analysis.
- */
-@ComputeEngineSide
-public interface ScaStepProvider {
-  ComputationStep get(ScannerReportReader reportReader, ScaHolder scaHolder);
+import java.util.List;
+import java.util.Optional;
+
+public class ScaHolderImpl implements ScaHolder {
+  private List<ScaDependencyDto> dependencies = null;
+
+  @Override
+  public void setDependencies(List<ScaDependencyDto> dependencies) {
+    this.dependencies = List.copyOf(dependencies);
+  }
+
+  @Override
+  public List<ScaDependencyDto> getDependencies() {
+    return Optional.ofNullable(this.dependencies).orElseThrow(() -> new IllegalStateException("SCA dependencies have not been populated"));
+  }
 }

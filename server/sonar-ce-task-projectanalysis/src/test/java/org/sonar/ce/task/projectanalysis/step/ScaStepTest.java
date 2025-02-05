@@ -20,6 +20,8 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.ce.common.sca.ScaHolder;
+import org.sonar.ce.common.sca.ScaStepProvider;
 import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.step.ComputationStep;
 
@@ -33,7 +35,7 @@ class ScaStepTest {
 
   @Test
   void shouldSkipScaStepIfNotAvailable() {
-    var underTest = new ScaStep(mock(ScannerReportReader.class), null);
+    var underTest = new ScaStep(mock(ScannerReportReader.class),  null, null);
 
     assertThat(underTest.getDescription()).isEqualTo("Software composition analysis unavailable");
 
@@ -45,7 +47,8 @@ class ScaStepTest {
     var wrappedStep = mock(ComputationStep.class);
     when(wrappedStep.getDescription()).thenReturn("wrapped step");
 
-    var underTest = new ScaStep(mock(ScannerReportReader.class), r -> wrappedStep);
+    ScaStepProvider scaStepProvider = (reportReader, scaHolder) -> wrappedStep;
+    var underTest = new ScaStep(mock(ScannerReportReader.class), scaStepProvider, mock(ScaHolder.class));
 
     assertThat(underTest.getDescription()).isEqualTo("wrapped step");
 
