@@ -28,6 +28,6 @@ import org.sonar.ce.task.step.ComputationStep;
  * {@link #get(ScannerReportReader)} as an extra step for software composition analysis.
  */
 @ComputeEngineSide
-public interface BuildSoftwareCompositionAnalysisStepProvider {
+public interface ScaStepProvider {
   ComputationStep get(ScannerReportReader reportReader);
 }

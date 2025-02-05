@@ -20,22 +20,22 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import javax.annotation.Nullable;
-import org.sonar.ce.common.sca.BuildSoftwareCompositionAnalysisStepProvider;
+import org.sonar.ce.common.sca.ScaStepProvider;
 import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.step.ComputationStep;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class BuildSoftwareCompositionAnalysisStep implements ComputationStep {
+public class ScaStep implements ComputationStep {
 
   private final ComputationStep wrapped;
 
   @Autowired(required = false)
-  public BuildSoftwareCompositionAnalysisStep(ScannerReportReader reportReader) {
+  public ScaStep(ScannerReportReader reportReader) {
     this(reportReader, null);
   }
 
   @Autowired(required = false)
-  public BuildSoftwareCompositionAnalysisStep(ScannerReportReader reportReader, @Nullable BuildSoftwareCompositionAnalysisStepProvider provider) {
+  public ScaStep(ScannerReportReader reportReader, @Nullable ScaStepProvider provider) {
     this.wrapped = provider != null ? provider.get(reportReader) : null;
   }
 

@@ -29,11 +29,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class BuildSoftwareCompositionAnalysisStepTest {
+class ScaStepTest {
 
   @Test
   void shouldSkipScaStepIfNotAvailable() {
-    var underTest = new BuildSoftwareCompositionAnalysisStep(mock(ScannerReportReader.class), null);
+    var underTest = new ScaStep(mock(ScannerReportReader.class), null);
 
     assertThat(underTest.getDescription()).isEqualTo("Software composition analysis unavailable");
 
@@ -45,7 +45,7 @@ class BuildSoftwareCompositionAnalysisStepTest {
     var wrappedStep = mock(ComputationStep.class);
     when(wrappedStep.getDescription()).thenReturn("wrapped step");
 
-    var underTest = new BuildSoftwareCompositionAnalysisStep(mock(ScannerReportReader.class), r -> wrappedStep);
+    var underTest = new ScaStep(mock(ScannerReportReader.class), r -> wrappedStep);
 
     assertThat(underTest.getDescription()).isEqualTo("wrapped step");
 
