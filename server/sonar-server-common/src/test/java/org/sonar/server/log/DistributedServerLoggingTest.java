@@ -86,7 +86,7 @@ public class DistributedServerLoggingTest {
 
     DistributedAnswer<Object> answer = mock();
     when(hazelcastMember.call(any(), any(), anyLong())).thenReturn(answer);
-    when(answer.getSingleAnswer()).thenReturn(Optional.of(new DistributedServerLogging.WebAddress("anyhost", 9000)));
+    when(answer.getSingleAnswer()).thenReturn(Optional.of(new DistributedServerLogging.WebAddress("anyhost", "", 9000)));
     when(hazelcastMember.getUuid()).thenReturn(UUID.fromString("00000000-0000-0000-0000-000000000000"));
     when(member1.getUuid()).thenReturn(UUID.fromString("00000000-0000-0000-0000-000000000001"));
     when(member2.getUuid()).thenReturn(UUID.fromString("00000000-0000-0000-0000-000000000002"));

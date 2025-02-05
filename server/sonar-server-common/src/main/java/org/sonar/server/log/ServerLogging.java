@@ -95,6 +95,10 @@ public class ServerLogging implements Startable {
       .orElseThrow(() -> new IllegalStateException("No web host found in configuration")));
   }
 
+  public static String getWebAPIContextFromHazelcastQuery() {
+    return instance.config.get(ProcessProperties.Property.WEB_CONTEXT.getKey()).orElse("");
+  }
+
   public void changeLevel(LoggerLevel level) {
     Level logbackLevel = Level.toLevel(level.name());
     database.enableSqlLogging(level == TRACE);

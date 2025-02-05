@@ -231,4 +231,12 @@ public class ServerLoggingTest {
 
     assertThat(ServerLogging.getWebAPIAddressFromHazelcastQuery()).isEqualTo("anyhost");
   }
+
+  @Test
+  public void getWebAPIAddressFromHazelcastQuery_whenSpecified_shouldReturnContext() {
+    underTest.start();
+    settings.setProperty(ProcessProperties.Property.WEB_CONTEXT.getKey(), "any_context");
+
+    assertThat(ServerLogging.getWebAPIContextFromHazelcastQuery()).isEqualTo("any_context");
+  }
 }

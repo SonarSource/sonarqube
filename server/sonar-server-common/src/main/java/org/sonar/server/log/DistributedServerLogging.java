@@ -185,12 +185,14 @@ public class DistributedServerLogging extends ServerLogging {
     String oneTimeToken, ZipOutputStream out) throws IOException {
     WebAddress addressAndPort = retrieveWebAddressOfAMember(member);
     String address = addressAndPort.address;
+
+    String context = addressAndPort.context;
     int port = addressAndPort.port;
     if (address.equals(localWebAPIAddress.address) && port == localWebAPIAddress.port) {
       return;
     }
 
-    String url = String.format("http://%s:%d/api/system/logs?name=%s", address, port, logName);
+    String url = String.format("http://%s:%d%s/api/system/logs?name=%s", address, port, context, logName);
     Request request = new Request.Builder().url(url)
       .addHeader(NODE_TO_NODE_SECRET, oneTimeToken)
       .build();
@@ -228,9 +230,10 @@ public class DistributedServerLogging extends ServerLogging {
   }
 
   private static DistributedCall<WebAddress> askForWebAPIAddress() {
-    return () -> new WebAddress(ServerLogging.getWebAPIAddressFromHazelcastQuery(), ServerLogging.getWebAPIPortFromHazelcastQuery());
+    return () -> new WebAddress(ServerLogging.getWebAPIAddressFromHazelcastQuery(), ServerLogging.getWebAPIContextFromHazelcastQuery(),
+      ServerLogging.getWebAPIPortFromHazelcastQuery());
   }
 
-  public record WebAddress(String address, int port) implements Serializable {
+  public record WebAddress(String address, String context, int port) implements Serializable {
   }
 }

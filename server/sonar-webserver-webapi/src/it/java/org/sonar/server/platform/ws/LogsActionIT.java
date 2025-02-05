@@ -118,7 +118,7 @@ public class LogsActionIT {
     when(cluster.getMembers()).thenReturn(members);
     when(configuration.get(ProcessProperties.Property.WEB_HOST.getKey())).thenReturn(Optional.of("anyhost"));
     when(hazelcastMember.call(any(), any(), anyLong())).thenReturn(answer);
-    when(answer.getSingleAnswer()).thenReturn(Optional.of(new DistributedServerLogging.WebAddress("anyhost", 9000)));
+    when(answer.getSingleAnswer()).thenReturn(Optional.of(new DistributedServerLogging.WebAddress("anyhost", "/any", 9000)));
     when(hazelcastMember.getUuid()).thenReturn(UUID.fromString("00000000-0000-0000-0000-000000000001"));
     when(member1.getUuid()).thenReturn(UUID.fromString("00000000-0000-0000-0000-000000000002"));
     when(member2.getUuid()).thenReturn(UUID.fromString("00000000-0000-0000-0000-000000000003"));
