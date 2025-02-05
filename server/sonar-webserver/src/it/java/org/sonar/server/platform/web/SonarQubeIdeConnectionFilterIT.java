@@ -40,7 +40,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class SonarLintConnectionFilterIT {
+public class SonarQubeIdeConnectionFilterIT {
   private static final String LOGIN = "user1";
   private final TestSystem2 system2 = new TestSystem2();
 
@@ -49,6 +49,24 @@ public class SonarLintConnectionFilterIT {
 
   @Test
   public void update() throws IOException {
+    system2.setNow(10_000_000L);
+    addUser(LOGIN, 1_000_000L);
+
+    runFilter(LOGIN, "SonarQube for IDE");
+    assertThat(getLastUpdate(LOGIN)).isEqualTo(10_000_000L);
+  }
+
+  @Test
+  public void update_with_rebranding_transitional_agent() throws IOException {
+    system2.setNow(10_000_000L);
+    addUser(LOGIN, 1_000_000L);
+
+    runFilter(LOGIN, "SonarQube for IDE (SonarLint)");
+    assertThat(getLastUpdate(LOGIN)).isEqualTo(10_000_000L);
+  }
+
+  @Test
+  public void update_with_legacy_sonarlint_agent() throws IOException {
     system2.setNow(10_000_000L);
     addUser(LOGIN, 1_000_000L);
 
@@ -67,7 +85,7 @@ public class SonarLintConnectionFilterIT {
 
   @Test
   public void only_applies_to_api() {
-    SonarLintConnectionFilter underTest = new SonarLintConnectionFilter(dbTester.getDbClient(), mock(ThreadLocalUserSession.class), system2);
+    SonarQubeIdeConnectionFilter underTest = new SonarQubeIdeConnectionFilter(dbTester.getDbClient(), mock(ThreadLocalUserSession.class), system2);
     assertThat(underTest.doGetPattern().matches("/api/test")).isTrue();
     assertThat(underTest.doGetPattern().matches("/test")).isFalse();
 
@@ -94,10 +112,12 @@ public class SonarLintConnectionFilterIT {
 
   @Test
   public void dont_fail_if_no_user_set() throws IOException {
-    SonarLintConnectionFilter underTest = new SonarLintConnectionFilter(dbTester.getDbClient(), new ThreadLocalUserSession(), system2);
-    HttpServletRequest httpRequest = mock(HttpServletRequest.class);
+    var userSession = new ThreadLocalUserSession();
+    userSession.unload();
+    var underTest = new SonarQubeIdeConnectionFilter(dbTester.getDbClient(), userSession, system2);
+    var httpRequest = mock(HttpServletRequest.class);
     when(httpRequest.getHeader("User-Agent")).thenReturn("sonarlint");
-    FilterChain chain = mock(FilterChain.class);
+    var chain = mock(FilterChain.class);
     underTest.doFilter(new JakartaHttpRequest(httpRequest), mock(HttpResponse.class), chain);
     verify(chain).doFilter(any(), any());
   }
@@ -124,7 +144,7 @@ public class SonarLintConnectionFilterIT {
     UserDto user = dbTester.getDbClient().userDao().selectByLogin(dbTester.getSession(), loggedInUser);
     ThreadLocalUserSession session = new ThreadLocalUserSession();
     session.set(new ServerUserSession(dbTester.getDbClient(), user, false));
-    SonarLintConnectionFilter underTest = new SonarLintConnectionFilter(dbTester.getDbClient(), session, system2);
+    SonarQubeIdeConnectionFilter underTest = new SonarQubeIdeConnectionFilter(dbTester.getDbClient(), session, system2);
     HttpServletRequest httpRequest = mock(HttpServletRequest.class);
     when(httpRequest.getHeader("User-Agent")).thenReturn(agent);
     FilterChain chain = mock(FilterChain.class);

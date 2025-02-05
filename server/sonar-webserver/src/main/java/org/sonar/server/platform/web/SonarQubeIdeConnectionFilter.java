@@ -21,7 +21,6 @@ package org.sonar.server.platform.web;
 
 import java.io.IOException;
 import java.util.Locale;
-import java.util.Optional;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.utils.System2;
@@ -35,7 +34,7 @@ import org.sonar.server.ws.ServletRequest;
 
 import static java.util.concurrent.TimeUnit.HOURS;
 
-public class SonarLintConnectionFilter extends HttpFilter {
+public class SonarQubeIdeConnectionFilter extends HttpFilter {
   private static final UrlPattern URL_PATTERN = UrlPattern.builder()
     .includes("/api/*")
     .excludes("/api/v2/*")
@@ -44,7 +43,7 @@ public class SonarLintConnectionFilter extends HttpFilter {
   private final ThreadLocalUserSession userSession;
   private final System2 system2;
 
-  public SonarLintConnectionFilter(DbClient dbClient, ThreadLocalUserSession userSession, System2 system2) {
+  public SonarQubeIdeConnectionFilter(DbClient dbClient, ThreadLocalUserSession userSession, System2 system2) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.system2 = system2;
@@ -57,13 +56,18 @@ public class SonarLintConnectionFilter extends HttpFilter {
 
   @Override
   public void doFilter(HttpRequest request, HttpResponse response, FilterChain chain) throws IOException {
-    ServletRequest wsRequest = new ServletRequest(request);
-
-    Optional<String> agent = wsRequest.header("User-Agent");
-    if (agent.isPresent() && agent.get().toLowerCase(Locale.ENGLISH).contains("sonarlint")) {
+    if (isComingFromSonarQubeIde(request)) {
       update();
     }
     chain.doFilter(request, response);
+  }
+
+  private static boolean isComingFromSonarQubeIde(HttpRequest request) {
+    ServletRequest wsRequest = new ServletRequest(request);
+    return wsRequest.header("User-Agent")
+      .map(agent -> agent.toLowerCase(Locale.ENGLISH))
+      .filter(agent -> agent.contains("sonarlint") || agent.contains("sonarqube for ide"))
+      .isPresent();
   }
 
   public void update() {

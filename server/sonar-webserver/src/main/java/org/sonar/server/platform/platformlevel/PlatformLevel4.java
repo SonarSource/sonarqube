@@ -206,7 +206,7 @@ import org.sonar.server.platform.telemetry.TelemetrySubportfolioSelectionModePro
 import org.sonar.server.platform.telemetry.TelemetryUserEnabledProvider;
 import org.sonar.server.platform.telemetry.TelemetryVersionProvider;
 import org.sonar.server.platform.web.ActionDeprecationLoggerInterceptor;
-import org.sonar.server.platform.web.SonarLintConnectionFilter;
+import org.sonar.server.platform.web.SonarQubeIdeConnectionFilter;
 import org.sonar.server.platform.web.WebServiceFilter;
 import org.sonar.server.platform.web.WebServiceReroutingFilter;
 import org.sonar.server.platform.web.requestid.HttpRequestIdModule;
@@ -422,7 +422,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ActionDeprecationLoggerInterceptor.class,
       WebServiceEngine.class,
       new WebServicesWsModule(),
-      SonarLintConnectionFilter.class,
+      SonarQubeIdeConnectionFilter.class,
       WebServiceFilter.class,
       WebServiceReroutingFilter.class,
 
