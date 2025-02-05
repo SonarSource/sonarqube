@@ -56,7 +56,7 @@
 
   <select id="selectByUuid" parameterType="string" resultType="org.sonar.db.sca.ScaDependencyDto">
     select <include refid="scaDependenciesColumns"/>
-    from sca_dependencies pd
+    from sca_dependencies sd
     where sd.uuid = #{uuid,jdbcType=VARCHAR}
   </select>
 

@@ -82,6 +82,15 @@ class ScaDependenciesDaoIT {
   }
 
   @Test
+  void selectByUuid_shouldLoadScaDependency() {
+    var scaDependencyDto = insertScaDependency();
+
+    var loadedOptional = scaDependenciesDao.selectByUuid(db.getSession(), scaDependencyDto.uuid());
+
+    assertThat(loadedOptional).contains(scaDependencyDto);
+  }
+
+  @Test
   void selectByQuery_shouldReturnScaDependencies_whenQueryByBranchUuid() {
     ProjectData projectData = db.components().insertPublicProject();
     ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency(projectData.mainBranchUuid());
