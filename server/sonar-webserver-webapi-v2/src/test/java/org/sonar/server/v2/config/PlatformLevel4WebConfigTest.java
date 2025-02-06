@@ -23,15 +23,8 @@ import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.sonar.api.platform.Server;
-import org.sonar.server.platform.ServerFileSystem;
-import org.sonar.server.v2.api.analysis.controller.DefaultJresController;
-import org.sonar.server.v2.api.analysis.controller.DefaultVersionController;
-import org.sonar.server.v2.api.analysis.controller.DefaultScannerEngineController;
-import org.sonar.server.v2.api.analysis.service.JresHandler;
-import org.sonar.server.v2.api.analysis.service.JresHandlerImpl;
-import org.sonar.server.v2.api.analysis.service.ScannerEngineHandler;
-import org.sonar.server.v2.api.analysis.service.ScannerEngineHandlerImpl;
+import org.sonar.server.user.UserSession;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -43,17 +36,12 @@ class PlatformLevel4WebConfigTest {
 
   private static Stream<Arguments> components() {
     return Stream.of(
-      arguments(platformLevel4WebConfig.versionController(mock(Server.class)), DefaultVersionController.class),
-      arguments(platformLevel4WebConfig.jresHandler(), JresHandlerImpl.class),
-      arguments(platformLevel4WebConfig.jresController(mock(JresHandler.class)), DefaultJresController.class),
-      arguments(platformLevel4WebConfig.scannerEngineHandler(mock(ServerFileSystem.class)), ScannerEngineHandlerImpl.class),
-      arguments(platformLevel4WebConfig.scannerEngineController(mock(ScannerEngineHandler.class)), DefaultScannerEngineController.class)
-    );
+      arguments(platformLevel4WebConfig.requestMappingHandlerMapping(mock(UserSession.class)), RequestMappingHandlerMapping.class));
   }
 
   @ParameterizedTest
   @MethodSource("components")
-  void components_shouldBeInjectedInPlatformLevel4WebConfig(Object component, Class<?> instanceClass) {
+  void custom_components_shouldBeInjectedInPlatformLevel4WebConfig(Object component, Class<?> instanceClass) {
     assertThat(component).isNotNull().isInstanceOf(instanceClass);
   }
 }

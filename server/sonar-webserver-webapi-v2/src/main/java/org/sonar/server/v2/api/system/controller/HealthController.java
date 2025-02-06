@@ -19,6 +19,7 @@
  */
 package org.sonar.server.v2.api.system.controller;
 
+import javax.annotation.Nullable;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.health.Health;
@@ -26,6 +27,7 @@ import org.sonar.server.health.HealthChecker;
 import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.user.UserSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,16 +49,13 @@ public class HealthController {
   private final NodeInformation nodeInformation;
   private final UserSession userSession;
 
-  public HealthController(HealthChecker healthChecker, SystemPasscode systemPasscode, NodeInformation nodeInformation,
-    UserSession userSession) {
+  @Autowired(required=true)
+  public HealthController(HealthChecker healthChecker, SystemPasscode systemPasscode, @Nullable NodeInformation nodeInformation,
+    @Nullable UserSession userSession) {
     this.healthChecker = healthChecker;
     this.systemPasscode = systemPasscode;
     this.nodeInformation = nodeInformation;
     this.userSession = userSession;
-  }
-
-  public HealthController(HealthChecker healthChecker, SystemPasscode systemPasscode) {
-    this(healthChecker, systemPasscode, null, null);
   }
 
   @GetMapping

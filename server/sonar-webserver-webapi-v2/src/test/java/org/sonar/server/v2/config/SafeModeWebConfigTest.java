@@ -19,34 +19,33 @@
  */
 package org.sonar.server.v2.config;
 
+import java.util.stream.Stream;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.server.common.platform.LivenessChecker;
 import org.sonar.server.health.HealthChecker;
 import org.sonar.server.user.SystemPasscode;
-import org.sonar.server.v2.api.system.controller.DatabaseMigrationsController;
 import org.sonar.server.v2.api.system.controller.DefaultLivenessController;
 import org.sonar.server.v2.api.system.controller.HealthController;
-import org.sonar.server.v2.api.system.controller.LivenessController;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-@Configuration
-@EnableWebMvc
-@Import({
-  CommonWebConfig.class,
-  DatabaseMigrationsController.class
-})
-public class SafeModeWebConfig {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.Mockito.mock;
 
-  @Bean
-  public LivenessController livenessController(LivenessChecker livenessChecker, SystemPasscode systemPasscode) {
-    return new DefaultLivenessController(livenessChecker, systemPasscode, null);
+class SafeModeWebConfigTest {
+
+  private static final SafeModeWebConfig safeModeWebConfig = new SafeModeWebConfig();
+
+  private static Stream<Arguments> components() {
+    return Stream.of(
+      arguments(safeModeWebConfig.livenessController(mock(LivenessChecker.class), mock(SystemPasscode.class)), DefaultLivenessController.class),
+      arguments(safeModeWebConfig.healthController(mock(HealthChecker.class), mock(SystemPasscode.class)), HealthController.class));
   }
 
-  @Bean
-  public HealthController healthController(HealthChecker healthChecker, SystemPasscode systemPasscode) {
-    return new HealthController(healthChecker, systemPasscode, null, null);
+  @ParameterizedTest
+  @MethodSource("components")
+  void custom_components_shouldBeInjectedInSafeModeWebConfig(Object component, Class<?> instanceClass) {
+    assertThat(component).isNotNull().isInstanceOf(instanceClass);
   }
-
 }
