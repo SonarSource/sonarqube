@@ -52,6 +52,9 @@ import org.sonar.scanner.postjob.PostJobsExecutor;
 import org.sonar.scanner.qualitygate.QualityGateCheck;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.rule.QProfileVerifier;
+import org.sonar.scanner.sca.CliCacheService;
+import org.sonar.scanner.sca.CliService;
+import org.sonar.scanner.sca.ScaExecutor;
 import org.sonar.scanner.scan.filesystem.FileIndexer;
 import org.sonar.scanner.scan.filesystem.InputFileFilterRepository;
 import org.sonar.scanner.scan.filesystem.LanguageDetection;
@@ -131,7 +134,13 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
       // file system
       InputFileFilterRepository.class,
       FileIndexer.class,
-      ProjectFileIndexer.class);
+      ProjectFileIndexer.class,
+
+      // SCA
+      CliService.class,
+      CliCacheService.class,
+      ScaExecutor.class
+    );
   }
 
   static ExtensionMatcher getScannerProjectExtensionsFilter() {
@@ -171,6 +180,9 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
 
     LOG.info("------------- Run sensors on project");
     getComponentByType(ProjectSensorsExecutor.class).execute();
+
+    LOG.info("------------- Gather SCA dependencies on project");
+    getComponentByType(ScaExecutor.class).execute(tree.root());
 
     getComponentByType(ScmPublisher.class).publish();
 
