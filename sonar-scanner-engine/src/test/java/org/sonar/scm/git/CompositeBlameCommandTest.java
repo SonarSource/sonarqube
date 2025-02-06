@@ -54,6 +54,7 @@ import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.ProcessWrapperFactory;
 import org.sonar.scm.git.strategy.BlameStrategy;
 import org.sonar.scm.git.strategy.DefaultBlameStrategy.BlameAlgorithmEnum;
 

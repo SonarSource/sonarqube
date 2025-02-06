@@ -47,6 +47,7 @@ import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.ProcessWrapperFactory;
 import org.sonar.scm.git.strategy.DefaultBlameStrategy.BlameAlgorithmEnum;
 
 import static org.assertj.core.api.Assertions.assertThat;

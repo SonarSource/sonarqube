@@ -23,6 +23,8 @@ dependencies {
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
   compileOnlyApi 'com.google.code.gson:gson'
 
+  implementation 'org.apache.commons:commons-exec'
+
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'junit:junit'
   testImplementation 'org.assertj:assertj-core'

@@ -22,6 +22,7 @@ package org.sonar.scm.git;
 import java.util.Arrays;
 import java.util.List;
 import org.eclipse.jgit.util.FS;
+import org.sonar.core.util.ProcessWrapperFactory;
 import org.sonar.scm.git.strategy.DefaultBlameStrategy;
 
 public final class GitScmSupport {

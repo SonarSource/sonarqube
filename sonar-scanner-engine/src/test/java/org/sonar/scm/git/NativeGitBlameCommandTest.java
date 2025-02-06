@@ -40,7 +40,8 @@ import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.scm.git.ProcessWrapperFactory.ProcessWrapper;
+import org.sonar.core.util.ProcessWrapperFactory;
+import org.sonar.core.util.ProcessWrapperFactory.ProcessWrapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

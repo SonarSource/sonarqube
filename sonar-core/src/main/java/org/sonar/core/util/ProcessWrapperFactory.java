@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scm.git;
+package org.sonar.core.util;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -54,7 +54,7 @@ public class ProcessWrapperFactory {
     return new ProcessWrapper(baseDir, stdOutLineConsumer, envVariables, command);
   }
 
-  static class ProcessWrapper {
+  public static class ProcessWrapper {
 
     private final Path baseDir;
     private final Consumer<String> stdOutLineConsumer;
