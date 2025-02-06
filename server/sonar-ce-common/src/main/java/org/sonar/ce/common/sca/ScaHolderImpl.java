@@ -34,6 +34,13 @@ public class ScaHolderImpl implements ScaHolder {
 
   @Override
   public List<ScaDependencyDto> getDependencies() {
-    return Optional.ofNullable(this.dependencies).orElseThrow(() -> new IllegalStateException("SCA dependencies have not been populated"));
+    return Optional.ofNullable(this.dependencies).orElseThrow(() -> new IllegalStateException("SCA dependency analysis was not performed"));
+  }
+
+  @Override
+  public boolean dependencyAnalysisPresent() {
+    // for the time being, we just go by whether dependencies were set.
+    // When we add more data that can be set by ScaStep, we might store this differently.
+    return this.dependencies != null;
   }
 }

@@ -19,25 +19,14 @@
  */
 package org.sonar.ce.common.sca;
 
-import java.util.List;
-import org.sonar.db.sca.ScaDependencyDto;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.ce.task.step.ComputationStep;
 
-public interface ScaHolder {
-  void setDependencies(List<ScaDependencyDto> dependencies);
-
-  /**
-   * Get the dependencies of this ScaHolder. This is an error
-   * to call if dependencyAnalysisPresent() returns false.
-   * @return the dependencies found by the analysis
-   */
-  List<ScaDependencyDto> getDependencies();
-
-  /**
-   * Returns true if we were able to analyze dependencies.
-   * If we were not able, then the other getters can't return
-   * sensible results.
-   *
-   * @return true if we have dependencies
-   */
-  boolean dependencyAnalysisPresent();
+/**
+ * When an implementation of this interface is available in the ioc container, the Compute Engine will use the value returned by
+ * {@link #get} as an extra step for software composition analysis.
+ */
+@ComputeEngineSide
+public interface PersistScaStepProvider {
+  ComputationStep get(ScaHolder scaHolder, String branchUuid);
 }

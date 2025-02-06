@@ -121,6 +121,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     PersistCrossProjectDuplicationIndexStep.class,
     EnableAnalysisStep.class,
     PersistPullRequestFixedIssueStep.class,
+    PersistScaStep.class,
 
     UpdateQualityProfilesLastUsedDateStep.class,
     PurgeDatastoresStep.class,
