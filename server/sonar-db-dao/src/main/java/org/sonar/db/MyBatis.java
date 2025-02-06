@@ -63,8 +63,6 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotMapper;
 import org.sonar.db.component.UuidWithBranchUuidDto;
 import org.sonar.db.component.ViewsSnapshotDto;
-import org.sonar.db.dependency.ProjectDependenciesMapper;
-import org.sonar.db.dependency.ProjectDependencyDto;
 import org.sonar.db.duplication.DuplicationMapper;
 import org.sonar.db.duplication.DuplicationUnitDto;
 import org.sonar.db.entity.EntityDto;
@@ -154,6 +152,7 @@ import org.sonar.db.rule.RuleMapper;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryMapper;
 import org.sonar.db.sca.ScaDependenciesMapper;
+import org.sonar.db.sca.ScaDependencyDto;
 import org.sonar.db.scannercache.ScannerAnalysisCacheMapper;
 import org.sonar.db.schemamigration.SchemaMigrationDto;
 import org.sonar.db.schemamigration.SchemaMigrationMapper;
@@ -245,7 +244,6 @@ public class MyBatis {
     confBuilder.loadAlias("ProjectQgateAssociation", ProjectQgateAssociationDto.class);
     confBuilder.loadAlias("Project", ProjectDto.class);
     confBuilder.loadAlias("ProjectBadgeToken", ProjectBadgeTokenDto.class);
-    confBuilder.loadAlias("ProjectDependency", ProjectDependencyDto.class);
     confBuilder.loadAlias("AnalysisPropertyValuePerProject", AnalysisPropertyValuePerProject.class);
     confBuilder.loadAlias("ProjectAlmKeyAndProject", ProjectAlmKeyAndProject.class);
     confBuilder.loadAlias("PrAndBranchCountByProjectDto", PrBranchAnalyzedLanguageCountByProjectDto.class);
@@ -255,6 +253,7 @@ public class MyBatis {
     confBuilder.loadAlias("QualityGate", QualityGateDto.class);
     confBuilder.loadAlias("Resource", ResourceDto.class);
     confBuilder.loadAlias("RuleParam", RuleParamDto.class);
+    confBuilder.loadAlias("ScaDependency", ScaDependencyDto.class);
     confBuilder.loadAlias("SchemaMigration", SchemaMigrationDto.class);
     confBuilder.loadAlias("ScrapProperty", ScrapPropertyDto.class);
     confBuilder.loadAlias("ScrapAnalysisProperty", ScrapAnalysisPropertyDto.class);
@@ -318,7 +317,6 @@ public class MyBatis {
       PluginMapper.class,
       PortfolioMapper.class,
       ProjectAlmSettingMapper.class,
-      ProjectDependenciesMapper.class,
       ProjectLinkMapper.class,
       ProjectMapper.class,
       ProjectBadgeTokenMapper.class,

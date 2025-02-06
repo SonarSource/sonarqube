@@ -38,7 +38,6 @@ import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentKeyUpdaterDao;
 import org.sonar.db.component.ProjectLinkDao;
 import org.sonar.db.component.SnapshotDao;
-import org.sonar.db.dependency.ProjectDependenciesDao;
 import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.entity.EntityDao;
 import org.sonar.db.es.EsQueueDao;
@@ -202,7 +201,6 @@ public class DbClient {
   private final ProjectExportDao projectExportDao;
   private final IssueFixedDao issueFixedDao;
   private final TelemetryMetricsSentDao telemetryMetricsSentDao;
-  private final ProjectDependenciesDao projectDependenciesDao;
   private final ScaDependenciesDao scaDependenciesDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
@@ -300,7 +298,6 @@ public class DbClient {
     projectExportDao = getDao(map, ProjectExportDao.class);
     issueFixedDao = getDao(map, IssueFixedDao.class);
     telemetryMetricsSentDao = getDao(map, TelemetryMetricsSentDao.class);
-    projectDependenciesDao = getDao(map, ProjectDependenciesDao.class);
     scaDependenciesDao = getDao(map, ScaDependenciesDao.class);
   }
 
@@ -664,10 +661,6 @@ public class DbClient {
 
   public ProjectExportDao projectExportDao() {
     return projectExportDao;
-  }
-
-  public ProjectDependenciesDao projectDependenciesDao() {
-    return projectDependenciesDao;
   }
 
   public ScaDependenciesDao scaDependenciesDao() {
