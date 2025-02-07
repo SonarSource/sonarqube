@@ -21,7 +21,10 @@ package org.sonar.scanner.protocol.output;
 
 import com.google.common.collect.Iterators;
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -33,6 +36,7 @@ import org.sonar.scanner.protocol.output.ScannerReport.Measure.DoubleValue;
 import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ScannerReportWriterTest {
 
@@ -358,5 +362,23 @@ class ScannerReportWriterTest {
         .containsExactlyElementsOf(input)
         .hasSize(input.size());
     }
+  }
+
+  @Test
+  void writeScaFile_shouldCopyFileToScaDir() throws IOException {
+    File scaFile = new File(temp, "scaFile");
+    FileUtils.write(scaFile, "sca content", StandardCharsets.UTF_8);
+
+    underTest.writeScaFile(scaFile);
+    assertThat(new File(underTest.getFileStructure().scaDir(), "scaFile")).exists().isFile()
+      .content(StandardCharsets.UTF_8).isEqualTo("sca content");
+  }
+
+  @Test
+  void writeScaFile_whenUnableToCopy_shouldThrowIllegalStateException() {
+    File scaFile = new File(temp, "scaFile");
+    assertThatThrownBy(() -> underTest.writeScaFile(scaFile))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage(String.format("Unable to copy sca file '%s' to sca folder", scaFile));
   }
 }

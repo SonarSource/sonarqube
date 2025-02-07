@@ -30,6 +30,8 @@ import org.slf4j.event.Level;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.repository.featureflags.FeatureFlagsRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,6 +46,7 @@ import static org.mockito.Mockito.when;
 class ScaExecutorTest {
   private final CliService cliService = mock(CliService.class);
   private final CliCacheService cliCacheService = mock(CliCacheService.class);
+  private final ReportPublisher reportPublisher = mock(ReportPublisher.class);
   private final FeatureFlagsRepository featureFlagsRepository = mock(FeatureFlagsRepository.class);
   private DefaultInputModule root;
 
@@ -52,7 +55,7 @@ class ScaExecutorTest {
 
   @TempDir File rootModuleDir;
 
-  private final ScaExecutor underTest = new ScaExecutor(cliCacheService, cliService, featureFlagsRepository);
+  private final ScaExecutor underTest = new ScaExecutor(cliCacheService, cliService, reportPublisher, featureFlagsRepository);
 
   @BeforeEach
   void before() {
@@ -73,18 +76,22 @@ class ScaExecutorTest {
   }
 
   @Test
-  void execute_shouldCallCliService() throws IOException {
+  void execute_shouldCallCliAndPublisher() throws IOException {
     File mockCliFile = Files.newTemporaryFile();
     File mockManifestZip = Files.newTemporaryFile();
+    ScannerReportWriter mockReportWriter = mock(ScannerReportWriter.class);
     when(cliCacheService.cacheCli(anyString(), anyString())).thenReturn(mockCliFile);
     when(cliService.generateManifestsZip(root)).thenReturn(mockManifestZip);
+    when(reportPublisher.getWriter()).thenReturn(mockReportWriter);
 
     logTester.setLevel(Level.DEBUG);
 
     underTest.execute(root);
 
     verify(cliService).generateManifestsZip(root);
-    assertThat(logTester.logs()).contains("Zip ready for report: " + mockManifestZip);
+    verify(mockReportWriter).writeScaFile(mockManifestZip);
+    assertThat(logTester.logs(Level.DEBUG)).contains("Zip ready for report: " + mockManifestZip);
+    assertThat(logTester.logs(Level.DEBUG)).contains("Manifest zip written to report");
   }
 
   @Test

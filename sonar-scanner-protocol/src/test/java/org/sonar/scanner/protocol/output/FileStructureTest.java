@@ -89,4 +89,12 @@ class FileStructureTest {
     FileStructure structure = new FileStructure(dir);
     assertThat(structure.telemetryEntries()).exists().isFile().isEqualTo(file);
   }
+
+  @Test
+  void scaDir_shouldExist() {
+    File sca = new File(temp, "sca");
+
+    FileStructure structure = new FileStructure(temp);
+    assertThat(structure.scaDir()).exists().isDirectory().isEqualTo(sca);
+  }
 }

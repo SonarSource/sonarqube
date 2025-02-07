@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.internal.apachecommons.lang3.SystemUtils;
 import org.sonar.scanner.repository.featureflags.FeatureFlagsRepository;
+import org.sonar.scanner.report.ReportPublisher;
 
 /**
  * The ScaExecutor class is the main entrypoint for generating manifest dependency
@@ -38,11 +39,13 @@ public class ScaExecutor {
 
   private final CliCacheService cliCacheService;
   private final CliService cliService;
+  private final ReportPublisher reportPublisher;
   private final FeatureFlagsRepository featureFlagsRepository;
 
-  public ScaExecutor(CliCacheService cliCacheService, CliService cliService, FeatureFlagsRepository featureFlagsRepository) {
+  public ScaExecutor(CliCacheService cliCacheService, CliService cliService, ReportPublisher reportPublisher, FeatureFlagsRepository featureFlagsRepository) {
     this.cliCacheService = cliCacheService;
     this.cliService = cliService;
+    this.reportPublisher = reportPublisher;
     this.featureFlagsRepository = featureFlagsRepository;
   }
 
@@ -56,6 +59,8 @@ public class ScaExecutor {
       try {
         File generatedZip = cliService.generateManifestsZip(root);
         LOG.debug("Zip ready for report: {}", generatedZip);
+        reportPublisher.getWriter().writeScaFile(generatedZip);
+        LOG.debug("Manifest zip written to report");
       } catch (IOException | IllegalStateException e) {
         LOG.error("Error gathering manifests", e);
       }
