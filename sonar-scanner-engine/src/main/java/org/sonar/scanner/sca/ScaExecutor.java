@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.internal.apachecommons.lang3.SystemUtils;
+import org.sonar.scanner.repository.featureflags.FeatureFlagsRepository;
 
 /**
  * The ScaExecutor class is the main entrypoint for generating manifest dependency
@@ -33,16 +34,24 @@ import org.sonar.api.internal.apachecommons.lang3.SystemUtils;
  */
 public class ScaExecutor {
   private static final Logger LOG = LoggerFactory.getLogger(ScaExecutor.class);
+  private static final String SCA_FEATURE_NAME = "sca";
 
   private final CliCacheService cliCacheService;
   private final CliService cliService;
+  private final FeatureFlagsRepository featureFlagsRepository;
 
-  public ScaExecutor(CliCacheService cliCacheService, CliService cliService) {
+  public ScaExecutor(CliCacheService cliCacheService, CliService cliService, FeatureFlagsRepository featureFlagsRepository) {
     this.cliCacheService = cliCacheService;
     this.cliService = cliService;
+    this.featureFlagsRepository = featureFlagsRepository;
   }
 
   public void execute(DefaultInputModule root) {
+    if (!featureFlagsRepository.isEnabled(SCA_FEATURE_NAME)) {
+      LOG.debug("SCA analysis skipped");
+      return;
+    }
+    LOG.info("Collecting manifests for the SCA analysis...");
     if (cliCacheService.cacheCli(SystemUtils.OS_NAME, SystemUtils.OS_ARCH).exists()) {
       try {
         File generatedZip = cliService.generateManifestsZip(root);

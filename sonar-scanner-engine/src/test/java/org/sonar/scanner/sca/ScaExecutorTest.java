@@ -30,6 +30,7 @@ import org.slf4j.event.Level;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.scanner.repository.featureflags.FeatureFlagsRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -37,11 +38,13 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class ScaExecutorTest {
   private final CliService cliService = mock(CliService.class);
   private final CliCacheService cliCacheService = mock(CliCacheService.class);
+  private final FeatureFlagsRepository featureFlagsRepository = mock(FeatureFlagsRepository.class);
   private DefaultInputModule root;
 
   @RegisterExtension
@@ -49,12 +52,24 @@ class ScaExecutorTest {
 
   @TempDir File rootModuleDir;
 
-  private final ScaExecutor underTest = new ScaExecutor(cliCacheService, cliService);
+  private final ScaExecutor underTest = new ScaExecutor(cliCacheService, cliService, featureFlagsRepository);
 
   @BeforeEach
-  public void before() {
+  void before() {
+    when(featureFlagsRepository.isEnabled("sca")).thenReturn(true);
     root = new DefaultInputModule(
       ProjectDefinition.create().setBaseDir(rootModuleDir).setWorkDir(rootModuleDir.toPath().getRoot().toFile()));
+  }
+
+  @Test
+  void execute_shouldSkipAnalysisWhenFeatureFlagDisabled() {
+    when(featureFlagsRepository.isEnabled("sca")).thenReturn(false);
+    logTester.setLevel(Level.DEBUG);
+
+    underTest.execute(root);
+
+    assertThat(logTester.logs()).contains("SCA analysis skipped");
+    verifyNoInteractions(cliService, cliCacheService);
   }
 
   @Test
