@@ -92,6 +92,11 @@ class BootstrapMediumIT {
         }
         """)));
 
+    sonarqube.stubFor(get("/api/features/list")
+      .willReturn(okJson("""
+        []
+        """)));
+
     sonarqube.stubFor(get("/api/metrics/search?ps=500&p=1")
       .willReturn(okJson("""
         {

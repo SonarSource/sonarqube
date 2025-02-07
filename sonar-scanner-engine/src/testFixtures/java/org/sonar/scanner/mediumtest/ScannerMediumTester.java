@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.mediumtest;
 
+import jakarta.annotation.Priority;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -38,7 +39,6 @@ import java.util.Properties;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import jakarta.annotation.Priority;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
 import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
@@ -111,6 +111,7 @@ public class ScannerMediumTester extends ExternalResource implements BeforeTestE
   private final CeTaskReportDataHolder reportMetadataHolder = new CeTaskReportDataHolderExt();
   private final FakeLanguagesLoader languagesLoader = new FakeLanguagesLoader();
   private final FakeLanguagesProvider languagesProvider = new FakeLanguagesProvider();
+  private final FakeFeatureFlagsLoader featureFlagsLoader = new FakeFeatureFlagsLoader();
   private LogOutput logOutput = null;
 
   private static void createWorkingDirs() throws IOException {
@@ -310,6 +311,10 @@ public class ScannerMediumTester extends ExternalResource implements BeforeTestE
     languagesProvider.addLanguage(key, name, publishAllFiles);
   }
 
+  public void enableFeature(String featureName) {
+    featureFlagsLoader.enableFeature(featureName);
+  }
+
   public static class AnalysisBuilder {
     private final Map<String, String> taskProperties = new HashMap<>();
     private final ScannerMediumTester tester;
@@ -343,6 +348,7 @@ public class ScannerMediumTester extends ExternalResource implements BeforeTestE
           tester.reportMetadataHolder,
           tester.languagesLoader,
           tester.languagesProvider,
+          tester.featureFlagsLoader,
           result);
       if (tester.logOutput != null) {
         builder.setLogOutput(tester.logOutput);

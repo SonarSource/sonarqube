@@ -87,6 +87,8 @@ import org.sonar.scanner.repository.ProjectRepositoriesProvider;
 import org.sonar.scanner.repository.QualityProfilesProvider;
 import org.sonar.scanner.repository.ReferenceBranchSupplier;
 import org.sonar.scanner.repository.TelemetryCache;
+import org.sonar.scanner.repository.featureflags.DefaultFeatureFlagsLoader;
+import org.sonar.scanner.repository.featureflags.DefaultFeatureFlagsRepository;
 import org.sonar.scanner.repository.language.DefaultLanguagesLoader;
 import org.sonar.scanner.repository.language.DefaultLanguagesRepository;
 import org.sonar.scanner.repository.settings.DefaultProjectSettingsLoader;
@@ -309,17 +311,20 @@ public class SpringScannerContainer extends SpringComponentContainer {
       GitlabCi.class,
       Jenkins.class,
       SemaphoreCi.class,
-      TravisCi.class);
+      TravisCi.class,
 
-    add(GitScmSupport.getObjects());
-    add(SvnScmSupport.getObjects());
-
-    add(DefaultProjectSettingsLoader.class,
+      DefaultProjectSettingsLoader.class,
       DefaultActiveRulesLoader.class,
       DefaultQualityProfileLoader.class,
       DefaultProjectRepositoriesLoader.class,
       DefaultLanguagesLoader.class,
-      DefaultLanguagesRepository.class);
+      DefaultLanguagesRepository.class,
+
+      DefaultFeatureFlagsLoader.class,
+      DefaultFeatureFlagsRepository.class);
+
+    add(GitScmSupport.getObjects());
+    add(SvnScmSupport.getObjects());
   }
 
   static ExtensionMatcher getScannerProjectExtensionsFilter() {
