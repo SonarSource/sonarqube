@@ -2,6 +2,7 @@ dependencies {
     bundledPlugin "org.sonarsource.dotnet:sonar-csharp-plugin"
     bundledPlugin "org.sonarsource.dotnet:sonar-vbnet-plugin"
     bundledPlugin 'org.sonarsource.flex:sonar-flex-plugin'
+    bundledPlugin 'org.sonarsource.go:sonar-go-plugin'
     bundledPlugin 'org.sonarsource.html:sonar-html-plugin'
     bundledPlugin 'org.sonarsource.java:sonar-java-plugin'
     bundledPlugin 'org.sonarsource.java:sonar-java-symbolic-execution-plugin'
@@ -10,7 +11,6 @@ dependencies {
     bundledPlugin 'org.sonarsource.php:sonar-php-plugin'
     bundledPlugin 'org.sonarsource.plugins.cayc:sonar-cayc-plugin'
     bundledPlugin 'org.sonarsource.python:sonar-python-plugin'
-    bundledPlugin 'org.sonarsource.slang:sonar-go-plugin'
     bundledPlugin "org.sonarsource.kotlin:sonar-kotlin-plugin"
     bundledPlugin "org.sonarsource.slang:sonar-ruby-plugin"
     bundledPlugin "org.sonarsource.slang:sonar-scala-plugin"
