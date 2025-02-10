@@ -19,13 +19,9 @@
  */
 package org.sonar.db.sca;
 
-import java.util.function.Consumer;
-import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 public class ScaDependenciesDbTester {
   private final DbTester db;
@@ -36,51 +32,49 @@ public class ScaDependenciesDbTester {
     this.dbClient = db.getDbClient();
   }
 
-  public ComponentDto newPackageComponentDto(String branchUuid, String suffix, @Nullable Consumer<ComponentDto> dtoPopulator) {
-    var name = "foo:bar";
-    ComponentDto componentDto = new ComponentDto().setUuid("uuid" + suffix)
+  public ComponentDto newPackageComponentDto(String branchUuid, String suffix) {
+    return new ComponentDto().setUuid("uuid" + suffix)
       .setKey("key" + suffix)
       .setUuidPath("uuidPath" + suffix)
-      .setName(name + suffix)
+      .setName("name" + suffix)
       .setLongName("long_name" + suffix)
       .setBranchUuid(branchUuid);
+  }
 
-    if (dtoPopulator != null) {
-      dtoPopulator.accept(componentDto);
-    }
-
+  public ComponentDto insertComponent(String branchUuid, String suffix) {
+    ComponentDto componentDto = newPackageComponentDto(branchUuid, suffix);
+    db.components().insertComponent(componentDto);
     return componentDto;
   }
 
-  public ScaDependencyDto newScaDependencyDto(ComponentDto componentDto, String suffix) {
-    return new ScaDependencyDto("scaDependencyUuid" + suffix,
-      componentDto.uuid(),
-      "packageUrl" + suffix,
-      PackageManager.MAVEN,
-      componentDto.name(),
-      "1.0.0",
-      true,
-      "compile",
-      "pom.xml",
-      "BSD-3-Clause",
-      true,
-      1L,
-      2L);
+  public ScaDependencyDto newScaDependencyDto(String componentUuid, String suffix, boolean direct, PackageManager packageManager, String packageName) {
+    long now = System.currentTimeMillis();
+    try {
+      return new ScaDependencyDto("scaDependencyUuid" + suffix,
+        componentUuid,
+        "packageUrl" + suffix,
+        packageManager,
+        packageName,
+        "1.0.0",
+        direct,
+        "compile",
+        "pom.xml",
+        "BSD-3-Clause",
+        true,
+        now,
+        now
+      );
+    } finally {
+      try {
+        Thread.sleep(5);
+      } catch (InterruptedException ignored) {
+        // ignore
+      }
+    }
   }
 
-  public ScaDependencyDto insertScaDependency(String branchUuid) {
-    return insertScaDependency(branchUuid, EMPTY, null);
-  }
-
-  public ScaDependencyDto insertScaDependency(String branchUuid, String suffix) {
-    return insertScaDependency(branchUuid, suffix, null);
-  }
-
-  public ScaDependencyDto insertScaDependency(String branchUuid, String suffix, @Nullable Consumer<ComponentDto> dtoPopulator) {
-    var componentDto = newPackageComponentDto(branchUuid, suffix, dtoPopulator);
-
-    db.components().insertComponent(componentDto);
-    var scaDependencyDto = newScaDependencyDto(componentDto, suffix);
+  public ScaDependencyDto insertScaDependency(String componentUuid, String suffix, boolean direct, PackageManager packageManager, String packageName) {
+    ScaDependencyDto scaDependencyDto = newScaDependencyDto(componentUuid, suffix, direct, packageManager, packageName);
     dbClient.scaDependenciesDao().insert(db.getSession(), scaDependencyDto);
     return scaDependencyDto;
   }

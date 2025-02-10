@@ -21,8 +21,6 @@ package org.sonar.db.sca;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
-import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
@@ -35,8 +33,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ScaDependenciesDaoIT {
 
-  private static final String PROJECT_BRANCH_UUID = "branchUuid";
-
   @RegisterExtension
   private final DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -44,7 +40,8 @@ class ScaDependenciesDaoIT {
 
   @Test
   void insert_shouldPersistScaDependencies() {
-    var scaDependencyDto = insertScaDependency();
+    ComponentDto componentDto = prepareComponentDto("1");
+    ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "1", true, PackageManager.MAVEN, "foo.bar");
 
     List<Map<String, Object>> select = db.select(db.getSession(), "select * from sca_dependencies");
     assertThat(select).hasSize(1);
@@ -70,7 +67,8 @@ class ScaDependenciesDaoIT {
 
   @Test
   void deleteByUuid_shouldDeleteScaDependencies() {
-    var scaDependencyDto = insertScaDependency();
+    ComponentDto componentDto = prepareComponentDto("1");
+    ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "1", true, PackageManager.MAVEN, "foo.bar");
 
     List<Map<String, Object>> select = db.select(db.getSession(), "select * from sca_dependencies");
     assertThat(select).isNotEmpty();
@@ -83,7 +81,8 @@ class ScaDependenciesDaoIT {
 
   @Test
   void selectByUuid_shouldLoadScaDependency() {
-    var scaDependencyDto = insertScaDependency();
+    ComponentDto componentDto = prepareComponentDto("1");
+    ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "1", true, PackageManager.MAVEN, "foo.bar");
 
     var loadedOptional = scaDependenciesDao.selectByUuid(db.getSession(), scaDependencyDto.uuid());
 
@@ -92,10 +91,10 @@ class ScaDependenciesDaoIT {
 
   @Test
   void selectByQuery_shouldReturnScaDependencies_whenQueryByBranchUuid() {
-    ProjectData projectData = db.components().insertPublicProject();
-    ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency(projectData.mainBranchUuid());
+    ComponentDto componentDto = prepareComponentDto("1");
+    ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "1", true, PackageManager.MAVEN, "foo.bar");
 
-    ScaDependenciesQuery scaDependenciesQuery = new ScaDependenciesQuery(projectData.mainBranchUuid(), null);
+    ScaDependenciesQuery scaDependenciesQuery = new ScaDependenciesQuery(componentDto.branchUuid(), null, null, null);
     List<ScaDependencyDto> results = scaDependenciesDao.selectByQuery(db.getSession(), scaDependenciesQuery, Pagination.all());
 
     assertThat(results).hasSize(1);
@@ -104,12 +103,13 @@ class ScaDependenciesDaoIT {
 
   @Test
   void selectByQuery_shouldReturnPaginatedScaDependencies() {
-    ScaDependencyDto scaDependencyDto1 = insertScaDependency("1");
-    ScaDependencyDto scaDependencyDto2 = insertScaDependency("2");
-    ScaDependencyDto scaDependencyDto3 = insertScaDependency("3");
-    ScaDependencyDto scaDependencyDto4 = insertScaDependency("4");
+    ComponentDto componentDto = prepareComponentDto("1");
+    ScaDependencyDto scaDependencyDto1 = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "1", true, PackageManager.MAVEN, "foo.bar");
+    ScaDependencyDto scaDependencyDto2 = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "2", true, PackageManager.MAVEN, "foo.bar");
+    ScaDependencyDto scaDependencyDto3 = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "3", true, PackageManager.MAVEN, "foo.bar");
+    ScaDependencyDto scaDependencyDto4 = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "4", true, PackageManager.MAVEN, "foo.bar");
 
-    ScaDependenciesQuery scaDependenciesQuery = new ScaDependenciesQuery(PROJECT_BRANCH_UUID, null);
+    ScaDependenciesQuery scaDependenciesQuery = new ScaDependenciesQuery(componentDto.branchUuid(), null, null, null);
     List<ScaDependencyDto> page1Results = scaDependenciesDao.selectByQuery(db.getSession(), scaDependenciesQuery, Pagination.forPage(1).andSize(2));
     List<ScaDependencyDto> page2Results = scaDependenciesDao.selectByQuery(db.getSession(), scaDependenciesQuery, Pagination.forPage(2).andSize(2));
 
@@ -122,36 +122,75 @@ class ScaDependenciesDaoIT {
   }
 
   @Test
-  void selectByQuery_shouldPartiallyMatchLongName_whenQueriedByText() {
-    ScaDependencyDto projectDepSearched = insertScaDependency("sEArched");
-    insertScaDependency("notWanted");
-    ScaDependencyDto projectDepSearchAsWell = insertScaDependency("sEArchedAsWell");
-    insertScaDependency("notwantedeither");
+  void selectByQuery_shouldPartiallyMatchPackageName_whenQueriedByText() {
+    ComponentDto componentDto = prepareComponentDto("1");
+    ScaDependencyDto scaDependencyDto1 = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "1", true, PackageManager.MAVEN, "foo.bar");
+    @SuppressWarnings("unused")
+    ScaDependencyDto scaDependencyDto2 = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "2", true, PackageManager.MAVEN, "bar.mee");
+    ScaDependencyDto scaDependencyDto3 = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "3", true, PackageManager.MAVEN, "foo.bar.me");
+    @SuppressWarnings("unused")
+    ScaDependencyDto scaDependencyDto4 = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "4", true, PackageManager.MAVEN, "some.foo.bar");
 
-    ScaDependenciesQuery scaDependenciesQuery = new ScaDependenciesQuery(PROJECT_BRANCH_UUID, "long_nameSearCHed");
+    ScaDependenciesQuery scaDependenciesQuery = new ScaDependenciesQuery(componentDto.branchUuid(), null, null, "foo.bar");
     List<ScaDependencyDto> results = scaDependenciesDao.selectByQuery(db.getSession(), scaDependenciesQuery, Pagination.all());
 
     assertThat(results).hasSize(2);
-    assertThat(results.get(0)).usingRecursiveComparison().isEqualTo(projectDepSearched);
-    assertThat(results.get(1)).usingRecursiveComparison().isEqualTo(projectDepSearchAsWell);
+    assertThat(results.get(0)).usingRecursiveComparison().isEqualTo(scaDependencyDto1);
+    assertThat(results.get(1)).usingRecursiveComparison().isEqualTo(scaDependencyDto3);
+
+    ScaDependenciesQuery scaDependenciesCaseInsensitiveQuery = new ScaDependenciesQuery(componentDto.branchUuid(), null, null, "Foo.Bar");
+    List<ScaDependencyDto> resultsCaseInsensitive = scaDependenciesDao.selectByQuery(db.getSession(), scaDependenciesCaseInsensitiveQuery, Pagination.all());
+
+    assertThat(resultsCaseInsensitive).hasSize(2);
+    assertThat(resultsCaseInsensitive.get(0)).usingRecursiveComparison().isEqualTo(scaDependencyDto1);
+    assertThat(resultsCaseInsensitive.get(1)).usingRecursiveComparison().isEqualTo(scaDependencyDto3);
   }
 
   @Test
-  void selectByQuery_shouldExactlyMatchKee_whenQueriedByText() {
-    ScaDependencyDto projectDepSearched = insertScaDependency("1", dto -> dto.setKey("keySearched"));
-    insertScaDependency("2", dto -> dto.setKey("KEySearCHed"));
-    insertScaDependency("3", dto -> dto.setKey("some_keySearched"));
+  void selectByQuery_shouldReturnScaDependencies_whenQueryByDirect() {
+    ComponentDto componentDto = prepareComponentDto("1");
+    ScaDependencyDto scaDependencyDto1 = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "1", true, PackageManager.MAVEN, "foo.bar");
+    ScaDependencyDto scaDependencyDto2 = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "2", false, PackageManager.MAVEN, "foo.bar");
 
-    ScaDependenciesQuery scaDependenciesQuery = new ScaDependenciesQuery(PROJECT_BRANCH_UUID, "keySearched");
-    List<ScaDependencyDto> results = scaDependenciesDao.selectByQuery(db.getSession(), scaDependenciesQuery, Pagination.all());
+    ScaDependenciesQuery scaDependenciesDirectQuery = new ScaDependenciesQuery(componentDto.branchUuid(), true, null, null);
+    List<ScaDependencyDto> resultsDirect = scaDependenciesDao.selectByQuery(db.getSession(), scaDependenciesDirectQuery, Pagination.all());
 
-    assertThat(results).hasSize(1);
-    assertThat(results.get(0)).usingRecursiveComparison().isEqualTo(projectDepSearched);
+    assertThat(resultsDirect).hasSize(1);
+    assertThat(resultsDirect.get(0)).usingRecursiveComparison().isEqualTo(scaDependencyDto1);
+
+    ScaDependenciesQuery scaDependenciesNoDirectQuery = new ScaDependenciesQuery(componentDto.branchUuid(), false, null, null);
+    List<ScaDependencyDto> resultsNoDirect = scaDependenciesDao.selectByQuery(db.getSession(), scaDependenciesNoDirectQuery, Pagination.all());
+
+    assertThat(resultsNoDirect).hasSize(1);
+    assertThat(resultsNoDirect.get(0)).usingRecursiveComparison().isEqualTo(scaDependencyDto2);
+  }
+
+  @Test
+  void selectByQuery_shouldReturnScaDependencies_whenQueryByPackageManager() {
+    ComponentDto componentDto = prepareComponentDto("1");
+    ScaDependencyDto scaDependencyDto1 = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "1", true, PackageManager.MAVEN, "foo.bar");
+    ScaDependencyDto scaDependencyDto2 = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "2", true, PackageManager.NPM, "foo.bar");
+    ScaDependencyDto scaDependencyDto3 = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "3", true, PackageManager.CARGO, "foo.bar");
+
+    ScaDependenciesQuery scaDependenciesMavenQuery = new ScaDependenciesQuery(componentDto.branchUuid(), null, List.of(PackageManager.MAVEN.name()), null);
+    List<ScaDependencyDto> resultsMaven = scaDependenciesDao.selectByQuery(db.getSession(), scaDependenciesMavenQuery, Pagination.all());
+
+    assertThat(resultsMaven).hasSize(1);
+    assertThat(resultsMaven.get(0)).usingRecursiveComparison().isEqualTo(scaDependencyDto1);
+
+    ScaDependenciesQuery scaDependenciesNpmAndCargoQuery = new ScaDependenciesQuery(componentDto.branchUuid(), null,
+      List.of(PackageManager.NPM.name(), PackageManager.CARGO.name()), null);
+    List<ScaDependencyDto> resultsNpm = scaDependenciesDao.selectByQuery(db.getSession(), scaDependenciesNpmAndCargoQuery, Pagination.all());
+
+    assertThat(resultsNpm).hasSize(2);
+    assertThat(resultsNpm.get(0)).usingRecursiveComparison().isEqualTo(scaDependencyDto2);
+    assertThat(resultsNpm.get(1)).usingRecursiveComparison().isEqualTo(scaDependencyDto3);
   }
 
   @Test
   void update_shouldUpdateScaDependency() {
-    ScaDependencyDto scaDependencyDto = insertScaDependency();
+    ComponentDto componentDto = prepareComponentDto("1");
+    ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "1", true, PackageManager.MAVEN, "foo.bar");
     ScaDependencyDto updatedScaDependency =
       scaDependencyDto.toBuilder().setUpdatedAt(scaDependencyDto.updatedAt() + 1).setVersion("newVersion").build();
 
@@ -181,27 +220,20 @@ class ScaDependenciesDaoIT {
 
   @Test
   void countByQuery_shouldReturnTheTotalOfDependencies() {
-    insertScaDependency("sEArched");
-    insertScaDependency("notWanted");
-    insertScaDependency("sEArchedAsWell");
-    db.getScaDependenciesDbTester().insertScaDependency("another_branch_uuid", "searched");
+    ComponentDto componentDto1 = prepareComponentDto("1");
+    db.getScaDependenciesDbTester().insertScaDependency(componentDto1.uuid(), "1", true, PackageManager.MAVEN, "foo.bar");
+    db.getScaDependenciesDbTester().insertScaDependency(componentDto1.uuid(), "2", true, PackageManager.MAVEN, "foo.bar.mee");
+    db.getScaDependenciesDbTester().insertScaDependency(componentDto1.uuid(), "3", true, PackageManager.MAVEN, "bar.foo");
 
-    ScaDependenciesQuery scaDependenciesQuery = new ScaDependenciesQuery(PROJECT_BRANCH_UUID, "long_nameSearCHed");
+    ScaDependenciesQuery scaDependenciesQuery = new ScaDependenciesQuery(componentDto1.branchUuid(), null, null, "foo");
 
     assertThat(scaDependenciesDao.countByQuery(db.getSession(), scaDependenciesQuery)).isEqualTo(2);
-    assertThat(scaDependenciesDao.countByQuery(db.getSession(), new ScaDependenciesQuery(PROJECT_BRANCH_UUID, null))).isEqualTo(3);
-    assertThat(scaDependenciesDao.countByQuery(db.getSession(), new ScaDependenciesQuery("another_branch_uuid", null))).isEqualTo(1);
+    assertThat(scaDependenciesDao.countByQuery(db.getSession(), new ScaDependenciesQuery(componentDto1.branchUuid(), null, null, null))).isEqualTo(3);
+    assertThat(scaDependenciesDao.countByQuery(db.getSession(), new ScaDependenciesQuery("another_branch_uuid", null, null, null))).isZero();
   }
 
-  private ScaDependencyDto insertScaDependency() {
-    return db.getScaDependenciesDbTester().insertScaDependency(PROJECT_BRANCH_UUID);
-  }
-  
-  private ScaDependencyDto insertScaDependency(String suffix) {
-    return insertScaDependency(suffix, null);
-  }
-
-  private ScaDependencyDto insertScaDependency(String suffix, @Nullable Consumer<ComponentDto> dtoPopulator) {
-    return db.getScaDependenciesDbTester().insertScaDependency(PROJECT_BRANCH_UUID, suffix, dtoPopulator);
+  private ComponentDto prepareComponentDto(String suffix) {
+    ProjectData projectData = db.components().insertPublicProject();
+    return db.getScaDependenciesDbTester().insertComponent(projectData.mainBranchUuid(), suffix);
   }
 }

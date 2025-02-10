@@ -70,7 +70,7 @@
   <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.sca.ScaDependencyDto">
     select <include refid="scaDependenciesColumns"/>
     <include refid="sqlSelectByQuery" />
-    ORDER BY c.kee ASC
+    ORDER BY sd.created_at ASC
     <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
@@ -83,11 +83,17 @@
     from sca_dependencies sd
     inner join components c on sd.component_uuid = c.uuid
     where c.branch_uuid = #{query.branchUuid,jdbcType=VARCHAR}
+    <if test="query.direct != null">
+      AND sd.direct = #{query.direct,jdbcType=BOOLEAN}
+    </if>
+    <if test="query.packageManagers != null and !query.packageManagers.isEmpty()">
+      AND sd.package_manager IN
+      <foreach collection="query.packageManagers" open="(" close=")" item="packageManager" separator=",">
+        #{packageManager,jdbcType=VARCHAR}
+      </foreach>
+    </if>
     <if test="query.query() != null">
-      AND (
-        c.kee = #{query.query,jdbcType=VARCHAR}
-        OR lower(c.long_name) LIKE #{query.likeQuery} ESCAPE '/'
-      )
+      AND lower(sd.package_name) LIKE #{query.likeQuery} ESCAPE '/'
     </if>
   </sql>
 

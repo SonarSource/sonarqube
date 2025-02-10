@@ -19,26 +19,21 @@
  */
 package org.sonar.db.sca;
 
-import java.util.List;
-import java.util.Locale;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.junit.jupiter.api.Test;
 
-import static org.sonar.db.DaoUtils.buildLikeValue;
-import static org.sonar.db.WildcardPosition.AFTER;
+import static org.junit.jupiter.api.Assertions.*;
 
-public record ScaDependenciesQuery(
-  String branchUuid,
-  @Nullable Boolean direct,
-  @Nullable List<String> packageManagers,
-  @Nullable String query
-) {
+class ScaDependenciesQueryTest {
 
-  /**
-   * Used by MyBatis mapper
-   */
-  @CheckForNull
-  public String likeQuery() {
-    return query == null ? null : buildLikeValue(query.toLowerCase(Locale.ENGLISH), AFTER);
+  @Test
+  void testLikeQuery() {
+    ScaDependenciesQuery scaDependenciesQuery = new ScaDependenciesQuery("branchUuid", null, null, "QUERY");
+    assertEquals("query%", scaDependenciesQuery.likeQuery());
+  }
+
+  @Test
+  void testLikeQueryWithNullQuery() {
+    ScaDependenciesQuery scaDependenciesQuery = new ScaDependenciesQuery("branchUuid", null, null, null);
+    assertNull(scaDependenciesQuery.likeQuery());
   }
 }
