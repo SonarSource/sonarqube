@@ -36,13 +36,10 @@ import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.core.util.ProcessWrapperFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class CliServiceTest {
   private final ProcessWrapperFactory processWrapperFactory = new ProcessWrapperFactory();
-  private final CliCacheService cliCacheService = mock(CliCacheService.class);
-  private final CliService underTest = new CliService(processWrapperFactory, cliCacheService);
+  private final CliService underTest = new CliService(processWrapperFactory);
 
   @RegisterExtension
   private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
@@ -60,7 +57,6 @@ class CliServiceTest {
     assertThat(scriptUrl).isNotNull();
     File scriptDir = new File(scriptUrl.toURI());
     assertThat(rootModuleDir.resolve("test_file").toFile().createNewFile()).isTrue();
-    when(cliCacheService.cliFile()).thenReturn(scriptDir);
 
     // We need to set the logging level to debug in order to be able to view the shell script's output
     logTester.setLevel(Level.DEBUG);
@@ -78,7 +74,7 @@ class CliServiceTest {
     String argumentOutput = "Arguments Passed In: " + String.join(" ", args);
 
 
-    File producedZip = underTest.generateManifestsZip(root);
+    File producedZip = underTest.generateManifestsZip(root, scriptDir);
     assertThat(producedZip).exists();
     // The simulated CLI output will only be available at the debug level
     assertThat(logTester.logs(Level.DEBUG)).contains(argumentOutput);

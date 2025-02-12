@@ -40,18 +40,16 @@ import org.sonar.core.util.ProcessWrapperFactory;
 public class CliService {
   private static final Logger LOG = LoggerFactory.getLogger(CliService.class);
   private final ProcessWrapperFactory processWrapperFactory;
-  private final CliCacheService cliCacheService;
 
-  public CliService(ProcessWrapperFactory processWrapperFactory, CliCacheService cliCacheService) {
+  public CliService(ProcessWrapperFactory processWrapperFactory) {
     this.processWrapperFactory = processWrapperFactory;
-    this.cliCacheService = cliCacheService;
   }
 
-  public File generateManifestsZip(DefaultInputModule module) throws IOException, IllegalStateException {
+  public File generateManifestsZip(DefaultInputModule module, File cliExecutable) throws IOException, IllegalStateException {
     String zipName = "dependency-files.zip";
     Path zipPath = module.getWorkDir().resolve(zipName);
     List<String> args = new ArrayList<>();
-    args.add(cliCacheService.cliFile().getAbsolutePath());
+    args.add(cliExecutable.getAbsolutePath());
     args.add("projects");
     args.add("save-lockfiles");
     args.add("--zip");

@@ -35,7 +35,6 @@ import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.repository.featureflags.FeatureFlagsRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -80,15 +79,15 @@ class ScaExecutorTest {
     File mockCliFile = Files.newTemporaryFile();
     File mockManifestZip = Files.newTemporaryFile();
     ScannerReportWriter mockReportWriter = mock(ScannerReportWriter.class);
-    when(cliCacheService.cacheCli(anyString(), anyString())).thenReturn(mockCliFile);
-    when(cliService.generateManifestsZip(root)).thenReturn(mockManifestZip);
+    when(cliCacheService.cacheCli()).thenReturn(mockCliFile);
+    when(cliService.generateManifestsZip(root, mockCliFile)).thenReturn(mockManifestZip);
     when(reportPublisher.getWriter()).thenReturn(mockReportWriter);
 
     logTester.setLevel(Level.DEBUG);
 
     underTest.execute(root);
 
-    verify(cliService).generateManifestsZip(root);
+    verify(cliService).generateManifestsZip(root, mockCliFile);
     verify(mockReportWriter).writeScaFile(mockManifestZip);
     assertThat(logTester.logs(Level.DEBUG)).contains("Zip ready for report: " + mockManifestZip);
     assertThat(logTester.logs(Level.DEBUG)).contains("Manifest zip written to report");
@@ -97,37 +96,38 @@ class ScaExecutorTest {
   @Test
   void execute_whenIOException_shouldHandleException() throws IOException {
     File mockCliFile = Files.newTemporaryFile();
-    when(cliCacheService.cacheCli(anyString(), anyString())).thenReturn(mockCliFile);
-    doThrow(IOException.class).when(cliService).generateManifestsZip(root);
+    when(cliCacheService.cacheCli()).thenReturn(mockCliFile);
+    doThrow(IOException.class).when(cliService).generateManifestsZip(root, mockCliFile);
 
     logTester.setLevel(Level.INFO);
 
     underTest.execute(root);
 
-    verify(cliService).generateManifestsZip(root);
+    verify(cliService).generateManifestsZip(root, mockCliFile);
     assertThat(logTester.logs(Level.ERROR)).contains("Error gathering manifests");
   }
 
   @Test
   void execute_whenIllegalStateException_shouldHandleException() throws IOException {
     File mockCliFile = Files.newTemporaryFile();
-    when(cliCacheService.cacheCli(anyString(), anyString())).thenReturn(mockCliFile);
-    doThrow(IllegalStateException.class).when(cliService).generateManifestsZip(root);
+    when(cliCacheService.cacheCli()).thenReturn(mockCliFile);
+    doThrow(IllegalStateException.class).when(cliService).generateManifestsZip(root, mockCliFile);
 
     logTester.setLevel(Level.INFO);
 
     underTest.execute(root);
 
-    verify(cliService).generateManifestsZip(root);
+    verify(cliService).generateManifestsZip(root, mockCliFile);
     assertThat(logTester.logs(Level.ERROR)).contains("Error gathering manifests");
   }
 
   @Test
   void execute_whenNoCliFound_shouldSkipAnalysis() throws IOException {
-    when(cliCacheService.cacheCli(anyString(), anyString())).thenReturn(new File(""));
+    File mockCliFile = new File("");
+    when(cliCacheService.cacheCli()).thenReturn(mockCliFile);
 
     underTest.execute(root);
 
-    verify(cliService, never()).generateManifestsZip(root);
+    verify(cliService, never()).generateManifestsZip(root, mockCliFile);
   }
 }
