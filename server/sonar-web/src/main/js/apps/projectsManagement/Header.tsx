@@ -24,6 +24,7 @@ import { Title } from '~design-system';
 import { Visibility } from '~sonar-aligned/types/component';
 import { translate } from '../../helpers/l10n';
 import ChangeDefaultVisibilityForm from './ChangeDefaultVisibilityForm';
+import CreateProjectForm from "./CreateProjectForm";
 
 export interface Props {
   defaultProjectVisibility?: Visibility;

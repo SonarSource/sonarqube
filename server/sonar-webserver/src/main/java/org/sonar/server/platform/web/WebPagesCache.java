@@ -33,6 +33,7 @@ import org.sonar.server.platform.Platform.Status;
 import static com.google.common.base.Preconditions.checkState;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.ofNullable;
 import static org.sonar.server.platform.Platform.Status.UP;
 
 public class WebPagesCache {
@@ -41,6 +42,11 @@ public class WebPagesCache {
   private static final String SERVER_STATUS_PLACEHOLDER = "%SERVER_STATUS%";
   private static final String INSTANCE_PLACEHOLDER = "%INSTANCE%";
   private static final String OFFICIAL_PLACEHOLDER = "%OFFICIAL%";
+  private static final String PENDO_DISABLE_PLACEHOLDER = "%PENDO_DISABLE%";
+  private static final String PENDO_DISABLE_TOGGLE = "PENDO_DISABLE";
+  private static final String GA_DISABLE_PLACEHOLDER = "%GA_DISABLE%";
+  private static final String GA_DISABLE_TOGGLE = "GA_DISABLE";
+  private static final String DEFAULT_TOGGLE_VALUE = "false";
 
   private static final String SONARQUBE_INSTANCE_VALUE = "CodeScanCloud";
 
@@ -97,7 +103,11 @@ public class WebPagesCache {
         .replace(WEB_CONTEXT_PLACEHOLDER, servletContext.getContextPath())
         .replace(SERVER_STATUS_PLACEHOLDER, serverStatus)
         .replace(INSTANCE_PLACEHOLDER, WebPagesCache.SONARQUBE_INSTANCE_VALUE)
-        .replace(OFFICIAL_PLACEHOLDER, String.valueOf(officialDistribution.check()));
+        .replace(OFFICIAL_PLACEHOLDER, String.valueOf(officialDistribution.check()))
+        .replace(PENDO_DISABLE_PLACEHOLDER, ofNullable(System.getenv(PENDO_DISABLE_TOGGLE)).map(String::toLowerCase).orElse(
+                DEFAULT_TOGGLE_VALUE))
+        .replace(GA_DISABLE_PLACEHOLDER, ofNullable(System.getenv(GA_DISABLE_TOGGLE)).map(String::toLowerCase).orElse(
+                DEFAULT_TOGGLE_VALUE));
     } catch (Exception e) {
       throw new IllegalStateException("Fail to load file " + path, e);
     }

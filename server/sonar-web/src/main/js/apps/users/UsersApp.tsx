@@ -128,7 +128,7 @@ export default function UsersApp() {
               onChange={(userActivity: LabelValueSelectOption<UserActivity>) =>
                 setUsersActivity(userActivity.value)
               }
-              options={USERS_ACTIVITY_OPTIONS}
+              options={USERS_ACTIVITY_OPTIONS.filter(option => option.value !== UserActivity.ActiveSonarLintUser )}
               isSearchable={false}
               placeholder={translate('users.activity_filter.placeholder')}
               aria-label={translate('users.activity_filter.label')}
@@ -141,7 +141,6 @@ export default function UsersApp() {
               overlay={
                 <>
                   <p>{translate('users.activity_filter.helptext.sonarqube')}</p>
-                  <p>{translate('users.activity_filter.helptext.sonarlint')}</p>
                 </>
               }
             >

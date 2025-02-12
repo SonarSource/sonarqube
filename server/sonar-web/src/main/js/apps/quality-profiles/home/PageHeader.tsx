@@ -70,7 +70,7 @@ export default function PageHeader(props: Readonly<Props>) {
         <div className="sw-typo-default">
           {intl.formatMessage({ id: 'quality_profiles.intro' })}
 
-          <Link className="sw-ml-2" to={docUrl}>
+          <Link className="sw-ml-2" to={docUrl} shouldOpenInNewTab={true} >
             {intl.formatMessage({ id: 'learn_more' })}
           </Link>
         </div>

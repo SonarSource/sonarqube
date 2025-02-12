@@ -33,7 +33,7 @@ import { FlagMessage, SelectionCard } from '~design-system';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { DocLink } from '../../../helpers/doc-links';
 import { useStandardExperienceModeQuery, useUpdateModeMutation } from '../../../queries/mode';
-import { useQualityGatesQuery } from '../../../queries/quality-gates';
+import { useQualityGatesQueryForMode } from '../../../queries/quality-gates';
 import { Mode as ModeE } from '../../../types/mode';
 import { SettingsKey } from '../../../types/settings';
 
@@ -42,7 +42,7 @@ export function Mode() {
   const { data: isStandardMode, isLoading } = useStandardExperienceModeQuery();
   const [changedMode, setChangedMode] = React.useState(false);
   const { mutate: setMode, isPending } = useUpdateModeMutation();
-  const { data: { qualitygates } = {}, isLoading: loadingGates } = useQualityGatesQuery({
+  const { data: { qualitygates } = {}, isLoading: loadingGates } = useQualityGatesQueryForMode({
     enabled: changedMode,
   });
 

@@ -48,6 +48,7 @@ export const useProjectsQuery = createInfiniteQueryHook(
   }) => {
     const queryClient = useQueryClient();
     const data = convertToQueryData(query, isFavorite, isStandardMode, {
+      organization: query.organization,
       ps: PROJECTS_PAGE_SIZE,
       facets: defineFacets(query, isStandardMode).join(),
       f: 'analysisDate,leakPeriodDate',

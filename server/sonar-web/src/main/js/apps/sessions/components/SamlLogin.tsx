@@ -24,6 +24,9 @@ import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { getReturnUrl } from '../../../helpers/urls';
 import './SamlLogin.css';
+import DataAccessConsent from './DataAccessConsent';
+import { getAccessConsentMessage } from '../../../api/settings';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
 
 export default function SamlLogin() {
   const location = useLocation();
@@ -31,6 +34,13 @@ export default function SamlLogin() {
   const navigate = useNavigate();
 
   const [email, setEmail] = React.useState<string>();
+  const [message, setMessage] = React.useState<string>("");
+
+  React.useEffect(() => {
+    getAccessConsentMessage()
+      .then((response) => setMessage(response.message))
+      .catch(throwGlobalError);
+  }, []);
 
   const handleLoginChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.currentTarget.value);
@@ -75,6 +85,9 @@ export default function SamlLogin() {
           </form>
         </div>
       </Card>
+      { message != undefined && message.length > 0 && (
+        <DataAccessConsent message={message}/>
+      )}
     </div>
   );
 }

@@ -72,7 +72,7 @@ import ProjectsList from './ProjectsList';
 export const LS_PROJECTS_SORT = 'sonarqube.projects.sort';
 export const LS_PROJECTS_VIEW = 'sonarqube.projects.view';
 
-function AllProjects({ organization, isFavorite }: Readonly<{ isFavorite: boolean }>) {
+function AllProjects({ isFavorite, organization }: Readonly<{ isFavorite: boolean; organization: string }>) {
   const appState = useAppState();
   const { currentUser } = useCurrentUser();
   const router = useRouter();
@@ -93,7 +93,10 @@ function AllProjects({ organization, isFavorite }: Readonly<{ isFavorite: boolea
   } = useProjectsQuery(
     {
       isFavorite,
-      query: parsedQuery,
+      query: {
+        ...parsedQuery,
+        organization,
+      },
       isStandardMode,
     },
     { refetchOnMount: 'always' },
@@ -328,7 +331,7 @@ function AllProjects({ organization, isFavorite }: Readonly<{ isFavorite: boolea
 }
 
 function withRedirectWrapper(Component: React.ComponentType<{ isFavorite: boolean }>) {
-  return function Wrapper(props: Readonly<{ isFavorite: boolean }>) {
+  return function Wrapper(props: Readonly<{ isFavorite: boolean; organization: string }>) {
     const { currentUser } = useCurrentUser();
     if (props.isFavorite && !isLoggedIn(currentUser)) {
       handleRequiredAuthentication();

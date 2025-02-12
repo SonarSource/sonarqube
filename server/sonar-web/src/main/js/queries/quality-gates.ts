@@ -100,6 +100,16 @@ export const useQualityGatesQuery = createQueryHook((organization: string) => {
   });
 });
 
+export const useQualityGatesQueryForMode = createQueryHook((organization: string) => {
+  return queryOptions({
+    queryKey: qualityQuery.list(organization),
+    queryFn: () => {
+      return fetchQualityGatesForMode({ organization });
+    },
+    staleTime: StaleTime.LONG,
+  });
+});
+
 export const useGetAllQualityGateProjectsQuery = createQueryHook(
   (data: Parameters<typeof getAllQualityGateProjects>[0]) => {
     return queryOptions({

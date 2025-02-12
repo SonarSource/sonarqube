@@ -33,8 +33,8 @@ export default function DocumentationLink({ to, innerRef, standalone = false, ..
   const toStatic = useDocUrl(to);
 
   return standalone ? (
-    <LinkStandalone ref={innerRef} to={toStatic} {...props} />
+    <LinkStandalone ref={innerRef} to={toStatic} shouldOpenInNewTab={true} {...props} />
   ) : (
-    <Link ref={innerRef} to={toStatic} {...props} />
+    <Link ref={innerRef} to={toStatic} shouldOpenInNewTab={true} {...props} />
   );
 }

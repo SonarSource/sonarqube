@@ -153,7 +153,7 @@ export default function RuleDetails(props: Readonly<Props>) {
                     <Button
                       className="sw-ml-2 js-delete"
                       id="coding-rules-detail-rule-delete"
-                      onClick={() => deleteRule({ key: ruleKey })}
+                      onClick={() => deleteRule({ key: ruleKey, organization :organization })}
                       variety={ButtonVariety.DangerOutline}
                     >
                       {translate('delete')}

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Spinner } from '@sonarsource/echoes-react';
+import { Link,  Spinner } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { FlagMessage, LargeCenteredLayout, PageContentFontWrapper } from '~design-system';
 import { isBranch, isMainBranch } from '~sonar-aligned/helpers/branch-like';

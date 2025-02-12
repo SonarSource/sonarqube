@@ -32,6 +32,7 @@ import { translateWithParameters } from '../../../helpers/l10n';
 import { useUserTokensQuery } from '../../../queries/users';
 import { IdentityProvider, Provider } from '../../../types/types';
 import { RestUserDetailed } from '../../../types/users';
+import GroupsForm from './GroupsForm';
 import TokensFormModal from './TokensFormModal';
 import UserActions from './UserActions';
 import UserListItemIdentity from './UserListItemIdentity';
@@ -51,12 +52,12 @@ export default function UserListItem(props: Readonly<UserListItemProps>) {
     login,
     avatar,
     sonarQubeLastConnectionDate,
-    sonarLintLastConnectionDate,
     scmAccounts,
   } = user;
 
   const [openTokenForm, setOpenTokenForm] = React.useState(false);
   const { data: tokens, isLoading: tokensAreLoading } = useUserTokensQuery(login);
+  const [openGroupForm, setOpenGroupForm] = React.useState(false);
 
   return (
     <TableRow>
@@ -75,32 +76,6 @@ export default function UserListItem(props: Readonly<UserListItemProps>) {
       </ContentCell>
       <ContentCell>
         <DateFromNow date={sonarQubeLastConnectionDate ?? ''} hourPrecision />
-      </ContentCell>
-      <ContentCell>
-        <DateFromNow date={sonarLintLastConnectionDate ?? ''} hourPrecision />
-      </ContentCell>
-      <ContentCell>
-        <Spinner isLoading={groupsAreLoading}>
-          {groupsCount}
-          <ButtonIcon
-            Icon={IconMoreVertical}
-            tooltipContent={
-              manageProvider === undefined
-                ? translate('users.update_groups')
-                : translate('users.view_groups')
-            }
-            className="it__user-groups sw-ml-2"
-            ariaLabel={translateWithParameters(
-              manageProvider === undefined
-                ? 'users.update_users_groups'
-                : 'users.view_users_groups',
-              user.login,
-            )}
-            onClick={() => setOpenGroupForm(true)}
-            size={ButtonSize.Medium}
-            variety={ButtonVariety.DefaultGhost}
-          />
-        </Spinner>
       </ContentCell>
       <ContentCell>
         <Spinner isLoading={tokensAreLoading}>
@@ -132,3 +107,4 @@ export default function UserListItem(props: Readonly<UserListItemProps>) {
     </TableRow>
   );
 }
+

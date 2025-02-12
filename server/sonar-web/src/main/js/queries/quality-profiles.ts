@@ -84,7 +84,7 @@ export const useProfileInheritanceQuery = createQueryHook(
         if (!isDefined(language) || !isDefined(name)) {
           return { ancestors: [], children: [], profile: null };
         }
-        return getProfileInheritance({ language, name });
+        return getProfileInheritance({ organization, language, name });
       },
     });
   },

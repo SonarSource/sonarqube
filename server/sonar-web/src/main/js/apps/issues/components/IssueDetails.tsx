@@ -80,7 +80,7 @@ export default function IssueDetails({
   selectedLocationIndex,
 }: Readonly<IssueDetailsProps>) {
   const { canBrowseAllChildProjects, qualifier = ComponentQualifier.Project } = component ?? {};
-  const { data: ruleData, isLoading: isLoadingRule } = useRuleDetailsQuery({ key: openIssue.rule });
+  const { data: ruleData, isLoading: isLoadingRule } = useRuleDetailsQuery({ key: openIssue.rule, organization: openIssue.organization});
   const openRuleDetails = ruleData?.rule;
 
   const intl = useIntl();

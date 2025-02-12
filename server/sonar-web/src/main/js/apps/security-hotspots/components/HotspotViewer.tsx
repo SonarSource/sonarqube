@@ -56,7 +56,7 @@ export default function HotspotViewer(props: Readonly<Props>) {
 
   const { data: hotspot, refetch } = useSecurityHotspotDetailsQuery({ key: hotspotKey });
   const { data: rule, isLoading } = useRuleDetailsQuery(
-    { key: hotspot?.rule.key! },
+    { key: hotspot?.rule.key!, organization: component?.organization},
     { enabled: hotspot !== undefined },
   );
 

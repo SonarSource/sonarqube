@@ -23,7 +23,6 @@ import com.google.common.base.Throwables;
 import java.io.File;
 import java.util.concurrent.CountDownLatch;
 import org.apache.catalina.LifecycleException;
-import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.slf4j.Logger;
@@ -70,7 +69,6 @@ class EmbeddedTomcat {
     webappContext = new TomcatContexts().configure(tomcat, props);
     try {
       tomcat.start();
-      validateConnectorScheme();
     } catch (LifecycleException e) {
       LOGGER.error("Failed to start web server", e);
       Throwables.propagate(e);
@@ -79,15 +77,6 @@ class EmbeddedTomcat {
 
   private File tomcatBasedir() {
     return new File(props.value(PATH_TEMP.getKey()), "tc");
-  }
-
-  private void validateConnectorScheme() {
-    Connector[] connectors = tomcat.getService().findConnectors();
-    for (Connector connector : connectors) {
-      if (!connector.getScheme().equals("http")) {
-        throw new IllegalArgumentException("Unsupported connector: " + connector);
-      }
-    }
   }
 
   Status getStatus() {

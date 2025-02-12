@@ -51,11 +51,11 @@ export default function EmbedDocsPopupHelper() {
         isOpen={aboutCodescanOpen}
       >
       <div>
-        <span className="cross-button cross-btn-icon">
+        <span className="cross-button cross-btn-icon-with-img">
             <ClearButton onClick={() => setAboutCodescanOpen(false)} />
         </span>
         <a href={link} rel="noopener noreferrer" target="_blank">
-          <img alt={text} src={`${getBaseUrl()}/images/${icon}`} />
+          <img alt={text} className="display-img-dialog" src={`${getBaseUrl()}/images/${icon}`} />
         </a>
        </div>
 
@@ -82,7 +82,7 @@ export default function EmbedDocsPopupHelper() {
       {aboutCodescanOpen &&
         renderAboutCodescan(
           'https://knowledgebase.autorabit.com/codescan/docs/codescan-release-notes',
-          'embed-doc/codescan-version-24_0_11.png',
+          'embed-doc/codescan-version-25_1_0.png',
           translate('embed_docs.codescan_version'),
         )}
     </div>

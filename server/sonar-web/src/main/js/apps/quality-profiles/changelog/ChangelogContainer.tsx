@@ -39,7 +39,7 @@ interface Props {
 }
 
 function ChangelogContainer(props: Readonly<Props>) {
-  const { profile } = props;
+  const { profile, organization } = props;
   const { data: isStandardMode } = useStandardExperienceModeQuery();
   const router = useRouter();
   const {
@@ -59,13 +59,14 @@ function ChangelogContainer(props: Readonly<Props>) {
     to,
     profile,
     filterMode,
+    organization,
   });
 
   const events = changeLogResponse?.pages.flatMap((page) => page.events) ?? [];
   const total = changeLogResponse?.pages[0].paging.total;
 
   const handleDateRangeChange = ({ from, to }: { from?: Date; to?: Date }) => {
-    const path = getProfileChangelogPath(profile.name, profile.language, this.props.organization, {
+    const path = getProfileChangelogPath(profile.name, profile.language, organization, {
       since: from && toISO8601WithOffsetString(from),
       to: to && toISO8601WithOffsetString(to),
     });
@@ -73,7 +74,7 @@ function ChangelogContainer(props: Readonly<Props>) {
   };
 
   const handleReset = () => {
-    const path = getProfileChangelogPath(profile.name, profile.language, this.props.organization);
+    const path = getProfileChangelogPath(profile.name, profile.language, organization);
     router.replace(path);
   };
 
@@ -95,7 +96,9 @@ function ChangelogContainer(props: Readonly<Props>) {
 
       {isDefined(events) && events.length === 0 && <ChangelogEmpty />}
 
-      {isDefined(events) && events.length > 0 && <Changelog events={events} organization={this.props.organization} />}
+      {isDefined(events) && events.length > 0 && (
+        <Changelog events={events} organization={organization} />
+      )}
 
       {shouldDisplayFooter && (
         <footer className="sw-text-center sw-mt-2">

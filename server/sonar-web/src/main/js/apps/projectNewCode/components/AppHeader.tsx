@@ -61,7 +61,7 @@ export default function AppHeader(props: AppHeaderProps) {
           id="settings.new_code_period.description3"
           values={{
             link: (
-              <Link highlight={LinkHighlight.CurrentColor} to={toUrl}>
+              <Link highlight={LinkHighlight.CurrentColor} to={toUrl} shouldOpenInNewTab={true}>
                 {translate('settings.new_code_period.description3.link')}
               </Link>
             ),

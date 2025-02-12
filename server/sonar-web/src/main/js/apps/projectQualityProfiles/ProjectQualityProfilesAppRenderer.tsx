@@ -47,8 +47,8 @@ import { Component } from '../../types/types';
 import BuiltInQualityProfileBadge from '../quality-profiles/components/BuiltInQualityProfileBadge';
 import AddLanguageModal from './components/AddLanguageModal';
 import SetQualityProfileModal from './components/SetQualityProfileModal';
+import './ProjectQualityProfilesAppRenderer.css';
 import { ProjectProfile } from './types';
-
 export interface ProjectQualityProfilesAppRendererProps {
   allProfiles?: Profile[];
   component: Component;
@@ -85,7 +85,7 @@ export default function ProjectQualityProfilesAppRenderer(
       <ContentCell>{translate('language')}</ContentCell>
       <ContentCell>{translate('project_quality_profile.current')}</ContentCell>
       <ContentCell>{translate('coding_rules.filters.activation.active_rules')}</ContentCell>
-      <ActionCell>{translate('actions')}</ActionCell>
+      <ContentCell>{translate('actions')}</ContentCell>
     </TableRow>
   );
 
@@ -107,13 +107,14 @@ export default function ProjectQualityProfilesAppRenderer(
         </header>
 
         <div>
+        <h3 className="sw-mb-4">{translate('project_quality_profile.subtitle')}</h3>
           <p>{translate('project_quality_profiles.page.description')}</p>
           <div className="sw-mt-16">
             <Spinner loading={loading}>
               {!loading && orderedProfiles.length > 0 && (
                 <Table
                   noHeaderTopBorder
-                  className="sw-w-[60%]"
+                  className="sw-w-[73%]"
                   columnCount={COLUMN_WIDTHS_WITH_PURGE_SETTING.length}
                   columnWidths={COLUMN_WIDTHS_WITH_PURGE_SETTING}
                   header={header}
@@ -147,7 +148,7 @@ export default function ProjectQualityProfilesAppRenderer(
                         </ContentCell>
 
                         <ActionCell>
-                          <InteractiveIcon
+                          <InteractiveIcon className='change-profile-btn'
                             Icon={PencilIcon}
                             aria-label={translateWithParameters(
                               'project_quality_profile.change_profile_x',
@@ -156,7 +157,8 @@ export default function ProjectQualityProfilesAppRenderer(
                             onClick={() => {
                               props.onOpenSetProfileModal(projectProfile);
                             }}
-                            size="small"
+                            children= {"Change profile"}
+                            size="medium"
                             stopPropagation={false}
                           />
                         </ActionCell>
@@ -168,6 +170,7 @@ export default function ProjectQualityProfilesAppRenderer(
 
               <div className="sw-mt-8">
                 <div className="sw-mb-4">
+                <h3 className="sw-mb-4">{translate('project_quality_profile.add_language.title')}</h3>
                   {translate('project_quality_profile.add_language.description')}
                 </div>
 

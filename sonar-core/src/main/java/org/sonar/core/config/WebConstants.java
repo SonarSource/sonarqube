@@ -30,6 +30,8 @@ public final class WebConstants {
   public static final String SONAR_LF_LOGO_WIDTH_PX = "sonar.lf.logoWidthPx";
   public static final String SONAR_LOGIN_MESSAGE = "sonar.login.message";
   public static final String SONAR_LOGIN_DISPLAY_MESSAGE = "sonar.login.displayMessage";
+  public static final String CODESCAN_ACCESS_CONSENT_MESSAGE = "codescan.cloud.accessConsent.message";
+  public static final String CODESCAN_ACCESS_DISPLAY_CONSENT_MESSAGE = "codescan.cloud.accessConsent.displayMessage";
 
   private WebConstants() {
   }

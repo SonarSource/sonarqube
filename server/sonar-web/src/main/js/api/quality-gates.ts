@@ -61,6 +61,13 @@ export function fetchQualityGates(data: {
   return getJSON('/api/qualitygates/list', data).catch(throwGlobalError);
 }
 
+export function fetchQualityGatesForMode(): Promise<{
+  actions: { create: boolean };
+  qualitygates: QualityGate[];
+}> {
+  return getJSON('/api/qualitygates/list').catch(throwGlobalError);
+}
+
 export function fetchQualityGate(data: { organization: string; name: string }): Promise<QualityGate> {
   return getJSON('/api/qualitygates/show', data).catch(throwGlobalError);
 }

@@ -159,6 +159,7 @@ export default function CreateProfileForm(props: Readonly<Props>) {
     action === undefined || language === undefined || profile === undefined
       ? undefined
       : {
+          organization,
           language,
           name: profile.name,
         },

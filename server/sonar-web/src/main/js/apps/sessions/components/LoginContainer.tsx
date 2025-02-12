@@ -23,7 +23,7 @@ import { addGlobalErrorMessage } from '~design-system';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Location } from '~sonar-aligned/types/router';
 import { logIn } from '../../../api/auth';
-import { getLoginMessage } from '../../../api/settings';
+import { getLoginMessage, getAccessConsentMessage } from '../../../api/settings';
 import { getIdentityProviders } from '../../../api/users';
 import { translate } from '../../../helpers/l10n';
 import { getReturnUrl } from '../../../helpers/urls';
@@ -37,6 +37,7 @@ interface State {
   identityProviders: IdentityProvider[];
   loading: boolean;
   message?: string;
+  accessConsentMessage?: string;
 }
 
 export class LoginContainer extends React.PureComponent<Props, State> {
@@ -57,7 +58,7 @@ export class LoginContainer extends React.PureComponent<Props, State> {
   }
 
   async loadData() {
-    await Promise.all([this.loadIdentityProviders(), this.loadLoginMessage()]);
+    await Promise.all([this.loadIdentityProviders(), this.loadLoginMessage(), this.loadAccessConsentMessage()]);
     this.setState({ loading: false });
   }
 
@@ -86,6 +87,18 @@ export class LoginContainer extends React.PureComponent<Props, State> {
     }
   }
 
+  async loadAccessConsentMessage() {
+      try {
+        const { message } = await getAccessConsentMessage();
+
+        if (this.mounted) {
+          this.setState({ accessConsentMessage: message });
+        }
+      } catch (_) {
+        /* already handled */
+      }
+    }
+
   handleSuccessfulLogin = () => {
     window.location.replace(getReturnUrl(this.props.location));
   };
@@ -101,7 +114,7 @@ export class LoginContainer extends React.PureComponent<Props, State> {
 
   render() {
     const { location } = this.props;
-    const { identityProviders, loading, message } = this.state;
+    const { identityProviders, loading, message, accessConsentMessage } = this.state;
 
     return (
       <Login
@@ -110,6 +123,7 @@ export class LoginContainer extends React.PureComponent<Props, State> {
         message={message}
         onSubmit={this.handleSubmit}
         location={location}
+        accessConsentMessage={accessConsentMessage}
       />
     );
   }

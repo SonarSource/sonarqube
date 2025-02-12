@@ -31,5 +31,5 @@ interface Props {
 export function DocItemLink({ to, children }: Readonly<Props>) {
   const toStatic = useDocUrl(to);
 
-  return <DropdownMenu.ItemLink to={toStatic}>{children}</DropdownMenu.ItemLink>;
+  return <DropdownMenu.ItemLink target="_blank" to={toStatic}>{children}</DropdownMenu.ItemLink>;
 }

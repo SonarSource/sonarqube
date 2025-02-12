@@ -65,7 +65,7 @@ export default function DetailsHeader({ organization, qualityGate }: Readonly<Pr
   const { mutateAsync: setAiSupportedQualityGate } = useSetAiSupportedQualityGateMutation();
   const { data: qualityGateProjectsHavingAiCode = [], isLoading: isCountLoading } =
     useGetAllQualityGateProjectsQuery(
-      { gateName: qualityGate.name, selected: 'selected' },
+      { organization, gateName: qualityGate.name, selected: 'selected' },
       {
         select: (data) =>
           data.results.filter((p) => p.aiCodeAssurance === AiCodeAssuranceStatus.AI_CODE_ASSURED),

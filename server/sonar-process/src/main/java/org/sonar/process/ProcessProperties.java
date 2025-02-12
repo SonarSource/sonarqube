@@ -190,7 +190,11 @@ public class ProcessProperties {
 
     SONAR_ELASTIC_CLOUD_ENABLED("sonar.elastic.cloud.enabled", DEFAULT_FALSE),
     SONAR_ELASTIC_CLOUD_ENDPOINT("sonar.elastic.cloud.endpoint"),
-    SONAR_ELASTIC_CLOUD_PASSWORD("sonar.elastic.cloud.password");
+    SONAR_ELASTIC_CLOUD_PASSWORD("sonar.elastic.cloud.password"),
+
+    SONAR_SSL_ENABLED("sonar.ssl.enabled", DEFAULT_FALSE),
+    SONAR_SSL_PEM_BASE64_CERTIFICATE("sonar.ssl.pem.base64.certificate"),
+    SONAR_SSL_PEM_BASE64_KEY("sonar.ssl.pem.base64.key");
 
     /**
      * Properties that are defined for each LDAP server from the `ldap.servers` property

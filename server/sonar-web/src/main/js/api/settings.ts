@@ -118,3 +118,7 @@ export function encryptValue(value: string): Promise<{ encryptedValue: string }>
 export function getLoginMessage(): Promise<{ message: string }> {
   return getJSON('/api/settings/login_message').catch(throwGlobalError);
 }
+
+export function getAccessConsentMessage(): Promise<{ message: string }> {
+  return getJSON('/api/settings/access_consent_message').catch(throwGlobalError);
+}

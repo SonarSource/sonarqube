@@ -42,7 +42,7 @@ function ProjectBranchesApp(props: ProjectBranchesAppProps) {
         <header className="sw-mb-5">
           <Helmet defer={false} title={translate('project_branch_pull_request.page')} />
           <Title className="sw-mb-4">{translate('project_branch_pull_request.page')}</Title>
-          <LifetimeInformation />
+          <LifetimeInformation component={component} />
         </header>
 
         <BranchLikeTabs component={component} fetchComponent={fetchComponent} />

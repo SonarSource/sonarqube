@@ -159,11 +159,13 @@ function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRend
     if (selectedQualityGateName === USE_SYSTEM_DEFAULT) {
       await dissociateGateWithProject({
         projectKey: component.key,
+        organization: organization.kee,
       });
     } else {
       await associateGateWithProject({
         gateName: selectedQualityGateName,
         projectKey: component.key,
+        organization: organization.kee,
       });
     }
 
@@ -301,7 +303,7 @@ function ProjectQualityGateAppRenderer(props: Readonly<ProjectQualityGateAppRend
               e.preventDefault();
               await handleSubmit();
               setIsUserEditing(false);
-              refetchAiCodeAssuranceStatus();
+//               refetchAiCodeAssuranceStatus();
             }}
             id="project_quality_gate"
           >

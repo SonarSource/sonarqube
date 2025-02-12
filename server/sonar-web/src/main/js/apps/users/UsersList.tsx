@@ -37,12 +37,7 @@ export default function UsersList({ identityProviders, users, manageProvider }: 
     <TableRow>
       <ContentCell>{translate('users.user_name')}</ContentCell>
       <ContentCell>{translate('my_profile.scm_accounts')}</ContentCell>
-      <ContentCell>{translate('users.last_connection')}</ContentCell>
-      <ContentCell>
-        {translate('users.last_sonarlint_connection')}
-        <HelpTooltip overlay={translate('users.last_sonarlint_connection.help_text')}>
-          <HelperHintIcon />
-        </HelpTooltip>
+      <ContentCell>{translate('users.last_connection')}
       </ContentCell>
       <ContentCell>{translate('users.tokens')}</ContentCell>
       {(manageProvider === undefined || users.some((u) => !u.managed)) && (
@@ -66,3 +61,4 @@ export default function UsersList({ identityProviders, users, manageProvider }: 
     </StickyTable>
   );
 }
+

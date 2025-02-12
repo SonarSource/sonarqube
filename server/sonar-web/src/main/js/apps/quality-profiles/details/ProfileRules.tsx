@@ -64,6 +64,7 @@ export default function ProfileRules({ organization, profile }: Readonly<Props>)
 
   const { data: allRules, isLoading: isAllRulesLoading } = useSearchRulesQuery(
     {
+      organization,
       ps: 1,
       languages: profile.language,
       facets: isStandardMode
@@ -148,6 +149,7 @@ export default function ProfileRules({ organization, profile }: Readonly<Props>)
           >
             {RuleTypes.filter((type) => type !== 'UNKNOWN').map((type) => (
               <ProfileRulesRow
+                organization={organization}
                 title={translate('issue.type', type, 'plural')}
                 total={totalByTypes[type]?.count}
                 count={countsByTypes[type]?.count}
@@ -182,6 +184,7 @@ export default function ProfileRules({ organization, profile }: Readonly<Props>)
             >
               {Object.values(SoftwareQuality).map((quality) => (
                 <ProfileRulesRow
+                  organization={organization}
                   title={translate('software_quality', quality)}
                   total={totalBySoftwareQuality[quality]?.count}
                   count={countsBySoftwareImpact[quality]?.count}
@@ -213,6 +216,7 @@ export default function ProfileRules({ organization, profile }: Readonly<Props>)
             >
               {Object.values(CleanCodeAttributeCategory).map((category) => (
                 <ProfileRulesRow
+                  organization={organization}
                   title={translate('rule.clean_code_attribute_category', category)}
                   total={totalByCctCategory[category]?.count}
                   count={countsByCctCategory[category]?.count}

@@ -23,11 +23,13 @@ import { getValue } from '../../../api/settings';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import { AppState } from '../../../types/appstate';
 import { SettingsKey } from '../../../types/settings';
+import { Component } from '../../../types/types';
 import LifetimeInformationRenderer from './LifetimeInformationRenderer';
 
 interface Props {
   comparisonBranchesEnabled: boolean;
   appState: AppState;
+  component: Component;
 }
 
 interface State {
@@ -49,7 +51,10 @@ class LifetimeInformation extends React.PureComponent<Props, State> {
   }
 
   fetchBranchAndPullRequestLifetimeSetting() {
-    getValue({ key: SettingsKey.DaysBeforeDeletingInactiveBranchesAndPRs }).then(
+    getValue({
+      key: SettingsKey.DaysBeforeDeletingInactiveBranchesAndPRs,
+      component: this.props.component.key,
+    }).then(
       (settings) => {
         if (this.mounted) {
           this.setState({

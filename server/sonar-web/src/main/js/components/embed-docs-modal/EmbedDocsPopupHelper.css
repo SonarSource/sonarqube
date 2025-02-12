@@ -24,6 +24,20 @@
   left: 560px;
 }
 
+.cross-btn-icon-with-img {
+  position: absolute;
+  top: 150px;
+  right: 200px;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.cross-btn-icon-with-img > * {
+   display: contents;
+   font-size: xx-large;
+   color: grey;
+}
+
 .cross-btn-icon button {
   border: none;
   background-color: transparent;
@@ -35,8 +49,9 @@
   padding-bottom: 4px;
 }
 
-.cross-btn-icon button:hover {
-  background-color: rgba(14, 30, 37, 0.3);
-  border-radius: 50%;
+.cross-btn-icon-with-img button:hover {
   color: #fff;
+  display: block;
+  background-color: rgba(14, 30, 37, 0.3);
+
 }

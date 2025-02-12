@@ -200,6 +200,7 @@ interface ChangelogData {
   profile: Profile;
   since: string;
   to: string;
+  organization: string;
 }
 
 export function getProfileChangelog(data: ChangelogData): Promise<ChangelogResponse> {

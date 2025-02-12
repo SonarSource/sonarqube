@@ -81,7 +81,7 @@ export function EmbedDocsPopup({ setAboutCodescanOpen }) {
       {suggestions.length !== 0 && <Suggestions suggestions={suggestions} />}
 
       <DropdownMenu.GroupLabel>{translate('docs.suggestion')}</DropdownMenu.GroupLabel>
-      <DropdownMenu.ItemLink to="https://knowledgebase.autorabit.com/product-guides/codescan/getting-started">
+      <DropdownMenu.ItemLink target="_blank" to="https://knowledgebase.autorabit.com/product-guides/codescan/getting-started">
         {translate('docs.suggestion_help')}
       </DropdownMenu.ItemLink>
 
