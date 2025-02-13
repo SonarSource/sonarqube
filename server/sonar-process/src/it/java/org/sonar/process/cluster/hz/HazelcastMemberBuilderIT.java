@@ -26,6 +26,7 @@ import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessId;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
@@ -55,6 +56,18 @@ class HazelcastMemberBuilderIT {
     assertThat(member.getReplicatedMap("baz")).isNotNull();
 
     member.close();
+  }
+
+  @Test
+  void strip_square_brackets_from_ipv6_address_when_building_a_member() {
+    HazelcastMemberBuilder memberBuilder = new HazelcastMemberBuilder(JoinConfigurationType.TCP_IP)
+      .setMembers(loopback.getHostAddress())
+      .setProcessId(ProcessId.COMPUTE_ENGINE)
+      .setNodeName("bar")
+      .setPort(NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort())
+      .setNetworkInterface("[" + loopback.getHostAddress() + "]");
+
+    assertThatCode(memberBuilder::build).doesNotThrowAnyException();
   }
 
   @Test

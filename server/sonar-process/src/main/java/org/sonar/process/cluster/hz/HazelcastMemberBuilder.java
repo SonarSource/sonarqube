@@ -27,6 +27,7 @@ import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
 import java.util.List;
 import java.util.stream.Stream;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.hz.HazelcastMember.Attribute;
 
@@ -94,7 +95,7 @@ public class HazelcastMemberBuilder {
       .setReuseAddress(true);
     netConfig.getInterfaces()
       .setEnabled(true)
-      .setInterfaces(singletonList(requireNonNull(networkInterface, "Network interface is missing")));
+      .setInterfaces(provideNetworkInterfaceForHazelcastConfig());
 
     JoinConfig joinConfig = netConfig.getJoin();
     joinConfig.getAwsConfig().setEnabled(false);
@@ -130,15 +131,26 @@ public class HazelcastMemberBuilder {
       .setProperty("hazelcast.phone.home.enabled", "false")
       // Use slf4j for logging
       .setProperty("hazelcast.logging.type", "slf4j")
-      //support ip v6
+      // support ip v6
       .setProperty("hazelcast.prefer.ipv4.stack", "false")
-      .setProperty("hazelcast.partial.member.disconnection.resolution.heartbeat.count", "5")
-    ;
+      .setProperty("hazelcast.partial.member.disconnection.resolution.heartbeat.count", "5");
 
     MemberAttributeConfig attributes = config.getMemberAttributeConfig();
     attributes.setAttribute(Attribute.NODE_NAME.getKey(), requireNonNull(nodeName, "Node name is missing"));
     attributes.setAttribute(Attribute.PROCESS_KEY.getKey(), requireNonNull(processId, "Process key is missing").getKey());
 
     return new HazelcastMemberImpl(Hazelcast.newHazelcastInstance(config));
+  }
+
+  /**
+   * Hazelcast doesn't recognize IPv6 address in the square brackets so we remove in case user provided us with the IP with square brackets
+   */
+  @NotNull
+  private List<String> provideNetworkInterfaceForHazelcastConfig() {
+    String hazelcastNetworkInterface = requireNonNull(networkInterface, "Network interface is missing");
+    if (hazelcastNetworkInterface.startsWith("[") && hazelcastNetworkInterface.endsWith("]")) {
+      hazelcastNetworkInterface = hazelcastNetworkInterface.replace("[", "").replace("]", "");
+    }
+    return singletonList(hazelcastNetworkInterface);
   }
 }
