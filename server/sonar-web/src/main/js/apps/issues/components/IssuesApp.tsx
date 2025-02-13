@@ -922,9 +922,10 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   renderBulkChange() {
-    const { component, currentUser } = this.props;
+    const { component, currentUser, organization } = this.props;
     const { checkAll, bulkChangeModal, checked, issues, paging } = this.state;
 
+    const isOrganizationDefined = organization !== undefined;
     const isAllChecked = checked.length > 0 && issues.length === checked.length;
     const thirdState = checked.length > 0 && !isAllChecked;
     const isChecked = isAllChecked || thirdState;
@@ -934,35 +935,39 @@ export class App extends React.PureComponent<Props, State> {
     }
 
     return (
-      <div className="sw-float-left sw-flex sw-items-center">
-        <Checkbox
-          ariaLabel={translate('issues.select_all_issues')}
-          checked={thirdState ? 'indeterminate' : isChecked}
-          className="sw-ml-4 sw-mr-3"
-          id="issues-selection"
-          isDisabled={issues.length === 0}
-          onCheck={this.handleCheckAll}
-          title={translate('issues.select_all_issues')}
-        />
+      <div>
+        {isOrganizationDefined && (
+          <div className="sw-float-left sw-flex sw-items-center">
+            <Checkbox
+              ariaLabel={translate('issues.select_all_issues')}
+              checked={thirdState ? 'indeterminate' : isChecked}
+              className="sw-ml-4 sw-mr-3"
+              id="issues-selection"
+              isDisabled={issues.length === 0}
+              onCheck={this.handleCheckAll}
+              title={translate('issues.select_all_issues')}
+            />
 
-        <ButtonSecondary
-          disabled={checked.length === 0}
-          id="issues-bulk-change"
-          ref={this.bulkButtonRef}
-          onClick={this.handleOpenBulkChange}
-        >
-          {this.getButtonLabel(checked, checkAll, paging)}
-        </ButtonSecondary>
+            <ButtonSecondary
+              disabled={checked.length === 0}
+              id="issues-bulk-change"
+              ref={this.bulkButtonRef}
+              onClick={this.handleOpenBulkChange}
+            >
+              {this.getButtonLabel(checked, checkAll, paging)}
+            </ButtonSecondary>
 
-        {bulkChangeModal && (
-          <BulkChangeModal
-            fetchIssues={
-              checkAll && !component?.needIssueSync ? this.fetchIssues : this.getCheckedIssues
-            }
-            needIssueSync={component?.needIssueSync}
-            onClose={this.handleCloseBulkChange}
-            onDone={this.handleBulkChangeDone}
-          />
+            {bulkChangeModal && (
+              <BulkChangeModal
+                fetchIssues={
+                  checkAll && !component?.needIssueSync ? this.fetchIssues : this.getCheckedIssues
+                }
+                needIssueSync={component?.needIssueSync}
+                onClose={this.handleCloseBulkChange}
+                onDone={this.handleBulkChangeDone}
+              />
+            )}
+          </div>
         )}
       </div>
     );
@@ -1033,11 +1038,11 @@ export class App extends React.PureComponent<Props, State> {
   }
 
   renderList() {
-    const { branchLike, component, currentUser, branchLikes } = this.props;
+    const { branchLike, component, currentUser, branchLikes, organization } = this.props;
     const { issues, loading, loadingMore, paging, query } = this.state;
     const selectedIndex = this.getSelectedIndex();
     const selectedIssue = selectedIndex !== undefined ? issues[selectedIndex] : undefined;
-
+    const isOrganizationDefined = organization !== undefined;
     if (!paging) {
       return null;
     }
@@ -1069,7 +1074,13 @@ export class App extends React.PureComponent<Props, State> {
             component={component}
             issues={issues}
             onIssueChange={this.handleIssueChange}
-            onIssueCheck={currentUser.isLoggedIn ? this.handleIssueCheck : undefined}
+            onIssueCheck={
+              isOrganizationDefined
+                ? currentUser.isLoggedIn
+                  ? this.handleIssueCheck
+                  : undefined
+                : undefined
+            }
             onIssueSelect={this.selectIssue}
             onPopupToggle={this.handlePopupToggle}
             openPopup={this.state.openPopup}
