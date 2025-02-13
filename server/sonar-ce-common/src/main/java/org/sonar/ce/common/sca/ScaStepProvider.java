@@ -21,13 +21,14 @@ package org.sonar.ce.common.sca;
 
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.ce.common.scanner.ScannerReportReader;
+import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.step.ComputationStep;
 
 /**
  * When an implementation of this interface is available in the ioc container, the Compute Engine will use the value returned by
- * {@link #get(ScannerReportReader, ScaHolder)} as an extra step for software composition analysis.
+ * {@link #get(ScannerReportReader, CeTaskMessages, ScaHolder)} as an extra step for software composition analysis.
  */
 @ComputeEngineSide
 public interface ScaStepProvider {
-  ComputationStep get(ScannerReportReader reportReader, ScaHolder scaHolder);
+  ComputationStep get(ScannerReportReader reportReader, CeTaskMessages ceTaskMessages, ScaHolder scaHolder);
 }
