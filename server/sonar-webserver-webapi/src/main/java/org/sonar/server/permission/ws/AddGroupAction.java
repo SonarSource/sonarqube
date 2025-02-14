@@ -104,11 +104,11 @@ public class AddGroupAction implements PermissionsWsAction {
       }
 
       String groupName = request.mandatoryParam(PARAM_GROUP_NAME);
-      wsSupport.checkPermissionManagementAccess(userSession, entityDto, org.getUuid());
+      wsSupport.checkPermissionManagementAccess(userSession, entityDto, groupDto.getOrganizationUuid());
 
       logger.info("Grant Permission to a group: {} :: permission type: {}, organization: {}, orgId: {}, groupId: {}, user: {}",
           groupName, request.mandatoryParam(PARAM_PERMISSION), org.getKey(), org.getUuid(),
-          groupDto != null ? groupDto.getUuid() : "", userSession.getLogin());
+          groupDto.getUuid(), userSession.getLogin());
 
       GroupPermissionChange change = new GroupPermissionChange(
         Operation.ADD,
