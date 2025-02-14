@@ -416,7 +416,7 @@ public class IntegrationTest {
       underTest.callback(callbackContext);
       fail("exception expected");
     } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("Fail to execute request '" + gitHubSettings.apiURL() + "user/orgs'. HTTP code: 500, response: {error}");
+      assertThat(e.getMessage()).isEqualTo("Fail to execute request '" + gitHubSettings.apiURL() + "user/orgs?per_page=100'. HTTP code: 500, response: {error}");
     }
   }
 

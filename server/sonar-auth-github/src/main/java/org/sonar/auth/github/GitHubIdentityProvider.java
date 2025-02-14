@@ -142,7 +142,7 @@ public class GitHubIdentityProvider implements OAuth2IdentityProvider {
     context.redirectToRequestedPage();
   }
 
-  private void check(OAuth20Service scribe, OAuth2AccessToken accessToken, GsonUser user) throws IOException {
+  private void check(OAuth20Service scribe, OAuth2AccessToken accessToken, GsonUser user) {
     if (!isUserAuthorized(scribe, accessToken)) {
       String message = settings.getOrganizations().isEmpty()
         ? format("'%s' must be a member of at least one organization which has installed the SonarQube GitHub app", user.getLogin())
@@ -151,7 +151,7 @@ public class GitHubIdentityProvider implements OAuth2IdentityProvider {
     }
   }
 
-  private boolean isUserAuthorized(OAuth20Service scribe, OAuth2AccessToken accessToken) throws IOException {
+  private boolean isUserAuthorized(OAuth20Service scribe, OAuth2AccessToken accessToken) {
     Set<String> userOrganizationNames = getUserOrganizationNames(scribe, accessToken);
     if (isOrganizationMembershipRequired()) {
       return isOrganizationsMember(settings.getOrganizations(), userOrganizationNames);
@@ -165,7 +165,7 @@ public class GitHubIdentityProvider implements OAuth2IdentityProvider {
   }
 
   @NotNull
-  private Set<String> getUserOrganizationNames(OAuth20Service scribe, OAuth2AccessToken accessToken) throws IOException {
+  private Set<String> getUserOrganizationNames(OAuth20Service scribe, OAuth2AccessToken accessToken) {
     return gitHubRestClient.getUserOrganizations(scribe, accessToken).stream()
       .map(GsonOrganization::organization)
       .collect(Collectors.toSet());

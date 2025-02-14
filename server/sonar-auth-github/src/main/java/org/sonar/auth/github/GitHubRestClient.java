@@ -62,10 +62,10 @@ public class GitHubRestClient {
       .orElse(null);
   }
 
-  public List<GsonOrganization> getUserOrganizations(OAuth20Service scribe, OAuth2AccessToken accessToken) throws IOException {
-    String responseBody = executeRequest(settings.apiURL() + "user/orgs", scribe, accessToken).getBody();
-    LOGGER.info("Organizations response received : {}", responseBody);
-    return GsonOrganization.parse(responseBody);
+  public List<GsonOrganization> getUserOrganizations(OAuth20Service scribe, OAuth2AccessToken accessToken) {
+    List<GsonOrganization> gsonOrganizations = executePaginatedRequest(settings.apiURL() + "user/orgs", scribe, accessToken, GsonOrganization::parse);
+    LOGGER.trace("Organizations response received : {}", gsonOrganizations);
+    return gsonOrganizations;
   }
 
   public List<GsonTeam> getTeams(OAuth20Service scribe, OAuth2AccessToken accessToken) {
