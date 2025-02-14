@@ -26,11 +26,15 @@ import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.WsTestUtil;
 import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
+import wiremock.org.apache.hc.core5.http.HttpException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatException;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -58,6 +62,15 @@ class DefaultFeatureFlagsLoaderTest {
     WsTestUtil.verifyCall(wsClient, "/api/features/list");
 
     verifyNoMoreInteractions(wsClient);
+  }
+
+  @Test
+  void load_whenHasSomeError_shouldThrowIllegalStateException() {
+    when(wsClient.call(any())).thenThrow(MessageException.of("You're not authorized"));
+
+    assertThatException().isThrownBy(loader::load)
+      .isInstanceOf(IllegalStateException.class)
+      .withMessage("Unable to load feature flags");
   }
 
   private Reader response() {
