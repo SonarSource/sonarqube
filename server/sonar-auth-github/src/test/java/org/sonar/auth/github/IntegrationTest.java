@@ -124,10 +124,13 @@ public class IntegrationTest {
     github.enqueue(newSuccessfulAccessTokenResponse());
     // response of api.github.com/user
     github.enqueue(new MockResponse().setBody("{\"id\":\"ABCD\", \"login\":\"octocat\", \"name\":\"monalisa octocat\",\"email\":\"octocat@github.com\"}"));
-    // response of api.github.com/orgs/first_org/members/user
-    github.enqueue(new MockResponse().setResponseCode(404));
-    // response of api.github.com/orgs/second_org/members/user
-    github.enqueue(new MockResponse().setResponseCode(204));
+    // response of api.github.com/user/orgs
+    github.enqueue(new MockResponse().setBody("""
+      [
+        {
+          "login": "second_org"
+        }
+      ]"""));
 
     HttpServletRequest request = newRequest("the-verifier-code");
     DumbCallbackContext callbackContext = new DumbCallbackContext(request);
@@ -161,8 +164,13 @@ public class IntegrationTest {
     github.enqueue(newSuccessfulAccessTokenResponse());
     // response of api.github.com/user
     github.enqueue(new MockResponse().setBody("{\"id\":\"ABCD\", \"login\":\"octocat\", \"name\":\"monalisa octocat\",\"email\":null}"));
-    // response of api.github.com/orgs/first_org/members/user
-    github.enqueue(new MockResponse().setResponseCode(204));
+    // response of api.github.com/user/orgs
+    github.enqueue(new MockResponse().setBody("""
+      [
+        {
+          "login": "second_org"
+        }
+      ]"""));
     // response of api.github.com/user/emails
     github.enqueue(new MockResponse().setBody("""
       [
@@ -198,7 +206,12 @@ public class IntegrationTest {
     // response of api.github.com/user
     github.enqueue(new MockResponse().setBody("{\"id\":\"ABCD\", \"login\":\"octocat\", \"name\":\"monalisa octocat\",\"email\":null}"));
     // response of api.github.com/orgs/first_org/members/user
-    github.enqueue(new MockResponse().setResponseCode(204));
+    github.enqueue(new MockResponse().setBody("""
+      [
+        {
+          "login": "second_org"
+        }
+      ]"""));
     // response of api.github.com/user/emails
     github.enqueue(new MockResponse().setBody("[]"));
 
@@ -238,8 +251,13 @@ public class IntegrationTest {
     github.enqueue(newSuccessfulAccessTokenResponse());
     // response of api.github.com/user
     github.enqueue(new MockResponse().setBody("{\"id\":\"ABCD\", \"login\":\"octocat\", \"name\":\"monalisa octocat\",\"email\":\"octocat@github.com\"}"));
-    // response of api.github.com/orgs/first_org/members/user
-    github.enqueue(new MockResponse().setResponseCode(204));
+    // response of api.github.com/user/orgs
+    github.enqueue(new MockResponse().setBody("""
+      [
+        {
+          "login": "second_org"
+        }
+      ]"""));
     // response of api.github.com/user/teams
     github.enqueue(new MockResponse().setBody("""
       [
@@ -267,8 +285,13 @@ public class IntegrationTest {
     github.enqueue(newSuccessfulAccessTokenResponse());
     // response of api.github.com/user
     github.enqueue(new MockResponse().setBody("{\"id\":\"ABCD\", \"login\":\"octocat\", \"name\":\"monalisa octocat\",\"email\":\"octocat@github.com\"}"));
-    // response of api.github.com/orgs/first_org/members/user
-    github.enqueue(new MockResponse().setResponseCode(204));
+    // response of api.github.com/user/orgs
+    github.enqueue(new MockResponse().setBody("""
+      [
+        {
+          "login": "second_org"
+        }
+      ]"""));
     // responses of api.github.com/user/teams
     github.enqueue(new MockResponse()
       .setHeader("Link", "<" + gitHubUrl + "/user/teams?per_page=100&page=2>; rel=\"next\", <" + gitHubUrl + "/user/teams?per_page=100&page=2>; rel=\"last\"")
@@ -324,8 +347,13 @@ public class IntegrationTest {
     github.enqueue(newSuccessfulAccessTokenResponse());
     // response of api.github.com/user
     github.enqueue(new MockResponse().setBody("{\"id\":\"ABCD\", \"login\":\"octocat\", \"name\":\"monalisa octocat\",\"email\":\"octocat@github.com\"}"));
-    // response of api.github.com/orgs/example0/members/user
-    github.enqueue(new MockResponse().setResponseCode(204));
+    // response of api.github.com/user/orgs
+    github.enqueue(new MockResponse().setBody("""
+      [
+        {
+          "login": "example1"
+        }
+      ]"""));
 
     HttpServletRequest request = newRequest("the-verifier-code");
     DumbCallbackContext callbackContext = new DumbCallbackContext(request);
@@ -343,10 +371,8 @@ public class IntegrationTest {
     github.enqueue(newSuccessfulAccessTokenResponse());
     // response of api.github.com/user
     github.enqueue(new MockResponse().setBody("{\"id\":\"ABCD\", \"login\":\"octocat\", \"name\":\"monalisa octocat\",\"email\":\"octocat@github.com\"}"));
-    // response of api.github.com/orgs/first_org/members/user
-    github.enqueue(new MockResponse().setResponseCode(404).setBody("{}"));
-    // response of api.github.com/orgs/second_org/members/user
-    github.enqueue(new MockResponse().setResponseCode(404).setBody("{}"));
+    // response of api.github.com/user/orgs
+    github.enqueue(new MockResponse().setBody("[]"));
 
     HttpServletRequest request = newRequest("the-verifier-code");
     DumbCallbackContext callbackContext = new DumbCallbackContext(request);
@@ -381,7 +407,7 @@ public class IntegrationTest {
     github.enqueue(newSuccessfulAccessTokenResponse());
     // response of api.github.com/user
     github.enqueue(new MockResponse().setBody("{\"id\":\"ABCD\", \"login\":\"octocat\", \"name\":\"monalisa octocat\",\"email\":\"octocat@github.com\"}"));
-    // crash of api.github.com/orgs/example/members/user
+    // crash of api.github.com/user/orgs
     github.enqueue(new MockResponse().setResponseCode(500).setBody("{error}"));
 
     HttpServletRequest request = newRequest("the-verifier-code");
@@ -390,7 +416,7 @@ public class IntegrationTest {
       underTest.callback(callbackContext);
       fail("exception expected");
     } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("Fail to execute request '" + gitHubSettings.apiURL() + "orgs/example/members/octocat'. HTTP code: 500, response: {error}");
+      assertThat(e.getMessage()).isEqualTo("Fail to execute request '" + gitHubSettings.apiURL() + "user/orgs'. HTTP code: 500, response: {error}");
     }
   }
 

@@ -233,8 +233,7 @@ public class GitHubIdentityProviderTest {
 
     OAuth2AccessToken accessToken = mockAccessToken(scribeService, context, httpRequest, user);
 
-    when(gitHubRestClient.isOrganizationMember(scribeService, accessToken, "organization1", "login")).thenReturn(false);
-    when(gitHubRestClient.isOrganizationMember(scribeService, accessToken, "organization2", "login")).thenReturn(true);
+    when(gitHubRestClient.getUserOrganizations(scribeService, accessToken)).thenReturn(List.of(new GsonOrganization("organization2")));
 
     when(userIdentityFactory.create(user, "email", null)).thenReturn(userIdentity);
     return context;
@@ -249,8 +248,7 @@ public class GitHubIdentityProviderTest {
 
     OAuth2AccessToken accessToken = mockAccessToken(scribeService, context, httpRequest, user);
 
-    when(gitHubRestClient.isOrganizationMember(scribeService, accessToken, "organization1", "login")).thenReturn(false);
-    when(gitHubRestClient.isOrganizationMember(scribeService, accessToken, "organization2", "login")).thenReturn(false);
+    when(gitHubRestClient.getUserOrganizations(scribeService, accessToken)).thenReturn(List.of(new GsonOrganization("organization3")));
 
     when(userIdentityFactory.create(user, "email", null)).thenReturn(userIdentity);
     return context;

@@ -25,7 +25,10 @@ import com.github.scribejava.core.oauth.OAuth20Service;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
@@ -139,8 +142,8 @@ public class GitHubIdentityProvider implements OAuth2IdentityProvider {
     context.redirectToRequestedPage();
   }
 
-  private void check(OAuth20Service scribe, OAuth2AccessToken accessToken, GsonUser user) throws InterruptedException, ExecutionException, IOException {
-    if (!isUserAuthorized(scribe, accessToken, user.getLogin())) {
+  private void check(OAuth20Service scribe, OAuth2AccessToken accessToken, GsonUser user) throws IOException {
+    if (!isUserAuthorized(scribe, accessToken)) {
       String message = settings.getOrganizations().isEmpty()
         ? format("'%s' must be a member of at least one organization which has installed the SonarQube GitHub app", user.getLogin())
         : format("'%s' must be a member of at least one organization: '%s'", user.getLogin(), String.join("', '", settings.getOrganizations().stream().sorted().toList()));
@@ -148,37 +151,36 @@ public class GitHubIdentityProvider implements OAuth2IdentityProvider {
     }
   }
 
-  private boolean isUserAuthorized(OAuth20Service scribe, OAuth2AccessToken accessToken, String login) throws IOException, ExecutionException, InterruptedException {
+  private boolean isUserAuthorized(OAuth20Service scribe, OAuth2AccessToken accessToken) throws IOException {
+    Set<String> userOrganizationNames = getUserOrganizationNames(scribe, accessToken);
     if (isOrganizationMembershipRequired()) {
-      return isOrganizationsMember(scribe, accessToken, login);
+      return isOrganizationsMember(settings.getOrganizations(), userOrganizationNames);
     } else {
-      return isMemberOfInstallationOrganization(scribe, accessToken, login);
+      return isMemberOfInstallationOrganization(userOrganizationNames);
     }
+  }
+
+  private static boolean isOrganizationsMember(Set<String> organizations, Set<String> userOrganizationNames) {
+    return organizations.stream().anyMatch(userOrganizationNames::contains);
+  }
+
+  @NotNull
+  private Set<String> getUserOrganizationNames(OAuth20Service scribe, OAuth2AccessToken accessToken) throws IOException {
+    return gitHubRestClient.getUserOrganizations(scribe, accessToken).stream()
+      .map(GsonOrganization::organization)
+      .collect(Collectors.toSet());
   }
 
   private boolean isOrganizationMembershipRequired() {
     return !settings.getOrganizations().isEmpty();
   }
 
-  private boolean isOrganizationsMember(OAuth20Service scribe, OAuth2AccessToken accessToken, String login) throws IOException, ExecutionException, InterruptedException {
-    for (String organization : settings.getOrganizations()) {
-      if (gitHubRestClient.isOrganizationMember(scribe, accessToken, organization, login)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private boolean isMemberOfInstallationOrganization(OAuth20Service scribe, OAuth2AccessToken accessToken, String login)
-    throws IOException, ExecutionException, InterruptedException {
+  private boolean isMemberOfInstallationOrganization(Set<String> userOrganizationNames) {
     GithubAppConfiguration githubAppConfiguration = githubAppConfiguration();
     List<GithubAppInstallation> githubAppInstallations = githubAppClient.getWhitelistedGithubAppInstallations(githubAppConfiguration);
-    for (GithubAppInstallation installation : githubAppInstallations) {
-      if (gitHubRestClient.isOrganizationMember(scribe, accessToken, installation.organizationName(), login)) {
-        return true;
-      }
-    }
-    return false;
+    return githubAppInstallations.stream()
+      .map(GithubAppInstallation::organizationName)
+      .anyMatch(userOrganizationNames::contains);
   }
 
   private GithubAppConfiguration githubAppConfiguration() {

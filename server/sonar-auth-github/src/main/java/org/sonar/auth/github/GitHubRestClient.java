@@ -62,36 +62,13 @@ public class GitHubRestClient {
       .orElse(null);
   }
 
+  public List<GsonOrganization> getUserOrganizations(OAuth20Service scribe, OAuth2AccessToken accessToken) throws IOException {
+    String responseBody = executeRequest(settings.apiURL() + "user/orgs", scribe, accessToken).getBody();
+    LOGGER.info("Organizations response received : {}", responseBody);
+    return GsonOrganization.parse(responseBody);
+  }
+
   public List<GsonTeam> getTeams(OAuth20Service scribe, OAuth2AccessToken accessToken) {
     return executePaginatedRequest(settings.apiURL() + "user/teams", scribe, accessToken, GsonTeam::parse);
-  }
-
-  /**
-   * Check to see that login is a member of organization.
-   *
-   * A 204 response code indicates organization membership.  302 and 404 codes are not treated as exceptional,
-   * they indicate various ways in which a login is not a member of the organization.
-   *
-   * @see <a href="https://developer.github.com/v3/orgs/members/#response-if-requester-is-an-organization-member-and-user-is-a-member">GitHub members API</a>
-   */
-  public boolean isOrganizationMember(OAuth20Service scribe, OAuth2AccessToken accessToken, String organization, String login)
-    throws IOException, ExecutionException, InterruptedException {
-    String requestUrl = settings.apiURL() + format("orgs/%s/members/%s", organization, login);
-    OAuthRequest request = new OAuthRequest(Verb.GET, requestUrl);
-    scribe.signRequest(accessToken, request);
-
-    Response response = scribe.execute(request);
-    int code = response.getCode();
-    switch (code) {
-      case HttpURLConnection.HTTP_MOVED_TEMP, HttpURLConnection.HTTP_NOT_FOUND, HttpURLConnection.HTTP_NO_CONTENT:
-        LOGGER.trace("Orgs response received : {}", code);
-        return code == HttpURLConnection.HTTP_NO_CONTENT;
-      default:
-        throw unexpectedResponseCode(requestUrl, response);
-    }
-  }
-
-  private static IllegalStateException unexpectedResponseCode(String requestUrl, Response response) throws IOException {
-    return new IllegalStateException(format("Fail to execute request '%s'. HTTP code: %s, response: %s", requestUrl, response.getCode(), response.getBody()));
   }
 }
