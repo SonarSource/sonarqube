@@ -3,16 +3,11 @@
 <mapper namespace="org.sonar.db.sca.ScaDependenciesMapper">
   <sql id="scaDependenciesColumns">
     sd.uuid as uuid,
-    sd.component_uuid as componentUuid,
-    sd.package_url as packageUrl,
-    sd.package_manager as packageManager,
-    sd.package_name as packageName,
-    sd.version as version,
+    sd.sca_release_uuid as scaReleaseUuid,
     sd.direct as direct,
     sd.scope as scope,
-    sd.dependency_file_path as dependencyFilePath,
-    sd.license_expression as licenseExpression,
-    sd.known as known,
+    sd.user_dependency_file_path as userDependencyFilePath,
+    sd.lockfile_dependency_file_path as lockfileDependencyFilePath,
     sd.created_at as createdAt,
     sd.updated_at as updatedAt
   </sql>
@@ -20,30 +15,20 @@
   <insert id="insert" parameterType="org.sonar.db.sca.ScaDependencyDto" useGeneratedKeys="false">
     insert into sca_dependencies (
       uuid,
-      component_uuid,
-      package_url,
-      package_manager,
-      package_name,
-      version,
+      sca_release_uuid,
       direct,
       scope,
-      dependency_file_path,
-      license_expression,
-      known,
+      user_dependency_file_path,
+      lockfile_dependency_file_path,
       created_at,
       updated_at
     ) values (
       #{uuid,jdbcType=VARCHAR},
-      #{componentUuid,jdbcType=VARCHAR},
-      #{packageUrl,jdbcType=VARCHAR},
-      #{packageManager,jdbcType=VARCHAR},
-      #{packageName,jdbcType=VARCHAR},
-      #{version,jdbcType=VARCHAR},
+      #{scaReleaseUuid,jdbcType=VARCHAR},
       #{direct,jdbcType=BOOLEAN},
       #{scope,jdbcType=VARCHAR},
-      #{dependencyFilePath,jdbcType=VARCHAR},
-      #{licenseExpression,jdbcType=VARCHAR},
-      #{known,jdbcType=BOOLEAN},
+      #{userDependencyFilePath,jdbcType=VARCHAR},
+      #{lockfileDependencyFilePath,jdbcType=VARCHAR},
       #{createdAt,jdbcType=BIGINT},
       #{updatedAt,jdbcType=BIGINT}
     )
@@ -63,14 +48,15 @@
   <select id="selectByBranchUuid" parameterType="string" resultType="org.sonar.db.sca.ScaDependencyDto">
     select <include refid="scaDependenciesColumns"/>
     from sca_dependencies sd
-    inner join components c on sd.component_uuid = c.uuid
+    inner join sca_releases sr on sd.sca_release_uuid = sr.uuid
+    inner join components c on sr.component_uuid = c.uuid
     where c.branch_uuid = #{branchUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.sca.ScaDependencyDto">
     select <include refid="scaDependenciesColumns"/>
     <include refid="sqlSelectByQuery" />
-    ORDER BY sd.created_at ASC
+    ORDER BY sd.uuid ASC
     <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
@@ -81,19 +67,20 @@
 
   <sql id="sqlSelectByQuery">
     from sca_dependencies sd
-    inner join components c on sd.component_uuid = c.uuid
+    inner join sca_releases sr on sd.sca_release_uuid = sr.uuid
+    inner join components c on sr.component_uuid = c.uuid
     where c.branch_uuid = #{query.branchUuid,jdbcType=VARCHAR}
     <if test="query.direct != null">
       AND sd.direct = #{query.direct,jdbcType=BOOLEAN}
     </if>
     <if test="query.packageManagers != null and !query.packageManagers.isEmpty()">
-      AND sd.package_manager IN
+      AND sr.package_manager IN
       <foreach collection="query.packageManagers" open="(" close=")" item="packageManager" separator=",">
         #{packageManager,jdbcType=VARCHAR}
       </foreach>
     </if>
     <if test="query.query() != null">
-      AND lower(sd.package_name) LIKE #{query.likeQuery} ESCAPE '/'
+      AND lower(sr.package_name) LIKE #{query.likeQuery} ESCAPE '/'
     </if>
   </sql>
 
@@ -101,16 +88,11 @@
     update sca_dependencies
     set
       uuid = #{uuid, jdbcType=VARCHAR},
-      component_uuid = #{componentUuid, jdbcType=VARCHAR},
-      package_url = #{packageUrl, jdbcType=VARCHAR},
-      package_manager = #{packageManager, jdbcType=VARCHAR},
-      package_name = #{packageName, jdbcType=VARCHAR},
-      version = #{version, jdbcType=VARCHAR},
+      sca_release_uuid = #{scaReleaseUuid, jdbcType=VARCHAR},
       direct = #{direct, jdbcType=BOOLEAN},
       scope = #{scope, jdbcType=VARCHAR},
-      dependency_file_path = #{dependencyFilePath, jdbcType=VARCHAR},
-      license_expression = #{licenseExpression, jdbcType=VARCHAR},
-      known = #{known, jdbcType=BOOLEAN},
+      user_dependency_file_path = #{userDependencyFilePath, jdbcType=VARCHAR},
+      lockfile_dependency_file_path = #{lockfileDependencyFilePath, jdbcType=VARCHAR},
       updated_at = #{updatedAt, jdbcType=BIGINT}
     where
       uuid = #{uuid, jdbcType=VARCHAR}

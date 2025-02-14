@@ -31,25 +31,27 @@ import static java.sql.Types.VARCHAR;
 import static org.sonar.db.MigrationDbTester.createForMigrationStep;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 
-class CreateScaDependenciesTableIT {
-  private static final String TABLE_NAME = "sca_dependencies";
+class CreateScaReleasesTableIT {
+  private static final String TABLE_NAME = "sca_releases";
 
   @RegisterExtension
-  public final MigrationDbTester db = createForMigrationStep(CreateScaDependenciesTable.class);
-  private final DdlChange underTest = new CreateScaDependenciesTable(db.database());
+  public final MigrationDbTester db = createForMigrationStep(CreateScaReleasesTable.class);
+  private final DdlChange underTest = new CreateScaReleasesTable(db.database());
 
   @Test
   void execute_shouldCreateTable() throws SQLException {
     db.assertTableDoesNotExist(TABLE_NAME);
     underTest.execute();
     db.assertTableExists(TABLE_NAME);
-    db.assertPrimaryKey(TABLE_NAME, "pk_sca_dependencies", "uuid");
+    db.assertPrimaryKey(TABLE_NAME, "pk_sca_releases", "uuid");
     db.assertColumnDefinition(TABLE_NAME, "uuid", VARCHAR, UUID_SIZE, false);
-    db.assertColumnDefinition(TABLE_NAME, "sca_release_uuid", VARCHAR, UUID_SIZE, false);
-    db.assertColumnDefinition(TABLE_NAME, "direct", BOOLEAN, null, false);
-    db.assertColumnDefinition(TABLE_NAME, "scope", VARCHAR, 100, false);
-    db.assertColumnDefinition(TABLE_NAME, "user_dependency_file_path", VARCHAR, 1000, true);
-    db.assertColumnDefinition(TABLE_NAME, "lockfile_dependency_file_path", VARCHAR, 1000, true);
+    db.assertColumnDefinition(TABLE_NAME, "component_uuid", VARCHAR, UUID_SIZE, false);
+    db.assertColumnDefinition(TABLE_NAME, "package_url", VARCHAR, 400, false);
+    db.assertColumnDefinition(TABLE_NAME, "package_manager", VARCHAR, 20, false);
+    db.assertColumnDefinition(TABLE_NAME, "package_name", VARCHAR, 400, false);
+    db.assertColumnDefinition(TABLE_NAME, "version", VARCHAR, 400, false);
+    db.assertColumnDefinition(TABLE_NAME, "license_expression", VARCHAR, 400, false);
+    db.assertColumnDefinition(TABLE_NAME, "known", BOOLEAN, null, false);
     db.assertColumnDefinition(TABLE_NAME, "created_at", BIGINT, null, false);
     db.assertColumnDefinition(TABLE_NAME, "updated_at", BIGINT, null, false);
   }

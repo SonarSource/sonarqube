@@ -57,6 +57,7 @@ import org.sonar.db.qualitygate.QualityGateDbTester;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.rule.RuleDbTester;
 import org.sonar.db.sca.ScaDependenciesDbTester;
+import org.sonar.db.sca.ScaReleasesDbTester;
 import org.sonar.db.source.FileSourceTester;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.webhook.WebhookDbTester;
@@ -98,6 +99,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEach
   private final AuditDbTester auditDbTester;
   private final AnticipatedTransitionDbTester anticipatedTransitionDbTester;
   private final ScaDependenciesDbTester scaDependenciesDbTester;
+  private final ScaReleasesDbTester scaReleasesDbTester;
 
   private DbTester(UuidFactory uuidFactory, System2 system2, @Nullable String schemaPath, AuditPersister auditPersister, MyBatisConfExtension... confExtensions) {
     super(TestDbImpl.create(schemaPath, confExtensions));
@@ -131,6 +133,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEach
     this.auditDbTester = new AuditDbTester(this);
     this.anticipatedTransitionDbTester = new AnticipatedTransitionDbTester(this);
     this.scaDependenciesDbTester = new ScaDependenciesDbTester(this);
+    this.scaReleasesDbTester = new ScaReleasesDbTester(this);
   }
 
   public static DbTester create() {
@@ -280,6 +283,10 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEach
 
   public ScaDependenciesDbTester getScaDependenciesDbTester() {
     return scaDependenciesDbTester;
+  }
+
+  public ScaReleasesDbTester getScaReleasesDbTester() {
+    return scaReleasesDbTester;
   }
 
   @Override

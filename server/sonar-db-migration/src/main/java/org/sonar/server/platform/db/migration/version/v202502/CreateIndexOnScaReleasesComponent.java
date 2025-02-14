@@ -26,14 +26,14 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class CreateIndexOnScaDependenciesComponent extends DdlChange {
+public class CreateIndexOnScaReleasesComponent extends DdlChange {
 
-  static final String TABLE_NAME = "sca_dependencies";
+  static final String TABLE_NAME = "sca_releases";
   // abbreviated for 30 char limit
-  static final String INDEX_NAME = "sca_deps_component_uuid";
+  static final String INDEX_NAME = "sca_releases_comp_uuid";
   static final String COLUMN_NAME_COMPONENT_UUID = "component_uuid";
 
-  public CreateIndexOnScaDependenciesComponent(Database db) {
+  public CreateIndexOnScaReleasesComponent(Database db) {
     super(db);
   }
 

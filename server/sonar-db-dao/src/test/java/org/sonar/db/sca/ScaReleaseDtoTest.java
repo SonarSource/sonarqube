@@ -23,37 +23,20 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-class ScaDependencyDtoTest {
+class ScaReleaseDtoTest {
 
   @Test
   void test_toBuilder_build_shouldRoundTrip() {
-    var scaDependencyDto = new ScaDependencyDto("scaDependencyUuid",
-      "scaReleaseUuid",
+    var scaReleaseDto = new ScaReleaseDto("scaReleaseUuid",
+      "componentUuid",
+      "packageUrl",
+      PackageManager.MAVEN,
+      "foo:bar",
+      "1.0.0",
+      "MIT",
       true,
-      "compile",
-      "some/path",
-      "another/path",
       1L,
       2L);
-    assertThat(scaDependencyDto).isEqualTo(scaDependencyDto.toBuilder().build());
-  }
-
-  @Test
-  void test_primaryDependencyFilePath() {
-    ScaDependencyDto withUserDependencyFilePath = newScaDependencyDto("manifest");
-    assertThat(withUserDependencyFilePath.primaryDependencyFilePath()).isEqualTo("manifest");
-    ScaDependencyDto withoutUserDependencyFilePath = newScaDependencyDto(null);
-    assertThat(withoutUserDependencyFilePath.primaryDependencyFilePath()).isEqualTo("lockfileDependencyFilePath");
-  }
-
-  private ScaDependencyDto newScaDependencyDto(String userDependencyFilePath) {
-    return new ScaDependencyDto("dependencyUuid",
-      "scaReleaseUuid",
-      true,
-      "compile",
-      userDependencyFilePath,
-      "lockfileDependencyFilePath",
-      1L,
-      2L);
+    assertThat(scaReleaseDto).isEqualTo(scaReleaseDto.toBuilder().build());
   }
 }

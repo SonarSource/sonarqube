@@ -89,6 +89,7 @@ import org.sonar.db.rule.RuleChangeDao;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleRepositoryDao;
 import org.sonar.db.sca.ScaDependenciesDao;
+import org.sonar.db.sca.ScaReleasesDao;
 import org.sonar.db.scannercache.ScannerAnalysisCacheDao;
 import org.sonar.db.schemamigration.SchemaMigrationDao;
 import org.sonar.db.scim.ScimGroupDao;
@@ -186,6 +187,7 @@ public class DaoModule extends Module {
     RuleRepositoryDao.class,
     SamlMessageIdDao.class,
     ScaDependenciesDao.class,
+    ScaReleasesDao.class,
     ScannerAnalysisCacheDao.class,
     SchemaMigrationDao.class,
     ScimGroupDao.class,

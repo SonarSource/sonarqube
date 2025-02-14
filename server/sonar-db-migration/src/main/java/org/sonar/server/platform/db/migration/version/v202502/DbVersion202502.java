@@ -39,7 +39,9 @@ public class DbVersion202502 implements DbVersion {
       .add(2025_02_000, "Drop 'issues_dependency' table", DropIssuesDependencyTable.class)
       .add(2025_02_001, "Drop 'cve_cwe' table", DropCveCweTable.class)
       .add(2025_02_002, "Drop 'cves' table", DropCvesTable.class)
-      .add(2025_02_003, "Create table for SCA dependencies", CreateScaDependenciesTable.class)
-      .add(2025_02_004, "Create index for SCA dependencies component", CreateIndexOnScaDependenciesComponent.class);
+      .add(2025_02_003, "Create table for SCA releases", CreateScaReleasesTable.class)
+      .add(2025_02_004, "Create index for SCA releases component", CreateIndexOnScaReleasesComponent.class)
+      .add(2025_02_005, "Create table for SCA dependencies", CreateScaDependenciesTable.class)
+      .add(2025_02_006, "Create index for SCA dependencies to releases", CreateIndexOnScaDependenciesRelease.class);
   }
 }

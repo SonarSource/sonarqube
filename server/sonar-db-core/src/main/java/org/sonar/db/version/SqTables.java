@@ -108,6 +108,7 @@ public final class SqTables {
     "rules_profiles",
     "rule_repositories",
     "sca_dependencies",
+    "sca_releases",
     "scanner_analysis_cache",
     "schema_migrations",
     "scim_groups",

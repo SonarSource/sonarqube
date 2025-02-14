@@ -19,16 +19,25 @@
  */
 package org.sonar.db.sca;
 
-import org.junit.jupiter.api.Test;
+import java.util.Collection;
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+import org.sonar.db.Pagination;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public interface ScaReleasesMapper {
+  void insert(ScaReleaseDto dto);
 
-class PackageManagerTest {
+  void deleteByUuid(String uuid);
 
-  @Test
-  void test_namesAreShortEnough() {
-    for (PackageManager packageManager : PackageManager.values()) {
-      assertThat(packageManager.name().length()).isLessThanOrEqualTo(ScaReleaseDto.PACKAGE_MANAGER_MAX_LENGTH);
-    }
-  }
+  ScaReleaseDto selectByUuid(String uuid);
+
+  List<ScaReleaseDto> selectByUuids(Collection<String> uuids);
+
+  List<ScaReleaseDto> selectByBranchUuid(String branchUuid);
+
+  List<ScaReleaseDto> selectByQuery(@Param("query") ScaReleasesQuery query, @Param("pagination") Pagination pagination);
+
+  void update(ScaReleaseDto dto);
+
+  int countByQuery(@Param("query") ScaReleasesQuery query);
 }

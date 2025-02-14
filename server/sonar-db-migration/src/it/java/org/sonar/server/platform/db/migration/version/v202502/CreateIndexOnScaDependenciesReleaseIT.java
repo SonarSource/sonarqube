@@ -26,21 +26,20 @@ import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.db.MigrationDbTester.createForMigrationStep;
+import static org.sonar.server.platform.db.migration.version.v202502.CreateIndexOnScaDependenciesRelease.COLUMN_NAME_SCA_RELEASE_UUID;
+import static org.sonar.server.platform.db.migration.version.v202502.CreateIndexOnScaDependenciesRelease.INDEX_NAME;
+import static org.sonar.server.platform.db.migration.version.v202502.CreateIndexOnScaDependenciesRelease.TABLE_NAME;
 
-import static org.sonar.server.platform.db.migration.version.v202502.CreateIndexOnScaDependenciesComponent.COLUMN_NAME_COMPONENT_UUID;
-import static org.sonar.server.platform.db.migration.version.v202502.CreateIndexOnScaDependenciesComponent.INDEX_NAME;
-import static org.sonar.server.platform.db.migration.version.v202502.CreateIndexOnScaDependenciesComponent.TABLE_NAME;
-
-class CreateIndexOnScaDependenciesComponentIT {
+class CreateIndexOnScaDependenciesReleaseIT {
   @RegisterExtension
-  public final MigrationDbTester db = createForMigrationStep(CreateIndexOnScaDependenciesComponent.class);
-  private final DdlChange underTest = new CreateIndexOnScaDependenciesComponent(db.database());
+  public final MigrationDbTester db = createForMigrationStep(CreateIndexOnScaDependenciesRelease.class);
+  private final DdlChange underTest = new CreateIndexOnScaDependenciesRelease(db.database());
 
   @Test
   void execute_shouldCreateIndex() throws SQLException {
     db.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
     underTest.execute();
-    db.assertIndex(TABLE_NAME, INDEX_NAME, COLUMN_NAME_COMPONENT_UUID);
+    db.assertIndex(TABLE_NAME, INDEX_NAME, COLUMN_NAME_SCA_RELEASE_UUID);
   }
 
   @Test
@@ -48,6 +47,6 @@ class CreateIndexOnScaDependenciesComponentIT {
     db.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
     underTest.execute();
     underTest.execute();
-    db.assertIndex(TABLE_NAME, INDEX_NAME, COLUMN_NAME_COMPONENT_UUID);
+    db.assertIndex(TABLE_NAME, INDEX_NAME, COLUMN_NAME_SCA_RELEASE_UUID);
   }
 }

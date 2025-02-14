@@ -19,41 +19,34 @@
  */
 package org.sonar.db.sca;
 
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
-class ScaDependencyDtoTest {
-
-  @Test
-  void test_toBuilder_build_shouldRoundTrip() {
-    var scaDependencyDto = new ScaDependencyDto("scaDependencyUuid",
-      "scaReleaseUuid",
-      true,
-      "compile",
-      "some/path",
-      "another/path",
-      1L,
-      2L);
-    assertThat(scaDependencyDto).isEqualTo(scaDependencyDto.toBuilder().build());
-  }
+class ScaDependencyReleaseDtoTest {
 
   @Test
   void test_primaryDependencyFilePath() {
-    ScaDependencyDto withUserDependencyFilePath = newScaDependencyDto("manifest");
-    assertThat(withUserDependencyFilePath.primaryDependencyFilePath()).isEqualTo("manifest");
-    ScaDependencyDto withoutUserDependencyFilePath = newScaDependencyDto(null);
-    assertThat(withoutUserDependencyFilePath.primaryDependencyFilePath()).isEqualTo("lockfileDependencyFilePath");
+    ScaDependencyReleaseDto withUserDependencyFilePath = newScaDependencyReleaseDto("manifest");
+    assertEquals("manifest", withUserDependencyFilePath.primaryDependencyFilePath());
+    ScaDependencyReleaseDto withoutUserDependencyFilePath = newScaDependencyReleaseDto(null);
+    assertEquals("lockfileDependencyFilePath", withoutUserDependencyFilePath.primaryDependencyFilePath());
   }
 
-  private ScaDependencyDto newScaDependencyDto(String userDependencyFilePath) {
-    return new ScaDependencyDto("dependencyUuid",
-      "scaReleaseUuid",
+  private ScaDependencyReleaseDto newScaDependencyReleaseDto(@Nullable String userDependencyFilePath) {
+    return new ScaDependencyReleaseDto("dependencyUuid",
+      "releaseUuid",
+      "componentUuid",
       true,
-      "compile",
+      "scope",
       userDependencyFilePath,
       "lockfileDependencyFilePath",
-      1L,
-      2L);
+      "packageUrl",
+      PackageManager.MAVEN,
+      "packageName",
+      "version",
+      "licenseExpression",
+      true);
   }
 }

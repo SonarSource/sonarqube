@@ -89,6 +89,7 @@ import org.sonar.db.rule.RuleChangeDao;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleRepositoryDao;
 import org.sonar.db.sca.ScaDependenciesDao;
+import org.sonar.db.sca.ScaReleasesDao;
 import org.sonar.db.scannercache.ScannerAnalysisCacheDao;
 import org.sonar.db.schemamigration.SchemaMigrationDao;
 import org.sonar.db.scim.ScimGroupDao;
@@ -201,6 +202,7 @@ public class DbClient {
   private final ProjectExportDao projectExportDao;
   private final IssueFixedDao issueFixedDao;
   private final TelemetryMetricsSentDao telemetryMetricsSentDao;
+  private final ScaReleasesDao scaReleasesDao;
   private final ScaDependenciesDao scaDependenciesDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
@@ -298,6 +300,7 @@ public class DbClient {
     projectExportDao = getDao(map, ProjectExportDao.class);
     issueFixedDao = getDao(map, IssueFixedDao.class);
     telemetryMetricsSentDao = getDao(map, TelemetryMetricsSentDao.class);
+    scaReleasesDao = getDao(map, ScaReleasesDao.class);
     scaDependenciesDao = getDao(map, ScaDependenciesDao.class);
   }
 
@@ -661,6 +664,10 @@ public class DbClient {
 
   public ProjectExportDao projectExportDao() {
     return projectExportDao;
+  }
+
+  public ScaReleasesDao scaReleasesDao() {
+    return scaReleasesDao;
   }
 
   public ScaDependenciesDao scaDependenciesDao() {

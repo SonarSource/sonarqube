@@ -19,18 +19,31 @@
  */
 package org.sonar.ce.common.sca;
 
+import java.util.Collection;
 import java.util.List;
 import org.sonar.db.sca.ScaDependencyDto;
+import org.sonar.db.sca.ScaReleaseDto;
 
 public interface ScaHolder {
-  void setDependencies(List<ScaDependencyDto> dependencies);
+  void setDependencies(Collection<ScaDependencyDto> dependencies);
 
   /**
    * Get the dependencies of this ScaHolder. This is an error
    * to call if dependencyAnalysisPresent() returns false.
+   * 
    * @return the dependencies found by the analysis
    */
   List<ScaDependencyDto> getDependencies();
+
+  void setReleases(Collection<ScaReleaseDto> releases);
+
+  /**
+   * Get the releases of this ScaHolder. This is an error
+   * to call if dependencyAnalysisPresent() returns false.
+   *
+   * @return the releases found by the analysis
+   */
+  List<ScaReleaseDto> getReleases();
 
   /**
    * Returns true if we were able to analyze dependencies.

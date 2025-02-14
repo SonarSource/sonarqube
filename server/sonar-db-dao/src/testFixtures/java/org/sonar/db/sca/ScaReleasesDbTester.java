@@ -23,11 +23,11 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 
-public class ScaDependenciesDbTester {
+public class ScaReleasesDbTester {
   private final DbTester db;
   private final DbClient dbClient;
 
-  public ScaDependenciesDbTester(DbTester db) {
+  public ScaReleasesDbTester(DbTester db) {
     this.db = db;
     this.dbClient = db.getDbClient();
   }
@@ -45,31 +45,34 @@ public class ScaDependenciesDbTester {
     return componentDto;
   }
 
-  public ScaDependencyDto newScaDependencyDto(String componentUuid, String scaReleaseUuid, String suffix, boolean direct) {
-    long now = System.currentTimeMillis();
-      return new ScaDependencyDto("scaDependencyUuid" + suffix,
-        scaReleaseUuid,
-        direct,
-        "compile",
-        "pom.xml",
-        "package-lock.json",
-        now,
-        now
-      );
+  public ScaReleaseDto insertScaRelease(String componentUuid, String suffix) {
+    return insertScaRelease(componentUuid, suffix, PackageManager.MAVEN, "packageName" + suffix);
   }
 
-  public ScaDependencyDto insertScaDependency(String componentUuid, String scaReleaseUuid, String suffix, boolean direct) {
-    ScaDependencyDto scaDependencyDto = newScaDependencyDto(componentUuid, scaReleaseUuid, suffix, direct);
-    dbClient.scaDependenciesDao().insert(db.getSession(), scaDependencyDto);
-    return scaDependencyDto;
+  public ScaReleaseDto insertScaRelease(String componentUuid, String suffix, PackageManager packageManager, String packageName) {
+    var scaReleaseDto = new ScaReleaseDto("scaReleaseUuid" + suffix,
+      componentUuid,
+      "packageUrl" + suffix,
+      packageManager,
+      packageName,
+      "1.0.0-" + suffix,
+      "MIT",
+      true,
+      1L,
+      2L);
+    dbClient.scaReleasesDao().insert(db.getSession(), scaReleaseDto);
+    return scaReleaseDto;
   }
 
-  public ScaDependencyDto insertScaDependency(String componentUuid, ScaReleaseDto scaReleaseDto, String suffix, boolean direct) {
-    return insertScaDependency(componentUuid, scaReleaseDto.uuid(), suffix, direct);
-  }
-
-  public ScaDependencyDto insertScaDependencyWithRelease(String componentUuid, String suffix, boolean direct, PackageManager packageManager, String packageName) {
-    var scaReleaseDto = db.getScaReleasesDbTester().insertScaRelease(componentUuid, suffix, packageManager, packageName);
-    return insertScaDependency(componentUuid, scaReleaseDto.uuid(), suffix, direct);
+  /**
+   * Inserts a release and also dependencyCount sca_dependencies that depend on that release.
+   */
+  public ScaReleaseDto insertScaReleaseWithDependency(String componentUuid, String suffix, int dependencyCount, boolean direct, PackageManager packageManager, String packageName) {
+    var scaReleaseDto = insertScaRelease(componentUuid, suffix, packageManager, packageName);
+    while (dependencyCount > 0) {
+      db.getScaDependenciesDbTester().insertScaDependency(componentUuid, scaReleaseDto, suffix + "-" + dependencyCount, direct);
+      dependencyCount--;
+    }
+    return scaReleaseDto;
   }
 }

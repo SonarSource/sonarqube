@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.db.sca.ScaReleasesMapper">
+  <sql id="scaReleasesColumns">
+    sr.uuid as uuid,
+    sr.component_uuid as componentUuid,
+    sr.package_url as packageUrl,
+    sr.package_manager as packageManager,
+    sr.package_name as packageName,
+    sr.version as version,
+    sr.license_expression as licenseExpression,
+    sr.known as known,
+    sr.created_at as createdAt,
+    sr.updated_at as updatedAt
+  </sql>
+
+  <insert id="insert" parameterType="org.sonar.db.sca.ScaReleaseDto" useGeneratedKeys="false">
+    insert into sca_releases (
+      uuid,
+      component_uuid,
+      package_url,
+      package_manager,
+      package_name,
+      version,
+      license_expression,
+      known,
+      created_at,
+      updated_at
+    ) values (
+      #{uuid,jdbcType=VARCHAR},
+      #{componentUuid,jdbcType=VARCHAR},
+      #{packageUrl,jdbcType=VARCHAR},
+      #{packageManager,jdbcType=VARCHAR},
+      #{packageName,jdbcType=VARCHAR},
+      #{version,jdbcType=VARCHAR},
+      #{licenseExpression,jdbcType=VARCHAR},
+      #{known,jdbcType=BOOLEAN},
+      #{createdAt,jdbcType=BIGINT},
+      #{updatedAt,jdbcType=BIGINT}
+    )
+  </insert>
+
+  <delete id="deleteByUuid" parameterType="string">
+    delete from sca_releases
+    where uuid = #{uuid,jdbcType=VARCHAR}
+  </delete>
+
+  <select id="selectByUuid" parameterType="string" resultType="org.sonar.db.sca.ScaReleaseDto">
+    select <include refid="scaReleasesColumns"/>
+    from sca_releases sr
+    where sr.uuid = #{uuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByUuids" parameterType="string" resultType="org.sonar.db.sca.ScaReleaseDto">
+    select <include refid="scaReleasesColumns"/>
+    from sca_releases sr
+    <if test="arg0.isEmpty()">
+      where 1=0
+    </if>
+    <if test="!arg0.isEmpty()">
+      where sr.uuid in
+      <foreach collection="collection" item="uuid" open="(" close=")" separator=",">
+        #{uuid, jdbcType=VARCHAR}
+      </foreach>
+    </if>
+  </select>
+
+  <select id="selectByBranchUuid" parameterType="string" resultType="org.sonar.db.sca.ScaReleaseDto">
+    select <include refid="scaReleasesColumns"/>
+    from sca_releases sr
+    inner join components c on sr.component_uuid = c.uuid
+    where c.branch_uuid = #{branchUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.sca.ScaReleaseDto">
+    select <include refid="scaReleasesColumns"/>
+    <include refid="sqlSelectByQuery"/>
+    ORDER BY sr.uuid ASC
+    <include refid="org.sonar.db.common.Common.pagination"/>
+  </select>
+
+  <select id="countByQuery" resultType="int">
+    select count(sr.uuid)
+    <include refid="sqlSelectByQuery"/>
+  </select>
+
+  <sql id="sqlSelectByQuery">
+    from sca_releases sr
+    inner join components c on sr.component_uuid = c.uuid
+    where c.branch_uuid = #{query.branchUuid,jdbcType=VARCHAR}
+    <if test="query.direct != null">
+      <!-- we only want each sca_releases row once, so this isn't a join. -->
+      AND exists (select 1 from sca_dependencies sd where sd.sca_release_uuid = sr.uuid and sd.direct = #{query.direct,jdbcType=BOOLEAN})
+    </if>
+    <if test="query.packageManagers != null and !query.packageManagers.isEmpty()">
+      AND sr.package_manager IN
+      <foreach collection="query.packageManagers" open="(" close=")" item="packageManager" separator=",">
+        #{packageManager,jdbcType=VARCHAR}
+      </foreach>
+    </if>
+    <if test="query.query() != null">
+      AND lower(sr.package_name) LIKE #{query.likeQuery} ESCAPE '/'
+    </if>
+  </sql>
+
+  <update id="update" parameterType="org.sonar.db.sca.ScaReleaseDto" useGeneratedKeys="false">
+    update sca_releases
+    set
+      uuid = #{uuid, jdbcType=VARCHAR},
+      component_uuid = #{componentUuid, jdbcType=VARCHAR},
+      package_url = #{packageUrl, jdbcType=VARCHAR},
+      package_manager = #{packageManager, jdbcType=VARCHAR},
+      package_name = #{packageName, jdbcType=VARCHAR},
+      version = #{version, jdbcType=VARCHAR},
+      license_expression = #{licenseExpression, jdbcType=VARCHAR},
+      known = #{known, jdbcType=BOOLEAN},
+      updated_at = #{updatedAt, jdbcType=BIGINT}
+    where
+      uuid = #{uuid, jdbcType=VARCHAR}
+  </update>
+</mapper>

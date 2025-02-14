@@ -19,77 +19,75 @@
  */
 package org.sonar.db.sca;
 
+import javax.annotation.Nullable;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Represents a Software Composition Analysis (SCA) dependency, associated with a component.
  * The component will be a package component nested inside a project branch component.
  *
- * @param uuid                         primary key
- * @param componentUuid                the component the dependency is associated with
- * @param packageUrl                   package URL following the PURL specification
- * @param packageManager               package manager e.g. PYPI
- * @param packageName                  package name e.g. "urllib3"
- * @param version                      package version e.g. "1.25.6"
- * @param direct                       is this a direct dependency of the project
- * @param scope                        the scope of the dependency e.g. "development"
- * @param dependencyFilePath           path to the file where the dependency was found, preferring the "manifest" to the "lockfile"
- * @param licenseExpression            an SPDX license expression (NOT a single license, can have parens/AND/OR)
- * @param known                        is this package and version known to Sonar (if not it be internal, could be malicious, could be from a weird repo)
- * @param createdAt                    timestamp of creation
- * @param updatedAt                    timestamp of most recent update
+ * One of userDependencyFilePath or lockfileDependencyFilePath should not be null.
+ *
+ * A dependency is a "mention" of a release in a project, with a scope and a specific
+ * dependency file that it was mentioned in.
+ *
+ * @param uuid                       primary key
+ * @param scaReleaseUuid             the UUID of the SCA release that this dependency refers to
+ * @param direct                     is this a direct dependency of the project
+ * @param scope                      the scope of the dependency e.g. "development"
+ * @param userDependencyFilePath     path to the user-editable file where the dependency was found ("manifest") e.g. package.json
+ * @param lockfileDependencyFilePath path to the machine-maintained lockfile where the dependency was found e.g. package-lock.json
+ * @param createdAt                  timestamp of creation
+ * @param updatedAt                  timestamp of most recent update
  */
 public record ScaDependencyDto(
   String uuid,
-  String componentUuid,
-  String packageUrl,
-  PackageManager packageManager,
-  String packageName,
-  String version,
+  String scaReleaseUuid,
   boolean direct,
   String scope,
-  String dependencyFilePath,
-  String licenseExpression,
-  boolean known,
+  @Nullable String userDependencyFilePath,
+  @Nullable String lockfileDependencyFilePath,
   long createdAt,
   long updatedAt) {
 
   // These need to be in sync with the database but because the db migration module and this module don't
   // depend on each other, we can't make one just refer to the other.
-  public static final int PACKAGE_URL_MAX_LENGTH = 400;
-  public static final int PACKAGE_MANAGER_MAX_LENGTH = 20;
-  public static final int PACKAGE_NAME_MAX_LENGTH = 400;
-  public static final int VERSION_MAX_LENGTH = 400;
   public static final int SCOPE_MAX_LENGTH = 100;
   public static final int DEPENDENCY_FILE_PATH_MAX_LENGTH = 1000;
-  public static final int LICENSE_EXPRESSION_MAX_LENGTH = 400;
 
   public ScaDependencyDto {
     // We want these to raise errors and not silently put junk values in the db
-    checkLength(packageUrl, PACKAGE_URL_MAX_LENGTH, "packageUrl");
-    checkLength(packageName, PACKAGE_NAME_MAX_LENGTH, "packageName");
-    checkLength(version, VERSION_MAX_LENGTH, "version");
     checkLength(scope, SCOPE_MAX_LENGTH, "scope");
-    checkLength(dependencyFilePath, DEPENDENCY_FILE_PATH_MAX_LENGTH, "dependencyFilePath");
-    checkLength(licenseExpression, LICENSE_EXPRESSION_MAX_LENGTH, "licenseExpression");
+    checkLength(userDependencyFilePath, DEPENDENCY_FILE_PATH_MAX_LENGTH, "userDependencyFilePath");
+    checkLength(lockfileDependencyFilePath, DEPENDENCY_FILE_PATH_MAX_LENGTH, "lockfileDependencyFilePath");
+    if (userDependencyFilePath == null && lockfileDependencyFilePath == null) {
+      throw new IllegalArgumentException("One of userDependencyFilePath or lockfileDependencyFilePath should not be null");
+    }
   }
 
-  private static void checkLength(String value, int maxLength, String name) {
-    checkArgument(value.length() <= maxLength, "Maximum length of %s is %s: %s", name, maxLength, value);
+  /**
+   * Returns the userDependencyFilePath if it is not null, otherwise returns the lockfileDependencyFilePath.
+   *
+   * @return a non-null file path
+   */
+  public String primaryDependencyFilePath() {
+    return userDependencyFilePath != null ? userDependencyFilePath : lockfileDependencyFilePath;
+  }
+
+  private static void checkLength(@Nullable String value, int maxLength, String name) {
+    if (value != null) {
+      checkArgument(value.length() <= maxLength, "Maximum length of %s is %s: %s", name, maxLength, value);
+    }
   }
 
   public static class Builder {
     private String uuid;
-    private String componentUuid;
-    private String packageUrl;
-    private PackageManager packageManager;
-    private String packageName;
-    private String version;
+    private String scaReleaseUuid;
     private boolean direct;
     private String scope;
-    private String dependencyFilePath;
-    private String licenseExpression;
-    private boolean known;
+    private String userDependencyFilePath;
+    private String lockfileDependencyFilePath;
     private long createdAt;
     private long updatedAt;
 
@@ -98,28 +96,8 @@ public record ScaDependencyDto(
       return this;
     }
 
-    public Builder setComponentUuid(String componentUuid) {
-      this.componentUuid = componentUuid;
-      return this;
-    }
-
-    public Builder setPackageUrl(String packageUrl) {
-      this.packageUrl = packageUrl;
-      return this;
-    }
-
-    public Builder setPackageManager(PackageManager packageManager) {
-      this.packageManager = packageManager;
-      return this;
-    }
-
-    public Builder setPackageName(String packageName) {
-      this.packageName = packageName;
-      return this;
-    }
-
-    public Builder setVersion(String version) {
-      this.version = version;
+    public Builder setScaReleaseUuid(String scaReleaseUuid) {
+      this.scaReleaseUuid = scaReleaseUuid;
       return this;
     }
 
@@ -133,18 +111,13 @@ public record ScaDependencyDto(
       return this;
     }
 
-    public Builder setDependencyFilePath(String dependencyFilePath) {
-      this.dependencyFilePath = dependencyFilePath;
+    public Builder setUserDependencyFilePath(String dependencyFilePath) {
+      this.userDependencyFilePath = dependencyFilePath;
       return this;
     }
 
-    public Builder setLicenseExpression(String licenseExpression) {
-      this.licenseExpression = licenseExpression;
-      return this;
-    }
-
-    public Builder setKnown(boolean known) {
-      this.known = known;
+    public Builder setLockfileDependencyFilePath(String dependencyFilePath) {
+      this.lockfileDependencyFilePath = dependencyFilePath;
       return this;
     }
 
@@ -160,7 +133,7 @@ public record ScaDependencyDto(
 
     public ScaDependencyDto build() {
       return new ScaDependencyDto(
-        uuid, componentUuid, packageUrl, packageManager, packageName, version, direct, scope, dependencyFilePath, licenseExpression, known, createdAt, updatedAt
+        uuid, scaReleaseUuid, direct, scope, userDependencyFilePath, lockfileDependencyFilePath, createdAt, updatedAt
       );
     }
   }
@@ -168,16 +141,11 @@ public record ScaDependencyDto(
   public Builder toBuilder() {
     return new Builder()
       .setUuid(this.uuid)
-      .setComponentUuid(this.componentUuid)
-      .setPackageUrl(this.packageUrl)
-      .setPackageManager(this.packageManager)
-      .setPackageName(this.packageName)
-      .setVersion(this.version)
+      .setScaReleaseUuid(this.scaReleaseUuid)
       .setDirect(this.direct)
       .setScope(this.scope)
-      .setDependencyFilePath(this.dependencyFilePath)
-      .setLicenseExpression(this.licenseExpression)
-      .setKnown(this.known)
+      .setUserDependencyFilePath(this.userDependencyFilePath)
+      .setLockfileDependencyFilePath(this.lockfileDependencyFilePath)
       .setCreatedAt(this.createdAt)
       .setUpdatedAt(this.updatedAt);
   }

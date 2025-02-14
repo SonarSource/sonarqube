@@ -19,16 +19,18 @@
  */
 package org.sonar.ce.common.sca;
 
-import org.sonar.db.sca.ScaDependencyDto;
-
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import org.sonar.db.sca.ScaDependencyDto;
+import org.sonar.db.sca.ScaReleaseDto;
 
 public class ScaHolderImpl implements ScaHolder {
   private List<ScaDependencyDto> dependencies = null;
+  private List<ScaReleaseDto> releases = null;
 
   @Override
-  public void setDependencies(List<ScaDependencyDto> dependencies) {
+  public void setDependencies(Collection<ScaDependencyDto> dependencies) {
     this.dependencies = List.copyOf(dependencies);
   }
 
@@ -38,9 +40,17 @@ public class ScaHolderImpl implements ScaHolder {
   }
 
   @Override
+  public void setReleases(Collection<ScaReleaseDto> releases) {
+    this.releases = List.copyOf(releases);
+  }
+
+  @Override
+  public List<ScaReleaseDto> getReleases() {
+    return Optional.ofNullable(this.releases).orElseThrow(() -> new IllegalStateException("SCA dependency analysis was not performed"));
+  }
+
+  @Override
   public boolean dependencyAnalysisPresent() {
-    // for the time being, we just go by whether dependencies were set.
-    // When we add more data that can be set by ScaStep, we might store this differently.
-    return this.dependencies != null;
+    return this.dependencies != null && this.releases != null;
   }
 }

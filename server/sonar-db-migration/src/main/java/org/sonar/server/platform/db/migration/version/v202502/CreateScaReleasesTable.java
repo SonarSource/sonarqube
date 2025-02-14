@@ -29,21 +29,26 @@ import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBoo
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class CreateScaDependenciesTable extends CreateTableChange {
+public class CreateScaReleasesTable extends CreateTableChange {
 
-  private static final String TABLE_NAME = "sca_dependencies";
+  private static final String TABLE_NAME = "sca_releases";
   private static final String COLUMN_UUID_NAME = "uuid";
-  private static final String COLUMN_SCA_RELEASE_UUID_NAME = "sca_release_uuid";
-  private static final String COLUMN_DIRECT_NAME = "direct";
-  private static final String COLUMN_SCOPE_NAME = "scope";
-  private static final int COLUMN_SCOPE_SIZE = 100;
-  private static final String COLUMN_USER_DEPENDENCY_FILE_PATH_NAME = "user_dependency_file_path";
-  private static final String COLUMN_LOCKFILE_DEPENDENCY_FILE_PATH_NAME = "lockfile_dependency_file_path";
-  private static final int COLUMN_DEPENDENCY_FILE_PATH_SIZE = 1000;
+  private static final String COLUMN_COMPONENT_UUID_NAME = "component_uuid";
+  private static final String COLUMN_PACKAGE_URL_NAME = "package_url";
+  private static final int COLUMN_PACKAGE_URL_SIZE = 400;
+  private static final String COLUMN_PACKAGE_MANAGER_NAME = "package_manager";
+  private static final int COLUMN_PACKAGE_MANAGER_SIZE = 20;
+  private static final String COLUMN_PACKAGE_NAME_NAME = "package_name";
+  private static final int COLUMN_PACKAGE_NAME_SIZE = 400;
+  private static final String COLUMN_VERSION_NAME = "version";
+  private static final int COLUMN_VERSION_SIZE = 400;
+  private static final String COLUMN_LICENSE_EXPRESSION_NAME = "license_expression";
+  private static final int COLUMN_LICENSE_EXPRESSION_SIZE = 400;
+  private static final String COLUMN_KNOWN_NAME = "known";
   private static final String COLUMN_CREATED_AT_NAME = "created_at";
   private static final String COLUMN_UPDATED_AT_NAME = "updated_at";
 
-  protected CreateScaDependenciesTable(Database db) {
+  protected CreateScaReleasesTable(Database db) {
     super(db, TABLE_NAME);
   }
 
@@ -51,11 +56,13 @@ public class CreateScaDependenciesTable extends CreateTableChange {
   public void execute(Context context, String tableName) throws SQLException {
     context.execute(new CreateTableBuilder(getDialect(), tableName)
       .addPkColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_UUID_NAME).setIsNullable(false).setLimit(UUID_SIZE).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_SCA_RELEASE_UUID_NAME).setIsNullable(false).setLimit(UUID_SIZE).build())
-      .addColumn(newBooleanColumnDefBuilder().setColumnName(COLUMN_DIRECT_NAME).setIsNullable(false).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_SCOPE_NAME).setIsNullable(false).setLimit(COLUMN_SCOPE_SIZE).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_USER_DEPENDENCY_FILE_PATH_NAME).setIsNullable(true).setLimit(COLUMN_DEPENDENCY_FILE_PATH_SIZE).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_LOCKFILE_DEPENDENCY_FILE_PATH_NAME).setIsNullable(true).setLimit(COLUMN_DEPENDENCY_FILE_PATH_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_COMPONENT_UUID_NAME).setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_PACKAGE_URL_NAME).setIsNullable(false).setLimit(COLUMN_PACKAGE_URL_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_PACKAGE_MANAGER_NAME).setIsNullable(false).setLimit(COLUMN_PACKAGE_MANAGER_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_PACKAGE_NAME_NAME).setIsNullable(false).setLimit(COLUMN_PACKAGE_NAME_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_VERSION_NAME).setIsNullable(false).setLimit(COLUMN_VERSION_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_LICENSE_EXPRESSION_NAME).setIsNullable(false).setLimit(COLUMN_LICENSE_EXPRESSION_SIZE).build())
+      .addColumn(newBooleanColumnDefBuilder().setColumnName(COLUMN_KNOWN_NAME).setIsNullable(false).build())
       .addColumn(newBigIntegerColumnDefBuilder().setColumnName(COLUMN_CREATED_AT_NAME).setIsNullable(false).build())
       .addColumn(newBigIntegerColumnDefBuilder().setColumnName(COLUMN_UPDATED_AT_NAME).setIsNullable(false).build())
       .build());

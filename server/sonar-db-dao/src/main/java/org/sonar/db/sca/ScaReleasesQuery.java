@@ -19,16 +19,25 @@
  */
 package org.sonar.db.sca;
 
-import org.junit.jupiter.api.Test;
+import java.util.List;
+import java.util.Locale;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.DaoUtils.buildLikeValue;
+import static org.sonar.db.WildcardPosition.AFTER;
 
-class PackageManagerTest {
+public record ScaReleasesQuery(
+  String branchUuid,
+  @Nullable Boolean direct,
+  @Nullable List<String> packageManagers,
+  @Nullable String query) {
 
-  @Test
-  void test_namesAreShortEnough() {
-    for (PackageManager packageManager : PackageManager.values()) {
-      assertThat(packageManager.name().length()).isLessThanOrEqualTo(ScaReleaseDto.PACKAGE_MANAGER_MAX_LENGTH);
-    }
+  /**
+   * Used by MyBatis mapper
+   */
+  @CheckForNull
+  public String likeQuery() {
+    return query == null ? null : buildLikeValue(query.toLowerCase(Locale.ENGLISH), AFTER);
   }
 }
