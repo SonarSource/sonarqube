@@ -20,6 +20,7 @@
 package org.sonar.scm.git;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,10 +44,14 @@ public class ProcessWrapperFactoryTest {
     logTester.setLevel(Level.DEBUG);
     var root = temp.newFolder().toPath();
     var processWrapper = underTest.create(root, v -> {}, Map.of("LANG", "en_US"), "git", "blame");
-    assertThatThrownBy(processWrapper::execute)
-      .isInstanceOf(IllegalStateException.class);
 
-    assertThat(logTester.logs(Level.DEBUG).get(0)).startsWith("fatal:");
+    assertThatThrownBy(processWrapper::execute)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Command execution exited with code: 128");
+
+    List<String> debugLogs = logTester.logs(Level.DEBUG);
+    assertThat(debugLogs).isNotEmpty();
+    assertThat(debugLogs.get(0)).startsWith("[stderr] fatal:");
   }
 
 }
