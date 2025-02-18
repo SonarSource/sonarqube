@@ -1,0 +1,38 @@
+.org-nav-banner a {
+  border-bottom: 1px solid rgba(35, 107, 151, 0.4);
+  color: #236a97;
+  cursor: pointer;
+  outline: none;
+  text-decoration: none;
+  transition:
+    border-bottom-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.org-nav-banner {
+  overflow: hidden;
+  transition: height 0.3s ease-in-out;
+}
+
+.org-nav-banner:hover {
+  height: auto !important;
+  white-space: normal;
+  z-index: 1000;
+}
+
+.org-nav-banner span {
+  padding: 8px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  line-height: 28px;
+}
+
+.org-nav-banner:hover span {
+  -webkit-line-clamp: unset;
+}
+
+.org-nav-banner-element {
+  position: relative;
+  height: 44px;
+}
