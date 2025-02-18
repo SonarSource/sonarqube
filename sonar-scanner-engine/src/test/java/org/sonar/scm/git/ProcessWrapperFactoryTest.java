@@ -19,30 +19,28 @@
  */
 package org.sonar.scm.git;
 
-import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Map;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.event.Level;
-import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class ProcessWrapperFactoryTest {
+class ProcessWrapperFactoryTest {
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public LogTester logTester = new LogTester();
+  @RegisterExtension
+  private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
   private final ProcessWrapperFactory underTest = new ProcessWrapperFactory();
 
   @Test
-  public void should_log_error_output_in_debug_mode() throws IOException {
+  void should_log_error_output_in_debug_mode(@TempDir Path root) {
     logTester.setLevel(Level.DEBUG);
-    var root = temp.newFolder().toPath();
-    var processWrapper = underTest.create(root, v -> {}, Map.of("LANG", "en_US"), "git", "blame");
+    var processWrapper = underTest.create(root, v -> {
+    }, Map.of("LANG", "en_US"), "git", "blame");
     assertThatThrownBy(processWrapper::execute)
       .isInstanceOf(IllegalStateException.class);
 
