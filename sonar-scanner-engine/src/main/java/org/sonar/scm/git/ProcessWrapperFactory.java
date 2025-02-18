@@ -19,14 +19,13 @@
  */
 package org.sonar.scm.git;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -34,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import static java.lang.String.format;
 import static java.lang.String.join;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ProcessWrapperFactory {
   private static final Logger LOG = LoggerFactory.getLogger(ProcessWrapperFactory.class);
@@ -65,56 +65,41 @@ public class ProcessWrapperFactory {
     }
 
     public void execute() throws IOException {
-      Process process = null;
+      ProcessBuilder pb = new ProcessBuilder()
+        .command(command)
+        .directory(baseDir != null ? baseDir.toFile() : null);
+      envVariables.forEach(pb.environment()::put);
+
+      Process p = pb.start();
       try {
-        ProcessBuilder pb = new ProcessBuilder()
-          .command(command)
-          .directory(baseDir != null ? baseDir.toFile() : null);
-        envVariables.forEach(pb.environment()::put);
+        processInputStream(p.getInputStream(), stdOutLineConsumer);
 
-        process = pb.start();
+        processInputStream(p.getErrorStream(), line -> {
+          if (!line.isBlank()) {
+            LOG.debug(line);
+          }
+        });
 
-        var stdoutConsumer = new StreamGobbler(process.getInputStream(), stdOutLineConsumer);
-        var stdErrConsumer = new StreamGobbler(process.getErrorStream(), stderr -> LOG.debug("[stderr] {}", stderr));
-        stdErrConsumer.start();
-        stdoutConsumer.start();
-
-        int exitCode = process.waitFor();
-        stdoutConsumer.join();
-        stdErrConsumer.join();
-
-        if (exitCode != 0) {
-          throw new IllegalStateException(format("Command execution exited with code: %d", exitCode));
+        int exit = p.waitFor();
+        if (exit != 0) {
+          throw new IllegalStateException(format("Command execution exited with code: %d", exit));
         }
-
       } catch (InterruptedException e) {
-        LOG.warn("Command [{}] interrupted", join(" ", command), e);
+        LOG.warn(format("Command [%s] interrupted", join(" ", command)), e);
         Thread.currentThread().interrupt();
       } finally {
-        if (process != null) {
-          process.destroy();
-        }
+        p.destroy();
       }
     }
 
-  }
-
-  private static class StreamGobbler extends Thread {
-    private final InputStream inputStream;
-    private final Consumer<String> consumer;
-
-    public StreamGobbler(InputStream inputStream, Consumer<String> consumer) {
-      this.inputStream = inputStream;
-      this.consumer = consumer;
+    private static void processInputStream(InputStream inputStream, Consumer<String> stringConsumer) {
+      try (Scanner scanner = new Scanner(new InputStreamReader(inputStream, UTF_8))) {
+        scanner.useDelimiter("\n");
+        while (scanner.hasNext()) {
+          stringConsumer.accept(scanner.next());
+        }
+      }
     }
-
-    @Override
-    public void run() {
-      new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))
-        .lines()
-        .forEach(consumer);
-    }
-
   }
 
 }
