@@ -28,6 +28,7 @@ import org.sonar.server.platform.db.migration.step.DdlChange;
 import static java.sql.Types.BIGINT;
 import static java.sql.Types.BOOLEAN;
 import static java.sql.Types.VARCHAR;
+import static java.sql.Types.CLOB;
 import static org.sonar.db.MigrationDbTester.createForMigrationStep;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 
@@ -50,6 +51,7 @@ class CreateScaDependenciesTableIT {
     db.assertColumnDefinition(TABLE_NAME, "scope", VARCHAR, 100, false);
     db.assertColumnDefinition(TABLE_NAME, "user_dependency_file_path", VARCHAR, 1000, true);
     db.assertColumnDefinition(TABLE_NAME, "lockfile_dependency_file_path", VARCHAR, 1000, true);
+    db.assertColumnDefinition(TABLE_NAME, "chains", CLOB, null, true);
     db.assertColumnDefinition(TABLE_NAME, "created_at", BIGINT, null, false);
     db.assertColumnDefinition(TABLE_NAME, "updated_at", BIGINT, null, false);
   }

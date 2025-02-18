@@ -26,6 +26,7 @@ import org.sonar.server.platform.db.migration.step.CreateTableChange;
 
 import static org.sonar.server.platform.db.migration.def.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBooleanColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.ClobColumnDef.newClobColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
@@ -40,6 +41,7 @@ public class CreateScaDependenciesTable extends CreateTableChange {
   private static final String COLUMN_USER_DEPENDENCY_FILE_PATH_NAME = "user_dependency_file_path";
   private static final String COLUMN_LOCKFILE_DEPENDENCY_FILE_PATH_NAME = "lockfile_dependency_file_path";
   private static final int COLUMN_DEPENDENCY_FILE_PATH_SIZE = 1000;
+  private static final String COLUMN_CHAINS_NAME = "chains";
   private static final String COLUMN_CREATED_AT_NAME = "created_at";
   private static final String COLUMN_UPDATED_AT_NAME = "updated_at";
 
@@ -56,6 +58,7 @@ public class CreateScaDependenciesTable extends CreateTableChange {
       .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_SCOPE_NAME).setIsNullable(false).setLimit(COLUMN_SCOPE_SIZE).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_USER_DEPENDENCY_FILE_PATH_NAME).setIsNullable(true).setLimit(COLUMN_DEPENDENCY_FILE_PATH_SIZE).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_LOCKFILE_DEPENDENCY_FILE_PATH_NAME).setIsNullable(true).setLimit(COLUMN_DEPENDENCY_FILE_PATH_SIZE).build())
+      .addColumn(newClobColumnDefBuilder().setColumnName(COLUMN_CHAINS_NAME).setIsNullable(true).build())
       .addColumn(newBigIntegerColumnDefBuilder().setColumnName(COLUMN_CREATED_AT_NAME).setIsNullable(false).build())
       .addColumn(newBigIntegerColumnDefBuilder().setColumnName(COLUMN_UPDATED_AT_NAME).setIsNullable(false).build())
       .build());
