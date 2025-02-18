@@ -443,7 +443,8 @@ public class SearchAction implements IssuesWsAction {
       .setExampleValue("1m2w (1 month 2 weeks)");
     action.createParam(PARAM_IN_NEW_CODE_PERIOD)
       .setDescription("To retrieve issues created in the new code period.<br>" +
-        "If this parameter is set to a truthy value, createdAfter must not be set and one component uuid or key must be provided.")
+        "If this parameter is set to a truthy value, createdAfter must not be set and one component uuid or key must be provided.<br>" +
+        "This parameter is ignored if the requested component is Application or Portfolio.")
       .setBooleanPossibleValues()
       .setSince("9.4");
     action.createParam(PARAM_TIMEZONE)
