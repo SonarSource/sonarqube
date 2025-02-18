@@ -20,20 +20,24 @@
 package org.sonar.scm.git;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecuteResultHandler;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.ExecuteWatchdog;
+import org.apache.commons.exec.Executor;
+import org.apache.commons.exec.LogOutputStream;
+import org.apache.commons.exec.PumpStreamHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static java.lang.String.format;
 import static java.lang.String.join;
-import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.exec.ExecuteWatchdog.INFINITE_TIMEOUT_DURATION;
 
 public class ProcessWrapperFactory {
   private static final Logger LOG = LoggerFactory.getLogger(ProcessWrapperFactory.class);
@@ -56,6 +60,7 @@ public class ProcessWrapperFactory {
     private final Consumer<String> stdOutLineConsumer;
     private final String[] command;
     private final Map<String, String> envVariables = new HashMap<>();
+    private ExecuteWatchdog watchdog = null;
 
     ProcessWrapper(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, Map<String, String> envVariables, String... command) {
       this.baseDir = baseDir;
@@ -65,41 +70,58 @@ public class ProcessWrapperFactory {
     }
 
     public void execute() throws IOException {
-      ProcessBuilder pb = new ProcessBuilder()
-        .command(command)
-        .directory(baseDir != null ? baseDir.toFile() : null);
-      envVariables.forEach(pb.environment()::put);
+      CommandLine cmdLine = new CommandLine(command[0]);
+      for (int i = 1; i < command.length; i++) {
+        cmdLine.addArgument(command[i]);
+      }
 
-      Process p = pb.start();
+      var executor = buildExecutor();
+
+      DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
+      executor.execute(cmdLine, envVariables, resultHandler);
+
       try {
-        processInputStream(p.getInputStream(), stdOutLineConsumer);
-
-        processInputStream(p.getErrorStream(), line -> {
-          if (!line.isBlank()) {
-            LOG.debug(line);
-          }
-        });
-
-        int exit = p.waitFor();
-        if (exit != 0) {
-          throw new IllegalStateException(format("Command execution exited with code: %d", exit));
+        resultHandler.waitFor();
+        int exitValue = resultHandler.getExitValue();
+        if (exitValue == Executor.INVALID_EXITVALUE) {
+          throw resultHandler.getException();
+        }
+        if (exitValue != 0 && !watchdog.killedProcess()) {
+          throw new IllegalStateException(format("Command execution exited with code: %d", exitValue));
         }
       } catch (InterruptedException e) {
-        LOG.warn(format("Command [%s] interrupted", join(" ", command)), e);
+        LOG.warn("Command [{}] interrupted", join(" ", command), e);
         Thread.currentThread().interrupt();
-      } finally {
-        p.destroy();
       }
     }
 
-    private static void processInputStream(InputStream inputStream, Consumer<String> stringConsumer) {
-      try (Scanner scanner = new Scanner(new InputStreamReader(inputStream, UTF_8))) {
-        scanner.useDelimiter("\n");
-        while (scanner.hasNext()) {
-          stringConsumer.accept(scanner.next());
-        }
+    private DefaultExecutor buildExecutor() {
+      DefaultExecutor.Builder<?> builder = DefaultExecutor.builder();
+      if (baseDir != null) {
+        builder.setWorkingDirectory(baseDir.toFile());
       }
+
+      PumpStreamHandler psh = new PumpStreamHandler(new LogOutputStream() {
+        @Override
+        protected void processLine(String line, int logLevel) {
+          stdOutLineConsumer.accept(line);
+        }
+      }, new LogOutputStream() {
+        @Override
+        protected void processLine(String line, int logLevel) {
+          LOG.debug("[stderr] {}", line);
+        }
+      });
+      builder.setExecuteStreamHandler(psh);
+
+      var executor = builder.get();
+      watchdog = ExecuteWatchdog.builder().setTimeout(INFINITE_TIMEOUT_DURATION).get();
+      executor.setWatchdog(watchdog);
+      return executor;
+    }
+
+    public void destroy() {
+      watchdog.destroyProcess();
     }
   }
-
 }

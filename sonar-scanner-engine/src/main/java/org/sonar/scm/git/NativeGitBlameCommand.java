@@ -119,18 +119,18 @@ public class NativeGitBlameCommand {
     throw new IllegalStateException("git.exe not found in PATH. PATH value was: " + system.property("PATH"));
   }
 
-  public List<BlameLine> blame(Path baseDir, String fileName) throws Exception {
+  public List<BlameLine> blame(Path baseDir, String fileName) throws IOException {
     BlameOutputProcessor outputProcessor = new BlameOutputProcessor();
-    try {
-      this.processWrapperFactory.create(
-          baseDir,
-          outputProcessor::process,
-          gitCommand,
-          GIT_DIR_FLAG, String.format(GIT_DIR_ARGUMENT, baseDir), GIT_DIR_FORCE_FLAG, baseDir.toString(),
-          BLAME_COMMAND,
-          BLAME_LINE_PORCELAIN_FLAG, IGNORE_WHITESPACES, FILENAME_SEPARATOR_FLAG, fileName)
-        .execute();
-    } catch (UncommittedLineException e) {
+    var processWrapper = this.processWrapperFactory.create(
+      baseDir,
+      outputProcessor::process,
+      gitCommand,
+      GIT_DIR_FLAG, String.format(GIT_DIR_ARGUMENT, baseDir), GIT_DIR_FORCE_FLAG, baseDir.toString(),
+      BLAME_COMMAND,
+      BLAME_LINE_PORCELAIN_FLAG, IGNORE_WHITESPACES, FILENAME_SEPARATOR_FLAG, fileName);
+    outputProcessor.setProcessWrapper(processWrapper);
+    processWrapper.execute();
+    if (outputProcessor.hasEncounteredUncommittedLine()) {
       LOG.debug("Unable to blame file '{}' - it has uncommitted changes", fileName);
       return emptyList();
     }
@@ -142,6 +142,8 @@ public class NativeGitBlameCommand {
     private String sha1 = null;
     private String committerTime = null;
     private String authorMail = null;
+    private ProcessWrapperFactory.ProcessWrapper processWrapper = null;
+    private volatile boolean encounteredUncommittedLine = false;
 
     public List<BlameLine> getBlameLines() {
       return blameLines;
@@ -160,9 +162,14 @@ public class NativeGitBlameCommand {
           authorMail = matcher.group(1);
         }
         if (authorMail.equals("not.committed.yet")) {
-          throw new UncommittedLineException();
+          encounteredUncommittedLine = true;
+          processWrapper.destroy();
         }
       }
+    }
+
+    public boolean hasEncounteredUncommittedLine() {
+      return encounteredUncommittedLine;
     }
 
     private void saveEntry() {
@@ -180,6 +187,10 @@ public class NativeGitBlameCommand {
       authorMail = null;
       sha1 = null;
       committerTime = null;
+    }
+
+    public void setProcessWrapper(ProcessWrapperFactory.ProcessWrapper processWrapper) {
+      this.processWrapper = processWrapper;
     }
   }
 
@@ -207,7 +218,4 @@ public class NativeGitBlameCommand {
     String string;
   }
 
-  private static class UncommittedLineException extends RuntimeException {
-
-  }
 }

@@ -26,6 +26,7 @@ dependencies {
   api 'commons-io:commons-io'
   api 'org.apache.commons:commons-lang3'
   implementation 'org.apache.commons:commons-text'
+  implementation 'org.apache.commons:commons-exec'
   api 'com.google.code.gson:gson'
   api 'org.apache.commons:commons-csv'
   api 'com.google.protobuf:protobuf-java'

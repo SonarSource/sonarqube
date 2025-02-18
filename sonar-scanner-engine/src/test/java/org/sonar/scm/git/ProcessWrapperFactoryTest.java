@@ -19,8 +19,15 @@
  */
 package org.sonar.scm.git;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
@@ -28,6 +35,7 @@ import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ProcessWrapperFactoryTest {
@@ -44,7 +52,37 @@ class ProcessWrapperFactoryTest {
     assertThatThrownBy(processWrapper::execute)
       .isInstanceOf(IllegalStateException.class);
 
-    assertThat(logTester.logs(Level.DEBUG).get(0)).startsWith("fatal:");
+    assertThat(logTester.logs(Level.DEBUG).get(0)).startsWith("[stderr] fatal:");
+  }
+
+  // SONAR-24376
+  @Test
+  void should_not_freeze_when_destroying_in_the_middle_of_big_stdout_stdin(@TempDir Path temp) throws IOException {
+    var bigFile = temp.resolve("stdout.txt");
+    for (int i = 0; i < 1024; i++) {
+      Files.writeString(bigFile, StringUtils.repeat("a", 1024), StandardCharsets.UTF_8, StandardOpenOption.APPEND, StandardOpenOption.CREATE);
+      Files.writeString(bigFile, "\n", StandardCharsets.UTF_8, StandardOpenOption.APPEND);
+    }
+
+    var stdoutHandler = new DestroyProcessAfter10Lines();
+
+    var processWrapper = underTest.create(temp, stdoutHandler::process, Map.of(), SystemUtils.IS_OS_WINDOWS ? "cmd.exe" : "cat", SystemUtils.IS_OS_WINDOWS ? "/c type stdout.txt" : "stdout.txt");
+    stdoutHandler.wrapper = processWrapper;
+
+    assertThatCode(processWrapper::execute).doesNotThrowAnyException();
+    // A few lines might be processed before the process is destroyed
+    assertThat(stdoutHandler.lineCounter.get()).isGreaterThanOrEqualTo(10);
+  }
+
+  private static class DestroyProcessAfter10Lines {
+    private ProcessWrapperFactory.ProcessWrapper wrapper;
+    private final AtomicInteger lineCounter = new AtomicInteger();
+
+    void process(String line) {
+      if (lineCounter.incrementAndGet() == 10) {
+        wrapper.destroy();
+      }
+    }
   }
 
 }
