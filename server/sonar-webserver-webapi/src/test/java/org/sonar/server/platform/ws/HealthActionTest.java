@@ -161,7 +161,7 @@ public class HealthActionTest {
                 newNodeDetailsBuilder()
                   .setName("app-2")
                   .setType(NodeDetails.Type.APPLICATION)
-                  .setHost("192.168.1.2")
+                  .setHost("2001:db8:abcd:1234::1")
                   .setPort(999)
                   .setStartedAt(time)
                   .build())

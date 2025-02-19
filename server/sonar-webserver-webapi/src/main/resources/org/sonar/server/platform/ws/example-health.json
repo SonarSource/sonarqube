@@ -22,7 +22,7 @@
     {
       "name": "app-2",
       "type": "APPLICATION",
-      "host": "192.168.1.2",
+      "host": "[2001:db8:abcd:1234::1]",
       "port": 999,
       "startedAt": "2015-08-13T23:34:59+0200",
       "health": "YELLOW",

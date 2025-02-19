@@ -20,7 +20,10 @@
 package org.sonar.server.platform.ws;
 
 import com.google.common.io.Resources;
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.util.Comparator;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.cluster.health.NodeDetails;
@@ -104,10 +107,24 @@ public class HealthActionSupport {
     nodeBuilder
       .setType(System.NodeType.valueOf(details.getType().name()))
       .setName(details.getName())
-      .setHost(details.getHost())
+      .setHost(resolveIp(details.getHost()))
       .setPort(details.getPort())
       .setStartedAt(formatDateTime(details.getStartedAt()));
     return nodeBuilder.build();
+  }
+
+  private static String resolveIp(String host) {
+    if (!StringUtils.isEmpty(host)) {
+      try {
+        InetAddress inetAddress = InetAddress.getByName(host);
+        if (inetAddress instanceof Inet6Address) {
+          return "[" + host + "]";
+        }
+      } catch (Exception e) {
+        return host;
+      }
+    }
+    return host;
   }
 
   private static System.Cause toCause(String str, System.Cause.Builder causeBuilder) {
