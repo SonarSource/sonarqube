@@ -17,13 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import OrganizationNavigationHeader from './OrganizationNavigationHeader';
 import OrganizationNavigationMenu from './OrganizationNavigationMenu';
 import OrganizationNavigationMeta from './OrganizationNavigationMeta';
-import { Organization } from "../../../types/types";
+import { Organization, Notification } from "../../../types/types";
 import { getRawNotificationsForOrganization } from '../../../api/codescan';
-import { addGlobalErrorMessage, addGlobalWarningMessage, TopBar } from "~design-system";
+import { Banner, SafeHTMLInjection, TopBar } from "~design-system";
+import './OrganizationNavigation.css';
 
 interface Props {
   location: { pathname: string };
@@ -32,21 +34,34 @@ interface Props {
 }
 
 export function OrganizationNavigation({ location, organization, userOrganizations }: Props) {
+  const [notifications, setNotifications] = React.useState<Notification[]>([]);
+
   React.useEffect(() => {
     const fetchNotifications = async () => {
       const notifications = await getRawNotificationsForOrganization(organization.kee);
-      if (notifications.length) {
-        notifications.forEach((notification) => {
-          if (notification.type == 'ERROR') {
-            addGlobalErrorMessage(notification.message);
-          } else {
-            addGlobalWarningMessage(notification.message);
-          }
-        });
+      if (notifications.length >= 0) {
+        setNotifications(notifications);
       }
     };
     fetchNotifications();
   }, [organization, userOrganizations]);
+
+  function getNotificationVariant(
+    notification: Notification,
+  ): 'error' | 'warning' | 'success' | 'info' {
+    const notificationType = notification.type.toLowerCase();
+
+    if (
+      notificationType === 'error' ||
+      notificationType === 'warning' ||
+      notificationType === 'success' ||
+      notificationType === 'info'
+    ) {
+      return notificationType as 'error' | 'warning' | 'success' | 'info';
+    }
+
+    throw new Error(`Invalid notification type: ${notification.type}`);
+  }
 
   return (
     <TopBar id="context-navigation">
@@ -63,6 +78,19 @@ export function OrganizationNavigation({ location, organization, userOrganizatio
         location={location}
         organization={organization}
       />
+      {notifications.map((notification, key) => {
+        return (
+          <div key={key} className="org-nav-banner-element">
+            <Banner
+              className="org-nav-banner"
+              key={key}
+              variant={getNotificationVariant(notification)}
+            >
+              <SafeHTMLInjection htmlAsString={notification.message} />
+            </Banner>
+          </div>
+        );
+      })}
     </TopBar>
   );
 }
