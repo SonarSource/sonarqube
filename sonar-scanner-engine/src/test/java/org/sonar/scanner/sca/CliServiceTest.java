@@ -24,18 +24,19 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
-import org.slf4j.event.Level;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.core.util.ProcessWrapperFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.slf4j.event.Level.DEBUG;
+import static org.slf4j.event.Level.INFO;
 
 class CliServiceTest {
   private final ProcessWrapperFactory processWrapperFactory = new ProcessWrapperFactory();
@@ -53,32 +54,33 @@ class CliServiceTest {
     // will serve as our "CLI". This script will output some messages about what arguments were passed
     // to it and will try to generate a zip file in the location the process specifies. This allows us
     // to simulate a real CLI call without needing an OS specific CLI executable to run on a real project.
-    URL scriptUrl = CliServiceTest.class.getResource("echo_args.sh");
+    URL scriptUrl = CliServiceTest.class.getResource(SystemUtils.IS_OS_WINDOWS ? "echo_args.bat" : "echo_args.sh");
     assertThat(scriptUrl).isNotNull();
     File scriptDir = new File(scriptUrl.toURI());
     assertThat(rootModuleDir.resolve("test_file").toFile().createNewFile()).isTrue();
 
     // We need to set the logging level to debug in order to be able to view the shell script's output
-    logTester.setLevel(Level.DEBUG);
+    logTester.setLevel(DEBUG);
 
-    List<String> args = new ArrayList<>();
-    args.add("projects");
-    args.add("save-lockfiles");
-    args.add("--zip");
-    args.add("--zip-filename");
-    args.add(root.getWorkDir().resolve("dependency-files.zip").toString());
-    args.add("--directory");
-    args.add(root.getBaseDir().toString());
-    args.add("--debug");
+    List<String> args = List.of(
+      "projects",
+      "save-lockfiles",
+      "--zip",
+      "--zip-filename",
+      root.getWorkDir().resolve("dependency-files.zip").toString(),
+      "--directory",
+      root.getBaseDir().toString(),
+      "--debug"
+    );
 
     String argumentOutput = "Arguments Passed In: " + String.join(" ", args);
-
 
     File producedZip = underTest.generateManifestsZip(root, scriptDir);
     assertThat(producedZip).exists();
     // The simulated CLI output will only be available at the debug level
-    assertThat(logTester.logs(Level.DEBUG)).contains(argumentOutput);
-    assertThat(logTester.logs(Level.DEBUG)).contains("TIDELIFT_SKIP_UPDATE_CHECK=1");
-    assertThat(logTester.logs(Level.INFO)).contains("Generated manifests zip file: " + producedZip.getName());
+    assertThat(logTester.logs(DEBUG))
+      .contains(argumentOutput)
+      .contains("TIDELIFT_SKIP_UPDATE_CHECK=1");
+    assertThat(logTester.logs(INFO)).contains("Generated manifests zip file: " + producedZip.getName());
   }
 }
