@@ -40,7 +40,14 @@ export function OrganizationNavigation({ location, organization, userOrganizatio
     const fetchNotifications = async () => {
       const notifications = await getRawNotificationsForOrganization(organization.kee);
       if (notifications.length >= 0) {
-        setNotifications(notifications);
+        const errorNotifications = notifications.filter(
+          (notification) => notification.type === 'ERROR',
+        );
+        if (errorNotifications.length > 0) {
+          setNotifications(errorNotifications);
+        } else {
+          setNotifications(notifications);
+        }
       }
     };
     fetchNotifications();
