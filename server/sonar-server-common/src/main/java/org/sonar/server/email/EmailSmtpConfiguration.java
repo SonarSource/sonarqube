@@ -20,9 +20,13 @@
 package org.sonar.server.email;
 
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.config.internal.Encryption;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+
+import static org.sonar.api.CoreProperties.ENCRYPTION_SECRET_KEY_PATH;
 
 @ServerSide
 @ComputeEngineSide
@@ -62,9 +66,11 @@ public class EmailSmtpConfiguration {
   public static final String EMAIL_CONFIG_SMTP_OAUTH_GRANT_DEFAULT = "client_credentials";
 
   private final DbClient dbClient;
+  private final Encryption encryption;
 
-  public EmailSmtpConfiguration(DbClient dbClient) {
+  public EmailSmtpConfiguration(DbClient dbClient, Settings settings) {
     this.dbClient = dbClient;
+    this.encryption = new Encryption(settings.getRawString(ENCRYPTION_SECRET_KEY_PATH).orElse(null));
   }
 
   public String getSmtpHost() {
@@ -129,8 +135,20 @@ public class EmailSmtpConfiguration {
 
   private String get(String key, String defaultValue) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return dbClient.internalPropertiesDao().selectByKey(dbSession, key).orElse(defaultValue);
+      return dbClient.internalPropertiesDao().selectByKey(dbSession, key)
+        .map(value -> decryptIfNeeded(key, value))
+        .orElse(defaultValue);
     }
   }
 
+  private String decryptIfNeeded(String key, String value) {
+    if (!encryption.isEncrypted(value)) {
+      return value;
+    }
+    try {
+      return encryption.decrypt(value);
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to decrypt the property %s. Please check your secret key.".formatted(key), e);
+    }
+  }
 }
