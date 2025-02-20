@@ -67,11 +67,11 @@ export default function FormattingHelp() {
         </TableRow>
         <TableRow>
           <ContentCell>
-            [SonarQube™ Home Page](https://knowledgebase.autorabit.com/codescan/en)
+            [CodeScan Home Page](https://knowledgebase.autorabit.com/codescan/en)
           </ContentCell>
           <ContentCell>
             <HtmlFormatter>
-              <a href="https://knowledgebase.autorabit.com/codescan/en">SonarQube™ Home Page</a>
+              <a href="https://knowledgebase.autorabit.com/codescan/en">CodeScan Home Page</a>
             </HtmlFormatter>
           </ContentCell>
         </TableRow>

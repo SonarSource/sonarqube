@@ -42,7 +42,7 @@ public class LoginMessageActionTest {
   private final LoginMessageFeature loginMessageFeature = mock(LoginMessageFeature.class);
   private final LoginMessageAction underTest = new LoginMessageAction(dbClient, loginMessageFeature);
   private final WsActionTester ws = new WsActionTester(underTest);
-  private static final String LOGIN_MESSAGE_TEXT = "test link [SonarQube™ Home Page](https://www.sonarsource.com/products/sonarqube)\n* list 1\n* list 2";
+  private static final String LOGIN_MESSAGE_TEXT = "test link [CodeScan Home Page](https://www.sonarsource.com/products/sonarqube)\n* list 1\n* list 2";
   private static final String FORMATTED_LOGIN_MESSAGE_TEXT = "test link \\u003ca href\\u003d\\\"https://www.sonarsource.com/products/sonarqube\\\" target\\u003d\\\"_blank\\\" rel\\u003d\\\"noopener noreferrer\\\"\\u003eSonarQube\\u0026trade; Home Page\\u003c/a\\u003e\\u003cbr/\\u003e\\u003cul\\u003e\\u003cli\\u003elist 1\\u003c/li\\u003e\\n\\u003cli\\u003elist 2\\u003c/li\\u003e\\u003c/ul\\u003e";
   private static final String JSON_RESPONSE = "{\"message\":\"" + FORMATTED_LOGIN_MESSAGE_TEXT + "\"}";
   private static final String EMPTY_JSON_RESPONSE = "{\"message\":\"\"}";

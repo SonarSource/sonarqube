@@ -22,7 +22,7 @@ import { FormattedMessage } from 'react-intl';
 import { Modal } from '~design-system';
 import { translate } from '../../../helpers/l10n';
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { SafeHTMLInjection, SanitizeLevel, CenteredLayout } from '~design-system';
+import { SafeHTMLInjection, SanitizeLevel, CenteredLayout, HtmlFormatter } from '~design-system';
 import { noop } from 'lodash';
 
 export interface DataAccessConsentProps {
@@ -52,7 +52,9 @@ export default function DataAccessConsent({
       {isOpen && (
           <Modal onClose={noop} closeOnOverlayClick={false} >
             <Modal.Body>
+              <HtmlFormatter>
                 <SafeHTMLInjection htmlAsString={message}/>
+              </HtmlFormatter>
             </Modal.Body>
             <Modal.Footer
               primaryButton={
