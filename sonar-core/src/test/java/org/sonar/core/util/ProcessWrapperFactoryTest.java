@@ -25,7 +25,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.Test;
@@ -66,12 +68,26 @@ class ProcessWrapperFactoryTest {
 
     var stdoutHandler = new DestroyProcessAfter10Lines();
 
-    var processWrapper = underTest.create(temp, stdoutHandler::process, Map.of(), SystemUtils.IS_OS_WINDOWS ? "cmd.exe" : "cat", SystemUtils.IS_OS_WINDOWS ? "/c type stdout.txt" : "stdout.txt");
+    var processWrapper = underTest.create(temp, stdoutHandler::process,
+      SystemUtils.IS_OS_WINDOWS ? new String[] {"cmd.exe", "/c", "type stdout.txt"} : new String[] {"cat", "stdout.txt"});
     stdoutHandler.wrapper = processWrapper;
 
     assertThatCode(processWrapper::execute).doesNotThrowAnyException();
     // A few lines might be processed before the process is destroyed
     assertThat(stdoutHandler.lineCounter.get()).isGreaterThanOrEqualTo(10);
+  }
+
+  @Test
+  void should_apply_env_overrides_on_top_of_parent_env(@TempDir Path temp) throws IOException {
+    ConcurrentLinkedDeque<String> logs = new ConcurrentLinkedDeque<>();
+
+    Consumer<String> stdoutHandler = logs::add;
+
+    var processWrapper = underTest.create(temp, stdoutHandler, Map.of("FOO", "BAR"),
+      SystemUtils.IS_OS_WINDOWS ? new String[] {"cmd.exe", "/c", "echo %PATH% & echo %FOO%"} : new String[] {"/bin/bash", "-c", "echo $PATH; echo $FOO;"});
+    processWrapper.execute();
+
+    assertThat(logs).containsExactly(System.getenv("PATH"), "BAR");
   }
 
   private static class DestroyProcessAfter10Lines {

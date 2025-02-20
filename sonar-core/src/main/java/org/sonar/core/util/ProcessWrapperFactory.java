@@ -50,8 +50,8 @@ public class ProcessWrapperFactory {
     return new ProcessWrapper(baseDir, stdOutLineConsumer, Map.of(), command);
   }
 
-  public ProcessWrapper create(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, Map<String, String> envVariables, String... command) {
-    return new ProcessWrapper(baseDir, stdOutLineConsumer, envVariables, command);
+  public ProcessWrapper create(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, Map<String, String> envVariablesOverrides, String... command) {
+    return new ProcessWrapper(baseDir, stdOutLineConsumer, envVariablesOverrides, command);
   }
 
   public static class ProcessWrapper {
@@ -62,17 +62,18 @@ public class ProcessWrapperFactory {
     private final Map<String, String> envVariables = new HashMap<>();
     private ExecuteWatchdog watchdog = null;
 
-    ProcessWrapper(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, Map<String, String> envVariables, String... command) {
+    ProcessWrapper(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, Map<String, String> envVariablesOverrides, String... command) {
       this.baseDir = baseDir;
       this.stdOutLineConsumer = stdOutLineConsumer;
-      this.envVariables.putAll(envVariables);
+      this.envVariables.putAll(System.getenv());
+      this.envVariables.putAll(envVariablesOverrides);
       this.command = command;
     }
 
     public void execute() throws IOException {
       CommandLine cmdLine = new CommandLine(command[0]);
       for (int i = 1; i < command.length; i++) {
-        cmdLine.addArgument(command[i]);
+        cmdLine.addArgument(command[i], false);
       }
 
       var executor = buildExecutor();
@@ -87,7 +88,7 @@ public class ProcessWrapperFactory {
           throw resultHandler.getException();
         }
         if (exitValue != 0 && !watchdog.killedProcess()) {
-          throw new IllegalStateException(format("Command execution exited with code: %d", exitValue));
+          throw new IllegalStateException(format("Command execution exited with code: %d", exitValue), resultHandler.getException());
         }
       } catch (InterruptedException e) {
         LOG.warn("Command [{}] interrupted", join(" ", command), e);
