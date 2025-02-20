@@ -83,6 +83,39 @@ public class MigrateBranchesLiveMeasuresToMeasuresTest {
   }
 
   @Test
+  public void should_migrate_branch_if_previous_attempt_failed() throws SQLException {
+    String nclocMetricUuid = insertMetric("ncloc", "INT");
+    String qgStatusMetricUuid = insertMetric("quality_gate_status", "STRING");
+    String metricWithDataUuid = insertMetric("metric_with_data", "DATA");
+
+    String branch1 = "branch_7";
+    insertNotMigratedBranch(branch1);
+    String component1 = uuidFactory.create();
+    String component2 = uuidFactory.create();
+    insertMeasure(branch1, component1, nclocMetricUuid, Map.of("value", 120));
+    insertMeasure(branch1, component1, qgStatusMetricUuid, Map.of("text_value", "ok"));
+    insertMeasure(branch1, component2, metricWithDataUuid, Map.of("measure_data", "some data".getBytes(StandardCharsets.UTF_8)));
+
+    insertMigratedMeasure(branch1, component1);
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(1);
+
+    underTest.migrate(List.of(branch1));
+
+    assertBranchMigrated(branch1);
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(2);
+
+    assertThat(db.select(format(SELECT_MEASURE, component1)))
+      .hasSize(1)
+      .extracting(t -> t.get("COMPONENT_UUID"), t -> t.get("BRANCH_UUID"), t -> t.get("JSON_VALUE"), t -> t.get("JSON_VALUE_HASH"))
+      .containsOnly(tuple(component1, branch1, "{\"ncloc\":120.0,\"quality_gate_status\":\"ok\"}", 6033012287291512746L));
+
+    assertThat(db.select(format(SELECT_MEASURE, component2)))
+      .hasSize(1)
+      .extracting(t -> t.get("COMPONENT_UUID"), t -> t.get("BRANCH_UUID"), t -> t.get("JSON_VALUE"), t -> t.get("JSON_VALUE_HASH"))
+      .containsOnly(tuple(component2, branch1, "{\"metric_with_data\":\"some data\"}", -4524184678167636687L));
+  }
+
+  @Test
   public void should_migrate_branch_with_measures() throws SQLException {
     String nclocMetricUuid = insertMetric("ncloc", "INT");
     String qgStatusMetricUuid = insertMetric("quality_gate_status", "STRING");
@@ -161,6 +194,16 @@ public class MigrateBranchesLiveMeasuresToMeasuresTest {
     dataMap.put("updated_at", 12L);
 
     db.executeInsert("live_measures", dataMap);
+  }
+
+  private void insertMigratedMeasure(String branch, String componentUuid) {
+    db.executeInsert("measures",
+      "component_uuid", componentUuid,
+      "branch_uuid", branch,
+      "json_value", "{\"any\":\"thing\"}",
+      "json_value_hash", "1234",
+      "created_at", 12,
+      "updated_at", 12);
   }
 
   private void insertNotMigratedBranch(String branchUuid) {

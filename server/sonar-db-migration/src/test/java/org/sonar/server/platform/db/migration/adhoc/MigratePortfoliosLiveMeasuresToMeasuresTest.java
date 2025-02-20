@@ -121,6 +121,39 @@ public class MigratePortfoliosLiveMeasuresToMeasuresTest {
       .containsOnly(tuple(component2, portfolio1, "{\"metric_with_data\":\"some data\"}", -4524184678167636687L));
   }
 
+  @Test
+  public void should_migrate_portfolio_if_previous_attempt_failed() throws SQLException {
+    String nclocMetricUuid = insertMetric("ncloc", "INT");
+    String qgStatusMetricUuid = insertMetric("quality_gate_status", "STRING");
+    String metricWithDataUuid = insertMetric("metric_with_data", "DATA");
+
+    String portfolio1 = "portfolio_7";
+    insertNotMigratedPortfolio(portfolio1);
+    String component1 = uuidFactory.create();
+    String component2 = uuidFactory.create();
+    insertMeasure(portfolio1, component1, nclocMetricUuid, Map.of("value", 120));
+    insertMeasure(portfolio1, component1, qgStatusMetricUuid, Map.of("text_value", "ok"));
+    insertMeasure(portfolio1, component2, metricWithDataUuid, Map.of("measure_data", "some data".getBytes(StandardCharsets.UTF_8)));
+
+    insertMigratedMeasure(portfolio1, component1);
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(1);
+
+    underTest.migrate(List.of(portfolio1));
+
+    assertPortfolioMigrated(portfolio1);
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(2);
+
+    assertThat(db.select(format(SELECT_MEASURE, component1)))
+      .hasSize(1)
+      .extracting(t -> t.get("COMPONENT_UUID"), t -> t.get("BRANCH_UUID"), t -> t.get("JSON_VALUE"), t -> t.get("JSON_VALUE_HASH"))
+      .containsOnly(tuple(component1, portfolio1, "{\"ncloc\":120.0,\"quality_gate_status\":\"ok\"}", 6033012287291512746L));
+
+    assertThat(db.select(format(SELECT_MEASURE, component2)))
+      .hasSize(1)
+      .extracting(t -> t.get("COMPONENT_UUID"), t -> t.get("BRANCH_UUID"), t -> t.get("JSON_VALUE"), t -> t.get("JSON_VALUE_HASH"))
+      .containsOnly(tuple(component2, portfolio1, "{\"metric_with_data\":\"some data\"}", -4524184678167636687L));
+  }
+
   private void assertPortfolioMigrated(String portfolio) {
     assertMigrationStatus(portfolio, true);
   }
@@ -160,6 +193,16 @@ public class MigratePortfoliosLiveMeasuresToMeasuresTest {
     dataMap.put("updated_at", 12L);
 
     db.executeInsert("live_measures", dataMap);
+  }
+
+  private void insertMigratedMeasure(String branch, String componentUuid) {
+    db.executeInsert("measures",
+      "component_uuid", componentUuid,
+      "branch_uuid", branch,
+      "json_value", "{\"any\":\"thing\"}",
+      "json_value_hash", "1234",
+      "created_at", 12,
+      "updated_at", 12);
   }
 
   private void insertNotMigratedPortfolio(String portfolioUuid) {

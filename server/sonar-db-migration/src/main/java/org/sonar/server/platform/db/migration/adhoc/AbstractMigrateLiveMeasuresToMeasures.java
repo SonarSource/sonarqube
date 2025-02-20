@@ -48,6 +48,11 @@ public abstract class AbstractMigrateLiveMeasuresToMeasures extends DataChange {
   private static final Set<String> TEXT_VALUE_TYPES = Set.of("STRING", "LEVEL", "DATA", "DISTRIB");
   private static final Gson GSON = new Gson();
 
+  private static final String CLEANUP_QUERY = """
+    DELETE FROM measures
+    WHERE branch_uuid = ?
+    """;
+
   private static final String SELECT_QUERY = """
     SELECT lm.component_uuid,
       m.name,
@@ -113,6 +118,13 @@ public abstract class AbstractMigrateLiveMeasuresToMeasures extends DataChange {
   }
 
   private void migrateItem(String uuid, Context context) throws SQLException {
+    LOGGER.debug("Cleaning leftovers from a previous attempt for {} {}...", item, uuid);
+
+    context.prepareUpsert(CLEANUP_QUERY)
+      .setString(1, uuid)
+      .execute()
+      .commit();
+
     LOGGER.debug("Migrating {} {}...", item, uuid);
 
     Map<String, Object> measureValues = new HashMap<>();
