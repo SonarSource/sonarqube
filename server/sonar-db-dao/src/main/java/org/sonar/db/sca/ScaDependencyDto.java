@@ -19,6 +19,9 @@
  */
 package org.sonar.db.sca;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.util.List;
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -38,6 +41,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  * @param scope                      the scope of the dependency e.g. "development"
  * @param userDependencyFilePath     path to the user-editable file where the dependency was found ("manifest") e.g. package.json
  * @param lockfileDependencyFilePath path to the machine-maintained lockfile where the dependency was found e.g. package-lock.json
+ * @param chains                     a list of the purl chains that require the dependency, stored as JSON string, e.g. [["pkg:npm/foo@1.0.0", ...], ...]
  * @param createdAt                  timestamp of creation
  * @param updatedAt                  timestamp of most recent update
  */
@@ -48,6 +52,7 @@ public record ScaDependencyDto(
   String scope,
   @Nullable String userDependencyFilePath,
   @Nullable String lockfileDependencyFilePath,
+  @Nullable List<List<String>> chains,
   long createdAt,
   long updatedAt) {
 
@@ -55,6 +60,10 @@ public record ScaDependencyDto(
   // depend on each other, we can't make one just refer to the other.
   public static final int SCOPE_MAX_LENGTH = 100;
   public static final int DEPENDENCY_FILE_PATH_MAX_LENGTH = 1000;
+
+  private static final Gson GSON = new Gson();
+  private static final TypeToken<List<List<String>>> CHAINS_TYPE = new TypeToken<>() {
+  };
 
   public ScaDependencyDto {
     // We want these to raise errors and not silently put junk values in the db
@@ -64,6 +73,10 @@ public record ScaDependencyDto(
     if (userDependencyFilePath == null && lockfileDependencyFilePath == null) {
       throw new IllegalArgumentException("One of userDependencyFilePath or lockfileDependencyFilePath should not be null");
     }
+  }
+
+  public String getChainsJson() {
+    return chains == null ? null : GSON.toJson(chains);
   }
 
   /**
@@ -88,6 +101,7 @@ public record ScaDependencyDto(
     private String scope;
     private String userDependencyFilePath;
     private String lockfileDependencyFilePath;
+    private List<List<String>> chains;
     private long createdAt;
     private long updatedAt;
 
@@ -121,6 +135,11 @@ public record ScaDependencyDto(
       return this;
     }
 
+    public Builder setChains(List<List<String>> chains) {
+      this.chains = chains;
+      return this;
+    }
+
     public Builder setCreatedAt(long createdAt) {
       this.createdAt = createdAt;
       return this;
@@ -133,8 +152,7 @@ public record ScaDependencyDto(
 
     public ScaDependencyDto build() {
       return new ScaDependencyDto(
-        uuid, scaReleaseUuid, direct, scope, userDependencyFilePath, lockfileDependencyFilePath, createdAt, updatedAt
-      );
+        uuid, scaReleaseUuid, direct, scope, userDependencyFilePath, lockfileDependencyFilePath, chains, createdAt, updatedAt);
     }
   }
 
@@ -146,6 +164,7 @@ public record ScaDependencyDto(
       .setScope(this.scope)
       .setUserDependencyFilePath(this.userDependencyFilePath)
       .setLockfileDependencyFilePath(this.lockfileDependencyFilePath)
+      .setChains(this.chains)
       .setCreatedAt(this.createdAt)
       .setUpdatedAt(this.updatedAt);
   }

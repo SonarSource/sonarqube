@@ -19,6 +19,7 @@
  */
 package org.sonar.db.sca;
 
+import java.util.List;
 import javax.annotation.Nullable;
 
 /**
@@ -32,6 +33,7 @@ import javax.annotation.Nullable;
  * @param scope scope/type of the dep like "compile"
  * @param userDependencyFilePath which manifest file (e.g. package.json)
  * @param lockfileDependencyFilePath which lockfile (e.g. package-lock.json)
+ * @param chains chains that brought the dependency in, e.g. [["pkg:npm/foo@1.0.0", ...], ...]
  * @param packageUrl PURL specification URL
  * @param packageManager package manager
  * @param packageName name of package
@@ -40,19 +42,19 @@ import javax.annotation.Nullable;
  * @param known was the package known to Sonar
  */
 public record ScaDependencyReleaseDto(String dependencyUuid,
-                                      String releaseUuid,
-                                      String componentUuid,
-                                      boolean direct,
-                                      String scope,
-                                      @Nullable String userDependencyFilePath,
-                                      @Nullable String lockfileDependencyFilePath,
-                                      String packageUrl,
-                                      PackageManager packageManager,
-                                      String packageName,
-                                      String version,
-                                      String licenseExpression,
-                                      boolean known
-                                      ) {
+  String releaseUuid,
+  String componentUuid,
+  boolean direct,
+  String scope,
+  @Nullable String userDependencyFilePath,
+  @Nullable String lockfileDependencyFilePath,
+  @Nullable List<List<String>> chains,
+  String packageUrl,
+  PackageManager packageManager,
+  String packageName,
+  String version,
+  String licenseExpression,
+  boolean known) {
 
   public ScaDependencyReleaseDto(ScaDependencyDto dependency, ScaReleaseDto release) {
     this(
@@ -63,13 +65,13 @@ public record ScaDependencyReleaseDto(String dependencyUuid,
       dependency.scope(),
       dependency.userDependencyFilePath(),
       dependency.lockfileDependencyFilePath(),
+      dependency.chains(),
       release.packageUrl(),
       release.packageManager(),
       release.packageName(),
       release.version(),
       release.licenseExpression(),
-      release.known()
-    );
+      release.known());
     if (!dependency.scaReleaseUuid().equals(release.uuid())) {
       throw new IllegalArgumentException("Dependency and release UUIDs should match");
     }

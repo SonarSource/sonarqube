@@ -8,6 +8,7 @@
     sd.scope as scope,
     sd.user_dependency_file_path as userDependencyFilePath,
     sd.lockfile_dependency_file_path as lockfileDependencyFilePath,
+    sd.chains as chains,
     sd.created_at as createdAt,
     sd.updated_at as updatedAt
   </sql>
@@ -20,6 +21,7 @@
       scope,
       user_dependency_file_path,
       lockfile_dependency_file_path,
+      chains,
       created_at,
       updated_at
     ) values (
@@ -29,6 +31,7 @@
       #{scope,jdbcType=VARCHAR},
       #{userDependencyFilePath,jdbcType=VARCHAR},
       #{lockfileDependencyFilePath,jdbcType=VARCHAR},
+      #{chains,jdbcType=CLOB,typeHandler=ListOfListOfStringsTypeHandler},
       #{createdAt,jdbcType=BIGINT},
       #{updatedAt,jdbcType=BIGINT}
     )
@@ -107,6 +110,7 @@
       scope = #{scope, jdbcType=VARCHAR},
       user_dependency_file_path = #{userDependencyFilePath, jdbcType=VARCHAR},
       lockfile_dependency_file_path = #{lockfileDependencyFilePath, jdbcType=VARCHAR},
+      chains = #{chains, jdbcType=CLOB, typeHandler=ListOfListOfStringsTypeHandler},
       updated_at = #{updatedAt, jdbcType=BIGINT}
     where
       uuid = #{uuid, jdbcType=VARCHAR}

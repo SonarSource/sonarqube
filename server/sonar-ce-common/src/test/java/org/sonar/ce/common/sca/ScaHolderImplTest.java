@@ -70,6 +70,7 @@ class ScaHolderImplTest {
         "compile",
         "some/path",
         "another/path",
+        List.of(List.of("pkg:npm/foo@1.0.0")),
         1L,
         2L);
   }

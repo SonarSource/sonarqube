@@ -19,6 +19,7 @@
  */
 package org.sonar.db.sca;
 
+import java.util.List;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -53,6 +54,7 @@ public class ScaDependenciesDbTester {
         "compile",
         "pom.xml",
         "package-lock.json",
+        List.of(List.of("pkg:npm/foo@1.0.0")),
         now,
         now
       );

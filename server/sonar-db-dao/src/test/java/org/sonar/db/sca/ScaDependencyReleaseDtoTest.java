@@ -19,6 +19,7 @@
  */
 package org.sonar.db.sca;
 
+import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 
@@ -42,6 +43,7 @@ class ScaDependencyReleaseDtoTest {
       "scope",
       userDependencyFilePath,
       "lockfileDependencyFilePath",
+      List.of(List.of("pkg:npm/foo@1.0.0")),
       "packageUrl",
       PackageManager.MAVEN,
       "packageName",

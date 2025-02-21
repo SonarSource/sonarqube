@@ -47,7 +47,6 @@ class ScaDependenciesDaoIT {
     List<Map<String, Object>> select = db.select(db.getSession(), "select * from sca_dependencies");
     assertThat(select).hasSize(1);
     Map<String, Object> stringObjectMap = select.get(0);
-    stringObjectMap.remove("chains");
     assertThat(stringObjectMap).containsExactlyInAnyOrderEntriesOf(
       Map.ofEntries(
         Map.entry("uuid", scaDependencyDto.uuid()),
@@ -56,6 +55,7 @@ class ScaDependenciesDaoIT {
         Map.entry("scope", scaDependencyDto.scope()),
         Map.entry("user_dependency_file_path", scaDependencyDto.userDependencyFilePath()),
         Map.entry("lockfile_dependency_file_path", scaDependencyDto.lockfileDependencyFilePath()),
+        Map.entry("chains", scaDependencyDto.getChainsJson()),
         Map.entry("created_at", scaDependencyDto.createdAt()),
         Map.entry("updated_at", scaDependencyDto.updatedAt())));
   }
@@ -210,7 +210,6 @@ class ScaDependenciesDaoIT {
     List<Map<String, Object>> select = db.select(db.getSession(), "select * from sca_dependencies");
     assertThat(select).hasSize(1);
     Map<String, Object> stringObjectMap = select.get(0);
-    stringObjectMap.remove("chains");
     assertThat(stringObjectMap).containsExactlyInAnyOrderEntriesOf(
       Map.ofEntries(
         Map.entry("uuid", updatedScaDependency.uuid()),
@@ -219,6 +218,7 @@ class ScaDependenciesDaoIT {
         Map.entry("scope", updatedScaDependency.scope()),
         Map.entry("user_dependency_file_path", updatedScaDependency.userDependencyFilePath()),
         Map.entry("lockfile_dependency_file_path", updatedScaDependency.lockfileDependencyFilePath()),
+        Map.entry("chains", updatedScaDependency.getChainsJson()),
         Map.entry("created_at", updatedScaDependency.createdAt()),
         Map.entry("updated_at", updatedScaDependency.updatedAt())));
   }

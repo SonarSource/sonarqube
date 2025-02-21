@@ -19,6 +19,7 @@
  */
 package org.sonar.db.sca;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -33,6 +34,7 @@ class ScaDependencyDtoTest {
       "compile",
       "some/path",
       "another/path",
+      List.of(List.of("pkg:npm/fodo@1.0.0")),
       1L,
       2L);
     assertThat(scaDependencyDto).isEqualTo(scaDependencyDto.toBuilder().build());
@@ -53,6 +55,7 @@ class ScaDependencyDtoTest {
       "compile",
       userDependencyFilePath,
       "lockfileDependencyFilePath",
+      List.of(List.of("pkg:npm/foo@1.0.0")),
       1L,
       2L);
   }

@@ -51,11 +51,15 @@ class MyBatisConfBuilder {
     this.conf.setLocalCacheScope(LocalCacheScope.STATEMENT);
   }
 
-  void loadAlias(String alias, Class dtoClass) {
+  void loadTypeHandler(Class<?> typeHandlerClass) {
+    this.conf.getTypeHandlerRegistry().register(typeHandlerClass);
+  }
+
+  void loadAlias(String alias, Class<?> dtoClass) {
     conf.getTypeAliasRegistry().registerAlias(alias, dtoClass);
   }
 
-  void loadMapper(Class mapperClass) {
+  void loadMapper(Class<?> mapperClass) {
     String configFile = configFilePath(mapperClass);
     InputStream input = null;
     try {
