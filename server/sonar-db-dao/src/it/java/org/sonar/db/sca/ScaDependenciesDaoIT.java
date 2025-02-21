@@ -57,9 +57,7 @@ class ScaDependenciesDaoIT {
         Map.entry("user_dependency_file_path", scaDependencyDto.userDependencyFilePath()),
         Map.entry("lockfile_dependency_file_path", scaDependencyDto.lockfileDependencyFilePath()),
         Map.entry("created_at", scaDependencyDto.createdAt()),
-        Map.entry("updated_at", scaDependencyDto.updatedAt())
-      )
-    );
+        Map.entry("updated_at", scaDependencyDto.updatedAt())));
   }
 
   @Test
@@ -204,8 +202,8 @@ class ScaDependenciesDaoIT {
   void update_shouldUpdateScaDependency() {
     ComponentDto componentDto = prepareComponentDto("1");
     ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "scaReleaseUuid", "1", true);
-    ScaDependencyDto updatedScaDependency =
-      scaDependencyDto.toBuilder().setUpdatedAt(scaDependencyDto.updatedAt() + 1).setDirect(false).setLockfileDependencyFilePath("lockfile2").build();
+    ScaDependencyDto updatedScaDependency = scaDependencyDto.toBuilder().setUpdatedAt(scaDependencyDto.updatedAt() + 1).setDirect(false).setLockfileDependencyFilePath("lockfile2")
+      .build();
 
     scaDependenciesDao.update(db.getSession(), updatedScaDependency);
 
@@ -222,9 +220,7 @@ class ScaDependenciesDaoIT {
         Map.entry("user_dependency_file_path", updatedScaDependency.userDependencyFilePath()),
         Map.entry("lockfile_dependency_file_path", updatedScaDependency.lockfileDependencyFilePath()),
         Map.entry("created_at", updatedScaDependency.createdAt()),
-        Map.entry("updated_at", updatedScaDependency.updatedAt())
-      )
-    );
+        Map.entry("updated_at", updatedScaDependency.updatedAt())));
   }
 
   @Test
