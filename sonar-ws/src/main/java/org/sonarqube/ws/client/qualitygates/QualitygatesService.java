@@ -394,4 +394,13 @@ public class QualitygatesService extends BaseService {
         .setMediaType(MediaTypes.JSON)
     ).content();
   }
+
+  public void setAiCodeAssurance(String gateName, boolean aiCodeAssurance) {
+    call(
+      new PostRequest(path("set_ai_code_assurance"))
+        .setParam("gateName", gateName)
+        .setParam("aiCodeAssurance", aiCodeAssurance)
+        .setMediaType(MediaTypes.JSON)
+    ).content();
+  }
 }

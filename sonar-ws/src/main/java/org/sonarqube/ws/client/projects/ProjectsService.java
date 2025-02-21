@@ -203,4 +203,13 @@ public class ProjectsService extends BaseService {
         .setMediaType(MediaTypes.JSON)
     ).content();
   }
+
+  public void setContainsAiCode(String projectKey, boolean containsAiCode) {
+    call(
+      new PostRequest(path("set_contains_ai_code"))
+        .setParam("project", projectKey)
+        .setParam("contains_ai_code", containsAiCode)
+        .setMediaType(MediaTypes.JSON)
+      ).content();
+  }
 }
