@@ -19,6 +19,7 @@
  */
 package org.sonar.db.sca;
 
+import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.db.Pagination;
@@ -33,6 +34,8 @@ public interface ScaDependenciesMapper {
   List<ScaDependencyDto> selectByBranchUuid(String branchUuid);
 
   List<ScaDependencyDto> selectByQuery(@Param("query") ScaDependenciesQuery query, @Param("pagination") Pagination pagination);
+
+  List<ScaDependencyDto> selectByReleaseUuids(Collection<String> releaseUuids);
 
   void update(ScaDependencyDto dto);
 

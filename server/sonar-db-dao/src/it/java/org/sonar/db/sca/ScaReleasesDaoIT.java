@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.Pagination;
@@ -147,6 +148,21 @@ class ScaReleasesDaoIT {
   void selectByQuery_shouldPartiallyMatchPackageName_whenQueriedByText() {
     ComponentDto componentDto = prepareComponentDto("1");
     ScaReleaseDto scaReleaseDto1 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "1", PackageManager.MAVEN, "foo.bar");
+    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), scaReleaseDto1, "1", true);
+    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), scaReleaseDto1, "2", false);
+    var log = LoggerFactory.getLogger("");
+    List<Map<String, Object>> temp = db.select(db.getSession(), "select * from sca_releases");
+    log.warn("sca_releases: {}", temp.stream().count());
+    for (Map<String, Object> map : temp) {
+      log.warn(map.toString());
+    }
+    temp = db.select(db.getSession(), "select * from sca_dependencies");
+    log.warn("sca_dependencies: {}", temp.stream().count());
+    for (Map<String, Object> map : temp) {
+      log.warn(map.toString());
+    }
+
+
     @SuppressWarnings("unused")
     ScaReleaseDto scaReleaseDto2 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "2", PackageManager.MAVEN, "bar.mee");
     ScaReleaseDto scaReleaseDto3 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "3", PackageManager.MAVEN, "foo.bar.me");

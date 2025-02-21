@@ -87,6 +87,22 @@ class ScaDependenciesDaoIT {
   }
 
   @Test
+  void selectByReleaseUuids_shouldReturnScaDependencies() {
+    ComponentDto componentDto = prepareComponentDto("1");
+    ScaDependencyDto scaDependencyDto1a = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "1a", true, PackageManager.MAVEN, "foo.bar1");
+    // same release, different dependency
+    ScaDependencyDto scaDependencyDto1b = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), scaDependencyDto1a.scaReleaseUuid(), "1b", false);
+    ScaDependencyDto scaDependencyDto2 = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "2", true, PackageManager.MAVEN, "foo.bar2");
+    ScaDependencyDto scaDependencyDto3 = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "3", true, PackageManager.MAVEN, "foo.bar3");
+
+    List<ScaDependencyDto> results = scaDependenciesDao.selectByReleaseUuids(db.getSession(), List.of(scaDependencyDto1a.scaReleaseUuid(), scaDependencyDto2.scaReleaseUuid()));
+
+    assertThat(results)
+      .containsExactlyInAnyOrder(scaDependencyDto1a, scaDependencyDto1b, scaDependencyDto2)
+      .doesNotContain(scaDependencyDto3);
+  }
+
+  @Test
   void selectByQuery_shouldReturnScaDependencies_whenQueryByBranchUuid() {
     ComponentDto componentDto = prepareComponentDto("1");
     ScaDependencyDto scaDependencyDto1 = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "1", true, PackageManager.MAVEN, "foo.bar");

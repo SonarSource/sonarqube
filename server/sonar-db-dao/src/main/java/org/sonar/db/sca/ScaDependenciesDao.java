@@ -19,6 +19,7 @@
  */
 package org.sonar.db.sca;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.sonar.db.Dao;
@@ -60,5 +61,9 @@ public class ScaDependenciesDao implements Dao {
 
   public void update(DbSession session, ScaDependencyDto scaDependencyDto) {
     mapper(session).update(scaDependencyDto);
+  }
+
+  public List<ScaDependencyDto> selectByReleaseUuids(DbSession dbSession, Collection<String> releaseUuids) {
+    return mapper(dbSession).selectByReleaseUuids(releaseUuids);
   }
 }

@@ -45,6 +45,20 @@
     where sd.uuid = #{uuid,jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByReleaseUuids" parameterType="string" resultType="org.sonar.db.sca.ScaDependencyDto">
+    select <include refid="scaDependenciesColumns"/>
+    from sca_dependencies sd
+    <if test="arg0.isEmpty()">
+      where 1=0
+    </if>
+    <if test="!arg0.isEmpty()">
+      where sd.sca_release_uuid in
+      <foreach collection="collection" item="sca_release_uuid" open="(" close=")" separator=",">
+        #{sca_release_uuid, jdbcType=VARCHAR}
+      </foreach>
+    </if>
+  </select>
+
   <select id="selectByBranchUuid" parameterType="string" resultType="org.sonar.db.sca.ScaDependencyDto">
     select <include refid="scaDependenciesColumns"/>
     from sca_dependencies sd
@@ -55,14 +69,14 @@
 
   <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.sca.ScaDependencyDto">
     select <include refid="scaDependenciesColumns"/>
-    <include refid="sqlSelectByQuery" />
+    <include refid="sqlSelectByQuery"/>
     ORDER BY sd.uuid ASC
     <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <select id="countByQuery" resultType="int">
     select count(sd.uuid)
-    <include refid="sqlSelectByQuery" />
+    <include refid="sqlSelectByQuery"/>
   </select>
 
   <sql id="sqlSelectByQuery">
