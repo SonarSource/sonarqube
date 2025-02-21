@@ -35,6 +35,7 @@ import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
+import org.sonar.ce.task.projectanalysis.component.ViewAttributes;
 import org.sonar.ce.task.projectanalysis.duplication.ComputeDuplicationDataMeasure;
 import org.sonar.ce.task.projectanalysis.measure.BestValueOptimization;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
@@ -157,11 +158,17 @@ public class PersistJsonMeasuresStep implements ComputationStep {
 
   private void updateMeasureMigratedFlag() {
     Type type = treeRootHolder.getRoot().getType();
-    if (type == Type.PROJECT) {
+    if (type == Type.PROJECT || isApplication(treeRootHolder.getRoot())) {
       persistBranchFlag();
     } else if (type == Type.VIEW) {
       persistPortfolioFlag();
     }
+  }
+
+  private static boolean isApplication(Component component) {
+    return component.getType() == Type.VIEW
+      && component.getViewAttributes() != null
+      && component.getViewAttributes().getType() == ViewAttributes.Type.APPLICATION;
   }
 
   private void persistBranchFlag() {

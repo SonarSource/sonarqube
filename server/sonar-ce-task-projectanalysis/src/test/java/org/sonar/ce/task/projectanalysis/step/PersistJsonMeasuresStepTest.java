@@ -29,11 +29,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
-import org.sonar.ce.task.projectanalysis.analysis.Analysis;
-import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
+import org.sonar.ce.task.projectanalysis.component.ViewAttributes;
 import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
 import org.sonar.ce.task.projectanalysis.duplication.ComputeDuplicationDataMeasure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
@@ -50,10 +49,8 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.server.platform.db.migration.adhoc.AddMeasuresMigratedColumnToPortfoliosTable;
 import org.sonar.server.platform.db.migration.adhoc.AddMeasuresMigratedColumnToProjectBranchesTable;
 import org.sonar.server.platform.db.migration.adhoc.CreateMeasuresTable;
-import org.sonar.server.project.Project;
 
 import static java.lang.String.format;
-import static java.util.Collections.emptyList;
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -94,8 +91,6 @@ public class PersistJsonMeasuresStepTest extends BaseStepTest {
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule();
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
-  @Rule
-  public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
   private final ComputeDuplicationDataMeasure computeDuplicationDataMeasure = mock(ComputeDuplicationDataMeasure.class);
   private final TestComputationStepContext context = new TestComputationStepContext();
 
@@ -186,6 +181,24 @@ public class PersistJsonMeasuresStepTest extends BaseStepTest {
   }
 
   @Test
+  public void persist_live_measures_of_application() {
+    prepareApplication();
+
+    measureRepository.addRawMeasure(REF_1, STRING_METRIC.getKey(), newMeasureBuilder().create("view-value"));
+    measureRepository.addRawMeasure(REF_2, STRING_METRIC.getKey(), newMeasureBuilder().create("project-value"));
+
+    step().execute(context);
+
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(2);
+    assertThat(selectMeasure("view-uuid"))
+      .hasValueSatisfying(measure -> assertThat(measure.getMetricValues()).containsEntry(STRING_METRIC.getKey(), "view-value"));
+    assertThat(selectMeasure("project-uuid"))
+      .hasValueSatisfying(measure -> assertThat(measure.getMetricValues()).containsEntry(STRING_METRIC.getKey(), "project-value"));
+    assertThat(getBranchMigratedFlag("view-uuid")).isTrue();
+    verifyInsertsOrUpdates(2);
+  }
+
+  @Test
   public void persists_large_number_of_measures() {
     int num = 11;
     List<ReportComponent> files = new LinkedList<>();
@@ -199,7 +212,6 @@ public class PersistJsonMeasuresStepTest extends BaseStepTest {
       .build();
     insertBranch();
     treeRootHolder.setRoot(project);
-    analysisMetadataHolder.setBaseAnalysis(new Analysis.Builder().setUuid("uuid").setCreatedAt(1L).build());
     insertMeasure("file-uuid0", "project-uuid", STRING_METRIC, valuePrefix + "0");
 
     for (int i = 0; i < num; i++) {
@@ -364,8 +376,6 @@ public class PersistJsonMeasuresStepTest extends BaseStepTest {
           .build())
       .build();
     treeRootHolder.setRoot(project);
-    analysisMetadataHolder.setProject(new Project(project.getUuid(), project.getKey(), project.getName(), project.getDescription(),
-      emptyList()));
 
     // components as persisted in db
     insertComponent("project-key", "project-uuid");
@@ -379,6 +389,7 @@ public class PersistJsonMeasuresStepTest extends BaseStepTest {
   private void preparePortfolio() {
     // tree of components
     Component portfolio = ViewsComponent.builder(VIEW, REF_1).setUuid("view-uuid")
+      .setViewAttributes(new ViewAttributes(ViewAttributes.Type.PORTFOLIO))
       .addChildren(
         ViewsComponent.builder(SUBVIEW, REF_2).setUuid("subview-uuid")
           .addChildren(
@@ -389,11 +400,20 @@ public class PersistJsonMeasuresStepTest extends BaseStepTest {
     treeRootHolder.setRoot(portfolio);
 
     // components as persisted in db
-    ComponentDto portfolioDto = db.components().insertPrivatePortfolio(c -> c.setUuid("view-uuid").setKey("view-key").setBranchUuid("view" +
-      "-uuid"));
+    db.components().insertPrivatePortfolio(c -> c.setUuid("view-uuid").setKey("view-key").setBranchUuid("view-uuid"));
     insertComponent("subview-key", "subview-uuid");
     insertComponent("project-key", "project-uuid");
-    analysisMetadataHolder.setProject(Project.from(portfolioDto));
+  }
+
+  private void prepareApplication() {
+    Component application = ViewsComponent.builder(Component.Type.VIEW, REF_1).setUuid("view-uuid")
+      .setViewAttributes(new ViewAttributes(ViewAttributes.Type.APPLICATION))
+      .addChildren(ViewsComponent.builder(PROJECT_VIEW, REF_2).setUuid("project-uuid").build())
+      .build();
+    treeRootHolder.setRoot(application);
+
+    db.components().insertPrivateApplication(c -> c.setUuid("view-uuid").setKey("view-key").setBranchUuid("view-uuid"));
+    insertComponent("project-key", "project-uuid");
   }
 
   private Optional<JsonMeasureDto> selectMeasure(String componentUuid) {
