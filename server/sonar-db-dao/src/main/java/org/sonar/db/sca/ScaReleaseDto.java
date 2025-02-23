@@ -68,6 +68,20 @@ public record ScaReleaseDto(
     checkArgument(value.length() <= maxLength, "Maximum length of %s is %s: %s", name, maxLength, value);
   }
 
+  public Builder toBuilder() {
+    return new Builder()
+      .setUuid(this.uuid)
+      .setComponentUuid(this.componentUuid)
+      .setPackageUrl(this.packageUrl)
+      .setPackageManager(this.packageManager)
+      .setPackageName(this.packageName)
+      .setVersion(this.version)
+      .setLicenseExpression(this.licenseExpression)
+      .setKnown(this.known)
+      .setCreatedAt(this.createdAt)
+      .setUpdatedAt(this.updatedAt);
+  }
+
   public static class Builder {
     private String uuid;
     private String componentUuid;
@@ -132,22 +146,7 @@ public record ScaReleaseDto(
 
     public ScaReleaseDto build() {
       return new ScaReleaseDto(
-        uuid, componentUuid, packageUrl, packageManager, packageName, version, licenseExpression, known, createdAt, updatedAt
-      );
+        uuid, componentUuid, packageUrl, packageManager, packageName, version, licenseExpression, known, createdAt, updatedAt);
     }
-  }
-
-  public Builder toBuilder() {
-    return new Builder()
-      .setUuid(this.uuid)
-      .setComponentUuid(this.componentUuid)
-      .setPackageUrl(this.packageUrl)
-      .setPackageManager(this.packageManager)
-      .setPackageName(this.packageName)
-      .setVersion(this.version)
-      .setLicenseExpression(this.licenseExpression)
-      .setKnown(this.known)
-      .setCreatedAt(this.createdAt)
-      .setUpdatedAt(this.updatedAt);
   }
 }

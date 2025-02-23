@@ -47,14 +47,12 @@ class ScaExecutorTest {
   private final CliCacheService cliCacheService = mock(CliCacheService.class);
   private final ReportPublisher reportPublisher = mock(ReportPublisher.class);
   private final FeatureFlagsRepository featureFlagsRepository = mock(FeatureFlagsRepository.class);
-  private DefaultInputModule root;
-
   @RegisterExtension
   private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
-
-  @TempDir File rootModuleDir;
-
   private final ScaExecutor underTest = new ScaExecutor(cliCacheService, cliService, reportPublisher, featureFlagsRepository);
+  @TempDir
+  File rootModuleDir;
+  private DefaultInputModule root;
 
   @BeforeEach
   void before() {

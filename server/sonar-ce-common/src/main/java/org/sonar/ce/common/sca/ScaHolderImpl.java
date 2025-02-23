@@ -30,23 +30,23 @@ public class ScaHolderImpl implements ScaHolder {
   private List<ScaReleaseDto> releases = null;
 
   @Override
-  public void setDependencies(Collection<ScaDependencyDto> dependencies) {
-    this.dependencies = List.copyOf(dependencies);
-  }
-
-  @Override
   public List<ScaDependencyDto> getDependencies() {
     return Optional.ofNullable(this.dependencies).orElseThrow(() -> new IllegalStateException("SCA dependency analysis was not performed"));
   }
 
   @Override
-  public void setReleases(Collection<ScaReleaseDto> releases) {
-    this.releases = List.copyOf(releases);
+  public void setDependencies(Collection<ScaDependencyDto> dependencies) {
+    this.dependencies = List.copyOf(dependencies);
   }
 
   @Override
   public List<ScaReleaseDto> getReleases() {
     return Optional.ofNullable(this.releases).orElseThrow(() -> new IllegalStateException("SCA dependency analysis was not performed"));
+  }
+
+  @Override
+  public void setReleases(Collection<ScaReleaseDto> releases) {
+    this.releases = List.copyOf(releases);
   }
 
   @Override

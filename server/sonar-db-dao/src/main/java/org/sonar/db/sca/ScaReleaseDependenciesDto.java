@@ -61,7 +61,6 @@ public record ScaReleaseDependenciesDto(
       release.known(),
       release.createdAt(),
       release.updatedAt(),
-      dependencies
-    );
+      dependencies);
   }
 }

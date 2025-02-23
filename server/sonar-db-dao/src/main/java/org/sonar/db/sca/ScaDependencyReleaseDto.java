@@ -26,20 +26,20 @@ import javax.annotation.Nullable;
  * This DTO represents the join of sca_dependencies and sca_releases, and is "read only"
  * (it cannot be inserted, it would only be a query result).
  *
- * @param dependencyUuid uuid of the sca_dependencies row
- * @param releaseUuid uuid of the sca_releases row
- * @param componentUuid uuid of the component both rows were associated with
- * @param direct is it a direct dep
- * @param scope scope/type of the dep like "compile"
- * @param userDependencyFilePath which manifest file (e.g. package.json)
+ * @param dependencyUuid             uuid of the sca_dependencies row
+ * @param releaseUuid                uuid of the sca_releases row
+ * @param componentUuid              uuid of the component both rows were associated with
+ * @param direct                     is it a direct dep
+ * @param scope                      scope/type of the dep like "compile"
+ * @param userDependencyFilePath     which manifest file (e.g. package.json)
  * @param lockfileDependencyFilePath which lockfile (e.g. package-lock.json)
- * @param chains chains that brought the dependency in, e.g. [["pkg:npm/foo@1.0.0", ...], ...]
- * @param packageUrl PURL specification URL
- * @param packageManager package manager
- * @param packageName name of package
- * @param version version
- * @param licenseExpression SPDX license expression
- * @param known was the package known to Sonar
+ * @param chains                     chains that brought the dependency in, e.g. [["pkg:npm/foo@1.0.0", ...], ...]
+ * @param packageUrl                 PURL specification URL
+ * @param packageManager             package manager
+ * @param packageName                name of package
+ * @param version                    version
+ * @param licenseExpression          SPDX license expression
+ * @param known                      was the package known to Sonar
  */
 public record ScaDependencyReleaseDto(String dependencyUuid,
   String releaseUuid,

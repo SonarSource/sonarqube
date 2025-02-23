@@ -29,6 +29,31 @@ import org.sonar.db.sca.ScaReleaseDto;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ScaHolderImplTest {
+  private static ScaDependencyDto newScaDependencyDto() {
+    return new ScaDependencyDto("scaDependencyUuid",
+      "scaReleaseUuid",
+      true,
+      "compile",
+      "some/path",
+      "another/path",
+      List.of(List.of("pkg:npm/foo@1.0.0")),
+      1L,
+      2L);
+  }
+
+  private static ScaReleaseDto newScaReleaseDto() {
+    return new ScaReleaseDto("scaReleaseUuid",
+      "componentUuid",
+      "packageUrl",
+      PackageManager.MAVEN,
+      "foo:bar",
+      "1.0.0",
+      "MIT",
+      true,
+      1L,
+      2L);
+  }
+
   @Test
   void test_setAndGetDependencies() {
     ScaHolderImpl scaHolderImpl = new ScaHolderImpl();
@@ -61,30 +86,5 @@ class ScaHolderImplTest {
     assertThat(scaHolderImpl.dependencyAnalysisPresent()).isFalse();
     scaHolderImpl.setReleases(releases);
     assertThat(scaHolderImpl.dependencyAnalysisPresent()).isTrue();
-  }
-
-  private static ScaDependencyDto newScaDependencyDto() {
-    return new ScaDependencyDto("scaDependencyUuid",
-      "scaReleaseUuid",
-        true,
-        "compile",
-        "some/path",
-        "another/path",
-        List.of(List.of("pkg:npm/foo@1.0.0")),
-        1L,
-        2L);
-  }
-
-  private static ScaReleaseDto newScaReleaseDto() {
-    return new ScaReleaseDto("scaReleaseUuid",
-      "componentUuid",
-      "packageUrl",
-      PackageManager.MAVEN,
-      "foo:bar",
-      "1.0.0",
-      "MIT",
-      true,
-      1L,
-      2L);
   }
 }

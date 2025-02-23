@@ -48,16 +48,15 @@ public class ScaDependenciesDbTester {
 
   public ScaDependencyDto newScaDependencyDto(String componentUuid, String scaReleaseUuid, String suffix, boolean direct) {
     long now = System.currentTimeMillis();
-      return new ScaDependencyDto("scaDependencyUuid" + suffix,
-        scaReleaseUuid,
-        direct,
-        "compile",
-        "pom.xml",
-        "package-lock.json",
-        List.of(List.of("pkg:npm/foo@1.0.0")),
-        now,
-        now
-      );
+    return new ScaDependencyDto("scaDependencyUuid" + suffix,
+      scaReleaseUuid,
+      direct,
+      "compile",
+      "pom.xml",
+      "package-lock.json",
+      List.of(List.of("pkg:npm/foo@1.0.0")),
+      now,
+      now);
   }
 
   public ScaDependencyDto insertScaDependency(String componentUuid, String scaReleaseUuid, String suffix, boolean direct) {

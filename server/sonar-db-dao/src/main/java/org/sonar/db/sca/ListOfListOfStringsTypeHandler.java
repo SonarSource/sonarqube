@@ -19,16 +19,16 @@
  */
 package org.sonar.db.sca;
 
-import org.apache.ibatis.type.BaseTypeHandler;
-import org.apache.ibatis.type.JdbcType;
 import com.google.gson.Gson;
-import java.util.List;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.ResultSet;
 import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import org.apache.ibatis.type.BaseTypeHandler;
+import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;
 import org.apache.ibatis.type.MappedTypes;
 
@@ -36,7 +36,8 @@ import org.apache.ibatis.type.MappedTypes;
 @MappedTypes(List.class)
 public class ListOfListOfStringsTypeHandler extends BaseTypeHandler<List<List<String>>> {
   private static final Gson GSON = new Gson();
-  private static final Type type = new TypeToken<List<List<String>>>() {}.getType();
+  private static final Type type = new TypeToken<List<List<String>>>() {
+  }.getType();
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, List<List<String>> parameter, JdbcType jdbcType) throws SQLException {

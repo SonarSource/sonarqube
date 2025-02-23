@@ -75,6 +75,12 @@ public record ScaDependencyDto(
     }
   }
 
+  private static void checkLength(@Nullable String value, int maxLength, String name) {
+    if (value != null) {
+      checkArgument(value.length() <= maxLength, "Maximum length of %s is %s: %s", name, maxLength, value);
+    }
+  }
+
   public String getChainsJson() {
     return chains == null ? null : GSON.toJson(chains);
   }
@@ -88,10 +94,17 @@ public record ScaDependencyDto(
     return userDependencyFilePath != null ? userDependencyFilePath : lockfileDependencyFilePath;
   }
 
-  private static void checkLength(@Nullable String value, int maxLength, String name) {
-    if (value != null) {
-      checkArgument(value.length() <= maxLength, "Maximum length of %s is %s: %s", name, maxLength, value);
-    }
+  public Builder toBuilder() {
+    return new Builder()
+      .setUuid(this.uuid)
+      .setScaReleaseUuid(this.scaReleaseUuid)
+      .setDirect(this.direct)
+      .setScope(this.scope)
+      .setUserDependencyFilePath(this.userDependencyFilePath)
+      .setLockfileDependencyFilePath(this.lockfileDependencyFilePath)
+      .setChains(this.chains)
+      .setCreatedAt(this.createdAt)
+      .setUpdatedAt(this.updatedAt);
   }
 
   public static class Builder {
@@ -154,18 +167,5 @@ public record ScaDependencyDto(
       return new ScaDependencyDto(
         uuid, scaReleaseUuid, direct, scope, userDependencyFilePath, lockfileDependencyFilePath, chains, createdAt, updatedAt);
     }
-  }
-
-  public Builder toBuilder() {
-    return new Builder()
-      .setUuid(this.uuid)
-      .setScaReleaseUuid(this.scaReleaseUuid)
-      .setDirect(this.direct)
-      .setScope(this.scope)
-      .setUserDependencyFilePath(this.userDependencyFilePath)
-      .setLockfileDependencyFilePath(this.lockfileDependencyFilePath)
-      .setChains(this.chains)
-      .setCreatedAt(this.createdAt)
-      .setUpdatedAt(this.updatedAt);
   }
 }

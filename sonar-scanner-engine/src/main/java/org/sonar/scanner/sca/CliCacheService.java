@@ -51,8 +51,8 @@ import static java.lang.String.format;
  * can make use of it.
  */
 public class CliCacheService {
-  private static final Logger LOG = LoggerFactory.getLogger(CliCacheService.class);
   protected static final String CLI_WS_URL = "api/v2/analysis/sca-clis";
+  private static final Logger LOG = LoggerFactory.getLogger(CliCacheService.class);
   private final SonarUserHome sonarUserHome;
   private final ScannerWsClient wsClient;
   private final System2 system2;
@@ -61,106 +61,6 @@ public class CliCacheService {
     this.sonarUserHome = sonarUserHome;
     this.wsClient = wsClient;
     this.system2 = system2;
-  }
-
-  public File cacheCli() {
-    List<CliMetadataResponse> metadataResponses = getLatestMetadata(apiOsName(), apiArch());
-
-    if (metadataResponses.isEmpty()) {
-      throw new IllegalStateException(format("Could not find CLI for %s %s", apiOsName(), apiArch()));
-    }
-
-    // We should only be getting one matching CLI for the OS + Arch combination.
-    // If we have more than one CLI to choose from then I'm not sure which one to choose.
-    if (metadataResponses.size() > 1) {
-      throw new IllegalStateException("Multiple CLI matches found. Unable to correctly cache CLI.");
-    }
-
-    CliMetadataResponse metadataResponse = metadataResponses.get(0);
-    String checksum = metadataResponse.sha256();
-    // If we have a matching checksum dir with the existing CLI file, then we are up to date.
-    if(!cachedCliFile(checksum).exists()) {
-      LOG.debug("CLI checksum mismatch");
-      downloadCli(metadataResponse.id(), checksum);
-    }
-
-    return cachedCliFile(checksum);
-  }
-
-  Path cacheDir() {
-    return sonarUserHome.getPath().resolve("cache");
-  }
-
-  private File cachedCliFile(String checksum) {
-    return cacheDir().resolve(checksum).resolve(fileName()).toFile();
-  }
-
-  private String fileName() {
-    return system2.isOsWindows() ? "tidelift.exe" : "tidelift";
-  }
-
-  private List<CliMetadataResponse> getLatestMetadata(String osName, String arch) {
-    LOG.info("Requesting CLI for OS {} and arch {}", osName, arch);
-    GetRequest getRequest = new GetRequest(CLI_WS_URL).setParam("os", osName).setParam("arch", arch);
-    try (Reader reader = wsClient.call(getRequest).contentReader()) {
-      Type listOfMetadata = new TypeToken<ArrayList<CliMetadataResponse>>() {}.getType();
-      return new Gson().fromJson(reader, listOfMetadata);
-    } catch (Exception e) {
-      throw new IllegalStateException("Unable to load CLI metadata", e);
-    }
-  }
-
-  private void downloadCli(String id, String checksum) {
-    LOG.info("Downloading cli {}", id);
-    GetRequest getRequest = new GetRequest(CLI_WS_URL + "/" + id).setHeader("Accept", "application/octet-stream");
-
-    try (WsResponse response = wsClient.call(getRequest)) {
-      // Download to a temporary file location in case another process is also trying to
-      // create the CLI file in the checksum cache directory. Once the file is downloaded to a temporary
-      // location, do an atomic move to the correct cache location.
-      Path tempDir = createTempDir();
-      Path tempFile = newTempFile(tempDir);
-      downloadBinaryTo(tempFile, response);
-      File destinationFile = cachedCliFile(checksum);
-      // We need to make sure the folder structure exists for the correct cache location before performing the move.
-      mkdir(destinationFile.toPath().getParent());
-      moveFile(tempFile, destinationFile.toPath());
-      if (!destinationFile.setExecutable(true, false)){
-        throw new IllegalStateException("Unable to mark CLI as executable");
-      }
-    } catch (Exception e) {
-      throw new IllegalStateException("Unable to download CLI executable", e);
-    }
-  }
-
-  String apiOsName() {
-    // We don't want to send the raw OS name because there could be too many combinations of the OS name
-    // to reliably match up with the correct CLI needed to be downloaded. Instead, we send a subset of
-    // OS names that should match to the correct CLI here.
-    if(system2.isOsWindows()) {
-      return "windows";
-    } else if (system2.isOsMac()) {
-      return "mac";
-    } else {
-      return "linux";
-    }
-  }
-
-  String apiArch() {
-    return SystemUtils.OS_ARCH.toLowerCase(Locale.ENGLISH);
-  }
-
-  Path createTempDir() {
-    Path dir = sonarUserHome.getPath().resolve("_tmp");
-    try {
-      if (Files.exists(dir)) {
-        return dir;
-      } else {
-        return Files.createDirectory(dir);
-      }
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to create temp directory at " + dir, e);
-    }
   }
 
   static Path newTempFile(Path tempDir) {
@@ -204,11 +104,112 @@ public class CliCacheService {
     }
   }
 
+  public File cacheCli() {
+    List<CliMetadataResponse> metadataResponses = getLatestMetadata(apiOsName(), apiArch());
+
+    if (metadataResponses.isEmpty()) {
+      throw new IllegalStateException(format("Could not find CLI for %s %s", apiOsName(), apiArch()));
+    }
+
+    // We should only be getting one matching CLI for the OS + Arch combination.
+    // If we have more than one CLI to choose from then I'm not sure which one to choose.
+    if (metadataResponses.size() > 1) {
+      throw new IllegalStateException("Multiple CLI matches found. Unable to correctly cache CLI.");
+    }
+
+    CliMetadataResponse metadataResponse = metadataResponses.get(0);
+    String checksum = metadataResponse.sha256();
+    // If we have a matching checksum dir with the existing CLI file, then we are up to date.
+    if (!cachedCliFile(checksum).exists()) {
+      LOG.debug("CLI checksum mismatch");
+      downloadCli(metadataResponse.id(), checksum);
+    }
+
+    return cachedCliFile(checksum);
+  }
+
+  Path cacheDir() {
+    return sonarUserHome.getPath().resolve("cache");
+  }
+
+  private File cachedCliFile(String checksum) {
+    return cacheDir().resolve(checksum).resolve(fileName()).toFile();
+  }
+
+  private String fileName() {
+    return system2.isOsWindows() ? "tidelift.exe" : "tidelift";
+  }
+
+  private List<CliMetadataResponse> getLatestMetadata(String osName, String arch) {
+    LOG.info("Requesting CLI for OS {} and arch {}", osName, arch);
+    GetRequest getRequest = new GetRequest(CLI_WS_URL).setParam("os", osName).setParam("arch", arch);
+    try (Reader reader = wsClient.call(getRequest).contentReader()) {
+      Type listOfMetadata = new TypeToken<ArrayList<CliMetadataResponse>>() {
+      }.getType();
+      return new Gson().fromJson(reader, listOfMetadata);
+    } catch (Exception e) {
+      throw new IllegalStateException("Unable to load CLI metadata", e);
+    }
+  }
+
+  private void downloadCli(String id, String checksum) {
+    LOG.info("Downloading cli {}", id);
+    GetRequest getRequest = new GetRequest(CLI_WS_URL + "/" + id).setHeader("Accept", "application/octet-stream");
+
+    try (WsResponse response = wsClient.call(getRequest)) {
+      // Download to a temporary file location in case another process is also trying to
+      // create the CLI file in the checksum cache directory. Once the file is downloaded to a temporary
+      // location, do an atomic move to the correct cache location.
+      Path tempDir = createTempDir();
+      Path tempFile = newTempFile(tempDir);
+      downloadBinaryTo(tempFile, response);
+      File destinationFile = cachedCliFile(checksum);
+      // We need to make sure the folder structure exists for the correct cache location before performing the move.
+      mkdir(destinationFile.toPath().getParent());
+      moveFile(tempFile, destinationFile.toPath());
+      if (!destinationFile.setExecutable(true, false)) {
+        throw new IllegalStateException("Unable to mark CLI as executable");
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException("Unable to download CLI executable", e);
+    }
+  }
+
+  String apiOsName() {
+    // We don't want to send the raw OS name because there could be too many combinations of the OS name
+    // to reliably match up with the correct CLI needed to be downloaded. Instead, we send a subset of
+    // OS names that should match to the correct CLI here.
+    if (system2.isOsWindows()) {
+      return "windows";
+    } else if (system2.isOsMac()) {
+      return "mac";
+    } else {
+      return "linux";
+    }
+  }
+
+  String apiArch() {
+    return SystemUtils.OS_ARCH.toLowerCase(Locale.ENGLISH);
+  }
+
+  Path createTempDir() {
+    Path dir = sonarUserHome.getPath().resolve("_tmp");
+    try {
+      if (Files.exists(dir)) {
+        return dir;
+      } else {
+        return Files.createDirectory(dir);
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to create temp directory at " + dir, e);
+    }
+  }
+
   private record CliMetadataResponse(
     String id,
     String filename,
     String sha256,
     String os,
-    String arch
-  ) { }
+    String arch) {
+  }
 }

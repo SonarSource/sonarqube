@@ -70,8 +70,7 @@ class CliServiceTest {
       root.getWorkDir().resolve("dependency-files.zip").toString(),
       "--directory",
       root.getBaseDir().toString(),
-      "--debug"
-    );
+      "--debug");
 
     String argumentOutput = "Arguments Passed In: " + String.join(" ", args);
 

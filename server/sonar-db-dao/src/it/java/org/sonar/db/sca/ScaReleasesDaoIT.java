@@ -162,7 +162,6 @@ class ScaReleasesDaoIT {
       log.warn(map.toString());
     }
 
-
     @SuppressWarnings("unused")
     ScaReleaseDto scaReleaseDto2 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "2", PackageManager.MAVEN, "bar.mee");
     ScaReleaseDto scaReleaseDto3 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "3", PackageManager.MAVEN, "foo.bar.me");

@@ -31,8 +31,7 @@ public record ScaDependenciesQuery(
   String branchUuid,
   @Nullable Boolean direct,
   @Nullable List<String> packageManagers,
-  @Nullable String query
-) {
+  @Nullable String query) {
 
   /**
    * Used by MyBatis mapper

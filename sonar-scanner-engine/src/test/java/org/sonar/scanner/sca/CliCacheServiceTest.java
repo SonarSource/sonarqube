@@ -59,12 +59,10 @@ class CliCacheServiceTest {
   private final System2 system2 = mock(System2.class);
 
   private final CliCacheService underTest = new CliCacheService(sonarUserHome, scannerWsClient, system2);
-
-  @TempDir
-  public Path cacheDir;
-
   @RegisterExtension
   private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
+  @TempDir
+  public Path cacheDir;
 
   @BeforeEach
   void setUp() {
@@ -214,7 +212,6 @@ class CliCacheServiceTest {
 
       assertThatThrownBy(() -> CliCacheService.moveFile(sourceFile, targetFile)).isInstanceOf(IllegalStateException.class)
         .hasMessageContaining(format("Fail to move %s to %s", sourceFile, targetFile));
-
 
       assertThat(logTester.logs(Level.WARN)).contains(format("Unable to rename %s to %s", sourceFile, targetFile));
       assertThat(logTester.logs(Level.WARN)).contains("A copy/delete will be tempted but with no guarantee of atomicity");
