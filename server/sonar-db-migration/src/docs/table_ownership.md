@@ -95,7 +95,9 @@ Important read: [Data Ownership Principles](https://xtranet-sonarsource.atlassia
 | rules_profiles | Dev and Team Workflow Squad |
 | saml_message_ids |  |
 | sca_dependencies | SCA Squad |
+| sca_issues | SCA Squad |
 | sca_releases | SCA Squad |
+| sca_vulnerability_issues | SCA Squad |
 | scanner_analysis_cache |  |
 | schema_migrations |  |
 | scim_groups |  |

@@ -89,7 +89,9 @@ import org.sonar.db.rule.RuleChangeDao;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleRepositoryDao;
 import org.sonar.db.sca.ScaDependenciesDao;
+import org.sonar.db.sca.ScaIssuesDao;
 import org.sonar.db.sca.ScaReleasesDao;
+import org.sonar.db.sca.ScaVulnerabilityIssuesDao;
 import org.sonar.db.scannercache.ScannerAnalysisCacheDao;
 import org.sonar.db.schemamigration.SchemaMigrationDao;
 import org.sonar.db.scim.ScimGroupDao;
@@ -204,6 +206,8 @@ public class DbClient {
   private final TelemetryMetricsSentDao telemetryMetricsSentDao;
   private final ScaReleasesDao scaReleasesDao;
   private final ScaDependenciesDao scaDependenciesDao;
+  private final ScaIssuesDao scaIssuesDao;
+  private final ScaVulnerabilityIssuesDao scaVulnerabilityIssuesDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -302,6 +306,8 @@ public class DbClient {
     telemetryMetricsSentDao = getDao(map, TelemetryMetricsSentDao.class);
     scaReleasesDao = getDao(map, ScaReleasesDao.class);
     scaDependenciesDao = getDao(map, ScaDependenciesDao.class);
+    scaIssuesDao = getDao(map, ScaIssuesDao.class);
+    scaVulnerabilityIssuesDao = getDao(map, ScaVulnerabilityIssuesDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -672,5 +678,13 @@ public class DbClient {
 
   public ScaDependenciesDao scaDependenciesDao() {
     return scaDependenciesDao;
+  }
+
+  public ScaIssuesDao scaIssuesDao() {
+    return scaIssuesDao;
+  }
+
+  public ScaVulnerabilityIssuesDao scaVulnerabilityIssuesDao() {
+    return scaVulnerabilityIssuesDao;
   }
 }

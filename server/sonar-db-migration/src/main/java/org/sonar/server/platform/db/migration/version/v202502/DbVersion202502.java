@@ -42,6 +42,9 @@ public class DbVersion202502 implements DbVersion {
       .add(2025_02_003, "Create table for SCA releases", CreateScaReleasesTable.class)
       .add(2025_02_004, "Create index for SCA releases component", CreateIndexOnScaReleasesComponent.class)
       .add(2025_02_005, "Create table for SCA dependencies", CreateScaDependenciesTable.class)
-      .add(2025_02_006, "Create index for SCA dependencies to releases", CreateIndexOnScaDependenciesRelease.class);
+      .add(2025_02_006, "Create index for SCA dependencies to releases", CreateIndexOnScaDependenciesRelease.class)
+      .add(2025_02_007, "Create table for SCA issues", CreateScaIssuesTable.class)
+      .add(2025_02_008, "Create unique index on SCA issues", CreateUniqueIndexOnScaIssues.class)
+      .add(2025_02_009, "Create table for vulnerability subtype of SCA issues", CreateScaVulnerabilityIssuesTable.class);
   }
 }

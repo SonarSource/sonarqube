@@ -78,6 +78,8 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
 
   private static final Pattern INDEX_NAME_PATTERN = Pattern.compile("COALESCE\\(([\\w_]*),");
 
+  private static final Map<Integer, Integer> H2_TYPE_SUBSTITUTION = Map.of(
+    DECIMAL, DOUBLE);
   private static final Map<Integer, Integer> POSTGRES_TYPE_SUBSTITUTION = Map.of(
     BOOLEAN, BIT,
     DOUBLE, NUMERIC,
@@ -314,6 +316,7 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
 
   private int getDBType(int expectedType) {
     return switch (db.getDatabase().getDialect().getId()) {
+      case H2.ID -> H2_TYPE_SUBSTITUTION.getOrDefault(expectedType, expectedType);
       case PostgreSql.ID -> POSTGRES_TYPE_SUBSTITUTION.getOrDefault(expectedType, expectedType);
       case MsSql.ID -> MSSQL_TYPE_SUBSTITUTION.getOrDefault(expectedType, expectedType);
       case Oracle.ID -> ORACLE_TYPE_SUBSTITUTION.getOrDefault(expectedType, expectedType);

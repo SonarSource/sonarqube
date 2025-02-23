@@ -32,6 +32,19 @@ public class ScaReleasesDbTester {
     this.dbClient = db.getDbClient();
   }
 
+  public static ScaReleaseDto newScaReleaseDto(String componentUuid, String suffix, PackageManager packageManager, String packageName) {
+    return new ScaReleaseDto("scaReleaseUuid" + suffix,
+      componentUuid,
+      "packageUrl" + suffix,
+      packageManager,
+      packageName,
+      "1.0.0-" + suffix,
+      "MIT",
+      true,
+      1L,
+      2L);
+  }
+
   public ComponentDto newComponentDto(String branchUuid, String suffix) {
     return new ComponentDto().setUuid("uuid" + suffix)
       .setKey("key" + suffix)
@@ -50,16 +63,7 @@ public class ScaReleasesDbTester {
   }
 
   public ScaReleaseDto insertScaRelease(String componentUuid, String suffix, PackageManager packageManager, String packageName) {
-    var scaReleaseDto = new ScaReleaseDto("scaReleaseUuid" + suffix,
-      componentUuid,
-      "packageUrl" + suffix,
-      packageManager,
-      packageName,
-      "1.0.0-" + suffix,
-      "MIT",
-      true,
-      1L,
-      2L);
+    var scaReleaseDto = newScaReleaseDto(componentUuid, suffix, packageManager, packageName);
     dbClient.scaReleasesDao().insert(db.getSession(), scaReleaseDto);
     return scaReleaseDto;
   }

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.db.sca.ScaIssuesMapper">
+  <sql id="scaIssuesColumns">
+    si.uuid as uuid,
+    si.sca_issue_type as scaIssueType,
+    si.package_url as packageUrl,
+    si.vulnerability_id as vulnerabilityId,
+    si.spdx_license_id as spdxLicenseId,
+    si.created_at as createdAt,
+    si.updated_at as updatedAt
+  </sql>
+
+  <insert id="insert" parameterType="org.sonar.db.sca.ScaIssueDto" useGeneratedKeys="false">
+    insert into sca_issues (
+      uuid,
+      sca_issue_type,
+      package_url,
+      vulnerability_id,
+      spdx_license_id,
+      created_at,
+      updated_at
+    ) values (
+      #{uuid,jdbcType=VARCHAR},
+      #{scaIssueType,jdbcType=VARCHAR},
+      #{packageUrl,jdbcType=VARCHAR},
+      #{vulnerabilityId,jdbcType=VARCHAR},
+      #{spdxLicenseId,jdbcType=VARCHAR},
+      #{createdAt,jdbcType=BIGINT},
+      #{updatedAt,jdbcType=BIGINT}
+    )
+  </insert>
+
+  <!-- delete is left out for now, because it is very dangerous without foreign key constraints and ON DELETE behavior,
+     and it hasn't yet been necessary to try to "garbage collect" this table. -->
+
+  <select id="selectByUuid" parameterType="string" resultType="org.sonar.db.sca.ScaIssueDto">
+    select <include refid="scaIssuesColumns"/>
+    from sca_issues si
+    where si.uuid = #{uuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByUuids" parameterType="string" resultType="org.sonar.db.sca.ScaIssueDto">
+    select <include refid="scaIssuesColumns"/>
+    from sca_issues si
+    <if test="arg0.isEmpty()">
+      where 1=0
+    </if>
+    <if test="!arg0.isEmpty()">
+      where si.uuid in
+      <foreach collection="collection" item="uuid" open="(" close=")" separator=",">
+        #{uuid, jdbcType=VARCHAR}
+      </foreach>
+    </if>
+  </select>
+
+  <!-- selectByValue is used to upsert (get or create) the issues found in an analysis. -->
+  <select id="selectUuidByValue" parameterType="org.sonar.db.sca.ScaIssueIdentity" resultType="String">
+    select si.uuid
+    from sca_issues si
+    where (si.sca_issue_type = #{scaIssueType,jdbcType=VARCHAR}
+            and si.package_url = #{packageUrl,jdbcType=VARCHAR}
+            and si.vulnerability_id = #{vulnerabilityId,jdbcType=VARCHAR}
+            and si.spdx_license_id = #{spdxLicenseId,jdbcType=VARCHAR})
+  </select>
+
+  <!-- there is no update operation; sca_issues table is append-only -->
+</mapper>
