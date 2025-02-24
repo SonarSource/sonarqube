@@ -19,42 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import javax.annotation.Nullable;
-import org.sonar.ce.common.sca.PersistScaStepProvider;
-import org.sonar.ce.common.sca.ScaHolder;
-import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.step.ComputationStep;
-import org.springframework.beans.factory.annotation.Autowired;
 
-public class PersistScaStep implements ComputationStep {
-
-  private final ComputationStep wrapped;
-
-  @Autowired(required = false)
-  public PersistScaStep(ScaHolder scaHolder, TreeRootHolder treeRootHolder) {
-    this(scaHolder, treeRootHolder, null);
-  }
-
-  @Autowired(required = false)
-  public PersistScaStep(ScaHolder scaHolder, TreeRootHolder treeRootHolder,
-    @Nullable PersistScaStepProvider provider) {
-    if (provider != null) {
-      var branchUuid = treeRootHolder.getRoot().getUuid();
-      this.wrapped = provider.get(scaHolder, branchUuid);
-    } else {
-      this.wrapped = null;
-    }
-  }
-
-  @Override
-  public String getDescription() {
-    return wrapped != null ? wrapped.getDescription() : "Software composition analysis unavailable";
-  }
-
-  @Override
-  public void execute(Context context) {
-    if (wrapped != null) {
-      wrapped.execute(context);
-    }
-  }
+public interface PersistScaStep extends ComputationStep {
 }

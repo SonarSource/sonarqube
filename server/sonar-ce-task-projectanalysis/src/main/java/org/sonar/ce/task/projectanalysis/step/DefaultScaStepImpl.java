@@ -17,7 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.ce.common.sca;
+package org.sonar.ce.task.projectanalysis.step;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+// This will be overridden if another ScaStep implementation exists with Priority.
+public class DefaultScaStepImpl implements ScaStep {
+
+  @Override
+  public String getDescription() {
+    return "Software composition analysis unavailable";
+  }
+
+  @Override
+  public void execute(Context context) {
+    // do nothing
+  }
+}

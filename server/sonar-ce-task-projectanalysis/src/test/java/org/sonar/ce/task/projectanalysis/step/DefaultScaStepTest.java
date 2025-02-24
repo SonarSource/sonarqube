@@ -17,18 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.common.sca;
+package org.sonar.ce.task.projectanalysis.step;
 
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.ce.common.scanner.ScannerReportReader;
-import org.sonar.ce.task.log.CeTaskMessages;
+import org.junit.jupiter.api.Test;
 import org.sonar.ce.task.step.ComputationStep;
 
-/**
- * When an implementation of this interface is available in the ioc container, the Compute Engine will use the value returned by
- * {@link #get(ScannerReportReader, CeTaskMessages, ScaHolder)} as an extra step for software composition analysis.
- */
-@ComputeEngineSide
-public interface ScaStepProvider {
-  ComputationStep get(ScannerReportReader reportReader, CeTaskMessages ceTaskMessages, ScaHolder scaHolder);
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.mockito.Mockito.mock;
+
+class DefaultScaStepTest {
+
+  @Test
+  void shouldNoOpWithoutError() {
+    var underTest = new DefaultScaStepImpl();
+
+    assertThat(underTest.getDescription()).isEqualTo("Software composition analysis unavailable");
+
+    assertThatNoException().isThrownBy(() -> underTest.execute(mock(ComputationStep.Context.class)));
+  }
 }

@@ -22,16 +22,12 @@ package org.sonar.ce.task.projectanalysis.container;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
-
-import org.sonar.ce.common.sca.ScaHolderImpl;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.container.TaskContainer;
 import org.sonar.ce.task.log.CeTaskMessagesImpl;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisFromSonarQube94Visitor;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderImpl;
 import org.sonar.ce.task.projectanalysis.api.posttask.PostProjectAnalysisTasksExecutor;
-import org.sonar.ce.task.projectanalysis.scanner.ScannerReportDirectoryHolderImpl;
-import org.sonar.ce.task.projectanalysis.scanner.ScannerReportReaderImpl;
 import org.sonar.ce.task.projectanalysis.component.BranchComponentUuidsDelegate;
 import org.sonar.ce.task.projectanalysis.component.BranchLoader;
 import org.sonar.ce.task.projectanalysis.component.BranchPersisterImpl;
@@ -132,6 +128,8 @@ import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderImpl;
 import org.sonar.ce.task.projectanalysis.qualityprofile.PrioritizedRulesHolderImpl;
 import org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.qualityprofile.QualityProfileRuleChangeResolver;
+import org.sonar.ce.task.projectanalysis.scanner.ScannerReportDirectoryHolderImpl;
+import org.sonar.ce.task.projectanalysis.scanner.ScannerReportReaderImpl;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoDbLoader;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.source.DbLineHashVersion;
@@ -147,6 +145,8 @@ import org.sonar.ce.task.projectanalysis.source.SourceLinesDiffImpl;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashCache;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesRepositoryImpl;
+import org.sonar.ce.task.projectanalysis.step.DefaultPersistScaStepImpl;
+import org.sonar.ce.task.projectanalysis.step.DefaultScaStepImpl;
 import org.sonar.ce.task.projectanalysis.step.ReportComputationSteps;
 import org.sonar.ce.task.projectanalysis.step.SmallChangesetQualityGateSpecialCase;
 import org.sonar.ce.task.projectanalysis.webhook.WebhookPostTask;
@@ -181,7 +181,13 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
     for (ReportAnalysisComponentProvider componentProvider : componentProviders) {
       container.add(componentProvider.getComponents());
     }
-    container.add(steps.orderedStepClasses());
+
+    // Exclude interfaces because they can't be instantiated directly.
+    // The concrete class for interfaces must be added to the container separately.
+    container.add(steps.orderedStepClasses()
+      .stream()
+      .filter(stepClass -> !stepClass.isInterface())
+      .toList());
   }
 
   /**
@@ -225,7 +231,8 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       NewCodeReferenceBranchComponentUuids.class,
       BranchComponentUuidsDelegate.class,
       SiblingComponentsWithOpenIssues.class,
-      ScaHolderImpl.class,
+      DefaultScaStepImpl.class,
+      DefaultPersistScaStepImpl.class,
 
       // repositories
       PreviousSourceHashRepositoryImpl.class,

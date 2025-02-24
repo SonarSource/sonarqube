@@ -17,16 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.common.sca;
+package org.sonar.ce.task.projectanalysis.step;
 
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.ce.task.step.ComputationStep;
+// This will be overridden if another PersistScaStep implementation exists with Priority.
+public class DefaultPersistScaStepImpl implements PersistScaStep {
 
-/**
- * When an implementation of this interface is available in the ioc container, the Compute Engine will use the value returned by
- * {@link #get} as an extra step for software composition analysis.
- */
-@ComputeEngineSide
-public interface PersistScaStepProvider {
-  ComputationStep get(ScaHolder scaHolder, String branchUuid);
+  @Override
+  public String getDescription() {
+    return "Persist software composition analysis unavailable";
+  }
+
+  @Override
+  public void execute(Context context) {
+    // do nothing
+  }
 }

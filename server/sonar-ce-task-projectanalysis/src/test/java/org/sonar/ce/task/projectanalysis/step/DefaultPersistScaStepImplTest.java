@@ -20,43 +20,20 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.ce.common.sca.ScaHolder;
-import org.sonar.ce.common.sca.ScaStepProvider;
-import org.sonar.ce.common.scanner.ScannerReportReader;
-import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.step.ComputationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-class ScaStepTest {
+class DefaultPersistScaStepImplTest {
 
   @Test
-  void shouldSkipScaStepIfNotAvailable() {
-    var underTest = new ScaStep(mock(ScannerReportReader.class), mock(CeTaskMessages.class), null, null);
+  void shouldNoOpWithoutError() {
+    var underTest = new DefaultPersistScaStepImpl();
 
-    assertThat(underTest.getDescription()).isEqualTo("Software composition analysis unavailable");
+    assertThat(underTest.getDescription()).isEqualTo("Persist software composition analysis unavailable");
 
     assertThatNoException().isThrownBy(() -> underTest.execute(mock(ComputationStep.Context.class)));
   }
-
-  @Test
-  void shouldWrapScaStepIfAvailable() {
-    var wrappedStep = mock(ComputationStep.class);
-    when(wrappedStep.getDescription()).thenReturn("wrapped step");
-
-    ScaStepProvider scaStepProvider = (reportReader, ceTaskMessages, scaHolder) -> wrappedStep;
-    var underTest = new ScaStep(mock(ScannerReportReader.class), mock(CeTaskMessages.class), scaStepProvider, mock(ScaHolder.class));
-
-    assertThat(underTest.getDescription()).isEqualTo("wrapped step");
-
-    var context = mock(ComputationStep.Context.class);
-    underTest.execute(context);
-
-    verify(wrappedStep).execute(context);
-  }
-
 }

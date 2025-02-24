@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.container;
 
 import com.google.common.collect.ImmutableList;
 import java.lang.reflect.Modifier;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,12 +29,14 @@ import org.junit.Test;
 import org.reflections.Reflections;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.projectanalysis.step.PersistComponentsStep;
+import org.sonar.ce.task.projectanalysis.step.ReportComputationSteps;
 import org.sonar.ce.task.projectanalysis.task.ListTaskContainer;
 import org.sonar.ce.task.step.ComputationStep;
 
 import static com.google.common.collect.Sets.difference;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.when;
 
 public class ProjectAnalysisTaskContainerPopulatorTest {
@@ -106,8 +109,48 @@ public class ProjectAnalysisTaskContainerPopulatorTest {
     assertThat(container.getAddedComponents()).contains(object, clazz);
   }
 
-  private static final class MyClass {
+  @Test
+  public void populateContainer_includesReportComputationStepClasses() {
+    Class<MyClass> clazz = MyClass.class;
+    ListTaskContainer container = new ListTaskContainer();
 
+    try (var ignored = mockConstruction(ReportComputationSteps.class,
+      (mock, context) -> {
+        when(mock.orderedStepClasses()).thenReturn(List.of(clazz));
+      })) {
+      underTest.populateContainer(container);
+
+      assertThat(container.getAddedComponents()).contains(clazz);
+    }
+  }
+
+  @Test
+  public void populateContainer_doesNotIncludeReportComputationStepInterfaces() {
+    Class<MyInterface> iface = MyInterface.class;
+    ListTaskContainer container = new ListTaskContainer();
+
+    try (var ignored = mockConstruction(ReportComputationSteps.class,
+      (mock, context) -> {
+        when(mock.orderedStepClasses()).thenReturn(List.of(iface));
+      })) {
+      underTest.populateContainer(container);
+
+      assertThat(container.getAddedComponents()).doesNotContain(iface);
+    }
+  }
+
+  private interface MyInterface extends ComputationStep {
+  }
+  private static final class MyClass implements ComputationStep {
+    @Override
+    public void execute(Context context) {
+      // do nothing
+    }
+
+    @Override
+    public String getDescription() {
+      return "";
+    }
   }
 
 }

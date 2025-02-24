@@ -19,41 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import javax.annotation.Nullable;
-import org.sonar.ce.common.sca.ScaHolder;
-import org.sonar.ce.common.sca.ScaStepProvider;
-import org.sonar.ce.common.scanner.ScannerReportReader;
-import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.step.ComputationStep;
-import org.springframework.beans.factory.annotation.Autowired;
 
-public class ScaStep implements ComputationStep {
-
-  private final ComputationStep wrapped;
-
-  @Autowired(required = false)
-  public ScaStep(ScannerReportReader reportReader, CeTaskMessages ceTaskMessages) {
-    this(reportReader, ceTaskMessages, null, null);
-  }
-
-  @Autowired(required = false)
-  public ScaStep(ScannerReportReader reportReader, CeTaskMessages ceTaskMessages, @Nullable ScaStepProvider provider, @Nullable ScaHolder scaHolder) {
-    if (provider != null && scaHolder != null) {
-      this.wrapped = provider.get(reportReader, ceTaskMessages, scaHolder);
-    } else {
-      this.wrapped = null;
-    }
-  }
-
-  @Override
-  public String getDescription() {
-    return wrapped != null ? wrapped.getDescription() : "Software composition analysis unavailable";
-  }
-
-  @Override
-  public void execute(Context context) {
-    if (wrapped != null) {
-      wrapped.execute(context);
-    }
-  }
+public interface ScaStep extends ComputationStep {
 }
