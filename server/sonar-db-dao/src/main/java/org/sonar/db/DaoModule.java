@@ -91,6 +91,7 @@ import org.sonar.db.rule.RuleRepositoryDao;
 import org.sonar.db.sca.ScaDependenciesDao;
 import org.sonar.db.sca.ScaIssuesDao;
 import org.sonar.db.sca.ScaIssuesReleasesDao;
+import org.sonar.db.sca.ScaIssuesReleasesDetailsDao;
 import org.sonar.db.sca.ScaReleasesDao;
 import org.sonar.db.sca.ScaVulnerabilityIssuesDao;
 import org.sonar.db.scannercache.ScannerAnalysisCacheDao;
@@ -154,6 +155,7 @@ public class DaoModule extends Module {
     IssueChangeDao.class,
     IssueDao.class,
     IssueFixedDao.class,
+    ScaIssuesReleasesDetailsDao.class,
     MeasureDao.class,
     ProjectMeasureDao.class,
     MetricDao.class,

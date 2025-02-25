@@ -91,6 +91,7 @@ import org.sonar.db.rule.RuleRepositoryDao;
 import org.sonar.db.sca.ScaDependenciesDao;
 import org.sonar.db.sca.ScaIssuesDao;
 import org.sonar.db.sca.ScaIssuesReleasesDao;
+import org.sonar.db.sca.ScaIssuesReleasesDetailsDao;
 import org.sonar.db.sca.ScaReleasesDao;
 import org.sonar.db.sca.ScaVulnerabilityIssuesDao;
 import org.sonar.db.scannercache.ScannerAnalysisCacheDao;
@@ -210,6 +211,7 @@ public class DbClient {
   private final ScaIssuesDao scaIssuesDao;
   private final ScaIssuesReleasesDao scaIssuesReleasesDao;
   private final ScaVulnerabilityIssuesDao scaVulnerabilityIssuesDao;
+  private final ScaIssuesReleasesDetailsDao scaIssuesReleasesDetailsDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -311,6 +313,7 @@ public class DbClient {
     scaIssuesDao = getDao(map, ScaIssuesDao.class);
     scaIssuesReleasesDao = getDao(map, ScaIssuesReleasesDao.class);
     scaVulnerabilityIssuesDao = getDao(map, ScaVulnerabilityIssuesDao.class);
+    scaIssuesReleasesDetailsDao = getDao(map, ScaIssuesReleasesDetailsDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -693,5 +696,9 @@ public class DbClient {
 
   public ScaVulnerabilityIssuesDao scaVulnerabilityIssuesDao() {
     return scaVulnerabilityIssuesDao;
+  }
+
+  public ScaIssuesReleasesDetailsDao scaIssuesReleasesDetailsDao() {
+    return scaIssuesReleasesDetailsDao;
   }
 }

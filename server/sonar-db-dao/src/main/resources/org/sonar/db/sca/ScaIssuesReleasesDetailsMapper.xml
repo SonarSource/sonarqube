@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.db.sca.ScaIssuesReleasesDetailsMapper">
+  <!-- we're using a resultMap instead of the usual resultType approach in order to provide
+       a typeHandler for the cwe_ids column -->
+  <resultMap id="scaIssueReleaseDetailsResultMap" type="org.sonar.db.sca.ScaIssueReleaseDetailsDto">
+    <constructor>
+      <idArg column="uuid" javaType="String"/>
+      <arg column="severity" javaType="org.sonar.db.sca.ScaSeverity" jdbcType="VARCHAR"/>
+      <arg column="sca_issue_uuid" javaType="String"/>
+      <arg column="sca_release_uuid" javaType="String"/>
+      <arg column="sca_issue_type" javaType="org.sonar.db.sca.ScaIssueType" jdbcType="VARCHAR"/>
+      <arg column="package_url" javaType="String"/>
+      <arg column="vulnerability_id" javaType="String"/>
+      <arg column="spdx_license_id" javaType="String"/>
+      <arg column="base_severity" javaType="org.sonar.db.sca.ScaSeverity" jdbcType="VARCHAR"/>
+      <arg column="cwe_ids" typeHandler="org.sonar.db.sca.ListOfStringsTypeHandler" jdbcType="VARCHAR"
+           javaType="java.util.List"/>
+      <arg column="cvss_score" javaType="java.math.BigDecimal"/>
+    </constructor>
+  </resultMap>
+
+  <sql id="issuesWithScaColumns">
+    sir.uuid,
+    sir.severity,
+    sir.sca_issue_uuid,
+    sir.sca_release_uuid,
+    si.sca_issue_type,
+    si.package_url,
+    si.vulnerability_id,
+    si.spdx_license_id,
+    svi.base_severity,
+    svi.cwe_ids,
+    svi.cvss_score
+  </sql>
+
+  <sql id="sqlSelectByBranchUuid">
+    from sca_issues_releases sir
+    inner join sca_issues si on sir.sca_issue_uuid = si.uuid
+    inner join sca_releases sr on sir.sca_release_uuid = sr.uuid
+    inner join components c on sr.component_uuid = c.uuid
+    left join sca_vulnerability_issues svi on sir.sca_issue_uuid = svi.uuid
+    where c.branch_uuid = #{branchUuid,jdbcType=VARCHAR}
+  </sql>
+
+  <select id="selectByBranchUuid" parameterType="map" resultMap="scaIssueReleaseDetailsResultMap">
+    select <include refid="issuesWithScaColumns"/>
+    <include refid="sqlSelectByBranchUuid"/>
+    ORDER BY sir.sca_issue_uuid ASC
+    <include refid="org.sonar.db.common.Common.pagination"/>
+  </select>
+
+  <select id="countByBranchUuid" parameterType="string" resultType="int">
+    select count(sir.uuid)
+    <include refid="sqlSelectByBranchUuid"/>
+  </select>
+</mapper>
