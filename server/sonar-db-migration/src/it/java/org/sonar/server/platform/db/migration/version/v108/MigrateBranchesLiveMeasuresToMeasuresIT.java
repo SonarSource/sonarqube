@@ -167,6 +167,43 @@ class MigrateBranchesLiveMeasuresToMeasuresIT {
   }
 
   @Test
+  void should_duplicate_measures_on_reentry_when_index_does_not_exist() throws SQLException {
+    String nclocMetricUuid = insertMetric("ncloc", "INT");
+
+    String branch1 = "branch_1";
+    insertNotMigratedBranch(branch1);
+    String component1 = uuidFactory.create();
+    insertMeasure(branch1, component1, nclocMetricUuid, Map.of("value", 120));
+
+    insertMigratedMeasure(branch1, component1);
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(1);
+
+    underTest.execute();
+
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(2);
+  }
+
+  @Test
+  void should_remove_migrated_measures_on_reentry_when_index_exists() throws SQLException {
+    String nclocMetricUuid = insertMetric("ncloc", "INT");
+
+    String branch1 = "branch_1";
+    insertNotMigratedBranch(branch1);
+    String component1 = uuidFactory.create();
+    insertMeasure(branch1, component1, nclocMetricUuid, Map.of("value", 120));
+
+    insertMigratedMeasure(branch1, component1);
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(1);
+
+    var createIndexMigration = new CreateIndexOnMeasuresTable(db.database());
+    createIndexMigration.execute();
+
+    underTest.execute();
+
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(1);
+  }
+
+  @Test
   void should_not_migrate_measures_planned_for_deletion() throws SQLException {
     String nclocMetricUuid = insertMetric("ncloc", "INT");
     Set<String> deletedMetricUuid = DeleteSoftwareQualityRatingFromProjectMeasures.SOFTWARE_QUALITY_METRICS_TO_DELETE.stream().map(e -> insertMetric(e, "INT"))
@@ -379,6 +416,16 @@ class MigrateBranchesLiveMeasuresToMeasuresIT {
       "is_main", true,
       "created_at", 12L,
       "updated_at", 12L);
+  }
+
+  private void insertMigratedMeasure(String branch, String componentUuid) {
+    db.executeInsert("measures",
+      "component_uuid", componentUuid,
+      "branch_uuid", branch,
+      "json_value", "{\"any\":\"thing\"}",
+      "json_value_hash", "1234",
+      "created_at", 12,
+      "updated_at", 12);
   }
 
 }

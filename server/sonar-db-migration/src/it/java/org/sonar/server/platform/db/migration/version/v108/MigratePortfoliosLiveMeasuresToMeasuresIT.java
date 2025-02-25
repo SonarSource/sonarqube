@@ -186,6 +186,43 @@ class MigratePortfoliosLiveMeasuresToMeasuresIT {
       .containsOnly(tuple(component1, portfolio1, "{\"ncloc\":120.0}", -1557106439558598045L));
   }
 
+  @Test
+  void should_duplicate_measures_on_reentry_when_index_does_not_exist() throws SQLException {
+    String nclocMetricUuid = insertMetric("ncloc", "INT");
+
+    String portfolio1 = "portfolio_1";
+    insertNotMigratedPortfolio(portfolio1);
+    String component1 = uuidFactory.create();
+    insertMeasure(portfolio1, component1, nclocMetricUuid, Map.of("value", 120));
+
+    insertMigratedMeasure(portfolio1, component1);
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(1);
+
+    underTest.execute();
+
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(2);
+  }
+
+  @Test
+  void should_remove_migrated_measures_on_reentry_when_index_exists() throws SQLException {
+    String nclocMetricUuid = insertMetric("ncloc", "INT");
+
+    String portfolio1 = "portfolio_1";
+    insertNotMigratedPortfolio(portfolio1);
+    String component1 = uuidFactory.create();
+    insertMeasure(portfolio1, component1, nclocMetricUuid, Map.of("value", 120));
+
+    insertMigratedMeasure(portfolio1, component1);
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(1);
+
+    var createIndexMigration = new CreateIndexOnMeasuresTable(db.database());
+    createIndexMigration.execute();
+
+    underTest.execute();
+
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(1);
+  }
+
   private void assertPortfolioMigrated(String portfolio) {
     List<Map<String, Object>> result = db.select(format("select %s as \"MIGRATED\" from portfolios where uuid = '%s'", MEASURES_MIGRATED_COLUMN, portfolio));
     assertThat(result)
@@ -238,5 +275,15 @@ class MigratePortfoliosLiveMeasuresToMeasuresIT {
       MEASURES_MIGRATED_COLUMN, migrated,
       "created_at", 12L,
       "updated_at", 12L);
+  }
+
+  private void insertMigratedMeasure(String branch, String componentUuid) {
+    db.executeInsert("measures",
+      "component_uuid", componentUuid,
+      "branch_uuid", branch,
+      "json_value", "{\"any\":\"thing\"}",
+      "json_value_hash", "1234",
+      "created_at", 12,
+      "updated_at", 12);
   }
 }

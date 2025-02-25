@@ -45,12 +45,19 @@ import org.sonar.server.platform.db.migration.step.Upsert;
 
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.sonar.server.platform.db.migration.version.v108.CreateIndexOnMeasuresTable.INDEX_NAME;
+import static org.sonar.server.platform.db.migration.version.v108.CreateMeasuresTable.MEASURES_TABLE_NAME;
 
 public abstract class AbstractMigrateLiveMeasuresToMeasures extends DataChange {
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractMigrateLiveMeasuresToMeasures.class);
 
   private static final Set<String> TEXT_VALUE_TYPES = Set.of("STRING", "LEVEL", "DATA", "DISTRIB");
   private static final Gson GSON = new Gson();
+
+  private static final String CLEANUP_QUERY = """
+    DELETE FROM measures
+    WHERE branch_uuid = ?
+    """;
 
   private static final String SELECT_QUERY = """
     SELECT lm.component_uuid,
@@ -108,11 +115,14 @@ public abstract class AbstractMigrateLiveMeasuresToMeasures extends DataChange {
 
   @Override
   protected void execute(Context context) throws SQLException {
+    boolean measuresIndexExists;
     try (Connection c = getDatabase().getDataSource().getConnection()) {
       // the table is later deleted, this check ensures the migration re-entrance
       if (!DatabaseUtils.tableExists("live_measures", c)) {
         return;
       }
+
+      measuresIndexExists = DatabaseUtils.indexExistsIgnoreCase(MEASURES_TABLE_NAME, INDEX_NAME, c);
     }
 
     List<String> uuids = context.prepareSelect(getSelectUuidQuery())
@@ -129,7 +139,7 @@ public abstract class AbstractMigrateLiveMeasuresToMeasures extends DataChange {
 
     for (String uuid : uuids) {
       try {
-        migrateItem(uuid, context, selectQuery);
+        migrateItem(uuid, context, selectQuery, measuresIndexExists);
       } catch (Exception e) {
         LOGGER.error(format("Migration of %s %s failed", item, uuid));
         throw e;
@@ -152,8 +162,15 @@ public abstract class AbstractMigrateLiveMeasuresToMeasures extends DataChange {
     };
   }
 
-  private void migrateItem(String uuid, Context context, String selectQuery) throws SQLException {
+  private void migrateItem(String uuid, Context context, String selectQuery, boolean measuresIndexExists) throws SQLException {
     LOGGER.debug("Migrating {} {}...", item, uuid);
+
+    if (measuresIndexExists) {
+      context.prepareUpsert(CLEANUP_QUERY)
+        .setString(1, uuid)
+        .execute()
+        .commit();
+    }
 
     Map<String, Object> measureValues = new HashMap<>();
     AtomicReference<String> componentUuid = new AtomicReference<>(null);
