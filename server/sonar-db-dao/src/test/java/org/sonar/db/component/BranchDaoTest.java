@@ -133,7 +133,7 @@ public class BranchDaoTest {
 
   @DataProvider
   public static Object[][] nullOrEmpty() {
-    return new Object[][] {
+    return new Object[][]{
       {null},
       {""}
     };
@@ -143,7 +143,7 @@ public class BranchDaoTest {
   public static Object[][] oldAndNewValuesCombinations() {
     String value1 = randomAlphabetic(10);
     String value2 = randomAlphabetic(20);
-    return new Object[][] {
+    return new Object[][]{
       {null, value1},
       {"", value1},
       {value1, null},
@@ -398,7 +398,7 @@ public class BranchDaoTest {
 
     BranchDto branch1 = db.components().insertProjectBranch(project1, b -> b.setKey("branch1"));
     BranchDto branch2 = db.components().insertProjectBranch(project2, b -> b.setKey("branch2"));
-    BranchDto branch3 = db.components().insertProjectBranch(project3, b -> b.setKey("branch3"));
+    db.components().insertProjectBranch(project3, b -> b.setKey("branch3"));
 
     Map<String, String> branchKeysByProjectUuid = new HashMap<>();
     branchKeysByProjectUuid.put(project1.getUuid(), "branch1");
@@ -541,7 +541,7 @@ public class BranchDaoTest {
   public void selectByUuid() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch1 = db.components().insertProjectBranch(project);
-    ComponentDto branch2 = db.components().insertProjectBranch(project);
+    db.components().insertProjectBranch(project);
 
     assertThat(underTest.selectByUuid(db.getSession(), branch1.uuid()).get())
       .extracting(BranchDto::getUuid)
@@ -573,7 +573,8 @@ public class BranchDaoTest {
     db.measures().insertLiveMeasure(project3, unanalyzedC);
 
     assertThat(underTest.countPrBranchAnalyzedLanguageByProjectUuid(db.getSession()))
-      .extracting(PrBranchAnalyzedLanguageCountByProjectDto::getProjectUuid, PrBranchAnalyzedLanguageCountByProjectDto::getBranch, PrBranchAnalyzedLanguageCountByProjectDto::getPullRequest)
+      .extracting(PrBranchAnalyzedLanguageCountByProjectDto::getProjectUuid, PrBranchAnalyzedLanguageCountByProjectDto::getBranch,
+        PrBranchAnalyzedLanguageCountByProjectDto::getPullRequest)
       .containsExactlyInAnyOrder(
         tuple(project1.uuid(), 3L, 3L),
         tuple(project2.uuid(), 1L, 1L),
@@ -592,13 +593,13 @@ public class BranchDaoTest {
     ProjectDto project3Dto = db.components().getProjectDto(project3);
     ProjectDto project4Dto = db.components().getProjectDto(project4);
 
-    BranchDto branch1 = db.components().insertProjectBranch(project1Dto, branchDto -> branchDto.setNeedIssueSync(true));
-    BranchDto branch2 = db.components().insertProjectBranch(project1Dto, branchDto -> branchDto.setNeedIssueSync(false));
-    BranchDto branch3 = db.components().insertProjectBranch(project2Dto);
+    db.components().insertProjectBranch(project1Dto, branchDto -> branchDto.setNeedIssueSync(true));
+    db.components().insertProjectBranch(project1Dto, branchDto -> branchDto.setNeedIssueSync(false));
+    db.components().insertProjectBranch(project2Dto);
 
     assertThat(underTest.selectProjectUuidsWithIssuesNeedSync(db.getSession(),
       Sets.newHashSet(project1Dto.getUuid(), project2Dto.getUuid(), project3Dto.getUuid(), project4Dto.getUuid())))
-        .containsOnly(project1.uuid());
+      .containsOnly(project1.uuid());
   }
 
   @Test
@@ -607,13 +608,13 @@ public class BranchDaoTest {
     assertThat(underTest.hasAnyBranchWhereNeedIssueSync(dbSession, false)).isFalse();
 
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setNeedIssueSync(false));
+    db.components().insertProjectBranch(project, b -> b.setNeedIssueSync(false));
 
     assertThat(underTest.hasAnyBranchWhereNeedIssueSync(dbSession, true)).isFalse();
     assertThat(underTest.hasAnyBranchWhereNeedIssueSync(dbSession, false)).isTrue();
 
     project = db.components().insertPrivateProject();
-    branch = db.components().insertProjectBranch(project, b -> b.setNeedIssueSync(true));
+    db.components().insertProjectBranch(project, b -> b.setNeedIssueSync(true));
     assertThat(underTest.hasAnyBranchWhereNeedIssueSync(dbSession, true)).isTrue();
   }
 
@@ -622,9 +623,9 @@ public class BranchDaoTest {
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.BRANCH, 0L)).isZero();
 
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
-    ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
-    ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.BRANCH, 0L)).isEqualTo(3);
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.BRANCH, NOW)).isEqualTo(3);
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.BRANCH, NOW + 100)).isZero();
@@ -838,11 +839,11 @@ public class BranchDaoTest {
     ComponentDto project2 = db.components().insertPrivateProject();
     ProjectDto projectDto = db.components().getProjectDto(project1);
     db.components().insertProjectBranch(projectDto, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
-    BranchDto projectBranch1 = db.components().insertProjectBranch(projectDto, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
-    BranchDto projectBranch2 = db.components().insertProjectBranch(projectDto, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
+    db.components().insertProjectBranch(projectDto, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
     db.components().insertProjectBranch(projectDto, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
-    BranchDto pullRequest1 = db.components().insertProjectBranch(projectDto, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(true));
-    BranchDto pullRequest2 = db.components().insertProjectBranch(projectDto, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(false));
+    db.components().insertProjectBranch(projectDto, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
+    db.components().insertProjectBranch(projectDto, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(true));
+    db.components().insertProjectBranch(projectDto, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(false));
     db.components().insertProjectBranch(projectDto, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(true));
 
     assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, singletonList(project1.getKey()))).isTrue();
@@ -864,5 +865,22 @@ public class BranchDaoTest {
     componentKeys.add(project.getKey());
 
     assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, componentKeys)).isTrue();
+  }
+
+  @Test
+  public void updateMeasuresMigratedToFalse() throws SQLException {
+    createMeasuresMigratedColumn();
+
+    ComponentDto project = db.components().insertPrivateProject();
+    String uuid1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH)).uuid();
+    String uuid2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH)).uuid();
+
+    underTest.updateMeasuresMigrated(dbSession, uuid1, true);
+    underTest.updateMeasuresMigrated(dbSession, uuid2, true);
+
+    underTest.updateMeasuresMigratedToFalse(dbSession);
+
+    assertThat(underTest.isMeasuresMigrated(dbSession, uuid1)).isFalse();
+    assertThat(underTest.isMeasuresMigrated(dbSession, uuid2)).isFalse();
   }
 }

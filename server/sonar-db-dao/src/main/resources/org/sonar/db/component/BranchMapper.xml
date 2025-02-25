@@ -297,4 +297,9 @@
     pb.measures_migrated = ${_false}
   </select>
 
+  <update id="updateMeasuresMigratedToFalse">
+    update project_branches
+    set measures_migrated = ${_false}
+  </update>
+
 </mapper>

@@ -547,6 +547,11 @@
     root_uuid = #{uuid, jdbcType=VARCHAR}
   </update>
 
+  <update id="updateMeasuresMigratedToFalse">
+    update portfolios
+    set measures_migrated = ${_false}
+  </update>
+
   <select id="selectUuidsWithMeasuresMigratedFalse" resultType="java.lang.String" parameterType="int">
     SELECT p.uuid
     FROM portfolios p

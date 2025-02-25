@@ -36,6 +36,8 @@ public interface BranchMapper {
   int updateExcludeFromPurge(@Param("uuid") String uuid, @Param("excludeFromPurge") boolean excludeFromPurge,
     @Param("now") long now);
 
+  void updateMeasuresMigratedToFalse();
+
   BranchDto selectByKey(@Param("projectUuid") String projectUuid, @Param("key") String key, @Param("branchType") BranchType branchType);
 
   List<BranchDto> selectByKeys(@Param("projectUuid") String projectUuid, @Param("keys") Set<String> branchKeys);
@@ -68,7 +70,7 @@ public interface BranchMapper {
 
   long updateAllNeedIssueSyncForProject(@Param("projectUuid") String projectUuid, @Param("now") long now);
 
-  long updateNeedIssueSync(@Param("uuid") String uuid, @Param("needIssueSync")boolean needIssueSync,@Param("now") long now);
+  long updateNeedIssueSync(@Param("uuid") String uuid, @Param("needIssueSync") boolean needIssueSync, @Param("now") long now);
 
   short doAnyOfComponentsNeedIssueSync(@Param("componentKeys") List<String> components);
 

@@ -21,13 +21,13 @@ package org.sonar.server.platform.db.migration.adhoc;
 
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.TruncateTableChange;
+
+import static org.sonar.server.platform.db.migration.adhoc.CreateMeasuresTable.MEASURES_TABLE_NAME;
 
 @ServerSide
-public class AddMeasuresMigratedColumnToPortfoliosTable extends AbstractAddMeasuresMigratedColumnToTable {
-
-  public static final String PORTFOLIOS_TABLE_NAME = "portfolios";
-
-  public AddMeasuresMigratedColumnToPortfoliosTable(Database db) {
-    super(db, PORTFOLIOS_TABLE_NAME);
+public class TruncateMeasuresTable extends TruncateTableChange {
+  public TruncateMeasuresTable(Database db) {
+    super(db, MEASURES_TABLE_NAME);
   }
 }

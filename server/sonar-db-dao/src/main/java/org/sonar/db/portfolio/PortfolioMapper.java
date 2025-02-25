@@ -114,6 +114,8 @@ public interface PortfolioMapper {
 
   int updateMeasuresMigrated(@Param("uuid") String uuid, @Param("measuresMigrated") boolean measuresMigrated, @Param("now") long now);
 
+  void updateMeasuresMigratedToFalse();
+
   List<String> selectUuidsWithMeasuresMigratedFalse(int limit);
 
   int countByMeasuresMigratedFalse();

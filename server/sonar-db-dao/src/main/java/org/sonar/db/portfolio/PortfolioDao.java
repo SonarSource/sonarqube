@@ -267,6 +267,10 @@ public class PortfolioDao implements Dao {
     return mapper(session).countByMeasuresMigratedFalse();
   }
 
+  public void updateMeasuresMigratedToFalse(DbSession dbSession) {
+    mapper(dbSession).updateMeasuresMigratedToFalse();
+  }
+
   @VisibleForTesting
   boolean isMeasuresMigrated(DbSession dbSession, String uuid) {
     return mapper(dbSession).isMeasuresMigrated(uuid);

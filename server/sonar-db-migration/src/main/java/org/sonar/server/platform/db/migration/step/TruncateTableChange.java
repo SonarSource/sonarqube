@@ -17,17 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.adhoc;
+package org.sonar.server.platform.db.migration.step;
 
-import org.sonar.api.server.ServerSide;
+import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.db.DatabaseUtils;
 
-@ServerSide
-public class AddMeasuresMigratedColumnToPortfoliosTable extends AbstractAddMeasuresMigratedColumnToTable {
+public abstract class TruncateTableChange extends DataChange {
 
-  public static final String PORTFOLIOS_TABLE_NAME = "portfolios";
+  protected final String tableName;
 
-  public AddMeasuresMigratedColumnToPortfoliosTable(Database db) {
-    super(db, PORTFOLIOS_TABLE_NAME);
+  protected TruncateTableChange(Database db, String tableName) {
+    super(db);
+    this.tableName = tableName;
+  }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    if (!tableExists()) {
+      return;
+    }
+
+    try (var upsert = context.prepareUpsert(truncateQuery())) {
+      upsert.execute().commit();
+    }
+  }
+
+  private String truncateQuery() {
+    return String.format("TRUNCATE TABLE %s", tableName);
+  }
+
+  private boolean tableExists() throws SQLException {
+    try (var connection = getDatabase().getDataSource().getConnection()) {
+      return DatabaseUtils.tableExists(tableName, connection);
+    }
   }
 }
