@@ -31,15 +31,19 @@ import java.nio.file.StandardCopyOption;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Mock;
 import org.mockito.MockedStatic;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.System2;
 import org.sonar.scanner.WsTestUtil;
 import org.sonar.scanner.bootstrap.SonarUserHome;
 import org.sonar.scanner.http.DefaultScannerWsClient;
+import org.sonar.scanner.repository.TelemetryCache;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsResponse;
 
@@ -47,26 +51,38 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.scanner.sca.CliCacheService.CLI_WS_URL;
 
+@ExtendWith(MockitoExtension.class)
 class CliCacheServiceTest {
-  private final SonarUserHome sonarUserHome = mock(SonarUserHome.class);
-  private final DefaultScannerWsClient scannerWsClient = mock(DefaultScannerWsClient.class);
-  private final System2 system2 = mock(System2.class);
-
-  private final CliCacheService underTest = new CliCacheService(sonarUserHome, scannerWsClient, system2);
+  @Mock
+  private SonarUserHome sonarUserHome;
+  @Mock
+  private DefaultScannerWsClient scannerWsClient;
+  @Mock
+  private System2 system2;
+  @Mock
+  private TelemetryCache telemetryCache;
   @RegisterExtension
   private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
   @TempDir
   public Path cacheDir;
 
+  private CliCacheService underTest;
+
   @BeforeEach
-  void setUp() {
-    when(sonarUserHome.getPath()).thenReturn(cacheDir);
+  void setup() {
+    lenient().when(sonarUserHome.getPath()).thenReturn(cacheDir);
+    lenient().when(telemetryCache.put(any(), any())).thenReturn(telemetryCache);
+
+    underTest = new CliCacheService(sonarUserHome, scannerWsClient, telemetryCache, system2);
   }
 
   @Test
@@ -92,6 +108,11 @@ class CliCacheServiceTest {
 
     assertThat(generatedFile).exists().isExecutable();
     assertThat(cacheDir.resolve("cache").resolve(checksum)).exists().isNotEmptyDirectory();
+
+    verify(telemetryCache).put(eq("scanner.sca.download.cli.duration"), any());
+    verify(telemetryCache).put("scanner.sca.download.cli.success", "true");
+    verify(telemetryCache).put("scanner.sca.get.cli.cache.hit", "false");
+    verify(telemetryCache).put("scanner.sca.get.cli.success", "true");
   }
 
   @Test
@@ -116,6 +137,9 @@ class CliCacheServiceTest {
 
     assertThatThrownBy(underTest::cacheCli).isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Multiple CLI matches found. Unable to correctly cache CLI.");
+
+    verify(telemetryCache).put("scanner.sca.get.cli.success", "false");
+
   }
 
   @Test
@@ -124,6 +148,9 @@ class CliCacheServiceTest {
 
     assertThatThrownBy(underTest::cacheCli).isInstanceOf(IllegalStateException.class)
       .hasMessageMatching("Could not find CLI for .+ .+");
+
+    verify(telemetryCache).put("scanner.sca.get.cli.success", "false");
+
   }
 
   @Test
@@ -134,6 +161,8 @@ class CliCacheServiceTest {
 
     assertThatThrownBy(underTest::cacheCli).isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Unable to load CLI metadata");
+
+    verify(telemetryCache).put("scanner.sca.get.cli.success", "false");
   }
 
   @Test
@@ -166,6 +195,9 @@ class CliCacheServiceTest {
     assertThat(existingFile).exists();
     assertThat(existingFile.canExecute()).isFalse();
     assertThat(FileUtils.readFileToString(existingFile, Charset.defaultCharset())).isEqualTo(fileContent);
+
+    verify(telemetryCache).put("scanner.sca.get.cli.cache.hit", "true");
+    verify(telemetryCache).put("scanner.sca.get.cli.success", "true");
   }
 
   @Test

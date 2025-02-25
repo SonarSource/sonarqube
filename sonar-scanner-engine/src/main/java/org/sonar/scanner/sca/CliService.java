@@ -29,7 +29,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.utils.System2;
 import org.sonar.core.util.ProcessWrapperFactory;
+import org.sonar.scanner.repository.TelemetryCache;
 
 /**
  * The CliService class is meant to serve as the main entrypoint for any commands
@@ -40,35 +42,45 @@ import org.sonar.core.util.ProcessWrapperFactory;
 public class CliService {
   private static final Logger LOG = LoggerFactory.getLogger(CliService.class);
   private final ProcessWrapperFactory processWrapperFactory;
+  private final TelemetryCache telemetryCache;
+  private final System2 system2;
 
-  public CliService(ProcessWrapperFactory processWrapperFactory) {
+  public CliService(ProcessWrapperFactory processWrapperFactory, TelemetryCache telemetryCache, System2 system2) {
     this.processWrapperFactory = processWrapperFactory;
+    this.telemetryCache = telemetryCache;
+    this.system2 = system2;
   }
 
   public File generateManifestsZip(DefaultInputModule module, File cliExecutable) throws IOException, IllegalStateException {
-    String zipName = "dependency-files.zip";
-    Path zipPath = module.getWorkDir().resolve(zipName);
-    List<String> args = new ArrayList<>();
-    args.add(cliExecutable.getAbsolutePath());
-    args.add("projects");
-    args.add("save-lockfiles");
-    args.add("--zip");
-    args.add("--zip-filename");
-    args.add(zipPath.toAbsolutePath().toString());
-    args.add("--directory");
-    args.add(module.getBaseDir().toString());
-    args.add("--debug");
+    long startTime = system2.now();
+    boolean success = false;
+    try {
+      String zipName = "dependency-files.zip";
+      Path zipPath = module.getWorkDir().resolve(zipName);
+      List<String> args = new ArrayList<>();
+      args.add(cliExecutable.getAbsolutePath());
+      args.add("projects");
+      args.add("save-lockfiles");
+      args.add("--zip");
+      args.add("--zip-filename");
+      args.add(zipPath.toAbsolutePath().toString());
+      args.add("--directory");
+      args.add(module.getBaseDir().toString());
+      args.add("--debug");
 
-    LOG.debug("Calling ProcessBuilder with args: {}", args);
+      LOG.debug("Calling ProcessBuilder with args: {}", args);
 
-    Map<String, String> envProperties = new HashMap<>();
-    // sending this will tell the CLI to skip checking for the latest available version on startup
-    envProperties.put("TIDELIFT_SKIP_UPDATE_CHECK", "1");
+      Map<String, String> envProperties = new HashMap<>();
+      // sending this will tell the CLI to skip checking for the latest available version on startup
+      envProperties.put("TIDELIFT_SKIP_UPDATE_CHECK", "1");
 
-    processWrapperFactory.create(module.getWorkDir(), LOG::debug, envProperties, args.toArray(new String[0])).execute();
-    LOG.info("Generated manifests zip file: {}", zipName);
-
-    return zipPath.toFile();
+      processWrapperFactory.create(module.getWorkDir(), LOG::debug, envProperties, args.toArray(new String[0])).execute();
+      LOG.info("Generated manifests zip file: {}", zipName);
+      success = true;
+      return zipPath.toFile();
+    } finally {
+      telemetryCache.put("scanner.sca.execution.cli.duration", String.valueOf(startTime - system2.now()));
+      telemetryCache.put("scanner.sca.execution.cli.success", String.valueOf(success));
+    }
   }
-
 }

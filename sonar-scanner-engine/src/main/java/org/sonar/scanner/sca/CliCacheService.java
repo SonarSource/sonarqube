@@ -39,6 +39,7 @@ import org.sonar.api.internal.apachecommons.lang3.SystemUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.scanner.bootstrap.SonarUserHome;
 import org.sonar.scanner.http.ScannerWsClient;
+import org.sonar.scanner.repository.TelemetryCache;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 
@@ -55,11 +56,13 @@ public class CliCacheService {
   private static final Logger LOG = LoggerFactory.getLogger(CliCacheService.class);
   private final SonarUserHome sonarUserHome;
   private final ScannerWsClient wsClient;
+  private final TelemetryCache telemetryCache;
   private final System2 system2;
 
-  public CliCacheService(SonarUserHome sonarUserHome, ScannerWsClient wsClient, System2 system2) {
+  public CliCacheService(SonarUserHome sonarUserHome, ScannerWsClient wsClient, TelemetryCache telemetryCache, System2 system2) {
     this.sonarUserHome = sonarUserHome;
     this.wsClient = wsClient;
+    this.telemetryCache = telemetryCache;
     this.system2 = system2;
   }
 
@@ -105,27 +108,36 @@ public class CliCacheService {
   }
 
   public File cacheCli() {
-    List<CliMetadataResponse> metadataResponses = getLatestMetadata(apiOsName(), apiArch());
+    boolean success = false;
+    try {
+      List<CliMetadataResponse> metadataResponses = getLatestMetadata(apiOsName(), apiArch());
 
-    if (metadataResponses.isEmpty()) {
-      throw new IllegalStateException(format("Could not find CLI for %s %s", apiOsName(), apiArch()));
+      if (metadataResponses.isEmpty()) {
+        throw new IllegalStateException(format("Could not find CLI for %s %s", apiOsName(), apiArch()));
+      }
+
+      // We should only be getting one matching CLI for the OS + Arch combination.
+      // If we have more than one CLI to choose from then I'm not sure which one to choose.
+      if (metadataResponses.size() > 1) {
+        throw new IllegalStateException("Multiple CLI matches found. Unable to correctly cache CLI.");
+      }
+
+      CliMetadataResponse metadataResponse = metadataResponses.get(0);
+      String checksum = metadataResponse.sha256();
+      // If we have a matching checksum dir with the existing CLI file, then we are up to date.
+      if (!cachedCliFile(checksum).exists()) {
+        LOG.debug("CLI checksum mismatch");
+        downloadCli(metadataResponse.id(), checksum);
+        telemetryCache.put("scanner.sca.get.cli.cache.hit", "false");
+      } else {
+        telemetryCache.put("scanner.sca.get.cli.cache.hit", "true");
+      }
+
+      success = true;
+      return cachedCliFile(checksum);
+    } finally {
+      telemetryCache.put("scanner.sca.get.cli.success", String.valueOf(success));
     }
-
-    // We should only be getting one matching CLI for the OS + Arch combination.
-    // If we have more than one CLI to choose from then I'm not sure which one to choose.
-    if (metadataResponses.size() > 1) {
-      throw new IllegalStateException("Multiple CLI matches found. Unable to correctly cache CLI.");
-    }
-
-    CliMetadataResponse metadataResponse = metadataResponses.get(0);
-    String checksum = metadataResponse.sha256();
-    // If we have a matching checksum dir with the existing CLI file, then we are up to date.
-    if (!cachedCliFile(checksum).exists()) {
-      LOG.debug("CLI checksum mismatch");
-      downloadCli(metadataResponse.id(), checksum);
-    }
-
-    return cachedCliFile(checksum);
   }
 
   Path cacheDir() {
@@ -143,10 +155,12 @@ public class CliCacheService {
   private List<CliMetadataResponse> getLatestMetadata(String osName, String arch) {
     LOG.info("Requesting CLI for OS {} and arch {}", osName, arch);
     GetRequest getRequest = new GetRequest(CLI_WS_URL).setParam("os", osName).setParam("arch", arch);
-    try (Reader reader = wsClient.call(getRequest).contentReader()) {
-      Type listOfMetadata = new TypeToken<ArrayList<CliMetadataResponse>>() {
-      }.getType();
-      return new Gson().fromJson(reader, listOfMetadata);
+    try (WsResponse response = wsClient.call(getRequest)) {
+      try (Reader reader = response.contentReader()) {
+        Type listOfMetadata = new TypeToken<ArrayList<CliMetadataResponse>>() {
+        }.getType();
+        return new Gson().fromJson(reader, listOfMetadata);
+      }
     } catch (Exception e) {
       throw new IllegalStateException("Unable to load CLI metadata", e);
     }
@@ -154,6 +168,8 @@ public class CliCacheService {
 
   private void downloadCli(String id, String checksum) {
     LOG.info("Downloading cli {}", id);
+    long startTime = system2.now();
+    boolean success = false;
     GetRequest getRequest = new GetRequest(CLI_WS_URL + "/" + id).setHeader("Accept", "application/octet-stream");
 
     try (WsResponse response = wsClient.call(getRequest)) {
@@ -170,8 +186,12 @@ public class CliCacheService {
       if (!destinationFile.setExecutable(true, false)) {
         throw new IllegalStateException("Unable to mark CLI as executable");
       }
+      success = true;
     } catch (Exception e) {
       throw new IllegalStateException("Unable to download CLI executable", e);
+    } finally {
+      telemetryCache.put("scanner.sca.download.cli.duration", String.valueOf(system2.now() - startTime));
+      telemetryCache.put("scanner.sca.download.cli.success", String.valueOf(success));
     }
   }
 

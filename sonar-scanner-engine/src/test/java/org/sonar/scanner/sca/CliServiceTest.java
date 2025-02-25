@@ -26,27 +26,36 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
 import org.apache.commons.lang3.SystemUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.api.utils.System2;
 import org.sonar.core.util.ProcessWrapperFactory;
+import org.sonar.scanner.repository.TelemetryCache;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.slf4j.event.Level.DEBUG;
 import static org.slf4j.event.Level.INFO;
 
 class CliServiceTest {
-  private final ProcessWrapperFactory processWrapperFactory = new ProcessWrapperFactory();
-  private final CliService underTest = new CliService(processWrapperFactory);
-
+  private TelemetryCache telemetryCache;
   @RegisterExtension
   private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
+  private CliService underTest;
+
+  @BeforeEach
+  void setup() {
+    telemetryCache = new TelemetryCache();
+    underTest = new CliService(new ProcessWrapperFactory(), telemetryCache, System2.INSTANCE);
+  }
+
   @Test
-  void generateZip_shouldCallProcessCorrectly(@TempDir Path rootModuleDir) throws IOException, URISyntaxException {
+  void generateZip_shouldCallProcessCorrectly_andRegisterTelemetry(@TempDir Path rootModuleDir) throws IOException, URISyntaxException {
     DefaultInputModule root = new DefaultInputModule(
       ProjectDefinition.create().setBaseDir(rootModuleDir.toFile()).setWorkDir(rootModuleDir.toFile()));
 
@@ -81,5 +90,8 @@ class CliServiceTest {
       .contains(argumentOutput)
       .contains("TIDELIFT_SKIP_UPDATE_CHECK=1");
     assertThat(logTester.logs(INFO)).contains("Generated manifests zip file: " + producedZip.getName());
+
+    assertThat(telemetryCache.getAll()).containsKey("scanner.sca.execution.cli.duration").isNotNull();
+    assertThat(telemetryCache.getAll()).containsEntry("scanner.sca.execution.cli.success", "true");
   }
 }
