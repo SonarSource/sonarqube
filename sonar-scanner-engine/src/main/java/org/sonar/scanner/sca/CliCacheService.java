@@ -133,8 +133,9 @@ public class CliCacheService {
         telemetryCache.put("scanner.sca.get.cli.cache.hit", "true");
       }
 
+      File cliFile = cachedCliFile(checksum);
       success = true;
-      return cachedCliFile(checksum);
+      return cliFile;
     } finally {
       telemetryCache.put("scanner.sca.get.cli.success", String.valueOf(success));
     }
