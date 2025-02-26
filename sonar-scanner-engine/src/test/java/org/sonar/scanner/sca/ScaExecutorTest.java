@@ -68,7 +68,7 @@ class ScaExecutorTest {
 
     underTest.execute(root);
 
-    assertThat(logTester.logs()).contains("SCA analysis skipped");
+    assertThat(logTester.logs()).contains("Dependency analysis skipped");
     verifyNoInteractions(cliService, cliCacheService);
   }
 

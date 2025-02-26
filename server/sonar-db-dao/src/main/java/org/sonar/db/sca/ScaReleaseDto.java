@@ -23,7 +23,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Represents a single release of a package, such as an npm or maven package,
- * as found in a single SCA analysis run (so it's attached to a branch component,
+ * as found in a single dependency analysis run (so it's attached to a branch component,
  * and there's a separate copy of each release per branch it appears in).
  *
  * @param uuid              Primary key

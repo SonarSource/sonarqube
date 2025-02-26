@@ -50,14 +50,14 @@ public class ScaExecutor {
 
   public void execute(DefaultInputModule root) {
     if (!featureFlagsRepository.isEnabled(SCA_FEATURE_NAME)) {
-      LOG.debug("SCA analysis skipped");
+      LOG.debug("Dependency analysis skipped");
       return;
     }
 
     LOG.info("Checking for latest CLI");
     File cliFile = cliCacheService.cacheCli();
 
-    LOG.info("Collecting manifests for the SCA analysis...");
+    LOG.info("Collecting manifests for the dependency analysis...");
     if (cliFile.exists()) {
       try {
         File generatedZip = cliService.generateManifestsZip(root, cliFile);
