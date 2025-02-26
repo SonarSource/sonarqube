@@ -79,7 +79,7 @@ public class CliService {
       success = true;
       return zipPath.toFile();
     } finally {
-      telemetryCache.put("scanner.sca.execution.cli.duration", String.valueOf(startTime - system2.now()));
+      telemetryCache.put("scanner.sca.execution.cli.duration", String.valueOf(system2.now() - startTime));
       telemetryCache.put("scanner.sca.execution.cli.success", String.valueOf(success));
     }
   }
