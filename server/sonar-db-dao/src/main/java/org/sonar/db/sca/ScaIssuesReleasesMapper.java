@@ -19,24 +19,14 @@
  */
 package org.sonar.db.sca;
 
-import org.junit.jupiter.api.Test;
+import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+public interface ScaIssuesReleasesMapper {
+  void insert(ScaIssueReleaseDto dto);
 
-class ScaReleaseDtoTest {
+  void update(ScaIssueReleaseDto dto);
 
-  @Test
-  void test_toBuilder_build_shouldRoundTrip() {
-    var scaReleaseDto = new ScaReleaseDto("scaReleaseUuid",
-      "componentUuid",
-      "packageUrl",
-      PackageManager.MAVEN,
-      "foo:bar",
-      "1.0.0",
-      "MIT",
-      true,
-      1L,
-      2L);
-    assertThat(scaReleaseDto.toBuilder().build()).isEqualTo(scaReleaseDto);
-  }
+  void deleteByUuid(String uuid);
+
+  List<ScaIssueReleaseDto> selectByBranchUuid(String branchUuid);
 }

@@ -23,20 +23,16 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-class ScaReleaseDtoTest {
+class ScaIssueReleaseDtoTest {
 
   @Test
   void test_toBuilder_build_shouldRoundTrip() {
-    var scaReleaseDto = new ScaReleaseDto("scaReleaseUuid",
-      "componentUuid",
-      "packageUrl",
-      PackageManager.MAVEN,
-      "foo:bar",
-      "1.0.0",
-      "MIT",
-      true,
+    var scaIssueReleaseDto = new ScaIssueReleaseDto("sca-issue-release-uuid",
+      "sca-issue-uuid",
+      "sca-release-uuid",
+      ScaSeverity.INFO,
       1L,
       2L);
-    assertThat(scaReleaseDto.toBuilder().build()).isEqualTo(scaReleaseDto);
+    assertThat(scaIssueReleaseDto.toBuilder().build()).isEqualTo(scaIssueReleaseDto);
   }
 }

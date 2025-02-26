@@ -19,24 +19,29 @@
  */
 package org.sonar.db.sca;
 
-import org.junit.jupiter.api.Test;
+import java.util.List;
+import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+public class ScaIssuesReleasesDao implements Dao {
 
-class ScaReleaseDtoTest {
+  private static ScaIssuesReleasesMapper mapper(DbSession session) {
+    return session.getMapper(ScaIssuesReleasesMapper.class);
+  }
 
-  @Test
-  void test_toBuilder_build_shouldRoundTrip() {
-    var scaReleaseDto = new ScaReleaseDto("scaReleaseUuid",
-      "componentUuid",
-      "packageUrl",
-      PackageManager.MAVEN,
-      "foo:bar",
-      "1.0.0",
-      "MIT",
-      true,
-      1L,
-      2L);
-    assertThat(scaReleaseDto.toBuilder().build()).isEqualTo(scaReleaseDto);
+  public void insert(DbSession session, ScaIssueReleaseDto scaIssueReleaseDto) {
+    mapper(session).insert(scaIssueReleaseDto);
+  }
+
+  public void update(DbSession session, ScaIssueReleaseDto scaIssueReleaseDto) {
+    mapper(session).update(scaIssueReleaseDto);
+  }
+
+  public void deleteByUuid(DbSession session, String uuid) {
+    mapper(session).deleteByUuid(uuid);
+  }
+
+  public List<ScaIssueReleaseDto> selectByBranchUuid(DbSession dbSession, String branchUuid) {
+    return mapper(dbSession).selectByBranchUuid(branchUuid);
   }
 }

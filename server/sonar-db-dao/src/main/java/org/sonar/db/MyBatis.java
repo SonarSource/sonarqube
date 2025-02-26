@@ -154,6 +154,7 @@ import org.sonar.db.rule.RuleRepositoryMapper;
 import org.sonar.db.sca.ScaDependenciesMapper;
 import org.sonar.db.sca.ScaDependencyDto;
 import org.sonar.db.sca.ScaIssuesMapper;
+import org.sonar.db.sca.ScaIssuesReleasesMapper;
 import org.sonar.db.sca.ScaReleasesMapper;
 import org.sonar.db.sca.ScaVulnerabilityIssuesMapper;
 import org.sonar.db.scannercache.ScannerAnalysisCacheMapper;
@@ -347,6 +348,7 @@ public class MyBatis {
       SamlMessageIdMapper.class,
       ScaDependenciesMapper.class,
       ScaIssuesMapper.class,
+      ScaIssuesReleasesMapper.class,
       ScaReleasesMapper.class,
       ScaVulnerabilityIssuesMapper.class,
       ScannerAnalysisCacheMapper.class,

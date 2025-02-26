@@ -37,7 +37,7 @@ class ScaDependencyDtoTest {
       List.of(List.of("pkg:npm/fodo@1.0.0")),
       1L,
       2L);
-    assertThat(scaDependencyDto).isEqualTo(scaDependencyDto.toBuilder().build());
+    assertThat(scaDependencyDto.toBuilder().build()).isEqualTo(scaDependencyDto);
   }
 
   @Test
