@@ -21,7 +21,7 @@ package org.sonar.server.v2;
 
 public class WebApiEndpoints {
   public static final String JSON_MERGE_PATCH_CONTENT_TYPE = "application/merge-patch+json";
-  public static final String INTERNAL = "internal";
+  public static final String INTERNAL = "x-sonar-internal";
 
   public static final String SYSTEM_DOMAIN = "/system";
   public static final String LIVENESS_ENDPOINT = SYSTEM_DOMAIN + "/liveness";
