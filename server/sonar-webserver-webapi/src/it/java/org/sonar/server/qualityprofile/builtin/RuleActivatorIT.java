@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile.builtin;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -65,6 +66,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Map.of;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
@@ -358,6 +360,83 @@ class RuleActivatorIT {
 
     assertThrows("xoo rule repo:rule cannot be activated on xoo2 profile qp", BadRequestException.class,
       () -> underTest.activate(session, resetRequest, context));
+  }
+
+  @Test
+  void testActivate_whenProfileIsNotBuiltInAndRuleUuidInPreviousBuiltinActiveRuleUuids_shouldContainNoChange() {
+    QProfileDto builtinProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setLanguage("xoo"));
+    QProfileDto customProfile = createChildProfile(builtinProfile);
+
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.CRITICAL));
+    ActiveRuleDto builtinActiveRuleDto = activateRuleInDb(RulesProfileDto.from(builtinProfile), rule,
+      RulePriority.valueOf(Severity.CRITICAL), Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), null, null);
+
+    RuleActivationContext context = new RuleActivationContext.Builder()
+      .setProfiles(List.of(builtinProfile, customProfile))
+      .setBaseProfile(RulesProfileDto.from(builtinProfile))
+      .setPreviousBuiltinActiveRuleUuids(Set.of(rule.getUuid()))
+      .setDescendantProfilesSupplier((profiles, ruleUuids) -> new Result(emptyList(), emptyList(), emptyList()))
+      .setRules(singletonList(rule))
+      .setRuleParams(emptyList())
+      .setActiveRules(List.of(builtinActiveRuleDto))
+      .setActiveRuleParams(emptyList())
+      .build();
+
+    RuleActivation activation = RuleActivation.create(rule.getUuid());
+
+    List<ActiveRuleChange> result = underTest.activate(db.getSession(), activation, context);
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void testActivate_whenProfileIsNotBuiltInAndRuleUuidNotInPreviousBuiltinActiveRuleUuids_shouldContainActivation() {
+    QProfileDto builtinProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setLanguage("xoo"));
+    QProfileDto customProfile = createChildProfile(builtinProfile);
+
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.CRITICAL));
+    ActiveRuleDto builtinActiveRuleDto = activateRuleInDb(RulesProfileDto.from(builtinProfile), rule,
+      RulePriority.valueOf(Severity.CRITICAL), Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), null, null);
+
+    RuleActivationContext context = new RuleActivationContext.Builder()
+      .setProfiles(List.of(builtinProfile, customProfile))
+      .setBaseProfile(RulesProfileDto.from(builtinProfile))
+      .setPreviousBuiltinActiveRuleUuids(Set.of("another-rule-uuid"))
+      .setDescendantProfilesSupplier((profiles, ruleUuids) -> new Result(emptyList(), emptyList(), emptyList()))
+      .setRules(singletonList(rule))
+      .setRuleParams(emptyList())
+      .setActiveRules(List.of(builtinActiveRuleDto))
+      .setActiveRuleParams(emptyList())
+      .build();
+
+    RuleActivation activation = RuleActivation.create(rule.getUuid());
+
+    List<ActiveRuleChange> result = underTest.activate(db.getSession(), activation, context);
+    assertThat(result)
+      .hasSize(1)
+      .extracting(ActiveRuleChange::getRuleUuid, ActiveRuleChange::getKey)
+      .containsExactlyInAnyOrder(tuple(rule.getUuid(), ActiveRuleKey.of(customProfile, RuleKey.of(rule.getRepositoryKey(), rule.getRuleKey()))));
+  }
+
+  @Test
+  void testActivate_whenProfileIsBuiltIn_shouldContainActivation() {
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setLanguage("xoo"));
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
+    RuleActivationContext context = new RuleActivationContext.Builder()
+      .setProfiles(List.of(profile))
+      .setBaseProfile(RulesProfileDto.from(profile))
+      .setPreviousBuiltinActiveRuleUuids(Set.of(rule.getUuid()))
+      .setDescendantProfilesSupplier((profiles, ruleUuids) -> new Result(emptyList(), emptyList(), emptyList()))
+      .setRules(singletonList(rule))
+      .setRuleParams(emptyList())
+      .setActiveRules(emptyList())
+      .setActiveRuleParams(emptyList())
+      .build();
+
+    RuleActivation activation = RuleActivation.create(rule.getUuid());
+
+    List<ActiveRuleChange> result = underTest.activate(db.getSession(), activation, context);
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getRuleUuid()).isEqualTo(rule.getUuid());
   }
 
   private ActiveRuleDto activateRuleInDb(RulesProfileDto ruleProfile, RuleDto rule, RulePriority severity, Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts,

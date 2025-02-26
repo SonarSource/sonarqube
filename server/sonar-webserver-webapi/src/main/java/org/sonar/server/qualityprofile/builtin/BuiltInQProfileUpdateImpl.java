@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile.builtin;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,10 +54,12 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
 
   public List<ActiveRuleChange> update(DbSession dbSession, BuiltInQProfile builtInDefinition, RulesProfileDto initialRuleProfile) {
     // Keep reference to all the activated rules before update
-    Set<String> deactivatedRuleUuids = dbClient.activeRuleDao().selectByRuleProfile(dbSession, initialRuleProfile)
+    Set<String> previousBuiltinActiveRuleUuids = dbClient.activeRuleDao().selectByRuleProfile(dbSession, initialRuleProfile)
       .stream()
       .map(ActiveRuleDto::getRuleUuid)
-      .collect(Collectors.toSet());
+      .collect(Collectors.toUnmodifiableSet());
+
+    Set<String> deactivatedRuleUuids = new HashSet<>(previousBuiltinActiveRuleUuids);
 
     // all rules, including those which are removed from built-in profile
     Set<String> ruleUuids = Stream.concat(
@@ -71,7 +74,7 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
       deactivatedRuleUuids.remove(activation.getRuleUuid());
     }
 
-    RuleActivationContext context = ruleActivator.createContextForBuiltInProfile(dbSession, initialRuleProfile, ruleUuids);
+    RuleActivationContext context = ruleActivator.createContextForBuiltInProfile(dbSession, initialRuleProfile, ruleUuids, previousBuiltinActiveRuleUuids);
     List<ActiveRuleChange> changes = new ArrayList<>();
 
     changes.addAll(ruleActivator.activate(dbSession, activations, context));

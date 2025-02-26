@@ -309,6 +309,40 @@ class BuiltInQProfileUpdateImplIT {
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(persistedProfile.getLanguage()));
   }
 
+  @Test
+  void deactivated_rule_should_not_be_activated_in_descendant_profiles() {
+    RuleDto rule1 = db.rules().insert(r -> r.setLanguage("xoo"));
+    RuleDto rule2 = db.rules().insert(r -> r.setLanguage("xoo"));
+
+    QProfileDto parentProfile = db.qualityProfiles().insert(p -> p.setLanguage("xoo").setIsBuiltIn(true));
+    activateRuleInDb(RulesProfileDto.from(parentProfile), rule1, RulePriority.valueOf(Severity.MINOR),
+      Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
+    activateRuleInDb(RulesProfileDto.from(parentProfile), rule2, RulePriority.valueOf(Severity.MINOR),
+      Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
+
+    // child profile has only rule1 activated, to simulate rule2 is deactivated
+    QProfileDto childProfile = createChildProfile(parentProfile);
+    activateRuleInDb(RulesProfileDto.from(childProfile), rule1, RulePriority.valueOf(Severity.MINOR),
+      Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW), INHERITED);
+
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile(parentProfile.getName(), parentProfile.getLanguage());
+    newQp.activateRule(rule1.getRepositoryKey(), rule1.getRuleKey());
+    newQp.activateRule(rule2.getRepositoryKey(), rule2.getRuleKey());
+    newQp.done();
+    BuiltInQProfile builtIn = builtInProfileRepository.create(context.profile(parentProfile.getLanguage(), parentProfile.getName()), rule1, rule2);
+    List<ActiveRuleChange> changes = underTest.update(db.getSession(), builtIn, RulesProfileDto.from(parentProfile));
+
+    assertThat(changes).hasSize(3);
+
+    List<ActiveRuleDto> parentActiveRules = db.getDbClient().activeRuleDao().selectByRuleProfile(db.getSession(), RulesProfileDto.from(parentProfile));
+    assertThatRuleIsUpdated(parentActiveRules, rule1, RulePriority.valueOfInt(rule1.getSeverity()), rule1.getDefaultImpactsMap());
+    assertThatRuleIsUpdated(parentActiveRules, rule2, RulePriority.valueOfInt(rule2.getSeverity()), rule2.getDefaultImpactsMap());
+
+    List<ActiveRuleDto> childActiveRules = db.getDbClient().activeRuleDao().selectByRuleProfile(db.getSession(), RulesProfileDto.from(childProfile));
+    assertThatRuleIsUpdated(childActiveRules, rule1, RulePriority.valueOfInt(rule1.getSeverity()), rule1.getDefaultImpactsMap(), INHERITED);
+  }
+
   // SONAR-14559
   @Test
   void propagate_rule_update_to_descendant_active_rule() {

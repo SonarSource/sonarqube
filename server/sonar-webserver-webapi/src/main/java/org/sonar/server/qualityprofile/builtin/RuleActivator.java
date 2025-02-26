@@ -116,8 +116,7 @@ public class RuleActivator {
     ActiveRuleWrapper activeRule = context.getActiveRule();
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(context.getRulesProfile(), rule.getKey());
     if (activeRule == null) {
-      if (activation.isReset()) {
-        // ignore reset when rule is not activated
+      if (activation.isReset() || skipBuiltinRuleActivation(activation, context)) {
         return changes;
       }
       change = handleNewRuleActivation(activation, context, rule, activeRuleKey);
@@ -142,9 +141,6 @@ public class RuleActivator {
     if (change != null) {
       changes.add(change);
       persist(change, context, dbSession);
-    }
-
-    if (!changes.isEmpty()) {
       updateProfileDates(dbSession, context);
     }
 
@@ -155,6 +151,12 @@ public class RuleActivator {
     }
 
     return changes;
+  }
+
+  private static boolean skipBuiltinRuleActivation(RuleActivation activation, RuleActivationContext context) {
+    // SONAR-23184: If the rule isn't active for a child profile and it is active for the previous parent definition of the profile,
+    // it means it was deactivated on purpose by a user - we don't want to active it.
+    return context.isCascading() && context.getPreviousBuiltinActiveRuleUuids().contains(activation.getRuleUuid());
   }
 
   private void handleUpdatedRuleActivation(RuleActivation activation, RuleActivationContext context, ActiveRuleChange change,
@@ -515,11 +517,12 @@ public class RuleActivator {
   }
 
   public RuleActivationContext createContextForBuiltInProfile(DbSession dbSession, RulesProfileDto builtInProfile,
-    Collection<String> ruleUuids) {
+    Collection<String> ruleUuids, Set<String> previousBuiltinActiveRuleUuids) {
     checkArgument(builtInProfile.isBuiltIn(), "Rules profile with UUID %s is not built-in", builtInProfile.getUuid());
 
     RuleActivationContext.Builder builder = new RuleActivationContext.Builder();
     builder.setDescendantProfilesSupplier(createDescendantProfilesSupplier(dbSession));
+    builder.setPreviousBuiltinActiveRuleUuids(previousBuiltinActiveRuleUuids);
 
     // load rules
     completeWithRules(dbSession, builder, ruleUuids);

@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
@@ -40,6 +41,7 @@ import org.sonar.server.qualityprofile.RuleActivation;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Collections.emptySet;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
@@ -53,6 +55,8 @@ import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 public class RuleActivationContext {
 
   private final long date;
+
+  private Set<String> previousBuiltinActiveRuleUuids;
 
   // The profile that is initially targeted by the operation
   private final RulesProfileDto baseRulesProfile;
@@ -79,6 +83,8 @@ public class RuleActivationContext {
 
   private RuleActivationContext(Builder builder) {
     this.date = builder.date;
+    this.previousBuiltinActiveRuleUuids = builder.previousBuiltinActiveRuleUuids == null ? emptySet() :
+      builder.previousBuiltinActiveRuleUuids;
     this.descendantProfilesSupplier = builder.descendantProfilesSupplier;
 
     ListMultimap<String, RuleParamDto> paramsByRuleId = builder.ruleParams.stream().collect(index(RuleParamDto::getRuleUuid));
@@ -243,8 +249,13 @@ public class RuleActivationContext {
       .orElse(null);
   }
 
+  public Set<String> getPreviousBuiltinActiveRuleUuids() {
+    return previousBuiltinActiveRuleUuids;
+  }
+
   static final class Builder {
     private long date = System.currentTimeMillis();
+    private Set<String> previousBuiltinActiveRuleUuids;
     private RulesProfileDto baseRulesProfile;
     private Collection<RuleDto> rules;
     private Collection<RuleParamDto> ruleParams;
@@ -255,6 +266,11 @@ public class RuleActivationContext {
 
     Builder setDate(long l) {
       this.date = l;
+      return this;
+    }
+
+    Builder setPreviousBuiltinActiveRuleUuids(Set<String> previousBuiltinActiveRuleUuids) {
+      this.previousBuiltinActiveRuleUuids = previousBuiltinActiveRuleUuids;
       return this;
     }
 
