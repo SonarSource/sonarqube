@@ -23,7 +23,6 @@ import org.sonar.api.utils.Durations;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.platform.PluginClassloaderFactory;
-import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.server.es.MigrationEsClientImpl;
 import org.sonar.server.l18n.ServerI18n;
 import org.sonar.server.platform.DatabaseServerCompatibility;
@@ -95,14 +94,8 @@ public class PlatformLevel2 extends PlatformLevel {
     addIfStartupLeader(
       DatabaseCharsetChecker.class,
       CheckDatabaseCharsetAtStartup.class);
-  }
 
-  @Override
-  public PlatformLevel start() {
-    SpringComponentContainer container = getContainer();
     CoreExtensionsInstaller coreExtensionsInstaller = parent.get(WebCoreExtensionsInstaller.class);
-    coreExtensionsInstaller.install(container, hasPlatformLevel(2), noAdditionalSideFilter());
-
-    return super.start();
+    coreExtensionsInstaller.install(getContainer(), hasPlatformLevel(2), noAdditionalSideFilter());
   }
 }

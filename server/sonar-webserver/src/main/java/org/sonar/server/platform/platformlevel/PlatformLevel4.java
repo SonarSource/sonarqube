@@ -750,20 +750,12 @@ public class PlatformLevel4 extends PlatformLevel {
     addIfStandalone(ServerLogging.class);
 
     addAll(level4AddedComponents);
-  }
 
-  @Override
-  public PlatformLevel start() {
     SpringComponentContainer container = getContainer();
     CoreExtensionsInstaller coreExtensionsInstaller = parent.get(WebCoreExtensionsInstaller.class);
     coreExtensionsInstaller.install(container, hasPlatformLevel4OrNone(), noAdditionalSideFilter());
 
     ServerExtensionInstaller extensionInstaller = parent.get(ServerExtensionInstaller.class);
     extensionInstaller.installExtensions(container);
-
-    super.start();
-
-    return this;
   }
-
 }

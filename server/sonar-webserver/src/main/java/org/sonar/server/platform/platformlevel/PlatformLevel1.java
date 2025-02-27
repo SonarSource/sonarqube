@@ -23,6 +23,7 @@ import java.time.Clock;
 import java.util.Properties;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.System2;
@@ -39,7 +40,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.MyBatis;
 import org.sonar.db.StartMyBatis;
-import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.process.NetworkUtilsImpl;
@@ -92,10 +92,12 @@ public class PlatformLevel1 extends PlatformLevel {
     Version apiVersion = MetadataLoader.loadApiVersion(System2.INSTANCE);
     Version sqVersion = MetadataLoader.loadSQVersion(System2.INSTANCE);
     SonarEdition edition = MetadataLoader.loadEdition(System2.INSTANCE);
+    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SERVER, edition);
+
 
     add(
       new SonarQubeVersion(sqVersion),
-      SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SERVER, edition),
+      sonarRuntime,
       ThreadLocalSettings.class,
       ConfigurationProvider.class,
       LogServerVersion.class,
@@ -145,13 +147,14 @@ public class PlatformLevel1 extends PlatformLevel {
 
       new OkHttpClientProvider(),
 
-      CoreExtensionRepositoryImpl.class,
-      CoreExtensionsLoader.class,
-      WebCoreExtensionsInstaller.class);
+      NoOpAuditPersister.class
+    );
     addAll(CorePropertyDefinitions.all());
 
     // cluster
     add(DefaultNodeInformation.class);
+
+    addCoreExtensionMechanism(sonarRuntime);
   }
 
   private void addExtraRootComponents() {
@@ -162,17 +165,14 @@ public class PlatformLevel1 extends PlatformLevel {
     }
   }
 
-  @Override
-  public PlatformLevel start() {
-    PlatformLevel start = super.start();
-    get(CoreExtensionsLoader.class)
-      .load();
-    get(WebCoreExtensionsInstaller.class)
-      .install(getContainer(), hasPlatformLevel(1), noAdditionalSideFilter());
-    if (getOptional(AuditPersister.class).isEmpty()) {
-      add(NoOpAuditPersister.class);
-    }
+  private void addCoreExtensionMechanism(SonarRuntime sonarRuntime) {
+    var coreExtensionRepository = new CoreExtensionRepositoryImpl();
+    var coreExtensionsLoader = new CoreExtensionsLoader(coreExtensionRepository);
+    var webCoreExtensionsInstaller = new WebCoreExtensionsInstaller(sonarRuntime, coreExtensionRepository);
 
-    return start;
+    add(coreExtensionRepository, coreExtensionsLoader, webCoreExtensionsInstaller);
+
+    coreExtensionsLoader.load();
+    webCoreExtensionsInstaller.install(getContainer(), hasPlatformLevel(1), noAdditionalSideFilter());
   }
 }
