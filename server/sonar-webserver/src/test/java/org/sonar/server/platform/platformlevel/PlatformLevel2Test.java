@@ -19,18 +19,20 @@
  */
 package org.sonar.server.platform.platformlevel;
 
+import java.io.File;
 import java.util.Optional;
 import java.util.Properties;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.server.platform.NodeInformation;
+import org.sonar.server.platform.WebCoreExtensionsInstaller;
 import org.sonar.server.platform.db.migration.charset.DatabaseCharsetChecker;
 import org.sonar.server.plugins.ServerPluginRepository;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -40,30 +42,38 @@ import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
 
-public class PlatformLevel2Test {
+class PlatformLevel2Test {
 
-  @Rule
-  public TemporaryFolder tempFolder = new TemporaryFolder();
+  @TempDir
+  private File home;
+
+  @TempDir
+  private File data;
+
+  @TempDir
+  private File temp;
 
   private Properties props = new Properties();
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() {
     // these are mandatory settings declared by bootstrap process
-    props.setProperty(PATH_HOME.getKey(), tempFolder.newFolder().getAbsolutePath());
-    props.setProperty(PATH_DATA.getKey(), tempFolder.newFolder().getAbsolutePath());
-    props.setProperty(PATH_TEMP.getKey(), tempFolder.newFolder().getAbsolutePath());
+    props.setProperty(PATH_HOME.getKey(), home.getAbsolutePath());
+    props.setProperty(PATH_DATA.getKey(), data.getAbsolutePath());
+    props.setProperty(PATH_TEMP.getKey(), temp.getAbsolutePath());
   }
 
   @Test
-  public void add_all_components_by_default() {
+  void add_all_components_by_default() {
     var parentContainer = mock(SpringComponentContainer.class);
     var container = mock(SpringComponentContainer.class);
     var platform = mock(PlatformLevel.class);
     var webserver = mock(NodeInformation.class);
+    var webCoreExtensionInstaller = mock(WebCoreExtensionsInstaller.class);
 
     when(parentContainer.createChild()).thenReturn(container);
     when(platform.getContainer()).thenReturn(parentContainer);
+    when(platform.get(WebCoreExtensionsInstaller.class)).thenReturn(webCoreExtensionInstaller);
     when(parentContainer.getOptionalComponentByType(any())).thenReturn(Optional.empty());
     when(container.getOptionalComponentByType(NodeInformation.class)).thenReturn(Optional.of(webserver));
     when(webserver.isStartupLeader()).thenReturn(true);
@@ -73,18 +83,21 @@ public class PlatformLevel2Test {
 
     verify(container).add(ServerPluginRepository.class);
     verify(container).add(DatabaseCharsetChecker.class);
+    verify(webCoreExtensionInstaller).install(eq(container), any(), any());
     verify(container, atLeastOnce()).add(any());
   }
 
   @Test
-  public void do_not_add_all_components_when_startup_follower() {
+  void do_not_add_all_components_when_startup_follower() {
     var parentContainer = mock(SpringComponentContainer.class);
     var container = mock(SpringComponentContainer.class);
     var platform = mock(PlatformLevel.class);
     var webserver = mock(NodeInformation.class);
+    var webCoreExtensionInstaller = mock(WebCoreExtensionsInstaller.class);
 
     when(parentContainer.createChild()).thenReturn(container);
     when(platform.getContainer()).thenReturn(parentContainer);
+    when(platform.get(WebCoreExtensionsInstaller.class)).thenReturn(webCoreExtensionInstaller);
     when(parentContainer.getOptionalComponentByType(any())).thenReturn(Optional.empty());
     when(container.getOptionalComponentByType(NodeInformation.class)).thenReturn(Optional.of(webserver));
     when(webserver.isStartupLeader()).thenReturn(false);
@@ -96,6 +109,4 @@ public class PlatformLevel2Test {
     verify(container, never()).add(DatabaseCharsetChecker.class);
     verify(container, atLeastOnce()).add(any());
   }
-
-
 }

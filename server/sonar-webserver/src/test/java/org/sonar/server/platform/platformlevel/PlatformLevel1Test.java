@@ -20,21 +20,23 @@
 package org.sonar.server.platform.platformlevel;
 
 import java.util.Properties;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.server.platform.Platform;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 
-public class PlatformLevel1Test {
+class PlatformLevel1Test {
 
   private final PlatformLevel1 underTest = new PlatformLevel1(mock(Platform.class), new Properties());
 
   @Test
-  public void no_missing_dependencies_between_components() {
+  void whenLoadingComponent_thenCoreExtensionsLoadAlongside() {
     underTest.configureLevel();
 
-    assertThat(underTest.getContainer().context().getBeanDefinitionNames()).isNotEmpty();
+    assertThat(underTest.getContainer().context().getBeanDefinitionNames()).isNotEmpty()
+      .anyMatch(beanName -> beanName.endsWith("TestCoreExtension.TestBean1"), "testBean1 should be loaded")
+      .noneMatch(beanName -> beanName.endsWith("TestCoreExtension.TestBean2"), "testBean2 should not be loaded");
   }
 }

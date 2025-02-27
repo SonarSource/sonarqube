@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.container;
 
-import com.google.common.collect.ImmutableSet;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -27,10 +26,10 @@ import java.util.Locale;
 import java.util.Properties;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -40,13 +39,13 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
+import org.sonar.server.extension.TestCoreExtension;
 import org.sonar.server.property.InternalProperties;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 import static org.sonar.process.ProcessProperties.Property.JDBC_PASSWORD;
@@ -56,31 +55,30 @@ import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
 
-public class ComputeEngineContainerImplIT {
+class ComputeEngineContainerImplIT {
 
-  @Rule
-  public TemporaryFolder tempFolder = new TemporaryFolder();
-  @Rule
+  @TempDir
+  private File tempFolder;
 
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private DbTester db = DbTester.create(System2.INSTANCE);
 
   private final ServiceLoaderWrapper serviceLoaderWrapper = mock(ServiceLoaderWrapper.class);
   private final ProcessProperties processProperties = new ProcessProperties(serviceLoaderWrapper);
   private final ComputeEngineContainerImpl underTest = new ComputeEngineContainerImpl();
 
-  @Before
-  public void setUp() {
-    when(serviceLoaderWrapper.load()).thenReturn(ImmutableSet.of());
+  @BeforeEach
+  void setUp() {
     underTest.setComputeEngineStatus(mock(ComputeEngineStatus.class));
   }
 
   @Test
-  public void constructor_does_not_create_container() {
+  void constructor_does_not_create_container() {
     assertThat(underTest.getComponentContainer()).isNull();
   }
 
   @Test
-  public void test_real_start() throws IOException {
+  void whenStartingCeContainer_thenBeansAndExtensionsLoadTogether() throws IOException {
     Properties properties = getProperties();
 
     // required persisted properties
@@ -92,10 +90,19 @@ public class ComputeEngineContainerImplIT {
 
     AnnotationConfigApplicationContext context = underTest.getComponentContainer().context();
     try {
-      assertThat(context.getBeanDefinitionNames()).hasSizeGreaterThan(1);
-      assertThat(context.getParent().getBeanDefinitionNames()).hasSizeGreaterThan(1);
-      assertThat(context.getParent().getParent().getBeanDefinitionNames()).hasSizeGreaterThan(1);
-      assertThat(context.getParent().getParent().getParent().getBeanDefinitionNames()).hasSizeGreaterThan(1);
+      assertThat(context.getBeanDefinitionNames()).hasSizeGreaterThan(1)
+        .anyMatch(beanName -> beanName.endsWith("TestCoreExtension.TestBean4"));
+      assertThat(underTest.getComponentContainer().getOptionalComponentByType(TestCoreExtension.TestBean4.class)).isPresent();
+      assertThat(context.getParent().getBeanDefinitionNames()).hasSizeGreaterThan(1)
+        .anyMatch(beanName -> beanName.endsWith("TestCoreExtension.TestBean3"));
+      assertThat(underTest.getComponentContainer().getOptionalComponentByType(TestCoreExtension.TestBean3.class)).isPresent();
+      assertThat(context.getParent().getParent().getBeanDefinitionNames()).hasSizeGreaterThan(1)
+        .anyMatch(beanName -> beanName.endsWith("TestCoreExtension.TestBean2"));
+      assertThat(underTest.getComponentContainer().getOptionalComponentByType(TestCoreExtension.TestBean2.class)).isPresent();
+      assertThat(context.getParent().getParent().getParent().getBeanDefinitionNames()).hasSizeGreaterThan(1)
+        .anyMatch(beanName -> beanName.endsWith("TestCoreExtension.TestBean1"));
+      assertThat(underTest.getComponentContainer().getOptionalComponentByType(TestCoreExtension.TestBean1.class)).isPresent()
+        .get().matches(tb -> tb.called, "mybatis extension has been called");
       assertThat(context.getParent().getParent().getParent().getParent()).isNull();
     } finally {
       underTest.stop();
@@ -113,10 +120,10 @@ public class ComputeEngineContainerImplIT {
     Props props = new Props(properties);
     processProperties.completeDefaults(props);
     properties = props.rawProperties();
-    File homeDir = tempFolder.newFolder();
-    File dataDir = new File(homeDir, "data");
+    File homeDir = tempFolder;
+    File dataDir = new File(tempFolder, "data");
     dataDir.mkdirs();
-    File tmpDir = new File(homeDir, "tmp");
+    File tmpDir = new File(tempFolder, "tmp");
     tmpDir.mkdirs();
     properties.setProperty(PATH_HOME.getKey(), homeDir.getAbsolutePath());
     properties.setProperty(PATH_DATA.getKey(), dataDir.getAbsolutePath());
