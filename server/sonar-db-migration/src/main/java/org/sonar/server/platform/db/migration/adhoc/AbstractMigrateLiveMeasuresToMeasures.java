@@ -67,7 +67,7 @@ public abstract class AbstractMigrateLiveMeasuresToMeasures extends DataChange {
     FROM live_measures lm
     INNER JOIN metrics m ON m.uuid = lm.metric_uuid
     WHERE lm.project_uuid = ?
-    AND (lm.measure_data is null OR %s(lm.measure_data) < 1000000)
+    AND (lm.measure_data is null OR %s(lm.measure_data) < 100000 OR m.name = 'duplications_data')
     AND m.name NOT IN ('executable_lines_data', 'ncloc_data')
     ORDER BY lm.component_uuid
     """;

@@ -162,14 +162,17 @@ public class MigrateBranchesLiveMeasuresToMeasuresTest {
     String nclocMetricUuid = insertMetric("ncloc", "INT");
     String metricWithDataUuid = insertMetric("metric_with_data", "DATA");
     String metricWithLargeDataUuid = insertMetric("metric_with_large_data", "DATA");
+    String duplicationsDataMetricUuid = insertMetric(CoreMetrics.DUPLICATIONS_DATA_KEY, "DATA");
 
     String branch1 = "branch_1";
     insertNotMigratedBranch(branch1);
     String component1 = uuidFactory.create();
     insertMeasure(branch1, component1, nclocMetricUuid, Map.of("value", 120));
-    byte[] largeValue = createLargeValue(999_999);
+    byte[] largeValue = createLargeValue(99_999);
+    byte[] veryLargeValue = createLargeValue(100_000);
     insertMeasure(branch1, component1, metricWithDataUuid, Map.of("measure_data", largeValue));
-    insertMeasure(branch1, component1, metricWithLargeDataUuid, Map.of("measure_data", createLargeValue(1_000_000)));
+    insertMeasure(branch1, component1, metricWithLargeDataUuid, Map.of("measure_data", veryLargeValue));
+    insertMeasure(branch1, component1, duplicationsDataMetricUuid, Map.of("measure_data", veryLargeValue));
 
     underTest.migrate(List.of(branch1));
 
@@ -181,7 +184,8 @@ public class MigrateBranchesLiveMeasuresToMeasuresTest {
       .extracting(t -> t.get("COMPONENT_UUID"), t -> t.get("BRANCH_UUID"),
         t -> t.get("JSON_VALUE"), t -> t.get("JSON_VALUE_HASH"))
       .containsOnly(tuple(component1, branch1, "{\"ncloc\":120.0,\"metric_with_data\":\"" +
-        new String(largeValue, StandardCharsets.UTF_8) + "\"}", -8442559321192521885L));
+        new String(largeValue, StandardCharsets.UTF_8) + "\",\"duplications_data\":\"" +
+        new String(veryLargeValue, StandardCharsets.UTF_8) + "\"}", 3796772412311633189L));
   }
 
   @Test
