@@ -19,13 +19,13 @@
  */
 package org.sonar.scanner.mediumtest;
 
+import jakarta.annotation.Priority;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import jakarta.annotation.Priority;
 import org.sonar.api.Plugin;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.plugin.PluginType;
@@ -46,6 +46,11 @@ public class FakePluginInstaller implements PluginInstaller {
 
   public FakePluginInstaller add(String pluginKey, Plugin instance) {
     mediumTestPlugins.add(new LocalPlugin(pluginKey, instance, Set.of()));
+    return this;
+  }
+
+  public FakePluginInstaller add(PluginInfo pluginInfo, Plugin instance) {
+    mediumTestPlugins.add(new LocalPlugin(pluginInfo, instance, Set.of()));
     return this;
   }
 

@@ -19,11 +19,15 @@
  */
 package org.sonar.api.batch.sensor.internal;
 
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.data.MapEntry.entry;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import org.junit.Test;
 
 public class InMemorySensorStorageTest {
 
@@ -50,4 +54,45 @@ public class InMemorySensorStorageTest {
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Value of context property must not be null");
   }
+
+  @Test
+  public void test_storeAnalysisData() {
+    // Given
+    String key = "analysisKey";
+    String mimeType = "mimeType";
+    String dataString = "analysisData";
+    ByteArrayInputStream dataStream = new ByteArrayInputStream(dataString.getBytes(StandardCharsets.UTF_8));
+
+    // When
+    underTest.storeAnalysisData(key, mimeType, dataStream);
+
+    // Then
+    assertThat(underTest.analysisDataEntries).containsKey(key);
+    assertThat(new String(underTest.analysisDataEntries.get(key).data(), StandardCharsets.UTF_8)).isEqualTo(dataString);
+  }
+
+  @Test
+  public void storeAnalysisData_throws_UOE_if_operation_not_supported() {
+    underTest.storeAnalysisData("unsupportedKey", "mimeType", new ByteArrayInputStream("dummyData".getBytes(StandardCharsets.UTF_8)));
+    ByteArrayInputStream dataStream = new ByteArrayInputStream("newData".getBytes(StandardCharsets.UTF_8));
+
+    assertThatThrownBy(() -> underTest.storeAnalysisData("unsupportedKey", "mimeType", dataStream))
+      .isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
+  public void storeAnalysisData_throws_IOE_on_data_handling_error() {
+    InputStream faultyStream = new InputStream() {
+      @Override
+      public int read() throws IOException {
+        throw new IOException("Simulated IO Exception");
+      }
+    };
+
+    assertThatThrownBy(() -> underTest.storeAnalysisData("validKey", "mimeType", faultyStream))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Failed to read data from InputStream");
+  }
+  
+  
 }

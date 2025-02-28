@@ -19,6 +19,10 @@
  */
 package org.sonar.scanner.bootstrap;
 
+import static java.util.stream.Collectors.toMap;
+import static org.sonar.api.utils.Preconditions.checkState;
+import static org.sonar.core.config.ScannerProperties.PLUGIN_LOADING_OPTIMIZATION_KEY;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,10 +41,6 @@ import org.sonar.core.platform.PluginJarExploder;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.plugin.PluginType;
 import org.sonar.scanner.mediumtest.LocalPlugin;
-
-import static java.util.stream.Collectors.toMap;
-import static org.sonar.api.utils.Preconditions.checkState;
-import static org.sonar.core.config.ScannerProperties.PLUGIN_LOADING_OPTIMIZATION_KEY;
 
 /**
  * Orchestrates the installation and loading of plugins
@@ -83,7 +83,7 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
     // this part is only used by medium tests
     for (LocalPlugin localPlugin : installer.installLocals()) {
       ScannerPlugin scannerPlugin = localPlugin.toScannerPlugin();
-      String pluginKey = localPlugin.pluginKey();
+      String pluginKey = localPlugin.pluginInfo().getKey();
       pluginsByKeys.put(pluginKey, scannerPlugin);
       pluginInstancesByKeys.put(pluginKey, localPlugin.pluginInstance());
     }
@@ -112,7 +112,7 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
     // this part is only used by medium tests
     for (LocalPlugin localPlugin : installer.installOptionalLocals(languageKeys)) {
       ScannerPlugin scannerPlugin = localPlugin.toScannerPlugin();
-      String pluginKey = localPlugin.pluginKey();
+      String pluginKey = localPlugin.pluginInfo().getKey();
       languagePluginsByKeys.put(pluginKey, scannerPlugin);
       pluginsByKeys.put(pluginKey, scannerPlugin);
       pluginInstancesByKeys.put(pluginKey, localPlugin.pluginInstance());

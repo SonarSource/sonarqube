@@ -19,7 +19,10 @@
  */
 package org.sonar.api.batch.sensor.internal;
 
+import static java.util.Collections.unmodifiableMap;
+
 import java.io.File;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -86,8 +89,6 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
-
-import static java.util.Collections.unmodifiableMap;
 
 /**
  * Utility class to help testing {@link Sensor}. This is not an API and method signature may evolve.
@@ -445,6 +446,12 @@ public class SensorContextTester implements SensorContext {
   public void addTelemetryProperty(String key, String value) {
     //No Need to check the source of the plugin in the tester
     sensorStorage.storeTelemetry(key, value);
+  }
+
+  @Override
+  public void addAnalysisData(String key, String mimeType, InputStream data) {
+    //No Need to check the source of the plugin in the tester
+    sensorStorage.storeAnalysisData(key,mimeType, data);
   }
 
   public void setCacheEnabled(boolean enabled) {

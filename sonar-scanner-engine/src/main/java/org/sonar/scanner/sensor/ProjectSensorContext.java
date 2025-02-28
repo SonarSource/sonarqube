@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.sensor;
 
+import java.io.InputStream;
 import java.io.Serializable;
 import javax.annotation.concurrent.ThreadSafe;
 import org.sonar.api.SonarRuntime;
@@ -229,6 +230,15 @@ public class ProjectSensorContext implements SensorContext {
       this.sensorStorage.storeTelemetry(key, value);
     } else {
       throw new IllegalStateException("Telemetry properties can only be added by SonarSource plugins");
+    }
+  }
+
+  @Override
+  public void addAnalysisData(String key, String mimeType, InputStream data) {
+    if (isSonarSourcePlugin()) {
+      this.sensorStorage.storeAnalysisData(key, mimeType, data);
+    } else {
+      throw new IllegalStateException("Analysis data can only be added by SonarSource plugins");
     }
   }
 

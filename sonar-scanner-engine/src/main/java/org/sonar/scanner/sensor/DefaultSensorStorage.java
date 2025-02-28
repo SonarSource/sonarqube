@@ -19,6 +19,16 @@
  */
 package org.sonar.scanner.sensor;
 
+import static java.lang.Math.max;
+import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_DATA_KEY;
+import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
+import static org.sonar.api.measures.CoreMetrics.PUBLIC_DOCUMENTED_API_DENSITY_KEY;
+import static org.sonar.api.measures.CoreMetrics.TEST_SUCCESS_DENSITY_KEY;
+import static org.sonar.api.utils.Preconditions.checkArgument;
+
+import com.google.protobuf.ByteString;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
@@ -28,6 +38,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputComponent;
@@ -80,12 +91,6 @@ import org.sonar.scanner.repository.ContextPropertiesCache;
 import org.sonar.scanner.repository.TelemetryCache;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
-import static java.lang.Math.max;
-import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_DATA_KEY;
-import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
-import static org.sonar.api.measures.CoreMetrics.PUBLIC_DOCUMENTED_API_DENSITY_KEY;
-import static org.sonar.api.measures.CoreMetrics.TEST_SUCCESS_DENSITY_KEY;
-
 public class DefaultSensorStorage implements SensorStorage {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultSensorStorage.class);
@@ -122,6 +127,7 @@ public class DefaultSensorStorage implements SensorStorage {
   private final ScannerMetrics scannerMetrics;
   private final BranchConfiguration branchConfiguration;
   private final Set<String> alreadyLogged = new HashSet<>();
+  private final Set<String> alreadyAddedData = new HashSet<>();
 
   public DefaultSensorStorage(MetricFinder metricFinder, IssuePublisher moduleIssues, Configuration settings, ReportPublisher reportPublisher, SonarCpdBlockIndex index,
     ContextPropertiesCache contextPropertiesCache, TelemetryCache telemetryCache, ScannerMetrics scannerMetrics, BranchConfiguration branchConfiguration) {
@@ -471,5 +477,23 @@ public class DefaultSensorStorage implements SensorStorage {
       .toList();
 
     writer.writeComponentSignificantCode(componentRef, protobuf);
+  }
+
+  public void storeAnalysisData(String key, String mimeType, InputStream data) {
+    checkArgument(!StringUtils.isBlank(key), "Key must not be null");
+    checkArgument(!alreadyAddedData.contains(key), "A data with this key already exists");
+    checkArgument(!StringUtils.isBlank(mimeType), "MimeType must not be null");
+    checkArgument(data != null, "Data must not be null");
+    alreadyAddedData.add(key);
+    try (data) {
+      ScannerReport.AnalysisData analysisData = ScannerReport.AnalysisData.newBuilder()
+        .setKey(key)
+        .setData(ByteString.readFrom(data))
+        .build();
+      ScannerReportWriter writer = reportPublisher.getWriter();
+      writer.appendAnalysisData(analysisData);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Failed to read data InputStream", e);
+    }
   }
 }

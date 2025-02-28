@@ -26,7 +26,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import javax.annotation.concurrent.Immutable;
-
 import org.apache.commons.io.FileUtils;
 import org.sonar.core.util.ContextException;
 import org.sonar.core.util.Protobuf;
@@ -164,6 +163,12 @@ public class ScannerReportWriter {
   public File writeTelemetry(Iterable<ScannerReport.TelemetryEntry> telemetryEntries) {
     File file = fileStructure.telemetryEntries();
     Protobuf.writeStream(telemetryEntries, file, false);
+    return file;
+  }
+
+  public File appendAnalysisData(ScannerReport.AnalysisData analysisData) {
+    File file = fileStructure.analysisData();
+    appendDelimitedTo(file, analysisData, "analysis data for " + analysisData.getKey());
     return file;
   }
 

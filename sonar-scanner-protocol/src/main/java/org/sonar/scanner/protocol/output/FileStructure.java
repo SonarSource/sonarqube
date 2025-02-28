@@ -98,6 +98,10 @@ public class FileStructure {
     return new File(dir, "analysis-warnings.pb");
   }
 
+  public File analysisData() {
+    return new File(dir, "analysis-data.pb");
+  }
+
   public File root() {
     return dir;
   }

@@ -19,6 +19,8 @@
  */
 package org.sonar.scanner.protocol.output;
 
+import static org.sonar.core.util.CloseableIterator.emptyCloseableIterator;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,8 +29,6 @@ import java.io.InputStream;
 import javax.annotation.CheckForNull;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.Protobuf;
-
-import static org.sonar.core.util.CloseableIterator.emptyCloseableIterator;
 
 public class ScannerReportReader {
   private final FileStructure fileStructure;
@@ -240,5 +240,13 @@ public class ScannerReportReader {
       return emptyCloseableIterator();
     }
     return Protobuf.readStream(file, ScannerReport.TelemetryEntry.parser());
+  }
+
+  public CloseableIterator<ScannerReport.AnalysisData> readAnalysisData() {
+    File file = fileStructure.analysisData();
+    if (!fileExists(file)) {
+      return emptyCloseableIterator();
+    }
+    return Protobuf.readStream(file, ScannerReport.AnalysisData.parser());
   }
 }

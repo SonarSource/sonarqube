@@ -19,6 +19,16 @@
  */
 package org.sonar.scanner.sensor;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.data.MapEntry.entry;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,16 +77,6 @@ import org.sonar.scanner.repository.ContextPropertiesCache;
 import org.sonar.scanner.repository.TelemetryCache;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.data.MapEntry.entry;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
 class DefaultSensorStorageTest {
 
   @TempDir
@@ -112,8 +112,9 @@ class DefaultSensorStorageTest {
 
     branchConfiguration = mock(BranchConfiguration.class);
 
-    underTest = new DefaultSensorStorage(metricFinder,
-      moduleIssues, settings.asConfig(), reportPublisher, mock(SonarCpdBlockIndex.class), contextPropertiesCache, telemetryCache, new ScannerMetrics(), branchConfiguration);
+    underTest = new DefaultSensorStorage(
+      metricFinder, moduleIssues, settings.asConfig(), reportPublisher, mock(SonarCpdBlockIndex.class), contextPropertiesCache, telemetryCache, new ScannerMetrics(),
+      branchConfiguration);
 
     project = new DefaultInputProject(ProjectDefinition.create()
       .setKey("foo")

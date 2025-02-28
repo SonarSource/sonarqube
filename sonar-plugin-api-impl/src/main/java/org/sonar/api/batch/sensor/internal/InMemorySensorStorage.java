@@ -19,12 +19,17 @@
  */
 package org.sonar.api.batch.sensor.internal;
 
+import static org.sonar.api.utils.Preconditions.checkArgument;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.batch.sensor.code.NewSignificantCode;
 import org.sonar.api.batch.sensor.code.internal.DefaultSignificantCode;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
@@ -41,8 +46,6 @@ import org.sonar.api.batch.sensor.rule.AdHocRule;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 
-import static org.sonar.api.utils.Preconditions.checkArgument;
-
 class InMemorySensorStorage implements SensorStorage {
 
   Map<String, Map<String, Measure>> measuresByComponentAndMetric = new HashMap<>();
@@ -58,6 +61,7 @@ class InMemorySensorStorage implements SensorStorage {
   Map<String, DefaultSymbolTable> symbolsPerComponent = new HashMap<>();
   Map<String, String> contextProperties = new HashMap<>();
   Map<String, String> telemetryEntries = new HashMap<>();
+  Map<String, AnalysisData> analysisDataEntries = new HashMap<>();
   Map<String, DefaultSignificantCode> significantCodePerComponent = new HashMap<>();
 
   @Override
@@ -157,4 +161,21 @@ class InMemorySensorStorage implements SensorStorage {
     }
     significantCodePerComponent.put(fileKey, significantCode);
   }
+
+  public void storeAnalysisData(String key, String mimeType, InputStream data) {
+    checkArgument(!StringUtils.isBlank(key), "Key must not be null");
+    checkArgument(!StringUtils.isBlank(mimeType), "MimeType must not be null");
+    checkArgument(data != null, "Data must not be null");
+    if (analysisDataEntries.containsKey(key)) {
+      throw new UnsupportedOperationException("Trying to save analysis data twice for the same key is not supported: " + key);
+    }
+    try (data) {
+      byte[] bytes = data.readAllBytes();
+      analysisDataEntries.put(key, new AnalysisData(key, mimeType, bytes));
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to read data from InputStream", e);
+    }
+  }
+
+  record AnalysisData(String key, String mimeType, byte[] data) { }
 }

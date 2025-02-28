@@ -19,6 +19,8 @@
  */
 package org.sonar.scanner.mediumtest;
 
+import static java.util.Collections.emptySet;
+
 import jakarta.annotation.Priority;
 import java.io.File;
 import java.io.FileInputStream;
@@ -60,6 +62,7 @@ import org.sonar.api.utils.Version;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.LogOutput;
+import org.sonar.core.platform.PluginInfo;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.cache.AnalysisCacheLoader;
 import org.sonar.scanner.protocol.internal.SensorCacheData;
@@ -85,8 +88,6 @@ import org.sonar.scanner.scan.branch.ProjectBranches;
 import org.sonarqube.ws.NewCodePeriods;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.Rules.Rule;
-
-import static java.util.Collections.emptySet;
 
 /**
  * Main utility class for writing scanner medium tests.
@@ -143,6 +144,11 @@ public class ScannerMediumTester extends ExternalResource implements BeforeTestE
 
   public ScannerMediumTester registerPlugin(String pluginKey, Plugin instance) {
     pluginInstaller.add(pluginKey, instance);
+    return this;
+  }
+
+  public ScannerMediumTester registerPlugin(PluginInfo pluginInfo, Plugin instance) {
+    pluginInstaller.add(pluginInfo, instance);
     return this;
   }
 

@@ -17,21 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.mediumtest;
+@ParametersAreNonnullByDefault
+package org.sonar.xoo.architecture;
 
-import java.util.Set;
-import org.sonar.api.Plugin;
-import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.plugin.PluginType;
-import org.sonar.scanner.bootstrap.ScannerPlugin;
-
-public record LocalPlugin(PluginInfo pluginInfo, Plugin pluginInstance, Set<String> requiredForLanguages) {
-
-  public LocalPlugin(String pluginKey, Plugin pluginInstance, Set<String> requiredForLanguages) {
-    this(new PluginInfo(pluginKey).setOrganizationName("SonarSource"), pluginInstance, requiredForLanguages);
-  }
-
-  public ScannerPlugin toScannerPlugin() {
-    return new ScannerPlugin(pluginInfo.getKey(), 1L, PluginType.BUNDLED, pluginInfo);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

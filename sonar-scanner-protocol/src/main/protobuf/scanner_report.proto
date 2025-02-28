@@ -92,6 +92,12 @@ message TelemetryEntry {
   string value = 2;
 }
 
+message AnalysisData {
+  string key = 1;
+  string mime_type = 2;
+  bytes data = 3;
+}
+
 message ActiveRule {
   string rule_repository = 1;
   string rule_key = 2;

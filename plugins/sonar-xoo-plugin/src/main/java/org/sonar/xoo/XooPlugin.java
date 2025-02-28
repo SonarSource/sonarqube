@@ -24,6 +24,7 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinition.ConfigScope;
+import org.sonar.xoo.architecture.ArchitectureSensor;
 import org.sonar.xoo.coverage.ItCoverageSensor;
 import org.sonar.xoo.coverage.OverallCoverageSensor;
 import org.sonar.xoo.coverage.UtCoverageSensor;
@@ -196,6 +197,8 @@ public class XooPlugin implements Plugin {
       HotspotWithContextsSensor.class,
       HotspotWithSingleContextSensor.class,
       HotspotWithCodeVariantsSensor.class,
+
+      ArchitectureSensor.class,
 
       // Coverage
       UtCoverageSensor.class,
