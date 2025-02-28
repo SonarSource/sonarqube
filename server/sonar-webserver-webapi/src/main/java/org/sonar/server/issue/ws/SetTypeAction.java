@@ -23,7 +23,7 @@ import com.google.common.io.Resources;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.Map;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;

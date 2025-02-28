@@ -25,7 +25,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbCommons;

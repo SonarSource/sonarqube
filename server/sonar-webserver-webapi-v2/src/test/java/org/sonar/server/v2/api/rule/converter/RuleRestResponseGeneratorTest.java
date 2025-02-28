@@ -31,7 +31,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.api.utils.DateUtils;
@@ -83,7 +83,7 @@ public class RuleRestResponseGeneratorTest {
       .extracting(RuleDescriptionSectionRestResponse::key, RuleDescriptionSectionRestResponse::content, RuleDescriptionSectionRestResponse::context)
       .containsExactly(dto.getRuleDescriptionSectionDtos().stream().map(s -> tuple(s.getKey(), "interpreted" + "html" + s.getContent(), s.getContext())).toArray(Tuple[]::new));
     assertThat(ruleRestResponse.severity()).isEqualTo(dto.getSeverityString());
-    assertThat(ruleRestResponse.type().name()).isEqualTo(RuleType.valueOf(dto.getType()).name());
+    assertThat(ruleRestResponse.type().name()).isEqualTo(RuleType.fromDbConstant(dto.getType()).name());
     assertThat(ruleRestResponse.impacts()).extracting(r -> r.severity().name(), r -> r.softwareQuality().name())
       .containsExactly(dto.getDefaultImpacts().stream().map(e -> tuple(e.getSeverity().name(), e.getSoftwareQuality().name())).toArray(Tuple[]::new));
     assertThat(ruleRestResponse.cleanCodeAttribute().name()).isEqualTo(dto.getCleanCodeAttribute().name());
@@ -146,7 +146,7 @@ public class RuleRestResponseGeneratorTest {
       .extracting(RuleDescriptionSectionRestResponse::key, RuleDescriptionSectionRestResponse::content, RuleDescriptionSectionRestResponse::context)
       .containsExactly(tuple("default", "interpreted" + dto.getAdHocDescription(), null));
     assertThat(ruleRestResponse.severity()).isEqualTo(dto.getAdHocSeverity());
-    assertThat(ruleRestResponse.type().name()).isEqualTo(RuleType.valueOf(dto.getAdHocType()).name());
+    assertThat(ruleRestResponse.type().name()).isEqualTo(RuleType.fromDbConstant(dto.getAdHocType()).name());
   }
 
   @Test
@@ -165,7 +165,7 @@ public class RuleRestResponseGeneratorTest {
       .extracting(RuleDescriptionSectionRestResponse::key, RuleDescriptionSectionRestResponse::content, RuleDescriptionSectionRestResponse::context)
       .containsExactly(tuple("default", "interpreted" + dto.getAdHocDescription(), null));
     assertThat(ruleRestResponse.severity()).isEqualTo(dto.getAdHocSeverity());
-    assertThat(ruleRestResponse.type().name()).isEqualTo(RuleType.valueOf(dto.getAdHocType()).name());
+    assertThat(ruleRestResponse.type().name()).isEqualTo(RuleType.fromDbConstant(dto.getAdHocType()).name());
   }
 
 }

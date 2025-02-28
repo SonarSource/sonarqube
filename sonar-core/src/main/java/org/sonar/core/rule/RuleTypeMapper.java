@@ -17,30 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.workflow;
+package org.sonar.core.rule;
 
-import javax.annotation.Nullable;
-import org.sonar.api.issue.Issue;
-import org.sonar.core.rule.RuleType;
-import org.sonar.db.user.UserDto;
+public class RuleTypeMapper {
 
-@FunctionalInterface
-interface Function {
-  interface Context {
-    Issue issue();
-
-    Context setAssignee(@Nullable UserDto user);
-
-    Context setResolution(@Nullable String s);
-
-    Context setCloseDate();
-
-    Context unsetCloseDate();
-
-    Context unsetLine();
-
-    Context setType(@Nullable RuleType type);
+  private RuleTypeMapper() {
+    throw new UnsupportedOperationException("Utility class");
   }
 
-  void execute(Context context);
+  public static org.sonar.api.rules.RuleType toApiRuleType(RuleType ruleType) {
+    return switch (ruleType) {
+      case BUG -> org.sonar.api.rules.RuleType.BUG;
+      case CODE_SMELL -> org.sonar.api.rules.RuleType.CODE_SMELL;
+      case SECURITY_HOTSPOT -> org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
+      case VULNERABILITY -> org.sonar.api.rules.RuleType.VULNERABILITY;
+    };
+  }
+
+  public static RuleType toRuleType(org.sonar.api.rules.RuleType ruleType) {
+    return switch (ruleType) {
+      case BUG -> RuleType.BUG;
+      case CODE_SMELL -> RuleType.CODE_SMELL;
+      case SECURITY_HOTSPOT -> RuleType.SECURITY_HOTSPOT;
+      case VULNERABILITY -> RuleType.VULNERABILITY;
+    };
+  }
+
 }

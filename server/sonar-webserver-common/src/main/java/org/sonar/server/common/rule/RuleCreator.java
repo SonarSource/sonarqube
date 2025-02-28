@@ -35,11 +35,11 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.internal.ImpactMapper;
 import org.sonar.api.utils.System2;
+import org.sonar.core.rule.RuleType;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -59,6 +59,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
+import static org.sonar.core.rule.RuleTypeMapper.toApiRuleType;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
@@ -246,7 +247,7 @@ public class RuleCreator {
         ruleDto.setSeverity(ImpactMapper.convertToDeprecatedSeverity(impact.getValue()));
       } else {
         // Map old type and severity to impact
-        SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(RuleType.valueOf(type));
+        SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(toApiRuleType(RuleType.fromDbConstant(type)));
         org.sonar.api.issue.impact.Severity impactSeverity = ImpactMapper.convertToImpactSeverity(severity);
         ruleDto.addDefaultImpact(new ImpactDto()
           .setSoftwareQuality(softwareQuality)

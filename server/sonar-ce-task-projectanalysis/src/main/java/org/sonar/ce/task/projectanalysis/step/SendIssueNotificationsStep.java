@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.notifications.Notification;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;

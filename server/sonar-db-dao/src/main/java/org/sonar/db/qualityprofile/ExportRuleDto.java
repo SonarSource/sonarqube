@@ -26,7 +26,7 @@ import java.util.Objects;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.rule.SeverityUtil;
 
 public class ExportRuleDto {
@@ -71,7 +71,7 @@ public class ExportRuleDto {
   }
 
   public RuleType getRuleType() {
-    return RuleType.valueOf(type);
+    return RuleType.fromDbConstant(type);
   }
 
   @CheckForNull

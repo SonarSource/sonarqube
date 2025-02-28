@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 import javax.annotation.Nullable;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.rule.RuleDescriptionSection;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 

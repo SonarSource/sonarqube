@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.api.utils.DateUtils;
@@ -79,7 +79,7 @@ public class RuleRestResponseGenerator {
       .setRepositoryKey(ruleDto.getRepositoryKey())
       .setName(ruleDto.getName())
       .setSeverity(ruleDto.getSeverityString())
-      .setType(RuleTypeRestEnum.from(RuleType.valueOf(ruleDto.getType())))
+      .setType(RuleTypeRestEnum.from(RuleType.fromDbConstant(ruleDto.getType())))
       .setImpacts(toImpactRestResponse(ruleDto.getDefaultImpacts()))
       .setCleanCodeAttribute(CleanCodeAttributeRestEnum.from(ruleDto.getCleanCodeAttribute()))
       .setCleanCodeAttributeCategory(ofNullable(ruleDto.getCleanCodeAttribute())
@@ -110,7 +110,7 @@ public class RuleRestResponseGenerator {
         .map(this::toDescriptionSectionResponse)
         .ifPresent(section -> builder.setDescriptionSections(List.of(section)));
       ofNullable(ruleDto.getAdHocSeverity()).ifPresent(builder::setSeverity);
-      ofNullable(ruleDto.getAdHocType()).ifPresent(type -> builder.setType(RuleTypeRestEnum.from(RuleType.valueOf(type))));
+      ofNullable(ruleDto.getAdHocType()).ifPresent(type -> builder.setType(RuleTypeRestEnum.from(RuleType.fromDbConstant(type))));
     }
     return builder.build();
   }

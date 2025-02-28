@@ -58,7 +58,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
-import static org.sonar.api.rules.RuleType.CODE_SMELL;
+import static org.sonar.core.rule.RuleType.CODE_SMELL;
 import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.ce.task.projectanalysis.issue.ComponentIssuesLoader.NUMBER_STATUS_AND_BRANCH_CHANGES_TO_KEEP;

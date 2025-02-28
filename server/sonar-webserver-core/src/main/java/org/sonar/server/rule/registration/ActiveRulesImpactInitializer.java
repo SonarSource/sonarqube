@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;

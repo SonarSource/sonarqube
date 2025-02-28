@@ -36,7 +36,7 @@ import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultImpact;
@@ -99,7 +99,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
   static DefaultIssue toDefaultIssue(IssueCache.Issue next) {
     DefaultIssue defaultIssue = new DefaultIssue();
     defaultIssue.setKey(next.getKey());
-    defaultIssue.setType(RuleType.valueOf(next.getRuleType()));
+    defaultIssue.setType(RuleType.fromDbConstant(next.getRuleType()));
     defaultIssue.setComponentUuid(next.hasComponentUuid() ? next.getComponentUuid() : null);
     defaultIssue.setComponentKey(next.getComponentKey());
     defaultIssue.setProjectUuid(next.getProjectUuid());

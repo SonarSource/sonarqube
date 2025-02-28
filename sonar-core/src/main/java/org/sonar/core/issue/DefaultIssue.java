@@ -48,13 +48,13 @@ import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.tracking.Trackable;
+import org.sonar.core.rule.RuleType;
 
 import static org.sonar.api.utils.DateUtils.truncateToSeconds;
 
-public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.Issue {
+public class DefaultIssue implements Issue, Trackable {
 
   private String key = null;
   private RuleType type = null;
@@ -151,12 +151,10 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return this;
   }
 
-  @Override
   public RuleType type() {
     return type;
   }
 
-  @Override
   public Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts() {
     return impacts.values().stream().collect(Collectors.toMap(DefaultImpact::softwareQuality, DefaultImpact::severity));
   }
@@ -356,7 +354,6 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   }
 
   @Nullable
-  @Override
   public IssueStatus issueStatus() {
     return IssueStatus.of(status, resolution);
   }

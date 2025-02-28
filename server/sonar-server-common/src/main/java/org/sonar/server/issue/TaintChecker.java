@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.issue.IssueDto;
 

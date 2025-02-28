@@ -22,7 +22,7 @@ package org.sonar.server.rule.ws;
 import java.util.Date;
 import java.util.List;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;

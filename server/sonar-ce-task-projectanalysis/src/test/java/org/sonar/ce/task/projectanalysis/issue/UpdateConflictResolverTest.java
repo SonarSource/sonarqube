@@ -32,7 +32,7 @@ import org.sonar.db.issue.IssueDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
-import static org.sonar.api.rules.RuleType.CODE_SMELL;
+import static org.sonar.core.rule.RuleType.CODE_SMELL;
 
 public class UpdateConflictResolverTest {
   private final UpdateConflictResolver underTest = new UpdateConflictResolver();

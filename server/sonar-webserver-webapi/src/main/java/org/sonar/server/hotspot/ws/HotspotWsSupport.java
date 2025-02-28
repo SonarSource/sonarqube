@@ -21,7 +21,7 @@ package org.sonar.server.hotspot.ws;
 
 import java.util.Date;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueChangeContext;

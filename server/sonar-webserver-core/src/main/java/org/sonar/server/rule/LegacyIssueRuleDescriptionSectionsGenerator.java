@@ -21,17 +21,18 @@ package org.sonar.server.rule;
 
 import java.util.EnumSet;
 import java.util.Set;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.core.rule.RuleTypeMapper;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
-import static org.sonar.api.rules.RuleType.BUG;
-import static org.sonar.api.rules.RuleType.CODE_SMELL;
-import static org.sonar.api.rules.RuleType.VULNERABILITY;
+import static org.sonar.core.rule.RuleType.BUG;
+import static org.sonar.core.rule.RuleType.CODE_SMELL;
+import static org.sonar.core.rule.RuleType.VULNERABILITY;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 
 public class LegacyIssueRuleDescriptionSectionsGenerator implements RuleDescriptionSectionsGenerator {
@@ -45,7 +46,7 @@ public class LegacyIssueRuleDescriptionSectionsGenerator implements RuleDescript
 
   @Override
   public boolean isGeneratorForRule(RulesDefinition.Rule rule) {
-    return ISSUE_RULE_TYPES.contains(rule.type()) && rule.ruleDescriptionSections().isEmpty();
+    return ISSUE_RULE_TYPES.contains(RuleTypeMapper.toRuleType(rule.type())) && rule.ruleDescriptionSections().isEmpty();
   }
 
   @Override

@@ -20,7 +20,7 @@
 package org.sonar.server.rule;
 
 import org.junit.Test;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 

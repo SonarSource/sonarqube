@@ -20,7 +20,7 @@
 package org.sonar.server.v2.api.rule.enums;
 
 import java.util.Arrays;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 
 public enum RuleTypeRestEnum {
   CODE_SMELL(RuleType.CODE_SMELL),

@@ -32,7 +32,7 @@ import org.apache.ibatis.cursor.Cursor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.rule.RulesDefinition.StigVersion;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
@@ -126,7 +126,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     doc.setProjectUuid(projectUuid);
     String tags = indexedIssueDto.getTags();
     doc.setTags(STRING_LIST_SPLITTER.splitToList(tags == null ? "" : tags));
-    doc.setType(RuleType.valueOf(indexedIssueDto.getIssueType()));
+    doc.setType(RuleType.fromDbConstant(indexedIssueDto.getIssueType()));
     doc.setImpacts(indexedIssueDto.getEffectiveImpacts());
     SecurityStandards securityStandards = fromSecurityStandards(deserializeSecurityStandardsString(indexedIssueDto.getSecurityStandards()));
     SecurityStandards.SQCategory sqCategory = securityStandards.getSqCategory();

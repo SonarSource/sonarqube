@@ -32,7 +32,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -248,7 +248,7 @@ public class SearchResponseLoader {
     if (login == null) {
       return Collections.emptySet();
     }
-    RuleType ruleType = RuleType.valueOf(issue.getType());
+    RuleType ruleType = RuleType.fromDbConstant(issue.getType());
     availableActions.add(COMMENT_KEY);
     availableActions.add("set_tags");
     if (issue.getResolution() != null) {

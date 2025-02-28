@@ -35,7 +35,7 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
@@ -349,7 +349,7 @@ public class RuleDoc extends BaseDoc {
   @CheckForNull
   private static RuleType getType(RuleForIndexingDto dto) {
     if (dto.isAdHoc() && dto.getAdHocType() != null) {
-      return RuleType.valueOf(dto.getAdHocType());
+      return RuleType.fromDbConstant(dto.getAdHocType());
     }
     return dto.getTypeAsRuleType();
   }

@@ -26,7 +26,6 @@ import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleScope;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
@@ -112,7 +111,7 @@ public class StartupRuleUpdaterTest {
     RulesDefinition.Rule ruleDef = mock();
     when(ruleDef.scope()).thenReturn(RuleScope.TEST);
     when(ruleDef.repository()).thenReturn(mock());
-    when(ruleDef.type()).thenReturn(RuleType.BUG);
+    when(ruleDef.type()).thenReturn(org.sonar.api.rules.RuleType.BUG);
     return ruleDef;
   }
 

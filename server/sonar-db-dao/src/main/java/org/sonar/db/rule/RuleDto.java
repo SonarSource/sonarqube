@@ -36,7 +36,7 @@ import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.issue.ImpactDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -421,7 +421,7 @@ public class RuleDto {
   }
 
   public RuleType getEnumType() {
-    return RuleType.valueOf(type);
+    return RuleType.fromDbConstant(type);
   }
 
   public RuleDto setType(int type) {

@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.qualitymodel;
 
-import org.sonar.api.ce.measure.Issue;
+import org.sonar.core.issue.DefaultIssue;
 
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
@@ -32,7 +32,7 @@ final class SecurityReviewCounter {
     // prevents instantiation
   }
 
-  void processHotspot(Issue issue) {
+  void processHotspot(DefaultIssue issue) {
     if (issue.status().equals(STATUS_REVIEWED)) {
       hotspotsReviewed++;
     } else if (issue.status().equals(STATUS_TO_REVIEW)) {

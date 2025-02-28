@@ -29,7 +29,7 @@ import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.server.measure.ImpactMeasureBuilder;
 import org.sonar.server.measure.Rating;

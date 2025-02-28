@@ -41,7 +41,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleQuery;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -1157,7 +1157,7 @@ class RuleDaoIT {
     assertThat(ruleForIndexing.getInternalKey()).isEqualTo(r1.getConfigKey());
     assertThat(ruleForIndexing.getLanguage()).isEqualTo(r1.getLanguage());
     assertThat(ruleForIndexing.getType()).isEqualTo(r1.getType());
-    assertThat(ruleForIndexing.getTypeAsRuleType()).isEqualTo(RuleType.valueOf(r1.getType()));
+    assertThat(ruleForIndexing.getTypeAsRuleType()).isEqualTo(RuleType.fromDbConstant(r1.getType()));
     assertThat(ruleForIndexing.getCreatedAt()).isEqualTo(r1.getCreatedAt());
     assertThat(ruleForIndexing.getUpdatedAt()).isEqualTo(r1.getUpdatedAt());
   }

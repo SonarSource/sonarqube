@@ -31,7 +31,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
@@ -44,7 +44,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.stream;
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.sonar.api.rule.RuleKey.EXTERNAL_RULE_REPO_PREFIX;
-import static org.sonar.api.rules.RuleType.CODE_SMELL;
+import static org.sonar.core.rule.RuleType.CODE_SMELL;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 
 /**

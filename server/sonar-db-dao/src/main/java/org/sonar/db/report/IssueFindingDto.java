@@ -22,7 +22,7 @@ package org.sonar.db.report;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.rule.RuleDto;
 
@@ -77,7 +77,7 @@ public class IssueFindingDto {
   }
 
   public RuleType getType() {
-    return RuleType.valueOf(type);
+    return RuleType.fromDbConstant(type);
   }
 
   public String getSeverity() {

@@ -43,7 +43,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -353,7 +353,7 @@ class SearchActionIT {
       Common.Impact.newBuilder()
         .setSoftwareQuality(Common.SoftwareQuality.SECURITY)
         .setSeverity(Common.ImpactSeverity.ImpactSeverity_INFO).build());
-    assertThat(result.getType().name()).isEqualTo(RuleType.valueOf(rule.getType()).name());
+    assertThat(result.getType().name()).isEqualTo(RuleType.fromDbConstant(rule.getType()).name());
     assertThat(result.getLang()).isEqualTo("java");
   }
 

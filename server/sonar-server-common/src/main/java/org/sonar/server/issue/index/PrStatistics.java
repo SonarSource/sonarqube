@@ -20,11 +20,11 @@
 package org.sonar.server.issue.index;
 
 import java.util.Map;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 
-import static org.sonar.api.rules.RuleType.BUG;
-import static org.sonar.api.rules.RuleType.CODE_SMELL;
-import static org.sonar.api.rules.RuleType.VULNERABILITY;
+import static org.sonar.core.rule.RuleType.BUG;
+import static org.sonar.core.rule.RuleType.CODE_SMELL;
+import static org.sonar.core.rule.RuleType.VULNERABILITY;
 
 public class PrStatistics {
 

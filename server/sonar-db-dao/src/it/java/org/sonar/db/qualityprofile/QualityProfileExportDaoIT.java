@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDto;
@@ -97,7 +97,7 @@ class QualityProfileExportDaoIT {
     assertThat(exportCustomRuleDto.getExtendedDescription()).isEqualTo(customRule.getNoteData());
     assertThat(exportCustomRuleDto.getName()).isEqualTo(customRule.getName());
     assertThat(exportCustomRuleDto.getRuleKey()).isEqualTo(customRule.getKey());
-    assertThat(exportCustomRuleDto.getRuleType()).isEqualTo(RuleType.valueOf(customRule.getType()));
+    assertThat(exportCustomRuleDto.getRuleType()).isEqualTo(RuleType.fromDbConstant(customRule.getType()));
     assertThat(exportCustomRuleDto.getTags()).isEqualTo(customRule.getTags());
     assertThat(exportCustomRuleDto.getTemplateRuleKey()).isEqualTo(ruleTemplate.getKey());
 
@@ -115,7 +115,7 @@ class QualityProfileExportDaoIT {
     assertThat(exportRuleDto.getExtendedDescription()).isEqualTo(rule.getNoteData());
     assertThat(exportRuleDto.getName()).isEqualTo(rule.getName());
     assertThat(exportRuleDto.getRuleKey()).isEqualTo(rule.getKey());
-    assertThat(exportRuleDto.getRuleType()).isEqualTo(RuleType.valueOf(rule.getType()));
+    assertThat(exportRuleDto.getRuleType()).isEqualTo(RuleType.fromDbConstant(rule.getType()));
 
     ActiveRuleDto activeRule =
       activeRules.stream().filter(activeRuleDto -> activeRuleDto.getRuleKey().equals(rule.getKey())).findFirst().get();

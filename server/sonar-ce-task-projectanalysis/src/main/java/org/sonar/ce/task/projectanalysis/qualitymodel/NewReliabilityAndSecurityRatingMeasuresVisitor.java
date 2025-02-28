@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.qualitymodel;
 
 import java.util.Map;
-import org.sonar.api.ce.measure.Issue;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.measures.CoreMetrics;
@@ -33,8 +32,8 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.server.measure.Rating;
 import org.sonar.core.metric.SoftwareQualitiesMetrics;
+import org.sonar.server.measure.Rating;
 
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
@@ -43,18 +42,18 @@ import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.INFO;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
-import static org.sonar.api.rules.RuleType.BUG;
-import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit.LEAVES;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY;
+import static org.sonar.core.rule.RuleType.BUG;
+import static org.sonar.core.rule.RuleType.VULNERABILITY;
 import static org.sonar.server.measure.Rating.A;
 import static org.sonar.server.measure.Rating.B;
 import static org.sonar.server.measure.Rating.C;
 import static org.sonar.server.measure.Rating.D;
 import static org.sonar.server.measure.Rating.E;
-import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY;
-import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY;
 
 /**
  * Compute following measures :
@@ -168,8 +167,8 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
       newRatingValueByMetric.forEach((metric, rating) -> rating.increment(otherCounter.newRatingValueByMetric.get(metric)));
     }
 
-    void processIssue(Issue issue) {
-      if (newIssueClassifier.isNew(component, (DefaultIssue) issue)) {
+    void processIssue(DefaultIssue issue) {
+      if (newIssueClassifier.isNew(component, issue)) {
         Rating rating = RATING_BY_SEVERITY.get(issue.severity());
         if (issue.type().equals(BUG)) {
           newRatingValueByMetric.get(NEW_RELIABILITY_RATING_KEY).increment(rating);
@@ -179,14 +178,14 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
       }
     }
 
-    void processIssueForSoftwareQuality(Issue issue) {
-      if (newIssueClassifier.isNew(component, (DefaultIssue) issue)) {
+    void processIssueForSoftwareQuality(DefaultIssue issue) {
+      if (newIssueClassifier.isNew(component, issue)) {
         processSoftwareQualityRating(issue, SoftwareQuality.RELIABILITY, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY);
         processSoftwareQualityRating(issue, SoftwareQuality.SECURITY, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY);
       }
     }
 
-    private void processSoftwareQualityRating(Issue issue, SoftwareQuality softwareQuality, String metricKey) {
+    private void processSoftwareQualityRating(DefaultIssue issue, SoftwareQuality softwareQuality, String metricKey) {
       Severity severity = issue.impacts().get(softwareQuality);
       if (severity != null) {
         Rating rating = Rating.RATING_BY_SOFTWARE_QUALITY_SEVERITY.get(severity);

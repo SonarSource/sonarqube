@@ -30,6 +30,7 @@ import org.junit.runners.Parameterized;
 import org.sonar.api.server.rule.RuleDescriptionSection;
 import org.sonar.api.server.rule.RuleDescriptionSectionBuilder;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.core.rule.RuleTypeMapper;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.server.rule.RuleDescriptionGeneratorTestData.RuleDescriptionSectionGeneratorIdentifier;
@@ -37,10 +38,10 @@ import org.sonar.server.rule.RuleDescriptionGeneratorTestData.RuleDescriptionSec
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.rules.RuleType.BUG;
-import static org.sonar.api.rules.RuleType.CODE_SMELL;
-import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
-import static org.sonar.api.rules.RuleType.VULNERABILITY;
+import static org.sonar.core.rule.RuleType.BUG;
+import static org.sonar.core.rule.RuleType.CODE_SMELL;
+import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
+import static org.sonar.core.rule.RuleType.VULNERABILITY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ROOT_CAUSE_SECTION_KEY;
 import static org.sonar.server.rule.RuleDescriptionGeneratorTestData.RuleDescriptionSectionGeneratorIdentifier.ADVANCED_RULE;
 import static org.sonar.server.rule.RuleDescriptionGeneratorTestData.RuleDescriptionSectionGeneratorIdentifier.LEGACY_HOTSPOT;
@@ -125,7 +126,7 @@ public class RuleDescriptionSectionsGeneratorsTest {
     when(rule.htmlDescription()).thenReturn(testData.getHtmlDescription());
     when(rule.markdownDescription()).thenReturn(testData.getMarkdownDescription());
     when(rule.ruleDescriptionSections()).thenReturn(testData.getRuleDescriptionSections());
-    when(rule.type()).thenReturn(testData.getRuleType());
+    when(rule.type()).thenReturn(RuleTypeMapper.toApiRuleType(testData.getRuleType()));
   }
 
   @Test

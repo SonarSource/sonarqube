@@ -29,7 +29,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.issue.IssueGroupDto;
 import org.sonar.db.issue.IssueImpactGroupDto;
 import org.sonar.db.issue.IssueImpactSeverityGroupDto;
@@ -37,7 +37,7 @@ import org.sonar.db.rule.SeverityUtil;
 import org.sonar.server.measure.ImpactMeasureBuilder;
 
 import static org.sonar.api.rule.Severity.INFO;
-import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
+import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
 
 class IssueCounter {
 
@@ -59,7 +59,7 @@ class IssueCounter {
   IssueCounter(Collection<IssueGroupDto> groups, Collection<IssueImpactGroupDto> impactGroups,
     Collection<IssueImpactSeverityGroupDto> impactSeverityGroups) {
     for (IssueGroupDto group : groups) {
-      if (RuleType.valueOf(group.getRuleType()).equals(SECURITY_HOTSPOT)) {
+      if (RuleType.fromDbConstant(group.getRuleType()).equals(SECURITY_HOTSPOT)) {
         processHotspotGroup(group);
       } else {
         processGroup(group);
@@ -90,7 +90,7 @@ class IssueCounter {
 
   private void processGroup(IssueGroupDto group) {
     if (group.getResolution() == null) {
-      RuleType ruleType = RuleType.valueOf(group.getRuleType());
+      RuleType ruleType = RuleType.fromDbConstant(group.getRuleType());
       highestSeverityOfUnresolved
         .computeIfAbsent(ruleType, k -> new HighestSeverity())
         .add(group);

@@ -25,9 +25,11 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.internal.ImpactMapper;
 import org.sonar.core.rule.ImpactSeverityMapper;
+import org.sonar.core.rule.RuleType;
+
+import static org.sonar.core.rule.RuleTypeMapper.toApiRuleType;
 
 /**
  * Class to map impact severity and rule severity during the override of severity of quality profile.
@@ -43,7 +45,7 @@ public class QProfileImpactSeverityMapper {
     if (severity == null || ruleImpacts.isEmpty()) {
       return result;
     }
-    SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(ruleType);
+    SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(toApiRuleType(ruleType));
     if (ruleImpacts.containsKey(softwareQuality)) {
       result.put(softwareQuality, ImpactSeverityMapper.mapImpactSeverity(severity));
     }
@@ -52,7 +54,7 @@ public class QProfileImpactSeverityMapper {
 
   @CheckForNull
   public static String mapSeverity(Map<SoftwareQuality, Severity> impacts, RuleType ruleType, @Nullable String ruleSeverity) {
-    SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(ruleType);
+    SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(toApiRuleType(ruleType));
     if (impacts.containsKey(softwareQuality)) {
       return ImpactSeverityMapper.mapRuleSeverity(impacts.get(softwareQuality));
     }

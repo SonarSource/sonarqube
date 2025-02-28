@@ -32,6 +32,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.rule.RuleTypeMapper;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -49,6 +50,7 @@ import static org.sonar.api.server.rule.internal.ImpactMapper.convertToSoftwareQ
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.core.rule.ImpactSeverityMapper.mapImpactSeverity;
+import static org.sonar.core.rule.RuleTypeMapper.toApiRuleType;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.common.ParamParsingUtils.parseImpact;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_SEVERITY;
@@ -163,7 +165,7 @@ public class SetSeverityAction implements IssuesWsAction {
     if (issueFieldsSetter.setImpactManualSeverity(issue, softwareQuality, manualImpactSeverity, context)) {
       String manualSeverity = null;
       boolean severityHasChanged = false;
-      if (convertToRuleType(softwareQuality).equals(issue.type())) {
+      if (convertToRuleType(softwareQuality) == RuleTypeMapper.toApiRuleType(issue.type())) {
         manualSeverity = convertToRuleSeverity(manualImpactSeverity);
         severityHasChanged = issueFieldsSetter.setManualSeverity(issue, manualSeverity, context);
       }
@@ -181,7 +183,7 @@ public class SetSeverityAction implements IssuesWsAction {
   private SearchResponseData setManualSeverity(DbSession session, DefaultIssue issue, IssueDto issueDto, String severity,
     IssueChangeContext context) {
     if (issueFieldsSetter.setManualSeverity(issue, severity, context)) {
-      SoftwareQuality softwareQuality = convertToSoftwareQuality(issue.type());
+      SoftwareQuality softwareQuality = convertToSoftwareQuality(toApiRuleType(issue.type()));
       boolean impactHasChanged = false;
       if (issueDto.getEffectiveImpacts().containsKey(softwareQuality)) {
         createImpactsIfMissing(issue, issueDto.getEffectiveImpacts());

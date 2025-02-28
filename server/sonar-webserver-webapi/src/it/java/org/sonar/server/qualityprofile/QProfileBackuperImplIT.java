@@ -39,7 +39,7 @@ import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
@@ -105,7 +105,7 @@ class QProfileBackuperImplIT {
       "<rule>" +
       "<repositoryKey>" + rule.getRepositoryKey() + "</repositoryKey>" +
       "<key>" + rule.getRuleKey() + "</key>" +
-      "<type>" + RuleType.valueOf(rule.getType()).name() + "</type>" +
+      "<type>" + RuleType.fromDbConstant(rule.getType()).name() + "</type>" +
       "<priority>" + activeRule.getSeverityString() + "</priority>" +
       "<impacts>" +
       "<impact>" +
@@ -135,7 +135,7 @@ class QProfileBackuperImplIT {
       "<rule>" +
       "<repositoryKey>" + rule.getRepositoryKey() + "</repositoryKey>" +
       "<key>" + rule.getRuleKey() + "</key>" +
-      "<type>" + RuleType.valueOf(rule.getType()).name() + "</type>" +
+      "<type>" + RuleType.fromDbConstant(rule.getType()).name() + "</type>" +
       "<priority>" + activeRule.getSeverityString() + "</priority>" +
       "<impacts>" +
       "<impact>" +
@@ -164,7 +164,7 @@ class QProfileBackuperImplIT {
       "<rule>" +
         "<repositoryKey>" + rule.getRepositoryKey() + "</repositoryKey>" +
         "<key>" + rule.getRuleKey() + "</key>" +
-        "<type>" + RuleType.valueOf(rule.getType()).name() + "</type>" +
+        "<type>" + RuleType.fromDbConstant(rule.getType()).name() + "</type>" +
         "<priority>" + activeRule.getSeverityString() + "</priority>" +
         "<impacts>" +
         "<impact>" +
@@ -217,7 +217,7 @@ class QProfileBackuperImplIT {
       "<rules><rule>" +
       "<repositoryKey>" + rule.getRepositoryKey() + "</repositoryKey>" +
       "<key>" + rule.getKey().rule() + "</key>" +
-      "<type>" + RuleType.valueOf(rule.getType()) + "</type>" +
+      "<type>" + RuleType.fromDbConstant(rule.getType()) + "</type>" +
       "<priority>" + activeRule.getSeverityString() + "</priority>" +
       "<impacts>" +
       "<impact>" +
@@ -254,7 +254,7 @@ class QProfileBackuperImplIT {
       "<rules><rule>" +
       "<repositoryKey>" + rule.getRepositoryKey() + "</repositoryKey>" +
       "<key>" + rule.getKey().rule() + "</key>" +
-      "<type>" + RuleType.valueOf(rule.getType()) + "</type>" +
+      "<type>" + RuleType.fromDbConstant(rule.getType()) + "</type>" +
       "<priority>" + activeRule.getSeverityString() + "</priority>" +
       "<impacts>" +
       "<impact>" +
@@ -404,7 +404,7 @@ class QProfileBackuperImplIT {
       "<rule>" +
       "<repositoryKey>" + rule.getRepositoryKey() + "</repositoryKey>" +
       "<key>" + rule.getRuleKey() + "</key>" +
-      "<type>" + RuleType.valueOf(rule.getType()).name() + "</type>" +
+      "<type>" + RuleType.fromDbConstant(rule.getType()).name() + "</type>" +
       "<priority>" + activeRule.getSeverityString() + "</priority>" +
       (prioritizedInBackup == null ? "" : "<prioritizedRule>" + prioritizedInBackup + "</prioritizedRule>") +
       "</rule>" +

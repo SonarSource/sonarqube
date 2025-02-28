@@ -33,8 +33,9 @@ import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.rule.internal.ImpactMapper;
+import org.sonar.core.rule.RuleTypeMapper;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
@@ -100,7 +101,7 @@ public class NewAdHocRule {
     }
     Map<SoftwareQuality, Severity> impacts = mapImpacts(ruleFromScannerReport.getDefaultImpactsList());
     if (impacts.isEmpty()) {
-      return Map.of(ImpactMapper.convertToSoftwareQuality(this.ruleType),
+      return Map.of(ImpactMapper.convertToSoftwareQuality(RuleTypeMapper.toApiRuleType(this.ruleType)),
         ImpactMapper.convertToImpactSeverity(this.severity));
     } else {
       return impacts;
@@ -113,7 +114,7 @@ public class NewAdHocRule {
     }
     Map<SoftwareQuality, Severity> impacts = mapImpacts(ruleFromScannerReport.getDefaultImpactsList());
     Map.Entry<SoftwareQuality, Severity> bestImpactForBackMapping = ImpactMapper.getBestImpactForBackmapping(impacts);
-    return ImpactMapper.convertToRuleType(bestImpactForBackMapping.getKey());
+    return RuleTypeMapper.toRuleType(ImpactMapper.convertToRuleType(bestImpactForBackMapping.getKey()));
   }
 
   private static String determineSeverity(ScannerReport.AdHocRule ruleFromScannerReport) {

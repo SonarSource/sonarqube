@@ -20,7 +20,7 @@
 package org.sonar.server.issue.workflow;
 
 import javax.annotation.Nullable;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 
 public class SetType implements Function {
   private final RuleType type;

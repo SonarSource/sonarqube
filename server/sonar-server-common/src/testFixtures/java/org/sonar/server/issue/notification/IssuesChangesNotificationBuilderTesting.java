@@ -21,7 +21,7 @@ package org.sonar.server.issue.notification;
 
 import java.util.Random;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
@@ -36,10 +36,10 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.User
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang3.RandomStringUtils.secure;
-import static org.sonar.api.rules.RuleType.BUG;
-import static org.sonar.api.rules.RuleType.CODE_SMELL;
-import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
-import static org.sonar.api.rules.RuleType.VULNERABILITY;
+import static org.sonar.core.rule.RuleType.BUG;
+import static org.sonar.core.rule.RuleType.CODE_SMELL;
+import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
+import static org.sonar.core.rule.RuleType.VULNERABILITY;
 
 public class IssuesChangesNotificationBuilderTesting {
 

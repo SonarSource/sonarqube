@@ -21,9 +21,9 @@ package org.sonar.server.issue.notification;
 
 import java.util.Collection;
 import javax.annotation.Nullable;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 
-import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
+import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
 
 enum RuleGroup {
   SECURITY_HOTSPOTS,

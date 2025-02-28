@@ -27,7 +27,7 @@ import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.core.issue.DefaultImpact;
 import org.sonar.core.issue.DefaultIssue;

@@ -23,7 +23,7 @@ import java.util.Date;
 import org.junit.Test;
 import org.mockito.MockedStatic;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;

@@ -31,7 +31,7 @@ import javax.annotation.CheckForNull;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;

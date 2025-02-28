@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -36,11 +35,12 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.internal.ImpactMapper;
 import org.sonar.api.utils.System2;
+import org.sonar.core.rule.RuleType;
+import org.sonar.core.rule.RuleTypeMapper;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -136,7 +136,7 @@ public class RuleUpdater {
   private static void updateImpactSeverity(RuleDto rule, String severity) {
     rule.getDefaultImpacts()
       .stream()
-      .filter(i -> i.getSoftwareQuality().equals(ImpactMapper.convertToSoftwareQuality(rule.getEnumType())))
+      .filter(i -> i.getSoftwareQuality() == ImpactMapper.convertToSoftwareQuality(RuleTypeMapper.toApiRuleType(rule.getEnumType())))
       .findFirst()
       .ifPresent(i -> i.setSeverity(mapImpactSeverity(severity)));
   }
@@ -148,11 +148,11 @@ public class RuleUpdater {
     }
     impacts.forEach((key, value) -> rule.getDefaultImpacts()
       .stream()
-      .filter(i -> i.getSoftwareQuality().equals(key))
+      .filter(i -> i.getSoftwareQuality() == key)
       .findFirst()
       .ifPresent(i -> {
         i.setSeverity(value);
-        if (Objects.equals(convertToRuleType(key), RuleType.valueOf(rule.getType()))) {
+        if (RuleTypeMapper.toRuleType(convertToRuleType(key)) == RuleType.fromDbConstant(rule.getType())) {
           rule.setSeverity(convertToDeprecatedSeverity(value));
         }
       }));

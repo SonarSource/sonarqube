@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Random;
 import org.sonar.db.component.ComponentScopes;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.issue.index.IssueDoc;

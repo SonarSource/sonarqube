@@ -23,11 +23,12 @@ import java.util.Collection;
 import java.util.Map;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.impact.SoftwareQuality;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.internal.ImpactMapper;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.rule.ImpactSeverityMapper;
+import org.sonar.core.rule.RuleTypeMapper;
 import org.sonar.server.issue.workflow.IsUnResolved;
 import org.sonar.server.user.UserSession;
 
@@ -67,7 +68,7 @@ public class SetSeverityAction extends Action {
     String severity = verifySeverityParameter(properties);
     boolean updated = issueUpdater.setManualSeverity(context.issue(), severity, context.issueChangeContext());
 
-    SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(context.issue().type());
+    SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(RuleTypeMapper.toApiRuleType(context.issue().type()));
     if (updated
       && context.issueDto().getEffectiveImpacts().containsKey(softwareQuality)) {
       createImpactsIfMissing(context.issue(), context.issueDto().getEffectiveImpacts());

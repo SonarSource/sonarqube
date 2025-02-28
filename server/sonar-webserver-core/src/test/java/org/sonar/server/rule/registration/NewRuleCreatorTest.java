@@ -27,9 +27,10 @@ import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleScope;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.System2;
+import org.sonar.core.rule.RuleTypeMapper;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.rule.RuleDto;
@@ -98,7 +99,7 @@ public class NewRuleCreatorTest {
 
     when(ruleDef.key()).thenReturn("key");
     when(repository.key()).thenReturn("repoKey");
-    when(ruleDef.type()).thenReturn(ruleType);
+    when(ruleDef.type()).thenReturn(RuleTypeMapper.toApiRuleType(ruleType));
     when(ruleDef.scope()).thenReturn(RuleScope.TEST);
     when(ruleDef.cleanCodeAttribute()).thenReturn(attribute);
     when(ruleDef.severity()).thenReturn(MAJOR);

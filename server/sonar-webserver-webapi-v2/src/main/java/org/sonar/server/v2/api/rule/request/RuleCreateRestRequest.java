@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.server.v2.api.rule.enums.CleanCodeAttributeRestEnum;
 import org.sonar.server.v2.api.rule.enums.RuleStatusRestEnum;
 import org.sonar.server.v2.api.rule.resource.Impact;

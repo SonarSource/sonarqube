@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.api.measurecomputer;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -34,12 +35,19 @@ import org.sonar.api.ce.measure.Measure;
 import org.sonar.api.ce.measure.MeasureComputer.MeasureComputerContext;
 import org.sonar.api.ce.measure.MeasureComputer.MeasureComputerDefinition;
 import org.sonar.api.ce.measure.Settings;
+import org.sonar.api.issue.IssueStatus;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleType;
+import org.sonar.api.utils.Duration;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.issue.ComponentIssuesRepository;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.rule.RuleTypeMapper;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
@@ -175,7 +183,9 @@ public class MeasureComputerContextImpl implements MeasureComputerContext {
 
   @Override
   public List<? extends Issue> getIssues() {
-    return componentIssues;
+    return componentIssues.stream()
+      .map(CeApiIssueAdapter::new)
+      .toList();
   }
 
   private static Component newComponent(org.sonar.ce.task.projectanalysis.component.Component component) {
@@ -209,6 +219,60 @@ public class MeasureComputerContextImpl implements MeasureComputerContext {
     @Override
     public Measure apply(@Nonnull Optional<org.sonar.ce.task.projectanalysis.measure.Measure> input) {
       return input.isPresent() ? new MeasureImpl(input.get()) : null;
+    }
+  }
+
+  static class CeApiIssueAdapter implements Issue {
+
+    DefaultIssue defaultIssue;
+
+    public CeApiIssueAdapter(DefaultIssue defaultIssue) {
+      this.defaultIssue = defaultIssue;
+    }
+
+    @Override
+    public String key() {
+      return defaultIssue.key();
+    }
+
+    @Override
+    public RuleKey ruleKey() {
+      return defaultIssue.ruleKey();
+    }
+
+    @Override
+    public String status() {
+      return defaultIssue.status();
+    }
+
+    @Override
+    public String resolution() {
+      return defaultIssue.resolution();
+    }
+
+    @Override
+    public IssueStatus issueStatus() {
+      return defaultIssue.issueStatus();
+    }
+
+    @Override
+    public String severity() {
+      return defaultIssue.severity();
+    }
+
+    @Override
+    public Duration effort() {
+      return defaultIssue.effort();
+    }
+
+    @Override
+    public RuleType type() {
+      return RuleTypeMapper.toApiRuleType(defaultIssue.type());
+    }
+
+    @Override
+    public Map<SoftwareQuality, Severity> impacts() {
+      return defaultIssue.impacts();
     }
   }
 

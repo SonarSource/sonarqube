@@ -24,7 +24,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.System2;
 
 import static java.util.stream.Collectors.toSet;
@@ -43,7 +43,7 @@ public class IssuesChangesNotificationSerializerTest {
       .mapToObj(i -> new IssuesChangesNotificationBuilder.ChangedIssue.Builder("issue_key_" + i)
         .setNewStatus("foo")
         .setAssignee(null)
-        .setRule(newRule("repository", "key" + i, RuleType.valueOf(i), "name" + i))
+        .setRule(newRule("repository", "key" + i, RuleType.fromDbConstant(i), "name" + i))
         .setProject(newProject(i + ""))
         .build())
       .collect(toSet());
@@ -62,7 +62,7 @@ public class IssuesChangesNotificationSerializerTest {
       .mapToObj(i -> new IssuesChangesNotificationBuilder.ChangedIssue.Builder("issue_key_" + i)
         .setNewStatus("foo")
         .setAssignee(null)
-        .setRule(newRule("repository", "key" + i, RuleType.valueOf(i), "name" + i))
+        .setRule(newRule("repository", "key" + i, RuleType.fromDbConstant(i), "name" + i))
         .setProject(newProject(i + ""))
         .build())
       .collect(toSet());

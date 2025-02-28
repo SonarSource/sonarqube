@@ -22,10 +22,11 @@ package org.sonar.server.rule.registration;
 import java.util.stream.Collectors;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.System2;
+import org.sonar.core.rule.RuleTypeMapper;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.rule.RuleDto;
@@ -74,7 +75,7 @@ public class NewRuleCreator {
       .setUpdatedAt(now)
       .setEducationPrinciples(ruleDef.educationPrincipleKeys());
 
-    if (!RuleType.SECURITY_HOTSPOT.equals(ruleDef.type())) {
+    if (RuleType.SECURITY_HOTSPOT != RuleTypeMapper.toRuleType(ruleDef.type())) {
       CleanCodeAttribute cleanCodeAttribute = ruleDef.cleanCodeAttribute();
       ruleDto.setCleanCodeAttribute(cleanCodeAttribute != null ? cleanCodeAttribute : CleanCodeAttribute.defaultCleanCodeAttribute());
       ruleDto.replaceAllDefaultImpacts(ruleDef.defaultImpacts().entrySet()

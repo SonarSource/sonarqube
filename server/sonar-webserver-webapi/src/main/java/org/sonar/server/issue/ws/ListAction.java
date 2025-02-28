@@ -23,7 +23,7 @@ import com.google.common.base.Preconditions;
 import java.util.EnumSet;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;

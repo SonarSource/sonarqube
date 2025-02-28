@@ -43,7 +43,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleScope;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.Context;
 import org.sonar.api.server.rule.RuleDescriptionSection;
@@ -1235,7 +1235,7 @@ class RulesRegistrantIT {
       repo.createRule("rule1")
         .setName("any")
         .setHtmlDescription("html")
-        .setType(RuleType.VULNERABILITY)
+        .setType(org.sonar.api.rules.RuleType.VULNERABILITY)
         .addDefaultImpact(SoftwareQuality.SECURITY, Severity.HIGH)
         .setSeverity(SeverityUtil.getSeverityFromOrdinal(2));
       repo.done();
@@ -1257,7 +1257,7 @@ class RulesRegistrantIT {
       repo.createRule("rule1")
         .setName("any")
         .setHtmlDescription("html")
-        .setType(RuleType.VULNERABILITY)
+        .setType(org.sonar.api.rules.RuleType.VULNERABILITY)
         .addDefaultImpact(SoftwareQuality.SECURITY, Severity.LOW)
         .setSeverity(SeverityUtil.getSeverityFromOrdinal(2));
       repo.done();
@@ -1341,7 +1341,7 @@ class RulesRegistrantIT {
       .setSeverity(BLOCKER)
       .setInternalKey("config1")
       .setTags("tag1", "tag2", "tag3")
-      .setType(RuleType.CODE_SMELL)
+      .setType(org.sonar.api.rules.RuleType.CODE_SMELL)
       .setStatus(RuleStatus.BETA);
   }
 
@@ -1352,7 +1352,7 @@ class RulesRegistrantIT {
       .setName(ruleKey)
       .setHtmlDescription("Description of One")
       .setSeverity(BLOCKER)
-      .setType(RuleType.CODE_SMELL)
+      .setType(org.sonar.api.rules.RuleType.CODE_SMELL)
       .setStatus(RuleStatus.BETA);
 
     Arrays.stream(consumers).forEach(c -> c.accept(newRule));
@@ -1389,7 +1389,7 @@ class RulesRegistrantIT {
         .setInternalKey("config1")
         .setTags("tag1", "tag2", "tag3")
         .setScope(RuleScope.ALL)
-        .setType(RuleType.CODE_SMELL)
+        .setType(org.sonar.api.rules.RuleType.CODE_SMELL)
         .setStatus(RuleStatus.BETA)
         .setGapDescription("java.S115.effortToFix")
         .addEducationPrincipleKeys("concept1", "concept2", "concept3")
@@ -1402,7 +1402,7 @@ class RulesRegistrantIT {
       repo.createRule(HOTSPOT_RULE_KEY.rule())
         .setName("Hotspot")
         .setHtmlDescription("Minimal hotspot")
-        .setType(RuleType.SECURITY_HOTSPOT)
+        .setType(org.sonar.api.rules.RuleType.SECURITY_HOTSPOT)
         .addOwaspTop10(Y2021, OwaspTop10.A1, OwaspTop10.A3)
         .addCwe(1, 123, 863);
 
@@ -1430,7 +1430,7 @@ class RulesRegistrantIT {
         .setInternalKey("config1 v2")
         // tag2 and tag3 removed, tag4 added
         .setTags("tag1", "tag4")
-        .setType(RuleType.BUG)
+        .setType(org.sonar.api.rules.RuleType.BUG)
         .setStatus(READY)
         .setGapDescription("java.S115.effortToFix.v2")
         .addEducationPrincipleKeys("concept1", "concept4");
@@ -1471,14 +1471,14 @@ class RulesRegistrantIT {
         .setInternalKey("config1")
         .setTags("tag1", "tag2", "tag3")
         .setScope(RuleScope.ALL)
-        .setType(RuleType.CODE_SMELL)
+        .setType(org.sonar.api.rules.RuleType.CODE_SMELL)
         .setStatus(RuleStatus.BETA)
         .addEducationPrincipleKeys("concept1", "concept2", "concept3");
 
       repo.createRule(EXTERNAL_HOTSPOT_RULE_KEY.rule())
         .setName("Hotspot")
         .setHtmlDescription("Minimal hotspot")
-        .setType(RuleType.SECURITY_HOTSPOT)
+        .setType(org.sonar.api.rules.RuleType.SECURITY_HOTSPOT)
         .addOwaspTop10(Y2021, OwaspTop10.A1, OwaspTop10.A3)
         .addCwe(1, 123, 863);
 

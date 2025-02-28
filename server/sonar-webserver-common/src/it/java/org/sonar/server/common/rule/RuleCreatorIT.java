@@ -35,9 +35,9 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.System2;
+import org.sonar.core.rule.RuleType;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
@@ -71,6 +71,7 @@ import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
 import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 import static org.sonar.api.server.rule.internal.ImpactMapper.convertToImpactSeverity;
 import static org.sonar.api.server.rule.internal.ImpactMapper.convertToSoftwareQuality;
+import static org.sonar.core.rule.RuleTypeMapper.toApiRuleType;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.server.util.TypeValidationsTesting.newFullTypeValidations;
@@ -197,7 +198,7 @@ public class RuleCreatorIT {
     assertThat(rule.getSeverityString()).isEqualTo(Severity.MAJOR);
     assertThat(rule.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR);
     assertThat(rule.getDefaultImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity).containsExactly(tuple(
-      convertToSoftwareQuality(RuleType.valueOf(templateRule.getType())),
+      convertToSoftwareQuality(toApiRuleType(RuleType.fromDbConstant(templateRule.getType()))),
       convertToImpactSeverity(requireNonNull(Severity.MAJOR))));
   }
 

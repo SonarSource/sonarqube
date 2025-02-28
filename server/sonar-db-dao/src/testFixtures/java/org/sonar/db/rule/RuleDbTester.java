@@ -23,12 +23,12 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.function.Consumer;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RuleType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 
 import static java.util.Arrays.asList;
-import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
+import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.db.rule.RuleTesting.newDeprecatedRuleKey;
 import static org.sonar.db.rule.RuleTesting.newRule;
 
