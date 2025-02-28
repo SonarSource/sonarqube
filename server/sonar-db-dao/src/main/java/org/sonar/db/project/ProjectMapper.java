@@ -21,6 +21,7 @@ package org.sonar.db.project;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
@@ -83,4 +84,6 @@ public interface ProjectMapper {
   int countApplications();
 
   int countProjectsByAiCodeFixEnablement(@Param("aiCodeFixEnabled") boolean aiCodeFixEnabled);
+
+  Set<String> selectProjectKeysByAiCodeFixEnablement(@Param("aiCodeFixEnabled") boolean aiCodeFixEnabled);
 }

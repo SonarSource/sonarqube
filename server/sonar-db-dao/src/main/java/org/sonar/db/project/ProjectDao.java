@@ -175,4 +175,8 @@ public class ProjectDao implements Dao {
   public int countAiCodeFixDisabledProjects(DbSession session) {
     return mapper(session).countProjectsByAiCodeFixEnablement(false);
   }
+
+  public Set<String> selectAiCodeFixEnabledProjectKeys(DbSession session) {
+    return mapper(session).selectProjectKeysByAiCodeFixEnablement(true);
+  }
 }

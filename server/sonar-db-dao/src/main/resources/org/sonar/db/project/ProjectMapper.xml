@@ -249,4 +249,12 @@
     and ai_code_fix_enabled = #{aiCodeFixEnabled,jdbcType=BOOLEAN}
   </select>
 
+  <select id="selectProjectKeysByAiCodeFixEnablement" resultType="String">
+    select p.kee
+    from projects p
+    where
+    p.qualifier = 'TRK'
+    and ai_code_fix_enabled = #{aiCodeFixEnabled,jdbcType=BOOLEAN}
+  </select>
+
 </mapper>
