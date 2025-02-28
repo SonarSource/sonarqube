@@ -151,7 +151,6 @@ import org.sonar.db.rule.RuleChangeMapper;
 import org.sonar.db.rule.RuleMapper;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryMapper;
-import org.sonar.db.sca.ListOfListOfStringsTypeHandler;
 import org.sonar.db.sca.ScaDependenciesMapper;
 import org.sonar.db.sca.ScaDependencyDto;
 import org.sonar.db.sca.ScaReleasesMapper;
@@ -206,9 +205,6 @@ public class MyBatis {
 
     MyBatisConfBuilder confBuilder = new MyBatisConfBuilder(database);
 
-    // Custom column type handlers, keep them sorted alphabetically
-    confBuilder.loadTypeHandler(ListOfListOfStringsTypeHandler.class);
-
     // DTO aliases, keep them sorted alphabetically
     confBuilder.loadAlias("ActiveRule", ActiveRuleDto.class);
     confBuilder.loadAlias("ActiveRuleParam", ActiveRuleParamDto.class);
@@ -224,7 +220,6 @@ public class MyBatis {
     confBuilder.loadAlias("GithubOrganizationGroup", GithubOrganizationGroupDto.class);
     confBuilder.loadAlias("FilePathWithHash", FilePathWithHashDto.class);
     confBuilder.loadAlias("KeyWithUuid", KeyWithUuidDto.class);
-    confBuilder.loadAlias("ListOfListOfStringsTypeHandler", ListOfListOfStringsTypeHandler.class);
     confBuilder.loadAlias("Group", GroupDto.class);
     confBuilder.loadAlias("GroupMembership", GroupMembershipDto.class);
     confBuilder.loadAlias("GroupPermission", GroupPermissionDto.class);
