@@ -19,18 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InOrder;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
-import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
-import org.sonar.ce.task.projectanalysis.measure.PostMeasuresComputationCheck.Context;
-import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
-import org.sonar.ce.task.step.TestComputationStepContext;
-import org.sonar.server.project.Project;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -42,6 +30,18 @@ import static org.mockito.Mockito.verify;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.DUMB_PROJECT;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+
+import org.junit.Rule;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
+import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
+import org.sonar.ce.task.projectanalysis.measure.PostMeasuresComputationCheck.Context;
+import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
+import org.sonar.ce.task.step.TestComputationStepContext;
+import org.sonar.server.project.Project;
 
 public class PostMeasuresComputationChecksStepTest {
 
@@ -131,9 +131,6 @@ public class PostMeasuresComputationChecksStepTest {
   }
 
   private PostMeasuresComputationChecksStep newStep(PostMeasuresComputationCheck... postMeasuresComputationChecks) {
-    if (postMeasuresComputationChecks.length == 0) {
-      return new PostMeasuresComputationChecksStep(treeRootHolder, metricRepository, measureRepository, analysisMetadataHolder);
-    }
     return new PostMeasuresComputationChecksStep(treeRootHolder, metricRepository, measureRepository, analysisMetadataHolder, postMeasuresComputationChecks);
   }
 }

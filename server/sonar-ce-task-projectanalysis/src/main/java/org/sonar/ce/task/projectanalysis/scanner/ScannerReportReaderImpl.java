@@ -19,6 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.scanner;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,8 +37,6 @@ import org.sonar.core.util.LineReaderIterator;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.LineSgnificantCode;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ScannerReportReaderImpl implements ScannerReportReader {
 
@@ -238,5 +238,11 @@ public class ScannerReportReaderImpl implements ScannerReportReader {
   public File readDependencyFilesZip() {
     ensureInitialized();
     return delegate.readDependencyFilesZip();
+  }
+
+  @Override
+  public CloseableIterator<ScannerReport.AnalysisData> readAnalysisData() {
+    ensureInitialized();
+    return delegate.readAnalysisData();
   }
 }

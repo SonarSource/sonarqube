@@ -19,16 +19,17 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
+import static org.sonar.ce.task.projectanalysis.measure.PreMeasuresComputationCheck.PreMeasuresComputationCheckException;
+
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.System2;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.dismissmessage.MessageType;
-
-import static org.sonar.ce.task.projectanalysis.measure.PreMeasuresComputationCheck.PreMeasuresComputationCheckException;
 
 /**
  * Execute {@link PreMeasuresComputationCheck} instances in no specific order.
@@ -41,15 +42,17 @@ public class PreMeasuresComputationChecksStep implements ComputationStep {
   private final PreMeasuresComputationCheck[] extensions;
   private final CeTaskMessages ceTaskMessages;
   private final ConfigurationRepository configurationRepository;
+  private final ScannerReportReader reportReader;
 
 
   public PreMeasuresComputationChecksStep(
     AnalysisMetadataHolder analysisMetadataHolder, CeTaskMessages ceTaskMessages,
-    ConfigurationRepository configurationRepository, PreMeasuresComputationCheck... extensions) {
+    ConfigurationRepository configurationRepository, ScannerReportReader reportReader, PreMeasuresComputationCheck... extensions) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.ceTaskMessages = ceTaskMessages;
     this.configurationRepository = configurationRepository;
     this.extensions = extensions;
+    this.reportReader = reportReader;
   }
 
   @Override
@@ -84,6 +87,11 @@ public class PreMeasuresComputationChecksStep implements ComputationStep {
     @Override
     public Configuration getConfiguration() {
       return configurationRepository.getConfiguration();
+    }
+
+    @Override
+    public ScannerReportReader getReportReader() {
+      return reportReader;
     }
 
   }

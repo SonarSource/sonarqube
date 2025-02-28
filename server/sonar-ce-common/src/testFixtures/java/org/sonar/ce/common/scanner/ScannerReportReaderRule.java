@@ -65,6 +65,7 @@ public class ScannerReportReaderRule implements TestRule, ScannerReportReader, A
   private byte[] analysisCache;
   private List<ScannerReport.TelemetryEntry> telemetryEntries = new ArrayList<>();
   private File dependencyFilesZip;
+  private List<ScannerReport.AnalysisData> analysisData = new ArrayList<>();
 
   @Override
   public Statement apply(final Statement statement, Description description) {
@@ -338,6 +339,11 @@ public class ScannerReportReaderRule implements TestRule, ScannerReportReader, A
   public ScannerReportReaderRule putTelemetry(List<ScannerReport.TelemetryEntry> telemetryEntries) {
     this.telemetryEntries = telemetryEntries;
     return this;
+  }
+
+  @Override
+  public CloseableIterator<ScannerReport.AnalysisData> readAnalysisData() {
+    return CloseableIterator.from(analysisData.iterator());
   }
 
   @Override

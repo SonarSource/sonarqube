@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.measure;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
 
 /**
@@ -49,6 +50,8 @@ public interface PostMeasuresComputationCheck {
      * It means that when analyzing a non main-branch, it will be the UUID of the project, not the UUId of the branch/pull-request.
      */
     String getProjectUuid();
+
+    Branch getBranch();
 
     /**
      * Return the ncloc computed for the current analysis

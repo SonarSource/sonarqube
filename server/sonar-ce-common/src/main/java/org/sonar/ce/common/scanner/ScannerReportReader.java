@@ -75,4 +75,6 @@ public interface ScannerReportReader {
   CloseableIterator<ScannerReport.TelemetryEntry> readTelemetryEntries();
 
   File readDependencyFilesZip();
+
+  CloseableIterator<ScannerReport.AnalysisData> readAnalysisData();
 }
