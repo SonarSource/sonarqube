@@ -165,6 +165,10 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEach
     return new DbTester(new SequenceUuidFactory(), system2, null, new NoOpAuditPersister(), new DbTesterMyBatisConfExtension(firstMapperClass, otherMapperClasses));
   }
 
+  public static DbTester createWithConfExtension(System2 system2, MyBatisConfExtension myBatisConfExtension) {
+    return new DbTester(new SequenceUuidFactory(), system2, null, new NoOpAuditPersister(), myBatisConfExtension);
+  }
+
   public static DbTester createWithDifferentUuidFactory(UuidFactory uuidFactory) {
     return new DbTester(uuidFactory, System2.INSTANCE, null, new NoOpAuditPersister());
   }
