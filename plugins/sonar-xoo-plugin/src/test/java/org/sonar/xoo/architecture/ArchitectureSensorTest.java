@@ -76,7 +76,7 @@ public class ArchitectureSensorTest {
 
     // then
     ArgumentCaptor<InputStream> inputStreamCaptor = ArgumentCaptor.forClass(InputStream.class);
-    verify(context).addAnalysisData(eq(Xoo.NAME + ".file_graph"), contains("application/file-graph+json"), inputStreamCaptor.capture());
+    verify(context).addAnalysisData(eq("architecture.file_graph.xoo"), contains("application/file_graph+json"), inputStreamCaptor.capture());
     try {
       String capturedData = new String(inputStreamCaptor.getValue().readAllBytes(), StandardCharsets.UTF_8);
       assertThat(capturedData).contains("\"fileCount\":" + nbFileSensor);

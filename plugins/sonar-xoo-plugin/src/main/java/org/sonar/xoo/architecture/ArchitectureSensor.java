@@ -36,7 +36,7 @@ public class ArchitectureSensor implements ProjectSensor {
 
   @Override
   public void execute(SensorContext context) {
-    final String mimeType = "application/file-graph+json;version=1.0;source=xoo";
+    final String mimeType = "application/file_graph+json;version=1.0";
 
     long count = StreamSupport.stream(
         context.fileSystem().inputFiles(
@@ -44,14 +44,14 @@ public class ArchitectureSensor implements ProjectSensor {
       .count();
 
     context.addAnalysisData(
-      Xoo.NAME + ".class_file_graph",
+      "architecture.file_graph.java",
       mimeType,
       new ByteArrayInputStream(("{graph:\"data\", \"classCount\":" + count + "}")
         .getBytes(StandardCharsets.UTF_8))
     );
 
     context.addAnalysisData(
-      Xoo.NAME + ".file_graph",
+      "architecture.file_graph." + Xoo.KEY,
       mimeType,
       new ByteArrayInputStream(("{graph:\"data\", \"fileCount\":" + count + "}")
         .getBytes(StandardCharsets.UTF_8))

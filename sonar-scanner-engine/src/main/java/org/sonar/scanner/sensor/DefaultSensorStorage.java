@@ -488,6 +488,7 @@ public class DefaultSensorStorage implements SensorStorage {
     try (data) {
       ScannerReport.AnalysisData analysisData = ScannerReport.AnalysisData.newBuilder()
         .setKey(key)
+        .setMimeType(mimeType)
         .setData(ByteString.readFrom(data))
         .build();
       ScannerReportWriter writer = reportPublisher.getWriter();
