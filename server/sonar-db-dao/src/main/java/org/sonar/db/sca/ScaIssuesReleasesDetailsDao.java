@@ -43,4 +43,12 @@ public class ScaIssuesReleasesDetailsDao implements Dao {
   public int countByBranchUuid(DbSession dbSession, String branchUuid) {
     return mapper(dbSession).countByBranchUuid(branchUuid);
   }
+
+  public List<ScaIssueReleaseDetailsDto> selectByQuery(DbSession dbSession, ScaIssuesReleasesDetailsQuery query, Pagination pagination) {
+    return mapper(dbSession).selectByQuery(query, pagination);
+  }
+
+  public int countByQuery(DbSession dbSession, ScaIssuesReleasesDetailsQuery query) {
+    return mapper(dbSession).countByQuery(query);
+  }
 }

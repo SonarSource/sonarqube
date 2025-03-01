@@ -19,16 +19,26 @@
  */
 package org.sonar.db.sca;
 
+import java.math.BigDecimal;
 import java.util.List;
-import org.apache.ibatis.annotations.Param;
-import org.sonar.db.Pagination;
+import org.junit.jupiter.api.Test;
 
-public interface ScaIssuesReleasesDetailsMapper {
-  List<ScaIssueReleaseDetailsDto> selectByBranchUuid(@Param("branchUuid") String branchUuid, @Param("pagination") Pagination pagination);
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-  int countByBranchUuid(String branchUuid);
-
-  List<ScaIssueReleaseDetailsDto> selectByQuery(@Param("query") ScaIssuesReleasesDetailsQuery query, @Param("pagination") Pagination pagination);
-
-  int countByQuery(@Param("query") ScaIssuesReleasesDetailsQuery query);
+class ScaIssueReleaseDetailsDtoTest {
+  @Test
+  void test_toBuilder_build_shouldRoundTrip() {
+    var dto = new ScaIssueReleaseDetailsDto("scaIssueReleaseUuid",
+      ScaSeverity.INFO,
+      "scaIssueUuid",
+      "scaReleaseUuid",
+      ScaIssueType.VULNERABILITY,
+      "packageUrl",
+      "vulnerabilityId",
+      "spdxLicenseId",
+      ScaSeverity.BLOCKER,
+      List.of("cwe1"),
+      BigDecimal.ONE);
+    assertThat(dto.toBuilder().build()).isEqualTo(dto);
+  }
 }

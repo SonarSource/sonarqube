@@ -51,4 +51,93 @@ public record ScaIssueReleaseDetailsDto(String scaIssueReleaseUuid,
   @Nullable ScaSeverity vulnerabilityBaseSeverity,
   @Nullable List<String> cweIds,
   @Nullable BigDecimal cvssScore) implements ScaIssueIdentity {
+
+  public Builder toBuilder() {
+    return new Builder()
+      .setScaIssueReleaseUuid(scaIssueReleaseUuid)
+      .setSeverity(severity)
+      .setScaIssueUuid(scaIssueUuid)
+      .setScaReleaseUuid(scaReleaseUuid)
+      .setScaIssueType(scaIssueType)
+      .setPackageUrl(packageUrl)
+      .setVulnerabilityId(vulnerabilityId)
+      .setSpdxLicenseId(spdxLicenseId)
+      .setVulnerabilityBaseSeverity(vulnerabilityBaseSeverity)
+      .setCweIds(cweIds)
+      .setCvssScore(cvssScore);
+  }
+
+  public static class Builder {
+    private String scaIssueReleaseUuid;
+    private ScaSeverity severity;
+    private String scaIssueUuid;
+    private String scaReleaseUuid;
+    private ScaIssueType scaIssueType;
+    private String packageUrl;
+    private String vulnerabilityId;
+    private String spdxLicenseId;
+    private ScaSeverity vulnerabilityBaseSeverity;
+    private List<String> cweIds;
+    private BigDecimal cvssScore;
+
+    public Builder setScaIssueReleaseUuid(String scaIssueReleaseUuid) {
+      this.scaIssueReleaseUuid = scaIssueReleaseUuid;
+      return this;
+    }
+
+    public Builder setSeverity(ScaSeverity severity) {
+      this.severity = severity;
+      return this;
+    }
+
+    public Builder setScaIssueUuid(String scaIssueUuid) {
+      this.scaIssueUuid = scaIssueUuid;
+      return this;
+    }
+
+    public Builder setScaReleaseUuid(String scaReleaseUuid) {
+      this.scaReleaseUuid = scaReleaseUuid;
+      return this;
+    }
+
+    public Builder setScaIssueType(ScaIssueType scaIssueType) {
+      this.scaIssueType = scaIssueType;
+      return this;
+    }
+
+    public Builder setPackageUrl(String packageUrl) {
+      this.packageUrl = packageUrl;
+      return this;
+    }
+
+    public Builder setVulnerabilityId(String vulnerabilityId) {
+      this.vulnerabilityId = vulnerabilityId;
+      return this;
+    }
+
+    public Builder setSpdxLicenseId(String spdxLicenseId) {
+      this.spdxLicenseId = spdxLicenseId;
+      return this;
+    }
+
+    public Builder setVulnerabilityBaseSeverity(@Nullable ScaSeverity vulnerabilityBaseSeverity) {
+      this.vulnerabilityBaseSeverity = vulnerabilityBaseSeverity;
+      return this;
+    }
+
+    public Builder setCweIds(@Nullable List<String> cweIds) {
+      this.cweIds = cweIds;
+      return this;
+    }
+
+    public Builder setCvssScore(@Nullable BigDecimal cvssScore) {
+      this.cvssScore = cvssScore;
+      return this;
+    }
+
+    public ScaIssueReleaseDetailsDto build() {
+      return new ScaIssueReleaseDetailsDto(scaIssueReleaseUuid, severity, scaIssueUuid, scaReleaseUuid, scaIssueType, packageUrl, vulnerabilityId, spdxLicenseId,
+        vulnerabilityBaseSeverity, cweIds, cvssScore);
+    }
+  }
 }

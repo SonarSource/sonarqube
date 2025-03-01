@@ -23,6 +23,7 @@
   <sql id="issuesWithScaColumns">
     sir.uuid,
     sir.severity,
+    sir.severity_sort_key,
     sir.sca_issue_uuid,
     sir.sca_release_uuid,
     si.sca_issue_type,
@@ -34,24 +35,137 @@
     svi.cvss_score
   </sql>
 
-  <sql id="sqlSelectByBranchUuid">
+  <sql id="sqlBaseJoins">
     from sca_issues_releases sir
     inner join sca_issues si on sir.sca_issue_uuid = si.uuid
     inner join sca_releases sr on sir.sca_release_uuid = sr.uuid
     inner join components c on sr.component_uuid = c.uuid
     left join sca_vulnerability_issues svi on sir.sca_issue_uuid = svi.uuid
+  </sql>
+
+  <sql id="sqlSelectByBranchUuid">
+    <include refid="sqlBaseJoins"/>
     where c.branch_uuid = #{branchUuid,jdbcType=VARCHAR}
   </sql>
 
   <select id="selectByBranchUuid" parameterType="map" resultMap="scaIssueReleaseDetailsResultMap">
     select <include refid="issuesWithScaColumns"/>
     <include refid="sqlSelectByBranchUuid"/>
-    ORDER BY sir.sca_issue_uuid ASC
+    ORDER BY <include refid="sqlIdentityOrderColumns"/>
     <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <select id="countByBranchUuid" parameterType="string" resultType="int">
     select count(sir.uuid)
     <include refid="sqlSelectByBranchUuid"/>
+  </select>
+
+  <sql id="sqlSelectByQueryWhereClause">
+    <where>
+      c.branch_uuid = #{query.branchUuid,jdbcType=VARCHAR}
+      <if test="query.vulnerabilityIdSubstring != null">
+          <!-- this screens out non-vulnerability-having issue types even if the search is for empty string -->
+        AND si.vulnerability_id != '${@org.sonar.db.sca.ScaIssueDto@NULL_VALUE}'
+        <if test="query.vulnerabilityIdSubstring.length > 0">
+          AND upper(si.vulnerability_id) LIKE #{query.vulnerabilityIdUppercaseEscapedAsLikeValue, jdbcType=VARCHAR} ESCAPE '/'
+        </if>
+      </if>
+      <if test="query.packageNameSubstring != null and query.packageNameSubstring.length > 0">
+          AND lower(sr.package_name) LIKE #{query.packageNameLowercaseEscapedAsLikeValue, jdbcType=VARCHAR} ESCAPE '/'
+      </if>
+      <if test="query.types != null">
+        <if test="query.types.isEmpty()">
+          AND 1=0
+        </if>
+        <if test="!query.types.isEmpty()">
+          AND si.sca_issue_type in
+          <foreach collection="query.types" open="(" close=")" item="type" separator=",">
+            #{type, jdbcType=VARCHAR}
+          </foreach>
+        </if>
+      </if>
+      <if test="query.severities != null">
+        <if test="query.severities.isEmpty()">
+          AND 1=0
+        </if>
+        <if test="!query.severities.isEmpty()">
+          AND sir.severity in
+          <foreach collection="query.severities" open="(" close=")" item="severity" separator=",">
+            #{severity, jdbcType=VARCHAR}
+          </foreach>
+        </if>
+      </if>
+      <if test="query.packageManagers != null">
+        <if test="query.packageManagers.isEmpty()">
+          AND 1=0
+        </if>
+        <if test="!query.packageManagers.isEmpty()">
+          AND sr.package_manager in
+          <foreach collection="query.packageManagers" open="(" close=")" item="packageManager" separator=",">
+            #{packageManager, jdbcType=VARCHAR}
+          </foreach>
+        </if>
+      </if>
+    </where>
+  </sql>
+
+  <sql id="sqlIdentityOrderColumns">
+    <!-- the unique index is ordered as: scaIssueType, vulnerabilityId, packageUrl, spdxLicenseId
+         so we're guessing (or hoping?) that is the most efficient sort order, and it should sort of make
+         more sense to users than random -->
+    si.sca_issue_type ASC, si.vulnerability_id ASC, si.package_url ASC, si.spdx_license_id ASC, sir.uuid ASC
+  </sql>
+
+  <sql id="sqlOrderByQuery">
+    <choose>
+      <when test="query.sort == @org.sonar.db.sca.ScaIssuesReleasesDetailsQuery$Sort@IDENTITY_ASC">
+        ORDER BY <include refid="sqlIdentityOrderColumns"/>
+      </when>
+      <when test="query.sort == @org.sonar.db.sca.ScaIssuesReleasesDetailsQuery$Sort@IDENTITY_DESC">
+        <!-- This is a bizarre and useless sort order and we really only have it for symmetry in the REST API -->
+        ORDER BY si.sca_issue_type DESC, si.vulnerability_id DESC, si.package_url DESC, si.spdx_license_id DESC, sir.uuid DESC
+      </when>
+      <when test="query.sort == @org.sonar.db.sca.ScaIssuesReleasesDetailsQuery$Sort@SEVERITY_ASC">
+        <!-- because many severities are the same, we try to keep the user intent by ordering by cvss score secondarily -->
+        ORDER BY sir.severity_sort_key ASC, cvss_sort_key ASC, <include refid="sqlIdentityOrderColumns"/>
+      </when>
+      <when test="query.sort == @org.sonar.db.sca.ScaIssuesReleasesDetailsQuery$Sort@SEVERITY_DESC">
+        <!-- because many severities are the same, we try to keep the user intent by ordering by cvss score secondarily -->
+        ORDER BY sir.severity_sort_key DESC, cvss_sort_key DESC, <include refid="sqlIdentityOrderColumns"/>
+      </when>
+      <when test="query.sort == @org.sonar.db.sca.ScaIssuesReleasesDetailsQuery$Sort@CVSS_SCORE_ASC">
+        <!-- because cvss score can be null, we try to keep the user intent by ordering by severity secondarily -->
+        ORDER BY cvss_sort_key ASC, sir.severity_sort_key ASC, <include refid="sqlIdentityOrderColumns"/>
+      </when>
+      <when test="query.sort == @org.sonar.db.sca.ScaIssuesReleasesDetailsQuery$Sort@CVSS_SCORE_DESC">
+        <!-- because cvss score can be null, we try to keep the user intent by ordering by severity secondarily -->
+        ORDER BY cvss_sort_key DESC, sir.severity_sort_key DESC, <include refid="sqlIdentityOrderColumns"/>
+      </when>
+      <otherwise>
+        <!-- generate a noisy failure -->
+        ORDER BY SYNTAX ERROR SHOULD NOT BE REACHED
+      </otherwise>
+    </choose>
+  </sql>
+
+  <select id="selectByQuery" parameterType="map" resultMap="scaIssueReleaseDetailsResultMap">
+    select <include refid="issuesWithScaColumns"/>,
+    <!-- It seems that the behavior of NULL in ORDER BY varies by database backend, with different
+     defaults and a lack of universal support for NULLS FIRST / NULLS LAST.
+     This poses an issue for nullable columns we want to sort by such as cvss_score.
+     On databases that support it, NULLS FIRST could probably use the index while this COALESCE
+     hack does not, so maybe someday we want to conditionalize on db backend somehow. -->
+    <!-- NULL score is treated as least severe -->
+    COALESCE(svi.cvss_score, 0.0) as cvss_sort_key
+    <include refid="sqlBaseJoins"/>
+    <include refid="sqlSelectByQueryWhereClause"/>
+    <include refid="sqlOrderByQuery"/>
+    <include refid="org.sonar.db.common.Common.pagination"/>
+  </select>
+
+  <select id="countByQuery" parameterType="string" resultType="int">
+    select count(sir.uuid)
+    <include refid="sqlBaseJoins"/>
+    <include refid="sqlSelectByQueryWhereClause"/>
   </select>
 </mapper>

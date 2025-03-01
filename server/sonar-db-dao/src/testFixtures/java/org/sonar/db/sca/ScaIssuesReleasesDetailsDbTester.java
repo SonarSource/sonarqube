@@ -20,6 +20,7 @@
 package org.sonar.db.sca;
 
 import java.util.Optional;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -34,39 +35,75 @@ public class ScaIssuesReleasesDetailsDbTester {
   }
 
   public ScaIssueReleaseDetailsDto fromDtos(@Nullable String projectUuid, ScaIssueReleaseDto scaIssueReleaseDto, ScaIssueDto scaIssueDto,
-    Optional<ScaVulnerabilityIssueDto> scaVulnerabilityIssueDto) {
+    Optional<ScaVulnerabilityIssueDto> scaVulnerabilityIssueDtoOptional) {
     // this should emulate what the mapper does when joining these tables
-    return new ScaIssueReleaseDetailsDto(scaIssueReleaseDto.uuid(), ScaSeverity.INFO,
+    return new ScaIssueReleaseDetailsDto(scaIssueReleaseDto.uuid(), scaIssueReleaseDto.severity(),
       scaIssueReleaseDto.scaIssueUuid(), scaIssueReleaseDto.scaReleaseUuid(), scaIssueDto.scaIssueType(),
       scaIssueDto.packageUrl(), scaIssueDto.vulnerabilityId(), scaIssueDto.spdxLicenseId(),
-      scaVulnerabilityIssueDto.map(ScaVulnerabilityIssueDto::baseSeverity).orElse(null),
-      scaVulnerabilityIssueDto.map(ScaVulnerabilityIssueDto::cweIds).orElse(null),
-      scaVulnerabilityIssueDto.map(ScaVulnerabilityIssueDto::cvssScore).orElse(null));
+      scaVulnerabilityIssueDtoOptional.map(ScaVulnerabilityIssueDto::baseSeverity).orElse(null),
+      scaVulnerabilityIssueDtoOptional.map(ScaVulnerabilityIssueDto::cweIds).orElse(null),
+      scaVulnerabilityIssueDtoOptional.map(ScaVulnerabilityIssueDto::cvssScore).orElse(null));
   }
 
-  private ScaIssueReleaseDetailsDto insertIssue(ScaIssueDto scaIssue, String suffix, String componentUuid, @Nullable String projectUuid) {
+  private ScaIssueReleaseDetailsDto insertIssue(ScaIssueDto scaIssue, Optional<ScaVulnerabilityIssueDto> scaVulnerabilityIssueDtoOptional,
+    String suffix, String componentUuid,
+    @Nullable String projectUuid) {
     // insertScaRelease has suffix and componentUuid swapped vs. our own method...
     var scaRelease = db.getScaReleasesDbTester().insertScaRelease(componentUuid, suffix);
     var scaIssueRelease = new ScaIssueReleaseDto("sca-issue-release-uuid-" + suffix, scaIssue, scaRelease, ScaSeverity.INFO, 1L, 2L);
     dbClient.scaIssuesReleasesDao().insert(db.getSession(), scaIssueRelease);
-    return fromDtos(projectUuid, scaIssueRelease, scaIssue, Optional.empty());
+    return fromDtos(projectUuid, scaIssueRelease, scaIssue, scaVulnerabilityIssueDtoOptional);
   }
 
   public ScaIssueReleaseDetailsDto insertVulnerabilityIssue(String suffix, String componentUuid) {
-    var scaIssue = db.getScaIssuesDbTester().insertVulnerabilityIssue(suffix).getKey();
-    return insertIssue(scaIssue, suffix, componentUuid, null);
+    var entry = db.getScaIssuesDbTester().insertVulnerabilityIssue(suffix);
+    return insertIssue(entry.getKey(), Optional.of(entry.getValue()), suffix, componentUuid, null);
   }
 
   public ScaIssueReleaseDetailsDto insertProhibitedLicenseIssue(String suffix, String componentUuid) {
     var scaIssue = db.getScaIssuesDbTester().insertProhibitedLicenseIssue(suffix);
-    return insertIssue(scaIssue, suffix, componentUuid, null);
+    return insertIssue(scaIssue, Optional.empty(), suffix, componentUuid, null);
   }
 
   public ScaIssueReleaseDetailsDto insertIssue(ScaIssueType scaIssueType, String suffix, String componentUuid, @Nullable String projectUuid) {
+    return insertIssue(scaIssueType, suffix, componentUuid, projectUuid,
+      null, null, null, null);
+  }
+
+  public ScaIssueReleaseDetailsDto insertIssue(ScaIssueType scaIssueType, String suffix, String componentUuid, @Nullable String projectUuid,
+    Function<ScaIssueDto, ScaIssueDto> scaIssueModifier,
+    Function<ScaVulnerabilityIssueDto, ScaVulnerabilityIssueDto> scaVulnerabilityIssueModifier,
+    Function<ScaReleaseDto, ScaReleaseDto> scaReleaseModifier,
+    Function<ScaIssueReleaseDto, ScaIssueReleaseDto> scaIssueReleaseModifier) {
+    var scaRelease = db.getScaReleasesDbTester().newScaReleaseDto(componentUuid, suffix, PackageManager.MAVEN, "packageName" + suffix);
+    if (scaIssueModifier != null) {
+      scaRelease = scaReleaseModifier.apply(scaRelease);
+    }
+    dbClient.scaReleasesDao().insert(db.getSession(), scaRelease);
     var scaIssue = switch (scaIssueType) {
-      case VULNERABILITY -> db.getScaIssuesDbTester().insertVulnerabilityIssue(suffix).getKey();
-      case PROHIBITED_LICENSE -> db.getScaIssuesDbTester().insertProhibitedLicenseIssue(suffix);
+      case PROHIBITED_LICENSE -> db.getScaIssuesDbTester().newProhibitedLicenseScaIssueDto(suffix);
+      case VULNERABILITY -> db.getScaIssuesDbTester().newVulnerabilityScaIssueDto(suffix);
     };
-    return insertIssue(scaIssue, suffix, componentUuid, projectUuid);
+    if (scaIssueModifier != null) {
+      scaIssue = scaIssueModifier.apply(scaIssue);
+    }
+    dbClient.scaIssuesDao().insert(db.getSession(), scaIssue);
+    ScaVulnerabilityIssueDto scaVulnerabilityIssue = null;
+    if (scaIssue.scaIssueType() == ScaIssueType.VULNERABILITY) {
+      scaVulnerabilityIssue = db.getScaIssuesDbTester().newVulnerabilityIssueDto(suffix);
+      if (!scaVulnerabilityIssue.uuid().equals(scaIssue.uuid())) {
+        throw new IllegalStateException("ScaVulnerabilityIssueDto.uuid must match ScaIssueDto.uuid or we won't find the ScaVueberabilityIssueDto");
+      }
+      if (scaVulnerabilityIssueModifier != null) {
+        scaVulnerabilityIssue = scaVulnerabilityIssueModifier.apply(scaVulnerabilityIssue);
+      }
+      dbClient.scaVulnerabilityIssuesDao().insert(db.getSession(), scaVulnerabilityIssue);
+    }
+    var scaIssueRelease = new ScaIssueReleaseDto("sca-issue-release-uuid-" + suffix, scaIssue, scaRelease, ScaSeverity.INFO, 1L, 2L);
+    if (scaIssueReleaseModifier != null) {
+      scaIssueRelease = scaIssueReleaseModifier.apply(scaIssueRelease);
+    }
+    dbClient.scaIssuesReleasesDao().insert(db.getSession(), scaIssueRelease);
+    return fromDtos(projectUuid, scaIssueRelease, scaIssue, Optional.ofNullable(scaVulnerabilityIssue));
   }
 }
