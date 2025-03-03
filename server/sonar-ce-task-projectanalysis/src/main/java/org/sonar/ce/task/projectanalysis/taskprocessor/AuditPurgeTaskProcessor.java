@@ -19,7 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.taskprocessor;
 
-import java.util.Arrays;
+import static org.sonar.db.ce.CeTaskTypes.AUDIT_PURGE;
+
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -34,8 +35,6 @@ import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
 import org.sonar.core.platform.Container;
 import org.sonar.core.platform.ContainerPopulator;
 import org.sonar.core.platform.SpringComponentContainer;
-
-import static org.sonar.db.ce.CeTaskTypes.AUDIT_PURGE;
 
 public class AuditPurgeTaskProcessor implements CeTaskProcessor {
   private static final Set<String> HANDLED_TYPES = Set.of(AUDIT_PURGE);
@@ -79,7 +78,7 @@ public class AuditPurgeTaskProcessor implements CeTaskProcessor {
 
     @Override
     public List<Class<? extends ComputationStep>> orderedStepClasses() {
-      return Arrays.asList(AuditPurgeStep.class);
+      return List.of(AuditPurgeStep.class);
     }
   }
 }

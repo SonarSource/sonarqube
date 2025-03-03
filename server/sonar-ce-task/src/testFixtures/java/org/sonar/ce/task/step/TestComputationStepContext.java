@@ -20,8 +20,10 @@
 package org.sonar.ce.task.step;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
+import org.sonar.ce.task.telemetry.MutableStepsTelemetryHolder;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -33,10 +35,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestComputationStepContext implements ComputationStep.Context {
 
   private final TestStatistics statistics = new TestStatistics();
+  private final TestTelemetryMetrics metrics = new TestTelemetryMetrics();
 
   @Override
   public TestStatistics getStatistics() {
     return statistics;
+  }
+
+  @Override
+  public void addTelemetryMetric(String key, Object value) {
+    metrics.add(key, value);
+  }
+
+  public Map<String, Object> getTelemetryMetrics() {
+    return metrics.getTelemetryMetrics();
   }
 
   public static class TestStatistics implements ComputationStep.Statistics {
@@ -61,6 +73,36 @@ public class TestComputationStepContext implements ComputationStep.Context {
     }
 
     public TestStatistics assertValue(String key, @Nullable Object expectedValue) {
+      if (expectedValue == null) {
+        assertThat(map.get(key)).as(key).isNull();
+      } else {
+        assertThat(map.get(key)).as(key).isEqualTo(expectedValue);
+      }
+      return this;
+    }
+  }
+
+  public static class TestTelemetryMetrics implements MutableStepsTelemetryHolder {
+    private final Map<String, Object> map = new LinkedHashMap<>();
+
+    public TestTelemetryMetrics add(String key, Object value) {
+      requireNonNull(key, "Metric has null key");
+      requireNonNull(value, () -> String.format("Metric with key [%s] has null value", key));
+      checkArgument(!map.containsKey(key), "Metric with key [%s] is already present", key);
+      map.put(key, value);
+      return this;
+    }
+
+    @Override
+    public Map<String, Object> getTelemetryMetrics() {
+      return map;
+    }
+
+    public Object get(String key) {
+      return requireNonNull(map.get(key));
+    }
+
+    public TestTelemetryMetrics assertValue(String key, @Nullable Object expectedValue) {
       if (expectedValue == null) {
         assertThat(map.get(key)).as(key).isNull();
       } else {

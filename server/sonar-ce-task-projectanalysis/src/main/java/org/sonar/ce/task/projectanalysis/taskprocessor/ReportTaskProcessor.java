@@ -27,12 +27,12 @@ import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskResult;
 import org.sonar.ce.task.container.TaskContainer;
 import org.sonar.ce.task.projectanalysis.container.ContainerFactory;
+import org.sonar.ce.task.projectanalysis.container.ReportAnalysisComponentProvider;
 import org.sonar.ce.task.step.ComputationStepExecutor;
 import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
 import org.sonar.ce.task.taskprocessor.TaskResultHolder;
 import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.ce.task.projectanalysis.container.ReportAnalysisComponentProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class ReportTaskProcessor implements CeTaskProcessor {

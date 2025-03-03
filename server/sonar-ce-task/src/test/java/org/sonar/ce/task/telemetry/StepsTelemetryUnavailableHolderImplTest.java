@@ -17,24 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis;
+package org.sonar.ce.task.telemetry;
 
-import org.sonar.ce.task.projectanalysis.container.ContainerFactoryImpl;
-import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
-import org.sonar.ce.task.projectexport.taskprocessor.ProjectExportTaskProcessor;
-import org.sonar.ce.task.step.ComputationStepExecutor;
-import org.sonar.ce.task.telemetry.StepsTelemetryUnavailableHolderImpl;
-import org.sonar.core.platform.Module;
+import org.junit.jupiter.api.Test;
 
-public class ProjectAnalysisTaskModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      // task
-      ContainerFactoryImpl.class,
-      StepsTelemetryUnavailableHolderImpl.class,
-      ComputationStepExecutor.class,
-      ReportTaskProcessor.class,
-      ProjectExportTaskProcessor.class);
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+class StepsTelemetryUnavailableHolderImplTest {
+
+  private final StepsTelemetryUnavailableHolderImpl stepsTelemetryUnavailableHolderImpl = new StepsTelemetryUnavailableHolderImpl();
+
+  @Test
+  void getTelemetryMetrics_shouldThrowUnsupportedOperationException() {
+    assertThrows(UnsupportedOperationException.class, stepsTelemetryUnavailableHolderImpl::getTelemetryMetrics);
+  }
+
+  @Test
+  void add_shouldThrowUnsupportedOperationException() {
+    assertThrows(UnsupportedOperationException.class, () -> stepsTelemetryUnavailableHolderImpl.add("key", "value"));
   }
 }

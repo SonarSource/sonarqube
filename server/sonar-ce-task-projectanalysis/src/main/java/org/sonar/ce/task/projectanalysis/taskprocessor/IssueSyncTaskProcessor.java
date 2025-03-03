@@ -32,6 +32,7 @@ import org.sonar.ce.task.projectanalysis.step.AbstractComputationSteps;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.ComputationStepExecutor;
 import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
+import org.sonar.ce.task.telemetry.StepsTelemetryUnavailableHolderImpl;
 import org.sonar.core.platform.Container;
 import org.sonar.core.platform.ContainerPopulator;
 import org.sonar.core.platform.SpringComponentContainer;
@@ -69,6 +70,7 @@ public class IssueSyncTaskProcessor implements CeTaskProcessor {
       taskContainer.add(IndexIssuesStep.class);
       taskContainer.add(new SyncComputationSteps(taskContainer));
       taskContainer.add(ComputationStepExecutor.class);
+      taskContainer.add(StepsTelemetryUnavailableHolderImpl.class);
     };
   }
 

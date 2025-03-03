@@ -35,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.sonar.ce.task.projectanalysis.taskprocessor.ContextUtils.EMPTY_CONTEXT;
 import static org.sonar.db.component.BranchType.BRANCH;
 
 public class IndexIssuesStepIT {
@@ -72,7 +73,7 @@ public class IndexIssuesStepIT {
     dbClient.branchDao().insert(dbTester.getSession(), branchDto);
     dbTester.commit();
 
-    underTest.execute(() -> null);
+    underTest.execute(EMPTY_CONTEXT);
 
     verify(issueIndexer, times(1)).indexOnAnalysis(BRANCH_UUID);
     Optional<BranchDto> branch = dbClient.branchDao().selectByUuid(dbTester.getSession(), BRANCH_UUID);
@@ -91,7 +92,7 @@ public class IndexIssuesStepIT {
     dbClient.branchDao().insert(dbTester.getSession(), branchDto);
     dbTester.commit();
 
-    underTest.execute(() -> null);
+    underTest.execute(EMPTY_CONTEXT);
 
     verify(issueIndexer, times(0)).indexOnAnalysis(BRANCH_UUID);
   }
@@ -106,7 +107,7 @@ public class IndexIssuesStepIT {
       .build();
     IndexIssuesStep underTest = new IndexIssuesStep(ceTask, dbClient, issueIndexer);
 
-    assertThatThrownBy(() -> underTest.execute(() -> null))
+    assertThatThrownBy(() -> underTest.execute(EMPTY_CONTEXT))
       .isInstanceOf(UnsupportedOperationException.class)
       .hasMessage("component not found in task");
   }

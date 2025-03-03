@@ -19,34 +19,44 @@
  */
 package org.sonar.ce.task.step;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.CeTaskInterrupter;
+import org.sonar.ce.task.telemetry.MutableStepsTelemetryHolder;
+import org.sonar.ce.task.telemetry.StepsTelemetryUnavailableHolderImpl;
 import org.sonar.core.util.logs.Profiler;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
 
 public final class ComputationStepExecutor {
   private static final Logger LOGGER = LoggerFactory.getLogger(ComputationStepExecutor.class);
 
   private final ComputationSteps steps;
   private final CeTaskInterrupter taskInterrupter;
+  private final MutableStepsTelemetryHolder stepsTelemetryHolder;
   @CheckForNull
   private final Listener listener;
 
+  /**
+   * This constructor is used when running Portfolio Refresh, Project Import or App Refresh tasks.
+   * @param steps computation steps
+   * @param taskInterrupter task interrupter
+   */
   public ComputationStepExecutor(ComputationSteps steps, CeTaskInterrupter taskInterrupter) {
-    this(steps, taskInterrupter, null);
+    this(steps, taskInterrupter, new StepsTelemetryUnavailableHolderImpl(), null);
   }
 
   @Autowired
-  public ComputationStepExecutor(ComputationSteps steps, CeTaskInterrupter taskInterrupter, @Nullable Listener listener) {
+  public ComputationStepExecutor(ComputationSteps steps, CeTaskInterrupter taskInterrupter,
+    MutableStepsTelemetryHolder stepsTelemetryHolder, @Nullable Listener listener) {
     this.steps = steps;
     this.taskInterrupter = taskInterrupter;
+    this.stepsTelemetryHolder = stepsTelemetryHolder;
     this.listener = listener;
   }
 
@@ -65,7 +75,7 @@ public final class ComputationStepExecutor {
 
   private void executeSteps(Profiler stepProfiler) {
     StepStatisticsImpl statistics = new StepStatisticsImpl(stepProfiler);
-    ComputationStep.Context context = new StepContextImpl(statistics);
+    ComputationStep.Context context = new StepContextImpl(statistics, stepsTelemetryHolder);
     for (ComputationStep step : steps.instances()) {
       executeStep(stepProfiler, context, step);
     }
@@ -119,14 +129,21 @@ public final class ComputationStepExecutor {
 
   private static class StepContextImpl implements ComputationStep.Context {
     private final ComputationStep.Statistics statistics;
+    private final MutableStepsTelemetryHolder stepsTelemetryHolder;
 
-    private StepContextImpl(ComputationStep.Statistics statistics) {
+    private StepContextImpl(ComputationStep.Statistics statistics, MutableStepsTelemetryHolder stepsTelemetryHolder) {
       this.statistics = statistics;
+      this.stepsTelemetryHolder = stepsTelemetryHolder;
     }
 
     @Override
     public ComputationStep.Statistics getStatistics() {
       return statistics;
+    }
+
+    @Override
+    public void addTelemetryMetric(String key, Object value) {
+      stepsTelemetryHolder.add(key, value);
     }
   }
 }

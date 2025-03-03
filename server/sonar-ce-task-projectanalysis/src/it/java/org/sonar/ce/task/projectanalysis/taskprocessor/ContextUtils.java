@@ -17,24 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis;
+package org.sonar.ce.task.projectanalysis.taskprocessor;
 
-import org.sonar.ce.task.projectanalysis.container.ContainerFactoryImpl;
-import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
-import org.sonar.ce.task.projectexport.taskprocessor.ProjectExportTaskProcessor;
-import org.sonar.ce.task.step.ComputationStepExecutor;
-import org.sonar.ce.task.telemetry.StepsTelemetryUnavailableHolderImpl;
-import org.sonar.core.platform.Module;
+import org.sonar.ce.task.step.ComputationStep;
 
-public class ProjectAnalysisTaskModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      // task
-      ContainerFactoryImpl.class,
-      StepsTelemetryUnavailableHolderImpl.class,
-      ComputationStepExecutor.class,
-      ReportTaskProcessor.class,
-      ProjectExportTaskProcessor.class);
+class ContextUtils {
+
+  private ContextUtils() {
+    // utility class
   }
+
+  static final ComputationStep.Context EMPTY_CONTEXT = new ComputationStep.Context() {
+    @Override
+    public ComputationStep.Statistics getStatistics() {
+      return null;
+    }
+
+    @Override
+    public void addTelemetryMetric(String key, Object value) {
+      // do nothing
+    }
+  };
 }

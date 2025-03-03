@@ -52,8 +52,6 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     ValidateProjectStep.class,
     LoadQualityProfilesStep.class,
 
-    SendAnalysisTelemetryStep.class,
-
     // Dependencies
     ScaStep.class,
 
@@ -136,7 +134,11 @@ public class ReportComputationSteps extends AbstractComputationSteps {
 
     ExecuteStatelessOnFinishStep.class,
     PublishTaskResultStep.class,
-    TriggerViewRefreshStep.class);
+    TriggerViewRefreshStep.class,
+
+    // send analysis and steps statistics telemetry
+    SendAnalysisTelemetryStep.class
+    );
 
   public ReportComputationSteps(TaskContainer taskContainer) {
     super(taskContainer);

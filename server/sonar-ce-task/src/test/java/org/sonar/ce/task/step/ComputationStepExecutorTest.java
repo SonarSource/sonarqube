@@ -29,6 +29,7 @@ import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.CeTaskInterrupter;
 import org.sonar.ce.task.ChangeLogLevel;
+import org.sonar.ce.task.telemetry.MutableStepsTelemetryHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -49,6 +50,7 @@ public class ComputationStepExecutorTest {
   public LogTester logTester = new LogTester();
 
   private final ComputationStepExecutor.Listener listener = mock(ComputationStepExecutor.Listener.class);
+  private final MutableStepsTelemetryHolder stepsTelemetryHolder = new TestComputationStepContext.TestTelemetryMetrics();
   private final CeTaskInterrupter taskInterrupter = mock(CeTaskInterrupter.class);
   private final ComputationStep computationStep1 = mockComputationStep("step1");
   private final ComputationStep computationStep2 = mockComputationStep("step2");
@@ -67,6 +69,17 @@ public class ComputationStepExecutorTest {
     inOrder.verify(computationStep3).execute(any());
     inOrder.verify(computationStep3).getDescription();
     inOrder.verifyNoMoreInteractions();
+  }
+
+  @Test
+  public void execute_call_execute_on_ComputationStep_with_metrics() {
+    ComputationStep step = new StepWithMetrics("Step", "step.foo", "100", "step.bar", "20");
+
+    new ComputationStepExecutor(mockComputationSteps(step), taskInterrupter, stepsTelemetryHolder, listener)
+      .execute();
+
+    assertThat(stepsTelemetryHolder.getTelemetryMetrics()).containsEntry("step.foo", "100");
+    assertThat(stepsTelemetryHolder.getTelemetryMetrics()).containsEntry("step.bar", "20");
   }
 
   @Test
@@ -182,7 +195,7 @@ public class ComputationStepExecutorTest {
 
   @Test
   public void execute_calls_listener_finished_method_with_all_step_runs() {
-    new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2), taskInterrupter, listener)
+    new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2), taskInterrupter, stepsTelemetryHolder, listener)
       .execute();
 
     verify(listener).finished(true);
@@ -197,7 +210,7 @@ public class ComputationStepExecutorTest {
       .execute(any());
 
     try {
-      new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2), taskInterrupter, listener)
+      new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2), taskInterrupter, stepsTelemetryHolder, listener)
         .execute();
       fail("exception toBeThrown should have been raised");
     } catch (RuntimeException e) {
@@ -214,7 +227,7 @@ public class ComputationStepExecutorTest {
       .when(listener)
       .finished(anyBoolean());
 
-    new ComputationStepExecutor(mockComputationSteps(computationStep1), taskInterrupter, listener).execute();
+    new ComputationStepExecutor(mockComputationSteps(computationStep1), taskInterrupter, stepsTelemetryHolder, listener).execute();
   }
 
   @Test
@@ -311,6 +324,28 @@ public class ComputationStepExecutorTest {
     public void execute(Context context) {
       for (int i = 0; i < statistics.length; i += 2) {
         context.getStatistics().add(statistics[i], statistics[i + 1]);
+      }
+    }
+
+    @Override
+    public String getDescription() {
+      return description;
+    }
+  }
+
+  private static class StepWithMetrics implements ComputationStep {
+    private final String description;
+    private final String[] metrics;
+
+    private StepWithMetrics(String description, String... metrics) {
+      this.description = description;
+      this.metrics = metrics;
+    }
+
+    @Override
+    public void execute(Context context) {
+      for (int i = 0; i < metrics.length; i += 2) {
+        context.addTelemetryMetric(metrics[i], metrics[i + 1]);
       }
     }
 

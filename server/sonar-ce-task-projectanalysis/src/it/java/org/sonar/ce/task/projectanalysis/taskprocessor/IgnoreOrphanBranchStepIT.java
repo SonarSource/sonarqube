@@ -33,6 +33,7 @@ import org.sonar.db.project.ProjectDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.ce.task.projectanalysis.taskprocessor.ContextUtils.EMPTY_CONTEXT;
 import static org.sonar.db.component.BranchType.BRANCH;
 
 public class IgnoreOrphanBranchStepIT {
@@ -66,7 +67,7 @@ public class IgnoreOrphanBranchStepIT {
     dbClient.branchDao().insert(dbTester.getSession(), branchDto);
     dbTester.commit();
 
-    underTest.execute(() -> null);
+    underTest.execute(EMPTY_CONTEXT);
 
     Optional<BranchDto> branch = dbClient.branchDao().selectByUuid(dbTester.getSession(), BRANCH_UUID);
     assertThat(branch.get().isNeedIssueSync()).isFalse();
@@ -85,7 +86,7 @@ public class IgnoreOrphanBranchStepIT {
     dbClient.branchDao().insert(dbTester.getSession(), branchDto);
     dbTester.commit();
 
-    underTest.execute(() -> null);
+    underTest.execute(EMPTY_CONTEXT);
 
     Optional<BranchDto> branch = dbClient.branchDao().selectByUuid(dbTester.getSession(), BRANCH_UUID);
     assertThat(branch.get().isNeedIssueSync()).isFalse();
@@ -102,7 +103,7 @@ public class IgnoreOrphanBranchStepIT {
       .build();
     IgnoreOrphanBranchStep underTest = new IgnoreOrphanBranchStep(ceTask, dbClient);
 
-    assertThatThrownBy(() -> underTest.execute(() -> null))
+    assertThatThrownBy(() -> underTest.execute(EMPTY_CONTEXT))
       .isInstanceOf(UnsupportedOperationException.class)
       .hasMessage("entity not found in task");
   }
@@ -125,7 +126,7 @@ public class IgnoreOrphanBranchStepIT {
     dbClient.projectDao().insert(dbTester.getSession(), projectDto, false);
     dbTester.commit();
 
-    underTest.execute(() -> null);
+    underTest.execute(EMPTY_CONTEXT);
 
     Optional<BranchDto> branch = dbClient.branchDao().selectByUuid(dbTester.getSession(), BRANCH_UUID);
     assertThat(branch.get().isNeedIssueSync()).isTrue();
@@ -145,7 +146,7 @@ public class IgnoreOrphanBranchStepIT {
     dbClient.branchDao().insert(dbTester.getSession(), branchDto);
     dbTester.commit();
 
-    underTest.execute(() -> null);
+    underTest.execute(EMPTY_CONTEXT);
 
     Optional<BranchDto> branch = dbClient.branchDao().selectByUuid(dbTester.getSession(), BRANCH_UUID);
     assertThat(branch.get().isNeedIssueSync()).isFalse();

@@ -19,9 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.taskprocessor;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,16 +34,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.ce.task.projectanalysis.taskprocessor.ContextUtils.EMPTY_CONTEXT;
 import static org.sonar.core.config.Frequency.MONTHLY;
 import static org.sonar.core.config.PurgeConstants.AUDIT_HOUSEKEEPING_FREQUENCY;
 
 public class AuditPurgeStepIT {
-  private final static long NOW = 1_400_000_000_000L;
-  private final static long BEFORE = 1_300_000_000_000L;
-  private final static long LATER = 1_500_000_000_000L;
-  private final static ZonedDateTime thresholdDate = Instant.ofEpochMilli(NOW)
-    .atZone(ZoneId.systemDefault());
-  private final static PropertyDto FREQUENCY_PROPERTY = new PropertyDto()
+  private static final long NOW = 1_400_000_000_000L;
+  private static final long BEFORE = 1_300_000_000_000L;
+  private static final long LATER = 1_500_000_000_000L;
+  private static final PropertyDto FREQUENCY_PROPERTY = new PropertyDto()
     .setKey(AUDIT_HOUSEKEEPING_FREQUENCY)
     .setValue(MONTHLY.name());
 
@@ -75,7 +71,7 @@ public class AuditPurgeStepIT {
     prepareRowsWithDeterministicCreatedAt();
     assertThat(dbClient.auditDao().selectOlderThan(db.getSession(), LATER + 1)).hasSize(3);
 
-    underTest.execute(() -> null);
+    underTest.execute(EMPTY_CONTEXT);
 
     assertThat(dbClient.auditDao().selectOlderThan(db.getSession(), LATER + 1)).hasSize(2);
   }

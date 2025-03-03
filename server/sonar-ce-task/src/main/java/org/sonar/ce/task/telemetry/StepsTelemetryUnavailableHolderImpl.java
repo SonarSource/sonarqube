@@ -17,24 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis;
+package org.sonar.ce.task.telemetry;
 
-import org.sonar.ce.task.projectanalysis.container.ContainerFactoryImpl;
-import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
-import org.sonar.ce.task.projectexport.taskprocessor.ProjectExportTaskProcessor;
-import org.sonar.ce.task.step.ComputationStepExecutor;
-import org.sonar.ce.task.telemetry.StepsTelemetryUnavailableHolderImpl;
-import org.sonar.core.platform.Module;
+import java.util.Map;
 
-public class ProjectAnalysisTaskModule extends Module {
+public class StepsTelemetryUnavailableHolderImpl implements MutableStepsTelemetryHolder {
+
   @Override
-  protected void configureModule() {
-    add(
-      // task
-      ContainerFactoryImpl.class,
-      StepsTelemetryUnavailableHolderImpl.class,
-      ComputationStepExecutor.class,
-      ReportTaskProcessor.class,
-      ProjectExportTaskProcessor.class);
+  public Map<String, Object> getTelemetryMetrics() {
+    throw new UnsupportedOperationException("Telemetry is not available");
+  }
+
+  @Override
+  public StepsTelemetryUnavailableHolderImpl add(String key, Object value) {
+    throw new UnsupportedOperationException("Telemetry is not available");
   }
 }

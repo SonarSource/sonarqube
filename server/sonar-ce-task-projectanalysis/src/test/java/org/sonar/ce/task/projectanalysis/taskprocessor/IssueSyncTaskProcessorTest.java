@@ -52,7 +52,7 @@ public class IssueSyncTaskProcessorTest {
       .build();
 
     IssueSyncTaskProcessor.newContainerPopulator(task).populateContainer(container);
-    Mockito.verify(container, Mockito.times(5)).add(any());
+    Mockito.verify(container, Mockito.times(6)).add(any());
   }
 
   @Test

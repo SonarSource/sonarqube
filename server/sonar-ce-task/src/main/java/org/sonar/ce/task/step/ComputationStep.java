@@ -28,7 +28,6 @@ public interface ComputationStep {
   /**
    * Statistics are displayed in the step ending log. They help
    * understanding the runtime context and potential performance hotspots.
-   *
    * <p/>
    * Example:
    * <code>
@@ -39,7 +38,6 @@ public interface ComputationStep {
    * <code>
    * 2018.07.26 10:22:58 DEBUG ce[AWTVrwb-KZf9YbDx-laU][o.s.s.c.t.s.ComputationStepExecutor] Persist issues | inserts=200 | updates=50 | time=30ms
    * </code>
-   *
    * <p/>
    * Statistics are logged in the order of insertion.
    */
@@ -55,6 +53,8 @@ public interface ComputationStep {
 
   interface Context {
     Statistics getStatistics();
+
+    void addTelemetryMetric(String key, Object value);
   }
 
   void execute(Context context);

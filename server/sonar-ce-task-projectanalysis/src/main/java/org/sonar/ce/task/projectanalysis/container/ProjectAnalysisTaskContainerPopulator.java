@@ -154,6 +154,7 @@ import org.sonar.ce.task.setting.SettingsLoader;
 import org.sonar.ce.task.step.ComputationStepExecutor;
 import org.sonar.ce.task.step.ComputationSteps;
 import org.sonar.ce.task.taskprocessor.MutableTaskResultHolderImpl;
+import org.sonar.ce.task.telemetry.StepsTelemetryHolderImpl;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.platform.ContainerPopulator;
 import org.sonar.server.issue.TaintChecker;
@@ -233,6 +234,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       SiblingComponentsWithOpenIssues.class,
       DefaultScaStepImpl.class,
       DefaultPersistScaStepImpl.class,
+      StepsTelemetryHolderImpl.class,
 
       // repositories
       PreviousSourceHashRepositoryImpl.class,

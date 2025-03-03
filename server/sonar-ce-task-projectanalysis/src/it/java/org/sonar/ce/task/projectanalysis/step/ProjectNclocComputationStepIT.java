@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.step;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
+import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -54,7 +55,17 @@ public class ProjectNclocComputationStepIT {
     BranchDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
     db.measures().insertMeasure(branch2, m -> m.addValue(ncloc.getKey(), 10d));
     analysisMetadataHolder.setProject(new Project(project.getUuid(), project.getKey(), project.getName(), project.getDescription(), emptyList()));
-    step.execute(TestComputationStepContext.TestStatistics::new);
+    step.execute(new ComputationStep.Context() {
+      @Override
+      public ComputationStep.Statistics getStatistics() {
+        return new TestComputationStepContext.TestStatistics();
+      }
+
+      @Override
+      public void addTelemetryMetric(String key, Object value) {
+        // do nothing
+      }
+    });
 
     assertThat(dbClient.projectDao().getNclocSum(db.getSession())).isEqualTo(200L);
   }

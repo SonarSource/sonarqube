@@ -17,24 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis;
+package org.sonar.ce.task.telemetry;
 
-import org.sonar.ce.task.projectanalysis.container.ContainerFactoryImpl;
-import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
-import org.sonar.ce.task.projectexport.taskprocessor.ProjectExportTaskProcessor;
-import org.sonar.ce.task.step.ComputationStepExecutor;
-import org.sonar.ce.task.telemetry.StepsTelemetryUnavailableHolderImpl;
-import org.sonar.core.platform.Module;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-public class ProjectAnalysisTaskModule extends Module {
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
+
+public class StepsTelemetryHolderImpl implements MutableStepsTelemetryHolder {
+
+  private final Map<String, Object> telemetryMetrics = new LinkedHashMap<>();
+
   @Override
-  protected void configureModule() {
-    add(
-      // task
-      ContainerFactoryImpl.class,
-      StepsTelemetryUnavailableHolderImpl.class,
-      ComputationStepExecutor.class,
-      ReportTaskProcessor.class,
-      ProjectExportTaskProcessor.class);
+  public Map<String, Object> getTelemetryMetrics() {
+    return telemetryMetrics;
+  }
+
+  @Override
+  public StepsTelemetryHolderImpl add(String key, Object value) {
+    requireNonNull(key, "Metric has null key");
+    requireNonNull(value, () -> String.format("Metric with key [%s] has null value", key));
+    checkArgument(!telemetryMetrics.containsKey(key), "Metric with key [%s] is already present", key);
+    telemetryMetrics.put(key, value);
+    return this;
   }
 }
