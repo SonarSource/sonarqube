@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class LogMaskingUtil {
 
+    private static final int SKIP_FIRST_N_CHARS = 2;
     private static final Pattern MASK_EMAIL_PATTERN = Pattern.compile("([\\w.\\-+_]+)@[\\w.\\-+_]+\\.\\w+",
             Pattern.MULTILINE);
 
@@ -37,7 +38,7 @@ public class LogMaskingUtil {
                 IntStream.rangeClosed(1, matcher.groupCount()).forEach(group -> {
                     if (matcher.group(group) != null) {
                         IntStream.range(matcher.start(group),
-                                matcher.end(group)).forEach(i -> sb.setCharAt(i, '*'));
+                                matcher.end(group)).skip(SKIP_FIRST_N_CHARS).forEach(i -> sb.setCharAt(i, '*'));
                     }
                 });
             }
