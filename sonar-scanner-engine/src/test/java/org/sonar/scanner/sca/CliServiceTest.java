@@ -25,6 +25,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,9 +37,12 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.ProcessWrapperFactory;
+import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.repository.TelemetryCache;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.slf4j.event.Level.DEBUG;
 import static org.slf4j.event.Level.INFO;
 
@@ -82,13 +87,19 @@ class CliServiceTest {
       "--debug");
 
     String argumentOutput = "Arguments Passed In: " + String.join(" ", args);
+    DefaultConfiguration configuration = mock(DefaultConfiguration.class);
+    when(configuration.getProperties()).thenReturn(Map.of("sonar.sca.recursiveManifestSearch", "true"));
+    when(configuration.get("sonar.sca.recursiveManifestSearch")).thenReturn(Optional.of("true"));
 
-    File producedZip = underTest.generateManifestsZip(root, scriptDir);
+    File producedZip = underTest.generateManifestsZip(root, scriptDir, configuration);
     assertThat(producedZip).exists();
     // The simulated CLI output will only be available at the debug level
     assertThat(logTester.logs(DEBUG))
       .contains(argumentOutput)
       .contains("TIDELIFT_SKIP_UPDATE_CHECK=1");
+    assertThat(logTester.logs(DEBUG))
+      .contains(argumentOutput)
+      .contains("TIDELIFT_RECURSIVE_MANIFEST_SEARCH=true");
     assertThat(logTester.logs(INFO)).contains("Generated manifests zip file: " + producedZip.getName());
 
     assertThat(telemetryCache.getAll()).containsKey("scanner.sca.execution.cli.duration").isNotNull();

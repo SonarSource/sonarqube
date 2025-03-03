@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.ProcessWrapperFactory;
+import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.repository.TelemetryCache;
 
 /**
@@ -51,7 +52,7 @@ public class CliService {
     this.system2 = system2;
   }
 
-  public File generateManifestsZip(DefaultInputModule module, File cliExecutable) throws IOException, IllegalStateException {
+  public File generateManifestsZip(DefaultInputModule module, File cliExecutable, DefaultConfiguration configuration) throws IOException, IllegalStateException {
     long startTime = system2.now();
     boolean success = false;
     try {
@@ -66,13 +67,18 @@ public class CliService {
       args.add(zipPath.toAbsolutePath().toString());
       args.add("--directory");
       args.add(module.getBaseDir().toString());
-      args.add("--debug");
+      if (LOG.isDebugEnabled()) {
+        args.add("--debug");
+      }
 
       LOG.debug("Calling ProcessBuilder with args: {}", args);
 
       Map<String, String> envProperties = new HashMap<>();
       // sending this will tell the CLI to skip checking for the latest available version on startup
       envProperties.put("TIDELIFT_SKIP_UPDATE_CHECK", "1");
+      envProperties.putAll(ScaProperties.buildFromScannerProperties(configuration));
+
+      LOG.debug("Environment properties: {}", envProperties);
 
       processWrapperFactory.create(module.getWorkDir(), LOG::debug, envProperties, args.toArray(new String[0])).execute();
       LOG.info("Generated manifests zip file: {}", zipName);

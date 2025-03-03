@@ -24,6 +24,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.repository.featureflags.FeatureFlagsRepository;
 
@@ -40,12 +41,15 @@ public class ScaExecutor {
   private final CliService cliService;
   private final ReportPublisher reportPublisher;
   private final FeatureFlagsRepository featureFlagsRepository;
+  private final DefaultConfiguration configuration;
 
-  public ScaExecutor(CliCacheService cliCacheService, CliService cliService, ReportPublisher reportPublisher, FeatureFlagsRepository featureFlagsRepository) {
+  public ScaExecutor(CliCacheService cliCacheService, CliService cliService, ReportPublisher reportPublisher, FeatureFlagsRepository featureFlagsRepository,
+    DefaultConfiguration configuration) {
     this.cliCacheService = cliCacheService;
     this.cliService = cliService;
     this.reportPublisher = reportPublisher;
     this.featureFlagsRepository = featureFlagsRepository;
+    this.configuration = configuration;
   }
 
   public void execute(DefaultInputModule root) {
@@ -60,7 +64,7 @@ public class ScaExecutor {
     LOG.info("Collecting manifests for the dependency analysis...");
     if (cliFile.exists()) {
       try {
-        File generatedZip = cliService.generateManifestsZip(root, cliFile);
+        File generatedZip = cliService.generateManifestsZip(root, cliFile, configuration);
         LOG.debug("Zip ready for report: {}", generatedZip);
         reportPublisher.getWriter().writeScaFile(generatedZip);
         LOG.debug("Manifest zip written to report");
