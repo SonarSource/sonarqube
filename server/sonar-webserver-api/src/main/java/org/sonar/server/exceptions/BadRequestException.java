@@ -21,6 +21,8 @@ package org.sonar.server.exceptions;
 
 import com.google.common.base.MoreObjects;
 import java.util.List;
+import java.util.Optional;
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -33,10 +35,16 @@ import static java.util.Arrays.asList;
 public class BadRequestException extends ServerException {
 
   private final transient List<String> errors;
+  private final transient String relatedField;
 
-  BadRequestException(List<String> errors) {
+  BadRequestException(List<String> errors, @Nullable String relatedField) {
     super(HTTP_BAD_REQUEST, errors.get(0));
     this.errors = errors;
+    this.relatedField = relatedField;
+  }
+
+  BadRequestException(List<String> errors) {
+    this(errors, null);
   }
 
   public static void checkRequest(boolean expression, String message, Object... messageArguments) {
@@ -65,14 +73,26 @@ public class BadRequestException extends ServerException {
     return new BadRequestException(errorMessages);
   }
 
+  public static BadRequestException createWithRelatedField(String message, String relatedField) {
+    checkArgument(!message.isEmpty(), "Message cannot be empty");
+    checkArgument(!relatedField.isEmpty(), "Related field cannot be empty");
+    return new BadRequestException(List.of(message), relatedField);
+  }
+
   public List<String> errors() {
     return errors;
+  }
+
+  public Optional<String> getRelatedField() {
+    return Optional.ofNullable(relatedField);
   }
 
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
       .add("errors", errors)
+      .add("relatedField", relatedField)
+      .omitNullValues()
       .toString();
   }
 

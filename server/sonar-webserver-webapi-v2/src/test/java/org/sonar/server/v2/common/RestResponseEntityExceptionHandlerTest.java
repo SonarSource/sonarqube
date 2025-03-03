@@ -102,7 +102,7 @@ class RestResponseEntityExceptionHandlerTest {
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     assertThat(response.getBody()).isNotNull();
-    assertThat(response.getBody().message()).isEqualTo("Value <rejectedValue> for field <field> was rejected. Error: <defaultMessage>." /* ErrorMessages.VALIDATION_ERROR.getMessage() */);
+    assertThat(response.getBody().message()).isEqualTo("Value <rejectedValue> for field <field> was rejected. Error: <defaultMessage>.");
 
     // Verify logging
     assertThat(logs.logs(Level.INFO)).anyMatch(log -> log.startsWith(ErrorMessages.VALIDATION_ERROR.getMessage()));
@@ -333,6 +333,7 @@ class RestResponseEntityExceptionHandlerTest {
     assertThat(response.getStatusCode()).isEqualTo(expectedStatus);
     assertThat(response.getBody()).isNotNull();
     assertThat(response.getBody().message()).isEqualTo(ex.getMessage());
+    assertThat(response.getBody().relatedField()).isNull();
   }
 
   static Stream<Arguments> serverExceptionsProvider() {
@@ -356,6 +357,16 @@ class RestResponseEntityExceptionHandlerTest {
 
     // Verify logging
     assertThat(logs.logs(Level.ERROR)).contains(ErrorMessages.UNEXPECTED_ERROR.getMessage());
+  }
+
+  @Test
+  void handleBadRequestException_shouldReturnRelatedField_whenItIsProvided() {
+    ResponseEntity<RestError> response = underTest.handleBadRequestException(BadRequestException.createWithRelatedField("Bad request message", "related field"));
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().message()).isEqualTo("Bad request message");
+    assertThat(response.getBody().relatedField()).isEqualTo("related field");
   }
 
   // endregion server

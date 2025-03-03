@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.server.authentication.event.AuthenticationException;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.v2.api.model.RestError;
 import org.springframework.core.convert.ConversionFailedException;
@@ -175,6 +176,13 @@ public class RestResponseEntityExceptionHandler {
     final HttpStatus httpStatus = Optional.ofNullable(HttpStatus.resolve(ex.httpCode())).orElse(HttpStatus.INTERNAL_SERVER_ERROR);
     final String errorMessage = Optional.ofNullable(ex.getMessage()).orElse(ErrorMessages.INTERNAL_SERVER_ERROR.getMessage());
     return buildResponse(httpStatus, errorMessage);
+  }
+
+  @ExceptionHandler(BadRequestException.class)
+  protected ResponseEntity<RestError> handleBadRequestException(BadRequestException ex) {
+    return ex.getRelatedField()
+      .map(field -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(ex.getMessage(), field)))
+      .orElse(handleServerException(ex));
   }
 
   @ExceptionHandler({Exception.class})
