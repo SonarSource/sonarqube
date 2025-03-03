@@ -153,7 +153,7 @@
     INNER JOIN org_qprofiles oqp ON oqp.rules_profile_uuid = rp.uuid
     INNER JOIN rules r ON r.uuid = a.rule_uuid AND r.status != 'REMOVED'
     WHERE
-      (a.impacts LIKE CONCAT('%', #{softwareQuality, jdbcType=VARCHAR}, '%') OR r.rule_type = 4)
+      (a.impacts LIKE CONCAT(CONCAT('%', #{softwareQuality, jdbcType=VARCHAR}), '%') OR r.rule_type = 4)
       AND oqp.uuid IN <foreach collection="profileUuids" item="uuid" separator="," open="(" close=")">#{uuid, jdbcType=VARCHAR}</foreach>
   </select>
 
