@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.Component.Type;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
@@ -53,9 +57,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATIONS_DATA_KEY;
 import static org.sonar.api.measures.CoreMetrics.EXECUTABLE_LINES_DATA_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA_KEY;
+import static org.sonar.api.measures.CoreMetrics.QUALITY_GATE_DETAILS_KEY;
+import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 
 public class PersistMeasuresStep implements ComputationStep {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PersistMeasuresStep.class);
 
   // 50 mb
   private static final int MAX_TRANSACTION_SIZE = 50_000_000;
@@ -69,27 +77,38 @@ public class PersistMeasuresStep implements ComputationStep {
     EXECUTABLE_LINES_DATA_KEY,
     NCLOC_DATA_KEY);
 
+  private static final Set<String> CORE_METRICS_WITH_LARGE_VALUES = Set.of(
+    DUPLICATIONS_DATA_KEY,
+    QUALITY_PROFILES_KEY,
+    QUALITY_GATE_DETAILS_KEY
+  );
+
   private final DbClient dbClient;
   private final MetricRepository metricRepository;
   private final TreeRootHolder treeRootHolder;
   private final MeasureRepository measureRepository;
   private final ComputeDuplicationDataMeasure computeDuplicationDataMeasure;
   private final int maxTransactionSize;
+  private final CeTaskMessages ceTaskMessages;
 
   @Autowired
   public PersistMeasuresStep(DbClient dbClient, MetricRepository metricRepository, TreeRootHolder treeRootHolder,
-    MeasureRepository measureRepository, @Nullable ComputeDuplicationDataMeasure computeDuplicationDataMeasure) {
-    this(dbClient, metricRepository, treeRootHolder, measureRepository, computeDuplicationDataMeasure, MAX_TRANSACTION_SIZE);
+    MeasureRepository measureRepository, @Nullable ComputeDuplicationDataMeasure computeDuplicationDataMeasure,
+    @Nullable CeTaskMessages ceTaskMessages) {
+    this(dbClient, metricRepository, treeRootHolder, measureRepository, computeDuplicationDataMeasure, MAX_TRANSACTION_SIZE,
+      ceTaskMessages);
   }
 
   PersistMeasuresStep(DbClient dbClient, MetricRepository metricRepository, TreeRootHolder treeRootHolder,
-    MeasureRepository measureRepository, @Nullable ComputeDuplicationDataMeasure computeDuplicationDataMeasure, int maxTransactionSize) {
+    MeasureRepository measureRepository, @Nullable ComputeDuplicationDataMeasure computeDuplicationDataMeasure, int maxTransactionSize,
+    @Nullable CeTaskMessages ceTaskMessages) {
     this.dbClient = dbClient;
     this.metricRepository = metricRepository;
     this.treeRootHolder = treeRootHolder;
     this.measureRepository = measureRepository;
     this.computeDuplicationDataMeasure = computeDuplicationDataMeasure;
     this.maxTransactionSize = maxTransactionSize;
+    this.ceTaskMessages = ceTaskMessages;
   }
 
   @Override
@@ -108,12 +127,13 @@ public class PersistMeasuresStep implements ComputationStep {
 
     List<MeasureDto> inserts = new LinkedList<>();
     List<MeasureDto> updates = new LinkedList<>();
+    Set<String> largeValueMetrics = new HashSet<>();
     int insertsOrUpdates = 0;
     int unchanged = 0;
     int size = 0;
 
     for (Component component : visitor.components) {
-      MeasureDto measure = createMeasure(component);
+      MeasureDto measure = createMeasure(component, largeValueMetrics);
 
       if (dbMeasureHashes.contains(new MeasureHash(measure.getComponentUuid(), measure.computeJsonValueHash()))) {
         unchanged += measure.getMetricValues().size();
@@ -136,6 +156,7 @@ public class PersistMeasuresStep implements ComputationStep {
     }
     persist(inserts, updates);
 
+    addLargeValueMetricsWarning(largeValueMetrics);
     context.getStatistics()
       .add("insertsOrUpdates", insertsOrUpdates)
       .add("unchanged", unchanged);
@@ -147,7 +168,7 @@ public class PersistMeasuresStep implements ComputationStep {
     }
   }
 
-  private MeasureDto createMeasure(Component component) {
+  private MeasureDto createMeasure(Component component, Set<String> largeValueMetrics) {
     MeasureDto measureDto = new MeasureDto();
     measureDto.setComponentUuid(component.getUuid());
     measureDto.setBranchUuid(treeRootHolder.getRoot().getUuid());
@@ -166,7 +187,10 @@ public class PersistMeasuresStep implements ComputationStep {
         .filter(notBestValueOptimized)
         .map(MeasureToMeasureDto::getMeasureValue)
         .filter(Objects::nonNull)
-        .forEach(value -> measureDto.addValue(metric.getKey(), value));
+        .forEach(value ->  {
+          checkValueLength(value, metricKey, component, largeValueMetrics);
+          measureDto.addValue(metric.getKey(), value);
+        });
     }
 
     if (component.getType() == Type.FILE) {
@@ -178,6 +202,32 @@ public class PersistMeasuresStep implements ComputationStep {
     }
 
     return measureDto;
+  }
+
+  private static void checkValueLength(Object value, String metricKey, Component component, Set<String> largeValueMetrics) {
+    if (value instanceof String strValue) {
+      int valueLength = strValue.length();
+      if (valueLength > 100_000) {
+        LOGGER.debug("Measure with large value persisted: metricKey={}, valueLength={}, componentKey={}, componentUuid={}",
+          metricKey, valueLength, component.getKey(), component.getUuid());
+        if (!CORE_METRICS_WITH_LARGE_VALUES.contains(metricKey)) {
+          largeValueMetrics.add(metricKey);
+        }
+      }
+    }
+  }
+
+  private void addLargeValueMetricsWarning(Set<String> largeValueMetrics) {
+    if (!largeValueMetrics.isEmpty()) {
+      String warningMessage = String.format("A plugin is storing excessively large data in the following measure(s): %s. This " +
+          "is likely to cause significant SonarQube performance degradation and UI slowness. It is recommended to contact your " +
+          "administrator to disable the plugin or corresponding feature and reach out to the plugin maintainer for further assistance.",
+        largeValueMetrics.stream().map(metric -> String.format("'%s'", metric)).collect(Collectors.joining(", ")));
+      LOGGER.warn(warningMessage);
+      if (ceTaskMessages != null) {
+        ceTaskMessages.add(new CeTaskMessages.Message(warningMessage, System.currentTimeMillis()));
+      }
+    }
   }
 
   private static boolean shouldNotPersist(String metricKey) {

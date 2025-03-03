@@ -21,12 +21,17 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
+import org.sonar.ce.task.log.CeTaskMessages;
+import org.sonar.ce.task.log.CeTaskMessages.Message;
 import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -53,10 +58,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.sonar.api.measures.CoreMetrics.DUPLICATIONS_DATA;
+import static org.sonar.api.measures.CoreMetrics.DUPLICATIONS_DATA_KEY;
 import static org.sonar.api.measures.CoreMetrics.EXECUTABLE_LINES_DATA;
 import static org.sonar.api.measures.CoreMetrics.EXECUTABLE_LINES_DATA_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA_KEY;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
@@ -90,6 +99,7 @@ class PersistMeasuresStepIT {
   @RegisterExtension
   public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
   private final ComputeDuplicationDataMeasure computeDuplicationDataMeasure = mock(ComputeDuplicationDataMeasure.class);
+  private final CeTaskMessages ceTaskMessages = mock(CeTaskMessages.class);
   private final TestComputationStepContext context = new TestComputationStepContext();
 
   private final DbClient dbClient = db.getDbClient();
@@ -176,7 +186,7 @@ class PersistMeasuresStepIT {
     db.getSession().commit();
 
     PersistMeasuresStep step = new PersistMeasuresStep(dbClient, metricRepository, treeRootHolder, measureRepository,
-      computeDuplicationDataMeasure, 100);
+      computeDuplicationDataMeasure, 100, ceTaskMessages);
     step.execute(context);
 
     // all measures are persisted, for project and all files
@@ -281,6 +291,38 @@ class PersistMeasuresStepIT {
     verifyInsertsOrUpdates(0);
   }
 
+  @Test
+  void add_warning_when_persisting_large_measures() {
+    prepareProject();
+    metricRepository.add(NCLOC_LANGUAGE_DISTRIBUTION);
+    metricRepository.add(DUPLICATIONS_DATA);
+
+    measureRepository.addRawMeasure(REF_1, STRING_METRIC.getKey(), newMeasureBuilder().create("project-value"));
+    String largeValue = StringUtils.repeat("a", 100_001);
+    measureRepository.addRawMeasure(REF_1, NCLOC_LANGUAGE_DISTRIBUTION_KEY, newMeasureBuilder().create(largeValue));
+    measureRepository.addRawMeasure(REF_1, DUPLICATIONS_DATA_KEY, newMeasureBuilder().create(largeValue));
+    measureRepository.addRawMeasure(REF_4, STRING_METRIC.getKey(), newMeasureBuilder().create(largeValue));
+
+    step().execute(context);
+
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(3);
+    assertThat(selectMeasure("project-uuid"))
+      .hasValueSatisfying(measure -> assertThat(measure.getMetricValues()).containsExactlyInAnyOrderEntriesOf(Map.of(
+        STRING_METRIC.getKey(), "project-value",
+        NCLOC_LANGUAGE_DISTRIBUTION_KEY, largeValue,
+        DUPLICATIONS_DATA_KEY, largeValue)));
+    assertThat(selectMeasure("file-uuid"))
+      .hasValueSatisfying(measure -> assertThat(measure.getMetricValues()).containsEntry(STRING_METRIC.getKey(), largeValue));
+    verifyInsertsOrUpdates(4);
+
+    ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
+    verify(ceTaskMessages).add(messageCaptor.capture());
+    assertThat(messageCaptor.getValue().getText()).isEqualTo("A plugin is storing excessively large data in the following measure(s): " +
+      "'ncloc_language_distribution', 'string-metric'. This is likely to cause significant SonarQube performance degradation and UI " +
+      "slowness. It is recommended to contact your administrator to disable the plugin or corresponding feature and reach out to the " +
+      "plugin maintainer for further assistance.");
+  }
+
   private void insertMeasure(String componentUuid, String projectUuid, Metric<?> metric, Object obj) {
     MeasureDto measure = new MeasureDto()
       .setComponentUuid(componentUuid)
@@ -358,7 +400,8 @@ class PersistMeasuresStepIT {
   }
 
   private PersistMeasuresStep step() {
-    return new PersistMeasuresStep(dbClient, metricRepository, treeRootHolder, measureRepository, computeDuplicationDataMeasure);
+    return new PersistMeasuresStep(dbClient, metricRepository, treeRootHolder, measureRepository, computeDuplicationDataMeasure,
+      ceTaskMessages);
   }
 
   private void verifyInsertsOrUpdates(int expectedInsertsOrUpdates) {
