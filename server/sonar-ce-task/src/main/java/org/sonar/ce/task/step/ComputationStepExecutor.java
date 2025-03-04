@@ -19,10 +19,6 @@
  */
 package org.sonar.ce.task.step;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -32,6 +28,10 @@ import org.sonar.ce.task.telemetry.MutableStepsTelemetryHolder;
 import org.sonar.ce.task.telemetry.StepsTelemetryUnavailableHolderImpl;
 import org.sonar.core.util.logs.Profiler;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 
 public final class ComputationStepExecutor {
   private static final Logger LOGGER = LoggerFactory.getLogger(ComputationStepExecutor.class);
@@ -142,8 +142,14 @@ public final class ComputationStepExecutor {
     }
 
     @Override
-    public void addTelemetryMetric(String key, Object value) {
+    public void addTelemetryMetricOnly(String key, Object value) {
       stepsTelemetryHolder.add(key, value);
+    }
+
+    @Override
+    public void addTelemetryWithStatistic(String key, Object value) {
+      stepsTelemetryHolder.add(key, value);
+      statistics.add(key, value);
     }
   }
 }

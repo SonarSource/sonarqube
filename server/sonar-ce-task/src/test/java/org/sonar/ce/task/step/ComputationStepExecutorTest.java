@@ -72,14 +72,29 @@ public class ComputationStepExecutorTest {
   }
 
   @Test
-  public void execute_call_execute_on_ComputationStep_with_metrics() {
-    ComputationStep step = new StepWithMetrics("Step", "step.foo", "100", "step.bar", "20");
+  public void execute_call_execute_on_ComputationStepWithTelemetryMetricOnly() {
+    ComputationStep step = new StepWithTelemetryMetricOnly("Step", "step.foo", "100", "step.bar", "20");
 
     new ComputationStepExecutor(mockComputationSteps(step), taskInterrupter, stepsTelemetryHolder, listener)
       .execute();
 
     assertThat(stepsTelemetryHolder.getTelemetryMetrics()).containsEntry("step.foo", "100");
     assertThat(stepsTelemetryHolder.getTelemetryMetrics()).containsEntry("step.bar", "20");
+  }
+
+  @Test
+  public void execute_call_execute_on_ComputationStepWithTelemetryWithStatistic() {
+    ComputationStep step = new StepWithTelemetrywithStatistic("Step", "step.foo", "100", "step.bar", "20");
+
+    new ComputationStepExecutor(mockComputationSteps(step), taskInterrupter, stepsTelemetryHolder, listener)
+      .execute();
+
+    assertThat(stepsTelemetryHolder.getTelemetryMetrics()).containsEntry("step.foo", "100");
+    assertThat(stepsTelemetryHolder.getTelemetryMetrics()).containsEntry("step.bar", "20");
+    List<String> infoLogs = logTester.logs(Level.INFO);
+    System.out.println("infoLogs = " + infoLogs);
+    assertThat(infoLogs).hasSize(1);
+    assertThat(infoLogs.get(0)).contains("Step | step.foo=100 | step.bar=20 | status=SUCCESS | time=");
   }
 
   @Test
@@ -333,11 +348,11 @@ public class ComputationStepExecutorTest {
     }
   }
 
-  private static class StepWithMetrics implements ComputationStep {
+  private static class StepWithTelemetryMetricOnly implements ComputationStep {
     private final String description;
     private final String[] metrics;
 
-    private StepWithMetrics(String description, String... metrics) {
+    private StepWithTelemetryMetricOnly(String description, String... metrics) {
       this.description = description;
       this.metrics = metrics;
     }
@@ -345,7 +360,29 @@ public class ComputationStepExecutorTest {
     @Override
     public void execute(Context context) {
       for (int i = 0; i < metrics.length; i += 2) {
-        context.addTelemetryMetric(metrics[i], metrics[i + 1]);
+        context.addTelemetryMetricOnly(metrics[i], metrics[i + 1]);
+      }
+    }
+
+    @Override
+    public String getDescription() {
+      return description;
+    }
+  }
+
+  private static class StepWithTelemetrywithStatistic implements ComputationStep {
+    private final String description;
+    private final String[] metrics;
+
+    private StepWithTelemetrywithStatistic(String description, String... metrics) {
+      this.description = description;
+      this.metrics = metrics;
+    }
+
+    @Override
+    public void execute(Context context) {
+      for (int i = 0; i < metrics.length; i += 2) {
+        context.addTelemetryWithStatistic(metrics[i], metrics[i + 1]);
       }
     }
 

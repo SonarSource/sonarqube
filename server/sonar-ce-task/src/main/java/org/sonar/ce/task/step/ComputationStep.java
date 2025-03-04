@@ -54,7 +54,9 @@ public interface ComputationStep {
   interface Context {
     Statistics getStatistics();
 
-    void addTelemetryMetric(String key, Object value);
+    void addTelemetryMetricOnly(String key, Object value);
+
+    void addTelemetryWithStatistic(String key, Object value);
   }
 
   void execute(Context context);

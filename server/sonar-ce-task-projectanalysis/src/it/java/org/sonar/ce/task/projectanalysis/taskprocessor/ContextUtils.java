@@ -34,7 +34,12 @@ class ContextUtils {
     }
 
     @Override
-    public void addTelemetryMetric(String key, Object value) {
+    public void addTelemetryMetricOnly(String key, Object value) {
+      // do nothing
+    }
+
+    @Override
+    public void addTelemetryWithStatistic(String key, Object value) {
       // do nothing
     }
   };

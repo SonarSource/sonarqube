@@ -43,8 +43,14 @@ public class TestComputationStepContext implements ComputationStep.Context {
   }
 
   @Override
-  public void addTelemetryMetric(String key, Object value) {
+  public void addTelemetryMetricOnly(String key, Object value) {
     metrics.add(key, value);
+  }
+
+  @Override
+  public void addTelemetryWithStatistic(String key, Object value) {
+    metrics.add(key, value);
+    statistics.add(key, value);
   }
 
   public Map<String, Object> getTelemetryMetrics() {
