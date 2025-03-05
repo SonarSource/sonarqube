@@ -119,3 +119,8 @@ export function setOrganizationMemberSync(data: { enabled: boolean; organization
 export function syncMembers(organization: string) {
   return post('/api/organizations/sync_members', { organization }).catch(throwGlobalError);
 }
+
+
+export function setMemberType(orgKee: String, login: String, type: String ): Promise<void | Response> {
+  return post('/api/organizations/set_member_type', {orgKee, login, type}).catch(throwGlobalError);
+}

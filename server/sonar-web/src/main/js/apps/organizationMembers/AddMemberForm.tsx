@@ -60,6 +60,7 @@ function AddMemberForm(props: AddMemberFormProps) {
     if (selectedMember) {
       props.addMember(selectedMember);
       closeForm();
+      window.location.reload();
     }
   };
 

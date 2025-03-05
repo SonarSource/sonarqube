@@ -22,6 +22,7 @@ package org.sonar.db.organization;
 public class OrganizationMemberDto {
   private String organizationUuid;
   private String userUuid;
+  private String type;
 
   public String getOrganizationUuid() {
     return organizationUuid;
@@ -38,6 +39,15 @@ public class OrganizationMemberDto {
 
   public OrganizationMemberDto setUserUuid(String userUuid) {
     this.userUuid = userUuid;
+    return this;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public OrganizationMemberDto setType(String type) {
+    this.type = type;
     return this;
   }
 }

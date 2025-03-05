@@ -31,6 +31,12 @@ import { Group, Organization, OrganizationMember } from '../../types/types';
 import ManageMemberGroupsForm from './ManageMemberGroupsForm';
 import RemoveMemberForm from './RemoveMemberForm';
 import {UserGroup} from "../../api/users";
+import { setMemberType } from '../../api/organizations';
+
+const USER_TYPES = [
+  { value: "STANDARD", label: "Standard User" },
+  { value: "PLATFORM", label: "Platform Integration User" }
+];
 
 interface Props {
   member: OrganizationMember;
@@ -47,13 +53,14 @@ interface Props {
 interface State {
   removeMemberForm: boolean;
   manageGroupsForm: boolean;
+  type: string;
 }
 
 const AVATAR_SIZE = 36;
 
 export default class MembersListItem extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { removeMemberForm: false, manageGroupsForm: false };
+  state: State = { removeMemberForm: false, manageGroupsForm: false, type: this.props.member.type };
 
   componentDidMount() {
     this.mounted = true;
@@ -83,9 +90,15 @@ export default class MembersListItem extends React.PureComponent<Props, State> {
     }
   };
 
+  handleRadioChange = async (login: string, type: string) => {
+    await setMemberType(this.props.organization.kee, login, type); // API Call
+    this.setState({ type });
+  };
+
   render() {
     const { member, organization, removeMember } = this.props;
     const { actions = {} } = organization;
+    const { type } = this.state;
     return (
       <tr>
         <td className="thin nowrap">
@@ -95,6 +108,19 @@ export default class MembersListItem extends React.PureComponent<Props, State> {
           <strong>{member.name}</strong>
           <span className="note sw-ml-2">{member.login}</span>
         </td>
+        {USER_TYPES.map(({ value, label }) => (
+          <td key={value} className="nowrap text-middle">
+            <input
+              type="radio"
+              name={member.login}
+              value={value}
+              className={`member-type-${member.type}`}
+              checked={type === value}
+              onChange={actions.admin ? () => this.handleRadioChange(member.login, value) : undefined}
+            />
+            <span className='note sw-ml-2'>{label}</span>
+          </td>
+        ))}
         {actions.admin && (
           <td className="text-right text-middle">
             {translateWithParameters(

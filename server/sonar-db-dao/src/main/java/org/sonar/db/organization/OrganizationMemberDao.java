@@ -54,12 +54,20 @@ public class OrganizationMemberDao implements Dao {
     mapper(dbSession).deleteByOrganization(organizationMemberUuid);
   }
 
+  public void updateOrgMemberType(DbSession dbSession,String organizationKee, String login, String type ){
+    mapper(dbSession).updateOrgMemberType(organizationKee,login,type);
+  }
+
   public void deleteByUserUuid(DbSession dbSession, String userUuid) {
     mapper(dbSession).deleteByUserUuid(userUuid);
   }
 
   public Set<String> selectOrganizationUuidsByUser(DbSession dbSession, String userUuid) {
     return mapper(dbSession).selectOrganizationUuidsByUser(userUuid);
+  }
+
+  public List<OrganizationMemberDto> selectAllOrganizationMemberDtos(DbSession dbSession, String organizationUuid){
+    return mapper(dbSession).selectAllOrganizationMemberDtos(organizationUuid);
   }
 
   /**
