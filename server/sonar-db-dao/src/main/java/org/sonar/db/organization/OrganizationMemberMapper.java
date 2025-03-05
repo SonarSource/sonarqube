@@ -29,6 +29,8 @@ public interface OrganizationMemberMapper {
 
   Set<String> selectOrganizationUuidsByUser(@Param("userUuid") String userUuid);
 
+  List<OrganizationMemberDto> selectAllOrganizationMemberDtos(@Param("organizationUuid") String organizationUuid);
+
   List<String> selectUserUuids(String organizationUuid);
 
   List<Map<String, String>> selectForIndexing(@Param("uuids") List<String> uuids);
@@ -42,5 +44,7 @@ public interface OrganizationMemberMapper {
   void deleteByOrganization(@Param("organizationUuid") String organizationUuid);
 
   void deleteByUserUuid(@Param("userUuid") String userUuid);
+
+  void updateOrgMemberType(@Param("organizationKee") String organizationKee, @Param("login") String login, @Param("type") String type) ;
 
 }

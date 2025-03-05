@@ -51,6 +51,7 @@ message SearchMembersWsResponse {
 // WS api/organizations/add_member
 message AddMemberWsResponse {
   optional User user = 1;
+  optional string type = 2;
 }
 
 // WS api/organizations/prevent_user_deletion
@@ -92,6 +93,7 @@ message User {
   optional string avatar = 3;
   optional int32 groupCount = 4;
   optional string uuid = 5;
+  optional string type = 6;
 }
 
 

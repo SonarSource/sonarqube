@@ -29,6 +29,12 @@
     where om.user_uuid = #{userUuid, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectAllOrganizationMemberDtos" resultType="OrganizationMember">
+    SELECT organization_uuid as organizationUuid , user_uuid as userUuid, type as type
+    FROM organization_members
+    where organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
+  </select>
+
   <select id="selectForIndexing" resultType="hashmap">
     select om.user_uuid as "uuid", om.organization_uuid as "organizationUuid"
     from organization_members om
@@ -47,12 +53,14 @@
     insert into organization_members
     (
     organization_uuid,
-    user_uuid
+    user_uuid,
+    type
     )
     values
     (
     #{organizationUuid, jdbcType=VARCHAR},
-    #{userUuid, jdbcType=VARCHAR}
+    #{userUuid, jdbcType=VARCHAR},
+    #{type, jdbcType=VARCHAR}
     )
   </insert>
 
@@ -72,5 +80,17 @@
   <delete id="deleteByUserUuid" parameterType="String">
     DELETE FROM organization_members WHERE user_uuid=#{userUuid,jdbcType=VARCHAR}
   </delete>
+
+  <update id="updateOrgMemberType">
+    UPDATE organization_members
+    SET type = #{type, jdbcType=VARCHAR}
+    WHERE user_uuid = (
+    SELECT uuid FROM users WHERE login = #{login, jdbcType=VARCHAR}
+    )
+    AND organization_uuid = (
+    SELECT uuid FROM organizations
+    WHERE kee = #{organizationKee, jdbcType=VARCHAR}
+    )
+  </update>
 
 </mapper>
