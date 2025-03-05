@@ -117,7 +117,7 @@ getpid() {
                 #  common is during system startup after an unclean shutdown.
                 # The ps statement below looks for the specific wrapper command running as
                 #  the pid.  If it is not found then the pid file is considered to be stale.
-                pidtest=`$PSEXE -p $pid -o args | grep "sonar-application-@sqversion@.jar" | tail -1`
+                pidtest=`$PSEXE -p $pid -o args -ww | grep "sonar-application-@sqversion@.jar" | tail -1`
                 if [ "X$pidtest" = "X" ]
                 then
                     # This is a stale pid file.
