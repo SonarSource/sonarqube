@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
@@ -56,6 +57,9 @@ public class CliService {
     long startTime = system2.now();
     boolean success = false;
     try {
+      Consumer<String> stdErrConsumer = LOG::debug;
+      Consumer<String> stdoutConsumer = LOG::debug;
+
       String zipName = "dependency-files.zip";
       Path zipPath = module.getWorkDir().resolve(zipName);
       List<String> args = new ArrayList<>();
@@ -67,8 +71,16 @@ public class CliService {
       args.add(zipPath.toAbsolutePath().toString());
       args.add("--directory");
       args.add(module.getBaseDir().toString());
-      if (LOG.isDebugEnabled()) {
+
+      boolean scaDebug = configuration.getBoolean("sonar.sca.debug").orElse(false);
+      if (LOG.isDebugEnabled() || scaDebug) {
+        LOG.info("Setting CLI to debug mode");
         args.add("--debug");
+        if (scaDebug) {
+          // output --debug logs from stderr to the info level logger
+          stdErrConsumer = LOG::info;
+          stdoutConsumer = LOG::info;
+        }
       }
 
       LOG.debug("Calling ProcessBuilder with args: {}", args);
@@ -80,7 +92,7 @@ public class CliService {
 
       LOG.debug("Environment properties: {}", envProperties);
 
-      processWrapperFactory.create(module.getWorkDir(), LOG::debug, envProperties, args.toArray(new String[0])).execute();
+      processWrapperFactory.create(module.getWorkDir(), stdoutConsumer, stdErrConsumer, envProperties, args.toArray(new String[0])).execute();
       LOG.info("Generated manifests zip file: {}", zipName);
       success = true;
       return zipPath.toFile();

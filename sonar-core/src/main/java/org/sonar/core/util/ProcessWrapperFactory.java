@@ -47,24 +47,31 @@ public class ProcessWrapperFactory {
   }
 
   public ProcessWrapper create(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, String... command) {
-    return new ProcessWrapper(baseDir, stdOutLineConsumer, Map.of(), command);
+    return new ProcessWrapper(baseDir, stdOutLineConsumer, LOG::debug, Map.of(), command);
   }
 
   public ProcessWrapper create(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, Map<String, String> envVariablesOverrides, String... command) {
-    return new ProcessWrapper(baseDir, stdOutLineConsumer, envVariablesOverrides, command);
+    return new ProcessWrapper(baseDir, stdOutLineConsumer, LOG::debug, envVariablesOverrides, command);
+  }
+
+  public ProcessWrapper create(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, Consumer<String> stdErrLineConsumer, Map<String, String> envVariablesOverrides,
+    String... command) {
+    return new ProcessWrapper(baseDir, stdOutLineConsumer, stdErrLineConsumer, envVariablesOverrides, command);
   }
 
   public static class ProcessWrapper {
 
     private final Path baseDir;
     private final Consumer<String> stdOutLineConsumer;
+    private final Consumer<String> stdErrLineConsumer;
     private final String[] command;
     private final Map<String, String> envVariables = new HashMap<>();
     private ExecuteWatchdog watchdog = null;
 
-    ProcessWrapper(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, Map<String, String> envVariablesOverrides, String... command) {
+    ProcessWrapper(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, Consumer<String> stdErrLineConsumer, Map<String, String> envVariablesOverrides, String... command) {
       this.baseDir = baseDir;
       this.stdOutLineConsumer = stdOutLineConsumer;
+      this.stdErrLineConsumer = stdErrLineConsumer;
       this.envVariables.putAll(System.getenv());
       this.envVariables.putAll(envVariablesOverrides);
       this.command = command;
@@ -110,7 +117,7 @@ public class ProcessWrapperFactory {
       }, new LogOutputStream() {
         @Override
         protected void processLine(String line, int logLevel) {
-          LOG.debug("[stderr] {}", line);
+          stdErrLineConsumer.accept("[stderr] %s".formatted(line));
         }
       });
       builder.setExecuteStreamHandler(psh);

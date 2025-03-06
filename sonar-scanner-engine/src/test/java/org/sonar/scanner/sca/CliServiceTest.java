@@ -93,16 +93,91 @@ class CliServiceTest {
 
     File producedZip = underTest.generateManifestsZip(root, scriptDir, configuration);
     assertThat(producedZip).exists();
-    // The simulated CLI output will only be available at the debug level
+
     assertThat(logTester.logs(DEBUG))
       .contains(argumentOutput)
-      .contains("TIDELIFT_SKIP_UPDATE_CHECK=1");
-    assertThat(logTester.logs(DEBUG))
-      .contains(argumentOutput)
+      .contains("TIDELIFT_SKIP_UPDATE_CHECK=1")
       .contains("TIDELIFT_RECURSIVE_MANIFEST_SEARCH=true");
     assertThat(logTester.logs(INFO)).contains("Generated manifests zip file: " + producedZip.getName());
 
     assertThat(telemetryCache.getAll()).containsKey("scanner.sca.execution.cli.duration").isNotNull();
     assertThat(telemetryCache.getAll()).containsEntry("scanner.sca.execution.cli.success", "true");
+  }
+
+  @Test
+  void generateZip_whenDebugLogLevel_shouldCallProcessCorrectly(@TempDir Path rootModuleDir) throws IOException, URISyntaxException {
+    DefaultInputModule root = new DefaultInputModule(
+      ProjectDefinition.create().setBaseDir(rootModuleDir.toFile()).setWorkDir(rootModuleDir.toFile()));
+
+    // There is a custom test Bash script available in src/test/resources/org/sonar/scanner/sca that
+    // will serve as our "CLI". This script will output some messages about what arguments were passed
+    // to it and will try to generate a zip file in the location the process specifies. This allows us
+    // to simulate a real CLI call without needing an OS specific CLI executable to run on a real project.
+    URL scriptUrl = CliServiceTest.class.getResource(SystemUtils.IS_OS_WINDOWS ? "echo_args.bat" : "echo_args.sh");
+    assertThat(scriptUrl).isNotNull();
+    File scriptDir = new File(scriptUrl.toURI());
+    assertThat(rootModuleDir.resolve("test_file").toFile().createNewFile()).isTrue();
+
+    // We need to set the logging level to debug in order to be able to view the shell script's output
+    logTester.setLevel(DEBUG);
+
+    List<String> args = List.of(
+      "projects",
+      "save-lockfiles",
+      "--zip",
+      "--zip-filename",
+      root.getWorkDir().resolve("dependency-files.zip").toString(),
+      "--directory",
+      root.getBaseDir().toString(),
+      "--debug");
+
+    String argumentOutput = "Arguments Passed In: " + String.join(" ", args);
+    DefaultConfiguration configuration = mock(DefaultConfiguration.class);
+    when(configuration.getProperties()).thenReturn(Map.of("sonar.sca.recursiveManifestSearch", "true"));
+    when(configuration.get("sonar.sca.recursiveManifestSearch")).thenReturn(Optional.of("true"));
+
+    underTest.generateManifestsZip(root, scriptDir, configuration);
+
+    assertThat(logTester.logs(DEBUG))
+      .contains(argumentOutput);
+  }
+
+  @Test
+  void generateZip_whenScaDebugEnabled_shouldCallProcessCorrectly(@TempDir Path rootModuleDir) throws IOException, URISyntaxException {
+    DefaultInputModule root = new DefaultInputModule(
+      ProjectDefinition.create().setBaseDir(rootModuleDir.toFile()).setWorkDir(rootModuleDir.toFile()));
+
+    // There is a custom test Bash script available in src/test/resources/org/sonar/scanner/sca that
+    // will serve as our "CLI". This script will output some messages about what arguments were passed
+    // to it and will try to generate a zip file in the location the process specifies. This allows us
+    // to simulate a real CLI call without needing an OS specific CLI executable to run on a real project.
+    URL scriptUrl = CliServiceTest.class.getResource(SystemUtils.IS_OS_WINDOWS ? "echo_args.bat" : "echo_args.sh");
+    assertThat(scriptUrl).isNotNull();
+    File scriptDir = new File(scriptUrl.toURI());
+    assertThat(rootModuleDir.resolve("test_file").toFile().createNewFile()).isTrue();
+
+    // Set the logging level to info so that we don't automatically set --debug flag
+    logTester.setLevel(INFO);
+
+    List<String> args = List.of(
+      "projects",
+      "save-lockfiles",
+      "--zip",
+      "--zip-filename",
+      root.getWorkDir().resolve("dependency-files.zip").toString(),
+      "--directory",
+      root.getBaseDir().toString(),
+      "--debug");
+
+    String argumentOutput = "Arguments Passed In: " + String.join(" ", args);
+    DefaultConfiguration configuration = mock(DefaultConfiguration.class);
+    when(configuration.getProperties()).thenReturn(Map.of("sonar.sca.recursiveManifestSearch", "true"));
+    when(configuration.get("sonar.sca.recursiveManifestSearch")).thenReturn(Optional.of("true"));
+    when(configuration.getBoolean("sonar.sca.debug")).thenReturn(Optional.of(true));
+
+    underTest.generateManifestsZip(root, scriptDir, configuration);
+
+    assertThat(logTester.logs(INFO))
+      .contains(argumentOutput);
   }
 }
