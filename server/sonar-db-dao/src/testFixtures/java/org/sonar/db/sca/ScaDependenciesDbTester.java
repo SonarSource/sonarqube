@@ -33,6 +33,19 @@ public class ScaDependenciesDbTester {
     this.dbClient = db.getDbClient();
   }
 
+  public static ScaDependencyDto newScaDependencyDto(String componentUuid, String scaReleaseUuid, String suffix, boolean direct) {
+    long now = System.currentTimeMillis();
+    return new ScaDependencyDto("scaDependencyUuid" + suffix,
+      scaReleaseUuid,
+      direct,
+      "compile",
+      "pom.xml",
+      "package-lock.json",
+      List.of(List.of("pkg:npm/foo@1.0.0")),
+      now,
+      now);
+  }
+
   public ComponentDto newComponentDto(String branchUuid, String suffix) {
     return new ComponentDto().setUuid("uuid" + suffix)
       .setKey("key" + suffix)
@@ -44,19 +57,6 @@ public class ScaDependenciesDbTester {
     ComponentDto componentDto = newComponentDto(branchUuid, suffix);
     db.components().insertComponent(componentDto);
     return componentDto;
-  }
-
-  public ScaDependencyDto newScaDependencyDto(String componentUuid, String scaReleaseUuid, String suffix, boolean direct) {
-    long now = System.currentTimeMillis();
-    return new ScaDependencyDto("scaDependencyUuid" + suffix,
-      scaReleaseUuid,
-      direct,
-      "compile",
-      "pom.xml",
-      "package-lock.json",
-      List.of(List.of("pkg:npm/foo@1.0.0")),
-      now,
-      now);
   }
 
   public ScaDependencyDto insertScaDependency(String componentUuid, String scaReleaseUuid, String suffix, boolean direct) {
