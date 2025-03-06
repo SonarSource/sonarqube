@@ -61,6 +61,7 @@ class ScaReleasesDaoIT {
         Map.entry("version", scaReleaseDto.version()),
         Map.entry("license_expression", scaReleaseDto.licenseExpression()),
         Map.entry("known", scaReleaseDto.known()),
+        Map.entry("new_in_pull_request", scaReleaseDto.newInPullRequest()),
         Map.entry("created_at", scaReleaseDto.createdAt()),
         Map.entry("updated_at", scaReleaseDto.updatedAt())));
   }
@@ -246,6 +247,7 @@ class ScaReleasesDaoIT {
         Map.entry("version", updatedScaRelease.version()),
         Map.entry("license_expression", updatedScaRelease.licenseExpression()),
         Map.entry("known", updatedScaRelease.known()),
+        Map.entry("new_in_pull_request", updatedScaRelease.newInPullRequest()),
         Map.entry("created_at", updatedScaRelease.createdAt()),
         Map.entry("updated_at", updatedScaRelease.updatedAt())));
   }

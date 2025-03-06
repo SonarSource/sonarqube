@@ -14,6 +14,7 @@
       <arg column="lockfile_dependency_file_path" javaType="String"/>
       <arg column="chains" typeHandler="org.sonar.db.sca.ListOfListOfStringsTypeHandler" jdbcType="CLOB"
            javaType="java.util.List"/>
+      <arg column="new_in_pull_request" javaType="_boolean"/>
       <arg column="created_at" javaType="_long"/>
       <arg column="updated_at" javaType="_long"/>
     </constructor>
@@ -27,6 +28,7 @@
     sd.user_dependency_file_path,
     sd.lockfile_dependency_file_path,
     sd.chains,
+    sd.new_in_pull_request,
     sd.created_at,
     sd.updated_at
   </sql>
@@ -40,6 +42,7 @@
       user_dependency_file_path,
       lockfile_dependency_file_path,
       chains,
+      new_in_pull_request,
       created_at,
       updated_at
     ) values (
@@ -50,6 +53,7 @@
       #{userDependencyFilePath,jdbcType=VARCHAR},
       #{lockfileDependencyFilePath,jdbcType=VARCHAR},
       #{chains,jdbcType=CLOB,typeHandler=org.sonar.db.sca.ListOfListOfStringsTypeHandler},
+      #{newInPullRequest,jdbcType=BOOLEAN},
       #{createdAt,jdbcType=BIGINT},
       #{updatedAt,jdbcType=BIGINT}
     )
@@ -129,6 +133,7 @@
       user_dependency_file_path = #{userDependencyFilePath, jdbcType=VARCHAR},
       lockfile_dependency_file_path = #{lockfileDependencyFilePath, jdbcType=VARCHAR},
       chains = #{chains, jdbcType=CLOB, typeHandler=org.sonar.db.sca.ListOfListOfStringsTypeHandler},
+      new_in_pull_request = #{newInPullRequest, jdbcType=BOOLEAN},
       updated_at = #{updatedAt, jdbcType=BIGINT}
     where
       uuid = #{uuid, jdbcType=VARCHAR}

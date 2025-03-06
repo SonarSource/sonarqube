@@ -42,6 +42,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  * @param userDependencyFilePath     path to the user-editable file where the dependency was found ("manifest") e.g. package.json
  * @param lockfileDependencyFilePath path to the machine-maintained lockfile where the dependency was found e.g. package-lock.json
  * @param chains                     a list of the purl chains that require the dependency, stored as JSON string, e.g. [["pkg:npm/foo@1.0.0", ...], ...]
+ * @param newInPullRequest           is it newly-added vs. target branch in this PR
  * @param createdAt                  timestamp of creation
  * @param updatedAt                  timestamp of most recent update
  */
@@ -53,6 +54,7 @@ public record ScaDependencyDto(
   @Nullable String userDependencyFilePath,
   @Nullable String lockfileDependencyFilePath,
   @Nullable List<List<String>> chains,
+  boolean newInPullRequest,
   long createdAt,
   long updatedAt) {
 
@@ -116,6 +118,7 @@ public record ScaDependencyDto(
       .setUserDependencyFilePath(this.userDependencyFilePath)
       .setLockfileDependencyFilePath(this.lockfileDependencyFilePath)
       .setChains(this.chains)
+      .setNewInPullRequest(this.newInPullRequest)
       .setCreatedAt(this.createdAt)
       .setUpdatedAt(this.updatedAt);
   }
@@ -162,6 +165,7 @@ public record ScaDependencyDto(
     private String userDependencyFilePath;
     private String lockfileDependencyFilePath;
     private List<List<String>> chains;
+    private boolean newInPullRequest;
     private long createdAt;
     private long updatedAt;
 
@@ -200,6 +204,11 @@ public record ScaDependencyDto(
       return this;
     }
 
+    public Builder setNewInPullRequest(boolean newInPullRequest) {
+      this.newInPullRequest = newInPullRequest;
+      return this;
+    }
+
     public Builder setCreatedAt(long createdAt) {
       this.createdAt = createdAt;
       return this;
@@ -212,7 +221,7 @@ public record ScaDependencyDto(
 
     public ScaDependencyDto build() {
       return new ScaDependencyDto(
-        uuid, scaReleaseUuid, direct, scope, userDependencyFilePath, lockfileDependencyFilePath, chains, createdAt, updatedAt);
+        uuid, scaReleaseUuid, direct, scope, userDependencyFilePath, lockfileDependencyFilePath, chains, newInPullRequest, createdAt, updatedAt);
     }
   }
 }

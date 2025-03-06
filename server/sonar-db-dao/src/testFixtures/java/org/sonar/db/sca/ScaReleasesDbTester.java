@@ -41,6 +41,7 @@ public class ScaReleasesDbTester {
       "1.0.0-" + suffix,
       "MIT",
       true,
+      false,
       1L,
       2L);
   }

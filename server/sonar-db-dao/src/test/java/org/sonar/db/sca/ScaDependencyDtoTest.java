@@ -36,6 +36,7 @@ class ScaDependencyDtoTest {
       "some/path",
       "another/path",
       List.of(List.of("pkg:npm/fodo@1.0.0")),
+      true,
       1L,
       2L);
     assertThat(scaDependencyDto.toBuilder().build()).isEqualTo(scaDependencyDto);
@@ -50,6 +51,7 @@ class ScaDependencyDtoTest {
       "some/path",
       "another/path",
       List.of(List.of("pkg:npm/IGNORED@1.0.0")),
+      false,
       1L,
       2L);
     var scaDependencyDtoDifferentButSameIdentity = new ScaDependencyDto("differentUuid",
@@ -59,6 +61,7 @@ class ScaDependencyDtoTest {
       "some/path",
       "another/path",
       List.of(List.of("pkg:npm/DIFFERENT_ALSO_IGNORED@1.0.0")),
+      true,
       42L,
       57L);
     assertThat(scaDependencyDto.identity()).isEqualTo(scaDependencyDtoDifferentButSameIdentity.identity());
@@ -74,6 +77,7 @@ class ScaDependencyDtoTest {
       "some/path",
       "another/path",
       List.of(List.of("pkg:npm/IGNORED@1.0.0")),
+      true,
       1L,
       2L);
     var scaDependencyDtoChangedReleaseUuid = new ScaDependencyDto("scaDependencyUuid",
@@ -83,6 +87,7 @@ class ScaDependencyDtoTest {
       "some/path",
       "another/path",
       List.of(List.of("pkg:npm/IGNORED@1.0.0")),
+      false,
       1L,
       2L);
     assertThat(scaDependencyDto.identity()).isNotEqualTo(scaDependencyDtoChangedReleaseUuid.identity());
@@ -105,6 +110,7 @@ class ScaDependencyDtoTest {
       userDependencyFilePath,
       "lockfileDependencyFilePath",
       List.of(List.of("pkg:npm/foo@1.0.0")),
+      false,
       1L,
       2L);
   }

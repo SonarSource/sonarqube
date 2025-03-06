@@ -42,6 +42,7 @@ public class ScaDependenciesDbTester {
       "pom.xml",
       "package-lock.json",
       List.of(List.of("pkg:npm/foo@1.0.0")),
+      false,
       now,
       now);
   }

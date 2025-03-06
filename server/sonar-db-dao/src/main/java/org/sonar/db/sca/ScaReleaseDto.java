@@ -26,16 +26,17 @@ import static com.google.common.base.Preconditions.checkArgument;
  * as found in a single dependency analysis run (so it's attached to a branch component,
  * and there's a separate copy of each release per branch it appears in).
  *
- * @param uuid              Primary key
- * @param componentUuid     the component the release is associated with
- * @param packageUrl        package URL following the PURL specification
- * @param packageManager    package manager e.g. PYPI
- * @param packageName       package name e.g. "urllib3"
- * @param version           package version e.g. "1.25.6"
- * @param licenseExpression an SPDX license expression (NOT a single license, can have parens/AND/OR)
- * @param known             is this package and version known to Sonar (if not it be internal, could be malicious, could be from a weird repo)
- * @param createdAt         timestamp it was created
- * @param updatedAt         timestamp it was last updated
+ * @param uuid                 Primary key
+ * @param componentUuid        the component the release is associated with
+ * @param packageUrl           package URL following the PURL specification
+ * @param packageManager       package manager e.g. PYPI
+ * @param packageName          package name e.g. "urllib3"
+ * @param version              package version e.g. "1.25.6"
+ * @param licenseExpression    an SPDX license expression (NOT a single license, can have parens/AND/OR)
+ * @param known                is this package and version known to Sonar (if not it be internal, could be malicious, could be from a weird repo)
+ * @param newInPullRequest     is it newly added in a PR
+ * @param createdAt            timestamp it was created
+ * @param updatedAt            timestamp it was last updated
  */
 public record ScaReleaseDto(
   String uuid,
@@ -46,6 +47,7 @@ public record ScaReleaseDto(
   String version,
   String licenseExpression,
   boolean known,
+  boolean newInPullRequest,
   long createdAt,
   long updatedAt) {
 
@@ -78,6 +80,7 @@ public record ScaReleaseDto(
       .setVersion(this.version)
       .setLicenseExpression(this.licenseExpression)
       .setKnown(this.known)
+      .setNewInPullRequest(this.newInPullRequest)
       .setCreatedAt(this.createdAt)
       .setUpdatedAt(this.updatedAt);
   }
@@ -114,6 +117,7 @@ public record ScaReleaseDto(
     private String version;
     private String licenseExpression;
     private boolean known;
+    private boolean newInPullRequest;
     private long createdAt;
     private long updatedAt;
 
@@ -157,6 +161,11 @@ public record ScaReleaseDto(
       return this;
     }
 
+    public Builder setNewInPullRequest(boolean newInPullRequest) {
+      this.newInPullRequest = newInPullRequest;
+      return this;
+    }
+
     public Builder setCreatedAt(long createdAt) {
       this.createdAt = createdAt;
       return this;
@@ -169,7 +178,7 @@ public record ScaReleaseDto(
 
     public ScaReleaseDto build() {
       return new ScaReleaseDto(
-        uuid, componentUuid, packageUrl, packageManager, packageName, version, licenseExpression, known, createdAt, updatedAt);
+        uuid, componentUuid, packageUrl, packageManager, packageName, version, licenseExpression, known, newInPullRequest, createdAt, updatedAt);
     }
   }
 }

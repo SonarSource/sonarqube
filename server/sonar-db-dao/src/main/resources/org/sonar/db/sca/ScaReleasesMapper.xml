@@ -10,6 +10,7 @@
     sr.version as version,
     sr.license_expression as licenseExpression,
     sr.known as known,
+    sr.new_in_pull_request as newInPullRequest,
     sr.created_at as createdAt,
     sr.updated_at as updatedAt
   </sql>
@@ -24,6 +25,7 @@
       version,
       license_expression,
       known,
+      new_in_pull_request,
       created_at,
       updated_at
     ) values (
@@ -35,6 +37,7 @@
       #{version,jdbcType=VARCHAR},
       #{licenseExpression,jdbcType=VARCHAR},
       #{known,jdbcType=BOOLEAN},
+      #{newInPullRequest,jdbcType=BOOLEAN},
       #{createdAt,jdbcType=BIGINT},
       #{updatedAt,jdbcType=BIGINT}
     )
@@ -127,6 +130,7 @@
       version = #{version, jdbcType=VARCHAR},
       license_expression = #{licenseExpression, jdbcType=VARCHAR},
       known = #{known, jdbcType=BOOLEAN},
+      new_in_pull_request = #{newInPullRequest, jdbcType=BOOLEAN},
       updated_at = #{updatedAt, jdbcType=BIGINT}
     where
       uuid = #{uuid, jdbcType=VARCHAR}

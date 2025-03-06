@@ -56,6 +56,7 @@ class ScaDependenciesDaoIT {
         Map.entry("user_dependency_file_path", scaDependencyDto.userDependencyFilePath()),
         Map.entry("lockfile_dependency_file_path", scaDependencyDto.lockfileDependencyFilePath()),
         Map.entry("chains", scaDependencyDto.getChainsJson()),
+        Map.entry("new_in_pull_request", scaDependencyDto.newInPullRequest()),
         Map.entry("created_at", scaDependencyDto.createdAt()),
         Map.entry("updated_at", scaDependencyDto.updatedAt())));
   }
@@ -219,6 +220,7 @@ class ScaDependenciesDaoIT {
         Map.entry("user_dependency_file_path", updatedScaDependency.userDependencyFilePath()),
         Map.entry("lockfile_dependency_file_path", updatedScaDependency.lockfileDependencyFilePath()),
         Map.entry("chains", updatedScaDependency.getChainsJson()),
+        Map.entry("new_in_pull_request", updatedScaDependency.newInPullRequest()),
         Map.entry("created_at", updatedScaDependency.createdAt()),
         Map.entry("updated_at", updatedScaDependency.updatedAt())));
   }

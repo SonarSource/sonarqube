@@ -35,6 +35,7 @@ class ScaReleaseDtoTest {
       "1.0.0",
       "MIT",
       true,
+      false,
       1L,
       2L);
     assertThat(scaReleaseDto.toBuilder().build()).isEqualTo(scaReleaseDto);
@@ -50,6 +51,7 @@ class ScaReleaseDtoTest {
       "1.0.0",
       "MIT",
       true,
+      false,
       1L,
       2L);
     var scaReleaseDtoDifferentButSameIdentity = new ScaReleaseDto("differentUuid",
@@ -60,6 +62,7 @@ class ScaReleaseDtoTest {
       "2.0.0",
       "GPL-3.0",
       false,
+      true,
       10L,
       30L);
     assertThat(scaReleaseDto.identity()).isEqualTo(scaReleaseDtoDifferentButSameIdentity.identity());
