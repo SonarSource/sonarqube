@@ -59,6 +59,29 @@ public record ScaIssueReleaseDto(
       .setUpdatedAt(this.updatedAt);
   }
 
+  /**
+   * Returns an object whose .equals and .hashCode would match that of another ScaIssueReleaseDto's
+   * identity() if the two ScaIssueReleaseDto would count as duplicates within the sca_issues_releases
+   * table.
+   * This is different from the DTOs themselves being equal because some fields do not count in
+   * the identity of the row, and can be updated while preserving the identity. The method just
+   * returns Object and not a type, because it exists just to call .equals and .hashCode on.
+   *
+   * @return an object to be used for hashing and comparing ScaReleaseDto instances for identity
+   */
+  public Identity identity() {
+    return new IdentityImpl(this);
+  }
+
+  public interface Identity {
+  }
+
+  private record IdentityImpl(String scaIssueUuid, String scaReleaseUuid) implements Identity {
+    IdentityImpl(ScaIssueReleaseDto dto) {
+      this(dto.scaIssueUuid(), dto.scaReleaseUuid());
+    }
+  }
+
   public static class Builder {
     private String uuid;
     private String scaIssueUuid;

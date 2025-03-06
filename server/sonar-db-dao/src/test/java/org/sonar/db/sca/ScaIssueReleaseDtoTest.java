@@ -35,4 +35,22 @@ class ScaIssueReleaseDtoTest {
       2L);
     assertThat(scaIssueReleaseDto.toBuilder().build()).isEqualTo(scaIssueReleaseDto);
   }
+
+  @Test
+  void test_identity_shouldIgnoreUuidAndUpdatableFields() {
+    var scaIssueReleaseDto = new ScaIssueReleaseDto("sca-issue-release-uuid",
+      "sca-issue-uuid",
+      "sca-release-uuid",
+      ScaSeverity.INFO,
+      1L,
+      2L);
+    var scaIssueReleaseDtoDifferentButSameIdentity = new ScaIssueReleaseDto("differentUuid",
+      "sca-issue-uuid",
+      "sca-release-uuid",
+      ScaSeverity.HIGH,
+      10L,
+      20L);
+    assertThat(scaIssueReleaseDto.identity()).isEqualTo(scaIssueReleaseDtoDifferentButSameIdentity.identity());
+    assertThat(scaIssueReleaseDto).isNotEqualTo(scaIssueReleaseDtoDifferentButSameIdentity);
+  }
 }

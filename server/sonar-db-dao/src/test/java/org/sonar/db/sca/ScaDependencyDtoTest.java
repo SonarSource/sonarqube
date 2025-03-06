@@ -20,6 +20,7 @@
 package org.sonar.db.sca;
 
 import java.util.List;
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -41,6 +42,54 @@ class ScaDependencyDtoTest {
   }
 
   @Test
+  void test_identity_shouldIgnoreUuidAndUpdatableFields() {
+    var scaDependencyDto = new ScaDependencyDto("scaDependencyUuid",
+      "scaReleaseUuid",
+      true,
+      "compile",
+      "some/path",
+      "another/path",
+      List.of(List.of("pkg:npm/IGNORED@1.0.0")),
+      1L,
+      2L);
+    var scaDependencyDtoDifferentButSameIdentity = new ScaDependencyDto("differentUuid",
+      "scaReleaseUuid",
+      true,
+      "compile",
+      "some/path",
+      "another/path",
+      List.of(List.of("pkg:npm/DIFFERENT_ALSO_IGNORED@1.0.0")),
+      42L,
+      57L);
+    assertThat(scaDependencyDto.identity()).isEqualTo(scaDependencyDtoDifferentButSameIdentity.identity());
+    assertThat(scaDependencyDto).isNotEqualTo(scaDependencyDtoDifferentButSameIdentity);
+  }
+
+  @Test
+  void test_identity_changingScaReleaseUuid() {
+    var scaDependencyDto = new ScaDependencyDto("scaDependencyUuid",
+      "scaReleaseUuid",
+      true,
+      "compile",
+      "some/path",
+      "another/path",
+      List.of(List.of("pkg:npm/IGNORED@1.0.0")),
+      1L,
+      2L);
+    var scaDependencyDtoChangedReleaseUuid = new ScaDependencyDto("scaDependencyUuid",
+      "scaReleaseUuidDifferent",
+      true,
+      "compile",
+      "some/path",
+      "another/path",
+      List.of(List.of("pkg:npm/IGNORED@1.0.0")),
+      1L,
+      2L);
+    assertThat(scaDependencyDto.identity()).isNotEqualTo(scaDependencyDtoChangedReleaseUuid.identity());
+    assertThat(scaDependencyDto.identity().withScaReleaseUuid("scaReleaseUuidDifferent")).isEqualTo(scaDependencyDtoChangedReleaseUuid.identity());
+  }
+
+  @Test
   void test_primaryDependencyFilePath() {
     ScaDependencyDto withUserDependencyFilePath = newScaDependencyDto("manifest");
     assertThat(withUserDependencyFilePath.primaryDependencyFilePath()).isEqualTo("manifest");
@@ -48,7 +97,7 @@ class ScaDependencyDtoTest {
     assertThat(withoutUserDependencyFilePath.primaryDependencyFilePath()).isEqualTo("lockfileDependencyFilePath");
   }
 
-  private ScaDependencyDto newScaDependencyDto(String userDependencyFilePath) {
+  private ScaDependencyDto newScaDependencyDto(@Nullable String userDependencyFilePath) {
     return new ScaDependencyDto("dependencyUuid",
       "scaReleaseUuid",
       true,

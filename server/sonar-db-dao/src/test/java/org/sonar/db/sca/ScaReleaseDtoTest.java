@@ -39,4 +39,30 @@ class ScaReleaseDtoTest {
       2L);
     assertThat(scaReleaseDto.toBuilder().build()).isEqualTo(scaReleaseDto);
   }
+
+  @Test
+  void test_identity_shouldIgnoreUuidAndUpdatableFields() {
+    var scaReleaseDto = new ScaReleaseDto("scaReleaseUuid",
+      "componentUuid",
+      "packageUrl",
+      PackageManager.MAVEN,
+      "foo:bar",
+      "1.0.0",
+      "MIT",
+      true,
+      1L,
+      2L);
+    var scaReleaseDtoDifferentButSameIdentity = new ScaReleaseDto("differentUuid",
+      "componentUuidDifferent",
+      "packageUrl",
+      PackageManager.NPM,
+      "foo:bar-different",
+      "2.0.0",
+      "GPL-3.0",
+      false,
+      10L,
+      30L);
+    assertThat(scaReleaseDto.identity()).isEqualTo(scaReleaseDtoDifferentButSameIdentity.identity());
+    assertThat(scaReleaseDto).isNotEqualTo(scaReleaseDtoDifferentButSameIdentity);
+  }
 }

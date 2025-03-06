@@ -94,6 +94,19 @@ public record ScaDependencyDto(
     return userDependencyFilePath != null ? userDependencyFilePath : lockfileDependencyFilePath;
   }
 
+  /**
+   * Returns an object whose .equals and .hashCode would match that of another ScaDependencyDto's
+   * identity() if the two ScaDependencyDto would count as duplicates within the sca_dependencies table.
+   * This is different from the DTOs themselves being equal because some fields do not count in
+   * the identity of the row, and can be updated while preserving the identity. The method just
+   * returns Object and not a type, because it exists just to call .equals and .hashCode on.
+   *
+   * @return an object to be used for hashing and comparing ScaDependencyDto instances for identity
+   */
+  public Identity identity() {
+    return new IdentityImpl(this);
+  }
+
   public Builder toBuilder() {
     return new Builder()
       .setUuid(this.uuid)
@@ -105,6 +118,40 @@ public record ScaDependencyDto(
       .setChains(this.chains)
       .setCreatedAt(this.createdAt)
       .setUpdatedAt(this.updatedAt);
+  }
+
+  public interface Identity {
+    /**
+     * Return a new identity with a different scaReleaseUuid
+     * @param scaReleaseUuid to swap in to the identity
+     * @return an object to be used for hashing and comparing ScaDependencyDto instances for identity
+     */
+    Identity withScaReleaseUuid(String scaReleaseUuid);
+  }
+
+  /** This object has the subset of fields that have to be unique in a ScaDependencyDto,
+   * so if this is the same for two ScaDependencyDto, we can update rather than insert
+   * those ScaDependencyDto. Conceptually, sca_dependencies table could have a unique
+   * constraint on these fields, though in practice it does not.
+   *<p>
+   * This class is private because it is exclusively used for .equals and .hashCode
+   * so nobody cares about it otherwise.
+   *</p>
+   */
+  private record IdentityImpl(String scaReleaseUuid,
+    boolean direct,
+    String scope,
+    String userDependencyFilePath,
+    String lockfileDependencyFilePath) implements Identity {
+
+    IdentityImpl(ScaDependencyDto dto) {
+      this(dto.scaReleaseUuid(), dto.direct(), dto.scope(), dto.userDependencyFilePath(), dto.lockfileDependencyFilePath());
+    }
+
+    @Override
+    public IdentityImpl withScaReleaseUuid(String scaReleaseUuid) {
+      return new IdentityImpl(scaReleaseUuid, direct, scope, userDependencyFilePath, lockfileDependencyFilePath);
+    }
   }
 
   public static class Builder {
