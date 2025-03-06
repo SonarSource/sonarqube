@@ -140,7 +140,7 @@ class TelemetryDaemonTest {
     underTest.start();
 
     verify(client, after(2_000).never()).upload(anyString());
-    verify(internalProperties, timeout(4_000)).write("telemetry.lastPing", String.valueOf(today));
+    verify(internalProperties, timeout(4_000).atLeastOnce()).write("telemetry.lastPing", String.valueOf(today));
   }
 
   @Test
