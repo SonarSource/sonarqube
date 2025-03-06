@@ -89,6 +89,14 @@
     <include refid="sqlSelectByQuery"/>
   </select>
 
+  <select id="countReleasesByPackageManager" resultType="org.sonar.db.sca.ScaReleaseByPackageManagerCountDto">
+    SELECT
+      package_manager AS packageManager,
+      count(sr.uuid) AS releaseCount
+    <include refid="sqlSelectByQuery"/>
+    GROUP BY package_manager
+  </select>
+
   <sql id="sqlSelectByQuery">
     from sca_releases sr
     inner join components c on sr.component_uuid = c.uuid

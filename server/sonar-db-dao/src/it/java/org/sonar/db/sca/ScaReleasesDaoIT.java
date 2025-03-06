@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.LoggerFactory;
@@ -266,5 +267,23 @@ class ScaReleasesDaoIT {
   private ComponentDto prepareComponentDto(String suffix) {
     ProjectData projectData = db.components().insertPublicProject();
     return db.getScaReleasesDbTester().insertComponent(projectData.mainBranchUuid(), suffix);
+  }
+
+  @Test
+  void countByPlatformQuery_shouldReturnPlatforms() {
+    ComponentDto componentDto1 = prepareComponentDto("1");
+    db.getScaReleasesDbTester().insertScaReleaseWithDependency(componentDto1.uuid(), "1", 1, true, PackageManager.MAVEN, "foo.bar");
+    db.getScaReleasesDbTester().insertScaReleaseWithDependency(componentDto1.uuid(), "2", 2, true, PackageManager.NPM, "foo.bar.mee");
+    db.getScaReleasesDbTester().insertScaReleaseWithDependency(componentDto1.uuid(), "3", 3, true, PackageManager.MAVEN, "bar.foo");
+    db.getScaReleasesDbTester().insertScaReleaseWithDependency(componentDto1.uuid(), "4", 4, true, PackageManager.PYPI, "bar.foo");
+
+    ScaReleasesQuery scaReleasesQuery = new ScaReleasesQuery(componentDto1.branchUuid(), null, null, null);
+
+    List<ScaReleaseByPackageManagerCountDto> releaseCounts = scaReleasesDao.countReleasesByPackageManager(db.getSession(), scaReleasesQuery);
+    assertThat(releaseCounts).hasSize(3);
+    assertThat(releaseCounts).extracting("packageManager", "releaseCount")
+        .containsExactlyInAnyOrder(Tuple.tuple(PackageManager.MAVEN.name(), 2),
+          Tuple.tuple(PackageManager.NPM.name(), 1),
+          Tuple.tuple(PackageManager.PYPI.name(), 1));
   }
 }

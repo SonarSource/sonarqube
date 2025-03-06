@@ -19,27 +19,5 @@
  */
 package org.sonar.db.sca;
 
-import java.util.Collection;
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
-import org.sonar.db.Pagination;
-
-public interface ScaReleasesMapper {
-  void insert(ScaReleaseDto dto);
-
-  void deleteByUuid(String uuid);
-
-  ScaReleaseDto selectByUuid(String uuid);
-
-  List<ScaReleaseDto> selectByUuids(Collection<String> uuids);
-
-  List<ScaReleaseDto> selectByBranchUuid(String branchUuid);
-
-  List<ScaReleaseDto> selectByQuery(@Param("query") ScaReleasesQuery query, @Param("pagination") Pagination pagination);
-
-  void update(ScaReleaseDto dto);
-
-  int countByQuery(@Param("query") ScaReleasesQuery query);
-
-  List<ScaReleaseByPackageManagerCountDto> countReleasesByPackageManager(@Param("query") ScaReleasesQuery query);
+public record ScaReleaseByPackageManagerCountDto(String packageManager, int releaseCount) {
 }

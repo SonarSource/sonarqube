@@ -63,6 +63,10 @@ public class ScaReleasesDao implements Dao {
     return mapper(session).countByQuery(scaReleasesQuery);
   }
 
+  public List<ScaReleaseByPackageManagerCountDto> countReleasesByPackageManager(DbSession session, ScaReleasesQuery scaReleasesQuery) {
+    return mapper(session).countReleasesByPackageManager(scaReleasesQuery);
+  }
+
   public void update(DbSession session, ScaReleaseDto scaReleaseDto) {
     mapper(session).update(scaReleaseDto);
   }
