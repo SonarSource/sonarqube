@@ -10,6 +10,7 @@
       <arg column="sca_issue_uuid" javaType="String"/>
       <arg column="sca_release_uuid" javaType="String"/>
       <arg column="sca_issue_type" javaType="org.sonar.db.sca.ScaIssueType" jdbcType="VARCHAR"/>
+      <arg column="new_in_pull_request" javaType="_boolean"/>
       <arg column="package_url" javaType="String"/>
       <arg column="vulnerability_id" javaType="String"/>
       <arg column="spdx_license_id" javaType="String"/>
@@ -27,6 +28,7 @@
     sir.sca_issue_uuid,
     sir.sca_release_uuid,
     si.sca_issue_type,
+    sr.new_in_pull_request,
     si.package_url,
     si.vulnerability_id,
     si.spdx_license_id,
@@ -72,6 +74,9 @@
       </if>
       <if test="query.packageNameSubstring != null and query.packageNameSubstring.length > 0">
           AND lower(sr.package_name) LIKE #{query.packageNameLowercaseEscapedAsLikeValue, jdbcType=VARCHAR} ESCAPE '/'
+      </if>
+      <if test="query.newInPullRequest != null">
+        AND sr.new_in_pull_request = #{query.newInPullRequest, jdbcType=BOOLEAN}
       </if>
       <if test="query.types != null">
         <if test="query.types.isEmpty()">

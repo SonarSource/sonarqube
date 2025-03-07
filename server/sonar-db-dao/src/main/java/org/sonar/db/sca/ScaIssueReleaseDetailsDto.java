@@ -45,6 +45,7 @@ public record ScaIssueReleaseDetailsDto(String scaIssueReleaseUuid,
   String scaIssueUuid,
   String scaReleaseUuid,
   ScaIssueType scaIssueType,
+  boolean newInPullRequest,
   String packageUrl,
   String vulnerabilityId,
   String spdxLicenseId,
@@ -59,6 +60,7 @@ public record ScaIssueReleaseDetailsDto(String scaIssueReleaseUuid,
       .setScaIssueUuid(scaIssueUuid)
       .setScaReleaseUuid(scaReleaseUuid)
       .setScaIssueType(scaIssueType)
+      .setNewInPullRequest(newInPullRequest)
       .setPackageUrl(packageUrl)
       .setVulnerabilityId(vulnerabilityId)
       .setSpdxLicenseId(spdxLicenseId)
@@ -73,6 +75,7 @@ public record ScaIssueReleaseDetailsDto(String scaIssueReleaseUuid,
     private String scaIssueUuid;
     private String scaReleaseUuid;
     private ScaIssueType scaIssueType;
+    private boolean newInPullRequest;
     private String packageUrl;
     private String vulnerabilityId;
     private String spdxLicenseId;
@@ -102,6 +105,11 @@ public record ScaIssueReleaseDetailsDto(String scaIssueReleaseUuid,
 
     public Builder setScaIssueType(ScaIssueType scaIssueType) {
       this.scaIssueType = scaIssueType;
+      return this;
+    }
+
+    public Builder setNewInPullRequest(boolean newInPullRequest) {
+      this.newInPullRequest = newInPullRequest;
       return this;
     }
 
@@ -136,8 +144,8 @@ public record ScaIssueReleaseDetailsDto(String scaIssueReleaseUuid,
     }
 
     public ScaIssueReleaseDetailsDto build() {
-      return new ScaIssueReleaseDetailsDto(scaIssueReleaseUuid, severity, scaIssueUuid, scaReleaseUuid, scaIssueType, packageUrl, vulnerabilityId, spdxLicenseId,
-        vulnerabilityBaseSeverity, cweIds, cvssScore);
+      return new ScaIssueReleaseDetailsDto(scaIssueReleaseUuid, severity, scaIssueUuid, scaReleaseUuid, scaIssueType,
+        newInPullRequest, packageUrl, vulnerabilityId, spdxLicenseId, vulnerabilityBaseSeverity, cweIds, cvssScore);
     }
   }
 }

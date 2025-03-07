@@ -30,7 +30,7 @@ class ScaIssuesReleasesDetailsQueryTest {
   @Test
   void test_toBuilder_build_shouldRoundTrip() {
     var query = new ScaIssuesReleasesDetailsQuery("branchUuid", ScaIssuesReleasesDetailsQuery.Sort.IDENTITY_ASC,
-      "vulnerabilityIdSubstring", "packageNameSubstring",
+      "vulnerabilityIdSubstring", "packageNameSubstring", true,
       List.of(ScaIssueType.VULNERABILITY), List.of(ScaSeverity.BLOCKER), List.of(PackageManager.NPM));
     AssertionsForClassTypes.assertThat(query.toBuilder().build()).isEqualTo(query);
   }

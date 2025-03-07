@@ -114,6 +114,9 @@
         #{packageManager,jdbcType=VARCHAR}
       </foreach>
     </if>
+    <if test="query.newInPullRequest != null">
+      AND sr.new_in_pull_request = #{query.newInPullRequest,jdbcType=BOOLEAN}
+    </if>
     <if test="query.query() != null">
       AND lower(sr.package_name) LIKE #{query.likeQuery} ESCAPE '/'
     </if>

@@ -35,6 +35,7 @@ public record ScaIssuesReleasesDetailsQuery(
   Sort sort,
   @Nullable String vulnerabilityIdSubstring,
   @Nullable String packageNameSubstring,
+  @Nullable Boolean newInPullRequest,
   @Nullable List<ScaIssueType> types,
   @Nullable List<ScaSeverity> severities,
   @Nullable List<PackageManager> packageManagers) {
@@ -70,6 +71,7 @@ public record ScaIssuesReleasesDetailsQuery(
       .setSort(sort)
       .setVulnerabilityIdSubstring(vulnerabilityIdSubstring)
       .setPackageNameSubstring(packageNameSubstring)
+      .setNewInPullRequest(newInPullRequest)
       .setTypes(types)
       .setSeverities(severities)
       .setPackageManagers(packageManagers);
@@ -112,6 +114,7 @@ public record ScaIssuesReleasesDetailsQuery(
     private Sort sort;
     private String vulnerabilityIdSubstring;
     private String packageNameSubstring;
+    private Boolean newInPullRequest;
     private List<ScaIssueType> types;
     private List<ScaSeverity> severities;
     private List<PackageManager> packageManagers;
@@ -136,6 +139,11 @@ public record ScaIssuesReleasesDetailsQuery(
       return this;
     }
 
+    public Builder setNewInPullRequest(@Nullable Boolean newInPullRequest) {
+      this.newInPullRequest = newInPullRequest;
+      return this;
+    }
+
     public Builder setTypes(@Nullable List<ScaIssueType> types) {
       this.types = types;
       return this;
@@ -152,7 +160,7 @@ public record ScaIssuesReleasesDetailsQuery(
     }
 
     public ScaIssuesReleasesDetailsQuery build() {
-      return new ScaIssuesReleasesDetailsQuery(branchUuid, sort, vulnerabilityIdSubstring, packageNameSubstring, types, severities, packageManagers);
+      return new ScaIssuesReleasesDetailsQuery(branchUuid, sort, vulnerabilityIdSubstring, packageNameSubstring, newInPullRequest, types, severities, packageManagers);
     }
   }
 }

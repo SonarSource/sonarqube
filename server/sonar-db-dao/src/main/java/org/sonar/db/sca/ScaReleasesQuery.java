@@ -31,6 +31,7 @@ public record ScaReleasesQuery(
   String branchUuid,
   @Nullable Boolean direct,
   @Nullable List<String> packageManagers,
+  @Nullable Boolean newInPullRequest,
   @Nullable String query) {
 
   /**

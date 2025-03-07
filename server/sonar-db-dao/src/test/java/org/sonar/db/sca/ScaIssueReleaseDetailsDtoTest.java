@@ -33,6 +33,7 @@ class ScaIssueReleaseDetailsDtoTest {
       "scaIssueUuid",
       "scaReleaseUuid",
       ScaIssueType.VULNERABILITY,
+      true,
       "packageUrl",
       "vulnerabilityId",
       "spdxLicenseId",

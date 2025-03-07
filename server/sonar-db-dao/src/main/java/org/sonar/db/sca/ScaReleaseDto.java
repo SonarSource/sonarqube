@@ -34,7 +34,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  * @param version              package version e.g. "1.25.6"
  * @param licenseExpression    an SPDX license expression (NOT a single license, can have parens/AND/OR)
  * @param known                is this package and version known to Sonar (if not it be internal, could be malicious, could be from a weird repo)
- * @param newInPullRequest     is it newly added in a PR
+ * @param newInPullRequest     is it newly added in a PR (always false when not on a PR)
  * @param createdAt            timestamp it was created
  * @param updatedAt            timestamp it was last updated
  */

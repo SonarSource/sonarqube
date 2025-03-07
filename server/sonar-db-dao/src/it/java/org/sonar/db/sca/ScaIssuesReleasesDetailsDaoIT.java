@@ -57,8 +57,8 @@ class ScaIssuesReleasesDetailsDaoIT {
   void selectByBranchUuid_shouldReturnIssues() {
     var projectData = db.components().insertPrivateProject();
     var componentDto = projectData.getMainBranchComponent();
-    var issue1 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.VULNERABILITY, "1", componentDto.uuid(), projectData.projectUuid());
-    var issue2 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.PROHIBITED_LICENSE, "2", componentDto.uuid(), projectData.projectUuid());
+    var issue1 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.VULNERABILITY, "1", componentDto.uuid());
+    var issue2 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.PROHIBITED_LICENSE, "2", componentDto.uuid());
 
     var foundPage = scaIssuesReleasesDetailsDao.selectByBranchUuid(db.getSession(), componentDto.branchUuid(), Pagination.forPage(1).andSize(1));
 
@@ -68,6 +68,7 @@ class ScaIssuesReleasesDetailsDaoIT {
       issue1.scaIssueUuid(),
       issue1.scaReleaseUuid(),
       ScaIssueType.VULNERABILITY,
+      false,
       "fakePackageUrl1",
       "fakeVulnerabilityId1",
       ScaIssueDto.NULL_VALUE,
@@ -80,6 +81,7 @@ class ScaIssuesReleasesDetailsDaoIT {
       issue2.scaIssueUuid(),
       issue2.scaReleaseUuid(),
       ScaIssueType.PROHIBITED_LICENSE,
+      false,
       ScaIssueDto.NULL_VALUE,
       ScaIssueDto.NULL_VALUE,
       "0BSD",
@@ -279,6 +281,28 @@ class ScaIssuesReleasesDetailsDaoIT {
   }
 
   @Test
+  void withQueryFilteredByNewInPullRequest_shouldReturnExpectedItems() {
+    QueryTestData testData = createQueryTestData();
+
+    var expectedNew = testData.expectedIssuesSortedByIdentityAsc().stream()
+      .filter(issue -> issue.newInPullRequest())
+      .toList();
+    var expectedNotNew = testData.expectedIssuesSortedByIdentityAsc().stream()
+      .filter(issue -> !issue.newInPullRequest())
+      .toList();
+
+    executeQueryTest(testData,
+      queryBuilder -> queryBuilder.setNewInPullRequest(true),
+      expectedNew,
+      "Only the releases marked newInPullRequest should be returned");
+
+    executeQueryTest(testData,
+      queryBuilder -> queryBuilder.setNewInPullRequest(false),
+      expectedNotNew,
+      "Only the releases marked not newInPullRequest should be returned");
+  }
+
+  @Test
   void withQueryFilteredBySeverity_shouldReturnExpectedItems() {
     QueryTestData testData = createQueryTestData();
     var expectedSeverityInfo = testData.expectedIssuesSortedByIdentityAsc().stream()
@@ -414,35 +438,35 @@ class ScaIssuesReleasesDetailsDaoIT {
     var projectData = db.components().insertPrivateProject();
     var componentDto = projectData.getMainBranchComponent();
     // the first two are set to NPM, the others default to MAVEN
-    var issue1 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.VULNERABILITY, "1", componentDto.uuid(), projectData.projectUuid(),
+    var issue1 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.VULNERABILITY, "1", componentDto.uuid(),
       scaIssueDto -> scaIssueDto,
       scaVulnerabilityIssueDto -> scaVulnerabilityIssueDto,
       scaReleaseDto -> scaReleaseDto.toBuilder().setPackageManager(PackageManager.NPM).build(),
       scaIssueReleaseDto -> scaIssueReleaseDto);
-    var issue2 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.PROHIBITED_LICENSE, "2", componentDto.uuid(), projectData.projectUuid(),
+    var issue2 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.PROHIBITED_LICENSE, "2", componentDto.uuid(),
       scaIssueDto -> scaIssueDto,
       scaVulnerabilityIssueDto -> scaVulnerabilityIssueDto,
       scaReleaseDto -> scaReleaseDto.toBuilder().setPackageManager(PackageManager.NPM).build(),
       scaIssueReleaseDto -> scaIssueReleaseDto);
-    var issue3 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.VULNERABILITY, "3", componentDto.uuid(), projectData.projectUuid());
-    var issue4 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.PROHIBITED_LICENSE, "4", componentDto.uuid(), projectData.projectUuid());
+    var issue3 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.VULNERABILITY, "3", componentDto.uuid());
+    var issue4 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.PROHIBITED_LICENSE, "4", componentDto.uuid());
     // low cvss but high severity
-    var issue5 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.VULNERABILITY, "5", componentDto.uuid(), projectData.projectUuid(),
+    var issue5 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.VULNERABILITY, "5", componentDto.uuid(),
       scaIssueDto -> scaIssueDto,
       scaVulnerabilityIssueDto -> scaVulnerabilityIssueDto.toBuilder()
         .setCvssScore(new BigDecimal("2.1"))
         .setBaseSeverity(ScaSeverity.BLOCKER)
         .build(),
-      scaReleaseDto -> scaReleaseDto,
+      scaReleaseDto -> scaReleaseDto.toBuilder().setNewInPullRequest(true).build(),
       scaIssueReleaseDto -> scaIssueReleaseDto.toBuilder().setSeverity(ScaSeverity.BLOCKER).build());
     // high cvss but low severity
-    var issue6 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.VULNERABILITY, "6", componentDto.uuid(), projectData.projectUuid(),
+    var issue6 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.VULNERABILITY, "6", componentDto.uuid(),
       scaIssueDto -> scaIssueDto,
       scaVulnerabilityIssueDto -> scaVulnerabilityIssueDto.toBuilder()
         .setCvssScore(new BigDecimal("9.1"))
         .setBaseSeverity(ScaSeverity.INFO)
         .build(),
-      scaReleaseDto -> scaReleaseDto,
+      scaReleaseDto -> scaReleaseDto.toBuilder().setNewInPullRequest(true).build(),
       scaIssueReleaseDto -> scaIssueReleaseDto.toBuilder().setSeverity(ScaSeverity.INFO).build());
 
     return new QueryTestData(projectData, componentDto,
