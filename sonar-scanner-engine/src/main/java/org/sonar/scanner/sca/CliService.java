@@ -88,6 +88,7 @@ public class CliService {
       Map<String, String> envProperties = new HashMap<>();
       // sending this will tell the CLI to skip checking for the latest available version on startup
       envProperties.put("TIDELIFT_SKIP_UPDATE_CHECK", "1");
+      envProperties.put("TIDELIFT_ALLOW_MANIFEST_FAILURES", "1");
       envProperties.putAll(ScaProperties.buildFromScannerProperties(configuration));
 
       LOG.debug("Environment properties: {}", envProperties);

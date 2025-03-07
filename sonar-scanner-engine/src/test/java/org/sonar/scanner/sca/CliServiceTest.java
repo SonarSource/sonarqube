@@ -97,6 +97,7 @@ class CliServiceTest {
     assertThat(logTester.logs(DEBUG))
       .contains(argumentOutput)
       .contains("TIDELIFT_SKIP_UPDATE_CHECK=1")
+      .contains("TIDELIFT_ALLOW_MANIFEST_FAILURES=1")
       .contains("TIDELIFT_RECURSIVE_MANIFEST_SEARCH=true");
     assertThat(logTester.logs(INFO)).contains("Generated manifests zip file: " + producedZip.getName());
 
