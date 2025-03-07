@@ -131,6 +131,15 @@ public class QualityGateCaycCheckerIT {
     assertEquals(COMPLIANT, underTest.checkCaycCompliant(db.getSession(), qualityGateUuid));
   }
 
+  @Test
+  public void checkCaycCompliant_whenDuplicatedCondition_doNotThrow() {
+    String qualityGateUuid = "abcd";
+    MetricDto metric = insertMetric(NEW_VIOLATIONS);
+    insertCondition(metric, qualityGateUuid, metric.getBestValue());
+    insertCondition(metric, qualityGateUuid, metric.getBestValue());
+    assertEquals(NON_COMPLIANT, underTest.checkCaycCompliant(db.getSession(), qualityGateUuid));
+  }
+
   @DataProvider
   public static Object[][] caycMetrics() {
     return new Object[][]{

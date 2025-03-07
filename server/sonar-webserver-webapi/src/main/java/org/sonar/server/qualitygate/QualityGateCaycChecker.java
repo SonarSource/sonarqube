@@ -96,7 +96,7 @@ public class QualityGateCaycChecker {
   public QualityGateCaycStatus checkCaycCompliant(Collection<QualityGateConditionDto> conditions, List<MetricDto> metrics) {
     var conditionsByMetricId = conditions
       .stream()
-      .collect(Collectors.toMap(QualityGateConditionDto::getMetricUuid, Function.identity()));
+      .collect(Collectors.toMap(QualityGateConditionDto::getMetricUuid, Function.identity(), (existing, replacement) -> existing));
 
     if (conditionsByMetricId.size() < CAYC_METRICS.size()) {
       return NON_COMPLIANT;
