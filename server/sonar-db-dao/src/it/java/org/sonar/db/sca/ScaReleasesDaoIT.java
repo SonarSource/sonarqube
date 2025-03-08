@@ -170,17 +170,17 @@ class ScaReleasesDaoIT {
     @SuppressWarnings("unused")
     ScaReleaseDto scaReleaseDto4 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "4", PackageManager.MAVEN, "some.foo.bar");
 
-    ScaReleasesQuery scaReleasesQuery = new ScaReleasesQuery(componentDto.branchUuid(), null, null, null, "foo.bar");
+    ScaReleasesQuery scaReleasesQuery = new ScaReleasesQuery(componentDto.branchUuid(), null, null, null, "foo");
     List<ScaReleaseDto> results = scaReleasesDao.selectByQuery(db.getSession(), scaReleasesQuery, Pagination.all());
 
-    assertThat(results).hasSize(2);
+    assertThat(results).hasSize(3);
     assertThat(results.get(0)).usingRecursiveComparison().isEqualTo(scaReleaseDto1);
     assertThat(results.get(1)).usingRecursiveComparison().isEqualTo(scaReleaseDto3);
 
     ScaReleasesQuery scaReleasesCaseInsensitiveQuery = new ScaReleasesQuery(componentDto.branchUuid(), null, null, null, "Foo.Bar");
     List<ScaReleaseDto> resultsCaseInsensitive = scaReleasesDao.selectByQuery(db.getSession(), scaReleasesCaseInsensitiveQuery, Pagination.all());
 
-    assertThat(resultsCaseInsensitive).hasSize(2);
+    assertThat(resultsCaseInsensitive).hasSize(3);
     assertThat(resultsCaseInsensitive.get(0)).usingRecursiveComparison().isEqualTo(scaReleaseDto1);
     assertThat(resultsCaseInsensitive.get(1)).usingRecursiveComparison().isEqualTo(scaReleaseDto3);
   }
@@ -257,7 +257,7 @@ class ScaReleasesDaoIT {
     ComponentDto componentDto1 = prepareComponentDto("1");
     db.getScaReleasesDbTester().insertScaReleaseWithDependency(componentDto1.uuid(), "1", 1, true, PackageManager.MAVEN, "foo.bar");
     db.getScaReleasesDbTester().insertScaReleaseWithDependency(componentDto1.uuid(), "2", 2, true, PackageManager.MAVEN, "foo.bar.mee");
-    db.getScaReleasesDbTester().insertScaReleaseWithDependency(componentDto1.uuid(), "3", 3, true, PackageManager.MAVEN, "bar.foo");
+    db.getScaReleasesDbTester().insertScaReleaseWithDependency(componentDto1.uuid(), "3", 3, true, PackageManager.MAVEN, "bar.fo");
 
     ScaReleasesQuery scaReleasesQuery = new ScaReleasesQuery(componentDto1.branchUuid(), null, null, null, "foo");
 

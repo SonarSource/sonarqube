@@ -25,7 +25,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import static org.sonar.db.DaoUtils.buildLikeValue;
-import static org.sonar.db.WildcardPosition.AFTER;
+import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
 
 public record ScaReleasesQuery(
   String branchUuid,
@@ -39,6 +39,6 @@ public record ScaReleasesQuery(
    */
   @CheckForNull
   public String likeQuery() {
-    return query == null ? null : buildLikeValue(query.toLowerCase(Locale.ENGLISH), AFTER);
+    return query == null ? null : buildLikeValue(query.toLowerCase(Locale.ENGLISH), BEFORE_AND_AFTER);
   }
 }
