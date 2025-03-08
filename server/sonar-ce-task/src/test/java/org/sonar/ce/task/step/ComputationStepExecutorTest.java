@@ -46,15 +46,26 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class ComputationStepExecutorTest {
-  @Rule
-  public LogTester logTester = new LogTester();
-
   private final ComputationStepExecutor.Listener listener = mock(ComputationStepExecutor.Listener.class);
   private final MutableStepsTelemetryHolder stepsTelemetryHolder = new TestComputationStepContext.TestTelemetryMetrics();
   private final CeTaskInterrupter taskInterrupter = mock(CeTaskInterrupter.class);
   private final ComputationStep computationStep1 = mockComputationStep("step1");
   private final ComputationStep computationStep2 = mockComputationStep("step2");
   private final ComputationStep computationStep3 = mockComputationStep("step3");
+  @Rule
+  public LogTester logTester = new LogTester();
+
+  private static ComputationSteps mockComputationSteps(ComputationStep... computationSteps) {
+    ComputationSteps steps = mock(ComputationSteps.class);
+    when(steps.instances()).thenReturn(Arrays.asList(computationSteps));
+    return steps;
+  }
+
+  private static ComputationStep mockComputationStep(String desc) {
+    ComputationStep mock = mock(ComputationStep.class);
+    when(mock.getDescription()).thenReturn(desc);
+    return mock;
+  }
 
   @Test
   public void execute_call_execute_on_each_ComputationStep_in_order_returned_by_instances_method() {
@@ -78,8 +89,8 @@ public class ComputationStepExecutorTest {
     new ComputationStepExecutor(mockComputationSteps(step), taskInterrupter, stepsTelemetryHolder, listener)
       .execute();
 
-    assertThat(stepsTelemetryHolder.getTelemetryMetrics()).containsEntry("step.foo", "100");
-    assertThat(stepsTelemetryHolder.getTelemetryMetrics()).containsEntry("step.bar", "20");
+    assertThat(stepsTelemetryHolder.getTelemetryMetrics()).containsEntry("prefix.step.foo", "100");
+    assertThat(stepsTelemetryHolder.getTelemetryMetrics()).containsEntry("prefix.step.bar", "20");
   }
 
   @Test
@@ -89,8 +100,8 @@ public class ComputationStepExecutorTest {
     new ComputationStepExecutor(mockComputationSteps(step), taskInterrupter, stepsTelemetryHolder, listener)
       .execute();
 
-    assertThat(stepsTelemetryHolder.getTelemetryMetrics()).containsEntry("step.foo", "100");
-    assertThat(stepsTelemetryHolder.getTelemetryMetrics()).containsEntry("step.bar", "20");
+    assertThat(stepsTelemetryHolder.getTelemetryMetrics()).containsEntry("prefix.step.foo", "100");
+    assertThat(stepsTelemetryHolder.getTelemetryMetrics()).containsEntry("prefix.step.bar", "20");
     List<String> infoLogs = logTester.logs(Level.INFO);
     System.out.println("infoLogs = " + infoLogs);
     assertThat(infoLogs).hasSize(1);
@@ -314,18 +325,6 @@ public class ComputationStepExecutorTest {
     }
   }
 
-  private static ComputationSteps mockComputationSteps(ComputationStep... computationSteps) {
-    ComputationSteps steps = mock(ComputationSteps.class);
-    when(steps.instances()).thenReturn(Arrays.asList(computationSteps));
-    return steps;
-  }
-
-  private static ComputationStep mockComputationStep(String desc) {
-    ComputationStep mock = mock(ComputationStep.class);
-    when(mock.getDescription()).thenReturn(desc);
-    return mock;
-  }
-
   private static class StepWithStatistics implements ComputationStep {
     private final String description;
     private final String[] statistics;
@@ -360,7 +359,7 @@ public class ComputationStepExecutorTest {
     @Override
     public void execute(Context context) {
       for (int i = 0; i < metrics.length; i += 2) {
-        context.addTelemetryMetricOnly(metrics[i], metrics[i + 1]);
+        context.addTelemetryMetricOnly("prefix", metrics[i], metrics[i + 1]);
       }
     }
 
@@ -382,7 +381,7 @@ public class ComputationStepExecutorTest {
     @Override
     public void execute(Context context) {
       for (int i = 0; i < metrics.length; i += 2) {
-        context.addTelemetryWithStatistic(metrics[i], metrics[i + 1]);
+        context.addTelemetryWithStatistic("prefix", metrics[i], metrics[i + 1]);
       }
     }
 

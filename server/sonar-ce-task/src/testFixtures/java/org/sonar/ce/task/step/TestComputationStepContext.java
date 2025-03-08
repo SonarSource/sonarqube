@@ -22,6 +22,7 @@ package org.sonar.ce.task.step;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.telemetry.MutableStepsTelemetryHolder;
 
@@ -37,19 +38,28 @@ public class TestComputationStepContext implements ComputationStep.Context {
   private final TestStatistics statistics = new TestStatistics();
   private final TestTelemetryMetrics metrics = new TestTelemetryMetrics();
 
+  private static String prependPrefix(@Nullable String prefix, String key) {
+    if (prefix == null) {
+      return key;
+    } else {
+      return prefix + "." + key;
+    }
+  }
+
   @Override
   public TestStatistics getStatistics() {
     return statistics;
   }
 
   @Override
-  public void addTelemetryMetricOnly(String key, Object value) {
-    metrics.add(key, value);
+  public void addTelemetryMetricOnly(String telemetryPrefix, String key, Object value) {
+    metrics.add(prependPrefix(telemetryPrefix, key), value);
   }
 
   @Override
-  public void addTelemetryWithStatistic(String key, Object value) {
-    metrics.add(key, value);
+  public void addTelemetryWithStatistic(String telemetryPrefix, String key, Object value) {
+    Objects.requireNonNull(telemetryPrefix);
+    metrics.add(prependPrefix(telemetryPrefix, key), value);
     statistics.add(key, value);
   }
 

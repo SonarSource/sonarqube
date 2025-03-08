@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.step;
 
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -136,19 +137,28 @@ public final class ComputationStepExecutor {
       this.stepsTelemetryHolder = stepsTelemetryHolder;
     }
 
+    private static String prependPrefix(@Nullable String prefix, String key) {
+      if (prefix == null) {
+        return key;
+      } else {
+        return prefix + "." + key;
+      }
+    }
+
     @Override
     public ComputationStep.Statistics getStatistics() {
       return statistics;
     }
 
     @Override
-    public void addTelemetryMetricOnly(String key, Object value) {
-      stepsTelemetryHolder.add(key, value);
+    public void addTelemetryMetricOnly(@Nullable String telemetryPrefix, String key, Object value) {
+      stepsTelemetryHolder.add(prependPrefix(telemetryPrefix, key), value);
     }
 
     @Override
-    public void addTelemetryWithStatistic(String key, Object value) {
-      stepsTelemetryHolder.add(key, value);
+    public void addTelemetryWithStatistic(String telemetryPrefix, String key, Object value) {
+      Objects.requireNonNull(telemetryPrefix);
+      stepsTelemetryHolder.add(prependPrefix(telemetryPrefix, key), value);
       statistics.add(key, value);
     }
   }

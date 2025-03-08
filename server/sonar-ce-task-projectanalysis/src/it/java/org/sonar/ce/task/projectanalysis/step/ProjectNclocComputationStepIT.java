@@ -62,12 +62,12 @@ public class ProjectNclocComputationStepIT {
       }
 
       @Override
-      public void addTelemetryMetricOnly(String key, Object value) {
+      public void addTelemetryMetricOnly(String telemetryPrefix, String key, Object value) {
         // do nothing
       }
 
       @Override
-      public void addTelemetryWithStatistic(String key, Object value) {
+      public void addTelemetryWithStatistic(String telemetryPrefix, String key, Object value) {
         // do nothing
       }
     });
