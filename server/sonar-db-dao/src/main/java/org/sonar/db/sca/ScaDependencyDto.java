@@ -20,7 +20,6 @@
 package org.sonar.db.sca;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import java.util.List;
 import javax.annotation.Nullable;
 
@@ -29,12 +28,13 @@ import static com.google.common.base.Preconditions.checkArgument;
 /**
  * Represents a Software Composition Analysis (SCA) dependency, associated with a component.
  * The component will be a package component nested inside a project branch component.
- *
+ * <p>
  * One of userDependencyFilePath or lockfileDependencyFilePath should not be null.
- *
+ *</p>
+ * <p>
  * A dependency is a "mention" of a release in a project, with a scope and a specific
  * dependency file that it was mentioned in.
- *
+ *</p>
  * @param uuid                       primary key
  * @param scaReleaseUuid             the UUID of the SCA release that this dependency refers to
  * @param direct                     is this a direct dependency of the project
@@ -64,8 +64,6 @@ public record ScaDependencyDto(
   public static final int DEPENDENCY_FILE_PATH_MAX_LENGTH = 1000;
 
   private static final Gson GSON = new Gson();
-  private static final TypeToken<List<List<String>>> CHAINS_TYPE = new TypeToken<>() {
-  };
 
   public ScaDependencyDto {
     // We want these to raise errors and not silently put junk values in the db
@@ -144,8 +142,8 @@ public record ScaDependencyDto(
   private record IdentityImpl(String scaReleaseUuid,
     boolean direct,
     String scope,
-    String userDependencyFilePath,
-    String lockfileDependencyFilePath) implements Identity {
+    @Nullable String userDependencyFilePath,
+    @Nullable String lockfileDependencyFilePath) implements Identity {
 
     IdentityImpl(ScaDependencyDto dto) {
       this(dto.scaReleaseUuid(), dto.direct(), dto.scope(), dto.userDependencyFilePath(), dto.lockfileDependencyFilePath());
@@ -189,17 +187,17 @@ public record ScaDependencyDto(
       return this;
     }
 
-    public Builder setUserDependencyFilePath(String dependencyFilePath) {
+    public Builder setUserDependencyFilePath(@Nullable String dependencyFilePath) {
       this.userDependencyFilePath = dependencyFilePath;
       return this;
     }
 
-    public Builder setLockfileDependencyFilePath(String dependencyFilePath) {
+    public Builder setLockfileDependencyFilePath(@Nullable String dependencyFilePath) {
       this.lockfileDependencyFilePath = dependencyFilePath;
       return this;
     }
 
-    public Builder setChains(List<List<String>> chains) {
+    public Builder setChains(@Nullable List<List<String>> chains) {
       this.chains = chains;
       return this;
     }
