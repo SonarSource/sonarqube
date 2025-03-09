@@ -308,11 +308,11 @@ class ScaIssuesReleasesDetailsDaoIT {
     var expectedSeverityInfo = testData.expectedIssuesSortedByIdentityAsc().stream()
       .filter(issue -> issue.severity() == ScaSeverity.INFO)
       .toList();
-    var expectedSeverityCritical = testData.expectedIssuesSortedByIdentityAsc().stream()
+    var expectedSeverityBlocker = testData.expectedIssuesSortedByIdentityAsc().stream()
       .filter(issue -> issue.severity() == ScaSeverity.BLOCKER)
       .toList();
     assertThat(expectedSeverityInfo).hasSize(5);
-    assertThat(expectedSeverityCritical).hasSize(1);
+    assertThat(expectedSeverityBlocker).hasSize(1);
 
     executeQueryTest(testData,
       queryBuilder -> queryBuilder.setSeverities(List.of(ScaSeverity.INFO)),
@@ -321,8 +321,8 @@ class ScaIssuesReleasesDetailsDaoIT {
 
     executeQueryTest(testData,
       queryBuilder -> queryBuilder.setSeverities(List.of(ScaSeverity.BLOCKER)),
-      expectedSeverityCritical,
-      "Only the issues of severity CRITICAL should be returned");
+      expectedSeverityBlocker,
+      "Only the issues of severity BLOCKER should be returned");
 
     executeQueryTest(testData,
       queryBuilder -> queryBuilder.setSeverities(List.of(ScaSeverity.LOW, ScaSeverity.HIGH)),
@@ -542,5 +542,35 @@ class ScaIssuesReleasesDetailsDaoIT {
         default -> Collections.emptyList();
       };
     }
+  }
+
+  @Test
+  void selectByScaIssueReleaseUuid_shouldReturnAnIssue() {
+    var projectData = db.components().insertPrivateProject();
+    var componentDto = projectData.getMainBranchComponent();
+    var issue1 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.VULNERABILITY, "1", componentDto.uuid());
+
+    // insert another issue to assert that it's not selected
+    db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.PROHIBITED_LICENSE, "2", componentDto.uuid());
+
+    ScaIssueReleaseDetailsDto expected = new ScaIssueReleaseDetailsDto(
+      issue1.scaIssueReleaseUuid(),
+      issue1.severity(),
+      issue1.scaIssueUuid(),
+      issue1.scaReleaseUuid(),
+      ScaIssueType.VULNERABILITY,
+      false,
+      "fakePackageUrl1",
+      "fakeVulnerabilityId1",
+      ScaIssueDto.NULL_VALUE,
+      ScaSeverity.INFO,
+      List.of("cwe1"),
+      new BigDecimal("7.1"));
+
+    var foundIssue = scaIssuesReleasesDetailsDao.selectByScaIssueReleaseUuid(db.getSession(), issue1.scaIssueReleaseUuid());
+    assertThat(foundIssue).isEqualTo(expected);
+
+    var notFoundIssue = scaIssuesReleasesDetailsDao.selectByScaIssueReleaseUuid(db.getSession(), "00000");
+    assertThat(notFoundIssue).isNull();
   }
 }

@@ -26,6 +26,8 @@ import org.sonar.db.Pagination;
 public interface ScaIssuesReleasesDetailsMapper {
   List<ScaIssueReleaseDetailsDto> selectByBranchUuid(@Param("branchUuid") String branchUuid, @Param("pagination") Pagination pagination);
 
+  ScaIssueReleaseDetailsDto selectByScaIssueReleaseUuid(String scaIssueReleaseUuid);
+
   int countByBranchUuid(String branchUuid);
 
   List<ScaIssueReleaseDetailsDto> selectByQuery(@Param("query") ScaIssuesReleasesDetailsQuery query, @Param("pagination") Pagination pagination);

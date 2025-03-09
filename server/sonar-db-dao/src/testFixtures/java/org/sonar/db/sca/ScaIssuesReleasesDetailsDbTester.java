@@ -33,7 +33,7 @@ public class ScaIssuesReleasesDetailsDbTester {
     this.dbClient = db.getDbClient();
   }
 
-  public ScaIssueReleaseDetailsDto fromDtos(ScaIssueReleaseDto scaIssueReleaseDto, ScaIssueDto scaIssueDto,
+  public static ScaIssueReleaseDetailsDto fromDtos(ScaIssueReleaseDto scaIssueReleaseDto, ScaIssueDto scaIssueDto,
     Optional<ScaVulnerabilityIssueDto> scaVulnerabilityIssueDtoOptional, boolean newInPullRequest) {
     // this should emulate what the mapper does when joining these tables
     return new ScaIssueReleaseDetailsDto(scaIssueReleaseDto.uuid(), scaIssueReleaseDto.severity(),

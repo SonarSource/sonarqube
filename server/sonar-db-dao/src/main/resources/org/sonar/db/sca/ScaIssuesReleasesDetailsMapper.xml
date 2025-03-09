@@ -45,6 +45,11 @@
     left join sca_vulnerability_issues svi on sir.sca_issue_uuid = svi.uuid
   </sql>
 
+  <sql id="sqlSelectByScaIssueReleaseUuid">
+    <include refid="sqlBaseJoins"/>
+    where sir.uuid = #{scaIssueReleaseUuid,jdbcType=VARCHAR}
+  </sql>
+
   <sql id="sqlSelectByBranchUuid">
     <include refid="sqlBaseJoins"/>
     where c.branch_uuid = #{branchUuid,jdbcType=VARCHAR}
@@ -55,6 +60,11 @@
     <include refid="sqlSelectByBranchUuid"/>
     ORDER BY <include refid="sqlIdentityOrderColumns"/>
     <include refid="org.sonar.db.common.Common.pagination"/>
+  </select>
+
+  <select id="selectByScaIssueReleaseUuid" parameterType="map" resultMap="scaIssueReleaseDetailsResultMap">
+    select <include refid="issuesWithScaColumns"/>
+    <include refid="sqlSelectByScaIssueReleaseUuid"/>
   </select>
 
   <select id="countByBranchUuid" parameterType="string" resultType="int">

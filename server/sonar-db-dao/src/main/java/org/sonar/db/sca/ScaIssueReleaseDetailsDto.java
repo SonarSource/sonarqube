@@ -36,7 +36,7 @@ import javax.annotation.Nullable;
  *   those are the affected release URLs.
  * </p>
  * <p>
- *   Similarily, vulnerabiiltyId and spdxLicenseId can have {@link ScaIssueDto#NULL_VALUE} if they
+ *   Similarly, vulnerabilityId and spdxLicenseId can have {@link ScaIssueDto#NULL_VALUE} if they
  *   are inapplicable to the issue type at hand.
  * </p>
  */

@@ -51,4 +51,12 @@ public class ScaIssuesReleasesDetailsDao implements Dao {
   public int countByQuery(DbSession dbSession, ScaIssuesReleasesDetailsQuery query) {
     return mapper(dbSession).countByQuery(query);
   }
+
+  /**
+   * Retrieves a single issue with a specific release.
+   */
+  public ScaIssueReleaseDetailsDto selectByScaIssueReleaseUuid(DbSession dbSession, String scaIssueReleaseUuid) {
+    return mapper(dbSession).selectByScaIssueReleaseUuid(scaIssueReleaseUuid);
+  }
+
 }
