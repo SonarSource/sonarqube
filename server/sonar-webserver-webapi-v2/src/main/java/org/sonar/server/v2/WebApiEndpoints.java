@@ -54,6 +54,12 @@ public class WebApiEndpoints {
   public static final String ACTIVE_RULES_ENDPOINT = ANALYSIS_DOMAIN + "/active_rules";
   public static final String SCANNER_ENGINE_ENDPOINT = ANALYSIS_DOMAIN + "/engine";
 
+  public static final String SCA_DOMAIN = "/sca";
+  public static final String SCA_RELEASES_ENDPOINT = SCA_DOMAIN + "/releases";
+  public static final String SCA_ISSUES_RELEASES_ENDPOINT = SCA_DOMAIN + "/issues-releases";
+  public static final String SCA_SBOM_REPORTS_ENDPOINT = SCA_DOMAIN + "/sbom-reports";
+  public static final String SCA_CLIS_ENDPOINT = SCA_DOMAIN + "/clis";
+
   private WebApiEndpoints() {
   }
 }
