@@ -52,7 +52,7 @@ import static java.lang.String.format;
  * can make use of it.
  */
 public class CliCacheService {
-  protected static final String CLI_WS_URL = "api/v2/analysis/sca-clis";
+  protected static final String CLI_WS_URL = "api/v2/sca/clis";
   private static final Logger LOG = LoggerFactory.getLogger(CliCacheService.class);
   private final SonarUserHome sonarUserHome;
   private final ScannerWsClient wsClient;
