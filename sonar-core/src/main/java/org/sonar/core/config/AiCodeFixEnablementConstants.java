@@ -22,6 +22,7 @@ package org.sonar.core.config;
 public final class AiCodeFixEnablementConstants {
   public static final String SUGGESTION_FEATURE_ENABLED_PROPERTY = "sonar.ai.suggestions.enabled";
   public static final String SUGGESTION_PROVIDER_KEY_PROPERTY = "sonar.ai.suggestions.provider.key";
+  public static final String SUGGESTION_PROVIDER_MODEL_KEY_PROPERTY = "sonar.ai.suggestions.provider.modelKey";
   public static final String SUGGESTION_PROVIDER_ENDPOINT_PROPERTY = "sonar.ai.suggestions.provider.endpoint";
   public static final String SUGGESTION_PROVIDER_API_KEY_INTERNAL_PROPERTY = "sonar.ai.suggestions.provider.apiKey";
 
