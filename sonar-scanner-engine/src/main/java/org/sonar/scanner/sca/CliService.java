@@ -30,6 +30,7 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.ProcessWrapperFactory;
 import org.sonar.scanner.config.DefaultConfiguration;
@@ -46,11 +47,13 @@ public class CliService {
   private final ProcessWrapperFactory processWrapperFactory;
   private final TelemetryCache telemetryCache;
   private final System2 system2;
+  private final Server server;
 
-  public CliService(ProcessWrapperFactory processWrapperFactory, TelemetryCache telemetryCache, System2 system2) {
+  public CliService(ProcessWrapperFactory processWrapperFactory, TelemetryCache telemetryCache, System2 system2, Server server) {
     this.processWrapperFactory = processWrapperFactory;
     this.telemetryCache = telemetryCache;
     this.system2 = system2;
+    this.server = server;
   }
 
   public File generateManifestsZip(DefaultInputModule module, File cliExecutable, DefaultConfiguration configuration) throws IOException, IllegalStateException {
@@ -89,6 +92,8 @@ public class CliService {
       // sending this will tell the CLI to skip checking for the latest available version on startup
       envProperties.put("TIDELIFT_SKIP_UPDATE_CHECK", "1");
       envProperties.put("TIDELIFT_ALLOW_MANIFEST_FAILURES", "1");
+      envProperties.put("TIDELIFT_CLI_INSIDE_SCANNER_ENGINE", "1");
+      envProperties.put("TIDELIFT_CLI_SQ_SERVER_VERSION", server.getVersion());
       envProperties.putAll(ScaProperties.buildFromScannerProperties(configuration));
 
       LOG.debug("Environment properties: {}", envProperties);

@@ -34,6 +34,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.platform.Server;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.ProcessWrapperFactory;
@@ -48,29 +49,25 @@ import static org.slf4j.event.Level.INFO;
 
 class CliServiceTest {
   private TelemetryCache telemetryCache;
+  private DefaultInputModule rootInputModule;
+  private final Server server = mock(Server.class);
   @RegisterExtension
   private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
+  @TempDir
+  Path rootModuleDir;
 
   private CliService underTest;
 
   @BeforeEach
   void setup() {
     telemetryCache = new TelemetryCache();
-    underTest = new CliService(new ProcessWrapperFactory(), telemetryCache, System2.INSTANCE);
+    rootInputModule = new DefaultInputModule(
+      ProjectDefinition.create().setBaseDir(rootModuleDir.toFile()).setWorkDir(rootModuleDir.toFile()));
+    underTest = new CliService(new ProcessWrapperFactory(), telemetryCache, System2.INSTANCE, server);
   }
 
   @Test
-  void generateZip_shouldCallProcessCorrectly_andRegisterTelemetry(@TempDir Path rootModuleDir) throws IOException, URISyntaxException {
-    DefaultInputModule root = new DefaultInputModule(
-      ProjectDefinition.create().setBaseDir(rootModuleDir.toFile()).setWorkDir(rootModuleDir.toFile()));
-
-    // There is a custom test Bash script available in src/test/resources/org/sonar/scanner/sca that
-    // will serve as our "CLI". This script will output some messages about what arguments were passed
-    // to it and will try to generate a zip file in the location the process specifies. This allows us
-    // to simulate a real CLI call without needing an OS specific CLI executable to run on a real project.
-    URL scriptUrl = CliServiceTest.class.getResource(SystemUtils.IS_OS_WINDOWS ? "echo_args.bat" : "echo_args.sh");
-    assertThat(scriptUrl).isNotNull();
-    File scriptDir = new File(scriptUrl.toURI());
+  void generateZip_shouldCallProcessCorrectly_andRegisterTelemetry() throws IOException, URISyntaxException {
     assertThat(rootModuleDir.resolve("test_file").toFile().createNewFile()).isTrue();
 
     // We need to set the logging level to debug in order to be able to view the shell script's output
@@ -81,9 +78,9 @@ class CliServiceTest {
       "save-lockfiles",
       "--zip",
       "--zip-filename",
-      root.getWorkDir().resolve("dependency-files.zip").toString(),
+      rootInputModule.getWorkDir().resolve("dependency-files.zip").toString(),
       "--directory",
-      root.getBaseDir().toString(),
+      rootInputModule.getBaseDir().toString(),
       "--debug");
 
     String argumentOutput = "Arguments Passed In: " + String.join(" ", args);
@@ -91,7 +88,7 @@ class CliServiceTest {
     when(configuration.getProperties()).thenReturn(Map.of("sonar.sca.recursiveManifestSearch", "true"));
     when(configuration.get("sonar.sca.recursiveManifestSearch")).thenReturn(Optional.of("true"));
 
-    File producedZip = underTest.generateManifestsZip(root, scriptDir, configuration);
+    File producedZip = underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
     assertThat(producedZip).exists();
 
     assertThat(logTester.logs(DEBUG))
@@ -106,17 +103,7 @@ class CliServiceTest {
   }
 
   @Test
-  void generateZip_whenDebugLogLevel_shouldCallProcessCorrectly(@TempDir Path rootModuleDir) throws IOException, URISyntaxException {
-    DefaultInputModule root = new DefaultInputModule(
-      ProjectDefinition.create().setBaseDir(rootModuleDir.toFile()).setWorkDir(rootModuleDir.toFile()));
-
-    // There is a custom test Bash script available in src/test/resources/org/sonar/scanner/sca that
-    // will serve as our "CLI". This script will output some messages about what arguments were passed
-    // to it and will try to generate a zip file in the location the process specifies. This allows us
-    // to simulate a real CLI call without needing an OS specific CLI executable to run on a real project.
-    URL scriptUrl = CliServiceTest.class.getResource(SystemUtils.IS_OS_WINDOWS ? "echo_args.bat" : "echo_args.sh");
-    assertThat(scriptUrl).isNotNull();
-    File scriptDir = new File(scriptUrl.toURI());
+  void generateZip_whenDebugLogLevel_shouldCallProcessCorrectly() throws IOException, URISyntaxException {
     assertThat(rootModuleDir.resolve("test_file").toFile().createNewFile()).isTrue();
 
     // We need to set the logging level to debug in order to be able to view the shell script's output
@@ -127,9 +114,9 @@ class CliServiceTest {
       "save-lockfiles",
       "--zip",
       "--zip-filename",
-      root.getWorkDir().resolve("dependency-files.zip").toString(),
+      rootInputModule.getWorkDir().resolve("dependency-files.zip").toString(),
       "--directory",
-      root.getBaseDir().toString(),
+      rootInputModule.getBaseDir().toString(),
       "--debug");
 
     String argumentOutput = "Arguments Passed In: " + String.join(" ", args);
@@ -137,24 +124,14 @@ class CliServiceTest {
     when(configuration.getProperties()).thenReturn(Map.of("sonar.sca.recursiveManifestSearch", "true"));
     when(configuration.get("sonar.sca.recursiveManifestSearch")).thenReturn(Optional.of("true"));
 
-    underTest.generateManifestsZip(root, scriptDir, configuration);
+    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
 
     assertThat(logTester.logs(DEBUG))
       .contains(argumentOutput);
   }
 
   @Test
-  void generateZip_whenScaDebugEnabled_shouldCallProcessCorrectly(@TempDir Path rootModuleDir) throws IOException, URISyntaxException {
-    DefaultInputModule root = new DefaultInputModule(
-      ProjectDefinition.create().setBaseDir(rootModuleDir.toFile()).setWorkDir(rootModuleDir.toFile()));
-
-    // There is a custom test Bash script available in src/test/resources/org/sonar/scanner/sca that
-    // will serve as our "CLI". This script will output some messages about what arguments were passed
-    // to it and will try to generate a zip file in the location the process specifies. This allows us
-    // to simulate a real CLI call without needing an OS specific CLI executable to run on a real project.
-    URL scriptUrl = CliServiceTest.class.getResource(SystemUtils.IS_OS_WINDOWS ? "echo_args.bat" : "echo_args.sh");
-    assertThat(scriptUrl).isNotNull();
-    File scriptDir = new File(scriptUrl.toURI());
+  void generateZip_whenScaDebugEnabled_shouldCallProcessCorrectly() throws IOException, URISyntaxException {
     assertThat(rootModuleDir.resolve("test_file").toFile().createNewFile()).isTrue();
 
     // Set the logging level to info so that we don't automatically set --debug flag
@@ -165,9 +142,9 @@ class CliServiceTest {
       "save-lockfiles",
       "--zip",
       "--zip-filename",
-      root.getWorkDir().resolve("dependency-files.zip").toString(),
+      rootInputModule.getWorkDir().resolve("dependency-files.zip").toString(),
       "--directory",
-      root.getBaseDir().toString(),
+      rootInputModule.getBaseDir().toString(),
       "--debug");
 
     String argumentOutput = "Arguments Passed In: " + String.join(" ", args);
@@ -176,9 +153,39 @@ class CliServiceTest {
     when(configuration.get("sonar.sca.recursiveManifestSearch")).thenReturn(Optional.of("true"));
     when(configuration.getBoolean("sonar.sca.debug")).thenReturn(Optional.of(true));
 
-    underTest.generateManifestsZip(root, scriptDir, configuration);
+    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
 
     assertThat(logTester.logs(INFO))
       .contains(argumentOutput);
+  }
+
+  @Test
+  void generateZip_shouldSendSQEnvVars() throws IOException, URISyntaxException {
+    // We need to set the logging level to debug in order to be able to view the shell script's output
+    logTester.setLevel(DEBUG);
+
+    var version = "1.0.0";
+    when(server.getVersion()).thenReturn(version);
+
+    DefaultConfiguration configuration = mock(DefaultConfiguration.class);
+    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+
+    assertThat(logTester.logs(DEBUG))
+      .contains("TIDELIFT_CLI_INSIDE_SCANNER_ENGINE=1")
+      .contains("TIDELIFT_CLI_SQ_SERVER_VERSION=" + version);
+  }
+
+  private URL scriptUrl() {
+    // There is a custom test Bash script available in src/test/resources/org/sonar/scanner/sca that
+    // will serve as our "CLI". This script will output some messages about what arguments were passed
+    // to it and will try to generate a zip file in the location the process specifies. This allows us
+    // to simulate a real CLI call without needing an OS specific CLI executable to run on a real project.
+    URL scriptUrl = CliServiceTest.class.getResource(SystemUtils.IS_OS_WINDOWS ? "echo_args.bat" : "echo_args.sh");
+    assertThat(scriptUrl).isNotNull();
+    return scriptUrl;
+  }
+
+  private File scriptDir() throws URISyntaxException {
+    return new File(scriptUrl().toURI());
   }
 }
