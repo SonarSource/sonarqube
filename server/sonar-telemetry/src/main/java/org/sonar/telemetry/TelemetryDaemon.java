@@ -116,27 +116,28 @@ public class TelemetryDaemon extends AbstractStoppableScheduledExecutorServiceIm
 
   private Runnable telemetryCommand() {
     return () -> {
-      if (!lockManager.tryLock(LOCK_NAME, lockDuration())) {
-        return;
-      }
-
-      long now = system2.now();
       try {
+        if (!lockManager.tryLock(LOCK_NAME, lockDuration())) {
+          return;
+        }
+
+        long now = system2.now();
         if (shouldUploadStatistics(now)) {
           uploadLegacyTelemetry();
           uploadMetrics();
-          writeTelemetrySequence();
+
+          updateTelemetryProps(now);
         }
       } catch (Exception e) {
         LOG.debug("Error while checking SonarQube statistics: {}", e.getMessage(), e);
-      } finally {
-        writeLastPing(now);
       }
       // do not check at start up to exclude test instance which are not up for a long time
     };
   }
 
-  private void writeTelemetrySequence() {
+  private void updateTelemetryProps(long now) {
+    internalProperties.write(I_PROP_LAST_PING, String.valueOf(now));
+
     Optional<String> currentSequence = internalProperties.read(I_PROP_MESSAGE_SEQUENCE);
     if (currentSequence.isEmpty()) {
       internalProperties.write(I_PROP_MESSAGE_SEQUENCE, String.valueOf(1));

@@ -49,6 +49,7 @@ import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
@@ -115,32 +116,23 @@ class TelemetryDaemonTest {
   void start_whenLastPingEarlierThanOneDayAgo_shouldNotSendData() throws IOException {
     initTelemetrySettingsToDefaultValues();
     when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
-    settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
     long now = system2.now();
     long twentyHoursAgo = now - (ONE_HOUR * 20L);
-    mockDataJsonWriterDoingSomething();
-
+    long moreThanOneDayAgo = now - ONE_DAY - ONE_HOUR;
     internalProperties.write("telemetry.lastPing", String.valueOf(twentyHoursAgo));
-    underTest.start();
-
-    verify(client, after(2_000).never()).upload(anyString());
-  }
-
-  @Test
-  void start_whenExceptionThrown_shouldNotRepeatedlySendDataAndLastPingPropIsStillSet() throws IOException {
-    initTelemetrySettingsToDefaultValues();
-    when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
-    long today = parseDate("2017-08-01").getTime();
-    system2.setNow(today);
-    settings.removeProperty("telemetry.lastPing");
+    when(dataLoader.load()).thenReturn(SOME_TELEMETRY_DATA);
     mockDataJsonWriterDoingSomething();
-    when(dataLoader.load()).thenThrow(new IllegalStateException("Some error was thrown."));
 
     underTest.start();
 
-    verify(client, after(2_000).never()).upload(anyString());
-    verify(internalProperties, timeout(4_000).atLeastOnce()).write("telemetry.lastPing", String.valueOf(today));
+    verify(dataJsonWriter, after(2_000).never()).writeTelemetryData(any(JsonWriter.class), same(SOME_TELEMETRY_DATA));
+    verify(client, never()).upload(anyString());
+
+    internalProperties.write("telemetry.lastPing", String.valueOf(moreThanOneDayAgo));
+
+    verify(client, timeout(2_000)).upload(anyString());
+    verify(dataJsonWriter).writeTelemetryData(any(JsonWriter.class), same(SOME_TELEMETRY_DATA));
   }
 
   @Test
@@ -208,6 +200,12 @@ class TelemetryDaemonTest {
     verify(internalProperties, timeout(4_000)).write("telemetry.messageSeq", "11");
   }
 
+  private void initTelemetrySettingsToDefaultValues() {
+    settings.setProperty(SONAR_TELEMETRY_ENABLE.getKey(), SONAR_TELEMETRY_ENABLE.getDefaultValue());
+    settings.setProperty(SONAR_TELEMETRY_URL.getKey(), SONAR_TELEMETRY_URL.getDefaultValue());
+    settings.setProperty(SONAR_TELEMETRY_FREQUENCY_IN_SECONDS.getKey(), SONAR_TELEMETRY_FREQUENCY_IN_SECONDS.getDefaultValue());
+  }
+
   private void mockDataJsonWriterDoingSomething() {
     doAnswer(t -> {
       JsonWriter json = t.getArgument(0);
@@ -216,12 +214,6 @@ class TelemetryDaemonTest {
     })
       .when(dataJsonWriter)
       .writeTelemetryData(any(), any());
-  }
-
-  private void initTelemetrySettingsToDefaultValues() {
-    settings.setProperty(SONAR_TELEMETRY_ENABLE.getKey(), SONAR_TELEMETRY_ENABLE.getDefaultValue());
-    settings.setProperty(SONAR_TELEMETRY_URL.getKey(), SONAR_TELEMETRY_URL.getDefaultValue());
-    settings.setProperty(SONAR_TELEMETRY_FREQUENCY_IN_SECONDS.getKey(), SONAR_TELEMETRY_FREQUENCY_IN_SECONDS.getDefaultValue());
   }
 
 }
