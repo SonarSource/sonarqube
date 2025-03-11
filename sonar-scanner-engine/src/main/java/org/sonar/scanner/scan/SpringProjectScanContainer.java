@@ -19,9 +19,9 @@
  */
 package org.sonar.scanner.scan;
 
+import jakarta.annotation.Priority;
 import java.util.Collection;
 import java.util.Set;
-import jakarta.annotation.Priority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugin;
@@ -139,8 +139,7 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
       // SCA
       CliService.class,
       CliCacheService.class,
-      ScaExecutor.class
-    );
+      ScaExecutor.class);
   }
 
   static ExtensionMatcher getScannerProjectExtensionsFilter() {
