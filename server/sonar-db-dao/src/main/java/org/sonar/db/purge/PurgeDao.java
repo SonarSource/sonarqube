@@ -280,6 +280,7 @@ public class PurgeDao implements Dao {
     commands.deleteReportSchedules(branchUuid);
     commands.deleteReportSubscriptions(branchUuid);
     commands.deleteIssuesFixed(branchUuid);
+    commands.deleteScaActivity(branchUuid);
   }
 
   private static void deleteProject(String projectUuid, PurgeMapper mapper, PurgeCommands commands) {

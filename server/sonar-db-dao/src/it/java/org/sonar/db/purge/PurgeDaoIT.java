@@ -89,6 +89,10 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.db.report.ReportScheduleDto;
 import org.sonar.db.report.ReportSubscriptionDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.sca.ScaDependenciesDbTester;
+import org.sonar.db.sca.ScaIssueReleaseDto;
+import org.sonar.db.sca.ScaReleasesDbTester;
+import org.sonar.db.sca.ScaSeverity;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.user.UserDismissedMessageDto;
 import org.sonar.db.user.UserDto;
@@ -1958,6 +1962,40 @@ oldCreationDate));
     assertThat(uuidsIn("project_branches")).containsOnly(branch.getUuid());
     assertThat(uuidsIn("projects")).containsOnly("uuid");
 
+  }
+
+  @Test
+  void deleteBranch_purgesScaActivity() {
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    BranchDto branch1 = db.components().insertProjectBranch(project);
+    BranchDto branch2 = db.components().insertProjectBranch(project);
+
+    ScaReleasesDbTester scaReleasesDbTester = new ScaReleasesDbTester(db);
+    var release1 = scaReleasesDbTester.insertScaRelease(branch1.getUuid(), "1");
+    var release2 = scaReleasesDbTester.insertScaRelease(branch2.getUuid(), "2");
+
+    ScaDependenciesDbTester scaDependenciesDbTester = new ScaDependenciesDbTester(db);
+    scaDependenciesDbTester.insertScaDependency(branch1.getUuid(), release1.uuid(), "1",false);
+    scaDependenciesDbTester.insertScaDependency(branch2.getUuid(), release2.uuid(), "2", false);
+
+    ScaIssueReleaseDto issueRelease1 = new ScaIssueReleaseDto.Builder().setUuid("foo1").setScaIssueUuid("baz").setSeverity(ScaSeverity.LOW).setScaReleaseUuid(release1.uuid()).build();
+    ScaIssueReleaseDto issueRelease2 = new ScaIssueReleaseDto.Builder().setUuid("foo2").setScaIssueUuid("baz").setSeverity(ScaSeverity.LOW).setScaReleaseUuid(release2.uuid()).build();
+    dbClient.scaIssuesReleasesDao().insert(dbSession, issueRelease1);
+    dbClient.scaIssuesReleasesDao().insert(dbSession, issueRelease2);
+
+    assertThat(dbClient.scaReleasesDao().selectByBranchUuid(dbSession, branch1.getUuid())).isNotEmpty();
+    assertThat(dbClient.scaDependenciesDao().selectByBranchUuid(dbSession, branch1.getUuid())).isNotEmpty();
+    assertThat(dbClient.scaIssuesReleasesDao().selectByBranchUuid(dbSession, branch1.getUuid())).isNotEmpty();
+
+    underTest.deleteBranch(dbSession, branch1.getUuid());
+
+    assertThat(dbClient.scaReleasesDao().selectByBranchUuid(dbSession, branch1.getUuid())).isEmpty();
+    assertThat(dbClient.scaDependenciesDao().selectByBranchUuid(dbSession, branch1.getUuid())).isEmpty();
+    assertThat(dbClient.scaIssuesReleasesDao().selectByBranchUuid(dbSession, branch1.getUuid())).isEmpty();
+
+    assertThat(dbClient.scaReleasesDao().selectByBranchUuid(dbSession, branch2.getUuid())).isNotEmpty();
+    assertThat(dbClient.scaDependenciesDao().selectByBranchUuid(dbSession, branch2.getUuid())).isNotEmpty();
+    assertThat(dbClient.scaIssuesReleasesDao().selectByBranchUuid(dbSession, branch2.getUuid())).isNotEmpty();
   }
 
   private AnticipatedTransitionDto getAnticipatedTransitionsDto(String uuid, String projectUuid, Date creationDate) {

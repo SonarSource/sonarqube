@@ -669,4 +669,15 @@
   <delete id="deleteIssuesFixedByBranchUuid">
     delete from issues_fixed where pull_request_uuid = #{branchUuid,jdbcType=VARCHAR}
   </delete>
+
+
+  <delete id="deleteScaDependenciesByComponentUuid">
+    delete from sca_dependencies where sca_release_uuid in (select uuid from sca_releases where component_uuid = #{componentUuid,jdbcType=VARCHAR})
+  </delete>
+  <delete id="deleteScaIssuesReleasesByComponentUuid">
+    delete from sca_issues_releases where sca_release_uuid in (select uuid from sca_releases where component_uuid = #{componentUuid,jdbcType=VARCHAR})
+  </delete>
+  <delete id="deleteScaReleasesByComponentUuid">
+    delete from sca_releases where component_uuid = #{componentUuid,jdbcType=VARCHAR}
+  </delete>
 </mapper>

@@ -523,4 +523,23 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
   }
+
+  public void deleteScaActivity(String componentUuid) {
+    profiler.start("deleteScaDependencies (sca_dependencies)");
+    purgeMapper.deleteScaDependenciesByComponentUuid(componentUuid);
+    session.commit();
+    profiler.stop();
+
+    profiler.start("deleteScaIssuesReleases (sca_issues_releases)");
+    purgeMapper.deleteScaIssuesReleasesByComponentUuid(componentUuid);
+    session.commit();
+    profiler.stop();
+
+    // sca_releases MUST be deleted last because dependencies and
+    // issues_releases only join to the component through sca_releases
+    profiler.start("deleteScaReleases (sca_releases)");
+    purgeMapper.deleteScaReleasesByComponentUuid(componentUuid);
+    session.commit();
+    profiler.stop();
+  }
 }
