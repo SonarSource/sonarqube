@@ -11,6 +11,8 @@
       <arg column="sca_release_uuid" javaType="String"/>
       <arg column="sca_issue_type" javaType="org.sonar.db.sca.ScaIssueType" jdbcType="VARCHAR"/>
       <arg column="new_in_pull_request" javaType="_boolean"/>
+      <arg column="version" javaType="String"/>
+      <arg column="release_package_url" javaType="String"/>
       <arg column="package_url" javaType="String"/>
       <arg column="vulnerability_id" javaType="String"/>
       <arg column="spdx_license_id" javaType="String"/>
@@ -31,6 +33,8 @@
     sir.sca_release_uuid,
     si.sca_issue_type,
     sr.new_in_pull_request,
+    sr.version,
+    sr.package_url as release_package_url,
     si.package_url,
     si.vulnerability_id,
     si.spdx_license_id,

@@ -34,11 +34,12 @@ public class ScaIssuesReleasesDetailsDbTester {
   }
 
   public static ScaIssueReleaseDetailsDto fromDtos(ScaIssueReleaseDto scaIssueReleaseDto, ScaIssueDto scaIssueDto,
-    Optional<ScaVulnerabilityIssueDto> scaVulnerabilityIssueDtoOptional, boolean newInPullRequest) {
+    Optional<ScaVulnerabilityIssueDto> scaVulnerabilityIssueDtoOptional, ScaReleaseDto releaseDto) {
     // this should emulate what the mapper does when joining these tables
     return new ScaIssueReleaseDetailsDto(scaIssueReleaseDto.uuid(), scaIssueReleaseDto.severity(),
       scaIssueReleaseDto.scaIssueUuid(), scaIssueReleaseDto.scaReleaseUuid(), scaIssueDto.scaIssueType(),
-      newInPullRequest, scaIssueDto.packageUrl(), scaIssueDto.vulnerabilityId(), scaIssueDto.spdxLicenseId(),
+      releaseDto.newInPullRequest(), releaseDto.version(), releaseDto.packageUrl(),
+      scaIssueDto.packageUrl(), scaIssueDto.vulnerabilityId(), scaIssueDto.spdxLicenseId(),
       scaVulnerabilityIssueDtoOptional.map(ScaVulnerabilityIssueDto::baseSeverity).orElse(null),
       scaVulnerabilityIssueDtoOptional.map(ScaVulnerabilityIssueDto::cweIds).orElse(null),
       scaVulnerabilityIssueDtoOptional.map(ScaVulnerabilityIssueDto::cvssScore).orElse(null),
@@ -51,7 +52,7 @@ public class ScaIssuesReleasesDetailsDbTester {
     var scaRelease = db.getScaReleasesDbTester().insertScaRelease(componentUuid, suffix);
     var scaIssueRelease = new ScaIssueReleaseDto("sca-issue-release-uuid-" + suffix, scaIssue, scaRelease, ScaSeverity.INFO, 1L, 2L);
     dbClient.scaIssuesReleasesDao().insert(db.getSession(), scaIssueRelease);
-    return fromDtos(scaIssueRelease, scaIssue, scaVulnerabilityIssueDtoOptional, scaRelease.newInPullRequest());
+    return fromDtos(scaIssueRelease, scaIssue, scaVulnerabilityIssueDtoOptional, scaRelease);
   }
 
   public ScaIssueReleaseDetailsDto insertVulnerabilityIssue(String suffix, String componentUuid) {
@@ -103,6 +104,6 @@ public class ScaIssuesReleasesDetailsDbTester {
       scaIssueRelease = scaIssueReleaseModifier.apply(scaIssueRelease);
     }
     dbClient.scaIssuesReleasesDao().insert(db.getSession(), scaIssueRelease);
-    return fromDtos(scaIssueRelease, scaIssue, Optional.ofNullable(scaVulnerabilityIssue), scaRelease.newInPullRequest());
+    return fromDtos(scaIssueRelease, scaIssue, Optional.ofNullable(scaVulnerabilityIssue), scaRelease);
   }
 }

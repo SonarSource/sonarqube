@@ -34,7 +34,7 @@ import org.sonar.api.utils.DateUtils;
  *   The packageUrl parameter in particular is tricky; it's the identity packageUrl from ScaIssueDto,
  *   and can be set to {@link ScaIssueDto#NULL_VALUE} if the issue is not a vulnerability. What you
  *   likely want in many cases instead would be the package URLs from the individual releases,
- *   those are the affected release URLs.
+ *   that is the releasePackageUrl parameter and is not null.
  * </p>
  * <p>
  *   Similarly, vulnerabilityId and spdxLicenseId can have {@link ScaIssueDto#NULL_VALUE} if they
@@ -47,6 +47,8 @@ public record ScaIssueReleaseDetailsDto(String scaIssueReleaseUuid,
   String scaReleaseUuid,
   ScaIssueType scaIssueType,
   boolean newInPullRequest,
+  String version,
+  String releasePackageUrl,
   String packageUrl,
   String vulnerabilityId,
   String spdxLicenseId,
@@ -69,6 +71,8 @@ public record ScaIssueReleaseDetailsDto(String scaIssueReleaseUuid,
       .setScaReleaseUuid(scaReleaseUuid)
       .setScaIssueType(scaIssueType)
       .setNewInPullRequest(newInPullRequest)
+      .setVersion(version)
+      .setReleasePackageUrl(releasePackageUrl)
       .setPackageUrl(packageUrl)
       .setVulnerabilityId(vulnerabilityId)
       .setSpdxLicenseId(spdxLicenseId)
@@ -85,6 +89,8 @@ public record ScaIssueReleaseDetailsDto(String scaIssueReleaseUuid,
     private String scaReleaseUuid;
     private ScaIssueType scaIssueType;
     private boolean newInPullRequest;
+    private String version;
+    private String releasePackageUrl;
     private String packageUrl;
     private String vulnerabilityId;
     private String spdxLicenseId;
@@ -120,6 +126,16 @@ public record ScaIssueReleaseDetailsDto(String scaIssueReleaseUuid,
 
     public Builder setNewInPullRequest(boolean newInPullRequest) {
       this.newInPullRequest = newInPullRequest;
+      return this;
+    }
+
+    public Builder setVersion(String version) {
+      this.version = version;
+      return this;
+    }
+
+    public Builder setReleasePackageUrl(String releasePackageUrl) {
+      this.releasePackageUrl = releasePackageUrl;
       return this;
     }
 
@@ -160,7 +176,8 @@ public record ScaIssueReleaseDetailsDto(String scaIssueReleaseUuid,
 
     public ScaIssueReleaseDetailsDto build() {
       return new ScaIssueReleaseDetailsDto(scaIssueReleaseUuid, severity, scaIssueUuid, scaReleaseUuid, scaIssueType,
-        newInPullRequest, packageUrl, vulnerabilityId, spdxLicenseId, vulnerabilityBaseSeverity, cweIds, cvssScore, createdAt);
+        newInPullRequest, version, releasePackageUrl, packageUrl, vulnerabilityId, spdxLicenseId,
+        vulnerabilityBaseSeverity, cweIds, cvssScore, createdAt);
     }
   }
 }

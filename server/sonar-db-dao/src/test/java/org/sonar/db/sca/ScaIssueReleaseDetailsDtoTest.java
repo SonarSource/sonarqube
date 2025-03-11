@@ -34,6 +34,8 @@ class ScaIssueReleaseDetailsDtoTest {
       "scaReleaseUuid",
       ScaIssueType.VULNERABILITY,
       true,
+      "1.2.3",
+      "releasePackageUrl",
       "packageUrl",
       "vulnerabilityId",
       "spdxLicenseId",

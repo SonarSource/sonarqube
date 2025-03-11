@@ -69,6 +69,8 @@ class ScaIssuesReleasesDetailsDaoIT {
       issue1.scaReleaseUuid(),
       ScaIssueType.VULNERABILITY,
       false,
+      issue1.version(),
+      issue1.releasePackageUrl(),
       "fakePackageUrl1",
       "fakeVulnerabilityId1",
       ScaIssueDto.NULL_VALUE,
@@ -83,6 +85,8 @@ class ScaIssuesReleasesDetailsDaoIT {
       issue2.scaReleaseUuid(),
       ScaIssueType.PROHIBITED_LICENSE,
       false,
+      issue2.version(),
+      issue2.releasePackageUrl(),
       ScaIssueDto.NULL_VALUE,
       ScaIssueDto.NULL_VALUE,
       "0BSD",
@@ -475,6 +479,39 @@ class ScaIssuesReleasesDetailsDaoIT {
       List.of(issue1, issue2, issue3, issue4, issue5, issue6));
   }
 
+  @Test
+  void selectByScaIssueReleaseUuid_shouldReturnAnIssue() {
+    var projectData = db.components().insertPrivateProject();
+    var componentDto = projectData.getMainBranchComponent();
+    var issue1 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.VULNERABILITY, "1", componentDto.uuid());
+
+    // insert another issue to assert that it's not selected
+    db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.PROHIBITED_LICENSE, "2", componentDto.uuid());
+
+    ScaIssueReleaseDetailsDto expected = new ScaIssueReleaseDetailsDto(
+      issue1.scaIssueReleaseUuid(),
+      issue1.severity(),
+      issue1.scaIssueUuid(),
+      issue1.scaReleaseUuid(),
+      ScaIssueType.VULNERABILITY,
+      false,
+      issue1.version(),
+      issue1.releasePackageUrl(),
+      "fakePackageUrl1",
+      "fakeVulnerabilityId1",
+      ScaIssueDto.NULL_VALUE,
+      ScaSeverity.INFO,
+      List.of("cwe1"),
+      new BigDecimal("7.1"),
+      issue1.createdAt());
+
+    var foundIssue = scaIssuesReleasesDetailsDao.selectByScaIssueReleaseUuid(db.getSession(), issue1.scaIssueReleaseUuid());
+    assertThat(foundIssue).isEqualTo(expected);
+
+    var notFoundIssue = scaIssuesReleasesDetailsDao.selectByScaIssueReleaseUuid(db.getSession(), "00000");
+    assertThat(notFoundIssue).isNull();
+  }
+
   private record QueryTestData(ProjectData projectData,
     ComponentDto componentDto,
     List<ScaIssueReleaseDetailsDto> expectedIssues) {
@@ -544,36 +581,5 @@ class ScaIssuesReleasesDetailsDaoIT {
         default -> Collections.emptyList();
       };
     }
-  }
-
-  @Test
-  void selectByScaIssueReleaseUuid_shouldReturnAnIssue() {
-    var projectData = db.components().insertPrivateProject();
-    var componentDto = projectData.getMainBranchComponent();
-    var issue1 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.VULNERABILITY, "1", componentDto.uuid());
-
-    // insert another issue to assert that it's not selected
-    db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.PROHIBITED_LICENSE, "2", componentDto.uuid());
-
-    ScaIssueReleaseDetailsDto expected = new ScaIssueReleaseDetailsDto(
-      issue1.scaIssueReleaseUuid(),
-      issue1.severity(),
-      issue1.scaIssueUuid(),
-      issue1.scaReleaseUuid(),
-      ScaIssueType.VULNERABILITY,
-      false,
-      "fakePackageUrl1",
-      "fakeVulnerabilityId1",
-      ScaIssueDto.NULL_VALUE,
-      ScaSeverity.INFO,
-      List.of("cwe1"),
-      new BigDecimal("7.1"),
-      1L);
-
-    var foundIssue = scaIssuesReleasesDetailsDao.selectByScaIssueReleaseUuid(db.getSession(), issue1.scaIssueReleaseUuid());
-    assertThat(foundIssue).isEqualTo(expected);
-
-    var notFoundIssue = scaIssuesReleasesDetailsDao.selectByScaIssueReleaseUuid(db.getSession(), "00000");
-    assertThat(notFoundIssue).isNull();
   }
 }
