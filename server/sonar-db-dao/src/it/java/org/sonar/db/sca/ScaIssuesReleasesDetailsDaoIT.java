@@ -74,7 +74,8 @@ class ScaIssuesReleasesDetailsDaoIT {
       ScaIssueDto.NULL_VALUE,
       ScaSeverity.INFO,
       List.of("cwe1"),
-      new BigDecimal("7.1"));
+      new BigDecimal("7.1"),
+      1L);
     ScaIssueReleaseDetailsDto expected2 = new ScaIssueReleaseDetailsDto(
       issue2.scaIssueReleaseUuid(),
       issue2.severity(),
@@ -87,7 +88,8 @@ class ScaIssuesReleasesDetailsDaoIT {
       "0BSD",
       null,
       null,
-      null);
+      null,
+      1L);
 
     assertThat(foundPage).hasSize(1).isSubsetOf(expected1, expected2);
     var foundAllIssues = scaIssuesReleasesDetailsDao.selectByBranchUuid(db.getSession(), componentDto.branchUuid(), Pagination.forPage(1).andSize(10));
@@ -565,7 +567,8 @@ class ScaIssuesReleasesDetailsDaoIT {
       ScaIssueDto.NULL_VALUE,
       ScaSeverity.INFO,
       List.of("cwe1"),
-      new BigDecimal("7.1"));
+      new BigDecimal("7.1"),
+      1L);
 
     var foundIssue = scaIssuesReleasesDetailsDao.selectByScaIssueReleaseUuid(db.getSession(), issue1.scaIssueReleaseUuid());
     assertThat(foundIssue).isEqualTo(expected);

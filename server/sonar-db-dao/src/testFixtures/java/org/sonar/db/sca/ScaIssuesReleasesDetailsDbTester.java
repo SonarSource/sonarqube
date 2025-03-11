@@ -41,7 +41,8 @@ public class ScaIssuesReleasesDetailsDbTester {
       newInPullRequest, scaIssueDto.packageUrl(), scaIssueDto.vulnerabilityId(), scaIssueDto.spdxLicenseId(),
       scaVulnerabilityIssueDtoOptional.map(ScaVulnerabilityIssueDto::baseSeverity).orElse(null),
       scaVulnerabilityIssueDtoOptional.map(ScaVulnerabilityIssueDto::cweIds).orElse(null),
-      scaVulnerabilityIssueDtoOptional.map(ScaVulnerabilityIssueDto::cvssScore).orElse(null));
+      scaVulnerabilityIssueDtoOptional.map(ScaVulnerabilityIssueDto::cvssScore).orElse(null),
+      scaIssueReleaseDto.createdAt());
   }
 
   private ScaIssueReleaseDetailsDto insertIssue(ScaIssueDto scaIssue, Optional<ScaVulnerabilityIssueDto> scaVulnerabilityIssueDtoOptional,

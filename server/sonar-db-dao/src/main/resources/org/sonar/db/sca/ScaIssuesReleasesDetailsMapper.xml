@@ -18,6 +18,8 @@
       <arg column="cwe_ids" typeHandler="org.sonar.db.sca.ListOfStringsTypeHandler" jdbcType="VARCHAR"
            javaType="java.util.List"/>
       <arg column="cvss_score" javaType="java.math.BigDecimal"/>
+      <!-- the underscore prefix means to use the primitive type instead of boxed type -->
+      <arg column="created_at" javaType="_long"/>
     </constructor>
   </resultMap>
 
@@ -34,7 +36,8 @@
     si.spdx_license_id,
     svi.base_severity,
     svi.cwe_ids,
-    svi.cvss_score
+    svi.cvss_score,
+    sir.created_at
   </sql>
 
   <sql id="sqlBaseJoins">

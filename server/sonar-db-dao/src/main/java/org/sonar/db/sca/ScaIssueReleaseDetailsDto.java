@@ -22,6 +22,7 @@ package org.sonar.db.sca;
 import java.math.BigDecimal;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.sonar.api.utils.DateUtils;
 
 /**
  * <p>A "read-only" DTO used to query the join of sca_issues_releases, sca_issues, and sca_*_issues.
@@ -51,7 +52,14 @@ public record ScaIssueReleaseDetailsDto(String scaIssueReleaseUuid,
   String spdxLicenseId,
   @Nullable ScaSeverity vulnerabilityBaseSeverity,
   @Nullable List<String> cweIds,
-  @Nullable BigDecimal cvssScore) implements ScaIssueIdentity {
+  @Nullable BigDecimal cvssScore,
+  long createdAt) implements ScaIssueIdentity {
+
+  // DateUtils says that this returns an RFC 822 timestamp
+  // but it is really a ISO 8601 timestamp.
+  public String createdAtIso8601() {
+    return DateUtils.formatDateTime(createdAt);
+  }
 
   public Builder toBuilder() {
     return new Builder()
@@ -66,7 +74,8 @@ public record ScaIssueReleaseDetailsDto(String scaIssueReleaseUuid,
       .setSpdxLicenseId(spdxLicenseId)
       .setVulnerabilityBaseSeverity(vulnerabilityBaseSeverity)
       .setCweIds(cweIds)
-      .setCvssScore(cvssScore);
+      .setCvssScore(cvssScore)
+      .setCreatedAt(createdAt);
   }
 
   public static class Builder {
@@ -82,6 +91,7 @@ public record ScaIssueReleaseDetailsDto(String scaIssueReleaseUuid,
     private ScaSeverity vulnerabilityBaseSeverity;
     private List<String> cweIds;
     private BigDecimal cvssScore;
+    private long createdAt;
 
     public Builder setScaIssueReleaseUuid(String scaIssueReleaseUuid) {
       this.scaIssueReleaseUuid = scaIssueReleaseUuid;
@@ -143,9 +153,14 @@ public record ScaIssueReleaseDetailsDto(String scaIssueReleaseUuid,
       return this;
     }
 
+    public Builder setCreatedAt(long createdAt) {
+      this.createdAt = createdAt;
+      return this;
+    }
+
     public ScaIssueReleaseDetailsDto build() {
       return new ScaIssueReleaseDetailsDto(scaIssueReleaseUuid, severity, scaIssueUuid, scaReleaseUuid, scaIssueType,
-        newInPullRequest, packageUrl, vulnerabilityId, spdxLicenseId, vulnerabilityBaseSeverity, cweIds, cvssScore);
+        newInPullRequest, packageUrl, vulnerabilityId, spdxLicenseId, vulnerabilityBaseSeverity, cweIds, cvssScore, createdAt);
     }
   }
 }

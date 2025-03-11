@@ -39,7 +39,8 @@ class ScaIssueReleaseDetailsDtoTest {
       "spdxLicenseId",
       ScaSeverity.BLOCKER,
       List.of("cwe1"),
-      BigDecimal.ONE);
+      BigDecimal.ONE,
+      42L);
     assertThat(dto.toBuilder().build()).isEqualTo(dto);
   }
 }
