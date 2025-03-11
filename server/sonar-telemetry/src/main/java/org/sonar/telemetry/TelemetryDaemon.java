@@ -136,7 +136,7 @@ public class TelemetryDaemon extends AbstractStoppableScheduledExecutorServiceIm
   }
 
   private void updateTelemetryProps(long now) {
-    internalProperties.write(I_PROP_LAST_PING, String.valueOf(now));
+    writeLastPing(now);
 
     Optional<String> currentSequence = internalProperties.read(I_PROP_MESSAGE_SEQUENCE);
     if (currentSequence.isEmpty()) {
