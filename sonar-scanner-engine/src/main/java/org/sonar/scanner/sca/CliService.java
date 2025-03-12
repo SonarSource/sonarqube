@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
@@ -60,8 +61,7 @@ public class CliService {
     long startTime = system2.now();
     boolean success = false;
     try {
-      Consumer<String> stdErrConsumer = LOG::debug;
-      Consumer<String> stdoutConsumer = LOG::debug;
+      var debugLevel = Level.DEBUG;
 
       String zipName = "dependency-files.zip";
       Path zipPath = module.getWorkDir().resolve(zipName);
@@ -81,12 +81,11 @@ public class CliService {
         args.add("--debug");
         if (scaDebug) {
           // output --debug logs from stderr to the info level logger
-          stdErrConsumer = LOG::info;
-          stdoutConsumer = LOG::info;
+          debugLevel = Level.INFO;
         }
       }
 
-      LOG.debug("Calling ProcessBuilder with args: {}", args);
+      LOG.atLevel(debugLevel).log("Calling ProcessBuilder with args: {}", args);
 
       Map<String, String> envProperties = new HashMap<>();
       // sending this will tell the CLI to skip checking for the latest available version on startup
@@ -96,9 +95,10 @@ public class CliService {
       envProperties.put("TIDELIFT_CLI_SQ_SERVER_VERSION", server.getVersion());
       envProperties.putAll(ScaProperties.buildFromScannerProperties(configuration));
 
-      LOG.debug("Environment properties: {}", envProperties);
+      LOG.atLevel(debugLevel).log("Environment properties: {}", envProperties);
 
-      processWrapperFactory.create(module.getWorkDir(), stdoutConsumer, stdErrConsumer, envProperties, args.toArray(new String[0])).execute();
+      Consumer<String> logConsumer = LOG.atLevel(debugLevel)::log;
+      processWrapperFactory.create(module.getWorkDir(), logConsumer, logConsumer, envProperties, args.toArray(new String[0])).execute();
       LOG.info("Generated manifests zip file: {}", zipName);
       success = true;
       return zipPath.toFile();
