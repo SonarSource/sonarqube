@@ -28,6 +28,8 @@ public interface ScaIssuesReleasesDetailsMapper {
 
   ScaIssueReleaseDetailsDto selectByScaIssueReleaseUuid(String scaIssueReleaseUuid);
 
+  List<ScaIssueReleaseDetailsDto> selectByReleaseUuid(String releaseUuid);
+
   int countByBranchUuid(String branchUuid);
 
   List<ScaIssueReleaseDetailsDto> selectByQuery(@Param("query") ScaIssuesReleasesDetailsQuery query, @Param("pagination") Pagination pagination);

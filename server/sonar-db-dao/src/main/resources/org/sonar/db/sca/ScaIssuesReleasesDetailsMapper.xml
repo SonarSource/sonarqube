@@ -57,10 +57,21 @@
     where sir.uuid = #{scaIssueReleaseUuid,jdbcType=VARCHAR}
   </sql>
 
+  <sql id="sqlSelectByReleaseUuid">
+    <include refid="sqlBaseJoins"/>
+    where sr.uuid = #{releaseUuid,jdbcType=VARCHAR}
+  </sql>
+
   <sql id="sqlSelectByBranchUuid">
     <include refid="sqlBaseJoins"/>
     where c.branch_uuid = #{branchUuid,jdbcType=VARCHAR}
   </sql>
+
+  <select id="selectByReleaseUuid" parameterType="map" resultMap="scaIssueReleaseDetailsResultMap">
+    select <include refid="issuesWithScaColumns"/>
+    <include refid="sqlSelectByReleaseUuid"/>
+    ORDER BY <include refid="sqlIdentityOrderColumns"/>
+  </select>
 
   <select id="selectByBranchUuid" parameterType="map" resultMap="scaIssueReleaseDetailsResultMap">
     select <include refid="issuesWithScaColumns"/>

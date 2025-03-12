@@ -38,6 +38,13 @@ public class ScaIssuesReleasesDetailsDao implements Dao {
   }
 
   /**
+   * Retrieves all issues with a specific release UUID, no other filtering is done by this method.
+   */
+  public List<ScaIssueReleaseDetailsDto> selectByReleaseUuid(DbSession dbSession, String releaseUuid) {
+    return mapper(dbSession).selectByReleaseUuid(releaseUuid);
+  }
+
+  /**
    * Counts all issues with a specific branch UUID, no other filtering is done by this method.
    */
   public int countByBranchUuid(DbSession dbSession, String branchUuid) {
