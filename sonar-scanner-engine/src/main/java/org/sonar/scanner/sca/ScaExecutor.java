@@ -53,8 +53,15 @@ public class ScaExecutor {
   }
 
   public void execute(DefaultInputModule root) {
+    // Global feature flag
     if (!featureFlagsRepository.isEnabled(SCA_FEATURE_NAME)) {
-      LOG.debug("Dependency analysis skipped");
+      LOG.info("Dependency analysis skipped");
+      return;
+    }
+
+    // Project or scanner level feature flag
+    if (!configuration.getBoolean("sonar.sca.enabled").orElse(true)) {
+      LOG.info("Dependency analysis disabled for this project");
       return;
     }
 

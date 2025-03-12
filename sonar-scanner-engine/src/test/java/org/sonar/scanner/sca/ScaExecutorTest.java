@@ -21,6 +21,7 @@ package org.sonar.scanner.sca;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 import org.assertj.core.util.Files;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,17 +62,6 @@ class ScaExecutorTest {
     when(featureFlagsRepository.isEnabled("sca")).thenReturn(true);
     root = new DefaultInputModule(
       ProjectDefinition.create().setBaseDir(rootModuleDir).setWorkDir(rootModuleDir.toPath().getRoot().toFile()));
-  }
-
-  @Test
-  void execute_shouldSkipAnalysisWhenFeatureFlagDisabled() {
-    when(featureFlagsRepository.isEnabled("sca")).thenReturn(false);
-    logTester.setLevel(Level.DEBUG);
-
-    underTest.execute(root);
-
-    assertThat(logTester.logs()).contains("Dependency analysis skipped");
-    verifyNoInteractions(cliService, cliCacheService);
   }
 
   @Test
@@ -129,5 +119,46 @@ class ScaExecutorTest {
     underTest.execute(root);
 
     verify(cliService, never()).generateManifestsZip(root, mockCliFile, configuration);
+  }
+
+  @Test
+  void execute_whenGlobalFeatureDisabled_skips() {
+    when(featureFlagsRepository.isEnabled("sca")).thenReturn(false);
+    logTester.setLevel(Level.DEBUG);
+
+    underTest.execute(root);
+
+    assertThat(logTester.logs()).contains("Dependency analysis skipped");
+    verifyNoInteractions(cliService, cliCacheService);
+  }
+
+  @Test
+  void execute_whenProjectPropertyDisabled_skips() {
+    when(configuration.getBoolean("sonar.sca.enabled")).thenReturn(Optional.of(false));
+    logTester.setLevel(Level.DEBUG);
+
+    underTest.execute(root);
+
+    assertThat(logTester.logs()).contains("Dependency analysis disabled for this project");
+    verifyNoInteractions(cliService, cliCacheService);
+  }
+
+  @Test
+  void execute_whenProjectPropertyExplicitlyEnabled_CallsCli() throws IOException {
+    when(configuration.getBoolean("sonar.sca.enabled")).thenReturn(Optional.of(true));
+    File mockCliFile = Files.newTemporaryFile();
+    File mockManifestZip = Files.newTemporaryFile();
+    ScannerReportWriter mockReportWriter = mock(ScannerReportWriter.class);
+    when(cliCacheService.cacheCli()).thenReturn(mockCliFile);
+    when(cliService.generateManifestsZip(root, mockCliFile, configuration)).thenReturn(mockManifestZip);
+    when(reportPublisher.getWriter()).thenReturn(mockReportWriter);
+    logTester.setLevel(Level.DEBUG);
+
+    underTest.execute(root);
+
+    verify(cliService).generateManifestsZip(root, mockCliFile, configuration);
+    verify(mockReportWriter).writeScaFile(mockManifestZip);
+    assertThat(logTester.logs(Level.DEBUG)).contains("Zip ready for report: " + mockManifestZip);
+    assertThat(logTester.logs(Level.DEBUG)).contains("Manifest zip written to report");
   }
 }
