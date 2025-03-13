@@ -19,8 +19,6 @@
  */
 package org.sonar.api.batch.sensor.internal;
 
-import static java.util.Collections.unmodifiableMap;
-
 import java.io.File;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -89,6 +87,8 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
+
+import static java.util.Collections.unmodifiableMap;
 
 /**
  * Utility class to help testing {@link Sensor}. This is not an API and method signature may evolve.
@@ -462,4 +462,5 @@ public class SensorContextTester implements SensorContext {
   public NewSignificantCode newSignificantCode() {
     return new DefaultSignificantCode(sensorStorage);
   }
+
 }

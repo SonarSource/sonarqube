@@ -23,11 +23,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import javax.annotation.Nullable;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.profiles.ProfileExporter;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -37,7 +34,6 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileBackuper;
-import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileRestoreSummary;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
@@ -60,39 +56,10 @@ public class ExportActionIT {
   private final QProfileBackuper backuper = new TestBackuper();
 
   @Test
-  public void export_profile() {
+  public void return_backup() {
     QProfileDto profile = createProfile(false);
 
-    WsActionTester tester = newWsActionTester(newExporter("polop"), newExporter("palap"));
-    String result = tester.newRequest()
-      .setParam("language", profile.getLanguage())
-      .setParam("qualityProfile", profile.getName())
-      .setParam("exporterKey", "polop").execute()
-      .getInput();
-
-    assertThat(result).isEqualTo("Profile " + profile.getLanguage() + "/" + profile.getName() + " exported by polop");
-  }
-
-  @Test
-  public void export_default_profile() {
-    QProfileDto nonDefaultProfile = createProfile(false);
-    QProfileDto defaultProfile = createProfile(true);
-
-    WsActionTester tester = newWsActionTester(newExporter("polop"), newExporter("palap"));
-    String result = tester.newRequest()
-      .setParam("language", XOO_LANGUAGE)
-      .setParam("exporterKey", "polop")
-      .execute()
-      .getInput();
-
-    assertThat(result).isEqualTo("Profile " + defaultProfile.getLanguage() + "/" + defaultProfile.getName() + " exported by polop");
-  }
-
-  @Test
-  public void return_backup_when_exporter_is_not_specified() {
-    QProfileDto profile = createProfile(false);
-
-    String result = newWsActionTester(newExporter("polop")).newRequest()
+    String result = newWsActionTester().newRequest()
       .setParam("language", profile.getLanguage())
       .setParam("qualityProfile", profile.getName())
       .execute()
@@ -112,20 +79,7 @@ public class ExportActionIT {
   }
 
   @Test
-  public void throw_IAE_if_export_with_specified_key_does_not_exist() {
-    QProfileDto profile = createProfile(true);
-
-    assertThatThrownBy(() -> {
-      newWsActionTester(newExporter("polop"), newExporter("palap")).newRequest()
-        .setParam("language", XOO_LANGUAGE)
-        .setParam("exporterKey", "unknown").execute();
-    })
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Value of parameter 'exporterKey' (unknown) must be one of: [polop, palap]");
-  }
-
-  @Test
-  public void definition_without_exporters() {
+  public void definition() {
     WebService.Action definition = newWsActionTester().getDef();
 
     assertThat(definition.isPost()).isFalse();
@@ -139,18 +93,6 @@ public class ExportActionIT {
     assertThat(language.deprecatedSince()).isNullOrEmpty();
   }
 
-  @Test
-  public void definition_with_exporters() {
-    WebService.Action definition = newWsActionTester(newExporter("polop"), newExporter("palap")).getDef();
-
-    assertThat(definition.isPost()).isFalse();
-    assertThat(definition.isInternal()).isFalse();
-    assertThat(definition.params()).extracting("key").containsExactlyInAnyOrder("language", "qualityProfile", "exporterKey");
-    WebService.Param exportersParam = definition.param("exporterKey");
-    assertThat(exportersParam.possibleValues()).containsOnly("polop", "palap");
-    assertThat(exportersParam.isInternal()).isFalse();
-  }
-
   private QProfileDto createProfile(boolean isDefault) {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO_LANGUAGE));
     if (isDefault) {
@@ -159,27 +101,8 @@ public class ExportActionIT {
     return profile;
   }
 
-  private WsActionTester newWsActionTester(ProfileExporter... profileExporters) {
-    QProfileExporters exporters = new QProfileExporters(dbClient, null, null, profileExporters, null);
-    return new WsActionTester(new ExportAction(dbClient, backuper, exporters, LanguageTesting.newLanguages(XOO_LANGUAGE, JAVA_LANGUAGE)));
-  }
-
-  private static ProfileExporter newExporter(String key) {
-    return new ProfileExporter(key, StringUtils.capitalize(key)) {
-      @Override
-      public String getMimeType() {
-        return "text/plain+" + key;
-      }
-
-      @Override
-      public void exportProfile(RulesProfile profile, Writer writer) {
-        try {
-          writer.write(format("Profile %s/%s exported by %s", profile.getLanguage(), profile.getName(), key));
-        } catch (IOException ioe) {
-          throw new RuntimeException(ioe);
-        }
-      }
-    };
+  private WsActionTester newWsActionTester() {
+    return new WsActionTester(new ExportAction(dbClient, backuper, LanguageTesting.newLanguages(XOO_LANGUAGE, JAVA_LANGUAGE)));
   }
 
   private static class TestBackuper implements QProfileBackuper {

@@ -24,14 +24,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
-import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.Response.Stream;
@@ -42,7 +38,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.language.LanguageParamUtils;
 import org.sonar.server.qualityprofile.QProfileBackuper;
-import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonarqube.ws.MediaTypes;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -52,17 +47,13 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 
 public class ExportAction implements QProfileWsAction {
 
-  private static final String PARAM_EXPORTER_KEY = "exporterKey";
-
   private final DbClient dbClient;
   private final QProfileBackuper backuper;
-  private final QProfileExporters exporters;
   private final Languages languages;
 
-  public ExportAction(DbClient dbClient, QProfileBackuper backuper, QProfileExporters exporters, Languages languages) {
+  public ExportAction(DbClient dbClient, QProfileBackuper backuper, Languages languages) {
     this.dbClient = dbClient;
     this.backuper = backuper;
-    this.exporters = exporters;
     this.languages = languages;
   }
 
@@ -72,7 +63,10 @@ public class ExportAction implements QProfileWsAction {
       .setSince("5.2")
       .setDescription("Export a quality profile.")
       .setResponseExample(getClass().getResource("export-example.xml"))
-      .setHandler(this);
+      .setHandler(this)
+      .setDeprecatedSince("25.4")
+      .setChangelog(
+        new Change("25.4", "Deprecated. Use GET /api/qualityprofiles/backup instead"));
 
     action.createParam(PARAM_QUALITY_PROFILE)
       .setDescription("Quality profile name to export. If left empty, the default profile for the language is exported.")
@@ -84,17 +78,6 @@ public class ExportAction implements QProfileWsAction {
       .setExampleValue(LanguageParamUtils.getExampleValue(languages))
       .setPossibleValues(LanguageParamUtils.getOrderedLanguageKeys(languages));
 
-    Set<String> exporterKeys = Arrays.stream(languages.all())
-      .map(language -> exporters.exportersForLanguage(language.getKey()))
-      .flatMap(Collection::stream)
-      .map(ProfileExporter::getKey)
-      .collect(Collectors.toSet());
-    if (!exporterKeys.isEmpty()) {
-      action.createParam(PARAM_EXPORTER_KEY)
-        .setDescription("Output format. If left empty, the same format as api/qualityprofiles/backup is used. " +
-          "Possible values are described by api/qualityprofiles/exporters.")
-        .setPossibleValues(exporterKeys);
-    }
   }
 
   @Override
@@ -104,22 +87,16 @@ public class ExportAction implements QProfileWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto profile = loadProfile(dbSession, language, name);
-      String exporterKey = exporters.exportersForLanguage(profile.getLanguage()).isEmpty() ? null : request.param(PARAM_EXPORTER_KEY);
-      writeResponse(dbSession, profile, exporterKey, response);
+      writeResponse(dbSession, profile, response);
     }
   }
 
-  private void writeResponse(DbSession dbSession, QProfileDto profile, @Nullable String exporterKey, Response response) throws IOException {
+  private void writeResponse(DbSession dbSession, QProfileDto profile, Response response) throws IOException {
     Stream stream = response.stream();
     ByteArrayOutputStream bufferStream = new ByteArrayOutputStream();
     try (Writer writer = new OutputStreamWriter(bufferStream, UTF_8)) {
-      if (exporterKey == null) {
-        stream.setMediaType(MediaTypes.XML);
-        backuper.backup(dbSession, profile, writer);
-      } else {
-        stream.setMediaType(exporters.mimeType(exporterKey));
-        exporters.export(dbSession, profile, exporterKey, writer);
-      }
+      stream.setMediaType(MediaTypes.XML);
+      backuper.backup(dbSession, profile, writer);
     }
 
     OutputStream output = response.stream().output();

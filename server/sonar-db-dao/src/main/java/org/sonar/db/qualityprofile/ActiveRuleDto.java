@@ -31,7 +31,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.ActiveRule;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.SeverityUtil;
 
@@ -39,8 +38,8 @@ import static java.util.Objects.requireNonNull;
 
 public class ActiveRuleDto {
 
-  public static final String INHERITED = ActiveRule.INHERITED;
-  public static final String OVERRIDES = ActiveRule.OVERRIDES;
+  public static final String INHERITED = "INHERITED";
+  public static final String OVERRIDES = "OVERRIDES";
   private static final Gson GSON = new Gson();
   private static final Type TYPE = new TypeToken<Map<SoftwareQuality, Severity>>() {
   }.getType();

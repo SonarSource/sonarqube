@@ -19,50 +19,28 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class ImportersAction implements QProfileWsAction {
-
-  private final ProfileImporter[] importers;
-
-  @Autowired(required = false)
-  public ImportersAction(ProfileImporter[] importers) {
-    this.importers = importers;
-  }
-
-  @Autowired(required = false)
-  public ImportersAction() {
-    this(new ProfileImporter[0]);
-  }
 
   @Override
   public void define(WebService.NewController controller) {
     controller.createAction("importers")
+      .setDescription("Deprecated. No more custom profile importers.")
       .setSince("5.2")
       .setDescription("List supported importers.")
       .setResponseExample(getClass().getResource("importers-example.json"))
-      .setHandler(this);
+      .setHandler(this)
+      .setDeprecatedSince("25.4");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (JsonWriter json = response.newJsonWriter()) {
       json.beginObject().name("importers").beginArray();
-      for (ProfileImporter importer : importers) {
-        json.beginObject()
-          .prop("key", importer.getKey())
-          .prop("name", importer.getName())
-          .name("languages").beginArray();
-        for (String languageKey : importer.getSupportedLanguages()) {
-          json.value(languageKey);
-        }
-        json.endArray().endObject();
-      }
       json.endArray().endObject();
     }
   }

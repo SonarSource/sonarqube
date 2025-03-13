@@ -19,10 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import java.io.Writer;
 import org.junit.Test;
-import org.sonar.api.profiles.ProfileExporter;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.ws.WsActionTester;
 
@@ -30,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class ExportersActionTest {
-  private WsActionTester ws = new WsActionTester(new ExportersAction(createExporters()));
+  private final WsActionTester ws = new WsActionTester(new ExportersAction());
 
   @Test
   public void importers_nominal() {
@@ -48,24 +45,4 @@ public class ExportersActionTest {
     assertThat(exporters.responseExampleAsString()).isNotEmpty();
   }
 
-  private ProfileExporter[] createExporters() {
-    class NoopImporter extends ProfileExporter {
-      private NoopImporter(String key, String name, String... languages) {
-        super(key, name);
-        setSupportedLanguages(languages);
-      }
-
-      @Override
-      public void exportProfile(RulesProfile profile, Writer writer) {
-        // Nothing
-      }
-
-    }
-    return new ProfileExporter[] {
-      new NoopImporter("pmd", "PMD", "java"),
-      new NoopImporter("checkstyle", "Checkstyle", "java"),
-      new NoopImporter("js-lint", "JS Lint", "js"),
-      new NoopImporter("android-lint", "Android Lint", "xml", "java")
-    };
-  }
 }

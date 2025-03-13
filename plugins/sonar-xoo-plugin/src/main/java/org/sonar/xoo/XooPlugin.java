@@ -78,9 +78,6 @@ import org.sonar.xoo.rule.Xoo2SonarWayProfile;
 import org.sonar.xoo.rule.XooBasicProfile;
 import org.sonar.xoo.rule.XooBuiltInQualityProfilesDefinition;
 import org.sonar.xoo.rule.XooEmptyProfile;
-import org.sonar.xoo.rule.XooFakeExporter;
-import org.sonar.xoo.rule.XooFakeImporter;
-import org.sonar.xoo.rule.XooFakeImporterWithMessages;
 import org.sonar.xoo.rule.XooRulesDefinition;
 import org.sonar.xoo.rule.XooSonarWayProfile;
 import org.sonar.xoo.rule.hotspot.HotspotWithContextsSensor;
@@ -137,10 +134,6 @@ public class XooPlugin implements Plugin {
       Xoo2SonarWayProfile.class,
       Xoo2BasicProfile.class,
       XooEmptyProfile.class,
-
-      XooFakeExporter.class,
-      XooFakeImporter.class,
-      XooFakeImporterWithMessages.class,
 
       // SCM
       XooScmProvider.class,

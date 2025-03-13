@@ -19,12 +19,8 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import java.io.Reader;
 import org.junit.Test;
-import org.sonar.api.profiles.ProfileImporter;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.ValidationMessages;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,7 +28,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class ImportersActionTest {
 
-  private WsActionTester ws = new WsActionTester(new ImportersAction(createImporters()));
+  private WsActionTester ws = new WsActionTester(new ImportersAction());
 
   @Test
   public void empty_importers() {
@@ -59,25 +55,4 @@ public class ImportersActionTest {
     assertThat(importers.responseExampleAsString()).isNotEmpty();
   }
 
-  private ProfileImporter[] createImporters() {
-    class NoopImporter extends ProfileImporter {
-      private NoopImporter(String key, String name, String... languages) {
-        super(key, name);
-        setSupportedLanguages(languages);
-      }
-
-      @Override
-      public RulesProfile importProfile(Reader reader, ValidationMessages messages) {
-        return RulesProfile.create();
-      }
-
-    }
-
-    return new ProfileImporter[] {
-      new NoopImporter("pmd", "PMD", "java"),
-      new NoopImporter("checkstyle", "Checkstyle", "java"),
-      new NoopImporter("js-lint", "JS Lint", "js"),
-      new NoopImporter("android-lint", "Android Lint", "xml", "java")
-    };
-  }
 }

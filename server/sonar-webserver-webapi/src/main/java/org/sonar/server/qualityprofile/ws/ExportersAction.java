@@ -19,53 +19,27 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class ExportersAction implements QProfileWsAction {
-
-  private final ProfileExporter[] exporters;
-
-  @Autowired(required = false)
-  public ExportersAction(ProfileExporter[] exporters) {
-    this.exporters = exporters;
-  }
-
-  /**
-   * Used by the container if no {@link ProfileExporter} is found
-   */
-  @Autowired(required = false)
-  public ExportersAction() {
-    this(new ProfileExporter[0]);
-  }
 
   @Override
   public void define(NewController context) {
     context.createAction("exporters")
-      .setDescription("Lists available profile export formats.")
+      .setDescription("Deprecated. No more custom profile exporters.")
       .setHandler(this)
       .setResponseExample(getClass().getResource("exporters-example.json"))
-      .setSince("5.2");
+      .setSince("5.2")
+      .setDeprecatedSince("25.4");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (JsonWriter json = response.newJsonWriter()) {
       json.beginObject().name("exporters").beginArray();
-      for (ProfileExporter exporter : exporters) {
-        json.beginObject()
-          .prop("key", exporter.getKey())
-          .prop("name", exporter.getName());
-        json.name("languages").beginArray();
-        for (String language : exporter.getSupportedLanguages()) {
-          json.value(language);
-        }
-        json.endArray().endObject();
-      }
       json.endArray().endObject();
     }
   }
