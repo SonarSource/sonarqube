@@ -45,7 +45,7 @@ class ScaReleasesDaoIT {
 
   @Test
   void insert_shouldPersistScaReleases() {
-    ComponentDto componentDto = prepareComponentDto("1");
+    ComponentDto componentDto = prepareComponentDto();
     ScaReleaseDto scaReleaseDto = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "1");
 
     List<Map<String, Object>> select = db.select(db.getSession(), "select * from sca_releases");
@@ -68,7 +68,7 @@ class ScaReleasesDaoIT {
 
   @Test
   void deleteByUuid_shouldDeleteScaReleases() {
-    ComponentDto componentDto = prepareComponentDto("1");
+    ComponentDto componentDto = prepareComponentDto();
     ScaReleaseDto scaReleaseDto = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "1");
 
     List<Map<String, Object>> select = db.select(db.getSession(), "select * from sca_releases");
@@ -82,7 +82,7 @@ class ScaReleasesDaoIT {
 
   @Test
   void selectByUuid_shouldLoadScaRelease() {
-    ComponentDto componentDto = prepareComponentDto("1");
+    ComponentDto componentDto = prepareComponentDto();
     ScaReleaseDto scaReleaseDto = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "1");
 
     var loadedOptional = scaReleasesDao.selectByUuid(db.getSession(), scaReleaseDto.uuid());
@@ -92,7 +92,7 @@ class ScaReleasesDaoIT {
 
   @Test
   void selectByUuid_shouldLoadScaReleases() {
-    ComponentDto componentDto = prepareComponentDto("1");
+    ComponentDto componentDto = prepareComponentDto();
     ScaReleaseDto scaReleaseDto1 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "1");
     db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "2");
     ScaReleaseDto scaReleaseDto3 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "3");
@@ -105,7 +105,7 @@ class ScaReleasesDaoIT {
 
   @Test
   void selectByUuid_shouldLoadEmptyScaReleases() {
-    ComponentDto componentDto = prepareComponentDto("1");
+    ComponentDto componentDto = prepareComponentDto();
     db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "1");
     db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "2");
     db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "3");
@@ -117,8 +117,9 @@ class ScaReleasesDaoIT {
 
   @Test
   void selectByQuery_shouldReturnScaReleases_whenQueryByBranchUuid() {
-    ComponentDto componentDto = prepareComponentDto("1");
+    ComponentDto componentDto = prepareComponentDto();
     ScaReleaseDto scaReleaseDto = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "1");
+    System.out.println("componentDto = " + componentDto);
 
     ScaReleasesQuery scaReleasesQuery = new ScaReleasesQuery(componentDto.branchUuid(), null, null, null, null);
     List<ScaReleaseDto> results = scaReleasesDao.selectByQuery(db.getSession(), scaReleasesQuery, Pagination.all());
@@ -129,7 +130,7 @@ class ScaReleasesDaoIT {
 
   @Test
   void selectByQuery_shouldReturnPaginatedScaReleases() {
-    ComponentDto componentDto = prepareComponentDto("1");
+    ComponentDto componentDto = prepareComponentDto();
     ScaReleaseDto scaReleaseDto1 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "1");
     ScaReleaseDto scaReleaseDto2 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "2");
     ScaReleaseDto scaReleaseDto3 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "3");
@@ -148,7 +149,7 @@ class ScaReleasesDaoIT {
 
   @Test
   void selectByQuery_shouldPartiallyMatchPackageName_whenQueriedByText() {
-    ComponentDto componentDto = prepareComponentDto("1");
+    ComponentDto componentDto = prepareComponentDto();
     ScaReleaseDto scaReleaseDto1 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "1", PackageManager.MAVEN, "foo.bar");
     db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), scaReleaseDto1, "1", true);
     db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), scaReleaseDto1, "2", false);
@@ -187,7 +188,7 @@ class ScaReleasesDaoIT {
 
   @Test
   void selectByQuery_shouldReturnScaReleases_whenQueryByDirect() {
-    ComponentDto componentDto = prepareComponentDto("1");
+    ComponentDto componentDto = prepareComponentDto();
     ScaReleaseDto scaReleaseDto1 = db.getScaReleasesDbTester().insertScaReleaseWithDependency(componentDto.uuid(), "1", 2, true, PackageManager.MAVEN, "foo.bar");
     ScaReleaseDto scaReleaseDto2 = db.getScaReleasesDbTester().insertScaReleaseWithDependency(componentDto.uuid(), "2", 3, false, PackageManager.MAVEN, "foo.bar");
 
@@ -206,7 +207,7 @@ class ScaReleasesDaoIT {
 
   @Test
   void selectByQuery_shouldReturnScaReleases_whenQueryByPackageManager() {
-    ComponentDto componentDto = prepareComponentDto("1");
+    ComponentDto componentDto = prepareComponentDto();
     ScaReleaseDto scaReleaseDto1 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "1", PackageManager.MAVEN, "foo.bar");
     ScaReleaseDto scaReleaseDto2 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "2", PackageManager.NPM, "foo.bar");
     ScaReleaseDto scaReleaseDto3 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "3", PackageManager.CARGO, "foo.bar");
@@ -228,7 +229,7 @@ class ScaReleasesDaoIT {
 
   @Test
   void update_shouldUpdateScaRelease() {
-    ComponentDto componentDto = prepareComponentDto("1");
+    ComponentDto componentDto = prepareComponentDto();
     ScaReleaseDto scaReleaseDto = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "1", PackageManager.MAVEN, "foo.bar");
     ScaReleaseDto updatedScaRelease = scaReleaseDto.toBuilder().setUpdatedAt(scaReleaseDto.updatedAt() + 1).setVersion("newVersion").build();
 
@@ -254,7 +255,7 @@ class ScaReleasesDaoIT {
 
   @Test
   void countByQuery_shouldReturnTheTotalOfReleases() {
-    ComponentDto componentDto1 = prepareComponentDto("1");
+    ComponentDto componentDto1 = prepareComponentDto();
     db.getScaReleasesDbTester().insertScaReleaseWithDependency(componentDto1.uuid(), "1", 1, true, PackageManager.MAVEN, "foo.bar");
     db.getScaReleasesDbTester().insertScaReleaseWithDependency(componentDto1.uuid(), "2", 2, true, PackageManager.MAVEN, "foo.bar.mee");
     db.getScaReleasesDbTester().insertScaReleaseWithDependency(componentDto1.uuid(), "3", 3, true, PackageManager.MAVEN, "bar.fo");
@@ -266,14 +267,14 @@ class ScaReleasesDaoIT {
     assertThat(scaReleasesDao.countByQuery(db.getSession(), new ScaReleasesQuery("another_branch_uuid", null, null, null, null))).isZero();
   }
 
-  private ComponentDto prepareComponentDto(String suffix) {
+  private ComponentDto prepareComponentDto() {
     ProjectData projectData = db.components().insertPublicProject();
-    return db.getScaReleasesDbTester().insertComponent(projectData.mainBranchUuid(), suffix);
+    return projectData.getMainBranchComponent();
   }
 
   @Test
   void countByPlatformQuery_shouldReturnPlatforms() {
-    ComponentDto componentDto1 = prepareComponentDto("1");
+    ComponentDto componentDto1 = prepareComponentDto();
     db.getScaReleasesDbTester().insertScaReleaseWithDependency(componentDto1.uuid(), "1", 1, true, PackageManager.MAVEN, "foo.bar");
     db.getScaReleasesDbTester().insertScaReleaseWithDependency(componentDto1.uuid(), "2", 2, true, PackageManager.NPM, "foo.bar.mee");
     db.getScaReleasesDbTester().insertScaReleaseWithDependency(componentDto1.uuid(), "3", 3, true, PackageManager.MAVEN, "bar.foo");

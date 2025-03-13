@@ -21,7 +21,6 @@ package org.sonar.db.sca;
 
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 
 public class ScaReleasesDbTester {
   private final DbTester db;
@@ -44,19 +43,6 @@ public class ScaReleasesDbTester {
       false,
       1L,
       2L);
-  }
-
-  public ComponentDto newComponentDto(String branchUuid, String suffix) {
-    return new ComponentDto().setUuid("uuid" + suffix)
-      .setKey("key" + suffix)
-      .setUuidPath("uuidPath" + suffix)
-      .setBranchUuid(branchUuid);
-  }
-
-  public ComponentDto insertComponent(String branchUuid, String suffix) {
-    ComponentDto componentDto = newComponentDto(branchUuid, suffix);
-    db.components().insertComponent(componentDto);
-    return componentDto;
   }
 
   public ScaReleaseDto insertScaRelease(String componentUuid, String suffix) {

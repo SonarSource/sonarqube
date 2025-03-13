@@ -48,7 +48,6 @@
     from sca_issues_releases sir
     inner join sca_issues si on sir.sca_issue_uuid = si.uuid
     inner join sca_releases sr on sir.sca_release_uuid = sr.uuid
-    inner join components c on sr.component_uuid = c.uuid
     left join sca_vulnerability_issues svi on sir.sca_issue_uuid = svi.uuid
   </sql>
 
@@ -64,7 +63,7 @@
 
   <sql id="sqlSelectByBranchUuid">
     <include refid="sqlBaseJoins"/>
-    where c.branch_uuid = #{branchUuid,jdbcType=VARCHAR}
+    where sr.component_uuid = #{branchUuid,jdbcType=VARCHAR}
   </sql>
 
   <select id="selectByReleaseUuid" parameterType="map" resultMap="scaIssueReleaseDetailsResultMap">
@@ -92,7 +91,7 @@
 
   <sql id="sqlSelectByQueryWhereClause">
     <where>
-      c.branch_uuid = #{query.branchUuid,jdbcType=VARCHAR}
+      sr.component_uuid = #{query.branchUuid,jdbcType=VARCHAR}
       <if test="query.vulnerabilityIdSubstring != null">
           <!-- this screens out non-vulnerability-having issue types even if the search is for empty string -->
         AND si.vulnerability_id != '${@org.sonar.db.sca.ScaIssueDto@NULL_VALUE}'

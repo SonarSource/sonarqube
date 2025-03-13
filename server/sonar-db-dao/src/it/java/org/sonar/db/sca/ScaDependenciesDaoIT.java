@@ -41,7 +41,7 @@ class ScaDependenciesDaoIT {
 
   @Test
   void insert_shouldPersistScaDependencies() {
-    ComponentDto componentDto = prepareComponentDto("1");
+    ComponentDto componentDto = prepareComponentDto();
     ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "scaReleaseUuid", "1", true);
 
     List<Map<String, Object>> select = db.select(db.getSession(), "select * from sca_dependencies");
@@ -63,7 +63,7 @@ class ScaDependenciesDaoIT {
 
   @Test
   void deleteByUuid_shouldDeleteScaDependencies() {
-    ComponentDto componentDto = prepareComponentDto("1");
+    ComponentDto componentDto = prepareComponentDto();
     ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "scaReleaseUuid", "1", true);
 
     List<Map<String, Object>> select = db.select(db.getSession(), "select * from sca_dependencies");
@@ -77,7 +77,7 @@ class ScaDependenciesDaoIT {
 
   @Test
   void selectByUuid_shouldLoadScaDependency() {
-    ComponentDto componentDto = prepareComponentDto("1");
+    ComponentDto componentDto = prepareComponentDto();
     ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "scaReleaseUuid", "1", true);
 
     var loadedOptional = scaDependenciesDao.selectByUuid(db.getSession(), scaDependencyDto.uuid());
@@ -87,7 +87,7 @@ class ScaDependenciesDaoIT {
 
   @Test
   void selectByReleaseUuids_shouldReturnScaDependencies() {
-    ComponentDto componentDto = prepareComponentDto("1");
+    ComponentDto componentDto = prepareComponentDto();
     ScaDependencyDto scaDependencyDto1a = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "1a", true, PackageManager.MAVEN, "foo.bar1");
     // same release, different dependency
     ScaDependencyDto scaDependencyDto1b = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), scaDependencyDto1a.scaReleaseUuid(), "1b", false);
@@ -103,7 +103,7 @@ class ScaDependenciesDaoIT {
 
   @Test
   void selectByQuery_shouldReturnScaDependencies_whenQueryByBranchUuid() {
-    ComponentDto componentDto = prepareComponentDto("1");
+    ComponentDto componentDto = prepareComponentDto();
     ScaDependencyDto scaDependencyDto1 = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "1", true, PackageManager.MAVEN, "foo.bar");
     // same release, different dependency
     ScaDependencyDto scaDependencyDto2 = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), scaDependencyDto1.scaReleaseUuid(), "2", false);
@@ -116,7 +116,7 @@ class ScaDependenciesDaoIT {
 
   @Test
   void selectByQuery_shouldReturnPaginatedScaDependencies() {
-    ComponentDto componentDto = prepareComponentDto("1");
+    ComponentDto componentDto = prepareComponentDto();
     ScaDependencyDto scaDependencyDto1 = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "1", true, PackageManager.MAVEN, "foo.bar");
     ScaDependencyDto scaDependencyDto2 = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "2", true, PackageManager.MAVEN, "foo.bar");
     ScaDependencyDto scaDependencyDto3 = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "3", true, PackageManager.MAVEN, "something");
@@ -135,7 +135,7 @@ class ScaDependenciesDaoIT {
 
   @Test
   void selectByQuery_shouldPartiallyMatchPackageName_whenQueriedByText() {
-    ComponentDto componentDto = prepareComponentDto("1");
+    ComponentDto componentDto = prepareComponentDto();
     ScaDependencyDto scaDependencyDto1 = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "1", true, PackageManager.MAVEN, "foo.bar");
     @SuppressWarnings("unused")
     ScaDependencyDto scaDependencyDto2 = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "2", true, PackageManager.MAVEN, "bar.mee");
@@ -160,7 +160,7 @@ class ScaDependenciesDaoIT {
 
   @Test
   void selectByQuery_shouldReturnScaDependencies_whenQueryByDirect() {
-    ComponentDto componentDto = prepareComponentDto("1");
+    ComponentDto componentDto = prepareComponentDto();
     ScaDependencyDto scaDependencyDto1 = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "1", true, PackageManager.MAVEN, "foo.bar");
     ScaDependencyDto scaDependencyDto2 = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "2", false, PackageManager.MAVEN, "foo.bar");
 
@@ -179,7 +179,7 @@ class ScaDependenciesDaoIT {
 
   @Test
   void selectByQuery_shouldReturnScaDependencies_whenQueryByPackageManager() {
-    ComponentDto componentDto = prepareComponentDto("1");
+    ComponentDto componentDto = prepareComponentDto();
     ScaDependencyDto scaDependencyDto1 = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "1", true, PackageManager.MAVEN, "foo.bar");
     ScaDependencyDto scaDependencyDto2 = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "2", true, PackageManager.NPM, "foo.bar");
     ScaDependencyDto scaDependencyDto3 = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "3", true, PackageManager.CARGO, "foo.bar");
@@ -201,7 +201,7 @@ class ScaDependenciesDaoIT {
 
   @Test
   void update_shouldUpdateScaDependency() {
-    ComponentDto componentDto = prepareComponentDto("1");
+    ComponentDto componentDto = prepareComponentDto();
     ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "scaReleaseUuid", "1", true);
     ScaDependencyDto updatedScaDependency = scaDependencyDto.toBuilder().setUpdatedAt(scaDependencyDto.updatedAt() + 1).setDirect(false).setLockfileDependencyFilePath("lockfile2")
       .build();
@@ -227,7 +227,7 @@ class ScaDependenciesDaoIT {
 
   @Test
   void countByQuery_shouldReturnTheTotalOfDependencies() {
-    ComponentDto componentDto1 = prepareComponentDto("1");
+    ComponentDto componentDto1 = prepareComponentDto();
     db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto1.uuid(), "1", true, PackageManager.MAVEN, "foo.bar");
     db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto1.uuid(), "2", true, PackageManager.MAVEN, "foo.bar.mee");
     db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto1.uuid(), "3", true, PackageManager.MAVEN, "bar.foo");
@@ -239,8 +239,8 @@ class ScaDependenciesDaoIT {
     assertThat(scaDependenciesDao.countByQuery(db.getSession(), new ScaDependenciesQuery("another_branch_uuid", null, null, null))).isZero();
   }
 
-  private ComponentDto prepareComponentDto(String suffix) {
+  private ComponentDto prepareComponentDto() {
     ProjectData projectData = db.components().insertPublicProject();
-    return db.getScaDependenciesDbTester().insertComponent(projectData.mainBranchUuid(), suffix);
+    return projectData.getMainBranchComponent();
   }
 }
