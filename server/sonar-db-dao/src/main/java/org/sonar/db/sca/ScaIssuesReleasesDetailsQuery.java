@@ -33,6 +33,7 @@ import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
 public record ScaIssuesReleasesDetailsQuery(
   String branchUuid,
   Sort sort,
+  @Nullable Boolean direct,
   @Nullable String vulnerabilityIdSubstring,
   @Nullable String packageNameSubstring,
   @Nullable Boolean newInPullRequest,
@@ -69,6 +70,7 @@ public record ScaIssuesReleasesDetailsQuery(
     return new Builder()
       .setBranchUuid(branchUuid)
       .setSort(sort)
+      .setDirect(direct)
       .setVulnerabilityIdSubstring(vulnerabilityIdSubstring)
       .setPackageNameSubstring(packageNameSubstring)
       .setNewInPullRequest(newInPullRequest)
@@ -112,6 +114,7 @@ public record ScaIssuesReleasesDetailsQuery(
   public static class Builder {
     private String branchUuid;
     private Sort sort;
+    private Boolean direct;
     private String vulnerabilityIdSubstring;
     private String packageNameSubstring;
     private Boolean newInPullRequest;
@@ -126,6 +129,11 @@ public record ScaIssuesReleasesDetailsQuery(
 
     public Builder setSort(Sort sort) {
       this.sort = sort;
+      return this;
+    }
+
+    public Builder setDirect(@Nullable Boolean direct) {
+      this.direct = direct;
       return this;
     }
 
@@ -160,7 +168,8 @@ public record ScaIssuesReleasesDetailsQuery(
     }
 
     public ScaIssuesReleasesDetailsQuery build() {
-      return new ScaIssuesReleasesDetailsQuery(branchUuid, sort, vulnerabilityIdSubstring, packageNameSubstring, newInPullRequest, types, severities, packageManagers);
+      return new ScaIssuesReleasesDetailsQuery(branchUuid, sort, direct, vulnerabilityIdSubstring, packageNameSubstring,
+        newInPullRequest, types, severities, packageManagers);
     }
   }
 }
