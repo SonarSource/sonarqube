@@ -31,6 +31,10 @@ public class ScaReleasesDbTester {
     this.dbClient = db.getDbClient();
   }
 
+  public static ScaReleaseDto newScaReleaseDto(String suffix) {
+    return newScaReleaseDto("componentUuid_release_" + suffix, suffix, PackageManager.MAVEN, "packageName" + suffix);
+  }
+
   public static ScaReleaseDto newScaReleaseDto(String componentUuid, String suffix, PackageManager packageManager, String packageName) {
     return new ScaReleaseDto("scaReleaseUuid" + suffix,
       componentUuid,

@@ -55,6 +55,12 @@ public class ScaIssuesDbTester {
       SAMPLE_LICENSES_BY_SUFFIX.getOrDefault(suffix, "GPL-3.0-only"), 1L, 2L);
   }
 
+  Map.Entry<ScaIssueDto, ScaVulnerabilityIssueDto> newVulnerabilityIssue(String suffix) {
+    var scaIssueDto = newVulnerabilityScaIssueDto(suffix);
+    var vulnerabilityIssueDto = newVulnerabilityIssueDto(suffix);
+    return Map.entry(scaIssueDto, vulnerabilityIssueDto);
+  }
+
   Map.Entry<ScaIssueDto, ScaVulnerabilityIssueDto> insertVulnerabilityIssue(String suffix) {
     var scaIssueDto = newVulnerabilityScaIssueDto(suffix);
     var vulnerabilityIssueDto = newVulnerabilityIssueDto(suffix);

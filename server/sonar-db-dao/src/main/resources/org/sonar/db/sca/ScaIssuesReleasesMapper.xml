@@ -1,13 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
 <mapper namespace="org.sonar.db.sca.ScaIssuesReleasesMapper">
+  <resultMap id="scaIssueReleaseResultMap" type="org.sonar.db.sca.ScaIssueReleaseDto">
+    <constructor>
+      <idArg name="uuid" column="uuid" javaType="String"/>
+      <arg name="scaIssueUuid" column="sca_issue_uuid" javaType="String"/>
+      <arg name="scaReleaseUuid" column="sca_release_uuid" javaType="String"/>
+      <arg name="severity" column="severity" javaType="org.sonar.db.sca.ScaSeverity" jdbcType="VARCHAR"/>
+      <arg name="createdAt" column="created_at" javaType="_long"/>
+      <arg name="updatedAt" column="updated_at" javaType="_long"/>
+    </constructor>
+  </resultMap>
+
   <sql id="scaIssuesReleasesColumns">
-    sir.uuid as uuid,
-    sir.sca_issue_uuid as scaIssueUuid,
-    sir.sca_release_uuid as scaReleaseUuid,
-    sir.severity as severity,
-    sir.created_at as createdAt,
-    sir.updated_at as updatedAt
+    sir.uuid,
+    sir.sca_issue_uuid,
+    sir.sca_release_uuid,
+    sir.severity,
+    sir.created_at,
+    sir.updated_at
   </sql>
 
   <insert id="insert" parameterType="org.sonar.db.sca.ScaIssueReleaseDto" useGeneratedKeys="false">
@@ -48,7 +59,7 @@
 </update>
 
 
-  <select id="selectByBranchUuid" parameterType="string" resultType="org.sonar.db.sca.ScaIssueReleaseDto">
+  <select id="selectByBranchUuid" parameterType="string" resultMap="scaIssueReleaseResultMap">
     select <include refid="scaIssuesReleasesColumns"/>
     from sca_issues_releases sir
     inner join sca_releases sr on sir.sca_release_uuid = sr.uuid

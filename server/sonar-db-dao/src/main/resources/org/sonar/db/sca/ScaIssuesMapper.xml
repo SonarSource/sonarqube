@@ -1,14 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
 <mapper namespace="org.sonar.db.sca.ScaIssuesMapper">
+  <resultMap id="scaIssueResultMap" type="org.sonar.db.sca.ScaIssueDto">
+    <constructor>
+      <idArg column="uuid" javaType="String"/>
+      <arg column="sca_issue_type" javaType="org.sonar.db.sca.ScaIssueType"/>
+      <arg column="package_url" javaType="String"/>
+      <arg column="vulnerability_id" javaType="String"/>
+      <arg column="spdx_license_id" javaType="String"/>
+      <arg column="created_at" javaType="_long"/>
+      <arg column="updated_at" javaType="_long"/>
+    </constructor>
+  </resultMap>
+
   <sql id="scaIssuesColumns">
-    si.uuid as uuid,
-    si.sca_issue_type as scaIssueType,
-    si.package_url as packageUrl,
-    si.vulnerability_id as vulnerabilityId,
-    si.spdx_license_id as spdxLicenseId,
-    si.created_at as createdAt,
-    si.updated_at as updatedAt
+    si.uuid,
+    si.sca_issue_type,
+    si.package_url,
+    si.vulnerability_id,
+    si.spdx_license_id,
+    si.created_at,
+    si.updated_at
   </sql>
 
   <insert id="insert" parameterType="org.sonar.db.sca.ScaIssueDto" useGeneratedKeys="false">
@@ -34,13 +46,13 @@
   <!-- delete is left out for now, because it is very dangerous without foreign key constraints and ON DELETE behavior,
      and it hasn't yet been necessary to try to "garbage collect" this table. -->
 
-  <select id="selectByUuid" parameterType="string" resultType="org.sonar.db.sca.ScaIssueDto">
+  <select id="selectByUuid" parameterType="string" resultMap="scaIssueResultMap">
     select <include refid="scaIssuesColumns"/>
     from sca_issues si
     where si.uuid = #{uuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByUuids" parameterType="string" resultType="org.sonar.db.sca.ScaIssueDto">
+  <select id="selectByUuids" parameterType="string" resultMap="scaIssueResultMap">
     select <include refid="scaIssuesColumns"/>
     from sca_issues si
     <if test="arg0.isEmpty()">

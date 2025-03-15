@@ -1,18 +1,34 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
 <mapper namespace="org.sonar.db.sca.ScaReleasesMapper">
+  <resultMap id="scaReleaseResultMap" type="org.sonar.db.sca.ScaReleaseDto">
+    <constructor>
+      <idArg name="uuid" column="uuid" javaType="String"/>
+      <arg name="componentUuid" column="component_uuid" javaType="String"/>
+      <arg name="packageUrl" column="package_url" javaType="String"/>
+      <arg name="packageManager" column="package_manager" javaType="org.sonar.db.sca.PackageManager" jdbcType="VARCHAR"/>
+      <arg name="packageName" column="package_name" javaType="String"/>
+      <arg name="version" column="version" javaType="String"/>
+      <arg name="licenseExpression" column="license_expression" javaType="String"/>
+      <arg name="known" column="known" javaType="_boolean"/>
+      <arg name="newInPullRequest" column="new_in_pull_request" javaType="_boolean"/>
+      <arg name="createdAt" column="created_at" javaType="_long"/>
+      <arg name="updatedAt" column="updated_at" javaType="_long"/>
+    </constructor>
+  </resultMap>
+
   <sql id="scaReleasesColumns">
     sr.uuid as uuid,
-    sr.component_uuid as componentUuid,
-    sr.package_url as packageUrl,
-    sr.package_manager as packageManager,
-    sr.package_name as packageName,
-    sr.version as version,
-    sr.license_expression as licenseExpression,
-    sr.known as known,
-    sr.new_in_pull_request as newInPullRequest,
-    sr.created_at as createdAt,
-    sr.updated_at as updatedAt
+    sr.component_uuid,
+    sr.package_url,
+    sr.package_manager,
+    sr.package_name,
+    sr.version,
+    sr.license_expression,
+    sr.known,
+    sr.new_in_pull_request,
+    sr.created_at,
+    sr.updated_at
   </sql>
 
   <insert id="insert" parameterType="org.sonar.db.sca.ScaReleaseDto" useGeneratedKeys="false">
@@ -48,13 +64,13 @@
     where uuid = #{uuid,jdbcType=VARCHAR}
   </delete>
 
-  <select id="selectByUuid" parameterType="string" resultType="org.sonar.db.sca.ScaReleaseDto">
+  <select id="selectByUuid" parameterType="string" resultMap="scaReleaseResultMap">
     select <include refid="scaReleasesColumns"/>
     from sca_releases sr
     where sr.uuid = #{uuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByUuids" parameterType="string" resultType="org.sonar.db.sca.ScaReleaseDto">
+  <select id="selectByUuids" parameterType="string" resultMap="scaReleaseResultMap">
     select <include refid="scaReleasesColumns"/>
     from sca_releases sr
     <if test="arg0.isEmpty()">
@@ -72,14 +88,14 @@
     sr.uuid ASC
   </sql>
 
-  <select id="selectByBranchUuid" parameterType="string" resultType="org.sonar.db.sca.ScaReleaseDto">
+  <select id="selectByBranchUuid" parameterType="string" resultMap="scaReleaseResultMap">
     select <include refid="scaReleasesColumns"/>
     from sca_releases sr
     where sr.component_uuid = #{branchUuid,jdbcType=VARCHAR}
     order by <include refid="scaReleasesOrderBy"/>
   </select>
 
-  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.sca.ScaReleaseDto">
+  <select id="selectByQuery" parameterType="map" resultMap="scaReleaseResultMap">
     select <include refid="scaReleasesColumns"/>
     <include refid="sqlSelectByQuery"/>
     ORDER BY <include refid="scaReleasesOrderBy"/>

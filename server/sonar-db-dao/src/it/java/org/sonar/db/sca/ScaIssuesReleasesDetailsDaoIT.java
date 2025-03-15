@@ -48,9 +48,9 @@ class ScaIssuesReleasesDetailsDaoIT {
     Function<ScaIssueReleaseDetailsDto, String> typeString = dto -> dto.scaIssueType().name();
     return Comparator.comparing(typeString)
       .thenComparing(ScaIssueReleaseDetailsDto::vulnerabilityId)
-      .thenComparing(ScaIssueReleaseDetailsDto::packageUrl)
+      .thenComparing(ScaIssueReleaseDetailsDto::issuePackageUrl)
       .thenComparing(ScaIssueReleaseDetailsDto::spdxLicenseId)
-      .thenComparing(ScaIssueReleaseDetailsDto::scaIssueReleaseUuid);
+      .thenComparing(ScaIssueReleaseDetailsDto::issueReleaseUuid);
   }
 
   @Test
@@ -62,42 +62,9 @@ class ScaIssuesReleasesDetailsDaoIT {
 
     var foundPage = scaIssuesReleasesDetailsDao.selectByBranchUuid(db.getSession(), componentDto.branchUuid(), Pagination.forPage(1).andSize(1));
 
-    ScaIssueReleaseDetailsDto expected1 = new ScaIssueReleaseDetailsDto(
-      issue1.scaIssueReleaseUuid(),
-      issue1.severity(),
-      issue1.scaIssueUuid(),
-      issue1.scaReleaseUuid(),
-      ScaIssueType.VULNERABILITY,
-      false,
-      issue1.version(),
-      issue1.releasePackageUrl(),
-      "fakePackageUrl1",
-      "fakeVulnerabilityId1",
-      ScaIssueDto.NULL_VALUE,
-      ScaSeverity.INFO,
-      List.of("cwe1"),
-      new BigDecimal("7.1"),
-      1L);
-    ScaIssueReleaseDetailsDto expected2 = new ScaIssueReleaseDetailsDto(
-      issue2.scaIssueReleaseUuid(),
-      issue2.severity(),
-      issue2.scaIssueUuid(),
-      issue2.scaReleaseUuid(),
-      ScaIssueType.PROHIBITED_LICENSE,
-      false,
-      issue2.version(),
-      issue2.releasePackageUrl(),
-      ScaIssueDto.NULL_VALUE,
-      ScaIssueDto.NULL_VALUE,
-      "0BSD",
-      null,
-      null,
-      null,
-      1L);
-
-    assertThat(foundPage).hasSize(1).isSubsetOf(expected1, expected2);
+    assertThat(foundPage).hasSize(1).isSubsetOf(issue1, issue2);
     var foundAllIssues = scaIssuesReleasesDetailsDao.selectByBranchUuid(db.getSession(), componentDto.branchUuid(), Pagination.forPage(1).andSize(10));
-    assertThat(foundAllIssues).hasSize(2).containsExactlyElementsOf(Stream.of(expected1, expected2).sorted(identityComparator()).toList());
+    assertThat(foundAllIssues).hasSize(2).containsExactlyElementsOf(Stream.of(issue1, issue2).sorted(identityComparator()).toList());
   }
 
   @Test
@@ -493,15 +460,15 @@ class ScaIssuesReleasesDetailsDaoIT {
       scaIssueReleaseDto -> scaIssueReleaseDto.toBuilder().setSeverity(ScaSeverity.INFO).build());
 
     // issue 1 weirdly has no dependency, issues 2-3 are direct, issues 4-6 are transitive
-    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), issue2.scaReleaseUuid(), "2", true);
-    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), issue3.scaReleaseUuid(), "3", true);
-    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), issue4.scaReleaseUuid(), "4", false);
-    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), issue5.scaReleaseUuid(), "5", false);
-    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), issue6.scaReleaseUuid(), "6", false);
+    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), issue2.releaseUuid(), "2", true);
+    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), issue3.releaseUuid(), "3", true);
+    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), issue4.releaseUuid(), "4", false);
+    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), issue5.releaseUuid(), "5", false);
+    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), issue6.releaseUuid(), "6", false);
 
     // make issue3 and issue4 BOTH direct and transitive
-    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), issue3.scaReleaseUuid(), "7", false);
-    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), issue4.scaReleaseUuid(), "8", true);
+    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), issue3.releaseUuid(), "7", false);
+    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), issue4.releaseUuid(), "8", true);
 
     var directIssues = List.of(issue2, issue3, issue4).stream().sorted(identityComparator()).toList();
     var transitiveIssues = List.of(issue3, issue4, issue5, issue6).stream().sorted(identityComparator()).toList();
@@ -520,25 +487,8 @@ class ScaIssuesReleasesDetailsDaoIT {
     // insert another issue to assert that it's not selected
     db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.PROHIBITED_LICENSE, "2", componentDto.uuid());
 
-    ScaIssueReleaseDetailsDto expected = new ScaIssueReleaseDetailsDto(
-      issue1.scaIssueReleaseUuid(),
-      issue1.severity(),
-      issue1.scaIssueUuid(),
-      issue1.scaReleaseUuid(),
-      ScaIssueType.VULNERABILITY,
-      false,
-      issue1.version(),
-      issue1.releasePackageUrl(),
-      "fakePackageUrl1",
-      "fakeVulnerabilityId1",
-      ScaIssueDto.NULL_VALUE,
-      ScaSeverity.INFO,
-      List.of("cwe1"),
-      new BigDecimal("7.1"),
-      issue1.createdAt());
-
-    var foundIssue = scaIssuesReleasesDetailsDao.selectByScaIssueReleaseUuid(db.getSession(), issue1.scaIssueReleaseUuid());
-    assertThat(foundIssue).isEqualTo(expected);
+    var foundIssue = scaIssuesReleasesDetailsDao.selectByScaIssueReleaseUuid(db.getSession(), issue1.issueReleaseUuid());
+    assertThat(foundIssue).isEqualTo(issue1);
 
     var notFoundIssue = scaIssuesReleasesDetailsDao.selectByScaIssueReleaseUuid(db.getSession(), "00000");
     assertThat(notFoundIssue).isNull();

@@ -21,28 +21,105 @@ package org.sonar.db.sca;
 
 import java.math.BigDecimal;
 import java.util.List;
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 class ScaIssueReleaseDetailsDtoTest {
-  @Test
-  void test_toBuilder_build_shouldRoundTrip() {
-    var dto = new ScaIssueReleaseDetailsDto("scaIssueReleaseUuid",
-      ScaSeverity.INFO,
-      "scaIssueUuid",
-      "scaReleaseUuid",
+  private static ScaIssueDto newSampleIssueDto() {
+    return new ScaIssueDto("issueUuid",
       ScaIssueType.VULNERABILITY,
-      true,
-      "1.2.3",
-      "releasePackageUrl",
       "packageUrl",
       "vulnerabilityId",
       "spdxLicenseId",
-      ScaSeverity.BLOCKER,
+      1L,
+      2L);
+  }
+
+  private static ScaReleaseDto newSampleReleaseDto() {
+    return new ScaReleaseDto("releaseUuid",
+      "componentUuid",
+      "packageUrl",
+      PackageManager.MAVEN,
+      "foo:bar",
+      "1.0.0",
+      "MIT",
+      true,
+      false,
+      2L,
+      3L);
+  }
+
+  private static ScaIssueReleaseDto newSampleIssueReleaseDto(ScaIssueDto issueDto, ScaReleaseDto releaseDto) {
+    return new ScaIssueReleaseDto(
+      "issueReleaseUuid",
+      issueDto.uuid(),
+      releaseDto.uuid(),
+      ScaSeverity.INFO,
+      3L,
+      4L);
+  }
+
+  private static ScaVulnerabilityIssueDto newSampleVulnerabilityIssueDto(ScaIssueDto issueDto) {
+    return new ScaVulnerabilityIssueDto(
+      issueDto.uuid(),
+      ScaSeverity.HIGH,
       List.of("cwe1"),
       BigDecimal.ONE,
-      42L);
+      5L,
+      6L);
+  }
+
+  private static ScaIssueReleaseDetailsDto newSampleIssueReleaseDetailsDto() {
+    var issueDto = newSampleIssueDto();
+    var releaseDto = newSampleReleaseDto();
+    var issueReleaseDto = newSampleIssueReleaseDto(issueDto, releaseDto);
+    var vulnerabilityIssueDto = newSampleVulnerabilityIssueDto(issueDto);
+    return new ScaIssueReleaseDetailsDto(
+      issueReleaseDto.uuid(),
+      issueReleaseDto,
+      issueDto,
+      releaseDto,
+      vulnerabilityIssueDto);
+  }
+
+  @Test
+  void test_toBuilder_build_shouldRoundTrip() {
+    var dto = newSampleIssueReleaseDetailsDto();
     assertThat(dto.toBuilder().build()).isEqualTo(dto);
+  }
+
+  @Test
+  void test_withMismatchedReleaseInIssueReleaseDto_throwsIllegalArgumentException() {
+    var validDto = newSampleIssueReleaseDetailsDto();
+    var differentIssueReleaseDto = validDto.issueReleaseDto().toBuilder().setScaReleaseUuid("differentUuid").build();
+    var invalidBuilder = validDto.toBuilder().setIssueReleaseDto(differentIssueReleaseDto);
+    assertThatThrownBy(invalidBuilder::build).isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void test_withMismatchedIssueInIssueReleaseDto_throwsIllegalArgumentException() {
+    var validDto = newSampleIssueReleaseDetailsDto();
+    var differentIssueReleaseDto = validDto.issueReleaseDto().toBuilder().setScaIssueUuid("differentUuid").build();
+    var invalidBuilder = validDto.toBuilder().setIssueReleaseDto(differentIssueReleaseDto);
+    assertThatThrownBy(invalidBuilder::build).isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void test_withMismatchedIssueReleaseUuid_throwsIllegalArgumentException() {
+    var validDto = newSampleIssueReleaseDetailsDto();
+    ThrowableAssert.ThrowingCallable constructInvalid = () -> new ScaIssueReleaseDetailsDto("differentUuid",
+      validDto.issueReleaseDto(), validDto.issueDto(), validDto.releaseDto(), validDto.vulnerabilityIssueDto());
+    assertThatThrownBy(constructInvalid).isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void test_withMismatchedVulnerabilityIssue_throwsIllegalArgumentException() {
+    var validDto = newSampleIssueReleaseDetailsDto();
+    var differentVulnerabiiltyIssue = validDto.vulnerabilityIssueDto().toBuilder().setUuid("differentUuid").build();
+    var invalidBuilder = validDto.toBuilder().setVulnerabilityIssueDto(differentVulnerabiiltyIssue);
+    assertThatThrownBy(invalidBuilder::build).isInstanceOf(IllegalArgumentException.class);
   }
 }

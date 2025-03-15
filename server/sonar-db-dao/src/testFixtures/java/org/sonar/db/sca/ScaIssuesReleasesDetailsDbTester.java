@@ -33,17 +33,19 @@ public class ScaIssuesReleasesDetailsDbTester {
     this.dbClient = db.getDbClient();
   }
 
-  public static ScaIssueReleaseDetailsDto fromDtos(ScaIssueReleaseDto scaIssueReleaseDto, ScaIssueDto scaIssueDto,
-    Optional<ScaVulnerabilityIssueDto> scaVulnerabilityIssueDtoOptional, ScaReleaseDto releaseDto) {
-    // this should emulate what the mapper does when joining these tables
-    return new ScaIssueReleaseDetailsDto(scaIssueReleaseDto.uuid(), scaIssueReleaseDto.severity(),
-      scaIssueReleaseDto.scaIssueUuid(), scaIssueReleaseDto.scaReleaseUuid(), scaIssueDto.scaIssueType(),
-      releaseDto.newInPullRequest(), releaseDto.version(), releaseDto.packageUrl(),
-      scaIssueDto.packageUrl(), scaIssueDto.vulnerabilityId(), scaIssueDto.spdxLicenseId(),
-      scaVulnerabilityIssueDtoOptional.map(ScaVulnerabilityIssueDto::baseSeverity).orElse(null),
-      scaVulnerabilityIssueDtoOptional.map(ScaVulnerabilityIssueDto::cweIds).orElse(null),
-      scaVulnerabilityIssueDtoOptional.map(ScaVulnerabilityIssueDto::cvssScore).orElse(null),
-      scaIssueReleaseDto.createdAt());
+  public static ScaIssueReleaseDetailsDto fromIssueReleaseData(ScaIssuesReleasesDbTester.IssueReleaseData issueReleaseData) {
+    return new ScaIssueReleaseDetailsDto(
+      issueReleaseData.issueReleaseDto().uuid(),
+      issueReleaseData.issueReleaseDto(),
+      issueReleaseData.issueDto(),
+      issueReleaseData.releaseDto(),
+      issueReleaseData.vulnerabilityIssueDto());
+  }
+
+  public static ScaIssueReleaseDetailsDto fromDtos(ScaIssueReleaseDto issueReleaseDto, ScaIssueDto issueDto,
+    Optional<ScaVulnerabilityIssueDto> vulnerabilityIssueDtoOptional, ScaReleaseDto releaseDto) {
+    return new ScaIssueReleaseDetailsDto(issueReleaseDto.uuid(), issueReleaseDto,
+      issueDto, releaseDto, vulnerabilityIssueDtoOptional.orElse(null));
   }
 
   private ScaIssueReleaseDetailsDto insertIssue(ScaIssueDto scaIssue, Optional<ScaVulnerabilityIssueDto> scaVulnerabilityIssueDtoOptional,

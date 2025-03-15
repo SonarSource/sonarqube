@@ -93,6 +93,7 @@ import org.sonar.db.sca.ScaIssuesDao;
 import org.sonar.db.sca.ScaIssuesReleasesDao;
 import org.sonar.db.sca.ScaIssuesReleasesDetailsDao;
 import org.sonar.db.sca.ScaReleasesDao;
+import org.sonar.db.sca.ScaReleasesDependenciesDao;
 import org.sonar.db.sca.ScaVulnerabilityIssuesDao;
 import org.sonar.db.scannercache.ScannerAnalysisCacheDao;
 import org.sonar.db.schemamigration.SchemaMigrationDao;
@@ -195,6 +196,7 @@ public class DaoModule extends Module {
     ScaIssuesDao.class,
     ScaIssuesReleasesDao.class,
     ScaReleasesDao.class,
+    ScaReleasesDependenciesDao.class,
     ScaVulnerabilityIssuesDao.class,
     ScannerAnalysisCacheDao.class,
     SchemaMigrationDao.class,

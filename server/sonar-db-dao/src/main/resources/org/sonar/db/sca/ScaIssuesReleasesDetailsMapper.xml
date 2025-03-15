@@ -1,47 +1,59 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
 <mapper namespace="org.sonar.db.sca.ScaIssuesReleasesDetailsMapper">
-  <!-- we're using a resultMap instead of the usual resultType approach in order to provide
-       a typeHandler for the cwe_ids column -->
   <resultMap id="scaIssueReleaseDetailsResultMap" type="org.sonar.db.sca.ScaIssueReleaseDetailsDto">
     <constructor>
-      <idArg column="uuid" javaType="String"/>
-      <arg column="severity" javaType="org.sonar.db.sca.ScaSeverity" jdbcType="VARCHAR"/>
-      <arg column="sca_issue_uuid" javaType="String"/>
-      <arg column="sca_release_uuid" javaType="String"/>
-      <arg column="sca_issue_type" javaType="org.sonar.db.sca.ScaIssueType" jdbcType="VARCHAR"/>
-      <arg column="new_in_pull_request" javaType="_boolean"/>
-      <arg column="version" javaType="String"/>
-      <arg column="release_package_url" javaType="String"/>
-      <arg column="package_url" javaType="String"/>
-      <arg column="vulnerability_id" javaType="String"/>
-      <arg column="spdx_license_id" javaType="String"/>
-      <arg column="base_severity" javaType="org.sonar.db.sca.ScaSeverity" jdbcType="VARCHAR"/>
-      <arg column="cwe_ids" typeHandler="org.sonar.db.sca.ListOfStringsTypeHandler" jdbcType="VARCHAR"
-           javaType="java.util.List"/>
-      <arg column="cvss_score" javaType="java.math.BigDecimal"/>
-      <!-- the underscore prefix means to use the primitive type instead of boxed type -->
-      <arg column="created_at" javaType="_long"/>
+      <idArg column="issue_release_uuid" javaType="String"/>
+      <arg resultMap="org.sonar.db.sca.ScaIssuesReleasesMapper.scaIssueReleaseResultMap"
+           columnPrefix="sir_"
+           javaType="org.sonar.db.sca.ScaIssueReleaseDto"/>
+      <arg resultMap="org.sonar.db.sca.ScaIssuesMapper.scaIssueResultMap"
+           columnPrefix="si_"
+           javaType="org.sonar.db.sca.ScaIssueDto"/>
+      <arg resultMap="org.sonar.db.sca.ScaReleasesMapper.scaReleaseResultMap"
+           columnPrefix="sr_"
+           javaType="org.sonar.db.sca.ScaReleaseDto"/>
+      <arg resultMap="org.sonar.db.sca.ScaVulnerabilityIssuesMapper.scaVulnerabilityIssueResultMap"
+           columnPrefix="svi_"
+           javaType="org.sonar.db.sca.ScaVulnerabilityIssueDto"/>
     </constructor>
   </resultMap>
 
   <sql id="issuesWithScaColumns">
-    sir.uuid,
-    sir.severity,
-    sir.severity_sort_key,
-    sir.sca_issue_uuid,
-    sir.sca_release_uuid,
-    si.sca_issue_type,
-    sr.new_in_pull_request,
-    sr.version,
-    sr.package_url as release_package_url,
-    si.package_url,
-    si.vulnerability_id,
-    si.spdx_license_id,
-    svi.base_severity,
-    svi.cwe_ids,
-    svi.cvss_score,
-    sir.created_at
+    <!-- These have to match all of the properties in the other tables' mappers,
+         adding the columnPrefix given in our resultMap above -->
+    sir.uuid as issue_release_uuid,
+    sir.uuid as sir_uuid,
+    sir.sca_issue_uuid as sir_sca_issue_uuid,
+    sir.sca_release_uuid as sir_sca_release_uuid,
+    sir.severity as sir_severity,
+    sir.severity_sort_key as sir_severity_sort_key,
+    sir.created_at as sir_created_at,
+    sir.updated_at as sir_updated_at,
+    si.uuid as si_uuid,
+    si.sca_issue_type as si_sca_issue_type,
+    si.package_url as si_package_url,
+    si.vulnerability_id as si_vulnerability_id,
+    si.spdx_license_id as si_spdx_license_id,
+    si.created_at as si_created_at,
+    si.updated_at as si_updated_at,
+    sr.uuid as sr_uuid,
+    sr.component_uuid as sr_component_uuid,
+    sr.package_url as sr_package_url,
+    sr.package_manager as sr_package_manager,
+    sr.package_name as sr_package_name,
+    sr.version as sr_version,
+    sr.license_expression as sr_license_expression,
+    sr.known as sr_known,
+    sr.new_in_pull_request as sr_new_in_pull_request,
+    sr.created_at as sr_created_at,
+    sr.updated_at as sr_updated_at,
+    svi.uuid as svi_uuid,
+    svi.base_severity as svi_base_severity,
+    svi.cwe_ids as svi_cwe_ids,
+    svi.cvss_score as svi_cvss_score,
+    svi.created_at as svi_created_at,
+    svi.updated_at as svi_updated_at
   </sql>
 
   <sql id="sqlBaseJoins">

@@ -93,6 +93,7 @@ import org.sonar.db.sca.ScaIssuesDao;
 import org.sonar.db.sca.ScaIssuesReleasesDao;
 import org.sonar.db.sca.ScaIssuesReleasesDetailsDao;
 import org.sonar.db.sca.ScaReleasesDao;
+import org.sonar.db.sca.ScaReleasesDependenciesDao;
 import org.sonar.db.sca.ScaVulnerabilityIssuesDao;
 import org.sonar.db.scannercache.ScannerAnalysisCacheDao;
 import org.sonar.db.schemamigration.SchemaMigrationDao;
@@ -208,6 +209,7 @@ public class DbClient {
   private final TelemetryMetricsSentDao telemetryMetricsSentDao;
   private final ScaReleasesDao scaReleasesDao;
   private final ScaDependenciesDao scaDependenciesDao;
+  private final ScaReleasesDependenciesDao scaReleasesDependenciesDao;
   private final ScaIssuesDao scaIssuesDao;
   private final ScaIssuesReleasesDao scaIssuesReleasesDao;
   private final ScaVulnerabilityIssuesDao scaVulnerabilityIssuesDao;
@@ -310,6 +312,7 @@ public class DbClient {
     telemetryMetricsSentDao = getDao(map, TelemetryMetricsSentDao.class);
     scaReleasesDao = getDao(map, ScaReleasesDao.class);
     scaDependenciesDao = getDao(map, ScaDependenciesDao.class);
+    scaReleasesDependenciesDao = getDao(map, ScaReleasesDependenciesDao.class);
     scaIssuesDao = getDao(map, ScaIssuesDao.class);
     scaIssuesReleasesDao = getDao(map, ScaIssuesReleasesDao.class);
     scaVulnerabilityIssuesDao = getDao(map, ScaVulnerabilityIssuesDao.class);
@@ -684,6 +687,10 @@ public class DbClient {
 
   public ScaDependenciesDao scaDependenciesDao() {
     return scaDependenciesDao;
+  }
+
+  public ScaReleasesDependenciesDao scaReleasesDependenciesDao() {
+    return scaReleasesDependenciesDao;
   }
 
   public ScaIssuesDao scaIssuesDao() {
