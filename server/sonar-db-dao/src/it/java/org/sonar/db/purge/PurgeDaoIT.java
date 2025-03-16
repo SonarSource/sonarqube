@@ -1975,8 +1975,8 @@ oldCreationDate));
     var release2 = scaReleasesDbTester.insertScaRelease(branch2.getUuid(), "2");
 
     ScaDependenciesDbTester scaDependenciesDbTester = new ScaDependenciesDbTester(db);
-    scaDependenciesDbTester.insertScaDependency(branch1.getUuid(), release1.uuid(), "1",false);
-    scaDependenciesDbTester.insertScaDependency(branch2.getUuid(), release2.uuid(), "2", false);
+    scaDependenciesDbTester.insertScaDependency(release1.uuid(), "1");
+    scaDependenciesDbTester.insertScaDependency(release2.uuid(), "2");
 
     ScaIssueReleaseDto issueRelease1 = new ScaIssueReleaseDto.Builder().setUuid("foo1").setScaIssueUuid("baz").setSeverity(ScaSeverity.LOW).setScaReleaseUuid(release1.uuid()).build();
     ScaIssueReleaseDto issueRelease2 = new ScaIssueReleaseDto.Builder().setUuid("foo2").setScaIssueUuid("baz").setSeverity(ScaSeverity.LOW).setScaReleaseUuid(release2.uuid()).build();

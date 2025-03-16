@@ -121,7 +121,7 @@ class ScaReleasesDaoIT {
     ScaReleaseDto scaReleaseDto = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "1");
     System.out.println("componentDto = " + componentDto);
 
-    ScaReleasesQuery scaReleasesQuery = new ScaReleasesQuery(componentDto.branchUuid(), null, null, null, null);
+    ScaReleasesQuery scaReleasesQuery = new ScaReleasesQuery(componentDto.branchUuid(), null, null, null, null, null);
     List<ScaReleaseDto> results = scaReleasesDao.selectByQuery(db.getSession(), scaReleasesQuery, Pagination.all());
 
     assertThat(results).hasSize(1);
@@ -136,7 +136,7 @@ class ScaReleasesDaoIT {
     ScaReleaseDto scaReleaseDto3 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "3");
     ScaReleaseDto scaReleaseDto4 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "4");
 
-    ScaReleasesQuery scaReleasesQuery = new ScaReleasesQuery(componentDto.branchUuid(), null, null, null, null);
+    ScaReleasesQuery scaReleasesQuery = new ScaReleasesQuery(componentDto.branchUuid(), null, null, null, null, null);
     List<ScaReleaseDto> page1Results = scaReleasesDao.selectByQuery(db.getSession(), scaReleasesQuery, Pagination.forPage(1).andSize(2));
     List<ScaReleaseDto> page2Results = scaReleasesDao.selectByQuery(db.getSession(), scaReleasesQuery, Pagination.forPage(2).andSize(2));
 
@@ -151,8 +151,8 @@ class ScaReleasesDaoIT {
   void selectByQuery_shouldPartiallyMatchPackageName_whenQueriedByText() {
     ComponentDto componentDto = prepareComponentDto();
     ScaReleaseDto scaReleaseDto1 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "1", PackageManager.MAVEN, "foo.bar");
-    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), scaReleaseDto1, "1", true);
-    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), scaReleaseDto1, "2", false);
+    db.getScaDependenciesDbTester().insertScaDependency(scaReleaseDto1, "1", true);
+    db.getScaDependenciesDbTester().insertScaDependency(scaReleaseDto1, "2", false);
     var log = LoggerFactory.getLogger("");
     List<Map<String, Object>> temp = db.select(db.getSession(), "select * from sca_releases");
     log.warn("sca_releases: {}", temp.stream().count());
@@ -171,14 +171,14 @@ class ScaReleasesDaoIT {
     @SuppressWarnings("unused")
     ScaReleaseDto scaReleaseDto4 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "4", PackageManager.MAVEN, "some.foo.bar");
 
-    ScaReleasesQuery scaReleasesQuery = new ScaReleasesQuery(componentDto.branchUuid(), null, null, null, "foo");
+    ScaReleasesQuery scaReleasesQuery = new ScaReleasesQuery(componentDto.branchUuid(), null, null, null, null, "foo");
     List<ScaReleaseDto> results = scaReleasesDao.selectByQuery(db.getSession(), scaReleasesQuery, Pagination.all());
 
     assertThat(results).hasSize(3);
     assertThat(results.get(0)).usingRecursiveComparison().isEqualTo(scaReleaseDto1);
     assertThat(results.get(1)).usingRecursiveComparison().isEqualTo(scaReleaseDto3);
 
-    ScaReleasesQuery scaReleasesCaseInsensitiveQuery = new ScaReleasesQuery(componentDto.branchUuid(), null, null, null, "Foo.Bar");
+    ScaReleasesQuery scaReleasesCaseInsensitiveQuery = new ScaReleasesQuery(componentDto.branchUuid(), null, null, null, null, "Foo.Bar");
     List<ScaReleaseDto> resultsCaseInsensitive = scaReleasesDao.selectByQuery(db.getSession(), scaReleasesCaseInsensitiveQuery, Pagination.all());
 
     assertThat(resultsCaseInsensitive).hasSize(3);
@@ -192,17 +192,38 @@ class ScaReleasesDaoIT {
     ScaReleaseDto scaReleaseDto1 = db.getScaReleasesDbTester().insertScaReleaseWithDependency(componentDto.uuid(), "1", 2, true, PackageManager.MAVEN, "foo.bar");
     ScaReleaseDto scaReleaseDto2 = db.getScaReleasesDbTester().insertScaReleaseWithDependency(componentDto.uuid(), "2", 3, false, PackageManager.MAVEN, "foo.bar");
 
-    ScaReleasesQuery scaReleasesDirectQuery = new ScaReleasesQuery(componentDto.branchUuid(), true, null, null, null);
+    ScaReleasesQuery scaReleasesDirectQuery = new ScaReleasesQuery(componentDto.branchUuid(), true, null, null, null, null);
     List<ScaReleaseDto> resultsDirect = scaReleasesDao.selectByQuery(db.getSession(), scaReleasesDirectQuery, Pagination.all());
 
     assertThat(resultsDirect).hasSize(1);
     assertThat(resultsDirect.get(0)).usingRecursiveComparison().isEqualTo(scaReleaseDto1);
 
-    ScaReleasesQuery scaReleasesNoDirectQuery = new ScaReleasesQuery(componentDto.branchUuid(), false, null, null, null);
+    ScaReleasesQuery scaReleasesNoDirectQuery = new ScaReleasesQuery(componentDto.branchUuid(), false, null, null, null, null);
     List<ScaReleaseDto> resultsNoDirect = scaReleasesDao.selectByQuery(db.getSession(), scaReleasesNoDirectQuery, Pagination.all());
 
     assertThat(resultsNoDirect).hasSize(1);
     assertThat(resultsNoDirect.get(0)).usingRecursiveComparison().isEqualTo(scaReleaseDto2);
+  }
+
+  @Test
+  void selectByQuery_shouldReturnScaReleases_whenQueryByProductionScope() {
+    ComponentDto componentDto = prepareComponentDto();
+    ScaReleaseDto scaReleaseDto1 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "1");
+    ScaReleaseDto scaReleaseDto2 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "2");
+    db.getScaDependenciesDbTester().insertScaDependency(scaReleaseDto1, "1", builder -> builder.setProductionScope(true));
+    db.getScaDependenciesDbTester().insertScaDependency(scaReleaseDto2, "2", builder -> builder.setProductionScope(false));
+
+    ScaReleasesQuery scaReleasesProductionScopeQuery = new ScaReleasesQuery(componentDto.branchUuid(), null, true, null, null, null);
+    List<ScaReleaseDto> resultsProductionScope = scaReleasesDao.selectByQuery(db.getSession(), scaReleasesProductionScopeQuery, Pagination.all());
+
+    assertThat(resultsProductionScope).hasSize(1);
+    assertThat(resultsProductionScope.get(0)).usingRecursiveComparison().isEqualTo(scaReleaseDto1);
+
+    ScaReleasesQuery scaReleasesNoProductionScopeQuery = new ScaReleasesQuery(componentDto.branchUuid(), null, false, null, null, null);
+    List<ScaReleaseDto> resultsNoProductionScope = scaReleasesDao.selectByQuery(db.getSession(), scaReleasesNoProductionScopeQuery, Pagination.all());
+
+    assertThat(resultsNoProductionScope).hasSize(1);
+    assertThat(resultsNoProductionScope.get(0)).usingRecursiveComparison().isEqualTo(scaReleaseDto2);
   }
 
   @Test
@@ -212,13 +233,13 @@ class ScaReleasesDaoIT {
     ScaReleaseDto scaReleaseDto2 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "2", PackageManager.NPM, "foo.bar");
     ScaReleaseDto scaReleaseDto3 = db.getScaReleasesDbTester().insertScaRelease(componentDto.uuid(), "3", PackageManager.CARGO, "foo.bar");
 
-    ScaReleasesQuery scaReleasesMavenQuery = new ScaReleasesQuery(componentDto.branchUuid(), null, List.of(PackageManager.MAVEN.name()), null, null);
+    ScaReleasesQuery scaReleasesMavenQuery = new ScaReleasesQuery(componentDto.branchUuid(), null, null, List.of(PackageManager.MAVEN.name()), null, null);
     List<ScaReleaseDto> resultsMaven = scaReleasesDao.selectByQuery(db.getSession(), scaReleasesMavenQuery, Pagination.all());
 
     assertThat(resultsMaven).hasSize(1);
     assertThat(resultsMaven.get(0)).usingRecursiveComparison().isEqualTo(scaReleaseDto1);
 
-    ScaReleasesQuery scaReleasesNpmAndCargoQuery = new ScaReleasesQuery(componentDto.branchUuid(), null,
+    ScaReleasesQuery scaReleasesNpmAndCargoQuery = new ScaReleasesQuery(componentDto.branchUuid(), null, null,
       List.of(PackageManager.NPM.name(), PackageManager.CARGO.name()), null, null);
     List<ScaReleaseDto> resultsNpm = scaReleasesDao.selectByQuery(db.getSession(), scaReleasesNpmAndCargoQuery, Pagination.all());
 
@@ -260,11 +281,11 @@ class ScaReleasesDaoIT {
     db.getScaReleasesDbTester().insertScaReleaseWithDependency(componentDto1.uuid(), "2", 2, true, PackageManager.MAVEN, "foo.bar.mee");
     db.getScaReleasesDbTester().insertScaReleaseWithDependency(componentDto1.uuid(), "3", 3, true, PackageManager.MAVEN, "bar.fo");
 
-    ScaReleasesQuery scaReleasesQuery = new ScaReleasesQuery(componentDto1.branchUuid(), null, null, null, "foo");
+    ScaReleasesQuery scaReleasesQuery = new ScaReleasesQuery(componentDto1.branchUuid(), null, null, null, null, "foo");
 
     assertThat(scaReleasesDao.countByQuery(db.getSession(), scaReleasesQuery)).isEqualTo(2);
-    assertThat(scaReleasesDao.countByQuery(db.getSession(), new ScaReleasesQuery(componentDto1.branchUuid(), null, null, null, null))).isEqualTo(3);
-    assertThat(scaReleasesDao.countByQuery(db.getSession(), new ScaReleasesQuery("another_branch_uuid", null, null, null, null))).isZero();
+    assertThat(scaReleasesDao.countByQuery(db.getSession(), new ScaReleasesQuery(componentDto1.branchUuid(), null, null, null, null, null))).isEqualTo(3);
+    assertThat(scaReleasesDao.countByQuery(db.getSession(), new ScaReleasesQuery("another_branch_uuid", null, null, null, null, null))).isZero();
   }
 
   private ComponentDto prepareComponentDto() {
@@ -280,7 +301,7 @@ class ScaReleasesDaoIT {
     db.getScaReleasesDbTester().insertScaReleaseWithDependency(componentDto1.uuid(), "3", 3, true, PackageManager.MAVEN, "bar.foo");
     db.getScaReleasesDbTester().insertScaReleaseWithDependency(componentDto1.uuid(), "4", 4, true, PackageManager.PYPI, "bar.foo");
 
-    ScaReleasesQuery scaReleasesQuery = new ScaReleasesQuery(componentDto1.branchUuid(), null, null, null, null);
+    ScaReleasesQuery scaReleasesQuery = new ScaReleasesQuery(componentDto1.branchUuid(), null, null, null, null, null);
 
     List<ScaReleaseByPackageManagerCountDto> releaseCounts = scaReleasesDao.countReleasesByPackageManager(db.getSession(), scaReleasesQuery);
     assertThat(releaseCounts).hasSize(3);

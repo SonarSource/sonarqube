@@ -109,6 +109,10 @@
              can be BOTH direct and !direct if it has multiple dependencies. -->
         AND exists (select 1 from sca_dependencies sd where sd.sca_release_uuid = sr.uuid and sd.direct = #{query.direct,jdbcType=BOOLEAN})
       </if>
+      <if test="query.productionScope != null">
+        <!-- we only want each sca_releases row once, so this isn't a join. -->
+        AND exists (select 1 from sca_dependencies sd where sd.sca_release_uuid = sr.uuid and sd.production_scope = #{query.productionScope,jdbcType=BOOLEAN})
+      </if>
       <if test="query.vulnerabilityIdSubstring != null">
           <!-- this screens out non-vulnerability-having issue types even if the search is for empty string -->
         AND si.vulnerability_id != '${@org.sonar.db.sca.ScaIssueDto@NULL_VALUE}'

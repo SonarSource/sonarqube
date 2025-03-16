@@ -30,6 +30,7 @@ import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
 public record ScaReleasesQuery(
   String branchUuid,
   @Nullable Boolean direct,
+  @Nullable Boolean productionScope,
   @Nullable List<String> packageManagers,
   @Nullable Boolean newInPullRequest,
   @Nullable String query) {
@@ -40,5 +41,58 @@ public record ScaReleasesQuery(
   @CheckForNull
   public String likeQuery() {
     return query == null ? null : buildLikeValue(query.toLowerCase(Locale.ENGLISH), BEFORE_AND_AFTER);
+  }
+
+  public Builder toBuilder() {
+    return new Builder()
+      .setBranchUuid(branchUuid)
+      .setDirect(direct)
+      .setProductionScope(productionScope)
+      .setPackageManagers(packageManagers)
+      .setNewInPullRequest(newInPullRequest)
+      .setQuery(query);
+  }
+
+  public static class Builder {
+    private String branchUuid;
+    private Boolean direct;
+    private Boolean productionScope;
+    private List<String> packageManagers;
+    private Boolean newInPullRequest;
+    private String query;
+
+    public Builder setBranchUuid(String branchUuid) {
+      this.branchUuid = branchUuid;
+      return this;
+    }
+
+    public Builder setDirect(Boolean direct) {
+      this.direct = direct;
+      return this;
+    }
+
+    public Builder setProductionScope(Boolean productionScope) {
+      this.productionScope = productionScope;
+      return this;
+    }
+
+    public Builder setPackageManagers(List<String> packageManagers) {
+      this.packageManagers = packageManagers;
+      return this;
+    }
+
+    public Builder setNewInPullRequest(Boolean newInPullRequest) {
+      this.newInPullRequest = newInPullRequest;
+      return this;
+    }
+
+    public Builder setQuery(String query) {
+      this.query = query;
+      return this;
+    }
+
+    public ScaReleasesQuery build() {
+      return new ScaReleasesQuery(branchUuid, direct, productionScope, packageManagers, newInPullRequest, query);
+    }
   }
 }

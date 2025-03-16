@@ -37,6 +37,7 @@ public class DbVersion202503 implements DbVersion {
   public void addSteps(MigrationStepRegistry registry) {
     registry
       .add(2025_03_000, "Drop 'sca_releases_comp_uuid' index", DropIndexOnScaReleasesComponent.class)
-      .add(2025_03_001, "Create 'sca_releases_comp_uuid_uuid' index", CreateIndexOnScaReleasesComponentUuid.class);
+      .add(2025_03_001, "Create 'sca_releases_comp_uuid_uuid' index", CreateIndexOnScaReleasesComponentUuid.class)
+      .add(2025_03_002, "Add 'sca_dependencies.production_scope' column", AddProductionScopeToScaDependenciesTable.class);
   }
 }

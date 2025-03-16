@@ -45,7 +45,7 @@ class ScaReleasesDependenciesDaoIT {
 
     ScaDependencyDto scaDependencyDto1a = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "1a", true, PackageManager.MAVEN, "foo.bar1");
     // same release, different dependency
-    ScaDependencyDto scaDependencyDto1b = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), scaDependencyDto1a.scaReleaseUuid(), "1b", false);
+    ScaDependencyDto scaDependencyDto1b = db.getScaDependenciesDbTester().insertScaDependency(scaDependencyDto1a.scaReleaseUuid(), "1b", false);
     ScaDependencyDto scaDependencyDto2 = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "2", true, PackageManager.MAVEN, "foo.bar2");
     ScaDependencyDto scaDependencyDto3 = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "3", true, PackageManager.MAVEN, "foo.bar3");
 

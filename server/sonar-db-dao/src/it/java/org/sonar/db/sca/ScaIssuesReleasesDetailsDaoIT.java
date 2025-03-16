@@ -363,6 +363,23 @@ class ScaIssuesReleasesDetailsDaoIT {
   }
 
   @Test
+  void withQueryFilteredByProductionScope_shouldReturnExpectedItems() {
+    QueryTestData testData = createQueryTestData();
+    var expectedProduction = testData.productionIssues();
+    var expectedNotProduction = testData.notProductionIssues();
+
+    executeQueryTest(testData,
+      queryBuilder -> queryBuilder.setProductionScope(true),
+      expectedProduction,
+      "Only production issues should be returned");
+
+    executeQueryTest(testData,
+      queryBuilder -> queryBuilder.setProductionScope(false),
+      expectedNotProduction,
+      "Only the non-production issues should be returned");
+  }
+
+  @Test
   void withQueryMultipleFiltersNonDefaultSort_shouldReturnExpectedItems() {
     QueryTestData testData = createQueryTestData();
     var expectedPackageManagerMaven = testData.expectedIssuesWithPackageManager(PackageManager.MAVEN);
@@ -460,22 +477,35 @@ class ScaIssuesReleasesDetailsDaoIT {
       scaIssueReleaseDto -> scaIssueReleaseDto.toBuilder().setSeverity(ScaSeverity.INFO).build());
 
     // issue 1 weirdly has no dependency, issues 2-3 are direct, issues 4-6 are transitive
-    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), issue2.releaseUuid(), "2", true);
-    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), issue3.releaseUuid(), "3", true);
-    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), issue4.releaseUuid(), "4", false);
-    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), issue5.releaseUuid(), "5", false);
-    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), issue6.releaseUuid(), "6", false);
+    // issues 2 and 4 are production, 3,5,6 are not production
+    db.getScaDependenciesDbTester().insertScaDependency(issue2.releaseUuid(), "2",
+      builder -> builder.setDirect(true).setProductionScope(true));
+    var dep3 = db.getScaDependenciesDbTester().insertScaDependency(issue3.releaseUuid(), "3",
+      builder -> builder.setDirect(true).setProductionScope(false));
+    var dep4 = db.getScaDependenciesDbTester().insertScaDependency(issue4.releaseUuid(), "4",
+      builder -> builder.setDirect(false).setProductionScope(true));
+    var dep5 = db.getScaDependenciesDbTester().insertScaDependency(issue5.releaseUuid(), "5",
+      builder -> builder.setDirect(false).setProductionScope(false));
+    db.getScaDependenciesDbTester().insertScaDependency(issue6.releaseUuid(), "6",
+      builder -> builder.setDirect(false).setProductionScope(false));
 
-    // make issue3 and issue4 BOTH direct and transitive
-    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), issue3.releaseUuid(), "7", false);
-    db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), issue4.releaseUuid(), "8", true);
+    // make issue3 and issue4 BOTH direct and transitive,
+    // issue4 and issue5 are BOTH production and not
+    db.getScaDependenciesDbTester().insertScaDependency(issue3.releaseUuid(), "7",
+      builder -> builder.setDirect(!dep3.direct()).setProductionScope(dep3.productionScope()));
+    db.getScaDependenciesDbTester().insertScaDependency(issue4.releaseUuid(), "8",
+      builder -> builder.setDirect(!dep4.direct()).setProductionScope(!dep4.productionScope()));
+    db.getScaDependenciesDbTester().insertScaDependency(issue5.releaseUuid(), "9",
+      builder -> builder.setDirect(dep5.direct()).setProductionScope(!dep5.productionScope()));
 
     var directIssues = List.of(issue2, issue3, issue4).stream().sorted(identityComparator()).toList();
     var transitiveIssues = List.of(issue3, issue4, issue5, issue6).stream().sorted(identityComparator()).toList();
+    var productionIssues = List.of(issue2, issue4, issue5).stream().sorted(identityComparator()).toList();
+    var notProductionIssues = List.of(issue3, issue4, issue5, issue6).stream().sorted(identityComparator()).toList();
 
     return new QueryTestData(projectData, componentDto,
       List.of(issue1, issue2, issue3, issue4, issue5, issue6),
-      directIssues, transitiveIssues);
+      directIssues, transitiveIssues, productionIssues, notProductionIssues);
   }
 
   @Test
@@ -498,7 +528,9 @@ class ScaIssuesReleasesDetailsDaoIT {
     ComponentDto componentDto,
     List<ScaIssueReleaseDetailsDto> expectedIssues,
     List<ScaIssueReleaseDetailsDto> directIssues,
-    List<ScaIssueReleaseDetailsDto> transitiveIssues) {
+    List<ScaIssueReleaseDetailsDto> transitiveIssues,
+    List<ScaIssueReleaseDetailsDto> productionIssues,
+    List<ScaIssueReleaseDetailsDto> notProductionIssues) {
     private static Comparator<ScaIssueReleaseDetailsDto> cvssScoreComparator() {
       return Comparator.comparing(ScaIssueReleaseDetailsDto::cvssScore,
         // we treat null cvss as a score of 0.0

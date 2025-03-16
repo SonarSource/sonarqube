@@ -65,7 +65,7 @@ public class ScaReleasesDbTester {
   public ScaReleaseDto insertScaReleaseWithDependency(String componentUuid, String suffix, int dependencyCount, boolean direct, PackageManager packageManager, String packageName) {
     var scaReleaseDto = insertScaRelease(componentUuid, suffix, packageManager, packageName);
     while (dependencyCount > 0) {
-      db.getScaDependenciesDbTester().insertScaDependency(componentUuid, scaReleaseDto, suffix + "-" + dependencyCount, direct);
+      db.getScaDependenciesDbTester().insertScaDependency(scaReleaseDto, suffix + "-" + dependencyCount, direct);
       dependencyCount--;
     }
     return scaReleaseDto;

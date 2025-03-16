@@ -10,6 +10,7 @@
       <!-- the underscore prefix means to use the primitive type instead of boxed type -->
       <arg column="direct" javaType="_boolean"/>
       <arg column="scope" javaType="String"/>
+      <arg column="production_scope" javaType="_boolean"/>
       <arg column="user_dependency_file_path" javaType="String"/>
       <arg column="lockfile_dependency_file_path" javaType="String"/>
       <arg column="chains" typeHandler="org.sonar.db.sca.ListOfListOfStringsTypeHandler" jdbcType="CLOB"
@@ -25,6 +26,7 @@
     sd.sca_release_uuid,
     sd.direct,
     sd.scope,
+    sd.production_scope,
     sd.user_dependency_file_path,
     sd.lockfile_dependency_file_path,
     sd.chains,
@@ -39,6 +41,7 @@
       sca_release_uuid,
       direct,
       scope,
+      production_scope,
       user_dependency_file_path,
       lockfile_dependency_file_path,
       chains,
@@ -50,6 +53,7 @@
       #{scaReleaseUuid,jdbcType=VARCHAR},
       #{direct,jdbcType=BOOLEAN},
       #{scope,jdbcType=VARCHAR},
+      #{productionScope,jdbcType=BOOLEAN},
       #{userDependencyFilePath,jdbcType=VARCHAR},
       #{lockfileDependencyFilePath,jdbcType=VARCHAR},
       #{chains,jdbcType=CLOB,typeHandler=org.sonar.db.sca.ListOfListOfStringsTypeHandler},
@@ -128,6 +132,7 @@
       sca_release_uuid = #{scaReleaseUuid, jdbcType=VARCHAR},
       direct = #{direct, jdbcType=BOOLEAN},
       scope = #{scope, jdbcType=VARCHAR},
+      production_scope = #{productionScope, jdbcType=BOOLEAN},
       user_dependency_file_path = #{userDependencyFilePath, jdbcType=VARCHAR},
       lockfile_dependency_file_path = #{lockfileDependencyFilePath, jdbcType=VARCHAR},
       chains = #{chains, jdbcType=CLOB, typeHandler=org.sonar.db.sca.ListOfListOfStringsTypeHandler},

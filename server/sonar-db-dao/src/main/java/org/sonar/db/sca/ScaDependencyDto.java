@@ -39,6 +39,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  * @param scaReleaseUuid             the UUID of the SCA release that this dependency refers to
  * @param direct                     is this a direct dependency of the project
  * @param scope                      the scope of the dependency e.g. "development"
+ * @param productionScope            whether the scope appears to be a production scope or test scope
  * @param userDependencyFilePath     path to the user-editable file where the dependency was found ("manifest") e.g. package.json
  * @param lockfileDependencyFilePath path to the machine-maintained lockfile where the dependency was found e.g. package-lock.json
  * @param chains                     a list of the purl chains that require the dependency, stored as JSON string, e.g. [["pkg:npm/foo@1.0.0", ...], ...]
@@ -51,6 +52,7 @@ public record ScaDependencyDto(
   String scaReleaseUuid,
   boolean direct,
   String scope,
+  boolean productionScope,
   @Nullable String userDependencyFilePath,
   @Nullable String lockfileDependencyFilePath,
   @Nullable List<List<String>> chains,
@@ -113,6 +115,7 @@ public record ScaDependencyDto(
       .setScaReleaseUuid(this.scaReleaseUuid)
       .setDirect(this.direct)
       .setScope(this.scope)
+      .setProductionScope(this.productionScope)
       .setUserDependencyFilePath(this.userDependencyFilePath)
       .setLockfileDependencyFilePath(this.lockfileDependencyFilePath)
       .setChains(this.chains)
@@ -160,6 +163,7 @@ public record ScaDependencyDto(
     private String scaReleaseUuid;
     private boolean direct;
     private String scope;
+    private boolean productionScope;
     private String userDependencyFilePath;
     private String lockfileDependencyFilePath;
     private List<List<String>> chains;
@@ -184,6 +188,11 @@ public record ScaDependencyDto(
 
     public Builder setScope(String scope) {
       this.scope = scope;
+      return this;
+    }
+
+    public Builder setProductionScope(boolean productionScope) {
+      this.productionScope = productionScope;
       return this;
     }
 
@@ -219,7 +228,7 @@ public record ScaDependencyDto(
 
     public ScaDependencyDto build() {
       return new ScaDependencyDto(
-        uuid, scaReleaseUuid, direct, scope, userDependencyFilePath, lockfileDependencyFilePath, chains, newInPullRequest, createdAt, updatedAt);
+        uuid, scaReleaseUuid, direct, scope, productionScope, userDependencyFilePath, lockfileDependencyFilePath, chains, newInPullRequest, createdAt, updatedAt);
     }
   }
 }

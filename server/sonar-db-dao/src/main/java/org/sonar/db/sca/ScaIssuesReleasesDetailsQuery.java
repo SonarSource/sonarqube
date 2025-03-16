@@ -34,6 +34,7 @@ public record ScaIssuesReleasesDetailsQuery(
   String branchUuid,
   Sort sort,
   @Nullable Boolean direct,
+  @Nullable Boolean productionScope,
   @Nullable String vulnerabilityIdSubstring,
   @Nullable String packageNameSubstring,
   @Nullable Boolean newInPullRequest,
@@ -71,6 +72,7 @@ public record ScaIssuesReleasesDetailsQuery(
       .setBranchUuid(branchUuid)
       .setSort(sort)
       .setDirect(direct)
+      .setProductionScope(productionScope)
       .setVulnerabilityIdSubstring(vulnerabilityIdSubstring)
       .setPackageNameSubstring(packageNameSubstring)
       .setNewInPullRequest(newInPullRequest)
@@ -115,6 +117,7 @@ public record ScaIssuesReleasesDetailsQuery(
     private String branchUuid;
     private Sort sort;
     private Boolean direct;
+    private Boolean productionScope;
     private String vulnerabilityIdSubstring;
     private String packageNameSubstring;
     private Boolean newInPullRequest;
@@ -134,6 +137,11 @@ public record ScaIssuesReleasesDetailsQuery(
 
     public Builder setDirect(@Nullable Boolean direct) {
       this.direct = direct;
+      return this;
+    }
+
+    public Builder setProductionScope(@Nullable Boolean productionScope) {
+      this.productionScope = productionScope;
       return this;
     }
 
@@ -168,8 +176,8 @@ public record ScaIssuesReleasesDetailsQuery(
     }
 
     public ScaIssuesReleasesDetailsQuery build() {
-      return new ScaIssuesReleasesDetailsQuery(branchUuid, sort, direct, vulnerabilityIdSubstring, packageNameSubstring,
-        newInPullRequest, types, severities, packageManagers);
+      return new ScaIssuesReleasesDetailsQuery(branchUuid, sort, direct, productionScope, vulnerabilityIdSubstring,
+        packageNameSubstring, newInPullRequest, types, severities, packageManagers);
     }
   }
 }

@@ -122,6 +122,10 @@
       <!-- we only want each sca_releases row once, so this isn't a join. -->
       AND exists (select 1 from sca_dependencies sd where sd.sca_release_uuid = sr.uuid and sd.direct = #{query.direct,jdbcType=BOOLEAN})
     </if>
+    <if test="query.productionScope != null">
+      <!-- we only want each sca_releases row once, so this isn't a join. -->
+      AND exists (select 1 from sca_dependencies sd where sd.sca_release_uuid = sr.uuid and sd.production_scope = #{query.productionScope,jdbcType=BOOLEAN})
+    </if>
     <if test="query.packageManagers != null and !query.packageManagers.isEmpty()">
       AND sr.package_manager IN
       <foreach collection="query.packageManagers" open="(" close=")" item="packageManager" separator=",">

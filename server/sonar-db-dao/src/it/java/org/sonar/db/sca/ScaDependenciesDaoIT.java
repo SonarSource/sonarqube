@@ -42,7 +42,7 @@ class ScaDependenciesDaoIT {
   @Test
   void insert_shouldPersistScaDependencies() {
     ComponentDto componentDto = prepareComponentDto();
-    ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "scaReleaseUuid", "1", true);
+    ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency("scaReleaseUuid", "1");
 
     List<Map<String, Object>> select = db.select(db.getSession(), "select * from sca_dependencies");
     assertThat(select).hasSize(1);
@@ -57,6 +57,7 @@ class ScaDependenciesDaoIT {
         Map.entry("lockfile_dependency_file_path", scaDependencyDto.lockfileDependencyFilePath()),
         Map.entry("chains", scaDependencyDto.getChainsJson()),
         Map.entry("new_in_pull_request", scaDependencyDto.newInPullRequest()),
+        Map.entry("production_scope", scaDependencyDto.productionScope()),
         Map.entry("created_at", scaDependencyDto.createdAt()),
         Map.entry("updated_at", scaDependencyDto.updatedAt())));
   }
@@ -64,7 +65,7 @@ class ScaDependenciesDaoIT {
   @Test
   void deleteByUuid_shouldDeleteScaDependencies() {
     ComponentDto componentDto = prepareComponentDto();
-    ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "scaReleaseUuid", "1", true);
+    ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency("scaReleaseUuid", "1");
 
     List<Map<String, Object>> select = db.select(db.getSession(), "select * from sca_dependencies");
     assertThat(select).isNotEmpty();
@@ -78,7 +79,7 @@ class ScaDependenciesDaoIT {
   @Test
   void selectByUuid_shouldLoadScaDependency() {
     ComponentDto componentDto = prepareComponentDto();
-    ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "scaReleaseUuid", "1", true);
+    ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency("scaReleaseUuid", "1");
 
     var loadedOptional = scaDependenciesDao.selectByUuid(db.getSession(), scaDependencyDto.uuid());
 
@@ -90,7 +91,7 @@ class ScaDependenciesDaoIT {
     ComponentDto componentDto = prepareComponentDto();
     ScaDependencyDto scaDependencyDto1a = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "1a", true, PackageManager.MAVEN, "foo.bar1");
     // same release, different dependency
-    ScaDependencyDto scaDependencyDto1b = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), scaDependencyDto1a.scaReleaseUuid(), "1b", false);
+    ScaDependencyDto scaDependencyDto1b = db.getScaDependenciesDbTester().insertScaDependency(scaDependencyDto1a.scaReleaseUuid(), "1b", false);
     ScaDependencyDto scaDependencyDto2 = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "2", true, PackageManager.MAVEN, "foo.bar2");
     ScaDependencyDto scaDependencyDto3 = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "3", true, PackageManager.MAVEN, "foo.bar3");
 
@@ -106,7 +107,7 @@ class ScaDependenciesDaoIT {
     ComponentDto componentDto = prepareComponentDto();
     ScaDependencyDto scaDependencyDto1 = db.getScaDependenciesDbTester().insertScaDependencyWithRelease(componentDto.uuid(), "1", true, PackageManager.MAVEN, "foo.bar");
     // same release, different dependency
-    ScaDependencyDto scaDependencyDto2 = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), scaDependencyDto1.scaReleaseUuid(), "2", false);
+    ScaDependencyDto scaDependencyDto2 = db.getScaDependenciesDbTester().insertScaDependency(scaDependencyDto1.scaReleaseUuid(), "2", false);
 
     ScaDependenciesQuery scaDependenciesQuery = new ScaDependenciesQuery(componentDto.branchUuid(), null, null, null);
     List<ScaDependencyDto> results = scaDependenciesDao.selectByQuery(db.getSession(), scaDependenciesQuery, Pagination.all());
@@ -202,8 +203,12 @@ class ScaDependenciesDaoIT {
   @Test
   void update_shouldUpdateScaDependency() {
     ComponentDto componentDto = prepareComponentDto();
-    ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency(componentDto.uuid(), "scaReleaseUuid", "1", true);
-    ScaDependencyDto updatedScaDependency = scaDependencyDto.toBuilder().setUpdatedAt(scaDependencyDto.updatedAt() + 1).setDirect(false).setLockfileDependencyFilePath("lockfile2")
+    ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency("scaReleaseUuid", "1", true);
+    ScaDependencyDto updatedScaDependency = scaDependencyDto.toBuilder()
+      .setUpdatedAt(scaDependencyDto.updatedAt() + 1)
+      .setDirect(!scaDependencyDto.direct())
+      .setLockfileDependencyFilePath("lockfile2")
+      .setProductionScope(!scaDependencyDto.productionScope())
       .build();
 
     scaDependenciesDao.update(db.getSession(), updatedScaDependency);
@@ -221,6 +226,7 @@ class ScaDependenciesDaoIT {
         Map.entry("lockfile_dependency_file_path", updatedScaDependency.lockfileDependencyFilePath()),
         Map.entry("chains", updatedScaDependency.getChainsJson()),
         Map.entry("new_in_pull_request", updatedScaDependency.newInPullRequest()),
+        Map.entry("production_scope", updatedScaDependency.productionScope()),
         Map.entry("created_at", updatedScaDependency.createdAt()),
         Map.entry("updated_at", updatedScaDependency.updatedAt())));
   }
