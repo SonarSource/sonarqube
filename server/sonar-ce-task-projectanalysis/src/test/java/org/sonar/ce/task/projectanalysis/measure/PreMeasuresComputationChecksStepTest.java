@@ -19,17 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.sonar.ce.task.projectanalysis.measure.PreMeasuresComputationCheck.PreMeasuresComputationCheckException;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
@@ -43,17 +32,22 @@ import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.component.BranchType;
 import org.sonar.server.project.Project;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.sonar.ce.task.projectanalysis.measure.PreMeasuresComputationCheck.PreMeasuresComputationCheckException;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
+
 public class PreMeasuresComputationChecksStepTest {
 
   public AnalysisMetadataHolderRule analysisMetadataHolder = mock();
   public CeTaskMessages ceTaskMessages = mock();
   public ScannerReportReader reportReader = mock();
   public ConfigurationRepository configurationRepository = mock();
-
-  @Before
-  public void setup() {
-
-  }
 
   @Test
   public void execute_extensions() throws PreMeasuresComputationCheckException {
@@ -69,7 +63,7 @@ public class PreMeasuresComputationChecksStepTest {
 
   @Test
   public void context_contains_project_uuid_from_analysis_metadata_holder() throws PreMeasuresComputationCheckException {
-    Project project = Project.from(newPrivateProjectDto());
+    Project project = Project.fromProjectDtoWithTags(newProjectDto().setPrivate(true));
     when(analysisMetadataHolder.getProject()).thenReturn(project);
     PreMeasuresComputationCheck check = mock(PreMeasuresComputationCheck.class);
 
@@ -123,7 +117,7 @@ public class PreMeasuresComputationChecksStepTest {
   }
 
   private PreMeasuresComputationChecksStep newStep(PreMeasuresComputationCheck... preMeasuresComputationChecks) {
-    return new PreMeasuresComputationChecksStep(analysisMetadataHolder, ceTaskMessages, configurationRepository, reportReader, preMeasuresComputationChecks);
+    return new PreMeasuresComputationChecksStep(analysisMetadataHolder, ceTaskMessages, configurationRepository, preMeasuresComputationChecks);
   }
 
   private void mockBranch(String branchName) {

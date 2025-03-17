@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.measure;
 import java.util.Optional;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -42,14 +43,16 @@ public class PostMeasuresComputationChecksStep implements ComputationStep {
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
   private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final ScannerReportReader reportReader;
   private final PostMeasuresComputationCheck[] extensions;
 
   public PostMeasuresComputationChecksStep(TreeRootHolder treeRootHolder, MetricRepository metricRepository, MeasureRepository measureRepository,
-    AnalysisMetadataHolder analysisMetadataHolder, PostMeasuresComputationCheck[] extensions) {
+    AnalysisMetadataHolder analysisMetadataHolder, ScannerReportReader reportReader, PostMeasuresComputationCheck[] extensions) {
     this.treeRootHolder = treeRootHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.analysisMetadataHolder = analysisMetadataHolder;
+    this.reportReader = reportReader;
     this.extensions = extensions;
   }
 
@@ -76,6 +79,11 @@ public class PostMeasuresComputationChecksStep implements ComputationStep {
     @Override
     public Branch getBranch() {
       return analysisMetadataHolder.getBranch();
+    }
+
+    @Override
+    public ScannerReportReader getReportReader() {
+      return reportReader;
     }
 
     @Override

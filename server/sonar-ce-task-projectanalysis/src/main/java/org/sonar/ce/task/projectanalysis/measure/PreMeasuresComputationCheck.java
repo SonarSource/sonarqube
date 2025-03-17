@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.measure;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
-import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 
 
@@ -51,8 +50,6 @@ public interface PreMeasuresComputationCheck {
     Branch getBranch();
 
     Configuration getConfiguration();
-
-    ScannerReportReader getReportReader();
   }
 
   class PreMeasuresComputationCheckException extends RuntimeException {
