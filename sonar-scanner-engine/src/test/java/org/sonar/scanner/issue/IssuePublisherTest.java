@@ -26,6 +26,8 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -67,7 +69,6 @@ import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
 @RunWith(MockitoJUnitRunner.class)
 public class IssuePublisherTest {
   private static final RuleKey JAVA_RULE_KEY = RuleKey.of("java", "AvoidCycle");
-  private static final RuleKey NOSONAR_RULE_KEY = RuleKey.of("java", "NoSonarCheck");
 
   private DefaultInputProject project;
 
@@ -279,11 +280,13 @@ public class IssuePublisherTest {
     verifyNoInteractions(reportPublisher);
   }
 
-  @Test
-  public void should_accept_issues_on_no_sonar_rules() {
+  @ParameterizedTest
+  @ValueSource(strings = {"NoSonarCheck", "S1291", "S1291Check"})
+  public void should_accept_issues_on_no_sonar_rules(String noSonarRule) {
+    RuleKey noSonarRuleKey = RuleKey.of("java", noSonarRule);
     // The "No Sonar" rule logs violations on the lines that are flagged with "NOSONAR" !!
     activeRulesBuilder.addRule(new NewActiveRule.Builder()
-      .setRuleKey(NOSONAR_RULE_KEY)
+      .setRuleKey(noSonarRuleKey)
       .setSeverity(Severity.INFO)
       .setQProfileKey("qp-1")
       .build());
@@ -293,7 +296,7 @@ public class IssuePublisherTest {
 
     DefaultIssue issue = new DefaultIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message(""))
-      .forRule(NOSONAR_RULE_KEY);
+      .forRule(noSonarRuleKey);
 
     when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class), anyString())).thenReturn(true);
 

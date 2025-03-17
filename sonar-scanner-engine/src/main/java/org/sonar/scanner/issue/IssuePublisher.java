@@ -25,6 +25,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.lang3.StringUtils;
@@ -54,6 +55,8 @@ import org.sonar.scanner.report.ReportPublisher;
 @ThreadSafe
 public class IssuePublisher {
 
+  private static final String[] noSonarKeyContains = new String[] {"nosonar", "S1291"};
+  private static final Pattern noSonarPattern = Pattern.compile(".*(" + String.join("|", noSonarKeyContains) + ").*", Pattern.CASE_INSENSITIVE);
   private final ActiveRules activeRules;
   private final IssueFilters filters;
   private final ReportPublisher reportPublisher;
@@ -91,7 +94,7 @@ public class IssuePublisher {
     return inputComponent.isFile()
       && textRange != null
       && ((DefaultInputFile) inputComponent).hasNoSonarAt(textRange.start().line())
-      && !StringUtils.containsIgnoreCase(issue.ruleKey().rule(), "nosonar");
+      && !noSonarPattern.matcher(issue.ruleKey().rule()).matches();
   }
 
   public void initAndAddExternalIssue(ExternalIssue issue) {
