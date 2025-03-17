@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -125,10 +126,10 @@ class PropertiesDaoIT {
     // Global + Project subscribers
     assertThat(underTest.hasProjectNotificationSubscribersForDispatchers(projectUuid, singletonList(
       "DispatcherWithGlobalAndProjectSubscribers")))
-        .isTrue();
+      .isTrue();
     assertThat(underTest.hasProjectNotificationSubscribersForDispatchers("PROJECT_B", singletonList(
       "DispatcherWithGlobalAndProjectSubscribers")))
-        .isTrue();
+      .isTrue();
   }
 
   @Test
@@ -536,7 +537,7 @@ class PropertiesDaoIT {
   }
 
   private static Object[][] allValuesForSelect() {
-    return new Object[][] {
+    return new Object[][]{
       {null, ""},
       {"", ""},
       {"some value", "some value"},
@@ -558,6 +559,26 @@ class PropertiesDaoIT {
     assertThat(underTest.selectProjectProperty("uuid10", "project.one"))
       .isPresent()
       .contains(property);
+  }
+
+  @Test
+  void selectUserProperty() {
+    final String propertyKey = "user.property.one";
+
+    UserDto userDto1 = db.users().insertUser();
+    UserDto userDto2 = db.users().insertUser();
+
+    insertProperty(propertyKey, "one", null, userDto1.getUuid(), null, null, null);
+    insertProperty(propertyKey, "two", null, userDto2.getUuid(), null, null, null);
+
+    List<PropertyDto> property = underTest.selectUserPropertiesByKey(db.getSession(), propertyKey);
+
+    assertThat(property)
+      .extracting(PropertyDto::getKey, PropertyDto::getEntityUuid, PropertyDto::getUserUuid, PropertyDto::getValue)
+      .containsExactlyInAnyOrderElementsOf(Set.of(
+        Tuple.tuple(propertyKey, null, userDto1.getUuid(), "one"),
+        Tuple.tuple(propertyKey, null, userDto2.getUuid(), "two")
+      ));
   }
 
   @Test
@@ -641,10 +662,10 @@ class PropertiesDaoIT {
         tuple(key, project2.getUuid()));
     assertThat(underTest.selectPropertiesByKeysAndEntityUuids(session, newHashSet(key, anotherKey), newHashSet(project.getUuid(),
       project2.getUuid())))
-        .extracting(PropertyDto::getKey, PropertyDto::getEntityUuid).containsOnly(
-          tuple(key, project.getUuid()),
-          tuple(key, project2.getUuid()),
-          tuple(anotherKey, project2.getUuid()));
+      .extracting(PropertyDto::getKey, PropertyDto::getEntityUuid).containsOnly(
+        tuple(key, project.getUuid()),
+        tuple(key, project2.getUuid()),
+        tuple(anotherKey, project2.getUuid()));
 
     assertThat(underTest.selectPropertiesByKeysAndEntityUuids(session, newHashSet("unknown"), newHashSet(project.getUuid()))).isEmpty();
     assertThat(underTest.selectPropertiesByKeysAndEntityUuids(session, newHashSet("key"), newHashSet("uuid123456789"))).isEmpty();
@@ -849,7 +870,7 @@ class PropertiesDaoIT {
   }
 
   static Object[][] valueUpdatesDataProvider() {
-    return new Object[][] {
+    return new Object[][]{
       {null, null},
       {null, ""},
       {null, "some value"},
@@ -934,8 +955,8 @@ class PropertiesDaoIT {
 
     assertThat(db.select("select prop_key as \"key\", text_value as \"value\", entity_uuid as \"projectUuid\", user_uuid as \"userUuid\" " +
       "from properties"))
-        .extracting((row) -> row.get("key"), (row) -> row.get("value"), (row) -> row.get("projectUuid"), (row) -> row.get("userUuid"))
-        .containsOnly(tuple("KEY", "ANOTHER_VALUE", null, null), tuple("ANOTHER_KEY", "VALUE", project.uuid(), "100"));
+      .extracting((row) -> row.get("key"), (row) -> row.get("value"), (row) -> row.get("projectUuid"), (row) -> row.get("userUuid"))
+      .containsOnly(tuple("KEY", "ANOTHER_VALUE", null, null), tuple("ANOTHER_KEY", "VALUE", project.uuid(), "100"));
   }
 
   private static Map<String, String> mapOf(String... values) {

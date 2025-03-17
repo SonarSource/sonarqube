@@ -163,6 +163,16 @@
       and p.user_uuid is null
   </select>
 
+  <select id="selectUserPropertiesByKey" parameterType="map" resultType="ScrapProperty">
+    select
+    <include refid="columnsToScrapPropertyDto"/>
+    from properties p
+      inner join users u on u.uuid=p.user_uuid
+    where
+      p.prop_key = #{key, jdbcType=VARCHAR}
+      and p.entity_uuid is null
+  </select>
+
   <select id="selectByQuery" parameterType="map" resultType="ScrapProperty">
     select
       <include refid="columnsToScrapPropertyDto"/>
