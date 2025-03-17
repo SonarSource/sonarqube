@@ -59,6 +59,7 @@ public class WebApiEndpoints {
   public static final String SCA_ISSUES_RELEASES_ENDPOINT = SCA_DOMAIN + "/issues-releases";
   public static final String SCA_SBOM_REPORTS_ENDPOINT = SCA_DOMAIN + "/sbom-reports";
   public static final String SCA_CLIS_ENDPOINT = SCA_DOMAIN + "/clis";
+  public static final String SCA_FEATURE_ENABLEMENT_ENDPOINT = SCA_DOMAIN + "/feature-enablements";
 
   private WebApiEndpoints() {
   }
