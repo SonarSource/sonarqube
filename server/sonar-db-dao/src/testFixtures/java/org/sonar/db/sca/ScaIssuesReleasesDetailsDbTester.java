@@ -21,8 +21,11 @@ package org.sonar.db.sca;
 
 import java.util.Optional;
 import java.util.function.Function;
+import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ScaIssuesReleasesDetailsDbTester {
   private final DbTester db;
@@ -73,18 +76,24 @@ public class ScaIssuesReleasesDetailsDbTester {
   }
 
   public ScaIssueReleaseDetailsDto insertIssue(ScaIssueType scaIssueType, String suffix, String componentUuid,
-    Function<ScaIssueDto, ScaIssueDto> scaIssueModifier,
-    Function<ScaVulnerabilityIssueDto, ScaVulnerabilityIssueDto> scaVulnerabilityIssueModifier,
-    Function<ScaReleaseDto, ScaReleaseDto> scaReleaseModifier,
-    Function<ScaIssueReleaseDto, ScaIssueReleaseDto> scaIssueReleaseModifier) {
-    var scaRelease = db.getScaReleasesDbTester().newScaReleaseDto(componentUuid, suffix, PackageManager.MAVEN, "packageName" + suffix);
-    if (scaIssueModifier != null) {
+    @Nullable Function<ScaIssueDto, ScaIssueDto> scaIssueModifier,
+    @Nullable Function<ScaVulnerabilityIssueDto, ScaVulnerabilityIssueDto> scaVulnerabilityIssueModifier,
+    @Nullable Function<ScaReleaseDto, ScaReleaseDto> scaReleaseModifier,
+    @Nullable Function<ScaIssueReleaseDto, ScaIssueReleaseDto> scaIssueReleaseModifier) {
+    var scaRelease = ScaReleasesDbTester.newScaReleaseDto(componentUuid, suffix, PackageManager.MAVEN, "packageName" + suffix);
+    if (scaReleaseModifier != null) {
       scaRelease = scaReleaseModifier.apply(scaRelease);
     }
-    dbClient.scaReleasesDao().insert(db.getSession(), scaRelease);
+    // little hack here because it's useful to allow providing a release that already exists
+    var existing = dbClient.scaReleasesDao().selectByUuid(db.getSession(), scaRelease.uuid());
+    if (existing.isEmpty()) {
+      dbClient.scaReleasesDao().insert(db.getSession(), scaRelease);
+    } else {
+      assertThat(existing).contains(scaRelease);
+    }
     var scaIssue = switch (scaIssueType) {
-      case PROHIBITED_LICENSE -> db.getScaIssuesDbTester().newProhibitedLicenseScaIssueDto(suffix);
-      case VULNERABILITY -> db.getScaIssuesDbTester().newVulnerabilityScaIssueDto(suffix);
+      case PROHIBITED_LICENSE -> ScaIssuesDbTester.newProhibitedLicenseScaIssueDto(suffix);
+      case VULNERABILITY -> ScaIssuesDbTester.newVulnerabilityScaIssueDto(suffix);
     };
     if (scaIssueModifier != null) {
       scaIssue = scaIssueModifier.apply(scaIssue);
@@ -92,7 +101,7 @@ public class ScaIssuesReleasesDetailsDbTester {
     dbClient.scaIssuesDao().insert(db.getSession(), scaIssue);
     ScaVulnerabilityIssueDto scaVulnerabilityIssue = null;
     if (scaIssue.scaIssueType() == ScaIssueType.VULNERABILITY) {
-      scaVulnerabilityIssue = db.getScaIssuesDbTester().newVulnerabilityIssueDto(suffix);
+      scaVulnerabilityIssue = ScaIssuesDbTester.newVulnerabilityIssueDto(suffix);
       if (!scaVulnerabilityIssue.uuid().equals(scaIssue.uuid())) {
         throw new IllegalStateException("ScaVulnerabilityIssueDto.uuid must match ScaIssueDto.uuid or we won't find the ScaVueberabilityIssueDto");
       }
