@@ -10,6 +10,7 @@
       <arg name="packageName" column="package_name" javaType="String"/>
       <arg name="version" column="version" javaType="String"/>
       <arg name="licenseExpression" column="license_expression" javaType="String"/>
+      <arg name="declaredLicenseExpression" column="declared_license_expression" javaType="String"/>
       <arg name="known" column="known" javaType="_boolean"/>
       <arg name="newInPullRequest" column="new_in_pull_request" javaType="_boolean"/>
       <arg name="createdAt" column="created_at" javaType="_long"/>
@@ -25,6 +26,7 @@
     sr.package_name,
     sr.version,
     sr.license_expression,
+    sr.declared_license_expression,
     sr.known,
     sr.new_in_pull_request,
     sr.created_at,
@@ -40,6 +42,7 @@
       package_name,
       version,
       license_expression,
+      declared_license_expression,
       known,
       new_in_pull_request,
       created_at,
@@ -52,6 +55,7 @@
       #{packageName,jdbcType=VARCHAR},
       #{version,jdbcType=VARCHAR},
       #{licenseExpression,jdbcType=VARCHAR},
+      #{declaredLicenseExpression,jdbcType=VARCHAR},
       #{known,jdbcType=BOOLEAN},
       #{newInPullRequest,jdbcType=BOOLEAN},
       #{createdAt,jdbcType=BIGINT},
@@ -150,6 +154,7 @@
       package_name = #{packageName, jdbcType=VARCHAR},
       version = #{version, jdbcType=VARCHAR},
       license_expression = #{licenseExpression, jdbcType=VARCHAR},
+      declared_license_expression = #{declaredLicenseExpression, jdbcType=VARCHAR},
       known = #{known, jdbcType=BOOLEAN},
       new_in_pull_request = #{newInPullRequest, jdbcType=BOOLEAN},
       updated_at = #{updatedAt, jdbcType=BIGINT}

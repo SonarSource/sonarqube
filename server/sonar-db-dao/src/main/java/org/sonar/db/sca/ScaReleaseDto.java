@@ -33,6 +33,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  * @param packageName          package name e.g. "urllib3"
  * @param version              package version e.g. "1.25.6"
  * @param licenseExpression    an SPDX license expression (NOT a single license, can have parens/AND/OR)
+ * @param declaredLicenseExpression the valid SPDX license expression declared by the package itself
  * @param known                is this package and version known to Sonar (if not it be internal, could be malicious, could be from a weird repo)
  * @param newInPullRequest     is it newly added in a PR (always false when not on a PR)
  * @param createdAt            timestamp it was created
@@ -46,6 +47,7 @@ public record ScaReleaseDto(
   String packageName,
   String version,
   String licenseExpression,
+  String declaredLicenseExpression,
   boolean known,
   boolean newInPullRequest,
   long createdAt,
@@ -79,6 +81,7 @@ public record ScaReleaseDto(
       .setPackageName(this.packageName)
       .setVersion(this.version)
       .setLicenseExpression(this.licenseExpression)
+      .setDeclaredLicenseExpression(this.declaredLicenseExpression)
       .setKnown(this.known)
       .setNewInPullRequest(this.newInPullRequest)
       .setCreatedAt(this.createdAt)
@@ -116,6 +119,7 @@ public record ScaReleaseDto(
     private String packageName;
     private String version;
     private String licenseExpression;
+    private String declaredLicenseExpression;
     private boolean known;
     private boolean newInPullRequest;
     private long createdAt;
@@ -156,6 +160,11 @@ public record ScaReleaseDto(
       return this;
     }
 
+    public Builder setDeclaredLicenseExpression(String declaredLicenseExpression) {
+      this.declaredLicenseExpression = declaredLicenseExpression;
+      return this;
+    }
+
     public Builder setKnown(boolean known) {
       this.known = known;
       return this;
@@ -178,7 +187,7 @@ public record ScaReleaseDto(
 
     public ScaReleaseDto build() {
       return new ScaReleaseDto(
-        uuid, componentUuid, packageUrl, packageManager, packageName, version, licenseExpression, known, newInPullRequest, createdAt, updatedAt);
+        uuid, componentUuid, packageUrl, packageManager, packageName, version, licenseExpression, declaredLicenseExpression, known, newInPullRequest, createdAt, updatedAt);
     }
   }
 }

@@ -46,6 +46,7 @@ class ScaIssueReleaseDetailsDtoTest {
       "foo:bar",
       "1.0.0",
       "MIT",
+      "NOASSERTION",
       true,
       false,
       2L,

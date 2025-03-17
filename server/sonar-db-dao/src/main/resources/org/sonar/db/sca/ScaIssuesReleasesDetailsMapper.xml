@@ -44,6 +44,7 @@
     sr.package_name as sr_package_name,
     sr.version as sr_version,
     sr.license_expression as sr_license_expression,
+    sr.declared_license_expression as sr_declared_license_expression,
     sr.known as sr_known,
     sr.new_in_pull_request as sr_new_in_pull_request,
     sr.created_at as sr_created_at,

@@ -38,6 +38,7 @@ public class DbVersion202503 implements DbVersion {
     registry
       .add(2025_03_000, "Drop 'sca_releases_comp_uuid' index", DropIndexOnScaReleasesComponent.class)
       .add(2025_03_001, "Create 'sca_releases_comp_uuid_uuid' index", CreateIndexOnScaReleasesComponentUuid.class)
-      .add(2025_03_002, "Add 'sca_dependencies.production_scope' column", AddProductionScopeToScaDependenciesTable.class);
+      .add(2025_03_002, "Add 'sca_dependencies.production_scope' column", AddProductionScopeToScaDependenciesTable.class)
+      .add(2025_03_003, "Add declared_license_expression to SCA releases", AddDeclaredLicenseExpressionToScaReleasesTable.class);
   }
 }

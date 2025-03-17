@@ -43,6 +43,7 @@ public class ScaReleasesDbTester {
       packageName,
       "1.0.0-" + suffix,
       "MIT",
+      "MIT",
       true,
       false,
       1L,
