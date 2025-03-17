@@ -53,6 +53,35 @@ class ScaIssuesReleasesDetailsDaoIT {
       .thenComparing(ScaIssueReleaseDetailsDto::issueReleaseUuid);
   }
 
+  private static Comparator<ScaIssueReleaseDetailsDto> severityComparator() {
+    return Comparator.comparing(dto -> dto.severity().databaseSortKey());
+  }
+
+  private static Comparator<ScaIssueReleaseDetailsDto> cvssScoreComparator() {
+    return Comparator.comparing(ScaIssueReleaseDetailsDto::cvssScore,
+      // we treat null cvss as a score of 0.0
+      Comparator.nullsFirst(Comparator.naturalOrder()));
+  }
+
+  private static Comparator<ScaIssueReleaseDetailsDto> comparator(ScaIssuesReleasesDetailsQuery.Sort sort) {
+    return switch (sort) {
+      case IDENTITY_ASC -> identityComparator();
+      case IDENTITY_DESC -> identityComparator().reversed();
+      case SEVERITY_ASC -> severityComparator()
+        .thenComparing(cvssScoreComparator())
+        .thenComparing(identityComparator());
+      case SEVERITY_DESC -> severityComparator().reversed()
+        .thenComparing(cvssScoreComparator().reversed())
+        .thenComparing(identityComparator());
+      case CVSS_SCORE_ASC -> cvssScoreComparator()
+        .thenComparing(ScaIssueReleaseDetailsDto::severity)
+        .thenComparing(identityComparator());
+      case CVSS_SCORE_DESC -> cvssScoreComparator().reversed()
+        .thenComparing(Comparator.comparing(ScaIssueReleaseDetailsDto::severity).reversed())
+        .thenComparing(identityComparator());
+    };
+  }
+
   @Test
   void selectByBranchUuid_shouldReturnIssues() {
     var projectData = db.components().insertPrivateProject();
@@ -64,7 +93,7 @@ class ScaIssuesReleasesDetailsDaoIT {
 
     assertThat(foundPage).hasSize(1).isSubsetOf(issue1, issue2);
     var foundAllIssues = scaIssuesReleasesDetailsDao.selectByBranchUuid(db.getSession(), componentDto.branchUuid(), Pagination.forPage(1).andSize(10));
-    assertThat(foundAllIssues).hasSize(2).containsExactlyElementsOf(Stream.of(issue1, issue2).sorted(identityComparator()).toList());
+    assertThat(foundAllIssues).hasSize(2).containsExactlyElementsOf(Stream.of(issue1, issue2).sorted(comparator(ScaIssuesReleasesDetailsQuery.Sort.SEVERITY_DESC)).toList());
   }
 
   @Test
@@ -78,6 +107,34 @@ class ScaIssuesReleasesDetailsDaoIT {
     assertThat(count1).isEqualTo(3);
 
     assertThat(scaIssuesReleasesDetailsDao.countByBranchUuid(db.getSession(), "bogus-branch-uuid")).isZero();
+  }
+
+  @Test
+  void selectByReleaseUuid_shouldReturnIssues() {
+    var projectData = db.components().insertPrivateProject();
+    var componentDto = projectData.getMainBranchComponent();
+    var issue1 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.VULNERABILITY, "1", componentDto.uuid());
+    var release1 = issue1.releaseDto();
+    // make these other issues use the same release and have a variety of CVSS
+    var issue2 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.VULNERABILITY, "2", componentDto.uuid(),
+      null, vi -> vi.toBuilder().setCvssScore(new BigDecimal("1.1")).build(),
+      releaseDto -> release1,
+      issueReleaseDto -> issueReleaseDto.toBuilder().setScaReleaseUuid(release1.uuid()).build());
+    var issue3 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.VULNERABILITY, "3", componentDto.uuid(),
+      null, vi -> vi.toBuilder().setCvssScore(new BigDecimal("9.9")).build(),
+      releaseDto -> release1,
+      issueReleaseDto -> issueReleaseDto.toBuilder().setScaReleaseUuid(release1.uuid()).build());
+    var issue4 = db.getScaIssuesReleasesDetailsDbTester().insertIssue(ScaIssueType.PROHIBITED_LICENSE, "4", componentDto.uuid(),
+      null, null,
+      releaseDto -> release1,
+      issueReleaseDto -> issueReleaseDto.toBuilder().setScaReleaseUuid(release1.uuid()).build());
+
+    var foundPage = scaIssuesReleasesDetailsDao.selectByBranchUuid(db.getSession(), componentDto.branchUuid(), Pagination.forPage(1).andSize(1));
+
+    assertThat(foundPage).hasSize(1).isSubsetOf(issue1, issue2, issue3, issue4);
+    var foundAllIssues = scaIssuesReleasesDetailsDao.selectByBranchUuid(db.getSession(), componentDto.branchUuid(), Pagination.forPage(1).andSize(10));
+    assertThat(foundAllIssues).hasSize(4)
+      .containsExactlyElementsOf(Stream.of(issue1, issue2, issue3, issue4).sorted(comparator(ScaIssuesReleasesDetailsQuery.Sort.SEVERITY_DESC)).toList());
   }
 
   @Test
@@ -531,61 +588,21 @@ class ScaIssuesReleasesDetailsDaoIT {
     List<ScaIssueReleaseDetailsDto> transitiveIssues,
     List<ScaIssueReleaseDetailsDto> productionIssues,
     List<ScaIssueReleaseDetailsDto> notProductionIssues) {
-    private static Comparator<ScaIssueReleaseDetailsDto> cvssScoreComparator() {
-      return Comparator.comparing(ScaIssueReleaseDetailsDto::cvssScore,
-        // we treat null cvss as a score of 0.0
-        Comparator.nullsFirst(Comparator.naturalOrder()));
-    }
-
-    private static Comparator<ScaIssueReleaseDetailsDto> severityComparator() {
-      return Comparator.comparing(dto -> dto.severity().databaseSortKey());
-    }
 
     public String branchUuid() {
       return componentDto.branchUuid();
     }
 
+    public List<ScaIssueReleaseDetailsDto> expectedIssuesSorted(ScaIssuesReleasesDetailsQuery.Sort sort) {
+      return expectedIssues.stream().sorted(comparator(sort)).toList();
+    }
+
     public List<ScaIssueReleaseDetailsDto> expectedIssuesSortedByIdentityAsc() {
-      return expectedIssues.stream().sorted(identityComparator()).toList();
-    }
-
-    public List<ScaIssueReleaseDetailsDto> expectedIssuesSortedByIdentityDesc() {
-      return expectedIssues.stream().sorted(identityComparator().reversed()).toList();
-    }
-
-    public List<ScaIssueReleaseDetailsDto> expectedIssuesSortedBySeverityAsc() {
-      return expectedIssues.stream().sorted(severityComparator()
-        .thenComparing(cvssScoreComparator())
-        .thenComparing(identityComparator())).toList();
-    }
-
-    public List<ScaIssueReleaseDetailsDto> expectedIssuesSortedBySeverityDesc() {
-      return expectedIssues.stream().sorted(severityComparator().reversed()
-        .thenComparing(cvssScoreComparator().reversed())
-        .thenComparing(identityComparator())).toList();
-    }
-
-    public List<ScaIssueReleaseDetailsDto> expectedIssuesSortedByCvssAsc() {
-      return expectedIssues.stream().sorted(cvssScoreComparator()
-        .thenComparing(ScaIssueReleaseDetailsDto::severity)
-        .thenComparing(identityComparator())).toList();
+      return expectedIssuesSorted(ScaIssuesReleasesDetailsQuery.Sort.IDENTITY_ASC);
     }
 
     public List<ScaIssueReleaseDetailsDto> expectedIssuesSortedByCvssDesc() {
-      return expectedIssues.stream().sorted(cvssScoreComparator().reversed()
-        .thenComparing(Comparator.comparing(ScaIssueReleaseDetailsDto::severity).reversed())
-        .thenComparing(identityComparator())).toList();
-    }
-
-    public List<ScaIssueReleaseDetailsDto> expectedIssuesSorted(ScaIssuesReleasesDetailsQuery.Sort sort) {
-      return switch (sort) {
-        case IDENTITY_ASC -> expectedIssuesSortedByIdentityAsc();
-        case IDENTITY_DESC -> expectedIssuesSortedByIdentityDesc();
-        case SEVERITY_ASC -> expectedIssuesSortedBySeverityAsc();
-        case SEVERITY_DESC -> expectedIssuesSortedBySeverityDesc();
-        case CVSS_SCORE_ASC -> expectedIssuesSortedByCvssAsc();
-        case CVSS_SCORE_DESC -> expectedIssuesSortedByCvssDesc();
-      };
+      return expectedIssuesSorted(ScaIssuesReleasesDetailsQuery.Sort.CVSS_SCORE_DESC);
     }
 
     public List<ScaIssueReleaseDetailsDto> expectedIssuesWithPackageManager(PackageManager packageManager) {

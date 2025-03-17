@@ -19,7 +19,7 @@
     </constructor>
   </resultMap>
 
-  <sql id="issuesWithScaColumns">
+  <sql id="columns">
     <!-- These have to match all of the properties in the other tables' mappers,
          adding the columnPrefix given in our resultMap above -->
     sir.uuid as issue_release_uuid,
@@ -57,6 +57,17 @@
     svi.updated_at as svi_updated_at
   </sql>
 
+  <sql id="columnsWithCvssSortKey">
+    <include refid="columns"/>,
+    <!-- It seems that the behavior of NULL in ORDER BY varies by database backend, with different
+     defaults and a lack of universal support for NULLS FIRST / NULLS LAST.
+     This poses an issue for nullable columns we want to sort by such as cvss_score.
+     On databases that support it, NULLS FIRST could probably use the index while this COALESCE
+     hack does not, so maybe someday we want to conditionalize on db backend somehow. -->
+    <!-- NULL score is treated as least severe -->
+    COALESCE(svi.cvss_score, 0.0) as cvss_sort_key
+  </sql>
+
   <sql id="sqlBaseJoins">
     from sca_issues_releases sir
     inner join sca_issues si on sir.sca_issue_uuid = si.uuid
@@ -80,21 +91,22 @@
   </sql>
 
   <select id="selectByReleaseUuid" parameterType="map" resultMap="scaIssueReleaseDetailsResultMap">
-    select <include refid="issuesWithScaColumns"/>
+    select <include refid="columnsWithCvssSortKey"/>
     <include refid="sqlSelectByReleaseUuid"/>
-    ORDER BY <include refid="sqlIdentityOrderColumns"/>
+    <include refid="sqlOrderBySeverityDesc"/>
   </select>
 
   <select id="selectByBranchUuid" parameterType="map" resultMap="scaIssueReleaseDetailsResultMap">
-    select <include refid="issuesWithScaColumns"/>
+    select <include refid="columnsWithCvssSortKey"/>
     <include refid="sqlSelectByBranchUuid"/>
-    ORDER BY <include refid="sqlIdentityOrderColumns"/>
+    <include refid="sqlOrderBySeverityDesc"/>
     <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <select id="selectByScaIssueReleaseUuid" parameterType="map" resultMap="scaIssueReleaseDetailsResultMap">
-    select <include refid="issuesWithScaColumns"/>
+    select <include refid="columns"/>
     <include refid="sqlSelectByScaIssueReleaseUuid"/>
+    <!-- no ORDER BY here because it's always one result -->
   </select>
 
   <select id="countByBranchUuid" parameterType="string" resultType="int">
@@ -166,8 +178,15 @@
   <sql id="sqlIdentityOrderColumns">
     <!-- the unique index is ordered as: scaIssueType, vulnerabilityId, packageUrl, spdxLicenseId
          so we're guessing (or hoping?) that is the most efficient sort order, and it should sort of make
-         more sense to users than random -->
+         more sense to users than random. This sort is alphabetical first by issue type then
+         by CVE ID or license name. -->
     si.sca_issue_type ASC, si.vulnerability_id ASC, si.package_url ASC, si.spdx_license_id ASC, sir.uuid ASC
+  </sql>
+
+  <!-- this is the default sort for the selects that don't have a sort parameter (i.e. not the query)
+       but is probably slower than the identity sort until/unless we create a matching index -->
+  <sql id="sqlOrderBySeverityDesc">
+    ORDER BY sir.severity_sort_key DESC, cvss_sort_key DESC, <include refid="sqlIdentityOrderColumns"/>
   </sql>
 
   <sql id="sqlOrderByQuery">
@@ -185,7 +204,7 @@
       </when>
       <when test="query.sort == @org.sonar.db.sca.ScaIssuesReleasesDetailsQuery$Sort@SEVERITY_DESC">
         <!-- because many severities are the same, we try to keep the user intent by ordering by cvss score secondarily -->
-        ORDER BY sir.severity_sort_key DESC, cvss_sort_key DESC, <include refid="sqlIdentityOrderColumns"/>
+        <include refid="sqlOrderBySeverityDesc"/>
       </when>
       <when test="query.sort == @org.sonar.db.sca.ScaIssuesReleasesDetailsQuery$Sort@CVSS_SCORE_ASC">
         <!-- because cvss score can be null, we try to keep the user intent by ordering by severity secondarily -->
@@ -203,14 +222,7 @@
   </sql>
 
   <select id="selectByQuery" parameterType="map" resultMap="scaIssueReleaseDetailsResultMap">
-    select <include refid="issuesWithScaColumns"/>,
-    <!-- It seems that the behavior of NULL in ORDER BY varies by database backend, with different
-     defaults and a lack of universal support for NULLS FIRST / NULLS LAST.
-     This poses an issue for nullable columns we want to sort by such as cvss_score.
-     On databases that support it, NULLS FIRST could probably use the index while this COALESCE
-     hack does not, so maybe someday we want to conditionalize on db backend somehow. -->
-    <!-- NULL score is treated as least severe -->
-    COALESCE(svi.cvss_score, 0.0) as cvss_sort_key
+    select <include refid="columnsWithCvssSortKey"/>
     <include refid="sqlBaseJoins"/>
     <include refid="sqlSelectByQueryWhereClause"/>
     <include refid="sqlOrderByQuery"/>
