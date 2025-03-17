@@ -41,7 +41,6 @@ class ScaDependenciesDaoIT {
 
   @Test
   void insert_shouldPersistScaDependencies() {
-    ComponentDto componentDto = prepareComponentDto();
     ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency("scaReleaseUuid", "1");
 
     List<Map<String, Object>> select = db.select(db.getSession(), "select * from sca_dependencies");
@@ -64,7 +63,6 @@ class ScaDependenciesDaoIT {
 
   @Test
   void deleteByUuid_shouldDeleteScaDependencies() {
-    ComponentDto componentDto = prepareComponentDto();
     ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency("scaReleaseUuid", "1");
 
     List<Map<String, Object>> select = db.select(db.getSession(), "select * from sca_dependencies");
@@ -78,7 +76,6 @@ class ScaDependenciesDaoIT {
 
   @Test
   void selectByUuid_shouldLoadScaDependency() {
-    ComponentDto componentDto = prepareComponentDto();
     ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency("scaReleaseUuid", "1");
 
     var loadedOptional = scaDependenciesDao.selectByUuid(db.getSession(), scaDependencyDto.uuid());
@@ -202,7 +199,6 @@ class ScaDependenciesDaoIT {
 
   @Test
   void update_shouldUpdateScaDependency() {
-    ComponentDto componentDto = prepareComponentDto();
     ScaDependencyDto scaDependencyDto = db.getScaDependenciesDbTester().insertScaDependency("scaReleaseUuid", "1", true);
     ScaDependencyDto updatedScaDependency = scaDependencyDto.toBuilder()
       .setUpdatedAt(scaDependencyDto.updatedAt() + 1)
