@@ -30,6 +30,7 @@ import static org.sonar.db.DatabaseUtils.tableColumnExists;
 public class AddDeclaredLicenseExpressionToScaReleasesTable extends DdlChange {
   static final String TABLE_NAME = "sca_releases";
   static final String COLUMN_NAME = "declared_license_expression";
+  private static final String NOASSERTION = "NOASSERTION";
   private static final int COLUMN_SIZE = 400;
 
   public AddDeclaredLicenseExpressionToScaReleasesTable(Database db) {
@@ -41,6 +42,7 @@ public class AddDeclaredLicenseExpressionToScaReleasesTable extends DdlChange {
     try (var connection = getDatabase().getDataSource().getConnection()) {
       if (!tableColumnExists(connection, TABLE_NAME, COLUMN_NAME)) {
         var columnDef = VarcharColumnDef.newVarcharColumnDefBuilder()
+          .setDefaultValue(NOASSERTION)
           .setColumnName(COLUMN_NAME)
           .setLimit(COLUMN_SIZE)
           .setIsNullable(false)
