@@ -27,18 +27,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Suite;
-import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.server.component.ComponentType;
-import org.sonar.server.component.ComponentTypeTree;
-import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.common.avatar.AvatarResolverImpl;
+import org.sonar.server.component.ComponentType;
+import org.sonar.server.component.ComponentTypeTree;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.tester.UserSessionRule;
@@ -55,7 +55,6 @@ import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFIL
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
-import static org.sonar.server.user.ws.DismissNoticeAction.AVAILABLE_NOTICE_KEYS;
 import static org.sonar.test.JsonAssert.assertJson;
 
 @RunWith(Suite.class)
@@ -262,7 +261,7 @@ public class CurrentActionIT {
 
     @Parameterized.Parameters
     public static Collection<String> parameterCombination() {
-      return AVAILABLE_NOTICE_KEYS;
+      return DismissNoticeAction.DismissNotices.getAvailableKeys();
     }
 
     private final String notice;

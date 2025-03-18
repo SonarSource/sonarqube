@@ -20,12 +20,12 @@
 package org.sonar.server.user.ws;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Optional;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import java.util.Set;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDto;
@@ -37,20 +37,18 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.server.user.ws.DismissNoticeAction.AVAILABLE_NOTICE_KEYS;
 
-@RunWith(DataProviderRunner.class)
-public class DismissNoticeActionIT {
+class DismissNoticeActionIT {
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  @RegisterExtension
+  private DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private final WsActionTester tester = new WsActionTester(new DismissNoticeAction(userSessionRule, db.getDbClient()));
 
   @Test
-  public void authentication_is_required() {
+  void authentication_is_required() {
     TestRequest testRequest = tester.newRequest()
       .setParam("notice", "anyValue");
 
@@ -60,7 +58,7 @@ public class DismissNoticeActionIT {
   }
 
   @Test
-  public void notice_parameter_is_mandatory() {
+  void notice_parameter_is_mandatory() {
     userSessionRule.logIn();
     TestRequest testRequest = tester.newRequest();
 
@@ -70,20 +68,19 @@ public class DismissNoticeActionIT {
   }
 
   @Test
-  public void notice_not_supported() {
+  void notice_not_supported() {
     userSessionRule.logIn();
     TestRequest testRequest = tester.newRequest()
       .setParam("notice", "not_supported_value");
 
     assertThatThrownBy(testRequest::execute)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage(
-        "Value of parameter 'notice' (not_supported_value) must be one of: [educationPrinciples, sonarlintAd, issueCleanCodeGuide, qualityGateCaYCConditionsSimplification, " +
-          "overviewZeroNewIssuesSimplification, issueNewIssueStatusAndTransitionGuide, onboardingDismissCaycBranchSummaryGuide, showNewModesTour, showNewModesBanner]");
+      .hasMessageStartingWith(
+        "Value of parameter 'notice' (not_supported_value) must be one of: [");
   }
 
   @Test
-  public void notice_already_exist_dont_fail() {
+  void notice_already_exist_dont_fail() {
     userSessionRule.logIn();
     PropertyDto property = new PropertyDto().setKey("user.dismissedNotices.educationPrinciples").setUserUuid(userSessionRule.getUuid());
     db.properties().insertProperties(userSessionRule.getLogin(), null, null, null, property);
@@ -97,9 +94,9 @@ public class DismissNoticeActionIT {
     assertThat(db.properties().findFirstUserProperty(userSessionRule.getUuid(), "user.dismissedNotices.educationPrinciples")).isPresent();
   }
 
-  @Test
-  @UseDataProvider("noticeKeys")
-  public void dismiss_notice(String noticeKey) {
+  @ParameterizedTest
+  @MethodSource("noticeKeys")
+  void dismiss_notice(String noticeKey) {
     userSessionRule.logIn();
 
     TestResponse testResponse = tester.newRequest()
@@ -113,9 +110,7 @@ public class DismissNoticeActionIT {
   }
 
   @DataProvider
-  public static Object[][] noticeKeys() {
-    return AVAILABLE_NOTICE_KEYS.stream()
-      .map(noticeKey -> new Object[] {noticeKey})
-      .toArray(Object[][]::new);
+  static Set<String> noticeKeys() {
+    return DismissNoticeAction.DismissNotices.getAvailableKeys();
   }
 }

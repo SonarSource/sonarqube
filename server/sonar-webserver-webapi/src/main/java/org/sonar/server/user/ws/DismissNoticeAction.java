@@ -19,7 +19,9 @@
  */
 package org.sonar.server.user.ws;
 
-import java.util.List;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -31,23 +33,52 @@ import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkState;
+import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.EDUCATION_PRINCIPLES;
+import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.ISSUE_CLEAN_CODE_GUIDE;
+import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.ISSUE_NEW_ISSUE_STATUS_AND_TRANSITION_GUIDE;
+import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.ONBOARDING_CAYC_BRANCH_SUMMARY_GUIDE;
+import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.QUALITY_GATE_CAYC_CONDITIONS_SIMPLIFICATION;
+import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_DNA_BANNER;
+import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_DNA_OPTIN_BANNER;
+import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_DNA_TOUR;
+import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_NEW_MODES_BANNER;
+import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_NEW_MODES_TOUR;
 
 public class DismissNoticeAction implements UsersWsAction {
 
-  private static final String EDUCATION_PRINCIPLES = "educationPrinciples";
-  private static final String SONARLINT_AD = "sonarlintAd";
-  private static final String ISSUE_CLEAN_CODE_GUIDE = "issueCleanCodeGuide";
-  private static final String QUALITY_GATE_CAYC_CONDITIONS_SIMPLIFICATION = "qualityGateCaYCConditionsSimplification";
-  private static final String OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION = "overviewZeroNewIssuesSimplification";
-  private static final String ISSUE_NEW_ISSUE_STATUS_AND_TRANSITION_GUIDE = "issueNewIssueStatusAndTransitionGuide";
-  private static final String ONBOARDING_CAYC_BRANCH_SUMMARY_GUIDE = "onboardingDismissCaycBranchSummaryGuide";
-  private static final String SHOW_NEW_MODES_TOUR = "showNewModesTour";
-  private static final String SHOW_NEW_MODES_BANNER = "showNewModesBanner";
+  public enum DismissNotices {
+    EDUCATION_PRINCIPLES("educationPrinciples"),
+    SONARLINT_AD("sonarlintAd"),
+    ISSUE_CLEAN_CODE_GUIDE("issueCleanCodeGuide"),
+    QUALITY_GATE_CAYC_CONDITIONS_SIMPLIFICATION("qualityGateCaYCConditionsSimplification"),
+    OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION("overviewZeroNewIssuesSimplification"),
+    ISSUE_NEW_ISSUE_STATUS_AND_TRANSITION_GUIDE("issueNewIssueStatusAndTransitionGuide"),
+    ONBOARDING_CAYC_BRANCH_SUMMARY_GUIDE("onboardingDismissCaycBranchSummaryGuide"),
+    SHOW_NEW_MODES_TOUR("showNewModesTour"),
+    SHOW_NEW_MODES_BANNER("showNewModesBanner"),
+    SHOW_DNA_OPTIN_BANNER("showDesignAndArchitectureOptInBanner"),
+    SHOW_DNA_BANNER("showDesignAndArchitectureBanner"),
+    SHOW_DNA_TOUR("showDesignAndArchitectureTour"),
+    ;
 
-  protected static final List<String> AVAILABLE_NOTICE_KEYS = List.of(EDUCATION_PRINCIPLES, SONARLINT_AD, ISSUE_CLEAN_CODE_GUIDE, QUALITY_GATE_CAYC_CONDITIONS_SIMPLIFICATION,
-    OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION, ISSUE_NEW_ISSUE_STATUS_AND_TRANSITION_GUIDE, ONBOARDING_CAYC_BRANCH_SUMMARY_GUIDE, SHOW_NEW_MODES_TOUR, SHOW_NEW_MODES_BANNER);
+    private final String key;
+
+    DismissNotices(String key) {
+      this.key = key;
+    }
+
+    public String getKey() {
+      return key;
+    }
+
+    public static Set<String> getAvailableKeys() {
+      return Arrays.stream(values())
+        .map(DismissNotices::getKey)
+        .collect(Collectors.toSet());
+    }
+  }
   public static final String USER_DISMISS_CONSTANT = "user.dismissedNotices.";
-  public static final String SUPPORT_FOR_NEW_NOTICE_MESSAGE = "Support for new notice '%s' was added.";
+  private static final String SUPPORT_FOR_NEW_NOTICE_MESSAGE = "Support for new notice '%s' was added.";
 
   private final UserSession userSession;
   private final DbClient dbClient;
@@ -57,16 +88,29 @@ public class DismissNoticeAction implements UsersWsAction {
     this.dbClient = dbClient;
   }
 
+  private static String printNewNotice(DismissNotices notice) {
+    return SUPPORT_FOR_NEW_NOTICE_MESSAGE.formatted(notice.getKey());
+  }
+
+  private static String printNewNotice(DismissNotices... notices) {
+    String noticesList = Arrays.stream(notices)
+      .map(DismissNotices::getKey)
+      .collect(Collectors.joining(", "));
+    return SUPPORT_FOR_NEW_NOTICE_MESSAGE.formatted(noticesList);
+  }
+
+  
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("dismiss_notice")
       .setDescription("Dismiss a notice for the current user. Silently ignore if the notice is already dismissed.")
-      .setChangelog(new Change("10.8", SUPPORT_FOR_NEW_NOTICE_MESSAGE.formatted(SHOW_NEW_MODES_TOUR)))
-      .setChangelog(new Change("10.8", SUPPORT_FOR_NEW_NOTICE_MESSAGE.formatted(SHOW_NEW_MODES_BANNER)))
-      .setChangelog(new Change("10.6", SUPPORT_FOR_NEW_NOTICE_MESSAGE.formatted(ONBOARDING_CAYC_BRANCH_SUMMARY_GUIDE)))
-      .setChangelog(new Change("10.4", SUPPORT_FOR_NEW_NOTICE_MESSAGE.formatted(ISSUE_NEW_ISSUE_STATUS_AND_TRANSITION_GUIDE)))
-      .setChangelog(new Change("10.3", SUPPORT_FOR_NEW_NOTICE_MESSAGE.formatted(QUALITY_GATE_CAYC_CONDITIONS_SIMPLIFICATION)))
-      .setChangelog(new Change("10.2", SUPPORT_FOR_NEW_NOTICE_MESSAGE.formatted(ISSUE_CLEAN_CODE_GUIDE)))
+      .setChangelog(new Change("25.4", printNewNotice(SHOW_DNA_OPTIN_BANNER, SHOW_DNA_BANNER, SHOW_DNA_TOUR)))
+      .setChangelog(new Change("10.8", printNewNotice(SHOW_NEW_MODES_TOUR)))
+      .setChangelog(new Change("10.8", printNewNotice(SHOW_NEW_MODES_BANNER)))
+      .setChangelog(new Change("10.6", printNewNotice(ONBOARDING_CAYC_BRANCH_SUMMARY_GUIDE)))
+      .setChangelog(new Change("10.4", printNewNotice(ISSUE_NEW_ISSUE_STATUS_AND_TRANSITION_GUIDE)))
+      .setChangelog(new Change("10.3", printNewNotice(QUALITY_GATE_CAYC_CONDITIONS_SIMPLIFICATION)))
+      .setChangelog(new Change("10.2", printNewNotice(ISSUE_CLEAN_CODE_GUIDE)))
       .setSince("9.6")
       .setInternal(true)
       .setHandler(this)
@@ -75,7 +119,7 @@ public class DismissNoticeAction implements UsersWsAction {
     action.createParam("notice")
       .setDescription("notice key to dismiss")
       .setExampleValue(EDUCATION_PRINCIPLES)
-      .setPossibleValues(AVAILABLE_NOTICE_KEYS);
+      .setPossibleValues(DismissNotices.getAvailableKeys());
   }
 
   @Override
@@ -89,7 +133,7 @@ public class DismissNoticeAction implements UsersWsAction {
     dismissNotice(response, currentUserUuid, noticeKeyParam);
   }
 
-  public void dismissNotice(Response response, String currentUserUuid, String noticeKeyParam) {
+  private void dismissNotice(Response response, String currentUserUuid, String noticeKeyParam) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String paramKey = USER_DISMISS_CONSTANT + noticeKeyParam;
       PropertyQuery query = new PropertyQuery.Builder()
