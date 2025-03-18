@@ -61,7 +61,6 @@ class ScaPropertiesTest {
   @Test
   void buildFromScannerProperties_shouldMapAllKnownProperties() {
     var inputProperties = new HashMap<String, String>();
-    inputProperties.put("sonar.sca.excludedManifests", "exclude/*");
     inputProperties.put("sonar.sca.goNoResolve", "true");
     inputProperties.put("sonar.sca.gradleConfigurationPattern", "pattern");
     inputProperties.put("sonar.sca.gradleNoResolve", "false");
@@ -80,7 +79,6 @@ class ScaPropertiesTest {
     when(configuration.get(anyString())).thenAnswer(i -> Optional.ofNullable(inputProperties.get(i.getArgument(0, String.class))));
 
     var expectedProperties = new HashMap<String, String>();
-    expectedProperties.put("TIDELIFT_EXCLUDED_MANIFESTS", "exclude/*");
     expectedProperties.put("TIDELIFT_GO_NO_RESOLVE", "true");
     expectedProperties.put("TIDELIFT_GRADLE_CONFIGURATION_PATTERN", "pattern");
     expectedProperties.put("TIDELIFT_GRADLE_NO_RESOLVE", "false");
@@ -100,4 +98,19 @@ class ScaPropertiesTest {
 
     assertThat(result).containsExactlyInAnyOrderEntriesOf(expectedProperties);
   }
+
+  @Test
+  void buildFromScannerProperties_shouldIgnoreExcludedManifests() {
+    var inputProperties = new HashMap<String, String>();
+    inputProperties.put("sonar.sca.unknownProperty", "value");
+    inputProperties.put("sonar.sca.excludedManifests", "ignore-me");
+    when(configuration.getProperties()).thenReturn(inputProperties);
+    when(configuration.get(anyString())).thenAnswer(i -> Optional.ofNullable(inputProperties.get(i.getArgument(0, String.class))));
+
+    var result = ScaProperties.buildFromScannerProperties(configuration);
+
+    assertThat(result).containsExactly(
+      Map.entry("TIDELIFT_UNKNOWN_PROPERTY", "value"));
+  }
+
 }

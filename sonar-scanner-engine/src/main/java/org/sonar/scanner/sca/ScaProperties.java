@@ -52,6 +52,8 @@ public class ScaProperties {
       .entrySet()
       .stream()
       .filter(entry -> entry.getKey().startsWith(SONAR_SCA_PREFIX))
+      // EXCLUDED_MANIFESTS_PROP_KEY is a special case which we handle via --args, not environment variables
+      .filter(entry -> !entry.getKey().equals(CliService.EXCLUDED_MANIFESTS_PROP_KEY))
       .collect(Collectors.toMap(entry -> convertPropToEnvVariable(entry.getKey()), Map.Entry::getValue));
   }
 

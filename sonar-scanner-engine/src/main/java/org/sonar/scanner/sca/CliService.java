@@ -21,12 +21,18 @@ package org.sonar.scanner.sca;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
@@ -36,6 +42,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.ProcessWrapperFactory;
 import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.repository.TelemetryCache;
+import org.sonar.scanner.scm.ScmConfiguration;
+import org.sonar.scm.git.JGitUtils;
 
 /**
  * The CliService class is meant to serve as the main entrypoint for any commands
@@ -45,16 +53,20 @@ import org.sonar.scanner.repository.TelemetryCache;
  */
 public class CliService {
   private static final Logger LOG = LoggerFactory.getLogger(CliService.class);
+  public static final String EXCLUDED_MANIFESTS_PROP_KEY = "sonar.sca.excludedManifests";
+
   private final ProcessWrapperFactory processWrapperFactory;
   private final TelemetryCache telemetryCache;
   private final System2 system2;
   private final Server server;
+  private final ScmConfiguration scmConfiguration;
 
-  public CliService(ProcessWrapperFactory processWrapperFactory, TelemetryCache telemetryCache, System2 system2, Server server) {
+  public CliService(ProcessWrapperFactory processWrapperFactory, TelemetryCache telemetryCache, System2 system2, Server server, ScmConfiguration scmConfiguration) {
     this.processWrapperFactory = processWrapperFactory;
     this.telemetryCache = telemetryCache;
     this.system2 = system2;
     this.server = server;
+    this.scmConfiguration = scmConfiguration;
   }
 
   public File generateManifestsZip(DefaultInputModule module, File cliExecutable, DefaultConfiguration configuration) throws IOException, IllegalStateException {
@@ -74,6 +86,12 @@ public class CliService {
       args.add(zipPath.toAbsolutePath().toString());
       args.add("--directory");
       args.add(module.getBaseDir().toString());
+
+      String excludeFlag = getExcludeFlag(module, configuration);
+      if (excludeFlag != null) {
+        args.add("--exclude");
+        args.add(excludeFlag);
+      }
 
       boolean scaDebug = configuration.getBoolean("sonar.sca.debug").orElse(false);
       if (LOG.isDebugEnabled() || scaDebug) {
@@ -106,5 +124,64 @@ public class CliService {
       telemetryCache.put("scanner.sca.execution.cli.duration", String.valueOf(system2.now() - startTime));
       telemetryCache.put("scanner.sca.execution.cli.success", String.valueOf(success));
     }
+  }
+
+  private @Nullable String getExcludeFlag(DefaultInputModule module, DefaultConfiguration configuration) throws IOException {
+    List<String> configExcludedPaths = getConfigExcludedPaths(configuration);
+    List<String> scmIgnoredPaths = getScmIgnoredPaths(module);
+
+    ArrayList<String> mergedExclusionPaths = new ArrayList<>();
+    mergedExclusionPaths.addAll(configExcludedPaths);
+    mergedExclusionPaths.addAll(scmIgnoredPaths);
+
+    if (mergedExclusionPaths.isEmpty()) {
+      return null;
+    }
+
+    // wrap each exclusion path in quotes to handle commas in file paths
+    return toCsvString(mergedExclusionPaths);
+  }
+
+  private static List<String> getConfigExcludedPaths(DefaultConfiguration configuration) {
+    String[] excludedPaths = configuration.getStringArray(EXCLUDED_MANIFESTS_PROP_KEY);
+    if (excludedPaths == null) {
+      return List.of();
+    }
+    return Arrays.stream(excludedPaths).toList();
+  }
+
+  private List<String> getScmIgnoredPaths(DefaultInputModule module) {
+    var scmProvider = scmConfiguration.provider();
+    // Only Git is supported at this time
+    if (scmProvider == null || scmProvider.key() == null || !scmProvider.key().equals("git")) {
+      return List.of();
+    }
+
+    if (scmConfiguration.isExclusionDisabled()) {
+      // The user has opted out of using the SCM exclusion rules
+      return List.of();
+    }
+
+    Path baseDirPath = module.getBaseDir();
+    List<String> scmIgnoredPaths = JGitUtils.getAllIgnoredPaths(baseDirPath);
+    if (scmIgnoredPaths.isEmpty()) {
+      return List.of();
+    }
+    return scmIgnoredPaths.stream()
+      .map(ignoredPathRel -> {
+        boolean isDirectory = Files.isDirectory(baseDirPath.resolve(ignoredPathRel));
+        // Directories need to get turned into a glob for the Tidelift CLI
+        return isDirectory ? (ignoredPathRel + "/**") : ignoredPathRel;
+      })
+      .toList();
+  }
+
+  private static String toCsvString(List<String> values) throws IOException {
+    StringWriter sw = new StringWriter();
+    try (CSVPrinter printer = new CSVPrinter(sw, CSVFormat.DEFAULT)) {
+      printer.printRecord(values);
+    }
+    // trim to remove the trailing newline
+    return sw.toString().trim();
   }
 }

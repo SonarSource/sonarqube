@@ -23,25 +23,34 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.SystemUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.MockedStatic;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.platform.Server;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.ProcessWrapperFactory;
 import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.repository.TelemetryCache;
+import org.sonar.scanner.scm.ScmConfiguration;
+import org.sonar.scm.git.GitScmProvider;
+import org.sonar.scm.git.JGitUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.slf4j.event.Level.DEBUG;
@@ -55,6 +64,11 @@ class CliServiceTest {
   private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
   @TempDir
   Path rootModuleDir;
+  private final ScmConfiguration scmConfiguration = mock(ScmConfiguration.class);
+  private final ScmProvider scmProvider = mock(GitScmProvider.class);
+  ProcessWrapperFactory processWrapperFactory = mock(ProcessWrapperFactory.class, CALLS_REAL_METHODS);
+  private MockedStatic<JGitUtils> jGitUtilsMock;
+  DefaultConfiguration configuration = mock(DefaultConfiguration.class);
 
   private CliService underTest;
 
@@ -63,17 +77,38 @@ class CliServiceTest {
     telemetryCache = new TelemetryCache();
     rootInputModule = new DefaultInputModule(
       ProjectDefinition.create().setBaseDir(rootModuleDir.toFile()).setWorkDir(rootModuleDir.toFile()));
-    underTest = new CliService(new ProcessWrapperFactory(), telemetryCache, System2.INSTANCE, server);
+    when(scmConfiguration.provider()).thenReturn(scmProvider);
+    when(scmProvider.key()).thenReturn("git");
+    when(scmConfiguration.isExclusionDisabled()).thenReturn(false);
+    jGitUtilsMock = org.mockito.Mockito.mockStatic(JGitUtils.class);
+    jGitUtilsMock.when(() -> JGitUtils.getAllIgnoredPaths(any(Path.class))).thenReturn(List.of("ignored.txt"));
+    when(server.getVersion()).thenReturn("1.0.0");
+    logTester.setLevel(INFO);
+    when(configuration.getBoolean("sonar.sca.debug")).thenReturn(Optional.of(true));
+
+    underTest = new CliService(processWrapperFactory, telemetryCache, System2.INSTANCE, server, scmConfiguration);
+  }
+
+  @AfterEach
+  void teardown() {
+    if (jGitUtilsMock != null) {
+      jGitUtilsMock.close();
+    }
   }
 
   @Test
   void generateZip_shouldCallProcessCorrectly_andRegisterTelemetry() throws IOException, URISyntaxException {
     assertThat(rootModuleDir.resolve("test_file").toFile().createNewFile()).isTrue();
 
-    // We need to set the logging level to debug in order to be able to view the shell script's output
-    logTester.setLevel(DEBUG);
+    when(configuration.getProperties()).thenReturn(Map.of("sonar.sca.recursiveManifestSearch", "true", CliService.EXCLUDED_MANIFESTS_PROP_KEY, "foo,bar,baz/**"));
+    when(configuration.get("sonar.sca.recursiveManifestSearch")).thenReturn(Optional.of("true"));
+    when(configuration.getStringArray(CliService.EXCLUDED_MANIFESTS_PROP_KEY)).thenReturn(new String[] {"foo", "bar", "baz/**"});
 
-    List<String> args = List.of(
+    File producedZip = underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+
+    assertThat(producedZip).exists();
+
+    var expectedArguments = List.of(
       "projects",
       "save-lockfiles",
       "--zip",
@@ -81,35 +116,31 @@ class CliServiceTest {
       rootInputModule.getWorkDir().resolve("dependency-files.zip").toString(),
       "--directory",
       rootInputModule.getBaseDir().toString(),
+      "--exclude",
+      "foo,bar,baz/**,ignored.txt",
       "--debug");
 
-    String argumentOutput = "Arguments Passed In: " + String.join(" ", args);
-    DefaultConfiguration configuration = mock(DefaultConfiguration.class);
-    when(configuration.getProperties()).thenReturn(Map.of("sonar.sca.recursiveManifestSearch", "true"));
-    when(configuration.get("sonar.sca.recursiveManifestSearch")).thenReturn(Optional.of("true"));
-
-    File producedZip = underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
-    assertThat(producedZip).exists();
-
-    assertThat(logTester.logs(DEBUG))
-      .contains(argumentOutput)
+    assertThat(logTester.logs(INFO))
+      .contains("Arguments Passed In: " + String.join(" ", expectedArguments))
       .contains("TIDELIFT_SKIP_UPDATE_CHECK=1")
       .contains("TIDELIFT_ALLOW_MANIFEST_FAILURES=1")
-      .contains("TIDELIFT_RECURSIVE_MANIFEST_SEARCH=true");
-    assertThat(logTester.logs(INFO)).contains("Generated manifests zip file: " + producedZip.getName());
+      .contains("TIDELIFT_RECURSIVE_MANIFEST_SEARCH=true")
+      .contains("Generated manifests zip file: " + producedZip.getName());
 
     assertThat(telemetryCache.getAll()).containsKey("scanner.sca.execution.cli.duration").isNotNull();
     assertThat(telemetryCache.getAll()).containsEntry("scanner.sca.execution.cli.success", "true");
   }
 
   @Test
-  void generateZip_whenDebugLogLevel_shouldCallProcessCorrectly() throws IOException, URISyntaxException {
+  void generateZip_whenDebugLogLevelAndScaDebugNotEnabled_shouldWriteDebugLogsToDebugStream() throws IOException, URISyntaxException {
+    logTester.setLevel(DEBUG);
+    when(configuration.getBoolean("sonar.sca.debug")).thenReturn(Optional.of(false));
+
     assertThat(rootModuleDir.resolve("test_file").toFile().createNewFile()).isTrue();
 
-    // We need to set the logging level to debug in order to be able to view the shell script's output
-    logTester.setLevel(DEBUG);
+    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
 
-    List<String> args = List.of(
+    var expectedArguments = List.of(
       "projects",
       "save-lockfiles",
       "--zip",
@@ -117,27 +148,23 @@ class CliServiceTest {
       rootInputModule.getWorkDir().resolve("dependency-files.zip").toString(),
       "--directory",
       rootInputModule.getBaseDir().toString(),
+      "--exclude",
+      "ignored.txt",
       "--debug");
 
-    String argumentOutput = "Arguments Passed In: " + String.join(" ", args);
-    DefaultConfiguration configuration = mock(DefaultConfiguration.class);
-    when(configuration.getProperties()).thenReturn(Map.of("sonar.sca.recursiveManifestSearch", "true"));
-    when(configuration.get("sonar.sca.recursiveManifestSearch")).thenReturn(Optional.of("true"));
-
-    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
-
     assertThat(logTester.logs(DEBUG))
-      .contains(argumentOutput);
+      .contains("Arguments Passed In: " + String.join(" ", expectedArguments));
   }
 
   @Test
-  void generateZip_whenScaDebugEnabled_shouldCallProcessCorrectly() throws IOException, URISyntaxException {
+  void generateZip_whenScaDebugEnabled_shouldWriteDebugLogsToInfoStream() throws IOException, URISyntaxException {
+    when(configuration.getBoolean("sonar.sca.debug")).thenReturn(Optional.of(true));
+
     assertThat(rootModuleDir.resolve("test_file").toFile().createNewFile()).isTrue();
 
-    // Set the logging level to info so that we don't automatically set --debug flag
-    logTester.setLevel(INFO);
+    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
 
-    List<String> args = List.of(
+    var expectedArguments = List.of(
       "projects",
       "save-lockfiles",
       "--zip",
@@ -145,34 +172,142 @@ class CliServiceTest {
       rootInputModule.getWorkDir().resolve("dependency-files.zip").toString(),
       "--directory",
       rootInputModule.getBaseDir().toString(),
+      "--exclude",
+      "ignored.txt",
       "--debug");
 
-    String argumentOutput = "Arguments Passed In: " + String.join(" ", args);
-    DefaultConfiguration configuration = mock(DefaultConfiguration.class);
-    when(configuration.getProperties()).thenReturn(Map.of("sonar.sca.recursiveManifestSearch", "true"));
-    when(configuration.get("sonar.sca.recursiveManifestSearch")).thenReturn(Optional.of("true"));
-    when(configuration.getBoolean("sonar.sca.debug")).thenReturn(Optional.of(true));
-
-    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
-
     assertThat(logTester.logs(INFO))
-      .contains(argumentOutput);
+      .contains("Arguments Passed In: " + String.join(" ", expectedArguments));
   }
 
   @Test
   void generateZip_shouldSendSQEnvVars() throws IOException, URISyntaxException {
-    // We need to set the logging level to debug in order to be able to view the shell script's output
-    logTester.setLevel(DEBUG);
-
-    var version = "1.0.0";
-    when(server.getVersion()).thenReturn(version);
-
-    DefaultConfiguration configuration = mock(DefaultConfiguration.class);
     underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
 
-    assertThat(logTester.logs(DEBUG))
+    assertThat(logTester.logs(INFO))
       .contains("TIDELIFT_CLI_INSIDE_SCANNER_ENGINE=1")
-      .contains("TIDELIFT_CLI_SQ_SERVER_VERSION=" + version);
+      .contains("TIDELIFT_CLI_SQ_SERVER_VERSION=1.0.0");
+  }
+
+  @Test
+  void generateZip_includesIgnoredPathsFromGitProvider() throws Exception {
+    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+
+    var expectedArguments = List.of(
+      "projects",
+      "save-lockfiles",
+      "--zip",
+      "--zip-filename",
+      rootInputModule.getWorkDir().resolve("dependency-files.zip").toString(),
+      "--directory",
+      rootInputModule.getBaseDir().toString(),
+      "--exclude",
+      "ignored.txt",
+      "--debug");
+
+    assertThat(logTester.logs(INFO))
+      .contains("Arguments Passed In: " + String.join(" ", expectedArguments))
+      .contains("TIDELIFT_SKIP_UPDATE_CHECK=1")
+      .contains("TIDELIFT_ALLOW_MANIFEST_FAILURES=1")
+      .contains("TIDELIFT_CLI_INSIDE_SCANNER_ENGINE=1")
+      .contains("TIDELIFT_CLI_SQ_SERVER_VERSION=1.0.0");
+
+  }
+
+  @Test
+  void generateZip_withNoScm_doesNotIncludeScmIgnoredPaths() throws Exception {
+    when(scmConfiguration.provider()).thenReturn(null);
+
+    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+
+    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
+    assertThat(capturedArgs).doesNotContain("--exclude");
+  }
+
+  @Test
+  void generateZip_withNonGit_doesNotIncludeScmIgnoredPaths() throws Exception {
+    when(scmProvider.key()).thenReturn("notgit");
+
+    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+
+    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
+    assertThat(capturedArgs).doesNotContain("--exclude");
+  }
+
+  @Test
+  void generateZip_withExclusionDisabled_doesNotIncludeScmIgnoredPaths() throws Exception {
+    when(scmConfiguration.isExclusionDisabled()).thenReturn(true);
+
+    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+
+    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
+    assertThat(capturedArgs).doesNotContain("--exclude");
+  }
+
+  @Test
+  void generateZip_withNoScmIgnores_doesNotIncludeScmIgnoredPaths() throws Exception {
+    jGitUtilsMock.when(() -> JGitUtils.getAllIgnoredPaths(any(Path.class))).thenReturn(List.of());
+
+    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+
+    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
+    assertThat(capturedArgs).doesNotContain("--exclude");
+  }
+
+  @Test
+  void generateZip_withExistingExcludedManifests_appendsScmIgnoredPaths() throws Exception {
+    when(configuration.getStringArray(CliService.EXCLUDED_MANIFESTS_PROP_KEY)).thenReturn(new String[] {"**/test/**"});
+
+    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+
+    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
+    assertThat(capturedArgs).contains("--exclude **/test/**,ignored.txt");
+  }
+
+  @Test
+  void generateZip_withExcludedManifestsSettingContainingBadCharacters_handlesTheBadCharacters() throws Exception {
+    when(configuration.getStringArray(CliService.EXCLUDED_MANIFESTS_PROP_KEY)).thenReturn(new String[] {
+      "**/test/**", "**/path with spaces/**", "**/path,with,commas/**", "**/path'with'quotes/**", "**/path\"with\"double\"quotes/**"});
+
+    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+
+    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
+
+    String expectedExcludeFlag = """
+       --exclude **/test/**,**/path with spaces/**,"**/path,with,commas/**",**/path'with'quotes/**,"**/path""with""double""quotes/**",ignored.txt
+      """.strip();
+    assertThat(capturedArgs).contains(expectedExcludeFlag);
+  }
+
+  @Test
+  void generateZip_withScmIgnoresContainingBadCharacters_handlesTheBadCharacters() throws Exception {
+    jGitUtilsMock.when(() -> JGitUtils.getAllIgnoredPaths(any(Path.class)))
+      .thenReturn(List.of("**/test/**", "**/path with spaces/**", "**/path,with,commas/**", "**/path'with'quotes/**", "**/path\"with\"double\"quotes/**"));
+
+    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+
+    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
+
+    String expectedExcludeFlag = """
+       --exclude **/test/**,**/path with spaces/**,"**/path,with,commas/**",**/path'with'quotes/**,"**/path""with""double""quotes/**"
+      """.strip();
+    assertThat(capturedArgs).contains(expectedExcludeFlag);
+  }
+
+  @Test
+  void generateZip_withIgnoredDirectories_GlobifiesDirectories() throws Exception {
+    String ignoredDirectory = "directory1";
+    Files.createDirectories(rootModuleDir.resolve(ignoredDirectory));
+    String ignoredFile = "directory2/file.txt";
+    Path ignoredFilePath = rootModuleDir.resolve(ignoredFile);
+    Files.createDirectories(ignoredFilePath.getParent());
+    Files.createFile(ignoredFilePath);
+
+    jGitUtilsMock.when(() -> JGitUtils.getAllIgnoredPaths(any(Path.class))).thenReturn(List.of(ignoredDirectory, ignoredFile));
+    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+
+    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
+    assertThat(capturedArgs).contains("--exclude directory1/**,directory2/file.txt");
   }
 
   private URL scriptUrl() {
