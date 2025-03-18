@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
@@ -54,6 +55,7 @@ import org.sonar.scanner.report.ReportPublisher;
 @ThreadSafe
 public class IssuePublisher {
 
+  private static final Set<String> noSonarKeyContains = Set.of("nosonar", "S1291");
   private final ActiveRules activeRules;
   private final IssueFilters filters;
   private final ReportPublisher reportPublisher;
@@ -91,7 +93,7 @@ public class IssuePublisher {
     return inputComponent.isFile()
       && textRange != null
       && ((DefaultInputFile) inputComponent).hasNoSonarAt(textRange.start().line())
-      && !StringUtils.containsIgnoreCase(issue.ruleKey().rule(), "nosonar");
+      && noSonarKeyContains.stream().noneMatch(k -> StringUtils.containsIgnoreCase(issue.ruleKey().rule(), k));
   }
 
   public void initAndAddExternalIssue(ExternalIssue issue) {
