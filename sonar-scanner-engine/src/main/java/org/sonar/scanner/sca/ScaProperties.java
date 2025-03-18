@@ -20,6 +20,7 @@
 package org.sonar.scanner.sca;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -47,8 +48,14 @@ public class ScaProperties {
    * @return a map of Tidelift CLI compatible environment variable names to their configuration values
    */
   public static Map<String, String> buildFromScannerProperties(DefaultConfiguration configuration) {
-    return configuration
-      .getProperties()
+    HashMap<String, String> props = new HashMap<>(configuration.getProperties());
+
+    // recursive mode defaults to true
+    if (!props.containsKey("sonar.sca.recursiveManifestSearch")) {
+      props.put("sonar.sca.recursiveManifestSearch", "true");
+    }
+
+    return props
       .entrySet()
       .stream()
       .filter(entry -> entry.getKey().startsWith(SONAR_SCA_PREFIX))
