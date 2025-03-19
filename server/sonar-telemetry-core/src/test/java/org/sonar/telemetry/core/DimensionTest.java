@@ -39,11 +39,13 @@ class DimensionTest {
     assertEquals(Dimension.USER, Dimension.fromValue("user"));
     assertEquals(Dimension.PROJECT, Dimension.fromValue("project"));
     assertEquals(Dimension.LANGUAGE, Dimension.fromValue("language"));
+    assertEquals(Dimension.FIX_SUGGESTION, Dimension.fromValue("fixsuggestion"));
 
     assertEquals(Dimension.INSTALLATION, Dimension.fromValue("INSTALLATION"));
     assertEquals(Dimension.USER, Dimension.fromValue("USER"));
     assertEquals(Dimension.PROJECT, Dimension.fromValue("PROJECT"));
     assertEquals(Dimension.LANGUAGE, Dimension.fromValue("LANGUAGE"));
+    assertEquals(Dimension.FIX_SUGGESTION, Dimension.fromValue("FIXSUGGESTION"));
   }
 
   @Test

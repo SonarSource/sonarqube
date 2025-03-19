@@ -31,7 +31,8 @@ public enum Dimension {
   USER("user"),
   PROJECT("project"),
   LANGUAGE("language"),
-  ANALYSIS("analysis");
+  ANALYSIS("analysis"),
+  FIX_SUGGESTION("fixsuggestion");
 
   private final String value;
 
