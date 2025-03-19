@@ -29,9 +29,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.QProfileFactory;
-import org.sonar.server.qualityprofile.QProfileResult;
 import org.sonar.server.qualityprofile.builtin.QProfileName;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualityprofiles.CreateWsResponse;
 
@@ -51,15 +49,13 @@ public class CreateAction implements QProfileWsAction {
   private final QProfileFactory profileFactory;
   private final Languages languages;
   private final UserSession userSession;
-  private final ActiveRuleIndexer activeRuleIndexer;
 
   public CreateAction(DbClient dbClient, QProfileFactory profileFactory, Languages languages,
-    UserSession userSession, ActiveRuleIndexer activeRuleIndexer) {
+    UserSession userSession) {
     this.dbClient = dbClient;
     this.profileFactory = profileFactory;
     this.languages = languages;
     this.userSession = userSession;
-    this.activeRuleIndexer = activeRuleIndexer;
   }
 
   @Override
@@ -88,19 +84,17 @@ public class CreateAction implements QProfileWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
+    userSession.checkPermission(ADMINISTER_QUALITY_PROFILES);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES);
       CreateRequest createRequest = toRequest(request);
       writeProtobuf(doHandle(dbSession, createRequest), request, response);
     }
   }
 
   private CreateWsResponse doHandle(DbSession dbSession, CreateRequest createRequest) {
-    QProfileResult result = new QProfileResult();
     QProfileDto profile = profileFactory.checkAndCreateCustom(dbSession, QProfileName.createFor(createRequest.getLanguage(), createRequest.getName()));
-    result.setProfile(profile);
-    activeRuleIndexer.commitAndIndex(dbSession, result.getChanges());
-    return buildResponse(result);
+    dbSession.commit();
+    return buildResponse(profile);
   }
 
   private static CreateRequest toRequest(Request request) {
@@ -110,21 +104,15 @@ public class CreateAction implements QProfileWsAction {
     return builder.build();
   }
 
-  private CreateWsResponse buildResponse(QProfileResult result) {
-    String language = result.profile().getLanguage();
+  private CreateWsResponse buildResponse(QProfileDto profile) {
+    String language = profile.getLanguage();
     CreateWsResponse.QualityProfile.Builder builder = CreateWsResponse.QualityProfile.newBuilder()
-      .setKey(result.profile().getKee())
-      .setName(result.profile().getName())
+      .setKey(profile.getKee())
+      .setName(profile.getName())
       .setLanguage(language)
-      .setLanguageName(languages.get(result.profile().getLanguage()).getName())
+      .setLanguageName(languages.get(profile.getLanguage()).getName())
       .setIsDefault(false)
       .setIsInherited(false);
-    if (!result.infos().isEmpty()) {
-      builder.getInfosBuilder().addAllInfos(result.infos());
-    }
-    if (!result.warnings().isEmpty()) {
-      builder.getWarningsBuilder().addAllWarnings(result.warnings());
-    }
     return CreateWsResponse.newBuilder().setProfile(builder.build()).build();
   }
 

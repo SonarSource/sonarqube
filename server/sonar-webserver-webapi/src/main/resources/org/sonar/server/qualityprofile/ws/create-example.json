@@ -6,11 +6,5 @@
     "languageName" : "Java",
     "name" : "My New Profile",
     "key" : "AU-TpxcA-iU5OvuD2FL1"
-  },
-  "warnings" : [
-    "Unable to import unknown PMD rule 'rulesets/java/strings.xml'",
-    "Unable to import unknown PMD rule 'rulesets/java/basic.xml/UnnecessaryConversionTemporary'",
-    "Unable to import unknown PMD rule 'rulesets/java/basic.xml/EmptyCatchBlock'",
-    "Unable to import unknown PMD rule 'rulesets/java/braces.xml'"
-  ]
+  }
 }

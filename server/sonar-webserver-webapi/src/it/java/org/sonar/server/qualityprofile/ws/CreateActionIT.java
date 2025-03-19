@@ -21,30 +21,18 @@ package org.sonar.server.qualityprofile.ws;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.Version;
-import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDto;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventService;
 import org.sonar.server.qualityprofile.QProfileFactoryImpl;
-import org.sonar.server.qualityprofile.QProfileRules;
-import org.sonar.server.qualityprofile.QProfileRulesImpl;
-import org.sonar.server.qualityprofile.builtin.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -56,7 +44,6 @@ import org.sonarqube.ws.Qualityprofiles.CreateWsResponse.QualityProfile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.server.language.LanguageTesting.newLanguages;
@@ -64,9 +51,6 @@ import static org.sonar.server.language.LanguageTesting.newLanguages;
 class CreateActionIT {
 
   private static final String XOO_LANGUAGE = "xoo";
-  private static final RuleDto RULE = RuleTesting.newXooX1()
-    .setSeverity("MINOR")
-    .setLanguage(XOO_LANGUAGE);
 
   @RegisterExtension
   private final DbTester db = DbTester.create();
@@ -75,20 +59,12 @@ class CreateActionIT {
   @RegisterExtension
   private final UserSessionRule userSession = UserSessionRule.standalone();
 
-  private final Configuration config = mock(Configuration.class);
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
-  private final RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE, config);
-  private final RuleIndexer ruleIndexer = new RuleIndexer(es.client(), dbClient);
   private final ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, es.client());
-  private final QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
-  private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
-  private final RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, UuidFactoryImpl.INSTANCE, null, userSession, mock(Configuration.class),
-    sonarQubeVersion);
-  private final QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, ruleIndex, activeRuleIndexer, qualityProfileChangeEventService);
 
   private final CreateAction underTest = new CreateAction(dbClient, new QProfileFactoryImpl(dbClient, UuidFactoryFast.getInstance(), System2.INSTANCE, activeRuleIndexer),
-    newLanguages(XOO_LANGUAGE), userSession, activeRuleIndexer);
+    newLanguages(XOO_LANGUAGE), userSession);
 
   private WsActionTester ws = new WsActionTester(underTest);
 
@@ -151,12 +127,6 @@ class CreateActionIT {
 
     JsonAssert.assertJson(response.getInput()).isSimilarTo(getClass().getResource("CreateActionIT/test_json.json"));
     assertThat(response.getMediaType()).isEqualTo(MediaTypes.JSON);
-  }
-
-  private void insertRule(RuleDto ruleDto) {
-    dbClient.ruleDao().insert(dbSession, ruleDto);
-    dbSession.commit();
-    ruleIndexer.commitAndIndex(dbSession, ruleDto.getUuid());
   }
 
   private CreateWsResponse executeRequest(String name, String language) {

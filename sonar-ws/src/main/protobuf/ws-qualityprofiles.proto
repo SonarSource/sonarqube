@@ -74,14 +74,16 @@ message CreateWsResponse {
     optional string languageName = 4;
     optional bool isInherited = 5;
     optional bool isDefault = 6;
-    optional Infos infos = 7;
-    optional Warnings warnings = 8;
+    optional Infos infos = 7 [deprecated=true];
+    optional Warnings warnings = 8 [deprecated=true];
 
     message Infos {
+      option deprecated = true;
       repeated string infos = 1;
     }
 
     message Warnings {
+      option deprecated = true;
       repeated string warnings = 1;
     }
   }
