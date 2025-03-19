@@ -54,6 +54,10 @@ public class DbVersion202502 implements DbVersion {
       .add(2025_02_015, "Add new_in_pull_request column to SCA dependencies", AddNewInPullRequestToScaDependenciesTable.class)
       .add(2025_02_016, "Insert default AI Codefix provider key and modelKey properties", InsertDefaultAiSuggestionProviderKeyAndModelKeyProperties.class)
       .add(2025_02_017, "Add table 'architecture_graphs'", CreateArchitectureGraphsTable.class)
+      .add(2025_02_018, "Drop 'sca_releases_comp_uuid' index", DropIndexOnScaReleasesComponent.class)
+      .add(2025_02_019, "Create 'sca_releases_comp_uuid_uuid' index", CreateIndexOnScaReleasesComponentUuid.class)
+      .add(2025_02_020, "Add 'sca_dependencies.production_scope' column", AddProductionScopeToScaDependenciesTable.class)
+      .add(2025_02_021, "Add declared_license_expression to SCA releases", AddDeclaredLicenseExpressionToScaReleasesTable.class);
     ;
   }
 }

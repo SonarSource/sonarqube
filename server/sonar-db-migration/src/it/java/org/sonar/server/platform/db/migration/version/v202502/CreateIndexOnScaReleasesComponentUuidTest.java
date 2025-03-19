@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v202503;
+package org.sonar.server.platform.db.migration.version.v202502;
 
 import java.sql.SQLException;
 import org.junit.jupiter.api.Test;
@@ -25,29 +25,29 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static java.sql.Types.BOOLEAN;
 import static org.sonar.db.MigrationDbTester.createForMigrationStep;
+import static org.sonar.server.platform.db.migration.version.v202502.CreateIndexOnScaReleasesComponentUuid.COLUMN_NAME_COMPONENT_UUID;
+import static org.sonar.server.platform.db.migration.version.v202502.CreateIndexOnScaReleasesComponentUuid.COLUMN_NAME_UUID;
+import static org.sonar.server.platform.db.migration.version.v202502.CreateIndexOnScaReleasesComponentUuid.INDEX_NAME;
+import static org.sonar.server.platform.db.migration.version.v202502.CreateIndexOnScaReleasesComponentUuid.TABLE_NAME;
 
-class AddProductionScopeToScaDependenciesTableIT {
-  private static final String TABLE_NAME = "sca_dependencies";
-  private static final String COLUMN_NAME = "production_scope";
-
+class CreateIndexOnScaReleasesComponentUuidTest {
   @RegisterExtension
-  public final MigrationDbTester db = createForMigrationStep(AddProductionScopeToScaDependenciesTable.class);
-  private final DdlChange underTest = new AddProductionScopeToScaDependenciesTable(db.database());
+  public final MigrationDbTester db = createForMigrationStep(CreateIndexOnScaReleasesComponentUuid.class);
+  private final DdlChange underTest = new CreateIndexOnScaReleasesComponentUuid(db.database());
 
   @Test
-  void execute_shouldAddColumn() throws SQLException {
-    db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
+  void execute_shouldCreateIndex() throws SQLException {
+    db.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
     underTest.execute();
-    db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, BOOLEAN, null, false);
+    db.assertIndex(TABLE_NAME, INDEX_NAME, COLUMN_NAME_COMPONENT_UUID, COLUMN_NAME_UUID);
   }
 
   @Test
   void execute_shouldBeReentrant() throws SQLException {
-    db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
+    db.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
     underTest.execute();
     underTest.execute();
-    db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, BOOLEAN, null, false);
+    db.assertIndex(TABLE_NAME, INDEX_NAME, COLUMN_NAME_COMPONENT_UUID, COLUMN_NAME_UUID);
   }
 }
