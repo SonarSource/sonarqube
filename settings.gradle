@@ -17,10 +17,6 @@ pluginManagement {
       }
     }
   }
-  plugins {
-    id 'com.bmuschko.docker-remote-api' version '9.4.0'
-    id 'org.ajoberstar.grgit' version '4.1.1'
-  }
 }
 
 rootProject.name = 'sonarqube'
