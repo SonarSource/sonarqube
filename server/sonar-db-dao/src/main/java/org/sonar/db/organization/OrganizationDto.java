@@ -77,6 +77,7 @@ public class OrganizationDto {
   private String defaultQualityGateUuid;
   private long createdAt;
   private long updatedAt;
+  private boolean inviteUsersEnabled;
 
   public String getUuid() {
     return uuid;
@@ -108,6 +109,15 @@ public class OrganizationDto {
   @CheckForNull
   public String getDescription() {
     return description;
+  }
+
+  public boolean isInviteUsersEnabled() {
+    return inviteUsersEnabled;
+  }
+
+  public OrganizationDto setInviteUsersEnabled(boolean inviteUsersEnabled) {
+    this.inviteUsersEnabled = inviteUsersEnabled;
+    return this;
   }
 
   public OrganizationDto setDescription(@Nullable String description) {
@@ -201,17 +211,18 @@ public class OrganizationDto {
   @Override
   public String toString() {
     return "OrganizationDto{" +
-      "uuid='" + uuid + '\'' +
-      ", key='" + key + '\'' +
-      ", name='" + name + '\'' +
-      ", description='" + description + '\'' +
-      ", url='" + url + '\'' +
-      ", avatarUrl='" + avatarUrl + '\'' +
-      ", defaultQualityGateUuid=" + defaultQualityGateUuid +
-      ", subscription=" + subscription +
-      ", createdAt=" + createdAt +
-      ", updatedAt=" + updatedAt +
-      '}';
+            "uuid='" + uuid + '\'' +
+            ", key='" + key + '\'' +
+            ", name='" + name + '\'' +
+            ", description='" + description + '\'' +
+            ", url='" + url + '\'' +
+            ", avatarUrl='" + avatarUrl + '\'' +
+            ", subscription=" + subscription +
+            ", defaultGroupUuid='" + defaultGroupUuid + '\'' +
+            ", defaultQualityGateUuid='" + defaultQualityGateUuid + '\'' +
+            ", createdAt=" + createdAt +
+            ", updatedAt=" + updatedAt +
+            ", inviteUsersEnabled=" + inviteUsersEnabled +
+            '}';
   }
-
 }

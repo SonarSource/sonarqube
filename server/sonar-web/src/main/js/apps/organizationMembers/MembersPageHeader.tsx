@@ -51,6 +51,7 @@ export default function MembersPageHeader(props: Props) {
                   addMember={props.handleAddMember}
                   memberLogins={memberLogins}
                   organization={organization}
+                  canInviteUsers={organization.inviteUsersEnabled}
                 />
               </div>
             </div>
