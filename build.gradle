@@ -511,10 +511,10 @@ subprojects {
       dependency 'org.reflections:reflections:0.10.2'
       dependency 'org.simpleframework:simple:5.1.6'
       dependency 'org.sonarsource.git.blame:git-files-blame:1.1.0.1835'
-      dependency('org.sonarsource.orchestrator:sonar-orchestrator-junit4:5.2.0.2403') {
+      dependency('org.sonarsource.orchestrator:sonar-orchestrator-junit4:5.4.0.2489') {
         exclude 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
       }
-      dependency('org.sonarsource.orchestrator:sonar-orchestrator-junit5:5.2.0.2403') {
+      dependency('org.sonarsource.orchestrator:sonar-orchestrator-junit5:5.4.0.2489') {
         exclude 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
       }
       dependency 'com.sonarsource.pdfreport:security-report-pdf-generation:2.0.0.184'
