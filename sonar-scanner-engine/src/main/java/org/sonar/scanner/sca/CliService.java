@@ -134,6 +134,11 @@ public class CliService {
     mergedExclusionPaths.addAll(configExcludedPaths);
     mergedExclusionPaths.addAll(scmIgnoredPaths);
 
+    String workDirExcludedPath = getWorkDirExcludedPath(module);
+    if (workDirExcludedPath != null) {
+      mergedExclusionPaths.add(workDirExcludedPath);
+    }
+
     if (mergedExclusionPaths.isEmpty()) {
       return null;
     }
@@ -174,6 +179,19 @@ public class CliService {
         return isDirectory ? (ignoredPathRel + "/**") : ignoredPathRel;
       })
       .toList();
+  }
+
+  private static String getWorkDirExcludedPath(DefaultInputModule module) {
+    Path baseDir = module.getBaseDir().toAbsolutePath().normalize();
+    Path workDir = module.getWorkDir().toAbsolutePath().normalize();
+
+    if (workDir.startsWith(baseDir)) {
+      // workDir is inside baseDir, so return the relative path as a glob
+      Path relativeWorkDir = baseDir.relativize(workDir);
+      return relativeWorkDir + "/**";
+    }
+
+    return null;
   }
 
   private static String toCsvString(List<String> values) throws IOException {

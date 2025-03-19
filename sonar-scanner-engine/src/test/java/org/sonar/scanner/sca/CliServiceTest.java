@@ -73,10 +73,12 @@ class CliServiceTest {
   private CliService underTest;
 
   @BeforeEach
-  void setup() {
+  void setup() throws IOException {
     telemetryCache = new TelemetryCache();
+    Path workDir = rootModuleDir.resolve(".scannerwork");
+    Files.createDirectories(workDir);
     rootInputModule = new DefaultInputModule(
-      ProjectDefinition.create().setBaseDir(rootModuleDir.toFile()).setWorkDir(rootModuleDir.toFile()));
+      ProjectDefinition.create().setBaseDir(rootModuleDir.toFile()).setWorkDir(workDir.toFile()));
     when(scmConfiguration.provider()).thenReturn(scmProvider);
     when(scmProvider.key()).thenReturn("git");
     when(scmConfiguration.isExclusionDisabled()).thenReturn(false);
@@ -117,7 +119,7 @@ class CliServiceTest {
       "--directory",
       rootInputModule.getBaseDir().toString(),
       "--exclude",
-      "foo,bar,baz/**,ignored.txt",
+      "foo,bar,baz/**,ignored.txt,.scannerwork/**",
       "--debug");
 
     assertThat(logTester.logs(INFO))
@@ -149,7 +151,7 @@ class CliServiceTest {
       "--directory",
       rootInputModule.getBaseDir().toString(),
       "--exclude",
-      "ignored.txt",
+      "ignored.txt,.scannerwork/**",
       "--debug");
 
     assertThat(logTester.logs(DEBUG))
@@ -173,7 +175,7 @@ class CliServiceTest {
       "--directory",
       rootInputModule.getBaseDir().toString(),
       "--exclude",
-      "ignored.txt",
+      "ignored.txt,.scannerwork/**",
       "--debug");
 
     assertThat(logTester.logs(INFO))
@@ -202,7 +204,7 @@ class CliServiceTest {
       "--directory",
       rootInputModule.getBaseDir().toString(),
       "--exclude",
-      "ignored.txt",
+      "ignored.txt,.scannerwork/**",
       "--debug");
 
     assertThat(logTester.logs(INFO))
@@ -221,7 +223,7 @@ class CliServiceTest {
     underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
-    assertThat(capturedArgs).doesNotContain("--exclude");
+    assertThat(capturedArgs).contains("--exclude .scannerwork/** --debug");
   }
 
   @Test
@@ -231,7 +233,7 @@ class CliServiceTest {
     underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
-    assertThat(capturedArgs).doesNotContain("--exclude");
+    assertThat(capturedArgs).contains("--exclude .scannerwork/** --debug");
   }
 
   @Test
@@ -241,7 +243,7 @@ class CliServiceTest {
     underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
-    assertThat(capturedArgs).doesNotContain("--exclude");
+    assertThat(capturedArgs).contains("--exclude .scannerwork/** --debug");
   }
 
   @Test
@@ -251,7 +253,7 @@ class CliServiceTest {
     underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
-    assertThat(capturedArgs).doesNotContain("--exclude");
+    assertThat(capturedArgs).contains("--exclude .scannerwork/** --debug");
   }
 
   @Test
@@ -261,7 +263,7 @@ class CliServiceTest {
     underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
-    assertThat(capturedArgs).contains("--exclude **/test/**,ignored.txt");
+    assertThat(capturedArgs).contains("--exclude **/test/**,ignored.txt,.scannerwork/**");
   }
 
   @Test
@@ -308,6 +310,21 @@ class CliServiceTest {
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
     assertThat(capturedArgs).contains("--exclude directory1/**,directory2/file.txt");
+  }
+
+  @Test
+  void generateZip_withExternalWorkDir_DoesNotExcludeWorkingDir() throws URISyntaxException, IOException {
+    Path externalWorkDir = Files.createTempDirectory("externalWorkDir");
+    try {
+      rootInputModule = new DefaultInputModule(ProjectDefinition.create().setBaseDir(rootModuleDir.toFile()).setWorkDir(externalWorkDir.toFile()));
+      underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+      String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
+
+      // externalWorkDir is not present in the exclude flag
+      assertThat(capturedArgs).contains("--exclude ignored.txt --debug");
+    } finally {
+      externalWorkDir.toFile().delete();
+    }
   }
 
   private URL scriptUrl() {
