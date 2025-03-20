@@ -129,6 +129,7 @@ public class UserTester {
         .setLogin(u.getLogin())
         .setPermission("admin"));
     dismissModesTour(u);
+    dimissDnaTour(u);
     return u;
   }
 
@@ -141,6 +142,7 @@ public class UserTester {
     session.wsClient().permissions().addUser(new org.sonarqube.ws.client.permissions.AddUserRequest().setLogin(user.getLogin()).setPermission("admin"));
     session.wsClient().userGroups().addUser(new AddUserRequest().setLogin(user.getLogin()).setName("sonar-administrators"));
     dismissModesTour(user);
+    dimissDnaTour(user);
     return user;
   }
 
@@ -149,6 +151,12 @@ public class UserTester {
       .url(session.wsClient().wsConnector().baseUrl())
       .credentials(user.getLogin(), user.getLogin())
       .build()).users().dismissNotice("showNewModesTour");
+  }
+   private void dimissDnaTour(User user) {
+    WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
+      .url(session.wsClient().wsConnector().baseUrl())
+      .credentials(user.getLogin(), user.getLogin())
+      .build()).users().dismissNotice("showDesignAndArchitectureTour");
   }
 
   public UsersService service() {
