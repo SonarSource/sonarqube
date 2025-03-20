@@ -42,6 +42,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricDtoFunctions;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
@@ -66,6 +67,7 @@ import static org.sonar.server.measure.ws.ComponentResponseCommon.addMetricToRes
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createAdditionalFieldsParameter;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
 import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriod.snapshotToWsPeriods;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
@@ -88,10 +90,15 @@ public class ComponentAction implements MeasuresWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_COMPONENT)
       .setDescription("Return component with specified measures.<br>" +
-        "Requires the following permission: 'Browse' on the project of specified component.")
+          "Requires one of the following permissions:" +
+          "<ul>" +
+          "<li>'Browse' on the project of the specified component</li>" +
+          "<li>'Execute Analysis' on the project of the specified component</li>" +
+          "</ul>")
       .setResponseExample(getClass().getResource("component-example.json"))
       .setSince("5.4")
       .setChangelog(
+        new Change("2025.2", "The 'Execute Analysis' permission also allows to access the endpoint"),
         new Change("10.8", format("The following metrics are not deprecated anymore: %s",
           MeasuresWsModule.getUndeprecatedMetricsinSonarQube108())),
         new Change("10.8", String.format("Added new accepted values for the 'metricKeys' param: %s",
@@ -282,7 +289,11 @@ public class ComponentAction implements MeasuresWsAction {
   }
 
   private void checkPermissions(ComponentDto baseComponent) {
-    userSession.checkComponentPermission(UserRole.USER, baseComponent);
+    if (!userSession.hasComponentPermission(UserRole.USER, baseComponent) &&
+      !userSession.hasComponentPermission(UserRole.SCAN, baseComponent) &&
+      !userSession.hasPermission(GlobalPermission.SCAN)) {
+      throw insufficientPrivilegesException();
+    }
   }
 
   private static class ComponentRequest {
