@@ -154,7 +154,7 @@ class CliServiceTest {
       "ignored.txt,.scannerwork/**",
       "--debug");
 
-    assertThat(logTester.logs(DEBUG))
+    assertThat(logTester.logs(INFO))
       .contains("Arguments Passed In: " + String.join(" ", expectedArguments));
   }
 

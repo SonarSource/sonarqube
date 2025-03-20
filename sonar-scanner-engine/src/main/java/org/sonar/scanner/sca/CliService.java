@@ -73,8 +73,6 @@ public class CliService {
     long startTime = system2.now();
     boolean success = false;
     try {
-      var debugLevel = Level.DEBUG;
-
       String zipName = "dependency-files.zip";
       Path zipPath = module.getWorkDir().resolve(zipName);
       List<String> args = new ArrayList<>();
@@ -97,13 +95,7 @@ public class CliService {
       if (LOG.isDebugEnabled() || scaDebug) {
         LOG.info("Setting CLI to debug mode");
         args.add("--debug");
-        if (scaDebug) {
-          // output --debug logs from stderr to the info level logger
-          debugLevel = Level.INFO;
-        }
       }
-
-      LOG.atLevel(debugLevel).log("Calling ProcessBuilder with args: {}", args);
 
       Map<String, String> envProperties = new HashMap<>();
       // sending this will tell the CLI to skip checking for the latest available version on startup
@@ -113,9 +105,10 @@ public class CliService {
       envProperties.put("TIDELIFT_CLI_SQ_SERVER_VERSION", server.getVersion());
       envProperties.putAll(ScaProperties.buildFromScannerProperties(configuration));
 
-      LOG.atLevel(debugLevel).log("Environment properties: {}", envProperties);
+      LOG.info("Running command: {}", args);
+      LOG.info("Environment properties: {}", envProperties);
 
-      Consumer<String> logConsumer = LOG.atLevel(debugLevel)::log;
+      Consumer<String> logConsumer = LOG.atLevel(Level.INFO)::log;
       processWrapperFactory.create(module.getWorkDir(), logConsumer, logConsumer, envProperties, args.toArray(new String[0])).execute();
       LOG.info("Generated manifests zip file: {}", zipName);
       success = true;
