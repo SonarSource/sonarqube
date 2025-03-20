@@ -282,7 +282,7 @@ class MigratePortfoliosLiveMeasuresToMeasuresIT {
       "component_uuid", componentUuid,
       "branch_uuid", branch,
       "json_value", "{\"any\":\"thing\"}",
-      "json_value_hash", "1234",
+      "json_value_hash", 1234,
       "created_at", 12,
       "updated_at", 12);
   }
