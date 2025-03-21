@@ -57,7 +57,7 @@ public class DbVersion202502 implements DbVersion {
       .add(2025_02_018, "Drop 'sca_releases_comp_uuid' index", DropIndexOnScaReleasesComponent.class)
       .add(2025_02_019, "Create 'sca_releases_comp_uuid_uuid' index", CreateIndexOnScaReleasesComponentUuid.class)
       .add(2025_02_020, "Add 'sca_dependencies.production_scope' column", AddProductionScopeToScaDependenciesTable.class)
-      .add(2025_02_021, "Add declared_license_expression to SCA releases", AddDeclaredLicenseExpressionToScaReleasesTable.class);
-    ;
+      .add(2025_02_021, "Add declared_license_expression to SCA releases", AddDeclaredLicenseExpressionToScaReleasesTable.class)
+      .add(2025_02_022, "Create 'uq_idx_ag_branch_type_source' for architecture graphs", CreateUniqueIndexOnArchitectureGraphs.class);
   }
 }
