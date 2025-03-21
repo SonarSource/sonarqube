@@ -19,6 +19,8 @@
  */
 package org.sonar.server.plugins;
 
+import java.util.List;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.Plugin;
@@ -96,6 +98,35 @@ public class DetectPluginChangeIT {
   }
 
   @Test
+  public void detect_changes_when_forced_refresh() {
+    addPluginToDb("plugin1", "hash1", PluginDto.Type.BUNDLED);
+    addPluginToFs("plugin1", "hash1", PluginType.BUNDLED);
+    addPluginToDb("plugin2", "hash2", PluginDto.Type.EXTERNAL);
+    addPluginToFs("plugin2", "hash2", PluginType.EXTERNAL);
+
+    dbTester.executeDdl("insert into internal_properties (kee, is_empty, text_value, created_at) values ('plugin.refresh.forced', false, 'true', 12345)");
+
+    detectPluginChange.start();
+    assertThat(detectPluginChange.anyPluginChanged()).isTrue();
+
+    // Ensure the force refresh flag has been deleted
+    assertThat(getInternalProperty("plugin.refresh.forced")).isEmpty();
+  }
+
+  @Test
+  public void detect_changes_when_internal_propertiy_has_false_value_should_not_refresh() {
+    addPluginToDb("plugin1", "hash1", PluginDto.Type.BUNDLED);
+    addPluginToFs("plugin1", "hash1", PluginType.BUNDLED);
+    addPluginToDb("plugin2", "hash2", PluginDto.Type.EXTERNAL);
+    addPluginToFs("plugin2", "hash2", PluginType.EXTERNAL);
+
+    dbTester.executeDdl("insert into internal_properties (kee, is_empty, text_value, created_at) values ('plugin.refresh.forced', false, 'false', 12345)");
+
+    detectPluginChange.start();
+    assertThat(detectPluginChange.anyPluginChanged()).isFalse();
+  }
+
+  @Test
   public void fail_if_start_twice() {
     detectPluginChange.start();
     assertThrows(IllegalStateException.class, detectPluginChange::start);
@@ -123,4 +154,7 @@ public class DetectPluginChangeIT {
     pluginRepository.addPlugin(serverPlugin);
   }
 
+  private List<Map<String, Object>> getInternalProperty(String key) {
+    return dbTester.select("select * from internal_properties where kee='" + key + "'");
+  }
 }

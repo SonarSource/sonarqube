@@ -31,6 +31,7 @@ import org.sonar.server.platform.serverid.ServerIdModule;
 import org.sonar.server.plugins.DetectPluginChange;
 import org.sonar.server.setting.DatabaseSettingLoader;
 import org.sonar.server.setting.DatabaseSettingsEnabler;
+import org.sonar.server.startup.PropertiesDBCleaner;
 
 import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
 import static org.sonar.core.extension.PlatformLevelPredicates.hasPlatformLevel;
@@ -49,6 +50,7 @@ public class PlatformLevel3 extends PlatformLevel {
       NoopDatabaseMigrationImpl.class,
       new ServerIdModule(),
       ServerImpl.class,
+      PropertiesDBCleaner.class,
       DatabaseSettingLoader.class,
       DatabaseSettingsEnabler.class,
       UriReader.class,

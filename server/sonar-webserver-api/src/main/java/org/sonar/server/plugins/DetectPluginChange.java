@@ -34,6 +34,7 @@ import org.sonar.db.plugin.PluginDto;
 import static java.util.function.Function.identity;
 
 public class DetectPluginChange implements Startable {
+  public static final String FORCE_PLUGIN_RELOAD_PROPERTY = "plugin.refresh.forced";
   private static final Logger LOG = Loggers.get(DetectPluginChange.class);
 
   private final ServerPluginRepository serverPluginRepository;
@@ -49,7 +50,7 @@ public class DetectPluginChange implements Startable {
   public void start() {
     Preconditions.checkState(changesDetected == null, "Can only call #start() once");
     Profiler profiler = Profiler.create(LOG).startInfo("Detect plugin changes");
-    changesDetected = anyChange();
+    changesDetected = isForcedReload() || anyChange();
     if (changesDetected) {
       LOG.debug("Plugin changes detected");
     } else {
@@ -63,6 +64,17 @@ public class DetectPluginChange implements Startable {
    */
   public boolean anyPluginChanged() {
     return changesDetected;
+  }
+
+  private boolean isForcedReload() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      boolean forceRefresh = Boolean.parseBoolean(dbClient.internalPropertiesDao().selectByKey(dbSession, FORCE_PLUGIN_RELOAD_PROPERTY).orElse("false"));
+      if (forceRefresh) {
+        dbClient.internalPropertiesDao().delete(dbSession, FORCE_PLUGIN_RELOAD_PROPERTY);
+        dbSession.commit();
+      }
+      return forceRefresh;
+    }
   }
 
   private boolean anyChange() {
