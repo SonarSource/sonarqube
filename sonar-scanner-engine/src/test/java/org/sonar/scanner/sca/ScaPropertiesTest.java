@@ -19,9 +19,11 @@
  */
 package org.sonar.scanner.sca;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.sonar.scanner.config.DefaultConfiguration;
 
@@ -37,22 +39,23 @@ class ScaPropertiesTest {
   void buildFromScannerProperties_withNoProperties_returnsDefaultMap() {
     when(configuration.get(anyString())).thenReturn(Optional.empty());
 
-    var result = ScaProperties.buildFromScannerProperties(configuration);
+    var result = ScaProperties.buildFromScannerProperties(configuration, Collections.emptySet());
 
     assertThat(result).containsExactly(
       Map.entry("TIDELIFT_RECURSIVE_MANIFEST_SEARCH", "true"));
   }
 
   @Test
-  void buildFromScannerProperties_withUnmappedProperties_ignoresUnmappedProperties() {
+  void buildFromScannerProperties_withUnmappedProperties_ignoresProperties() {
     var inputProperties = new HashMap<String, String>();
     inputProperties.put("sonar.sca.pythonBinary", "/usr/bin/python3");
     inputProperties.put("sonar.sca.unknownProperty", "value");
-    inputProperties.put("sonar.somethingElse", "ignoreMe");
+    inputProperties.put("sonar.somethingElse", "dont-include-non-sca");
+    inputProperties.put("sonar.sca.ignoredProperty", "ignore-me");
     when(configuration.getProperties()).thenReturn(inputProperties);
     when(configuration.get(anyString())).thenAnswer(i -> Optional.ofNullable(inputProperties.get(i.getArgument(0, String.class))));
 
-    var result = ScaProperties.buildFromScannerProperties(configuration);
+    var result = ScaProperties.buildFromScannerProperties(configuration, Set.of("sonar.sca.ignoredProperty"));
 
     assertThat(result).containsExactly(
       Map.entry("TIDELIFT_RECURSIVE_MANIFEST_SEARCH", "true"),
@@ -96,25 +99,11 @@ class ScaPropertiesTest {
     expectedProperties.put("TIDELIFT_PYTHON_RESOLVE_LOCAL", "false");
     expectedProperties.put("TIDELIFT_RECURSIVE_MANIFEST_SEARCH", "true");
 
-    var result = ScaProperties.buildFromScannerProperties(configuration);
+    var result = ScaProperties.buildFromScannerProperties(configuration, Collections.emptySet());
 
     assertThat(result).containsExactlyInAnyOrderEntriesOf(expectedProperties);
   }
 
-  @Test
-  void buildFromScannerProperties_withExcludedManifestProp_ignoresExcludedManifests() {
-    var inputProperties = new HashMap<String, String>();
-    inputProperties.put("sonar.sca.unknownProperty", "value");
-    inputProperties.put("sonar.sca.excludedManifests", "ignore-me");
-    when(configuration.getProperties()).thenReturn(inputProperties);
-    when(configuration.get(anyString())).thenAnswer(i -> Optional.ofNullable(inputProperties.get(i.getArgument(0, String.class))));
-
-    var result = ScaProperties.buildFromScannerProperties(configuration);
-
-    assertThat(result).containsExactly(
-      Map.entry("TIDELIFT_RECURSIVE_MANIFEST_SEARCH", "true"),
-      Map.entry("TIDELIFT_UNKNOWN_PROPERTY", "value"));
-  }
 
   @Test
   void buildFromScannerProperties_withoutRecursiveModeProp_defaultsRecursiveModeTrue() {
@@ -122,7 +111,7 @@ class ScaPropertiesTest {
     when(configuration.getProperties()).thenReturn(inputProperties);
     when(configuration.get(anyString())).thenAnswer(i -> Optional.ofNullable(inputProperties.get(i.getArgument(0, String.class))));
 
-    var result = ScaProperties.buildFromScannerProperties(configuration);
+    var result = ScaProperties.buildFromScannerProperties(configuration, Collections.emptySet());
 
     assertThat(result).containsExactly(
       Map.entry("TIDELIFT_RECURSIVE_MANIFEST_SEARCH", "true"));
@@ -135,7 +124,7 @@ class ScaPropertiesTest {
     when(configuration.getProperties()).thenReturn(inputProperties);
     when(configuration.get(anyString())).thenAnswer(i -> Optional.ofNullable(inputProperties.get(i.getArgument(0, String.class))));
 
-    var result = ScaProperties.buildFromScannerProperties(configuration);
+    var result = ScaProperties.buildFromScannerProperties(configuration, Collections.emptySet());
 
     assertThat(result).containsExactly(
       Map.entry("TIDELIFT_RECURSIVE_MANIFEST_SEARCH", "false"));

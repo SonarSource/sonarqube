@@ -22,6 +22,7 @@ package org.sonar.scanner.sca;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.sonar.scanner.config.DefaultConfiguration;
@@ -45,9 +46,10 @@ public class ScaProperties {
    * { "sonar.someOtherProperty" : "value" } returns an empty map
    *
    * @param configuration the scanner configuration possibly containing sonar.sca.* properties
+   * @param ignoredPropertyNames property names that should not be processed as a property
    * @return a map of Tidelift CLI compatible environment variable names to their configuration values
    */
-  public static Map<String, String> buildFromScannerProperties(DefaultConfiguration configuration) {
+  public static Map<String, String> buildFromScannerProperties(DefaultConfiguration configuration, Set<String> ignoredPropertyNames) {
     HashMap<String, String> props = new HashMap<>(configuration.getProperties());
 
     // recursive mode defaults to true
@@ -59,8 +61,7 @@ public class ScaProperties {
       .entrySet()
       .stream()
       .filter(entry -> entry.getKey().startsWith(SONAR_SCA_PREFIX))
-      // EXCLUDED_MANIFESTS_PROP_KEY is a special case which we handle via --args, not environment variables
-      .filter(entry -> !entry.getKey().equals(CliService.EXCLUDED_MANIFESTS_PROP_KEY))
+      .filter(entry -> !ignoredPropertyNames.contains(entry.getKey()))
       .collect(Collectors.toMap(entry -> convertPropToEnvVariable(entry.getKey()), Map.Entry::getValue));
   }
 

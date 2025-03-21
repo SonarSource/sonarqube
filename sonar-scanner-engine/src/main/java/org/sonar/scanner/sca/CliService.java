@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.apache.commons.csv.CSVFormat;
@@ -103,7 +104,9 @@ public class CliService {
       envProperties.put("TIDELIFT_ALLOW_MANIFEST_FAILURES", "1");
       envProperties.put("TIDELIFT_CLI_INSIDE_SCANNER_ENGINE", "1");
       envProperties.put("TIDELIFT_CLI_SQ_SERVER_VERSION", server.getVersion());
-      envProperties.putAll(ScaProperties.buildFromScannerProperties(configuration));
+      // EXCLUDED_MANIFESTS_PROP_KEY is a special case which we handle via --args, not environment variables
+      Set<String> ignoredProperties = Set.of(EXCLUDED_MANIFESTS_PROP_KEY);
+      envProperties.putAll(ScaProperties.buildFromScannerProperties(configuration, ignoredProperties));
 
       LOG.info("Running command: {}", args);
       LOG.info("Environment properties: {}", envProperties);
