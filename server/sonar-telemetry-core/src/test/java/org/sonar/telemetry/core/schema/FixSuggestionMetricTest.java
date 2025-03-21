@@ -29,9 +29,9 @@ class FixSuggestionMetricTest {
 
   @Test
   void getters() {
-    FixSuggestionMetric metric = new FixSuggestionMetric("ai_codefix_suggestion_rule_key", "rule:key", STRING, "projectUuid", "fixSuggestionUuid");
+    FixSuggestionMetric metric = new FixSuggestionMetric("ai_codefix.suggestion_rule_key", "rule:key", STRING, "projectUuid", "fixSuggestionUuid");
 
-    assertThat(metric.getKey()).isEqualTo("ai_codefix_suggestion_rule_key");
+    assertThat(metric.getKey()).isEqualTo("ai_codefix.suggestion_rule_key");
     assertThat(metric.getValue()).isEqualTo("rule:key");
     assertThat(metric.getProjectUuid()).isEqualTo("projectUuid");
     assertThat(metric.getGranularity()).isEqualTo(Granularity.ADHOC);
@@ -41,7 +41,7 @@ class FixSuggestionMetricTest {
 
   @Test
   void setters() {
-    FixSuggestionMetric metric = new FixSuggestionMetric("ai_codefix_suggestion_rule_key", "rule:key", STRING, "projectUuid", "fixSuggestionUuid");
+    FixSuggestionMetric metric = new FixSuggestionMetric("ai_codefix.suggestion_rule_key", "rule:key", STRING, "projectUuid", "fixSuggestionUuid");
     metric.setProjectUuid("newProjectUuid");
     metric.setFixSuggestionUuid("newFixSuggestionUuid");
 
