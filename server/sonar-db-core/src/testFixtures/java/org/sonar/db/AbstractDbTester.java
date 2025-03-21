@@ -83,7 +83,8 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
   private static final Map<Integer, Integer> POSTGRES_TYPE_SUBSTITUTION = Map.of(
     BOOLEAN, BIT,
     DOUBLE, NUMERIC,
-    CLOB, VARCHAR);
+    CLOB, VARCHAR,
+    DECIMAL, NUMERIC);
   private static final Map<Integer, Integer> MSSQL_TYPE_SUBSTITUTION = Map.of(
     BOOLEAN, BIT,
     VARCHAR, NVARCHAR,
@@ -93,7 +94,8 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
     BOOLEAN, NUMERIC,
     BIGINT, NUMERIC,
     INTEGER, NUMERIC,
-    DOUBLE, NUMERIC);
+    DOUBLE, NUMERIC,
+    DECIMAL, NUMERIC);
 
   protected final T db;
 
@@ -125,7 +127,7 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
 
   public void executeDdl(String ddl) {
     try (Connection connection = getConnection();
-         Statement stmt = connection.createStatement()) {
+      Statement stmt = connection.createStatement()) {
       stmt.execute(ddl);
     } catch (SQLException e) {
       throw new IllegalStateException("Failed to execute DDL: " + ddl, e);
@@ -164,10 +166,10 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
     }
 
     String sql = "insert into " + table.toLowerCase(Locale.ENGLISH) + " (" +
-                 COMMA_JOINER.join(valuesByColumn.keySet().stream().map(t -> t.toLowerCase(Locale.ENGLISH)).toArray(String[]::new)) +
-                 ") values (" +
-                 COMMA_JOINER.join(Collections.nCopies(valuesByColumn.size(), '?')) +
-                 ")";
+      COMMA_JOINER.join(valuesByColumn.keySet().stream().map(t -> t.toLowerCase(Locale.ENGLISH)).toArray(String[]::new)) +
+      ") values (" +
+      COMMA_JOINER.join(Collections.nCopies(valuesByColumn.size(), '?')) +
+      ")";
     executeUpdateSql(sql, valuesByColumn.values().toArray(new Object[valuesByColumn.size()]));
   }
 
@@ -290,7 +292,7 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
   public void assertColumnDefinition(String table, String column, int expectedType, @Nullable Integer expectedSize,
     @Nullable Boolean isNullable) {
     try (Connection connection = getConnection();
-         ResultSet rs = connection.getMetaData().getColumns(null, null, toVendorCase(table), toVendorCase(column))) {
+      ResultSet rs = connection.getMetaData().getColumns(null, null, toVendorCase(table), toVendorCase(column))) {
       boolean exists = false;
 
       while (rs.next()) {
@@ -326,8 +328,8 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
 
   public void assertColumnDoesNotExist(String table, String column) throws SQLException {
     try (Connection connection = getConnection();
-         PreparedStatement stmt = connection.prepareStatement("select * from " + table);
-         ResultSet res = stmt.executeQuery()) {
+      PreparedStatement stmt = connection.prepareStatement("select * from " + table);
+      ResultSet res = stmt.executeQuery()) {
       assertThat(getColumnNames(res)).doesNotContain(column);
     }
   }
@@ -365,7 +367,7 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
 
   private void assertIndexImpl(String tableName, String indexName, boolean expectedUnique, String expectedColumn, String... expectedSecondaryColumns) {
     try (Connection connection = getConnection();
-         ResultSet rs = connection.getMetaData().getIndexInfo(null, null, toVendorCase(tableName), false, false)) {
+      ResultSet rs = connection.getMetaData().getIndexInfo(null, null, toVendorCase(tableName), false, false)) {
       List<String> onColumns = new ArrayList<>();
 
       while (rs.next()) {
@@ -403,7 +405,7 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
    */
   public void assertIndexDoesNotExist(String tableName, String indexName) {
     try (Connection connection = getConnection();
-         ResultSet rs = connection.getMetaData().getIndexInfo(null, null, tableName.toUpperCase(Locale.ENGLISH), false, false)) {
+      ResultSet rs = connection.getMetaData().getIndexInfo(null, null, tableName.toUpperCase(Locale.ENGLISH), false, false)) {
       List<String> indices = new ArrayList<>();
       while (rs.next()) {
         if (rs.getString("INDEX_NAME") != null) {
