@@ -29,7 +29,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -89,10 +91,6 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.db.report.ReportScheduleDto;
 import org.sonar.db.report.ReportSubscriptionDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.db.sca.ScaDependenciesDbTester;
-import org.sonar.db.sca.ScaIssueReleaseDto;
-import org.sonar.db.sca.ScaReleasesDbTester;
-import org.sonar.db.sca.ScaSeverity;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.user.UserDismissedMessageDto;
 import org.sonar.db.user.UserDto;
@@ -140,6 +138,7 @@ class PurgeDaoIT {
   private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
+
   private final PurgeDao underTest = db.getDbClient().purgeDao();
 
   @Test
@@ -1964,38 +1963,57 @@ oldCreationDate));
 
   }
 
+  private <K, V> Map<K, V> merge(Map<? extends K, ? extends V> map1, Map<? extends K, ? extends V> map2) {
+    Map<K, V> result = new HashMap<>(map1);
+    result.putAll(map2);
+    return result;
+  }
+
+  // the SCA mappers are in an extension, so we have to use direct sql here.
+  // A cleaner approach would be to allow extensions to add purge logic on branch
+  // deletion and remove SCA knowledge from the core PurgeMapper.
+  private void insertScaData(String branch1Uuid, String branch2Uuid) {
+    var releaseBase = Map.of("package_url", "purl1",
+      "package_manager", "MAVEN",
+      "package_name", "whatever",
+      "version", "1.0",
+      "license_expression", "MIT",
+      "known", true,
+      "created_at", 0L, "updated_at", 0L);
+    db.executeInsert("sca_releases", merge(releaseBase, Map.of("uuid", "release-uuid1", "component_uuid", branch1Uuid)));
+    db.executeInsert("sca_releases", merge(releaseBase, Map.of("uuid", "release-uuid2", "component_uuid", branch2Uuid)));
+    assertThat(db.countRowsOfTable(dbSession, "sca_releases")).isEqualTo(2);
+
+    var dependencyBase = Map.of("created_at", 0L, "updated_at", 0L,
+      "direct", true, "scope", "compile", "new_in_pull_request", true);
+    db.executeInsert("sca_dependencies", merge(dependencyBase, Map.of("uuid", "dependency-uuid1", "sca_release_uuid", "release-uuid1")));
+    db.executeInsert("sca_dependencies", merge(dependencyBase, Map.of("uuid", "dependency-uuid2", "sca_release_uuid", "release-uuid2")));
+    assertThat(db.countRowsOfTable(dbSession, "sca_dependencies")).isEqualTo(2);
+
+    // the issue uuids here don't even exist but doesn't matter, we don't delete issues so not testing that
+    var issueReleaseBase = Map.of("created_at", 0L, "updated_at", 0L,
+      "severity", "INFO", "severity_sort_key", 42);
+    db.executeInsert("sca_issues_releases", merge(issueReleaseBase, Map.of("uuid", "issue-release-uuid1",
+      "sca_issue_uuid", "issue-uuid1", "sca_release_uuid", "release-uuid1")));
+    db.executeInsert("sca_issues_releases", merge(issueReleaseBase, Map.of("uuid", "issue-release-uuid2",
+      "sca_issue_uuid", "issue-uuid2", "sca_release_uuid", "release-uuid2")));
+
+    assertThat(db.countRowsOfTable(dbSession, "sca_issues_releases")).isEqualTo(2);
+  }
+
   @Test
   void deleteBranch_purgesScaActivity() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     BranchDto branch1 = db.components().insertProjectBranch(project);
     BranchDto branch2 = db.components().insertProjectBranch(project);
 
-    ScaReleasesDbTester scaReleasesDbTester = new ScaReleasesDbTester(db);
-    var release1 = scaReleasesDbTester.insertScaRelease(branch1.getUuid(), "1");
-    var release2 = scaReleasesDbTester.insertScaRelease(branch2.getUuid(), "2");
-
-    ScaDependenciesDbTester scaDependenciesDbTester = new ScaDependenciesDbTester(db);
-    scaDependenciesDbTester.insertScaDependency(release1.uuid(), "1");
-    scaDependenciesDbTester.insertScaDependency(release2.uuid(), "2");
-
-    ScaIssueReleaseDto issueRelease1 = new ScaIssueReleaseDto.Builder().setUuid("foo1").setScaIssueUuid("baz").setSeverity(ScaSeverity.LOW).setScaReleaseUuid(release1.uuid()).build();
-    ScaIssueReleaseDto issueRelease2 = new ScaIssueReleaseDto.Builder().setUuid("foo2").setScaIssueUuid("baz").setSeverity(ScaSeverity.LOW).setScaReleaseUuid(release2.uuid()).build();
-    dbClient.scaIssuesReleasesDao().insert(dbSession, issueRelease1);
-    dbClient.scaIssuesReleasesDao().insert(dbSession, issueRelease2);
-
-    assertThat(dbClient.scaReleasesDao().selectByBranchUuid(dbSession, branch1.getUuid())).isNotEmpty();
-    assertThat(dbClient.scaDependenciesDao().selectByBranchUuid(dbSession, branch1.getUuid())).isNotEmpty();
-    assertThat(dbClient.scaIssuesReleasesDao().selectByBranchUuid(dbSession, branch1.getUuid())).isNotEmpty();
+    insertScaData(branch1.getUuid(), branch2.getUuid());
 
     underTest.deleteBranch(dbSession, branch1.getUuid());
 
-    assertThat(dbClient.scaReleasesDao().selectByBranchUuid(dbSession, branch1.getUuid())).isEmpty();
-    assertThat(dbClient.scaDependenciesDao().selectByBranchUuid(dbSession, branch1.getUuid())).isEmpty();
-    assertThat(dbClient.scaIssuesReleasesDao().selectByBranchUuid(dbSession, branch1.getUuid())).isEmpty();
-
-    assertThat(dbClient.scaReleasesDao().selectByBranchUuid(dbSession, branch2.getUuid())).isNotEmpty();
-    assertThat(dbClient.scaDependenciesDao().selectByBranchUuid(dbSession, branch2.getUuid())).isNotEmpty();
-    assertThat(dbClient.scaIssuesReleasesDao().selectByBranchUuid(dbSession, branch2.getUuid())).isNotEmpty();
+    assertThat(db.countRowsOfTable(dbSession, "sca_releases")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "sca_dependencies")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "sca_issues_releases")).isEqualTo(1);
   }
 
   private AnticipatedTransitionDto getAnticipatedTransitionsDto(String uuid, String projectUuid, Date creationDate) {

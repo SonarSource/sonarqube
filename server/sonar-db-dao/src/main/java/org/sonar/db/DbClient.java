@@ -88,13 +88,6 @@ import org.sonar.db.report.ReportSubscriptionDao;
 import org.sonar.db.rule.RuleChangeDao;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleRepositoryDao;
-import org.sonar.db.sca.ScaDependenciesDao;
-import org.sonar.db.sca.ScaIssuesDao;
-import org.sonar.db.sca.ScaIssuesReleasesDao;
-import org.sonar.db.sca.ScaIssuesReleasesDetailsDao;
-import org.sonar.db.sca.ScaReleasesDao;
-import org.sonar.db.sca.ScaReleasesDependenciesDao;
-import org.sonar.db.sca.ScaVulnerabilityIssuesDao;
 import org.sonar.db.scannercache.ScannerAnalysisCacheDao;
 import org.sonar.db.schemamigration.SchemaMigrationDao;
 import org.sonar.db.scim.ScimGroupDao;
@@ -207,13 +200,6 @@ public class DbClient {
   private final ProjectExportDao projectExportDao;
   private final IssueFixedDao issueFixedDao;
   private final TelemetryMetricsSentDao telemetryMetricsSentDao;
-  private final ScaReleasesDao scaReleasesDao;
-  private final ScaDependenciesDao scaDependenciesDao;
-  private final ScaReleasesDependenciesDao scaReleasesDependenciesDao;
-  private final ScaIssuesDao scaIssuesDao;
-  private final ScaIssuesReleasesDao scaIssuesReleasesDao;
-  private final ScaVulnerabilityIssuesDao scaVulnerabilityIssuesDao;
-  private final ScaIssuesReleasesDetailsDao scaIssuesReleasesDetailsDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -310,13 +296,6 @@ public class DbClient {
     projectExportDao = getDao(map, ProjectExportDao.class);
     issueFixedDao = getDao(map, IssueFixedDao.class);
     telemetryMetricsSentDao = getDao(map, TelemetryMetricsSentDao.class);
-    scaReleasesDao = getDao(map, ScaReleasesDao.class);
-    scaDependenciesDao = getDao(map, ScaDependenciesDao.class);
-    scaReleasesDependenciesDao = getDao(map, ScaReleasesDependenciesDao.class);
-    scaIssuesDao = getDao(map, ScaIssuesDao.class);
-    scaIssuesReleasesDao = getDao(map, ScaIssuesReleasesDao.class);
-    scaVulnerabilityIssuesDao = getDao(map, ScaVulnerabilityIssuesDao.class);
-    scaIssuesReleasesDetailsDao = getDao(map, ScaIssuesReleasesDetailsDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -679,33 +658,5 @@ public class DbClient {
 
   public ProjectExportDao projectExportDao() {
     return projectExportDao;
-  }
-
-  public ScaReleasesDao scaReleasesDao() {
-    return scaReleasesDao;
-  }
-
-  public ScaDependenciesDao scaDependenciesDao() {
-    return scaDependenciesDao;
-  }
-
-  public ScaReleasesDependenciesDao scaReleasesDependenciesDao() {
-    return scaReleasesDependenciesDao;
-  }
-
-  public ScaIssuesDao scaIssuesDao() {
-    return scaIssuesDao;
-  }
-
-  public ScaIssuesReleasesDao scaIssuesReleasesDao() {
-    return scaIssuesReleasesDao;
-  }
-
-  public ScaVulnerabilityIssuesDao scaVulnerabilityIssuesDao() {
-    return scaVulnerabilityIssuesDao;
-  }
-
-  public ScaIssuesReleasesDetailsDao scaIssuesReleasesDetailsDao() {
-    return scaIssuesReleasesDetailsDao;
   }
 }
