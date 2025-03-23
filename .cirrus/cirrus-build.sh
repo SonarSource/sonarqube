@@ -17,4 +17,4 @@ pushToCirrusCiCache() {
 }
 
 export -f pushToCirrusCiCache
-pushToCirrusCiCache sonar-application/build/distributions
+pushToCirrusCiCache .cirrus

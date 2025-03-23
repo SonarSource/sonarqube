@@ -1,6 +1,3 @@
-only_if: $CIRRUS_TAG == "" && ($CIRRUS_PR != "" || $CIRRUS_BRANCH == $CIRRUS_DEFAULT_BRANCH || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BUILD_SOURCE == 'api' )
-skip: $CIRRUS_BRANCH == "public_master" || $CIRRUS_BRANCH =~ "dogfood/.*"
-
 env:
   CIRRUS_SHELL: bash
   CIRRUS_CLONE_DEPTH: 0
