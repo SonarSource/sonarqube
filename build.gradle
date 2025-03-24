@@ -526,7 +526,7 @@ subprojects {
       dependency("org.springframework:spring-webmvc:${springVersion}") {
         exclude 'commons-logging:commons-logging'
       }
-      dependency 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.3'
+      dependency 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.6'
       dependencySet(group: 'com.icegreen', version: '2.1.3') {
         entry 'greenmail'
         entry 'greenmail-junit4'
