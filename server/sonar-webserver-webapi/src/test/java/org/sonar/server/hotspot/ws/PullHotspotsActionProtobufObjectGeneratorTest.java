@@ -31,6 +31,7 @@ import org.sonarqube.ws.Hotspots.HotspotLite;
 import org.sonarqube.ws.Hotspots.HotspotPullQueryTimestamp;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 public class PullHotspotsActionProtobufObjectGeneratorTest {
 
@@ -78,6 +79,32 @@ public class PullHotspotsActionProtobufObjectGeneratorTest {
         HotspotLite::getCreationDate)
       .containsExactly("key", "/home/src/Class.java", "LOW", "REVIEWED", "FIXED", "repo:rule", "assignee-login",
         DateUtils.dateToLong(creationDate));
+  }
+
+  @Test
+  public void generateIssueMessage_whenFilePathIsNull_shouldMapDtoFields() {
+    Date creationDate = new Date();
+    IssueDto issueDto = new IssueDto()
+      .setKee("key")
+      .setProjectKey("my-project-key")
+      .setStatus("REVIEWED")
+      .setResolution("FIXED")
+      .setRuleKey("repo", "rule")
+      .setRuleUuid("rule-uuid-1")
+      .setMessage("Look at me, I'm the issue now!")
+      .setAssigneeLogin("assignee-login")
+      .setIssueCreationDate(creationDate);
+
+    DbIssues.Locations locations = DbIssues.Locations.newBuilder()
+      .setTextRange(range(2, 3))
+      .build();
+    issueDto.setLocations(locations);
+
+    RuleDto ruleDto = new RuleDto()
+      .setSecurityStandards(Set.of("cwe:489,cwe:570,cwe:571"));
+
+    HotspotLite result = underTest.generateIssueMessage(issueDto, ruleDto);
+        assertEquals("", result.getFilePath());
   }
 
   @Test
