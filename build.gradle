@@ -375,7 +375,7 @@ subprojects {
       dependency 'io.prometheus:simpleclient_servlet:0.16.0'
       dependency 'com.github.spotbugs:spotbugs-annotations:4.9.3'
       dependency 'com.google.code.gson:gson:2.11.0'
-      dependency('com.google.guava:guava:33.4.0-jre') {
+      dependency('com.google.guava:guava:33.4.5-jre') {
         exclude 'com.google.errorprone:error_prone_annotations'
         exclude 'com.google.guava:listenablefuture'
         exclude 'com.google.j2objc:j2objc-annotations'
