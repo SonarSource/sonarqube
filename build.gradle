@@ -391,7 +391,7 @@ subprojects {
       dependency('com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11') {
         exclude 'com.fasterxml.jackson.core:jackson-databind'
       }
-      dependency 'com.microsoft.azure:msal4j:1.18.0'
+      dependency 'com.microsoft.azure:msal4j:1.19.1'
       dependency 'com.oracle.database.jdbc:ojdbc11:23.7.0.25.01'
       dependency 'com.datadoghq:dd-java-agent:1.30.1'
       dependency 'org.aspectj:aspectjtools:1.9.23'
