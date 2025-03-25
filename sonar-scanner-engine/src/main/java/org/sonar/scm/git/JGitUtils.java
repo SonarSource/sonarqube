@@ -48,8 +48,20 @@ public class JGitUtils {
   // Return a list of scm ignored paths relative to the baseDir.
   public static List<String> getAllIgnoredPaths(Path baseDir) {
     try (Repository repo = buildRepository(baseDir)) {
+      Path workTreePath = repo.getWorkTree().toPath();
+      Path baseDirAbs = baseDir.toAbsolutePath().normalize();
+
       try (Git git = new Git(repo)) {
-        return git.status().call().getIgnoredNotInIndex().stream().sorted().toList();
+        return git.status().call().getIgnoredNotInIndex().stream()
+          // Convert to absolute path
+          .map(filePathStr -> workTreePath.resolve(filePathStr).normalize())
+          // Exclude any outside of the baseDir
+          .filter(filePath -> filePath.startsWith(baseDirAbs))
+          // Make path relative to the baseDir
+          .map(baseDir::relativize)
+          .map(Path::toString)
+          .sorted()
+          .toList();
       } catch (GitAPIException e) {
         throw new RuntimeException(e);
       }

@@ -19,10 +19,12 @@
  */
 package org.sonar.scm.git;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.utils.MessageException;
@@ -37,18 +39,7 @@ class JGitUtilsTest {
 
   @Test
   void getAllIgnoredPaths_ReturnsIgnoredFiles() throws Exception {
-    Git.init().setDirectory(rootModuleDir.toFile()).call();
-    Files.createDirectories(rootModuleDir.resolve("directory1"));
-    Files.createDirectories(rootModuleDir.resolve("directory2"));
-    Files.createDirectories(rootModuleDir.resolve("directory3"));
-    Files.write(rootModuleDir.resolve("directory1/file_a.txt"), "content".getBytes());
-    Files.write(rootModuleDir.resolve("directory1/file_b.txt"), "content".getBytes());
-    Files.write(rootModuleDir.resolve("directory2/file_a.txt"), "content".getBytes());
-    Files.write(rootModuleDir.resolve("directory2/file_b.txt"), "content".getBytes());
-    Files.write(rootModuleDir.resolve("directory3/file_a.txt"), "content".getBytes());
-    Files.write(rootModuleDir.resolve("directory3/file_b.txt"), "content".getBytes());
-    Files.write(rootModuleDir.resolve(".gitignore"), "ignored.txt\ndirectory1\ndirectory2/file_a.txt".getBytes());
-    Files.write(rootModuleDir.resolve("directory3/.gitignore"), "file_b.txt".getBytes());
+    setupTestDirectory();
 
     List<String> result = JGitUtils.getAllIgnoredPaths(rootModuleDir);
 
@@ -63,5 +54,43 @@ class JGitUtilsTest {
     assertThatThrownBy(() -> JGitUtils.getAllIgnoredPaths(rootModuleDir))
       .isInstanceOf(MessageException.class)
       .hasMessageStartingWith("Not inside a Git work tree: ");
+  }
+
+  @Test
+  void getIgnoredPaths_WithDifferentBaseDir_ReturnsIgnoredFilesRelativeToBaseDir() throws Exception {
+    Path baseDir = rootModuleDir.resolve("directory2");
+    setupTestDirectory();
+
+    List<String> result = JGitUtils.getAllIgnoredPaths(baseDir);
+
+    assertThat(result).isEqualTo(List.of("file_a.txt"));
+  }
+
+  @Test
+  void getIgnoredPaths_WithSubDirBaseDirContainingGitIgnore_ReturnsIgnoredFilesRelativeToBaseDir() throws Exception {
+    Path baseDir = rootModuleDir.resolve("directory3");
+    setupTestDirectory();
+
+    List<String> result = JGitUtils.getAllIgnoredPaths(baseDir);
+
+    assertThat(result).isEqualTo(List.of("file_b.txt"));
+  }
+
+  private void setupTestDirectory() throws GitAPIException, IOException {
+    Git.init().setDirectory(rootModuleDir.toFile()).call();
+
+    var directories = List.of("directory1", "directory2", "directory3");
+    var fileNames = List.of("file_a.txt", "file_b.txt");
+
+    for (String dir : directories) {
+      Path directoryPath = rootModuleDir.resolve(dir);
+      Files.createDirectories(directoryPath);
+      for (String fileName : fileNames) {
+        Files.write(directoryPath.resolve(fileName), "content".getBytes());
+      }
+    }
+
+    Files.write(rootModuleDir.resolve(".gitignore"), "ignored.txt\ndirectory1\ndirectory2/file_a.txt".getBytes());
+    Files.write(rootModuleDir.resolve("directory3/.gitignore"), "file_b.txt".getBytes());
   }
 }
