@@ -401,7 +401,7 @@ subprojects {
         entry 'okhttp-tls'
         entry 'logging-interceptor'
       }
-      dependency 'commons-logging:commons-logging:1.3.4'
+      dependency 'commons-logging:commons-logging:1.3.5'
       dependency 'org.json:json:20250107'
       // To be removed after migration to JUnit5 is finished
       dependency 'com.tngtech.java:junit-dataprovider:1.13.1'
