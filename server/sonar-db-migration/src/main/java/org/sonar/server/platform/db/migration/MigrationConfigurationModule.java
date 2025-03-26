@@ -28,15 +28,6 @@ import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistryImpl;
 import org.sonar.server.platform.db.migration.step.MigrationStepsProvider;
 import org.sonar.server.platform.db.migration.version.v00.DbVersion00;
-import org.sonar.server.platform.db.migration.version.v100.DbVersion100;
-import org.sonar.server.platform.db.migration.version.v101.DbVersion101;
-import org.sonar.server.platform.db.migration.version.v102.DbVersion102;
-import org.sonar.server.platform.db.migration.version.v103.DbVersion103;
-import org.sonar.server.platform.db.migration.version.v104.DbVersion104;
-import org.sonar.server.platform.db.migration.version.v105.DbVersion105;
-import org.sonar.server.platform.db.migration.version.v106.DbVersion106;
-import org.sonar.server.platform.db.migration.version.v107.DbVersion107;
-import org.sonar.server.platform.db.migration.version.v108.DbVersion108;
 import org.sonar.server.platform.db.migration.version.v202501.DbVersion202501;
 import org.sonar.server.platform.db.migration.version.v202502.DbVersion202502;
 
@@ -47,15 +38,6 @@ public class MigrationConfigurationModule extends Module {
       MigrationHistoryTableImpl.class,
       // DbVersion implementations
       DbVersion00.class,
-      DbVersion100.class,
-      DbVersion101.class,
-      DbVersion102.class,
-      DbVersion103.class,
-      DbVersion104.class,
-      DbVersion105.class,
-      DbVersion106.class,
-      DbVersion107.class,
-      DbVersion108.class,
       DbVersion202501.class,
       DbVersion202502.class,
 

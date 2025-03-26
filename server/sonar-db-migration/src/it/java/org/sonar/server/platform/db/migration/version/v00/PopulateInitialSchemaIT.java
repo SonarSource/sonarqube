@@ -36,6 +36,7 @@ import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.MigrationDbTester;
+import org.sonar.server.platform.db.migration.history.MigrationHistory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -50,15 +51,18 @@ class PopulateInitialSchemaIT {
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
   private final System2 system2 = mock(System2.class);
   private final SonarQubeVersion sonarQubeVersion = mock(SonarQubeVersion.class);
+  private final MigrationHistory migrationHistory = mock(MigrationHistory.class);
 
   @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(PopulateInitialSchema.class);
 
-  private final PopulateInitialSchema underTest = new PopulateInitialSchema(db.database(), system2, uuidFactory, sonarQubeVersion);
+  private final PopulateInitialSchema underTest = new PopulateInitialSchema(db.database(), system2, uuidFactory, sonarQubeVersion,
+    migrationHistory);
 
   @BeforeEach
   public void setUp() {
     when(sonarQubeVersion.get()).thenReturn(version);
+    when(migrationHistory.getInitialDbVersion()).thenReturn(-1L);
   }
 
   @Test
@@ -179,7 +183,7 @@ class PopulateInitialSchemaIT {
       "text_value as \"VAL\"," +
       "created_at as \"CREATED_AT\" " +
       " from properties");
-    assertThat(rows).hasSize(4);
+    assertThat(rows).hasSize(5);
 
     Map<String, Map<String, Object>> rowsByKey = rows.stream().collect(Collectors.toMap(t -> (String) t.get("PROP_KEY"), Function.identity()));
     verifyProperty(rowsByKey, "sonar.forceAuthentication", "true");

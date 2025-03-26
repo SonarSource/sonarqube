@@ -23,6 +23,8 @@ import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.event.Level;
+import org.sonar.api.SonarEdition;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.documentation.DocumentationLinkGenerator;
@@ -41,7 +43,8 @@ public class DatabaseServerCompatibilityTest {
 
   private final DatabaseVersion version = mock(DatabaseVersion.class);
   private final DocumentationLinkGenerator documentationLinkGenerator = mock(DocumentationLinkGenerator.class);
-  private final DatabaseServerCompatibility compatibility = new DatabaseServerCompatibility(version, documentationLinkGenerator);
+  private final SonarRuntime sonarRuntime = mock();
+  private final DatabaseServerCompatibility compatibility = new DatabaseServerCompatibility(version, documentationLinkGenerator, sonarRuntime);
 
   @Test
   public void fail_if_requires_downgrade() {
@@ -61,7 +64,19 @@ public class DatabaseServerCompatibilityTest {
 
     assertThatThrownBy(compatibility::start)
       .isInstanceOf(MessageException.class)
-      .hasMessage("The version of SonarQube you are trying to upgrade from is too old. Please upgrade to the 9.9 Long-Term Active version first.");
+      .hasMessage("The version of SonarQube you are trying to upgrade from is too old. Please upgrade to the 2025.1 Long-Term Active version first.");
+    verifyNoInteractions(documentationLinkGenerator);
+  }
+
+  @Test
+  public void fail_if_requires_firstly_to_upgrade_to_24_12() {
+    when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_UPGRADE);
+    when(version.getVersion()).thenReturn(Optional.of(12L));
+    when(sonarRuntime.getEdition()).thenReturn(SonarEdition.COMMUNITY);
+
+    assertThatThrownBy(compatibility::start)
+      .isInstanceOf(MessageException.class)
+      .hasMessage("The version of SonarQube you are trying to upgrade from is too old. Please upgrade to the 24.12 version first.");
     verifyNoInteractions(documentationLinkGenerator);
   }
 

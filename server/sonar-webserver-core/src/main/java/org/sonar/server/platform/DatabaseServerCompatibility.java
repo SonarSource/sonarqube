@@ -22,12 +22,15 @@ package org.sonar.server.platform;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.SonarEdition;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.Startable;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
 import static org.sonar.server.log.ServerProcessLogging.STARTUP_LOGGER_NAME;
+import static org.sonar.server.platform.db.migration.version.DatabaseVersion.MIN_UPGRADE_VERSION_COMMUNITY_BUILD_READABLE;
 import static org.sonar.server.platform.db.migration.version.DatabaseVersion.MIN_UPGRADE_VERSION_HUMAN_READABLE;
 
 public class DatabaseServerCompatibility implements Startable {
@@ -38,9 +41,12 @@ public class DatabaseServerCompatibility implements Startable {
 
   private final DocumentationLinkGenerator documentationLinkGenerator;
 
-  public DatabaseServerCompatibility(DatabaseVersion version, DocumentationLinkGenerator documentationLinkGenerator) {
+  private final SonarRuntime sonarRuntime;
+
+  public DatabaseServerCompatibility(DatabaseVersion version, DocumentationLinkGenerator documentationLinkGenerator, SonarRuntime sonarRuntime) {
     this.version = version;
     this.documentationLinkGenerator = documentationLinkGenerator;
+    this.sonarRuntime = sonarRuntime;
   }
 
   @Override
@@ -53,8 +59,7 @@ public class DatabaseServerCompatibility implements Startable {
     if (status == DatabaseVersion.Status.REQUIRES_UPGRADE) {
       Optional<Long> currentVersion = this.version.getVersion();
       if (currentVersion.isPresent() && currentVersion.get() < DatabaseVersion.MIN_UPGRADE_VERSION) {
-        throw MessageException.of("The version of SonarQube you are trying to upgrade from is too old. Please upgrade to the " +
-          MIN_UPGRADE_VERSION_HUMAN_READABLE + " Long-Term Active version first.");
+        throw MessageException.of(buildVersionTooOldMessage());
       }
       String documentationLink = documentationLinkGenerator.getDocumentationLink("/server-upgrade-and-maintenance/upgrade/upgrade-the-server/roadmap");
       String msg = String.format("The database must be manually upgraded. Please backup the database and browse /setup. "
@@ -65,6 +70,17 @@ public class DatabaseServerCompatibility implements Startable {
       logger.warn(msg);
       logger.warn(HIGHLIGHTER);
     }
+  }
+
+  private String buildVersionTooOldMessage() {
+    if (sonarRuntime.getEdition() == SonarEdition.COMMUNITY) {
+      return "The version of SonarQube you are trying to upgrade from is too old. Please upgrade to the " +
+        MIN_UPGRADE_VERSION_COMMUNITY_BUILD_READABLE + " version first.";
+    } else {
+      return "The version of SonarQube you are trying to upgrade from is too old. Please upgrade to the " +
+        MIN_UPGRADE_VERSION_HUMAN_READABLE + " Long-Term Active version first.";
+    }
+
   }
 
   @Override

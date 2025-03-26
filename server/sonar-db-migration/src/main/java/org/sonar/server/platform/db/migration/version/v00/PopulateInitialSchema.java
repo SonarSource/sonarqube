@@ -19,15 +19,21 @@
  */
 package org.sonar.server.platform.db.migration.version.v00;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.sonar.api.utils.System2;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.history.MigrationHistory;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.Upsert;
 
@@ -36,6 +42,13 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Stream.concat;
 import static java.util.stream.Stream.of;
+import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.api.web.UserRole.CODEVIEWER;
+import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.api.web.UserRole.SCAN;
+import static org.sonar.api.web.UserRole.SECURITYHOTSPOT_ADMIN;
+import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_ENABLED;
 
 public class PopulateInitialSchema extends DataChange {
 
@@ -49,12 +62,15 @@ public class PopulateInitialSchema extends DataChange {
   private final System2 system2;
   private final UuidFactory uuidFactory;
   private final SonarQubeVersion sonarQubeVersion;
+  private final MigrationHistory migrationHistory;
 
-  public PopulateInitialSchema(Database db, System2 system2, UuidFactory uuidFactory, SonarQubeVersion sonarQubeVersion) {
+  public PopulateInitialSchema(Database db, System2 system2, UuidFactory uuidFactory, SonarQubeVersion sonarQubeVersion,
+    MigrationHistory migrationHistory) {
     super(db);
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
     this.sonarQubeVersion = sonarQubeVersion;
+    this.migrationHistory = migrationHistory;
   }
 
   @Override
@@ -66,6 +82,46 @@ public class PopulateInitialSchema extends DataChange {
     insertProperties(context, defaultQGUuid);
     insertGroupRoles(context, groups);
     insertGroupUsers(context, adminUserUuid, groups);
+    insertDevopsPermissionMapping(context);
+    insertGitlabPermissionMapping(context);
+    enableSpecificMqrMode(context);
+  }
+
+  private void insertGitlabPermissionMapping(Context context) throws SQLException {
+    String insertQuery = """
+    insert into devops_perms_mapping (uuid, devops_platform, devops_platform_role, sonarqube_permission)
+    values (?, ?, ?, ?)
+    """;
+
+    Map<String, Set<String>> gitlabRoleToSqPermissions = Map.of(
+      "guest", Set.of(USER),
+      "reporter", Set.of(USER, CODEVIEWER),
+      "developer", Set.of(USER, CODEVIEWER, ISSUE_ADMIN, SECURITYHOTSPOT_ADMIN, SCAN),
+      "maintainer", Set.of(USER, CODEVIEWER, ISSUE_ADMIN, SECURITYHOTSPOT_ADMIN, SCAN, ADMIN),
+      "owner", Set.of(USER, CODEVIEWER, ISSUE_ADMIN, SECURITYHOTSPOT_ADMIN, SCAN, ADMIN)
+    );
+
+    try (Upsert upsert = context.prepareUpsert(insertQuery)) {
+      gitlabRoleToSqPermissions.forEach((role, permissions) -> insertGitlabRoleToSonarqubePermissionMapping(upsert, role, permissions));
+      upsert.commit();
+    }
+  }
+
+  private void insertGitlabRoleToSonarqubePermissionMapping(Upsert upsert, String role, Set<String> sonarqubePermissions) {
+    sonarqubePermissions.forEach(permission -> insertGitlabRoleToSonarqubePermissionMapping(upsert, role, permission));
+  }
+
+  private void insertGitlabRoleToSonarqubePermissionMapping(Upsert upsert, String role, String sonarqubePermission) {
+    try {
+      upsert
+        .setString(1, uuidFactory.create())
+        .setString(2, "gitlab")
+        .setString(3, role)
+        .setString(4, sonarqubePermission)
+        .execute();
+    } catch (SQLException e) {
+      throw new IllegalStateException(e);
+    }
   }
 
   private String insertAdminUser(Context context) throws SQLException {
@@ -237,17 +293,84 @@ public class PopulateInitialSchema extends DataChange {
       .commit();
   }
 
-  private static void insertGroupUsers(Context context, String adminUserUuid, Groups groups) throws SQLException {
+  private void insertDevopsPermissionMapping(Context context) throws SQLException {
+    Map<String, Set<String>> devopsRoleToSqPermissions = Map.of(
+      "read", Set.of(USER, CODEVIEWER),
+      "triage", Set.of(USER, CODEVIEWER),
+      "write", Set.of(USER, CODEVIEWER, ISSUE_ADMIN, SECURITYHOTSPOT_ADMIN, SCAN),
+      "maintain", Set.of(USER, CODEVIEWER, ISSUE_ADMIN, SECURITYHOTSPOT_ADMIN, SCAN),
+      "admin", Set.of(USER, CODEVIEWER, ISSUE_ADMIN, SECURITYHOTSPOT_ADMIN, SCAN, ADMIN));
+
+    String insertQuery = """
+    insert into devops_perms_mapping (uuid, devops_platform_role, sonarqube_permission)
+    values (?, ?, ?)
+    """;
+    try (Upsert upsert = context.prepareUpsert(insertQuery)) {
+      devopsRoleToSqPermissions.forEach((key, value) -> insertGithubRoleToSonarqubePermissionMapping(upsert, key, value));
+      upsert.commit();
+    }
+  }
+
+  private void insertGithubRoleToSonarqubePermissionMapping(Upsert upsert, String githubRole, Set<String> sonarqubePermissions) {
+    sonarqubePermissions.forEach(permission -> insertGithubRoleToSonarqubePermissionMapping(upsert, githubRole, permission));
+  }
+
+  private void insertGithubRoleToSonarqubePermissionMapping(Upsert upsert, String githubRole, String sonarqubePermission) {
+    try {
+      upsert
+        .setString(1, uuidFactory.create())
+        .setString(2, githubRole)
+        .setString(3, sonarqubePermission)
+        .execute();
+    } catch (SQLException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+
+  private void enableSpecificMqrMode(Context context) throws SQLException {
+    try (Connection connection = getDatabase().getDataSource().getConnection()) {
+      if (!paramExists(connection)) {
+        long version = migrationHistory.getInitialDbVersion();
+        boolean mqrModeEnabled = version >= 102_000L || version == -1L;
+        Upsert upsert = context.prepareUpsert(
+          createInsertStatement("properties",
+            "uuid",
+            "prop_key",
+            "is_empty",
+            "text_value",
+            "created_at"));
+        upsert.setString(1, uuidFactory.create())
+          .setString(2, MULTI_QUALITY_MODE_ENABLED)
+          .setBoolean(3, false)
+          .setString(4, String.valueOf(mqrModeEnabled))
+          .setLong(5, system2.now());
+        upsert.execute().commit();
+      }
+    }
+  }
+
+  private static boolean paramExists(Connection connection) throws SQLException {
+    String sql = "SELECT count(1) FROM properties WHERE prop_key = '" + MULTI_QUALITY_MODE_ENABLED + "'";
+    try (PreparedStatement statement = connection.prepareStatement(sql)) {
+      ResultSet result = statement.executeQuery();
+      return result.next() && result.getInt(1) > 0;
+    }
+  }
+
+  private void insertGroupUsers(Context context, String adminUserUuid, Groups groups) throws SQLException {
     truncateTable(context, "groups_users");
 
-    Upsert upsert = context.prepareUpsert(createInsertStatement("groups_users", "user_uuid", "group_uuid"));
+    Upsert upsert = context.prepareUpsert(createInsertStatement("groups_users", "uuid", "user_uuid", "group_uuid"));
     upsert
-      .setString(1, adminUserUuid)
-      .setString(2, groups.userGroupUuid())
+      .setString(1, uuidFactory.create())
+      .setString(2, adminUserUuid)
+      .setString(3, groups.userGroupUuid())
       .addBatch();
     upsert
-      .setString(1, adminUserUuid)
-      .setString(2, groups.adminGroupUuid())
+      .setString(1, uuidFactory.create())
+      .setString(2, adminUserUuid)
+      .setString(3, groups.adminGroupUuid())
       .addBatch();
     upsert
       .execute()
