@@ -19,8 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.pushevent;
 
-import com.google.common.annotations.VisibleForTesting;
 import javax.annotation.Nullable;
+
+import com.google.common.annotations.VisibleForTesting;
 import org.sonar.ce.task.projectanalysis.locations.flow.Location;
 
 public class SecurityHotspotRaised extends IssueEvent {
@@ -29,6 +30,8 @@ public class SecurityHotspotRaised extends IssueEvent {
   static final String EVENT_NAME = "SecurityHotspotRaised";
 
   private String status;
+  @Nullable
+  private String resolution;
   private String vulnerabilityProbability;
   private long creationDate;
   private Location mainLocation;
@@ -51,6 +54,14 @@ public class SecurityHotspotRaised extends IssueEvent {
 
   public void setStatus(String status) {
     this.status = status;
+  }
+
+  public String getResolution() {
+    return resolution;
+  }
+
+  public void setResolution(@Nullable String resolution) {
+    this.resolution = resolution;
   }
 
   public String getVulnerabilityProbability() {

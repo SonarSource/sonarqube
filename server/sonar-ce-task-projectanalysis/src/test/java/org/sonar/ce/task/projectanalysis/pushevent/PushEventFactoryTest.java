@@ -273,6 +273,25 @@ public class PushEventFactoryTest {
       });
   }
 
+  @Test
+  public void raiseEventOnIssue_whenNewReviewedHotspot_shouldCreateRaisedEventWithResolution() {
+    DefaultIssue defaultIssue = createDefaultIssue()
+            .setType(RuleType.SECURITY_HOTSPOT)
+            .setStatus(Issue.STATUS_REVIEWED)
+            .setResolution("SAFE")
+            .setNew(true)
+            .setRuleDescriptionContextKey(secure().nextAlphabetic(6));
+
+    assertThat(underTest.raiseEventOnIssue("some-project-uuid", defaultIssue))
+            .isNotEmpty()
+            .hasValueSatisfying(pushEventDto -> {
+              assertThat(pushEventDto.getName()).isEqualTo(SecurityHotspotRaised.EVENT_NAME);
+              verifyHotspotRaisedEventPayload(pushEventDto.getPayload(), defaultIssue);
+              assertThat(pushEventDto.getLanguage()).isEqualTo("java");
+              assertThat(pushEventDto.getProjectUuid()).isEqualTo("some-project-uuid");
+            });
+  }
+
   private static void verifyHotspotRaisedEventPayload(byte[] payload, DefaultIssue defaultIssue) {
     assertThat(payload).isNotNull();
 
@@ -281,7 +300,12 @@ public class PushEventFactoryTest {
     assertThat(event.getCreationDate()).isEqualTo(defaultIssue.creationDate().getTime());
     assertThat(event.getKey()).isEqualTo(defaultIssue.key());
     assertThat(event.getRuleKey()).isEqualTo(defaultIssue.ruleKey().toString());
-    assertThat(event.getStatus()).isEqualTo(Issue.STATUS_TO_REVIEW);
+    assertThat(event.getStatus()).isEqualTo(defaultIssue.getStatus());
+    if (defaultIssue.getStatus() == null) {
+      assertThat(event.getResolution()).isNull();
+    } else {
+      assertThat(event.getResolution()).isEqualTo(defaultIssue.resolution());
+    }
     assertThat(event.getVulnerabilityProbability()).isEqualTo("LOW");
     assertThat(event.getMainLocation()).isNotNull();
     assertThat(event.getBranch()).isEqualTo(BRANCH_NAME);

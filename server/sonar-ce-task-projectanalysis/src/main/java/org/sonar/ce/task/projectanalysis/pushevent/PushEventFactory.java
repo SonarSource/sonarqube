@@ -195,6 +195,7 @@ public class PushEventFactory {
     event.setKey(issue.key());
     event.setProjectKey(issue.projectKey());
     event.setStatus(issue.getStatus());
+    event.setResolution(issue.resolution());
     event.setCreationDate(issue.creationDate().getTime());
     event.setMainLocation(prepareMainLocation(component, issue));
     event.setRuleKey(issue.getRuleKey().toString());
