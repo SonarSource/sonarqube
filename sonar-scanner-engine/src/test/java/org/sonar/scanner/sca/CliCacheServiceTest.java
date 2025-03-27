@@ -55,6 +55,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -198,6 +199,31 @@ class CliCacheServiceTest {
 
     verify(telemetryCache).put("scanner.sca.get.cli.cache.hit", "true");
     verify(telemetryCache).put("scanner.sca.get.cli.success", "true");
+  }
+
+  @Test
+  void cacheCli_shouldAllowLocationOverride(@TempDir Path tempDir) throws IOException {
+    File alternateCliFile = tempDir.resolve("alternate_cli").toFile();
+    FileUtils.writeStringToFile(alternateCliFile, "alternate cli content", Charset.defaultCharset());
+    when(system2.envVariable("TIDELIFT_CLI_LOCATION")).thenReturn(alternateCliFile.getAbsolutePath());
+
+    var returnedFile = underTest.cacheCli();
+
+    assertThat(returnedFile.getAbsolutePath()).isEqualTo(alternateCliFile.getAbsolutePath());
+    assertThat(logTester.logs(Level.INFO)).contains("Using alternate location for Tidelift CLI: " + alternateCliFile.getAbsolutePath());
+    verify(scannerWsClient, never()).call(any());
+  }
+
+  @Test
+  void cacheCli_whenOverrideDoesntExist_shouldRaiseError() {
+    var location = "incorrect_location";
+    when(system2.envVariable("TIDELIFT_CLI_LOCATION")).thenReturn(location);
+
+    assertThatThrownBy(underTest::cacheCli).isInstanceOf(IllegalStateException.class)
+      .hasMessageMatching("Alternate location for Tidelift CLI has been set but no file was found at " + location);
+
+    assertThat(logTester.logs(Level.INFO)).contains("Using alternate location for Tidelift CLI: " + location);
+    verify(scannerWsClient, never()).call(any());
   }
 
   @Test

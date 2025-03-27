@@ -109,6 +109,19 @@ public class CliCacheService {
 
   public File cacheCli() {
     boolean success = false;
+
+    var alternateLocation = system2.envVariable("TIDELIFT_CLI_LOCATION");
+    if (alternateLocation != null) {
+      LOG.info("Using alternate location for Tidelift CLI: {}", alternateLocation);
+      // If the TIDELIFT_CLI_LOCATION environment variable is set, we should use that location
+      // instead of trying to download the CLI from the server.
+      File cliFile = new File(alternateLocation);
+      if (!cliFile.exists()) {
+        throw new IllegalStateException(format("Alternate location for Tidelift CLI has been set but no file was found at %s", alternateLocation));
+      }
+      return cliFile;
+    }
+
     try {
       List<CliMetadataResponse> metadataResponses = getLatestMetadata(apiOsName(), apiArch());
 
