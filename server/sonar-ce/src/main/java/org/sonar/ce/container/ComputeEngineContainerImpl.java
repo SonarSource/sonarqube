@@ -104,8 +104,10 @@ import org.sonar.server.issue.notification.MyNewIssuesEmailTemplate;
 import org.sonar.server.issue.notification.MyNewIssuesNotificationHandler;
 import org.sonar.server.issue.notification.NewIssuesEmailTemplate;
 import org.sonar.server.issue.notification.NewIssuesNotificationHandler;
+import org.sonar.server.issue.workflow.CodeQualityIssueWorkflow;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
+import org.sonar.server.issue.workflow.SecurityHostpotWorkflow;
 import org.sonar.server.l18n.ServerI18n;
 import org.sonar.server.log.DistributedServerLogging;
 import org.sonar.server.log.ServerLogging;
@@ -406,6 +408,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       FunctionExecutor.class, // used by IssueWorkflow
       TaintChecker.class,
       IssueWorkflow.class, // used in Web Services and CE's DebtCalculator
+      CodeQualityIssueWorkflow.class,
+      SecurityHostpotWorkflow.class,
       NewIssuesEmailTemplate.class,
       MyNewIssuesEmailTemplate.class,
       NewIssuesNotificationHandler.class,

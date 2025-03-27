@@ -20,15 +20,14 @@
 package org.sonar.server.issue.ws;
 
 import javax.annotation.Nullable;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.impl.utils.TestSystem2;
-import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.System2;
+import org.sonar.core.rule.RuleType;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -49,8 +48,10 @@ import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
+import org.sonar.server.issue.workflow.CodeQualityIssueWorkflow;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
+import org.sonar.server.issue.workflow.SecurityHostpotWorkflow;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.pushapi.issues.IssueChangeEventService;
 import org.sonar.server.rule.DefaultRuleFinder;
@@ -72,10 +73,10 @@ import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.core.rule.RuleType.CODE_SMELL;
-import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
-import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newIssue;
+import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
+import static org.sonar.db.permission.ProjectPermission.USER;
 
 public class DoTransitionActionIT {
 
@@ -96,7 +97,8 @@ public class DoTransitionActionIT {
 
   private IssueChangeEventService issueChangeEventService = mock(IssueChangeEventService.class);
   private IssueFieldsSetter updater = new IssueFieldsSetter();
-  private IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater, mock(TaintChecker.class));
+  private IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater, new CodeQualityIssueWorkflow(mock(TaintChecker.class)),
+    new SecurityHostpotWorkflow());
   private TransitionService transitionService = new TransitionService(userSession, workflow);
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null);
@@ -110,11 +112,6 @@ public class DoTransitionActionIT {
   private WsAction underTest = new DoTransitionAction(dbClient, userSession, issueChangeEventService,
     new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter, system2);
   private WsActionTester tester = new WsActionTester(underTest);
-
-  @Before
-  public void setUp() {
-    workflow.start();
-  }
 
   @Test
   public void do_transition() {

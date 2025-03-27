@@ -21,7 +21,6 @@ package org.sonar.server.issue;
 
 import java.util.Date;
 import java.util.List;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.core.issue.DefaultIssue;
@@ -30,8 +29,10 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.server.issue.workflow.CodeQualityIssueWorkflow;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
+import org.sonar.server.issue.workflow.SecurityHostpotWorkflow;
 import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -39,10 +40,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
-import static org.sonar.core.rule.RuleType.CODE_SMELL;
-import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
+import static org.sonar.core.rule.RuleType.CODE_SMELL;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
 
 public class TransitionServiceIT {
 
@@ -52,14 +53,10 @@ public class TransitionServiceIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private IssueFieldsSetter updater = new IssueFieldsSetter();
-  private IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater, mock(TaintChecker.class));
+  private IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater, new CodeQualityIssueWorkflow(mock(TaintChecker.class)),
+    new SecurityHostpotWorkflow());
 
   private TransitionService underTest = new TransitionService(userSession, workflow);
-
-  @Before
-  public void setUp() {
-    workflow.start();
-  }
 
   @Test
   public void list_transitions() {

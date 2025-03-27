@@ -20,7 +20,6 @@
 package org.sonar.server.issue.workflow;
 
 import com.google.common.collect.Collections2;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
@@ -59,14 +58,12 @@ import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
-import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
-import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByScanBuilder;
 
-class IssueWorkflowTest {
+class IssueWorkflowForCodeQualityIssuesTest {
 
-  private static final String[] ALL_STATUSES_LEADING_TO_CLOSED = new String[]{STATUS_OPEN, STATUS_REOPENED, STATUS_CONFIRMED, STATUS_RESOLVED};
-  private static final String[] ALL_RESOLUTIONS_BEFORE_CLOSING = new String[]{
+  private static final String[] ALL_STATUSES_LEADING_TO_CLOSED = new String[] {STATUS_OPEN, STATUS_REOPENED, STATUS_CONFIRMED, STATUS_RESOLVED};
+  private static final String[] ALL_RESOLUTIONS_BEFORE_CLOSING = new String[] {
     null,
     RESOLUTION_FIXED,
     RESOLUTION_WONT_FIX,
@@ -78,25 +75,11 @@ class IssueWorkflowTest {
 
   private final TaintChecker taintChecker = mock(TaintChecker.class);
 
-  private final IssueWorkflow underTest = new IssueWorkflow(new FunctionExecutor(updater), updater, taintChecker);
-
-  @Test
-  void list_statuses() {
-    underTest.start();
-
-    List<String> expectedStatus = new ArrayList<>();
-    // issues statuses
-    expectedStatus.addAll(Arrays.asList(STATUS_OPEN, STATUS_CONFIRMED, STATUS_REOPENED, STATUS_RESOLVED, STATUS_CLOSED));
-    // hostpots statuses
-    expectedStatus.addAll(Arrays.asList(STATUS_TO_REVIEW, STATUS_REVIEWED));
-
-    assertThat(underTest.statusKeys()).containsExactlyInAnyOrder(expectedStatus.toArray(new String[]{}));
-  }
+  private final IssueWorkflow underTest = new IssueWorkflow(new FunctionExecutor(updater), updater, new CodeQualityIssueWorkflow(taintChecker),
+    mock(SecurityHostpotWorkflow.class));
 
   @Test
   void list_out_transitions_from_status_open() {
-    underTest.start();
-
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_OPEN);
     List<Transition> transitions = underTest.outTransitions(issue);
     assertThat(keys(transitions)).containsOnly("confirm", "falsepositive", "resolve", "wontfix", "accept");
@@ -104,8 +87,6 @@ class IssueWorkflowTest {
 
   @Test
   void list_out_transitions_from_status_confirmed() {
-    underTest.start();
-
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_CONFIRMED);
     List<Transition> transitions = underTest.outTransitions(issue);
     assertThat(keys(transitions)).containsOnly("unconfirm", "falsepositive", "resolve", "wontfix", "accept");
@@ -113,8 +94,6 @@ class IssueWorkflowTest {
 
   @Test
   void list_out_transitions_from_status_resolved() {
-    underTest.start();
-
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_RESOLVED);
     List<Transition> transitions = underTest.outTransitions(issue);
     assertThat(keys(transitions)).containsOnly("reopen");
@@ -122,8 +101,6 @@ class IssueWorkflowTest {
 
   @Test
   void list_out_transitions_from_status_reopen() {
-    underTest.start();
-
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_REOPENED);
     List<Transition> transitions = underTest.outTransitions(issue);
     assertThat(keys(transitions)).containsOnly("confirm", "resolve", "falsepositive", "wontfix", "accept");
@@ -131,8 +108,6 @@ class IssueWorkflowTest {
 
   @Test
   void list_no_out_transition_from_status_closed() {
-    underTest.start();
-
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_CLOSED).setRuleKey(RuleKey.of("java", "R1  "));
     List<Transition> transitions = underTest.outTransitions(issue);
     assertThat(transitions).isEmpty();
@@ -140,8 +115,6 @@ class IssueWorkflowTest {
 
   @Test
   void fail_if_unknown_status_when_listing_transitions() {
-    underTest.start();
-
     DefaultIssue issue = new DefaultIssue().setStatus("xxx");
     try {
       underTest.outTransitions(issue);
@@ -153,8 +126,6 @@ class IssueWorkflowTest {
 
   @Test
   void automatically_close_resolved_issue() {
-    underTest.start();
-
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setRuleKey(RuleKey.of("js", "S001"))
@@ -181,7 +152,6 @@ class IssueWorkflowTest {
       })
       .toArray(DefaultIssue[]::new);
     Date now = new Date();
-    underTest.start();
 
     Arrays.stream(issues).forEach(issue -> {
       underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
@@ -207,7 +177,6 @@ class IssueWorkflowTest {
       })
       .toArray(DefaultIssue[]::new);
     Date now = new Date();
-    underTest.start();
 
     Arrays.stream(issues).forEach(issue -> {
       underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
@@ -231,7 +200,6 @@ class IssueWorkflowTest {
       })
       .toArray(DefaultIssue[]::new);
     Date now = new Date();
-    underTest.start();
 
     Arrays.stream(issues).forEach(issue -> {
       underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
@@ -255,7 +223,6 @@ class IssueWorkflowTest {
       })
       .toArray(DefaultIssue[]::new);
     Date now = new Date();
-    underTest.start();
 
     Arrays.stream(issues).forEach(issue -> {
       underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
@@ -283,7 +250,6 @@ class IssueWorkflowTest {
       })
       .toArray(DefaultIssue[]::new);
     Date now = new Date();
-    underTest.start();
 
     Arrays.stream(issues).forEach(issue -> {
       underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
@@ -303,10 +269,9 @@ class IssueWorkflowTest {
   @Test
   void do_not_automatically_reopen_closed_issue_which_have_no_previous_status_in_changelog() {
     DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
-      .map(IssueWorkflowTest::newClosedIssue)
+      .map(IssueWorkflowForCodeQualityIssuesTest::newClosedIssue)
       .toArray(DefaultIssue[]::new);
     Date now = new Date();
-    underTest.start();
 
     Arrays.stream(issues).forEach(issue -> {
       underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
@@ -328,7 +293,6 @@ class IssueWorkflowTest {
     when(taintChecker.isTaintVulnerability(issue))
       .thenReturn(true);
 
-    underTest.start();
     underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date()).build());
 
     assertThat(issue.issueStatus()).isEqualTo(IssueStatus.OPEN);
@@ -350,7 +314,6 @@ class IssueWorkflowTest {
     when(taintChecker.isTaintVulnerability(issue))
       .thenReturn(false);
 
-    underTest.start();
     underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date()).build());
 
     assertThat(issue.issueStatus()).isEqualTo(IssueStatus.FALSE_POSITIVE);
@@ -368,7 +331,6 @@ class IssueWorkflowTest {
     when(taintChecker.isTaintVulnerability(issue))
       .thenReturn(true);
 
-    underTest.start();
     underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date()).build());
 
     assertThat(issue.issueStatus()).isEqualTo(IssueStatus.FALSE_POSITIVE);
@@ -380,8 +342,6 @@ class IssueWorkflowTest {
 
   @Test
   void close_open_dead_issue() {
-    underTest.start();
-
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setResolution(null)
@@ -398,8 +358,6 @@ class IssueWorkflowTest {
 
   @Test
   void close_reopened_dead_issue() {
-    underTest.start();
-
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setResolution(null)
@@ -416,8 +374,6 @@ class IssueWorkflowTest {
 
   @Test
   void close_confirmed_dead_issue() {
-    underTest.start();
-
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setResolution(null)
@@ -434,8 +390,6 @@ class IssueWorkflowTest {
 
   @Test
   void fail_if_unknown_status_on_automatic_trans() {
-    underTest.start();
-
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setResolution(RESOLUTION_FIXED)
@@ -457,7 +411,6 @@ class IssueWorkflowTest {
       .setRuleKey(RuleKey.of("java", "AvoidCycle"))
       .setAssigneeUuid("morgan");
 
-    underTest.start();
     underTest.doManualTransition(issue, DefaultTransitions.FALSE_POSITIVE, issueChangeContextByScanBuilder(new Date()).build());
 
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_FALSE_POSITIVE);
@@ -475,7 +428,6 @@ class IssueWorkflowTest {
       .setRuleKey(RuleKey.of("java", "AvoidCycle"))
       .setAssigneeUuid("morgan");
 
-    underTest.start();
     underTest.doManualTransition(issue, DefaultTransitions.WONT_FIX, issueChangeContextByScanBuilder(new Date()).build());
 
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_WONT_FIX);
@@ -493,7 +445,6 @@ class IssueWorkflowTest {
       .setRuleKey(RuleKey.of("java", "AvoidCycle"))
       .setAssigneeUuid("morgan");
 
-    underTest.start();
     underTest.doManualTransition(issue, DefaultTransitions.ACCEPT, issueChangeContextByScanBuilder(new Date()).build());
 
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_WONT_FIX);
@@ -502,7 +453,6 @@ class IssueWorkflowTest {
     // should remove assignee
     assertThat(issue.assignee()).isNull();
   }
-
 
   private static DefaultIssue newClosedIssue(String resolution) {
     return new DefaultIssue()

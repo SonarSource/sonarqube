@@ -26,8 +26,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
-import org.sonar.core.rule.RuleType;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.rule.RuleType;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
@@ -38,8 +38,10 @@ import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.server.issue.workflow.CodeQualityIssueWorkflow;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
+import org.sonar.server.issue.workflow.SecurityHostpotWorkflow;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Collections.emptyList;
@@ -59,7 +61,8 @@ public class TransitionActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private final IssueFieldsSetter updater = new IssueFieldsSetter();
-  private final IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater, mock(TaintChecker.class));
+  private final IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater, new CodeQualityIssueWorkflow(mock(TaintChecker.class)),
+    new SecurityHostpotWorkflow());
   private final TransitionService transitionService = new TransitionService(userSession, workflow);
   private final Action.Context context = mock(Action.Context.class);
   private final DefaultIssue issue = newIssue().toDefaultIssue();
@@ -67,7 +70,6 @@ public class TransitionActionIT {
 
   @Before
   public void setUp() {
-    workflow.start();
     when(context.issue()).thenReturn(issue);
     when(context.issueChangeContext()).thenReturn(issueChangeContextByUserBuilder(new Date(), "user_uuid").build());
   }
@@ -116,7 +118,6 @@ public class TransitionActionIT {
     assertThat(action.supports(new DefaultIssue().setResolution(null))).isTrue();
     assertThat(action.supports(new DefaultIssue().setResolution(Issue.RESOLUTION_FIXED))).isTrue();
   }
-
 
   private IssueDto newIssue() {
     RuleDto rule = newRule().setUuid(Uuids.createFast());

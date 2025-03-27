@@ -25,15 +25,14 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.time.Clock;
 import java.util.List;
 import java.util.stream.IntStream;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.Durations;
+import org.sonar.core.rule.RuleType;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -54,8 +53,10 @@ import org.sonar.server.issue.NewCodePeriodResolver;
 import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.TransitionService;
+import org.sonar.server.issue.workflow.CodeQualityIssueWorkflow;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
+import org.sonar.server.issue.workflow.SecurityHostpotWorkflow;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.MessageFormattingUtils;
 import org.sonar.server.ws.TestRequest;
@@ -104,7 +105,8 @@ public class ListActionIT {
 
   private final DbClient dbClient = db.getDbClient();
   private final IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
-  private final IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter, mock(TaintChecker.class));
+  private final IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter, new CodeQualityIssueWorkflow(mock(TaintChecker.class)),
+    new SecurityHostpotWorkflow());
   private final SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, dbClient, new TransitionService(userSession, issueWorkflow));
   private final Languages languages = new Languages();
   private final UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
@@ -112,11 +114,6 @@ public class ListActionIT {
   private final ComponentFinder componentFinder = TestComponentFinder.from(db);
   private final WsActionTester ws = new WsActionTester(
     new ListAction(userSession, dbClient, new NewCodePeriodResolver(dbClient, Clock.systemUTC()), searchResponseLoader, searchResponseFormat, componentFinder));
-
-  @Before
-  public void setUp() {
-    issueWorkflow.start();
-  }
 
   @Test
   public void whenNoComponentOrProjectProvided_shouldFailWithMessage() {

@@ -37,7 +37,6 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.IssueFieldsSetter;
-import org.sonar.server.issue.TaintChecker;
 
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,11 +52,11 @@ import static org.sonar.api.issue.Issue.RESOLUTION_SAFE;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
-import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByScanBuilder;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
+import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.db.rule.RuleTesting.XOO_X1;
-import static org.sonar.server.issue.workflow.IssueWorkflowTest.emptyIfNull;
+import static org.sonar.server.issue.workflow.IssueWorkflowForCodeQualityIssuesTest.emptyIfNull;
 
 @RunWith(DataProviderRunner.class)
 public class IssueWorkflowForSecurityHotspotsTest {
@@ -65,12 +64,11 @@ public class IssueWorkflowForSecurityHotspotsTest {
   private static final List<String> RESOLUTION_TYPES = List.of(RESOLUTION_FIXED, RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED);
 
   private final IssueFieldsSetter updater = new IssueFieldsSetter();
-  private final IssueWorkflow underTest = new IssueWorkflow(new FunctionExecutor(updater), updater, mock(TaintChecker.class));
+  private final IssueWorkflow underTest = new IssueWorkflow(new FunctionExecutor(updater), updater, mock(CodeQualityIssueWorkflow.class), new SecurityHostpotWorkflow());
 
   @Test
   @UseDataProvider("anyResolutionIncludingNone")
   public void to_review_hotspot_with_any_resolution_can_be_resolved_as_safe_or_fixed(@Nullable String resolution) {
-    underTest.start();
     DefaultIssue hotspot = newHotspot(STATUS_TO_REVIEW, resolution);
 
     List<Transition> transitions = underTest.outTransitions(hotspot);
@@ -91,7 +89,6 @@ public class IssueWorkflowForSecurityHotspotsTest {
 
   @Test
   public void reviewed_as_fixed_hotspot_can_be_resolved_as_safe_or_put_back_to_review() {
-    underTest.start();
     DefaultIssue hotspot = newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED);
 
     List<Transition> transitions = underTest.outTransitions(hotspot);
@@ -101,7 +98,6 @@ public class IssueWorkflowForSecurityHotspotsTest {
 
   @Test
   public void reviewed_as_safe_hotspot_can_be_resolved_as_fixed_or_put_back_to_review() {
-    underTest.start();
     DefaultIssue hotspot = newHotspot(STATUS_REVIEWED, RESOLUTION_SAFE);
 
     List<Transition> transitions = underTest.outTransitions(hotspot);
@@ -112,7 +108,6 @@ public class IssueWorkflowForSecurityHotspotsTest {
   @Test
   @UseDataProvider("anyResolutionButSafeOrFixed")
   public void reviewed_with_any_resolution_but_safe_or_fixed_can_not_be_changed(String resolution) {
-    underTest.start();
     DefaultIssue hotspot = newHotspot(STATUS_REVIEWED, resolution);
 
     List<Transition> transitions = underTest.outTransitions(hotspot);
@@ -134,7 +129,6 @@ public class IssueWorkflowForSecurityHotspotsTest {
 
   @Test
   public void doManualTransition_to_review_hostpot_is_resolved_as_fixed() {
-    underTest.start();
     DefaultIssue hotspot = newHotspot(STATUS_TO_REVIEW, null);
 
     boolean result = underTest.doManualTransition(hotspot, RESOLVE_AS_REVIEWED, SOME_CHANGE_CONTEXT);
@@ -146,7 +140,6 @@ public class IssueWorkflowForSecurityHotspotsTest {
 
   @Test
   public void doManualTransition_reviewed_as_safe_hostpot_is_resolved_as_fixed() {
-    underTest.start();
     DefaultIssue hotspot = newHotspot(STATUS_REVIEWED, RESOLUTION_SAFE);
 
     boolean result = underTest.doManualTransition(hotspot, RESOLVE_AS_REVIEWED, SOME_CHANGE_CONTEXT);
@@ -158,7 +151,6 @@ public class IssueWorkflowForSecurityHotspotsTest {
 
   @Test
   public void doManualTransition_to_review_hostpot_is_resolved_as_safe() {
-    underTest.start();
     DefaultIssue hotspot = newHotspot(STATUS_TO_REVIEW, null);
 
     boolean result = underTest.doManualTransition(hotspot, RESOLVE_AS_SAFE, SOME_CHANGE_CONTEXT);
@@ -170,7 +162,6 @@ public class IssueWorkflowForSecurityHotspotsTest {
 
   @Test
   public void doManualTransition_reviewed_as_fixed_hostpot_is_resolved_as_safe() {
-    underTest.start();
     DefaultIssue hotspot = newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED);
 
     boolean result = underTest.doManualTransition(hotspot, RESOLVE_AS_SAFE, SOME_CHANGE_CONTEXT);
@@ -182,7 +173,6 @@ public class IssueWorkflowForSecurityHotspotsTest {
 
   @Test
   public void doManualTransition_reviewed_as_fixed_hostpot_is_put_back_to_review() {
-    underTest.start();
     DefaultIssue hotspot = newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED);
 
     boolean result = underTest.doManualTransition(hotspot, RESET_AS_TO_REVIEW, SOME_CHANGE_CONTEXT);
@@ -194,7 +184,6 @@ public class IssueWorkflowForSecurityHotspotsTest {
 
   @Test
   public void doManualTransition_reviewed_as_safe_hostpot_is_put_back_to_review() {
-    underTest.start();
     DefaultIssue hotspot = newHotspot(STATUS_REVIEWED, RESOLUTION_SAFE);
 
     boolean result = underTest.doManualTransition(hotspot, RESET_AS_TO_REVIEW, SOME_CHANGE_CONTEXT);
@@ -206,7 +195,6 @@ public class IssueWorkflowForSecurityHotspotsTest {
 
   @Test
   public void reset_as_to_review_from_reviewed() {
-    underTest.start();
     DefaultIssue hotspot = newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED);
 
     boolean result = underTest.doManualTransition(hotspot, RESET_AS_TO_REVIEW, SOME_CHANGE_CONTEXT);
@@ -218,7 +206,6 @@ public class IssueWorkflowForSecurityHotspotsTest {
 
   @Test
   public void automatically_close_resolved_security_hotspots_in_status_to_review() {
-    underTest.start();
     DefaultIssue hotspot = newHotspot(STATUS_TO_REVIEW, null)
       .setNew(false)
       .setBeingClosed(true);
@@ -235,7 +222,6 @@ public class IssueWorkflowForSecurityHotspotsTest {
   @Test
   @UseDataProvider("safeOrFixedResolutions")
   public void automatically_close_hotspot_resolved_as_fixed_or_safe(String resolution) {
-    underTest.start();
     DefaultIssue hotspot = newHotspot(STATUS_REVIEWED, resolution)
       .setNew(false)
       .setBeingClosed(true);
@@ -266,10 +252,9 @@ public class IssueWorkflowForSecurityHotspotsTest {
     setStatusPreviousToClosed(hotspot2, STATUS_TO_REVIEW, null, RESOLUTION_FIXED);
 
     Date now = new Date();
-    underTest.start();
 
-    underTest.doAutomaticTransition(hotspot1,  issueChangeContextByScanBuilder(now).build());
-    underTest.doAutomaticTransition(hotspot2,  issueChangeContextByScanBuilder(now).build());
+    underTest.doAutomaticTransition(hotspot1, issueChangeContextByScanBuilder(now).build());
+    underTest.doAutomaticTransition(hotspot2, issueChangeContextByScanBuilder(now).build());
 
     assertThat(hotspot1.updateDate()).isNotNull();
     assertThat(hotspot1.status()).isEqualTo(STATUS_REVIEWED);
@@ -286,7 +271,6 @@ public class IssueWorkflowForSecurityHotspotsTest {
       .setKey("ABCDE")
       .setRuleKey(XOO_X1);
 
-    underTest.start();
     underTest.doAutomaticTransition(hotspot, issueChangeContextByScanBuilder(new Date()).build());
 
     assertThat(hotspot.status()).isEqualTo(STATUS_TO_REVIEW);
