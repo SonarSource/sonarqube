@@ -1979,6 +1979,7 @@ oldCreationDate));
       "version", "1.0",
       "license_expression", "MIT",
       "known", true,
+      "known_package", true,
       "created_at", 0L, "updated_at", 0L);
     db.executeInsert("sca_releases", merge(releaseBase, Map.of("uuid", "release-uuid1", "component_uuid", branch1Uuid)));
     db.executeInsert("sca_releases", merge(releaseBase, Map.of("uuid", "release-uuid2", "component_uuid", branch2Uuid)));
