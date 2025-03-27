@@ -19,30 +19,27 @@
  */
 package org.sonar.ce.task.projectanalysis.pushevent;
 
-import com.google.common.annotations.VisibleForTesting;
 import javax.annotation.Nullable;
 
-public class SecurityHotspotClosed extends HotspotEvent {
+public abstract class HotspotEvent extends IssueEvent {
+  private String status;
+  @Nullable
+  private String resolution;
 
-  @VisibleForTesting
-  static final String EVENT_NAME = "SecurityHotspotClosed";
-
-  private String filePath;
-
-  public SecurityHotspotClosed() {
-    // nothing to do
+  public String getStatus() {
+    return status;
   }
 
-  @Override
-  public String getEventName() {
-    return EVENT_NAME;
+  public void setStatus(String status) {
+    this.status = status;
   }
 
-  public String getFilePath() {
-    return filePath;
+  @Nullable
+  public String getResolution() {
+    return resolution;
   }
 
-  public void setFilePath(String filePath) {
-    this.filePath = filePath;
+  public void setResolution(@Nullable String resolution) {
+    this.resolution = resolution;
   }
 }
