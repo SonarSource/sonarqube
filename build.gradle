@@ -230,7 +230,6 @@ subprojects {
 
   ext {
     protobufVersion = '4.30.1'
-    springVersion = '6.2.2'
     springSecurityVersion = '6.4.4'
     elasticSearchClientVersion = '7.17.28'
   }
@@ -488,7 +487,15 @@ subprojects {
           exclude 'org.junit.jupiter:junit-jupiter-api'
         }
       }
-      dependency "org.springframework:spring-test:${springVersion}"
+      dependencySet(group: 'org.springframework', version: '6.2.5') {
+        entry 'spring-test'
+        entry('spring-context') {
+          exclude 'commons-logging:commons-logging'
+        }
+        entry('spring-webmvc') {
+          exclude 'commons-logging:commons-logging'
+        }
+      }
       dependency "org.springframework.security:spring-security-saml2-service-provider:${springSecurityVersion}"
       dependency 'org.mybatis:mybatis:3.5.19'
       dependencySet(group: 'org.slf4j', version: '2.0.17') {
@@ -510,12 +517,6 @@ subprojects {
       dependency 'com.sonarsource.pdfreport:security-report-pdf-generation:2.0.0.184'
       dependency 'org.sonarsource.update-center:sonar-update-center-common:1.35.0.2835'
       dependency 'org.sonarsource.classloader:sonar-classloader:1.1.0.1059'
-      dependency("org.springframework:spring-context:${springVersion}") {
-        exclude 'commons-logging:commons-logging'
-      }
-      dependency("org.springframework:spring-webmvc:${springVersion}") {
-        exclude 'commons-logging:commons-logging'
-      }
       dependency 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.6'
       dependencySet(group: 'com.icegreen', version: '2.1.3') {
         entry 'greenmail'
