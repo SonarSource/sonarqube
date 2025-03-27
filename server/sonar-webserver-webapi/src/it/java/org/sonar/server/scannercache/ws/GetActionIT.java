@@ -29,7 +29,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.component.BranchDao;
@@ -50,7 +50,7 @@ import org.sonar.server.ws.WsActionTester;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.api.web.UserRole.SCAN;
+import static org.sonar.db.permission.ProjectPermission.SCAN;
 
 public class GetActionIT {
   @Rule
@@ -157,7 +157,7 @@ public class GetActionIT {
   @Test
   public void fail_if_no_permissions() {
     ProjectDto project = dbTester.components().insertPrivateProject().getProjectDto();
-    userSession.logIn().addProjectPermission(UserRole.CODEVIEWER, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.CODEVIEWER, project);
     TestRequest request = wsTester
       .newRequest()
       .setParam("project", project.getKey());

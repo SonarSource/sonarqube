@@ -32,7 +32,7 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ProjectQprofileAssociationDto;
@@ -108,7 +108,7 @@ public class ProjectsAction implements QProfileWsAction {
         .map(ProjectQprofileAssociationDto::getProjectUuid)
         .collect(Collectors.toSet());
 
-      Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedEntityUuids(session, projectUuids, userSession.getUuid(), UserRole.USER);
+      Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedEntityUuids(session, projectUuids, userSession.getUuid(), ProjectPermission.USER);
       Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(authorizedProjectUuids.size());
 
       List<ProjectQprofileAssociationDto> authorizedProjects = projects.stream()

@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeQueueImpl;
 import org.sonar.ce.queue.CeTaskSubmit;
@@ -103,7 +103,7 @@ public class CancelActionIT {
     ProjectData project = db.components().insertPrivateProject();
     ProjectDto projectDto = project.getProjectDto();
     ComponentDto mainBranchComponent = project.getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.ADMIN, projectDto);
+    userSession.addProjectPermission(ProjectPermission.ADMIN, projectDto);
     userSession.addProjectBranchMapping(projectDto.getUuid(), mainBranchComponent);
     CeQueueDto queue = createTaskSubmit(mainBranchComponent);
 

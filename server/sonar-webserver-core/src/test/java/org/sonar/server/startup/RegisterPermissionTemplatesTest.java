@@ -28,7 +28,7 @@ import org.slf4j.event.Level;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -61,11 +61,11 @@ public class RegisterPermissionTemplatesTest {
 
     List<PermissionTemplateGroupDto> groupPermissions = selectGroupPermissions(defaultTemplate);
     assertThat(groupPermissions).hasSize(5);
-    expectGroupPermission(groupPermissions, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
-    expectGroupPermission(groupPermissions, UserRole.CODEVIEWER, defaultGroup.getName());
-    expectGroupPermission(groupPermissions, UserRole.USER, defaultGroup.getName());
-    expectGroupPermission(groupPermissions, UserRole.ISSUE_ADMIN, defaultGroup.getName());
-    expectGroupPermission(groupPermissions, UserRole.SECURITYHOTSPOT_ADMIN, defaultGroup.getName());
+    expectGroupPermission(groupPermissions, ProjectPermission.ADMIN, DefaultGroups.ADMINISTRATORS);
+    expectGroupPermission(groupPermissions, ProjectPermission.CODEVIEWER, defaultGroup.getName());
+    expectGroupPermission(groupPermissions, ProjectPermission.USER, defaultGroup.getName());
+    expectGroupPermission(groupPermissions, ProjectPermission.ISSUE_ADMIN, defaultGroup.getName());
+    expectGroupPermission(groupPermissions, ProjectPermission.SECURITYHOTSPOT_ADMIN, defaultGroup.getName());
 
     verifyDefaultTemplateForProject(defaultTemplate.getUuid());
 
@@ -83,10 +83,10 @@ public class RegisterPermissionTemplatesTest {
 
     List<PermissionTemplateGroupDto> groupPermissions = selectGroupPermissions(defaultTemplate);
     assertThat(groupPermissions).hasSize(4);
-    expectGroupPermission(groupPermissions, UserRole.CODEVIEWER, defaultGroup.getName());
-    expectGroupPermission(groupPermissions, UserRole.USER, defaultGroup.getName());
-    expectGroupPermission(groupPermissions, UserRole.ISSUE_ADMIN, defaultGroup.getName());
-    expectGroupPermission(groupPermissions, UserRole.SECURITYHOTSPOT_ADMIN, defaultGroup.getName());
+    expectGroupPermission(groupPermissions, ProjectPermission.CODEVIEWER, defaultGroup.getName());
+    expectGroupPermission(groupPermissions, ProjectPermission.USER, defaultGroup.getName());
+    expectGroupPermission(groupPermissions, ProjectPermission.ISSUE_ADMIN, defaultGroup.getName());
+    expectGroupPermission(groupPermissions, ProjectPermission.SECURITYHOTSPOT_ADMIN, defaultGroup.getName());
 
     verifyDefaultTemplateForProject(defaultTemplate.getUuid());
 
@@ -113,10 +113,10 @@ public class RegisterPermissionTemplatesTest {
     return db.getDbClient().permissionTemplateDao().selectGroupPermissionsByTemplateUuid(db.getSession(), template.getUuid());
   }
 
-  private void expectGroupPermission(List<PermissionTemplateGroupDto> groupPermissions, String expectedPermission,
+  private void expectGroupPermission(List<PermissionTemplateGroupDto> groupPermissions, ProjectPermission expectedPermission,
     String expectedGroupName) {
     assertThat(
-      groupPermissions.stream().anyMatch(gp -> gp.getPermission().equals(expectedPermission) && Objects.equals(gp.getGroupName(), expectedGroupName)))
+      groupPermissions.stream().anyMatch(gp -> gp.getPermission().equals(expectedPermission.getKey()) && Objects.equals(gp.getGroupName(), expectedGroupName)))
         .isTrue();
   }
 

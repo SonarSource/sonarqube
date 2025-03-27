@@ -22,6 +22,7 @@ package org.sonar.server.user;
 import java.util.Collection;
 import java.util.Optional;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.GroupDto;
 
 import static java.util.Collections.emptySet;
@@ -96,22 +97,22 @@ public class GithubWebhookUserSession extends AbstractUserSession {
   }
 
   @Override
-  protected boolean hasEntityUuidPermission(String permission, String entityUuid) {
+  protected boolean hasEntityUuidPermission(ProjectPermission permission, String entityUuid) {
     return false;
   }
 
   @Override
-  protected boolean hasChildProjectsPermission(String permission, String applicationUuid) {
+  protected boolean hasChildProjectsPermission(ProjectPermission permission, String applicationUuid) {
     return false;
   }
 
   @Override
-  protected boolean hasPortfolioChildProjectsPermission(String permission, String portfolioUuid) {
+  protected boolean hasPortfolioChildProjectsPermission(ProjectPermission permission, String portfolioUuid) {
     return false;
   }
 
   @Override
-  public boolean hasComponentUuidPermission(String permission, String componentUuid) {
+  public boolean hasComponentUuidPermission(ProjectPermission permission, String componentUuid) {
     return true;
   }
 

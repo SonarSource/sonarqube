@@ -22,6 +22,7 @@ package org.sonar.server.common.permission;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.db.entity.EntityDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.UserIdDto;
 import org.sonar.server.permission.PermissionService;
 
@@ -34,13 +35,13 @@ class UserPermissionChangeTest {
   @Test
   void toString_shouldReturnStringRepresentation() {
     PermissionService permissionService = mock();
-    when(permissionService.getAllProjectPermissions()).thenReturn(List.of("permission1", "permission2"));
+    when(permissionService.getAllProjectPermissions()).thenReturn(List.of(ProjectPermission.ADMIN, ProjectPermission.SCAN));
 
     EntityDto entityDto = mock();
     when(entityDto.getName()).thenReturn("entityName");
-    UserPermissionChange userPermissionChange = new UserPermissionChange(Operation.ADD, "permission2", entityDto, new UserIdDto("uuid1", "login1"), permissionService);
+    UserPermissionChange userPermissionChange = new UserPermissionChange(Operation.ADD, "scan", entityDto, new UserIdDto("uuid1", "login1"), permissionService);
 
-    assertThat(userPermissionChange).hasToString("UserPermissionChange[userId=login='login1', operation=ADD, permission='permission2', entity=entityName]");
+    assertThat(userPermissionChange).hasToString("UserPermissionChange[userId=login='login1', operation=ADD, permission='scan', entity=entityName]");
   }
 
 }

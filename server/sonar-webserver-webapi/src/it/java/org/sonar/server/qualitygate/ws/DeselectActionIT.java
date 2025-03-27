@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -76,7 +76,7 @@ class DeselectActionIT {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     associateProjectToQualityGate(project, qualityGate);
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     ws.newRequest()
       .setParam("projectKey", project.getKey())
@@ -141,7 +141,7 @@ class DeselectActionIT {
   @Test
   void fail_when_not_project_admin() {
     ProjectData project = db.components().insertPrivateProject();
-    userSession.logIn().addProjectPermission(UserRole.ISSUE_ADMIN, project.getProjectDto());
+    userSession.logIn().addProjectPermission(ProjectPermission.ISSUE_ADMIN, project.getProjectDto());
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("projectKey", project.projectKey())

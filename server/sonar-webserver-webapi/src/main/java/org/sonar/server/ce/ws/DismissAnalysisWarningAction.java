@@ -23,7 +23,7 @@ import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -81,7 +81,7 @@ public class DismissAnalysisWarningAction implements CeWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
-      userSession.checkEntityPermission(UserRole.USER, project);
+      userSession.checkEntityPermission(ProjectPermission.USER, project);
 
       CeTaskMessageDto messageDto = dbClient.ceTaskMessageDao()
         .selectByUuid(dbSession, messageKey)

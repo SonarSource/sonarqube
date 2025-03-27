@@ -28,17 +28,18 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
 
 import static java.lang.String.format;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.SCAN;
+import static org.sonar.db.permission.ProjectPermission.USER;
 
 public class TokenUserSession extends ServerUserSession {
 
   private static final String TOKEN_ASSERTION_ERROR_MESSAGE = "Unsupported token type %s";
-  private static final String SCAN = "scan";
   private static final Set<GlobalPermission> GLOBAL_ANALYSIS_TOKEN_SUPPORTED_PERMISSIONS = EnumSet.of(GlobalPermission.SCAN, GlobalPermission.PROVISION_PROJECTS);
   private final UserTokenDto userToken;
 
@@ -48,7 +49,7 @@ public class TokenUserSession extends ServerUserSession {
   }
 
   @Override
-  protected boolean hasEntityUuidPermission(String permission, String entityUuid) {
+  protected boolean hasEntityUuidPermission(ProjectPermission permission, String entityUuid) {
     TokenType tokenType = TokenType.valueOf(userToken.getType());
     return switch (tokenType) {
       case USER_TOKEN -> super.hasEntityUuidPermission(permission, entityUuid);
@@ -80,7 +81,7 @@ public class TokenUserSession extends ServerUserSession {
   }
 
   @Override
-  protected <T extends EntityDto> List<T> doKeepAuthorizedEntities(String permission, Collection<T> entities) {
+  protected <T extends EntityDto> List<T> doKeepAuthorizedEntities(ProjectPermission permission, Collection<T> entities) {
     TokenType tokenType = TokenType.valueOf(userToken.getType());
     return switch (tokenType) {
       case USER_TOKEN, GLOBAL_ANALYSIS_TOKEN -> super.doKeepAuthorizedEntities(permission, entities);
@@ -96,7 +97,7 @@ public class TokenUserSession extends ServerUserSession {
    * Required to override doKeepAuthorizedComponents to handle the case of a project analysis token
    */
   @Override
-  protected Set<String> keepAuthorizedProjectsUuids(DbSession dbSession, String permission, Collection<String> entityUuids) {
+  protected Set<String> keepAuthorizedProjectsUuids(DbSession dbSession, ProjectPermission permission, Collection<String> entityUuids) {
     TokenType tokenType = TokenType.valueOf(userToken.getType());
     return switch (tokenType) {
       case USER_TOKEN, GLOBAL_ANALYSIS_TOKEN -> super.keepAuthorizedProjectsUuids(dbSession, permission, entityUuids);

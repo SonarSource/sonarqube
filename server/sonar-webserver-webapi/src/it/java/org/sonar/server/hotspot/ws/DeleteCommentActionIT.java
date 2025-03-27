@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -78,7 +78,7 @@ public class DeleteCommentActionIT {
     IssueChangeDto comment = dbTester.issues().insertComment(hotspot, userDeletingOwnComment, "Some comment");
 
     userSessionRule.logIn(userDeletingOwnComment);
-    userSessionRule.addProjectPermission(UserRole.USER, projectData.getProjectDto());
+    userSessionRule.addProjectPermission(ProjectPermission.USER, projectData.getProjectDto());
 
     TestRequest request = newRequest(comment.getKey());
 
@@ -144,7 +144,7 @@ public class DeleteCommentActionIT {
     IssueChangeDto comment = dbTester.issues().insertComment(hotspot, userWithHotspotComment, "Some comment");
 
     userSessionRule.logIn(userTryingToDelete);
-    userSessionRule.addProjectPermission(UserRole.USER, projectData.getProjectDto());
+    userSessionRule.addProjectPermission(ProjectPermission.USER, projectData.getProjectDto());
 
     TestRequest request = newRequest(comment.getKey());
 

@@ -43,7 +43,6 @@ import org.mockito.Mockito;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
@@ -53,6 +52,7 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbCommons.TextRange;
 import org.sonar.db.protobuf.DbIssues;
@@ -289,7 +289,7 @@ public class ShowActionIT {
     ComponentDto mainBranchComponent = projectData.getMainBranchComponent();
 
     userSessionRule.registerProjects(projectData.getProjectDto());
-    userSessionRule.logIn().addProjectPermission(UserRole.USER, projectData.getProjectDto());
+    userSessionRule.logIn().addProjectPermission(ProjectPermission.USER, projectData.getProjectDto());
     ComponentDto file = dbTester.components().insertComponent(newFileDto(mainBranchComponent));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, mainBranchComponent, file);
@@ -320,7 +320,7 @@ public class ShowActionIT {
 
   @Test
   @UseDataProvider("allPublicProjectPermissionsButSECURITYHOTSPOT_ADMIN")
-  public void return_canChangeStatus_false_on_public_project_when_authenticated_without_SECURITYHOTSPOT_ADMIN_permission(@Nullable String permission) {
+  public void return_canChangeStatus_false_on_public_project_when_authenticated_without_SECURITYHOTSPOT_ADMIN_permission(@Nullable ProjectPermission permission) {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto mainBranchComponent = projectData.getMainBranchComponent();
 
@@ -341,12 +341,12 @@ public class ShowActionIT {
 
   @Test
   @UseDataProvider("allPublicProjectPermissionsButSECURITYHOTSPOT_ADMIN")
-  public void return_canChangeStatus_true_on_public_project_when_authenticated_with_SECURITYHOTSPOT_ADMIN_permission(@Nullable String permission) {
+  public void return_canChangeStatus_true_on_public_project_when_authenticated_with_SECURITYHOTSPOT_ADMIN_permission(@Nullable ProjectPermission permission) {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto mainBranchComponent = projectData.getMainBranchComponent();
 
     userSessionRule.registerProjects(projectData.getProjectDto())
-      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
+      .addProjectPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
     if (permission != null) {
       userSessionRule.addProjectPermission(permission, projectData.getProjectDto());
     }
@@ -365,21 +365,21 @@ public class ShowActionIT {
   public static Object[][] allPublicProjectPermissionsButSECURITYHOTSPOT_ADMIN() {
     return new Object[][] {
       {null}, // no permission
-      {UserRole.ADMIN},
-      {UserRole.SCAN},
-      {UserRole.ISSUE_ADMIN}
+      {ProjectPermission.ADMIN},
+      {ProjectPermission.SCAN},
+      {ProjectPermission.ISSUE_ADMIN}
     };
   }
 
   @Test
   @UseDataProvider("allPrivateProjectPermissionsButSECURITYHOTSPOT_ADMIN_and_USER")
-  public void return_canChangeStatus_false_on_private_project_without_SECURITYHOTSPOT_ADMIN_permission(@Nullable String permission) {
+  public void return_canChangeStatus_false_on_private_project_without_SECURITYHOTSPOT_ADMIN_permission(@Nullable ProjectPermission permission) {
     ProjectData projectData = dbTester.components().insertPrivateProject();
     ComponentDto mainBranchComponent = projectData.getMainBranchComponent();
     userSessionRule
       .registerProjects(projectData.getProjectDto())
       .logIn()
-      .addProjectPermission(UserRole.USER, projectData.getProjectDto());
+      .addProjectPermission(ProjectPermission.USER, projectData.getProjectDto());
     if (permission != null) {
       userSessionRule.addProjectPermission(permission, projectData.getProjectDto());
     }
@@ -396,14 +396,14 @@ public class ShowActionIT {
 
   @Test
   @UseDataProvider("allPrivateProjectPermissionsButSECURITYHOTSPOT_ADMIN_and_USER")
-  public void return_canChangeStatus_false_on_private_project_with_SECURITYHOTSPOT_ADMIN_permission(@Nullable String permission) {
+  public void return_canChangeStatus_false_on_private_project_with_SECURITYHOTSPOT_ADMIN_permission(@Nullable ProjectPermission permission) {
     ProjectData projectData = dbTester.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     userSessionRule
       .registerProjects(projectData.getProjectDto())
       .logIn()
-      .addProjectPermission(UserRole.USER, projectData.getProjectDto())
-      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
+      .addProjectPermission(ProjectPermission.USER, projectData.getProjectDto())
+      .addProjectPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
     if (permission != null) {
       userSessionRule.addProjectPermission(permission, projectData.getProjectDto());
     }
@@ -422,10 +422,10 @@ public class ShowActionIT {
   public static Object[][] allPrivateProjectPermissionsButSECURITYHOTSPOT_ADMIN_and_USER() {
     return new Object[][] {
       {null}, // only USER permission
-      {UserRole.CODEVIEWER},
-      {UserRole.ADMIN},
-      {UserRole.SCAN},
-      {UserRole.ISSUE_ADMIN}
+      {ProjectPermission.CODEVIEWER},
+      {ProjectPermission.ADMIN},
+      {ProjectPermission.SCAN},
+      {ProjectPermission.ISSUE_ADMIN}
     };
   }
 
@@ -436,7 +436,7 @@ public class ShowActionIT {
     ComponentDto mainBranchComponent = projectData.getMainBranchComponent();
 
     userSessionRule.registerProjects(projectData.getProjectDto());
-    userSessionRule.logIn().addProjectPermission(UserRole.USER, projectData.getProjectDto());
+    userSessionRule.logIn().addProjectPermission(ProjectPermission.USER, projectData.getProjectDto());
     ComponentDto file = dbTester.components().insertComponent(newFileDto(mainBranchComponent));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, mainBranchComponent, file, t -> t.setStatus(status).setResolution(resolution));
@@ -468,7 +468,7 @@ public class ShowActionIT {
     ComponentDto mainBranchComponent = projectData.getMainBranchComponent();
 
     userSessionRule.registerProjects(projectData.getProjectDto());
-    userSessionRule.logIn().addProjectPermission(UserRole.USER, projectData.getProjectDto());
+    userSessionRule.logIn().addProjectPermission(ProjectPermission.USER, projectData.getProjectDto());
     ComponentDto file = dbTester.components().insertComponent(newFileDto(mainBranchComponent));
 
     RuleDescriptionSectionDto introductionSection = generateSectionWithKey(INTRODUCTION_SECTION_KEY);
@@ -504,7 +504,7 @@ public class ShowActionIT {
     ComponentDto mainBranchComponent = projectData.getMainBranchComponent();
 
     userSessionRule.registerProjects(projectData.getProjectDto());
-    userSessionRule.logIn().addProjectPermission(UserRole.USER, projectData.getProjectDto());
+    userSessionRule.logIn().addProjectPermission(ProjectPermission.USER, projectData.getProjectDto());
     ComponentDto file = dbTester.components().insertComponent(newFileDto(mainBranchComponent));
 
     RuleDescriptionSectionDto introductionSection = generateSectionWithKey(DEFAULT_KEY);
@@ -530,7 +530,7 @@ public class ShowActionIT {
     ComponentDto mainBranchComponent = projectData.getMainBranchComponent();
 
     userSessionRule.registerProjects(projectData.getProjectDto());
-    userSessionRule.logIn().addProjectPermission(UserRole.USER, projectData.getProjectDto());
+    userSessionRule.logIn().addProjectPermission(ProjectPermission.USER, projectData.getProjectDto());
     ComponentDto file = dbTester.components().insertComponent(newFileDto(mainBranchComponent));
 
     RuleDescriptionSectionDto introductionSection = generateSectionWithKey(INTRODUCTION_SECTION_KEY);
@@ -568,7 +568,7 @@ public class ShowActionIT {
     ComponentDto mainBranchComponent = projectData.getMainBranchComponent();
 
     userSessionRule.registerProjects(projectData.getProjectDto());
-    userSessionRule.logIn().addProjectPermission(UserRole.USER, projectData.getProjectDto());
+    userSessionRule.logIn().addProjectPermission(ProjectPermission.USER, projectData.getProjectDto());
     ComponentDto file = dbTester.components().insertComponent(newFileDto(mainBranchComponent));
 
     String description = "== Title\n<div>line1\nline2</div>";
@@ -599,7 +599,7 @@ public class ShowActionIT {
     ComponentDto mainBranchComponent = projectData.getMainBranchComponent();
 
     userSessionRule.registerProjects(projectData.getProjectDto());
-    userSessionRule.logIn().addProjectPermission(UserRole.USER, projectData.getProjectDto());
+    userSessionRule.logIn().addProjectPermission(ProjectPermission.USER, projectData.getProjectDto());
     ComponentDto file = dbTester.components().insertComponent(newFileDto(mainBranchComponent));
 
     RuleDto rule = newRuleWithoutSection(SECURITY_HOTSPOT, r -> r.setTemplateUuid("123"));
@@ -619,7 +619,7 @@ public class ShowActionIT {
     ComponentDto mainBranchComponent = projectData.getMainBranchComponent();
 
     userSessionRule.registerProjects(projectData.getProjectDto());
-    userSessionRule.logIn().addProjectPermission(UserRole.USER, projectData.getProjectDto());
+    userSessionRule.logIn().addProjectPermission(ProjectPermission.USER, projectData.getProjectDto());
     ComponentDto file = dbTester.components().insertComponent(newFileDto(mainBranchComponent));
 
     RuleDescriptionSectionDto vaadinSection = newContextSpecificDescriptionSection("vaadin");
@@ -1104,8 +1104,8 @@ public class ShowActionIT {
       .extracting(User::getLogin, User::getName, User::getActive)
       .containsExactlyInAnyOrder(
         Stream.concat(
-            Stream.of(author, assignee),
-            changeLogAndCommentsUsers.stream())
+          Stream.of(author, assignee),
+          changeLogAndCommentsUsers.stream())
           .map(t -> tuple(t.getLogin(), t.getName(), t.isActive()))
           .toArray(Tuple[]::new));
   }
@@ -1159,7 +1159,7 @@ public class ShowActionIT {
     ComponentDto mainBranchComponent = projectData.getMainBranchComponent();
 
     userSessionRule.registerProjects(projectData.getProjectDto())
-      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
+      .addProjectPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
 
     ComponentDto file = dbTester.components().insertComponent(
       newFileDto(mainBranchComponent)

@@ -34,7 +34,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
@@ -218,7 +218,7 @@ public class ListAction implements NotificationsWsAction {
       .filter(Objects::nonNull)
       .collect(Collectors.toSet());
     Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedEntityUuids(dbSession, entityUuids,
-      userSession.getUuid(), UserRole.USER);
+      userSession.getUuid(), ProjectPermission.USER);
     return dbClient.entityDao().selectByUuids(dbSession, entityUuids)
       .stream()
       .filter(c -> authorizedProjectUuids.contains(c.getUuid()))

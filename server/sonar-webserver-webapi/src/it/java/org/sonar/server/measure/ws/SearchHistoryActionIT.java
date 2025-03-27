@@ -29,7 +29,7 @@ import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -107,7 +107,7 @@ class SearchHistoryActionIT {
   public void setUp() {
     project = db.components().insertPrivateProject();
     analysis = db.components().insertSnapshot(project.getProjectDto());
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
     nclocMetric = insertNclocMetric();
     complexityMetric = insertComplexityMetric();
@@ -119,7 +119,7 @@ class SearchHistoryActionIT {
   @Test
   void empty_response() {
     project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
     SearchHistoryRequest request = SearchHistoryRequest.builder()
       .setComponent(project.projectKey())
@@ -140,7 +140,7 @@ class SearchHistoryActionIT {
   void analyses_but_no_measure() {
     project = db.components().insertPrivateProject();
     analysis = db.components().insertSnapshot(project.getProjectDto());
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
@@ -235,7 +235,7 @@ class SearchHistoryActionIT {
   @Test
   void pagination_applies_to_analyses() {
     project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
     List<String> analysisDates = LongStream.rangeClosed(1, 9)
       .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project.mainBranchUuid()).setCreatedAt(i * 1_000_000_000)))
@@ -260,7 +260,7 @@ class SearchHistoryActionIT {
   @Test
   void inclusive_from_and_to_dates() {
     project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
     List<String> analysisDates = LongStream.rangeClosed(1, 9)
       .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project.mainBranchUuid()).setCreatedAt(System2.INSTANCE.now() + i * 1_000_000_000L)))
@@ -328,7 +328,7 @@ class SearchHistoryActionIT {
   @Test
   void branch() {
     ProjectData project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
     ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setKey("my_branch"));
     userSession.addProjectBranchMapping(project.projectUuid(), branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.mainBranchUuid()));
@@ -352,7 +352,7 @@ class SearchHistoryActionIT {
   @Test
   void pull_request() {
     ProjectData project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
     ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
     userSession.addProjectBranchMapping(project.projectUuid(), branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.mainBranchUuid()));
@@ -387,7 +387,7 @@ class SearchHistoryActionIT {
 
   @Test
   void fail_if_not_enough_permissions() {
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project.getProjectDto());
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project.getProjectDto());
     SearchHistoryRequest request = SearchHistoryRequest.builder()
       .setComponent(project.projectKey())
       .setMetrics(singletonList(complexityMetric.getKey()))
@@ -408,7 +408,7 @@ class SearchHistoryActionIT {
         application.getProjectDto(),
         project1.getProjectDto(),
         project2.getProjectDto())
-      .addProjectPermission(UserRole.USER, application.getProjectDto(), project1.getProjectDto());
+      .addProjectPermission(ProjectPermission.USER, application.getProjectDto(), project1.getProjectDto());
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
       .setComponent(application.projectKey())
@@ -434,7 +434,7 @@ class SearchHistoryActionIT {
   void fail_when_component_is_removed() {
     ProjectData projectData = db.components().insertPrivateProject();
     db.components().insertComponent(newFileDto(project.getMainBranchComponent()).setKey("file-key").setEnabled(false));
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_COMPONENT, "file-key")
@@ -448,7 +448,7 @@ class SearchHistoryActionIT {
   void fail_if_branch_does_not_exist() {
     ProjectData project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project.getMainBranchComponent()));
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
     db.components().insertProjectBranch(project.getProjectDto(), b -> b.setKey("my_branch"));
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -480,7 +480,7 @@ class SearchHistoryActionIT {
   @Test
   void json_example() {
     project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
     long now = parseDateTime("2017-01-23T17:00:53+0100").getTime();
     LongStream.rangeClosed(0, 2)
@@ -521,10 +521,10 @@ class SearchHistoryActionIT {
   @Test
   void handle_shouldUpdateTelemetryProviders() {
     PortfolioData portfolioData = db.components().insertPrivatePortfolioData();
-    userSession.addPortfolioPermission(UserRole.USER, portfolioData.getPortfolioDto());
+    userSession.addPortfolioPermission(ProjectPermission.USER, portfolioData.getPortfolioDto());
 
     project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
     db.commit();
     // Request for a portfolio

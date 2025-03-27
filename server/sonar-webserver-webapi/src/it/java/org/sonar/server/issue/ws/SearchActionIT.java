@@ -51,7 +51,6 @@ import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
@@ -67,6 +66,7 @@ import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueFixedDto;
 import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
@@ -126,11 +126,11 @@ import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
-import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_ENABLED;
 import static org.sonar.db.component.ComponentQualifiers.UNIT_TEST_FILE;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newIssue;
+import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
 import static org.sonar.db.protobuf.DbIssues.MessageFormattingType.CODE;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.XOO_X1;
@@ -205,7 +205,7 @@ class SearchActionIT {
     ProjectData projectData = db.components().insertPrivateProject();
 
     ProjectDto projectDto = projectData.getProjectDto();
-    db.users().insertProjectPermissionOnUser(user, UserRole.USER, projectDto);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, projectDto);
 
     ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
@@ -233,8 +233,7 @@ class SearchActionIT {
 
     assertThat(response.getIssuesList())
       .extracting(
-        Issue::getKey, Issue::getRule, Issue::getSeverity, Issue::getComponent, Issue::getResolution, Issue::getStatus, Issue::getMessage
-        , Issue::getMessageFormattingsList,
+        Issue::getKey, Issue::getRule, Issue::getSeverity, Issue::getComponent, Issue::getResolution, Issue::getStatus, Issue::getMessage, Issue::getMessageFormattingsList,
         Issue::getEffort, Issue::getAssignee, Issue::getAuthor, Issue::getLine, Issue::getHash, Issue::getTagsList,
         Issue::getCreationDate, Issue::getUpdateDate,
         Issue::getQuickFixAvailable, Issue::getCodeVariantsList)
@@ -399,7 +398,7 @@ class SearchActionIT {
 
     assertThat(result.getIssuesCount()).isOne();
     assertThat(result.getIssues(0).getFlows(0).getLocationsList()).extracting(Common.Location::getComponent, Common.Location::getMsg,
-        Common.Location::getMsgFormattingsList)
+      Common.Location::getMsgFormattingsList)
       .containsExactlyInAnyOrder(
         tuple(file.getKey(), "FLOW MESSAGE", List.of()),
         tuple(anotherFile.getKey(), "ANOTHER FLOW MESSAGE", List.of(Common.MessageFormatting.newBuilder()
@@ -522,8 +521,7 @@ class SearchActionIT {
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java"));
     grantPermissionToAnyone(project.getProjectDto(), ISSUE_ADMIN);
     indexPermissions();
-    ComponentDto file =
-      db.components().insertComponent(newFileDto(project.getMainBranchComponent(), null, "FILE_ID").setKey("FILE_KEY").setLanguage("js"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project.getMainBranchComponent(), null, "FILE_ID").setKey("FILE_KEY").setLanguage("js"));
 
     IssueDto issue = newIssue(newIssueRule(), project.getMainBranchComponent(), file)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
@@ -913,8 +911,7 @@ class SearchActionIT {
   @Test
   void issue_on_removed_file() {
     RuleDto rule = newIssueRule();
-    ComponentDto project =
-      db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setKey("PROJECT_KEY")).getMainBranchComponent();
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setKey("PROJECT_KEY")).getMainBranchComponent();
     indexPermissions();
     ComponentDto removedFile = db.components().insertComponent(newFileDto(project).setUuid("REMOVED_FILE_ID")
       .setKey("REMOVED_FILE_KEY")
@@ -939,8 +936,7 @@ class SearchActionIT {
   @Test
   void apply_paging_with_one_component() {
     RuleDto rule = newIssueRule();
-    ComponentDto project =
-      db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setKey("PROJECT_KEY")).getMainBranchComponent();
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setKey("PROJECT_KEY")).getMainBranchComponent();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     for (int i = 0; i < SearchOptions.MAX_PAGE_SIZE + 1; i++) {
@@ -1273,7 +1269,7 @@ class SearchActionIT {
     assertThat(response.getIssuesList())
       .extracting(Issue::getAuthor)
       .containsExactlyInAnyOrder("", "");
-   assertThat(response.getFacets().getFacetsList()).isEmpty();
+    assertThat(response.getFacets().getFacetsList()).isEmpty();
   }
 
   @Test
@@ -2294,7 +2290,8 @@ class SearchActionIT {
       "additionalFields", "asc", "assigned", "assignees", "author", "components", "branch", "pullRequest", "createdAfter", "createdAt",
       "createdBefore", "createdInLast", "directories", "facets", "files", "issues", "scopes", "languages", "onComponentOnly",
       "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "statuses", "tags", "types", "pciDss-3.2", "pciDss-4" +
-        ".0", "owaspAsvs-4.0",
+        ".0",
+      "owaspAsvs-4.0",
       "owaspAsvsLevel", "owaspTop10", "owaspTop10-2021", "stig-ASD_V5R3", "casa", "sansTop25", "cwe", "sonarsourceSecurity", "timeZone",
       "inNewCodePeriod", "codeVariants",
       "cleanCodeAttributeCategories", "impactSeverities", "impactSoftwareQualities", "issueStatuses", "fixedInPullRequest",
@@ -2562,7 +2559,7 @@ class SearchActionIT {
     issueIndexer.indexAllIssues();
   }
 
-  private void grantPermissionToAnyone(ProjectDto project, String permission) {
+  private void grantPermissionToAnyone(ProjectDto project, ProjectPermission permission) {
     dbClient.groupPermissionDao().insert(session,
       new GroupPermissionDto()
         .setUuid(Uuids.createFast())

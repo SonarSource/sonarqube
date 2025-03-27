@@ -21,7 +21,7 @@ package org.sonar.server.permission;
 
 import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.user.UserSession;
@@ -55,7 +55,7 @@ public class PermissionPrivilegeChecker {
     boolean allowChangingPermissionsByProjectAdmins = config.getBoolean(CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY)
       .orElse(CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_DEFAULT_VALUE);
     if (entity != null && allowChangingPermissionsByProjectAdmins) {
-      userSession.checkEntityPermission(UserRole.ADMIN, entity);
+      userSession.checkEntityPermission(ProjectPermission.ADMIN, entity);
     } else {
       throw insufficientPrivilegesException();
     }

@@ -31,7 +31,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.api.web.page.Page;
 import org.sonar.api.web.page.Page.Qualifier;
 import org.sonar.api.web.page.PageDefinition;
@@ -119,7 +119,7 @@ public class ComponentActionIT {
   @Test
   public void return_info_if_user_has_browse_permission_on_project() {
     ProjectData project = insertProject();
-    userSession.logIn().addProjectPermission(UserRole.USER, project.getProjectDto())
+    userSession.logIn().addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
     init();
 
@@ -129,7 +129,7 @@ public class ComponentActionIT {
   @Test
   public void return_info_if_user_has_administration_permission_on_project() {
     ProjectData project = insertProject();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project.getProjectDto())
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
     init();
 
@@ -148,7 +148,7 @@ public class ComponentActionIT {
   @Test
   public void return_component_info_when_anonymous_no_snapshot() {
     ProjectData project = insertProject();
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
     init();
 
@@ -161,7 +161,7 @@ public class ComponentActionIT {
     UserDto user = db.users().insertUser("obiwan");
     propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setEntityUuid(projectData.getProjectDto().getUuid()).setUserUuid(user.getUuid()),
       projectData.getProjectDto().getKey(), projectData.getProjectDto().getName(), projectData.getProjectDto().getQualifier(), user.getLogin());
-    userSession.logIn(user).addProjectPermission(UserRole.USER, projectData.getProjectDto())
+    userSession.logIn(user).addProjectPermission(ProjectPermission.USER, projectData.getProjectDto())
       .registerBranches(projectData.getMainBranchDto());
     init();
 
@@ -177,7 +177,7 @@ public class ComponentActionIT {
     UserDto user = db.users().insertUser("obiwan");
     propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setEntityUuid(projectData.projectUuid()).setUserUuid(user.getUuid()),
       projectDto.getKey(), projectDto.getName(), projectDto.getQualifier(), user.getLogin());
-    userSession.logIn(user).addProjectPermission(UserRole.USER, projectData.getProjectDto())
+    userSession.logIn(user).addProjectPermission(ProjectPermission.USER, projectData.getProjectDto())
       .registerBranches(branch);
     init();
 
@@ -210,8 +210,8 @@ public class ComponentActionIT {
     propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setEntityUuid(subportfolio.uuid()).setUserUuid(user.getUuid()),
       subportfolio.getKey(), subportfolio.name(), subportfolio.qualifier(), user.getLogin());
 
-    userSession.logIn(user).addProjectPermission(UserRole.USER, portfolio)
-      .addProjectPermission(UserRole.USER, subportfolio);
+    userSession.logIn(user).addProjectPermission(ProjectPermission.USER, portfolio)
+      .addProjectPermission(ProjectPermission.USER, subportfolio);
     init();
 
     String json = ws.newRequest()
@@ -238,7 +238,7 @@ public class ComponentActionIT {
     propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setEntityUuid(portfolio.uuid()).setUserUuid(user.getUuid()),
       subportfolio.getKey(), portfolio.name(), portfolio.qualifier(), user.getLogin());
 
-    userSession.logIn(user).addProjectPermission(UserRole.USER, portfolio);
+    userSession.logIn(user).addProjectPermission(ProjectPermission.USER, portfolio);
     init();
 
     String json = ws.newRequest()
@@ -264,7 +264,7 @@ public class ComponentActionIT {
       application1.getProjectDto(),
       project11.getProjectDto(),
       project12.getProjectDto());
-    userSession.addProjectPermission(UserRole.USER, application1.getProjectDto(), project11.getProjectDto(), project12.getProjectDto())
+    userSession.addProjectPermission(ProjectPermission.USER, application1.getProjectDto(), project11.getProjectDto(), project12.getProjectDto())
       .registerBranches(application1.getMainBranchDto());
 
     ProjectData application2 = db.components().insertPrivateApplication();
@@ -274,7 +274,7 @@ public class ComponentActionIT {
       application2.getProjectDto(),
       project21.getProjectDto(),
       project22.getProjectDto());
-    userSession.addProjectPermission(UserRole.USER, application2.getProjectDto(), project21.getProjectDto())
+    userSession.addProjectPermission(ProjectPermission.USER, application2.getProjectDto(), project21.getProjectDto())
       .registerBranches(application2.getMainBranchDto());
 
     init();
@@ -298,7 +298,7 @@ public class ComponentActionIT {
     db.components().insertSnapshot(project, snapshot -> snapshot
       .setCreatedAt(parseDateTime("2015-04-22T11:44:00+0200").getTime())
       .setProjectVersion("3.14"));
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
     init();
 
@@ -309,7 +309,7 @@ public class ComponentActionIT {
   public void return_component_info_when_file_on_master() {
     db.qualityGates().createDefaultQualityGate();
     ComponentDto main = componentDbTester.insertPrivateProject(p -> p.setName("Sample").setKey("sample")).getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, main);
+    userSession.addProjectPermission(ProjectPermission.USER, main);
     init();
 
     ComponentDto dirDto = componentDbTester.insertComponent(newDirectory(main, "src"));
@@ -328,7 +328,7 @@ public class ComponentActionIT {
     ProjectData project = componentDbTester.insertPrivateProject(p -> p.setName("Sample").setKey("sample"));
     String branchName = "feature1";
     ComponentDto branch = componentDbTester.insertProjectBranch(project.getMainBranchComponent(), b -> b.setKey(branchName));
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
     userSession.addProjectBranchMapping(project.projectUuid(), branch);
     init();
     ComponentDto dirDto = componentDbTester.insertComponent(newDirectory(branch, "src"));
@@ -374,7 +374,7 @@ public class ComponentActionIT {
     addQualityProfiles(project.getMainBranchComponent(),
       new QualityProfile(qp1.getKee(), qp1.getName(), qp1.getLanguage(), new Date()),
       new QualityProfile(qp2.getKee(), qp2.getName(), qp2.getLanguage(), new Date()));
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
     init();
 
@@ -389,7 +389,7 @@ public class ComponentActionIT {
   @Test
   public void return_empty_quality_profiles_when_no_measure() {
     ProjectData project = insertProject();
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
     init();
 
@@ -402,7 +402,7 @@ public class ComponentActionIT {
     ProjectData project = db.components().insertPrivateProject();
     QualityGateDto qualityGateDto = db.qualityGates().insertQualityGate(qg -> qg.setName("Sonar way"));
     db.qualityGates().associateProjectToQualityGate(project.getProjectDto(), qualityGateDto);
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
 
     init();
@@ -417,7 +417,7 @@ public class ComponentActionIT {
     BranchDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
     QualityGateDto qualityGateDto = db.qualityGates().insertQualityGate(qg -> qg.setName("Sonar way"));
     db.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
-    userSession.addProjectPermission(UserRole.USER, project)
+    userSession.addProjectPermission(ProjectPermission.USER, project)
       .addProjectBranchMapping(project.getUuid(), db.components().getComponentDto(branch));
     init();
 
@@ -434,7 +434,7 @@ public class ComponentActionIT {
   public void return_default_quality_gate() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.qualityGates().createDefaultQualityGate(qg -> qg.setName("Sonar way"));
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.addProjectPermission(ProjectPermission.USER, project);
     init();
 
     executeAndVerify(project.getKey(), "return_default_quality_gate.json");
@@ -443,7 +443,7 @@ public class ComponentActionIT {
   @Test
   public void return_extensions() {
     ProjectData project = insertProject();
-    userSession.anonymous().addProjectPermission(UserRole.USER, project.getProjectDto())
+    userSession.anonymous().addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
     init(createPages());
 
@@ -478,8 +478,8 @@ public class ComponentActionIT {
   public void return_extensions_for_admin() {
     ProjectData project = insertProject();
     userSession.anonymous()
-      .addProjectPermission(UserRole.USER, project.getProjectDto())
-      .addProjectPermission(UserRole.ADMIN, project.getProjectDto())
+      .addProjectPermission(ProjectPermission.USER, project.getProjectDto())
+      .addProjectPermission(ProjectPermission.ADMIN, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
     init(createPages());
 
@@ -491,8 +491,8 @@ public class ComponentActionIT {
     ProjectData project = insertProject();
     UserDto user = db.users().insertUser();
     userSession.logIn(user)
-      .addProjectPermission(UserRole.USER, project.getProjectDto())
-      .addProjectPermission(UserRole.ADMIN, project.getProjectDto())
+      .addProjectPermission(ProjectPermission.USER, project.getProjectDto())
+      .addProjectPermission(ProjectPermission.ADMIN, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
     Page page1 = Page.builder("my_plugin/first_page")
       .setName("First Page")
@@ -515,8 +515,8 @@ public class ComponentActionIT {
   public void return_configuration_with_all_properties() {
     ProjectData project = insertProject();
     userSession.anonymous()
-      .addProjectPermission(UserRole.USER, project.getProjectDto())
-      .addProjectPermission(UserRole.ADMIN, project.getProjectDto())
+      .addProjectPermission(ProjectPermission.USER, project.getProjectDto())
+      .addProjectPermission(ProjectPermission.ADMIN, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
     ComponentType projectComponentType = ComponentType.builder(project.getProjectDto().getQualifier())
       .setProperty("comparable", true)
@@ -537,7 +537,7 @@ public class ComponentActionIT {
   public void return_configuration_for_quality_profile_admin() {
     ProjectData project = insertProject();
     userSession.logIn()
-      .addProjectPermission(UserRole.USER, project.getProjectDto())
+      .addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .addPermission(ADMINISTER_QUALITY_PROFILES)
       .registerBranches(project.getMainBranchDto());
     init();
@@ -549,7 +549,7 @@ public class ComponentActionIT {
   public void return_configuration_for_quality_gate_admin() {
     ProjectData project = insertProject();
     userSession.logIn()
-      .addProjectPermission(UserRole.USER, project.getProjectDto())
+      .addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .addPermission(ADMINISTER_QUALITY_GATES)
       .registerBranches(project.getMainBranchDto());
     init();
@@ -562,9 +562,9 @@ public class ComponentActionIT {
     ProjectData project = insertProject();
     UserSessionRule userSessionRule = userSession.logIn();
     init();
-    userSessionRule.addProjectPermission(UserRole.USER, project.getProjectDto())
+    userSessionRule.addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto())
-      .addProjectPermission(UserRole.ADMIN, project.getProjectDto());
+      .addProjectPermission(ProjectPermission.ADMIN, project.getProjectDto());
 
     String json = execute(project.projectKey());
 
@@ -592,8 +592,8 @@ public class ComponentActionIT {
     ProjectData project = insertProject();
     UserSessionRule userSessionRule = userSession.logIn();
     init();
-    userSessionRule.addProjectPermission(UserRole.USER, project.getProjectDto())
-      .addProjectPermission(UserRole.ADMIN, project.getProjectDto())
+    userSessionRule.addProjectPermission(ProjectPermission.USER, project.getProjectDto())
+      .addProjectPermission(ProjectPermission.ADMIN, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
 
     String json = execute(project.projectKey());
@@ -621,7 +621,7 @@ public class ComponentActionIT {
     ProjectData project = insertProject();
     UserSessionRule userSessionRule = userSession.logIn();
     init();
-    userSessionRule.addProjectPermission(UserRole.USER, project.getProjectDto())
+    userSessionRule.addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
 
     String json = execute(project.projectKey());
@@ -636,7 +636,7 @@ public class ComponentActionIT {
     ComponentDto file = componentDbTester.insertComponent(newFileDto(directory, directory, "cdef").setName("Source.xoo")
       .setKey("polop:src/main/xoo/Source.xoo")
       .setPath(directory.path()));
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
     init();
 
@@ -646,7 +646,7 @@ public class ComponentActionIT {
   @Test
   public void project_administrator_is_allowed_to_get_information() {
     ProjectData project = insertProject();
-    userSession.addProjectPermission(UserRole.ADMIN, project.getProjectDto())
+    userSession.addProjectPermission(ProjectPermission.ADMIN, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
     init(createPages());
 
@@ -660,7 +660,7 @@ public class ComponentActionIT {
     init();
 
     userSession.logIn()
-      .addProjectPermission(UserRole.ADMIN, project.getProjectDto())
+      .addProjectPermission(ProjectPermission.ADMIN, project.getProjectDto())
       .addPermission(GlobalPermission.ADMINISTER)
       .registerBranches(project.getMainBranchDto());
     assertJson(execute(project.projectKey())).isSimilarTo("{\"visibility\": \"private\"}");
@@ -673,7 +673,7 @@ public class ComponentActionIT {
     init();
 
     userSession.logIn()
-      .addProjectPermission(UserRole.ADMIN, project.getProjectDto())
+      .addProjectPermission(ProjectPermission.ADMIN, project.getProjectDto())
       .registerBranches(project.getMainBranchDto())
       .addPermission(GlobalPermission.ADMINISTER);
     assertJson(execute(project.projectKey())).isSimilarTo("{\"visibility\": \"public\"}");
@@ -686,13 +686,13 @@ public class ComponentActionIT {
     init(createPages());
 
     userSession.logIn()
-      .addProjectPermission(UserRole.ADMIN, project.getProjectDto())
+      .addProjectPermission(ProjectPermission.ADMIN, project.getProjectDto())
       .addPermission(GlobalPermission.ADMINISTER)
       .registerBranches(project.getMainBranchDto());
     assertJson(execute(project.projectKey())).isSimilarTo("{\"configuration\": {\"canApplyPermissionTemplate\": true}}");
 
     userSession.logIn()
-      .addProjectPermission(UserRole.ADMIN, project.getProjectDto())
+      .addProjectPermission(ProjectPermission.ADMIN, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
 
     assertJson(execute(project.projectKey())).isSimilarTo("{\"configuration\": {\"canApplyPermissionTemplate\": false}}");
@@ -704,7 +704,7 @@ public class ComponentActionIT {
     ProjectData project = db.components().insertPublicProject();
     init(createPages());
 
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project.getProjectDto())
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
     assertJson(execute(project.projectKey())).isSimilarTo("{\"configuration\": {\"canUpdateProjectVisibilityToPrivate\": true}}");
   }
@@ -763,8 +763,8 @@ public class ComponentActionIT {
     QualityGateDto qualityGateDto = db.qualityGates().insertQualityGate(qg -> qg.setName("Sonar way"));
     db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(mainBranch), qualityGateDto);
     userSession.logIn(user)
-      .addProjectPermission(UserRole.USER, projectDto)
-      .addProjectPermission(UserRole.ADMIN, projectDto)
+      .addProjectPermission(ProjectPermission.USER, projectDto)
+      .addProjectPermission(ProjectPermission.ADMIN, projectDto)
       .registerBranches(projectData.getMainBranchDto());
 
     String result = execute(mainBranch.getKey());
@@ -798,7 +798,7 @@ public class ComponentActionIT {
   public void fail_on_directory_key_as_param() {
     ProjectData project = insertProject();
     ComponentDto directory = componentDbTester.insertComponent(newDirectory(project.getMainBranchComponent(), "src/main/xoo"));
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
     init();
     String dirKey = directory.getKey();
     assertThatThrownBy(() -> execute(dirKey))

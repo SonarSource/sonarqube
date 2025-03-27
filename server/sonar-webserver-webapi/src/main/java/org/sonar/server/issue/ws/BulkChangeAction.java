@@ -44,7 +44,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
@@ -421,7 +421,7 @@ public class BulkChangeAction implements IssuesWsAction {
     }
 
     private List<ComponentDto> getAuthorizedComponents(List<ComponentDto> projectDtos) {
-      return userSession.keepAuthorizedComponents(UserRole.USER, projectDtos);
+      return userSession.keepAuthorizedComponents(ProjectPermission.USER, projectDtos);
     }
 
     private List<IssueDto> getAuthorizedIssues(List<IssueDto> allIssues) {

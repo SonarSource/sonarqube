@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -127,8 +127,8 @@ public class ShowAction implements NewCodePeriodsWsAction {
   }
 
   private void checkPermission(ProjectDto project) {
-    if (userSession.hasEntityPermission(UserRole.SCAN, project) ||
-      userSession.hasEntityPermission(UserRole.ADMIN, project) ||
+    if (userSession.hasEntityPermission(ProjectPermission.SCAN, project) ||
+      userSession.hasEntityPermission(ProjectPermission.ADMIN, project) ||
       userSession.hasPermission(SCAN)) {
       return;
     }

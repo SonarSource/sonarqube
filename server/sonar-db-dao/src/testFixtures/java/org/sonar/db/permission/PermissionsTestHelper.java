@@ -20,7 +20,6 @@
 package org.sonar.db.permission;
 
 import java.util.Set;
-import org.sonar.api.web.UserRole;
 
 import static org.sonar.db.permission.GlobalPermission.APPLICATION_CREATOR;
 import static org.sonar.db.permission.GlobalPermission.PORTFOLIO_CREATOR;
@@ -28,8 +27,9 @@ import static org.sonar.db.permission.GlobalPermission.SCAN;
 
 public class PermissionsTestHelper {
 
-  public static final Set<String> ALL_PERMISSIONS = Set.of(UserRole.ADMIN, UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN,
-    SCAN.getKey(), UserRole.USER, APPLICATION_CREATOR.getKey(), PORTFOLIO_CREATOR.getKey());
+  public static final Set<String> ALL_PERMISSIONS = Set.of(ProjectPermission.ADMIN.getKey(), ProjectPermission.CODEVIEWER.getKey(),
+    ProjectPermission.ISSUE_ADMIN.getKey(), ProjectPermission.SECURITYHOTSPOT_ADMIN.getKey(),
+    SCAN.getKey(), ProjectPermission.USER.getKey(), APPLICATION_CREATOR.getKey(), PORTFOLIO_CREATOR.getKey());
 
   private PermissionsTestHelper() {
   }

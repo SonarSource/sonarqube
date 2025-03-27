@@ -35,7 +35,7 @@ import org.sonarqube.ws.client.project.ProjectsWsParameters;
 
 import static org.sonar.api.CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_DEFAULT_VALUE;
 import static org.sonar.api.CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY;
-import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.db.permission.ProjectPermission.ADMIN;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;

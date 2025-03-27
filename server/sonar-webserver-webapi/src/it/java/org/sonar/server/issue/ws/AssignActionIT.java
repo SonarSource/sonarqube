@@ -30,6 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -57,8 +58,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.core.rule.RuleType.CODE_SMELL;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 
 public class AssignActionIT {
@@ -289,7 +290,7 @@ public class AssignActionIT {
     setUserWithPermission(issue, USER);
   }
 
-  private void setUserWithPermission(IssueDto issue, String permission) {
+  private void setUserWithPermission(IssueDto issue, ProjectPermission permission) {
     currentUser = insertUser(CURRENT_USER_LOGIN);
     userSession.logIn(currentUser)
       .addProjectPermission(permission,

@@ -28,7 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
 import org.sonar.core.ce.CeTaskCharacteristics;
 import org.sonar.core.util.Uuids;
@@ -302,7 +302,7 @@ public class ActivityActionIT {
     ProjectData project1 = db.components().insertPrivateProject();
     ProjectData project2 = db.components().insertPrivateProject();
     // no need to be a system admin
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project1.getProjectDto());
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project1.getProjectDto());
     insertActivity("T1", project1, SUCCESS);
     insertActivity("T2", project2, FAILED);
 
@@ -401,7 +401,7 @@ public class ActivityActionIT {
     // is reserved to roots
     PortfolioData view = db.components().insertPrivatePortfolioData();
     insertActivity("T1", view, SUCCESS);
-    userSession.logIn().addPortfolioPermission(UserRole.ADMIN, view.getPortfolioDto());
+    userSession.logIn().addPortfolioPermission(ProjectPermission.ADMIN, view.getPortfolioDto());
 
     TestRequest request = ws.newRequest().setParam(TEXT_QUERY, "T1");
     assertThatThrownBy(() -> call(request))
@@ -413,7 +413,7 @@ public class ActivityActionIT {
   public void branch_in_past_activity() {
     logInAsSystemAdministrator();
     ProjectData project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
     String branchName = "branch1";
     ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setBranchType(BRANCH).setKey(branchName));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
@@ -455,7 +455,7 @@ public class ActivityActionIT {
   public void pull_request_in_past_activity() {
     logInAsSystemAdministrator();
     ProjectData project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
     String pullRequestKey = RandomStringUtils.secure().nextAlphanumeric(100);
     ComponentDto pullRequest = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setBranchType(BranchType.PULL_REQUEST).setKey(pullRequestKey));
     SnapshotDto analysis = db.components().insertSnapshot(pullRequest);

@@ -20,7 +20,7 @@
 package org.sonar.server.issue;
 
 import org.sonar.core.rule.RuleType;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueDto;
@@ -49,7 +49,7 @@ public class IssueFinder {
       throw new NotFoundException(format("Issue with key '%s' does not exist", issueKey));
     }
 
-    userSession.checkComponentUuidPermission(UserRole.USER, requireNonNull(issue.getProjectUuid()));
+    userSession.checkComponentUuidPermission(ProjectPermission.USER, requireNonNull(issue.getProjectUuid()));
     return issue;
   }
 

@@ -49,7 +49,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.i18n.I18n;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -657,7 +657,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
   }
 
   private List<ComponentDto> filterAuthorizedComponents(List<ComponentDto> components) {
-    return userSession.keepAuthorizedComponents(UserRole.USER, components);
+    return userSession.keepAuthorizedComponents(ProjectPermission.USER, components);
   }
 
   private static boolean componentWithMeasuresOnly(ComponentTreeRequest wsRequest) {
@@ -715,10 +715,10 @@ public class ComponentTreeAction implements MeasuresWsAction {
   }
 
   private void checkPermissions(ComponentDto baseComponent) {
-    userSession.checkComponentPermission(UserRole.USER, baseComponent);
+    userSession.checkComponentPermission(ProjectPermission.USER, baseComponent);
 
     if (ComponentScopes.PROJECT.equals(baseComponent.scope()) && ComponentQualifiers.APP.equals(baseComponent.qualifier())) {
-      userSession.checkChildProjectsPermission(UserRole.USER, baseComponent);
+      userSession.checkChildProjectsPermission(ProjectPermission.USER, baseComponent);
     }
   }
 

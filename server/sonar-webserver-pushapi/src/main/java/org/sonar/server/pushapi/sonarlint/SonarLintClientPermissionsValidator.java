@@ -22,7 +22,7 @@ package org.sonar.server.pushapi.sonarlint;
 import java.util.List;
 import java.util.Set;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
@@ -70,7 +70,7 @@ public class SonarLintClientPermissionsValidator {
   private static void validateProjectPermissions(UserSession userSession, List<ProjectDto> projectDtos) {
     validateUsersDeactivationStatus(userSession);
     for (ProjectDto projectDto : projectDtos) {
-      userSession.checkEntityPermission(UserRole.USER, projectDto);
+      userSession.checkEntityPermission(ProjectPermission.USER, projectDto);
     }
   }
 

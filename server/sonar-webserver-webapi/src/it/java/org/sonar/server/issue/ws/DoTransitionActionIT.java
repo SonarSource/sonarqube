@@ -72,8 +72,8 @@ import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.core.rule.RuleType.CODE_SMELL;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newIssue;
 

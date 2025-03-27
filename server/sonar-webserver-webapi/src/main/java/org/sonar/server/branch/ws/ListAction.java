@@ -30,7 +30,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -47,7 +47,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.server.branch.ws.BranchesWs.addProjectParam;
@@ -140,7 +140,7 @@ public class ListAction implements BranchWsAction {
 
   private void checkPermission(ProjectDto project) {
     if (!userSession.hasEntityPermission(USER, project) &&
-        !userSession.hasEntityPermission(UserRole.SCAN, project) &&
+        !userSession.hasEntityPermission(ProjectPermission.SCAN, project) &&
         !userSession.hasPermission(SCAN)) {
       throw insufficientPrivilegesException();
     }

@@ -35,7 +35,7 @@ import org.sonar.server.v2.api.projectbindings.request.ProjectBindingsSearchRest
 import org.sonar.server.v2.api.projectbindings.response.ProjectBindingsSearchRestResponse;
 import org.sonar.server.v2.api.response.PageRestResponse;
 
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 
 public class DefaultProjectBindingsController implements ProjectBindingsController {

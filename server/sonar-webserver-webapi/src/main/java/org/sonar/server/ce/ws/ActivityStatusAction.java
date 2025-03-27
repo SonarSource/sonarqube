@@ -26,7 +26,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
@@ -116,7 +116,7 @@ public class ActivityStatusAction implements CeWsAction {
 
   private void checkPermissions(@Nullable EntityDto entity) {
     if (entity != null) {
-      userSession.checkEntityPermission(UserRole.ADMIN, entity);
+      userSession.checkEntityPermission(ProjectPermission.ADMIN, entity);
     } else {
       userSession.checkIsSystemAdministrator();
     }

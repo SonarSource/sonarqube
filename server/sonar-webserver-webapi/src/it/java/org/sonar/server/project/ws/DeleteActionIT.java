@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -96,7 +96,7 @@ public class DeleteActionIT {
   public void project_administrator_deletes_the_project_by_key() {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();
-    userSessionRule.logIn().addProjectPermission(UserRole.ADMIN, projectData.getProjectDto());
+    userSessionRule.logIn().addProjectPermission(ProjectPermission.ADMIN, projectData.getProjectDto());
 
     call(tester.newRequest().setParam(PARAM_PROJECT, project.getKey()));
 
@@ -111,7 +111,7 @@ public class DeleteActionIT {
     UserDto insert = dbClient.userDao().insert(dbSession,
       newUserDto().setHomepageType("PROJECT").setHomepageParameter(projectData.projectUuid()));
     dbSession.commit();
-    userSessionRule.logIn().addProjectPermission(UserRole.ADMIN, projectData.getProjectDto());
+    userSessionRule.logIn().addProjectPermission(ProjectPermission.ADMIN, projectData.getProjectDto());
     DeleteAction underTest = new DeleteAction(
       new ComponentCleanerService(dbClient, new TestIndexers()),
       from(db), dbClient, userSessionRule, projectLifeCycleListeners);
@@ -134,7 +134,7 @@ public class DeleteActionIT {
     webhookDbTester.insertWebhook(project);
     webhookDbTester.insertWebhook(project);
 
-    userSessionRule.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSessionRule.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
     DeleteAction underTest = new DeleteAction(
       new ComponentCleanerService(dbClient, new TestIndexers()),
       from(db), dbClient, userSessionRule, projectLifeCycleListeners);
@@ -153,9 +153,9 @@ public class DeleteActionIT {
     ProjectData project = db.components().insertPrivateProject();
 
     userSessionRule.logIn()
-      .addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto())
-      .addProjectPermission(UserRole.ISSUE_ADMIN, project.getProjectDto())
-      .addProjectPermission(UserRole.USER, project.getProjectDto());
+      .addProjectPermission(ProjectPermission.CODEVIEWER, project.getProjectDto())
+      .addProjectPermission(ProjectPermission.ISSUE_ADMIN, project.getProjectDto())
+      .addProjectPermission(ProjectPermission.USER, project.getProjectDto());
 
     TestRequest request = tester.newRequest().setParam(PARAM_PROJECT, project.projectKey());
     assertThatThrownBy(() -> call(request))

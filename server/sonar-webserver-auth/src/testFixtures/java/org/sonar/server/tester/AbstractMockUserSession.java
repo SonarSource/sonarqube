@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
@@ -39,20 +39,20 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.server.user.AbstractUserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.db.permission.ProjectPermission.PUBLIC_PERMISSIONS;
 
 public abstract class AbstractMockUserSession<T extends AbstractMockUserSession> extends AbstractUserSession {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractMockUserSession.class);
-  private static final Set<String> PUBLIC_PERMISSIONS = ImmutableSet.of(UserRole.USER, UserRole.CODEVIEWER); // FIXME to check with Simon
 
   private final Class<T> clazz;
-  private final HashMultimap<String, String> projectUuidByPermission = HashMultimap.create();
+  private final HashMultimap<ProjectPermission, String> projectUuidByPermission = HashMultimap.create();
   private final Set<GlobalPermission> permissions = new HashSet<>();
   private final Map<String, String> projectUuidByComponentUuid = new HashMap<>();
   private final Map<String, String> projectUuidByBranchUuid = new HashMap<>();
   private final Map<String, Set<String>> applicationProjects = new HashMap<>();
   private final Map<String, Set<String>> portfolioProjects = new HashMap<>();
-  private final Set<String> projectPermissions = new HashSet<>();
+  private final Set<ProjectPermission> projectPermissions = new HashSet<>();
   private boolean systemAdministrator = false;
   private boolean resetPassword = false;
 
@@ -78,10 +78,10 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
     Arrays.stream(components)
       .forEach(component -> {
         if (component.branchUuid().equals(component.uuid()) && !component.isPrivate()) {
-          this.projectUuidByPermission.put(UserRole.USER, component.uuid());
-          this.projectUuidByPermission.put(UserRole.CODEVIEWER, component.uuid());
-          this.projectPermissions.add(UserRole.USER);
-          this.projectPermissions.add(UserRole.CODEVIEWER);
+          this.projectUuidByPermission.put(ProjectPermission.USER, component.uuid());
+          this.projectUuidByPermission.put(ProjectPermission.CODEVIEWER, component.uuid());
+          this.projectPermissions.add(ProjectPermission.USER);
+          this.projectPermissions.add(ProjectPermission.CODEVIEWER);
         }
         this.projectUuidByComponentUuid.put(component.uuid(), component.branchUuid());
       });
@@ -92,10 +92,10 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
     Arrays.stream(projects)
       .forEach(project -> {
         if (!project.isPrivate()) {
-          this.projectUuidByPermission.put(UserRole.USER, project.getUuid());
-          this.projectUuidByPermission.put(UserRole.CODEVIEWER, project.getUuid());
-          this.projectPermissions.add(UserRole.USER);
-          this.projectPermissions.add(UserRole.CODEVIEWER);
+          this.projectUuidByPermission.put(ProjectPermission.USER, project.getUuid());
+          this.projectUuidByPermission.put(ProjectPermission.CODEVIEWER, project.getUuid());
+          this.projectPermissions.add(ProjectPermission.USER);
+          this.projectPermissions.add(ProjectPermission.CODEVIEWER);
         }
         this.projectUuidByComponentUuid.put(project.getUuid(), project.getUuid());
       });
@@ -118,10 +118,10 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
     Arrays.stream(portfolios)
       .forEach(portfolio -> {
         if (!portfolio.isPrivate()) {
-          this.projectUuidByPermission.put(UserRole.USER, portfolio.getUuid());
-          this.projectUuidByPermission.put(UserRole.CODEVIEWER, portfolio.getUuid());
-          this.projectPermissions.add(UserRole.USER);
-          this.projectPermissions.add(UserRole.CODEVIEWER);
+          this.projectUuidByPermission.put(ProjectPermission.USER, portfolio.getUuid());
+          this.projectUuidByPermission.put(ProjectPermission.CODEVIEWER, portfolio.getUuid());
+          this.projectPermissions.add(ProjectPermission.USER);
+          this.projectPermissions.add(ProjectPermission.CODEVIEWER);
         }
         this.projectUuidByComponentUuid.put(portfolio.getUuid(), portfolio.getUuid());
       });
@@ -143,7 +143,7 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
     return clazz.cast(this);
   }
 
-  public T addProjectPermission(String permission, ComponentDto... components) {
+  public T addProjectPermission(ProjectPermission permission, ComponentDto... components) {
     Arrays.stream(components).forEach(component -> {
       checkArgument(
         component.isPrivate() || !PUBLIC_PERMISSIONS.contains(permission),
@@ -156,7 +156,7 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
     return clazz.cast(this);
   }
 
-  public T addProjectPermission(String permission, ProjectDto... projects) {
+  public T addProjectPermission(ProjectPermission permission, ProjectDto... projects) {
     Arrays.stream(projects).forEach(component -> {
       checkArgument(
         component.isPrivate() || !PUBLIC_PERMISSIONS.contains(permission),
@@ -169,7 +169,7 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
     return clazz.cast(this);
   }
 
-  public T addPortfolioPermission(String permission, PortfolioDto... portfolios) {
+  public T addPortfolioPermission(ProjectPermission permission, PortfolioDto... portfolios) {
     Arrays.stream(portfolios).forEach(component -> {
       checkArgument(
         component.isPrivate() || !PUBLIC_PERMISSIONS.contains(permission),
@@ -189,7 +189,7 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   }
 
   @Override
-  public boolean hasComponentPermission(String permission, ComponentDto component) {
+  public boolean hasComponentPermission(ProjectPermission permission, ComponentDto component) {
     return componentUuidToEntityUuid(component.uuid())
       .or(() -> componentUuidToEntityUuid(component.branchUuid()))
       .map(projectUuid -> hasEntityUuidPermission(permission, projectUuid)).orElseGet(() -> {
@@ -199,19 +199,19 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   }
 
   @Override
-  protected boolean hasEntityUuidPermission(String permission, String entityUuid) {
+  protected boolean hasEntityUuidPermission(ProjectPermission permission, String entityUuid) {
     return projectPermissions.contains(permission) && projectUuidByPermission.get(permission).contains(entityUuid);
   }
 
   @Override
-  protected boolean hasChildProjectsPermission(String permission, String applicationUuid) {
+  protected boolean hasChildProjectsPermission(ProjectPermission permission, String applicationUuid) {
     return applicationProjects.containsKey(applicationUuid) && applicationProjects.get(applicationUuid)
       .stream()
       .allMatch(projectUuid -> projectPermissions.contains(permission) && projectUuidByPermission.get(permission).contains(projectUuid));
   }
 
   @Override
-  protected boolean hasPortfolioChildProjectsPermission(String permission, String portfolioUuid) {
+  protected boolean hasPortfolioChildProjectsPermission(ProjectPermission permission, String portfolioUuid) {
     return portfolioProjects.containsKey(portfolioUuid) && portfolioProjects.get(portfolioUuid)
       .stream()
       .allMatch(projectUuid -> projectPermissions.contains(permission) && projectUuidByPermission.get(permission).contains(projectUuid));

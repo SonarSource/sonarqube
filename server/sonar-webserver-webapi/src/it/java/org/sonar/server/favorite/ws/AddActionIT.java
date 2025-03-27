@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -47,7 +47,7 @@ import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.favorite.ws.FavoritesWsParameters.PARAM_COMPONENT;
 
@@ -86,7 +86,7 @@ public class AddActionIT {
   @Test
   public void fail_when_no_browse_permission_on_the_project() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     assertThatThrownBy(() -> call(project.getKey()))
       .isInstanceOf(ForbiddenException.class);

@@ -39,7 +39,7 @@ import org.sonar.server.es.Indexers;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.Preconditions.checkState;
-import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
+import static org.sonar.db.permission.ProjectPermission.PUBLIC_PERMISSIONS;
 import static org.sonar.db.ce.CeTaskTypes.GITHUB_PROJECT_PERMISSIONS_PROVISIONING;
 import static org.sonar.db.ce.CeTaskTypes.GITLAB_PROJECT_PERMISSIONS_PROVISIONING;
 
@@ -110,10 +110,10 @@ public class VisibilityService {
     dbClient.groupPermissionDao().deleteByEntityUuidForAnyOne(dbSession, entity);
     // grant UserRole.CODEVIEWER and UserRole.USER to any group or user with at least one permission on project
     PUBLIC_PERMISSIONS.forEach(permission -> {
-      dbClient.groupPermissionDao().selectGroupUuidsWithPermissionOnEntityBut(dbSession, entity.getUuid(), permission)
-        .forEach(group -> insertProjectPermissionOnGroup(dbSession, entity, permission, group));
-      dbClient.userPermissionDao().selectUserIdsWithPermissionOnEntityBut(dbSession, entity.getUuid(), permission)
-        .forEach(userUuid -> insertProjectPermissionOnUser(dbSession, entity, permission, userUuid));
+      dbClient.groupPermissionDao().selectGroupUuidsWithPermissionOnEntityBut(dbSession, entity.getUuid(), permission.getKey())
+        .forEach(group -> insertProjectPermissionOnGroup(dbSession, entity, permission.getKey(), group));
+      dbClient.userPermissionDao().selectUserIdsWithPermissionOnEntityBut(dbSession, entity.getUuid(), permission.getKey())
+        .forEach(userUuid -> insertProjectPermissionOnUser(dbSession, entity, permission.getKey(), userUuid));
     });
   }
 
@@ -136,9 +136,9 @@ public class VisibilityService {
   private void updatePermissionsToPublic(DbSession dbSession, EntityDto entity) {
     PUBLIC_PERMISSIONS.forEach(permission -> {
       // delete project group permission for UserRole.CODEVIEWER and UserRole.USER
-      dbClient.groupPermissionDao().deleteByEntityAndPermission(dbSession, permission, entity);
+      dbClient.groupPermissionDao().deleteByEntityAndPermission(dbSession, permission.getKey(), entity);
       // delete project user permission for UserRole.CODEVIEWER and UserRole.USER
-      dbClient.userPermissionDao().deleteEntityPermissionOfAnyUser(dbSession, permission, entity);
+      dbClient.userPermissionDao().deleteEntityPermissionOfAnyUser(dbSession, permission.getKey(), entity);
     });
   }
 }

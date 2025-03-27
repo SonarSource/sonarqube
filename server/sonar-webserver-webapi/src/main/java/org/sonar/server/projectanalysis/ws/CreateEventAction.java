@@ -27,7 +27,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
@@ -140,7 +140,7 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
   }
 
   private void checkRequest(CreateEventRequest request, ProjectDto project) {
-    userSession.checkEntityPermission(UserRole.ADMIN, project);
+    userSession.checkEntityPermission(ProjectPermission.ADMIN, project);
     checkArgument(EventCategory.VERSION != request.getCategory() || ComponentQualifiers.PROJECT.equals(project.getQualifier()), "A version event must be created on a project");
     checkVersionName(request.getCategory(), request.getName());
   }

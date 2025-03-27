@@ -22,14 +22,14 @@ package org.sonar.server.permission.ws.template;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
-import org.sonar.server.component.ComponentTypesRule;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.server.component.ComponentTypes;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.PermissionService;
@@ -72,11 +72,11 @@ public class AddProjectCreatorToTemplateActionIT extends BasePermissionWsIT<AddP
     loginAsAdmin();
 
     newRequest()
-      .setParam(PARAM_PERMISSION, UserRole.ADMIN)
+      .setParam(PARAM_PERMISSION, ProjectPermission.ADMIN.getKey())
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
       .execute();
 
-    assertThatProjectCreatorIsPresentFor(UserRole.ADMIN, template.getUuid());
+    assertThatProjectCreatorIsPresentFor(ProjectPermission.ADMIN, template.getUuid());
   }
 
   @Test
@@ -86,7 +86,7 @@ public class AddProjectCreatorToTemplateActionIT extends BasePermissionWsIT<AddP
       new PermissionTemplateCharacteristicDto()
         .setUuid(Uuids.createFast())
         .setTemplateUuid(template.getUuid())
-        .setPermission(UserRole.USER)
+        .setPermission(ProjectPermission.USER)
         .setWithProjectCreator(false)
         .setCreatedAt(1_000_000_000L)
         .setUpdatedAt(1_000_000_000L),
@@ -95,11 +95,11 @@ public class AddProjectCreatorToTemplateActionIT extends BasePermissionWsIT<AddP
     when(system.now()).thenReturn(3_000_000_000L);
 
     newRequest()
-      .setParam(PARAM_PERMISSION, UserRole.USER)
+      .setParam(PARAM_PERMISSION, ProjectPermission.USER.getKey())
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .execute();
 
-    assertThatProjectCreatorIsPresentFor(UserRole.USER, template.getUuid());
+    assertThatProjectCreatorIsPresentFor(ProjectPermission.USER, template.getUuid());
     PermissionTemplateCharacteristicDto reloaded = reload(characteristic);
     assertThat(reloaded.getCreatedAt()).isEqualTo(1_000_000_000L);
     assertThat(reloaded.getUpdatedAt()).isEqualTo(3_000_000_000L);
@@ -111,7 +111,7 @@ public class AddProjectCreatorToTemplateActionIT extends BasePermissionWsIT<AddP
 
     assertThatThrownBy(() -> {
       newRequest()
-        .setParam(PARAM_PERMISSION, UserRole.ADMIN)
+        .setParam(PARAM_PERMISSION, ProjectPermission.ADMIN.getKey())
         .setParam(PARAM_TEMPLATE_ID, "42")
         .execute();
     })
@@ -137,14 +137,14 @@ public class AddProjectCreatorToTemplateActionIT extends BasePermissionWsIT<AddP
 
     assertThatThrownBy(() -> {
       newRequest()
-        .setParam(PARAM_PERMISSION, UserRole.ADMIN)
+        .setParam(PARAM_PERMISSION, ProjectPermission.ADMIN.getKey())
         .setParam(PARAM_TEMPLATE_ID, template.getUuid())
         .execute();
     })
       .isInstanceOf(ForbiddenException.class);
   }
 
-  private void assertThatProjectCreatorIsPresentFor(String permission, String templateUuid) {
+  private void assertThatProjectCreatorIsPresentFor(ProjectPermission permission, String templateUuid) {
     Optional<PermissionTemplateCharacteristicDto> templatePermission = db.getDbClient().permissionTemplateCharacteristicDao().selectByPermissionAndTemplateId(db.getSession(),
       permission,
       templateUuid);

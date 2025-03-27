@@ -26,6 +26,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Suite;
 import org.sonar.auth.github.GsonRepositoryPermissions;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.provisioning.DevOpsPermissionsMappingDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,11 +39,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GithubPermissionConverterTest {
 
   private static final Set<DevOpsPermissionsMappingDto> ALL_PERMISSIONS_MAPPING_FROM_DB = Set.of(
-    new DevOpsPermissionsMappingDto("uuid1", "github", "read", "roleRead"),
-    new DevOpsPermissionsMappingDto("uuid2", "github", "triage", "roleTriage"),
-    new DevOpsPermissionsMappingDto("uuid3", "github", "write", "roleWrite"),
-    new DevOpsPermissionsMappingDto("uuid4", "github", "maintain", "roleMaintain"),
-    new DevOpsPermissionsMappingDto("uuid5", "github", "admin", "roleAdmin")
+    new DevOpsPermissionsMappingDto("uuid1", "github", "read", ProjectPermission.CODEVIEWER),
+    new DevOpsPermissionsMappingDto("uuid2", "github", "triage", ProjectPermission.SECURITYHOTSPOT_ADMIN),
+    new DevOpsPermissionsMappingDto("uuid3", "github", "write", ProjectPermission.ISSUE_ADMIN),
+    new DevOpsPermissionsMappingDto("uuid4", "github", "maintain", ProjectPermission.SCAN),
+    new DevOpsPermissionsMappingDto("uuid5", "github", "admin", ProjectPermission.ADMIN)
   ) ;
 
   private static final GsonRepositoryPermissions NO_PERMS = new GsonRepositoryPermissions(false, false, false, false, false);
@@ -63,19 +64,19 @@ public class GithubPermissionConverterTest {
     public static Iterable<Object[]> testData() {
       return Arrays.asList(new Object[][] {
         {"none", NO_PERMS, Set.of()},
-        {"read", NO_PERMS, Set.of("roleRead")},
-        {"read", READ_PERMS, Set.of("roleRead")},
-        {"pull", NO_PERMS, Set.of("roleRead")},
-        {"triage", NO_PERMS, Set.of("roleTriage")},
-        {"write", NO_PERMS, Set.of("roleWrite")},
-        {"push", NO_PERMS, Set.of("roleWrite")},
-        {"maintain", NO_PERMS, Set.of("roleMaintain")},
-        {"admin", NO_PERMS, Set.of("roleAdmin")},
-        {"custom_role_extending_read", READ_PERMS, Set.of("roleRead")},
-        {"custom_role_extending_triage", TRIAGE_PERMS, Set.of("roleTriage")},
-        {"custom_role_extending_write", WRITE_PERMS, Set.of("roleWrite")},
-        {"custom_role_extending_maintain", MAINTAIN_PERMS, Set.of("roleMaintain")},
-        {"custom_role_extending_admin", ADMIN_PERMS, Set.of("roleAdmin")},
+        {"read", NO_PERMS, Set.of(ProjectPermission.CODEVIEWER)},
+        {"read", READ_PERMS, Set.of(ProjectPermission.CODEVIEWER)},
+        {"pull", NO_PERMS, Set.of(ProjectPermission.CODEVIEWER)},
+        {"triage", NO_PERMS, Set.of(ProjectPermission.SECURITYHOTSPOT_ADMIN)},
+        {"write", NO_PERMS, Set.of(ProjectPermission.ISSUE_ADMIN)},
+        {"push", NO_PERMS, Set.of(ProjectPermission.ISSUE_ADMIN)},
+        {"maintain", NO_PERMS, Set.of(ProjectPermission.SCAN)},
+        {"admin", NO_PERMS, Set.of(ProjectPermission.ADMIN)},
+        {"custom_role_extending_read", READ_PERMS, Set.of(ProjectPermission.CODEVIEWER)},
+        {"custom_role_extending_triage", TRIAGE_PERMS, Set.of(ProjectPermission.SECURITYHOTSPOT_ADMIN)},
+        {"custom_role_extending_write", WRITE_PERMS, Set.of(ProjectPermission.ISSUE_ADMIN)},
+        {"custom_role_extending_maintain", MAINTAIN_PERMS, Set.of(ProjectPermission.SCAN)},
+        {"custom_role_extending_admin", ADMIN_PERMS, Set.of(ProjectPermission.ADMIN)},
       });
     }
 
@@ -87,7 +88,7 @@ public class GithubPermissionConverterTest {
 
     @Test
     public void toGithubRepositoryPermissions_convertsCorrectly() {
-      Set<String> actualPermissions = githubPermissionConverter.toSonarqubeRolesWithFallbackOnRepositoryPermissions(ALL_PERMISSIONS_MAPPING_FROM_DB, role, repositoryPermissions);
+      Set<ProjectPermission> actualPermissions = githubPermissionConverter.toSonarqubeRolesWithFallbackOnRepositoryPermissions(ALL_PERMISSIONS_MAPPING_FROM_DB, role, repositoryPermissions);
       assertThat(actualPermissions).isEqualTo(expectedSqPermissions);
     }
   }
@@ -102,11 +103,11 @@ public class GithubPermissionConverterTest {
     public static Iterable<Object[]> testData() {
       return Arrays.asList(new Object[][] {
         {"none", Set.of()},
-        {"read", Set.of("roleRead")},
-        {"triage", Set.of("roleTriage")},
-        {"write", Set.of("roleWrite")},
-        {"maintain", Set.of("roleMaintain")},
-        {"admin", Set.of("roleAdmin")}
+        {"read", Set.of(ProjectPermission.CODEVIEWER)},
+        {"triage", Set.of(ProjectPermission.SECURITYHOTSPOT_ADMIN)},
+        {"write", Set.of(ProjectPermission.ISSUE_ADMIN)},
+        {"maintain", Set.of(ProjectPermission.SCAN)},
+        {"admin", Set.of(ProjectPermission.ADMIN)}
       });
     }
 
@@ -117,7 +118,7 @@ public class GithubPermissionConverterTest {
 
     @Test
     public void toGithubRepositoryPermissions_convertsCorrectly() {
-      Set<String> actualPermissions = githubPermissionConverter.toSonarqubeRolesForDefaultRepositoryPermission(ALL_PERMISSIONS_MAPPING_FROM_DB, role);
+      Set<ProjectPermission> actualPermissions = githubPermissionConverter.toSonarqubeRolesForDefaultRepositoryPermission(ALL_PERMISSIONS_MAPPING_FROM_DB, role);
       assertThat(actualPermissions).isEqualTo(expectedSqPermissions);
     }
   }

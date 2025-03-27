@@ -40,7 +40,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.i18n.I18n;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -190,7 +190,7 @@ public class TreeAction implements ComponentsWsAction {
   }
 
   private List<ComponentDto> filterAuthorizedComponents(List<ComponentDto> components) {
-    return userSession.keepAuthorizedComponents(UserRole.USER, components);
+    return userSession.keepAuthorizedComponents(ProjectPermission.USER, components);
   }
 
   private ComponentDto loadComponent(DbSession dbSession, Request request) {
@@ -214,7 +214,7 @@ public class TreeAction implements ComponentsWsAction {
   }
 
   private void checkPermissions(ComponentDto baseComponent) {
-    userSession.checkComponentPermission(UserRole.USER, baseComponent);
+    userSession.checkComponentPermission(ProjectPermission.USER, baseComponent);
   }
 
   private TreeWsResponse buildResponse(DbSession dbSession, ComponentDto baseComponent, List<ComponentDto> components,

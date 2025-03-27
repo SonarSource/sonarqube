@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -79,7 +79,7 @@ public class IndexAction implements SourcesWsAction {
     Integer to = request.paramAsInt("to");
     try (DbSession session = dbClient.openSession(false)) {
       ComponentDto component = componentFinder.getByKey(session, fileKey);
-      userSession.checkComponentPermission(UserRole.CODEVIEWER, component);
+      userSession.checkComponentPermission(ProjectPermission.CODEVIEWER, component);
       Optional<Iterable<String>> lines = sourceService.getLinesAsRawText(session, component.uuid(), from, to == null ? Integer.MAX_VALUE : (to - 1));
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginArray().beginObject();

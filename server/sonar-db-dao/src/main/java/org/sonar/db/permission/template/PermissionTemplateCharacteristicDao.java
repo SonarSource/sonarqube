@@ -25,6 +25,7 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.PermissionTemplateNewValue;
+import org.sonar.db.permission.ProjectPermission;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -39,6 +40,10 @@ public class PermissionTemplateCharacteristicDao implements Dao {
 
   public List<PermissionTemplateCharacteristicDto> selectByTemplateUuids(DbSession dbSession, List<String> templateUuids) {
     return executeLargeInputs(templateUuids, partitionOfTemplateUuids -> mapper(dbSession).selectByTemplateUuids(partitionOfTemplateUuids));
+  }
+
+  public Optional<PermissionTemplateCharacteristicDto> selectByPermissionAndTemplateId(DbSession dbSession, ProjectPermission permission, String templateUuid) {
+    return selectByPermissionAndTemplateId(dbSession, permission.getKey(), templateUuid);
   }
 
   public Optional<PermissionTemplateCharacteristicDto> selectByPermissionAndTemplateId(DbSession dbSession, String permission, String templateUuid) {

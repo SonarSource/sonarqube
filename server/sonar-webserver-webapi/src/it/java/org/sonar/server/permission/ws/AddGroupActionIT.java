@@ -20,23 +20,23 @@
 package org.sonar.server.permission.ws;
 
 import org.junit.Test;
-import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.component.ComponentTypes;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.ws.TestRequest;
@@ -109,7 +109,6 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
 
     assertThat(db.users().selectGroupPermissions(group, null)).containsOnly("provisioning");
   }
-
 
   @Test
   public void add_permission_to_project_referenced_by_its_id() {
@@ -219,13 +218,13 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
     TestRequest request = newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_PROJECT_KEY, project.getKey())
-      .setParam(PARAM_PERMISSION, UserRole.CODEVIEWER);
+      .setParam(PARAM_PERMISSION, ProjectPermission.CODEVIEWER.getKey());
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Managed project");
 
-    assertThat(db.users().selectGroupPermissions(group, project)).doesNotContain(UserRole.CODEVIEWER);
+    assertThat(db.users().selectGroupPermissions(group, project)).doesNotContain(ProjectPermission.CODEVIEWER.getKey());
   }
 
   @Test
@@ -234,7 +233,7 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
     loginAsAdmin();
 
     assertThatThrownBy(() -> {
-      executeRequest(group, UserRole.ISSUE_ADMIN);
+      executeRequest(group, ProjectPermission.ISSUE_ADMIN.getKey());
     })
       .isInstanceOf(BadRequestException.class);
   }
@@ -364,21 +363,21 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
   public void adding_project_permission_is_allowed_to_project_administrators() {
     GroupDto group = db.users().insertGroup("sonar-administrators");
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_PROJECT_ID, project.getUuid())
-      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
+      .setParam(PARAM_PERMISSION, ProjectPermission.ISSUE_ADMIN.getKey())
       .execute();
 
-    assertThat(db.users().selectGroupPermissions(group, project)).containsOnly(UserRole.ISSUE_ADMIN);
+    assertThat(db.users().selectGroupPermissions(group, project)).containsOnly(ProjectPermission.ISSUE_ADMIN.getKey());
   }
 
   @Test
   public void fails_when_adding_any_permission_to_group_AnyOne_on_a_private_project() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     permissionService.getAllProjectPermissions()
       .forEach(permission -> {
@@ -386,7 +385,7 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
           newRequest()
             .setParam(PARAM_GROUP_NAME, "anyone")
             .setParam(PARAM_PROJECT_ID, project.getUuid())
-            .setParam(PARAM_PERMISSION, permission)
+            .setParam(PARAM_PERMISSION, permission.getKey())
             .execute();
           fail("a BadRequestException should have been raised for " + permission);
         } catch (BadRequestException e) {
@@ -398,12 +397,12 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
   @Test
   public void no_effect_when_adding_USER_permission_to_group_AnyOne_on_a_public_project() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, "anyone")
       .setParam(PARAM_PROJECT_ID, project.getUuid())
-      .setParam(PARAM_PERMISSION, UserRole.USER)
+      .setParam(PARAM_PERMISSION, ProjectPermission.USER.getKey())
       .execute();
 
     assertThat(db.users().selectAnyonePermissions(project.getUuid())).isEmpty();
@@ -412,12 +411,12 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
   @Test
   public void no_effect_when_adding_CODEVIEWER_permission_to_group_AnyOne_on_a_public_project() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, "anyone")
       .setParam(PARAM_PROJECT_ID, project.getUuid())
-      .setParam(PARAM_PERMISSION, UserRole.CODEVIEWER)
+      .setParam(PARAM_PERMISSION, ProjectPermission.CODEVIEWER.getKey())
       .execute();
 
     assertThat(db.users().selectAnyonePermissions(project.getUuid())).isEmpty();
@@ -427,12 +426,12 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
   public void no_effect_when_adding_USER_permission_to_group_on_a_public_project() {
     GroupDto group = db.users().insertGroup();
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_PROJECT_ID, project.getUuid())
-      .setParam(PARAM_PERMISSION, UserRole.USER)
+      .setParam(PARAM_PERMISSION, ProjectPermission.USER.getKey())
       .execute();
 
     assertThat(db.users().selectAnyonePermissions(project.getUuid())).isEmpty();
@@ -442,12 +441,12 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
   public void no_effect_when_adding_CODEVIEWER_permission_to_group_on_a_public_project() {
     GroupDto group = db.users().insertGroup();
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_PROJECT_ID, project.getUuid())
-      .setParam(PARAM_PERMISSION, UserRole.CODEVIEWER)
+      .setParam(PARAM_PERMISSION, ProjectPermission.CODEVIEWER.getKey())
       .execute();
 
     assertThat(db.users().selectAnyonePermissions(project.getUuid())).isEmpty();
@@ -457,14 +456,15 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
   public void fail_when_using_branch_uuid() {
     GroupDto group = db.users().insertGroup();
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    assertThatThrownBy(() -> newRequest()
+    var testRequest = newRequest()
       .setParam(PARAM_PROJECT_ID, branch.uuid())
       .setParam(PARAM_GROUP_NAME, group.getName())
-      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
-      .execute())
+      .setParam(PARAM_PERMISSION, ProjectPermission.ISSUE_ADMIN.getKey());
+
+    assertThatThrownBy(testRequest::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Entity not found");
   }

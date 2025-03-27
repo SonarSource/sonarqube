@@ -23,7 +23,7 @@ import java.util.Set;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQualifiers;
@@ -106,19 +106,19 @@ public class UsersActionIT extends BasePermissionWsIT<UsersAction> {
     // User has permission on project
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     UserDto user = db.users().insertUser(newUserDto());
-    db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, project);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ISSUE_ADMIN, project);
 
     // User has permission on another project
     ProjectDto anotherProject = db.components().insertPrivateProject().getProjectDto();
     UserDto userHavePermissionOnAnotherProject = db.users().insertUser(newUserDto());
-    db.users().insertProjectPermissionOnUser(userHavePermissionOnAnotherProject, UserRole.ISSUE_ADMIN, anotherProject);
+    db.users().insertProjectPermissionOnUser(userHavePermissionOnAnotherProject, ProjectPermission.ISSUE_ADMIN, anotherProject);
 
     // User has no permission
     UserDto withoutPermission = db.users().insertUser(newUserDto());
 
-    userSession.logIn().addProjectPermission(GlobalPermission.ADMINISTER.getKey(), project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
     String result = newRequest()
-      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
+      .setParam(PARAM_PERMISSION, ProjectPermission.ISSUE_ADMIN.getKey())
       .setParam(PARAM_PROJECT_ID, project.getUuid())
       .execute()
       .getInput();
@@ -133,7 +133,7 @@ public class UsersActionIT extends BasePermissionWsIT<UsersAction> {
     // User with permission on project
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     UserDto user = db.users().insertUser(newUserDto("with-permission-login", "with-permission-name", "with-permission-email"));
-    db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, project);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ISSUE_ADMIN, project);
 
     // User without permission
     UserDto withoutPermission = db.users().insertUser(newUserDto("without-permission-login", "without-permission-name", "without-permission-email"));
@@ -154,7 +154,7 @@ public class UsersActionIT extends BasePermissionWsIT<UsersAction> {
     // User with permission on project
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     UserDto user = db.users().insertUser(newUserDto("with-permission-login", "with-permission-name", "with-permission-email"));
-    db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, project);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ISSUE_ADMIN, project);
 
     // User without permission
     UserDto withoutPermission = db.users().insertUser(newUserDto("without-permission-login", "without-permission-name", "without-permission-email"));
@@ -171,7 +171,7 @@ public class UsersActionIT extends BasePermissionWsIT<UsersAction> {
     // User with permission on project
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     UserDto user = db.users().insertUser(newUserDto("with-permission-login", "with-permission-name", "with-permission-email"));
-    db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, project);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ISSUE_ADMIN, project);
 
     // User without permission
     UserDto withoutPermission = db.users().insertUser(newUserDto("without-permission-login", "without-permission-name", "without-permission-email"));
@@ -277,7 +277,7 @@ public class UsersActionIT extends BasePermissionWsIT<UsersAction> {
 
     assertThatThrownBy(() -> {
       newRequest()
-        .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
+        .setParam(PARAM_PERMISSION, ProjectPermission.ISSUE_ADMIN.getKey())
         .setParam(Param.SELECTED, SelectionMode.ALL.value())
         .execute();
     })
@@ -336,8 +336,8 @@ public class UsersActionIT extends BasePermissionWsIT<UsersAction> {
     UserDto user = db.users().insertUser(newUserDto());
     ProjectData project = db.components().insertPublicProject();
     BranchDto branch = db.components().insertProjectBranch(project.getProjectDto());
-    db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, project.getProjectDto());
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project.getProjectDto());
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ISSUE_ADMIN, project.getProjectDto());
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project.getProjectDto());
 
     assertThatThrownBy(() -> {
       newRequest()

@@ -30,7 +30,7 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.api.web.UserRole.SCAN;
+import static org.sonar.db.permission.ProjectPermission.SCAN;
 import static org.sonar.server.project.ws.ProjectFinder.SearchResult;
 
 public class ProjectFinderIT {

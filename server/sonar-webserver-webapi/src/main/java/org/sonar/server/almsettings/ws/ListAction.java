@@ -36,7 +36,7 @@ import org.sonarqube.ws.AlmSettings.AlmSetting;
 import org.sonarqube.ws.AlmSettings.ListWsResponse;
 
 import static java.util.Optional.ofNullable;
-import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.db.permission.ProjectPermission.ADMIN;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.server.common.AlmSettingMapper.toResponseAlm;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;

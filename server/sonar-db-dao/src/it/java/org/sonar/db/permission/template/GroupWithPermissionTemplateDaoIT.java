@@ -25,7 +25,7 @@ import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.permission.PermissionQuery;
@@ -34,8 +34,8 @@ import org.sonar.db.user.GroupDto;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.ADMIN;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.builder;
@@ -95,7 +95,7 @@ class GroupWithPermissionTemplateDaoIT {
     GroupDto group2 = db.users().insertGroup("B");
     GroupDto group3 = db.users().insertGroup("C");
 
-    permissionTemplateDbTester.addGroupToTemplate(template, group3, UserRole.USER);
+    permissionTemplateDbTester.addGroupToTemplate(template, group3, ProjectPermission.USER);
 
     PermissionQuery query = PermissionQuery.builder().build();
     assertThat(underTest.selectGroupNamesByQueryAndTemplate(db.getSession(), query, template.getUuid()))
@@ -108,7 +108,7 @@ class GroupWithPermissionTemplateDaoIT {
     IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> db.users().insertGroup("Group-" + i));
 
     String lastGroupName = "Group-" + (DEFAULT_PAGE_SIZE + 1);
-    permissionTemplateDbTester.addGroupToTemplate(template, db.users().selectGroup(lastGroupName).get(), UserRole.USER);
+    permissionTemplateDbTester.addGroupToTemplate(template, db.users().selectGroup(lastGroupName).get(), ProjectPermission.USER);
 
     PermissionQuery query = PermissionQuery.builder().build();
     assertThat(underTest.selectGroupNamesByQueryAndTemplate(db.getSession(), query, template.getUuid()))
@@ -122,11 +122,11 @@ class GroupWithPermissionTemplateDaoIT {
     PermissionTemplateDto otherTemplate = permissionTemplateDbTester.insertTemplate();
     IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
       GroupDto group = db.users().insertGroup("Group-" + i);
-      permissionTemplateDbTester.addGroupToTemplate(otherTemplate, group, UserRole.USER);
+      permissionTemplateDbTester.addGroupToTemplate(otherTemplate, group, ProjectPermission.USER);
     });
 
     String lastGroupName = "Group-" + (DEFAULT_PAGE_SIZE + 1);
-    permissionTemplateDbTester.addGroupToTemplate(template, db.users().selectGroup(lastGroupName).get(), UserRole.USER);
+    permissionTemplateDbTester.addGroupToTemplate(template, db.users().selectGroup(lastGroupName).get(), ProjectPermission.USER);
 
     PermissionQuery query = PermissionQuery.builder().build();
     assertThat(underTest.selectGroupNamesByQueryAndTemplate(db.getSession(), query, template.getUuid()))
@@ -216,8 +216,8 @@ class GroupWithPermissionTemplateDaoIT {
       .extracting(PermissionTemplateGroupDto::getGroupUuid, PermissionTemplateGroupDto::getGroupName,
         PermissionTemplateGroupDto::getPermission)
       .containsOnly(
-        tuple(group1.getUuid(), "Group-1", USER),
-        tuple(group1.getUuid(), "Group-1", ADMIN));
+        tuple(group1.getUuid(), "Group-1", USER.getKey()),
+        tuple(group1.getUuid(), "Group-1", ADMIN.getKey()));
 
     assertThat(underTest.selectGroupPermissionsByTemplateIdAndGroupNames(session, anotherTemplate.getUuid(), asList("Group-1")))
       .extracting(PermissionTemplateGroupDto::getGroupUuid, PermissionTemplateGroupDto::getGroupName,
@@ -229,7 +229,7 @@ class GroupWithPermissionTemplateDaoIT {
       .extracting(PermissionTemplateGroupDto::getGroupUuid, PermissionTemplateGroupDto::getGroupName,
         PermissionTemplateGroupDto::getPermission)
       .containsOnly(
-        tuple("Anyone", "Anyone", USER));
+        tuple("Anyone", "Anyone", USER.getKey()));
 
     assertThat(underTest.selectGroupPermissionsByTemplateIdAndGroupNames(session, template.getUuid(), asList("Group-1", "Group-2",
       "Anyone"))).hasSize(3);
@@ -258,15 +258,15 @@ class GroupWithPermissionTemplateDaoIT {
       .extracting(PermissionTemplateGroupDto::getGroupUuid, PermissionTemplateGroupDto::getGroupName,
         PermissionTemplateGroupDto::getPermission)
       .containsOnly(
-        tuple(group1.getUuid(), "Group-1", USER),
-        tuple(group1.getUuid(), "Group-1", ADMIN),
+        tuple(group1.getUuid(), "Group-1", USER.getKey()),
+        tuple(group1.getUuid(), "Group-1", ADMIN.getKey()),
         tuple(group2.getUuid(), "Group-2", PROVISION_PROJECTS.getKey()));
     assertThat(underTest.selectGroupPermissionsByTemplateUuid(session, anotherTemplate.getUuid()))
       .extracting(PermissionTemplateGroupDto::getGroupUuid, PermissionTemplateGroupDto::getGroupName,
         PermissionTemplateGroupDto::getPermission)
       .containsOnly(
         tuple(group1.getUuid(), "Group-1", PROVISION_PROJECTS.getKey()),
-        tuple("Anyone", "Anyone", USER));
+        tuple("Anyone", "Anyone", USER.getKey()));
 
     assertThat(underTest.selectGroupPermissionsByTemplateUuid(session, "321")).isEmpty();
   }

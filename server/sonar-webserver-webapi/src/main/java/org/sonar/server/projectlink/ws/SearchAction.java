@@ -23,7 +23,7 @@ import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ProjectLinkDto;
@@ -118,8 +118,8 @@ public class SearchAction implements ProjectLinksWsAction {
       request.getProjectId(),
       request.getProjectKey(),
       ComponentFinder.ParamNames.PROJECT_ID_AND_KEY);
-    if (!userSession.hasEntityPermission(UserRole.ADMIN, project) &&
-        !userSession.hasEntityPermission(UserRole.USER, project)) {
+    if (!userSession.hasEntityPermission(ProjectPermission.ADMIN, project) &&
+        !userSession.hasEntityPermission(ProjectPermission.USER, project)) {
       throw insufficientPrivilegesException();
     }
     return project;

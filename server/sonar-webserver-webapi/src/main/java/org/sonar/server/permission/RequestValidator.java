@@ -25,9 +25,10 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.server.component.ComponentType;
 import org.sonar.server.component.ComponentTypes;
-import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.exceptions.BadRequestException;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -39,16 +40,14 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_Q
 
 public class RequestValidator {
   public static final String MSG_TEMPLATE_WITH_SAME_NAME = "A template with the name '%s' already exists (case insensitive).";
-  private final PermissionService permissionService;
   private final String allProjectsPermissionsOnOneLine;
 
   public RequestValidator(PermissionService permissionService) {
-    this.permissionService = permissionService;
     allProjectsPermissionsOnOneLine = Joiner.on(", ").join(permissionService.getAllProjectPermissions());
   }
 
   public String validateProjectPermission(String permission) {
-    BadRequestException.checkRequest(permissionService.getAllProjectPermissions().contains(permission),
+    BadRequestException.checkRequest(ProjectPermission.contains(permission),
       String.format("The '%s' parameter for project permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION,
         allProjectsPermissionsOnOneLine, permission));
     return permission;

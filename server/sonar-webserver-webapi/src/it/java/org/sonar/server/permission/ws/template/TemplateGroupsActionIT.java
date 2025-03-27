@@ -22,14 +22,14 @@ package org.sonar.server.permission.ws.template;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Test;
-import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
-import org.sonar.server.component.ComponentTypesRule;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.component.ComponentTypes;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -46,12 +46,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
-import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
+import static org.sonar.db.permission.ProjectPermission.ADMIN;
+import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
+import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateGroupDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -96,7 +96,7 @@ public class TemplateGroupsActionIT extends BasePermissionWsIT<TemplateGroupsAct
     loginAsAdmin();
 
     String response = newRequest()
-      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .setParam(PARAM_PERMISSION, ISSUE_ADMIN.getKey())
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
       .execute()
       .getInput();
@@ -163,7 +163,7 @@ public class TemplateGroupsActionIT extends BasePermissionWsIT<TemplateGroupsAct
     loginAsAdmin();
 
     WsGroupsResponse response = newRequest()
-      .setParam(PARAM_PERMISSION, USER)
+      .setParam(PARAM_PERMISSION, USER.getKey())
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
       .executeProtobuf(WsGroupsResponse.class);
 
@@ -204,7 +204,7 @@ public class TemplateGroupsActionIT extends BasePermissionWsIT<TemplateGroupsAct
     loginAsAdmin();
 
     WsGroupsResponse response = newRequest()
-      .setParam(PARAM_PERMISSION, USER)
+      .setParam(PARAM_PERMISSION, USER.getKey())
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .setParam(PAGE, "2")
       .setParam(PAGE_SIZE, "1")
@@ -271,10 +271,10 @@ public class TemplateGroupsActionIT extends BasePermissionWsIT<TemplateGroupsAct
     PermissionTemplateDto otherTemplate = db.permissionTemplates().insertTemplate();
     IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
       GroupDto group = db.users().insertGroup("Group-" + i);
-      db.permissionTemplates().addGroupToTemplate(otherTemplate, group, UserRole.USER);
+      db.permissionTemplates().addGroupToTemplate(otherTemplate, group, ProjectPermission.USER);
     });
     String lastGroupName = "Group-" + (DEFAULT_PAGE_SIZE + 1);
-    db.permissionTemplates().addGroupToTemplate(template, db.users().selectGroup(lastGroupName).get(), UserRole.USER);
+    db.permissionTemplates().addGroupToTemplate(template, db.users().selectGroup(lastGroupName).get(), ProjectPermission.USER);
     loginAsAdmin();
 
     WsGroupsResponse response = newRequest()
@@ -294,7 +294,7 @@ public class TemplateGroupsActionIT extends BasePermissionWsIT<TemplateGroupsAct
 
     assertThatThrownBy(() ->  {
       newRequest()
-        .setParam(PARAM_PERMISSION, USER)
+        .setParam(PARAM_PERMISSION, USER.getKey())
         .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
         .execute();
     })
@@ -308,7 +308,7 @@ public class TemplateGroupsActionIT extends BasePermissionWsIT<TemplateGroupsAct
 
     assertThatThrownBy(() ->  {
       newRequest()
-        .setParam(PARAM_PERMISSION, USER)
+        .setParam(PARAM_PERMISSION, USER.getKey())
         .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
         .execute();
     })
@@ -322,7 +322,7 @@ public class TemplateGroupsActionIT extends BasePermissionWsIT<TemplateGroupsAct
 
     assertThatThrownBy(() ->  {
       newRequest()
-        .setParam(PARAM_PERMISSION, USER)
+        .setParam(PARAM_PERMISSION, USER.getKey())
         .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
         .setParam(PARAM_TEMPLATE_NAME, template1.getName())
         .execute();
@@ -336,7 +336,7 @@ public class TemplateGroupsActionIT extends BasePermissionWsIT<TemplateGroupsAct
 
     assertThatThrownBy(() ->  {
       newRequest()
-        .setParam(PARAM_PERMISSION, USER)
+        .setParam(PARAM_PERMISSION, USER.getKey())
         .execute();
     })
       .isInstanceOf(BadRequestException.class);
@@ -348,7 +348,7 @@ public class TemplateGroupsActionIT extends BasePermissionWsIT<TemplateGroupsAct
 
     assertThatThrownBy(() ->  {
       newRequest()
-        .setParam(PARAM_PERMISSION, USER)
+        .setParam(PARAM_PERMISSION, USER.getKey())
         .setParam(PARAM_TEMPLATE_ID, "unknown-uuid")
         .execute();
     })
@@ -376,6 +376,10 @@ public class TemplateGroupsActionIT extends BasePermissionWsIT<TemplateGroupsAct
   private void addGroupToTemplate(PermissionTemplateGroupDto permissionTemplateGroup, String templateName) {
     db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), permissionTemplateGroup, templateName);
     db.commit();
+  }
+
+  private static PermissionTemplateGroupDto newPermissionTemplateGroup(ProjectPermission permission, String templateUuid, @Nullable String groupUuid) {
+    return newPermissionTemplateGroup(permission.getKey(), templateUuid, groupUuid);
   }
 
   private static PermissionTemplateGroupDto newPermissionTemplateGroup(String permission, String templateUuid, @Nullable String groupUuid) {

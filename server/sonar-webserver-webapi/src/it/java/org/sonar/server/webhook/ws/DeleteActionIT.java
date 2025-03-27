@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -94,7 +94,7 @@ public class DeleteActionIT {
     webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
     webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
 
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     TestResponse response = wsActionTester.newRequest()
       .setParam(KEY_PARAM, dto.getUuid())

@@ -24,7 +24,7 @@ import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.permission.PermissionQuery;
@@ -34,9 +34,9 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.ADMIN;
+import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.builder;
 
@@ -140,7 +140,7 @@ class UserWithPermissionTemplateDaoIT {
     UserDto user1 = db.users().insertUser(u -> u.setName("A"));
     UserDto user2 = db.users().insertUser(u -> u.setName("B"));
     UserDto user3 = db.users().insertUser(u -> u.setName("C"));
-    db.permissionTemplates().addUserToTemplate(template.getUuid(), user3.getUuid(), UserRole.USER, template.getName(), user3.getLogin());
+    db.permissionTemplates().addUserToTemplate(template.getUuid(), user3.getUuid(), ProjectPermission.USER, template.getName(), user3.getLogin());
 
     PermissionQuery query = PermissionQuery.builder().build();
     assertThat(underTest.selectUserLoginsByQueryAndTemplate(db.getSession(), query, template.getUuid()))
@@ -154,10 +154,10 @@ class UserWithPermissionTemplateDaoIT {
     PermissionTemplateDto otherTemplate = db.permissionTemplates().insertTemplate();
     IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
       UserDto user = db.users().insertUser("User-" + i);
-      db.permissionTemplates().addUserToTemplate(otherTemplate, user, UserRole.USER);
+      db.permissionTemplates().addUserToTemplate(otherTemplate, user, ProjectPermission.USER);
     });
     String lastLogin = "User-" + (DEFAULT_PAGE_SIZE + 1);
-    db.permissionTemplates().addUserToTemplate(template, db.users().selectUserByLogin(lastLogin).get(), UserRole.USER);
+    db.permissionTemplates().addUserToTemplate(template, db.users().selectUserByLogin(lastLogin).get(), ProjectPermission.USER);
 
     PermissionQuery query = PermissionQuery.builder().build();
     assertThat(underTest.selectUserLoginsByQueryAndTemplate(db.getSession(), query, template.getUuid()))
@@ -219,18 +219,18 @@ class UserWithPermissionTemplateDaoIT {
       singletonList(user1.getLogin())))
       .extracting(PermissionTemplateUserDto::getUserLogin, PermissionTemplateUserDto::getPermission)
       .containsExactlyInAnyOrder(
-        tuple(user1.getLogin(), USER),
-        tuple(user1.getLogin(), ADMIN),
-        tuple(user1.getLogin(), CODEVIEWER));
+        tuple(user1.getLogin(), USER.getKey()),
+        tuple(user1.getLogin(), ADMIN.getKey()),
+        tuple(user1.getLogin(), CODEVIEWER.getKey()));
 
     assertThat(underTest.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, permissionTemplate.getUuid(), asList(user1.getLogin(),
       user2.getLogin(), user2.getLogin())))
       .extracting(PermissionTemplateUserDto::getUserLogin, PermissionTemplateUserDto::getPermission)
       .containsExactlyInAnyOrder(
-        tuple(user1.getLogin(), USER),
-        tuple(user1.getLogin(), ADMIN),
-        tuple(user1.getLogin(), CODEVIEWER),
-        tuple(user2.getLogin(), USER));
+        tuple(user1.getLogin(), USER.getKey()),
+        tuple(user1.getLogin(), ADMIN.getKey()),
+        tuple(user1.getLogin(), CODEVIEWER.getKey()),
+        tuple(user2.getLogin(), USER.getKey()));
 
     assertThat(underTest.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, permissionTemplate.getUuid(),
       singletonList("unknown"))).isEmpty();

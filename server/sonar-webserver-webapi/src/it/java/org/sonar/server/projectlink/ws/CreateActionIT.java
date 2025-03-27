@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -210,7 +210,7 @@ public class CreateActionIT {
   public void fail_if_view() {
     PortfolioData view = db.components().insertPrivatePortfolioData();
 
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, view.getRootComponent());
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, view.getRootComponent());
     TestRequest testRequest = ws.newRequest()
       .setParam(PARAM_NAME, "Custom")
       .setParam(PARAM_URL, "http://example.org")
@@ -232,7 +232,7 @@ public class CreateActionIT {
   @Test
   public void fail_when_using_branch_db_uuid() {
     ProjectData project = db.components().insertPrivateProject();
-    userSession.logIn().addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.logIn().addProjectPermission(ProjectPermission.USER, project.getProjectDto());
     BranchDto branch = db.components().insertProjectBranch(project.getProjectDto());
 
     TestRequest testRequest = ws.newRequest()
@@ -255,7 +255,7 @@ public class CreateActionIT {
   }
 
   private void failIfNotAProjectWithKey(ProjectDto project, ComponentDto component) {
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     TestRequest testRequest = ws.newRequest()
       .setParam(PARAM_NAME, "Custom")
@@ -267,7 +267,7 @@ public class CreateActionIT {
   }
 
   private void failIfNotAProjectWithUuid(ProjectDto project, ComponentDto component) {
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     TestRequest testRequest = ws.newRequest()
       .setParam(PARAM_NAME, "Custom")
@@ -299,6 +299,6 @@ public class CreateActionIT {
   }
 
   private void logInAsProjectAdministrator(ProjectDto project) {
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
   }
 }

@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectBadgeTokenDto;
@@ -81,7 +81,7 @@ public class TokenAction implements ProjectBadgesWsAction {
 
       ProjectDto projectDto = dbClient.projectDao().selectProjectOrAppByKey(dbSession, projectKey)
         .orElseThrow(() -> new IllegalArgumentException(PROJECT_OR_APP_NOT_FOUND));
-      userSession.checkEntityPermission(UserRole.USER, projectDto);
+      userSession.checkEntityPermission(ProjectPermission.USER, projectDto);
       ProjectBadgeTokenDto projectBadgeTokenDto = dbClient.projectBadgeTokenDao().selectTokenByProject(dbSession, projectDto);
 
       if (projectBadgeTokenDto == null) {

@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Optional;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.GroupDto;
 
 /**
@@ -113,7 +114,7 @@ public final class DoPrivileged {
       }
 
       @Override
-      public boolean hasComponentPermission(String permission, ComponentDto component) {
+      public boolean hasComponentPermission(ProjectPermission permission, ComponentDto component) {
         return true;
       }
 
@@ -124,17 +125,17 @@ public final class DoPrivileged {
       }
 
       @Override
-      protected boolean hasEntityUuidPermission(String permission, String entityUuid) {
+      protected boolean hasEntityUuidPermission(ProjectPermission permission, String entityUuid) {
         return true;
       }
 
       @Override
-      protected boolean hasChildProjectsPermission(String permission, String applicationUuid) {
+      protected boolean hasChildProjectsPermission(ProjectPermission permission, String applicationUuid) {
         return true;
       }
 
       @Override
-      protected boolean hasPortfolioChildProjectsPermission(String permission, String applicationUuid) {
+      protected boolean hasPortfolioChildProjectsPermission(ProjectPermission permission, String applicationUuid) {
         return true;
       }
 

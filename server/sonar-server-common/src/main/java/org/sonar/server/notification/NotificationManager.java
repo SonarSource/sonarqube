@@ -22,7 +22,7 @@ package org.sonar.server.notification;
 import java.util.Objects;
 import java.util.Set;
 import org.sonar.api.notifications.Notification;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 
 import static java.util.Objects.requireNonNull;
 
@@ -83,13 +83,17 @@ public interface NotificationManager {
   Set<EmailRecipient> findSubscribedEmailRecipients(String dispatcherKey, String projectKey, Set<String> logins, SubscriberPermissionsOnProject subscriberPermissionsOnProject);
 
   final class SubscriberPermissionsOnProject {
-    public static final SubscriberPermissionsOnProject ALL_MUST_HAVE_ROLE_USER = new SubscriberPermissionsOnProject(UserRole.USER);
+    public static final SubscriberPermissionsOnProject ALL_MUST_HAVE_ROLE_USER = new SubscriberPermissionsOnProject(ProjectPermission.USER);
 
     private final String globalSubscribers;
     private final String projectSubscribers;
 
-    public SubscriberPermissionsOnProject(String globalAndProjectSubscribers) {
+    public SubscriberPermissionsOnProject(ProjectPermission globalAndProjectSubscribers) {
       this(globalAndProjectSubscribers, globalAndProjectSubscribers);
+    }
+
+    public SubscriberPermissionsOnProject(ProjectPermission globalSubscribers, ProjectPermission projectSubscribers) {
+      this(globalSubscribers.getKey(), projectSubscribers.getKey());
     }
 
     public SubscriberPermissionsOnProject(String globalSubscribers, String projectSubscribers) {

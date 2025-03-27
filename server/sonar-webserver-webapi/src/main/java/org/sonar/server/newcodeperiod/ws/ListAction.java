@@ -31,7 +31,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -90,7 +90,7 @@ public class ListAction implements NewCodePeriodsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
-      userSession.checkEntityPermission(UserRole.USER, project);
+      userSession.checkEntityPermission(ProjectPermission.USER, project);
       Collection<BranchDto> branches = dbClient.branchDao().selectByProject(dbSession, project).stream()
         .filter(b -> b.getBranchType() == BranchType.BRANCH)
         .sorted(Comparator.comparing(BranchDto::getKey))

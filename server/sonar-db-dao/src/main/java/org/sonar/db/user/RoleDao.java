@@ -19,33 +19,33 @@
  */
 package org.sonar.db.user;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.permission.ProjectPermission;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
+import static org.sonar.db.permission.ProjectPermission.USER;
 
 public class RoleDao implements Dao {
-  private static final Set<String> UNSUPPORTED_PROJECT_PERMISSIONS = ImmutableSet.of(USER, CODEVIEWER);
+  private static final Set<ProjectPermission> UNSUPPORTED_PROJECT_PERMISSIONS = EnumSet.of(USER, CODEVIEWER);
 
   /**
    * All the entities on which the user has {@code permission}, directly or through
    * groups.
    *
-   * @throws IllegalArgumentException this method does not support permissions {@link UserRole#USER user} nor
-   *         {@link UserRole#CODEVIEWER codeviewer} because it does not support public root components.
+   * @throws IllegalArgumentException this method does not support permissions {@link ProjectPermission#USER user} nor
+   *         {@link ProjectPermission#CODEVIEWER codeviewer} because it does not support public root components.
    */
-  public List<String> selectEntityUuidsByPermissionAndUserUuidAndQualifier(DbSession dbSession, String permission, String userUuid, Collection<String> qualifiers) {
+  public List<String> selectEntityUuidsByPermissionAndUserUuidAndQualifier(DbSession dbSession, ProjectPermission permission, String userUuid, Collection<String> qualifiers) {
     checkArgument(
       !UNSUPPORTED_PROJECT_PERMISSIONS.contains(permission),
       "Permissions %s are not supported by selectEntityUuidsByPermissionAndUserUuidAndQualifier", UNSUPPORTED_PROJECT_PERMISSIONS);
-    return mapper(dbSession).selectEntityUuidsByPermissionAndUserUuidAndQualifier(permission, userUuid, qualifiers);
+    return mapper(dbSession).selectEntityUuidsByPermissionAndUserUuidAndQualifier(permission.getKey(), userUuid, qualifiers);
   }
 
   public void deleteGroupRolesByGroupUuid(DbSession session, String groupUuid) {

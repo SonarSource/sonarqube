@@ -28,7 +28,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentQualifiers;
@@ -138,7 +138,7 @@ public class PermissionWsSupport {
       return;
     }
 
-    if (hasBrowsePermissionViaUser(dbSession, userSession, entityDto).contains(UserRole.USER)) {
+    if (hasBrowsePermissionViaUser(dbSession, userSession, entityDto).contains(ProjectPermission.USER.getKey())) {
       return;
     }
 
@@ -171,7 +171,7 @@ public class PermissionWsSupport {
   }
 
   public static boolean isUpdatingBrowsePermissionOnPrivateProject(String permission, @Nullable EntityDto entityDto) {
-    return entityDto != null && entityDto.isPrivate() && permission.equals(UserRole.USER);
+    return entityDto != null && entityDto.isPrivate() && permission.equals(ProjectPermission.USER.getKey());
   }
 
   private boolean userHasBrowsePermissionViaGroup(DbSession dbSession, Collection<GroupDto> groups, EntityDto entityDto) {
@@ -184,7 +184,7 @@ public class PermissionWsSupport {
   }
 
   private Set<String> findGroupsWithBrowsePermission(DbSession dbSession,EntityDto entityDto) {
-    return dbClient.groupPermissionDao().selectGroupUuidsWithPermissionOnEntity(dbSession, entityDto.getUuid(), UserRole.USER);
+    return dbClient.groupPermissionDao().selectGroupUuidsWithPermissionOnEntity(dbSession, entityDto.getUuid(), ProjectPermission.USER.getKey());
   }
 
 }

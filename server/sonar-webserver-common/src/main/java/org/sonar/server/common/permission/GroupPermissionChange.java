@@ -23,6 +23,8 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import javax.annotation.Nullable;
 import org.sonar.db.entity.EntityDto;
+import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.permission.GroupUuidOrAnyone;
 import org.sonar.server.permission.PermissionService;
@@ -35,6 +37,16 @@ public class GroupPermissionChange extends PermissionChange {
     @Nullable GroupDto groupDto, PermissionService permissionService) {
     super(operation, permission, entityDto, permissionService);
     this.groupDto = groupDto;
+  }
+
+  public GroupPermissionChange(Operation operation, ProjectPermission permission, EntityDto entityDto,
+    @Nullable GroupDto groupDto, PermissionService permissionService) {
+    this(operation, permission.getKey(), entityDto, groupDto, permissionService);
+  }
+
+  public GroupPermissionChange(Operation operation, GlobalPermission permission,
+    @Nullable GroupDto groupDto, PermissionService permissionService) {
+    this(operation, permission.getKey(), null, groupDto, permissionService);
   }
 
   public GroupUuidOrAnyone getGroupUuidOrAnyone() {

@@ -25,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -93,7 +93,7 @@ public class ShowActionIT {
     ComponentDto file = db.components().insertComponent(newFileDto(project).setKey("foo.js"));
     db.components().insertSnapshot(newAnalysis(project));
 
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
+    userSessionRule.addProjectPermission(ProjectPermission.CODEVIEWER, project);
 
     TestResponse result = newBaseRequest().setParam("key", file.getKey()).execute();
 
@@ -108,7 +108,7 @@ public class ShowActionIT {
   @Test
   public void duplications_by_file_key_and_branch() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
+    userSessionRule.addProjectPermission(ProjectPermission.CODEVIEWER, project);
     String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     userSessionRule.addProjectBranchMapping(project.uuid(), branch);
@@ -164,7 +164,7 @@ public class ShowActionIT {
   @Test
   public void duplications_by_file_key_and_pull_request() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
+    userSessionRule.addProjectPermission(ProjectPermission.CODEVIEWER, project);
     String pullRequestKey = secure().nextAlphanumeric(100);
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
     userSessionRule.addProjectBranchMapping(project.uuid(), pullRequest);
@@ -250,7 +250,7 @@ public class ShowActionIT {
 
   private void verifyCallToFileWithDuplications(Function<ComponentDto, TestRequest> requestFactory) {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
+    userSessionRule.addProjectPermission(ProjectPermission.CODEVIEWER, project);
     ComponentDto file = db.components().insertComponent(newFileDto(project).setKey("foo.js"));
     String xml = """
       <duplications>

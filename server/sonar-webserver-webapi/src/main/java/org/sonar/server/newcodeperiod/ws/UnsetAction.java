@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
@@ -102,7 +102,7 @@ public class UnsetAction implements NewCodePeriodsWsAction {
 
       if (projectKey != null) {
         ProjectDto project = getProject(dbSession, projectKey);
-        userSession.checkEntityPermission(UserRole.ADMIN, project);
+        userSession.checkEntityPermission(ProjectPermission.ADMIN, project);
         projectUuid = project.getUuid();
 
         if (branchKey != null) {

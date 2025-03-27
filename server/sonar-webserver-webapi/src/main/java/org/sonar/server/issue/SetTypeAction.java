@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.Map;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.rule.RuleType;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.issue.workflow.IsUnResolved;
 import org.sonar.server.user.UserSession;
@@ -47,7 +47,7 @@ public class SetTypeAction extends Action {
   }
 
   private boolean isCurrentUserIssueAdmin(Issue issue) {
-    return userSession.hasComponentUuidPermission(UserRole.ISSUE_ADMIN, issue.projectUuid());
+    return userSession.hasComponentUuidPermission(ProjectPermission.ISSUE_ADMIN, issue.projectUuid());
   }
 
   @Override

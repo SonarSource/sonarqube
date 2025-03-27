@@ -26,6 +26,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.almsettings.MultipleAlmFeature;
 import org.sonar.server.component.ComponentFinder;
@@ -35,7 +36,7 @@ import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.db.permission.ProjectPermission.ADMIN;
 
 @ServerSide
 public class AlmSettingsSupport {
@@ -83,7 +84,7 @@ public class AlmSettingsSupport {
     return getProject(dbSession, projectKey, ADMIN);
   }
 
-  public ProjectDto getProject(DbSession dbSession, String projectKey, String projectPermission) {
+  public ProjectDto getProject(DbSession dbSession, String projectKey, ProjectPermission projectPermission) {
     ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
     userSession.checkEntityPermission(projectPermission, project);
     return project;

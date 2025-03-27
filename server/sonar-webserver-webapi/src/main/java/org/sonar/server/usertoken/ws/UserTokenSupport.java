@@ -22,7 +22,7 @@ package org.sonar.server.usertoken.ws;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
@@ -97,7 +97,7 @@ public class UserTokenSupport {
   }
 
   private void validateProjectScanPermission(ProjectDto projectDto) {
-    if (userSession.hasEntityPermission(UserRole.SCAN, projectDto) || userSession.hasPermission(SCAN)) {
+    if (userSession.hasEntityPermission(ProjectPermission.SCAN, projectDto) || userSession.hasPermission(SCAN)) {
       return;
     }
     throw insufficientPrivilegesException();

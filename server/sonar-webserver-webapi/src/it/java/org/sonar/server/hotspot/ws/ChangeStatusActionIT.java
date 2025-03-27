@@ -38,7 +38,7 @@ import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
@@ -307,7 +307,7 @@ public class ChangeStatusActionIT {
 
   @Test
   @UseDataProvider("anyPublicProjectPermissionButHotspotAdmin")
-  public void fails_with_ForbiddenException_if_project_is_public_and_user_has_no_HotspotAdmin_permission_on_it(String permission) {
+  public void fails_with_ForbiddenException_if_project_is_public_and_user_has_no_HotspotAdmin_permission_on_it(ProjectPermission permission) {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -331,15 +331,15 @@ public class ChangeStatusActionIT {
   @DataProvider
   public static Object[][] anyPublicProjectPermissionButHotspotAdmin() {
     return new Object[][] {
-      {UserRole.ADMIN},
-      {UserRole.ISSUE_ADMIN},
-      {UserRole.SCAN}
+      {ProjectPermission.ADMIN},
+      {ProjectPermission.ISSUE_ADMIN},
+      {ProjectPermission.SCAN}
     };
   }
 
   @Test
   @UseDataProvider("anyPrivateProjectPermissionButHotspotAdmin")
-  public void fails_with_ForbiddenException_if_project_is_private_and_has_no_IssueAdmin_permission_on_it(String permission) {
+  public void fails_with_ForbiddenException_if_project_is_private_and_has_no_IssueAdmin_permission_on_it(ProjectPermission permission) {
     ProjectData projectData = dbTester.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -363,11 +363,11 @@ public class ChangeStatusActionIT {
   @DataProvider
   public static Object[][] anyPrivateProjectPermissionButHotspotAdmin() {
     return new Object[][] {
-      {UserRole.USER},
-      {UserRole.ADMIN},
-      {UserRole.ISSUE_ADMIN},
-      {UserRole.CODEVIEWER},
-      {UserRole.SCAN}
+      {ProjectPermission.USER},
+      {ProjectPermission.ADMIN},
+      {ProjectPermission.ISSUE_ADMIN},
+      {ProjectPermission.CODEVIEWER},
+      {ProjectPermission.SCAN}
     };
   }
 
@@ -378,7 +378,7 @@ public class ChangeStatusActionIT {
     ComponentDto project = projectData.getMainBranchComponent();
 
     userSessionRule.logIn().registerProjects(projectData.getProjectDto())
-      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
+      .addProjectPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
@@ -392,7 +392,7 @@ public class ChangeStatusActionIT {
     ComponentDto project = projectData.getMainBranchComponent();
 
     userSessionRule.logIn().registerProjects(projectData.getProjectDto())
-      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
+      .addProjectPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
@@ -406,7 +406,7 @@ public class ChangeStatusActionIT {
     ComponentDto project = projectData.getMainBranchComponent();
 
     userSessionRule.logIn().registerProjects(projectData.getProjectDto())
-      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
+      .addProjectPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(status).setResolution(resolution));
 
@@ -424,7 +424,7 @@ public class ChangeStatusActionIT {
     ComponentDto project = projectData.getMainBranchComponent();
 
     userSessionRule.logIn().registerProjects(projectData.getProjectDto())
-      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
+      .addProjectPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(STATUS_TO_REVIEW).setResolution(null));
     when(transitionService.doTransition(any(), any(), any())).thenReturn(transitionDone);
@@ -459,7 +459,7 @@ public class ChangeStatusActionIT {
     ComponentDto project = projectData.getMainBranchComponent();
 
     userSessionRule.logIn().registerProjects(projectData.getProjectDto())
-      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
+      .addProjectPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     when(branchDto.getBranchType()).thenReturn(BranchType.BRANCH);
     String projectUuid = "projectUuid";
@@ -485,7 +485,7 @@ public class ChangeStatusActionIT {
 
     userSessionRule.logIn().registerProjects(project)
       .registerBranches(branch)
-      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
+      .addProjectPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN, project);
     newRequest(hotspot, STATUS_REVIEWED, RESOLUTION_FIXED, NO_COMMENT).execute();
 
     verify(hotspotChangeEventService).distributeHotspotChangedEvent(eq(branchDto.getProjectUuid()), any(HotspotChangedEvent.class));
@@ -497,7 +497,7 @@ public class ChangeStatusActionIT {
     ComponentDto project = projectData.getMainBranchComponent();
 
     userSessionRule.logIn().registerProjects(projectData.getProjectDto())
-      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
+      .addProjectPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     when(branchDto.getBranchType()).thenReturn(BranchType.PULL_REQUEST);
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
@@ -529,7 +529,7 @@ public class ChangeStatusActionIT {
     ComponentDto project = projectData.getMainBranchComponent();
 
     userSessionRule.logIn().registerProjects(projectData.getProjectDto())
-      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
+      .addProjectPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
 
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(STATUS_REVIEWED).setResolution(resolution));
@@ -581,7 +581,7 @@ public class ChangeStatusActionIT {
     ComponentDto project = projectData.getMainBranchComponent();
 
     userSessionRule.logIn().registerProjects(projectData.getProjectDto())
-      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
+      .addProjectPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
 
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(currentStatus).setResolution(currentResolution));
@@ -641,7 +641,7 @@ public class ChangeStatusActionIT {
     ComponentDto project = projectData.getMainBranchComponent();
 
     userSessionRule.logIn().registerProjects(projectData.getProjectDto())
-      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
+      .addProjectPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(status).setResolution(resolution));
     String comment = secure().nextAlphabetic(12);

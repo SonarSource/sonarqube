@@ -29,7 +29,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -98,7 +98,7 @@ public class StatusAction implements ProjectDumpAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = getProject(dbSession, uuid, key);
       BranchDto mainBranch = componentFinder.getMainBranch(dbSession, project);
-      userSession.checkEntityPermission(UserRole.ADMIN, project);
+      userSession.checkEntityPermission(ProjectPermission.ADMIN, project);
 
       WsResponse wsResponse = new WsResponse();
       checkDumps(project, wsResponse);

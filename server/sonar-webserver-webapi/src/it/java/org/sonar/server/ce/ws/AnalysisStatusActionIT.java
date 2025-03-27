@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
@@ -76,7 +76,7 @@ public class AnalysisStatusActionIT {
   @Test
   public void no_errors_no_warnings() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().setSystemAdministrator().addProjectPermission(ProjectPermission.USER, project);
 
     Ce.AnalysisStatusWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
@@ -106,7 +106,7 @@ public class AnalysisStatusActionIT {
   public void return_warnings_for_last_analysis_of_main() {
     ProjectData projectData = db.components().insertPrivateProject();
     ProjectDto project = projectData.getProjectDto();
-    userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().setSystemAdministrator().addProjectPermission(ProjectPermission.USER, project);
 
     SnapshotDto analysis = db.components().insertSnapshot(project);
     CeActivityDto activity = insertActivity("task-uuid" + counter++, projectData.getMainBranchDto(), SUCCESS, analysis, REPORT);
@@ -137,7 +137,7 @@ public class AnalysisStatusActionIT {
   @Test
   public void return_warnings_for_last_analysis_of_branch() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().setSystemAdministrator().addProjectPermission(ProjectPermission.USER, project);
 
     BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey(BRANCH_WITH_WARNING));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
@@ -168,7 +168,7 @@ public class AnalysisStatusActionIT {
   @Test
   public void return_warnings_for_last_analysis_of_pull_request() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().setSystemAdministrator().addProjectPermission(ProjectPermission.USER, project);
 
     BranchDto pullRequest = db.components().insertProjectBranch(project, b -> {
       b.setBranchType(BranchType.PULL_REQUEST);
@@ -203,7 +203,7 @@ public class AnalysisStatusActionIT {
   public void return_warnings_per_branch() {
     ProjectData projectData = db.components().insertPrivateProject();
     ProjectDto project = projectData.getProjectDto();
-    userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().setSystemAdministrator().addProjectPermission(ProjectPermission.USER, project);
 
     SnapshotDto analysis = db.components().insertSnapshot(project);
     CeActivityDto activity = insertActivity("task-uuid" + counter++, projectData.getMainBranchDto(), SUCCESS, analysis, REPORT);
@@ -263,7 +263,7 @@ public class AnalysisStatusActionIT {
   @Test
   public void response_contains_branch_or_pullRequest_for_branch_or_pullRequest_only() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().setSystemAdministrator().addProjectPermission(ProjectPermission.USER, project);
 
     db.components().insertProjectBranch(project, b -> b.setKey(BRANCH_WITHOUT_WARNING));
 
@@ -312,7 +312,7 @@ public class AnalysisStatusActionIT {
     db.getDbClient().ceTaskMessageDao().insert(db.getSession(), ceTaskMessage);
     db.commit();
 
-    userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().setSystemAdministrator().addProjectPermission(ProjectPermission.USER, project);
 
     String result = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())

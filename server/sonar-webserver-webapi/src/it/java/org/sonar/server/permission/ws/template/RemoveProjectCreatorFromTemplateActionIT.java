@@ -22,14 +22,14 @@ package org.sonar.server.permission.ws.template;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
-import org.sonar.server.component.ComponentTypesRule;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.server.component.ComponentTypes;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -75,7 +75,7 @@ public class RemoveProjectCreatorFromTemplateActionIT extends BasePermissionWsIT
       new PermissionTemplateCharacteristicDto()
         .setUuid(Uuids.createFast())
         .setTemplateUuid(template.getUuid())
-        .setPermission(UserRole.USER)
+        .setPermission(ProjectPermission.USER)
         .setWithProjectCreator(false)
         .setCreatedAt(1_000_000_000L)
         .setUpdatedAt(1_000_000_000L),
@@ -84,11 +84,11 @@ public class RemoveProjectCreatorFromTemplateActionIT extends BasePermissionWsIT
     when(system.now()).thenReturn(3_000_000_000L);
 
     newRequest()
-      .setParam(PARAM_PERMISSION, UserRole.USER)
+      .setParam(PARAM_PERMISSION, ProjectPermission.USER.getKey())
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .execute();
 
-    assertWithoutProjectCreatorFor(UserRole.USER);
+    assertWithoutProjectCreatorFor(ProjectPermission.USER);
     PermissionTemplateCharacteristicDto reloaded = reload(characteristic);
     assertThat(reloaded.getCreatedAt()).isEqualTo(1_000_000_000L);
     assertThat(reloaded.getUpdatedAt()).isEqualTo(3_000_000_000L);
@@ -97,18 +97,18 @@ public class RemoveProjectCreatorFromTemplateActionIT extends BasePermissionWsIT
   @Test
   public void do_not_fail_when_no_template_permission() {
     newRequest()
-      .setParam(PARAM_PERMISSION, UserRole.ADMIN)
+      .setParam(PARAM_PERMISSION, ProjectPermission.ADMIN.getKey())
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
       .execute();
 
-    assertNoTemplatePermissionFor(UserRole.ADMIN);
+    assertNoTemplatePermissionFor(ProjectPermission.ADMIN);
   }
 
   @Test
   public void fail_when_template_does_not_exist() {
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       newRequest()
-        .setParam(PARAM_PERMISSION, UserRole.ADMIN)
+        .setParam(PARAM_PERMISSION, ProjectPermission.ADMIN.getKey())
         .setParam(PARAM_TEMPLATE_ID, "42")
         .execute();
     })
@@ -117,7 +117,7 @@ public class RemoveProjectCreatorFromTemplateActionIT extends BasePermissionWsIT
 
   @Test
   public void fail_if_permission_is_not_a_project_permission() {
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       newRequest()
         .setParam(PARAM_PERMISSION, ADMINISTER_QUALITY_GATES.getKey())
         .setParam(PARAM_TEMPLATE_ID, template.getUuid())
@@ -130,9 +130,9 @@ public class RemoveProjectCreatorFromTemplateActionIT extends BasePermissionWsIT
   public void fail_if_not_authenticated() {
     userSession.anonymous();
 
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       newRequest()
-        .setParam(PARAM_PERMISSION, UserRole.ADMIN)
+        .setParam(PARAM_PERMISSION, ProjectPermission.ADMIN.getKey())
         .setParam(PARAM_TEMPLATE_ID, template.getUuid())
         .execute();
     })
@@ -143,23 +143,23 @@ public class RemoveProjectCreatorFromTemplateActionIT extends BasePermissionWsIT
   public void fail_if_insufficient_privileges() {
     userSession.logIn();
 
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       newRequest()
-        .setParam(PARAM_PERMISSION, UserRole.ADMIN)
+        .setParam(PARAM_PERMISSION, ProjectPermission.ADMIN.getKey())
         .setParam(PARAM_TEMPLATE_ID, template.getUuid())
         .execute();
     })
       .isInstanceOf(ForbiddenException.class);
   }
 
-  private void assertWithoutProjectCreatorFor(String permission) {
+  private void assertWithoutProjectCreatorFor(ProjectPermission permission) {
     Optional<PermissionTemplateCharacteristicDto> templatePermission = db.getDbClient().permissionTemplateCharacteristicDao().selectByPermissionAndTemplateId(db.getSession(),
       permission, template.getUuid());
     assertThat(templatePermission).isPresent();
     assertThat(templatePermission.get().getWithProjectCreator()).isFalse();
   }
 
-  private void assertNoTemplatePermissionFor(String permission) {
+  private void assertNoTemplatePermissionFor(ProjectPermission permission) {
     Optional<PermissionTemplateCharacteristicDto> templatePermission = db.getDbClient().permissionTemplateCharacteristicDao().selectByPermissionAndTemplateId(db.getSession(),
       permission, template.getUuid());
     assertThat(templatePermission).isNotPresent();

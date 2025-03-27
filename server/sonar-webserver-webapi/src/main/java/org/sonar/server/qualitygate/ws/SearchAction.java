@@ -27,7 +27,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Paging;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
@@ -156,7 +156,7 @@ public class SearchAction implements QualityGatesWsAction {
 
   private List<ProjectQgateAssociationDto> keepAuthorizedProjects(DbSession dbSession, List<ProjectQgateAssociationDto> projects) {
     List<String> projectUuids = projects.stream().map(ProjectQgateAssociationDto::getUuid).toList();
-    Collection<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedEntityUuids(dbSession, projectUuids, userSession.getUuid(), UserRole.USER);
+    Collection<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedEntityUuids(dbSession, projectUuids, userSession.getUuid(), ProjectPermission.USER);
     return projects.stream().filter(project -> authorizedProjectUuids.contains(project.getUuid())).toList();
   }
 }

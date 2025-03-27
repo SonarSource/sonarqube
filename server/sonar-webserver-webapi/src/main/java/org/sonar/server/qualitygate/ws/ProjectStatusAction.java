@@ -29,7 +29,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -220,9 +220,9 @@ public class ProjectStatusAction implements QualityGatesWsAction {
   }
 
   private void checkPermission(ProjectDto project) {
-    if (!userSession.hasEntityPermission(UserRole.ADMIN, project) &&
-        !userSession.hasEntityPermission(UserRole.USER, project) &&
-        !userSession.hasEntityPermission(UserRole.SCAN, project) &&
+    if (!userSession.hasEntityPermission(ProjectPermission.ADMIN, project) &&
+        !userSession.hasEntityPermission(ProjectPermission.USER, project) &&
+        !userSession.hasEntityPermission(ProjectPermission.SCAN, project) &&
         !userSession.hasPermission(GlobalPermission.SCAN)) {
       throw insufficientPrivilegesException();
     }

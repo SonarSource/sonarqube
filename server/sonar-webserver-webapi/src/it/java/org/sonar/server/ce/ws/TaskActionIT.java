@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.ce.CeTaskCharacteristics;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactoryFast;
@@ -42,6 +41,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -56,10 +56,10 @@ import static java.util.Collections.singleton;
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.api.web.UserRole.SCAN;
 import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH_TYPE;
 import static org.sonar.db.component.BranchType.BRANCH;
+import static org.sonar.db.permission.ProjectPermission.ADMIN;
+import static org.sonar.db.permission.ProjectPermission.SCAN;
 
 public class TaskActionIT {
 
@@ -144,7 +144,7 @@ public class TaskActionIT {
   @Test
   public void task_is_archived() {
     UserDto user = db.users().insertUser();
-    loginAndAddProjectPermission(user, GlobalPermission.SCAN.getKey());
+    loginAndAddProjectPermission(user, ProjectPermission.SCAN);
 
     CeActivityDto activityDto = createActivityDto(SOME_TASK_UUID);
     persist(activityDto);
@@ -169,7 +169,7 @@ public class TaskActionIT {
     logInAsSystemAdministrator();
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.USER, projectData.getProjectDto());
     String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setBranchType(BRANCH).setKey(branchName));
     db.components().insertSnapshot(branch);
@@ -307,7 +307,7 @@ public class TaskActionIT {
   @Test
   public void get_project_queue_task_with_scan_permission_on_project() {
     UserDto user = db.users().insertUser();
-    loginAndAddProjectPermission(user, GlobalPermission.SCAN.getKey());
+    loginAndAddProjectPermission(user, ProjectPermission.SCAN);
     CeQueueDto task = createAndPersistQueueTask(privateProjectMainBranch, user);
 
     call(task.getUuid());
@@ -327,7 +327,7 @@ public class TaskActionIT {
   @Test
   public void get_project_queue_task_of_private_project_with_user_permission_fails_with_ForbiddenException() {
     UserDto user = db.users().insertUser();
-    userSession.logIn().addProjectPermission(UserRole.USER, privateProject);
+    userSession.logIn().addProjectPermission(ProjectPermission.USER, privateProject);
     CeQueueDto task = createAndPersistQueueTask(privateProjectMainBranch, user);
 
     String uuid = task.getUuid();
@@ -338,13 +338,13 @@ public class TaskActionIT {
   @Test
   public void get_project_queue_task_on_public_project() {
     UserDto user = db.users().insertUser();
-    loginAndAddProjectPermission(user, GlobalPermission.SCAN.getKey());
+    loginAndAddProjectPermission(user, ProjectPermission.SCAN);
     CeQueueDto task = createAndPersistQueueTask(privateProjectMainBranch, user);
 
     call(task.getUuid());
   }
 
-  private void loginAndAddProjectPermission(@Nullable UserDto user, String permission) {
+  private void loginAndAddProjectPermission(@Nullable UserDto user, ProjectPermission permission) {
     if (user != null) {
       userSession.logIn(user);
     } else {
@@ -474,7 +474,7 @@ public class TaskActionIT {
 
   @Test
   public void get_warnings_on_private_project_archived_task_if_user_fails_with_ForbiddenException() {
-    userSession.logIn().addProjectPermission(UserRole.USER, privateProject);
+    userSession.logIn().addProjectPermission(ProjectPermission.USER, privateProject);
 
     CeActivityDto persistArchivedTask = createAndPersistArchivedTask(privateProjectMainBranch);
     assertThatThrownBy(() -> insertWarningsCallEndpointAndAssertWarnings(persistArchivedTask))
@@ -483,7 +483,7 @@ public class TaskActionIT {
 
   @Test
   public void get_warnings_on_private_project_archived_task_if_scan() {
-    loginAndAddProjectPermission(null, GlobalPermission.SCAN.getKey());
+    loginAndAddProjectPermission(null, ProjectPermission.SCAN);
 
     insertWarningsCallEndpointAndAssertWarnings(createAndPersistArchivedTask(privateProjectMainBranch));
   }

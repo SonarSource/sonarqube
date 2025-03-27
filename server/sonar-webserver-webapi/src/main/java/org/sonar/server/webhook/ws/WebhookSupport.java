@@ -24,7 +24,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import okhttp3.HttpUrl;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.user.UserSession;
@@ -45,7 +45,7 @@ public class WebhookSupport {
   }
 
   void checkPermission(ProjectDto projectDto) {
-    userSession.checkEntityPermission(UserRole.ADMIN, projectDto);
+    userSession.checkEntityPermission(ProjectPermission.ADMIN, projectDto);
   }
 
   void checkPermission() {

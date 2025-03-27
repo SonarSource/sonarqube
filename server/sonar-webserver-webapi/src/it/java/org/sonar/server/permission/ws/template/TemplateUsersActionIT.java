@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -46,10 +46,10 @@ import org.sonarqube.ws.Permissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
-import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.ADMIN;
+import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
+import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateUserDto;
@@ -96,7 +96,7 @@ public class TemplateUsersActionIT extends BasePermissionWsIT<TemplateUsersActio
     addUserToTemplate(newPermissionTemplateUser(ADMIN, template1, user2), template1.getName());
     loginAsAdmin();
 
-    String result = newRequest(null, template1.getUuid()).execute().getInput();
+    String result = newRequest((String) null, template1.getUuid()).execute().getInput();
     assertJson(result).isSimilarTo(getClass().getResource("template_users-example.json"));
   }
 
@@ -117,7 +117,7 @@ public class TemplateUsersActionIT extends BasePermissionWsIT<TemplateUsersActio
     PermissionTemplateDto anotherTemplate = addTemplate();
     addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1), anotherTemplate.getName());
 
-    Permissions.UsersWsResponse response = newRequest(null, null)
+    Permissions.UsersWsResponse response = newRequest((String) null, null)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .executeProtobuf(Permissions.UsersWsResponse.class);
 
@@ -144,7 +144,7 @@ public class TemplateUsersActionIT extends BasePermissionWsIT<TemplateUsersActio
     PermissionTemplateDto anotherTemplate = addTemplate();
     addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1), anotherTemplate.getName());
 
-    Permissions.UsersWsResponse response = newRequest(null, null)
+    Permissions.UsersWsResponse response = newRequest((String) null, null)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .setParam(WebService.Param.TEXT_QUERY, "ame-1")
       .executeProtobuf(Permissions.UsersWsResponse.class);
@@ -162,7 +162,7 @@ public class TemplateUsersActionIT extends BasePermissionWsIT<TemplateUsersActio
 
     String templateName = addUsersToSomeTemplate(user1, user2, user3);
 
-    Permissions.UsersWsResponse response = newRequest(null, null)
+    Permissions.UsersWsResponse response = newRequest((String) null, null)
       .setParam(PARAM_TEMPLATE_NAME, templateName)
       .setParam(WebService.Param.TEXT_QUERY, "ran")
       .executeProtobuf(Permissions.UsersWsResponse.class);
@@ -181,7 +181,7 @@ public class TemplateUsersActionIT extends BasePermissionWsIT<TemplateUsersActio
 
     String templateName = addUsersToSomeTemplate(user1, user2, user3);
 
-    Permissions.UsersWsResponse response = newRequest(null, null)
+    Permissions.UsersWsResponse response = newRequest((String) null, null)
       .setParam(PARAM_TEMPLATE_NAME, templateName)
       .setParam(WebService.Param.TEXT_QUERY, "xyz")
       .executeProtobuf(Permissions.UsersWsResponse.class);
@@ -259,7 +259,7 @@ public class TemplateUsersActionIT extends BasePermissionWsIT<TemplateUsersActio
     addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3), template.getName());
 
     loginAsAdmin();
-    Permissions.UsersWsResponse response = newRequest(null, null)
+    Permissions.UsersWsResponse response = newRequest((String) null, null)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .executeProtobuf(Permissions.UsersWsResponse.class);
 
@@ -273,13 +273,13 @@ public class TemplateUsersActionIT extends BasePermissionWsIT<TemplateUsersActio
     PermissionTemplateDto otherTemplate = db.permissionTemplates().insertTemplate();
     IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
       UserDto user = db.users().insertUser("User-" + i);
-      db.permissionTemplates().addUserToTemplate(otherTemplate, user, UserRole.USER);
+      db.permissionTemplates().addUserToTemplate(otherTemplate, user, ProjectPermission.USER);
     });
     String lastLogin = "User-" + (DEFAULT_PAGE_SIZE + 1);
-    db.permissionTemplates().addUserToTemplate(template, db.users().selectUserByLogin(lastLogin).get(), UserRole.USER);
+    db.permissionTemplates().addUserToTemplate(template, db.users().selectUserByLogin(lastLogin).get(), ProjectPermission.USER);
     loginAsAdmin();
 
-    Permissions.UsersWsResponse response = newRequest(null, null)
+    Permissions.UsersWsResponse response = newRequest((String) null, null)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .executeProtobuf(Permissions.UsersWsResponse.class);
 
@@ -306,7 +306,7 @@ public class TemplateUsersActionIT extends BasePermissionWsIT<TemplateUsersActio
     loginAsAdmin();
 
     assertThatThrownBy(() ->  {
-      newRequest(null, null)
+      newRequest((String) null, null)
         .execute();
     })
       .isInstanceOf(BadRequestException.class);
@@ -317,7 +317,7 @@ public class TemplateUsersActionIT extends BasePermissionWsIT<TemplateUsersActio
     loginAsAdmin();
 
     assertThatThrownBy(() ->  {
-      newRequest(null, "unknown-template-uuid")
+      newRequest((String) null, "unknown-template-uuid")
         .execute();
     })
       .isInstanceOf(NotFoundException.class);
@@ -329,7 +329,7 @@ public class TemplateUsersActionIT extends BasePermissionWsIT<TemplateUsersActio
     loginAsAdmin();
 
     assertThatThrownBy(() ->  {
-      newRequest(null, template.getUuid())
+      newRequest((String) null, template.getUuid())
         .setParam(PARAM_TEMPLATE_NAME, template.getName())
         .execute();
     })
@@ -342,7 +342,7 @@ public class TemplateUsersActionIT extends BasePermissionWsIT<TemplateUsersActio
     userSession.anonymous();
 
     assertThatThrownBy(() ->  {
-      newRequest(null, template.getUuid()).execute();
+      newRequest((String) null, template.getUuid()).execute();
     })
       .isInstanceOf(UnauthorizedException.class);
   }
@@ -353,7 +353,7 @@ public class TemplateUsersActionIT extends BasePermissionWsIT<TemplateUsersActio
     userSession.logIn().addPermission(SCAN);
 
     assertThatThrownBy(() ->  {
-      newRequest(null, template.getUuid()).execute();
+      newRequest((String) null, template.getUuid()).execute();
     })
       .isInstanceOf(ForbiddenException.class);
   }
@@ -369,11 +369,23 @@ public class TemplateUsersActionIT extends BasePermissionWsIT<TemplateUsersActio
     db.commit();
   }
 
+  private static PermissionTemplateUserDto newPermissionTemplateUser(ProjectPermission permission, PermissionTemplateDto template, UserDto user) {
+    return newPermissionTemplateUser(permission.getKey(), template, user);
+  }
+
   private static PermissionTemplateUserDto newPermissionTemplateUser(String permission, PermissionTemplateDto template, UserDto user) {
     return newPermissionTemplateUserDto()
       .setPermission(permission)
       .setTemplateUuid(template.getUuid())
       .setUserUuid(user.getUuid());
+  }
+
+  private TestRequest newRequest(@Nullable ProjectPermission permission, @Nullable String templateUuid) {
+    return newRequest(permission != null ? permission.getKey() : null, templateUuid);
+  }
+
+  private TestRequest newRequest(@Nullable GlobalPermission permission, @Nullable String templateUuid) {
+    return newRequest(permission != null ? permission.getKey() : null, templateUuid);
   }
 
   private TestRequest newRequest(@Nullable String permission, @Nullable String templateUuid) {

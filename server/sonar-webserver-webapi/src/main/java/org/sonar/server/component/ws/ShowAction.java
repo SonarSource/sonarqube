@@ -28,7 +28,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -111,7 +111,7 @@ public class ShowAction implements ComponentsWsAction {
   private ShowWsResponse doHandle(Request request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = loadComponent(dbSession, request);
-      userSession.checkComponentPermission(UserRole.USER, component);
+      userSession.checkComponentPermission(ProjectPermission.USER, component);
       Optional<SnapshotDto> lastAnalysis;
       if (component.getCopyComponentUuid() != null) {
         lastAnalysis = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, component.getCopyComponentUuid());

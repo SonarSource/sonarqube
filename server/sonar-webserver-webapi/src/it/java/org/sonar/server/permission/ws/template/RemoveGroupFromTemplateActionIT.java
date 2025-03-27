@@ -23,14 +23,16 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
-import org.sonar.server.component.ComponentTypesRule;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.PermissionQuery;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.component.ComponentTypes;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -45,9 +47,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
+import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
@@ -55,7 +57,7 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_T
 
 public class RemoveGroupFromTemplateActionIT extends BasePermissionWsIT<RemoveGroupFromTemplateAction> {
 
-  private static final String PERMISSION = CODEVIEWER;
+  private static final ProjectPermission PERMISSION = CODEVIEWER;
 
   private GroupDto group;
   private PermissionTemplateDto template;
@@ -100,7 +102,7 @@ public class RemoveGroupFromTemplateActionIT extends BasePermissionWsIT<RemoveGr
   public void remove_group_from_template_by_name_case_insensitive() {
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
-      .setParam(PARAM_PERMISSION, PERMISSION)
+      .setParam(PARAM_PERMISSION, PERMISSION.getKey())
       .setParam(PARAM_TEMPLATE_NAME, template.getName().toUpperCase())
       .execute();
 
@@ -126,7 +128,10 @@ public class RemoveGroupFromTemplateActionIT extends BasePermissionWsIT<RemoveGr
 
   @Test
   public void fail_if_not_a_project_permission() {
-    assertThatThrownBy(() -> newRequest(group.getName(), template.getUuid(), PROVISION_PROJECTS.getKey()))
+    var groupName = group.getName();
+    var templateUuid = template.getUuid();
+
+    assertThatThrownBy(() -> newRequest(groupName, templateUuid, PROVISION_PROJECTS))
       .isInstanceOf(IllegalArgumentException.class);
   }
 
@@ -140,7 +145,7 @@ public class RemoveGroupFromTemplateActionIT extends BasePermissionWsIT<RemoveGr
 
   @Test
   public void fail_if_not_logged_in() {
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       userSession.anonymous();
       newRequest(group.getName(), template.getUuid(), PERMISSION);
     })
@@ -149,7 +154,7 @@ public class RemoveGroupFromTemplateActionIT extends BasePermissionWsIT<RemoveGr
 
   @Test
   public void fail_if_group_params_missing() {
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       newRequest(null, template.getUuid(), PERMISSION);
     })
       .isInstanceOf(IllegalArgumentException.class)
@@ -158,15 +163,15 @@ public class RemoveGroupFromTemplateActionIT extends BasePermissionWsIT<RemoveGr
 
   @Test
   public void fail_if_permission_missing() {
-    assertThatThrownBy(() ->  {
-      newRequest(group.getName(), template.getUuid(), null);
+    assertThatThrownBy(() -> {
+      newRequest(group.getName(), template.getUuid(), (String) null);
     })
       .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_template_missing() {
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       newRequest(group.getName(), null, PERMISSION);
     })
       .isInstanceOf(BadRequestException.class);
@@ -174,7 +179,7 @@ public class RemoveGroupFromTemplateActionIT extends BasePermissionWsIT<RemoveGr
 
   @Test
   public void fail_if_group_does_not_exist() {
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       newRequest("unknown-group-name", template.getUuid(), PERMISSION);
     })
       .isInstanceOf(NotFoundException.class)
@@ -183,11 +188,19 @@ public class RemoveGroupFromTemplateActionIT extends BasePermissionWsIT<RemoveGr
 
   @Test
   public void fail_if_template_key_does_not_exist() {
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       newRequest(group.getName(), "unknown-key", PERMISSION);
     })
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Permission template with id 'unknown-key' is not found");
+  }
+
+  private void newRequest(@Nullable String groupName, @Nullable String templateKey, @Nullable GlobalPermission permission) {
+    newRequest(groupName, templateKey, permission != null ? permission.getKey() : null);
+  }
+
+  private void newRequest(@Nullable String groupName, @Nullable String templateKey, @Nullable ProjectPermission permission) {
+    newRequest(groupName, templateKey, permission != null ? permission.getKey() : null);
   }
 
   private void newRequest(@Nullable String groupName, @Nullable String templateKey, @Nullable String permission) {
@@ -205,13 +218,13 @@ public class RemoveGroupFromTemplateActionIT extends BasePermissionWsIT<RemoveGr
     request.execute();
   }
 
-  private void addGroupToTemplate(PermissionTemplateDto template, @Nullable String groupUuid, String permission, String groupName) {
+  private void addGroupToTemplate(PermissionTemplateDto template, @Nullable String groupUuid, ProjectPermission permission, String groupName) {
     db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), template.getUuid(), groupUuid,
       permission, template.getName(), groupName);
     db.commit();
   }
 
-  private List<String> getGroupNamesInTemplateAndPermission(PermissionTemplateDto template, String permission) {
+  private List<String> getGroupNamesInTemplateAndPermission(PermissionTemplateDto template, ProjectPermission permission) {
     PermissionQuery permissionQuery = PermissionQuery.builder().setPermission(permission).build();
     return db.getDbClient().permissionTemplateDao()
       .selectGroupNamesByQueryAndTemplate(db.getSession(), permissionQuery, template.getUuid());

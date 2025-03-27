@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -161,7 +161,7 @@ public class UpdateEventActionIT {
     ProjectData project = db.components().insertPrivateProject();
     SnapshotDto analysis = db.components().insertSnapshot(project.getMainBranchDto());
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
-    userSession.logIn().addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.logIn().addProjectPermission(ProjectPermission.USER, project.getProjectDto());
 
     assertThatThrownBy(() -> call("E1", "name"))
       .isInstanceOf(ForbiddenException.class);
@@ -244,7 +244,7 @@ public class UpdateEventActionIT {
   }
 
   private void logInAsProjectAdministrator(ProjectData project) {
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project.getProjectDto())
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
   }
 

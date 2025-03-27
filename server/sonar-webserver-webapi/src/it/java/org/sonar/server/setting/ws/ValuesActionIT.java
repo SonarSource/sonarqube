@@ -33,7 +33,7 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.PropertyFieldDefinition;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ProjectData;
@@ -57,9 +57,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.db.component.ComponentQualifiers.PROJECT;
-import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.ADMIN;
+import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
+import static org.sonar.db.permission.ProjectPermission.SCAN;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
@@ -400,7 +401,7 @@ public class ValuesActionIT {
 
   @Test
   public void return_global_secured_settings_when_not_authenticated_but_with_scan_permission() {
-    userSession.anonymous().addPermission(SCAN);
+    userSession.anonymous().addPermission(GlobalPermission.SCAN);
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build()));
@@ -418,7 +419,7 @@ public class ValuesActionIT {
   public void return_component_secured_settings_when_not_authenticated_but_with_project_scan_permission() {
     userSession
       .addProjectPermission(USER, project)
-      .addProjectPermission(SCAN.getKey(), project);
+      .addProjectPermission(ProjectPermission.SCAN, project);
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").onQualifiers(PROJECT).build(),
       PropertyDefinition.builder("global.secret.secured").build(),
@@ -439,7 +440,7 @@ public class ValuesActionIT {
   public void return_component_secured_settings_even_if_not_defined_when_not_authenticated_but_with_scan_permission() {
     userSession
       .addProjectPermission(USER, project)
-      .addProjectPermission(SCAN.getKey(), project);
+      .addProjectPermission(ProjectPermission.SCAN, project);
     db.properties().insertProperties(null, project.getKey(), project.getName(), project.getQualifier(),
       newComponentPropertyDto(project).setKey("not-defined.secured").setValue("123"));
 
@@ -691,7 +692,7 @@ public class ValuesActionIT {
   @Test
   public void fail_when_setting_key_is_defined_in_sonar_properties() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.USER, project);
     String settingKey = ProcessProperties.Property.JDBC_URL.getKey();
 
     assertThatThrownBy(() -> {

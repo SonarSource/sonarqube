@@ -28,6 +28,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDbTester;
 import org.sonar.db.rule.RuleDto;
@@ -37,10 +38,10 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
-import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newIssue;
+import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.rule.RuleTesting.newRule;
 
 public class IssueFinderIT {
@@ -94,7 +95,7 @@ public class IssueFinderIT {
     return issueDbTester.insert(newIssue(rule, project.getMainBranchComponent(), file));
   }
 
-  private void addProjectPermission(IssueDto issueDto, String permission) {
+  private void addProjectPermission(IssueDto issueDto, ProjectPermission permission) {
     BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), issueDto.getProjectUuid())
       .orElseThrow(() -> new IllegalStateException("Couldn't find branch :" + issueDto.getProjectUuid()));
     ProjectDto projectDto = db.getDbClient().projectDao().selectByUuid(db.getSession(), branchDto.getProjectUuid()).get();

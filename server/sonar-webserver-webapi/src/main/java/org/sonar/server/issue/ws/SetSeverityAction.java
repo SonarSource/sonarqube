@@ -47,7 +47,7 @@ import org.sonar.server.user.UserSession;
 import static org.sonar.api.server.rule.internal.ImpactMapper.convertToRuleSeverity;
 import static org.sonar.api.server.rule.internal.ImpactMapper.convertToRuleType;
 import static org.sonar.api.server.rule.internal.ImpactMapper.convertToSoftwareQuality;
-import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.core.rule.ImpactSeverityMapper.mapImpactSeverity;
 import static org.sonar.core.rule.RuleTypeMapper.toApiRuleType;

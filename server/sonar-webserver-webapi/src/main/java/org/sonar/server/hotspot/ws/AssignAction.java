@@ -24,7 +24,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
@@ -110,7 +110,7 @@ public class AssignAction implements HotspotsWsAction {
       IssueDto hotspotDto = hotspotWsSupport.loadHotspot(dbSession, hotspotKey);
 
       checkHotspotStatusAndResolution(hotspotDto);
-      hotspotWsSupport.loadAndCheckBranch(dbSession, hotspotDto, UserRole.USER);
+      hotspotWsSupport.loadAndCheckBranch(dbSession, hotspotDto, ProjectPermission.USER);
       UserDto assignee = isNullOrEmpty(login) ? null : getAssignee(dbSession, login);
 
       IssueChangeContext context = hotspotWsSupport.newIssueChangeContextWithoutMeasureRefresh();
@@ -157,7 +157,7 @@ public class AssignAction implements HotspotsWsAction {
   }
 
   private boolean hasProjectPermission(DbSession dbSession, String userUuid, String projectUuid) {
-    return dbClient.authorizationDao().selectEntityPermissions(dbSession, projectUuid, userUuid).contains(UserRole.USER);
+    return dbClient.authorizationDao().selectEntityPermissions(dbSession, projectUuid, userUuid).contains(ProjectPermission.USER.getKey());
   }
 
   private static HotspotChangedEvent buildEventData(DefaultIssue defaultIssue, @Nullable UserDto assignee, String filePath) {

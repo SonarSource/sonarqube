@@ -38,6 +38,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
@@ -68,9 +69,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPublicProjectDto;
+import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
 
 public class SetTagsActionIT {
 
@@ -261,7 +262,7 @@ public class SetTagsActionIT {
       .orElseThrow();
   }
 
-  private void logInAndAddProjectPermission(IssueDto issueDto, String permission) {
+  private void logInAndAddProjectPermission(IssueDto issueDto, ProjectPermission permission) {
     UserDto user = db.users().insertUser("john");
     ProjectDto projectDto = retrieveProjectDto(issueDto);
     userSession.logIn(user)

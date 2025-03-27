@@ -41,6 +41,7 @@ import org.sonar.db.component.ComponentTreeQuery;
 import org.sonar.db.component.ComponentTreeQuery.Strategy;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
@@ -49,9 +50,9 @@ import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
-import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
 import static org.sonar.db.component.ComponentQualifiers.SUBVIEW;
 import static org.sonar.db.component.ComponentQualifiers.VIEW;
+import static org.sonar.db.permission.ProjectPermission.PUBLIC_PERMISSIONS;
 
 /**
  * Implementation of {@link UserSession} used in web server
@@ -165,19 +166,19 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   @Override
-  protected boolean hasEntityUuidPermission(String permission, String entityUuid) {
+  protected boolean hasEntityUuidPermission(ProjectPermission permission, String entityUuid) {
     return hasPermission(permission, entityUuid);
   }
 
   @Override
-  protected boolean hasChildProjectsPermission(String permission, String applicationUuid) {
+  protected boolean hasChildProjectsPermission(ProjectPermission permission, String applicationUuid) {
     Set<String> childProjectUuids = loadChildProjectUuids(applicationUuid);
     Set<String> projectsWithPermission = keepEntitiesUuidsByPermission(permission, childProjectUuids);
     return projectsWithPermission.containsAll(childProjectUuids);
   }
 
   @Override
-  protected boolean hasPortfolioChildProjectsPermission(String permission, String portfolioUuid) {
+  protected boolean hasPortfolioChildProjectsPermission(ProjectPermission permission, String portfolioUuid) {
     // portfolioUuid might be the UUID of a sub portfolio
     Set<String> projectUuids = findProjectUuids(portfolioUuid);
 
@@ -186,7 +187,7 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   @Override
-  protected <T extends EntityDto> List<T> doKeepAuthorizedEntities(String permission, Collection<T> entities) {
+  protected <T extends EntityDto> List<T> doKeepAuthorizedEntities(ProjectPermission permission, Collection<T> entities) {
     Set<String> projectsUuids = entities.stream().map(EntityDto::getUuid).collect(Collectors.toSet());
     // TODO in SONAR-19445
     Set<String> authorizedEntitiesUuids = keepEntitiesUuidsByPermission(permission, projectsUuids);
@@ -196,7 +197,7 @@ public class ServerUserSession extends AbstractUserSession {
       .toList();
   }
 
-  private Set<String> keepEntitiesUuidsByPermission(String permission, Collection<String> entityUuids) {
+  private Set<String> keepEntitiesUuidsByPermission(ProjectPermission permission, Collection<String> entityUuids) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String userUuid = userDto == null ? null : userDto.getUuid();
       return dbClient.authorizationDao().keepAuthorizedEntityUuids(dbSession, entityUuids, userUuid, permission);
@@ -266,9 +267,9 @@ public class ServerUserSession extends AbstractUserSession {
     return !Objects.isNull(componentDto.qualifier()) && QUALIFIERS.contains(componentDto.qualifier());
   }
 
-  private boolean hasPermission(String permission, String entityUuid) {
+  private boolean hasPermission(ProjectPermission permission, String entityUuid) {
     Set<String> entityPermissions = permissionsByEntityUuid.computeIfAbsent(entityUuid, this::loadEntityPermissions);
-    return entityPermissions.contains(permission);
+    return permission != null && entityPermissions.contains(permission.getKey());
   }
 
   private Set<String> loadEntityPermissions(String entityUuid) {
@@ -281,7 +282,7 @@ public class ServerUserSession extends AbstractUserSession {
         return loadDbPermissions(dbSession, entityUuid);
       }
       Set<String> projectPermissions = new HashSet<>();
-      projectPermissions.addAll(PUBLIC_PERMISSIONS);
+      projectPermissions.addAll(PUBLIC_PERMISSIONS.stream().map(ProjectPermission::getKey).collect(toSet()));
       projectPermissions.addAll(loadDbPermissions(dbSession, entityUuid));
       return Collections.unmodifiableSet(projectPermissions);
     }
@@ -330,7 +331,7 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   @Override
-  protected List<ComponentDto> doKeepAuthorizedComponents(String permission, Collection<ComponentDto> components) {
+  protected List<ComponentDto> doKeepAuthorizedComponents(ProjectPermission permission, Collection<ComponentDto> components) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Map<String, String> entityUuidsByComponentUuid = new HashMap<>(getEntityUuidsByComponentUuid(dbSession, components));
       Map<String, ComponentDto> originalComponents = findComponentsByCopyComponentUuid(components, dbSession);
@@ -353,7 +354,7 @@ public class ServerUserSession extends AbstractUserSession {
     }
   }
 
-  protected Set<String> keepAuthorizedProjectsUuids(DbSession dbSession, String permission, Collection<String> entityUuids) {
+  protected Set<String> keepAuthorizedProjectsUuids(DbSession dbSession, ProjectPermission permission, Collection<String> entityUuids) {
     return dbClient.authorizationDao().keepAuthorizedEntityUuids(dbSession, entityUuids, getUuid(), permission);
   }
 

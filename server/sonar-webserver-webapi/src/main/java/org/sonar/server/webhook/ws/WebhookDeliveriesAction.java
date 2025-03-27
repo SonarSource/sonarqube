@@ -31,7 +31,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -181,7 +181,7 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
 
     void ensureAdminPermission(UserSession userSession) {
       if (!projectUuidMap.isEmpty()) {
-        List<ProjectDto> projectsUserHasAccessTo = userSession.keepAuthorizedEntities(UserRole.ADMIN, projectUuidMap.values());
+        List<ProjectDto> projectsUserHasAccessTo = userSession.keepAuthorizedEntities(ProjectPermission.ADMIN, projectUuidMap.values());
         if (projectsUserHasAccessTo.size() != projectUuidMap.size()) {
           throw new ForbiddenException("Insufficient privileges");
         }

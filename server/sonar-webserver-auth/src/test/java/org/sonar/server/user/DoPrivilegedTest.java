@@ -19,14 +19,16 @@
  */
 package org.sonar.server.user;
 
+import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.server.tester.MockUserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.USER;
 
 public class DoPrivilegedTest {
 
@@ -48,7 +50,8 @@ public class DoPrivilegedTest {
 
     // verify the session used inside Privileged task
     assertThat(catcher.userSession.isLoggedIn()).isFalse();
-    assertThat(catcher.userSession.hasComponentPermission("any permission", new ComponentDto())).isTrue();
+    Arrays.stream(ProjectPermission.values())
+      .forEach(permission -> assertThat(catcher.userSession.hasComponentPermission(permission, new ComponentDto())).isTrue());
     assertThat(catcher.userSession.isSystemAdministrator()).isTrue();
     assertThat(catcher.userSession.shouldResetPassword()).isFalse();
     assertThat(catcher.userSession.isActive()).isTrue();
@@ -77,7 +80,8 @@ public class DoPrivilegedTest {
 
     // verify the session used inside Privileged task
     assertThat(catcher.userSession.isLoggedIn()).isFalse();
-    assertThat(catcher.userSession.hasComponentPermission("any permission", new ComponentDto())).isTrue();
+    Arrays.stream(ProjectPermission.values())
+      .forEach(permission -> assertThat(catcher.userSession.hasComponentPermission(permission, new ComponentDto())).isTrue());
   }
 
   private class UserSessionCatcherTask extends DoPrivileged.Task {

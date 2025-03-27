@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.project.ProjectDto;
@@ -106,7 +106,7 @@ public class WebhookDeliveryActionIT {
       .setPayload("{\"status\"=\"SUCCESS\"}");
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
     db.commit();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     String json = ws.newRequest()
       .setParam("deliveryId", dto.getUuid())
@@ -125,7 +125,7 @@ public class WebhookDeliveryActionIT {
       .setErrorStacktrace("IOException -> can not connect");
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
     db.commit();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     Webhooks.DeliveryWsResponse response = ws.newRequest()
       .setParam("deliveryId", dto.getUuid())
@@ -146,7 +146,7 @@ public class WebhookDeliveryActionIT {
       .setAnalysisUuid(null);
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
     db.commit();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     Webhooks.DeliveryWsResponse response = ws.newRequest()
       .setParam("deliveryId", dto.getUuid())
@@ -164,7 +164,7 @@ public class WebhookDeliveryActionIT {
       .setProjectUuid(project.getUuid());
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
     db.commit();
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.USER, project);
 
     assertThatThrownBy(() -> ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)

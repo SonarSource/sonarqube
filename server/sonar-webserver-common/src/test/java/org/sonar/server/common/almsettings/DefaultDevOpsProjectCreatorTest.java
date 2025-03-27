@@ -30,7 +30,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.auth.DevOpsPlatformSettings;
 import org.sonar.db.DbClient;
 import org.sonar.db.alm.setting.ALM;
@@ -289,7 +289,7 @@ class DefaultDevOpsProjectCreatorTest {
     UserPermissionChange permissionChange = permissionChangesCaptor.getValue().iterator().next();
     assertThat(permissionChange.getUserId().getUuid()).isEqualTo(userSession.getUuid());
     assertThat(permissionChange.getUserId().getLogin()).isEqualTo(userSession.getLogin());
-    assertThat(permissionChange.getPermission()).isEqualTo(UserRole.SCAN);
+    assertThat(permissionChange.getPermission()).isEqualTo(ProjectPermission.SCAN.getKey());
     assertThat(permissionChange.getProjectUuid()).isEqualTo(actualComponentCreationData.projectDto().getUuid());
   }
 

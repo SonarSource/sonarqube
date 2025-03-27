@@ -29,7 +29,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -191,9 +191,9 @@ public class SearchAction implements ProjectAnalysesWsAction {
   }
 
   private void checkPermission(ComponentDto project) {
-    userSession.checkComponentPermission(UserRole.USER, project);
+    userSession.checkComponentPermission(ProjectPermission.USER, project);
     if (ComponentScopes.PROJECT.equals(project.scope()) && ComponentQualifiers.APP.equals(project.qualifier())) {
-      userSession.checkChildProjectsPermission(UserRole.USER, project);
+      userSession.checkChildProjectsPermission(ProjectPermission.USER, project);
     }
   }
 

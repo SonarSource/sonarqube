@@ -25,18 +25,18 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.permission.template.PermissionTemplateDbTester;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.es.Indexers;
 import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.TemplateMatchingKeyException;
@@ -101,7 +101,7 @@ public class PermissionTemplateServiceIT {
     underTest.applyAndCommit(session, permissionTemplate, singletonList(publicProject));
 
     assertThat(selectProjectPermissionsOfGroup(null, publicProject.getUuid()))
-      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermission.SCAN.getKey());
+      .containsOnly("p1", ProjectPermission.ADMIN.getKey(), ProjectPermission.ISSUE_ADMIN.getKey(), ProjectPermission.SECURITYHOTSPOT_ADMIN.getKey(), ProjectPermission.SCAN.getKey());
   }
 
   @Test
@@ -116,7 +116,7 @@ public class PermissionTemplateServiceIT {
     underTest.applyDefaultToNewComponent(session, publicProject, null);
 
     assertThat(selectProjectPermissionsOfGroup(null, publicProject.getUuid()))
-      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermission.SCAN.getKey());
+      .containsOnly("p1", ProjectPermission.ADMIN.getKey(), ProjectPermission.ISSUE_ADMIN.getKey(), ProjectPermission.SECURITYHOTSPOT_ADMIN.getKey(), ProjectPermission.SCAN.getKey());
   }
 
   @Test
@@ -131,7 +131,7 @@ public class PermissionTemplateServiceIT {
     underTest.applyAndCommit(session, permissionTemplate, singletonList(privateProject));
 
     assertThat(selectProjectPermissionsOfGroup(group, privateProject.getUuid()))
-      .containsOnly("p1", UserRole.CODEVIEWER, UserRole.USER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermission.SCAN.getKey());
+      .containsOnly("p1", ProjectPermission.CODEVIEWER.getKey(), ProjectPermission.USER.getKey(), ProjectPermission.ADMIN.getKey(), ProjectPermission.ISSUE_ADMIN.getKey(), ProjectPermission.SECURITYHOTSPOT_ADMIN.getKey(), ProjectPermission.SCAN.getKey());
   }
 
   @Test
@@ -147,7 +147,7 @@ public class PermissionTemplateServiceIT {
     underTest.applyDefaultToNewComponent(session, privateProject, null);
 
     assertThat(selectProjectPermissionsOfGroup(group, privateProject.getUuid()))
-      .containsOnly("p1", UserRole.CODEVIEWER, UserRole.USER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermission.SCAN.getKey());
+      .containsOnly("p1", ProjectPermission.CODEVIEWER.getKey(), ProjectPermission.USER.getKey(), ProjectPermission.ADMIN.getKey(), ProjectPermission.ISSUE_ADMIN.getKey(), ProjectPermission.SECURITYHOTSPOT_ADMIN.getKey(), ProjectPermission.SCAN.getKey());
   }
 
   @Test
@@ -162,7 +162,7 @@ public class PermissionTemplateServiceIT {
     underTest.applyAndCommit(session, permissionTemplate, singletonList(publicProject));
 
     assertThat(selectProjectPermissionsOfGroup(group, publicProject.getUuid()))
-      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermission.SCAN.getKey());
+      .containsOnly("p1", ProjectPermission.ADMIN.getKey(), ProjectPermission.ISSUE_ADMIN.getKey(), ProjectPermission.SECURITYHOTSPOT_ADMIN.getKey(), ProjectPermission.SCAN.getKey());
   }
 
   @Test
@@ -178,7 +178,7 @@ public class PermissionTemplateServiceIT {
     underTest.applyDefaultToNewComponent(session, publicProject, null);
 
     assertThat(selectProjectPermissionsOfGroup(group, publicProject.getUuid()))
-      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermission.SCAN.getKey());
+      .containsOnly("p1", ProjectPermission.ADMIN.getKey(), ProjectPermission.ISSUE_ADMIN.getKey(), ProjectPermission.SECURITYHOTSPOT_ADMIN.getKey(), ProjectPermission.SCAN.getKey());
   }
 
   @Test
@@ -193,7 +193,7 @@ public class PermissionTemplateServiceIT {
     underTest.applyAndCommit(session, permissionTemplate, singletonList(publicProject));
 
     assertThat(selectProjectPermissionsOfUser(user, publicProject.getUuid()))
-      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermission.SCAN.getKey());
+      .containsOnly("p1", ProjectPermission.ADMIN.getKey(), ProjectPermission.ISSUE_ADMIN.getKey(), ProjectPermission.SECURITYHOTSPOT_ADMIN.getKey(), ProjectPermission.SCAN.getKey());
   }
 
   @Test
@@ -209,7 +209,7 @@ public class PermissionTemplateServiceIT {
     underTest.applyDefaultToNewComponent(session, publicProject, null);
 
     assertThat(selectProjectPermissionsOfUser(user, publicProject.getUuid()))
-      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermission.SCAN.getKey());
+      .containsOnly("p1", ProjectPermission.ADMIN.getKey(), ProjectPermission.ISSUE_ADMIN.getKey(), ProjectPermission.SECURITYHOTSPOT_ADMIN.getKey(), ProjectPermission.SCAN.getKey());
   }
 
   @Test
@@ -224,7 +224,7 @@ public class PermissionTemplateServiceIT {
     underTest.applyAndCommit(session, permissionTemplate, singletonList(privateProject));
 
     assertThat(selectProjectPermissionsOfUser(user, privateProject.getUuid()))
-      .containsOnly("p1", UserRole.CODEVIEWER, UserRole.USER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermission.SCAN.getKey());
+      .containsOnly("p1", ProjectPermission.CODEVIEWER.getKey(), ProjectPermission.USER.getKey(), ProjectPermission.ADMIN.getKey(), ProjectPermission.ISSUE_ADMIN.getKey(), ProjectPermission.SECURITYHOTSPOT_ADMIN.getKey(), ProjectPermission.SCAN.getKey());
   }
 
   @Test
@@ -240,7 +240,7 @@ public class PermissionTemplateServiceIT {
     underTest.applyDefaultToNewComponent(session, privateProject, null);
 
     assertThat(selectProjectPermissionsOfUser(user, privateProject.getUuid()))
-      .containsOnly("p1", UserRole.CODEVIEWER, UserRole.USER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermission.SCAN.getKey());
+      .containsOnly("p1", ProjectPermission.CODEVIEWER.getKey(), ProjectPermission.USER.getKey(), ProjectPermission.ADMIN.getKey(), ProjectPermission.ISSUE_ADMIN.getKey(), ProjectPermission.SECURITYHOTSPOT_ADMIN.getKey(), ProjectPermission.SCAN.getKey());
   }
 
   @Test
@@ -256,7 +256,7 @@ public class PermissionTemplateServiceIT {
     underTest.applyDefaultToNewComponent(session, publicProject, user.getUuid());
 
     assertThat(selectProjectPermissionsOfUser(user, publicProject.getUuid()))
-      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermission.SCAN.getKey());
+      .containsOnly("p1", ProjectPermission.ADMIN.getKey(), ProjectPermission.ISSUE_ADMIN.getKey(), ProjectPermission.SECURITYHOTSPOT_ADMIN.getKey(), ProjectPermission.SCAN.getKey());
   }
 
   @Test
@@ -272,7 +272,7 @@ public class PermissionTemplateServiceIT {
     underTest.applyDefaultToNewComponent(session, privateProject, user.getUuid());
 
     assertThat(selectProjectPermissionsOfUser(user, privateProject.getUuid()))
-      .containsOnly("p1", UserRole.CODEVIEWER, UserRole.USER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermission.SCAN.getKey());
+      .containsOnly("p1", ProjectPermission.CODEVIEWER.getKey(), ProjectPermission.USER.getKey(), ProjectPermission.ADMIN.getKey(), ProjectPermission.ISSUE_ADMIN.getKey(), ProjectPermission.SECURITYHOTSPOT_ADMIN.getKey(), GlobalPermission.SCAN.getKey());
   }
 
   @Test
@@ -386,16 +386,16 @@ public class PermissionTemplateServiceIT {
     ProjectDto project = dbTester.components().insertPrivateProject().getProjectDto();
     GroupDto adminGroup = dbTester.users().insertGroup();
     GroupDto userGroup = dbTester.users().insertGroup();
-    dbTester.users().insertPermissionOnGroup(adminGroup, GlobalPermission.ADMINISTER.getKey());
-    dbTester.users().insertPermissionOnGroup(userGroup, UserRole.USER);
+    dbTester.users().insertPermissionOnGroup(adminGroup, GlobalPermission.ADMINISTER);
+    dbTester.users().insertPermissionOnGroup(userGroup, ProjectPermission.USER);
     dbTester.users().insertGlobalPermissionOnUser(user, GlobalPermission.ADMINISTER);
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate();
     dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, adminGroup, GlobalPermission.ADMINISTER.getKey());
-    dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, adminGroup, UserRole.ISSUE_ADMIN);
-    dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, userGroup, UserRole.USER);
-    dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, userGroup, UserRole.CODEVIEWER);
-    dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, UserRole.USER);
-    dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, UserRole.CODEVIEWER);
+    dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, adminGroup, ProjectPermission.ISSUE_ADMIN);
+    dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, userGroup, ProjectPermission.USER);
+    dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, userGroup, ProjectPermission.CODEVIEWER);
+    dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, ProjectPermission.USER);
+    dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, ProjectPermission.CODEVIEWER);
     dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, GlobalPermission.ADMINISTER.getKey());
 
     assertThat(selectProjectPermissionsOfGroup(adminGroup, project.getUuid())).isEmpty();
@@ -405,8 +405,8 @@ public class PermissionTemplateServiceIT {
 
     underTest.applyAndCommit(session, permissionTemplate, singletonList(project));
 
-    assertThat(selectProjectPermissionsOfGroup(adminGroup, project.getUuid())).containsOnly(GlobalPermission.ADMINISTER.getKey(), UserRole.ISSUE_ADMIN);
-    assertThat(selectProjectPermissionsOfGroup(userGroup, project.getUuid())).containsOnly(UserRole.USER, UserRole.CODEVIEWER);
+    assertThat(selectProjectPermissionsOfGroup(adminGroup, project.getUuid())).containsOnly(GlobalPermission.ADMINISTER.getKey(), ProjectPermission.ISSUE_ADMIN.getKey());
+    assertThat(selectProjectPermissionsOfGroup(userGroup, project.getUuid())).containsOnly(ProjectPermission.USER.getKey(), ProjectPermission.CODEVIEWER.getKey());
     assertThat(selectProjectPermissionsOfGroup(null, project.getUuid())).isEmpty();
     assertThat(selectProjectPermissionsOfUser(user, project.getUuid())).containsOnly(GlobalPermission.ADMINISTER.getKey());
   }
@@ -427,9 +427,9 @@ public class PermissionTemplateServiceIT {
     PermissionTemplateDto template = templateDb.insertTemplate();
     dbTester.permissionTemplates().setDefaultTemplates(template, null, null);
     templateDb.addProjectCreatorToTemplate(template.getUuid(), GlobalPermission.SCAN.getKey(), template.getName());
-    templateDb.addUserToTemplate(template.getUuid(), user.getUuid(), UserRole.USER, template.getName(), user.getLogin());
-    templateDb.addGroupToTemplate(template.getUuid(), group.getUuid(), UserRole.CODEVIEWER, template.getName(), group.getName());
-    templateDb.addGroupToTemplate(template.getUuid(), null, UserRole.ISSUE_ADMIN, template.getName(), null);
+    templateDb.addUserToTemplate(template.getUuid(), user.getUuid(), ProjectPermission.USER, template.getName(), user.getLogin());
+    templateDb.addGroupToTemplate(template.getUuid(), group.getUuid(), ProjectPermission.CODEVIEWER, template.getName(), group.getName());
+    templateDb.addGroupToTemplate(template.getUuid(), null, ProjectPermission.ISSUE_ADMIN, template.getName(), null);
 
     // authenticated user
     checkWouldUserHaveScanPermission(user.getUuid(), true);

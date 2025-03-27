@@ -24,11 +24,13 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.server.component.ComponentTypes;
-import org.sonar.server.component.ComponentTypesRule;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.PermissionQuery;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.component.ComponentTypes;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -42,9 +44,9 @@ import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
-import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
+import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
+import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -52,7 +54,7 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_U
 
 public class RemoveUserFromTemplateActionIT extends BasePermissionWsIT<RemoveUserFromTemplateAction> {
 
-  private static final String DEFAULT_PERMISSION = CODEVIEWER;
+  private static final ProjectPermission DEFAULT_PERMISSION = CODEVIEWER;
 
   private UserDto user;
   private PermissionTemplateDto template;
@@ -86,7 +88,7 @@ public class RemoveUserFromTemplateActionIT extends BasePermissionWsIT<RemoveUse
     loginAsAdmin();
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PERMISSION, DEFAULT_PERMISSION)
+      .setParam(PARAM_PERMISSION, DEFAULT_PERMISSION.getKey())
       .setParam(PARAM_TEMPLATE_NAME, template.getName().toUpperCase())
       .execute();
 
@@ -129,7 +131,7 @@ public class RemoveUserFromTemplateActionIT extends BasePermissionWsIT<RemoveUse
     loginAsAdmin();
 
     assertThatThrownBy(() -> {
-      newRequest(user.getLogin(), template.getUuid(), PROVISION_PROJECTS.getKey());
+      newRequest(user.getLogin(), template.getUuid(), PROVISION_PROJECTS);
     })
       .isInstanceOf(IllegalArgumentException.class);
   }
@@ -169,7 +171,7 @@ public class RemoveUserFromTemplateActionIT extends BasePermissionWsIT<RemoveUse
     loginAsAdmin();
 
     assertThatThrownBy(() -> {
-      newRequest(user.getLogin(), template.getUuid(), null);
+      newRequest(user.getLogin(), template.getUuid(), (String) null);
     })
       .isInstanceOf(IllegalArgumentException.class);
   }
@@ -204,6 +206,14 @@ public class RemoveUserFromTemplateActionIT extends BasePermissionWsIT<RemoveUse
       .hasMessage("Permission template with id 'unknown-key' is not found");
   }
 
+  private void newRequest(@Nullable String userLogin, @Nullable String templateKey, @Nullable GlobalPermission permission) {
+    newRequest(userLogin, templateKey, permission != null ? permission.getKey() : null);
+  }
+
+  private void newRequest(@Nullable String userLogin, @Nullable String templateKey, @Nullable ProjectPermission permission) {
+    newRequest(userLogin, templateKey, permission != null ? permission.getKey() : null);
+  }
+
   private void newRequest(@Nullable String userLogin, @Nullable String templateKey, @Nullable String permission) {
     TestRequest request = newRequest();
     if (userLogin != null) {
@@ -219,13 +229,13 @@ public class RemoveUserFromTemplateActionIT extends BasePermissionWsIT<RemoveUse
     request.execute();
   }
 
-  private List<String> getLoginsInTemplateAndPermission(PermissionTemplateDto template, String permission) {
+  private List<String> getLoginsInTemplateAndPermission(PermissionTemplateDto template, ProjectPermission permission) {
     PermissionQuery permissionQuery = PermissionQuery.builder().setPermission(permission).build();
     return db.getDbClient().permissionTemplateDao()
       .selectUserLoginsByQueryAndTemplate(db.getSession(), permissionQuery, template.getUuid());
   }
 
-  private void addUserToTemplate(UserDto user, PermissionTemplateDto template, String permission) {
+  private void addUserToTemplate(UserDto user, PermissionTemplateDto template, ProjectPermission permission) {
     db.getDbClient().permissionTemplateDao().insertUserPermission(db.getSession(), template.getUuid(), user.getUuid(), permission,
       template.getName(), user.getLogin());
     db.commit();

@@ -37,7 +37,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -250,7 +250,7 @@ public class ActivityAction implements CeWsAction {
     if (entity == null) {
       userSession.checkIsSystemAdministrator();
     } else {
-      userSession.checkEntityPermission(UserRole.ADMIN, entity);
+      userSession.checkEntityPermission(ProjectPermission.ADMIN, entity);
     }
   }
 

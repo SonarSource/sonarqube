@@ -22,7 +22,7 @@ package org.sonar.server.project.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -92,7 +92,7 @@ public class DeleteAction implements ProjectsWsAction {
   }
 
   private void checkPermission(ProjectDto project) {
-    if (!userSession.hasEntityPermission(UserRole.ADMIN, project)) {
+    if (!userSession.hasEntityPermission(ProjectPermission.ADMIN, project)) {
       userSession.checkPermission(GlobalPermission.ADMINISTER);
     }
   }

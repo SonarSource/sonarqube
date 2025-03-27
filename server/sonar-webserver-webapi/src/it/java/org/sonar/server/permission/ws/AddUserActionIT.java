@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.server.component.ComponentTypes;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.permission.GlobalPermission;
@@ -191,7 +191,7 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
     assertThatThrownBy(() -> {
       newRequest()
         .setParam(PARAM_USER_LOGIN, user.getLogin())
-        .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
+        .setParam(PARAM_PERMISSION, ProjectPermission.ISSUE_ADMIN.getKey())
         .execute();
     })
       .isInstanceOf(BadRequestException.class);
@@ -223,30 +223,30 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, project.getUuid())
-      .setParam(PARAM_PERMISSION, UserRole.SCAN)
+      .setParam(PARAM_PERMISSION, ProjectPermission.SCAN.getKey())
       .execute();
 
     assertThat(db.users().selectPermissionsOfUser(user)).isEmpty();
-    assertThat(db.users().selectEntityPermissionOfUser(user, project.getUuid())).containsOnly(UserRole.SCAN);
+    assertThat(db.users().selectEntityPermissionOfUser(user, project.getUuid())).containsOnly(ProjectPermission.SCAN.getKey());
   }
 
   @Test
   public void fail_when_project_is_managed_and_user_not_sysadmin() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     doThrow(new IllegalStateException("Managed project")).when(managedInstanceChecker).throwIfProjectIsManaged(any(), eq(project.getUuid()));
 
     TestRequest request = newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_KEY, project.getKey())
-      .setParam(PARAM_PERMISSION, UserRole.CODEVIEWER);
+      .setParam(PARAM_PERMISSION, ProjectPermission.CODEVIEWER.getKey());
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Managed project");
 
-    assertThat(db.users().selectEntityPermissionOfUser(user, project.getUuid())).doesNotContain(UserRole.CODEVIEWER);
+    assertThat(db.users().selectEntityPermissionOfUser(user, project.getUuid())).doesNotContain(ProjectPermission.CODEVIEWER.getKey());
   }
 
   @Test
@@ -364,26 +364,26 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
   public void adding_project_permission_is_allowed_to_project_administrators() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
 
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_KEY, project.getKey())
-      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
+      .setParam(PARAM_PERMISSION, ProjectPermission.ISSUE_ADMIN.getKey())
       .execute();
 
-    assertThat(db.users().selectEntityPermissionOfUser(user, project.getUuid())).containsOnly(UserRole.ISSUE_ADMIN);
+    assertThat(db.users().selectEntityPermissionOfUser(user, project.getUuid())).containsOnly(ProjectPermission.ISSUE_ADMIN.getKey());
   }
 
   @Test
   public void no_effect_when_adding_USER_permission_on_a_public_project() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, project.getUuid())
-      .setParam(PARAM_PERMISSION, UserRole.USER)
+      .setParam(PARAM_PERMISSION, ProjectPermission.USER.getKey())
       .execute();
 
     assertThat(db.users().selectAnyonePermissions(project.getUuid())).isEmpty();
@@ -392,12 +392,12 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
   @Test
   public void no_effect_when_adding_CODEVIEWER_permission_on_a_public_project() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, project.getUuid())
-      .setParam(PARAM_PERMISSION, UserRole.CODEVIEWER)
+      .setParam(PARAM_PERMISSION, ProjectPermission.CODEVIEWER.getKey())
       .execute();
 
     assertThat(db.users().selectAnyonePermissions(project.getUuid())).isEmpty();
@@ -406,7 +406,7 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
   @Test
   public void fail_when_using_branch_uuid() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     TestRequest request = newRequest()

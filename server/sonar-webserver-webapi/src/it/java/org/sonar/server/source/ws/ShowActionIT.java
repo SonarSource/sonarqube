@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDao;
@@ -74,7 +74,7 @@ public class ShowActionIT {
   @Test
   public void show_source() {
     String fileKey = "src/Foo.java";
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project)
+    userSessionRule.addProjectPermission(ProjectPermission.CODEVIEWER, project)
       .addProjectBranchMapping(project.getUuid(), mainBranchComponentDto);
     when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
     when(sourceService.getLinesAsHtml(eq(session), eq(file.uuid()), anyInt(), anyInt())).thenReturn(Optional.of(newArrayList(
@@ -94,7 +94,7 @@ public class ShowActionIT {
   @Test
   public void show_source_with_from_and_to_params() {
     String fileKey = "src/Foo.java";
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project)
+    userSessionRule.addProjectPermission(ProjectPermission.CODEVIEWER, project)
       .addProjectBranchMapping(project.getUuid(), mainBranchComponentDto);
     when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
     when(sourceService.getLinesAsHtml(session, file.uuid(), 3, 5)).thenReturn(Optional.of(newArrayList(
@@ -112,7 +112,7 @@ public class ShowActionIT {
   @Test
   public void show_source_accept_from_less_than_one() {
     String fileKey = "src/Foo.java";
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project)
+    userSessionRule.addProjectPermission(ProjectPermission.CODEVIEWER, project)
       .addProjectBranchMapping(project.getUuid(), mainBranchComponentDto);
     when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
     when(sourceService.getLinesAsHtml(session, file.uuid(), 1, 5)).thenReturn(Optional.of(newArrayList(

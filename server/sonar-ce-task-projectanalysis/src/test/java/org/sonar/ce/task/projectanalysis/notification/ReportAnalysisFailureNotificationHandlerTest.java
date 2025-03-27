@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.notification.NotificationManager.EmailRecipient;
@@ -50,7 +50,7 @@ import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_P
 
 public class ReportAnalysisFailureNotificationHandlerTest {
   private static final String REPORT_FAILURE_DISPATCHER_KEY = "CeReportTaskFailure";
-  private static final SubscriberPermissionsOnProject REQUIRED_SUBSCRIBER_PERMISSIONS = new SubscriberPermissionsOnProject(UserRole.ADMIN, UserRole.USER);
+  private static final SubscriberPermissionsOnProject REQUIRED_SUBSCRIBER_PERMISSIONS = new SubscriberPermissionsOnProject(ProjectPermission.ADMIN, ProjectPermission.USER);
   private NotificationManager notificationManager = mock(NotificationManager.class);
   private EmailNotificationChannel emailNotificationChannel = mock(EmailNotificationChannel.class);
   private ReportAnalysisFailureNotificationHandler underTest = new ReportAnalysisFailureNotificationHandler(notificationManager, emailNotificationChannel);

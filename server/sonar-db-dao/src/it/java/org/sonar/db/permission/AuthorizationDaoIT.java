@@ -31,7 +31,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -218,13 +217,13 @@ class AuthorizationDaoIT {
 
   @Test
   void keepAuthorizedEntityUuids_returns_empty_for_group_AnyOne_if_project_set_is_empty_on__project() {
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, Collections.emptySet(), null, UserRole.USER))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, Collections.emptySet(), null, ProjectPermission.USER))
       .isEmpty();
   }
 
   @Test
   void keepAuthorizedEntityUuids_returns_empty_for_user_if_project_set_is_empty_on__project() {
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, Collections.emptySet(), user.getUuid(), UserRole.USER))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, Collections.emptySet(), user.getUuid(), ProjectPermission.USER))
       .isEmpty();
   }
 
@@ -234,7 +233,7 @@ class AuthorizationDaoIT {
       .mapToObj(i -> Integer.toString(3_562 + i))
       .collect(Collectors.toSet());
 
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, randomNonProjectsSet, null, UserRole.USER))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, randomNonProjectsSet, null, ProjectPermission.USER))
       .isEmpty();
   }
 
@@ -244,31 +243,31 @@ class AuthorizationDaoIT {
       .mapToObj(i -> Integer.toString(9_666 + i))
       .collect(Collectors.toSet());
 
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, randomNonProjectsSet, user.getUuid(), UserRole.USER))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, randomNonProjectsSet, user.getUuid(), ProjectPermission.USER))
       .isEmpty();
   }
 
   @Test
   void keepAuthorizedEntityUuids_returns_any__project_for_group_AnyOne_without_any_permission_in_DB_and_permission_USER() {
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, randomPublicEntityUuids, null, UserRole.USER))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, randomPublicEntityUuids, null, ProjectPermission.USER))
       .containsAll(randomPublicEntityUuids);
   }
 
   @Test
   void keepAuthorizedEntityUuids_returns_any__project_for_user_without_any_permission_in_DB_and_permission_USER() {
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, randomPublicEntityUuids, user.getUuid(), UserRole.USER))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, randomPublicEntityUuids, user.getUuid(), ProjectPermission.USER))
       .containsAll(randomPublicEntityUuids);
   }
 
   @Test
   void keepAuthorizedEntityUuids_returns_any__project_for_group_AnyOne_without_any_permission_in_DB_and_permission_CODEVIEWER() {
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, randomPublicEntityUuids, null, UserRole.CODEVIEWER))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, randomPublicEntityUuids, null, ProjectPermission.CODEVIEWER))
       .containsAll(randomPublicEntityUuids);
   }
 
   @Test
   void keepAuthorizedEntityUuids_returns_any__project_for_user_without_any_permission_in_DB_and_permission_CODEVIEWER() {
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, randomPublicEntityUuids, user.getUuid(), UserRole.CODEVIEWER))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, randomPublicEntityUuids, user.getUuid(), ProjectPermission.CODEVIEWER))
       .containsAll(randomPublicEntityUuids);
   }
 
@@ -335,25 +334,25 @@ class AuthorizationDaoIT {
 
   @Test
   void keepAuthorizedEntityUuids_returns_empty_for_user_on_private_project_without_any_permission_in_DB_and_permission_USER() {
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, randomPrivateEntityUuids, user.getUuid(), UserRole.USER))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, randomPrivateEntityUuids, user.getUuid(), ProjectPermission.USER))
       .isEmpty();
   }
 
   @Test
   void keepAuthorizedEntityUuids_returns_empty_for_group_AnyOne_on_private_project_without_any_permission_in_DB_and_permission_USER() {
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, randomPrivateEntityUuids, null, UserRole.USER))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, randomPrivateEntityUuids, null, ProjectPermission.USER))
       .isEmpty();
   }
 
   @Test
   void keepAuthorizedEntityUuids_returns_empty_for_user_on_private_project_without_any_permission_in_DB_and_permission_CODEVIEWER() {
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, randomPrivateEntityUuids, user.getUuid(), UserRole.CODEVIEWER))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, randomPrivateEntityUuids, user.getUuid(), ProjectPermission.CODEVIEWER))
       .isEmpty();
   }
 
   @Test
   void keepAuthorizedEntityUuids_returns_empty_for_group_AnyOne_on_private_project_without_any_permission_in_DB_and_permission_CODEVIEWER() {
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, randomPrivateEntityUuids, null, UserRole.CODEVIEWER))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, randomPrivateEntityUuids, null, ProjectPermission.CODEVIEWER))
       .isEmpty();
   }
 
@@ -421,20 +420,20 @@ class AuthorizationDaoIT {
     ProjectDto project3 = db.components().insertPrivateProject().getProjectDto();
     UserDto user = db.users().insertUser("u1");
     GroupDto group = db.users().insertGroup();
-    db.users().insertProjectPermissionOnUser(user, UserRole.USER, project2);
-    db.users().insertProjectPermissionOnUser(user, UserRole.USER, project3);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, project2);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, project3);
     db.users().insertMember(group, user);
-    db.users().insertEntityPermissionOnGroup(group, UserRole.USER, project1);
+    db.users().insertEntityPermissionOnGroup(group, ProjectPermission.USER, project1);
 
     assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(project2.getUuid(), project3.getUuid()), user.getUuid(),
-      UserRole.USER))
+      ProjectPermission.USER))
       .containsOnly(project2.getUuid(), project3.getUuid());
 
     // user does not have the role "admin"
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(project2.getUuid()), user.getUuid(), UserRole.ADMIN))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(project2.getUuid()), user.getUuid(), ProjectPermission.ADMIN))
       .isEmpty();
 
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, Collections.emptySet(), user.getUuid(), UserRole.ADMIN))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, Collections.emptySet(), user.getUuid(), ProjectPermission.ADMIN))
       .isEmpty();
   }
 
@@ -446,17 +445,17 @@ class AuthorizationDaoIT {
     UserDto user1 = db.users().insertUser("u1");
     GroupDto group = db.users().insertGroup();
     db.users().insertMembers(group, user1);
-    db.users().insertProjectPermissionOnUser(user1, UserRole.USER, project1);
-    db.users().insertEntityPermissionOnGroup(group, UserRole.USER, project2);
-    db.users().insertEntityPermissionOnGroup(group, UserRole.USER, project3);
+    db.users().insertProjectPermissionOnUser(user1, ProjectPermission.USER, project1);
+    db.users().insertEntityPermissionOnGroup(group, ProjectPermission.USER, project2);
+    db.users().insertEntityPermissionOnGroup(group, ProjectPermission.USER, project3);
 
     assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(project2.getUuid(), project3.getUuid()), user1.getUuid(),
-      UserRole.USER))
+      ProjectPermission.USER))
       .containsOnly(project2.getUuid(), project3.getUuid());
 
     // group does not have the role "admin"
     assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(project2.getUuid(), project3.getUuid()), user1.getUuid(),
-      UserRole.ADMIN))
+      ProjectPermission.ADMIN))
       .isEmpty();
   }
 
@@ -468,7 +467,7 @@ class AuthorizationDaoIT {
     GroupDto group = db.users().insertGroup();
     db.users().insertMembers(group, user1);
 
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(project1.getUuid(), project2.getUuid()), null, UserRole.USER))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(project1.getUuid(), project2.getUuid()), null, ProjectPermission.USER))
       .containsOnly(project1.getUuid(), project2.getUuid());
 
     // group does not have the role "admin"
@@ -481,7 +480,7 @@ class AuthorizationDaoIT {
     List<ProjectDto> projects = IntStream.range(0, 2000).mapToObj(i -> db.components().insertPublicProject().getProjectDto()).toList();
 
     Collection<String> uuids = projects.stream().map(ProjectDto::getUuid).collect(Collectors.toSet());
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, uuids, null, UserRole.USER))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, uuids, null, ProjectPermission.USER))
       .containsOnly(uuids.toArray(new String[0]));
   }
 
@@ -489,7 +488,7 @@ class AuthorizationDaoIT {
   void keepAuthorizedUsersForRoleAndEntity_returns_empty_if_user_set_is_empty_on__project() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
 
-    assertThat(underTest.keepAuthorizedUsersForRoleAndEntity(dbSession, Collections.emptySet(), UserRole.USER, project.getUuid()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndEntity(dbSession, Collections.emptySet(), ProjectPermission.USER, project.getUuid()))
       .isEmpty();
   }
 
@@ -501,7 +500,7 @@ class AuthorizationDaoIT {
       .mapToObj(i -> Uuids.createFast())
       .collect(Collectors.toSet());
 
-    assertThat(underTest.keepAuthorizedUsersForRoleAndEntity(dbSession, randomNonExistingUserUuidsSet, UserRole.USER, project.getUuid()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndEntity(dbSession, randomNonExistingUserUuidsSet, ProjectPermission.USER, project.getUuid()))
       .isEmpty();
   }
 
@@ -509,7 +508,7 @@ class AuthorizationDaoIT {
   void keepAuthorizedUsersForRoleAndEntity_returns_any_users_for__project_without_any_permission_in_DB_and_permission_USER() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
 
-    assertThat(underTest.keepAuthorizedUsersForRoleAndEntity(dbSession, randomExistingUserUuids, UserRole.USER, project.getUuid()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndEntity(dbSession, randomExistingUserUuids, ProjectPermission.USER, project.getUuid()))
       .containsAll(randomExistingUserUuids);
   }
 
@@ -517,7 +516,7 @@ class AuthorizationDaoIT {
   void keepAuthorizedUsersForRoleAndEntity_returns_any_users_for__project_without_any_permission_in_DB_and_permission_CODEVIEWER() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
 
-    assertThat(underTest.keepAuthorizedUsersForRoleAndEntity(dbSession, randomExistingUserUuids, UserRole.CODEVIEWER, project.getUuid()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndEntity(dbSession, randomExistingUserUuids, ProjectPermission.CODEVIEWER, project.getUuid()))
       .containsAll(randomExistingUserUuids);
   }
 
@@ -591,7 +590,7 @@ class AuthorizationDaoIT {
   void keepAuthorizedUsersForRoleAndEntity_returns_empty_for_any_user_on_private_project_without_any_permission_in_DB_and_permission_USER() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
-    assertThat(underTest.keepAuthorizedUsersForRoleAndEntity(dbSession, randomExistingUserUuids, UserRole.USER, project.getUuid()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndEntity(dbSession, randomExistingUserUuids, ProjectPermission.USER, project.getUuid()))
       .isEmpty();
   }
 
@@ -599,7 +598,7 @@ class AuthorizationDaoIT {
   void keepAuthorizedUsersForRoleAndEntity_returns_empty_for_any_user_on_private_project_without_any_permission_in_DB_and_permission_CODEVIEWER() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
-    assertThat(underTest.keepAuthorizedUsersForRoleAndEntity(dbSession, randomExistingUserUuids, UserRole.CODEVIEWER, project.getUuid()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndEntity(dbSession, randomExistingUserUuids, ProjectPermission.CODEVIEWER, project.getUuid()))
       .isEmpty();
   }
 
@@ -667,10 +666,10 @@ class AuthorizationDaoIT {
     GroupDto group2 = db.users().insertGroup();
     db.users().insertMembers(group1, user1, user2);
     db.users().insertMembers(group2, user3);
-    db.users().insertProjectPermissionOnUser(user1, UserRole.USER, project1);
-    db.users().insertProjectPermissionOnUser(user2, UserRole.USER, project1);
-    db.users().insertProjectPermissionOnUser(user3, UserRole.USER, project1);
-    db.users().insertEntityPermissionOnGroup(group2, UserRole.USER, project3);
+    db.users().insertProjectPermissionOnUser(user1, ProjectPermission.USER, project1);
+    db.users().insertProjectPermissionOnUser(user2, ProjectPermission.USER, project1);
+    db.users().insertProjectPermissionOnUser(user3, ProjectPermission.USER, project1);
+    db.users().insertEntityPermissionOnGroup(group2, ProjectPermission.USER, project3);
 
     assertThat(underTest.keepAuthorizedUsersForRoleAndEntity(dbSession,
       // Only 100 and 101 has 'user' role on project
@@ -769,31 +768,31 @@ class AuthorizationDaoIT {
   @Test
   void selectEntityPermissions_returns_permissions_of_logged_in_user_on_specified_project() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    db.users().insertProjectPermissionOnUser(user, UserRole.CODEVIEWER, project);
-    db.users().insertProjectPermissionOnUser(db.users().insertUser(), UserRole.ISSUE_ADMIN, project);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.CODEVIEWER, project);
+    db.users().insertProjectPermissionOnUser(db.users().insertUser(), ProjectPermission.ISSUE_ADMIN, project);
 
-    assertThat(underTest.selectEntityPermissions(dbSession, project.getUuid(), user.getUuid())).containsOnly(UserRole.CODEVIEWER);
+    assertThat(underTest.selectEntityPermissions(dbSession, project.getUuid(), user.getUuid())).containsOnly(ProjectPermission.CODEVIEWER.getKey());
   }
 
   @Test
   void selectEntityPermissions_returns_permissions_of_logged_in_user_on_specified_project_through_group_membership() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    db.users().insertEntityPermissionOnGroup(group1, UserRole.CODEVIEWER, project);
-    db.users().insertEntityPermissionOnGroup(group2, UserRole.ISSUE_ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(group1, ProjectPermission.CODEVIEWER, project);
+    db.users().insertEntityPermissionOnGroup(group2, ProjectPermission.ISSUE_ADMIN, project);
     db.users().insertMember(group1, user);
 
-    assertThat(underTest.selectEntityPermissions(dbSession, project.getUuid(), user.getUuid())).containsOnly(UserRole.CODEVIEWER);
+    assertThat(underTest.selectEntityPermissions(dbSession, project.getUuid(), user.getUuid())).containsOnly(ProjectPermission.CODEVIEWER.getKey());
   }
 
   @Test
   void selectEntityPermissions_returns_permissions_of_logged_in_user_on_specified_private_project_through_all_possible_configurations() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    db.users().insertProjectPermissionOnUser(user, UserRole.CODEVIEWER, project);
-    db.users().insertEntityPermissionOnGroup(group1, UserRole.USER, project);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.CODEVIEWER, project);
+    db.users().insertEntityPermissionOnGroup(group1, ProjectPermission.USER, project);
     db.users().insertMember(group1, user);
 
-    assertThat(underTest.selectEntityPermissions(dbSession, project.getUuid(), user.getUuid())).containsOnly(UserRole.CODEVIEWER,
-      UserRole.USER);
+    assertThat(underTest.selectEntityPermissions(dbSession, project.getUuid(), user.getUuid())).containsOnly(ProjectPermission.CODEVIEWER.getKey(),
+      ProjectPermission.USER.getKey());
   }
 
   @Test
@@ -918,14 +917,14 @@ class AuthorizationDaoIT {
     ProjectDto privateProject = db.components().insertPrivateProject().getProjectDto();
     ProjectDto Project = db.components().insertPublicProject().getProjectDto();
     UserDto user = db.users().insertUser();
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, privateProject);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, privateProject);
 
     assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(privateProject.getUuid(), Project.getUuid()), user.getUuid(),
-      UserRole.ADMIN))
+      ProjectPermission.ADMIN))
       .containsOnly(privateProject.getUuid());
     // user does not have the permission "issueadmin"
     assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(privateProject.getUuid(), Project.getUuid()), user.getUuid(),
-      UserRole.ISSUE_ADMIN))
+      ProjectPermission.ISSUE_ADMIN))
       .isEmpty();
   }
 
@@ -936,14 +935,14 @@ class AuthorizationDaoIT {
     UserDto user = db.users().insertUser();
     GroupDto group = db.users().insertGroup();
     db.users().insertMember(group, user);
-    db.users().insertEntityPermissionOnGroup(group, UserRole.ADMIN, privateProject);
+    db.users().insertEntityPermissionOnGroup(group, ProjectPermission.ADMIN, privateProject);
 
     assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(privateProject.getUuid(), Project.getUuid()), user.getUuid(),
-      UserRole.ADMIN))
+      ProjectPermission.ADMIN))
       .containsOnly(privateProject.getUuid());
     // user does not have the permission "issueadmin"
     assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(privateProject.getUuid(), Project.getUuid()), user.getUuid(),
-      UserRole.ISSUE_ADMIN))
+      ProjectPermission.ISSUE_ADMIN))
       .isEmpty();
   }
 
@@ -952,11 +951,11 @@ class AuthorizationDaoIT {
     ProjectDto Project = db.components().insertPublicProject().getProjectDto();
     UserDto user = db.users().insertUser();
 
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, Collections.emptySet(), user.getUuid(), UserRole.USER))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, Collections.emptySet(), user.getUuid(), ProjectPermission.USER))
       .isEmpty();
 
     // projects do not exist
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet("does_not_exist"), user.getUuid(), UserRole.USER))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet("does_not_exist"), user.getUuid(), ProjectPermission.USER))
       .isEmpty();
   }
 
@@ -965,7 +964,7 @@ class AuthorizationDaoIT {
     ProjectDto Project = db.components().insertPublicProject().getProjectDto();
     UserDto user = db.users().insertUser();
 
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet("does_not_exist"), user.getUuid(), UserRole.USER))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet("does_not_exist"), user.getUuid(), ProjectPermission.USER))
       .isEmpty();
   }
 
@@ -975,19 +974,19 @@ class AuthorizationDaoIT {
     UserDto user = db.users().insertUser();
 
     // logged-in user
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(Project.getUuid()), user.getUuid(), UserRole.CODEVIEWER))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(Project.getUuid()), user.getUuid(), ProjectPermission.CODEVIEWER))
       .containsOnly(Project.getUuid());
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(Project.getUuid()), user.getUuid(), UserRole.USER))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(Project.getUuid()), user.getUuid(), ProjectPermission.USER))
       .containsOnly(Project.getUuid());
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(Project.getUuid()), user.getUuid(), UserRole.ADMIN))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(Project.getUuid()), user.getUuid(), ProjectPermission.ADMIN))
       .isEmpty();
 
     // anonymous
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(Project.getUuid()), null, UserRole.CODEVIEWER))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(Project.getUuid()), null, ProjectPermission.CODEVIEWER))
       .containsOnly(Project.getUuid());
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(Project.getUuid()), null, UserRole.USER))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(Project.getUuid()), null, ProjectPermission.USER))
       .containsOnly(Project.getUuid());
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(Project.getUuid()), null, UserRole.ADMIN))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, newHashSet(Project.getUuid()), null, ProjectPermission.ADMIN))
       .isEmpty();
   }
 
@@ -1148,21 +1147,21 @@ class AuthorizationDaoIT {
 
     // admin with "direct" ADMIN role
     UserDto admin1 = db.users().insertUser();
-    db.users().insertProjectPermissionOnUser(admin1, UserRole.ADMIN, project);
+    db.users().insertProjectPermissionOnUser(admin1, ProjectPermission.ADMIN, project);
 
     // admin2 with ADMIN role through group
     UserDto admin2 = db.users().insertUser();
     GroupDto adminGroup = db.users().insertGroup("ADMIN");
     db.users().insertMember(adminGroup, admin2);
-    db.users().insertEntityPermissionOnGroup(adminGroup, UserRole.ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(adminGroup, ProjectPermission.ADMIN, project);
 
-    assertThat(underTest.keepAuthorizedLoginsOnEntity(dbSession, newHashSet(user1.getLogin()), project.getKey(), UserRole.USER))
+    assertThat(underTest.keepAuthorizedLoginsOnEntity(dbSession, newHashSet(user1.getLogin()), project.getKey(), ProjectPermission.USER))
       .containsOnly(user1.getLogin());
     assertThat(underTest.keepAuthorizedLoginsOnEntity(dbSession, newHashSet(user1.getLogin(), admin1.getLogin(), admin2.getLogin()),
-      project.getKey(), UserRole.USER))
+      project.getKey(), ProjectPermission.USER))
       .containsOnly(user1.getLogin(), admin1.getLogin(), admin2.getLogin());
     assertThat(underTest.keepAuthorizedLoginsOnEntity(dbSession, newHashSet(user1.getLogin(), admin1.getLogin(), admin2.getLogin()),
-      project.getKey(), UserRole.ADMIN))
+      project.getKey(), ProjectPermission.ADMIN))
       .containsOnly(admin1.getLogin(), admin2.getLogin());
   }
 
@@ -1172,12 +1171,12 @@ class AuthorizationDaoIT {
 
     GroupDto userGroup = db.users().insertGroup("USERS");
     GroupDto adminGroup = db.users().insertGroup("ADMIN");
-    db.users().insertEntityPermissionOnGroup(userGroup, UserRole.USER, project);
-    db.users().insertEntityPermissionOnGroup(adminGroup, UserRole.ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(userGroup, ProjectPermission.USER, project);
+    db.users().insertEntityPermissionOnGroup(adminGroup, ProjectPermission.ADMIN, project);
 
     // admin with "direct" ADMIN role
     UserDto admin1 = db.users().insertUser();
-    db.users().insertProjectPermissionOnUser(admin1, UserRole.ADMIN, project);
+    db.users().insertProjectPermissionOnUser(admin1, ProjectPermission.ADMIN, project);
 
     // admin2 with ADMIN role through group
     UserDto admin2 = db.users().insertUser();
@@ -1185,7 +1184,7 @@ class AuthorizationDaoIT {
 
     // user1 with "direct" USER role
     UserDto user1 = db.users().insertUser();
-    db.users().insertProjectPermissionOnUser(user1, UserRole.USER, project);
+    db.users().insertProjectPermissionOnUser(user1, ProjectPermission.USER, project);
 
     // user2 with USER role through group
     UserDto user2 = db.users().insertUser();
@@ -1194,17 +1193,17 @@ class AuthorizationDaoIT {
     // user without role
     UserDto userWithNoRole = db.users().insertUser();
 
-    assertThat(underTest.keepAuthorizedLoginsOnEntity(dbSession, newHashSet(userWithNoRole.getLogin()), project.getKey(), UserRole.USER))
+    assertThat(underTest.keepAuthorizedLoginsOnEntity(dbSession, newHashSet(userWithNoRole.getLogin()), project.getKey(), ProjectPermission.USER))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedLoginsOnEntity(dbSession, newHashSet(user1.getLogin()), project.getKey(), UserRole.USER))
+    assertThat(underTest.keepAuthorizedLoginsOnEntity(dbSession, newHashSet(user1.getLogin()), project.getKey(), ProjectPermission.USER))
       .containsOnly(user1.getLogin());
 
     Set<String> allLogins = newHashSet(admin1.getLogin(), admin2.getLogin(), user1.getLogin(), user2.getLogin(), userWithNoRole.getLogin());
 
     // Admin does not have the USER permission set
-    assertThat(underTest.keepAuthorizedLoginsOnEntity(dbSession, allLogins, project.getKey(), UserRole.USER))
+    assertThat(underTest.keepAuthorizedLoginsOnEntity(dbSession, allLogins, project.getKey(), ProjectPermission.USER))
       .containsOnly(user1.getLogin(), user2.getLogin());
-    assertThat(underTest.keepAuthorizedLoginsOnEntity(dbSession, allLogins, project.getKey(), UserRole.ADMIN))
+    assertThat(underTest.keepAuthorizedLoginsOnEntity(dbSession, allLogins, project.getKey(), ProjectPermission.ADMIN))
       .containsOnly(admin1.getLogin(), admin2.getLogin());
   }
 
@@ -1215,12 +1214,12 @@ class AuthorizationDaoIT {
 
     GroupDto userGroup = db.users().insertGroup("USERS");
     GroupDto adminGroup = db.users().insertGroup("ADMIN");
-    db.users().insertEntityPermissionOnGroup(userGroup, UserRole.USER, project);
-    db.users().insertEntityPermissionOnGroup(adminGroup, UserRole.ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(userGroup, ProjectPermission.USER, project);
+    db.users().insertEntityPermissionOnGroup(adminGroup, ProjectPermission.ADMIN, project);
 
     // admin with "direct" ADMIN role
     UserDto admin1 = db.users().insertUser();
-    db.users().insertProjectPermissionOnUser(admin1, UserRole.ADMIN, project);
+    db.users().insertProjectPermissionOnUser(admin1, ProjectPermission.ADMIN, project);
 
     // admin2 with ADMIN role through group
     UserDto admin2 = db.users().insertUser();
@@ -1228,7 +1227,7 @@ class AuthorizationDaoIT {
 
     // user1 with "direct" USER role
     UserDto user1 = db.users().insertUser();
-    db.users().insertProjectPermissionOnUser(user1, UserRole.USER, project);
+    db.users().insertProjectPermissionOnUser(user1, ProjectPermission.USER, project);
 
     // user2 with USER role through group
     UserDto user2 = db.users().insertUser();
@@ -1237,17 +1236,17 @@ class AuthorizationDaoIT {
     // user without role
     UserDto userWithNoRole = db.users().insertUser();
 
-    assertThat(underTest.keepAuthorizedLoginsOnEntity(dbSession, newHashSet(userWithNoRole.getLogin()), project.getKey(), UserRole.USER))
+    assertThat(underTest.keepAuthorizedLoginsOnEntity(dbSession, newHashSet(userWithNoRole.getLogin()), project.getKey(), ProjectPermission.USER))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedLoginsOnEntity(dbSession, newHashSet(user1.getLogin()), project.getKey(), UserRole.USER))
+    assertThat(underTest.keepAuthorizedLoginsOnEntity(dbSession, newHashSet(user1.getLogin()), project.getKey(), ProjectPermission.USER))
       .containsOnly(user1.getLogin());
 
     Set<String> allLogins = newHashSet(admin1.getLogin(), admin2.getLogin(), user1.getLogin(), user2.getLogin(), userWithNoRole.getLogin());
 
     // Admin does not have the USER permission set
-    assertThat(underTest.keepAuthorizedLoginsOnEntity(dbSession, allLogins, project.getKey(), UserRole.USER))
+    assertThat(underTest.keepAuthorizedLoginsOnEntity(dbSession, allLogins, project.getKey(), ProjectPermission.USER))
       .containsOnly(user1.getLogin(), user2.getLogin());
-    assertThat(underTest.keepAuthorizedLoginsOnEntity(dbSession, allLogins, project.getKey(), UserRole.ADMIN))
+    assertThat(underTest.keepAuthorizedLoginsOnEntity(dbSession, allLogins, project.getKey(), ProjectPermission.ADMIN))
       .containsOnly(admin1.getLogin(), admin2.getLogin());
   }
 

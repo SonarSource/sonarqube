@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
@@ -107,7 +107,7 @@ public class RenameActionIT {
     userSession.logIn();
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
-    userSession.addProjectPermission(UserRole.ADMIN, project);
+    userSession.addProjectPermission(ProjectPermission.ADMIN, project);
 
     tester.newRequest()
       .setParam("project", project.getKey())
@@ -127,7 +127,7 @@ public class RenameActionIT {
     userSession.logIn();
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     db.newCodePeriods().insert(getBranchReferenceNewCodePeriod(project));
-    userSession.addProjectPermission(UserRole.ADMIN, project);
+    userSession.addProjectPermission(ProjectPermission.ADMIN, project);
 
     tester.newRequest()
       .setParam("project", project.getKey())
@@ -155,7 +155,7 @@ public class RenameActionIT {
     userSession.logIn();
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
-    userSession.addProjectPermission(UserRole.ADMIN, project);
+    userSession.addProjectPermission(ProjectPermission.ADMIN, project);
 
     tester.newRequest()
       .setParam("project", project.getKey())
@@ -179,7 +179,7 @@ public class RenameActionIT {
   public void fail_if_name_already_used() {
     userSession.logIn();
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    userSession.addProjectPermission(UserRole.ADMIN, project);
+    userSession.addProjectPermission(ProjectPermission.ADMIN, project);
     db.components().insertProjectBranch(project, b -> b.setKey("branch"));
 
     assertThatThrownBy(() -> tester.newRequest()

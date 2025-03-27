@@ -29,7 +29,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Paging;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
@@ -189,13 +189,13 @@ public class ListAction implements IssuesWsAction {
       .orElseThrow(() -> new IllegalStateException("Branch does not exist: " + componentDto.branchUuid()));
     ProjectDto projectDto = dbClient.projectDao().selectByUuid(dbSession, branchDto.getProjectUuid())
       .orElseThrow(() -> new IllegalArgumentException("Project does not exist: " + wsRequest.project));
-    userSession.checkEntityPermission(UserRole.USER, projectDto);
+    userSession.checkEntityPermission(ProjectPermission.USER, projectDto);
     return new ProjectAndBranch(projectDto, branchDto);
   }
 
   private ProjectAndBranch checkProjectAndBranchPermission(WsRequest wsRequest, DbSession dbSession) {
     ProjectAndBranch projectAndBranch = componentFinder.getProjectAndBranch(dbSession, wsRequest.project, wsRequest.branch, wsRequest.pullRequest);
-    userSession.checkEntityPermission(UserRole.USER, projectAndBranch.getProject());
+    userSession.checkEntityPermission(ProjectPermission.USER, projectAndBranch.getProject());
     return projectAndBranch;
   }
 

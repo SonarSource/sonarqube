@@ -42,6 +42,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
@@ -79,10 +80,10 @@ import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.core.rule.RuleType.BUG;
 import static org.sonar.core.rule.RuleType.CODE_SMELL;
-import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newIssue;
+import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
+import static org.sonar.db.permission.ProjectPermission.USER;
 
 class SetSeverityActionIT {
 
@@ -394,7 +395,7 @@ class SetSeverityActionIT {
     return request.execute();
   }
 
-  private void logInAndAddProjectPermission(IssueDto issueDto, String permission) {
+  private void logInAndAddProjectPermission(IssueDto issueDto, ProjectPermission permission) {
     BranchDto branchDto = dbClient.branchDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid())
       .orElseThrow(() -> new IllegalStateException(format("Couldn't find branch with uuid : %s", issueDto.getProjectUuid())));
     UserDto user = dbTester.users().insertUser("john");

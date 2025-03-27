@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.ce.task.CeTask;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskTypes;
@@ -94,7 +94,7 @@ public class ExportActionIT {
   @Test
   public void triggers_CE_task() {
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn(user).addProjectPermission(ProjectPermission.ADMIN, project);
 
     when(exportSubmitter.submitProjectExport(project.getKey(), user.getUuid())).thenReturn(createResponseExampleTask());
     TestResponse response = actionTester.newRequest().setMethod("POST").setParam("key", project.getKey()).execute();
@@ -115,7 +115,7 @@ public class ExportActionIT {
   @Test
   public void triggers_CE_task_if_project_admin() {
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn(user).addProjectPermission(ProjectPermission.ADMIN, project);
 
     when(exportSubmitter.submitProjectExport(project.getKey(), user.getUuid())).thenReturn(createResponseExampleTask());
     TestResponse response = actionTester.newRequest().setMethod("POST").setParam("key", project.getKey()).execute();
@@ -124,7 +124,7 @@ public class ExportActionIT {
   }
 
   private void logInAsProjectAdministrator(String login) {
-    userSession.logIn(login).addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn(login).addProjectPermission(ProjectPermission.ADMIN, project);
   }
 
   private String responseExample() {

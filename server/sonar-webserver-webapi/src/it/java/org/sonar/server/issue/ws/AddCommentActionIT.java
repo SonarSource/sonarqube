@@ -35,6 +35,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
@@ -65,14 +66,13 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
-import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.issue.IssueChangeDto.TYPE_COMMENT;
+import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
+import static org.sonar.db.permission.ProjectPermission.USER;
 
 public class AddCommentActionIT {
 
   private static final long NOW = 10_000_000_000L;
-
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -220,7 +220,7 @@ public class AddCommentActionIT {
     return request.execute();
   }
 
-  private void loginWithBrowsePermission(IssueDto issueDto, String permission) {
+  private void loginWithBrowsePermission(IssueDto issueDto, ProjectPermission permission) {
     UserDto user = dbTester.users().insertUser("john");
     userSession.logIn(user)
       .addProjectPermission(permission,

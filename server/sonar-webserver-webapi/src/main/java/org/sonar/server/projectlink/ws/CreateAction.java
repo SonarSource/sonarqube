@@ -22,7 +22,7 @@ package org.sonar.server.projectlink.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -106,7 +106,7 @@ public class CreateAction implements ProjectLinksWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = getProject(dbSession, createWsRequest);
 
-      userSession.checkEntityPermission(UserRole.ADMIN, project);
+      userSession.checkEntityPermission(ProjectPermission.ADMIN, project);
 
       ProjectLinkDto link = new ProjectLinkDto()
         .setUuid(uuidFactory.create())

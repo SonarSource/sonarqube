@@ -41,6 +41,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
@@ -94,11 +95,11 @@ import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.core.rule.RuleType.BUG;
 import static org.sonar.core.rule.RuleType.CODE_SMELL;
 import static org.sonar.core.rule.RuleType.VULNERABILITY;
-import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonar.api.web.UserRole.SECURITYHOTSPOT_ADMIN;
-import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueChangeDto.TYPE_COMMENT;
+import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
+import static org.sonar.db.permission.ProjectPermission.SECURITYHOTSPOT_ADMIN;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.projectBranchOf;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.projectOf;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.ruleOf;
@@ -790,8 +791,8 @@ public class BulkChangeActionIT {
     return request.executeProtobuf(BulkChangeWsResponse.class);
   }
 
-  private void addUserProjectPermissions(UserDto user, ProjectData project, String... permissions) {
-    for (String permission : permissions) {
+  private void addUserProjectPermissions(UserDto user, ProjectData project, ProjectPermission... permissions) {
+    for (ProjectPermission permission : permissions) {
       db.users().insertProjectPermissionOnUser(user, permission, project.getProjectDto());
       userSession.addProjectPermission(permission, project.getProjectDto());
       userSession.addProjectBranchMapping(project.projectUuid(), project.getMainBranchComponent());

@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.server.component.ComponentTypesRule;
@@ -121,7 +121,7 @@ public class SetAutomaticDeletionProtectionActionIT {
     userSession.logIn();
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch1").setExcludeFromPurge(false));
-    userSession.addProjectPermission(UserRole.ADMIN, project);
+    userSession.addProjectPermission(ProjectPermission.ADMIN, project);
 
     assertThatThrownBy(() -> tester.newRequest()
       .setParam("project", project.getKey())
@@ -137,7 +137,7 @@ public class SetAutomaticDeletionProtectionActionIT {
     userSession.logIn();
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch1").setExcludeFromPurge(false));
-    userSession.addProjectPermission(UserRole.ADMIN, project);
+    userSession.addProjectPermission(ProjectPermission.ADMIN, project);
 
     tester.newRequest()
       .setParam("project", project.getKey())
@@ -186,7 +186,7 @@ public class SetAutomaticDeletionProtectionActionIT {
   public void fail_if_branch_does_not_exist() {
     userSession.logIn();
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    userSession.addProjectPermission(UserRole.ADMIN, project);
+    userSession.addProjectPermission(ProjectPermission.ADMIN, project);
 
     assertThatThrownBy(() -> tester.newRequest()
       .setParam("project", project.getKey())

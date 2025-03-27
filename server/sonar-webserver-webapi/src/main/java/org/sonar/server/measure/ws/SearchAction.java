@@ -31,7 +31,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -171,7 +171,7 @@ public class SearchAction implements MeasuresWsAction {
     }
 
     private List<ComponentDto> getAuthorizedProjects(List<ComponentDto> componentDtos) {
-      return userSession.keepAuthorizedComponents(UserRole.USER, componentDtos);
+      return userSession.keepAuthorizedComponents(ProjectPermission.USER, componentDtos);
     }
 
     private List<MetricDto> searchMetrics() {

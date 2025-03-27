@@ -26,7 +26,7 @@ import org.mockito.Mockito;
 import org.sonar.api.resources.Languages;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -123,7 +123,7 @@ public class RemoveProjectActionIT {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QProfileDto profile = db.qualityProfiles().insert(qp -> qp.setLanguage("xoo"));
     db.qualityProfiles().associateWithProject(project, profile);
-    userSession.logIn(db.users().insertUser()).addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn(db.users().insertUser()).addProjectPermission(ProjectPermission.ADMIN, project);
 
     call(project, profile);
 

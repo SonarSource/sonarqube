@@ -20,7 +20,7 @@
 package org.sonar.server.projectdump.ws;
 
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
@@ -43,7 +43,7 @@ public class ProjectDumpWsSupport {
   public void verifyAdminOfProjectByKey(String projectKey) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
-      userSession.checkEntityPermission(UserRole.ADMIN, project);
+      userSession.checkEntityPermission(ProjectPermission.ADMIN, project);
     }
   }
 }

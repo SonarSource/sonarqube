@@ -26,6 +26,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.UnauthorizedException;
 
@@ -123,37 +124,37 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
-  public UserSession checkComponentPermission(String projectPermission, ComponentDto component) {
+  public UserSession checkComponentPermission(ProjectPermission projectPermission, ComponentDto component) {
     get().checkComponentPermission(projectPermission, component);
     return this;
   }
 
   @Override
-  public UserSession checkEntityPermission(String projectPermission, EntityDto entity) {
+  public UserSession checkEntityPermission(ProjectPermission projectPermission, EntityDto entity) {
     get().checkEntityPermission(projectPermission, entity);
     return this;
   }
 
   @Override
-  public UserSession checkEntityPermissionOrElseThrowResourceForbiddenException(String projectPermission, EntityDto entity) {
+  public UserSession checkEntityPermissionOrElseThrowResourceForbiddenException(ProjectPermission projectPermission, EntityDto entity) {
     get().checkEntityPermissionOrElseThrowResourceForbiddenException(projectPermission, entity);
     return this;
   }
 
   @Override
-  public UserSession checkChildProjectsPermission(String projectPermission, ComponentDto component) {
+  public UserSession checkChildProjectsPermission(ProjectPermission projectPermission, ComponentDto component) {
     get().checkChildProjectsPermission(projectPermission, component);
     return this;
   }
 
   @Override
-  public UserSession checkChildProjectsPermission(String projectPermission, EntityDto application) {
+  public UserSession checkChildProjectsPermission(ProjectPermission projectPermission, EntityDto application) {
     get().checkChildProjectsPermission(projectPermission, application);
     return this;
   }
 
   @Override
-  public UserSession checkComponentUuidPermission(String permission, String componentUuid) {
+  public UserSession checkComponentUuidPermission(ProjectPermission permission, String componentUuid) {
     get().checkComponentUuidPermission(permission, componentUuid);
     return this;
   }
@@ -180,47 +181,47 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
-  public boolean hasComponentPermission(String permission, ComponentDto component) {
+  public boolean hasComponentPermission(ProjectPermission permission, ComponentDto component) {
     return get().hasComponentPermission(permission, component);
   }
 
   @Override
-  public boolean hasEntityPermission(String permission, EntityDto entity) {
+  public boolean hasEntityPermission(ProjectPermission permission, EntityDto entity) {
     return get().hasEntityPermission(permission, entity);
   }
 
   @Override
-  public boolean hasEntityPermission(String permission, String entityUuid) {
+  public boolean hasEntityPermission(ProjectPermission permission, String entityUuid) {
     return get().hasEntityPermission(permission, entityUuid);
   }
 
   @Override
-  public boolean hasChildProjectsPermission(String permission, ComponentDto component) {
+  public boolean hasChildProjectsPermission(ProjectPermission permission, ComponentDto component) {
     return get().hasChildProjectsPermission(permission, component);
   }
 
   @Override
-  public boolean hasChildProjectsPermission(String permission, EntityDto application) {
+  public boolean hasChildProjectsPermission(ProjectPermission permission, EntityDto application) {
     return get().hasChildProjectsPermission(permission, application);
   }
 
   @Override
-  public boolean hasPortfolioChildProjectsPermission(String permission, ComponentDto portfolio) {
+  public boolean hasPortfolioChildProjectsPermission(ProjectPermission permission, ComponentDto portfolio) {
     return get().hasPortfolioChildProjectsPermission(permission, portfolio);
   }
 
   @Override
-  public boolean hasComponentUuidPermission(String permission, String componentUuid) {
+  public boolean hasComponentUuidPermission(ProjectPermission permission, String componentUuid) {
     return get().hasComponentUuidPermission(permission, componentUuid);
   }
 
   @Override
-  public List<ComponentDto> keepAuthorizedComponents(String permission, Collection<ComponentDto> components) {
+  public List<ComponentDto> keepAuthorizedComponents(ProjectPermission permission, Collection<ComponentDto> components) {
     return get().keepAuthorizedComponents(permission, components);
   }
 
   @Override
-  public <T extends EntityDto> List<T> keepAuthorizedEntities(String permission, Collection<T> entities) {
+  public <T extends EntityDto> List<T> keepAuthorizedEntities(ProjectPermission permission, Collection<T> entities) {
     return get().keepAuthorizedEntities(permission, entities);
   }
 }

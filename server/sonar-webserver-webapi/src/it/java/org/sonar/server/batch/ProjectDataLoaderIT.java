@@ -21,20 +21,20 @@ package org.sonar.server.batch;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.db.component.ComponentScopes;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.db.component.ProjectData;
-import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.scanner.protocol.input.FileData;
 import org.sonar.scanner.protocol.input.ProjectRepositories;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -44,7 +44,7 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.permission.GlobalPermission.SCAN;
+import static org.sonar.db.permission.ProjectPermission.SCAN;
 
 public class ProjectDataLoaderIT {
   @Rule
@@ -61,8 +61,8 @@ public class ProjectDataLoaderIT {
   public void throws_NotFoundException_when_branch_does_not_exist() {
     ProjectData projectData = db.components().insertPrivateProject();
     ProjectDto project = projectData.getProjectDto();
-    userSession.logIn().addProjectPermission(SCAN.getKey(), project)
-        .registerBranches(projectData.getMainBranchDto());
+    userSession.logIn().addProjectPermission(SCAN, project)
+      .registerBranches(projectData.getMainBranchDto());
 
     assertThatThrownBy(() -> {
       underTest.load(ProjectDataQuery.create()
@@ -77,7 +77,7 @@ public class ProjectDataLoaderIT {
   public void return_file_data_from_single_project() {
     ProjectData projectData = db.components().insertPrivateProject();
     ProjectDto project = projectData.getProjectDto();
-    userSession.logIn().addProjectPermission(SCAN.getKey(), project)
+    userSession.logIn().addProjectPermission(SCAN, project)
       .registerBranches(projectData.getMainBranchDto());
     ComponentDto file = db.components().insertComponent(newFileDto(projectData.getMainBranchComponent()));
     dbClient.fileSourceDao().insert(dbSession, newFileSourceDto(file).setSrcHash("123456"));
@@ -95,7 +95,7 @@ public class ProjectDataLoaderIT {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey("my_branch"));
-    userSession.logIn().addProjectPermission(SCAN.getKey(), projectData.getProjectDto())
+    userSession.logIn().addProjectPermission(SCAN, projectData.getProjectDto())
       .registerBranches(projectData.getMainBranchDto())
       .addProjectBranchMapping(projectData.projectUuid(), branch);
     // File on branch

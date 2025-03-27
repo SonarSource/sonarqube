@@ -24,7 +24,7 @@ import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
@@ -128,7 +128,7 @@ public class AddAction implements NotificationsWsAction {
 
   private Optional<ProjectDto> searchProject(DbSession dbSession, AddRequest request) {
     Optional<ProjectDto> project = request.getProject() == null ? empty() : Optional.of(componentFinder.getProjectByKey(dbSession, request.getProject()));
-    project.ifPresent(p -> userSession.checkEntityPermission(UserRole.USER, p));
+    project.ifPresent(p -> userSession.checkEntityPermission(ProjectPermission.USER, p));
     return project;
   }
 

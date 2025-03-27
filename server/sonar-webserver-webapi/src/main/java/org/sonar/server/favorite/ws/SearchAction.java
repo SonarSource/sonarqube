@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.server.favorite.FavoriteFinder;
 import org.sonar.server.user.UserSession;
@@ -88,7 +88,7 @@ public class SearchAction implements FavoritesWsAction {
 
   private List<EntityDto> getAuthorizedFavorites() {
     List<EntityDto> entities = favoriteFinder.list();
-    return userSession.keepAuthorizedEntities(UserRole.USER, entities);
+    return userSession.keepAuthorizedEntities(ProjectPermission.USER, entities);
   }
 
   private static class SearchResults {

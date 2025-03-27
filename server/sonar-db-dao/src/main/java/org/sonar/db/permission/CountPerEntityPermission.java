@@ -34,9 +34,9 @@ public class CountPerEntityPermission {
   }
 
   @VisibleForTesting
-  CountPerEntityPermission(String entityUuid, String permission, int count) {
+  CountPerEntityPermission(String entityUuid, ProjectPermission permission, int count) {
     this.entityUuid = entityUuid;
-    this.permission = permission;
+    this.permission = permission.getKey();
     this.count = count;
   }
 

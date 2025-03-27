@@ -27,7 +27,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -100,7 +100,7 @@ public class ShowAction implements DuplicationsWsAction {
       BranchDto branchDto = loadBranch(dbSession, component);
       String branch = branchDto.isMain() ? null : branchDto.getBranchKey();
       String pullRequest = branchDto.getPullRequestKey();
-      userSession.checkComponentPermission(UserRole.CODEVIEWER, component);
+      userSession.checkComponentPermission(ProjectPermission.CODEVIEWER, component);
       String duplications = findDataFromComponent(dbSession, component);
       List<DuplicationsParser.Block> blocks = parser.parse(dbSession, component, branch, pullRequest, duplications);
       writeProtobuf(responseBuilder.build(dbSession, blocks, branch, pullRequest), request, response);

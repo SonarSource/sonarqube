@@ -59,8 +59,8 @@ import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 import static org.sonar.api.measures.CoreMetrics.TESTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.VIOLATIONS_KEY;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 public class IssueSnippetsActionIT {

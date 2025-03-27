@@ -26,7 +26,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
@@ -203,7 +203,7 @@ public class ListActionIT {
   @Test
   public void list_project_webhooks_when_project_key_param_is_provided() {
     ProjectDto project1 = componentDbTester.insertPrivateProject().getProjectDto();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project1);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project1);
 
     WebhookDto dto1 = webhookDbTester.insertWebhook(project1);
     WebhookDto dto2 = webhookDbTester.insertWebhook(project1);

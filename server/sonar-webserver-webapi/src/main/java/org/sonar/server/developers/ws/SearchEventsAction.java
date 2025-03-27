@@ -35,7 +35,7 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -207,7 +207,7 @@ public class SearchEventsAction implements DevelopersWsAction {
 
   private List<ProjectDto> searchProjects(DbSession dbSession, List<String> projectKeys) {
     List<ProjectDto> projects = dbClient.projectDao().selectProjectsByKeys(dbSession, new HashSet<>(projectKeys));
-    return userSession.keepAuthorizedEntities(UserRole.USER, projects);
+    return userSession.keepAuthorizedEntities(ProjectPermission.USER, projects);
   }
 
   private String computeIssuesSearchLink(ProjectDto project, BranchDto branch, long functionalFromDate, String login) {

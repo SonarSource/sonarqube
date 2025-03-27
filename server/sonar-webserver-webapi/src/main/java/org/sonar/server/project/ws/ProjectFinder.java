@@ -25,7 +25,7 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.GlobalPermission;
@@ -52,7 +52,7 @@ public class ProjectFinder {
   public SearchResult search(DbSession dbSession, @Nullable String searchQuery) {
     List<ProjectDto> allProjects = dbClient.projectDao().selectProjects(dbSession);
 
-    Set<String> projectsUserHasAccessTo = userSession.keepAuthorizedEntities(UserRole.SCAN, allProjects)
+    Set<String> projectsUserHasAccessTo = userSession.keepAuthorizedEntities(ProjectPermission.SCAN, allProjects)
       .stream()
       .map(ProjectDto::getKey)
       .collect(toSet());

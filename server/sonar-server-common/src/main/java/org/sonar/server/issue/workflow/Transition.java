@@ -26,6 +26,7 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.issue.Issue;
+import org.sonar.db.permission.ProjectPermission;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -36,7 +37,7 @@ public class Transition {
   private final Condition[] conditions;
   private final Function[] functions;
   private final boolean automatic;
-  private String requiredProjectPermission;
+  private ProjectPermission requiredProjectPermission;
 
   private Transition(TransitionBuilder builder) {
     key = builder.key;
@@ -82,7 +83,7 @@ public class Transition {
   }
 
   @CheckForNull
-  public String requiredProjectPermission() {
+  public ProjectPermission requiredProjectPermission() {
     return requiredProjectPermission;
   }
 
@@ -132,7 +133,7 @@ public class Transition {
     private List<Condition> conditions = Lists.newArrayList();
     private List<Function> functions = Lists.newArrayList();
     private boolean automatic = false;
-    private String requiredProjectPermission;
+    private ProjectPermission requiredProjectPermission;
 
     private TransitionBuilder(String key) {
       this.key = key;
@@ -163,7 +164,7 @@ public class Transition {
       return this;
     }
 
-    public TransitionBuilder requiredProjectPermission(String requiredProjectPermission) {
+    public TransitionBuilder requiredProjectPermission(ProjectPermission requiredProjectPermission) {
       this.requiredProjectPermission = requiredProjectPermission;
       return this;
     }

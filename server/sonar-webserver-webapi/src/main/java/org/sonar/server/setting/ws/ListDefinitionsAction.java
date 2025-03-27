@@ -42,7 +42,7 @@ import static com.google.common.base.Strings.emptyToNull;
 import static java.lang.String.format;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;

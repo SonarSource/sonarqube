@@ -22,7 +22,7 @@ package org.sonar.server.projectlink.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ProjectLinkDto;
@@ -90,7 +90,7 @@ public class DeleteAction implements ProjectLinksWsAction {
     if (userSession.hasPermission(GlobalPermission.ADMINISTER)) {
       return;
     }
-    userSession.checkEntityPermission(UserRole.ADMIN, projectDto);
+    userSession.checkEntityPermission(ProjectPermission.ADMIN, projectDto);
   }
 
   private static void checkNotProvided(ProjectLinkDto link) {

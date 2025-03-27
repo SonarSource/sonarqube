@@ -27,14 +27,13 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.alm.client.github.GithubApplicationClientImpl;
 import org.sonar.alm.client.github.GithubPermissionConverter;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.auth.github.ExpiringAppInstallationToken;
 import org.sonar.auth.github.GitHubSettings;
+import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.auth.github.GsonRepositoryCollaborator;
 import org.sonar.auth.github.GsonRepositoryPermissions;
-import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.core.i18n.I18n;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
@@ -43,10 +42,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.component.BranchDto;
-import org.sonar.server.component.ComponentTypesRule;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -63,6 +63,7 @@ import org.sonar.server.common.permission.UserPermissionChange;
 import org.sonar.server.common.permission.UserPermissionChanger;
 import org.sonar.server.common.project.ImportProjectService;
 import org.sonar.server.common.project.ProjectCreator;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexersImpl;
 import org.sonar.server.es.TestIndexers;
@@ -365,7 +366,7 @@ public class ImportGithubProjectActionIT {
 
     String role = gsonRepositoryCollaborator.roleName();
     GsonRepositoryPermissions permissions = gsonRepositoryCollaborator.permissions();
-    when(githubPermissionConverter.toSonarqubeRolesWithFallbackOnRepositoryPermissions(Set.of(), role, permissions)).thenReturn(Set.of("scan"));
+    when(githubPermissionConverter.toSonarqubeRolesWithFallbackOnRepositoryPermissions(Set.of(), role, permissions)).thenReturn(Set.of(ProjectPermission.SCAN));
 
   }
 

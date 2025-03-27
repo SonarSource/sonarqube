@@ -38,7 +38,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
 
 public class AnticipatedTransitionsActionValidatorTest {
 
@@ -98,7 +98,7 @@ public class AnticipatedTransitionsActionValidatorTest {
     String projectUuid = "projectUuid";
     DbSession dbSession = mockDbSession();
     AuthorizationDao authorizationDao = mockAuthorizationDao();
-    doReturn(Set.of("permission1", ISSUE_ADMIN)).when(authorizationDao).selectEntityPermissions(dbSession, projectUuid, userUuid);
+    doReturn(Set.of("permission1", ISSUE_ADMIN.getKey())).when(authorizationDao).selectEntityPermissions(dbSession, projectUuid, userUuid);
 
     // when, then
     assertThatCode(() -> underTest.validateUserHasAdministerIssuesPermission(projectUuid))

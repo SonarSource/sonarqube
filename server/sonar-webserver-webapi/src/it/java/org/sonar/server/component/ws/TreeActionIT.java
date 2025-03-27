@@ -36,7 +36,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.server.component.DefaultComponentTypes;
 import org.sonar.core.i18n.I18n;
 import org.sonar.db.DbClient;
@@ -378,7 +378,7 @@ public class TreeActionIT {
   @Test
   public void branch() {
     ProjectData project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
     String branchKey = "my_branch";
     ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setKey(branchKey));
     userSession.addProjectBranchMapping(project.projectUuid(), branch);
@@ -402,7 +402,7 @@ public class TreeActionIT {
   public void dont_show_branch_if_main_branch() {
     ProjectData project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertFile(project.getMainBranchDto());
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .addProjectBranchMapping(project.projectUuid(), project.getMainBranchComponent());
 
     TreeWsResponse response = ws.newRequest()
@@ -417,7 +417,7 @@ public class TreeActionIT {
   @Test
   public void pull_request() {
     ProjectData project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
     String pullRequestId = "pr-123";
     ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setKey(pullRequestId).setBranchType(PULL_REQUEST));
     userSession.addProjectBranchMapping(project.projectUuid(), branch);
@@ -440,7 +440,7 @@ public class TreeActionIT {
   public void fail_when_not_enough_privileges() {
     ProjectData project = db.components().insertPrivateProject("project-uuid");
     userSession.logIn()
-      .addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto());
+      .addProjectPermission(ProjectPermission.CODEVIEWER, project.getProjectDto());
     db.commit();
 
     TestRequest request = ws.newRequest()
@@ -533,7 +533,7 @@ public class TreeActionIT {
   @Test
   public void fail_if_branch_does_not_exist() {
     ProjectData project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
     db.components().insertProjectBranch(project.getProjectDto(), b -> b.setKey("my_branch"));
 
     TestRequest request = ws.newRequest()
@@ -592,7 +592,7 @@ public class TreeActionIT {
   }
 
   private void logInWithBrowsePermission(ProjectData project) {
-    userSession.logIn().addProjectPermission(UserRole.USER, project.getProjectDto())
+    userSession.logIn().addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .addProjectBranchMapping(project.projectUuid(), project.getMainBranchComponent());
   }
 

@@ -28,7 +28,7 @@ import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -92,8 +92,8 @@ public class SearchMyProjectsActionIT {
     SnapshotDto cLangSnapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(cLang.getMainBranchDto()).setCreatedAt(anotherTime));
     dbClient.measureDao().insert(dbSession, newMeasure(jdk7.getMainBranchDto(), alertStatusMetric, Level.ERROR.name()));
     dbClient.measureDao().insert(dbSession, newMeasure(cLang.getMainBranchDto(), alertStatusMetric, Level.OK.name()));
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7.getProjectDto());
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, cLang.getProjectDto());
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, jdk7.getProjectDto());
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, cLang.getProjectDto());
     db.commit();
     System.setProperty("user.timezone", "UTC");
 
@@ -107,8 +107,8 @@ public class SearchMyProjectsActionIT {
     ProjectData jdk7 = insertJdk7();
     ProjectData cLang = insertClang();
     UserDto anotherUser = db.users().insertUser(newUserDto());
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7.getProjectDto());
-    db.users().insertProjectPermissionOnUser(anotherUser, UserRole.ADMIN, cLang.getProjectDto());
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, jdk7.getProjectDto());
+    db.users().insertProjectPermissionOnUser(anotherUser, ProjectPermission.ADMIN, cLang.getProjectDto());
 
     SearchMyProjectsWsResponse result = callWs();
 
@@ -119,7 +119,7 @@ public class SearchMyProjectsActionIT {
   public void return_only_first_1000_projects() {
     IntStream.range(0, 1_010).forEach(i -> {
       ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-      db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project);
+      db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, project);
     });
 
     SearchMyProjectsWsResponse result = callWs();
@@ -133,9 +133,9 @@ public class SearchMyProjectsActionIT {
     ComponentDto c_project = db.components().insertPrivateProject(p -> p.setName("c_project_name")).getMainBranchComponent();
     ComponentDto a_project = db.components().insertPrivateProject(p -> p.setName("A_project_name")).getMainBranchComponent();
 
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, b_project);
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, a_project);
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, c_project);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, b_project);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, a_project);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, c_project);
 
     SearchMyProjectsWsResponse result = callWs();
 
@@ -147,7 +147,7 @@ public class SearchMyProjectsActionIT {
     for (int i = 0; i < 10; i++) {
       int j = i;
       ProjectData project = db.components().insertPrivateProject(p -> p.setName("project-" + j));
-      db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project.getProjectDto());
+      db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, project.getProjectDto());
     }
 
     SearchMyProjectsWsResponse result = ws.newRequest()
@@ -164,8 +164,8 @@ public class SearchMyProjectsActionIT {
     ProjectData jdk7 = insertJdk7();
     ProjectData clang = insertClang();
 
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7.getProjectDto());
-    db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, clang.getProjectDto());
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, jdk7.getProjectDto());
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ISSUE_ADMIN, clang.getProjectDto());
 
     SearchMyProjectsWsResponse result = callWs();
 
@@ -177,8 +177,8 @@ public class SearchMyProjectsActionIT {
     ProjectData jdk7 = insertJdk7();
     PortfolioDto portfolio = insertPortfolio();
 
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7.getProjectDto());
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, portfolio);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, jdk7.getProjectDto());
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, portfolio);
 
     SearchMyProjectsWsResponse result = callWs();
 
@@ -189,7 +189,7 @@ public class SearchMyProjectsActionIT {
   public void does_not_return_branches() {
     ProjectData project = db.components().insertPublicProject();
     BranchDto branch = db.components().insertProjectBranch(project.getProjectDto());
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project.getProjectDto());
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, project.getProjectDto());
 
     SearchMyProjectsWsResponse result = callWs();
 
@@ -206,8 +206,8 @@ public class SearchMyProjectsActionIT {
     GroupDto group = db.users().insertGroup();
     db.users().insertMember(group, user);
 
-    db.users().insertEntityPermissionOnGroup(group, UserRole.ADMIN, jdk7.getProjectDto());
-    db.users().insertEntityPermissionOnGroup(group, UserRole.USER, cLang.getProjectDto());
+    db.users().insertEntityPermissionOnGroup(group, ProjectPermission.ADMIN, jdk7.getProjectDto());
+    db.users().insertEntityPermissionOnGroup(group, ProjectPermission.USER, cLang.getProjectDto());
 
     SearchMyProjectsWsResponse result = callWs();
 
@@ -223,11 +223,11 @@ public class SearchMyProjectsActionIT {
     GroupDto group = db.users().insertGroup();
     db.users().insertMember(group, user);
 
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7.getProjectDto());
-    db.users().insertEntityPermissionOnGroup(group, UserRole.ADMIN, cLang.getProjectDto());
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, jdk7.getProjectDto());
+    db.users().insertEntityPermissionOnGroup(group, ProjectPermission.ADMIN, cLang.getProjectDto());
     // admin via group and user
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, sonarqube.getProjectDto());
-    db.users().insertEntityPermissionOnGroup(group, UserRole.ADMIN, sonarqube.getProjectDto());
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, sonarqube.getProjectDto());
+    db.users().insertEntityPermissionOnGroup(group, ProjectPermission.ADMIN, sonarqube.getProjectDto());
 
     SearchMyProjectsWsResponse result = callWs();
 

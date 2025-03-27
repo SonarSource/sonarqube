@@ -21,10 +21,12 @@ package org.sonar.server.permission;
 
 import java.util.List;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 
 public interface PermissionService {
 
   List<GlobalPermission> getGlobalPermissions();
-  List<String> getAllProjectPermissions();
+
+  List<ProjectPermission> getAllProjectPermissions();
 
 }

@@ -28,7 +28,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.db.permission.ProjectPermission.ADMIN;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;

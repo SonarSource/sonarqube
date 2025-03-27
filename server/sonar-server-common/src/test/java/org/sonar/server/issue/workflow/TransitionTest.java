@@ -20,7 +20,7 @@
 package org.sonar.server.issue.workflow;
 
 import org.junit.Test;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.issue.DefaultIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +41,7 @@ public class TransitionTest {
       .from("OPEN").to("CLOSED")
       .conditions(condition1, condition2)
       .functions(function1, function2)
-      .requiredProjectPermission(UserRole.ISSUE_ADMIN)
+      .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
       .build();
     assertThat(transition.key()).isEqualTo("close");
     assertThat(transition.from()).isEqualTo("OPEN");
@@ -49,7 +49,7 @@ public class TransitionTest {
     assertThat(transition.conditions()).containsOnly(condition1, condition2);
     assertThat(transition.functions()).containsOnly(function1, function2);
     assertThat(transition.automatic()).isFalse();
-    assertThat(transition.requiredProjectPermission()).isEqualTo(UserRole.ISSUE_ADMIN);
+    assertThat(transition.requiredProjectPermission()).isEqualTo(ProjectPermission.ISSUE_ADMIN);
   }
 
   @Test

@@ -33,6 +33,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -51,8 +52,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
+import static org.sonar.db.permission.ProjectPermission.USER;
 
 public class EditCommentActionIT {
 
@@ -128,7 +129,7 @@ public class EditCommentActionIT {
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, null, "please fix it");
     loginWithBrowsePermission(user, USER, issueDto);
 
-    assertThatThrownBy(() ->  call(commentDto.getKey(), "please have a look"))
+    assertThatThrownBy(() -> call(commentDto.getKey(), "please have a look"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("You can only edit your own comments");
   }
@@ -218,7 +219,7 @@ public class EditCommentActionIT {
     return issueDbTester.insertIssue();
   }
 
-  private void loginWithBrowsePermission(UserDto user, String permission, IssueDto issueDto) {
+  private void loginWithBrowsePermission(UserDto user, ProjectPermission permission, IssueDto issueDto) {
     userSession.logIn(user).addProjectPermission(permission,
       dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get(),
       dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getComponentUuid()).get());

@@ -30,7 +30,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -525,7 +525,8 @@ public class ComponentUpdaterIT {
 
     List<String> permissions = db.getDbClient().userPermissionDao().selectEntityPermissionsOfUser(session, userDto.getUuid(), componentCreationData.projectDto().getUuid());
     assertThat(permissions)
-      .containsExactlyInAnyOrder(UserRole.USER, UserRole.CODEVIEWER);
+      .map(ProjectPermission::fromKey)
+      .containsExactlyInAnyOrder(ProjectPermission.USER, ProjectPermission.CODEVIEWER);
   }
 
   @Test

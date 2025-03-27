@@ -21,6 +21,7 @@ package org.sonar.db.permission.template;
 
 import java.util.Date;
 import javax.annotation.Nullable;
+import org.sonar.db.permission.ProjectPermission;
 
 public class PermissionTemplateGroupDto {
   private String uuid;
@@ -65,6 +66,10 @@ public class PermissionTemplateGroupDto {
   public PermissionTemplateGroupDto setPermission(String permission) {
     this.permission = permission;
     return this;
+  }
+
+  public PermissionTemplateGroupDto setPermission(ProjectPermission permission) {
+    return setPermission(permission.getKey());
   }
 
   public String getGroupName() {

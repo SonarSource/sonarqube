@@ -22,7 +22,7 @@ package org.sonar.server.webhook.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -96,7 +96,7 @@ public class WebhookDeliveryAction implements WebhooksWsAction {
     }
 
     void ensureAdminPermission(UserSession userSession) {
-      userSession.checkEntityPermission(UserRole.ADMIN, project);
+      userSession.checkEntityPermission(ProjectPermission.ADMIN, project);
     }
 
     void writeTo(Request request, Response response) {

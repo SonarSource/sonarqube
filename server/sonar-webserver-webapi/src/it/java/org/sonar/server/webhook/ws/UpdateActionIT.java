@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
@@ -92,7 +92,7 @@ public class UpdateActionIT {
   public void update_a_project_webhook_with_required_fields() {
     ProjectDto project = componentDbTester.insertPrivateProject().getProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     TestResponse response = wsActionTester.newRequest()
       .setParam("webhook", dto.getUuid())
@@ -113,7 +113,7 @@ public class UpdateActionIT {
   public void update_with_empty_secrets_removes_the_secret() {
     ProjectDto project = componentDbTester.insertPrivateProject().getProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     TestResponse response = wsActionTester.newRequest()
       .setParam("webhook", dto.getUuid())
@@ -135,7 +135,7 @@ public class UpdateActionIT {
   public void update_a_project_webhook_with_all_fields() {
     ProjectDto project = componentDbTester.insertPrivateProject().getProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     TestResponse response = wsActionTester.newRequest()
       .setParam("webhook", dto.getUuid())
@@ -233,7 +233,7 @@ public class UpdateActionIT {
   public void fail_if_url_is_not_valid() {
     ProjectDto project = componentDbTester.insertPrivateProject().getProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
     TestRequest request = wsActionTester.newRequest()
       .setParam("webhook", dto.getUuid())
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
@@ -247,7 +247,7 @@ public class UpdateActionIT {
   public void handle_whenSecretIsTooShort_fail() {
     ProjectDto project = componentDbTester.insertPrivateProject().getProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
     TestRequest request = wsActionTester.newRequest()
       .setParam("webhook", dto.getUuid())
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
@@ -262,7 +262,7 @@ public class UpdateActionIT {
   public void fail_if_credential_in_url_is_have_a_wrong_format() {
     ProjectDto project = componentDbTester.insertPrivateProject().getProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
     TestRequest request = wsActionTester.newRequest()
       .setParam("webhook", dto.getUuid())
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)

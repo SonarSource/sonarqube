@@ -25,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -74,7 +74,7 @@ public class ScmActionIT {
   @Test
   public void show_scm() {
     userSessionRule.logIn();
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto())
+    userSessionRule.addProjectPermission(ProjectPermission.CODEVIEWER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
 
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
@@ -93,7 +93,7 @@ public class ScmActionIT {
 
   @Test
   public void hide_author_if_not_logged_in() {
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto())
+    userSessionRule.addProjectPermission(ProjectPermission.CODEVIEWER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
 
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
@@ -113,7 +113,7 @@ public class ScmActionIT {
   @Test
   public void show_scm_from_given_range_lines() {
     userSessionRule.logIn();
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto())
+    userSessionRule.addProjectPermission(ProjectPermission.CODEVIEWER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
 
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
@@ -139,7 +139,7 @@ public class ScmActionIT {
   @Test
   public void not_group_lines_by_commit() {
     userSessionRule.logIn();
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto())
+    userSessionRule.addProjectPermission(ProjectPermission.CODEVIEWER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
 
     // lines 1 and 2 are the same commit, but not 3 (different date)
@@ -165,7 +165,7 @@ public class ScmActionIT {
   @Test
   public void group_lines_by_commit() {
     userSessionRule.logIn();
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto())
+    userSessionRule.addProjectPermission(ProjectPermission.CODEVIEWER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
 
     // lines 1 and 2 are the same commit, but not 3 (different date)
@@ -191,7 +191,7 @@ public class ScmActionIT {
   @Test
   public void accept_negative_value_in_from_parameter() {
     userSessionRule.logIn();
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto())
+    userSessionRule.addProjectPermission(ProjectPermission.CODEVIEWER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
 
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
@@ -216,7 +216,7 @@ public class ScmActionIT {
 
   @Test
   public void return_empty_value_when_no_scm() {
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto())
+    userSessionRule.addProjectPermission(ProjectPermission.CODEVIEWER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
 
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
@@ -234,7 +234,7 @@ public class ScmActionIT {
 
   @Test
   public void fail_without_code_viewer_permission() {
-    userSessionRule.addProjectPermission(UserRole.USER, project.getProjectDto())
+    userSessionRule.addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
 
     assertThatThrownBy(() -> {

@@ -40,7 +40,7 @@ import org.sonar.api.config.PropertyFieldDefinition;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -1288,11 +1288,11 @@ public class SetActionIT {
   }
 
   private void logInAsPortfolioAdministrator(PortfolioDto portfolio) {
-    userSession.logIn().addPortfolioPermission(UserRole.ADMIN, portfolio);
+    userSession.logIn().addPortfolioPermission(ProjectPermission.ADMIN, portfolio);
   }
 
   private void logInAsProjectAdministrator(ProjectDto project) {
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
   }
 
   private ProjectData randomPublicOrPrivateProject() {

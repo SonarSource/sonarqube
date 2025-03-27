@@ -44,6 +44,8 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
+import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -82,6 +84,7 @@ import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
+import static org.sonar.db.permission.ProjectPermission.SCAN;
 
 /**
  * Tests of {@link ReportSubmitter} when branch support is installed.
@@ -126,7 +129,7 @@ public class BranchReportSubmitterIT {
     ProjectData projectData = db.components().insertPublicProject();
     ProjectDto project = projectData.getProjectDto();
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(SCAN.getKey(), project)
+    userSession.logIn(user).addProjectPermission(ProjectPermission.SCAN, project)
       .registerBranches(projectData.getMainBranchDto());
     mockSuccessfulPrepareSubmitCall();
     InputStream reportInput = IOUtils.toInputStream("{binary}", StandardCharsets.UTF_8);
@@ -142,7 +145,7 @@ public class BranchReportSubmitterIT {
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey("branch1"));
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(SCAN.getKey(), projectData.getProjectDto())
+    userSession.logIn(user).addProjectPermission(ProjectPermission.SCAN, projectData.getProjectDto())
       .registerBranches(projectData.getMainBranchDto())
       .addProjectBranchMapping(projectData.projectUuid(), branch);
     BranchSupport.ComponentKey componentKey = createComponentKeyOfBranch(mainBranch.getKey(), "branch1");
@@ -170,7 +173,7 @@ public class BranchReportSubmitterIT {
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     BranchDto exitingProjectMainBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), mainBranch.uuid()).get();
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(SCAN.getKey(), projectData.getProjectDto())
+    userSession.logIn(user).addProjectPermission(ProjectPermission.SCAN, projectData.getProjectDto())
       .registerBranches(projectData.getMainBranchDto());
     ComponentDto createdBranch = createButDoNotInsertBranch(mainBranch, projectData.projectUuid());
     userSession.addProjectBranchMapping(projectData.projectUuid(), createdBranch);
@@ -198,7 +201,7 @@ public class BranchReportSubmitterIT {
     UserDto user = db.users().insertUser();
     userSession.logIn(user)
       .addPermission(PROVISION_PROJECTS)
-      .addPermission(SCAN);
+      .addPermission(GlobalPermission.SCAN);
 
     ComponentDto createdBranch = createButDoNotInsertBranch(nonExistingBranch, PROJECT_UUID);
     BranchSupport.ComponentKey componentKey = createComponentKeyOfBranch(nonExistingBranch.getKey());
@@ -235,7 +238,7 @@ public class BranchReportSubmitterIT {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(SCAN.getKey(), projectData.getProjectDto());
+    userSession.logIn(user).addProjectPermission(ProjectPermission.SCAN, projectData.getProjectDto());
     InputStream reportInput = IOUtils.toInputStream("{binary}", StandardCharsets.UTF_8);
     RuntimeException expected = new RuntimeException("Faking an exception thrown by branchSupportDelegate");
     when(branchSupportDelegate.createComponentKey(any(), any())).thenThrow(expected);

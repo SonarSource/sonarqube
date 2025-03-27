@@ -28,7 +28,7 @@ import javax.annotation.Nullable;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ComponentScopes;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeTaskSubmit;
 import org.sonar.ce.task.CeTask;
@@ -138,7 +138,7 @@ public class ReportSubmitter {
     // they don't have the direct permission on the project.
     // That means that dropping the permission on the project does not have any effects
     // if user has still the global permission
-    if (!userSession.hasComponentPermission(UserRole.SCAN, project) && !userSession.hasPermission(GlobalPermission.SCAN)) {
+    if (!userSession.hasComponentPermission(ProjectPermission.SCAN, project) && !userSession.hasPermission(GlobalPermission.SCAN)) {
       throw insufficientPrivilegesException();
     }
   }

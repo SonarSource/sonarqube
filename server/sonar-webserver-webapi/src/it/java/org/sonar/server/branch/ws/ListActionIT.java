@@ -22,7 +22,6 @@ package org.sonar.server.branch.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -30,11 +29,12 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
-import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.ComponentTypes;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.index.AsyncIssueIndexing;
@@ -54,15 +54,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
-import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 import static org.sonar.core.rule.RuleType.BUG;
 import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
-import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.BranchType.BRANCH;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
-import static org.sonar.db.permission.GlobalPermission.SCAN;
+import static org.sonar.db.permission.ProjectPermission.SCAN;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class ListActionIT {
@@ -158,7 +158,7 @@ public class ListActionIT {
     db.issues().insert(rule, branch, db.components().getComponentDto(branch), i -> i.setType(BUG).setResolution(null));
     indexIssues();
 
-    userSession.logIn().addProjectPermission(SCAN.getKey(), project);
+    userSession.logIn().addProjectPermission(SCAN, project);
 
     String json = ws.newRequest()
       .setParam("project", project.getKey())

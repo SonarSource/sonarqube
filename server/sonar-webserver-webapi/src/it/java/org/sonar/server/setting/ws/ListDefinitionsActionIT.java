@@ -30,7 +30,7 @@ import org.sonar.api.config.PropertyFieldDefinition;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.permission.GlobalPermission;
@@ -346,7 +346,7 @@ public class ListDefinitionsActionIT {
 
   @Test
   public void fail_when_user_has_not_project_browse_permission() {
-    userSession.logIn("project-admin").addProjectPermission(UserRole.CODEVIEWER, project);
+    userSession.logIn("project-admin").addProjectPermission(ProjectPermission.CODEVIEWER, project);
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build());
 
     assertThatThrownBy(() -> executeRequest(project.getKey()))
@@ -442,7 +442,7 @@ public class ListDefinitionsActionIT {
   }
 
   private void logInAsProjectUser() {
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.USER, project);
   }
 
   private void logInAsAdmin() {
@@ -451,8 +451,8 @@ public class ListDefinitionsActionIT {
 
   private void logInAsProjectAdmin() {
     userSession.logIn()
-      .addProjectPermission(UserRole.ADMIN, project)
-      .addProjectPermission(UserRole.USER, project);
+      .addProjectPermission(ProjectPermission.ADMIN, project)
+      .addProjectPermission(ProjectPermission.USER, project);
   }
 
 }

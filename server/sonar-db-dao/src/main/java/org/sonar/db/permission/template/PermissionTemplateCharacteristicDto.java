@@ -19,6 +19,8 @@
  */
 package org.sonar.db.permission.template;
 
+import org.sonar.db.permission.ProjectPermission;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
 public class PermissionTemplateCharacteristicDto {
@@ -52,6 +54,10 @@ public class PermissionTemplateCharacteristicDto {
 
   public String getPermission() {
     return permission;
+  }
+
+  public PermissionTemplateCharacteristicDto setPermission(ProjectPermission permission) {
+    return setPermission(permission.getKey());
   }
 
   public PermissionTemplateCharacteristicDto setPermission(String permission) {

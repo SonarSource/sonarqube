@@ -23,7 +23,7 @@ import java.util.Date;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -55,7 +55,7 @@ public class HotspotWsSupport {
 
   ProjectAndBranch loadAndCheckBranch(DbSession dbSession, String hotspotKey) {
     IssueDto hotspot = loadHotspot(dbSession, hotspotKey);
-    return loadAndCheckBranch(dbSession, hotspot, UserRole.USER);
+    return loadAndCheckBranch(dbSession, hotspot, ProjectPermission.USER);
   }
 
   IssueDto loadHotspot(DbSession dbSession, String hotspotKey) {
@@ -65,7 +65,7 @@ public class HotspotWsSupport {
       .orElseThrow(() -> new NotFoundException(format("Hotspot '%s' does not exist", hotspotKey)));
   }
 
-  ProjectAndBranch loadAndCheckBranch(DbSession dbSession, IssueDto hotspot, String userRole) {
+  ProjectAndBranch loadAndCheckBranch(DbSession dbSession, IssueDto hotspot, ProjectPermission projectPermission) {
     String branchUuid = hotspot.getProjectUuid();
     checkArgument(branchUuid != null, "Hotspot '%s' has no branch", hotspot.getKee());
 
@@ -74,12 +74,12 @@ public class HotspotWsSupport {
     ProjectDto project = dbClient.projectDao().selectByUuid(dbSession, branch.getProjectUuid())
       .orElseThrow(() -> new NotFoundException(format("Project with uuid '%s' does not exist", branch.getProjectUuid())));
 
-    userSession.checkEntityPermission(userRole, project);
+    userSession.checkEntityPermission(projectPermission, project);
     return new ProjectAndBranch(project, branch);
   }
 
   boolean canChangeStatus(ProjectDto project) {
-    return userSession.hasEntityPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
+    return userSession.hasEntityPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN, project);
   }
 
   IssueChangeContext newIssueChangeContextWithoutMeasureRefresh() {

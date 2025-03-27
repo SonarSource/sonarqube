@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
@@ -65,7 +65,7 @@ public class DeleteActionIT {
   public void delete_branch() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     db.components().insertProjectBranch(project, b -> b.setKey("branch1"));
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     tester.newRequest()
       .setParam("project", project.getKey())
@@ -104,7 +104,7 @@ public class DeleteActionIT {
   @Test
   public void fail_if_branch_does_not_exist() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     assertThatThrownBy(() -> tester.newRequest()
       .setParam("project", project.getKey())

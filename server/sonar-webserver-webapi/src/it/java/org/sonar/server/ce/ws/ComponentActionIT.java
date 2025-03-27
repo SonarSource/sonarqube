@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.ce.CeTaskCharacteristics;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
@@ -77,7 +77,7 @@ public class ComponentActionIT {
   @Test
   public void empty_queue_and_empty_activity() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.addProjectPermission(ProjectPermission.USER, project);
 
     Ce.ComponentResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
@@ -92,7 +92,7 @@ public class ComponentActionIT {
     ProjectData project1 = db.components().insertPrivateProject();
     SnapshotDto analysisProject1 = db.components().insertSnapshot(project1.getMainBranchComponent());
     ProjectData project2 = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project1.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.USER, project1.getProjectDto());
     insertActivity("T1", project1.getMainBranchComponent(), project1.getProjectDto(), CeActivityDto.Status.SUCCESS, analysisProject1);
     insertActivity("T2", project2.getMainBranchComponent(), project2.getProjectDto(), CeActivityDto.Status.FAILED, null);
     insertActivity("T3", project1.getMainBranchComponent(), project1.getProjectDto(), CeActivityDto.Status.FAILED, null);
@@ -153,7 +153,7 @@ public class ComponentActionIT {
   @Test
   public void canceled_tasks_must_not_be_picked_as_current_analysis() {
     ProjectData project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
     insertActivity("T1", project.getMainBranchComponent(), project.getProjectDto(), CeActivityDto.Status.SUCCESS);
     insertActivity("T2", project.getMainBranchComponent(), project.getProjectDto(), CeActivityDto.Status.FAILED);
     insertActivity("T3", project.getMainBranchComponent(), project.getProjectDto(), CeActivityDto.Status.SUCCESS);
@@ -175,7 +175,7 @@ public class ComponentActionIT {
   @Test
   public void branch_in_activity() {
     ProjectData project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
     String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setBranchType(BRANCH).setKey(branchName));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
@@ -196,7 +196,7 @@ public class ComponentActionIT {
   @Test
   public void branch_in_queue_analysis() {
     ProjectData project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
     String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setBranchType(BRANCH).setKey(branchName));
     CeQueueDto queue1 = insertQueue("T1", project.getMainBranchComponent(), project.getProjectDto(), IN_PROGRESS);
@@ -220,7 +220,7 @@ public class ComponentActionIT {
   @Test
   public void return_many_tasks_from_same_project() {
     ProjectData project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
     insertQueue("Main", project.getMainBranchComponent(), project.getProjectDto(), IN_PROGRESS);
 
     String branchName1 = "Branch1";
@@ -250,7 +250,7 @@ public class ComponentActionIT {
   @Test
   public void populates_warning_count_and_warnings_of_activities() {
     ProjectData privateProject = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, privateProject.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.USER, privateProject.getProjectDto());
     SnapshotDto analysis = db.components().insertSnapshot(privateProject.getMainBranchComponent());
     CeActivityDto activity = insertActivity("Branch", privateProject.getMainBranchComponent(), privateProject.getProjectDto(), SUCCESS, analysis);
     int messageCount = 5;
@@ -307,7 +307,7 @@ public class ComponentActionIT {
   }
 
   private void logInWithBrowsePermission(ProjectDto project) {
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.USER, project);
   }
 
   private CeQueueDto insertQueue(String taskUuid, ComponentDto component, EntityDto entityDto, CeQueueDto.Status status) {

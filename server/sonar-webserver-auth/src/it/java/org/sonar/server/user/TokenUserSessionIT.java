@@ -28,7 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -40,9 +40,9 @@ import org.sonar.db.user.UserTokenDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
-import static org.sonar.api.web.UserRole.SCAN;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
+import static org.sonar.db.permission.ProjectPermission.SCAN;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.user.TokenType.GLOBAL_ANALYSIS_TOKEN;
 import static org.sonar.db.user.TokenType.PROJECT_ANALYSIS_TOKEN;
 import static org.sonar.db.user.TokenType.PROJECT_BADGE_TOKEN;
@@ -212,7 +212,7 @@ public class TokenUserSessionIT {
 
   @Test
   @UseDataProvider("validPermissions")
-  public void keepAuthorizedEntities_shouldFilterPrivateProjects_whenProjectAnalysisToken(String permission) {
+  public void keepAuthorizedEntities_shouldFilterPrivateProjects_whenProjectAnalysisToken(ProjectPermission permission) {
     UserDto user = db.users().insertUser();
 
     ProjectData publicProject = db.components().insertPublicProject();
@@ -296,7 +296,7 @@ public class TokenUserSessionIT {
 
   @Test
   @UseDataProvider("validPermissions")
-  public void keepAuthorizedComponents_shouldFilterPrivateProjects_whenProjectAnalysisToken(String permission) {
+  public void keepAuthorizedComponents_shouldFilterPrivateProjects_whenProjectAnalysisToken(ProjectPermission permission) {
     UserDto user = db.users().insertUser();
 
     ProjectData publicProject = db.components().insertPublicProject();
@@ -337,11 +337,11 @@ public class TokenUserSessionIT {
     ProjectData publicProject = db.components().insertPublicProject();
     ProjectData privateProject = db.components().insertPrivateProject();
 
-    db.users().insertProjectPermissionOnUser(user, UserRole.CODEVIEWER, privateProject.getProjectDto());
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.CODEVIEWER, privateProject.getProjectDto());
 
     Set<ComponentDto> componentDtos = Set.of(publicProject.getMainBranchComponent(), privateProject.getMainBranchComponent());
     List<ComponentDto> authorizedComponents = mockProjectAnalysisTokenUserSession(user, privateProject.getProjectDto())
-      .keepAuthorizedComponents(UserRole.CODEVIEWER, componentDtos);
+      .keepAuthorizedComponents(ProjectPermission.CODEVIEWER, componentDtos);
 
     assertThat(authorizedComponents).isEmpty();
   }

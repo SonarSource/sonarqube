@@ -26,13 +26,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
@@ -284,22 +284,22 @@ class PermissionTemplateDaoIT {
     GroupDto group1 = db.users().insertGroup(newGroupDto());
     GroupDto group2 = db.users().insertGroup(newGroupDto());
     GroupDto group3 = db.users().insertGroup(newGroupDto());
-    templateDb.addGroupToTemplate(template1.getUuid(), group1.getUuid(), UserRole.CODEVIEWER, template1.getName(), group1.getName());
-    templateDb.addGroupToTemplate(template1.getUuid(), group2.getUuid(), UserRole.CODEVIEWER, template1.getName(), group2.getName());
-    templateDb.addGroupToTemplate(template1.getUuid(), group3.getUuid(), UserRole.CODEVIEWER, template1.getName(), group3.getName());
-    templateDb.addGroupToTemplate(template1.getUuid(), null, UserRole.CODEVIEWER, template1.getName(), null);
-    templateDb.addGroupToTemplate(template1.getUuid(), group1.getUuid(), UserRole.ADMIN, template1.getName(), group1.getName());
-    templateDb.addGroupToTemplate(template2.getUuid(), group1.getUuid(), UserRole.ADMIN, template2.getName(), group1.getName());
-    templateDb.addGroupToTemplate(template4.getUuid(), group1.getUuid(), UserRole.ISSUE_ADMIN, template4.getName(), group1.getName());
+    templateDb.addGroupToTemplate(template1.getUuid(), group1.getUuid(), ProjectPermission.CODEVIEWER, template1.getName(), group1.getName());
+    templateDb.addGroupToTemplate(template1.getUuid(), group2.getUuid(), ProjectPermission.CODEVIEWER, template1.getName(), group2.getName());
+    templateDb.addGroupToTemplate(template1.getUuid(), group3.getUuid(), ProjectPermission.CODEVIEWER, template1.getName(), group3.getName());
+    templateDb.addGroupToTemplate(template1.getUuid(), null, ProjectPermission.CODEVIEWER, template1.getName(), null);
+    templateDb.addGroupToTemplate(template1.getUuid(), group1.getUuid(), ProjectPermission.ADMIN, template1.getName(), group1.getName());
+    templateDb.addGroupToTemplate(template2.getUuid(), group1.getUuid(), ProjectPermission.ADMIN, template2.getName(), group1.getName());
+    templateDb.addGroupToTemplate(template4.getUuid(), group1.getUuid(), ProjectPermission.ISSUE_ADMIN, template4.getName(), group1.getName());
 
     final List<CountByTemplateAndPermissionDto> result = new ArrayList<>();
     underTest.groupsCountByTemplateUuidAndPermission(dbSession, asList(template1.getUuid(), template2.getUuid(), template3.getUuid()),
       context -> result.add(context.getResultObject()));
 
     assertThat(result).extracting(CountByTemplateAndPermissionDto::getPermission, CountByTemplateAndPermissionDto::getTemplateUuid,
-        CountByTemplateAndPermissionDto::getCount)
-      .containsOnly(tuple(UserRole.ADMIN, template1.getUuid(), 1), tuple(UserRole.CODEVIEWER, template1.getUuid(), 4),
-        tuple(UserRole.ADMIN, template2.getUuid(), 1));
+      CountByTemplateAndPermissionDto::getCount)
+      .containsOnly(tuple(ProjectPermission.ADMIN.getKey(), template1.getUuid(), 1), tuple(ProjectPermission.CODEVIEWER.getKey(), template1.getUuid(), 4),
+        tuple(ProjectPermission.ADMIN.getKey(), template2.getUuid(), 1));
   }
 
   @Test
@@ -313,12 +313,12 @@ class PermissionTemplateDaoIT {
     UserDto user2 = db.users().insertUser();
     UserDto user3 = db.users().insertUser();
 
-    templateDb.addUserToTemplate(template1.getUuid(), user1.getUuid(), UserRole.ADMIN, template1.getName(), user1.getLogin());
-    templateDb.addUserToTemplate(template1.getUuid(), user2.getUuid(), UserRole.ADMIN, template1.getName(), user2.getLogin());
-    templateDb.addUserToTemplate(template1.getUuid(), user3.getUuid(), UserRole.ADMIN, template1.getName(), user3.getLogin());
-    templateDb.addUserToTemplate(template1.getUuid(), user1.getUuid(), UserRole.USER, template1.getName(), user1.getLogin());
-    templateDb.addUserToTemplate(template2.getUuid(), user1.getUuid(), UserRole.USER, template2.getName(), user1.getLogin());
-    templateDb.addUserToTemplate(anotherTemplate.getUuid(), user1.getUuid(), UserRole.ISSUE_ADMIN, anotherTemplate.getName(),
+    templateDb.addUserToTemplate(template1.getUuid(), user1.getUuid(), ProjectPermission.ADMIN, template1.getName(), user1.getLogin());
+    templateDb.addUserToTemplate(template1.getUuid(), user2.getUuid(), ProjectPermission.ADMIN, template1.getName(), user2.getLogin());
+    templateDb.addUserToTemplate(template1.getUuid(), user3.getUuid(), ProjectPermission.ADMIN, template1.getName(), user3.getLogin());
+    templateDb.addUserToTemplate(template1.getUuid(), user1.getUuid(), ProjectPermission.USER, template1.getName(), user1.getLogin());
+    templateDb.addUserToTemplate(template2.getUuid(), user1.getUuid(), ProjectPermission.USER, template2.getName(), user1.getLogin());
+    templateDb.addUserToTemplate(anotherTemplate.getUuid(), user1.getUuid(), ProjectPermission.ISSUE_ADMIN, anotherTemplate.getName(),
       user1.getLogin());
 
     final List<CountByTemplateAndPermissionDto> result = new ArrayList<>();
@@ -328,9 +328,9 @@ class PermissionTemplateDaoIT {
       .extracting(CountByTemplateAndPermissionDto::getPermission, CountByTemplateAndPermissionDto::getTemplateUuid,
         CountByTemplateAndPermissionDto::getCount)
       .containsExactlyInAnyOrder(
-        tuple(UserRole.ADMIN, template1.getUuid(), 3),
-        tuple(UserRole.USER, template1.getUuid(), 1),
-        tuple(UserRole.USER, template2.getUuid(), 1));
+        tuple(ProjectPermission.ADMIN.getKey(), template1.getUuid(), 3),
+        tuple(ProjectPermission.USER.getKey(), template1.getUuid(), 1),
+        tuple(ProjectPermission.USER.getKey(), template2.getUuid(), 1));
   }
 
   @Test
@@ -357,21 +357,22 @@ class PermissionTemplateDaoIT {
     db.users().insertMember(group, user);
     PermissionTemplateDto template = templateDb.insertTemplate();
     templateDb.addProjectCreatorToTemplate(template.getUuid(), GlobalPermission.SCAN.getKey(), template.getName());
-    templateDb.addProjectCreatorToTemplate(template.getUuid(), UserRole.ADMIN, template.getName());
-    templateDb.addUserToTemplate(template.getUuid(), user.getUuid(), UserRole.USER, template.getName(), user.getLogin());
-    templateDb.addUserToTemplate(template.getUuid(), user.getUuid(), UserRole.ADMIN, template.getName(), user.getLogin());
-    templateDb.addGroupToTemplate(template.getUuid(), group.getUuid(), UserRole.CODEVIEWER, template.getName(), group.getName());
-    templateDb.addGroupToTemplate(template.getUuid(), group.getUuid(), UserRole.ADMIN, template.getName(), group.getName());
-    templateDb.addGroupToTemplate(template.getUuid(), null, UserRole.ISSUE_ADMIN, template.getName(), null);
+    templateDb.addProjectCreatorToTemplate(template.getUuid(), ProjectPermission.ADMIN, template.getName());
+    templateDb.addUserToTemplate(template.getUuid(), user.getUuid(), ProjectPermission.USER, template.getName(), user.getLogin());
+    templateDb.addUserToTemplate(template.getUuid(), user.getUuid(), ProjectPermission.ADMIN, template.getName(), user.getLogin());
+    templateDb.addGroupToTemplate(template.getUuid(), group.getUuid(), ProjectPermission.CODEVIEWER, template.getName(), group.getName());
+    templateDb.addGroupToTemplate(template.getUuid(), group.getUuid(), ProjectPermission.ADMIN, template.getName(), group.getName());
+    templateDb.addGroupToTemplate(template.getUuid(), null, ProjectPermission.ISSUE_ADMIN, template.getName(), null);
 
     List<String> resultWithUser = underTest.selectPotentialPermissionsByUserUuidAndTemplateUuid(dbSession, user.getUuid(),
       template.getUuid());
     List<String> resultWithoutUser = underTest.selectPotentialPermissionsByUserUuidAndTemplateUuid(dbSession, null, template.getUuid());
 
-    assertThat(resultWithUser).containsOnlyOnce(GlobalPermission.SCAN.getKey(), UserRole.ADMIN, UserRole.USER, UserRole.CODEVIEWER,
-      UserRole.ISSUE_ADMIN);
+    assertThat(resultWithUser).containsOnlyOnce(ProjectPermission.SCAN.getKey(), ProjectPermission.ADMIN.getKey(), ProjectPermission.USER.getKey(),
+      ProjectPermission.CODEVIEWER.getKey(),
+      ProjectPermission.ISSUE_ADMIN.getKey());
     // only permission from anyone group
-    assertThat(resultWithoutUser).containsOnly(UserRole.ISSUE_ADMIN);
+    assertThat(resultWithoutUser).containsOnly(ProjectPermission.ISSUE_ADMIN.getKey());
   }
 
   @Test

@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
@@ -95,7 +95,7 @@ public class AnalysisStatusAction implements CeWsAction {
   private void doHandle(Request request, Response response, String projectKey, @Nullable String branchKey, @Nullable String pullRequestKey) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
-      userSession.checkEntityPermission(UserRole.USER, project);
+      userSession.checkEntityPermission(ProjectPermission.USER, project);
       BranchDto branch = componentFinder.getBranchOrPullRequest(dbSession, project, branchKey, pullRequestKey);
 
       AnalysisStatusWsResponse.Builder responseBuilder = AnalysisStatusWsResponse.newBuilder();

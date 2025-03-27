@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
@@ -99,7 +99,7 @@ public class CreateActionIT {
     String longProjectKey = generateStringWithLength(400);
     ProjectDto project = componentDbTester.insertPrivateProject(componentDto -> componentDto.setKey(longProjectKey)).getProjectDto();
 
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     CreateWsResponse response = wsActionTester.newRequest()
       .setParam("project", longProjectKey)
@@ -161,7 +161,7 @@ public class CreateActionIT {
   public void create_a_webhook_on_project() {
     ProjectDto project = componentDbTester.insertPrivateProject().getProjectDto();
 
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     CreateWsResponse response = wsActionTester.newRequest()
       .setParam("project", project.getKey())
@@ -195,7 +195,7 @@ public class CreateActionIT {
     for (int i = 0; i < 10; i++) {
       webhookDbTester.insertWebhook(project);
     }
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
     TestRequest request = wsActionTester.newRequest()
       .setParam(PROJECT_KEY_PARAM, project.getKey())
       .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)

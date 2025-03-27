@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -88,7 +88,7 @@ public class ShowAction implements SourcesWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto file = componentFinder.getByKey(dbSession, fileKey);
-      userSession.checkComponentPermission(UserRole.CODEVIEWER, file);
+      userSession.checkComponentPermission(ProjectPermission.CODEVIEWER, file);
 
       Iterable<String> linesHtml = checkFoundWithOptional(sourceService.getLinesAsHtml(dbSession, file.uuid(), from, to), "No source found for file '%s'", fileKey);
       try (JsonWriter json = response.newJsonWriter()) {

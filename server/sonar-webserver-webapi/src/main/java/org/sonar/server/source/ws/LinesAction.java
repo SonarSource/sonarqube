@@ -28,7 +28,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -142,7 +142,7 @@ public class LinesAction implements SourcesWsAction {
         .selectLastAnalysisByComponentUuid(dbSession, file.branchUuid())
         .map(SnapshotDto::getPeriodDate);
 
-      userSession.checkComponentPermission(UserRole.CODEVIEWER, file);
+      userSession.checkComponentPermission(ProjectPermission.CODEVIEWER, file);
       int from = request.mandatoryParamAsInt(PARAM_FROM);
       int to = MoreObjects.firstNonNull(request.paramAsInt(PARAM_TO), Integer.MAX_VALUE);
 

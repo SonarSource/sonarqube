@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.permission.GlobalPermission;
@@ -53,7 +53,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
@@ -194,9 +194,9 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
 
     GroupDto groupWithoutPermission = db.users().insertGroup("group-without-permission");
 
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
     String result = newRequest()
-      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .setParam(PARAM_PERMISSION, ISSUE_ADMIN.getKey())
       .setParam(PARAM_PROJECT_ID, project.getUuid())
       .execute()
       .getInput();
@@ -217,7 +217,7 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
 
     loginAsAdmin();
     String result = newRequest()
-      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .setParam(PARAM_PERMISSION, ISSUE_ADMIN.getKey())
       .setParam(PARAM_PROJECT_ID, project.getUuid())
       .setParam(TEXT_QUERY, "group-with")
       .execute()
@@ -238,7 +238,7 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
 
     loginAsAdmin();
     String result = newRequest()
-      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .setParam(PARAM_PERMISSION, ISSUE_ADMIN.getKey())
       .setParam(PARAM_PROJECT_ID, project.getUuid())
       .execute()
       .getInput();
@@ -270,7 +270,7 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
 
     loginAsAdmin();
     String result = newRequest()
-      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .setParam(PARAM_PERMISSION, ISSUE_ADMIN.getKey())
       .setParam(PARAM_PROJECT_ID, "view-uuid")
       .execute()
       .getInput();
@@ -292,7 +292,7 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
 
     loginAsAdmin();
     String result = newRequest()
-      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .setParam(PARAM_PERMISSION, ISSUE_ADMIN.getKey())
       .setParam(PARAM_PROJECT_ID, "view-uuid")
       .execute()
       .getInput();
@@ -365,7 +365,7 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
 
     assertThatThrownBy(() -> {
       newRequest()
-        .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+        .setParam(PARAM_PERMISSION, ISSUE_ADMIN.getKey())
         .setParam(PARAM_PROJECT_ID, branch.uuid())
         .execute();
     })

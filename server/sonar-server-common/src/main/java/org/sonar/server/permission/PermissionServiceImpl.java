@@ -19,40 +19,36 @@
  */
 package org.sonar.server.permission;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.server.component.ComponentTypes;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
+import org.sonar.server.component.ComponentTypes;
 
 @Immutable
 public class PermissionServiceImpl implements PermissionService {
-  public static final Set<String> ALL_PROJECT_PERMISSIONS = Collections.unmodifiableSet(new LinkedHashSet<>(List.of(
-    UserRole.ADMIN,
-    UserRole.CODEVIEWER,
-    UserRole.ISSUE_ADMIN,
-    UserRole.SECURITYHOTSPOT_ADMIN,
-    UserRole.SCAN,
-    UserRole.USER
-  )));
+  /**
+   * This particular order seems to be important for some web services.
+   * Maybe the UI is relying on it?
+   * That's why we are not relying on {@link ProjectPermission#values()}.
+   */
+  private static final List<ProjectPermission> ALL_PROJECT_PERMISSIONS = List.of(
+    ProjectPermission.ADMIN,
+    ProjectPermission.CODEVIEWER,
+    ProjectPermission.ISSUE_ADMIN,
+    ProjectPermission.SECURITYHOTSPOT_ADMIN,
+    ProjectPermission.SCAN,
+    ProjectPermission.USER);
 
   private static final List<GlobalPermission> ALL_GLOBAL_PERMISSIONS = List.of(GlobalPermission.values());
 
   private final List<GlobalPermission> globalPermissions;
-  private final List<String> projectPermissions;
 
   public PermissionServiceImpl(ComponentTypes componentTypes) {
     globalPermissions = List.copyOf(ALL_GLOBAL_PERMISSIONS.stream()
       .filter(s -> !s.equals(GlobalPermission.APPLICATION_CREATOR) || componentTypes.isQualifierPresent(ComponentQualifiers.APP))
       .filter(s -> !s.equals(GlobalPermission.PORTFOLIO_CREATOR) || componentTypes.isQualifierPresent(ComponentQualifiers.VIEW))
-      .toList());
-    projectPermissions = List.copyOf(ALL_PROJECT_PERMISSIONS.stream()
-      .filter(s -> !s.equals(GlobalPermission.APPLICATION_CREATOR.getKey()) || componentTypes.isQualifierPresent(ComponentQualifiers.APP))
-      .filter(s -> !s.equals(GlobalPermission.PORTFOLIO_CREATOR.getKey()) || componentTypes.isQualifierPresent(ComponentQualifiers.VIEW))
       .toList());
   }
 
@@ -68,7 +64,7 @@ public class PermissionServiceImpl implements PermissionService {
    * Return an immutable Set of all project permissions
    */
   @Override
-  public List<String> getAllProjectPermissions() {
-    return projectPermissions;
+  public List<ProjectPermission> getAllProjectPermissions() {
+    return ALL_PROJECT_PERMISSIONS;
   }
 }

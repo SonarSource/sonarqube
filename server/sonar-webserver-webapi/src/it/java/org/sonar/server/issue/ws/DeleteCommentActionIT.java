@@ -31,6 +31,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -48,8 +49,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
+import static org.sonar.db.permission.ProjectPermission.USER;
 
 public class DeleteCommentActionIT {
 
@@ -177,7 +178,7 @@ public class DeleteCommentActionIT {
     return request.execute();
   }
 
-  private void loginAndAddProjectPermission(UserDto user, IssueDto issueDto, String permission) {
+  private void loginAndAddProjectPermission(UserDto user, IssueDto issueDto, ProjectPermission permission) {
     userSession.logIn(user).addProjectPermission(permission, dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get());
   }
 

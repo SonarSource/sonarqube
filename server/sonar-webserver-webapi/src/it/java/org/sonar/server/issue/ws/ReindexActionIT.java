@@ -22,7 +22,7 @@ package org.sonar.server.issue.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbTester;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.EsTester;
@@ -70,7 +70,7 @@ public class ReindexActionIT {
   public void reindex_project() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn().setSystemAdministrator();
-    userSession.addProjectPermission(UserRole.ADMIN, project);
+    userSession.addProjectPermission(ProjectPermission.ADMIN, project);
 
     TestResponse response = tester.newRequest()
       .setParam("project", project.getKey())
@@ -102,7 +102,7 @@ public class ReindexActionIT {
   @Test
   public void fail_if_not_authorized() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.addProjectPermission(ProjectPermission.USER, project);
 
     TestRequest testRequest = tester.newRequest().setParam("project", project.getKey());
     assertThatThrownBy(testRequest::execute)

@@ -31,7 +31,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -91,7 +91,7 @@ public class IssueSnippetsAction implements SourcesWsAction {
       ProjectDto projectDto = dbClient.projectDao().selectByBranchUuid(dbSession, issueDto.getProjectUuid())
         .orElseThrow(() -> new NotFoundException(format("Project with uuid '%s' does not exist", issueDto.getProjectUuid())));
 
-      userSession.checkEntityPermission(UserRole.CODEVIEWER, projectDto);
+      userSession.checkEntityPermission(ProjectPermission.CODEVIEWER, projectDto);
 
       DbIssues.Locations locations = issueDto.parseLocations();
       String componentUuid = issueDto.getComponentUuid();

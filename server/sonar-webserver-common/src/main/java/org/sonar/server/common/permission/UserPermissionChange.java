@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import javax.annotation.Nullable;
 import org.sonar.db.entity.EntityDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.UserId;
 import org.sonar.server.permission.PermissionService;
 
@@ -31,6 +32,11 @@ import static java.util.Objects.requireNonNull;
 public class UserPermissionChange extends PermissionChange {
 
   private final UserId userId;
+
+  public UserPermissionChange(Operation operation, ProjectPermission permission, @Nullable EntityDto entity, UserId userId,
+    PermissionService permissionService) {
+    this(operation, permission.getKey(), entity, userId, permissionService);
+  }
 
   public UserPermissionChange(Operation operation, String permission, @Nullable EntityDto entity, UserId userId,
     PermissionService permissionService) {

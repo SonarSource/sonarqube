@@ -40,7 +40,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.api.web.page.Page;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -66,8 +66,8 @@ import static org.sonar.api.CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_
 import static org.sonar.api.CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.ADMIN;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
@@ -271,7 +271,7 @@ public class ComponentAction implements NavigationWsAction {
   private void writeExtensions(JsonWriter json, ComponentDto component, List<Page> pages) {
     json.name("extensions").beginArray();
     Predicate<Page> isAuthorized = page -> {
-      String requiredPermission = page.isAdmin() ? UserRole.ADMIN : UserRole.USER;
+      ProjectPermission requiredPermission = page.isAdmin() ? ProjectPermission.ADMIN : ProjectPermission.USER;
       return userSession.hasComponentPermission(requiredPermission, component);
     };
     pages.stream()

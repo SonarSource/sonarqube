@@ -23,15 +23,15 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
-import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.db.permission.ProjectPermission.ADMIN;
 
 @ServerSide
 public class SettingsWsSupport {
@@ -58,7 +58,7 @@ public class SettingsWsSupport {
     if (isAdmin(component)) {
       return true;
     }
-    return hasPermission(GlobalPermission.SCAN, UserRole.SCAN, component) || !isProtected(key);
+    return hasPermission(GlobalPermission.SCAN, ProjectPermission.SCAN, component) || !isProtected(key);
   }
 
   private boolean isAdmin(Optional<EntityDto> component) {
@@ -77,7 +77,7 @@ public class SettingsWsSupport {
     return ADMIN_ONLY_SETTINGS.contains(key);
   }
 
-  private boolean hasPermission(GlobalPermission orgPermission, String projectPermission, Optional<EntityDto> component) {
+  private boolean hasPermission(GlobalPermission orgPermission, ProjectPermission projectPermission, Optional<EntityDto> component) {
     if (userSession.hasPermission(orgPermission)) {
       return true;
     }

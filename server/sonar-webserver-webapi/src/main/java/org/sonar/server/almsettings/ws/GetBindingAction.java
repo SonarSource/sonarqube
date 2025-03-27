@@ -35,7 +35,7 @@ import org.sonarqube.ws.AlmSettings.GetBindingWsResponse;
 
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.server.common.AlmSettingMapper.toResponseAlm;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 

@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.jetbrains.annotations.Nullable;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.auth.DevOpsPlatformSettings;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -126,7 +126,7 @@ public class DefaultDevOpsProjectCreator implements DevOpsProjectCreator {
   private void addScanPermissionToCurrentUser(DbSession dbSession, ProjectDto projectDto) {
     UserSession userSession = devOpsProjectCreationContext.userSession();
     UserIdDto userId = new UserIdDto(requireNonNull(userSession.getUuid()), requireNonNull(userSession.getLogin()));
-    UserPermissionChange scanPermission = new UserPermissionChange(Operation.ADD, UserRole.SCAN, projectDto, userId, permissionService);
+    UserPermissionChange scanPermission = new UserPermissionChange(Operation.ADD, ProjectPermission.SCAN.getKey(), projectDto, userId, permissionService);
     permissionUpdater.apply(dbSession, Set.of(scanPermission));
   }
 

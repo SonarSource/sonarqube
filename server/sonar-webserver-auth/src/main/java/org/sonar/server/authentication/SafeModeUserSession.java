@@ -25,6 +25,7 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.user.AbstractUserSession;
 
@@ -42,17 +43,17 @@ public class SafeModeUserSession extends AbstractUserSession {
   }
 
   @Override
-  protected boolean hasEntityUuidPermission(String permission, String entityUuid) {
+  protected boolean hasEntityUuidPermission(ProjectPermission permission, String entityUuid) {
     return false;
   }
 
   @Override
-  protected boolean hasChildProjectsPermission(String permission, String applicationUuid) {
+  protected boolean hasChildProjectsPermission(ProjectPermission permission, String applicationUuid) {
     return false;
   }
 
   @Override
-  protected boolean hasPortfolioChildProjectsPermission(String permission, String portfolioUuid) {
+  protected boolean hasPortfolioChildProjectsPermission(ProjectPermission permission, String portfolioUuid) {
     return false;
   }
 

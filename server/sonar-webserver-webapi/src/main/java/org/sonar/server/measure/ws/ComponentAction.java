@@ -32,7 +32,6 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -43,6 +42,7 @@ import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricDtoFunctions;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
@@ -289,8 +289,8 @@ public class ComponentAction implements MeasuresWsAction {
   }
 
   private void checkPermissions(ComponentDto baseComponent) {
-    if (!userSession.hasComponentPermission(UserRole.USER, baseComponent) &&
-      !userSession.hasComponentPermission(UserRole.SCAN, baseComponent) &&
+    if (!userSession.hasComponentPermission(ProjectPermission.USER, baseComponent) &&
+      !userSession.hasComponentPermission(ProjectPermission.SCAN, baseComponent) &&
       !userSession.hasPermission(GlobalPermission.SCAN)) {
       throw insufficientPrivilegesException();
     }

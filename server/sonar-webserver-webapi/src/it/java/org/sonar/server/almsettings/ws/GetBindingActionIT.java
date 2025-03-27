@@ -39,7 +39,7 @@ import org.sonarqube.ws.AlmSettings.GetBindingWsResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class GetBindingActionIT {

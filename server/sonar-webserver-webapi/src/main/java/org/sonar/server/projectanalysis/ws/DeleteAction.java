@@ -22,7 +22,7 @@ package org.sonar.server.projectanalysis.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -73,7 +73,7 @@ public class DeleteAction implements ProjectAnalysesWsAction {
       if (STATUS_UNPROCESSED.equals(analysis.getStatus())) {
         throw analysisNotFoundException(analysisUuid);
       }
-      userSession.checkComponentUuidPermission(UserRole.ADMIN, analysis.getRootComponentUuid());
+      userSession.checkComponentUuidPermission(ProjectPermission.ADMIN, analysis.getRootComponentUuid());
 
       checkArgument(!analysis.getLast(), "The last analysis '%s' cannot be deleted", analysisUuid);
       checkNotUsedInNewCodePeriod(dbSession, analysis);

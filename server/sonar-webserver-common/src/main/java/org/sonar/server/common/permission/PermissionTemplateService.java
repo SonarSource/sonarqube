@@ -30,13 +30,14 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -53,7 +54,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.security.DefaultGroups.isAnyone;
-import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 
 @ServerSide
@@ -179,7 +179,7 @@ public class PermissionTemplateService {
   }
 
   private static boolean permissionValidForProject(boolean isPrivateEntity, String permission) {
-    return isPrivateEntity || !PUBLIC_PERMISSIONS.contains(permission);
+    return isPrivateEntity || !ProjectPermission.isPublic(permission);
   }
 
   private static boolean groupNameValidForProject(boolean isPrivateEntity, String groupName) {
@@ -226,7 +226,7 @@ public class PermissionTemplateService {
   private static void checkAtMostOneMatchForComponentKey(String componentKey, List<PermissionTemplateDto> matchingTemplates) {
     if (matchingTemplates.size() > 1) {
       StringBuilder templatesNames = new StringBuilder();
-      for (Iterator<PermissionTemplateDto> it = matchingTemplates.iterator(); it.hasNext(); ) {
+      for (Iterator<PermissionTemplateDto> it = matchingTemplates.iterator(); it.hasNext();) {
         templatesNames.append("\"").append(it.next().getName()).append("\"");
         if (it.hasNext()) {
           templatesNames.append(", ");

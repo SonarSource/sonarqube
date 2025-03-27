@@ -29,16 +29,16 @@ import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sonar.alm.client.github.GithubPermissionConverter;
-import org.sonar.api.web.UserRole;
 import org.sonar.auth.github.AppInstallationToken;
 import org.sonar.auth.github.GitHubSettings;
+import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.auth.github.GsonRepositoryCollaborator;
 import org.sonar.auth.github.GsonRepositoryPermissions;
 import org.sonar.auth.github.GsonRepositoryTeam;
-import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.db.DbClient;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.provisioning.DevOpsPermissionsMappingDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
@@ -125,7 +125,8 @@ class GithubProjectCreatorTest {
     when(gitHubSettings.getDevOpsPlatform()).thenReturn(GITHUB.getKey());
 
     ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
-    githubProjectCreator = new GithubProjectCreator(dbClient, devOpsProjectCreationContext, projectKeyGenerator, gitHubSettings, projectCreator, permissionService, permissionUpdater,
+    githubProjectCreator = new GithubProjectCreator(dbClient, devOpsProjectCreationContext, projectKeyGenerator, gitHubSettings, projectCreator, permissionService,
+      permissionUpdater,
       managedProjectService, githubApplicationClient, githubPermissionConverter, authAppInstallationToken);
 
   }
@@ -146,7 +147,7 @@ class GithubProjectCreatorTest {
 
   @Test
   void isScanAllowedUsingPermissionsFromDevopsPlatform_whenCollaboratorHasDirectAccessButNoScanPermissions_returnsFalse() {
-    GsonRepositoryCollaborator collaborator1 = mockCollaborator("collaborator1", 1, "role1", "read", "admin");
+    GsonRepositoryCollaborator collaborator1 = mockCollaborator("collaborator1", 1, "role1", ProjectPermission.USER, ProjectPermission.ADMIN);
     mockGithubCollaboratorsFromApi(collaborator1);
     bindSessionToCollaborator(collaborator1);
 
@@ -155,8 +156,8 @@ class GithubProjectCreatorTest {
 
   @Test
   void isScanAllowedUsingPermissionsFromDevopsPlatform_whenCollaboratorHasDirectAccess_returnsTrue() {
-    GsonRepositoryCollaborator collaborator1 = mockCollaborator("collaborator1", 1, "role1", "read", "admin");
-    GsonRepositoryCollaborator collaborator2 = mockCollaborator("collaborator2", 2, "role2", "read", "scan");
+    GsonRepositoryCollaborator collaborator1 = mockCollaborator("collaborator1", 1, "role1", ProjectPermission.USER, ProjectPermission.ADMIN);
+    GsonRepositoryCollaborator collaborator2 = mockCollaborator("collaborator2", 2, "role2", ProjectPermission.USER, ProjectPermission.SCAN);
     mockGithubCollaboratorsFromApi(collaborator1, collaborator2);
     bindSessionToCollaborator(collaborator2);
 
@@ -165,7 +166,7 @@ class GithubProjectCreatorTest {
 
   @Test
   void isScanAllowedUsingPermissionsFromDevopsPlatform_whenAccessViaTeamButNoScanPermissions_returnsFalse() {
-    GsonRepositoryTeam team2 = mockGithubTeam("team2", 2, "role2", "another_perm", UserRole.ADMIN);
+    GsonRepositoryTeam team2 = mockGithubTeam("team2", 2, "role2", ProjectPermission.ISSUE_ADMIN, ProjectPermission.ADMIN);
     mockTeamsFromApi(team2);
     bindGroupsToUser(team2.name());
 
@@ -174,8 +175,8 @@ class GithubProjectCreatorTest {
 
   @Test
   void isScanAllowedUsingPermissionsFromDevopsPlatform_whenAccessViaTeam_returnsTrue() {
-    GsonRepositoryTeam team1 = mockGithubTeam("team1", 1, "role1", "read", "another_perm");
-    GsonRepositoryTeam team2 = mockGithubTeam("team2", 2, "role2", "another_perm", UserRole.SCAN);
+    GsonRepositoryTeam team1 = mockGithubTeam("team1", 1, "role1", ProjectPermission.USER, ProjectPermission.ISSUE_ADMIN);
+    GsonRepositoryTeam team2 = mockGithubTeam("team2", 2, "role2", ProjectPermission.ISSUE_ADMIN, ProjectPermission.SCAN);
     mockTeamsFromApi(team1, team2);
     bindGroupsToUser(team1.name(), team2.name());
 
@@ -184,8 +185,8 @@ class GithubProjectCreatorTest {
 
   @Test
   void isScanAllowedUsingPermissionsFromDevopsPlatform_whenAccessViaTeamButUserNotInTeam_returnsFalse() {
-    GsonRepositoryTeam team1 = mockGithubTeam("team1", 1, "role1", "read", "another_perm");
-    GsonRepositoryTeam team2 = mockGithubTeam("team2", 2, "role2", "another_perm", UserRole.SCAN);
+    GsonRepositoryTeam team1 = mockGithubTeam("team1", 1, "role1", ProjectPermission.USER, ProjectPermission.ISSUE_ADMIN);
+    GsonRepositoryTeam team2 = mockGithubTeam("team2", 2, "role2", ProjectPermission.ISSUE_ADMIN, ProjectPermission.SCAN);
     mockTeamsFromApi(team1, team2);
     bindGroupsToUser(team1.name());
 
@@ -197,7 +198,7 @@ class GithubProjectCreatorTest {
     when(userSession.getExternalIdentity()).thenReturn(Optional.of(externalIdentity));
   }
 
-  private GsonRepositoryCollaborator mockCollaborator(String collaboratorLogin, int id, String role1, String... sqPermissions) {
+  private GsonRepositoryCollaborator mockCollaborator(String collaboratorLogin, int id, String role1, ProjectPermission... sqPermissions) {
     GsonRepositoryCollaborator collaborator = new GsonRepositoryCollaborator(collaboratorLogin, id, role1,
       new GsonRepositoryPermissions(false, false, false, false, false));
     mockPermissionsConversion(collaborator, sqPermissions);
@@ -210,7 +211,7 @@ class GithubProjectCreatorTest {
       collaborators);
   }
 
-  private GsonRepositoryTeam mockGithubTeam(String name, int id, String role, String... sqPermissions) {
+  private GsonRepositoryTeam mockGithubTeam(String name, int id, String role, ProjectPermission... sqPermissions) {
     GsonRepositoryTeam gsonRepositoryTeam = new GsonRepositoryTeam(name, id, name + "slug", role, new GsonRepositoryPermissions(false, false, false, false, false));
     mockPermissionsConversion(gsonRepositoryTeam, sqPermissions);
     return gsonRepositoryTeam;
@@ -221,13 +222,13 @@ class GithubProjectCreatorTest {
       .thenReturn(Arrays.stream(repositoryTeams).collect(toSet()));
   }
 
-  private void mockPermissionsConversion(GsonRepositoryCollaborator collaborator, String... sqPermissions) {
+  private void mockPermissionsConversion(GsonRepositoryCollaborator collaborator, ProjectPermission... sqPermissions) {
     Set<DevOpsPermissionsMappingDto> devOpsPermissionsMappingDtos = mockPermissionsMappingsDtos();
     lenient().when(githubPermissionConverter.toSonarqubeRolesWithFallbackOnRepositoryPermissions(devOpsPermissionsMappingDtos, collaborator.roleName(), collaborator.permissions()))
       .thenReturn(Arrays.stream(sqPermissions).collect(toSet()));
   }
 
-  private void mockPermissionsConversion(GsonRepositoryTeam team, String... sqPermissions) {
+  private void mockPermissionsConversion(GsonRepositoryTeam team, ProjectPermission... sqPermissions) {
     Set<DevOpsPermissionsMappingDto> devOpsPermissionsMappingDtos = mockPermissionsMappingsDtos();
     lenient().when(githubPermissionConverter.toSonarqubeRolesWithFallbackOnRepositoryPermissions(devOpsPermissionsMappingDtos, team.permission(), team.permissions()))
       .thenReturn(Arrays.stream(sqPermissions).collect(toSet()));

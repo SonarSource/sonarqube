@@ -19,5 +19,20 @@
  */
 package org.sonar.db.provisioning;
 
+import org.apache.ibatis.annotations.AutomapConstructor;
+import org.sonar.db.permission.ProjectPermission;
+
 public record DevOpsPermissionsMappingDto(String uuid, String devOpsPlatform, String role, String sonarqubePermission) {
+
+  @AutomapConstructor
+  public DevOpsPermissionsMappingDto {
+  }
+
+  public DevOpsPermissionsMappingDto(String uuid, String devOpsPlatform, String role, ProjectPermission sonarqubePermission) {
+    this(uuid, devOpsPlatform, role, sonarqubePermission.getKey());
+  }
+
+  public ProjectPermission projectPermission() {
+    return ProjectPermission.fromKey(sonarqubePermission);
+  }
 }

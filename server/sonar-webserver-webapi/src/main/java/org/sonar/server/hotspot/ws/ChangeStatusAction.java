@@ -27,7 +27,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
@@ -115,7 +115,7 @@ public class ChangeStatusAction implements HotspotsWsAction {
     String newResolution = resolutionParam(request, newStatus);
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto hotspot = hotspotWsSupport.loadHotspot(dbSession, hotspotKey);
-      hotspotWsSupport.loadAndCheckBranch(dbSession, hotspot, UserRole.SECURITYHOTSPOT_ADMIN);
+      hotspotWsSupport.loadAndCheckBranch(dbSession, hotspot, ProjectPermission.SECURITYHOTSPOT_ADMIN);
 
       if (needStatusUpdate(hotspot, newStatus, newResolution)) {
         String transitionKey = toTransitionKey(newStatus, newResolution);

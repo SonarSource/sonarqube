@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Locale;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -33,6 +32,8 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.core.i18n.I18n;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.permission.template.CountByTemplateAndPermissionDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -130,14 +131,14 @@ public class SearchTemplatesAction implements PermissionsWsAction {
         .setUpdatedAt(formatDateTime(templateDto.getUpdatedAt()));
       ofNullable(templateDto.getKeyPattern()).ifPresent(templateBuilder::setProjectKeyPattern);
       ofNullable(templateDto.getDescription()).ifPresent(templateBuilder::setDescription);
-      for (String permission : permissionService.getAllProjectPermissions()) {
+      for (ProjectPermission permission : permissionService.getAllProjectPermissions()) {
         templateBuilder.addPermissions(
           permissionResponse
             .clear()
-            .setKey(permission)
-            .setUsersCount(data.userCount(templateDto.getUuid(), permission))
-            .setGroupsCount(data.groupCount(templateDto.getUuid(), permission))
-            .setWithProjectCreator(data.withProjectCreator(templateDto.getUuid(), permission)));
+            .setKey(permission.getKey())
+            .setUsersCount(data.userCount(templateDto.getUuid(), permission.getKey()))
+            .setGroupsCount(data.groupCount(templateDto.getUuid(), permission.getKey()))
+            .setWithProjectCreator(data.withProjectCreator(templateDto.getUuid(), permission.getKey())));
       }
       response.addPermissionTemplates(templateBuilder);
     }
@@ -155,13 +156,13 @@ public class SearchTemplatesAction implements PermissionsWsAction {
 
   private void buildPermissionsResponse(SearchTemplatesWsResponse.Builder response) {
     Permission.Builder permissionResponse = Permission.newBuilder();
-    for (String permissionKey : permissionService.getAllProjectPermissions()) {
+    for (ProjectPermission permissionKey : permissionService.getAllProjectPermissions()) {
       response.addPermissions(
         permissionResponse
           .clear()
-          .setKey(permissionKey)
-          .setName(i18nName(permissionKey))
-          .setDescription(i18nDescriptionMessage(permissionKey)));
+          .setKey(permissionKey.getKey())
+          .setName(i18nName(permissionKey.getKey()))
+          .setDescription(i18nDescriptionMessage(permissionKey.getKey())));
     }
   }
 

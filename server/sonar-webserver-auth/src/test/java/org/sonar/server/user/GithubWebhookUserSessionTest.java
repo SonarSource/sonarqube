@@ -22,6 +22,7 @@ package org.sonar.server.user;
 import java.util.Arrays;
 import org.junit.Test;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -96,22 +97,26 @@ public class GithubWebhookUserSessionTest {
 
   @Test
   public void hasProjectUuidPermission() {
-    assertThat(githubWebhookUserSession.hasEntityUuidPermission("perm", "project")).isFalse();
+    Arrays.stream(ProjectPermission.values()).forEach(projectPermission ->
+      assertThat(githubWebhookUserSession.hasEntityUuidPermission(projectPermission, "project")).isFalse());
   }
 
   @Test
   public void hasChildProjectsPermission() {
-    assertThat(githubWebhookUserSession.hasChildProjectsPermission("perm", "project")).isFalse();
+    Arrays.stream(ProjectPermission.values()).forEach(projectPermission ->
+      assertThat(githubWebhookUserSession.hasChildProjectsPermission(projectPermission, "project")).isFalse());
   }
 
   @Test
   public void hasPortfolioChildProjectsPermission() {
-    assertThat(githubWebhookUserSession.hasPortfolioChildProjectsPermission("perm", "project")).isFalse();
+    Arrays.stream(ProjectPermission.values()).forEach(projectPermission ->
+      assertThat(githubWebhookUserSession.hasPortfolioChildProjectsPermission(projectPermission, "project")).isFalse());
   }
 
   @Test
   public void hasComponentUuidPermission_returnsAlwaysTrue() {
-    assertThat(githubWebhookUserSession.hasComponentUuidPermission("perm", "project")).isTrue();
+    Arrays.stream(ProjectPermission.values()).forEach(projectPermission ->
+      assertThat(githubWebhookUserSession.hasComponentUuidPermission(projectPermission, "project")).isTrue());
   }
 
   @Test

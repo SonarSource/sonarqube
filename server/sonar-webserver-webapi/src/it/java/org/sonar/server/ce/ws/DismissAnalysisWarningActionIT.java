@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
@@ -104,7 +104,7 @@ public class DismissAnalysisWarningActionIT {
   public void return_204_on_success() {
     UserDto user = db.users().insertUser();
     ProjectData project = db.components().insertPrivateProject();
-    userSession.logIn(user).addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.logIn(user).addProjectPermission(ProjectPermission.USER, project.getProjectDto());
     SnapshotDto analysis = db.components().insertSnapshot(project.getMainBranchComponent());
     CeActivityDto activity = insertActivity("task-uuid" + counter++, project.getMainBranchComponent(), SUCCESS, analysis, REPORT);
     CeTaskMessageDto taskMessageDismissible = createTaskMessage(activity, "dismissable warning", MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
@@ -124,7 +124,7 @@ public class DismissAnalysisWarningActionIT {
   public void is_idempotent() {
     UserDto user = db.users().insertUser();
     ProjectData project = db.components().insertPrivateProject();
-    userSession.logIn(user).addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.logIn(user).addProjectPermission(ProjectPermission.USER, project.getProjectDto());
     SnapshotDto analysis = db.components().insertSnapshot(project.getMainBranchComponent());
     CeActivityDto activity = insertActivity("task-uuid" + counter++, project.getMainBranchComponent(), SUCCESS, analysis, REPORT);
     CeTaskMessageDto taskMessageDismissible = createTaskMessage(activity, "dismissable warning", MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
@@ -148,7 +148,7 @@ public class DismissAnalysisWarningActionIT {
   public void returns_400_if_warning_is_not_dismissable() {
     UserDto user = db.users().insertUser();
     ProjectData project = db.components().insertPrivateProject();
-    userSession.logIn(user).addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.logIn(user).addProjectPermission(ProjectPermission.USER, project.getProjectDto());
     SnapshotDto analysis = db.components().insertSnapshot(project.getMainBranchComponent());
     CeActivityDto activity = insertActivity("task-uuid" + counter++, project.getMainBranchComponent(), SUCCESS, analysis, REPORT);
     CeTaskMessageDto taskMessage = createTaskMessage(activity, "generic warning");
@@ -167,7 +167,7 @@ public class DismissAnalysisWarningActionIT {
   public void returns_404_if_warning_does_not_exist() {
     UserDto user = db.users().insertUser();
     ProjectData project = db.components().insertPrivateProject();
-    userSession.logIn(user).addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.logIn(user).addProjectPermission(ProjectPermission.USER, project.getProjectDto());
     SnapshotDto analysis = db.components().insertSnapshot(project.getMainBranchComponent());
     insertActivity("task-uuid" + counter++, project.getMainBranchComponent(), SUCCESS, analysis, REPORT);
     String warningUuid = "78d1e2ff-3e67-4037-ba58-0d57d5f88e44";

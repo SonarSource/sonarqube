@@ -64,6 +64,10 @@ public class GroupPermissionDto {
     return role;
   }
 
+  public GroupPermissionDto setRole(ProjectPermission permission) {
+    return setRole(permission.getKey());
+  }
+
   public GroupPermissionDto setRole(String role) {
     this.role = role;
     return this;

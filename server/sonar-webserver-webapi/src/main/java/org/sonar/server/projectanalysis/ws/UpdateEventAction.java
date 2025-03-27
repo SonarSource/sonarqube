@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -131,7 +131,7 @@ public class UpdateEventAction implements ProjectAnalysesWsAction {
   }
 
   private Consumer<EventDto> checkPermissions() {
-    return event -> userSession.checkComponentUuidPermission(UserRole.ADMIN, event.getComponentUuid());
+    return event -> userSession.checkComponentUuidPermission(ProjectPermission.ADMIN, event.getComponentUuid());
   }
 
   private Consumer<EventDto> checkNonConflictingOtherEvents(DbSession dbSession) {

@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mockito.InjectMocks;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.user.UserSession;
@@ -92,7 +92,7 @@ public class SettingsWsSupportTest {
     openMocks(this);
     when(userSession.isSystemAdministrator()).thenReturn(isAdmin);
     when(userSession.hasPermission(GlobalPermission.SCAN)).thenReturn(hasGlobalPermission);
-    when(userSession.hasEntityPermission(UserRole.SCAN, componentDto)).thenReturn(hasComponentPermission);
+    when(userSession.hasEntityPermission(ProjectPermission.SCAN, componentDto)).thenReturn(hasComponentPermission);
 
     boolean isVisible = settingsWsSupport.isVisible(property, Optional.of(componentDto));
     assertThat(isVisible).isEqualTo(expectedIsVisible);

@@ -24,7 +24,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
@@ -78,7 +78,7 @@ public class TokenRenewAction implements ProjectBadgesWsAction {
 
       ProjectDto projectDto = dbClient.projectDao().selectProjectOrAppByKey(dbSession, projectKey)
         .orElseThrow(() -> new IllegalArgumentException(PROJECT_OR_APP_NOT_FOUND));
-      userSession.checkEntityPermission(UserRole.ADMIN, projectDto);
+      userSession.checkEntityPermission(ProjectPermission.ADMIN, projectDto);
       String newGeneratedToken = tokenGenerator.generate(TokenType.PROJECT_BADGE_TOKEN);
       dbClient.projectBadgeTokenDao().upsert(dbSession, newGeneratedToken, projectDto, userSession.getUuid(), userSession.getLogin());
       dbSession.commit();

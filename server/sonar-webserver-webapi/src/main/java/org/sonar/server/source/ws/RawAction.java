@@ -27,7 +27,7 @@ import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -89,7 +89,7 @@ public class RawAction implements SourcesWsAction {
     String pullRequest = request.param(PARAM_PULL_REQUEST);
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto file = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, fileKey, branch, pullRequest);
-      userSession.checkComponentPermission(UserRole.CODEVIEWER, file);
+      userSession.checkComponentPermission(ProjectPermission.CODEVIEWER, file);
 
       Optional<Iterable<String>> lines = sourceService.getLinesAsRawText(dbSession, file.uuid(), 1, Integer.MAX_VALUE);
       response.stream().setMediaType("text/plain");

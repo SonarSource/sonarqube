@@ -57,7 +57,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Stream.concat;
-import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
 import static org.sonar.server.issue.AssignAction.ASSIGN_KEY;
 import static org.sonar.server.issue.CommentAction.COMMENT_KEY;
 import static org.sonar.server.issue.SetSeverityAction.SET_SEVERITY_KEY;

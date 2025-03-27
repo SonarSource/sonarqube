@@ -22,7 +22,7 @@ package org.sonar.server.projectanalysis.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -73,7 +73,7 @@ public class DeleteEventAction implements ProjectAnalysesWsAction {
     String eventP = request.mandatoryParam(PARAM_EVENT);
     try (DbSession dbSession = dbClient.openSession(false)) {
       EventDto event = getEvent(dbSession, eventP);
-      userSession.checkComponentUuidPermission(UserRole.ADMIN, event.getComponentUuid());
+      userSession.checkComponentUuidPermission(ProjectPermission.ADMIN, event.getComponentUuid());
       checkModifiable().accept(event);
       deleteEvent(dbSession, event);
     }

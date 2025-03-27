@@ -24,7 +24,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -89,7 +89,7 @@ public class AppAction implements ComponentsWsAction {
   public void handle(Request request, Response response) {
     try (DbSession session = dbClient.openSession(false)) {
       ComponentDto component = loadComponent(session, request);
-      userSession.checkComponentPermission(UserRole.USER, component);
+      userSession.checkComponentPermission(ProjectPermission.USER, component);
 
       EntityDto entity = dbClient.entityDao().selectByComponentUuid(session, component.uuid())
         .orElseThrow(() -> new IllegalStateException("Couldn't find entity for component " + component.uuid()));

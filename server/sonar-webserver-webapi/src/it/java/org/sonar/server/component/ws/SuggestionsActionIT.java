@@ -66,7 +66,7 @@ import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 import static org.sonar.db.component.ComponentQualifiers.SUBVIEW;
 import static org.sonar.db.component.ComponentQualifiers.UNIT_TEST_FILE;
 import static org.sonar.db.component.ComponentQualifiers.VIEW;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_MORE;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_QUERY;

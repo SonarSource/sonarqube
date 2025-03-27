@@ -26,8 +26,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.db.component.ComponentScopes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.i18n.I18n;
 import org.sonar.core.util.UuidFactory;
@@ -36,6 +34,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.component.ComponentScopes;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.portfolio.PortfolioDto.SelectionMode;
 import org.sonar.db.project.CreationMethod;
@@ -54,9 +55,9 @@ import org.sonar.server.project.DefaultBranchNameResolver;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.singletonList;
-import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
 import static org.sonar.core.component.ComponentKeys.ALLOWED_CHARACTERS_MESSAGE;
 import static org.sonar.core.component.ComponentKeys.isValidProjectKey;
+import static org.sonar.db.permission.ProjectPermission.PUBLIC_PERMISSIONS;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.exceptions.BadRequestException.throwBadRequestException;
 
@@ -169,8 +170,8 @@ public class ComponentUpdater {
     }
   }
 
-  private UserPermissionChange toUserPermissionChange(String permission, ProjectDto projectDto, UserDto userDto) {
-    return new UserPermissionChange(Operation.ADD, permission, projectDto, userDto, permissionService);
+  private UserPermissionChange toUserPermissionChange(ProjectPermission permission, ProjectDto projectDto, UserDto userDto) {
+    return new UserPermissionChange(Operation.ADD, permission.getKey(), projectDto, userDto, permissionService);
   }
 
   private void addToFavourites(DbSession dbSession, ProjectDto projectDto, @Nullable String userUuid, @Nullable String userLogin) {

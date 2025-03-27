@@ -57,7 +57,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.developers.ws.SearchEventsAction.PARAM_FROM;
 import static org.sonar.server.developers.ws.SearchEventsAction.PARAM_PROJECTS;

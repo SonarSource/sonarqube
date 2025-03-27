@@ -20,27 +20,27 @@
 package org.sonar.db.permission;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
 
-public enum GlobalPermission {
+public enum ProjectPermission {
 
-  ADMINISTER("admin"),
-  ADMINISTER_QUALITY_GATES("gateadmin"),
-  ADMINISTER_QUALITY_PROFILES("profileadmin"),
-  PROVISION_PROJECTS("provisioning"),
-  SCAN("scan"),
+  USER("user"),
+  ADMIN("admin"),
+  CODEVIEWER("codeviewer"),
+  ISSUE_ADMIN("issueadmin"),
+  SECURITYHOTSPOT_ADMIN("securityhotspotadmin"),
+  SCAN("scan");
 
   /**
-   * @since 7.4
+   * Permissions which are implicitly available for any user, any group on public projects.
    */
-  APPLICATION_CREATOR("applicationcreator"),
-  PORTFOLIO_CREATOR("portfoliocreator");
-
-  public static final String ALL_ON_ONE_LINE = Arrays.stream(values()).map(GlobalPermission::getKey).collect(Collectors.joining(", "));
+  public static final Set<ProjectPermission> PUBLIC_PERMISSIONS = Collections.unmodifiableSet(EnumSet.of(ProjectPermission.USER, ProjectPermission.CODEVIEWER));
 
   private final String key;
 
-  GlobalPermission(String key) {
+  ProjectPermission(String key) {
     this.key = key;
   }
 
@@ -53,16 +53,25 @@ public enum GlobalPermission {
     return key;
   }
 
-  public static GlobalPermission fromKey(String key) {
-    for (GlobalPermission p : values()) {
+  public static ProjectPermission fromKey(String key) {
+    for (ProjectPermission p : values()) {
       if (p.getKey().equals(key)) {
         return p;
       }
     }
-    throw new IllegalArgumentException("Unsupported global permission: " + key);
+    throw new IllegalArgumentException("Unsupported project permission: " + key);
   }
 
   public static boolean contains(String key) {
     return Arrays.stream(values()).anyMatch(v -> v.getKey().equals(key));
   }
+
+  public static boolean isPublic(ProjectPermission permission) {
+    return PUBLIC_PERMISSIONS.contains(permission);
+  }
+
+  public static boolean isPublic(String permissionKey) {
+    return PUBLIC_PERMISSIONS.stream().anyMatch(p -> p.getKey().equals(permissionKey));
+  }
+
 }

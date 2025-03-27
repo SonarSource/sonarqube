@@ -24,7 +24,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
@@ -82,7 +82,7 @@ public class ComponentAction implements CeWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String entityKey = wsRequest.mandatoryParam(PARAM_COMPONENT);
       EntityDto entityDto = componentFinder.getEntityByKey(dbSession, entityKey);
-      userSession.checkEntityPermission(UserRole.USER, entityDto);
+      userSession.checkEntityPermission(ProjectPermission.USER, entityDto);
       List<CeQueueDto> queueDtos = dbClient.ceQueueDao().selectByEntityUuid(dbSession, entityDto.getUuid());
       CeTaskQuery activityQuery = new CeTaskQuery()
         .setEntityUuid(entityDto.getUuid())

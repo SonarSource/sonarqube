@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -93,7 +93,7 @@ public class ActivityStatusActionIT {
     String anotherProjectKey = "another-project-key";
     ProjectData project = db.components().insertPrivateProject(c -> c.setKey(projectKey));
     ProjectData anotherProject = db.components().insertPrivateProject(c -> c.setKey(anotherProjectKey));
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project.getProjectDto());
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project.getProjectDto());
     // pending tasks returned
     insertInQueue(CeQueueDto.Status.PENDING, project);
     insertInQueue(CeQueueDto.Status.PENDING, project);
@@ -119,7 +119,7 @@ public class ActivityStatusActionIT {
     String projectKey = "project-key";
     ProjectData project = db.components().insertPrivateProject(c -> c.setKey(projectKey));
 
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project.getProjectDto());
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project.getProjectDto());
     when(system2.now()).thenReturn(2000L);
     insertInQueue(CeQueueDto.Status.PENDING, project, 1000L);
     Ce.ActivityStatusWsResponse result = callByComponentKey(projectKey);

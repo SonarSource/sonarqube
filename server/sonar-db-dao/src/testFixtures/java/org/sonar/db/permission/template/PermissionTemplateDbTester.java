@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
@@ -68,8 +69,16 @@ public class PermissionTemplateDbTester {
     return templateInDb;
   }
 
+  public void addGroupToTemplate(PermissionTemplateDto permissionTemplate, GroupDto group, ProjectPermission permission) {
+    addGroupToTemplate(permissionTemplate, group, permission.getKey());
+  }
+
   public void addGroupToTemplate(PermissionTemplateDto permissionTemplate, GroupDto group, String permission) {
     addGroupToTemplate(permissionTemplate.getUuid(), group.getUuid(), permission, permissionTemplate.getName(), group.getName());
+  }
+
+  public void addGroupToTemplate(String templateUuid, @Nullable String groupUuid, ProjectPermission permission, String templateName, @Nullable String groupName) {
+    addGroupToTemplate(templateUuid, groupUuid, permission.getKey(), templateName, groupName);
   }
 
   public void addGroupToTemplate(String templateUuid, @Nullable String groupUuid, String permission, String templateName, @Nullable String groupName) {
@@ -77,12 +86,24 @@ public class PermissionTemplateDbTester {
     db.commit();
   }
 
+  public void addAnyoneToTemplate(PermissionTemplateDto permissionTemplate, ProjectPermission permission) {
+    addAnyoneToTemplate(permissionTemplate, permission.getKey());
+  }
+
   public void addAnyoneToTemplate(PermissionTemplateDto permissionTemplate, String permission) {
     addGroupToTemplate(permissionTemplate.getUuid(), null, permission, permissionTemplate.getName(), null);
   }
 
+  public void addUserToTemplate(PermissionTemplateDto permissionTemplate, UserDto user, ProjectPermission permission) {
+    addUserToTemplate(permissionTemplate, user, permission.getKey());
+  }
+
   public void addUserToTemplate(PermissionTemplateDto permissionTemplate, UserDto user, String permission) {
     addUserToTemplate(permissionTemplate.getUuid(), user.getUuid(), permission, permissionTemplate.getName(), user.getName());
+  }
+
+  public void addUserToTemplate(String templateUuid, String userUuid, ProjectPermission permission, String templateName, String userLogin) {
+    addUserToTemplate(templateUuid, userUuid, permission.getKey(), templateName, userLogin);
   }
 
   public void addUserToTemplate(String templateUuid, String userUuid, String permission, String templateName, String userLogin) {
@@ -90,8 +111,16 @@ public class PermissionTemplateDbTester {
     db.commit();
   }
 
+  public void addProjectCreatorToTemplate(PermissionTemplateDto permissionTemplate, ProjectPermission permission) {
+    addProjectCreatorToTemplate(permissionTemplate, permission.getKey());
+  }
+
   public void addProjectCreatorToTemplate(PermissionTemplateDto permissionTemplate, String permission) {
     addProjectCreatorToTemplate(permissionTemplate.getUuid(), permission, permissionTemplate.getName());
+  }
+
+  public void addProjectCreatorToTemplate(String templateUuid, ProjectPermission permission, String templateName) {
+    addProjectCreatorToTemplate(templateUuid, permission.getKey(), templateName);
   }
 
   public void addProjectCreatorToTemplate(String templateUuid, String permission, String templateName) {

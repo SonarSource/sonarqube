@@ -35,6 +35,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.issue.workflow.FunctionExecutor;
@@ -47,9 +48,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
-import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
 import static org.sonar.db.rule.RuleTesting.newRule;
 
 public class TransitionActionIT {
@@ -124,7 +125,7 @@ public class TransitionActionIT {
     return IssueTesting.newIssue(rule, project, file);
   }
 
-  private void loginAndAddProjectPermission(String login, String permission) {
+  private void loginAndAddProjectPermission(String login, ProjectPermission permission) {
     ProjectDto projectDto = ComponentTesting.newProjectDto();
     BranchDto branchDto = ComponentTesting.newBranchDto(projectDto.getUuid(), BranchType.BRANCH).setIsMain(true).setUuid(issue.projectUuid());
     userSession.logIn(login).addProjectPermission(permission, projectDto)

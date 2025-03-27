@@ -126,6 +126,10 @@ public class AuthorizationDao implements Dao {
     return mapper(dbSession).countUsersWithGlobalPermissionExcludingUserPermission(permission, userUuid);
   }
 
+  public Set<String> keepAuthorizedEntityUuids(DbSession dbSession, Collection<String> entityUuids, @Nullable String userUuid, ProjectPermission permission) {
+    return keepAuthorizedEntityUuids(dbSession, entityUuids, userUuid, permission.getKey());
+  }
+
   public Set<String> keepAuthorizedEntityUuids(DbSession dbSession, Collection<String> entityUuids, @Nullable String userUuid, String permission) {
     return executeLargeInputsIntoSet(
       entityUuids,
@@ -142,10 +146,15 @@ public class AuthorizationDao implements Dao {
    * Keep only authorized user that have the given permission on a given entity.
    * Please Note that if the permission is 'Anyone' is NOT taking into account by this method.
    */
-  public Collection<String> keepAuthorizedUsersForRoleAndEntity(DbSession dbSession, Collection<String> userUuids, String role, String entityUuid) {
+  public Collection<String> keepAuthorizedUsersForRoleAndEntity(DbSession dbSession, Collection<String> userUuids, ProjectPermission permission, String entityUuid) {
+    return keepAuthorizedUsersForRoleAndEntity(dbSession, userUuids, permission.getKey(), entityUuid);
+  }
+
+
+  public Collection<String> keepAuthorizedUsersForRoleAndEntity(DbSession dbSession, Collection<String> userUuids, String permission, String entityUuid) {
     return executeLargeInputs(
       userUuids,
-      partitionOfIds -> mapper(dbSession).keepAuthorizedUsersForRoleAndEntity(role, entityUuid, partitionOfIds),
+      partitionOfIds -> mapper(dbSession).keepAuthorizedUsersForRoleAndEntity(permission, entityUuid, partitionOfIds),
       partitionSize -> partitionSize / 3);
   }
 
@@ -159,6 +168,10 @@ public class AuthorizationDao implements Dao {
 
   public Set<EmailSubscriberDto> selectGlobalAdministerEmailSubscribers(DbSession dbSession) {
     return mapper(dbSession).selectEmailSubscribersWithGlobalPermission(ADMINISTER.getKey());
+  }
+
+  public Set<String> keepAuthorizedLoginsOnEntity(DbSession dbSession, Set<String> logins, String entityKey, ProjectPermission permission) {
+    return keepAuthorizedLoginsOnEntity(dbSession, logins, entityKey, permission.getKey());
   }
 
   public Set<String> keepAuthorizedLoginsOnEntity(DbSession dbSession, Set<String> logins, String entityKey, String permission) {

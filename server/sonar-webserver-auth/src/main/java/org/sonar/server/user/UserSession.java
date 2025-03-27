@@ -27,6 +27,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.GroupDto;
 
 import static java.util.Objects.requireNonNull;
@@ -144,27 +145,27 @@ public interface UserSession {
    * @param component  non-null component.
    * @param permission project permission as defined by {@link org.sonar.server.permission.PermissionService}
    */
-  boolean hasComponentPermission(String permission, ComponentDto component);
+  boolean hasComponentPermission(ProjectPermission permission, ComponentDto component);
 
-  boolean hasEntityPermission(String permission, EntityDto entity);
+  boolean hasEntityPermission(ProjectPermission permission, EntityDto entity);
 
-  boolean hasEntityPermission(String permission, String entityUuid);
+  boolean hasEntityPermission(ProjectPermission permission, String entityUuid);
 
-  boolean hasChildProjectsPermission(String permission, ComponentDto component);
+  boolean hasChildProjectsPermission(ProjectPermission permission, ComponentDto component);
 
-  boolean hasChildProjectsPermission(String permission, EntityDto application);
+  boolean hasChildProjectsPermission(ProjectPermission permission, EntityDto application);
 
-  boolean hasPortfolioChildProjectsPermission(String permission, ComponentDto component);
+  boolean hasPortfolioChildProjectsPermission(ProjectPermission permission, ComponentDto component);
 
   /**
-   * Using {@link #hasComponentPermission(String, ComponentDto)} is recommended
+   * Using {@link #hasComponentPermission(ProjectPermission, ComponentDto)} is recommended
    * because it does not have to load project if the referenced component
    * is not a project.
    *
-   * @deprecated use {@link #hasComponentPermission(String, ComponentDto)} instead
+   * @deprecated use {@link #hasComponentPermission(ProjectPermission, ComponentDto)} instead
    */
   @Deprecated
-  boolean hasComponentUuidPermission(String permission, String componentUuid);
+  boolean hasComponentUuidPermission(ProjectPermission permission, String componentUuid);
 
   /**
    * Return the subset of specified components which the user has granted permission.
@@ -173,50 +174,50 @@ public interface UserSession {
    * If the input is ordered, then the returned components are in the same order.
    * The duplicated components are returned duplicated too.
    */
-  List<ComponentDto> keepAuthorizedComponents(String permission, Collection<ComponentDto> components);
+  List<ComponentDto> keepAuthorizedComponents(ProjectPermission permission, Collection<ComponentDto> components);
 
-  <T extends EntityDto> List<T> keepAuthorizedEntities(String permission, Collection<T> components);
+  <T extends EntityDto> List<T> keepAuthorizedEntities(ProjectPermission permission, Collection<T> components);
 
   /**
-   * Ensures that {@link #hasComponentPermission(String, ComponentDto)} is {@code true},
+   * Ensures that {@link #hasComponentPermission(ProjectPermission, ComponentDto)} is {@code true},
    * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
-  UserSession checkComponentPermission(String projectPermission, ComponentDto component);
+  UserSession checkComponentPermission(ProjectPermission projectPermission, ComponentDto component);
 
   /**
    * Ensures that {@link #hasEntityPermission(String, EntityDto)} is {@code true},
    * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
-  UserSession checkEntityPermission(String projectPermission, EntityDto entity);
+  UserSession checkEntityPermission(ProjectPermission projectPermission, EntityDto entity);
 
   /**
    * Ensures that {@link #hasEntityPermission(String, EntityDto)} is {@code true},
    * otherwise throws a {@link org.sonar.server.exceptions.ResourceForbiddenException}.
    * <p>
-   * Differs from {@link #checkEntityPermission(String, EntityDto)} by throwing a different exception (ensuring no resource listing is possible).
+   * Differs from {@link #checkEntityPermission(ProjectPermission, EntityDto)} by throwing a different exception (ensuring no resource listing is possible).
    */
-  UserSession checkEntityPermissionOrElseThrowResourceForbiddenException(String projectPermission, EntityDto entity);
+  UserSession checkEntityPermissionOrElseThrowResourceForbiddenException(ProjectPermission projectPermission, EntityDto entity);
 
   /**
-   * Ensures that {@link #hasChildProjectsPermission(String, ComponentDto)} is {@code true}
+   * Ensures that {@link #hasChildProjectsPermission(ProjectPermission, ComponentDto)} is {@code true}
    * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
-  UserSession checkChildProjectsPermission(String projectPermission, ComponentDto project);
+  UserSession checkChildProjectsPermission(ProjectPermission projectPermission, ComponentDto project);
 
   /**
-   * Ensures that {@link #hasChildProjectsPermission(String, EntityDto)} is {@code true}
+   * Ensures that {@link #hasChildProjectsPermission(ProjectPermission, EntityDto)} is {@code true}
    * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
-  UserSession checkChildProjectsPermission(String projectPermission, EntityDto application);
+  UserSession checkChildProjectsPermission(ProjectPermission projectPermission, EntityDto application);
 
   /**
-   * Ensures that {@link #hasComponentUuidPermission(String, String)} is {@code true},
+   * Ensures that {@link #hasComponentUuidPermission(ProjectPermission, String)} is {@code true},
    * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    *
-   * @deprecated use {@link #checkComponentPermission(String, ComponentDto)} instead
+   * @deprecated use {@link #checkComponentPermission(ProjectPermission, ComponentDto)} instead
    */
   @Deprecated
-  UserSession checkComponentUuidPermission(String permission, String componentUuid);
+  UserSession checkComponentUuidPermission(ProjectPermission permission, String componentUuid);
 
   /**
    * Whether user can administrate system, for example for using cross-organizations services

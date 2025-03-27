@@ -26,7 +26,7 @@ import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -114,7 +114,7 @@ public class ComponentServiceUpdateKeyIT {
   @Test
   public void fail_to_update_project_key_without_admin_permission() {
     ProjectDto project = insertSampleProject();
-    userSession.logIn("john").addProjectPermission(UserRole.USER, project);
+    userSession.logIn("john").addProjectPermission(ProjectPermission.USER, project);
 
     assertThatThrownBy(() -> underTest.updateKey(dbSession, project, "sample2:root"))
       .isInstanceOf(ForbiddenException.class);
@@ -167,6 +167,6 @@ public class ComponentServiceUpdateKeyIT {
   }
 
   private void logInAsProjectAdministrator(ProjectDto provisionedProject) {
-    userSession.logIn("john").addProjectPermission(UserRole.ADMIN, provisionedProject);
+    userSession.logIn("john").addProjectPermission(ProjectPermission.ADMIN, provisionedProject);
   }
 }

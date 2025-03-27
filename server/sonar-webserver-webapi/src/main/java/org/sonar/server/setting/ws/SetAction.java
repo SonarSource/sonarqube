@@ -43,7 +43,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
@@ -300,7 +300,7 @@ public class SetAction implements SettingsWsAction {
 
   private void checkPermissions(Optional<EntityDto> entity) {
     if (entity.isPresent()) {
-      userSession.checkEntityPermission(UserRole.ADMIN, entity.get());
+      userSession.checkEntityPermission(ProjectPermission.ADMIN, entity.get());
     } else {
       userSession.checkIsSystemAdministrator();
     }

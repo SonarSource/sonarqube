@@ -23,20 +23,20 @@ import java.util.Date;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.component.ComponentTypesRule;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.l18n.I18nRule;
 import org.sonar.server.common.permission.DefaultTemplatesResolver;
 import org.sonar.server.common.permission.DefaultTemplatesResolverImpl;
+import org.sonar.server.component.ComponentTypesRule;
+import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.l18n.I18nRule;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.ws.BasePermissionWsIT;
@@ -93,12 +93,12 @@ public class SearchTemplatesActionIT extends BasePermissionWsIT<SearchTemplatesA
     GroupDto group2 = db.users().insertGroup();
     GroupDto group3 = db.users().insertGroup();
 
-    addUserToTemplate(projectTemplate.getUuid(), user1.getUuid(), UserRole.ISSUE_ADMIN, projectTemplate.getName(), user1.getLogin());
-    addUserToTemplate(projectTemplate.getUuid(), user2.getUuid(), UserRole.ISSUE_ADMIN, projectTemplate.getName(), user2.getLogin());
-    addUserToTemplate(projectTemplate.getUuid(), user3.getUuid(), UserRole.ISSUE_ADMIN, projectTemplate.getName(), user3.getLogin());
-    addUserToTemplate(projectTemplate.getUuid(), user1.getUuid(), UserRole.CODEVIEWER, projectTemplate.getName(), user1.getLogin());
-    addGroupToTemplate(projectTemplate.getUuid(), group1.getUuid(), UserRole.ADMIN, projectTemplate.getName(), group1.getName());
-    addPermissionTemplateWithProjectCreator(projectTemplate.getUuid(), UserRole.ADMIN, projectTemplate.getName());
+    addUserToTemplate(projectTemplate.getUuid(), user1.getUuid(), ProjectPermission.ISSUE_ADMIN, projectTemplate.getName(), user1.getLogin());
+    addUserToTemplate(projectTemplate.getUuid(), user2.getUuid(), ProjectPermission.ISSUE_ADMIN, projectTemplate.getName(), user2.getLogin());
+    addUserToTemplate(projectTemplate.getUuid(), user3.getUuid(), ProjectPermission.ISSUE_ADMIN, projectTemplate.getName(), user3.getLogin());
+    addUserToTemplate(projectTemplate.getUuid(), user1.getUuid(), ProjectPermission.CODEVIEWER, projectTemplate.getName(), user1.getLogin());
+    addGroupToTemplate(projectTemplate.getUuid(), group1.getUuid(), ProjectPermission.ADMIN, projectTemplate.getName(), group1.getName());
+    addPermissionTemplateWithProjectCreator(projectTemplate.getUuid(), ProjectPermission.ADMIN, projectTemplate.getName());
 
     db.permissionTemplates().setDefaultTemplates(projectTemplate, null, null);
 
@@ -123,18 +123,18 @@ public class SearchTemplatesActionIT extends BasePermissionWsIT<SearchTemplatesA
     GroupDto group2 = db.users().insertGroup();
     GroupDto group3 = db.users().insertGroup();
 
-    addUserToTemplate(projectTemplate.getUuid(), user1.getUuid(), UserRole.ISSUE_ADMIN, projectTemplate.getName(), user1.getLogin());
-    addUserToTemplate(projectTemplate.getUuid(), user2.getUuid(), UserRole.ISSUE_ADMIN, projectTemplate.getName(), user2.getLogin());
-    addUserToTemplate(projectTemplate.getUuid(), user3.getUuid(), UserRole.ISSUE_ADMIN, projectTemplate.getName(), user3.getLogin());
-    addUserToTemplate(projectTemplate.getUuid(), user1.getUuid(), UserRole.CODEVIEWER, projectTemplate.getName(), user1.getLogin());
-    addGroupToTemplate(projectTemplate.getUuid(), group1.getUuid(), UserRole.ADMIN, projectTemplate.getName(), group1.getName());
-    addPermissionTemplateWithProjectCreator(projectTemplate.getUuid(), UserRole.ADMIN, projectTemplate.getName());
+    addUserToTemplate(projectTemplate.getUuid(), user1.getUuid(), ProjectPermission.ISSUE_ADMIN, projectTemplate.getName(), user1.getLogin());
+    addUserToTemplate(projectTemplate.getUuid(), user2.getUuid(), ProjectPermission.ISSUE_ADMIN, projectTemplate.getName(), user2.getLogin());
+    addUserToTemplate(projectTemplate.getUuid(), user3.getUuid(), ProjectPermission.ISSUE_ADMIN, projectTemplate.getName(), user3.getLogin());
+    addUserToTemplate(projectTemplate.getUuid(), user1.getUuid(), ProjectPermission.CODEVIEWER, projectTemplate.getName(), user1.getLogin());
+    addGroupToTemplate(projectTemplate.getUuid(), group1.getUuid(), ProjectPermission.ADMIN, projectTemplate.getName(), group1.getName());
+    addPermissionTemplateWithProjectCreator(projectTemplate.getUuid(), ProjectPermission.ADMIN, projectTemplate.getName());
 
-    addUserToTemplate(portfoliosTemplate.getUuid(), user1.getUuid(), UserRole.USER, portfoliosTemplate.getName(), user1.getLogin());
-    addUserToTemplate(portfoliosTemplate.getUuid(), user2.getUuid(), UserRole.USER, portfoliosTemplate.getName(), user2.getLogin());
-    addGroupToTemplate(portfoliosTemplate.getUuid(), group1.getUuid(), UserRole.ISSUE_ADMIN, portfoliosTemplate.getName(), group1.getName());
-    addGroupToTemplate(portfoliosTemplate.getUuid(), group2.getUuid(), UserRole.ISSUE_ADMIN, portfoliosTemplate.getName(), group2.getName());
-    addGroupToTemplate(portfoliosTemplate.getUuid(), group3.getUuid(), UserRole.ISSUE_ADMIN, portfoliosTemplate.getName(), group3.getName());
+    addUserToTemplate(portfoliosTemplate.getUuid(), user1.getUuid(), ProjectPermission.USER, portfoliosTemplate.getName(), user1.getLogin());
+    addUserToTemplate(portfoliosTemplate.getUuid(), user2.getUuid(), ProjectPermission.USER, portfoliosTemplate.getName(), user2.getLogin());
+    addGroupToTemplate(portfoliosTemplate.getUuid(), group1.getUuid(), ProjectPermission.ISSUE_ADMIN, portfoliosTemplate.getName(), group1.getName());
+    addGroupToTemplate(portfoliosTemplate.getUuid(), group2.getUuid(), ProjectPermission.ISSUE_ADMIN, portfoliosTemplate.getName(), group2.getName());
+    addGroupToTemplate(portfoliosTemplate.getUuid(), group3.getUuid(), ProjectPermission.ISSUE_ADMIN, portfoliosTemplate.getName(), group3.getName());
 
     db.permissionTemplates().setDefaultTemplates(projectTemplate, applicationsTemplate, portfoliosTemplate);
 
@@ -354,22 +354,22 @@ public class SearchTemplatesActionIT extends BasePermissionWsIT<SearchTemplatesA
     return insert;
   }
 
-  private void addGroupToTemplate(String templateUuid, @Nullable String groupUuid, String permission, String templateName, String groupName) {
+  private void addGroupToTemplate(String templateUuid, @Nullable String groupUuid, ProjectPermission permission, String templateName, String groupName) {
     dbClient.permissionTemplateDao().insertGroupPermission(db.getSession(), templateUuid, groupUuid, permission, templateName, groupName);
     db.getSession().commit();
   }
 
-  private void addUserToTemplate(String templateUuid, String userId, String permission, String templateName, String userLogin) {
+  private void addUserToTemplate(String templateUuid, String userId, ProjectPermission permission, String templateName, String userLogin) {
     dbClient.permissionTemplateDao().insertUserPermission(db.getSession(), templateUuid, userId, permission, templateName, userLogin);
     db.getSession().commit();
   }
 
-  private void addPermissionTemplateWithProjectCreator(String templateUuid, String permission, String templateName) {
+  private void addPermissionTemplateWithProjectCreator(String templateUuid, ProjectPermission permission, String templateName) {
     dbClient.permissionTemplateCharacteristicDao().insert(dbSession, new PermissionTemplateCharacteristicDto()
         .setUuid(Uuids.createFast())
         .setWithProjectCreator(true)
         .setTemplateUuid(templateUuid)
-        .setPermission(permission)
+        .setPermission(permission.getKey())
         .setCreatedAt(1_000_000_000L)
         .setUpdatedAt(2_000_000_000L),
       templateName);

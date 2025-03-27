@@ -40,7 +40,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
@@ -59,7 +59,7 @@ import static org.sonar.api.CoreProperties.SERVER_ID;
 import static org.sonar.api.CoreProperties.SERVER_STARTTIME;
 import static org.sonar.api.PropertyType.FORMATTED_TEXT;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.server.setting.ws.PropertySetExtractor.extractPropertySetKeys;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_KEYS;
@@ -148,7 +148,7 @@ public class ValuesAction implements SettingsWsAction {
       .orElseThrow(() -> new NotFoundException(format("Component key '%s' not found", componentKey)));
 
     if (!userSession.hasEntityPermission(USER, entity) &&
-      !userSession.hasEntityPermission(UserRole.SCAN, entity) &&
+      !userSession.hasEntityPermission(ProjectPermission.SCAN, entity) &&
       !userSession.hasPermission(GlobalPermission.SCAN)) {
       throw insufficientPrivilegesException();
     }

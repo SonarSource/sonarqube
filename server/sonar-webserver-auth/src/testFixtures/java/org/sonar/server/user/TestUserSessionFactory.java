@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
@@ -123,17 +124,17 @@ public class TestUserSessionFactory implements UserSessionFactory {
     }
 
     @Override
-    protected boolean hasEntityUuidPermission(String permission, String entityUuid) {
+    protected boolean hasEntityUuidPermission(ProjectPermission permission, String entityUuid) {
       throw notImplemented();
     }
 
     @Override
-    protected boolean hasChildProjectsPermission(String permission, String applicationUuid) {
+    protected boolean hasChildProjectsPermission(ProjectPermission permission, String applicationUuid) {
       throw notImplemented();
     }
 
     @Override
-    protected boolean hasPortfolioChildProjectsPermission(String permission, String portfolioUuid) { throw notImplemented(); }
+    protected boolean hasPortfolioChildProjectsPermission(ProjectPermission permission, String portfolioUuid) { throw notImplemented(); }
 
     @Override
     public boolean isSystemAdministrator() {

@@ -23,7 +23,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
@@ -74,7 +74,7 @@ public class TokenActionIT {
   @Test
   public void should_generate_token() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.USER, project);
     when(tokenGenerator.generate(TokenType.PROJECT_BADGE_TOKEN)).thenReturn("generated_token");
 
     TestResponse response = ws.newRequest().setParam("project", project.getKey()).execute();
@@ -85,7 +85,7 @@ public class TokenActionIT {
   @Test
   public void handle_whenApplicationKeyPassed_shouldReturnToken() {
     ProjectDto application = db.components().insertPrivateApplication().getProjectDto();
-    userSession.logIn().addProjectPermission(UserRole.USER, application);
+    userSession.logIn().addProjectPermission(ProjectPermission.USER, application);
     when(tokenGenerator.generate(TokenType.PROJECT_BADGE_TOKEN)).thenReturn("generated_token");
 
     TestResponse response = ws.newRequest().setParam("project", application.getKey()).execute();
@@ -96,7 +96,7 @@ public class TokenActionIT {
   @Test
   public void should_reuse_generated_token() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.USER, project);
     when(tokenGenerator.generate(TokenType.PROJECT_BADGE_TOKEN)).thenReturn("generated_token");
 
     // first call, generating the token

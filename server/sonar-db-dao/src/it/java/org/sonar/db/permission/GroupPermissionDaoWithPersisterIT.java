@@ -38,8 +38,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.core.util.SequenceUuidFactory.UUID_1;
+import static org.sonar.db.permission.ProjectPermission.ADMIN;
 
 class GroupPermissionDaoWithPersisterIT {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
@@ -100,7 +100,7 @@ class GroupPermissionDaoWithPersisterIT {
     verify(auditPersister).deleteGroupPermission(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
 
-    assertNewValue(newValue, null, null, null, project.projectUuid(), null, project.projectKey(), project.getProjectDto().getName(), "TRK");
+    assertNewValue(newValue, null, null, null, project.projectUuid(), (String) null, project.projectKey(), project.getProjectDto().getName(), "TRK");
     assertThat(newValue).hasToString("{\"componentUuid\": \"projectUuid\", \"componentKey\": \"cKey\", \"componentName\": \"cname\", " +
       "\"qualifier\": \"project\" }");
   }
@@ -132,7 +132,7 @@ class GroupPermissionDaoWithPersisterIT {
     verify(auditPersister).deleteGroupPermission(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
 
-    assertNewValue(newValue, null, null, null, project.projectUuid(), null, project.projectKey(), project.getProjectDto().getName(), "TRK");
+    assertNewValue(newValue, null, null, null, project.projectUuid(), (String) null, project.projectKey(), project.getProjectDto().getName(), "TRK");
     assertThat(newValue).hasToString("{\"componentUuid\": \"projectUuid\", \"componentKey\": \"cKey\", " +
       "\"componentName\": \"cname\", \"qualifier\": \"project\" }");
   }
@@ -178,6 +178,12 @@ class GroupPermissionDaoWithPersisterIT {
     underTest.deleteByEntityAndPermission(dbSession, dto.getRole(), project.getProjectDto());
 
     verifyNoInteractions(auditPersister);
+  }
+
+  private void assertNewValue(GroupPermissionNewValue newValue, String uuid, String groupUuid, String groupName, String cUuid,
+    ProjectPermission permission,
+    String componentKey, String cName, String qualifier) {
+    assertNewValue(newValue, uuid, groupUuid, groupName, cUuid, permission.getKey(), componentKey, cName, qualifier);
   }
 
   private void assertNewValue(GroupPermissionNewValue newValue, String uuid, String groupUuid, String groupName, String cUuid,

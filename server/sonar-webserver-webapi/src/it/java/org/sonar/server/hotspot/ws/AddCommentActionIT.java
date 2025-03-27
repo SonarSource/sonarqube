@@ -33,7 +33,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
@@ -212,7 +212,7 @@ public class AddCommentActionIT {
     ComponentDto project = projectData.getMainBranchComponent();
 
     userSessionRule.logIn().registerProjects(projectData.getProjectDto())
-      .addProjectPermission(UserRole.USER, projectData.getProjectDto());
+      .addProjectPermission(ProjectPermission.USER, projectData.getProjectDto());
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = dbTester.rules().insertHotspotRule();
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);

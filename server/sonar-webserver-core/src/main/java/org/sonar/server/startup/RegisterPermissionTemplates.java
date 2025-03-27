@@ -27,10 +27,10 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.usergroups.DefaultGroupFinder;
@@ -96,7 +96,7 @@ public class RegisterPermissionTemplates implements Startable {
   private void insertPermissionForAdministrators(DbSession dbSession, PermissionTemplateDto template) {
     Optional<GroupDto> admins = dbClient.groupDao().selectByName(dbSession, DefaultGroups.ADMINISTRATORS);
     if (admins.isPresent()) {
-      insertGroupPermission(dbSession, template, UserRole.ADMIN, admins.get());
+      insertGroupPermission(dbSession, template, ProjectPermission.ADMIN, admins.get());
     } else {
       LOG.error("Cannot setup default permission for group: " + DefaultGroups.ADMINISTRATORS);
     }
@@ -104,14 +104,14 @@ public class RegisterPermissionTemplates implements Startable {
 
   private void insertPermissionsForDefaultGroup(DbSession dbSession, PermissionTemplateDto template) {
     GroupDto defaultGroup = defaultGroupFinder.findDefaultGroup(dbSession);
-    insertGroupPermission(dbSession, template, UserRole.USER, defaultGroup);
-    insertGroupPermission(dbSession, template, UserRole.CODEVIEWER, defaultGroup);
-    insertGroupPermission(dbSession, template, UserRole.ISSUE_ADMIN, defaultGroup);
-    insertGroupPermission(dbSession, template, UserRole.SECURITYHOTSPOT_ADMIN, defaultGroup);
+    insertGroupPermission(dbSession, template, ProjectPermission.USER, defaultGroup);
+    insertGroupPermission(dbSession, template, ProjectPermission.CODEVIEWER, defaultGroup);
+    insertGroupPermission(dbSession, template, ProjectPermission.ISSUE_ADMIN, defaultGroup);
+    insertGroupPermission(dbSession, template, ProjectPermission.SECURITYHOTSPOT_ADMIN, defaultGroup);
   }
 
-  private void insertGroupPermission(DbSession dbSession, PermissionTemplateDto template, String permission, GroupDto group) {
-    dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getUuid(), group.getUuid(), permission, template.getName(), group.getName());
+  private void insertGroupPermission(DbSession dbSession, PermissionTemplateDto template, ProjectPermission permission, GroupDto group) {
+    dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getUuid(), group.getUuid(), permission.getKey(), template.getName(), group.getName());
   }
 
 }

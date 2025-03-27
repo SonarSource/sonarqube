@@ -30,7 +30,6 @@ import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -68,7 +67,7 @@ class UserPermissionDaoIT {
     UserPermissionDto global1 = addGlobalPermission(GlobalPermission.ADMINISTER.getKey(), user1);
     UserPermissionDto global2 = addGlobalPermission(GlobalPermission.ADMINISTER.getKey(), user2);
     UserPermissionDto global3 = addGlobalPermission(GlobalPermission.PROVISION_PROJECTS.getKey(), user2);
-    UserPermissionDto project1Perm = addProjectPermission(UserRole.USER, user3, project);
+    UserPermissionDto project1Perm = addProjectPermission(ProjectPermission.USER, user3, project);
 
     // global permissions of users who has at least one global permission, ordered by user name then permission
     PermissionQuery query = PermissionQuery.builder().withAtLeastOnePermission().build();
@@ -117,10 +116,10 @@ class UserPermissionDaoIT {
     addGlobalPermission(GlobalPermission.ADMINISTER.getKey(), user1);
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
     ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
-    UserPermissionDto perm1 = addProjectPermission(UserRole.USER, user1, project1);
-    UserPermissionDto perm2 = addProjectPermission(UserRole.ISSUE_ADMIN, user1, project1);
-    UserPermissionDto perm3 = addProjectPermission(UserRole.ISSUE_ADMIN, user2, project1);
-    addProjectPermission(UserRole.ISSUE_ADMIN, user3, project2);
+    UserPermissionDto perm1 = addProjectPermission(ProjectPermission.USER, user1, project1);
+    UserPermissionDto perm2 = addProjectPermission(ProjectPermission.ISSUE_ADMIN, user1, project1);
+    UserPermissionDto perm3 = addProjectPermission(ProjectPermission.ISSUE_ADMIN, user2, project1);
+    addProjectPermission(ProjectPermission.ISSUE_ADMIN, user3, project2);
 
     // project permissions of users who has at least one permission on this project
     PermissionQuery query = PermissionQuery.builder().withAtLeastOnePermission().setEntity(project1).build();
@@ -135,7 +134,7 @@ class UserPermissionDaoIT {
     expectPermissions(query, asList(user2.getUuid(), user1.getUuid()), perm3, perm2, perm1);
 
     // search by user name (matches 2 users) and project permission
-    query = PermissionQuery.builder().setSearchQuery("Mari").setPermission(UserRole.ISSUE_ADMIN).setEntity(project1).build();
+    query = PermissionQuery.builder().setSearchQuery("Mari").setPermission(ProjectPermission.ISSUE_ADMIN).setEntity(project1).build();
     expectPermissions(query, asList(user2.getUuid(), user1.getUuid()), perm3, perm2);
 
     // search by user name (no match)
@@ -208,9 +207,9 @@ class UserPermissionDaoIT {
     UserDto user2 = insertUser(u -> u.setLogin("login2").setName("A").setEmail("email2@email.com"));
     addGlobalPermission(GlobalPermission.ADMINISTER.getKey(), user1);
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
-    addProjectPermission(UserRole.USER, user2, project1);
-    addProjectPermission(UserRole.USER, user1, project1);
-    addProjectPermission(UserRole.ADMIN, user1, project1);
+    addProjectPermission(ProjectPermission.USER, user2, project1);
+    addProjectPermission(ProjectPermission.USER, user1, project1);
+    addProjectPermission(ProjectPermission.ADMIN, user1, project1);
 
     PermissionQuery query = PermissionQuery.builder().build();
 
@@ -226,24 +225,24 @@ class UserPermissionDaoIT {
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
     ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
     addGlobalPermission(GlobalPermission.ADMINISTER.getKey(), user1);
-    addProjectPermission(UserRole.USER, user1, project1);
-    addProjectPermission(UserRole.ISSUE_ADMIN, user1, project1);
-    addProjectPermission(UserRole.ISSUE_ADMIN, user2, project1);
-    addProjectPermission(UserRole.ISSUE_ADMIN, user2, project2);
+    addProjectPermission(ProjectPermission.USER, user1, project1);
+    addProjectPermission(ProjectPermission.ISSUE_ADMIN, user1, project1);
+    addProjectPermission(ProjectPermission.ISSUE_ADMIN, user2, project1);
+    addProjectPermission(ProjectPermission.ISSUE_ADMIN, user2, project2);
 
     // no projects -> return empty list
     assertThat(underTest.countUsersByEntityPermission(dbSession, emptyList())).isEmpty();
 
     // one project
     expectCount(singletonList(project1.getUuid()),
-      new CountPerEntityPermission(project1.getUuid(), UserRole.USER, 1),
-      new CountPerEntityPermission(project1.getUuid(), UserRole.ISSUE_ADMIN, 2));
+      new CountPerEntityPermission(project1.getUuid(), ProjectPermission.USER, 1),
+      new CountPerEntityPermission(project1.getUuid(), ProjectPermission.ISSUE_ADMIN, 2));
 
     // multiple projects
     expectCount(asList(project1.getUuid(), project2.getUuid(), "invalid"),
-      new CountPerEntityPermission(project1.getUuid(), UserRole.USER, 1),
-      new CountPerEntityPermission(project1.getUuid(), UserRole.ISSUE_ADMIN, 2),
-      new CountPerEntityPermission(project2.getUuid(), UserRole.ISSUE_ADMIN, 1));
+      new CountPerEntityPermission(project1.getUuid(), ProjectPermission.USER, 1),
+      new CountPerEntityPermission(project1.getUuid(), ProjectPermission.ISSUE_ADMIN, 2),
+      new CountPerEntityPermission(project2.getUuid(), ProjectPermission.ISSUE_ADMIN, 1));
   }
 
   @Test
@@ -252,9 +251,9 @@ class UserPermissionDaoIT {
     UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"));
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
     ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
-    addProjectPermission(UserRole.USER, user1, project1);
-    addProjectPermission(UserRole.USER, user2, project1);
-    addProjectPermission(UserRole.ISSUE_ADMIN, user2, project1);
+    addProjectPermission(ProjectPermission.USER, user1, project1);
+    addProjectPermission(ProjectPermission.USER, user2, project1);
+    addProjectPermission(ProjectPermission.ISSUE_ADMIN, user2, project1);
 
     // logins are ordered by user name: user2 ("Marie") then user1 ("Marius")
     PermissionQuery query = PermissionQuery.builder().setEntity(project1).withAtLeastOnePermission().build();
@@ -285,9 +284,9 @@ class UserPermissionDaoIT {
     UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"));
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
     ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
-    addProjectPermission(UserRole.USER, user1, project1);
+    addProjectPermission(ProjectPermission.USER, user1, project1);
     addGlobalPermission(GlobalPermission.PROVISION_PROJECTS.getKey(), user1);
-    addProjectPermission(UserRole.ISSUE_ADMIN, user2, project2);
+    addProjectPermission(ProjectPermission.ISSUE_ADMIN, user2, project2);
     PermissionQuery query = PermissionQuery.builder().build();
 
     List<String> result = underTest.selectUserUuidsByQueryAndScope(dbSession, query);
@@ -302,9 +301,9 @@ class UserPermissionDaoIT {
     UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"));
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
     ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
-    addProjectPermission(UserRole.USER, user1, project1);
+    addProjectPermission(ProjectPermission.USER, user1, project1);
     addGlobalPermission(GlobalPermission.PROVISION_PROJECTS.getKey(), user1);
-    addProjectPermission(UserRole.ISSUE_ADMIN, user2, project2);
+    addProjectPermission(ProjectPermission.ISSUE_ADMIN, user2, project2);
     PermissionQuery query = PermissionQuery.builder()
       .setEntity(project1)
       .build();
@@ -459,7 +458,7 @@ class UserPermissionDaoIT {
     UserDto user = insertUser();
     db.users().insertProjectPermissionOnUser(user, "foo", project.getMainBranchComponent());
 
-    assertThat(underTest.selectUserIdsWithPermissionOnEntityBut(dbSession, "1234", UserRole.USER))
+    assertThat(underTest.selectUserIdsWithPermissionOnEntityBut(dbSession, "1234", ProjectPermission.USER.getKey()))
       .isEmpty();
   }
 
@@ -579,7 +578,8 @@ class UserPermissionDaoIT {
     assertThat(underTest.selectEntityPermissionsOfUser(dbSession, user1.getUuid(), project1.projectUuid())).isEmpty();
     assertThat(underTest.selectEntityPermissionsOfUser(dbSession, user2.getUuid(), project1.projectUuid())).isEmpty();
     assertThat(underTest.selectEntityPermissionsOfUser(dbSession, user1.getUuid(), project2.projectUuid())).containsOnly(GlobalPermission.SCAN.getKey());
-    assertThat(underTest.selectEntityPermissionsOfUser(dbSession, user2.getUuid(), project2.projectUuid())).containsOnly(GlobalPermission.SCAN.getKey(), GlobalPermission.PROVISION_PROJECTS.getKey());
+    assertThat(underTest.selectEntityPermissionsOfUser(dbSession, user2.getUuid(), project2.projectUuid())).containsOnly(GlobalPermission.SCAN.getKey(),
+      GlobalPermission.PROVISION_PROJECTS.getKey());
 
     deletedCount = underTest.deleteEntityPermissionOfAnyUser(dbSession, GlobalPermission.SCAN.getKey(), project2.getProjectDto());
 
@@ -637,6 +637,10 @@ class UserPermissionDaoIT {
     underTest.insert(dbSession, dto, null, user, null);
     db.commit();
     return dto;
+  }
+
+  private UserPermissionDto addProjectPermission(ProjectPermission permission, UserDto user, EntityDto project) {
+    return addProjectPermission(permission.getKey(), user, project);
   }
 
   private UserPermissionDto addProjectPermission(String permission, UserDto user, EntityDto project) {

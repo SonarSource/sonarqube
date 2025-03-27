@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -86,7 +86,7 @@ public class EditCommentActionIT {
       .isNotEmpty();
 
     userSessionRule.logIn(userEditingOwnComment);
-    userSessionRule.addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSessionRule.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
 
     TestRequest request = newRequest(comment.getKey(), "new comment");
 
@@ -151,7 +151,7 @@ public class EditCommentActionIT {
     IssueChangeDto comment = dbTester.issues().insertComment(hotspot, userWithHotspotComment, "Some comment");
 
     userSessionRule.logIn(userTryingToDelete);
-    userSessionRule.addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSessionRule.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
 
     TestRequest request = newRequest(comment.getKey(), "new comment");
 

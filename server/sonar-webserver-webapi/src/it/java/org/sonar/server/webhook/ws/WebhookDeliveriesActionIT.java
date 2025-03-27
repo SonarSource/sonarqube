@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.project.ProjectDto;
@@ -86,7 +86,7 @@ public class WebhookDeliveriesActionIT {
 
   @Test
   public void search_by_component_and_return_no_records() {
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     Webhooks.DeliveriesWsResponse response = ws.newRequest()
       .setParam("componentKey", project.getKey())
@@ -97,7 +97,7 @@ public class WebhookDeliveriesActionIT {
 
   @Test
   public void search_by_task_and_return_no_records() {
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     Webhooks.DeliveriesWsResponse response = ws.newRequest()
       .setParam("ceTaskId", "t1")
@@ -108,7 +108,7 @@ public class WebhookDeliveriesActionIT {
 
   @Test
   public void search_by_webhook_and_return_no_records() {
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     Webhooks.DeliveriesWsResponse response = ws.newRequest()
       .setParam("webhook", "t1")
@@ -131,7 +131,7 @@ public class WebhookDeliveriesActionIT {
       .setHttpStatus(200);
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
     db.commit();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     String json = ws.newRequest()
       .setParam("componentKey", project.getKey())
@@ -150,7 +150,7 @@ public class WebhookDeliveriesActionIT {
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto2);
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto3);
     db.commit();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     Webhooks.DeliveriesWsResponse response = ws.newRequest()
       .setParam("ceTaskId", "t1")
@@ -174,7 +174,7 @@ public class WebhookDeliveriesActionIT {
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto4);
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto5);
     db.commit();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project, otherProject);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project, otherProject);
 
     Webhooks.DeliveriesWsResponse response = ws.newRequest()
       .setParam("webhook", "wh-1-uuid")
@@ -197,7 +197,7 @@ public class WebhookDeliveriesActionIT {
       webhookDeliveryDbTester.insert(newDto().setProjectUuid(project.getUuid()).setCeTaskUuid("t1").setWebhookUuid("wh-1-uuid"));
     }
 
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     Webhooks.DeliveriesWsResponse response = ws.newRequest()
       .setParam("webhook", "wh-1-uuid")
@@ -214,7 +214,7 @@ public class WebhookDeliveriesActionIT {
       webhookDeliveryDbTester.insert(newDto().setProjectUuid(project.getUuid()).setCeTaskUuid("t1").setWebhookUuid("wh-1-uuid"));
     }
 
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     Webhooks.DeliveriesWsResponse response = ws.newRequest()
       .setParam("webhook", "wh-1-uuid")
@@ -234,7 +234,7 @@ public class WebhookDeliveriesActionIT {
       webhookDeliveryDbTester.insert(newDto().setProjectUuid(project.getUuid()).setCeTaskUuid("t1").setWebhookUuid("wh-1-uuid"));
     }
 
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     Webhooks.DeliveriesWsResponse response = ws.newRequest()
       .setParam("webhook", "wh-1-uuid")
@@ -253,7 +253,7 @@ public class WebhookDeliveriesActionIT {
       .setProjectUuid(project.getUuid());
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
     db.commit();
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.USER, project);
 
     TestRequest request = ws.newRequest()
       .setParam("componentKey", project.getKey());
@@ -268,7 +268,7 @@ public class WebhookDeliveriesActionIT {
       .setProjectUuid(project.getUuid());
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
     db.commit();
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.USER, project);
 
     TestRequest request = ws.newRequest()
       .setParam("ceTaskId", dto.getCeTaskUuid());

@@ -27,7 +27,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
 public class AnticipatedTransitionsActionValidator {
@@ -60,7 +60,7 @@ public class AnticipatedTransitionsActionValidator {
   public void validateUserHasAdministerIssuesPermission(String projectUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String userUuid = Objects.requireNonNull(userSession.getUuid());
-      if (!dbClient.authorizationDao().selectEntityPermissions(dbSession, projectUuid, userUuid).contains(ISSUE_ADMIN)){
+      if (!dbClient.authorizationDao().selectEntityPermissions(dbSession, projectUuid, userUuid).contains(ISSUE_ADMIN.getKey())){
         throw insufficientPrivilegesException();
       }
     }

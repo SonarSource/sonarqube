@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
@@ -45,7 +45,7 @@ class PermissionTemplateCharacteristicDaoWithPersisterIT {
 
   @Test
   void insertPermissionTemplateCharacteristicIsPersisted() {
-    PermissionTemplateCharacteristicDto dto = getPermissionTemplateCharacteristic(UserRole.USER);
+    PermissionTemplateCharacteristicDto dto = getPermissionTemplateCharacteristic(ProjectPermission.USER);
     underTest.insert(session, dto, "template");
 
     verify(auditPersister).addCharacteristicToPermissionTemplate(eq(session), newValueCaptor.capture());
@@ -59,9 +59,9 @@ class PermissionTemplateCharacteristicDaoWithPersisterIT {
 
   @Test
   void updatePermissionTemplateCharacteristicIsPersisted() {
-    underTest.insert(session, getPermissionTemplateCharacteristic(UserRole.USER),
+    underTest.insert(session, getPermissionTemplateCharacteristic(ProjectPermission.USER),
       "template");
-    PermissionTemplateCharacteristicDto updated = getPermissionTemplateCharacteristic(UserRole.ADMIN);
+    PermissionTemplateCharacteristicDto updated = getPermissionTemplateCharacteristic(ProjectPermission.ADMIN);
     underTest.update(session, updated, "template");
 
     verify(auditPersister).updateCharacteristicInPermissionTemplate(eq(session), newValueCaptor.capture());
@@ -73,10 +73,10 @@ class PermissionTemplateCharacteristicDaoWithPersisterIT {
     assertThat(newValue.toString()).contains("withProjectCreator");
   }
 
-  private PermissionTemplateCharacteristicDto getPermissionTemplateCharacteristic(String role) {
+  private PermissionTemplateCharacteristicDto getPermissionTemplateCharacteristic(ProjectPermission role) {
     return new PermissionTemplateCharacteristicDto()
       .setUuid("uuid")
-      .setPermission(role)
+      .setPermission(role.getKey())
       .setTemplateUuid("1")
       .setWithProjectCreator(true)
       .setCreatedAt(123_456_789L)

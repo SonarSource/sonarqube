@@ -25,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -175,8 +175,8 @@ public class DeactivateActionIT {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
     db.users().insertGlobalPermissionOnUser(user, GlobalPermission.ADMINISTER_QUALITY_PROFILES);
-    db.users().insertProjectPermissionOnUser(user, UserRole.USER, project);
-    db.users().insertProjectPermissionOnUser(user, UserRole.CODEVIEWER, project);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, project);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.CODEVIEWER, project);
 
     deactivate(user.getLogin());
 
@@ -191,8 +191,8 @@ public class DeactivateActionIT {
     UserDto user = db.users().insertUser();
     PermissionTemplateDto template = db.permissionTemplates().insertTemplate();
     PermissionTemplateDto anotherTemplate = db.permissionTemplates().insertTemplate();
-    db.permissionTemplates().addUserToTemplate(template.getUuid(), user.getUuid(), UserRole.USER, template.getName(), user.getLogin());
-    db.permissionTemplates().addUserToTemplate(anotherTemplate.getUuid(), user.getUuid(), UserRole.CODEVIEWER, anotherTemplate.getName(), user.getLogin());
+    db.permissionTemplates().addUserToTemplate(template.getUuid(), user.getUuid(), ProjectPermission.USER, template.getName(), user.getLogin());
+    db.permissionTemplates().addUserToTemplate(anotherTemplate.getUuid(), user.getUuid(), ProjectPermission.CODEVIEWER, anotherTemplate.getName(), user.getLogin());
 
     deactivate(user.getLogin());
 

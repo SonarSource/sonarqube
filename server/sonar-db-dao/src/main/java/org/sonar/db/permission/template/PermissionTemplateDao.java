@@ -37,6 +37,7 @@ import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.PermissionTemplateNewValue;
 import org.sonar.db.permission.CountPerEntityPermission;
 import org.sonar.db.permission.PermissionQuery;
+import org.sonar.db.permission.ProjectPermission;
 
 import static java.lang.String.format;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
@@ -175,6 +176,11 @@ public class PermissionTemplateDao implements Dao {
     return permissionTemplate;
   }
 
+  public void insertUserPermission(DbSession session, String templateUuid, String userUuid, ProjectPermission permission,
+    String templateName, String userLogin) {
+    insertUserPermission(session, templateUuid, userUuid, permission.getKey(), templateName, userLogin);
+  }
+
   public void insertUserPermission(DbSession session, String templateUuid, String userUuid, String permission,
     String templateName, String userLogin) {
     PermissionTemplateUserDto permissionTemplateUser = new PermissionTemplateUserDto()
@@ -190,6 +196,11 @@ public class PermissionTemplateDao implements Dao {
     auditPersister.addUserToPermissionTemplate(session, new PermissionTemplateNewValue(templateUuid, templateName, permission, userUuid, userLogin, null, null));
 
     session.commit();
+  }
+
+  public void deleteUserPermission(DbSession session, String templateUuid, String userUuid, ProjectPermission permission,
+    String templateName, String userLogin) {
+    deleteUserPermission(session, templateUuid, userUuid, permission.getKey(), templateName, userLogin);
   }
 
   public void deleteUserPermission(DbSession session, String templateUuid, String userUuid, String permission,
@@ -215,6 +226,11 @@ public class PermissionTemplateDao implements Dao {
     }
   }
 
+  public void insertGroupPermission(DbSession session, String templateUuid, @Nullable String groupUuid, ProjectPermission permission,
+    String templateName, @Nullable String groupName) {
+    insertGroupPermission(session, templateUuid, groupUuid, permission.getKey(), templateName, groupName);
+  }
+
   public void insertGroupPermission(DbSession session, String templateUuid, @Nullable String groupUuid, String permission,
     String templateName, @Nullable String groupName) {
     PermissionTemplateGroupDto permissionTemplateGroup = new PermissionTemplateGroupDto()
@@ -234,6 +250,11 @@ public class PermissionTemplateDao implements Dao {
 
     auditPersister.addGroupToPermissionTemplate(session, new PermissionTemplateNewValue(permissionTemplateGroup.getTemplateUuid(), templateName,
       permissionTemplateGroup.getPermission(), null, null, permissionTemplateGroup.getGroupUuid(), permissionTemplateGroup.getGroupName()));
+  }
+
+  public void deleteGroupPermission(DbSession session, String templateUuid, @Nullable String groupUuid, ProjectPermission permission, String templateName,
+    @Nullable String groupName) {
+    deleteGroupPermission(session, templateUuid, groupUuid, permission.getKey(), templateName, groupName);
   }
 
   public void deleteGroupPermission(DbSession session, String templateUuid, @Nullable String groupUuid, String permission, String templateName,

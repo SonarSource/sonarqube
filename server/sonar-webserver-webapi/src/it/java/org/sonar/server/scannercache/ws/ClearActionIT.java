@@ -45,7 +45,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.api.web.UserRole.SCAN;
+import static org.sonar.db.permission.ProjectPermission.SCAN;
 
 public class ClearActionIT {
   @Rule

@@ -31,7 +31,7 @@ import org.sonar.api.platform.Server;
 import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
@@ -64,7 +64,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.event.EventTesting.newEvent;
 import static org.sonar.server.developers.ws.SearchEventsAction.PARAM_FROM;
 import static org.sonar.server.developers.ws.SearchEventsAction.PARAM_PROJECTS;
@@ -199,8 +199,8 @@ class SearchEventsActionIT {
   void does_not_return_events_of_project_for_which_the_current_user_has_no_browse_permission() {
     ProjectData projectData1 = db.components().insertPrivateProject();
     ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.CODEVIEWER, projectData1.getProjectDto());
-    userSession.addProjectPermission(UserRole.ISSUE_ADMIN, projectData1.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.CODEVIEWER, projectData1.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.ISSUE_ADMIN, projectData1.getProjectDto());
 
     ProjectData projectData2 = db.components().insertPrivateProject();
     ComponentDto mainBranch2 = projectData2.getMainBranchComponent();

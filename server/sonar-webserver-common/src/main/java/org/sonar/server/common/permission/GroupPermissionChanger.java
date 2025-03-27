@@ -22,13 +22,13 @@ package org.sonar.server.common.permission;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.permission.GroupUuidOrAnyone;
 
@@ -99,7 +99,7 @@ public class GroupPermissionChanger implements GranteeTypeSpecificPermissionUpda
   private static boolean isAttemptToAddPublicPermissionToPublicComponent(GroupPermissionChange change, EntityDto project) {
     return !project.isPrivate()
       && change.getOperation() == ADD
-      && UserRole.PUBLIC_PERMISSIONS.contains(change.getPermission());
+      && ProjectPermission.isPublic(change.getPermission());
   }
 
   private static boolean isAttemptToRemovePermissionFromAnyoneOnPrivateComponent(GroupPermissionChange change, EntityDto project) {
@@ -129,7 +129,7 @@ public class GroupPermissionChanger implements GranteeTypeSpecificPermissionUpda
   private static boolean isAttemptToRemovePublicPermissionFromPublicComponent(GroupPermissionChange change, EntityDto project) {
     return !project.isPrivate()
       && change.getOperation() == REMOVE
-      && UserRole.PUBLIC_PERMISSIONS.contains(change.getPermission());
+      && ProjectPermission.isPublic(change.getPermission());
   }
 
   private boolean addPermission(DbSession dbSession, GroupPermissionChange change) {

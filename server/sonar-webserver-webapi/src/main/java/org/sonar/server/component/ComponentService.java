@@ -22,7 +22,7 @@ package org.sonar.server.component;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
@@ -55,7 +55,7 @@ public class ComponentService {
   }
 
   public void updateKey(DbSession dbSession, ProjectDto project, String newKey) {
-    userSession.checkEntityPermission(UserRole.ADMIN, project);
+    userSession.checkEntityPermission(ProjectPermission.ADMIN, project);
     checkProjectKey(newKey);
     dbClient.componentKeyUpdaterDao().updateKey(dbSession, project.getUuid(), project.getKey(), newKey);
     indexers.commitAndIndexEntities(dbSession, singletonList(project), Indexers.EntityEvent.PROJECT_KEY_UPDATE);

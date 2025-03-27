@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
@@ -122,7 +122,7 @@ public class ListActionIT {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
     userSession.registerProjects(project);
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.USER, project);
 
     ListWSResponse response = ws.newRequest()
       .setParam("project", project.getKey())

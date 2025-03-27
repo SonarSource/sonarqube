@@ -22,7 +22,7 @@ package org.sonar.server.qualitygate.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -136,7 +136,7 @@ public class GetByProjectActionIT {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     db.qualityGates().setDefaultQualityGate(qualityGate);
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     GetByProjectResponse result = ws.newRequest()
       .setParam("project", project.getKey())
@@ -150,7 +150,7 @@ public class GetByProjectActionIT {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     db.qualityGates().setDefaultQualityGate(qualityGate);
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.USER, project);
 
     GetByProjectResponse result = ws.newRequest()
       .setParam("project", project.getKey())
@@ -188,6 +188,6 @@ public class GetByProjectActionIT {
   }
 
   private void logInAsProjectUser(ProjectDto project) {
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().addProjectPermission(ProjectPermission.USER, project);
   }
 }

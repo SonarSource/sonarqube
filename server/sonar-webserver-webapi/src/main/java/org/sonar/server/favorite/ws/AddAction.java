@@ -41,7 +41,7 @@ import static org.sonar.db.component.ComponentQualifiers.APP;
 import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 import static org.sonar.db.component.ComponentQualifiers.SUBVIEW;
 import static org.sonar.db.component.ComponentQualifiers.VIEW;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.server.favorite.ws.FavoritesWsParameters.PARAM_COMPONENT;
 
 public class AddAction implements FavoritesWsAction {

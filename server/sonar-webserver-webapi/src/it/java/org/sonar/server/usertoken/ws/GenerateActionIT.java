@@ -34,11 +34,12 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.server.component.ComponentTypesRule;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -176,7 +177,7 @@ public class GenerateActionIT {
   public void a_user_can_generate_projectAnalysisToken_with_the_project_scan_permission() {
     UserDto user = userLogin();
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    userSession.addProjectPermission(SCAN.toString(), project);
+    userSession.addProjectPermission(ProjectPermission.SCAN, project);
 
     GenerateWsResponse response = newRequest(null, TOKEN_NAME, PROJECT_ANALYSIS_TOKEN, project.getKey());
 
@@ -190,7 +191,7 @@ public class GenerateActionIT {
   public void a_user_can_generate_projectAnalysisToken_with_the_project_scan_permission_passing_login() {
     UserDto user = userLogin();
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    userSession.addProjectPermission(SCAN.toString(), project);
+    userSession.addProjectPermission(ProjectPermission.SCAN, project);
 
     GenerateWsResponse responseWithLogin = newRequest(user.getLogin(), TOKEN_NAME, PROJECT_ANALYSIS_TOKEN, project.getKey());
 

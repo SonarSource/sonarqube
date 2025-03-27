@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.NoOpAuditPersister;
@@ -136,9 +136,9 @@ public class LinesActionIT {
     db.commit();
 
     userSession.logIn("login")
-      .addProjectPermission(UserRole.USER, project.getProjectDto())
+      .addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .addProjectBranchMapping(project.projectUuid(), branch)
-      .addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto());
+      .addProjectPermission(ProjectPermission.CODEVIEWER, project.getProjectDto());
 
     tester.newRequest()
       .setParam("key", file.getKey())
@@ -162,8 +162,8 @@ public class LinesActionIT {
     db.commit();
 
     userSession.logIn("login")
-      .addProjectPermission(UserRole.USER, projectData.getProjectDto())
-      .addProjectPermission(UserRole.CODEVIEWER, projectData.getProjectDto())
+      .addProjectPermission(ProjectPermission.USER, projectData.getProjectDto())
+      .addProjectPermission(ProjectPermission.CODEVIEWER, projectData.getProjectDto())
       .addProjectBranchMapping(projectData.projectUuid(), branch);
 
     tester.newRequest()
@@ -312,7 +312,7 @@ public class LinesActionIT {
   public void fail_if_branch_does_not_exist() {
     ProjectData project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project.getMainBranchComponent()));
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
     db.components().insertProjectBranch(project.getProjectDto(), b -> b.setKey("my_branch"));
 
     assertThatThrownBy(() -> tester.newRequest()
@@ -327,7 +327,7 @@ public class LinesActionIT {
   public void fail_when_uuid_and_branch_params_are_used_together() {
     ProjectData project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project.getMainBranchComponent()));
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
     db.components().insertProjectBranch(project.getProjectDto(), b -> b.setKey("my_branch"));
 
     assertThatThrownBy(() -> tester.newRequest()
@@ -342,7 +342,7 @@ public class LinesActionIT {
   public void fail_when_using_branch_uuid() {
     ProjectData project = db.components().insertPrivateProject();
     BranchDto branch = db.components().insertProjectBranch(project.getProjectDto());
-    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
 
     assertThatThrownBy(() -> tester.newRequest()
       .setParam("uuid", branch.getUuid())
@@ -406,7 +406,7 @@ public class LinesActionIT {
 
   private void setUserWithValidPermission(ProjectData privateProject) {
     userSession.logIn("login")
-      .addProjectPermission(UserRole.CODEVIEWER, privateProject.getProjectDto())
+      .addProjectPermission(ProjectPermission.CODEVIEWER, privateProject.getProjectDto())
       .registerBranches(privateProject.getMainBranchDto());
   }
 

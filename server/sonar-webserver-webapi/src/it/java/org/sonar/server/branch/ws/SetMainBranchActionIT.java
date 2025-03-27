@@ -28,7 +28,7 @@ import org.slf4j.event.Level;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentTesting;
@@ -140,7 +140,7 @@ public class SetMainBranchActionIT {
   public void fail_whenKeyPassedIsApplicationKey_shouldThrowIllegalArgumentException() {
     userSession.logIn();
     ProjectData application = db.components().insertPublicApplication();
-    userSession.addProjectPermission(UserRole.ADMIN, application.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.ADMIN, application.getProjectDto());
 
     TestRequest request = tester.newRequest()
       .setParam(PARAM_PROJECT, application.projectKey())
@@ -156,7 +156,7 @@ public class SetMainBranchActionIT {
     userSession.logIn();
 
     ProjectData projectData = db.components().insertPublicProject();
-    userSession.addProjectPermission(UserRole.ADMIN, projectData.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.ADMIN, projectData.getProjectDto());
 
     String nonExistingBranch = "aNonExistingBranch";
     TestRequest request = tester.newRequest()
@@ -172,7 +172,7 @@ public class SetMainBranchActionIT {
   public void fail_whenProjectHasNoMainBranch_shouldThrowIllegalStateException() {
     userSession.logIn();
     ProjectDto project = insertProjectWithoutMainBranch();
-    userSession.addProjectPermission(UserRole.ADMIN, project);
+    userSession.addProjectPermission(ProjectPermission.ADMIN, project);
 
     TestRequest request = tester.newRequest()
       .setParam(PARAM_PROJECT, project.getKey())
@@ -195,7 +195,7 @@ public class SetMainBranchActionIT {
     userSession.logIn();
 
     ProjectData projectData = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.ADMIN, projectData.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.ADMIN, projectData.getProjectDto());
 
     TestRequest request = tester.newRequest()
       .setParam(PARAM_PROJECT, projectData.projectKey())
@@ -213,7 +213,7 @@ public class SetMainBranchActionIT {
 
     ProjectData projectData = db.components().insertPrivateProject();
     BranchDto newMainBranch = db.components().insertProjectBranch(projectData.getProjectDto(), branchDto -> branchDto.setKey("newMain"));
-    userSession.addProjectPermission(UserRole.ADMIN, projectData.getProjectDto());
+    userSession.addProjectPermission(ProjectPermission.ADMIN, projectData.getProjectDto());
 
     tester.newRequest()
       .setParam(PARAM_PROJECT, projectData.projectKey())

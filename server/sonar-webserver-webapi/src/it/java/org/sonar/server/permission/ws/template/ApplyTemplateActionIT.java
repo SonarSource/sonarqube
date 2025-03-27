@@ -24,25 +24,25 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
-import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.PermissionQuery;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.common.permission.DefaultTemplatesResolver;
+import org.sonar.server.common.permission.DefaultTemplatesResolverImpl;
+import org.sonar.server.common.permission.PermissionTemplateService;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.management.ManagedProjectService;
-import org.sonar.server.common.permission.DefaultTemplatesResolver;
-import org.sonar.server.common.permission.DefaultTemplatesResolverImpl;
-import org.sonar.server.common.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.BasePermissionWsIT;
 import org.sonar.server.ws.TestRequest;
 
@@ -95,22 +95,22 @@ public class ApplyTemplateActionIT extends BasePermissionWsIT<ApplyTemplateActio
 
     // template 1
     template1 = db.permissionTemplates().insertTemplate();
-    addUserToTemplate(user1, template1, UserRole.CODEVIEWER);
-    addUserToTemplate(user2, template1, UserRole.ISSUE_ADMIN);
-    addGroupToTemplate(group1, template1, UserRole.ADMIN);
-    addGroupToTemplate(group2, template1, UserRole.USER);
+    addUserToTemplate(user1, template1, ProjectPermission.CODEVIEWER);
+    addUserToTemplate(user2, template1, ProjectPermission.ISSUE_ADMIN);
+    addGroupToTemplate(group1, template1, ProjectPermission.ADMIN);
+    addGroupToTemplate(group2, template1, ProjectPermission.USER);
     // template 2
     PermissionTemplateDto template2 = db.permissionTemplates().insertTemplate();
-    addUserToTemplate(user1, template2, UserRole.USER);
-    addUserToTemplate(user2, template2, UserRole.USER);
-    addGroupToTemplate(group1, template2, UserRole.USER);
-    addGroupToTemplate(group2, template2, UserRole.USER);
+    addUserToTemplate(user1, template2, ProjectPermission.USER);
+    addUserToTemplate(user2, template2, ProjectPermission.USER);
+    addGroupToTemplate(group1, template2, ProjectPermission.USER);
+    addGroupToTemplate(group2, template2, ProjectPermission.USER);
 
     project = db.components().insertPrivateProject().getProjectDto();
-    db.users().insertProjectPermissionOnUser(user1, UserRole.ADMIN, project);
-    db.users().insertProjectPermissionOnUser(user2, UserRole.ADMIN, project);
-    db.users().insertEntityPermissionOnGroup(group1, UserRole.ADMIN, project);
-    db.users().insertEntityPermissionOnGroup(group2, UserRole.ADMIN, project);
+    db.users().insertProjectPermissionOnUser(user1, ProjectPermission.ADMIN, project);
+    db.users().insertProjectPermissionOnUser(user2, ProjectPermission.ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(group1, ProjectPermission.ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(group2, ProjectPermission.ADMIN, project);
   }
 
   @Test
@@ -217,11 +217,11 @@ public class ApplyTemplateActionIT extends BasePermissionWsIT<ApplyTemplateActio
   }
 
   private void assertTemplate1AppliedToProject() {
-    assertThat(selectProjectPermissionGroups(project, UserRole.ADMIN)).containsExactly(group1.getName());
-    assertThat(selectProjectPermissionGroups(project, UserRole.USER)).containsExactly(group2.getName());
-    assertThat(selectProjectPermissionUsers(project, UserRole.ADMIN)).isEmpty();
-    assertThat(selectProjectPermissionUsers(project, UserRole.CODEVIEWER)).containsExactly(user1.getUuid());
-    assertThat(selectProjectPermissionUsers(project, UserRole.ISSUE_ADMIN)).containsExactly(user2.getUuid());
+    assertThat(selectProjectPermissionGroups(project, ProjectPermission.ADMIN)).containsExactly(group1.getName());
+    assertThat(selectProjectPermissionGroups(project, ProjectPermission.USER)).containsExactly(group2.getName());
+    assertThat(selectProjectPermissionUsers(project, ProjectPermission.ADMIN)).isEmpty();
+    assertThat(selectProjectPermissionUsers(project, ProjectPermission.CODEVIEWER)).containsExactly(user1.getUuid());
+    assertThat(selectProjectPermissionUsers(project, ProjectPermission.ISSUE_ADMIN)).containsExactly(user2.getUuid());
   }
 
   private void newRequest(@Nullable String templateUuid, @Nullable String projectUuid, @Nullable String projectKey) {
@@ -238,24 +238,24 @@ public class ApplyTemplateActionIT extends BasePermissionWsIT<ApplyTemplateActio
     request.execute();
   }
 
-  private void addUserToTemplate(UserDto user, PermissionTemplateDto permissionTemplate, String permission) {
+  private void addUserToTemplate(UserDto user, PermissionTemplateDto permissionTemplate, ProjectPermission permission) {
     db.getDbClient().permissionTemplateDao().insertUserPermission(db.getSession(), permissionTemplate.getUuid(), user.getUuid(),
       permission, permissionTemplate.getName(), user.getLogin());
     db.commit();
   }
 
-  private void addGroupToTemplate(GroupDto group, PermissionTemplateDto permissionTemplate, String permission) {
+  private void addGroupToTemplate(GroupDto group, PermissionTemplateDto permissionTemplate, ProjectPermission permission) {
     db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), permissionTemplate.getUuid(), group.getUuid(),
       permission, permissionTemplate.getName(), group.getName());
     db.commit();
   }
 
-  private List<String> selectProjectPermissionGroups(EntityDto entity, String permission) {
+  private List<String> selectProjectPermissionGroups(EntityDto entity, ProjectPermission permission) {
     PermissionQuery query = PermissionQuery.builder().setPermission(permission).setEntity(entity).build();
     return db.getDbClient().groupPermissionDao().selectGroupNamesByQuery(db.getSession(), query);
   }
 
-  private List<String> selectProjectPermissionUsers(EntityDto entity, String permission) {
+  private List<String> selectProjectPermissionUsers(EntityDto entity, ProjectPermission permission) {
     PermissionQuery query = PermissionQuery.builder().setPermission(permission).setEntity(entity).build();
     return db.getDbClient().userPermissionDao().selectUserUuidsByQuery(db.getSession(), query);
   }

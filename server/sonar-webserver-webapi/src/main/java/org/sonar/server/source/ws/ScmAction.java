@@ -29,7 +29,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -103,7 +103,7 @@ public class ScmAction implements SourcesWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto file = componentFinder.getByKey(dbSession, fileKey);
-      userSession.checkComponentPermission(UserRole.CODEVIEWER, file);
+      userSession.checkComponentPermission(ProjectPermission.CODEVIEWER, file);
       Iterable<DbFileSources.Line> sourceLines = checkFoundWithOptional(sourceService.getLines(dbSession, file.uuid(), from, to), "File " +
         "'%s' has no sources", fileKey);
       try (JsonWriter json = response.newJsonWriter()) {

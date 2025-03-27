@@ -22,7 +22,7 @@ package org.sonar.server.common.almsettings.github;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.alm.client.github.GithubPermissionConverter;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.auth.DevOpsPlatformSettings;
 import org.sonar.auth.github.AppInstallationToken;
 import org.sonar.auth.github.GsonRepositoryCollaborator;
@@ -121,9 +121,9 @@ public class GithubProjectCreator extends DefaultDevOpsProjectCreator {
   }
 
   private boolean hasScanPermission(Set<DevOpsPermissionsMappingDto> permissionsMappingDtos, String role, GsonRepositoryPermissions permissions) {
-    Set<String> sonarqubePermissions = githubPermissionConverter.toSonarqubeRolesWithFallbackOnRepositoryPermissions(permissionsMappingDtos,
+    Set<ProjectPermission> sonarqubePermissions = githubPermissionConverter.toSonarqubeRolesWithFallbackOnRepositoryPermissions(permissionsMappingDtos,
       role, permissions);
-    return sonarqubePermissions.contains(UserRole.SCAN);
+    return sonarqubePermissions.contains(ProjectPermission.SCAN);
   }
 
 }

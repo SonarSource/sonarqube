@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -64,7 +64,7 @@ public class UpdateKeyActionIT {
   @Test
   public void update_key_of_project_referenced_by_its_key() {
     ProjectData project = insertProject();
-    userSessionRule.addProjectPermission(UserRole.ADMIN, project.getProjectDto());
+    userSessionRule.addProjectPermission(ProjectPermission.ADMIN, project.getProjectDto());
 
     call(project.projectKey(), ANOTHER_KEY);
 
@@ -78,7 +78,7 @@ public class UpdateKeyActionIT {
   @Test
   public void fail_if_not_authorized() {
     ProjectData project = insertProject();
-    userSessionRule.addProjectPermission(UserRole.USER, project.getProjectDto());
+    userSessionRule.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
 
     String projectKey = project.projectKey();
     assertThatThrownBy(() -> call(projectKey, ANOTHER_KEY))
@@ -89,7 +89,7 @@ public class UpdateKeyActionIT {
   @Test
   public void fail_if_new_key_is_not_provided() {
     ProjectData project = insertProject();
-    userSessionRule.addProjectPermission(UserRole.ADMIN, project.getProjectDto());
+    userSessionRule.addProjectPermission(ProjectPermission.ADMIN, project.getProjectDto());
 
     String projectKey = project.projectKey();
     assertThatThrownBy(() -> call(projectKey, null))

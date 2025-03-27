@@ -40,7 +40,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.platform.EditionProvider.Edition;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
@@ -1377,7 +1377,7 @@ class SearchProjectsActionIT {
     authorizationIndexerTester.allowOnlyAnyone(publicProject);
     index();
 
-    userSession.addProjectPermission(UserRole.USER, privateProject);
+    userSession.addProjectPermission(ProjectPermission.USER, privateProject);
 
     SearchProjectsWsResponse result = call(request);
 

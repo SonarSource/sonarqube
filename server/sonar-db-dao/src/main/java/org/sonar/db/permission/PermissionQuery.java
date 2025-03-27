@@ -137,6 +137,10 @@ public class PermissionQuery {
       return this;
     }
 
+    public Builder setPermission(@Nullable ProjectPermission permission) {
+      return setPermission(permission == null ? null : permission.getKey());
+    }
+
     public Builder setEntity(ComponentDto component) {
       return setEntityUuid(component.uuid());
     }

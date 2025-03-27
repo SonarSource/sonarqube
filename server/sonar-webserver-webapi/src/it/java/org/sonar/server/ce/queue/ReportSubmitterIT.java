@@ -45,6 +45,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -95,7 +96,6 @@ import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
-import static org.sonar.db.permission.GlobalPermission.SCAN;
 
 public class ReportSubmitterIT {
 
@@ -127,7 +127,8 @@ public class ReportSubmitterIT {
     new FavoriteUpdater(db.getDbClient()), projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver, mock(PermissionUpdater.class), permissionService);
   private final ManagedProjectService managedProjectService = mock();
   private final ManagedInstanceService managedInstanceService = mock();
-  private final GithubDevOpsProjectCreationContextService githubDevOpsProjectService = new GithubDevOpsProjectCreationContextService(db.getDbClient(), userSession, githubApplicationClient);
+  private final GithubDevOpsProjectCreationContextService githubDevOpsProjectService = new GithubDevOpsProjectCreationContextService(db.getDbClient(), userSession,
+    githubApplicationClient);
   private final ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
   private final GithubProjectCreatorFactory githubProjectCreatorFactory = new GithubProjectCreatorFactory(db.getDbClient(), githubGlobalSettingsValidator,
     githubApplicationClient, projectKeyGenerator, projectCreator, gitHubSettings, null, permissionUpdater, permissionService,
@@ -136,7 +137,6 @@ public class ReportSubmitterIT {
   private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactory = new DelegatingDevOpsProjectCreatorFactory(Set.of(githubProjectCreatorFactory));
 
   private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactorySpy = spy(devOpsProjectCreatorFactory);
-
 
   private final ReportSubmitter underTest = new ReportSubmitter(queue, userSession, projectCreator, componentUpdater, permissionTemplateService, db.getDbClient(),
     ossEditionBranchSupport, devOpsProjectCreatorFactorySpy, managedInstanceService);
@@ -182,7 +182,7 @@ public class ReportSubmitterIT {
   public void submit_a_report_on_existing_project() {
     ProjectData project = db.components().insertPrivateProject();
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(SCAN.getKey(), project.getProjectDto())
+    userSession.logIn(user).addProjectPermission(ProjectPermission.SCAN, project.getProjectDto())
       .addProjectBranchMapping(project.projectUuid(), project.getMainBranchComponent());
     mockSuccessfulPrepareSubmitCall();
 
@@ -191,11 +191,11 @@ public class ReportSubmitterIT {
     verifyReportIsPersisted(TASK_UUID);
     verifyNoInteractions(permissionTemplateService);
     verify(queue).submit(argThat(submit -> submit.getType().equals(CeTaskTypes.REPORT)
-                                           && submit.getComponent()
-                                             .filter(cpt -> cpt.getUuid().equals(project.getMainBranchComponent().uuid()) && cpt.getEntityUuid().equals(project.projectUuid()))
-                                             .isPresent()
-                                           && submit.getSubmitterUuid().equals(user.getUuid())
-                                           && submit.getUuid().equals(TASK_UUID)));
+      && submit.getComponent()
+        .filter(cpt -> cpt.getUuid().equals(project.getMainBranchComponent().uuid()) && cpt.getEntityUuid().equals(project.projectUuid()))
+        .isPresent()
+      && submit.getSubmitterUuid().equals(user.getUuid())
+      && submit.getUuid().equals(TASK_UUID)));
   }
 
   @Test
@@ -214,9 +214,9 @@ public class ReportSubmitterIT {
 
     verifyReportIsPersisted(TASK_UUID);
     verify(queue).submit(argThat(submit -> submit.getType().equals(CeTaskTypes.REPORT)
-                                           && submit.getComponent().filter(cpt -> cpt.getUuid().equals(createdProject.uuid()) && cpt.getEntityUuid().equals(projectDto.getUuid()))
-                                             .isPresent()
-                                           && submit.getUuid().equals(TASK_UUID)));
+      && submit.getComponent().filter(cpt -> cpt.getUuid().equals(createdProject.uuid()) && cpt.getEntityUuid().equals(projectDto.getUuid()))
+        .isPresent()
+      && submit.getUuid().equals(TASK_UUID)));
     assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.SCANNER_API);
   }
 
@@ -274,7 +274,7 @@ public class ReportSubmitterIT {
 
   @Test
   public void submit_whenReportIsForANewProjectWithoutDevOpsMetadata_createsLocalProject() {
-    userSession.addPermission(PROVISION_PROJECTS).addPermission(SCAN);
+    userSession.addPermission(PROVISION_PROJECTS).addPermission(GlobalPermission.SCAN);
     mockSuccessfulPrepareSubmitCall();
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), anyString(), anyString())).thenReturn(true);
 
@@ -287,7 +287,7 @@ public class ReportSubmitterIT {
   @Test
   public void submit_whenReportIsForANewProjectWithValidAlmSettingsAutoProvisioningOnAndPermOnGh_createsProjectWithBinding() {
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS).addPermission(SCAN);
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS).addPermission(GlobalPermission.SCAN);
 
     when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
     mockSuccessfulPrepareSubmitCall();
@@ -304,7 +304,7 @@ public class ReportSubmitterIT {
   @Test
   public void submit_whenReportIsForANewProjectWithValidAlmSettingsAutoProvisioningOnAndProjectVisibilitySyncAndPermOnGh_createsProjectWithBinding() {
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS).addPermission(SCAN);
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS).addPermission(GlobalPermission.SCAN);
 
     when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
     when(gitHubSettings.isProjectVisibilitySynchronizationActivated()).thenReturn(true);
@@ -394,7 +394,8 @@ public class ReportSubmitterIT {
 
     mockGithubRepository(isPrivate);
 
-    DevOpsProjectCreationContext devOpsProjectCreationContext = new DevOpsProjectCreationContext("repo", "orga/repo", "orga/repo", true, "defaultBranch", almSettingDto, userSession);
+    DevOpsProjectCreationContext devOpsProjectCreationContext = new DevOpsProjectCreationContext("repo", "orga/repo", "orga/repo", true, "defaultBranch", almSettingDto,
+      userSession);
 
     DevOpsProjectCreator devOpsProjectCreator = spy(new GithubProjectCreator(db.getDbClient(), devOpsProjectCreationContext, projectKeyGenerator, gitHubSettings, projectCreator,
       permissionService, permissionUpdater, managedProjectService, githubApplicationClient, null, null));
@@ -414,7 +415,7 @@ public class ReportSubmitterIT {
   @Test
   public void user_with_scan_permission_is_allowed_to_submit_a_report_on_existing_project() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addPermission(SCAN);
+    userSession.addPermission(GlobalPermission.SCAN);
     mockSuccessfulPrepareSubmitCall();
 
     underTest.submit(project.getKey(), project.name(), emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
@@ -426,7 +427,7 @@ public class ReportSubmitterIT {
   public void submit_a_report_on_existing_project_with_project_scan_permission() {
     ProjectData projectData = db.components().insertPrivateProject();
     ProjectDto project = projectData.getProjectDto();
-    userSession.addProjectPermission(SCAN.getKey(), project)
+    userSession.addProjectPermission(ProjectPermission.SCAN, project)
       .addProjectBranchMapping(project.getUuid(), projectData.getMainBranchComponent());
     mockSuccessfulPrepareSubmitCall();
 
@@ -438,7 +439,7 @@ public class ReportSubmitterIT {
   @Test
   public void fail_if_component_is_not_a_project() {
     ComponentDto component = db.components().insertPublicPortfolio();
-    userSession.logIn().addPortfolioPermission(SCAN.getKey(), component);
+    userSession.logIn().addPortfolioPermission(ProjectPermission.SCAN, component);
     mockSuccessfulPrepareSubmitCall();
 
     String dbKey = component.getKey();
@@ -455,7 +456,7 @@ public class ReportSubmitterIT {
     ProjectData projectData = db.components().insertPrivateProject();
     ProjectDto project = projectData.getProjectDto();
     ComponentDto dir = db.components().insertComponent(newDirectory(projectData.getMainBranchComponent(), "path"));
-    userSession.logIn().addProjectPermission(SCAN.getKey(), project);
+    userSession.logIn().addProjectPermission(ProjectPermission.SCAN, project);
     mockSuccessfulPrepareSubmitCall();
 
     String dirDbKey = dir.getKey();
@@ -467,7 +468,7 @@ public class ReportSubmitterIT {
       .extracting(throwable -> ((BadRequestException) throwable).errors())
       .asList()
       .contains(format("The project '%s' is already defined in SonarQube but as a module of project '%s'. " +
-                       "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
+        "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
         dir.getKey(), project.getKey(), project.getKey(), dir.getKey()));
   }
 
@@ -482,7 +483,7 @@ public class ReportSubmitterIT {
   @Test
   public void fail_with_forbidden_exception_on_new_project_when_only_project_scan_permission() {
     ProjectDto project = db.components().insertPrivateProject(PROJECT_UUID).getProjectDto();
-    userSession.addProjectPermission(SCAN.getKey(), project);
+    userSession.addProjectPermission(ProjectPermission.SCAN, project);
     mockSuccessfulPrepareSubmitCall();
 
     Map<String, String> emptyMap = emptyMap();

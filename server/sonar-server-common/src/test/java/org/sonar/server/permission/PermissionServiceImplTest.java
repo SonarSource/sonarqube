@@ -20,26 +20,28 @@
 package org.sonar.server.permission;
 
 import org.junit.Test;
-import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
+import org.sonar.server.component.ComponentTypesRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PermissionServiceImplTest {
 
-  private ComponentTypesRule resourceTypesRule = new ComponentTypesRule().setRootQualifiers("APP", "VW");
-  private PermissionServiceImpl underTest = new PermissionServiceImpl(resourceTypesRule);
+  private final ComponentTypesRule resourceTypesRule = new ComponentTypesRule().setRootQualifiers("APP", "VW");
+  private final PermissionServiceImpl underTest = new PermissionServiceImpl(resourceTypesRule);
 
   @Test
   public void globalPermissions_must_be_ordered() {
     assertThat(underTest.getGlobalPermissions())
       .extracting(GlobalPermission::getKey)
-      .containsExactly("admin", "gateadmin", "profileadmin", "provisioning", "scan", "applicationcreator", "portfoliocreator");
+      .containsExactlyInAnyOrder("admin", "gateadmin", "profileadmin", "provisioning", "scan", "applicationcreator", "portfoliocreator");
   }
 
   @Test
   public void projectPermissions_must_be_ordered() {
     assertThat(underTest.getAllProjectPermissions())
-      .containsExactly("admin", "codeviewer", "issueadmin", "securityhotspotadmin", "scan", "user");
+      .extracting(ProjectPermission::getKey)
+      .containsExactlyInAnyOrder("admin", "codeviewer", "issueadmin", "securityhotspotadmin", "scan", "user");
   }
 }

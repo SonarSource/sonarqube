@@ -26,7 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.project.ProjectDto;
@@ -177,7 +177,7 @@ public class SearchActionIT {
   private void addPermissionAndFavorite(ProjectDto component) {
     db.favorites().add(component, userUuid, userLogin);
     db.commit();
-    userSession.addProjectPermission(UserRole.USER, component);
+    userSession.addProjectPermission(ProjectPermission.USER, component);
   }
 
   private SearchResponse call(@Nullable Integer page, @Nullable Integer pageSize) {

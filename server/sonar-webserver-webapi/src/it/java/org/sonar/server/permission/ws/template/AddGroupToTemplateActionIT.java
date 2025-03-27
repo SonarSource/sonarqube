@@ -23,15 +23,15 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
-import org.sonar.api.web.UserRole;
-import org.sonar.server.component.ComponentTypesRule;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.permission.PermissionQuery;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.component.ComponentTypes;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -45,10 +45,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
-import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
-import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
+import static org.sonar.db.permission.ProjectPermission.ADMIN;
+import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
+import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
@@ -100,7 +100,7 @@ public class AddGroupToTemplateActionIT extends BasePermissionWsIT<AddGroupToTem
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
-      .setParam(PARAM_PERMISSION, CODEVIEWER)
+      .setParam(PARAM_PERMISSION, CODEVIEWER.getKey())
       .setParam(PARAM_TEMPLATE_NAME, template.getName().toUpperCase())
       .execute();
 
@@ -132,7 +132,7 @@ public class AddGroupToTemplateActionIT extends BasePermissionWsIT<AddGroupToTem
 
     assertThatThrownBy(() -> newRequest(ANYONE, template.getUuid(), ADMIN))
       .isInstanceOf(BadRequestException.class)
-      .hasMessage(String.format("It is not possible to add the '%s' permission to the group 'Anyone'.", UserRole.ADMIN));
+      .hasMessage(String.format("It is not possible to add the '%s' permission to the group 'Anyone'.", ProjectPermission.ADMIN));
   }
 
   @Test
@@ -163,7 +163,7 @@ public class AddGroupToTemplateActionIT extends BasePermissionWsIT<AddGroupToTem
   public void fail_if_permission_missing() {
     loginAsAdmin();
 
-    assertThatThrownBy(() -> newRequest(group.getName(), template.getUuid(), null))
+    assertThatThrownBy(() -> newRequest(group.getName(), template.getUuid(), (String) null))
       .isInstanceOf(IllegalArgumentException.class);
   }
 
@@ -193,6 +193,10 @@ public class AddGroupToTemplateActionIT extends BasePermissionWsIT<AddGroupToTem
       .hasMessage("Permission template with id 'unknown-key' is not found");
   }
 
+  private void newRequest(@Nullable String groupName, @Nullable String templateKey, ProjectPermission permission) {
+    newRequest(groupName, templateKey, permission.getKey());
+  }
+
   private void newRequest(@Nullable String groupName, @Nullable String templateKey, @Nullable String permission) {
     TestRequest request = newRequest();
     if (groupName != null) {
@@ -208,7 +212,7 @@ public class AddGroupToTemplateActionIT extends BasePermissionWsIT<AddGroupToTem
     request.execute();
   }
 
-  private List<String> getGroupNamesInTemplateAndPermission(PermissionTemplateDto template, String permission) {
+  private List<String> getGroupNamesInTemplateAndPermission(PermissionTemplateDto template, ProjectPermission permission) {
     PermissionQuery query = PermissionQuery.builder().setPermission(permission).build();
     return db.getDbClient().permissionTemplateDao()
       .selectGroupNamesByQueryAndTemplate(db.getSession(), query, template.getUuid());

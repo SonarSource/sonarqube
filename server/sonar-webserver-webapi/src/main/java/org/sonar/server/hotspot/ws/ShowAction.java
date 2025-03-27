@@ -33,7 +33,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -296,7 +296,7 @@ public class ShowAction implements HotspotsWsAction {
     String componentUuid = hotspot.getComponentUuid();
     checkArgument(componentUuid != null, "Hotspot '%s' has no component", hotspot.getKee());
 
-    ProjectAndBranch projectAndBranch = hotspotWsSupport.loadAndCheckBranch(dbSession, hotspot, UserRole.USER);
+    ProjectAndBranch projectAndBranch = hotspotWsSupport.loadAndCheckBranch(dbSession, hotspot, ProjectPermission.USER);
     BranchDto branch = projectAndBranch.getBranch();
     ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, componentUuid)
       .orElseThrow(() -> new NotFoundException(format("Component with uuid '%s' does not exist", componentUuid)));
