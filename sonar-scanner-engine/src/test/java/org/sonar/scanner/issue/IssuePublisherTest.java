@@ -19,16 +19,15 @@
  */
 package org.sonar.scanner.issue;
 
-import java.io.IOException;
+import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -67,13 +66,13 @@ import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
 import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
 
 @RunWith(MockitoJUnitRunner.class)
-public class IssuePublisherTest {
+class IssuePublisherTest {
   private static final RuleKey JAVA_RULE_KEY = RuleKey.of("java", "AvoidCycle");
 
   private DefaultInputProject project;
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  @TempDir
+  public File temp;
   public IssueFilters filters = mock(IssueFilters.class);
 
   private final ActiveRulesBuilder activeRulesBuilder = new ActiveRulesBuilder();
@@ -81,12 +80,12 @@ public class IssuePublisherTest {
   private final DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php").initMetadata("Foo\nBar\nBiz\n").build();
   private final ReportPublisher reportPublisher = mock(ReportPublisher.class, RETURNS_DEEP_STUBS);
 
-  @Before
-  public void prepare() throws IOException {
+  @BeforeEach
+  void prepare() {
     project = new DefaultInputProject(ProjectDefinition.create()
       .setKey("foo")
-      .setBaseDir(temp.newFolder())
-      .setWorkDir(temp.newFolder()));
+      .setBaseDir(temp)
+      .setWorkDir(temp));
 
     activeRulesBuilder.addRule(new NewActiveRule.Builder()
       .setRuleKey(JAVA_RULE_KEY)
@@ -97,12 +96,12 @@ public class IssuePublisherTest {
   }
 
   @Test
-  public void ignore_null_active_rule() {
-    RuleKey INACTIVE_RULE_KEY = RuleKey.of("repo", "inactive");
+  void ignore_null_active_rule() {
+    RuleKey inactiveRuleKey = RuleKey.of("repo", "inactive");
     initModuleIssues();
     DefaultIssue issue = new DefaultIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
-      .forRule(INACTIVE_RULE_KEY);
+      .forRule(inactiveRuleKey);
     boolean added = moduleIssues.initAndAddIssue(issue);
 
     assertThat(added).isFalse();
@@ -110,7 +109,7 @@ public class IssuePublisherTest {
   }
 
   @Test
-  public void ignore_null_rule_of_active_rule() {
+  void ignore_null_rule_of_active_rule() {
     initModuleIssues();
 
     DefaultIssue issue = new DefaultIssue(project)
@@ -123,7 +122,7 @@ public class IssuePublisherTest {
   }
 
   @Test
-  public void add_issue_to_cache() {
+  void add_issue_to_cache() {
     initModuleIssues();
 
     final String ruleDescriptionContextKey = "spring";
@@ -157,7 +156,7 @@ public class IssuePublisherTest {
   }
 
   @Test
-  public void add_issue_flows_to_cache() {
+  void add_issue_flows_to_cache() {
     initModuleIssues();
 
     DefaultMessageFormatting messageFormatting = new DefaultMessageFormatting().start(0).end(4).type(CODE);
@@ -199,7 +198,7 @@ public class IssuePublisherTest {
   }
 
   @Test
-  public void add_external_issue_to_cache() {
+  void add_external_issue_to_cache() {
     initModuleIssues();
 
     DefaultExternalIssue issue = new DefaultExternalIssue(project)
@@ -216,7 +215,7 @@ public class IssuePublisherTest {
   }
 
   @Test
-  public void initAndAddExternalIssue_whenImpactAndCleanCodeAttributeProvided_shouldPopulateReportFields() {
+  void initAndAddExternalIssue_whenImpactAndCleanCodeAttributeProvided_shouldPopulateReportFields() {
     initModuleIssues();
 
     DefaultExternalIssue issue = new DefaultExternalIssue(project)
@@ -235,7 +234,7 @@ public class IssuePublisherTest {
   }
 
   @Test
-  public void dont_store_severity_if_no_severity_override_on_issue() {
+  void dont_store_severity_if_no_severity_override_on_issue() {
     initModuleIssues();
 
     DefaultIssue issue = new DefaultIssue(project)
@@ -251,7 +250,7 @@ public class IssuePublisherTest {
   }
 
   @Test
-  public void filter_issue() {
+  void filter_issue() {
     DefaultIssue issue = new DefaultIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message(""))
       .forRule(JAVA_RULE_KEY);
@@ -265,7 +264,7 @@ public class IssuePublisherTest {
   }
 
   @Test
-  public void should_ignore_lines_commented_with_nosonar() {
+  void should_ignore_lines_commented_with_nosonar() {
     initModuleIssues();
 
     DefaultIssue issue = new DefaultIssue(project)
@@ -282,7 +281,7 @@ public class IssuePublisherTest {
 
   @ParameterizedTest
   @ValueSource(strings = {"NoSonarCheck", "S1291", "S1291Check"})
-  public void should_accept_issues_on_no_sonar_rules(String noSonarRule) {
+  void should_accept_issues_on_no_sonar_rules(String noSonarRule) {
     RuleKey noSonarRuleKey = RuleKey.of("java", noSonarRule);
     // The "No Sonar" rule logs violations on the lines that are flagged with "NOSONAR" !!
     activeRulesBuilder.addRule(new NewActiveRule.Builder()
