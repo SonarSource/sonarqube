@@ -63,6 +63,7 @@ import org.sonar.server.issue.workflow.CodeQualityIssueWorkflow;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.workflow.SecurityHostpotWorkflow;
+import org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.pushapi.issues.IssueChangeEventService;
 import org.sonar.server.rule.DefaultRuleFinder;
@@ -85,7 +86,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_REVIEWED;
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
@@ -388,7 +388,7 @@ public class BulkChangeActionIT {
 
     BulkChangeWsResponse response = call(builder()
       .setIssues(singletonList(issue.getKey()))
-      .setDoTransition(RESOLVE_AS_REVIEWED)
+      .setDoTransition(SecurityHotspotWorkflowTransition.RESOLVE_AS_REVIEWED.getKey())
       .setSendNotifications(true)
       .build());
 

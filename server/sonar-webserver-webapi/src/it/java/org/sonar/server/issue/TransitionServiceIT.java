@@ -33,7 +33,7 @@ import org.sonar.server.issue.workflow.CodeQualityIssueWorkflow;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.workflow.SecurityHostpotWorkflow;
-import org.sonar.server.issue.workflow.Transition;
+import org.sonar.server.issue.workflow.statemachine.Transition;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;

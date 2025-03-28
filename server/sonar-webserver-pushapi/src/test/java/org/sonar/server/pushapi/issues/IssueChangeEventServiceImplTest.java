@@ -32,9 +32,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
-import org.sonar.core.rule.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
+import org.sonar.core.rule.RuleType;
 import org.sonar.core.util.issue.Issue;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
@@ -46,19 +46,18 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.pushevent.PushEventDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition;
 import org.sonarqube.ws.Common;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.api.issue.DefaultTransitions.ACCEPT;
-import static org.sonar.api.issue.DefaultTransitions.CONFIRM;
-import static org.sonar.api.issue.DefaultTransitions.FALSE_POSITIVE;
-import static org.sonar.api.issue.DefaultTransitions.REOPEN;
-import static org.sonar.api.issue.DefaultTransitions.RESOLVE;
-import static org.sonar.api.issue.DefaultTransitions.UNCONFIRM;
-import static org.sonar.api.issue.DefaultTransitions.WONT_FIX;
 import static org.sonar.core.rule.RuleType.CODE_SMELL;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.ACCEPT;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.FALSE_POSITIVE;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.REOPEN;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.RESOLVE;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.WONT_FIX;
 import static org.sonarqube.ws.Common.Severity.BLOCKER;
 import static org.sonarqube.ws.Common.Severity.CRITICAL;
 import static org.sonarqube.ws.Common.Severity.MAJOR;
@@ -115,8 +114,8 @@ public class IssueChangeEventServiceImplTest {
     assertPushEventIsPersisted(project, mainBranch, issue, null, Map.of(), null, REOPEN, false, 5);
     assertPushEventIsPersisted(project, mainBranch, issue, null, Map.of(), null, RESOLVE, false, 6);
     assertPushEventIsPersisted(project, mainBranch, issue, null, Map.of(), null, REOPEN, false, 7);
-    assertNoIssueDistribution(project, mainBranch, issue, null, Map.of(), null, CONFIRM, 8);
-    assertNoIssueDistribution(project, mainBranch, issue, null, Map.of(), null, UNCONFIRM, 9);
+    assertNoIssueDistribution(project, mainBranch, issue, null, Map.of(), null, CodeQualityIssueWorkflowTransition.CONFIRM, 8);
+    assertNoIssueDistribution(project, mainBranch, issue, null, Map.of(), null, CodeQualityIssueWorkflowTransition.UNCONFIRM, 9);
   }
 
   @Test
@@ -250,8 +249,8 @@ public class IssueChangeEventServiceImplTest {
   }
 
   private void assertNoIssueDistribution(ProjectDto project, BranchDto branch, IssueDto issue, @Nullable String severity,
-    Map<SoftwareQuality, Severity> impacts, @Nullable String type, @Nullable String transition, int page) {
-    underTest.distributeIssueChangeEvent(issue.toDefaultIssue(), severity, impacts, type, transition, branch, project.getKey());
+    Map<SoftwareQuality, Severity> impacts, @Nullable String type, @Nullable CodeQualityIssueWorkflowTransition transition, int page) {
+    underTest.distributeIssueChangeEvent(issue.toDefaultIssue(), severity, impacts, type, transition != null ? transition.getKey() : null, branch, project.getKey());
 
     Deque<PushEventDto> events = db.getDbClient().pushEventDao()
       .selectChunkByProjectUuids(db.getSession(), Set.of(project.getUuid()), 1l, null, page);
@@ -260,8 +259,8 @@ public class IssueChangeEventServiceImplTest {
 
   private void assertPushEventIsPersisted(ProjectDto project, BranchDto branch, IssueDto issue, @Nullable String severity,
     Map<SoftwareQuality, Severity> impacts,
-    @Nullable String type, @Nullable String transition, Boolean resolved, int page) {
-    underTest.distributeIssueChangeEvent(issue.toDefaultIssue(), severity, impacts, type, transition, branch, project.getKey());
+    @Nullable String type, @Nullable CodeQualityIssueWorkflowTransition transition, Boolean resolved, int page) {
+    underTest.distributeIssueChangeEvent(issue.toDefaultIssue(), severity, impacts, type, transition != null ? transition.getKey() : null, branch, project.getKey());
 
     Deque<PushEventDto> events = db.getDbClient().pushEventDao()
       .selectChunkByProjectUuids(db.getSession(), Set.of(project.getUuid()), 1l, null, page);

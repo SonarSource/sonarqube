@@ -17,30 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.workflow;
+package org.sonar.server.issue.workflow.statemachine;
 
-import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
-import org.sonar.core.rule.RuleType;
-import org.sonar.db.user.UserDto;
 
 @FunctionalInterface
-interface Function {
-  interface Context {
-    Issue issue();
+public interface Condition {
 
-    Context setAssignee(@Nullable UserDto user);
+  boolean matches(Issue issue);
 
-    Context setResolution(@Nullable String s);
-
-    Context setCloseDate();
-
-    Context unsetCloseDate();
-
-    Context unsetLine();
-
-    Context setType(@Nullable RuleType type);
-  }
-
-  void execute(Context context);
 }

@@ -20,7 +20,6 @@
 package org.sonar.server.issue.ws.anticipatedtransition;
 
 import java.io.BufferedReader;
-import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -30,6 +29,8 @@ import org.sonar.server.issue.ws.IssuesWsAction;
 import org.sonarqube.ws.client.issue.IssuesWsParameters;
 
 import static java.net.HttpURLConnection.HTTP_ACCEPTED;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.ACCEPT;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.WONT_FIX;
 
 public class AnticipatedTransitionsAction implements IssuesWsAction {
 
@@ -48,8 +49,8 @@ public class AnticipatedTransitionsAction implements IssuesWsAction {
     WebService.NewAction action = controller
       .createAction(IssuesWsParameters.ACTION_ANTICIPATED_TRANSITIONS)
       .setChangelog(
-        new Change("10.4", "Transition '%s' is now deprecated. Use '%s' instead.".formatted(DefaultTransitions.WONT_FIX, DefaultTransitions.ACCEPT)),
-        new Change("10.4", "Transition '%s' has been added.".formatted(DefaultTransitions.ACCEPT))
+        new Change("10.4", "Transition '%s' is now deprecated. Use '%s' instead.".formatted(WONT_FIX, ACCEPT)),
+        new Change("10.4", "Transition '%s' has been added.".formatted(ACCEPT))
       )
       .setDescription("""
       Receive a list of anticipated transitions that can be applied to not yet discovered issues on a specific project.<br>

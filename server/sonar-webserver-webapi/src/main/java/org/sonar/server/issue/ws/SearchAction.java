@@ -33,7 +33,6 @@ import javax.annotation.Nullable;
 import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
-import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.Severity;
@@ -57,6 +56,7 @@ import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueQuery;
 import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.issue.index.IssueScope;
+import org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition;
 import org.sonar.server.security.SecurityStandards.SQCategory;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.SearchWsResponse;
@@ -236,9 +236,9 @@ public class SearchAction implements IssuesWsAction {
         new Change("10.6", format(NEW_PARAM_ADDED_MESSAGE, PARAM_PRIORITIZED_RULE)),
         new Change("10.4", "Added new param '%s'".formatted(PARAM_FIXED_IN_PULL_REQUEST)),
         new Change("10.4",
-          "Value '%s' for 'transition' response field is deprecated, use '%s' instead".formatted(DefaultTransitions.WONT_FIX,
-            DefaultTransitions.ACCEPT)),
-        new Change("10.4", "Possible value '%s' for 'transition' response field has been added".formatted(DefaultTransitions.ACCEPT)),
+          "Value '%s' for 'transition' response field is deprecated, use '%s' instead".formatted(CodeQualityIssueWorkflowTransition.WONT_FIX,
+            CodeQualityIssueWorkflowTransition.ACCEPT)),
+        new Change("10.4", "Possible value '%s' for 'transition' response field has been added".formatted(CodeQualityIssueWorkflowTransition.ACCEPT)),
         new Change("10.4", format(NEW_PARAM_ADDED_MESSAGE, PARAM_ISSUE_STATUSES)),
         new Change("10.4", format("Parameters '%s' and '%s' are deprecated in favor of '%s'.", PARAM_RESOLUTIONS, PARAM_STATUSES, PARAM_ISSUE_STATUSES)),
         new Change("10.4", format("Parameters '%s' and '%s' are deprecated, use '%s' and '%s' instead.", PARAM_SEVERITIES, PARAM_TYPES,

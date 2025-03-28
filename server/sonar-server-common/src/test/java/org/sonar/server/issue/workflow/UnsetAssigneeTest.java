@@ -20,6 +20,7 @@
 package org.sonar.server.issue.workflow;
 
 import org.junit.Test;
+import org.sonar.server.issue.workflow.statemachine.Function;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;

@@ -38,6 +38,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.component.BranchType;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.workflow.IssueWorkflow;
+import org.sonar.server.issue.workflow.WorkflowTransition;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
@@ -224,6 +225,10 @@ public class IssueLifecycle {
 
   public void doAutomaticTransition(DefaultIssue issue) {
     workflow.doAutomaticTransition(issue, changeContext);
+  }
+
+  public void doManualTransition(DefaultIssue issue, WorkflowTransition transition, String userUuid) {
+    doManualTransition(issue, transition.getKey(), userUuid);
   }
 
   public void doManualTransition(DefaultIssue issue, String transitionKey, String userUuid) {

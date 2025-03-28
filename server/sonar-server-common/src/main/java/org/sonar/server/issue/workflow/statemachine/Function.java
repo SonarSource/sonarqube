@@ -17,27 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.workflow;
+package org.sonar.server.issue.workflow.statemachine;
 
-import java.util.HashSet;
-import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
-import org.sonar.server.issue.workflow.statemachine.Condition;
+import org.sonar.core.rule.RuleType;
+import org.sonar.db.user.UserDto;
 
-import static java.util.Arrays.asList;
+@FunctionalInterface
+public interface Function {
+  interface Context {
+    Issue issue();
 
-public class HasResolution implements Condition {
+    Context setAssignee(@Nullable UserDto user);
 
-  private final Set<String> resolutions;
+    Context setResolution(@Nullable String s);
 
-  public HasResolution(String first, String... others) {
-    this.resolutions = new HashSet<>();
-    this.resolutions.add(first);
-    this.resolutions.addAll(asList(others));
+    Context setCloseDate();
+
+    Context unsetCloseDate();
+
+    Context unsetLine();
+
+    Context setType(@Nullable RuleType type);
   }
 
-  @Override
-  public boolean matches(Issue issue) {
-    return issue.resolution() != null && resolutions.contains(issue.resolution());
-  }
+  void execute(Context context);
 }

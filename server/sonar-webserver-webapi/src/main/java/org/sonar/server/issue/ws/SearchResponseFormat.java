@@ -52,7 +52,7 @@ import org.sonar.markdown.Markdown;
 import org.sonar.server.es.Facets;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.index.IssueScope;
-import org.sonar.server.issue.workflow.Transition;
+import org.sonar.server.issue.workflow.statemachine.Transition;
 import org.sonar.server.ws.MessageFormattingUtils;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Common.Comment;

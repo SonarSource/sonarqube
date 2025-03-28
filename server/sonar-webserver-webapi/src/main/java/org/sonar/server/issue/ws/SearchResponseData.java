@@ -37,7 +37,7 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.issue.workflow.Transition;
+import org.sonar.server.issue.workflow.statemachine.Transition;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

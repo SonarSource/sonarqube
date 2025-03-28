@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
+import org.sonar.server.issue.workflow.statemachine.Function;
 
 enum RestoreResolutionFunction implements Function {
   INSTANCE;

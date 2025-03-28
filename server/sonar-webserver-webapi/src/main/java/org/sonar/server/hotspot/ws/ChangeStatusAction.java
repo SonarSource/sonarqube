@@ -22,7 +22,6 @@ package org.sonar.server.hotspot.ws;
 import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -37,6 +36,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.TransitionService;
+import org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition;
 import org.sonar.server.issue.ws.IssueUpdater;
 import org.sonar.server.pushapi.hotspots.HotspotChangeEventService;
 import org.sonar.server.pushapi.hotspots.HotspotChangedEvent;
@@ -118,8 +118,8 @@ public class ChangeStatusAction implements HotspotsWsAction {
       hotspotWsSupport.loadAndCheckBranch(dbSession, hotspot, ProjectPermission.SECURITYHOTSPOT_ADMIN);
 
       if (needStatusUpdate(hotspot, newStatus, newResolution)) {
-        String transitionKey = toTransitionKey(newStatus, newResolution);
-        doTransition(dbSession, hotspot, transitionKey, trimToNull(request.param(PARAM_COMMENT)));
+        SecurityHotspotWorkflowTransition transition = toTransition(newStatus, newResolution);
+        doTransition(dbSession, hotspot, transition, trimToNull(request.param(PARAM_COMMENT)));
       }
       response.noContent();
     }
@@ -141,27 +141,27 @@ public class ChangeStatusAction implements HotspotsWsAction {
     return !(hotspot.getStatus().equals(newStatus) && Objects.equals(hotspot.getResolution(), newResolution));
   }
 
-  private static String toTransitionKey(String newStatus, String newResolution) {
+  private static SecurityHotspotWorkflowTransition toTransition(String newStatus, @Nullable String newResolution) {
     if (STATUS_TO_REVIEW.equals(newStatus)) {
-      return DefaultTransitions.RESET_AS_TO_REVIEW;
+      return SecurityHotspotWorkflowTransition.RESET_AS_TO_REVIEW;
     }
 
     if (STATUS_REVIEWED.equals(newStatus) && RESOLUTION_FIXED.equals(newResolution)) {
-      return DefaultTransitions.RESOLVE_AS_REVIEWED;
+      return SecurityHotspotWorkflowTransition.RESOLVE_AS_REVIEWED;
     }
 
     if (STATUS_REVIEWED.equals(newStatus) && RESOLUTION_ACKNOWLEDGED.equals(newResolution)) {
-      return DefaultTransitions.RESOLVE_AS_ACKNOWLEDGED;
+      return SecurityHotspotWorkflowTransition.RESOLVE_AS_ACKNOWLEDGED;
     }
 
-    return DefaultTransitions.RESOLVE_AS_SAFE;
+    return SecurityHotspotWorkflowTransition.RESOLVE_AS_SAFE;
   }
 
-  private void doTransition(DbSession session, IssueDto issueDto, String transitionKey, @Nullable String comment) {
+  private void doTransition(DbSession session, IssueDto issueDto, SecurityHotspotWorkflowTransition transition, @Nullable String comment) {
     DefaultIssue defaultIssue = issueDto.toDefaultIssue();
     IssueChangeContext context = hotspotWsSupport.newIssueChangeContextWithMeasureRefresh();
-    transitionService.checkTransitionPermission(transitionKey, defaultIssue);
-    if (transitionService.doTransition(defaultIssue, context, transitionKey)) {
+    transitionService.checkTransitionPermission(transition, defaultIssue);
+    if (transitionService.doTransition(defaultIssue, context, transition)) {
       if (comment != null) {
         issueFieldsSetter.addComment(defaultIssue, comment, context);
       }

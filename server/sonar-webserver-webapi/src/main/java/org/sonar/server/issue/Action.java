@@ -30,7 +30,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.server.issue.workflow.Condition;
+import org.sonar.server.issue.workflow.statemachine.Condition;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;

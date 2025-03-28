@@ -20,9 +20,10 @@
 package org.sonar.server.issue.workflow;
 
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.permission.ProjectPermission;
+import org.sonar.server.issue.workflow.statemachine.StateMachine;
+import org.sonar.server.issue.workflow.statemachine.Transition;
 
 import static org.sonar.api.issue.Issue.RESOLUTION_ACKNOWLEDGED;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
@@ -31,12 +32,18 @@ import static org.sonar.api.issue.Issue.RESOLUTION_SAFE;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
+import static org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition.RESET_AS_TO_REVIEW;
+import static org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition.RESOLVE_AS_ACKNOWLEDGED;
+import static org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition.RESOLVE_AS_REVIEWED;
+import static org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition.RESOLVE_AS_SAFE;
 
 @ServerSide
 @ComputeEngineSide
 public class SecurityHostpotWorkflow {
 
   private static final String AUTOMATIC_CLOSE_TRANSITION = "automaticclose";
+  public static final String AUTOMATIC_UNCLOSE_TO_REVIEW = "automaticunclosetoreview";
+  public static final String AUTOMATIC_UNCLOSE_REVIEWED = "automaticunclosereviewed";
   private final StateMachine machine;
 
   public SecurityHostpotWorkflow() {
@@ -53,7 +60,7 @@ public class SecurityHostpotWorkflow {
 
   private static void buildManualTransitions(StateMachine.Builder builder) {
     // hotspot reviewed as fixed, either from TO_REVIEW or from REVIEWED-SAFE or from REVIEWED-ACKNOWLEDGED
-    Transition.TransitionBuilder reviewedAsFixedBuilder = Transition.builder(DefaultTransitions.RESOLVE_AS_REVIEWED)
+    Transition.TransitionBuilder reviewedAsFixedBuilder = Transition.builder(RESOLVE_AS_REVIEWED.getKey())
       .to(STATUS_REVIEWED)
       .functions(new SetResolution(RESOLUTION_FIXED))
       .requiredProjectPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN);
@@ -67,7 +74,7 @@ public class SecurityHostpotWorkflow {
         .build());
 
     // hotspot reviewed as safe, either from TO_REVIEW or from REVIEWED-FIXED or from REVIEWED-ACKNOWLEDGED
-    Transition.TransitionBuilder resolveAsSafeTransitionBuilder = Transition.builder(DefaultTransitions.RESOLVE_AS_SAFE)
+    Transition.TransitionBuilder resolveAsSafeTransitionBuilder = Transition.builder(RESOLVE_AS_SAFE.getKey())
       .to(STATUS_REVIEWED)
       .functions(new SetResolution(RESOLUTION_SAFE))
       .requiredProjectPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN);
@@ -81,7 +88,7 @@ public class SecurityHostpotWorkflow {
         .build());
 
     // hotspot reviewed as acknowledged, either from TO_REVIEW or from REVIEWED-FIXED or from REVIEWED-SAFE
-    Transition.TransitionBuilder resolveAsAcknowledgedTransitionBuilder = Transition.builder(DefaultTransitions.RESOLVE_AS_ACKNOWLEDGED)
+    Transition.TransitionBuilder resolveAsAcknowledgedTransitionBuilder = Transition.builder(RESOLVE_AS_ACKNOWLEDGED.getKey())
       .to(STATUS_REVIEWED)
       .functions(new SetResolution(RESOLUTION_ACKNOWLEDGED))
       .requiredProjectPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN);
@@ -96,7 +103,7 @@ public class SecurityHostpotWorkflow {
 
     // put hotspot back into TO_REVIEW
     builder
-      .transition(Transition.builder(DefaultTransitions.RESET_AS_TO_REVIEW)
+      .transition(Transition.builder(RESET_AS_TO_REVIEW.getKey())
         .from(STATUS_REVIEWED).to(STATUS_TO_REVIEW)
         .conditions(new HasResolution(RESOLUTION_FIXED, RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED))
         .functions(new SetResolution(null))
@@ -120,7 +127,7 @@ public class SecurityHostpotWorkflow {
         .automatic()
         .build())
       // reopen closed hotspots
-      .transition(Transition.builder("automaticunclosetoreview")
+      .transition(Transition.builder(AUTOMATIC_UNCLOSE_TO_REVIEW)
         .from(STATUS_CLOSED).to(STATUS_TO_REVIEW)
         .conditions(
           new PreviousStatusWas(STATUS_TO_REVIEW),
@@ -128,7 +135,7 @@ public class SecurityHostpotWorkflow {
         .functions(RestoreResolutionFunction.INSTANCE, UnsetCloseDate.INSTANCE)
         .automatic()
         .build())
-      .transition(Transition.builder("automaticunclosereviewed")
+      .transition(Transition.builder(AUTOMATIC_UNCLOSE_REVIEWED)
         .from(STATUS_CLOSED).to(STATUS_REVIEWED)
         .conditions(
           new PreviousStatusWas(STATUS_REVIEWED),

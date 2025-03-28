@@ -26,14 +26,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.AnticipatedTransition;
-
-import static org.sonar.api.issue.DefaultTransitions.ACCEPT;
-import static org.sonar.api.issue.DefaultTransitions.FALSE_POSITIVE;
-import static org.sonar.api.issue.DefaultTransitions.WONT_FIX;
+import org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition;
 
 public class AnticipatedTransitionParser {
   private static final Gson GSON = new Gson();
-  private static final Collection<String> ALLOWED_TRANSITIONS = List.of(WONT_FIX, ACCEPT, FALSE_POSITIVE);
+  private static final Collection<CodeQualityIssueWorkflowTransition> ALLOWED_TRANSITIONS = List.of(CodeQualityIssueWorkflowTransition.WONT_FIX,
+    CodeQualityIssueWorkflowTransition.ACCEPT, CodeQualityIssueWorkflowTransition.FALSE_POSITIVE);
   private static final String TRANSITION_NOT_SUPPORTED_ERROR_MESSAGE = "Transition '%s' not supported." + " Only %s are supported.".formatted(ALLOWED_TRANSITIONS.stream()
     .map(s -> "'" + s + "'").collect(Collectors.joining(",")));
 
@@ -50,7 +48,8 @@ public class AnticipatedTransitionParser {
 
   private static void validateAnticipatedTransitions(List<GsonAnticipatedTransition> anticipatedTransitions) {
     for (GsonAnticipatedTransition anticipatedTransition : anticipatedTransitions) {
-      if (!ALLOWED_TRANSITIONS.contains(anticipatedTransition.transition())) {
+      var transitionEnum = CodeQualityIssueWorkflowTransition.fromValue(anticipatedTransition.transition());
+      if (transitionEnum.isEmpty() || !ALLOWED_TRANSITIONS.contains(transitionEnum.get())) {
         throw new IllegalArgumentException(String.format(TRANSITION_NOT_SUPPORTED_ERROR_MESSAGE, anticipatedTransition.transition()));
       }
     }

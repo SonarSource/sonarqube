@@ -25,7 +25,6 @@ import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.event.Level;
-import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.ce.task.log.CeTaskMessages;
@@ -35,9 +34,11 @@ import org.sonar.ce.task.projectanalysis.component.ProjectAttributes;
 import org.sonar.ce.task.projectanalysis.component.ReportAttributes;
 import org.sonar.core.issue.AnticipatedTransition;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -59,8 +60,8 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
 
   private final CeTaskMessages ceTaskMessages = mock(CeTaskMessages.class);
 
-  private final TransitionIssuesToAnticipatedStatesVisitor underTest =
-    new TransitionIssuesToAnticipatedStatesVisitor(anticipatedTransitionRepository, issueLifecycle, ceTaskMessages);
+  private final TransitionIssuesToAnticipatedStatesVisitor underTest = new TransitionIssuesToAnticipatedStatesVisitor(anticipatedTransitionRepository, issueLifecycle,
+    ceTaskMessages);
 
   @Test
   public void givenMatchingAnticipatedTransitions_transitionsShouldBeAppliedToIssues() {
@@ -75,7 +76,7 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
 
     assertThat(issue.isBeingClosed()).isTrue();
     assertThat(issue.getAnticipatedTransitionUuid()).isPresent();
-    verify(issueLifecycle).doManualTransition(issue, DefaultTransitions.ACCEPT, "admin");
+    verify(issueLifecycle).doManualTransition(issue, CodeQualityIssueWorkflowTransition.ACCEPT.getKey(), "admin");
     verify(issueLifecycle).addComment(issue, "doing the transition in an anticipated way", "admin");
   }
 
@@ -86,7 +87,7 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
 
     when(anticipatedTransitionRepository.getAnticipatedTransitionByComponent(component))
       .thenReturn(getAnticipatedTransitions("projectKey", "fileName"));
-    doThrow(new IllegalStateException(exceptionMessage)).when(issueLifecycle).doManualTransition(any(), any(), any());
+    doThrow(new IllegalStateException(exceptionMessage)).when(issueLifecycle).doManualTransition(any(), anyString(), any());
     DefaultIssue issue = getDefaultIssue(1, "abcdefghi", "issue message");
     issue.setComponentKey(component.getKey());
 
@@ -95,7 +96,7 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
 
     assertThat(issue.isBeingClosed()).isFalse();
     assertThat(issue.getAnticipatedTransitionUuid()).isEmpty();
-    verify(issueLifecycle).doManualTransition(issue, DefaultTransitions.ACCEPT, "admin");
+    verify(issueLifecycle).doManualTransition(issue, CodeQualityIssueWorkflowTransition.ACCEPT.getKey(), "admin");
     verifyNoMoreInteractions(issueLifecycle);
     assertThat(logTester.logs(Level.WARN))
       .contains(String.format("Cannot resolve issue at line %s of %s due to: %s", issue.getLine(), issue.componentKey(), exceptionMessage));
@@ -165,7 +166,7 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
 
     assertThat(issue.isBeingClosed()).isTrue();
     assertThat(issue.getAnticipatedTransitionUuid()).isPresent();
-    verify(issueLifecycle).doManualTransition(issue, DefaultTransitions.ACCEPT, "admin");
+    verify(issueLifecycle).doManualTransition(issue, CodeQualityIssueWorkflowTransition.ACCEPT.getKey(), "admin");
     verify(issueLifecycle).addComment(issue, "Automatically transitioned from SonarLint", "admin");
   }
 
@@ -202,12 +203,12 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
 
   private Collection<AnticipatedTransition> getAnticipatedTransitions(String projecKey, String fileName) {
     return Stream.of(new AnticipatedTransition("atuuid", projecKey, "admin", RuleKey.parse("repo:id"), "issue message", fileName, 1,
-      "abcdefghi", DefaultTransitions.ACCEPT, "doing the transition in an anticipated way")).toList();
+      "abcdefghi", CodeQualityIssueWorkflowTransition.ACCEPT.getKey(), "doing the transition in an anticipated way")).toList();
   }
 
   private Collection<AnticipatedTransition> getAnticipatedTransitionsWithEmptyComment(String projecKey, String fileName) {
     return Stream.of(new AnticipatedTransition("atuuid", projecKey, "admin", RuleKey.parse("repo:id"), "issue message", fileName, 1,
-      "abcdefghi", DefaultTransitions.ACCEPT, null)).toList();
+      "abcdefghi", CodeQualityIssueWorkflowTransition.ACCEPT.getKey(), null)).toList();
   }
 
   private Component getComponent(Component.Type type) {

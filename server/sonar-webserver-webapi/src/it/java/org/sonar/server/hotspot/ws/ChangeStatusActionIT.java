@@ -34,13 +34,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
-import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.System2;
-import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -50,6 +48,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
@@ -58,6 +57,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.TransitionService;
+import org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition;
 import org.sonar.server.issue.ws.IssueUpdater;
 import org.sonar.server.pushapi.hotspots.HotspotChangeEventService;
 import org.sonar.server.pushapi.hotspots.HotspotChangedEvent;
@@ -81,8 +81,8 @@ import static org.sonar.api.issue.Issue.RESOLUTION_SAFE;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
-import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
+import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 @RunWith(DataProviderRunner.class)
@@ -194,8 +194,8 @@ public class ChangeStatusActionIT {
   public static Object[][] badResolutions() {
     return Stream.of(STATUS_TO_REVIEW, STATUS_REVIEWED)
       .flatMap(t -> Stream.concat(Issue.RESOLUTIONS.stream(), Issue.SECURITY_HOTSPOT_RESOLUTIONS.stream())
-          .filter(r -> !RESOLUTION_TYPES.contains(r))
-          .map(r -> new Object[] {t, r}))
+        .filter(r -> !RESOLUTION_TYPES.contains(r))
+        .map(r -> new Object[] {t, r}))
       .toArray(Object[][]::new);
   }
 
@@ -417,7 +417,7 @@ public class ChangeStatusActionIT {
 
   @Test
   @UseDataProvider("reviewedResolutionsAndExpectedTransitionKey")
-  public void success_to_change_hostpot_to_review_into_reviewed_status(String resolution, String expectedTransitionKey, boolean transitionDone) {
+  public void success_to_change_hostpot_to_review_into_reviewed_status(String resolution, SecurityHotspotWorkflowTransition expectedTransition, boolean transitionDone) {
     long now = RANDOM.nextInt(232_323);
     when(system2.now()).thenReturn(now);
     ProjectData projectData = dbTester.components().insertPublicProject();
@@ -427,17 +427,17 @@ public class ChangeStatusActionIT {
       .addProjectPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(STATUS_TO_REVIEW).setResolution(null));
-    when(transitionService.doTransition(any(), any(), any())).thenReturn(transitionDone);
+    when(transitionService.doTransition(any(), any(), any(SecurityHotspotWorkflowTransition.class))).thenReturn(transitionDone);
 
     newRequest(hotspot, STATUS_REVIEWED, resolution, NO_COMMENT).execute().assertNoContent();
 
     IssueChangeContext issueChangeContext = issueChangeContextByUserBuilder(new Date(now), userSessionRule.getUuid()).withRefreshMeasures().build();
     ArgumentCaptor<DefaultIssue> defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(transitionService).checkTransitionPermission(eq(expectedTransitionKey), defaultIssueCaptor.capture());
+    verify(transitionService).checkTransitionPermission(eq(expectedTransition), defaultIssueCaptor.capture());
     verify(transitionService).doTransition(
       defaultIssueCaptor.capture(),
       eq(issueChangeContext),
-      eq(expectedTransitionKey));
+      eq(expectedTransition));
     if (transitionDone) {
       verify(issueUpdater).saveIssueAndPreloadSearchResponseData(
         any(DbSession.class),
@@ -465,7 +465,7 @@ public class ChangeStatusActionIT {
     String projectUuid = "projectUuid";
     when(branchDto.getProjectUuid()).thenReturn(projectUuid);
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
-    when(transitionService.doTransition(any(), any(), any())).thenReturn(true);
+    when(transitionService.doTransition(any(), any(), any(SecurityHotspotWorkflowTransition.class))).thenReturn(true);
 
     newRequest(hotspot, STATUS_REVIEWED, RESOLUTION_FIXED, NO_COMMENT).execute();
 
@@ -481,7 +481,7 @@ public class ChangeStatusActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(branchComponentDto));
     when(branchDto.getBranchType()).thenReturn(BranchType.BRANCH);
     IssueDto hotspot = dbTester.issues().insertHotspot(branchComponentDto, file);
-    when(transitionService.doTransition(any(), any(), any())).thenReturn(true);
+    when(transitionService.doTransition(any(), any(), any(SecurityHotspotWorkflowTransition.class))).thenReturn(true);
 
     userSessionRule.logIn().registerProjects(project)
       .registerBranches(branch)
@@ -501,7 +501,7 @@ public class ChangeStatusActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     when(branchDto.getBranchType()).thenReturn(BranchType.PULL_REQUEST);
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
-    when(transitionService.doTransition(any(), any(), any())).thenReturn(true);
+    when(transitionService.doTransition(any(), any(), anyString())).thenReturn(true);
 
     newRequest(hotspot, STATUS_REVIEWED, RESOLUTION_FIXED, NO_COMMENT).execute();
 
@@ -511,12 +511,12 @@ public class ChangeStatusActionIT {
   @DataProvider
   public static Object[][] reviewedResolutionsAndExpectedTransitionKey() {
     return new Object[][] {
-      {RESOLUTION_FIXED, DefaultTransitions.RESOLVE_AS_REVIEWED, true},
-      {RESOLUTION_FIXED, DefaultTransitions.RESOLVE_AS_REVIEWED, false},
-      {RESOLUTION_SAFE, DefaultTransitions.RESOLVE_AS_SAFE, true},
-      {RESOLUTION_SAFE, DefaultTransitions.RESOLVE_AS_SAFE, false},
-      {RESOLUTION_ACKNOWLEDGED, DefaultTransitions.RESOLVE_AS_ACKNOWLEDGED, true},
-      {RESOLUTION_ACKNOWLEDGED, DefaultTransitions.RESOLVE_AS_ACKNOWLEDGED, false}
+      {RESOLUTION_FIXED, SecurityHotspotWorkflowTransition.RESOLVE_AS_REVIEWED, true},
+      {RESOLUTION_FIXED, SecurityHotspotWorkflowTransition.RESOLVE_AS_REVIEWED, false},
+      {RESOLUTION_SAFE, SecurityHotspotWorkflowTransition.RESOLVE_AS_SAFE, true},
+      {RESOLUTION_SAFE, SecurityHotspotWorkflowTransition.RESOLVE_AS_SAFE, false},
+      {RESOLUTION_ACKNOWLEDGED, SecurityHotspotWorkflowTransition.RESOLVE_AS_ACKNOWLEDGED, true},
+      {RESOLUTION_ACKNOWLEDGED, SecurityHotspotWorkflowTransition.RESOLVE_AS_ACKNOWLEDGED, false}
     };
   }
 
@@ -533,17 +533,17 @@ public class ChangeStatusActionIT {
 
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(STATUS_REVIEWED).setResolution(resolution));
-    when(transitionService.doTransition(any(), any(), any())).thenReturn(transitionDone);
+    when(transitionService.doTransition(any(), any(), any(SecurityHotspotWorkflowTransition.class))).thenReturn(transitionDone);
 
     newRequest(hotspot, STATUS_TO_REVIEW, null, NO_COMMENT).execute().assertNoContent();
 
     IssueChangeContext issueChangeContext = issueChangeContextByUserBuilder(new Date(now), userSessionRule.getUuid()).withRefreshMeasures().build();
     ArgumentCaptor<DefaultIssue> defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(transitionService).checkTransitionPermission(eq(DefaultTransitions.RESET_AS_TO_REVIEW), defaultIssueCaptor.capture());
+    verify(transitionService).checkTransitionPermission(eq(SecurityHotspotWorkflowTransition.RESET_AS_TO_REVIEW), defaultIssueCaptor.capture());
     verify(transitionService).doTransition(
       defaultIssueCaptor.capture(),
       eq(issueChangeContext),
-      eq(DefaultTransitions.RESET_AS_TO_REVIEW));
+      eq(SecurityHotspotWorkflowTransition.RESET_AS_TO_REVIEW));
     if (transitionDone) {
       verify(issueUpdater).saveIssueAndPreloadSearchResponseData(
         any(DbSession.class),
@@ -585,14 +585,14 @@ public class ChangeStatusActionIT {
 
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(currentStatus).setResolution(currentResolution));
-    when(transitionService.doTransition(any(), any(), any())).thenReturn(transitionDone);
+    when(transitionService.doTransition(any(), any(), any(SecurityHotspotWorkflowTransition.class))).thenReturn(transitionDone);
     String comment = secure().nextAlphabetic(12);
 
     newRequest(hotspot, newStatus, newResolution, comment).execute().assertNoContent();
 
     IssueChangeContext issueChangeContext = issueChangeContextByUserBuilder(new Date(now), userSessionRule.getUuid()).withRefreshMeasures().build();
     ArgumentCaptor<DefaultIssue> defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(transitionService).doTransition(defaultIssueCaptor.capture(), eq(issueChangeContext), anyString());
+    verify(transitionService).doTransition(defaultIssueCaptor.capture(), eq(issueChangeContext), any(SecurityHotspotWorkflowTransition.class));
     if (transitionDone) {
       verify(issueFieldsSetter).addComment(defaultIssueCaptor.capture(), eq(comment), eq(issueChangeContext));
       verify(issueUpdater).saveIssueAndPreloadSearchResponseData(

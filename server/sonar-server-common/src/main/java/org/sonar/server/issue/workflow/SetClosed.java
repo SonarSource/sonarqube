@@ -21,6 +21,7 @@ package org.sonar.server.issue.workflow;
 
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.server.issue.workflow.statemachine.Function;
 
 public enum SetClosed implements Function {
   INSTANCE;

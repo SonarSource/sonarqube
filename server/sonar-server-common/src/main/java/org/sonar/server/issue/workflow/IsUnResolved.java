@@ -20,6 +20,7 @@
 package org.sonar.server.issue.workflow;
 
 import org.sonar.api.issue.Issue;
+import org.sonar.server.issue.workflow.statemachine.Condition;
 
 public class IsUnResolved implements Condition {
 

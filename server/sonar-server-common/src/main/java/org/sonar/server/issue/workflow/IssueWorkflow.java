@@ -27,6 +27,9 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.rule.RuleType;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.workflow.statemachine.State;
+import org.sonar.server.issue.workflow.statemachine.StateMachine;
+import org.sonar.server.issue.workflow.statemachine.Transition;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -46,6 +49,10 @@ public class IssueWorkflow {
     this.updater = updater;
     this.codeQualityIssueWorkflow = codeQualityIssueWorkflow;
     this.securityHostpotWorkflow = securityHostpotWorkflow;
+  }
+
+  public boolean doManualTransition(DefaultIssue issue, WorkflowTransition transition, IssueChangeContext issueChangeContext) {
+    return doManualTransition(issue, transition.getKey(), issueChangeContext);
   }
 
   public boolean doManualTransition(DefaultIssue issue, String transitionKey, IssueChangeContext issueChangeContext) {

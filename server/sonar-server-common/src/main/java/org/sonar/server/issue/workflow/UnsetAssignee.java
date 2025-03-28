@@ -19,6 +19,8 @@
  */
 package org.sonar.server.issue.workflow;
 
+import org.sonar.server.issue.workflow.statemachine.Function;
+
 enum UnsetAssignee implements Function {
   INSTANCE;
 

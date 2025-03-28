@@ -21,8 +21,8 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
-import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -42,12 +42,19 @@ import org.sonar.server.pushapi.issues.IssueChangeEventService;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
-import static org.sonar.api.issue.DefaultTransitions.OPEN_AS_VULNERABILITY;
-import static org.sonar.api.issue.DefaultTransitions.RESET_AS_TO_REVIEW;
-import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_REVIEWED;
-import static org.sonar.api.issue.DefaultTransitions.SET_AS_IN_REVIEW;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.db.component.BranchType.BRANCH;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.ACCEPT;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.CONFIRM;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.FALSE_POSITIVE;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.REOPEN;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.RESOLVE;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.UNCONFIRM;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.WONT_FIX;
+import static org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition.OPEN_AS_VULNERABILITY;
+import static org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition.RESET_AS_TO_REVIEW;
+import static org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition.RESOLVE_AS_REVIEWED;
+import static org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition.SET_AS_IN_REVIEW;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_DO_TRANSITION;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TRANSITION;
@@ -83,14 +90,14 @@ public class DoTransitionAction implements IssuesWsAction {
         Do workflow transition on an issue. Requires authentication and Browse permission on project.<br/>
         The transitions '%s', '%s' and '%s' require the permission 'Administer Issues'.<br/>
         The transitions involving security hotspots require the permission 'Administer Security Hotspot'.
-        """.formatted(DefaultTransitions.ACCEPT, DefaultTransitions.WONT_FIX, DefaultTransitions.FALSE_POSITIVE))
+        """.formatted(ACCEPT, WONT_FIX, FALSE_POSITIVE))
       .setSince("3.6")
       .setChangelog(
         new Change("10.8", "The response fields 'severity' and 'type' are not deprecated anymore."),
         new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added.", Severity.INFO.name(), Severity.BLOCKER.name())),
-        new Change("10.4", "The transitions '%s' and '%s' are deprecated. Please use '%s' instead. The transition '%s' is deprecated too. "
-          .formatted(DefaultTransitions.WONT_FIX, DefaultTransitions.CONFIRM, DefaultTransitions.ACCEPT, DefaultTransitions.UNCONFIRM)),
-        new Change("10.4", "Add transition '%s'.".formatted(DefaultTransitions.ACCEPT)),
+        new Change("10.4",
+          "The transitions '%s' and '%s' are deprecated. Please use '%s' instead. The transition '%s' is deprecated too. ".formatted(WONT_FIX, CONFIRM, ACCEPT, UNCONFIRM)),
+        new Change("10.4", "Add transition '%s'.".formatted(ACCEPT)),
         new Change("10.4", "The response fields 'severity' and 'type' are deprecated. Please use 'impacts' instead."),
         new Change("10.4", "The response fields 'status' and 'resolution' are deprecated. Please use 'issueStatus' instead."),
         new Change("10.4", "Add 'issueStatus' field to the response."),
@@ -113,7 +120,17 @@ public class DoTransitionAction implements IssuesWsAction {
     action.createParam(PARAM_TRANSITION)
       .setDescription("Transition")
       .setRequired(true)
-      .setPossibleValues(DefaultTransitions.ALL);
+      .setPossibleValues(List.of(
+        CONFIRM.getKey(),
+        UNCONFIRM.getKey(),
+        REOPEN.getKey(),
+        RESOLVE.getKey(),
+        FALSE_POSITIVE.getKey(),
+        WONT_FIX.getKey(),
+        RESOLVE_AS_REVIEWED.getKey(),
+        RESET_AS_TO_REVIEW.getKey(),
+        ACCEPT.getKey())
+      );
   }
 
   @Override

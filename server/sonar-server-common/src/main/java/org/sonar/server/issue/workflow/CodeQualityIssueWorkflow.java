@@ -20,12 +20,14 @@
 package org.sonar.server.issue.workflow;
 
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.server.issue.TaintChecker;
+import org.sonar.server.issue.workflow.statemachine.Function;
+import org.sonar.server.issue.workflow.statemachine.StateMachine;
+import org.sonar.server.issue.workflow.statemachine.Transition;
 
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
@@ -36,6 +38,13 @@ import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.ACCEPT;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.CONFIRM;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.FALSE_POSITIVE;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.REOPEN;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.RESOLVE;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.UNCONFIRM;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.WONT_FIX;
 
 @ServerSide
 @ComputeEngineSide
@@ -60,89 +69,89 @@ public class CodeQualityIssueWorkflow {
 
   private static void buildManualTransitions(StateMachine.Builder builder) {
     builder
-      // replacement transition for org.sonar.api.issue.DefaultTransitions.WONT_FIX
-      .transition(Transition.builder(DefaultTransitions.ACCEPT)
+      // replacement transition for org.sonar.api.issue.Transitions.WONT_FIX
+      .transition(Transition.builder(ACCEPT.getKey())
         .from(STATUS_OPEN).to(STATUS_RESOLVED)
         .functions(new SetResolution(RESOLUTION_WONT_FIX), UnsetAssignee.INSTANCE)
         .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build())
-      .transition(Transition.builder(DefaultTransitions.ACCEPT)
+      .transition(Transition.builder(ACCEPT.getKey())
         .from(STATUS_REOPENED).to(STATUS_RESOLVED)
         .functions(new SetResolution(RESOLUTION_WONT_FIX), UnsetAssignee.INSTANCE)
         .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build())
-      .transition(Transition.builder(DefaultTransitions.ACCEPT)
+      .transition(Transition.builder(ACCEPT.getKey())
         .from(STATUS_CONFIRMED).to(STATUS_RESOLVED)
         .functions(new SetResolution(RESOLUTION_WONT_FIX), UnsetAssignee.INSTANCE)
         .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build())
 
       // resolve as false-positive
-      .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
+      .transition(Transition.builder(FALSE_POSITIVE.getKey())
         .from(STATUS_OPEN).to(STATUS_RESOLVED)
         .functions(new SetResolution(RESOLUTION_FALSE_POSITIVE), UnsetAssignee.INSTANCE)
         .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build())
-      .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
+      .transition(Transition.builder(FALSE_POSITIVE.getKey())
         .from(STATUS_REOPENED).to(STATUS_RESOLVED)
         .functions(new SetResolution(RESOLUTION_FALSE_POSITIVE), UnsetAssignee.INSTANCE)
         .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build())
-      .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
+      .transition(Transition.builder(FALSE_POSITIVE.getKey())
         .from(STATUS_CONFIRMED).to(STATUS_RESOLVED)
         .functions(new SetResolution(RESOLUTION_FALSE_POSITIVE), UnsetAssignee.INSTANCE)
         .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build())
 
       // reopen
-      .transition(Transition.builder(DefaultTransitions.UNCONFIRM)
+      .transition(Transition.builder(UNCONFIRM.getKey())
         .from(STATUS_CONFIRMED).to(STATUS_REOPENED)
         .functions(new SetResolution(null))
         .build())
-      .transition(Transition.builder(DefaultTransitions.REOPEN)
+      .transition(Transition.builder(REOPEN.getKey())
         .from(STATUS_RESOLVED).to(STATUS_REOPENED)
         .functions(new SetResolution(null))
         .build())
 
       // confirm
-      .transition(Transition.builder(DefaultTransitions.CONFIRM)
+      .transition(Transition.builder(CONFIRM.getKey())
         .from(STATUS_OPEN).to(STATUS_CONFIRMED)
         .functions(new SetResolution(null))
         .build())
-      .transition(Transition.builder(DefaultTransitions.CONFIRM)
+      .transition(Transition.builder(CONFIRM.getKey())
         .from(STATUS_REOPENED).to(STATUS_CONFIRMED)
         .functions(new SetResolution(null))
         .build())
 
       // resolve as fixed
-      .transition(Transition.builder(DefaultTransitions.RESOLVE)
+      .transition(Transition.builder(RESOLVE.getKey())
         .from(STATUS_OPEN).to(STATUS_RESOLVED)
         .functions(new SetResolution(RESOLUTION_FIXED))
         .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build())
-      .transition(Transition.builder(DefaultTransitions.RESOLVE)
+      .transition(Transition.builder(RESOLVE.getKey())
         .from(STATUS_REOPENED).to(STATUS_RESOLVED)
         .functions(new SetResolution(RESOLUTION_FIXED))
         .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build())
-      .transition(Transition.builder(DefaultTransitions.RESOLVE)
+      .transition(Transition.builder(RESOLVE.getKey())
         .from(STATUS_CONFIRMED).to(STATUS_RESOLVED)
         .functions(new SetResolution(RESOLUTION_FIXED))
         .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build())
 
       // resolve as won't fix, deprecated
-      .transition(Transition.builder(DefaultTransitions.WONT_FIX)
+      .transition(Transition.builder(WONT_FIX.getKey())
         .from(STATUS_OPEN).to(STATUS_RESOLVED)
         .functions(new SetResolution(RESOLUTION_WONT_FIX), UnsetAssignee.INSTANCE)
         .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build())
-      .transition(Transition.builder(DefaultTransitions.WONT_FIX)
+      .transition(Transition.builder(WONT_FIX.getKey())
         .from(STATUS_REOPENED).to(STATUS_RESOLVED)
         .functions(new SetResolution(RESOLUTION_WONT_FIX), UnsetAssignee.INSTANCE)
         .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build())
-      .transition(Transition.builder(DefaultTransitions.WONT_FIX)
+      .transition(Transition.builder(WONT_FIX.getKey())
         .from(STATUS_CONFIRMED).to(STATUS_RESOLVED)
         .functions(new SetResolution(RESOLUTION_WONT_FIX), UnsetAssignee.INSTANCE)
         .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)

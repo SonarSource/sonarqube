@@ -45,12 +45,12 @@ import org.sonar.db.pushevent.PushEventDto;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.elasticsearch.common.Strings.isNullOrEmpty;
-import static org.sonar.api.issue.DefaultTransitions.ACCEPT;
-import static org.sonar.api.issue.DefaultTransitions.CONFIRM;
-import static org.sonar.api.issue.DefaultTransitions.FALSE_POSITIVE;
-import static org.sonar.api.issue.DefaultTransitions.UNCONFIRM;
-import static org.sonar.api.issue.DefaultTransitions.WONT_FIX;
 import static org.sonar.db.component.BranchType.BRANCH;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.ACCEPT;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.CONFIRM;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.FALSE_POSITIVE;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.UNCONFIRM;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.WONT_FIX;
 
 @ServerSide
 public class IssueChangeEventServiceImpl implements IssueChangeEventService {
@@ -183,11 +183,11 @@ public class IssueChangeEventServiceImpl implements IssueChangeEventService {
       return null;
     }
 
-    if (transitionOrStatus.equals(CONFIRM) || transitionOrStatus.equals(UNCONFIRM)) {
+    if (transitionOrStatus.equals(CONFIRM.getKey()) || transitionOrStatus.equals(UNCONFIRM.getKey())) {
       return null;
     }
 
-    return transitionOrStatus.equals(ACCEPT) || transitionOrStatus.equals(WONT_FIX) || transitionOrStatus.equals(FALSE_POSITIVE) ||
+    return transitionOrStatus.equals(ACCEPT.getKey()) || transitionOrStatus.equals(WONT_FIX.getKey()) || transitionOrStatus.equals(FALSE_POSITIVE.getKey()) ||
       transitionOrStatus.equals(FALSE_POSITIVE_KEY) || transitionOrStatus.equals(WONT_FIX_KEY);
   }
 

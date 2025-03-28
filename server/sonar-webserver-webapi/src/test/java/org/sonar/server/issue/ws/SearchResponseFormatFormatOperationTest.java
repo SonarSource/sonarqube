@@ -44,7 +44,7 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.TextRangeResponseFormatter;
-import org.sonar.server.issue.workflow.Transition;
+import org.sonar.server.issue.workflow.statemachine.Transition;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Issues.Operation;

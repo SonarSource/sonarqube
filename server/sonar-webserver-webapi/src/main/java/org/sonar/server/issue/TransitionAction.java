@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.server.issue.workflow.Transition;
+import org.sonar.server.issue.workflow.statemachine.Transition;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;

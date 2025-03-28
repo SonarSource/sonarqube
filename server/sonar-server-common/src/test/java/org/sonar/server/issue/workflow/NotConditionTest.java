@@ -22,6 +22,7 @@ package org.sonar.server.issue.workflow;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.issue.Issue;
+import org.sonar.server.issue.workflow.statemachine.Condition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

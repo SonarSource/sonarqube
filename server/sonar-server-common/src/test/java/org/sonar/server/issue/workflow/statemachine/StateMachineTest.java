@@ -17,13 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.workflow;
+package org.sonar.server.issue.workflow.statemachine;
 
-import org.sonar.api.issue.Issue;
+import org.junit.Test;
 
-@FunctionalInterface
-public interface Condition {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  boolean matches(Issue issue);
+public class StateMachineTest {
+  @Test
+  public void keep_order_of_state_keys() {
+    StateMachine machine = StateMachine.builder().states("OPEN", "RESOLVED", "CLOSED").build();
 
+    assertThat(machine.stateKeys()).containsSubsequence("OPEN", "RESOLVED", "CLOSED");
+  }
+
+  @Test
+  public void stateKey() {
+    StateMachine machine = StateMachine.builder()
+      .states("OPEN", "RESOLVED", "CLOSED")
+      .transition(Transition.builder("resolve").from("OPEN").to("RESOLVED").build())
+      .build();
+
+    assertThat(machine.state("OPEN")).isNotNull();
+    assertThat(machine.state("OPEN").transition("resolve")).isNotNull();
+  }
 }

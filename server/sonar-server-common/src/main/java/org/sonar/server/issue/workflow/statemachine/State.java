@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.workflow;
+package org.sonar.server.issue.workflow.statemachine;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -71,7 +71,7 @@ public class State {
     return transitions.size() == 1 ? transitions.get(0) : null;
   }
 
-  Transition transition(String transitionKey) {
+  public Transition transition(String transitionKey) {
     return Arrays.stream(outTransitions)
       .filter(transition -> transitionKey.equals(transition.key()))
       .findAny()

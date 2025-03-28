@@ -26,6 +26,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.time.DateUtils;
@@ -37,14 +38,11 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.workflow.statemachine.Transition;
 
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.api.issue.DefaultTransitions.RESET_AS_TO_REVIEW;
-import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_ACKNOWLEDGED;
-import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_REVIEWED;
-import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_SAFE;
 import static org.sonar.api.issue.Issue.RESOLUTION_ACKNOWLEDGED;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_REMOVED;
@@ -57,6 +55,10 @@ import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBu
 import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.db.rule.RuleTesting.XOO_X1;
 import static org.sonar.server.issue.workflow.IssueWorkflowForCodeQualityIssuesTest.emptyIfNull;
+import static org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition.RESET_AS_TO_REVIEW;
+import static org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition.RESOLVE_AS_ACKNOWLEDGED;
+import static org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition.RESOLVE_AS_REVIEWED;
+import static org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition.RESOLVE_AS_SAFE;
 
 @RunWith(DataProviderRunner.class)
 public class IssueWorkflowForSecurityHotspotsTest {
@@ -277,8 +279,8 @@ public class IssueWorkflowForSecurityHotspotsTest {
     assertThat(hotspot.resolution()).isNull();
   }
 
-  private Collection<String> keys(List<Transition> transitions) {
-    return transitions.stream().map(Transition::key).toList();
+  private Collection<SecurityHotspotWorkflowTransition> keys(List<Transition> transitions) {
+    return transitions.stream().map(Transition::key).map(SecurityHotspotWorkflowTransition::fromValue).flatMap(Optional::stream).toList();
   }
 
   private static void setStatusPreviousToClosed(DefaultIssue hotspot, String previousStatus, @Nullable String previousResolution, @Nullable String newResolution) {

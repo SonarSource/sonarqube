@@ -35,24 +35,23 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.Action;
@@ -80,18 +79,10 @@ import static java.util.Map.of;
 import static java.util.Objects.requireNonNull;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static org.sonar.api.issue.DefaultTransitions.ACCEPT;
-import static org.sonar.api.issue.DefaultTransitions.CONFIRM;
-import static org.sonar.api.issue.DefaultTransitions.OPEN_AS_VULNERABILITY;
-import static org.sonar.api.issue.DefaultTransitions.REOPEN;
-import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_REVIEWED;
-import static org.sonar.api.issue.DefaultTransitions.SET_AS_IN_REVIEW;
-import static org.sonar.api.issue.DefaultTransitions.UNCONFIRM;
-import static org.sonar.api.issue.DefaultTransitions.WONT_FIX;
 import static org.sonar.api.rule.Severity.BLOCKER;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.core.rule.RuleType.BUG;
 import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
-import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
@@ -105,6 +96,17 @@ import static org.sonar.server.issue.SetTypeAction.SET_TYPE_KEY;
 import static org.sonar.server.issue.SetTypeAction.TYPE_PARAMETER;
 import static org.sonar.server.issue.TransitionAction.DO_TRANSITION_KEY;
 import static org.sonar.server.issue.TransitionAction.TRANSITION_PARAMETER;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.ACCEPT;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.CONFIRM;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.FALSE_POSITIVE;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.REOPEN;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.RESOLVE;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.UNCONFIRM;
+import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.WONT_FIX;
+import static org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition.OPEN_AS_VULNERABILITY;
+import static org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition.RESET_AS_TO_REVIEW;
+import static org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition.RESOLVE_AS_REVIEWED;
+import static org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition.SET_AS_IN_REVIEW;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_BULK_CHANGE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ADD_TAGS;
@@ -185,7 +187,17 @@ public class BulkChangeAction implements IssuesWsAction {
     action.createParam(PARAM_DO_TRANSITION)
       .setDescription("Transition")
       .setExampleValue(REOPEN)
-      .setPossibleValues(DefaultTransitions.ALL);
+      .setPossibleValues(List.of(
+        CONFIRM.getKey(),
+        UNCONFIRM.getKey(),
+        REOPEN.getKey(),
+        RESOLVE.getKey(),
+        FALSE_POSITIVE.getKey(),
+        WONT_FIX.getKey(),
+        SET_AS_IN_REVIEW.getKey(),
+        RESOLVE_AS_REVIEWED.getKey(),
+        RESET_AS_TO_REVIEW.getKey(),
+        ACCEPT.getKey()));
     action.createParam(PARAM_ADD_TAGS)
       .setDescription("Add tags")
       .setExampleValue("security,java8");
@@ -405,7 +417,7 @@ public class BulkChangeAction implements IssuesWsAction {
       this.issues = toDefaultIssues(authorizedIssues);
       this.componentsByUuid = getComponents(dbSession,
         issues.stream().map(DefaultIssue::componentUuid).collect(Collectors.toSet())).stream()
-          .collect(toMap(ComponentDto::uuid, identity()));
+        .collect(toMap(ComponentDto::uuid, identity()));
       this.rulesByKey = dbClient.ruleDao().selectByKeys(dbSession,
         issues.stream().map(DefaultIssue::ruleKey).collect(Collectors.toSet())).stream()
         .collect(toMap(RuleDto::getKey, identity()));

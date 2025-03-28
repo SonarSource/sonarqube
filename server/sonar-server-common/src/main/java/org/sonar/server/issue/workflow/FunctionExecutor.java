@@ -28,6 +28,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.workflow.statemachine.Function;
 
 @ServerSide
 @ComputeEngineSide

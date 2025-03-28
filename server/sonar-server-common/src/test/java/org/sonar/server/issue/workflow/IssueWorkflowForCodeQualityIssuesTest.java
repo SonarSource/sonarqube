@@ -32,7 +32,6 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.DefaultIssue;
@@ -41,6 +40,7 @@ import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.TaintChecker;
+import org.sonar.server.issue.workflow.statemachine.Transition;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang3.time.DateUtils.addDays;
@@ -411,7 +411,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
       .setRuleKey(RuleKey.of("java", "AvoidCycle"))
       .setAssigneeUuid("morgan");
 
-    underTest.doManualTransition(issue, DefaultTransitions.FALSE_POSITIVE, issueChangeContextByScanBuilder(new Date()).build());
+    underTest.doManualTransition(issue, CodeQualityIssueWorkflowTransition.FALSE_POSITIVE, issueChangeContextByScanBuilder(new Date()).build());
 
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_FALSE_POSITIVE);
     assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);
@@ -428,7 +428,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
       .setRuleKey(RuleKey.of("java", "AvoidCycle"))
       .setAssigneeUuid("morgan");
 
-    underTest.doManualTransition(issue, DefaultTransitions.WONT_FIX, issueChangeContextByScanBuilder(new Date()).build());
+    underTest.doManualTransition(issue, CodeQualityIssueWorkflowTransition.WONT_FIX, issueChangeContextByScanBuilder(new Date()).build());
 
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_WONT_FIX);
     assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);
@@ -445,7 +445,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
       .setRuleKey(RuleKey.of("java", "AvoidCycle"))
       .setAssigneeUuid("morgan");
 
-    underTest.doManualTransition(issue, DefaultTransitions.ACCEPT, issueChangeContextByScanBuilder(new Date()).build());
+    underTest.doManualTransition(issue, CodeQualityIssueWorkflowTransition.ACCEPT, issueChangeContextByScanBuilder(new Date()).build());
 
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_WONT_FIX);
     assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);

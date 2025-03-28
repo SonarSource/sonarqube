@@ -23,7 +23,8 @@ import java.util.List;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.workflow.IssueWorkflow;
-import org.sonar.server.issue.workflow.Transition;
+import org.sonar.server.issue.workflow.WorkflowTransition;
+import org.sonar.server.issue.workflow.statemachine.Transition;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Objects.requireNonNull;
@@ -50,8 +51,16 @@ public class TransitionService {
       .toList();
   }
 
+  public boolean doTransition(DefaultIssue defaultIssue, IssueChangeContext issueChangeContext, WorkflowTransition transition) {
+    return doTransition(defaultIssue, issueChangeContext, transition.getKey());
+  }
+
   public boolean doTransition(DefaultIssue defaultIssue, IssueChangeContext issueChangeContext, String transitionKey) {
     return workflow.doManualTransition(defaultIssue, transitionKey, issueChangeContext);
+  }
+
+  public void checkTransitionPermission(WorkflowTransition transition, DefaultIssue defaultIssue) {
+    checkTransitionPermission(transition.getKey(), defaultIssue);
   }
 
   public void checkTransitionPermission(String transitionKey, DefaultIssue defaultIssue) {

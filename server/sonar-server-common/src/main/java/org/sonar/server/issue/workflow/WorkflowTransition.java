@@ -19,26 +19,7 @@
  */
 package org.sonar.server.issue.workflow;
 
-import org.junit.Test;
+public interface WorkflowTransition {
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class StateMachineTest {
-  @Test
-  public void keep_order_of_state_keys() {
-    StateMachine machine = StateMachine.builder().states("OPEN", "RESOLVED", "CLOSED").build();
-
-    assertThat(machine.stateKeys()).containsSubsequence("OPEN", "RESOLVED", "CLOSED");
-  }
-
-  @Test
-  public void stateKey() {
-    StateMachine machine = StateMachine.builder()
-      .states("OPEN", "RESOLVED", "CLOSED")
-      .transition(Transition.builder("resolve").from("OPEN").to("RESOLVED").build())
-      .build();
-
-    assertThat(machine.state("OPEN")).isNotNull();
-    assertThat(machine.state("OPEN").transition("resolve")).isNotNull();
-  }
+  String getKey();
 }

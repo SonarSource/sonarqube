@@ -20,6 +20,7 @@
 package org.sonar.server.issue.workflow;
 
 import javax.annotation.Nullable;
+import org.sonar.server.issue.workflow.statemachine.Function;
 
 public class SetResolution implements Function {
   private final String resolution;

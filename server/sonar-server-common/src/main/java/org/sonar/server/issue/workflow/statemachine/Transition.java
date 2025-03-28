@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.workflow;
+package org.sonar.server.issue.workflow.statemachine;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.CheckForNull;
@@ -37,14 +37,14 @@ public class Transition {
   private final Condition[] conditions;
   private final Function[] functions;
   private final boolean automatic;
-  private ProjectPermission requiredProjectPermission;
+  private final ProjectPermission requiredProjectPermission;
 
   private Transition(TransitionBuilder builder) {
     key = builder.key;
     from = builder.from;
     to = builder.to;
-    conditions = builder.conditions.toArray(new Condition[builder.conditions.size()]);
-    functions = builder.functions.toArray(new Function[builder.functions.size()]);
+    conditions = builder.conditions.toArray(new Condition[0]);
+    functions = builder.functions.toArray(new Function[0]);
     automatic = builder.automatic;
     requiredProjectPermission = builder.requiredProjectPermission;
   }
@@ -57,7 +57,7 @@ public class Transition {
     return from;
   }
 
-  String to() {
+  public String to() {
     return to;
   }
 
@@ -65,11 +65,11 @@ public class Transition {
     return conditions;
   }
 
-  Function[] functions() {
+  public Function[] functions() {
     return functions;
   }
 
-  boolean automatic() {
+  public boolean automatic() {
     return automatic;
   }
 
@@ -130,8 +130,8 @@ public class Transition {
     private final String key;
     private String from;
     private String to;
-    private List<Condition> conditions = Lists.newArrayList();
-    private List<Function> functions = Lists.newArrayList();
+    private final List<Condition> conditions = new ArrayList<>();
+    private final List<Function> functions = new ArrayList<>();
     private boolean automatic = false;
     private ProjectPermission requiredProjectPermission;
 
