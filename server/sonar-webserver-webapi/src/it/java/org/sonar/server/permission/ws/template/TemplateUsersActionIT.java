@@ -22,20 +22,20 @@ package org.sonar.server.permission.ws.template;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Test;
-import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.permission.ProjectPermission;
-import org.sonar.server.component.ComponentTypesRule;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.avatar.AvatarResolverImpl;
+import org.sonar.server.component.ComponentTypes;
+import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.RequestValidator;
@@ -46,12 +46,12 @@ import org.sonarqube.ws.Permissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.db.permission.GlobalPermission.SCAN;
+import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.ProjectPermission.ADMIN;
 import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
 import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
 import static org.sonar.db.permission.ProjectPermission.USER;
-import static org.sonar.db.permission.GlobalPermission.SCAN;
-import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateUserDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -381,10 +381,6 @@ public class TemplateUsersActionIT extends BasePermissionWsIT<TemplateUsersActio
   }
 
   private TestRequest newRequest(@Nullable ProjectPermission permission, @Nullable String templateUuid) {
-    return newRequest(permission != null ? permission.getKey() : null, templateUuid);
-  }
-
-  private TestRequest newRequest(@Nullable GlobalPermission permission, @Nullable String templateUuid) {
     return newRequest(permission != null ? permission.getKey() : null, templateUuid);
   }
 
