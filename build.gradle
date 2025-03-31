@@ -552,6 +552,16 @@ subprojects {
     title = project.name + ' ' + versionWithoutBuildNumber
   }
 
+  tasks.withType(Test) {
+    if (System.getenv().containsKey("CIRRUS_CI")) {
+      develocity.testRetry {
+        maxRetries = 3
+        maxFailures = 30
+        failOnPassedAfterRetry = true
+      }
+    }
+  }
+
   task sourcesJar(type: Jar, dependsOn: classes) {
     archiveClassifier = 'sources'
     from sourceSets.main.allSource
@@ -662,7 +672,6 @@ subprojects {
       }
     }
   }
-
 
   gradle.buildFinished {
     if (!failedTests.empty) {
