@@ -22,10 +22,9 @@ package org.sonar.server.issue;
 import java.util.Collection;
 import java.util.Map;
 import org.sonar.api.issue.Issue;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.rule.RuleType;
 import org.sonar.db.permission.ProjectPermission;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.server.issue.workflow.IsUnResolved;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -43,7 +42,7 @@ public class SetTypeAction extends Action {
     super(SET_TYPE_KEY);
     this.issueUpdater = issueUpdater;
     this.userSession = userSession;
-    super.setConditions(new IsUnResolved(), this::isCurrentUserIssueAdmin);
+    super.setConditions(DefaultIssue::isUnresolved, this::isCurrentUserIssueAdmin);
   }
 
   private boolean isCurrentUserIssueAdmin(Issue issue) {

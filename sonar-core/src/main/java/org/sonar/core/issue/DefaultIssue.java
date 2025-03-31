@@ -369,6 +369,10 @@ public class DefaultIssue implements Issue, Trackable {
     return this;
   }
 
+  public boolean isUnresolved() {
+    return resolution == null;
+  }
+
   @Override
   @CheckForNull
   public String assignee() {

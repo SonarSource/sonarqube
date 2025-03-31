@@ -21,16 +21,15 @@ package org.sonar.server.issue;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.server.issue.workflow.statemachine.Condition;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -42,7 +41,7 @@ import static com.google.common.collect.Lists.newArrayList;
 public abstract class Action {
 
   private final String key;
-  private final List<Condition> conditions;
+  private final List<Predicate<DefaultIssue>> conditions;
 
   protected Action(String key) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Action key must be set");
@@ -54,18 +53,15 @@ public abstract class Action {
     return key;
   }
 
-  public Action setConditions(Condition... conditions) {
-    this.conditions.addAll(ImmutableList.copyOf(conditions));
+  @SafeVarargs
+  public final Action setConditions(Predicate<DefaultIssue>... conditions) {
+    this.conditions.addAll(List.of(conditions));
     return this;
   }
 
-  public List<Condition> conditions() {
-    return conditions;
-  }
-
   public boolean supports(DefaultIssue issue) {
-    for (Condition condition : conditions) {
-      if (!condition.matches(issue)) {
+    for (Predicate<DefaultIssue> condition : conditions) {
+      if (!condition.test(issue)) {
         return false;
       }
     }

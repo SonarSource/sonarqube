@@ -17,15 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.workflow;
+package org.sonar.server.issue.workflow.securityhotspot;
 
-import org.sonar.server.issue.workflow.statemachine.Function;
+import javax.annotation.Nullable;
+import org.sonar.api.issue.IssueStatus;
 
-enum UnsetAssignee implements Function {
-  INSTANCE;
+public interface SecurityHotspotWorkflowActions {
 
-  @Override
-  public void execute(Context context) {
-    context.setAssignee(null);
-  }
+  void unsetResolution();
+
+  void setResolution(@Nullable String s);
+
+  void restoreResolution();
+
+  void setCloseDate();
+
+  void setClosed();
+
+  void unsetCloseDate();
+
+  void setStatus(@Nullable IssueStatus previousIssueStatus, String newStatus);
 }

@@ -19,23 +19,30 @@
  */
 package org.sonar.server.issue.workflow.statemachine;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class StateMachineTest {
+class StateMachineTest {
+
+  private static class WfEntity {
+  }
+
+  private static class WfEntityActions {
+  }
+
   @Test
-  public void keep_order_of_state_keys() {
-    StateMachine machine = StateMachine.builder().states("OPEN", "RESOLVED", "CLOSED").build();
+  void keep_order_of_state_keys() {
+    StateMachine<WfEntity, WfEntityActions> machine = StateMachine.<WfEntity, WfEntityActions>builder().states("OPEN", "RESOLVED", "CLOSED").build();
 
     assertThat(machine.stateKeys()).containsSubsequence("OPEN", "RESOLVED", "CLOSED");
   }
 
   @Test
-  public void stateKey() {
-    StateMachine machine = StateMachine.builder()
+  void stateKey() {
+    StateMachine<WfEntity, WfEntityActions> machine = StateMachine.<WfEntity, WfEntityActions>builder()
       .states("OPEN", "RESOLVED", "CLOSED")
-      .transition(Transition.builder("resolve").from("OPEN").to("RESOLVED").build())
+      .transition(Transition.<WfEntity, WfEntityActions>builder("resolve").from("OPEN").to("RESOLVED").build())
       .build();
 
     assertThat(machine.state("OPEN")).isNotNull();

@@ -104,10 +104,13 @@ import org.sonar.server.issue.notification.MyNewIssuesEmailTemplate;
 import org.sonar.server.issue.notification.MyNewIssuesNotificationHandler;
 import org.sonar.server.issue.notification.NewIssuesEmailTemplate;
 import org.sonar.server.issue.notification.NewIssuesNotificationHandler;
-import org.sonar.server.issue.workflow.CodeQualityIssueWorkflow;
-import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
-import org.sonar.server.issue.workflow.SecurityHostpotWorkflow;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflow;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowActionsFactory;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowDefinition;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflow;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowActionsFactory;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowDefinition;
 import org.sonar.server.l18n.ServerI18n;
 import org.sonar.server.log.DistributedServerLogging;
 import org.sonar.server.log.ServerLogging;
@@ -405,11 +408,15 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       IssueIndexer.class,
       IssueIteratorFactory.class,
       IssueFieldsSetter.class, // used in Web Services and CE's DebtCalculator
-      FunctionExecutor.class, // used by IssueWorkflow
       TaintChecker.class,
-      IssueWorkflow.class, // used in Web Services and CE's DebtCalculator
+      // used in Web Services and CE's DebtCalculator
+      IssueWorkflow.class,
       CodeQualityIssueWorkflow.class,
-      SecurityHostpotWorkflow.class,
+      CodeQualityIssueWorkflowActionsFactory.class,
+      CodeQualityIssueWorkflowDefinition.class,
+      SecurityHotspotWorkflow.class,
+      SecurityHotspotWorkflowActionsFactory.class,
+      SecurityHotspotWorkflowDefinition.class,
       NewIssuesEmailTemplate.class,
       MyNewIssuesEmailTemplate.class,
       NewIssuesNotificationHandler.class,

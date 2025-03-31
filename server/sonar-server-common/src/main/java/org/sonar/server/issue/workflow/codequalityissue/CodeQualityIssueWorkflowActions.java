@@ -17,27 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.workflow;
+package org.sonar.server.issue.workflow.codequalityissue;
 
-import java.util.HashSet;
-import java.util.Set;
-import org.sonar.api.issue.Issue;
-import org.sonar.server.issue.workflow.statemachine.Condition;
+import javax.annotation.Nullable;
+import org.sonar.api.issue.IssueStatus;
 
-import static java.util.Arrays.asList;
+public interface CodeQualityIssueWorkflowActions {
 
-public class HasResolution implements Condition {
+  void unsetAssignee();
 
-  private final Set<String> resolutions;
+  void unsetResolution();
 
-  public HasResolution(String first, String... others) {
-    this.resolutions = new HashSet<>();
-    this.resolutions.add(first);
-    this.resolutions.addAll(asList(others));
-  }
+  void setResolution(@Nullable String s);
 
-  @Override
-  public boolean matches(Issue issue) {
-    return issue.resolution() != null && resolutions.contains(issue.resolution());
-  }
+  void restoreResolution();
+
+  void setCloseDate();
+
+  void setClosed();
+
+  void unsetCloseDate();
+
+  void addComment(String comment);
+
+  void setStatus(IssueStatus previousIssueStatus, String newStatus);
 }

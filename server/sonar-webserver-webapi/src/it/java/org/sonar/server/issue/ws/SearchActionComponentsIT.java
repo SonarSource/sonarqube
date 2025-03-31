@@ -49,10 +49,13 @@ import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.index.IssueQueryFactory;
-import org.sonar.server.issue.workflow.CodeQualityIssueWorkflow;
-import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
-import org.sonar.server.issue.workflow.SecurityHostpotWorkflow;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflow;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowActionsFactory;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowDefinition;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflow;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowActionsFactory;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowDefinition;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.tester.UserSessionRule;
@@ -69,7 +72,6 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
-import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
@@ -79,6 +81,7 @@ import static org.sonar.db.component.ComponentQualifiers.APP;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
@@ -104,8 +107,9 @@ class SearchActionComponentsIT {
   private final ViewIndexer viewIndexer = new ViewIndexer(dbClient, es.client());
   private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession);
   private final IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
-  private final IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter, new CodeQualityIssueWorkflow(mock(TaintChecker.class)),
-    new SecurityHostpotWorkflow());
+  private final IssueWorkflow issueWorkflow = new IssueWorkflow(
+    new CodeQualityIssueWorkflow(new CodeQualityIssueWorkflowActionsFactory(issueFieldsSetter), new CodeQualityIssueWorkflowDefinition(), mock(TaintChecker.class)),
+    new SecurityHotspotWorkflow(new SecurityHotspotWorkflowActionsFactory(issueFieldsSetter), new SecurityHotspotWorkflowDefinition()));
   private final SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, dbClient, new TransitionService(userSession, issueWorkflow));
   private final Languages languages = new Languages();
   private final UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());

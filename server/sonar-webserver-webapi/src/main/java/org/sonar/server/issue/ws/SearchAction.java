@@ -56,7 +56,7 @@ import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueQuery;
 import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.issue.index.IssueScope;
-import org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition;
 import org.sonar.server.security.SecurityStandards.SQCategory;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.SearchWsResponse;

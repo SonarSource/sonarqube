@@ -19,32 +19,37 @@
  */
 package org.sonar.server.issue.workflow.statemachine;
 
-import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang3.StringUtils;
-import org.sonar.api.issue.Issue;
 import org.sonar.db.permission.ProjectPermission;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public class Transition {
+/**
+ *
+ * @param <E> The entity the workflow is applied on. Conditions are applied on it.
+ * @param <A> The actions that the workflow can trigger during a transition.
+ */
+public class Transition<E, A> {
   private final String key;
   private final String from;
   private final String to;
-  private final Condition[] conditions;
-  private final Function[] functions;
+  private final List<Predicate<E>> conditions;
+  private final List<Consumer<A>> actions;
   private final boolean automatic;
   private final ProjectPermission requiredProjectPermission;
 
-  private Transition(TransitionBuilder builder) {
+  private Transition(TransitionBuilder<E, A> builder) {
     key = builder.key;
     from = builder.from;
     to = builder.to;
-    conditions = builder.conditions.toArray(new Condition[0]);
-    functions = builder.functions.toArray(new Function[0]);
+    conditions = List.copyOf(builder.conditions);
+    actions = List.copyOf(builder.actions);
     automatic = builder.automatic;
     requiredProjectPermission = builder.requiredProjectPermission;
   }
@@ -61,21 +66,21 @@ public class Transition {
     return to;
   }
 
-  Condition[] conditions() {
+  List<Predicate<E>> conditions() {
     return conditions;
   }
 
-  public Function[] functions() {
-    return functions;
+  public List<Consumer<A>> actions() {
+    return actions;
   }
 
   public boolean automatic() {
     return automatic;
   }
 
-  public boolean supports(Issue issue) {
-    for (Condition condition : conditions) {
-      if (!condition.matches(issue)) {
+  public boolean supports(E entity) {
+    for (Predicate<E> condition : conditions) {
+      if (!condition.test(entity)) {
         return false;
       }
     }
@@ -88,50 +93,24 @@ public class Transition {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    Transition that = (Transition) o;
-    if (!from.equals(that.from)) {
-      return false;
-    }
-    if (!key.equals(that.key)) {
-      return false;
-    }
-    return to.equals(that.to);
-  }
-
-  @Override
-  public int hashCode() {
-    int result = key.hashCode();
-    result = 31 * result + from.hashCode();
-    result = 31 * result + to.hashCode();
-    return result;
-  }
-
-  @Override
   public String toString() {
     return String.format("%s->%s->%s", from, key, to);
   }
 
-  public static Transition create(String key, String from, String to) {
-    return builder(key).from(from).to(to).build();
+  public static <E, A> Transition<E, A> create(String key, String from, String to) {
+    return Transition.<E, A>builder(key).from(from).to(to).build();
   }
 
-  public static TransitionBuilder builder(String key) {
-    return new TransitionBuilder(key);
+  public static <E, A> TransitionBuilder<E, A> builder(String key) {
+    return new TransitionBuilder<>(key);
   }
 
-  public static class TransitionBuilder {
+  public static class TransitionBuilder<E, A> {
     private final String key;
     private String from;
     private String to;
-    private final List<Condition> conditions = new ArrayList<>();
-    private final List<Function> functions = new ArrayList<>();
+    private final List<Predicate<E>> conditions = new ArrayList<>();
+    private final List<Consumer<A>> actions = new ArrayList<>();
     private boolean automatic = false;
     private ProjectPermission requiredProjectPermission;
 
@@ -139,42 +118,44 @@ public class Transition {
       this.key = key;
     }
 
-    public TransitionBuilder from(String from) {
+    public TransitionBuilder<E, A> from(String from) {
       this.from = from;
       return this;
     }
 
-    public TransitionBuilder to(String to) {
+    public TransitionBuilder<E, A> to(String to) {
       this.to = to;
       return this;
     }
 
-    public TransitionBuilder conditions(Condition... c) {
-      this.conditions.addAll(Arrays.asList(c));
+    @SafeVarargs
+    public final TransitionBuilder<E, A> conditions(Predicate<E>... conditions) {
+      this.conditions.addAll(Arrays.asList(conditions));
       return this;
     }
 
-    public TransitionBuilder functions(Function... f) {
-      this.functions.addAll(Arrays.asList(f));
+    @SafeVarargs
+    public final TransitionBuilder<E, A> actions(Consumer<A>... actions) {
+      this.actions.addAll(Arrays.asList(actions));
       return this;
     }
 
-    public TransitionBuilder automatic() {
+    public TransitionBuilder<E, A> automatic() {
       this.automatic = true;
       return this;
     }
 
-    public TransitionBuilder requiredProjectPermission(ProjectPermission requiredProjectPermission) {
+    public TransitionBuilder<E, A> requiredProjectPermission(ProjectPermission requiredProjectPermission) {
       this.requiredProjectPermission = requiredProjectPermission;
       return this;
     }
 
-    public Transition build() {
-      checkArgument(!Strings.isNullOrEmpty(key), "Transition key must be set");
+    public Transition<E, A> build() {
+      checkArgument(StringUtils.isNotEmpty(key), "Transition key must be set");
       checkArgument(StringUtils.isAllLowerCase(key), "Transition key must be lower-case");
-      checkArgument(!Strings.isNullOrEmpty(from), "Originating status must be set");
-      checkArgument(!Strings.isNullOrEmpty(to), "Destination status must be set");
-      return new Transition(this);
+      checkArgument(StringUtils.isNotEmpty(from), "Originating status must be set");
+      checkArgument(StringUtils.isNotEmpty(to), "Destination status must be set");
+      return new Transition<>(this);
     }
   }
 }

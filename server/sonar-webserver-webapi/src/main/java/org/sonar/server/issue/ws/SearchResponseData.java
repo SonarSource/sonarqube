@@ -37,7 +37,6 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.issue.workflow.statemachine.Transition;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -53,7 +52,7 @@ public class SearchResponseData {
   private final Map<String, ComponentDto> componentsByUuid = new HashMap<>();
   private final ListMultimap<String, IssueChangeDto> commentsByIssueKey = ArrayListMultimap.create();
   private final ListMultimap<String, String> actionsByIssueKey = ArrayListMultimap.create();
-  private final ListMultimap<String, Transition> transitionsByIssueKey = ArrayListMultimap.create();
+  private final ListMultimap<String, String> transitionsByIssueKey = ArrayListMultimap.create();
   private final Set<String> updatableComments = new HashSet<>();
   private final Map<String, BranchDto> branchesByUuid = new HashMap<>();
   private final Map<String, ProjectDto> projectsByUuid = new HashMap<>();
@@ -114,7 +113,7 @@ public class SearchResponseData {
   }
 
   @CheckForNull
-  List<Transition> getTransitionsForIssueKey(String issueKey) {
+  List<String> getTransitionsForIssueKey(String issueKey) {
     if (transitionsByIssueKey.containsKey(issueKey)) {
       return transitionsByIssueKey.get(issueKey);
     }
@@ -171,7 +170,7 @@ public class SearchResponseData {
     actionsByIssueKey.putAll(issueKey, actions);
   }
 
-  void addTransitions(String issueKey, List<Transition> transitions) {
+  void addTransitions(String issueKey, List<String> transitions) {
     transitionsByIssueKey.putAll(issueKey, transitions);
   }
 

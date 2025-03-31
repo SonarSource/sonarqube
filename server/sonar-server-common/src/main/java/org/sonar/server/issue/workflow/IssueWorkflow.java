@@ -21,34 +21,28 @@ package org.sonar.server.issue.workflow;
 
 import java.util.List;
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.rule.RuleType;
-import org.sonar.server.issue.IssueFieldsSetter;
-import org.sonar.server.issue.workflow.statemachine.State;
-import org.sonar.server.issue.workflow.statemachine.StateMachine;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflow;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflow;
 import org.sonar.server.issue.workflow.statemachine.Transition;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-
+/**
+ * Common entry point for both issues and security hotspots, because some features are not making the difference.
+ * For example some web APIs allow to act on issues or hotspots.
+ */
 @ServerSide
 @ComputeEngineSide
 public class IssueWorkflow {
 
-  private final FunctionExecutor functionExecutor;
-  private final IssueFieldsSetter updater;
   private final CodeQualityIssueWorkflow codeQualityIssueWorkflow;
-  private final SecurityHostpotWorkflow securityHostpotWorkflow;
+  private final SecurityHotspotWorkflow securityHotspotWorkflow;
 
-  public IssueWorkflow(FunctionExecutor functionExecutor, IssueFieldsSetter updater, CodeQualityIssueWorkflow codeQualityIssueWorkflow,
-    SecurityHostpotWorkflow securityHostpotWorkflow) {
-    this.functionExecutor = functionExecutor;
-    this.updater = updater;
+  public IssueWorkflow(CodeQualityIssueWorkflow codeQualityIssueWorkflow, SecurityHotspotWorkflow securityHotspotWorkflow) {
     this.codeQualityIssueWorkflow = codeQualityIssueWorkflow;
-    this.securityHostpotWorkflow = securityHostpotWorkflow;
+    this.securityHotspotWorkflow = securityHotspotWorkflow;
   }
 
   public boolean doManualTransition(DefaultIssue issue, WorkflowTransition transition, IssueChangeContext issueChangeContext) {
@@ -56,44 +50,27 @@ public class IssueWorkflow {
   }
 
   public boolean doManualTransition(DefaultIssue issue, String transitionKey, IssueChangeContext issueChangeContext) {
-    Transition transition = stateOf(issue).transition(transitionKey);
-    if (transition.supports(issue) && !transition.automatic()) {
-      IssueStatus previousIssueStatus = issue.issueStatus();
-      functionExecutor.execute(transition.functions(), issue, issueChangeContext);
-      updater.setStatus(issue, transition.to(), issueChangeContext);
-      updater.setIssueStatus(issue, previousIssueStatus, issue.issueStatus(), issueChangeContext);
-      return true;
+    if (isSecurityHotspot(issue)) {
+      return securityHotspotWorkflow.doManualTransition(issue, transitionKey, issueChangeContext);
+    } else {
+      return codeQualityIssueWorkflow.doManualTransition(issue, transitionKey, issueChangeContext);
     }
-    return false;
   }
 
   public List<Transition> outTransitions(DefaultIssue issue) {
-    String status = issue.status();
-    State state = getStateMachine(issue).state(status);
-    checkArgument(state != null, "Unknown status: %s", status);
-    return state.outManualTransitions(issue);
-  }
-
-  public void doAutomaticTransition(DefaultIssue issue, IssueChangeContext issueChangeContext) {
-    Transition transition = stateOf(issue).outAutomaticTransition(issue);
-    if (transition != null) {
-      IssueStatus previousIssueStatus = issue.issueStatus();
-      functionExecutor.execute(transition.functions(), issue, issueChangeContext);
-      updater.setStatus(issue, transition.to(), issueChangeContext);
-      updater.setIssueStatus(issue, previousIssueStatus, issue.issueStatus(), issueChangeContext);
+    if (isSecurityHotspot(issue)) {
+      return securityHotspotWorkflow.outTransitions(issue);
+    } else {
+      return codeQualityIssueWorkflow.outTransitions(issue);
     }
   }
 
-  private State stateOf(DefaultIssue issue) {
-    String status = issue.status();
-    State state = getStateMachine(issue).state(status);
-    String issueKey = issue.key();
-    checkState(state != null, "Unknown status: %s [issue=%s]", status, issueKey);
-    return state;
-  }
-
-  private StateMachine getStateMachine(DefaultIssue issue) {
-    return isSecurityHotspot(issue) ? securityHostpotWorkflow.getMachine() : codeQualityIssueWorkflow.getMachine();
+  public void doAutomaticTransition(DefaultIssue issue, IssueChangeContext issueChangeContext) {
+    if (isSecurityHotspot(issue)) {
+      securityHotspotWorkflow.doAutomaticTransition(issue, issueChangeContext);
+    } else {
+      codeQualityIssueWorkflow.doAutomaticTransition(issue, issueChangeContext);
+    }
   }
 
   private static boolean isSecurityHotspot(DefaultIssue issue) {

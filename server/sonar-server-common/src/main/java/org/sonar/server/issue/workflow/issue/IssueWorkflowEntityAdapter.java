@@ -17,29 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.workflow;
+package org.sonar.server.issue.workflow.issue;
 
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
-import org.sonar.api.issue.Issue;
+import java.util.Set;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.server.issue.workflow.statemachine.Condition;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowEntity;
 
-class PreviousStatusWas implements Condition {
-  private final String expectedPreviousStatus;
+/**
+ * The common part between issues and security hotspots
+ */
+public class IssueWorkflowEntityAdapter implements SecurityHotspotWorkflowEntity {
 
-  PreviousStatusWas(String expectedPreviousStatus) {
-    this.expectedPreviousStatus = expectedPreviousStatus;
+  protected final DefaultIssue issue;
+
+  public IssueWorkflowEntityAdapter(DefaultIssue issue) {
+    this.issue = issue;
   }
 
   @Override
-  public boolean matches(Issue issue) {
-    DefaultIssue defaultIssue = (DefaultIssue) issue;
-    Optional<String> lastPreviousStatus = defaultIssue.changes().stream()
+  public boolean isBeingClosed() {
+    return issue.isBeingClosed();
+  }
+
+  @Override
+  public boolean hasAnyResolution(String... resolutions) {
+    return issue.resolution() != null && Set.of(resolutions).contains(issue.resolution());
+  }
+
+  @Override
+  public boolean previousStatusWas(String expectedPreviousStatus) {
+    Optional<String> lastPreviousStatus = issue.changes().stream()
       // exclude current change (if any)
-      .filter(change -> change != defaultIssue.currentChange())
+      .filter(change -> change != issue.currentChange())
       .filter(change -> change.creationDate() != null)
       .sorted(Comparator.comparing(FieldDiffs::creationDate).reversed())
       .map(change -> change.get("status"))
@@ -47,6 +60,7 @@ class PreviousStatusWas implements Condition {
       .findFirst()
       .map(t -> (String) t.oldValue());
 
-    return lastPreviousStatus.filter(this.expectedPreviousStatus::equals).isPresent();
+    return lastPreviousStatus.filter(expectedPreviousStatus::equals).isPresent();
   }
+
 }

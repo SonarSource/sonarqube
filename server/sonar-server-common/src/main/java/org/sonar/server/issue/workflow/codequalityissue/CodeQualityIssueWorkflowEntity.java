@@ -17,21 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.workflow;
+package org.sonar.server.issue.workflow.codequalityissue;
 
-import org.junit.Test;
-import org.sonar.server.issue.workflow.statemachine.Function;
+public interface CodeQualityIssueWorkflowEntity {
+  boolean isBeingClosed();
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+  boolean previousStatusWas(String status);
 
-public class SetCloseDateTest {
-  @Test
-  public void should_set_close_date() {
-    SetCloseDate function = SetCloseDate.INSTANCE;
-    Function.Context context = mock(Function.Context.class);
-    function.execute(context);
-    verify(context, times(1)).setCloseDate();
-  }
+  boolean hasAnyResolution(String... resolutions);
+
+  boolean locationsChanged();
+
+  boolean isTaintVulnerability();
 }

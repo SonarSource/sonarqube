@@ -85,10 +85,13 @@ import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.index.IssueQuery;
 import org.sonar.server.issue.index.IssueQueryFactory;
-import org.sonar.server.issue.workflow.CodeQualityIssueWorkflow;
-import org.sonar.server.issue.workflow.FunctionExecutor;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflow;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowActionsFactory;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowDefinition;
 import org.sonar.server.issue.workflow.IssueWorkflow;
-import org.sonar.server.issue.workflow.SecurityHostpotWorkflow;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflow;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowActionsFactory;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowDefinition;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.tester.UserSessionRule;
@@ -181,8 +184,9 @@ class SearchActionIT {
   private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null);
   private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession);
   private final IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
-  private final IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter, new CodeQualityIssueWorkflow(mock(TaintChecker.class)),
-    new SecurityHostpotWorkflow());
+  private final IssueWorkflow issueWorkflow = new IssueWorkflow(
+    new CodeQualityIssueWorkflow(new CodeQualityIssueWorkflowActionsFactory(issueFieldsSetter), new CodeQualityIssueWorkflowDefinition(), mock(TaintChecker.class)),
+    new SecurityHotspotWorkflow(new SecurityHotspotWorkflowActionsFactory(issueFieldsSetter), new SecurityHotspotWorkflowDefinition()));
   private final SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, dbClient,
     new TransitionService(userSession, issueWorkflow));
   private final Languages languages = new Languages();

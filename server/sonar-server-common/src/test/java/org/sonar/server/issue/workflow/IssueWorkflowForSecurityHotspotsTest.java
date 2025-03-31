@@ -38,11 +38,14 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflow;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowActionsFactory;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowDefinition;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTransition;
 import org.sonar.server.issue.workflow.statemachine.Transition;
 
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.sonar.api.issue.Issue.RESOLUTION_ACKNOWLEDGED;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_REMOVED;
@@ -55,10 +58,10 @@ import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBu
 import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.db.rule.RuleTesting.XOO_X1;
 import static org.sonar.server.issue.workflow.IssueWorkflowForCodeQualityIssuesTest.emptyIfNull;
-import static org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition.RESET_AS_TO_REVIEW;
-import static org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition.RESOLVE_AS_ACKNOWLEDGED;
-import static org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition.RESOLVE_AS_REVIEWED;
-import static org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition.RESOLVE_AS_SAFE;
+import static org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTransition.RESET_AS_TO_REVIEW;
+import static org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTransition.RESOLVE_AS_ACKNOWLEDGED;
+import static org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTransition.RESOLVE_AS_REVIEWED;
+import static org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTransition.RESOLVE_AS_SAFE;
 
 @RunWith(DataProviderRunner.class)
 public class IssueWorkflowForSecurityHotspotsTest {
@@ -66,7 +69,8 @@ public class IssueWorkflowForSecurityHotspotsTest {
   private static final List<String> RESOLUTION_TYPES = List.of(RESOLUTION_FIXED, RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED);
 
   private final IssueFieldsSetter updater = new IssueFieldsSetter();
-  private final IssueWorkflow underTest = new IssueWorkflow(new FunctionExecutor(updater), updater, mock(CodeQualityIssueWorkflow.class), new SecurityHostpotWorkflow());
+  private final IssueWorkflow underTest = new IssueWorkflow(null,
+    new SecurityHotspotWorkflow(new SecurityHotspotWorkflowActionsFactory(updater), new SecurityHotspotWorkflowDefinition()));
 
   @Test
   @UseDataProvider("anyResolutionIncludingNone")
@@ -280,7 +284,7 @@ public class IssueWorkflowForSecurityHotspotsTest {
   }
 
   private Collection<SecurityHotspotWorkflowTransition> keys(List<Transition> transitions) {
-    return transitions.stream().map(Transition::key).map(SecurityHotspotWorkflowTransition::fromValue).flatMap(Optional::stream).toList();
+    return transitions.stream().map(Transition::key).map(SecurityHotspotWorkflowTransition::fromKey).flatMap(Optional::stream).toList();
   }
 
   private static void setStatusPreviousToClosed(DefaultIssue hotspot, String previousStatus, @Nullable String previousResolution, @Nullable String newResolution) {

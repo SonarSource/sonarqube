@@ -17,42 +17,51 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.workflow;
+package org.sonar.server.issue.workflow.codequalityissue;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.sonar.server.issue.workflow.WorkflowTransition;
 
-public enum SecurityHotspotWorkflowTransition implements WorkflowTransition {
-  /**
-   * @deprecated since 8.1, transition has no effect
-   */
-  @Deprecated
-  SET_AS_IN_REVIEW("setinreview"),
+public enum CodeQualityIssueWorkflowTransition implements WorkflowTransition {
 
   /**
-   * @since 7.8
-   * @deprecated since 8.1, security hotspots can no longer be converted to vulnerabilities
+   * @deprecated since 10.4, use {@link #ACCEPT} instead
    */
-  @Deprecated
-  OPEN_AS_VULNERABILITY("openasvulnerability"),
-  RESOLVE_AS_REVIEWED("resolveasreviewed"),
-  RESOLVE_AS_SAFE("resolveassafe"),
-  RESOLVE_AS_ACKNOWLEDGED("resolveasacknowledged"),
-  RESET_AS_TO_REVIEW("resetastoreview");
+  @Deprecated(since = "10.4")
+  CONFIRM("confirm"),
+  /**
+   * @deprecated since 10.4. There is no replacement as CONFIRM is subject to removal in the future.
+   */
+  @Deprecated(since = "10.4")
+  UNCONFIRM("unconfirm"),
+  REOPEN("reopen"),
+  RESOLVE("resolve"),
+  FALSE_POSITIVE("falsepositive"),
+  /**
+   * @since 5.1
+   * @deprecated since 10.3, use {@link #ACCEPT} instead
+   */
+  @Deprecated(since = "10.3")
+  WONT_FIX("wontfix"),
+  /**
+   * @since 10.3
+   */
+  ACCEPT("accept");
 
-  private static final Map<String, SecurityHotspotWorkflowTransition> KEY_TO_ENUM;
+  private static final Map<String, CodeQualityIssueWorkflowTransition> KEY_TO_ENUM;
 
   // Static block to populate the Map
   static {
     KEY_TO_ENUM = Stream.of(values())
-      .collect(Collectors.toMap(SecurityHotspotWorkflowTransition::getKey, transition -> transition));
+      .collect(Collectors.toMap(CodeQualityIssueWorkflowTransition::getKey, transition -> transition));
   }
 
   private final String key;
 
-  SecurityHotspotWorkflowTransition(String key) {
+  CodeQualityIssueWorkflowTransition(String key) {
     this.key = key;
   }
 
@@ -61,7 +70,7 @@ public enum SecurityHotspotWorkflowTransition implements WorkflowTransition {
     return key;
   }
 
-  public static Optional<SecurityHotspotWorkflowTransition> fromValue(String value) {
+  public static Optional<CodeQualityIssueWorkflowTransition> fromKey(String value) {
     return Optional.ofNullable(KEY_TO_ENUM.get(value));
   }
 

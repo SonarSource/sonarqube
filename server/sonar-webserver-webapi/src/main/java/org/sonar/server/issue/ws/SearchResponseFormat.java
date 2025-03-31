@@ -33,12 +33,12 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.Paging;
 import org.sonar.core.rule.ImpactFormatter;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
@@ -52,7 +52,6 @@ import org.sonar.markdown.Markdown;
 import org.sonar.server.es.Facets;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.index.IssueScope;
-import org.sonar.server.issue.workflow.statemachine.Transition;
 import org.sonar.server.ws.MessageFormattingUtils;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Common.Comment;
@@ -206,7 +205,7 @@ public class SearchResponseFormat {
       issueBuilder.setSeverity(Common.Severity.valueOf(dto.getSeverity()));
     }
     ofNullable(data.getUserByUuid(dto.getAssigneeUuid())).ifPresent(assignee -> issueBuilder.setAssignee(assignee.getLogin()));
- 
+
     ofNullable(emptyToNull(dto.getResolution())).ifPresent(issueBuilder::setResolution);
     issueBuilder.setStatus(dto.getStatus());
     ofNullable(dto.getIssueStatus()).map(IssueStatus::name).ifPresent(issueBuilder::setIssueStatus);
@@ -270,11 +269,9 @@ public class SearchResponseFormat {
 
   private static Transitions createIssueTransition(SearchResponseData data, IssueDto dto) {
     Transitions.Builder wsTransitions = Transitions.newBuilder();
-    List<Transition> transitions = data.getTransitionsForIssueKey(dto.getKey());
+    List<String> transitions = data.getTransitionsForIssueKey(dto.getKey());
     if (transitions != null) {
-      for (Transition transition : transitions) {
-        wsTransitions.addTransitions(transition.key());
-      }
+      wsTransitions.addAllTransitions(transitions);
     }
     return wsTransitions.build();
   }

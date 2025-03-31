@@ -59,11 +59,14 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.ChangedIssue;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.UserChange;
 import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
-import org.sonar.server.issue.workflow.CodeQualityIssueWorkflow;
-import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
-import org.sonar.server.issue.workflow.SecurityHostpotWorkflow;
-import org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflow;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowActionsFactory;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowDefinition;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflow;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowActionsFactory;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowDefinition;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTransition;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.pushapi.issues.IssueChangeEventService;
 import org.sonar.server.rule.DefaultRuleFinder;
@@ -124,8 +127,9 @@ public class BulkChangeActionIT {
 
   private IssueChangeEventService issueChangeEventService = mock(IssueChangeEventService.class);
   private IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
-  private IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter, new CodeQualityIssueWorkflow(mock(TaintChecker.class)),
-    new SecurityHostpotWorkflow());
+  private IssueWorkflow issueWorkflow = new IssueWorkflow(
+    new CodeQualityIssueWorkflow(new CodeQualityIssueWorkflowActionsFactory(issueFieldsSetter), new CodeQualityIssueWorkflowDefinition(), mock(TaintChecker.class)),
+    new SecurityHotspotWorkflow(new SecurityHotspotWorkflowActionsFactory(issueFieldsSetter), new SecurityHotspotWorkflowDefinition()));
   private WebIssueStorage issueStorage = new WebIssueStorage(system2, dbClient,
     new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class)),
     new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null), new SequenceUuidFactory());

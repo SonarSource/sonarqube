@@ -26,7 +26,6 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.issue.workflow.IsUnResolved;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -47,7 +46,7 @@ public class AssignAction extends Action {
     super(ASSIGN_KEY);
     this.dbClient = dbClient;
     this.issueFieldsSetter = issueFieldsSetter;
-    super.setConditions(new IsUnResolved());
+    super.setConditions(DefaultIssue::isUnresolved);
   }
 
   @Override

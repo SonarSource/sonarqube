@@ -32,8 +32,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.core.rule.RuleType;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -236,7 +236,7 @@ public class SearchResponseLoader {
         if (fields.contains(TRANSITIONS)) {
           // TODO workflow and action engines must not depend on org.sonar.api.issue.Issue but on a generic interface
           DefaultIssue issue = issueDto.toDefaultIssue();
-          result.addTransitions(issue.key(), transitionService.listTransitions(issue));
+          result.addTransitions(issue.key(), transitionService.listTransitionKeys(issue));
         }
       }
     }

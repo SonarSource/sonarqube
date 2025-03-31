@@ -23,13 +23,12 @@ import java.util.Collection;
 import java.util.Map;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.impact.SoftwareQuality;
-import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.internal.ImpactMapper;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.rule.ImpactSeverityMapper;
+import org.sonar.core.rule.RuleType;
 import org.sonar.core.rule.RuleTypeMapper;
-import org.sonar.server.issue.workflow.IsUnResolved;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -49,7 +48,7 @@ public class SetSeverityAction extends Action {
     super(SET_SEVERITY_KEY);
     this.issueUpdater = issueUpdater;
     this.userSession = userSession;
-    super.setConditions(new IsUnResolved(), this::isCurrentUserIssueAdminAndNotSecurityHotspot);
+    super.setConditions(DefaultIssue::isUnresolved, this::isCurrentUserIssueAdminAndNotSecurityHotspot);
   }
 
   private boolean isCurrentUserIssueAdminAndNotSecurityHotspot(Issue issue) {

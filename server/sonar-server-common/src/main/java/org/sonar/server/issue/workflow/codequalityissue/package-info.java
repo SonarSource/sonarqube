@@ -17,22 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.workflow;
+@ParametersAreNonnullByDefault
+package org.sonar.server.issue.workflow.codequalityissue;
 
-import org.junit.Test;
-import org.sonar.server.issue.workflow.statemachine.Function;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
-public class UnsetCloseDateTest {
-  @Test
-  public void should_unset_close_date() {
-    UnsetCloseDate function = UnsetCloseDate.INSTANCE;
-    Function.Context context = mock(Function.Context.class);
-    function.execute(context);
-    verify(context, times(1)).unsetCloseDate();
-  }
-
-}

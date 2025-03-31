@@ -19,32 +19,40 @@
  */
 package org.sonar.server.issue.workflow.statemachine;
 
-import org.junit.Test;
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class StateTest {
+class StateTest {
 
+  private static class WfEntity {
+  }
 
-  private Transition t1 = Transition.builder("close").from("OPEN").to("CLOSED").build();
+  private static class WfEntityActions {
+  }
+
+  private final Transition<WfEntity, WfEntityActions> t1 = Transition.<WfEntity, WfEntityActions>builder("close").from("OPEN").to("CLOSED").build();
 
   @Test
-  public void key_should_be_set() {
-    assertThatThrownBy(() -> new State("", new Transition[0]))
+  void key_should_be_set() {
+    List<Transition<WfEntity, WfEntityActions>> transitions = List.of();
+    assertThatThrownBy(() -> new State<>("", transitions))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("State key must be set");
   }
 
   @Test
-  public void no_duplicated_out_transitions() {
-    assertThatThrownBy(() -> new State("CLOSE", new Transition[] {t1, t1}))
+  void no_duplicated_out_transitions() {
+    var transitions = List.of(t1, t1);
+    assertThatThrownBy(() -> new State<>("CLOSE", transitions))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Transition 'close' is declared several times from the originating state 'CLOSE'");
   }
 
   @Test
-  public void fail_when_transition_is_unknown() {
-    State state = new State("VALIDATED", new Transition[0]);
+  void fail_when_transition_is_unknown() {
+    State<WfEntity, WfEntityActions> state = new State<>("VALIDATED", List.of());
 
     assertThatThrownBy(() -> state.transition("Unknown Transition"))
       .isInstanceOf(IllegalArgumentException.class)

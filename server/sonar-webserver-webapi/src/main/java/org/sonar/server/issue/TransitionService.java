@@ -42,12 +42,13 @@ public class TransitionService {
     this.workflow = workflow;
   }
 
-  public List<Transition> listTransitions(DefaultIssue issue) {
+  public List<String> listTransitionKeys(DefaultIssue issue) {
     String projectUuid = requireNonNull(issue.projectUuid());
     return workflow.outTransitions(issue)
       .stream()
       .filter(transition -> (userSession.isLoggedIn() && transition.requiredProjectPermission() == null)
         || (transition.requiredProjectPermission() != null && userSession.hasComponentUuidPermission(transition.requiredProjectPermission(), projectUuid)))
+      .map(Transition::key)
       .toList();
   }
 

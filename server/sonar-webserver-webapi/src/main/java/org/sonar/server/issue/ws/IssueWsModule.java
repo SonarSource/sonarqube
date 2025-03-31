@@ -30,10 +30,13 @@ import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueQueryFactory;
-import org.sonar.server.issue.workflow.CodeQualityIssueWorkflow;
-import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
-import org.sonar.server.issue.workflow.SecurityHostpotWorkflow;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflow;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowActionsFactory;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowDefinition;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflow;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowActionsFactory;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowDefinition;
 import org.sonar.server.issue.ws.anticipatedtransition.AnticipatedTransitionHandler;
 import org.sonar.server.issue.ws.anticipatedtransition.AnticipatedTransitionParser;
 import org.sonar.server.issue.ws.anticipatedtransition.AnticipatedTransitionsAction;
@@ -52,10 +55,13 @@ public class IssueWsModule extends Module {
       TransitionService.class,
       WebIssueStorage.class,
       IssueFieldsSetter.class,
-      FunctionExecutor.class,
       IssueWorkflow.class,
       CodeQualityIssueWorkflow.class,
-      SecurityHostpotWorkflow.class,
+      CodeQualityIssueWorkflowDefinition.class,
+      CodeQualityIssueWorkflowActionsFactory.class,
+      SecurityHotspotWorkflow.class,
+      SecurityHotspotWorkflowActionsFactory.class,
+      SecurityHotspotWorkflowDefinition.class,
       IssueQueryFactory.class,
       IssuesWs.class,
       AvatarResolverImpl.class,
@@ -92,7 +98,6 @@ public class IssueWsModule extends Module {
       AnticipatedTransitionParser.class,
       AnticipatedTransitionHandler.class,
       AnticipatedTransitionsActionValidator.class,
-      AnticipatedTransitionsAction.class
-    );
+      AnticipatedTransitionsAction.class);
   }
 }

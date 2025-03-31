@@ -40,6 +40,10 @@ import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.TaintChecker;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflow;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowActionsFactory;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowDefinition;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition;
 import org.sonar.server.issue.workflow.statemachine.Transition;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -75,8 +79,8 @@ class IssueWorkflowForCodeQualityIssuesTest {
 
   private final TaintChecker taintChecker = mock(TaintChecker.class);
 
-  private final IssueWorkflow underTest = new IssueWorkflow(new FunctionExecutor(updater), updater, new CodeQualityIssueWorkflow(taintChecker),
-    mock(SecurityHostpotWorkflow.class));
+  private final IssueWorkflow underTest = new IssueWorkflow(
+    new CodeQualityIssueWorkflow(new CodeQualityIssueWorkflowActionsFactory(updater), new CodeQualityIssueWorkflowDefinition(), taintChecker), null);
 
   @Test
   void list_out_transitions_from_status_open() {

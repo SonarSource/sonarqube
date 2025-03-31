@@ -46,11 +46,11 @@ import org.sonar.db.pushevent.PushEventDto;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.elasticsearch.common.Strings.isNullOrEmpty;
 import static org.sonar.db.component.BranchType.BRANCH;
-import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.ACCEPT;
-import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.CONFIRM;
-import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.FALSE_POSITIVE;
-import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.UNCONFIRM;
-import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.WONT_FIX;
+import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.ACCEPT;
+import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.CONFIRM;
+import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.FALSE_POSITIVE;
+import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.UNCONFIRM;
+import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.WONT_FIX;
 
 @ServerSide
 public class IssueChangeEventServiceImpl implements IssueChangeEventService {

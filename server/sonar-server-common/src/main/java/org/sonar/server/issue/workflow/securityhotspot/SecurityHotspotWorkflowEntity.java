@@ -17,15 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.workflow;
+package org.sonar.server.issue.workflow.securityhotspot;
 
-import org.sonar.server.issue.workflow.statemachine.Function;
+public interface SecurityHotspotWorkflowEntity {
+  boolean isBeingClosed();
 
-enum  UnsetCloseDate implements Function {
-  INSTANCE;
+  boolean previousStatusWas(String status);
 
-  @Override
-  public void execute(Context context) {
-    context.unsetCloseDate();
-  }
+  boolean hasAnyResolution(String... resolutions);
 }

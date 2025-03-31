@@ -227,10 +227,6 @@ public class IssueLifecycle {
     workflow.doAutomaticTransition(issue, changeContext);
   }
 
-  public void doManualTransition(DefaultIssue issue, WorkflowTransition transition, String userUuid) {
-    doManualTransition(issue, transition.getKey(), userUuid);
-  }
-
   public void doManualTransition(DefaultIssue issue, String transitionKey, String userUuid) {
     workflow.doManualTransition(issue, transitionKey, getIssueChangeContextWithUser(userUuid));
   }

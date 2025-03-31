@@ -17,21 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.workflow;
+package org.sonar.server.issue.workflow.securityhotspot;
 
-import org.sonar.api.issue.Issue;
-import org.sonar.server.issue.workflow.statemachine.Condition;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.workflow.issue.DefaultIssueWorkflowActions;
 
-public class NotCondition implements Condition {
-  private final Condition condition;
+@ServerSide
+@ComputeEngineSide
+public class SecurityHotspotWorkflowActionsFactory {
 
-  public NotCondition(Condition condition) {
-    this.condition = condition;
+  private final IssueFieldsSetter updater;
+
+  public SecurityHotspotWorkflowActionsFactory(IssueFieldsSetter updater) {
+    this.updater = updater;
   }
 
-  @Override
-  public boolean matches(Issue issue) {
-    return !condition.matches(issue);
+  SecurityHotspotWorkflowActions provideContextualActions(DefaultIssue issue, IssueChangeContext issueChangeContext) {
+    return new DefaultIssueWorkflowActions(updater, issue, issueChangeContext);
   }
 
 }

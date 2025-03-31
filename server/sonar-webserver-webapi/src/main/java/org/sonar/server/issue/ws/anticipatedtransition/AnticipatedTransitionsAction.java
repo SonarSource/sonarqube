@@ -29,8 +29,8 @@ import org.sonar.server.issue.ws.IssuesWsAction;
 import org.sonarqube.ws.client.issue.IssuesWsParameters;
 
 import static java.net.HttpURLConnection.HTTP_ACCEPTED;
-import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.ACCEPT;
-import static org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition.WONT_FIX;
+import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.ACCEPT;
+import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.WONT_FIX;
 
 public class AnticipatedTransitionsAction implements IssuesWsAction {
 

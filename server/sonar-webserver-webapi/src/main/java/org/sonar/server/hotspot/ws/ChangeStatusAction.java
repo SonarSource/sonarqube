@@ -36,7 +36,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.TransitionService;
-import org.sonar.server.issue.workflow.SecurityHotspotWorkflowTransition;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTransition;
 import org.sonar.server.issue.ws.IssueUpdater;
 import org.sonar.server.pushapi.hotspots.HotspotChangeEventService;
 import org.sonar.server.pushapi.hotspots.HotspotChangedEvent;

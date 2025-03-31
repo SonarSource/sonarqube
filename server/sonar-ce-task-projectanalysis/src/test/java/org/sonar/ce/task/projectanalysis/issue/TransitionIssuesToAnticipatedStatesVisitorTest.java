@@ -34,7 +34,7 @@ import org.sonar.ce.task.projectanalysis.component.ProjectAttributes;
 import org.sonar.ce.task.projectanalysis.component.ReportAttributes;
 import org.sonar.core.issue.AnticipatedTransition;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

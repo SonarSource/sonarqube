@@ -17,13 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.workflow.statemachine;
+package org.sonar.server.issue.workflow.codequalityissue;
 
-import org.sonar.api.issue.Issue;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.workflow.issue.DefaultIssueWorkflowActions;
 
-@FunctionalInterface
-public interface Condition {
+@ServerSide
+@ComputeEngineSide
+public class CodeQualityIssueWorkflowActionsFactory {
 
-  boolean matches(Issue issue);
+  private final IssueFieldsSetter updater;
+
+  public CodeQualityIssueWorkflowActionsFactory(IssueFieldsSetter updater) {
+    this.updater = updater;
+  }
+
+  CodeQualityIssueWorkflowActions provideContextualActions(DefaultIssue issue, IssueChangeContext issueChangeContext) {
+    return new DefaultIssueWorkflowActions(updater, issue, issueChangeContext);
+  }
 
 }

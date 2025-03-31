@@ -21,10 +21,8 @@ package org.sonar.server.issue;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.server.issue.workflow.statemachine.Transition;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -62,10 +60,7 @@ public class TransitionAction extends Action {
   }
 
   private boolean canExecuteTransition(DefaultIssue issue, String transitionKey) {
-    return transitionService.listTransitions(issue)
-      .stream()
-      .map(Transition::key)
-      .collect(Collectors.toSet())
+    return transitionService.listTransitionKeys(issue)
       .contains(transitionKey);
   }
 

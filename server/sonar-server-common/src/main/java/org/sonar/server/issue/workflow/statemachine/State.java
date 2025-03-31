@@ -21,18 +21,21 @@ package org.sonar.server.issue.workflow.statemachine;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import org.sonar.api.issue.Issue;
 
-public class State {
+/**
+ *
+ * @param <E> The entity the workflow is applied on. Conditions are applied on it.
+ * @param <A> The actions that the workflow can trigger during a transition.
+ */
+public class State<E, A> {
   private final String key;
-  private final Transition[] outTransitions;
+  private final List<Transition<E, A>> outTransitions;
 
-  public State(String key, Transition[] outTransitions) {
+  public State(String key, List<Transition<E, A>> outTransitions) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "State key must be set");
     checkDuplications(outTransitions, key);
 
@@ -40,10 +43,10 @@ public class State {
     this.outTransitions = outTransitions;
   }
 
-  private static void checkDuplications(Transition[] transitions, String stateKey) {
+  private void checkDuplications(List<Transition<E, A>> transitions, String stateKey) {
     Set<String> keys = new HashSet<>();
 
-    Arrays.stream(transitions)
+    transitions.stream()
       .filter(transition -> !keys.add(transition.key()))
       .findAny()
       .ifPresent(transition -> {
@@ -52,27 +55,27 @@ public class State {
       });
   }
 
-  public List<Transition> outManualTransitions(Issue issue) {
-    return Arrays.stream(outTransitions)
+  public List<Transition<E, A>> outManualTransitions(E entity) {
+    return outTransitions.stream()
       .filter(transition -> !transition.automatic())
-      .filter(transition -> transition.supports(issue))
+      .filter(transition -> transition.supports(entity))
       .toList();
   }
 
   @CheckForNull
-  public Transition outAutomaticTransition(Issue issue) {
-    List<Transition> transitions = Arrays.stream(outTransitions)
+  public Transition<E, A> outAutomaticTransition(E entity) {
+    List<Transition<E, A>> transitions = outTransitions.stream()
       .filter(Transition::automatic)
-      .filter(t -> t.supports(issue))
+      .filter(t -> t.supports(entity))
       .toList();
-    if(transitions.size() > 1){
-      throw new IllegalArgumentException("Several automatic transitions are available for issue: " + issue);
+    if (transitions.size() > 1) {
+      throw new IllegalArgumentException("Several automatic transitions are available for entity: " + entity);
     }
     return transitions.size() == 1 ? transitions.get(0) : null;
   }
 
-  public Transition transition(String transitionKey) {
-    return Arrays.stream(outTransitions)
+  public Transition<E, A> transition(String transitionKey) {
+    return outTransitions.stream()
       .filter(transition -> transitionKey.equals(transition.key()))
       .findAny()
       .orElseThrow(() -> new IllegalArgumentException("Transition from state " + key + " does not exist: " + transitionKey));

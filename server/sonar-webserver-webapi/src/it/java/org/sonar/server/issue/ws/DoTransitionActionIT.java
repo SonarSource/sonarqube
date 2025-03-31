@@ -48,10 +48,13 @@ import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
-import org.sonar.server.issue.workflow.CodeQualityIssueWorkflow;
-import org.sonar.server.issue.workflow.FunctionExecutor;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflow;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowActionsFactory;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowDefinition;
 import org.sonar.server.issue.workflow.IssueWorkflow;
-import org.sonar.server.issue.workflow.SecurityHostpotWorkflow;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflow;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowActionsFactory;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowDefinition;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.pushapi.issues.IssueChangeEventService;
 import org.sonar.server.rule.DefaultRuleFinder;
@@ -97,8 +100,9 @@ public class DoTransitionActionIT {
 
   private IssueChangeEventService issueChangeEventService = mock(IssueChangeEventService.class);
   private IssueFieldsSetter updater = new IssueFieldsSetter();
-  private IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater, new CodeQualityIssueWorkflow(mock(TaintChecker.class)),
-    new SecurityHostpotWorkflow());
+  private IssueWorkflow workflow = new IssueWorkflow(
+    new CodeQualityIssueWorkflow(new CodeQualityIssueWorkflowActionsFactory(updater), new CodeQualityIssueWorkflowDefinition(), mock(TaintChecker.class)),
+    new SecurityHotspotWorkflow(new SecurityHotspotWorkflowActionsFactory(updater), new SecurityHotspotWorkflowDefinition()));
   private TransitionService transitionService = new TransitionService(userSession, workflow);
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null);

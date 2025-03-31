@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.AnticipatedTransition;
-import org.sonar.server.issue.workflow.CodeQualityIssueWorkflowTransition;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition;
 
 public class AnticipatedTransitionParser {
   private static final Gson GSON = new Gson();
@@ -48,7 +48,7 @@ public class AnticipatedTransitionParser {
 
   private static void validateAnticipatedTransitions(List<GsonAnticipatedTransition> anticipatedTransitions) {
     for (GsonAnticipatedTransition anticipatedTransition : anticipatedTransitions) {
-      var transitionEnum = CodeQualityIssueWorkflowTransition.fromValue(anticipatedTransition.transition());
+      var transitionEnum = CodeQualityIssueWorkflowTransition.fromKey(anticipatedTransition.transition());
       if (transitionEnum.isEmpty() || !ALLOWED_TRANSITIONS.contains(transitionEnum.get())) {
         throw new IllegalArgumentException(String.format(TRANSITION_NOT_SUPPORTED_ERROR_MESSAGE, anticipatedTransition.transition()));
       }

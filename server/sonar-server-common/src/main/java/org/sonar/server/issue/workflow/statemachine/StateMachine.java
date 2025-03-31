@@ -21,34 +21,38 @@ package org.sonar.server.issue.workflow.statemachine;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 
-public class StateMachine {
+/**
+ *
+ * @param <E> The entity the workflow is applied on. Conditions are applied on it.
+ * @param <A> The actions that the workflow can trigger during a transition.
+ */
+public class StateMachine<E, A> {
 
   private final List<String> keys;
-  private final Map<String, State> byKey;
+  private final Map<String, State<E, A>> byKey;
 
-  private StateMachine(Builder builder) {
-    this.keys = ImmutableList.copyOf(builder.states);
-    ImmutableMap.Builder<String, State> mapBuilder = ImmutableMap.builder();
+  private StateMachine(Builder<E, A> builder) {
+    this.keys = List.copyOf(builder.states);
+    Map<String, State<E, A>> mapBuilder = new HashMap<>();
     for (String stateKey : builder.states) {
-      List<Transition> outTransitions = builder.outTransitions.get(stateKey);
-      State state = new State(stateKey, outTransitions.toArray(new Transition[0]));
+      List<Transition<E, A>> outTransitions = builder.outTransitions.get(stateKey);
+      State<E, A> state = new State<>(stateKey, outTransitions);
       mapBuilder.put(stateKey, state);
     }
-    byKey = mapBuilder.build();
+    byKey = Map.copyOf(mapBuilder);
   }
 
   @CheckForNull
-  public State state(String stateKey) {
+  public State<E, A> state(String stateKey) {
     return byKey.get(stateKey);
   }
 
@@ -56,33 +60,33 @@ public class StateMachine {
     return keys;
   }
 
-  public static Builder builder() {
-    return new Builder();
+  public static <E, A> Builder<E, A> builder() {
+    return new Builder<>();
   }
 
-  public static class Builder {
+  public static class Builder<E, A> {
     private final Set<String> states = new LinkedHashSet<>();
     // transitions per originating state
-    private final ListMultimap<String, Transition> outTransitions = ArrayListMultimap.create();
+    private final ListMultimap<String, Transition<E, A>> outTransitions = ArrayListMultimap.create();
 
     private Builder() {
     }
 
-    public Builder states(String... keys) {
+    public Builder<E, A> states(String... keys) {
       states.addAll(Arrays.asList(keys));
       return this;
     }
 
-    public Builder transition(Transition transition) {
+    public Builder<E, A> transition(Transition<E, A> transition) {
       Preconditions.checkArgument(states.contains(transition.from()), "Originating state does not exist: " + transition.from());
       Preconditions.checkArgument(states.contains(transition.to()), "Destination state does not exist: " + transition.to());
       outTransitions.put(transition.from(), transition);
       return this;
     }
 
-    public StateMachine build() {
+    public StateMachine<E, A> build() {
       Preconditions.checkArgument(!states.isEmpty(), "At least one state is required");
-      return new StateMachine(this);
+      return new StateMachine<>(this);
     }
   }
 }

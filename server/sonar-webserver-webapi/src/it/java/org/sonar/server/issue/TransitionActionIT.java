@@ -38,10 +38,13 @@ import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.issue.workflow.CodeQualityIssueWorkflow;
-import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
-import org.sonar.server.issue.workflow.SecurityHostpotWorkflow;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflow;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowActionsFactory;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowDefinition;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflow;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowActionsFactory;
+import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowDefinition;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Collections.emptyList;
@@ -61,8 +64,9 @@ public class TransitionActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private final IssueFieldsSetter updater = new IssueFieldsSetter();
-  private final IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater, new CodeQualityIssueWorkflow(mock(TaintChecker.class)),
-    new SecurityHostpotWorkflow());
+  private final IssueWorkflow workflow = new IssueWorkflow(
+    new CodeQualityIssueWorkflow(new CodeQualityIssueWorkflowActionsFactory(updater), new CodeQualityIssueWorkflowDefinition(), mock(TaintChecker.class)),
+    new SecurityHotspotWorkflow(new SecurityHotspotWorkflowActionsFactory(updater), new SecurityHotspotWorkflowDefinition()));
   private final TransitionService transitionService = new TransitionService(userSession, workflow);
   private final Action.Context context = mock(Action.Context.class);
   private final DefaultIssue issue = newIssue().toDefaultIssue();
