@@ -204,11 +204,11 @@ public class DefaultFilePredicates implements FilePredicates {
 
   @Override
   public FilePredicate hasStatus(Status status) {
-    return new StatusPredicate(status);
+    return inputFile -> status == inputFile.status();
   }
 
   @Override
   public FilePredicate hasAnyStatus() {
-    return new StatusPredicate(null);
+    return TruePredicate.TRUE;
   }
 }
