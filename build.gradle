@@ -488,6 +488,10 @@ subprojects {
           exclude 'org.junit.jupiter:junit-jupiter-api'
         }
       }
+      dependencySet(group: 'org.spdx', version: '2.0.0-RC2') {
+        entry 'java-spdx-library'
+        entry 'spdx-jackson-store'
+      }
       dependencySet(group: 'org.springframework', version: '6.2.5') {
         entry 'spring-test'
         entry('spring-context') {
