@@ -151,6 +151,14 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
       exclude 'bin/windows-x86-64/StartSonar.bat'
       exclude 'bin/linux-x86-64/sonar.sh'
       exclude 'bin/macosx-universal-64/sonar.sh'
+      rename { fileName ->
+        if (fileName == 'CVE-review-and-treatment-status-sqcb.csv') {
+          return "CVE-review-and-treatment-status-sqcb-${version}.csv"
+        } else if (fileName == 'CVE-review-and-treatment-status-sqcb.json') {
+          return "CVE-review-and-treatment-status-sqcb-${version}.json"
+        }
+        return fileName
+      }
     }
   }
 
