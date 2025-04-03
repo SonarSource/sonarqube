@@ -1,0 +1,8 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+---
+repos:
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 96ee1570b119e6337aafcc2f299bb0d902b68328  # frozen: 0.28.6
+    hooks:
+      - id: check-github-workflows
