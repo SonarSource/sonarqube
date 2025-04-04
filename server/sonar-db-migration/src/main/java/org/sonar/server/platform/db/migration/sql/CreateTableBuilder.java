@@ -162,7 +162,7 @@ public class CreateTableBuilder {
 
   private boolean isAutoIncrement(ColumnDef columnDef) {
     Collection<ColumnFlag> columnFlags = this.flagsByColumn.get(columnDef);
-    return columnFlags != null && columnFlags.contains(ColumnFlag.AUTO_INCREMENT);
+    return columnFlags.contains(ColumnFlag.AUTO_INCREMENT);
   }
 
   private static void appendNullConstraint(StringBuilder res, ColumnDef columnDef) {
@@ -190,7 +190,7 @@ public class CreateTableBuilder {
 
   private void appendColumnFlags(StringBuilder res, Dialect dialect, ColumnDef columnDef) {
     Collection<ColumnFlag> columnFlags = this.flagsByColumn.get(columnDef);
-    if (columnFlags != null && columnFlags.contains(ColumnFlag.AUTO_INCREMENT)) {
+    if (columnFlags.contains(ColumnFlag.AUTO_INCREMENT)) {
       switch (dialect.getId()) {
         case Oracle.ID:
           // no auto increment on Oracle, must use a sequence

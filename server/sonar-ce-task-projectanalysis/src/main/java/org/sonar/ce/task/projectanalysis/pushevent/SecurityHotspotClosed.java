@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.pushevent;
 
 import com.google.common.annotations.VisibleForTesting;
-import javax.annotation.Nullable;
 
 public class SecurityHotspotClosed extends HotspotEvent {
 
