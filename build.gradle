@@ -476,7 +476,9 @@ subprojects {
       dependency 'org.eclipse.jgit:org.eclipse.jgit:7.2.0.202503040940-r'
       dependency "org.codelibs.elasticsearch.module:analysis-common:7.17.22"
       dependency "org.codelibs.elasticsearch.module:reindex:7.17.22"
-      dependency 'org.tmatesoft.svnkit:svnkit:1.10.11'
+      dependency('org.tmatesoft.svnkit:svnkit:1.10.11') {
+        exclude 'net.i2p.crypto:eddsa'
+      }
       dependency 'org.hamcrest:hamcrest:3.0'
       dependency 'org.jsoup:jsoup:1.19.1'
       // JUnit 5
