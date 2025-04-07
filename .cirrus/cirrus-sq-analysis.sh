@@ -20,5 +20,4 @@ fi
   -Dsonar.analysis.repository="$GITHUB_REPO" \
   -Dsonar.analysis.sha1="$GIT_SHA1" \
   -Dsonar.exclusions=**/design-system/theme/**,**/legacy-design-system/** \
-  -Dsonar.sca.excludedManifests=**/private/it-** \
   --parallel --configure-on-demand --console plain -Pqa
