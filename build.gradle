@@ -314,7 +314,7 @@ subprojects {
       dependency 'org.sonarsource.jacoco:sonar-jacoco-plugin:1.3.0.1538'
       dependency 'org.sonarsource.java:sonar-java-plugin:8.11.0.38440'
       dependency 'org.sonarsource.java:sonar-java-symbolic-execution-plugin:8.11.0.38440'
-      dependency 'org.sonarsource.javascript:sonar-javascript-plugin:10.21.1.30825'
+      dependency 'org.sonarsource.javascript:sonar-javascript-plugin:10.22.0.32148'
       dependency 'org.sonarsource.php:sonar-php-plugin:3.45.0.12991'
       dependency 'org.sonarsource.plugins.cayc:sonar-cayc-plugin:2.4.0.2018'
       dependency 'org.sonarsource.python:sonar-python-plugin:5.2.0.20808'
@@ -329,9 +329,9 @@ subprojects {
       dependency 'com.sonarsource.text:sonar-text-developer-plugin:2.21.1.5779'
       dependency 'com.sonarsource.text:sonar-text-enterprise-plugin:2.21.1.5779'
       dependency 'com.sonarsource.jcl:sonar-jcl-plugin:1.4.1.1493'
-      dependency 'com.sonarsource.architecture:sonar-architecture-plugin:1.9.0.4841'
-      dependency 'com.sonarsource.architecture:sonar-architecture-java-frontend-plugin:1.9.0.4841'
-      dependency 'com.sonarsource.architecture:sonar-architecture-javascript-frontend-plugin:1.9.0.4841'
+      dependency 'com.sonarsource.architecture:sonar-architecture-plugin:1.10.0.5305'
+      dependency 'com.sonarsource.architecture:sonar-architecture-java-frontend-plugin:1.10.0.5305'
+      dependency 'com.sonarsource.architecture:sonar-architecture-javascript-frontend-plugin:1.10.0.5305'
       
       // Webapp
       dependency "org.sonarsource.sonarqube:webapp-assets:$webappVersion"
