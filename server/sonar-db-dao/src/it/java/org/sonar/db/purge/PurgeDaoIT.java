@@ -46,7 +46,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
 import org.sonar.api.issue.Issue;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.System2;
@@ -69,6 +68,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
@@ -1993,7 +1993,7 @@ oldCreationDate));
 
     // the issue uuids here don't even exist but doesn't matter, we don't delete issues so not testing that
     var issueReleaseBase = Map.of("created_at", 0L, "updated_at", 0L,
-      "severity", "INFO", "severity_sort_key", 42);
+      "severity", "INFO", "severity_sort_key", 42, "status", "TO_REVIEW");
     db.executeInsert("sca_issues_releases", merge(issueReleaseBase, Map.of("uuid", "issue-release-uuid1",
       "sca_issue_uuid", "issue-uuid1", "sca_release_uuid", "release-uuid1")));
     db.executeInsert("sca_issues_releases", merge(issueReleaseBase, Map.of("uuid", "issue-release-uuid2",

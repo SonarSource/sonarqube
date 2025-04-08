@@ -38,6 +38,9 @@ public class DbVersion202503 implements DbVersion {
     registry
       .add(2025_03_000, "Add known_package column to SCA releases", AddKnownPackageToScaReleasesTable.class)
       .add(2025_03_001, "Populate known_package column to SCA releases", PopulateKnownPackageColumnForScaReleasesTable.class)
-      .add(2025_03_002, "Update known_package on SCA release to be not nullable", UpdateKnownPackageColumnNotNullable.class);
+      .add(2025_03_002, "Update known_package on SCA release to be not nullable", UpdateKnownPackageColumnNotNullable.class)
+      .add(2025_03_003, "Add status column to SCA issues releases join table", AddStatusToScaIssuesReleasesTable.class)
+      .add(2025_03_004, "Populate status column to SCA issues releases join table", PopulateStatusColumnForScaIssuesReleasesTable.class)
+      .add(2025_03_005, "Update status column on SCA issues releases join table to be not nullable", UpdateScaIssuesReleasesStatusColumnNotNullable.class);
   }
 }
