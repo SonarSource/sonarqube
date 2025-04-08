@@ -51,6 +51,7 @@ public class DbVersion202503 implements DbVersion {
       .add(2025_03_012, "Add assignee to SCA issues releases", AddAssigneeToScaIssuesReleases.class)
       .add(2025_03_013, "Create ScaIssuesReleasesHistory table", CreateScaIssuesReleasesChangesTable.class)
       .add(2025_03_014, "Create index for sca_issues_releases UUID on changes table", CreateIndexOnScaIssuesReleaseChangesReleaseId.class)
-      .add(2025_03_015, "Update default SCA dependency issue status to OPEN from TO_REVIEW", UpdateScaIssuesReleasesOpenStatus.class);
+      .add(2025_03_015, "Update default SCA dependency issue status to OPEN from TO_REVIEW", UpdateScaIssuesReleasesOpenStatus.class)
+      .add(9999_99_001, "Create SCA license profiles table", CreateScaLicenseProfilesTable.class);
   }
 }
