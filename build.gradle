@@ -463,11 +463,6 @@ subprojects {
       }
       dependency 'org.cyclonedx:cyclonedx-core-java:10.2.1'
       dependency 'com.fasterxml.staxmate:staxmate:2.4.1'
-      dependencySet(group: 'org.eclipse.jetty', version: '11.0.25') {
-        entry 'jetty-proxy'
-        entry 'jetty-server'
-        entry 'jetty-servlet'
-      }
       dependency("org.elasticsearch.client:elasticsearch-rest-high-level-client:${elasticSearchClientVersion}") {
         exclude 'org.apache.logging.log4j:log4j-core'
       }

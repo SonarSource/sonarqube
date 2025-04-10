@@ -19,10 +19,11 @@
  */
 package org.sonar.server.platform.web;
 
+import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -31,11 +32,10 @@ import java.nio.charset.Charset;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.catalina.Context;
 import org.apache.catalina.connector.ClientAbortException;
+import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.IOUtils;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,7 +56,8 @@ class StaticResourcesServletTest {
   @RegisterExtension
   LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
-  private Server jetty;
+  private Tomcat tomcat;
+  private int port;
 
   private final PluginRepository pluginRepository = mock(PluginRepository.class);
   private final CoreExtensionRepository coreExtensionRepository = mock(CoreExtensionRepository.class);
@@ -65,31 +66,39 @@ class StaticResourcesServletTest {
   @BeforeEach
   void setUp() throws Exception {
     logTester.setLevel(Level.TRACE);
-    jetty = new Server(InetSocketAddress.createUnresolved("localhost", 0));
-    ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-    context.setContextPath("/");
-    ServletHolder servletHolder = new ServletHolder(new StaticResourcesServlet(system));
-    context.addServlet(servletHolder, "/static/*");
-    jetty.setHandler(context);
-    jetty.start();
+    tomcat = new Tomcat();
+    tomcat.setPort(0); // Use an ephemeral port
+
+    String contextPath = "/";
+    String docBase = new File(".").getAbsolutePath();
+
+    Context context = tomcat.addContext(contextPath, docBase);
+
+    HttpServlet servlet = new StaticResourcesServlet(system);
+    String servletName = "staticResourcesServlet";
+    Tomcat.addServlet(context, servletName, servlet);
+    context.addServletMappingDecoded("/static/*", servletName);
+
+    tomcat.start();
+    port = tomcat.getConnector().getLocalPort();
   }
 
   @AfterEach
-  public void tearDown() throws Exception {
-    if (jetty != null) {
-      jetty.stop();
+  void tearDown() throws Exception {
+    if (tomcat != null) {
+      tomcat.stop();
     }
   }
 
   private HttpResponse<String> callAndStop(String path) throws Exception {
     HttpClient client = HttpClient.newHttpClient();
     HttpRequest request = HttpRequest.newBuilder()
-      .uri(jetty.getURI().resolve(URI.create(path)))
+      .uri(URI.create("http://localhost:" + port + path))
       .build();
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-    jetty.stop();
+    tomcat.stop();
     return response;
   }
 
