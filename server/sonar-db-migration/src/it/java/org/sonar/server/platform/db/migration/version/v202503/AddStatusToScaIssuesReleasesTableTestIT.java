@@ -27,39 +27,31 @@ import org.sonar.db.MigrationDbTester;
 import static java.sql.Types.VARCHAR;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
-class UpdateScaIssuesReleasesStatusColumnNotNullableTest {
+class AddStatusToScaIssuesReleasesTableTestIT {
   static final String TABLE_NAME = "sca_issues_releases";
   static final String COLUMN_NAME = "status";
   static final int COLUMN_SIZE = 40;
 
   @RegisterExtension
-  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(UpdateScaIssuesReleasesStatusColumnNotNullable.class);
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(AddStatusToScaIssuesReleasesTable.class);
 
-  private final UpdateScaIssuesReleasesStatusColumnNotNullable underTest = new UpdateScaIssuesReleasesStatusColumnNotNullable(db.database());
-
-  @Test
-  void execute_whenColumnExists_shouldMakeColumnNotNull() throws SQLException {
-    // Verify column is nullable before update
-    db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, VARCHAR, COLUMN_SIZE, true);
-
-    underTest.execute();
-
-    // Verify column is not nullable after update
-    db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, VARCHAR, COLUMN_SIZE, false);
-  }
+  private final AddStatusToScaIssuesReleasesTable underTest = new AddStatusToScaIssuesReleasesTable(db.database());
 
   @Test
-  void execute_whenColumnDoesNotExist_shouldNotFail() throws SQLException {
-    // Ensure the column does not exist before executing the migration
-    db.executeDdl(String.format("ALTER TABLE %s DROP COLUMN IF EXISTS %s", TABLE_NAME, COLUMN_NAME));
+  void execute_whenColumnDoesNotExist_shouldCreateColumn() throws SQLException {
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
-    assertThatCode(underTest::execute).doesNotThrowAnyException();
+    underTest.execute();
+    assertColumnExists();
   }
 
   @Test
-  void execute_whenExecutedTwice_shouldBeIdempotent() throws SQLException {
+  void execute_whenColumnsAlreadyExists_shouldNotFail() throws SQLException {
     underTest.execute();
+    assertColumnExists();
     assertThatCode(underTest::execute).doesNotThrowAnyException();
-    db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, VARCHAR, COLUMN_SIZE, false);
+  }
+
+  private void assertColumnExists() {
+    db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, VARCHAR, COLUMN_SIZE, true);
   }
 }

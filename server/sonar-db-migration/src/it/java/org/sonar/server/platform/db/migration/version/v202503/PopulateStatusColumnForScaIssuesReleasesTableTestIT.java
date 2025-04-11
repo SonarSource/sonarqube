@@ -29,7 +29,7 @@ import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class PopulateStatusColumnForScaIssuesReleasesTableTest {
+class PopulateStatusColumnForScaIssuesReleasesTableTestIT {
   @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(PopulateStatusColumnForScaIssuesReleasesTable.class);
 
