@@ -41,6 +41,12 @@ public class DbVersion202503 implements DbVersion {
       .add(2025_03_002, "Update known_package on SCA release to be not nullable", UpdateKnownPackageColumnNotNullable.class)
       .add(2025_03_003, "Add status column to SCA issues releases join table", AddStatusToScaIssuesReleasesTable.class)
       .add(2025_03_004, "Populate status column to SCA issues releases join table", PopulateStatusColumnForScaIssuesReleasesTable.class)
-      .add(2025_03_005, "Update status column on SCA issues releases join table to be not nullable", UpdateScaIssuesReleasesStatusColumnNotNullable.class);
+      .add(2025_03_005, "Update status column on SCA issues releases join table to be not nullable", UpdateScaIssuesReleasesStatusColumnNotNullable.class)
+      .add(2025_03_006, "Add is_new column to SCA releases", AddIsNewToScaReleasesTable.class)
+      .add(2025_03_007, "Add is_new column to SCA dependencies", AddIsNewToScaDependenciesTable.class)
+      .add(2025_03_008, "Migrate to is_new on SCA releases", MigrateToIsNewOnScaReleases.class)
+      .add(2025_03_009, "Migrate to is_new on SCA dependencies", MigrateToIsNewOnScaDependencies.class)
+      .add(2025_03_010, "Drop new_in_pull_request column from SCA releases", DropNewInPullRequestFromScaReleasesTable.class)
+      .add(2025_03_011, "Drop new_in_pull_request column from SCA dependencies", DropNewInPullRequestFromScaDependenciesTable.class);
   }
 }
