@@ -46,12 +46,8 @@ public class ProcessWrapperFactory {
     // nothing to do
   }
 
-  public ProcessWrapper create(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, String... command) {
-    return new ProcessWrapper(baseDir, stdOutLineConsumer, LOG::debug, Map.of(), command);
-  }
-
-  public ProcessWrapper create(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, Map<String, String> envVariablesOverrides, String... command) {
-    return new ProcessWrapper(baseDir, stdOutLineConsumer, LOG::debug, envVariablesOverrides, command);
+  public ProcessWrapper create(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, Consumer<String> stdErrLineConsumer, String... command) {
+    return new ProcessWrapper(baseDir, stdOutLineConsumer, stdErrLineConsumer, Map.of(), command);
   }
 
   public ProcessWrapper create(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, Consumer<String> stdErrLineConsumer, Map<String, String> envVariablesOverrides,
@@ -117,7 +113,7 @@ public class ProcessWrapperFactory {
       }, new LogOutputStream() {
         @Override
         protected void processLine(String line, int logLevel) {
-          stdErrLineConsumer.accept("[stderr] %s".formatted(line));
+          stdErrLineConsumer.accept(line);
         }
       });
       builder.setExecuteStreamHandler(psh);

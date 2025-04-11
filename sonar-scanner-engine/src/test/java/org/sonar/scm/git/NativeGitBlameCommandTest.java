@@ -159,14 +159,14 @@ class NativeGitBlameCommandTest {
     ProcessWrapperFactory mockFactory = mock(ProcessWrapperFactory.class);
     ProcessWrapper mockProcess = mock(ProcessWrapper.class);
     String gitCommand = "git";
-    when(mockFactory.create(any(), any(), anyString(), anyString(), anyString(), anyString(),
+    when(mockFactory.create(any(), any(), any(), anyString(), anyString(), anyString(), anyString(),
       anyString(), anyString(), anyString(), anyString(), anyString(), anyString()))
-      .then(invocation -> mockProcess);
+        .then(invocation -> mockProcess);
 
     NativeGitBlameCommand blameCommand = new NativeGitBlameCommand(gitCommand, System2.INSTANCE, mockFactory);
     blameCommand.blame(baseDir.toPath(), DUMMY_JAVA);
 
-    verify(mockFactory).create(any(), any(), eq(gitCommand),
+    verify(mockFactory).create(any(), any(), any(), eq(gitCommand),
       eq(GIT_DIR_FLAG),
       eq(String.format(GIT_DIR_ARGUMENT, baseDir.toPath())),
       eq(GIT_DIR_FORCE_FLAG),
@@ -238,7 +238,7 @@ class NativeGitBlameCommandTest {
       "git version 2.25.1.msysgit.2").forEach(output -> {
         ProcessWrapperFactory mockedCmd = mockGitVersionCommand(output);
         mockGitWhereOnWindows(mockedCmd);
-        when(mockedCmd.create(isNull(), any(), eq("C:\\mockGit.exe"), eq("--version"))).then(invocation -> {
+        when(mockedCmd.create(isNull(), any(), any(), eq("C:\\mockGit.exe"), eq("--version"))).then(invocation -> {
           var argument = (Consumer<String>) invocation.getArgument(1);
           argument.accept(output);
           return mock(ProcessWrapper.class);
@@ -303,7 +303,7 @@ class NativeGitBlameCommandTest {
     ProcessWrapper mockProcess = mock(ProcessWrapper.class);
     mockGitWhereOnWindows(mockFactory);
 
-    when(mockFactory.create(isNull(), any(), eq("C:\\mockGit.exe"), eq("--version"))).then(invocation -> {
+    when(mockFactory.create(isNull(), any(), any(), eq("C:\\mockGit.exe"), eq("--version"))).then(invocation -> {
       var argument = (Consumer<String>) invocation.getArgument(1);
       argument.accept("git version 2.30.1");
       return mockProcess;
@@ -346,7 +346,7 @@ class NativeGitBlameCommandTest {
   }
 
   private void mockGitWhereOnWindows(ProcessWrapperFactory processWrapperFactory) {
-    when(processWrapperFactory.create(isNull(), any(), eq("C:\\Windows\\System32\\where.exe"), eq("$PATH:git.exe"))).then(invocation -> {
+    when(processWrapperFactory.create(isNull(), any(), any(), eq("C:\\Windows\\System32\\where.exe"), eq("$PATH:git.exe"))).then(invocation -> {
       var argument = (Consumer<String>) invocation.getArgument(1);
       argument.accept("C:\\mockGit.exe");
       return mock(ProcessWrapper.class);
@@ -357,7 +357,7 @@ class NativeGitBlameCommandTest {
     ProcessWrapperFactory mockFactory = mock(ProcessWrapperFactory.class);
     ProcessWrapper mockProcess = mock(ProcessWrapper.class);
 
-    when(mockFactory.create(isNull(), any(), eq("git"), eq("--version"))).then(invocation -> {
+    when(mockFactory.create(isNull(), any(), any(), eq("git"), eq("--version"))).then(invocation -> {
       var argument = (Consumer<String>) invocation.getArgument(1);
       argument.accept(commandOutput);
       return mockProcess;

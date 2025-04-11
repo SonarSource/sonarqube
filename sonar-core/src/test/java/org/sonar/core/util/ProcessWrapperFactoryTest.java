@@ -33,6 +33,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 
@@ -49,12 +50,15 @@ class ProcessWrapperFactoryTest {
   @Test
   void should_log_error_output_in_debug_mode(@TempDir Path root) {
     logTester.setLevel(Level.DEBUG);
-    var processWrapper = underTest.create(root, v -> {
-    }, Map.of("LANG", "en_US"), "git", "blame");
+
+    Consumer<String> stdoutConsumer = s -> {
+    };
+    Consumer<String> stderrConsumer = LoggerFactory.getLogger(ProcessWrapperFactoryTest.class)::debug;
+    var processWrapper = underTest.create(root, stdoutConsumer, stderrConsumer, Map.of("LANG", "en_US"), "git", "blame");
     assertThatThrownBy(processWrapper::execute)
       .isInstanceOf(IllegalStateException.class);
 
-    assertThat(logTester.logs(Level.DEBUG).get(0)).startsWith("[stderr] fatal:");
+    assertThat(logTester.logs(Level.DEBUG).get(0)).startsWith("fatal:");
   }
 
   // SONAR-24376
@@ -67,8 +71,9 @@ class ProcessWrapperFactoryTest {
     }
 
     var stdoutHandler = new DestroyProcessAfter10Lines();
+    var stderrHandler = new DestroyProcessAfter10Lines();
 
-    var processWrapper = underTest.create(temp, stdoutHandler::process,
+    var processWrapper = underTest.create(temp, stdoutHandler::process, stderrHandler::process,
       SystemUtils.IS_OS_WINDOWS ? new String[] {"cmd.exe", "/c", "type stdout.txt"} : new String[] {"cat", "stdout.txt"});
     stdoutHandler.wrapper = processWrapper;
 
@@ -82,8 +87,9 @@ class ProcessWrapperFactoryTest {
     ConcurrentLinkedDeque<String> logs = new ConcurrentLinkedDeque<>();
 
     Consumer<String> stdoutHandler = logs::add;
+    Consumer<String> stderrHandler = logs::add;
 
-    var processWrapper = underTest.create(temp, stdoutHandler, Map.of("FOO", "BAR"),
+    var processWrapper = underTest.create(temp, stdoutHandler, stderrHandler, Map.of("FOO", "BAR"),
       SystemUtils.IS_OS_WINDOWS ? new String[] {"cmd.exe", "/c", "echo %PATH% & echo %FOO%"} : new String[] {"/bin/bash", "-c", "echo $PATH; echo $FOO;"});
     processWrapper.execute();
 

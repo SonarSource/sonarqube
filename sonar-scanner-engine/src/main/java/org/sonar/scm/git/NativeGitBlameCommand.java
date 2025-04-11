@@ -25,6 +25,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -62,6 +63,7 @@ public class NativeGitBlameCommand {
 
   private final System2 system;
   private final ProcessWrapperFactory processWrapperFactory;
+  private final Consumer<String> stderrConsumer = line -> LOG.debug("[stderr] {}", line);
   private String gitCommand;
 
   @Autowired
@@ -85,7 +87,7 @@ public class NativeGitBlameCommand {
     try {
       this.gitCommand = locateDefaultGit();
       MutableString stdOut = new MutableString();
-      this.processWrapperFactory.create(null, l -> stdOut.string = l, gitCommand, "--version").execute();
+      this.processWrapperFactory.create(null, l -> stdOut.string = l, stderrConsumer, gitCommand, "--version").execute();
       return stdOut.string != null && stdOut.string.startsWith("git version") && isCompatibleGitVersion(stdOut.string);
     } catch (Exception e) {
       LOG.debug("Failed to find git native client", e);
@@ -109,7 +111,7 @@ public class NativeGitBlameCommand {
     // To avoid it we use where.exe to find git binary only in PATH.
     LOG.debug("Looking for git command in the PATH using where.exe (Windows)");
     List<String> whereCommandResult = new LinkedList<>();
-    this.processWrapperFactory.create(null, whereCommandResult::add, "C:\\Windows\\System32\\where.exe", "$PATH:git.exe")
+    this.processWrapperFactory.create(null, whereCommandResult::add, stderrConsumer, "C:\\Windows\\System32\\where.exe", "$PATH:git.exe")
       .execute();
 
     if (!whereCommandResult.isEmpty()) {
@@ -125,6 +127,7 @@ public class NativeGitBlameCommand {
     var processWrapper = this.processWrapperFactory.create(
       baseDir,
       outputProcessor::process,
+      stderrConsumer,
       gitCommand,
       GIT_DIR_FLAG, String.format(GIT_DIR_ARGUMENT, baseDir), GIT_DIR_FORCE_FLAG, baseDir.toString(),
       BLAME_COMMAND,
