@@ -59,6 +59,7 @@ public class DbVersion202503 implements DbVersion {
       .add(9999_99_004, "Create SCA license profile customizations table", CreateScaLicenseProfileCustomizationsTable.class)
       .add(9999_99_005, "Create SCA license profile categories table", CreateScaLicenseProfileCategoriesTable.class)
       .add(9999_99_006, "Create unique index on SCA license profile categories table", CreateUniqueIndexOnScaLicenseProfileCategories.class)
-      .add(9999_99_007, "Create unique index on SCA license profile customizations table", CreateUniqueIndexOnScaLicenseProfileCustomizations.class);
+      .add(9999_99_007, "Create unique index on SCA license profile customizations table", CreateUniqueIndexOnScaLicenseProfileCustomizations.class)
+      .add(9999_99_008, "Create unique index on SCA license profiles table", CreateUniqueIndexOnScaLicenseProfiles.class);
   }
 }
