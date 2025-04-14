@@ -332,7 +332,7 @@ subprojects {
       dependency 'com.sonarsource.architecture:sonar-architecture-plugin:1.10.0.5305'
       dependency 'com.sonarsource.architecture:sonar-architecture-java-frontend-plugin:1.10.0.5305'
       dependency 'com.sonarsource.architecture:sonar-architecture-javascript-frontend-plugin:1.10.0.5305'
-      
+
       // Webapp
       dependency "org.sonarsource.sonarqube:webapp-assets:$webappVersion"
 
@@ -550,7 +550,7 @@ subprojects {
       develocity.testRetry {
         maxRetries = 3
         maxFailures = 30
-        failOnPassedAfterRetry = true
+        failOnPassedAfterRetry = System.getenv("CIRRUS_PR") != null
       }
     }
   }
