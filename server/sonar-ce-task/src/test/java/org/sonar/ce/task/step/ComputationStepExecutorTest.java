@@ -103,7 +103,6 @@ public class ComputationStepExecutorTest {
     assertThat(stepsTelemetryHolder.getTelemetryMetrics()).containsEntry("prefix.step.foo", "100");
     assertThat(stepsTelemetryHolder.getTelemetryMetrics()).containsEntry("prefix.step.bar", "20");
     List<String> infoLogs = logTester.logs(Level.INFO);
-    System.out.println("infoLogs = " + infoLogs);
     assertThat(infoLogs).hasSize(1);
     assertThat(infoLogs.get(0)).contains("Step | step.foo=100 | step.bar=20 | status=SUCCESS | time=");
   }

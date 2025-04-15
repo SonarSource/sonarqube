@@ -30,7 +30,7 @@ import org.sonar.db.dialect.PostgreSql;
 import static org.sonar.server.platform.db.migration.def.Validations.validateColumnName;
 
 /**
- * Used to define VARCHAR column
+ * Used to define BOOLEAN column
  */
 @Immutable
 public class BooleanColumnDef extends AbstractColumnDef {
