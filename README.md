@@ -102,7 +102,7 @@ You can also target a specific version of the webapp by updating the `webappVers
 
 Historically our translations were stored in `sonar-core/src/main/resources/org/sonar/l10n/core.properties`, but this file is now deprecated and not updated anymore.
 Default translations (in English) are now defined in the webapp repository, here:
-https://github.com/SonarSource/sonarqube-webapp/blob/master/server/sonar-web/src/main/js/l10n/default.ts
+https://github.com/SonarSource/sonarqube-webapp/blob/master/libs/sq-server-shared/src/l10n/default.ts
 
 The format has changed but you can still have it as a `.properties` file format by running the following command:
 
