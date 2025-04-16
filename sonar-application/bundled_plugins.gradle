@@ -13,6 +13,7 @@ dependencies {
     bundledPlugin 'org.sonarsource.python:sonar-python-plugin'
     bundledPlugin "org.sonarsource.kotlin:sonar-kotlin-plugin"
     bundledPlugin "org.sonarsource.slang:sonar-ruby-plugin"
+    bundledPlugin 'org.sonarsource.rust:sonar-rust-plugin'
     bundledPlugin "org.sonarsource.slang:sonar-scala-plugin"
     bundledPlugin 'org.sonarsource.xml:sonar-xml-plugin'
     bundledPlugin 'org.sonarsource.iac:sonar-iac-plugin'
