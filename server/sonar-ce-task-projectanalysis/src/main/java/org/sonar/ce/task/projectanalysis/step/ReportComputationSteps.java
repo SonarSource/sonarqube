@@ -52,9 +52,6 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     ValidateProjectStep.class,
     LoadQualityProfilesStep.class,
 
-    // Dependencies
-    ScaStep.class,
-
     // Pre analysis operations
     PreMeasuresComputationChecksStep.class,
     SqUpgradeDetectionEventsStep.class,
@@ -70,6 +67,9 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     // load duplications related stuff
     LoadDuplicationsFromReportStep.class,
     LoadCrossProjectDuplicationsRepositoryStep.class,
+
+    // Dependencies
+    ScaStep.class,
 
     // data computation
     SizeMeasuresStep.class,
@@ -137,8 +137,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     TriggerViewRefreshStep.class,
 
     // send analysis and steps statistics telemetry
-    SendAnalysisTelemetryStep.class
-    );
+    SendAnalysisTelemetryStep.class);
 
   public ReportComputationSteps(TaskContainer taskContainer) {
     super(taskContainer);
