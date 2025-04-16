@@ -24,6 +24,9 @@ import io.swagger.v3.oas.models.info.Info;
 import jakarta.validation.Validation;
 import jakarta.validation.ValidatorFactory;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
+import org.sonar.api.internal.MetadataLoader;
+import org.sonar.api.utils.System2;
+import org.sonar.api.utils.Version;
 import org.sonar.server.v2.common.RestResponseEntityExceptionHandler;
 import org.springdoc.core.properties.SpringDocConfigProperties;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -65,14 +68,15 @@ public class CommonWebConfig implements WebMvcConfigurer {
 
   @Bean
   public OpenAPI customOpenAPI() {
+    Version sqVersion = MetadataLoader.loadSQVersion(System2.INSTANCE);
     return new OpenAPI()
       .info(new Info()
-          .title("SonarQube Web API v2")
-          .description("""
-            The SonarQube API v2 is a REST API which enables you to interact with SonarQube programmatically. Endpoint listed here should work as expected.
-            However, you should not consider the API stable for now as it is still under development. New releases of SonarQube can bring changes to existing endpoint definitions.
-            """)
-      );
+        .title("SonarQube Web API v2")
+        .description("""
+          The SonarQube API v2 is a REST API which enables you to interact with SonarQube programmatically. Endpoint listed here should work as expected.
+          However, you should not consider the API stable for now as it is still under development. New releases of SonarQube can bring changes to existing endpoint definitions.
+          """)
+        .version(sqVersion.toString()));
   }
 
   @Bean

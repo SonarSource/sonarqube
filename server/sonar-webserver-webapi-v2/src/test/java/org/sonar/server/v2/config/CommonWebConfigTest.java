@@ -21,12 +21,17 @@ package org.sonar.server.v2.config;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.sonar.api.internal.MetadataLoader;
+import org.sonar.api.utils.System2;
+import org.sonar.api.utils.Version;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.util.UrlPathHelper;
 
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mockStatic;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CommonWebConfigTest {
@@ -40,6 +45,20 @@ public class CommonWebConfigTest {
     UrlPathHelper actualUrlPathHelper = requireNonNull(pathMatchConfigurer.getUrlPathHelper());
 
     assertThat(actualUrlPathHelper.isUrlDecode()).isFalse();
+  }
+
+  @Test
+  public void customOpenAPI_shouldIncludeNonNullVersion() {
+    Version expectedVersion = Version.parse("1.0.0");
+    try (MockedStatic<MetadataLoader> metadataLoaderMock = mockStatic(MetadataLoader.class)) {
+      metadataLoaderMock.when(() -> MetadataLoader.loadSQVersion(System2.INSTANCE)).thenReturn(expectedVersion);
+
+      var commonWebConfig = new CommonWebConfig();
+      var info = commonWebConfig.customOpenAPI().getInfo();
+
+      assertThat(info.getVersion()).isNotNull();
+      assertThat(info.getVersion()).isEqualTo(expectedVersion.toString());
+    }
   }
 
 }
