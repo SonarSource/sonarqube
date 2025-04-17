@@ -48,6 +48,8 @@ public class DbVersion202503 implements DbVersion {
       .add(2025_03_009, "Migrate to is_new on SCA dependencies", MigrateToIsNewOnScaDependencies.class)
       .add(2025_03_010, "Drop new_in_pull_request column from SCA releases", DropNewInPullRequestFromScaReleasesTable.class)
       .add(2025_03_011, "Drop new_in_pull_request column from SCA dependencies", DropNewInPullRequestFromScaDependenciesTable.class)
-      .add(2025_03_012, "Add assignee to SCA issues releases", AddAssigneeToScaIssuesReleases.class);
+      .add(2025_03_012, "Add assignee to SCA issues releases", AddAssigneeToScaIssuesReleases.class)
+      .add(2025_03_013, "Create ScaIssuesReleasesHistory table", CreateScaIssuesReleasesChangesTable.class)
+      .add(2025_03_014, "Create index for sca_issues_releases UUID on changes table", CreateIndexOnScaIssuesReleaseChangesReleaseId.class);
   }
 }

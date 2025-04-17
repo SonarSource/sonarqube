@@ -111,6 +111,7 @@ public final class SqTables {
     "sca_dependencies",
     "sca_issues",
     "sca_issues_releases",
+    "sca_issue_rels_changes",
     "sca_releases",
     "sca_vulnerability_issues",
     "scanner_analysis_cache",
