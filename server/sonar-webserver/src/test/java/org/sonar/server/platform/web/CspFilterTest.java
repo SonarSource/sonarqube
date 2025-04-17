@@ -46,7 +46,7 @@ public class CspFilterTest {
     "object-src 'none'; " +
     "script-src 'self' 'sha256-hK8SVWFNHY0UhP61DBzX/3fvT74EI8u6/jRQvUKeZoU='; " +
     "style-src 'self' 'unsafe-inline'; " +
-    "worker-src 'none'";
+    "worker-src 'self'";
   private final ServletContext servletContext = mock(ServletContext.class, RETURNS_MOCKS);
   private final HttpServletResponse response = mock(HttpServletResponse.class);
   private final FilterChain chain = mock(FilterChain.class);

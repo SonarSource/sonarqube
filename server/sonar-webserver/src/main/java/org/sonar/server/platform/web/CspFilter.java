@@ -53,7 +53,7 @@ public class CspFilter implements Filter {
     // the hash below corresponds to the window.__assetsPath script in index.html
     cspPolicies.add("script-src 'self' " + getAssetsPathScriptCSPHash(filterConfig.getServletContext().getContextPath()));
     cspPolicies.add("style-src 'self' 'unsafe-inline'");
-    cspPolicies.add("worker-src 'none'");
+    cspPolicies.add("worker-src 'self'");
     this.policies = String.join("; ", cspPolicies).trim();
   }
 
