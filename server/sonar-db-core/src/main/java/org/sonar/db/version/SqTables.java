@@ -109,6 +109,7 @@ public final class SqTables {
     "rules_profiles",
     "rule_repositories",
     "sca_dependencies",
+    "sca_encountered_licenses",
     "sca_issues",
     "sca_issues_releases",
     "sca_issue_rels_changes",
