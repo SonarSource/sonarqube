@@ -24,7 +24,6 @@ import com.hazelcast.cluster.Address;
 import com.hazelcast.cluster.Cluster;
 import com.hazelcast.cluster.Member;
 import com.hazelcast.cluster.MemberSelector;
-import com.hazelcast.cp.IAtomicReference;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -43,6 +42,7 @@ import org.sonar.application.config.TestAppSettings;
 import org.sonar.process.cluster.hz.DistributedAnswer;
 import org.sonar.process.cluster.hz.DistributedCall;
 import org.sonar.process.cluster.hz.DistributedCallback;
+import org.sonar.process.cluster.hz.DistributedReference;
 import org.sonar.process.cluster.hz.HazelcastMember;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -150,7 +150,7 @@ public class AppNodesClusterHostsConsistencyTest {
     }
 
     @Override
-    public <E> IAtomicReference<E> getAtomicReference(String name) {
+    public <E> DistributedReference<E> getAtomicReference(String name) {
       throw new IllegalStateException("not expected to be called");
     }
 

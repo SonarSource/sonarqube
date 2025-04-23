@@ -384,7 +384,7 @@ subprojects {
       }
       dependency "com.google.protobuf:protobuf-java:${protobufVersion}"
       dependency 'com.h2database:h2:2.3.232'
-      dependencySet(group: 'com.hazelcast', version: '5.4.0') {
+      dependencySet(group: 'com.hazelcast', version: '5.5.0') {
         entry 'hazelcast'
       }
       // Documentation must be updated if mssql-jdbc is updated: https://github.com/SonarSource/sonarqube/commit/03e4773ebf6cba854cdcf57a600095f65f4f53e7

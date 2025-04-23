@@ -26,7 +26,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.MultiExecutionCallback;
-import com.hazelcast.cp.IAtomicReference;
+import com.hazelcast.map.IMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -47,8 +47,8 @@ class HazelcastMemberImpl implements HazelcastMember {
   }
 
   @Override
-  public <E> IAtomicReference<E> getAtomicReference(String name) {
-    return hzInstance.getCPSubsystem().getAtomicReference(name);
+  public <E> DistributedReference<E> getAtomicReference(String name) {
+    return new DistributedReference<>(hzInstance.getMap(name));
   }
 
   @Override
@@ -68,7 +68,8 @@ class HazelcastMemberImpl implements HazelcastMember {
 
   @Override
   public Lock getLock(String s) {
-    return hzInstance.getCPSubsystem().getLock(s);
+    IMap<String, UUID> lockMap = hzInstance.getMap("distributedLocks");
+    return new DistributedLock(lockMap, s);
   }
 
   @Override

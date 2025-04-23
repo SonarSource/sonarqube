@@ -21,7 +21,6 @@ package org.sonar.server.log;
 
 import com.hazelcast.cluster.Cluster;
 import com.hazelcast.cluster.Member;
-import com.hazelcast.cp.IAtomicReference;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -45,6 +44,7 @@ import org.sonar.db.Database;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.cluster.hz.DistributedAnswer;
+import org.sonar.process.cluster.hz.DistributedReference;
 import org.sonar.process.cluster.hz.HazelcastMember;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -95,7 +95,7 @@ public class DistributedServerLoggingTest {
     settings.setProperty(PATH_LOGS.getKey(), dirWithLogs.getAbsolutePath());
     settings.setProperty(ProcessProperties.Property.WEB_HOST.getKey(), "anyhost");
 
-    IAtomicReference<Object> reference = mock();
+    DistributedReference<Object> reference = mock();
     when(hazelcastMember.getAtomicReference("AUTH_SECRET")).thenReturn(reference);
 
     underTest.start();
@@ -111,7 +111,7 @@ public class DistributedServerLoggingTest {
 
   @Test
   public void isValidNodeToNodeCall_whenNodeToNodeSecretIsInvalid() {
-    IAtomicReference<Object> reference = mock();
+    DistributedReference<Object> reference = mock();
     when(hazelcastMember.getAtomicReference("AUTH_SECRET")).thenReturn(reference);
     when(reference.get()).thenReturn("");
 

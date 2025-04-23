@@ -120,7 +120,7 @@ public class ClusterAppStateImplTest {
     try (ClusterAppStateImpl underTest = createClusterAppState()) {
       underTest.registerSonarQubeVersion("6.4.1.5");
 
-      assertThat(underTest.getHazelcastMember().getAtomicReference(SONARQUBE_VERSION).get())
+      assertThat((String) underTest.getHazelcastMember().getAtomicReference(SONARQUBE_VERSION).get())
         .isEqualTo("6.4.1.5");
     }
   }
@@ -130,7 +130,7 @@ public class ClusterAppStateImplTest {
     try (ClusterAppStateImpl underTest = createClusterAppState()) {
       underTest.registerClusterName("foo");
 
-      assertThat(underTest.getHazelcastMember().getAtomicReference(CLUSTER_NAME).get())
+      assertThat((String) underTest.getHazelcastMember().getAtomicReference(CLUSTER_NAME).get())
         .isEqualTo("foo");
     }
   }
