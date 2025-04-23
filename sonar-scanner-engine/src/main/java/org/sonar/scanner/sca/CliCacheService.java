@@ -139,7 +139,7 @@ public class CliCacheService {
       String checksum = metadataResponse.sha256();
       // If we have a matching checksum dir with the existing CLI file, then we are up to date.
       if (!cachedCliFile(checksum).exists()) {
-        LOG.debug("CLI checksum mismatch");
+        LOG.debug("SCA CLI update detected");
         downloadCli(metadataResponse.id(), checksum);
         telemetryCache.put("scanner.sca.get.cli.cache.hit", "false");
       } else {
