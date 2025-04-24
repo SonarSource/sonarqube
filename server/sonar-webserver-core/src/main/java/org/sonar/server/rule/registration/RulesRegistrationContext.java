@@ -83,9 +83,11 @@ class RulesRegistrationContext {
       String ruleUuid = entry.getKey();
       RuleDto rule = dbRulesByRuleUuid.get(ruleUuid);
       if (rule == null) {
-        LOG.warn("Could not retrieve rule with uuid %s referenced by a deprecated rule key. " +
-          "The following deprecated rule keys seem to be referencing a non-existing rule",
-          ruleUuid, entry.getValue());
+        LOG.warn("Could not retrieve rule with uuid {} referenced by a deprecated rule key. " +
+          "The following deprecated rule keys seem to be referencing a non-existing rule: {}",
+          ruleUuid, entry.getValue().stream()
+            .map(SingleDeprecatedRuleKey::getOldRuleKeyAsRuleKey)
+            .collect(Collectors.toSet()));
       } else {
         entry.getValue().forEach(d -> rulesByKey.put(d.getOldRuleKeyAsRuleKey(), rule));
       }
