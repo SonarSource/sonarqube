@@ -19,26 +19,34 @@
  */
 package org.sonar.server.monitoring;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class MainCollectorTest {
+class MainCollectorTest {
+
+  @RegisterExtension
+  private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   private final MonitoringTask task1 = mock(MonitoringTask.class);
   private final MonitoringTask task2 = mock(MonitoringTask.class);
 
   private MainCollector underTest;
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     MonitoringTask[] tasks = {task1, task2};
     for(MonitoringTask task : tasks) {
       when(task.getDelay()).thenReturn(1L);
@@ -47,13 +55,13 @@ public class MainCollectorTest {
     underTest = new MainCollector(tasks);
   }
 
-  @After
-  public void stop() {
+  @AfterEach
+  void stop() {
     underTest.stop();
   }
 
   @Test
-  public void startAndStop_executorServiceIsShutdown() {
+  void startAndStop_executorServiceIsShutdown() {
     underTest.start();
 
     assertFalse(underTest.getScheduledExecutorService().isShutdown());
@@ -64,12 +72,25 @@ public class MainCollectorTest {
   }
 
   @Test
-  public void start_givenTwoTasks_callsGetsDelayAndPeriodFromTasks() {
+  void start_givenTwoTasks_callsGetsDelayAndPeriodFromTasks() {
     underTest.start();
 
     verify(task1, times(1)).getDelay();
     verify(task1, times(1)).getPeriod();
     verify(task2, times(1)).getDelay();
     verify(task2, times(1)).getPeriod();
+  }
+
+  @Test
+  void start_logsExceptionAsWarn_whenTaskThrowsException() {
+    doThrow(new RuntimeException()).when(task1).run();
+
+    underTest.start();
+
+    String expectedLogMessage = "Error while executing monitoring task in " + task1.getClass().getSimpleName();
+    await()
+      .atMost(1, TimeUnit.SECONDS)
+      .until(() -> logTester.logs().stream()
+        .anyMatch(log -> log.contains(expectedLogMessage)));
   }
 }

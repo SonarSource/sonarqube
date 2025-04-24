@@ -21,13 +21,18 @@ package org.sonar.server.monitoring;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class MainCollector implements Startable {
+
+  private static final Logger LOG = LoggerFactory.getLogger(MainCollector.class);
 
   private final MonitoringTask[] monitoringTasks;
   private ScheduledExecutorService scheduledExecutorService;
@@ -43,9 +48,14 @@ public class MainCollector implements Startable {
         .setDaemon(true)
         .setNameFormat(getClass().getCanonicalName() + "-thread-%d")
         .build());
-    for (MonitoringTask task : monitoringTasks) {
-      scheduledExecutorService.scheduleWithFixedDelay(task, task.getDelay(), task.getPeriod(), MILLISECONDS);
-    }
+    Arrays.stream(monitoringTasks).forEach(task ->
+      scheduledExecutorService.scheduleWithFixedDelay(() -> {
+      try {
+        task.run();
+      } catch (Exception e) {
+        LOG.warn("Error while executing monitoring task in {}: ", task.getClass().getSimpleName(), e);
+      }
+    }, task.getDelay(), task.getPeriod(), MILLISECONDS));
   }
 
   @Override
