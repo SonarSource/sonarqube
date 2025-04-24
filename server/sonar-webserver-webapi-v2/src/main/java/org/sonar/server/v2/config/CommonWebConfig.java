@@ -73,8 +73,8 @@ public class CommonWebConfig implements WebMvcConfigurer {
       .info(new Info()
         .title("SonarQube Web API v2")
         .description("""
-          The SonarQube API v2 is a REST API which enables you to interact with SonarQube programmatically. Endpoint listed here should work as expected.
-          However, you should not consider the API stable for now as it is still under development. New releases of SonarQube can bring changes to existing endpoint definitions.
+          The SonarQube API v2 is a REST API which enables you to interact with SonarQube programmatically.
+          While not all endpoints of the former Web API are available yet, the ones available are stable and can be used in production environments.
           """)
         .version(sqVersion.toString()));
   }

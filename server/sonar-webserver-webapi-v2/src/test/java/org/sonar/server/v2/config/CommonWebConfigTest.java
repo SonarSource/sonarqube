@@ -57,6 +57,10 @@ public class CommonWebConfigTest {
       var info = commonWebConfig.customOpenAPI().getInfo();
 
       assertThat(info.getVersion()).isNotNull();
+      assertThat(info.getDescription()).isEqualTo("""
+          The SonarQube API v2 is a REST API which enables you to interact with SonarQube programmatically.
+          While not all endpoints of the former Web API are available yet, the ones available are stable and can be used in production environments.
+          """);
       assertThat(info.getVersion()).isEqualTo(expectedVersion.toString());
     }
   }
