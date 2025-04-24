@@ -82,6 +82,9 @@ develocity {
   buildScan {
     uploadInBackground.set(!isCiServer)
     publishing.onlyIf { isCiServer && it.authenticated }
+    if (isCiServer) {
+      buildScan.value 'Branch', System.getenv()["CIRRUS_BRANCH"]
+    }
   }
 }
 
