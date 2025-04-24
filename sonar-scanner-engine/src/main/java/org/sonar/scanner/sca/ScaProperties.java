@@ -30,6 +30,11 @@ import org.sonar.scanner.config.DefaultConfiguration;
 public class ScaProperties {
   private static final Pattern sonarScaPropertyRegex = Pattern.compile("^sonar\\.sca\\.([a-zA-Z]+)$");
   private static final String SONAR_SCA_PREFIX = "sonar.sca.";
+  private static final Set<String> IGNORED_PROPERTIES = Set.of(
+    // excludedManifests is a special case which we handle when building --exclude
+    "sonar.sca.excludedManifests",
+    // keep recursive enabled to better match sonar-scanner behavior
+    "sonar.sca.recursiveManifestSearch");
 
   private ScaProperties() {
   }
@@ -46,22 +51,16 @@ public class ScaProperties {
    * { "sonar.someOtherProperty" : "value" } returns an empty map
    *
    * @param configuration the scanner configuration possibly containing sonar.sca.* properties
-   * @param ignoredPropertyNames property names that should not be processed as a property
    * @return a map of Tidelift CLI compatible environment variable names to their configuration values
    */
-  public static Map<String, String> buildFromScannerProperties(DefaultConfiguration configuration, Set<String> ignoredPropertyNames) {
+  public static Map<String, String> buildFromScannerProperties(DefaultConfiguration configuration) {
     HashMap<String, String> props = new HashMap<>(configuration.getProperties());
-
-    // recursive mode defaults to true
-    if (!props.containsKey("sonar.sca.recursiveManifestSearch")) {
-      props.put("sonar.sca.recursiveManifestSearch", "true");
-    }
 
     return props
       .entrySet()
       .stream()
       .filter(entry -> entry.getKey().startsWith(SONAR_SCA_PREFIX))
-      .filter(entry -> !ignoredPropertyNames.contains(entry.getKey()))
+      .filter(entry -> !IGNORED_PROPERTIES.contains(entry.getKey()))
       .collect(Collectors.toMap(entry -> convertPropToEnvVariable(entry.getKey()), Map.Entry::getValue));
   }
 

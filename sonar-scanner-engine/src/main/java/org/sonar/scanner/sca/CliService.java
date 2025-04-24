@@ -29,7 +29,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.apache.commons.csv.CSVFormat;
@@ -85,6 +84,7 @@ public class CliService {
       args.add(zipPath.toAbsolutePath().toString());
       args.add("--directory");
       args.add(module.getBaseDir().toString());
+      args.add("--recursive");
 
       String excludeFlag = getExcludeFlag(module, configuration);
       if (excludeFlag != null) {
@@ -104,9 +104,7 @@ public class CliService {
       envProperties.put("TIDELIFT_ALLOW_MANIFEST_FAILURES", "1");
       envProperties.put("TIDELIFT_CLI_INSIDE_SCANNER_ENGINE", "1");
       envProperties.put("TIDELIFT_CLI_SQ_SERVER_VERSION", server.getVersion());
-      // EXCLUDED_MANIFESTS_PROP_KEY is a special case which we handle via --args, not environment variables
-      Set<String> ignoredProperties = Set.of(EXCLUDED_MANIFESTS_PROP_KEY);
-      envProperties.putAll(ScaProperties.buildFromScannerProperties(configuration, ignoredProperties));
+      envProperties.putAll(ScaProperties.buildFromScannerProperties(configuration));
 
       LOG.info("Running command: {}", args);
       LOG.info("Environment properties: {}", envProperties);

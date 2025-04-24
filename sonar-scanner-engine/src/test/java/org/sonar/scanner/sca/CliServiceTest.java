@@ -102,8 +102,7 @@ class CliServiceTest {
   void generateZip_shouldCallProcessCorrectly_andRegisterTelemetry() throws IOException, URISyntaxException {
     assertThat(rootModuleDir.resolve("test_file").toFile().createNewFile()).isTrue();
 
-    when(configuration.getProperties()).thenReturn(Map.of("sonar.sca.recursiveManifestSearch", "true", CliService.EXCLUDED_MANIFESTS_PROP_KEY, "foo,bar,baz/**"));
-    when(configuration.get("sonar.sca.recursiveManifestSearch")).thenReturn(Optional.of("true"));
+    when(configuration.getProperties()).thenReturn(Map.of(CliService.EXCLUDED_MANIFESTS_PROP_KEY, "foo,bar,baz/**"));
     when(configuration.getStringArray(CliService.EXCLUDED_MANIFESTS_PROP_KEY)).thenReturn(new String[] {"foo", "bar", "baz/**"});
 
     File producedZip = underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
@@ -118,6 +117,7 @@ class CliServiceTest {
       rootInputModule.getWorkDir().resolve("dependency-files.zip").toString(),
       "--directory",
       rootInputModule.getBaseDir().toString(),
+      "--recursive",
       "--exclude",
       "foo,bar,baz/**,ignored.txt,.scannerwork/**",
       "--debug");
@@ -126,7 +126,6 @@ class CliServiceTest {
       .contains("Arguments Passed In: " + String.join(" ", expectedArguments))
       .contains("TIDELIFT_SKIP_UPDATE_CHECK=1")
       .contains("TIDELIFT_ALLOW_MANIFEST_FAILURES=1")
-      .contains("TIDELIFT_RECURSIVE_MANIFEST_SEARCH=true")
       .contains("Generated manifests zip file: " + producedZip.getName());
 
     assertThat(telemetryCache.getAll()).containsKey("scanner.sca.execution.cli.duration").isNotNull();
@@ -150,6 +149,7 @@ class CliServiceTest {
       rootInputModule.getWorkDir().resolve("dependency-files.zip").toString(),
       "--directory",
       rootInputModule.getBaseDir().toString(),
+      "--recursive",
       "--exclude",
       "ignored.txt,.scannerwork/**",
       "--debug");
@@ -174,6 +174,7 @@ class CliServiceTest {
       rootInputModule.getWorkDir().resolve("dependency-files.zip").toString(),
       "--directory",
       rootInputModule.getBaseDir().toString(),
+      "--recursive",
       "--exclude",
       "ignored.txt,.scannerwork/**",
       "--debug");
@@ -203,6 +204,7 @@ class CliServiceTest {
       rootInputModule.getWorkDir().resolve("dependency-files.zip").toString(),
       "--directory",
       rootInputModule.getBaseDir().toString(),
+      "--recursive",
       "--exclude",
       "ignored.txt,.scannerwork/**",
       "--debug");
