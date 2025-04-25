@@ -19,10 +19,8 @@
  */
 package org.sonar.server.issue.workflow;
 
-import com.google.common.collect.Collections2;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -44,7 +42,6 @@ import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflow
 import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowActionsFactory;
 import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowDefinition;
 import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition;
-import org.sonar.server.issue.workflow.statemachine.Transition;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang3.time.DateUtils.addDays;
@@ -85,35 +82,35 @@ class IssueWorkflowForCodeQualityIssuesTest {
   @Test
   void list_out_transitions_from_status_open() {
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_OPEN);
-    List<Transition> transitions = underTest.outTransitions(issue);
-    assertThat(keys(transitions)).containsOnly("confirm", "falsepositive", "resolve", "wontfix", "accept");
+    List<String> transitions = underTest.outTransitionsKeys(issue);
+    assertThat(transitions).containsOnly("confirm", "falsepositive", "resolve", "wontfix", "accept");
   }
 
   @Test
   void list_out_transitions_from_status_confirmed() {
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_CONFIRMED);
-    List<Transition> transitions = underTest.outTransitions(issue);
-    assertThat(keys(transitions)).containsOnly("unconfirm", "falsepositive", "resolve", "wontfix", "accept");
+    List<String> transitions = underTest.outTransitionsKeys(issue);
+    assertThat(transitions).containsOnly("unconfirm", "falsepositive", "resolve", "wontfix", "accept");
   }
 
   @Test
   void list_out_transitions_from_status_resolved() {
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_RESOLVED);
-    List<Transition> transitions = underTest.outTransitions(issue);
-    assertThat(keys(transitions)).containsOnly("reopen");
+    List<String> transitions = underTest.outTransitionsKeys(issue);
+    assertThat(transitions).containsOnly("reopen");
   }
 
   @Test
   void list_out_transitions_from_status_reopen() {
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_REOPENED);
-    List<Transition> transitions = underTest.outTransitions(issue);
-    assertThat(keys(transitions)).containsOnly("confirm", "resolve", "falsepositive", "wontfix", "accept");
+    List<String> transitions = underTest.outTransitionsKeys(issue);
+    assertThat(transitions).containsOnly("confirm", "resolve", "falsepositive", "wontfix", "accept");
   }
 
   @Test
   void list_no_out_transition_from_status_closed() {
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_CLOSED).setRuleKey(RuleKey.of("java", "R1  "));
-    List<Transition> transitions = underTest.outTransitions(issue);
+    List<String> transitions = underTest.outTransitionsKeys(issue);
     assertThat(transitions).isEmpty();
   }
 
@@ -121,7 +118,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
   void fail_if_unknown_status_when_listing_transitions() {
     DefaultIssue issue = new DefaultIssue().setStatus("xxx");
     try {
-      underTest.outTransitions(issue);
+      underTest.outTransitionsKeys(issue);
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Unknown status: xxx");
@@ -500,7 +497,4 @@ class IssueWorkflowForCodeQualityIssuesTest {
     return newResolution == null ? "" : newResolution;
   }
 
-  private Collection<String> keys(List<Transition> transitions) {
-    return Collections2.transform(transitions, Transition::key);
-  }
 }

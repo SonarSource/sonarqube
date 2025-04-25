@@ -42,7 +42,6 @@ import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflow;
 import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowActionsFactory;
 import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowDefinition;
 import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTransition;
-import org.sonar.server.issue.workflow.statemachine.Transition;
 
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,9 +76,9 @@ public class IssueWorkflowForSecurityHotspotsTest {
   public void to_review_hotspot_with_any_resolution_can_be_resolved_as_safe_or_fixed(@Nullable String resolution) {
     DefaultIssue hotspot = newHotspot(STATUS_TO_REVIEW, resolution);
 
-    List<Transition> transitions = underTest.outTransitions(hotspot);
+    List<String> transitions = underTest.outTransitionsKeys(hotspot);
 
-    assertThat(keys(transitions)).containsExactlyInAnyOrder(RESOLVE_AS_REVIEWED, RESOLVE_AS_SAFE, RESOLVE_AS_ACKNOWLEDGED);
+    assertThat(fromKeys(transitions)).containsExactlyInAnyOrder(RESOLVE_AS_REVIEWED, RESOLVE_AS_SAFE, RESOLVE_AS_ACKNOWLEDGED);
   }
 
   @DataProvider
@@ -97,18 +96,18 @@ public class IssueWorkflowForSecurityHotspotsTest {
   public void reviewed_as_fixed_hotspot_can_be_resolved_as_safe_or_put_back_to_review() {
     DefaultIssue hotspot = newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED);
 
-    List<Transition> transitions = underTest.outTransitions(hotspot);
+    List<String> transitions = underTest.outTransitionsKeys(hotspot);
 
-    assertThat(keys(transitions)).containsExactlyInAnyOrder(RESOLVE_AS_SAFE, RESET_AS_TO_REVIEW, RESOLVE_AS_ACKNOWLEDGED);
+    assertThat(fromKeys(transitions)).containsExactlyInAnyOrder(RESOLVE_AS_SAFE, RESET_AS_TO_REVIEW, RESOLVE_AS_ACKNOWLEDGED);
   }
 
   @Test
   public void reviewed_as_safe_hotspot_can_be_resolved_as_fixed_or_put_back_to_review() {
     DefaultIssue hotspot = newHotspot(STATUS_REVIEWED, RESOLUTION_SAFE);
 
-    List<Transition> transitions = underTest.outTransitions(hotspot);
+    List<String> transitions = underTest.outTransitionsKeys(hotspot);
 
-    assertThat(keys(transitions)).containsExactlyInAnyOrder(RESOLVE_AS_REVIEWED, RESET_AS_TO_REVIEW, RESOLVE_AS_ACKNOWLEDGED);
+    assertThat(fromKeys(transitions)).containsExactlyInAnyOrder(RESOLVE_AS_REVIEWED, RESET_AS_TO_REVIEW, RESOLVE_AS_ACKNOWLEDGED);
   }
 
   @Test
@@ -116,7 +115,7 @@ public class IssueWorkflowForSecurityHotspotsTest {
   public void reviewed_with_any_resolution_but_safe_or_fixed_can_not_be_changed(String resolution) {
     DefaultIssue hotspot = newHotspot(STATUS_REVIEWED, resolution);
 
-    List<Transition> transitions = underTest.outTransitions(hotspot);
+    List<String> transitions = underTest.outTransitionsKeys(hotspot);
 
     assertThat(transitions).isEmpty();
   }
@@ -283,8 +282,8 @@ public class IssueWorkflowForSecurityHotspotsTest {
     assertThat(hotspot.resolution()).isNull();
   }
 
-  private Collection<SecurityHotspotWorkflowTransition> keys(List<Transition> transitions) {
-    return transitions.stream().map(Transition::key).map(SecurityHotspotWorkflowTransition::fromKey).flatMap(Optional::stream).toList();
+  private Collection<SecurityHotspotWorkflowTransition> fromKeys(List<String> transitionKeys) {
+    return transitionKeys.stream().map(SecurityHotspotWorkflowTransition::fromKey).flatMap(Optional::stream).toList();
   }
 
   private static void setStatusPreviousToClosed(DefaultIssue hotspot, String previousStatus, @Nullable String previousResolution, @Nullable String newResolution) {

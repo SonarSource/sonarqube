@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -37,7 +36,6 @@ import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflow
 import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflow;
 import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowActionsFactory;
 import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowDefinition;
-import org.sonar.server.issue.workflow.statemachine.Transition;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;

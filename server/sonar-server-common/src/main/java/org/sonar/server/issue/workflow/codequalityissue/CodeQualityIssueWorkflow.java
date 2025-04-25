@@ -29,10 +29,10 @@ import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.issue.workflow.statemachine.State;
+import org.sonar.issue.workflow.statemachine.Transition;
 import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.issue.workflow.issue.IssueWorkflowEntityAdapter;
-import org.sonar.server.issue.workflow.statemachine.State;
-import org.sonar.server.issue.workflow.statemachine.Transition;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -70,17 +70,19 @@ public class CodeQualityIssueWorkflow {
   }
 
   public Set<CodeQualityIssueWorkflowTransition> outTransitionsEnums(DefaultIssue issue) {
-    return outTransitions(issue).stream().map(Transition::key)
+    return outTransitionsKeys(issue).stream()
       .map(CodeQualityIssueWorkflowTransition::fromKey)
       .flatMap(Optional::stream)
       .collect(Collectors.toSet());
   }
 
-  public List<Transition> outTransitions(DefaultIssue issue) {
+  public List<String> outTransitionsKeys(DefaultIssue issue) {
     String status = issue.status();
     State<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions> state = workflowDefinition.getMachine().state(status);
     checkArgument(state != null, "Unknown status: %s", status);
-    return state.outManualTransitions(adapt(issue)).stream().map(t -> (Transition) t).toList();
+    return state.outManualTransitions(adapt(issue)).stream()
+      .map(Transition::key)
+      .toList();
   }
 
   public void doAutomaticTransition(DefaultIssue issue, IssueChangeContext issueChangeContext) {

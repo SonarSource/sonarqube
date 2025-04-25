@@ -20,20 +20,25 @@
 package org.sonar.server.issue;
 
 import java.util.List;
+import java.util.Set;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.rule.RuleType;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.workflow.WorkflowTransition;
-import org.sonar.server.issue.workflow.statemachine.Transition;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Objects.requireNonNull;
+import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.CONFIRM;
+import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.UNCONFIRM;
 
 /**
  * This service is a kind of overlay of {@link IssueWorkflow} that also deals with permission checking
  */
 public class TransitionService {
 
+  public static final Set<String> CONFIRM_TRANSITION_KEYS = Set.of(UNCONFIRM.getKey(), CONFIRM.getKey());
   private final UserSession userSession;
   private final IssueWorkflow workflow;
 
@@ -44,11 +49,16 @@ public class TransitionService {
 
   public List<String> listTransitionKeys(DefaultIssue issue) {
     String projectUuid = requireNonNull(issue.projectUuid());
-    return workflow.outTransitions(issue)
+    return workflow.outTransitionsKeys(issue)
       .stream()
-      .filter(transition -> (userSession.isLoggedIn() && transition.requiredProjectPermission() == null)
-        || (transition.requiredProjectPermission() != null && userSession.hasComponentUuidPermission(transition.requiredProjectPermission(), projectUuid)))
-      .map(Transition::key)
+      .filter(key -> {
+        // Confirm is an exception and is accessible to any logged-in user
+        if (CONFIRM_TRANSITION_KEYS.contains(key)) {
+          return userSession.isLoggedIn();
+        } else {
+          return userSession.hasComponentUuidPermission(getProjectPermissionForIssueType(issue), projectUuid);
+        }
+      })
       .toList();
   }
 
@@ -66,10 +76,24 @@ public class TransitionService {
 
   public void checkTransitionPermission(String transitionKey, DefaultIssue defaultIssue) {
     String projectUuid = requireNonNull(defaultIssue.projectUuid());
-    workflow.outTransitions(defaultIssue)
+    workflow.outTransitionsKeys(defaultIssue)
       .stream()
-      .filter(transition -> transition.key().equals(transitionKey) && transition.requiredProjectPermission() != null)
-      .forEach(transition -> userSession.checkComponentUuidPermission(transition.requiredProjectPermission(), projectUuid));
+      .filter(key -> key.equals(transitionKey))
+      .forEach(transition -> {
+        // Confirm is an exception and is accessible to any logged-in user
+        if (CONFIRM_TRANSITION_KEYS.contains(transitionKey)) {
+          return;
+        }
+        userSession.checkComponentUuidPermission(getProjectPermissionForIssueType(defaultIssue), projectUuid);
+      });
+  }
+
+  private static ProjectPermission getProjectPermissionForIssueType(DefaultIssue defaultIssue) {
+    return isSecurityHotspot(defaultIssue) ? ProjectPermission.SECURITYHOTSPOT_ADMIN : ProjectPermission.ISSUE_ADMIN;
+  }
+
+  private static boolean isSecurityHotspot(DefaultIssue issue) {
+    return issue.type() == RuleType.SECURITY_HOTSPOT;
   }
 
 }

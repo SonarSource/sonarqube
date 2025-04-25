@@ -22,9 +22,8 @@ package org.sonar.server.issue.workflow.securityhotspot;
 import java.util.function.Consumer;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
-import org.sonar.db.permission.ProjectPermission;
-import org.sonar.server.issue.workflow.statemachine.StateMachine;
-import org.sonar.server.issue.workflow.statemachine.Transition;
+import org.sonar.issue.workflow.statemachine.StateMachine;
+import org.sonar.issue.workflow.statemachine.Transition;
 
 import static org.sonar.api.issue.Issue.RESOLUTION_ACKNOWLEDGED;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
@@ -71,8 +70,7 @@ public class SecurityHotspotWorkflowDefinition {
     Transition.TransitionBuilder<SecurityHotspotWorkflowEntity, SecurityHotspotWorkflowActions> reviewedAsFixedBuilder = Transition
       .<SecurityHotspotWorkflowEntity, SecurityHotspotWorkflowActions>builder(RESOLVE_AS_REVIEWED.getKey())
       .to(STATUS_REVIEWED)
-      .actions(a -> a.setResolution(RESOLUTION_FIXED))
-      .requiredProjectPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN);
+      .actions(a -> a.setResolution(RESOLUTION_FIXED));
     builder
       .transition(reviewedAsFixedBuilder
         .from(STATUS_TO_REVIEW)
@@ -86,8 +84,7 @@ public class SecurityHotspotWorkflowDefinition {
     Transition.TransitionBuilder<SecurityHotspotWorkflowEntity, SecurityHotspotWorkflowActions> resolveAsSafeTransitionBuilder = Transition
       .<SecurityHotspotWorkflowEntity, SecurityHotspotWorkflowActions>builder(RESOLVE_AS_SAFE.getKey())
       .to(STATUS_REVIEWED)
-      .actions(a -> a.setResolution(RESOLUTION_SAFE))
-      .requiredProjectPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN);
+      .actions(a -> a.setResolution(RESOLUTION_SAFE));
     builder
       .transition(resolveAsSafeTransitionBuilder
         .from(STATUS_TO_REVIEW)
@@ -101,8 +98,7 @@ public class SecurityHotspotWorkflowDefinition {
     Transition.TransitionBuilder<SecurityHotspotWorkflowEntity, SecurityHotspotWorkflowActions> resolveAsAcknowledgedTransitionBuilder = Transition
       .<SecurityHotspotWorkflowEntity, SecurityHotspotWorkflowActions>builder(RESOLVE_AS_ACKNOWLEDGED.getKey())
       .to(STATUS_REVIEWED)
-      .actions(a -> a.setResolution(RESOLUTION_ACKNOWLEDGED))
-      .requiredProjectPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN);
+      .actions(a -> a.setResolution(RESOLUTION_ACKNOWLEDGED));
     builder
       .transition(resolveAsAcknowledgedTransitionBuilder
         .from(STATUS_TO_REVIEW)
@@ -118,7 +114,6 @@ public class SecurityHotspotWorkflowDefinition {
         .from(STATUS_REVIEWED).to(STATUS_TO_REVIEW)
         .conditions(sh -> sh.hasAnyResolution(RESOLUTION_FIXED, RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED))
         .actions(UNSET_RESOLUTION)
-        .requiredProjectPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN)
         .build());
   }
 

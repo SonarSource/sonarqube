@@ -17,16 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.workflow.statemachine;
+package org.sonar.issue.workflow.statemachine;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import javax.annotation.CheckForNull;
 import org.apache.commons.lang3.StringUtils;
-import org.sonar.db.permission.ProjectPermission;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -42,7 +40,6 @@ public class Transition<E, A> {
   private final List<Predicate<E>> conditions;
   private final List<Consumer<A>> actions;
   private final boolean automatic;
-  private final ProjectPermission requiredProjectPermission;
 
   private Transition(TransitionBuilder<E, A> builder) {
     key = builder.key;
@@ -51,7 +48,6 @@ public class Transition<E, A> {
     conditions = List.copyOf(builder.conditions);
     actions = List.copyOf(builder.actions);
     automatic = builder.automatic;
-    requiredProjectPermission = builder.requiredProjectPermission;
   }
 
   public String key() {
@@ -87,11 +83,6 @@ public class Transition<E, A> {
     return true;
   }
 
-  @CheckForNull
-  public ProjectPermission requiredProjectPermission() {
-    return requiredProjectPermission;
-  }
-
   @Override
   public String toString() {
     return String.format("%s->%s->%s", from, key, to);
@@ -112,7 +103,6 @@ public class Transition<E, A> {
     private final List<Predicate<E>> conditions = new ArrayList<>();
     private final List<Consumer<A>> actions = new ArrayList<>();
     private boolean automatic = false;
-    private ProjectPermission requiredProjectPermission;
 
     private TransitionBuilder(String key) {
       this.key = key;
@@ -142,11 +132,6 @@ public class Transition<E, A> {
 
     public TransitionBuilder<E, A> automatic() {
       this.automatic = true;
-      return this;
-    }
-
-    public TransitionBuilder<E, A> requiredProjectPermission(ProjectPermission requiredProjectPermission) {
-      this.requiredProjectPermission = requiredProjectPermission;
       return this;
     }
 

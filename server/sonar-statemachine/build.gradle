@@ -1,0 +1,29 @@
+description = 'State machine used for issue workflow, can be later extracted and shared with other products'
+
+sonar {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: Server :: State Machine"
+  }
+}
+
+dependencies {
+  // Please don't add dependency on other SonarQube modules, as this library might be extracted in its own repo
+  implementation 'com.google.guava:guava'
+  implementation 'org.apache.commons:commons-lang3'
+
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
+
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
+  testImplementation 'org.junit.jupiter:junit-jupiter-params'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.mockito:mockito-junit-jupiter'
+
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+}
+
+test {
+  // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+  useJUnitPlatform()
+}

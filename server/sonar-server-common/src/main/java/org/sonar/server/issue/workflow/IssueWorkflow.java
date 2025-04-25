@@ -27,7 +27,6 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.rule.RuleType;
 import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflow;
 import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflow;
-import org.sonar.server.issue.workflow.statemachine.Transition;
 
 /**
  * Common entry point for both issues and security hotspots, because some features are not making the difference.
@@ -57,11 +56,11 @@ public class IssueWorkflow {
     }
   }
 
-  public List<Transition> outTransitions(DefaultIssue issue) {
+  public List<String> outTransitionsKeys(DefaultIssue issue) {
     if (isSecurityHotspot(issue)) {
-      return securityHotspotWorkflow.outTransitions(issue);
+      return securityHotspotWorkflow.outTransitionsKeys(issue);
     } else {
-      return codeQualityIssueWorkflow.outTransitions(issue);
+      return codeQualityIssueWorkflow.outTransitionsKeys(issue);
     }
   }
 

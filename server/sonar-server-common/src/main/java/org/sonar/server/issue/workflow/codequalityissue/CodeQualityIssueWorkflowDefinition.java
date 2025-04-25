@@ -23,9 +23,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
-import org.sonar.db.permission.ProjectPermission;
-import org.sonar.server.issue.workflow.statemachine.StateMachine;
-import org.sonar.server.issue.workflow.statemachine.Transition;
+import org.sonar.issue.workflow.statemachine.StateMachine;
+import org.sonar.issue.workflow.statemachine.Transition;
 
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
@@ -78,34 +77,28 @@ public class CodeQualityIssueWorkflowDefinition {
       .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(ACCEPT.getKey())
         .from(STATUS_OPEN).to(STATUS_RESOLVED)
         .actions(a -> a.setResolution(RESOLUTION_WONT_FIX), UNSET_ASSIGNEE)
-        .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build())
       .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(ACCEPT.getKey())
         .from(STATUS_REOPENED).to(STATUS_RESOLVED)
         .actions(a -> a.setResolution(RESOLUTION_WONT_FIX), UNSET_ASSIGNEE)
-        .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build())
       .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(ACCEPT.getKey())
         .from(STATUS_CONFIRMED).to(STATUS_RESOLVED)
         .actions(a -> a.setResolution(RESOLUTION_WONT_FIX), UNSET_ASSIGNEE)
-        .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build())
 
       // resolve as false-positive
       .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(FALSE_POSITIVE.getKey())
         .from(STATUS_OPEN).to(STATUS_RESOLVED)
         .actions(a -> a.setResolution(RESOLUTION_FALSE_POSITIVE), UNSET_ASSIGNEE)
-        .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build())
       .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(FALSE_POSITIVE.getKey())
         .from(STATUS_REOPENED).to(STATUS_RESOLVED)
         .actions(a -> a.setResolution(RESOLUTION_FALSE_POSITIVE), UNSET_ASSIGNEE)
-        .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build())
       .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(FALSE_POSITIVE.getKey())
         .from(STATUS_CONFIRMED).to(STATUS_RESOLVED)
         .actions(a -> a.setResolution(RESOLUTION_FALSE_POSITIVE), UNSET_ASSIGNEE)
-        .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build())
 
       // reopen
@@ -132,34 +125,28 @@ public class CodeQualityIssueWorkflowDefinition {
       .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(RESOLVE.getKey())
         .from(STATUS_OPEN).to(STATUS_RESOLVED)
         .actions(a -> a.setResolution(RESOLUTION_FIXED))
-        .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build())
       .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(RESOLVE.getKey())
         .from(STATUS_REOPENED).to(STATUS_RESOLVED)
         .actions(a -> a.setResolution(RESOLUTION_FIXED))
-        .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build())
       .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(RESOLVE.getKey())
         .from(STATUS_CONFIRMED).to(STATUS_RESOLVED)
         .actions(a -> a.setResolution(RESOLUTION_FIXED))
-        .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build())
 
       // resolve as won't fix, deprecated
       .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(WONT_FIX.getKey())
         .from(STATUS_OPEN).to(STATUS_RESOLVED)
         .actions(a -> a.setResolution(RESOLUTION_WONT_FIX), UNSET_ASSIGNEE)
-        .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build())
       .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(WONT_FIX.getKey())
         .from(STATUS_REOPENED).to(STATUS_RESOLVED)
         .actions(a -> a.setResolution(RESOLUTION_WONT_FIX), UNSET_ASSIGNEE)
-        .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build())
       .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(WONT_FIX.getKey())
         .from(STATUS_CONFIRMED).to(STATUS_RESOLVED)
         .actions(a -> a.setResolution(RESOLUTION_WONT_FIX), UNSET_ASSIGNEE)
-        .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
         .build());
 
   }

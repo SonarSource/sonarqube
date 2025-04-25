@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.workflow.statemachine;
+package org.sonar.issue.workflow.statemachine;
 
 import java.util.function.Predicate;
 import org.junit.jupiter.api.Test;
-import org.sonar.db.permission.ProjectPermission;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -50,7 +49,6 @@ class TransitionTest {
       .from("OPEN").to("CLOSED")
       .conditions(condition1, condition2)
       .actions(WfEntityActions::action1, WfEntityActions::action2)
-      .requiredProjectPermission(ProjectPermission.ISSUE_ADMIN)
       .build();
     assertThat(transition.key()).isEqualTo("close");
     assertThat(transition.from()).isEqualTo("OPEN");
@@ -58,7 +56,6 @@ class TransitionTest {
     assertThat(transition.conditions()).containsOnly(condition1, condition2);
     assertThat(transition.actions()).hasSize(2);
     assertThat(transition.automatic()).isFalse();
-    assertThat(transition.requiredProjectPermission()).isEqualTo(ProjectPermission.ISSUE_ADMIN);
   }
 
   @Test
@@ -71,7 +68,6 @@ class TransitionTest {
     assertThat(transition.to()).isEqualTo("CLOSED");
     assertThat(transition.conditions()).isEmpty();
     assertThat(transition.actions()).isEmpty();
-    assertThat(transition.requiredProjectPermission()).isNull();
   }
 
   @Test

@@ -29,7 +29,10 @@ dependencies {
   api project(':sonar-markdown')
   api project(':sonar-ws')
 
+  implementation project(':server:sonar-statemachine')
+
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
+
   testImplementation 'org.elasticsearch.plugin:transport-netty4-client'
   testImplementation 'ch.qos.logback:logback-core'
   testImplementation 'com.github.spotbugs:spotbugs-annotations'
