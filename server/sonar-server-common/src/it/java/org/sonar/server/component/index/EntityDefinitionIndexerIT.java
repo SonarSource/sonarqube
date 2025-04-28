@@ -21,10 +21,14 @@ package org.sonar.server.component.index;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -33,15 +37,18 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.es.EsQueueDto;
+import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.Indexers;
 import org.sonar.server.es.IndexingResult;
 
+import static java.lang.String.format;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatException;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
@@ -60,10 +67,18 @@ public class EntityDefinitionIndexerIT {
   public EsTester es = EsTester.create();
   @Rule
   public DbTester db = DbTester.create(system2);
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private EntityDefinitionIndexer underTest = new EntityDefinitionIndexer(db.getDbClient(), es.client());
+  private EntityDefinitionIndexer underTest;
+
+  @Before
+  public void setup() {
+    underTest = new EntityDefinitionIndexer(db.getDbClient(), es.client());
+    logTester.setLevel(Level.DEBUG);
+  }
 
   @Test
   public void test_getIndexTypes() {
@@ -118,6 +133,62 @@ public class EntityDefinitionIndexerIT {
     underTest.indexOnStartup(emptySet());
 
     assertThatIndexContainsOnly(project);
+  }
+
+  @Test
+  public void indexOnStartup_fixes_corrupted_portfolios_if_possible_and_then_indexes_them() throws Exception {
+    underTest = new EntityDefinitionIndexer(db.getDbClient(), es.client());
+    String uuid = "portfolioUuid1";
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    PortfolioDto corruptedPortfolio = new PortfolioDto()
+      .setKey("portfolio1")
+      .setName("My Portfolio")
+      .setSelectionMode(PortfolioDto.SelectionMode.NONE)
+      .setUuid(uuid)
+      .setRootUuid(uuid);
+    db.getDbClient().portfolioDao().insert(dbSession, corruptedPortfolio, false);
+
+    // corrupt the portfolio in a fixable way (root portfolio with self-referential parent_uuid)
+    dbSession.getSqlSession().getConnection().prepareStatement(format("UPDATE portfolios SET parent_uuid = '%s' where uuid = '%s'", uuid, uuid))
+      .execute();
+    dbSession.commit();
+    Optional<EntityDto> entity = dbClient.entityDao().selectByUuid(dbSession, uuid);
+
+    assertThat(entity).isPresent();
+    assertThat(entity.get().getAuthUuid()).isNull();
+
+    underTest.indexOnStartup(emptySet());
+
+    assertThat(logTester.logs()).contains("Fixing corrupted portfolio tree for root portfolio " + corruptedPortfolio.getUuid());
+    assertThatIndexContainsOnly(project, corruptedPortfolio);
+  }
+
+  @Test
+  public void indexOnStartup_logs_warning_about_corrupted_portfolios_that_cannot_be_fixed_automatically() throws Exception {
+    underTest = new EntityDefinitionIndexer(db.getDbClient(), es.client());
+    String uuid = "portfolioUuid1";
+    PortfolioDto corruptedPortfolio = new PortfolioDto()
+      .setKey("portfolio1")
+      .setName("My Portfolio")
+      .setSelectionMode(PortfolioDto.SelectionMode.NONE)
+      .setUuid(uuid)
+      .setRootUuid(uuid);
+    db.getDbClient().portfolioDao().insert(dbSession, corruptedPortfolio, false);
+
+    // corrupt the portfolio in an un-fixable way (non-existent parent)
+    dbSession.getSqlSession().getConnection().prepareStatement(format("UPDATE portfolios SET parent_uuid = 'junk_uuid' where uuid = '%s'", uuid))
+      .execute();
+    dbSession.commit();
+    Optional<EntityDto> entity = dbClient.entityDao().selectByUuid(dbSession, uuid);
+
+    assertThat(entity).isPresent();
+    assertThat(entity.get().getAuthUuid()).isNull();
+
+    assertThatException()
+      .isThrownBy(() -> underTest.indexOnStartup(emptySet()));
+
+    assertThat(logTester.logs()).contains("Detected portfolio tree corruption for portfolio " + corruptedPortfolio.getUuid());
+
   }
 
   @Test

@@ -30,6 +30,8 @@ import java.util.stream.Collectors;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -56,7 +58,7 @@ import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COM
  * Indexes the definition of all entities: projects, applications, portfolios and sub-portfolios.
  */
 public class EntityDefinitionIndexer implements EventIndexer, AnalysisIndexer, NeedAuthorizationIndexer {
-
+  private static final Logger LOG = LoggerFactory.getLogger(EntityDefinitionIndexer.class);
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(TYPE_COMPONENT, entity -> true);
   private static final Set<IndexType> INDEX_TYPES = Set.of(TYPE_COMPONENT);
 
@@ -172,14 +174,41 @@ public class EntityDefinitionIndexer implements EventIndexer, AnalysisIndexer, N
   private void doIndexByEntityUuid(Size bulkSize) {
     BulkIndexer bulk = new BulkIndexer(esClient, TYPE_COMPONENT, bulkSize);
     bulk.start();
+    Set<EntityDto> corruptedEntities = new HashSet<>();
     try (DbSession dbSession = dbClient.openSession(false)) {
       dbClient.entityDao().scrollForIndexing(dbSession, context -> {
         EntityDto dto = context.getResultObject();
-        bulk.add(toDocument(dto).toIndexRequest());
+        if (dto.getAuthUuid() == null) {
+          corruptedEntities.add(dto);
+        } else {
+          bulk.add(toDocument(dto).toIndexRequest());
+        }
       });
+      if (!corruptedEntities.isEmpty()) {
+        attemptToFixCorruptedEntities(dbSession, corruptedEntities);
+        List<EntityDto> fixedEntities = dbClient.entityDao().selectByUuids(dbSession, corruptedEntities.stream().map(EntityDto::getUuid).toList());
+        fixedEntities.forEach(entity -> bulk.add(toDocument(entity).toIndexRequest()));
+      }
     }
 
     bulk.stop();
+  }
+
+  private void attemptToFixCorruptedEntities(DbSession dbSession, Set<EntityDto> corruptedEntities) {
+    for (EntityDto entity : corruptedEntities) {
+      dbClient.portfolioDao().selectByUuid(dbSession, entity.getUuid()).ifPresent(portfolio -> {
+        String portfolioUuid = portfolio.getUuid();
+        String rootUuid = portfolio.getRootUuid();
+        String parentUuid = portfolio.getParentUuid();
+        if (portfolioUuid.equals(rootUuid) && portfolioUuid.equals(parentUuid)) {
+          LOG.warn("Fixing corrupted portfolio tree for root portfolio {}", portfolioUuid);
+          portfolio.setParentUuid(null);
+          dbClient.portfolioDao().update(dbSession, portfolio);
+        } else {
+          LOG.warn("Detected portfolio tree corruption for portfolio {}", portfolioUuid);
+        }
+      });
+    }
   }
 
   private static void addProjectDeletionToBulkIndexer(BulkIndexer bulkIndexer, String projectUuid) {
