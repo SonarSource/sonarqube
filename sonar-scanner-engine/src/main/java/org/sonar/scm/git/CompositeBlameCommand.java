@@ -22,7 +22,9 @@ package org.sonar.scm.git;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -32,6 +34,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.RawTextComparator;
@@ -238,7 +241,7 @@ public class CompositeBlameCommand extends BlameCommand {
         break;
       }
       linesList.add(new BlameLine()
-        .date(fileBlame.getCommitDates()[i])
+        .date(toDate(fileBlame.getCommitDates()[i]))
         .revision(fileBlame.getCommitHashes()[i])
         .author(fileBlame.getAuthorEmails()[i]));
     }
@@ -249,6 +252,10 @@ public class CompositeBlameCommand extends BlameCommand {
       }
       output.blameResult(file, linesList);
     }
+  }
+
+  private static @Nullable Date toDate(@Nullable Instant commitDate) {
+    return commitDate != null ? Date.from(commitDate) : null;
   }
 
 }
