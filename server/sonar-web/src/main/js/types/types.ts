@@ -892,6 +892,7 @@ export interface OrganizationBase {
 export interface OrganizationMember extends UserActive {
   groupCount?: number;
   type: string;
+  isAdmin: boolean;
 }
 
 export interface Notification {

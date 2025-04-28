@@ -19,8 +19,10 @@
  */
 package org.sonar.server.organization.ws;
 
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -29,6 +31,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
 
 public class SetMemberTypeAction implements OrganizationsWsAction {
@@ -75,7 +78,10 @@ public class SetMemberTypeAction implements OrganizationsWsAction {
 
         try (DbSession dbSession = dbClient.openSession(false)) {
             OrganizationDto organizationDto = getOrganization(dbSession, orgKee);
+            UserDto userDto = dbClient.userDao().selectByLogin(dbSession, login);
             userSession.checkPermission(OrganizationPermission.ADMINISTER, organizationDto);
+            Set<String> permissions = dbClient.authorizationDao().selectOrganizationPermissions(dbSession,organizationDto.getUuid(), userDto.getUuid());
+            checkRequest(!(permissions.contains("admin") && type.equals("PLATFORM")), "You are a System Admin. You are required to have a Standard User License.");
             dbClient.organizationMemberDao().updateOrgMemberType(dbSession, orgKee, login, type);
             dbSession.commit();
         }

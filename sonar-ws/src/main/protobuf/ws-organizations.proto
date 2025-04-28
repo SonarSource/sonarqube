@@ -94,6 +94,7 @@ message User {
   optional int32 groupCount = 4;
   optional string uuid = 5;
   optional string type = 6;
+  optional bool isAdmin = 7;
 }
 
 
