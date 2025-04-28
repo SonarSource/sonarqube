@@ -105,7 +105,6 @@ public class MigrateRemoveDuplicateScaReleases implements MigrationStep {
       List<String> duplicateRowUuids = findBatchOfDuplicates(connection);
       while (!duplicateRowUuids.isEmpty()) {
         deleteBatchOfDuplicates(connection, duplicateRowUuids);
-        connection.commit();
         duplicateRowUuids = findBatchOfDuplicates(connection);
       }
     }
