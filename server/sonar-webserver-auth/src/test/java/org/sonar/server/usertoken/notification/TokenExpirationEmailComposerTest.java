@@ -70,7 +70,7 @@ class TokenExpirationEmailComposerTest {
           + "Last used on: January 01, 2022<br/>"
           + "Expires on: %s<br/><br/>"
           + "If this token is still needed, please consider <a href=\"http://localhost/account/security/\">generating</a> an equivalent.<br/><br/>"
-          + "Don't forget to update the token in the locations where it is in use. This may include the CI pipeline that analyzes your projects, the IDE settings that connect SonarLint to SonarQube, and any places where you make calls to web services.",
+          + "Don't forget to update the token in the locations where it is in use. This may include the CI pipeline that analyzes your projects, the IDE settings that connect SonarQube IDE to SonarQube Server, and any places where you make calls to web services.",
         parseDate(expiredDate), parseDate(expiredDate)));
   }
 
@@ -91,7 +91,7 @@ class TokenExpirationEmailComposerTest {
           + "Last used on: January 01, 2022<br/>"
           + "Expired on: %s<br/><br/>"
           + "If this token is still needed, please consider <a href=\"http://localhost/account/security/\">generating</a> an equivalent.<br/><br/>"
-          + "Don't forget to update the token in the locations where it is in use. This may include the CI pipeline that analyzes your projects, the IDE settings that connect SonarLint to SonarQube, and any places where you make calls to web services.",
+          + "Don't forget to update the token in the locations where it is in use. This may include the CI pipeline that analyzes your projects, the IDE settings that connect SonarQube IDE to SonarQube Server, and any places where you make calls to web services.",
         parseDate(expiredDate)));
   }
 

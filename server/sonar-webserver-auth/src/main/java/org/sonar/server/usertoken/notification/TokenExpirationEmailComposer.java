@@ -79,7 +79,7 @@ public class TokenExpirationEmailComposer extends EmailSender<TokenExpirationEma
         format("<br/>If this token is still needed, please consider <a href=\"%s/account/security/\">generating</a> an equivalent.<br/><br/>", server.getPublicRootUrl()))
       .append("Don't forget to update the token in the locations where it is in use. "
         + "This may include the CI pipeline that analyzes your projects, "
-        + "the IDE settings that connect SonarLint to SonarQube, "
+        + "the IDE settings that connect SonarQube IDE to SonarQube Server, "
         + "and any places where you make calls to web services.");
     return builder.toString();
   }
