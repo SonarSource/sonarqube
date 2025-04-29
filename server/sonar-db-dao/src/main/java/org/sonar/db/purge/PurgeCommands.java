@@ -510,6 +510,13 @@ class PurgeCommands {
     profiler.stop();
   }
 
+  public void deleteArchitectureGraphs(String branchUuid) {
+    profiler.start("deleteArchitectureGraphs (architecture_graphs)");
+    purgeMapper.deleteArchitectureGraphsByBranchUuid(branchUuid);
+    session.commit();
+    profiler.stop();
+  }
+
   public void deleteAnticipatedTransitions(String projectUuid, long createdAt) {
     profiler.start("deleteAnticipatedTransitions (anticipated_transitions)");
     purgeMapper.deleteAnticipatedTransitionsByProjectUuidAndCreationDate(projectUuid, createdAt);
