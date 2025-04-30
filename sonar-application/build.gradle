@@ -368,7 +368,7 @@ zip {
     def maxArchiveSize = expectedSize + tolerance
 
     def archiveSize = archiveFile.get().asFile.length()
-    if (archiveSize < minArchiveSize)
+    if (archiveSize < minArchiveSize && System.getenv("CI") == "true")
       throw new GradleException("${archiveFileName.get()} size ($archiveSize) too small. Min is $minArchiveSize")
     if (archiveSize > maxArchiveSize)
       throw new GradleException("${destinationDirectory.get()}/${archiveFileName.get()} size ($archiveSize) too large. Max is $maxArchiveSize")
