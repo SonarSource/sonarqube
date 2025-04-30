@@ -195,6 +195,8 @@ public interface PurgeMapper {
 
   void deleteIssuesFixedByBranchUuid(@Param("branchUuid") String branchUuid);
 
+  void deleteScaAnalysesByComponentUuid(@Param("componentUuid") String componentUuid);
+
   void deleteScaDependenciesByComponentUuid(@Param("componentUuid") String componentUuid);
 
   void deleteScaIssuesReleasesByComponentUuid(@Param("componentUuid") String componentUuid);

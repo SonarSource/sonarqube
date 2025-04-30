@@ -532,6 +532,12 @@ class PurgeCommands {
   }
 
   public void deleteScaActivity(String componentUuid) {
+    // delete sca_analyses first since it sort of marks the analysis as valid/existing
+    profiler.start("deleteScaAnalyses (sca_analyses)");
+    purgeMapper.deleteScaAnalysesByComponentUuid(componentUuid);
+    session.commit();
+    profiler.stop();
+
     profiler.start("deleteScaDependencies (sca_dependencies)");
     purgeMapper.deleteScaDependenciesByComponentUuid(componentUuid);
     session.commit();
