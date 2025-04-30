@@ -31,6 +31,8 @@ public class ScaProperties {
   private static final Pattern sonarScaPropertyRegex = Pattern.compile("^sonar\\.sca\\.([a-zA-Z]+)$");
   private static final String SONAR_SCA_PREFIX = "sonar.sca.";
   private static final Set<String> IGNORED_PROPERTIES = Set.of(
+    // sonar.sca.exclusions is a special case which we handle when building --exclude
+    "sonar.sca.exclusions",
     // excludedManifests is a special case which we handle when building --exclude
     "sonar.sca.excludedManifests",
     // keep recursive enabled to better match sonar-scanner behavior

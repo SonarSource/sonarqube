@@ -86,6 +86,8 @@ class CliServiceTest {
     jGitUtilsMock.when(() -> JGitUtils.getAllIgnoredPaths(any(Path.class))).thenReturn(List.of("ignored.txt"));
     when(server.getVersion()).thenReturn("1.0.0");
     logTester.setLevel(INFO);
+    when(configuration.getStringArray(CliService.SCA_EXCLUSIONS_KEY)).thenReturn(new String[0]);
+    when(configuration.getStringArray(CliService.LEGACY_SCA_EXCLUSIONS_KEY)).thenReturn(new String[0]);
     when(configuration.getBoolean("sonar.sca.debug")).thenReturn(Optional.of(true));
 
     underTest = new CliService(processWrapperFactory, telemetryCache, System2.INSTANCE, server, scmConfiguration);
@@ -102,8 +104,8 @@ class CliServiceTest {
   void generateZip_shouldCallProcessCorrectly_andRegisterTelemetry() throws IOException, URISyntaxException {
     assertThat(rootModuleDir.resolve("test_file").toFile().createNewFile()).isTrue();
 
-    when(configuration.getProperties()).thenReturn(Map.of(CliService.EXCLUDED_MANIFESTS_PROP_KEY, "foo,bar,baz/**"));
-    when(configuration.getStringArray(CliService.EXCLUDED_MANIFESTS_PROP_KEY)).thenReturn(new String[] {"foo", "bar", "baz/**"});
+    when(configuration.getProperties()).thenReturn(Map.of(CliService.SCA_EXCLUSIONS_KEY, "foo,bar,baz/**"));
+    when(configuration.getStringArray(CliService.SCA_EXCLUSIONS_KEY)).thenReturn(new String[] {"foo", "bar", "baz/**"});
 
     File producedZip = underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
 
@@ -239,7 +241,7 @@ class CliServiceTest {
   }
 
   @Test
-  void generateZip_withExclusionDisabled_doesNotIncludeScmIgnoredPaths() throws Exception {
+  void generateZip_withScmExclusionDisabled_doesNotIncludeScmIgnoredPaths() throws Exception {
     when(scmConfiguration.isExclusionDisabled()).thenReturn(true);
 
     underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
@@ -259,8 +261,8 @@ class CliServiceTest {
   }
 
   @Test
-  void generateZip_withExistingExcludedManifests_appendsScmIgnoredPaths() throws Exception {
-    when(configuration.getStringArray(CliService.EXCLUDED_MANIFESTS_PROP_KEY)).thenReturn(new String[] {"**/test/**"});
+  void generateZip_withExcludedManifests_appendsScmIgnoredPaths() throws Exception {
+    when(configuration.getStringArray(CliService.SCA_EXCLUSIONS_KEY)).thenReturn(new String[] {"**/test/**"});
 
     underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
 
@@ -269,8 +271,8 @@ class CliServiceTest {
   }
 
   @Test
-  void generateZip_withExcludedManifestsSettingContainingBadCharacters_handlesTheBadCharacters() throws Exception {
-    when(configuration.getStringArray(CliService.EXCLUDED_MANIFESTS_PROP_KEY)).thenReturn(new String[] {
+  void generateZip_withExcludedManifestsContainingBadCharacters_handlesTheBadCharacters() throws Exception {
+    when(configuration.getStringArray(CliService.SCA_EXCLUSIONS_KEY)).thenReturn(new String[] {
       "**/test/**", "**/path with spaces/**", "**/path,with,commas/**", "**/path'with'quotes/**", "**/path\"with\"double\"quotes/**"});
 
     underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
@@ -281,6 +283,17 @@ class CliServiceTest {
        --exclude **/test/**,**/path with spaces/**,"**/path,with,commas/**",**/path'with'quotes/**,"**/path""with""double""quotes/**",ignored.txt
       """.strip();
     assertThat(capturedArgs).contains(expectedExcludeFlag);
+  }
+
+  @Test
+  void generateZip_withExcludedManifestsContainingDupes_dedupes() throws Exception {
+    when(configuration.getStringArray(CliService.SCA_EXCLUSIONS_KEY)).thenReturn(new String[] {"**/test1/**", "**/test2/**", "**/test1/**"});
+    when(configuration.getStringArray(CliService.LEGACY_SCA_EXCLUSIONS_KEY)).thenReturn(new String[] {"**/test1/**", "**/test3/**"});
+
+    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+
+    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
+    assertThat(capturedArgs).contains("--exclude **/test1/**,**/test2/**,**/test3/**,ignored.txt,.scannerwork/**");
   }
 
   @Test

@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -53,7 +54,8 @@ import org.sonar.scm.git.JGitUtils;
  */
 public class CliService {
   private static final Logger LOG = LoggerFactory.getLogger(CliService.class);
-  public static final String EXCLUDED_MANIFESTS_PROP_KEY = "sonar.sca.excludedManifests";
+  public static final String SCA_EXCLUSIONS_KEY = "sonar.sca.exclusions";
+  public static final String LEGACY_SCA_EXCLUSIONS_KEY = "sonar.sca.excludedManifests";
 
   private final ProcessWrapperFactory processWrapperFactory;
   private final TelemetryCache telemetryCache;
@@ -142,11 +144,13 @@ public class CliService {
   }
 
   private static List<String> getConfigExcludedPaths(DefaultConfiguration configuration) {
-    String[] excludedPaths = configuration.getStringArray(EXCLUDED_MANIFESTS_PROP_KEY);
-    if (excludedPaths == null) {
-      return List.of();
-    }
-    return Arrays.stream(excludedPaths).toList();
+    String[] scaExclusions = configuration.getStringArray(SCA_EXCLUSIONS_KEY);
+    String[] scaExclusionsLegacy = configuration.getStringArray(LEGACY_SCA_EXCLUSIONS_KEY);
+
+    return Stream.of(scaExclusions, scaExclusionsLegacy)
+      .flatMap(Arrays::stream)
+      .distinct()
+      .toList();
   }
 
   private List<String> getScmIgnoredPaths(DefaultInputModule module) {
