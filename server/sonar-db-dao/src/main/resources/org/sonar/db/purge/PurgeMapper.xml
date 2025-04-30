@@ -686,4 +686,7 @@
   <delete id="deleteScaReleasesByComponentUuid">
     delete from sca_releases where component_uuid = #{componentUuid,jdbcType=VARCHAR}
   </delete>
+  <delete id="deleteScaLicenseProfileProjectsByProjectUuid">
+    delete from sca_lic_prof_projects where project_uuid = #{projectUuid,jdbcType=VARCHAR}
+  </delete>
 </mapper>

@@ -204,4 +204,6 @@ public interface PurgeMapper {
   void deleteScaReleasesByComponentUuid(@Param("componentUuid") String componentUuid);
 
   void deleteArchitectureGraphsByBranchUuid(@Param("branchUuid") String branchUuid);
+
+  void deleteScaLicenseProfileProjectsByProjectUuid(@Param("projectUuid") String projectUuid);
 }

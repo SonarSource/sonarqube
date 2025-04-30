@@ -2035,6 +2035,30 @@ oldCreationDate));
   }
 
   @Test
+  void deleteProject_purgesScaLicenseProfiles() {
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+
+    var scaLicenseProfileProjectBase = Map.of(
+      "sca_license_profile_uuid", "sca-license-profile-uuid1",
+      "created_at", 0L,
+      "updated_at", 0L);
+
+    db.executeInsert("sca_lic_prof_projects", merge(scaLicenseProfileProjectBase, Map.of(
+      "uuid", "sca-lic-prof-project-uuid1",
+      "project_uuid", project.getUuid())));
+
+    db.executeInsert("sca_lic_prof_projects", merge(scaLicenseProfileProjectBase, Map.of(
+      "uuid", "sca-lic-prof-project-uuid2",
+      "project_uuid", "other-project-uuid")));
+
+    assertThat(db.countRowsOfTable(dbSession, "sca_lic_prof_projects")).isEqualTo(2);
+
+    underTest.deleteProject(dbSession, project.getUuid(), project.getQualifier(), project.getName(), project.getKey());
+
+    assertThat(db.countRowsOfTable(dbSession, "sca_lic_prof_projects")).isEqualTo(1);
+  }
+
+  @Test
   void whenDeleteBranch_thenPurgeArchitectureGraphs() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     BranchDto branch1 = db.components().insertProjectBranch(project);

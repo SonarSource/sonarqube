@@ -555,4 +555,10 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
   }
+
+  public void deleteScaLicenseProfiles(String projectUuid) {
+    profiler.start("deleteScaLicenseProfileProjects (sca_lic_prof_projects)");
+    purgeMapper.deleteScaLicenseProfileProjectsByProjectUuid(projectUuid);
+    profiler.stop();
+  }
 }

@@ -314,6 +314,7 @@ public class PurgeDao implements Dao {
     commands.deleteOutdatedProperties(projectUuid);
     commands.deleteReportSchedules(projectUuid);
     commands.deleteReportSubscriptions(projectUuid);
+    commands.deleteScaLicenseProfiles(projectUuid);
   }
 
   /**
