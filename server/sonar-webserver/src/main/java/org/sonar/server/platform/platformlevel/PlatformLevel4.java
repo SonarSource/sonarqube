@@ -207,6 +207,7 @@ import org.sonar.server.platform.telemetry.TelemetrySubportfolioSelectionModePro
 import org.sonar.server.platform.telemetry.TelemetryUserEnabledProvider;
 import org.sonar.server.platform.telemetry.TelemetryVersionProvider;
 import org.sonar.server.platform.web.ActionDeprecationLoggerInterceptor;
+import org.sonar.server.platform.web.NoCacheFilter;
 import org.sonar.server.platform.web.SonarQubeIdeConnectionFilter;
 import org.sonar.server.platform.web.WebServiceFilter;
 import org.sonar.server.platform.web.WebServiceReroutingFilter;
@@ -423,6 +424,7 @@ public class PlatformLevel4 extends PlatformLevel {
       new WebServicesWsModule(),
       SonarQubeIdeConnectionFilter.class,
       WebServiceFilter.class,
+      NoCacheFilter.class,
       WebServiceReroutingFilter.class,
 
       // localization
