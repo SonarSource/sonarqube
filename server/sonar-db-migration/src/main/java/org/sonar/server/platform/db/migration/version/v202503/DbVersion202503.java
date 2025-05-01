@@ -68,6 +68,11 @@ public class DbVersion202503 implements DbVersion {
       .add(2025_03_029, "Create unique index on SCA releases table", CreateUniqueIndexOnScaReleases.class)
       .add(2025_03_030, "Create SCA analyses table", CreateScaAnalysesTable.class)
       .add(2025_03_031, "Create unique index on SCA analyses table", CreateUniqueIndexOnScaAnalyses.class)
+      .add(2025_03_032, "Add 'analysis_uuid' column to 'architecture_graphs' table", AddAnalysisUuidOnArchitectureGraphs.class)
+      .add(2025_03_033, "Add 'perspective_key' column to 'architecture_graphs' table", AddPerspectiveKeyOnArchitectureGraphs.class)
+      .add(2025_03_034, "Drop unique index on 'architecture_graphs' table", DropIndexOnArchitectureGraphs.class)
+      .add(2025_03_035, "Rename column 'source' to 'ecosystem' on 'architecture_graphs' table", UpdateArchitectureGraphsSourceColumnRename.class)
+      .add(2025_03_036, "Create unique index on 'architecture_graphs' table", CreateUniqueIndexOnArchitectureGraphs.class)
 
     ;
   }

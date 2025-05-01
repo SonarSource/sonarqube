@@ -2064,9 +2064,9 @@ oldCreationDate));
     BranchDto branch1 = db.components().insertProjectBranch(project);
     BranchDto branch2 = db.components().insertProjectBranch(project);
 
-    db.executeInsert("architecture_graphs", Map.of("uuid", "12345", "branch_uuid", branch1.getUuid(), "source", "xoo", "type", "file_graph", "graph_data", "{}"));
-    db.executeInsert("architecture_graphs", Map.of("uuid", "123456", "branch_uuid", branch1.getUuid(), "source", "xoo", "type", "class_graph", "graph_data", "{}"));
-    db.executeInsert("architecture_graphs", Map.of("uuid", "1234567", "branch_uuid", branch2.getUuid(), "source", "xoo", "type", "file_graph", "graph_data", "{}"));
+    db.executeInsert("architecture_graphs", Map.of("uuid", "12345", "branch_uuid", branch1.getUuid(), "ecosystem", "xoo", "type", "file_graph", "graph_data", "{}"));
+    db.executeInsert("architecture_graphs", Map.of("uuid", "123456", "branch_uuid", branch1.getUuid(), "ecosystem", "xoo", "type", "class_graph", "graph_data", "{}"));
+    db.executeInsert("architecture_graphs", Map.of("uuid", "1234567", "branch_uuid", branch2.getUuid(), "ecosystem", "xoo", "type", "file_graph", "graph_data", "{}"));
 
     assertThat(db.countRowsOfTable(dbSession, "architecture_graphs")).isEqualTo(3);
     underTest.deleteBranch(dbSession, branch1.getUuid());

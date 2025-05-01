@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v202502;
+package org.sonar.server.platform.db.migration.version.v202503;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -27,12 +27,12 @@ import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 public class CreateUniqueIndexOnArchitectureGraphs extends DdlChange {
-
-  static final String TABLE_NAME = "architecture_graphs";
-  static final String INDEX_NAME = "uq_idx_ag_branch_type_source";
-  static final String COLUMN_NAME_BRANCH_UUID = "branch_uuid";
-  static final String COLUMN_NAME_TYPE = "type";
-  static final String COLUMN_NAME_SOURCE = "source";
+  private static final String TABLE_NAME = "architecture_graphs";
+  private static final String INDEX_NAME = "uq_idx_ag_brch_tp_src_pspctv";
+  private static final String COLUMN_NAME_BRANCH_UUID = "branch_uuid";
+  private static final String COLUMN_NAME_TYPE = "type";
+  private static final String COLUMN_NAME_ECOSYSTEM = "ecosystem";
+  private static final String COLUMN_NAME_PERSPECTIVE_KEY = "perspective_key";
 
   public CreateUniqueIndexOnArchitectureGraphs(Database db) {
     super(db);
@@ -46,26 +46,16 @@ public class CreateUniqueIndexOnArchitectureGraphs extends DdlChange {
   }
 
   private void createIndex(Context context, Connection connection) {
-    if(!DatabaseUtils.tableColumnExists(connection, TABLE_NAME, COLUMN_NAME_BRANCH_UUID)) {
-      return;
+    if (!DatabaseUtils.indexExistsIgnoreCase(TABLE_NAME, INDEX_NAME, connection)) {
+      context.execute(new CreateIndexBuilder(getDialect())
+        .setTable(TABLE_NAME)
+        .setName(INDEX_NAME)
+        .setUnique(true)
+        .addColumn(COLUMN_NAME_BRANCH_UUID, false)
+        .addColumn(COLUMN_NAME_TYPE, false)
+        .addColumn(COLUMN_NAME_ECOSYSTEM, false)
+        .addColumn(COLUMN_NAME_PERSPECTIVE_KEY, true) // nullable
+        .build());
     }
-    if(!DatabaseUtils.tableColumnExists(connection, TABLE_NAME, COLUMN_NAME_TYPE)) {
-      return;
-    }
-    if(!DatabaseUtils.tableColumnExists(connection, TABLE_NAME, COLUMN_NAME_SOURCE)) {
-      return;
-    }
-    if (DatabaseUtils.indexExistsIgnoreCase(TABLE_NAME, INDEX_NAME, connection)) {
-      return;
-    }
-
-    context.execute(new CreateIndexBuilder(getDialect())
-      .setTable(TABLE_NAME)
-      .setName(INDEX_NAME)
-      .setUnique(true)
-      .addColumn(COLUMN_NAME_BRANCH_UUID, false)
-      .addColumn(COLUMN_NAME_TYPE, false)
-      .addColumn(COLUMN_NAME_SOURCE, false)
-      .build());
   }
 }
