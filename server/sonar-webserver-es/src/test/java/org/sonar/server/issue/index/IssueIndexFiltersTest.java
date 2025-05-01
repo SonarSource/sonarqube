@@ -456,7 +456,7 @@ class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  void filter_by_new_code_reference_branches() {
+  void filter_by_new_reference_branches() {
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     IssueDoc project1Issue1 = newDocForProject(project1).setIsNewCodeReference(true);
     IssueDoc project1Issue2 = newDocForProject(project1).setIsNewCodeReference(false);
@@ -474,14 +474,20 @@ class IssueIndexFiltersTest extends IssueIndexTestCommon {
     IssueDoc project2Branch1Issue1 = newDoc(project2Branch1, project2.uuid()).setIsNewCodeReference(false);
     IssueDoc project2Branch1Issue2 = newDoc(project2Branch1, project2.uuid()).setIsNewCodeReference(true);
 
+    ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project3Branch1 = db.components().insertProjectBranch(project2);
+    IssueDoc project3Issue1 = newDoc(project3Branch1, project3.uuid()).setFuncCreationDate(new Date(1000L));
+    IssueDoc project3Issue2 = newDoc(project3Branch1, project3.uuid()).setFuncCreationDate(new Date(2000L));
+
     indexIssues(project1Issue1, project1Issue2, project2Issue1, project2Issue2,
-      project1Branch1Issue1, project1Branch1Issue2, project2Branch1Issue1, project2Branch1Issue2);
+      project1Branch1Issue1, project1Branch1Issue2, project2Branch1Issue1, project2Branch1Issue2, project3Issue1, project3Issue2);
 
     // Search for issues of project 1 branch 1 and project 2 branch 1 that are new code on a branch using reference for new code
     assertThatSearchReturnsOnly(IssueQuery.builder()
       .mainBranch(false)
-      .newCodeOnReferenceByProjectUuids(Set.of(project1Branch1.uuid(), project2Branch1.uuid())),
-      project1Branch1Issue2.key(), project2Branch1Issue2.key());
+      .newCodeOnReferenceByProjectUuids(Set.of(project1Branch1.uuid(), project2Branch1.uuid()))
+      .createdAfterByProjectUuids(Map.of(project3Branch1.uuid(), new IssueQuery.PeriodStart(new Date(1500), false))),
+        project1Branch1Issue2.key(), project2Branch1Issue2.key(), project3Issue2.key());
   }
 
   @Test

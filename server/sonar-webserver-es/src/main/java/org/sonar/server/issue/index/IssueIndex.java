@@ -543,9 +543,8 @@ public class IssueIndex {
     addImpactFilters(query, filters);
     addComponentRelatedFilters(query, filters);
     addDatesFilter(filters, query);
-    addCreatedAfterByProjectsFilter(filters, query);
+    addNewCodeByProjectsFilter(filters, query);
     addNewCodeReferenceFilter(filters, query);
-    addNewCodeReferenceFilterByProjectsFilter(filters, query);
     return filters;
   }
 
@@ -873,29 +872,19 @@ public class IssueIndex {
     }
   }
 
-  private static void addNewCodeReferenceFilterByProjectsFilter(AllFilters allFilters, IssueQuery query) {
-    Collection<String> newCodeOnReferenceByProjectUuids = query.newCodeOnReferenceByProjectUuids();
-    BoolQueryBuilder boolQueryBuilder = boolQuery();
-
-    if (!newCodeOnReferenceByProjectUuids.isEmpty()) {
-
-      newCodeOnReferenceByProjectUuids.forEach(projectOrProjectBranchUuid -> boolQueryBuilder.should(boolQuery()
-        .filter(termQuery(FIELD_ISSUE_BRANCH_UUID, projectOrProjectBranchUuid))
-        .filter(termQuery(FIELD_ISSUE_NEW_CODE_REFERENCE, true))));
-
-      allFilters.addFilter("__is_new_code_reference_by_project_uuids",
-        new SimpleFieldFilterScope("newCodeReferenceByProjectUuids"), boolQueryBuilder);
-    }
-  }
-
-  private static void addCreatedAfterByProjectsFilter(AllFilters allFilters, IssueQuery query) {
+  private static void addNewCodeByProjectsFilter(AllFilters allFilters, IssueQuery query) {
     Map<String, PeriodStart> createdAfterByProjectUuids = query.createdAfterByProjectUuids();
     BoolQueryBuilder boolQueryBuilder = boolQuery();
     createdAfterByProjectUuids.forEach((projectOrProjectBranchUuid, createdAfterDate) -> boolQueryBuilder.should(boolQuery()
       .filter(termQuery(FIELD_ISSUE_BRANCH_UUID, projectOrProjectBranchUuid))
       .filter(rangeQuery(FIELD_ISSUE_FUNC_CREATED_AT).from(createdAfterDate.date().getTime(), createdAfterDate.inclusive()))));
 
-    allFilters.addFilter("__created_after_by_project_uuids", new SimpleFieldFilterScope("createdAfterByProjectUuids"), boolQueryBuilder);
+    Collection<String> newCodeOnReferenceByProjectUuids = query.newCodeOnReferenceByProjectUuids();
+    newCodeOnReferenceByProjectUuids.forEach(projectOrProjectBranchUuid -> boolQueryBuilder.should(boolQuery()
+      .filter(termQuery(FIELD_ISSUE_BRANCH_UUID, projectOrProjectBranchUuid))
+      .filter(termQuery(FIELD_ISSUE_NEW_CODE_REFERENCE, true))));
+
+    allFilters.addFilter("__new_code_by_project_uuids", new SimpleFieldFilterScope("newCodeByProjectUuids"), boolQueryBuilder);
   }
 
   private void validateCreationDateBounds(@Nullable Date createdBefore, @Nullable Date createdAfter) {
