@@ -37,12 +37,14 @@ import org.apache.commons.csv.CSVPrinter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.ProcessWrapperFactory;
 import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.repository.TelemetryCache;
+import org.sonar.scanner.scan.filesystem.ProjectExclusionFilters;
 import org.sonar.scanner.scm.ScmConfiguration;
 import org.sonar.scm.git.JGitUtils;
 
@@ -62,13 +64,16 @@ public class CliService {
   private final System2 system2;
   private final Server server;
   private final ScmConfiguration scmConfiguration;
+  private final ProjectExclusionFilters projectExclusionFilters;
 
-  public CliService(ProcessWrapperFactory processWrapperFactory, TelemetryCache telemetryCache, System2 system2, Server server, ScmConfiguration scmConfiguration) {
+  public CliService(ProcessWrapperFactory processWrapperFactory, TelemetryCache telemetryCache, System2 system2, Server server, ScmConfiguration scmConfiguration,
+    ProjectExclusionFilters projectExclusionFilters) {
     this.processWrapperFactory = processWrapperFactory;
     this.telemetryCache = telemetryCache;
     this.system2 = system2;
     this.server = server;
     this.scmConfiguration = scmConfiguration;
+    this.projectExclusionFilters = projectExclusionFilters;
   }
 
   public File generateManifestsZip(DefaultInputModule module, File cliExecutable, DefaultConfiguration configuration) throws IOException, IllegalStateException {
@@ -123,7 +128,7 @@ public class CliService {
   }
 
   private @Nullable String getExcludeFlag(DefaultInputModule module, DefaultConfiguration configuration) throws IOException {
-    List<String> configExcludedPaths = getConfigExcludedPaths(configuration);
+    List<String> configExcludedPaths = getConfigExcludedPaths(configuration, projectExclusionFilters);
     List<String> scmIgnoredPaths = getScmIgnoredPaths(module);
 
     ArrayList<String> mergedExclusionPaths = new ArrayList<>();
@@ -143,11 +148,12 @@ public class CliService {
     return toCsvString(mergedExclusionPaths);
   }
 
-  private static List<String> getConfigExcludedPaths(DefaultConfiguration configuration) {
+  private static List<String> getConfigExcludedPaths(DefaultConfiguration configuration, ProjectExclusionFilters projectExclusionFilters) {
+    String[] sonarExclusions = projectExclusionFilters.getExclusionsConfig(InputFile.Type.MAIN);
     String[] scaExclusions = configuration.getStringArray(SCA_EXCLUSIONS_KEY);
     String[] scaExclusionsLegacy = configuration.getStringArray(LEGACY_SCA_EXCLUSIONS_KEY);
 
-    return Stream.of(scaExclusions, scaExclusionsLegacy)
+    return Stream.of(sonarExclusions, scaExclusions, scaExclusionsLegacy)
       .flatMap(Arrays::stream)
       .distinct()
       .toList();

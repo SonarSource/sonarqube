@@ -36,6 +36,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.platform.Server;
@@ -44,6 +45,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.ProcessWrapperFactory;
 import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.repository.TelemetryCache;
+import org.sonar.scanner.scan.filesystem.ProjectExclusionFilters;
 import org.sonar.scanner.scm.ScmConfiguration;
 import org.sonar.scm.git.GitScmProvider;
 import org.sonar.scm.git.JGitUtils;
@@ -69,6 +71,7 @@ class CliServiceTest {
   ProcessWrapperFactory processWrapperFactory = mock(ProcessWrapperFactory.class, CALLS_REAL_METHODS);
   private MockedStatic<JGitUtils> jGitUtilsMock;
   DefaultConfiguration configuration = mock(DefaultConfiguration.class);
+  ProjectExclusionFilters projectExclusionFilters = mock(ProjectExclusionFilters.class);
 
   private CliService underTest;
 
@@ -86,11 +89,12 @@ class CliServiceTest {
     jGitUtilsMock.when(() -> JGitUtils.getAllIgnoredPaths(any(Path.class))).thenReturn(List.of("ignored.txt"));
     when(server.getVersion()).thenReturn("1.0.0");
     logTester.setLevel(INFO);
+    when(projectExclusionFilters.getExclusionsConfig(InputFile.Type.MAIN)).thenReturn(new String[0]);
     when(configuration.getStringArray(CliService.SCA_EXCLUSIONS_KEY)).thenReturn(new String[0]);
     when(configuration.getStringArray(CliService.LEGACY_SCA_EXCLUSIONS_KEY)).thenReturn(new String[0]);
     when(configuration.getBoolean("sonar.sca.debug")).thenReturn(Optional.of(true));
 
-    underTest = new CliService(processWrapperFactory, telemetryCache, System2.INSTANCE, server, scmConfiguration);
+    underTest = new CliService(processWrapperFactory, telemetryCache, System2.INSTANCE, server, scmConfiguration, projectExclusionFilters);
   }
 
   @AfterEach
@@ -294,6 +298,18 @@ class CliServiceTest {
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
     assertThat(capturedArgs).contains("--exclude **/test1/**,**/test2/**,**/test3/**,ignored.txt,.scannerwork/**");
+  }
+
+  @Test
+  void generateZip_withExcludedManifestsAndSonarExcludesContainingDupes_mergesAndDedupes() throws Exception {
+    when(projectExclusionFilters.getExclusionsConfig(InputFile.Type.MAIN)).thenReturn(new String[] {"**/test1/**", "**/test4/**"});
+    when(configuration.getStringArray(CliService.SCA_EXCLUSIONS_KEY)).thenReturn(new String[] {"**/test1/**", "**/test2/**", "**/test1/**"});
+    when(configuration.getStringArray(CliService.LEGACY_SCA_EXCLUSIONS_KEY)).thenReturn(new String[] {"**/test1/**", "**/test3/**"});
+
+    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+
+    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
+    assertThat(capturedArgs).contains("--exclude **/test1/**,**/test4/**,**/test2/**,**/test3/**,ignored.txt,.scannerwork/**");
   }
 
   @Test
