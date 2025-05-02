@@ -2002,6 +2002,14 @@ oldCreationDate));
 
     assertThat(db.countRowsOfTable(dbSession, "sca_issues_releases")).isEqualTo(2);
 
+    var issueReleaseChangeBase = Map.of("created_at", 0L, "updated_at", 0L);
+    db.executeInsert("sca_issue_rels_changes", merge(issueReleaseChangeBase, Map.of("uuid", "issue-release-change-uuid1",
+      "sca_issues_releases_uuid", "issue-release-uuid1")));
+    db.executeInsert("sca_issue_rels_changes", merge(issueReleaseChangeBase, Map.of("uuid", "issue-release-change-uuid2",
+      "sca_issues_releases_uuid", "issue-release-uuid2")));
+
+    assertThat(db.countRowsOfTable(dbSession, "sca_issue_rels_changes")).isEqualTo(2);
+
     var analysisBase = Map.of(
       "created_at", 0L,
       "updated_at", 0L,
@@ -2031,6 +2039,7 @@ oldCreationDate));
     assertThat(db.countRowsOfTable(dbSession, "sca_releases")).isEqualTo(1);
     assertThat(db.countRowsOfTable(dbSession, "sca_dependencies")).isEqualTo(1);
     assertThat(db.countRowsOfTable(dbSession, "sca_issues_releases")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "sca_issue_rels_changes")).isEqualTo(1);
     assertThat(db.countRowsOfTable(dbSession, "sca_analyses")).isEqualTo(1);
   }
 

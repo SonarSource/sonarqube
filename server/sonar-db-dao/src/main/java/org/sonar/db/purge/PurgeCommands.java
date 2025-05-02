@@ -543,6 +543,13 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
 
+    // this must be done before deleting sca_issues_releases or we won't
+    // be able to find the rows
+    profiler.start("deleteScaIssuesReleasesChanges (sca_issue_rels_changes)");
+    purgeMapper.deleteScaIssuesReleasesChangesByComponentUuid(componentUuid);
+    session.commit();
+    profiler.stop();
+
     profiler.start("deleteScaIssuesReleases (sca_issues_releases)");
     purgeMapper.deleteScaIssuesReleasesByComponentUuid(componentUuid);
     session.commit();

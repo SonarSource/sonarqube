@@ -683,6 +683,11 @@
   <delete id="deleteScaIssuesReleasesByComponentUuid">
     delete from sca_issues_releases where sca_release_uuid in (select uuid from sca_releases where component_uuid = #{componentUuid,jdbcType=VARCHAR})
   </delete>
+  <delete id="deleteScaIssuesReleasesChangesByComponentUuid">
+    delete from sca_issue_rels_changes where sca_issues_releases_uuid in
+    (select sca_issues_releases.uuid from sca_issues_releases join sca_releases on sca_releases.uuid = sca_issues_releases.sca_release_uuid
+     where sca_releases.component_uuid = #{componentUuid,jdbcType=VARCHAR})
+  </delete>
   <delete id="deleteScaReleasesByComponentUuid">
     delete from sca_releases where component_uuid = #{componentUuid,jdbcType=VARCHAR}
   </delete>
