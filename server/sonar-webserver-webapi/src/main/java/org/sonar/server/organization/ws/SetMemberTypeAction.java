@@ -33,10 +33,14 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.organization.ws.MemberUpdater.MemberType;
+import org.sonar.db.permission.GlobalPermission;
 
 public class SetMemberTypeAction implements OrganizationsWsAction {
 
     private static final String ACTION = "set_member_type";
+    private static final String SYSTEM_ADMIN_CANNOT_ACT_AS_PLATFORM_USER_ERROR_MSG =
+            "You are a System Admin. You are required to have a Standard User License.";
     public static final String PARAM_TYPE = "type";
     public static final String PARAM_LOGIN = "login";
     public static final String PARAM_ORG_KEE = "organization";
@@ -81,7 +85,7 @@ public class SetMemberTypeAction implements OrganizationsWsAction {
             UserDto userDto = dbClient.userDao().selectByLogin(dbSession, login);
             userSession.checkPermission(OrganizationPermission.ADMINISTER, organizationDto);
             Set<String> permissions = dbClient.authorizationDao().selectOrganizationPermissions(dbSession,organizationDto.getUuid(), userDto.getUuid());
-            checkRequest(!(permissions.contains("admin") && type.equals("PLATFORM")), "You are a System Admin. You are required to have a Standard User License.");
+            checkRequest(!(permissions.contains(GlobalPermission.ADMINISTER.name()) && type.equals(MemberType.PLATFORM.name())), SYSTEM_ADMIN_CANNOT_ACT_AS_PLATFORM_USER_ERROR_MSG);
             dbClient.organizationMemberDao().updateOrgMemberType(dbSession, orgKee, login, type);
             dbSession.commit();
         }
