@@ -73,6 +73,7 @@ public class DbVersion202503 implements DbVersion {
       .add(2025_03_034, "Drop unique index on 'architecture_graphs' table", DropIndexOnArchitectureGraphs.class)
       .add(2025_03_035, "Rename column 'source' to 'ecosystem' on 'architecture_graphs' table", UpdateArchitectureGraphsSourceColumnRename.class)
       .add(2025_03_036, "Create unique index on 'architecture_graphs' table", CreateUniqueIndexOnArchitectureGraphs.class)
+      .add(2025_03_037, "Add previous_manual_status to SCA issues releases", AddPreviousManualStatusToScaIssuesReleases.class)
 
     ;
   }
