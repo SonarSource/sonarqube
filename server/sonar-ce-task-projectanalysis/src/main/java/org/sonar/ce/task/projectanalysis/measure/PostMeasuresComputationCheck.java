@@ -52,6 +52,8 @@ public interface PostMeasuresComputationCheck {
      */
     String getProjectUuid();
 
+    String getAnalysisUuid();
+
     Branch getBranch();
 
     ScannerReportReader getReportReader();

@@ -77,6 +77,11 @@ public class PostMeasuresComputationChecksStep implements ComputationStep {
     }
 
     @Override
+    public String getAnalysisUuid() {
+      return analysisMetadataHolder.getUuid();
+    }
+
+    @Override
     public Branch getBranch() {
       return analysisMetadataHolder.getBranch();
     }

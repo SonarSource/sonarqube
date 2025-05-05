@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
+import java.util.UUID;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -40,6 +41,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.DUMB_PROJECT;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -102,6 +104,19 @@ public class PostMeasuresComputationChecksStepTest {
     ArgumentCaptor<Context> contextArgumentCaptor = ArgumentCaptor.forClass(Context.class);
     verify(check).onCheck(contextArgumentCaptor.capture());
     assertThat(contextArgumentCaptor.getValue().getNcloc()).isZero();
+  }
+
+  @Test
+  public void whenOnCheck_thenAnalysisUuidIsPresent() {
+    String analysisUuid = "analysisUuid";
+    PostMeasuresComputationCheck check = mock(PostMeasuresComputationCheck.class);
+    analysisMetadataHolder.setUuid(analysisUuid);
+
+    newStep(check).execute(new TestComputationStepContext());
+
+    ArgumentCaptor<Context> contextArgumentCaptor = ArgumentCaptor.forClass(Context.class);
+    verify(check).onCheck(contextArgumentCaptor.capture());
+    assertThat(contextArgumentCaptor.getValue().getAnalysisUuid()).isEqualTo(analysisUuid);
   }
 
   @Test
