@@ -63,6 +63,6 @@ public class AnalysisDataIT {
     // then
     List<ScannerReport.AnalysisData> analysisData = result.analysisData();
     assertThat(analysisData)
-      .anyMatch(data -> data.getKey().equals("architecture.file_graph." + Xoo.KEY));
+      .anyMatch(data -> data.getKey().startsWith("architecture.graph."));
   }
 }

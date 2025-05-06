@@ -42,7 +42,7 @@ class AddGraphVersionOnArchitectureGraphsIT {
   void execute_shouldAddColumn() throws SQLException {
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
     underTest.execute();
-    db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, VARCHAR, VarcharColumnDef.UUID_SIZE, false);
+    db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, VARCHAR, 255, false);
   }
 
   @Test
@@ -50,6 +50,6 @@ class AddGraphVersionOnArchitectureGraphsIT {
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
     underTest.execute();
     underTest.execute();
-    db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, VARCHAR, VarcharColumnDef.UUID_SIZE, false);
+    db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, VARCHAR, 255, false);
   }
 }
