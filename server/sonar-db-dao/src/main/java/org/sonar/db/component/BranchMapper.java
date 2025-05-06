@@ -81,4 +81,6 @@ public interface BranchMapper {
   List<BranchDto> selectMainBranches();
 
   List<BranchDto> selectMainBranchesAssociatedToDefaultQualityProfile();
+
+  List<BranchDto> selectPullRequestsTargetingBranch(@Param("projectUuid") String projectUuid, @Param("branchUuid") String branchUuid);
 }

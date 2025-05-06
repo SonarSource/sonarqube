@@ -906,6 +906,41 @@ class BranchDaoIT {
       tuple(branch1.getUuid(), projectData1.projectUuid(), true));
   }
 
+  @Test
+  void selectPullRequestsTargetingBranch() {
+    BranchDto mainBranch = new BranchDto();
+    mainBranch.setProjectUuid("U1");
+    mainBranch.setUuid("U1");
+    mainBranch.setIsMain(true);
+    mainBranch.setBranchType(BranchType.BRANCH);
+    mainBranch.setKey("master");
+    underTest.insert(dbSession, mainBranch);
+
+    BranchDto prBranch = new BranchDto();
+    prBranch.setProjectUuid("U1");
+    prBranch.setUuid("U2");
+    prBranch.setIsMain(false);
+    prBranch.setBranchType(PULL_REQUEST);
+    prBranch.setKey("1234");
+    prBranch.setMergeBranchUuid("U1");
+    underTest.insert(dbSession, prBranch);
+
+    // make a second PR also targeting main branch
+    prBranch.setUuid("U3");
+    prBranch.setKey("4321");
+    prBranch.setMergeBranchUuid("U1");
+    underTest.insert(dbSession, prBranch);
+
+    // make a third PR NOT targeting main branch to be sure we filter it out
+    prBranch.setUuid("U4");
+    prBranch.setKey("5678");
+    prBranch.setMergeBranchUuid("U42");
+    underTest.insert(dbSession, prBranch);
+
+    var result = underTest.selectPullRequestsTargetingBranch(dbSession, "U1", "U1");
+    assertThat(result.stream().map(BranchDto::getUuid).toList()).containsExactlyInAnyOrder("U2", "U3");
+  }
+
   private void insertBranchesForProjectUuids(boolean mainBranch, String... uuids) {
     for (String uuid : uuids) {
       BranchDto dto = new BranchDto();

@@ -214,4 +214,8 @@ public class BranchDao implements Dao {
   public List<BranchDto> selectMainBranchesAssociatedToDefaultQualityProfile(DbSession dbSession) {
     return mapper(dbSession).selectMainBranchesAssociatedToDefaultQualityProfile();
   }
+
+  public List<BranchDto> selectPullRequestsTargetingBranch(DbSession dbSession, String projectUuid, String branchUuid) {
+    return mapper(dbSession).selectPullRequestsTargetingBranch(projectUuid, branchUuid);
+  }
 }

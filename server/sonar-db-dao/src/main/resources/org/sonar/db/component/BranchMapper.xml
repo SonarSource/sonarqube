@@ -322,4 +322,13 @@
     and p.uuid not in (select project_uuid from project_qprofiles)
   </select>
 
+  <select id="selectPullRequestsTargetingBranch" resultType="org.sonar.db.component.BranchDto">
+    select <include refid="columns"/>
+    from project_branches pb
+    where
+    pb.project_uuid = #{projectUuid, jdbcType=VARCHAR}
+    and pb.merge_branch_uuid = #{branchUuid, jdbcType=VARCHAR}
+    and pb.branch_type = 'PULL_REQUEST'
+  </select>
+
 </mapper>
