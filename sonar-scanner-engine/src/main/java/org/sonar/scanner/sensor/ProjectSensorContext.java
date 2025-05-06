@@ -66,7 +66,6 @@ public class ProjectSensorContext implements SensorContext {
 
   static final NoOpNewAnalysisError NO_OP_NEW_ANALYSIS_ERROR = new NoOpNewAnalysisError();
 
-  private final Settings mutableSettings;
   private final FileSystem fs;
   private final ActiveRules activeRules;
   private final DefaultSensorStorage sensorStorage;
@@ -81,15 +80,14 @@ public class ProjectSensorContext implements SensorContext {
   private final ExecutingSensorContext executingSensorContext;
   private final ScannerPluginRepository pluginRepo;
 
-  public ProjectSensorContext(DefaultInputProject project, Configuration config, Settings mutableSettings, FileSystem fs,
-                              ActiveRules activeRules,
-                              DefaultSensorStorage sensorStorage, SonarRuntime sonarRuntime, BranchConfiguration branchConfiguration,
-                              WriteCache writeCache, ReadCache readCache,
-                              AnalysisCacheEnabled analysisCacheEnabled, UnchangedFilesHandler unchangedFilesHandler,
-                              ExecutingSensorContext executingSensorContext, ScannerPluginRepository pluginRepo) {
+  public ProjectSensorContext(DefaultInputProject project, Configuration config, FileSystem fs,
+    ActiveRules activeRules,
+    DefaultSensorStorage sensorStorage, SonarRuntime sonarRuntime, BranchConfiguration branchConfiguration,
+    WriteCache writeCache, ReadCache readCache,
+    AnalysisCacheEnabled analysisCacheEnabled, UnchangedFilesHandler unchangedFilesHandler,
+    ExecutingSensorContext executingSensorContext, ScannerPluginRepository pluginRepo) {
     this.project = project;
     this.config = config;
-    this.mutableSettings = mutableSettings;
     this.fs = fs;
     this.activeRules = activeRules;
     this.sensorStorage = sensorStorage;
@@ -105,7 +103,7 @@ public class ProjectSensorContext implements SensorContext {
 
   @Override
   public Settings settings() {
-    return mutableSettings;
+    throw new UnsupportedOperationException("This method is not supported anymore");
   }
 
   @Override

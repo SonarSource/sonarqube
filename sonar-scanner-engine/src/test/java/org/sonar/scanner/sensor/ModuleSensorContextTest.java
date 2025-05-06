@@ -68,7 +68,7 @@ class ModuleSensorContextTest {
   @BeforeEach
   void prepare() {
     fs = new DefaultFileSystem(temp);
-    underTest = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, sensorStorage, runtime,
+    underTest = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), fs, activeRules, sensorStorage, runtime,
       branchConfiguration, writeCache, readCache, analysisCacheEnabled, unchangedFilesHandler, executingSensorContext, pluginRepository);
   }
 
@@ -104,7 +104,7 @@ class ModuleSensorContextTest {
   @Test
   void pull_request_can_skip_unchanged_files() {
     when(branchConfiguration.isPullRequest()).thenReturn(true);
-    underTest = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, sensorStorage, runtime,
+    underTest = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), fs, activeRules, sensorStorage, runtime,
       branchConfiguration, writeCache, readCache, analysisCacheEnabled, unchangedFilesHandler, executingSensorContext, pluginRepository);
     assertThat(underTest.canSkipUnchangedFiles()).isTrue();
   }

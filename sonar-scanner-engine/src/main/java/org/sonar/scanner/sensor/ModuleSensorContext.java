@@ -28,7 +28,6 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.cache.ReadCache;
 import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.config.Settings;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.cache.AnalysisCacheEnabled;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
@@ -38,11 +37,11 @@ public class ModuleSensorContext extends ProjectSensorContext {
 
   private final InputModule module;
 
-  public ModuleSensorContext(DefaultInputProject project, InputModule module, Configuration config, Settings mutableModuleSettings, FileSystem fs, ActiveRules activeRules,
+  public ModuleSensorContext(DefaultInputProject project, InputModule module, Configuration config, FileSystem fs, ActiveRules activeRules,
     DefaultSensorStorage sensorStorage, SonarRuntime sonarRuntime, BranchConfiguration branchConfiguration,
     WriteCache writeCache, ReadCache readCache, AnalysisCacheEnabled analysisCacheEnabled, UnchangedFilesHandler unchangedFilesHandler,
     ExecutingSensorContext executingSensorContext, ScannerPluginRepository pluginRepository) {
-    super(project, config, mutableModuleSettings, fs, activeRules, sensorStorage, sonarRuntime, branchConfiguration, writeCache, readCache, analysisCacheEnabled,
+    super(project, config, fs, activeRules, sensorStorage, sonarRuntime, branchConfiguration, writeCache, readCache, analysisCacheEnabled,
       unchangedFilesHandler, executingSensorContext, pluginRepository);
     this.module = module;
   }

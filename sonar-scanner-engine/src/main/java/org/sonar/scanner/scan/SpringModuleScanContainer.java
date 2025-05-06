@@ -54,7 +54,6 @@ public class SpringModuleScanContainer extends SpringComponentContainer {
     add(
       module.definition(),
       module,
-      MutableModuleSettings.class,
       SonarGlobalPropertiesFilter.class,
       ModuleConfigurationProvider.class,
 
@@ -68,8 +67,7 @@ public class SpringModuleScanContainer extends SpringComponentContainer {
       ModuleSensorOptimizer.class,
 
       ModuleSensorContext.class,
-      ModuleSensorExtensionDictionary.class
-    );
+      ModuleSensorExtensionDictionary.class);
   }
 
   private void addExtensions() {

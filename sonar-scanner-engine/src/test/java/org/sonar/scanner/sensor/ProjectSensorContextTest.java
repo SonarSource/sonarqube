@@ -59,8 +59,8 @@ class ProjectSensorContextTest {
   private ExecutingSensorContext executingSensorContext = mock(ExecutingSensorContext.class);
   private ScannerPluginRepository pluginRepository = mock(ScannerPluginRepository.class);
 
-  private ProjectSensorContext underTest = new ProjectSensorContext(mock(DefaultInputProject.class), settings.asConfig(), settings, fs, activeRules, sensorStorage, runtime,
-  branchConfiguration, writeCache, readCache, analysisCacheEnabled, unchangedFilesHandler, executingSensorContext, pluginRepository);
+  private ProjectSensorContext underTest = new ProjectSensorContext(mock(DefaultInputProject.class), settings.asConfig(), fs, activeRules, sensorStorage, runtime,
+    branchConfiguration, writeCache, readCache, analysisCacheEnabled, unchangedFilesHandler, executingSensorContext, pluginRepository);
 
   private static final String PLUGIN_KEY = "org.sonarsource.pluginKey";
 
@@ -69,7 +69,6 @@ class ProjectSensorContextTest {
     when(executingSensorContext.getSensorExecuting()).thenReturn(new SensorId(PLUGIN_KEY, "sensorName"));
   }
 
-
   @Test
   void addTelemetryProperty_whenTheOrganizationIsSonarSource_mustStoreTheTelemetry() {
 
@@ -77,16 +76,21 @@ class ProjectSensorContextTest {
 
     underTest.addTelemetryProperty("key", "value");
 
-    //then verify that the defaultStorage is called with the telemetry property once
+    // then verify that the defaultStorage is called with the telemetry property once
     verify(sensorStorage).storeTelemetry("key", "value");
   }
 
   @Test
-  void addTelemetryProperty_whenTheOrganizationIsNotSonarSource_mustThrowExcaption() {
+  void addTelemetryProperty_whenTheOrganizationIsNotSonarSource_mustThrowException() {
     when(pluginRepository.getPluginInfo(PLUGIN_KEY)).thenReturn(new PluginInfo(PLUGIN_KEY).setOrganizationName("notSonarsource"));
 
     assertThrows(IllegalStateException.class, () -> underTest.addTelemetryProperty("key", "value"));
 
     verifyNoInteractions(sensorStorage);
+  }
+
+  @Test
+  void settings_throwsUnsupportedOperationException() {
+    assertThrows(UnsupportedOperationException.class, () -> underTest.settings());
   }
 }

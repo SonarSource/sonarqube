@@ -52,10 +52,9 @@ public class ProjectConfigurationProviderTest {
   private static final Map<String, String> PROJECT_SERVER_PROPERTIES = Map.of(NON_GLOBAL_KEY_PROPERTIES_1, NON_GLOBAL_VALUE_PROPERTIES_1);
   private static final Map<String, String> DEFAULT_PROJECT_PROPERTIES = Map.of(DEFAULT_KEY_PROPERTIES_1, DEFAULT_VALUE_1);
 
-  private static final Map<String, String> ALL_PROPERTIES_MAP =
-    Stream.of(GLOBAL_SERVER_PROPERTIES, PROJECT_SERVER_PROPERTIES, DEFAULT_PROJECT_PROPERTIES)
-      .flatMap(map -> map.entrySet().stream())
-      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+  private static final Map<String, String> ALL_PROPERTIES_MAP = Stream.of(GLOBAL_SERVER_PROPERTIES, PROJECT_SERVER_PROPERTIES, DEFAULT_PROJECT_PROPERTIES)
+    .flatMap(map -> map.entrySet().stream())
+    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
   private static final Map<String, String> PROPERTIES_AFTER_FILTERING = Map.of("aKey", "aValue");
 
@@ -66,15 +65,12 @@ public class ProjectConfigurationProviderTest {
   @Mock
   private GlobalConfiguration globalConfiguration;
   @Mock
-  private MutableProjectSettings mutableProjectSettings;
-  @Mock
   private DefaultInputProject defaultInputProject;
   @Mock
   private SonarGlobalPropertiesFilter sonarGlobalPropertiesFilter;
 
   @InjectMocks
   private ProjectConfigurationProvider provider;
-
 
   @Before
   public void init() {
@@ -89,7 +85,7 @@ public class ProjectConfigurationProviderTest {
     when(sonarGlobalPropertiesFilter.enforceOnlyServerSideSonarGlobalPropertiesAreUsed(ALL_PROPERTIES_MAP, GLOBAL_SERVER_PROPERTIES))
       .thenReturn(PROPERTIES_AFTER_FILTERING);
 
-    ProjectConfiguration provide = provider.provide(defaultInputProject, globalConfiguration, globalServerSettings, projectServerSettings, mutableProjectSettings);
+    ProjectConfiguration provide = provider.provide(defaultInputProject, globalConfiguration, globalServerSettings, projectServerSettings);
 
     verify(sonarGlobalPropertiesFilter).enforceOnlyServerSideSonarGlobalPropertiesAreUsed(ALL_PROPERTIES_MAP, GLOBAL_SERVER_PROPERTIES);
     assertThat(provide.getOriginalProperties()).containsExactlyEntriesOf(PROPERTIES_AFTER_FILTERING);

@@ -99,7 +99,6 @@ import org.sonar.scanner.scan.InputModuleHierarchyProvider;
 import org.sonar.scanner.scan.InputProjectProvider;
 import org.sonar.scanner.scan.ModuleIndexer;
 import org.sonar.scanner.scan.MutableProjectReactorProvider;
-import org.sonar.scanner.scan.MutableProjectSettings;
 import org.sonar.scanner.scan.ProjectBuildersExecutor;
 import org.sonar.scanner.scan.ProjectConfigurationProvider;
 import org.sonar.scanner.scan.ProjectLock;
@@ -226,7 +225,6 @@ public class SpringScannerContainer extends SpringComponentContainer {
       ContextPropertiesCache.class,
       TelemetryCache.class,
 
-      MutableProjectSettings.class,
       SonarGlobalPropertiesFilter.class,
       ProjectConfigurationProvider.class,
 
