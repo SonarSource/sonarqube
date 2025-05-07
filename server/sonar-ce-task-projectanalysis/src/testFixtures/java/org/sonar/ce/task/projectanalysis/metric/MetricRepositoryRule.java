@@ -100,6 +100,11 @@ public class MetricRepositoryRule extends ExternalResource implements MetricRepo
   }
 
   @Override
+  public Optional<Metric> getOptionalByKey(String key) {
+    return Optional.ofNullable(metricsByKey.get(key));
+  }
+
+  @Override
   public Metric getByUuid(String uuid) {
     Metric res = metricsByUuid.get(uuid);
     checkState(res != null, format("No Metric can be found for uuid %s", uuid));

@@ -70,6 +70,16 @@ public class MetricRepositoryImpl implements MetricRepository, Startable {
   }
 
   @Override
+  public Optional<Metric> getOptionalByKey(String key) {
+    requireNonNull(key);
+    verifyMetricsInitialized();
+
+    Metric res = this.metricsByKey.get(key);
+
+    return Optional.ofNullable(res);
+  }
+
+  @Override
   public Metric getByUuid(String uuid) {
     return getOptionalByUuid(uuid)
       .orElseThrow(() -> new IllegalStateException(String.format("Metric with uuid '%s' does not exist", uuid)));

@@ -26,14 +26,24 @@ public interface MetricRepository {
 
   /**
    * Gets the {@link Metric} with the specific key.
-   * <p>Since it does not make sense to encounter a reference (ie. a key) to a Metric during processing of
+   * <p>Since it <i>mostly</i> does not make sense to encounter a reference (ie. a key) to a Metric during processing of
    * a new analysis and not finding it in DB (metrics are never deleted), this method will throw an
    * IllegalStateException if the metric with the specified key can not be found.</p>
+   * <p>Core extensions that add their own metrics on commercial versions may not be available everywhere.
+   * Use getOptionalByKey if you need to work with a metric that may not exist in all environments.</p>
    *
    * @throws IllegalStateException if no Metric with the specified key is found
    * @throws NullPointerException if the specified key is {@code null}
    */
   Metric getByKey(String key);
+
+  /**
+   * Gets the {@link Metric} with the specific key if it exists. Useful if working with a metric that may
+   * not exist in all versions of SonarQube Server.
+   *
+   * @throws NullPointerException if the specified key is {@code null}
+   */
+  Optional<Metric> getOptionalByKey(String key);
 
   /**
    * Gets the {@link Metric} with the specific uuid.
