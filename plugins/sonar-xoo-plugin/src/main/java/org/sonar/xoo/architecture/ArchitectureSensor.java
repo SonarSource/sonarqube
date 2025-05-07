@@ -46,21 +46,21 @@ public class ArchitectureSensor implements ProjectSensor {
     context.addAnalysisData(
       "architecture.graph.java.file_graph",
       mimeType,
-      new ByteArrayInputStream(("{graph:\"data\", \"classCount\":" + count + "}")
+      new ByteArrayInputStream(("{\"graph\":\"data\", \"classCount\":" + count + "}")
         .getBytes(StandardCharsets.UTF_8))
     );
 
     context.addAnalysisData(
       "architecture.graph." + Xoo.KEY + ".file_graph",
       mimeType,
-      new ByteArrayInputStream(("{graph:\"data\", \"fileCount\":" + count + "}")
+      new ByteArrayInputStream(("{\"graph\":\"data\", \"fileCount\":" + count + "}")
         .getBytes(StandardCharsets.UTF_8))
     );
 
     context.addAnalysisData(
       "architecture.graph." + Xoo.KEY + ".file_graph.module_persp",
       mimeType,
-      new ByteArrayInputStream(("{graph:\"data\", \"moduleCount\":" + count + "}")
+      new ByteArrayInputStream(("{\"graph\":\"data\", \"moduleCount\":" + count + "}")
         .getBytes(StandardCharsets.UTF_8))
     );
   }

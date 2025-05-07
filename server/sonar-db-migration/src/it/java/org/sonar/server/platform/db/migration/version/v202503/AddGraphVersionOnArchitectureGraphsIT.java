@@ -23,7 +23,6 @@ import java.sql.SQLException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
-import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static java.sql.Types.VARCHAR;
