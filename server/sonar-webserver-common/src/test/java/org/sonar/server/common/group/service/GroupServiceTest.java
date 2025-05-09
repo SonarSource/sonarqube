@@ -316,7 +316,7 @@ public class GroupServiceTest {
   public void createGroup_whenNameAndDescriptionIsProvided_createsGroup() {
 
     when(uuidFactory.create()).thenReturn("1234");
-    GroupDto createdGroup  = mockGroupDto();
+    GroupDto createdGroup = mockGroupDto();
     when(dbClient.groupDao().insert(eq(dbSession), any())).thenReturn(createdGroup);
     mockDefaultGroup();
     groupService.createGroup(dbSession, "Name", "Description");
@@ -378,7 +378,7 @@ public class GroupServiceTest {
 
     when(dbClient.groupDao().countByQuery(eq(dbSession), any())).thenReturn(300);
 
-    SearchResults<GroupInformation> searchResults = groupService.search(dbSession, new GroupSearchRequest("query", null, 5, 24));
+    SearchResults<GroupInformation> searchResults = groupService.search(dbSession, new GroupSearchRequest("query", null, null, null, 5, 24));
     assertThat(searchResults.total()).isEqualTo(300);
 
     Map<String, GroupInformation> uuidToGroupInformation = searchResults.searchResults().stream()
@@ -390,11 +390,12 @@ public class GroupServiceTest {
     assertThat(queryCaptor.getValue().getSearchText()).isEqualTo("%QUERY%");
     assertThat(queryCaptor.getValue().getIsManagedSqlClause()).isNull();
   }
+
   @Test
   public void search_whenPageSizeEquals0_returnsOnlyTotal() {
     when(dbClient.groupDao().countByQuery(eq(dbSession), any())).thenReturn(10);
 
-    SearchResults<GroupInformation> searchResults = groupService.search(dbSession, new GroupSearchRequest("query", null, 0, 24));
+    SearchResults<GroupInformation> searchResults = groupService.search(dbSession, new GroupSearchRequest("query", null, null, null, 0, 24));
     assertThat(searchResults.total()).isEqualTo(10);
     assertThat(searchResults.searchResults()).isEmpty();
 
@@ -406,7 +407,7 @@ public class GroupServiceTest {
     mockManagedInstance();
     when(dbClient.groupDao().selectByQuery(eq(dbSession), queryCaptor.capture(), anyInt(), anyInt())).thenReturn(List.of());
 
-    groupService.search(dbSession, new GroupSearchRequest("query", true, 5, 24));
+    groupService.search(dbSession, new GroupSearchRequest("query", true, null, null, 5, 24));
 
     assertThat(queryCaptor.getValue().getIsManagedSqlClause()).isEqualTo("managed_filter");
   }
@@ -416,7 +417,7 @@ public class GroupServiceTest {
     mockManagedInstance();
     when(dbClient.groupDao().selectByQuery(eq(dbSession), queryCaptor.capture(), anyInt(), anyInt())).thenReturn(List.of());
 
-    groupService.search(dbSession, new GroupSearchRequest("query", false, 5, 24));
+    groupService.search(dbSession, new GroupSearchRequest("query", false, null, null, 5, 24));
 
     assertThat(queryCaptor.getValue().getIsManagedSqlClause()).isEqualTo("not_managed_filter");
   }
@@ -424,7 +425,7 @@ public class GroupServiceTest {
   @Test
   public void search_whenInstanceNotManagedAndManagedIsTrue_throws() {
     assertThatExceptionOfType(BadRequestException.class)
-      .isThrownBy(() -> groupService.search(dbSession, new GroupSearchRequest("query", true, 5, 24)))
+      .isThrownBy(() -> groupService.search(dbSession, new GroupSearchRequest("query", true, null, null, 5, 24)))
       .withMessage("The 'managed' parameter is only available for managed instances.");
   }
 
@@ -432,6 +433,26 @@ public class GroupServiceTest {
     when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
     when(managedInstanceService.getManagedGroupsSqlFilter(true)).thenReturn("managed_filter");
     when(managedInstanceService.getManagedGroupsSqlFilter(false)).thenReturn("not_managed_filter");
+  }
+
+  @Test
+  public void search_whenUserIdParameterProvided_addsItToQuery() {
+    when(dbClient.groupDao().selectByQuery(eq(dbSession), queryCaptor.capture(), anyInt(), anyInt())).thenReturn(List.of());
+
+    groupService.search(dbSession, new GroupSearchRequest("query", null, "includedUserUuid", null, 5, 24));
+
+    assertThat(queryCaptor.getValue().getUserId()).isEqualTo("includedUserUuid");
+    assertThat(queryCaptor.getValue().getExcludedUserId()).isNull();
+  }
+
+  @Test
+  public void search_whenExcludedUserIdParameterProvided_addsItToQuery() {
+    when(dbClient.groupDao().selectByQuery(eq(dbSession), queryCaptor.capture(), anyInt(), anyInt())).thenReturn(List.of());
+
+    groupService.search(dbSession, new GroupSearchRequest("query", null, null, "excludedUserId", 5, 24));
+
+    assertThat(queryCaptor.getValue().getUserId()).isNull();
+    assertThat(queryCaptor.getValue().getExcludedUserId()).isEqualTo("excludedUserId");
   }
 
   private static void assertGroupInformation(Map<String, GroupInformation> uuidToGroupInformation, GroupDto expectedGroupDto, boolean expectedManaged, boolean expectedDefault) {

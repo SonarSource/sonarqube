@@ -20,6 +20,7 @@
 package org.sonar.server.v2.api.group.controller;
 
 import java.util.List;
+import org.jetbrains.annotations.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.common.SearchResults;
@@ -53,10 +54,11 @@ public class DefaultGroupController implements GroupController {
   }
 
   @Override
-  public GroupsSearchRestResponse search(GroupsSearchRestRequest groupsSearchRestRequest, RestPage restPage) {
+  public GroupsSearchRestResponse search(GroupsSearchRestRequest groupsSearchRestRequest, @Nullable String excludedUserId, RestPage restPage) {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      GroupSearchRequest groupSearchRequest = new GroupSearchRequest(groupsSearchRestRequest.q(), groupsSearchRestRequest.managed(), restPage.pageIndex(), restPage.pageSize());
+      GroupSearchRequest groupSearchRequest = new GroupSearchRequest(groupsSearchRestRequest.q(), groupsSearchRestRequest.managed(), groupsSearchRestRequest.userId(),
+        excludedUserId, restPage.pageIndex(), restPage.pageSize());
       SearchResults<GroupInformation> searchResults = groupService.search(dbSession, groupSearchRequest);
       List<GroupRestResponse> groupRestResponses = toGroupRestResponses(searchResults);
       return new GroupsSearchRestResponse(groupRestResponses, new PageRestResponse(restPage.pageIndex(), restPage.pageSize(), searchResults.total()));

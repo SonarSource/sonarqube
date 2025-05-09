@@ -29,10 +29,14 @@ import org.sonar.db.WildcardPosition;
 public class GroupQuery {
   private final String searchText;
   private final String isManagedSqlClause;
+  private final String userId;
+  private final String excludedUserId;
 
-  GroupQuery(@Nullable String searchText, @Nullable String isManagedSqlClause) {
+  GroupQuery(@Nullable String searchText, @Nullable String isManagedSqlClause, String userId, String excludedUserId) {
     this.searchText = searchTextToSearchTextSql(searchText);
     this.isManagedSqlClause = isManagedSqlClause;
+    this.userId = userId;
+    this.excludedUserId = excludedUserId;
   }
 
   private static String searchTextToSearchTextSql(@Nullable String text) {
@@ -54,6 +58,16 @@ public class GroupQuery {
     return isManagedSqlClause;
   }
 
+  @CheckForNull
+  public String getUserId() {
+    return userId;
+  }
+
+  @CheckForNull
+  public String getExcludedUserId() {
+    return excludedUserId;
+  }
+
   public static GroupQueryBuilder builder() {
     return new GroupQueryBuilder();
   }
@@ -61,6 +75,8 @@ public class GroupQuery {
   public static final class GroupQueryBuilder {
     private String searchText = null;
     private String isManagedSqlClause = null;
+    private String userId = null;
+    private String excludedUserId = null;
 
     private GroupQueryBuilder() {
     }
@@ -70,14 +86,23 @@ public class GroupQuery {
       return this;
     }
 
-
     public GroupQuery.GroupQueryBuilder isManagedClause(@Nullable String isManagedSqlClause) {
       this.isManagedSqlClause = isManagedSqlClause;
       return this;
     }
 
+    public GroupQuery.GroupQueryBuilder userId(@Nullable String userId) {
+      this.userId = userId;
+      return this;
+    }
+
+    public GroupQuery.GroupQueryBuilder excludedUserId(@Nullable String excludedUserId) {
+      this.excludedUserId = excludedUserId;
+      return this;
+    }
+
     public GroupQuery build() {
-      return new GroupQuery(searchText, isManagedSqlClause);
+      return new GroupQuery(searchText, isManagedSqlClause, userId, excludedUserId);
     }
   }
 }

@@ -208,7 +208,7 @@ public class UserDbTester {
   }
 
   public int countAllGroups() {
-    return db.getDbClient().groupDao().countByQuery(db.getSession(), new GroupQuery(null, null));
+    return db.getDbClient().groupDao().countByQuery(db.getSession(), new GroupQuery(null, null, null, null));
   }
 
   public Optional<ExternalGroupDto> selectExternalGroupByGroupUuid(String groupUuid) {

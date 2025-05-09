@@ -19,6 +19,8 @@
  */
 package org.sonar.server.v2.api.group.request;
 
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.annotation.Nullable;
 
@@ -30,7 +32,12 @@ public record GroupsSearchRestRequest(
   @Nullable
   @Schema(description = "Filter on name.\n"
                         + "This parameter performs a partial match (contains), it is case insensitive.")
-  String q
+  String q,
+
+  @Nullable
+  @Schema(description = "Filter groups containing the user. Only available for system administrators. Using != operator will search for groups without the user.",
+    extensions = @Extension(properties = {@ExtensionProperty(name = "internal", value = "true")}))
+  String userId
 
 ) {
 

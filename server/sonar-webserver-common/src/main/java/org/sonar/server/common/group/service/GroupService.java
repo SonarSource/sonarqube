@@ -93,6 +93,8 @@ public class GroupService {
     return GroupQuery.builder()
       .searchText(groupSearchRequest.query())
       .isManagedClause(getManagedInstanceSql(groupSearchRequest.managed()))
+      .userId(groupSearchRequest.userUuid())
+      .excludedUserId(groupSearchRequest.excludedUserUuid())
       .build();
   }
 

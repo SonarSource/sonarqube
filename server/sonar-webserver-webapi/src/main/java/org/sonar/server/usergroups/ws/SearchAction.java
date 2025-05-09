@@ -73,7 +73,7 @@ public class SearchAction implements UserGroupsWsAction {
   public void define(NewController context) {
     WebService.NewAction action = context.createAction("search")
       .setDescription("Search for user groups.<br>" +
-        "Requires the following permission: 'Administer System'.")
+                      "Requires the following permission: 'Administer System'.")
       .setHandler(this)
       .setResponseExample(getClass().getResource("search-example.json"))
       .setSince("5.2")
@@ -107,7 +107,8 @@ public class SearchAction implements UserGroupsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       userSession.checkLoggedIn().checkIsSystemAdministrator();
 
-      GroupSearchRequest groupSearchRequest = new GroupSearchRequest(request.param(Param.TEXT_QUERY), request.paramAsBoolean(MANAGED_PARAM), page, pageSize);
+      GroupSearchRequest groupSearchRequest = new GroupSearchRequest(request.param(Param.TEXT_QUERY), request.paramAsBoolean(MANAGED_PARAM), null, null,
+        page, pageSize);
       SearchResults<GroupInformation> searchResults = groupService.search(dbSession, groupSearchRequest);
 
       Set<String> groupUuids = extractGroupUuids(searchResults.searchResults());
@@ -136,7 +137,7 @@ public class SearchAction implements UserGroupsWsAction {
   }
 
   private static SearchWsResponse buildResponse(List<GroupInformation> groups, Map<String, Integer> userCountByGroup,
-   Set<String> fields, Paging paging) {
+    Set<String> fields, Paging paging) {
     SearchWsResponse.Builder responseBuilder = SearchWsResponse.newBuilder();
     groups.forEach(group -> responseBuilder
       .addGroups(toWsGroup(group.groupDto(), userCountByGroup.get(group.groupDto().getName()), group.isManaged(), fields, group.isDefault())));

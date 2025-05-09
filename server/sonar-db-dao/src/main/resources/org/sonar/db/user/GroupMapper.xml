@@ -113,6 +113,12 @@
             <if test="query.isManagedSqlClause != null">
                 AND ${query.isManagedSqlClause}
             </if>
+            <if test="query.userId != null">
+                AND g.uuid in (select group_uuid from groups_users gu where gu.user_uuid = #{query.userId,jdbcType=VARCHAR})
+            </if>
+           <if test="query.excludedUserId != null">
+                AND g.uuid not in (select group_uuid from groups_users gu where gu.user_uuid = #{query.excludedUserId,jdbcType=VARCHAR})
+            </if>
         </where>
     </sql>
 </mapper>

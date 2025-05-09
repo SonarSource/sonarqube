@@ -22,7 +22,11 @@ package org.sonar.server.v2.api.group.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
+import javax.annotation.Nullable;
 import org.sonar.server.v2.api.group.request.GroupCreateRestRequest;
 import org.sonar.server.v2.api.group.request.GroupUpdateRestRequest;
 import org.sonar.server.v2.api.group.request.GroupsSearchRestRequest;
@@ -39,6 +43,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -57,6 +62,8 @@ public interface GroupController {
     """)
   GroupsSearchRestResponse search(
     @Valid @ParameterObject GroupsSearchRestRequest groupsSearchRestRequest,
+    @RequestParam(name = "userId!") @Nullable @Schema(description = "Find groups without this user. Only available for system administrators.",
+      extensions = @Extension(properties = {@ExtensionProperty(name = "internal", value = "true")}), hidden = true) String excludedUserId,
     @Valid @ParameterObject RestPage restPage);
 
   @GetMapping(path = "/{id}")

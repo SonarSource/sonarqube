@@ -24,6 +24,8 @@ import javax.annotation.Nullable;
 public record GroupSearchRequest(
   @Nullable String query,
   @Nullable Boolean managed,
+  @Nullable String userUuid,
+  @Nullable String excludedUserUuid,
   int page,
   int pageSize
 ) {

@@ -412,6 +412,8 @@ public class DefaultGroupControllerTest {
     assertThat(requestCaptor.getValue().page()).hasToString(DEFAULT_PAGE_INDEX);
     assertThat(requestCaptor.getValue().managed()).isNull();
     assertThat(requestCaptor.getValue().query()).isNull();
+    assertThat(requestCaptor.getValue().userUuid()).isNull();
+    assertThat(requestCaptor.getValue().excludedUserUuid()).isNull();
   }
 
   @Test
@@ -422,6 +424,8 @@ public class DefaultGroupControllerTest {
     mockMvc.perform(get(GROUPS_ENDPOINT)
       .param("managed", "true")
       .param("q", "q")
+      .param("userId", "userId")
+      .param("userId!", "excludedUserId")
       .param("pageSize", "100")
       .param("pageIndex", "2"))
       .andExpect(status().isOk());
@@ -432,6 +436,8 @@ public class DefaultGroupControllerTest {
     assertThat(requestCaptor.getValue().page()).isEqualTo(2);
     assertThat(requestCaptor.getValue().managed()).isTrue();
     assertThat(requestCaptor.getValue().query()).isEqualTo("q");
+    assertThat(requestCaptor.getValue().userUuid()).isEqualTo("userId");
+    assertThat(requestCaptor.getValue().excludedUserUuid()).isEqualTo("excludedUserId");
   }
 
   @Test
