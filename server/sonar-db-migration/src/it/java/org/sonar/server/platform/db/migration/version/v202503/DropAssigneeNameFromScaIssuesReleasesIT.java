@@ -25,27 +25,27 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static java.sql.Types.BOOLEAN;
+import static java.sql.Types.VARCHAR;
 import static org.sonar.db.MigrationDbTester.createForMigrationStep;
 
-class DropNewInPullRequestFromScaDependenciesTableIT {
-  private static final String TABLE_NAME = "sca_dependencies";
-  private static final String COLUMN_NAME = "new_in_pull_request";
+class DropAssigneeNameFromScaIssuesReleasesIT {
+  private static final String TABLE_NAME = "sca_issues_releases";
+  private static final String COLUMN_NAME = "assignee_name";
 
   @RegisterExtension
-  public final MigrationDbTester db = createForMigrationStep(DropNewInPullRequestFromScaDependenciesTable.class);
-  private final DdlChange underTest = new DropNewInPullRequestFromScaDependenciesTable(db.database());
+  public final MigrationDbTester db = createForMigrationStep(DropAssigneeNameFromScaIssuesReleases.class);
+  private final DdlChange underTest = new DropAssigneeNameFromScaIssuesReleases(db.database());
 
   @Test
   void execute_shouldDropColumn() throws SQLException {
-    db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, BOOLEAN, null, false);
+    db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, VARCHAR, 200, true);
     underTest.execute();
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
   }
 
   @Test
   void execute_shouldBeReentrant() throws SQLException {
-    db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, BOOLEAN, null, false);
+    db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, VARCHAR, 200, true);
     underTest.execute();
     underTest.execute();
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);

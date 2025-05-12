@@ -37,7 +37,7 @@ class DropNewInPullRequestFromScaReleasesTableIT {
   private final DdlChange underTest = new DropNewInPullRequestFromScaReleasesTable(db.database());
 
   @Test
-  void execute_shouldAddColumn() throws SQLException {
+  void execute_shouldDropColumn() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, BOOLEAN, null, false);
     underTest.execute();
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);

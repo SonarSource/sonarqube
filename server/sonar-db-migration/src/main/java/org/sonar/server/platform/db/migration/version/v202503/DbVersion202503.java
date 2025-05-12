@@ -76,6 +76,8 @@ public class DbVersion202503 implements DbVersion {
       .add(2025_03_037, "Add previous_manual_status to SCA issues releases", AddPreviousManualStatusToScaIssuesReleases.class)
       .add(2025_03_038, "Add 'graph_version' column to 'architecture_graphs' table", AddGraphVersionOnArchitectureGraphsTable.class)
       .add(2025_03_039, "Add assignee name to SCA issues releases", AddAssigneeNameToScaIssuesReleases.class)
+      .add(2025_03_040, "Drop assignee name from SCA issues releases", DropAssigneeNameFromScaIssuesReleases.class)
+      .add(2025_03_041, "Remove AssigneeName from Sca issue release changes", BackfillRemoveAssigneeNameFromIssueReleaseChanges.class)
 
     ;
   }
