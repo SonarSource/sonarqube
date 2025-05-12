@@ -121,13 +121,9 @@ public class UsersSearchRestResponseGeneratorTest {
   private static UserRestResponseForLoggedInUsers buildExpectedResponseForUser(UserInformation userInformation) {
     UserDto userDto = userInformation.userDto();
     return new UserRestResponseForLoggedInUsers(
-      userDto.getUuid(),
       userDto.getLogin(),
       userDto.getName(),
-      userDto.getEmail(),
       userDto.isActive(),
-      userDto.isLocal(),
-      userDto.getExternalIdentityProvider(),
       userInformation.avatar().orElse(null)
     );
   }
@@ -150,7 +146,6 @@ public class UsersSearchRestResponseGeneratorTest {
   private static UserRestResponseForAnonymousUsers buildExpectedResponseForAnonymous(UserInformation userInformation) {
     UserDto userDto = userInformation.userDto();
     return new UserRestResponseForAnonymousUsers(
-      userDto.getUuid(),
       userDto.getLogin(),
       userDto.getName()
     );

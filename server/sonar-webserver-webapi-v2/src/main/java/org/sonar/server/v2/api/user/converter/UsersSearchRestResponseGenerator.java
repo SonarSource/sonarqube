@@ -64,7 +64,7 @@ public class UsersSearchRestResponseGenerator implements UsersSearchResponseGene
     String login = userDto.getLogin();
     String name = userDto.getName();
     if (!userSession.isLoggedIn()) {
-      return new UserRestResponseForAnonymousUsers(id, login, name);
+      return new UserRestResponseForAnonymousUsers(login, name);
     }
 
     String avatar = userInformation.avatar().orElse(null);
@@ -95,7 +95,7 @@ public class UsersSearchRestResponseGenerator implements UsersSearchResponseGene
         slLastConnectionDate,
         scmAccounts);
     }
-    return new UserRestResponseForLoggedInUsers(id, login, name, email, active, local, externalIdentityProvider, avatar);
+    return new UserRestResponseForLoggedInUsers(login, name, active, avatar);
   }
 
   private static String toDateTime(@Nullable Long dateTimeMs) {

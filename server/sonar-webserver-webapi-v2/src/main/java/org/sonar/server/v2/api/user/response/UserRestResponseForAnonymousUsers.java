@@ -20,7 +20,6 @@
 package org.sonar.server.v2.api.user.response;
 
 public record UserRestResponseForAnonymousUsers(
-  String id,
   String login,
   String name
 

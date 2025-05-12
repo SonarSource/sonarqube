@@ -22,17 +22,10 @@ package org.sonar.server.v2.api.user.response;
 import javax.annotation.Nullable;
 
 public record UserRestResponseForLoggedInUsers(
-  String id,
   String login,
   String name,
   @Nullable
-  String email,
-  @Nullable
   Boolean active,
-  @Nullable
-  Boolean local,
-  @Nullable
-  String externalProvider,
   @Nullable
   String avatar
 
