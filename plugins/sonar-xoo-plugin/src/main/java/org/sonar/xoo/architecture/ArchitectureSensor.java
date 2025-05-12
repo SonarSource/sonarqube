@@ -56,5 +56,12 @@ public class ArchitectureSensor implements ProjectSensor {
       new ByteArrayInputStream(("{\"graph\":\"modules\", \"fileCount\":" + count + "}")
         .getBytes(StandardCharsets.UTF_8))
     );
+
+    context.addAnalysisData(
+      "architecture.graph." + Xoo.KEY + ".namespace",
+      mimeType,
+      new ByteArrayInputStream(("{\"graph\":\"namespace\", \"fileCount\":" + count + "}")
+        .getBytes(StandardCharsets.UTF_8))
+    );
   }
 }
