@@ -27,7 +27,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -92,7 +91,6 @@ class CliServiceTest {
     when(projectExclusionFilters.getExclusionsConfig(InputFile.Type.MAIN)).thenReturn(new String[0]);
     when(configuration.getStringArray(CliService.SCA_EXCLUSIONS_KEY)).thenReturn(new String[0]);
     when(configuration.getStringArray(CliService.LEGACY_SCA_EXCLUSIONS_KEY)).thenReturn(new String[0]);
-    when(configuration.getBoolean("sonar.sca.debug")).thenReturn(Optional.of(true));
 
     underTest = new CliService(processWrapperFactory, telemetryCache, System2.INSTANCE, server, scmConfiguration, projectExclusionFilters);
   }
@@ -125,8 +123,7 @@ class CliServiceTest {
       rootInputModule.getBaseDir().toString(),
       "--recursive",
       "--exclude",
-      "foo,bar,baz/**,ignored.txt,.scannerwork/**",
-      "--debug");
+      "foo,bar,baz/**,ignored.txt,.scannerwork/**");
 
     assertThat(logTester.logs(INFO))
       .contains("Arguments Passed In: " + String.join(" ", expectedArguments))
@@ -141,7 +138,6 @@ class CliServiceTest {
   @Test
   void generateZip_whenDebugLogLevelAndScaDebugNotEnabled_shouldWriteDebugLogsToDebugStream() throws IOException, URISyntaxException {
     logTester.setLevel(DEBUG);
-    when(configuration.getBoolean("sonar.sca.debug")).thenReturn(Optional.of(false));
 
     assertThat(rootModuleDir.resolve("test_file").toFile().createNewFile()).isTrue();
 
@@ -166,8 +162,6 @@ class CliServiceTest {
 
   @Test
   void generateZip_whenScaDebugEnabled_shouldWriteDebugLogsToInfoStream() throws IOException, URISyntaxException {
-    when(configuration.getBoolean("sonar.sca.debug")).thenReturn(Optional.of(true));
-
     assertThat(rootModuleDir.resolve("test_file").toFile().createNewFile()).isTrue();
 
     underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
@@ -182,8 +176,7 @@ class CliServiceTest {
       rootInputModule.getBaseDir().toString(),
       "--recursive",
       "--exclude",
-      "ignored.txt,.scannerwork/**",
-      "--debug");
+      "ignored.txt,.scannerwork/**");
 
     assertThat(logTester.logs(INFO))
       .contains("Arguments Passed In: " + String.join(" ", expectedArguments));
@@ -212,8 +205,7 @@ class CliServiceTest {
       rootInputModule.getBaseDir().toString(),
       "--recursive",
       "--exclude",
-      "ignored.txt,.scannerwork/**",
-      "--debug");
+      "ignored.txt,.scannerwork/**");
 
     assertThat(logTester.logs(INFO))
       .contains("Arguments Passed In: " + String.join(" ", expectedArguments))
@@ -231,7 +223,7 @@ class CliServiceTest {
     underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
-    assertThat(capturedArgs).contains("--exclude .scannerwork/** --debug");
+    assertThat(capturedArgs).contains("--exclude .scannerwork/**");
   }
 
   @Test
@@ -241,7 +233,7 @@ class CliServiceTest {
     underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
-    assertThat(capturedArgs).contains("--exclude .scannerwork/** --debug");
+    assertThat(capturedArgs).contains("--exclude .scannerwork/**");
   }
 
   @Test
@@ -251,7 +243,7 @@ class CliServiceTest {
     underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
-    assertThat(capturedArgs).contains("--exclude .scannerwork/** --debug");
+    assertThat(capturedArgs).contains("--exclude .scannerwork/**");
   }
 
   @Test
@@ -261,7 +253,7 @@ class CliServiceTest {
     underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
-    assertThat(capturedArgs).contains("--exclude .scannerwork/** --debug");
+    assertThat(capturedArgs).contains("--exclude .scannerwork/**");
   }
 
   @Test
@@ -352,7 +344,7 @@ class CliServiceTest {
       String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
 
       // externalWorkDir is not present in the exclude flag
-      assertThat(capturedArgs).contains("--exclude ignored.txt --debug");
+      assertThat(capturedArgs).contains("--exclude ignored.txt");
     } finally {
       externalWorkDir.toFile().delete();
     }

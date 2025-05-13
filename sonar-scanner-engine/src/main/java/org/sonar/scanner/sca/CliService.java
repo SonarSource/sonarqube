@@ -99,8 +99,7 @@ public class CliService {
         args.add(excludeFlag);
       }
 
-      boolean scaDebug = configuration.getBoolean("sonar.sca.debug").orElse(false);
-      if (LOG.isDebugEnabled() || scaDebug) {
+      if (LOG.isDebugEnabled()) {
         LOG.info("Setting CLI to debug mode");
         args.add("--debug");
       }
