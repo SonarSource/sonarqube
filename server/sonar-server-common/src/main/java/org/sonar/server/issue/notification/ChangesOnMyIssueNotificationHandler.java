@@ -44,7 +44,7 @@ import static org.sonar.server.notification.NotificationManager.SubscriberPermis
 
 public class ChangesOnMyIssueNotificationHandler extends EmailNotificationHandler<IssuesChangesNotification> {
 
-  private static final String KEY = "ChangesOnMyIssue";
+  public static final String KEY = "ChangesOnMyIssue";
   private static final NotificationDispatcherMetadata METADATA = NotificationDispatcherMetadata.create(KEY)
     .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
     .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true));
