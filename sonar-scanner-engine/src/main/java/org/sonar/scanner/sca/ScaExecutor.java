@@ -21,6 +21,8 @@ package org.sonar.scanner.sca;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
@@ -65,6 +67,8 @@ public class ScaExecutor {
       return;
     }
 
+    var stopwatch = new StopWatch();
+    stopwatch.start();
     LOG.info("Checking for latest CLI");
     File cliFile = cliCacheService.cacheCli();
 
@@ -77,6 +81,11 @@ public class ScaExecutor {
         LOG.debug("Manifest zip written to report");
       } catch (IOException | IllegalStateException e) {
         LOG.error("Error gathering manifests", e);
+      } finally {
+        stopwatch.stop();
+        if (LOG.isInfoEnabled()) {
+          LOG.info("Load SCA project dependencies (done) | time={}ms", stopwatch.getTime(TimeUnit.MILLISECONDS));
+        }
       }
     }
   }

@@ -161,4 +161,20 @@ class ScaExecutorTest {
     assertThat(logTester.logs(Level.DEBUG)).contains("Zip ready for report: " + mockManifestZip);
     assertThat(logTester.logs(Level.DEBUG)).contains("Manifest zip written to report");
   }
+
+  @Test
+  void execute_printsRuntime() throws IOException {
+    File mockCliFile = Files.newTemporaryFile();
+    File mockManifestZip = Files.newTemporaryFile();
+    ScannerReportWriter mockReportWriter = mock(ScannerReportWriter.class);
+    when(cliCacheService.cacheCli()).thenReturn(mockCliFile);
+    when(cliService.generateManifestsZip(root, mockCliFile, configuration)).thenReturn(mockManifestZip);
+    when(reportPublisher.getWriter()).thenReturn(mockReportWriter);
+
+    logTester.setLevel(Level.INFO);
+
+    underTest.execute(root);
+
+    assertThat(logTester.logs(Level.INFO)).anyMatch(l -> l.matches("Load SCA project dependencies \\(done\\) \\| time=\\d+ms"));
+  }
 }
