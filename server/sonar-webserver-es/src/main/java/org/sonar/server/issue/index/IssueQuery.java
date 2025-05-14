@@ -74,6 +74,7 @@ public class IssueQuery {
   private final Collection<String> languages;
   private final Collection<String> tags;
   private final Collection<String> types;
+  private final Collection<String> owaspMobileTop10For2024;
   private final Collection<String> owaspTop10;
   private final Collection<String> pciDss32;
   private final Collection<String> pciDss40;
@@ -129,6 +130,7 @@ public class IssueQuery {
     this.pciDss40 = defaultCollection(builder.pciDss40);
     this.owaspAsvs40 = defaultCollection(builder.owaspAsvs40);
     this.owaspAsvsLevel = builder.owaspAsvsLevel;
+    this.owaspMobileTop10For2024 = defaultCollection(builder.owaspMobileTop10For2024);
     this.owaspTop10 = defaultCollection(builder.owaspTop10);
     this.owaspTop10For2021 = defaultCollection(builder.owaspTop10For2021);
     this.stigAsdV5R3 = defaultCollection(builder.stigAsdV5R3);
@@ -254,6 +256,10 @@ public class IssueQuery {
 
   public Optional<Integer> getOwaspAsvsLevel() {
     return Optional.ofNullable(owaspAsvsLevel);
+  }
+
+  public Collection<String> owaspMobileTop10For2024() {
+    return owaspMobileTop10For2024;
   }
 
   public Collection<String> owaspTop10() {
@@ -402,6 +408,7 @@ public class IssueQuery {
     private Collection<String> pciDss40;
     private Collection<String> owaspAsvs40;
     private Integer owaspAsvsLevel;
+    private Collection<String> owaspMobileTop10For2024;
     private Collection<String> owaspTop10;
     private Collection<String> owaspTop10For2021;
     private Collection<String> stigAsdV5R3;
@@ -553,6 +560,11 @@ public class IssueQuery {
 
     public Builder owaspAsvsLevel(@Nullable Integer level) {
       this.owaspAsvsLevel = level;
+      return this;
+    }
+
+    public Builder owaspMobileTop10For2024(@Nullable Collection<String> o) {
+      this.owaspMobileTop10For2024 = o;
       return this;
     }
 

@@ -93,6 +93,7 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_ISSUE_PCI_DSS_40 = "pciDss-4.0";
   public static final String FIELD_ISSUE_OWASP_ASVS_40 = "owaspAsvs-4.0";
   public static final String FIELD_ISSUE_OWASP_ASVS_40_LEVEL = "owaspAsvs-4.0-level";
+  public static final String FIELD_ISSUE_OWASP_MOBILE_TOP_10_2024 = "owaspMobileTop10-2024";
   public static final String FIELD_ISSUE_OWASP_TOP_10 = "owaspTop10";
   public static final String FIELD_ISSUE_OWASP_TOP_10_2021 = "owaspTop10-2021";
   public static final String FIELD_ISSUE_SANS_TOP_25 = "sansTop25";
@@ -180,6 +181,7 @@ public class IssueIndexDefinition implements IndexDefinition {
     mapping.keywordFieldBuilder(FIELD_ISSUE_PCI_DSS_40).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_OWASP_ASVS_40).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_OWASP_ASVS_40_LEVEL).disableNorms().build();
+    mapping.keywordFieldBuilder(FIELD_ISSUE_OWASP_MOBILE_TOP_10_2024).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_OWASP_TOP_10).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_OWASP_TOP_10_2021).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_SANS_TOP_25).disableNorms().build();

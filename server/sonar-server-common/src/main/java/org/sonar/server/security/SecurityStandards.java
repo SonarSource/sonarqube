@@ -65,6 +65,7 @@ public final class SecurityStandards {
   @Deprecated(since = "10.0", forRemoval = true)
   public static final String SANS_TOP_25_POROUS_DEFENSES = "porous-defenses";
 
+  private static final String OWASP_MOBILE_TOP10_2024_PREFIX = "owaspMobileTop10-2024:";
   private static final String OWASP_TOP10_PREFIX = "owaspTop10:";
   private static final String OWASP_TOP10_2021_PREFIX = "owaspTop10-2021:";
   private static final String PCI_DSS_32_PREFIX = V3_2.prefix() + ":";
@@ -104,14 +105,20 @@ public final class SecurityStandards {
   public static final List<String> CWE_TOP25_2023 = List.of("787", "79", "89", "416", "78", "20", "125", "22", "352", "434", "862", "476", "287", "190", "502",
     "77", "119", "798", "918", "306", "362", "269", "94", "863", "276");
 
+  // https://cwe.mitre.org/top25/archive/2024/2024_cwe_top25.html#tableView
+  public static final List<String> CWE_TOP25_2024 = List.of("79", "787", "89", "352", "22", "125", "78", "416", "862", "434", "94", "20", "77", "287", "269",
+    "502", "200", "863", "918", "119", "476", "798", "190", "400", "306");
+
   public static final String CWE_YEAR_2021 = "2021";
   public static final String CWE_YEAR_2022 = "2022";
   public static final String CWE_YEAR_2023 = "2023";
+  public static final String CWE_YEAR_2024 = "2024";
 
   public static final Map<String, List<String>> CWES_BY_CWE_TOP_25 = Map.of(
     CWE_YEAR_2021, CWE_TOP25_2021,
     CWE_YEAR_2022, CWE_TOP25_2022,
-    CWE_YEAR_2023, CWE_TOP25_2023);
+    CWE_YEAR_2023, CWE_TOP25_2023,
+    CWE_YEAR_2024, CWE_TOP25_2024);
 
   private static final List<String> OWASP_ASVS_40_LEVEL_1 = List.of("2.1.1", "2.1.10", "2.1.11", "2.1.12", "2.1.2", "2.1.3", "2.1.4", "2.1.5", "2.1.6", "2.1.7", "2.1.8", "2.1.9",
     "2.10.1", "2.10.2", "2.10.3", "2.10.4", "2.2.1", "2.2.2", "2.2.3", "2.3.1", "2.5.1", "2.5.2", "2.5.3", "2.5.4", "2.5.5", "2.5.6", "2.7.1", "2.7.2", "2.7.3", "2.7.4", "2.8.1",
@@ -445,6 +452,10 @@ public final class SecurityStandards {
 
   public Set<String> getOwaspAsvs40() {
     return getMatchingStandards(standards, OWASP_ASVS_40_PREFIX);
+  }
+
+  public Set<String> getOwaspMobileTop10For2024() {
+    return getMatchingStandards(standards, OWASP_MOBILE_TOP10_2024_PREFIX);
   }
 
   public Set<String> getOwaspTop10() {

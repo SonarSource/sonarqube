@@ -128,6 +128,15 @@ class IssueQueryTest {
   }
 
   @Test
+  void build_owasp_mobile_query() {
+    IssueQuery query = IssueQuery.builder()
+      .owaspMobileTop10For2024(List.of("m5", "m6"))
+      .build();
+
+    assertThat(query.owaspMobileTop10For2024()).containsOnly("m5", "m6");
+  }
+
+  @Test
   void build_stig_query() {
     IssueQuery query = IssueQuery.builder()
       .stigAsdR5V3(List.of("V-222400", "V-222401"))

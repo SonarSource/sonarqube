@@ -30,7 +30,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.rule.RulesDefinition.StigVersion;
 import org.sonar.db.component.ComponentDto;
@@ -51,6 +53,7 @@ import static org.sonar.api.issue.impact.Severity.MEDIUM;
 import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
 import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 import static org.sonar.api.server.rule.RulesDefinition.OwaspAsvsVersion;
+import static org.sonar.api.server.rule.RulesDefinition.OwaspMobileTop10Version.Y2024;
 import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2017;
 import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2021;
 import static org.sonar.api.server.rule.RulesDefinition.PciDssVersion;
@@ -357,6 +360,31 @@ class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
         tuple("unknown", 0L, OptionalInt.empty(), 1L /* openhotspot1 */, 0L, 5));
   }
 
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void getOwaspMobileTop10For2024Report_aggregation_with_cwe(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
+    List<SecurityStandardCategoryStatistics> owaspTop10Report = indexIssuesAndAssertOwaspMobile2024Report(true);
+
+    Map<String, List<SecurityStandardCategoryStatistics>> cweByOwasp = owaspTop10Report.stream()
+      .collect(Collectors.toMap(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getChildren));
+
+    assertThat(cweByOwasp.get("m1")).extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getVulnerabilityRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
+      .containsExactlyInAnyOrder(
+        tuple("123", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 1),
+        tuple("456", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 1),
+        tuple("unknown", 0L, OptionalInt.empty(), 1L /* openhotspot1 */, 0L, 5));
+    assertThat(cweByOwasp.get("m3")).extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getVulnerabilityRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
+      .containsExactlyInAnyOrder(
+        tuple("123", 2L /* openvul1, openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 1),
+        tuple("456", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 1),
+        tuple("unknown", 0L, OptionalInt.empty(), 1L /* openhotspot1 */, 0L, 5));
+  }
+
   private List<SecurityStandardCategoryStatistics> indexIssuesAndAssertOwaspReport(boolean includeCwe) {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(
@@ -542,6 +570,41 @@ class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
         tuple("a8", 0L, OptionalInt.empty(), 0L, 1L /* reviewedHotspot */, 1),
         tuple("a9", 0L, OptionalInt.empty(), 0L, 0L, 1),
         tuple("a10", 0L, OptionalInt.empty(), 0L, 0L, 1));
+    return owaspTop10Report;
+  }
+
+  private List<SecurityStandardCategoryStatistics> indexIssuesAndAssertOwaspMobile2024Report(boolean includeCwe) {
+    ComponentDto project = newPrivateProjectDto();
+    indexIssues(
+      newDocForProject("openvul1", project).setOwaspMobileTop10For2024(asList("m1", "m3")).setCwe(asList("123", "456")).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, MEDIUM)).setStatus(IssueStatus.OPEN.name())
+        .setSeverity(Severity.MAJOR),
+      newDocForProject("openvul2", project).setOwaspMobileTop10For2024(asList("m3", "m6")).setCwe(List.of("123")).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, LOW)).setStatus(IssueStatus.OPEN.name())
+        .setSeverity(Severity.MINOR),
+      newDocForProject("notowaspvul", project).setOwaspMobileTop10For2024(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setImpacts(Map.of(SECURITY, HIGH)).setStatus(IssueStatus.OPEN.toString())
+        .setSeverity(Severity.CRITICAL),
+      newDocForProject("toreviewhotspot1", project).setOwaspMobileTop10For2024(asList("m1", "m3")).setCwe(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT)
+        .setStatus(Issue.STATUS_TO_REVIEW),
+      newDocForProject("toreviewhotspot2", project).setOwaspMobileTop10For2024(asList("m3", "m6")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
+      newDocForProject("reviewedHotspot", project).setOwaspMobileTop10For2024(asList("m3", "m8")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)
+        .setResolution(Issue.RESOLUTION_FIXED),
+      newDocForProject("notowasphotspot", project).setOwaspMobileTop10For2024(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
+
+    List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspMobileTop10Report(project.uuid(), false, includeCwe, Y2024);
+    assertThat(owaspTop10Report)
+      .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getVulnerabilityRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
+      .containsExactlyInAnyOrder(
+        tuple("m1", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* toreviewhotspot1 */, 0L, 5),
+        tuple("m2", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("m3", 2L /* openvul1,openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 2L/* toreviewhotspot1,toreviewhotspot2 */, 1L /* reviewedHotspot */, 4),
+        tuple("m4", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("m5", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("m6", 1L /* openvul2 */, OptionalInt.of(2) /* MINOR = B */, 1L /* toreviewhotspot2 */, 0L, 5),
+        tuple("m7", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("m8", 0L, OptionalInt.empty(), 0L, 1L /* reviewedHotspot */, 1),
+        tuple("m9", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("m10", 0L, OptionalInt.empty(), 0L, 0L, 1));
     return owaspTop10Report;
   }
 

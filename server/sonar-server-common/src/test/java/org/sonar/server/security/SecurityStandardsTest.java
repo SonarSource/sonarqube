@@ -63,6 +63,14 @@ class SecurityStandardsTest {
   }
 
   @Test
+  void fromSecurityStandards_from_empty_set_has_no_OwaspMobileTop10_standard() {
+    SecurityStandards securityStandards = fromSecurityStandards(emptySet());
+
+    assertThat(securityStandards.getStandards()).isEmpty();
+    assertThat(securityStandards.getOwaspMobileTop10For2024()).isEmpty();
+  }
+
+  @Test
   void fromSecurityStandards_from_empty_set_has_no_OwaspTop10_standard() {
     SecurityStandards securityStandards = fromSecurityStandards(emptySet());
 
