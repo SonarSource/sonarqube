@@ -43,6 +43,7 @@ public class DefaultSensorDescriptorTest {
     assertThat(descriptor.type()).isNull();
     assertThat(descriptor.ruleRepositories()).isEmpty();
     assertThat(descriptor.isProcessesFilesIndependently()).isFalse();
+    assertThat(descriptor.isProcessesHiddenFiles()).isFalse();
   }
 
   @Test
@@ -54,7 +55,8 @@ public class DefaultSensorDescriptorTest {
       .onlyOnFileType(InputFile.Type.MAIN)
       .onlyWhenConfiguration(c -> c.hasKey("sonar.foo.reportPath2") && c.hasKey("sonar.foo.reportPath"))
       .createIssuesForRuleRepository("java-java")
-      .processesFilesIndependently();
+      .processesFilesIndependently()
+      .processesHiddenFiles();
 
     assertThat(descriptor.name()).isEqualTo("Foo");
     assertThat(descriptor.languages()).containsOnly("java");
@@ -66,6 +68,7 @@ public class DefaultSensorDescriptorTest {
     assertThat(descriptor.configurationPredicate().test(settings.asConfig())).isTrue();
     assertThat(descriptor.ruleRepositories()).containsOnly("java-java");
     assertThat(descriptor.isProcessesFilesIndependently()).isTrue();
+    assertThat(descriptor.isProcessesHiddenFiles()).isTrue();
   }
 
   @Test

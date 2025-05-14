@@ -51,10 +51,8 @@ import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueW
 import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.RESOLVE;
 import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.UNCONFIRM;
 import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.WONT_FIX;
-import static org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTransition.OPEN_AS_VULNERABILITY;
 import static org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTransition.RESET_AS_TO_REVIEW;
 import static org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTransition.RESOLVE_AS_REVIEWED;
-import static org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTransition.SET_AS_IN_REVIEW;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_DO_TRANSITION;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TRANSITION;
@@ -104,8 +102,8 @@ public class DoTransitionAction implements IssuesWsAction {
         new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"),
         new Change("9.6", "Response field 'ruleDescriptionContextKey' added"),
         new Change("8.8", "The response field components.uuid is removed"),
-        new Change("8.1", format("transitions '%s' and '%s' are no more supported", SET_AS_IN_REVIEW, OPEN_AS_VULNERABILITY)),
-        new Change("7.8", format("added '%s', %s, %s and %s transitions for security hotspots ", SET_AS_IN_REVIEW, RESOLVE_AS_REVIEWED, OPEN_AS_VULNERABILITY, RESET_AS_TO_REVIEW)),
+        new Change("8.1", format("transitions '%s' and '%s' are no more supported", "setinreview", "openasvulnerability")),
+        new Change("7.8", format("added '%s', %s, %s and %s transitions for security hotspots ", "setinreview", RESOLVE_AS_REVIEWED, "openasvulnerability", RESET_AS_TO_REVIEW)),
         new Change("7.3", "added transitions for security hotspots"),
         new Change("6.5", "the database ids of the components are removed from the response"),
         new Change("6.5", "the response field components.uuid is deprecated. Use components.key instead."))

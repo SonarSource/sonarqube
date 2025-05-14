@@ -26,18 +26,7 @@ import java.util.stream.Stream;
 import org.sonar.server.issue.workflow.WorkflowTransition;
 
 public enum SecurityHotspotWorkflowTransition implements WorkflowTransition {
-  /**
-   * @deprecated since 8.1, transition has no effect
-   */
-  @Deprecated
-  SET_AS_IN_REVIEW("setinreview"),
 
-  /**
-   * @since 7.8
-   * @deprecated since 8.1, security hotspots can no longer be converted to vulnerabilities
-   */
-  @Deprecated
-  OPEN_AS_VULNERABILITY("openasvulnerability"),
   RESOLVE_AS_REVIEWED("resolveasreviewed"),
   RESOLVE_AS_SAFE("resolveassafe"),
   RESOLVE_AS_ACKNOWLEDGED("resolveasacknowledged"),

@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -516,25 +515,6 @@ public class DefaultIssue implements Issue, Trackable {
   public DefaultIssue setSendNotifications(boolean b) {
     sendNotifications = b;
     return this;
-  }
-
-  /**
-   * @deprecated since 9.4, attribute was already not returning any element since 5.2
-   */
-  @Deprecated
-  @Override
-  @CheckForNull
-  public String attribute(String key) {
-    return null;
-  }
-
-  /**
-   * @deprecated since 9.4, attribute was already not returning any element since 5.2
-   */
-  @Deprecated
-  @Override
-  public Map<String, String> attributes() {
-    return new HashMap<>();
   }
 
   @Override

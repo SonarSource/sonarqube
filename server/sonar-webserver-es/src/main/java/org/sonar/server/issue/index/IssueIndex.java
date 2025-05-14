@@ -256,7 +256,6 @@ public class IssueIndex {
   private static final String ISSUES_WITH_SECURITY_IMPACT = "issues_with_security_impact";
   private static final String AGG_IMPACT_SEVERITIES = "impact_severities";
   private static final String AGG_TO_REVIEW_SECURITY_HOTSPOTS = "toReviewSecurityHotspots";
-  private static final String AGG_IN_REVIEW_SECURITY_HOTSPOTS = "inReviewSecurityHotspots";
   private static final String AGG_REVIEWED_SECURITY_HOTSPOTS = "reviewedSecurityHotspots";
   private static final String AGG_DISTRIBUTION = "distribution";
   private static final BoolQueryBuilder NON_RESOLVED_VULNERABILITIES_FILTER = boolQuery()
@@ -265,10 +264,6 @@ public class IssueIndex {
   private static final BoolQueryBuilder NON_RESOLVED_SECURITY_IMPACT_FILTER = boolQuery()
     .filter(nestedQuery(FIELD_ISSUE_IMPACTS, termsQuery(FIELD_ISSUE_IMPACT_SOFTWARE_QUALITY, SoftwareQuality.SECURITY.name()),
       ScoreMode.Avg))
-    .mustNot(existsQuery(FIELD_ISSUE_RESOLUTION));
-  private static final BoolQueryBuilder IN_REVIEW_HOTSPOTS_FILTER = boolQuery()
-    .filter(termQuery(FIELD_ISSUE_TYPE, SECURITY_HOTSPOT.name()))
-    .filter(termQuery(FIELD_ISSUE_STATUS, Issue.STATUS_IN_REVIEW))
     .mustNot(existsQuery(FIELD_ISSUE_RESOLUTION));
   private static final BoolQueryBuilder TO_REVIEW_HOTSPOTS_FILTER = boolQuery()
     .filter(termQuery(FIELD_ISSUE_TYPE, SECURITY_HOTSPOT.name()))
@@ -1512,9 +1507,6 @@ public class IssueIndex {
       .subAggregation(AggregationBuilders.filter(AGG_TO_REVIEW_SECURITY_HOTSPOTS, TO_REVIEW_HOTSPOTS_FILTER)
         .subAggregation(
           AggregationBuilders.count(AGG_COUNT).field(FIELD_ISSUE_KEY)))
-      .subAggregation(AggregationBuilders.filter(AGG_IN_REVIEW_SECURITY_HOTSPOTS, IN_REVIEW_HOTSPOTS_FILTER)
-        .subAggregation(
-          AggregationBuilders.count(AGG_COUNT).field(FIELD_ISSUE_KEY)))
       .subAggregation(AggregationBuilders.filter(AGG_REVIEWED_SECURITY_HOTSPOTS, REVIEWED_HOTSPOTS_FILTER)
         .subAggregation(
           AggregationBuilders.count(AGG_COUNT).field(FIELD_ISSUE_KEY)));
@@ -1558,7 +1550,6 @@ public class IssueIndex {
         componentFilter
           .should(getNonResolvedIssuesOrNonResolvedSecurityImpactQueryBuilderBasedOnMode())
           .should(TO_REVIEW_HOTSPOTS_FILTER)
-          .should(IN_REVIEW_HOTSPOTS_FILTER)
           .should(REVIEWED_HOTSPOTS_FILTER)
           .minimumShouldMatch(1))
       .size(0);

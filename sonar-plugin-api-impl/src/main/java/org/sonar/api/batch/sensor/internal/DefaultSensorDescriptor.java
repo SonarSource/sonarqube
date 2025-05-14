@@ -47,6 +47,7 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
   private boolean global = false;
   private Predicate<Configuration> configurationPredicate;
   private boolean processesFilesIndependently = false;
+  private boolean processesHiddenFiles = false;
 
   public String name() {
     return name;
@@ -75,6 +76,10 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
 
   public boolean isProcessesFilesIndependently() {
     return processesFilesIndependently;
+  }
+
+  public boolean isProcessesHiddenFiles() {
+    return processesHiddenFiles;
   }
 
   @Override
@@ -130,6 +135,12 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
   @Override
   public SensorDescriptor processesFilesIndependently() {
     this.processesFilesIndependently = true;
+    return this;
+  }
+
+  @Override
+  public SensorDescriptor processesHiddenFiles() {
+    this.processesHiddenFiles = true;
     return this;
   }
 }

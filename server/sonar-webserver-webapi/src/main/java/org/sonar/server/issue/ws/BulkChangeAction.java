@@ -103,10 +103,8 @@ import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueW
 import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.RESOLVE;
 import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.UNCONFIRM;
 import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.WONT_FIX;
-import static org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTransition.OPEN_AS_VULNERABILITY;
 import static org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTransition.RESET_AS_TO_REVIEW;
 import static org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTransition.RESOLVE_AS_REVIEWED;
-import static org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTransition.SET_AS_IN_REVIEW;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_BULK_CHANGE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ADD_TAGS;
@@ -162,7 +160,7 @@ public class BulkChangeAction implements IssuesWsAction {
         new Change("10.4", "Transition '%s' is now supported.".formatted(ACCEPT)),
         new Change("10.2", format("Parameters '%s' and '%s' are now deprecated.", PARAM_SET_SEVERITY, PARAM_SET_TYPE)),
         new Change("8.2", "Security hotspots are no longer supported and will be ignored."),
-        new Change("8.2", format("Transitions '%s', '%s' and '%s' are no more supported", SET_AS_IN_REVIEW, RESOLVE_AS_REVIEWED, OPEN_AS_VULNERABILITY)),
+        new Change("8.2", format("Transitions '%s', '%s' and '%s' are no more supported", "setinreview", RESOLVE_AS_REVIEWED, "openasvulnerability")),
         new Change("6.3", "'actions' parameter is ignored"))
       .setHandler(this)
       .setResponseExample(getClass().getResource("bulk_change-example.json"))
@@ -194,7 +192,6 @@ public class BulkChangeAction implements IssuesWsAction {
         RESOLVE.getKey(),
         FALSE_POSITIVE.getKey(),
         WONT_FIX.getKey(),
-        SET_AS_IN_REVIEW.getKey(),
         RESOLVE_AS_REVIEWED.getKey(),
         RESET_AS_TO_REVIEW.getKey(),
         ACCEPT.getKey()));
