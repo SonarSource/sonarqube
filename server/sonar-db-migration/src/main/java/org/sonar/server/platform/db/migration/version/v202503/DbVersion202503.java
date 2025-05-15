@@ -78,6 +78,7 @@ public class DbVersion202503 implements DbVersion {
       .add(2025_03_039, "Add assignee name to SCA issues releases", AddAssigneeNameToScaIssuesReleases.class)
       .add(2025_03_040, "Drop assignee name from SCA issues releases", DropAssigneeNameFromScaIssuesReleases.class)
       .add(2025_03_041, "Remove AssigneeName from Sca issue release changes", BackfillRemoveAssigneeNameFromIssueReleaseChanges.class)
+      .add(2025_03_042, "Remove non-canonical from Sca encountered licenses", MigrateRemoveNonCanonicalScaEncounteredLicenses.class)
 
     ;
   }
