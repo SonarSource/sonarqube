@@ -70,6 +70,7 @@ public class XooRulesDefinitionTest {
     assertThat(rule.securityStandards())
       .isNotEmpty()
       .containsExactlyInAnyOrder("cwe:1", "cwe:89", "cwe:123", "cwe:863", "owaspTop10:a1", "owaspTop10:a3",
+        "owaspMobileTop10-2024:m4", "owaspMobileTop10-2024:m8",
         "owaspTop10-2021:a3", "owaspTop10-2021:a2", "owaspAsvs-4.0:2.8.7", "owaspAsvs-4.0:3.1.1",
         "owaspAsvs-4.0:4.2.2", "pciDss-3.2:4.2", "pciDss-3.2:4.2b", "pciDss-3.2:6.5.1",
         "pciDss-3.2:6.5a.1b", "pciDss-4.0:4.1", "pciDss-4.0:4.2c", "pciDss-4.0:6.5.1", "pciDss-4.0:6.5a.1",
@@ -98,7 +99,7 @@ public class XooRulesDefinitionTest {
     assertThat(rule.securityStandards())
       .isNotEmpty()
       .containsExactlyInAnyOrder("cwe:89", "cwe:250", "cwe:311", "cwe:546", "cwe:564", "cwe:943", "owaspTop10-2021:a6", "owaspTop10-2021:a9",
-        "owaspTop10:a10", "owaspTop10:a9",
+        "owaspTop10:a10", "owaspTop10:a9", "owaspMobileTop10-2024:m3", "owaspMobileTop10-2024:m5",
         "owaspAsvs-4.0:11.1.2", "owaspAsvs-4.0:14.5.1", "owaspAsvs-4.0:14.5.4",
         "pciDss-3.2:10.1a.2c", "pciDss-3.2:10.2", "pciDss-4.0:10.1", "pciDss-4.0:10.1a.2b",
         "stig-ASD_V5R3:V-222596", "stig-ASD_V5R3:V-222608", "stig-ASD_V5R3:V-222653");

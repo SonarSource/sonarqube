@@ -125,6 +125,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ON_COMPONENT_ONLY;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_ASVS_40;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_ASVS_LEVEL;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_MOBILE_TOP_10_2024;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10_2021;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PCI_DSS_32;
@@ -168,6 +169,7 @@ public class SearchAction implements IssuesWsAction {
     PARAM_PCI_DSS_32,
     PARAM_PCI_DSS_40,
     PARAM_OWASP_ASVS_40,
+    PARAM_OWASP_MOBILE_TOP_10_2024,
     PARAM_OWASP_TOP_10,
     PARAM_OWASP_TOP_10_2021,
     PARAM_STIG_ASD_V5R3,
@@ -187,6 +189,7 @@ public class SearchAction implements IssuesWsAction {
     "the componentKeys parameter. ";
   private static final String NEW_FACET_ADDED_MESSAGE = "Facet '%s' has been added";
   private static final String NEW_PARAM_ADDED_MESSAGE = "Param '%s' has been added";
+  private static final String V_2025_3 = "2025.3";
   private static final Set<String> FACETS_REQUIRING_PROJECT = newHashSet(PARAM_FILES, PARAM_DIRECTORIES);
 
   private final UserSession userSession;
@@ -221,6 +224,8 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexing is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change(V_2025_3, format(NEW_FACET_ADDED_MESSAGE, PARAM_OWASP_MOBILE_TOP_10_2024)),
+        new Change(V_2025_3, format(NEW_PARAM_ADDED_MESSAGE, PARAM_OWASP_MOBILE_TOP_10_2024)),
         new Change("10.8", "The response fields 'severity' and 'type' are not deprecated anymore.."),
         new Change("10.8", "The fields 'severity' and 'type' are not deprecated anymore."),
         new Change("10.8", format("The parameters '%s' and '%s' are not deprecated anymore.", PARAM_SEVERITIES, PARAM_TYPES)),
@@ -378,6 +383,10 @@ public class SearchAction implements IssuesWsAction {
       .setDescription("Comma-separated list of OWASP ASVS v4.0 categories.")
       .setSince("9.7")
       .setExampleValue("6,10.1.1");
+    action.createParam(PARAM_OWASP_MOBILE_TOP_10_2024)
+      .setDescription("Comma-separated list of OWASP Mobile Top 10 2024 lowercase categories.")
+      .setSince(V_2025_3)
+      .setPossibleValues("m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10");
     action.createParam(PARAM_OWASP_TOP_10)
       .setDescription("Comma-separated list of OWASP Top 10 2017 lowercase categories.")
       .setSince("7.3")
@@ -620,6 +629,7 @@ public class SearchAction implements IssuesWsAction {
     addMandatoryValuesToFacet(facets, PARAM_PCI_DSS_32, request.getPciDss32());
     addMandatoryValuesToFacet(facets, PARAM_PCI_DSS_40, request.getPciDss40());
     addMandatoryValuesToFacet(facets, PARAM_OWASP_ASVS_40, request.getOwaspAsvs40());
+    addMandatoryValuesToFacet(facets, PARAM_OWASP_MOBILE_TOP_10_2024, request.getOwaspMobileTop10For2024());
     addMandatoryValuesToFacet(facets, PARAM_OWASP_TOP_10, request.getOwaspTop10());
     addMandatoryValuesToFacet(facets, PARAM_OWASP_TOP_10_2021, request.getOwaspTop10For2021());
     addMandatoryValuesToFacet(facets, PARAM_STIG_ASD_V5R3, request.getStigAsdV5R3());
@@ -709,6 +719,7 @@ public class SearchAction implements IssuesWsAction {
       .setPciDss40(request.paramAsStrings(PARAM_PCI_DSS_40))
       .setOwaspAsvsLevel(request.paramAsInt(PARAM_OWASP_ASVS_LEVEL))
       .setOwaspAsvs40(request.paramAsStrings(PARAM_OWASP_ASVS_40))
+      .setOwaspMobileTop10For2024(request.paramAsStrings(PARAM_OWASP_MOBILE_TOP_10_2024))
       .setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10))
       .setOwaspTop10For2021(request.paramAsStrings(PARAM_OWASP_TOP_10_2021))
       .setStigAsdV5R3(request.paramAsStrings(PARAM_STIG_ASD_V5R3))

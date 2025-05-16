@@ -1863,6 +1863,41 @@ class SearchActionIT {
 
   @ParameterizedTest
   @ValueSource(booleans = {true, false})
+  void only_vulnerabilities_are_returned_by_owasp_mobile_2024(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
+      .setSecurityStandards(Sets.newHashSet("cwe:20", "cwe:564", "cwe:89", "cwe:943", "owaspMobileTop10-2024:m3", "owaspTop10-2021:a2"))
+      .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25" +
+      "-insecure", "sql"));
+    RuleDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
+    db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
+    RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY).replaceAllImpacts(List.of(new ImpactDto(SECURITY, HIGH))));
+    db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
+    indexPermissionsAndIssues();
+
+    SearchWsResponse result = ws.newRequest()
+      .setParam("owaspMobileTop10-2024", "m3")
+      .setParam(FACETS, "owaspMobileTop10-2024")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
+
+    assertThat(result.getFacets().getFacets(0).getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactlyInAnyOrder(tuple("m3", 2L));
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
   void only_vulnerabilities_are_returned_by_stig_R5V3(boolean mqrMode) {
     doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
@@ -2292,7 +2327,7 @@ class SearchActionIT {
       "createdBefore", "createdInLast", "directories", "facets", "files", "issues", "scopes", "languages", "onComponentOnly",
       "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "statuses", "tags", "types", "pciDss-3.2", "pciDss-4" +
         ".0",
-      "owaspAsvs-4.0",
+      "owaspAsvs-4.0", "owaspMobileTop10-2024",
       "owaspAsvsLevel", "owaspTop10", "owaspTop10-2021", "stig-ASD_V5R3", "casa", "sansTop25", "cwe", "sonarsourceSecurity", "timeZone",
       "inNewCodePeriod", "codeVariants",
       "cleanCodeAttributeCategories", "impactSeverities", "impactSoftwareQualities", "issueStatuses", "fixedInPullRequest",

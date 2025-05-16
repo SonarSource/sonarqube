@@ -48,6 +48,7 @@ import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSe
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.INTRODUCTION_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.RESOURCES_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ROOT_CAUSE_SECTION_KEY;
+import static org.sonar.api.server.rule.RulesDefinition.OwaspMobileTop10Version.Y2024;
 import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2017;
 import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2021;
 
@@ -293,11 +294,13 @@ public class XooRulesDefinition implements RulesDefinition {
       hotspot
         .addOwaspTop10(OwaspTop10.A1, OwaspTop10.A3)
         .addOwaspTop10(Y2021, OwaspTop10.A3, OwaspTop10.A2)
+        .addOwaspMobileTop10(Y2024, OwaspMobileTop10.M4, OwaspMobileTop10.M8)
         .addCwe(1, 89, 123, 863);
 
       oneVulnerabilityIssuePerProject
         .addOwaspTop10(Y2017, OwaspTop10.A9, OwaspTop10.A10)
         .addOwaspTop10(Y2021, OwaspTop10.A6, OwaspTop10.A9)
+        .addOwaspMobileTop10(Y2024, OwaspMobileTop10.M3, OwaspMobileTop10.M5)
         .addCwe(89, 250, 311, 546, 564, 943);
     }
 

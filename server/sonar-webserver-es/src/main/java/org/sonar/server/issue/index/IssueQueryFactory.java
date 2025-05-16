@@ -150,6 +150,7 @@ public class IssueQueryFactory {
         .pciDss40(request.getPciDss40())
         .owaspAsvs40(request.getOwaspAsvs40())
         .owaspAsvsLevel(request.getOwaspAsvsLevel())
+        .owaspMobileTop10For2024(request.getOwaspMobileTop10For2024())
         .owaspTop10(request.getOwaspTop10())
         .owaspTop10For2021(request.getOwaspTop10For2021())
         .stigAsdR5V3(request.getStigAsdV5R3())

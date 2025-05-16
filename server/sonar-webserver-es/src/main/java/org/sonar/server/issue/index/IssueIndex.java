@@ -146,6 +146,7 @@ import static org.sonar.server.issue.index.IssueIndex.Facet.IMPACT_SOFTWARE_QUAL
 import static org.sonar.server.issue.index.IssueIndex.Facet.ISSUE_STATUSES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.LANGUAGES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.OWASP_ASVS_40;
+import static org.sonar.server.issue.index.IssueIndex.Facet.OWASP_MOBILE_TOP_10_2024;
 import static org.sonar.server.issue.index.IssueIndex.Facet.OWASP_TOP_10;
 import static org.sonar.server.issue.index.IssueIndex.Facet.OWASP_TOP_10_2021;
 import static org.sonar.server.issue.index.IssueIndex.Facet.PCI_DSS_32;
@@ -186,6 +187,7 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_LINE
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_NEW_CODE_REFERENCE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_NEW_STATUS;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_OWASP_ASVS_40;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_OWASP_MOBILE_TOP_10_2024;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10_2021;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_PCI_DSS_32;
@@ -225,6 +227,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IMPACT_SOFT
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_ASVS_40;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_MOBILE_TOP_10_2024;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10_2021;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PCI_DSS_32;
@@ -309,6 +312,7 @@ public class IssueIndex {
     PCI_DSS_32(PARAM_PCI_DSS_32, FIELD_ISSUE_PCI_DSS_32, STICKY, DEFAULT_FACET_SIZE),
     PCI_DSS_40(PARAM_PCI_DSS_40, FIELD_ISSUE_PCI_DSS_40, STICKY, DEFAULT_FACET_SIZE),
     OWASP_ASVS_40(PARAM_OWASP_ASVS_40, FIELD_ISSUE_OWASP_ASVS_40, STICKY, DEFAULT_FACET_SIZE),
+    OWASP_MOBILE_TOP_10_2024(PARAM_OWASP_MOBILE_TOP_10_2024, FIELD_ISSUE_OWASP_MOBILE_TOP_10_2024, STICKY, DEFAULT_FACET_SIZE),
     OWASP_TOP_10(PARAM_OWASP_TOP_10, FIELD_ISSUE_OWASP_TOP_10, STICKY, DEFAULT_FACET_SIZE),
     OWASP_TOP_10_2021(PARAM_OWASP_TOP_10_2021, FIELD_ISSUE_OWASP_TOP_10_2021, STICKY, DEFAULT_FACET_SIZE),
     STIG_ASD_V5R3(PARAM_STIG_ASD_V5R3, FIELD_ISSUE_STIG_ASD_V5R3, STICKY, DEFAULT_FACET_SIZE),
@@ -527,6 +531,7 @@ public class IssueIndex {
     addSecurityCategoryPrefixFilter(FIELD_ISSUE_PCI_DSS_32, PCI_DSS_32, query.pciDss32(), filters);
     addSecurityCategoryPrefixFilter(FIELD_ISSUE_PCI_DSS_40, PCI_DSS_40, query.pciDss40(), filters);
     addOwaspAsvsFilter(FIELD_ISSUE_OWASP_ASVS_40, OWASP_ASVS_40, query, filters);
+    addSecurityCategoryFilter(FIELD_ISSUE_OWASP_MOBILE_TOP_10_2024, OWASP_MOBILE_TOP_10_2024, query.owaspMobileTop10For2024(), filters);
     addSecurityCategoryFilter(FIELD_ISSUE_OWASP_TOP_10, OWASP_TOP_10, query.owaspTop10(), filters);
     addSecurityCategoryFilter(FIELD_ISSUE_OWASP_TOP_10_2021, OWASP_TOP_10_2021, query.owaspTop10For2021(), filters);
     addSecurityCategoryFilter(FIELD_ISSUE_STIG_ASD_V5R3, STIG_ASD_V5R3, query.stigAsdV5R3(), filters);
@@ -910,6 +915,7 @@ public class IssueIndex {
     addSecurityCategoryFacetIfNeeded(PARAM_PCI_DSS_32, PCI_DSS_32, options, aggregationHelper, esRequest, query.pciDss32().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_PCI_DSS_40, PCI_DSS_40, options, aggregationHelper, esRequest, query.pciDss40().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_OWASP_ASVS_40, OWASP_ASVS_40, options, aggregationHelper, esRequest, query.owaspAsvs40().toArray());
+    addSecurityCategoryFacetIfNeeded(PARAM_OWASP_MOBILE_TOP_10_2024, OWASP_MOBILE_TOP_10_2024, options, aggregationHelper, esRequest, query.owaspMobileTop10For2024().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_OWASP_TOP_10, OWASP_TOP_10, options, aggregationHelper, esRequest, query.owaspTop10().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_OWASP_TOP_10_2021, OWASP_TOP_10_2021, options, aggregationHelper, esRequest, query.owaspTop10For2021().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_STIG_ASD_V5R3, STIG_ASD_V5R3, options, aggregationHelper, esRequest, query.stigAsdV5R3().toArray());
