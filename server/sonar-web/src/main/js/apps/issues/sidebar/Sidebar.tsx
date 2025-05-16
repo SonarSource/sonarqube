@@ -458,6 +458,7 @@ export function Sidebar(props: Readonly<Props>) {
                   <BasicSeparator className="sw-my-4" />
 
                   <AssigneeFacet
+                    organization={organizationKey}
                     assigned={query.assigned}
                     assignees={query.assignees}
                     fetching={props.loadingFacets.assignees === true}

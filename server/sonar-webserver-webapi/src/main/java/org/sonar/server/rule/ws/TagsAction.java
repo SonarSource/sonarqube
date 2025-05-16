@@ -36,13 +36,16 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.Pagination;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.user.UserSession;
 
 public class TagsAction implements RulesWsAction {
 
   private final DbClient dbClient;
+  private final UserSession userSession;
 
-  public TagsAction(DbClient dbClient) {
+  public TagsAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
+    this.userSession = userSession;
   }
 
   @Override
@@ -58,9 +61,10 @@ public class TagsAction implements RulesWsAction {
     action.createSearchQuery("misra", "tags");
     action.createPageSize(10, 500);
 
+    // made the org parameter mandatory to avoid 500 error as we are using it to get org uuid irrespective of whether param exists or not
     action.createParam(PARAM_ORGANIZATION)
             .setDescription("Organization key")
-            .setRequired(false)
+            .setRequired(true)
             .setInternal(true)
             .setExampleValue("my-org")
             .setSince("6.4");
@@ -68,7 +72,8 @@ public class TagsAction implements RulesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    OrganizationDto organization = getOrganization(request.param(PARAM_ORGANIZATION));
+    OrganizationDto organization = getOrganization(request.mandatoryParam(PARAM_ORGANIZATION));
+    userSession.checkMembership(organization);
     String query = request.param(Param.TEXT_QUERY);
     int pageSize = request.mandatoryParamAsInt("ps");
 

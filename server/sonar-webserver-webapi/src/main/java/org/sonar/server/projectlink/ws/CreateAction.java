@@ -22,6 +22,7 @@ package org.sonar.server.projectlink.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.UrlValidatorUtil;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
@@ -29,6 +30,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.ProjectLinks;
 import org.sonarqube.ws.ProjectLinks.CreateWsResponse;
@@ -101,7 +103,10 @@ public class CreateAction implements ProjectLinksWsAction {
 
   private CreateWsResponse doHandle(CreateRequest createWsRequest) {
     String name = createWsRequest.getName();
-    String url = createWsRequest.getUrl();
+    String url = UrlValidatorUtil.sanitizeUrl(createWsRequest.getUrl());
+    if (url == null) {
+      throw BadRequestException.create("Invalid URL");
+    }
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = getProject(dbSession, createWsRequest);

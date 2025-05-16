@@ -68,6 +68,7 @@ public class DefaultUserController implements UserController {
     OrganizationDto organization = null;
     if (usersSearchRestRequest.organization() != null) {
       organization = organizationService.getOrganizationByKey(usersSearchRestRequest.organization());
+      userSession.checkPermission(OrganizationPermission.ADMINISTER,organization);
       throwIfAdminOnlyParametersAreUsed(usersSearchRestRequest, organization, excludedGroupId);
     } else if (!userSession.isRoot()) {
       throw new IllegalStateException("The mandatory organization key parameter is missed.");

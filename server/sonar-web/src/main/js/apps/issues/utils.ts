@@ -299,7 +299,7 @@ export const searchAssignees = (
   page = 1,
 ): Promise<{ paging: Paging; results: RestUser[] }> => {
   return organization
-    ? searchMembers({ organization, p: page, ps: 50, q: query }).then(({ paging, users }) => ({
+    ? searchMembers({ organization: organization, p: page, ps: 50, q: query }).then(({ paging, users }) => ({
       paging,
       results: users
     }))

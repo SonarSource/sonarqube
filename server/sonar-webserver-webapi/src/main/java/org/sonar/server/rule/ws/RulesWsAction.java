@@ -26,5 +26,5 @@ import org.sonar.server.ws.WsAction;
  *
  */
 interface RulesWsAction extends WsAction {
-  // Marker interface
+  String INVALID_URL = "Invalid URL in request";
 }

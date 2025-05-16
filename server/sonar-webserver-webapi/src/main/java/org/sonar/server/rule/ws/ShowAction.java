@@ -33,6 +33,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Rules.ShowResponse;
 
 import static java.lang.String.format;
@@ -53,10 +54,12 @@ public class ShowAction implements RulesWsAction {
 
   private final DbClient dbClient;
   private final RulesResponseFormatter rulesResponseFormatter;
+  private final UserSession userSession;
 
-  public ShowAction(DbClient dbClient, RulesResponseFormatter rulesResponseFormatter) {
+  public ShowAction(DbClient dbClient, RulesResponseFormatter rulesResponseFormatter, UserSession userSession) {
     this.dbClient = dbClient;
     this.rulesResponseFormatter = rulesResponseFormatter;
+    this.userSession = userSession;
   }
 
   @Override
@@ -116,6 +119,7 @@ public class ShowAction implements RulesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION))
           .orElseThrow(() -> new NotFoundException("No organization found with key: " + request.param(PARAM_ORGANIZATION)));
+      userSession.checkMembership(organization);
       RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, organization.getUuid(), key)
         .orElseThrow(() -> new NotFoundException(format("Rule not found: %s", key)));
 

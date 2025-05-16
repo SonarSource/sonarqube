@@ -135,7 +135,7 @@ import org.sonar.scanner.sensor.ExecutingSensorContext;
 import org.sonar.scanner.sensor.ProjectSensorContext;
 import org.sonar.scanner.sensor.UnchangedFilesHandler;
 import org.sonar.scm.git.GitScmSupport;
-import org.sonar.scm.svn.SvnScmSupport;
+//import org.sonar.scm.svn.SvnScmSupport;
 
 import static org.sonar.api.batch.InstantiationStrategy.PER_BATCH;
 import static org.sonar.core.extension.CoreExtensionsInstaller.noExtensionFilter;
@@ -312,7 +312,7 @@ public class SpringScannerContainer extends SpringComponentContainer {
     );
 
     add(GitScmSupport.getObjects());
-    add(SvnScmSupport.getObjects());
+//    add(SvnScmSupport.getObjects());
 
     add(DefaultProjectSettingsLoader.class,
       DefaultActiveRulesLoader.class,

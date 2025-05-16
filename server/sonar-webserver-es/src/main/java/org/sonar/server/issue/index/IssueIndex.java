@@ -418,9 +418,8 @@ public class IssueIndex {
     this.sorting.add(IssueQuery.SORT_HOTSPOTS, FIELD_ISSUE_LINE);
     this.sorting.add(IssueQuery.SORT_HOTSPOTS, FIELD_ISSUE_KEY);
 
-    // by default order by project, file, line , severity and issue key (in order to be deterministic when same ms)
+    // by default order by project, line , severity and issue key (in order to be deterministic when same ms)
     this.sorting.addDefault(FIELD_ISSUE_PROJECT_UUID);
-    this.sorting.addDefault(FIELD_ISSUE_FILE_PATH);
     this.sorting.addDefault(FIELD_ISSUE_LINE);
     this.sorting.addDefault(FIELD_ISSUE_SEVERITY_VALUE).reverse();
     this.sorting.addDefault(FIELD_ISSUE_KEY);

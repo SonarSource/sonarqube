@@ -89,6 +89,7 @@ public class ShowAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    qProfileWsSupport.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto profile = qProfileWsSupport.getProfile(dbSession, QProfileReference.fromKey(request.mandatoryParam(PARAM_KEY)));
       OrganizationDto organization = qProfileWsSupport.getOrganization(dbSession, profile);

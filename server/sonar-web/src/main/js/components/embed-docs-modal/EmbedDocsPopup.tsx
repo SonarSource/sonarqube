@@ -54,13 +54,15 @@ export function EmbedDocsPopup({ setAboutCodescanOpen }) {
   const { currentUser } = useCurrentUser();
   const { suggestions } = React.useContext(SuggestionsContext);
   const [zohoUrl, setZohoUrl] = React.useState<any>();
+  const [codeScanSupport, setCodeScanSupport] = React.useState<any>();
+
 
   React.useEffect(() => {
     firstItemRef.current?.focus();
 
-    getValue({ key: GlobalSettingKeys.CodescanSupportLink }).then((enabledSupportLink) => {
-      // Get zoho re-direct url.
-      if (!enabledSupportLink || enabledSupportLink.value === "true") {
+    getValue({key: GlobalSettingKeys.CodescanSupport}).then((codescanSupport)=>{
+      setCodeScanSupport(codescanSupport?.value);
+      if(codescanSupport?.value === 'ZOHO') {
         getRedirectUrlForZoho().then(response => {
           setZohoUrl(response.redirectUrl);
         });
@@ -99,11 +101,18 @@ export function EmbedDocsPopup({ setAboutCodescanOpen }) {
 
       <DropdownMenu.Separator />
 
-      {zohoUrl && (
-        <DropdownMenu.ItemLink to={zohoUrl}>
-          {translate('docs.get_help')}
-        </DropdownMenu.ItemLink>
-      )}
+      { codeScanSupport ==='ZOHO' && zohoUrl && (
+              <DropdownMenu.ItemLink to={zohoUrl}>
+                {translate('docs.get_help')}
+              </DropdownMenu.ItemLink>
+          )
+      }
+      { codeScanSupport ==='SALESFORCE_CLOUD' && (
+          <DropdownMenu.ItemLink to="/web-to-case">
+            {translate('docs.get_help')}
+          </DropdownMenu.ItemLink>
+      )
+      }
 
       <DropdownMenu.ItemButton onClick={() => setAboutCodescanOpen(true)}>
         {translate('embed_docs.about_codescan')}

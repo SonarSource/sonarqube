@@ -22,6 +22,7 @@ import { Button, ButtonVariety, Checkbox, Modal, Select, Text } from '@sonarsour
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
+  DestructiveIcon,
   FlagMessage,
   FormField,
   InputField,
@@ -29,6 +30,7 @@ import {
   Note,
   SafeHTMLInjection,
   SanitizeLevel,
+  TrashIcon
 } from '~design-system';
 import { Profile } from '../../../api/quality-profiles';
 import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';

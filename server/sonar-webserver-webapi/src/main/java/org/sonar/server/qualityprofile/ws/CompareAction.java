@@ -84,11 +84,14 @@ public class CompareAction implements QProfileWsAction {
   private final DbClient dbClient;
   private final QProfileComparison comparator;
   private final Languages languages;
+    private final QProfileWsSupport wsSupport;
 
-  public CompareAction(DbClient dbClient, QProfileComparison comparator, Languages languages) {
+  public CompareAction(DbClient dbClient, QProfileComparison comparator, Languages languages,
+        QProfileWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.comparator = comparator;
     this.languages = languages;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -119,6 +122,7 @@ public class CompareAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    wsSupport.checkLoggedIn();
     String leftKey = request.mandatoryParam(PARAM_LEFT_KEY);
     String rightKey = request.mandatoryParam(PARAM_RIGHT_KEY);
 
@@ -127,6 +131,10 @@ public class CompareAction implements QProfileWsAction {
       checkArgument(left != null, "Could not find left profile '%s'", leftKey);
       QProfileDto right = dbClient.qualityProfileDao().selectByUuid(dbSession, rightKey);
       checkArgument(right != null, "Could not find right profile '%s'", rightKey);
+
+      // Verify user is the member of org for QP
+      wsSupport.getOrganization(dbSession, left);
+      wsSupport.getOrganization(dbSession, right);
 
       QProfileComparisonResult result = comparator.compare(dbSession, left, right);
 

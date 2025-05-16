@@ -40,7 +40,7 @@ public class TagsActionIT {
   public DbTester db = DbTester.create();
 
   private final DbClient dbClient = db.getDbClient();
-  private final WsActionTester ws = new WsActionTester(new org.sonar.server.rule.ws.TagsAction(dbClient));
+  private final WsActionTester ws = new WsActionTester(new org.sonar.server.rule.ws.TagsAction(dbClient, userSession));
 
   @Test
   public void definition() {

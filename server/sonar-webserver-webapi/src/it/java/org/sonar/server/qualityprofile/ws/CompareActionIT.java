@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.issue.impact.SoftwareQuality;
@@ -48,6 +49,7 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileComparison;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Collections.singletonList;
@@ -64,12 +66,15 @@ class CompareActionIT {
 
   @RegisterExtension
   private final DbTester db = DbTester.create();
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession session = db.getSession();
 
+  private final QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession);
   private final WsActionTester ws = new WsActionTester(
-    new CompareAction(db.getDbClient(), new QProfileComparison(db.getDbClient()), new Languages(LanguageTesting.newLanguage("xoo", "Xoo"))));
+    new CompareAction(db.getDbClient(), new QProfileComparison(db.getDbClient()), new Languages(LanguageTesting.newLanguage("xoo", "Xoo")), wsSupport));
 
   @Test
   void compare_nominal() {

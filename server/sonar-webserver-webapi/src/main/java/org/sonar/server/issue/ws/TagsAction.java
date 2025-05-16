@@ -113,14 +113,14 @@ public class TagsAction implements IssuesWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String projectKey = request.param(PARAM_PROJECT);
-      String organizatioKey = request.param(PARAM_ORGANIZATION);
+      String organizationKey = request.param(PARAM_ORGANIZATION);
       String branchKey = request.param(PARAM_BRANCH);
       boolean all = request.mandatoryParamAsBoolean(PARAM_ALL);
       checkIfAnyComponentsNeedIssueSync(dbSession, projectKey);
 
-      OrganizationDto organization = getOrganization(dbSession, organizatioKey);
+      OrganizationDto organization = getOrganization(dbSession, organizationKey);
       Optional<EntityDto> entity = getEntity(dbSession, projectKey);
-      entity.ifPresent(e -> checkArgument(e.equals(organization.getUuid()), "Project '%s' is not part of the organization '%s'", projectKey, organization.getKey()));
+      entity.ifPresent(e -> checkArgument(e.getOrganizationUuid().equals(organization.getUuid()), "Project '%s' is not part of the organization '%s'", projectKey, organization.getKey()));
 
       Optional<BranchDto> branch = branchKey == null ? Optional.empty() : entity.flatMap(p -> dbClient.branchDao().selectByBranchKey(dbSession, p.getUuid(), branchKey));
       List<String> tags = searchTags(organization, entity.orElse(null), branch.orElse(null), request, all, dbSession);

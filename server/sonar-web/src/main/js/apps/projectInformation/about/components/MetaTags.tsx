@@ -127,16 +127,18 @@ function MetaTagsSelector({ selectedTags, setProjectTags }: MetaTagsSelectorProp
   };
 
   return (
-    <MultiSelector
-      headerLabel={translate('tags')}
-      searchInputAriaLabel={translate('search.search_for_tags')}
-      createElementLabel={translate('issue.create_tag')}
-      noResultsLabel={translate('no_results')}
-      onSearch={onSearch}
-      onSelect={onSelect}
-      onUnselect={onUnselect}
-      selectedElements={selectedTags}
-      elements={availableTags}
-    />
+    <div className="sw-max-h-abs-200 sw-overflow-y-auto">
+      <MultiSelector
+        headerLabel={translate('tags')}
+        searchInputAriaLabel={translate('search.search_for_tags')}
+        createElementLabel={translate('issue.create_tag')}
+        noResultsLabel={translate('no_results')}
+        onSearch={onSearch}
+        onSelect={onSelect}
+        onUnselect={onUnselect}
+        selectedElements={selectedTags}
+        elements={availableTags}
+      />
+    </div>
   );
 }

@@ -351,15 +351,12 @@ export function useUpdateOrDeleteConditionsMutation(organization: string, gateNa
   });
 }
 
-export function useDeleteConditionMutation(gateName: string) {
+export function useDeleteConditionMutation(organization: string, gateName: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (condition: Condition) => {
-      return deleteCondition({
-        organization,
-        id: condition.id,
-      });
+      return deleteCondition({ id: condition.id, organization,});
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: qualityQuery.list(organization) });

@@ -36,6 +36,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupQuery;
 import org.sonar.server.common.SearchResults;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
@@ -265,4 +266,18 @@ public class GroupService {
     dbClient.groupDao().deleteByUuid(dbSession, group.getUuid(), group.getName());
   }
 
+  public void checkOrgGroupMapping(OrganizationDto organization, String groupId) {
+    try (DbSession session = dbClient.openSession(false)){
+      Optional<GroupInformation> groupByUuid = findGroupByUuid(session, groupId);
+      if(groupByUuid.isEmpty()){
+        logger.warn("Group with id does not exist");
+        throw new NotFoundException("Group does not exist");
+      }
+      Optional<GroupDto> group = findGroup(session, organization, groupByUuid.get().groupDto().getName());
+      if(group.isEmpty()){
+        logger.warn("Group '{}' does not exist in organization '{}'", group.get().getName(), organization.getName());
+        throw new NotFoundException("Group does not exist in current organization ");
+      }
+    }
+  }
 }

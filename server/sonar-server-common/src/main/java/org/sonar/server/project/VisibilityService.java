@@ -130,6 +130,7 @@ public class VisibilityService {
       .setGroupUuid(groupUuid)
       .setGroupName(groupName)
       .setRole(permission)
+      .setOrganizationUuid(entity.getOrganizationUuid())
       .setEntityName(entity.getName()), entity, null);
   }
 

@@ -247,6 +247,11 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
+  public boolean hasMembership(String organizationKey) {
+    return get().hasMembership(organizationKey);
+  }
+
+  @Override
   public void checkMembership(OrganizationDto organization) {
     get().checkMembership(organization);
   }

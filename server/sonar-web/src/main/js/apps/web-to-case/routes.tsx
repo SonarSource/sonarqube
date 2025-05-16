@@ -17,24 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.notification;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.email.EmailSmtpConfiguration;
-import org.sonar.server.notification.email.EmailNotificationChannel;
-import org.sonar.server.oauth.OAuthMicrosoftRestClient;
-import org.sonar.server.qualitygate.QualityGateConditionsValidator;
+import { Route } from 'react-router-dom';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
 
-public class NotificationModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      EmailSmtpConfiguration.class,
-      NotificationService.class,
-      DefaultNotificationManager.class,
-      NotificationDaemon.class,
-      EmailNotificationChannel.class,
-      OAuthMicrosoftRestClient.class,
-      QualityGateConditionsValidator.class);
-  }
-}
+const WebToCase = lazyLoadComponent(() => import('./WebToCase'));
+
+const routes = () => <Route path="web-to-case" element={<WebToCase />} />;
+
+export default routes;

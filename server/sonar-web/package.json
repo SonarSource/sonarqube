@@ -172,5 +172,13 @@
     "Firefox >= 78",
     "Safari >= 12"
   ],
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "**/cross-spawn"
+    ]
+  },
   "packageManager": "yarn@4.2.2"
 }

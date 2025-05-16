@@ -64,7 +64,7 @@ public class ListActionIT {
   private final RuleMapper ruleMapper = new RuleMapper(languages, macroInterpreter, new RuleDescriptionFormatter());
   private final RuleWsSupport ruleWsSupport = new RuleWsSupport(db.getDbClient(), userSession);
   private final RulesResponseFormatter rulesResponseFormatter = new RulesResponseFormatter(db.getDbClient(), ruleWsSupport, ruleMapper, languages);
-  private final WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient(), rulesResponseFormatter));
+  private final WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient(), rulesResponseFormatter, ruleWsSupport));
 
   @Test
   public void define_shouldDefineParameters() {

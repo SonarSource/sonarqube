@@ -91,7 +91,7 @@ class ShowActionIT {
   private final RuleWsSupport ruleWsSupport = new RuleWsSupport(db.getDbClient(), userSession);
   private final RuleMapper ruleMapper = new RuleMapper(languages, macroInterpreter, new RuleDescriptionFormatter());
   private final WsActionTester ws = new WsActionTester(
-    new ShowAction(db.getDbClient(), new RulesResponseFormatter(db.getDbClient(), ruleWsSupport, ruleMapper, languages)));
+    new ShowAction(db.getDbClient(), new RulesResponseFormatter(db.getDbClient(), ruleWsSupport, ruleMapper, languages), userSession));
   private UserDto userDto;
 
   @BeforeEach

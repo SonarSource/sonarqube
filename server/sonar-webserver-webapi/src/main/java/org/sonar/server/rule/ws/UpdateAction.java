@@ -39,11 +39,13 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.api.utils.UrlValidatorUtil;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.RuleUpdate;
 import org.sonar.server.rule.RuleUpdater;
@@ -203,6 +205,9 @@ public class UpdateAction implements RulesWsAction {
     }
     String description = request.param(PARAM_DESCRIPTION);
     if (description != null) {
+      if (!UrlValidatorUtil.textContainsValidUrl(description)) {
+        throw BadRequestException.create(INVALID_URL);
+      }
       update.setMarkdownDescription(description);
     }
     String severity = request.param(PARAM_SEVERITY);
@@ -253,6 +258,9 @@ public class UpdateAction implements RulesWsAction {
   private static void readMarkdownNote(Request request, RuleUpdate update) {
     String value = request.param(PARAM_MARKDOWN_NOTE);
     if (value != null) {
+      if (!UrlValidatorUtil.textContainsValidUrl(value)) {
+        throw BadRequestException.create(INVALID_URL);
+      }
       update.setMarkdownNote(value);
     }
     // else do not touch this field

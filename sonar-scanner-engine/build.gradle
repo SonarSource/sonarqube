@@ -35,7 +35,7 @@ dependencies {
   implementation 'org.bouncycastle:bc-fips'
   api 'javax.annotation:javax.annotation-api'
   api 'org.eclipse.jgit:org.eclipse.jgit'
-  api 'org.tmatesoft.svnkit:svnkit'
+  api 'net.java.dev.jna:jna'
   api 'org.slf4j:jcl-over-slf4j'
   api 'org.slf4j:jul-to-slf4j'
   api 'org.slf4j:log4j-over-slf4j'

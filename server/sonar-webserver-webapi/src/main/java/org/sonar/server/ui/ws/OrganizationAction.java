@@ -72,6 +72,8 @@ public class OrganizationAction implements NavigationWsAction {
             OrganizationDto organization = checkFoundWithOptional(
                     dbClient.organizationDao().selectByKey(dbSession, organizationKey),
                     "No organization with key '%s'", organizationKey);
+            userSession.checkMembership(organization);
+
            // boolean newProjectPrivate = dbClient.organizationDao().getNewProjectPrivate(dbSession, organization);
             JsonWriter json = response.newJsonWriter();
             json.beginObject();

@@ -26,11 +26,15 @@ public class NewModesNotificationsModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      NewModesNotificationsSender.class,
+        /*
+        * uncomment to enable notification for Standard  and MQR Modes.
+        */
+
+//      NewModesNotificationsSender.class,
       QualityGateConditionsValidator.class,
-      MQRAndStandardModesExistNotification.class,
-      MQRAndStandardModesExistNotificationHandler.class,
-      MQRAndStandardModesExistTemplate.class,
+//      MQRAndStandardModesExistNotification.class,
+//      MQRAndStandardModesExistNotificationHandler.class,
+//      MQRAndStandardModesExistTemplate.class,
 
       QualityGateMetricsUpdateNotification.class,
       QualityGateMetricsUpdateNotificationHandler.class,

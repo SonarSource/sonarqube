@@ -29,6 +29,7 @@ import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.common.SearchResults;
 import org.sonar.server.common.group.service.GroupMembershipSearchRequest;
 import org.sonar.server.common.group.service.GroupMembershipService;
+import org.sonar.server.common.group.service.GroupService;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.organization.OrganizationService;
 import org.sonar.server.exceptions.BadRequestException;
@@ -76,9 +77,10 @@ public class DefaultGroupMembershipControllerTest {
   private final GroupMembershipService groupMembershipService = mock();
   private final ManagedInstanceChecker managedInstanceChecker = mock();
   private final OrganizationService organizationService = mock();
+  private final GroupService groupService = mock();
 
   private final MockMvc mockMvc = ControllerTester
-    .getMockMvc(new DefaultGroupMembershipController(userSession, groupMembershipService, managedInstanceChecker, organizationService));
+    .getMockMvc(new DefaultGroupMembershipController(userSession, groupMembershipService, managedInstanceChecker, organizationService, groupService));
 
   @Test
   public void create_whenCallersIsNotAdmin_shouldReturnForbidden() throws Exception {

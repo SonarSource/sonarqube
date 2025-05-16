@@ -52,7 +52,7 @@ export const useRuleDetailsQuery = createQueryHook((data: { organization: string
   return queryOptions({
     queryKey: getRulesQueryKey('details', data.key),
     queryFn: () => getRuleDetails(data),
-    staleTime: StaleTime.NEVER,
+    staleTime: StaleTime.LIVE,
   });
 });
 

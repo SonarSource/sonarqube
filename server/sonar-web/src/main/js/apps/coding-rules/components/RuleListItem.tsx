@@ -266,8 +266,8 @@ export default function RuleListItem(props: Readonly<Props>) {
         <div className="sw-flex sw-items-center">
           <div className="sw-grow sw-flex sw-gap-2 sw-items-center sw-typo-sm">
             <SoftwareImpactPillList
-              softwareImpacts={rule.impacts}
-              issueSeverity={rule.severity as IssueSeverity}
+              softwareImpacts={activation ? activation.impacts : rule.impacts}
+              issueSeverity={(activation ? activation.severity : rule.severity) as IssueSeverity}
               issueType={rule.type}
               type="rule"
             />

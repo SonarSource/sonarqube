@@ -26,6 +26,7 @@ import static org.sonar.db.Pagination.forPage;
 import static org.sonar.db.organization.OrganizationQuery.newOrganizationQueryBuilder;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Common.Paging;
 
@@ -45,6 +46,7 @@ import org.sonar.db.organization.OrganizationQuery;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Organizations.Organization;
+import org.springframework.util.CollectionUtils;
 
 public class SearchAction implements OrganizationsWsAction {
 
@@ -78,7 +80,7 @@ public class SearchAction implements OrganizationsWsAction {
                 .setDescription("Comma-separated list of organization keys")
                 .setExampleValue(String.join(",", "my-org-1", "foocorp"))
                 .setMaxValuesAllowed(MAX_SIZE)
-                .setRequired(false)
+                .setRequired(true)
                 .setSince("6.3");
 
         action.createParam(PARAM_MEMBER)
@@ -93,12 +95,25 @@ public class SearchAction implements OrganizationsWsAction {
     @Override
     public void handle(Request request, Response response) throws Exception {
         boolean onlyMembershipOrganizations = request.mandatoryParamAsBoolean(PARAM_MEMBER);
+        List<String> organizationKeys = request.paramAsStrings(PARAM_ORGANIZATIONS);
+
         if (onlyMembershipOrganizations) {
             userSession.checkLoggedIn();
         }
 
         try (DbSession dbSession = dbClient.openSession(false)) {
-            OrganizationQuery dbQuery = buildDbQuery(request);
+            if (CollectionUtils.isEmpty(organizationKeys)) {
+                Set<String> organizationUuids = dbClient.organizationMemberDao()
+                        .selectOrganizationUuidsByUser(dbSession, userSession.getUuid());
+                organizationKeys = dbClient.organizationDao().selectByUuids(dbSession, organizationUuids).stream()
+                        .map(OrganizationDto::getKey).toList();
+            } else {
+                organizationKeys = organizationKeys.stream().filter(userSession::hasMembership).toList();
+                if(organizationKeys.isEmpty()) {
+                    throw insufficientPrivilegesException();
+                }
+            }
+            OrganizationQuery dbQuery = buildDbQuery(request, organizationKeys);
             int total = dbClient.organizationDao().countByQuery(dbSession, dbQuery);
             Paging paging = buildWsPaging(request, total);
             List<OrganizationDto> organizations = dbClient.organizationDao().selectByQuery(dbSession, dbQuery, forPage(paging.getPageIndex()).andSize(paging.getPageSize()));
@@ -110,9 +125,9 @@ public class SearchAction implements OrganizationsWsAction {
         }
     }
 
-    private OrganizationQuery buildDbQuery(Request request) {
+    private OrganizationQuery buildDbQuery(Request request, List<String> organizationKeys) {
         return newOrganizationQueryBuilder()
-                .setKeys(request.paramAsStrings(PARAM_ORGANIZATIONS))
+                .setKeys(organizationKeys)
                 .setMember(getUserIdIfFilterOnMembership(request))
                 .build();
     }

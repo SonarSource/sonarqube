@@ -63,17 +63,6 @@ export default function CreateProjectForm(props: Readonly<Props>) {
     setChangedParams({ ...changedParams, [name]: value });
   };
 
-  const handleError = (error: AxiosError<AxiosResponse>) => {
-    const { response } = error;
-    const message = parseErrorResponse(response);
-
-    if (!response || ![BAD_REQUEST, INTERNAL_SERVER_ERROR].includes(response.status)) {
-      addGlobalErrorMessage(message);
-    } else {
-      setError(message);
-    }
-  };
-
   const handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -99,7 +88,6 @@ export default function CreateProjectForm(props: Readonly<Props>) {
           );
           props.onClose();
         },
-        onError: handleError
       },
     );
   };

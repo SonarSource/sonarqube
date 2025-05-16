@@ -28,6 +28,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.common.PaginationInformation;
 import org.sonar.server.common.user.UsersSearchResponseGenerator;
 import org.sonar.server.common.user.service.UserInformation;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.response.PageRestResponse;
 import org.sonar.server.v2.api.user.response.UserRestResponse;

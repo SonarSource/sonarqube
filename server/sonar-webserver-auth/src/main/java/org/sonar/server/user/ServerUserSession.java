@@ -425,6 +425,14 @@ public class ServerUserSession extends AbstractUserSession {
     return isMember(organizationDto.getUuid());
   }
 
+  @Override
+  public boolean hasMembershipImpl(String organizationKey) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Optional<OrganizationDto> organizationDto = dbClient.organizationDao().selectByKey(dbSession, organizationKey);
+      return organizationDto.filter(dto -> isMember(dto.getUuid())).isPresent();
+    }
+  }
+
   private boolean isMember(String organizationUuid) {
     if (!isLoggedIn()) {
       return false;

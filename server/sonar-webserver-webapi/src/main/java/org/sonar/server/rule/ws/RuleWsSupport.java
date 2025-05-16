@@ -26,6 +26,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import org.jetbrains.annotations.Nullable;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -45,6 +47,7 @@ import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.security.SecurityStandards.SQCategory;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 import static org.sonar.api.server.ws.WebService.Param.ASCENDING;
 import static org.sonar.api.server.ws.WebService.Param.SORT;
@@ -284,6 +287,24 @@ public class RuleWsSupport {
       return true;
     }
     return userSession.hasMembership(organization);
+  }
+
+  void checkMembershipOnPaidOrganization(OrganizationDto organization) {
+    userSession.checkMembership(organization);
+  }
+
+  void checkMembershipOnPaidOrganization(DbSession dbSession, String organizationUuid) {
+    OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
+            .orElseThrow(() -> new IllegalArgumentException("No organization found by uuid: " + organizationUuid));
+    checkMembershipOnPaidOrganization(organization);
+  }
+
+  void checkLoggedInUser() {
+     userSession.checkLoggedIn();
+  }
+
+  String getLoggedInUserUuid() {
+    return checkNotNull(userSession.getUuid());
   }
 
 }

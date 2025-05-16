@@ -305,12 +305,12 @@ subprojects {
       dependency 'com.sonarsource.architecture:sonar-architecture-java-frontend-plugin:1.4.0.2329'
 
       // please keep this list alphabetically ordered
-      dependencySet(group: 'ch.qos.logback', version: '1.3.14') {
+      dependencySet(group: 'ch.qos.logback', version: '1.3.15') {
         entry 'logback-classic'
         entry 'logback-core'
       }
       // TODO switch to dependency 'ch.qos.logback.access:tomcat:2.0.1' when upgrading to Tomcat 10+
-      dependency 'ch.qos.logback:logback-access:1.3.14'
+      dependency 'ch.qos.logback:logback-access:1.3.15'
       dependency('commons-beanutils:commons-beanutils:1.9.4') {
         exclude 'commons-logging:commons-logging'
       }
@@ -440,7 +440,7 @@ subprojects {
       dependency 'org.eclipse.jgit:org.eclipse.jgit:7.0.0.202409031743-r'
       dependency "org.codelibs.elasticsearch.module:analysis-common:7.17.22"
       dependency "org.codelibs.elasticsearch.module:reindex:7.17.22"
-      dependency 'org.tmatesoft.svnkit:svnkit:1.10.11'
+      dependency 'net.java.dev.jna:jna:5.17.0'
       dependency 'org.hamcrest:hamcrest:3.0'
       dependency 'org.jsoup:jsoup:1.18.1'
       // JUnit 5

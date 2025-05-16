@@ -20,7 +20,7 @@
 
 import { Checkbox, Spinner } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { useCallback } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { CellComponent, Table, TableRowInteractive } from '~design-system';
 import { hasMessage, translate, translateWithParameters } from '../../helpers/l10n';
@@ -43,42 +43,83 @@ function getDispatcherLabel(dispatcher: string, project?: string) {
   return shouldUseProjectMessage ? translate(...projectMessageKey) : translate(...globalMessageKey);
 }
 
+const MemoizedCheckbox = React.memo(
+  ({
+    isDisabled,
+    checked,
+    id,
+    onCheck,
+    ariaLabel,
+  }: {
+    ariaLabel: string;
+    checked: boolean;
+    id: string;
+    isDisabled: boolean;
+    onCheck: (checked: boolean) => void;
+  }) => {
+    return (
+      <Checkbox
+        ariaLabel={ariaLabel}
+        isDisabled={isDisabled}
+        checked={checked}
+        id={id}
+        onCheck={onCheck}
+      />
+    );
+  },
+);
+
 export default function NotificationsList({ project, className = '' }: Readonly<Props>) {
   const { data, isLoading } = useNotificationsQuery();
-  const { mutate: add, isPending: isPendingAdd } = useAddNotificationMutation();
-  const { mutate: remove, isPending: isPendingRemove } = useRemoveNotificationMutation();
-  const types = (project ? data?.perProjectTypes : data?.globalTypes) || [];
-  const channels = data?.channels || [];
+  const { mutate: add } = useAddNotificationMutation();
+  const { mutate: remove } = useRemoveNotificationMutation();
+
+  const types = useMemo(
+    () => (project ? data?.perProjectTypes : data?.globalTypes) || [],
+    [data, project],
+  );
+  const channels = useMemo(() => data?.channels || [], [data]);
+  const [localCheckboxState, setLocalCheckboxState] = useState<Record<string, boolean>>({});
 
   const checkboxId = useCallback(
-    (type: string, channel: string) => {
-      return project === undefined
+    (type: string, channel: string) =>
+      project === undefined
         ? `global-notification-${type}-${channel}`
-        : `project-notification-${project}-${type}-${channel}`;
-    },
+        : `project-notification-${project}-${type}-${channel}`,
     [project],
   );
 
   const isEnabled = useCallback(
-    (type: string, channel: string) =>
-      !!data?.notifications.find(
+    (type: string, channel: string) => {
+      const id = checkboxId(type, channel);
+      if (id in localCheckboxState) {
+        return localCheckboxState[id];
+      }
+      return !!data?.notifications.find(
         (notification) =>
           notification.type === type &&
           notification.channel === channel &&
           notification.project === project,
-      ),
-    [data?.notifications, project],
+      );
+    },
+    [checkboxId, data?.notifications, localCheckboxState, project],
   );
 
   const handleCheck = useCallback(
     (type: string, channel: string, checked: boolean) => {
+      const id = checkboxId(type, channel);
+      setLocalCheckboxState((prev) => ({
+        ...prev,
+        [id]: checked,
+      }));
+
       if (checked) {
         add({ type, channel, project });
       } else {
         remove({ type, channel, project });
       }
     },
-    [add, project, remove],
+    [add, checkboxId, project, remove],
   );
 
   return (
@@ -89,7 +130,6 @@ export default function NotificationsList({ project, className = '' }: Readonly<
         header={
           <tr>
             <th className="sw-typo-semibold">{translate('notification.for')}</th>
-
             {channels.map((channel) => (
               <th className="sw-typo-semibold sw-text-right" key={channel}>
                 <FormattedMessage
@@ -106,19 +146,18 @@ export default function NotificationsList({ project, className = '' }: Readonly<
             <CellComponent className="sw-py-0 sw-border-0">
               {getDispatcherLabel(type, project)}
             </CellComponent>
-
             {channels.map((channel) => (
               <CellComponent className="sw-py-0 sw-border-0" key={channel}>
                 <div className="sw-justify-end sw-flex sw-items-center">
-                  <Checkbox
+                  <MemoizedCheckbox
                     ariaLabel={translateWithParameters(
                       'notification.dispatcher.description_x',
                       getDispatcherLabel(type, project),
                     )}
-                    isDisabled={isPendingRemove || isPendingAdd}
+                    isDisabled={false}
                     checked={isEnabled(type, channel)}
                     id={checkboxId(type, channel)}
-                    onCheck={(checked) => handleCheck(type, channel, checked as boolean)}
+                    onCheck={(checked) => handleCheck(type, channel, Boolean(checked))}
                   />
                 </div>
               </CellComponent>

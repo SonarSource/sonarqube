@@ -46,7 +46,8 @@ export enum GlobalSettingKeys {
   MainBranchName = 'sonar.projectCreation.mainBranchName',
   OrganizationsAnyoneCanCreate = 'sonar.organizations.anyoneCanCreate',
   CodescanWhiteLabelProduct = 'codescan.cloud.whiteLabelProduct',
-  CodescanSupportLink = 'codescan.cloud.supportLink',
+  CodescanSupportSalesforceOrdId = 'codescan.cloud.support.salesforce.orgid',
+  CodescanSupport = 'codescan.cloud.support',
 }
 
 export type SettingDefinitionAndValue = {

@@ -19,6 +19,8 @@
  */
 package org.sonar.server.pushapi.sonarlint;
 
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -81,6 +83,11 @@ public class SonarLintPushAction extends ServerPushAction {
   @Override
   public void handle(Request request, Response response) throws IOException {
     userSession.checkLoggedIn();
+    throw insufficientPrivilegesException();
+
+    /*
+
+    This API has been commented out as its usage from the plugin is disabled.
 
     ServletRequest servletRequest = (ServletRequest) request;
     ServletResponse servletResponse = (ServletResponse) response;
@@ -105,6 +112,8 @@ public class SonarLintPushAction extends ServerPushAction {
     SonarLintClient sonarLintClient = new SonarLintClient(sonarLintPushEventExecutorService, asyncContext, projectUuids, params.getLanguages(), userSession.getUuid());
 
     clientsRegistry.registerClient(sonarLintClient);
+
+    */
   }
 
   class SonarLintPushActionParamsValidator {

@@ -108,6 +108,7 @@ public class ExportAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    wsSupport.checkLoggedIn();
     String name = request.param(PARAM_QUALITY_PROFILE);
     String language = request.mandatoryParam(PARAM_LANGUAGE);
 

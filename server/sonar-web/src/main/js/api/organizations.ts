@@ -121,6 +121,6 @@ export function syncMembers(organization: string) {
 }
 
 
-export function setMemberType(orgKee: String, login: String, type: String ): Promise<void | Response> {
-  return post('/api/organizations/set_member_type', {orgKee, login, type}).catch(throwGlobalError);
+export function setMemberType(organization: String, login: String, type: String ): Promise<void | Response> {
+  return post('/api/organizations/set_member_type', {organization, login, type}).catch(throwGlobalError);
 }

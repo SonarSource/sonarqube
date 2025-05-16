@@ -113,11 +113,12 @@ public class ChangelogAction implements QProfileWsAction {
         "Either a date (server timezone) or datetime can be provided.")
       .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");
 
-    wsSupport.createOrganizationParam(wsAction);
+    QProfileWsSupport.createOrganizationParam(wsAction);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    wsSupport.checkLoggedIn();
     QProfileReference reference = QProfileReference.fromName(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto profile = wsSupport.getProfile(dbSession, reference);

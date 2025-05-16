@@ -26,6 +26,7 @@ import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
@@ -134,6 +135,12 @@ public class GroupMembershipService {
     int remainingAdmins = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingGroupMember(dbSession,
         organizationUuid, OrganizationPermission.ADMINISTER.getKey(), groupUuids, userUuid);
     checkRequest(remainingAdmins > 0, "The last administrator user cannot be removed");
+  }
+
+  public void checkMembership( OrganizationDto organization, String user) {
+    DbSession dbSession = dbClient.openSession(false);
+    dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user)
+            .orElseThrow(() -> new IllegalStateException(format("User is not member of organization '%s'", organization.getKey())));
   }
 
 }

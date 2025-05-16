@@ -19,9 +19,7 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import java.util.Objects;
 import java.util.Optional;
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -38,7 +36,6 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
@@ -139,9 +136,9 @@ public class QualityGatesWsSupport {
   }
 
   private void checkMembershipOnPaidOrganization(OrganizationDto organization) {
-    if (!organization.getSubscription().equals(PAID)) {
-      return;
-    }
+//    if (!organization.getSubscription().equals(PAID)) {
+//      return;
+//    }
     userSession.checkMembership(organization);
   }
 

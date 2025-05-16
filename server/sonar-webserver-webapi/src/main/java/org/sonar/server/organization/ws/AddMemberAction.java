@@ -87,7 +87,7 @@ public class AddMemberAction implements OrganizationsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationKey), "Organization '%s' is not found",
         organizationKey);
-      userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
+      userSession.checkIsSystemAdministrator();
       UserDto user = checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' is not found", login);
       memberUpdater.addMember(dbSession, organization, user);
       dbSession.commit();

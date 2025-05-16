@@ -36,6 +36,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.api.utils.UrlValidatorUtil;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -45,6 +46,7 @@ import org.sonar.server.common.rule.ReactivationException;
 import org.sonar.server.common.rule.service.NewCustomRule;
 import org.sonar.server.common.rule.service.RuleInformation;
 import org.sonar.server.common.rule.service.RuleService;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonarqube.ws.Rules;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -197,11 +199,15 @@ public class CreateAction implements RulesWsAction {
   }
 
   private static NewCustomRule toNewCustomRule(Request request) {
+    String description = request.mandatoryParam(PARAM_DESCRIPTION);
+    if (!UrlValidatorUtil.textContainsValidUrl(description)) {
+      throw BadRequestException.create(INVALID_URL);
+    }
     RuleKey templateKey = RuleKey.parse(request.mandatoryParam(PARAM_TEMPLATE_KEY));
     NewCustomRule newRule = NewCustomRule.createForCustomRule(
       RuleKey.of(templateKey.repository(), request.mandatoryParam(PARAM_CUSTOM_KEY)), templateKey)
       .setName(request.mandatoryParam(PARAM_NAME))
-      .setMarkdownDescription(request.mandatoryParam(PARAM_DESCRIPTION))
+      .setMarkdownDescription(description)
       .setStatus(RuleStatus.valueOf(request.mandatoryParam(PARAM_STATUS)))
       .setPreventReactivation(request.mandatoryParamAsBoolean(PARAM_PREVENT_REACTIVATION))
       .setSeverity(request.param(PARAM_SEVERITY))

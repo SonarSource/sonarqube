@@ -113,6 +113,7 @@ public class SearchUsersAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    wsSupport.checkLoggedIn();
     SearchQualityProfileUsersRequest wsRequest = buildRequest(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, wsRequest.getOrganization());

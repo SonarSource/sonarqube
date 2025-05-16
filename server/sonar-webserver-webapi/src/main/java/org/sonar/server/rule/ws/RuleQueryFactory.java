@@ -102,6 +102,7 @@ public class RuleQueryFactory {
     // Order is important : 1. Load profile, 2. Load compare to profile
     setProfile(dbSession, query, request);
     setOrganization(dbSession, query, request);
+    wsSupport.checkMembershipOnPaidOrganization(query.getOrganization());
     setCompareToProfile(dbSession, query, request);
     QProfileDto profile = query.getQProfile();
     query.setLanguages(profile == null ? request.paramAsStrings(PARAM_LANGUAGES) : List.of(profile.getLanguage()));

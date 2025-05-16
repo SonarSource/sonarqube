@@ -30,6 +30,7 @@ import { Query, searchAssignees } from '../utils';
 import { ListStyleFacet } from './ListStyleFacet';
 
 interface Props {
+  organization: string;
   assigned: boolean;
   assignees: string[];
   fetching: boolean;
@@ -44,7 +45,7 @@ interface Props {
 
 export class AssigneeFacet extends React.PureComponent<Props> {
   handleSearch = (query: string, page?: number) => {
-    return searchAssignees(query, page);
+    return searchAssignees(query, this.props.organization, page);
   };
 
   handleItemClick = (itemValue: string, multiple: boolean) => {

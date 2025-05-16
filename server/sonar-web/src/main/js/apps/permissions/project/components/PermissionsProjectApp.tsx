@@ -38,7 +38,6 @@ import { Permissions } from '../../../../types/permissions';
 import { Component, Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
 import '../../styles.css';
 import PageHeader from './PageHeader';
-import PermissionsProjectVisibility from './PermissionsProjectVisibility';
 import PublicProjectDisclaimer from './PublicProjectDisclaimer';
 
 interface Props extends ComponentContextShape {
@@ -296,14 +295,6 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
       }, this.stopLoading);
   };
 
-  handleVisibilityChange = (visibility: string) => {
-    if (visibility === Visibility.Public) {
-      this.openDisclaimer();
-    } else {
-      this.turnProjectToPrivate();
-    }
-  };
-
   handleTurnProjectToPublic = () => {
     this.setState({ loading: true });
 
@@ -377,14 +368,8 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
             component={component}
             loadHolders={this.loadHolders}
           />
+          <br />
           <div>
-            <PermissionsProjectVisibility
-              isProjectManaged={isProjectManaged}
-              component={component}
-              handleVisibilityChange={this.handleVisibilityChange}
-              isLoading={loading}
-            />
-
             <PublicProjectDisclaimer
               component={component}
               onClose={this.handleCloseDisclaimer}

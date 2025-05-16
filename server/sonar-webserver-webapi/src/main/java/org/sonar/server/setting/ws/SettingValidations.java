@@ -39,6 +39,7 @@ import org.apache.commons.io.IOUtils;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.utils.UrlValidatorUtil;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.core.i18n.I18n;
 import org.sonar.db.DbClient;
@@ -59,6 +60,11 @@ public class SettingValidations {
     "sonar.security.config.roslyn.sonaranalyzer.security.cs"
   );
   private static final Set<String> SUPPORTED_QUALIFIERS = Set.of(ComponentQualifiers.PROJECT, ComponentQualifiers.VIEW, ComponentQualifiers.APP, ComponentQualifiers.SUBVIEW);
+  private static final Set<PropertyType> SSRF_CHECK_PROPERTIES = Set.of(
+          PropertyType.JSON, PropertyType.STRING, PropertyType.TEXT, PropertyType.PASSWORD,
+          PropertyType.REGULAR_EXPRESSION, PropertyType.PROPERTY_SET, PropertyType.USER_LOGIN,
+          PropertyType.FORMATTED_TEXT, PropertyType.EMAIL, PropertyType.KEY_VALUE_MAP
+  );
 
   private final PropertyDefinitions definitions;
   private final DbClient dbClient;
@@ -87,6 +93,10 @@ public class SettingValidations {
 
   public void validateValueType(SettingData data) {
     valueTypeValidation.validateValueType(data);
+  }
+
+  public void validateSSRF(SettingData data) {
+    valueTypeValidation.validateSSRF(data);
   }
 
   private static boolean checkComponentQualifier(SettingData data, @Nullable PropertyDefinition definition) {
@@ -147,6 +157,22 @@ public class SettingValidations {
         validateJson(data, definition);
       } else {
         validateOtherTypes(data, definition);
+      }
+    }
+
+    public void validateSSRF(SettingData data) {
+      PropertyDefinition definition = definitions.get(data.key);
+      if (definition == null) {
+        return;
+      }
+
+      if (data.values != null && SSRF_CHECK_PROPERTIES.contains(definition.type())) {
+        for (String value : data.values) {
+          if (!UrlValidatorUtil.textContainsValidUrl(value)) {
+            throw BadRequestException.create(format("Error when validating setting with key '%s' and value [%s]",
+                    data.key, String.join(", ", data.values)));
+          }
+        }
       }
     }
 

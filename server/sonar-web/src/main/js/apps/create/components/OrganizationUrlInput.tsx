@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { FormField, InputField } from '~design-system';
 import * as React from 'react';
 import { isWebUri } from 'valid-url';
+import { FlagMessage, FormField, InputField } from '~design-system';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import withAppStateContext from '../../../../js/app/components/app-state/withAppStateContext';
 import { getWhiteListDomains } from '../../../api/organizations';
@@ -140,6 +140,11 @@ class OrganizationUrlInput extends React.PureComponent<Props, State> {
           type="text"
           value={this.state.value}
         />
+        {isInvalid && (
+          <FlagMessage id="url-error-message" className="sw-mt-2" variant="error">
+            {this.state.error}
+          </FlagMessage>
+        )}
       </FormField>
     );
   }

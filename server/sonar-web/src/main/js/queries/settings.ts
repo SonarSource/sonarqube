@@ -122,9 +122,6 @@ export function useSaveValueMutation() {
       definition: ExtendedSettingDefinition;
       newValue: SettingFinalValue;
     }) => {
-      if (isDefaultValue(newValue, definition)) {
-        return resetSettingValue({ keys: definition.key, component });
-      }
       return setSettingValue(definition, newValue, component);
     },
     onSuccess: (_, { definition }) => {

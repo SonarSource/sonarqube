@@ -146,8 +146,8 @@ public class PlatformLevel4WebConfig {
 
   @Bean
   public GroupMembershipController groupMembershipsController(UserSession userSession,
-    GroupMembershipService groupMembershipService, ManagedInstanceChecker managedInstanceChecker, OrganizationService organizationService) {
-    return new DefaultGroupMembershipController(userSession, groupMembershipService, managedInstanceChecker, organizationService);
+    GroupMembershipService groupMembershipService, ManagedInstanceChecker managedInstanceChecker, OrganizationService organizationService, GroupService groupService) {
+    return new DefaultGroupMembershipController(userSession, groupMembershipService, managedInstanceChecker, organizationService, groupService);
   }
 
   @Bean

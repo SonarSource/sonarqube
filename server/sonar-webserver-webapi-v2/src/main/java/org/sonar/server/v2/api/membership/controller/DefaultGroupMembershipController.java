@@ -27,6 +27,7 @@ import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.common.SearchResults;
 import org.sonar.server.common.group.service.GroupMembershipSearchRequest;
 import org.sonar.server.common.group.service.GroupMembershipService;
+import org.sonar.server.common.group.service.GroupService;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.organization.OrganizationService;
 import org.sonar.server.user.UserSession;
@@ -43,18 +44,24 @@ public class DefaultGroupMembershipController implements GroupMembershipControll
   private final UserSession userSession;
   private final ManagedInstanceChecker managedInstanceChecker;
   private final OrganizationService organizationService;
+  private final GroupService groupService;
 
-  public DefaultGroupMembershipController(UserSession userSession, GroupMembershipService groupMembershipService, ManagedInstanceChecker managedInstanceChecker, OrganizationService organizationService) {
+
+  public DefaultGroupMembershipController(UserSession userSession, GroupMembershipService groupMembershipService, ManagedInstanceChecker managedInstanceChecker, OrganizationService organizationService, GroupService groupService) {
     this.groupMembershipService = groupMembershipService;
     this.userSession = userSession;
     this.managedInstanceChecker = managedInstanceChecker;
     this.organizationService = organizationService;
+    this.groupService = groupService;
   }
 
   @Override
   public GroupsMembershipSearchRestResponse search(GroupsMembershipSearchRestRequest groupsSearchRestRequest, RestPage restPage) {
     OrganizationDto organization = organizationService.getOrganizationByKey(groupsSearchRestRequest.organization());
     userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
+    if(groupsSearchRestRequest.userId() != null){
+      groupMembershipService.checkMembership(organization,groupsSearchRestRequest.userId());
+    }
 
     SearchResults<UserGroupDto> groupMembershipSearchResults = searchMembership(groupsSearchRestRequest, restPage);
 
@@ -82,6 +89,11 @@ public class DefaultGroupMembershipController implements GroupMembershipControll
     //throwIfNotAllowedToModifyGroups();
     OrganizationDto organization = organizationService.getOrganizationByKey(request.organization());
     userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
+
+    // Checking Group Mapping for Organization
+    groupService.checkOrgGroupMapping(organization, request.groupId());
+    // Check user is member of organization
+    groupMembershipService.checkMembership(organization,request.userId());
 
     UserGroupDto userGroupDto = groupMembershipService.addMembership(request.groupId(), request.userId());
     return toRestGroupMembershipResponse(userGroupDto);

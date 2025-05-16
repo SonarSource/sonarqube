@@ -69,6 +69,7 @@ import tutorialsRoutes from '../../apps/tutorials/routes';
 import usersRoutes from '../../apps/users/routes';
 import webAPIRoutesV2 from '../../apps/web-api-v2/routes';
 import webAPIRoutes from '../../apps/web-api/routes';
+import webToCaseRoutes from '../../apps/web-to-case/routes';
 import webhooksRoutes from '../../apps/webhooks/routes';
 import { translate } from '../../helpers/l10n';
 import { getBaseUrl } from '../../helpers/system';
@@ -233,6 +234,7 @@ const router = createBrowserRouter(
 
             {webAPIRoutes()}
             {webAPIRoutesV2()}
+            {webToCaseRoutes()}
 
             {renderComponentRoutes()}
 

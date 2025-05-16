@@ -113,10 +113,6 @@ export default function BranchHelpTooltip({
               label: translate('branch_like_navigation.only_one_branch.documentation'),
             },
             {
-              href: DocLink.PullRequestAnalysis,
-              label: translate('branch_like_navigation.only_one_branch.pr_analysis'),
-            },
-            {
               doc: false,
               href: `/tutorials?id=${component.key}`,
               inPlace: true,

@@ -19,7 +19,9 @@
  */
 package org.sonar.server.authentication;
 
+import java.util.Arrays;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.MDC;
 import java.util.Objects;
 import java.util.Optional;
@@ -81,6 +83,10 @@ public class UserSessionInitializer {
     "/api/system/liveness",
     "/api/monitoring/metrics");
 
+  private static final UrlPattern ORG_PERMISSION_CHECK_URLS =  UrlPattern.builder()
+          .includes(  "/api/organizations/*")
+          .build();
+
   private static final UrlPattern URL_PATTERN = UrlPattern.builder()
     .includes("/*")
     .excludes(StaticResources.patterns())
@@ -110,7 +116,7 @@ public class UserSessionInitializer {
     try {
       // Do not set user session when url is excluded
       if (URL_PATTERN.matches(path)) {
-        loadUserSession(request, response, PASSCODE_URLS.matches(path));
+        loadUserSession(request, response, PASSCODE_URLS.matches(path), path);
       }
       return true;
     } catch (AuthenticationException e) {
@@ -142,7 +148,7 @@ public class UserSessionInitializer {
     return provider != AuthenticationEvent.Provider.LOCAL && provider != AuthenticationEvent.Provider.JWT;
   }
 
-  private void loadUserSession(HttpRequest request, HttpResponse response, boolean urlSupportsSystemPasscode) {
+  private void loadUserSession(HttpRequest request, HttpResponse response, boolean urlSupportsSystemPasscode, String path) {
     UserSession session = requestAuthenticator.authenticate(request, response);
     if (!session.isLoggedIn() && !urlSupportsSystemPasscode && config.getBoolean(CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE)) {
       // authentication is required
@@ -150,6 +156,19 @@ public class UserSessionInitializer {
         .setSource(Source.local(AuthenticationEvent.Method.BASIC))
         .setMessage("User must be authenticated")
         .build();
+    }
+    if (ORG_PERMISSION_CHECK_URLS.matches(path)) {
+        String[] organizationKeys = request.getParameterValues("organization");
+      if (ArrayUtils.isNotEmpty(organizationKeys)) {
+        boolean hasPermission = Arrays.stream(organizationKeys)
+                .map(session::hasMembership).reduce(true, (a, b) -> a && b);
+        if (!hasPermission) {
+          throw AuthenticationException.newBuilder()
+                  .setSource(Source.local(AuthenticationEvent.Method.BASIC))
+                  .setMessage("Insufficient Privileges")
+                  .build();
+        }
+      }
     }
     threadLocalSession.set(session);
     MDC.put("userId", maskEmail(session.getLogin()));

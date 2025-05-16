@@ -67,11 +67,12 @@ public class InheritanceAction implements QProfileWsAction {
 
     QProfileReference.defineParams(inheritance, languages);
 
-    wsSupport.createOrganizationParam(inheritance);
+    QProfileWsSupport.createOrganizationParam(inheritance);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    wsSupport.checkLoggedIn();
     QProfileReference reference = QProfileReference.fromName(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto profile = wsSupport.getProfile(dbSession, reference);

@@ -44,10 +44,10 @@ export enum DocLink {
   AlmGitLabIntegration = '/devops-platform-integration/gitlab-integration/introduction/',
   AlmSamlAuth = '/instance-administration/authentication/saml/overview/',
   AlmSamlScimAuth = '/instance-administration/authentication/saml/scim/overview/',
-  AnalysisScope = 'https://knowledgebase.autorabit.com/codescan/docs',
+  AnalysisScope = '/product-guides/codescan/report-and-analysis/analysis-scope-on-codescan-cloud',
   AuthOverview = 'https://knowledgebase.autorabit.com/codescan/docs',
   BackgroundTasks = '/codescan/docs/background-tasks',
-  BranchAnalysis = 'https://knowledgebase.autorabit.com/codescan/docs',
+  BranchAnalysis = 'codescan/docs/understanding-branches-in-codescan-cloud',
   CaYC = '/codescan/docs/',
   CFamilyBuildWrapper = 'https://knowledgebase.autorabit.com/codescan/docs',
   CFamilyCompilationDatabase = 'https://knowledgebase.autorabit.com/codescan/docs',
@@ -74,7 +74,7 @@ export enum DocLink {
   ModeMQR = '/instance-administration/analysis-functions/instance-mode/mqr-mode',
   ModeStandard = '/instance-administration/analysis-functions/instance-mode/standard-experience',
   Monorepos = '/project-administration/monorepos/',
-  NewCodeDefinition = '/core-concepts/clean-as-you-code/about-new-code/',
+  NewCodeDefinition = '/product-guides/codescan/getting-started/setting-up-a-codescan-cloud-organization/understanding-the-new-code-tab',
   NewCodeDefinitionOptions = '/core-concepts/clean-as-you-code/about-new-code/#new-code-definition-options',
   Portfolios = '/user-guide/viewing-reports/portfolios/',
   PullRequestAnalysis = '/codescan/docs',
@@ -92,7 +92,7 @@ export enum DocLink {
   SonarScannerGradle = 'https://knowledgebase.autorabit.com/codescan/docs',
   SonarScannerMaven = 'https://knowledgebase.autorabit.com/codescan/docs',
   SonarWayQualityGate = '/user-guide/quality-gates/#using-sonar-way-the-recommended-quality-gate', // to be confirmed
-  Webhooks = '/codescan/docs/webhooks/',
+  Webhooks = '/product-guides/codescan/codescan-integration/webhooks',
   Documentation='/product-guides/codescan/codescan-overview/',
 }
 

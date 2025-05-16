@@ -281,12 +281,22 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
+  public final boolean hasMembership(String organizationKey) {
+    return isRoot() || hasMembershipImpl(organizationKey);
+  }
+
+  @Override
   public boolean isRoot() {
     // Implement in subclasses if required.
     throw new RuntimeException("Not implemented");
   }
 
   protected boolean hasMembershipImpl(OrganizationDto organizationDto) {
+    // Implement in subclasses if required.
+    throw new RuntimeException("Not implemented");
+  }
+
+  protected boolean hasMembershipImpl(String organizationKey) {
     // Implement in subclasses if required.
     throw new RuntimeException("Not implemented");
   }

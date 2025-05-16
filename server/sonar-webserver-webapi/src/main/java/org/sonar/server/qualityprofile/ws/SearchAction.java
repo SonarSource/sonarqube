@@ -140,6 +140,7 @@ public class SearchAction implements QProfileWsAction {
   }
 
   private SearchWsResponse doHandle(SearchRequest request) {
+    userSession.checkLoggedIn();
     SearchData data = load(request);
     return buildResponse(data);
   }

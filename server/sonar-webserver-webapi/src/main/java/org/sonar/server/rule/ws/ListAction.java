@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -56,10 +57,12 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 public class ListAction implements RulesWsAction {
   private final DbClient dbClient;
   private final RulesResponseFormatter rulesResponseFormatter;
+  private final RuleWsSupport ruleWsSupport;
 
-  public ListAction(DbClient dbClient, RulesResponseFormatter rulesResponseFormatter) {
+  public ListAction(DbClient dbClient, RulesResponseFormatter rulesResponseFormatter, RuleWsSupport ruleWsSupport) {
     this.dbClient = dbClient;
     this.rulesResponseFormatter = rulesResponseFormatter;
+    this.ruleWsSupport = ruleWsSupport;
   }
 
   @Override
@@ -98,8 +101,12 @@ public class ListAction implements RulesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    ruleWsSupport.checkLoggedInUser();
     try (DbSession dbSession = dbClient.openSession(false)) {
-
+      QProfileDto qProfileDto = getQProfile(dbSession, request);
+      if (qProfileDto != null) {
+        ruleWsSupport.checkMembershipOnPaidOrganization(dbSession, qProfileDto.getOrganizationUuid());
+      }
       WsRequest wsRequest = toWsRequest(dbSession, request);
       SearchResult searchResult = doSearch(dbSession, wsRequest);
       ListResponse listResponse = buildResponse(wsRequest, dbSession, searchResult);
@@ -139,9 +146,20 @@ public class ListAction implements RulesWsAction {
       buildRuleListQuery(wsRequest),
       Pagination.forPage(wsRequest.page).andSize(wsRequest.pageSize));
     Map<String, RuleDto> rulesByUuid = Maps.uniqueIndex(dbClient.ruleDao().selectByUuids(dbSession, ruleListResult.getUuids()), RuleDto::getUuid);
+    if (wsRequest.qProfile == null) {
+      long countOfRulesByUuid = rulesByUuid.size();
+      Set<String> organizationUuidsByUser = dbClient.organizationMemberDao()
+              .selectOrganizationUuidsByUser(dbSession, ruleWsSupport.getLoggedInUserUuid());
+      rulesByUuid = rulesByUuid.entrySet().stream()
+              .filter(entry -> (entry.getValue().getOrganizationUuid() == null || organizationUuidsByUser.contains(
+                      entry.getValue().getOrganizationUuid())))
+              .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+      List<String> filteredRuleListResultUuids = rulesByUuid.keySet().stream().toList();
+      long totalRules = ruleListResult.getTotal() - (countOfRulesByUuid - rulesByUuid.size());
+      ruleListResult = new RuleListResult(filteredRuleListResultUuids, totalRules);
+    }
     Set<String> ruleUuids = rulesByUuid.keySet();
     List<RuleDto> rules = ruleListResult.getUuids().stream().map(rulesByUuid::get).toList();
-
     List<String> templateRuleUuids = rules.stream()
       .map(RuleDto::getTemplateUuid)
       .filter(Objects::nonNull)

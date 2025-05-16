@@ -81,9 +81,9 @@ public class QProfileWsSupport {
   }
 
   private void checkMembershipOnPaidOrganization(OrganizationDto organization) {
-    if (!organization.getSubscription().equals(PAID)) {
+    /*if (!organization.getSubscription().equals(PAID)) {
       return;
-    }
+    }*/
     userSession.checkMembership(organization);
   }
 
@@ -176,5 +176,9 @@ public class QProfileWsSupport {
 
   private boolean isMember(DbSession dbSession, OrganizationDto organization, String userUuid) {
     return dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), userUuid).isPresent();
+  }
+
+  public void checkLoggedIn() {
+    userSession.checkLoggedIn();
   }
 }

@@ -94,6 +94,7 @@ public class ProjectsAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    userSession.checkLoggedIn();
     String profileKey = request.mandatoryParam(PARAM_KEY);
 
     try (DbSession session = dbClient.openSession(false)) {

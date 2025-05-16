@@ -67,6 +67,7 @@ public class BackupAction implements QProfileWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     // Allowed to users without admin permission: http://jira.sonarsource.com/browse/SONAR-2039
+    wsSupport.checkLoggedIn();
     Stream stream = response.stream();
     stream.setMediaType(MediaTypes.XML);
     QProfileDto profile = loadQProfile(request);

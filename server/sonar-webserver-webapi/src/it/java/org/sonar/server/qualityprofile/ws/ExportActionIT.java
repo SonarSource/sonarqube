@@ -33,6 +33,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
@@ -58,6 +59,7 @@ public class ExportActionIT {
 
   private final DbClient dbClient = db.getDbClient();
   private final QProfileBackuper backuper = new TestBackuper();
+  private final QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession);
 
   @Test
   public void export_profile() {
@@ -161,7 +163,7 @@ public class ExportActionIT {
 
   private WsActionTester newWsActionTester(ProfileExporter... profileExporters) {
     QProfileExporters exporters = new QProfileExporters(dbClient, null, null, profileExporters, null);
-    return new WsActionTester(new ExportAction(dbClient, backuper, exporters, LanguageTesting.newLanguages(XOO_LANGUAGE, JAVA_LANGUAGE)));
+    return new WsActionTester(new ExportAction(dbClient, backuper, exporters, LanguageTesting.newLanguages(XOO_LANGUAGE, JAVA_LANGUAGE), wsSupport));
   }
 
   private static ProfileExporter newExporter(String key) {
@@ -194,7 +196,8 @@ public class ExportActionIT {
     }
 
     @Override
-    public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, @Nullable String overriddenProfileName) {
+    public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, OrganizationDto organization,
+            @Nullable String overriddenProfileName) {
       throw new UnsupportedOperationException();
     }
 

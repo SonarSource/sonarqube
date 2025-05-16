@@ -68,6 +68,12 @@
       rt.rule_uuid = r.uuid
   </sql>
 
+  <sql id="leftOuterJoinRulesTagsWithOrganizationConstraint">
+    left outer join rule_tags rt on
+    rt.rule_uuid = r.uuid
+    and (rt.is_system_tag = ${_true} or rt.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
+  </sql>
+
   <sql id="selectJoinedTablesColumns">
     <!-- rule default impacts -->
     rdi.rule_uuid as "rdi_ruleUuid",
@@ -97,7 +103,7 @@
     <include refid="leftOuterJoinRulesMetadataWithOrganization"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
     <include refid="leftOuterJoinRulesDefaultImpacts"/>
-    <include refid="leftOuterJoinRulesTags"/>
+    <include refid="leftOuterJoinRulesTagsWithOrganizationConstraint"/>
     where (r.organization_uuid IS NULL or r.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
       and (rt.organization_uuid IS NULL or rt.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
   </select>
@@ -199,7 +205,7 @@
     <include refid="leftOuterJoinRulesMetadataWithOrganization"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
     <include refid="leftOuterJoinRulesDefaultImpacts"/>
-    <include refid="leftOuterJoinRulesTags"/>
+    <include refid="leftOuterJoinRulesTagsWithOrganizationConstraint"/>
     where
       <foreach collection="uuids" index="index" item="uuid" open="" separator=" or " close="">
         r.uuid=#{uuid,jdbcType=VARCHAR}
@@ -231,7 +237,7 @@
     <include refid="leftOuterJoinRulesMetadataWithOrganization"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
     <include refid="leftOuterJoinRulesDefaultImpacts"/>
-    <include refid="leftOuterJoinRulesTags"/>
+    <include refid="leftOuterJoinRulesTagsWithOrganizationConstraint"/>
     where
       r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR}
       and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR}
@@ -489,6 +495,7 @@
       scope=#{scope,jdbcType=VARCHAR},
       rule_type=#{type,jdbcType=TINYINT},
       education_principles=#{educationPrinciplesField,jdbcType=VARCHAR},
+      clean_code_attribute=#{cleanCodeAttribute,jdbcType=VARCHAR},
       updated_at=#{updatedAt,jdbcType=BIGINT}
     where
       uuid=#{uuid,jdbcType=VARCHAR}
@@ -561,8 +568,6 @@
       ad_hoc_description=#{adHocDescription,jdbcType=CLOB},
       ad_hoc_severity=#{adHocSeverity,jdbcType=VARCHAR},
       ad_hoc_type=#{adHocType,jdbcType=TINYINT},
-      education_principles=#{educationPrinciplesField,jdbcType=VARCHAR},
-      clean_code_attribute=#{cleanCodeAttribute,jdbcType=VARCHAR},
       updated_at=#{updatedAt,jdbcType=BIGINT}
     where
       rule_uuid=#{ruleUuid,jdbcType=VARCHAR}
@@ -747,7 +752,7 @@
   <select id="selectTags" resultType="string">
     SELECT DISTINCT value FROM
     rules r
-    <include refid="leftOuterJoinRulesTags"/>
+    <include refid="leftOuterJoinRulesTagsWithOrganizationConstraint"/>
     WHERE lower(value) like #{query}
       AND (r.organization_uuid IS NULL OR r.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
       AND (rt.organization_uuid IS NULL OR rt.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})

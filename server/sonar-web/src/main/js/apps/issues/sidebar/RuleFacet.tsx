@@ -45,7 +45,7 @@ export class RuleFacet extends React.PureComponent<Props> {
     const { organization, languages, types } = this.props.query;
 
     return searchRules({
-      organization,
+      organization: this.props.organization,
       f: 'name,langName',
       languages: languages.length ? languages.join() : undefined,
       q: query,

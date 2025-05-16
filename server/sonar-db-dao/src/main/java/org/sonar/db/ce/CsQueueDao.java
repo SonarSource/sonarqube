@@ -19,27 +19,21 @@
  */
 package org.sonar.db.ce;
 
-import java.io.IOException;
-import java.io.InputStream;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Set;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.Dao;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class CsQueueDao implements Dao {
 
+  private static final Logger log = LoggerFactory.getLogger(CsQueueDao.class);
   private final System2 system;
 
   public CsQueueDao(System2 system) {
@@ -50,14 +44,16 @@ public class CsQueueDao implements Dao {
    * @throws IllegalArgumentException if {@code csUniqueKey} is empty or null.
    */
   public void updateTaskUuid(DbSession dbSession, String taskUuid, String csUniqueKey) {
-    checkArgument(csUniqueKey != null, "cs_queue uniquekey can not be empty");
-    long now = system.now();
+    checkArgument(StringUtils.isNotBlank(csUniqueKey), "cs_queue uniquekey can not be empty");
     Connection connection = dbSession.getConnection();
     String query = "UPDATE cs_queue SET ce_task_id = ? WHERE uniquekey = ?";
     try (PreparedStatement stmt = connection.prepareStatement(query)) {
       stmt.setString(1, taskUuid);
       stmt.setString(2, csUniqueKey);
-      stmt.executeUpdate();
+      int rows = stmt.executeUpdate();
+      if (rows == 0) {
+        log.warn("No job found for key {} while updating for task {}", csUniqueKey, taskUuid);
+      }
       connection.commit();
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to update task_id in cs_queue for task " + taskUuid, e);

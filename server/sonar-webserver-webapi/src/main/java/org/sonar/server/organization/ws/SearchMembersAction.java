@@ -93,7 +93,7 @@ public class SearchMembersAction implements OrganizationsWsAction {
     action.createParam(PARAM_ORGANIZATION)
       .setDescription("Organization key")
       .setInternal(true)
-      .setRequired(false);
+      .setRequired(true);
   }
 
   @Override
