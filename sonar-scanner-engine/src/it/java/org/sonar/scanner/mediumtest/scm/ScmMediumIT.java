@@ -241,7 +241,7 @@ public class ScmMediumIT {
     assertThat(getChangesets(baseDir, NO_BLAME_SCM_ON_SERVER_XOO)).isNull();
 
     // 5 .xoo files + 3 .scm files, but only 4 marked for publishing. 1 file is SAME so not included in the total
-    assertThat(logTester.logs()).containsSubsequence("8 files indexed");
+    assertThat(logTester.logs()).anyMatch(s -> s.startsWith("8 files indexed (done) | time="));
     assertThat(logTester.logs()).containsSubsequence("SCM Publisher 4 source files to be analyzed");
     assertThat(logTester.logs().stream().anyMatch(s -> Pattern.matches("SCM Publisher 3/4 source files have been analyzed \\(done\\) \\| time=[0-9]+ms", s))).isTrue();
     assertThat(logTester.logs()).containsSubsequence(MISSING_BLAME_INFORMATION_FOR_THE_FOLLOWING_FILES, "  * src/no_blame_scm_on_server.xoo");

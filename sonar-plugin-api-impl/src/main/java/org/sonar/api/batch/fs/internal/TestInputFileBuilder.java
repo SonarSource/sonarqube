@@ -74,6 +74,7 @@ public class TestInputFileBuilder {
   private int lastValidOffset = -1;
   private boolean publish = true;
   private String contents;
+  private boolean hidden = false;
 
   /**
    * Create a InputFile identified by the given project key and relative path.
@@ -206,6 +207,11 @@ public class TestInputFileBuilder {
     return this;
   }
 
+  public TestInputFileBuilder setHidden(boolean isHiddenFile) {
+    this.hidden = isHiddenFile;
+    return this;
+  }
+
   public TestInputFileBuilder setMetadata(Metadata metadata) {
     this.setLines(metadata.lines());
     this.setLastValidOffset(metadata.lastValidOffset());
@@ -227,7 +233,8 @@ public class TestInputFileBuilder {
       projectBaseDir = moduleBaseDir;
     }
     String projectRelativePath = projectBaseDir.relativize(absolutePath).toString();
-    DefaultIndexedFile indexedFile = new DefaultIndexedFile(absolutePath, projectKey, projectRelativePath, relativePath, type, language, id, new SensorStrategy(), oldRelativePath);
+    DefaultIndexedFile indexedFile = new DefaultIndexedFile(absolutePath, projectKey, projectRelativePath, relativePath, type, language, id, new SensorStrategy(), oldRelativePath,
+      hidden);
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile,
       f -> f.setMetadata(new Metadata(lines, nonBlankLines, hash, originalLineStartOffsets, originalLineEndOffsets, lastValidOffset)),
       contents, f -> {});

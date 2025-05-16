@@ -50,22 +50,23 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
   private final Path absolutePath;
   private final SensorStrategy sensorStrategy;
   private final String oldRelativeFilePath;
+  private final boolean hidden;
 
   /**
    * Testing purposes only!
    */
   public DefaultIndexedFile(String projectKey, Path baseDir, String relativePath, @Nullable String language) {
     this(baseDir.resolve(relativePath), projectKey, relativePath, relativePath, Type.MAIN, language, intGenerator.getAndIncrement(),
-      new SensorStrategy(), null);
+      new SensorStrategy(), null, false);
   }
 
   public DefaultIndexedFile(Path absolutePath, String projectKey, String projectRelativePath, String moduleRelativePath, Type type, @Nullable String language, int batchId,
-    SensorStrategy sensorStrategy) {
-    this(absolutePath, projectKey, projectRelativePath, moduleRelativePath, type, language, batchId, sensorStrategy, null);
+    SensorStrategy sensorStrategy, boolean hidden) {
+    this(absolutePath, projectKey, projectRelativePath, moduleRelativePath, type, language, batchId, sensorStrategy, null, hidden);
   }
 
   public DefaultIndexedFile(Path absolutePath, String projectKey, String projectRelativePath, String moduleRelativePath, Type type, @Nullable String language, int batchId,
-    SensorStrategy sensorStrategy, @Nullable String oldRelativeFilePath) {
+    SensorStrategy sensorStrategy, @Nullable String oldRelativeFilePath, boolean hidden) {
     super(batchId);
     this.projectKey = projectKey;
     this.projectRelativePath = checkSanitize(projectRelativePath);
@@ -75,12 +76,13 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
     this.sensorStrategy = sensorStrategy;
     this.absolutePath = absolutePath;
     this.oldRelativeFilePath = oldRelativeFilePath;
+    this.hidden = hidden;
     validateKeyLength();
   }
 
   static String checkSanitize(String relativePath) {
     String sanitized = PathUtils.sanitize(relativePath);
-    if(sanitized == null) {
+    if (sanitized == null) {
       throw new IllegalArgumentException(String.format("The path '%s' must sanitize to a non-null value", relativePath));
     }
     return sanitized;
@@ -182,6 +184,11 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
   @Override
   public String filename() {
     return path().getFileName().toString();
+  }
+
+  @Override
+  public boolean isHidden() {
+    return hidden;
   }
 
   @Override

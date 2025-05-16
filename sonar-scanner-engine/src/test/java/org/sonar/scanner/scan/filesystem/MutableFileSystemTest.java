@@ -44,9 +44,15 @@ public class MutableFileSystemTest {
   }
 
   @Test
-  public void return_all_files_when_not_restricted() {
+  public void restriction_and_hidden_file_should_be_disabled_on_default() {
+    assertThat(underTest.restrictToChangedFiles).isFalse();
+    assertThat(underTest.allowHiddenFileAnalysis).isFalse();
+  }
+
+  @Test
+  public void return_all_non_hidden_files_when_not_restricted_and_disabled() {
     assertThat(underTest.inputFiles(underTest.predicates().all())).isEmpty();
-    addFileWithAllStatus();
+    addFilesWithAllStatus();
     underTest.setRestrictToChangedFiles(false);
 
     assertThat(underTest.inputFiles(underTest.predicates().all())).hasSize(3);
@@ -58,7 +64,7 @@ public class MutableFileSystemTest {
   @Test
   public void return_only_changed_files_when_restricted() {
     assertThat(underTest.inputFiles(underTest.predicates().all())).isEmpty();
-    addFileWithAllStatus();
+    addFilesWithAllStatus();
     underTest.setRestrictToChangedFiles(true);
 
     assertThat(underTest.inputFiles(underTest.predicates().all())).hasSize(2);
@@ -67,19 +73,62 @@ public class MutableFileSystemTest {
     assertThat(underTest.inputFile(underTest.predicates().hasFilename(generateFilename(InputFile.Status.CHANGED)))).isNotNull();
   }
 
-  private void addFileWithAllStatus() {
+  @Test
+  public void return_all_files_when_allowing_hidden_files_analysis() {
+    assertThat(underTest.inputFiles(underTest.predicates().all())).isEmpty();
+    addFilesWithVisibility();
+    underTest.setAllowHiddenFileAnalysis(true);
+
+    assertThat(underTest.inputFiles(underTest.predicates().all())).hasSize(2);
+    assertThat(underTest.inputFile(underTest.predicates().hasFilename(generateFilename(true)))).isNotNull();
+    assertThat(underTest.inputFile(underTest.predicates().hasFilename(generateFilename(false)))).isNotNull();
+  }
+
+  @Test
+  public void return_only_non_hidden_files_when_not_allowing_hidden_files_analysis() {
+    assertThat(underTest.inputFiles(underTest.predicates().all())).isEmpty();
+    addFilesWithVisibility();
+    underTest.setAllowHiddenFileAnalysis(false);
+
+    assertThat(underTest.inputFiles(underTest.predicates().all())).hasSize(1);
+    assertThat(underTest.inputFile(underTest.predicates().hasFilename(generateFilename(true)))).isNull();
+    assertThat(underTest.inputFile(underTest.predicates().hasFilename(generateFilename(false)))).isNotNull();
+  }
+
+  private void addFilesWithVisibility() {
+    addFile(true);
+    addFile(false);
+  }
+
+  private void addFilesWithAllStatus() {
     addFile(InputFile.Status.ADDED);
     addFile(InputFile.Status.CHANGED);
     addFile(InputFile.Status.SAME);
   }
 
   private void addFile(InputFile.Status status) {
-    underTest.add(new TestInputFileBuilder("foo", String.format("src/%s", generateFilename(status)))
-      .setLanguage(LANGUAGE).setStatus(status).build());
+    addFile(status, false);
+  }
+
+  private void addFile(boolean hidden) {
+    addFile(InputFile.Status.SAME, hidden);
+  }
+
+  private void addFile(InputFile.Status status, boolean hidden) {
+    underTest.add(new TestInputFileBuilder("foo", String.format("src/%s", generateFilename(status, hidden)))
+      .setLanguage(LANGUAGE).setStatus(status).setHidden(hidden).build());
+  }
+
+  private String generateFilename(boolean hidden) {
+    return generateFilename(InputFile.Status.SAME, hidden);
   }
 
   private String generateFilename(InputFile.Status status) {
-    return String.format("%s.%s", status.name().toLowerCase(Locale.ROOT), LANGUAGE);
+    return generateFilename(status, false);
+  }
+
+  private String generateFilename(InputFile.Status status, boolean hidden) {
+    return String.format("%s.%s.%s", status.name().toLowerCase(Locale.ROOT), hidden, LANGUAGE);
   }
 
 }

@@ -27,20 +27,26 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Optional;
 import org.apache.commons.lang3.SystemUtils;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.scanner.bootstrap.SonarUserHome;
 import org.sonar.scanner.fs.InputModuleHierarchy;
+import org.sonar.scanner.scan.ModuleConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DirectoryFileVisitorTest {
 
@@ -48,24 +54,48 @@ public class DirectoryFileVisitorTest {
   public static TemporaryFolder temp = new TemporaryFolder();
 
   private final DefaultInputModule module = mock();
+  private final ModuleConfiguration moduleConfiguration = mock();
   private final ModuleExclusionFilters moduleExclusionFilters = mock();
   private final InputModuleHierarchy inputModuleHierarchy = mock();
   private final InputFile.Type type = mock();
+  private final SonarUserHome sonarUserHome = mock();
+  private HiddenFilesProjectData hiddenFilesProjectData;
+
+  @Before
+  public void before() throws IOException {
+    Path sonarUserHomePath = temp.newFolder().toPath();
+    when(sonarUserHome.getPath()).thenReturn(sonarUserHomePath);
+    File workDir = temp.newFolder();
+    when(module.getWorkDir()).thenReturn(workDir.toPath());
+    hiddenFilesProjectData = spy(new HiddenFilesProjectData(sonarUserHome));
+  }
 
   @Test
-  public void visit_hidden_file() throws IOException {
+  public void should_not_visit_hidden_file() throws IOException {
+    when(moduleConfiguration.getBoolean("sonar.scanner.excludeHiddenFiles")).thenReturn(Optional.of(true));
     DirectoryFileVisitor.FileVisitAction action = mock(DirectoryFileVisitor.FileVisitAction.class);
 
-    File hidden = temp.newFile(".hidden");
-    if (SystemUtils.IS_OS_WINDOWS) {
-      Files.setAttribute(hidden.toPath(), "dos:hidden", true, LinkOption.NOFOLLOW_LINKS);
-    }
+    File hidden = temp.newFile(".hiddenNotVisited");
+    setAsHiddenOnWindows(hidden);
 
-
-    DirectoryFileVisitor underTest = new DirectoryFileVisitor(action, module, moduleExclusionFilters, inputModuleHierarchy, type);
+    DirectoryFileVisitor underTest = new DirectoryFileVisitor(action, module, moduleConfiguration, moduleExclusionFilters, inputModuleHierarchy, type, hiddenFilesProjectData);
     underTest.visitFile(hidden.toPath(), Files.readAttributes(hidden.toPath(), BasicFileAttributes.class));
 
     verify(action, never()).execute(any(Path.class));
+  }
+
+  @Test
+  public void should_visit_hidden_file() throws IOException {
+    when(moduleConfiguration.getBoolean("sonar.scanner.excludeHiddenFiles")).thenReturn(Optional.of(false));
+    DirectoryFileVisitor.FileVisitAction action = mock(DirectoryFileVisitor.FileVisitAction.class);
+
+    File hidden = temp.newFile(".hiddenVisited");
+    setAsHiddenOnWindows(hidden);
+
+    DirectoryFileVisitor underTest = new DirectoryFileVisitor(action, module, moduleConfiguration, moduleExclusionFilters, inputModuleHierarchy, type, hiddenFilesProjectData);
+    underTest.visitFile(hidden.toPath(), Files.readAttributes(hidden.toPath(), BasicFileAttributes.class));
+
+    verify(action).execute(any(Path.class));
   }
 
   @Test
@@ -74,7 +104,7 @@ public class DirectoryFileVisitorTest {
 
     File file = temp.newFile("failed");
 
-    DirectoryFileVisitor underTest = new DirectoryFileVisitor(action, module, moduleExclusionFilters, inputModuleHierarchy, type);
+    DirectoryFileVisitor underTest = new DirectoryFileVisitor(action, module, moduleConfiguration, moduleExclusionFilters, inputModuleHierarchy, type, hiddenFilesProjectData);
     assertThrows(IOException.class, () -> underTest.visitFileFailed(file.toPath(), new IOException()));
   }
 
@@ -84,10 +114,15 @@ public class DirectoryFileVisitorTest {
 
     File file = temp.newFile("symlink");
 
-    DirectoryFileVisitor underTest = new DirectoryFileVisitor(action, module, moduleExclusionFilters, inputModuleHierarchy, type);
+    DirectoryFileVisitor underTest = new DirectoryFileVisitor(action, module, moduleConfiguration, moduleExclusionFilters, inputModuleHierarchy, type, hiddenFilesProjectData);
     FileVisitResult result = underTest.visitFileFailed(file.toPath(), new FileSystemLoopException(file.getPath()));
 
     assertThat(result).isEqualTo(FileVisitResult.CONTINUE);
   }
 
+  private static void setAsHiddenOnWindows(File file) throws IOException {
+    if (SystemUtils.IS_OS_WINDOWS) {
+      Files.setAttribute(file.toPath(), "dos:hidden", true, LinkOption.NOFOLLOW_LINKS);
+    }
+  }
 }

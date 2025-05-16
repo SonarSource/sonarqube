@@ -25,9 +25,12 @@ import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.predicates.ChangedFilePredicate;
+import org.sonar.api.batch.fs.internal.predicates.HiddenFilesPredicate;
 
 public class MutableFileSystem extends DefaultFileSystem {
-  private boolean restrictToChangedFiles = false;
+
+  boolean restrictToChangedFiles = false;
+  boolean allowHiddenFileAnalysis = false;
 
   public MutableFileSystem(Path baseDir, Cache cache, FilePredicates filePredicates) {
     super(baseDir, cache, filePredicates);
@@ -39,21 +42,37 @@ public class MutableFileSystem extends DefaultFileSystem {
 
   @Override
   public Iterable<InputFile> inputFiles(FilePredicate requestPredicate) {
-    if (restrictToChangedFiles) {
-      return super.inputFiles(new ChangedFilePredicate(requestPredicate));
-    }
-    return super.inputFiles(requestPredicate);
+    return super.inputFiles(applyAdditionalPredicate(requestPredicate));
   }
 
   @Override
   public InputFile inputFile(FilePredicate requestPredicate) {
-    if (restrictToChangedFiles) {
-      return super.inputFile(new ChangedFilePredicate(requestPredicate));
+    return super.inputFile(applyAdditionalPredicate(requestPredicate));
+  }
+
+  private FilePredicate applyAdditionalPredicate(FilePredicate requestPredicate) {
+    return applyHiddenFilePredicate(applyChangedFilePredicate(requestPredicate));
+  }
+
+  private FilePredicate applyHiddenFilePredicate(FilePredicate predicate) {
+    if (allowHiddenFileAnalysis) {
+      return predicate;
     }
-    return super.inputFile(requestPredicate);
+    return new HiddenFilesPredicate(predicate);
+  }
+
+  private FilePredicate applyChangedFilePredicate(FilePredicate predicate) {
+    if (restrictToChangedFiles) {
+      return new ChangedFilePredicate(predicate);
+    }
+    return predicate;
   }
 
   public void setRestrictToChangedFiles(boolean restrictToChangedFiles) {
     this.restrictToChangedFiles = restrictToChangedFiles;
+  }
+
+  public void setAllowHiddenFileAnalysis(boolean allowHiddenFileAnalysis) {
+    this.allowHiddenFileAnalysis = allowHiddenFileAnalysis;
   }
 }

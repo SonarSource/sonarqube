@@ -88,7 +88,7 @@ public class ChangedFileTest {
       secure().next(5),
       Integer.parseInt(secure().nextNumeric(5)),
       new SensorStrategy(),
-      oldRelativePath);
+      oldRelativePath, false);
   }
 
 }

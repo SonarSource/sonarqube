@@ -66,6 +66,7 @@ public class ProjectFilePreprocessor {
   private final LanguageDetection languageDetection;
   private final FilePreprocessor filePreprocessor;
   private final ProjectExclusionFilters projectExclusionFilters;
+  private final HiddenFilesProjectData hiddenFilesProjectData;
 
   private final SonarGlobalPropertiesFilter sonarGlobalPropertiesFilter;
 
@@ -79,7 +80,7 @@ public class ProjectFilePreprocessor {
   public ProjectFilePreprocessor(AnalysisWarnings analysisWarnings, ScmConfiguration scmConfiguration, InputModuleHierarchy inputModuleHierarchy,
     GlobalConfiguration globalConfig, GlobalServerSettings globalServerSettings, ProjectServerSettings projectServerSettings,
     LanguageDetection languageDetection, FilePreprocessor filePreprocessor,
-    ProjectExclusionFilters projectExclusionFilters, SonarGlobalPropertiesFilter sonarGlobalPropertiesFilter) {
+    ProjectExclusionFilters projectExclusionFilters, SonarGlobalPropertiesFilter sonarGlobalPropertiesFilter, HiddenFilesProjectData hiddenFilesProjectData) {
     this.analysisWarnings = analysisWarnings;
     this.scmConfiguration = scmConfiguration;
     this.inputModuleHierarchy = inputModuleHierarchy;
@@ -92,6 +93,7 @@ public class ProjectFilePreprocessor {
     this.sonarGlobalPropertiesFilter = sonarGlobalPropertiesFilter;
     this.ignoreCommand = loadIgnoreCommand();
     this.useScmExclusion = ignoreCommand != null;
+    this.hiddenFilesProjectData = hiddenFilesProjectData;
   }
 
   public void execute() {
@@ -109,7 +111,7 @@ public class ProjectFilePreprocessor {
 
     int totalLanguagesDetected = languageDetection.getDetectedLanguages().size();
 
-    progressReport.stop(String.format("%s detected in %s", pluralizeWithCount("language", totalLanguagesDetected),
+    progressReport.stopAndLogTotalTime(String.format("%s detected in %s", pluralizeWithCount("language", totalLanguagesDetected),
       pluralizeWithCount("preprocessed file", totalFilesPreprocessed)));
 
     int excludedFileByPatternCount = exclusionCounter.getByPatternsCount();
@@ -138,24 +140,24 @@ public class ProjectFilePreprocessor {
     // Default to index basedir when no sources provided
     List<Path> mainSourceDirsOrFiles = module.getSourceDirsOrFiles()
       .orElseGet(() -> hasChildModules || hasTests ? emptyList() : singletonList(module.getBaseDir().toAbsolutePath()));
-    List<Path> processedSources = processModuleSources(module, moduleExclusionFilters, mainSourceDirsOrFiles, InputFile.Type.MAIN,
+    List<Path> processedSources = processModuleSources(module, moduleConfig, moduleExclusionFilters, mainSourceDirsOrFiles, InputFile.Type.MAIN,
       exclusionCounter);
     mainSourcesByModule.put(module, processedSources);
     totalFilesPreprocessed += processedSources.size();
     module.getTestDirsOrFiles().ifPresent(tests -> {
-      List<Path> processedTestSources = processModuleSources(module, moduleExclusionFilters, tests, InputFile.Type.TEST, exclusionCounter);
+      List<Path> processedTestSources = processModuleSources(module, moduleConfig, moduleExclusionFilters, tests, InputFile.Type.TEST, exclusionCounter);
       testSourcesByModule.put(module, processedTestSources);
       totalFilesPreprocessed += processedTestSources.size();
     });
   }
 
-  private List<Path> processModuleSources(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, List<Path> sources,
+  private List<Path> processModuleSources(DefaultInputModule module, ModuleConfiguration moduleConfiguration, ModuleExclusionFilters moduleExclusionFilters, List<Path> sources,
     InputFile.Type type, ExclusionCounter exclusionCounter) {
     List<Path> processedFiles = new ArrayList<>();
     try {
       for (Path dirOrFile : sources) {
         if (dirOrFile.toFile().isDirectory()) {
-          processedFiles.addAll(processDirectory(module, moduleExclusionFilters, dirOrFile, type, exclusionCounter));
+          processedFiles.addAll(processDirectory(module, moduleConfiguration, moduleExclusionFilters, dirOrFile, type, exclusionCounter));
         } else {
           filePreprocessor.processFile(module, moduleExclusionFilters, dirOrFile, type, exclusionCounter, ignoreCommand)
             .ifPresent(processedFiles::add);
@@ -167,12 +169,12 @@ public class ProjectFilePreprocessor {
     return processedFiles;
   }
 
-  private List<Path> processDirectory(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, Path path,
+  private List<Path> processDirectory(DefaultInputModule module, ModuleConfiguration moduleConfiguration, ModuleExclusionFilters moduleExclusionFilters, Path path,
     InputFile.Type type, ExclusionCounter exclusionCounter) throws IOException {
     List<Path> processedFiles = new ArrayList<>();
     Files.walkFileTree(path.normalize(), Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
       new DirectoryFileVisitor(file -> filePreprocessor.processFile(module, moduleExclusionFilters, file, type, exclusionCounter,
-        ignoreCommand).ifPresent(processedFiles::add), module, moduleExclusionFilters, inputModuleHierarchy, type));
+        ignoreCommand).ifPresent(processedFiles::add), module, moduleConfiguration, moduleExclusionFilters, inputModuleHierarchy, type, hiddenFilesProjectData));
     return processedFiles;
   }
 

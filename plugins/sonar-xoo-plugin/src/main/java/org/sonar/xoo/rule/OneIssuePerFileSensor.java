@@ -23,6 +23,7 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.RuleKey;
@@ -32,6 +33,7 @@ public class OneIssuePerFileSensor extends AbstractXooRuleSensor {
   public static final String RULE_KEY = "OneIssuePerFile";
 
   private static final String EFFORT_TO_FIX_PROPERTY = "sonar.oneIssuePerFile.effortToFix";
+  private static final String ENABLE_HIDDEN_FILE_PROCESSING = "sonar.oneIssuePerFile.enableHiddenFileProcessing";
 
   private final Configuration settings;
 
@@ -41,11 +43,20 @@ public class OneIssuePerFileSensor extends AbstractXooRuleSensor {
   }
 
   @Override
+  public void describe(SensorDescriptor descriptor) {
+    super.describe(descriptor);
+    if (settings.getBoolean(ENABLE_HIDDEN_FILE_PROCESSING).orElse(false)) {
+      descriptor.processesHiddenFiles();
+    }
+  }
+
+  @Override
   protected String getRuleKey() {
     return RULE_KEY;
   }
 
-  @Override protected void processFile(InputFile inputFile, SensorContext context, RuleKey ruleKey, String languageKey) {
+  @Override
+  protected void processFile(InputFile inputFile, SensorContext context, RuleKey ruleKey, String languageKey) {
     NewIssue newIssue = context.newIssue()
       .forRule(ruleKey)
       .gap(settings.getDouble(EFFORT_TO_FIX_PROPERTY).orElse(0.0));

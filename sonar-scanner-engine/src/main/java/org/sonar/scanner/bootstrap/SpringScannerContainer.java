@@ -115,6 +115,7 @@ import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.branch.ProjectBranchesProvider;
 import org.sonar.scanner.scan.filesystem.DefaultProjectFileSystem;
 import org.sonar.scanner.scan.filesystem.FilePreprocessor;
+import org.sonar.scanner.scan.filesystem.HiddenFilesProjectData;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scan.filesystem.LanguageDetection;
 import org.sonar.scanner.scan.filesystem.MetadataGenerator;
@@ -199,6 +200,7 @@ public class SpringScannerContainer extends SpringComponentContainer {
       FilePreprocessor.class,
       ProjectFilePreprocessor.class,
       ProjectExclusionFilters.class,
+      HiddenFilesProjectData.class,
 
       // rules
       new ActiveRulesProvider(),

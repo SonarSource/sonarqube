@@ -73,7 +73,6 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   private BitSet executableLines;
   private boolean markedAsUnchanged;
 
-
   public DefaultInputFile(DefaultIndexedFile indexedFile, Consumer<DefaultInputFile> metadataGenerator, Consumer<DefaultInputFile> scmStatusGenerator) {
     this(indexedFile, metadataGenerator, null, scmStatusGenerator);
   }
@@ -99,7 +98,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   }
 
   private void checkScmStatus() {
-    if(status == null) {
+    if (status == null) {
       scmStatusGenerator.accept(this);
     }
   }
@@ -108,7 +107,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   public InputStream inputStream() throws IOException {
     return contents != null ? new ByteArrayInputStream(contents.getBytes(charset()))
       : new BOMInputStream(Files.newInputStream(path()),
-      ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
+        ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
   }
 
   public boolean isMarkedAsUnchanged() {
@@ -212,6 +211,11 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     return indexedFile.type();
   }
 
+  @Override
+  public boolean isHidden() {
+    return indexedFile.isHidden();
+  }
+
   /**
    * Component key (without branch).
    */
@@ -236,7 +240,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   @Override
   public Status status() {
     checkScmStatus();
-    if(status == null) {
+    if (status == null) {
       // scm might not be available, fallback to using hashes in the metadata
       checkMetadata();
     }

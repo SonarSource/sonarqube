@@ -55,12 +55,14 @@ public class TestInputFileBuilderTest {
     DefaultInputFile file = TestInputFileBuilder.create("module", new File("baseDir"), new File("baseDir", "path"))
       .setStatus(Status.SAME)
       .setType(Type.MAIN)
+      .setHidden(true)
       .build();
 
     assertThat(file.type()).isEqualTo(Type.MAIN);
     assertThat(file.status()).isEqualTo(Status.SAME);
     assertThat(file.isPublished()).isTrue();
     assertThat(file.type()).isEqualTo(Type.MAIN);
+    assertThat(file.isHidden()).isTrue();
     assertThat(file.relativePath()).isEqualTo("path");
     assertThat(file.absolutePath()).isEqualTo("baseDir/path");
 

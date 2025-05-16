@@ -19,11 +19,11 @@
  */
 package org.sonar.scanner.sensor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.scanner.sensor.ProjectSensor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.filesystem.MutableFileSystem;
@@ -60,7 +60,12 @@ public abstract class AbstractSensorWrapper<G extends ProjectSensor> {
     if (sensorIsRestricted) {
       LOGGER.info("Sensor {} is restricted to changed files only", descriptor.name());
     }
+    boolean allowHiddenFileAnalysis = descriptor.isProcessesHiddenFiles();
+    if (allowHiddenFileAnalysis) {
+      LOGGER.debug("Sensor {} is allowed to analyze hidden files", descriptor.name());
+    }
     fileSystem.setRestrictToChangedFiles(sensorIsRestricted);
+    fileSystem.setAllowHiddenFileAnalysis(allowHiddenFileAnalysis);
     wrappedSensor.execute(context);
   }
 

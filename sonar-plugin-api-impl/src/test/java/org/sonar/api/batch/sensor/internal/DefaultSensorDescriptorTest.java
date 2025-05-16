@@ -36,7 +36,7 @@ public class DefaultSensorDescriptorTest {
   public void describe_defaults() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
     descriptor
-            .name("Foo");
+      .name("Foo");
 
     assertThat(descriptor.name()).isEqualTo("Foo");
     assertThat(descriptor.languages()).isEmpty();

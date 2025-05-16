@@ -24,17 +24,15 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.FileSystemLoopException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
-import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.DosFileAttributes;
-import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.scanner.fs.InputModuleHierarchy;
+import org.sonar.scanner.scan.ModuleConfiguration;
 
 public class DirectoryFileVisitor implements FileVisitor<Path> {
 
@@ -43,27 +41,31 @@ public class DirectoryFileVisitor implements FileVisitor<Path> {
   private final FileVisitAction fileVisitAction;
   private final DefaultInputModule module;
   private final ModuleExclusionFilters moduleExclusionFilters;
-
   private final InputModuleHierarchy inputModuleHierarchy;
   private final InputFile.Type type;
+  private final HiddenFilesVisitorHelper hiddenFilesVisitorHelper;
 
-  DirectoryFileVisitor(FileVisitAction fileVisitAction, DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters,
-    InputModuleHierarchy inputModuleHierarchy, InputFile.Type type) {
+  DirectoryFileVisitor(FileVisitAction fileVisitAction, DefaultInputModule module, ModuleConfiguration moduleConfig, ModuleExclusionFilters moduleExclusionFilters,
+    InputModuleHierarchy inputModuleHierarchy, InputFile.Type type, HiddenFilesProjectData hiddenFilesProjectData) {
     this.fileVisitAction = fileVisitAction;
     this.module = module;
     this.moduleExclusionFilters = moduleExclusionFilters;
     this.inputModuleHierarchy = inputModuleHierarchy;
     this.type = type;
+    this.hiddenFilesVisitorHelper = new HiddenFilesVisitorHelper(hiddenFilesProjectData, module, moduleConfig);
   }
 
   @Override
   public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-    return isHidden(dir) ? FileVisitResult.SKIP_SUBTREE : FileVisitResult.CONTINUE;
+    if (hiddenFilesVisitorHelper.shouldVisitDir(dir)) {
+      return FileVisitResult.CONTINUE;
+    }
+    return FileVisitResult.SKIP_SUBTREE;
   }
 
   @Override
   public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-    if (!Files.isHidden(file)) {
+    if (hiddenFilesVisitorHelper.shouldVisitFile(file)) {
       fileVisitAction.execute(file);
     }
     return FileVisitResult.CONTINUE;
@@ -129,20 +131,8 @@ public class DirectoryFileVisitor implements FileVisitor<Path> {
 
   @Override
   public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+    hiddenFilesVisitorHelper.exitDirectory(dir);
     return FileVisitResult.CONTINUE;
-  }
-
-  private static boolean isHidden(Path path) throws IOException {
-    if (SystemUtils.IS_OS_WINDOWS) {
-      try {
-        DosFileAttributes dosFileAttributes = Files.readAttributes(path, DosFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
-        return dosFileAttributes.isHidden();
-      } catch (UnsupportedOperationException e) {
-        return path.toFile().isHidden();
-      }
-    } else {
-      return Files.isHidden(path);
-    }
   }
 
   @FunctionalInterface
@@ -150,4 +140,3 @@ public class DirectoryFileVisitor implements FileVisitor<Path> {
     void execute(Path file) throws IOException;
   }
 }
-

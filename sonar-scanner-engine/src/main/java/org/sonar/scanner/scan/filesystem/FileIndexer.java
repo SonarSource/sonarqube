@@ -63,12 +63,13 @@ public class FileIndexer {
   private final ModuleRelativePathWarner moduleRelativePathWarner;
   private final InputFileFilterRepository inputFileFilterRepository;
   private final Languages languages;
+  private final HiddenFilesProjectData hiddenFilesProjectData;
 
   public FileIndexer(DefaultInputProject project, ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore,
     ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions, IssueExclusionsLoader issueExclusionsLoader,
     MetadataGenerator metadataGenerator, SensorStrategy sensorStrategy, LanguageDetection languageDetection, ScanProperties properties,
     ScmChangedFiles scmChangedFiles, StatusDetection statusDetection, ModuleRelativePathWarner moduleRelativePathWarner,
-    InputFileFilterRepository inputFileFilterRepository, Languages languages) {
+    InputFileFilterRepository inputFileFilterRepository, Languages languages, HiddenFilesProjectData hiddenFilesProjectData) {
     this.project = project;
     this.scannerComponentIdGenerator = scannerComponentIdGenerator;
     this.componentStore = componentStore;
@@ -83,10 +84,11 @@ public class FileIndexer {
     this.moduleRelativePathWarner = moduleRelativePathWarner;
     this.inputFileFilterRepository = inputFileFilterRepository;
     this.languages = languages;
+    this.hiddenFilesProjectData = hiddenFilesProjectData;
   }
 
-  void indexFile(DefaultInputModule module, ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions, Path sourceFile,
-    Type type, ProgressReport progressReport) {
+  void indexFile(DefaultInputModule module, ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions, Path sourceFile, Type type,
+    ProgressReport progressReport) {
     Path projectRelativePath = project.getBaseDir().relativize(sourceFile);
     Path moduleRelativePath = module.getBaseDir().relativize(sourceFile);
 
@@ -102,7 +104,8 @@ public class FileIndexer {
       language != null ? language.key() : null,
       scannerComponentIdGenerator.getAsInt(),
       sensorStrategy,
-      scmChangedFiles.getOldRelativeFilePath(sourceFile));
+      scmChangedFiles.getOldRelativeFilePath(sourceFile),
+      hiddenFilesProjectData.isMarkedAsHiddenFile(sourceFile, module));
 
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(module.key(), f, module.getEncoding()),
       f -> f.setStatus(statusDetection.findStatusFromScm(f)));

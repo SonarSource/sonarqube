@@ -62,6 +62,7 @@ public class ProjectFileIndexer {
   private final FileIndexer fileIndexer;
   private final ProjectFilePreprocessor projectFilePreprocessor;
   private final AnalysisWarnings analysisWarnings;
+  private final HiddenFilesProjectData hiddenFilesProjectData;
 
   private ProgressReport progressReport;
 
@@ -69,7 +70,7 @@ public class ProjectFileIndexer {
     SonarGlobalPropertiesFilter sonarGlobalPropertiesFilter, InputModuleHierarchy inputModuleHierarchy,
     GlobalConfiguration globalConfig, GlobalServerSettings globalServerSettings, ProjectServerSettings projectServerSettings,
     FileIndexer fileIndexer, ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions,
-    ProjectFilePreprocessor projectFilePreprocessor, AnalysisWarnings analysisWarnings) {
+    ProjectFilePreprocessor projectFilePreprocessor, AnalysisWarnings analysisWarnings, HiddenFilesProjectData hiddenFilesProjectData) {
     this.componentStore = componentStore;
     this.sonarGlobalPropertiesFilter = sonarGlobalPropertiesFilter;
     this.inputModuleHierarchy = inputModuleHierarchy;
@@ -81,6 +82,7 @@ public class ProjectFileIndexer {
     this.projectCoverageAndDuplicationExclusions = projectCoverageAndDuplicationExclusions;
     this.projectFilePreprocessor = projectFilePreprocessor;
     this.analysisWarnings = analysisWarnings;
+    this.hiddenFilesProjectData = hiddenFilesProjectData;
   }
 
   public void index() {
@@ -91,10 +93,10 @@ public class ProjectFileIndexer {
     projectCoverageAndDuplicationExclusions.log("  ");
 
     indexModulesRecursively(inputModuleHierarchy.root());
+    hiddenFilesProjectData.clearHiddenFilesData();
 
     int totalIndexed = componentStore.inputFiles().size();
-    progressReport.stop(totalIndexed + " " + pluralizeFiles(totalIndexed) + " indexed");
-
+    progressReport.stopAndLogTotalTime(totalIndexed + " " + pluralizeFiles(totalIndexed) + " indexed");
   }
 
   private void indexModulesRecursively(DefaultInputModule module) {
@@ -118,15 +120,15 @@ public class ProjectFileIndexer {
       moduleCoverageAndDuplicationExclusions.log("  ");
     }
     List<Path> mainSourceDirsOrFiles = projectFilePreprocessor.getMainSourcesByModule(module);
-    indexFiles(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, mainSourceDirsOrFiles, Type.MAIN);
+    indexFiles(module, moduleConfig, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, mainSourceDirsOrFiles, Type.MAIN);
     projectFilePreprocessor.getTestSourcesByModule(module)
-      .ifPresent(tests -> indexFiles(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, tests, Type.TEST));
+      .ifPresent(tests -> indexFiles(module, moduleConfig, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, tests, Type.TEST));
   }
 
   private static void logPaths(String label, Path baseDir, List<Path> paths) {
     if (!paths.isEmpty()) {
       StringBuilder sb = new StringBuilder(label);
-      for (Iterator<Path> it = paths.iterator(); it.hasNext(); ) {
+      for (Iterator<Path> it = paths.iterator(); it.hasNext();) {
         Path file = it.next();
         Optional<String> relativePathToBaseDir = PathResolver.relativize(baseDir, file);
         if (relativePathToBaseDir.isEmpty()) {
@@ -148,12 +150,13 @@ public class ProjectFileIndexer {
     }
   }
 
-  private void indexFiles(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions,
+  private void indexFiles(DefaultInputModule module, ModuleConfiguration moduleConfig, ModuleExclusionFilters moduleExclusionFilters,
+    ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions,
     List<Path> sources, Type type) {
     try {
       for (Path dirOrFile : sources) {
         if (dirOrFile.toFile().isDirectory()) {
-          indexDirectory(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, dirOrFile, type);
+          indexDirectory(module, moduleConfig, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, dirOrFile, type);
         } else {
           fileIndexer.indexFile(module, moduleCoverageAndDuplicationExclusions, dirOrFile, type, progressReport);
         }
@@ -163,18 +166,16 @@ public class ProjectFileIndexer {
     }
   }
 
-  private void indexDirectory(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters,
+  private void indexDirectory(DefaultInputModule module, ModuleConfiguration moduleConfig, ModuleExclusionFilters moduleExclusionFilters,
     ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions,
     Path dirToIndex, Type type) throws IOException {
     Files.walkFileTree(dirToIndex.normalize(), Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
       new DirectoryFileVisitor(file -> fileIndexer.indexFile(module, moduleCoverageAndDuplicationExclusions, file, type, progressReport),
-        module, moduleExclusionFilters, inputModuleHierarchy, type));
+        module, moduleConfig, moduleExclusionFilters, inputModuleHierarchy, type, hiddenFilesProjectData));
   }
 
   private static String pluralizeFiles(int count) {
     return count == 1 ? "file" : "files";
   }
-
-
 
 }

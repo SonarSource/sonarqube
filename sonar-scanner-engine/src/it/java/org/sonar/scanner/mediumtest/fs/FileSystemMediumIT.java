@@ -28,7 +28,10 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -36,6 +39,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.event.Level;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarEdition;
@@ -49,6 +54,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.ScannerMediumTester.AnalysisBuilder;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.global.DeprecatedGlobalSensor;
 import org.sonar.xoo.global.GlobalProjectSensor;
@@ -150,7 +156,7 @@ class FileSystemMediumIT {
         .build())
       .execute();
 
-    assertThat(logTester.logs()).contains("2 files indexed");
+    assertThat(logTester.logs()).anyMatch(log -> log.startsWith("2 files indexed (done) | time="));
     assertThat(logTester.logs()).contains("'src/sample.xoo' generated metadata with charset 'UTF-8'");
     assertThat(String.join("\n", logTester.logs())).doesNotContain("'src/sample.java' generated metadata");
   }
@@ -173,7 +179,7 @@ class FileSystemMediumIT {
         .build())
       .execute();
 
-    assertThat(logTester.logs()).contains("2 files indexed");
+    assertThat(logTester.logs()).anyMatch(log -> log.startsWith("2 files indexed (done) | time="));
     assertThat(logTester.logs()).contains("'src/sample.xoo' generated metadata with charset 'UTF-8'");
     assertThat(logTester.logs()).contains("'src/sample.java' generated metadata with charset 'UTF-8'");
   }
@@ -200,7 +206,7 @@ class FileSystemMediumIT {
       .execute();
 
     assertThat(logTester.logs()).containsAnyOf("'src/main/sample.java' indexed with no language", "'src\\main\\sample.java' indexed with no language");
-    assertThat(logTester.logs()).contains("3 files indexed");
+    assertThat(logTester.logs()).anyMatch(log -> log.startsWith("3 files indexed (done) | time="));
     assertThat(logTester.logs()).contains("'src/main/sample.xoo' generated metadata with charset 'UTF-8'");
     assertThat(logTester.logs()).doesNotContain("'src/main/sample.java' generated metadata", "'src\\main\\sample.java' generated metadata");
     assertThat(logTester.logs()).doesNotContain("'src/test/sample.java' generated metadata", "'src\\test\\sample.java' generated metadata");
@@ -231,7 +237,7 @@ class FileSystemMediumIT {
         .build())
       .execute();
 
-    assertThat(logTester.logs()).contains("1 file indexed");
+    assertThat(logTester.logs()).anyMatch(log -> log.startsWith("1 file indexed (done) | time="));
     assertThat(logTester.logs()).contains("'src/sample.unknown' indexed with no language");
     assertThat(logTester.logs()).contains("'src/sample.unknown' generated metadata with charset 'UTF-8'");
     DefaultInputFile inputFile = (DefaultInputFile) result.inputFile("src/sample.unknown");
@@ -1147,7 +1153,7 @@ class FileSystemMediumIT {
         .build())
       .execute();
 
-    assertThat(logTester.logs()).contains("1 file indexed");
+    assertThat(logTester.logs()).anyMatch(log -> log.startsWith("1 file indexed (done) | time="));
     assertThat(result.inputFile("sample.xoo")).isNotNull();
   }
 
@@ -1314,6 +1320,113 @@ class FileSystemMediumIT {
       .hasMessageEndingWith("Failed to preprocess files");
   }
 
+  @ParameterizedTest
+  @ValueSource(booleans = {
+    true,
+    false
+  })
+  void shouldScanAndAnalyzeAllHiddenFiles(boolean setHiddenFileScanningExplicitly) throws IOException {
+    prepareHiddenFileProject();
+    File projectDir = new File("test-resources/mediumtest/xoo/sample-with-hidden-files");
+    AnalysisBuilder analysisBuilder = tester
+      .addRules(new XooRulesDefinition())
+      .addActiveRule("xoo", "OneIssuePerFile", null, "Issue Per File", "MAJOR", null, "xoo")
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
+      .property("sonar.oneIssuePerFile.enableHiddenFileProcessing", "true");
+
+    if (setHiddenFileScanningExplicitly) {
+      // default is assumed to be false, here we set it explicitly
+      analysisBuilder.property("sonar.scanner.excludeHiddenFiles", "false");
+    }
+
+    AnalysisResult result = analysisBuilder.execute();
+
+    for (Map.Entry<String, Boolean> pathToHiddenStatus : hiddenFileProjectExpectedHiddenStatus().entrySet()) {
+      String filePath = pathToHiddenStatus.getKey();
+      boolean expectedIsHidden = pathToHiddenStatus.getValue();
+      assertHiddenFileScan(result, filePath, expectedIsHidden, true);
+      // we expect the sensor to process all files, regardless of visibility
+      assertFileIssue(result, filePath, true);
+    }
+    assertThat(result.inputFiles()).hasSize(10);
+  }
+
+  @Test
+  void shouldScanAllFilesAndOnlyAnalyzeNonHiddenFiles() throws IOException {
+    prepareHiddenFileProject();
+    File projectDir = new File("test-resources/mediumtest/xoo/sample-with-hidden-files");
+    AnalysisResult result = tester
+      .addRules(new XooRulesDefinition())
+      .addActiveRule("xoo", "OneIssuePerFile", null, "Issue Per File", "MAJOR", null, "xoo")
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
+      .property("sonar.oneIssuePerFile.enableHiddenFileProcessing", "false")
+      .execute();
+
+    for (Map.Entry<String, Boolean> pathToHiddenStatus : hiddenFileProjectExpectedHiddenStatus().entrySet()) {
+      String filePath = pathToHiddenStatus.getKey();
+      boolean expectedHiddenStatus = pathToHiddenStatus.getValue();
+      assertHiddenFileScan(result, filePath, expectedHiddenStatus, true);
+      // sensor should not process hidden files, we only expect issues on non-hidden files
+      assertFileIssue(result, filePath, !expectedHiddenStatus);
+    }
+    assertThat(result.inputFiles()).hasSize(10);
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = {
+    true,
+    false
+  })
+  void shouldNotScanAndAnalyzeHiddenFilesWhenHiddenFileScanningIsDisabled(boolean sensorHiddenFileProcessingEnabled) throws IOException {
+    prepareHiddenFileProject();
+    File projectDir = new File("test-resources/mediumtest/xoo/sample-with-hidden-files");
+    AnalysisResult result = tester
+      .addRules(new XooRulesDefinition())
+      .addActiveRule("xoo", "OneIssuePerFile", null, "Issue Per File", "MAJOR", null, "xoo")
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
+      .property("sonar.scanner.excludeHiddenFiles", "true")
+      // hidden files are not scanned, so issues can't be raised on them regardless if the sensor wants to process them
+      .property("sonar.oneIssuePerFile.enableHiddenFileProcessing", String.valueOf(sensorHiddenFileProcessingEnabled))
+      .execute();
+
+    for (Map.Entry<String, Boolean> pathToHiddenStatus : hiddenFileProjectExpectedHiddenStatus().entrySet()) {
+      String filePath = pathToHiddenStatus.getKey();
+      boolean expectedHiddenStatus = pathToHiddenStatus.getValue();
+      assertHiddenFileScan(result, filePath, expectedHiddenStatus, false);
+      if (!expectedHiddenStatus) {
+        assertFileIssue(result, filePath, true);
+      }
+    }
+    assertThat(result.inputFiles()).hasSize(1);
+  }
+
+  @Test
+  void shouldDetectHiddenFilesFromMultipleModules() throws IOException {
+    File baseDirModuleA = new File(baseDir, "moduleA");
+    File baseDirModuleB = new File(baseDir, "moduleB");
+    File srcDirA = new File(baseDirModuleA, "src");
+    assertThat(srcDirA.mkdirs()).isTrue();
+    File srcDirB = new File(baseDirModuleB, "src");
+    assertThat(srcDirB.mkdirs()).isTrue();
+
+    File fileModuleA = writeFile(srcDirA, ".xoo", "Sample xoo\ncontent");
+    setFileAsHiddenOnWindows(fileModuleA.toPath());
+    File fileModuleB = writeFile(srcDirB, ".xoo", "Sample xoo\ncontent");
+    setFileAsHiddenOnWindows(fileModuleB.toPath());
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.sources", "src")
+        .put("sonar.modules", "moduleA,moduleB")
+        .build())
+      .execute();
+
+    assertHiddenFileScan(result, "moduleA/src/.xoo", true, true);
+    assertHiddenFileScan(result, "moduleB/src/.xoo", true, true);
+  }
+
   private static void assertAnalysedFiles(AnalysisResult result, String... files) {
     assertThat(result.inputFiles().stream().map(InputFile::toString).toList()).contains(files);
   }
@@ -1353,4 +1466,69 @@ class FileSystemMediumIT {
     return link;
   }
 
+  private Map<String, Boolean> hiddenFileProjectExpectedHiddenStatus() {
+    return Map.of(
+      "xources/.hidden/.xoo", true,
+      "xources/.hidden/Class.xoo", true,
+      "xources/.hidden/.nestedHidden/.xoo", true,
+      "xources/.hidden/.nestedHidden/Class.xoo", true,
+      "xources/.hidden/.nestedHidden/visibleInHiddenFolder/.xoo", true,
+      "xources/.hidden/.nestedHidden/visibleInHiddenFolder/Class.xoo", true,
+      "xources/nonHidden/.xoo", true,
+      "xources/nonHidden/Class.xoo", false,
+      "xources/nonHidden/.hiddenInVisibleFolder/.xoo", true,
+      "xources/nonHidden/.hiddenInVisibleFolder/Class.xoo", true);
+  }
+
+  private static void prepareHiddenFileProject() throws IOException {
+    if (!SystemUtils.IS_OS_WINDOWS) {
+      return;
+    }
+
+    // On Windows, we need to set the hidden attribute on the file system
+    Set<String> dirAndFilesToHideOnWindows = Set.of(
+      "xources/.hidden",
+      "xources/.hidden/.xoo",
+      "xources/.hidden/.nestedHidden",
+      "xources/.hidden/.nestedHidden/.xoo",
+      "xources/.hidden/.nestedHidden/visibleInHiddenFolder/.xoo",
+      "xources/nonHidden/.xoo",
+      "xources/nonHidden/.hiddenInVisibleFolder",
+      "xources/nonHidden/.hiddenInVisibleFolder/.xoo");
+
+    for (String path : dirAndFilesToHideOnWindows) {
+      Path pathFromResources = Path.of("test-resources/mediumtest/xoo/sample-with-hidden-files", path);
+      setFileAsHiddenOnWindows(pathFromResources);
+    }
+  }
+
+  private static void setFileAsHiddenOnWindows(Path path) throws IOException {
+    if (SystemUtils.IS_OS_WINDOWS) {
+      Files.setAttribute(path, "dos:hidden", true, LinkOption.NOFOLLOW_LINKS);
+    }
+  }
+
+  private static void assertHiddenFileScan(AnalysisResult result, String filePath, boolean expectedHiddenStatus, boolean hiddenFilesShouldBeScanned) {
+    InputFile file = result.inputFile(filePath);
+
+    if (!hiddenFilesShouldBeScanned && expectedHiddenStatus) {
+      assertThat(file).isNull();
+    } else {
+      assertThat(file).withFailMessage(String.format("File \"%s\" was not analyzed", filePath)).isNotNull();
+      assertThat(file.isHidden())
+        .withFailMessage(String.format("Expected file \"%s\" hidden status to be \"%s\", however was \"%s\"", filePath, expectedHiddenStatus, file.isHidden()))
+        .isEqualTo(expectedHiddenStatus);
+    }
+  }
+
+  private static void assertFileIssue(AnalysisResult result, String filePath, boolean expectToHaveIssue) {
+    InputFile file = result.inputFile(filePath);
+    assertThat(file).isNotNull();
+    List<ScannerReport.Issue> issues = result.issuesFor(file);
+    if (expectToHaveIssue) {
+      assertThat(issues).hasSize(1);
+    } else {
+      assertThat(issues).isEmpty();
+    }
+  }
 }

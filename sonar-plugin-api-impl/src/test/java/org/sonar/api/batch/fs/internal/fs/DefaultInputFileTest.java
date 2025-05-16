@@ -73,7 +73,7 @@ public class DefaultInputFileTest {
     baseDir = temp.newFolder().toPath();
     sensorStrategy = new SensorStrategy();
     indexedFile = new DefaultIndexedFile(baseDir.resolve(PROJECT_RELATIVE_PATH), "ABCDE", PROJECT_RELATIVE_PATH, MODULE_RELATIVE_PATH, InputFile.Type.TEST, "php", 0,
-      sensorStrategy);
+      sensorStrategy, false);
   }
 
   @Test
@@ -111,6 +111,7 @@ public class DefaultInputFileTest {
     assertThat(new File(inputFile.absolutePath())).isAbsolute();
     assertThat(inputFile.language()).isEqualTo("php");
     assertThat(inputFile.status()).isEqualTo(InputFile.Status.ADDED);
+    assertThat(inputFile.isHidden()).isFalse();
     assertThat(inputFile.type()).isEqualTo(InputFile.Type.TEST);
     assertThat(inputFile.lines()).isEqualTo(42);
     assertThat(inputFile.charset()).isEqualTo(StandardCharsets.ISO_8859_1);
@@ -130,7 +131,7 @@ public class DefaultInputFileTest {
   public void test_moved_file() {
     DefaultIndexedFile indexedFileForMovedFile = new DefaultIndexedFile(baseDir.resolve(PROJECT_RELATIVE_PATH), "ABCDE", PROJECT_RELATIVE_PATH, MODULE_RELATIVE_PATH,
       InputFile.Type.TEST, "php", 0,
-      sensorStrategy, OLD_RELATIVE_PATH);
+      sensorStrategy, OLD_RELATIVE_PATH, false);
     Metadata metadata = new Metadata(42, 42, "", new int[0], new int[0], 10);
     DefaultInputFile inputFile = new DefaultInputFile(indexedFileForMovedFile, f -> f.setMetadata(metadata), NO_OP)
       .setStatus(InputFile.Status.ADDED)
@@ -255,7 +256,7 @@ public class DefaultInputFileTest {
     Metadata metadata = new Metadata(2, 2, "", new int[] {0, 10}, new int[] {8, 15}, 16);
     DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null),
       f -> f.setMetadata(metadata), f -> {
-    });
+      });
     assertThat(file.newPointer(0).line()).isOne();
     assertThat(file.newPointer(0).lineOffset()).isZero();
 
@@ -366,4 +367,14 @@ public class DefaultInputFileTest {
 
   private static final Consumer<DefaultInputFile> NO_OP = f -> {
   };
+
+  @Test
+  public void test_hidden() {
+    DefaultIndexedFile hiddenIndexedFile = new DefaultIndexedFile(baseDir.resolve(PROJECT_RELATIVE_PATH), "ABCDE", PROJECT_RELATIVE_PATH, MODULE_RELATIVE_PATH, InputFile.Type.TEST,
+      "php", 0,
+      sensorStrategy, true);
+    DefaultInputFile inputFile = new DefaultInputFile(hiddenIndexedFile, NO_OP, NO_OP);
+
+    assertThat(inputFile.isHidden()).isTrue();
+  }
 }
