@@ -23,6 +23,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ClaimsBuilder;
 import io.jsonwebtoken.impl.DefaultClaimsBuilder;
 import jakarta.servlet.http.HttpSession;
+import java.time.Duration;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
@@ -91,14 +92,17 @@ public class JwtHttpHandlerIT {
   private final MapSettings settings = new MapSettings();
   private final JwtSerializer jwtSerializer = mock(JwtSerializer.class);
   private final JwtCsrfVerifier jwtCsrfVerifier = mock(JwtCsrfVerifier.class);
+  private final ActiveTimeoutProvider activeTimeoutProvider = mock(ActiveTimeoutProvider.class);
 
-  private JwtHttpHandler underTest = new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier);
+  private JwtHttpHandler underTest;
 
   @BeforeEach
   void setUp() {
     when(system2.now()).thenReturn(NOW);
     when(jwtSerializer.encode(any(JwtSerializer.JwtSession.class))).thenReturn(JWT_TOKEN);
     when(jwtCsrfVerifier.generateState(eq(request), eq(response), anyInt())).thenReturn(CSRF_STATE);
+    when(activeTimeoutProvider.getActiveSessionTimeout()).thenReturn(Duration.ofDays(90));
+    underTest = new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier, activeTimeoutProvider);
   }
 
   @Test
@@ -129,9 +133,10 @@ public class JwtHttpHandlerIT {
   void generate_token_is_using_inactive_session_timeout_from_settings() {
     UserDto user = db.users().insertUser();
     int sessionTimeoutInMinutes = 10;
+    Configuration config = settings.asConfig();
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", sessionTimeoutInMinutes);
 
-    underTest = new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier);
+    underTest = new JwtHttpHandler(system2, dbClient, config, jwtSerializer, jwtCsrfVerifier, activeTimeoutProvider);
     underTest.generateToken(user, request, response);
 
     verify(jwtSerializer).encode(jwtArgumentCaptor.capture());
@@ -144,7 +149,7 @@ public class JwtHttpHandlerIT {
     int firstSessionTimeoutInMinutes = 10;
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", firstSessionTimeoutInMinutes);
 
-    underTest = new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier);
+    underTest = new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier, activeTimeoutProvider);
     underTest.generateToken(user, request, response);
 
     // The property is updated, but it won't be taking into account
@@ -162,7 +167,7 @@ public class JwtHttpHandlerIT {
     Configuration config = settings.asConfig();
 
     assertThatIllegalArgumentException()
-      .isThrownBy(() -> new JwtHttpHandler(system2, dbClient, config, jwtSerializer, jwtCsrfVerifier))
+      .isThrownBy(() -> new JwtHttpHandler(system2, dbClient, config, jwtSerializer, jwtCsrfVerifier, activeTimeoutProvider))
       .withMessage("Property sonar.web.sessionTimeoutInMinutes must be at least 6 minutes and must not be greater than 90 days (129 600 minutes). Got " + minutes + " minutes");
   }
 
@@ -171,24 +176,7 @@ public class JwtHttpHandlerIT {
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", 6);
     Configuration config = settings.asConfig();
 
-    assertThatNoException().isThrownBy(() -> new JwtHttpHandler(system2, dbClient, config, jwtSerializer, jwtCsrfVerifier));
-  }
-
-  @ParameterizedTest
-  @ValueSource(ints = {-10, 0, 4 * 30 * 24 * 60 + 1})
-  void active_session_timeout_must_be_valid(int minutes) {
-    settings.setProperty("sonar.web.activeSessionTimeoutInMinutes", minutes);
-    Configuration config = settings.asConfig();
-
-    assertThatIllegalArgumentException()
-      .isThrownBy(() -> new JwtHttpHandler(system2, dbClient, config, jwtSerializer, jwtCsrfVerifier))
-      .withMessage("Property sonar.web.activeSessionTimeoutInMinutes must be at least 15 minutes and must not be greater than 90 days (129 600 minutes). Got " + minutes + " minutes");
-  }
-
-  @Test
-  void active_session_timeout_property_can_be_15_minute() {
-    settings.setProperty("sonar.web.activeSessionTimeoutInMinutes", 15);
-    assertThatNoException().isThrownBy(() -> new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier));
+    assertThatNoException().isThrownBy(() -> new JwtHttpHandler(system2, dbClient, config, jwtSerializer, jwtCsrfVerifier, activeTimeoutProvider));
   }
 
   @Test

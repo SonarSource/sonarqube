@@ -72,6 +72,7 @@ import org.sonar.server.authentication.DefaultAdminCredentialsVerifierImpl;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierNotificationHandler;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierNotificationTemplate;
 import org.sonar.server.authentication.LogOAuthWarning;
+import org.sonar.server.authentication.HardcodedActiveTimeoutProvider;
 import org.sonar.server.authentication.ws.AuthenticationWsModule;
 import org.sonar.server.badge.ws.ProjectBadgesWsModule;
 import org.sonar.server.batch.BatchWsModule;
@@ -449,6 +450,7 @@ public class PlatformLevel4 extends PlatformLevel {
       DefaultAdminCredentialsVerifierImpl.class,
       DefaultAdminCredentialsVerifierNotificationTemplate.class,
       DefaultAdminCredentialsVerifierNotificationHandler.class,
+      HardcodedActiveTimeoutProvider.class,
 
       // users
       UserSessionFactoryImpl.class,
