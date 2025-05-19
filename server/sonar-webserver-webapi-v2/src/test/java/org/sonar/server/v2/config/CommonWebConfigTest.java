@@ -26,6 +26,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
+import org.springframework.validation.Validator;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.util.UrlPathHelper;
 
@@ -63,6 +64,14 @@ public class CommonWebConfigTest {
           """);
       assertThat(info.getVersion()).isEqualTo(expectedVersion.toString());
     }
+  }
+
+  @Test
+  public void getValidator_shouldReturnNonNull() {
+    CommonWebConfig commonWebConfig = new CommonWebConfig();
+    Validator validator = commonWebConfig.getValidator();
+
+    assertThat(validator).isNotNull();
   }
 
 }

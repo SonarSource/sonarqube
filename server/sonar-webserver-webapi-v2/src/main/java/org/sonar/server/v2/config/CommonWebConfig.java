@@ -22,7 +22,6 @@ package org.sonar.server.v2.config;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import jakarta.validation.Validation;
-import jakarta.validation.ValidatorFactory;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.utils.System2;
@@ -35,6 +34,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.MediaType;
+import org.springframework.validation.Validator;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -53,12 +54,26 @@ public class CommonWebConfig implements WebMvcConfigurer {
     configurer.setUrlPathHelper(urlPathHelper).setUseTrailingSlashMatch(true);
   }
 
-  @Bean
-  public ValidatorFactory validator() {
-    return Validation.byDefaultProvider()
+  @Override
+  public Validator getValidator() {
+    // This validator gets returned from the
+    // WebMvcConfigurationSupport#mvcValidator bean factory method.
+    // We can create a new one each time here and an instance will be cached
+    // in the Spring context.
+    //
+    // One reason we override the validator is to avoid a dependency
+    // on an expression language implementation like expressly.
+    //
+    // This same validator must also be configured in ControllerTester,
+    // otherwise unit test behavior will not match production behavior.
+    //
+    // The validator errors are formatted in RestResponseEntityExceptionHandler.
+    var jakartaValidator = Validation.byDefaultProvider()
       .configure()
       .messageInterpolator(new ParameterMessageInterpolator())
-      .buildValidatorFactory();
+      .buildValidatorFactory()
+      .getValidator();
+    return new SpringValidatorAdapter(jakartaValidator);
   }
 
   @Bean
