@@ -61,6 +61,10 @@ public class WebApiEndpoints {
   public static final String SCA_CLIS_ENDPOINT = SCA_DOMAIN + "/clis";
   public static final String SCA_FEATURE_ENABLEMENT_ENDPOINT = SCA_DOMAIN + "/feature-enablements";
 
+  public static final String MARKETPLACE_DOMAIN = "/marketplace";
+  public static final String AZURE_DOMAIN = "/azure";
+  public static final String AZURE_BILLING_ENDPOINT = MARKETPLACE_DOMAIN + AZURE_DOMAIN + "/billing";
+
   private WebApiEndpoints() {
   }
 }
