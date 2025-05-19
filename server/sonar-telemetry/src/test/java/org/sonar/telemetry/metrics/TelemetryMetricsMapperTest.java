@@ -21,6 +21,8 @@ package org.sonar.telemetry.metrics;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
@@ -40,25 +42,12 @@ import static org.assertj.core.api.Assertions.tuple;
 class TelemetryMetricsMapperTest {
 
   @Test
-  void mapFromDataProvider_whenInstallationProvider() {
-    TelemetryDataProvider<String> provider = new TestTelemetryBean(Dimension.INSTALLATION);
-
-    Set<Metric> metrics = TelemetryMetricsMapper.mapFromDataProvider(provider);
-    List<InstallationMetric> userMetrics = retrieveList(metrics);
-
-    assertThat(userMetrics)
-      .extracting(InstallationMetric::getKey, InstallationMetric::getType, InstallationMetric::getValue, InstallationMetric::getGranularity)
-      .containsExactlyInAnyOrder(
-        tuple("telemetry-bean-a", TelemetryDataType.STRING, "value", Granularity.DAILY)
-      );
-  }
-
-  @Test
-  void mapFromDataProvider_whenInstallationProviderWithMultiValue() {
+  void mapFromDataProvider_withInstallationProviderSingleValue_returnsSingleValue() {
+    // Override multi-value method to return empty. Keep the single-value method defined in TestTelemetryBean.
     TelemetryDataProvider<String> provider = new TestTelemetryBean(Dimension.INSTALLATION) {
       @Override
-      public Granularity getGranularity() {
-        return Granularity.ADHOC;
+      public Map<String, String> getValues() {
+        return Map.of();
       }
     };
 
@@ -68,9 +57,79 @@ class TelemetryMetricsMapperTest {
     assertThat(userMetrics)
       .extracting(InstallationMetric::getKey, InstallationMetric::getType, InstallationMetric::getValue, InstallationMetric::getGranularity)
       .containsExactlyInAnyOrder(
-        tuple("telemetry-bean-a.key-1", TelemetryDataType.STRING, "value-1", Granularity.ADHOC),
-        tuple("telemetry-bean-a.key-2", TelemetryDataType.STRING, "value-2", Granularity.ADHOC)
-      );
+        tuple("telemetry-bean-a", TelemetryDataType.STRING, "value", Granularity.DAILY));
+  }
+
+  @Test
+  void mapFromDataProvider_withInstallationProviderMultiValues_returnsMultipleValues() {
+    // Override single-value method to return empty. Keep the multi-value method defined in TestTelemetryBean.
+    TelemetryDataProvider<String> provider = new TestTelemetryBean(Dimension.INSTALLATION) {
+      @Override
+      public Optional<String> getValue() {
+        return Optional.empty();
+      }
+    };
+
+    Set<Metric> metrics = TelemetryMetricsMapper.mapFromDataProvider(provider);
+    List<InstallationMetric> userMetrics = retrieveList(metrics);
+
+    assertThat(userMetrics)
+      .extracting(InstallationMetric::getKey, InstallationMetric::getType, InstallationMetric::getValue, InstallationMetric::getGranularity)
+      .containsExactlyInAnyOrder(
+        tuple("telemetry-bean-a.key-1", TelemetryDataType.STRING, "value-1", Granularity.DAILY),
+        tuple("telemetry-bean-a.key-2", TelemetryDataType.STRING, "value-2", Granularity.DAILY));
+  }
+
+  @Test
+  void mapFromDataProvider_withInstallationProviderAdhocNoValues_returnEmptySet() {
+    // Override single-value and multi-value methods to return empty.
+    TelemetryDataProvider<String> provider = new TestTelemetryBean(Dimension.INSTALLATION) {
+      @Override
+      public Granularity getGranularity() {
+        return Granularity.ADHOC;
+      }
+
+      @Override
+      public Optional<String> getValue() {
+        return Optional.empty();
+      }
+
+      @Override
+      public Map<String, String> getValues() {
+        return Map.of();
+      }
+    };
+
+    Set<Metric> metrics = TelemetryMetricsMapper.mapFromDataProvider(provider);
+    List<InstallationMetric> userMetrics = retrieveList(metrics);
+
+    assertThat(userMetrics)
+      .extracting(InstallationMetric::getKey, InstallationMetric::getType, InstallationMetric::getValue, InstallationMetric::getGranularity)
+      .isEmpty();
+  }
+
+  @Test
+  void mapFromDataProvider_withInstallationProviderDailyNoValues_returnTelemetryWithNullValue() {
+    // Override single-value and multi-value methods to return empty.
+    TelemetryDataProvider<String> provider = new TestTelemetryBean(Dimension.INSTALLATION) {
+      @Override
+      public Optional<String> getValue() {
+        return Optional.empty();
+      }
+
+      @Override
+      public Map<String, String> getValues() {
+        return Map.of();
+      }
+    };
+
+    Set<Metric> metrics = TelemetryMetricsMapper.mapFromDataProvider(provider);
+    List<InstallationMetric> userMetrics = retrieveList(metrics);
+
+    assertThat(userMetrics)
+      .extracting(InstallationMetric::getKey, InstallationMetric::getType, InstallationMetric::getValue, InstallationMetric::getGranularity)
+      .containsExactlyInAnyOrder(
+        tuple("telemetry-bean-a", TelemetryDataType.STRING, null, Granularity.DAILY));
   }
 
   @Test
@@ -83,8 +142,7 @@ class TelemetryMetricsMapperTest {
     assertThat(list)
       .extracting(UserMetric::getKey, UserMetric::getType, UserMetric::getUserUuid, UserMetric::getValue, UserMetric::getGranularity)
       .containsExactlyInAnyOrder(
-        expected()
-      );
+        expected());
   }
 
   @Test
@@ -97,8 +155,7 @@ class TelemetryMetricsMapperTest {
     assertThat(list)
       .extracting(LanguageMetric::getKey, LanguageMetric::getType, LanguageMetric::getLanguage, LanguageMetric::getValue, LanguageMetric::getGranularity)
       .containsExactlyInAnyOrder(
-        expected()
-      );
+        expected());
   }
 
   @Test
@@ -111,8 +168,7 @@ class TelemetryMetricsMapperTest {
     assertThat(list)
       .extracting(ProjectMetric::getKey, ProjectMetric::getType, ProjectMetric::getProjectUuid, ProjectMetric::getValue, ProjectMetric::getGranularity)
       .containsExactlyInAnyOrder(
-        expected()
-      );
+        expected());
   }
 
   @Test
@@ -135,16 +191,14 @@ class TelemetryMetricsMapperTest {
     assertThat(userMetrics)
       .extracting(InstallationMetric::getKey, InstallationMetric::getType, InstallationMetric::getValue, InstallationMetric::getGranularity)
       .containsExactlyInAnyOrder(
-        tuple("telemetry-adhoc-bean", TelemetryDataType.BOOLEAN, true, Granularity.ADHOC)
-      );
+        tuple("telemetry-adhoc-bean", TelemetryDataType.BOOLEAN, true, Granularity.ADHOC));
   }
 
   private static Tuple[] expected() {
-    return new Tuple[]
-      {
-        tuple("telemetry-bean-a", TelemetryDataType.STRING, "key-1", "value-1", Granularity.DAILY),
-        tuple("telemetry-bean-a", TelemetryDataType.STRING, "key-2", "value-2", Granularity.DAILY)
-      };
+    return new Tuple[] {
+      tuple("telemetry-bean-a", TelemetryDataType.STRING, "key-1", "value-1", Granularity.DAILY),
+      tuple("telemetry-bean-a", TelemetryDataType.STRING, "key-2", "value-2", Granularity.DAILY)
+    };
   }
 
   private static <T extends Metric> List<T> retrieveList(Set<Metric> metrics) {

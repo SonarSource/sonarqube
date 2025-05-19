@@ -20,7 +20,6 @@
 package org.sonar.telemetry.metrics;
 
 import java.util.Collections;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.telemetry.core.Granularity;
@@ -40,43 +39,57 @@ public class TelemetryMetricsMapper {
     switch (provider.getDimension()) {
       case INSTALLATION -> {
         return mapInstallationMetric(provider);
-      } case PROJECT -> {
+      }
+      case PROJECT -> {
         return mapProjectMetric(provider);
-      } case USER -> {
+      }
+      case USER -> {
         return mapUserMetric(provider);
-      } case LANGUAGE -> {
+      }
+      case LANGUAGE -> {
         return mapLanguageMetric(provider);
-      } default -> throw new IllegalArgumentException("Dimension: " + provider.getDimension() + " not yet implemented.");
+      }
+      default -> throw new IllegalArgumentException("Dimension: " + provider.getDimension() + " not yet implemented.");
     }
   }
 
   private static Set<Metric> mapInstallationMetric(TelemetryDataProvider<?> provider) {
-    Optional<?> optionalValue = provider.getValue();
-
-    Granularity granularity = provider.getGranularity();
-
-    if (granularity == Granularity.ADHOC && !provider.getValues().isEmpty()) {
-      return provider.getValues().entrySet().stream()
+    // Case 1: the provider has implemented getValues() and it is non‐empty
+    var multiValues = provider.getValues();
+    if (!multiValues.isEmpty()) {
+      return multiValues.entrySet().stream()
         .map(entry -> new InstallationMetric(
           provider.getMetricKey() + "." + entry.getKey(),
           entry.getValue(),
           provider.getType(),
-          granularity
-        )).collect(Collectors.toSet());
+          provider.getGranularity()))
+        .collect(Collectors.toSet());
     }
 
-    if (granularity == Granularity.ADHOC && optionalValue.isEmpty()) {
+    // Case 2: the provider has implemented getValue() and it is non‐empty
+    var singleValue = provider.getValue();
+    if (singleValue.isPresent()) {
+      return Collections.singleton(new InstallationMetric(
+        provider.getMetricKey(),
+        singleValue.orElse(null),
+        provider.getType(),
+        provider.getGranularity()));
+    }
+
+    // Case 3: the provider has not implemented getValue() or getValues(), or both are empty
+    if (provider.getGranularity() == Granularity.ADHOC) {
       return Collections.emptySet();
+    } else {
+      // It's not clear whether we actually want to send a null metric in this case, but we do for now to be consistent with the previous implementation.
+      return Collections.singleton(new InstallationMetric(
+        provider.getMetricKey(),
+        null,
+        provider.getType(),
+        provider.getGranularity()));
     }
-
-    return Collections.singleton(new InstallationMetric(
-      provider.getMetricKey(),
-      optionalValue.orElse(null),
-      provider.getType(),
-      granularity
-    ));
   }
 
+  // Note: Dimension.USER does not currently support getValue(). But we just silently ignore it if a provider tries to use it.
   private static Set<Metric> mapUserMetric(TelemetryDataProvider<?> provider) {
     return provider.getValues().entrySet().stream()
       .map(entry -> new UserMetric(
@@ -84,10 +97,11 @@ public class TelemetryMetricsMapper {
         entry.getValue(),
         entry.getKey(),
         provider.getType(),
-        provider.getGranularity()
-      )).collect(Collectors.toSet());
+        provider.getGranularity()))
+      .collect(Collectors.toSet());
   }
 
+  // Note: Dimension.PROJECT does not currently support getValue(). But we just silently ignore it if a provider tries to use it.
   private static Set<Metric> mapProjectMetric(TelemetryDataProvider<?> provider) {
     return provider.getValues().entrySet().stream()
       .map(entry -> new ProjectMetric(
@@ -95,10 +109,11 @@ public class TelemetryMetricsMapper {
         entry.getValue(),
         entry.getKey(),
         provider.getType(),
-        provider.getGranularity()
-      )).collect(Collectors.toSet());
+        provider.getGranularity()))
+      .collect(Collectors.toSet());
   }
 
+  // Note: Dimension.LANGUAGE does not currently support getValue(). But we just silently ignore it if a provider tries to use it.
   private static Set<Metric> mapLanguageMetric(TelemetryDataProvider<?> provider) {
     return provider.getValues().entrySet().stream()
       .map(entry -> new LanguageMetric(
@@ -106,8 +121,7 @@ public class TelemetryMetricsMapper {
         entry.getValue(),
         entry.getKey(),
         provider.getType(),
-        provider.getGranularity()
-      )).collect(Collectors.toSet());
+        provider.getGranularity()))
+      .collect(Collectors.toSet());
   }
-
 }
