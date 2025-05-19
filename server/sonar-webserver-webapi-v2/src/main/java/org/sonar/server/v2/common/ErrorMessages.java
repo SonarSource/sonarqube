@@ -38,6 +38,7 @@ enum ErrorMessages {
   UNACCEPTABLE_MEDIA_TYPE("The requested media type is not acceptable."),
   UNSUPPORTED_MEDIA_TYPE("Unsupported media type."),
   VALIDATION_ERROR("Validation error. Please check your input."),
+  TOO_MANY_REQUESTS("Too many requests. Please try again later."),
   ;
 
   private final String message;

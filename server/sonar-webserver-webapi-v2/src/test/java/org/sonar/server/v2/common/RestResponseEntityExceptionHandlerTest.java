@@ -40,6 +40,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.exceptions.TemplateMatchingKeyException;
+import org.sonar.server.exceptions.TooManyRequestsException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.v2.api.model.RestError;
 import org.springframework.core.MethodParameter;
@@ -323,6 +324,16 @@ class RestResponseEntityExceptionHandlerTest {
 
     // Verify logging
     assertThat(logs.logs(Level.WARN)).contains(ErrorMessages.SIZE_EXCEEDED.getMessage());
+  }
+
+  @Test
+  void handleTooManyRequestsException_shouldReturnCorrectHttpStatus(){
+    var ex = new TooManyRequestsException("Too many requests");
+    ResponseEntity<RestError> response = underTest.handleTooManyRequestsException(ex);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().message()).isEqualTo(ex.getMessage());
   }
 
   @ParameterizedTest
