@@ -97,8 +97,11 @@ public class RulesSeverityDetector {
   }
 
   private static Map<String, Result.Level> getDriverDefinedRuleSeverities(Run run) {
-    return run.getTool().getDriver().getRules()
-      .stream()
+    Set<ReportingDescriptor> rules = run.getTool().getDriver().getRules();
+    if (rules == null) {
+      return emptyMap();
+    }
+    return rules.stream()
       .filter(RulesSeverityDetector::hasRuleDefinedLevel)
       .collect(toMap(ReportingDescriptor::getId, x -> Result.Level.valueOf(x.getDefaultConfiguration().getLevel().name())));
   }

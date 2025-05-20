@@ -22,12 +22,16 @@ package org.sonar.scanner.externalissue.sarif;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.groups.Tuple;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.slf4j.event.Level;
-import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.sarif.pojo.ReportingConfiguration;
 import org.sonar.sarif.pojo.ReportingDescriptor;
 import org.sonar.sarif.pojo.Result;
@@ -44,12 +48,12 @@ import static org.sonar.sarif.pojo.Result.Level.WARNING;
 import static org.sonar.scanner.externalissue.sarif.ResultMapper.DEFAULT_IMPACT_SEVERITY;
 import static org.sonar.scanner.externalissue.sarif.ResultMapper.DEFAULT_SEVERITY;
 
-public class RulesSeverityDetectorTest {
+class RulesSeverityDetectorTest {
   private static final String DRIVER_NAME = "Test";
   private static final String RULE_ID = "RULE_ID";
 
-  @org.junit.Rule
-  public LogTester logTester = new LogTester().setLevel(Level.TRACE);
+  @RegisterExtension
+  private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   private final Run run = mock(Run.class);
   private final ReportingDescriptor rule = mock(ReportingDescriptor.class);
@@ -59,8 +63,8 @@ public class RulesSeverityDetectorTest {
   private final ToolComponent extension = mock(ToolComponent.class);
   private final ReportingConfiguration defaultConfiguration = mock(ReportingConfiguration.class);
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     when(run.getResults()).thenReturn(List.of(result));
     when(run.getTool()).thenReturn(tool);
     when(tool.getDriver()).thenReturn(driver);
@@ -68,8 +72,8 @@ public class RulesSeverityDetectorTest {
 
   // We keep this test for backward compatibility until we remove the deprecated severity
   @Test
-  public void detectRulesSeverities_detectsCorrectlyResultDefinedRuleSeverities() {
-    Run run = mockResultDefinedRuleSeverities();
+  void detectRulesSeverities_detectsCorrectlyResultDefinedRuleSeverities() {
+    mockResultDefinedRuleSeverities();
 
     Map<String, Result.Level> rulesSeveritiesByRuleId = RulesSeverityDetector.detectRulesSeverities(run, DRIVER_NAME);
 
@@ -78,8 +82,8 @@ public class RulesSeverityDetectorTest {
   }
 
   @Test
-  public void detectRulesSeveritiesForNewTaxonomy_shouldReturnsEmptyMapAndLogsWarning_whenOnlyResultDefinedRuleSeverities() {
-    Run run = mockResultDefinedRuleSeverities();
+  void detectRulesSeveritiesForNewTaxonomy_shouldReturnsEmptyMapAndLogsWarning_whenOnlyResultDefinedRuleSeverities() {
+    mockResultDefinedRuleSeverities();
 
     Map<String, Result.Level> rulesSeveritiesByRuleId = RulesSeverityDetector.detectRulesSeveritiesForNewTaxonomy(run, DRIVER_NAME);
 
@@ -88,8 +92,28 @@ public class RulesSeverityDetectorTest {
   }
 
   @Test
-  public void detectRulesSeverities_detectsCorrectlyDriverDefinedRuleSeverities() {
-    Run run = mockDriverDefinedRuleSeverities();
+  void detectRulesSeverities_detectsCorrectlyDriverDefinedRuleSeverities() {
+    mockDriverDefinedRuleSeverities();
+
+    Map<String, Result.Level> rulesSeveritiesByRuleId = RulesSeverityDetector.detectRulesSeveritiesForNewTaxonomy(run, DRIVER_NAME);
+
+    assertNoLogs();
+    assertDetectedRuleSeverities(rulesSeveritiesByRuleId, tuple(RULE_ID, WARNING));
+
+    // We keep this below for backward compatibility until we remove the deprecated severity
+    rulesSeveritiesByRuleId = RulesSeverityDetector.detectRulesSeverities(run, DRIVER_NAME);
+
+    assertNoLogs();
+    assertDetectedRuleSeverities(rulesSeveritiesByRuleId, tuple(RULE_ID, WARNING));
+  }
+
+
+
+  @ParameterizedTest
+  @NullAndEmptySource
+  void detectRulesSeverities_detectsCorrectlyExtensionsDefinedRuleSeverities(@Nullable Set<ReportingDescriptor> rules) {
+    when(driver.getRules()).thenReturn(rules);
+    mockExtensionsDefinedRuleSeverities();
 
     Map<String, Result.Level> rulesSeveritiesByRuleId = RulesSeverityDetector.detectRulesSeveritiesForNewTaxonomy(run, DRIVER_NAME);
 
@@ -104,24 +128,8 @@ public class RulesSeverityDetectorTest {
   }
 
   @Test
-  public void detectRulesSeverities_detectsCorrectlyExtensionsDefinedRuleSeverities() {
-    Run run = mockExtensionsDefinedRuleSeverities();
-
-    Map<String, Result.Level> rulesSeveritiesByRuleId = RulesSeverityDetector.detectRulesSeveritiesForNewTaxonomy(run, DRIVER_NAME);
-
-    assertNoLogs();
-    assertDetectedRuleSeverities(rulesSeveritiesByRuleId, tuple(RULE_ID, WARNING));
-
-    // We keep this below for backward compatibility until we remove the deprecated severity
-    rulesSeveritiesByRuleId = RulesSeverityDetector.detectRulesSeverities(run, DRIVER_NAME);
-
-    assertNoLogs();
-    assertDetectedRuleSeverities(rulesSeveritiesByRuleId, tuple(RULE_ID, WARNING));
-  }
-
-  @Test
-  public void detectRulesSeverities_returnsEmptyMapAndLogsWarning_whenUnableToDetectSeverities() {
-    Run run = mockUnsupportedRuleSeveritiesDefinition();
+  void detectRulesSeverities_returnsEmptyMapAndLogsWarning_whenUnableToDetectSeverities() {
+    mockUnsupportedRuleSeveritiesDefinition();
 
     Map<String, Result.Level> rulesSeveritiesByRuleId = RulesSeverityDetector.detectRulesSeveritiesForNewTaxonomy(run, DRIVER_NAME);
 
@@ -135,38 +143,33 @@ public class RulesSeverityDetectorTest {
     assertDetectedRuleSeverities(rulesSeveritiesByRuleId);
   }
 
-  private Run mockResultDefinedRuleSeverities() {
+  private void mockResultDefinedRuleSeverities() {
     when(run.getResults()).thenReturn(List.of(result));
     when(result.getLevel()).thenReturn(WARNING);
     when(result.getRuleId()).thenReturn(RULE_ID);
-    return run;
   }
 
-  private Run mockDriverDefinedRuleSeverities() {
+  private void mockDriverDefinedRuleSeverities() {
     when(driver.getRules()).thenReturn(Set.of(rule));
     when(rule.getId()).thenReturn(RULE_ID);
     when(rule.getDefaultConfiguration()).thenReturn(defaultConfiguration);
     when(defaultConfiguration.getLevel()).thenReturn(ReportingConfiguration.Level.WARNING);
-    return run;
   }
 
-  private Run mockExtensionsDefinedRuleSeverities() {
-    when(driver.getRules()).thenReturn(Set.of());
+  private void mockExtensionsDefinedRuleSeverities() {
     when(tool.getExtensions()).thenReturn(Set.of(extension));
     when(extension.getRules()).thenReturn(Set.of(rule));
     when(rule.getId()).thenReturn(RULE_ID);
     when(rule.getDefaultConfiguration()).thenReturn(defaultConfiguration);
     when(defaultConfiguration.getLevel()).thenReturn(ReportingConfiguration.Level.WARNING);
-    return run;
   }
 
-  private Run mockUnsupportedRuleSeveritiesDefinition() {
+  private void mockUnsupportedRuleSeveritiesDefinition() {
     when(run.getTool()).thenReturn(tool);
     when(tool.getDriver()).thenReturn(driver);
     when(driver.getRules()).thenReturn(Set.of());
     when(tool.getExtensions()).thenReturn(Set.of(extension));
     when(extension.getRules()).thenReturn(Set.of());
-    return run;
   }
 
   private void assertNoLogs() {

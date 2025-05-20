@@ -83,7 +83,7 @@ public class RunMapper {
 
   private List<NewAdHocRule> toNewAdHocRules(Run run, String driverName,
     Map<String, Result.Level> ruleSeveritiesByRuleId, Map<String, Result.Level> ruleSeveritiesByRuleIdForNewCCT) {
-    Set<ReportingDescriptor> driverRules = run.getTool().getDriver().getRules();
+    Set<ReportingDescriptor> driverRules = Optional.ofNullable(run.getTool().getDriver().getRules()).orElse(Set.of());
     Set<ReportingDescriptor> extensionRules = hasExtensions(run.getTool())
       ? run.getTool().getExtensions().stream().filter(RunMapper::hasRules).flatMap(extension -> extension.getRules().stream()).collect(toSet())
       : Set.of();

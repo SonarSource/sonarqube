@@ -22,19 +22,19 @@ package org.sonar.scanner.externalissue.sarif;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.rule.NewAdHocRule;
-import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.sarif.pojo.ReportingDescriptor;
 import org.sonar.sarif.pojo.Result;
 import org.sonar.sarif.pojo.Run;
@@ -44,13 +44,14 @@ import org.sonar.scanner.externalissue.sarif.RunMapper.RunMapperResult;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.sonar.sarif.pojo.Result.Level.WARNING;
 
-@RunWith(MockitoJUnitRunner.class)
-public class RunMapperTest {
+@ExtendWith(MockitoExtension.class)
+class RunMapperTest {
   private static final String TEST_DRIVER = "Test driver";
   public static final String RULE_ID = "ruleId";
 
@@ -66,21 +67,21 @@ public class RunMapperTest {
   @Mock
   private ReportingDescriptor rule;
 
-  @Rule
-  public LogTester logTester = new LogTester();
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @InjectMocks
   private RunMapper runMapper;
 
-  @Before
-  public void setUp() {
-    when(run.getTool().getDriver().getName()).thenReturn(TEST_DRIVER);
-    when(run.getTool().getExtensions()).thenReturn(null);
-    when(rule.getId()).thenReturn(RULE_ID);
+  @BeforeEach
+  void setUp() {
+    lenient().when(run.getTool().getDriver().getName()).thenReturn(TEST_DRIVER);
+    lenient().when(run.getTool().getExtensions()).thenReturn(null);
+    lenient().when(rule.getId()).thenReturn(RULE_ID);
   }
 
   @Test
-  public void mapRun_shouldMapExternalIssues() {
+  void mapRun_shouldMapExternalIssues() {
     Result result1 = mock(Result.class);
     Result result2 = mock(Result.class);
     when(run.getResults()).thenReturn(List.of(result1, result2));
@@ -99,7 +100,7 @@ public class RunMapperTest {
   }
 
   @Test
-  public void mapRun_shouldMapExternalRules_whenDriverHasRulesAndNoExtensions() {
+  void mapRun_shouldMapExternalRules_whenDriverHasRulesAndNoExtensions() {
     when(run.getTool().getDriver().getRules()).thenReturn(Set.of(rule));
     NewAdHocRule externalRule = mockMappedExternalRule();
 
@@ -115,7 +116,7 @@ public class RunMapperTest {
   }
 
   @Test
-  public void mapRun_shouldMapExternalRules_whenRulesInExtensions() {
+  void mapRun_shouldMapExternalRules_whenRulesInExtensions() {
     when(run.getTool().getDriver().getRules()).thenReturn(Set.of());
     ToolComponent extension = mock(ToolComponent.class);
     when(extension.getRules()).thenReturn(Set.of(rule));
@@ -134,7 +135,7 @@ public class RunMapperTest {
   }
 
   @Test
-  public void mapRun_shouldNotFail_whenExtensionsDontHaveRules() {
+  void mapRun_shouldNotFail_whenExtensionsDontHaveRules() {
     when(run.getTool().getDriver().getRules()).thenReturn(Set.of(rule));
     ToolComponent extension = mock(ToolComponent.class);
     when(extension.getRules()).thenReturn(null);
@@ -149,7 +150,7 @@ public class RunMapperTest {
   }
 
   @Test
-  public void mapRun_shouldNotFail_whenExtensionsHaveEmptyRules() {
+  void mapRun_shouldNotFail_whenExtensionsHaveEmptyRules() {
     when(run.getTool().getDriver().getRules()).thenReturn(Set.of(rule));
     ToolComponent extension = mock(ToolComponent.class);
     when(extension.getRules()).thenReturn(Set.of());
@@ -164,7 +165,7 @@ public class RunMapperTest {
   }
 
   @Test
-  public void mapRun_ifRunIsEmpty_returnsEmptyList() {
+  void mapRun_ifRunIsEmpty_returnsEmptyList() {
     when(run.getResults()).thenReturn(List.of());
 
     RunMapperResult runMapperResult = runMapper.mapRun(run);
@@ -173,7 +174,7 @@ public class RunMapperTest {
   }
 
   @Test
-  public void mapRun_ifExceptionThrownByResultMapper_logsThemAndContinueProcessing() {
+  void mapRun_ifExceptionThrownByResultMapper_logsThemAndContinueProcessing() {
     Result result1 = mock(Result.class);
     Result result2 = mock(Result.class);
     when(run.getResults()).thenReturn(List.of(result1, result2));
@@ -194,7 +195,7 @@ public class RunMapperTest {
   }
 
   @Test
-  public void mapRun_failsIfToolNotSet() {
+  void mapRun_failsIfToolNotSet() {
     when(run.getTool()).thenReturn(null);
 
     assertThatIllegalArgumentException()
@@ -203,7 +204,7 @@ public class RunMapperTest {
   }
 
   @Test
-  public void mapRun_failsIfDriverNotSet() {
+  void mapRun_failsIfDriverNotSet() {
     when(run.getTool().getDriver()).thenReturn(null);
 
     assertThatIllegalArgumentException()
@@ -212,12 +213,31 @@ public class RunMapperTest {
   }
 
   @Test
-  public void mapRun_failsIfDriverNameIsNotSet() {
+  void mapRun_failsIfDriverNameIsNotSet() {
     when(run.getTool().getDriver().getName()).thenReturn(null);
 
     assertThatIllegalArgumentException()
       .isThrownBy(() -> runMapper.mapRun(run))
       .withMessage("The run does not have a tool driver name defined.");
+  }
+
+  @Test
+  void mapRun_shouldNotFail_whenDriverRulesNullAndExtensionsRulesNotNull() {
+    when(run.getTool().getDriver().getRules()).thenReturn(null);
+    ToolComponent extension = mock(ToolComponent.class);
+    when(extension.getRules()).thenReturn(Set.of(rule));
+    when(run.getTool().getExtensions()).thenReturn(Set.of(extension));
+    NewAdHocRule expectedRule = mock(NewAdHocRule.class);
+    when(ruleMapper.mapRule(rule, TEST_DRIVER, WARNING, WARNING)).thenReturn(expectedRule);
+
+    try (MockedStatic<RulesSeverityDetector> detector = mockStatic(RulesSeverityDetector.class)) {
+      detector.when(() -> RulesSeverityDetector.detectRulesSeverities(run, TEST_DRIVER)).thenReturn(Map.of(RULE_ID, WARNING));
+      detector.when(() -> RulesSeverityDetector.detectRulesSeveritiesForNewTaxonomy(run, TEST_DRIVER)).thenReturn(Map.of(RULE_ID, WARNING));
+
+      RunMapperResult runMapperResult = runMapper.mapRun(run);
+      assertThat(runMapperResult.getNewAdHocRules()).hasSize(1);
+      assertThat(runMapperResult.getNewAdHocRules().get(0)).isEqualTo(expectedRule);
+    }
   }
 
   private NewExternalIssue mockMappedExternalIssue(Result result) {
