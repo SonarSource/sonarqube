@@ -19,80 +19,151 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import java.io.IOException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import java.io.File;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class ModuleInputComponentStoreTest {
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+@ExtendWith(MockitoExtension.class)
+class ModuleInputComponentStoreTest {
+
+  @TempDir
+  private File projectBaseDir;
+
+  @Mock
+  BranchConfiguration branchConfiguration;
+
+  @Mock
+  SonarRuntime sonarRuntime;
+
+  @Mock
+  InputComponentStore mockedInputComponentStore;
 
   private InputComponentStore componentStore;
+  private SensorContextTester sensorContextTester;
 
   private final String projectKey = "dummy key";
 
-  @Before
-  public void setUp() throws IOException {
-    DefaultInputProject root = TestInputFileBuilder.newDefaultInputProject(projectKey, temp.newFolder());
-    componentStore = new InputComponentStore(mock(BranchConfiguration.class), mock(SonarRuntime.class));
+  @BeforeEach
+  void setUp() {
+    TestInputFileBuilder.newDefaultInputProject(projectKey, projectBaseDir);
+    File moduleBaseDir = new File(projectBaseDir, "module");
+    moduleBaseDir.mkdir();
+    sensorContextTester = SensorContextTester.create(moduleBaseDir);
+    componentStore = spy(new InputComponentStore(branchConfiguration, sonarRuntime));
   }
 
   @Test
-  public void should_cache_files_by_filename() {
+  void should_cache_module_files_by_filename() {
     ModuleInputComponentStore store = newModuleInputComponentStore();
 
     String filename = "some name";
-    InputFile inputFile1 = new TestInputFileBuilder(projectKey, "some/path/" + filename).build();
+    InputFile inputFile1 = new TestInputFileBuilder(projectKey, "module/some/path/" + filename).build();
     store.doAdd(inputFile1);
 
-    InputFile inputFile2 = new TestInputFileBuilder(projectKey, "other/path/" + filename).build();
+    InputFile inputFile2 = new TestInputFileBuilder(projectKey, "module/other/path/" + filename).build();
     store.doAdd(inputFile2);
 
-    InputFile dummyInputFile = new TestInputFileBuilder(projectKey, "some/path/Dummy.java").build();
+    InputFile dummyInputFile = new TestInputFileBuilder(projectKey, "module/some/path/Dummy.java").build();
     store.doAdd(dummyInputFile);
 
     assertThat(store.getFilesByName(filename)).containsExactlyInAnyOrder(inputFile1, inputFile2);
   }
 
   @Test
-  public void should_cache_files_by_extension() {
+  void should_cache_filtered_module_files_by_filename() {
     ModuleInputComponentStore store = newModuleInputComponentStore();
 
-    InputFile inputFile1 = new TestInputFileBuilder(projectKey, "some/path/Program.java").build();
-    store.doAdd(inputFile1);
-
-    InputFile inputFile2 = new TestInputFileBuilder(projectKey, "other/path/Utils.java").build();
+    String filename = "some name";
+    InputFile inputFile1 = new TestInputFileBuilder(projectKey, "some/path/" + filename).build();
+    InputFile inputFile2 = new TestInputFileBuilder(projectKey, "module/other/path/" + filename).build();
     store.doAdd(inputFile2);
 
-    InputFile dummyInputFile = new TestInputFileBuilder(projectKey, "some/path/NotJava.cpp").build();
+    when(componentStore.getFilesByName(filename)).thenReturn(List.of(inputFile1, inputFile2));
+
+    assertThat(store.getFilesByName(filename)).containsOnly(inputFile2);
+  }
+
+  @Test
+  void should_cache_module_files_by_filename_global_strategy() {
+    ModuleInputComponentStore store = new ModuleInputComponentStore(sensorContextTester.module(), componentStore, new SensorStrategy());
+
+    String filename = "some name";
+    // None in the module
+    InputFile inputFile1 = new TestInputFileBuilder(projectKey, "some/path/" + filename).build();
+    InputFile inputFile2 = new TestInputFileBuilder(projectKey, "other/path/" + filename).build();
+
+    when(componentStore.getFilesByName(filename)).thenReturn(List.of(inputFile1, inputFile2));
+
+    assertThat(store.getFilesByName(filename)).containsExactlyInAnyOrder(inputFile1, inputFile2);
+  }
+
+  @Test
+  void should_cache_module_files_by_extension() {
+    ModuleInputComponentStore store = newModuleInputComponentStore();
+
+    InputFile inputFile1 = new TestInputFileBuilder(projectKey, "module/some/path/Program.java").build();
+    store.doAdd(inputFile1);
+
+    InputFile inputFile2 = new TestInputFileBuilder(projectKey, "module/other/path/Utils.java").build();
+    store.doAdd(inputFile2);
+
+    InputFile dummyInputFile = new TestInputFileBuilder(projectKey, "module/some/path/NotJava.cpp").build();
     store.doAdd(dummyInputFile);
 
     assertThat(store.getFilesByExtension("java")).containsExactlyInAnyOrder(inputFile1, inputFile2);
   }
 
   @Test
-  public void should_not_cache_duplicates() {
+  void should_cache_filtered_module_files_by_extension() {
+    ModuleInputComponentStore store = newModuleInputComponentStore();
+
+    InputFile inputFile1 = new TestInputFileBuilder(projectKey, "some/path/NotInModule.java").build();
+    InputFile inputFile2 = new TestInputFileBuilder(projectKey, "module/some/path/Other.java").build();
+    store.doAdd(inputFile2);
+
+    when(componentStore.getFilesByExtension("java")).thenReturn(List.of(inputFile1, inputFile2));
+
+    assertThat(store.getFilesByExtension("java")).containsOnly(inputFile2);
+  }
+
+  @Test
+  void should_cache_module_files_by_extension_global_strategy() {
+    ModuleInputComponentStore store = new ModuleInputComponentStore(sensorContextTester.module(), componentStore, new SensorStrategy());
+
+    // None in the module
+    InputFile inputFile1 = new TestInputFileBuilder(projectKey, "some/path/NotInModule.java").build();
+    InputFile inputFile2 = new TestInputFileBuilder(projectKey, "some/path/Other.java").build();
+
+    when(componentStore.getFilesByExtension("java")).thenReturn(List.of(inputFile1, inputFile2));
+
+    assertThat(store.getFilesByExtension("java")).containsExactlyInAnyOrder(inputFile1, inputFile2);
+  }
+
+  @Test
+  void should_not_cache_duplicates() {
     ModuleInputComponentStore store = newModuleInputComponentStore();
 
     String ext = "java";
     String filename = "Program." + ext;
-    InputFile inputFile = new TestInputFileBuilder(projectKey, "some/path/" + filename).build();
+    InputFile inputFile = new TestInputFileBuilder(projectKey, "module/some/path/" + filename).build();
     store.doAdd(inputFile);
     store.doAdd(inputFile);
     store.doAdd(inputFile);
@@ -102,12 +173,12 @@ public class ModuleInputComponentStoreTest {
   }
 
   @Test
-  public void should_get_empty_iterable_on_cache_miss() {
+  void should_get_empty_iterable_on_cache_miss() {
     ModuleInputComponentStore store = newModuleInputComponentStore();
 
     String ext = "java";
     String filename = "Program." + ext;
-    InputFile inputFile = new TestInputFileBuilder(projectKey, "some/path/" + filename).build();
+    InputFile inputFile = new TestInputFileBuilder(projectKey, "module/some/path/" + filename).build();
     store.doAdd(inputFile);
 
     assertThat(store.getFilesByName("nonexistent")).isEmpty();
@@ -115,48 +186,42 @@ public class ModuleInputComponentStoreTest {
   }
 
   private ModuleInputComponentStore newModuleInputComponentStore() {
-    InputModule module = mock(InputModule.class);
-    when(module.key()).thenReturn("moduleKey");
-    return new ModuleInputComponentStore(module, componentStore, mock(SensorStrategy.class));
+    SensorStrategy strategy = new SensorStrategy();
+    strategy.setGlobal(false);
+    return new ModuleInputComponentStore(sensorContextTester.module(), componentStore, strategy);
   }
 
   @Test
-  public void should_find_module_components_with_non_global_strategy() {
-    InputComponentStore inputComponentStore = mock(InputComponentStore.class);
+  void should_find_module_components_with_non_global_strategy() {
     SensorStrategy strategy = new SensorStrategy();
-    InputModule module = mock(InputModule.class);
-    when(module.key()).thenReturn("foo");
-    ModuleInputComponentStore store = new ModuleInputComponentStore(module, inputComponentStore, strategy);
+    ModuleInputComponentStore store = new ModuleInputComponentStore(sensorContextTester.module(), mockedInputComponentStore, strategy);
 
     strategy.setGlobal(false);
 
     store.inputFiles();
-    verify(inputComponentStore).filesByModule("foo");
+    verify(mockedInputComponentStore).filesByModule(sensorContextTester.module().key());
 
     String relativePath = "somepath";
     store.inputFile(relativePath);
-    verify(inputComponentStore).getFile(any(String.class), eq(relativePath));
+    verify(mockedInputComponentStore).getFile(any(String.class), eq(relativePath));
 
     store.languages();
-    verify(inputComponentStore).languages(any(String.class));
+    verify(mockedInputComponentStore).languages(any(String.class));
   }
 
   @Test
-  public void should_find_all_components_with_global_strategy() {
-    InputComponentStore inputComponentStore = mock(InputComponentStore.class);
+  void should_find_all_components_with_global_strategy() {
     SensorStrategy strategy = new SensorStrategy();
-    ModuleInputComponentStore store = new ModuleInputComponentStore(mock(InputModule.class), inputComponentStore, strategy);
-
-    strategy.setGlobal(true);
+    ModuleInputComponentStore store = new ModuleInputComponentStore(sensorContextTester.module(), mockedInputComponentStore, strategy);
 
     store.inputFiles();
-    verify(inputComponentStore).inputFiles();
+    verify(mockedInputComponentStore).inputFiles();
 
     String relativePath = "somepath";
     store.inputFile(relativePath);
-    verify(inputComponentStore).inputFile(relativePath);
+    verify(mockedInputComponentStore).inputFile(relativePath);
 
     store.languages();
-    verify(inputComponentStore).languages();
+    verify(mockedInputComponentStore).languages();
   }
 }

@@ -19,12 +19,15 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
+import java.util.Set;
 import java.util.SortedSet;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
-import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.SensorStrategy;
 
 @ScannerSide
 public class ModuleInputComponentStore extends DefaultFileSystem.Cache {
@@ -73,11 +76,29 @@ public class ModuleInputComponentStore extends DefaultFileSystem.Cache {
 
   @Override
   public Iterable<InputFile> getFilesByName(String filename) {
-    return inputComponentStore.getFilesByName(filename);
+    Iterable<InputFile> allFilesByName = inputComponentStore.getFilesByName(filename);
+    if (strategy.isGlobal()) {
+      return allFilesByName;
+    }
+
+    return filterByModule(allFilesByName);
   }
 
   @Override
   public Iterable<InputFile> getFilesByExtension(String extension) {
-    return inputComponentStore.getFilesByExtension(extension);
+    Iterable<InputFile> allFilesByExtension = inputComponentStore.getFilesByExtension(extension);
+    if (strategy.isGlobal()) {
+      return allFilesByExtension;
+    }
+
+    return filterByModule(allFilesByExtension);
+  }
+
+  private Iterable<InputFile> filterByModule(Iterable<InputFile> projectInputFiles) {
+    Set<InputFile> projectInputFilesSet = StreamSupport.stream(projectInputFiles.spliterator(), false)
+      .collect(Collectors.toSet());
+    return StreamSupport.stream(inputComponentStore.filesByModule(moduleKey).spliterator(), false)
+      .filter(projectInputFilesSet::contains)
+      .toList();
   }
 }
