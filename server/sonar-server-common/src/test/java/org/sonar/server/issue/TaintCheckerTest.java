@@ -44,13 +44,15 @@ public class TaintCheckerTest {
   public void test_getTaintIssuesOnly() {
     List<IssueDto> taintIssues = underTest.getTaintIssuesOnly(getIssues());
 
-    assertThat(taintIssues).hasSize(6);
+    assertThat(taintIssues).hasSize(8);
     assertThat(taintIssues.get(0).getKey()).isEqualTo("taintIssue1");
     assertThat(taintIssues.get(1).getKey()).isEqualTo("taintIssue2");
     assertThat(taintIssues.get(2).getKey()).isEqualTo("taintIssue3");
     assertThat(taintIssues.get(3).getKey()).isEqualTo("taintIssue4");
     assertThat(taintIssues.get(4).getKey()).isEqualTo("taintIssue5");
     assertThat(taintIssues.get(5).getKey()).isEqualTo("taintIssue6");
+    assertThat(taintIssues.get(6).getKey()).isEqualTo("taintIssue7");
+    assertThat(taintIssues.get(7).getKey()).isEqualTo("taintIssue8");
   }
 
   @Test
@@ -69,7 +71,7 @@ public class TaintCheckerTest {
     Map<Boolean, List<IssueDto>> issuesByTaintStatus = underTest.mapIssuesByTaintStatus(getIssues());
 
     assertThat(issuesByTaintStatus.keySet()).hasSize(2);
-    assertThat(issuesByTaintStatus.get(true)).hasSize(6);
+    assertThat(issuesByTaintStatus.get(true)).hasSize(8);
     assertThat(issuesByTaintStatus.get(false)).hasSize(3);
 
     assertThat(issuesByTaintStatus.get(true).get(0).getKey()).isEqualTo("taintIssue1");
@@ -78,6 +80,8 @@ public class TaintCheckerTest {
     assertThat(issuesByTaintStatus.get(true).get(3).getKey()).isEqualTo("taintIssue4");
     assertThat(issuesByTaintStatus.get(true).get(4).getKey()).isEqualTo("taintIssue5");
     assertThat(issuesByTaintStatus.get(true).get(5).getKey()).isEqualTo("taintIssue6");
+    assertThat(issuesByTaintStatus.get(true).get(6).getKey()).isEqualTo("taintIssue7");
+    assertThat(issuesByTaintStatus.get(true).get(7).getKey()).isEqualTo("taintIssue8");
 
     assertThat(issuesByTaintStatus.get(false).get(0).getKey()).isEqualTo("standardIssue1");
     assertThat(issuesByTaintStatus.get(false).get(1).getKey()).isEqualTo("standardIssue2");
@@ -87,9 +91,9 @@ public class TaintCheckerTest {
   @Test
   public void test_getTaintRepositories() {
     assertThat(underTest.getTaintRepositories())
-      .hasSize(6)
-      .containsExactlyInAnyOrder("roslyn.sonaranalyzer.security.cs", "javasecurity", "jssecurity",
-        "tssecurity", "phpsecurity", "pythonsecurity");
+      .hasSize(8)
+      .containsExactlyInAnyOrder("gosecurity", "javasecurity", "jssecurity", "kotlinsecurity", "phpsecurity", "pythonsecurity",
+        "roslyn.sonaranalyzer.security.cs", "tssecurity");
   }
 
   @Test
@@ -98,9 +102,9 @@ public class TaintCheckerTest {
     when(configuration.getStringArray(EXTRA_TAINT_REPOSITORIES)).thenReturn(new String[]{"extra-1", "extra-2"});
     TaintChecker underTest = new TaintChecker(configuration);
     assertThat(underTest.getTaintRepositories())
-      .hasSize(8)
-      .containsExactlyInAnyOrder("roslyn.sonaranalyzer.security.cs", "javasecurity", "jssecurity",
-        "tssecurity", "phpsecurity", "pythonsecurity", "extra-1", "extra-2");
+      .hasSize(10)
+      .containsExactlyInAnyOrder("gosecurity", "javasecurity", "jssecurity", "kotlinsecurity", "phpsecurity", "pythonsecurity",
+        "roslyn.sonaranalyzer.security.cs", "tssecurity", "extra-1", "extra-2");
   }
 
   @Test
@@ -135,6 +139,8 @@ public class TaintCheckerTest {
     issues.add(createIssueWithRepository("taintIssue4", "tssecurity"));
     issues.add(createIssueWithRepository("taintIssue5", "phpsecurity"));
     issues.add(createIssueWithRepository("taintIssue6", "pythonsecurity"));
+    issues.add(createIssueWithRepository("taintIssue7", "kotlinsecurity"));
+    issues.add(createIssueWithRepository("taintIssue8", "gosecurity"));
 
     issues.add(createIssueWithRepository("standardIssue1", "java"));
     issues.add(createIssueWithRepository("standardIssue2", "python"));
