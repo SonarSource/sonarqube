@@ -52,6 +52,28 @@ public class SecurityStandardCategoryStatistics {
     this.hasMoreRules = false;
   }
 
+  public SecurityStandardCategoryStatistics withModifiedVulnerabilities(
+      int additionalVulnerabilities,
+      @Nullable Integer newVulnerabilityRating) {
+    OptionalInt newVulnerabilityRatingValue;
+
+    if (newVulnerabilityRating != null) {
+      newVulnerabilityRatingValue = OptionalInt.of(Math.max(newVulnerabilityRating, this.getVulnerabilityRating().orElse(0)));
+    } else {
+      newVulnerabilityRatingValue = this.getVulnerabilityRating();
+    }
+
+    return new SecurityStandardCategoryStatistics(
+        this.getCategory(),
+        this.getVulnerabilities() + additionalVulnerabilities,
+        newVulnerabilityRatingValue,
+        this.getToReviewSecurityHotspots(),
+        this.getReviewedSecurityHotspots(),
+        this.getSecurityReviewRating(),
+        this.getChildren(),
+        this.getVersion().orElse(null));
+  }
+
   public String getCategory() {
     return category;
   }

@@ -58,6 +58,7 @@ import org.sonar.core.language.LanguagesProvider;
 import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.platform.SpringComponentContainer;
+import org.sonar.core.scadata.DefaultScaDataSourceImpl;
 import org.sonar.server.ai.code.assurance.AiCodeAssuranceEntitlement;
 import org.sonar.server.ai.code.assurance.NoOpAiCodeAssuranceVerifier;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWSModule;
@@ -742,7 +743,10 @@ public class PlatformLevel4 extends PlatformLevel {
 
       MainCollector.class,
 
-      PluginsRiskConsentFilter.class);
+      PluginsRiskConsentFilter.class,
+
+      // sca-provided capabilities
+      DefaultScaDataSourceImpl.class);
 
     // system info
     add(new SystemInfoWriterModule(getWebServer()));
