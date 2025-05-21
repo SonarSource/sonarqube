@@ -19,5 +19,7 @@
  */
 package org.sonar.server.v2.api.azurebilling.response;
 
-public record AzureBillingRestResponse(boolean success) {
+import javax.annotation.Nullable;
+
+public record AzureBillingRestResponse(boolean success, @Nullable String message) {
 }

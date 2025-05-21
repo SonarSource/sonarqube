@@ -28,8 +28,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.sonar.server.v2.WebApiEndpoints.AZURE_BILLING_ENDPOINT;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@RequestMapping(value = AZURE_BILLING_ENDPOINT)
+@RequestMapping(value = AZURE_BILLING_ENDPOINT, produces = APPLICATION_JSON_VALUE)
 @RestController
 public interface AzureBillingController {
 
