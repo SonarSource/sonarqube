@@ -45,6 +45,7 @@ public class QProfileDto implements Comparable<QProfileDto> {
   private Long lastUsed;
   private Long userUpdatedAt;
   private boolean isBuiltIn;
+  private boolean isDefault;
   private String rulesProfileUuid;
 
   public String getOrganizationUuid() {
@@ -145,9 +146,19 @@ public class QProfileDto implements Comparable<QProfileDto> {
     return this;
   }
 
+  public boolean isDefault() {
+    return isDefault;
+  }
+
+  public QProfileDto setIsDefault(boolean b) {
+    this.isDefault = b;
+    return this;
+  }
+
   public static QProfileDto from(OrgQProfileDto org, RulesProfileDto rules) {
     return new QProfileDto()
       .setIsBuiltIn(rules.isBuiltIn())
+      .setIsDefault(rules.isDefault())
       .setKee(org.getUuid())
       .setParentKee(org.getParentUuid())
       .setRulesProfileUuid(rules.getUuid())

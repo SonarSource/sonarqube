@@ -99,6 +99,7 @@ public class QProfileFactoryImpl implements QProfileFactory {
       .setOrganizationUuid(organization.getUuid())
       .setLanguage(name.getLanguage())
       .setIsBuiltIn(isBuiltIn)
+      .setIsDefault(isDefault)
       .setParentKee(parentKey)
       .setRulesUpdatedAtAsDate(now);
     db.qualityProfileDao().insert(dbSession, dto);

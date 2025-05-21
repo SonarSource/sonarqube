@@ -62,6 +62,11 @@ public class RulesProfileDto {
    */
   private boolean isBuiltIn;
 
+  /**
+   * Whether profile should be set as default for newly created organizations.
+   */
+  private boolean isDefault;
+
   public String getUuid() {
     return uuid;
   }
@@ -112,12 +117,22 @@ public class RulesProfileDto {
     return this;
   }
 
+  public boolean isDefault() {
+    return isDefault;
+  }
+
+  public RulesProfileDto setIsDefault(boolean b) {
+    this.isDefault = b;
+    return this;
+  }
+
   public static RulesProfileDto from(QProfileDto qProfileDto) {
     return new RulesProfileDto()
       .setUuid(qProfileDto.getRulesProfileUuid())
       .setLanguage(qProfileDto.getLanguage())
       .setName(qProfileDto.getName())
       .setIsBuiltIn(qProfileDto.isBuiltIn())
+      .setIsDefault(qProfileDto.isDefault())
       .setRulesUpdatedAt(qProfileDto.getRulesUpdatedAt());
   }
 }

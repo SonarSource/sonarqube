@@ -262,6 +262,7 @@ public class RegisterQualityProfiles implements Startable {
           String newName = generateNewProfileName(qProfileDto);
           qProfileDto.setName(newName);
           qProfileDto.setIsBuiltIn(false);
+          qProfileDto.setIsDefault(false);
           dbClient.qualityProfileDao().update(dbSession, qProfileDto);
 
           LOGGER.info("Quality profile [{}] for language [{}] is no longer built-in and has been renamed to [{}] "
