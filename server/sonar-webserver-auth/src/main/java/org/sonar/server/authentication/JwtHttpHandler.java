@@ -41,7 +41,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.time.DateUtils.addSeconds;
-import static org.sonar.process.ProcessProperties.Property.WEB_SESSION_TIMEOUT_IN_MIN;
+import static org.sonar.process.ProcessProperties.Property.WEB_INACTIVE_SESSION_TIMEOUT_IN_MIN;
+import static org.sonar.process.ProcessProperties.Property.WEB_ACTIVE_SESSION_TIMEOUT_IN_MIN;
 import static org.sonar.server.authentication.Cookies.SAMESITE_LAX;
 import static org.sonar.server.authentication.Cookies.SET_COOKIE;
 import static org.sonar.server.authentication.Cookies.findCookie;
@@ -50,18 +51,18 @@ import static org.sonar.server.authentication.JwtSerializer.LAST_REFRESH_TIME_PA
 
 @ServerSide
 public class JwtHttpHandler {
-  private static final int SESSION_TIMEOUT_DEFAULT_VALUE_IN_MINUTES = 3 * 24 * 60;
-  private static final int MAX_SESSION_TIMEOUT_IN_MINUTES = 3 * 30 * 24 * 60;
+
+  private static final int THREE_DAYS_IN_MINUTES = 3 * 24 * 60;
+  private static final int NINETY_DAYS_IN_MINUTES = 3 * 30 * 24 * 60;
+  private static final int FIVE_MINUTES = 5 * 60;
+  private static final int FIFTEEN_MINUTES = 15 * 60;
 
   private static final String JWT_COOKIE = "JWT-SESSION";
 
   private static final String CSRF_JWT_PARAM = "xsrfToken";
 
-  // Time after which a user will be disconnected
-  private static final int SESSION_DISCONNECT_IN_SECONDS = 3 * 30 * 24 * 60 * 60;
-
   // This refresh time is used to refresh the session
-  // The value must be lower than sessionTimeoutInSeconds
+  // The value must be lower than inactiveSessionTimeoutInSeconds
   private static final int SESSION_REFRESH_IN_SECONDS = 5 * 60;
 
   private final System2 system2;
@@ -69,20 +70,23 @@ public class JwtHttpHandler {
   private final JwtSerializer jwtSerializer;
 
   // This timeout is used to disconnect the user we he has not browse any page for a while
-  private final int sessionTimeoutInSeconds;
+  private final int inactiveSessionTimeoutInSeconds;
+  // This timeout is used to disconnect the user regardless of his activity after logging in
+  private final int activeSessionTimeoutInSeconds;
   private final JwtCsrfVerifier jwtCsrfVerifier;
 
   public JwtHttpHandler(System2 system2, DbClient dbClient, Configuration config, JwtSerializer jwtSerializer, JwtCsrfVerifier jwtCsrfVerifier) {
     this.jwtSerializer = jwtSerializer;
     this.dbClient = dbClient;
     this.system2 = system2;
-    this.sessionTimeoutInSeconds = getSessionTimeoutInSeconds(config);
+    this.inactiveSessionTimeoutInSeconds = getInactiveSessionTimeoutInSeconds(config);
+    this.activeSessionTimeoutInSeconds = getActiveSessionTimeoutInSeconds(config);
     this.jwtCsrfVerifier = jwtCsrfVerifier;
   }
 
   public void generateToken(UserDto user, Map<String, Object> properties, HttpRequest request, HttpResponse response) {
-    String csrfState = jwtCsrfVerifier.generateState(request, response, sessionTimeoutInSeconds);
-    long expirationTime = system2.now() + sessionTimeoutInSeconds * 1000L;
+    String csrfState = jwtCsrfVerifier.generateState(request, response, inactiveSessionTimeoutInSeconds);
+    long expirationTime = system2.now() + inactiveSessionTimeoutInSeconds * 1000L;
     SessionTokenDto sessionToken = createSessionToken(user, expirationTime);
 
     String token = jwtSerializer.encode(new JwtSerializer.JwtSession(
@@ -94,7 +98,7 @@ public class JwtHttpHandler {
         .put(LAST_REFRESH_TIME_PARAM, system2.now())
         .put(CSRF_JWT_PARAM, csrfState)
         .build()));
-    response.addHeader(SET_COOKIE, createJwtSession(request, JWT_COOKIE, token, sessionTimeoutInSeconds));
+    response.addHeader(SET_COOKIE, createJwtSession(request, JWT_COOKIE, token, inactiveSessionTimeoutInSeconds));
   }
 
   private SessionTokenDto createSessionToken(UserDto user, long expirationTime) {
@@ -156,7 +160,7 @@ public class JwtHttpHandler {
     if (now.getTime() > sessionToken.get().getExpirationDate()) {
       return Optional.empty();
     }
-    if (now.after(addSeconds(token.getIssuedAt(), SESSION_DISCONNECT_IN_SECONDS))) {
+    if (now.after(addSeconds(token.getIssuedAt(), activeSessionTimeoutInSeconds))) {
       return Optional.empty();
     }
     jwtCsrfVerifier.verifyState(request, (String) token.get(CSRF_JWT_PARAM), token.getSubject());
@@ -176,10 +180,10 @@ public class JwtHttpHandler {
   }
 
   private void refreshToken(DbSession dbSession, SessionTokenDto tokenFromDb, Claims tokenFromCookie, HttpRequest request, HttpResponse response) {
-    long expirationTime = system2.now() + sessionTimeoutInSeconds * 1000L;
+    long expirationTime = system2.now() + inactiveSessionTimeoutInSeconds * 1000L;
     String refreshToken = jwtSerializer.refresh(tokenFromCookie, expirationTime);
-    response.addHeader(SET_COOKIE, createJwtSession(request, JWT_COOKIE, refreshToken, sessionTimeoutInSeconds));
-    jwtCsrfVerifier.refreshState(request, response, (String) tokenFromCookie.get(CSRF_JWT_PARAM), sessionTimeoutInSeconds);
+    response.addHeader(SET_COOKIE, createJwtSession(request, JWT_COOKIE, refreshToken, inactiveSessionTimeoutInSeconds));
+    jwtCsrfVerifier.refreshState(request, response, (String) tokenFromCookie.get(CSRF_JWT_PARAM), inactiveSessionTimeoutInSeconds);
 
     dbClient.sessionTokensDao().update(dbSession, tokenFromDb.setExpirationDate(expirationTime));
     dbSession.commit();
@@ -219,11 +223,19 @@ public class JwtHttpHandler {
     return Optional.ofNullable(user != null && user.isActive() ? user : null);
   }
 
-  private static int getSessionTimeoutInSeconds(Configuration config) {
-    int minutes = config.getInt(WEB_SESSION_TIMEOUT_IN_MIN.getKey()).orElse(SESSION_TIMEOUT_DEFAULT_VALUE_IN_MINUTES);
-    checkArgument(minutes > SESSION_REFRESH_IN_SECONDS / 60 && minutes <= MAX_SESSION_TIMEOUT_IN_MINUTES,
-      "Property %s must be higher than 5 minutes and must not be greater than 3 months. Got %s minutes", WEB_SESSION_TIMEOUT_IN_MIN.getKey(),
-      minutes);
+  private static int getInactiveSessionTimeoutInSeconds(Configuration config) {
+    String key = WEB_INACTIVE_SESSION_TIMEOUT_IN_MIN.getKey();
+    int minutes = config.getInt(key).orElse(THREE_DAYS_IN_MINUTES);
+    checkArgument(minutes > FIVE_MINUTES / 60 && minutes <= NINETY_DAYS_IN_MINUTES,
+      "Property %s must be at least 6 minutes and must not be greater than 90 days (129 600 minutes). Got %s minutes", key, minutes);
+    return minutes * 60;
+  }
+
+  private static int getActiveSessionTimeoutInSeconds(Configuration config) {
+    String key = WEB_ACTIVE_SESSION_TIMEOUT_IN_MIN.getKey();
+    int minutes = config.getInt(key).orElse(NINETY_DAYS_IN_MINUTES);
+    checkArgument(minutes >= FIFTEEN_MINUTES / 60 && minutes <= NINETY_DAYS_IN_MINUTES,
+      "Property %s must be at least 15 minutes and must not be greater than 90 days (129 600 minutes). Got %s minutes", key, minutes);
     return minutes * 60;
   }
 

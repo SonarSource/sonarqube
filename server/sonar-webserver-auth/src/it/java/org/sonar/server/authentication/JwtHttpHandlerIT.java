@@ -27,10 +27,14 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.http.Cookie;
 import org.sonar.api.server.http.HttpRequest;
@@ -44,8 +48,9 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.http.JakartaHttpRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -72,7 +77,7 @@ public class JwtHttpHandlerIT {
 
   private static final long IN_FIVE_MINUTES = NOW + 5 * 60 * 1000L;
 
-  @Rule
+  @RegisterExtension
   public DbTester db = DbTester.create();
 
   private final DbClient dbClient = db.getDbClient();
@@ -89,15 +94,15 @@ public class JwtHttpHandlerIT {
 
   private JwtHttpHandler underTest = new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier);
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     when(system2.now()).thenReturn(NOW);
     when(jwtSerializer.encode(any(JwtSerializer.JwtSession.class))).thenReturn(JWT_TOKEN);
     when(jwtCsrfVerifier.generateState(eq(request), eq(response), anyInt())).thenReturn(CSRF_STATE);
   }
 
   @Test
-  public void create_token() {
+  void create_token() {
     UserDto user = db.users().insertUser();
     underTest.generateToken(user, request, response);
 
@@ -109,7 +114,7 @@ public class JwtHttpHandlerIT {
   }
 
   @Test
-  public void generate_csrf_state_when_creating_token() {
+  void generate_csrf_state_when_creating_token() {
     UserDto user = db.users().insertUser();
     underTest.generateToken(user, request, response);
 
@@ -121,7 +126,7 @@ public class JwtHttpHandlerIT {
   }
 
   @Test
-  public void generate_token_is_using_session_timeout_from_settings() {
+  void generate_token_is_using_inactive_session_timeout_from_settings() {
     UserDto user = db.users().insertUser();
     int sessionTimeoutInMinutes = 10;
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", sessionTimeoutInMinutes);
@@ -134,7 +139,7 @@ public class JwtHttpHandlerIT {
   }
 
   @Test
-  public void session_timeout_property_cannot_be_updated() {
+  void inactive_session_timeout_property_cannot_be_updated() {
     UserDto user = db.users().insertUser();
     int firstSessionTimeoutInMinutes = 10;
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", firstSessionTimeoutInMinutes);
@@ -150,44 +155,44 @@ public class JwtHttpHandlerIT {
     verifyToken(jwtArgumentCaptor.getAllValues().get(1), user, firstSessionTimeoutInMinutes * 60, NOW);
   }
 
-  @Test
-  public void session_timeout_property_cannot_be_zero() {
-    settings.setProperty("sonar.web.sessionTimeoutInMinutes", 0);
+  @ParameterizedTest
+  @ValueSource(ints = {-10, 0, 4 * 30 * 24 * 60})
+  void inactive_session_timeout_must_be_valid(int minutes) {
+    settings.setProperty("sonar.web.sessionTimeoutInMinutes", minutes);
+    Configuration config = settings.asConfig();
 
-    assertThatThrownBy(() -> new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Property sonar.web.sessionTimeoutInMinutes must be higher than 5 minutes and must not be greater than 3 months. Got 0 minutes");
+    assertThatIllegalArgumentException()
+      .isThrownBy(() -> new JwtHttpHandler(system2, dbClient, config, jwtSerializer, jwtCsrfVerifier))
+      .withMessage("Property sonar.web.sessionTimeoutInMinutes must be at least 6 minutes and must not be greater than 90 days (129 600 minutes). Got " + minutes + " minutes");
   }
 
   @Test
-  public void session_timeout_property_cannot_be_negative() {
-    settings.setProperty("sonar.web.sessionTimeoutInMinutes", -10);
+  void inactive_session_timeout_property_can_be_6_minute() {
+    settings.setProperty("sonar.web.sessionTimeoutInMinutes", 6);
+    Configuration config = settings.asConfig();
 
-    assertThatThrownBy(() -> new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Property sonar.web.sessionTimeoutInMinutes must be higher than 5 minutes and must not be greater than 3 months. Got -10 minutes");
+    assertThatNoException().isThrownBy(() -> new JwtHttpHandler(system2, dbClient, config, jwtSerializer, jwtCsrfVerifier));
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = {-10, 0, 4 * 30 * 24 * 60 + 1})
+  void active_session_timeout_must_be_valid(int minutes) {
+    settings.setProperty("sonar.web.activeSessionTimeoutInMinutes", minutes);
+    Configuration config = settings.asConfig();
+
+    assertThatIllegalArgumentException()
+      .isThrownBy(() -> new JwtHttpHandler(system2, dbClient, config, jwtSerializer, jwtCsrfVerifier))
+      .withMessage("Property sonar.web.activeSessionTimeoutInMinutes must be at least 15 minutes and must not be greater than 90 days (129 600 minutes). Got " + minutes + " minutes");
   }
 
   @Test
-  public void session_timeout_property_cannot_be_set_to_five_minutes() {
-    settings.setProperty("sonar.web.sessionTimeoutInMinutes", 5);
-
-    assertThatThrownBy(() -> new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Property sonar.web.sessionTimeoutInMinutes must be higher than 5 minutes and must not be greater than 3 months. Got 5 minutes");
+  void active_session_timeout_property_can_be_15_minute() {
+    settings.setProperty("sonar.web.activeSessionTimeoutInMinutes", 15);
+    assertThatNoException().isThrownBy(() -> new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier));
   }
 
   @Test
-  public void session_timeout_property_cannot_be_greater_than_three_months() {
-    settings.setProperty("sonar.web.sessionTimeoutInMinutes", 4 * 30 * 24 * 60);
-
-    assertThatThrownBy(() -> new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Property sonar.web.sessionTimeoutInMinutes must be higher than 5 minutes and must not be greater than 3 months. Got 172800 minutes");
-  }
-
-  @Test
-  public void validate_token() {
+  void validate_token() {
     UserDto user = db.users().insertUser();
     addJwtCookie();
     SessionTokenDto sessionToken = db.users().insertSessionToken(user, st -> st.setExpirationDate(IN_FIVE_MINUTES));
@@ -200,7 +205,7 @@ public class JwtHttpHandlerIT {
   }
 
   @Test
-  public void validate_token_refresh_session_when_refresh_time_is_reached() {
+  void validate_token_refresh_session_when_refresh_time_is_reached() {
     UserDto user = db.users().insertUser();
     addJwtCookie();
     // Token was created 10 days ago and refreshed 6 minutes ago
@@ -219,7 +224,7 @@ public class JwtHttpHandlerIT {
   }
 
   @Test
-  public void validate_token_does_not_refresh_session_when_refresh_time_is_not_reached() {
+  void validate_token_does_not_refresh_session_when_refresh_time_is_not_reached() {
     UserDto user = db.users().insertUser();
     addJwtCookie();
     // Token was created 10 days ago and refreshed 4 minutes ago
@@ -235,7 +240,7 @@ public class JwtHttpHandlerIT {
   }
 
   @Test
-  public void validate_token_does_not_refresh_session_when_disconnected_timeout_is_reached() {
+  void validate_token_does_not_refresh_session_when_disconnected_timeout_is_reached() {
     UserDto user = db.users().insertUser();
     addJwtCookie();
     // Token was created 4 months ago, refreshed 4 minutes ago, and it expired in 5 minutes
@@ -249,7 +254,7 @@ public class JwtHttpHandlerIT {
   }
 
   @Test
-  public void validate_token_does_not_refresh_session_when_user_is_disabled() {
+  void validate_token_does_not_refresh_session_when_user_is_disabled() {
     addJwtCookie();
     UserDto user = addUser(false);
     SessionTokenDto sessionToken = db.users().insertSessionToken(user, st -> st.setExpirationDate(IN_FIVE_MINUTES));
@@ -260,7 +265,7 @@ public class JwtHttpHandlerIT {
   }
 
   @Test
-  public void validate_token_does_not_refresh_session_when_token_is_no_more_valid() {
+  void validate_token_does_not_refresh_session_when_token_is_no_more_valid() {
     addJwtCookie();
 
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.empty());
@@ -269,7 +274,7 @@ public class JwtHttpHandlerIT {
   }
 
   @Test
-  public void validate_token_does_nothing_when_no_jwt_cookie() {
+  void validate_token_does_nothing_when_no_jwt_cookie() {
     underTest.validateToken(request, response);
 
     verifyNoInteractions(httpSession, jwtSerializer);
@@ -277,7 +282,7 @@ public class JwtHttpHandlerIT {
   }
 
   @Test
-  public void validate_token_does_nothing_when_empty_value_in_jwt_cookie() {
+  void validate_token_does_nothing_when_empty_value_in_jwt_cookie() {
     when(request.getCookies()).thenReturn(new Cookie[] {new JakartaHttpRequest.JakartaCookie(new jakarta.servlet.http.Cookie("JWT-SESSION", ""))});
 
     underTest.validateToken(request, response);
@@ -287,7 +292,7 @@ public class JwtHttpHandlerIT {
   }
 
   @Test
-  public void validate_token_verify_csrf_state() {
+  void validate_token_verify_csrf_state() {
     UserDto user = db.users().insertUser();
     addJwtCookie();
     SessionTokenDto sessionToken = db.users().insertSessionToken(user, st -> st.setExpirationDate(IN_FIVE_MINUTES));
@@ -302,7 +307,7 @@ public class JwtHttpHandlerIT {
   }
 
   @Test
-  public void validate_token_does_nothing_when_no_session_token_in_db() {
+  void validate_token_does_nothing_when_no_session_token_in_db() {
     UserDto user = db.users().insertUser();
     addJwtCookie();
     // No SessionToken in DB
@@ -317,7 +322,7 @@ public class JwtHttpHandlerIT {
   }
 
   @Test
-  public void validate_token_does_nothing_when_expiration_date_from_session_token_is_expired() {
+  void validate_token_does_nothing_when_expiration_date_from_session_token_is_expired() {
     UserDto user = db.users().insertUser();
     addJwtCookie();
     // In SessionToken, the expiration date is expired...
@@ -334,7 +339,7 @@ public class JwtHttpHandlerIT {
   }
 
   @Test
-  public void validate_token_refresh_state_when_refreshing_token() {
+  void validate_token_refresh_state_when_refreshing_token() {
     UserDto user = db.users().insertUser();
     addJwtCookie();
     // Token was created 10 days ago and refreshed 6 minutes ago
@@ -351,7 +356,7 @@ public class JwtHttpHandlerIT {
   }
 
   @Test
-  public void remove_token() {
+  void remove_token() {
     addJwtCookie();
     UserDto user = db.users().insertUser();
     SessionTokenDto sessionToken = db.users().insertSessionToken(user, st -> st.setExpirationDate(IN_FIVE_MINUTES));
@@ -368,7 +373,7 @@ public class JwtHttpHandlerIT {
   }
 
   @Test
-  public void does_not_remove_token_from_db_when_no_jwt_token_in_cookie() {
+  void does_not_remove_token_from_db_when_no_jwt_token_in_cookie() {
     addJwtCookie();
     UserDto user = db.users().insertUser();
     SessionTokenDto sessionToken = db.users().insertSessionToken(user, st -> st.setExpirationDate(IN_FIVE_MINUTES));
@@ -382,7 +387,7 @@ public class JwtHttpHandlerIT {
   }
 
   @Test
-  public void does_not_remove_token_from_db_when_no_cookie() {
+  void does_not_remove_token_from_db_when_no_cookie() {
     UserDto user = db.users().insertUser();
     SessionTokenDto sessionToken = db.users().insertSessionToken(user, st -> st.setExpirationDate(IN_FIVE_MINUTES));
 

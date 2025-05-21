@@ -101,7 +101,10 @@ public class ProcessProperties {
     WEB_HTTP_MAX_THREADS("sonar.web.http.maxThreads"),
     WEB_HTTP_ACCEPT_COUNT("sonar.web.http.acceptCount"),
     WEB_HTTP_KEEP_ALIVE_TIMEOUT("sonar.web.http.keepAliveTimeout"),
-    WEB_SESSION_TIMEOUT_IN_MIN("sonar.web.sessionTimeoutInMinutes"),
+    // The  time a user can remain idle (no activity) before the session ends.
+    WEB_INACTIVE_SESSION_TIMEOUT_IN_MIN("sonar.web.sessionTimeoutInMinutes"),
+    // The time a user can remain logged in, regardless of activity
+    WEB_ACTIVE_SESSION_TIMEOUT_IN_MIN("sonar.web.activeSessionTimeoutInMinutes"),
     WEB_SYSTEM_PASS_CODE("sonar.web.systemPasscode"),
     WEB_ACCESSLOGS_ENABLE("sonar.web.accessLogs.enable"),
     WEB_ACCESSLOGS_PATTERN("sonar.web.accessLogs.pattern"),
