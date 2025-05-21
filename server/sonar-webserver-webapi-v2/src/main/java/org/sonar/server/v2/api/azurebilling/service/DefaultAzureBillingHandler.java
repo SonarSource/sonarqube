@@ -23,10 +23,14 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.http.HttpHeaders;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.server.v2.api.azurebilling.response.AzureBillingRestResponse;
 
 public class DefaultAzureBillingHandler implements AzureBillingHandler {
@@ -40,30 +44,57 @@ public class DefaultAzureBillingHandler implements AzureBillingHandler {
   private static final String REQUEST_BODY_TEMPLATE = """
     {
       "resourceId": "%s",
-      "quantity": 5.0,
+      "quantity": %s,
       "dimension": "billing_test_free",
       "effectiveStartTime": "%s",
       "planId": "metered"
     }
     """;
+
+  private final DbClient dbClient;
   private final OkHttpClient client;
 
-  public DefaultAzureBillingHandler(OkHttpClient httpClient) {
+  public DefaultAzureBillingHandler(DbClient dbClient, OkHttpClient httpClient) {
+    this.dbClient = dbClient;
     this.client = httpClient;
   }
 
   @Override
   public AzureBillingRestResponse billAzureAccount(String azureUserToken) {
-    String requestBody = String.format(REQUEST_BODY_TEMPLATE,
-      SONARQUBE_SERVER_AZURE_RESOURCE_ID,
-      ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
-    okhttp3.Request request = new okhttp3.Request.Builder()
+    String requestBody;
+    try {
+      requestBody = String.format(REQUEST_BODY_TEMPLATE,
+        SONARQUBE_SERVER_AZURE_RESOURCE_ID,
+        getLinesOfCode(),
+        ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+    } catch (RuntimeException e) {
+      logError("Failed to build request. Details: " + e.getMessage());
+      return new AzureBillingRestResponse(false, "Failed to build request. Details: " + e.getMessage());
+    }
+
+    Request request = getAzureBillingRequest(azureUserToken, requestBody);
+
+    return handleAzureBillingRequest(request);
+  }
+
+  private String getLinesOfCode() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return String.valueOf(dbClient.projectDao().getNclocSum(dbSession));
+    }
+  }
+
+  @NotNull
+  private static Request getAzureBillingRequest(String azureUserToken, String requestBody) {
+    return new Request.Builder()
       .url("https://marketplaceapi.microsoft.com/api/usageEvent?api-version=2018-08-31")
       .addHeader(HttpHeaders.CONTENT_TYPE, "application/json")
       .addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + azureUserToken)
       .post(okhttp3.RequestBody.create(requestBody, okhttp3.MediaType.parse("application/json")))
       .build();
+  }
 
+  @NotNull
+  private AzureBillingRestResponse handleAzureBillingRequest(Request request) {
     try (Response response = client.newCall(request).execute()) {
       if (response.isSuccessful()) {
         return new AzureBillingRestResponse(true, null);

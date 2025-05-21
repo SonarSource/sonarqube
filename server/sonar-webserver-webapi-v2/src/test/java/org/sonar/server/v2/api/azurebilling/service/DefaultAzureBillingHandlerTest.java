@@ -19,6 +19,7 @@
  */
 package org.sonar.server.v2.api.azurebilling.service;
 
+import java.io.IOException;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -26,23 +27,34 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.sonar.db.DbClient;
+import org.sonar.db.project.ProjectDao;
 import org.sonar.server.v2.api.azurebilling.response.AzureBillingRestResponse;
 
-import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class DefaultAzureBillingHandlerTest {
 
+  private final DbClient dbClient = mock();
+  private final ProjectDao projectDao = mock();
   private final OkHttpClient mockHttpClient = mock();
   private final Call mockCall = mock();
   private final Response mockResponse = mock();
   private final ResponseBody mockResponseBody = mock();
-  private final DefaultAzureBillingHandler underTest = new DefaultAzureBillingHandler(mockHttpClient);
+  private final DefaultAzureBillingHandler underTest = new DefaultAzureBillingHandler(dbClient, mockHttpClient);
 
   @BeforeEach
   void setUp() throws IOException {
+    when(dbClient.projectDao()).thenReturn(projectDao);
+    when(projectDao.getNclocSum(any())).thenReturn(1000L);
     when(mockHttpClient.newCall(any(Request.class))).thenReturn(mockCall);
     when(mockCall.execute()).thenReturn(mockResponse);
   }
@@ -85,4 +97,17 @@ class DefaultAzureBillingHandlerTest {
     verify(mockHttpClient, times(1)).newCall(any(Request.class));
     verify(mockCall, times(1)).execute();
   }
+
+  @Test
+  void testBillAzureAccount_whenLocCannotBeObtained_thenSuccessShouldBeFalse() throws IOException {
+    when(projectDao.getNclocSum(any())).thenThrow(new IllegalStateException("Database error"));
+
+    AzureBillingRestResponse response = underTest.billAzureAccount("test-token");
+
+    assertFalse(response.success());
+    assertEquals("Failed to build request. Details: Database error", response.message());
+    verify(mockHttpClient, times(0)).newCall(any(Request.class));
+    verify(mockCall, times(0)).execute();
+  }
+
 }
