@@ -21,6 +21,7 @@ import {Extension, Organization, OrganizationBase, OrganizationMember, Paging} f
 import { deleteRequest, post, postJSON, postJSONBody, putJsonBody } from "../helpers/request";
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getJSON } from '~sonar-aligned/helpers/request';
+import axios from "axios";
 
 export function checkOrganizationKeyExistence(key: string): Promise<Organization | undefined> {
   return getJSON(`/_codescan/organizations/${key}/exists`).then(
@@ -51,6 +52,10 @@ export function updateOrganization(key: string, changes: OrganizationBase) {
 
 export function deleteOrganization(key: string) {
   return deleteRequest(`/_codescan/organizations/${key}`).catch(throwGlobalError);
+}
+
+export function toggleInviteUsersVisibility(key: string, invite_users_enabled: boolean){
+  return axios.patch(`/_codescan/organizations/${key}/update_invite_users?inviteUsersEnabled=${invite_users_enabled}`).catch(throwGlobalError);
 }
 
 interface GetOrganizationNavigation {

@@ -73,6 +73,7 @@ message Organization {
   optional Alm alm = 8;
   optional Actions actions = 9;
   optional Subscription subscription = 10;
+  optional bool inviteUsersEnabled = 11;
 
   message Alm {
     optional string key = 1;

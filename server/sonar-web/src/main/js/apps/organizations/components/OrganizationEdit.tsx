@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { Card } from '~design-system';
+import { Card, Modal } from '~design-system';
 import { addGlobalSuccessMessage } from '~design-system';
 import { debounce } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { updateOrganization } from '../../../api/organizations';
+import { toggleInviteUsersVisibility, updateOrganization } from '../../../api/organizations';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { translate } from '../../../helpers/l10n';
 import { Organization } from '../../../types/types';
@@ -34,6 +34,8 @@ import OrganizationUrlInput from '../../create/components/OrganizationUrlInput';
 import { withOrganizationContext } from '../OrganizationContext';
 import OrganizationAvatar from './OrganizationAvatar';
 import OrganizationDelete from './OrganizationDelete';
+import { Switch } from '~design-system';
+import InstanceMessage from 'src/main/js/components/common/InstanceMessage';
 
 interface Props {
   organization: Organization;
@@ -46,6 +48,8 @@ interface State {
   description: string;
   name: string;
   url: string;
+  kee: String;
+  inviteUsersEnabled: boolean;
 }
 
 export class OrganizationEdit extends React.PureComponent<Props, State> {
@@ -60,6 +64,8 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
       description: props.organization.description || '',
       name: props.organization.name,
       url: props.organization.url || '',
+      kee: props.organization.kee,
+      inviteUsersEnabled: props.organization.inviteUsersEnabled,
     };
     this.changeAvatarImage = debounce(this.changeAvatarImage, 500);
   }
@@ -126,6 +132,23 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
         state.avatar !== undefined &&
         state.url !== undefined,
     );
+  };
+  
+  handleSwitchChange = () => {
+    this.setState(
+      (prevState) => ({ inviteUsersEnabled: !prevState.inviteUsersEnabled }),
+      () => {
+        this.apiCallToToggleInviteUsersVisibility(this.props.organization.kee, this.state.inviteUsersEnabled);
+      }
+    );
+  };
+  
+  apiCallToToggleInviteUsersVisibility = async (kee: string, inviteUsersEnabled: boolean) => {
+    try {
+      await toggleInviteUsersVisibility(kee, inviteUsersEnabled);
+      window.location.reload();
+    } catch (error) {
+    }
   };
 
   render() {
@@ -198,6 +221,19 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
             </form>
           </div>
         </Card>
+        <Card className='sw-mt-4 sw-mb-4'>
+          <div className="boxed-group boxed-group-inner">
+            <h2 className="boxed-title">{translate('organization.disable_invite_users')}</h2>
+            <p className="big-spacer-bottom width-50 sw-my-8">
+              <InstanceMessage message={translate('organization.disable_invite_users.description')} />
+            </p>
+            <Switch
+              value={!this.state.inviteUsersEnabled}
+              onChange={() => this.handleSwitchChange()}
+            />
+          </div>
+        </Card>
+        
 
         {showDelete && <OrganizationDelete />}
       </div>

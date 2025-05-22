@@ -12,7 +12,8 @@
     org.avatar_url as "avatarUrl",
     org.subscription as "subscription",
     org.created_at as "createdAt",
-    org.updated_at as "updatedAt"
+    org.updated_at as "updatedAt",
+    org.invite_users_enabled as "inviteUsersEnabled"
   </sql>
 
   <sql id="defaultTemplatesColumns">
@@ -204,7 +205,8 @@
       default_quality_gate_uuid,
       subscription,
       created_at,
-      updated_at
+      updated_at,
+      invite_users_enabled
     )
     values
     (
@@ -218,7 +220,8 @@
       #{organization.defaultQualityGateUuid, jdbcType=VARCHAR},
       #{organization.subscription, jdbcType=VARCHAR},
       #{organization.createdAt, jdbcType=BIGINT},
-      #{organization.updatedAt, jdbcType=BIGINT}
+      #{organization.updatedAt, jdbcType=BIGINT},
+      #{organization.inviteUsersEnabled, jdbcType=BOOLEAN}
     )
   </insert>
 
@@ -232,7 +235,8 @@
       default_quality_gate_uuid = #{organization.defaultQualityGateUuid, jdbcType=VARCHAR},
       subscription = #{organization.subscription, jdbcType=VARCHAR},
       avatar_url = #{organization.avatarUrl, jdbcType=VARCHAR},
-      updated_at = #{organization.updatedAt, jdbcType=BIGINT}
+      updated_at = #{organization.updatedAt, jdbcType=BIGINT},
+      invite_users_enabled = #{organization.inviteUsersEnabled, jdbcType=BOOLEAN}
     where
       uuid = #{organization.uuid, jdbcType=VARCHAR}
   </update>

@@ -53,7 +53,7 @@ export default function OrganizationNavigationAdministration({ location, organiz
             {translate('organization.settings')}
           </DropdownMenu.ItemLink>
 
-          {adminPages.map((extension) => (
+          {adminPages.filter(e=> organization.inviteUsersEnabled || e.key!=="developer/invite_users").map((extension) => (
             <DropdownMenu.ItemLink
               isMatchingFullPath
               to={`/organizations/${organization.kee}/extension/${extension.key}`}

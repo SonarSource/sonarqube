@@ -34,6 +34,7 @@ interface AddMemberFormProps {
   addMember: (member: OrganizationMember) => void;
   organization: Organization;
   memberLogins: string[];
+  canInviteUsers: Boolean;
 }
 
 function AddMemberForm(props: AddMemberFormProps) {
@@ -108,9 +109,9 @@ function AddMemberForm(props: AddMemberFormProps) {
           {translate('organization.members.add')}
         </Button>
       )}
-      <Button onClick={goToInviteUsers} className="button sw-ml-2">
+      {props.canInviteUsers && <Button onClick={goToInviteUsers} className="button sw-ml-2">
         Invite Member
-      </Button>
+      </Button>}
       {open && renderModal()}
     </>
   );

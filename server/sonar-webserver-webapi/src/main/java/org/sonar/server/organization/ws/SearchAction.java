@@ -166,7 +166,8 @@ public class SearchAction implements OrganizationsWsAction {
     private static Organization.Builder toOrganization(Organization.Builder builder, OrganizationDto organization, boolean onlyMembershipOrganizations) {
         builder
                 .setName(organization.getName())
-                .setKey(organization.getKey());
+                .setKey(organization.getKey())
+                .setInviteUsersEnabled(organization.isInviteUsersEnabled());
         ofNullable(organization.getDescription()).ifPresent(builder::setDescription);
         ofNullable(organization.getUrl()).ifPresent(builder::setUrl);
         ofNullable(organization.getAvatarUrl()).ifPresent(builder::setAvatar);
