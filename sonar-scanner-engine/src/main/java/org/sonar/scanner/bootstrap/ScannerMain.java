@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
@@ -67,8 +68,8 @@ public class ScannerMain {
 
       LOG.info("SonarScanner Engine completed successfully");
       return 0;
-    } catch (Exception e) {
-      handleException(e);
+    } catch (Throwable throwable) {
+      handleException(throwable);
       return 1;
     }
   }
@@ -87,30 +88,28 @@ public class ScannerMain {
     return sb.toString();
   }
 
-  private static void handleException(Exception e) {
-    var messageException = unwrapMessageException(e);
+  private static void handleException(Throwable throwable) {
+    var messageException = unwrapMessageException(throwable);
     if (messageException.isPresent()) {
       // Don't show the stacktrace for a message exception to not pollute the logs
       if (LoggerFactory.getLogger(ScannerMain.class).isDebugEnabled()) {
-        LOG.error(messageException.get(), e);
+        LOG.error(messageException.get(), throwable);
       } else {
         LOG.error(messageException.get());
       }
     } else {
-      LOG.error("Error during SonarScanner Engine execution", e);
+      LOG.error("Error during SonarScanner Engine execution", throwable);
     }
   }
 
-  private static Optional<String> unwrapMessageException(Exception t) {
-    Throwable y = t;
-    do {
-      if (y instanceof MessageException messageException) {
-        return Optional.of(messageException.getMessage());
-      }
-      y = y.getCause();
-    } while (y != null);
-
-    return Optional.empty();
+  private static Optional<String> unwrapMessageException(@Nullable Throwable throwable) {
+    if (throwable == null) {
+      return Optional.empty();
+    } else if (throwable instanceof MessageException messageException) {
+      return Optional.of(messageException.getMessage());
+    } else {
+      return unwrapMessageException(throwable.getCause());
+    }
   }
 
   private static @NotNull Map<String, String> parseInputProperties(InputStream in) {

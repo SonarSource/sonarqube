@@ -33,6 +33,7 @@ import org.sonar.xoo.extensions.XooIssueFilter;
 import org.sonar.xoo.extensions.XooPostJob;
 import org.sonar.xoo.extensions.XooProjectBuilder;
 import org.sonar.xoo.global.DeprecatedGlobalSensor;
+import org.sonar.xoo.global.ErrorThrowingSensor;
 import org.sonar.xoo.global.GlobalProjectSensor;
 import org.sonar.xoo.lang.CpdTokenizerSensor;
 import org.sonar.xoo.lang.LineMeasureSensor;
@@ -185,6 +186,7 @@ public class XooPlugin implements Plugin {
       SensorMetrics.class,
       DeprecatedGlobalSensor.class,
       GlobalProjectSensor.class,
+      ErrorThrowingSensor.class,
 
       HotspotWithoutContextSensor.class,
       HotspotWithContextsSensor.class,
