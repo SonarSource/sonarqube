@@ -1401,6 +1401,47 @@ class FileSystemMediumIT {
   }
 
   @Test
+  void hiddenFilesAssignedToALanguageShouldNotBePublishedByDefault() throws IOException {
+    tester
+      .addRules(new XooRulesDefinition());
+
+    File srcDir = new File(baseDir, "src");
+    assertThat(srcDir.mkdir()).isTrue();
+
+    File hiddenFile = writeFile(srcDir, ".xoo", "Sample xoo\ncontent");
+    setFileAsHiddenOnWindows(hiddenFile.toPath());
+    File hiddenFileWithoutLanguage = writeFile(srcDir, ".bar", "Sample bar\ncontent");
+    setFileAsHiddenOnWindows(hiddenFileWithoutLanguage.toPath());
+    writeFile(srcDir, "file.xoo", "Sample xoo\ncontent");
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .build())
+      .execute();
+
+    DefaultInputFile hiddenInputFile = (DefaultInputFile) result.inputFile("src/.xoo");
+
+    assertThat(hiddenInputFile).isNotNull();
+    assertThat(hiddenInputFile.isPublished()).isFalse();
+    assertThatThrownBy(() -> result.getReportComponent(hiddenInputFile))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Unable to find report for component");
+
+    DefaultInputFile hiddenInputFileWithoutLanguage = (DefaultInputFile) result.inputFile("src/.bar");
+    assertThat(hiddenInputFileWithoutLanguage).isNotNull();
+    assertThat(hiddenInputFileWithoutLanguage.isPublished()).isFalse();
+    assertThatThrownBy(() -> result.getReportComponent(hiddenInputFileWithoutLanguage))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Unable to find report for component");
+
+    DefaultInputFile visibleInputFile = (DefaultInputFile) result.inputFile("src/file.xoo");
+    assertThat(visibleInputFile).isNotNull();
+    assertThat(visibleInputFile.isPublished()).isTrue();
+    assertThat(result.getReportComponent(visibleInputFile)).isNotNull();
+  }
+
+  @Test
   void shouldDetectHiddenFilesFromMultipleModules() throws IOException {
     File baseDirModuleA = new File(baseDir, "moduleA");
     File baseDirModuleB = new File(baseDir, "moduleB");

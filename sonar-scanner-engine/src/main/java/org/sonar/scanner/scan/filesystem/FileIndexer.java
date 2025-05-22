@@ -94,6 +94,8 @@ public class FileIndexer {
 
     // This should be fast; language should be cached from preprocessing step
     Language language = langDetection.language(sourceFile, projectRelativePath);
+    // cached from directory file visitation
+    boolean isHidden = hiddenFilesProjectData.isMarkedAsHiddenFile(sourceFile, module);
 
     DefaultIndexedFile indexedFile = new DefaultIndexedFile(
       sourceFile,
@@ -105,11 +107,11 @@ public class FileIndexer {
       scannerComponentIdGenerator.getAsInt(),
       sensorStrategy,
       scmChangedFiles.getOldRelativeFilePath(sourceFile),
-      hiddenFilesProjectData.isMarkedAsHiddenFile(sourceFile, module));
+      isHidden);
 
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(module.key(), f, module.getEncoding()),
       f -> f.setStatus(statusDetection.findStatusFromScm(f)));
-    if (language != null && isPublishAllFiles(language.key())) {
+    if (!isHidden && language != null && isPublishAllFiles(language.key())) {
       inputFile.setPublished(true);
     }
     if (!accept(inputFile)) {
