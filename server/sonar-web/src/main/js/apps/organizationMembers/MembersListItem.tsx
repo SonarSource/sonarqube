@@ -27,11 +27,12 @@ import * as React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import Avatar from '../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { Group, Organization, OrganizationMember } from '../../types/types';
+import { Group, Organization, OrganizationActions, OrganizationMember } from '../../types/types';
 import ManageMemberGroupsForm from './ManageMemberGroupsForm';
 import RemoveMemberForm from './RemoveMemberForm';
 import {UserGroup} from "../../api/users";
 import { setMemberType } from '../../api/organizations';
+import { addGlobalErrorMessage } from '~design-system';
 
 const USER_TYPES = [
   { value: "STANDARD", label: "Standard User" },
@@ -90,10 +91,22 @@ export default class MembersListItem extends React.PureComponent<Props, State> {
     }
   };
 
-  handleRadioChange = async (login: string, type: string) => {
-    await setMemberType(this.props.organization.kee, login, type); // API Call
+  handleRadioChange = async (type: string, member: OrganizationMember) => {
+    await setMemberType(this.props.organization.kee, member.login, type); // API Call
     this.setState({ type });
   };
+
+  isPermissibleToChange = (actions: OrganizationActions, member: OrganizationMember, value: string) => {
+    if (!actions.admin) {
+      return false;
+    }
+    if (member.isAdmin && value === 'PLATFORM') {
+      addGlobalErrorMessage('You are a System Admin. You are required to have a Standard User License.');
+      return false;
+    }
+    return true;
+  }
+
 
   render() {
     const { member, organization, removeMember } = this.props;
@@ -116,8 +129,11 @@ export default class MembersListItem extends React.PureComponent<Props, State> {
               value={value}
               className={`member-type-${member.type}`}
               checked={type === value}
-              onChange={actions.admin ? () => this.handleRadioChange(member.login, value) : undefined}
-            />
+              onChange={() => {
+                if (this.isPermissibleToChange(actions, member, value)) {
+                  this.handleRadioChange(value, member);
+                }
+              }}            />
             <span className='note sw-ml-2'>{label}</span>
           </td>
         ))}

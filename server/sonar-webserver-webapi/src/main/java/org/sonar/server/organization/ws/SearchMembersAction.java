@@ -31,8 +31,10 @@ import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOption
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 import com.google.common.collect.Multiset;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
@@ -112,15 +114,19 @@ public class SearchMembersAction implements OrganizationsWsAction {
         var orderedLogins = users.stream().map(UserDto::getLogin).toList();
         groupCountByLogin = dbClient.groupMembershipDao().countGroupByLoginsAndOrganization(dbSession, orderedLogins, organization.getUuid());
       }
-
+      Map<UserDto,Boolean> adminPrivilegesMap= new HashMap<>();
+      for(UserDto userDto: users){
+        Set<String> set = dbClient.authorizationDao().selectOrganizationPermissions(dbSession, organization.getUuid(),userDto.getUuid());
+        adminPrivilegesMap.put(userDto, set.contains("admin"));
+      }
       Paging paging = forPageIndex(request.mandatoryParamAsInt(Param.PAGE)).withPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE)).andTotal(totalUsers);
-      SearchMembersWsResponse wsResponse = buildResponse(users, paging, groupCountByLogin, organizationMemberDtoList);
+      SearchMembersWsResponse wsResponse = buildResponse(users, paging, groupCountByLogin, organizationMemberDtoList, adminPrivilegesMap);
 
       writeProtobuf(wsResponse, request, response);
     }
   }
 
-  private SearchMembersWsResponse buildResponse(List<UserDto> users, Paging wsPaging, @Nullable Multiset<String> groupCountByLogin, List<OrganizationMemberDto> organizationMemberDtoList) {
+  private SearchMembersWsResponse buildResponse(List<UserDto> users, Paging wsPaging, @Nullable Multiset<String> groupCountByLogin, List<OrganizationMemberDto> organizationMemberDtoList, Map<UserDto, Boolean> adminPrivilegesMap) {
     SearchMembersWsResponse.Builder response = SearchMembersWsResponse.newBuilder();
 
     Map<String, String> userUuidTypeMap = organizationMemberDtoList.stream()
@@ -139,7 +145,8 @@ public class SearchMembersAction implements OrganizationsWsAction {
           .clear()
           .setLogin(login)
           .setUuid(userDto.getUuid())
-          .setType(userUuidTypeMap.getOrDefault(userUuid, MemberType.STANDARD.name()));
+          .setType(userUuidTypeMap.getOrDefault(userUuid, MemberType.STANDARD.name()))
+          .setIsAdmin(adminPrivilegesMap.getOrDefault(userDto, false));
         ofNullable(emptyToNull(userDto.getEmail())).ifPresent(text -> wsUser.setAvatar(avatarResolver.create(userDto)));
         ofNullable(userDto.getName()).ifPresent(wsUser::setName);
         ofNullable(groupCountByLogin).ifPresent(count -> wsUser.setGroupCount(groupCountByLogin.count(login)));
