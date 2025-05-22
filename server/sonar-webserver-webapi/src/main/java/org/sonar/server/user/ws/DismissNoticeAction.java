@@ -41,6 +41,7 @@ import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.QUALIT
 import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_DNA_BANNER;
 import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_DNA_OPTIN_BANNER;
 import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_DNA_TOUR;
+import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_ENABLE_SCA;
 import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_NEW_MODES_BANNER;
 import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_NEW_MODES_TOUR;
 
@@ -59,6 +60,7 @@ public class DismissNoticeAction implements UsersWsAction {
     SHOW_DNA_OPTIN_BANNER("showDesignAndArchitectureOptInBanner"),
     SHOW_DNA_BANNER("showDesignAndArchitectureBanner"),
     SHOW_DNA_TOUR("showDesignAndArchitectureTour"),
+    SHOW_ENABLE_SCA("showEnableSca"),
     ;
 
     private final String key;
@@ -99,12 +101,12 @@ public class DismissNoticeAction implements UsersWsAction {
     return SUPPORT_FOR_NEW_NOTICE_MESSAGE.formatted(noticesList);
   }
 
-  
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("dismiss_notice")
       .setDescription("Dismiss a notice for the current user. Silently ignore if the notice is already dismissed.")
-      .setChangelog(new Change("25.4", printNewNotice(SHOW_DNA_OPTIN_BANNER, SHOW_DNA_BANNER, SHOW_DNA_TOUR)))
+      .setChangelog(new Change("2025.3", printNewNotice(SHOW_ENABLE_SCA)))
+      .setChangelog(new Change("2025.3", printNewNotice(SHOW_DNA_OPTIN_BANNER, SHOW_DNA_BANNER, SHOW_DNA_TOUR)))
       .setChangelog(new Change("10.8", printNewNotice(SHOW_NEW_MODES_TOUR)))
       .setChangelog(new Change("10.8", printNewNotice(SHOW_NEW_MODES_BANNER)))
       .setChangelog(new Change("10.6", printNewNotice(ONBOARDING_CAYC_BRANCH_SUMMARY_GUIDE)))
