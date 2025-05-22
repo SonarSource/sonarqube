@@ -37,6 +37,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -65,7 +67,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowableOfType;
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.slf4j.event.Level.DEBUG;
 
@@ -462,6 +463,7 @@ class FileSystemMediumIT {
   }
 
   @Test
+  @DisabledOnOs(OS.WINDOWS)
   void analysisDoesNotFailOnBrokenSymlink() throws IOException {
     prepareBrokenSymlinkTestScenario();
 
@@ -471,6 +473,7 @@ class FileSystemMediumIT {
   }
 
   @Test
+  @DisabledOnOs(OS.WINDOWS)
   void analysisWarnsAndIgnoresBrokenSymlink() throws IOException {
     Path link = prepareBrokenSymlinkTestScenario();
 
@@ -483,8 +486,8 @@ class FileSystemMediumIT {
   }
 
   @Test
+  @DisabledOnOs(OS.WINDOWS)
   void analysisIgnoresSymbolicLinkWithTargetOutsideBaseDir() throws IOException {
-    assumeFalse(SystemUtils.IS_OS_WINDOWS);
     File srcDir = new File(baseDir, "src");
     assertThat(srcDir.mkdir()).isTrue();
 
@@ -503,14 +506,28 @@ class FileSystemMediumIT {
   }
 
   @Test
+  @DisabledOnOs(OS.WINDOWS)
+  void analysisIgnoresSymbolicLinkWithRelativeTargetOutsideBaseDir() throws IOException {
+    File srcDir = new File(baseDir, "src");
+    assertThat(srcDir.mkdir()).isTrue();
+
+    File otherDir = createDirectory(temp.toPath().resolve("other_dir")).toFile();
+    writeFile(otherDir, "target_outside.xoo");
+
+    Path linkPath = srcDir.toPath().resolve("target_link");
+    Path link = Files.createSymbolicLink(linkPath, Paths.get("../../other_dir/target_outside.xoo"));
+
+    tester.newAnalysis().properties(builder.build()).execute();
+
+    String logMessage = String.format("File '%s' is ignored. It is a symbolic link targeting a file not located in project basedir.", link.toRealPath(LinkOption.NOFOLLOW_LINKS));
+    assertThat(logTester.logs(Level.WARN)).contains(logMessage);
+  }
+
+  @Test
+  @DisabledOnOs(OS.WINDOWS)
   void analysisIgnoresSymbolicLinkWithTargetOutsideModule() throws IOException {
-    assumeFalse(SystemUtils.IS_OS_WINDOWS);
-    File baseDirModuleA = new File(baseDir, "module_a");
-    File baseDirModuleB = new File(baseDir, "module_b");
-    File srcDirA = new File(baseDirModuleA, "src");
-    assertThat(srcDirA.mkdirs()).isTrue();
-    File srcDirB = new File(baseDirModuleB, "src");
-    assertThat(srcDirB.mkdirs()).isTrue();
+    File srcDirA = createModuleWithSubdirectory("module_a", "src");
+    File srcDirB = createModuleWithSubdirectory("module_b", "src");
 
     File target = writeFile(srcDirA, "target.xoo", "Sample xoo\ncontent");
     Path link = Paths.get(srcDirB.getPath(), "target_link.xoo");
@@ -530,13 +547,55 @@ class FileSystemMediumIT {
   }
 
   @Test
+  @DisabledOnOs(OS.WINDOWS)
+  void analysisIgnoresSymbolicLinkWithRelativeTargetOutsideModule() throws IOException {
+    File srcA = createModuleWithSubdirectory("module_a", "src");
+    File srcB = createModuleWithSubdirectory("module_b", "src");
+
+    Path target = srcB.toPath().resolve("target.xoo");
+    FileUtils.write(target.toFile(), "Sample xoo\ncontent", StandardCharsets.UTF_8);
+    Path link = srcA.toPath().resolve("target_link");
+    Files.createSymbolicLink(link, Paths.get("../../module_b/src/target.xoo"));
+
+    builder = ImmutableMap.<String, String>builder()
+      .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+      .put("sonar.projectKey", "com.foo.project")
+      .put("sonar.modules", "module_a,module_b");
+
+    AnalysisResult result = tester.newAnalysis().properties(builder.build()).execute();
+
+    String logMessage = String.format("File '%s' is ignored. It is a symbolic link targeting a file not located in module basedir.", link.toRealPath(LinkOption.NOFOLLOW_LINKS));
+    assertThat(logTester.logs(Level.INFO)).contains(logMessage);
+    InputFile fileA = result.inputFile("module_b/src/target.xoo");
+    assertThat(fileA).isNotNull();
+  }
+
+  @Test
+  @DisabledOnOs(OS.WINDOWS)
+  void analysisDoesNotIgnoreSymbolicLinkWithRelativePath() throws IOException {
+    File src = createModuleWithSubdirectory("module_a", "src");
+    Path target = src.toPath().resolve("target.xoo");
+    FileUtils.write(target.toFile(), "Sample xoo\ncontent", StandardCharsets.UTF_8);
+    Path link = src.toPath().resolve("target_link");
+    Files.createSymbolicLink(link, Paths.get("target.xoo"));
+
+    builder = ImmutableMap.<String, String>builder()
+      .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+      .put("sonar.projectKey", "com.foo.project")
+      .put("sonar.modules", "module_a");
+
+    AnalysisResult result = tester.newAnalysis().properties(builder.build()).execute();
+
+    InputFile targetFile = result.inputFile("module_a/src/target.xoo");
+    assertThat(targetFile).isNotNull();
+    String logMessage = String.format("File '%s' is ignored. It is a symbolic link targeting a file that does not exist.", link.toRealPath(LinkOption.NOFOLLOW_LINKS));
+    assertThat(logTester.logs(Level.WARN)).doesNotContain(logMessage);
+  }
+
+  @Test
   void test_inclusions_on_multi_modules() throws IOException {
-    File baseDirModuleA = new File(baseDir, "moduleA");
-    File baseDirModuleB = new File(baseDir, "moduleB");
-    File srcDirA = new File(baseDirModuleA, "tests");
-    assertThat(srcDirA.mkdirs()).isTrue();
-    File srcDirB = new File(baseDirModuleB, "tests");
-    assertThat(srcDirB.mkdirs()).isTrue();
+    File srcDirA = createModuleWithSubdirectory("moduleA", "tests");
+    File srcDirB = createModuleWithSubdirectory("moduleB", "tests");
 
     writeFile(srcDirA, "sampleTestA.xoo", "Sample xoo\ncontent");
     writeFile(srcDirB, "sampleTestB.xoo", "Sample xoo\ncontent");
@@ -577,12 +636,8 @@ class FileSystemMediumIT {
 
   @Test
   void test_module_level_inclusions_override_parent_on_multi_modules() throws IOException {
-    File baseDirModuleA = new File(baseDir, "moduleA");
-    File baseDirModuleB = new File(baseDir, "moduleB");
-    File srcDirA = new File(baseDirModuleA, "src");
-    assertThat(srcDirA.mkdirs()).isTrue();
-    File srcDirB = new File(baseDirModuleB, "src");
-    assertThat(srcDirB.mkdirs()).isTrue();
+    File srcDirA = createModuleWithSubdirectory("moduleA", "src");
+    File srcDirB = createModuleWithSubdirectory("moduleB", "src");
 
     writeFile(srcDirA, "sampleA.xoo", "Sample xoo\ncontent");
     writeFile(srcDirB, "sampleB.xoo", "Sample xoo\ncontent");
@@ -614,12 +669,8 @@ class FileSystemMediumIT {
 
   @Test
   void warn_user_for_outdated_scanner_side_inherited_exclusions_for_multi_module_project() throws IOException {
-    File baseDirModuleA = new File(baseDir, "moduleA");
-    File baseDirModuleB = new File(baseDir, "moduleB");
-    File srcDirA = new File(baseDirModuleA, "src");
-    assertThat(srcDirA.mkdirs()).isTrue();
-    File srcDirB = new File(baseDirModuleB, "src");
-    assertThat(srcDirB.mkdirs()).isTrue();
+    File srcDirA = createModuleWithSubdirectory("moduleA", "src");
+    File srcDirB = createModuleWithSubdirectory("moduleB", "src");
 
     writeFile(srcDirA, "sample.xoo", "Sample xoo\ncontent");
     writeFile(srcDirB, "sample.xoo", "Sample xoo\ncontent");
@@ -647,12 +698,8 @@ class FileSystemMediumIT {
 
   @Test
   void support_global_server_side_exclusions_for_multi_module_project() throws IOException {
-    File baseDirModuleA = new File(baseDir, "moduleA");
-    File baseDirModuleB = new File(baseDir, "moduleB");
-    File srcDirA = new File(baseDirModuleA, "src");
-    assertThat(srcDirA.mkdirs()).isTrue();
-    File srcDirB = new File(baseDirModuleB, "src");
-    assertThat(srcDirB.mkdirs()).isTrue();
+    File srcDirA = createModuleWithSubdirectory("moduleA", "src");
+    File srcDirB = createModuleWithSubdirectory("moduleB", "src");
 
     writeFile(srcDirA, "sample.xoo", "Sample xoo\ncontent");
     writeFile(srcDirB, "sample.xoo", "Sample xoo\ncontent");
@@ -677,12 +724,8 @@ class FileSystemMediumIT {
 
   @Test
   void support_global_server_side_global_exclusions_for_multi_module_project() throws IOException {
-    File baseDirModuleA = new File(baseDir, "moduleA");
-    File baseDirModuleB = new File(baseDir, "moduleB");
-    File srcDirA = new File(baseDirModuleA, "src");
-    assertThat(srcDirA.mkdirs()).isTrue();
-    File srcDirB = new File(baseDirModuleB, "src");
-    assertThat(srcDirB.mkdirs()).isTrue();
+    File srcDirA = createModuleWithSubdirectory("moduleA", "src");
+    File srcDirB = createModuleWithSubdirectory("moduleB", "src");
 
     writeFile(srcDirA, "sample.xoo", "Sample xoo\ncontent");
     writeFile(srcDirB, "sample.xoo", "Sample xoo\ncontent");
@@ -707,12 +750,8 @@ class FileSystemMediumIT {
 
   @Test
   void warn_user_for_outdated_server_side_inherited_exclusions_for_multi_module_project() throws IOException {
-    File baseDirModuleA = new File(baseDir, "moduleA");
-    File baseDirModuleB = new File(baseDir, "moduleB");
-    File srcDirA = new File(baseDirModuleA, "src");
-    assertThat(srcDirA.mkdirs()).isTrue();
-    File srcDirB = new File(baseDirModuleB, "src");
-    assertThat(srcDirB.mkdirs()).isTrue();
+    File srcDirA = createModuleWithSubdirectory("moduleA", "src");
+    File srcDirB = createModuleWithSubdirectory("moduleB", "src");
 
     writeFile(srcDirA, "sample.xoo", "Sample xoo\ncontent");
     writeFile(srcDirB, "sample.xoo", "Sample xoo\ncontent");
@@ -985,12 +1024,8 @@ class FileSystemMediumIT {
 
   @Test
   void log_all_exclusions_properties_per_modules() throws IOException {
-    File baseDirModuleA = new File(baseDir, "moduleA");
-    File baseDirModuleB = new File(baseDir, "moduleB");
-    File srcDirA = new File(baseDirModuleA, "src");
-    assertThat(srcDirA.mkdirs()).isTrue();
-    File srcDirB = new File(baseDirModuleB, "src");
-    assertThat(srcDirB.mkdirs()).isTrue();
+    File srcDirA = createModuleWithSubdirectory("moduleA", "src");
+    File srcDirB = createModuleWithSubdirectory("moduleB", "src");
 
     writeFile(srcDirA, "sample.xoo", "Sample xoo\ncontent");
     writeFile(srcDirB, "sample.xoo", "Sample xoo\ncontent");
@@ -1019,7 +1054,7 @@ class FileSystemMediumIT {
         "  Excluded sources for coverage: **/coverage.exclusions",
         "  Excluded sources for duplication: **/cpd.exclusions",
         "Indexing files of module 'moduleA'",
-        "  Base dir: " + baseDirModuleA.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS),
+        "  Base dir: " + srcDirA.toPath().getParent().toRealPath(LinkOption.NOFOLLOW_LINKS),
         "  Included sources: **/global.inclusions",
         "  Excluded sources: **/global.exclusions, **/global.test.inclusions",
         "  Included tests: **/global.test.inclusions",
@@ -1027,7 +1062,7 @@ class FileSystemMediumIT {
         "  Excluded sources for coverage: **/coverage.exclusions",
         "  Excluded sources for duplication: **/cpd.exclusions",
         "Indexing files of module 'moduleB'",
-        "  Base dir: " + baseDirModuleB.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS),
+        "  Base dir: " + srcDirB.toPath().getParent().toRealPath(LinkOption.NOFOLLOW_LINKS),
         "  Included sources: **/global.inclusions",
         "  Excluded sources: **/global.exclusions, **/global.test.inclusions",
         "  Included tests: **/global.test.inclusions",
@@ -1443,12 +1478,8 @@ class FileSystemMediumIT {
 
   @Test
   void shouldDetectHiddenFilesFromMultipleModules() throws IOException {
-    File baseDirModuleA = new File(baseDir, "moduleA");
-    File baseDirModuleB = new File(baseDir, "moduleB");
-    File srcDirA = new File(baseDirModuleA, "src");
-    assertThat(srcDirA.mkdirs()).isTrue();
-    File srcDirB = new File(baseDirModuleB, "src");
-    assertThat(srcDirB.mkdirs()).isTrue();
+    File srcDirA = createModuleWithSubdirectory("moduleA", "src");
+    File srcDirB = createModuleWithSubdirectory("moduleB", "src");
 
     File fileModuleA = writeFile(srcDirA, ".xoo", "Sample xoo\ncontent");
     setFileAsHiddenOnWindows(fileModuleA.toPath());
@@ -1466,6 +1497,13 @@ class FileSystemMediumIT {
 
     assertHiddenFileScan(result, "moduleA/src/.xoo", true, true);
     assertHiddenFileScan(result, "moduleB/src/.xoo", true, true);
+  }
+
+  private File createModuleWithSubdirectory(String moduleName, String subDirName) {
+    File moduleBaseDir = new File(baseDir, moduleName);
+    File srcDir = moduleBaseDir.toPath().resolve(subDirName).toFile();
+    assertThat(srcDir.mkdirs()).isTrue();
+    return srcDir;
   }
 
   private static void assertAnalysedFiles(AnalysisResult result, String... files) {
@@ -1495,7 +1533,6 @@ class FileSystemMediumIT {
   }
 
   private Path prepareBrokenSymlinkTestScenario() throws IOException {
-    assumeFalse(SystemUtils.IS_OS_WINDOWS);
     File srcDir = new File(baseDir, "src");
     assertThat(srcDir.mkdir()).isTrue();
 

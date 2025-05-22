@@ -147,22 +147,35 @@ public class FilePreprocessor {
       return true;
     }
 
-    Path target = Files.readSymbolicLink(absolutePath);
-    if (!Files.exists(target)) {
+    Optional<Path> target = resolvePathToTarget(absolutePath);
+    if (target.isEmpty() || !Files.exists(target.get())) {
       LOG.warn("File '{}' is ignored. It is a symbolic link targeting a file that does not exist.", absolutePath);
       return false;
     }
 
-    if (!target.startsWith(project.getBaseDir())) {
+    if (!target.get().startsWith(project.getBaseDir())) {
       LOG.warn("File '{}' is ignored. It is a symbolic link targeting a file not located in project basedir.", absolutePath);
       return false;
     }
 
-    if (!target.startsWith(moduleBaseDirectory)) {
+    if (!target.get().startsWith(moduleBaseDirectory)) {
       LOG.info("File '{}' is ignored. It is a symbolic link targeting a file not located in module basedir.", absolutePath);
       return false;
     }
 
     return true;
+  }
+
+  private static Optional<Path> resolvePathToTarget(Path symbolicLinkAbsolutePath) throws IOException {
+    Path target = Files.readSymbolicLink(symbolicLinkAbsolutePath);
+    if (target.isAbsolute()) {
+      return Optional.of(target);
+    }
+
+    try {
+      return Optional.of(symbolicLinkAbsolutePath.getParent().resolve(target).toRealPath(LinkOption.NOFOLLOW_LINKS).toAbsolutePath().normalize());
+    } catch (IOException e) {
+      return Optional.empty();
+    }
   }
 }
