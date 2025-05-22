@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -175,8 +176,8 @@ public class CliCacheService {
         }.getType();
         return new Gson().fromJson(reader, listOfMetadata);
       }
-    } catch (Exception e) {
-      throw new IllegalStateException("Unable to load CLI metadata", e);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
     }
   }
 

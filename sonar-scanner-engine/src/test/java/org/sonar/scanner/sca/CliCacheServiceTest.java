@@ -161,7 +161,7 @@ class CliCacheServiceTest {
     WsTestUtil.mockException(scannerWsClient, e);
 
     assertThatThrownBy(underTest::cacheCli).isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("Unable to load CLI metadata");
+      .hasMessageContaining("http error");
 
     verify(telemetryCache).put("scanner.sca.get.cli.success", "false");
   }
