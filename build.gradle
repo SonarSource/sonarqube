@@ -284,7 +284,7 @@ subprojects {
       dependency 'com.sonarsource.cobol:sonar-cobol-plugin:5.8.1.8428'
       dependency 'com.sonarsource.cpp:sonar-cfamily-dependencies-plugin:6.67.0.84717'
       dependency 'com.sonarsource.cpp:sonar-cfamily-plugin:6.67.0.84717'
-      dependency 'com.sonarsource.dart:sonar-dart-plugin:1.1.0.2133'
+      dependency 'com.sonarsource.dart:sonar-dart-plugin:1.2.0.2453'
       dependency 'com.sonarsource.dbd:sonar-dbd-plugin:1.36.1.13250'
       dependency 'com.sonarsource.dbd:sonar-dbd-java-frontend-plugin:1.36.1.13250'
       dependency 'com.sonarsource.dbd:sonar-dbd-python-frontend-plugin:1.36.1.13250'
