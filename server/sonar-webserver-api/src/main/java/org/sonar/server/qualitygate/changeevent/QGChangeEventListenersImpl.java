@@ -62,6 +62,21 @@ public class QGChangeEventListenersImpl implements QGChangeEventListeners {
     }
   }
 
+  @Override
+  public void broadcastOnAnyChange(Collection<QGChangeEvent> changeEvents, boolean fromAlm) {
+    if (listeners.isEmpty() || changeEvents.isEmpty()) {
+      return;
+    }
+
+    try {
+      for (var changeEvent : changeEvents) {
+        listeners.forEach(listener -> broadcastChangeEventToListener(Set.of(), changeEvent, listener));
+      }
+    } catch (Error e) {
+      LOG.warn(format("Broadcasting to listeners failed for %s events", changeEvents.size()), e);
+    }
+  }
+
   private void broadcastChangeEventsToBranches(List<DefaultIssue> issues, Collection<QGChangeEvent> changeEvents, boolean fromAlm) {
     Multimap<String, QGChangeEvent> eventsByBranchUuid = changeEvents.stream()
       .collect(MoreCollectors.index(qgChangeEvent -> qgChangeEvent.getBranch().getUuid()));

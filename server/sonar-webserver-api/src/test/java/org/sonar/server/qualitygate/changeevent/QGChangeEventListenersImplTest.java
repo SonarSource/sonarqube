@@ -238,6 +238,34 @@ public class QGChangeEventListenersImplTest {
   }
 
   @Test
+  public void broadcastOnAnyChange_whenNoListeners_thenDoesNothing() {
+    var qgChangeEventListeners = new QGChangeEventListenersImpl(Set.of());
+
+    qgChangeEventListeners.broadcastOnAnyChange(singletonList(component1QGChangeEvent), false);
+
+    verifyNoInteractions(listener1, listener2, listener3);
+  }
+
+  @Test
+  public void broadcastOnAnyChange_whenNoChangeEvents_thenDoesNothing() {
+    underTest.broadcastOnAnyChange(List.of(), false);
+
+    verifyNoInteractions(listener1, listener2, listener3);
+  }
+
+  @Test
+  public void broadcastOnAnyChange_whenListenersAndChangeEvents_thenBroadcastsToEachListener() {
+    underTest.broadcastOnAnyChange(singletonList(component1QGChangeEvent), false);
+
+    ArgumentCaptor<Set<ChangedIssue>> changedIssuesCaptor = newSetCaptor();
+    inOrder.verify(listener1).onIssueChanges(same(component1QGChangeEvent), changedIssuesCaptor.capture());
+    Set<ChangedIssue> changedIssues = changedIssuesCaptor.getValue();
+    inOrder.verify(listener2).onIssueChanges(same(component1QGChangeEvent), same(changedIssues));
+    inOrder.verify(listener3).onIssueChanges(same(component1QGChangeEvent), same(changedIssues));
+    inOrder.verifyNoMoreInteractions();
+  }
+
+  @Test
   public void isNotClosed_returns_true_if_issue_in_one_of_opened_states() {
     DefaultIssue defaultIssue = new DefaultIssue();
     defaultIssue.setStatus(Issue.STATUS_REOPENED);

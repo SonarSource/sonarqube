@@ -51,17 +51,17 @@ import static java.util.Objects.requireNonNull;
  *   <li>the refreshed values</li>
  * </ul>
  */
-class MeasureMatrix {
+public class MeasureMatrix {
   // component uuid -> metric key -> measure
   private final Table<String, String, MeasureCell> table;
 
   private final Map<String, MetricDto> metricsByKeys = new HashMap<>();
 
-  MeasureMatrix(Collection<ComponentDto> components, Collection<MetricDto> metrics, List<MeasureDto> dbMeasures) {
+  public MeasureMatrix(Collection<ComponentDto> components, Collection<MetricDto> metrics, List<MeasureDto> dbMeasures) {
     this(components.stream().map(ComponentDto::uuid).collect(Collectors.toSet()), metrics, dbMeasures);
   }
 
-  MeasureMatrix(Set<String> componentUuids, Collection<MetricDto> metrics, List<MeasureDto> dbMeasures) {
+  public MeasureMatrix(Set<String> componentUuids, Collection<MetricDto> metrics, List<MeasureDto> dbMeasures) {
     for (MetricDto metric : metrics) {
       this.metricsByKeys.put(metric.getKey(), metric);
     }
@@ -86,19 +86,19 @@ class MeasureMatrix {
     return cell == null ? Optional.empty() : Optional.of(cell.measure);
   }
 
-  void setValue(ComponentDto component, String metricKey, double value) {
+  public void setValue(ComponentDto component, String metricKey, double value) {
     changeCell(component, metricKey, m -> m.setValue(scale(getMetric(metricKey), value)));
   }
 
-  void setValue(ComponentDto component, String metricKey, Rating value) {
+  public void setValue(ComponentDto component, String metricKey, Rating value) {
     changeCell(component, metricKey, m -> m.setValue((double) value.getIndex()));
   }
 
-  void setValue(ComponentDto component, String metricKey, @Nullable String data) {
+  public void setValue(ComponentDto component, String metricKey, @Nullable String data) {
     changeCell(component, metricKey, m -> m.setValue(data));
   }
 
-  Stream<Measure> getChanged() {
+  public Stream<Measure> getChanged() {
     return table.values().stream()
       .filter(Objects::nonNull)
       .filter(MeasureCell::isChanged)
@@ -145,8 +145,8 @@ class MeasureMatrix {
     }
   }
 
-  static class Measure {
-    static final Comparator<Measure> COMPARATOR = Comparator
+  public static class Measure {
+    public static final Comparator<Measure> COMPARATOR = Comparator
       .comparing((Measure m) -> m.componentUuid)
       .thenComparing(m -> m.metricDto.getKey());
 

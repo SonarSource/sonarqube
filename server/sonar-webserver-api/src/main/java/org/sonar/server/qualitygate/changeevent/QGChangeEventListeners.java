@@ -32,4 +32,11 @@ public interface QGChangeEventListeners {
    */
   void broadcastOnIssueChange(List<DefaultIssue> changedIssues, Collection<QGChangeEvent> qgChangeEvents, boolean fromAlm);
 
+  /**
+   * Broadcast events regardless of any changed file analysis issues. Used when non-file analysis tools (ex: SCA)
+   * need to send events.
+   *
+   * @param fromAlm: true if issues changes were initiated by an ALM.
+   */
+  void broadcastOnAnyChange(Collection<QGChangeEvent> qgChangeEvents, boolean fromAlm);
 }
