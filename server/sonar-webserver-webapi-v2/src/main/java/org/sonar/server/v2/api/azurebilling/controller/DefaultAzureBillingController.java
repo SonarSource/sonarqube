@@ -21,9 +21,11 @@ package org.sonar.server.v2.api.azurebilling.controller;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.v2.api.azurebilling.environment.AzureEnvironment;
 import org.sonar.server.v2.api.azurebilling.response.AzureBillingRestResponse;
 import org.sonar.server.v2.api.azurebilling.service.AzureBillingHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 
 public class DefaultAzureBillingController implements AzureBillingController {
 
@@ -44,18 +46,11 @@ public class DefaultAzureBillingController implements AzureBillingController {
   }
 
   @Override
-  public AzureBillingRestResponse billAzureAccount(String azureUserToken) {
+  public ResponseEntity<AzureBillingRestResponse> billAzureAccount() {
     userSession.checkIsSystemAdministrator();
     if (!azureEnvironment.isAzureBillingEnabled()) {
       throw new IllegalStateException("Azure billing is not enabled on this instance");
     }
-    return azureBillingHandler.billAzureAccount(azureUserToken);
-  }
-
-  public static class AzureEnvironment {
-
-    public boolean isAzureBillingEnabled() {
-      return Boolean.parseBoolean(System.getenv("MARKETPLACE_AZURE_BILLING"));
-    }
+    return azureBillingHandler.billAzureAccount();
   }
 }

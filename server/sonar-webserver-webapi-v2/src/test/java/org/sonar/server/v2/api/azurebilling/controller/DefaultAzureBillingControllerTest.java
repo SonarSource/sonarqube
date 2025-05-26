@@ -22,18 +22,28 @@ package org.sonar.server.v2.api.azurebilling.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.v2.api.azurebilling.environment.AzureEnvironment;
 import org.sonar.server.v2.api.azurebilling.response.AzureBillingRestResponse;
 import org.sonar.server.v2.api.azurebilling.service.AzureBillingHandler;
+import org.springframework.http.ResponseEntity;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 class DefaultAzureBillingControllerTest {
 
   private DefaultAzureBillingController controller;
   private AzureBillingHandler mockHandler;
   private UserSession mockUserSession;
-  private DefaultAzureBillingController.AzureEnvironment mockAzureEnvironment;
+  private AzureEnvironment mockAzureEnvironment;
 
   @BeforeEach
   void setUp() {
@@ -47,15 +57,15 @@ class DefaultAzureBillingControllerTest {
   void testBillAzureAccount_whenBillingEnabled_shouldReturnSuccessResponse() {
     when(mockAzureEnvironment.isAzureBillingEnabled()).thenReturn(true);
 
-    AzureBillingRestResponse mockResponse = new AzureBillingRestResponse(true, null);
-    when(mockHandler.billAzureAccount("test-token")).thenReturn(mockResponse);
+    ResponseEntity<AzureBillingRestResponse> mockResponse = ResponseEntity.ok().body(new AzureBillingRestResponse(true, null));
+    when(mockHandler.billAzureAccount()).thenReturn(mockResponse);
 
-    AzureBillingRestResponse response = controller.billAzureAccount("test-token");
+    ResponseEntity<AzureBillingRestResponse> response = controller.billAzureAccount();
 
     verify(mockUserSession, times(1)).checkIsSystemAdministrator();
-    verify(mockHandler, times(1)).billAzureAccount("test-token");
-    assertTrue(response.success());
-    assertNull(response.message());
+    verify(mockHandler, times(1)).billAzureAccount();
+    assertTrue(response.getBody().success());
+    assertNull(response.getBody().message());
   }
 
   @Test
@@ -63,7 +73,7 @@ class DefaultAzureBillingControllerTest {
     when(mockAzureEnvironment.isAzureBillingEnabled()).thenReturn(false);
 
     IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-      controller.billAzureAccount("test-token");
+      controller.billAzureAccount();
     });
 
     verify(mockUserSession, times(1)).checkIsSystemAdministrator();
@@ -78,7 +88,7 @@ class DefaultAzureBillingControllerTest {
     doThrow(new SecurityException("Unauthorized")).when(mockUserSession).checkIsSystemAdministrator();
 
     SecurityException exception = assertThrows(SecurityException.class, () -> {
-      controller.billAzureAccount("test-token");
+      controller.billAzureAccount();
     });
 
     verify(mockUserSession, times(1)).checkIsSystemAdministrator();

@@ -20,9 +20,10 @@
 package org.sonar.server.v2.api.azurebilling.service;
 
 import org.sonar.server.v2.api.azurebilling.response.AzureBillingRestResponse;
+import org.springframework.http.ResponseEntity;
 
 public interface AzureBillingHandler {
 
-  AzureBillingRestResponse billAzureAccount(String azureUserToken);
+  ResponseEntity<AzureBillingRestResponse> billAzureAccount();
 
 }

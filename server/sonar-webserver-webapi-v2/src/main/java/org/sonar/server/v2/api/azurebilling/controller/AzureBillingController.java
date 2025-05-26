@@ -20,11 +20,10 @@
 package org.sonar.server.v2.api.azurebilling.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import org.sonar.server.v2.api.azurebilling.response.AzureBillingRestResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.sonar.server.v2.WebApiEndpoints.AZURE_BILLING_ENDPOINT;
@@ -37,6 +36,6 @@ public interface AzureBillingController {
   @PostMapping
   @Operation(summary = "Bills user's Azure account with the cost of SonarQube Server license",
     description = "Used by admin to bill user's Azure account with the cost of SonarQube Server license.")
-  AzureBillingRestResponse billAzureAccount(@RequestParam(value = "azureUserToken") @Parameter(description = "Token used to authenticate to Azure") String azureUserToken);
+  ResponseEntity<AzureBillingRestResponse> billAzureAccount();
 
 }

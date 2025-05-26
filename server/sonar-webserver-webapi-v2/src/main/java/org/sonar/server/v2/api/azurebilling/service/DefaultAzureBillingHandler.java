@@ -20,91 +20,103 @@
 package org.sonar.server.v2.api.azurebilling.service;
 
 import java.io.IOException;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.apache.http.HttpHeaders;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
+import org.sonar.server.v2.api.azurebilling.environment.AzureEnvironment;
 import org.sonar.server.v2.api.azurebilling.response.AzureBillingRestResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 public class DefaultAzureBillingHandler implements AzureBillingHandler {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultAzureBillingHandler.class);
 
-  // TODO: replace the value once we get access to the partner.microsoft.com
-  private static final String SONARQUBE_SERVER_AZURE_RESOURCE_ID = "sonarqube-server-azure-resource-id";
-
-  // TODO values for testing
-  private static final String REQUEST_BODY_TEMPLATE = """
-    {
-      "resourceId": "%s",
-      "quantity": %s,
-      "dimension": "billing_test_free",
-      "effectiveStartTime": "%s",
-      "planId": "metered"
-    }
-    """;
-
-  private final DbClient dbClient;
   private final OkHttpClient client;
+  private final AzureEnvironment azureEnvironment;
+  private final AzureBillingRequestBuilder azureBillingRequestBuilder;
+  private final AzureBillingResponseHandler azureBillingResponseHandler;
 
-  public DefaultAzureBillingHandler(DbClient dbClient, OkHttpClient httpClient) {
-    this.dbClient = dbClient;
+  public DefaultAzureBillingHandler(OkHttpClient httpClient, AzureEnvironment azureEnvironment) {
     this.client = httpClient;
+    this.azureEnvironment = azureEnvironment;
+    this.azureBillingRequestBuilder = new AzureBillingRequestBuilder();
+    this.azureBillingResponseHandler = new AzureBillingResponseHandler();
   }
 
   @Override
-  public AzureBillingRestResponse billAzureAccount(String azureUserToken) {
+  public ResponseEntity<AzureBillingRestResponse> billAzureAccount() {
     String requestBody;
+    String azureUserToken;
     try {
-      requestBody = String.format(REQUEST_BODY_TEMPLATE,
-        SONARQUBE_SERVER_AZURE_RESOURCE_ID,
-        getLinesOfCode(),
-        ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+      azureUserToken = getAzureUserToken();
+      requestBody = azureBillingRequestBuilder.getAzureBillingRequestBody(getResourceId(), getPlanId());
     } catch (RuntimeException e) {
       logError("Failed to build request. Details: " + e.getMessage());
-      return new AzureBillingRestResponse(false, "Failed to build request. Details: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AzureBillingRestResponse(false, "Failed to build request. Details: " + e.getMessage()));
     }
 
-    Request request = getAzureBillingRequest(azureUserToken, requestBody);
+    Request request = azureBillingRequestBuilder.getAzureBillingRequest(azureUserToken, requestBody);
 
     return handleAzureBillingRequest(request);
   }
 
-  private String getLinesOfCode() {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      return String.valueOf(dbClient.projectDao().getNclocSum(dbSession));
-    }
-  }
+  private String getAzureUserToken() {
 
-  @NotNull
-  private static Request getAzureBillingRequest(String azureUserToken, String requestBody) {
-    return new Request.Builder()
-      .url("https://marketplaceapi.microsoft.com/api/usageEvent?api-version=2018-08-31")
-      .addHeader(HttpHeaders.CONTENT_TYPE, "application/json")
-      .addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + azureUserToken)
-      .post(okhttp3.RequestBody.create(requestBody, okhttp3.MediaType.parse("application/json")))
-      .build();
-  }
+    String clientId = azureEnvironment.getAzureClientId()
+      .orElseThrow(() -> new IllegalStateException("Azure Client ID is not configured"));
 
-  @NotNull
-  private AzureBillingRestResponse handleAzureBillingRequest(Request request) {
-    try (Response response = client.newCall(request).execute()) {
+    Request tokenRequest = azureBillingRequestBuilder.getAzureUserTokenRequest(clientId);
+
+    try (Response response = client.newCall(tokenRequest).execute()) {
       if (response.isSuccessful()) {
-        return new AzureBillingRestResponse(true, null);
+        Optional<String> accessToken = azureBillingResponseHandler.extractAccessTokenFromResponse(response);
+
+        if (accessToken.isPresent()) {
+          return accessToken.get();
+        } else {
+          logError("Cannot extract Azure Access Token from response.");
+          throw new IllegalStateException("Cannot extract Azure Access Token from response");
+        }
       } else {
         logError(response.message());
-        return new AzureBillingRestResponse(false, "Call to Azure marketplace failed. Details: " + response.message());
+        throw new IllegalStateException("Cannot obtain Azure Access Token. Details: " + response.message());
       }
     } catch (IOException e) {
       logError(e.getMessage());
-      return new AzureBillingRestResponse(false, "Connection to Azure marketplace failed. Details: " + e.getMessage());
+      throw new IllegalStateException("Cannot obtain Azure Access Token. Details: " + e.getMessage());
+    }
+  }
+
+  private String getResourceId() {
+    return azureEnvironment.getResourceId()
+      .orElseThrow(() -> new IllegalStateException("Azure Resource ID is not configured"));
+  }
+
+  private String getPlanId() {
+    return azureEnvironment.getPlanId()
+      .orElseThrow(() -> new IllegalStateException("Azure Plan ID is not configured"));
+  }
+
+  @NotNull
+  private ResponseEntity<AzureBillingRestResponse> handleAzureBillingRequest(Request request) {
+    try (Response response = client.newCall(request).execute()) {
+      if (response.isSuccessful()) {
+        return ResponseEntity.status(HttpStatus.OK).body(new AzureBillingRestResponse(true, null));
+      } else {
+        Optional<String> errorMessage = azureBillingResponseHandler.getErrorMessageFromResponse(response);
+        String errorMessageValue = errorMessage.orElse(response.message());
+
+        logError(errorMessageValue);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AzureBillingRestResponse(false, "Call to Azure marketplace failed. Details: " + errorMessageValue));
+      }
+    } catch (IOException e) {
+      logError(e.getMessage());
+      return ResponseEntity.status(500).body(new AzureBillingRestResponse(false, "Connection to Azure marketplace failed. Details: " + e.getMessage()));
     }
   }
 

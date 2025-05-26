@@ -29,6 +29,7 @@ import org.sonar.server.v2.api.analysis.service.ActiveRulesHandlerImpl;
 import org.sonar.server.v2.api.analysis.service.JresHandlerImpl;
 import org.sonar.server.v2.api.analysis.service.ScannerEngineHandlerImpl;
 import org.sonar.server.v2.api.azurebilling.controller.DefaultAzureBillingController;
+import org.sonar.server.v2.api.azurebilling.environment.AzureEnvironment;
 import org.sonar.server.v2.api.azurebilling.service.DefaultAzureBillingHandler;
 import org.sonar.server.v2.api.dop.controller.DefaultDopSettingsController;
 import org.sonar.server.v2.api.email.config.controller.DefaultEmailConfigurationController;
@@ -80,6 +81,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
   ScannerEngineHandlerImpl.class,
   UsersSearchRestResponseGenerator.class,
   RuleRestResponseGenerator.class,
+  AzureEnvironment.class,
   DefaultAzureBillingHandler.class,
   DefaultAzureBillingController.class
 })
