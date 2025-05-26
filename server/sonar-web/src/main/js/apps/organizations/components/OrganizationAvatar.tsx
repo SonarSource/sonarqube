@@ -22,6 +22,7 @@ import { Avatar } from '~design-system';
 import * as React from 'react';
 import { OrganizationBase } from '../../../types/types';
 import './OrganizationAvatar.css';
+import { sizeMap } from '../../../design-system/components/avatar/utils';
 
 interface Props {
   className?: string;
@@ -43,6 +44,7 @@ export default class OrganizationAvatar extends React.PureComponent<Props, State
   render() {
     const { className, organization, small } = this.props;
     const { imgLoadError } = this.state;
+    const avatarSize = small ? sizeMap['xs'] : sizeMap['md'];
     return organization.avatar && !imgLoadError ? (
       <div
         className={classNames(
@@ -51,6 +53,10 @@ export default class OrganizationAvatar extends React.PureComponent<Props, State
           { 'no-border': !organization.avatar, 'is-small': small },
           className,
         )}
+        style={{
+          width: `${avatarSize}px`,
+          height: `${avatarSize}px`,
+        }}
       >
         <img
           alt={organization.name}
