@@ -21,36 +21,23 @@ package org.sonar.server.measure.live;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.metric.MetricDto;
-import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.Indexers;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
-import org.sonar.server.qualitygate.QualityGate;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
 import org.sonar.server.setting.ProjectConfigurationLoader;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.groupingBy;
-import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 
 public class LiveMeasureComputerImpl implements LiveMeasureComputer {
 
@@ -96,81 +83,36 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
       return Optional.empty();
     }
 
-    BranchDto branch = loadBranch(dbSession, branchComponent);
-    ProjectDto project = loadProject(dbSession, branch.getProjectUuid());
-    Configuration config = projectConfigurationLoader.loadBranchConfiguration(dbSession, branch);
-    QualityGate qualityGate = qGateComputer.loadQualityGate(dbSession, project, branch);
-    MeasureMatrix matrix = loadMeasureMatrix(dbSession, components.getAllUuids(), qualityGate);
+    LiveMeasureUpdaterWorkflow liveMeasureUpdaterWorkflow = LiveMeasureUpdaterWorkflow.build(
+      dbClient,
+      dbSession,
+      branchComponent,
+      projectConfigurationLoader,
+      qGateComputer);
 
-    treeUpdater.update(dbSession, lastAnalysis.get(), config, components, branch, matrix);
+    Set<String> metricKeys = liveMeasureUpdaterWorkflow.getKeysOfAllInvolvedMetrics(formulaFactory);
+    MeasureMatrix matrix = liveMeasureUpdaterWorkflow.buildMeasureMatrix(
+      metricKeys,
+      components.getAllUuids());
 
-    Metric.Level previousStatus = loadPreviousStatus(dbSession, branchComponent);
-    EvaluatedQualityGate evaluatedQualityGate = qGateComputer.refreshGateStatus(branchComponent, qualityGate, matrix, config);
-    persistAndIndex(dbSession, matrix, branch);
+    treeUpdater.update(
+      dbSession,
+      lastAnalysis.get(),
+      liveMeasureUpdaterWorkflow.getConfig(),
+      components,
+      liveMeasureUpdaterWorkflow.getBranchDto(),
+      matrix);
 
-    return Optional.of(new QGChangeEvent(project, branch, lastAnalysis.get(), config, previousStatus, () -> Optional.of(evaluatedQualityGate)));
-  }
+    Metric.Level previousStatus = liveMeasureUpdaterWorkflow.loadPreviousStatus();
+    EvaluatedQualityGate evaluatedQualityGate = liveMeasureUpdaterWorkflow.updateQualityGateMeasures(matrix);
 
-  private MeasureMatrix loadMeasureMatrix(DbSession dbSession, Set<String> componentUuids, QualityGate qualityGate) {
-    Collection<String> metricKeys = getKeysOfAllInvolvedMetrics(qualityGate);
-    Map<String, MetricDto> metricPerKey =
-      dbClient.metricDao().selectByKeys(dbSession, metricKeys).stream().collect(Collectors.toMap(MetricDto::getKey, Function.identity()));
-    List<MeasureDto> measures = dbClient.measureDao()
-      .selectByComponentUuidsAndMetricKeys(dbSession, componentUuids, metricPerKey.keySet());
-    return new MeasureMatrix(componentUuids, metricPerKey.values(), measures);
-  }
+    projectIndexer.commitAndIndexBranches(dbSession, singleton(liveMeasureUpdaterWorkflow.getBranchDto()), Indexers.BranchEvent.MEASURE_CHANGE);
 
-  private void persistAndIndex(DbSession dbSession, MeasureMatrix matrix, BranchDto branch) {
-    // persist the measures that have been created or updated
-    Map<String, MeasureDto> measureDtoPerComponent = new HashMap<>();
-    matrix.getChanged().sorted(MeasureMatrix.Measure.COMPARATOR)
-      .filter(m -> m.getValue() != null)
-      .forEach(m -> measureDtoPerComponent.compute(m.getComponentUuid(), (componentUuid, measureDto) -> {
-      if (measureDto == null) {
-        measureDto = new MeasureDto()
-          .setComponentUuid(componentUuid)
-          .setBranchUuid(m.getBranchUuid());
-      }
-      return measureDto.addValue(
-        m.getMetricKey(),
-        m.getValue()
-      );
-    }));
-    measureDtoPerComponent.values().forEach(m -> dbClient.measureDao().insertOrUpdate(dbSession, m));
-    projectIndexer.commitAndIndexBranches(dbSession, singleton(branch), Indexers.BranchEvent.MEASURE_CHANGE);
-  }
-
-  @CheckForNull
-  private Metric.Level loadPreviousStatus(DbSession dbSession, ComponentDto branchComponent) {
-    return dbClient.measureDao().selectByComponentUuid(dbSession, branchComponent.uuid())
-      .map(m -> m.getString(ALERT_STATUS_KEY))
-      .map(m -> {
-        try {
-          return Metric.Level.valueOf(m);
-        } catch (IllegalArgumentException e) {
-          LoggerFactory.getLogger(LiveMeasureComputerImpl.class).trace("Failed to parse value of metric '{}'", ALERT_STATUS_KEY, e);
-          return null;
-        }
-      })
-      .orElse(null);
-  }
-
-  private Set<String> getKeysOfAllInvolvedMetrics(QualityGate gate) {
-    Set<String> metricKeys = new HashSet<>();
-    for (Metric<?> metric : formulaFactory.getFormulaMetrics()) {
-      metricKeys.add(metric.getKey());
-    }
-    metricKeys.addAll(qGateComputer.getMetricsRelatedTo(gate));
-    return metricKeys;
-  }
-
-  private BranchDto loadBranch(DbSession dbSession, ComponentDto branchComponent) {
-    return dbClient.branchDao().selectByUuid(dbSession, branchComponent.uuid())
-      .orElseThrow(() -> new IllegalStateException("Branch not found: " + branchComponent.uuid()));
-  }
-
-  private ProjectDto loadProject(DbSession dbSession, String uuid) {
-    return dbClient.projectDao().selectByUuid(dbSession, uuid)
-      .orElseThrow(() -> new IllegalStateException("Project not found: " + uuid));
+    return Optional.of(new QGChangeEvent(
+      liveMeasureUpdaterWorkflow.getProjectDto(),
+      liveMeasureUpdaterWorkflow.getBranchDto(),
+      lastAnalysis.get(),
+      liveMeasureUpdaterWorkflow.getConfig(),
+      previousStatus, () -> Optional.of(evaluatedQualityGate)));
   }
 }
