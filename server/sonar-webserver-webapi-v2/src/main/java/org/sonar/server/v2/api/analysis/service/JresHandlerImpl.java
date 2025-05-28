@@ -34,19 +34,32 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.v2.api.analysis.response.JreInfoRestResponse;
-
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 import static java.lang.String.join;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
 public class JresHandlerImpl implements JresHandler {
 
   private static final String JRES_METADATA_FILENAME = "jres-metadata.json";
+  private static final Logger LOG = LoggerFactory.getLogger(JresHandlerImpl.class);
 
   private final String jresMetadataFilename;
   private final Map<String, JreInfoRestResponse> metadata = new HashMap<>();
-
+  private final String jresBucketName = System.getenv("CODESCAN_JRE_BUCKET_NAME");
+  private final String jresPath = System.getenv("CODESCAN_JRE_PATH");
+  private final Region region = Region.US_EAST_1; // Use US East as a default region for S3 to download JREs
+  private final S3Client s3Client = S3Client.builder()
+          .region(region)
+          .credentialsProvider(DefaultCredentialsProvider.create())
+          .build();
   public JresHandlerImpl() {
     this(JRES_METADATA_FILENAME);
   }
@@ -90,13 +103,40 @@ public class JresHandlerImpl implements JresHandler {
       .orElseThrow(() -> new NotFoundException("JRE not found for id: " + id));
   }
 
+  /**
+   * Fetches the JRE binary from S3 if the bucket is set; otherwise, loads from classpath.
+   * @param jreFilename File name or S3 key (e.g. "linux-x64/openjdk-17.tar.gz")
+   * @return InputStream to the binary data
+   */
+
   @Override
-  public InputStream getJreBinary(String jreFilename) {
-    try {
-      return new FileInputStream("jres/" + jreFilename);
-    } catch (FileNotFoundException fileNotFoundException) {
-      throw new NotFoundException(String.format("Unable to find JRE '%s'", jreFilename));
+  public InputStream getJreBinary(String jreFilename) throws FileNotFoundException {
+    LOG.info("Fetching JRE file {} from bucket {}", jreFilename, jresBucketName);
+    if (isNotBlank(jresBucketName) && isNotBlank(jresPath)) {
+      try {
+        LOG.info("Fetching file {} from S3 path {}", jreFilename, jresPath);
+        GetObjectRequest request = GetObjectRequest.builder()
+                .bucket(jresBucketName)
+                .key(jresPath + jreFilename)
+                .build();
+
+        return s3Client.getObject(request);
+      } catch (S3Exception e) {
+        throw new RuntimeException("Failed to fetch file from S3: " + jreFilename, e);
+      }
+    }else {
+      LOG.info("Fetching file {} from classpath", jreFilename);
+      //Only Linux x64 supported JRE is bundled with the server
+      InputStream inputStream = getClass().getResourceAsStream("/jres/" + jreFilename);
+      if (inputStream == null) {
+        throw new FileNotFoundException("Resource not found: /jres/" + jreFilename);
+      }
+      return inputStream;
     }
+  }
+
+  private boolean isNotBlank(String str) {
+    return str != null && !str.isBlank();
   }
 
   enum OS {
