@@ -21,6 +21,7 @@ package org.sonar.server.v2.api.analysis.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import java.io.FileNotFoundException;
 import java.util.List;
 import org.sonar.server.v2.api.analysis.response.JreInfoRestResponse;
 import org.springframework.core.io.InputStreamResource;
@@ -63,5 +64,6 @@ public interface JresController {
   @GetMapping(value = "/{id}", produces = APPLICATION_OCTET_STREAM_VALUE)
   @Operation(summary = GET_JRE_SUMMARY, description = GET_JRE_DESCRIPTION)
   InputStreamResource downloadJre(
-    @PathVariable(value = "id") @Parameter(description = ID_PARAM_DESCRIPTION, required = true, in = PATH) String id);
+    @PathVariable(value = "id") @Parameter(description = ID_PARAM_DESCRIPTION, required = true, in = PATH) String id)
+          throws FileNotFoundException;
 }
