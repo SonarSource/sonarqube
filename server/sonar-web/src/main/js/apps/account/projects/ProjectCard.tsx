@@ -99,8 +99,8 @@ export default function ProjectCard({ project }: Readonly<Props>) {
       <Note>{project.key}</Note>
 
       {!!project.description && <div className="sw-mt-2">{project.description}</div>}
-
-      {orderedLinks.length > 0 && (
+      
+      {!currentUser.isNotStandardOrg && orderedLinks.length > 0 && (
         <div className="sw-mt-2">
           <UnorderedList className="sw-flex sw-gap-4">
             {orderedLinks.map((link) => (
