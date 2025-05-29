@@ -97,9 +97,13 @@ function renderOrganizationGroups() {
         {currentUser.orgGroups.map((orgGroup) => (
           <TableRow key={orgGroup.organizationKey}>
             <ContentCell>
-              <Link to={`/organizations/${orgGroup.organizationKey}/groups`}>
+              {currentUser.isNotStandardOrg ? (
                 <strong>{orgGroup.organizationName}</strong>
-              </Link>
+              ) : (
+                <Link to={`/organizations/${orgGroup.organizationKey}/groups`}>
+                  <strong>{orgGroup.organizationName}</strong>
+                </Link>
+              )}
             </ContentCell>
             <ContentCell>
               <span>{orgGroup.organizationGroups}</span>

@@ -26,9 +26,10 @@ import "../projects/account.css";
 
 interface Props {
   organization: Organization;
+  linksDisabled?: boolean;
 }
 
-export default function OrganizationCard({ organization }: Props) {
+export default function OrganizationCard({ organization, linksDisabled }: Props) {
   const { actions = {} } = organization;
   return (
       <div className="account-project-card clearfix">
@@ -37,12 +38,18 @@ export default function OrganizationCard({ organization }: Props) {
         </aside>
 
         <h3 className="account-project-name organization-name-label">
-          <OrganizationAvatar organization={organization}/>
+        <OrganizationAvatar organization={organization} />
+        {linksDisabled ? (
+          organization.name
+        ) : (
           <OrganizationLink className="spacer-left text-middle" organization={organization}>
             {organization.name}
           </OrganizationLink>
-          {actions.admin && <span className="badge org-badge spacer-left">{translate('admin')}</span>}
-        </h3>
+        )}
+        {actions.admin && (
+          <span className="badge org-badge spacer-left">{translate('admin')}</span>
+        )}
+      </h3>
 
         {!!organization.description && (
             <div className="markdown spacer-top">{organization.description}</div>

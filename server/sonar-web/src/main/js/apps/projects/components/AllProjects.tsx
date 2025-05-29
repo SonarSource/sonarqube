@@ -85,6 +85,9 @@ function AllProjects({ isFavorite, organization }: Readonly<{ isFavorite: boolea
   const [projectsView, setProjectsView] = useLocalStorage(LS_PROJECTS_VIEW);
   const { data: isStandardMode = false, isLoading: loadingMode } = useStandardExperienceModeQuery();
 
+  if (query?.organization && currentUser.platformOrgs?.includes(query.organization)) {
+   window.location.href = '/account'
+  }
   const {
     data: projectPages,
     isLoading: loadingProjects,

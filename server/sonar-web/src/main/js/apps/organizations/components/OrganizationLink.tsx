@@ -19,21 +19,41 @@
  */
 import * as React from 'react';
 import Link from '../../../components/common/Link';
+import { useCurrentUser } from './../../../app/components/current-user/CurrentUserContext';
+
 
 interface Props {
   children?: React.ReactNode;
   organization: { kee: string };
   onClick?: () => void;
-
   [x: string]: any;
 }
 
-export default function OrganizationLink(props: Props) {
-  const { children, organization, onClick, ...other } = props;
 
-  return (
-    <Link onClick={onClick} to={`/organizations/${organization.kee}`} {...other}>
-      {children}
-    </Link>
-  );
-}
+ export default function OrganizationLink(props: Props) {
+  const { children, organization, onClick, ...other } = props;
+  const { currentUser,setIsNotStandardOrg } = useCurrentUser();
+    let isStandardOrg = currentUser.standardOrgs?.includes(organization.kee);
+
+    const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+      if (!isStandardOrg && setIsNotStandardOrg) {
+        setIsNotStandardOrg(true);
+      } else if (isStandardOrg && setIsNotStandardOrg) {
+        setIsNotStandardOrg(false);
+      }
+      if (onClick) onClick();
+    };
+    if (isStandardOrg) {
+      return (
+        <Link onClick={handleClick} to={`/organizations/${organization.kee}`} {...other}>
+          {children}
+        </Link>
+      );
+    }
+  
+    return (
+      <Link onClick={handleClick} to={`/account`} {...other}>
+        {children}
+      </Link>
+    );
+  }

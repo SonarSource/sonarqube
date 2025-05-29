@@ -21,6 +21,7 @@ package org.sonar.server.measure.index;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -426,7 +427,12 @@ public class ProjectMeasuresIndex {
 
     //String orgName=query.getOrganizationUuid().get();
     query.getOrganizationUuid().ifPresent(organizationUuid -> filters.addFilter(FIELD_ORGANIZATION_UUID,  new SimpleFieldFilterScope(FIELD_ORGANIZATION_UUID),termQuery(FIELD_ORGANIZATION_UUID, organizationUuid)));
+    if(!query.getOrganizationUuid().isPresent()) {
 
+      query.getOrganizationUuids().ifPresent(organizationUuids ->
+              filters.addFilter(FIELD_ORGANIZATION_UUID, new SimpleFieldFilterScope(FIELD_ORGANIZATION_UUID),
+                      termsQuery(FIELD_ORGANIZATION_UUID, organizationUuids)));
+    }
 
     query.getTags().ifPresent(tags -> filters.addFilter(FIELD_TAGS, TAGS.getFilterScope(), termsQuery(FIELD_TAGS, tags)));
 

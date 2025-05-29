@@ -29,6 +29,22 @@
     where om.user_uuid = #{userUuid, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectOrganizationMembersByUserUuid" resultType="OrganizationMember">
+    SELECT organization_uuid as organizationUuid , user_uuid as userUuid, type as type
+    FROM organization_members
+    where user_uuid=#{userUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectOrganizationUuidsByUserUuidAndType" resultType="String">
+    SELECT
+    organization_uuid as organizationUuid
+    FROM
+    organization_members
+    WHERE
+    user_uuid = #{userUuid, jdbcType=VARCHAR}
+    AND type = #{type, jdbcType=VARCHAR}
+  </select>
+
   <select id="selectAllOrganizationMemberDtos" resultType="OrganizationMember">
     SELECT organization_uuid as organizationUuid , user_uuid as userUuid, type as type
     FROM organization_members

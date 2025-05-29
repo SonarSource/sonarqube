@@ -128,6 +128,9 @@ public class IssueQueryFactory {
         ruleUuids.add("non-existing-uuid");
       }
 
+      Set<String> standardOrgs = dbClient.organizationMemberDao().selectOrganizationUuidsByUserUuidAndType(
+              dbSession, userSession.getUuid(),"STANDARD");
+      List<String> projectsList = dbClient.projectDao().selectProjectUuidsByOrganizationUuids(dbSession, (new ArrayList<String>( standardOrgs)));
       IssueQuery.Builder builder = IssueQuery.builder()
         .issueKeys(issueKeys)
         .severities(request.getSeverities())
@@ -166,6 +169,8 @@ public class IssueQueryFactory {
         .searchAfter(request.getSearchAfter())
         .organizationUuid(convertOrganizationKeyToUuid(dbSession, request.getOrganization()))
         .codeVariants(request.getCodeVariants());
+      if(request.getOrganization()==null)
+        builder.allowedProjectUuids(projectsList);
 
       List<ComponentDto> allComponents = new ArrayList<>();
       boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(dbSession, request, allComponents);

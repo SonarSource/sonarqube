@@ -42,7 +42,12 @@ interface Props {
 const ACTIVE_CLASS_NAME = 'active';
 
 class GlobalNavMenu extends React.PureComponent<Props> {
+   
   renderProjects() {
+    const { currentUser } = this.props;
+    if (currentUser.standardOrgs?.length === 0 || currentUser.isNotStandardOrg) {
+      return;
+    }
     const active =
       this.props.location.pathname.startsWith('/projects') &&
       this.props.location.pathname !== '/projects/create';
@@ -71,6 +76,10 @@ class GlobalNavMenu extends React.PureComponent<Props> {
   }
 
   renderIssuesLink() {
+    const { currentUser } = this.props;
+    if (currentUser.standardOrgs?.length === 0 || currentUser.isNotStandardOrg) {
+      return ;
+    }
     const search = (
       this.props.currentUser.isLoggedIn && isMySet()
         ? new URLSearchParams({ myIssues: 'true', ...DEFAULT_ISSUES_QUERY })

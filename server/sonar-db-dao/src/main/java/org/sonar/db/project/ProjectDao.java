@@ -171,4 +171,9 @@ public class ProjectDao implements Dao {
   public List<ProjectDto> selectProjectsByOrganizationUuids(DbSession session, List<String> orgUuids) {
     return mapper(session).selectProjectsByOrganizationUuids(orgUuids);
   }
+
+  public List<String> selectProjectUuidsByOrganizationUuids(DbSession session, List<String> orgUuids) {
+    return mapper(session).selectProjectUuidsByOrganizationUuids(orgUuids);
+  }
+
 }

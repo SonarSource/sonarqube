@@ -66,6 +66,7 @@ import org.sonar.server.component.ws.SearchProjectsAction.SearchResults.SearchRe
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 import org.sonar.server.project.Visibility;
@@ -246,6 +247,11 @@ public class SearchProjectsAction implements ComponentsWsAction {
         OrganizationDto organization = checkFoundWithOptional(
                 dbClient.organizationDao().selectByKey(dbSession, organizationKey),
                 "No organization for key '%s'", organizationKey);
+        Set<String> standardOrgs = dbClient.organizationMemberDao().selectOrganizationUuidsByUserUuidAndType(
+                dbSession, userSession.getUuid(),"STANDARD");
+        if (!standardOrgs.contains(organization.getUuid())) {
+          throw new ForbiddenException("Platform user cannot access this organization: " + organization.getKey());
+        }
         return handleForOrganization(dbSession, request, organization);
       }
     }
@@ -281,7 +287,11 @@ public class SearchProjectsAction implements ComponentsWsAction {
     query.setQualifiers(qualifiersBasedOnEdition);
 
     ProjectMeasuresQueryValidator.validate(query);
-
+    Set<String> standardOrgs = dbClient.organizationMemberDao().selectOrganizationUuidsByUserUuidAndType(
+            dbSession, userSession.getUuid(),"STANDARD");
+    if(!query.getOrganizationUuid().isPresent()){
+      query.setOrganizationUuids(standardOrgs);
+    }
     SearchIdResult<String> esResults = index.search(query, new SearchOptions()
       // skip facets for project token authorization, avoid exposing unauthorized projects count
       .addFacets(isProjectAnalysisToken() ? emptyList() : request.getFacets())

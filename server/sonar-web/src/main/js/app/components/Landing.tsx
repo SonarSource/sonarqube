@@ -24,15 +24,23 @@ import { AppState } from '../../types/appstate';
 import { CurrentUser, isLoggedIn } from '../../types/users';
 import withCurrentUserContext from './current-user/withCurrentUserContext';
 import withAppStateContext from './app-state/withAppStateContext';
+import { useCurrentUser } from './current-user/CurrentUserContext';
 
 export interface LandingProps {
   appState: AppState;
   currentUser: CurrentUser;
 }
 
+
 function getRedirectURL(currentUser: any) {
   let redirectUrl: To = "";
-  if (currentUser.homepage) {
+  const { setIsNotStandardOrg } = useCurrentUser();
+
+  if(currentUser.standardOrgs.length == 0){
+    setIsNotStandardOrg(true);
+    redirectUrl ='/account';
+  }
+  else if (currentUser.homepage) {
     redirectUrl = getHomePageUrl(currentUser.homepage);
   } else {
     redirectUrl = '/projects';

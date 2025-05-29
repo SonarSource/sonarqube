@@ -37,6 +37,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { orderLinks } from '../../../helpers/projectLinks';
 import { getProjectUrl } from '../../../helpers/urls';
 import { MyProject, ProjectLink } from '../../../types/types';
+import { useCurrentUser } from 'src/main/js/app/components/current-user/CurrentUserContext';
 
 interface Props {
   project: MyProject;
@@ -61,6 +62,7 @@ export default function ProjectCard({ project }: Readonly<Props>) {
 
   const formatted = formatMeasure(project.qualityGate, MetricType.Level);
   const qualityGateLabel = translateWithParameters('overview.quality_gate_x', formatted);
+  const {currentUser} = useCurrentUser();
 
   return (
     <Card>
@@ -88,8 +90,11 @@ export default function ProjectCard({ project }: Readonly<Props>) {
       </aside>
 
       <SubHeading as="h3">
-        <DiscreetLink to={getProjectUrl(project.key)}>Key: {project.name}</DiscreetLink>
-      </SubHeading>
+  {currentUser.isNotStandardOrg
+    ? <>Key: {project.name}</>
+    : <DiscreetLink to={getProjectUrl(project.key)}>Key: {project.name}</DiscreetLink>
+  }
+</SubHeading>
 
       <Note>{project.key}</Note>
 

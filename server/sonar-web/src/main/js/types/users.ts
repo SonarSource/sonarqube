@@ -25,6 +25,9 @@ export interface CurrentUser {
   usingSonarLintConnectedMode?: boolean;
   groups?:string[];
   onboarded: boolean;
+  platformOrgs?: string[];
+  standardOrgs?: string[];
+  isNotStandardOrg?: boolean;
 }
 
 export interface Notice {
