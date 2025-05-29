@@ -970,6 +970,7 @@ public class CreateInitialSchema extends DdlChange {
                     .addColumn(newVarcharColumnDefBuilder("default_perm_template_port").setLimit(UUID_SIZE).setIsNullable(true).build())
                     .addColumn(newBooleanColumnDefBuilder().setColumnName("new_project_private").setIsNullable(false).build())
                     .addColumn(newVarcharColumnDefBuilder("subscription").setLimit(UUID_SIZE).setIsNullable(false).build())
+                    .addColumn(newBooleanColumnDefBuilder().setColumnName("invite_users_enabled").setIsNullable(false).setDefaultValue(true).build())
                     .addColumn(TECHNICAL_CREATED_AT_COL)
                     .addColumn(TECHNICAL_UPDATED_AT_COL)
                     .build());
