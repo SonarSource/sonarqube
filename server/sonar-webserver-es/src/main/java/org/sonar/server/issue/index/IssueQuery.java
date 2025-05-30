@@ -105,6 +105,8 @@ public class IssueQuery {
   private final Collection<String> codeVariants;
   private final Collection<String> cleanCodeAttributesCategories;
   private final String organizationUuid;
+  private final Collection<String> cvss;
+
 
   private IssueQuery(Builder builder) {
     this.issueKeys = nullableDefaultCollection(builder.issueKeys);
@@ -158,6 +160,8 @@ public class IssueQuery {
     this.codeVariants = defaultCollection(builder.codeVariants);
     this.cleanCodeAttributesCategories = defaultCollection(builder.cleanCodeAttributesCategories);
     this.organizationUuid = builder.organizationUuid;
+    this.cvss = defaultCollection(builder.cvss);
+
   }
 
   public Collection<String> issueKeys() {
@@ -282,6 +286,10 @@ public class IssueQuery {
 
   public Collection<String> cwe() {
     return cwe;
+  }
+
+  public Collection<String> cvss() {
+    return cvss;
   }
 
   public Collection<String> sonarsourceSecurity() {
@@ -441,6 +449,7 @@ public class IssueQuery {
     private Collection<String> newCodeOnReferenceByProjectUuids;
     private Collection<String> codeVariants;
     private Collection<String> cleanCodeAttributesCategories;
+    private Collection<String> cvss;
 
     private String organizationUuid;
 
@@ -599,6 +608,11 @@ public class IssueQuery {
 
     public Builder cwe(@Nullable Collection<String> cwe) {
       this.cwe = cwe;
+      return this;
+    }
+
+    public Builder cvss(@Nullable Collection<String> cvss) {
+      this.cvss = cvss;
       return this;
     }
 

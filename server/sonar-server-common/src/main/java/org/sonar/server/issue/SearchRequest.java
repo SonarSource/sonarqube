@@ -83,6 +83,7 @@ public class SearchRequest {
   private Integer owaspAsvsLevel;
   private List<String> codeVariants;
   private String fixedInPullRequest;
+  private List<String> cvss;
 
   private String organization;
 
@@ -488,6 +489,16 @@ public class SearchRequest {
 
   public SearchRequest setCwe(@Nullable List<String> cwe) {
     this.cwe = cwe;
+    return this;
+  }
+
+  @CheckForNull
+  public List<String> getCvss() {
+    return cvss;
+  }
+
+  public SearchRequest setCvss(@Nullable List<String> cvss) {
+    this.cvss = cvss;
     return this;
   }
 

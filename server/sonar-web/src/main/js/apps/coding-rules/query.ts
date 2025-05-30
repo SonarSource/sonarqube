@@ -45,6 +45,7 @@ export interface Query {
   cleanCodeAttributeCategories: CleanCodeAttributeCategory[];
   compareToProfile: string | undefined;
   cwe: string[];
+  cvss: string[];
   impactSeverities: SoftwareImpactSeverity[];
   impactSoftwareQualities: SoftwareQuality[];
   inheritance: RuleInheritance | undefined;
@@ -90,6 +91,7 @@ export function parseQuery(query: RawQuery): Query {
     ),
     compareToProfile: parseAsOptionalString(query.compareToProfile),
     cwe: parseAsArray(query.cwe, parseAsString),
+    cvss: parseAsArray(query.cvss,parseAsString),
     impactSeverities: parseAsArray<SoftwareImpactSeverity>(query.impactSeverities, parseAsString),
     impactSoftwareQualities: parseAsArray<SoftwareQuality>(
       query.impactSoftwareQualities,
@@ -120,6 +122,7 @@ export function serializeQuery(query: Query): RawQuery {
     cleanCodeAttributeCategories: serializeStringArray(query.cleanCodeAttributeCategories),
     compareToProfile: serializeString(query.compareToProfile),
     cwe: serializeStringArray(query.cwe),
+    cvss: serializeStringArray(query.cvss),
     inheritance: serializeInheritance(query.inheritance),
     impactSeverities: serializeStringArray(query.impactSeverities),
     impactSoftwareQualities: serializeStringArray(query.impactSoftwareQualities),
@@ -148,6 +151,7 @@ export function shouldRequestFacet(facet: string): facet is FacetKey {
   const facetsToRequest = [
     'activationSeverities',
     'cwe',
+    'cvss',
     'languages',
     'owaspTop10',
     'owaspTop10-2021',

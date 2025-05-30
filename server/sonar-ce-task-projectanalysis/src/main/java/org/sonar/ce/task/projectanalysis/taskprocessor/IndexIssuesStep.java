@@ -37,6 +37,7 @@ public final class IndexIssuesStep implements ComputationStep {
     this.ceTask = ceTask;
     this.dbClient = dbClient;
     this.issueIndexer = issueIndexer;
+
   }
 
   @Override

@@ -25,6 +25,7 @@ export enum SecurityStandard {
   OWASP_TOP10 = 'owaspTop10',
   SONARSOURCE = 'sonarsourceSecurity',
   CWE = 'cwe',
+  CVSS = 'cvss',
   PCI_DSS_3_2 = 'pciDss-3.2',
   PCI_DSS_4_0 = 'pciDss-4.0',
   OWASP_ASVS_4_0 = 'owaspAsvs-4.0',

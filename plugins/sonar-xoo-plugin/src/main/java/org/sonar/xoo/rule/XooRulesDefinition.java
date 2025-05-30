@@ -293,12 +293,16 @@ public class XooRulesDefinition implements RulesDefinition {
       hotspot
         .addOwaspTop10(OwaspTop10.A1, OwaspTop10.A3)
         .addOwaspTop10(Y2021, OwaspTop10.A3, OwaspTop10.A2)
-        .addCwe(1, 89, 123, 863);
+        .addCwe(1, 89, 123, 863)
+        .addCvss(5.0,8.9,9.0,6.3);
+
+
 
       oneVulnerabilityIssuePerProject
         .addOwaspTop10(Y2017, OwaspTop10.A9, OwaspTop10.A10)
         .addOwaspTop10(Y2021, OwaspTop10.A6, OwaspTop10.A9)
-        .addCwe(89, 250, 311, 546, 564, 943);
+        .addCwe(89, 250, 311, 546, 564, 943)
+        .addCvss(8.9, 5.0, 5.8, 5.6, 9.0);
     }
 
     if (version != null && version.isGreaterThanOrEqual(Version.create(9, 5))) {
@@ -369,6 +373,9 @@ public class XooRulesDefinition implements RulesDefinition {
     switch (splitStandard[0]) {
       case "cwe":
         rule.addCwe(Integer.parseInt(splitStandard[1]));
+        break;
+      case "cvss":
+        rule.addCvss(Double.parseDouble(splitStandard[1]));
         break;
       case "owaspTop10":
         rule.addOwaspTop10(Y2017, OwaspTop10.valueOf(splitStandard[1]));

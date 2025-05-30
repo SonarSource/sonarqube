@@ -206,6 +206,16 @@ public class RuleDoc extends BaseDoc {
   }
 
   @CheckForNull
+  public Collection<Double> getCvss() {
+    return getNullableField(RuleIndexDefinition.FIELD_RULE_CVSS);
+  }
+
+  public RuleDoc setCvss(@Nullable Collection<Double> c) {
+    setField(RuleIndexDefinition.FIELD_RULE_CVSS, c);
+    return this;
+  }
+
+  @CheckForNull
   public SQCategory getSonarSourceSecurityCategory() {
     String key = getNullableField(RuleIndexDefinition.FIELD_RULE_SONARSOURCE_SECURITY);
     return SQCategory.fromKey(key).orElse(null);
@@ -333,7 +343,20 @@ public class RuleDoc extends BaseDoc {
       .setIsExternal(dto.isExternal())
       .setLanguage(dto.getLanguage())
       .setCwe(securityStandards.getCwe())
-      .setOwaspTop10(securityStandards.getOwaspTop10())
+            .setCvss(
+                    securityStandards.getCvss().stream()
+                            .filter(cvss -> {
+                              try {
+                                Double.parseDouble(cvss);
+                                return true;
+                              } catch (NumberFormatException e) {
+                                return false;
+                              }
+                            })
+                            .map(Double::parseDouble)
+                            .collect(Collectors.toSet())
+            )
+            .setOwaspTop10(securityStandards.getOwaspTop10())
       .setOwaspTop10For2021(securityStandards.getOwaspTop10For2021())
       .setSansTop25(securityStandards.getSansTop25())
       .setSonarSourceSecurityCategory(securityStandards.getSqCategory())

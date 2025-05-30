@@ -64,6 +64,8 @@ public class RuleQuery {
   private Collection<String> impactSoftwareQualities;
   private Collection<String> cleanCodeAttributesCategories;
   private Boolean prioritizedRule;
+  private Collection<String> cvss;
+
 
 
   @CheckForNull
@@ -311,6 +313,16 @@ public class RuleQuery {
 
   public RuleQuery setCwe(@Nullable Collection<String> cwe) {
     this.cwe = cwe;
+    return this;
+  }
+
+  @CheckForNull
+  public Collection<String> getCvss() {
+    return cvss;
+  }
+
+  public RuleQuery setCvss(@Nullable Collection<String> cvss) {
+    this.cvss = cvss;
     return this;
   }
 

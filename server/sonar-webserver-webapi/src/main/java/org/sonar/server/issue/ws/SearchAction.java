@@ -113,6 +113,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFT
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_BEFORE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_IN_LAST;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CVSS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CWE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
@@ -177,7 +178,8 @@ public class SearchAction implements IssuesWsAction {
     PARAM_CASA,
     PARAM_SANS_TOP_25,
     PARAM_CWE,
-    PARAM_CREATED_AT,
+          PARAM_CVSS,
+          PARAM_CREATED_AT,
     PARAM_SONARSOURCE_SECURITY,
     PARAM_CODE_VARIANTS,
     PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES,
@@ -403,6 +405,11 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_CWE)
       .setDescription("Comma-separated list of CWE identifiers. Use '" + UNKNOWN_STANDARD + "' to select issues not associated to any CWE.")
       .setExampleValue("12,125," + UNKNOWN_STANDARD);
+
+    action.createParam(PARAM_CVSS)
+            .setDescription("Comma-separated list of CVSS identifiers.")
+            .setExampleValue("0,10");
+
     action.createParam(PARAM_SONARSOURCE_SECURITY)
       .setDescription("Comma-separated list of SonarSource security categories. Use '" + SQCategory.OTHERS.getKey() + "' to select issues" +
         " not associated" +
@@ -677,6 +684,8 @@ public class SearchAction implements IssuesWsAction {
     addMandatoryValuesToFacet(facets, PARAM_CASA, request.getCasa());
     addMandatoryValuesToFacet(facets, PARAM_SANS_TOP_25, request.getSansTop25());
     addMandatoryValuesToFacet(facets, PARAM_CWE, request.getCwe());
+//    addMandatoryValuesToFacet(facets, PARAM_CVSS, request.getCvss());
+
     addMandatoryValuesToFacet(facets, PARAM_SONARSOURCE_SECURITY, request.getSonarsourceSecurity());
     addMandatoryValuesToFacet(facets, PARAM_CODE_VARIANTS, request.getCodeVariants());
   }
@@ -766,7 +775,8 @@ public class SearchAction implements IssuesWsAction {
       .setCasa(request.paramAsStrings(PARAM_CASA))
       .setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25))
       .setCwe(request.paramAsStrings(PARAM_CWE))
-      .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY))
+            .setCvss(request.paramAsStrings(PARAM_CVSS))
+            .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY))
       .setTimeZone(request.param(PARAM_TIMEZONE))
       .setSearchAfter(request.param(PARAM_SEARCH_AFTER))
       .setOrganization(request.param(PARAM_ORGANIZATION))

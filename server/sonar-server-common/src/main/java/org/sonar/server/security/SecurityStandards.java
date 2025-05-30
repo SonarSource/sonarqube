@@ -417,11 +417,14 @@ public final class SecurityStandards {
   private final Set<String> casaCategories;
   private final SQCategory sqCategory;
   private final Set<SQCategory> ignoredSQCategories;
+  private final Set<String> cvss;
 
-  private SecurityStandards(Set<String> standards, Set<String> cwe, Set<String> casaCategories,
+
+  private SecurityStandards(Set<String> standards, Set<String> cwe, Set<String> cvss, Set<String> casaCategories,
     SQCategory sqCategory, Set<SQCategory> ignoredSQCategories) {
     this.standards = standards;
     this.cwe = cwe;
+    this.cvss=cvss;
     this.casaCategories = casaCategories;
     this.sqCategory = sqCategory;
     this.ignoredSQCategories = ignoredSQCategories;
@@ -434,6 +437,11 @@ public final class SecurityStandards {
   public Set<String> getCwe() {
     return cwe;
   }
+
+  public Set<String> getCvss() {
+    return cvss;
+  }
+
 
   public Set<String> getPciDss32() {
     return getMatchingStandards(standards, PCI_DSS_32_PREFIX);
@@ -492,11 +500,12 @@ public final class SecurityStandards {
   public static SecurityStandards fromSecurityStandards(Set<String> securityStandards) {
     Set<String> standards = securityStandards.stream().filter(Objects::nonNull).collect(Collectors.toSet());
     Set<String> cwe = toCwes(standards);
+    Set<String> cvss = toCvsss(standards);
     List<SQCategory> sq = toSortedSQCategories(cwe);
     SQCategory sqCategory = sq.iterator().next();
     Set<SQCategory> ignoredSQCategories = sq.stream().skip(1).collect(Collectors.toSet());
     Set<String> casaCategories = toCasaCategories(cwe);
-    return new SecurityStandards(standards, cwe, casaCategories, sqCategory, ignoredSQCategories);
+    return new SecurityStandards(standards, cwe, cvss, casaCategories, sqCategory, ignoredSQCategories);
   }
 
   public static Set<String> getRequirementsForCategoryAndLevel(String category, int level) {
@@ -522,6 +531,15 @@ public final class SecurityStandards {
       .map(s -> s.substring(CWE_PREFIX.length()))
       .collect(Collectors.toSet());
     return result.isEmpty() ? singleton(UNKNOWN_STANDARD) : result;
+  }
+
+
+  private static Set<String> toCvsss(Collection<String> securityStandards) {
+    Set<String> result = securityStandards.stream()
+            .filter(s -> s.startsWith("cvss:"))
+            .map(s -> s.substring("cvss:".length()))
+            .collect(Collectors.toSet());
+    return result.isEmpty() ? singleton("unknown") : result;
   }
 
   private static Set<String> toCweTop25(Set<String> cwe) {
@@ -557,5 +575,55 @@ public final class SecurityStandards {
       .filter(k -> cwe.contains(CWES_BY_CASA_CATEGORY.get(k)))
       .collect(Collectors.toSet());
   }
+
+  public enum CVSSCategory {
+    LOW("Low", 0.0, 3.9),
+    MEDIUM("Medium", 4.0, 6.9),
+    HIGH("High", 7.0, 10.0);
+
+    private final String label;
+    private final double minScore;
+    private final double maxScore;
+
+    CVSSCategory(String label, double minScore, double maxScore) {
+      this.label = label;
+      this.minScore = minScore;
+      this.maxScore = maxScore;
+    }
+
+    public String getLabel() {
+      return label;
+    }
+
+    public double getMinScore() {
+      return minScore;
+    }
+
+    public double getMaxScore() {
+      return maxScore;
+    }
+
+//    public static Optional<CVSSCategory> fromScore(double score) {
+//      return Arrays.stream(values())
+//              .filter(category -> score >= category.minScore && score <= category.maxScore)
+//              .findFirst();
+//    }
+  }
+
+  // Example Mapping
+  public static final Map<String, Double> CVSS_SCORES_BY_RULE = Map.of(
+          "SQL_INJECTION", 9.8,
+          "XSS", 6.1,
+          "WEAK_CRYPTOGRAPHY", 4.3,
+          "INSECURE_CONF", 2.5
+  );
+
+//  // Method to filter by CVSS
+//  public static Set<String> getRulesByCVSSCategory(CVSSCategory category) {
+//    return CVSS_SCORES_BY_RULE.entrySet().stream()
+//            .filter(entry -> category.getMinScore() <= entry.getValue() && entry.getValue() <= category.getMaxScore())
+//            .map(Map.Entry::getKey)
+//            .collect(Collectors.toSet());
+//  }
 
 }

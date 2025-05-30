@@ -37,6 +37,7 @@ public class SearchRequest {
   private String availableSince;
   private String compareToProfile;
   private List<String> cwe;
+  private List<String> cvss;
   private List<String> f;
   private List<String> facets;
   private String includeExternal;
@@ -159,6 +160,15 @@ public class SearchRequest {
 
   public List<String> getCwe() {
     return cwe;
+  }
+
+  public SearchRequest setCvss(List<String> cvss) {
+    this.cvss = cvss;
+    return this;
+  }
+
+  public List<String> getCvss() {
+    return cvss;
   }
 
   /**

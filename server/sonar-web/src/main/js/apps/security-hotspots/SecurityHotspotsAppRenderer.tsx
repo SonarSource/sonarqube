@@ -55,6 +55,7 @@ export interface SecurityHotspotsAppRendererProps {
   branchLike?: BranchLike;
   component?: Component;
   filterByCWE?: string;
+  filterByCVSS?: string;
   filterByCategory?: {
     category: string;
     standard: SecurityStandard;
@@ -89,6 +90,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
     component,
     filterByCategory,
     filterByCWE,
+    filterByCVSS,
     filterByFile,
     filters,
     hotspots,
@@ -144,7 +146,10 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
 
       <A11ySkipTarget anchor="security_hotspots_main" />
 
-      <LargeCenteredLayout id={MetricKey.security_hotspots} className="security-hotspot-page-container">
+      <LargeCenteredLayout
+        id={MetricKey.security_hotspots}
+        className="security-hotspot-page-container"
+      >
         <PageContentFontWrapper>
           <div className="sw-grid sw-grid-cols-12 sw-w-full">
             <StyledSidebar
@@ -197,10 +202,11 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                 <Spinner className="sw-mt-3" loading={loading}>
                   {hotspots.length > 0 && selectedHotspot && (
                     <>
-                      {filterByCategory || filterByCWE || filterByFile ? (
+                      {filterByCategory || filterByCWE ||filterByCVSS || filterByFile ? (
                         <HotspotSimpleList
                           filterByCategory={filterByCategory}
                           filterByCWE={filterByCWE}
+                          filterByCVSS={filterByCVSS}
                           filterByFile={filterByFile}
                           hotspots={hotspots}
                           hotspotsTotal={hotspotsTotal}

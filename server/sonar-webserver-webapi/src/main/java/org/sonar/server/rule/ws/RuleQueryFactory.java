@@ -43,6 +43,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_AVAILABLE_SINCE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CWE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CVSS;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IMPACT_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IMPACT_SOFTWARE_QUALITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INCLUDE_EXTERNAL;
@@ -118,6 +119,7 @@ public class RuleQueryFactory {
     query.setTypes(toEnums(request.paramAsStrings(PARAM_TYPES), RuleType.class));
     query.setKey(request.param(PARAM_RULE_KEY));
     query.setCwe(request.paramAsStrings(PARAM_CWE));
+        query.setCvss(request.paramAsStrings(PARAM_CVSS));
     query.setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10));
     query.setOwaspTop10For2021(request.paramAsStrings(PARAM_OWASP_TOP_10_2021));
     query.setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25));

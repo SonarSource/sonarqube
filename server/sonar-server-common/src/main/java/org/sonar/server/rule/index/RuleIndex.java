@@ -46,7 +46,10 @@ import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregator;
+import org.elasticsearch.search.aggregations.bucket.global.GlobalAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.nested.NestedAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.range.RangeAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.range.RangeAggregator;
 import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -87,6 +90,7 @@ import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_DEFAULT_VALUE;
 import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_ENABLED;
+import static org.sonar.server.es.EsClient.LOGGER;
 import static org.sonar.server.es.EsUtils.SCROLL_TIME_IN_MINUTES;
 import static org.sonar.server.es.EsUtils.optimizeScrollRequest;
 import static org.sonar.server.es.EsUtils.scrollIds;
@@ -114,6 +118,8 @@ public class RuleIndex {
   public static final String FACET_TYPES = "types";
   public static final String FACET_OLD_DEFAULT = "true";
   public static final String FACET_CWE = "cwe";
+  public static final String FACET_CVSS = "cvss";
+
 
   /**
    * @deprecated SansTop25 report is outdated, it has been completely deprecated in version 10.0 and will be removed from version 11.0
@@ -160,7 +166,6 @@ public class RuleIndex {
 
     QueryBuilder qb = buildQuery(query);
     Map<String, QueryBuilder> filters = buildFilters(query);
-
     if (!options.getFacets().isEmpty()) {
       for (AggregationBuilder aggregation : getFacets(query, options, qb, filters).values()) {
         sourceBuilder.aggregation(aggregation);
@@ -192,7 +197,6 @@ public class RuleIndex {
     optimizeScrollRequest(sourceBuilder);
     QueryBuilder qb = buildQuery(query);
     Map<String, QueryBuilder> filters = buildFilters(query);
-
     BoolQueryBuilder fb = boolQuery();
     for (QueryBuilder filterBuilder : filters.values()) {
       fb.must(filterBuilder);
@@ -252,6 +256,32 @@ public class RuleIndex {
   private Map<String, QueryBuilder> buildFilters(RuleQuery query) {
     Map<String, QueryBuilder> filters = new HashMap<>();
 
+    // Instead of directly adding it in addSecurityStandardFilter, we are building cvss range filter putting it in filters map.
+    Collection<String> cvssFilters = query.getCvss();
+    if(query.getCvss()!=null) {
+      BoolQueryBuilder cvssBool = QueryBuilders.boolQuery();
+      for (String cvss : cvssFilters) {
+        try {
+          if (cvss.contains("-")) {
+            String[] range = cvss.split("-");
+            double min = Double.parseDouble(range[0]);
+            double max = Double.parseDouble(range[1]);
+            cvssBool.should(QueryBuilders.rangeQuery(FIELD_RULE_CVSS).gte(min).lte(max));
+          } else {
+            double val = Double.parseDouble(cvss);
+            cvssBool.should(QueryBuilders.termQuery(FIELD_RULE_CVSS, val));
+          }
+        }
+       catch (NumberFormatException e) {
+         LOGGER.warn("Invalid CVSS range value received: " + cvss);
+       }
+      }
+      // After building cvss range, adding to filters
+      filters.put("cvss", cvssBool);
+    }
+
+
+
     /* Add enforced filter on main type Rule */
     filters.put(
       FIELD_INDEX_TYPE,
@@ -279,6 +309,7 @@ public class RuleIndex {
     addFilter(filters, query.getSeverities(), FIELD_RULE_SEVERITY);
 
     addSecurityStandardFilter(filters, FIELD_RULE_CWE, query.getCwe());
+
 
     addSecurityStandardFilter(filters, FIELD_RULE_OWASP_TOP_10, query.getOwaspTop10());
 
@@ -474,6 +505,8 @@ public class RuleIndex {
 
   private Map<String, AggregationBuilder> getFacets(RuleQuery query, SearchOptions options, QueryBuilder queryBuilder,
     Map<String, QueryBuilder> filters) {
+
+
     Map<String, AggregationBuilder> aggregations = new HashMap<>();
     StickyFacetBuilder stickyFacetBuilder = stickyFacetBuilder(queryBuilder, filters);
 
@@ -611,6 +644,25 @@ public class RuleIndex {
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_CWE, FACET_CWE,
           FACET_DEFAULT_SIZE, filterSecurityCategories(),
           (categories == null) ? (new String[0]) : categories.toArray()));
+    }
+    if (options.getFacets().contains(FACET_CVSS)) {
+
+      GlobalAggregationBuilder globalCvssAgg = AggregationBuilders.global(FACET_CVSS)
+              .subAggregation(
+                      AggregationBuilders.range(FACET_CVSS)
+                              .field(FIELD_RULE_CVSS)
+                              .addRange("0 - 1", 0.0, 1.0)
+                              .addRange("1 - 2", 1.0, 2.0)
+                              .addRange("2 - 3", 2.0, 3.0)
+                              .addRange("3 - 4", 3.0, 4.0)
+                              .addRange("4 - 5", 4.0, 5.0)
+                              .addRange("5 - 6", 5.0, 6.0)
+                              .addRange("6 - 7", 6.0, 7.0)
+                              .addRange("7 - 8", 7.0, 8.0)
+                              .addRange("8 - 9", 8.0, 9.0)
+                              .addRange("9 - 10", 9.0, 10.0)
+              );
+      aggregations.put(FACET_CVSS, globalCvssAgg);
     }
     if (options.getFacets().contains(FACET_OWASP_TOP_10)) {
       Collection<String> categories = query.getOwaspTop10();

@@ -165,8 +165,8 @@ public class IssueQueryFactory {
         .timeZone(timeZone)
         .searchAfter(request.getSearchAfter())
         .organizationUuid(convertOrganizationKeyToUuid(dbSession, request.getOrganization()))
-        .codeVariants(request.getCodeVariants());
-
+        .codeVariants(request.getCodeVariants())
+        .cvss(request.getCvss());
       List<ComponentDto> allComponents = new ArrayList<>();
       boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(dbSession, request, allComponents);
       addComponentParameters(builder, dbSession, effectiveOnComponentOnly, allComponents, request);

@@ -61,6 +61,7 @@ import org.elasticsearch.search.aggregations.bucket.filter.ParsedFilter;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.LongBounds;
 import org.elasticsearch.search.aggregations.bucket.nested.ParsedNested;
+import org.elasticsearch.search.aggregations.bucket.range.RangeAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -169,6 +170,7 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_CASA
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_CLEAN_CODE_ATTRIBUTE_CATEGORY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_CODE_VARIANTS;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_CVSS;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_CWE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_EFFORT;
@@ -241,6 +243,10 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STIG_ASD_V5R3;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TAGS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CVSS;
+import static org.sonar.server.issue.index.IssueIndex.Facet.CVSS;
+
+
 
 /**
  * The unique entry-point to interact with Elasticsearch index "issues".
@@ -252,6 +258,8 @@ public class IssueIndex {
   public static final String FACET_ASSIGNED_TO_ME = "assigned_to_me";
 
   private static final int DEFAULT_FACET_SIZE = 15;
+  private static final int DEFAULT_FACET_CVSS_SIZE = 50;
+
   private static final int MAX_FACET_SIZE = 100;
   private static final String AGG_VULNERABILITIES = "vulnerabilities";
   private static final String AGG_SEVERITIES = "severities";
@@ -287,6 +295,9 @@ public class IssueIndex {
       .should(SECURITY_IMPACT_FILTER)
       .should(termsQuery(FIELD_ISSUE_TYPE, SECURITY_HOTSPOT.name()))
       .minimumShouldMatch(1);
+
+  private static final int MAX_FACET_CVSS_SIZE = 100;
+
 
 
   private static final Object[] NO_SELECTED_VALUES = {0};
@@ -324,7 +335,9 @@ public class IssueIndex {
     CREATED_AT(PARAM_CREATED_AT, FIELD_ISSUE_FUNC_CREATED_AT, NON_STICKY),
     SONARSOURCE_SECURITY(PARAM_SONARSOURCE_SECURITY, FIELD_ISSUE_SQ_SECURITY_CATEGORY, STICKY, DEFAULT_FACET_SIZE),
     CODE_VARIANTS(PARAM_CODE_VARIANTS, FIELD_ISSUE_CODE_VARIANTS, STICKY, MAX_FACET_SIZE),
-    PRIORITIZED_RULE(PARAM_PRIORITIZED_RULE, FIELD_PRIORITIZED_RULE, STICKY, 2);
+    PRIORITIZED_RULE(PARAM_PRIORITIZED_RULE, FIELD_PRIORITIZED_RULE, STICKY, 2),
+    CVSS(PARAM_CVSS, FIELD_ISSUE_CVSS, STICKY, DEFAULT_FACET_CVSS_SIZE);
+
 
     private final String name;
     private final TopAggregationDefinition<FilterScope> topAggregation;
@@ -548,6 +561,12 @@ public class IssueIndex {
     addSecurityCategoryFilter(FIELD_ISSUE_SANS_TOP_25, SANS_TOP_25, query.sansTop25(), filters);
     addSecurityCategoryFilter(FIELD_ISSUE_CWE, CWE, query.cwe(), filters);
     addSecurityCategoryFilter(FIELD_ISSUE_SQ_SECURITY_CATEGORY, SONARSOURCE_SECURITY, query.sonarsourceSecurity(), filters);
+    addCvssFilter(FIELD_ISSUE_CVSS, CVSS, query.cvss(), filters);
+//    addSecurityCategoryFilter(FIELD_ISSUE_CVSS, CVSS, query.cvss(), filters);
+
+
+
+
 
     addSeverityFilter(query, filters);
     addImpactFilters(query, filters);
@@ -558,6 +577,39 @@ public class IssueIndex {
     addNewCodeReferenceFilterByProjectsFilter(filters, query);
     return filters;
   }
+
+  private void addCvssFilter(String fieldName, Facet facet, Collection<String> cvssValues, AllFilters allFilters) {
+
+    if (cvssValues == null || cvssValues.isEmpty()) {
+      return;
+    }
+
+    BoolQueryBuilder cvssBool = QueryBuilders.boolQuery();
+
+    for (String cvss : cvssValues) {
+      try {
+        if (cvss.contains("-")) {
+          String[] range = cvss.split("-");
+          double min = Double.parseDouble(range[0]);
+          double max = Double.parseDouble(range[1]);
+          cvssBool.should(QueryBuilders.rangeQuery(fieldName).gte(min).lte(max));
+        } else {
+          double val = Double.parseDouble(cvss);
+          cvssBool.should(QueryBuilders.termQuery(fieldName, val));
+        }
+      } catch (NumberFormatException e) {
+        System.err.println("Invalid CVSS value: " + cvss);
+      }
+    }
+
+    if (cvssBool.should().isEmpty()) {
+      return;
+    }
+
+    allFilters.addFilter(fieldName, facet.getFilterScope(), cvssBool.must(getQueryBuilderForSecurityCategory()));
+  }
+
+
 
   private void addOwaspAsvsFilter(String fieldName, Facet facet, IssueQuery query, AllFilters allFilters) {
     if (!CollectionUtils.isEmpty(query.owaspAsvs40())) {
@@ -940,6 +992,26 @@ public class IssueIndex {
     addSecurityCategoryFacetIfNeeded(PARAM_SANS_TOP_25, SANS_TOP_25, options, aggregationHelper, esRequest, query.sansTop25().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_CWE, CWE, options, aggregationHelper, esRequest, query.cwe().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_SONARSOURCE_SECURITY, SONARSOURCE_SECURITY, options, aggregationHelper, esRequest, query.sonarsourceSecurity().toArray());
+
+
+    if (options.getFacets().contains(PARAM_CVSS)) {
+
+      RangeAggregationBuilder cvssRangeAgg = AggregationBuilders.range(PARAM_CVSS)
+              .field(FIELD_ISSUE_CVSS)
+              .addRange("0 - 1", 0.0, 1.0)
+              .addRange("1 - 2", 1.0, 2.0)
+              .addRange("2 - 3", 2.0, 3.0)
+              .addRange("3 - 4", 3.0, 4.0)
+              .addRange("4 - 5", 4.0, 5.0)
+              .addRange("5 - 6", 5.0, 6.0)
+              .addRange("6 - 7", 6.0, 7.0)
+              .addRange("7 - 8", 7.0, 8.0)
+              .addRange("8 - 9", 8.0, 9.0)
+              .addRange("9 - 10", 9.0, 10.0);
+      esRequest.aggregation(cvssRangeAgg);
+
+    }
+
 
     addSeverityFacetIfNeeded(options, aggregationHelper, esRequest);
     addImpactSoftwareQualityFacetIfNeeded(options, query, aggregationHelper, esRequest);
@@ -1339,6 +1411,8 @@ public class IssueIndex {
     return result;
   }
 
+
+
   private static SecurityStandardCategoryStatistics emptyCweStatistics(String rule) {
     return new SecurityStandardCategoryStatistics(rule, 0, OptionalInt.of(1), 0, 0, 1, null, null);
   }
@@ -1526,7 +1600,7 @@ public class IssueIndex {
       return new CountAndRating(vulnerabilities, severityRating);
     }
   }
-  
+
   private AggregationBuilder newSecurityReportSubAggregations(AggregationBuilder categoriesAggs, String securityStandardVersionPrefix) {
     AggregationBuilder aggregationBuilder = addSecurityReportIssueCountAggregations(categoriesAggs);
     final TermsAggregationBuilder distributionAggregation = AggregationBuilders.terms(AGG_DISTRIBUTION)
@@ -1553,6 +1627,9 @@ public class IssueIndex {
     }
     return aggregationBuilder;
   }
+
+
+
 
   private AggregationBuilder addSecurityReportIssueCountAggregations(AggregationBuilder categoryAggs) {
     return categoryAggs

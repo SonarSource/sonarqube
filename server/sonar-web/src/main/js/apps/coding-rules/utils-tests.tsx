@@ -74,6 +74,7 @@ const selectors = {
   standardsOwasp2017Top10Facet: byText('issues.facet.owaspTop10'),
   standardsOwasp2021Top10Facet: byText('issues.facet.owaspTop10_2021'),
   standardsCweFacet: byText('issues.facet.cwe'),
+  standardsCvssFacet: byText('issues.facet.cvss'),
   availableSinceFacet: byRole('button', { name: 'coding_rules.facet.available_since' }),
   templateFacet: byRole('button', { name: 'coding_rules.facet.template' }),
   qpFacet: byRole('button', { name: 'coding_rules.facet.qprofile' }),

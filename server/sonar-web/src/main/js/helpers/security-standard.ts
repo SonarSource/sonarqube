@@ -34,6 +34,16 @@ export function renderCWECategory(standards: Standards, category: string): strin
   return `CWE-${category} - ${record.title}`;
 }
 
+export function renderCVSSCategory(standards: Standards, category: string): string {
+  const record = standards.cvss[category];
+  if (!record) {
+    return `CVSS ${category}`;
+  } else if (category === 'unknown') {
+    return record.title;
+  }
+  return `CVSS ${category} - ${record.title}`;
+}
+
 export function renderOwaspTop10Category(
   standards: Standards,
   category: string,

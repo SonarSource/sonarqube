@@ -27,6 +27,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import {
   getStandards,
+  renderCVSSCategory,
   renderCWECategory,
   renderOwaspTop102021Category,
   renderOwaspTop10Category,
@@ -46,6 +47,10 @@ interface Props {
   cweOpen: boolean;
   cweStats: Dict<number> | undefined;
   fetchingCwe: boolean;
+  cvss: string[];
+  cvssOpen: boolean;
+  cvssStats: Dict<number> | undefined;
+  fetchingCvss: boolean;
   fetchingOwaspTop10: boolean;
   'fetchingOwaspTop10-2021': boolean;
   fetchingSonarSourceSecurity: boolean;
@@ -74,9 +79,10 @@ type StatsProp =
   | 'owaspTop10-2021Stats'
   | 'owaspTop10Stats'
   | 'cweStats'
-  | 'sonarsourceSecurityStats';
+  | 'sonarsourceSecurityStats'
+  | 'cvssStats';
 
-type ValuesProp = 'owaspTop10-2021' | 'owaspTop10' | 'sonarsourceSecurity' | 'cwe';
+type ValuesProp = 'owaspTop10-2021' | 'owaspTop10' | 'sonarsourceSecurity' | 'cwe' | 'cvss';
 
 const INITIAL_FACET_COUNT = 15;
 
@@ -90,6 +96,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
       owaspTop10: {},
       'owaspTop10-2021': {},
       cwe: {},
+      cvss: {},
       sonarsourceSecurity: {},
       'pciDss-3.2': {},
       'pciDss-4.0': {},
@@ -108,7 +115,8 @@ export class StandardFacet extends React.PureComponent<Props, State> {
       this.props.owaspTop10.length > 0 ||
       this.props['owaspTop10-2021'].length > 0 ||
       this.props.cwe.length > 0 ||
-      this.props.sonarsourceSecurity.length > 0
+      this.props.sonarsourceSecurity.length > 0 ||
+      this.props.cvss.length > 0
     ) {
       this.loadStandards();
     }
@@ -130,6 +138,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
         [SecurityStandard.OWASP_TOP10_2021]: owaspTop102021,
         [SecurityStandard.OWASP_TOP10]: owaspTop10,
         [SecurityStandard.CWE]: cwe,
+        [SecurityStandard.CVSS]: cvss,
         [SecurityStandard.SONARSOURCE]: sonarsourceSecurity,
         [SecurityStandard.PCI_DSS_3_2]: pciDss32,
         [SecurityStandard.PCI_DSS_4_0]: pciDss40,
@@ -143,6 +152,8 @@ export class StandardFacet extends React.PureComponent<Props, State> {
               [SecurityStandard.OWASP_TOP10_2021]: owaspTop102021,
               [SecurityStandard.OWASP_TOP10]: owaspTop10,
               [SecurityStandard.CWE]: cwe,
+              [SecurityStandard.CVSS]: cvss,
+
               [SecurityStandard.SONARSOURCE]: sonarsourceSecurity,
               [SecurityStandard.PCI_DSS_3_2]: pciDss32,
               [SecurityStandard.PCI_DSS_4_0]: pciDss40,
@@ -169,6 +180,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
         renderOwaspTop102021Category(this.state.standards, item, true),
       ),
       ...this.props.cwe.map((item) => renderCWECategory(this.state.standards, item)),
+      ...this.props.cvss.map((item) => renderCVSSCategory(this.state.standards, item)),
     ];
   };
 
@@ -199,6 +211,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
       'owaspTop10-2021': [],
       cwe: [],
       sonarsourceSecurity: [],
+      cvss: [],
     });
   };
 
@@ -238,11 +251,26 @@ export class StandardFacet extends React.PureComponent<Props, State> {
     });
   };
 
+  handleCVSSSearch = (query: string) => {
+    return Promise.resolve({
+      results: Object.keys(this.state.standards.cvss).filter((cvss) =>
+        renderCVSSCategory(this.state.standards, cvss).toLowerCase().includes(query.toLowerCase()),
+      ),
+    });
+  };
+
   loadCWESearchResultCount = (categories: string[]) => {
     const { loadSearchResultCount } = this.props;
 
     return loadSearchResultCount
       ? loadSearchResultCount('cwe', { cwe: categories })
+      : Promise.resolve({});
+  };
+  loadCVSSSearchResultCount = (categories: string[]) => {
+    const { loadSearchResultCount } = this.props;
+
+    return loadSearchResultCount
+      ? loadSearchResultCount('cvss', { cvss: categories })
       : Promise.resolve({});
   };
 
@@ -417,10 +445,14 @@ export class StandardFacet extends React.PureComponent<Props, State> {
 
   renderSubFacets() {
     const {
+      cvss,
       cwe,
       cweOpen,
+      cvssOpen,
       cweStats,
+      cvssStats,
       fetchingCwe,
+      fetchingCvss,
       fetchingOwaspTop10,
       'fetchingOwaspTop10-2021': fetchingOwaspTop102021,
       fetchingSonarSourceSecurity,
@@ -502,6 +534,24 @@ export class StandardFacet extends React.PureComponent<Props, State> {
           searchInputAriaLabel={translate('search.search_for_cwe')}
           stats={cweStats}
           values={cwe}
+        />
+
+        <ListStyleFacet<string>
+          facetHeader={translate('issues.facet.cvss')}
+          fetching={fetchingCvss}
+          getFacetItemText={(item) => renderCVSSCategory(this.state.standards, item)}
+          getSearchResultText={(item) => renderCVSSCategory(this.state.standards, item)}
+          inner
+          loadSearchResultCount={this.loadCVSSSearchResultCount}
+          onChange={this.props.onChange}
+          onToggle={this.props.onToggle}
+          open={cvssOpen}
+          property={SecurityStandard.CVSS}
+          query={omit(query, 'cvss')}
+          renderFacetItem={(item) => renderCVSSCategory(this.state.standards, item)}
+          stats={cvssStats}
+          values={cvss}
+          ShowSearch={'inactive'}
         />
       </>
     );

@@ -103,6 +103,8 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_ISSUE_SQ_SECURITY_CATEGORY = "sonarsourceSecurity";
   public static final String FIELD_ISSUE_VULNERABILITY_PROBABILITY = "vulnerabilityProbability";
   public static final String FIELD_ISSUE_CODE_VARIANTS = "codeVariants";
+  public static final String FIELD_ISSUE_CVSS = "cvss";
+
 
   /**
    * Whether issue is new code for a branch using the reference branch new code definition.
@@ -186,6 +188,8 @@ public class IssueIndexDefinition implements IndexDefinition {
     mapping.keywordFieldBuilder(FIELD_ISSUE_OWASP_TOP_10_2021).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_SANS_TOP_25).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_CWE).disableNorms().build();
+    mapping.createDoubleField(FIELD_ISSUE_CVSS);
+
     mapping.keywordFieldBuilder(FIELD_ISSUE_SQ_SECURITY_CATEGORY).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_VULNERABILITY_PROBABILITY).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_STIG_ASD_V5R3).disableNorms().build();
