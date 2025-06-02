@@ -168,6 +168,8 @@ public class IssueQueryFactory {
       List<ComponentDto> allComponents = new ArrayList<>();
       boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(dbSession, request, allComponents);
       addComponentParameters(builder, dbSession, effectiveOnComponentOnly, allComponents, request);
+      // SONAR-25108
+      unsetMainBranch(builder, issueKeys != null && !issueKeys.isEmpty(), allComponents, request);
 
       setCreatedAfterFromRequest(dbSession, builder, request, allComponents, timeZone);
       String sort = request.getSort();
@@ -510,6 +512,14 @@ public class IssueQueryFactory {
     } else {
       BranchDto branchDto = findComponentBranch(session, component);
       builder.mainBranch(branchDto.isMain());
+    }
+  }
+
+  private static void unsetMainBranch(IssueQuery.Builder builder, boolean hasIssueKey, List<ComponentDto> components, SearchRequest request) {
+    var pullRequest = request.getPullRequest();
+    var branch = request.getBranch();
+    if ((components.isEmpty() || UNKNOWN_COMPONENT.equals(components.get(0)) || (pullRequest == null && branch == null)) && hasIssueKey) {
+      builder.mainBranch(null);
     }
   }
 }

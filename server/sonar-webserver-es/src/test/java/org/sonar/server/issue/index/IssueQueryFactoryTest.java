@@ -25,6 +25,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
@@ -739,6 +740,86 @@ public class IssueQueryFactoryTest {
       .setCreatedAfter("unknown-date")))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("'unknown-date' cannot be parsed as either a date or date+time");
+  }
+
+  @Test
+  public void when_issue_keys_provided_with_no_component_should_not_have_main_branch() {
+    SearchRequest request = new SearchRequest()
+      .setIssues(List.of("issue-key-1", "issue-key-2"));
+
+    IssueQuery query = underTest.create(request);
+
+    assertThat(query.isMainBranch()).isNull();
+  }
+
+  @Test
+  public void when_issue_keys_and_component_provided_should_have_main_branch_set() {
+    // Create a project with main branch
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    String branchName = DEFAULT_MAIN_BRANCH_NAME;
+
+    // Request with issue keys and main branch
+    SearchRequest request = new SearchRequest()
+      .setIssues(List.of("issue-key-1", "issue-key-2"))
+      .setComponentKeys(List.of(mainBranch.getKey()))
+      .setBranch(branchName);
+
+    IssueQuery query = underTest.create(request);
+
+    // Should unset main branch since issue keys are provided
+    assertThat(query.isMainBranch()).isTrue();
+    assertThat(query.branchUuid()).isEqualTo(mainBranch.uuid());
+  }
+
+  @Test
+  public void when_no_issue_keys_provided_should_default_to_main_branch() {
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    String branchName = DEFAULT_MAIN_BRANCH_NAME;
+
+    SearchRequest request = new SearchRequest()
+      .setComponentKeys(List.of(mainBranch.getKey()))
+      .setBranch(branchName);
+
+    IssueQuery query = underTest.create(request);
+
+    assertThat(query.isMainBranch()).isTrue();
+    assertThat(query.branchUuid()).isEqualTo(mainBranch.uuid());
+  }
+
+  @Test
+  public void when_component_is_non_main_branch_should_not_default_to_main_branch() {
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    String branchName = "feature-branch";
+    ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey(branchName));
+
+    SearchRequest request = new SearchRequest()
+      .setComponentKeys(List.of(branch.getKey()))
+      .setBranch(branchName);
+
+    IssueQuery query = underTest.create(request);
+
+    assertThat(query.isMainBranch()).isFalse();
+    assertThat(query.branchUuid()).isEqualTo(branch.uuid());
+  }
+
+  @Test
+  public void when_empty_issue_keys_list_provided_should_default_to_main_branch() {
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    String branchName = DEFAULT_MAIN_BRANCH_NAME;
+
+    SearchRequest request = new SearchRequest()
+      .setIssues(Collections.emptyList())
+      .setComponentKeys(List.of(mainBranch.getKey()))
+      .setBranch(branchName);
+
+    IssueQuery query = underTest.create(request);
+
+    assertThat(query.isMainBranch()).isTrue();
+    assertThat(query.branchUuid()).isEqualTo(mainBranch.uuid());
   }
 
 }
