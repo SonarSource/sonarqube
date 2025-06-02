@@ -419,8 +419,10 @@ subprojects {
       dependency 'jakarta.inject:jakarta.inject-api:2.0.1'
       dependency 'jakarta.servlet:jakarta.servlet-api:6.1.0'
       dependency 'junit:junit:4.13.2'
-      dependency 'org.xmlunit:xmlunit-core:2.10.0'
-      dependency 'org.xmlunit:xmlunit-matchers:2.10.0'
+      dependencySet(group: 'org.xmlunit', version: '2.10.2') {
+        entry 'xmlunit-core'
+        entry 'xmlunit-matchers'
+      }
       dependency 'org.lz4:lz4-java:1.8.0'
       dependency 'org.littleshoot:littleproxy:1.1.2'
       dependency 'net.sf.trove4j:core:3.1.0'
