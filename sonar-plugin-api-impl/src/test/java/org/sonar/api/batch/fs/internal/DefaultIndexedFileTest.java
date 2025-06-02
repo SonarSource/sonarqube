@@ -43,4 +43,14 @@ public class DefaultIndexedFileTest {
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining(invalidPath);
   }
+
+  @Test
+  public void uri_should_be_cached() {
+    String projectKey = "12345";
+    Path baseDir = Paths.get("");
+    String path = "foo/bar";
+
+    DefaultIndexedFile file = new DefaultIndexedFile(projectKey, baseDir, path, null);
+    Assertions.assertThat(file.uri()).isSameAs(file.uri());
+  }
 }

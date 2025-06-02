@@ -52,6 +52,8 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
   private final String oldRelativeFilePath;
   private final boolean hidden;
 
+  private URI uri;
+
   /**
    * Testing purposes only!
    */
@@ -193,6 +195,9 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
 
   @Override
   public URI uri() {
-    return path().toUri();
+    if (uri == null) {
+      uri = path().toUri();
+    }
+    return uri;
   }
 }
