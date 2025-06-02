@@ -477,7 +477,7 @@ subprojects {
         exclude 'net.i2p.crypto:eddsa'
       }
       dependency 'org.hamcrest:hamcrest:3.0'
-      dependency 'org.jsoup:jsoup:1.19.1'
+      dependency 'org.jsoup:jsoup:1.20.1'
       // JUnit 5
       imports { mavenBom 'org.junit:junit-bom:5.11.4' }
       dependency 'org.junit-pioneer:junit-pioneer:2.3.0'
