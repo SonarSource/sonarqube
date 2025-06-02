@@ -488,9 +488,7 @@ subprojects {
         }
       }
       dependency 'org.spdx:java-spdx-library:2.0.0'
-      dependencySet(group: 'org.spdx', version: '2.0.0-RC2') {
-        entry 'spdx-jackson-store'
-      }
+      dependency 'org.spdx:spdx-jackson-store:2.0.2'
       dependencySet(group: 'org.springframework', version: '6.2.7') {
         entry 'spring-test'
         entry('spring-context') {
