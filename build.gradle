@@ -487,8 +487,8 @@ subprojects {
           exclude 'org.junit.jupiter:junit-jupiter-api'
         }
       }
+      dependency 'org.spdx:java-spdx-library:2.0.0'
       dependencySet(group: 'org.spdx', version: '2.0.0-RC2') {
-        entry 'java-spdx-library'
         entry 'spdx-jackson-store'
       }
       dependencySet(group: 'org.springframework', version: '6.2.7') {
