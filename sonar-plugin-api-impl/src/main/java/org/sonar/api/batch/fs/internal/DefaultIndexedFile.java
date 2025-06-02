@@ -51,6 +51,7 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
   private final SensorStrategy sensorStrategy;
   private final String oldRelativeFilePath;
   private final boolean hidden;
+  private final URI uri;
 
   /**
    * Testing purposes only!
@@ -75,6 +76,7 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
     this.language = language;
     this.sensorStrategy = sensorStrategy;
     this.absolutePath = absolutePath;
+    this.uri = absolutePath.toUri();
     this.oldRelativeFilePath = oldRelativeFilePath;
     this.hidden = hidden;
     validateKeyLength();
@@ -193,6 +195,6 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
 
   @Override
   public URI uri() {
-    return path().toUri();
+    return uri;
   }
 }
