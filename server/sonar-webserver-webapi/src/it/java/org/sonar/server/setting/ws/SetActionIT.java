@@ -20,18 +20,16 @@
 package org.sonar.server.setting.ws;
 
 import com.google.gson.Gson;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import javax.annotation.Nullable;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinition.ConfigScope;
@@ -40,7 +38,6 @@ import org.sonar.api.config.PropertyFieldDefinition;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
-import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -48,6 +45,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDbTester;
@@ -78,15 +76,89 @@ import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
-@RunWith(DataProviderRunner.class)
-public class SetActionIT {
+class SetActionIT {
 
   private static final Gson GSON = GsonHelper.create();
 
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().logIn();
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  private static final String SECURITY_CUSTOM_CONFIG_INCORRECT_TYPE = """
+    {
+      "S3649": {
+        "sources": [
+          {
+            "methodId": "My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery"
+          }
+        ],
+        "sinks": [
+          {
+            "methodId": 12345,
+            "args": [1]
+          }
+        ]
+      }
+    }""";
+
+  private static final String SECURITY_CUSTOM_CONFIG_NO_ARGS = """
+    {
+      "S3649": {
+        "sources": [
+          {
+            "methodId": "My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery"
+          }
+        ],
+        "sanitizers": [
+           {
+             "methodId": "SomeSanitizer"
+           }
+        ]
+      }
+    }""";
+
+  private static final String SECURITY_CUSTOM_CONFIG_EMPTY_ARGS_ARRAY = """
+    {
+      "S3649": {
+        "sources": [
+          {
+            "methodId": "My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery"
+          }
+        ],
+        "validators": [
+           {
+             "methodId": "SomeValidator",
+             "args": []
+           }
+        ]
+      }
+    }""";
+
+  private static final String SECURITY_CUSTOM_CONFIG_UNKNOWN_ATTRIBUTE = """
+    {
+      "S3649": {
+        "sources": [
+          {
+            "methodId": "My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery"
+          }
+        ],
+        "unknown": [
+          {
+            "methodId": 12345,
+            "args": [1]
+          }
+        ]
+      }
+    }""";
+  private static final String SONAR_SECURITY_CONFIG_JAVA_SECURITY = "sonar.security.config.javasecurity";
+  private static final String SONAR_SECURITY_CONFIG_PHP_SECURITY = "sonar.security.config.phpsecurity";
+  private static final String SONAR_SECURITY_CONFIG_PYTHON_SECURITY = "sonar.security.config.pythonsecurity";
+  private static final String SONAR_SECURITY_CONFIG_ROSLYN_SECURITY_CS = "sonar.security.config.roslyn.sonaranalyzer.security.cs";
+  private static final String ERROR_INCORRECT_TYPE = "Provided JSON is invalid : [expected type: string, actual: integer at mem://input#/S3649/sinks/0/methodId (Line 10, character 21)]";
+  private static final String ERROR_NO_ARGS = "Provided JSON is invalid : [required properties are missing: args at mem://input#/S3649/sanitizers/0 (Line 9, character 8)]";
+  private static final String ERROR_EMPTY_ARGS_ARRAY = "Provided JSON is invalid : [expected minimum items: 1, found only 0 at mem://input#/S3649/validators/0/args (Line 11, character 18)]";
+  private static final String ERROR_UNKNOWN_ATTRIBUTE = "Provided JSON is invalid : [false schema always fails at mem://input#/S3649/unknown (Line 8, character 16)]";
+
+  @RegisterExtension
+  private final UserSessionRule userSession = UserSessionRule.standalone().logIn();
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final PropertyDbTester propertyDb = new PropertyDbTester(db);
   private final DbClient dbClient = db.getDbClient();
@@ -100,24 +172,47 @@ public class SetActionIT {
 
   private final WsActionTester ws = new WsActionTester(underTest);
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     // by default test doesn't care about permissions
     userSession.logIn().setSystemAdministrator();
   }
-
-  @DataProvider
-  public static Object[][] securityJsonProperties() {
+  
+  static Object[][] securityJsonProperties() {
     return new Object[][] {
-      {"sonar.security.config.javasecurity"},
-      {"sonar.security.config.phpsecurity"},
-      {"sonar.security.config.pythonsecurity"},
-      {"sonar.security.config.roslyn.sonaranalyzer.security.cs"}
+      {SONAR_SECURITY_CONFIG_JAVA_SECURITY},
+      {SONAR_SECURITY_CONFIG_PHP_SECURITY},
+      {SONAR_SECURITY_CONFIG_PYTHON_SECURITY},
+      {SONAR_SECURITY_CONFIG_ROSLYN_SECURITY_CS}
+    };
+  }
+
+  static Object[][] securityJsonPropertiesForInvalidJsonTest() {
+    return new Object[][] {
+      {SONAR_SECURITY_CONFIG_JAVA_SECURITY, SECURITY_CUSTOM_CONFIG_INCORRECT_TYPE, ERROR_INCORRECT_TYPE},
+      {SONAR_SECURITY_CONFIG_JAVA_SECURITY, SECURITY_CUSTOM_CONFIG_NO_ARGS, ERROR_NO_ARGS},
+      {SONAR_SECURITY_CONFIG_JAVA_SECURITY, SECURITY_CUSTOM_CONFIG_EMPTY_ARGS_ARRAY, ERROR_EMPTY_ARGS_ARRAY},
+      {SONAR_SECURITY_CONFIG_JAVA_SECURITY, SECURITY_CUSTOM_CONFIG_UNKNOWN_ATTRIBUTE, ERROR_UNKNOWN_ATTRIBUTE},
+
+      {SONAR_SECURITY_CONFIG_PHP_SECURITY, SECURITY_CUSTOM_CONFIG_INCORRECT_TYPE, ERROR_INCORRECT_TYPE},
+      {SONAR_SECURITY_CONFIG_PHP_SECURITY, SECURITY_CUSTOM_CONFIG_NO_ARGS, ERROR_NO_ARGS},
+      {SONAR_SECURITY_CONFIG_PHP_SECURITY, SECURITY_CUSTOM_CONFIG_EMPTY_ARGS_ARRAY, ERROR_EMPTY_ARGS_ARRAY},
+      {SONAR_SECURITY_CONFIG_PHP_SECURITY, SECURITY_CUSTOM_CONFIG_UNKNOWN_ATTRIBUTE, ERROR_UNKNOWN_ATTRIBUTE},
+
+      {SONAR_SECURITY_CONFIG_PYTHON_SECURITY, SECURITY_CUSTOM_CONFIG_INCORRECT_TYPE, ERROR_INCORRECT_TYPE},
+      {SONAR_SECURITY_CONFIG_PYTHON_SECURITY, SECURITY_CUSTOM_CONFIG_NO_ARGS, ERROR_NO_ARGS},
+      {SONAR_SECURITY_CONFIG_PYTHON_SECURITY, SECURITY_CUSTOM_CONFIG_EMPTY_ARGS_ARRAY, ERROR_EMPTY_ARGS_ARRAY},
+      {SONAR_SECURITY_CONFIG_PYTHON_SECURITY, SECURITY_CUSTOM_CONFIG_UNKNOWN_ATTRIBUTE, ERROR_UNKNOWN_ATTRIBUTE},
+
+      {SONAR_SECURITY_CONFIG_ROSLYN_SECURITY_CS, SECURITY_CUSTOM_CONFIG_INCORRECT_TYPE, ERROR_INCORRECT_TYPE},
+      {SONAR_SECURITY_CONFIG_ROSLYN_SECURITY_CS, SECURITY_CUSTOM_CONFIG_NO_ARGS, ERROR_NO_ARGS},
+      {SONAR_SECURITY_CONFIG_ROSLYN_SECURITY_CS, SECURITY_CUSTOM_CONFIG_EMPTY_ARGS_ARRAY, ERROR_EMPTY_ARGS_ARRAY},
+      {SONAR_SECURITY_CONFIG_ROSLYN_SECURITY_CS, SECURITY_CUSTOM_CONFIG_UNKNOWN_ATTRIBUTE, ERROR_UNKNOWN_ATTRIBUTE}
     };
   }
 
   @Test
-  public void empty_204_response() {
+  void empty_204_response() {
     TestResponse result = ws.newRequest()
       .setParam("key", "my.key")
       .setParam("value", "my value")
@@ -128,7 +223,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void persist_new_global_setting() {
+  void persist_new_global_setting() {
     callForGlobalSetting("my.key", "my,value");
 
     assertGlobalSetting("my.key", "my,value");
@@ -136,7 +231,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void update_existing_global_setting() {
+  void update_existing_global_setting() {
     propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my value"), null, null, null, null);
     assertGlobalSetting("my.key", "my value");
 
@@ -147,7 +242,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void persist_new_project_setting() {
+  void persist_new_project_setting() {
     propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"), null, null, null, null);
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     logInAsProjectAdministrator(project);
@@ -160,7 +255,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void persist_new_subportfolio_setting() {
+  void persist_new_subportfolio_setting() {
     propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"), null, null, null, null);
     ComponentDto portfolio = db.components().insertPrivatePortfolio();
     ComponentDto subportfolio = db.components().insertSubportfolio(portfolio);
@@ -174,7 +269,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void persist_project_property_with_project_admin_permission() {
+  void persist_project_property_with_project_admin_permission() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     logInAsProjectAdministrator(project);
 
@@ -184,7 +279,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void update_existing_project_setting() {
+  void update_existing_project_setting() {
     propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"), null, null,
       null, null);
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
@@ -199,7 +294,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void persist_several_multi_value_setting() {
+  void persist_several_multi_value_setting() {
     callForMultiValueGlobalSetting("my.key", List.of("first,Value", "second,Value", "third,Value"));
 
     String expectedValue = "first%2CValue,second%2CValue,third%2CValue";
@@ -208,14 +303,14 @@ public class SetActionIT {
   }
 
   @Test
-  public void persist_one_multi_value_setting() {
+  void persist_one_multi_value_setting() {
     callForMultiValueGlobalSetting("my.key", List.of("first,Value"));
 
     assertGlobalSetting("my.key", "first%2CValue");
   }
 
   @Test
-  public void persist_property_set_setting() {
+  void persist_property_set_setting() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -252,7 +347,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void update_property_set_setting() {
+  void update_property_set_setting() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -299,7 +394,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void update_property_set_on_component_setting() {
+  void update_property_set_on_component_setting() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -350,7 +445,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void persist_multi_value_with_type_logIn() {
+  void persist_multi_value_with_type_logIn() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -370,7 +465,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void user_setting_is_not_updated() {
+  void user_setting_is_not_updated() {
     propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my user value").setUserUuid("42"), null, null,
       null, "user_login");
     propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"), null, null, null, null);
@@ -382,7 +477,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void persist_global_property_with_deprecated_key() {
+  void persist_global_property_with_deprecated_key() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .deprecatedKey("my.old.key")
@@ -400,7 +495,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void persist_JSON_property() {
+  void persist_JSON_property() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -416,7 +511,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void fail_if_JSON_invalid_for_JSON_property() {
+  void fail_if_JSON_invalid_for_JSON_property() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -439,10 +534,10 @@ public class SetActionIT {
       .hasMessage("Provided JSON is invalid");
   }
 
-  @Test
-  @UseDataProvider("securityJsonProperties")
-  public void successfully_validate_json_schema(String securityPropertyKey) {
-    String security_custom_config = """
+  @ParameterizedTest
+  @MethodSource("securityJsonProperties")
+  void successfully_validate_json_schema(String securityPropertyKey) {
+    String securityCustomConfig = """
       {
         "S3649": {
           "sources": [
@@ -481,30 +576,14 @@ public class SetActionIT {
       .type(PropertyType.JSON)
       .build());
 
-    callForGlobalSetting(securityPropertyKey, security_custom_config);
+    callForGlobalSetting(securityPropertyKey, securityCustomConfig);
 
-    assertGlobalSetting(securityPropertyKey, security_custom_config);
+    assertGlobalSetting(securityPropertyKey, securityCustomConfig);
   }
 
-  @Test
-  @UseDataProvider("securityJsonProperties")
-  public void fail_json_schema_validation_when_property_has_incorrect_type(String securityPropertyKey) {
-    String security_custom_config = """
-      {
-        "S3649": {
-          "sources": [
-            {
-              "methodId": "My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery"
-            }
-          ],
-          "sinks": [
-            {
-              "methodId": 12345,
-              "args": [1]
-            }
-          ]
-        }
-      }""";
+  @ParameterizedTest
+  @MethodSource("securityJsonPropertiesForInvalidJsonTest")
+  void fail_json_schema_validation_when_property_has_incorrect_type(String securityPropertyKey, String customConfig, String expectedErrorMessage) {
     definitions.addComponent(PropertyDefinition
       .builder(securityPropertyKey)
       .name("foo")
@@ -514,111 +593,13 @@ public class SetActionIT {
       .type(PropertyType.JSON)
       .build());
 
-    assertThatThrownBy(() -> callForGlobalSetting(securityPropertyKey, security_custom_config))
+    assertThatThrownBy(() -> callForGlobalSetting(securityPropertyKey, customConfig))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("expected type: string, actual: integer at line 10, character 21, pointer: #/S3649/sinks/0/methodId");
+      .hasMessageContaining(expectedErrorMessage);
   }
 
   @Test
-  @UseDataProvider("securityJsonProperties")
-  public void fail_json_schema_validation_when_sanitizers_have_no_args(String securityPropertyKey) {
-    String security_custom_config = """
-      {
-        "S3649": {
-          "sources": [
-            {
-              "methodId": "My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery"
-            }
-          ],
-          "sanitizers": [
-             {
-               "methodId": "SomeSanitizer"
-             }
-          ]
-        }
-      }""";
-    definitions.addComponent(PropertyDefinition
-      .builder(securityPropertyKey)
-      .name("foo")
-      .description("desc")
-      .category("cat")
-      .subCategory("subCat")
-      .type(PropertyType.JSON)
-      .build());
-
-    assertThatThrownBy(() -> callForGlobalSetting(securityPropertyKey, security_custom_config))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("required properties are missing: args at line 9, character 8, pointer: #/S3649/sanitizers/0");
-  }
-
-  @Test
-  @UseDataProvider("securityJsonProperties")
-  public void fail_json_schema_validation_when_validators_have_empty_args_array(String securityPropertyKey) {
-    String security_custom_config = """
-      {
-        "S3649": {
-          "sources": [
-            {
-              "methodId": "My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery"
-            }
-          ],
-          "validators": [
-             {
-               "methodId": "SomeValidator",
-               "args": []
-             }
-          ]
-        }
-      }""";
-    definitions.addComponent(PropertyDefinition
-      .builder(securityPropertyKey)
-      .name("foo")
-      .description("desc")
-      .category("cat")
-      .subCategory("subCat")
-      .type(PropertyType.JSON)
-      .build());
-
-    assertThatThrownBy(() -> callForGlobalSetting(securityPropertyKey, security_custom_config))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("expected minimum items: 1, found only 0 at line 11, character 18, pointer: #/S3649/validators/0/args");
-  }
-
-  @Test
-  @UseDataProvider("securityJsonProperties")
-  public void fail_json_schema_validation_when_property_has_unknown_attribute(String securityPropertyKey) {
-    String security_custom_config = """
-      {
-        "S3649": {
-          "sources": [
-            {
-              "methodId": "My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery"
-            }
-          ],
-          "unknown": [
-            {
-              "methodId": 12345,
-              "args": [1]
-            }
-          ]
-        }
-      }""";
-    definitions.addComponent(PropertyDefinition
-      .builder(securityPropertyKey)
-      .name("foo")
-      .description("desc")
-      .category("cat")
-      .subCategory("subCat")
-      .type(PropertyType.JSON)
-      .build());
-
-    assertThatThrownBy(() -> callForGlobalSetting(securityPropertyKey, security_custom_config))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("false schema always fails at line 8, character 16, pointer: #/S3649/unknown");
-  }
-
-  @Test
-  public void persist_global_setting_with_non_ascii_characters() {
+  void persist_global_setting_with_non_ascii_characters() {
     callForGlobalSetting("my.key", "ﬁ±∞…");
 
     assertGlobalSetting("my.key", "ﬁ±∞…");
@@ -626,34 +607,34 @@ public class SetActionIT {
   }
 
   @Test
-  public void fail_when_no_key() {
+  void fail_when_no_key() {
     assertThatThrownBy(() -> callForGlobalSetting(null, "my value"))
       .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
-  public void fail_when_empty_key_value() {
+  void fail_when_empty_key_value() {
     assertThatThrownBy(() -> callForGlobalSetting("  ", "my value"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The 'key' parameter is missing");
   }
 
   @Test
-  public void fail_when_no_value() {
+  void fail_when_no_value() {
     assertThatThrownBy(() -> callForGlobalSetting("my.key", null))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Either 'value', 'values' or 'fieldValues' must be provided");
   }
 
   @Test
-  public void fail_when_empty_value() {
+  void fail_when_empty_value() {
     assertThatThrownBy(() -> callForGlobalSetting("my.key", ""))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("A non empty value must be provided");
   }
 
   @Test
-  public void fail_when_one_empty_value_on_multi_value() {
+  void fail_when_one_empty_value_on_multi_value() {
     List<String> values = List.of("oneValue", "  ", "anotherValue");
     assertThatThrownBy(() -> callForMultiValueGlobalSetting("my.key", values))
       .isInstanceOf(BadRequestException.class)
@@ -661,7 +642,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_system_administrator() {
+  void throw_ForbiddenException_if_not_system_administrator() {
     userSession.logIn().setNonSystemAdministrator();
 
     assertThatThrownBy(() -> callForGlobalSetting("my.key", "my value"))
@@ -670,7 +651,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void fail_when_data_and_type_do_not_match() {
+  void fail_when_data_and_type_do_not_match() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -688,7 +669,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void fail_when_data_and_login_type_with_invalid_logIn() {
+  void fail_when_data_and_login_type_with_invalid_logIn() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -709,7 +690,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void fail_when_data_and_type_do_not_match_with_unknown_error_key() {
+  void fail_when_data_and_type_do_not_match_with_unknown_error_key() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -727,7 +708,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void fail_when_global_with_property_only_on_projects() {
+  void fail_when_global_with_property_only_on_projects() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -745,7 +726,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void fail_when_view_property_when_on_projects_only() {
+  void fail_when_view_property_when_on_projects_only() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -768,7 +749,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void fail_when_property_with_definition_when_component_qualifier_does_not_match() {
+  void fail_when_property_with_definition_when_component_qualifier_does_not_match() {
     PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
@@ -789,40 +770,40 @@ public class SetActionIT {
   }
 
   @Test
-  public void succeed_for_property_without_definition_when_set_on_project_component() {
+  void succeed_for_property_without_definition_when_set_on_project_component() {
     ProjectDto project = randomPublicOrPrivateProject().getProjectDto();
     succeedForPropertyWithoutDefinitionAndValidComponent(project);
   }
 
   @Test
-  public void fail_for_property_without_definition_when_set_on_directory_component() {
+  void fail_for_property_without_definition_when_set_on_directory_component() {
     ProjectData projectData = randomPublicOrPrivateProject();
     ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(projectData.getMainBranchComponent(), "A/B"));
     failForPropertyWithoutDefinitionOnUnsupportedComponent(projectData.getProjectDto(), directory);
   }
 
   @Test
-  public void fail_for_property_without_definition_when_set_on_file_component() {
+  void fail_for_property_without_definition_when_set_on_file_component() {
     ProjectData projectData = randomPublicOrPrivateProject();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(projectData.getMainBranchComponent()));
     failForPropertyWithoutDefinitionOnUnsupportedComponent(projectData.getProjectDto(), file);
   }
 
   @Test
-  public void succeed_for_property_without_definition_when_set_on_view_component() {
+  void succeed_for_property_without_definition_when_set_on_view_component() {
     PortfolioDto view = db.components().insertPrivatePortfolioDto();
     succeedForPropertyWithoutDefinitionAndValidComponent(view);
   }
 
   @Test
-  public void succeed_for_property_without_definition_when_set_on_subview_component() {
+  void succeed_for_property_without_definition_when_set_on_subview_component() {
     ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto subview = db.components().insertComponent(ComponentTesting.newSubPortfolio(view));
     failForPropertyWithoutDefinitionOnUnsupportedComponent(db.components().getPortfolioDto(view), subview);
   }
 
   @Test
-  public void fail_for_property_without_definition_when_set_on_projectCopy_component() {
+  void fail_for_property_without_definition_when_set_on_projectCopy_component() {
     ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto projectCopy = db.components().insertComponent(ComponentTesting.newProjectCopy("a", db.components().insertPrivateProject().getMainBranchComponent(), view));
 
@@ -864,7 +845,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void fail_when_single_and_multi_value_provided() {
+  void fail_when_single_and_multi_value_provided() {
     List<String> value = List.of("Another Value");
     assertThatThrownBy(() -> call("my.key", "My Value", value, null, null))
       .isInstanceOf(BadRequestException.class)
@@ -872,7 +853,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void fail_when_multi_definition_and_single_value_provided() {
+  void fail_when_multi_definition_and_single_value_provided() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -888,7 +869,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void fail_when_single_definition_and_multi_value_provided() {
+  void fail_when_single_definition_and_multi_value_provided() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -904,7 +885,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void fail_when_empty_values_on_one_property_set() {
+  void fail_when_empty_values_on_one_property_set() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -933,7 +914,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void do_not_fail_when_only_one_empty_value_on_one_property_set() {
+  void do_not_fail_when_only_one_empty_value_on_one_property_set() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -962,14 +943,14 @@ public class SetActionIT {
   }
 
   @Test
-  public void fail_when_property_set_setting_is_not_defined() {
+  void fail_when_property_set_setting_is_not_defined() {
     assertThatThrownBy(() -> callForGlobalPropertySet("my.key", singletonList("{\"field\":\"value\"}")))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Setting 'my.key' is undefined");
   }
 
   @Test
-  public void fail_when_property_set_with_unknown_field() {
+  void fail_when_property_set_with_unknown_field() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -992,7 +973,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void fail_when_property_set_has_field_with_incorrect_type() {
+  void fail_when_property_set_has_field_with_incorrect_type() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -1015,7 +996,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void fail_when_property_set_has_a_null_field_value() {
+  void fail_when_property_set_has_a_null_field_value() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -1038,7 +1019,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void fail_when_property_set_with_invalid_json() {
+  void fail_when_property_set_with_invalid_json() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -1062,7 +1043,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void fail_when_property_set_with_json_of_the_wrong_format() {
+  void fail_when_property_set_with_json_of_the_wrong_format() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -1086,7 +1067,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void fail_when_property_set_on_component_of_global_setting() {
+  void fail_when_property_set_on_component_of_global_setting() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -1108,7 +1089,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void fail_when_component_not_found() {
+  void fail_when_component_not_found() {
     TestRequest testRequest = ws.newRequest()
       .setParam("key", "foo")
       .setParam("value", "2")
@@ -1119,7 +1100,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void fail_when_setting_key_is_defined_in_sonar_properties() {
+  void fail_when_setting_key_is_defined_in_sonar_properties() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     logInAsProjectAdministrator(project);
     String settingKey = ProcessProperties.Property.JDBC_URL.getKey();
@@ -1133,8 +1114,7 @@ public class SetActionIT {
       .hasMessage(format("Setting '%s' can only be used in sonar.properties", settingKey));
   }
 
-  @DataProvider
-  public static Object[][] forbiddenProperties() {
+  static Object[][] forbiddenProperties() {
     return new Object[][] {
       {GITLAB_AUTH_URL},
       {GITHUB_API_URL},
@@ -1143,9 +1123,9 @@ public class SetActionIT {
     };
   }
 
-  @Test
-  @UseDataProvider("forbiddenProperties")
-  public void fail_when_setting_key_is_forbidden(String property) {
+  @ParameterizedTest
+  @MethodSource("forbiddenProperties")
+  void fail_when_setting_key_is_forbidden(String property) {
     TestRequest testRequest = ws.newRequest()
       .setParam("key", property)
       .setParam("value", "value");
@@ -1155,7 +1135,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void fail_when_setting_key_is_forbidden() {
+  void fail_when_setting_key_is_forbidden() {
     TestRequest testRequest = ws.newRequest()
       .setParam("key", "sonar.auth.gitlab.url")
       .setParam("value", "http://malicious.url");
@@ -1165,7 +1145,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void definition() {
+  void definition() {
     WebService.Action definition = ws.getDef();
 
     assertThat(definition.key()).isEqualTo("set");
@@ -1177,7 +1157,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void call_whenEmailPropertyValid_shouldSucceed() {
+  void call_whenEmailPropertyValid_shouldSucceed() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
@@ -1190,7 +1170,7 @@ public class SetActionIT {
   }
 
   @Test
-  public void call_whenEmailPropertyInvalid_shouldFail() {
+  void call_whenEmailPropertyInvalid_shouldFail() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
