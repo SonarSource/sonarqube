@@ -352,7 +352,7 @@ subprojects {
       }
       dependency 'commons-codec:commons-codec:1.18.0'
       dependency 'commons-dbutils:commons-dbutils:1.8.1'
-      dependency 'commons-io:commons-io:2.18.0'
+      dependency 'commons-io:commons-io:2.19.0'
       imports { mavenBom 'com.fasterxml.jackson:jackson-bom:2.19.0' }
       dependency 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
       dependencySet(group: 'com.github.scribejava', version: '8.3.3') {
