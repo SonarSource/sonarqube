@@ -31,6 +31,7 @@ import org.sonar.server.platform.db.migration.version.v00.DbVersion00;
 import org.sonar.server.platform.db.migration.version.v202501.DbVersion202501;
 import org.sonar.server.platform.db.migration.version.v202502.DbVersion202502;
 import org.sonar.server.platform.db.migration.version.v202503.DbVersion202503;
+import org.sonar.server.platform.db.migration.version.v202504.DbVersion202504;
 
 public class MigrationConfigurationModule extends Module {
   @Override
@@ -42,6 +43,7 @@ public class MigrationConfigurationModule extends Module {
       DbVersion202501.class,
       DbVersion202502.class,
       DbVersion202503.class,
+      DbVersion202504.class,
 
       // migration steps
       MigrationStepRegistryImpl.class,
