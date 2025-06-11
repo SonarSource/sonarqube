@@ -7312,87 +7312,87 @@
   "cvss": {
     "4.5": {
       "title": "",
-      "description": "insufficient session ID length."
+      "description": "Medium"
     },
     "4.9": {
       "title": "",
-      "description": "insufficient session ID length."
+      "description": "Medium"
     },
     "5.0": {
       "title": "",
-      "description": "insufficient session ID length."
+      "description": "Medium"
     },
     "5.4": {
       "title": "",
-      "description": "insufficient session ID length."
+      "description": "Medium"
     },
     "5.5": {
       "title": "",
-      "description": "insufficient session ID length."
+      "description": "Medium"
     },
     "6.0": {
       "title": "",
-      "description": "insufficient session ID length."
+      "description": "Medium"
     },
     "6.4": {
       "title": "",
-      "description": "insufficient session ID length."
+      "description": "Medium"
     },
     "6.8": {
       "title": "",
-      "description": "insufficient session ID length."
+      "description": "Medium"
     },
     "7.1": {
       "title": "",
-      "description": " An attacker may be able to read or modify the contents if the data are sent in plaintext or are weakly encrypted."
+      "description": "High"
     },
     "7.4": {
       "title": "",
-      "description": "insufficient session ID length."
+      "description": "High"
     },
     "7.6": {
       "title": "",
-      "description": "figured to use an insufficient session ID length."
+      "description": "High"
     },
     "7.7": {
       "title": "",
-      "description": "insufficient session ID length."
+      "description": "High"
     },
     "7.9": {
       "title": "",
-      "description": "insufficient session ID length."
+      "description": "High"
     },
     "8.0": {
       "title": "",
-      "description": "insufficient session ID length."
+      "description": "High"
     },
     "8.2": {
       "title": "",
-      "description": "insufficient session ID length."
+      "description": "High"
     },
     "8.4": {
       "title": "",
-      "description": "insufficient session ID length."
+      "description": "High"
     },
     "8.5": {
       "title": "",
-      "description": "insufficient session ID length."
+      "description": "High"
     },
     "8.7": {
       "title": "",
-      "description": "insufficient session ID length."
+      "description": "High"
     },
     "8.8": {
       "title": "",
-      "description": "insufficient session ID length."
+      "description": "High"
     },
     "8.9": {
       "title": "",
-      "description": "insufficient session ID length."
+      "description": "High"
     },
     "9.0": {
       "title": "",
-      "description": "insufficient session ID length."
+      "description": "High"
     },
     "unknown": {
       "title": "No CVSS associated"
