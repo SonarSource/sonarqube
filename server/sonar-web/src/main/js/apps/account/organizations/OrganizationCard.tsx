@@ -40,7 +40,7 @@ export default function OrganizationCard({ organization, linksDisabled }: Props)
         <h3 className="account-project-name organization-name-label">
         <OrganizationAvatar organization={organization} />
         {linksDisabled ? (
-          organization.name
+          <span className="sw-ml-2">{organization.name}</span>
         ) : (
           <OrganizationLink className="spacer-left text-middle" organization={organization}>
             {organization.name}
