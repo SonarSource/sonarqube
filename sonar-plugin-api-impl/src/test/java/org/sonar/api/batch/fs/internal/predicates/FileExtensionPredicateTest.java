@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.fs.internal.predicates;
 
-import java.io.IOException;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 
