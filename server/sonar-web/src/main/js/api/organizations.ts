@@ -92,6 +92,7 @@ export function searchMembers(data: {
 export function addMember(data: {
   login: string;
   organization: string;
+  type: string;
 }): Promise<OrganizationMember> {
   return postJSON('/api/organizations/add_member', data).then(r => r.user, throwGlobalError);
 }

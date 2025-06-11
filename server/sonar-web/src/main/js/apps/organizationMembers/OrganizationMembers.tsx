@@ -113,9 +113,9 @@ function OrganizationMembers({ currentUser, organization }: Props) {
     }, stopLoading);
   };
 
-  const handleAddMember = ({ login }: OrganizationMember) => {
+  const handleAddMember = ({ login, type }: OrganizationMember) => {
     // TODO optimistic update
-    addMember({ login, organization: organization.kee }).then(
+    addMember({ login, organization: organization.kee, type  }).then(
       member => {
         setMembers(members && [...members, member]);
         setPaging(paging && { ...paging, total: paging.total + 1 });
