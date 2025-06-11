@@ -296,7 +296,6 @@ public class IssueIndex {
       .should(termsQuery(FIELD_ISSUE_TYPE, SECURITY_HOTSPOT.name()))
       .minimumShouldMatch(1);
 
-  private static final int MAX_FACET_CVSS_SIZE = 100;
 
 
 
@@ -592,7 +591,7 @@ public class IssueIndex {
           String[] range = cvss.split("-");
           double min = Double.parseDouble(range[0]);
           double max = Double.parseDouble(range[1]);
-          cvssBool.should(QueryBuilders.rangeQuery(fieldName).gte(min).lte(max));
+          cvssBool.should(QueryBuilders.rangeQuery(fieldName).gte(min).lt(max));
         } else {
           double val = Double.parseDouble(cvss);
           cvssBool.should(QueryBuilders.termQuery(fieldName, val));
@@ -601,12 +600,9 @@ public class IssueIndex {
         System.err.println("Invalid CVSS value: " + cvss);
       }
     }
+    cvssBool.minimumShouldMatch(1);
 
-    if (cvssBool.should().isEmpty()) {
-      return;
-    }
-
-    allFilters.addFilter(fieldName, facet.getFilterScope(), cvssBool.must(getQueryBuilderForSecurityCategory()));
+      allFilters.addFilter(fieldName, facet.getFilterScope(), cvssBool.must(getQueryBuilderForSecurityCategory()));
   }
 
 

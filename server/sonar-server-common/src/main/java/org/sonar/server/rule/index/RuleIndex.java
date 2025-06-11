@@ -256,7 +256,7 @@ public class RuleIndex {
   private Map<String, QueryBuilder> buildFilters(RuleQuery query) {
     Map<String, QueryBuilder> filters = new HashMap<>();
 
-    // Instead of directly adding it in addSecurityStandardFilter, we are building cvss range filter putting it in filters map.
+    // Instead of directly adding it in addSecurityStandardFilter, we are building cvss range & filter putting it in filters map.
     Collection<String> cvssFilters = query.getCvss();
     if(query.getCvss()!=null) {
       BoolQueryBuilder cvssBool = QueryBuilders.boolQuery();
@@ -266,7 +266,7 @@ public class RuleIndex {
             String[] range = cvss.split("-");
             double min = Double.parseDouble(range[0]);
             double max = Double.parseDouble(range[1]);
-            cvssBool.should(QueryBuilders.rangeQuery(FIELD_RULE_CVSS).gte(min).lte(max));
+            cvssBool.should(QueryBuilders.rangeQuery(FIELD_RULE_CVSS).gte(min).lt(max));
           } else {
             double val = Double.parseDouble(cvss);
             cvssBool.should(QueryBuilders.termQuery(FIELD_RULE_CVSS, val));
@@ -276,6 +276,8 @@ public class RuleIndex {
          LOGGER.warn("Invalid CVSS range value received: " + cvss);
        }
       }
+      cvssBool.minimumShouldMatch(1);
+
       // After building cvss range, adding to filters
       filters.put("cvss", cvssBool);
     }

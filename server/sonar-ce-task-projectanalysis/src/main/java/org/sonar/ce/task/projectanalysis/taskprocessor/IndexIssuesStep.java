@@ -51,6 +51,7 @@ public final class IndexIssuesStep implements ComputationStep {
           if (branchDto.isNeedIssueSync()) {
             LOG.info("indexing issues of branch {}", branchUuid);
             issueIndexer.indexOnAnalysis(branchUuid);
+            LOG.info("completed indexing issues for branch {}", branchUuid);
             dbClient.branchDao().updateNeedIssueSync(dbSession, branchUuid, false);
             dbSession.commit();
           } else {
