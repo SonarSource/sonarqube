@@ -21,61 +21,33 @@ package org.sonar.api.batch.fs.internal.predicates;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
-import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class HiddenFilesPredicateTest {
+public class NonHiddenFilesPredicateTest {
 
-  private final FilePredicate predicate = mock(FilePredicate.class);
   private final InputFile inputFile = mock(InputFile.class);
 
-  private final HiddenFilesPredicate underTest = new HiddenFilesPredicate(predicate);
+  private final NonHiddenFilesPredicate underTest = new NonHiddenFilesPredicate();
 
   @Test
-  public void apply_when_file_is_not_hidden_and_predicate_is_true() {
+  public void apply_when_file_is_not_hidden() {
     when(inputFile.isHidden()).thenReturn(false);
-    when(predicate.apply(inputFile)).thenReturn(true);
 
     Assertions.assertThat(underTest.apply(inputFile)).isTrue();
 
-    verify(predicate).apply(any());
     verify(inputFile).isHidden();
   }
 
   @Test
-  public void do_not_apply_when_file_is_not_hidden_and_predicate_is_false() {
-    when(inputFile.isHidden()).thenReturn(false);
-    when(predicate.apply(inputFile)).thenReturn(false);
-
-    Assertions.assertThat(underTest.apply(inputFile)).isFalse();
-
-    verify(predicate).apply(any());
-    verify(inputFile).isHidden();
-  }
-
-  @Test
-  public void do_not_apply_when_file_is_hidden_and_predicate_is_true() {
-    when(inputFile.isHidden()).thenReturn(true);
-    when(predicate.apply(inputFile)).thenReturn(true);
-
-    Assertions.assertThat(underTest.apply(inputFile)).isFalse();
-
-    verify(inputFile).isHidden();
-    verify(predicate, never()).apply(any());
-  }
-
-  @Test
-  public void predicate_is_evaluated_after_file_visibility() {
+  public void do_not_apply_when_file_is_hidden() {
     when(inputFile.isHidden()).thenReturn(true);
 
     Assertions.assertThat(underTest.apply(inputFile)).isFalse();
 
-    verify(predicate, never()).apply(any());
+    verify(inputFile).isHidden();
   }
 }

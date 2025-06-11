@@ -42,4 +42,8 @@ public class FilenamePredicate extends AbstractFilePredicate {
     return index.getFilesByName(filename);
   }
 
+  @Override
+  public int priority() {
+    return USE_INDEX;
+  }
 }

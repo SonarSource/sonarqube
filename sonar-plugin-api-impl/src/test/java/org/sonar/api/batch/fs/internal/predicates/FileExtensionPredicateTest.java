@@ -31,14 +31,14 @@ import static org.sonar.api.batch.fs.internal.predicates.FileExtensionPredicate.
 public class FileExtensionPredicateTest {
 
   @Test
-  public void should_match_correct_extension() throws IOException {
+  public void should_match_correct_extension() {
     FileExtensionPredicate predicate = new FileExtensionPredicate("bat");
     assertThat(predicate.apply(mockWithName("prog.bat"))).isTrue();
     assertThat(predicate.apply(mockWithName("prog.bat.bat"))).isTrue();
   }
 
   @Test
-  public void should_not_match_incorrect_extension() throws IOException {
+  public void should_not_match_incorrect_extension() {
     FileExtensionPredicate predicate = new FileExtensionPredicate("bat");
     assertThat(predicate.apply(mockWithName("prog.batt"))).isFalse();
     assertThat(predicate.apply(mockWithName("prog.abat"))).isFalse();
@@ -49,7 +49,7 @@ public class FileExtensionPredicateTest {
   }
 
   @Test
-  public void should_match_correct_extension_case_insensitively() throws IOException {
+  public void should_match_correct_extension_case_insensitively() {
     FileExtensionPredicate predicate = new FileExtensionPredicate("jAVa");
     assertThat(predicate.apply(mockWithName("Program.java"))).isTrue();
     assertThat(predicate.apply(mockWithName("Program.JAVA"))).isTrue();
@@ -64,7 +64,12 @@ public class FileExtensionPredicateTest {
     assertThat(getExtension(".")).isEmpty();
   }
 
-  private InputFile mockWithName(String filename) throws IOException {
+  @Test
+  public void should_have_use_index_priority() {
+    assertThat(new FileExtensionPredicate("bat").priority()).isEqualTo(AbstractFilePredicate.USE_INDEX);
+  }
+
+  private InputFile mockWithName(String filename) {
     InputFile inputFile = mock(InputFile.class);
     when(inputFile.filename()).thenReturn(filename);
     return inputFile;

@@ -21,62 +21,42 @@ package org.sonar.api.batch.fs.internal.predicates;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
-import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ChangedFilePredicateTest {
 
-  private final FilePredicate predicate = mock(FilePredicate.class);
   private final InputFile inputFile = mock(InputFile.class);
 
-  private final ChangedFilePredicate underTest = new ChangedFilePredicate(predicate);
+  private final ChangedFilePredicate underTest = new ChangedFilePredicate();
 
   @Test
-  public void apply_when_file_is_changed_and_predicate_is_true() {
+  public void apply_when_file_is_changed() {
     when(inputFile.status()).thenReturn(InputFile.Status.CHANGED);
-    when(predicate.apply(inputFile)).thenReturn(true);
 
     Assertions.assertThat(underTest.apply(inputFile)).isTrue();
 
-    verify(predicate, times(1)).apply(any());
-    verify(inputFile, times(1)).status();
+    verify(inputFile).status();
   }
 
   @Test
-  public void apply_when_file_is_added_and_predicate_is_true() {
+  public void apply_when_file_is_added() {
     when(inputFile.status()).thenReturn(InputFile.Status.ADDED);
-    when(predicate.apply(inputFile)).thenReturn(true);
 
     Assertions.assertThat(underTest.apply(inputFile)).isTrue();
 
-    verify(predicate, times(1)).apply(any());
-    verify(inputFile, times(1)).status();
+    verify(inputFile).status();
   }
 
   @Test
-  public void do_not_apply_when_file_is_same_and_predicate_is_true() {
+  public void do_not_apply_when_file_is_same() {
     when(inputFile.status()).thenReturn(InputFile.Status.SAME);
-    when(predicate.apply(inputFile)).thenReturn(true);
 
     Assertions.assertThat(underTest.apply(inputFile)).isFalse();
 
-    verify(predicate, times(1)).apply(any());
-    verify(inputFile, times(1)).status();
-  }
-
-  @Test
-  public void predicate_is_evaluated_before_file_status() {
-    when(predicate.apply(inputFile)).thenReturn(false);
-
-    Assertions.assertThat(underTest.apply(inputFile)).isFalse();
-
-    verify(inputFile, never()).status();
+    verify(inputFile).status();
   }
 }

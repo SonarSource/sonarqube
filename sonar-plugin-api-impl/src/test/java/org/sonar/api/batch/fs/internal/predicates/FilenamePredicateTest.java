@@ -59,4 +59,12 @@ public class FilenamePredicateTest {
     assertThat(new FilenamePredicate(filename).get(index)).containsOnly(inputFile);
   }
 
+  @Test
+  public void should_have_use_index_priority() {
+    String filename = "some name";
+    InputFile inputFile = mock(InputFile.class);
+    when(inputFile.filename()).thenReturn(filename);
+
+    assertThat(new FilenamePredicate(filename).priority()).isEqualTo(AbstractFilePredicate.USE_INDEX);
+  }
 }

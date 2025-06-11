@@ -28,6 +28,9 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 public class MutableFileSystemTest {
 
@@ -95,6 +98,39 @@ public class MutableFileSystemTest {
     assertThat(underTest.inputFile(underTest.predicates().hasFilename(generateFilename(false)))).isNotNull();
   }
 
+  @Test
+  public void hidden_file_predicate_should_preserve_predicate_optimization() {
+    addFilesWithVisibility();
+    var anotherHiddenFile = spy(new TestInputFileBuilder("foo", String.format("src/%s", ".myHiddenFile.txt"))
+      .setLanguage(LANGUAGE).setStatus(InputFile.Status.ADDED).setHidden(true).build());
+    underTest.add(anotherHiddenFile);
+    underTest.setAllowHiddenFileAnalysis(false);
+
+    assertThat(underTest.inputFile(underTest.predicates().hasFilename(generateFilename(true)))).isNull();
+    assertThat(underTest.inputFile(underTest.predicates().hasFilename(generateFilename(false)))).isNotNull();
+    // Verify that predicate optimization is still effective
+    verify(anotherHiddenFile, never()).isHidden();
+
+    // This predicate can't be optimized
+    assertThat(underTest.inputFiles(underTest.predicates().all())).hasSize(1);
+    verify(anotherHiddenFile).isHidden();
+  }
+
+  @Test
+  public void hidden_file_predicate_should_be_applied_first_for_non_optimized_predicates() {
+    // Checking the file type is not very costly, but it is not optimized. In real life, something more costly would be reading the file
+    // content, for example.
+    addFilesWithVisibility();
+    var anotherHiddenFile = spy(new TestInputFileBuilder("foo", String.format("src/%s", ".myHiddenFile." + LANGUAGE))
+      .setLanguage(LANGUAGE).setType(InputFile.Type.MAIN).setStatus(InputFile.Status.ADDED).setHidden(true).build());
+    underTest.add(anotherHiddenFile);
+    underTest.setAllowHiddenFileAnalysis(false);
+
+    assertThat(underTest.inputFiles(underTest.predicates().hasType(InputFile.Type.MAIN))).hasSize(1);
+    // Verify that the file type has not been evaluated
+    verify(anotherHiddenFile, never()).type();
+  }
+
   private void addFilesWithVisibility() {
     addFile(true);
     addFile(false);
@@ -116,7 +152,7 @@ public class MutableFileSystemTest {
 
   private void addFile(InputFile.Status status, boolean hidden) {
     underTest.add(new TestInputFileBuilder("foo", String.format("src/%s", generateFilename(status, hidden)))
-      .setLanguage(LANGUAGE).setStatus(status).setHidden(hidden).build());
+      .setLanguage(LANGUAGE).setType(InputFile.Type.MAIN).setStatus(status).setHidden(hidden).build());
   }
 
   private String generateFilename(boolean hidden) {

@@ -25,7 +25,7 @@ import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.predicates.ChangedFilePredicate;
-import org.sonar.api.batch.fs.internal.predicates.HiddenFilesPredicate;
+import org.sonar.api.batch.fs.internal.predicates.NonHiddenFilesPredicate;
 
 public class MutableFileSystem extends DefaultFileSystem {
 
@@ -36,7 +36,7 @@ public class MutableFileSystem extends DefaultFileSystem {
     super(baseDir, cache, filePredicates);
   }
 
-  public MutableFileSystem(Path baseDir) {
+  MutableFileSystem(Path baseDir) {
     super(baseDir);
   }
 
@@ -58,12 +58,12 @@ public class MutableFileSystem extends DefaultFileSystem {
     if (allowHiddenFileAnalysis) {
       return predicate;
     }
-    return new HiddenFilesPredicate(predicate);
+    return predicates().and(new NonHiddenFilesPredicate(), predicate);
   }
 
   private FilePredicate applyChangedFilePredicate(FilePredicate predicate) {
     if (restrictToChangedFiles) {
-      return new ChangedFilePredicate(predicate);
+      return predicates().and(new ChangedFilePredicate(), predicate);
     }
     return predicate;
   }

@@ -22,18 +22,11 @@ package org.sonar.api.batch.fs.internal.predicates;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 
-public class HiddenFilesPredicate implements FilePredicate {
-
-  private final FilePredicate originalPredicate;
-
-  public HiddenFilesPredicate(FilePredicate originalPredicate) {
-    this.originalPredicate = originalPredicate;
-  }
+public class NonHiddenFilesPredicate implements FilePredicate {
 
   @Override
   public boolean apply(InputFile inputFile) {
-    // isHidden() will be known during scanning, evaluation should be done before other predicates
-    return !inputFile.isHidden() && originalPredicate.apply(inputFile);
+    return !inputFile.isHidden();
   }
 
 }

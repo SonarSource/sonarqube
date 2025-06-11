@@ -24,15 +24,9 @@ import org.sonar.api.batch.fs.InputFile;
 
 public class ChangedFilePredicate implements FilePredicate {
 
-  private final FilePredicate originalPredicate;
-
-  public ChangedFilePredicate(FilePredicate originalPredicate) {
-    this.originalPredicate = originalPredicate;
-  }
-
   @Override
   public boolean apply(InputFile inputFile) {
-    return originalPredicate.apply(inputFile) && InputFile.Status.SAME != inputFile.status();
+    return InputFile.Status.SAME != inputFile.status();
   }
 
 }

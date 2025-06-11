@@ -59,4 +59,9 @@ public class FileExtensionPredicate extends AbstractFilePredicate {
   private static String lowercase(String extension) {
     return extension.toLowerCase(Locale.ENGLISH);
   }
+
+  @Override
+  public int priority() {
+    return USE_INDEX;
+  }
 }
