@@ -106,7 +106,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
       .collect(Collectors.toSet());
 
     checkState(languagesWithoutBuiltInQProfiles.isEmpty(), "The following languages have no built-in quality profiles: %s",
-      languagesWithoutBuiltInQProfiles.isEmpty() ? "" : String.join("", languagesWithoutBuiltInQProfiles));
+      languagesWithoutBuiltInQProfiles.isEmpty() ? "" : String.join(", ", languagesWithoutBuiltInQProfiles));
   }
 
   private Map<String, Map<String, BuiltInQualityProfile>> validateAndClean(BuiltInQualityProfilesDefinition.Context context) {
