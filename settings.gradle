@@ -85,6 +85,7 @@ develocity {
     publishing.onlyIf { isCiServer && it.authenticated }
     if (isCiServer) {
       buildScan.value 'Branch', System.getenv()["CIRRUS_BRANCH"]
+      buildScan.value 'Cirrus Link', "https://cirrus-ci.com/task/" + System.getenv()["CIRRUS_TASK_ID"]
     }
   }
 }
