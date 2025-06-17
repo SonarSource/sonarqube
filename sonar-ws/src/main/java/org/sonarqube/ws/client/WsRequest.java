@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client;
 
-import java.util.Map;
 import java.util.OptionalInt;
 
 /**
@@ -36,15 +35,6 @@ public interface WsRequest {
   OptionalInt getTimeOutInMs();
 
   OptionalInt getWriteTimeOutInMs();
-
-  /**
-   *
-   * In case of multi value parameters, returns the first value
-   *
-   * @deprecated since 6.1. Use {@link #getParameters()} instead
-   */
-  @Deprecated
-  Map<String, String> getParams();
 
   Parameters getParameters();
 

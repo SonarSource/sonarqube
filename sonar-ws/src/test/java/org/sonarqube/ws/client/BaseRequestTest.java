@@ -33,12 +33,12 @@ import static org.assertj.core.data.MapEntry.entry;
 
 public class BaseRequestTest {
 
-  private FakeRequest underTest = new FakeRequest("api/foo");
+  private final FakeRequest underTest = new FakeRequest("api/foo");
 
   @Test
   public void test_defaults() {
     assertThat(underTest.getMethod()).isEqualTo(WsRequest.Method.GET);
-    assertThat(underTest.getParams()).isEmpty();
+    assertThat(underTest.getParameters().getKeys()).isEmpty();
     assertThat(underTest.getMediaType()).isEqualTo(MediaTypes.JSON);
     assertThat(underTest.getPath()).isEqualTo("api/foo");
     assertThat(underTest.getWriteTimeOutInMs()).isEmpty();
@@ -58,16 +58,13 @@ public class BaseRequestTest {
 
   @Test
   public void keep_order_of_params() {
-    assertThat(underTest.getParams()).isEmpty();
     assertThat(underTest.getParameters().getKeys()).isEmpty();
 
     underTest.setParam("keyB", "b");
-    assertThat(underTest.getParams()).containsExactly(entry("keyB", "b"));
     assertParameters(entry("keyB", "b"));
     assertMultiValueParameters(entry("keyB", singletonList("b")));
 
     underTest.setParam("keyA", "a");
-    assertThat(underTest.getParams()).containsExactly(entry("keyB", "b"), entry("keyA", "a"));
     assertParameters(entry("keyB", "b"), entry("keyA", "a"));
     assertMultiValueParameters(entry("keyB", singletonList("b")), entry("keyA", singletonList("a")));
 
@@ -90,7 +87,7 @@ public class BaseRequestTest {
   public void null_param_value() {
     Boolean nullBool = null;
     underTest.setParam("key", nullBool);
-    assertThat(underTest.getParams()).isEmpty();
+    assertThat(underTest.getParameters().getKeys()).isEmpty();
   }
 
   @Test

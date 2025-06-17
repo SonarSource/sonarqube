@@ -43,7 +43,7 @@ public class PostRequestTest {
   public void empty_parts_and_params_by_default() {
     PostRequest request = new PostRequest("api/issues/search");
     assertThat(request.getParts()).isEmpty();
-    assertThat(request.getParams()).isEmpty();
+    assertThat(request.getParameters().getKeys()).isEmpty();
   }
 
   @Test

@@ -29,8 +29,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonarqube.ws.MediaTypes;
@@ -90,7 +88,7 @@ abstract class BaseRequest<SELF extends BaseRequest<SELF>> implements WsRequest 
    * Expected media type of response. Default is {@link MediaTypes#JSON}.
    */
   @SuppressWarnings("unchecked")
-  public  <T extends SELF> T  setMediaType(String s) {
+  public <T extends SELF> T setMediaType(String s) {
     requireNonNull(s, "media type of response cannot be null");
     this.mediaType = s;
     return (T) this;
@@ -140,18 +138,6 @@ abstract class BaseRequest<SELF extends BaseRequest<SELF>> implements WsRequest 
       .toList());
 
     return (T) this;
-  }
-
-  @Override
-  public Map<String, String> getParams() {
-    return parameters.keyValues.keySet().stream()
-      .collect(Collectors.toMap(
-        Function.identity(),
-        key -> parameters.keyValues.get(key).get(0),
-        (v1, v2) -> {
-          throw new IllegalStateException(String.format("Duplicate key '%s' in request", v1));
-        },
-        LinkedHashMap::new));
   }
 
   @Override
