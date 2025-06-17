@@ -437,7 +437,7 @@ subprojects {
       }
       dependency "org.elasticsearch.plugin:transport-netty4-client:${elasticSearchClientVersion}"
       dependency 'org.elasticsearch:mocksocket:1.2'
-      dependency 'org.eclipse.jgit:org.eclipse.jgit:7.0.0.202409031743-r'
+      dependency 'org.eclipse.jgit:org.eclipse.jgit:7.2.1.202505142326-r'
       dependency "org.codelibs.elasticsearch.module:analysis-common:7.17.22"
       dependency "org.codelibs.elasticsearch.module:reindex:7.17.22"
       dependency 'net.java.dev.jna:jna:5.17.0'
@@ -471,7 +471,7 @@ subprojects {
         entry 'log4j-over-slf4j'
         entry 'slf4j-api'
       }
-      dependency 'org.postgresql:postgresql:42.7.4'
+      dependency 'org.postgresql:postgresql:42.7.7'
       dependency 'org.reflections:reflections:0.10.2'
       dependency 'org.simpleframework:simple:5.1.6'
       dependency 'org.sonarsource.git.blame:git-files-blame:1.0.3.1673'
