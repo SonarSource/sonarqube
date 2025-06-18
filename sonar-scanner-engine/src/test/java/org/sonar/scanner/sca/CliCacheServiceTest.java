@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -187,14 +188,18 @@ class CliCacheServiceTest {
     FileUtils.writeStringToFile(existingFile, fileContent, Charset.defaultCharset());
 
     assertThat(existingFile).exists();
-    assertThat(existingFile.canExecute()).isFalse();
+    if (!SystemUtils.IS_OS_WINDOWS) {
+      assertThat(existingFile.canExecute()).isFalse();
+    }
     assertThat(FileUtils.readFileToString(existingFile, Charset.defaultCharset())).isEqualTo(fileContent);
 
     underTest.cacheCli();
 
     WsTestUtil.verifyCall(scannerWsClient, CLI_WS_URL);
     assertThat(existingFile).exists();
-    assertThat(existingFile.canExecute()).isFalse();
+    if (!SystemUtils.IS_OS_WINDOWS) {
+      assertThat(existingFile.canExecute()).isFalse();
+    }
     assertThat(FileUtils.readFileToString(existingFile, Charset.defaultCharset())).isEqualTo(fileContent);
 
     verify(telemetryCache).put("scanner.sca.get.cli.cache.hit", "true");
