@@ -25,7 +25,7 @@ import { useNavigate } from 'react-router-dom';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
 import { translate } from '../../helpers/l10n';
 import { AppState } from '../../types/appstate';
-import { Organization, OrganizationMember } from '../../types/types';
+import { MemberType, Organization, OrganizationMember } from '../../types/types';
 import './AddMemberForm.css';
 import CustomSearchInput from './SearchUser';
 
@@ -41,8 +41,8 @@ function AddMemberForm(props: AddMemberFormProps) {
   const { canAdmin, canCustomerAdmin } = props.appState;
   const [open, setOpen] = useState<boolean>();
   const [selectedMember, setSelectedMember] = useState<OrganizationMember>();
-  const [userType, setUserType] = useState<'STANDARD' | 'PLATFORM'>('STANDARD');
 
+  const [userType, setUserType] = useState<MemberType>(MemberType.STANDARD);
 
   const openForm = () => {
     setOpen(true);
@@ -103,9 +103,9 @@ function AddMemberForm(props: AddMemberFormProps) {
         <input className='sw-mr-1'
           type="radio"
           name="userType"
-          value="STANDARD"
-          checked={userType === 'STANDARD'}
-          onChange={() => setUserType('STANDARD')}
+          value={MemberType.STANDARD}
+          checked={userType === MemberType.STANDARD}
+          onChange={() => setUserType(MemberType.STANDARD)}
         />
         Standard User
       </label>
@@ -114,9 +114,9 @@ function AddMemberForm(props: AddMemberFormProps) {
         <input className='sw-mr-1'
           type="radio"
           name="userType"
-          value="platform"
-          checked={userType === 'PLATFORM'}
-          onChange={() => setUserType('PLATFORM')}
+          value={MemberType.PLATFORM}
+          checked={userType === MemberType.PLATFORM}
+          onChange={() => setUserType(MemberType.PLATFORM)}
         />
         Platform Integration User
       </label>

@@ -27,7 +27,7 @@ import Suggestions from "../../components/embed-docs-modal/Suggestions";
 import { translate } from "../../helpers/l10n";
 import ListFooter from "../../components/controls/ListFooter";
 import { addMember, removeMember, searchMembers } from "../../api/organizations";
-import { Group, Organization, OrganizationMember, Paging } from "../../types/types";
+import { Group, MemberType, Organization, OrganizationMember, Paging } from "../../types/types";
 import { LoggedInUser } from "../../types/users";
 import { withOrganizationContext } from "../organizations/OrganizationContext";
 import withCurrentUserContext from "../../app/components/current-user/withCurrentUserContext";
@@ -115,7 +115,7 @@ function OrganizationMembers({ currentUser, organization }: Props) {
 
   const handleAddMember = ({ login, type }: OrganizationMember) => {
     // TODO optimistic update
-    addMember({ login, organization: organization.kee, type  }).then(
+    addMember({ login, organization: organization.kee, type: type as MemberType}).then(
       member => {
         setMembers(members && [...members, member]);
         setPaging(paging && { ...paging, total: paging.total + 1 });

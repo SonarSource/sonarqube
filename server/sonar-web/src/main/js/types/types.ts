@@ -180,6 +180,11 @@ export interface FacetValue<T = string> {
   val: T;
 }
 
+export enum MemberType{
+  STANDARD = 'STANDARD',
+  PLATFORM = 'PLATFORM',
+}
+
 export enum FlowType {
   DATA = 'DATA',
   EXECUTION = 'EXECUTION',
