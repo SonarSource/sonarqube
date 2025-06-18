@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import org.apache.commons.lang.SystemUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.Test;
@@ -46,7 +47,11 @@ class JGitUtilsTest {
     // in directory1, the entire directory is ignored without listing each file
     // in directory2, specific files are ignored, so those files are listed
     // in directory3, specific files are ignored via a separate .gitignore file
-    assertThat(result).isEqualTo(List.of("directory1", "directory2/file_a.txt", "directory3/file_b.txt"));
+    if (SystemUtils.IS_OS_WINDOWS) {
+      assertThat(result).isEqualTo(List.of("directory1", "directory2\\file_a.txt", "directory3\\file_b.txt"));
+    } else {
+      assertThat(result).isEqualTo(List.of("directory1", "directory2/file_a.txt", "directory3/file_b.txt"));
+    }
   }
 
   @Test
