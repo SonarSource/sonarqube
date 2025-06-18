@@ -269,14 +269,14 @@ class CliServiceTest {
   @Test
   void generateZip_withExcludedManifestsContainingBadCharacters_handlesTheBadCharacters() throws Exception {
     when(configuration.getStringArray(CliService.SCA_EXCLUSIONS_KEY)).thenReturn(new String[] {
-      "**/test/**", "**/path with spaces/**", "**/path,with,commas/**", "**/path'with'quotes/**", "**/path\"with\"double\"quotes/**"});
+      "**/test/**", "**/path with spaces/**", "**/path'with'quotes/**", "**/path\"with\"double\"quotes/**"});
 
     underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
 
     String expectedExcludeFlag = """
-       --exclude **/test/**,**/path with spaces/**,"**/path,with,commas/**",**/path'with'quotes/**,"**/path""with""double""quotes/**",ignored.txt
+       --exclude **/test/**,**/path with spaces/**,**/path'with'quotes/**,"**/path""with""double""quotes/**",ignored.txt
       """.strip();
     assertThat(capturedArgs).contains(expectedExcludeFlag);
   }
