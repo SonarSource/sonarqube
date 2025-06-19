@@ -202,7 +202,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                 <Spinner className="sw-mt-3" loading={loading}>
                   {hotspots.length > 0 && selectedHotspot && (
                     <>
-                      {filterByCategory || filterByCWE ||filterByCVSS || filterByFile ? (
+                      {filterByCategory || filterByCWE || filterByCVSS || filterByFile ? (
                         <HotspotSimpleList
                           filterByCategory={filterByCategory}
                           filterByCWE={filterByCWE}

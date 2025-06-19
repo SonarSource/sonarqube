@@ -296,8 +296,6 @@ public class XooRulesDefinition implements RulesDefinition {
         .addCwe(1, 89, 123, 863)
         .addCvss(5.0,8.9,9.0,6.3);
 
-
-
       oneVulnerabilityIssuePerProject
         .addOwaspTop10(Y2017, OwaspTop10.A9, OwaspTop10.A10)
         .addOwaspTop10(Y2021, OwaspTop10.A6, OwaspTop10.A9)

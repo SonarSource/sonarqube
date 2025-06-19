@@ -66,8 +66,6 @@ public class RuleQuery {
   private Boolean prioritizedRule;
   private Collection<String> cvss;
 
-
-
   @CheckForNull
   public QProfileDto getQProfile() {
     return profile;

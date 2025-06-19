@@ -126,6 +126,7 @@ import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_DEFAULT_VALUE;
 import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_ENABLED;
+import static org.sonar.server.es.EsClient.LOGGER;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
 import static org.sonar.server.es.searchrequest.TopAggregationDefinition.NON_STICKY;
@@ -561,11 +562,6 @@ public class IssueIndex {
     addSecurityCategoryFilter(FIELD_ISSUE_CWE, CWE, query.cwe(), filters);
     addSecurityCategoryFilter(FIELD_ISSUE_SQ_SECURITY_CATEGORY, SONARSOURCE_SECURITY, query.sonarsourceSecurity(), filters);
     addCvssFilter(FIELD_ISSUE_CVSS, CVSS, query.cvss(), filters);
-//    addSecurityCategoryFilter(FIELD_ISSUE_CVSS, CVSS, query.cvss(), filters);
-
-
-
-
 
     addSeverityFilter(query, filters);
     addImpactFilters(query, filters);
@@ -597,7 +593,7 @@ public class IssueIndex {
           cvssBool.should(QueryBuilders.termQuery(fieldName, val));
         }
       } catch (NumberFormatException e) {
-        System.err.println("Invalid CVSS value: " + cvss);
+        LOGGER.error("Invalid CVSS value: ", cvss);
       }
     }
     cvssBool.minimumShouldMatch(1);
@@ -989,7 +985,6 @@ public class IssueIndex {
     addSecurityCategoryFacetIfNeeded(PARAM_CWE, CWE, options, aggregationHelper, esRequest, query.cwe().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_SONARSOURCE_SECURITY, SONARSOURCE_SECURITY, options, aggregationHelper, esRequest, query.sonarsourceSecurity().toArray());
 
-
     if (options.getFacets().contains(PARAM_CVSS)) {
 
       RangeAggregationBuilder cvssRangeAgg = AggregationBuilders.range(PARAM_CVSS)
@@ -1005,9 +1000,7 @@ public class IssueIndex {
               .addRange("8 - 9", 8.0, 9.0)
               .addRange("9 - 10", 9.0, 10.0);
       esRequest.aggregation(cvssRangeAgg);
-
     }
-
 
     addSeverityFacetIfNeeded(options, aggregationHelper, esRequest);
     addImpactSoftwareQualityFacetIfNeeded(options, query, aggregationHelper, esRequest);
@@ -1407,8 +1400,6 @@ public class IssueIndex {
     return result;
   }
 
-
-
   private static SecurityStandardCategoryStatistics emptyCweStatistics(String rule) {
     return new SecurityStandardCategoryStatistics(rule, 0, OptionalInt.of(1), 0, 0, 1, null, null);
   }
@@ -1623,9 +1614,6 @@ public class IssueIndex {
     }
     return aggregationBuilder;
   }
-
-
-
 
   private AggregationBuilder addSecurityReportIssueCountAggregations(AggregationBuilder categoryAggs) {
     return categoryAggs

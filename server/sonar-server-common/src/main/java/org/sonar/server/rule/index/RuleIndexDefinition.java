@@ -69,7 +69,6 @@ public class RuleIndexDefinition implements IndexDefinition {
   public static final String FIELD_RULE_TAGS = "tags";
   public static final String FIELD_RULE_CVSS = "cvss";
 
-
   public static final Set<String> SORT_FIELDS = Set.of(
     FIELD_RULE_NAME,
     FIELD_RULE_UPDATED_AT,
@@ -156,7 +155,6 @@ public class RuleIndexDefinition implements IndexDefinition {
 
     ruleMapping.keywordFieldBuilder(FIELD_RULE_CWE).disableNorms().build();
     ruleMapping.createDoubleField(FIELD_RULE_CVSS);
-
     ruleMapping.keywordFieldBuilder(FIELD_RULE_OWASP_TOP_10).disableNorms().build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_OWASP_TOP_10_2021).disableNorms().build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_SANS_TOP_25).disableNorms().build();

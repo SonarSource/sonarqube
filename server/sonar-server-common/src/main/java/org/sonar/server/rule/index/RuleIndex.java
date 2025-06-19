@@ -282,8 +282,6 @@ public class RuleIndex {
       filters.put("cvss", cvssBool);
     }
 
-
-
     /* Add enforced filter on main type Rule */
     filters.put(
       FIELD_INDEX_TYPE,
@@ -507,7 +505,6 @@ public class RuleIndex {
 
   private Map<String, AggregationBuilder> getFacets(RuleQuery query, SearchOptions options, QueryBuilder queryBuilder,
     Map<String, QueryBuilder> filters) {
-
 
     Map<String, AggregationBuilder> aggregations = new HashMap<>();
     StickyFacetBuilder stickyFacetBuilder = stickyFacetBuilder(queryBuilder, filters);

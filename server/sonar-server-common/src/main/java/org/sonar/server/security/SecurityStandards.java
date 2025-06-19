@@ -419,7 +419,6 @@ public final class SecurityStandards {
   private final Set<SQCategory> ignoredSQCategories;
   private final Set<String> cvss;
 
-
   private SecurityStandards(Set<String> standards, Set<String> cwe, Set<String> cvss, Set<String> casaCategories,
     SQCategory sqCategory, Set<SQCategory> ignoredSQCategories) {
     this.standards = standards;
@@ -441,7 +440,6 @@ public final class SecurityStandards {
   public Set<String> getCvss() {
     return cvss;
   }
-
 
   public Set<String> getPciDss32() {
     return getMatchingStandards(standards, PCI_DSS_32_PREFIX);

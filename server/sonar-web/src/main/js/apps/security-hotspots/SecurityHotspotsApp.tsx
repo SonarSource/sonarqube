@@ -429,7 +429,6 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
     const filterByCVSS: string | undefined = location.query.cvss;
 
-
     const filterByFile: string | undefined = location.query.files;
 
     this.setState({ filterByCategory, filterByCWE, filterByCVSS, filterByFile, hotspotKeys });
