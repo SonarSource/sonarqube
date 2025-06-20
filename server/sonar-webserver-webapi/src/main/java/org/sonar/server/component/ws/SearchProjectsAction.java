@@ -67,6 +67,7 @@ import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.issue.index.IssueQueryFactory.MemberType;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 import org.sonar.server.project.Visibility;
@@ -248,7 +249,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
                 dbClient.organizationDao().selectByKey(dbSession, organizationKey),
                 "No organization for key '%s'", organizationKey);
         Set<String> standardOrgs = dbClient.organizationMemberDao().selectOrganizationUuidsByUserUuidAndType(
-                dbSession, userSession.getUuid(),"STANDARD");
+                dbSession, userSession.getUuid(), MemberType.STANDARD.name());
         if (!standardOrgs.contains(organization.getUuid())) {
           throw new ForbiddenException("Platform user cannot access this organization: " + organization.getKey());
         }
@@ -288,7 +289,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
     ProjectMeasuresQueryValidator.validate(query);
     Set<String> standardOrgs = dbClient.organizationMemberDao().selectOrganizationUuidsByUserUuidAndType(
-            dbSession, userSession.getUuid(),"STANDARD");
+            dbSession, userSession.getUuid(), MemberType.STANDARD.name());
     if(!query.getOrganizationUuid().isPresent()){
       query.setOrganizationUuids(standardOrgs);
     }

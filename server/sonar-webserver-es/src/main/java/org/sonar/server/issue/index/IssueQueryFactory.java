@@ -116,6 +116,11 @@ public class IssueQueryFactory {
     this.userSession = userSession;
   }
 
+  public enum MemberType {
+    STANDARD,
+    PLATFORM;
+  }
+
   public IssueQuery create(SearchRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       final ZoneId timeZone = parseTimeZone(request.getTimeZone()).orElse(clock.getZone());
@@ -129,7 +134,7 @@ public class IssueQueryFactory {
       }
 
       Set<String> standardOrgs = dbClient.organizationMemberDao().selectOrganizationUuidsByUserUuidAndType(
-              dbSession, userSession.getUuid(),"STANDARD");
+              dbSession, userSession.getUuid(),MemberType.STANDARD.name());
       List<String> projectsList = dbClient.projectDao().selectProjectUuidsByOrganizationUuids(dbSession, (new ArrayList<String>( standardOrgs)));
       IssueQuery.Builder builder = IssueQuery.builder()
         .issueKeys(issueKeys)

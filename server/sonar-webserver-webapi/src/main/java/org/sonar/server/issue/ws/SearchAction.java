@@ -54,6 +54,7 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueQuery;
 import org.sonar.server.issue.index.IssueQueryFactory;
+import org.sonar.server.issue.index.IssueQueryFactory.MemberType;
 import org.sonar.server.issue.index.IssueScope;
 import org.sonar.server.security.SecurityStandards.SQCategory;
 import org.sonar.server.user.ThreadLocalUserSession;
@@ -537,7 +538,7 @@ public class SearchAction implements IssuesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
 
       Set<String> standardOrgs = dbClient.organizationMemberDao().selectOrganizationUuidsByUserUuidAndType(
-            dbSession, userSession.getUuid(),"STANDARD");
+            dbSession, userSession.getUuid(), MemberType.STANDARD.name());
       if(request.hasParam(PARAM_ORGANIZATION) ){
         String organizationKey =request.param(PARAM_ORGANIZATION);
         OrganizationDto organization = checkFoundWithOptional(
