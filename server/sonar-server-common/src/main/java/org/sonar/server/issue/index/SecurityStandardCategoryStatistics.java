@@ -20,6 +20,7 @@
 package org.sonar.server.issue.index;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 import javax.annotation.Nullable;
@@ -38,9 +39,11 @@ public class SecurityStandardCategoryStatistics {
   private boolean hasMoreRules;
   private final Optional<String> version;
   private Optional<String> level = Optional.empty();
+  private final Map<String, Long> severityDistribution;
 
   public SecurityStandardCategoryStatistics(String category, long vulnerabilities, OptionalInt vulnerabiliyRating, long toReviewSecurityHotspots,
-    long reviewedSecurityHotspots, Integer securityReviewRating, @Nullable List<SecurityStandardCategoryStatistics> children, @Nullable String version) {
+    long reviewedSecurityHotspots, Integer securityReviewRating, @Nullable List<SecurityStandardCategoryStatistics> children, @Nullable String version,
+    Map<String, Long> severityDistribution) {
     this.category = category;
     this.vulnerabilities = vulnerabilities;
     this.vulnerabilityRating = vulnerabiliyRating;
@@ -50,6 +53,7 @@ public class SecurityStandardCategoryStatistics {
     this.children = children;
     this.version = Optional.ofNullable(version);
     this.hasMoreRules = false;
+    this.severityDistribution = severityDistribution;
   }
 
   public SecurityStandardCategoryStatistics withModifiedVulnerabilities(
@@ -71,7 +75,8 @@ public class SecurityStandardCategoryStatistics {
         this.getReviewedSecurityHotspots(),
         this.getSecurityReviewRating(),
         this.getChildren(),
-        this.getVersion().orElse(null));
+        this.getVersion().orElse(null),
+        this.getSeverityDistribution());
   }
 
   public String getCategory() {
@@ -139,5 +144,9 @@ public class SecurityStandardCategoryStatistics {
 
   public void setHasMoreRules(boolean hasMoreRules) {
     this.hasMoreRules = hasMoreRules;
+  }
+
+  public Map<String, Long> getSeverityDistribution() {
+    return severityDistribution;
   }
 }

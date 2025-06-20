@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -54,6 +55,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.HasAggregations;
+import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregator;
 import org.elasticsearch.search.aggregations.bucket.filter.ParsedFilter;
@@ -1292,7 +1294,7 @@ public class IssueIndex {
   }
 
   private static SecurityStandardCategoryStatistics emptyCweStatistics(String rule) {
-    return new SecurityStandardCategoryStatistics(rule, 0, OptionalInt.of(1), 0, 0, 1, null, null);
+    return new SecurityStandardCategoryStatistics(rule, 0, OptionalInt.of(1), 0, 0, 1, null, null, Map.of());
   }
 
   public List<SecurityStandardCategoryStatistics> getSonarSourceReport(String projectUuid, boolean isViewOrApp, boolean includeCwe) {
@@ -1448,10 +1450,11 @@ public class IssueIndex {
     Aggregation severitiesAggregations =
       ((ParsedFilter) categoryBucket.getAggregations().get(AGG_VULNERABILITIES)).getAggregations().get(AGG_SEVERITIES);
 
-    CountAndRating countAndRating = getCountAndRating(severitiesAggregations);
-    long vulnerabilities = countAndRating.getCount();
+    SeverityAggregationDetails severityAggregationDetails = getSeverityDetails(severitiesAggregations);
+    long vulnerabilities = severityAggregationDetails.getCount();
     // Worst severity having at least one issue
-    OptionalInt severityRating = countAndRating.getRating();
+    OptionalInt severityRating = severityAggregationDetails.getRating();
+    Map<String, Long> severityDistribution = severityAggregationDetails.getDistribution();
 
     long toReviewSecurityHotspots = ((ParsedValueCount) ((ParsedFilter) categoryBucket.getAggregations().get(AGG_TO_REVIEW_SECURITY_HOTSPOTS)).getAggregations().get(AGG_COUNT))
       .getValue();
@@ -1462,32 +1465,39 @@ public class IssueIndex {
     Integer securityReviewRating = computeRating(percent.orElse(null)).getIndex();
 
     return new SecurityStandardCategoryStatistics(categoryName, vulnerabilities, severityRating, toReviewSecurityHotspots,
-      reviewedSecurityHotspots, securityReviewRating, children, version);
+      reviewedSecurityHotspots, securityReviewRating, children, version, severityDistribution);
   }
 
-  private CountAndRating getCountAndRating(Aggregation severitiesAggregations) {
+  private SeverityAggregationDetails getSeverityDetails(Aggregation severitiesAggregations) {
+    List<? extends Terms.Bucket> severityBuckets;
+    long vulnerabilities;
+    OptionalInt severityRating;
     if (isMQRMode()) {
-      List<? extends Terms.Bucket> severityBuckets =
+      severityBuckets =
         ((ParsedStringTerms) ((ParsedFilter) ((ParsedNested) severitiesAggregations).getAggregations().get(ISSUES_WITH_SECURITY_IMPACT)).getAggregations().get(AGG_IMPACT_SEVERITIES)).getBuckets();
-      long vulnerabilities =
+      vulnerabilities =
         severityBuckets.stream().mapToLong(b -> ((ParsedValueCount) b.getAggregations().get(AGG_COUNT)).getValue()).sum();
       // Worst severity having at least one issue
-      OptionalInt severityRating = severityBuckets.stream()
+      severityRating = severityBuckets.stream()
         .filter(b -> ((ParsedValueCount) b.getAggregations().get(AGG_COUNT)).getValue() != 0)
         .mapToInt(b -> org.sonar.api.issue.impact.Severity.valueOf(b.getKeyAsString()).ordinal() + 1)
         .max();
-      return new CountAndRating(vulnerabilities, severityRating);
     } else {
-      List<? extends Terms.Bucket> severityBuckets = ((ParsedStringTerms) severitiesAggregations).getBuckets();
-      long vulnerabilities =
+      severityBuckets = ((ParsedStringTerms) severitiesAggregations).getBuckets();
+      vulnerabilities =
         severityBuckets.stream().mapToLong(b -> ((ParsedValueCount) b.getAggregations().get(AGG_COUNT)).getValue()).sum();
       // Worst severity having at least one issue
-      OptionalInt severityRating = severityBuckets.stream()
+      severityRating = severityBuckets.stream()
         .filter(b -> ((ParsedValueCount) b.getAggregations().get(AGG_COUNT)).getValue() != 0)
         .mapToInt(b -> Severity.ALL.indexOf(b.getKeyAsString()) + 1)
         .max();
-      return new CountAndRating(vulnerabilities, severityRating);
     }
+    Map<String, Long> severityDistribution = severityBuckets.stream()
+      .collect(Collectors.toMap(
+        e -> e.getKeyAsString().toLowerCase(Locale.US),
+        MultiBucketsAggregation.Bucket::getDocCount
+      ));
+    return new SeverityAggregationDetails(vulnerabilities, severityRating, severityDistribution);
   }
   
   private AggregationBuilder newSecurityReportSubAggregations(AggregationBuilder categoriesAggs, String securityStandardVersionPrefix) {
@@ -1578,13 +1588,15 @@ public class IssueIndex {
   }
 
 
-  private static class CountAndRating {
+  private static class SeverityAggregationDetails {
     private long count;
     private OptionalInt rating;
+    private Map<String, Long> distribution;
 
-    public CountAndRating(long count, OptionalInt rating) {
+    public SeverityAggregationDetails(long count, OptionalInt rating, Map<String, Long> distribution) {
       this.count = count;
       this.rating = rating;
+      this.distribution = distribution;
     }
 
     public long getCount() {
@@ -1593,6 +1605,10 @@ public class IssueIndex {
 
     public OptionalInt getRating() {
       return rating;
+    }
+
+    public Map<String, Long> getDistribution() {
+      return distribution;
     }
   }
 }
