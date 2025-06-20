@@ -96,7 +96,7 @@ function AddMemberForm(props: AddMemberFormProps) {
             />
          
          <div className='sw-mt-5 sw-mb-3'>
-         <strong>Select user type</strong>
+         <strong>Select user type:</strong>
          </div>
          
          <label className='sw-mr-5'>
