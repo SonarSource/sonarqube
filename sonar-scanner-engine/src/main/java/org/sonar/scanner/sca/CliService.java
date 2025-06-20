@@ -177,7 +177,13 @@ public class CliService {
     }
     return scmIgnoredPaths.stream()
       .map(ignoredPathRel -> {
-        boolean isDirectory = Files.isDirectory(baseDirPath.resolve(ignoredPathRel));
+
+        boolean isDirectory = false;
+        try {
+          isDirectory = Files.isDirectory(baseDirPath.resolve(ignoredPathRel.replace("/", File.separator)));
+        } catch (java.nio.file.InvalidPathException e) {
+          // if it's not a valid path, it's not a directory so we can just pass to the Tidelift CLI
+        }
         // Directories need to get turned into a glob for the Tidelift CLI
         return isDirectory ? (ignoredPathRel + "/**") : ignoredPathRel;
       })

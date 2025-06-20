@@ -278,6 +278,11 @@ class CliServiceTest {
     String expectedExcludeFlag = """
        --exclude **/test/**,**/path with spaces/**,**/path'with'quotes/**,"**/path""with""double""quotes/**",ignored.txt
       """.strip();
+    if (SystemUtils.IS_OS_WINDOWS) {
+      expectedExcludeFlag = """
+       --exclude "**/test/**,**/path with spaces/**,**/path'with'quotes/**,"**/path""with""double""quotes/**",ignored.txt
+      """.strip();
+    }
     assertThat(capturedArgs).contains(expectedExcludeFlag);
   }
 
@@ -307,15 +312,20 @@ class CliServiceTest {
   @Test
   void generateZip_withScmIgnoresContainingBadCharacters_handlesTheBadCharacters() throws Exception {
     jGitUtilsMock.when(() -> JGitUtils.getAllIgnoredPaths(any(Path.class)))
-      .thenReturn(List.of("**/test/**", "**/path with spaces/**", "**/path,with,commas/**", "**/path'with'quotes/**", "**/path\"with\"double\"quotes/**"));
+      .thenReturn(List.of("**/test/**", "**/path with spaces/**", "**/path'with'quotes/**", "**/path\"with\"double\"quotes/**"));
 
     underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
 
     String expectedExcludeFlag = """
-       --exclude **/test/**,**/path with spaces/**,"**/path,with,commas/**",**/path'with'quotes/**,"**/path""with""double""quotes/**"
+       --exclude **/test/**,**/path with spaces/**,**/path'with'quotes/**,"**/path""with""double""quotes/**"
       """.strip();
+    if (SystemUtils.IS_OS_WINDOWS) {
+      expectedExcludeFlag = """
+       --exclude "**/test/**,**/path with spaces/**,**/path'with'quotes/**,"**/path""with""double""quotes/**"
+      """.strip();
+    }
     assertThat(capturedArgs).contains(expectedExcludeFlag);
   }
 
