@@ -19,7 +19,6 @@
  */
 package org.sonar.server.v2.api.analysis.service;
 
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -30,5 +29,5 @@ public interface JresHandler {
 
   JreInfoRestResponse getJreMetadata(String id);
 
-  InputStream getJreBinary(String jreFilename) throws FileNotFoundException;
+  InputStream getJreBinary(String jreFilename) throws Exception;
 }

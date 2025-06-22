@@ -44,7 +44,7 @@ public class DefaultJresController implements JresController {
   }
 
   @Override
-  public InputStreamResource downloadJre(String id) throws FileNotFoundException {
+  public InputStreamResource downloadJre(String id) throws Exception {
     JreInfoRestResponse jreInfoRestResponse = jresHandler.getJreMetadata(id);
     return new InputStreamResource(jresHandler.getJreBinary(jreInfoRestResponse.filename()));
   }

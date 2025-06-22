@@ -55,7 +55,7 @@ public class JresHandlerImpl implements JresHandler {
   private final Map<String, JreInfoRestResponse> metadata = new HashMap<>();
   private final String jresBucketName = System.getenv("CODESCAN_JRE_BUCKET_NAME");
   private final String jresPath = System.getenv("CODESCAN_JRE_PATH");
-  private final Region region = Region.US_EAST_1; // Use US East as a default region for S3 to download JREs
+  private final Region region = Region.of(System.getenv("AWS_DEFAULT_REGION"));
   private final S3Client s3Client = S3Client.builder()
           .region(region)
           .credentialsProvider(DefaultCredentialsProvider.create())
@@ -110,7 +110,7 @@ public class JresHandlerImpl implements JresHandler {
    */
 
   @Override
-  public InputStream getJreBinary(String jreFilename) throws FileNotFoundException {
+  public InputStream getJreBinary(String jreFilename) throws Exception {
     LOG.info("Fetching JRE file {} from bucket {}", jreFilename, jresBucketName);
     if (isNotBlank(jresBucketName) && isNotBlank(jresPath)) {
       try {
@@ -122,14 +122,16 @@ public class JresHandlerImpl implements JresHandler {
 
         return s3Client.getObject(request);
       } catch (S3Exception e) {
-        throw new RuntimeException("Failed to fetch file from S3: " + jreFilename, e);
+        LOG.debug("Failed to fetch file {} from S3 bucket path {}.", jreFilename, jresPath );
+        throw new RuntimeException("Failed to fetch file from S3 bucket");
       }
     }else {
       LOG.info("Fetching file {} from classpath", jreFilename);
       //Only Linux x64 supported JRE is bundled with the server
       InputStream inputStream = getClass().getResourceAsStream("/jres/" + jreFilename);
       if (inputStream == null) {
-        throw new FileNotFoundException("Resource not found: /jres/" + jreFilename);
+        LOG.debug("File not found in classpath: /jres/{}", jreFilename);
+        throw new Exception("Resource not found in classpath");
       }
       return inputStream;
     }

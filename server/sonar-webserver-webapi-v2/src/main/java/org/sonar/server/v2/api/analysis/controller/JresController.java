@@ -65,5 +65,5 @@ public interface JresController {
   @Operation(summary = GET_JRE_SUMMARY, description = GET_JRE_DESCRIPTION)
   InputStreamResource downloadJre(
     @PathVariable(value = "id") @Parameter(description = ID_PARAM_DESCRIPTION, required = true, in = PATH) String id)
-          throws FileNotFoundException;
+          throws Exception;
 }
