@@ -44,7 +44,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class RegisterMetricsIT {
 
-  public static final int SOON_TO_BE_REMOVED_COMPLEXITY_METRICS_COUNT = 7;
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
@@ -144,9 +143,7 @@ public class RegisterMetricsIT {
       .isEqualTo(CoreMetrics.getMetrics().size()
         // Metric CoreMetrics.WONT_FIX_ISSUES was renamed to CoreMetrics.ACCEPTED_ISSUES in 10.3.
         // We don't want to insert it anymore
-        - 1
-        // SONAR-12647 We are exclusing complexity metrics, they will be removed from the plugin API soon
-        - SOON_TO_BE_REMOVED_COMPLEXITY_METRICS_COUNT);
+        - 1);
   }
 
   @Test

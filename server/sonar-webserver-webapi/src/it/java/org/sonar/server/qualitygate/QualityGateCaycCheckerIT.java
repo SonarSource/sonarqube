@@ -39,7 +39,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.sonar.api.measures.CoreMetrics.BLOCKER_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES;
-import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY;
 import static org.sonar.api.measures.CoreMetrics.LINE_COVERAGE;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY;
@@ -107,7 +106,7 @@ public class QualityGateCaycCheckerIT {
 
   @Test
   public void isCaycCondition_when_check_non_compliant_condition_should_return_false() {
-    List.of(BLOCKER_VIOLATIONS, FUNCTION_COMPLEXITY)
+    List.of(BLOCKER_VIOLATIONS)
       .stream().map(this::toMetricDto)
       .forEach(metricDto -> assertFalse(underTest.isCaycCondition(metricDto)));
   }
