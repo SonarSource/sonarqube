@@ -29,5 +29,5 @@ public interface JresHandler {
 
   JreInfoRestResponse getJreMetadata(String id);
 
-  InputStream getJreBinary(String jreFilename);
+  InputStream getJreBinary(String jreFilename) throws Exception;
 }

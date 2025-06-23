@@ -1,0 +1,50 @@
+[
+    {
+        "id": "1f23bf9f-6da2-4588-9f20-2b05a88f30f7",
+        "filename": "OpenJDK17U-jre_aarch64_linux_hotspot_17.0.11_9.tar.gz",
+        "sha256": "ccfa23c25790475c84df983cc5f729b94c04d9ea9863912deb15c6266782cf16",
+        "javaPath": "jdk-17.0.11+9-jre/bin/java",
+        "os": "linux",
+        "arch": "aarch64"
+    },
+    {
+        "id": "8c3b9854-5d21-41d2-94c4-27ab6a167460",
+        "filename": "OpenJDK17U-jre_x64_alpine-linux_hotspot_17.0.11_9.tar.gz",
+        "sha256": "b5dffd0be08c464d9c3903e2947508c1a5c21804ea1cff5556991a2a47d617d8",
+        "javaPath": "jdk-17.0.11+9-jre/bin/java",
+        "os": "alpine",
+        "arch": "x64"
+    },
+    {
+        "id": "c5fceadc-0f9d-4d05-995e-ef3d3a1f8467",
+        "filename": "OpenJDK17U-jre_x64_windows_hotspot_17.0.11_9.zip",
+        "sha256": "4bafe2e94439c8193fc8c68247cb0dbaf4e80265b903288f63f128304f129bbe",
+        "javaPath": "jdk-17.0.11+9-jre/bin/java.exe",
+        "os": "windows",
+        "arch": "x64"
+    },
+    {
+        "id": "b7702fec-c4a5-4e8c-8fc2-eebd2582b313",
+        "filename": "OpenJDK17U-jre_x64_mac_hotspot_17.0.11_9.tar.gz",
+        "sha256": "232c40bebd6ddbb673862e86e7e6e09bcfe399e5a53c8a6b77bf1ceab8edefd0",
+        "javaPath": "jdk-17.0.11+9-jre/Contents/Home/bin/java",
+        "os": "mac",
+        "arch": "x64"
+    },
+    {
+        "id": "de1ecc90-6c96-49db-8c29-7964eaf40d9f",
+        "filename": "OpenJDK17U-jre_aarch64_mac_hotspot_17.0.11_9.tar.gz",
+        "sha256": "003d3e0a65a2f0633b8bfed42be133724b490acb323c174c708d3a446d5fc660",
+        "javaPath": "jdk-17.0.11+9-jre/Contents/Home/bin/java",
+        "os": "mac",
+        "arch": "aarch64"
+    },
+    {
+        "id": "239eae93-1efe-4b56-8446-b431dfcdf829",
+        "filename": "OpenJDK17U-jre_x64_linux_hotspot_17.0.11_9.tar.gz",
+        "sha256": "bcb1b7b8ad68c93093f09b591b7cb17161d39891f7d29d33a586f5a328603707",
+        "javaPath": "jdk-17.0.11+9-jre/bin/java",
+        "os": "linux",
+        "arch": "x64"
+    }
+]
