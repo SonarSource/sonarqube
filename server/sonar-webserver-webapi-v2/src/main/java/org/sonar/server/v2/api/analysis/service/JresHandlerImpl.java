@@ -21,8 +21,6 @@ package org.sonar.server.v2.api.analysis.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -34,6 +32,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.server.exceptions.NotFoundException;
@@ -56,7 +55,7 @@ public class JresHandlerImpl implements JresHandler {
   private final String jresBucketName = System.getenv("CODESCAN_JRE_BUCKET_NAME");
   private final String jresPath = System.getenv("CODESCAN_JRE_PATH");
   private final Region region = Region.of(
-          System.getenv("AWS_DEFAULT_REGION") != null && !System.getenv("AWS_DEFAULT_REGION").isBlank() ? System.getenv(
+          StringUtils.isNotBlank(System.getenv("AWS_DEFAULT_REGION")) ? System.getenv(
                   "AWS_DEFAULT_REGION") : Region.US_EAST_1.toString());
   private final S3Client s3Client = S3Client.builder()
           .region(region)
