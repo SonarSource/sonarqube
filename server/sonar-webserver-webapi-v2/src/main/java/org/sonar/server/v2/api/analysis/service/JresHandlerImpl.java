@@ -55,7 +55,9 @@ public class JresHandlerImpl implements JresHandler {
   private final Map<String, JreInfoRestResponse> metadata = new HashMap<>();
   private final String jresBucketName = System.getenv("CODESCAN_JRE_BUCKET_NAME");
   private final String jresPath = System.getenv("CODESCAN_JRE_PATH");
-  private final Region region = Region.of(System.getenv("AWS_DEFAULT_REGION"));
+  private final Region region = Region.of(
+          System.getenv("AWS_DEFAULT_REGION") != null && !System.getenv("AWS_DEFAULT_REGION").isBlank() ? System.getenv(
+                  "AWS_DEFAULT_REGION") : Region.US_EAST_1.toString());
   private final S3Client s3Client = S3Client.builder()
           .region(region)
           .credentialsProvider(DefaultCredentialsProvider.create())
