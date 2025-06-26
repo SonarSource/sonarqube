@@ -60,6 +60,7 @@ import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByScanBuilder;
+import static org.sonar.core.rule.RuleType.VULNERABILITY;
 
 class IssueWorkflowForCodeQualityIssuesTest {
 
@@ -453,6 +454,27 @@ class IssueWorkflowForCodeQualityIssuesTest {
 
     // should remove assignee
     assertThat(issue.assignee()).isNull();
+  }
+
+  @Test
+  void doManualTransition_shouldUseAutomaticReopenTransitionOnTaintVulnerability_whenMarkedAsResolvedButStillAlive() {
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("issue_key")
+      .setRuleKey(RuleKey.of("xoo", "S001"))
+      .setStatus(STATUS_RESOLVED)
+      .setResolution(RESOLUTION_FIXED)
+      .setLocationsChanged(true)
+      .setNew(false)
+      .setType(VULNERABILITY)
+      .setBeingClosed(false);
+    when(taintChecker.isTaintVulnerability(issue))
+      .thenReturn(true);
+
+    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date()).build());
+
+    assertThat(issue.issueStatus()).isEqualTo(IssueStatus.OPEN);
+    List<DefaultIssueComment> issueComments = issue.defaultIssueComments();
+    assertThat(issueComments).isEmpty();
   }
 
   private static DefaultIssue newClosedIssue(String resolution) {

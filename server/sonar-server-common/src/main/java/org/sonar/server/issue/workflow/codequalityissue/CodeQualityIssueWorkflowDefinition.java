@@ -26,6 +26,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.issue.workflow.statemachine.StateMachine;
 import org.sonar.issue.workflow.statemachine.Transition;
 
+import static java.util.function.Predicate.not;
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_REMOVED;
@@ -55,6 +56,9 @@ public class CodeQualityIssueWorkflowDefinition {
   private static final Consumer<CodeQualityIssueWorkflowActions> UNSET_CLOSE_DATE = CodeQualityIssueWorkflowActions::unsetCloseDate;
   private static final Consumer<CodeQualityIssueWorkflowActions> UNSET_RESOLUTION = CodeQualityIssueWorkflowActions::unsetResolution;
   private static final Consumer<CodeQualityIssueWorkflowActions> RESTORE_RESOLUTION = CodeQualityIssueWorkflowActions::restoreResolution;
+
+  private static final Predicate<CodeQualityIssueWorkflowEntity> AUTOMATIC_REOPEN_PREDICATE = not(CodeQualityIssueWorkflowEntity::isBeingClosed)
+    .and(issue -> issue.hasAnyResolution(RESOLUTION_FIXED));
 
   private final StateMachine<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions> machine;
 
@@ -181,9 +185,7 @@ public class CodeQualityIssueWorkflowDefinition {
       // Reopen issues that are marked as resolved but that are still alive.
       .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder("automaticreopen")
         .from(STATUS_RESOLVED).to(STATUS_REOPENED)
-        .conditions(
-          Predicate.not(CodeQualityIssueWorkflowEntity::isBeingClosed),
-          i -> i.hasAnyResolution(RESOLUTION_FIXED))
+        .conditions(AUTOMATIC_REOPEN_PREDICATE)
         .actions(UNSET_RESOLUTION, UNSET_CLOSE_DATE)
         .automatic()
         .build())
@@ -227,6 +229,8 @@ public class CodeQualityIssueWorkflowDefinition {
       .from(STATUS_RESOLVED)
       .to(STATUS_REOPENED)
       .conditions(
+        // We check this first condition to avoid overlap with the automaticreopen transition.
+        not(AUTOMATIC_REOPEN_PREDICATE),
         CodeQualityIssueWorkflowEntity::isTaintVulnerability,
         CodeQualityIssueWorkflowEntity::locationsChanged)
       .actions(
