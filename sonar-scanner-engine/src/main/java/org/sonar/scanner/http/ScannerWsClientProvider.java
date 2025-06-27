@@ -87,7 +87,7 @@ public class ScannerWsClientProvider {
     String responseTimeout = defaultIfBlank(scannerProps.property(SONAR_SCANNER_RESPONSE_TIMEOUT), valueOf(DEFAULT_RESPONSE_TIMEOUT));
     String envVarToken = defaultIfBlank(system.envVariable(TOKEN_ENV_VARIABLE), null);
     String token = defaultIfBlank(scannerProps.property(TOKEN_PROPERTY), envVarToken);
-    String login = defaultIfBlank(scannerProps.property(CoreProperties.LOGIN), token);
+    String login = defaultIfBlank(token, scannerProps.property(CoreProperties.LOGIN));
     boolean skipSystemTrustMaterial = Boolean.parseBoolean(defaultIfBlank(scannerProps.property(SKIP_SYSTEM_TRUST_MATERIAL), "false"));
     var sslContext = configureSsl(parseSslConfig(scannerProps, sonarUserHome), system, skipSystemTrustMaterial);
     connectorBuilder
