@@ -82,7 +82,7 @@ export default function EmbedDocsPopupHelper() {
       {aboutCodescanOpen &&
         renderAboutCodescan(
           'https://knowledgebase.autorabit.com/codescan/docs/codescan-release-notes',
-          'embed-doc/codescan-version-25_1_3.png',
+          'embed-doc/codescan-version-25_1_4.png',
           translate('embed_docs.codescan_version'),
         )}
     </div>
