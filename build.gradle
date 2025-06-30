@@ -515,7 +515,7 @@ subprojects {
       dependency('org.sonarsource.orchestrator:sonar-orchestrator-junit5:5.6.2.2625') {
         exclude 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
       }
-      dependency 'com.sonarsource.pdfreport:security-report-pdf-generation:2.0.0.229'
+      dependency 'com.sonarsource.pdfreport:security-report-pdf-generation:2.0.0.232'
       dependency 'com.sonarsource.fixsuggestions:ai-suggestions-shared:1.0.0.1312'
       dependency 'org.sonarsource.update-center:sonar-update-center-common:1.35.0.2835'
       dependency 'org.sonarsource.classloader:sonar-classloader:1.1.0.1059'
