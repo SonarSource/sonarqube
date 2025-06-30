@@ -24,7 +24,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -34,6 +33,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.server.branch.ws.BranchesWs.addProjectParam;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.ACTION_RENAME;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_NAME;
@@ -95,7 +95,7 @@ public class RenameAction implements BranchWsAction {
   }
 
   private void checkPermission(ProjectDto project) {
-    userSession.checkEntityPermission(UserRole.ADMIN, project);
+      userSession.checkPermission(PROVISION_PROJECTS, project.getOrganizationUuid());
   }
 
 }
