@@ -73,4 +73,14 @@ public class PeriodHolderRule implements TestRule, PeriodHolder, AfterEachCallba
     return delegate.getPeriod();
   }
 
+  @Override
+  public PeriodOrigin getPeriodOrigin() {
+    return delegate.getPeriodOrigin();
+  }
+
+  public PeriodHolderRule setPeriodOrigin(PeriodOrigin periodOrigin) {
+    delegate.setPeriodOrigin(periodOrigin);
+    return this;
+  }
+
 }

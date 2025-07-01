@@ -51,4 +51,10 @@ public interface PeriodHolder {
    */
   Period getPeriod();
 
+  /**
+   * Retrieve the context from which this period is coming from. For example, it can be coming from a scanner parameter, a global setting, etc.
+   * See {@link PeriodOrigin} for the possible values.
+   */
+  PeriodOrigin getPeriodOrigin();
+
 }

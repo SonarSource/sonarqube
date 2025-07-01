@@ -62,7 +62,6 @@ import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -198,7 +197,6 @@ public class LoadPeriodsStepIT extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
     assertPeriod(NewCodePeriodType.REFERENCE_BRANCH, newCodeReferenceBranch, null);
-    verify(ceTaskMessages).add(any(CeTaskMessages.Message.class));
   }
 
   @Test

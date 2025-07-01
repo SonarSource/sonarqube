@@ -29,6 +29,7 @@ public class PeriodHolderImpl implements PeriodHolder {
   @CheckForNull
   private Period period = null;
   private boolean initialized = false;
+  private PeriodOrigin periodOrigin = null;
 
   /**
    * Initializes the periods in the holder.
@@ -39,6 +40,10 @@ public class PeriodHolderImpl implements PeriodHolder {
     checkState(!initialized, "Period have already been initialized");
     this.period = period;
     this.initialized = true;
+  }
+
+  public void setPeriodOrigin(PeriodOrigin periodOrigin) {
+    this.periodOrigin = periodOrigin;
   }
 
   @Override
@@ -58,6 +63,11 @@ public class PeriodHolderImpl implements PeriodHolder {
     checkHolderIsInitialized();
     checkState(period != null, "There is no period. Use hasPeriod() before calling this method");
     return period;
+  }
+
+  @Override
+  public PeriodOrigin getPeriodOrigin() {
+    return periodOrigin;
   }
 
   private void checkHolderIsInitialized() {

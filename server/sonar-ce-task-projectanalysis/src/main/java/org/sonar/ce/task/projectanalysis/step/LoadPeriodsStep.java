@@ -22,13 +22,13 @@ package org.sonar.ce.task.projectanalysis.step;
 import java.util.Optional;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.log.CeTaskMessages;
-import org.sonar.ce.task.log.CeTaskMessages.Message;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.period.NewCodePeriodResolver;
 import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderImpl;
+import org.sonar.ce.task.projectanalysis.period.PeriodOrigin;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -89,6 +89,8 @@ public class LoadPeriodsStep implements ComputationStep {
       .map(b -> new NewCodePeriodDto().setType(REFERENCE_BRANCH).setValue(b))
       .orElse(null);
 
+    PeriodOrigin periodOrigin = newCodePeriod == null ? PeriodOrigin.SETTINGS : PeriodOrigin.SCANNER;
+
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<NewCodePeriodDto> branchSpecificSetting = getBranchSetting(dbSession, projectUuid, branchUuid);
 
@@ -102,13 +104,11 @@ public class LoadPeriodsStep implements ComputationStep {
           periodsHolder.setPeriod(null);
           return;
         }
-      } else if (branchSpecificSetting.isPresent()) {
-        ceTaskMessages.add(new Message("A scanner parameter is defining a new code reference branch, but this conflicts with the New Code Period"
-          + " setting of your branch. Please check your project configuration. You should use either one or the other but not both.", system2.now()));
       }
 
       Period period = resolver.resolve(dbSession, branchUuid, newCodePeriod, projectVersion);
       periodsHolder.setPeriod(period);
+      periodsHolder.setPeriodOrigin(periodOrigin);
     }
   }
 
