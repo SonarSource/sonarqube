@@ -29,6 +29,11 @@ public class DbVersion202504 implements DbVersion {
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
-      .add(2025_04_000, "Add 'withdrawn' column to 'sca_vulnerability_issues' table", AddWithdrawnToScaVulnerabilityIssues.class);
+      .add(2025_04_000, "Add 'withdrawn' column to 'sca_vulnerability_issues' table", AddWithdrawnToScaVulnerabilityIssues.class)
+      .add(2025_04_001, "Add 'organization_uuid' column to 'sca_license_profiles' table", AddOrganizationUuidToScaLicenseProfiles.class)
+      .add(2025_04_002, "Drop unique index from 'sca_license_profiles'", DropUniqueIndexOnScaLicenseProfiles.class)
+      .add(2025_04_003, "Create unique index from 'sca_license_profiles'", CreateUniqueIndexOnScaLicenseProfiles.class)
+
+    ;
   }
 }
