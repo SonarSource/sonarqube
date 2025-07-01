@@ -33,7 +33,6 @@ public class DbVersion202504 implements DbVersion {
       .add(2025_04_001, "Add 'organization_uuid' column to 'sca_license_profiles' table", AddOrganizationUuidToScaLicenseProfiles.class)
       .add(2025_04_002, "Drop unique index from 'sca_license_profiles'", DropUniqueIndexOnScaLicenseProfiles.class)
       .add(2025_04_003, "Create unique index from 'sca_license_profiles'", CreateUniqueIndexOnScaLicenseProfiles.class)
-
-    ;
+      .add(2025_04_004, "Add index on 'alm_repo' column in 'project_alm_settings' table", AddIndexOnAlmRepoInProjectAlmSettings.class);
   }
 }
