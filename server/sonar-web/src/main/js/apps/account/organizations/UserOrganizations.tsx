@@ -29,7 +29,7 @@ import withCurrentUserContext from "../../../app/components/current-user/withCur
 import { GlobalSettingKeys } from "../../../types/settings";
 import "../projects/account.css";
 import { ButtonPrimary } from "~design-system";
-import { useCurrentLoginUser } from 'src/main/js/app/components/current-user/CurrentUserContext';
+import { useCurrentLoginUser } from '../../../app/components/current-user/CurrentUserContext';
 import { useCurrentUser } from 'src/main/js/app/components/current-user/CurrentUserContext';
 
 interface Props {

@@ -52,9 +52,11 @@ export const useProjectsQuery = createInfiniteQueryHook(
     pageIndex?: number;
     query: Query;
   }) => {
-    const {currentUser} = useCurrentUser();
+    const {currentUser, setIsNotStandardOrg} = useCurrentUser();
+    
     if(query?.organization && currentUser.platformOrgs?.includes(query.organization))
     {
+      setIsNotStandardOrg?.(true);
       const navigate = useNavigate();
   useEffect(() => {
     navigate('/account', { replace: true });
@@ -79,6 +81,7 @@ export const useProjectsQuery = createInfiniteQueryHook(
           return response;
         } catch (error: any) {
           if (error?.status == 403) {
+            setIsNotStandardOrg?.(true);
             window.location.href = '/account';
           }
           throw error;

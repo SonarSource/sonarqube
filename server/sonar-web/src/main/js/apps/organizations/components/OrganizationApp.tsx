@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { Outlet, useParams } from 'react-router-dom';
+import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import { OrganizationContextProps } from "../OrganizationContext";
 import { Organization } from "../../../types/types";
 import { getOrganization, getOrganizationNavigation } from "../../../api/organizations";
@@ -37,6 +37,7 @@ import { CurrentUser } from "../../../types/users";
 import NotFound from "../../../app/components/NotFound";
 import { FlagMessage } from "~design-system";
 import { createPortal } from "react-dom";
+import { useCurrentUser } from '../../../app/components/current-user/CurrentUserContext';
 
 interface OrganizationAppProps {
   currentUser: CurrentUser;
@@ -44,12 +45,13 @@ interface OrganizationAppProps {
   location: Location;
 }
 
-const OrganizationApp: React.FC<OrganizationAppProps> = ({ currentUser, userOrganizations, location }) => {
+const OrganizationApp: React.FC<OrganizationAppProps> = ({  userOrganizations, location }) => {
 
   const { organizationKey } = useParams();
   const portalAnchor = React.useRef<Element | null>(null);
   const [organization, setOrganization] = useState<Organization>();
-
+  const {setIsNotStandardOrg, currentUser} = useCurrentUser();
+  const navigate = useNavigate();
   // Set portal anchor on mount
   useEffect(() => {
     portalAnchor.current = document.querySelector('#component-nav-portal');
@@ -57,14 +59,22 @@ const OrganizationApp: React.FC<OrganizationAppProps> = ({ currentUser, userOrga
 
   useEffect(() => {
     if (organizationKey != null) {
+      if(currentUser.platformOrgs?.includes(organizationKey))
+      {
+      setIsNotStandardOrg?.(true);
+      navigate('/account');
+      }
+      else{
       Promise.all([getOrganization(organizationKey), getOrganizationNavigation(organizationKey)]).then(
         ([organization, navigation]) => {
           if (organization) {
             const organizationWithPermissions = { ...organization, ...navigation };
             setOrganization(organizationWithPermissions);
+           
           }
         }
-      ).catch(throwGlobalError);
+      ).catch( throwGlobalError);
+    }
     }
   }, [organizationKey]);
 

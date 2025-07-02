@@ -74,7 +74,7 @@ export const LS_PROJECTS_VIEW = 'sonarqube.projects.view';
 
 function AllProjects({ isFavorite, organization }: Readonly<{ isFavorite: boolean; organization: string }>) {
   const appState = useAppState();
-  const { currentUser } = useCurrentUser();
+  const { currentUser, setIsNotStandardOrg } = useCurrentUser();
   const router = useRouter();
   const intl = useIntl();
   const { query, pathname } = useLocation();
@@ -86,7 +86,8 @@ function AllProjects({ isFavorite, organization }: Readonly<{ isFavorite: boolea
   const { data: isStandardMode = false, isLoading: loadingMode } = useStandardExperienceModeQuery();
 
   if (query?.organization && currentUser.platformOrgs?.includes(query.organization)) {
-   window.location.href = '/account'
+    setIsNotStandardOrg?.(true);
+    window.location.href = '/account'
   }
   const {
     data: projectPages,

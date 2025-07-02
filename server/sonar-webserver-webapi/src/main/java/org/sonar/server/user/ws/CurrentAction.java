@@ -136,18 +136,25 @@ public class CurrentAction implements UsersWsAction {
             .map(OrganizationMemberDto::getOrganizationUuid)
             .collect(Collectors.toList());
 
-    Map<String, String> orgUuidToNameMap = dbClient.organizationDao()
-            .selectByUuids(dbSession, new HashSet<>(orgUuids)).stream()
-            .collect(Collectors.toMap(OrganizationDto::getUuid, OrganizationDto::getName));
+if(user.isRoot()){
+  standardOrgs = dbClient.organizationDao().selectByUuids(dbSession,new HashSet<>(dbClient.organizationDao().selectAllUuids(dbSession))).stream().map(
+          OrganizationDto::getKey).toList();
 
-    for (OrganizationMemberDto orgMember : organizationMembers) {
-      String orgName = orgUuidToNameMap.get(orgMember.getOrganizationUuid());
-      if (MemberType.PLATFORM.name().equals(orgMember.getType())) {
-        platformOrgs.add(orgName);
-      } else if (MemberType.STANDARD.name().equals(orgMember.getType())) {
-        standardOrgs.add(orgName);
-      }
+}
+else {
+  Map<String, String> orgUuidToNameMap = dbClient.organizationDao()
+          .selectByUuids(dbSession, new HashSet<>(orgUuids)).stream()
+          .collect(Collectors.toMap(OrganizationDto::getUuid, OrganizationDto::getName));
+
+  for (OrganizationMemberDto orgMember : organizationMembers) {
+    String orgName = orgUuidToNameMap.get(orgMember.getOrganizationUuid());
+    if (MemberType.PLATFORM.name().equals(orgMember.getType())) {
+      platformOrgs.add(orgName);
+    } else if (MemberType.STANDARD.name().equals(orgMember.getType())) {
+      standardOrgs.add(orgName);
     }
+  }
+}
 
 
     CurrentWsResponse.Builder builder = newBuilder()
