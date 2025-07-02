@@ -1994,7 +1994,8 @@ oldCreationDate));
 
     // the issue uuids here don't even exist but doesn't matter, we don't delete issues so not testing that
     var issueReleaseBase = Map.of("created_at", 0L, "updated_at", 0L,
-      "severity", "INFO", "severity_sort_key", 42, "status", "TO_REVIEW");
+      "severity", "INFO", "original_severity", "INFO", "manual_severity", false,
+      "severity_sort_key", 42, "status", "TO_REVIEW");
     db.executeInsert("sca_issues_releases", merge(issueReleaseBase, Map.of("uuid", "issue-release-uuid1",
       "sca_issue_uuid", "issue-uuid1", "sca_release_uuid", "release-uuid1")));
     db.executeInsert("sca_issues_releases", merge(issueReleaseBase, Map.of("uuid", "issue-release-uuid2",
