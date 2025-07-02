@@ -222,7 +222,7 @@ public class UserService {
   public UserInformation updateUser(String uuid, UpdateUser updateUser) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       throwIfInvalidChangeOfExternalProvider(updateUser);
-      throwIfManagedInstanceAndNameOrEmailUpdated(updateUser);
+      throwIfManagedInstanceAndNameOrEmailOrExternalInfoUpdated(updateUser);
       UserDto userDto = findUserOrThrow(uuid, dbSession);
       userUpdater.updateAndCommit(dbSession, userDto, updateUser, u -> {
       });
@@ -248,11 +248,15 @@ public class UserService {
     Optional.ofNullable(updateUser.externalIdentityProvider()).ifPresent(this::assertProviderIsSupported);
   }
 
-  private void throwIfManagedInstanceAndNameOrEmailUpdated(UpdateUser updateUser) {
+  private void throwIfManagedInstanceAndNameOrEmailOrExternalInfoUpdated(UpdateUser updateUser) {
     boolean isNameChanged = updateUser.isNameChanged();
     boolean isEmailDefined = updateUser.isEmailChanged();
-    if (isNameChanged || isEmailDefined) {
-      managedInstanceChecker.throwIfInstanceIsManaged("User name and email cannot be updated when the instance is externally managed");
+    boolean isExternalLoginChanged = updateUser.isExternalIdentityProviderLoginChanged();
+    boolean isExternalProviderChanged = updateUser.isExternalIdentityProviderChanged();
+    boolean isExternalIdChanged = updateUser.isExternalIdentityProviderIdChanged();
+
+    if (isNameChanged || isEmailDefined || isExternalLoginChanged || isExternalProviderChanged || isExternalIdChanged) {
+      managedInstanceChecker.throwIfInstanceIsManaged("User information's cannot be updated when the instance is externally managed");
     }
   }
 

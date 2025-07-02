@@ -846,6 +846,52 @@ public class UserServiceIT {
     assertThat(updatedUser.getExternalLogin()).isEqualTo("prov_login");
   }
 
+  @Test
+  public void updateUser_whenUpdatingScmAccountsAndInstanceManaged_shouldChange() {
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
+
+    UserDto userDto = db.users().insertUser();
+    UpdateUser updateUser = new UpdateUser();
+    updateUser.setScmAccounts(List.of("newaccount"));
+
+    userService.updateUser(userDto.getUuid(), updateUser);
+
+    UserDto updatedUser = db.users().selectUserByLogin(userDto.getLogin()).orElseThrow();
+
+    assertThat(updatedUser.getSortedScmAccounts()).isEqualTo(List.of("newaccount"));
+  }
+
+  @DataProvider
+  public static Object[][] managedInstanceBlockedFields() {
+    return new Object[][] {
+      { "email", (Function<UpdateUser,UpdateUser>)  updateUser  -> updateUser.setEmail("new@email.com")},
+      { "email", (Function<UpdateUser,UpdateUser>)  updateUser  -> updateUser.setName("new name")},
+      { "email", (Function<UpdateUser,UpdateUser>)  updateUser  -> updateUser.setExternalIdentityProviderLogin("new-external-login")},
+      { "email", (Function<UpdateUser,UpdateUser>)  updateUser  -> updateUser.setExternalIdentityProvider("LDAP")},
+      { "email", (Function<UpdateUser,UpdateUser>)  updateUser  -> updateUser.setExternalIdentityProviderId("new-provider-id")},
+    };
+  }
+
+  @Test
+  @UseDataProvider("managedInstanceBlockedFields")
+  public void updateUser_whenUpdatingBlockedFieldAndInstanceManaged_shouldThrow(String fieldName,
+    Function<UpdateUser, UpdateUser> updateUserFunction) {
+    doThrow(BadRequestException.create("User information's cannot be updated when the instance is externally managed"))
+      .when(managedInstanceChecker).throwIfInstanceIsManaged(any());
+
+    UserDto userDto = db.users().insertUser();
+
+    assertThatThrownBy(() -> updateUser(userDto, updateUserFunction))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("User information's cannot be updated when the instance is externally managed");
+  }
+
+  private void updateUser(UserDto userDto, Function<UpdateUser, UpdateUser> updateUserFunction) {
+    UpdateUser updateUser = new UpdateUser();
+    updateUser = updateUserFunction.apply(updateUser);
+    userService.updateUser(userDto.getUuid(), updateUser);
+  }
+
   @DataProvider
   public static Object[][] updateUserProvider() {
     return new Object[][] {
