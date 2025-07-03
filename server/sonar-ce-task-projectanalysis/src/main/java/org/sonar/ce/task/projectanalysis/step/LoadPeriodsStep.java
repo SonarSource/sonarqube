@@ -20,8 +20,6 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.Optional;
-import org.sonar.api.utils.System2;
-import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.period.NewCodePeriodResolver;
@@ -53,19 +51,15 @@ public class LoadPeriodsStep implements ComputationStep {
   private final PeriodHolderImpl periodsHolder;
   private final DbClient dbClient;
   private final NewCodePeriodResolver resolver;
-  private final CeTaskMessages ceTaskMessages;
-  private final System2 system2;
 
   public LoadPeriodsStep(AnalysisMetadataHolder analysisMetadataHolder, NewCodePeriodDao newCodePeriodDao, TreeRootHolder treeRootHolder,
-    PeriodHolderImpl periodsHolder, DbClient dbClient, NewCodePeriodResolver resolver, CeTaskMessages ceTaskMessages, System2 system2) {
+    PeriodHolderImpl periodsHolder, DbClient dbClient, NewCodePeriodResolver resolver) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.newCodePeriodDao = newCodePeriodDao;
     this.treeRootHolder = treeRootHolder;
     this.periodsHolder = periodsHolder;
     this.dbClient = dbClient;
     this.resolver = resolver;
-    this.ceTaskMessages = ceTaskMessages;
-    this.system2 = system2;
   }
 
   @Override

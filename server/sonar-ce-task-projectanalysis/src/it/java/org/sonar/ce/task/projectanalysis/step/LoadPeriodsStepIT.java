@@ -88,8 +88,7 @@ public class LoadPeriodsStepIT extends BaseStepTest {
   private final NewCodePeriodResolver newCodePeriodResolver = new NewCodePeriodResolver(dbTester.getDbClient(), analysisMetadataHolder);
   private final ZonedDateTime analysisDate = ZonedDateTime.of(2019, 3, 20, 5, 30, 40, 0, ZoneId.systemDefault());
   private final CeTaskMessages ceTaskMessages = mock(CeTaskMessages.class);
-  private final LoadPeriodsStep underTest = new LoadPeriodsStep(analysisMetadataHolder, dao, treeRootHolder, periodsHolder, dbTester.getDbClient(), newCodePeriodResolver,
-    ceTaskMessages, system2Mock);
+  private final LoadPeriodsStep underTest = new LoadPeriodsStep(analysisMetadataHolder, dao, treeRootHolder, periodsHolder, dbTester.getDbClient(), newCodePeriodResolver);
 
   private ComponentDto project;
 
