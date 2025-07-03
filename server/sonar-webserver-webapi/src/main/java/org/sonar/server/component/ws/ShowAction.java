@@ -139,7 +139,7 @@ public class ShowAction implements ComponentsWsAction {
       }
     }
     userSession.checkComponentPermission(UserRole.USER, baseComponent);
-    if(!organizations.contains(baseComponent.getOrganizationUuid())){
+    if(!userSession.isRoot() && !organizations.contains(baseComponent.getOrganizationUuid())){
       throw new ForbiddenException("Platform User cannot access this organization");
     }
   }

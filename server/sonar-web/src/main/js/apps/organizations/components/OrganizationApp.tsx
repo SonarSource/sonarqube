@@ -59,22 +59,21 @@ const OrganizationApp: React.FC<OrganizationAppProps> = ({  userOrganizations, l
 
   useEffect(() => {
     if (organizationKey != null) {
-      if(currentUser.platformOrgs?.includes(organizationKey))
-      {
-      setIsNotStandardOrg?.(true);
-      navigate('/account');
+      if (currentUser.platformOrgs?.includes(organizationKey)) {
+        setIsNotStandardOrg?.(true);
+        navigate('/account');
       }
-      else{
-      Promise.all([getOrganization(organizationKey), getOrganizationNavigation(organizationKey)]).then(
-        ([organization, navigation]) => {
-          if (organization) {
-            const organizationWithPermissions = { ...organization, ...navigation };
-            setOrganization(organizationWithPermissions);
-           
+      else {
+        Promise.all([getOrganization(organizationKey), getOrganizationNavigation(organizationKey)]).then(
+          ([organization, navigation]) => {
+            if (organization) {
+              const organizationWithPermissions = { ...organization, ...navigation };
+              setOrganization(organizationWithPermissions);
+
+            }
           }
-        }
-      ).catch( throwGlobalError);
-    }
+        ).catch(throwGlobalError);
+      }
     }
   }, [organizationKey]);
 
