@@ -21,8 +21,10 @@ package org.sonar.api.batch.fs.internal.predicates;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem.Index;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.scan.filesystem.PathResolver;
@@ -33,27 +35,36 @@ import org.sonar.api.utils.PathUtils;
  */
 class AbsolutePathPredicate extends AbstractFilePredicate {
 
+  private static final Logger LOG = LoggerFactory.getLogger(AbsolutePathPredicate.class);
+
   private final String path;
   private final Path baseDir;
+  private final String sanitizedPath;
 
   AbsolutePathPredicate(String path, Path baseDir) {
     this.baseDir = baseDir;
-    this.path = PathUtils.sanitize(path);
+    this.path = path;
+    this.sanitizedPath = PathUtils.sanitize(path);
   }
 
   @Override
   public boolean apply(InputFile f) {
-    return path.equals(f.absolutePath());
+    return sanitizedPath.equals(f.absolutePath());
   }
 
   @Override
   public Iterable<InputFile> get(Index index) {
-    String relative = PathUtils.sanitize(new PathResolver().relativePath(baseDir.toFile(), new File(path)));
+    if (sanitizedPath == null) {
+      LOG.debug("Cannot resolve absolute path '{}' as it is not a valid path", path);
+      return Collections.emptyList();
+    }
+
+    String relative = PathUtils.sanitize(new PathResolver().relativePath(baseDir.toFile(), new File(sanitizedPath)));
     if (relative == null) {
       return Collections.emptyList();
     }
     InputFile f = index.inputFile(relative);
-    return f != null ? Arrays.asList(f) : Collections.emptyList();
+    return f != null ? List.of(f) : Collections.emptyList();
   }
 
   @Override
