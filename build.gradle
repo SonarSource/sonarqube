@@ -288,7 +288,7 @@ subprojects {
       dependency 'org.sonarsource.java:sonar-java-plugin:8.7.0.37452'
       dependency 'org.sonarsource.java:sonar-java-symbolic-execution-plugin:8.7.0.37452'
       dependency 'org.sonarsource.javascript:sonar-javascript-plugin:10.18.0.28572'
-      dependency 'org.sonarsource.php:sonar-php-plugin:3.40.0.12590'
+      dependency 'org.sonarsource.php:sonar-php-plugin:3.46.0.13151'
       dependency 'org.sonarsource.plugins.cayc:sonar-cayc-plugin:2.4.0.2018'
       dependency 'org.sonarsource.python:sonar-python-plugin:4.24.0.18631'
       dependency 'org.sonarsource.kotlin:sonar-kotlin-plugin:2.21.0.5736'
