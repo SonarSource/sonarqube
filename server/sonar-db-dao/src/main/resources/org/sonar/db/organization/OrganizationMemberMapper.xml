@@ -45,6 +45,14 @@
     AND type = #{type, jdbcType=VARCHAR}
   </select>
 
+  <select id="isUserStandardMemberOfOrganization" resultType="boolean">
+    SELECT COUNT(*) > 0
+    FROM organization_members
+    WHERE user_uuid = #{userUuid, jdbcType=VARCHAR}
+    AND organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    AND type = 'STANDARD'
+  </select>
+
   <select id="selectAllOrganizationMemberDtos" resultType="OrganizationMember">
     SELECT organization_uuid as organizationUuid , user_uuid as userUuid, type as type
     FROM organization_members

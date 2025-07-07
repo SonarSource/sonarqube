@@ -33,6 +33,8 @@ public interface OrganizationMemberMapper {
 
   Set<String> selectOrganizationUuidsByUserUuidAndType(@Param("userUuid") String userUuid, @Param("type") String type);
 
+  boolean isUserStandardMemberOfOrganization(@Param("userUuid") String userUuid, @Param("organizationUuid") String organizationUuid);
+
   List<OrganizationMemberDto> selectAllOrganizationMemberDtos(@Param("organizationUuid") String organizationUuid);
 
   List<String> selectUserUuids(String organizationUuid);

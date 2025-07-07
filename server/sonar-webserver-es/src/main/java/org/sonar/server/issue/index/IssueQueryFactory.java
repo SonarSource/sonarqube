@@ -174,8 +174,9 @@ public class IssueQueryFactory {
         .searchAfter(request.getSearchAfter())
         .organizationUuid(convertOrganizationKeyToUuid(dbSession, request.getOrganization()))
         .codeVariants(request.getCodeVariants());
-      if(request.getOrganization()==null)
+      if (request.getOrganization() == null) {
         builder.allowedProjectUuids(projectsList);
+      }
 
       List<ComponentDto> allComponents = new ArrayList<>();
       boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(dbSession, request, allComponents);

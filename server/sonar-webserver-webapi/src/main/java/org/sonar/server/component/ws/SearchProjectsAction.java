@@ -248,9 +248,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
         OrganizationDto organization = checkFoundWithOptional(
                 dbClient.organizationDao().selectByKey(dbSession, organizationKey),
                 "No organization for key '%s'", organizationKey);
-        Set<String> standardOrgs = dbClient.organizationMemberDao().selectOrganizationUuidsByUserUuidAndType(
-                dbSession, userSession.getUuid(), MemberType.STANDARD.name());
-        if (!userSession.isRoot() && !standardOrgs.contains(organization.getUuid())) {
+        boolean isStandardOrg = dbClient.organizationMemberDao().isUserStandardMemberOfOrganization(dbSession, userSession.getUuid(), organization.getUuid());
+        if (!userSession.isRoot() && !isStandardOrg) {
           throw new ForbiddenException("Platform user cannot access this organization: " + organization.getKey());
         }
         return handleForOrganization(dbSession, request, organization);

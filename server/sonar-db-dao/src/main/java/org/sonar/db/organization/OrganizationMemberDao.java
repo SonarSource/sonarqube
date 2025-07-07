@@ -74,6 +74,10 @@ public class OrganizationMemberDao implements Dao {
     return mapper(dbSession).selectOrganizationUuidsByUserUuidAndType(userUuid, type);
   }
 
+  public boolean isUserStandardMemberOfOrganization(DbSession dbSession, String userUuid, String organizationUuid) {
+    return mapper(dbSession).isUserStandardMemberOfOrganization(userUuid, organizationUuid);
+  }
+
   public List<OrganizationMemberDto> selectAllOrganizationMemberDtos(DbSession dbSession, String organizationUuid){
     return mapper(dbSession).selectAllOrganizationMemberDtos(organizationUuid);
   }

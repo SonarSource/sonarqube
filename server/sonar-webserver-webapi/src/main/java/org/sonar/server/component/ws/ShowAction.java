@@ -117,16 +117,16 @@ public class ShowAction implements ComponentsWsAction {
   private ShowWsResponse doHandle(Request request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = loadComponent(dbSession, request);
-    Set<String> stdOrganizations = dbClient.organizationMemberDao().selectOrganizationUuidsByUserUuidAndType(dbSession,
-              userSession.getUuid(),MemberType.STANDARD.name());
-      checkPermissions(component, stdOrganizations);
+      boolean isStandardOrg = dbClient.organizationMemberDao().isUserStandardMemberOfOrganization(dbSession,
+              userSession.getUuid(), component.getOrganizationUuid());
+      checkPermissions(component, isStandardOrg);
       Optional<SnapshotDto> lastAnalysis = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, component.branchUuid());
       List<ComponentDto> ancestors = dbClient.componentDao().selectAncestors(dbSession, component);
       return buildResponse(dbSession, component, ancestors, lastAnalysis.orElse(null), request);
     }
   }
 
-  private void checkPermissions(ComponentDto baseComponent, Set<String> organizations) {
+  private void checkPermissions(ComponentDto baseComponent, boolean isStandardOrg) {
     if (userSession instanceof ThreadLocalUserSession) {
       UserSession tokenUserSession = ((ThreadLocalUserSession) userSession).get();
       if (tokenUserSession instanceof TokenUserSession) {
@@ -139,7 +139,7 @@ public class ShowAction implements ComponentsWsAction {
       }
     }
     userSession.checkComponentPermission(UserRole.USER, baseComponent);
-    if(!userSession.isRoot() && !organizations.contains(baseComponent.getOrganizationUuid())){
+    if(!userSession.isRoot() && !isStandardOrg){
       throw new ForbiddenException("Platform User cannot access this organization");
     }
   }

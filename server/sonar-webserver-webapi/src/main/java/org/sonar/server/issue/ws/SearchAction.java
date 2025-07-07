@@ -54,7 +54,6 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueQuery;
 import org.sonar.server.issue.index.IssueQueryFactory;
-import org.sonar.server.issue.index.IssueQueryFactory.MemberType;
 import org.sonar.server.issue.index.IssueScope;
 import org.sonar.server.security.SecurityStandards.SQCategory;
 import org.sonar.server.user.ThreadLocalUserSession;
@@ -537,18 +536,16 @@ public class SearchAction implements IssuesWsAction {
   public final void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
 
-      if(!userSession.isRoot()){
-        Set<String> standardOrgs = dbClient.organizationMemberDao().selectOrganizationUuidsByUserUuidAndType(
-                dbSession, userSession.getUuid(), MemberType.STANDARD.name());
-        if (request.hasParam(PARAM_ORGANIZATION)) {
+      if(!userSession.isRoot() && request.hasParam(PARAM_ORGANIZATION)) {
           String organizationKey = request.param(PARAM_ORGANIZATION);
           OrganizationDto organization = checkFoundWithOptional(
                   dbClient.organizationDao().selectByKey(dbSession, organizationKey),
                   "No organization with key '%s'", organizationKey);
-          if (!userSession.isRoot() && !standardOrgs.contains(organization.getUuid())) {
+          boolean isStandardOrg = dbClient.organizationMemberDao().isUserStandardMemberOfOrganization(dbSession,
+                  userSession.getUuid(), organization.getUuid());
+          if (!isStandardOrg) {
             throw new ForbiddenException("Platform user cannot access this organization: " + organizationKey);
           }
-        }
       }
       SearchRequest searchRequest = toSearchWsRequest(dbSession, request);
       validateAndUpdateSearchRequestForProjectAnalysisToken(searchRequest);
