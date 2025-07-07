@@ -46,7 +46,7 @@ public class SetAction implements ProjectTagsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("set")
       .setDescription("Set tags on a project.<br>" +
-        "Requires the following permission: 'Administer' rights on the specified project")
+        "Requires the 'Administer' or 'Create Project' permissions on the specified project.")
       .setSince("6.4")
       .setPost(true)
       .setHandler(this);
