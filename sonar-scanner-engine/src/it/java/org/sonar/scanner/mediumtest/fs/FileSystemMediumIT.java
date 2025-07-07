@@ -533,10 +533,7 @@ class FileSystemMediumIT {
     Path link = Paths.get(srcDirB.getPath(), "target_link.xoo");
     Files.createSymbolicLink(link, target.toPath());
 
-    builder = ImmutableMap.<String, String>builder()
-      .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
-      .put("sonar.projectKey", "com.foo.project")
-      .put("sonar.modules", "module_a,module_b");
+    builder.put("sonar.modules", "module_a,module_b");
 
     AnalysisResult result = tester.newAnalysis().properties(builder.build()).execute();
 
@@ -557,10 +554,7 @@ class FileSystemMediumIT {
     Path link = srcA.toPath().resolve("target_link");
     Files.createSymbolicLink(link, Paths.get("../../module_b/src/target.xoo"));
 
-    builder = ImmutableMap.<String, String>builder()
-      .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
-      .put("sonar.projectKey", "com.foo.project")
-      .put("sonar.modules", "module_a,module_b");
+    builder.put("sonar.modules", "module_a,module_b");
 
     AnalysisResult result = tester.newAnalysis().properties(builder.build()).execute();
 
@@ -579,10 +573,7 @@ class FileSystemMediumIT {
     Path link = src.toPath().resolve("target_link");
     Files.createSymbolicLink(link, Paths.get("target.xoo"));
 
-    builder = ImmutableMap.<String, String>builder()
-      .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
-      .put("sonar.projectKey", "com.foo.project")
-      .put("sonar.modules", "module_a");
+    builder.put("sonar.modules", "module_a");
 
     AnalysisResult result = tester.newAnalysis().properties(builder.build()).execute();
 

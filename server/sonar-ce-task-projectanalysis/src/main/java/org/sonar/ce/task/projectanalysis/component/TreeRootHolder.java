@@ -70,14 +70,11 @@ public interface TreeRootHolder {
   Component getComponentByUuid(String uuid);
 
   /**
-   * Return a component by its batch reference. Returns {@link Optional#empty()} if there's
-   * no {@link Component} with the specified reference
+   * Return a component by its scanner reference. Returns {@link Optional#empty()} if there's
+   * no {@link Component} with the specified reference. Note that on PRs, unchanged components are not indexed.
    *
    * @throws IllegalStateException if the holder is empty (ie. there is no root yet)
-   * @deprecated This method was introduced as a quick fix for SONAR-10781. Ultimately one should never manipulate component
-   * ref that doesn't exist in the scanner report
    */
-  @Deprecated
   Optional<Component> getOptionalComponentByRef(int ref);
 
   /**
