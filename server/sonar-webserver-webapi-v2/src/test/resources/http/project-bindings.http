@@ -1,0 +1,89 @@
+### Search project bindings by repository URL (HTTPS URL)
+GET {{baseUrl}}/api/v2/dop-translation/project-bindings
+    ?repositoryUrl={{github.repo.url}}
+Authorization: Bearer {{sonar.token}}
+Accept: application/json
+
+### Search project bindings by repository URL (HTTPS URL with .git suffix)
+GET {{baseUrl}}/api/v2/dop-translation/project-bindings
+    ?repositoryUrl={{github.repo.httpsUrl}}
+Authorization: Bearer {{sonar.token}}
+Accept: application/json
+
+### Search project bindings by repository URL (SSH URL)
+GET {{baseUrl}}/api/v2/dop-translation/project-bindings
+    ?repositoryUrl={{github.repo.sshUrl}}
+Authorization: Bearer {{sonar.token}}
+Accept: application/json
+
+### Search project bindings by repository URL (URL with trailing slash)
+GET {{baseUrl}}/api/v2/dop-translation/project-bindings
+    ?repositoryUrl={{github.repo.url}}/
+Authorization: Bearer {{sonar.token}}
+Accept: application/json
+
+### Search project bindings by repository URL with pagination
+GET {{baseUrl}}/api/v2/dop-translation/project-bindings
+    ?repositoryUrl={{github.repo.url}}
+    &pageIndex=1
+    &pageSize=10
+Authorization: Bearer {{sonar.token}}
+Accept: application/json
+
+### Error case: No ALM configuration found for repository URL
+GET {{baseUrl}}/api/v2/dop-translation/project-bindings
+    ?repositoryUrl=https://github.com/nonexistent/repo
+Authorization: Bearer {{sonar.token}}
+Accept: application/json
+
+### Error case: Invalid URL format
+GET {{baseUrl}}/api/v2/dop-translation/project-bindings
+    ?repositoryUrl=invalid-url-format
+Authorization: Bearer {{sonar.token}}
+Accept: application/json
+
+### Parameter validation error: repositoryUrl with repository parameter
+GET {{baseUrl}}/api/v2/dop-translation/project-bindings
+    ?repositoryUrl={{github.repo.url}}
+    &repository={{github.repo.slug}}
+Authorization: Bearer {{sonar.token}}
+Accept: application/json
+
+### Parameter validation error: repositoryUrl with dopSettingId parameter
+GET {{baseUrl}}/api/v2/dop-translation/project-bindings
+    ?repositoryUrl={{github.repo.url}}
+    &dopSettingId=25e6ceba-ab08-4b43-8655-52422dde80b6
+Authorization: Bearer {{sonar.token}}
+Accept: application/json
+
+### Parameter validation error: repositoryUrl with both repository and dopSettingId
+GET {{baseUrl}}/api/v2/dop-translation/project-bindings
+    ?repositoryUrl={{github.repo.url}}
+    &repository={{github.repo.slug}}
+    &dopSettingId=25e6ceba-ab08-4b43-8655-52422dde80b6
+Authorization: Bearer {{sonar.token}}
+Accept: application/json
+
+### Traditional search by repository and dopSettingId (still supported)
+GET {{baseUrl}}/api/v2/dop-translation/project-bindings
+    ?repository={{github.repo.slug}}
+    &dopSettingId=25e6ceba-ab08-4b43-8655-52422dde80b6
+Authorization: Bearer {{sonar.token}}
+Accept: application/json
+
+### Traditional search by repository only
+GET {{baseUrl}}/api/v2/dop-translation/project-bindings
+    ?repository={{github.repo.slug}}
+Authorization: Bearer {{sonar.token}}
+Accept: application/json
+
+### Error case: Missing authentication
+GET {{baseUrl}}/api/v2/dop-translation/project-bindings
+    ?repositoryUrl={{github.repo.url}}
+Accept: application/json
+
+### Error case: Insufficient permissions (use token without PROVISION_PROJECTS permission)
+GET {{baseUrl}}/api/v2/dop-translation/project-bindings
+    ?repositoryUrl={{github.repo.url}}
+Authorization: Bearer {{sonar.tokenNoPermissions}}
+Accept: application/json

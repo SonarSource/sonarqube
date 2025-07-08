@@ -39,8 +39,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.permission.ProjectPermission.ADMIN;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
+import static org.sonar.db.permission.ProjectPermission.ADMIN;
 import static org.sonar.server.v2.WebApiEndpoints.PROJECT_BINDINGS_ENDPOINT;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -218,6 +218,85 @@ class DefaultProjectBindingsControllerTest {
                 "pageIndex": 1,
                 "pageSize": 100,
                 "total": 2
+              }
+            }
+          """));
+  }
+
+  @Test
+  void searchProjectBindings_whenRepositoryUrlUsed_shouldForwardRepositoryUrlParameter() throws Exception {
+    userSession.logIn().addPermission(PROVISION_PROJECTS);
+    when(projectBindingsService.findProjectBindingsByRequest(any())).thenReturn(new SearchResults<>(List.of(), 0));
+
+    mockMvc
+      .perform(get(PROJECT_BINDINGS_ENDPOINT)
+        .param("repositoryUrl", "https://github.com/org/repo")
+        .param("pageIndex", "1")
+        .param("pageSize", "50"))
+      .andExpect(status().isOk());
+
+    ArgumentCaptor<ProjectBindingsSearchRequest> requestCaptor = ArgumentCaptor.forClass(ProjectBindingsSearchRequest.class);
+    verify(projectBindingsService).findProjectBindingsByRequest(requestCaptor.capture());
+    assertThat(requestCaptor.getValue().repositoryUrl()).isEqualTo("https://github.com/org/repo");
+    assertThat(requestCaptor.getValue().repository()).isNull();
+    assertThat(requestCaptor.getValue().dopSettingId()).isNull();
+    assertThat(requestCaptor.getValue().page()).isEqualTo(1);
+    assertThat(requestCaptor.getValue().pageSize()).isEqualTo(50);
+  }
+
+  @Test
+  void searchProjectBindings_whenRepositoryUrlWithRepositoryParameter_shouldReturnBadRequest() throws Exception {
+    userSession.logIn().addPermission(PROVISION_PROJECTS);
+
+    mockMvc
+      .perform(get(PROJECT_BINDINGS_ENDPOINT)
+        .param("repositoryUrl", "https://github.com/org/repo")
+        .param("repository", "repo"))
+      .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void searchProjectBindings_whenRepositoryUrlWithDopSettingIdParameter_shouldReturnBadRequest() throws Exception {
+    userSession.logIn().addPermission(PROVISION_PROJECTS);
+
+    mockMvc
+      .perform(get(PROJECT_BINDINGS_ENDPOINT)
+        .param("repositoryUrl", "https://github.com/org/repo")
+        .param("dopSettingId", "setting123"))
+      .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void searchProjectBindings_whenRepositoryUrlReturnsResults_shouldReturnThem() throws Exception {
+    userSession.logIn().addPermission(PROVISION_PROJECTS);
+
+    ProjectBindingInformation dto1 = projectBindingInformation("1");
+    List<ProjectBindingInformation> expectedResults = List.of(dto1);
+    when(projectBindingsService.findProjectBindingsByRequest(any())).thenReturn(new SearchResults<>(expectedResults, expectedResults.size()));
+
+    mockMvc
+      .perform(get(PROJECT_BINDINGS_ENDPOINT)
+        .param("repositoryUrl", "https://github.com/org/repo")
+        .param("pageIndex", "1")
+        .param("pageSize", "50"))
+      .andExpectAll(
+        status().isOk(),
+        content().json("""
+            {
+              "projectBindings": [
+                {
+                  "id": "uuid_1",
+                  "devOpsPlatformSettingId": "almSettingUuid_1",
+                  "projectId": "projectUuid_1",
+                  "projectKey": "projectKey_1",
+                  "repository": "almRepo_1",
+                  "slug": "almSlug_1"
+                }
+              ],
+              "page": {
+                "pageIndex": 1,
+                "pageSize": 50,
+                "total": 1
               }
             }
           """));

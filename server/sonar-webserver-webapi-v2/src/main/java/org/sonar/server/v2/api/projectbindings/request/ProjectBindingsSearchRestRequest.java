@@ -22,19 +22,21 @@ package org.sonar.server.v2.api.projectbindings.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.annotation.Nullable;
 
-public record ProjectBindingsSearchRestRequest (
+public record ProjectBindingsSearchRestRequest(
 
-  @Nullable
-  @Schema(
+  @Nullable @Schema(
     description = """
       Filter on the repository name.
       This parameter performs an exact, case insensitive, match.
-      """)
-  String repository,
+      """) String repository,
 
-  @Nullable
-  @Schema(description = "Filter on the DevOps Platform setting id.")
-  String dopSettingId
+  @Nullable @Schema(description = "Filter on the DevOps Platform setting id.") String dopSettingId,
+
+  @Nullable @Schema(
+    description = """
+      Filter on the repository URL.
+      This parameter can be in different formats, the traditional URL or the git remote URL (https or ssh).
+      """) String repositoryUrl
 
 ) {
 

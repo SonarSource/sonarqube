@@ -19,6 +19,7 @@
  */
 package org.sonar.db.alm.setting;
 
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -165,5 +166,21 @@ public class ProjectAlmSettingDto {
     this.createdAt = createdAt;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ProjectAlmSettingDto that = (ProjectAlmSettingDto) o;
+    return Objects.equals(uuid, that.uuid);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(uuid);
+  }
 
 }

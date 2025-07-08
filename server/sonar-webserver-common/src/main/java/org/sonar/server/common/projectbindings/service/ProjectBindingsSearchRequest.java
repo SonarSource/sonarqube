@@ -24,8 +24,7 @@ import javax.annotation.Nullable;
 public record ProjectBindingsSearchRequest(
   @Nullable String repository,
   @Nullable String dopSettingId,
+  @Nullable String repositoryUrl,
   Integer page,
-  Integer pageSize
-) {
-
+  Integer pageSize) {
 }

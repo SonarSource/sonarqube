@@ -21,6 +21,7 @@ package org.sonar.server.v2.api.projectbindings.controller;
 
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.common.SearchResults;
@@ -35,8 +36,9 @@ import org.sonar.server.v2.api.projectbindings.request.ProjectBindingsSearchRest
 import org.sonar.server.v2.api.projectbindings.response.ProjectBindingsSearchRestResponse;
 import org.sonar.server.v2.api.response.PageRestResponse;
 
-import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
+import static org.sonar.db.permission.ProjectPermission.USER;
+import static org.sonar.server.exceptions.BadRequestException.throwBadRequestException;
 
 public class DefaultProjectBindingsController implements ProjectBindingsController {
 
@@ -61,23 +63,24 @@ public class DefaultProjectBindingsController implements ProjectBindingsControll
     }
   }
 
-  private static ProjectBinding toProjectBinding(ProjectDto projectDto, ProjectAlmSettingDto projectAlmSettingDto) {
-    return new ProjectBinding(
-      projectAlmSettingDto.getUuid(),
-      projectAlmSettingDto.getAlmSettingUuid(),
-      projectAlmSettingDto.getProjectUuid(),
-      projectDto.getKey(),
-      projectAlmSettingDto.getAlmRepo(),
-      projectAlmSettingDto.getAlmSlug());
-  }
-
   @Override
   public ProjectBindingsSearchRestResponse searchProjectBindings(ProjectBindingsSearchRestRequest restRequest, RestPage restPage) {
     userSession.checkLoggedIn().checkPermission(PROVISION_PROJECTS);
-    ProjectBindingsSearchRequest serviceRequest = new ProjectBindingsSearchRequest(restRequest.repository(), restRequest.dopSettingId(), restPage.pageIndex(), restPage.pageSize());
+    validateSearchParameters(restRequest);
+    ProjectBindingsSearchRequest serviceRequest = new ProjectBindingsSearchRequest(
+      restRequest.repository(), restRequest.dopSettingId(), restRequest.repositoryUrl(), restPage.pageIndex(), restPage.pageSize());
     SearchResults<ProjectBindingInformation> searchResults = projectBindingsService.findProjectBindingsByRequest(serviceRequest);
     List<ProjectBinding> projectBindings = toProjectBindings(searchResults);
     return new ProjectBindingsSearchRestResponse(projectBindings, new PageRestResponse(restPage.pageIndex(), restPage.pageSize(), searchResults.total()));
+  }
+
+  private static void validateSearchParameters(ProjectBindingsSearchRestRequest request) {
+    boolean hasRepositoryUrl = StringUtils.isNotBlank(request.repositoryUrl());
+    boolean hasOtherParams = StringUtils.isNotBlank(request.repository()) || StringUtils.isNotBlank(request.dopSettingId());
+
+    if (hasRepositoryUrl && hasOtherParams) {
+      throwBadRequestException("'repositoryUrl' parameter cannot be used together with 'repository' or 'dopSettingId' parameters");
+    }
   }
 
   private static List<ProjectBinding> toProjectBindings(SearchResults<ProjectBindingInformation> searchResults) {
@@ -95,4 +98,15 @@ public class DefaultProjectBindingsController implements ProjectBindingsControll
       projectBindingInformation.repository(),
       projectBindingInformation.slug());
   }
+
+  private static ProjectBinding toProjectBinding(ProjectDto projectDto, ProjectAlmSettingDto projectAlmSettingDto) {
+    return new ProjectBinding(
+      projectAlmSettingDto.getUuid(),
+      projectAlmSettingDto.getAlmSettingUuid(),
+      projectAlmSettingDto.getProjectUuid(),
+      projectDto.getKey(),
+      projectAlmSettingDto.getAlmRepo(),
+      projectAlmSettingDto.getAlmSlug());
+  }
+
 }

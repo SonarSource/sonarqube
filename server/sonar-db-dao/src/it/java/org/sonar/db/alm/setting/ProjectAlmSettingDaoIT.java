@@ -92,23 +92,16 @@ class ProjectAlmSettingDaoIT {
 
   @Test
   void select_by_alm_setting_and_slugs() {
-    when(uuidFactory.create()).thenReturn(A_UUID);
     AlmSettingDto almSettingsDto = db.almSettings().insertBitbucketAlmSetting();
-    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    ProjectAlmSettingDto bitbucketProjectAlmSettingDto = newBitbucketProjectAlmSettingDto(almSettingsDto, project);
-    bitbucketProjectAlmSettingDto.setAlmSlug("slug1");
-    underTest.insertOrUpdate(dbSession, bitbucketProjectAlmSettingDto, almSettingsDto.getKey(), project.getName(), project.getKey());
-    ProjectAlmSettingDto bitbucketProjectAlmSettingDto2 = newBitbucketProjectAlmSettingDto(almSettingsDto,
-      db.components().insertPrivateProject().getProjectDto());
-    bitbucketProjectAlmSettingDto2.setAlmSlug("slug2");
-    when(uuidFactory.create()).thenReturn(A_UUID + 1);
-    underTest.insertOrUpdate(dbSession, bitbucketProjectAlmSettingDto2, almSettingsDto.getKey(), project.getName(), project.getKey());
+    ProjectAlmSettingDto matchingProject = createBitbucketProject(almSettingsDto, dto -> dto.setAlmSlug("slug1"));
+    createBitbucketProject(almSettingsDto, dto -> dto.setAlmSlug("slug2"));
 
-    Set<String> slugs = new HashSet<>();
-    slugs.add("slug1");
-    assertThat(underTest.selectByAlmSettingAndSlugs(dbSession, almSettingsDto, slugs))
+    Set<String> slugs = Set.of("slug1");
+    List<ProjectAlmSettingDto> results = underTest.selectByAlmSettingAndSlugs(dbSession, almSettingsDto, slugs);
+    
+    assertThat(results)
       .extracting(ProjectAlmSettingDto::getProjectUuid, ProjectAlmSettingDto::getSummaryCommentEnabled, ProjectAlmSettingDto::getInlineAnnotationsEnabled)
-      .containsExactly(tuple(project.getUuid(), bitbucketProjectAlmSettingDto2.getSummaryCommentEnabled(), bitbucketProjectAlmSettingDto2.getInlineAnnotationsEnabled()));
+      .containsExactly(tuple(matchingProject.getProjectUuid(), matchingProject.getSummaryCommentEnabled(), matchingProject.getInlineAnnotationsEnabled()));
   }
 
   @Test
@@ -142,12 +135,7 @@ class ProjectAlmSettingDaoIT {
   }
 
   private ProjectAlmSettingDto createAlmProject(AlmSettingDto almSettingsDto, Consumer<ProjectAlmSettingDto>... populators) {
-    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    when(uuidFactory.create()).thenReturn(project.getUuid() + "_set");
-    ProjectAlmSettingDto projectAlmSettingDto = newGithubProjectAlmSettingDto(almSettingsDto, project);
-    stream(populators).forEach(p -> p.accept(projectAlmSettingDto));
-    underTest.insertOrUpdate(dbSession, projectAlmSettingDto, almSettingsDto.getKey(), project.getName(), project.getKey());
-    return projectAlmSettingDto;
+    return createAlmProject(almSettingsDto, dto -> stream(populators).forEach(p -> p.accept(dto)), project -> newGithubProjectAlmSettingDto(almSettingsDto, project));
   }
 
   @Test
@@ -160,23 +148,16 @@ class ProjectAlmSettingDaoIT {
 
   @Test
   void select_by_alm_setting_and_repos() {
-    when(uuidFactory.create()).thenReturn(A_UUID);
     AlmSettingDto almSettingsDto = db.almSettings().insertGitHubAlmSetting();
-    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    ProjectAlmSettingDto githubProjectAlmSettingDto = newGithubProjectAlmSettingDto(almSettingsDto, project);
-    githubProjectAlmSettingDto.setAlmRepo("repo1");
-    underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto, almSettingsDto.getKey(), project.getName(), project.getKey());
-    ProjectAlmSettingDto githubProjectAlmSettingDto2 = newGithubProjectAlmSettingDto(almSettingsDto,
-      db.components().insertPrivateProject().getProjectDto());
-    githubProjectAlmSettingDto2.setAlmRepo("repo2");
-    when(uuidFactory.create()).thenReturn(A_UUID + 1);
-    underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto2, almSettingsDto.getKey(), project.getName(), project.getKey());
+    ProjectAlmSettingDto matchingProject = createAlmProject(almSettingsDto, dto -> dto.setAlmRepo("repo1"));
+    createAlmProject(almSettingsDto, dto -> dto.setAlmRepo("repo2"));
 
-    Set<String> repos = new HashSet<>();
-    repos.add("repo1");
-    assertThat(underTest.selectByAlmSettingAndRepos(dbSession, almSettingsDto, repos))
+    Set<String> repos = Set.of("repo1");
+    List<ProjectAlmSettingDto> results = underTest.selectByAlmSettingAndRepos(dbSession, almSettingsDto, repos);
+    
+    assertThat(results)
       .extracting(ProjectAlmSettingDto::getProjectUuid, ProjectAlmSettingDto::getSummaryCommentEnabled)
-      .containsExactly(tuple(project.getUuid(), githubProjectAlmSettingDto.getSummaryCommentEnabled()));
+      .containsExactly(tuple(matchingProject.getProjectUuid(), matchingProject.getSummaryCommentEnabled()));
   }
 
   @Test
@@ -208,8 +189,8 @@ class ProjectAlmSettingDaoIT {
         ProjectAlmKeyAndProject::getProjectUuid,
         ProjectAlmKeyAndProject::getAlmId,
         ProjectAlmKeyAndProject::getUrl,
-        ProjectAlmKeyAndProject::getMonorepo
-      ).containsExactlyInAnyOrder(
+        ProjectAlmKeyAndProject::getMonorepo)
+      .containsExactlyInAnyOrder(
         tuple(project1.getUuid(), almSettingsDto.getAlm().getId(), almSettingsDto.getUrl(), false),
         tuple(project2.getUuid(), almSettingsDto.getAlm().getId(), almSettingsDto.getUrl(), true));
   }
@@ -243,18 +224,20 @@ class ProjectAlmSettingDaoIT {
     AlmSettingDto matchingAlmSettingDto = db.almSettings().insertGitHubAlmSetting();
     AlmSettingDto notMatchingAlmSettingDto = db.almSettings().insertGitHubAlmSetting();
     ProjectAlmSettingDto matchingRepo = createAlmProject(matchingAlmSettingDto, dto -> dto.setAlmRepo("matchingRepo"));
-    ProjectAlmSettingDto notMatchingRepo = createAlmProject(matchingAlmSettingDto, dto -> dto.setAlmRepo("whatever"));
     ProjectAlmSettingDto matchingAlmSetting = createAlmProject(matchingAlmSettingDto, dto -> dto.setAlmRepo("matchingRepo"));
-    ProjectAlmSettingDto notMatchingAlmSetting = createAlmProject(notMatchingAlmSettingDto, dto -> dto.setAlmRepo("matchingRepo"));
+    createAlmProject(matchingAlmSettingDto, dto -> dto.setAlmRepo("whatever")); // not matching repo
+    createAlmProject(notMatchingAlmSettingDto, dto -> dto.setAlmRepo("matchingRepo")); // not matching alm setting
 
-    List<ProjectAlmSettingDto> dtos = underTest.selectProjectAlmSettings(dbSession, new ProjectAlmSettingQuery("matchingRepo", matchingAlmSettingDto.getUuid()), 1, 100);
-    assertThat(dtos)
+    ProjectAlmSettingQuery query = new ProjectAlmSettingQuery("matchingRepo", matchingAlmSettingDto.getUuid());
+    List<ProjectAlmSettingDto> results = underTest.selectProjectAlmSettings(dbSession, query, 1, 100);
+    
+    assertThat(results)
       .usingRecursiveFieldByFieldElementComparator()
       .containsExactlyInAnyOrder(matchingRepo, matchingAlmSetting);
   }
 
   private static Object[][] paginationTestCases() {
-    return new Object[][]{
+    return new Object[][] {
       {100, 1, 5},
       {100, 3, 18},
       {2075, 41, 50},
@@ -265,7 +248,7 @@ class ProjectAlmSettingDaoIT {
   @ParameterizedTest
   @MethodSource("paginationTestCases")
   void selectProjectAlmSettings_whenUsingPagination_findsTheRightResults(int numberToGenerate, int offset, int limit) {
-      when(uuidFactory.create()).thenAnswer(answer -> UUID.randomUUID().toString());
+    when(uuidFactory.create()).thenAnswer(answer -> UUID.randomUUID().toString());
 
     Map<String, ProjectAlmSettingDto> allProjectAlmSettingsDtos = generateProjectAlmSettingsDtos(numberToGenerate);
 
@@ -284,10 +267,10 @@ class ProjectAlmSettingDaoIT {
     }
     Map<String, ProjectAlmSettingDto> result = IntStream.range(1000, 1000 + numberToGenerate)
       .mapToObj(i -> underTest.insertOrUpdate(dbSession, new ProjectAlmSettingDto()
-          .setAlmRepo("repo_" + i)
-          .setAlmSettingUuid("almSettingUuid_" + i)
-          .setProjectUuid("projectUuid_" + i)
-          .setMonorepo(false),
+        .setAlmRepo("repo_" + i)
+        .setAlmSettingUuid("almSettingUuid_" + i)
+        .setProjectUuid("projectUuid_" + i)
+        .setMonorepo(false),
         "key_" + i, "projectName_" + i, "projectKey_" + i))
       .collect(toMap(ProjectAlmSettingDto::getAlmRepo, Function.identity()));
     db.commit();
@@ -382,6 +365,85 @@ class ProjectAlmSettingDaoIT {
 
     assertThat(underTest.countByAlmSetting(dbSession, githubAlmSetting)).isZero();
     assertThat(underTest.countByAlmSetting(dbSession, githubAlmSetting1)).isOne();
+  }
+
+  @Test
+  void selectProjectAlmSettings_whenSearchingByAlmRepo_returnsMatchingResults() {
+    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
+    ProjectAlmSettingDto matchingProject = createAlmProject(almSetting, dto -> dto.setAlmRepo("target-repo"));
+    createAlmProject(almSetting, dto -> dto.setAlmRepo("other-repo"));
+    createAlmProject(almSetting, dto -> dto.setAlmSlug("target-repo")); // slug should not match
+
+    ProjectAlmSettingQuery query = ProjectAlmSettingQuery.forAlmRepo("target-repo");
+    List<ProjectAlmSettingDto> results = underTest.selectProjectAlmSettings(dbSession, query, 1, 100);
+
+    assertThat(results)
+      .usingRecursiveFieldByFieldElementComparator()
+      .containsExactly(matchingProject);
+  }
+
+  @Test
+  void selectProjectAlmSettings_whenSearchingByAlmRepoAndSlug_returnsMatchingResults() {
+    AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
+    ProjectAlmSettingDto matchingProject = createAzureProject(almSetting, "target-repo", "target-project");
+    createAzureProject(almSetting, "target-repo", "other-project"); // different slug
+    createAzureProject(almSetting, "other-repo", "target-project"); // different repo
+    createAlmProject(almSetting, dto -> dto.setAlmRepo("target-repo")); // missing slug
+
+    ProjectAlmSettingQuery query = ProjectAlmSettingQuery.forAlmRepoAndSlug("target-repo", "target-project");
+    List<ProjectAlmSettingDto> results = underTest.selectProjectAlmSettings(dbSession, query, 1, 100);
+
+    assertThat(results)
+      .usingRecursiveFieldByFieldElementComparator()
+      .containsExactly(matchingProject);
+  }
+
+  @Test
+  void selectProjectAlmSettings_whenSearchingByCaseInsensitiveAlmRepo_returnsMatchingResults() {
+    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
+    ProjectAlmSettingDto upperCaseProject = createAlmProject(almSetting, dto -> dto.setAlmRepo("TARGET-REPO"));
+    ProjectAlmSettingDto lowerCaseProject = createAlmProject(almSetting, dto -> dto.setAlmRepo("target-repo"));
+    createAlmProject(almSetting, dto -> dto.setAlmRepo("other-repo"));
+
+    ProjectAlmSettingQuery query = ProjectAlmSettingQuery.forAlmRepo("Target-Repo");
+    List<ProjectAlmSettingDto> results = underTest.selectProjectAlmSettings(dbSession, query, 1, 100);
+
+    assertThat(results)
+      .usingRecursiveFieldByFieldElementComparator()
+      .containsExactlyInAnyOrder(upperCaseProject, lowerCaseProject);
+  }
+
+  @Test
+  void countProjectAlmSettings_whenSearchingByAlmRepo_returnsCorrectCount() {
+    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
+    createAlmProject(almSetting, dto -> dto.setAlmRepo("target-repo"));
+    createAlmProject(almSetting, dto -> dto.setAlmRepo("target-repo"));
+    createAlmProject(almSetting, dto -> dto.setAlmRepo("other-repo"));
+
+    ProjectAlmSettingQuery query = ProjectAlmSettingQuery.forAlmRepo("target-repo");
+    int count = underTest.countProjectAlmSettings(dbSession, query);
+
+    assertThat(count).isEqualTo(2);
+  }
+
+  private ProjectAlmSettingDto createAzureProject(AlmSettingDto almSettingsDto, String almRepo, String almSlug) {
+    return createAlmProject(almSettingsDto, dto -> {
+      dto.setAlmRepo(almRepo);
+      dto.setAlmSlug(almSlug);
+    }, project -> newAzureProjectAlmSettingDto(almSettingsDto, project));
+  }
+
+  private ProjectAlmSettingDto createBitbucketProject(AlmSettingDto almSettingsDto, Consumer<ProjectAlmSettingDto> customizer) {
+    return createAlmProject(almSettingsDto, customizer, project -> newBitbucketProjectAlmSettingDto(almSettingsDto, project));
+  }
+
+  private ProjectAlmSettingDto createAlmProject(AlmSettingDto almSettingsDto, Consumer<ProjectAlmSettingDto> customizer, Function<ProjectDto, ProjectAlmSettingDto> dtoFactory) {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    when(uuidFactory.create()).thenReturn(project.getUuid() + "_set");
+    ProjectAlmSettingDto projectAlmSettingDto = dtoFactory.apply(project);
+    customizer.accept(projectAlmSettingDto);
+    underTest.insertOrUpdate(dbSession, projectAlmSettingDto, almSettingsDto.getKey(), project.getName(), project.getKey());
+    return projectAlmSettingDto;
   }
 
 }

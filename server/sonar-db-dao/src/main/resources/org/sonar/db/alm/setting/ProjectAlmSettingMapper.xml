@@ -215,6 +215,12 @@
       <if test="query.almSettingUuid != null">
         AND p.alm_setting_uuid = #{query.almSettingUuid, jdbcType=VARCHAR}
       </if>
+      <if test="query.almRepo != null">
+        AND lower(p.alm_repo) = lower(#{query.almRepo, jdbcType=VARCHAR})
+      </if>
+      <if test="query.almSlug != null">
+        AND lower(p.alm_slug) = lower(#{query.almSlug, jdbcType=VARCHAR})
+      </if>
     </where>
   </sql>
 
