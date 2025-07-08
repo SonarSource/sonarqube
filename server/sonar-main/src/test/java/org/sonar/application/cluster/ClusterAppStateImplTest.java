@@ -21,6 +21,7 @@ package org.sonar.application.cluster;
 
 import java.net.InetAddress;
 import java.util.Optional;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,6 +40,7 @@ import org.sonar.process.cluster.hz.JoinConfigurationType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -102,6 +104,18 @@ public class ClusterAppStateImplTest {
 
       //wait until undergoing thread marks ES as operational
       verify(listener, timeout(20_000)).onAppStateOperational(ProcessId.ELASTICSEARCH);
+    }
+  }
+
+  @Test
+  public void isOperational_whenElasticsearchException_tryAgain() {
+    EsConnector esConnectorMock = mock();
+    doThrow(new ElasticsearchException("failed to connect")).when(esConnectorMock).getClusterHealthStatus();
+
+    try (ClusterAppStateImpl underTest = createClusterAppState(esConnectorMock)) {
+      boolean operational = underTest.isOperational(ProcessId.ELASTICSEARCH, false);
+
+      assertThat(operational).isFalse();
     }
   }
 
