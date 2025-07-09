@@ -142,16 +142,16 @@ public class CurrentAction implements UsersWsAction {
                       OrganizationDto::getKey).toList();
 
     } else {
-      Map<String, String> orgUuidToNameMap = dbClient.organizationDao()
+      Map<String, String> orgUuidToKeyMap = dbClient.organizationDao()
               .selectByUuids(dbSession, new HashSet<>(orgUuids)).stream()
-              .collect(Collectors.toMap(OrganizationDto::getUuid, OrganizationDto::getName));
+              .collect(Collectors.toMap(OrganizationDto::getUuid, OrganizationDto::getKey));
 
       for (OrganizationMemberDto orgMember : organizationMembers) {
-        String orgName = orgUuidToNameMap.get(orgMember.getOrganizationUuid());
+        String orgKey = orgUuidToKeyMap.get(orgMember.getOrganizationUuid());
         if (MemberType.PLATFORM.name().equals(orgMember.getType())) {
-          platformOrgs.add(orgName);
+          platformOrgs.add(orgKey);
         } else if (MemberType.STANDARD.name().equals(orgMember.getType())) {
-          standardOrgs.add(orgName);
+          standardOrgs.add(orgKey);
         }
       }
     }

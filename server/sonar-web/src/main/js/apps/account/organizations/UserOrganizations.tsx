@@ -30,7 +30,8 @@ import { GlobalSettingKeys } from "../../../types/settings";
 import "../projects/account.css";
 import { ButtonPrimary } from "~design-system";
 import { useCurrentLoginUser } from '../../../app/components/current-user/CurrentUserContext';
-import { useCurrentUser } from 'src/main/js/app/components/current-user/CurrentUserContext';
+import { useCurrentUser } from '../../../app/components/current-user/CurrentUserContext';
+import { isNonStandardUser } from '../../../app/utils/userAccess';
 
 interface Props {
   appState: AppState;
@@ -42,7 +43,12 @@ function UserOrganizations(props: Props) {
   const { appState: { settings, canAdmin, canCustomerAdmin }, userOrganizations } = props;
   const anyoneCanCreate = settings[GlobalSettingKeys.OrganizationsAnyoneCanCreate] === 'true';
   const canCreateOrganizations = (anyoneCanCreate || canAdmin || canCustomerAdmin);
-  const currentUser = useCurrentLoginUser();
+  const {currentUser, setIsNotStandardOrg} = useCurrentUser();
+  React.useEffect(() => {
+    if (currentUser.standardOrgs?.length === 0) {
+      setIsNotStandardOrg?.(true);
+    }
+  }, [currentUser.standardOrgs, setIsNotStandardOrg]);
   return (
       <div className="account-body account-container organization-card-ctnr">
         <Helmet title={translate('my_account.organizations')}/>
@@ -61,7 +67,7 @@ function UserOrganizations(props: Props) {
           </div>
         )}
           <div className="boxed-group-inner">
-            <OrganizationsList linksDisabled={currentUser.isNotStandardOrg} organizations={userOrganizations}/>
+            <OrganizationsList linksDisabled={ isNonStandardUser(currentUser)} organizations={userOrganizations}/>
           </div>
         </div>
       </div>
