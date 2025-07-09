@@ -20,6 +20,7 @@
 package org.sonar.server.issue.ws.anticipatedtransition;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.Rule;
@@ -104,7 +105,7 @@ public class AnticipatedTransitionsActionIT {
   }
 
   @Test
-  public void givenRequestWithTransitions_whenHandle_thenAllTransitionsAreSaved() throws IOException {
+  public void givenRequestWithTransitions_whenHandle_thenAllTransitionsAreSaved() throws IOException, URISyntaxException {
     // given
     ProjectDto projectDto = mockProjectDto();
     mockUser(projectDto, ISSUE_ADMIN);
@@ -149,7 +150,7 @@ public class AnticipatedTransitionsActionIT {
   }
 
   @Test
-  public void givenTransitionsForUserAndProjectAlreadyExistInDb_whenHandle_thenTheNewTransitionsShouldReplaceTheOldOnes() throws IOException {
+  public void givenTransitionsForUserAndProjectAlreadyExistInDb_whenHandle_thenTheNewTransitionsShouldReplaceTheOldOnes() throws IOException, URISyntaxException {
     // given
     ProjectDto projectDto = mockProjectDto();
     mockUser(projectDto, ISSUE_ADMIN);
@@ -179,7 +180,7 @@ public class AnticipatedTransitionsActionIT {
   }
 
   @Test
-  public void givenRequestWithNoTransitions_whenHandle_thenExistingTransitionsForUserAndProjectShouldBePurged() throws IOException {
+  public void givenRequestWithNoTransitions_whenHandle_thenExistingTransitionsForUserAndProjectShouldBePurged() throws IOException, URISyntaxException {
     // given
     ProjectDto projectDto = mockProjectDto();
     mockUser(projectDto, ISSUE_ADMIN);
@@ -198,7 +199,7 @@ public class AnticipatedTransitionsActionIT {
   }
 
   @Test
-  public void givenUserWithoutAdminIssuesPermission_whenHandle_thenThrowException() throws IOException {
+  public void givenUserWithoutAdminIssuesPermission_whenHandle_thenThrowException() throws IOException, URISyntaxException {
     // given
     ProjectDto projectDto = mockProjectDto();
     mockUser(projectDto, CODEVIEWER);
@@ -234,8 +235,8 @@ public class AnticipatedTransitionsActionIT {
     return projectDto;
   }
 
-  private String readTestResourceFile(String fileName) throws IOException {
-    return Files.readString(Path.of(getClass().getResource(fileName).getPath()));
+  private String readTestResourceFile(String fileName) throws IOException, URISyntaxException {
+    return Files.readString(Path.of(getClass().getResource(fileName).toURI()));
   }
 
 }
