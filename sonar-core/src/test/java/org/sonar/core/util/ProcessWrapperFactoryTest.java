@@ -93,7 +93,9 @@ class ProcessWrapperFactoryTest {
       SystemUtils.IS_OS_WINDOWS ? new String[] {"cmd.exe", "/c", "echo %PATH% & echo %FOO%"} : new String[] {"/bin/bash", "-c", "echo $PATH; echo $FOO;"});
     processWrapper.execute();
 
-    assertThat(logs).containsExactly(System.getenv("PATH"), "BAR");
+    // Trim all output lines to avoid issues with trailing spaces on Windows environment variables
+    var trimmedLogs = logs.stream().map(String::trim).toList();
+    assertThat(trimmedLogs).containsExactly(System.getenv("PATH").trim(), "BAR");
   }
 
   private static class DestroyProcessAfter10Lines {
