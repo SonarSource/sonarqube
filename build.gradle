@@ -435,6 +435,7 @@ subprojects {
         exclude 'org.apache.logging.log4j:log4j-core'
         exclude 'org.elasticsearch:jna'
       }
+      dependency "com.fasterxml.jackson.core:jackson-core:2.19.1"
       dependency "org.elasticsearch.plugin:transport-netty4-client:${elasticSearchClientVersion}"
       dependency 'org.elasticsearch:mocksocket:1.2'
       dependency 'org.eclipse.jgit:org.eclipse.jgit:7.3.0.202506031305-r'
@@ -516,6 +517,11 @@ subprojects {
     all {
       // do not conflict with com.sun.mail:javax.mail
       exclude group: 'javax.mail', module: 'mail'
+    }
+  }
+  configurations.configureEach {
+    resolutionStrategy {
+      force 'com.fasterxml.jackson.core:jackson-core:2.19.1' // or your preferred latest version
     }
   }
 
