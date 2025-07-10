@@ -46,7 +46,7 @@ public class ActiveRuleChange {
   private RuleDto rule;
 
   public enum Type {
-    ACTIVATED, DEACTIVATED, UPDATED
+    ACTIVATED, DEACTIVATED, UPDATED, REMOVED
   }
 
   private final Type type;

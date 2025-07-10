@@ -366,7 +366,7 @@ public class RuleActivator {
     ActiveRuleDto activeRule = null;
     if (change.getType() == ActiveRuleChange.Type.ACTIVATED) {
       activeRule = doInsert(change, context, dbSession);
-    } else if (change.getType() == ActiveRuleChange.Type.DEACTIVATED) {
+    } else if (change.getType() == ActiveRuleChange.Type.DEACTIVATED || change.getType() == ActiveRuleChange.Type.REMOVED) {
       ActiveRuleDao dao = db.activeRuleDao();
       activeRule = dao.delete(dbSession, change.getKey()).orElse(null);
 
@@ -464,6 +464,12 @@ public class RuleActivator {
       }
     }
     return ruleDto;
+  }
+
+  public ActiveRuleChange doDelete(DbSession dbSession, ActiveRuleDto activeRuleDto, RuleDto rule){
+    ActiveRuleChange change = new ActiveRuleChange(ActiveRuleChange.Type.REMOVED, activeRuleDto.getKey(), rule);
+    persist(change, null, dbSession);
+    return change;
   }
 
   public List<ActiveRuleChange> deactivate(DbSession dbSession, RuleActivationContext context, String ruleUuid, boolean force) {
