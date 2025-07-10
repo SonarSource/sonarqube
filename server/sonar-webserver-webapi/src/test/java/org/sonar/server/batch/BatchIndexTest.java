@@ -21,12 +21,14 @@ package org.sonar.server.batch;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.CharUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.platform.ServerFileSystem;
 
@@ -36,28 +38,28 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class BatchIndexTest {
+class BatchIndexTest {
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  @TempDir
+  Path temp;
 
   private File jar;
 
-  private ServerFileSystem fs = mock(ServerFileSystem.class);
+  private final ServerFileSystem fs = mock(ServerFileSystem.class);
 
-  @Before
-  public void prepare_fs() throws IOException {
-    File homeDir = temp.newFolder();
-    when(fs.getHomeDir()).thenReturn(homeDir);
+  @BeforeEach
+  void prepare_fs() throws IOException {
+    Path homeDir = Files.createTempDirectory(temp, "homeDir");
+    when(fs.getHomeDir()).thenReturn(homeDir.toFile());
 
-    File batchDir = new File(homeDir, "lib/scanner");
-    FileUtils.forceMkdir(batchDir);
-    jar = new File(batchDir, "sonar-batch.jar");
-    FileUtils.writeStringToFile(new File(batchDir, "sonar-batch.jar"), "foo");
+    Path batchDir = homeDir.resolve("lib/scanner");
+    Files.createDirectories(batchDir);
+    jar = batchDir.resolve("sonar-batch.jar").toFile();
+    FileUtils.writeByteArrayToFile(batchDir.resolve("sonar-batch.jar").toFile(), "foo".getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
-  public void get_index() {
+  void get_index() {
     BatchIndex batchIndex = new BatchIndex(fs);
     batchIndex.start();
 
@@ -68,7 +70,7 @@ public class BatchIndexTest {
   }
 
   @Test
-  public void get_file() {
+  void get_file() {
     BatchIndex batchIndex = new BatchIndex(fs);
     batchIndex.start();
 
@@ -81,37 +83,35 @@ public class BatchIndexTest {
    * /etc/passwd
    */
   @Test
-  public void check_location_of_file() {
-    assertThatThrownBy(() -> {
-      BatchIndex batchIndex = new BatchIndex(fs);
-      batchIndex.start();
-
-      batchIndex.getFile("../sonar-batch.jar");
-    })
+  void check_location_of_file() {
+    BatchIndex batchIndex = new BatchIndex(fs);
+    batchIndex.start();
+    assertThatThrownBy(() -> batchIndex.getFile("../sonar-batch.jar"))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Bad filename: ../sonar-batch.jar");
   }
 
   @Test
-  public void file_does_not_exist() {
-    assertThatThrownBy(() -> {
-      BatchIndex batchIndex = new BatchIndex(fs);
-      batchIndex.start();
-
-      batchIndex.getFile("other.jar");
-    })
+  void file_does_not_exist() {
+    BatchIndex batchIndex = new BatchIndex(fs);
+    batchIndex.start();
+    assertThatThrownBy(() -> batchIndex.getFile("other.jar"))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Bad filename: other.jar");
   }
 
   @Test
-  public void start_whenBatchDirDoesntExist_shouldThrow() throws IOException {
-    File homeDir = temp.newFolder();
-    when(fs.getHomeDir()).thenReturn(homeDir);
+  void start_whenBatchDirDoesntExist_shouldThrow() throws IOException {
+    Path homeDir = Files.createTempDirectory(temp, "homeDir");
+    when(fs.getHomeDir()).thenReturn(homeDir.toFile());
 
     BatchIndex batchIndex = new BatchIndex(fs);
+    
+    // Ensure that the file separator is correct based on the OS
+    String expectedMessage = format("%s%slib%sscanner folder not found",
+      homeDir.toFile().getAbsolutePath(), File.separator, File.separator);
     assertThatThrownBy(batchIndex::start)
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage(format("%s/lib/scanner folder not found", homeDir.getAbsolutePath()));
+      .hasMessage(expectedMessage);
   }
 }
