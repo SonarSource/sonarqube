@@ -20,26 +20,28 @@
 package org.sonar.server.issue.ws.anticipatedtransition;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.AnticipatedTransition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AnticipatedTransitionParserTest {
+class AnticipatedTransitionParserTest {
 
   private static final String USER_UUID = "userUuid";
   private static final String PROJECT_KEY = "projectKey";
+  public static final String REQUEST_WITH_TRANSITIONS_JSON = "request-with-transitions.json";
   AnticipatedTransitionParser underTest = new AnticipatedTransitionParser();
 
   @Test
-  public void givenRequestBodyWithMultipleTransition_whenParse_thenAllTransitionsAreReturned() throws IOException {
+  void givenRequestBodyWithMultipleTransition_whenParse_thenAllTransitionsAreReturned() throws IOException, URISyntaxException {
     // given
-    String requestBody = readTestResourceFile("request-with-transitions.json");
+    String requestBody = readTestResourceFile();
 
     // when
     List<AnticipatedTransition> anticipatedTransitions = underTest.parse(requestBody, USER_UUID, PROJECT_KEY);
@@ -52,7 +54,7 @@ public class AnticipatedTransitionParserTest {
   }
 
   @Test
-  public void givenRequestBodyWithNoTransitions_whenParse_ThenAnEmptyListIsReturned() {
+  void givenRequestBodyWithNoTransitions_whenParse_ThenAnEmptyListIsReturned() {
     // given
     String requestBody = "[]";
 
@@ -64,7 +66,7 @@ public class AnticipatedTransitionParserTest {
   }
 
   @Test
-  public void givenRequestBodyWithInvalidJson_whenParse_thenExceptionIsThrown() {
+  void givenRequestBodyWithInvalidJson_whenParse_thenExceptionIsThrown() {
     // given
     String requestBody = "invalidJson";
 
@@ -75,7 +77,7 @@ public class AnticipatedTransitionParserTest {
   }
 
   @Test
-  public void givenRequestBodyWithInvalidTransition_whenParse_thenExceptionIsThrown() throws IOException {
+  void givenRequestBodyWithInvalidTransition_whenParse_thenExceptionIsThrown() {
     // given
     String requestBodyWithInvalidTransition = """
       [
@@ -124,8 +126,8 @@ public class AnticipatedTransitionParserTest {
         "comment2"));
   }
 
-  private String readTestResourceFile(String fileName) throws IOException {
-    return Files.readString(Path.of(getClass().getResource(fileName).getPath()));
+  private String readTestResourceFile() throws IOException, URISyntaxException {
+    return Files.readString(Path.of(getClass().getResource(AnticipatedTransitionParserTest.REQUEST_WITH_TRANSITIONS_JSON).toURI()));
   }
 
 }
