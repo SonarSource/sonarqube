@@ -23,13 +23,16 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 import org.apache.catalina.connector.Connector;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.Props;
 
@@ -39,13 +42,17 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class EmbeddedTomcatTest {
+class EmbeddedTomcatTest {
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  private Path tempDir;
+  
+  @BeforeEach
+  void setUp() throws IOException {
+    tempDir = Files.createTempDirectory("temp-folder");
+  }
 
   @Test
-  public void start_shouldStartTomcatAndAcceptConnections() throws Exception {
+  void start_shouldStartTomcatAndAcceptConnections() throws Exception {
     InetAddress address = InetAddress.getLoopbackAddress();
     int httpPort = NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort();
     Props props = getProps(address, httpPort);
@@ -55,13 +62,13 @@ public class EmbeddedTomcatTest {
     tomcat.start();
     assertThat(tomcat.getStatus()).isEqualTo(EmbeddedTomcat.Status.UP);
 
-    URL url = new URL("http://" + address.getHostAddress() + ":" + httpPort);
+    URL url = new URI("http://" + address.getHostAddress() + ":" + httpPort).toURL();
     assertThatCode(() -> url.openConnection().connect())
       .doesNotThrowAnyException();
   }
 
   @Test
-  public void start_whenWrongScheme_shouldThrow() throws IOException {
+  void start_whenWrongScheme_shouldThrow() throws IOException {
     InetAddress address = InetAddress.getLoopbackAddress();
     int httpPort = NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort();
     Props props = getProps(address, httpPort);
@@ -84,34 +91,34 @@ public class EmbeddedTomcatTest {
   }
 
   @Test
-  public void terminate_shouldTerminateTomcatAndStopAcceptingConnections() throws IOException {
+  void terminate_shouldTerminateTomcatAndStopAcceptingConnections() throws Exception {
     InetAddress address = InetAddress.getLoopbackAddress();
     int httpPort = NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort();
     Props props = getProps(address, httpPort);
 
     EmbeddedTomcat tomcat = new EmbeddedTomcat(props, new TomcatHttpConnectorFactory());
     tomcat.start();
-    URL url = new URL("http://" + address.getHostAddress() + ":" + httpPort);
+    URL url = new URI("http://" + address.getHostAddress() + ":" + httpPort).toURL();
 
     tomcat.terminate();
 
     assertThatThrownBy(() -> url.openConnection().connect())
       .isInstanceOf(ConnectException.class)
-      .hasMessage("Connection refused");
+      .hasMessageContaining("Connection refused");
 
   }
 
   private Props getProps(InetAddress address, int httpPort) throws IOException {
     Props props = new Props(new Properties());
 
-    File home = temp.newFolder();
-    File data = temp.newFolder();
+    File home = new File(tempDir.toFile(), "homeDir");
+    File data = new File(tempDir.toFile(), "dataDir");
     File webDir = new File(home, "web");
-    FileUtils.write(new File(home, "web/WEB-INF/web.xml"), "<web-app/>");
+    FileUtils.writeByteArrayToFile(new File(home, "web/WEB-INF/web.xml"), "<web-app/>".getBytes(StandardCharsets.UTF_8));
     props.set("sonar.path.home", home.getAbsolutePath());
     props.set("sonar.path.data", data.getAbsolutePath());
     props.set("sonar.path.web", webDir.getAbsolutePath());
-    props.set("sonar.path.logs", temp.newFolder().getAbsolutePath());
+    props.set("sonar.path.logs", new File(tempDir.toFile(), "logsDir").getAbsolutePath());
 
     // start server on a random port
     props.set("sonar.web.host", address.getHostAddress());
