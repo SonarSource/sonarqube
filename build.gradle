@@ -434,8 +434,9 @@ subprojects {
       dependency("org.elasticsearch.client:elasticsearch-rest-high-level-client:${elasticSearchClientVersion}") {
         exclude 'org.apache.logging.log4j:log4j-core'
         exclude 'org.elasticsearch:jna'
+        exclude 'com.fasterxml.jackson.core:jackson-core'
       }
-      dependency "com.fasterxml.jackson.core:jackson-core:2.19.1"
+      dependency 'com.fasterxml.jackson.core:jackson-core:2.19.1'
       dependency "org.elasticsearch.plugin:transport-netty4-client:${elasticSearchClientVersion}"
       dependency 'org.elasticsearch:mocksocket:1.2'
       dependency 'org.eclipse.jgit:org.eclipse.jgit:7.3.0.202506031305-r'
