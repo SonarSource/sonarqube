@@ -101,7 +101,7 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
       Optional<PermissionTemplateCharacteristicDto> templatePermission = dbClient.permissionTemplateCharacteristicDao()
         .selectByPermissionAndTemplateId(dbSession, request.getPermission(), template.getUuid());
       if (templatePermission.isPresent()) {
-        updateTemplatePermission(dbSession, templatePermission.get(), template.getName());
+        updateTemplatePermission(dbSession, templatePermission.get(), template.getName(), template.getOrganizationUuid());
       } else {
         addTemplatePermission(dbSession, request, template);
       }
@@ -117,15 +117,15 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
         .setWithProjectCreator(true)
         .setCreatedAt(now)
         .setUpdatedAt(now),
-      template.getName());
+      template.getName(), template.getOrganizationUuid());
     dbSession.commit();
   }
 
-  private void updateTemplatePermission(DbSession dbSession, PermissionTemplateCharacteristicDto templatePermission, String templateName) {
+  private void updateTemplatePermission(DbSession dbSession, PermissionTemplateCharacteristicDto templatePermission, String templateName, String organizationUuid) {
     PermissionTemplateCharacteristicDto targetTemplatePermission = templatePermission
       .setUpdatedAt(system.now())
       .setWithProjectCreator(true);
-    dbClient.permissionTemplateCharacteristicDao().update(dbSession, targetTemplatePermission, templateName);
+    dbClient.permissionTemplateCharacteristicDao().update(dbSession, targetTemplatePermission, templateName, organizationUuid);
     dbSession.commit();
   }
 

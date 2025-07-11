@@ -74,7 +74,7 @@ public class PermissionTemplateDbTester {
   }
 
   public void addGroupToTemplate(String templateUuid, @Nullable String groupUuid, String permission, String templateName, @Nullable String groupName) {
-    dbClient.permissionTemplateDao().insertGroupPermission(db.getSession(), templateUuid, groupUuid, permission, templateName, groupName);
+    dbClient.permissionTemplateDao().insertGroupPermission(db.getSession(), templateUuid, groupUuid, permission, templateName, groupName, "organization");
     db.commit();
   }
 
@@ -100,7 +100,7 @@ public class PermissionTemplateDbTester {
         .setWithProjectCreator(true)
         .setTemplateUuid(templateUuid)
         .setPermission(permission),
-      templateName);
+      templateName, "organization");
     db.commit();
   }
 }

@@ -65,7 +65,7 @@ public class AddGroupAction extends AbstractGroupAction {
         .setGroupUuid(group.getUuid())
         .setQualityGateUuid(qualityGate.getUuid()),
       qualityGate.getName(),
-      group.getName());
+      group.getName(), qualityGate.getOrganizationUuid());
     dbSession.commit();
   }
 

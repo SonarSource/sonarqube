@@ -220,7 +220,7 @@ public class DeleteTemplateActionIT {
     db.getDbClient().permissionTemplateDao().insertUserPermission(db.getSession(), dto.getUuid(), user.getUuid(), UserRole.ADMIN,
       dto.getName(), user.getLogin());
     db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), dto.getUuid(), group.getUuid(), UserRole.CODEVIEWER,
-      dto.getName(), group.getName());
+      dto.getName(), group.getName(), dto.getOrganizationUuid());
     db.commit();
     return dto;
   }

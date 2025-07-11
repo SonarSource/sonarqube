@@ -93,7 +93,7 @@ public class MemberUpdater {
     UserGroupDto userGroup = new UserGroupDto()
             .setGroupUuid(defaultGroup.getUuid())
             .setUserUuid(user.getUuid());
-    dbClient.userGroupDao().insert(dbSession, userGroup, defaultGroup.getName(), user.getLogin());
+    dbClient.userGroupDao().insert(dbSession, userGroup, defaultGroup.getName(), user.getLogin(), organization.getUuid());
   }
 
   public void removeMember(DbSession dbSession, OrganizationDto organization, UserDto user) {

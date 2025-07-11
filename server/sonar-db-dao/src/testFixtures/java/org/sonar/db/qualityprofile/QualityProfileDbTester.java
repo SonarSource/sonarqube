@@ -120,7 +120,7 @@ public class QualityProfileDbTester {
         .setUuid(Uuids.createFast())
         .setUserUuid(user.getUuid())
         .setQProfileUuid(profile.getKee()),
-      profile.getName(), user.getLogin()
+      profile.getName(), user.getLogin(), profile.getOrganizationUuid()
     );
     db.commit();
   }
@@ -131,7 +131,7 @@ public class QualityProfileDbTester {
         .setUuid(Uuids.createFast())
         .setGroupUuid(group.getUuid())
         .setQProfileUuid(profile.getKee()),
-      profile.getName(), group.getName());
+      profile.getName(), group.getName(), profile.getOrganizationUuid());
     db.commit();
   }
 }

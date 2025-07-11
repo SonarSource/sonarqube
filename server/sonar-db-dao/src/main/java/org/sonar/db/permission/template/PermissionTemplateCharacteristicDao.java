@@ -19,16 +19,16 @@
  */
 package org.sonar.db.permission.template;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+
 import java.util.List;
 import java.util.Optional;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.PermissionTemplateNewValue;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Objects.requireNonNull;
-import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class PermissionTemplateCharacteristicDao implements Dao {
   private final AuditPersister auditPersister;
@@ -46,22 +46,20 @@ public class PermissionTemplateCharacteristicDao implements Dao {
     return Optional.ofNullable(dto);
   }
 
-  public PermissionTemplateCharacteristicDto insert(DbSession dbSession, PermissionTemplateCharacteristicDto dto, String templateName) {
+  public PermissionTemplateCharacteristicDto insert(DbSession dbSession, PermissionTemplateCharacteristicDto dto, String templateName, String organizationUuid) {
     checkArgument(dto.getCreatedAt() != 0L && dto.getUpdatedAt() != 0L);
     mapper(dbSession).insert(dto);
-
-    auditPersister.addCharacteristicToPermissionTemplate(dbSession, new PermissionTemplateNewValue(dto.getTemplateUuid(),
-      dto.getPermission(), templateName, dto.getWithProjectCreator()));
+    auditPersister.addCharacteristicToPermissionTemplate(dbSession, organizationUuid,
+            new PermissionTemplateNewValue(dto.getTemplateUuid(), dto.getPermission(), templateName, dto.getWithProjectCreator()));
 
     return dto;
   }
 
   public PermissionTemplateCharacteristicDto update(DbSession dbSession, PermissionTemplateCharacteristicDto templatePermissionDto,
-    String templateName) {
+    String templateName, String organizationUuid) {
     requireNonNull(templatePermissionDto.getUuid());
     mapper(dbSession).update(templatePermissionDto);
-
-    auditPersister.updateCharacteristicInPermissionTemplate(dbSession, new PermissionTemplateNewValue(templatePermissionDto.getTemplateUuid(),
+    auditPersister.updateCharacteristicInPermissionTemplate(dbSession, organizationUuid, new PermissionTemplateNewValue(templatePermissionDto.getTemplateUuid(),
       templatePermissionDto.getPermission(), templateName, templatePermissionDto.getWithProjectCreator()));
 
     return templatePermissionDto;

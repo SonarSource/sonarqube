@@ -95,7 +95,7 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
               groupDetails.getName(), template.getName(), organization.get().getKey(), organization.get().getUuid(),
               template.getUuid(), permission, userSession.getLogin());
       dbClient.permissionTemplateDao().deleteGroupPermission(dbSession, template.getUuid(), group.getUuid(), permission,
-        template.getName(), request.param(PARAM_GROUP_NAME));
+        template.getName(), request.param(PARAM_GROUP_NAME), template.getOrganizationUuid());
       dbSession.commit();
     }
     response.noContent();

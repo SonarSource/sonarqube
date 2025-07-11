@@ -90,6 +90,7 @@ public class DeleteAction implements WebhooksWsAction {
         Optional<ProjectDto> optionalDto = dbClient.projectDao().selectByUuid(dbSession, projectUuid);
         ProjectDto projectDto = optionalDto.orElseThrow(() -> new IllegalStateException(format("the requested project '%s' was not found", projectUuid)));
         webhookSupport.checkPermission(projectDto);
+        webhookDto.setOrganizationUuid(projectDto.getOrganizationUuid());
         deleteWebhook(dbSession, webhookDto);
       }
 
@@ -101,7 +102,7 @@ public class DeleteAction implements WebhooksWsAction {
 
   private void deleteWebhook(DbSession dbSession, WebhookDto webhookDto) {
     dbClient.webhookDeliveryDao().deleteByWebhook(dbSession, webhookDto);
-    dbClient.webhookDao().delete(dbSession, webhookDto.getUuid(), webhookDto.getName());
+    dbClient.webhookDao().delete(dbSession, webhookDto);
   }
 
 }

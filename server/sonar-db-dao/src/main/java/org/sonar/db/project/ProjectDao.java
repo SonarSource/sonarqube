@@ -49,7 +49,7 @@ public class ProjectDao implements Dao {
 
   public void insert(DbSession session, ProjectDto project, boolean track) {
     if (track) {
-      auditPersister.addComponent(session, new ProjectNewValue(project));
+      auditPersister.addComponent(session, project.getOrganizationUuid(), new ProjectNewValue(project));
     }
     mapper(session).insert(project);
   }
@@ -132,7 +132,7 @@ public class ProjectDao implements Dao {
   }
 
   public void update(DbSession session, ProjectDto project) {
-    auditPersister.updateComponent(session, new ProjectNewValue(project));
+    auditPersister.updateComponent(session, project.getOrganizationUuid(), new ProjectNewValue(project));
     mapper(session).update(project);
   }
 

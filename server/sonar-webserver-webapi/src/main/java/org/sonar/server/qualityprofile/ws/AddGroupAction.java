@@ -115,7 +115,7 @@ public class AddGroupAction implements QProfileWsAction {
         .setGroupUuid(group.getUuid())
         .setQProfileUuid(profile.getKee()),
       profile.getName(),
-      group.getName());
+      group.getName(), profile.getOrganizationUuid());
     dbSession.commit();
   }
 }
