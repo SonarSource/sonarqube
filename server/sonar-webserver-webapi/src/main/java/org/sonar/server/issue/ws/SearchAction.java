@@ -116,6 +116,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFT
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_BEFORE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_IN_LAST;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CVSS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CWE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
@@ -180,7 +181,8 @@ public class SearchAction implements IssuesWsAction {
     PARAM_CASA,
     PARAM_SANS_TOP_25,
     PARAM_CWE,
-    PARAM_CREATED_AT,
+          PARAM_CVSS,
+          PARAM_CREATED_AT,
     PARAM_SONARSOURCE_SECURITY,
     PARAM_CODE_VARIANTS,
     PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES,
@@ -406,6 +408,11 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_CWE)
       .setDescription("Comma-separated list of CWE identifiers. Use '" + UNKNOWN_STANDARD + "' to select issues not associated to any CWE.")
       .setExampleValue("12,125," + UNKNOWN_STANDARD);
+
+    action.createParam(PARAM_CVSS)
+            .setDescription("Comma-separated list of CVSS identifiers.")
+            .setExampleValue("0,10");
+
     action.createParam(PARAM_SONARSOURCE_SECURITY)
       .setDescription("Comma-separated list of SonarSource security categories. Use '" + SQCategory.OTHERS.getKey() + "' to select issues" +
         " not associated" +
@@ -699,6 +706,7 @@ public class SearchAction implements IssuesWsAction {
     addMandatoryValuesToFacet(facets, PARAM_CASA, request.getCasa());
     addMandatoryValuesToFacet(facets, PARAM_SANS_TOP_25, request.getSansTop25());
     addMandatoryValuesToFacet(facets, PARAM_CWE, request.getCwe());
+
     addMandatoryValuesToFacet(facets, PARAM_SONARSOURCE_SECURITY, request.getSonarsourceSecurity());
     addMandatoryValuesToFacet(facets, PARAM_CODE_VARIANTS, request.getCodeVariants());
   }
@@ -742,58 +750,59 @@ public class SearchAction implements IssuesWsAction {
 
   private SearchRequest toSearchWsRequest(DbSession dbSession, Request request) {
     return new SearchRequest()
-      .setAdditionalFields(request.paramAsStrings(PARAM_ADDITIONAL_FIELDS))
-      .setAsc(request.mandatoryParamAsBoolean(PARAM_ASC))
-      .setAssigned(request.paramAsBoolean(PARAM_ASSIGNED))
-      .setAssigneesUuid(getLogins(dbSession, request.paramAsStrings(PARAM_ASSIGNEES)))
-      .setAuthors(request.multiParam(PARAM_AUTHOR))
-      .setComponentKeys(request.paramAsStrings(PARAM_COMPONENTS))
-      .setCreatedAfter(request.param(PARAM_CREATED_AFTER))
-      .setCreatedAt(request.param(PARAM_CREATED_AT))
-      .setCreatedBefore(request.param(PARAM_CREATED_BEFORE))
-      .setCreatedInLast(request.param(PARAM_CREATED_IN_LAST))
-      .setDirectories(request.paramAsStrings(PARAM_DIRECTORIES))
-      .setFacets(request.paramAsStrings(FACETS))
-      .setFiles(request.paramAsStrings(PARAM_FILES))
-      .setInNewCodePeriod(request.paramAsBoolean(PARAM_IN_NEW_CODE_PERIOD))
-      .setIssues(request.paramAsStrings(PARAM_ISSUES))
-      .setScopes(request.paramAsStrings(PARAM_SCOPES))
-      .setLanguages(request.paramAsStrings(PARAM_LANGUAGES))
-      .setOnComponentOnly(request.paramAsBoolean(PARAM_ON_COMPONENT_ONLY))
-      .setBranch(request.param(PARAM_BRANCH))
-      .setPullRequest(request.param(PARAM_PULL_REQUEST))
-      .setPage(request.mandatoryParamAsInt(Param.PAGE))
-      .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
-      .setProjectKeys(request.paramAsStrings(PARAM_PROJECTS))
-      .setResolutions(request.paramAsStrings(PARAM_RESOLUTIONS))
-      .setResolved(request.paramAsBoolean(PARAM_RESOLVED))
-      .setPrioritizedRule(request.paramAsBoolean(PARAM_PRIORITIZED_RULE))
-      .setRules(request.paramAsStrings(PARAM_RULES))
-      .setSort(request.param(Param.SORT))
-      .setSeverities(request.paramAsStrings(PARAM_SEVERITIES))
-      .setImpactSeverities(request.paramAsStrings(PARAM_IMPACT_SEVERITIES))
-      .setImpactSoftwareQualities(request.paramAsStrings(PARAM_IMPACT_SOFTWARE_QUALITIES))
-      .setCleanCodeAttributesCategories(request.paramAsStrings(PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES))
-      .setStatuses(request.paramAsStrings(PARAM_STATUSES))
-      .setIssueStatuses(request.paramAsStrings(PARAM_ISSUE_STATUSES))
-      .setTags(request.paramAsStrings(PARAM_TAGS))
-      .setTypes(allRuleTypesExceptHotspotsIfEmpty(request.paramAsStrings(PARAM_TYPES)))
-      .setPciDss32(request.paramAsStrings(PARAM_PCI_DSS_32))
-      .setPciDss40(request.paramAsStrings(PARAM_PCI_DSS_40))
-      .setOwaspAsvsLevel(request.paramAsInt(PARAM_OWASP_ASVS_LEVEL))
-      .setOwaspAsvs40(request.paramAsStrings(PARAM_OWASP_ASVS_40))
-      .setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10))
-      .setOwaspTop10For2021(request.paramAsStrings(PARAM_OWASP_TOP_10_2021))
-      .setStigAsdV5R3(request.paramAsStrings(PARAM_STIG_ASD_V5R3))
-      .setCasa(request.paramAsStrings(PARAM_CASA))
-      .setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25))
-      .setCwe(request.paramAsStrings(PARAM_CWE))
-      .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY))
-      .setTimeZone(request.param(PARAM_TIMEZONE))
-      .setSearchAfter(request.param(PARAM_SEARCH_AFTER))
-      .setOrganization(request.param(PARAM_ORGANIZATION))
-      .setCodeVariants(request.paramAsStrings(PARAM_CODE_VARIANTS))
-      .setFixedInPullRequest(request.param(PARAM_FIXED_IN_PULL_REQUEST));
+            .setAdditionalFields(request.paramAsStrings(PARAM_ADDITIONAL_FIELDS))
+            .setAsc(request.mandatoryParamAsBoolean(PARAM_ASC))
+            .setAssigned(request.paramAsBoolean(PARAM_ASSIGNED))
+            .setAssigneesUuid(getLogins(dbSession, request.paramAsStrings(PARAM_ASSIGNEES)))
+            .setAuthors(request.multiParam(PARAM_AUTHOR))
+            .setComponentKeys(request.paramAsStrings(PARAM_COMPONENTS))
+            .setCreatedAfter(request.param(PARAM_CREATED_AFTER))
+            .setCreatedAt(request.param(PARAM_CREATED_AT))
+            .setCreatedBefore(request.param(PARAM_CREATED_BEFORE))
+            .setCreatedInLast(request.param(PARAM_CREATED_IN_LAST))
+            .setDirectories(request.paramAsStrings(PARAM_DIRECTORIES))
+            .setFacets(request.paramAsStrings(FACETS))
+            .setFiles(request.paramAsStrings(PARAM_FILES))
+            .setInNewCodePeriod(request.paramAsBoolean(PARAM_IN_NEW_CODE_PERIOD))
+            .setIssues(request.paramAsStrings(PARAM_ISSUES))
+            .setScopes(request.paramAsStrings(PARAM_SCOPES))
+            .setLanguages(request.paramAsStrings(PARAM_LANGUAGES))
+            .setOnComponentOnly(request.paramAsBoolean(PARAM_ON_COMPONENT_ONLY))
+            .setBranch(request.param(PARAM_BRANCH))
+            .setPullRequest(request.param(PARAM_PULL_REQUEST))
+            .setPage(request.mandatoryParamAsInt(Param.PAGE))
+            .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
+            .setProjectKeys(request.paramAsStrings(PARAM_PROJECTS))
+            .setResolutions(request.paramAsStrings(PARAM_RESOLUTIONS))
+            .setResolved(request.paramAsBoolean(PARAM_RESOLVED))
+            .setPrioritizedRule(request.paramAsBoolean(PARAM_PRIORITIZED_RULE))
+            .setRules(request.paramAsStrings(PARAM_RULES))
+            .setSort(request.param(Param.SORT))
+            .setSeverities(request.paramAsStrings(PARAM_SEVERITIES))
+            .setImpactSeverities(request.paramAsStrings(PARAM_IMPACT_SEVERITIES))
+            .setImpactSoftwareQualities(request.paramAsStrings(PARAM_IMPACT_SOFTWARE_QUALITIES))
+            .setCleanCodeAttributesCategories(request.paramAsStrings(PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES))
+            .setStatuses(request.paramAsStrings(PARAM_STATUSES))
+            .setIssueStatuses(request.paramAsStrings(PARAM_ISSUE_STATUSES))
+            .setTags(request.paramAsStrings(PARAM_TAGS))
+            .setTypes(allRuleTypesExceptHotspotsIfEmpty(request.paramAsStrings(PARAM_TYPES)))
+            .setPciDss32(request.paramAsStrings(PARAM_PCI_DSS_32))
+            .setPciDss40(request.paramAsStrings(PARAM_PCI_DSS_40))
+            .setOwaspAsvsLevel(request.paramAsInt(PARAM_OWASP_ASVS_LEVEL))
+            .setOwaspAsvs40(request.paramAsStrings(PARAM_OWASP_ASVS_40))
+            .setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10))
+            .setOwaspTop10For2021(request.paramAsStrings(PARAM_OWASP_TOP_10_2021))
+            .setStigAsdV5R3(request.paramAsStrings(PARAM_STIG_ASD_V5R3))
+            .setCasa(request.paramAsStrings(PARAM_CASA))
+            .setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25))
+            .setCwe(request.paramAsStrings(PARAM_CWE))
+            .setCvss(request.paramAsStrings(PARAM_CVSS))
+            .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY))
+            .setTimeZone(request.param(PARAM_TIMEZONE))
+            .setSearchAfter(request.param(PARAM_SEARCH_AFTER))
+            .setOrganization(request.param(PARAM_ORGANIZATION))
+            .setCodeVariants(request.paramAsStrings(PARAM_CODE_VARIANTS))
+            .setFixedInPullRequest(request.param(PARAM_FIXED_IN_PULL_REQUEST));
   }
 
   private void checkIfNeedIssueSync(DbSession dbSession, SearchRequest searchRequest) {

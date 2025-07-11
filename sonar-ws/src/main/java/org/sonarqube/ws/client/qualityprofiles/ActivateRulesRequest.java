@@ -37,6 +37,7 @@ public class ActivateRulesRequest {
   private String availableSince;
   private String compareToProfile;
   private List<String> cwe;
+  private List<String> cvss;
   private List<String> inheritance;
   private String isTemplate;
   private List<String> languages;
@@ -149,6 +150,16 @@ public class ActivateRulesRequest {
   public List<String> getCwe() {
     return cwe;
   }
+
+  public ActivateRulesRequest setCvss(List<String> cvss) {
+    this.cvss = cvss;
+    return this;
+  }
+
+  public List<String> getCvss() {
+    return cvss;
+  }
+
 
   /**
    * Example value: "INHERITED,OVERRIDES"

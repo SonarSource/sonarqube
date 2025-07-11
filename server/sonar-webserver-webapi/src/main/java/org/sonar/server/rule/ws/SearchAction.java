@@ -22,11 +22,14 @@ package org.sonar.server.rule.ws;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +48,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.es.Facets;
@@ -88,6 +92,8 @@ import static org.sonar.server.rule.ws.RulesWsParameters.OPTIONAL_FIELDS;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CWE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CVSS;
+
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IMPACT_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IMPACT_SOFTWARE_QUALITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
@@ -102,6 +108,8 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_STATUSES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TAGS;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TYPES;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonar.server.rule.index.RuleIndex.FACET_CVSS;
+
 
 public class SearchAction implements RulesWsAction {
   public static final String ACTION = "search";
@@ -123,7 +131,8 @@ public class SearchAction implements RulesWsAction {
     FACET_SONARSOURCE_SECURITY,
     FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY,
     FACET_IMPACT_SEVERITY,
-    FACET_IMPACT_SOFTWARE_QUALITY
+    FACET_IMPACT_SOFTWARE_QUALITY,
+    FACET_CVSS
   };
 
   private final RuleQueryFactory ruleQueryFactory;
@@ -342,6 +351,7 @@ public class SearchAction implements RulesWsAction {
     addMandatoryFacetValues(results, FACET_TAGS, request.getTags());
     addMandatoryFacetValues(results, FACET_TYPES, RuleType.names());
     addMandatoryFacetValues(results, FACET_CWE, request.getCwe());
+    addMandatoryFacetValues(results, FACET_CVSS, request.getCvss());
     addMandatoryFacetValues(results, FACET_OWASP_TOP_10, request.getOwaspTop10());
     addMandatoryFacetValues(results, FACET_OWASP_TOP_10_2021, request.getOwaspTop10For2021());
     addMandatoryFacetValues(results, FACET_SANS_TOP_25, request.getSansTop25());
@@ -368,8 +378,10 @@ public class SearchAction implements RulesWsAction {
     facetValuesByFacetKey.put(FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY, request.getCleanCodeAttributesCategories());
     facetValuesByFacetKey.put(FACET_IMPACT_SOFTWARE_QUALITY, request.getImpactSoftwareQualities());
     facetValuesByFacetKey.put(FACET_IMPACT_SEVERITY, request.getImpactSeverities());
+    facetValuesByFacetKey.put(FACET_CVSS, request.getCvss());
 
     for (String facetName : context.getFacets()) {
+
       facet.clear().setProperty(facetName);
       Map<String, Long> facets = resultsFacets.get(facetName);
       if (facets != null) {
@@ -386,6 +398,7 @@ public class SearchAction implements RulesWsAction {
       response.getFacetsBuilder().addFacets(facet);
     }
   }
+
 
   private static Collection<String> enumToStringCollection(Enum<?>... enumValues) {
     return Arrays.stream(enumValues).map(Enum::name).toList();
@@ -442,7 +455,9 @@ public class SearchAction implements RulesWsAction {
       .setOwaspTop10For2021(request.paramAsStrings(PARAM_OWASP_TOP_10_2021))
       .setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25))
       .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY))
-      .setPrioritizedRule(request.paramAsBoolean(PARAM_PRIORITIZED_RULE));
+      .setPrioritizedRule(request.paramAsBoolean(PARAM_PRIORITIZED_RULE))
+          .setCvss(request.paramAsStrings(PARAM_CVSS));
+
   }
 
   private static class SearchRequest {
@@ -467,6 +482,8 @@ public class SearchAction implements RulesWsAction {
     private List<String> impactSoftwareQualities;
     private List<String> cleanCodeAttributesCategories;
     private Boolean prioritizedRule;
+    private List<String> cvss;
+
 
     private SearchRequest setActiveSeverities(List<String> activeSeverities) {
       this.activeSeverities = activeSeverities;
@@ -573,6 +590,16 @@ public class SearchAction implements RulesWsAction {
 
     public SearchRequest setCwe(@Nullable List<String> cwe) {
       this.cwe = cwe;
+      return this;
+    }
+
+
+    public List<String> getCvss() {
+      return cvss;
+    }
+
+    public SearchRequest setCvss(@Nullable List<String> cvss) {
+      this.cvss = cvss;
       return this;
     }
 

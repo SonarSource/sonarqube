@@ -173,7 +173,8 @@ public class IssueQueryFactory {
         .timeZone(timeZone)
         .searchAfter(request.getSearchAfter())
         .organizationUuid(convertOrganizationKeyToUuid(dbSession, request.getOrganization()))
-        .codeVariants(request.getCodeVariants());
+        .codeVariants(request.getCodeVariants())
+        .cvss(request.getCvss());
       if (request.getOrganization() == null) {
         builder.allowedProjectUuids(projectsList);
       }

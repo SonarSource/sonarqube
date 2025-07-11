@@ -97,7 +97,6 @@ export function Sidebar(props: Readonly<Props>) {
   const { settings } = useAppState();
   const { hasFeature } = useAvailableFeatures();
   const { data: isStandardMode } = useStandardExperienceModeQuery();
-
   const renderComponentFacets = () => {
     const hasFileOrDirectory =
       !isApplication(component?.qualifier) && !isPortfolioLike(component?.qualifier);
@@ -348,6 +347,23 @@ export function Sidebar(props: Readonly<Props>) {
             cwe={query.cwe}
             cweOpen={!!openFacets.cwe}
             cweStats={facets.cwe}
+            cvss={query.cvss}
+            cvssOpen={!!openFacets.cvss}
+            cvssStats={
+              facets.cvss
+                ? Object.entries(facets.cvss).reduce(
+                    (acc, [range, count]) => {
+                      const numericCount = Number(count);
+                      if (numericCount > 0) {
+                        acc[range.trim()] = numericCount;
+                      }
+                      return acc;
+                    },
+                    {} as Record<string, number>,
+                  )
+                : undefined
+            }
+            fetchingCvss={props.loadingFacets.cvss === true}
             fetchingCwe={props.loadingFacets.cwe === true}
             fetchingOwaspTop10={props.loadingFacets.owaspTop10 === true}
             fetchingOwaspTop10-2021={props.loadingFacets['owaspTop10-2021'] === true}

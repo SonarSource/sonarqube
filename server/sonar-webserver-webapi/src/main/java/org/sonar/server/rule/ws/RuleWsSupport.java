@@ -62,6 +62,8 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_AVAILABLE_SINCE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CWE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CVSS;
+
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IMPACT_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IMPACT_SOFTWARE_QUALITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INCLUDE_EXTERNAL;
@@ -137,6 +139,11 @@ public class RuleWsSupport {
       .createParam(PARAM_CWE)
       .setDescription("Comma-separated list of CWE identifiers. Use '" + SecurityStandards.UNKNOWN_STANDARD + "' to select rules not associated to any CWE.")
       .setExampleValue("12,125," + SecurityStandards.UNKNOWN_STANDARD);
+
+    action
+            .createParam(PARAM_CVSS)
+            .setDescription("Comma-separated list of CVSS identifiers")
+            .setExampleValue("0,10");
 
     action.createParam(PARAM_OWASP_TOP_10)
       .setDescription("Comma-separated list of OWASP Top 10 2017 lowercase categories.")

@@ -30,6 +30,7 @@ import {
   renderPciDss40Category,
   renderSonarSourceSecurityCategory,
   renderStigCategory,
+  renderCVSSCategory,
 } from '../../helpers/security-standard';
 import { SecurityStandard } from '../../types/security';
 import {
@@ -66,6 +67,7 @@ export const SECURITY_STANDARDS = [
   SecurityStandard.OWASP_ASVS_4_0,
   SecurityStandard.CASA,
   SecurityStandard.STIG_ASD_V5R3,
+  SecurityStandard.CVSS,
 ];
 
 export const SECURITY_STANDARD_RENDERER = {
@@ -78,6 +80,7 @@ export const SECURITY_STANDARD_RENDERER = {
   [SecurityStandard.OWASP_ASVS_4_0]: renderOwaspAsvs40Category,
   [SecurityStandard.CASA]: renderCASACategory,
   [SecurityStandard.STIG_ASD_V5R3]: renderStigCategory,
+  [SecurityStandard.CVSS]: renderCVSSCategory,
 };
 
 export function mapRules(rules: Array<{ key: string; name: string }>): Dict<string> {
