@@ -44,4 +44,6 @@ public interface QProfileEditUsersMapper {
   int deleteByUser(@Param("userUuid") String userUuid);
 
   void deleteByOrganizationAndUser(@Param("organizationUuid") String organizationUuid, @Param("userUuid") String userUuid);
+
+  List<QProfileEditUsersDto> selectByUser(@Param("userUuid") String userUuid);
 }

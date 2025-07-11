@@ -246,7 +246,7 @@ public class ApplyTemplateActionIT extends BasePermissionWsIT<ApplyTemplateActio
 
   private void addGroupToTemplate(GroupDto group, PermissionTemplateDto permissionTemplate, String permission) {
     db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), permissionTemplate.getUuid(), group.getUuid(),
-      permission, permissionTemplate.getName(), group.getName());
+      permission, permissionTemplate.getName(), group.getName(), permissionTemplate.getOrganizationUuid());
     db.commit();
   }
 

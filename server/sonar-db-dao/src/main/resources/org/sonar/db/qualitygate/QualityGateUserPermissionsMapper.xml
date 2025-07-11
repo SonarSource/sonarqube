@@ -83,5 +83,12 @@
     where quality_gate_uuid = #{qualityGateUuid, jdbcType=VARCHAR}
   </delete>
 
+  <select id="selectByUserUuid" parameterType="String" resultType="org.sonar.db.qualitygate.QualityGateUserPermissionsDto">
+    select
+    <include refid="sqlColumns"/>
+    from qgate_user_permissions qup
+    where qup.user_uuid = #{userUuid}
+  </select>
+
 </mapper>
 

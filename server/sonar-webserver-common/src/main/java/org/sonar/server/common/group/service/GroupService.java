@@ -234,12 +234,12 @@ public class GroupService {
 
   private void removeGroupFromPermissionTemplates(DbSession dbSession, GroupDto group) {
     logger.debug("Removing group from permission template for group: {}", group.getName());
-    dbClient.permissionTemplateDao().deleteByGroup(dbSession, group.getUuid(), group.getName());
+    dbClient.permissionTemplateDao().deleteByGroup(dbSession, group);
   }
 
   private void removeGroupMembers(DbSession dbSession, GroupDto group) {
     logger.debug("Removing group members for group: {}", group.getName());
-    dbClient.userGroupDao().deleteByGroupUuid(dbSession, group.getUuid(), group.getName());
+    dbClient.userGroupDao().deleteByGroupUuid(dbSession, group);
   }
 
   private void removeGroupFromQualityProfileEdit(DbSession dbSession, GroupDto group) {

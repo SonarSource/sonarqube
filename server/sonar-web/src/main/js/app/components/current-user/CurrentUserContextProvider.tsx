@@ -45,6 +45,15 @@ export default class CurrentUserContextProvider extends React.PureComponent<
     };
   }
 
+  setIsNotStandardOrg = (flag: boolean) => {
+    this.setState(prevState => ({
+      currentUser: {
+        ...prevState.currentUser,
+        isNotStandardOrg: flag
+      }
+    }));
+  };
+
   updateCurrentUserHomepage = (homepage: HomePage) => {
     this.setState((prevState) => ({
       currentUser: { ...prevState.currentUser, homepage },
@@ -75,6 +84,7 @@ export default class CurrentUserContextProvider extends React.PureComponent<
           updateCurrentUserHomepage: this.updateCurrentUserHomepage,
           updateDismissedNotices: this.updateDismissedNotices,
           updateUserOrganizations: this.updateUserOrganizations,
+          setIsNotStandardOrg: this.setIsNotStandardOrg,
         }}
       >
         {this.props.children}

@@ -44,7 +44,8 @@ public class WebhookDbTester {
   }
 
   public WebhookDto insert(WebhookDto dto, @Nullable String projectKey, @Nullable String projectName) {
-    dbTester.getDbClient().webhookDao().insert(dbTester.getSession(), dto, projectKey, projectName);
+    dbTester.getDbClient().webhookDao().insert(dbTester.getSession(), dto, projectKey, projectName,
+            dto.getOrganizationUuid());
     dbTester.commit();
     return dto;
   }

@@ -116,6 +116,11 @@ public class IssueQueryFactory {
     this.userSession = userSession;
   }
 
+  public enum MemberType {
+    STANDARD,
+    PLATFORM;
+  }
+
   public IssueQuery create(SearchRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       final ZoneId timeZone = parseTimeZone(request.getTimeZone()).orElse(clock.getZone());
@@ -128,6 +133,9 @@ public class IssueQueryFactory {
         ruleUuids.add("non-existing-uuid");
       }
 
+      Set<String> standardOrgs = dbClient.organizationMemberDao().selectOrganizationUuidsByUserUuidAndType(
+              dbSession, userSession.getUuid(),MemberType.STANDARD.name());
+      List<String> projectsList = dbClient.projectDao().selectProjectUuidsByOrganizationUuids(dbSession, (new ArrayList<String>( standardOrgs)));
       IssueQuery.Builder builder = IssueQuery.builder()
         .issueKeys(issueKeys)
         .severities(request.getSeverities())
@@ -167,6 +175,10 @@ public class IssueQueryFactory {
         .organizationUuid(convertOrganizationKeyToUuid(dbSession, request.getOrganization()))
         .codeVariants(request.getCodeVariants())
         .cvss(request.getCvss());
+      if (request.getOrganization() == null) {
+        builder.allowedProjectUuids(projectsList);
+      }
+
       List<ComponentDto> allComponents = new ArrayList<>();
       boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(dbSession, request, allComponents);
       addComponentParameters(builder, dbSession, effectiveOnComponentOnly, allComponents, request);

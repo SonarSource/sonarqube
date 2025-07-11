@@ -41,7 +41,9 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
+import org.sonar.server.issue.index.IssueQueryFactory.MemberType;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
@@ -115,14 +117,16 @@ public class ShowAction implements ComponentsWsAction {
   private ShowWsResponse doHandle(Request request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = loadComponent(dbSession, request);
-      checkPermissions(component);
+      boolean isStandardOrg = dbClient.organizationMemberDao().isUserStandardMemberOfOrganization(dbSession,
+              userSession.getUuid(), component.getOrganizationUuid());
+      checkPermissions(component, isStandardOrg);
       Optional<SnapshotDto> lastAnalysis = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, component.branchUuid());
       List<ComponentDto> ancestors = dbClient.componentDao().selectAncestors(dbSession, component);
       return buildResponse(dbSession, component, ancestors, lastAnalysis.orElse(null), request);
     }
   }
 
-  private void checkPermissions(ComponentDto baseComponent) {
+  private void checkPermissions(ComponentDto baseComponent, boolean isStandardOrg) {
     if (userSession instanceof ThreadLocalUserSession) {
       UserSession tokenUserSession = ((ThreadLocalUserSession) userSession).get();
       if (tokenUserSession instanceof TokenUserSession) {
@@ -135,6 +139,9 @@ public class ShowAction implements ComponentsWsAction {
       }
     }
     userSession.checkComponentPermission(UserRole.USER, baseComponent);
+    if(!userSession.isRoot() && !isStandardOrg){
+      throw new ForbiddenException("Platform User cannot access this organization");
+    }
   }
 
   private ComponentDto loadComponent(DbSession dbSession, Request request) {

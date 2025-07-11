@@ -164,7 +164,7 @@ public class DeleteActionIT {
     PermissionTemplateDto template = db.getDbClient().permissionTemplateDao().insert(db.getSession(),
       PermissionTemplateTesting.newPermissionTemplateDto());
     db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), template.getUuid(), group.getUuid(), "perm",
-      template.getName(), group.getName());
+      template.getName(), group.getName(), template.getOrganizationUuid());
     db.commit();
     loginAsAdmin();
     assertThat(db.countRowsOfTable("perm_templates_groups")).isOne();

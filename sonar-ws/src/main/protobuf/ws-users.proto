@@ -118,6 +118,8 @@ message CurrentWsResponse {
   reserved 17; // sonarLintAdSeen removed
   map<string,bool> dismissedNotices = 18;
   optional bool onboarded = 19;
+  repeated string platformOrgs = 20;
+  repeated string standardOrgs = 21;
 
   message OrganizationGroup {
     optional string organizationKey=1;

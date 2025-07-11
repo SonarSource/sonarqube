@@ -50,6 +50,16 @@ public class ProjectMeasuresQuery {
   private String queryText = null;
   private boolean ignoreAuthorization = false;
   private boolean ignoreWarning = false;
+  private Set<String> organizationUuids;
+
+  public Optional<Set<String>> getOrganizationUuids() {
+    return Optional.ofNullable(organizationUuids);
+  }
+
+  public ProjectMeasuresQuery setOrganizationUuids(Set<String> orgUuids) {
+    this.organizationUuids = orgUuids;
+    return this;
+  }
 
   public ProjectMeasuresQuery addMetricCriterion(MetricCriterion metricCriterion) {
     this.metricCriteria.add(metricCriterion);

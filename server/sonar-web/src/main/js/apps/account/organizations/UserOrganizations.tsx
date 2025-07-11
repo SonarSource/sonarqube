@@ -29,6 +29,9 @@ import withCurrentUserContext from "../../../app/components/current-user/withCur
 import { GlobalSettingKeys } from "../../../types/settings";
 import "../projects/account.css";
 import { ButtonPrimary } from "~design-system";
+import { useCurrentLoginUser } from '../../../app/components/current-user/CurrentUserContext';
+import { useCurrentUser } from '../../../app/components/current-user/CurrentUserContext';
+import { isNonStandardUser } from '../../../app/utils/userAccess';
 
 interface Props {
   appState: AppState;
@@ -40,23 +43,31 @@ function UserOrganizations(props: Props) {
   const { appState: { settings, canAdmin, canCustomerAdmin }, userOrganizations } = props;
   const anyoneCanCreate = settings[GlobalSettingKeys.OrganizationsAnyoneCanCreate] === 'true';
   const canCreateOrganizations = (anyoneCanCreate || canAdmin || canCustomerAdmin);
-
+  const {currentUser, setIsNotStandardOrg} = useCurrentUser();
+  React.useEffect(() => {
+    if (currentUser.standardOrgs?.length === 0) {
+      setIsNotStandardOrg?.(true);
+    }
+  }, [currentUser.standardOrgs, setIsNotStandardOrg]);
   return (
       <div className="account-body account-container organization-card-ctnr">
         <Helmet title={translate('my_account.organizations')}/>
 
         <div className="boxed-group">
-          {canCreateOrganizations && (
-              <div className="clearfix">
-                <div className="boxed-group-actions sw-flex sw-justify-end sw-mb-4">
-                  <ButtonPrimary className="button " to="/organizations/create">
-                    {translate('create')}
-                  </ButtonPrimary>
-                </div>
-              </div>
-          )}
+        {canCreateOrganizations && (
+          <div className="clearfix">
+            <div className="boxed-group-actions sw-flex sw-justify-end sw-mb-4">
+              {!currentUser.isNotStandardOrg && (
+                <ButtonPrimary className="button" to="/organizations/create">
+                  {translate('create')}
+                </ButtonPrimary>
+              )}
+
+            </div>
+          </div>
+        )}
           <div className="boxed-group-inner">
-            <OrganizationsList organizations={userOrganizations}/>
+            <OrganizationsList linksDisabled={ isNonStandardUser(currentUser)} organizations={userOrganizations}/>
           </div>
         </div>
       </div>

@@ -91,6 +91,13 @@
     where user_uuid = #{userUuid, jdbcType=VARCHAR}
   </delete>
 
+  <select id="selectByUser" parameterType="String" resultType="org.sonar.db.qualityprofile.QProfileEditUsersDto">
+    select
+    <include refid="sqlColumns"/>
+    from qprofile_edit_users qeu
+    where qeu.user_uuid = #{userUuid, jdbcType=VARCHAR}
+  </select>
+
   <delete id="deleteByOrganizationAndUser" parameterType="map">
     delete from qprofile_edit_users
     <where>

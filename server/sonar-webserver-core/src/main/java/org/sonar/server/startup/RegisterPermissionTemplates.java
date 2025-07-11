@@ -121,7 +121,7 @@ public class RegisterPermissionTemplates implements Startable {
   }
 
   private void insertGroupPermission(DbSession dbSession, PermissionTemplateDto template, String permission, GroupDto group) {
-    dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getUuid(), group.getUuid(), permission, template.getName(), group.getName());
+    dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getUuid(), group.getUuid(), permission, template.getName(), group.getName(), template.getOrganizationUuid());
   }
 
 }

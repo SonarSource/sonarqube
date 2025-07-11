@@ -19,6 +19,7 @@
  */
 package org.sonar.server.v2.api.analysis.controller;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 import org.sonar.server.v2.api.analysis.response.JreInfoRestResponse;
 import org.sonar.server.v2.api.analysis.service.JresHandler;
@@ -43,7 +44,7 @@ public class DefaultJresController implements JresController {
   }
 
   @Override
-  public InputStreamResource downloadJre(String id) {
+  public InputStreamResource downloadJre(String id) throws Exception {
     JreInfoRestResponse jreInfoRestResponse = jresHandler.getJreMetadata(id);
     return new InputStreamResource(jresHandler.getJreBinary(jreInfoRestResponse.filename()));
   }

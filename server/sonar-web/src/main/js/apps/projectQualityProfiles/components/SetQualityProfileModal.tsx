@@ -116,6 +116,8 @@ export default function SetQualityProfileModal(props: SetQualityProfileModalProp
           isDisabled={hasSelectedSysDefault}
           onChange={({ value }: ProfileOption) => setSelected(value)}
           options={profileOptions}
+          menuPortalTarget={document.querySelector('.design-system-modal-contents') as HTMLElement || null}
+          menuPosition="fixed"
           components={{
             Option: LanguageProfileSelectOption,
           }}

@@ -19,17 +19,20 @@
  */
 package org.sonar.db.component;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.BiConsumer;
+
 import javax.annotation.Nullable;
+
 import org.apache.commons.lang3.StringUtils;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentKeyNewValue;
+
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * Class used to rename the key of a project and its resources.
@@ -80,8 +83,10 @@ public class ComponentKeyUpdaterDao implements Dao {
       }
       mapper.updateComponent(resource);
       if (resource.getScope().equals(ComponentScopes.PROJECT)
-        && (resource.getQualifier().equals(ComponentQualifiers.PROJECT) || resource.getQualifier().equals(ComponentQualifiers.APP))) {
-        auditPersister.componentKeyUpdate(dbSession, new ComponentKeyNewValue(resource.getUuid(), oldResourceKey, newResourceKey), resource.getQualifier());
+          && (resource.getQualifier().equals(ComponentQualifiers.PROJECT) || resource.getQualifier().equals(ComponentQualifiers.APP))) {
+        ComponentDto componentDto = dbSession.getMapper(ComponentMapper.class).selectByUuid(resource.getUuid());
+        auditPersister.componentKeyUpdate(dbSession, componentDto.getOrganizationUuid(),
+            new ComponentKeyNewValue(resource.getUuid(), oldResourceKey, newResourceKey), resource.getQualifier());
         mapper.updateProject(oldResourceKey, newResourceKey);
       }
 

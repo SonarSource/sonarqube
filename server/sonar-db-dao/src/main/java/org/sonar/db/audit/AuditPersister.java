@@ -24,8 +24,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.audit.model.AbstractEditorNewValue;
 import org.sonar.db.audit.model.ComponentKeyNewValue;
 import org.sonar.db.audit.model.ComponentNewValue;
-import org.sonar.db.audit.model.DevOpsPlatformSettingNewValue;
 import org.sonar.db.audit.model.DevOpsPermissionsMappingNewValue;
+import org.sonar.db.audit.model.DevOpsPlatformSettingNewValue;
 import org.sonar.db.audit.model.GroupPermissionNewValue;
 import org.sonar.db.audit.model.LicenseNewValue;
 import org.sonar.db.audit.model.PermissionTemplateNewValue;
@@ -51,19 +51,23 @@ public interface AuditPersister {
 
   void addUser(DbSession dbSession, UserNewValue newValue);
 
+  void addUserToOrganization(DbSession dbSession, String organizationUuid, UserNewValue newValue);
+
+  void deleteUserFromOrganization(DbSession dbSession, String organizationUuid, UserNewValue newValue);
+
   void updateUser(DbSession dbSession, UserNewValue newValue);
 
   void updateUserPassword(DbSession dbSession, SecretNewValue newValue);
 
-  void updateWebhookSecret(DbSession dbSession, SecretNewValue newValue);
+  void updateWebhookSecret(DbSession dbSession, String organizationUuid, SecretNewValue newValue);
 
   void updateDevOpsPlatformSecret(DbSession dbSession, SecretNewValue newValue);
 
   void deactivateUser(DbSession dbSession, UserNewValue newValue);
 
-  void addUserToGroup(DbSession dbSession, UserGroupNewValue newValue);
+  void addUserToGroup(DbSession dbSession, String organizationUuid, UserGroupNewValue newValue);
 
-  void deleteUserFromGroup(DbSession dbSession, UserGroupNewValue newValue);
+  void deleteUserFromGroup(DbSession dbSession, String organizationUuid, UserGroupNewValue newValue);
 
   void addProperty(DbSession dbSession, PropertyNewValue newValue, boolean isUserProperty);
 
@@ -81,43 +85,43 @@ public interface AuditPersister {
 
   void deleteUserToken(DbSession dbSession, UserTokenNewValue newValue);
 
-  void addGroupPermission(DbSession dbSession, GroupPermissionNewValue newValue);
+  void addGroupPermission(DbSession dbSession, String organizationUuid, GroupPermissionNewValue newValue);
 
-  void deleteGroupPermission(DbSession dbSession, GroupPermissionNewValue newValue);
+  void deleteGroupPermission(DbSession dbSession, String organizationUuid, GroupPermissionNewValue newValue);
 
-  void addUserPermission(DbSession dbSession, UserPermissionNewValue newValue);
+  void addUserPermission(DbSession dbSession, String organizationUuid, UserPermissionNewValue newValue);
 
-  void deleteUserPermission(DbSession dbSession, UserPermissionNewValue newValue);
+  void deleteUserPermission(DbSession dbSession, String organizationUuid, UserPermissionNewValue newValue);
 
-  void addPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
+  void addPermissionTemplate(DbSession dbSession, String organizationUuid, PermissionTemplateNewValue newValue);
 
-  void updatePermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
+  void updatePermissionTemplate(DbSession dbSession, String organizationUuid, PermissionTemplateNewValue newValue);
 
-  void deletePermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
+  void deletePermissionTemplate(DbSession dbSession, String organizationUuid, PermissionTemplateNewValue newValue);
 
-  void addUserToPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
+  void addUserToPermissionTemplate(DbSession dbSession, String organizationUuid, PermissionTemplateNewValue newValue);
 
-  void deleteUserFromPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
+  void deleteUserFromPermissionTemplate(DbSession dbSession, String organizationUuid, PermissionTemplateNewValue newValue);
 
-  void addGroupToPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
+  void addGroupToPermissionTemplate(DbSession dbSession, String organizationUuid, PermissionTemplateNewValue newValue);
 
-  void deleteGroupFromPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
+  void deleteGroupFromPermissionTemplate(DbSession dbSession, String organizationUuid, PermissionTemplateNewValue newValue);
 
   void addDevOpsPermissionsMapping(DbSession dbSession, DevOpsPermissionsMappingNewValue newValue);
 
   void deleteDevOpsPermissionsMapping(DbSession dbSession, DevOpsPermissionsMappingNewValue deletedValue);
 
-  void addQualityGateEditor(DbSession dbSession, AbstractEditorNewValue newValue);
+  void addQualityGateEditor(DbSession dbSession, String organizationUuid, AbstractEditorNewValue newValue);
 
-  void deleteQualityGateEditor(DbSession dbSession, AbstractEditorNewValue newValue);
+  void deleteQualityGateEditor(DbSession dbSession, String organizationUuid, AbstractEditorNewValue newValue);
 
-  void addQualityProfileEditor(DbSession dbSession, AbstractEditorNewValue newValue);
+  void addQualityProfileEditor(DbSession dbSession, String organizationUuid, AbstractEditorNewValue newValue);
 
-  void deleteQualityProfileEditor(DbSession dbSession, AbstractEditorNewValue newValue);
+  void deleteQualityProfileEditor(DbSession dbSession, String organizationUuid, AbstractEditorNewValue newValue);
 
-  void addCharacteristicToPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
+  void addCharacteristicToPermissionTemplate(DbSession dbSession, String organizationUuid, PermissionTemplateNewValue newValue);
 
-  void updateCharacteristicInPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
+  void updateCharacteristicInPermissionTemplate(DbSession dbSession, String organizationUuid, PermissionTemplateNewValue newValue);
 
   void addPlugin(DbSession dbSession, PluginNewValue newValue);
 
@@ -127,11 +131,11 @@ public interface AuditPersister {
 
   void setLicense(DbSession dbSession, boolean isSet, LicenseNewValue newValue);
 
-  void addWebhook(DbSession dbSession, WebhookNewValue newValue);
+  void addWebhook(DbSession dbSession, String organizationUuid, WebhookNewValue newValue);
 
-  void updateWebhook(DbSession dbSession, WebhookNewValue newValue);
+  void updateWebhook(DbSession dbSession, String organizationUuid, WebhookNewValue newValue);
 
-  void deleteWebhook(DbSession dbSession, WebhookNewValue newValue);
+  void deleteWebhook(DbSession dbSession, String organizationUuid, WebhookNewValue newValue);
 
   void addDevOpsPlatformSetting(DbSession dbSession, DevOpsPlatformSettingNewValue newValue);
 
@@ -147,16 +151,16 @@ public interface AuditPersister {
 
   boolean isTrackedProperty(String propertyKey);
 
-  void addComponent(DbSession dbSession, ComponentNewValue newValue);
+  void addComponent(DbSession dbSession, String organizationUuid, ComponentNewValue newValue);
 
-  void deleteComponent(DbSession dbSession, ComponentNewValue newValue);
+  void deleteComponent(DbSession dbSession, String organizationUuid, ComponentNewValue newValue);
 
-  void updateComponent(DbSession dbSession, ComponentNewValue newValue);
+  void updateComponent(DbSession dbSession, String organizationUuid, ComponentNewValue newValue);
 
-  void updateComponentVisibility(DbSession session, ComponentNewValue componentNewValue);
+  void updateComponentVisibility(DbSession session, String organizationUuid, ComponentNewValue componentNewValue);
 
-  void componentKeyUpdate(DbSession session, ComponentKeyNewValue componentKeyNewValue, String qualifier);
+  void componentKeyUpdate(DbSession session, String organizationUuid, ComponentKeyNewValue componentKeyNewValue, String qualifier);
 
-  void componentKeyBranchUpdate(DbSession session, ComponentKeyNewValue componentKeyNewValue, String qualifier);
+  void componentKeyBranchUpdate(DbSession session, String organizationUuid, ComponentKeyNewValue componentKeyNewValue, String qualifier);
 
 }

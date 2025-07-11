@@ -19,6 +19,11 @@
  */
 package org.sonar.db.purge;
 
+import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
+import static org.sonar.api.utils.DateUtils.dateToLong;
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -40,11 +45,7 @@ import org.sonar.db.audit.model.ComponentNewValue;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchMapper;
 import org.sonar.db.component.ComponentDto;
-
-import static java.util.Collections.emptyList;
-import static java.util.Optional.ofNullable;
-import static org.sonar.api.utils.DateUtils.dateToLong;
-import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import org.sonar.db.component.ComponentMapper;
 
 public class PurgeDao implements Dao {
   private static final Logger LOG = LoggerFactory.getLogger(PurgeDao.class);
@@ -244,7 +245,8 @@ public class PurgeDao implements Dao {
     branchUuids.forEach(id -> deleteBranch(id, purgeCommands));
 
     deleteProject(uuid, purgeMapper, purgeCommands);
-    auditPersister.deleteComponent(session, new ComponentNewValue(uuid, name, key, qualifier));
+    ComponentDto componentDto = session.getMapper(ComponentMapper.class).selectByUuid(uuid);
+    auditPersister.deleteComponent(session, componentDto.getOrganizationUuid(), new ComponentNewValue(uuid, name, key, qualifier));
     logProfiling(profiler, start);
   }
 

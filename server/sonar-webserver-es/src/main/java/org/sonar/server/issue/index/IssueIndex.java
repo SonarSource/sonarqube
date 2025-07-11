@@ -753,6 +753,11 @@ public class IssueIndex {
       filters.addFilter(
         FIELD_ISSUE_PROJECT_UUID, new SimpleFieldFilterScope(FIELD_ISSUE_PROJECT_UUID),
         createTermsFilter(FIELD_ISSUE_PROJECT_UUID, query.projectUuids()));
+      if (query.organizationUuid() != null && query.allowedProjectUuids() != null && !query.allowedProjectUuids().isEmpty()) {
+        filters.addFilter(
+                FIELD_ISSUE_PROJECT_UUID, new SimpleFieldFilterScope(FIELD_ISSUE_PROJECT_UUID),
+                QueryBuilders.termsQuery(FIELD_ISSUE_PROJECT_UUID, query.allowedProjectUuids())
+        );}
       filters.addFilter(
         FIELD_ISSUE_DIRECTORY_PATH, new SimpleFieldFilterScope(FIELD_ISSUE_DIRECTORY_PATH),
         createTermsFilter(FIELD_ISSUE_DIRECTORY_PATH, query.directories()));
