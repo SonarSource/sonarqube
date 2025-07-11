@@ -6,12 +6,14 @@ sonarqube {
 
 dependencies {
     // AWS SDK v2 BOM for consistent versioning
-    implementation platform('software.amazon.awssdk:bom:2.25.14')
+    implementation platform('software.amazon.awssdk:bom:2.31.77')
 
     // Add the S3 module (and optionally auth/regions if needed)
     implementation 'software.amazon.awssdk:s3'
     implementation 'software.amazon.awssdk:auth'
     implementation 'software.amazon.awssdk:regions'
+
+    implementation 'io.netty:netty-codec-http:4.2.2.Final'
 
     // please keep the list grouped by configuration and ordered by name
     api 'org.springdoc:springdoc-openapi-webmvc-core'
