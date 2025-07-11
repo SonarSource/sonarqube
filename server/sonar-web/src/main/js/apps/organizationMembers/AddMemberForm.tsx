@@ -25,7 +25,7 @@ import { useNavigate } from 'react-router-dom';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
 import { translate } from '../../helpers/l10n';
 import { AppState } from '../../types/appstate';
-import { Organization, OrganizationMember } from '../../types/types';
+import { MemberType, Organization, OrganizationMember } from '../../types/types';
 import './AddMemberForm.css';
 import CustomSearchInput from './SearchUser';
 
@@ -41,6 +41,8 @@ function AddMemberForm(props: AddMemberFormProps) {
   const { canAdmin, canCustomerAdmin } = props.appState;
   const [open, setOpen] = useState<boolean>();
   const [selectedMember, setSelectedMember] = useState<OrganizationMember>();
+
+  const [userType, setUserType] = useState<MemberType>(MemberType.STANDARD);
 
   const openForm = () => {
     setOpen(true);
@@ -59,7 +61,9 @@ function AddMemberForm(props: AddMemberFormProps) {
   const handleSubmit: any = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (selectedMember) {
-      props.addMember(selectedMember);
+      const updatedMember = { ...selectedMember, type: userType };
+
+      props.addMember(updatedMember);
       closeForm();
       window.location.reload();
     }
@@ -90,6 +94,32 @@ function AddMemberForm(props: AddMemberFormProps) {
               organization={props.organization} // Pass the organization info
               onUserSelect={handleUserSelect} // Pass the callback for user selection
             />
+         
+         <div className='sw-mt-5 sw-mb-3'>
+         <strong>Select user type:</strong>
+         </div>
+         
+         <label className='sw-mr-5'>
+        <input className='sw-mr-1'
+          type="radio"
+          name="userType"
+          value={MemberType.STANDARD}
+          checked={userType === MemberType.STANDARD}
+          onChange={() => setUserType(MemberType.STANDARD)}
+        />
+        Standard User
+      </label>
+
+      <label>
+        <input className='sw-mr-1'
+          type="radio"
+          name="userType"
+          value={MemberType.PLATFORM}
+          checked={userType === MemberType.PLATFORM}
+          onChange={() => setUserType(MemberType.PLATFORM)}
+        />
+        Platform Integration User
+      </label>
           </div>
         }
         primaryButton={
