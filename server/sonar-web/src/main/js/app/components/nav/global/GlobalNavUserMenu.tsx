@@ -23,12 +23,14 @@ import { translate } from '../../../../helpers/l10n';
 import { sortBy } from "lodash";
 import OrganizationListItem from "../../../../apps/organizations/components/OrganizationListItem";
 import { Organization } from "../../../../types/types";
+import { useCurrentUser } from '../../current-user/CurrentUserContext';
 
 type GlobalNavUserMenuProps = {
   userOrganizations: Organization[];
 }
 
 export function GlobalNavUserMenu({ userOrganizations }: GlobalNavUserMenuProps) {
+  const {currentUser} = useCurrentUser();
   return (
     <>
       <DropdownMenu.ItemLink isMatchingFullPath to="/account">
@@ -36,18 +38,22 @@ export function GlobalNavUserMenu({ userOrganizations }: GlobalNavUserMenuProps)
       </DropdownMenu.ItemLink>
 
       <DropdownMenu.Separator/>
+      {currentUser.standardOrgs?.length != 0 && (
+        <>
+          <DropdownMenu.ItemLink to="/account/organizations">
+            {translate('my_organizations')}
+          </DropdownMenu.ItemLink>
 
-      <DropdownMenu.ItemLink to="/account/organizations">
-        {translate('my_organizations')}
-      </DropdownMenu.ItemLink>
+          {sortBy(userOrganizations, org => org.name.toLowerCase()).map(organization => (
+            <DropdownMenu.ItemButton key={organization.kee}>
+              <OrganizationListItem organization={organization} />
+            </DropdownMenu.ItemButton>
+          ))}
 
-      {sortBy(userOrganizations, org => org.name.toLowerCase()).map(organization => (
-        <DropdownMenu.ItemButton key={organization.kee}>
-          <OrganizationListItem organization={organization} />
-        </DropdownMenu.ItemButton>
-      ))}
-
-      <DropdownMenu.Separator/>
+          <DropdownMenu.Separator />
+        </>
+      )
+      }
 
       <DropdownMenu.ItemLink to="/sessions/logout">
         {translate('layout.logout')}

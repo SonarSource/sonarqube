@@ -23,6 +23,7 @@ import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -105,6 +106,7 @@ public class IssueQuery {
   private final Collection<String> codeVariants;
   private final Collection<String> cleanCodeAttributesCategories;
   private final String organizationUuid;
+  private  final List<String> allowedProjectUuids;
 
   private IssueQuery(Builder builder) {
     this.issueKeys = nullableDefaultCollection(builder.issueKeys);
@@ -158,6 +160,7 @@ public class IssueQuery {
     this.codeVariants = defaultCollection(builder.codeVariants);
     this.cleanCodeAttributesCategories = defaultCollection(builder.cleanCodeAttributesCategories);
     this.organizationUuid = builder.organizationUuid;
+    this.allowedProjectUuids = builder.allowedProjectUuids;
   }
 
   public Collection<String> issueKeys() {
@@ -166,6 +169,10 @@ public class IssueQuery {
 
   public Collection<String> severities() {
     return severities;
+  }
+
+  public List<String> allowedProjectUuids() {
+    return allowedProjectUuids;
   }
 
   public Collection<String> impactSeverities() {
@@ -443,6 +450,7 @@ public class IssueQuery {
     private Collection<String> cleanCodeAttributesCategories;
 
     private String organizationUuid;
+    private List<String> allowedProjectUuids;
 
     private Builder() {
 
@@ -479,6 +487,11 @@ public class IssueQuery {
     }
 
     public Builder projectUuids(@Nullable Collection<String> l) {
+      this.projects = l;
+      return this;
+    }
+
+    public Builder allowedProjectUuids(@Nullable Collection<String> l) {
       this.projects = l;
       return this;
     }

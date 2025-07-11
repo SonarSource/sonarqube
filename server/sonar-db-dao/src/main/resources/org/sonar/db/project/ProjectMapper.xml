@@ -133,6 +133,18 @@
     </foreach>
   </select>
 
+  <select id="selectProjectUuidsByOrganizationUuids" resultType="String">
+    select
+    p.uuid as uuid
+    from projects p
+    where
+    p.qualifier='TRK' and
+    p.organization_uuid in
+    <foreach collection="orgUuids" open="(" close=")" item="orgUuid" separator=",">
+      #{orgUuid,jdbcType=VARCHAR}
+    </foreach>
+  </select>
+
   <select id="selectProjectOrAppByKey" parameterType="String" resultType="Project">
     SELECT
     <include refid="projectColumns"/>
