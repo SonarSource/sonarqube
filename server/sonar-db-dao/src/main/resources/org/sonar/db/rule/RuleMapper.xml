@@ -368,6 +368,17 @@
     <include refid="conditionNotExternalRulesByLanguage" />
   </select>
 
+  <select id="countByLanguageInAnOrg" resultType="java.lang.Long">
+    select count(*)
+    from
+    rules r
+    where
+    r.status in ('READY', 'DEPRECATED', 'BETA')
+    and r.is_external=${_false}
+    and r.language=#{language, jdbcType=VARCHAR}
+    and (r.organization_uuid IS NULL OR r.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
+  </select>
+
   <sql id="conditionNotExternalRulesByLanguage">
     r.status in ('READY', 'DEPRECATED', 'BETA')
     and r.is_external=${_false}

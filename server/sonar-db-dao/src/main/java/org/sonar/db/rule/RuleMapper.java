@@ -58,6 +58,8 @@ public interface RuleMapper {
 
   Long countByLanguage(@Param("language") String language);
 
+  Long countByLanguageInAnOrg(@Param("language") String language, @Param("organizationUuid") String organizationUuid);
+
   void insertRule(RuleDto ruleDefinitionDto);
 
   void insertRuleDescriptionSection(@Param("ruleUuid") String ruleUuid, @Param("dto") RuleDescriptionSectionDto ruleDescriptionSectionDto);
