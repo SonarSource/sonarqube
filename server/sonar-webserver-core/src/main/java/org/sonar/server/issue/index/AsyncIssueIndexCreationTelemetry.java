@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.index;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.time.Clock;
 import java.util.Set;
@@ -50,7 +51,6 @@ public class AsyncIssueIndexCreationTelemetry {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AsyncIssueIndexCreationTelemetry.class);
 
-  private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker;
   private final DbClient dbClient;
   private final TelemetryClient telemetryClient;
   private final Server server;
@@ -63,9 +63,8 @@ public class AsyncIssueIndexCreationTelemetry {
   private long startTime;
   private int nbIndexingTasks;
 
-  public AsyncIssueIndexCreationTelemetry(IssueIndexSyncProgressChecker issueIndexSyncProgressChecker, DbClient dbClient,
-    TelemetryClient telemetryClient, Server server, UuidFactory uuidFactory, Clock clock, IssueIndexMonitoringScheduler scheduler, Configuration config) {
-    this.issueIndexSyncProgressChecker = issueIndexSyncProgressChecker;
+  public AsyncIssueIndexCreationTelemetry(DbClient dbClient, TelemetryClient telemetryClient, Server server, UuidFactory uuidFactory, Clock clock,
+    IssueIndexMonitoringScheduler scheduler, Configuration config) {
     this.dbClient = dbClient;
     this.telemetryClient = telemetryClient;
     this.server = server;
@@ -86,18 +85,21 @@ public class AsyncIssueIndexCreationTelemetry {
     }
     startTime = clock.millis();
     this.nbIndexingTasks = nbIndexingTasks;
-    if(currentMonitoring != null) {
+    if (currentMonitoring != null) {
       currentMonitoring.cancel(false);
     }
-    currentMonitoring = scheduler.scheduleAtFixedRate(() -> {
-      try (DbSession dbSession = dbClient.openSession(false)) {
-        if (!issueIndexSyncProgressChecker.isIssueSyncInProgress(dbSession)) {
-          sendIssueIndexationTelemetry(dbSession);
-          currentMonitoring.cancel(false);
-        }
-      }
-    }, 0, 5, TimeUnit.SECONDS);
+    currentMonitoring = scheduler.scheduleAtFixedRate(this::tryToSendTelemetry, 0, 5, TimeUnit.SECONDS);
 
+  }
+
+  @VisibleForTesting
+  void tryToSendTelemetry() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      if (!dbClient.ceQueueDao().hasAnyIssueSyncTaskPendingOrInProgress(dbSession)) {
+        sendIssueIndexationTelemetry(dbSession);
+        currentMonitoring.cancel(false);
+      }
+    }
   }
 
   private void sendIssueIndexationTelemetry(DbSession dbSession) {

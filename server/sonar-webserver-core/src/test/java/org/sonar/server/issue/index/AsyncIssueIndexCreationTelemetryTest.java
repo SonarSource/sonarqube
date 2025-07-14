@@ -20,11 +20,13 @@
 package org.sonar.server.issue.index;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.time.Clock;
 import java.util.Optional;
 import java.util.concurrent.ScheduledFuture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.platform.commons.util.ReflectionUtils;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.Configuration;
@@ -32,6 +34,7 @@ import org.sonar.api.platform.Server;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
+import org.sonar.db.ce.CeQueueDao;
 import org.sonar.telemetry.core.TelemetryClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,8 +61,7 @@ class AsyncIssueIndexCreationTelemetryTest {
   private final IssueIndexMonitoringScheduler scheduler = mock();
   private final ArgumentCaptor<Runnable> telemetrySyncRunnable = ArgumentCaptor.forClass(Runnable.class);
   private final Configuration configuration = mock();
-  private final AsyncIssueIndexCreationTelemetry asyncIssueIndexCreationTelemetry = new AsyncIssueIndexCreationTelemetry(
-    issueIndexSyncProgressChecker,
+  private final AsyncIssueIndexCreationTelemetry underTest = new AsyncIssueIndexCreationTelemetry(
     dbClient,
     telemetryClient,
     server,
@@ -84,14 +86,14 @@ class AsyncIssueIndexCreationTelemetryTest {
     reset(configuration);
     when(configuration.getBoolean(SONAR_TELEMETRY_ENABLE.getKey())).thenReturn(Optional.of(false));
 
-    asyncIssueIndexCreationTelemetry.startIndexCreationMonitoringToSendTelemetry(100);
+    underTest.startIndexCreationMonitoringToSendTelemetry(100);
 
     verify(scheduler, never()).scheduleAtFixedRate(any(), anyLong(), anyLong(), any());
   }
 
   @Test
   void whenSynchroIsNotFinished_thenRetry() throws IOException {
-    asyncIssueIndexCreationTelemetry.startIndexCreationMonitoringToSendTelemetry(100);
+    underTest.startIndexCreationMonitoringToSendTelemetry(100);
 
     verify(scheduler).scheduleAtFixedRate(any(), anyLong(), anyLong(), any());
 
@@ -106,5 +108,20 @@ class AsyncIssueIndexCreationTelemetryTest {
     assertThat(jsonMessage).contains(AsyncIssueIndexCreationTelemetry.KEY_ASYNC_ISSUE_INDEXING_DURATION)
       .contains(AsyncIssueIndexCreationTelemetry.KEY_ASYNC_ISSUE_INDEXING_TASK_TOTAL_COUNT)
       .contains(AsyncIssueIndexCreationTelemetry.KEY_ASYNC_ISSUE_INDEXING_TASK_FAILURE_COUNT);
+  }
+
+  @Test
+  void tryToSendTelemetry_whenNoPendingTasks_thenSendTelemetry() throws IOException, IllegalAccessException {
+    CeQueueDao ceQueueDao = mock();
+    when(ceQueueDao.hasAnyIssueSyncTaskPendingOrInProgress(any())).thenReturn(false);
+    when(dbClient.ceQueueDao()).thenReturn(ceQueueDao);
+
+    Field field = ReflectionUtils.findFields(underTest.getClass(), f -> f.getName().equals("currentMonitoring"), ReflectionUtils.HierarchyTraversalMode.TOP_DOWN).get(0);
+    field.setAccessible(true);
+    field.set(underTest, mock(ScheduledFuture.class));
+
+    underTest.tryToSendTelemetry();
+
+    verify(telemetryClient).uploadMetric(any());
   }
 }
