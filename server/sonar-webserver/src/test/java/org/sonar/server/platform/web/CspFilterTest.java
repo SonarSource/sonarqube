@@ -41,11 +41,12 @@ public class CspFilterTest {
   private static final String EXPECTED = "default-src 'self'; " +
     "base-uri 'none'; " +
     "connect-src 'self' http: https:; " +
-    "font-src 'self' data:; " +
+    "font-src 'self' data: https://*.getbeamer.com ; " +
+    "frame-src https://*.getbeamer.com ; " +
     "img-src * data: blob:; " +
     "object-src 'none'; " +
-    "script-src 'self' 'sha256-hK8SVWFNHY0UhP61DBzX/3fvT74EI8u6/jRQvUKeZoU='; " +
-    "style-src 'self' 'unsafe-inline'; " +
+    "script-src 'self' https://*.getbeamer.com 'sha256-hK8SVWFNHY0UhP61DBzX/3fvT74EI8u6/jRQvUKeZoU='; " +
+    "style-src 'self' 'unsafe-inline' https://*.getbeamer.com ; " +
     "worker-src 'self'";
   private final ServletContext servletContext = mock(ServletContext.class, RETURNS_MOCKS);
   private final HttpServletResponse response = mock(HttpServletResponse.class);
@@ -74,7 +75,7 @@ public class CspFilterTest {
     doInit();
     HttpServletRequest request = newRequest("/");
     underTest.doFilter(request, response, chain);
-    verify(response).setHeader(eq("Content-Security-Policy"), contains("script-src 'self' 'sha256-D1jaqcDDM2TM2STrzE42NNqyKR9PlptcHDe6tyaBcuM='; "));
+    verify(response).setHeader(eq("Content-Security-Policy"), contains("script-src 'self' https://*.getbeamer.com 'sha256-D1jaqcDDM2TM2STrzE42NNqyKR9PlptcHDe6tyaBcuM='; "));
     verify(chain).doFilter(request, response);
   }
 
