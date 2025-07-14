@@ -24,4 +24,12 @@ public interface SonarQubeFeature {
   String getName();
 
   boolean isAvailable();
+
+  default boolean isEnabled() {
+    return true;
+  }
+
+  default void setEnabled(boolean enabled) {
+    throw new UnsupportedOperationException("This feature does not support enabling/disabling.");
+  }
 }
