@@ -1,0 +1,42 @@
+name: CI Pipeline with Security
+
+on:
+  push:
+    branches:
+      - main  # O la rama donde quieras realizar el análisis
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8
+
+    - name: Run SAST with Flake8
+      run: |
+        flake8 . --max-line-length=120 --extend-ignore=E203
+
+    # Integrar SonarQube
+    - name: Set up SonarQube Scanner
+      uses: SonarSource/sonarcloud-github-action@v1
+      with:
+        organization: 'YOUR_ORG'  # Nombre de tu organización en SonarCloud
+        projectKey: 'YOUR_PROJECT_KEY'  # Clave única del proyecto en SonarCloud
+        projectName: 'YOUR_PROJECT_NAME'  # Nombre del proyecto en SonarCloud
+
+    - name: Run SonarQube Scan
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Token de autenticación de SonarQube
+      run: |
+        sonar-scanner -Dsonar.projectKey=YOUR_PROJECT_KEY -Dsonar.organization=YOUR_ORG -Dsonar.sources=.
