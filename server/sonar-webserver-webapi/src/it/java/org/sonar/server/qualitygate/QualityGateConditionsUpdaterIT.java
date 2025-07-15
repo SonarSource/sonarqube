@@ -153,6 +153,16 @@ class QualityGateConditionsUpdaterIT {
   }
 
   @Test
+  void create_whenMetricIsBasedOnScaRating_shouldWork() {
+    MetricDto metric = insertMetric(RATING, "sca_rating_vulnerability");
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+
+    QualityGateConditionDto result = underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", "3");
+
+    verifyCondition(result, qualityGate, metric, "GT", "3");
+  }
+
+  @Test
   void create_whenEquivalentConditionAlreadyExists_shouldFail() {
     MetricDto equivalentMetric = insertMetric(RATING, SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY);
     MetricDto newMetric = insertMetric(RATING, SQALE_RATING_KEY);

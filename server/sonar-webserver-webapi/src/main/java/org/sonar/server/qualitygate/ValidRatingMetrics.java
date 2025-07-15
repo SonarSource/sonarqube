@@ -38,6 +38,16 @@ public class ValidRatingMetrics {
     .map(org.sonar.api.measures.Metric::getKey)
     .collect(Collectors.toSet());
 
+  // TODO: https://sonarsource.atlassian.net/browse/SONAR-25538 remove this hardcoding
+  private static final Set<String> SCA_RATING_METRICS = Set.of(
+    "sca_rating_licensing",
+    "new_sca_rating_licensing",
+    "sca_rating_vulnerability",
+    "new_sca_rating_vulnerability",
+    "sca_rating_any_issue",
+    "new_sca_rating_any_issue"
+  );
+
   private ValidRatingMetrics() {
     // only static methods
   }
@@ -48,5 +58,9 @@ public class ValidRatingMetrics {
 
   public static boolean isSoftwareQualityRatingMetric(String metricKey) {
     return SOFTWARE_QUALITY_RATING_METRICS.contains(metricKey);
+  }
+
+  public static boolean isScaRatingMetric(String metricKey) {
+    return SCA_RATING_METRICS.contains(metricKey);
   }
 }

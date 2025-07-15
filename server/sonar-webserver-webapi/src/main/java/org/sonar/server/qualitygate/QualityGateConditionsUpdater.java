@@ -61,6 +61,7 @@ import static org.sonar.server.measure.Rating.E;
 import static org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN;
 import static org.sonar.server.qualitygate.Condition.Operator.LESS_THAN;
 import static org.sonar.server.qualitygate.ValidRatingMetrics.isCoreRatingMetric;
+import static org.sonar.server.qualitygate.ValidRatingMetrics.isScaRatingMetric;
 import static org.sonar.server.qualitygate.ValidRatingMetrics.isSoftwareQualityRatingMetric;
 
 public class QualityGateConditionsUpdater {
@@ -228,7 +229,7 @@ public class QualityGateConditionsUpdater {
     if (!metric.getValueType().equals(RATING.name())) {
       return;
     }
-    if (!isCoreRatingMetric(metric.getKey()) && !isSoftwareQualityRatingMetric(metric.getKey())) {
+    if (!isCoreRatingMetric(metric.getKey()) && !isSoftwareQualityRatingMetric(metric.getKey()) && !isScaRatingMetric(metric.getKey())) {
       errors.add(format("The metric '%s' cannot be used", metric.getShortName()));
     }
     if (!isValidRating(errorThreshold)) {
