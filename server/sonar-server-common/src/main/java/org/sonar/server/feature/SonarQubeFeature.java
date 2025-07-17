@@ -26,7 +26,7 @@ public interface SonarQubeFeature {
   boolean isAvailable();
 
   default boolean isEnabled() {
-    return true;
+    return isAvailable();
   }
 
   default void setEnabled(boolean enabled) {

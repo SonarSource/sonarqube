@@ -51,7 +51,7 @@ public class ListAction implements WsAction {
     try (JsonWriter json = response.newJsonWriter()) {
       json.beginArray();
       sonarQubeFeatures.stream()
-        .filter(SonarQubeFeature::isAvailable)
+        .filter(SonarQubeFeature::isEnabled)
         .forEach(f -> json.value(f.getName()));
       json.endArray();
     }
