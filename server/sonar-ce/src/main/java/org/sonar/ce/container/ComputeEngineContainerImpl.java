@@ -117,6 +117,7 @@ import org.sonar.server.log.ServerLogging;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.metric.IssueCountMetrics;
 import org.sonar.server.metric.UnanalyzedLanguageMetrics;
+import org.sonar.server.network.NetworkInterfaceProvider;
 import org.sonar.server.notification.DefaultNotificationManager;
 import org.sonar.server.notification.NotificationService;
 import org.sonar.server.notification.email.EmailNotificationChannel;
@@ -287,6 +288,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       System2.INSTANCE,
       Paths2Impl.getInstance(),
       Clock.systemDefaultZone(),
+
+      NetworkInterfaceProvider.class,
 
       // DB
       new DaoModule(),

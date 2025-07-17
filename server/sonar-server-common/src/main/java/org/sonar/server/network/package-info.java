@@ -17,20 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.webhook.ws;
+@ParametersAreNonnullByDefault
+package org.sonar.server.network;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.Collections;
-import java.util.List;
-
-public class NetworkInterfaceProvider {
-
-  public List<InetAddress> getNetworkInterfaceAddresses() throws SocketException {
-    return Collections.list(NetworkInterface.getNetworkInterfaces())
-      .stream()
-      .flatMap(ni -> Collections.list(ni.getInetAddresses()).stream())
-      .toList();
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

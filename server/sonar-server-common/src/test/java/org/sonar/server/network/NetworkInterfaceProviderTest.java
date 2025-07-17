@@ -17,24 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.webhook;
+package org.sonar.server.network;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.Collections;
 import java.util.List;
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.server.ServerSide;
+import org.junit.Test;
 
-@ServerSide
-@ComputeEngineSide
-public class NetworkInterfaceProvider {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  public List<InetAddress> getNetworkInterfaceAddresses() throws SocketException {
-    return Collections.list(NetworkInterface.getNetworkInterfaces())
-      .stream()
-      .flatMap(ni -> Collections.list(ni.getInetAddresses()).stream())
-      .toList();
+public class NetworkInterfaceProviderTest {
+  private NetworkInterfaceProvider underTest = new NetworkInterfaceProvider();
+
+  @Test
+  public void itGetsListOfNetworkInterfaceAddresses() throws SocketException {
+    assertThat(underTest.getNetworkInterfaceAddresses())
+      .isInstanceOf(List.class)
+      .hasSizeGreaterThan(0);
   }
 }

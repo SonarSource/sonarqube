@@ -71,8 +71,8 @@ import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierImpl;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierNotificationHandler;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierNotificationTemplate;
-import org.sonar.server.authentication.LogOAuthWarning;
 import org.sonar.server.authentication.HardcodedActiveTimeoutProvider;
+import org.sonar.server.authentication.LogOAuthWarning;
 import org.sonar.server.authentication.ws.AuthenticationWsModule;
 import org.sonar.server.badge.ws.ProjectBadgesWsModule;
 import org.sonar.server.batch.BatchWsModule;
@@ -95,6 +95,7 @@ import org.sonar.server.common.github.config.GithubConfigurationService;
 import org.sonar.server.common.gitlab.config.GitlabConfigurationService;
 import org.sonar.server.common.group.service.GroupMembershipService;
 import org.sonar.server.common.group.service.GroupService;
+import org.sonar.server.network.NetworkInterfaceProvider;
 import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.common.permission.DefaultTemplatesResolverImpl;
 import org.sonar.server.common.permission.GroupPermissionChanger;
@@ -355,6 +356,7 @@ public class PlatformLevel4 extends PlatformLevel {
       DefaultBranchNameResolver.class,
       DelegatingManagedServices.class,
       DelegatingDevOpsProjectCreatorFactory.class,
+      NetworkInterfaceProvider.class,
 
       // ai code assurance
       NoOpAiCodeAssuranceVerifier.class,

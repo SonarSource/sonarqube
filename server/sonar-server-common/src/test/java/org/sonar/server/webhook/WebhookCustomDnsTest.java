@@ -32,6 +32,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.config.Configuration;
+import org.sonar.server.network.NetworkInterfaceProvider;
 
 import static org.mockito.Mockito.when;
 import static org.sonar.api.CoreProperties.SONAR_VALIDATE_WEBHOOKS_PROPERTY;
@@ -39,10 +40,10 @@ import static org.sonar.api.CoreProperties.SONAR_VALIDATE_WEBHOOKS_PROPERTY;
 public class WebhookCustomDnsTest {
   private static final String INVALID_URL = "Invalid URL: loopback and wildcard addresses are not allowed for webhooks.";
 
-  private Configuration configuration = Mockito.mock(Configuration.class);
-  private NetworkInterfaceProvider networkInterfaceProvider = Mockito.mock(NetworkInterfaceProvider.class);
+  private final Configuration configuration = Mockito.mock(Configuration.class);
+  private final NetworkInterfaceProvider networkInterfaceProvider = Mockito.mock(NetworkInterfaceProvider.class);
 
-  private WebhookCustomDns underTest = new WebhookCustomDns(configuration, networkInterfaceProvider);
+  private final WebhookCustomDns underTest = new WebhookCustomDns(configuration, networkInterfaceProvider);
 
   @Test
   public void lookup_fail_on_localhost() {

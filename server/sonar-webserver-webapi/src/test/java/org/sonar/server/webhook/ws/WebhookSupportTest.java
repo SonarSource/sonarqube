@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.Configuration;
+import org.sonar.server.network.NetworkInterfaceProvider;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Optional.of;

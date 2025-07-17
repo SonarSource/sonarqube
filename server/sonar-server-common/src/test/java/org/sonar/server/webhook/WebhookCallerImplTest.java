@@ -39,6 +39,7 @@ import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
+import org.sonar.server.network.NetworkInterfaceProvider;
 import org.sonar.server.util.OkHttpClientProvider;
 
 import static org.apache.commons.lang3.RandomStringUtils.secure;
