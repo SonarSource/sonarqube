@@ -38,6 +38,7 @@ public class DbVersion202504 implements DbVersion {
       .add(2025_04_006, "Populate 'original_severity' column for 'sca_issues_releases' table", PopulateOriginalSeverityForScaIssuesReleasesTable.class)
       .add(2025_04_007, "Update 'original_severity' column to be not nullable in 'sca_issues_releases' table", UpdateScaIssuesReleasesOriginalSeverityColumnNotNullable.class)
       .add(2025_04_008, "Update size of 'name' column in 'rules' table", UpdateRulesNameColumnSize.class)
-      .add(2025_04_009, "Add 'show_increased_severity_warning' column to 'sca_issues_releases' table", AddManualSeverityWarningToScaIssues.class);
+      .add(2025_04_009, "Add 'show_increased_severity_warning' column to 'sca_issues_releases' table", AddManualSeverityWarningToScaIssues.class)
+      .add(2025_04_010, "Add 'analysis_parameters' column to 'sca_analyses' table", AddAnalysisParametersToScaAnalyses.class);
   }
 }
