@@ -516,6 +516,22 @@ class RuleIndexIT {
 
   @ParameterizedTest
   @ValueSource(booleans = {true, false})
+  void search_by_security_owaspMobileTop10_2024_return_correct_data_based_on_mode(boolean mqrMode) {
+    doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
+    RuleDto rule1 = createRule(setSecurityStandards(of("owaspMobileTop10-2024:m1", "owaspMobileTop10-2024:m10", "cwe:543")),
+      r -> r.setType(VULNERABILITY).replaceAllDefaultImpacts(List.of(new ImpactDto(SECURITY, Severity.HIGH))));
+    RuleDto rule2 = createRule(setSecurityStandards(of("owaspMobileTop10-2024:m10", "cwe:543")), r -> r.setType(SECURITY_HOTSPOT));
+    createRule(setSecurityStandards(of("cwe:543")),
+      r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(MAINTAINABILITY, Severity.HIGH))));
+    index();
+
+    RuleQuery query = new RuleQuery().setOwaspMobileTop10For2024(of("m5", "m10"));
+    SearchIdResult<String> results = underTest.search(query, new SearchOptions().addFacets("owaspMobileTop10-2024"));
+    assertThat(results.getUuids()).containsOnly(rule1.getUuid(), rule2.getUuid());
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
   void search_by_security_sansTop25_return_correct_data_based_on_mode(boolean mqrMode) {
     doReturn(Optional.of(mqrMode)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
     RuleDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10:a10", "cwe:89")),

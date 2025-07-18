@@ -31,39 +31,38 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import static java.util.Arrays.asList;
 
 public class RuleQuery {
-
-  private String key;
-  private String queryText;
-  private Collection<String> languages;
-  private Collection<String> repositories;
-  private Collection<String> severities;
-  private Collection<RuleStatus> statuses;
-  private Collection<String> tags;
-  private Collection<RuleType> types;
-  private Boolean activation;
-  private QProfileDto profile;
-  private QProfileDto compareToQProfile;
-  private Collection<String> inheritance;
-  private Collection<String> activeSeverities;
-  private String templateKey;
-  private Boolean isTemplate;
-  private Long availableSince;
-  private String sortField;
+  private String key = null;
+  private String queryText = null;
+  private Collection<String> languages = null;
+  private Collection<String> repositories = null;
+  private Collection<String> severities = null;
+  private Collection<RuleStatus> statuses = null;
+  private Collection<String> tags = null;
+  private Collection<RuleType> types = null;
+  private Boolean activation = null;
+  private QProfileDto profile = null;
+  private QProfileDto compareToQProfile = null;
+  private Collection<String> inheritance = null;
+  private Collection<String> activeSeverities = null;
+  private String templateKey = null;
+  private Boolean isTemplate = null;
+  private Long availableSince = null;
+  private String sortField = null;
   private boolean ascendingSort = true;
-  private String internalKey;
-  private String ruleKey;
-  private boolean includeExternal;
-  private Collection<String> owaspTop10;
-  private Collection<String> owaspTop10For2021;
-  private Collection<String> sansTop25;
-  private Collection<String> cwe;
-  private Collection<String> sonarsourceSecurity;
-  private Collection<String> impactSeverities;
-  private Collection<String> impactSoftwareQualities;
-  private Collection<String> activeImpactSeverities;
-  private Collection<String> cleanCodeAttributesCategories;
-  private Boolean prioritizedRule;
-
+  private String internalKey = null;
+  private String ruleKey = null;
+  private boolean includeExternal = false;
+  private Collection<String> owaspTop10 = null;
+  private Collection<String> owaspTop10For2021 = null;
+  private Collection<String> owaspMobileTop10For2024 = null;
+  private Collection<String> sansTop25 = null;
+  private Collection<String> cwe = null;
+  private Collection<String> sonarsourceSecurity = null;
+  private Collection<String> impactSeverities = null;
+  private Collection<String> impactSoftwareQualities = null;
+  private Collection<String> activeImpactSeverities = null;
+  private Collection<String> cleanCodeAttributesCategories = null;
+  private Boolean prioritizedRule = null;
 
   @CheckForNull
   public QProfileDto getQProfile() {
@@ -331,6 +330,16 @@ public class RuleQuery {
 
   public RuleQuery setOwaspTop10For2021(@Nullable Collection<String> owaspTop10For2021) {
     this.owaspTop10For2021 = owaspTop10For2021;
+    return this;
+  }
+
+  @CheckForNull
+  public Collection<String> getOwaspMobileTop10For2024() {
+    return owaspMobileTop10For2024;
+  }
+
+  public RuleQuery setOwaspMobileTop10For2024(@Nullable Collection<String> owaspMobileTop10For2024) {
+    this.owaspMobileTop10For2024 = owaspMobileTop10For2024;
     return this;
   }
 

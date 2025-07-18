@@ -35,6 +35,7 @@ public class RulesWsParameters {
   public static final String PARAM_CWE = "cwe";
   public static final String PARAM_OWASP_TOP_10 = "owaspTop10";
   public static final String PARAM_OWASP_TOP_10_2021 = "owaspTop10-2021";
+  public static final String PARAM_OWASP_MOBILE_TOP_10_2024 = "owaspMobileTop10-2024";
   /**
    * @deprecated SansTop25 report is outdated, it has been completely deprecated in version 10.0 and will be removed from version 11.0
    */
@@ -84,26 +85,26 @@ public class RulesWsParameters {
   public static final String FIELD_CLEAN_CODE_ATTRIBUTE = "cleanCodeAttribute";
 
   /**
-   * Value for 'f' parameter which is used to return all the "defaultDebtRemFn" fields.
+   * Value for 'fields' parameter which is used to return all the "defaultDebtRemFn" fields.
    *
    * @deprecated since 10.0, replaced by {@link #FIELD_DEFAULT_REM_FUNCTION}
    */
   @Deprecated(since = "10.0")
   public static final String FIELD_DEFAULT_DEBT_REM_FUNCTION = "defaultDebtRemFn";
   /**
-   * Value for 'f' parameter which is used to return all the "defaultRemFn" fields.
+   * Value for 'fields' parameter which is used to return all the "defaultRemFn" fields.
    */
   public static final String FIELD_DEFAULT_REM_FUNCTION = "defaultRemFn";
 
   /**
-   * Value for 'f' parameter which is used to return all the "debtRemFn" fields.
+   * Value for 'fields' parameter which is used to return all the "debtRemFn" fields.
    *
    * @deprecated since 10.0, replaced by {@link #FIELD_REM_FUNCTION}
    */
   @Deprecated(since = "10.0")
   public static final String FIELD_DEBT_REM_FUNCTION = "debtRemFn";
   /**
-   * Value for 'f' parameter which is used to return all the "remFn" fields.
+   * Value for 'fields' parameter which is used to return all the "remFn" fields.
    */
   public static final String FIELD_REM_FUNCTION = "remFn";
   public static final String FIELD_GAP_DESCRIPTION = "gapDescription";

@@ -53,6 +53,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleStatus;
@@ -115,6 +116,7 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_IS_TEMP
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_LANGUAGE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_NAME;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_OWASP_MOBILE_TOP_10_2024;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_OWASP_TOP_10;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_OWASP_TOP_10_2021;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_REPOSITORY;
@@ -155,6 +157,7 @@ public class RuleIndex {
   public static final String FACET_SANS_TOP_25 = "sansTop25";
   public static final String FACET_OWASP_TOP_10 = "owaspTop10";
   public static final String FACET_OWASP_TOP_10_2021 = "owaspTop10-2021";
+  public static final String FACET_OWASP_MOBILE_TOP_10_2024 = "owaspMobileTop10-2024";
   public static final String FACET_SONARSOURCE_SECURITY = "sonarsourceSecurity";
   public static final String FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY = "cleanCodeAttributeCategories";
   public static final String FACET_IMPACT_SOFTWARE_QUALITY = "impactSoftwareQualities";
@@ -312,6 +315,8 @@ public class RuleIndex {
     addSecurityStandardFilter(filters, FIELD_RULE_OWASP_TOP_10, query.getOwaspTop10());
 
     addSecurityStandardFilter(filters, FIELD_RULE_OWASP_TOP_10_2021, query.getOwaspTop10For2021());
+
+    addSecurityStandardFilter(filters, FIELD_RULE_OWASP_MOBILE_TOP_10_2024, query.getOwaspMobileTop10For2024());
 
     addSecurityStandardFilter(filters, FIELD_RULE_SANS_TOP_25, query.getSansTop25());
 
@@ -538,13 +543,13 @@ public class RuleIndex {
       Collection<String> languages = query.getLanguages();
       aggregations.put(FACET_LANGUAGES,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_LANGUAGE, FACET_LANGUAGES, MAX_FACET_SIZE,
-          (languages == null) ? (new String[0]) : languages.toArray()));
+          toStringArray(languages)));
     }
     if (options.getFacets().contains(FACET_TAGS) || options.getFacets().contains(FACET_OLD_DEFAULT)) {
       Collection<String> tags = query.getTags();
       aggregations.put(FACET_TAGS,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_TAGS, FACET_TAGS, MAX_FACET_SIZE,
-          (tags == null) ? (new String[0]) : tags.toArray()));
+          toStringArray(tags)));
     }
     if (options.getFacets().contains(FACET_TYPES)) {
       Collection<RuleType> types = query.getTypes();
@@ -556,13 +561,13 @@ public class RuleIndex {
       Collection<String> repositories = query.getRepositories();
       aggregations.put(FACET_REPOSITORIES,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_REPOSITORY, FACET_REPOSITORIES, MAX_FACET_SIZE,
-          (repositories == null) ? (new String[0]) : repositories.toArray()));
+          toStringArray(repositories)));
     }
     if (options.getFacets().contains(FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY)) {
       Collection<String> cleanCodeCategories = query.getCleanCodeAttributesCategories();
       aggregations.put(FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_CLEAN_CODE_ATTRIBUTE_CATEGORY, FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY, MAX_FACET_SIZE,
-          (cleanCodeCategories == null) ? (new String[0]) : cleanCodeCategories.toArray()));
+          toStringArray(cleanCodeCategories)));
     }
 
     addImpactSoftwareQualityFacetIfNeeded(options, query, aggregations, stickyFacetBuilder);
@@ -701,36 +706,48 @@ public class RuleIndex {
       aggregations.put(FACET_CWE,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_CWE, FACET_CWE,
           FACET_DEFAULT_SIZE, filterSecurityCategories(),
-          (categories == null) ? (new String[0]) : categories.toArray()));
+          toStringArray(categories)));
     }
     if (options.getFacets().contains(FACET_OWASP_TOP_10)) {
       Collection<String> categories = query.getOwaspTop10();
       aggregations.put(FACET_OWASP_TOP_10,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_OWASP_TOP_10, FACET_OWASP_TOP_10,
           FACET_DEFAULT_SIZE, filterSecurityCategories(),
-          (categories == null) ? (new String[0]) : categories.toArray()));
+          toStringArray(categories)));
     }
     if (options.getFacets().contains(FACET_OWASP_TOP_10_2021)) {
       Collection<String> categories = query.getOwaspTop10For2021();
       aggregations.put(FACET_OWASP_TOP_10_2021,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_OWASP_TOP_10_2021, FACET_OWASP_TOP_10_2021,
           FACET_DEFAULT_SIZE, filterSecurityCategories(),
-          (categories == null) ? (new String[0]) : categories.toArray()));
+          toStringArray(categories)));
+    }
+    if (options.getFacets().contains(FACET_OWASP_MOBILE_TOP_10_2024)) {
+      Collection<String> categories = query.getOwaspTop10For2021();
+      aggregations.put(FACET_OWASP_MOBILE_TOP_10_2024,
+        stickyFacetBuilder.buildStickyFacet(FIELD_RULE_OWASP_MOBILE_TOP_10_2024, FACET_OWASP_MOBILE_TOP_10_2024,
+          FACET_DEFAULT_SIZE, filterSecurityCategories(),
+          toStringArray(categories)));
     }
     if (options.getFacets().contains(FACET_SANS_TOP_25)) {
       Collection<String> categories = query.getSansTop25();
       aggregations.put(FACET_SANS_TOP_25,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_SANS_TOP_25, FACET_SANS_TOP_25,
           FACET_DEFAULT_SIZE, filterSecurityCategories(),
-          (categories == null) ? (new String[0]) : categories.toArray()));
+          toStringArray(categories)));
     }
     if (options.getFacets().contains(FACET_SONARSOURCE_SECURITY)) {
       Collection<String> categories = query.getSonarsourceSecurity();
       aggregations.put(FACET_SONARSOURCE_SECURITY,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_SONARSOURCE_SECURITY, FACET_SONARSOURCE_SECURITY,
           SecurityStandards.SQCategory.values().length, filterSecurityCategories(),
-          (categories == null) ? (new String[0]) : categories.toArray()));
+          toStringArray(categories)));
     }
+  }
+
+  @NotNull
+  private static Object[] toStringArray(@Nullable Collection<String> items) {
+    return (items == null) ? (new String[0]) : items.toArray(new String[0]);
   }
 
   private static void addStatusFacetIfNeeded(SearchOptions options, Map<String, AggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {

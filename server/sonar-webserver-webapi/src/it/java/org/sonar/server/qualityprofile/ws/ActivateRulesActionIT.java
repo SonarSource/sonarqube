@@ -92,6 +92,7 @@ class ActivateRulesActionIT {
       "cwe",
       "owaspTop10",
       "owaspTop10-2021",
+      "owaspMobileTop10-2024",
       "sansTop25",
       "sonarsourceSecurity",
       "cleanCodeAttributeCategories",

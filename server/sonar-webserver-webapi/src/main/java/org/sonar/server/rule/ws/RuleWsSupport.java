@@ -63,6 +63,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INCLUDE_EXTERNAL;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INHERITANCE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_TEMPLATE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_MOBILE_TOP_10_2024;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10_2021;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_PRIORITIZED_RULE;
@@ -136,6 +137,11 @@ public class RuleWsSupport {
       .setDescription("Comma-separated list of OWASP Top 10 2021 lowercase categories.")
       .setSince("9.4")
       .setPossibleValues("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10");
+
+    action.createParam(PARAM_OWASP_MOBILE_TOP_10_2024)
+      .setDescription("Comma-separated list of OWASP Mobile Top 10 2024 lowercase categories.")
+      .setSince("2025.4")
+      .setPossibleValues("m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10");
 
     action.createParam(PARAM_SANS_TOP_25)
       .setDeprecatedSince("10.0")
