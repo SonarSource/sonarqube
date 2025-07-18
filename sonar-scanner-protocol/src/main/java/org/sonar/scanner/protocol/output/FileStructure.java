@@ -114,7 +114,7 @@ public class FileStructure {
     return sca;
   }
 
-  public File dependencyFilesZip() {
-    return new File(scaDir(), "dependency-files.zip");
+  public File dependencyFilesArchive() {
+    return new File(scaDir(), "dependency-files.tar.xz");
   }
 }

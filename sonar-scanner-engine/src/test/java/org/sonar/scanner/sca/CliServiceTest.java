@@ -103,22 +103,22 @@ class CliServiceTest {
   }
 
   @Test
-  void generateZip_shouldCallProcessCorrectly_andRegisterTelemetry() throws IOException, URISyntaxException {
+  void generateManifestsArchive_shouldCallProcessCorrectly_andRegisterTelemetry() throws IOException, URISyntaxException {
     assertThat(rootModuleDir.resolve("test_file").toFile().createNewFile()).isTrue();
 
     when(configuration.getProperties()).thenReturn(Map.of(CliService.SCA_EXCLUSIONS_KEY, "foo,bar,baz/**"));
     when(configuration.getStringArray(CliService.SCA_EXCLUSIONS_KEY)).thenReturn(new String[] {"foo", "bar", "baz/**"});
 
-    File producedZip = underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+    File producedArchive = underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
 
-    assertThat(producedZip).exists();
+    assertThat(producedArchive).exists();
 
     var expectedArguments = List.of(
       "projects",
       "save-lockfiles",
-      "--zip",
-      "--zip-filename",
-      rootInputModule.getWorkDir().resolve("dependency-files.zip").toString(),
+      "--xz",
+      "--xz-filename",
+      rootInputModule.getWorkDir().resolve("dependency-files.tar.xz").toString(),
       "--directory",
       rootInputModule.getBaseDir().toString(),
       "--recursive",
@@ -129,26 +129,26 @@ class CliServiceTest {
       .contains("Arguments Passed In: " + String.join(" ", expectedArguments))
       .contains("TIDELIFT_SKIP_UPDATE_CHECK=1")
       .contains("TIDELIFT_ALLOW_MANIFEST_FAILURES=1")
-      .contains("Generated manifests zip file: " + producedZip.getName());
+      .contains("Generated manifests archive file: " + producedArchive.getName());
 
     assertThat(telemetryCache.getAll()).containsKey("scanner.sca.execution.cli.duration").isNotNull();
     assertThat(telemetryCache.getAll()).containsEntry("scanner.sca.execution.cli.success", "true");
   }
 
   @Test
-  void generateZip_whenDebugLogLevelAndScaDebugNotEnabled_shouldWriteDebugLogsToDebugStream() throws IOException, URISyntaxException {
+  void generateManifestsArchive_whenDebugLogLevelAndScaDebugNotEnabled_shouldWriteDebugLogsToDebugStream() throws IOException, URISyntaxException {
     logTester.setLevel(DEBUG);
 
     assertThat(rootModuleDir.resolve("test_file").toFile().createNewFile()).isTrue();
 
-    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
 
     var expectedArguments = List.of(
       "projects",
       "save-lockfiles",
-      "--zip",
-      "--zip-filename",
-      rootInputModule.getWorkDir().resolve("dependency-files.zip").toString(),
+      "--xz",
+      "--xz-filename",
+      rootInputModule.getWorkDir().resolve("dependency-files.tar.xz").toString(),
       "--directory",
       rootInputModule.getBaseDir().toString(),
       "--recursive",
@@ -161,17 +161,17 @@ class CliServiceTest {
   }
 
   @Test
-  void generateZip_whenScaDebugEnabled_shouldWriteDebugLogsToInfoStream() throws IOException, URISyntaxException {
+  void generateManifestsArchive_whenScaDebugEnabled_shouldWriteDebugLogsToInfoStream() throws IOException, URISyntaxException {
     assertThat(rootModuleDir.resolve("test_file").toFile().createNewFile()).isTrue();
 
-    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
 
     var expectedArguments = List.of(
       "projects",
       "save-lockfiles",
-      "--zip",
-      "--zip-filename",
-      rootInputModule.getWorkDir().resolve("dependency-files.zip").toString(),
+      "--xz",
+      "--xz-filename",
+      rootInputModule.getWorkDir().resolve("dependency-files.tar.xz").toString(),
       "--directory",
       rootInputModule.getBaseDir().toString(),
       "--recursive",
@@ -183,8 +183,8 @@ class CliServiceTest {
   }
 
   @Test
-  void generateZip_shouldSendSQEnvVars() throws IOException, URISyntaxException {
-    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+  void generateManifestsArchive_shouldSendSQEnvVars() throws IOException, URISyntaxException {
+    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
 
     assertThat(logTester.logs(INFO))
       .contains("TIDELIFT_CLI_INSIDE_SCANNER_ENGINE=1")
@@ -192,15 +192,15 @@ class CliServiceTest {
   }
 
   @Test
-  void generateZip_includesIgnoredPathsFromGitProvider() throws Exception {
-    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+  void generateManifestsArchive_includesIgnoredPathsFromGitProvider() throws Exception {
+    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
 
     var expectedArguments = List.of(
       "projects",
       "save-lockfiles",
-      "--zip",
-      "--zip-filename",
-      rootInputModule.getWorkDir().resolve("dependency-files.zip").toString(),
+      "--xz",
+      "--xz-filename",
+      rootInputModule.getWorkDir().resolve("dependency-files.tar.xz").toString(),
       "--directory",
       rootInputModule.getBaseDir().toString(),
       "--recursive",
@@ -217,61 +217,61 @@ class CliServiceTest {
   }
 
   @Test
-  void generateZip_withNoScm_doesNotIncludeScmIgnoredPaths() throws Exception {
+  void generateManifestsArchive_withNoScm_doesNotIncludeScmIgnoredPaths() throws Exception {
     when(scmConfiguration.provider()).thenReturn(null);
 
-    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
     assertThat(capturedArgs).contains("--exclude .scannerwork/**");
   }
 
   @Test
-  void generateZip_withNonGit_doesNotIncludeScmIgnoredPaths() throws Exception {
+  void generateManifestsArchive_withNonGit_doesNotIncludeScmIgnoredPaths() throws Exception {
     when(scmProvider.key()).thenReturn("notgit");
 
-    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
     assertThat(capturedArgs).contains("--exclude .scannerwork/**");
   }
 
   @Test
-  void generateZip_withScmExclusionDisabled_doesNotIncludeScmIgnoredPaths() throws Exception {
+  void generateManifestsArchive_withScmExclusionDisabled_doesNotIncludeScmIgnoredPaths() throws Exception {
     when(scmConfiguration.isExclusionDisabled()).thenReturn(true);
 
-    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
     assertThat(capturedArgs).contains("--exclude .scannerwork/**");
   }
 
   @Test
-  void generateZip_withNoScmIgnores_doesNotIncludeScmIgnoredPaths() throws Exception {
+  void generateManifestsArchive_withNoScmIgnores_doesNotIncludeScmIgnoredPaths() throws Exception {
     jGitUtilsMock.when(() -> JGitUtils.getAllIgnoredPaths(any(Path.class))).thenReturn(List.of());
 
-    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
     assertThat(capturedArgs).contains("--exclude .scannerwork/**");
   }
 
   @Test
-  void generateZip_withExcludedManifests_appendsScmIgnoredPaths() throws Exception {
+  void generateManifestsArchive_withExcludedManifests_appendsScmIgnoredPaths() throws Exception {
     when(configuration.getStringArray(CliService.SCA_EXCLUSIONS_KEY)).thenReturn(new String[] {"**/test/**"});
 
-    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
     assertThat(capturedArgs).contains("--exclude **/test/**,ignored.txt,.scannerwork/**");
   }
 
   @Test
-  void generateZip_withExcludedManifestsContainingBadCharacters_handlesTheBadCharacters() throws Exception {
+  void generateManifestsArchive_withExcludedManifestsContainingBadCharacters_handlesTheBadCharacters() throws Exception {
     when(configuration.getStringArray(CliService.SCA_EXCLUSIONS_KEY)).thenReturn(new String[] {
       "**/test/**", "**/path with spaces/**", "**/path'with'quotes/**", "**/path\"with\"double\"quotes/**"});
 
-    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
 
@@ -280,41 +280,41 @@ class CliServiceTest {
       """.strip();
     if (SystemUtils.IS_OS_WINDOWS) {
       expectedExcludeFlag = """
-       --exclude "**/test/**,**/path with spaces/**,**/path'with'quotes/**,"**/path""with""double""quotes/**",ignored.txt
-      """.strip();
+         --exclude "**/test/**,**/path with spaces/**,**/path'with'quotes/**,"**/path""with""double""quotes/**",ignored.txt
+        """.strip();
     }
     assertThat(capturedArgs).contains(expectedExcludeFlag);
   }
 
   @Test
-  void generateZip_withExcludedManifestsContainingDupes_dedupes() throws Exception {
+  void generateManifestsArchive_withExcludedManifestsContainingDupes_dedupes() throws Exception {
     when(configuration.getStringArray(CliService.SCA_EXCLUSIONS_KEY)).thenReturn(new String[] {"**/test1/**", "**/test2/**", "**/test1/**"});
     when(configuration.getStringArray(CliService.LEGACY_SCA_EXCLUSIONS_KEY)).thenReturn(new String[] {"**/test1/**", "**/test3/**"});
 
-    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
     assertThat(capturedArgs).contains("--exclude **/test1/**,**/test2/**,**/test3/**,ignored.txt,.scannerwork/**");
   }
 
   @Test
-  void generateZip_withExcludedManifestsAndSonarExcludesContainingDupes_mergesAndDedupes() throws Exception {
+  void generateManifestsArchive_withExcludedManifestsAndSonarExcludesContainingDupes_mergesAndDedupes() throws Exception {
     when(projectExclusionFilters.getExclusionsConfig(InputFile.Type.MAIN)).thenReturn(new String[] {"**/test1/**", "**/test4/**"});
     when(configuration.getStringArray(CliService.SCA_EXCLUSIONS_KEY)).thenReturn(new String[] {"**/test1/**", "**/test2/**", "**/test1/**"});
     when(configuration.getStringArray(CliService.LEGACY_SCA_EXCLUSIONS_KEY)).thenReturn(new String[] {"**/test1/**", "**/test3/**"});
 
-    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
     assertThat(capturedArgs).contains("--exclude **/test1/**,**/test4/**,**/test2/**,**/test3/**,ignored.txt,.scannerwork/**");
   }
 
   @Test
-  void generateZip_withScmIgnoresContainingBadCharacters_handlesTheBadCharacters() throws Exception {
+  void generateManifestsArchive_withScmIgnoresContainingBadCharacters_handlesTheBadCharacters() throws Exception {
     jGitUtilsMock.when(() -> JGitUtils.getAllIgnoredPaths(any(Path.class)))
       .thenReturn(List.of("**/test/**", "**/path with spaces/**", "**/path'with'quotes/**", "**/path\"with\"double\"quotes/**"));
 
-    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
 
@@ -323,14 +323,14 @@ class CliServiceTest {
       """.strip();
     if (SystemUtils.IS_OS_WINDOWS) {
       expectedExcludeFlag = """
-       --exclude "**/test/**,**/path with spaces/**,**/path'with'quotes/**,"**/path""with""double""quotes/**"
-      """.strip();
+         --exclude "**/test/**,**/path with spaces/**,**/path'with'quotes/**,"**/path""with""double""quotes/**"
+        """.strip();
     }
     assertThat(capturedArgs).contains(expectedExcludeFlag);
   }
 
   @Test
-  void generateZip_withIgnoredDirectories_GlobifiesDirectories() throws Exception {
+  void generateManifestsArchive_withIgnoredDirectories_GlobifiesDirectories() throws Exception {
     String ignoredDirectory = "directory1";
     Files.createDirectories(rootModuleDir.resolve(ignoredDirectory));
     String ignoredFile = "directory2/file.txt";
@@ -339,18 +339,18 @@ class CliServiceTest {
     Files.createFile(ignoredFilePath);
 
     jGitUtilsMock.when(() -> JGitUtils.getAllIgnoredPaths(any(Path.class))).thenReturn(List.of(ignoredDirectory, ignoredFile));
-    underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
 
     String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
     assertThat(capturedArgs).contains("--exclude directory1/**,directory2/file.txt");
   }
 
   @Test
-  void generateZip_withExternalWorkDir_DoesNotExcludeWorkingDir() throws URISyntaxException, IOException {
+  void generateManifestsArchive_withExternalWorkDir_DoesNotExcludeWorkingDir() throws URISyntaxException, IOException {
     Path externalWorkDir = Files.createTempDirectory("externalWorkDir");
     try {
       rootInputModule = new DefaultInputModule(ProjectDefinition.create().setBaseDir(rootModuleDir.toFile()).setWorkDir(externalWorkDir.toFile()));
-      underTest.generateManifestsZip(rootInputModule, scriptDir(), configuration);
+      underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
       String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
 
       // externalWorkDir is not present in the exclude flag
@@ -363,7 +363,7 @@ class CliServiceTest {
   private URL scriptUrl() {
     // There is a custom test Bash script available in src/test/resources/org/sonar/scanner/sca that
     // will serve as our "CLI". This script will output some messages about what arguments were passed
-    // to it and will try to generate a zip file in the location the process specifies. This allows us
+    // to it and will try to generate an archive file in the location the process specifies. This allows us
     // to simulate a real CLI call without needing an OS specific CLI executable to run on a real project.
     URL scriptUrl = CliServiceTest.class.getResource(SystemUtils.IS_OS_WINDOWS ? "echo_args.bat" : "echo_args.sh");
     assertThat(scriptUrl).isNotNull();

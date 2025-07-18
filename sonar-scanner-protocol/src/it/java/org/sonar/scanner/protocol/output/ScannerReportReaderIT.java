@@ -391,16 +391,16 @@ public class ScannerReportReaderIT {
   }
 
   @Test
-  public void readDependencyFilesZip_withNoFile_returnsNull() {
-    assertThat(underTest.readDependencyFilesZip()).isNull();
+  public void readDependencyFilesArchive_withNoFile_returnsNull() {
+    assertThat(underTest.readDependencyFilesArchive()).isNull();
   }
 
   @Test
-  public void readDependencyFilesZip_withFile_returnsFile() throws IOException {
+  public void readDependencyFilesArchive_withFile_returnsFile() throws IOException {
     ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
 
     temp.create();
-    File tempFile = temp.newFile("dependency-files.zip");
+    File tempFile = temp.newFile("dependency-files.tar.xz");
     byte[] expectedBytes = "hello world!".getBytes();
     try (FileOutputStream fos = new FileOutputStream(tempFile)) {
       fos.write(expectedBytes);
@@ -408,8 +408,8 @@ public class ScannerReportReaderIT {
 
     writer.writeScaFile(tempFile);
 
-    assertThat(underTest.readDependencyFilesZip()).isNotNull();
-    var returnBytes = FileUtils.readFileToByteArray(underTest.readDependencyFilesZip());
+    assertThat(underTest.readDependencyFilesArchive()).isNotNull();
+    var returnBytes = FileUtils.readFileToByteArray(underTest.readDependencyFilesArchive());
     assertThat(returnBytes).isEqualTo(expectedBytes);
   }
 }

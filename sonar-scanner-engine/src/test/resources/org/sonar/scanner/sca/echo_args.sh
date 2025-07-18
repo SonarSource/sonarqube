@@ -6,7 +6,7 @@ POSITIONAL_ARGS=()
 
 while [[ $# -gt 0 ]]; do
   case $1 in
-    --zip-filename)
+    --xz-filename)
       FILENAME="$2"
       shift
       shift

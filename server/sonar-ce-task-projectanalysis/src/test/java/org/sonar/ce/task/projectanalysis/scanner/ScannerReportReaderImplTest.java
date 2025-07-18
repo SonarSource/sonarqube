@@ -303,9 +303,9 @@ public class ScannerReportReaderImplTest {
   }
 
   @Test
-  public void verify_readDependencyFilesZip() throws IOException {
+  public void verify_readDependencyFilesArchive() throws IOException {
     File tempDir = tempFolder.newDir();
-    File tempFile = new File(tempDir, "dependency-files.zip");
+    File tempFile = new File(tempDir, "dependency-files.tar.xz");
     byte[] expectedBytes = "hello world!".getBytes();
     try (FileOutputStream fos = new FileOutputStream(tempFile)) {
       fos.write(expectedBytes);
@@ -313,8 +313,8 @@ public class ScannerReportReaderImplTest {
 
     writer.writeScaFile(tempFile);
 
-    assertThat(underTest.readDependencyFilesZip()).isNotNull();
-    var returnBytes = FileUtils.readFileToByteArray(underTest.readDependencyFilesZip());
+    assertThat(underTest.readDependencyFilesArchive()).isNotNull();
+    var returnBytes = FileUtils.readFileToByteArray(underTest.readDependencyFilesArchive());
     assertThat(returnBytes).isEqualTo(expectedBytes);
   }
 }

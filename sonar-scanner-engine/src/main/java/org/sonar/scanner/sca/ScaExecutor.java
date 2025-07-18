@@ -75,7 +75,7 @@ public class ScaExecutor {
     LOG.info("Collecting manifests for the dependency analysis...");
     if (cliFile.exists()) {
       try {
-        File generatedZip = cliService.generateManifestsZip(root, cliFile, configuration);
+        File generatedZip = cliService.generateManifestsArchive(root, cliFile, configuration);
         LOG.debug("Zip ready for report: {}", generatedZip);
         reportPublisher.getWriter().writeScaFile(generatedZip);
         LOG.debug("Manifest zip written to report");

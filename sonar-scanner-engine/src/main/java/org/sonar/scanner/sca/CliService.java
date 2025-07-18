@@ -76,19 +76,19 @@ public class CliService {
     this.projectExclusionFilters = projectExclusionFilters;
   }
 
-  public File generateManifestsZip(DefaultInputModule module, File cliExecutable, DefaultConfiguration configuration) throws IOException, IllegalStateException {
+  public File generateManifestsArchive(DefaultInputModule module, File cliExecutable, DefaultConfiguration configuration) throws IOException, IllegalStateException {
     long startTime = system2.now();
     boolean success = false;
     try {
-      String zipName = "dependency-files.zip";
-      Path zipPath = module.getWorkDir().resolve(zipName);
+      String archiveName = "dependency-files.tar.xz";
+      Path archivePath = module.getWorkDir().resolve(archiveName);
       List<String> args = new ArrayList<>();
       args.add(cliExecutable.getAbsolutePath());
       args.add("projects");
       args.add("save-lockfiles");
-      args.add("--zip");
-      args.add("--zip-filename");
-      args.add(zipPath.toAbsolutePath().toString());
+      args.add("--xz");
+      args.add("--xz-filename");
+      args.add(archivePath.toAbsolutePath().toString());
       args.add("--directory");
       args.add(module.getBaseDir().toString());
       args.add("--recursive");
@@ -117,9 +117,9 @@ public class CliService {
 
       Consumer<String> logConsumer = LOG.atLevel(Level.INFO)::log;
       processWrapperFactory.create(module.getWorkDir(), logConsumer, logConsumer, envProperties, args.toArray(new String[0])).execute();
-      LOG.info("Generated manifests zip file: {}", zipName);
+      LOG.info("Generated manifests archive file: {}", archiveName);
       success = true;
-      return zipPath.toFile();
+      return archivePath.toFile();
     } finally {
       telemetryCache.put("scanner.sca.execution.cli.duration", String.valueOf(system2.now() - startTime));
       telemetryCache.put("scanner.sca.execution.cli.success", String.valueOf(success));

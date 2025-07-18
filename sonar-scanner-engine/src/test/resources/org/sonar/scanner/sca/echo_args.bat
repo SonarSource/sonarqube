@@ -6,7 +6,7 @@ set "POSITIONAL_ARGS="
 
 :loop
 if "%~1"=="" goto endloop
-if "%~1"=="--zip-filename" (
+if "%~1"=="--xz-filename" (
   set "FILENAME=%~2"
   shift
   shift

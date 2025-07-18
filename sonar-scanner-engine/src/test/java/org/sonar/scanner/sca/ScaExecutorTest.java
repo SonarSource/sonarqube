@@ -70,14 +70,14 @@ class ScaExecutorTest {
     File mockManifestZip = Files.newTemporaryFile();
     ScannerReportWriter mockReportWriter = mock(ScannerReportWriter.class);
     when(cliCacheService.cacheCli()).thenReturn(mockCliFile);
-    when(cliService.generateManifestsZip(root, mockCliFile, configuration)).thenReturn(mockManifestZip);
+    when(cliService.generateManifestsArchive(root, mockCliFile, configuration)).thenReturn(mockManifestZip);
     when(reportPublisher.getWriter()).thenReturn(mockReportWriter);
 
     logTester.setLevel(Level.DEBUG);
 
     underTest.execute(root);
 
-    verify(cliService).generateManifestsZip(root, mockCliFile, configuration);
+    verify(cliService).generateManifestsArchive(root, mockCliFile, configuration);
     verify(mockReportWriter).writeScaFile(mockManifestZip);
     assertThat(logTester.logs(Level.DEBUG)).contains("Zip ready for report: " + mockManifestZip);
     assertThat(logTester.logs(Level.DEBUG)).contains("Manifest zip written to report");
@@ -87,13 +87,13 @@ class ScaExecutorTest {
   void execute_whenIOException_shouldHandleException() throws IOException {
     File mockCliFile = Files.newTemporaryFile();
     when(cliCacheService.cacheCli()).thenReturn(mockCliFile);
-    doThrow(IOException.class).when(cliService).generateManifestsZip(root, mockCliFile, configuration);
+    doThrow(IOException.class).when(cliService).generateManifestsArchive(root, mockCliFile, configuration);
 
     logTester.setLevel(Level.INFO);
 
     underTest.execute(root);
 
-    verify(cliService).generateManifestsZip(root, mockCliFile, configuration);
+    verify(cliService).generateManifestsArchive(root, mockCliFile, configuration);
     assertThat(logTester.logs(Level.ERROR)).contains("Error gathering manifests");
   }
 
@@ -101,13 +101,13 @@ class ScaExecutorTest {
   void execute_whenIllegalStateException_shouldHandleException() throws IOException {
     File mockCliFile = Files.newTemporaryFile();
     when(cliCacheService.cacheCli()).thenReturn(mockCliFile);
-    doThrow(IllegalStateException.class).when(cliService).generateManifestsZip(root, mockCliFile, configuration);
+    doThrow(IllegalStateException.class).when(cliService).generateManifestsArchive(root, mockCliFile, configuration);
 
     logTester.setLevel(Level.INFO);
 
     underTest.execute(root);
 
-    verify(cliService).generateManifestsZip(root, mockCliFile, configuration);
+    verify(cliService).generateManifestsArchive(root, mockCliFile, configuration);
     assertThat(logTester.logs(Level.ERROR)).contains("Error gathering manifests");
   }
 
@@ -118,7 +118,7 @@ class ScaExecutorTest {
 
     underTest.execute(root);
 
-    verify(cliService, never()).generateManifestsZip(root, mockCliFile, configuration);
+    verify(cliService, never()).generateManifestsArchive(root, mockCliFile, configuration);
   }
 
   @Test
@@ -150,13 +150,13 @@ class ScaExecutorTest {
     File mockManifestZip = Files.newTemporaryFile();
     ScannerReportWriter mockReportWriter = mock(ScannerReportWriter.class);
     when(cliCacheService.cacheCli()).thenReturn(mockCliFile);
-    when(cliService.generateManifestsZip(root, mockCliFile, configuration)).thenReturn(mockManifestZip);
+    when(cliService.generateManifestsArchive(root, mockCliFile, configuration)).thenReturn(mockManifestZip);
     when(reportPublisher.getWriter()).thenReturn(mockReportWriter);
     logTester.setLevel(Level.DEBUG);
 
     underTest.execute(root);
 
-    verify(cliService).generateManifestsZip(root, mockCliFile, configuration);
+    verify(cliService).generateManifestsArchive(root, mockCliFile, configuration);
     verify(mockReportWriter).writeScaFile(mockManifestZip);
     assertThat(logTester.logs(Level.DEBUG)).contains("Zip ready for report: " + mockManifestZip);
     assertThat(logTester.logs(Level.DEBUG)).contains("Manifest zip written to report");
@@ -168,7 +168,7 @@ class ScaExecutorTest {
     File mockManifestZip = Files.newTemporaryFile();
     ScannerReportWriter mockReportWriter = mock(ScannerReportWriter.class);
     when(cliCacheService.cacheCli()).thenReturn(mockCliFile);
-    when(cliService.generateManifestsZip(root, mockCliFile, configuration)).thenReturn(mockManifestZip);
+    when(cliService.generateManifestsArchive(root, mockCliFile, configuration)).thenReturn(mockManifestZip);
     when(reportPublisher.getWriter()).thenReturn(mockReportWriter);
 
     logTester.setLevel(Level.INFO);

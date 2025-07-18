@@ -64,7 +64,7 @@ public class ScannerReportReaderRule implements TestRule, ScannerReportReader, A
   private List<ScannerReport.AnalysisWarning> analysisWarnings = Collections.emptyList();
   private byte[] analysisCache;
   private List<ScannerReport.TelemetryEntry> telemetryEntries = new ArrayList<>();
-  private File dependencyFilesZip;
+  private File dependencyFilesArchive;
   private List<ScannerReport.AnalysisData> analysisData = new ArrayList<>();
 
   @Override
@@ -347,15 +347,15 @@ public class ScannerReportReaderRule implements TestRule, ScannerReportReader, A
   }
 
   @Override
-  public File readDependencyFilesZip() {
-    if (dependencyFilesZip == null) {
+  public File readDependencyFilesArchive() {
+    if (dependencyFilesArchive == null) {
       return null;
     }
-    return this.dependencyFilesZip;
+    return this.dependencyFilesArchive;
   }
 
-  public ScannerReportReaderRule putDependencyFilesZip(File dependencyFilesZip) {
-    this.dependencyFilesZip = dependencyFilesZip;
+  public ScannerReportReaderRule putDependencyFilesArchive(File dependencyFilesArchive) {
+    this.dependencyFilesArchive = dependencyFilesArchive;
     return this;
   }
 }
