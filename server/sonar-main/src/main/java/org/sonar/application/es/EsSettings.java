@@ -252,5 +252,9 @@ public class EsSettings {
     if (props.value(JAVA_ADDITIONAL_OPS_PROPERTY, "").contains("-D" + ALLOW_MMAP + "=" + Boolean.FALSE)) {
       builder.put(ALLOW_MMAP, Boolean.FALSE.toString());
     }
+
+    if (props.value(JAVA_ADDITIONAL_OPS_PROPERTY, "").contains("-Dcluster.routing.allocation.disk.threshold_enabled=" + Boolean.FALSE)) {
+      builder.put("cluster.routing.allocation.disk.threshold_enabled", Boolean.FALSE.toString());
+    }
   }
 }

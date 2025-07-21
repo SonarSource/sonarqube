@@ -367,6 +367,25 @@ public class EsSettingsTest {
   }
 
   @Test
+  @UseDataProvider("clusterEnabledOrNot")
+  public void disable_disk_threshold_if_configured_in_search_additional_props(boolean clusterEnabled) throws Exception {
+    Props props = minProps(clusterEnabled);
+    props.set("sonar.search.javaAdditionalOpts", "-Dcluster.routing.allocation.disk.threshold_enabled=false");
+    Map<String, String> settings = new EsSettings(props, new EsInstallation(props), system).build();
+
+    assertThat(settings).containsEntry("cluster.routing.allocation.disk.threshold_enabled", "false");
+  }
+
+  @Test
+  @UseDataProvider("clusterEnabledOrNot")
+  public void disk_threshold_not_set_by_default(boolean clusterEnabled) throws Exception {
+    Props props = minProps(clusterEnabled);
+    Map<String, String> settings = new EsSettings(props, new EsInstallation(props), system).build();
+
+    assertThat(settings.get("cluster.routing.allocation.disk.threshold_enabled")).isNull();
+  }
+
+  @Test
   public void configureSecurity_givenClusterSearchPasswordNotProvided_dontAddXpackParameters() throws Exception {
     Props props = minProps(true);
 
