@@ -871,7 +871,7 @@ public class IssueIndex {
     if (newCodeOnReference != null) {
       filters.addFilter(
         FIELD_ISSUE_NEW_CODE_REFERENCE, new SimpleFieldFilterScope(FIELD_ISSUE_NEW_CODE_REFERENCE),
-        termQuery(FIELD_ISSUE_NEW_CODE_REFERENCE, true));
+        termQuery(FIELD_ISSUE_NEW_CODE_REFERENCE, newCodeOnReference));
     }
   }
 

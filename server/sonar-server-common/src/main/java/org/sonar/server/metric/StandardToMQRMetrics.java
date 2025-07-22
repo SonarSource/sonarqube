@@ -22,6 +22,7 @@ package org.sonar.server.metric;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import java.util.Optional;
+import java.util.Set;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.metric.SoftwareQualitiesMetrics;
 
@@ -118,6 +119,14 @@ public class StandardToMQRMetrics {
 
   public static boolean isMQRMetric(String metricKey) {
     return MQR_TO_STANDARD_MODE_METRICS.containsKey(metricKey);
+  }
+
+  public static Set<String> getMQRMetrics() {
+    return STANDARD_TO_MQR_MODE_METRICS.keySet();
+  }
+
+  public static Set<String> getStandardMetrics() {
+    return MQR_TO_STANDARD_MODE_METRICS.keySet();
   }
 
   /**

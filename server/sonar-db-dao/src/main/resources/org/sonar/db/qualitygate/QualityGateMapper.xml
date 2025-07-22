@@ -7,6 +7,12 @@
   </sql>
 
   <sql id="qualityGateFindingColumns">
+    <!--
+    If a row's columns are all `null`, MyBatis, by default, will return `null`
+    instead of an instantiated object with all its properties set to `null`.
+    This case expression, for the QG name, is designed to preserve that behavior.
+    -->
+    CASE WHEN qgc.operator IS NULL THEN NULL ELSE qg.name END AS qualityGateName,
     m.short_name as description,
     qgc.operator as operator,
     m.val_type as valueType,

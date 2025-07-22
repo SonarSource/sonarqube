@@ -90,7 +90,7 @@ class RegulatoryReportDaoIT {
 
     List<IssueFindingDto> issues = new ArrayList<>();
     underTest.scrollIssues(db.getSession(), PROJECT_UUID, result -> issues.add(result.getResultObject()));
-    assertThat(issues).extracting(IssueFindingDto::getKey).containsOnly(issue1.getKey(), issue2.getKey(), issue3.getKey());
+    assertThat(issues).extracting(IssueFindingDto::getKey).containsOnly(issue1.getKey(), issue2.getKey(), issue3.getKey(), issueCodeSmell.getKey());
 
     // check fields
     IssueFindingDto issue = issues.stream().filter(i -> i.getKey().equals(issue1.getKey())).findFirst().get();
