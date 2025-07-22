@@ -31,7 +31,8 @@
       "**/node_modules": true,
       "**/out": true,
       "**/coverage": true,
-      "**/target": true
+      "**/target": true,
+      "**/*.java": false
     },
     "javascript.preferences.importModuleSpecifier": "relative",
     "typescript.preferences.importModuleSpecifier": "project-relative",
