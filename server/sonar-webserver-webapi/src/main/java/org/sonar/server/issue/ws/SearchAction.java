@@ -622,13 +622,7 @@ public class SearchAction implements IssuesWsAction {
     collectLoggedInUser(collector);
     collectRequestParams(collector, request);
     Facets facets = new Facets(result, Optional.ofNullable(query.timeZone()).orElse(system2.getDefaultTimeZone().toZoneId()));
-    if(!userSession.isRoot()){
-      Map<String, Long> projectsFacet = facets.get(FACET_PROJECTS);
-      if ( projectsFacet != null && query.organizationUuid() == null) {
-        Set<String> standardProjects = new HashSet<>(query.projectUuids());
-        projectsFacet.keySet().retainAll(standardProjects);
-      }
-    }
+
     if (!options.getFacets().isEmpty()) {
       // add missing values to facets. For example if assignee "john" and facet on "assignees" are requested, then
       // "john" should always be listed in the facet. If it is not present, then it is added with value zero.

@@ -109,7 +109,7 @@ public class IssueQuery {
 
   private final Collection<String> cvss;
 
-  private  final List<String> allowedProjectUuids;
+  private  final Collection<String> allowedOrgUuids;
 
   private IssueQuery(Builder builder) {
     this.issueKeys = nullableDefaultCollection(builder.issueKeys);
@@ -165,7 +165,7 @@ public class IssueQuery {
     this.organizationUuid = builder.organizationUuid;
     this.cvss = defaultCollection(builder.cvss);
  
-    this.allowedProjectUuids = builder.allowedProjectUuids;
+    this.allowedOrgUuids = builder.allowedOrgUuids;
   }
 
   public Collection<String> issueKeys() {
@@ -176,8 +176,8 @@ public class IssueQuery {
     return severities;
   }
 
-  public List<String> allowedProjectUuids() {
-    return allowedProjectUuids;
+  public Collection<String> allowedOrgUuids() {
+    return allowedOrgUuids;
   }
 
   public Collection<String> impactSeverities() {
@@ -460,7 +460,7 @@ public class IssueQuery {
     private Collection<String> cvss;
 
     private String organizationUuid;
-    private List<String> allowedProjectUuids; 
+    private Collection<String> allowedOrgUuids;
     
     private Builder() {
 
@@ -501,8 +501,8 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder allowedProjectUuids(@Nullable Collection<String> l) {
-      this.projects = l;
+    public Builder allowedOrgUuids(@Nullable Collection<String> l) {
+      this.allowedOrgUuids = l;
       return this;
     }
 
