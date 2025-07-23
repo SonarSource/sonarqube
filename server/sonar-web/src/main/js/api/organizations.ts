@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {Extension, MemberType, Organization, OrganizationBase, OrganizationMember, Paging} from "../types/types";
-import { deleteRequest, post, postJSON, postJSONBody, putJsonBody } from "../helpers/request";
+import { archiveRequest, deleteRequest, post, postJSON, postJSONBody, putJsonBody } from "../helpers/request";
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getJSON } from '~sonar-aligned/helpers/request';
 import axios from "axios";
@@ -52,6 +52,10 @@ export function updateOrganization(key: string, changes: OrganizationBase) {
 
 export function deleteOrganization(key: string) {
   return deleteRequest(`/_codescan/organizations/${key}`).catch(throwGlobalError);
+}
+
+export function archiveOrganization(key: string) {
+  return archiveRequest(`/_codescan/organizations/archive/${key}`).catch(throwGlobalError);
 }
 
 export function toggleInviteUsersVisibility(key: string, invite_users_enabled: boolean){
