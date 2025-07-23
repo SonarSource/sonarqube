@@ -24,7 +24,30 @@ import { getCookie } from '../../../helpers/cookies';
 import { translate } from '../../../helpers/l10n';
 
 export default function Unauthorized() {
-  const message = decodeURIComponent(getCookie('AUTHENTICATION-ERROR') || '');
+  const OAUTH2_ERROR_CODES: Record<string, string> = {
+    'invalid_request': 'unauthorized.oauth2.invalid_request',
+    'unauthorized_client': 'unauthorized.oauth2.unauthorized_client',
+    'access_denied': 'unauthorized.oauth2.access_denied',
+    'unsupported_response_type': 'unauthorized.oauth2.unsupported_response_type',
+    'invalid_scope': 'unauthorized.oauth2.invalid_scope',
+    'server_error': 'unauthorized.oauth2.server_error',
+    'temporarily_unavailable': 'unauthorized.oauth2.temporarily_unavailable',
+    'invalid_grant': 'unauthorized.oauth2.invalid_grant',
+    'invalid_client': 'unauthorized.oauth2.invalid_client'
+  };
+
+  const rawJson = decodeURIComponent(getCookie('AUTHENTICATION-ERROR') || '');
+  let errorObj;
+  try {
+    errorObj = JSON.parse(rawJson);
+  } catch (e) {
+    errorObj = {error_message: rawJson};
+  }
+  const errorMessage = errorObj.error_message;
+  const errorCode = errorObj.error;
+  const translationKey = errorCode ? OAUTH2_ERROR_CODES[errorCode] : OAUTH2_ERROR_CODES[errorMessage];
+  const message = translationKey ? translate(translationKey) : translate('unauthorized.generic_error');
+
   return (
     <CenteredLayout id="bd">
       <Helmet defer={false} title={translate('unauthorized.page')} />
