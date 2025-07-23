@@ -19,9 +19,10 @@
  */
 package org.sonar.server.qualityprofile;
 
-import java.util.List;
+import org.apache.commons.lang.StringUtils;
+import org.sonarqube.ws.WsUtils;
 
-import static java.util.Objects.requireNonNull;
+import java.util.List;
 
 class ImportedQProfile {
   private final String profileName;
@@ -30,8 +31,8 @@ class ImportedQProfile {
   private final List<ImportedRule> rules;
 
   public ImportedQProfile(String profileName, String profileLang, List<ImportedRule> rules) {
-    requireNonNull(profileName, "Profile name should not be empty!");
-    requireNonNull(profileLang, "Profile language should not be empty!");
+    WsUtils.checkArgument(StringUtils.isNotBlank(profileName),"Profile name should be set");
+    WsUtils.checkArgument(StringUtils.isNotBlank(profileLang),"Profile language should be set");
     this.profileName = profileName;
     this.profileLang = profileLang;
     this.rules = rules;
