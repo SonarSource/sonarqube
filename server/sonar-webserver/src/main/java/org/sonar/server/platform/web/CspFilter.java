@@ -35,8 +35,6 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletResponse;
 
 public class CspFilter implements Filter {
-  private static final String BEAMER_SRC = " https://*.getbeamer.com ";
-
   private final List<String> cspHeaders = new ArrayList<>();
   private String policies = null;
 
@@ -48,13 +46,13 @@ public class CspFilter implements Filter {
     cspPolicies.add("default-src 'self'");
     cspPolicies.add("base-uri 'none'");
     cspPolicies.add("connect-src 'self' http: https:");
-    cspPolicies.add("font-src 'self' data:" + BEAMER_SRC);
-    cspPolicies.add("frame-src" + BEAMER_SRC);
+    cspPolicies.add("font-src 'self' data:");
+    cspPolicies.add("frame-src");
     cspPolicies.add("img-src * data: blob:");
     cspPolicies.add("object-src 'none'");
     // the hash below corresponds to the window.__assetsPath script in index.html
-    cspPolicies.add("script-src 'self'" + BEAMER_SRC + getAssetsPathScriptCSPHash(filterConfig.getServletContext().getContextPath()));
-    cspPolicies.add("style-src 'self' 'unsafe-inline'" + BEAMER_SRC);
+    cspPolicies.add("script-src 'self' " + getAssetsPathScriptCSPHash(filterConfig.getServletContext().getContextPath()));
+    cspPolicies.add("style-src 'self' 'unsafe-inline'");
     cspPolicies.add("worker-src 'self'");
     this.policies = String.join("; ", cspPolicies).trim();
   }
