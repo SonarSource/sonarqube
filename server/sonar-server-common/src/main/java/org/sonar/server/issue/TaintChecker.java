@@ -78,7 +78,7 @@ public class TaintChecker {
 
   private List<String> initializeRepositories() {
     List<String> repositories = new ArrayList<>(List.of("gosecurity", "javasecurity", "jssecurity", "kotlinsecurity", "phpsecurity", "pythonsecurity",
-      "roslyn.sonaranalyzer.security.cs", "tssecurity"));
+      "roslyn.sonaranalyzer.security.cs", "tssecurity", "vbnetsecurity"));
 
     if (!config.hasKey(EXTRA_TAINT_REPOSITORIES)) {
       return repositories;
