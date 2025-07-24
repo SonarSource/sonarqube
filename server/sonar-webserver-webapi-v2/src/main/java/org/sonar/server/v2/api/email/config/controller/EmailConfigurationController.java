@@ -30,7 +30,6 @@ import org.sonar.server.v2.api.email.config.request.EmailConfigurationUpdateRest
 import org.sonar.server.v2.api.email.config.resource.EmailConfigurationResource;
 import org.sonar.server.v2.api.email.config.response.EmailConfigurationSearchRestResponse;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -44,6 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 import static org.sonar.server.v2.WebApiEndpoints.EMAIL_CONFIGURATION_ENDPOINT;
 import static org.sonar.server.v2.WebApiEndpoints.INTERNAL;
 import static org.sonar.server.v2.WebApiEndpoints.JSON_MERGE_PATCH_CONTENT_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RequestMapping(EMAIL_CONFIGURATION_ENDPOINT)
 @RestController
@@ -58,7 +58,7 @@ public interface EmailConfigurationController {
     extensions = @Extension(properties = {@ExtensionProperty(name = INTERNAL, value = "true")}))
   EmailConfigurationResource createEmailConfiguration(@Valid @RequestBody EmailConfigurationCreateRestRequest createRequest);
 
-  @GetMapping(path = "/{id}")
+  @GetMapping(path = "/{id}", produces = APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Fetch an email configuration", description = """
     Fetch a Email configuration. Requires 'Administer System' permission.
@@ -76,7 +76,7 @@ public interface EmailConfigurationController {
     extensions = @Extension(properties = {@ExtensionProperty(name = INTERNAL, value = "true")}))
   EmailConfigurationSearchRestResponse searchEmailConfigurations();
 
-  @PatchMapping(path = "/{id}", consumes = JSON_MERGE_PATCH_CONTENT_TYPE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PatchMapping(path = "/{id}", consumes = JSON_MERGE_PATCH_CONTENT_TYPE, produces = APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Update an email configuration", description = """
     Update an email configuration. Requires 'Administer System' permission.

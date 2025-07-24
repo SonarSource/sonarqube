@@ -34,12 +34,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.sonar.server.v2.WebApiEndpoints.INTERNAL;
 import static org.sonar.server.v2.WebApiEndpoints.MODE_ENDPOINT;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RequestMapping(MODE_ENDPOINT)
 @RestController
 public interface ModeController {
 
-  @GetMapping(path = "")
+  @GetMapping(path = "", produces = APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Retrieve current instance Mode", description = """
     Fetch the current instance mode. Can be Multi-Quality Rules (MQR) Mode or Standard Experience.

@@ -30,7 +30,6 @@ import org.sonar.server.v2.api.gitlab.config.request.GitlabConfigurationUpdateRe
 import org.sonar.server.v2.api.gitlab.config.resource.GitlabConfigurationResource;
 import org.sonar.server.v2.api.gitlab.config.response.GitlabConfigurationSearchRestResponse;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -44,12 +43,13 @@ import org.springframework.web.bind.annotation.RestController;
 import static org.sonar.server.v2.WebApiEndpoints.GITLAB_CONFIGURATION_ENDPOINT;
 import static org.sonar.server.v2.WebApiEndpoints.INTERNAL;
 import static org.sonar.server.v2.WebApiEndpoints.JSON_MERGE_PATCH_CONTENT_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RequestMapping(GITLAB_CONFIGURATION_ENDPOINT)
 @RestController
 public interface GitlabConfigurationController {
 
-  @GetMapping(path = "/{id}")
+  @GetMapping(path = "/{id}", produces = APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Fetch a GitLab configuration", description = """
     Fetch a GitLab configuration. Requires 'Administer System' permission.
@@ -67,7 +67,7 @@ public interface GitlabConfigurationController {
     extensions = @Extension(properties = {@ExtensionProperty(name = INTERNAL, value = "true")}))
   GitlabConfigurationSearchRestResponse searchGitlabConfiguration();
 
-  @PatchMapping(path = "/{id}", consumes = JSON_MERGE_PATCH_CONTENT_TYPE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PatchMapping(path = "/{id}", consumes = JSON_MERGE_PATCH_CONTENT_TYPE, produces = APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Update a Gitlab configuration", description = """
     Update a Gitlab configuration. Requires 'Administer System' permission.

@@ -35,7 +35,6 @@ import org.sonar.server.v2.api.group.response.GroupsSearchRestResponse;
 import org.sonar.server.v2.api.model.RestPage;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -49,12 +48,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.sonar.server.v2.WebApiEndpoints.GROUPS_ENDPOINT;
 import static org.sonar.server.v2.WebApiEndpoints.JSON_MERGE_PATCH_CONTENT_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RequestMapping(GROUPS_ENDPOINT)
 @RestController
 public interface GroupController {
 
-  @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(produces = APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Group search", description = """
       Get the list of groups.
@@ -66,12 +66,12 @@ public interface GroupController {
       extensions = @Extension(properties = {@ExtensionProperty(name = "internal", value = "true")}), hidden = true) String excludedUserId,
     @Valid @ParameterObject RestPage restPage);
 
-  @GetMapping(path = "/{id}")
+  @GetMapping(path = "/{id}", produces = APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Fetch a single group", description = "Fetch a single group.")
   GroupRestResponse fetchGroup(@PathVariable("id") @Parameter(description = "The id of the group to fetch.", required = true, in = ParameterIn.PATH) String id);
 
-  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   @Operation(summary = "Create a new group", description = "Create a new group.")
   GroupRestResponse create(@Valid @RequestBody GroupCreateRestRequest request);
@@ -81,7 +81,7 @@ public interface GroupController {
   @Operation(summary = "Deletes a group", description = "Deletes a group.")
   void deleteGroup(@PathVariable("id") @Parameter(description = "The ID of the group to delete.", required = true, in = ParameterIn.PATH) String id);
 
-  @PatchMapping(path = "/{id}", consumes = JSON_MERGE_PATCH_CONTENT_TYPE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PatchMapping(path = "/{id}", consumes = JSON_MERGE_PATCH_CONTENT_TYPE, produces = APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Update a group", description = """
     Update a group name or description.

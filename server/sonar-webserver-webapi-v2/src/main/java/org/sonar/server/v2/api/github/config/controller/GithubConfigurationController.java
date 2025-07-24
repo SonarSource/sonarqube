@@ -30,7 +30,6 @@ import org.sonar.server.v2.api.github.config.request.GithubConfigurationUpdateRe
 import org.sonar.server.v2.api.github.config.resource.GithubConfigurationResource;
 import org.sonar.server.v2.api.github.config.response.GithubConfigurationSearchRestResponse;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -44,12 +43,13 @@ import org.springframework.web.bind.annotation.RestController;
 import static org.sonar.server.v2.WebApiEndpoints.GITHUB_CONFIGURATION_ENDPOINT;
 import static org.sonar.server.v2.WebApiEndpoints.INTERNAL;
 import static org.sonar.server.v2.WebApiEndpoints.JSON_MERGE_PATCH_CONTENT_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RequestMapping(GITHUB_CONFIGURATION_ENDPOINT)
 @RestController
 public interface GithubConfigurationController {
 
-  @GetMapping(path = "/{id}")
+  @GetMapping(path = "/{id}", produces = APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Fetch a GitHub configuration", description = """
     Fetch a GitHub configuration. Requires 'Administer System' permission.
@@ -67,7 +67,7 @@ public interface GithubConfigurationController {
     extensions = @Extension(properties = {@ExtensionProperty(name = INTERNAL, value = "true")}))
   GithubConfigurationSearchRestResponse searchGithubConfiguration();
 
-  @PatchMapping(path = "/{id}", consumes = JSON_MERGE_PATCH_CONTENT_TYPE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PatchMapping(path = "/{id}", consumes = JSON_MERGE_PATCH_CONTENT_TYPE, produces = APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Update a GitHub configuration", description = """
     Update a GitHub configuration. Requires 'Administer System' permission.

@@ -35,7 +35,6 @@ import org.sonar.server.v2.api.user.response.UserRestResponse;
 import org.sonar.server.v2.api.user.response.UsersSearchRestResponse;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -49,12 +48,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.sonar.server.v2.WebApiEndpoints.JSON_MERGE_PATCH_CONTENT_TYPE;
 import static org.sonar.server.v2.WebApiEndpoints.USER_ENDPOINT;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RequestMapping(USER_ENDPOINT)
 @RestController
 public interface UserController {
 
-  @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(produces = APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Users search", description = """
       Get a list of users. By default, only active users are returned.
@@ -82,7 +82,7 @@ public interface UserController {
     @PathVariable("id") @Parameter(description = "The ID of the user to delete.", required = true, in = ParameterIn.PATH) String id,
     @RequestParam(value = "anonymize", required = false, defaultValue = "false") @Parameter(description = "Anonymize user in addition to deactivating it.") Boolean anonymize);
 
-  @GetMapping(path = "/{id}")
+  @GetMapping(path = "/{id}", produces = APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Fetch a single user", description = """
     Fetch a single user.
@@ -98,14 +98,14 @@ public interface UserController {
     """)
   UserRestResponse fetchUser(@PathVariable("id") @Parameter(description = "The id of the user to fetch.", required = true, in = ParameterIn.PATH) String id);
 
-  @PatchMapping(path = "/{id}", consumes = JSON_MERGE_PATCH_CONTENT_TYPE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PatchMapping(path = "/{id}", consumes = JSON_MERGE_PATCH_CONTENT_TYPE, produces = APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Update a user", description = """
     Update users attributes.
     """)
   UserRestResponse updateUser(@PathVariable("id") String id, @Valid @RequestBody UserUpdateRestRequest updateRequest);
 
-  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "User creation", description = """
       Create a user.

@@ -37,12 +37,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.sonar.server.v2.WebApiEndpoints.INTERNAL;
 import static org.sonar.server.v2.WebApiEndpoints.PROJECT_BINDINGS_ENDPOINT;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RequestMapping(PROJECT_BINDINGS_ENDPOINT)
 @RestController
 public interface ProjectBindingsController {
 
-  @GetMapping(path = "/{id}")
+  @GetMapping(path = "/{id}", produces = APPLICATION_JSON_VALUE)
   @Operation(
     operationId = "getProjectBinding",
     summary = "Fetch a single Project Binding",
