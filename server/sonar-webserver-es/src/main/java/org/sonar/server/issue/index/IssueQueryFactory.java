@@ -31,7 +31,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -46,7 +45,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.rule.RuleType;
@@ -71,8 +69,6 @@ import static java.lang.String.format;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.issue.Issue.STATUSES;
-import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
-import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.measures.CoreMetrics.ANALYSIS_FROM_SONARQUBE_9_4_KEY;
@@ -183,39 +179,6 @@ public class IssueQueryFactory {
       }
       return builder.build();
     }
-  }
-
-  public IssueQuery openIssueCountBySeverity(
-    String projectUuid,
-    String branchUuid,
-    String componentUuid,
-    boolean isMainBranch,
-    boolean newCode,
-    SoftwareQuality softwareQuality
-  ) {
-    var timeZone = clock.getZone();
-
-    var types = EnumSet.complementOf(EnumSet.of(RuleType.SECURITY_HOTSPOT))
-      .stream()
-      .map(RuleType::name)
-      .toList();
-
-    var query = IssueQuery.builder()
-      .branchUuid(branchUuid)
-      .mainBranch(isMainBranch)
-      .issueStatuses(List.of(STATUS_OPEN, STATUS_CONFIRMED))
-      .impactSoftwareQualities(List.of(softwareQuality.name()))
-      .projectUuids(List.of(projectUuid))
-      .timeZone(timeZone)
-      .types(types);
-
-    if (newCode) {
-      try (DbSession dbSession = dbClient.openSession(false)) {
-        setInNewCodePeriod(dbSession, query, componentUuid);
-      }
-    }
-
-    return query.build();
   }
 
   private Collection<String> collectIssueKeys(DbSession dbSession, SearchRequest request) {
