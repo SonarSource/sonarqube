@@ -24,7 +24,6 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
@@ -33,6 +32,7 @@ import org.sonar.server.es.Indexers;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Collections.singletonList;
+import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.server.es.Indexers.EntityEvent.PROJECT_TAGS_UPDATE;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
@@ -70,7 +70,11 @@ public class TagsWsSupport {
   }
 
   private void updateTagsForProjectsOrApplication(DbSession dbSession, List<String> tags, ProjectDto projectOrApplication) {
-    userSession.checkEntityPermission(UserRole.ADMIN, projectOrApplication);
+    userSession.checkPermission(PROVISION_PROJECTS, projectOrApplication.getOrganizationUuid());
+    updateTags(dbSession, tags, projectOrApplication);
+  }
+
+  private void updateTags(DbSession dbSession, List<String> tags, ProjectDto projectOrApplication) {
     projectOrApplication.setTags(tags);
     projectOrApplication.setUpdatedAt(system2.now());
     dbClient.projectDao().updateTags(dbSession, projectOrApplication);
