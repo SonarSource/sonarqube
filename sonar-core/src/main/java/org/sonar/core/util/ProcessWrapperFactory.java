@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.apache.commons.exec.CommandLine;
@@ -62,6 +63,7 @@ public class ProcessWrapperFactory {
     private final Consumer<String> stdErrLineConsumer;
     private final String[] command;
     private final Map<String, String> envVariables = new HashMap<>();
+    private final AtomicReference<Exception> exceptionWhileProcessingStream = new AtomicReference<>();
     private ExecuteWatchdog watchdog = null;
 
     ProcessWrapper(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, Consumer<String> stdErrLineConsumer, Map<String, String> envVariablesOverrides, String... command) {
@@ -93,6 +95,9 @@ public class ProcessWrapperFactory {
         if (exitValue != 0 && !watchdog.killedProcess()) {
           throw new IllegalStateException(format("Command execution exited with code: %d", exitValue), resultHandler.getException());
         }
+        if (exceptionWhileProcessingStream.get() != null) {
+          throw new IllegalStateException("Error while processing stream for command", exceptionWhileProcessingStream.get());
+        }
       } catch (InterruptedException e) {
         LOG.warn("Command [{}] interrupted", join(" ", command), e);
         Thread.currentThread().interrupt();
@@ -105,17 +110,9 @@ public class ProcessWrapperFactory {
         builder.setWorkingDirectory(baseDir.toFile());
       }
 
-      PumpStreamHandler psh = new PumpStreamHandler(new LogOutputStream() {
-        @Override
-        protected void processLine(String line, int logLevel) {
-          stdOutLineConsumer.accept(line);
-        }
-      }, new LogOutputStream() {
-        @Override
-        protected void processLine(String line, int logLevel) {
-          stdErrLineConsumer.accept(line);
-        }
-      });
+      PumpStreamHandler psh = new PumpStreamHandler(
+        new ExceptionCatchingLogOutputStream(stdOutLineConsumer),
+        new ExceptionCatchingLogOutputStream(stdErrLineConsumer));
       builder.setExecuteStreamHandler(psh);
 
       var executor = builder.get();
@@ -126,6 +123,25 @@ public class ProcessWrapperFactory {
 
     public void destroy() {
       watchdog.destroyProcess();
+    }
+
+    private class ExceptionCatchingLogOutputStream extends LogOutputStream {
+
+      private final Consumer<String> lineConsumer;
+
+      public ExceptionCatchingLogOutputStream(Consumer<String> lineConsumer) {
+        this.lineConsumer = lineConsumer;
+      }
+
+      @Override
+      protected void processLine(String line, int logLevel) {
+        try {
+          lineConsumer.accept(line);
+        } catch (Exception e) {
+          exceptionWhileProcessingStream.compareAndSet(null, e);
+          watchdog.destroyProcess();
+        }
+      }
     }
   }
 }

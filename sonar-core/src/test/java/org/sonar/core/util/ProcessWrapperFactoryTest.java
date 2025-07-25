@@ -83,6 +83,26 @@ class ProcessWrapperFactoryTest {
   }
 
   @Test
+  void should_not_deadlock_when_stream_handler_throw_exception(@TempDir Path temp) throws IOException {
+    var bigFile = temp.resolve("stdout.txt");
+    for (int i = 0; i < 1024; i++) {
+      Files.writeString(bigFile, StringUtils.repeat("a", 1024), StandardCharsets.UTF_8, StandardOpenOption.APPEND, StandardOpenOption.CREATE);
+      Files.writeString(bigFile, "\n", StandardCharsets.UTF_8, StandardOpenOption.APPEND);
+    }
+
+    var stdoutHandler = new ThrowExceptionForEveryLine();
+
+    var processWrapper = underTest.create(temp, stdoutHandler::process, l -> {
+    },
+      SystemUtils.IS_OS_WINDOWS ? new String[] {"cmd.exe", "/c", "type stdout.txt"} : new String[] {"cat", "stdout.txt"});
+
+    assertThatThrownBy(processWrapper::execute)
+      .hasMessage("Error while processing stream for command")
+      .hasCauseInstanceOf(IllegalStateException.class)
+      .hasStackTraceContaining("Some error");
+  }
+
+  @Test
   void should_apply_env_overrides_on_top_of_parent_env(@TempDir Path temp) throws IOException {
     ConcurrentLinkedDeque<String> logs = new ConcurrentLinkedDeque<>();
 
@@ -99,13 +119,20 @@ class ProcessWrapperFactoryTest {
   }
 
   private static class DestroyProcessAfter10Lines {
-    private ProcessWrapperFactory.ProcessWrapper wrapper;
     private final AtomicInteger lineCounter = new AtomicInteger();
+    private ProcessWrapperFactory.ProcessWrapper wrapper;
 
     void process(String line) {
       if (lineCounter.incrementAndGet() == 10) {
         wrapper.destroy();
       }
+    }
+  }
+
+  private static class ThrowExceptionForEveryLine {
+
+    void process(String line) {
+      throw new IllegalStateException("Some error");
     }
   }
 
