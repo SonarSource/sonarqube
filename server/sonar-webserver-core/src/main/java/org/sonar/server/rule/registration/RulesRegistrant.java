@@ -272,7 +272,7 @@ public class RulesRegistrant implements Startable {
       String templateUuid = customRule.getTemplateUuid();
       checkNotNull(templateUuid, "Template uuid of the custom rule '%s' is null", customRule);
       Optional<RuleDto> template = dbClient.ruleDao().selectByUuid(templateUuid, dbSession);
-      if (template.isPresent() && template.get().getStatus() != RuleStatus.REMOVED) {
+      if (template.isPresent() && template.get().getStatus() != RuleStatus.REMOVED && customRule.getStatus() != RuleStatus.REMOVED) {
         if (updateCustomRuleFromTemplateRule(customRule, template.get())) {
           recorder.updated(customRule);
           update(dbSession, customRule);
