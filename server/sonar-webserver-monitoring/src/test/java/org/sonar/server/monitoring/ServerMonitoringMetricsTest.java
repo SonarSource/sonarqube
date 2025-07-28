@@ -158,6 +158,18 @@ public class ServerMonitoringMetricsTest {
       labelNames, labelValues)).isEqualTo(10);
   }
 
+  @Test
+  public void observeComputeEngineSystemTaskDurationTest() {
+    ServerMonitoringMetrics metrics = new ServerMonitoringMetrics();
+    String[] labelNames = {"task_type"};
+    String[] labelValues = {"AUDIT_PURGE"};
+
+    metrics.observeComputeEngineSystemTaskDuration(10, labelValues[0]);
+
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_compute_engine_system_tasks_running_duration_seconds_sum",
+      labelNames, labelValues)).isEqualTo(10);
+  }
+
   private int sizeOfDefaultRegistry() {
     Enumeration<Collector.MetricFamilySamples> metrics = CollectorRegistry.defaultRegistry.metricFamilySamples();
     return Collections.list(metrics).size();

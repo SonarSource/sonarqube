@@ -37,6 +37,7 @@ public class ServerMonitoringMetrics {
 
   private final Gauge cePendingTasksTotal;
   private final Summary ceTasksRunningDuration;
+  private final Summary ceSystemTasksRunningDuration;
   private final Gauge elasticsearchDiskSpaceFreeBytesGauge;
   private final Gauge elasticSearchDiskSpaceTotalBytes;
 
@@ -78,6 +79,12 @@ public class ServerMonitoringMetrics {
       .name("sonarqube_compute_engine_tasks_running_duration_seconds")
       .help("Compute engine task running time in seconds")
       .labelNames("task_type", "project_key")
+      .register();
+
+    ceSystemTasksRunningDuration = Summary.build()
+      .name("sonarqube_compute_engine_system_tasks_running_duration_seconds")
+      .help("Compute engine system task running time in seconds")
+      .labelNames("task_type")
       .register();
 
     computeEngineGauge = Gauge.build()
@@ -165,8 +172,12 @@ public class ServerMonitoringMetrics {
     cePendingTasksTotal.set(numberOfPendingTasks);
   }
 
-  public void observeComputeEngineTaskDuration(long durationInSeconds, String taskType, String projectKey) {
-    ceTasksRunningDuration.labels(taskType, projectKey).observe(durationInSeconds);
+  public void observeComputeEngineTaskDuration(long durationInSeconds, String taskType, String label) {
+    ceTasksRunningDuration.labels(taskType, label).observe(durationInSeconds);
+  }
+
+  public void observeComputeEngineSystemTaskDuration(long durationInSeconds, String taskType) {
+    ceSystemTasksRunningDuration.labels(taskType).observe(durationInSeconds);
   }
 
   public void setComputeEngineStatusToGreen() {

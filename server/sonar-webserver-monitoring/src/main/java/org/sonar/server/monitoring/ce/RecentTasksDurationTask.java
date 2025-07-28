@@ -22,11 +22,12 @@ package org.sonar.server.monitoring.ce;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.System2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
@@ -56,6 +57,7 @@ public class RecentTasksDurationTask extends ComputeEngineMetricsTask {
 
       Collection<String> entityUuids = recentSuccessfulTasks.stream()
         .map(CeActivityDto::getEntityUuid)
+        .filter(Objects::nonNull)
         .toList();
       List<EntityDto> entities = dbClient.entityDao().selectByUuids(dbSession, entityUuids);
       Map<String, String> entityUuidAndKeys = entities.stream()
@@ -75,20 +77,22 @@ public class RecentTasksDurationTask extends ComputeEngineMetricsTask {
 
   private void reportObservedDurationForTasks(List<CeActivityDto> tasks, Map<String, String> entityUuidAndKeys) {
     for (CeActivityDto task : tasks) {
-      String mainComponentUuid = task.getEntityUuid();
+      String entityUuid = task.getEntityUuid();
       Long executionTimeMs = task.getExecutionTimeMs();
       try {
-        requireNonNull(mainComponentUuid);
         requireNonNull(executionTimeMs);
 
-        String mainComponentKey = entityUuidAndKeys.get(mainComponentUuid);
-        requireNonNull(mainComponentKey);
-
-        metrics.observeComputeEngineTaskDuration(executionTimeMs, task.getTaskType(), mainComponentKey);
+        if (entityUuid != null) {
+          String label = entityUuidAndKeys.get(entityUuid);
+          requireNonNull(label);
+          metrics.observeComputeEngineTaskDuration(executionTimeMs, task.getTaskType(), label);
+        } else {
+          metrics.observeComputeEngineSystemTaskDuration(executionTimeMs, task.getTaskType());
+        }
       } catch (RuntimeException e) {
-        LOGGER.warn("Can't report metric data for a CE task with component uuid " + mainComponentUuid, e);
+        LOGGER.warn("Can't report metric data for a CE task with entity uuid " + entityUuid, e);
       }
     }
-
   }
+
 }
