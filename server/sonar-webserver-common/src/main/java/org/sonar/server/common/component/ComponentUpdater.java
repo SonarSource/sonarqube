@@ -185,8 +185,11 @@ public class ComponentUpdater {
   }
 
   private void checkKeyAlreadyExists(DbSession dbSession, NewComponent newComponent) {
+    Optional<PortfolioDto> portfolios = dbClient.portfolioDao().selectByKey(dbSession, newComponent.key());
+    if (portfolios.isPresent()) {
+      throwBadRequestException("Could not create component with key: \"%s\". Key already in use.", newComponent.key());
+    }
     List<ComponentDto> componentDtos = dbClient.componentDao().selectByKeyCaseInsensitive(dbSession, newComponent.key());
-
     if (!componentDtos.isEmpty()) {
       String alreadyExistingKeys = componentDtos
         .stream()

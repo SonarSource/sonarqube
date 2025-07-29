@@ -40,6 +40,7 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ComponentScopes;
+import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -568,5 +569,35 @@ public class ComponentUpdaterIT {
       .build();
     ProjectDto projectDto = underTest.create(db.getSession(), creationParameters).projectDto();
     assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_BROWSER);
+  }
+
+  @Test
+  public void fail_to_create_portfolio_using_duplicate_child_portfolio_key() {
+    var parentPortfolio = db.components().insertPublicPortfolioDto();
+    var childPortfolio = new PortfolioDto()
+      .setKey("ExistingChild")
+      .setName("name_" + "ExistingChild")
+      .setSelectionMode(PortfolioDto.SelectionMode.NONE)
+      .setRootUuid(parentPortfolio.getRootUuid())
+      .setParentUuid(parentPortfolio.getUuid())
+      .setUuid("uuid_" + "ExistingChild");
+    DbSession session = db.getSession();
+    db.getDbClient().portfolioDao().insertWithAudit(session, childPortfolio);
+    session.commit();
+
+    var newPortfolio = NewComponent.newComponentBuilder()
+      .setKey(childPortfolio.getKey())
+      .setName("New Portfolio")
+      .setQualifier(VIEW)
+      .build();
+    var creationParameters = ComponentCreationParameters.builder()
+      .newComponent(newPortfolio)
+      .creationMethod(CreationMethod.LOCAL_API)
+      .mainBranchName("main")
+      .build();
+
+    assertThatThrownBy(() -> underTest.create(session, creationParameters))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Could not create component with key: \"%s\". Key already in use.", childPortfolio.getKey());
   }
 }
