@@ -117,7 +117,7 @@ class BootstrapMediumIT {
   void should_fail_if_invalid_json_input() {
     var in = new ByteArrayInputStream("}".getBytes());
 
-    var exitCode = ScannerMain.run(in);
+    var exitCode = ScannerMain.run(in, System.out);
 
     assertThat(exitCode).isEqualTo(1);
     assertThat(logTester.getLogs(Level.ERROR)).hasSize(1);
@@ -128,7 +128,7 @@ class BootstrapMediumIT {
   @Test
   void should_warn_if_null_property_key() {
     ScannerMain.run(new ByteArrayInputStream("""
-      {"scannerProperties": [{"value": "aValueWithoutKey"}]}""".getBytes()));
+      {"scannerProperties": [{"value": "aValueWithoutKey"}]}""".getBytes()), System.out);
 
     assertThat(logTester.logs(Level.WARN)).contains("Ignoring property with null key. Value='aValueWithoutKey'");
   }
@@ -136,7 +136,7 @@ class BootstrapMediumIT {
   @Test
   void should_warn_if_null_property_value() {
     ScannerMain.run(new ByteArrayInputStream("""
-      {"scannerProperties": [{"key": "aKey", "value": null}]}""".getBytes()));
+      {"scannerProperties": [{"key": "aKey", "value": null}]}""".getBytes()), System.out);
 
     assertThat(logTester.logs(Level.WARN)).contains("Ignoring property with null value. Key='aKey'");
   }
@@ -144,7 +144,7 @@ class BootstrapMediumIT {
   @Test
   void should_warn_if_not_provided_property_value() {
     ScannerMain.run(new ByteArrayInputStream("""
-      {"scannerProperties": [{"key": "aKey"}]}""".getBytes()));
+      {"scannerProperties": [{"key": "aKey"}]}""".getBytes()), System.out);
 
     assertThat(logTester.logs(Level.WARN)).contains("Ignoring property with null value. Key='aKey'");
   }
@@ -152,7 +152,7 @@ class BootstrapMediumIT {
   @Test
   void should_warn_if_duplicate_property_keys() {
     ScannerMain.run(new ByteArrayInputStream("""
-      {"scannerProperties": [{"key": "aKey", "value": "aValue"}, {"key": "aKey", "value": "aValue"}]}""".getBytes()));
+      {"scannerProperties": [{"key": "aKey", "value": "aValue"}, {"key": "aKey", "value": "aValue"}]}""".getBytes()), System.out);
 
     assertThat(logTester.logs(Level.WARN)).contains("Duplicated properties. Key='aKey'");
   }
@@ -160,7 +160,7 @@ class BootstrapMediumIT {
   @Test
   void should_warn_if_null_property() {
     ScannerMain.run(new ByteArrayInputStream("""
-      {"scannerProperties": [{"key": "aKey", "value": "aValue"},]}""".getBytes()));
+      {"scannerProperties": [{"key": "aKey", "value": "aValue"},]}""".getBytes()), System.out);
 
     assertThat(logTester.logs(Level.WARN)).contains("Ignoring null or empty property");
   }
@@ -168,7 +168,7 @@ class BootstrapMediumIT {
   @Test
   void should_warn_if_empty_property() {
     ScannerMain.run(new ByteArrayInputStream("""
-      {"scannerProperties": [{}]}""".getBytes()));
+      {"scannerProperties": [{}]}""".getBytes()), System.out);
 
     assertThat(logTester.logs(Level.WARN)).contains("Ignoring null or empty property");
   }
@@ -229,7 +229,7 @@ class BootstrapMediumIT {
   }
 
   private int runScannerEngine(ScannerProperties scannerProperties) {
-    return ScannerMain.run(new ByteArrayInputStream(scannerProperties.toJson().getBytes()));
+    return ScannerMain.run(new ByteArrayInputStream(scannerProperties.toJson().getBytes()), System.out);
   }
 
   static class ScannerProperties {

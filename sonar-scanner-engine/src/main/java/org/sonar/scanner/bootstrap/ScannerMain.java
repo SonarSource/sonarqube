@@ -21,11 +21,14 @@ package org.sonar.scanner.bootstrap;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.OutputStreamAppender;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -50,11 +53,13 @@ public class ScannerMain {
   private static final String SCANNER_APP_VERSION_KEY = "sonar.scanner.appVersion";
 
   public static void main(String... args) {
-    System.exit(run(System.in));
+    System.exit(run(System.in, System.out));
   }
 
-  public static int run(InputStream in) {
-    try {
+  public static int run(InputStream in, OutputStream out) {
+    try (var ignored = new JGitCleanupService()) {
+      configureLogOutput(out);
+
       LOG.info("Starting SonarScanner Engine...");
       LOG.atInfo().log(ScannerMain::java);
 
@@ -71,6 +76,8 @@ public class ScannerMain {
     } catch (Throwable throwable) {
       handleException(throwable);
       return 1;
+    } finally {
+      stopLogback();
     }
   }
 
@@ -154,6 +161,28 @@ public class ScannerMain {
     var verbose = LoggingConfiguration.isVerboseEnabled(properties);
     var rootLogger = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
     rootLogger.setLevel(Level.toLevel(verbose ? LEVEL_ROOT_VERBOSE : LEVEL_ROOT_DEFAULT));
+  }
+
+  private static void configureLogOutput(OutputStream out) {
+    var loggerContext = (ch.qos.logback.classic.LoggerContext) LoggerFactory.getILoggerFactory();
+    var encoder = new ScannerLogbackEncoder();
+    encoder.setContext(loggerContext);
+    encoder.start();
+
+    var appender = new OutputStreamAppender<ILoggingEvent>();
+    appender.setEncoder(encoder);
+    appender.setContext(loggerContext);
+    appender.setOutputStream(out);
+    appender.start();
+
+    var rootLogger = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+    rootLogger.addAppender(appender);
+    rootLogger.setLevel(Level.toLevel(LEVEL_ROOT_DEFAULT));
+  }
+
+  private static void stopLogback() {
+    var loggerContext = (ch.qos.logback.classic.LoggerContext) LoggerFactory.getILoggerFactory();
+    loggerContext.stop();
   }
 
   private static class Input {

@@ -1,17 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE configuration>
-<!-- This logback configuration is used when the scanner engine is bootstrapped using the SonarScannerCli class. -->
+<!-- This logback configuration is used when the scanner engine is bootstrapped using the ScannerMain class. -->
 
 <configuration scan="false">
-  <import class="ch.qos.logback.core.ConsoleAppender"/>
-
-  <appender name="STDOUT" class="ConsoleAppender">
-    <encoder class="org.sonar.scanner.bootstrap.ScannerLogbackEncoder"/>
-  </appender>
-
-  <root level="info">
-    <appender-ref ref="STDOUT"/>
-  </root>
 
   <!-- BeanUtils generate too many DEBUG logs when sonar.verbose is set -->
   <logger name="org.apache.commons.beanutils.converters" level="WARN"/>
