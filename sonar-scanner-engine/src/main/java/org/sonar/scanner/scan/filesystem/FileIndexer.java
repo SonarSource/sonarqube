@@ -94,8 +94,8 @@ public class FileIndexer {
 
     // This should be fast; language should be cached from preprocessing step
     Language language = langDetection.language(sourceFile, projectRelativePath);
-    // cached from directory file visitation
-    boolean isHidden = hiddenFilesProjectData.isMarkedAsHiddenFile(sourceFile, module);
+    // cached from directory file visitation, after querying the data is removed to reduce memory consumption
+    boolean isHidden = hiddenFilesProjectData.getIsMarkedAsHiddenFileAndRemoveVisibilityInformation(sourceFile, module);
 
     DefaultIndexedFile indexedFile = new DefaultIndexedFile(
       sourceFile,

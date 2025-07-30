@@ -44,12 +44,16 @@ public class HiddenFilesProjectData {
     hiddenFilesByModule.computeIfAbsent(module, k -> new HashSet<>()).add(file);
   }
 
-  public boolean isMarkedAsHiddenFile(Path file, DefaultInputModule module) {
+  /**
+   * To alleviate additional strain on the memory, we remove the visibility information for <code>hiddenFilesByModule</code> mapdirectly after querying,
+   * as we don't need it afterward.
+   */
+  public boolean getIsMarkedAsHiddenFileAndRemoveVisibilityInformation(Path file, DefaultInputModule module) {
     Set<Path> hiddenFilesPerModule = hiddenFilesByModule.get(module);
-    if (hiddenFilesPerModule == null) {
-      return false;
+    if (hiddenFilesPerModule != null) {
+      return hiddenFilesPerModule.remove(file);
     }
-    return hiddenFilesPerModule.contains(file);
+    return false;
   }
 
   public Path getCachedSonarUserHomePath() throws IOException {

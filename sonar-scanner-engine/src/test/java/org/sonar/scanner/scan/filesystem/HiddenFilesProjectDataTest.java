@@ -73,10 +73,10 @@ public class HiddenFilesProjectDataTest {
     underTest.markAsHiddenFile(myFile2, inputModule);
 
     assertThat(underTest.hiddenFilesByModule).hasSize(1);
-    assertThat(underTest.isMarkedAsHiddenFile(myFile, inputModule)).isTrue();
-    assertThat(underTest.isMarkedAsHiddenFile(myFile2, inputModule)).isTrue();
-    assertThat(underTest.isMarkedAsHiddenFile(myFile, secondInputModule)).isFalse();
-    assertThat(underTest.isMarkedAsHiddenFile(myFile2, secondInputModule)).isFalse();
+    assertThat(underTest.getIsMarkedAsHiddenFileAndRemoveVisibilityInformation(myFile, inputModule)).isTrue();
+    assertThat(underTest.getIsMarkedAsHiddenFileAndRemoveVisibilityInformation(myFile2, inputModule)).isTrue();
+    assertThat(underTest.getIsMarkedAsHiddenFileAndRemoveVisibilityInformation(myFile, secondInputModule)).isFalse();
+    assertThat(underTest.getIsMarkedAsHiddenFileAndRemoveVisibilityInformation(myFile2, secondInputModule)).isFalse();
   }
 
   @Test
@@ -87,10 +87,10 @@ public class HiddenFilesProjectDataTest {
     underTest.markAsHiddenFile(myFile2, secondInputModule);
 
     assertThat(underTest.hiddenFilesByModule).hasSize(2);
-    assertThat(underTest.isMarkedAsHiddenFile(myFile, inputModule)).isTrue();
-    assertThat(underTest.isMarkedAsHiddenFile(myFile2, inputModule)).isFalse();
-    assertThat(underTest.isMarkedAsHiddenFile(myFile, secondInputModule)).isFalse();
-    assertThat(underTest.isMarkedAsHiddenFile(myFile2, secondInputModule)).isTrue();
+    assertThat(underTest.getIsMarkedAsHiddenFileAndRemoveVisibilityInformation(myFile, inputModule)).isTrue();
+    assertThat(underTest.getIsMarkedAsHiddenFileAndRemoveVisibilityInformation(myFile2, inputModule)).isFalse();
+    assertThat(underTest.getIsMarkedAsHiddenFileAndRemoveVisibilityInformation(myFile, secondInputModule)).isFalse();
+    assertThat(underTest.getIsMarkedAsHiddenFileAndRemoveVisibilityInformation(myFile2, secondInputModule)).isTrue();
   }
 
   @Test
@@ -100,7 +100,7 @@ public class HiddenFilesProjectDataTest {
     underTest.markAsHiddenFile(myFile, inputModule);
 
     assertThat(underTest.hiddenFilesByModule).isNotEmpty();
-    assertThat(underTest.isMarkedAsHiddenFile(notMarkedFile, secondInputModule)).isFalse();
+    assertThat(underTest.getIsMarkedAsHiddenFileAndRemoveVisibilityInformation(notMarkedFile, secondInputModule)).isFalse();
   }
 
   @Test
@@ -114,6 +114,36 @@ public class HiddenFilesProjectDataTest {
 
     underTest.clearHiddenFilesData();
     assertThat(underTest.hiddenFilesByModule).isEmpty();
+  }
+
+  @Test
+  public void shouldRemoveVisibilityAfterQuerying() {
+    Path myFile = Path.of("myFile");
+    Path myFile2 = Path.of("myFile2");
+    underTest.markAsHiddenFile(myFile, inputModule);
+    underTest.markAsHiddenFile(myFile2, inputModule);
+
+    assertThat(underTest.hiddenFilesByModule).hasSize(1);
+    assertThat(underTest.getIsMarkedAsHiddenFileAndRemoveVisibilityInformation(myFile, inputModule)).isTrue();
+    assertThat(underTest.getIsMarkedAsHiddenFileAndRemoveVisibilityInformation(myFile2, inputModule)).isTrue();
+
+    assertThat(underTest.hiddenFilesByModule).hasSize(1);
+    assertThat(underTest.hiddenFilesByModule.get(inputModule)).isEmpty();
+    assertThat(underTest.getIsMarkedAsHiddenFileAndRemoveVisibilityInformation(myFile, inputModule)).isFalse();
+    assertThat(underTest.getIsMarkedAsHiddenFileAndRemoveVisibilityInformation(myFile2, inputModule)).isFalse();
+  }
+
+  @Test
+  public void shouldOnlyRemoveModuleIfAllFilesAreRemoved() {
+    Path myFile = Path.of("myFile");
+    Path myFile2 = Path.of("myFile2");
+    underTest.markAsHiddenFile(myFile, inputModule);
+    underTest.markAsHiddenFile(myFile2, inputModule);
+
+    assertThat(underTest.hiddenFilesByModule).hasSize(1);
+    assertThat(underTest.getIsMarkedAsHiddenFileAndRemoveVisibilityInformation(myFile, inputModule)).isTrue();
+
+    assertThat(underTest.hiddenFilesByModule).isNotEmpty();
   }
 
   @Test

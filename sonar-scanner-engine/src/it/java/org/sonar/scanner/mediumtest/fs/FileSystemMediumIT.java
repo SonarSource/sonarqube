@@ -1358,6 +1358,7 @@ class FileSystemMediumIT {
       .addRules(new XooRulesDefinition())
       .addActiveRule("xoo", "OneIssuePerFile", null, "Issue Per File", "MAJOR", null, "xoo")
       .newAnalysis(new File(projectDir, "sonar-project.properties"))
+      .property("sonar.exclusions", "**/*.ignore")
       .property("sonar.oneIssuePerFile.enableHiddenFileProcessing", "true");
 
     if (setHiddenFileScanningExplicitly) {
@@ -1385,6 +1386,7 @@ class FileSystemMediumIT {
       .addRules(new XooRulesDefinition())
       .addActiveRule("xoo", "OneIssuePerFile", null, "Issue Per File", "MAJOR", null, "xoo")
       .newAnalysis(new File(projectDir, "sonar-project.properties"))
+      .property("sonar.exclusions", "**/*.ignore")
       .property("sonar.oneIssuePerFile.enableHiddenFileProcessing", "false")
       .execute();
 
@@ -1410,6 +1412,7 @@ class FileSystemMediumIT {
       .addRules(new XooRulesDefinition())
       .addActiveRule("xoo", "OneIssuePerFile", null, "Issue Per File", "MAJOR", null, "xoo")
       .newAnalysis(new File(projectDir, "sonar-project.properties"))
+      .property("sonar.exclusions", "**/*.ignore")
       .property("sonar.scanner.excludeHiddenFiles", "true")
       // hidden files are not scanned, so issues can't be raised on them regardless if the sensor wants to process them
       .property("sonar.oneIssuePerFile.enableHiddenFileProcessing", String.valueOf(sensorHiddenFileProcessingEnabled))
@@ -1488,6 +1491,46 @@ class FileSystemMediumIT {
 
     assertHiddenFileScan(result, "moduleA/src/.xoo", true, true);
     assertHiddenFileScan(result, "moduleB/src/.xoo", true, true);
+  }
+
+  @Test
+  void shouldScanAndAnalyzeAllHiddenFilesWithRespectToExclusions() throws IOException {
+    prepareHiddenFileProject();
+    File projectDir = new File("test-resources/mediumtest/xoo/sample-with-hidden-files");
+
+
+    AnalysisResult result = tester
+      .addRules(new XooRulesDefinition())
+      .addActiveRule("xoo", "OneIssuePerFile", null, "Issue Per File", "MAJOR", null, "xoo")
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
+      .property("sonar.scm.provider", "xoo")
+      .property("sonar.oneIssuePerFile.enableHiddenFileProcessing", "true")
+      .property("sonar.exclusions", "**/.nestedHidden/**,**/*.ignore")
+      .execute();
+
+    Set<String> excludedFiles = Set.of(
+      // sonar.exclusions
+      "xources/.hidden/.nestedHidden/.xoo",
+      "xources/.hidden/.nestedHidden/Class.xoo",
+      "xources/.hidden/.nestedHidden/visibleInHiddenFolder/.xoo",
+      "xources/.hidden/.nestedHidden/visibleInHiddenFolder/.xoo.ignore",
+      "xources/.hidden/.nestedHidden/visibleInHiddenFolder/Class.xoo",
+      // scm ignore
+      "xources/nonHidden/.hiddenInVisibleFolder/.xoo");
+
+    for (Map.Entry<String, Boolean> pathToHiddenStatus : hiddenFileProjectExpectedHiddenStatus().entrySet()) {
+      String filePath = pathToHiddenStatus.getKey();
+      boolean expectedIsHidden = pathToHiddenStatus.getValue();
+
+      if (excludedFiles.contains(filePath)) {
+        assertThat(result.inputFile(filePath)).isNull();
+      } else {
+        assertHiddenFileScan(result, filePath, expectedIsHidden, true);
+        // we expect the sensor to process all non-excluded files, regardless of visibility
+        assertFileIssue(result, filePath, true);
+      }
+    }
+    assertThat(result.inputFiles()).hasSize(5);
   }
 
   private File createModuleWithSubdirectory(String moduleName, String subDirName) {

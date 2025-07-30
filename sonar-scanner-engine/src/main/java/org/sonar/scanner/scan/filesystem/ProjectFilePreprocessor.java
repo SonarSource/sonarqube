@@ -160,7 +160,11 @@ public class ProjectFilePreprocessor {
           processedFiles.addAll(processDirectory(module, moduleConfiguration, moduleExclusionFilters, dirOrFile, type, exclusionCounter));
         } else {
           filePreprocessor.processFile(module, moduleExclusionFilters, dirOrFile, type, exclusionCounter, ignoreCommand)
-            .ifPresent(processedFiles::add);
+            .ifPresentOrElse(
+              processedFiles::add,
+              // If the file is not processed, we don't need to save visibility data and can remove it
+              () -> hiddenFilesProjectData.getIsMarkedAsHiddenFileAndRemoveVisibilityInformation(dirOrFile, module)
+            );
         }
       }
     } catch (IOException e) {
@@ -173,8 +177,13 @@ public class ProjectFilePreprocessor {
     InputFile.Type type, ExclusionCounter exclusionCounter) throws IOException {
     List<Path> processedFiles = new ArrayList<>();
     Files.walkFileTree(path.normalize(), Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
-      new DirectoryFileVisitor(file -> filePreprocessor.processFile(module, moduleExclusionFilters, file, type, exclusionCounter,
-        ignoreCommand).ifPresent(processedFiles::add), module, moduleConfiguration, moduleExclusionFilters, inputModuleHierarchy, type, hiddenFilesProjectData));
+      new DirectoryFileVisitor(file -> filePreprocessor
+        .processFile(module, moduleExclusionFilters, file, type, exclusionCounter, ignoreCommand)
+        .ifPresentOrElse(
+          processedFiles::add,
+          // If the file is not processed, we don't need to save visibility data and can remove it
+          () -> hiddenFilesProjectData.getIsMarkedAsHiddenFileAndRemoveVisibilityInformation(file, module)),
+        module, moduleConfiguration, moduleExclusionFilters, inputModuleHierarchy, type, hiddenFilesProjectData));
     return processedFiles;
   }
 
