@@ -10,6 +10,8 @@ dependencies {
   api project(':sonar-scanner-engine')
 }
 
+artifactoryPublish.skip = !deployCommunity
+
 jar {
   manifest {
     attributes(
@@ -17,5 +19,15 @@ jar {
       // BouncyCastle library is a multi-release jar
       'Multi-Release' : 'true'
     )
+  }
+}
+
+// Used by the scanner integration tester
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+      artifact shadowJar
+    }
   }
 }
