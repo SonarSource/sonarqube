@@ -104,6 +104,7 @@ import ProjectPageExtension from '../components/extensions/ProjectPageExtension'
 import { GlobalStyles } from '../styles/GlobalStyles';
 import exportModulesAsGlobals from './exportModulesAsGlobals';
 import organizationsRoutes from '../../apps/organizations/routes';
+import organizationsArchiveRoutes from '../../apps/organizationsArchive/routes';
 import { Organization } from "../../types/types";
 import Home from "../components/Home";
 
@@ -168,6 +169,7 @@ function renderAdminRoutes() {
       {marketplaceRoutes()}
       {usersRoutes()}
       {webhooksRoutes()}
+      {organizationsArchiveRoutes()}
     </Route>
   );
 }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {Extension, MemberType, Organization, OrganizationBase, OrganizationMember, Paging} from "../types/types";
+import {Extension, MemberType, Organization, OrganizationBase, OrganizationMember, ArchivedOrganization, Paging} from "../types/types";
 import { archiveRequest, deleteRequest, post, postJSON, postJSONBody, putJsonBody } from "../helpers/request";
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getJSON } from '~sonar-aligned/helpers/request';
@@ -56,6 +56,14 @@ export function deleteOrganization(key: string) {
 
 export function archiveOrganization(key: string) {
   return archiveRequest(`/_codescan/organizations/archive/${key}`).catch(throwGlobalError);
+}
+
+export function getArchivedOrganizations(): Promise<ArchivedOrganization[]> {
+  return getJSON('/_codescan/organizations/archivedOrganizations');
+}
+
+export function restoreArchivedOrganization(key: string) {
+  return putJsonBody(`/_codescan/organizations/unarchive/${key}`).catch(throwGlobalError);
 }
 
 export function toggleInviteUsersVisibility(key: string, invite_users_enabled: boolean){

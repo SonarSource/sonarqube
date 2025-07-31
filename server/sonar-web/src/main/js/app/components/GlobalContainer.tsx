@@ -66,6 +66,7 @@ const PAGES_WITH_SECONDARY_BACKGROUND = [
   '/admin/marketplace',
   '/admin/system',
   '/admin/users',
+  '/admin/organizations_archive',
   '/admin/settings',
   '/admin/settings/encryption',
   '/admin/extension/license/support',

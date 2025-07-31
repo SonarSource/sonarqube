@@ -901,6 +901,16 @@ export interface OrganizationMember extends UserActive {
   isAdmin: boolean;
 }
 
+export interface ArchivedOrganization {
+  name: string;
+  kee: string;
+  archivedAt: string;
+  expiresIn: string;
+  totalUsers: string;
+  totalProjects: string;
+  actions: { [key: string]: boolean };
+}
+
 export interface Notification {
   type: string
   message: string
