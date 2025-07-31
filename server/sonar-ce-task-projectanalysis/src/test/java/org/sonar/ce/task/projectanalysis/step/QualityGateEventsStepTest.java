@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -41,6 +42,10 @@ import org.sonar.ce.task.projectanalysis.measure.QualityGateStatus;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.TestComputationStepContext;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.component.BranchType;
 import org.sonar.server.notification.NotificationService;
 import org.sonar.server.project.Project;
@@ -74,12 +79,18 @@ public class QualityGateEventsStepTest {
   private static final String ALERT_TEXT = "alert text";
   private static final QualityGateStatus OK_QUALITY_GATE_STATUS = new QualityGateStatus(OK, ALERT_TEXT);
   private static final QualityGateStatus ERROR_QUALITY_GATE_STATUS = new QualityGateStatus(ERROR, ALERT_TEXT);
+  private final System2 system2 = System2.INSTANCE;
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
+  @Rule
+  public DbTester db = DbTester.create(system2);
+  public DbSession dbSession = db.getSession();
+
+  public AuditPersister auditPersister = new NoOpAuditPersister();
 
   private ArgumentCaptor<Event> eventArgumentCaptor = ArgumentCaptor.forClass(Event.class);
   private ArgumentCaptor<Notification> notificationArgumentCaptor = ArgumentCaptor.forClass(Notification.class);
@@ -91,7 +102,7 @@ public class QualityGateEventsStepTest {
   private EventRepository eventRepository = mock(EventRepository.class);
   private NotificationService notificationService = mock(NotificationService.class);
   private QualityGateEventsStep underTest = new QualityGateEventsStep(treeRootHolder, metricRepository, measureRepository, eventRepository, notificationService,
-    analysisMetadataHolder);
+    analysisMetadataHolder, dbSession, auditPersister);
 
   @Before
   public void setUp() {
@@ -282,7 +293,7 @@ public class QualityGateEventsStepTest {
     NotificationService notificationService = mock(NotificationService.class);
 
     QualityGateEventsStep underTest = new QualityGateEventsStep(treeRootHolder, metricRepository, measureRepository,
-      eventRepository, notificationService, analysisMetadataHolder);
+      eventRepository, notificationService, analysisMetadataHolder, dbSession, auditPersister);
 
     underTest.execute(new TestComputationStepContext());
 
