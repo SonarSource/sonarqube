@@ -19,15 +19,13 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import static java.util.Collections.singleton;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.api.measures.CoreMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -41,19 +39,16 @@ import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.Metric.MetricType;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.audit.AuditPersister;
-import org.sonar.db.audit.model.PropertyNewValue;
 import org.sonar.server.notification.NotificationService;
 import org.sonar.server.qualitygate.notification.QGChangeNotification;
+
+import static java.util.Collections.singleton;
 
 /**
  * This step must be executed after computation of quality gate measure {@link QualityGateMeasuresStep}
  */
 public class QualityGateEventsStep implements ComputationStep {
   private static final Logger LOGGER = LoggerFactory.getLogger(QualityGateEventsStep.class);
-  private final String QUALITY_GATE_KEY = "QUALITY_GATE_CHANGE";
 
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;
@@ -61,20 +56,16 @@ public class QualityGateEventsStep implements ComputationStep {
   private final EventRepository eventRepository;
   private final NotificationService notificationService;
   private final AnalysisMetadataHolder analysisMetadataHolder;
-  private final AuditPersister auditPersister;
-  private final DbClient dbClient;
 
   public QualityGateEventsStep(TreeRootHolder treeRootHolder,
     MetricRepository metricRepository, MeasureRepository measureRepository, EventRepository eventRepository,
-    NotificationService notificationService, AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient, AuditPersister auditPersister) {
+    NotificationService notificationService, AnalysisMetadataHolder analysisMetadataHolder) {
     this.treeRootHolder = treeRootHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.eventRepository = eventRepository;
     this.notificationService = notificationService;
     this.analysisMetadataHolder = analysisMetadataHolder;
-    this.auditPersister = auditPersister;
-    this.dbClient = dbClient;
   }
 
   @Override
@@ -112,10 +103,7 @@ public class QualityGateEventsStep implements ComputationStep {
 
     if (baseStatus.getStatus() != rawStatus.getStatus()) {
       // The QualityGate status has changed
-      DbSession dbSession = dbClient.openSession(false);
       createEvent(rawStatus.getStatus().getLabel(), rawStatus.getText());
-      auditPersister.createQualityGateChangeEvent(dbSession, analysisMetadataHolder.getOrganization().getUuid(), new PropertyNewValue(QUALITY_GATE_KEY, rawStatus.getStatus().getLabel(), project.getUuid(),
-              project.getKey(), project.getName()));
       boolean isNewKo = rawStatus.getStatus() == Measure.Level.OK;
       notifyUsers(project, rawStatus, isNewKo);
     }

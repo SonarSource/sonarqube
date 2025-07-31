@@ -32,7 +32,6 @@ import org.sonar.db.audit.model.LicenseNewValue;
 import org.sonar.db.audit.model.PermissionTemplateNewValue;
 import org.sonar.db.audit.model.PersonalAccessTokenNewValue;
 import org.sonar.db.audit.model.PluginNewValue;
-import org.sonar.db.audit.model.ProjectAnalysisNewValue;
 import org.sonar.db.audit.model.ProjectBadgeTokenNewValue;
 import org.sonar.db.audit.model.PropertyNewValue;
 import org.sonar.db.audit.model.SecretNewValue;
@@ -333,16 +332,6 @@ public class NoOpAuditPersister implements AuditPersister {
   public void updateComponentVisibility(DbSession session, String organizationUuid,
       ComponentNewValue componentNewValue) {
     // no op
-  }
-
-  @Override
-  public void createProjectAnalysis(DbSession dbSession, String organizationUuid, ProjectAnalysisNewValue newValue) {
-    // no op
-  }
-
-  @Override
-  public void createQualityGateChangeEvent(DbSession dbSession, String organizationUuid, PropertyNewValue newValue) {
-
   }
 
   @Override
