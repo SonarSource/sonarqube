@@ -13,6 +13,7 @@ dependencies {
 artifactoryPublish.skip = !deployCommunity
 
 jar {
+  enabled = false
   manifest {
     attributes(
       'Main-Class' : "org.sonar.scanner.bootstrap.ScannerMain",
@@ -25,6 +26,8 @@ jar {
 tasks.named('shadowJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
   archiveClassifier = ''
 }
+
+assemble.dependsOn shadowJar
 
 // Used by the scanner integration tester
 publishing {
