@@ -45,7 +45,7 @@ import static org.mockito.Mockito.verify;
 
 public class AnalysisCacheCleaningSchedulerImplIT {
   private System2 system2 = mock(System2.class);
-  private final static UuidFactory uuidFactory = new SequenceUuidFactory();
+  private static final UuidFactory uuidFactory = new SequenceUuidFactory();
   @Rule
   public DbTester dbTester = DbTester.create(system2);
   private DbSession dbSession = dbTester.getSession();

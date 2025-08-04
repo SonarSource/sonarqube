@@ -40,7 +40,8 @@ dependencies {
   testRuntimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
   testRuntimeOnly 'com.oracle.database.jdbc:ojdbc11'
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-  testRuntimeOnly 'org.postgresql:postgresql'
+  testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.13.4"
+    testRuntimeOnly 'org.postgresql:postgresql'
 
   testFixturesApi 'org.junit.jupiter:junit-jupiter-api'
   testFixturesApi testFixtures(project(':server:sonar-db-core'))

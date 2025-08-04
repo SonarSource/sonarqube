@@ -75,13 +75,9 @@ public class MeasureRepositoryImplIT {
   private static final ReportComponent FILE_COMPONENT = ReportComponent.builder(Component.Type.FILE, 1).setKey(FILE_COMPONENT_KEY).build();
   private static final ReportComponent OTHER_COMPONENT = ReportComponent.builder(Component.Type.FILE, 2).setKey("some other key").build();
   private static final String METRIC_KEY_1 = "metric 1";
-  private static final int METRIC_ID_1 = 1;
   private static final String METRIC_KEY_2 = "metric 2";
-  private static final int METRIC_ID_2 = 2;
   private final Metric metric1 = mock(Metric.class);
   private final Metric metric2 = mock(Metric.class);
-  private static final String LAST_ANALYSIS_UUID = "u123";
-  private static final String OTHER_ANALYSIS_UUID = "u369";
   private static final Measure SOME_MEASURE = Measure.newMeasureBuilder().create("some value");
   private static final String SOME_DATA = "some data";
 

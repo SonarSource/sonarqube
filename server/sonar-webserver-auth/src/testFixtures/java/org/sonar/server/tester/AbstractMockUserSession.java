@@ -20,7 +20,6 @@
 package org.sonar.server.tester;
 
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;

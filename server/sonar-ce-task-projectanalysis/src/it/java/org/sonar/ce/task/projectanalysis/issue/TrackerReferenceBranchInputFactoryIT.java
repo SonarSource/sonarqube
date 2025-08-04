@@ -36,8 +36,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class TrackerReferenceBranchInputFactoryIT {
-  private final static String COMPONENT_KEY = "file1";
-  private final static String COMPONENT_UUID = "uuid1";
+  private static final String COMPONENT_KEY = "file1";
+  private static final String COMPONENT_UUID = "uuid1";
 
   @RegisterExtension
   private final DbTester db = DbTester.create();

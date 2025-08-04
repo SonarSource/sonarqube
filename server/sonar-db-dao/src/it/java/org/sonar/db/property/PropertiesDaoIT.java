@@ -37,7 +37,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
-import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.EmailSubscriberDto;
@@ -77,8 +76,6 @@ class PropertiesDaoIT {
 
   @RegisterExtension
   private final DbTester db = DbTester.create(system2, auditPersister);
-
-  private final DbClient dbClient = db.getDbClient();
   private final DbSession session = db.getSession();
   private final PropertiesDao underTest = db.getDbClient().propertiesDao();
 

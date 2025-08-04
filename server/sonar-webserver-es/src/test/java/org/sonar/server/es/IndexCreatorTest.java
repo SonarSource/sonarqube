@@ -60,7 +60,6 @@ public class IndexCreatorTest {
   private final MetadataIndexDefinition metadataIndexDefinition = new MetadataIndexDefinition(new MapSettings().asConfig());
   private final MetadataIndex metadataIndex = new MetadataIndexImpl(es.client());
   private final TestEsDbCompatibility esDbCompatibility = new TestEsDbCompatibility();
-  private final MapSettings settings = new MapSettings();
 
   @Test
   public void create_index() {

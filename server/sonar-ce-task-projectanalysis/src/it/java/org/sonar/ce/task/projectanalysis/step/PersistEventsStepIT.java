@@ -34,7 +34,6 @@ import org.sonar.ce.task.projectanalysis.event.Event;
 import org.sonar.ce.task.projectanalysis.event.EventRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
-import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbTester;
@@ -89,8 +88,6 @@ public class PersistEventsStepIT extends BaseStepTest {
 
   private final EventRepository eventRepository = mock(EventRepository.class);
   private final UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
-
-  private final SonarQubeVersion sonarQubeVersion = mock();
 
   private PersistEventsStep underTest;
 

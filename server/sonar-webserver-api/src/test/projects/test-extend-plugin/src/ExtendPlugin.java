@@ -19,9 +19,6 @@
  */
 import org.sonar.api.Plugin;
 
-import java.util.Collections;
-import java.util.List;
-
 public class ExtendPlugin extends Plugin {
 
   public void define(Plugin.Context context) {

@@ -61,8 +61,6 @@ public class DefaultIssueTest {
     .build();
   private DefaultInputProject project;
 
-  private final NewQuickFix quickFix = mock(NewQuickFix.class);
-
   @Before
   public void prepare() throws IOException {
     project = new DefaultInputProject(ProjectDefinition.create()

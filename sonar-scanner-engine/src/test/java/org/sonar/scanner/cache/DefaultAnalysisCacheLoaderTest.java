@@ -52,7 +52,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.scanner.cache.DefaultAnalysisCacheLoader.CONTENT_ENCODING;
 
 public class DefaultAnalysisCacheLoaderTest {
-  private final static SensorCacheEntry MSG = SensorCacheEntry.newBuilder()
+  private static final SensorCacheEntry MSG = SensorCacheEntry.newBuilder()
     .setKey("key")
     .setData(ByteString.copyFrom("value", StandardCharsets.UTF_8))
     .build();

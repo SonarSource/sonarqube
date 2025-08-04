@@ -72,7 +72,6 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newDependencyDto(ComponentDto branch, String dependencyUuid) {
-    String name = "NAME_" + dependencyUuid;
     return newChildComponent(dependencyUuid, branch, branch)
       .setKey("DEP_KEY_" + dependencyUuid)
       .setName("NAME_" + dependencyUuid)

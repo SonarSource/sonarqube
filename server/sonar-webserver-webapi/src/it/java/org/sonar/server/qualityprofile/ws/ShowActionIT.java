@@ -57,9 +57,9 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 @RunWith(DataProviderRunner.class)
 public class ShowActionIT {
 
-  private final static Language XOO1 = newLanguage("xoo1");
-  private final static Language XOO2 = newLanguage("xoo2");
-  private final static Languages LANGUAGES = new Languages(XOO1, XOO2);
+  private static final Language XOO1 = newLanguage("xoo1");
+  private static final Language XOO2 = newLanguage("xoo2");
+  private static final Languages LANGUAGES = new Languages(XOO1, XOO2);
 
   @Rule
   public EsTester es = EsTester.create();

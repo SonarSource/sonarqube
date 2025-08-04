@@ -43,8 +43,6 @@ class RegulatoryReportDaoIT {
   private static final String PROJECT_KEY = "prj_key";
   private static final String FILE_UUID = "file_uuid";
   private static final String FILE_KEY = "file_key";
-  private static final String BRANCH_UUID = "branch_uuid";
-  private static final String BRANCH_NAME = "branch";
 
   @RegisterExtension
   private final DbTester db = DbTester.create(System2.INSTANCE);

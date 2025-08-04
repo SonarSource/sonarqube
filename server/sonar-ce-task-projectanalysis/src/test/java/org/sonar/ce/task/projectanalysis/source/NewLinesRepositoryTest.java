@@ -42,7 +42,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class NewLinesRepositoryTest {
-  private final static ReportComponent FILE = ReportComponent.builder(Component.Type.FILE, 1).build();
+  private static final ReportComponent FILE = ReportComponent.builder(Component.Type.FILE, 1).build();
 
   @Rule
   public ScannerReportReaderRule reader = new ScannerReportReaderRule();

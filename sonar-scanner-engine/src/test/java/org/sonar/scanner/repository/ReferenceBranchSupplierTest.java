@@ -41,9 +41,9 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class ReferenceBranchSupplierTest {
-  private final static String PROJECT_KEY = "project";
-  private final static String BRANCH_KEY = "branch";
-  private final static Path BASE_DIR = Paths.get("root");
+  private static final String PROJECT_KEY = "project";
+  private static final String BRANCH_KEY = "branch";
+  private static final Path BASE_DIR = Paths.get("root");
 
   private final NewCodePeriodLoader newCodePeriodLoader = mock(NewCodePeriodLoader.class);
   private final BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);

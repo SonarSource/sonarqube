@@ -69,9 +69,9 @@ public class StatusActionIT {
   private final DbSession dbSession = db.getSession();
   private final ComponentTypesRule resourceTypes = new ComponentTypesRule().setRootQualifiers(PROJECT);
 
-  private final static String projectDumpsDirectoryPathname = "data/governance/project_dumps/";
-  private final static String importDirectoryPathname = Paths.get(projectDumpsDirectoryPathname, "import").toString();
-  private final static String exportDirectoryPathname = Paths.get(projectDumpsDirectoryPathname, "export").toString();
+  private static final String projectDumpsDirectoryPathname = "data/governance/project_dumps/";
+  private static final String importDirectoryPathname = Paths.get(projectDumpsDirectoryPathname, "import").toString();
+  private static final String exportDirectoryPathname = Paths.get(projectDumpsDirectoryPathname, "export").toString();
 
   private ProjectDto project;
 

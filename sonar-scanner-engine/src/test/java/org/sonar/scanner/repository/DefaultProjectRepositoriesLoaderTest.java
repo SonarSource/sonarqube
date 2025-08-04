@@ -42,7 +42,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DefaultProjectRepositoriesLoaderTest {
-  private final static String PROJECT_KEY = "foo?";
+  private static final String PROJECT_KEY = "foo?";
 
   private DefaultProjectRepositoriesLoader loader;
   private DefaultScannerWsClient wsClient;

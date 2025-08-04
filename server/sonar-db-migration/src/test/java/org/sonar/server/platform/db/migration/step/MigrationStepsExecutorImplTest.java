@@ -193,7 +193,7 @@ class MigrationStepsExecutorImplTest {
     return new RegisteredMigrationStep(migrationNumber, migrationNumber + "-" + migrationStep1Class.getSimpleName(), migrationStep1Class);
   }
 
-  private static abstract class SingleCallCheckerMigrationStep implements MigrationStep {
+  private abstract static class SingleCallCheckerMigrationStep implements MigrationStep {
     private static List<Class<? extends MigrationStep>> calledSteps = new ArrayList<>();
     private boolean called = false;
 

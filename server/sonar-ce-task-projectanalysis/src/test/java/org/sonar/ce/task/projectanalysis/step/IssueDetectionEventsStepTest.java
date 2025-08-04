@@ -211,13 +211,6 @@ public class IssueDetectionEventsStepTest {
     return new QualityProfile(qpName + "-" + languageKey, qpName, languageKey, date);
   }
 
-  /**
-   * Just a trick to use variable args which is shorter than writing new QualityProfile[] { }
-   */
-  private static QualityProfile[] arrayOf(QualityProfile... qps) {
-    return qps;
-  }
-
   private static Measure newMeasure(@Nullable QualityProfile... qps) {
     return Measure.newMeasureBuilder().create(toJson(qps));
   }

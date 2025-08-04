@@ -32,7 +32,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.rule.RulesDefinition.StigVersion;
 import org.sonar.db.component.ComponentDto;

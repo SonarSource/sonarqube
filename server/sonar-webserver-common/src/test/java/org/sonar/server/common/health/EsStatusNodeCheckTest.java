@@ -22,7 +22,6 @@ package org.sonar.server.common.health;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.sonar.server.common.health.EsStatusNodeCheck;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.health.Health;
 
