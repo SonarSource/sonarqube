@@ -44,7 +44,6 @@ public class SearchRequest {
   private String createdInLast;
   private List<String> cwe;
   private List<String> directories;
-  private String facetMode;
   private List<String> facets;
   private List<String> fileUuids;
   private List<String> issues;

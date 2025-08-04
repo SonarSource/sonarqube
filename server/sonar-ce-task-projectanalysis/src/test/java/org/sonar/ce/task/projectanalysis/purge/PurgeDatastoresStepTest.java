@@ -20,9 +20,7 @@
 package org.sonar.ce.task.projectanalysis.purge;
 
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.function.Predicate;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,7 +36,6 @@ import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
 import org.sonar.ce.task.projectanalysis.step.BaseStepTest;
-import org.sonar.ce.task.projectanalysis.util.WrapInSingleElementArray;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
@@ -98,13 +95,6 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
     ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
     verify(projectCleaner).purge(any(), argumentCaptor.capture(), anyString(), any(), any());
     assertThat(argumentCaptor.getValue()).isEqualTo(PROJECT_UUID);
-  }
-
-  private static Object[][] dataproviderFromComponentTypeValues(Predicate<Component.Type> predicate) {
-    return Arrays.stream(Component.Type.values())
-      .filter(predicate)
-      .map(WrapInSingleElementArray.INSTANCE)
-      .toArray(Object[][]::new);
   }
 
   @Override

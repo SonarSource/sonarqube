@@ -30,7 +30,6 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.WsTestUtil;
 import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
-import wiremock.org.apache.hc.core5.http.HttpException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;

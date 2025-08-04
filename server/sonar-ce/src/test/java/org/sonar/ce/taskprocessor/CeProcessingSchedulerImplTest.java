@@ -547,7 +547,7 @@ public class CeProcessingSchedulerImplTest {
     }
   }
 
-  private static abstract class AbstractPartiallyImplementedScheduledFuture<V> extends AbstractPartiallyImplementedFuture<V> implements ScheduledFuture<V> {
+  private abstract static class AbstractPartiallyImplementedScheduledFuture<V> extends AbstractPartiallyImplementedFuture<V> implements ScheduledFuture<V> {
     @Override
     public long getDelay(TimeUnit unit) {
       throw new UnsupportedOperationException("getDelay(TimeUnit unit) not implemented");
@@ -560,7 +560,7 @@ public class CeProcessingSchedulerImplTest {
 
   }
 
-  private static abstract class AbstractPartiallyImplementedFuture<T> implements Future<T> {
+  private abstract static class AbstractPartiallyImplementedFuture<T> implements Future<T> {
     private boolean cancelled = false;
 
     @Override

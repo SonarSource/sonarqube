@@ -56,9 +56,9 @@ import static org.sonar.db.component.BranchType.PULL_REQUEST;
 
 @RunWith(DataProviderRunner.class)
 public class BranchPersisterImplIT {
-  private final static Component MAIN = builder(Component.Type.PROJECT, 1, "PROJECT_KEY").setUuid("PROJECT_UUID").setName("p1").build();
-  private final static Component BRANCH1 = builder(Component.Type.PROJECT, 2, "BRANCH_KEY").setUuid("BRANCH_UUID").build();
-  private final static Component PR1 = builder(Component.Type.PROJECT, 3, "develop").setUuid("PR_UUID").build();
+  private static final Component MAIN = builder(Component.Type.PROJECT, 1, "PROJECT_KEY").setUuid("PROJECT_UUID").setName("p1").build();
+  private static final Component BRANCH1 = builder(Component.Type.PROJECT, 2, "BRANCH_KEY").setUuid("BRANCH_UUID").build();
+  private static final Component PR1 = builder(Component.Type.PROJECT, 3, "develop").setUuid("PR_UUID").build();
   private static final Project PROJECT = new Project("PROJECT_UUID", MAIN.getKey(), MAIN.getName(), null, Collections.emptyList());
 
   @Rule

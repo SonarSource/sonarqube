@@ -50,7 +50,6 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleImpactChangeDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventService;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.ActiveRuleInheritance;
 import org.sonar.server.qualityprofile.RuleActivation;
@@ -90,8 +89,6 @@ class RuleActivatorIT {
   private static final long PAST = NOW - 100;
   private final System2 system2 = new TestSystem2().setNow(NOW);
   private final TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
-
-  private final QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
   private final RuleActivator underTest = new RuleActivator(system2, db.getDbClient(), UuidFactoryImpl.INSTANCE, typeValidations, userSession,
     mock(Configuration.class), sonarQubeVersion);

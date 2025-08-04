@@ -24,7 +24,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 public final class SnapshotDto {
 
@@ -119,13 +118,6 @@ public final class SnapshotDto {
     return projectVersion;
   }
 
-  /**
-   * Used by MyBatis
-   */
-  private void setRawProjectVersion(@Nullable String projectVersion) {
-    this.projectVersion = trimToNull(projectVersion);
-  }
-
   @CheckForNull
   public String getBuildString() {
     return buildString;
@@ -135,13 +127,6 @@ public final class SnapshotDto {
     checkLength(MAX_BUILD_STRING_LENGTH, buildString, "buildString");
     this.buildString = buildString;
     return this;
-  }
-
-  /**
-   * Used by MyBatis
-   */
-  private void setRawBuildString(@Nullable String buildString) {
-    this.buildString = trimToNull(buildString);
   }
 
   public SnapshotDto setPeriodMode(@Nullable String p) {

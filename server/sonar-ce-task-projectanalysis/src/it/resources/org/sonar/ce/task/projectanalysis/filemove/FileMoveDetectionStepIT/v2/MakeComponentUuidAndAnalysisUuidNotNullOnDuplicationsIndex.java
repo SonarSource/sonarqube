@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.filemove.FileMoveDetectionStepTest.v2;
+package org.sonar.ce.task.projectanalysis.filemove.filemovedetectionsteptest.v2;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;

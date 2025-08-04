@@ -772,7 +772,7 @@ class CeWorkerImplIT {
     return t;
   }
 
-  private static abstract class SimpleCeTaskProcessor implements CeTaskProcessor {
+  private abstract static class SimpleCeTaskProcessor implements CeTaskProcessor {
     @Override
     public Set<String> getHandledCeTaskTypes() {
       throw new UnsupportedOperationException("getHandledCeTaskTypes should not be called");

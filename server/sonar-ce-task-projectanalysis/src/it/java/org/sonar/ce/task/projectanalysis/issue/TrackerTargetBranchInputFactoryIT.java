@@ -38,10 +38,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class TrackerTargetBranchInputFactoryIT {
-  private final static String COMPONENT_KEY = "file1";
-  private final static String COMPONENT_UUID = "uuid1";
-  private final static String ORIGINAL_COMPONENT_KEY = "file2";
-  private final static String ORIGINAL_COMPONENT_UUID = "uuid2";
+  private static final String COMPONENT_KEY = "file1";
+  private static final String COMPONENT_UUID = "uuid1";
+  private static final String ORIGINAL_COMPONENT_KEY = "file2";
+  private static final String ORIGINAL_COMPONENT_UUID = "uuid2";
 
   @Rule
   public DbTester db = DbTester.create();

@@ -34,8 +34,8 @@ import static org.mockito.Mockito.when;
 
 public class EsManagedProcessTest {
 
-  private final static int WAIT_FOR_UP_TIMEOUT = 1;
-  private final static int WAIT_FOR_UP_TIMEOUT_LONG = 2;
+  private static final int WAIT_FOR_UP_TIMEOUT = 1;
+  private static final int WAIT_FOR_UP_TIMEOUT_LONG = 2;
 
   @Test
   public void isOperational_should_return_false_if_status_is_unknown() {

@@ -41,8 +41,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 public class QProfileCopierIT {
-
-  private static final String BACKUP = "<backup/>";
   private final System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule

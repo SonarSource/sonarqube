@@ -38,7 +38,7 @@ import static org.sonar.ce.task.projectanalysis.component.Component.Type.VIEW;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 
 public class ProjectPersisterIT {
-  private final static Component ROOT = builder(PROJECT, 1)
+  private static final Component ROOT = builder(PROJECT, 1)
     .setUuid("PROJECT_UUID")
     .setKey("PROJECT_KEY")
     .setDescription("PROJECT_DESC")

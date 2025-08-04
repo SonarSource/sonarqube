@@ -26,7 +26,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class NodeStatsResponseTest {
-  private final static String EXAMPLE_JSON = "{" +
+  private static final String EXAMPLE_JSON = "{" +
     "  \"nodes\": {" +
     "    \"YnKPZcbGRamRQGxjErLWoQ\": {" +
     "      \"name\": \"sonarqube\"," +

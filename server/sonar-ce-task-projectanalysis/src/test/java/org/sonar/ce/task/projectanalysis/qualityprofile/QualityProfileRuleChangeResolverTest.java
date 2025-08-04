@@ -59,7 +59,7 @@ import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.UPDATED;
   QualityProfileRuleChangeResolverTest.ExceptionTest.class
 })
 public class QualityProfileRuleChangeResolverTest {
-  private final static String COMPONENT_UUID = "123";
+  private static final String COMPONENT_UUID = "123";
 
   @RunWith(Parameterized.class)
   public static class TextResolutionTest {

@@ -88,7 +88,7 @@ public class ListActionTest {
       .execute().assertJson(EMPTY_JSON_RESPONSE);
   }
 
-  static abstract class TestLanguage extends AbstractLanguage {
+  abstract static class TestLanguage extends AbstractLanguage {
     TestLanguage(String key, String language) {
       super(key, language);
     }

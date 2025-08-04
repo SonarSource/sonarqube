@@ -24,7 +24,6 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
@@ -38,8 +37,6 @@ import static org.sonar.db.user.UserTokenTesting.newProjectAnalysisToken;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
 
 class UserTokenDaoIT {
-
-  private final Random random = new SecureRandom();
 
   @RegisterExtension
   private final DbTester db = DbTester.create(System2.INSTANCE);

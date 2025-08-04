@@ -34,15 +34,15 @@ public class ProjectConfigurationLoaderImplIT {
   @Rule
   public DbTester db = DbTester.create();
 
-  private final static String GLOBAL_PROP_KEY = "GLOBAL_PROP_KEY";
-  private final static String GLOBAL_PROP_VALUE = "GLOBAL_PROP_VALUE";
-  private final static String MAIN_BRANCH_PROP_KEY = "MAIN_BRANCH_PROP_KEY";
-  private final static String MAIN_BRANCH_PROP_VALUE = "MAIN_BRANCH_PROP_VALUE";
-  private final static String BRANCH_PROP_KEY = "BRANCH_PROP_KEY";
-  private final static String BRANCH_PROP_VALUE = "BRANCH_PROP_VALUE";
+  private static final String GLOBAL_PROP_KEY = "GLOBAL_PROP_KEY";
+  private static final String GLOBAL_PROP_VALUE = "GLOBAL_PROP_VALUE";
+  private static final String MAIN_BRANCH_PROP_KEY = "MAIN_BRANCH_PROP_KEY";
+  private static final String MAIN_BRANCH_PROP_VALUE = "MAIN_BRANCH_PROP_VALUE";
+  private static final String BRANCH_PROP_KEY = "BRANCH_PROP_KEY";
+  private static final String BRANCH_PROP_VALUE = "BRANCH_PROP_VALUE";
 
-  private final static String MAIN_BRANCH_UUID = "MAIN_BRANCH_UUID";
-  private final static String BRANCH_UUID = "BRANCH_UUID";
+  private static final String MAIN_BRANCH_UUID = "MAIN_BRANCH_UUID";
+  private static final String BRANCH_UUID = "BRANCH_UUID";
   private final MapSettings globalSettings = new MapSettings();
   private ProjectConfigurationLoaderImpl underTest;
 

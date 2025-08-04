@@ -48,7 +48,7 @@ public class RegisteredMigrationStepTest {
     assertThat(underTest.getStepClass()).isEqualTo(MyMigrationStep.class);
   }
 
-  private static abstract class MyMigrationStep implements MigrationStep {
+  private abstract static class MyMigrationStep implements MigrationStep {
 
   }
 }

@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 
 public class SonarLintClientPermissionsValidatorTest {
 
-  private final static String USER_UUID = "USER_UUID";
+  private static final String USER_UUID = "USER_UUID";
 
   private final Set<String> exampleProjectuuids = Set.of("project1", "project2");
   private final List<ProjectDto> projectDtos = List.of(mock(ProjectDto.class), mock(ProjectDto.class));

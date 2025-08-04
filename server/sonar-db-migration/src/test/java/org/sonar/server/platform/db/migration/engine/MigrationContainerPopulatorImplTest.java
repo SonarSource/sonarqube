@@ -96,7 +96,7 @@ public class MigrationContainerPopulatorImplTest {
     assertThat(migrationContainer.getComponentsByType(MigrationStep3.class)).isNotNull();
   }
 
-  private static abstract class NoopMigrationStep implements MigrationStep {
+  private abstract static class NoopMigrationStep implements MigrationStep {
     @Override
     public void execute() {
       throw new UnsupportedOperationException("execute not implemented");

@@ -20,8 +20,6 @@
 package org.sonar.ce.task.projectanalysis.event;
 
 import org.junit.Test;
-import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -49,9 +47,5 @@ public class EventRepositoryImplTest {
     underTest.add(EVENT_2);
 
     assertThat(underTest.getEvents()).extracting("name").containsOnly(EVENT_1.getName(), EVENT_2.getName());
-  }
-
-  private static Component newComponent(int i) {
-    return ReportComponent.builder(Component.Type.PROJECT, i).build();
   }
 }

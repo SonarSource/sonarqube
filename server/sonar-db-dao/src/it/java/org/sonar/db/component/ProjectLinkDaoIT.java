@@ -33,8 +33,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ProjectLinkDaoIT {
 
-  private final static long PAST = 5_000_000_000L;
-  private final static long NOW = 10_000_000_000L;
+  private static final long PAST = 5_000_000_000L;
+  private static final long NOW = 10_000_000_000L;
 
   private final System2 system2 = new TestSystem2().setNow(NOW);
 

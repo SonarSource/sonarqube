@@ -25,8 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class AnalysisImplTest {
-
-  private static final long ID = 10;
   private static final String UUID = "uuid ";
   private static final long CREATED_AT = 123456789L;
 

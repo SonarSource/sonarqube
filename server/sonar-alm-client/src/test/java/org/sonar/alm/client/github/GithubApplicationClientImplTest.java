@@ -80,7 +80,6 @@ import static org.sonar.alm.client.ApplicationHttpClient.GetResponse;
 @RunWith(DataProviderRunner.class)
 public class GithubApplicationClientImplTest {
   private static final String ORG_NAME = "ORG_NAME";
-  private static final String TEAM_NAME = "team1";
   private static final String REPO_NAME = "repo1";
   private static final String APP_URL = "https://github.com/";
   private static final String REPO_TEAMS_ENDPOINT = "/repos/ORG_NAME/repo1/teams";

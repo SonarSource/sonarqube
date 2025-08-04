@@ -1,0 +1,54 @@
+project.apply plugin: "org.openrewrite.rewrite"
+
+rewrite {
+    activeRecipe(
+            "org.openrewrite.gradle.GradleBestPractices",
+            "org.openrewrite.java.RemoveUnusedImports",
+            "org.openrewrite.staticanalysis.LowercasePackage",
+            "org.openrewrite.staticanalysis.ModifierOrder",
+            "org.openrewrite.staticanalysis.RemoveUnusedLocalVariables",
+            "org.openrewrite.staticanalysis.RemoveUnusedPrivateFields",
+            "org.openrewrite.staticanalysis.RemoveUnusedPrivateMethods",
+            "tech.picnic.errorprone.refasterrules.BugCheckerRulesRecipes",
+            "tech.picnic.errorprone.refasterrules.SuggestedFixRulesRecipes",
+            //"org.openrewrite.java.migrate.UpgradeToJava17",
+            //"org.openrewrite.java.recipes.JavaRecipeBestPractices",
+            //"org.openrewrite.java.recipes.RecipeNullabilityBestPractices",
+            //"org.openrewrite.java.recipes.RecipeTestingBestPractices",
+            //"org.openrewrite.staticanalysis.CodeCleanup",
+            //"org.openrewrite.staticanalysis.CommonStaticAnalysis",
+            //"org.openrewrite.staticanalysis.EqualsAvoidsNull",
+            //"org.openrewrite.staticanalysis.JavaApiBestPractices",
+            //"org.openrewrite.staticanalysis.MissingOverrideAnnotation",
+            //"org.openrewrite.staticanalysis.NoFinalizer",
+            //"org.openrewrite.staticanalysis.UnnecessaryThrows",
+            //"org.sonar.openrewrite.java.AddLicenseHeader", https://github.com/openrewrite/rewrite/issues/5762
+            //"tech.picnic.errorprone.refasterrules.BigDecimalRulesRecipes",
+            //"tech.picnic.errorprone.refasterrules.CharSequenceRulesRecipes",
+            //"tech.picnic.errorprone.refasterrules.ClassRulesRecipes",
+            //"tech.picnic.errorprone.refasterrules.CollectionRulesRecipes", bug
+            //"tech.picnic.errorprone.refasterrules.ComparatorRulesRecipes",
+            //"tech.picnic.errorprone.refasterrules.EqualityRulesRecipes",
+            //"tech.picnic.errorprone.refasterrules.FileRulesRecipes",
+            //"tech.picnic.errorprone.refasterrules.JUnitRulesRecipes",
+            //"tech.picnic.errorprone.refasterrules.MicrometerRulesRecipes",
+            //"tech.picnic.errorprone.refasterrules.NullRulesRecipes",
+            //"tech.picnic.errorprone.refasterrules.OptionalRulesRecipes",
+            //"tech.picnic.errorprone.refasterrules.PatternRulesRecipes",
+            //"tech.picnic.errorprone.refasterrules.PreconditionsRulesRecipes",
+            //"tech.picnic.errorprone.refasterrules.PrimitiveRulesRecipes",
+            //"tech.picnic.errorprone.refasterrules.StreamRulesRecipes",
+            //"tech.picnic.errorprone.refasterrules.StringRulesRecipes",
+            //"tech.picnic.errorprone.refasterrules.TimeRulesRecipes",
+    )
+    exclusions.add("**DefaultAdminCredentialsVerifierImpl.java") // bug
+    exportDatatables = true
+    failOnDryRunResults = true
+}
+
+dependencies {
+    rewrite("org.openrewrite.recipe:rewrite-migrate-java:3.14.1")
+    rewrite("org.openrewrite.recipe:rewrite-rewrite:0.10.1")
+    rewrite("org.openrewrite.recipe:rewrite-static-analysis:2.14.0")
+    rewrite("org.openrewrite.recipe:rewrite-third-party:0.24.1")
+}

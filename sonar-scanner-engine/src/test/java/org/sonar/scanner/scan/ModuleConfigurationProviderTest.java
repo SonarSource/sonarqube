@@ -43,14 +43,11 @@ public class ModuleConfigurationProviderTest {
 
   private static final String GLOBAL_KEY_PROPERTIES_1 = "sonar.global.key1";
   private static final String NON_GLOBAL_KEY_PROPERTIES_1 = "sonar.key1";
-  private static final String DEFAULT_KEY_PROPERTIES_1 = "default.key1";
   private static final String GLOBAL_VALUE_PROPERTIES_1 = "Value for " + GLOBAL_KEY_PROPERTIES_1;
   private static final String NON_GLOBAL_VALUE_PROPERTIES_1 = "Value for " + NON_GLOBAL_KEY_PROPERTIES_1;
-  private static final String DEFAULT_VALUE_1 = "Value for " + DEFAULT_KEY_PROPERTIES_1;
 
   private static final Map<String, String> GLOBAL_SERVER_PROPERTIES = Map.of(GLOBAL_KEY_PROPERTIES_1, GLOBAL_VALUE_PROPERTIES_1);
   private static final Map<String, String> PROJECT_SERVER_PROPERTIES = Map.of(NON_GLOBAL_KEY_PROPERTIES_1, NON_GLOBAL_VALUE_PROPERTIES_1);
-  private static final Map<String, String> DEFAULT_PROJECT_PROPERTIES = Map.of(DEFAULT_KEY_PROPERTIES_1, DEFAULT_VALUE_1);
 
   private static final Map<String, String> ALL_PROPERTIES_MAP =
     Stream.of(GLOBAL_SERVER_PROPERTIES, PROJECT_SERVER_PROPERTIES)

@@ -65,7 +65,6 @@ import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 import static org.sonarqube.ws.MediaTypes.JSON;
-import static org.sonarqube.ws.Settings.Setting.ParentValueOneOfCase.PARENTVALUEONEOF_NOT_SET;
 
 public class ValuesActionIT {
 
@@ -799,35 +798,6 @@ public class ValuesActionIT {
     for (Settings.FieldValues.Value fieldsValue : setting.getFieldValues().getFieldValuesList()) {
       assertThat(fieldsValue.getValue()).isEqualTo(fieldsValues[index]);
       index++;
-    }
-  }
-
-  private void assertParentValue(Settings.Setting setting, @Nullable String parentValue) {
-    if (parentValue == null) {
-      assertThat(setting.getParentValueOneOfCase()).isEqualTo(PARENTVALUEONEOF_NOT_SET);
-    } else {
-      assertThat(setting.getParentValue()).isEqualTo(parentValue);
-    }
-  }
-
-  private void assertParentValues(Settings.Setting setting, String... parentValues) {
-    if (parentValues.length == 0) {
-      assertThat(setting.getParentValueOneOfCase()).isEqualTo(PARENTVALUEONEOF_NOT_SET);
-    } else {
-      assertThat(setting.getParentValues().getValuesList()).containsOnly(parentValues);
-    }
-  }
-
-  private void assertParentFieldValues(Settings.Setting setting, Map<String, String>... fieldsValues) {
-    if (fieldsValues.length == 0) {
-      assertThat(setting.getParentValueOneOfCase()).isEqualTo(PARENTVALUEONEOF_NOT_SET);
-    } else {
-      assertThat(setting.getParentFieldValues().getFieldValuesList()).hasSize(fieldsValues.length);
-      int index = 0;
-      for (Settings.FieldValues.Value fieldsValue : setting.getParentFieldValues().getFieldValuesList()) {
-        assertThat(fieldsValue.getValue()).isEqualTo(fieldsValues[index]);
-        index++;
-      }
     }
   }
 }

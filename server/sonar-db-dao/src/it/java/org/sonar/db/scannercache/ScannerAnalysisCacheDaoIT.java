@@ -47,7 +47,7 @@ import static org.mockito.Mockito.when;
 class ScannerAnalysisCacheDaoIT {
   @RegisterExtension
   private final DbTester dbTester = DbTester.create(System2.INSTANCE);
-  private final static UuidFactory uuidFactory = new SequenceUuidFactory();
+  private static final UuidFactory uuidFactory = new SequenceUuidFactory();
   private final DbSession dbSession = dbTester.getSession();
   private final ScannerAnalysisCacheDao underTest = dbTester.getDbClient().scannerAnalysisCacheDao();
 

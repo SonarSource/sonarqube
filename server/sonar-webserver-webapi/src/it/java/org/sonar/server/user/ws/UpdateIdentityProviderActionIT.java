@@ -51,7 +51,7 @@ import static org.mockito.Mockito.verify;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UpdateIdentityProviderActionIT {
-  private final static String SQ_AUTHORITY = "sonarqube";
+  private static final String SQ_AUTHORITY = "sonarqube";
 
   @Rule
   public IdentityProviderRepositoryRule identityProviderRepository = new IdentityProviderRepositoryRule()

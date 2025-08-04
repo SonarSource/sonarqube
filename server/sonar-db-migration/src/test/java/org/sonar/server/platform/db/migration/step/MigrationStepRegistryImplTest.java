@@ -105,7 +105,7 @@ public class MigrationStepRegistryImplTest {
     assertThat(step.getStepClass()).isEqualTo(stepClass);
   }
 
-  private static abstract class NoopMigrationStep implements MigrationStep {
+  private abstract static class NoopMigrationStep implements MigrationStep {
     @Override
     public void execute() {
       throw new IllegalStateException("execute is not implemented");

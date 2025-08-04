@@ -19,7 +19,6 @@
  */
 package org.sonar.auth.saml;
 
-import java.util.regex.Pattern;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
@@ -27,8 +26,6 @@ import org.sonar.api.server.authentication.UserIdentity;
 
 @ServerSide
 public class SamlIdentityProvider implements OAuth2IdentityProvider {
-
-  private static final Pattern HTTPS_PATTERN = Pattern.compile("https?://");
   public static final String KEY = "saml";
 
   public static final String RSA_SHA_256_URL = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";

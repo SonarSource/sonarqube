@@ -258,7 +258,6 @@ public class RequestFiltersComputerTest {
     QueryBuilder filterField4 = newQuery();
     allFilters.addFilter("filter_field4", filterScopeField4, filterField4);
     // has top-aggs by no filter
-    String field5 = "field5";
     NestedFieldTopAggregationDefinition<String> stickyTopAggField5 = newNestedFieldTopAggDef(field1, nestField, nestField_value5, STICKY);
     NestedFieldTopAggregationDefinition<String> nonStickyTopAggField5 = newNestedFieldTopAggDef(field1, nestField, nestField_value5, NON_STICKY);
     Set<TopAggregationDefinition<?>> declaredTopAggregations = ImmutableSet.of(

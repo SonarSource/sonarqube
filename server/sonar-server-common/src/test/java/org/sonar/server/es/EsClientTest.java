@@ -94,7 +94,7 @@ public class EsClientTest {
     "  }" +
     "}";
 
-  private final static String EXAMPLE_NODE_STATS_JSON = "{" +
+  private static final String EXAMPLE_NODE_STATS_JSON = "{" +
     "  \"nodes\": {" +
     "    \"YnKPZcbGRamRQGxjErLWoQ\": {" +
     "      \"name\": \"sonarqube\"," +

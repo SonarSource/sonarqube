@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 
 public class IntSumCounterTest {
 
-  private final static String METRIC_KEY = "metric";
+  private static final String METRIC_KEY = "metric";
 
   CounterInitializationContext counterInitializationContext = mock(CounterInitializationContext.class);
 

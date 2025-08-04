@@ -250,7 +250,7 @@ public class OAuth2CallbackFilterTest {
     }
   }
 
-  private static abstract class FailingIdentityProvider extends TestIdentityProvider implements OAuth2IdentityProvider {
+  private abstract static class FailingIdentityProvider extends TestIdentityProvider implements OAuth2IdentityProvider {
     FailingIdentityProvider() {
       this.setKey("failing");
       this.setName("Failing");
