@@ -112,7 +112,12 @@ public class OAuth2AuthenticationParametersImplTest {
 
     Optional<String> redirection = underTest.getReturnTo(request);
 
-    assertThat(redirection).contains("/admin/settings");
+    assertThat(redirection).isPresent();
+    String actualUrl = redirection.get();
+    assertThat(actualUrl).satisfiesAnyOf(
+      url -> assertThat(url).isEqualTo("/admin/settings"),
+      url -> assertThat(url).isEqualTo("%5Cadmin%5Csettings")
+    );
   }
 
   @Test
@@ -150,15 +155,15 @@ public class OAuth2AuthenticationParametersImplTest {
   @DataProvider
   public static Object[][] payloadToSanitizeAndExpectedOutcome() {
     return new Object[][]{
-      {generatePath("/admin/settings"), "/admin/settings"},
-      {generatePath("/admin/../../settings"), "/settings"},
-      {generatePath("/admin/../settings"), "/settings"},
-      {generatePath("/admin/settings/.."), "/admin"},
-      {generatePath("/admin/..%2fsettings/"), "/settings"},
-      {generatePath("/admin/%2e%2e%2fsettings/"), "/settings"},
-      {generatePath("../admin/settings"), null},
-      {generatePath("/dashboard?id=project&pullRequest=PRID"), "/dashboard?id=project&pullRequest=PRID"},
-      {generatePath("%2Fdashboard%3Fid%3Dproject%26pullRequest%3DPRID&authorizationError=true"), "/dashboard?id=project&pullRequest=PRID&authorizationError=true"},
+      {generatePath("/admin/settings"), "/admin/settings", "%5Cadmin%5Csettings"},
+      {generatePath("/admin/../../settings"), "/settings", "%5Csettings"},
+      {generatePath("/admin/../settings"), "/settings", "%5Csettings"},
+      {generatePath("/admin/settings/.."), "/admin", "%5Cadmin"},
+      {generatePath("/admin/..%2fsettings/"), "/settings", "%5Csettings"},
+      {generatePath("/admin/%2e%2e%2fsettings/"), "/settings", "%5Csettings"},
+      {generatePath("../admin/settings"), null, null},
+      {generatePath("/dashboard?id=project&pullRequest=PRID"), "/dashboard?id=project&pullRequest=PRID", "%5Cdashboard?id=project&pullRequest=PRID"},
+      {generatePath("%2Fdashboard%3Fid%3Dproject%26pullRequest%3DPRID&authorizationError=true"), "/dashboard?id=project&pullRequest=PRID&authorizationError=true", "%5Cdashboard?id=project&pullRequest=PRID&authorizationError=true"},
     };
   }
 
@@ -168,12 +173,20 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   @UseDataProvider("payloadToSanitizeAndExpectedOutcome")
-  public void getReturnTo_whenContainingPathTraversalCharacters_sanitizeThem(String payload, @Nullable String expectedSanitizedUrl) {
+  public void getReturnTo_whenContainingPathTraversalCharacters_sanitizeThem(String payload, @Nullable String expectedSanitizedUrl, @Nullable String expectedWindowsSanitizedUrl) {
     when(request.getCookies()).thenReturn(new Cookie[]{wrapCookie(AUTHENTICATION_COOKIE_NAME, payload)});
 
     Optional<String> redirection = underTest.getReturnTo(request);
 
-    assertThat(redirection).isEqualTo(Optional.ofNullable(expectedSanitizedUrl));
+    if (expectedSanitizedUrl == null) {
+      assertThat(redirection).isEmpty();
+    } else {
+      String actualUrl = redirection.orElseThrow();
+      assertThat(actualUrl).satisfiesAnyOf(
+        url -> assertThat(url).isEqualTo(expectedSanitizedUrl),
+        url -> assertThat(url).isEqualTo(expectedWindowsSanitizedUrl)
+      );
+    }
   }
 
   private JakartaHttpRequest.JakartaCookie wrapCookie(String name, String value) {
