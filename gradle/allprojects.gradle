@@ -1,0 +1,174 @@
+/**
+ * The BOM related tasks are disabled by default, activated by:
+ * - running in the CI and being on a main branch or a nightly build,
+ * - or using '-Dbom' project property
+ * - or by explicit call to 'cyclonedxBom' Gradle task
+ */
+def bomTasks = "cyclonedxBom"
+def ghBranch = System.getenv()["GITHUB_BRANCH"]
+def isMainBranch = ghBranch in ['master'] || ghBranch ==~ 'branch-[\\d.]+'
+
+boolean enableBom = System.getenv('CI') == "true" && (isMainBranch) ||
+        System.getProperty("bom") != null ||
+        gradle.startParameter.taskNames.findAll({ it.matches(".*:($bomTasks)") })
+
+allprojects {
+  apply plugin: 'com.jfrog.artifactory'
+  apply plugin: 'maven-publish'
+
+  ext.versionInSources = version
+  ext.buildNumber = System.getProperty("buildNumber")
+  // when no buildNumber is provided, then project version must end with '-SNAPSHOT'
+  if (ext.buildNumber == null) {
+    version = "${version}-SNAPSHOT".toString()
+    ext.versionWithoutBuildNumber = version
+  } else {
+    ext.versionWithoutBuildNumber = version
+    version = (version.toString().count('.') == 1 ? "${version}.0.${ext.buildNumber}" : "${version}.${ext.buildNumber}").toString()
+  }
+
+  task cacheDependencies {
+    doLast {
+      configurations.each { conf ->
+        if (conf.isCanBeResolved()) {
+          if (conf.getName() != 'appZip')
+            conf.resolve()
+        }
+      }
+    }
+  }
+
+  ext {
+    release = project.hasProperty('release') && project.getProperty('release')
+    deployCommunity = project.hasProperty('deployCommunity') && (project.getProperty('deployCommunity') == 'true')
+    official = project.hasProperty('official') && project.getProperty('official')
+  }
+
+  ext.enableBom = enableBom
+  if (!enableBom) {
+    tasks.matching { it.name.matches(bomTasks) }.all({
+      logger.info("{} disabled", it.name);
+      it.enabled = false
+    })
+  }
+
+  repositories {
+    // The environment variables ARTIFACTORY_PRIVATE_USERNAME and ARTIFACTORY_PRIVATE_PASSWORD are used on QA env (Jenkins)
+    // On local box, please add artifactoryUsername and artifactoryPassword to ~/.gradle/gradle.properties
+    def artifactoryUsername = System.env.'ARTIFACTORY_PRIVATE_USERNAME' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
+    def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
+    def artifactoryUrl = System.getenv('ARTIFACTORY_URL') ?: (project.hasProperty('artifactoryUrl') ? project.getProperty('artifactoryUrl') : '')
+
+    if (artifactoryPassword) {
+      if (artifactoryUrl == '') {
+        throw new GradleException('Invalid artifactoryUrl')
+      }
+      maven {
+        authentication {
+          header(HttpHeaderAuthentication)
+        }
+        credentials(HttpHeaderCredentials) {
+          name = "Authorization"
+          value = "Bearer $artifactoryPassword"
+        }
+        url "${artifactoryUrl}/sonarsource"
+      }
+      maven {
+        authentication {
+          header(HttpHeaderAuthentication)
+        }
+        credentials(HttpHeaderCredentials) {
+          name = "Authorization"
+          value = "Bearer $artifactoryPassword"
+        }
+        url "${artifactoryUrl}/sonarsource-qa"
+      }
+    } else {
+      mavenCentral()
+      maven {
+        url 'https://jitpack.io'
+      }
+      maven {
+        url 'https://maven.codelibs.org/'
+      }
+      maven {
+        url 'https://build.shibboleth.net/nexus/content/repositories/releases/'
+      }
+    }
+    ivy {
+      if (artifactoryUsername && artifactoryPassword) {
+        url "${artifactoryUrl}/sonarsource-bucket"
+        authentication {
+          header(HttpHeaderAuthentication)
+        }
+        credentials(HttpHeaderCredentials) {
+          name = "Authorization"
+          value = "Bearer $artifactoryPassword"
+        }
+
+        patternLayout {
+          artifact '/[organisation]/[module]/[module]-[revision].[ext]'
+        }
+      } else {
+        // For public build
+        url "https://artifacts.elastic.co/downloads/"
+
+        patternLayout {
+          artifact '/[organisation]/[module]-[revision].[ext]'
+        }
+      }
+
+      metadataSources { artifact() }
+    }
+  }
+
+  task allDependencies {
+    dependsOn 'dependencies'
+  }
+
+  artifactory {
+    clientConfig.setIncludeEnvVars(true)
+    clientConfig.setEnvVarsExcludePatterns('*pass*,*psw*,*secret*,*MAVEN_CMD_LINE_ARGS*,sun.java.command,*token*,*login*,*key*,*signing*,*auth*,*pwd*')
+    clientConfig.publisher.setFilterExcludedArtifactsFromBuild(true)
+    contextUrl = System.getenv('ARTIFACTORY_URL')
+
+    //if property deployCommunity is true set the value to sonar-enterprise-sqcb
+    //otherwise set it to sqs
+    if (deployCommunity) {
+      clientConfig.info.setBuildName('sonar-enterprise-sqcb')
+      clientConfig.info.addEnvironmentProperty('ARTIFACTS_TO_PUBLISH',
+              "${project.group}:sonar-application:zip")
+    } else {
+      clientConfig.info.setBuildName('sonar-enterprise-sqs')
+      clientConfig.info.addEnvironmentProperty('ARTIFACTS_TO_PUBLISH',
+              "com.sonarsource.sonarqube:sonarqube-developer:zip," +
+                      "com.sonarsource.sonarqube:sonarqube-datacenter:zip," +
+                      "com.sonarsource.sonarqube:sonarqube-enterprise:zip")
+    }
+
+    publish {
+      repository {
+        repoKey = System.getenv('ARTIFACTORY_DEPLOY_REPO')
+        username = System.getenv('ARTIFACTORY_DEPLOY_USERNAME') ?: project.properties.artifactoryUsername
+        password = System.getenv('ARTIFACTORY_DEPLOY_PASSWORD') ?: project.properties.artifactoryPaswword
+      }
+      defaults {
+        properties = [
+                'build.name'      : 'sonar-enterprise-sqcb',
+                'build.number'    : System.getenv('BUILD_NUMBER'),
+                'pr.branch.target': System.getenv('GITHUB_BASE_BRANCH'),
+                'pr.number'       : System.getenv('PULL_REQUEST'),
+                'vcs.branch'      : ghBranch,
+                'vcs.revision'    : System.getenv('GIT_SHA1'),
+                'version'         : version
+        ]
+        publications('mavenJava')
+        publishPom = true
+        publishIvy = false
+      }
+    }
+    clientConfig.info.setBuildNumber(System.getenv('BUILD_NUMBER'))
+    // The name of this variable is important because it's used by the delivery process when extracting version from Artifactory build info.
+    clientConfig.info.addEnvironmentProperty('PROJECT_VERSION', "${version}")
+  }
+}
