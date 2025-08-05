@@ -127,8 +127,7 @@ rewrite_task:
     dockerfile: .cirrus/Dockerfile
     cpu: 8
     memory: 10Gb
-    no_output_timeout: 1.5h
-#    timeout: 1.5h
+    no_output_timeout: 2h
   <<: *DEFAULT_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   script:

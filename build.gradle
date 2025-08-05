@@ -5,12 +5,11 @@ import static org.gradle.api.JavaVersion.VERSION_17
 
 // Ordered alphabetically
 plugins {
-  //id 'com.jfrog.artifactory' version '5.2.5' // dont update new version contains a bug
   id 'com.github.hierynomus.license' version '0.16.1'
   id 'com.github.hierynomus.license-report' version '0.16.1' apply false
   id 'com.google.protobuf' version '0.8.19' apply false
   id 'com.gradleup.shadow' version '8.3.6' apply false
-  id 'com.jfrog.artifactory' version '6.0.0'
+  id 'com.jfrog.artifactory' version '5.2.5' // dont update new version contains a bug
   id 'de.undercouch.download' version '5.6.0' apply false
   id 'io.spring.dependency-management' version '1.1.7'
   id 'org.cyclonedx.bom' version '2.3.1' apply false
