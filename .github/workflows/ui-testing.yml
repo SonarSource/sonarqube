@@ -39,5 +39,4 @@ jobs:
         HEADLESS: true
         BASE_URL: http://34.245.94.33:9000
       run: |
-        pytest tests/ -v
-        
+        pytest UI_Testing/ -v
