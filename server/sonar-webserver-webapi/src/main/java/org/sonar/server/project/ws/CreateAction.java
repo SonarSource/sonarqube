@@ -23,6 +23,7 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Change;
@@ -48,6 +49,7 @@ import org.sonarqube.ws.Projects.CreateWsResponse;
 
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.StringUtils.abbreviate;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 import static org.sonar.core.component.ComponentKeys.MAX_COMPONENT_KEY_LENGTH;
 import static org.sonar.db.component.ComponentValidator.MAX_COMPONENT_NAME_LENGTH;
@@ -155,7 +157,8 @@ public class CreateAction implements ProjectsWsAction {
       BranchDto mainBranchDto = Optional.ofNullable(componentData.mainBranchDto()).orElseThrow();
 
       if (request.getNewCodeDefinitionType() != null) {
-        String defaultBranchName = Optional.ofNullable(request.getMainBranchKey()).orElse(defaultBranchNameResolver.getEffectiveMainBranchName());
+        String defaultBranchName = StringUtils.isNotBlank(request.getMainBranchKey()) ?
+                request.getMainBranchKey() : defaultBranchNameResolver.getEffectiveMainBranchName();
         newCodeDefinitionResolver.createNewCodeDefinition(dbSession, projectDto.getUuid(),
           mainBranchDto.getUuid(), defaultBranchName, request.getNewCodeDefinitionType(),
           request.getNewCodeDefinitionValue());

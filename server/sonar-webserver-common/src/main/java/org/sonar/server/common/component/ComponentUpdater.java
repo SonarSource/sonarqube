@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ComponentScopes;
 
@@ -260,11 +261,13 @@ public class ComponentUpdater {
   }
 
   private BranchDto createMainBranch(DbSession session, String componentUuid, String projectUuid, @Nullable String mainBranch) {
+    String branchName = StringUtils.isNotBlank(mainBranch) ? mainBranch : defaultBranchNameResolver.getEffectiveMainBranchName();
+
     BranchDto branch = new BranchDto()
       .setBranchType(BranchType.BRANCH)
       .setUuid(componentUuid)
       .setIsMain(true)
-      .setKey(Optional.ofNullable(mainBranch).orElse(defaultBranchNameResolver.getEffectiveMainBranchName()))
+      .setKey(branchName)
       .setMergeBranchUuid(null)
       .setExcludeFromPurge(true)
       .setProjectUuid(projectUuid);
