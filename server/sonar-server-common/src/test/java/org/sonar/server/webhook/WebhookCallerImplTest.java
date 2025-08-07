@@ -234,9 +234,8 @@ public class WebhookCallerImplTest {
 
   @Test
   public void silently_catch_error_when_url_is_localhost(){
-    String url = server.url("/").toString();
     Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID,
-      secure().nextAlphanumeric(40), "my-webhook", url, null);
+      secure().nextAlphanumeric(40), "my-webhook", "http://localhost", null);
 
     WebhookDelivery delivery = newSender(true).call(webhook, PAYLOAD);
 
