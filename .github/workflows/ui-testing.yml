@@ -37,6 +37,6 @@ jobs:
     - name: Run Selenium tests
       env:
         HEADLESS: true
-        BASE_URL: http://34.245.94.33:9000
+        BASE_URL: http://54.170.128.70:9000
       run: |
         pytest UI_Testing/ -v
