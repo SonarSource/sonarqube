@@ -120,3 +120,17 @@ sq_analysis_task:
     - .cirrus/cirrus-sq-analysis.sh
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
+
+rewrite_task:
+  depends_on: junit_task
+  container:
+    dockerfile: .cirrus/Dockerfile
+    cpu: 8
+    memory: 10Gb
+    no_output_timeout: 2h
+  <<: *DEFAULT_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  script:
+    - .cirrus/cirrus-rewrite.sh
+  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
