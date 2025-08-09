@@ -4,7 +4,26 @@ name: Selenium UI Tests
 on:
   pull_request:
     branches: 
-     - master   
+     - master 
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to test against'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+      browser:
+        description: 'Browser to run tests on'
+        required: true
+        default: 'chrome'
+        type: choice
+        options:
+        - chrome
+        - firefox  
 
 
 jobs:
