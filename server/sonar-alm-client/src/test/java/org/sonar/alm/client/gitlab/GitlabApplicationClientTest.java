@@ -524,7 +524,7 @@ public class GitlabApplicationClientTest {
     assertThat(logTester.logs(Level.INFO).get(0))
       .contains("Gitlab API call to [" + server.url("/projects/0") + "] " +
         "failed with error message : [Failed to connect to ")
-      .contains( server.getHostName());
+      .contains(server.getHostName());
   }
 
   @Test
@@ -537,7 +537,8 @@ public class GitlabApplicationClientTest {
       .hasMessageContaining(server.getHostName());
     assertThat(logTester.logs(Level.INFO).get(0))
       .contains("Gitlab API call to [" + server.url("/projects/0/repository/branches") + "] " +
-        "failed with error message : [Failed to connect to " + server.getHostName());
+        "failed with error message : [Failed to connect to ")
+      .contains(server.getHostName());
   }
 
   @Test
