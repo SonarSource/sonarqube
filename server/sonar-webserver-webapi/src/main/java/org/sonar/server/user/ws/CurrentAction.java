@@ -153,7 +153,7 @@ public class CurrentAction implements UsersWsAction {
       for (OrganizationMemberDto orgMember : organizationMembers) {
         String orgKey = orgUuidToKeyMap.get(orgMember.getOrganizationUuid());
         if (orgKey == null) {
-          LOG.warn("User {} is member of organization UUID {} that no longer exists",
+          LOG.info("User {} is member of organization UUID {} that no longer exists",
                   user.getUuid(), orgMember.getOrganizationUuid());
           continue;
         }
