@@ -29,7 +29,6 @@ import {
   EMAIL_NOTIFICATION_CATEGORY,
   LANGUAGES_CATEGORY,
   MODE_CATEGORY,
-  NEW_CODE_PERIOD_CATEGORY,
 } from '../constants';
 import AiCodeFixAdmin from './ai-codefix/AiCodeFixAdminCategory';
 import { AnalysisScope } from './AnalysisScope';
@@ -37,7 +36,6 @@ import Authentication from './authentication/Authentication';
 import EmailNotification from './email-notification/EmailNotification';
 import Languages from './Languages';
 import { Mode } from './Mode';
-import NewCodeDefinition from './NewCodeDefinition';
 
 export interface AdditionalCategoryComponentProps {
   categories: string[];
@@ -63,14 +61,6 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     renderComponent: getLanguagesComponent,
     availableGlobally: true,
     availableForProject: true,
-    displayTab: true,
-  },
-  {
-    key: NEW_CODE_PERIOD_CATEGORY,
-    name: translate('settings.new_code_period.category'),
-    renderComponent: getNewCodePeriodComponent,
-    availableGlobally: true,
-    availableForProject: false,
     displayTab: true,
   },
   {
@@ -117,10 +107,6 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
 
 function getLanguagesComponent(props: AdditionalCategoryComponentProps) {
   return <Languages {...props} />;
-}
-
-function getNewCodePeriodComponent() {
-  return <NewCodeDefinition />;
 }
 
 function getAnalysisScopeComponent(props: AdditionalCategoryComponentProps) {
