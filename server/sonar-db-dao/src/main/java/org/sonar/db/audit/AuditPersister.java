@@ -31,6 +31,7 @@ import org.sonar.db.audit.model.LicenseNewValue;
 import org.sonar.db.audit.model.PermissionTemplateNewValue;
 import org.sonar.db.audit.model.PersonalAccessTokenNewValue;
 import org.sonar.db.audit.model.PluginNewValue;
+import org.sonar.db.audit.model.ProjectAnalysisNewValue;
 import org.sonar.db.audit.model.ProjectBadgeTokenNewValue;
 import org.sonar.db.audit.model.PropertyNewValue;
 import org.sonar.db.audit.model.SecretNewValue;
@@ -158,6 +159,10 @@ public interface AuditPersister {
   void updateComponent(DbSession dbSession, String organizationUuid, ComponentNewValue newValue);
 
   void updateComponentVisibility(DbSession session, String organizationUuid, ComponentNewValue componentNewValue);
+
+  void createProjectAnalysis(DbSession dbSession, String organizationUuid, ProjectAnalysisNewValue newValue);
+
+  void createQualityGateChangeEvent(DbSession dbSession, String organizationUuid, PropertyNewValue newValue);
 
   void componentKeyUpdate(DbSession session, String organizationUuid, ComponentKeyNewValue componentKeyNewValue, String qualifier);
 
