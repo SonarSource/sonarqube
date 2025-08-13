@@ -183,6 +183,9 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE)
       .setChangelog(
+        new Change("2025.4", format(
+          "The following SCA metrics are available on licensed enterprise/datacenter editions with SCA enabled: %s",
+          MeasuresWsModule.getNewScaMetricsInSonarQube202504())),
         new Change("10.8", format(NUMBER_OF_KEYS_LIMITED, 75)),
         new Change("10.8", "Portfolio project metrics now also include: 'contains_ai_code', 'reliability_rating_without_aica', " +
           "'reliability_rating_with_aica', 'software_quality_security_rating_without_aica', 'software_quality_security_rating_with_aica', " +

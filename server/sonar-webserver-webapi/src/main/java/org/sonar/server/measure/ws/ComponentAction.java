@@ -98,6 +98,9 @@ public class ComponentAction implements MeasuresWsAction {
       .setResponseExample(getClass().getResource("component-example.json"))
       .setSince("5.4")
       .setChangelog(
+        new Change("2025.4", format(
+          "The following SCA metrics are available on licensed enterprise/datacenter editions with SCA enabled: %s",
+          MeasuresWsModule.getNewScaMetricsInSonarQube202504())),
         new Change("2025.2", "The 'Execute Analysis' permission also allows to access the endpoint"),
         new Change("10.8", format("The following metrics are not deprecated anymore: %s",
           MeasuresWsModule.getUndeprecatedMetricsinSonarQube108())),

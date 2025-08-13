@@ -22,6 +22,7 @@ package org.sonar.server.measure.ws;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.core.metric.ScaMetrics;
 import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.core.platform.Module;
 import org.sonar.server.telemetry.TelemetryPortfolioActivityGraphTypeProvider;
@@ -118,5 +119,25 @@ public class MeasuresWsModule extends Module {
 
   public static String getUndeprecatedMetricsinSonarQube108() {
     return getDeprecatedMetricsInSonarQube104() + ", " + getDeprecatedMetricsInSonarQube105();
+  }
+
+  public static String getNewScaMetricsInSonarQube202504() {
+    return Stream.of(
+      ScaMetrics.SCA_RATING_LICENSING_KEY,
+      ScaMetrics.SCA_RATING_VULNERABILITY_KEY,
+      ScaMetrics.SCA_RATING_ANY_ISSUE_KEY,
+      ScaMetrics.SCA_SEVERITY_LICENSING_KEY,
+      ScaMetrics.SCA_SEVERITY_VULNERABILITY_KEY,
+      ScaMetrics.SCA_SEVERITY_ANY_ISSUE_KEY,
+      ScaMetrics.SCA_COUNT_ANY_ISSUE_KEY,
+      ScaMetrics.NEW_SCA_RATING_LICENSING_KEY,
+      ScaMetrics.NEW_SCA_RATING_VULNERABILITY_KEY,
+      ScaMetrics.NEW_SCA_RATING_ANY_ISSUE_KEY,
+      ScaMetrics.NEW_SCA_SEVERITY_LICENSING_KEY,
+      ScaMetrics.NEW_SCA_SEVERITY_VULNERABILITY_KEY,
+      ScaMetrics.NEW_SCA_SEVERITY_ANY_ISSUE_KEY,
+      ScaMetrics.NEW_SCA_COUNT_ANY_ISSUE_KEY)
+      .map(e -> "'" + e + "'")
+      .collect(Collectors.joining(", "));
   }
 }
