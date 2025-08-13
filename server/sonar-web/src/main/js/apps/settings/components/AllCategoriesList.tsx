@@ -22,26 +22,26 @@ import { sortBy } from 'lodash';
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SubnavigationGroup, SubnavigationItem } from '~design-system';
+import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
 import { translate } from '../../../helpers/l10n';
 import { getGlobalSettingsUrl, getProjectSettingsUrl } from '../../../helpers/urls';
+import { AppState } from '../../../types/appstate';
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
 import { AI_CODE_FIX_CATEGORY, CATEGORY_OVERRIDES } from '../constants';
 import { getCategoryName } from '../utils';
 import { ADDITIONAL_CATEGORIES } from './AdditionalCategories';
 import { ALL_CUSTOMER_CATEGORIES } from './AllCustomerCategories';
-import withAppStateContext from "../../../app/components/app-state/withAppStateContext";
-import { AppState } from "../../../types/appstate";
 
 export interface CategoriesListProps extends WithAvailableFeaturesProps {
+  appState: AppState;
   categories: string[];
   component?: Component;
   defaultCategory: string;
   selectedCategory: string;
-  appState: AppState;
 }
 
 function CategoriesList(props: Readonly<CategoriesListProps>) {
@@ -60,6 +60,8 @@ function CategoriesList(props: Readonly<CategoriesListProps>) {
     [component, navigate],
   );
 
+  console.log(`Rendering CategoriesList with categories: ${categories.join(', ')}`);
+
   const { canAdmin } = props.appState;
   let categoriesWithName;
   if (canAdmin) {
@@ -73,9 +75,9 @@ function CategoriesList(props: Readonly<CategoriesListProps>) {
         ADDITIONAL_CATEGORIES.filter((c) => {
           const availableForCurrentMenu = component
             ? // Project settings
-            c.availableForProject
+              c.availableForProject
             : // Global settings
-            c.availableGlobally;
+              c.availableGlobally;
 
           return (
             c.displayTab &&
@@ -87,18 +89,23 @@ function CategoriesList(props: Readonly<CategoriesListProps>) {
       );
   } else {
     categoriesWithName = props.categories
-      .filter(key => ALL_CUSTOMER_CATEGORIES[key.toLowerCase()])
-      .map(key => ({
+      .filter((key) => ALL_CUSTOMER_CATEGORIES[key.toLowerCase()])
+      .map((key) => ({
         key,
-        name: getCategoryName(key)
+        name: getCategoryName(key),
       }))
       .concat(
-        ADDITIONAL_CATEGORIES
-          .filter(c => c.displayTab)
-          .filter(c => ALL_CUSTOMER_CATEGORIES[c.key.toLowerCase()])
+        ADDITIONAL_CATEGORIES.filter((c) => c.displayTab).filter(
+          (c) => ALL_CUSTOMER_CATEGORIES[c.key.toLowerCase()],
+        ),
       );
   }
   const sortedCategories = sortBy(categoriesWithName, (category) => category.name.toLowerCase());
+
+  console.log(
+    'Sorted categories:',
+    sortedCategories.map((c) => c.name),
+  );
 
   return (
     <SubnavigationGroup
