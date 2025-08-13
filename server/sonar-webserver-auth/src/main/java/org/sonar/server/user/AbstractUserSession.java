@@ -19,7 +19,6 @@
  */
 package org.sonar.server.user;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -89,7 +88,7 @@ public abstract class AbstractUserSession implements UserSession {
 
   @Override
   public final boolean hasPermission(OrganizationPermission permission, String organizationUuid) {
-    return isRoot() || hasPermissionImpl(permission, organizationUuid);
+    return hasPermissionImpl(permission, organizationUuid);
   }
 
   protected boolean hasPermissionImpl(OrganizationPermission permission, String organizationUuid) {
@@ -100,30 +99,30 @@ public abstract class AbstractUserSession implements UserSession {
   public boolean hasComponentPermission(String permission, ComponentDto component) {
     Optional<String> projectUuid1 = componentUuidToEntityUuid(component.uuid());
 
-    return isRoot() || projectUuid1
+    return projectUuid1
       .map(projectUuid -> hasEntityUuidPermission(permission, projectUuid))
       .orElse(false);
   }
 
   @Override
   public final boolean hasEntityPermission(String permission, EntityDto entity) {
-    return isRoot() || hasEntityUuidPermission(permission, entity.getAuthUuid());
+    return hasEntityUuidPermission(permission, entity.getAuthUuid());
   }
 
   @Override
   public final boolean hasEntityPermission(String permission, String entityUuid) {
-    return isRoot() || hasEntityUuidPermission(permission, entityUuid);
+    return hasEntityUuidPermission(permission, entityUuid);
   }
 
   @Override
   public final boolean hasChildProjectsPermission(String permission, ComponentDto component) {
-    return isRoot() || componentUuidToEntityUuid(component.uuid())
+    return componentUuidToEntityUuid(component.uuid())
       .map(applicationUuid -> hasChildProjectsPermission(permission, applicationUuid)).orElse(false);
   }
 
   @Override
   public final boolean hasChildProjectsPermission(String permission, EntityDto application) {
-    return isRoot() || hasChildProjectsPermission(permission, application.getUuid());
+    return hasChildProjectsPermission(permission, application.getUuid());
   }
 
   @Override
@@ -134,7 +133,7 @@ public abstract class AbstractUserSession implements UserSession {
   @Override
   public boolean hasComponentUuidPermission(String permission, String componentUuid) {
     Optional<String> entityUuid = componentUuidToEntityUuid(componentUuid);
-    return isRoot() || entityUuid
+    return entityUuid
       .map(s -> hasEntityUuidPermission(permission, s))
       .orElse(false);
   }
@@ -149,17 +148,11 @@ public abstract class AbstractUserSession implements UserSession {
 
   @Override
   public final List<ComponentDto> keepAuthorizedComponents(String permission, Collection<ComponentDto> components) {
-    if (isRoot()) {
-      return new ArrayList<>(components);
-    }
     return doKeepAuthorizedComponents(permission, components);
   }
 
   @Override
   public final <T extends EntityDto> List<T> keepAuthorizedEntities(String permission, Collection<T> projects) {
-    if (isRoot()) {
-      return new ArrayList<>(projects);
-    }
     return doKeepAuthorizedEntities(permission, projects);
   }
 
@@ -214,7 +207,7 @@ public abstract class AbstractUserSession implements UserSession {
 
   @Override
   public UserSession checkEntityPermission(String projectPermission, EntityDto entity) {
-    if (isRoot() || hasEntityPermission(projectPermission, entity)) {
+    if (hasEntityPermission(projectPermission, entity)) {
       return this;
     }
 
@@ -277,12 +270,12 @@ public abstract class AbstractUserSession implements UserSession {
 
   @Override
   public final boolean hasMembership(OrganizationDto organizationDto) {
-    return isRoot() || hasMembershipImpl(organizationDto);
+    return hasMembershipImpl(organizationDto);
   }
 
   @Override
   public final boolean hasMembership(String organizationKey) {
-    return isRoot() || hasMembershipImpl(organizationKey);
+    return hasMembershipImpl(organizationKey);
   }
 
   @Override

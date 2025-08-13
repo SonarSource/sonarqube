@@ -35,6 +35,7 @@
     from
       ce_queue cq
     inner join projects pj on pj.uuid = cq.entity_uuid
+    inner join organizations org ON pj.organization_uuid = org.uuid AND org.is_archived IS NOT true
     where
       cq.uuid=#{uuid,jdbcType=VARCHAR}
   </select>
@@ -123,6 +124,7 @@
     from
       ce_queue cq
     inner join projects pj on pj.uuid = cq.entity_uuid
+    inner join organizations org ON pj.organization_uuid = org.uuid AND org.is_archived IS NOT true
     <where>
       <if test="query.entityUuids != null and query.entityUuids.size()>0">
         and cq.entity_uuid in

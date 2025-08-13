@@ -34,6 +34,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+
+import org.sonar.api.web.UserRole;
 import org.sonar.server.component.ComponentType;
 import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.Change;
@@ -225,6 +227,7 @@ public class SuggestionsAction implements ComponentsWsAction {
         .map(ComponentHitsPerQualifier::getHits)
         .flatMap(Collection::stream)
         .map(ComponentHit::getUuid)
+        .filter(entityUuid -> userSession.hasEntityPermission(UserRole.ADMIN, entityUuid))
         .collect(Collectors.toSet());
       List<EntityDto> entities = dbClient.entityDao().selectByUuids(dbSession, entityUuids);
       Set<String> favoriteUuids = favorites.stream().map(EntityDto::getUuid).collect(Collectors.toSet());

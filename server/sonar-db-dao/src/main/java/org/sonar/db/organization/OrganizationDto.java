@@ -78,6 +78,8 @@ public class OrganizationDto {
   private long createdAt;
   private long updatedAt;
   private boolean inviteUsersEnabled;
+  private boolean isArchived;
+  private long archivedAt;
 
   public String getUuid() {
     return uuid;
@@ -189,6 +191,22 @@ public class OrganizationDto {
   public OrganizationDto setDefaultQualityGateUuid(String defaultQualityGateUuid) {
     this.defaultQualityGateUuid = defaultQualityGateUuid;
     return this;
+  }
+
+  public boolean isArchived() {
+    return isArchived;
+  }
+
+  public void setArchived(boolean archived) {
+    isArchived = archived;
+  }
+
+  public long getArchivedAt() {
+    return archivedAt;
+  }
+
+  public void setArchivedAt(long archivedAt) {
+    this.archivedAt = archivedAt;
   }
 
   @Override

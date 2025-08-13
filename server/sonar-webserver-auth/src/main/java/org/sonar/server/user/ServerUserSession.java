@@ -19,7 +19,6 @@
  */
 package org.sonar.server.user;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -74,6 +73,7 @@ public class ServerUserSession extends AbstractUserSession {
 
   private Collection<GroupDto> groups;
   private final Set<String> organizationMembership = new HashSet<>();
+  private final Set<String> archivedOrganizationsUuids = new HashSet<>();
 
   public ServerUserSession(DbClient dbClient, @Nullable UserDto userDto, boolean isAuthenticatedBrowserSession) {
     this.dbClient = dbClient;
@@ -184,11 +184,10 @@ public class ServerUserSession extends AbstractUserSession {
 
   @Override
   protected <T extends EntityDto> List<T> doKeepAuthorizedEntities(String permission, Collection<T> entities) {
-    if (isRoot()) {
-      return new ArrayList<>(entities);
-    }
 
-    Set<String> projectsUuids = entities.stream().map(EntityDto::getUuid).collect(Collectors.toSet());
+    Set<String> projectsUuids = entities.stream()
+            .filter(entity -> isMember(entity.getOrganizationUuid()))
+            .map(EntityDto::getUuid).collect(Collectors.toSet());
     // TODO in SONAR-19445
     Set<String> authorizedEntitiesUuids = keepEntitiesUuidsByPermission(permission, projectsUuids);
 
@@ -263,7 +262,7 @@ public class ServerUserSession extends AbstractUserSession {
   private Set<String> loadEntityPermissions(String entityUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<EntityDto> entity = dbClient.entityDao().selectByUuid(dbSession, entityUuid);
-      if (entity.isEmpty()) {
+      if (entity.isEmpty() || !isMember(entity.get().getOrganizationUuid())) {
         return Collections.emptySet();
       }
       if (entity.get().isPrivate()) {
@@ -339,7 +338,7 @@ public class ServerUserSession extends AbstractUserSession {
   private Set<OrganizationPermission> loadOrganizationPermissions(String organizationUuid) {
     Set<String> permissionKeys;
     try (DbSession dbSession = dbClient.openSession(false)) {
-      if (userDto != null && userDto.getUuid() != null) {
+      if (userDto != null && userDto.getUuid() != null && isMember(organizationUuid)) {
         permissionKeys = dbClient.authorizationDao().selectOrganizationPermissions(dbSession, organizationUuid, userDto.getUuid());
       } else {
         permissionKeys = dbClient.authorizationDao().selectOrganizationPermissionsOfAnonymous(dbSession, organizationUuid);
@@ -373,6 +372,7 @@ public class ServerUserSession extends AbstractUserSession {
       Set<String> authorizedProjectUuids = keepAuthorizedProjectsUuids(dbSession, permission, allProjectUuids);
 
       return components.stream()
+        .filter(c -> isMember(c.getOrganizationUuid()))
         .filter(c -> {
           if (c.getCopyComponentUuid() != null) {
             var componentDto = originalComponents.get(c.getCopyComponentUuid());
@@ -434,7 +434,7 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   private boolean isMember(String organizationUuid) {
-    if (!isLoggedIn()) {
+    if (!isLoggedIn() || isArchivedOrganization(organizationUuid)) {
       return false;
     }
     if (isRoot()) {
@@ -450,6 +450,19 @@ public class ServerUserSession extends AbstractUserSession {
         organizationMembership.add(organizationUuid);
       }
       return organizationMembership.contains(organizationUuid);
+    }
+  }
+
+  private boolean isArchivedOrganization(String organizationUuid) {
+    if (archivedOrganizationsUuids.contains(organizationUuid)) {
+      return true;
+    }
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Optional<OrganizationDto> organizationDto = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid);
+      if (organizationDto.isPresent() && organizationDto.get().isArchived()) {
+        archivedOrganizationsUuids.add(organizationUuid);
+      }
+      return archivedOrganizationsUuids.contains(organizationUuid);
     }
   }
 }
