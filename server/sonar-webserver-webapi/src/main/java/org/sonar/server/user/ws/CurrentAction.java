@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -73,6 +75,8 @@ import static org.sonarqube.ws.Users.CurrentWsResponse.newBuilder;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CURRENT;
 
 public class CurrentAction implements UsersWsAction {
+  private static final Logger LOG = LoggerFactory.getLogger(CurrentAction.class);
+
   private final UserSession userSession;
   private final DbClient dbClient;
   private final AvatarResolver avatarResolver;
@@ -148,6 +152,11 @@ public class CurrentAction implements UsersWsAction {
 
       for (OrganizationMemberDto orgMember : organizationMembers) {
         String orgKey = orgUuidToKeyMap.get(orgMember.getOrganizationUuid());
+        if (orgKey == null) {
+          LOG.info("User {} is member of organization UUID {} that no longer exists",
+                  user.getUuid(), orgMember.getOrganizationUuid());
+          continue;
+        }
         if (MemberType.PLATFORM.name().equals(orgMember.getType())) {
           platformOrgs.add(orgKey);
         } else if (MemberType.STANDARD.name().equals(orgMember.getType())) {
