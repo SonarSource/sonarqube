@@ -73,7 +73,7 @@ public class ServerUserSession extends AbstractUserSession {
 
   private Collection<GroupDto> groups;
   private final Set<String> organizationMembership = new HashSet<>();
-  private final Set<String> archivedOrganizationsUuids = new HashSet<>();
+  private final Map<String, Boolean> organizationsArchivedStatus = new HashMap<>();
 
   public ServerUserSession(DbClient dbClient, @Nullable UserDto userDto, boolean isAuthenticatedBrowserSession) {
     this.dbClient = dbClient;
@@ -454,15 +454,13 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   private boolean isArchivedOrganization(String organizationUuid) {
-    if (archivedOrganizationsUuids.contains(organizationUuid)) {
-      return true;
+    if (organizationsArchivedStatus.containsKey(organizationUuid)) {
+      return organizationsArchivedStatus.get(organizationUuid);
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<OrganizationDto> organizationDto = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid);
-      if (organizationDto.isPresent() && organizationDto.get().isArchived()) {
-        archivedOrganizationsUuids.add(organizationUuid);
-      }
-      return archivedOrganizationsUuids.contains(organizationUuid);
+      organizationDto.ifPresent(org -> organizationsArchivedStatus.put(organizationUuid, org.isArchived()));
+      return organizationsArchivedStatus.getOrDefault(organizationUuid, true);
     }
   }
 }
