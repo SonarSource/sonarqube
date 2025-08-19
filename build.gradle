@@ -528,7 +528,7 @@ subprojects {
       dependency "com.sonarsource.pdfreport:regulatory-report-pdf-generation:${pdfreportVersion}"
       dependency "com.sonarsource.pdfreport:security-report-pdf-generation:${pdfreportVersion}"
       dependency "com.sonarsource.pdfreport:pdf-generator-utils:${pdfreportVersion}"
-      dependency 'com.sonarsource.fixsuggestions:ai-suggestions-shared:1.0.0.1312'
+      dependency 'com.sonarsource.fixsuggestions:ai-suggestions-shared:1.0.0.1544'
       dependency 'org.sonarsource.update-center:sonar-update-center-common:1.35.0.2835'
       dependency 'org.sonarsource.classloader:sonar-classloader:1.1.0.1059'
       dependency 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.6'
