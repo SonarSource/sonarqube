@@ -25,6 +25,7 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.Startable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.property.PropertyDto;
 
 import static java.util.Arrays.asList;
 
@@ -42,6 +43,7 @@ public class PropertiesDBCleaner implements Startable {
   public void start() {
     LOG.info("Clean up properties from db");
     deleteMisraPropertyIfRequired();
+    migrateScaPropertyIfRequired();
   }
 
   private void deleteMisraPropertyIfRequired() {
@@ -51,6 +53,25 @@ public class PropertiesDBCleaner implements Startable {
       if (asList(SonarEdition.COMMUNITY, SonarEdition.DEVELOPER).contains(edition)) {
         dbClient.propertiesDao().deleteGlobalProperty(misraProperty, dbSession);
         dbSession.commit();
+      }
+    }
+  }
+
+  private void migrateScaPropertyIfRequired() {
+    // Migrate old feature enablement setting to new key ; leave old setting to denote whether to analyze by default
+    String scaFeatureEnabledProperty = "sonar.sca.featureEnabled";
+    String scaLegacyEnabledProperty = "sonar.sca.enabled";
+
+    SonarEdition edition = runtime.getEdition();
+    if (asList(SonarEdition.ENTERPRISE, SonarEdition.DATACENTER).contains(edition)) {
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        if (dbClient.propertiesDao().selectGlobalProperty(scaFeatureEnabledProperty) == null) {
+          var oldProperty = dbClient.propertiesDao().selectGlobalProperty(scaLegacyEnabledProperty);
+
+          var propertyDto = new PropertyDto().setKey(scaFeatureEnabledProperty).setValue(oldProperty == null ? "false" : oldProperty.getValue());
+          dbClient.propertiesDao().saveProperty(dbSession, propertyDto);
+          dbSession.commit();
+        }
       }
     }
   }

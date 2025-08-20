@@ -134,6 +134,7 @@ class ScaExecutorTest {
 
   @Test
   void execute_whenProjectPropertyDisabled_skips() {
+    when(featureFlagsRepository.isEnabled("sca")).thenReturn(true);
     when(configuration.getBoolean("sonar.sca.enabled")).thenReturn(Optional.of(false));
     logTester.setLevel(Level.DEBUG);
 

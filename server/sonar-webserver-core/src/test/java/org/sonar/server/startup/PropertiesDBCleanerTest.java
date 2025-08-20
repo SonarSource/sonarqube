@@ -21,6 +21,7 @@ package org.sonar.server.startup;
 
 import java.util.Objects;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.SonarEdition;
@@ -42,6 +43,8 @@ class PropertiesDBCleanerTest {
   private final DbSession dbSession = db.getSession();
   private final SonarRuntime sonarRuntime = mock(SonarRuntime.class);
   private static final String MISRA_SETTING = "sonar.earlyAccess.misra.enabled";
+  private static final String SCA_FEATURE_ENABLED_PROPERTY = "sonar.sca.featureEnabled";
+  private static final String SCA_LEGACY_ENABLED_PROPERTY = "sonar.sca.enabled";
 
   @ParameterizedTest
   @ValueSource(strings = { "COMMUNITY", "DEVELOPER" })
@@ -74,5 +77,44 @@ class PropertiesDBCleanerTest {
 
     new PropertiesDBCleaner(dbClient, sonarRuntime).start();
     assertThat(Objects.requireNonNull(dbClient.propertiesDao().selectGlobalProperty(MISRA_SETTING)).getValue()).isEqualTo(prop.getValue());
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = { "true", "false" })
+  void should_not_migrate_sca_settings_when_already_set(String setting) {
+    when(sonarRuntime.getEdition()).thenReturn(SonarEdition.valueOf("ENTERPRISE"));
+    PropertyDto prop = new PropertyDto()
+      .setKey(SCA_FEATURE_ENABLED_PROPERTY)
+      .setValue(setting);
+    dbClient
+      .propertiesDao()
+      .saveProperty(dbSession, prop, null, null, null, null);
+    dbSession.commit();
+
+    new PropertiesDBCleaner(dbClient, sonarRuntime).start();
+    assertThat(Objects.requireNonNull(dbClient.propertiesDao().selectGlobalProperty(SCA_FEATURE_ENABLED_PROPERTY)).getValue()).isEqualTo(setting);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = { "true", "false" })
+  void should_migrate_sca_settings_when_not_already_set(String setting) {
+    when(sonarRuntime.getEdition()).thenReturn(SonarEdition.valueOf("ENTERPRISE"));
+    PropertyDto prop = new PropertyDto()
+      .setKey(SCA_LEGACY_ENABLED_PROPERTY)
+      .setValue(setting);
+    dbClient
+      .propertiesDao()
+      .saveProperty(dbSession, prop, null, null, null, null);
+    dbSession.commit();
+
+    new PropertiesDBCleaner(dbClient, sonarRuntime).start();
+    assertThat(Objects.requireNonNull(dbClient.propertiesDao().selectGlobalProperty(SCA_FEATURE_ENABLED_PROPERTY)).getValue()).isEqualTo(setting);
+  }
+
+  @Test
+  void should_initialize_sca_settings_when_nothing_set() {
+    when(sonarRuntime.getEdition()).thenReturn(SonarEdition.valueOf("ENTERPRISE"));
+    new PropertiesDBCleaner(dbClient, sonarRuntime).start();
+    assertThat(Objects.requireNonNull(dbClient.propertiesDao().selectGlobalProperty(SCA_FEATURE_ENABLED_PROPERTY)).getValue()).isEqualTo("false");
   }
 }

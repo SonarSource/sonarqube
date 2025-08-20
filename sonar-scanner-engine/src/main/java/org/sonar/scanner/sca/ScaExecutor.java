@@ -55,13 +55,13 @@ public class ScaExecutor {
   }
 
   public void execute(DefaultInputModule root) {
-    // Global feature flag
+    // Feature available in license and enabled by admin
     if (!featureFlagsRepository.isEnabled(SCA_FEATURE_NAME)) {
       LOG.info("Dependency analysis skipped");
       return;
     }
 
-    // Project or scanner level feature flag
+    // SCA enabled in scans at global, project, or scanner level
     if (!configuration.getBoolean("sonar.sca.enabled").orElse(true)) {
       LOG.info("Dependency analysis disabled for this project");
       return;
