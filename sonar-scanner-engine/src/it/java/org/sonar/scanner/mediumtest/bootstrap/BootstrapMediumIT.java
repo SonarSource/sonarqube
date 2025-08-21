@@ -37,9 +37,11 @@ import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Qualityprofiles;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -107,7 +109,8 @@ class BootstrapMediumIT {
         }
         """)));
 
-    sonarqube.stubFor(post("/api/ce/submit?projectKey=" + PROJECT_KEY)
+    sonarqube.stubFor(post(urlPathEqualTo("/api/ce/submit"))
+      .withQueryParam("projectKey", equalTo(PROJECT_KEY))
       .willReturn(aResponse()
         .withResponseBody(protobufBody(Ce.SubmitResponse.newBuilder()
           .build()))));

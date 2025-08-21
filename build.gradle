@@ -27,7 +27,7 @@ if (!JavaVersion.current().isCompatibleWith(VERSION_17)) {
  * - or by explicit call to 'cyclonedxBom' Gradle task
  */
 def bomTasks = "cyclonedxBom"
-def ghBranch = System.getenv()["GITHUB_BRANCH"]
+def ghBranch = System.getenv()["GITHUB_REF_NAME"]
 def isMainBranch = ghBranch in ['master'] || ghBranch ==~ 'branch-[\\d.]+'
 
 boolean enableBom = System.getenv('CI') == "true" && (isMainBranch) ||
@@ -80,10 +80,10 @@ allprojects {
   }
 
   repositories {
-    // The environment variables ARTIFACTORY_PRIVATE_USERNAME and ARTIFACTORY_PRIVATE_PASSWORD are used on QA env (Jenkins)
+    // The environment variables ARTIFACTORY_USERNAME and ARTIFACTORY_ACCESS_TOKEN are used on QA env (Jenkins)
     // On local box, please add artifactoryUsername and artifactoryPassword to ~/.gradle/gradle.properties
-    def artifactoryUsername = System.env.'ARTIFACTORY_PRIVATE_USERNAME' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
-    def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
+    def artifactoryUsername = System.env.'ARTIFACTORY_USERNAME' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
+    def artifactoryPassword = System.env.'ARTIFACTORY_ACCESS_TOKEN' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
     def artifactoryUrl = System.getenv('ARTIFACTORY_URL') ?: (project.hasProperty('artifactoryUrl') ? project.getProperty('artifactoryUrl') : '')
 
     if (artifactoryPassword) {
@@ -183,10 +183,10 @@ allprojects {
         properties = [
           'build.name'      : 'sonar-enterprise-sqcb',
           'build.number'    : System.getenv('BUILD_NUMBER'),
-          'pr.branch.target': System.getenv('GITHUB_BASE_BRANCH'),
+          'pr.branch.target': System.getenv('GITHUB_BASE_REF'),
           'pr.number'       : System.getenv('PULL_REQUEST'),
           'vcs.branch'      : ghBranch,
-          'vcs.revision'    : System.getenv('GIT_SHA1'),
+          'vcs.revision'    : System.getenv('GITHUB_SHA'),
           'version'         : version
         ]
         publications('mavenJava')
@@ -557,11 +557,11 @@ subprojects {
   }
 
   tasks.withType(Test) {
-    if (System.getenv().containsKey("CIRRUS_CI")) {
+    if (System.getenv().containsKey("GITHUB_ACTIONS")) {
       develocity.testRetry {
         maxRetries = 3
         maxFailures = 30
-        failOnPassedAfterRetry = System.getenv("CIRRUS_PR") != null
+        failOnPassedAfterRetry = System.getenv("GITHUB_HEAD_REF") != null
       }
     }
   }
@@ -720,7 +720,7 @@ subprojects {
       manifest {
         attributes(
           'Version': "${version}",
-          'Implementation-Build': System.getenv('GIT_SHA1'),
+          'Implementation-Build': System.getenv('GITHUB_SHA'),
           'Build-Time': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         )
       }

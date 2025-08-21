@@ -1,0 +1,37 @@
+name: 'QA Reports'
+description: 'Upload artifacts and publish test reports'
+inputs:
+  name:
+    description: 'QA Category for naming'
+    type: string
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Upload Report Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.name }}
+        path: |
+          **/build/test-results/**/*.xml
+          **/build/reports/**/*
+          **/build/screenshots/**/*
+          **/build/**/*.log
+    - name: Check for Test Failures
+      id: check-failures
+      shell: bash
+      run: |
+        if find . -path "**/build/test-results/**/*.xml" -exec grep -E 'failures="([1-9][0-9]*)"|errors="([1-9][0-9]*)"' {} \; 2>/dev/null | grep -q .; then
+          echo "has-failures=true" >> $GITHUB_OUTPUT
+        else
+          echo "has-failures=false" >> $GITHUB_OUTPUT
+        fi
+    - name: Publish Test Report
+      if: steps.check-failures.outputs.has-failures == 'true'
+      uses: mikepenz/action-junit-report@v5
+      env:
+        NODE_OPTIONS: "--max-old-space-size=8192"
+      with:
+        report_paths: '**/build/test-results/**/*.xml'
+        annotate_only: 'true'
+        include_passed: 'false'

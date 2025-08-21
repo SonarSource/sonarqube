@@ -1,6 +1,6 @@
 pluginManagement {
   repositories {
-    def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD'
+    def artifactoryPassword = System.env.'ARTIFACTORY_ACCESS_TOKEN'
 
     maven {
       if (artifactoryPassword) {
@@ -75,7 +75,7 @@ include 'sonar-testing-ldap'
 include 'sonar-ws'
 include 'sonar-ws-generator'
 
-ext.isCiServer = System.getenv().containsKey("CIRRUS_CI")
+ext.isCiServer = System.getenv().containsKey("GITHUB_ACTIONS")
 
 develocity {
   projectId = "sonar-enterprise"
@@ -84,8 +84,8 @@ develocity {
     uploadInBackground.set(!isCiServer)
     publishing.onlyIf { isCiServer && it.authenticated }
     if (isCiServer) {
-      buildScan.value 'Branch', System.getenv()["CIRRUS_BRANCH"]
-      buildScan.value 'Cirrus Link', "https://cirrus-ci.com/task/" + System.getenv()["CIRRUS_TASK_ID"]
+      buildScan.value 'Branch', System.getenv()["GITHUB_REF_NAME"]
+      buildScan.value 'GitHub Actions Run', "https://github.com/${System.getenv('GITHUB_REPOSITORY')}/actions/runs/${System.getenv('GITHUB_RUN_ID')}"
     }
   }
 }

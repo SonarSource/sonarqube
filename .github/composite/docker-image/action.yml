@@ -1,0 +1,157 @@
+name: 'Database Setup'
+description: 'Setup a database from a cached docker image'
+inputs:
+  vendor:
+    description: 'The database vendor (e.g., postgres, mysql)'
+    required: true
+  tag:
+    description: 'Tag for the Docker image (optional)'
+    required: false
+  docker-username:
+    description: 'Docker Hub username (if login is needed)'
+    required: false
+  docker-password:
+    description: 'Docker Hub password (if login is needed)'
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Login to Docker Hub
+      if: ${{ inputs.docker-username != '' && inputs.docker-password != '' }}
+      uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
+      with:
+        username: ${{ inputs.docker-username }}
+        password: ${{ inputs.docker-password }}
+        
+    - name: Set Image Name
+      shell: bash
+      id: set-image
+      run: |
+        case "${{ inputs.vendor }}" in
+          "postgres")
+            IMAGE="postgres:${{ inputs.tag || '17' }}"
+            ;;
+          "oracle")
+            IMAGE="gvenzl/oracle-free:${{ inputs.tag || '23-faststart' }}"
+            ;;
+          "mssql")
+            IMAGE="mcr.microsoft.com/mssql/server:${{ inputs.tag || '2022-latest' }}"
+            ;;
+          "keycloak")
+            IMAGE="quay.io/keycloak/keycloak:26.0.7"
+            ;;
+          "gitlab")
+            IMAGE="gitlab/gitlab-ce:${{ inputs.tag || 'latest' }}"
+            ;;
+          *)
+            echo "Unsupported vendor: ${{ inputs.vendor }}"
+            exit 1
+            ;;
+        esac
+        echo "image=$IMAGE" >> $GITHUB_OUTPUT
+
+    - name: Resolve Current Month
+      id: current-month
+      shell: bash
+      run: |
+        export THIS_MONTH=$(date '+%Y-%m')
+        echo "THIS_MONTH=${THIS_MONTH}" >> $GITHUB_OUTPUT
+
+    - name: Cache Docker Image
+      id: cache-db-image
+      uses: SonarSource/ci-github-actions/cache@v1
+      with:
+        path: /tmp/db-image.tar
+        key: ${{ steps.set-image.outputs.image }}-${{ steps.current-month.outputs.THIS_MONTH }}
+        restore-keys: ${{ steps.set-image.outputs.image }}-${{ steps.current-month.outputs.THIS_MONTH }}
+
+    - name: Pull and Save Docker Image
+      shell: bash
+      if: steps.cache-db-image.outputs.cache-hit != 'true'
+      run: |
+        echo "Cache miss. Pulling image from Docker Hub..."
+        docker pull ${{ steps.set-image.outputs.image }}
+        docker save -o /tmp/db-image.tar ${{ steps.set-image.outputs.image }}
+
+    - name: Load Docker Image
+      shell: bash
+      if: steps.cache-db-image.outputs.cache-hit == 'true'
+      run: |
+        echo "Loading Docker image from cache..."
+        docker load -i /tmp/db-image.tar
+
+    - name: Start Keycloak Container
+      if: ${{ inputs.vendor == 'keycloak' }}
+      shell: bash
+      run: |
+        docker run -d --name keycloak -p 8080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin --health-cmd="exec 3<>/dev/tcp/127.0.0.1/8080;echo -e 'GET /health/ready HTTP/1.1\r\nhost: http://localhost\r\nConnection: close\r\n\r\n' >&3;if [ $? -eq 0 ]; then echo 'Healthcheck Successful';exit 0;else echo 'Healthcheck Failed';exit 1;fi;" \
+          --health-interval=10s \
+          --health-timeout=5s \
+          --health-retries=5  quay.io/keycloak/keycloak:26.0.7 start-dev --http-relative-path /auth
+
+    - name: Start Postgres Container
+      if: ${{ inputs.vendor == 'postgres' }}
+      shell: bash
+      run: |
+        docker run -d --name postgres \
+          -p 5432:5432 \
+          -e POSTGRES_USER=postgres \
+          -e POSTGRES_PASSWORD=postgres \
+          --health-cmd="pg_isready -U postgres" \
+          --health-interval=10s \
+          --health-timeout=5s \
+          --health-retries=5 \
+          postgres:${{ inputs.tag || '17' }}
+
+    - name: Start Oracle Container
+      if: ${{ inputs.vendor == 'oracle' }}
+      shell: bash
+      run: |
+        docker run -d --name oracle \
+          -p 1521:1521 \
+          -e ORACLE_PASSWORD=sonarqube \
+          -e APP_USER=sonarqube \
+          -e APP_USER_PASSWORD=sonarqube \
+          --health-cmd="echo 'SELECT status FROM v\$instance;' | sqlplus -s / as sysdba | grep 'OPEN' || exit 1" \
+          --health-interval=10s \
+          --health-timeout=5s \
+          --health-retries=10 \
+          gvenzl/oracle-free:${{ inputs.tag || '23-faststart' }}
+
+    - name: Start MS SQL Server Container
+      if: ${{ inputs.vendor == 'mssql' }}
+      shell: bash
+      run: |
+        docker run -d --name mssql \
+          -p 1433:1433 \
+          -e MSSQL_PID=Developer \
+          -e ACCEPT_EULA=Y \
+          -e SA_PASSWORD=sonarqube@1 \
+          --health-cmd="/opt/mssql-tools18/bin/sqlcmd -U sa -P 'sonarqube@1' -C -Q 'SELECT 1' || exit 1" \
+          --health-interval=10s \
+          --health-timeout=5s \
+          --health-retries=10 \
+          mcr.microsoft.com/mssql/server:${{ inputs.tag || '2022-latest' }}
+
+    - name: Start Gitlab Container
+      if: ${{ inputs.vendor == 'gitlab' }}
+      shell: bash
+      run: |
+        docker run -d --name gitlab \
+        -p 80:80 -p 443:443 \
+        -v $GITHUB_WORKSPACE/.github/ci-files/gitlab/certificate-until-2032-without-password.crt:/etc/gitlab/ssl/localhost.crt \
+        -v $GITHUB_WORKSPACE/.github/ci-files/gitlab/key-for-certificate.key:/etc/gitlab/ssl/localhost.key \
+        -v $GITHUB_WORKSPACE/.github/ci-files/gitlab/external_gitlab.rb:/etc/gitlab/external_gitlab.rb \
+        -v $GITHUB_WORKSPACE/.github/ci-files/gitlab/setup.rb:/tmp/setup.rb \
+        -e GITLAB_POST_RECONFIGURE_SCRIPT="gitlab-rails runner /tmp/setup.rb && echo 'from_file \"/etc/gitlab/external_gitlab.rb\"' >> /etc/gitlab/gitlab.rb && gitlab-ctl reconfigure" \
+        --health-cmd="wget --spider --no-check-certificate https://localhost/users/sign_in || exit 1" \
+        --health-interval=10s \
+        --health-timeout=5s \
+        --health-retries=100 \
+        gitlab/gitlab-ce:${{ inputs.tag || 'latest' }}
+
+    - name: Wait for database to be healthy
+      shell: bash
+      run: |
+        timeout 500s bash -c 'until docker ps --filter "name=${{ inputs.vendor }}" --filter "health=healthy" | grep -q healthy; do sleep 5; done'
