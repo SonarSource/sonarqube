@@ -53,7 +53,7 @@ export function GlobalNavUser({ currentUser, userOrganizations }: GlobalNavUserP
     const isCodescan = window.location.hostname.includes('codescan.io') || window.location.hostname.includes('autorabit.com');
     if (isLoggedIn(currentUser) && hasOrganizations && !pendoInitialized && isCodescan) {
       const script = document.createElement('script');
-      const orgKeys = userOrganizations.map(o => o.kee).join(',');
+      const sfAccountIds = userOrganizations.map(o => o.sfAccountId).join(',');
       const host = window.location.hostname;
 
       script.innerHTML =
@@ -62,7 +62,7 @@ export function GlobalNavUser({ currentUser, userOrganizations }: GlobalNavUserP
         "          id: '" + (currentUser.email ? currentUser.email : currentUser.login) + "'\n" +
         "        },\n" +
         "        account: {\n" +
-        "          id: '" + orgKeys + "',\n" +
+        "          id: '" + sfAccountIds + "',\n" +
         "          instance: '" + host + "'\n" +
         "        }\n" +
         "      });";
