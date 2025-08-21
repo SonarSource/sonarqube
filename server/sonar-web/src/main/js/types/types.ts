@@ -884,6 +884,7 @@ export interface Organization extends OrganizationBase {
   pages?: Extension[];
   projectVisibility?: Visibility;
   notifications?: CodeScanNotification[];
+  sfAccountId?: String;
 }
 
 export interface OrganizationBase {
