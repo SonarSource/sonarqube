@@ -1,0 +1,32 @@
+name: Build and Analyze
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: ${{ github.ref_name != github.event.repository.default_branch }}
+    runs-on: sonar-xl-public
+    name: Build
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: jdx/mise-action@bfb9fa0b029db830a8c570757cee683df207a6c5 # v2.4.0
+        with:
+          version: 2025.7.12
+      - uses: SonarSource/ci-github-actions/get-build-number@v1
+      - uses: SonarSource/ci-github-actions/build-gradle@v1
+        env:
+          DEVELOCITY_ACCESS_KEY: develocity.sonar.build=${{ env.DEVELOCITY_TOKEN }}
+        with:
+          deploy-pull-request: true
+          artifactory-reader-role: private-reader
+          artifactory-deployer-role: qa-deployer
