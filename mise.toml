@@ -1,0 +1,3 @@
+[tools]
+java = "17.0"
+gradle = "8.9"
