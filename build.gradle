@@ -497,7 +497,7 @@ subprojects {
       }
       dependency 'org.spdx:java-spdx-library:2.0.0'
       dependency 'org.spdx:spdx-jackson-store:2.0.2'
-      dependencySet(group: 'org.springframework', version: '6.2.8') {
+      dependencySet(group: 'org.springframework', version: '6.2.10') {
         entry 'spring-test'
         entry('spring-context') {
           exclude 'commons-logging:commons-logging'
