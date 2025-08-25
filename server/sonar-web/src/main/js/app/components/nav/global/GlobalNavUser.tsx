@@ -53,16 +53,16 @@ export function GlobalNavUser({ currentUser, userOrganizations }: GlobalNavUserP
     const isCodescan = window.location.hostname.includes('codescan.io') || window.location.hostname.includes('autorabit.com');
     if (isLoggedIn(currentUser) && hasOrganizations && !pendoInitialized && isCodescan) {
       const script = document.createElement('script');
-      const sfAccountIds = userOrganizations.map(o => o.sfAccountId).join(',');
+      const sfAccountId = userOrganizations.find?.(o => o.sfAccountId != null)?.sfAccountId || null;
       const host = window.location.hostname;
-
+      
       script.innerHTML =
         "  pendo.initialize({\n" +
         "        visitor: {\n" +
         "          id: '" + (currentUser.email ? currentUser.email : currentUser.login) + "'\n" +
         "        },\n" +
         "        account: {\n" +
-        "          id: '" + sfAccountIds + "',\n" +
+        "          id: '" + sfAccountId + "',\n" +
         "          instance: '" + host + "'\n" +
         "        }\n" +
         "      });";
