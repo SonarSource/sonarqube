@@ -130,6 +130,7 @@
           i.message_formattings as messageFormattings,
           i.code_variants as codeVariantsString,
           i.prioritized_rule as prioritizedRule,
+          i.from_sonarqube_update as fromSonarQubeUpdate,
           ii.software_quality as ii_softwareQuality,
           ii.severity as ii_severity,
           ii.manual_severity as ii_manualSeverity,

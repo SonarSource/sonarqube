@@ -82,6 +82,7 @@ public class DefaultIssue implements Issue, Trackable {
   private Set<String> tags = null;
   private Set<String> codeVariants = null;
   private boolean prioritizedRule = false;
+  private boolean fromSonarQubeUpdate = false;
   // temporarily an Object as long as DefaultIssue is used by sonar-batch
   private Object locations = null;
 
@@ -725,6 +726,15 @@ public class DefaultIssue implements Issue, Trackable {
 
   public DefaultIssue setPrioritizedRule(boolean isBlockerRule) {
     this.prioritizedRule = isBlockerRule;
+    return this;
+  }
+
+  public boolean isFromSonarQubeUpdate() {
+    return fromSonarQubeUpdate;
+  }
+
+  public DefaultIssue setFromSonarQubeUpdate(boolean fromSonarQubeUpdate) {
+    this.fromSonarQubeUpdate = fromSonarQubeUpdate;
     return this;
   }
 

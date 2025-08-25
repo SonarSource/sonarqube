@@ -131,6 +131,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_1
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PCI_DSS_32;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PCI_DSS_40;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PRIORITIZED_RULE;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FROM_SONAR_QUBE_UPDATE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PULL_REQUEST;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLUTIONS;
@@ -183,13 +184,15 @@ public class SearchAction implements IssuesWsAction {
     PARAM_IMPACT_SOFTWARE_QUALITIES,
     PARAM_IMPACT_SEVERITIES,
     PARAM_ISSUE_STATUSES,
-    PARAM_PRIORITIZED_RULE);
+    PARAM_PRIORITIZED_RULE,
+    PARAM_FROM_SONAR_QUBE_UPDATE);
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of " +
     "the componentKeys parameter. ";
   private static final String NEW_FACET_ADDED_MESSAGE = "Facet '%s' has been added";
   private static final String NEW_PARAM_ADDED_MESSAGE = "Param '%s' has been added";
   private static final String V_2025_3 = "2025.3";
+  private static final String V_2025_5 = "2025.5";
   private static final Set<String> FACETS_REQUIRING_PROJECT = newHashSet(PARAM_FILES, PARAM_DIRECTORIES);
 
   private final UserSession userSession;
@@ -224,6 +227,8 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexing is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change(V_2025_5, format(NEW_FACET_ADDED_MESSAGE, PARAM_FROM_SONAR_QUBE_UPDATE)),
+        new Change(V_2025_5, format(NEW_PARAM_ADDED_MESSAGE, PARAM_FROM_SONAR_QUBE_UPDATE)),
         new Change(V_2025_3, format(NEW_FACET_ADDED_MESSAGE, PARAM_OWASP_MOBILE_TOP_10_2024)),
         new Change(V_2025_3, format(NEW_PARAM_ADDED_MESSAGE, PARAM_OWASP_MOBILE_TOP_10_2024)),
         new Change("10.8", "The response fields 'severity' and 'type' are not deprecated anymore.."),
@@ -355,6 +360,9 @@ public class SearchAction implements IssuesWsAction {
       .setBooleanPossibleValues();
     action.createParam(PARAM_PRIORITIZED_RULE)
       .setDescription("To match issues with prioritized rule or not")
+      .setBooleanPossibleValues();
+    action.createParam(PARAM_FROM_SONAR_QUBE_UPDATE)
+      .setDescription("To match issues detected because of SonarQube updates")
       .setBooleanPossibleValues();
     action.createParam(PARAM_RULES)
       .setDescription("Comma-separated list of coding rule keys. Format is &lt;repository&gt;:&lt;rule&gt;")
@@ -705,6 +713,7 @@ public class SearchAction implements IssuesWsAction {
       .setResolutions(request.paramAsStrings(PARAM_RESOLUTIONS))
       .setResolved(request.paramAsBoolean(PARAM_RESOLVED))
       .setPrioritizedRule(request.paramAsBoolean(PARAM_PRIORITIZED_RULE))
+      .setFromSonarQubeUpdate(request.paramAsBoolean(PARAM_FROM_SONAR_QUBE_UPDATE))
       .setRules(request.paramAsStrings(PARAM_RULES))
       .setSort(request.param(Param.SORT))
       .setSeverities(request.paramAsStrings(PARAM_SEVERITIES))

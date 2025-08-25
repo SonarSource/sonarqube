@@ -337,4 +337,11 @@ class DefaultIssueTest {
     issue.setPrioritizedRule(true);
     assertThat(issue.isPrioritizedRule()).isTrue();
   }
+
+  @Test
+  void fromSonarQubeUpdate_shouldHaveCorrectDefaultValue() {
+    assertThat(issue.isFromSonarQubeUpdate()).isFalse();
+    issue.setFromSonarQubeUpdate(true);
+    assertThat(issue.isFromSonarQubeUpdate()).isTrue();
+  }
 }

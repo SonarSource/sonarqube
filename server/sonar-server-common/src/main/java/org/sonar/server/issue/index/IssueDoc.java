@@ -454,4 +454,13 @@ public class IssueDoc extends BaseDoc {
     setField(IssueIndexDefinition.FIELD_PRIORITIZED_RULE, prioritizedRule);
     return this;
   }
+
+  public boolean isFromSonarQubeUpdate() {
+    return getField(IssueIndexDefinition.FIELD_FROM_SONAR_QUBE_UPDATE);
+  }
+
+  public IssueDoc setFromSonarQubeUpdate(boolean fromSonarQubeUpdate) {
+    setField(IssueIndexDefinition.FIELD_FROM_SONAR_QUBE_UPDATE, fromSonarQubeUpdate);
+    return this;
+  }
 }

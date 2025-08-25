@@ -91,6 +91,7 @@ public class IssueQuery {
   private final Boolean assigned;
   private final Boolean resolved;
   private final Boolean prioritizedRule;
+  private final Boolean fromSonarQubeUpdate;
   private final Date createdAt;
   private final PeriodStart createdAfter;
   private final Date createdBefore;
@@ -143,6 +144,7 @@ public class IssueQuery {
     this.assigned = builder.assigned;
     this.resolved = builder.resolved;
     this.prioritizedRule = builder.prioritizedRule;
+    this.fromSonarQubeUpdate = builder.fromSonarQubeUpdate;
     this.createdAt = builder.createdAt;
     this.createdAfter = builder.createdAfter;
     this.createdBefore = builder.createdBefore;
@@ -315,6 +317,11 @@ public class IssueQuery {
   }
 
   @CheckForNull
+  public Boolean fromSonarQubeUpdate() {
+    return fromSonarQubeUpdate;
+  }
+
+  @CheckForNull
   public PeriodStart createdAfter() {
     return createdAfter;
   }
@@ -421,6 +428,7 @@ public class IssueQuery {
     private Boolean assigned = null;
     private Boolean resolved = null;
     private Boolean prioritizedRule = null;
+    private Boolean fromSonarQubeUpdate = null;
     private Date createdAt;
     private PeriodStart createdAfter;
     private Date createdBefore;
@@ -637,6 +645,11 @@ public class IssueQuery {
 
     public Builder prioritizedRule(@Nullable Boolean prioritizedRule) {
       this.prioritizedRule = prioritizedRule;
+      return this;
+    }
+
+    public Builder fromSonarQubeUpdate(@Nullable Boolean fromSonarQubeUpdate) {
+      this.fromSonarQubeUpdate = fromSonarQubeUpdate;
       return this;
     }
 

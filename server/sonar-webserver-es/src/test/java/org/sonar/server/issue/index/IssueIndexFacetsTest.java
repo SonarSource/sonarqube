@@ -544,6 +544,20 @@ class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
+  void facets_on_issues_from_analyzer_update() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project);
+
+    indexIssues(
+      newDoc("I1", project.uuid(), file).setFromSonarQubeUpdate(false),
+      newDoc("I2", project.uuid(), file).setFromSonarQubeUpdate(true),
+      newDoc("I3", project.uuid(), file).setFromSonarQubeUpdate(true)
+    );
+
+    assertThatFacetHasOnly(IssueQuery.builder(), "fromSonarQubeUpdate", entry("true", 2L), entry("false", 1L));
+  }
+
+  @Test
   void facets_on_authors_return_100_entries_plus_selected_values() {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project), project.uuid()).setAuthorLogin("a" + i)).toArray(IssueDoc[]::new));

@@ -154,6 +154,7 @@ import static org.sonar.server.issue.index.IssueIndex.Facet.OWASP_TOP_10_2021;
 import static org.sonar.server.issue.index.IssueIndex.Facet.PCI_DSS_32;
 import static org.sonar.server.issue.index.IssueIndex.Facet.PCI_DSS_40;
 import static org.sonar.server.issue.index.IssueIndex.Facet.PRIORITIZED_RULE;
+import static org.sonar.server.issue.index.IssueIndex.Facet.FROM_SONAR_QUBE_UPDATE;
 import static org.sonar.server.issue.index.IssueIndex.Facet.PROJECT_UUIDS;
 import static org.sonar.server.issue.index.IssueIndex.Facet.RESOLUTIONS;
 import static org.sonar.server.issue.index.IssueIndex.Facet.RULES;
@@ -208,6 +209,7 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TAGS
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TYPE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_VULNERABILITY_PROBABILITY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_PRIORITIZED_RULE;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_FROM_SONAR_QUBE_UPDATE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 import static org.sonar.server.security.SecurityReviewRating.computePercent;
 import static org.sonar.server.security.SecurityReviewRating.computeRating;
@@ -235,6 +237,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_1
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PCI_DSS_32;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PCI_DSS_40;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PRIORITIZED_RULE;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FROM_SONAR_QUBE_UPDATE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLUTIONS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SANS_TOP_25;
@@ -324,7 +327,8 @@ public class IssueIndex {
     CREATED_AT(PARAM_CREATED_AT, FIELD_ISSUE_FUNC_CREATED_AT, NON_STICKY),
     SONARSOURCE_SECURITY(PARAM_SONARSOURCE_SECURITY, FIELD_ISSUE_SQ_SECURITY_CATEGORY, STICKY, DEFAULT_FACET_SIZE),
     CODE_VARIANTS(PARAM_CODE_VARIANTS, FIELD_ISSUE_CODE_VARIANTS, STICKY, MAX_FACET_SIZE),
-    PRIORITIZED_RULE(PARAM_PRIORITIZED_RULE, FIELD_PRIORITIZED_RULE, STICKY, 2);
+    PRIORITIZED_RULE(PARAM_PRIORITIZED_RULE, FIELD_PRIORITIZED_RULE, STICKY, 2),
+    FROM_SONAR_QUBE_UPDATE(PARAM_FROM_SONAR_QUBE_UPDATE, FIELD_FROM_SONAR_QUBE_UPDATE, STICKY, 2);
 
     private final String name;
     private final TopAggregationDefinition<FilterScope> topAggregation;
@@ -528,6 +532,7 @@ public class IssueIndex {
     filters.addFilter(FIELD_ISSUE_NEW_STATUS, ISSUE_STATUSES.getFilterScope(), createTermsFilter(FIELD_ISSUE_NEW_STATUS, query.issueStatuses()));
     filters.addFilter(FIELD_ISSUE_CODE_VARIANTS, CODE_VARIANTS.getFilterScope(), createTermsFilter(FIELD_ISSUE_CODE_VARIANTS, query.codeVariants()));
     filters.addFilter(FIELD_PRIORITIZED_RULE, PRIORITIZED_RULE.getFilterScope(), createTermFilter(FIELD_PRIORITIZED_RULE, query.prioritizedRule()));
+    filters.addFilter(FIELD_FROM_SONAR_QUBE_UPDATE, FROM_SONAR_QUBE_UPDATE.getFilterScope(), createTermFilter(FIELD_FROM_SONAR_QUBE_UPDATE, query.fromSonarQubeUpdate()));
 
     // security category
     addSecurityCategoryPrefixFilter(FIELD_ISSUE_PCI_DSS_32, PCI_DSS_32, query.pciDss32(), filters);
@@ -913,6 +918,7 @@ public class IssueIndex {
     addFacetIfNeeded(options, aggregationHelper, esRequest, CODE_VARIANTS, query.codeVariants().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, CLEAN_CODE_ATTRIBUTE_CATEGORY, query.cleanCodeAttributesCategories().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, PRIORITIZED_RULE, ArrayUtils.EMPTY_OBJECT_ARRAY);
+    addFacetIfNeeded(options, aggregationHelper, esRequest, FROM_SONAR_QUBE_UPDATE, ArrayUtils.EMPTY_OBJECT_ARRAY);
 
     addSecurityCategoryFacetIfNeeded(PARAM_PCI_DSS_32, PCI_DSS_32, options, aggregationHelper, esRequest, query.pciDss32().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_PCI_DSS_40, PCI_DSS_40, options, aggregationHelper, esRequest, query.pciDss40().toArray());

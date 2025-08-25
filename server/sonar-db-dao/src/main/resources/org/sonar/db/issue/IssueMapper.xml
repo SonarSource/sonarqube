@@ -43,6 +43,7 @@
     i.quick_fix_available as quickFixAvailable,
     i.code_variants as codeVariantsString,
     i.prioritized_rule as prioritizedRule,
+    i.from_sonarqube_update as fromSonarQubeUpdate,
     <include refid="issueImpactsColumns"/>
     <include refid="ruleDefaultImpactsColumns"/>
     <include refid="isNewCodeReferenceIssue"/>
@@ -77,7 +78,8 @@
     i.quick_fix_available,
     i.code_variants,
     i.clean_code_attribute,
-    i.prioritized_rule
+    i.prioritized_rule,
+    i.from_sonarqube_update
   </sql>
 
   <sql id="isNewCodeReferenceIssue" databaseId="mssql">
@@ -147,7 +149,7 @@
     message, message_formattings, line, locations, gap, effort, status, tags, rule_description_context_key,
     resolution, checksum, assignee, author_login, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at, component_uuid, project_uuid, issue_type, quick_fix_available, code_variants,
-    clean_code_attribute, prioritized_rule)
+    clean_code_attribute, prioritized_rule, from_sonarqube_update)
     VALUES (
     #{kee,jdbcType=VARCHAR},
     #{ruleUuid,jdbcType=VARCHAR},
@@ -170,7 +172,8 @@
     #{quickFixAvailable, jdbcType=BOOLEAN},
     #{codeVariantsString,jdbcType=VARCHAR},
     #{effectiveCleanCodeAttribute,jdbcType=VARCHAR},
-    #{prioritizedRule,jdbcType=BOOLEAN})
+    #{prioritizedRule,jdbcType=BOOLEAN},
+    #{fromSonarQubeUpdate,jdbcType=BOOLEAN})
   </insert>
 
   <insert id="insertAsNewCodeOnReferenceBranch" parameterType="NewCodeReferenceIssue" useGeneratedKeys="false">
@@ -228,7 +231,8 @@
     issue_type=#{type,jdbcType=INTEGER},
     code_variants=#{codeVariantsString,jdbcType=VARCHAR},
     clean_code_attribute=#{effectiveCleanCodeAttribute,jdbcType=VARCHAR},
-    prioritized_rule=#{prioritizedRule,jdbcType=BOOLEAN}
+    prioritized_rule=#{prioritizedRule,jdbcType=BOOLEAN},
+    from_sonarqube_update=#{fromSonarQubeUpdate,jdbcType=BOOLEAN}
     where kee = #{kee}
   </update>
 
@@ -261,7 +265,8 @@
     issue_type=#{type,jdbcType=INTEGER},
     code_variants=#{codeVariantsString,jdbcType=VARCHAR},
     clean_code_attribute=#{effectiveCleanCodeAttribute,jdbcType=VARCHAR},
-    prioritized_rule=#{prioritizedRule,jdbcType=BOOLEAN}
+    prioritized_rule=#{prioritizedRule,jdbcType=BOOLEAN},
+    from_sonarqube_update=#{fromSonarQubeUpdate,jdbcType=BOOLEAN}
     where kee = #{kee} and updated_at &lt;= #{selectedAt}
   </update>
 
@@ -374,6 +379,7 @@
       c.qualifier,
       i.code_variants as codeVariants,
       i.prioritized_rule as prioritizedRule,
+      i.from_sonarqube_update as fromSonarQubeUpdate,
       <include refid="issueImpactsColumns"/>
       <include refid="ruleDefaultImpactsColumns"/>
       <include refid="isNewCodeReferenceIssue"/>
@@ -685,6 +691,7 @@
     u.login as assigneeLogin,
     i.rule_description_context_key as ruleDescriptionContextKey,
     i.prioritized_rule as prioritizedRule,
+    i.from_sonarqube_update as fromSonarQubeUpdate,
     <include refid="issueImpactsColumns"/>
     <include refid="ruleDefaultImpactsColumns"/>
     i.clean_code_attribute as cleanCodeAttribute,

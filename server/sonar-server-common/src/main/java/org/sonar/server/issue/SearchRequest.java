@@ -58,6 +58,7 @@ public class SearchRequest {
   private List<String> resolutions;
   private Boolean resolved;
   private Boolean prioritizedRule;
+  private Boolean fromSonarQubeUpdate;
   private List<String> rules;
   private String sort;
   private List<String> severities;
@@ -316,6 +317,16 @@ public class SearchRequest {
 
   public SearchRequest setPrioritizedRule(@Nullable Boolean prioritizedRule) {
     this.prioritizedRule = prioritizedRule;
+    return this;
+  }
+
+  @CheckForNull
+  public Boolean getFromSonarQubeUpdate() {
+    return fromSonarQubeUpdate;
+  }
+
+  public SearchRequest setFromSonarQubeUpdate(@Nullable Boolean fromSonarQubeUpdate) {
+    this.fromSonarQubeUpdate = fromSonarQubeUpdate;
     return this;
   }
 

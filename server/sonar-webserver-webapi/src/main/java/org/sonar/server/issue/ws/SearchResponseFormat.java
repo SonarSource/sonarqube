@@ -235,6 +235,7 @@ public class SearchResponseFormat {
 
     issueBuilder.setScope(UNIT_TEST_FILE.equals(component.qualifier()) ? IssueScope.TEST.name() : IssueScope.MAIN.name());
     issueBuilder.setPrioritizedRule(dto.isPrioritizedRule());
+    issueBuilder.setFromSonarQubeUpdate(dto.isFromSonarQubeUpdate());
   }
 
   private static void addAdditionalFieldsToIssueBuilder(Collection<SearchAdditionalField> fields, SearchResponseData data, IssueDto dto,

@@ -634,6 +634,21 @@ class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
+  void filter_by_issues_from_analyzer_update() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project);
+
+    indexIssues(
+      newDoc("I1", project.uuid(), file).setFromSonarQubeUpdate(true),
+      newDoc("I2", project.uuid(), file).setFromSonarQubeUpdate(true),
+      newDoc("I3", project.uuid(), file).setFromSonarQubeUpdate(false));
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().fromSonarQubeUpdate(null), "I1", "I2", "I3");
+    assertThatSearchReturnsOnly(IssueQuery.builder().fromSonarQubeUpdate(true), "I1", "I2");
+    assertThatSearchReturnsOnly(IssueQuery.builder().fromSonarQubeUpdate(false), "I3");
+  }
+
+  @Test
   void filter_by_created_after() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);

@@ -298,6 +298,18 @@ class IssueIndexTest extends IssueIndexTestCommon {
   }
 
   @Test
+  void issues_from_analyzer_update() {
+    ComponentDto project = newPrivateProjectDto();
+    indexIssues(
+      newDocForProject("issue1", project).setFromSonarQubeUpdate(true),
+      newDocForProject("issue2", project).setFromSonarQubeUpdate(false));
+
+    assertThatSearchReturnsOnly(IssueQuery.builder(), "issue1", "issue2");
+    assertThatSearchReturnsOnly(IssueQuery.builder().fromSonarQubeUpdate(true), "issue1");
+    assertThatSearchReturnsOnly(IssueQuery.builder().fromSonarQubeUpdate(false), "issue2");
+  }
+
+  @Test
   void list_authors_escapes_regexp_special_characters() {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(

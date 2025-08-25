@@ -65,6 +65,7 @@ class IssueQueryTest {
       .asc(true)
       .codeVariants(List.of("codeVariant1", "codeVariant2"))
       .prioritizedRule(true)
+      .fromSonarQubeUpdate(true)
       .build();
     assertThat(query.issueKeys()).containsOnly("ABCDE");
     assertThat(query.severities()).containsOnly(Severity.BLOCKER);
@@ -92,6 +93,7 @@ class IssueQueryTest {
     assertThat(query.asc()).isTrue();
     assertThat(query.codeVariants()).containsOnly("codeVariant1", "codeVariant2");
     assertThat(query.prioritizedRule()).isTrue();
+    assertThat(query.fromSonarQubeUpdate()).isTrue();
   }
 
   @Test
@@ -239,6 +241,7 @@ class IssueQueryTest {
     assertThat(query.sort()).isNull();
     assertThat(query.createdAfterByProjectUuids()).isEmpty();
     assertThat(query.prioritizedRule()).isNull();
+    assertThat(query.fromSonarQubeUpdate()).isNull();
   }
 
   @Test

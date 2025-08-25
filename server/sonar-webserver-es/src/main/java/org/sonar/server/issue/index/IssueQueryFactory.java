@@ -138,6 +138,7 @@ public class IssueQueryFactory {
         .issueStatuses(request.getIssueStatuses())
         .resolved(request.getResolved())
         .prioritizedRule(request.getPrioritizedRule())
+        .fromSonarQubeUpdate(request.getFromSonarQubeUpdate())
         .rules(ruleDtos)
         .ruleUuids(ruleUuids)
         .assigneeUuids(request.getAssigneeUuids())

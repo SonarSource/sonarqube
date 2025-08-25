@@ -2331,7 +2331,7 @@ class SearchActionIT {
       "owaspAsvsLevel", "owaspTop10", "owaspTop10-2021", "stig-ASD_V5R3", "casa", "sansTop25", "cwe", "sonarsourceSecurity", "timeZone",
       "inNewCodePeriod", "codeVariants",
       "cleanCodeAttributeCategories", "impactSeverities", "impactSoftwareQualities", "issueStatuses", "fixedInPullRequest",
-      "prioritizedRule");
+      "prioritizedRule", "fromSonarQubeUpdate");
 
     WebService.Param branch = def.param(PARAM_BRANCH);
     assertThat(branch.isInternal()).isFalse();
@@ -2555,6 +2555,47 @@ class SearchActionIT {
     List<Issue> issuesList = response.getIssuesList();
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getKey()).isEqualTo(issueKey);
+  }
+
+  @Test
+  void search_whenFilteringByFromSonarQubeUpdate_shouldFilterCorrectly() {
+    UserDto user = db.users().insertUser();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDto hotspotRule = db.rules().insertHotspotRule();
+    db.issues().insertHotspot(hotspotRule, project, file, issueDto -> issueDto.setAssigneeUuid(user.getUuid()));
+    RuleDto issueRule = db.rules().insertIssueRule();
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueDto -> issueDto.setFromSonarQubeUpdate(true));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueDto -> issueDto.setFromSonarQubeUpdate(false));
+    IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueDto -> issueDto.setFromSonarQubeUpdate(true));
+
+    indexPermissionsAndIssues();
+
+    SearchWsResponse responseTrue = ws.newRequest()
+      .setParam("fromSonarQubeUpdate", "true")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(responseTrue.getIssuesList()).hasSize(2);
+    assertThat(responseTrue.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto3.getKey());
+
+    SearchWsResponse responseFalse = ws.newRequest()
+      .setParam("fromSonarQubeUpdate", "false")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(responseFalse.getIssuesList()).hasSize(1);
+    assertThat(responseFalse.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactly(issueDto2.getKey());
+
+    SearchWsResponse responseAll = ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(responseAll.getIssuesList()).hasSize(3);
+    assertThat(responseAll.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey(), issueDto3.getKey());
   }
 
   private RuleDto newIssueRule() {

@@ -61,7 +61,8 @@ public class SearchRequestTest {
       .setCodeVariants(asList("variant1", "variant2"))
       .setCleanCodeAttributesCategories(singletonList("ADAPTABLE"))
       .setImpactSeverities(List.of("HIGH", "LOW"))
-      .setImpactSoftwareQualities(List.of("RELIABILITY", "SECURITY"));
+      .setImpactSoftwareQualities(List.of("RELIABILITY", "SECURITY"))
+      .setFromSonarQubeUpdate(true);
 
     assertThat(underTest.getIssues()).containsOnlyOnce("anIssueKey");
     assertThat(underTest.getSeverities()).containsExactly("MAJOR", "MINOR");
@@ -84,6 +85,7 @@ public class SearchRequestTest {
     assertThat(underTest.getInNewCodePeriod()).isTrue();
     assertSecurityStandards(underTest);
     assertThat(underTest.getCodeVariants()).containsExactly("variant1", "variant2");
+    assertThat(underTest.getFromSonarQubeUpdate()).isTrue();
     assertCleanCodeInformation(underTest);
   }
 

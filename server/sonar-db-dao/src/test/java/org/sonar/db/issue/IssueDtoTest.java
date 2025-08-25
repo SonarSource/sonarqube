@@ -82,6 +82,7 @@ class IssueDtoTest {
       .setLine(6)
       .setSeverity("BLOCKER")
       .setPrioritizedRule(true)
+      .setFromSonarQubeUpdate(true)
       .setMessage("message")
       .setMessageFormattings(EXAMPLE_MESSAGE_FORMATTINGS)
       .setManualSeverity(true)
@@ -110,6 +111,7 @@ class IssueDtoTest {
       .setLine(6)
       .setSeverity("BLOCKER")
       .setPrioritizedRule(true)
+      .setFromSonarQubeUpdate(true)
       .setMessage("message")
       .setMessageFormattings(DbIssues.MessageFormattings.parseFrom(EXAMPLE_MESSAGE_FORMATTINGS.toByteArray()))
       .setManualSeverity(true)
@@ -314,6 +316,7 @@ class IssueDtoTest {
     assertThat(issueDto.getImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity, ImpactDto::isManualSeverity)
       .containsExactlyInAnyOrder(tuple(MAINTAINABILITY, HIGH, true), tuple(RELIABILITY, LOW, false));
     assertThat(issueDto.isPrioritizedRule()).isTrue();
+    assertThat(issueDto.isFromSonarQubeUpdate()).isTrue();
   }
 
   @Test
@@ -348,6 +351,7 @@ class IssueDtoTest {
     assertThat(issueDto.getImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity, ImpactDto::isManualSeverity)
       .containsExactlyInAnyOrder(tuple(MAINTAINABILITY, HIGH, true), tuple(RELIABILITY, LOW, false));
     assertThat(issueDto.isPrioritizedRule()).isTrue();
+    assertThat(issueDto.isFromSonarQubeUpdate()).isTrue();
   }
 
   @Test
@@ -384,6 +388,7 @@ class IssueDtoTest {
       .setStatus(Issue.STATUS_CLOSED)
       .setSeverity("BLOCKER")
       .setPrioritizedRule(true)
+      .setFromSonarQubeUpdate(true)
       .setManualSeverity(true)
       .setChecksum("123")
       .setAssigneeUuid("123")

@@ -88,6 +88,7 @@ public final class IssueDto implements Serializable {
   private boolean isNewCodeReferenceIssue;
   private String ruleDescriptionContextKey;
   private boolean prioritizedRule;
+  private boolean fromSonarQubeUpdate;
 
   // functional dates stored as Long
   private Long issueCreationDate;
@@ -161,6 +162,7 @@ public final class IssueDto implements Serializable {
       .setCodeVariants(issue.codeVariants())
       .setCleanCodeAttribute(issue.getCleanCodeAttribute())
       .setPrioritizedRule(issue.isPrioritizedRule())
+      .setFromSonarQubeUpdate(issue.isFromSonarQubeUpdate())
       // technical dates
       .setCreatedAt(now)
       .setUpdatedAt(now);
@@ -213,6 +215,7 @@ public final class IssueDto implements Serializable {
       .setCodeVariants(issue.codeVariants())
       .setCleanCodeAttribute(issue.getCleanCodeAttribute())
       .setPrioritizedRule(issue.isPrioritizedRule())
+      .setFromSonarQubeUpdate(issue.isFromSonarQubeUpdate())
       // technical date
       .setUpdatedAt(now);
 
@@ -869,6 +872,15 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
+  public boolean isFromSonarQubeUpdate() {
+    return fromSonarQubeUpdate;
+  }
+
+  public IssueDto setFromSonarQubeUpdate(boolean fromSonarQubeUpdate) {
+    this.fromSonarQubeUpdate = fromSonarQubeUpdate;
+    return this;
+  }
+
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
@@ -888,6 +900,7 @@ public final class IssueDto implements Serializable {
     issue.setChecksum(checksum);
     issue.setSeverity(severity);
     issue.setPrioritizedRule(prioritizedRule);
+    issue.setFromSonarQubeUpdate(fromSonarQubeUpdate);
     issue.setAssigneeUuid(assigneeUuid);
     issue.setAssigneeLogin(assigneeLogin);
     issue.setComponentKey(componentKey);

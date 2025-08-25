@@ -109,7 +109,8 @@ public class IssueQueryFactoryTest {
       .setSort("CREATION_DATE")
       .setAsc(true)
       .setCodeVariants(asList("variant1", "variant2"))
-      .setPrioritizedRule(true);
+      .setPrioritizedRule(true)
+      .setFromSonarQubeUpdate(true);
 
     IssueQuery query = underTest.create(request);
 
@@ -136,6 +137,7 @@ public class IssueQueryFactoryTest {
     assertThat(query.asc()).isTrue();
     assertThat(query.codeVariants()).containsOnly("variant1", "variant2");
     assertThat(query.prioritizedRule()).isTrue();
+    assertThat(query.fromSonarQubeUpdate()).isTrue();
   }
 
   @Test
@@ -169,7 +171,8 @@ public class IssueQueryFactoryTest {
       .setSort("CREATION_DATE")
       .setAsc(true)
       .setCodeVariants(asList("variant1", "variant2"))
-      .setPrioritizedRule(false);
+      .setPrioritizedRule(false)
+      .setFromSonarQubeUpdate(false);
 
     IssueQuery query = underTest.create(request);
 
@@ -196,6 +199,7 @@ public class IssueQueryFactoryTest {
     assertThat(query.asc()).isTrue();
     assertThat(query.codeVariants()).containsOnly("variant1", "variant2");
     assertThat(query.prioritizedRule()).isFalse();
+    assertThat(query.fromSonarQubeUpdate()).isFalse();
   }
 
   @Test
