@@ -539,7 +539,7 @@ subprojects {
       }
       dependency 'org.yaml:snakeyaml:2.4'
       dependency 'org.hibernate.validator:hibernate-validator:9.0.0.Final'
-      dependency 'org.kohsuke:github-api:1.327'
+      dependency 'org.kohsuke:github-api:1.329'
       dependency 'org.wiremock:wiremock-standalone:3.13.1'
       dependency 'org.skyscreamer:jsonassert:1.5.3'
       // to be used only in sonar-ws-generator
