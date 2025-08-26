@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.Objects;
 import javax.annotation.Nullable;
 import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.search.SearchResponse;
@@ -58,6 +60,7 @@ import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.issue.index.IssueScope;
 import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition;
 import org.sonar.server.security.SecurityStandards.SQCategory;
+import org.sonar.server.issue.FromSonarQubeUpdateFeature;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 
@@ -152,7 +155,7 @@ public class SearchAction implements IssuesWsAction {
   private static final Set<String> ISSUE_SCOPES = Arrays.stream(IssueScope.values()).map(Enum::name).collect(Collectors.toSet());
   private static final EnumSet<RuleType> ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS = EnumSet.complementOf(EnumSet.of(RuleType.SECURITY_HOTSPOT));
 
-  static final List<String> SUPPORTED_FACETS = List.of(
+  static final List<String> BASE_SUPPORTED_FACETS = List.of(
     FACET_PROJECTS,
     PARAM_FILES,
     FACET_ASSIGNED_TO_ME,
@@ -184,8 +187,7 @@ public class SearchAction implements IssuesWsAction {
     PARAM_IMPACT_SOFTWARE_QUALITIES,
     PARAM_IMPACT_SEVERITIES,
     PARAM_ISSUE_STATUSES,
-    PARAM_PRIORITIZED_RULE,
-    PARAM_FROM_SONAR_QUBE_UPDATE);
+    PARAM_PRIORITIZED_RULE);
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of " +
     "the componentKeys parameter. ";
@@ -203,10 +205,12 @@ public class SearchAction implements IssuesWsAction {
   private final SearchResponseFormat searchResponseFormat;
   private final System2 system2;
   private final DbClient dbClient;
+  private final FromSonarQubeUpdateFeature fromSonarQubeUpdateFeature;
 
   public SearchAction(UserSession userSession, IssueIndex issueIndex, IssueQueryFactory issueQueryFactory,
     IssueIndexSyncProgressChecker issueIndexSyncProgressChecker,
-    SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat, System2 system2, DbClient dbClient) {
+    SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat, System2 system2, DbClient dbClient,
+    FromSonarQubeUpdateFeature fromSonarQubeUpdateFeature) {
     this.userSession = userSession;
     this.issueIndex = issueIndex;
     this.issueQueryFactory = issueQueryFactory;
@@ -215,6 +219,16 @@ public class SearchAction implements IssuesWsAction {
     this.searchResponseFormat = searchResponseFormat;
     this.system2 = system2;
     this.dbClient = dbClient;
+    this.fromSonarQubeUpdateFeature = fromSonarQubeUpdateFeature;
+  }
+
+  private List<String> getSupportedFacets() {
+    return Stream.concat(
+      BASE_SUPPORTED_FACETS.stream(),
+      Stream.of(
+        fromSonarQubeUpdateFeature.isAvailable() ? PARAM_FROM_SONAR_QUBE_UPDATE : null
+      ).filter(Objects::nonNull)
+    ).toList();
   }
 
   @Override
@@ -316,7 +330,7 @@ public class SearchAction implements IssuesWsAction {
     action.addPagingParams(100, MAX_PAGE_SIZE);
     action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
-      .setPossibleValues(SUPPORTED_FACETS);
+      .setPossibleValues(getSupportedFacets());
     action.addSortParams(IssueQuery.SORTS, null, true);
     action.createParam(PARAM_ADDITIONAL_FIELDS)
       .setSince("5.2")
@@ -361,9 +375,11 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_PRIORITIZED_RULE)
       .setDescription("To match issues with prioritized rule or not")
       .setBooleanPossibleValues();
-    action.createParam(PARAM_FROM_SONAR_QUBE_UPDATE)
-      .setDescription("To match issues detected because of SonarQube updates")
-      .setBooleanPossibleValues();
+    if (fromSonarQubeUpdateFeature.isAvailable()) {
+      action.createParam(PARAM_FROM_SONAR_QUBE_UPDATE)
+        .setDescription("To match issues detected because of SonarQube updates")
+        .setBooleanPossibleValues();
+    }
     action.createParam(PARAM_RULES)
       .setDescription("Comma-separated list of coding rule keys. Format is &lt;repository&gt;:&lt;rule&gt;")
       .setExampleValue("java:S1144");
@@ -582,7 +598,7 @@ public class SearchAction implements IssuesWsAction {
 
     // FIXME allow long in Paging
     Paging paging = forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) getTotalHits(result).value);
-    return searchResponseFormat.formatSearch(additionalFields, data, paging, facets, userSession.isLoggedIn());
+    return searchResponseFormat.formatSearch(additionalFields, data, paging, facets, userSession.isLoggedIn(), getSupportedFacets());
   }
 
   private static TotalHits getTotalHits(SearchResponse response) {
@@ -713,7 +729,7 @@ public class SearchAction implements IssuesWsAction {
       .setResolutions(request.paramAsStrings(PARAM_RESOLUTIONS))
       .setResolved(request.paramAsBoolean(PARAM_RESOLVED))
       .setPrioritizedRule(request.paramAsBoolean(PARAM_PRIORITIZED_RULE))
-      .setFromSonarQubeUpdate(request.paramAsBoolean(PARAM_FROM_SONAR_QUBE_UPDATE))
+      .setFromSonarQubeUpdate(fromSonarQubeUpdateFeature.isAvailable() ? request.paramAsBoolean(PARAM_FROM_SONAR_QUBE_UPDATE) : null)
       .setRules(request.paramAsStrings(PARAM_RULES))
       .setSort(request.param(Param.SORT))
       .setSeverities(request.paramAsStrings(PARAM_SEVERITIES))

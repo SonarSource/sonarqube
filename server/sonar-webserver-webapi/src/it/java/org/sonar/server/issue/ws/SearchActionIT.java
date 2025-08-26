@@ -94,6 +94,7 @@ import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowAc
 import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowDefinition;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
+import org.sonar.server.issue.FromSonarQubeUpdateFeature;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.MessageFormattingUtils;
 import org.sonar.server.ws.TestRequest;
@@ -112,6 +113,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_REMOVED;
@@ -194,9 +196,14 @@ class SearchActionIT {
   private final SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), languages,
     new TextRangeResponseFormatter(), userFormatter);
   private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = new IssueIndexSyncProgressChecker(dbClient);
+  private final FromSonarQubeUpdateFeature fromSonarQubeUpdateFeature = mock(FromSonarQubeUpdateFeature.class);
+  
+  {
+    when(fromSonarQubeUpdateFeature.isAvailable()).thenReturn(true);
+  }
   private final WsActionTester ws = new WsActionTester(
     new SearchAction(userSession, issueIndex, issueQueryFactory, issueIndexSyncProgressChecker, searchResponseLoader,
-      searchResponseFormat, System2.INSTANCE, dbClient));
+      searchResponseFormat, System2.INSTANCE, dbClient, fromSonarQubeUpdateFeature));
   private final PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
 
   @Test

@@ -58,6 +58,7 @@ import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowAc
 import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowDefinition;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
+import org.sonar.server.issue.FromSonarQubeUpdateFeature;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.WsActionTester;
@@ -70,6 +71,7 @@ import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
@@ -117,10 +119,15 @@ class SearchActionComponentsIT {
   private final PermissionIndexerTester permissionIndexer = new PermissionIndexerTester(es, issueIndexer);
 
   private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = new IssueIndexSyncProgressChecker(db.getDbClient());
+  private final FromSonarQubeUpdateFeature fromSonarQubeUpdateFeature = mock(FromSonarQubeUpdateFeature.class);
+  
+  {
+    when(fromSonarQubeUpdateFeature.isAvailable()).thenReturn(true);
+  }
 
   private final WsActionTester ws = new WsActionTester(
     new SearchAction(userSession, issueIndex, issueQueryFactory, issueIndexSyncProgressChecker, searchResponseLoader, searchResponseFormat,
-      System2.INSTANCE, dbClient));
+      System2.INSTANCE, dbClient, fromSonarQubeUpdateFeature));
 
   @Test
   void search_all_issues_when_no_parameter() {

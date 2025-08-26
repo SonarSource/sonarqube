@@ -102,14 +102,14 @@ public class SearchResponseFormat {
   }
 
   SearchWsResponse formatSearch(Set<SearchAdditionalField> fields, SearchResponseData data, Paging paging, Facets facets,
-    boolean showAuthor) {
+    boolean showAuthor, List<String> supportedFacets) {
     SearchWsResponse.Builder response = SearchWsResponse.newBuilder();
 
     formatPaging(paging, response);
     ofNullable(data.getEffortTotal()).ifPresent(response::setEffortTotal);
     response.addAllIssues(createIssues(fields, data, showAuthor));
     response.addAllComponents(formatComponents(data));
-    formatFacets(data, facets, response);
+    formatFacets(data, facets, response, supportedFacets);
     if (fields.contains(SearchAdditionalField.RULES)) {
       response.setRules(formatRules(data));
     }
@@ -402,9 +402,9 @@ public class SearchResponseFormat {
     return wsLangs;
   }
 
-  private static void formatFacets(SearchResponseData data, Facets facets, SearchWsResponse.Builder wsSearch) {
+  private static void formatFacets(SearchResponseData data, Facets facets, SearchWsResponse.Builder wsSearch, List<String> supportedFacets) {
     Common.Facets.Builder wsFacets = Common.Facets.newBuilder();
-    SearchAction.SUPPORTED_FACETS.stream()
+    supportedFacets.stream()
       .filter(f -> !f.equals(FACET_PROJECTS))
       .filter(f -> !f.equals(FACET_ASSIGNED_TO_ME))
       .filter(f -> !f.equals(PARAM_ASSIGNEES))
