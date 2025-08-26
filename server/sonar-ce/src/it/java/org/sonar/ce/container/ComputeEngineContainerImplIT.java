@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.DateUtils;
@@ -57,7 +58,8 @@ import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
 
 class ComputeEngineContainerImplIT {
 
-  @TempDir
+  // Sometimes JUnit tried to cleanup the folder before the CE process is completely stopped and it fails
+  @TempDir(cleanup = CleanupMode.NEVER)
   private File tempFolder;
 
   @RegisterExtension
