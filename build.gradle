@@ -427,7 +427,7 @@ subprojects {
       dependency 'jakarta.inject:jakarta.inject-api:2.0.1'
       dependency 'jakarta.servlet:jakarta.servlet-api:6.1.0'
       dependency 'junit:junit:4.13.2'
-      dependencySet(group: 'org.xmlunit', version: '2.10.2') {
+      dependencySet(group: 'org.xmlunit', version: '2.10.3') {
         entry 'xmlunit-core'
         entry 'xmlunit-matchers'
       }
