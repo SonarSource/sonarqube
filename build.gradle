@@ -234,7 +234,7 @@ subprojects {
   }
 
   ext {
-    protobufVersion = '4.31.1'
+    protobufVersion = '4.32.0'
     springSecurityVersion = '6.5.3'
     elasticSearchClientVersion = '7.17.29'
   }
