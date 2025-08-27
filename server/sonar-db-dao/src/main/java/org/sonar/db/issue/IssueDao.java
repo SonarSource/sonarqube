@@ -189,4 +189,8 @@ public class IssueDao implements Dao {
     return mapper(dbSession).selectIssueKeysByQuery(issueListQuery, pagination);
   }
 
+  public int resetFlagFromSonarQubeUpdate(DbSession session) {
+    return mapper(session).resetFlagFromSonarQubeUpdate(System.currentTimeMillis());
+  }
+
 }

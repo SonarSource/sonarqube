@@ -813,4 +813,10 @@
       </if>
     <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
+
+  <update id="resetFlagFromSonarQubeUpdate">
+    UPDATE issues
+    SET from_sonarqube_update = false, updated_at = #{now,jdbcType=BIGINT}
+    WHERE from_sonarqube_update = true
+  </update>
 </mapper>
