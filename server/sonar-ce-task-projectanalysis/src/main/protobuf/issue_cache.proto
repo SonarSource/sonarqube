@@ -87,6 +87,7 @@ message Issue {
   repeated Impact impacts = 49;
   optional string clean_code_attribute = 50;
   optional bool is_prioritized_rule = 51;
+  optional bool is_from_sonarqube_update = 52;
 }
 
 message Comment {

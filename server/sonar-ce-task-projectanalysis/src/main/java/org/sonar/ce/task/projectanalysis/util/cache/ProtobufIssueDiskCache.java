@@ -140,6 +140,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     defaultIssue.setSelectedAt(next.hasSelectedAt() ? next.getSelectedAt() : null);
     defaultIssue.setQuickFixAvailable(next.getQuickFixAvailable());
     defaultIssue.setPrioritizedRule(next.getIsPrioritizedRule());
+    defaultIssue.setFromSonarQubeUpdate(next.getIsFromSonarqubeUpdate());
     defaultIssue.setIsNoLongerNewCodeReferenceIssue(next.getIsNoLongerNewCodeReferenceIssue());
     defaultIssue.setCleanCodeAttribute(next.hasCleanCodeAttribute() ? CleanCodeAttribute.valueOf(next.getCleanCodeAttribute()) : null);
     if (next.hasAnticipatedTransitionUuid()) {
@@ -193,6 +194,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     builder.setIsNew(defaultIssue.isNew());
     builder.setIsOnChangedLine(defaultIssue.isOnChangedLine());
     builder.setIsPrioritizedRule(defaultIssue.isPrioritizedRule());
+    builder.setIsFromSonarqubeUpdate(defaultIssue.isFromSonarQubeUpdate());
     builder.setIsNewCodeReferenceIssue(defaultIssue.isNewCodeReferenceIssue());
     builder.setIsCopied(defaultIssue.isCopied());
     builder.setBeingClosed(defaultIssue.isBeingClosed());
