@@ -401,7 +401,7 @@ subprojects {
         exclude 'com.fasterxml.jackson.core:jackson-databind'
       }
       dependency 'com.microsoft.azure:msal4j:1.22.0'
-      dependency 'com.oracle.database.jdbc:ojdbc11:23.8.0.25.04'
+      dependency 'com.oracle.database.jdbc:ojdbc11:23.9.0.25.07'
       dependency 'com.datadoghq:dd-java-agent:1.49.0'
       dependency 'org.aspectj:aspectjtools:1.9.24'
       dependencySet(group: 'com.squareup.okhttp3', version: '4.12.0') {
