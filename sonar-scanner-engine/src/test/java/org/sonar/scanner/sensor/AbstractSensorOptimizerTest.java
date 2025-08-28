@@ -44,8 +44,6 @@ class AbstractSensorOptimizerTest {
   private ListAppender<ILoggingEvent> appender;
   private final Logger logger = (Logger) LoggerFactory.getLogger(AbstractSensorOptimizer.class);
 
-  private
-
   @BeforeEach
   void setup() {
     appender = new ListAppender<>();

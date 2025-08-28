@@ -132,7 +132,7 @@ public class SearchResponseData {
     }
   }
 
-  public void setComments(@Nullable List<IssueChangeDto> comments) {
+  public void setComments(List<IssueChangeDto> comments) {
     for (IssueChangeDto comment : comments) {
       commentsByIssueKey.put(comment.getIssueKey(), comment);
     }
