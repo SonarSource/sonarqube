@@ -40,7 +40,7 @@ public class FromSonarQubeUpdateFeature implements SonarQubeFeature {
 
   @Override
   public String getName() {
-    return "from-sonar-qube-update";
+    return "from-sonarqube-update";
   }
 
   @Override

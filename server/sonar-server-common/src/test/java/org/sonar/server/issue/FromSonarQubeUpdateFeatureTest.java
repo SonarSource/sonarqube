@@ -47,7 +47,7 @@ class FromSonarQubeUpdateFeatureTest {
 
   @Test
   void getName_ShouldReturn_FromSonarQubeUpdate() {
-    assertEquals("from-sonar-qube-update", underTest.getName());
+    assertEquals("from-sonarqube-update", underTest.getName());
   }
 
 }
