@@ -155,7 +155,15 @@ public class GithubApplicationClientImplTest {
     return new Object[][] {
       {"", "Missing URL"},
       {"ftp://api.github.com", "Only http and https schemes are supported"},
-      {"https://github.com", "Invalid GitHub URL"}
+      {"https://github.com", "Invalid GitHub URL"},
+      {"https://notapi.github.com", "Invalid GitHub URL"},
+      {"https://company.com", "Invalid GitHub URL"},
+      {"https://github.company.com", "Invalid GitHub URL"},
+      {"https://github.company.com/api", "Invalid GitHub URL"},
+      {"https://github.company.com/api/v2", "Invalid GitHub URL"},
+      {"https://www.api.github.com", "Invalid GitHub URL"},
+      {"https://api.europe.github.company.com", "Invalid GitHub URL"},
+      {"https://api.us.github.enterprise.com/", "Invalid GitHub URL"},
     };
   }
 
@@ -170,15 +178,22 @@ public class GithubApplicationClientImplTest {
   @DataProvider
   public static Object[][] validApiEndpoints() {
     return new Object[][] {
-      {"https://github.sonarsource.com/api/v3"},
+      // GitHub.com
       {"https://api.github.com"},
-      {"https://github.sonarsource.com/api/v3/"},
       {"https://api.github.com/"},
       {"HTTPS://api.github.com/"},
       {"HTTP://api.github.com/"},
+      // Traditional GitHub Enterprise format
+      {"https://github.sonarsource.com/api/v3"},
+      {"https://github.sonarsource.com/api/v3/"},
       {"HtTpS://github.SonarSource.com/api/v3"},
       {"HtTpS://github.sonarsource.com/api/V3"},
-      {"HtTpS://github.sonarsource.COM/ApI/v3"}
+      {"HtTpS://github.sonarsource.COM/ApI/v3"},
+      // Modern GitHub Enterprise with data residency format
+      {"https://api.companyname.ghe.com"},
+      {"https://api.companyname.ghe.com/"},
+      {"HTTPS://API.company.ghe.com"},
+      {"http://api.test.github.ghe.com"}
     };
   }
 
@@ -1149,16 +1164,16 @@ public class GithubApplicationClientImplTest {
     String token = secure().nextAlphanumeric(5);
     Response response = mock(Response.class);
     when(response.getContent()).thenReturn(Optional.of(format("""
-          {
-        	"token": "%s",
-        	"expires_at": "2024-08-28T10:44:51Z",
-        	"permissions": {
-        		"members": "read",
-        		"organization_administration": "read",
-        		"administration": "read",
-        		"metadata": "read"
-        	},
-        	"repository_selection": "all"
+        {
+          "token": "%s",
+          "expires_at": "2024-08-28T10:44:51Z",
+          "permissions": {
+            "members": "read",
+            "organization_administration": "read",
+            "administration": "read",
+            "metadata": "read"
+          },
+          "repository_selection": "all"
         }
       """, token)));
     when(response.getCode()).thenReturn(HTTP_CREATED);
