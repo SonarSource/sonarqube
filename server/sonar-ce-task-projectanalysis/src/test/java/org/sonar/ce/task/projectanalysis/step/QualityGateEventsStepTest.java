@@ -102,7 +102,7 @@ public class QualityGateEventsStepTest {
   private EventRepository eventRepository = mock(EventRepository.class);
   private NotificationService notificationService = mock(NotificationService.class);
   private QualityGateEventsStep underTest = new QualityGateEventsStep(treeRootHolder, metricRepository, measureRepository, eventRepository, notificationService,
-    analysisMetadataHolder, dbSession, auditPersister);
+    analysisMetadataHolder, db.getDbClient(), auditPersister);
 
   @Before
   public void setUp() {
@@ -293,7 +293,7 @@ public class QualityGateEventsStepTest {
     NotificationService notificationService = mock(NotificationService.class);
 
     QualityGateEventsStep underTest = new QualityGateEventsStep(treeRootHolder, metricRepository, measureRepository,
-      eventRepository, notificationService, analysisMetadataHolder, dbSession, auditPersister);
+      eventRepository, notificationService, analysisMetadataHolder, db.getDbClient(), auditPersister);
 
     underTest.execute(new TestComputationStepContext());
 
