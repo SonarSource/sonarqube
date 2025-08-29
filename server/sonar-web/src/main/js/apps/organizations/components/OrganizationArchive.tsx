@@ -118,9 +118,9 @@ export class OrganizationArchive extends React.PureComponent<Props, State> {
                 <p>{translate('organization.archive.question')}</p>
                 <div className="spacer-top sw-my-4">
                   <label htmlFor="downgrade-organization-name">
-                    {translate('billing.downgrade.modal.type_to_proceed')}
-                    <br/>
-                    {translate('billing.downgrade.modal.type_to_proceed1')}
+                    <h4>{translate('billing.downgrade.modal.type_to_proceed')}</h4> <br/>
+                    <p>{translate('billing.downgrade.modal.type_to_proceed1')}</p> <br/>
+                    <p>{translate('billing.downgrade.modal.type_to_proceed2')}</p> <br/>
                   </label>
                   <div className="little-spacer-top sw-my-4">
                     <InputField
