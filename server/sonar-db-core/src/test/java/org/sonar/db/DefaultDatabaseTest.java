@@ -32,7 +32,7 @@ import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.process.logging.LogbackHelper;
 
-import static org.apache.commons.lang3.StringUtils.removeStart;
+import static org.apache.commons.lang3.Strings.CS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -130,7 +130,7 @@ public class DefaultDatabaseTest {
 
     Properties commonsDbcpProps = DefaultDatabase.extractCommonsHikariProperties(props);
 
-    assertThat(commonsDbcpProps.getProperty(removeStart(dbcpProperty, SONAR_JDBC))).isEqualTo("100");
+    assertThat(commonsDbcpProps.getProperty(CS.removeStart(dbcpProperty, SONAR_JDBC))).isEqualTo("100");
   }
 
   @Test
@@ -142,7 +142,7 @@ public class DefaultDatabaseTest {
 
     assertThatThrownBy(() -> DefaultDatabase.extractCommonsHikariProperties(props))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining(String.format("Duplicate property declaration for resolved jdbc key '%s': conflicting values are", removeStart(hikariProperty, SONAR_JDBC)));
+      .hasMessageContaining(String.format("Duplicate property declaration for resolved jdbc key '%s': conflicting values are", CS.removeStart(hikariProperty, SONAR_JDBC)));
   }
 
   @Test

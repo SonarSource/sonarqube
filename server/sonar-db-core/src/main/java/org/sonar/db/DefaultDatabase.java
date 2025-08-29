@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import javax.sql.DataSource;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.internal.Settings;
@@ -43,6 +42,7 @@ import org.sonar.process.logging.LogbackHelper;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
+import static org.apache.commons.lang3.Strings.CS;
 import static org.sonar.process.ProcessProperties.Property.JDBC_EMBEDDED_PORT;
 import static org.sonar.process.ProcessProperties.Property.JDBC_MAX_IDLE_TIMEOUT;
 import static org.sonar.process.ProcessProperties.Property.JDBC_MAX_KEEP_ALIVE_TIME;
@@ -228,7 +228,7 @@ public class DefaultDatabase implements Database {
         }
         continue;
       }
-      if (StringUtils.startsWith(key, SONAR_JDBC)) {
+      if (CS.startsWith(key, SONAR_JDBC)) {
         String resolvedKey = toHikariPropertyKey(key);
         String existingValue = (String) result.setProperty(resolvedKey, (String) entry.getValue());
         checkState(existingValue == null || existingValue.equals(entry.getValue()),
@@ -250,7 +250,7 @@ public class DefaultDatabase implements Database {
       return SONAR_JDBC_TO_HIKARI_PROPERTY_MAPPINGS.get(key);
     }
 
-    return StringUtils.removeStart(key, SONAR_JDBC);
+    return CS.removeStart(key, SONAR_JDBC);
   }
 
   @Override

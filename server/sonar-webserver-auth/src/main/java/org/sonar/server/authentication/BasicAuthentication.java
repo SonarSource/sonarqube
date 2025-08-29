@@ -28,7 +28,7 @@ import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.usertoken.UserTokenAuthentication;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
+import static org.apache.commons.lang3.Strings.CI;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
@@ -56,7 +56,7 @@ public class BasicAuthentication {
 
   public static Optional<Credentials> extractCredentialsFromHeader(HttpRequest request) {
     String authorizationHeader = request.getHeader("Authorization");
-    if (authorizationHeader == null || !startsWithIgnoreCase(authorizationHeader, "BASIC")) {
+    if (authorizationHeader == null || !CI.startsWith(authorizationHeader, "BASIC")) {
       return Optional.empty();
     }
 

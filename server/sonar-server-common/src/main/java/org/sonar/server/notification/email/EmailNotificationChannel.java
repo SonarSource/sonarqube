@@ -49,6 +49,7 @@ import org.sonar.server.oauth.OAuthMicrosoftRestClient;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang3.Strings.CI;
 import static org.sonar.server.email.EmailSmtpConfiguration.EMAIL_CONFIG_SMTP_AUTH_METHOD_OAUTH;
 
 /**
@@ -324,7 +325,7 @@ public class EmailNotificationChannel extends NotificationChannel {
   }
 
   private void configureSecureConnection(Email email) {
-    if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "SSLTLS")) {
+    if (CI.equals(configuration.getSecureConnection(), "SSLTLS")) {
       email.setSSLOnConnect(true);
       email.setSSLCheckServerIdentity(true);
       email.setSslSmtpPort(String.valueOf(configuration.getSmtpPort()));
@@ -332,12 +333,12 @@ public class EmailNotificationChannel extends NotificationChannel {
       // this port is not used except in EmailException message, that's why it's set with the same value than SSL port.
       // It prevents from getting bad message.
       email.setSmtpPort(configuration.getSmtpPort());
-    } else if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "STARTTLS")) {
+    } else if (CI.equals(configuration.getSecureConnection(), "STARTTLS")) {
       email.setStartTLSEnabled(true);
       email.setStartTLSRequired(true);
       email.setSSLCheckServerIdentity(true);
       email.setSmtpPort(configuration.getSmtpPort());
-    } else if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "NONE")) {
+    } else if (CI.equals(configuration.getSecureConnection(), "NONE")) {
       email.setSmtpPort(configuration.getSmtpPort());
     } else {
       throw new SonarException("Unknown type of SMTP secure connection: " + configuration.getSecureConnection());

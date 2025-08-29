@@ -72,7 +72,7 @@ import org.sonar.telemetry.legacy.TelemetryData.NewCodeDefinition;
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
-import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
+import static org.apache.commons.lang3.Strings.CI;
 import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
 import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
@@ -507,7 +507,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   }
 
   private static boolean checkIfCloudAlm(String almRaw, String alm, String url, String cloudUrl) {
-    return alm.equals(almRaw) && startsWithIgnoreCase(url, cloudUrl);
+    return alm.equals(almRaw) && CI.startsWith(url, cloudUrl);
   }
 
   @Override

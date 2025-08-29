@@ -39,8 +39,8 @@ import org.sonar.server.project.Project;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
+import static org.apache.commons.lang3.Strings.CS;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.FILE;
 
 public class ComponentTreeBuilder {
@@ -195,7 +195,7 @@ public class ComponentTreeBuilder {
       .setUuid(uuidSupplier.apply(key))
       .setKey(key)
       .setName(path)
-      .setShortName(removeStart(removeStart(path, parentPath), "/"))
+      .setShortName(CS.removeStart(CS.removeStart(path, parentPath), "/"))
       .setStatus(convertStatus(FileStatus.UNAVAILABLE))
       .setReportAttributes(createAttributesBuilder(null, path, scmBasePath).build())
       .addChildren(children)

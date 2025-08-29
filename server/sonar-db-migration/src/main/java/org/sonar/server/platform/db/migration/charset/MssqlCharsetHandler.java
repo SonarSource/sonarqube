@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
+import static org.apache.commons.lang3.Strings.CI;
 
 class MssqlCharsetHandler extends CharsetHandler {
 
@@ -88,9 +88,9 @@ class MssqlCharsetHandler extends CharsetHandler {
    * Collation is correct if contains {@link #CASE_SENSITIVE_ACCENT_SENSITIVE} or {@link #BIN} or {@link #BIN2}.
    */
   private static boolean isCollationCorrect(String collation) {
-    return containsIgnoreCase(collation, CASE_SENSITIVE_ACCENT_SENSITIVE)
-      || containsIgnoreCase(collation, BIN)
-      || containsIgnoreCase(collation, BIN2);
+    return CI.contains(collation, CASE_SENSITIVE_ACCENT_SENSITIVE)
+      || CI.contains(collation, BIN)
+      || CI.contains(collation, BIN2);
   }
 
   private void repairColumnCollation(Connection connection, ColumnDef column, String expectedCollation) throws SQLException {

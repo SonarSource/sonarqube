@@ -23,7 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -38,6 +37,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 
+import static org.apache.commons.lang3.Strings.CS;
 import static org.sonar.api.CoreProperties.SCM_PROVIDER_KEY;
 
 @Properties({
@@ -114,7 +114,7 @@ public class ScmConfiguration implements Startable {
 
   private void considerOldScmUrl() {
     settings.get(ScannerProperties.LINKS_SOURCES_DEV).ifPresent(url -> {
-      if (StringUtils.startsWith(url, "scm:")) {
+      if (CS.startsWith(url, "scm:")) {
         String[] split = url.split(":");
         if (split.length > 1) {
           setProviderIfSupported(split[1]);

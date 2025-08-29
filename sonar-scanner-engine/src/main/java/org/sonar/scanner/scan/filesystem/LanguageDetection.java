@@ -41,6 +41,7 @@ import org.sonar.scanner.repository.language.Language;
 import org.sonar.scanner.repository.language.LanguagesRepository;
 
 import static java.util.Collections.unmodifiableMap;
+import static org.apache.commons.lang3.Strings.CS;
 
 /**
  * Detect language of a source file based on its suffix and configured patterns.
@@ -139,6 +140,6 @@ public class LanguageDetection {
   }
 
   static String sanitizeExtension(String suffix) {
-    return StringUtils.lowerCase(StringUtils.removeStart(suffix, "."));
+    return StringUtils.lowerCase(CS.removeStart(suffix, "."));
   }
 }

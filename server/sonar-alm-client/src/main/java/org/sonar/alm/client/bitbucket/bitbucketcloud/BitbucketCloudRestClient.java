@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ServerSide;
 import org.sonar.server.exceptions.NotFoundException;
 
-import static org.apache.commons.lang3.StringUtils.removeEnd;
+import static org.apache.commons.lang3.Strings.CS;
 
 @ServerSide
 public class BitbucketCloudRestClient {
@@ -169,7 +169,7 @@ public class BitbucketCloudRestClient {
   }
 
   protected HttpUrl buildUrl(String relativeUrl) {
-    return HttpUrl.parse(removeEnd(bitbucketCloudEndpoint, "/") + "/" + VERSION + relativeUrl);
+    return HttpUrl.parse(CS.removeEnd(bitbucketCloudEndpoint, "/") + "/" + VERSION + relativeUrl);
   }
 
   protected <G> G doGet(String accessToken, HttpUrl url, Function<Response, G> handler) {

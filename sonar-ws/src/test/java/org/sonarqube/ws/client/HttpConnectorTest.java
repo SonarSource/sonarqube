@@ -41,7 +41,6 @@ import okio.Buffer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -52,6 +51,7 @@ import org.sonarqube.ws.MediaTypes;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static okhttp3.Credentials.basic;
+import static org.apache.commons.lang3.Strings.CS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertThrows;
@@ -474,7 +474,7 @@ public class HttpConnectorTest {
   @Test
   public void support_base_url_ending_with_slash() {
     assertThat(serverUrl).endsWith("/");
-    underTest = HttpConnector.newBuilder().url(StringUtils.removeEnd(serverUrl, "/")).build();
+    underTest = HttpConnector.newBuilder().url(CS.removeEnd(serverUrl, "/")).build();
     GetRequest request = new GetRequest("api/issues/search");
 
     answerHelloWorld();

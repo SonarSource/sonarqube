@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.apache.commons.lang3.Strings.CS;
 
 public class GroupMembershipQuery {
 
@@ -63,8 +64,8 @@ public class GroupMembershipQuery {
   private static String groupSearchToSql(@Nullable String s) {
     String sql = null;
     if (s != null) {
-      sql = StringUtils.replace(StringUtils.upperCase(s), "%", "/%");
-      sql = StringUtils.replace(sql, "_", "/_");
+      sql = CS.replace(StringUtils.upperCase(s), "%", "/%");
+      sql = CS.replace(sql, "_", "/_");
       sql = "%" + sql + "%";
     }
     return sql;

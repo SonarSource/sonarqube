@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
+import static org.apache.commons.lang3.Strings.CI;
 
 class OracleCharsetHandler extends CharsetHandler {
 
@@ -49,7 +49,7 @@ class OracleCharsetHandler extends CharsetHandler {
   private void expectUtf8(Connection connection) throws SQLException {
     // Oracle does not allow to override character set on tables. Only global charset is verified.
     String charset = getSqlExecutor().selectSingleString(connection, "select value from nls_database_parameters where parameter='NLS_CHARACTERSET'");
-    if (!containsIgnoreCase(charset, UTF8)) {
+    if (!CI.contains(charset, UTF8)) {
       throw MessageException.of(format("Oracle NLS_CHARACTERSET does not support UTF8: %s", charset));
     }
   }

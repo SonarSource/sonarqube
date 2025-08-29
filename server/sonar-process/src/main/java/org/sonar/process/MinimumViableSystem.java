@@ -25,6 +25,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.Strings.CS;
 import static org.sonar.process.FileUtils2.deleteQuietly;
 
 public class MinimumViableSystem {
@@ -50,7 +51,7 @@ public class MinimumViableSystem {
   public MinimumViableSystem checkRequiredJavaOptions(Map<String, String> requiredJavaOptions) {
     for (Map.Entry<String, String> entry : requiredJavaOptions.entrySet()) {
       String value = System.getProperty(entry.getKey());
-      if (!StringUtils.equals(value, entry.getValue())) {
+      if (!CS.equals(value, entry.getValue())) {
         throw new MessageException(format(
           "JVM option '%s' must be set to '%s'. Got '%s'", entry.getKey(), entry.getValue(), StringUtils.defaultString(value)));
       }

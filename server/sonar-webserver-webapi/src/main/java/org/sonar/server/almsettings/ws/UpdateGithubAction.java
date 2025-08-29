@@ -30,7 +30,7 @@ import org.sonar.server.user.UserSession;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.apache.commons.lang3.StringUtils.removeEnd;
+import static org.apache.commons.lang3.Strings.CS;
 
 public class UpdateGithubAction implements AlmSettingsWsAction {
 
@@ -144,7 +144,7 @@ public class UpdateGithubAction implements AlmSettingsWsAction {
 
     almSettingDto
       .setKey(isNotBlank(newKey) ? newKey : key)
-      .setUrl(removeEnd(request.mandatoryParam(PARAM_URL), "/"))
+      .setUrl(CS.removeEnd(request.mandatoryParam(PARAM_URL), "/"))
       .setAppId(request.mandatoryParam(PARAM_APP_ID))
       .setClientId(request.mandatoryParam(PARAM_CLIENT_ID));
 

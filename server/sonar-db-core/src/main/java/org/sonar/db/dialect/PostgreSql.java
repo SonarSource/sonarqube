@@ -22,10 +22,10 @@ package org.sonar.db.dialect;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.utils.Version;
 
 import static com.google.common.base.Preconditions.checkState;
+import static org.apache.commons.lang3.Strings.CI;
 
 public class PostgreSql extends AbstractDialect {
   public static final String ID = "postgresql";
@@ -42,7 +42,7 @@ public class PostgreSql extends AbstractDialect {
 
   @Override
   public boolean matchesJdbcUrl(String jdbcConnectionURL) {
-    return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:postgresql:");
+    return CI.startsWith(jdbcConnectionURL, "jdbc:postgresql:");
   }
 
   @Override

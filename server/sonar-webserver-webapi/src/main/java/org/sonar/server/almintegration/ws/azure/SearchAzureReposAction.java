@@ -52,7 +52,7 @@ import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
+import static org.apache.commons.lang3.Strings.CI;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -170,8 +170,8 @@ public class SearchAzureReposAction implements AlmIntegrationsWsAction {
   }
 
   private static boolean doesSearchCriteriaMatchProjectOrRepo(GsonAzureRepo repo, String criteria) {
-    boolean matchProject = containsIgnoreCase(repo.getProject().getName(), criteria);
-    boolean matchRepo = containsIgnoreCase(repo.getName(), criteria);
+    boolean matchProject = CI.contains(repo.getProject().getName(), criteria);
+    boolean matchRepo = CI.contains(repo.getName(), criteria);
     return matchProject || matchRepo;
   }
 

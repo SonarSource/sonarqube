@@ -19,12 +19,13 @@
  */
 package org.sonar.server.authentication;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import static org.apache.commons.lang3.Strings.CI;
 
 public class LogOAuthWarning implements Startable {
 
@@ -51,7 +52,7 @@ public class LogOAuthWarning implements Startable {
       return;
     }
     String publicRootUrl = server.getPublicRootUrl();
-    if (StringUtils.startsWithIgnoreCase(publicRootUrl, "http:")) {
+    if (CI.startsWith(publicRootUrl, "http:")) {
       LoggerFactory.getLogger(getClass()).warn(
         "For security reasons, OAuth authentication should use HTTPS. You should set the property 'Administration > Configuration > Server base URL' to an HTTPS URL.");
     }

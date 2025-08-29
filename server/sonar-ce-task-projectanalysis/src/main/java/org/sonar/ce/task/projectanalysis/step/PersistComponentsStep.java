@@ -26,7 +26,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.component.BranchPersister;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -46,6 +45,7 @@ import org.sonar.db.component.ComponentScopes;
 import org.sonar.db.component.ComponentUpdateDto;
 
 import static java.util.Optional.ofNullable;
+import static org.apache.commons.lang3.Strings.CS;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
@@ -358,17 +358,17 @@ public class PersistComponentsStep implements ComputationStep {
   }
 
   private static Optional<ComponentUpdateDto> compareForUpdate(ComponentDto existing, ComponentDto target) {
-    boolean hasDifferences = !StringUtils.equals(existing.getCopyComponentUuid(), target.getCopyComponentUuid()) ||
-      !StringUtils.equals(existing.description(), target.description()) ||
-      !StringUtils.equals(existing.getKey(), target.getKey()) ||
+    boolean hasDifferences = !CS.equals(existing.getCopyComponentUuid(), target.getCopyComponentUuid()) ||
+      !CS.equals(existing.description(), target.description()) ||
+      !CS.equals(existing.getKey(), target.getKey()) ||
       !existing.isEnabled() ||
-      !StringUtils.equals(existing.getUuidPath(), target.getUuidPath()) ||
-      !StringUtils.equals(existing.language(), target.language()) ||
-      !StringUtils.equals(existing.longName(), target.longName()) ||
-      !StringUtils.equals(existing.name(), target.name()) ||
-      !StringUtils.equals(existing.path(), target.path()) ||
-      !StringUtils.equals(existing.scope(), target.scope()) ||
-      !StringUtils.equals(existing.qualifier(), target.qualifier());
+      !CS.equals(existing.getUuidPath(), target.getUuidPath()) ||
+      !CS.equals(existing.language(), target.language()) ||
+      !CS.equals(existing.longName(), target.longName()) ||
+      !CS.equals(existing.name(), target.name()) ||
+      !CS.equals(existing.path(), target.path()) ||
+      !CS.equals(existing.scope(), target.scope()) ||
+      !CS.equals(existing.qualifier(), target.qualifier());
 
     ComponentUpdateDto update = null;
     if (hasDifferences) {

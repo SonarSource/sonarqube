@@ -30,6 +30,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.SonarException;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static org.apache.commons.lang3.Strings.CS;
 import static org.sonar.process.ProcessProperties.Property.SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE;
 import static org.sonar.process.ProcessProperties.Property.SONAR_SECURITY_REALM;
 
@@ -105,7 +106,7 @@ public class SecurityRealmFactory implements Startable {
 
   private static SecurityRealm selectRealm(SecurityRealm[] realms, String realmName) {
     for (SecurityRealm realm : realms) {
-      if (StringUtils.equals(realmName, realm.getName())) {
+      if (CS.equals(realmName, realm.getName())) {
         return realm;
       }
     }

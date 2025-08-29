@@ -46,6 +46,7 @@ import org.sonar.db.qualityprofile.ExportRuleDto;
 import org.sonar.db.qualityprofile.ExportRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 
+import static org.apache.commons.lang3.Strings.CS;
 import static org.sonar.server.qualityprofile.QProfileUtils.parseImpactsToMap;
 
 @ServerSide
@@ -136,11 +137,11 @@ public class QProfileParser {
 
       while (cursor.getNext() != null) {
         String nodeName = cursor.getLocalName();
-        if (StringUtils.equals(ATTRIBUTE_NAME, nodeName)) {
+        if (CS.equals(ATTRIBUTE_NAME, nodeName)) {
           profileName = StringUtils.trim(cursor.collectDescendantText(false));
-        } else if (StringUtils.equals(ATTRIBUTE_LANGUAGE, nodeName)) {
+        } else if (CS.equals(ATTRIBUTE_LANGUAGE, nodeName)) {
           profileLang = StringUtils.trim(cursor.collectDescendantText(false));
-        } else if (StringUtils.equals(ATTRIBUTE_RULES, nodeName)) {
+        } else if (CS.equals(ATTRIBUTE_RULES, nodeName)) {
           SMInputCursor rulesCursor = cursor.childElementCursor("rule");
           rules = parseRuleActivations(rulesCursor);
         }
@@ -188,30 +189,30 @@ public class QProfileParser {
   private static void readRule(SMInputCursor ruleCursor, Map<String, String> parameters, ImportedRule rule) throws XMLStreamException {
     while (ruleCursor.getNext() != null) {
       String nodeName = ruleCursor.getLocalName();
-      if (StringUtils.equals(ATTRIBUTE_REPOSITORY_KEY, nodeName)) {
+      if (CS.equals(ATTRIBUTE_REPOSITORY_KEY, nodeName)) {
         rule.setRepository(StringUtils.trim(ruleCursor.collectDescendantText(false)));
-      } else if (StringUtils.equals(ATTRIBUTE_KEY, nodeName)) {
+      } else if (CS.equals(ATTRIBUTE_KEY, nodeName)) {
         rule.setKey(StringUtils.trim(ruleCursor.collectDescendantText(false)));
-      } else if (StringUtils.equals(ATTRIBUTE_TEMPLATE_KEY, nodeName)) {
+      } else if (CS.equals(ATTRIBUTE_TEMPLATE_KEY, nodeName)) {
         rule.setTemplate(StringUtils.trim(ruleCursor.collectDescendantText(false)));
-      } else if (StringUtils.equals(ATTRIBUTE_NAME, nodeName)) {
+      } else if (CS.equals(ATTRIBUTE_NAME, nodeName)) {
         rule.setName(StringUtils.trim(ruleCursor.collectDescendantText(false)));
-      } else if (StringUtils.equals(ATTRIBUTE_TYPE, nodeName)) {
+      } else if (CS.equals(ATTRIBUTE_TYPE, nodeName)) {
         rule.setType(StringUtils.trim(ruleCursor.collectDescendantText(false)));
-      } else if (StringUtils.equals(ATTRIBUTE_DESCRIPTION, nodeName)) {
+      } else if (CS.equals(ATTRIBUTE_DESCRIPTION, nodeName)) {
         rule.setDescription(StringUtils.trim(ruleCursor.collectDescendantText(false)));
-      } else if (StringUtils.equals(ATTRIBUTE_CLEAN_CODE_ATTRIBUTE, nodeName)) {
+      } else if (CS.equals(ATTRIBUTE_CLEAN_CODE_ATTRIBUTE, nodeName)) {
         rule.setCleanCodeAttribute(StringUtils.trim(ruleCursor.collectDescendantText(false)));
-      } else if (StringUtils.equals(ATTRIBUTE_PRIORITY, nodeName)) {
+      } else if (CS.equals(ATTRIBUTE_PRIORITY, nodeName)) {
         rule.setSeverity(StringUtils.trim(ruleCursor.collectDescendantText(false)));
-      } else if (StringUtils.equals(ATTRIBUTE_IMPACTS, nodeName)) {
+      } else if (CS.equals(ATTRIBUTE_IMPACTS, nodeName)) {
         SMInputCursor impactsCursor = ruleCursor.childElementCursor(ATTRIBUTE_IMPACT);
         Map<SoftwareQuality, Severity> impacts = new EnumMap<>(SoftwareQuality.class);
         readImpacts(impactsCursor, impacts);
         rule.setImpacts(impacts);
-      } else if (StringUtils.equals(ATTRIBUTE_PRIORITIZED_RULE, nodeName)) {
+      } else if (CS.equals(ATTRIBUTE_PRIORITIZED_RULE, nodeName)) {
         rule.setPrioritizedRule(Boolean.valueOf(StringUtils.trim(ruleCursor.collectDescendantText(false))));
-      } else if (StringUtils.equals(ATTRIBUTE_PARAMETERS, nodeName)) {
+      } else if (CS.equals(ATTRIBUTE_PARAMETERS, nodeName)) {
         SMInputCursor propsCursor = ruleCursor.childElementCursor(ATTRIBUTE_PARAMETER);
         readParameters(propsCursor, parameters);
         rule.setParameters(parameters);
@@ -226,9 +227,9 @@ public class QProfileParser {
       String value = null;
       while (propCursor.getNext() != null) {
         String nodeName = propCursor.getLocalName();
-        if (StringUtils.equals(ATTRIBUTE_PARAMETER_KEY, nodeName)) {
+        if (CS.equals(ATTRIBUTE_PARAMETER_KEY, nodeName)) {
           key = StringUtils.trim(propCursor.collectDescendantText(false));
-        } else if (StringUtils.equals(ATTRIBUTE_PARAMETER_VALUE, nodeName)) {
+        } else if (CS.equals(ATTRIBUTE_PARAMETER_VALUE, nodeName)) {
           value = StringUtils.trim(propCursor.collectDescendantText(false));
         }
       }
@@ -245,9 +246,9 @@ public class QProfileParser {
       Severity severity = null;
       while (impactCursor.getNext() != null) {
         String nodeName = impactCursor.getLocalName();
-        if (StringUtils.equals(ATTRIBUTE_SOFTWARE_QUALITY, nodeName)) {
+        if (CS.equals(ATTRIBUTE_SOFTWARE_QUALITY, nodeName)) {
           softwareQuality = SoftwareQuality.valueOf(StringUtils.trim(impactCursor.collectDescendantText(false)));
-        } else if (StringUtils.equals(ATTRIBUTE_SEVERITY, nodeName)) {
+        } else if (CS.equals(ATTRIBUTE_SEVERITY, nodeName)) {
           severity = Severity.valueOf(StringUtils.trim(impactCursor.collectDescendantText(false)));
         }
       }

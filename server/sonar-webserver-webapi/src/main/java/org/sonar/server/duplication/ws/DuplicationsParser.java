@@ -31,7 +31,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
-import org.apache.commons.lang3.StringUtils;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
@@ -39,6 +38,8 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
+
+import static org.apache.commons.lang3.Strings.CS;
 
 @ServerSide
 public class DuplicationsParser {
@@ -181,11 +182,11 @@ public class DuplicationsParser {
     }
 
     private boolean sameFile(@Nullable ComponentDto otherDto) {
-      return otherDto != null && StringUtils.equals(otherDto.uuid(), fileUuid);
+      return otherDto != null && CS.equals(otherDto.uuid(), fileUuid);
     }
 
     private boolean sameProject(@Nullable ComponentDto otherDto) {
-      return otherDto == null || StringUtils.equals(otherDto.branchUuid(), projectUuid);
+      return otherDto == null || CS.equals(otherDto.branchUuid(), projectUuid);
     }
   }
 

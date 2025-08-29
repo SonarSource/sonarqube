@@ -33,6 +33,7 @@ import org.sonar.server.oauth.OAuthMicrosoftRestClient;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.Strings.CI;
 import static org.sonar.server.email.EmailSmtpConfiguration.EMAIL_CONFIG_SMTP_AUTH_METHOD_OAUTH;
 
 public abstract class EmailSender<T extends BasicEmail> {
@@ -111,7 +112,7 @@ public abstract class EmailSender<T extends BasicEmail> {
   }
 
   private void configureSecureConnection(MultiPartEmail email) {
-    if (StringUtils.equalsIgnoreCase(emailSmtpConfiguration.getSecureConnection(), "SSLTLS")) {
+    if (CI.equals(emailSmtpConfiguration.getSecureConnection(), "SSLTLS")) {
       email.setSSLOnConnect(true);
       email.setSSLCheckServerIdentity(true);
       email.setSslSmtpPort(String.valueOf(emailSmtpConfiguration.getSmtpPort()));
@@ -119,12 +120,12 @@ public abstract class EmailSender<T extends BasicEmail> {
       // this port is not used except in EmailException message, that's why it's set with the same value than SSL port.
       // It prevents from getting bad message.
       email.setSmtpPort(emailSmtpConfiguration.getSmtpPort());
-    } else if (StringUtils.equalsIgnoreCase(emailSmtpConfiguration.getSecureConnection(), "STARTTLS")) {
+    } else if (CI.equals(emailSmtpConfiguration.getSecureConnection(), "STARTTLS")) {
       email.setStartTLSEnabled(true);
       email.setStartTLSRequired(true);
       email.setSSLCheckServerIdentity(true);
       email.setSmtpPort(emailSmtpConfiguration.getSmtpPort());
-    } else if (StringUtils.equalsIgnoreCase(emailSmtpConfiguration.getSecureConnection(), "NONE")) {
+    } else if (CI.equals(emailSmtpConfiguration.getSecureConnection(), "NONE")) {
       email.setSmtpPort(emailSmtpConfiguration.getSmtpPort());
     } else {
       throw new IllegalStateException("Unknown type of SMTP secure connection: " + emailSmtpConfiguration.getSecureConnection());

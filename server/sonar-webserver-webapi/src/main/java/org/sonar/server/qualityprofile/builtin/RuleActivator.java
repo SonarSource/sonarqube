@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
@@ -65,6 +64,7 @@ import org.sonar.server.util.TypeValidations;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.Boolean.TRUE;
+import static org.apache.commons.lang3.Strings.CS;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 /**
@@ -615,7 +615,7 @@ public class RuleActivator {
       if (changeParam.getValue() == null && activeParamValue != null) {
         return false;
       }
-      if (changeParam.getValue() != null && (activeParamValue == null || !StringUtils.equals(changeParam.getValue(), activeParamValue))) {
+      if (changeParam.getValue() != null && (activeParamValue == null || !CS.equals(changeParam.getValue(), activeParamValue))) {
         return false;
       }
     }
@@ -627,7 +627,7 @@ public class RuleActivator {
     if (parentActiveRule == null) {
       return false;
     }
-    if (!StringUtils.equals(change.getSeverity(), parentActiveRule.get().getSeverityString())) {
+    if (!CS.equals(change.getSeverity(), parentActiveRule.get().getSeverityString())) {
       return false;
     }
     if (!change.getNewImpacts().equals(parentActiveRule.get().getImpacts())) {

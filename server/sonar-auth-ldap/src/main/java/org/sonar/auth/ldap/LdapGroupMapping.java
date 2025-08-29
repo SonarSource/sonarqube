@@ -26,6 +26,8 @@ import javax.naming.directory.SearchResult;
 import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.config.Configuration;
 
+import static org.apache.commons.lang3.Strings.CS;
+
 /**
  * @author Evgeny Mandrikov
  */
@@ -49,7 +51,7 @@ public class LdapGroupMapping {
     String req = config.get(settingsPrefix + ".group.request").orElse(DEFAULT_REQUEST);
     this.requiredUserAttributes = StringUtils.substringsBetween(req, "{", "}");
     for (int i = 0; i < requiredUserAttributes.length; i++) {
-      req = StringUtils.replace(req, "{" + requiredUserAttributes[i] + "}", "{" + i + "}");
+      req = CS.replace(req, "{" + requiredUserAttributes[i] + "}", "{" + i + "}");
     }
     this.request = req;
   }

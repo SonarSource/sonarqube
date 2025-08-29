@@ -28,11 +28,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 
 import static org.apache.commons.lang3.StringUtils.repeat;
+import static org.apache.commons.lang3.Strings.CS;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 /**
@@ -118,9 +118,9 @@ public class PermissionIndexerDao {
   private static PreparedStatement createStatement(DbClient dbClient, DbSession session, List<String> entityUuids) throws SQLException {
     String sql;
     if (entityUuids.isEmpty()) {
-      sql = StringUtils.replace(SQL_TEMPLATE, "{entitiesCondition}", "");
+      sql = CS.replace(SQL_TEMPLATE, "{entitiesCondition}", "");
     } else {
-      sql = StringUtils.replace(SQL_TEMPLATE, "{entitiesCondition}", " AND e.uuid in (" + repeat("?", ", ", entityUuids.size()) + ")");
+      sql = CS.replace(SQL_TEMPLATE, "{entitiesCondition}", " AND e.uuid in (" + repeat("?", ", ", entityUuids.size()) + ")");
     }
     PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, sql);
     int index = 1;

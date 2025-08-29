@@ -27,6 +27,7 @@ import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.scm.ScmChangedFiles;
 
+import static org.apache.commons.lang3.Strings.CS;
 import static org.sonar.api.batch.fs.InputFile.Status.ADDED;
 import static org.sonar.api.batch.fs.InputFile.Status.CHANGED;
 import static org.sonar.api.batch.fs.InputFile.Status.SAME;
@@ -66,7 +67,7 @@ public class StatusDetection {
       return ADDED;
     }
     String previousHash = fileDataPerPath.hash();
-    if (StringUtils.equals(hash, previousHash)) {
+    if (CS.equals(hash, previousHash)) {
       return SAME;
     }
     if (StringUtils.isEmpty(previousHash)) {

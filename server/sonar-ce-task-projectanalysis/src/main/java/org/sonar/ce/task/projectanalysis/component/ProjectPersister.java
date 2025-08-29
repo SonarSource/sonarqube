@@ -19,12 +19,13 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import org.apache.commons.lang3.StringUtils;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.project.ProjectDto;
+
+import static org.apache.commons.lang3.Strings.CS;
 
 /**
  * Creates or updates the data in table {@code PROJECTS} for the current root.
@@ -60,8 +61,8 @@ public class ProjectPersister {
   }
 
   private static boolean hasChanged(ProjectDto dbProject, ProjectDto newProject) {
-    return !StringUtils.equals(dbProject.getName(), newProject.getName()) ||
-      !StringUtils.equals(dbProject.getDescription(), newProject.getDescription());
+    return !CS.equals(dbProject.getName(), newProject.getName()) ||
+      !CS.equals(dbProject.getDescription(), newProject.getDescription());
   }
 
   private ProjectDto toProjectDto(Component root, ProjectDto projectDtoFromDatabase) {

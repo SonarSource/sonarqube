@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
@@ -45,6 +44,7 @@ import org.sonar.server.es.metadata.MetadataIndexDefinition;
 import org.sonar.server.es.newindex.BuiltIndex;
 import org.sonar.server.es.newindex.NewIndex;
 
+import static org.apache.commons.lang3.Strings.CS;
 import static org.sonar.server.es.metadata.MetadataIndexDefinition.DESCRIPTOR;
 import static org.sonar.server.es.metadata.MetadataIndexDefinition.TYPE_METADATA;
 
@@ -172,7 +172,7 @@ public class IndexCreator implements Startable {
     return metadataIndex.getHash(index.getMainType().getIndex())
       .map(hash -> {
         String defHash = IndexDefinitionHash.of(index);
-        return !StringUtils.equals(hash, defHash);
+        return !CS.equals(hash, defHash);
       }).orElse(true);
   }
 

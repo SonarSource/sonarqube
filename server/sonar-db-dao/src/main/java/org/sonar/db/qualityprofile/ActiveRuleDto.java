@@ -25,7 +25,6 @@ import java.lang.reflect.Type;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.sonar.api.issue.impact.Severity;
@@ -35,6 +34,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.SeverityUtil;
 
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang3.Strings.CS;
 
 public class ActiveRuleDto {
 
@@ -140,11 +140,11 @@ public class ActiveRuleDto {
   }
 
   public boolean isInherited() {
-    return StringUtils.equals(INHERITED, inheritance);
+    return CS.equals(INHERITED, inheritance);
   }
 
   public boolean doesOverride() {
-    return StringUtils.equals(OVERRIDES, inheritance);
+    return CS.equals(OVERRIDES, inheritance);
   }
 
   public long getUpdatedAt() {

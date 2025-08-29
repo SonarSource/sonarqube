@@ -21,9 +21,9 @@ package org.sonar.server.util;
 
 import java.util.List;
 import javax.annotation.Nullable;
-import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.PropertyType;
 
+import static org.apache.commons.lang3.Strings.CI;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class BooleanTypeValidation implements TypeValidation {
@@ -35,7 +35,7 @@ public class BooleanTypeValidation implements TypeValidation {
 
   @Override
   public void validate(String value, @Nullable List<String> options) {
-    checkRequest(StringUtils.equalsIgnoreCase(value, "true") || StringUtils.equalsIgnoreCase(value, "false"),
+    checkRequest(CI.equals(value, "true") || CI.equals(value, "false"),
       "Value '%s' must be one of \"true\" or \"false\".", value);
   }
 

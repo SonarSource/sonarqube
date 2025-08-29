@@ -26,6 +26,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.Version;
 
+import static org.apache.commons.lang3.Strings.CI;
+
 public class Oracle extends AbstractDialect {
   public static final String ID = "oracle";
   private static final List<String> INIT_STATEMENTS = List.of("ALTER SESSION SET NLS_SORT='BINARY'");
@@ -37,7 +39,7 @@ public class Oracle extends AbstractDialect {
 
   @Override
   public boolean matchesJdbcUrl(String jdbcConnectionURL) {
-    return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:oracle:");
+    return CI.startsWith(jdbcConnectionURL, "jdbc:oracle:");
   }
 
   @Override

@@ -19,11 +19,12 @@
  */
 package org.sonar.server.notification;
 
-import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.server.ServerSide;
+
+import static org.apache.commons.lang3.Strings.CS;
 
 /**
  * <p>
@@ -100,7 +101,7 @@ public abstract class NotificationDispatcher {
    * </p>
    */
   public final void performDispatch(Notification notification, Context context) {
-    if (StringUtils.equals(notification.getType(), notificationType) || StringUtils.equals("", notificationType)) {
+    if (CS.equals(notification.getType(), notificationType) || CS.equals("", notificationType)) {
       dispatch(notification, context);
     }
   }

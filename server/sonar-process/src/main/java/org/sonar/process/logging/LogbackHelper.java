@@ -50,6 +50,7 @@ import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.Strings.CS;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static org.sonar.process.ProcessProperties.Property.LOG_CONSOLE;
 import static org.sonar.process.ProcessProperties.Property.LOG_JSON_OUTPUT;
@@ -332,7 +333,7 @@ public class LogbackHelper extends AbstractLogHelper {
 
       TimeBasedRollingPolicy<ILoggingEvent> rollingPolicy = new TimeBasedRollingPolicy<>();
       rollingPolicy.setContext(context);
-      rollingPolicy.setFileNamePattern(StringUtils.replace(filePath, filenamePrefix + ".log", filenamePrefix + ".%d{" + datePattern + "}.log"));
+      rollingPolicy.setFileNamePattern(CS.replace(filePath, filenamePrefix + ".log", filenamePrefix + ".%d{" + datePattern + "}.log"));
       rollingPolicy.setMaxHistory(maxFiles);
       rollingPolicy.setParent(appender);
       rollingPolicy.start();
@@ -370,7 +371,7 @@ public class LogbackHelper extends AbstractLogHelper {
 
       FixedWindowRollingPolicy rollingPolicy = new FixedWindowRollingPolicy();
       rollingPolicy.setContext(context);
-      rollingPolicy.setFileNamePattern(StringUtils.replace(filePath, filenamePrefix + ".log", filenamePrefix + ".%i.log"));
+      rollingPolicy.setFileNamePattern(CS.replace(filePath, filenamePrefix + ".log", filenamePrefix + ".%i.log"));
       rollingPolicy.setMinIndex(1);
       rollingPolicy.setMaxIndex(maxFiles);
       rollingPolicy.setParent(appender);

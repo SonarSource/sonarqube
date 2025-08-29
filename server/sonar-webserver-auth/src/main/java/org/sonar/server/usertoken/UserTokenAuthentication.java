@@ -21,7 +21,6 @@ package org.sonar.server.usertoken;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -34,7 +33,7 @@ import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.exceptions.NotFoundException;
 
-import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
+import static org.apache.commons.lang3.Strings.CI;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.authentication.BasicAuthentication.extractCredentialsFromHeader;
 
@@ -70,8 +69,8 @@ public class UserTokenAuthentication {
       return Optional.empty();
     }
     String authorizationHeader = request.getHeader(AUTHORIZATION_HEADER);
-    if (startsWithIgnoreCase(authorizationHeader, BEARER_AUTHORIZATION_SCHEME)) {
-      String token = StringUtils.removeStartIgnoreCase(authorizationHeader, BEARER_AUTHORIZATION_SCHEME + " ");
+    if (CI.startsWith(authorizationHeader, BEARER_AUTHORIZATION_SCHEME)) {
+      String token = CI.removeStart(authorizationHeader, BEARER_AUTHORIZATION_SCHEME + " ");
       return Optional.ofNullable(token);
     }
     return Optional.empty();

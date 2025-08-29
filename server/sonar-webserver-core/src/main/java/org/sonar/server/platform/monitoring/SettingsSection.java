@@ -40,8 +40,7 @@ import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo.Section.Builder;
 import org.sonar.server.platform.NodeInformation;
 
 import static java.util.stream.Collectors.toUnmodifiableSet;
-import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
-import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
+import static org.apache.commons.lang3.Strings.CI;
 import static org.sonar.process.ProcessProperties.Property.AUTH_JWT_SECRET;
 import static org.sonar.process.ProcessProperties.Property.CE_JAVA_ADDITIONAL_OPTS;
 import static org.sonar.process.ProcessProperties.Property.CE_JAVA_OPTS;
@@ -107,9 +106,9 @@ public class SettingsSection implements SystemInfoSection, Global {
     if (def != null && def.type() == PropertyType.PASSWORD) {
       return PASSWORD_VALUE;
     }
-    if (endsWithIgnoreCase(key, ".secured") ||
-      containsIgnoreCase(key, "password") ||
-      containsIgnoreCase(key, "passcode") ||
+    if (CI.endsWith(key, ".secured") ||
+      CI.contains(key, "password") ||
+      CI.contains(key, "passcode") ||
       AUTH_JWT_SECRET.getKey().equals(key)) {
       return PASSWORD_VALUE;
     }

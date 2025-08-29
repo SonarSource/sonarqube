@@ -144,21 +144,21 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
     if (host == null) {
       return false;
     }
-    
+
     String lowerCaseHost = host.toLowerCase(Locale.ENGLISH);
     // GitHub.com (official public GitHub)
     if ("api.github.com".equals(lowerCaseHost)) {
       return true;
     }
-    
+
     // GitHub Enterprise Server - standard format: https://github.company.com/api/v3/
     if (path != null && path.toLowerCase(Locale.ENGLISH).startsWith("/api/v3")) {
       return true;
     }
-    
+
     // GitHub Enterprise Cloud with data residency - official format: https://api.company.ghe.com
     return lowerCaseHost.startsWith("api.") && lowerCaseHost.endsWith(".ghe.com");
-	}
+  }
 
   @Override
   public void checkAppPermissions(GithubAppConfiguration githubAppConfiguration) {
@@ -349,9 +349,9 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
 
       Optional<String> content = response.getContent();
       Optional<UserAccessToken> accessToken = content.flatMap(c -> Arrays.stream(c.split("&"))
-        .filter(t -> t.startsWith("access_token="))
-        .map(t -> t.split("=")[1])
-        .findAny())
+          .filter(t -> t.startsWith("access_token="))
+          .map(t -> t.split("=")[1])
+          .findAny())
         .map(UserAccessToken::new);
 
       if (accessToken.isPresent()) {

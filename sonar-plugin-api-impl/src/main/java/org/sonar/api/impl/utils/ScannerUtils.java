@@ -25,6 +25,10 @@ import java.nio.charset.StandardCharsets;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 
+import static org.apache.commons.lang3.Strings.CS;
+
+
+
 public class ScannerUtils {
 
   private ScannerUtils() {
@@ -37,7 +41,7 @@ public class ScannerUtils {
    */
   public static String cleanKeyForFilename(String projectKey) {
     String cleanKey = StringUtils.deleteWhitespace(projectKey);
-    return StringUtils.replace(cleanKey, ":", "_");
+    return CS.replace(cleanKey, ":", "_");
   }
 
   public static String encodeForUrl(@Nullable String url) {

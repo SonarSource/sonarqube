@@ -19,9 +19,9 @@
  */
 package org.sonar.auth.ldap;
 
-import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.config.Configuration;
 
+import static org.apache.commons.lang3.Strings.CS;
 import static org.sonar.auth.ldap.LdapSettingsManager.MANDATORY_LDAP_PROPERTY_ERROR;
 
 /**
@@ -48,7 +48,7 @@ public class LdapUserMapping {
     this.emailAttribute = config.get(settingsPrefix + ".user.emailAttribute").orElse(DEFAULT_EMAIL_ATTRIBUTE);
 
     String req = config.get(settingsPrefix + ".user.request").orElse(DEFAULT_REQUEST);
-    req = StringUtils.replace(req, "{login}", "{0}");
+    req = CS.replace(req, "{login}", "{0}");
     this.request = req;
   }
 

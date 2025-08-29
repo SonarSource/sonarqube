@@ -33,8 +33,8 @@ import org.sonar.db.version.SqTables;
 
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.Strings.CI;
 
 class PostgresCharsetHandler extends CharsetHandler {
 
@@ -60,7 +60,7 @@ class PostgresCharsetHandler extends CharsetHandler {
   private void expectUtf8AsDefault(Connection connection) throws SQLException {
     LoggerFactory.getLogger(getClass()).info("Verify that database charset supports UTF8");
     String collation = metadata.getDefaultCharset(connection);
-    if (!containsIgnoreCase(collation, UTF8)) {
+    if (!CI.contains(collation, UTF8)) {
       throw MessageException.of(format("Database charset is %s. It must support UTF8.", collation));
     }
   }
@@ -81,7 +81,7 @@ class PostgresCharsetHandler extends CharsetHandler {
       "order by table_name, column_name", schema, sqTables), new SqlExecutor.StringsConverter(3 /* columns returned by SELECT */));
     Set<String> errors = new LinkedHashSet<>();
     for (String[] row : rows) {
-      if (!isBlank(row[2]) && !containsIgnoreCase(row[2], UTF8)) {
+      if (!isBlank(row[2]) && !CI.contains(row[2], UTF8)) {
         errors.add(format("%s.%s", row[0], row[1]));
       }
     }

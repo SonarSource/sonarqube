@@ -21,8 +21,9 @@ package org.sonar.db.dialect;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.utils.Version;
+
+import static org.apache.commons.lang3.Strings.CI;
 
 public class MsSql extends AbstractDialect {
 
@@ -38,7 +39,7 @@ public class MsSql extends AbstractDialect {
 
   @Override
   public boolean matchesJdbcUrl(String jdbcConnectionURL) {
-    return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:sqlserver:");
+    return CI.startsWith(jdbcConnectionURL, "jdbc:sqlserver:");
   }
 
   @Override

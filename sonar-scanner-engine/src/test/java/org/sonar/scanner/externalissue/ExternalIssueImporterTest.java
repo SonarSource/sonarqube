@@ -42,7 +42,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.testfixtures.log.LogTester;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
+import static org.apache.commons.lang3.ObjectUtils.getIfNull;
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -390,9 +390,9 @@ public class ExternalIssueImporterTest {
 
   private void assertSameRange(ExternalIssueReport.TextRange expected, TextRange got) {
     assertThat(got.start().line()).isEqualTo(expected.startLine);
-    assertThat(got.start().lineOffset()).isEqualTo(defaultIfNull(expected.startColumn, 0));
+    assertThat(got.start().lineOffset()).isEqualTo(getIfNull(expected.startColumn, 0));
     assertThat(got.end().line()).isEqualTo(expected.endLine);
-    assertThat(got.end().lineOffset()).isEqualTo(defaultIfNull(expected.endColumn, 0));
+    assertThat(got.end().lineOffset()).isEqualTo(getIfNull(expected.endColumn, 0));
   }
 
   private void runOnDeprecatedFormat(ExternalIssueReport.Issue input) {

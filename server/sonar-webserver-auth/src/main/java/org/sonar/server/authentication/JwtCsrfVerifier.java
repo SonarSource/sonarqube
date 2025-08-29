@@ -24,12 +24,12 @@ import java.security.SecureRandom;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
 import org.sonar.server.authentication.event.AuthenticationException;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.Strings.CS;
 import static org.sonar.server.authentication.Cookies.SAMESITE_LAX;
 import static org.sonar.server.authentication.Cookies.SET_COOKIE;
 import static org.sonar.server.authentication.Cookies.newCookieBuilder;
@@ -78,7 +78,7 @@ public class JwtCsrfVerifier {
     if (isBlank(csrfState)) {
       return "Missing reference CSRF value";
     }
-    if (!StringUtils.equals(csrfState, stateInHeader)) {
+    if (!CS.equals(csrfState, stateInHeader)) {
       return "Wrong CSFR in request";
     }
     return null;

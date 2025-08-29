@@ -22,12 +22,12 @@ package org.sonar.scanner;
 import java.io.InputStream;
 import java.io.Reader;
 import javax.annotation.Nullable;
-import org.apache.commons.lang3.StringUtils;
 import org.mockito.ArgumentMatcher;
 import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonarqube.ws.client.WsRequest;
 import org.sonarqube.ws.client.WsResponse;
 
+import static org.apache.commons.lang3.Strings.CS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -90,7 +90,7 @@ public class WsTestUtil {
       if (item == null) {
         return false;
       }
-      return StringUtils.equals(item.getPath(), path);
+      return CS.equals(item.getPath(), path);
     }
 
     @Override

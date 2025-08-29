@@ -26,7 +26,8 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang3.StringUtils;
+
+import static org.apache.commons.lang3.Strings.CS;
 
 public class UserQuery {
   private final String searchText;
@@ -96,8 +97,8 @@ public class UserQuery {
   private static String searchTextToSearchTextSql(@Nullable String text) {
     String sql = null;
     if (text != null) {
-      sql = StringUtils.replace(text, "%", "/%");
-      sql = StringUtils.replace(sql, "_", "/_");
+      sql = CS.replace(text, "%", "/%");
+      sql = CS.replace(sql, "_", "/_");
       sql = "%" + sql + "%";
     }
     return sql;

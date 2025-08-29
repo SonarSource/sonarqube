@@ -113,6 +113,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toCollection;
+import static org.apache.commons.lang3.Strings.CS;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
@@ -143,6 +144,7 @@ import static org.sonar.server.issue.index.IssueIndex.Facet.CREATED_AT;
 import static org.sonar.server.issue.index.IssueIndex.Facet.CWE;
 import static org.sonar.server.issue.index.IssueIndex.Facet.DIRECTORIES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.FILES;
+import static org.sonar.server.issue.index.IssueIndex.Facet.FROM_SONAR_QUBE_UPDATE;
 import static org.sonar.server.issue.index.IssueIndex.Facet.IMPACT_SEVERITY;
 import static org.sonar.server.issue.index.IssueIndex.Facet.IMPACT_SOFTWARE_QUALITY;
 import static org.sonar.server.issue.index.IssueIndex.Facet.ISSUE_STATUSES;
@@ -154,7 +156,6 @@ import static org.sonar.server.issue.index.IssueIndex.Facet.OWASP_TOP_10_2021;
 import static org.sonar.server.issue.index.IssueIndex.Facet.PCI_DSS_32;
 import static org.sonar.server.issue.index.IssueIndex.Facet.PCI_DSS_40;
 import static org.sonar.server.issue.index.IssueIndex.Facet.PRIORITIZED_RULE;
-import static org.sonar.server.issue.index.IssueIndex.Facet.FROM_SONAR_QUBE_UPDATE;
 import static org.sonar.server.issue.index.IssueIndex.Facet.PROJECT_UUIDS;
 import static org.sonar.server.issue.index.IssueIndex.Facet.RESOLUTIONS;
 import static org.sonar.server.issue.index.IssueIndex.Facet.RULES;
@@ -166,6 +167,7 @@ import static org.sonar.server.issue.index.IssueIndex.Facet.STATUSES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.STIG_ASD_V5R3;
 import static org.sonar.server.issue.index.IssueIndex.Facet.TAGS;
 import static org.sonar.server.issue.index.IssueIndex.Facet.TYPES;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_FROM_SONAR_QUBE_UPDATE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID;
@@ -209,7 +211,6 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TAGS
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TYPE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_VULNERABILITY_PROBABILITY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_PRIORITIZED_RULE;
-import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_FROM_SONAR_QUBE_UPDATE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 import static org.sonar.server.security.SecurityReviewRating.computePercent;
 import static org.sonar.server.security.SecurityReviewRating.computeRating;
@@ -226,6 +227,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CWE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FROM_SONAR_QUBE_UPDATE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IMPACT_SEVERITIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IMPACT_SOFTWARE_QUALITIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE_STATUSES;
@@ -237,7 +239,6 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_1
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PCI_DSS_32;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PCI_DSS_40;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PRIORITIZED_RULE;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FROM_SONAR_QUBE_UPDATE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLUTIONS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SANS_TOP_25;
@@ -1419,7 +1420,7 @@ public class IssueIndex {
     @Nullable Integer level) {
     var list = ((ParsedStringTerms) categoryFilter.getAggregations().get(AGG_DISTRIBUTION)).getBuckets();
     List<SecurityStandardCategoryStatistics> children = list.stream()
-      .filter(categoryBucket -> StringUtils.startsWith(categoryBucket.getKeyAsString(), categoryFilter.getName() + "."))
+      .filter(categoryBucket -> CS.startsWith(categoryBucket.getKeyAsString(), categoryFilter.getName() + "."))
       .filter(categoryBucket -> level == null || OWASP_ASVS_40_REQUIREMENTS_BY_LEVEL.get(level).contains(categoryBucket.getKeyAsString()))
       .map(categoryBucket -> processSecurityReportCategorySearchResults(categoryBucket, categoryBucket.getKeyAsString(), null, null))
       .toList();

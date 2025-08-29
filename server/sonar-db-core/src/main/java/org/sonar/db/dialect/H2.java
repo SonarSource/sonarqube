@@ -20,8 +20,9 @@
 package org.sonar.db.dialect;
 
 import java.sql.DatabaseMetaData;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
+
+import static org.apache.commons.lang3.Strings.CI;
 
 public class H2 extends AbstractDialect {
 
@@ -33,7 +34,7 @@ public class H2 extends AbstractDialect {
 
   @Override
   public boolean matchesJdbcUrl(String jdbcConnectionURL) {
-    return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:h2:");
+    return CI.startsWith(jdbcConnectionURL, "jdbc:h2:");
   }
 
   @Override
