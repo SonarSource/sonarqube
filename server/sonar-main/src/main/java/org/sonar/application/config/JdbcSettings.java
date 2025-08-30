@@ -113,7 +113,7 @@ public class JdbcSettings implements Consumer<Props> {
       return Provider.H2;
     }
 
-    Pattern pattern = Pattern.compile("jdbc:(\\w+):.+");
+    Pattern pattern = Pattern.compile("jdbc:([\\w\\-]+):.+");
     Matcher matcher = pattern.matcher(url);
     if (!matcher.find()) {
       throw new MessageException(format("Bad format of JDBC URL: %s", url));
