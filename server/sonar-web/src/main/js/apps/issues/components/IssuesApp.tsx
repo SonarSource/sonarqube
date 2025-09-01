@@ -74,6 +74,7 @@ import {
 import { SecurityStandard } from '../../../types/security';
 import { Component, Dict, Issue, Organization, Paging } from '../../../types/types';
 import { CurrentUser, UserBase } from '../../../types/users';
+import { withOrganizationContext } from '../../organizations/OrganizationContext';
 import * as actions from '../actions';
 import { FiltersHeader } from '../sidebar/FiltersHeader';
 import { Sidebar } from '../sidebar/Sidebar';
@@ -101,10 +102,8 @@ import NoIssues from './NoIssues';
 import NoMyIssues from './NoMyIssues';
 import PageActions from './PageActions';
 import { PSEUDO_SHADOW_HEIGHT } from './StyledHeader';
-import { withOrganizationContext } from "../../organizations/OrganizationContext";
 
 interface Props extends WithIndexationContextProps {
-  organization?: Organization;
   branchLike?: BranchLike;
   branchLikes?: BranchLike[];
   component?: Component;
@@ -112,6 +111,7 @@ interface Props extends WithIndexationContextProps {
   isFetchingBranch?: boolean;
   isStandard?: boolean;
   location: Location;
+  organization?: Organization;
   router: Router;
 }
 export interface State {
@@ -1167,7 +1167,7 @@ export class App extends React.PureComponent<Props, State> {
       selected,
       locationsNavigator,
     } = this.state;
-    const { component } = this.props;
+    const { component, organization } = this.props;
     const { canBrowseAllChildProjects, qualifier = ComponentQualifier.Project } =
       this.props.component ?? {};
     const warning = !canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
@@ -1198,6 +1198,7 @@ export class App extends React.PureComponent<Props, State> {
           locationsNavigator={locationsNavigator}
           paging={paging}
           selected={selected}
+          organization={organization}
         />
       );
     }
