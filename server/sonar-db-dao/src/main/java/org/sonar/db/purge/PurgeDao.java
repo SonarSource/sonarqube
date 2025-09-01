@@ -241,12 +241,18 @@ public class PurgeDao implements Dao {
       .sorted(Comparator.comparing(BranchDto::isMain))
       .map(BranchDto::getUuid)
       .toList();
+    ComponentDto componentDto = session.getMapper(ComponentMapper.class).selectByUuid(uuid);
 
     branchUuids.forEach(id -> deleteBranch(id, purgeCommands));
 
     deleteProject(uuid, purgeMapper, purgeCommands);
-    ComponentDto componentDto = session.getMapper(ComponentMapper.class).selectByUuid(uuid);
-    auditPersister.deleteComponent(session, componentDto.getOrganizationUuid(), new ComponentNewValue(uuid, name, key, qualifier));
+    if (componentDto!=null && componentDto.getOrganizationUuid() != null) {
+      auditPersister.deleteComponent(session, componentDto.getOrganizationUuid(),
+              new ComponentNewValue(uuid, name, key, qualifier));
+    } else {
+      LOG.info("No organization found for component {}", key);
+    }
+
     logProfiling(profiler, start);
   }
 
