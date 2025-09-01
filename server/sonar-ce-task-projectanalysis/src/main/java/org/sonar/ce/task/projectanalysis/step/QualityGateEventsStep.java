@@ -112,10 +112,12 @@ public class QualityGateEventsStep implements ComputationStep {
 
     if (baseStatus.getStatus() != rawStatus.getStatus()) {
       // The QualityGate status has changed
-      DbSession dbSession = dbClient.openSession(false);
-      createEvent(rawStatus.getStatus().getLabel(), rawStatus.getText());
-      auditPersister.createQualityGateChangeEvent(dbSession, analysisMetadataHolder.getOrganization().getUuid(), new PropertyNewValue(QUALITY_GATE_KEY, rawStatus.getStatus().getLabel(), project.getUuid(),
-              project.getKey(), project.getName()));
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        createEvent(rawStatus.getStatus().getLabel(), rawStatus.getText());
+        auditPersister.createQualityGateChangeEvent(dbSession, analysisMetadataHolder.getOrganization().getUuid(), new PropertyNewValue(QUALITY_GATE_KEY, rawStatus.getStatus().getLabel(), project.getUuid(),
+                project.getKey(), project.getName()));
+        dbSession.commit();
+      }
       boolean isNewKo = rawStatus.getStatus() == Measure.Level.OK;
       notifyUsers(project, rawStatus, isNewKo);
     }
