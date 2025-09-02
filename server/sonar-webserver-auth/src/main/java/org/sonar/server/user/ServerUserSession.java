@@ -189,7 +189,7 @@ public class ServerUserSession extends AbstractUserSession {
             .filter(entity -> isMember(entity.getOrganizationUuid()))
             .map(EntityDto::getUuid).collect(Collectors.toSet());
     // TODO in SONAR-19445
-    Set<String> authorizedEntitiesUuids = keepEntitiesUuidsByPermission(permission, projectsUuids);
+    Set<String> authorizedEntitiesUuids = isRoot() ? projectsUuids : keepEntitiesUuidsByPermission(permission, projectsUuids);
 
     return entities.stream()
       .filter(project -> authorizedEntitiesUuids.contains(project.getUuid()))
@@ -255,6 +255,14 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   private boolean hasPermission(String permission, String entityUuid) {
+    if (isRoot()){
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        Optional<EntityDto> entity = dbClient.entityDao().selectByUuid(dbSession, entityUuid);
+        if (entity.isPresent() && !isArchivedOrganization(entity.get().getOrganizationUuid())) {
+          return true;
+        }
+      }
+    }
     Set<String> entityPermissions = permissionsByEntityUuid.computeIfAbsent(entityUuid, this::loadEntityPermissions);
     return entityPermissions.contains(permission);
   }
@@ -331,6 +339,9 @@ public class ServerUserSession extends AbstractUserSession {
 
   @Override
   protected boolean hasPermissionImpl(OrganizationPermission permission, String organizationUuid) {
+    if (isRoot() && !isArchivedOrganization(organizationUuid)){
+      return true;
+    }
     Set<OrganizationPermission> permissions = permissionsByOrganizationUuid.computeIfAbsent(organizationUuid, this::loadOrganizationPermissions);
     return permissions.contains(permission);
   }
@@ -338,7 +349,7 @@ public class ServerUserSession extends AbstractUserSession {
   private Set<OrganizationPermission> loadOrganizationPermissions(String organizationUuid) {
     Set<String> permissionKeys;
     try (DbSession dbSession = dbClient.openSession(false)) {
-      if (userDto != null && userDto.getUuid() != null && isMember(organizationUuid)) {
+      if (userDto != null && userDto.getUuid() != null) {
         permissionKeys = dbClient.authorizationDao().selectOrganizationPermissions(dbSession, organizationUuid, userDto.getUuid());
       } else {
         permissionKeys = dbClient.authorizationDao().selectOrganizationPermissionsOfAnonymous(dbSession, organizationUuid);
@@ -369,7 +380,7 @@ public class ServerUserSession extends AbstractUserSession {
       Set<String> allProjectUuids = new HashSet<>(projectUuids);
       allProjectUuids.addAll(originalComponentsProjectUuids);
 
-      Set<String> authorizedProjectUuids = keepAuthorizedProjectsUuids(dbSession, permission, allProjectUuids);
+      Set<String> authorizedProjectUuids = isRoot() ? allProjectUuids : keepAuthorizedProjectsUuids(dbSession, permission, allProjectUuids);
 
       return components.stream()
         .filter(c -> isMember(c.getOrganizationUuid()))

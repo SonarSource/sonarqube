@@ -116,13 +116,13 @@ public abstract class AbstractUserSession implements UserSession {
 
   @Override
   public final boolean hasChildProjectsPermission(String permission, ComponentDto component) {
-    return componentUuidToEntityUuid(component.uuid())
+    return isRoot() || componentUuidToEntityUuid(component.uuid())
       .map(applicationUuid -> hasChildProjectsPermission(permission, applicationUuid)).orElse(false);
   }
 
   @Override
   public final boolean hasChildProjectsPermission(String permission, EntityDto application) {
-    return hasChildProjectsPermission(permission, application.getUuid());
+    return isRoot() || hasChildProjectsPermission(permission, application.getUuid());
   }
 
   @Override
