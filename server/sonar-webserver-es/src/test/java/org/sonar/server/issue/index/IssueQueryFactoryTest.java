@@ -842,13 +842,13 @@ public class IssueQueryFactoryTest {
   public void create_query_with_in_sandbox_status() {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();
-    
+
     SearchRequest request = new SearchRequest()
       .setProjectKeys(asList(project.getKey()))
       .setStatuses(asList("IN_SANDBOX"));
-    
+
     IssueQuery query = underTest.create(request);
-    
+
     assertThat(query.statuses()).containsExactly("IN_SANDBOX");
   }
 
