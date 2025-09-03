@@ -64,6 +64,8 @@ import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.db.rule.RuleTesting.newRule;
+import static org.sonar.server.issue.index.IssueQueryFactory.STATUS_IN_SANDBOX;
+import static org.sonar.server.issue.index.IssueQueryFactory.ISSUE_STATUSES;
 
 public class IssueQueryFactoryTest {
 
@@ -824,6 +826,36 @@ public class IssueQueryFactoryTest {
 
     assertThat(query.isMainBranch()).isTrue();
     assertThat(query.branchUuid()).isEqualTo(mainBranch.uuid());
+  }
+
+  @Test
+  public void verify_issue_statuses_includes_in_sandbox() {
+    assertThat(STATUS_IN_SANDBOX).isEqualTo("IN_SANDBOX");
+    
+    assertThat(ISSUE_STATUSES).contains("IN_SANDBOX");
+    
+    assertThat(ISSUE_STATUSES).containsExactlyInAnyOrder(
+      "OPEN",
+      "CONFIRMED",
+      "REOPENED",
+      "RESOLVED",
+      "CLOSED",
+      "IN_SANDBOX"
+    );
+  }
+
+  @Test
+  public void create_query_with_in_sandbox_status() {
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    
+    SearchRequest request = new SearchRequest()
+      .setProjectKeys(asList(project.getKey()))
+      .setStatuses(asList("IN_SANDBOX"));
+    
+    IssueQuery query = underTest.create(request);
+    
+    assertThat(query.statuses()).containsExactly("IN_SANDBOX");
   }
 
 }

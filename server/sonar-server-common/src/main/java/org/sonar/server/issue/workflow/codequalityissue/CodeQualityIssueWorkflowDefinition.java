@@ -36,6 +36,7 @@ import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
+import static org.sonar.api.issue.Issue.STATUS_IN_SANDBOX;
 import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.ACCEPT;
 import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.CONFIRM;
 import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.FALSE_POSITIVE;
@@ -65,7 +66,7 @@ public class CodeQualityIssueWorkflowDefinition {
   public CodeQualityIssueWorkflowDefinition() {
     StateMachine.Builder<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions> builder = StateMachine
       .<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder()
-      .states(STATUS_OPEN, STATUS_CONFIRMED, STATUS_REOPENED, STATUS_RESOLVED, STATUS_CLOSED);
+      .states(STATUS_OPEN, STATUS_CONFIRMED, STATUS_REOPENED, STATUS_RESOLVED, STATUS_CLOSED, STATUS_IN_SANDBOX);
     buildManualTransitions(builder);
     buildAutomaticTransitions(builder);
     machine = builder.build();
@@ -151,6 +152,35 @@ public class CodeQualityIssueWorkflowDefinition {
       .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(WONT_FIX.getKey())
         .from(STATUS_CONFIRMED).to(STATUS_RESOLVED)
         .actions(a -> a.setResolution(RESOLUTION_WONT_FIX), UNSET_ASSIGNEE)
+        .build())
+
+      // Transitions FROM IN_SANDBOX to other statuses
+      // Can transition to OPEN using REOPEN action
+      .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(REOPEN.getKey())
+        .from(STATUS_IN_SANDBOX).to(STATUS_OPEN)
+        .actions(UNSET_RESOLUTION)
+        .build())
+      // Can transition to CONFIRMED  
+      .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(CONFIRM.getKey())
+        .from(STATUS_IN_SANDBOX).to(STATUS_CONFIRMED)
+        .actions(UNSET_RESOLUTION)
+        .build())
+      // Can transition to RESOLVED with various resolutions
+      .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(RESOLVE.getKey())
+        .from(STATUS_IN_SANDBOX).to(STATUS_RESOLVED)
+        .actions(a -> a.setResolution(RESOLUTION_FIXED))
+        .build())
+      .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(FALSE_POSITIVE.getKey())
+        .from(STATUS_IN_SANDBOX).to(STATUS_RESOLVED)
+        .actions(a -> a.setResolution(RESOLUTION_FALSE_POSITIVE), UNSET_ASSIGNEE)
+        .build())
+      .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(ACCEPT.getKey())
+        .from(STATUS_IN_SANDBOX).to(STATUS_RESOLVED)
+        .actions(a -> a.setResolution(RESOLUTION_WONT_FIX), UNSET_ASSIGNEE)
+        .build())
+      .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(WONT_FIX.getKey())
+        .from(STATUS_IN_SANDBOX).to(STATUS_RESOLVED)
+        .actions(a -> a.setResolution(RESOLUTION_WONT_FIX), UNSET_ASSIGNEE)
         .build());
 
   }
@@ -178,6 +208,12 @@ public class CodeQualityIssueWorkflowDefinition {
         .build())
       .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(AUTOMATIC_CLOSE_TRANSITION)
         .from(STATUS_RESOLVED).to(STATUS_CLOSED)
+        .conditions(CodeQualityIssueWorkflowEntity::isBeingClosed)
+        .actions(SET_CLOSED, SET_CLOSE_DATE)
+        .automatic()
+        .build())
+      .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(AUTOMATIC_CLOSE_TRANSITION)
+        .from(STATUS_IN_SANDBOX).to(STATUS_CLOSED)
         .conditions(CodeQualityIssueWorkflowEntity::isBeingClosed)
         .actions(SET_CLOSED, SET_CLOSE_DATE)
         .automatic()

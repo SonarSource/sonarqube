@@ -60,8 +60,11 @@ class ChangedIssueImpl implements QGChangeEventListener.ChangedIssue {
         return QGChangeEventListener.Status.TO_REVIEW;
       case Issue.STATUS_REVIEWED:
         return QGChangeEventListener.Status.REVIEWED;
+      case Issue.STATUS_IN_SANDBOX:
+        return QGChangeEventListener.Status.IN_SANDBOX;
       case Issue.STATUS_RESOLVED:
         return statusOfResolved(issue);
+
       default:
         throw new IllegalStateException("Unexpected status: " + issue.status());
     }

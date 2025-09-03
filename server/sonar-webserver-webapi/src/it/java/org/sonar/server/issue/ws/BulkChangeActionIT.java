@@ -93,6 +93,7 @@ import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
+import static org.sonar.api.issue.Issue.STATUS_IN_SANDBOX;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.rule.Severity.MAJOR;
@@ -501,6 +502,64 @@ public class BulkChangeActionIT {
     assertThat(changedIssue.getRule()).isEqualTo(ruleOf(rule));
     assertThat(changedIssue.getProject()).isEqualTo(projectOf(project));
     assertThat(builder.getChange()).isEqualTo(new UserChange(NOW, userOf(user)));
+  }
+
+  @Test
+  public void transition_from_in_sandbox_using_reopen() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
+    RuleDto rule = db.rules().insertIssueRule();
+    
+    IssueDto issue1InSandbox = db.issues().insertIssue(rule, project, file, i -> i
+      .setStatus(STATUS_IN_SANDBOX)
+      .setResolution(null));
+    IssueDto issue2InSandbox = db.issues().insertIssue(rule, project, file, i -> i
+      .setStatus(STATUS_IN_SANDBOX)
+      .setResolution(null));
+    IssueDto issueOpen = db.issues().insertIssue(rule, project, file, i -> i
+      .setStatus(STATUS_OPEN)
+      .setResolution(null));
+
+    BulkChangeWsResponse response = call(builder()
+      .setIssues(asList(issue1InSandbox.getKey(), issue2InSandbox.getKey(), issueOpen.getKey()))
+      .setDoTransition("reopen")
+      .build());
+
+    checkResponse(response, 3, 2, 1, 0);
+    
+    IssueDto reloadedIssue1 = db.getDbClient().issueDao().selectByKey(db.getSession(), issue1InSandbox.getKey()).orElseThrow();
+    IssueDto reloadedIssue2 = db.getDbClient().issueDao().selectByKey(db.getSession(), issue2InSandbox.getKey()).orElseThrow();
+    IssueDto reloadedIssueOpen = db.getDbClient().issueDao().selectByKey(db.getSession(), issueOpen.getKey()).orElseThrow();
+    
+    assertThat(reloadedIssue1.getStatus()).isEqualTo(STATUS_OPEN);
+    assertThat(reloadedIssue2.getStatus()).isEqualTo(STATUS_OPEN);
+    assertThat(reloadedIssueOpen.getStatus()).isEqualTo(STATUS_OPEN);
+  }
+
+  @Test
+  public void verify_unsandbox_transition_does_not_exist() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
+    RuleDto rule = db.rules().insertIssueRule();
+    
+    IssueDto issueInSandbox = db.issues().insertIssue(rule, project, file, i -> i
+      .setStatus(STATUS_IN_SANDBOX)
+      .setResolution(null));
+
+    // Try to use UNSANDBOX transition (should fail)
+    assertThatThrownBy(() -> call(builder()
+      .setIssues(singletonList(issueInSandbox.getKey()))
+      .setDoTransition("unsandbox")
+      .build()))
+      .hasMessageContaining("do_transition");
   }
 
   @Test

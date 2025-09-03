@@ -121,6 +121,7 @@ import static org.sonar.api.issue.Issue.RESOLUTION_SAFE;
 import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
+import static org.sonar.api.issue.Issue.STATUS_IN_SANDBOX;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
@@ -705,6 +706,54 @@ class SearchActionIT {
         tuple(IssueStatus.FIXED.name(), 3L),
         tuple(IssueStatus.FALSE_POSITIVE.name(), 1L));
 
+  }
+
+  @Test
+  void search_whenFilteringByInSandboxStatus_shouldReturnCorrectIssues() {
+    RuleDto rule = newIssueRule();
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
+      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
+    
+    IssueDto issueInSandbox = db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_IN_SANDBOX));
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_OPEN));
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_FIXED));
+    indexPermissionsAndIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam("statuses", STATUS_IN_SANDBOX)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getIssuesCount()).isOne();
+    assertThat(response.getIssues(0).getKey()).isEqualTo(issueInSandbox.getKey());
+    assertThat(response.getIssues(0).getStatus()).isEqualTo(STATUS_IN_SANDBOX);
+  }
+
+  @Test
+  void search_whenIssueStatusesFacetRequestedWithInSandbox_shouldIncludeInSandbox() {
+    RuleDto rule = newIssueRule();
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
+      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
+    
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_OPEN));
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_IN_SANDBOX));
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_IN_SANDBOX));
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_CONFIRMED));
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_FIXED));
+    indexPermissionsAndIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam(FACETS, PARAM_ISSUE_STATUSES)
+      .executeProtobuf(SearchWsResponse.class);
+
+    Optional<Common.Facet> statusFacet = response.getFacets().getFacetsList()
+      .stream().filter(facet -> facet.getProperty().equals(PARAM_ISSUE_STATUSES))
+      .findFirst();
+    
+    assertThat(statusFacet.get().getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .contains(tuple(IssueStatus.IN_SANDBOX.name(), 2L));
   }
 
   @Test

@@ -56,6 +56,7 @@ import static org.sonar.api.issue.Issue.RESOLUTION_REMOVED;
 import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
+import static org.sonar.api.issue.Issue.STATUS_IN_SANDBOX;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
@@ -519,4 +520,115 @@ class IssueWorkflowForCodeQualityIssuesTest {
     return newResolution == null ? "" : newResolution;
   }
 
+  @Test
+  void list_out_transitions_from_status_in_sandbox() {
+    DefaultIssue issue = new DefaultIssue().setStatus(STATUS_IN_SANDBOX);
+    
+    List<String> transitions = underTest.outTransitionsKeys(issue);
+    
+    assertThat(transitions).containsExactlyInAnyOrder(
+      "reopen",
+      "confirm",
+      "resolve",
+      "falsepositive",
+      "accept",
+      "wontfix"
+    );
+  }
+
+  @Test
+  void transition_from_in_sandbox_to_open_with_reopen() {
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ISSUE-1")
+      .setStatus(STATUS_IN_SANDBOX)
+      .setResolution(null);
+    Date now = new Date();
+    
+    boolean result = underTest.doManualTransition(issue, "reopen", issueChangeContextByScanBuilder(now).build());
+    
+    assertThat(result).isTrue();
+    assertThat(issue.status()).isEqualTo(STATUS_OPEN);
+    assertThat(issue.resolution()).isNull();
+    assertThat(issue.issueStatus()).isEqualTo(IssueStatus.OPEN);
+  }
+
+  @Test
+  void transition_from_in_sandbox_to_confirmed() {
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ISSUE-1")
+      .setStatus(STATUS_IN_SANDBOX)
+      .setResolution(null);
+    Date now = new Date();
+    
+    boolean result = underTest.doManualTransition(issue, "confirm", issueChangeContextByScanBuilder(now).build());
+    
+    assertThat(result).isTrue();
+    assertThat(issue.status()).isEqualTo(STATUS_CONFIRMED);
+    assertThat(issue.resolution()).isNull();
+    assertThat(issue.issueStatus()).isEqualTo(IssueStatus.CONFIRMED);
+  }
+
+  @Test
+  void transition_from_in_sandbox_to_resolved_fixed() {
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ISSUE-1")
+      .setStatus(STATUS_IN_SANDBOX)
+      .setResolution(null);
+    Date now = new Date();
+    
+    boolean result = underTest.doManualTransition(issue, "resolve", issueChangeContextByScanBuilder(now).build());
+    
+    assertThat(result).isTrue();
+    assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);
+    assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
+    assertThat(issue.issueStatus()).isEqualTo(IssueStatus.FIXED);
+  }
+
+  @Test
+  void transition_from_in_sandbox_to_resolved_false_positive() {
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ISSUE-1")
+      .setStatus(STATUS_IN_SANDBOX)
+      .setResolution(null);
+    Date now = new Date();
+    
+    boolean result = underTest.doManualTransition(issue, "falsepositive", issueChangeContextByScanBuilder(now).build());
+    
+    assertThat(result).isTrue();
+    assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);
+    assertThat(issue.resolution()).isEqualTo(RESOLUTION_FALSE_POSITIVE);
+    assertThat(issue.issueStatus()).isEqualTo(IssueStatus.FALSE_POSITIVE);
+  }
+
+  @Test
+  void transition_from_in_sandbox_to_resolved_wont_fix_with_accept() {
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ISSUE-1")
+      .setStatus(STATUS_IN_SANDBOX)
+      .setResolution(null);
+    Date now = new Date();
+    
+    boolean result = underTest.doManualTransition(issue, "accept", issueChangeContextByScanBuilder(now).build());
+    
+    assertThat(result).isTrue();
+    assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);
+    assertThat(issue.resolution()).isEqualTo(RESOLUTION_WONT_FIX);
+    assertThat(issue.issueStatus()).isEqualTo(IssueStatus.ACCEPTED);
+  }
+
+  @Test
+  void transition_from_in_sandbox_to_resolved_wont_fix() {
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ISSUE-1")
+      .setStatus(STATUS_IN_SANDBOX)
+      .setResolution(null);
+    Date now = new Date();
+    
+    boolean result = underTest.doManualTransition(issue, "wontfix", issueChangeContextByScanBuilder(now).build());
+    
+    assertThat(result).isTrue();
+    assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);
+    assertThat(issue.resolution()).isEqualTo(RESOLUTION_WONT_FIX);
+    assertThat(issue.issueStatus()).isEqualTo(IssueStatus.ACCEPTED);
+  }
 }
