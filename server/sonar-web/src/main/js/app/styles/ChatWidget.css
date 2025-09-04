@@ -1,3 +1,22 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2024 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 .chat-widget-container {
   position: fixed;
   bottom: 1.25rem; /* 20px */
@@ -197,10 +216,11 @@
   background: #05080f;
   color: #fff;
   border: none;
-  border-radius: 1.25rem;
+  border-radius: 0.5rem;
   padding: 0.5rem 0.75rem;
   margin-left: 0.5rem;
   cursor: pointer;
+  padding-top: 0.4rem;
 }
 
 /* Typing indicator */
@@ -243,7 +263,7 @@
 }
 
 .chat-logo-text {
-  font-weight: 700;
+  font-weight: 400;
   font-size: 1.25rem;
   color: #fff;
 }
@@ -251,6 +271,7 @@
 .chat-slash {
   display: inline-block;
   transform: rotate3d(2, 1, 1, 45deg);
+  padding-bottom: 0.1rem;
 }
 /* Headings inside bot bubbles */
 .bubble-text h1,
@@ -286,4 +307,15 @@
 .bubble-text li {
   margin-bottom: 0.25rem; /* tighter but readable gap */
   line-height: 1.5;
+}
+/* Default (minimized / normal chat box) */
+.chat-box.maximized .send-btn {
+  border-radius: 0.75rem; /* rounder corners */
+  padding: 0.75rem 1.25rem; /* larger padding */
+  font-size: 1.3rem;
+  padding-top: 0.6rem; /* bigger text/icon */
+}
+.chat-box.maximized .chat-input-bar{
+  font-size: 1.2rem;
+  font-weight: 300;
 }
