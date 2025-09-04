@@ -84,32 +84,19 @@ export default function GlobalContainer() {
   const location = useLocation();
 
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-
     async function fetchChatBotFlag() {
       try {
         const chatEnabled = await getChatBotFlag();
         const isEnabled =
           chatEnabled.settings.find((s) => s.key === 'codescan.chatbot.enabled').value === 'true';
-
-        // Only update the state if the value has changed
-        if (isEnabled !== isChatEnabled) {
-          setIsChatEnabled(isEnabled);
-        }
+        setIsChatEnabled(isEnabled); // Update state
       } catch (error) {
         console.error('Error fetching chatbot flag:', error);
       }
     }
 
-    // Fetch the flag initially
     fetchChatBotFlag();
-
-    // Set up polling to fetch the flag every 2 seconds
-    intervalId = setInterval(fetchChatBotFlag, 2000);
-
-    // Cleanup the interval on component unmount
-    return () => clearInterval(intervalId);
-  }, [isChatEnabled]);
+  }, []); // E
 
   return (
     <ThemeProvider theme={lightTheme}>

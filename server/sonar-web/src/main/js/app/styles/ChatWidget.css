@@ -20,20 +20,20 @@
 .chat-toggle-btn {
   background-color: #040508;
   color: #fff;
-  padding: 0.625rem 1rem; /* 10px 16px */
+  padding: 0.625rem 1rem;
   border: none;
-  border-radius: 1.5rem; /* 24px */
+  border-radius: 1.5rem;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.5rem; /* 8px */
+  gap: 0.5rem;
 }
 
 .chat-box {
-  width: 20.75rem; /* 300px */
-  height: 35rem; /* 400px */
+  width: 20.75rem; /* 332px */
+  height: 35rem;   /* 560px */
   background-color: #fff;
-  border-radius: 0.625rem; /* 10px */
+  border-radius: 0.625rem;
   box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
@@ -52,7 +52,7 @@
   align-items: center;
   justify-content: space-between;
   background: #030916;
-  padding: 0.5rem 1rem; /* 8px 16px */
+  padding: 0.5rem 1rem;
   color: #fff;
   font-weight: bold;
 }
@@ -60,11 +60,11 @@
 .chat-title-wrapper {
   display: flex;
   align-items: center;
-  gap: 0.5rem; /* 8px */
+  gap: 0.5rem;
 }
 
 .chat-logo {
-  width: 1.25rem; /* 20px */
+  width: 1.25rem;
   height: 1.25rem;
 }
 
@@ -75,7 +75,7 @@
 
 .chat-header-buttons {
   display: flex;
-  gap: 0.625rem; /* 10px */
+  gap: 0.625rem;
 }
 
 .chat-maximize-btn,
@@ -87,21 +87,21 @@
 
 .chat-maximize-btn img,
 .chat-close-btn img {
-  width: 1.25rem; /* 20px */
+  width: 1.25rem;
   height: 1.25rem;
-  filter: brightness(0) invert(1);
+  filter: brightness(0) invert(1); /* make icons white */
 }
 
 .chat-body {
   flex: 1;
-  padding: 0.75rem; /* 12px */
+  padding: 0.75rem;
   overflow-y: auto;
 }
 
 .chat-bubble {
   display: flex;
   align-items: flex-start;
-  margin-bottom: 0.625rem; /* 10px */
+  margin-bottom: 0.625rem;
 }
 
 .chat-bubble.user {
@@ -109,16 +109,18 @@
   text-align: right;
 }
 
-
+.chat-bubble.bot {
+  flex-direction: row;
+}
 
 .avatar {
-  width: 1.875rem; /* 30px */
+  width: 1.875rem;
   height: 1.875rem;
   border-radius: 50%;
 }
 
 .chat-bubble.user .avatar {
-  margin-left: 0.75rem; /* 12px */
+  margin-left: 0.75rem;
 }
 
 .chat-bubble.bot .avatar {
@@ -127,29 +129,34 @@
 
 .bubble-text {
   max-width: 70%;
-  padding: 0.625rem; /* 10px */
-  border-radius: 0.75rem; /* 12px */
+  padding: 0.625rem;
+  border-radius: 0.75rem;
   word-wrap: break-word;
   line-height: 1.5;
-  font-size: 0.875rem; /* 14px */
+  font-size: 0.95rem;
 }
 
 .chat-bubble.user .bubble-text {
-  background: #e0f2fe;
+  background: #01060f;
+  color: #fff;
 }
 
+.chat-bubble.bot .bubble-text {
+  background: #f1f5f9;
+  border: 1px solid #e5e7eb;
+}
 
 /* Markdown styling */
 .bubble-text h1,
 .bubble-text h2,
 .bubble-text h3 {
-  margin: 0;
-  font-size: 1rem; /* 16px */
+  margin: 0.25rem 0;
+  font-size: 1rem;
   font-weight: bold;
 }
 
 .bubble-text p {
-  margin: 0;
+  margin: 0.25rem 0;
 }
 
 .bubble-text a {
@@ -159,39 +166,31 @@
 
 .bubble-text code {
   background-color: #f5f5f5;
-  padding: 0.125rem 0.25rem; /* 2px 4px */
-  border-radius: 0.25rem; /* 4px */
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
   font-family: monospace;
 }
 
 .bubble-text pre {
   background-color: #f5f5f5;
-  padding: 0.5rem; /* 8px */
-  border-radius: 0.25rem; /* 4px */
+  padding: 0.5rem;
+  border-radius: 0.25rem;
   overflow-x: auto;
 }
 
-.bubble-text ul {
-  padding-left: 1.25rem; /* 20px */
-  margin: 0;
-}
 
-.bubble-text li {
-  margin-bottom: 0.5rem; /* 8px */
-  line-height: 1.5;
-}
 
 .chat-input-bar {
   display: flex;
-  padding: 0.75rem; /* 12px */
+  padding: 0.75rem;
   border-top: 1px solid #ddd;
 }
 
 .chat-input-bar input {
   flex: 1;
-  padding: 0.5rem 0.75rem; /* 8px 12px */
+  padding: 0.5rem 0.75rem;
   border: 1px solid #ccc;
-  border-radius: 1.25rem; /* 20px */
+  border-radius: 1.25rem;
   outline: none;
 }
 
@@ -199,9 +198,9 @@
   background: #05080f;
   color: #fff;
   border: none;
-  border-radius: 1.25rem; /* 20px */
-  padding: 0.5rem 0.75rem; /* 8px 12px */
-  margin-left: 0.5rem; /* 8px */
+  border-radius: 1.25rem;
+  padding: 0.5rem 0.75rem;
+  margin-left: 0.5rem;
   cursor: pointer;
 }
 
@@ -209,15 +208,15 @@
 .chat-bubble.loading .bubble-text {
   display: flex;
   align-items: center;
-  gap: 0.375rem; /* 6px */
+  gap: 0.375rem;
   font-style: italic;
   color: #888;
 }
 
 .chat-bubble.loading .bubble-text span {
   display: inline-block;
-  width: 0.5rem; /* 8px */
-  height: 0.5rem; /* 8px */
+  width: 0.5rem;
+  height: 0.5rem;
   background-color: #888;
   border-radius: 50%;
   animation: bounce 1.2s infinite ease-in-out;
@@ -234,13 +233,11 @@
 }
 
 @keyframes bounce {
-  0%,
-  80%,
-  100% {
+  0%, 80%, 100% {
     transform: translateY(0);
   }
   40% {
-    transform: translateY(-0.625rem); /* 10px */
+    transform: translateY(-0.5rem);
   }
 }
 
@@ -254,17 +251,47 @@
   display: inline-block;
   transform: rotate3d(2, 1, 1, 45deg);
 }
-.chat-bubble.bot .bubble-text {
-  background: #f1f5f9;
-  border: 1px solid #e5e7eb;
-}
-.chat-bubble.user .bubble-text {
-  background: #01060f;
-  color: #fff;
-}
-
-.chat-bubble.bot {
-  flex-direction: row;
+/* Headings inside bot bubbles */
+.bubble-text h1,
+.bubble-text h2,
+.bubble-text h3 {
+  margin: 0.5rem 0 0.25rem; /* balanced spacing above and below */
+  font-weight: 700;
+  line-height: 1.4;
+  list-style: none; /* prevents unwanted bullets */
 }
 
+/* Paragraphs */
+.bubble-text p {
+  margin: 0.25rem 0; /* small gap between paragraphs */
+  line-height: 1.5;
+}
+
+/* Unordered lists */
+.bubble-text ul {
+  list-style-type: disc;
+  padding-left: 1.25rem; /* indent bullets */
+  margin: 0.25rem 0 0.5rem;
+}
+
+/* Ordered lists */
+.bubble-text ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin: 0.25rem 0 0.5rem;
+}
+
+/* List items */
+.bubble-text li {
+  margin-bottom: 0.25rem; /* tighter but readable gap */
+  line-height: 1.5;
+}
+
+/* Prevent headings inside list items from being bullets */
+.bubble-text li h1,
+.bubble-text li h2,
+.bubble-text li h3 {
+  list-style: none;
+  margin: 0.25rem 0;
+}
 

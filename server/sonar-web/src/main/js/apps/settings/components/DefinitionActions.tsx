@@ -83,6 +83,12 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
   render() {
     const { definition, setting, changedValue, isDefault, isEditing, hasValueChanged, hasError } =
       this.props;
+    // console.log('DefinitionActions props:', this.props);
+    if (definition.key === 'codescan.chatbot.enabled') {
+      // console.log('DefinitionActions definition:', this.props.definition);
+      console.log('changedValue:', changedValue);
+    }
+
     const hasBeenChangedToEmptyValue =
       changedValue !== undefined && isEmptyValue(setting.definition, changedValue);
     const showReset = hasBeenChangedToEmptyValue || (!isDefault && setting.hasValue);
@@ -90,6 +96,17 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
     const propertyName = getPropertyName(definition);
     const saveButtonLabel = `${translate('save')} ${propertyName}`;
     const cancelButtonLabel = `${translate('cancel')} ${propertyName}`;
+    if (definition.key === 'codescan.chatbot.enabled') {
+      console.log('saveButtonLabel:', this.props.onSave);
+      console.log('cancelButtonLabel:', cancelButtonLabel);
+    }
+
+    const handleAndRefresh = (callback) => () => {
+      callback?.();
+      if (definition.key === 'codescan.chatbot.enabled') {
+        window.location.reload();
+      }
+    };
 
     return (
       <div className="sw-mt-8">
@@ -98,7 +115,7 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
             <Button
               aria-label={saveButtonLabel}
               isDisabled={hasError}
-              onClick={this.props.onSave}
+              onClick={handleAndRefresh(this.props.onSave)}
               variety={ButtonVariety.Primary}
             >
               {translate('save')}
@@ -111,7 +128,7 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
                 'settings.definition.reset',
                 getPropertyName(setting.definition),
               )}
-              onClick={this.handleReset}
+              onClick={handleAndRefresh(this.handleReset)}
             >
               {translate('reset_verb')}
             </Button>

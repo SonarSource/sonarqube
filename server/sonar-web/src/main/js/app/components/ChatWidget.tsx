@@ -76,8 +76,8 @@ const ChatWidget: React.FC = () => {
       });
 
       const replyText = json?.answer ?? json?.content ?? json?.response ?? 'No response.';
-      const formatted = enforceBullets(replyText);
-      setMessages((prev) => [...prev, { role: 'assistant', content: formatted }]);
+      // const formatted = enforceBullets(replyText);
+      setMessages((prev) => [...prev, { role: 'assistant', content: replyText }]);
     } catch (e) {
       setMessages((prev) => [
         ...prev,
@@ -96,40 +96,37 @@ const ChatWidget: React.FC = () => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isOpen]);
 
-  const formatMarkdownAsList = (content: string) => {
-    // Split the content into paragraphs and wrap them in list items
-    const paragraphs = content.split('\n\n'); // Split by double newlines
-    return (
-      <ul>
-        {paragraphs.map((paragraph, index) => (
-          <li key={index}>
-            <ReactMarkdown>{paragraph}</ReactMarkdown>
-          </li>
-        ))}
-      </ul>
-    );
-  };
   
   function cleanText(s: string) {
-    // strip any {cs} tokens your backend might add
     return s.replace(/\{\/?cs\}/gi, '').trim();
   }
-
-  function formatStepsWithBullets(text: string): string {
-    // keep lines starting with "2. Something" as headings,
-    // convert following lines into bullets
-    const lines = text
-      .split(/\n/)
-      .map((l) => l.trim())
-      .filter(Boolean);
+  
+  function formatStepsWithSubBullets(text: string): string {
+    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
     const out: string[] = [];
+  
     for (const line of lines) {
-      if (/^\d+\.\s*/.test(line))
-        out.push(line); // numbered step
-      else out.push(`- ${line}`); // bullet
+      if (/^\d+\./.test(line)) {
+        // Numbered main step (e.g., "1. Do this")
+        out.push(line);
+      } else if (/^[-*]\s+/.test(line)) {
+        // Already a bullet from backend → keep it
+        out.push(line);
+      } else if (/^[A-Z].*:/.test(line)) {
+        // Looks like a heading with ":" (e.g., "Benefits:")
+        out.push(`**${line}**`);
+      } else {
+        // Plain descriptive text → indent under previous step
+        out.push(`- ${line}`);
+      }
     }
+  
     return out.join('\n');
-  }
+  }  
+  
+  
+  
+  
 
   return (
     <div className={`chat-widget-container ${isMaximized ? 'maximized' : ''}`}>
@@ -176,7 +173,7 @@ const ChatWidget: React.FC = () => {
                 {m.role === 'assistant' ? (
                   // ✅ Assistant: wrap markdown in a bubble
                   <div className="bubble-text">
-                    <ReactMarkdown>{formatStepsWithBullets(cleanText(m.content))}</ReactMarkdown>
+                    <ReactMarkdown>{formatStepsWithSubBullets(cleanText(m.content))}</ReactMarkdown>
                   </div>
                 ) : (
                   // ✅ User: simple bubble
