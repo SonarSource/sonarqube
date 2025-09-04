@@ -139,6 +139,7 @@
 .chat-bubble.user .bubble-text {
   background: #01060f;
   color: #fff;
+  text-align: left;
 }
 
 .chat-bubble.bot .bubble-text {
@@ -188,7 +189,7 @@
   flex: 1;
   padding: 0.5rem 0.75rem;
   border: 1px solid #ccc;
-  border-radius: 1.25rem;
+  border-radius: 0.5rem;
   outline: none;
 }
 
@@ -285,12 +286,4 @@
 .bubble-text li {
   margin-bottom: 0.25rem; /* tighter but readable gap */
   line-height: 1.5;
-}
-
-/* Prevent headings inside list items from being bullets */
-.bubble-text li h1,
-.bubble-text li h2,
-.bubble-text li h3 {
-  list-style: none;
-  margin: 0.25rem 0;
 }

@@ -173,25 +173,33 @@ const ChatWidget: React.FC = () => {
                   <div className="bubble-text">
                     <ReactMarkdown
                       components={{
-                        p: ({ children }) => <p className="my-1">{children}</p>,
-                        ul: ({ children }) => <ul className="my-1 pl-4">{children}</ul>,
-                        ol: ({ children }) => <ol className="my-1 pl-4">{children}</ol>,
-                        li: ({ children }) => <li className="my-  0">{children}</li>,
-                        strong: ({ children }) => (
-                          <strong className="text-gray-900 font-semibold">{children}</strong>
+                        h1: ({ children }) => (
+                          <h1 className="text-lg font-bold my-2">{children}</h1>
                         ),
+                        h2: ({ children }) => (
+                          <h2 className="text-base font-semibold my-2">{children}</h2>
+                        ),
+                        h3: ({ children }) => <h3 className="font-medium my-1">{children}</h3>,
+                        p: ({ children }) => <p className="my-1 leading-relaxed">{children}</p>,
+                        ul: ({ children }) => <ul className="list-disc pl-5 my-1">{children}</ul>,
+                        ol: ({ children }) => (
+                          <ol className="list-decimal pl-5 my-1">{children}</ol>
+                        ),
+                        li: ({ children }) => <li className="my-0.5">{children}</li>,
                         code: ({ children }) => (
-                          <code className="bg-gray-200 px-1 rounded text-xs">{children}</code>
+                          <code className="bg-gray-200 px-1 py-0.5 rounded text-xs">
+                            {children}
+                          </code>
                         ),
                         pre: ({ children }) => (
-                          <pre className="bg-gray-200 p-2 rounded text-xs overflow-x-auto">
+                          <pre className="bg-gray-200 p-2 rounded text-sm overflow-x-auto">
                             {children}
                           </pre>
                         ),
                       }}
                     >
                       {m.content}
-                    </ReactMarkdown>{' '}
+                    </ReactMarkdown>
                   </div>
                 ) : (
                   // ✅ User: simple bubble
