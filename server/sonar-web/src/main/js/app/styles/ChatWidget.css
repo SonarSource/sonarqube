@@ -19,8 +19,8 @@
  */
 .chat-widget-container {
   position: fixed;
-  bottom: 1.25rem; /* 20px */
-  right: 1.25rem; /* 20px */
+  bottom: 1.25rem; 
+  right: 1.25rem; 
   z-index: 1000;
   transition: all 0.3s ease-in-out;
 }
@@ -277,22 +277,22 @@
 .bubble-text h1,
 .bubble-text h2,
 .bubble-text h3 {
-  margin: 0.5rem 0 0.25rem; /* balanced spacing above and below */
+  margin: 0.5rem 0 0.25rem; 
   font-weight: 700;
   line-height: 1.4;
-  list-style: none; /* prevents unwanted bullets */
+  list-style: none; 
 }
 
 /* Paragraphs */
 .bubble-text p {
-  margin: 0.25rem 0; /* small gap between paragraphs */
+  margin: 0.25rem 0; 
   line-height: 1.5;
 }
 
 /* Unordered lists */
 .bubble-text ul {
   list-style-type: disc;
-  padding-left: 1.25rem; /* indent bullets */
+  padding-left: 1.25rem; 
   margin: 0.25rem 0 0.5rem;
 }
 
@@ -305,15 +305,15 @@
 
 /* List items */
 .bubble-text li {
-  margin-bottom: 0.25rem; /* tighter but readable gap */
+  margin-bottom: 0.25rem; 
   line-height: 1.5;
 }
-/* Default (minimized / normal chat box) */
+
 .chat-box.maximized .send-btn {
-  border-radius: 0.75rem; /* rounder corners */
-  padding: 0.75rem 1.25rem; /* larger padding */
+  border-radius: 0.75rem; 
+  padding: 0.75rem 1.25rem; 
   font-size: 1.3rem;
-  padding-top: 0.6rem; /* bigger text/icon */
+  padding-top: 0.6rem; 
 }
 .chat-box.maximized .chat-input-bar{
   font-size: 1.2rem;

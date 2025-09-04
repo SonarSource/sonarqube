@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React, { useEffect, useRef, useState } from 'react';
-import ReactMarkdown from 'react-markdown'; // Import react-markdown
-import { postRequest } from '../../api/codescan';
+import ReactMarkdown from 'react-markdown';
+import { postChatRequest } from '../../api/codescan';
 import '../styles/ChatWidget.css';
 
 type Role = 'user' | 'assistant';
@@ -31,7 +31,6 @@ type ChatbotAPIResponse = {
   response?: string;
 };
 
-// Change this to your real endpoint or env var
 const API_URL = '/_codescan/chatbot/query';
 
 const ChatWidget: React.FC = () => {
@@ -62,23 +61,6 @@ const ChatWidget: React.FC = () => {
 
   const toggleMaximize = () => setIsMaximized((v) => !v); // Toggle maximized state
 
-  function enforceBullets(text: string): string {
-    return text
-      .split(/\n+/) // split into lines
-      .map((line) => line.trim())
-      .filter(Boolean)
-      .map((line) => {
-        // If it looks like a heading with ":" → keep bold
-        if (line.endsWith(':')) {
-          console.log('Heading Line:', line);
-          return `- ${line}`;
-        }
-        console.log('Line:', line);
-        return `  ${line}`; // indent subtext under bullet
-      })
-      .join('\n');
-  }
-
   const sendMessage = async () => {
     const text = input.trim();
     if (!text || sending) return;
@@ -89,12 +71,11 @@ const ChatWidget: React.FC = () => {
     setSending(true); // Set sending to true while waiting for a response
 
     try {
-      const json = await postRequest<ChatbotAPIResponse, { query: string }>(API_URL, {
+      const json = await postChatRequest<ChatbotAPIResponse, { query: string }>(API_URL, {
         query: text,
       });
 
       const replyText = json?.answer ?? json?.content ?? json?.response ?? 'No response.';
-      // const formatted = enforceBullets(replyText);
       setMessages((prev) => [...prev, { role: 'assistant', content: replyText }]);
     } catch (e) {
       setMessages((prev) => [
@@ -114,43 +95,12 @@ const ChatWidget: React.FC = () => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isOpen]);
 
-  function cleanText(s: string) {
-    return s.replace(/\{\/?cs\}/gi, '').trim();
-  }
-
-  function formatStepsWithSubBullets(text: string): string {
-    const lines = text
-      .split(/\r?\n/)
-      .map((l) => l.trim())
-      .filter(Boolean);
-    const out: string[] = [];
-
-    for (const line of lines) {
-      if (/^\d+\./.test(line)) {
-        // Numbered main step (e.g., "1. Do this")
-        out.push(line);
-      } else if (/^[-*]\s+/.test(line)) {
-        // Already a bullet from backend → keep it
-        out.push(line);
-      } else if (/^[A-Z].*:/.test(line)) {
-        // Looks like a heading with ":" (e.g., "Benefits:")
-        out.push(`**${line}**`);
-      } else {
-        // Plain descriptive text → indent under previous step
-        out.push(`- ${line}`);
-      }
-    }
-
-    return out.join('\n');
-  }
-
   return (
     <div className={`chat-widget-container ${isMaximized ? 'maximized' : ''}`}>
       {isOpen ? (
         <div className={`chat-box ${isMaximized ? 'maximized' : ''}`}>
           <div className="chat-header">
             <div className="chat-title-wrapper">
-              {/* <img src="/images/codescan-icon.svg" className="chat-logo" /> */}
               <span className="chat-logo-text">
                 {'{'}
                 <span className="chat-slash">/</span>cs{'}'}
@@ -187,7 +137,6 @@ const ChatWidget: React.FC = () => {
                 />
 
                 {m.role === 'assistant' ? (
-                  // ✅ Assistant: wrap markdown in a bubble
                   <div className="bubble-text">
                     <ReactMarkdown
                       components={{
@@ -220,13 +169,11 @@ const ChatWidget: React.FC = () => {
                     </ReactMarkdown>
                   </div>
                 ) : (
-                  // ✅ User: simple bubble
                   <div className="bubble-text">{m.content}</div>
                 )}
               </div>
             ))}
 
-            {/* ✅ Typing/loading indicator (no nested bubble-text, no `m` here) */}
             {sending && (
               <div className="chat-bubble bot loading">
                 <img className="avatar" src="/images/codescan-icon.svg" alt="assistant" />

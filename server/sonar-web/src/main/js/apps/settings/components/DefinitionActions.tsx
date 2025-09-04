@@ -83,11 +83,6 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
   render() {
     const { definition, setting, changedValue, isDefault, isEditing, hasValueChanged, hasError } =
       this.props;
-    // console.log('DefinitionActions props:', this.props);
-    if (definition.key === 'codescan.chatbot.enabled') {
-      // console.log('DefinitionActions definition:', this.props.definition);
-      console.log('changedValue:', changedValue);
-    }
 
     const hasBeenChangedToEmptyValue =
       changedValue !== undefined && isEmptyValue(setting.definition, changedValue);
