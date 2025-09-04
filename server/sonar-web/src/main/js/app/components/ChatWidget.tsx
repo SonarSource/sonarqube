@@ -96,15 +96,17 @@ const ChatWidget: React.FC = () => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isOpen]);
 
-  
   function cleanText(s: string) {
     return s.replace(/\{\/?cs\}/gi, '').trim();
   }
-  
+
   function formatStepsWithSubBullets(text: string): string {
-    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    const lines = text
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter(Boolean);
     const out: string[] = [];
-  
+
     for (const line of lines) {
       if (/^\d+\./.test(line)) {
         // Numbered main step (e.g., "1. Do this")
@@ -120,13 +122,9 @@ const ChatWidget: React.FC = () => {
         out.push(`- ${line}`);
       }
     }
-  
+
     return out.join('\n');
-  }  
-  
-  
-  
-  
+  }
 
   return (
     <div className={`chat-widget-container ${isMaximized ? 'maximized' : ''}`}>
@@ -173,7 +171,27 @@ const ChatWidget: React.FC = () => {
                 {m.role === 'assistant' ? (
                   // ✅ Assistant: wrap markdown in a bubble
                   <div className="bubble-text">
-                    <ReactMarkdown>{formatStepsWithSubBullets(cleanText(m.content))}</ReactMarkdown>
+                    <ReactMarkdown
+                      components={{
+                        p: ({ children }) => <p className="my-1">{children}</p>,
+                        ul: ({ children }) => <ul className="my-1 pl-4">{children}</ul>,
+                        ol: ({ children }) => <ol className="my-1 pl-4">{children}</ol>,
+                        li: ({ children }) => <li className="my-  0">{children}</li>,
+                        strong: ({ children }) => (
+                          <strong className="text-gray-900 font-semibold">{children}</strong>
+                        ),
+                        code: ({ children }) => (
+                          <code className="bg-gray-200 px-1 rounded text-xs">{children}</code>
+                        ),
+                        pre: ({ children }) => (
+                          <pre className="bg-gray-200 p-2 rounded text-xs overflow-x-auto">
+                            {children}
+                          </pre>
+                        ),
+                      }}
+                    >
+                      {m.content}
+                    </ReactMarkdown>{' '}
                   </div>
                 ) : (
                   // ✅ User: simple bubble

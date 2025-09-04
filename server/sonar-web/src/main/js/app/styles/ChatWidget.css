@@ -31,7 +31,7 @@
 
 .chat-box {
   width: 20.75rem; /* 332px */
-  height: 35rem;   /* 560px */
+  height: 35rem; /* 560px */
   background-color: #fff;
   border-radius: 0.625rem;
   box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.2);
@@ -89,7 +89,7 @@
 .chat-close-btn img {
   width: 1.25rem;
   height: 1.25rem;
-  filter: brightness(0) invert(1); /* make icons white */
+  filter: brightness(0) invert(100%);
 }
 
 .chat-body {
@@ -178,8 +178,6 @@
   overflow-x: auto;
 }
 
-
-
 .chat-input-bar {
   display: flex;
   padding: 0.75rem;
@@ -233,7 +231,9 @@
 }
 
 @keyframes bounce {
-  0%, 80%, 100% {
+  0%,
+  80%,
+  100% {
     transform: translateY(0);
   }
   40% {
@@ -294,4 +294,3 @@
   list-style: none;
   margin: 0.25rem 0;
 }
-
