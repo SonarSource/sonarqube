@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown'; // Import react-markdown
 import { postRequest } from '../../api/codescan';
 import './ChatWidget.css';
 import '../styles/ChatWidget.css';
@@ -16,13 +17,49 @@ type ChatbotAPIResponse = {
 const API_URL = '/_codescan/chatbot/query';
 
 const ChatWidget: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
+  const [isMaximized, setIsMaximized] = useState(false); // Tracks if the widget is maximized
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const endRef = useRef<HTMLDivElement | null>(null);
 
-  const toggleChat = () => setIsOpen((v) => !v);
+  const toggleChat = () => {
+    if (isOpen) {
+      setIsMaximized(false); // Reset maximized state when closing the chat
+    }
+    setIsOpen((v) => !v);
+  };
+
+  useEffect(() => {
+    // add a welcome message on initial load
+    setMessages([
+      {
+        role: 'assistant',
+        content:
+          '**Welcome to CodeScan AI Assist!** Get instant solutions, explore CodeScan features, and access knowledge base articles & best practices. **👉 Type your question below to get started.**',
+      },
+    ]);
+  }, []);
+
+  const toggleMaximize = () => setIsMaximized((v) => !v); // Toggle maximized state
+
+  function enforceBullets(text: string): string {
+    return text
+      .split(/\n+/) // split into lines
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => {
+        // If it looks like a heading with ":" → keep bold
+        if (line.endsWith(':')) {
+          console.log('Heading Line:', line);
+          return `- ${line}`;
+        }
+        console.log('Line:', line);
+        return `  ${line}`; // indent subtext under bullet
+      })
+      .join('\n');
+  }
 
   const sendMessage = async () => {
     const text = input.trim();
@@ -31,24 +68,23 @@ const ChatWidget: React.FC = () => {
     const userMsg: Message = { role: 'user', content: text };
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
-    setSending(true);
+    setSending(true); // Set sending to true while waiting for a response
 
     try {
-      // Pass BOTH generics: <ResponseType, BodyType>
       const json = await postRequest<ChatbotAPIResponse, { query: string }>(API_URL, {
-        query: text, // ✅ use trimmed text, not (possibly cleared) input
+        query: text,
       });
 
       const replyText = json?.answer ?? json?.content ?? json?.response ?? 'No response.';
-
-      setMessages((prev) => [...prev, { role: 'assistant', content: replyText }]);
+      const formatted = enforceBullets(replyText);
+      setMessages((prev) => [...prev, { role: 'assistant', content: formatted }]);
     } catch (e) {
       setMessages((prev) => [
         ...prev,
         { role: 'assistant', content: '⚠️ Error contacting chatbot service.' },
       ]);
     } finally {
-      setSending(false);
+      setSending(false); // Reset sending state after response
     }
   };
 
@@ -60,15 +96,72 @@ const ChatWidget: React.FC = () => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isOpen]);
 
+  const formatMarkdownAsList = (content: string) => {
+    // Split the content into paragraphs and wrap them in list items
+    const paragraphs = content.split('\n\n'); // Split by double newlines
+    return (
+      <ul>
+        {paragraphs.map((paragraph, index) => (
+          <li key={index}>
+            <ReactMarkdown>{paragraph}</ReactMarkdown>
+          </li>
+        ))}
+      </ul>
+    );
+  };
+  
+  function cleanText(s: string) {
+    // strip any {cs} tokens your backend might add
+    return s.replace(/\{\/?cs\}/gi, '').trim();
+  }
+
+  function formatStepsWithBullets(text: string): string {
+    // keep lines starting with "2. Something" as headings,
+    // convert following lines into bullets
+    const lines = text
+      .split(/\n/)
+      .map((l) => l.trim())
+      .filter(Boolean);
+    const out: string[] = [];
+    for (const line of lines) {
+      if (/^\d+\.\s*/.test(line))
+        out.push(line); // numbered step
+      else out.push(`- ${line}`); // bullet
+    }
+    return out.join('\n');
+  }
+
   return (
-    <div className="chat-widget-container">
+    <div className={`chat-widget-container ${isMaximized ? 'maximized' : ''}`}>
       {isOpen ? (
-        <div className="chat-box">
+        <div className={`chat-box ${isMaximized ? 'maximized' : ''}`}>
           <div className="chat-header">
-            <span className="chat-title">CODESCAN Assist</span>
-            <button className="chat-close-btn" onClick={toggleChat} aria-label="Close chat">
-              <img src="/images/Cross-icon.svg" alt="Close chat" className="close-icon" />
-            </button>
+            <div className="chat-title-wrapper">
+              {/* <img src="/images/codescan-icon.svg" className="chat-logo" /> */}
+              <span className="chat-logo-text">
+                {'{'}
+                <span className="chat-slash">/</span>cs{'}'}
+              </span>
+              <span className="chat-title"> CodeScan Assist</span>
+            </div>
+            <div className="chat-header-buttons">
+              {/* Maximize/Minimize Button */}
+              <button
+                className="chat-maximize-btn"
+                onClick={toggleMaximize}
+                aria-label={isMaximized ? 'Minimize chat' : 'Maximize chat'}
+              >
+                <img
+                  src={isMaximized ? '/images/window-minimize.svg' : '/images/window-maximize.svg'}
+                  alt={isMaximized ? 'Minimize chat' : 'Maximize chat'}
+                  className="maximize-icon"
+                />
+              </button>
+              {/* Close Button */}
+              <button className="chat-close-btn" onClick={toggleChat} aria-label="Close chat">
+                <img src="/images/cross-icon.svg" alt="Close chat" className="close-icon" />
+              </button>
+            </div>
           </div>
 
           <div className="chat-body">
@@ -76,15 +169,33 @@ const ChatWidget: React.FC = () => {
               <div key={i} className={`chat-bubble ${m.role === 'user' ? 'user' : 'bot'}`}>
                 <img
                   className="avatar"
-                  src={
-                    m.role === 'user' ? '/images/UserCircle-thin.svg' : '/images/codescan cs.svg'
-                  }
+                  src={m.role === 'user' ? '/images/user-circle.svg' : '/images/codescan-icon.svg'}
                   alt={m.role}
                 />
-                <span className="bubble-text">{m.content}</span>
+
+                {m.role === 'assistant' ? (
+                  // ✅ Assistant: wrap markdown in a bubble
+                  <div className="bubble-text">
+                    <ReactMarkdown>{formatStepsWithBullets(cleanText(m.content))}</ReactMarkdown>
+                  </div>
+                ) : (
+                  // ✅ User: simple bubble
+                  <div className="bubble-text">{m.content}</div>
+                )}
               </div>
             ))}
-            <div ref={endRef} />
+
+            {/* ✅ Typing/loading indicator (no nested bubble-text, no `m` here) */}
+            {sending && (
+              <div className="chat-bubble bot loading">
+                <img className="avatar" src="/images/codescan-icon.svg" alt="assistant" />
+                <div className="bubble-text">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="chat-input-bar">
