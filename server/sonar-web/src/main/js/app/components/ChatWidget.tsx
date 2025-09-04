@@ -50,9 +50,13 @@ const ChatWidget = () => {
       {isOpen ? (
         <div className="chat-box">
           <div className="chat-header">
-            <span className="chat-title">🧠 CODESCAN Assist</span>
+            <span className="chat-title">CODESCAN Assist</span>
             <button className="chat-close-btn" onClick={toggleChat} aria-label="Close chat">
-              {/* <FaTimes /> */}close
+              <img
+                src="/images/Cross-icon.svg"
+                alt="Close chat"
+                className="close-icon"
+              />
             </button>
           </div>
 
@@ -61,7 +65,9 @@ const ChatWidget = () => {
               <div key={i} className={`chat-bubble ${m.role === 'user' ? 'user' : 'bot'}`}>
                 <img
                   className="avatar"
-                  src={m.role === 'user' ? '/images/user-icon.png' : '/images/bot-icon.png'}
+                  src={
+                    m.role === 'user' ? '/images/UserCircle-thin.svg' : '/images/codescan cs.svg'
+                  }
                   alt={m.role}
                 />
                 <span className="bubble-text">{m.content}</span>
@@ -79,13 +85,12 @@ const ChatWidget = () => {
               disabled={sending}
             />
             <button className="send-btn" onClick={sendMessage} disabled={sending} aria-label="Send">
-              {/* <FaPaperPlane /> */}send
+              send
             </button>
           </div>
         </div>
       ) : (
         <button className="chat-toggle-btn" onClick={toggleChat} aria-label="Open chat">
-          {/* <MdChat size={18} /> */}
           <span>Chat</span>
         </button>
       )}
