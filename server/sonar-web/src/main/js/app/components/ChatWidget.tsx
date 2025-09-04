@@ -1,12 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { postRequest } from '../../api/codescan';
+import './ChatWidget.css';
 import '../styles/ChatWidget.css';
 
 type Role = 'user' | 'assistant';
 type Message = { role: Role; content: string };
 
-const API_URL = 'http://localhost:3000/_codescan/chatbot/query';
+type ChatbotAPIResponse = {
+  answer?: string;
+  content?: string;
+  response?: string;
+};
 
-const ChatWidget = () => {
+// Change this to your real endpoint or env var
+const API_URL = '/_codescan/chatbot/query';
+
+const ChatWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -25,8 +34,14 @@ const ChatWidget = () => {
     setSending(true);
 
     try {
-      const reply = await sendToChatbot(text);
-      setMessages((prev) => [...prev, { role: 'assistant', content: reply }]);
+      // Pass BOTH generics: <ResponseType, BodyType>
+      const json = await postRequest<ChatbotAPIResponse, { query: string }>(API_URL, {
+        query: text, // ✅ use trimmed text, not (possibly cleared) input
+      });
+
+      const replyText = json?.answer ?? json?.content ?? json?.response ?? 'No response.';
+
+      setMessages((prev) => [...prev, { role: 'assistant', content: replyText }]);
     } catch (e) {
       setMessages((prev) => [
         ...prev,
@@ -52,11 +67,7 @@ const ChatWidget = () => {
           <div className="chat-header">
             <span className="chat-title">CODESCAN Assist</span>
             <button className="chat-close-btn" onClick={toggleChat} aria-label="Close chat">
-              <img
-                src="/images/Cross-icon.svg"
-                alt="Close chat"
-                className="close-icon"
-              />
+              <img src="/images/Cross-icon.svg" alt="Close chat" className="close-icon" />
             </button>
           </div>
 
@@ -81,7 +92,7 @@ const ChatWidget = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={onKeyDown}
-              placeholder={sending ? 'Sending…' : 'Type your message'}
+              placeholder={sending ? 'Sending…' : 'Ask me about CodeScan...'}
               disabled={sending}
             />
             <button className="send-btn" onClick={sendMessage} disabled={sending} aria-label="Send">
@@ -97,16 +108,5 @@ const ChatWidget = () => {
     </div>
   );
 };
-
-async function sendToChatbot(query: string): Promise<string> {
-  const res = await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query }),
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const json: any = await res.json();
-  return json?.answer || json?.content || json?.response || 'No response.';
-}
 
 export default ChatWidget;

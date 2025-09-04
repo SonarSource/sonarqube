@@ -127,3 +127,26 @@
   margin-left: 8px;
   cursor: pointer;
 }
+
+.chat-expand-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px; /* adjust size */
+  color: #333;     /* or match your theme */
+}
+
+.bubble-text pre, .bubble-text code {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.bubble-text table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.bubble-text table, .bubble-text th, .bubble-text td {
+  border: 1px solid #e5e7eb;
+  padding: 6px 8px;
+  border-radius: 4px;
+}
+

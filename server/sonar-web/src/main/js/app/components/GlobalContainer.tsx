@@ -20,6 +20,7 @@
 
 import { ThemeProvider } from '@emotion/react';
 import styled from '@emotion/styled';
+import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { lightTheme, themeColor } from '~design-system';
 import A11yProvider from '~sonar-aligned/components/a11y/A11yProvider';
@@ -79,8 +80,36 @@ const PAGES_WITH_SECONDARY_BACKGROUND = [
 
 export default function GlobalContainer() {
   // it is important to pass `location` down to `GlobalNav` to trigger render on url change
+  const [isChatEnabled, setIsChatEnabled] = useState(false); // State to track chat widget visibility
   const location = useLocation();
 
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
+    async function fetchChatBotFlag() {
+      try {
+        const chatEnabled = await getChatBotFlag();
+        const isEnabled =
+          chatEnabled.settings.find((s) => s.key === 'codescan.chatbot.enabled').value === 'true';
+
+        // Only update the state if the value has changed
+        if (isEnabled !== isChatEnabled) {
+          setIsChatEnabled(isEnabled);
+        }
+      } catch (error) {
+        console.error('Error fetching chatbot flag:', error);
+      }
+    }
+
+    // Fetch the flag initially
+    fetchChatBotFlag();
+
+    // Set up polling to fetch the flag every 2 seconds
+    intervalId = setInterval(fetchChatBotFlag, 2000);
+
+    // Cleanup the interval on component unmount
+    return () => clearInterval(intervalId);
+  }, [isChatEnabled]);
 
   return (
     <ThemeProvider theme={lightTheme}>
@@ -88,7 +117,7 @@ export default function GlobalContainer() {
         <A11yProvider>
           <A11ySkipLinks />
           <GlobalContainerWrapper>
-            <ChatWidget />
+            {isChatEnabled && <ChatWidget />}
             <GlobalBackground
               secondary={PAGES_WITH_SECONDARY_BACKGROUND.includes(location.pathname)}
               className="sw-box-border sw-flex-[1_0_auto]"

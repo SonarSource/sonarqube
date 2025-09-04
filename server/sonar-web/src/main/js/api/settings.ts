@@ -124,5 +124,7 @@ export function getAccessConsentMessage(): Promise<{ message: string }> {
 }
 
 export async function getChatBotFlag(): Promise<{ message: boolean }> {
-  return getJSON('/api/settings/values').catch(throwGlobalError);
+  return getJSON('/api/settings/values?keys=codescan.chatbot.enabled').catch(
+    throwGlobalError,
+  );
 }
