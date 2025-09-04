@@ -102,9 +102,14 @@
 
     <select id="selectUsers" parameterType="map" resultMap="userResultMap">
         <include refid="selectFromUsersAndJoinScmAccounts"/>
-        <include refid="searchByQueryWhereClause"/>
-        ORDER BY u.login
-        <include refid="org.sonar.db.common.Common.pagination"/>
+        WHERE u.uuid IN (
+            SELECT u.uuid
+            FROM users u
+            <include refid="searchByQueryWhereClause"/>
+            ORDER BY u.login
+            <include refid="org.sonar.db.common.Common.pagination"/>
+        )
+        ORDER BY u.login, sa.scm_account
     </select>
 
     <select id="countByQuery" parameterType="map" resultType="int">
