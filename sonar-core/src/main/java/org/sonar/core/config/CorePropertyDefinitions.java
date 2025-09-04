@@ -43,7 +43,7 @@ public class CorePropertyDefinitions {
   public static final String SONAR_ANALYSIS_DETECTEDCI = "sonar.analysis.detectedci";
 
   public static final String DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES = "sonar.builtInQualityProfiles.disableNotificationOnUpdate";
-
+  public static final String DISABLE_JRE_AUTO_PROVISIONING = "sonar.jreAutoProvisioning.disabled";
   public static final String ALLOW_DISABLE_INHERITED_RULES = "sonar.qualityProfiles.allowDisableInheritedRules";
 
   public static final String PLUGINS_RISK_CONSENT = "sonar.plugins.risk.consent";
@@ -225,6 +225,16 @@ public class CorePropertyDefinitions {
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS_EXCLUSIONS)
         .multiValues(true)
+        .build(),
+
+      // JRE AUTO-PROVISIONING
+      PropertyDefinition.builder(DISABLE_JRE_AUTO_PROVISIONING)
+        .defaultValue(Boolean.toString(false))
+        .name("Disable Scanner JRE auto provisioning")
+        .description("Deactivates the automatic download and use of a Java Runtime (JRE) by the scanner. " +
+          "When toggled on, you must ensure a compatible JRE is available on your build servers.")
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .type(BOOLEAN)
         .build()));
 
     return defs;

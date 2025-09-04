@@ -33,26 +33,32 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
+import org.sonar.api.config.Configuration;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.v2.api.analysis.response.JreInfoRestResponse;
 import org.sonar.server.v2.common.model.Arch;
 import org.sonar.server.v2.common.model.OS;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.sonar.core.config.CorePropertyDefinitions.DISABLE_JRE_AUTO_PROVISIONING;
 
 public class JresHandlerImpl implements JresHandler {
 
   private static final String JRES_METADATA_FILENAME = "jres-metadata.json";
 
+  private final Configuration configuration;
   private final String jresMetadataFilename;
   private final Map<String, JreInfoRestResponse> metadata = new HashMap<>();
 
-  public JresHandlerImpl() {
-    this(JRES_METADATA_FILENAME);
+  @Autowired(required=true)
+  public JresHandlerImpl(Configuration configuration) {
+    this(configuration, JRES_METADATA_FILENAME);
   }
 
   @VisibleForTesting
-  public JresHandlerImpl(String jresMetadataFilename) {
+  public JresHandlerImpl(Configuration configuration, String jresMetadataFilename) {
+    this.configuration = configuration;
     this.jresMetadataFilename = jresMetadataFilename;
   }
 
@@ -73,6 +79,9 @@ public class JresHandlerImpl implements JresHandler {
 
   @Override
   public List<JreInfoRestResponse> getJresMetadata(@Nullable String os, @Nullable String arch) {
+    if (configuration.getBoolean(DISABLE_JRE_AUTO_PROVISIONING).orElse(false)) {
+      return List.of();
+    }
     Predicate<JreInfoRestResponse> osFilter = isBlank(os) ? jre -> true : (jre -> OS.from(jre.os()) == OS.from(os));
     Predicate<JreInfoRestResponse> archFilter = isBlank(arch) ? jre -> true : (jre -> Arch.from(jre.arch()) == Arch.from(arch));
     return metadata.values().stream()
