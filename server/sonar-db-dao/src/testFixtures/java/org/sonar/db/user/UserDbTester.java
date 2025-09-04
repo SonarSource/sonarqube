@@ -219,7 +219,8 @@ public class UserDbTester {
 
   public UserGroupDto insertMember(GroupDto group, UserDto user) {
     UserGroupDto dto = new UserGroupDto().setGroupUuid(group.getUuid()).setUserUuid(user.getUuid());
-    db.getDbClient().userGroupDao().insert(db.getSession(), dto, group.getName(), user.getLogin());
+    db.getDbClient().userGroupDao().insert(db.getSession(), dto, group.getName(), user.getLogin(),
+            group.getOrganizationUuid());
     db.commit();
     return dto;
   }
@@ -227,7 +228,8 @@ public class UserDbTester {
   public void insertMembers(GroupDto group, UserDto... users) {
     Arrays.stream(users).forEach(user -> {
       UserGroupDto dto = new UserGroupDto().setGroupUuid(group.getUuid()).setUserUuid(user.getUuid());
-      db.getDbClient().userGroupDao().insert(db.getSession(), dto, group.getName(), user.getLogin());
+      db.getDbClient().userGroupDao().insert(db.getSession(), dto, group.getName(), user.getLogin(),
+              group.getOrganizationUuid());
     });
     db.commit();
   }

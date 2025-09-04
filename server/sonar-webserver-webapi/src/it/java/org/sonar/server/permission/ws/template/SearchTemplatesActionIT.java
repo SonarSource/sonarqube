@@ -355,7 +355,7 @@ public class SearchTemplatesActionIT extends BasePermissionWsIT<SearchTemplatesA
   }
 
   private void addGroupToTemplate(String templateUuid, @Nullable String groupUuid, String permission, String templateName, String groupName) {
-    dbClient.permissionTemplateDao().insertGroupPermission(db.getSession(), templateUuid, groupUuid, permission, templateName, groupName);
+    dbClient.permissionTemplateDao().insertGroupPermission(db.getSession(), templateUuid, groupUuid, permission, templateName, groupName, "organization");
     db.getSession().commit();
   }
 
@@ -372,7 +372,7 @@ public class SearchTemplatesActionIT extends BasePermissionWsIT<SearchTemplatesA
         .setPermission(permission)
         .setCreatedAt(1_000_000_000L)
         .setUpdatedAt(2_000_000_000L),
-      templateName);
+      templateName, "organization");
     db.commit();
   }
 

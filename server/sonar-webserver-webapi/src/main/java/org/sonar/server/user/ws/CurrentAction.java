@@ -22,9 +22,14 @@ package org.sonar.server.user.ws;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -36,6 +41,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationMemberDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.project.ProjectDto;
@@ -43,6 +49,7 @@ import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserOrganizationGroup;
 import org.sonar.server.common.avatar.AvatarResolver;
+import org.sonar.server.organization.ws.MemberUpdater.MemberType;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Users.CurrentWsResponse;
@@ -68,6 +75,8 @@ import static org.sonarqube.ws.Users.CurrentWsResponse.newBuilder;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CURRENT;
 
 public class CurrentAction implements UsersWsAction {
+  private static final Logger LOG = LoggerFactory.getLogger(CurrentAction.class);
+
   private final UserSession userSession;
   private final DbClient dbClient;
   private final AvatarResolver avatarResolver;
@@ -122,6 +131,40 @@ public class CurrentAction implements UsersWsAction {
     checkState(user != null, "User login '%s' cannot be found", userLogin);
     Collection<String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(userLogin)).get(userLogin);
     List<UserOrganizationGroup> orgGroups = dbClient.groupMembershipDao().selectGroupsAndOrganizationsByLogin(dbSession, userLogin);
+    List<String> platformOrgs = new ArrayList<>();
+    List<String> standardOrgs = new ArrayList<>();
+    List<OrganizationMemberDto> organizationMembers = dbClient.organizationMemberDao()
+            .selectOrganizationMembersByUserUuid(dbSession, user.getUuid());
+    List<String> orgUuids = organizationMembers.stream()
+            .map(OrganizationMemberDto::getOrganizationUuid)
+            .collect(Collectors.toList());
+
+    if (user.isRoot()) {
+      standardOrgs = dbClient.organizationDao()
+              .selectByUuids(dbSession, new HashSet<>(dbClient.organizationDao().selectAllUuids(dbSession))).stream()
+              .map(
+                      OrganizationDto::getKey).toList();
+
+    } else {
+      Map<String, String> orgUuidToKeyMap = dbClient.organizationDao()
+              .selectByUuids(dbSession, new HashSet<>(orgUuids)).stream()
+              .collect(Collectors.toMap(OrganizationDto::getUuid, OrganizationDto::getKey));
+
+      for (OrganizationMemberDto orgMember : organizationMembers) {
+        String orgKey = orgUuidToKeyMap.get(orgMember.getOrganizationUuid());
+        if (orgKey == null) {
+          LOG.info("User {} is member of organization UUID {} that no longer exists",
+                  user.getUuid(), orgMember.getOrganizationUuid());
+          continue;
+        }
+        if (MemberType.PLATFORM.name().equals(orgMember.getType())) {
+          platformOrgs.add(orgKey);
+        } else if (MemberType.STANDARD.name().equals(orgMember.getType())) {
+          standardOrgs.add(orgKey);
+        }
+      }
+    }
+
 
     CurrentWsResponse.Builder builder = newBuilder()
       .setIsLoggedIn(true)
@@ -134,7 +177,9 @@ public class CurrentAction implements UsersWsAction {
       .addAllScmAccounts(user.getSortedScmAccounts())
       .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions(dbSession)).build())
       .setHomepage(buildHomepage(dbSession, user))
-      .setUsingSonarLintConnectedMode(user.getLastSonarlintConnectionDate() != null);
+      .setUsingSonarLintConnectedMode(user.getLastSonarlintConnectionDate() != null)
+      .addAllPlatformOrgs(platformOrgs)
+      .addAllStandardOrgs(standardOrgs);
 
     AVAILABLE_NOTICE_KEYS.forEach(key -> builder.putDismissedNotices(key, isNoticeDismissed(user, key)));
 

@@ -56,9 +56,9 @@ public class QualityGateGroupPermissionsDao implements Dao {
       .isEmpty();
   }
 
-  public void insert(DbSession dbSession, QualityGateGroupPermissionsDto dto, String qualityGateName, String groupName) {
+  public void insert(DbSession dbSession, QualityGateGroupPermissionsDto dto, String qualityGateName, String groupName, String organizationUuid) {
     mapper(dbSession).insert(dto, system2.now());
-    auditPersister.addQualityGateEditor(dbSession, new GroupEditorNewValue(dto, qualityGateName, groupName));
+    auditPersister.addQualityGateEditor(dbSession, organizationUuid, new GroupEditorNewValue(dto, qualityGateName, groupName));
   }
 
   public List<SearchGroupMembershipDto> selectByQuery(DbSession dbSession, SearchPermissionQuery query, Pagination pagination) {
@@ -73,7 +73,7 @@ public class QualityGateGroupPermissionsDao implements Dao {
     int deletedRows = mapper(dbSession).deleteByGroup(group.getUuid());
 
     if (deletedRows > 0) {
-      auditPersister.deleteQualityGateEditor(dbSession, new GroupEditorNewValue(group));
+      auditPersister.deleteQualityGateEditor(dbSession, group.getOrganizationUuid(), new GroupEditorNewValue(group));
     }
   }
 
@@ -81,7 +81,7 @@ public class QualityGateGroupPermissionsDao implements Dao {
     int deletedRows = mapper(dbSession).delete(qualityGate.getUuid(), group.getUuid());
 
     if (deletedRows > 0) {
-      auditPersister.deleteQualityGateEditor(dbSession, new GroupEditorNewValue(qualityGate, group));
+      auditPersister.deleteQualityGateEditor(dbSession, qualityGate.getOrganizationUuid(), new GroupEditorNewValue(qualityGate, group));
     }
   }
 
@@ -89,7 +89,7 @@ public class QualityGateGroupPermissionsDao implements Dao {
     int deletedRows = mapper(dbSession).deleteByQualityGate(qualityGate.getUuid());
 
     if (deletedRows > 0) {
-      auditPersister.deleteQualityGateEditor(dbSession, new GroupEditorNewValue(qualityGate));
+      auditPersister.deleteQualityGateEditor(dbSession, qualityGate.getOrganizationUuid(), new GroupEditorNewValue(qualityGate));
     }
   }
 

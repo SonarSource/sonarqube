@@ -200,4 +200,14 @@
   <delete id="deleteByUserUuid" parameterType="String">
     DELETE FROM user_roles WHERE user_uuid=#{userUuid,jdbcType=VARCHAR}
   </delete>
+
+  <select id="selectByUserUuid" parameterType="String" resultType="org.sonar.db.permission.UserPermissionDto">
+    select
+      user_uuid as userUuid,
+      organization_uuid as organizationUuid,
+      entity_uuid as entityUuid,
+      role as permission
+    from user_roles
+    where user_uuid = #{userUuid,jdbcType=VARCHAR}
+  </select>
 </mapper>

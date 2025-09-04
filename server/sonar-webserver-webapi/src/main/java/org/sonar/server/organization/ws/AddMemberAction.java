@@ -37,6 +37,7 @@ import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.common.avatar.AvatarResolver;
+import org.sonar.server.organization.ws.MemberUpdater.MemberType;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Organizations.AddMemberWsResponse;
 import org.sonarqube.ws.Organizations.User;
@@ -49,6 +50,7 @@ public class AddMemberAction implements OrganizationsWsAction {
 
   private static final String PARAM_ORGANIZATION = "organization";
   private static final String PARAM_LOGIN = "login";
+  private static final String PARAM_TYPE = "type";
 
   public AddMemberAction(DbClient dbClient, UserSession userSession, AvatarResolver avatarResolver, MemberUpdater memberUpdater) {
     this.dbClient = dbClient;
@@ -78,18 +80,25 @@ public class AddMemberAction implements OrganizationsWsAction {
       .setDescription("User login")
       .setRequired(true)
       .setExampleValue("ray.bradbury");
+
+    action
+      .createParam(PARAM_TYPE)
+      .setDefaultValue(MemberType.STANDARD.name())
+      .setDescription("Type of user");
+
   }
 
   public void handle(Request request, Response response) throws Exception {
     String organizationKey = request.mandatoryParam(PARAM_ORGANIZATION);
     String login = request.mandatoryParam(PARAM_LOGIN);
+    MemberType memberType = request.paramAsEnum(PARAM_TYPE, MemberType.class);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationKey), "Organization '%s' is not found",
         organizationKey);
       userSession.checkIsSystemAdministrator();
       UserDto user = checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' is not found", login);
-      memberUpdater.addMember(dbSession, organization, user);
+      memberUpdater.addMember(dbSession, organization, user, memberType);
       dbSession.commit();
 
       int groups = dbClient.groupMembershipDao().countGroups(dbSession, GroupMembershipQuery.builder()

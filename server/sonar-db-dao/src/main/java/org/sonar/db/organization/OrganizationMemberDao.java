@@ -28,8 +28,16 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.UserNewValue;
 
 public class OrganizationMemberDao implements Dao {
+  private final AuditPersister auditPersister;
+
+  public OrganizationMemberDao(AuditPersister auditPersister) {
+    this.auditPersister = auditPersister;
+  }
+
   private static OrganizationMemberMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(OrganizationMemberMapper.class);
   }
@@ -44,10 +52,13 @@ public class OrganizationMemberDao implements Dao {
 
   public void insert(DbSession dbSession, OrganizationMemberDto organizationMemberDto) {
     mapper(dbSession).insert(organizationMemberDto);
+    auditPersister.addUserToOrganization(dbSession, organizationMemberDto.getOrganizationUuid(),
+            new UserNewValue(organizationMemberDto.getUserUuid(), organizationMemberDto.getOrganizationUuid()));
   }
 
-  public void delete(DbSession dbSession, String organizationMemberUuid, String userUuid) {
-    mapper(dbSession).delete(organizationMemberUuid, userUuid);
+  public void delete(DbSession dbSession, String organizationUuid, String userUuid) {
+    mapper(dbSession).delete(organizationUuid, userUuid);
+    auditPersister.deleteUserFromOrganization(dbSession, organizationUuid, new UserNewValue(userUuid, organizationUuid));
   }
 
   public void deleteByOrganizationUuid(DbSession dbSession, String organizationMemberUuid) {
@@ -64,6 +75,18 @@ public class OrganizationMemberDao implements Dao {
 
   public Set<String> selectOrganizationUuidsByUser(DbSession dbSession, String userUuid) {
     return mapper(dbSession).selectOrganizationUuidsByUser(userUuid);
+  }
+
+  public List<OrganizationMemberDto> selectOrganizationMembersByUserUuid(DbSession dbSession, String userUuid){
+    return mapper(dbSession).selectOrganizationMembersByUserUuid(userUuid);
+  }
+
+  public Set<String> selectOrganizationUuidsByUserUuidAndType(DbSession dbSession, String userUuid, String type){
+    return mapper(dbSession).selectOrganizationUuidsByUserUuidAndType(userUuid, type);
+  }
+
+  public boolean isUserStandardMemberOfOrganization(DbSession dbSession, String userUuid, String organizationUuid) {
+    return mapper(dbSession).isUserStandardMemberOfOrganization(userUuid, organizationUuid);
   }
 
   public List<OrganizationMemberDto> selectAllOrganizationMemberDtos(DbSession dbSession, String organizationUuid){

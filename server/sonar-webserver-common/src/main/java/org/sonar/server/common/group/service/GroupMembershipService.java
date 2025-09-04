@@ -76,7 +76,7 @@ public class GroupMembershipService {
       GroupDto groupDto = findNonDefaultGroupOrThrow(groupUuid, dbSession);
       UserGroupDto userGroupDto = new UserGroupDto().setGroupUuid(groupUuid).setUserUuid(userUuid);
       checkArgument(isNotInGroup(dbSession, groupUuid, userUuid), "User '%s' is already a member of group '%s'", userDto.getLogin(), groupDto.getName());
-      userGroupDao.insert(dbSession, userGroupDto, groupDto.getName(), userDto.getLogin());
+      userGroupDao.insert(dbSession, userGroupDto, groupDto.getName(), userDto.getLogin(), groupDto.getOrganizationUuid());
       dbSession.commit();
       return userGroupDto;
     }

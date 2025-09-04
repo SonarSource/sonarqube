@@ -25,7 +25,9 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.cursor.Cursor;
@@ -139,6 +141,9 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     doc.setPciDss40(securityStandards.getPciDss40());
     doc.setOwaspAsvs40(securityStandards.getOwaspAsvs40());
     doc.setCwe(securityStandards.getCwe());
+    doc.setCvss(securityStandards.getCvss().stream().map(v -> { try { return Double.parseDouble(v); } catch (Exception e) { return null; } }).filter(
+            Objects::nonNull).collect(Collectors.toSet()));
+
     doc.setSansTop25(securityStandards.getSansTop25());
     doc.setSonarSourceSecurityCategory(sqCategory);
     doc.setVulnerabilityProbability(sqCategory.getVulnerability());

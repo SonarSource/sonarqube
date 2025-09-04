@@ -417,11 +417,13 @@ public final class SecurityStandards {
   private final Set<String> casaCategories;
   private final SQCategory sqCategory;
   private final Set<SQCategory> ignoredSQCategories;
+  private final Set<String> cvss;
 
-  private SecurityStandards(Set<String> standards, Set<String> cwe, Set<String> casaCategories,
+  private SecurityStandards(Set<String> standards, Set<String> cwe, Set<String> cvss, Set<String> casaCategories,
     SQCategory sqCategory, Set<SQCategory> ignoredSQCategories) {
     this.standards = standards;
     this.cwe = cwe;
+    this.cvss=cvss;
     this.casaCategories = casaCategories;
     this.sqCategory = sqCategory;
     this.ignoredSQCategories = ignoredSQCategories;
@@ -433,6 +435,10 @@ public final class SecurityStandards {
 
   public Set<String> getCwe() {
     return cwe;
+  }
+
+  public Set<String> getCvss() {
+    return cvss;
   }
 
   public Set<String> getPciDss32() {
@@ -492,11 +498,12 @@ public final class SecurityStandards {
   public static SecurityStandards fromSecurityStandards(Set<String> securityStandards) {
     Set<String> standards = securityStandards.stream().filter(Objects::nonNull).collect(Collectors.toSet());
     Set<String> cwe = toCwes(standards);
+    Set<String> cvss = toCvsss(standards);
     List<SQCategory> sq = toSortedSQCategories(cwe);
     SQCategory sqCategory = sq.iterator().next();
     Set<SQCategory> ignoredSQCategories = sq.stream().skip(1).collect(Collectors.toSet());
     Set<String> casaCategories = toCasaCategories(cwe);
-    return new SecurityStandards(standards, cwe, casaCategories, sqCategory, ignoredSQCategories);
+    return new SecurityStandards(standards, cwe, cvss, casaCategories, sqCategory, ignoredSQCategories);
   }
 
   public static Set<String> getRequirementsForCategoryAndLevel(String category, int level) {
@@ -522,6 +529,15 @@ public final class SecurityStandards {
       .map(s -> s.substring(CWE_PREFIX.length()))
       .collect(Collectors.toSet());
     return result.isEmpty() ? singleton(UNKNOWN_STANDARD) : result;
+  }
+
+
+  private static Set<String> toCvsss(Collection<String> securityStandards) {
+    Set<String> result = securityStandards.stream()
+            .filter(s -> s.startsWith("cvss:"))
+            .map(s -> s.substring("cvss:".length()))
+            .collect(Collectors.toSet());
+    return result.isEmpty() ? singleton("unknown") : result;
   }
 
   private static Set<String> toCweTop25(Set<String> cwe) {
@@ -557,5 +573,4 @@ public final class SecurityStandards {
       .filter(k -> cwe.contains(CWES_BY_CASA_CATEGORY.get(k)))
       .collect(Collectors.toSet());
   }
-
 }

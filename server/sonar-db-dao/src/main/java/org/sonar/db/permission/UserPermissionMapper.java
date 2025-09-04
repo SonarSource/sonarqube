@@ -53,7 +53,7 @@ public interface UserPermissionMapper {
    */
   Set<UserIdDto> selectUserIdsWithPermissionOnEntityBut(@Param("entityUuid") String entityUuid, @Param("permission") String permission);
 
-  void insert(@Param("dto")UserPermissionDto dto);
+  void insert(@Param("dto") UserPermissionDto dto);
 
   int deleteGlobalPermission(@Param("userUuid") String userUuid, @Param("permission") String permission, @Param("organizationUuid") String organizationUuid);
 
@@ -73,4 +73,6 @@ public interface UserPermissionMapper {
   void deleteOrganizationMemberPermissions(@Param("organizationUuid") String organizationUuid, @Param("userUuid") String userUuid);
 
   int deleteByUserUuid(@Param("userUuid") String userUuid);
+
+  List<UserPermissionDto> selectByUserUuid(@Param("userUuid") String userUuid);
 }

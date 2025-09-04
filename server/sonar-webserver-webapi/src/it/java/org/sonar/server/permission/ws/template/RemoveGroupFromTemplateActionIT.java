@@ -207,7 +207,7 @@ public class RemoveGroupFromTemplateActionIT extends BasePermissionWsIT<RemoveGr
 
   private void addGroupToTemplate(PermissionTemplateDto template, @Nullable String groupUuid, String permission, String groupName) {
     db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), template.getUuid(), groupUuid,
-      permission, template.getName(), groupName);
+      permission, template.getName(), groupName, template.getOrganizationUuid());
     db.commit();
   }
 

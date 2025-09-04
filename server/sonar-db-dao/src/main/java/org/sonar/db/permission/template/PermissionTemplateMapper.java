@@ -84,4 +84,6 @@ public interface PermissionTemplateMapper {
 
   List<PermissionTemplateGroupDto> selectAllGroupPermissionTemplatesByGroupUuid(@Param("groupUuid") String groupUuid);
 
+  List<PermissionTemplateUserDto> selectUserPermissionsByUserUuid(@Param("userUuid") String userUuid);
+
 }

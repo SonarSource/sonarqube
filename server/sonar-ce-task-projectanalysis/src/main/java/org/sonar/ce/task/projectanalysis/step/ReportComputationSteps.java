@@ -42,7 +42,6 @@ public class ReportComputationSteps extends AbstractComputationSteps {
 
   private static final List<Class<? extends ComputationStep>> STEPS = Arrays.asList(
     ExtractReportStep.class,
-    // The step which adds MDC variable with Codescan jobId
     CodescanLoggingStep.class,
     CodescanJobLinkStep.class,
     PersistScannerContextStep.class,
@@ -96,6 +95,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
 
     // Must be executed after visitors execution
     PullRequestFixedIssuesMeasureStep.class,
+    ProjectAnalysisAuditStep.class,
 
     QualityGateMeasuresStep.class,
     // Must be executed after computation of language distribution

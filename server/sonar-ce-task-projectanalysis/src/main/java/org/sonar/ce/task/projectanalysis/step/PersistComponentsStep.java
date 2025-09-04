@@ -234,7 +234,7 @@ public class PersistComponentsStep implements ComputationStep {
       Optional<ComponentUpdateDto> update = compareForUpdate(existingComponent, componentDto);
       if (update.isPresent()) {
         ComponentUpdateDto updateDto = update.get();
-        dbClient.componentDao().update(dbSession, updateDto, componentDto.qualifier());
+        dbClient.componentDao().update(dbSession, componentDto.getOrganizationUuid(), updateDto, componentDto.qualifier());
 
         // update the fields in memory in order the PathAwareVisitor.Path
         // to be up-to-date

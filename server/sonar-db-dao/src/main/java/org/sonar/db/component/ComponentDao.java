@@ -19,7 +19,14 @@
  */
 package org.sonar.db.component;
 
-import com.google.common.collect.Ordering;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.Collections.emptyList;
+import static org.sonar.db.DatabaseUtils.checkThatNotTooManyConditions;
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.DatabaseUtils.executeLargeInputsIntoSet;
+import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -29,7 +36,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import javax.annotation.Nullable;
+
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -38,14 +47,8 @@ import org.sonar.db.RowNotFoundException;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentNewValue;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-import static java.util.Collections.emptyList;
-import static java.util.Objects.requireNonNull;
-import static org.sonar.db.DatabaseUtils.checkThatNotTooManyConditions;
-import static org.sonar.db.DatabaseUtils.executeLargeInputs;
-import static org.sonar.db.DatabaseUtils.executeLargeInputsIntoSet;
-import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
+import com.google.common.collect.Ordering;
+import org.sonar.db.entity.EntityDto;
 
 public class ComponentDao implements Dao {
   private final AuditPersister auditPersister;
@@ -288,7 +291,7 @@ public class ComponentDao implements Dao {
   public void insert(DbSession session, ComponentDto item, boolean shouldPersistAudit) {
     mapper(session).insert(item);
     if (shouldPersistAudit) {
-      auditPersister.addComponent(session, new ComponentNewValue(item));
+      auditPersister.addComponent(session, item.getOrganizationUuid(), new ComponentNewValue(item));
     }
   }
 
@@ -304,9 +307,10 @@ public class ComponentDao implements Dao {
     items.forEach(item -> insert(session, item, isMainBranch));
   }
 
-  public void update(DbSession session, ComponentUpdateDto component, String qualifier) {
-    auditPersister.updateComponent(session, new ComponentNewValue(component.getUuid(), component.getBName(),
-      component.getBKey(), component.isBEnabled(), component.getBPath(), qualifier));
+  public void update(DbSession session, String organizationUuid, ComponentUpdateDto component, String qualifier) {
+    auditPersister.updateComponent(session, organizationUuid,
+        new ComponentNewValue(component.getUuid(), component.getBName(),
+            component.getBKey(), component.isBEnabled(), component.getBPath(), qualifier));
     mapper(session).update(component);
   }
 
@@ -326,10 +330,12 @@ public class ComponentDao implements Dao {
     mapper(session).setPrivateForBranchUuid(branchUuid, isPrivate);
   }
 
-  public void setPrivateForBranchUuid(DbSession session, String branchUuid, boolean isPrivate, String qualifier, String componentKey, String componentName) {
-    ComponentNewValue componentNewValue = new ComponentNewValue(branchUuid, componentName, componentKey, isPrivate, qualifier);
-    //TODO we should log change to the visibility in EntityDao, not ComponentDao
-    auditPersister.updateComponentVisibility(session, componentNewValue);
+  public void setPrivateForBranchUuid(DbSession session, String branchUuid, boolean isPrivate, EntityDto entity) {
+    ComponentDto componentDto = mapper(session).selectByUuid(branchUuid);
+    ComponentNewValue componentNewValue = new ComponentNewValue(branchUuid, entity.getName(), entity.getKey(), isPrivate,
+            entity.getQualifier());
+    // TODO we should log change to the visibility in EntityDao, not ComponentDao
+    auditPersister.updateComponentVisibility(session, componentDto.getOrganizationUuid(), componentNewValue);
     mapper(session).setPrivateForBranchUuid(branchUuid, isPrivate);
   }
 

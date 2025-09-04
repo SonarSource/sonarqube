@@ -248,6 +248,14 @@
     </where>
   </select>
 
+  <select id="selectUserPermissionsByUserUuid" parameterType="String" resultType="PermissionTemplateUser">
+    SELECT
+    <include refid="permissionTemplateUserColumns"/>
+    FROM perm_templates_users ptu
+    INNER JOIN users u ON u.uuid = ptu.user_uuid AND u.active = ${_true}
+    WHERE ptu.user_uuid = #{userUuid}
+  </select>
+
   <select id="selectGroupPermissionsByTemplateUuidAndGroupNames" parameterType="String" resultType="PermissionTemplateGroup">
     SELECT
       sub.uuid,

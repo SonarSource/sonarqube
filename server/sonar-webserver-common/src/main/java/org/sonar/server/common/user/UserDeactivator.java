@@ -85,6 +85,7 @@ public class UserDeactivator {
     dbClient.sessionTokensDao().deleteByUser(dbSession, user);
     dbClient.userDismissedMessagesDao().deleteByUser(dbSession, user);
     dbClient.qualityGateUserPermissionDao().deleteByUser(dbSession, user);
+    dbClient.organizationMemberDao().deleteByUserUuid(dbSession, userUuid);
   }
 
   private void anonymizeUser(DbSession dbSession, UserDto user) {

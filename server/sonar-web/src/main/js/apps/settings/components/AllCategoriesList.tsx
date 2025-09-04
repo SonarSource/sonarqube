@@ -29,7 +29,7 @@ import { translate } from '../../../helpers/l10n';
 import { getGlobalSettingsUrl, getProjectSettingsUrl } from '../../../helpers/urls';
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
-import { AI_CODE_FIX_CATEGORY, CATEGORY_OVERRIDES } from '../constants';
+import { AI_CODE_FIX_CATEGORY, CATEGORY_OVERRIDES, NEW_CODE_PERIOD_CATEGORY} from '../constants';
 import { getCategoryName } from '../utils';
 import { ADDITIONAL_CATEGORIES } from './AdditionalCategories';
 import { ALL_CUSTOMER_CATEGORIES } from './AllCustomerCategories';
@@ -97,6 +97,7 @@ function CategoriesList(props: Readonly<CategoriesListProps>) {
           .filter(c => c.displayTab)
           .filter(c => ALL_CUSTOMER_CATEGORIES[c.key.toLowerCase()])
       );
+    categoriesWithName = categoriesWithName.filter((c) => c.key !== NEW_CODE_PERIOD_CATEGORY);
   }
   const sortedCategories = sortBy(categoriesWithName, (category) => category.name.toLowerCase());
 

@@ -23,6 +23,7 @@ import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -106,6 +107,10 @@ public class IssueQuery {
   private final Collection<String> cleanCodeAttributesCategories;
   private final String organizationUuid;
 
+  private final Collection<String> cvss;
+
+  private  final Collection<String> allowedOrgUuids;
+
   private IssueQuery(Builder builder) {
     this.issueKeys = nullableDefaultCollection(builder.issueKeys);
     this.severities = defaultCollection(builder.severities);
@@ -158,6 +163,9 @@ public class IssueQuery {
     this.codeVariants = defaultCollection(builder.codeVariants);
     this.cleanCodeAttributesCategories = defaultCollection(builder.cleanCodeAttributesCategories);
     this.organizationUuid = builder.organizationUuid;
+    this.cvss = defaultCollection(builder.cvss);
+ 
+    this.allowedOrgUuids = builder.allowedOrgUuids;
   }
 
   public Collection<String> issueKeys() {
@@ -166,6 +174,10 @@ public class IssueQuery {
 
   public Collection<String> severities() {
     return severities;
+  }
+
+  public Collection<String> allowedOrgUuids() {
+    return allowedOrgUuids;
   }
 
   public Collection<String> impactSeverities() {
@@ -282,6 +294,10 @@ public class IssueQuery {
 
   public Collection<String> cwe() {
     return cwe;
+  }
+
+  public Collection<String> cvss() {
+    return cvss;
   }
 
   public Collection<String> sonarsourceSecurity() {
@@ -441,9 +457,11 @@ public class IssueQuery {
     private Collection<String> newCodeOnReferenceByProjectUuids;
     private Collection<String> codeVariants;
     private Collection<String> cleanCodeAttributesCategories;
+    private Collection<String> cvss;
 
     private String organizationUuid;
-
+    private Collection<String> allowedOrgUuids;
+    
     private Builder() {
 
     }
@@ -480,6 +498,11 @@ public class IssueQuery {
 
     public Builder projectUuids(@Nullable Collection<String> l) {
       this.projects = l;
+      return this;
+    }
+
+    public Builder allowedOrgUuids(@Nullable Collection<String> l) {
+      this.allowedOrgUuids = l;
       return this;
     }
 
@@ -599,6 +622,11 @@ public class IssueQuery {
 
     public Builder cwe(@Nullable Collection<String> cwe) {
       this.cwe = cwe;
+      return this;
+    }
+
+    public Builder cvss(@Nullable Collection<String> cvss) {
+      this.cvss = cvss;
       return this;
     }
 

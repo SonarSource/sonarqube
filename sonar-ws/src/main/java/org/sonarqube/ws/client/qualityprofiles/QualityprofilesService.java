@@ -79,6 +79,8 @@ public class QualityprofilesService extends BaseService {
         .setParam("available_since", request.getAvailableSince())
         .setParam("compareToProfile", request.getCompareToProfile())
         .setParam("cwe", request.getCwe() == null ? null : request.getCwe().stream().collect(Collectors.joining(",")))
+                .setParam("cvss", request.getCvss() == null ? null : request.getCvss().stream().collect(Collectors.joining(",")))
+
         .setParam("inheritance", request.getInheritance() == null ? null : request.getInheritance().stream().collect(Collectors.joining(",")))
         .setParam("is_template", request.getIsTemplate())
         .setParam("languages", request.getLanguages() == null ? null : request.getLanguages().stream().collect(Collectors.joining(",")))
@@ -291,6 +293,8 @@ public class QualityprofilesService extends BaseService {
         .setParam("available_since", request.getAvailableSince())
         .setParam("compareToProfile", request.getCompareToProfile())
         .setParam("cwe", request.getCwe() == null ? null : request.getCwe().stream().collect(Collectors.joining(",")))
+                .setParam("cvss", request.getCvss() == null ? null : request.getCvss().stream().collect(Collectors.joining(",")))
+
         .setParam("inheritance", request.getInheritance() == null ? null : request.getInheritance().stream().collect(Collectors.joining(",")))
         .setParam("is_template", request.getIsTemplate())
         .setParam("languages", request.getLanguages() == null ? null : request.getLanguages().stream().collect(Collectors.joining(",")))

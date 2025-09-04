@@ -154,7 +154,8 @@
     "validate-ci": "yarn install --immutable && yarn dep-check && yarn test-ci",
     "check-ci": "yarn install --immutable && yarn ts-check && yarn format-check && yarn test-eslint-local-rules",
     "update-cwes": "node scripts/update-cwes.js",
-    "dep-check": "node scripts/validate-package-json.js"
+    "dep-check": "node scripts/validate-package-json.js",
+    "update-cvsss": "node scripts/update-cvsss.js"
   },
   "engines": {
     "node": ">=18.20"

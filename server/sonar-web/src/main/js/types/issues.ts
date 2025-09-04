@@ -234,6 +234,7 @@ export enum FacetName {
   CodeVariants = 'codeVariants',
   CreatedAt = 'createdAt',
   Cwe = 'cwe',
+  Cvss = 'cvss',
   Directories = 'directories',
   Files = 'files',
   Languages = 'languages',

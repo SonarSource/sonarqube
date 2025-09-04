@@ -20,17 +20,19 @@
 package org.sonar.db.audit;
 
 import javax.annotation.Priority;
+
 import org.sonar.db.DbSession;
+import org.sonar.db.audit.model.AbstractEditorNewValue;
 import org.sonar.db.audit.model.ComponentKeyNewValue;
 import org.sonar.db.audit.model.ComponentNewValue;
-import org.sonar.db.audit.model.DevOpsPlatformSettingNewValue;
-import org.sonar.db.audit.model.AbstractEditorNewValue;
 import org.sonar.db.audit.model.DevOpsPermissionsMappingNewValue;
+import org.sonar.db.audit.model.DevOpsPlatformSettingNewValue;
 import org.sonar.db.audit.model.GroupPermissionNewValue;
 import org.sonar.db.audit.model.LicenseNewValue;
 import org.sonar.db.audit.model.PermissionTemplateNewValue;
 import org.sonar.db.audit.model.PersonalAccessTokenNewValue;
 import org.sonar.db.audit.model.PluginNewValue;
+import org.sonar.db.audit.model.ProjectAnalysisNewValue;
 import org.sonar.db.audit.model.ProjectBadgeTokenNewValue;
 import org.sonar.db.audit.model.PropertyNewValue;
 import org.sonar.db.audit.model.SecretNewValue;
@@ -63,6 +65,16 @@ public class NoOpAuditPersister implements AuditPersister {
   }
 
   @Override
+  public void addUserToOrganization(DbSession dbSession, String organizationUuid, UserNewValue newValue) {
+    // no op
+  }
+
+  @Override
+  public void deleteUserFromOrganization(DbSession dbSession, String organizationUuid, UserNewValue newValue) {
+    // no op
+  }
+
+  @Override
   public void updateUser(DbSession dbSession, UserNewValue newValue) {
     // no op
   }
@@ -73,7 +85,7 @@ public class NoOpAuditPersister implements AuditPersister {
   }
 
   @Override
-  public void updateWebhookSecret(DbSession dbSession, SecretNewValue newValue) {
+  public void updateWebhookSecret(DbSession dbSession, String organizationUuid, SecretNewValue newValue) {
     // no op
   }
 
@@ -88,12 +100,12 @@ public class NoOpAuditPersister implements AuditPersister {
   }
 
   @Override
-  public void addUserToGroup(DbSession dbSession, UserGroupNewValue newValue) {
+  public void addUserToGroup(DbSession dbSession, String organizationUuid, UserGroupNewValue newValue) {
     // no op
   }
 
   @Override
-  public void deleteUserFromGroup(DbSession dbSession, UserGroupNewValue newValue) {
+  public void deleteUserFromGroup(DbSession dbSession, String organizationUuid, UserGroupNewValue newValue) {
     // no op
   }
 
@@ -138,57 +150,57 @@ public class NoOpAuditPersister implements AuditPersister {
   }
 
   @Override
-  public void addGroupPermission(DbSession dbSession, GroupPermissionNewValue newValue) {
+  public void addGroupPermission(DbSession dbSession, String organizationUuid, GroupPermissionNewValue newValue) {
     // no op
   }
 
   @Override
-  public void deleteGroupPermission(DbSession dbSession, GroupPermissionNewValue newValue) {
+  public void deleteGroupPermission(DbSession dbSession, String organizationUuid, GroupPermissionNewValue newValue) {
     // no op
   }
 
   @Override
-  public void addUserPermission(DbSession dbSession, UserPermissionNewValue newValue) {
+  public void addUserPermission(DbSession dbSession, String organizationUuid, UserPermissionNewValue newValue) {
     // no op
   }
 
   @Override
-  public void deleteUserPermission(DbSession dbSession, UserPermissionNewValue newValue) {
+  public void deleteUserPermission(DbSession dbSession, String organizationUuid, UserPermissionNewValue newValue) {
     // no op
   }
 
   @Override
-  public void addPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue) {
+  public void addPermissionTemplate(DbSession dbSession, String organizationUuid, PermissionTemplateNewValue newValue) {
     // no op
   }
 
   @Override
-  public void updatePermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue) {
+  public void updatePermissionTemplate(DbSession dbSession, String organizationUuid, PermissionTemplateNewValue newValue) {
     // no op
   }
 
   @Override
-  public void deletePermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue) {
+  public void deletePermissionTemplate(DbSession dbSession, String organizationUuid, PermissionTemplateNewValue newValue) {
     // no op
   }
 
   @Override
-  public void addUserToPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue) {
+  public void addUserToPermissionTemplate(DbSession dbSession, String organizationUuid, PermissionTemplateNewValue newValue) {
     // no op
   }
 
   @Override
-  public void deleteUserFromPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue) {
+  public void deleteUserFromPermissionTemplate(DbSession dbSession, String organizationUuid, PermissionTemplateNewValue newValue) {
     // no op
   }
 
   @Override
-  public void addGroupToPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue) {
+  public void addGroupToPermissionTemplate(DbSession dbSession, String organizationUuid, PermissionTemplateNewValue newValue) {
     // no op
   }
 
   @Override
-  public void deleteGroupFromPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue) {
+  public void deleteGroupFromPermissionTemplate(DbSession dbSession, String organizationUuid, PermissionTemplateNewValue newValue) {
     // no op
   }
 
@@ -203,32 +215,32 @@ public class NoOpAuditPersister implements AuditPersister {
   }
 
   @Override
-  public void addQualityGateEditor(DbSession dbSession, AbstractEditorNewValue newValue) {
+  public void addQualityGateEditor(DbSession dbSession, String organizationUuid, AbstractEditorNewValue newValue) {
     // no op
   }
 
   @Override
-  public void deleteQualityGateEditor(DbSession dbSession, AbstractEditorNewValue newValue) {
+  public void deleteQualityGateEditor(DbSession dbSession, String organizationUuid, AbstractEditorNewValue newValue) {
     // no op
   }
 
   @Override
-  public void addQualityProfileEditor(DbSession dbSession, AbstractEditorNewValue newValue) {
+  public void addQualityProfileEditor(DbSession dbSession, String organizationUuid, AbstractEditorNewValue newValue) {
     // no op
   }
 
   @Override
-  public void deleteQualityProfileEditor(DbSession dbSession, AbstractEditorNewValue newValue) {
+  public void deleteQualityProfileEditor(DbSession dbSession, String organizationUuid, AbstractEditorNewValue newValue) {
     // no op
   }
 
   @Override
-  public void addCharacteristicToPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue) {
+  public void addCharacteristicToPermissionTemplate(DbSession dbSession, String organizationUuid, PermissionTemplateNewValue newValue) {
     // no op
   }
 
   @Override
-  public void updateCharacteristicInPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue) {
+  public void updateCharacteristicInPermissionTemplate(DbSession dbSession, String organizationUuid, PermissionTemplateNewValue newValue) {
     // no op
   }
 
@@ -253,17 +265,17 @@ public class NoOpAuditPersister implements AuditPersister {
   }
 
   @Override
-  public void addWebhook(DbSession dbSession, WebhookNewValue newValue) {
+  public void addWebhook(DbSession dbSession, String organizationUuid, WebhookNewValue newValue) {
     // no op
   }
 
   @Override
-  public void updateWebhook(DbSession dbSession, WebhookNewValue newValue) {
+  public void updateWebhook(DbSession dbSession, String organizationUuid, WebhookNewValue newValue) {
     // no op
   }
 
   @Override
-  public void deleteWebhook(DbSession dbSession, WebhookNewValue newValue) {
+  public void deleteWebhook(DbSession dbSession, String organizationUuid, WebhookNewValue newValue) {
     // no op
   }
 
@@ -303,32 +315,43 @@ public class NoOpAuditPersister implements AuditPersister {
   }
 
   @Override
-  public void addComponent(DbSession dbSession, ComponentNewValue newValue) {
+  public void addComponent(DbSession dbSession, String organizationUuid, ComponentNewValue newValue) {
     // no op
   }
 
   @Override
-  public void deleteComponent(DbSession dbSession, ComponentNewValue newValue) {
+  public void deleteComponent(DbSession dbSession, String organizationUuid, ComponentNewValue newValue) {
     // no op
   }
 
   @Override
-  public void updateComponent(DbSession dbSession, ComponentNewValue newValue) {
+  public void updateComponent(DbSession dbSession, String organizationUuid, ComponentNewValue newValue) {
     // no op
   }
 
   @Override
-  public void updateComponentVisibility(DbSession session, ComponentNewValue componentNewValue) {
+  public void updateComponentVisibility(DbSession session, String organizationUuid,
+      ComponentNewValue componentNewValue) {
     // no op
   }
 
   @Override
-  public void componentKeyUpdate(DbSession session, ComponentKeyNewValue componentKeyNewValue, String qualifier) {
+  public void createProjectAnalysis(DbSession dbSession, String organizationUuid, ProjectAnalysisNewValue newValue) {
     // no op
   }
 
   @Override
-  public void componentKeyBranchUpdate(DbSession session, ComponentKeyNewValue componentKeyNewValue, String qualifier) {
+  public void createQualityGateChangeEvent(DbSession dbSession, String organizationUuid, PropertyNewValue newValue) {
+
+  }
+
+  @Override
+  public void componentKeyUpdate(DbSession session, String organizationUuid, ComponentKeyNewValue componentKeyNewValue, String qualifier) {
+    // no op
+  }
+
+  @Override
+  public void componentKeyBranchUpdate(DbSession session, String organizationUuid, ComponentKeyNewValue componentKeyNewValue, String qualifier) {
     // no op
   }
 }

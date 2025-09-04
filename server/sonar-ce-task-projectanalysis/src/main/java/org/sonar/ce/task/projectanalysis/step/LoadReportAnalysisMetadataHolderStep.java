@@ -19,7 +19,10 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.base.Joiner;
+import static com.google.common.base.Preconditions.checkState;
+import static java.lang.String.format;
+import static java.util.stream.Collectors.toMap;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +37,6 @@ import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.BranchLoader;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.platform.PluginRepository;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -45,10 +47,6 @@ import org.sonar.scanner.protocol.output.ScannerReport.Metadata.Plugin;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata.QProfile;
 import org.sonar.server.project.Project;
 import org.sonar.server.qualityprofile.QualityProfile;
-
-import static com.google.common.base.Preconditions.checkState;
-import static java.lang.String.format;
-import static java.util.stream.Collectors.toMap;
 
 /**
  * Feed analysis metadata holder with metadata from the analysis report.

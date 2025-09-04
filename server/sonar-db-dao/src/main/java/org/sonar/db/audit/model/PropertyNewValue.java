@@ -77,6 +77,15 @@ public class PropertyNewValue extends NewValue {
     setValue(propertyKey, propertyValue);
   }
 
+  public PropertyNewValue(String propertyKey, @Nullable String propertyValue, @Nullable String projectUuid, @Nullable String componentKey,
+          @Nullable String componentName) {
+    this.propertyKey = propertyKey;
+    this.componentUuid = projectUuid;
+    this.componentKey = componentKey;
+    this.componentName = componentName;
+    this.propertyValue = propertyValue;
+  }
+
   public PropertyNewValue(String propertyKey, @Nullable String projectUuid, @Nullable String componentKey,
     @Nullable String componentName, @Nullable String qualifier, @Nullable String userUuid) {
     this.propertyKey = propertyKey;

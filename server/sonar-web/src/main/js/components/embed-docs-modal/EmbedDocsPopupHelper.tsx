@@ -26,8 +26,6 @@ import {
 } from '@sonarsource/echoes-react';
 import { Modal } from '~design-system';
 import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { CustomEvents } from '../../helpers/constants';
 import { translate } from '../../helpers/l10n';
 import { getBaseUrl } from '../../helpers/system';
 import { EmbedDocsPopup } from './EmbedDocsPopup';
@@ -82,7 +80,7 @@ export default function EmbedDocsPopupHelper() {
       {aboutCodescanOpen &&
         renderAboutCodescan(
           'https://knowledgebase.autorabit.com/codescan/docs/codescan-release-notes',
-          'embed-doc/codescan-version-25_1_4.png',
+          'embed-doc/codescan-version-25_1_8.png',
           translate('embed_docs.codescan_version'),
         )}
     </div>

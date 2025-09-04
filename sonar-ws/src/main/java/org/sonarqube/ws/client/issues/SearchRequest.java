@@ -43,6 +43,7 @@ public class SearchRequest {
   private String createdBefore;
   private String createdInLast;
   private List<String> cwe;
+  private List<String> cvss;
   private List<String> directories;
   private String facetMode;
   private List<String> facets;
@@ -241,6 +242,15 @@ public class SearchRequest {
 
   public List<String> getCwe() {
     return cwe;
+  }
+
+  public SearchRequest setCvss(List<String> cvss) {
+    this.cvss = cvss;
+    return this;
+  }
+
+  public List<String> getCvss() {
+    return cvss;
   }
 
   /**

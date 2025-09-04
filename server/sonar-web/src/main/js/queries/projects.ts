@@ -31,6 +31,12 @@ import { convertToQueryData, defineFacets } from '../apps/projects/utils';
 import { getNextPagingParam } from '../helpers/react-query';
 import { createInfiniteQueryHook, createQueryHook, StaleTime } from './common';
 import { invalidateMeasuresByComponentKey } from './measures';
+import { useCurrentUser } from '../app/components/current-user/CurrentUserContext';
+import { addGlobalErrorMessage } from '~design-system';
+import { Navigate, NavigateFunction, To } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { replace } from 'lodash';
+import { useEffect } from 'react';
 
 export const PROJECTS_PAGE_SIZE = 50;
 
@@ -46,6 +52,16 @@ export const useProjectsQuery = createInfiniteQueryHook(
     pageIndex?: number;
     query: Query;
   }) => {
+    const {currentUser, setIsNotStandardOrg} = useCurrentUser();
+    
+    if(query?.organization && currentUser.platformOrgs?.includes(query.organization))
+    {
+      setIsNotStandardOrg?.(true);
+      const navigate = useNavigate();
+  useEffect(() => {
+    navigate('/account', { replace: true });
+  }, [navigate]);
+    }
     const queryClient = useQueryClient();
     const data = convertToQueryData(query, isFavorite, isStandardMode, {
       organization: query.organization,
@@ -53,16 +69,23 @@ export const useProjectsQuery = createInfiniteQueryHook(
       facets: defineFacets(query, isStandardMode).join(),
       f: 'analysisDate,leakPeriodDate',
     });
-
+    
     return infiniteQueryOptions({
       queryKey: ['project', 'list', data] as const,
-      queryFn: ({ pageParam: pageIndex }) => {
-        return searchProjects({ ...data, p: pageIndex }).then((response) => {
+      queryFn: async ({ pageParam: pageIndex }) => {
+        try {
+          const response = await searchProjects({ ...data, p: pageIndex });
           response.components.forEach((project) => {
             queryClient.setQueryData(['project', 'details', project.key], project);
           });
           return response;
-        });
+        } catch (error: any) {
+          if (error?.status == 403) {
+            setIsNotStandardOrg?.(true);
+            window.location.href = '/account';
+          }
+          throw error;
+        }
       },
       staleTime: StaleTime.LONG,
       getNextPageParam: getNextPagingParam,

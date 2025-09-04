@@ -157,6 +157,7 @@ public class RulesService extends BaseService {
         .setParam("sonarsourceSecurity", request.getSonarsourceSecurity() == null ? null : request.getSonarsourceSecurity().stream().collect(Collectors.joining(",")))
         .setParam("tags", request.getTags() == null ? null : request.getTags().stream().collect(Collectors.joining(",")))
         .setParam("template_key", request.getTemplateKey())
+              .setParam("cvss", request.getCvss() == null ? null : request.getCvss().stream().collect(Collectors.joining(",")))
         .setParam("types", request.getTypes() == null ? null : request.getTypes().stream().collect(Collectors.joining(","))),
       SearchResponse.parser());
   }

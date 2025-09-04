@@ -57,11 +57,11 @@ public class MemberUpdater {
     PLATFORM;
   }
 
-  public void addMember(DbSession dbSession, OrganizationDto organization, UserDto user) {
-    addMembers(dbSession, organization, singletonList(user));
+  public void addMember(DbSession dbSession, OrganizationDto organization, UserDto user, MemberType type) {
+    addMembers(dbSession, organization, singletonList(user), type);
   }
 
-  public void addMembers(DbSession dbSession, OrganizationDto organization, List<UserDto> users) {
+  public void addMembers(DbSession dbSession, OrganizationDto organization, List<UserDto> users, MemberType type) {
     Set<String> currentMemberUuids = new HashSet<>(dbClient.organizationMemberDao().selectUserUuidsByOrganizationUuid(dbSession, organization.getUuid()));
     List<UserDto> usersToAdd = users.stream()
         .filter(UserDto::isActive)
@@ -71,7 +71,7 @@ public class MemberUpdater {
     if (usersToAdd.isEmpty()) {
       return;
     }
-    usersToAdd.forEach(u -> addMemberInDb(dbSession, organization, u));
+    usersToAdd.forEach(u -> addMemberInDb(dbSession, organization, u, type));
   }
 
   private boolean canAddMember(OrganizationDto organization, UserDto user) {
@@ -84,16 +84,16 @@ public class MemberUpdater {
     }
   }
 
-  private void addMemberInDb(DbSession dbSession, OrganizationDto organization, UserDto user) {
+  private void addMemberInDb(DbSession dbSession, OrganizationDto organization, UserDto user, MemberType type) {
     dbClient.organizationMemberDao().insert(dbSession, new OrganizationMemberDto()
       .setOrganizationUuid(organization.getUuid())
       .setUserUuid(user.getUuid())
-      .setType(MemberType.STANDARD.name()));
+      .setType(type.name()));
     GroupDto defaultGroup = defaultGroupFinder.findDefaultGroup(dbSession, organization.getUuid());
     UserGroupDto userGroup = new UserGroupDto()
             .setGroupUuid(defaultGroup.getUuid())
             .setUserUuid(user.getUuid());
-    dbClient.userGroupDao().insert(dbSession, userGroup, defaultGroup.getName(), user.getLogin());
+    dbClient.userGroupDao().insert(dbSession, userGroup, defaultGroup.getName(), user.getLogin(), organization.getUuid());
   }
 
   public void removeMember(DbSession dbSession, OrganizationDto organization, UserDto user) {

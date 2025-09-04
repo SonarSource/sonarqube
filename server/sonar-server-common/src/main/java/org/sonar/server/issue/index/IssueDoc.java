@@ -406,6 +406,16 @@ public class IssueDoc extends BaseDoc {
   }
 
   @CheckForNull
+  public Collection<Double> getCvss() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_CVSS);
+  }
+
+  public IssueDoc setCvss(@Nullable Collection<Double> c) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_CVSS, c);
+    return this;
+  }
+
+  @CheckForNull
   public SecurityStandards.SQCategory getSonarSourceSecurityCategory() {
     String key = getNullableField(IssueIndexDefinition.FIELD_ISSUE_SQ_SECURITY_CATEGORY);
     return SecurityStandards.SQCategory.fromKey(key).orElse(null);

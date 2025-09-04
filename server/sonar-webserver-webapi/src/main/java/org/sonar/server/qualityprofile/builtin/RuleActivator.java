@@ -20,13 +20,8 @@
 package org.sonar.server.qualityprofile.builtin;
 
 import com.google.common.base.Splitter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
@@ -110,6 +105,11 @@ public class RuleActivator {
     checkRequest(context.getRulesProfile().getLanguage().equals(rule.getLanguage()),
       "%s rule %s cannot be activated on %s profile %s", rule.getLanguage(), rule.getKey(), context.getRulesProfile().getLanguage(),
       context.getRulesProfile().getName());
+    Optional<QProfileDto> profile = context.getProfiles().stream().findFirst();
+    boolean isValidCustomRule = !rule.isCustomRule() || profile
+            .map(p -> p.getOrganizationUuid().equals(rule.getOrganizationUuid()))
+            .orElse(false);
+    checkRequest(isValidCustomRule, "Custom rule %s cannot be activated for this organization", rule.getName());
     List<ActiveRuleChange> changes = new ArrayList<>();
     ActiveRuleChange change = null;
 
@@ -366,7 +366,7 @@ public class RuleActivator {
     ActiveRuleDto activeRule = null;
     if (change.getType() == ActiveRuleChange.Type.ACTIVATED) {
       activeRule = doInsert(change, context, dbSession);
-    } else if (change.getType() == ActiveRuleChange.Type.DEACTIVATED) {
+    } else if (change.getType() == ActiveRuleChange.Type.DEACTIVATED || change.getType() == ActiveRuleChange.Type.REMOVED) {
       ActiveRuleDao dao = db.activeRuleDao();
       activeRule = dao.delete(dbSession, change.getKey()).orElse(null);
 
@@ -464,6 +464,12 @@ public class RuleActivator {
       }
     }
     return ruleDto;
+  }
+
+  public ActiveRuleChange doDelete(DbSession dbSession, ActiveRuleDto activeRuleDto, RuleDto rule){
+    ActiveRuleChange change = new ActiveRuleChange(ActiveRuleChange.Type.REMOVED, activeRuleDto.getKey(), rule);
+    persist(change, null, dbSession);
+    return change;
   }
 
   public List<ActiveRuleChange> deactivate(DbSession dbSession, RuleActivationContext context, String ruleUuid, boolean force) {

@@ -82,11 +82,11 @@
         and qpc.created_at &lt; #{query.toExcluded}
       </if>
       <if test="query.filterMode == 'STANDARD'">
-        and ( qpc.change_type in ('ACTIVATED', 'DEACTIVATED')
+        and ( qpc.change_type in ('ACTIVATED', 'DEACTIVATED', 'REMOVED')
           or qpc.change_data is not null)
       </if>
       <if test="query.filterMode == 'MQR'">
-        and ( qpc.change_type in ('ACTIVATED', 'DEACTIVATED')
+        and ( qpc.change_type in ('ACTIVATED', 'DEACTIVATED', 'REMOVED')
           or rc.uuid is not null
           or qpc.change_data like '%param_%')
       </if>

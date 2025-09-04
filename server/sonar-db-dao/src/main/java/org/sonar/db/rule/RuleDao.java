@@ -320,6 +320,10 @@ public class RuleDao implements Dao {
     return mapper(dbSession).countByLanguage(language);
   }
 
+  public long countByLanguageInAnOrg(DbSession dbSession, String language, String organizationUuid) {
+    return mapper(dbSession).countByLanguageInAnOrg(language, organizationUuid);
+  }
+
   private static String toLowerCaseAndSurroundWithPercentSigns(@Nullable String query) {
     return isBlank(query) ? PERCENT_SIGN : (PERCENT_SIGN + query.toLowerCase(Locale.ENGLISH) + PERCENT_SIGN);
   }

@@ -125,6 +125,8 @@ public class SearchAction implements HotspotsWsAction {
   private static final String PARAM_SONARSOURCE_SECURITY = "sonarsourceSecurity";
   private static final String PARAM_CWE = "cwe";
   private static final String PARAM_FILES = "files";
+  private static final String PARAM_CVSS = "cvss";
+
 
   private static final List<String> STATUSES = List.of(STATUS_TO_REVIEW, STATUS_REVIEWED);
 
@@ -164,12 +166,14 @@ public class SearchAction implements HotspotsWsAction {
     Set<String> sonarsourceSecurity = setFromList(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY));
     Set<String> cwes = setFromList(request.paramAsStrings(PARAM_CWE));
     Set<String> files = setFromList(request.paramAsStrings(PARAM_FILES));
+    Set<String> cvsss = setFromList(request.paramAsStrings(PARAM_CVSS));
+
 
     return new WsRequest(
       request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE), request.param(PARAM_PROJECT), request.param(PARAM_BRANCH),
       request.param(PARAM_PULL_REQUEST), hotspotKeys, request.param(PARAM_STATUS), request.paramAsStrings(PARAM_RESOLUTION),
       request.paramAsBoolean(PARAM_IN_NEW_CODE_PERIOD), request.paramAsBoolean(PARAM_ONLY_MINE), request.paramAsInt(PARAM_OWASP_ASVS_LEVEL),
-      pciDss32, pciDss40, owaspAsvs40, owasp2017Top10, owasp2021Top10, stigAsdV5R3, casa, sansTop25, sonarsourceSecurity, cwes, files);
+      pciDss32, pciDss40, owaspAsvs40, owasp2017Top10, owasp2021Top10, stigAsdV5R3, casa, sansTop25, sonarsourceSecurity, cwes, files, cvsss);
   }
 
   @Override
@@ -239,6 +243,9 @@ public class SearchAction implements HotspotsWsAction {
     }
     if (!wsRequest.getCwe().isEmpty()) {
       builder.cwe(wsRequest.getCwe());
+    }
+    if (!wsRequest.getCvss().isEmpty()) {
+      builder.cvss(wsRequest.getCvss());
     }
   }
 
@@ -356,6 +363,11 @@ public class SearchAction implements HotspotsWsAction {
       .setDescription("Comma-separated list of CWE numbers")
       .setExampleValue("89,434,352")
       .setSince("8.8");
+    action.createParam(PARAM_CVSS)
+            .setDescription("Comma-separated list of CVSS scores.")
+            .setExampleValue("5.0,7.5,9.0")
+            .setSince("0.0")
+            .setPossibleValues("0.0", "10.0");
   }
 
   private Optional<ProjectAndBranch> getAndValidateProjectOrApplication(DbSession dbSession, WsRequest wsRequest) {
@@ -649,6 +661,7 @@ public class SearchAction implements HotspotsWsAction {
     private final Set<String> sansTop25;
     private final Set<String> sonarsourceSecurity;
     private final Set<String> cwe;
+    private final Set<String> cvss;
     private final Set<String> files;
 
     private WsRequest(int page, int index,
@@ -656,7 +669,7 @@ public class SearchAction implements HotspotsWsAction {
       @Nullable String status, @Nullable List<String> resolution, @Nullable Boolean inNewCodePeriod, @Nullable Boolean onlyMine,
       @Nullable Integer owaspAsvsLevel, Set<String> pciDss32, Set<String> pciDss40, Set<String> owaspAsvs40,
       Set<String> owaspTop10For2017, Set<String> owaspTop10For2021, Set<String> stigAsdV5R3, Set<String> casa, Set<String> sansTop25, Set<String> sonarsourceSecurity,
-      Set<String> cwe, @Nullable Set<String> files) {
+      Set<String> cwe, @Nullable Set<String> files, Set<String> cvss) {
       this.page = page;
       this.index = index;
       this.projectKey = projectKey;
@@ -679,6 +692,7 @@ public class SearchAction implements HotspotsWsAction {
       this.sonarsourceSecurity = sonarsourceSecurity;
       this.cwe = cwe;
       this.files = files;
+      this.cvss = cvss;
     }
 
     int getPage() {
@@ -763,6 +777,10 @@ public class SearchAction implements HotspotsWsAction {
 
     public Set<String> getCwe() {
       return cwe;
+    }
+
+    public Set<String> getCvss() {
+      return cvss;
     }
 
     public Set<String> getFiles() {

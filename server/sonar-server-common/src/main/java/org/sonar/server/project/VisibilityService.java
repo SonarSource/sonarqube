@@ -92,7 +92,7 @@ public class VisibilityService {
   private void setPrivateForRootComponentUuid(DbSession dbSession, EntityDto entity, boolean newIsPrivate) {
     Optional<BranchDto> branchDto = dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, entity.getUuid());
     String branchUuid = branchDto.isPresent() ? branchDto.get().getUuid() : entity.getUuid();
-    dbClient.componentDao().setPrivateForBranchUuid(dbSession, branchUuid, newIsPrivate, entity.getKey(), entity.getQualifier(), entity.getName());
+    dbClient.componentDao().setPrivateForBranchUuid(dbSession, branchUuid, newIsPrivate, entity);
 
     if (entity.isProjectOrApp()) {
       dbClient.projectDao().updateVisibility(dbSession, entity.getUuid(), newIsPrivate);

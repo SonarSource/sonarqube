@@ -246,7 +246,7 @@ public class UserRegistrarImpl implements UserRegistrar {
       groupDto -> {
         LOGGER.debug("Adding user '{}' to group '{}'", userDto.getLogin(), groupDto.getName());
         dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupUuid(groupDto.getUuid()).setUserUuid(userDto.getUuid()),
-          groupDto.getName(), userDto.getLogin());
+          groupDto.getName(), userDto.getLogin(), groupDto.getOrganizationUuid());
       });
   }
 

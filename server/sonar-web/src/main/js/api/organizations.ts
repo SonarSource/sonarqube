@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {Extension, Organization, OrganizationBase, OrganizationMember, Paging} from "../types/types";
+import {Extension, MemberType, Organization, OrganizationBase, OrganizationMember, Paging} from "../types/types";
 import { deleteRequest, post, postJSON, postJSONBody, putJsonBody } from "../helpers/request";
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getJSON } from '~sonar-aligned/helpers/request';
@@ -92,6 +92,7 @@ export function searchMembers(data: {
 export function addMember(data: {
   login: string;
   organization: string;
+  type: MemberType;
 }): Promise<OrganizationMember> {
   return postJSON('/api/organizations/add_member', data).then(r => r.user, throwGlobalError);
 }
