@@ -122,3 +122,7 @@ export function getLoginMessage(): Promise<{ message: string }> {
 export function getAccessConsentMessage(): Promise<{ message: string }> {
   return getJSON('/api/settings/access_consent_message').catch(throwGlobalError);
 }
+
+export async function getChatBotFlag(): Promise<{ message: boolean }> {
+  return getJSON('/api/settings/values').catch(throwGlobalError);
+}

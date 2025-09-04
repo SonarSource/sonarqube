@@ -48,3 +48,10 @@ export function deleteBulkProjects(data: {
 export function getRedirectUrlForZoho(): Promise<string> {
   return axios.get('/_codescan/zoho/redirectUrl').catch(throwGlobalError);
 }
+
+export function getChatBotResponse(query: string): Promise<string> {
+  return axios
+    .post('/_codescan/chatbot/query', { query }) // required shape
+    .then((res) => res.data?.answer ?? 'No response.')
+    .catch(throwGlobalError);
+}

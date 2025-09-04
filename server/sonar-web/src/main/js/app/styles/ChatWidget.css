@@ -1,0 +1,129 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2024 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+.chat-widget-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+}
+
+.chat-toggle-btn {
+  background-color: #2563eb;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat-box {
+  width: 360px;
+  height: 520px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-header {
+  background: #2563eb;
+  color: white;
+  padding: 12px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.chat-body {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.chat-bubble {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.chat-bubble.user {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.chat-bubble.bot {
+  flex-direction: row;
+}
+
+.bubble-text {
+  max-width: 70%;
+  background: #f1f5f9;
+  padding: 10px;
+  border-radius: 12px;
+  margin: 0 8px;
+  word-wrap: break-word;
+}
+
+.user .bubble-text {
+  background: #e0f2fe;
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+.chat-input-bar {
+  display: flex;
+  padding: 12px;
+  border-top: 1px solid #ddd;
+}
+
+.chat-input-bar input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  outline: none;
+}
+
+.send-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 12px;
+  margin-left: 8px;
+  cursor: pointer;
+}
