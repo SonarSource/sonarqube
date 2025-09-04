@@ -43,10 +43,21 @@ const ChatWidget: React.FC = () => {
 
   const toggleChat = () => {
     if (isOpen) {
-      setIsMaximized(false); // Reset maximized state when closing the chat
+      setIsMaximized(false); // Reset maximized state when closing
     }
-    setIsOpen((v) => !v);
+    setIsOpen((prev) => {
+      const next = !prev;
+      localStorage.setItem('chatIsOpen', String(next)); // persist state
+      return next;
+    });
   };
+
+  useEffect(() => {
+    const saved = localStorage.getItem('chatIsOpen');
+    if (saved) {
+      setIsOpen(saved === 'true');
+    }
+  }, []);
 
   useEffect(() => {
     // add a welcome message on initial load
@@ -92,8 +103,10 @@ const ChatWidget: React.FC = () => {
   };
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isOpen]);
+    if (isOpen && endRef.current) {
+      endRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, isOpen, isMaximized]);
 
   return (
     <div className={`chat-widget-container ${isMaximized ? 'maximized' : ''}`}>
@@ -135,7 +148,6 @@ const ChatWidget: React.FC = () => {
                   src={m.role === 'user' ? '/images/user-circle.svg' : '/images/codescan-icon.svg'}
                   alt={m.role}
                 />
-
                 {m.role === 'assistant' ? (
                   <div className="bubble-text">
                     <ReactMarkdown
@@ -173,7 +185,6 @@ const ChatWidget: React.FC = () => {
                 )}
               </div>
             ))}
-
             {sending && (
               <div className="chat-bubble bot loading">
                 <img className="avatar" src="/images/codescan-icon.svg" alt="assistant" />
@@ -184,6 +195,7 @@ const ChatWidget: React.FC = () => {
                 </div>
               </div>
             )}
+            <div ref={endRef} />
           </div>
 
           <div className="chat-input-bar">
