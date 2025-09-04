@@ -82,42 +82,42 @@ class IssueWorkflowForCodeQualityIssuesTest {
     new CodeQualityIssueWorkflow(new CodeQualityIssueWorkflowActionsFactory(updater), new CodeQualityIssueWorkflowDefinition(), taintChecker), null);
 
   @Test
-  void list_out_transitions_from_status_open() {
+  void outTransitionsKeys_whenStatusOpen_shouldReturnCorrectTransitions() {
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_OPEN);
     List<String> transitions = underTest.outTransitionsKeys(issue);
     assertThat(transitions).containsOnly("confirm", "falsepositive", "resolve", "wontfix", "accept");
   }
 
   @Test
-  void list_out_transitions_from_status_confirmed() {
+  void outTransitionsKeys_whenStatusConfirmed_shouldReturnCorrectTransitions() {
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_CONFIRMED);
     List<String> transitions = underTest.outTransitionsKeys(issue);
     assertThat(transitions).containsOnly("unconfirm", "falsepositive", "resolve", "wontfix", "accept");
   }
 
   @Test
-  void list_out_transitions_from_status_resolved() {
+  void outTransitionsKeys_whenStatusResolved_shouldReturnCorrectTransitions() {
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_RESOLVED);
     List<String> transitions = underTest.outTransitionsKeys(issue);
     assertThat(transitions).containsOnly("reopen");
   }
 
   @Test
-  void list_out_transitions_from_status_reopen() {
+  void outTransitionsKeys_whenStatusReopened_shouldReturnCorrectTransitions() {
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_REOPENED);
     List<String> transitions = underTest.outTransitionsKeys(issue);
     assertThat(transitions).containsOnly("confirm", "resolve", "falsepositive", "wontfix", "accept");
   }
 
   @Test
-  void list_no_out_transition_from_status_closed() {
+  void outTransitionsKeys_whenStatusClosed_shouldReturnEmpty() {
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_CLOSED).setRuleKey(RuleKey.of("java", "R1  "));
     List<String> transitions = underTest.outTransitionsKeys(issue);
     assertThat(transitions).isEmpty();
   }
 
   @Test
-  void fail_if_unknown_status_when_listing_transitions() {
+  void outTransitionsKeys_whenUnknownStatus_shouldThrowException() {
     DefaultIssue issue = new DefaultIssue().setStatus("xxx");
     try {
       underTest.outTransitionsKeys(issue);
@@ -128,7 +128,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
   }
 
   @Test
-  void automatically_close_resolved_issue() {
+  void doAutomaticTransition_whenResolvedIssueBeingClosed_shouldCloseIssue() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setRuleKey(RuleKey.of("js", "S001"))
@@ -146,7 +146,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
 
   @ParameterizedTest
   @MethodSource("allStatusesLeadingToClosed")
-  void automatically_reopen_closed_issue_to_its_previous_status_from_changelog(String previousStatus) {
+  void doAutomaticTransition_whenClosedIssueReopened_shouldRestorePreviousStatusFromChangelog(String previousStatus) {
     DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
       .map(resolution -> {
         DefaultIssue issue = newClosedIssue(resolution);
@@ -168,7 +168,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
 
   @ParameterizedTest
   @MethodSource("allStatusesLeadingToClosed")
-  void automatically_reopen_closed_issue_to_most_recent_previous_status_from_changelog(String previousStatus) {
+  void doAutomaticTransition_whenClosedIssueReopened_shouldRestoreMostRecentPreviousStatusFromChangelog(String previousStatus) {
     DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
       .map(resolution -> {
         DefaultIssue issue = newClosedIssue(resolution);
@@ -193,7 +193,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
 
   @ParameterizedTest
   @MethodSource("allResolutionsBeforeClosing")
-  void automatically_reopen_closed_issue_to_previous_resolution_from_changelog(String resolutionBeforeClosed) {
+  void doAutomaticTransition_whenClosedIssueReopened_shouldRestorePreviousResolutionFromChangelog(String resolutionBeforeClosed) {
     String randomPreviousStatus = ALL_STATUSES_LEADING_TO_CLOSED[new Random().nextInt(ALL_STATUSES_LEADING_TO_CLOSED.length)];
     DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
       .map(resolution -> {
@@ -216,7 +216,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
   }
 
   @Test
-  void automatically_reopen_closed_issue_to_no_resolution_if_no_previous_one_changelog() {
+  void doAutomaticTransition_whenClosedIssueReopenedWithNoPreviousResolution_shouldSetNoResolution() {
     String randomPreviousStatus = ALL_STATUSES_LEADING_TO_CLOSED[new Random().nextInt(ALL_STATUSES_LEADING_TO_CLOSED.length)];
     DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
       .map(resolution -> {
@@ -240,7 +240,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
 
   @ParameterizedTest
   @MethodSource("allResolutionsBeforeClosing")
-  void automatically_reopen_closed_issue_to_previous_resolution_of_closing_the_issue_if_most_recent_of_all_resolution_changes(String resolutionBeforeClosed) {
+  void doAutomaticTransition_whenClosedIssueReopened_shouldRestorePreviousResolutionIfMostRecent(String resolutionBeforeClosed) {
     String randomPreviousStatus = ALL_STATUSES_LEADING_TO_CLOSED[new Random().nextInt(ALL_STATUSES_LEADING_TO_CLOSED.length)];
     DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
       .map(resolution -> {
@@ -270,7 +270,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
   }
 
   @Test
-  void do_not_automatically_reopen_closed_issue_which_have_no_previous_status_in_changelog() {
+  void doAutomaticTransition_whenClosedIssueWithNoPreviousStatus_shouldNotReopen() {
     DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
       .map(IssueWorkflowForCodeQualityIssuesTest::newClosedIssue)
       .toArray(DefaultIssue[]::new);
@@ -285,7 +285,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
   }
 
   @Test
-  void automatically_reopen_taint_vulnerability_when_flow_changed() {
+  void doAutomaticTransition_whenTaintVulnerabilityFlowChanged_shouldReopenIssue() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("issue_key")
       .setRuleKey(RuleKey.of("xoo", "S001"))
@@ -306,7 +306,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
   }
 
   @Test
-  void do_not_automatically_reopen_issue_when_flow_changed_but_not_taint_vulnerability() {
+  void doAutomaticTransition_whenFlowChangedButNotTaintVulnerability_shouldNotReopen() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("issue_key")
       .setRuleKey(RuleKey.of("xoo", "S001"))
@@ -323,7 +323,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
   }
 
   @Test
-  void do_not_automatically_reopen_taint_vulnerability_when_flow_did_not_change() {
+  void doAutomaticTransition_whenTaintVulnerabilityFlowNotChanged_shouldNotReopen() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("issue_key")
       .setRuleKey(RuleKey.of("xoo", "S001"))
@@ -344,7 +344,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
   }
 
   @Test
-  void close_open_dead_issue() {
+  void doAutomaticTransition_whenOpenDeadIssue_shouldClose() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setResolution(null)
@@ -360,7 +360,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
   }
 
   @Test
-  void close_reopened_dead_issue() {
+  void doAutomaticTransition_whenReopenedDeadIssue_shouldClose() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setResolution(null)
@@ -376,7 +376,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
   }
 
   @Test
-  void close_confirmed_dead_issue() {
+  void doAutomaticTransition_whenConfirmedDeadIssue_shouldClose() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setResolution(null)
@@ -392,7 +392,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
   }
 
   @Test
-  void fail_if_unknown_status_on_automatic_trans() {
+  void doAutomaticTransition_whenUnknownStatus_shouldThrowException() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setResolution(RESOLUTION_FIXED)
@@ -407,7 +407,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
   }
 
   @Test
-  void flag_as_false_positive() {
+  void doManualTransition_whenFalsePositiveTransition_shouldResolveAsFalsePositive() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setStatus(STATUS_OPEN)
@@ -424,7 +424,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
   }
 
   @Test
-  void wont_fix() {
+  void doManualTransition_whenWontFixTransition_shouldResolveAsWontFix() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setStatus(STATUS_OPEN)
@@ -521,7 +521,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
   }
 
   @Test
-  void list_out_transitions_from_status_in_sandbox() {
+  void outTransitionsKeys_whenStatusInSandbox_shouldReturnCorrectTransitions() {
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_IN_SANDBOX);
     
     List<String> transitions = underTest.outTransitionsKeys(issue);
@@ -537,7 +537,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
   }
 
   @Test
-  void transition_from_in_sandbox_to_open_with_reopen() {
+  void doManualTransition_whenInSandboxReopenTransition_shouldTransitionToOpen() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ISSUE-1")
       .setStatus(STATUS_IN_SANDBOX)
@@ -553,7 +553,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
   }
 
   @Test
-  void transition_from_in_sandbox_to_confirmed() {
+  void doManualTransition_whenInSandboxConfirmTransition_shouldTransitionToConfirmed() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ISSUE-1")
       .setStatus(STATUS_IN_SANDBOX)
@@ -569,7 +569,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
   }
 
   @Test
-  void transition_from_in_sandbox_to_resolved_fixed() {
+  void doManualTransition_whenInSandboxResolveTransition_shouldTransitionToResolvedFixed() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ISSUE-1")
       .setStatus(STATUS_IN_SANDBOX)
@@ -585,7 +585,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
   }
 
   @Test
-  void transition_from_in_sandbox_to_resolved_false_positive() {
+  void doManualTransition_whenInSandboxFalsePositiveTransition_shouldTransitionToResolvedFalsePositive() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ISSUE-1")
       .setStatus(STATUS_IN_SANDBOX)
@@ -601,7 +601,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
   }
 
   @Test
-  void transition_from_in_sandbox_to_resolved_wont_fix_with_accept() {
+  void doManualTransition_whenInSandboxAcceptTransition_shouldTransitionToResolvedWontFix() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ISSUE-1")
       .setStatus(STATUS_IN_SANDBOX)
@@ -617,7 +617,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
   }
 
   @Test
-  void transition_from_in_sandbox_to_resolved_wont_fix() {
+  void doManualTransition_whenInSandboxWontFixTransition_shouldTransitionToResolvedWontFix() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ISSUE-1")
       .setStatus(STATUS_IN_SANDBOX)

@@ -64,10 +64,10 @@ import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.db.rule.RuleTesting.newRule;
-import static org.sonar.server.issue.index.IssueQueryFactory.STATUS_IN_SANDBOX;
 import static org.sonar.server.issue.index.IssueQueryFactory.ISSUE_STATUSES;
 
 public class IssueQueryFactoryTest {
+  static final String STATUS_IN_SANDBOX = "IN_SANDBOX";
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -831,8 +831,6 @@ public class IssueQueryFactoryTest {
   @Test
   public void verify_issue_statuses_includes_in_sandbox() {
     assertThat(STATUS_IN_SANDBOX).isEqualTo("IN_SANDBOX");
-    
-    assertThat(ISSUE_STATUSES).contains("IN_SANDBOX");
     
     assertThat(ISSUE_STATUSES).containsExactlyInAnyOrder(
       "OPEN",

@@ -39,7 +39,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -95,7 +94,6 @@ public class IssueQueryFactory {
   private static final Logger LOGGER = LoggerFactory.getLogger(IssueQueryFactory.class);
 
   public static final String UNKNOWN = "<UNKNOWN>";
-  public static final String STATUS_IN_SANDBOX = "IN_SANDBOX";
   public static final List<String> ISSUE_STATUSES = STATUSES.stream()
     .filter(s -> !s.equals(STATUS_TO_REVIEW))
     .filter(s -> !s.equals(STATUS_REVIEWED))

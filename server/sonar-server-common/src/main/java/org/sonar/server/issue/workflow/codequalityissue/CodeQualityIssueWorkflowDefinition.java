@@ -155,17 +155,14 @@ public class CodeQualityIssueWorkflowDefinition {
         .build())
 
       // Transitions FROM IN_SANDBOX to other statuses
-      // Can transition to OPEN using REOPEN action
       .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(REOPEN.getKey())
         .from(STATUS_IN_SANDBOX).to(STATUS_OPEN)
         .actions(UNSET_RESOLUTION)
         .build())
-      // Can transition to CONFIRMED  
       .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(CONFIRM.getKey())
         .from(STATUS_IN_SANDBOX).to(STATUS_CONFIRMED)
         .actions(UNSET_RESOLUTION)
         .build())
-      // Can transition to RESOLVED with various resolutions
       .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder(RESOLVE.getKey())
         .from(STATUS_IN_SANDBOX).to(STATUS_RESOLVED)
         .actions(a -> a.setResolution(RESOLUTION_FIXED))
