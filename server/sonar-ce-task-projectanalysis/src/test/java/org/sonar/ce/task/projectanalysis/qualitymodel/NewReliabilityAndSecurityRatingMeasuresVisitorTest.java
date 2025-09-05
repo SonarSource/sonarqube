@@ -50,6 +50,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
+import static org.sonar.api.issue.Issue.STATUS_IN_SANDBOX;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING;
@@ -523,6 +524,23 @@ class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
     verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
   }
 
+  @Test
+  void compute_rating_ignoring_sandbox_issues() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
+      newBugIssue(10L, BLOCKER).setStatus(STATUS_IN_SANDBOX).setResolution(null),
+      newVulnerabilityIssue(5L, CRITICAL).setStatus(STATUS_IN_SANDBOX).setResolution(null),
+      newImpactIssue(SoftwareQuality.RELIABILITY, Severity.BLOCKER).setStatus(STATUS_IN_SANDBOX).setResolution(null),
+      newImpactIssue(SoftwareQuality.SECURITY, Severity.HIGH).setStatus(STATUS_IN_SANDBOX).setResolution(null));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_RELIABILITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SECURITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
+  }
+
   private void verifyAddedRawMeasureOnLeakPeriod(int componentRef, String metricKey, Rating rating) {
     MeasureAssert.assertThat(measureRepository.getAddedRawMeasure(componentRef, metricKey)).hasValue(rating.getIndex());
   }
@@ -567,6 +585,8 @@ class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
       .setKey(UuidFactoryFast.getInstance().create())
       .setSeverity(severity)
       .setType(type)
+      .setStatus("OPEN")
+      .setResolution(null)
       .setCreationDate(DEFAULT_ISSUE_CREATION_DATE);
   }
 
@@ -576,6 +596,8 @@ class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
       .addImpact(softwareQuality, severity)
       .setType(BUG)
       .setSeverity("BLOCKER")
+      .setStatus("OPEN")
+      .setResolution(null)
       .setCreationDate(new Date(1000L));
     when(newIssueClassifier.isNew(any(), eq(issue))).thenReturn(isNew);
     return issue;

@@ -38,8 +38,31 @@ public class IssueCountMetrics implements Metrics {
     .setOptimizedBestValue(true)
     .create();
 
+  public static final String ISSUES_IN_SANDBOX_KEY = "issues_in_sandbox";
+  public static final Metric<Integer> ISSUES_IN_SANDBOX = new Metric.Builder(
+    ISSUES_IN_SANDBOX_KEY, "Issues in Sandbox", Metric.ValueType.INT)
+    .setDescription("Count of issues that are in sandbox status.")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setQualitative(true)
+    .setDomain(DOMAIN_ISSUES)
+    .setBestValue(0.0)
+    .setOptimizedBestValue(true)
+    .create();
+
+  public static final String NEW_ISSUES_IN_SANDBOX_KEY = "new_issues_in_sandbox";
+  public static final Metric<Integer> NEW_ISSUES_IN_SANDBOX = new Metric.Builder(
+    NEW_ISSUES_IN_SANDBOX_KEY, "New Issues in Sandbox", Metric.ValueType.INT)
+    .setDescription("Count of new issues that are in sandbox status.")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setQualitative(true)
+    .setDomain(DOMAIN_ISSUES)
+    .setBestValue(0.0)
+    .setOptimizedBestValue(true)
+    .setDeleteHistoricalData(true)
+    .create();
+
   @Override
   public List<Metric> getMetrics() {
-    return List.of(PRIORITIZED_RULE_ISSUES);
+    return List.of(PRIORITIZED_RULE_ISSUES, ISSUES_IN_SANDBOX, NEW_ISSUES_IN_SANDBOX);
   }
 }

@@ -43,6 +43,7 @@ import org.sonar.server.measure.Rating;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
+import static org.sonar.api.issue.Issue.STATUS_IN_SANDBOX;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING;
@@ -362,6 +363,25 @@ class ReliabilityAndSecurityRatingMeasuresVisitorTest {
     verifyAddedRawMeasure(PROJECT_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
   }
 
+  @Test
+  void compute_rating_ignoring_sandbox_issues() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
+      // Only sandbox issues - these should be completely ignored for rating calculation
+      newBugIssue(10, BLOCKER).setStatus(STATUS_IN_SANDBOX).setResolution(null),
+      newVulnerabilityIssue(5, CRITICAL).setStatus(STATUS_IN_SANDBOX).setResolution(null),
+      newImpactIssue(SoftwareQuality.RELIABILITY, Severity.BLOCKER).setStatus(STATUS_IN_SANDBOX).setResolution(null),
+      newImpactIssue(SoftwareQuality.SECURITY, Severity.HIGH).setStatus(STATUS_IN_SANDBOX).setResolution(null));
+
+    underTest.visit(ROOT_PROJECT);
+
+    // Should have A rating since all issues are in sandbox and should be ignored
+    verifyAddedRawMeasure(PROJECT_REF, RELIABILITY_RATING_KEY, A);
+    verifyAddedRawMeasure(PROJECT_REF, SECURITY_RATING_KEY, A);
+    verifyAddedRawMeasure(PROJECT_REF, SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, A);
+    verifyAddedRawMeasure(PROJECT_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
+  }
+
   private void verifyAddedRawMeasure(int componentRef, String metricKey, Rating rating) {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).contains(entryOf(metricKey, newMeasureBuilder().create(rating.getIndex(), rating.name())));
   }
@@ -392,6 +412,8 @@ class ReliabilityAndSecurityRatingMeasuresVisitorTest {
       .setKey(Uuids.create())
       .setSeverity(severity)
       .setType(type)
+      .setStatus("OPEN")
+      .setResolution(null)
       .setCreationDate(new Date(1000L));
   }
 
@@ -401,6 +423,8 @@ class ReliabilityAndSecurityRatingMeasuresVisitorTest {
       .addImpact(softwareQuality, severity)
       .setType(BUG)
       .setSeverity("BLOCKER")
+      .setStatus("OPEN")
+      .setResolution(null)
       .setCreationDate(new Date(1000L));
   }
 

@@ -27,6 +27,7 @@ import org.sonar.core.issue.DefaultIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.api.issue.Issue.STATUS_IN_SANDBOX;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 
 public class ComponentIssuesRepositoryImplTest {
@@ -86,6 +87,63 @@ public class ComponentIssuesRepositoryImplTest {
   public void fail_with_ISE_when_getting_issues_but_issues_are_null() {
     assertThatThrownBy(() -> {
       sut.getIssues(FILE_1);
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Issues have not been initialized");
+  }
+
+  @Test
+  public void getNotSandboxedIssues_filters_out_sandbox_issues() {
+    DefaultIssue openIssue = new DefaultIssue().setKey("OPEN").setStatus("OPEN");
+    DefaultIssue sandboxIssue = new DefaultIssue().setKey("SANDBOX").setStatus(STATUS_IN_SANDBOX);
+    DefaultIssue closedIssue = new DefaultIssue().setKey("CLOSED").setStatus("CLOSED");
+
+    sut.setIssues(FILE_1, Arrays.asList(openIssue, sandboxIssue, closedIssue));
+
+    assertThat(sut.getNotSandboxedIssues(FILE_1)).containsOnly(openIssue, closedIssue);
+  }
+
+  @Test
+  public void getNotSandboxedIssues_returns_empty_when_only_sandbox_issues() {
+    DefaultIssue sandboxIssue1 = new DefaultIssue().setKey("SANDBOX1").setStatus(STATUS_IN_SANDBOX);
+    DefaultIssue sandboxIssue2 = new DefaultIssue().setKey("SANDBOX2").setStatus(STATUS_IN_SANDBOX);
+
+    sut.setIssues(FILE_1, Arrays.asList(sandboxIssue1, sandboxIssue2));
+
+    assertThat(sut.getNotSandboxedIssues(FILE_1)).isEmpty();
+  }
+
+  @Test
+  public void getNotSandboxedIssues_returns_all_when_no_sandbox_issues() {
+    DefaultIssue openIssue = new DefaultIssue().setKey("OPEN").setStatus("OPEN");
+    DefaultIssue closedIssue = new DefaultIssue().setKey("CLOSED").setStatus("CLOSED");
+
+    sut.setIssues(FILE_1, Arrays.asList(openIssue, closedIssue));
+
+    assertThat(sut.getNotSandboxedIssues(FILE_1)).containsOnly(openIssue, closedIssue);
+  }
+
+  @Test
+  public void getNotSandboxedIssues_returns_empty_when_no_issues() {
+    sut.setIssues(FILE_1, Collections.emptyList());
+
+    assertThat(sut.getNotSandboxedIssues(FILE_1)).isEmpty();
+  }
+
+  @Test
+  public void getNotSandboxedIssues_fail_with_IAE_when_getting_issues_on_different_component() {
+    assertThatThrownBy(() -> {
+      sut.setIssues(FILE_1, Arrays.asList(DUMB_ISSUE));
+      sut.getNotSandboxedIssues(FILE_2);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Only issues from component '1' are available, but wanted component is '2'.");
+  }
+
+  @Test
+  public void getNotSandboxedIssues_fail_with_ISE_when_issues_are_null() {
+    assertThatThrownBy(() -> {
+      sut.getNotSandboxedIssues(FILE_1);
     })
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Issues have not been initialized");

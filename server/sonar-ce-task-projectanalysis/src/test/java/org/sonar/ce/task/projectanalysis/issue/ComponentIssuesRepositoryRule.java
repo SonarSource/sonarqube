@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.junit.rules.ExternalResource;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.core.issue.DefaultIssue;
@@ -79,6 +80,13 @@ public class ComponentIssuesRepositoryRule extends ExternalResource implements M
       String.format("Only issues from component '%s' are available, but wanted component is '%s'.",
         this.component.getReportAttributes().getRef(), component.getReportAttributes().getRef()));
     return issues;
+  }
+
+  @Override
+  public List<DefaultIssue> getNotSandboxedIssues(Component component) {
+    return getIssues(component).stream()
+      .filter(issue -> !IssueStatus.IN_SANDBOX.equals(issue.issueStatus()))
+      .toList();
   }
 
 }

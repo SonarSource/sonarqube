@@ -53,6 +53,7 @@ import org.sonar.server.measure.Rating;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.sonar.api.issue.Issue.STATUS_IN_SANDBOX;
 import static org.sonar.api.issue.impact.Severity.BLOCKER;
 import static org.sonar.api.issue.impact.Severity.HIGH;
 import static org.sonar.api.issue.impact.Severity.INFO;
@@ -76,6 +77,8 @@ import static org.sonar.api.measures.CoreMetrics.SQALE_RATING;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT;
+import static org.sonar.server.metric.IssueCountMetrics.ISSUES_IN_SANDBOX;
+import static org.sonar.server.metric.IssueCountMetrics.NEW_ISSUES_IN_SANDBOX;
 import static org.sonar.server.metric.IssueCountMetrics.PRIORITIZED_RULE_ISSUES;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -1198,6 +1201,31 @@ class MeasureUpdateFormulaFactoryImplTest {
       newImpactGroup(RELIABILITY, HIGH, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, 8),
       newImpactGroup(RELIABILITY, BLOCKER, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, 2))
         .assertThatValueIs(CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES, 4 + 8 + 2);
+  }
+
+  @Test
+  void compute_shouldComputeSandboxIssues() {
+    withNoIssues()
+      .assertThatValueIs(ISSUES_IN_SANDBOX, 0)
+      .assertThatLeakValueIs(NEW_ISSUES_IN_SANDBOX, 0);
+
+    with(
+      newGroup().setStatus(STATUS_IN_SANDBOX).setResolution(null).setCount(3),
+      newGroup().setStatus(STATUS_IN_SANDBOX).setResolution(null).setCount(5),
+      
+      newGroup().setStatus(Issue.STATUS_OPEN).setCount(2),
+      newGroup().setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_WONT_FIX).setCount(4))
+        .assertThatValueIs(ISSUES_IN_SANDBOX, 3 + 5)
+        .assertThatValueIs(CoreMetrics.VIOLATIONS, 2); // Only non-sandbox unresolved issues
+
+    with(
+      newGroup().setStatus(STATUS_IN_SANDBOX).setResolution(null).setCount(3).setInLeak(false),
+      newGroup().setStatus(STATUS_IN_SANDBOX).setResolution(null).setCount(2).setInLeak(true),
+      newGroup().setStatus(STATUS_IN_SANDBOX).setResolution(null).setCount(1).setInLeak(true),
+      newGroup().setStatus(Issue.STATUS_OPEN).setCount(4).setInLeak(true))
+        .assertThatValueIs(ISSUES_IN_SANDBOX, 3 + 2 + 1)
+        .assertThatLeakValueIs(NEW_ISSUES_IN_SANDBOX, 2 + 1)
+        .assertThatLeakValueIs(CoreMetrics.NEW_VIOLATIONS, 4); // Only non-sandbox new issues
   }
 
   @Test

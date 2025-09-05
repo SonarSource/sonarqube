@@ -20,6 +20,8 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import javax.annotation.Nullable;
+
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
@@ -40,6 +42,9 @@ public class IssueVisitors {
 
   public void onIssue(Component component, DefaultIssue issue) {
     for (IssueVisitor visitor : visitors) {
+      if (visitor instanceof MeasureComputationIssueVisitor && IssueStatus.IN_SANDBOX.equals(IssueStatus.of(issue.getStatus(), issue.resolution()))) {
+        continue;
+      }
       visitor.onIssue(component, issue);
     }
   }

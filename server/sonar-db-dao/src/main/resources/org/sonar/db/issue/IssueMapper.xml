@@ -566,7 +566,7 @@
           <if test="leakPeriodBeginningDate &lt; 0">
             left join new_code_reference_issues n on n.issue_key = i.kee
           </if>
-          where i.status &lt;&gt; 'CLOSED'
+          where i.status not in ('CLOSED', 'IN_SANDBOX')
           and (i.resolution is null or i.resolution = 'WONTFIX')
           and i.component_uuid = #{component.uuid,jdbcType=VARCHAR}
       ) i2
@@ -599,7 +599,7 @@
           <if test="leakPeriodBeginningDate &lt; 0">
             left join new_code_reference_issues n on n.issue_key = i.kee
           </if>
-          where i.status &lt;&gt; 'CLOSED'
+          where i.status not in ('CLOSED', 'IN_SANDBOX')
           and (i.resolution is null or i.resolution = 'WONTFIX')
           and i.component_uuid = #{component.uuid,jdbcType=VARCHAR}
       ) i2

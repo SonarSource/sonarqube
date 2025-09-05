@@ -46,7 +46,7 @@ import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SE
  * {@link SoftwareQualitiesMetrics#SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT_KEY}
  * {@link SoftwareQualitiesMetrics#SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT_KEY}
  */
-public class EffortAggregator extends IssueVisitor {
+public class EffortAggregator extends MeasureComputationIssueVisitor {
 
   private final MeasureRepository measureRepository;
   private final Map<String, EffortCounter> effortsByComponentUuid = new HashMap<>();

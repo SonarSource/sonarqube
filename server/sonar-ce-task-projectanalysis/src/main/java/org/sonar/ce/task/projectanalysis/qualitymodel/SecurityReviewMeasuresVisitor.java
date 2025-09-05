@@ -75,7 +75,7 @@ public class SecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Secur
   }
 
   private void computeMeasure(Component component, PathAwareVisitor.Path<SecurityReviewCounter> path) {
-    componentIssuesRepository.getIssues(component)
+    componentIssuesRepository.getNotSandboxedIssues(component)
       .stream()
       .filter(issue -> issue.type().equals(SECURITY_HOTSPOT))
       .forEach(issue -> path.current().processHotspot(issue));

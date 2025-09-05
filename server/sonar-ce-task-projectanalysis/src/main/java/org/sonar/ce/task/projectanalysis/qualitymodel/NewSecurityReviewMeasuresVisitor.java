@@ -84,7 +84,7 @@ public class NewSecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Se
   }
 
   private void computeMeasure(Component component, Path<SecurityReviewCounter> path) {
-    componentIssuesRepository.getIssues(component)
+    componentIssuesRepository.getNotSandboxedIssues(component)
       .stream()
       .filter(issue -> issue.type().equals(SECURITY_HOTSPOT))
       .filter(issue -> newIssueClassifier.isNew(component, issue))

@@ -41,4 +41,12 @@ public interface ComponentIssuesRepository {
    */
   List<DefaultIssue> getIssues(Component component);
 
+  /**
+   * Return issues from the component, excluding issues in sandbox status
+   *
+   * @throws IllegalStateException if no issues have been set
+   * @throws IllegalArgumentException if the component is not the component that contains current issues.
+   */
+  List<DefaultIssue> getNotSandboxedIssues(Component component);
+
 }

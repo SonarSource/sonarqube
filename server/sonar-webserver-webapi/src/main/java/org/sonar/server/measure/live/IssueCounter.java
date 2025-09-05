@@ -52,6 +52,7 @@ class IssueCounter {
   private final Count unresolved = new Count();
   private long prioritizedRuleIssues = 0;
   private final Count highImpactAccepted = new Count();
+  private final Count inSandbox = new Count();
   private final Map<SoftwareQuality, Map<Severity, Count>> bySoftwareQualityAndSeverity = new EnumMap<>(SoftwareQuality.class);
   private final Map<SoftwareQuality, Effort> effortOfUnresolvedBySoftwareQuality = new EnumMap<>(SoftwareQuality.class);
   private final Map<SoftwareQuality, HighestImpactSeverity> highestSeverityOfUnresolvedBySoftwareQuality = new EnumMap<>(SoftwareQuality.class);
@@ -89,6 +90,10 @@ class IssueCounter {
   }
 
   private void processGroup(IssueGroupDto group) {
+    if (group.getStatus() != null && IssueStatus.of(group.getStatus(), group.getResolution()) == IssueStatus.IN_SANDBOX) {
+      inSandbox.add(group);
+      return;
+    }
     if (group.getResolution() == null) {
       RuleType ruleType = RuleType.fromDbConstant(group.getRuleType());
       highestSeverityOfUnresolved
@@ -119,6 +124,10 @@ class IssueCounter {
 
   private void processImpactGroup(IssueImpactGroupDto group) {
     IssueStatus issueStatus = IssueStatus.of(group.getStatus(), group.getResolution());
+
+    if (IssueStatus.IN_SANDBOX == issueStatus) {
+      return;
+    }
 
     if (IssueStatus.OPEN == issueStatus || IssueStatus.CONFIRMED == issueStatus) {
       bySoftwareQualityAndSeverity
@@ -203,6 +212,10 @@ class IssueCounter {
 
   public long countHighImpactAccepted(boolean onlyInLeak) {
     return value(highImpactAccepted, onlyInLeak);
+  }
+
+  public long countInSandbox(boolean onlyInLeak) {
+    return value(inSandbox, onlyInLeak);
   }
 
   public long countHotspotsByStatus(String status, boolean onlyInLeak) {

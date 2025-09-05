@@ -129,7 +129,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
   }
 
   private void processIssues(Component component, Path<Counter> path) {
-    componentIssuesRepository.getIssues(component)
+    componentIssuesRepository.getNotSandboxedIssues(component)
       .stream()
       .filter(issue -> issue.resolution() == null)
       .filter(issue -> issue.type().equals(BUG) || issue.type().equals(VULNERABILITY))
@@ -137,7 +137,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
   }
 
   private void processIssuesForSoftwareQuality(Component component, Path<Counter> path) {
-    componentIssuesRepository.getIssues(component)
+    componentIssuesRepository.getNotSandboxedIssues(component)
       .stream()
       .filter(issue -> issue.resolution() == null)
       .forEach(issue -> path.current().processIssueForSoftwareQuality(issue));

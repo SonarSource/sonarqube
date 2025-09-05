@@ -104,7 +104,7 @@ public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisito
   }
 
   private void processIssues(Component component, Path<Counter> path) {
-    componentIssuesRepository.getIssues(component)
+    componentIssuesRepository.getNotSandboxedIssues(component)
       .stream()
       .filter(issue -> issue.resolution() == null)
       .forEach(issue -> processIssue(path, issue));

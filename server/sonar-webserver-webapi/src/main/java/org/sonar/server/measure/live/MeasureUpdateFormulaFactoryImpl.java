@@ -60,6 +60,8 @@ import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SE
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT;
 import static org.sonar.server.measure.Rating.RATING_BY_SEVERITY;
 import static org.sonar.server.measure.Rating.RATING_BY_SOFTWARE_QUALITY_SEVERITY;
+import static org.sonar.server.metric.IssueCountMetrics.ISSUES_IN_SANDBOX;
+import static org.sonar.server.metric.IssueCountMetrics.NEW_ISSUES_IN_SANDBOX;
 import static org.sonar.server.metric.IssueCountMetrics.PRIORITIZED_RULE_ISSUES;
 import static org.sonar.server.security.SecurityReviewRating.computePercent;
 import static org.sonar.server.security.SecurityReviewRating.computeRating;
@@ -125,6 +127,9 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
 
     new MeasureUpdateFormula(CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES, false, true, new AddChildren(),
       (context, issues) -> context.setValue(issues.countHighImpactAccepted(false))),
+
+    new MeasureUpdateFormula(ISSUES_IN_SANDBOX, false, new AddChildren(),
+      (context, issues) -> context.setValue(issues.countInSandbox(false))),
 
     new MeasureUpdateFormula(CoreMetrics.OPEN_ISSUES, false, new AddChildren(),
       (context, issues) -> context.setValue(issues.countByStatus(Issue.STATUS_OPEN, false))),
@@ -222,6 +227,9 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
 
     new MeasureUpdateFormula(CoreMetrics.NEW_ACCEPTED_ISSUES, true, true, new AddChildren(),
       (context, issues) -> context.setValue(issues.countByResolution(Issue.RESOLUTION_WONT_FIX, true))),
+
+    new MeasureUpdateFormula(NEW_ISSUES_IN_SANDBOX, true, new AddChildren(),
+      (context, issues) -> context.setValue(issues.countInSandbox(true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_TECHNICAL_DEBT, true, new AddChildren(),
       (context, issues) -> context.setValue(issues.sumEffortOfUnresolved(RuleType.CODE_SMELL, true))),
