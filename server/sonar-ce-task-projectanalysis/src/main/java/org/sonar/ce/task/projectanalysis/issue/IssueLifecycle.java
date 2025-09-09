@@ -111,6 +111,7 @@ public class IssueLifecycle {
   public void copyExistingOpenIssueFromBranch(DefaultIssue raw, DefaultIssue base, String branchName) {
     raw.setKey(Uuids.create());
     raw.setNew(false);
+    raw.setFromSonarQubeUpdate(base.isFromSonarQubeUpdate());
     copyAttributesOfIssueFromAnotherBranch(raw, base);
     raw.setFieldChange(changeContext, IssueFieldsSetter.FROM_BRANCH, branchName, analysisMetadataHolder.getBranch().getName());
   }
@@ -189,6 +190,7 @@ public class IssueLifecycle {
     Rule rule = ruleRepository.getByKey(raw.ruleKey());
     raw.setKey(base.key());
     raw.setNew(false);
+    raw.setFromSonarQubeUpdate(base.isFromSonarQubeUpdate());
     if (base.isChanged()) {
       // In case issue was moved from module or folder to the root project
       raw.setChanged(true);

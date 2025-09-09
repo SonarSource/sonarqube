@@ -329,6 +329,7 @@ public class IssueLifecycleTest {
 
     assertThat(raw.isNew()).isFalse();
     assertThat(raw.isCopied()).isTrue();
+    assertThat(raw.isFromSonarQubeUpdate()).isFalse();
     assertThat(raw.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.FOCUSED);
     assertThat(raw.key()).isNotNull();
     assertThat(raw.key()).isNotEqualTo(base.key());
@@ -349,6 +350,27 @@ public class IssueLifecycleTest {
     assertThat(raw.getRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
 
     verifyNoInteractions(updater);
+  }
+
+  @Test
+  public void copyExistingOpenIssueFromBranch_preserves_from_sonarqube_update_flag() {
+    DefaultIssue raw = new DefaultIssue()
+      .setNew(true)
+      .setKey("RAW_KEY");
+    DefaultIssue base = new DefaultIssue()
+      .setKey("BASE_KEY")
+      .setStatus(STATUS_OPEN)
+      .setFromSonarQubeUpdate(true);
+
+    when(debtCalculator.calculate(raw)).thenReturn(DEFAULT_DURATION);
+
+    Branch branch = mock(Branch.class);
+    when(branch.getName()).thenReturn("release-2.x");
+    analysisMetadataHolder.setBranch(branch);
+
+    underTest.copyExistingOpenIssueFromBranch(raw, base, "master");
+
+    assertThat(raw.isFromSonarQubeUpdate()).isTrue();
   }
 
   @Test
@@ -452,6 +474,7 @@ public class IssueLifecycleTest {
     underTest.mergeExistingOpenIssue(raw, base);
 
     assertThat(raw.isNew()).isFalse();
+    assertThat(raw.isFromSonarQubeUpdate()).isFalse();
     assertThat(raw.key()).isEqualTo("BASE_KEY");
     assertThat(raw.creationDate()).isEqualTo(base.creationDate());
     assertThat(raw.updateDate()).isEqualTo(base.updateDate());
@@ -542,6 +565,22 @@ public class IssueLifecycleTest {
 
     assertThat(raw.isChanged()).isTrue();
     assertThat(raw.getRuleDescriptionContextKey()).isEqualTo(raw.getRuleDescriptionContextKey());
+  }
+
+  @Test
+  public void mergeExistingOpenIssue_preserves_from_sonarqube_update_flag() {
+    DefaultIssue raw = new DefaultIssue()
+      .setNew(true)
+      .setKey("RAW_KEY")
+      .setRuleKey(XOO_X1);
+    DefaultIssue base = new DefaultIssue()
+      .setKey("BASE_KEY")
+      .setStatus(STATUS_OPEN)
+      .setFromSonarQubeUpdate(true);
+
+    underTest.mergeExistingOpenIssue(raw, base);
+
+    assertThat(raw.isFromSonarQubeUpdate()).isTrue();
   }
 
   @Test
