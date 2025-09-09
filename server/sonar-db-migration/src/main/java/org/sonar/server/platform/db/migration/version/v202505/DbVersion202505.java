@@ -30,6 +30,8 @@ public class DbVersion202505 implements DbVersion {
   public void addSteps(MigrationStepRegistry registry) {
     registry
       .add(2025_05_000, "Add 'published_on' column to 'sca_vulnerability_issues' table", AddPublishedOnToScaVulnerabilityIssues.class)
-      .add(2025_05_001, "Add 'from_sonarqube_update' column to 'issues' table", AddFromSonarQubeUpdateColumnToIssuesTable.class);
+      .add(2025_05_001, "Add 'from_sonarqube_update' column to 'issues' table", AddFromSonarQubeUpdateColumnToIssuesTable.class)
+      .add(2025_05_002, "Add 'internal_tags' column to 'issues' table", AddInternalTagsToIssuesTable.class)
+    ;
   }
 }
