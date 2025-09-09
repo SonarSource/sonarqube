@@ -149,10 +149,12 @@ public class AnalysisContextReportPublisherTest {
       .setBaseDir(temp.newFolder())
       .setWorkDir(temp.newFolder())
       .setProperty("sonar.projectKey", "foo")
-      .setProperty("sonar.projectKey", "foo")
       .setProperty("sonar.login", "my_token")
       .setProperty("sonar.password", "azerty")
-      .setProperty("sonar.cpp.license.secured", "AZERTY"));
+      .setProperty("sonar.scanner.somePassword", "changeit")
+      .setProperty("sonar.cpp.license.secured", "AZERTY")
+      .setProperty("sonar.auth.token", "secret_token")
+      .setProperty("sonar.github.token", "github_secret"));
     when(store.allModules()).thenReturn(singletonList(rootModule));
     when(hierarchy.root()).thenReturn(rootModule);
     publisher.init(writer);
@@ -160,10 +162,13 @@ public class AnalysisContextReportPublisherTest {
     assertThat(writer.getFileStructure().analysisLog()).exists();
 
     assertThat(FileUtils.readFileToString(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8)).containsSubsequence(
+      "sonar.auth.token=******",
       "sonar.cpp.license.secured=******",
+      "sonar.github.token=******",
       "sonar.login=******",
       "sonar.password=******",
-      "sonar.projectKey=foo");
+      "sonar.projectKey=foo",
+      "sonar.scanner.somePassword=******");
   }
 
   @Test

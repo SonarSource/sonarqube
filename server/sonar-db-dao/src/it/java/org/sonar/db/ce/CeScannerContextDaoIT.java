@@ -95,11 +95,20 @@ class CeScannerContextDaoIT {
 
   @Test
   void insert_and_select_line_reader() {
-    String scannerContext = "line 1" + lineSeparator() + "line 2" + lineSeparator() + "line 3";
+    String scannerContext = "line 1\nline 2\nline 3";
     underTest.insert(dbSession, SOME_UUID, scannerContextInputStreamOf(scannerContext));
     dbSession.commit();
 
     assertThat(underTest.selectScannerContext(dbSession, SOME_UUID)).contains(scannerContext);
+  }
+
+  @Test
+  void sanitize_data() {
+    String scannerContext = "  - sonar.scanner.somePassword=pass=123\n  - sonar.scanner.type=password\n  - sonar.scanner.password is safe";
+    underTest.insert(dbSession, SOME_UUID, scannerContextInputStreamOf(scannerContext));
+    dbSession.commit();
+
+    assertThat(underTest.selectScannerContext(dbSession, SOME_UUID)).contains("  - sonar.scanner.somePassword=********\n  - sonar.scanner.type=password\n  - sonar.scanner.password is safe");
   }
 
   @Test

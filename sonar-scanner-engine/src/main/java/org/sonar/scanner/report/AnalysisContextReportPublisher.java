@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeSet;
 import org.apache.commons.lang3.StringUtils;
@@ -166,6 +167,6 @@ public class AnalysisContextReportPublisher {
   }
 
   private static boolean isSensitiveProperty(String key) {
-    return key.equals(CoreProperties.LOGIN) || key.contains(".password") || key.contains(".secured") || key.contains(".token");
+    return key.equals(CoreProperties.LOGIN) || key.toLowerCase(Locale.ENGLISH).endsWith("password") || key.contains(".secured") || key.contains(".token");
   }
 }

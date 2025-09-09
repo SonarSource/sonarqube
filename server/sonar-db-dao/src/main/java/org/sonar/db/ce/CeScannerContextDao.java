@@ -26,9 +26,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.Dao;
@@ -76,13 +79,28 @@ public class CeScannerContextDao implements Dao {
       stmt.setString(1, taskUuid);
       try (ResultSet rs = stmt.executeQuery()) {
         if (rs.next()) {
-          return Optional.of(IOUtils.toString(rs.getBinaryStream(1), UTF_8));
+          return Optional.of(sanitize(IOUtils.toString(rs.getBinaryStream(1), UTF_8)));
         }
         return Optional.empty();
       }
     } catch (SQLException | IOException e) {
       throw new IllegalStateException("Fail to retrieve scanner context of task " + taskUuid, e);
     }
+  }
+
+  private static String sanitize(String scannerContext) {
+    return scannerContext.lines().map(scannerContextLine -> {
+      if (scannerContextLine.startsWith("  - sonar.scanner.")) {
+        var equalIndex = StringUtils.indexOf(scannerContextLine, '=');
+        if (equalIndex >= 0) {
+          var key = scannerContextLine.substring("  - ".length(), equalIndex);
+          if (key.toLowerCase(Locale.ENGLISH).contains("password")) {
+            return scannerContextLine.substring(0, equalIndex + 1) + "********";
+          }
+        }
+      }
+      return scannerContextLine;
+    }).collect(Collectors.joining("\n"));
   }
 
   public Set<String> selectOlderThan(DbSession dbSession, long beforeDate) {
