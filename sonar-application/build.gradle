@@ -397,6 +397,9 @@ artifactoryPublish.skip = !deployCommunity
 
 def bomFile = layout.buildDirectory.file('reports/bom.json')
 cyclonedxBom {
+  setVCSGit { vcs ->
+    vcs.url = "https://github.com/SonarSource/sonarqube"
+  }
   includeConfigs = ["runtimeClasspath", "web", "shutdowner", "jdbc_mssql", "jdbc_mssql_entra", "jdbc_postgresql", "jdbc_h2", "bundledPlugin_deps",
                     "cyclonedx"]
   outputs.file bomFile
