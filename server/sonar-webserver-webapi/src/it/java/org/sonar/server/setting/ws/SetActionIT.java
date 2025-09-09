@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentMatchers;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinition.ConfigScope;
@@ -50,6 +51,7 @@ import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.db.property.PropertyListener;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.process.ProcessProperties;
 import org.sonar.scanner.protocol.GsonHelper;
@@ -68,6 +70,9 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.sonar.auth.github.GitHubSettings.GITHUB_API_URL;
 import static org.sonar.auth.github.GitHubSettings.GITHUB_WEB_URL;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_URL;
@@ -168,7 +173,9 @@ class SetActionIT {
   private final FakeSettingsNotifier settingsChangeNotifier = new FakeSettingsNotifier(dbClient);
   private final SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
   private final SettingValidations validations = new SettingValidations(definitions, dbClient, i18n);
-  private final SetAction underTest = new SetAction(definitions, dbClient, userSession, settingsUpdater, settingsChangeNotifier, validations);
+  private final PropertyListener propertyListener = mock();
+  private final List<PropertyListener> propertyListeners = List.of(propertyListener);
+  private final SetAction underTest = new SetAction(definitions, dbClient, userSession, settingsUpdater, settingsChangeNotifier, validations, propertyListeners);
 
   private final WsActionTester ws = new WsActionTester(underTest);
 
@@ -228,6 +235,7 @@ class SetActionIT {
 
     assertGlobalSetting("my.key", "my,value");
     assertThat(settingsChangeNotifier.wasCalled).isTrue();
+    verify(propertyListener).onValueChanged(argThat(property -> "my.key".equals(property.getKey())), ArgumentMatchers.any());
   }
 
   @Test
@@ -239,6 +247,7 @@ class SetActionIT {
 
     assertGlobalSetting("my.key", "my new value");
     assertThat(settingsChangeNotifier.wasCalled).isTrue();
+    verify(propertyListener).onValueChanged(argThat(property -> "my.key".equals(property.getKey())), ArgumentMatchers.any());
   }
 
   @Test

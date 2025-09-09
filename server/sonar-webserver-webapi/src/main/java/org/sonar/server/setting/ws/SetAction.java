@@ -48,6 +48,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.db.property.PropertyListener;
 import org.sonar.scanner.protocol.GsonHelper;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -83,15 +84,18 @@ public class SetAction implements SettingsWsAction {
   private final SettingsUpdater settingsUpdater;
   private final SettingsChangeNotifier settingsChangeNotifier;
   private final SettingValidations validations;
+  private final List<PropertyListener> propertyListeners;
 
   public SetAction(PropertyDefinitions propertyDefinitions, DbClient dbClient, UserSession userSession,
-    SettingsUpdater settingsUpdater, SettingsChangeNotifier settingsChangeNotifier, SettingValidations validations) {
+    SettingsUpdater settingsUpdater, SettingsChangeNotifier settingsChangeNotifier, SettingValidations validations,
+    List<PropertyListener> propertyListeners) {
     this.propertyDefinitions = propertyDefinitions;
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.settingsUpdater = settingsUpdater;
     this.settingsChangeNotifier = settingsChangeNotifier;
     this.validations = validations;
+    this.propertyListeners = propertyListeners;
   }
 
   @Override
@@ -176,11 +180,12 @@ public class SetAction implements SettingsWsAction {
       PropertyDto property = toProperty(request, component);
       value = property.getValue();
       dbClient.propertiesDao().saveProperty(dbSession, property, null, projectKey, projectName, qualifier);
+      propertyListeners.forEach(pl -> pl.onValueChanged(property, dbSession));
     }
 
     dbSession.commit();
 
-    if (!component.isPresent()) {
+    if (component.isEmpty()) {
       settingsChangeNotifier.onGlobalPropertyChange(persistedKey(request), value);
     }
   }
