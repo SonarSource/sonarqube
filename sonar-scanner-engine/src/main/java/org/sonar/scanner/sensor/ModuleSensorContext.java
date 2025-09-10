@@ -30,6 +30,7 @@ import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.config.Configuration;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.cache.AnalysisCacheEnabled;
+import org.sonar.scanner.repository.featureflags.FeatureFlagsRepository;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 @ThreadSafe
@@ -37,12 +38,24 @@ public class ModuleSensorContext extends ProjectSensorContext {
 
   private final InputModule module;
 
-  public ModuleSensorContext(DefaultInputProject project, InputModule module, Configuration config, FileSystem fs, ActiveRules activeRules,
-    DefaultSensorStorage sensorStorage, SonarRuntime sonarRuntime, BranchConfiguration branchConfiguration,
-    WriteCache writeCache, ReadCache readCache, AnalysisCacheEnabled analysisCacheEnabled, UnchangedFilesHandler unchangedFilesHandler,
-    ExecutingSensorContext executingSensorContext, ScannerPluginRepository pluginRepository) {
+  public ModuleSensorContext(DefaultInputProject project,
+    InputModule module,
+    Configuration config,
+    FileSystem fs,
+    ActiveRules activeRules,
+    DefaultSensorStorage sensorStorage,
+    SonarRuntime sonarRuntime,
+    BranchConfiguration branchConfiguration,
+    WriteCache writeCache,
+    ReadCache readCache,
+    AnalysisCacheEnabled analysisCacheEnabled,
+    UnchangedFilesHandler unchangedFilesHandler,
+    ExecutingSensorContext executingSensorContext,
+    ScannerPluginRepository pluginRepository,
+    FeatureFlagsRepository featureFlagsRepository) {
+
     super(project, config, fs, activeRules, sensorStorage, sonarRuntime, branchConfiguration, writeCache, readCache, analysisCacheEnabled,
-      unchangedFilesHandler, executingSensorContext, pluginRepository);
+      unchangedFilesHandler, executingSensorContext, pluginRepository, featureFlagsRepository);
     this.module = module;
   }
 

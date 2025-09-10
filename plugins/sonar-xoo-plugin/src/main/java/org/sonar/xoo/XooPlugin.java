@@ -82,6 +82,7 @@ import org.sonar.xoo.rule.XooBuiltInQualityProfilesDefinition;
 import org.sonar.xoo.rule.XooEmptyProfile;
 import org.sonar.xoo.rule.XooRulesDefinition;
 import org.sonar.xoo.rule.XooSonarWayProfile;
+import org.sonar.xoo.rule.features.AvailableFeatureSensor;
 import org.sonar.xoo.rule.hotspot.HotspotWithContextsSensor;
 import org.sonar.xoo.rule.hotspot.HotspotWithSingleContextSensor;
 import org.sonar.xoo.rule.hotspot.HotspotWithoutContextSensor;
@@ -173,6 +174,8 @@ public class XooPlugin implements Plugin {
       OnePredefinedAndAdHocRuleExternalIssuePerLineSensor.class,
 
       OneIssuePerUninitializedVariableForTelemetrySensor.class,
+
+      AvailableFeatureSensor.class,
 
       CreateIssueByInternalKeySensor.class,
       MultilineIssuesSensor.class,

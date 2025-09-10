@@ -355,6 +355,9 @@ public class XooRulesDefinition implements RulesDefinition {
     NewRule internalTags = repo.createRule(InternalTagsIssueSensor.RULE_KEY).setName("Creates issue with internal tags");
     addAllDescriptionSections(internalTags, "Issue with internal tags");
 
+    NewRule availableFeature = repo.createRule("AvailableFeature").setName("Creates issues when required features are available");
+    addAllDescriptionSections(availableFeature, "Issue raised when a required feature is available");
+
     repo.done();
   }
 

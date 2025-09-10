@@ -387,4 +387,16 @@ public class SensorContextTesterTest {
     tester.addContextProperty("foo", "bar");
     assertThat(tester.getContextProperties()).containsOnly(entry("foo", "bar"));
   }
+
+  @Test
+  public void testIsFeatureAvailable() {
+    assertThat(tester.isFeatureAvailable("feature1")).isFalse();
+    tester.addAvailableFeatures("feature1");
+    assertThat(tester.isFeatureAvailable("feature1")).isTrue();
+    assertThat(tester.isFeatureAvailable("feature3")).isFalse();
+    tester.addAvailableFeatures("feature3", "feature4");
+    assertThat(tester.isFeatureAvailable("feature3")).isTrue();
+    assertThat(tester.isFeatureAvailable("feature4")).isTrue();
+    assertThat(tester.isFeatureAvailable("feature5")).isFalse();
+  }
 }

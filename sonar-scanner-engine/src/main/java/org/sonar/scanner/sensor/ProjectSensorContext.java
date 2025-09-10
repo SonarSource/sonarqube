@@ -22,7 +22,6 @@ package org.sonar.scanner.sensor;
 import java.io.InputStream;
 import java.io.Serializable;
 import javax.annotation.concurrent.ThreadSafe;
-import org.apache.commons.lang.NotImplementedException;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -59,6 +58,7 @@ import org.sonar.api.utils.Version;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.cache.AnalysisCacheEnabled;
+import org.sonar.scanner.repository.featureflags.FeatureFlagsRepository;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.sensor.noop.NoOpNewAnalysisError;
 
@@ -80,13 +80,23 @@ public class ProjectSensorContext implements SensorContext {
   private final AnalysisCacheEnabled analysisCacheEnabled;
   private final ExecutingSensorContext executingSensorContext;
   private final ScannerPluginRepository pluginRepo;
+  private final FeatureFlagsRepository featureFlagsRepository;
 
-  public ProjectSensorContext(DefaultInputProject project, Configuration config, FileSystem fs,
+  public ProjectSensorContext(DefaultInputProject project,
+    Configuration config,
+    FileSystem fs,
     ActiveRules activeRules,
-    DefaultSensorStorage sensorStorage, SonarRuntime sonarRuntime, BranchConfiguration branchConfiguration,
-    WriteCache writeCache, ReadCache readCache,
-    AnalysisCacheEnabled analysisCacheEnabled, UnchangedFilesHandler unchangedFilesHandler,
-    ExecutingSensorContext executingSensorContext, ScannerPluginRepository pluginRepo) {
+    DefaultSensorStorage sensorStorage,
+    SonarRuntime sonarRuntime,
+    BranchConfiguration branchConfiguration,
+    WriteCache writeCache,
+    ReadCache readCache,
+    AnalysisCacheEnabled analysisCacheEnabled,
+    UnchangedFilesHandler unchangedFilesHandler,
+    ExecutingSensorContext executingSensorContext,
+    ScannerPluginRepository pluginRepo,
+    FeatureFlagsRepository featureFlagsRepository) {
+
     this.project = project;
     this.config = config;
     this.fs = fs;
@@ -100,6 +110,7 @@ public class ProjectSensorContext implements SensorContext {
     this.unchangedFilesHandler = unchangedFilesHandler;
     this.executingSensorContext = executingSensorContext;
     this.pluginRepo = pluginRepo;
+    this.featureFlagsRepository = featureFlagsRepository;
   }
 
   @Override
@@ -243,7 +254,8 @@ public class ProjectSensorContext implements SensorContext {
 
   @Override
   public boolean isFeatureAvailable(String featureName) {
-    throw new NotImplementedException();
+    //Very simple way of returning if a feature is available or not, based on the feature flags returned by the Web API.
+    return featureFlagsRepository.isEnabled(featureName);
   }
 
   @Override
@@ -255,6 +267,7 @@ public class ProjectSensorContext implements SensorContext {
   public boolean canSkipUnchangedFiles() {
     return this.skipUnchangedFiles;
   }
+
 
   private boolean isSonarSourcePlugin() {
     SensorId sensorExecuting = executingSensorContext.getSensorExecuting();

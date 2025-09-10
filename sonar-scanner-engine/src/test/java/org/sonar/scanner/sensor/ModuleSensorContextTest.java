@@ -39,6 +39,7 @@ import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.cache.AnalysisCacheEnabled;
 import org.sonar.scanner.cache.ReadCacheImpl;
 import org.sonar.scanner.cache.WriteCacheImpl;
+import org.sonar.scanner.repository.featureflags.FeatureFlagsRepository;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,12 +65,13 @@ class ModuleSensorContextTest {
   private ModuleSensorContext underTest;
   private ExecutingSensorContext executingSensorContext = mock(ExecutingSensorContext.class);
   private ScannerPluginRepository pluginRepository = mock(ScannerPluginRepository.class);
+  private FeatureFlagsRepository featureFlagsRepository = mock();
 
   @BeforeEach
   void prepare() {
     fs = new DefaultFileSystem(temp);
     underTest = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), fs, activeRules, sensorStorage, runtime,
-      branchConfiguration, writeCache, readCache, analysisCacheEnabled, unchangedFilesHandler, executingSensorContext, pluginRepository);
+      branchConfiguration, writeCache, readCache, analysisCacheEnabled, unchangedFilesHandler, executingSensorContext, pluginRepository, featureFlagsRepository);
   }
 
   @Test
@@ -105,7 +107,7 @@ class ModuleSensorContextTest {
   void pull_request_can_skip_unchanged_files() {
     when(branchConfiguration.isPullRequest()).thenReturn(true);
     underTest = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), fs, activeRules, sensorStorage, runtime,
-      branchConfiguration, writeCache, readCache, analysisCacheEnabled, unchangedFilesHandler, executingSensorContext, pluginRepository);
+      branchConfiguration, writeCache, readCache, analysisCacheEnabled, unchangedFilesHandler, executingSensorContext, pluginRepository, featureFlagsRepository);
     assertThat(underTest.canSkipUnchangedFiles()).isTrue();
   }
 

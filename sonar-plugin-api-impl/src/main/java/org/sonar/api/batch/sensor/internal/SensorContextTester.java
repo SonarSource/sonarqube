@@ -33,7 +33,6 @@ import java.util.Objects;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang3.NotImplementedException;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -119,6 +118,7 @@ public class SensorContextTester implements SensorContext {
   private boolean canSkipUnchangedFiles;
   private boolean cancelled;
   private boolean cacheEnabled = false;
+  private final List<String> availableFeatures = new ArrayList<>();
 
   private SensorContextTester(Path moduleBaseDir) {
     this.settings = new MapSettings();
@@ -457,7 +457,11 @@ public class SensorContextTester implements SensorContext {
 
   @Override
   public boolean isFeatureAvailable(String featureName) {
-    throw new NotImplementedException();
+    return availableFeatures.contains(featureName);
+  }
+
+  public void addAvailableFeatures(String... featureName) {
+    Collections.addAll(this.availableFeatures, featureName);
   }
 
   public void setCacheEnabled(boolean enabled) {
