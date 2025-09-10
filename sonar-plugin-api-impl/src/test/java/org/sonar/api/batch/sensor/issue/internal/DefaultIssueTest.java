@@ -253,4 +253,19 @@ public class DefaultIssueTest {
     issue.addQuickFix(newQuickFix);
     assertThat(issue.isQuickFixAvailable()).isTrue();
   }
+
+  @Test
+  public void issue_internal_tags_operations() {
+    DefaultIssue issue = new DefaultIssue(project, storage);
+    assertThat(issue.internalTags()).isNull();
+
+    issue.addInternalTag("security");
+    assertThat(issue.internalTags()).containsExactly("security");
+
+    issue.addInternalTags(List.of("performance", "maintainability"));
+    assertThat(issue.internalTags()).containsExactly("security", "performance", "maintainability");
+
+    issue.setInternalTags(List.of("reliability"));
+    assertThat(issue.internalTags()).containsExactly("reliability");
+  }
 }

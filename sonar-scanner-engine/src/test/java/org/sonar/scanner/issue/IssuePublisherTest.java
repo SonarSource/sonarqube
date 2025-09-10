@@ -133,6 +133,7 @@ class IssuePublisherTest {
       .setQuickFixAvailable(true)
       .setRuleDescriptionContextKey(ruleDescriptionContextKey)
       .setCodeVariants(List.of("variant1", "variant2"))
+      .setInternalTags(List.of("advanced-sast", "taint"))
       .overrideImpact(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH)
       .overrideImpact(RELIABILITY, org.sonar.api.issue.impact.Severity.LOW);
 
@@ -147,6 +148,7 @@ class IssuePublisherTest {
     assertThat(argument.getValue().getQuickFixAvailable()).isTrue();
     assertThat(argument.getValue().getRuleDescriptionContextKey()).isEqualTo(ruleDescriptionContextKey);
     assertThat(argument.getValue().getCodeVariantsList()).containsExactly("variant1", "variant2");
+    assertThat(argument.getValue().getInternalTagsList()).containsExactly("advanced-sast", "taint");
 
     ScannerReport.Impact impact1 = ScannerReport.Impact.newBuilder().setSoftwareQuality(ScannerReport.SoftwareQuality.MAINTAINABILITY)
       .setSeverity(ScannerReport.ImpactSeverity.ImpactSeverity_HIGH).build();

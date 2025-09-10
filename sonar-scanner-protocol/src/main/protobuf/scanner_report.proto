@@ -214,6 +214,7 @@ message Issue {
   repeated MessageFormatting msgFormatting = 10;
   repeated string codeVariants = 11;
   repeated Impact overriddenImpacts = 12;
+  repeated string internal_tags = 13;
 }
 
 message ExternalIssue {

@@ -20,6 +20,7 @@
 package org.sonar.api.batch.sensor.issue.internal;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,7 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
   private boolean quickFixAvailable = false;
   private String ruleDescriptionContextKey;
   private List<String> codeVariants;
+  private List<String> internalTags;
 
   public DefaultIssue(DefaultInputProject project) {
     this(project, null);
@@ -120,6 +122,32 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
   }
 
   @Override
+  public DefaultIssue addInternalTag(String tag) {
+    if (internalTags == null) {
+      setInternalTags(List.of());
+    }
+    internalTags.add(tag);
+    return this;
+  }
+
+  @Override
+  public DefaultIssue addInternalTags(Collection<String> tags) {
+    if (internalTags == null) {
+      setInternalTags(List.of());
+    }
+    internalTags.addAll(tags);
+    return this;
+  }
+
+  @Override
+  public DefaultIssue setInternalTags(@Nullable Collection<String> tags) {
+    if (tags != null) {
+      this.internalTags = new ArrayList<>(tags);
+    }
+    return this;
+  }
+
+  @Override
   public boolean isQuickFixAvailable() {
     return quickFixAvailable;
   }
@@ -137,6 +165,11 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
   @Override
   public List<String> codeVariants() {
     return codeVariants;
+  }
+
+  @Override
+  public List<String> internalTags() {
+    return internalTags;
   }
 
   @Override

@@ -147,6 +147,10 @@ public class IssuePublisher {
     if (codeVariants != null) {
       builder.addAllCodeVariants(codeVariants);
     }
+    List<String> internalTags = issue.internalTags();
+    if (internalTags != null) {
+      builder.addAllInternalTags(internalTags);
+    }
     return builder.build();
   }
 
