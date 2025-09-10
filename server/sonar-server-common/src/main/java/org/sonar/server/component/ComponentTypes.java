@@ -19,7 +19,6 @@
  */
 package org.sonar.server.component;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -29,7 +28,6 @@ import java.util.Map;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
-import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.requireNonNull;
 
@@ -60,7 +58,7 @@ public class ComponentTypes {
     }
     treeByQualifier = unmodifiableMap(new LinkedHashMap<>(treeMap));
     typeByQualifier = unmodifiableMap(new LinkedHashMap<>(typeMap));
-    rootTypes = unmodifiableList(new ArrayList<>(rootsSet));
+    rootTypes = List.copyOf(rootsSet);
   }
 
   public ComponentType get(String qualifier) {
