@@ -19,11 +19,14 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -90,5 +93,52 @@ public class IssueVisitorsTest {
     verify(regularVisitor).onIssue(component, sandboxIssue);
     verify(measureVisitor1, never()).onIssue(component, sandboxIssue);
     verify(measureVisitor2, never()).onIssue(component, sandboxIssue);
+  }
+
+  @Test
+  public void constructor_shouldSortVisitorsByPriority() {
+    List<String> executionOrder = new ArrayList<>();
+    
+    TestVisitor normalVisitor = new TestVisitor(PriorityIssueVisitor.NORMAL_PRIORITY, "Normal", executionOrder);
+    TestVisitor highPriorityVisitor = new TestVisitor(PriorityIssueVisitor.HIGH_PRIORITY, "High", executionOrder);
+    TestVisitor noPriorityVisitor = new TestVisitor("NoPriority", executionOrder);
+
+    IssueVisitors underTest = new IssueVisitors(new IssueVisitor[]{
+      normalVisitor, highPriorityVisitor, noPriorityVisitor
+    });
+
+    DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_OPEN);
+
+    underTest.onIssue(component, issue);
+
+    assertThat(executionOrder).containsExactly("High", "Normal", "NoPriority");
+  }
+
+  private static class TestVisitor extends IssueVisitor implements PriorityIssueVisitor {
+    private final int priority;
+    private final String name;
+    private final List<String> executionOrder;
+
+    TestVisitor(int priority, String name, List<String> executionOrder) {
+      this.priority = priority;
+      this.name = name;
+      this.executionOrder = executionOrder;
+    }
+
+    TestVisitor(String name, List<String> executionOrder) {
+      this.priority = NORMAL_PRIORITY;
+      this.name = name;
+      this.executionOrder = executionOrder;
+    }
+
+    @Override
+    public int getPriority() {
+      return priority;
+    }
+
+    @Override
+    public void onIssue(Component component, DefaultIssue issue) {
+      executionOrder.add(name);
+    }
   }
 }

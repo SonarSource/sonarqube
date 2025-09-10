@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import java.util.Arrays;
 import javax.annotation.Nullable;
 
 import org.sonar.api.issue.IssueStatus;
@@ -31,7 +32,17 @@ public class IssueVisitors {
   private final IssueVisitor[] visitors;
 
   public IssueVisitors(IssueVisitor[] visitors) {
-    this.visitors = visitors;
+    this.visitors = sortVisitorsByPriority(visitors);
+  }
+
+  private static IssueVisitor[] sortVisitorsByPriority(IssueVisitor[] visitors) {
+    return Arrays.stream(visitors)
+      .sorted((v1, v2) -> Integer.compare(getPriority(v2), getPriority(v1)))
+      .toArray(IssueVisitor[]::new);
+  }
+
+  private static int getPriority(IssueVisitor visitor) {
+    return visitor instanceof PriorityIssueVisitor priorityVisitor ? priorityVisitor.getPriority() : PriorityIssueVisitor.NORMAL_PRIORITY;
   }
 
   public void beforeComponent(Component component) {
@@ -42,9 +53,14 @@ public class IssueVisitors {
 
   public void onIssue(Component component, DefaultIssue issue) {
     for (IssueVisitor visitor : visitors) {
-      if (visitor instanceof MeasureComputationIssueVisitor && IssueStatus.IN_SANDBOX.equals(IssueStatus.of(issue.getStatus(), issue.resolution()))) {
+      boolean isMeasureComputationVisitor = visitor instanceof MeasureComputationIssueVisitor;
+      IssueStatus issueStatus = IssueStatus.of(issue.getStatus(), issue.resolution());
+      boolean isInSandbox = IssueStatus.IN_SANDBOX.equals(issueStatus);
+      
+      if (isMeasureComputationVisitor && isInSandbox) {
         continue;
       }
+      
       visitor.onIssue(component, issue);
     }
   }
