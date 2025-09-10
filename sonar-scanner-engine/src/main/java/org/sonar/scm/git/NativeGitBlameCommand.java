@@ -141,7 +141,7 @@ public class NativeGitBlameCommand {
     return outputProcessor.getBlameLines();
   }
 
-  private static class BlameOutputProcessor {
+  public static class BlameOutputProcessor {
     private final List<BlameLine> blameLines = new LinkedList<>();
     private String sha1 = null;
     private String committerTime = null;
@@ -154,6 +154,7 @@ public class NativeGitBlameCommand {
     }
 
     public void process(String line) {
+      line = sanitizeLine(line);
       if (sha1 == null) {
         sha1 = line.split(" ")[0];
       } else if (line.startsWith("\t")) {
@@ -170,6 +171,19 @@ public class NativeGitBlameCommand {
           processWrapper.destroy();
         }
       }
+    }
+
+    /**
+     * Removes null characters from the line.
+     * It may happen that the blame command output contains null characters, especially on Windows environments.
+     * This can lead to issues when persisting the revision in the database.
+     */
+    private static String sanitizeLine(String line) {
+      if (line.contains("\u0000")) {
+        LOG.debug("Encountered blame output line with null character: '{}'", line);
+        return line.replace("\u0000", "");
+      }
+      return line;
     }
 
     public boolean hasEncounteredUncommittedLine() {

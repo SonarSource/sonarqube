@@ -327,6 +327,23 @@ class NativeGitBlameCommandTest {
     assertThat(blameCommand.checkIfEnabled()).isFalse();
   }
 
+  @Test
+  void blame_output_processor_sanitizes_line_with_null_characters() {
+    logTester.setLevel(Level.DEBUG);
+    NativeGitBlameCommand.BlameOutputProcessor bop = new NativeGitBlameCommand.BlameOutputProcessor();
+
+    bop.process("abc123\u0000def456");
+    bop.process("author-mail <test@test.com>");
+    bop.process("committer-time 1234567890");
+    bop.process("\t");
+
+    assertThat(bop.getBlameLines()).hasSize(1);
+    assertThat(bop.getBlameLines().get(0).revision()).isEqualTo("abc123def456");
+
+    assertThat(logTester.logs(Level.DEBUG))
+      .contains("Encountered blame output line with null character: 'abc123\u0000def456'");
+  }
+
   private void commitWithNoEmail(Git git, String path) throws GitAPIException {
     commit(git, path, "");
   }
