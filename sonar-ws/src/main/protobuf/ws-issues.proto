@@ -169,6 +169,7 @@ message Issue {
   optional string issueStatus = 43;
   optional bool prioritizedRule = 44;
   optional bool fromSonarQubeUpdate = 45;
+  repeated string internalTags = 46;
 }
 
 message Transitions {

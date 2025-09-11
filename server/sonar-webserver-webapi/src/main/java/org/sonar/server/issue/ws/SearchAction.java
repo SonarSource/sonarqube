@@ -241,6 +241,7 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexing is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change(V_2025_5, "Response field 'internalTags' has been added"),
         new Change(V_2025_5, format(NEW_FACET_ADDED_MESSAGE, PARAM_FROM_SONAR_QUBE_UPDATE)),
         new Change(V_2025_5, format(NEW_PARAM_ADDED_MESSAGE, PARAM_FROM_SONAR_QUBE_UPDATE)),
         new Change(V_2025_3, format(NEW_FACET_ADDED_MESSAGE, PARAM_OWASP_MOBILE_TOP_10_2024)),

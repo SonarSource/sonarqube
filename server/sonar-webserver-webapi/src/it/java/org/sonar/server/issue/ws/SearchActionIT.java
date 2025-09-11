@@ -230,7 +230,8 @@ class SearchActionIT {
       .setSeverity("MAJOR")
       .setAuthorLogin("John")
       .setAssigneeUuid(simon.getUuid())
-      .setTags(asList("bug", "owasp"))
+      .setTags(List.of("bug", "owasp"))
+      .setInternalTags(List.of("internal1", "internal2"))
       .setIssueCreationDate(parseDate("2014-09-03"))
       .setIssueUpdateDate(parseDate("2017-12-04"))
       .setCodeVariants(List.of("variant1", "variant2")));
@@ -242,13 +243,13 @@ class SearchActionIT {
     assertThat(response.getIssuesList())
       .extracting(
         Issue::getKey, Issue::getRule, Issue::getSeverity, Issue::getComponent, Issue::getResolution, Issue::getStatus, Issue::getMessage, Issue::getMessageFormattingsList,
-        Issue::getEffort, Issue::getAssignee, Issue::getAuthor, Issue::getLine, Issue::getHash, Issue::getTagsList,
+        Issue::getEffort, Issue::getAssignee, Issue::getAuthor, Issue::getLine, Issue::getHash, Issue::getTagsList, Issue::getInternalTagsList,
         Issue::getCreationDate, Issue::getUpdateDate,
         Issue::getQuickFixAvailable, Issue::getCodeVariantsList)
       .containsExactlyInAnyOrder(
         tuple(issue.getKey(), rule.getKey().toString(), Severity.MAJOR, file.getKey(), RESOLUTION_FIXED, STATUS_RESOLVED, "the message",
           MessageFormattingUtils.dbMessageFormattingListToWs(List.of(MESSAGE_FORMATTING)), "10min",
-          simon.getLogin(), "John", 42, "a227e508d6646b55a086ee11d63b21e9", asList("bug", "owasp"),
+          simon.getLogin(), "John", 42, "a227e508d6646b55a086ee11d63b21e9", List.of("bug", "owasp"), List.of("internal1", "internal2"),
           formatDateTime(issue.getIssueCreationDate()),
           formatDateTime(issue.getIssueUpdateDate()), false, List.of("variant1", "variant2")));
   }

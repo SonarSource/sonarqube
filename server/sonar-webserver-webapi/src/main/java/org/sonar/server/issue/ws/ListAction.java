@@ -97,6 +97,7 @@ public class ListAction implements IssuesWsAction {
         "<br>Requires the 'Browse' permission on the specified project. ")
       .setSince("10.2")
       .setChangelog(
+        new Change("2025.5", "Response field 'internalTags' has been added"),
         new Change("10.8", format("The parameter '%s' are not deprecated anymore.", PARAM_TYPES)),
         new Change("10.8", "The response fields 'severity' and 'type' are not deprecated anymore."),
         new Change("10.4", format("Parameter '%s' is deprecated.", PARAM_TYPES)),

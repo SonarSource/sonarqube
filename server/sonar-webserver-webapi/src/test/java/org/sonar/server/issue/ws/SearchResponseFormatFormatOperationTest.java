@@ -142,6 +142,7 @@ class SearchResponseFormatFormatOperationTest {
     assertThat(issue.getStatus()).isEqualTo(issueDto.getStatus());
     assertThat(issue.getMessage()).isEqualTo(issueDto.getMessage());
     assertThat(new ArrayList<>(issue.getTagsList())).containsExactlyInAnyOrderElementsOf(issueDto.getTags());
+    assertThat(new ArrayList<>(issue.getInternalTagsList())).containsExactlyInAnyOrderElementsOf(issueDto.getInternalTags());
     assertThat(issue.getLine()).isEqualTo(issueDto.getLine());
     assertThat(issue.getHash()).isEqualTo(issueDto.getChecksum());
     assertThat(issue.getAuthor()).isEqualTo(issueDto.getAuthorLogin());

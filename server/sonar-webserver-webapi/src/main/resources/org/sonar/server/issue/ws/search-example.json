@@ -100,6 +100,10 @@
       "codeVariants": [
         "windows",
         "linux"
+      ],
+      "internalTags": [
+        "advanced",
+        "sast"
       ]
     }
   ],
