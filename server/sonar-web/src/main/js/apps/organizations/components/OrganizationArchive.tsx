@@ -85,7 +85,7 @@ export class OrganizationArchive extends React.PureComponent<Props, State> {
         });
       } else {
         addGlobalSuccessMessage(translate('organization.archived'));
-        this.props.router.replace('/');
+        this.props.router.replace('/projects');
         window.location.reload();
       }
     });
