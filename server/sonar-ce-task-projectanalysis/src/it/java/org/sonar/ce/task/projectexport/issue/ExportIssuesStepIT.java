@@ -236,7 +236,8 @@ public class ExportIssuesStepIT {
       .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.BLOCKER).setManualSeverity(false))
       .setIssueCloseTime(741L)
       .setCodeVariants(List.of("v1", "v2"))
-      .setPrioritizedRule(true);
+      .setPrioritizedRule(true)
+      .setInternalTagsString("internal-tag-1,internal-tag-2");
 
     // fields tested separately and/or required to match SQL request
     issueDto
@@ -278,6 +279,7 @@ public class ExportIssuesStepIT {
       .isEqualTo(ExportIssuesStep.dbToDumpMessageFormatting(messageFormattings.getMessageFormattingList()));
     assertThat(issue.getCodeVariants()).isEqualTo(issueDto.getCodeVariantsString());
     assertThat(issue.getPrioritizedRule()).isEqualTo(issueDto.isPrioritizedRule());
+    assertThat(issue.getInternalTags()).isEqualTo(issueDto.getInternalTagsString());
   }
 
   @Test

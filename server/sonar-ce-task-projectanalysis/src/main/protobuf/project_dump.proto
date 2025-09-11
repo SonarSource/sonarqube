@@ -128,6 +128,8 @@ message Issue {
   repeated Impact impacts = 27;
 
   bool prioritized_rule = 28;
+
+  optional string internal_tags = 29;
 }
 
 message Impact {
