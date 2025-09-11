@@ -732,6 +732,29 @@ class IssueFieldsSetterTest {
   }
 
   @Test
+  void setInternalTags_whenInternalTagAdded_shouldBeUpdated() {
+    Set<String> currentInternalTags = new HashSet<>(List.of("security"));
+    Set<String> newInternalTags = new HashSet<>(List.of("security", "performance"));
+
+    issue.setInternalTags(newInternalTags);
+    boolean updated = underTest.setInternalTags(issue, currentInternalTags, context);
+    assertThat(updated).isTrue();
+    assertThat(issue.internalTags()).contains("security", "performance");
+    assertThat(issue.mustSendNotifications()).isFalse();
+  }
+
+  @Test
+  void setInternalTags_whenInternalTagsUnchanged_shouldNotBeUpdated() {
+    Set<String> currentInternalTags = new HashSet<>(List.of("security", "performance"));
+    Set<String> newInternalTags = new HashSet<>(List.of("performance", "security"));
+
+    issue.setInternalTags(newInternalTags);
+    boolean updated = underTest.setInternalTags(issue, currentInternalTags, context);
+    assertThat(updated).isFalse();
+    assertThat(issue.currentChange()).isNull();
+  }
+
+  @Test
   void set_message() {
     boolean updated = underTest.setMessage(issue, "the message", context);
     assertThat(updated).isTrue();

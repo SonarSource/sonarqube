@@ -198,6 +198,7 @@ public class TrackerRawInputFactory {
       issue.setQuickFixAvailable(reportIssue.getQuickFixAvailable());
       issue.setRuleDescriptionContextKey(reportIssue.hasRuleDescriptionContextKey() ? reportIssue.getRuleDescriptionContextKey() : null);
       issue.setCodeVariants(reportIssue.getCodeVariantsList());
+      issue.setInternalTags(reportIssue.getInternalTagsList());
 
       issue.replaceImpacts(replaceDefaultWithOverriddenImpactsForIssue(issue.ruleKey(), reportIssue.getOverriddenImpactsList()));
       return issue;

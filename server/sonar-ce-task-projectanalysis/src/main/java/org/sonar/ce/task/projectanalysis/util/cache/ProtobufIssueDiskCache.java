@@ -121,6 +121,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     defaultIssue.setAuthorLogin(next.hasAuthorLogin() ? next.getAuthorLogin() : null);
     next.getCommentsList().forEach(c -> defaultIssue.addComment(toDefaultIssueComment(c)));
     defaultIssue.setTags(ImmutableSet.copyOf(STRING_LIST_SPLITTER.split(next.getTags())));
+    defaultIssue.setInternalTags(ImmutableSet.copyOf(STRING_LIST_SPLITTER.split(next.getInternalTags())));
     defaultIssue.setCodeVariants(ImmutableSet.copyOf(STRING_LIST_SPLITTER.split(next.getCodeVariants())));
     defaultIssue.setRuleDescriptionContextKey(next.hasRuleDescriptionContextKey() ? next.getRuleDescriptionContextKey() : null);
     defaultIssue.setLocations(next.hasLocations() ? next.getLocations() : null);
@@ -183,6 +184,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     ofNullable(defaultIssue.authorLogin()).ifPresent(builder::setAuthorLogin);
     defaultIssue.defaultIssueComments().forEach(c -> builder.addComments(toProtoComment(c)));
     ofNullable(defaultIssue.tags()).ifPresent(t -> builder.setTags(String.join(TAGS_SEPARATOR, t)));
+    ofNullable(defaultIssue.internalTags()).ifPresent(internalTag -> builder.setInternalTags(String.join(TAGS_SEPARATOR, internalTag)));
     ofNullable(defaultIssue.codeVariants()).ifPresent(codeVariant -> builder.setCodeVariants(String.join(TAGS_SEPARATOR, codeVariant)));
     ofNullable(defaultIssue.getLocations()).ifPresent(l -> builder.setLocations((DbIssues.Locations) l));
     defaultIssue.getRuleDescriptionContextKey().ifPresent(builder::setRuleDescriptionContextKey);

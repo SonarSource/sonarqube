@@ -183,6 +183,7 @@ class IntegrateIssuesVisitorIT {
 
     List<DefaultIssue> issues = newArrayList(protoIssueCache.traverse());
     assertThat(issues).hasSize(1);
+    assertThat(issues.get(0).internalTags()).containsExactlyInAnyOrder("internalTag1", "internalTag2");
     assertThat(issues.get(0).codeVariants()).containsExactlyInAnyOrder("foo", "bar");
     assertThat(issues.get(0).severity()).isEqualTo(Severity.MAJOR);
   }
@@ -384,6 +385,7 @@ class IntegrateIssuesVisitorIT {
       .setMsg("the message")
       .setRuleRepository(ruleKey.repository())
       .setRuleKey(ruleKey.rule())
+      .addAllInternalTags(Set.of("internalTag1", "internalTag2"))
       .addAllCodeVariants(Set.of("foo", "bar"))
       .build();
   }

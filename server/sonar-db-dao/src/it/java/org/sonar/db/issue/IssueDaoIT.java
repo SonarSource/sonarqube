@@ -162,6 +162,7 @@ class IssueDaoIT {
       .setProjectKey(PROJECT_KEY)
       .setExternal(true)
       .setTags(List.of("tag1", "tag2"))
+      .setInternalTags(List.of("internalTag1", "internalTag2"))
       .setCodeVariants(List.of("variant1", "variant2"))
       .setQuickFixAvailable(false)
       .setMessageFormattings(MESSAGE_FORMATTING);
@@ -1134,6 +1135,7 @@ class IssueDaoIT {
     dto.setIssueUpdateTime(1_450_000_000_000L);
     dto.setIssueCloseTime(1_450_000_000_000L);
     dto.setTags(Set.of("tag1", "tag2"));
+    dto.setInternalTags(Set.of("internalTag1", "internalTag2"));
     dto.setCodeVariants(Set.of("variant1", "variant2"));
     return dto;
   }

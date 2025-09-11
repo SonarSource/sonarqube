@@ -92,6 +92,9 @@ class IssueDtoTest {
       .setIssueUpdateDate(updatedAt)
       .setIssueCloseDate(closedAt)
       .setRuleDescriptionContextKey(TEST_CONTEXT_KEY)
+      .setTags(List.of("tag1", "tag2"))
+      .setInternalTags(List.of("internalTag1", "internalTag2"))
+      .setCodeVariants(List.of("variant1", "variant2"))
       .addImpact(new ImpactDto().setSoftwareQuality(MAINTAINABILITY).setSeverity(HIGH).setManualSeverity(true))
       .addImpact(new ImpactDto().setSoftwareQuality(RELIABILITY).setSeverity(LOW).setManualSeverity(false));
 
@@ -123,8 +126,9 @@ class IssueDtoTest {
       .setNew(false)
       .setIsNewCodeReferenceIssue(false)
       .setRuleDescriptionContextKey(TEST_CONTEXT_KEY)
-      .setCodeVariants(Set.of())
-      .setTags(Set.of())
+      .setTags(List.of("tag1", "tag2"))
+      .setInternalTags(List.of("internalTag1", "internalTag2"))
+      .setCodeVariants(List.of("variant1", "variant2"))
       .addImpact(MAINTAINABILITY, HIGH, true)
       .addImpact(RELIABILITY, LOW, false);
 
@@ -284,6 +288,39 @@ class IssueDtoTest {
   }
 
   @Test
+  void setInternalTags_shouldReturnInternalTags() {
+    IssueDto dto = new IssueDto();
+    assertThat(dto.getInternalTags()).isEmpty();
+    assertThat(dto.getInternalTagsString()).isNull();
+
+    dto.setInternalTags(Arrays.asList("tag1", "tag2", "tag3"));
+    assertThat(dto.getInternalTags()).containsOnly("tag1", "tag2", "tag3");
+    assertThat(dto.getInternalTagsString()).isEqualTo("tag1,tag2,tag3");
+
+    dto.setInternalTags(null);
+    assertThat(dto.getInternalTags()).isEmpty();
+    assertThat(dto.getInternalTagsString()).isNull();
+
+    dto.setInternalTags(List.of());
+    assertThat(dto.getInternalTags()).isEmpty();
+    assertThat(dto.getInternalTagsString()).isNull();
+  }
+
+  @Test
+  void setInternalTagsString_shouldReturnInternalTags() {
+    IssueDto dto = new IssueDto();
+
+    dto.setInternalTagsString("tag1, tag2 ,,tag4");
+    assertThat(dto.getInternalTags()).containsOnly("tag1", "tag2", "tag4");
+
+    dto.setInternalTagsString(null);
+    assertThat(dto.getInternalTags()).isEmpty();
+
+    dto.setInternalTagsString("");
+    assertThat(dto.getInternalTags()).isEmpty();
+  }
+
+  @Test
   void toDtoForComputationInsert_givenDefaultIssueWithAllFields_returnFullIssueDto() {
     long now = System.currentTimeMillis();
     Date dateNow = Date.from(new Date(now).toInstant().truncatedTo(ChronoUnit.SECONDS));
@@ -302,8 +339,8 @@ class IssueDtoTest {
       IssueDto::getGap, IssueDto::getEffort, IssueDto::getResolution, IssueDto::getStatus, IssueDto::getSeverity)
       .containsExactly(1, "message", 1.0, 1L, Issue.RESOLUTION_FALSE_POSITIVE, Issue.STATUS_CLOSED, "BLOCKER");
 
-    assertThat(issueDto).extracting(IssueDto::getTags, IssueDto::getCodeVariants, IssueDto::getAuthorLogin)
-      .containsExactly(Set.of("todo"), Set.of("variant1", "variant2"), "admin");
+    assertThat(issueDto).extracting(IssueDto::getTags, IssueDto::getCodeVariants, IssueDto::getInternalTags, IssueDto::getAuthorLogin)
+      .containsExactly(Set.of("todo"), Set.of("variant1", "variant2"), Set.of("internalTag1", "internalTag2"), "admin");
 
     assertThat(issueDto).extracting(IssueDto::isManualSeverity, IssueDto::getChecksum, IssueDto::getAssigneeUuid,
       IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey,
@@ -338,8 +375,8 @@ class IssueDtoTest {
       IssueDto::getGap, IssueDto::getEffort, IssueDto::getResolution, IssueDto::getStatus, IssueDto::getSeverity)
       .containsExactly(1, "message", 1.0, 1L, Issue.RESOLUTION_FALSE_POSITIVE, Issue.STATUS_CLOSED, "BLOCKER");
 
-    assertThat(issueDto).extracting(IssueDto::getTags, IssueDto::getCodeVariants, IssueDto::getAuthorLogin)
-      .containsExactly(Set.of("todo"), Set.of("variant1", "variant2"), "admin");
+    assertThat(issueDto).extracting(IssueDto::getTags, IssueDto::getCodeVariants, IssueDto::getInternalTags, IssueDto::getAuthorLogin)
+      .containsExactly(Set.of("todo"), Set.of("variant1", "variant2"), Set.of("internalTag1", "internalTag2"), "admin");
 
     assertThat(issueDto).extracting(IssueDto::isManualSeverity, IssueDto::getChecksum, IssueDto::getAssigneeUuid,
       IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey, IssueDto::getProjectUuid, IssueDto::getProjectKey)
@@ -408,6 +445,7 @@ class IssueDtoTest {
       .setIsNewCodeReferenceIssue(true)
       .setRuleDescriptionContextKey(TEST_CONTEXT_KEY)
       .setCodeVariants(List.of("variant1", "variant2"))
+      .setInternalTags(List.of("internalTag1", "internalTag2"))
       .setPrioritizedRule(true)
       .addImpact(MAINTAINABILITY, HIGH, true)
       .addImpact(RELIABILITY, LOW, false);

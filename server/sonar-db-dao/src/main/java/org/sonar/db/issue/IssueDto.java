@@ -109,6 +109,7 @@ public final class IssueDto implements Serializable {
   private String projectKey;
   private String filePath;
   private String tags;
+  private String internalTags;
   private String codeVariants;
   // populate only when retrieving closed issue for issue tracking
   private String closedChangeData;
@@ -147,6 +148,7 @@ public final class IssueDto implements Serializable {
       .setRuleKey(issue.ruleKey().repository(), issue.ruleKey().rule())
       .setExternal(issue.isFromExternalRuleEngine())
       .setTags(issue.tags())
+      .setInternalTags(issue.internalTags())
       .setRuleDescriptionContextKey(issue.getRuleDescriptionContextKey().orElse(null))
       .setComponentUuid(issue.componentUuid())
       .setComponentKey(issue.componentKey())
@@ -201,6 +203,7 @@ public final class IssueDto implements Serializable {
       .setRuleKey(issue.ruleKey().repository(), issue.ruleKey().rule())
       .setExternal(issue.isFromExternalRuleEngine())
       .setTags(issue.tags())
+      .setInternalTags(issue.internalTags())
       .setRuleDescriptionContextKey(issue.getRuleDescriptionContextKey().orElse(null))
       .setComponentUuid(issue.componentUuid())
       .setComponentKey(issue.componentKey())
@@ -693,6 +696,30 @@ public final class IssueDto implements Serializable {
     return tags;
   }
 
+  public Set<String> getInternalTags() {
+    return ImmutableSet.copyOf(STRING_LIST_SPLITTER.split(internalTags == null ? "" : internalTags));
+  }
+
+  public String getInternalTagsString() {
+    return internalTags;
+  }
+
+  public IssueDto setInternalTags(@Nullable Collection<String> internalTags) {
+    if (internalTags == null || internalTags.isEmpty()) {
+      setInternalTagsString(null);
+    } else {
+      setInternalTagsString(STRING_LIST_JOINER.join(internalTags));
+    }
+    return this;
+  }
+
+  public IssueDto setInternalTagsString(@Nullable String internalTags) {
+    checkArgument(internalTags == null || internalTags.length() <= 4000,
+      "Value is too long for column ISSUES.INTERNAL_TAGS: %s", internalTags);
+    this.internalTags = internalTags;
+    return this;
+  }
+
   public Set<String> getCodeVariants() {
     return ImmutableSet.copyOf(STRING_LIST_SPLITTER.split(codeVariants == null ? "" : codeVariants));
   }
@@ -910,6 +937,7 @@ public final class IssueDto implements Serializable {
     issue.setManualSeverity(manualSeverity);
     issue.setRuleKey(getRuleKey());
     issue.setTags(getTags());
+    issue.setInternalTags(getInternalTags());
     issue.setRuleDescriptionContextKey(ruleDescriptionContextKey);
     issue.setLanguage(language);
     issue.setAuthorLogin(authorLogin);

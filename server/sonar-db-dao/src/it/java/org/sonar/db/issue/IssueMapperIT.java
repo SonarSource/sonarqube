@@ -109,6 +109,7 @@ class IssueMapperIT {
     assertThat(result.getCreatedAt()).isEqualTo(1_400_000_000_000L);
     assertThat(result.getUpdatedAt()).isEqualTo(1_500_000_000_000L);
     assertThat(result.getTags()).containsOnly("tag1", "tag2");
+    assertThat(result.getInternalTags()).containsOnly("internalTag1", "internalTag2");
     assertThat(result.getCodeVariants()).containsOnly("variant1", "variant2");
   }
 
@@ -135,6 +136,7 @@ class IssueMapperIT {
     update.setChecksum("123456789");
     update.setMessage("the message");
     update.setTags(Set.of("tag3", "tag4"));
+    update.setInternalTags(Set.of("internalTag3", "internalTag4"));
     update.setCodeVariants(Set.of("variant3", "variant4"));
 
     update.setIssueCreationTime(1_550_000_000_000L);
@@ -170,6 +172,7 @@ class IssueMapperIT {
     assertThat(result.getCreatedAt()).isEqualTo(1_400_000_000_000L);
     assertThat(result.getUpdatedAt()).isEqualTo(1_550_000_000_000L);
     assertThat(result.getTags()).containsOnly("tag3", "tag4");
+    assertThat(result.getInternalTags()).containsOnly("internalTag3", "internalTag4");
     assertThat(result.getCodeVariants()).containsOnly("variant3", "variant4");
   }
 
@@ -186,6 +189,7 @@ class IssueMapperIT {
       .setIssueUpdateTime(1_600_000_000_000L)
       .setUpdatedAt(1_600_000_000_000L)
       .setTags(Set.of("tag2", "tag3"))
+      .setInternalTags(Set.of("internalTag2", "internalTag3"))
       .setCodeVariants(Set.of("variant2", "variant3"));
 
     // selected after last update -> ok
@@ -205,6 +209,7 @@ class IssueMapperIT {
     assertThat(result.getIssueUpdateTime()).isEqualTo(1_600_000_000_000L);
     assertThat(result.getUpdatedAt()).isEqualTo(1_600_000_000_000L);
     assertThat(result.getTags()).containsOnly("tag2", "tag3");
+    assertThat(result.getInternalTags()).containsOnly("internalTag2", "internalTag3");
     assertThat(result.getCodeVariants()).containsOnly("variant2", "variant3");
   }
 
@@ -221,6 +226,7 @@ class IssueMapperIT {
       .setIssueUpdateTime(1_600_000_000_000L)
       .setUpdatedAt(1_600_000_000_000L)
       .setTags(Set.of("tag2", "tag3"))
+      .setInternalTags(Set.of("internalTag2", "internalTag3"))
       .setCodeVariants(Set.of("variant2", "variant3"));
 
     // selected before last update -> ko
@@ -241,6 +247,7 @@ class IssueMapperIT {
     assertThat(result.getIssueUpdateTime()).isEqualTo(1_402_000_000_000L);
     assertThat(result.getUpdatedAt()).isEqualTo(1_500_000_000_000L);
     assertThat(result.getTags()).containsOnly("tag1", "tag2");
+    assertThat(result.getInternalTags()).containsOnly("internalTag1", "internalTag2");
     assertThat(result.getCodeVariants()).containsOnly("variant1", "variant2");
   }
 
@@ -556,6 +563,7 @@ class IssueMapperIT {
       .setCreatedAt(1_400_000_000_000L)
       .setUpdatedAt(1_500_000_000_000L)
       .setTags(Set.of("tag1", "tag2"))
+      .setInternalTags(Set.of("internalTag1", "internalTag2"))
       .setCodeVariants(Set.of("variant1", "variant2"));
   }
 

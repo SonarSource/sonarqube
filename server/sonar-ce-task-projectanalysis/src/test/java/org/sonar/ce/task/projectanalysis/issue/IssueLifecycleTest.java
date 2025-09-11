@@ -419,6 +419,7 @@ public class IssueLifecycleTest {
       .setRuleKey(XOO_X1)
       .setRuleDescriptionContextKey("spring")
       .setCleanCodeAttribute(CleanCodeAttribute.IDENTIFIABLE)
+      .setInternalTags(Set.of("internalTag1", "internalTag2"))
       .setCodeVariants(Set.of("foo", "bar"))
       .addImpact(SoftwareQuality.MAINTAINABILITY, Severity.LOW)
       .addImpact(SoftwareQuality.RELIABILITY, Severity.HIGH)
@@ -461,6 +462,7 @@ public class IssueLifecycleTest {
       .setMessageFormattings(messageFormattings)
       .setGap(15d)
       .setRuleDescriptionContextKey("hibernate")
+      .setInternalTags(Set.of("base-internal-tag"))
       .setCodeVariants(Set.of("donut"))
       .addImpact(SoftwareQuality.RELIABILITY, Severity.LOW, true)
       .setEffort(Duration.create(15L))
@@ -484,6 +486,7 @@ public class IssueLifecycleTest {
     assertThat(raw.assigneeLogin()).isEqualTo("base assignee login");
     assertThat(raw.authorLogin()).isEqualTo("base author");
     assertThat(raw.tags()).containsOnly("base tag");
+    assertThat(raw.internalTags()).containsOnly("internalTag1", "internalTag2");
     assertThat(raw.codeVariants()).containsOnly("foo", "bar");
     assertThat(raw.effort()).isEqualTo(DEFAULT_DURATION);
     assertThat(raw.isOnDisabledRule()).isTrue();
@@ -502,6 +505,7 @@ public class IssueLifecycleTest {
     verify(updater).setPastLine(raw, 10);
     verify(updater).setRuleDescriptionContextKey(raw, "hibernate");
     verify(updater).setCodeVariants(raw, Set.of("donut"), issueChangeContext);
+    verify(updater).setInternalTags(raw, Set.of("base-internal-tag"), issueChangeContext);
     verify(updater).setPastMessage(raw, "message with code", messageFormattings, issueChangeContext);
     verify(updater).setPastEffort(raw, Duration.create(15L), issueChangeContext);
     verify(updater).setPastLocations(raw, issueLocations);

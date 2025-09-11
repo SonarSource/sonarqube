@@ -278,6 +278,11 @@ class DefaultIssueTest {
   }
 
   @Test
+  void internalTags_whenNull_shouldReturnEmptySet() {
+    assertThat(issue.internalTags()).isEmpty();
+  }
+
+  @Test
   void codeVariants_whenNull_shouldReturnEmptySet() {
     assertThat(issue.codeVariants()).isEmpty();
   }

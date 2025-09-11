@@ -80,6 +80,7 @@ public class DefaultIssue implements Issue, Trackable {
   private String authorLogin = null;
   private List<DefaultIssueComment> comments = null;
   private Set<String> tags = null;
+  private Set<String> internalTags = null;
   private Set<String> codeVariants = null;
   private boolean prioritizedRule = false;
   private boolean fromSonarQubeUpdate = false;
@@ -680,6 +681,19 @@ public class DefaultIssue implements Issue, Trackable {
 
   public DefaultIssue setTags(Collection<String> tags) {
     this.tags = new LinkedHashSet<>(tags);
+    return this;
+  }
+
+  public Set<String> internalTags() {
+    if (internalTags == null) {
+      return Set.of();
+    } else {
+      return ImmutableSet.copyOf(internalTags);
+    }
+  }
+
+  public DefaultIssue setInternalTags(Collection<String> internalTags) {
+    this.internalTags = new LinkedHashSet<>(internalTags);
     return this;
   }
 

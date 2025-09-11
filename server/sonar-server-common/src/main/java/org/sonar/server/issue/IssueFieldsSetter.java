@@ -479,6 +479,21 @@ public class IssueFieldsSetter {
     return false;
   }
 
+  public boolean setInternalTags(DefaultIssue issue, Set<String> currentInternalTags, IssueChangeContext context) {
+    Set<String> newInternalTags = issue.internalTags().stream()
+      .map(String::trim)
+      .filter(s -> !s.isEmpty())
+      .collect(Collectors.toSet());
+
+    if (!currentInternalTags.equals(newInternalTags)) {
+      issue.setInternalTags(newInternalTags);
+      issue.setUpdateDate(context.date());
+      issue.setChanged(true);
+      return true;
+    }
+    return false;
+  }
+
   public boolean setCodeVariants(DefaultIssue issue, Set<String> currentCodeVariants, IssueChangeContext context) {
     Set<String> newCodeVariants = getNewCodeVariants(issue);
     if (!currentCodeVariants.equals(newCodeVariants)) {

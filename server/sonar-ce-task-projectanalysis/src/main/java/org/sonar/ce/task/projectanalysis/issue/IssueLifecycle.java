@@ -218,6 +218,7 @@ public class IssueLifecycle {
     updater.setPastMessage(raw, base.getMessage(), base.getMessageFormattings(), changeContext);
     updater.setPastGap(raw, base.gap(), changeContext);
     updater.setPastEffort(raw, base.effort(), changeContext);
+    updater.setInternalTags(raw, requireNonNull(base.internalTags()), changeContext);
     updater.setCodeVariants(raw, requireNonNull(base.codeVariants()), changeContext);
     updater.setImpacts(raw, base.getImpacts(), changeContext);
     updater.setCleanCodeAttribute(raw, base.getCleanCodeAttribute(), changeContext);
