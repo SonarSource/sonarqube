@@ -352,6 +352,9 @@ public class XooRulesDefinition implements RulesDefinition {
       .setActivatedByDefault(false);
     addAllDescriptionSections(hotspotWithCodeVariants, "Search for a given variant in Xoo files");
 
+    NewRule internalTags = repo.createRule(InternalTagsIssueSensor.RULE_KEY).setName("Creates issue with internal tags");
+    addAllDescriptionSections(internalTags, "Issue with internal tags");
+
     repo.done();
   }
 

@@ -46,6 +46,7 @@ import org.sonar.xoo.rule.ChecksSensor;
 import org.sonar.xoo.rule.CreateIssueByInternalKeySensor;
 import org.sonar.xoo.rule.CustomMessageSensor;
 import org.sonar.xoo.rule.HasTagSensor;
+import org.sonar.xoo.rule.InternalTagsIssueSensor;
 import org.sonar.xoo.rule.MarkAsUnchangedSensor;
 import org.sonar.xoo.rule.MultilineHotspotSensor;
 import org.sonar.xoo.rule.MultilineIssuesSensor;
@@ -194,6 +195,7 @@ public class XooPlugin implements Plugin {
       HotspotWithCodeVariantsSensor.class,
 
       ArchitectureSensor.class,
+      InternalTagsIssueSensor.class,
 
       // Coverage
       UtCoverageSensor.class,

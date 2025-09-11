@@ -1,0 +1,3 @@
+Line with internal tag [INTERNAL_TAG](advanced) and another [INTERNAL_TAG](saast).
+No internal tag here.
+[INTERNAL_TAG](security) issue should be detected.
