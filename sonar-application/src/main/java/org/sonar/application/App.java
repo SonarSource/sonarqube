@@ -70,6 +70,9 @@ public class App {
         scheduler.awaitTermination();
         hardStopRequestWatcher.stopWatching();
       }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      LoggerFactory.getLogger(App.class).error("Startup interrupted", e);
     } catch (Exception e) {
       LoggerFactory.getLogger(App.class).error("Startup failure", e);
     }
