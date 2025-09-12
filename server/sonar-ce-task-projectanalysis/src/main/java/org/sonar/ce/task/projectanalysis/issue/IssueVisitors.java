@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import javax.annotation.Nullable;
 
 import org.sonar.api.issue.IssueStatus;
@@ -37,7 +38,7 @@ public class IssueVisitors {
 
   private static IssueVisitor[] sortVisitorsByPriority(IssueVisitor[] visitors) {
     return Arrays.stream(visitors)
-      .sorted((v1, v2) -> Integer.compare(getPriority(v2), getPriority(v1)))
+      .sorted(Comparator.comparingInt(IssueVisitors::getPriority).reversed())
       .toArray(IssueVisitor[]::new);
   }
 
@@ -53,11 +54,8 @@ public class IssueVisitors {
 
   public void onIssue(Component component, DefaultIssue issue) {
     for (IssueVisitor visitor : visitors) {
-      boolean isMeasureComputationVisitor = visitor instanceof MeasureComputationIssueVisitor;
-      IssueStatus issueStatus = IssueStatus.of(issue.getStatus(), issue.resolution());
-      boolean isInSandbox = IssueStatus.IN_SANDBOX.equals(issueStatus);
-      
-      if (isMeasureComputationVisitor && isInSandbox) {
+      if (visitor instanceof MeasureComputationIssueVisitor &&
+        IssueStatus.IN_SANDBOX.equals(IssueStatus.of(issue.getStatus(), issue.resolution()))) {
         continue;
       }
       
