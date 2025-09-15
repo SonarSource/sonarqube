@@ -39,7 +39,7 @@ import { useRuleDetailsQuery } from '../../../queries/rules';
 import A11ySkipTarget from '../../../sonar-aligned/components/a11y/A11ySkipTarget';
 import { isPortfolioLike } from '../../../sonar-aligned/helpers/component';
 import { ComponentQualifier } from '../../../sonar-aligned/types/component';
-import { Component, Issue, Paging } from '../../../types/types';
+import { Component, Issue, Organization, Paging } from '../../../types/types';
 import SubnavigationIssuesList from '../issues-subnavigation/SubnavigationIssuesList';
 import IssueReviewHistoryAndComments from './IssueReviewHistoryAndComments';
 import IssuesSourceViewer from './IssuesSourceViewer';
@@ -54,6 +54,7 @@ interface IssueDetailsProps {
   loadingMore: boolean;
   locationsNavigator: boolean;
   openIssue: Issue;
+  organization?: Organization;
   paging?: Paging;
   selectFlow: (flowIndex: number) => void;
   selectLocation: (locationIndex: number) => void;
@@ -78,6 +79,7 @@ export default function IssueDetails({
   selected,
   selectedFlowIndex,
   selectedLocationIndex,
+  organization,
 }: Readonly<IssueDetailsProps>) {
   const { canBrowseAllChildProjects, qualifier = ComponentQualifier.Project } = component ?? {};
   const { data: ruleData, isLoading: isLoadingRule } = useRuleDetailsQuery({ key: openIssue.rule, organization: openIssue.organization});
@@ -164,6 +166,7 @@ export default function IssueDetails({
                             <IssueReviewHistoryAndComments
                               issue={openIssue}
                               onChange={handleIssueChange}
+                              organization={organization}
                             />
                           }
                           codeTabContent={
