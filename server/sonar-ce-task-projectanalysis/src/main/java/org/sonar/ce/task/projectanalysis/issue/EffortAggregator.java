@@ -91,7 +91,7 @@ public class EffortAggregator extends MeasureComputationIssueVisitor {
   }
 
   @Override
-  public void onIssue(Component component, DefaultIssue issue) {
+  protected void onNonSandboxedIssue(Component component, DefaultIssue issue) {
     if (issue.resolution() == null) {
       effortCounter.add(issue);
     }

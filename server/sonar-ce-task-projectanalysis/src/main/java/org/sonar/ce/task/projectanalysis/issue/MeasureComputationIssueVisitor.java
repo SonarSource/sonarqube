@@ -19,8 +19,22 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import org.sonar.api.issue.IssueStatus;
+import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.core.issue.DefaultIssue;
+
 /**
  * Base class for issue visitors that compute measures and should exclude issues in sandbox status.
  */
 public abstract class MeasureComputationIssueVisitor extends IssueVisitor {
+
+  @Override
+  public final void onIssue(Component component, DefaultIssue issue) {
+    if (IssueStatus.IN_SANDBOX.equals(IssueStatus.of(issue.getStatus(), issue.resolution()))) {
+      return;
+    }
+    onNonSandboxedIssue(component, issue);
+  }
+
+  protected abstract void onNonSandboxedIssue(Component component, DefaultIssue issue);
 }

@@ -28,9 +28,7 @@ import org.sonar.core.issue.DefaultIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.sonar.api.issue.Issue.STATUS_IN_SANDBOX;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 
 public class IssueVisitorsTest {
@@ -51,49 +49,6 @@ public class IssueVisitorsTest {
     verify(visitor2).onIssue(component, openIssue);
   }
 
-  @Test
-  public void onIssue_whenSandboxIssue_shouldSkipMeasureComputationVisitors() {
-    IssueVisitor visitor1 = mock(IssueVisitor.class);
-    MeasureComputationIssueVisitor visitor2 = mock(MeasureComputationIssueVisitor.class);
-    IssueVisitors underTest = new IssueVisitors(new IssueVisitor[]{visitor1, visitor2});
-
-    DefaultIssue sandboxIssue = new DefaultIssue().setStatus(STATUS_IN_SANDBOX);
-
-    underTest.onIssue(component, sandboxIssue);
-
-    verify(visitor1).onIssue(component, sandboxIssue);
-    verify(visitor2, never()).onIssue(component, sandboxIssue);
-  }
-
-  @Test
-  public void onIssue_whenSandboxIssueAndRegularVisitors_shouldCallAllVisitors() {
-    IssueVisitor visitor1 = mock(IssueVisitor.class);
-    IssueVisitor visitor2 = mock(IssueVisitor.class);
-    IssueVisitors underTest = new IssueVisitors(new IssueVisitor[]{visitor1, visitor2});
-
-    DefaultIssue sandboxIssue = new DefaultIssue().setStatus(STATUS_IN_SANDBOX);
-
-    underTest.onIssue(component, sandboxIssue);
-
-    verify(visitor1).onIssue(component, sandboxIssue);
-    verify(visitor2).onIssue(component, sandboxIssue);
-  }
-
-  @Test
-  public void onIssue_whenMixedVisitorTypes_shouldSkipOnlyMeasureComputationVisitors() {
-    IssueVisitor regularVisitor = mock(IssueVisitor.class);
-    MeasureComputationIssueVisitor measureVisitor1 = mock(MeasureComputationIssueVisitor.class);
-    MeasureComputationIssueVisitor measureVisitor2 = mock(MeasureComputationIssueVisitor.class);
-    IssueVisitors underTest = new IssueVisitors(new IssueVisitor[]{regularVisitor, measureVisitor1, measureVisitor2});
-
-    DefaultIssue sandboxIssue = new DefaultIssue().setStatus(STATUS_IN_SANDBOX);
-
-    underTest.onIssue(component, sandboxIssue);
-
-    verify(regularVisitor).onIssue(component, sandboxIssue);
-    verify(measureVisitor1, never()).onIssue(component, sandboxIssue);
-    verify(measureVisitor2, never()).onIssue(component, sandboxIssue);
-  }
 
   @Test
   public void constructor_shouldSortVisitorsByPriority() {

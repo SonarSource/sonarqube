@@ -90,7 +90,7 @@ public class NewEffortAggregator extends MeasureComputationIssueVisitor {
   }
 
   @Override
-  public void onIssue(Component component, DefaultIssue issue) {
+  protected void onNonSandboxedIssue(Component component, DefaultIssue issue) {
     if (issue.resolution() == null && issue.effortInMinutes() != null) {
       counter.add(component, issue);
     }
