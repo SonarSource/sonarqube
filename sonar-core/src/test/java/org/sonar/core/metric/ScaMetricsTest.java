@@ -25,15 +25,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ScaMetricsTest {
   @Test
-  void newScaMetricsKeys_thenContainsExpectedKeys() {
-    assertThat(ScaMetrics.NEW_SCA_METRICS_KEYS).containsExactlyInAnyOrder(
+  void scaMetricsKeys_thenContainsExpectedKeys() {
+    assertThat(ScaMetrics.SCA_METRICS_KEYS).containsExactlyInAnyOrder(
       ScaMetrics.NEW_SCA_COUNT_ANY_ISSUE_KEY,
       ScaMetrics.NEW_SCA_SEVERITY_ANY_ISSUE_KEY,
       ScaMetrics.NEW_SCA_SEVERITY_VULNERABILITY_KEY,
       ScaMetrics.NEW_SCA_SEVERITY_LICENSING_KEY,
       ScaMetrics.NEW_SCA_RATING_ANY_ISSUE_KEY,
       ScaMetrics.NEW_SCA_RATING_VULNERABILITY_KEY,
-      ScaMetrics.NEW_SCA_RATING_LICENSING_KEY);
+      ScaMetrics.NEW_SCA_RATING_LICENSING_KEY,
+      ScaMetrics.SCA_COUNT_ANY_ISSUE_KEY,
+      ScaMetrics.SCA_SEVERITY_ANY_ISSUE_KEY,
+      ScaMetrics.SCA_SEVERITY_VULNERABILITY_KEY,
+      ScaMetrics.SCA_SEVERITY_LICENSING_KEY,
+      ScaMetrics.SCA_RATING_ANY_ISSUE_KEY,
+      ScaMetrics.SCA_RATING_VULNERABILITY_KEY,
+      ScaMetrics.SCA_RATING_LICENSING_KEY);
   }
 
   @Test
