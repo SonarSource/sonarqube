@@ -47,6 +47,7 @@ public class IssueCountMetrics implements Metrics {
     .setDomain(DOMAIN_ISSUES)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
+    .setHidden(true)
     .create();
 
   public static final String NEW_ISSUES_IN_SANDBOX_KEY = "new_issues_in_sandbox";
@@ -59,6 +60,7 @@ public class IssueCountMetrics implements Metrics {
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .setDeleteHistoricalData(true)
+    .setHidden(true)
     .create();
 
   @Override
