@@ -19,12 +19,12 @@
  */
 package org.sonar.server.platform.ws;
 
-import java.time.LocalDate;
+import com.google.common.collect.Lists;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.SortedSet;
-import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.utils.System2;
 import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.updatecenter.common.Product;
@@ -67,10 +67,10 @@ public class ActiveVersionEvaluator {
 
       return initialLtaReleaseDate.after(c.getTime());
     } else {
-      // if installed version is not LTA or past LTA, check if it is still supported
-      return LocalDate.now().isBefore(LocalDate.parse(MetadataLoader.loadSqVersionEol(system2)));
+      return compareWithoutPatchVersion(installedVersion, findPreviousReleaseIgnoringPatch(allReleases).getVersion()) >= 0;
     }
   }
+
 
   private static int compareWithoutPatchVersion(Version v1, Version v2) {
     return COMPARATOR.compare(v1, v2);
@@ -85,4 +85,24 @@ public class ActiveVersionEvaluator {
       ));
   }
 
+  private static Release findPreviousReleaseIgnoringPatch(SortedSet<Release> releases) {
+    if (!releases.isEmpty()) {
+      Release refRelease = releases.last();
+      int patchesOfRefRelease = 0;
+      List<Release> sublist = Lists.reverse(releases.stream().toList());
+      for (Release release : sublist) {
+        int versionComparison = compareWithoutPatchVersion(release.getVersion(), refRelease.getVersion());
+        if (versionComparison < 0) {
+          return release;
+        } else if (versionComparison == 0) {
+          patchesOfRefRelease++;
+        }
+      }
+      // if all releases have the same version, return the last one
+      if (patchesOfRefRelease == releases.size()) {
+        return refRelease;
+      }
+    }
+    throw new IllegalStateException("Unable to find previous release in releases");
+  }
 }

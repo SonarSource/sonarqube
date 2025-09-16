@@ -19,14 +19,12 @@
  */
 package org.sonar.server.platform.ws;
 
-import java.time.LocalDate;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.platform.SonarQubeVersion;
@@ -109,29 +107,69 @@ class ActiveVersionEvaluatorTest {
   }
 
   @Test
-  void evaluateIfActiveVersion_whenEOLDateIsAfterToday_shouldReturnActiveVersion() {
-    LocalDate today = LocalDate.now();
-    LocalDate tomorrow = today.plusDays(1);
+  void evaluateIfActiveVersion_whenNoReleasesFound_shouldThrowIllegalStateException() {
 
-    when(sonarQubeVersion.get()).thenReturn(parse("2025.4.0.12345"));
+    when(sonarQubeVersion.get()).thenReturn(parse("10.8.0"));
 
-    try (MockedStatic<MetadataLoader> mocked = org.mockito.Mockito.mockStatic(MetadataLoader.class)) {
-      mocked.when(() -> MetadataLoader.loadSqVersionEol(system2)).thenReturn(tomorrow.toString());
-      assertThat(underTest.evaluateIfActiveVersion(updateCenter)).isTrue();
-    }
+    when(sonar.getAllReleases(any())).thenReturn(Collections.emptySortedSet());
+
+    assertThatThrownBy(() -> underTest.evaluateIfActiveVersion(updateCenter))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Unable to find previous release in releases");
   }
 
   @Test
-  void evaluateIfActiveVersion_whenEOLDateIsBeforeToday_shouldReturnInactiveVersion() {
-    LocalDate today = LocalDate.now();
-    LocalDate yesterday = today.minusDays(1);
+  void evaluateIfActiveVersion_whenInstalledVersionIsLatestMinusOne_shouldReturnVersionIsActive() {
+    when(sonarQubeVersion.get()).thenReturn(parse("10.9"));
+    when(updateCenter.getSonar().getAllReleases(any())).thenReturn(getReleases());
 
-    when(sonarQubeVersion.get()).thenReturn(parse("2025.4.0.12345"));
+    assertThat(underTest.evaluateIfActiveVersion(updateCenter)).isTrue();
+  }
 
-    try (MockedStatic<MetadataLoader> mocked = org.mockito.Mockito.mockStatic(MetadataLoader.class)) {
-      mocked.when(() -> MetadataLoader.loadSqVersionEol(system2)).thenReturn(yesterday.toString());
-      assertThat(underTest.evaluateIfActiveVersion(updateCenter)).isFalse();
-    }
+  @Test
+  void evaluateIfActiveVersion_whenInstalledVersionIsSnapshot_shouldReturnVersionIsActive() {
+    when(sonarQubeVersion.get()).thenReturn(parse("10.11-SNAPSHOT"));
+    when(updateCenter.getSonar().getAllReleases(any())).thenReturn(getReleases());
+
+    assertThat(underTest.evaluateIfActiveVersion(updateCenter)).isTrue();
+  }
+
+  @Test
+  void evaluateIfActiveVersion_whenInstalledVersionIsTheOnlyAvailableVersion_shouldReturnVersionIsActive() {
+    TreeSet<Release> releases = new TreeSet<>();
+    releases.add(new Release(sonar, Version.create("10.8.0.12345")));
+
+    when(sonarQubeVersion.get()).thenReturn(parse("10.8.0.12345"));
+    when(updateCenter.getSonar().getAllReleases(any())).thenReturn(releases);
+
+    assertThat(underTest.evaluateIfActiveVersion(updateCenter)).isTrue();
+  }
+
+  @Test
+  void evaluateIfActiveVersion_whenAvailableVersionsAreAllPatchesOfInstalledVersion_shouldReturnVersionIsActive() {
+    TreeSet<Release> releases = new TreeSet<>();
+    releases.add(new Release(sonar, Version.create("10.8.0.12345")));
+    releases.add(new Release(sonar, Version.create("10.8.1.12346")));
+    when(sonar.getAllReleases(any())).thenReturn(releases);
+
+    when(sonarQubeVersion.get()).thenReturn(parse("10.8.0.12345"));
+    when(updateCenter.getSonar().getAllReleases(any())).thenReturn(releases);
+
+    assertThat(underTest.evaluateIfActiveVersion(updateCenter)).isTrue();
+  }
+
+  @Test
+  void evaluateIfActiveVersion_whenAvailableVersionsHaveDifferentNamingScheme_shouldReturnVersionIsActive() {
+    TreeSet<Release> releases = new TreeSet<>();
+    releases.add(new Release(sonar, Version.create("10.8.0.12345")));
+    releases.add(new Release(sonar, Version.create("10.8.1.12346")));
+    releases.add(new Release(sonar, Version.create("2025.1.0.12347")));
+    when(sonar.getAllReleases(any())).thenReturn(releases);
+
+    when(sonarQubeVersion.get()).thenReturn(parse("10.8.0.12345"));
+    when(updateCenter.getSonar().getAllReleases(any())).thenReturn(releases);
+
+    assertThat(underTest.evaluateIfActiveVersion(updateCenter)).isTrue();
   }
 
 
