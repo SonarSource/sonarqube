@@ -48,6 +48,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 
@@ -66,17 +67,21 @@ class IssueMapperIT {
   private final IssueMapper underTest = dbSession.getMapper(IssueMapper.class);
   private final Random random = new Random();
   private final System2 system2 = new AlwaysIncreasingSystem2();
+  private ProjectData projectData;
   private ComponentDto project, file, file2;
   private RuleDto rule;
+  private RuleDto rule2;
 
   @BeforeEach
   void setUp() {
-    project = dbTester.components().insertPrivateProject().getMainBranchComponent();
+    projectData = dbTester.components().insertPrivateProject();
+    project = projectData.getMainBranchComponent();
     file = ComponentTesting.newFileDto(project);
     dbTester.getDbClient().componentDao().insert(dbSession, file, true);
     file2 = ComponentTesting.newFileDto(project).setUuid("file2 uuid");
     dbTester.getDbClient().componentDao().insert(dbSession, file2, true);
     rule = RuleTesting.newXooX1();
+    rule2 = RuleTesting.newXooX2();
     dbTester.rules().insert(rule);
     dbSession.commit();
   }
@@ -565,6 +570,83 @@ class IssueMapperIT {
       .setTags(Set.of("tag1", "tag2"))
       .setInternalTags(Set.of("internalTag1", "internalTag2"))
       .setCodeVariants(Set.of("variant1", "variant2"));
+  }
+
+  @Test
+  void countSandboxIssuesPerProject() {
+    // Create additional projects for testing
+    ProjectData projectData1 = dbTester.components().insertPrivateProject();
+    ProjectData projectData2 = dbTester.components().insertPrivateProject();
+    ComponentDto project1 = projectData1.getMainBranchComponent();
+    ComponentDto project2 = projectData2.getMainBranchComponent();
+
+    // Create files in each project
+    ComponentDto file1 = ComponentTesting.newFileDto(project1);
+    ComponentDto fileInProject2 = ComponentTesting.newFileDto(project2);
+    dbTester.getDbClient().componentDao().insert(dbSession, file1, true);
+    dbTester.getDbClient().componentDao().insert(dbSession, fileInProject2, true);
+
+    // Insert sandbox issues in different projects
+    // 3 sandbox issues in original project
+    underTest.insert(createSandboxIssue("issue1", project, file, rule));
+    underTest.insert(createSandboxIssue("issue2", project, file, rule));
+    underTest.insert(createSandboxIssue("issue3", project, file, rule2));
+
+    // 2 sandbox issues in project1
+    underTest.insert(createSandboxIssue("issue4", project1, file1, rule));
+    underTest.insert(createSandboxIssue("issue5", project1, file1, rule2));
+
+    // 1 sandbox issue in project2
+    underTest.insert(createSandboxIssue("issue6", project2, fileInProject2, rule));
+
+    // Insert non-sandbox issues that should not be counted
+    underTest.insert(createNonSandboxIssue("issue7", project, file, rule));
+    underTest.insert(createNonSandboxIssue("issue8", project1, file1, rule2));
+
+    dbSession.commit();
+
+    // Execute the method under test
+    List<IssueCount> result = underTest.countSandboxIssuesPerProject();
+
+    // Verify results
+    assertThat(result).hasSize(3);
+    assertThat(result)
+      .extracting(IssueCount::getProjectUuid, IssueCount::getCount)
+      .containsExactlyInAnyOrder(
+        tuple(projectData.projectUuid(), 3),
+        tuple(projectData1.projectUuid(), 2),
+        tuple(projectData2.projectUuid(), 1)
+      );
+  }
+
+  private IssueDto createSandboxIssue(String key, ComponentDto project, ComponentDto file, RuleDto rule) {
+    return new IssueDto()
+      .setKee(key)
+      .setComponentUuid(file.uuid())
+      .setProjectUuid(project.uuid())
+      .setRuleUuid(rule.getUuid())
+      .setType(RuleType.CODE_SMELL.getDbConstant())
+      .setStatus("IN_SANDBOX")
+      .setSeverity("MAJOR")
+      .setIssueCreationTime(system2.now())
+      .setIssueUpdateTime(system2.now())
+      .setCreatedAt(system2.now())
+      .setUpdatedAt(system2.now());
+  }
+
+  private IssueDto createNonSandboxIssue(String key, ComponentDto project, ComponentDto file, RuleDto rule) {
+    return new IssueDto()
+      .setKee(key)
+      .setComponentUuid(file.uuid())
+      .setProjectUuid(project.uuid())
+      .setRuleUuid(rule.getUuid())
+      .setType(RuleType.CODE_SMELL.getDbConstant())
+      .setStatus("OPEN")
+      .setSeverity("MAJOR")
+      .setIssueCreationTime(system2.now())
+      .setIssueUpdateTime(system2.now())
+      .setCreatedAt(system2.now())
+      .setUpdatedAt(system2.now());
   }
 
   private static class RecorderResultHandler implements ResultHandler<IssueDto> {

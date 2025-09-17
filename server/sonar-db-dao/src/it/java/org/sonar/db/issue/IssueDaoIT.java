@@ -52,6 +52,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
@@ -120,6 +121,7 @@ class IssueDaoIT {
   private final IssueDao underTest = db.getDbClient().issueDao();
 
   private ComponentDto projectDto;
+  private ProjectData projectData;
   private UserDto userDto;
 
   @BeforeEach
@@ -127,7 +129,8 @@ class IssueDaoIT {
     int i = db.countSql(db.getSession(), "select count(1) from rules_default_impacts");
 
     db.rules().insert(RULE.setIsExternal(true));
-    projectDto = db.components().insertPrivateProject(t -> t.setUuid(PROJECT_UUID).setKey(PROJECT_KEY)).getMainBranchComponent();
+    projectData = db.components().insertPrivateProject(t -> t.setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
+    projectDto = projectData.getMainBranchComponent();
     db.components().insertComponent(newFileDto(projectDto).setUuid(FILE_UUID).setKey(FILE_KEY));
     userDto = db.users().insertUser(USER_LOGIN);
   }
@@ -1205,6 +1208,63 @@ class IssueDaoIT {
       .setStatus("CLOSED")
       .setProjectUuid(PROJECT_UUID));
     db.getSession().commit();
+  }
+
+  @Test
+  void countSandboxIssuesPerProject() {
+    // Create additional projects for testing
+    ProjectData projectData1 = db.components().insertPrivateProject();
+    ProjectData projectData2 = db.components().insertPrivateProject();
+    ComponentDto project1 = projectData1.getMainBranchComponent();
+    ComponentDto project2 = projectData2.getMainBranchComponent();
+
+    // Create files in each project
+    ComponentDto file1 = db.components().insertComponent(newFileDto(project1));
+    ComponentDto fileInProject2 = db.components().insertComponent(newFileDto(project2));
+
+    // Create additional rules for testing
+    RuleDto rule1 = db.rules().insert(r -> r.setType(RuleType.CODE_SMELL));
+    RuleDto rule2 = db.rules().insert(r -> r.setType(RuleType.BUG));
+
+    // Insert sandbox issues in different projects
+    // 3 sandbox issues in original project (projectDto)
+    underTest.insert(db.getSession(), createIssueWithKey("sandbox1", projectDto.uuid(), FILE_UUID)
+      .setRuleUuid(rule1.getUuid()).setStatus(STATUS_IN_SANDBOX));
+    underTest.insert(db.getSession(), createIssueWithKey("sandbox2", projectDto.uuid(), FILE_UUID)
+      .setRuleUuid(rule2.getUuid()).setStatus(STATUS_IN_SANDBOX));
+    underTest.insert(db.getSession(), createIssueWithKey("sandbox3", projectDto.uuid(), FILE_UUID)
+      .setRuleUuid(RULE.getUuid()).setStatus(STATUS_IN_SANDBOX));
+
+    // 2 sandbox issues in project1
+    underTest.insert(db.getSession(), createIssueWithKey("sandbox4", project1.uuid(), file1.uuid())
+      .setRuleUuid(rule1.getUuid()).setStatus(STATUS_IN_SANDBOX));
+    underTest.insert(db.getSession(), createIssueWithKey("sandbox5", project1.uuid(), file1.uuid())
+      .setRuleUuid(RULE.getUuid()).setStatus(STATUS_IN_SANDBOX));
+
+    // 1 sandbox issue in project2
+    underTest.insert(db.getSession(), createIssueWithKey("sandbox6", project2.uuid(), fileInProject2.uuid())
+      .setRuleUuid(rule2.getUuid()).setStatus(STATUS_IN_SANDBOX));
+
+    // Insert non-sandbox issues that should not be counted
+    underTest.insert(db.getSession(), createIssueWithKey("open1", projectDto.uuid(), FILE_UUID)
+      .setRuleUuid(rule1.getUuid()).setStatus(STATUS_OPEN));
+    underTest.insert(db.getSession(), createIssueWithKey("closed1", project1.uuid(), file1.uuid())
+      .setRuleUuid(rule2.getUuid()).setStatus(STATUS_CLOSED));
+
+    db.getSession().commit();
+
+    // Execute the method under test
+    List<IssueCount> result = underTest.countSandboxIssuesPerProject(db.getSession());
+
+    // Verify results
+    assertThat(result).hasSize(3);
+    assertThat(result)
+      .extracting(IssueCount::getProjectUuid, IssueCount::getCount)
+      .containsExactlyInAnyOrder(
+        tuple(projectData.projectUuid(), 3),
+        tuple(projectData1.projectUuid(), 2),
+        tuple(projectData2.projectUuid(), 1)
+      );
   }
 
   private static ImpactDto newIssueImpact(SoftwareQuality softwareQuality, Severity severity) {

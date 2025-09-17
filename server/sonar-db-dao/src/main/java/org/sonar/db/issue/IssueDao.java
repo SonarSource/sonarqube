@@ -162,6 +162,10 @@ public class IssueDao implements Dao {
     return mapper(session).selectByKeysIfNotUpdatedAt(keys, updatedAt);
   }
 
+  public List<IssueCount> countSandboxIssuesPerProject(DbSession dbSession) {
+    return mapper(dbSession).countSandboxIssuesPerProject();
+  }
+
   public void insertAsNewCodeOnReferenceBranch(DbSession session, NewCodeReferenceIssueDto dto) {
     mapper(session).insertAsNewCodeOnReferenceBranch(dto);
   }

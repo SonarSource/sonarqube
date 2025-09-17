@@ -473,6 +473,21 @@
       and i.status &lt;&gt; 'CLOSED'
   </select>
 
+  <select id="countSandboxIssuesPerProject" parameterType="map" resultType="org.sonar.db.issue.IssueCount">
+    select
+      p.uuid   as projectUuid,
+      count(1) as count
+    from projects p
+    inner join project_branches pb
+      on p.uuid = pb.project_uuid
+      and pb.is_main = ${_true}
+    inner join issues i
+      on i.project_uuid = pb.uuid
+      and i.status = 'IN_SANDBOX'
+    where p.qualifier = 'TRK'
+    group by p.uuid
+  </select>
+
   <select id="selectIssueGroupsByComponent" resultType="org.sonar.db.issue.IssueGroupDto" parameterType="map">
     select
       i.issue_type as ruleType,

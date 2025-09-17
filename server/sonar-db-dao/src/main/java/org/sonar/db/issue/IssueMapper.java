@@ -52,6 +52,8 @@ public interface IssueMapper {
 
   List<IssueDto> selectByKeysIfNotUpdatedAt(@Param("keys") List<String> keys, @Param("updatedAt") long updatedAt);
 
+  List<IssueCount> countSandboxIssuesPerProject();
+
   List<PrIssueDto> selectOpenByComponentUuids(List<String> componentUuids);
 
   void insert(IssueDto issue);
