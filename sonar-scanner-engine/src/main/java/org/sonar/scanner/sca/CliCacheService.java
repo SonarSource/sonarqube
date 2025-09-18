@@ -21,11 +21,11 @@ package org.sonar.scanner.sca;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.io.UncheckedIOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,6 +33,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import javax.annotation.Nullable;
+
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +44,8 @@ import org.sonar.scanner.bootstrap.SonarUserHome;
 import org.sonar.scanner.http.ScannerWsClient;
 import org.sonar.scanner.repository.TelemetryCache;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.HttpException;
+import org.sonarqube.ws.client.WsRequest;
 import org.sonarqube.ws.client.WsResponse;
 
 import static java.lang.String.format;
@@ -55,16 +59,24 @@ import static java.lang.String.format;
 public class CliCacheService {
   protected static final String CLI_WS_URL = "api/v2/sca/clis";
   private static final Logger LOG = LoggerFactory.getLogger(CliCacheService.class);
+  private static final int RETRY_COUNT = 2;
+  private static final int WAIT_TIME_MILLIS = 10 * 1000;
   private final SonarUserHome sonarUserHome;
   private final ScannerWsClient wsClient;
   private final TelemetryCache telemetryCache;
   private final System2 system2;
+
+  private int waitTimeMillis;
+  private int retryCount;
 
   public CliCacheService(SonarUserHome sonarUserHome, ScannerWsClient wsClient, TelemetryCache telemetryCache, System2 system2) {
     this.sonarUserHome = sonarUserHome;
     this.wsClient = wsClient;
     this.telemetryCache = telemetryCache;
     this.system2 = system2;
+
+    this.retryCount = RETRY_COUNT;
+    this.waitTimeMillis = WAIT_TIME_MILLIS;
   }
 
   static Path newTempFile(Path tempDir) {
@@ -167,33 +179,61 @@ public class CliCacheService {
     return system2.isOsWindows() ? "tidelift.exe" : "tidelift";
   }
 
+  /**
+   * @return List of CLI metadata, or empty response if none found/unrecoverable error
+   */
   private List<CliMetadataResponse> getLatestMetadata(String osName, String arch) {
     LOG.info("Requesting CLI for OS {} and arch {}", osName, arch);
     GetRequest getRequest = new GetRequest(CLI_WS_URL).setParam("os", osName).setParam("arch", arch);
-    try (WsResponse response = wsClient.call(getRequest)) {
+
+    var response = retryCall(
+      wsClient,
+      getRequest,
+      retryCount,
+      waitTimeMillis);
+
+    if (response != null) {
       try (Reader reader = response.contentReader()) {
         Type listOfMetadata = new TypeToken<ArrayList<CliMetadataResponse>>() {
         }.getType();
         return new Gson().fromJson(reader, listOfMetadata);
+      } catch (IOException e) {
+        LOG.error("Unable to parse CLI metadata: ", e);
+      } finally {
+        response.close();
       }
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
     }
+
+    return List.of();
   }
 
   private void downloadCli(String id, String checksum) {
     LOG.info("Downloading cli {}", id);
     long startTime = system2.now();
-    boolean success = false;
     GetRequest getRequest = new GetRequest(CLI_WS_URL + "/" + id).setHeader("Accept", "application/octet-stream");
 
-    try (WsResponse response = wsClient.call(getRequest)) {
+    boolean success = false;
+
+    try {
+      WsResponse response;
+
+      try {
+        response = retryCall(
+          wsClient,
+          getRequest,
+          retryCount,
+          waitTimeMillis);
+      } catch (HttpException e) {
+        throw new IllegalStateException("Unable to download CLI executable");
+      }
+
       // Download to a temporary file location in case another process is also trying to
       // create the CLI file in the checksum cache directory. Once the file is downloaded to a temporary
       // location, do an atomic move to the correct cache location.
       Path tempDir = createTempDir();
       Path tempFile = newTempFile(tempDir);
       downloadBinaryTo(tempFile, response);
+      response.close();
       File destinationFile = cachedCliFile(checksum);
       // We need to make sure the folder structure exists for the correct cache location before performing the move.
       mkdir(destinationFile.toPath().getParent());
@@ -202,12 +242,41 @@ public class CliCacheService {
         throw new IllegalStateException("Unable to mark CLI as executable");
       }
       success = true;
-    } catch (Exception e) {
-      throw new IllegalStateException("Unable to download CLI executable", e);
     } finally {
       telemetryCache.put("scanner.sca.download.cli.duration", String.valueOf(system2.now() - startTime));
       telemetryCache.put("scanner.sca.download.cli.success", String.valueOf(success));
     }
+  }
+
+  static @Nullable WsResponse retryCall(ScannerWsClient wsClient, WsRequest request, int retryCount, int waitTimeMillis) {
+    WsResponse response = null;
+
+    while (retryCount >= 0) {
+      try {
+        response = wsClient.call(request);
+        break;
+      } catch (HttpException e) {
+        if (retryCount == 0) {
+          throw e;
+        } else {
+          try {
+            sleep(waitTimeMillis);
+          } catch (InterruptedException interruptedException) {
+            LOG.warn("Data retrieval call interrupted while waiting to retry, will not retry.");
+            Thread.currentThread().interrupt();
+            retryCount = 0;
+          }
+        }
+      }
+
+      retryCount -= 1;
+    }
+
+    return response;
+  }
+
+  public static void sleep(int waitTimeMillis) throws InterruptedException {
+    Thread.sleep(waitTimeMillis);
   }
 
   String apiOsName() {
@@ -238,6 +307,10 @@ public class CliCacheService {
     } catch (IOException e) {
       throw new IllegalStateException("Unable to create temp directory at " + dir, e);
     }
+  }
+
+  public void setWaitTimeMillis(int waitTimeMillis) {
+    this.waitTimeMillis = waitTimeMillis;
   }
 
   private record CliMetadataResponse(

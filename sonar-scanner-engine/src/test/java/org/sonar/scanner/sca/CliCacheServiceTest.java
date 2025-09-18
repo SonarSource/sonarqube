@@ -52,7 +52,9 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -61,6 +63,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.scanner.sca.CliCacheService.CLI_WS_URL;
+import static org.sonar.scanner.sca.CliCacheService.sleep;
 
 @ExtendWith(MockitoExtension.class)
 class CliCacheServiceTest {
@@ -85,6 +88,7 @@ class CliCacheServiceTest {
     lenient().when(telemetryCache.put(any(), any())).thenReturn(telemetryCache);
 
     underTest = new CliCacheService(sonarUserHome, scannerWsClient, telemetryCache, system2);
+    underTest.setWaitTimeMillis(1);
   }
 
   @Test
@@ -229,6 +233,133 @@ class CliCacheServiceTest {
 
     assertThat(logTester.logs(Level.INFO)).contains("Using alternate location for Tidelift CLI: " + location);
     verify(scannerWsClient, never()).call(any());
+  }
+
+  @Test
+  void cacheCli_whenOneMetadataError_thenContinue() {
+    String checksum = "checksum";
+    String id = "tidelift";
+
+    HttpException http = new HttpException("url", 500, "some error message");
+
+    WsTestUtil.mockExceptionThenReader(
+      scannerWsClient,
+      CLI_WS_URL,
+      http,
+      new StringReader("""
+        [
+          {
+            "id": "%s",
+            "filename": "tidelift_darwin",
+            "sha256": "%s",
+            "os": "mac",
+            "arch": "x64_86"
+          }
+        ]""".formatted(id, checksum)));
+
+    WsTestUtil.mockStream(scannerWsClient, CLI_WS_URL + "/" + id, new ByteArrayInputStream("cli content".getBytes()));
+
+    assertThat(cacheDir).isEmptyDirectory();
+
+    File generatedFile = underTest.cacheCli();
+
+    assertThat(generatedFile).exists().isExecutable();
+    assertThat(cacheDir.resolve("cache").resolve(checksum)).exists().isNotEmptyDirectory();
+  }
+
+  @Test
+  void cacheCli_whenAllMetadataHTTPError_thenFails() {
+    HttpException http = new HttpException("url", 500, "some error message");
+
+    WsTestUtil.mockException(
+      scannerWsClient,
+      CLI_WS_URL,
+      http);
+
+    assertThatThrownBy(() -> {
+      underTest.cacheCli();
+    }).hasMessageContaining("some error message");
+  }
+
+  @Test
+  void cacheCli_whenThreadInterrupted_thenFails() {
+    try (MockedStatic<CliCacheService> cliCacheServiceMockedStatic = mockStatic(CliCacheService.class, CALLS_REAL_METHODS)) {
+      cliCacheServiceMockedStatic.when(() -> sleep(anyInt())).thenThrow(InterruptedException.class);
+
+      HttpException http = new HttpException("url", 500, "some error message");
+
+      WsTestUtil.mockException(
+        scannerWsClient,
+        CLI_WS_URL,
+        http);
+
+      assertThatThrownBy(() -> {
+        underTest.cacheCli();
+      }).hasMessageContaining("linux amd64");
+    }
+  }
+
+  @Test
+  void cacheCli_whenAllDownloadError_thenFails() {
+    String checksum = "checksum";
+    String id = "tidelift";
+    WsTestUtil.mockReader(scannerWsClient, CLI_WS_URL, new StringReader("""
+      [
+        {
+          "id": "%s",
+          "filename": "tidelift_darwin",
+          "sha256": "%s",
+          "os": "mac",
+          "arch": "x64_86"
+        }
+      ]""".formatted(id, checksum)));
+
+    HttpException http = new HttpException("url", 500, "some error message");
+
+    WsTestUtil.mockException(
+      scannerWsClient,
+      CLI_WS_URL + "/" + id,
+      http);
+
+    assertThatThrownBy(() -> {
+      underTest.cacheCli();
+    }).hasMessageContaining("Unable to download CLI executable");
+  }
+
+  @Test
+  void cacheCli_whenOneDownloadError_thenCompletes() {
+    String checksum = "checksum";
+    String id = "tidelift";
+    WsTestUtil.mockReader(scannerWsClient, CLI_WS_URL, new StringReader("""
+      [
+        {
+          "id": "%s",
+          "filename": "tidelift_darwin",
+          "sha256": "%s",
+          "os": "mac",
+          "arch": "x64_86"
+        }
+      ]""".formatted(id, checksum)));
+
+    HttpException http = new HttpException("url", 500, "some error message");
+
+    WsTestUtil.mockExceptionThenStream(
+      scannerWsClient,
+      CLI_WS_URL + "/" + id,
+      http,
+      new ByteArrayInputStream("cli content".getBytes()));
+
+    assertThat(cacheDir).isEmptyDirectory();
+
+    File generatedFile = underTest.cacheCli();
+
+    assertThat(generatedFile).exists().isExecutable();
+    assertThat(cacheDir.resolve("cache").resolve(checksum)).exists().isNotEmptyDirectory();
+
+    verify(telemetryCache).put(eq("scanner.sca.download.cli.duration"), any());
+    verify(telemetryCache).put("scanner.sca.download.cli.success", "true");
+    verify(telemetryCache).put("scanner.sca.get.cli.cache.hit", "false");
+    verify(telemetryCache).put("scanner.sca.get.cli.success", "true");
   }
 
   @Test

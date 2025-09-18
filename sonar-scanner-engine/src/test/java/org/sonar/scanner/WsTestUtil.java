@@ -74,6 +74,32 @@ public class WsTestUtil {
     when(mock.call(argThat(new RequestMatcher(path)))).thenThrow(e);
   }
 
+  /**
+   * For testing intermittent failures that a retry would alleviate.
+   */
+  public static void mockExceptionThenReader(
+    DefaultScannerWsClient mock,
+    String path,
+    Exception e,
+    Reader reader) {
+    WsResponse response = mock(WsResponse.class);
+    when(response.contentReader()).thenReturn(reader);
+    when(mock.call(argThat(new RequestMatcher(path)))).thenThrow(e).thenReturn(response);
+  }
+
+  /**
+   * For testing intermittent failures that a retry would alleviate.
+   */
+  public static void mockExceptionThenStream(
+    DefaultScannerWsClient mock,
+    String path,
+    Exception e,
+    InputStream stream) {
+    WsResponse response = mock(WsResponse.class);
+    when(response.contentStream()).thenReturn(stream);
+    when(mock.call(argThat(new RequestMatcher(path)))).thenThrow(e).thenReturn(response);
+  }
+
   public static void verifyCall(DefaultScannerWsClient mock, String path) {
     verify(mock).call(argThat(new RequestMatcher(path)));
   }
