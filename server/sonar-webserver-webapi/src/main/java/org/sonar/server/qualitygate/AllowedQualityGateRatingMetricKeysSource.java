@@ -43,5 +43,5 @@ public abstract class AllowedQualityGateRatingMetricKeysSource {
       .collect(Collectors.toSet());
   }
 
-  protected abstract Stream<Metric> allMetrics();
+  protected abstract Stream<Metric<Integer>> allMetrics();
 }

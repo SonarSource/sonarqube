@@ -26,9 +26,15 @@ import org.sonar.api.measures.Metric;
 import org.sonar.core.metric.SoftwareQualitiesMetrics;
 
 public class BaseAllowedQualityGateRatingMetricKeysSource extends AllowedQualityGateRatingMetricKeysSource {
-  protected Stream<Metric> allMetrics() {
+  protected Stream<Metric<Integer>> allMetrics() {
     return Stream.concat(
-      CoreMetrics.getMetrics().stream(),
-      new SoftwareQualitiesMetrics().getMetrics().stream());
+      CoreMetrics.getMetrics().stream()
+        // All Rating types are integers, but they come out of getMetrics as just Metric.
+        // Convert them to Metric<Integer> here and below.
+        .filter(m -> m.getType().equals(Metric.ValueType.RATING))
+        .map(m -> (Metric<Integer>) m),
+      new SoftwareQualitiesMetrics().getMetrics().stream()
+        .filter(m -> m.getType().equals(Metric.ValueType.RATING))
+        .map(m -> (Metric<Integer>) m));
   }
 }
