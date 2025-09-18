@@ -40,6 +40,7 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonar.server.qualitygate.QualityGateUpdater;
+import org.sonar.server.qualitygate.ValidQualityGateRatingMetricKeysProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -47,6 +48,7 @@ import org.sonarqube.ws.Qualitygates.CreateResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.QualityGateCaycChecker.CAYC_METRICS;
 import static org.sonar.server.qualitygate.ws.CreateAction.DEFAULT_METRIC_VALUES;
@@ -63,8 +65,9 @@ public class CreateActionIT {
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
+  private final ValidQualityGateRatingMetricKeysProvider validQualityGateRatingMetricKeysProvider = mock(ValidQualityGateRatingMetricKeysProvider.class);
   private final CreateAction underTest = new CreateAction(dbClient, userSession, new QualityGateUpdater(dbClient),
-    new QualityGateConditionsUpdater(dbClient));
+    new QualityGateConditionsUpdater(dbClient, validQualityGateRatingMetricKeysProvider));
   private final WsActionTester ws = new WsActionTester(underTest);
 
   @Before

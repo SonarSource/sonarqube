@@ -19,22 +19,29 @@
  */
 package org.sonar.server.qualitygate;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.qualitygate.builtin.SonarWayQualityGate;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class QualityGateModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      QualityGateUpdater.class,
-      QualityGateCaycChecker.class,
-      QualityGateModeChecker.class,
-      QualityGateConditionsUpdater.class,
-      QualityGateFinder.class,
-      QualityGateEvaluatorImpl.class,
-      QualityGateFallbackManager.class,
-      SonarWayQualityGate.class,
-      BaseAllowedQualityGateRatingMetricKeysSource.class,
-      ValidQualityGateRatingMetricKeysProvider.class);
+import org.sonar.api.measures.Metric;
+import org.sonar.api.server.ServerSide;
+
+import static org.sonar.api.measures.Metric.ValueType.RATING;
+
+/**
+ * Provide keys of rating metrics that Quality Gates are allowed to
+ * use for potentially failing the Quality Gate. Override <code>metrics()</code>
+ * and return a <code>Stream&lt;Metric></code> for the metric you
+ * want to include.
+ */
+@ServerSide
+public abstract class AllowedQualityGateRatingMetricKeysSource {
+  public Set<String> metricKeys() {
+    return allMetrics()
+      .filter(metric -> metric.getType().equals(RATING))
+      .map(Metric::getKey)
+      .collect(Collectors.toSet());
   }
+
+  protected abstract Stream<Metric> allMetrics();
 }

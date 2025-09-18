@@ -19,22 +19,22 @@
  */
 package org.sonar.server.qualitygate;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.qualitygate.builtin.SonarWayQualityGate;
+import org.junit.jupiter.api.Test;
 
-public class QualityGateModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      QualityGateUpdater.class,
-      QualityGateCaycChecker.class,
-      QualityGateModeChecker.class,
-      QualityGateConditionsUpdater.class,
-      QualityGateFinder.class,
-      QualityGateEvaluatorImpl.class,
-      QualityGateFallbackManager.class,
-      SonarWayQualityGate.class,
-      BaseAllowedQualityGateRatingMetricKeysSource.class,
-      ValidQualityGateRatingMetricKeysProvider.class);
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY;
+
+class BaseAllowedQualityGateRatingMetricKeysSourceTest {
+  private final BaseAllowedQualityGateRatingMetricKeysSource underTest = new BaseAllowedQualityGateRatingMetricKeysSource();
+
+  @Test
+  void metricKeys_returnsSomeKnownKeys() {
+    // Verify that at least one known rating key from each source is included
+    assertThat(underTest.metricKeys()).contains(
+      // ...from CoreMetrics
+      RELIABILITY_RATING_KEY,
+      // ...from SoftwareQualityMetrics
+      SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY);
   }
 }

@@ -54,6 +54,7 @@ import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_VIOLATIONS_KEY;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.PERCENT;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
@@ -73,7 +74,10 @@ public class RegisterQualityGatesIT {
   private final QualityGateDao qualityGateDao = dbClient.qualityGateDao();
   private final QualityGateConditionDao gateConditionDao = dbClient.gateConditionDao();
   private final MetricDao metricDao = dbClient.metricDao();
-  private final QualityGateConditionsUpdater qualityGateConditionsUpdater = new QualityGateConditionsUpdater(dbClient);
+
+  private final ValidQualityGateRatingMetricKeysProvider validQualityGateRatingMetricKeysProvider = mock(ValidQualityGateRatingMetricKeysProvider.class);
+
+  private final QualityGateConditionsUpdater qualityGateConditionsUpdater = new QualityGateConditionsUpdater(dbClient, validQualityGateRatingMetricKeysProvider);
 
   private final RegisterQualityGates underTest = new RegisterQualityGates(dbClient,
     new BuiltInQualityGate[] {new SonarWayQualityGate()},

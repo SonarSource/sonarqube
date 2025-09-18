@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.sonar.api.measures.Metric.ValueType;
+
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -54,15 +54,13 @@ import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.Metric.DIRECTION_BETTER;
 import static org.sonar.api.measures.Metric.DIRECTION_NONE;
 import static org.sonar.api.measures.Metric.DIRECTION_WORST;
+import static org.sonar.api.measures.Metric.ValueType;
 import static org.sonar.api.measures.Metric.ValueType.RATING;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.exceptions.BadRequestException.throwBadRequestException;
 import static org.sonar.server.measure.Rating.E;
 import static org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN;
 import static org.sonar.server.qualitygate.Condition.Operator.LESS_THAN;
-import static org.sonar.server.qualitygate.ValidRatingMetrics.isCoreRatingMetric;
-import static org.sonar.server.qualitygate.ValidRatingMetrics.isScaRatingMetric;
-import static org.sonar.server.qualitygate.ValidRatingMetrics.isSoftwareQualityRatingMetric;
 
 public class QualityGateConditionsUpdater {
   public static final Set<String> INVALID_METRIC_KEYS = Stream.of(ALERT_STATUS_KEY, SECURITY_HOTSPOTS_KEY, NEW_SECURITY_HOTSPOTS_KEY)
@@ -85,10 +83,13 @@ public class QualityGateConditionsUpdater {
   private static final List<String> RATING_VALID_INT_VALUES = stream(Rating.values()).map(r -> Integer.toString(r.getIndex())).toList();
 
   private final DbClient dbClient;
+  private final ValidQualityGateRatingMetricKeysProvider validQualityGateRatingMetricKeysProvider;
 
-  public QualityGateConditionsUpdater(DbClient dbClient) {
+  public QualityGateConditionsUpdater(DbClient dbClient,
+    ValidQualityGateRatingMetricKeysProvider validQualityGateRatingMetricKeysProvider) {
     this.dbClient = dbClient;
 
+    this.validQualityGateRatingMetricKeysProvider = validQualityGateRatingMetricKeysProvider;
   }
 
   public QualityGateConditionDto createCondition(DbSession dbSession, QualityGateDto qualityGate, String metricKey, String operator,
@@ -137,7 +138,7 @@ public class QualityGateConditionsUpdater {
     return dbClient.gateConditionDao().selectForQualityGate(dbSession, qGateUuid);
   }
 
-  private static void validateCondition(MetricDto metric, String operator, String errorThreshold) {
+  private void validateCondition(MetricDto metric, String operator, String errorThreshold) {
     List<String> errors = new ArrayList<>();
     validateMetric(metric, errors);
     checkOperator(metric, operator, errors);
@@ -225,11 +226,11 @@ public class QualityGateConditionsUpdater {
     }
   }
 
-  private static void checkRatingMetric(MetricDto metric, String errorThreshold, List<String> errors) {
+  private void checkRatingMetric(MetricDto metric, String errorThreshold, List<String> errors) {
     if (!metric.getValueType().equals(RATING.name())) {
       return;
     }
-    if (!isCoreRatingMetric(metric.getKey()) && !isSoftwareQualityRatingMetric(metric.getKey()) && !isScaRatingMetric(metric.getKey())) {
+    if (!validQualityGateRatingMetricKeysProvider.isValidRatingMetricKey(metric.getKey())) {
       errors.add(format("The metric '%s' cannot be used", metric.getShortName()));
     }
     if (!isValidRating(errorThreshold)) {

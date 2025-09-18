@@ -19,22 +19,16 @@
  */
 package org.sonar.server.qualitygate;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.qualitygate.builtin.SonarWayQualityGate;
+import java.util.stream.Stream;
 
-public class QualityGateModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      QualityGateUpdater.class,
-      QualityGateCaycChecker.class,
-      QualityGateModeChecker.class,
-      QualityGateConditionsUpdater.class,
-      QualityGateFinder.class,
-      QualityGateEvaluatorImpl.class,
-      QualityGateFallbackManager.class,
-      SonarWayQualityGate.class,
-      BaseAllowedQualityGateRatingMetricKeysSource.class,
-      ValidQualityGateRatingMetricKeysProvider.class);
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Metric;
+import org.sonar.core.metric.SoftwareQualitiesMetrics;
+
+public class BaseAllowedQualityGateRatingMetricKeysSource extends AllowedQualityGateRatingMetricKeysSource {
+  protected Stream<Metric> allMetrics() {
+    return Stream.concat(
+      CoreMetrics.getMetrics().stream(),
+      new SoftwareQualitiesMetrics().getMetrics().stream());
   }
 }

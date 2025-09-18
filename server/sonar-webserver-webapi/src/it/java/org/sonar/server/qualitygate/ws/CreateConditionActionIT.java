@@ -39,6 +39,7 @@ import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
+import org.sonar.server.qualitygate.ValidQualityGateRatingMetricKeysProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -48,6 +49,7 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERROR;
@@ -66,7 +68,8 @@ public class CreateConditionActionIT {
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
-  private final CreateConditionAction underTest = new CreateConditionAction(dbClient, new QualityGateConditionsUpdater(dbClient),
+  private final ValidQualityGateRatingMetricKeysProvider validQualityGateRatingMetricKeysProvider = mock(ValidQualityGateRatingMetricKeysProvider.class);
+  private final CreateConditionAction underTest = new CreateConditionAction(dbClient, new QualityGateConditionsUpdater(dbClient, validQualityGateRatingMetricKeysProvider),
     new QualityGatesWsSupport(dbClient, userSession, TestComponentFinder.from(db)));
 
   private final WsActionTester ws = new WsActionTester(underTest);

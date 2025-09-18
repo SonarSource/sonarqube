@@ -19,18 +19,27 @@
  */
 package org.sonar.server.qualitygate;
 
-import org.junit.Test;
-import org.sonar.core.platform.ListContainer;
+import java.util.Set;
+
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class QualityGateModuleTest {
-  // This is essentially a snapshot test to make sure nothing got added or
-  // removed that you didn't expect to add or remove.
+class ValidQualityGateRatingMetricKeysProviderTest {
   @Test
-  public void verify_count_of_added_components() {
-    ListContainer container = new ListContainer();
-    new QualityGateModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(10);
+  void isValidRatingMetric_thenSearchesProvidedMetricKeySources() {
+    var metricSourceOne = mock(AllowedQualityGateRatingMetricKeysSource.class);
+    var metricSourceTwo = mock(AllowedQualityGateRatingMetricKeysSource.class);
+
+    when(metricSourceOne.metricKeys()).thenReturn(Set.of("one", "two"));
+    when(metricSourceTwo.metricKeys()).thenReturn(Set.of("three", "four"));
+
+    var underTest = new ValidQualityGateRatingMetricKeysProvider(Set.of(metricSourceOne, metricSourceTwo));
+
+    assertThat(underTest.isValidRatingMetricKey("one")).isTrue();
+    assertThat(underTest.isValidRatingMetricKey("three")).isTrue();
+    assertThat(underTest.isValidRatingMetricKey("five")).isFalse();
   }
 }

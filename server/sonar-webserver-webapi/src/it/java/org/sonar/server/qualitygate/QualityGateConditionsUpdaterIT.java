@@ -37,6 +37,8 @@ import org.sonar.server.exceptions.NotFoundException;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
@@ -57,7 +59,8 @@ class QualityGateConditionsUpdaterIT {
   @RegisterExtension
   public DbTester db = DbTester.create();
 
-  private final QualityGateConditionsUpdater underTest = new QualityGateConditionsUpdater(db.getDbClient());
+  private final ValidQualityGateRatingMetricKeysProvider validQualityGateRatingMetricKeysProvider = mock(ValidQualityGateRatingMetricKeysProvider.class);
+  private final QualityGateConditionsUpdater underTest = new QualityGateConditionsUpdater(db.getDbClient(), validQualityGateRatingMetricKeysProvider);
 
   @Test
   void create_error_condition() {
@@ -133,29 +136,10 @@ class QualityGateConditionsUpdaterIT {
   }
 
   @Test
-  void create_condition_on_rating_metric() {
+  void create_condition_on_valid_rating_metric() {
     MetricDto metric = insertMetric(RATING, SQALE_RATING_KEY);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-
-    QualityGateConditionDto result = underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", "3");
-
-    verifyCondition(result, qualityGate, metric, "GT", "3");
-  }
-
-  @Test
-  void create_whenMetricIsBasedOnSoftwareQuality_shouldWork() {
-    MetricDto metric = insertMetric(RATING, SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY);
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-
-    QualityGateConditionDto result = underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", "3");
-
-    verifyCondition(result, qualityGate, metric, "GT", "3");
-  }
-
-  @Test
-  void create_whenMetricIsBasedOnScaRating_shouldWork() {
-    MetricDto metric = insertMetric(RATING, "sca_rating_vulnerability");
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    when(validQualityGateRatingMetricKeysProvider.isValidRatingMetricKey(SQALE_RATING_KEY)).thenReturn(true);
 
     QualityGateConditionDto result = underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", "3");
 
@@ -166,6 +150,8 @@ class QualityGateConditionsUpdaterIT {
   void create_whenEquivalentConditionAlreadyExists_shouldFail() {
     MetricDto equivalentMetric = insertMetric(RATING, SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY);
     MetricDto newMetric = insertMetric(RATING, SQALE_RATING_KEY);
+    when(validQualityGateRatingMetricKeysProvider.isValidRatingMetricKey(SQALE_RATING_KEY)).thenReturn(true);
+    when(validQualityGateRatingMetricKeysProvider.isValidRatingMetricKey(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY)).thenReturn(true);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     DbSession session = db.getSession();
     underTest.createCondition(session, qualityGate, equivalentMetric.getKey(), "GT", "3");
@@ -180,6 +166,7 @@ class QualityGateConditionsUpdaterIT {
   void fail_to_create_error_condition_on_invalid_rating_metric() {
     MetricDto metric = insertMetric(RATING, SQALE_RATING_KEY);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    when(validQualityGateRatingMetricKeysProvider.isValidRatingMetricKey(SQALE_RATING_KEY)).thenReturn(true);
 
     assertThatThrownBy(() -> underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", "80"))
       .isInstanceOf(BadRequestException.class)
@@ -190,6 +177,7 @@ class QualityGateConditionsUpdaterIT {
   void fail_to_create_condition_on_rating_greater_than_E() {
     MetricDto metric = insertMetric(RATING, SQALE_RATING_KEY);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    when(validQualityGateRatingMetricKeysProvider.isValidRatingMetricKey(SQALE_RATING_KEY)).thenReturn(true);
 
     assertThatThrownBy(() -> underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", "5"))
       .isInstanceOf(BadRequestException.class)
@@ -248,6 +236,7 @@ class QualityGateConditionsUpdaterIT {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
       c -> c.setOperator("LT").setErrorThreshold("80"));
+    when(validQualityGateRatingMetricKeysProvider.isValidRatingMetricKey(SQALE_RATING_KEY)).thenReturn(true);
 
     QualityGateConditionDto result = underTest.updateCondition(db.getSession(), condition, metric.getKey(), "GT", "4");
 
@@ -258,6 +247,8 @@ class QualityGateConditionsUpdaterIT {
   void update_whenReplaceWithEquivalentCondition_shouldChangeCondition() {
     MetricDto metric = insertMetric(RATING, SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY);
     MetricDto metric2 = insertMetric(RATING, SQALE_RATING_KEY);
+    when(validQualityGateRatingMetricKeysProvider.isValidRatingMetricKey(SQALE_RATING_KEY)).thenReturn(true);
+    when(validQualityGateRatingMetricKeysProvider.isValidRatingMetricKey(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY)).thenReturn(true);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     QualityGateConditionDto gt = underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", "3");
 
@@ -271,6 +262,9 @@ class QualityGateConditionsUpdaterIT {
     MetricDto baseMetric = insertMetric(RATING, CoreMetrics.RELIABILITY_RATING_KEY);
     MetricDto equivalentMetric = insertMetric(RATING, SQALE_RATING_KEY);
     MetricDto updatedMetric = insertMetric(RATING, SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY);
+    when(validQualityGateRatingMetricKeysProvider.isValidRatingMetricKey(SQALE_RATING_KEY)).thenReturn(true);
+    when(validQualityGateRatingMetricKeysProvider.isValidRatingMetricKey(CoreMetrics.RELIABILITY_RATING_KEY)).thenReturn(true);
+    when(validQualityGateRatingMetricKeysProvider.isValidRatingMetricKey(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY)).thenReturn(true);
 
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     DbSession session = db.getSession();
@@ -301,6 +295,7 @@ class QualityGateConditionsUpdaterIT {
   void fail_to_update_condition_on_rating_metric_on_new_code_period() {
     MetricDto metric = insertMetric(RATING, SQALE_RATING_KEY);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    when(validQualityGateRatingMetricKeysProvider.isValidRatingMetricKey(SQALE_RATING_KEY)).thenReturn(true);
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
       c -> c.setOperator("LT").setErrorThreshold("3"));
 
