@@ -172,6 +172,29 @@ class CliCacheServiceTest {
   }
 
   @Test
+  void cacheCli_shouldThrowException_whenDownloadClientReturnsNullResponse() {
+    when(scannerWsClient.call(any())).thenReturn(null);
+    String checksum = "checksum";
+    String id = "tidelift";
+
+    WsTestUtil.mockReader(scannerWsClient, CLI_WS_URL, new StringReader("""
+      [
+        {
+          "id": "%s",
+          "filename": "tidelift_darwin",
+          "sha256": "%s",
+          "os": "mac",
+          "arch": "x64_86"
+        }
+      ]""".formatted(id, checksum)));
+
+    assertThatThrownBy(underTest::cacheCli).isInstanceOf(IllegalStateException.class)
+      .hasMessageMatching("Unable to download CLI executable");
+
+    verify(telemetryCache).put("scanner.sca.get.cli.success", "false");
+  }
+
+  @Test
   void cacheCli_shouldNotOverwrite_whenCachedFileExists() throws IOException {
     String checksum = "checksum";
     WsTestUtil.mockReader(scannerWsClient, CLI_WS_URL, new StringReader("""

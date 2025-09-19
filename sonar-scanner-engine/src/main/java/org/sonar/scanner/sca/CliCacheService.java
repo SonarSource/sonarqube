@@ -227,6 +227,10 @@ public class CliCacheService {
         throw new IllegalStateException("Unable to download CLI executable");
       }
 
+      if (response == null) {
+        throw new IllegalStateException("Unable to download CLI executable");
+      }
+
       // Download to a temporary file location in case another process is also trying to
       // create the CLI file in the checksum cache directory. Once the file is downloaded to a temporary
       // location, do an atomic move to the correct cache location.
