@@ -264,7 +264,21 @@ public class EmailNotificationChannel extends NotificationChannel {
     String fromName = configuration.getFromName();
     String from = StringUtils.isBlank(emailMessage.getFrom()) ? fromName : (emailMessage.getFrom() + " (" + fromName + ")");
     email.setFrom(configuration.getFrom(), from);
+    validateAddress(emailMessage.getTo());
     email.addTo(emailMessage.getTo(), " ");
+  }
+
+  private static void validateAddress(String mailAddress) {
+    //validating that the email address does not contain CR or LF characters to prevent SMTP injection
+    final byte CR = '\r';
+    final byte LF = '\n';
+
+    for (char aChar : mailAddress.toCharArray()) {
+      byte b = (byte) aChar;
+      if (b == LF || b == CR) {
+        throw new IllegalArgumentException("Address contains invalid character: " + String.format("0x%02x", b));
+      }
+    }
   }
 
   @CheckForNull

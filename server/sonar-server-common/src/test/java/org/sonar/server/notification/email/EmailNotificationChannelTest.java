@@ -56,6 +56,7 @@ import static java.util.stream.Collectors.toSet;
 import static junit.framework.Assert.fail;
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -71,7 +72,7 @@ public class EmailNotificationChannelTest {
   public LogTester logTester = new LogTester();
 
   @Rule
-  public final GreenMailRule smtpServer = new GreenMailRule(new ServerSetup[] {ServerSetupTest.SMTP, ServerSetupTest.SMTPS});
+  public final GreenMailRule smtpServer = new GreenMailRule(new ServerSetup[]{ServerSetupTest.SMTP, ServerSetupTest.SMTPS});
 
   private EmailSmtpConfiguration configuration;
   private Server server;
@@ -314,7 +315,7 @@ public class EmailNotificationChannelTest {
     Set<EmailDeliveryRequest> requests = Stream.of(notification1, notification2, notification3)
       .map(t -> new EmailDeliveryRequest(recipientEmail, t))
       .collect(toSet());
-    EmailNotificationChannel emailNotificationChannel = new EmailNotificationChannel(configuration, server, new EmailTemplate[] {template1, template3}, null,
+    EmailNotificationChannel emailNotificationChannel = new EmailNotificationChannel(configuration, server, new EmailTemplate[]{template1, template3}, null,
       mock(OAuthMicrosoftRestClient.class));
 
     int count = emailNotificationChannel.deliverAll(requests);
@@ -348,7 +349,7 @@ public class EmailNotificationChannelTest {
     when(template11.format(notification1)).thenReturn(emailMessage11);
     when(template12.format(notification1)).thenReturn(emailMessage12);
     EmailDeliveryRequest request = new EmailDeliveryRequest(recipientEmail, notification1);
-    EmailNotificationChannel emailNotificationChannel = new EmailNotificationChannel(configuration, server, new EmailTemplate[] {template11, template12}, null,
+    EmailNotificationChannel emailNotificationChannel = new EmailNotificationChannel(configuration, server, new EmailTemplate[]{template11, template12}, null,
       mock(OAuthMicrosoftRestClient.class));
 
     int count = emailNotificationChannel.deliverAll(Collections.singleton(request));
@@ -359,9 +360,35 @@ public class EmailNotificationChannelTest {
       .contains(emailMessage11.getMessage());
   }
 
+  @Test
+  public void sendTestEmail_whenAddressIsInvalid_mustThrowException() {
+    configure();
+    String toAddress = "甲申申甶甴甸电甹甸甸畀畱畱瘮畣畯畭甾瘍瘊畄畁畔畁瘍瘊畓畵畢番略畣畴町畐畗畎畅畄瘍瘊瘍瘊畉瘠界畏畖畅瘠留畏畕瘡瘍瘊瘮瘍瘊畑畕畉畔瘍瘊@qq.com";
+    String subject = "Test Message from SonarQube";
+    String message = "This is a test message from SonarQube.";
+
+    assertThatIllegalArgumentException()
+      .isThrownBy(() -> underTest.sendTestEmail(toAddress, subject, message))
+      .withMessage("Address contains invalid character: 0x0d");
+  }
+
+
+  @Test
+  public void deliver_whenAddressIsInvalid_mustThrowException() {
+    configure();
+    EmailMessage emailMessage = new EmailMessage()
+      .setTo("甲申申甶甴甸电甹甸甸畀畱畱瘮畣畯畭甾瘍瘊畄畁畔畁瘍瘊畓畵畢番略畣畴町畐畗畎畅畄瘍瘊瘍瘊畉瘠界畏畖畅瘠留畏畕瘡瘍瘊瘮瘍瘊畑畕畉畔瘍瘊@qq.com")
+      .setSubject("Foo")
+      .setPlainTextMessage("Bar");
+
+    assertThatIllegalArgumentException()
+      .isThrownBy(() -> underTest.deliver(emailMessage))
+      .withMessage("Address contains invalid character: 0x0d");
+  }
+
   @DataProvider
   public static Object[][] emptyStrings() {
-    return new Object[][] {
+    return new Object[][]{
       {""},
       {"  "},
       {" \n "}
