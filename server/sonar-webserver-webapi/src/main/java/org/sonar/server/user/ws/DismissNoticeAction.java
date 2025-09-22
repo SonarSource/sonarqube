@@ -36,8 +36,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.EDUCATION_PRINCIPLES;
 import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.ISSUE_CLEAN_CODE_GUIDE;
 import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.ISSUE_NEW_ISSUE_STATUS_AND_TRANSITION_GUIDE;
-import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.ONBOARDING_CAYC_BRANCH_SUMMARY_GUIDE;
-import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.QUALITY_GATE_CAYC_CONDITIONS_SIMPLIFICATION;
 import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_DNA_BANNER;
 import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_DNA_OPTIN_BANNER;
 import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_DNA_TOUR;
@@ -51,10 +49,8 @@ public class DismissNoticeAction implements UsersWsAction {
     EDUCATION_PRINCIPLES("educationPrinciples"),
     SONARLINT_AD("sonarlintAd"),
     ISSUE_CLEAN_CODE_GUIDE("issueCleanCodeGuide"),
-    QUALITY_GATE_CAYC_CONDITIONS_SIMPLIFICATION("qualityGateCaYCConditionsSimplification"),
     OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION("overviewZeroNewIssuesSimplification"),
     ISSUE_NEW_ISSUE_STATUS_AND_TRANSITION_GUIDE("issueNewIssueStatusAndTransitionGuide"),
-    ONBOARDING_CAYC_BRANCH_SUMMARY_GUIDE("onboardingDismissCaycBranchSummaryGuide"),
     SHOW_NEW_MODES_TOUR("showNewModesTour"),
     SHOW_NEW_MODES_BANNER("showNewModesBanner"),
     SHOW_DNA_OPTIN_BANNER("showDesignAndArchitectureOptInBanner"),
@@ -109,9 +105,7 @@ public class DismissNoticeAction implements UsersWsAction {
       .setChangelog(new Change("2025.3", printNewNotice(SHOW_DNA_OPTIN_BANNER, SHOW_DNA_BANNER, SHOW_DNA_TOUR)))
       .setChangelog(new Change("10.8", printNewNotice(SHOW_NEW_MODES_TOUR)))
       .setChangelog(new Change("10.8", printNewNotice(SHOW_NEW_MODES_BANNER)))
-      .setChangelog(new Change("10.6", printNewNotice(ONBOARDING_CAYC_BRANCH_SUMMARY_GUIDE)))
       .setChangelog(new Change("10.4", printNewNotice(ISSUE_NEW_ISSUE_STATUS_AND_TRANSITION_GUIDE)))
-      .setChangelog(new Change("10.3", printNewNotice(QUALITY_GATE_CAYC_CONDITIONS_SIMPLIFICATION)))
       .setChangelog(new Change("10.2", printNewNotice(ISSUE_CLEAN_CODE_GUIDE)))
       .setSince("9.6")
       .setInternal(true)
