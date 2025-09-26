@@ -1,0 +1,93 @@
+services:
+  # ExploitReplayer Application
+  app:
+    image: tameeramer/exploitreplayer:${IMAGE_TAG}
+    container_name: exploitreplayer-app
+    ports:
+      - "8000:8000"
+    environment:
+      # App configuration
+      APP_HOST: 0.0.0.0
+      APP_PORT: 8000
+      LOG_LEVEL: INFO
+
+      # Database configuration
+      DB_BACKEND: ${DB_BACKEND:-postgresql}
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PORT: 5432
+
+      # OpenAI configuration
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-3.5-turbo}
+      OPENAI_MAX_TOKENS: ${OPENAI_MAX_TOKENS:-800}
+      OPENAI_TEMPERATURE: ${OPENAI_TEMPERATURE:-0.3}
+
+      # SonarQube configuration (optional)
+      SONARQUBE_URL: ${SONARQUBE_URL:-}
+      SONARQUBE_USERNAME: ${SONARQUBE_USERNAME:-}
+      SONARQUBE_PASSWORD: ${SONARQUBE_PASSWORD:-}
+      SONARQUBE_TOKEN: ${SONARQUBE_TOKEN:-}
+      API_BASE_URL: ${API_BASE_URL:-http://localhost:8000}
+      IMAGE_TAG: ${IMAGE_TAG}
+    depends_on:
+      - postgres
+      - sonarqube
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health', timeout=10)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: exploitreplayer-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # SonarQube
+  sonarqube:
+    image: sonarqube:25.7.0.110598-community
+    container_name: exploitreplayer-sonarqube
+    ports:
+      - "${SONARQUBE_PORT:-9000}:9000"
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SONAR_JDBC_USERNAME: ${POSTGRES_USER}
+      SONAR_JDBC_PASSWORD: ${POSTGRES_PASSWORD}
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: true
+    depends_on:
+      - postgres
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_logs:/opt/sonarqube/logs
+      - sonarqube_extensions:/opt/sonarqube/extensions
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+
+volumes:
+  postgres_data:
+  sonarqube_data:
+  sonarqube_logs:
+  sonarqube_extensions:

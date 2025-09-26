@@ -25,11 +25,75 @@ on:
         - chrome
         - firefox  
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 
 jobs:
-  selenium-tests:
+  deploy:
     runs-on: ubuntu-latest
     
+    steps:
+    - name: Get code
+      uses: actions/checkout@v4
+
+    - name: Copy docker-compose file to EC2
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        source: "docker-compose.yml"
+        target: "/home/ubuntu/"
+
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        envs: IMAGE_TAG,OPENAI_API_KEY,SONARQUBE_USERNAME,SONARQUBE_PASSWORD,DOCKERHUB_USERNAME,EC2_HOST
+        script: |
+          cd /home/ubuntu
+          docker compose down
+
+          # Create or update .env file
+          cat > .env <<EOF
+          OPENAI_API_KEY=$OPENAI_API_KEY
+          SONARQUBE_USERNAME=$SONARQUBE_USERNAME
+          SONARQUBE_PASSWORD=$SONARQUBE_PASSWORD
+          DB_BACKEND=postgresql
+          POSTGRES_HOST=postgres
+          POSTGRES_PORT=5432
+          POSTGRES_DB=exploitreplayer
+          POSTGRES_USER=exploituser
+          POSTGRES_PASSWORD=securepassword123
+          SONARQUBE_URL=http://sonarqube:9000
+          APP_HOST=0.0.0.0
+          APP_PORT=8000
+          LOG_LEVEL=INFO
+          EC2_PUBLIC_IP=$EC2_HOST
+          IMAGE_TAG=$IMAGE_TAG
+          API_BASE_URL=http://$EC2_HOST:8000
+          EOF
+
+          # Pull new image and start containers
+          docker compose up -d
+          docker compose ps
+      env:
+        IMAGE_TAG: $IMAGE_TAG
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        SONARQUBE_USERNAME: ${{ secrets.SONARQUBE_USERNAME }}
+        SONARQUBE_PASSWORD: ${{ secrets.SONARQUBE_PASSWORD }}
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        EC2_HOST: ${{ secrets.EC2_HOST }}
+        API_BASE_URL: http://${{ secrets.EC2_HOST }}:8000
+
+  Run-tests:
+    runs-on: ubuntu-latest
+    needs: deploy
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -56,6 +120,87 @@ jobs:
     - name: Run Selenium tests
       env:
         HEADLESS: true
-        BASE_URL: http://54.170.128.70:9000
+        BASE_URL: http://${{ secrets.EC2_HOST }}:9000
       run: |
-        pytest UI_Testing/ -v
+        mkdir -p allure-results
+        pytest --alluredir=allure-results UI_Testing/ -v
+
+    - name: Upload Allure results as artifact
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: allure-results-
+        path: allure-results/
+        retention-days: 30
+  
+  allure-report:
+    runs-on: ubuntu-latest
+    needs: Run-tests
+    if: always()
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download all Allure results
+      uses: actions/download-artifact@v4
+      with:
+        pattern: allure-results-*
+        path: allure-results-downloaded
+        merge-multiple: false
+
+    - name: Merge all results into single directory
+      run: |
+        mkdir -p allure-results
+        for dir in allure-results-downloaded/*/; do
+          if [ -d "$dir" ]; then
+            cp -r "$dir"* allure-results/ 2>/dev/null || true
+          fi
+        done
+    
+    - name: Setup Node.js (for Allure CLI install)
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install Allure CLI via npm
+      run: |
+        # Install global allure-commandline package which bundles the Allure CLI
+        npm install -g allure-commandline --no-progress || true
+        # verify
+        if command -v allure >/dev/null 2>&1; then
+          allure --version || true
+        else
+          echo "Allure CLI not found after npm install"
+          npm list -g --depth=0 || true
+          exit 1
+        fi
+
+    - name: Generate Allure report
+      run: |
+        if [ -d "allure-results" ] && [ "$(ls -A allure-results)" ]; then
+          rm -rf allure-report || true
+          allure generate allure-results -o allure-report --clean || true
+        else
+          echo "No allure-results found"
+        fi
+
+    - name: Show Allure report index header (diagnostic)
+      run: |
+        if [ -f "allure-report/index.html" ]; then
+          echo "--- index.html head ---"
+          head -n 20 allure-report/index.html || true
+          echo "--- end head ---"
+        else
+          echo "No index.html generated"
+        fi
+
+    - name: Deploy Allure report to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.SECRET_GITHUB_TOKEN }}
+        publish_branch: gh-pages
+        publish_dir: allure-report
+        # Force an orphan branch publish to ensure the gh-pages branch is replaced
+        force_orphan: true
+        keep_files: false
+        commit_message: Deploy Allure report from workflow run ${{ github.run_id }}
