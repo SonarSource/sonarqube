@@ -79,7 +79,7 @@ public class ProgressReport implements Runnable {
     }
   }
 
-  public void stopAndLogTotalTime(@Nullable String stopMessage) {
+  public void stopAndLogTotalTime(String stopMessage) {
     long stopTime = currentTimeMillis();
     stopMessage += String.format(" (done) | time=%dms", timeDiff(stopTime, startTime));
     stop(stopMessage);
