@@ -79,6 +79,7 @@ import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueFixedMapper;
 import org.sonar.db.issue.IssueMapper;
+import org.sonar.db.jira.JiraProjectBindingMapper;
 import org.sonar.db.issue.NewCodeReferenceIssueDto;
 import org.sonar.db.issue.PrIssueDto;
 import org.sonar.db.measure.LargestBranchNclocDto;
@@ -303,6 +304,7 @@ public class MyBatis {
       IssueChangeMapper.class,
       IssueMapper.class,
       IssueFixedMapper.class,
+      JiraProjectBindingMapper.class,
       MeasureMapper.class,
       ProjectMeasureMapper.class,
       MetricMapper.class,

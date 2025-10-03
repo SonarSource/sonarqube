@@ -47,6 +47,7 @@ import org.sonar.db.issue.AnticipatedTransitionDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueFixedDao;
+import org.sonar.db.jira.JiraProjectBindingDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.ProjectMeasureDao;
 import org.sonar.db.metric.MetricDao;
@@ -142,6 +143,7 @@ public class DbClient {
   private final IssueDao issueDao;
   private final RegulatoryReportDao regulatoryReportDao;
   private final IssueChangeDao issueChangeDao;
+  private final JiraProjectBindingDao jiraProjectBindingDao;
   private final CeActivityDao ceActivityDao;
   private final CeQueueDao ceQueueDao;
   private final CeTaskInputDao ceTaskInputDao;
@@ -236,6 +238,7 @@ public class DbClient {
     permissionTemplateCharacteristicDao = getDao(map, PermissionTemplateCharacteristicDao.class);
     issueDao = getDao(map, IssueDao.class);
     issueChangeDao = getDao(map, IssueChangeDao.class);
+    jiraProjectBindingDao = getDao(map, JiraProjectBindingDao.class);
     ceActivityDao = getDao(map, CeActivityDao.class);
     ceQueueDao = getDao(map, CeQueueDao.class);
     ceTaskInputDao = getDao(map, CeTaskInputDao.class);
@@ -348,6 +351,10 @@ public class DbClient {
 
   public IssueFixedDao issueFixedDao() {
     return issueFixedDao;
+  }
+
+  public JiraProjectBindingDao jiraProjectBindingDao() {
+    return jiraProjectBindingDao;
   }
 
   public TelemetryMetricsSentDao telemetryMetricsSentDao() {
