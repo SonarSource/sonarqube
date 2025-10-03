@@ -26,10 +26,9 @@ Plugins
 Project
 QP
 MQR
-Upgrade
-AnalysisPerformance
 LDAP
 BITBUCKET_CLOUD
 GITLAB_CLOUD
 AZURE
 MIGRATION
+SCA

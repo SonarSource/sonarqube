@@ -27,5 +27,4 @@ Plugins
 Project
 QP
 MQR
-Upgrade
 SCA
