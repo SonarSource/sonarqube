@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import org.apache.commons.io.IOUtils;
 
-import static org.sonar.process.FileUtils2.deleteQuietly;
+//import static org.sonar.process.FileUtils2.deleteQuietly;
 
 public final class ConfigurationUtils {
 
@@ -51,7 +51,7 @@ public final class ConfigurationUtils {
       throw new IllegalStateException("Could not read properties from file: " + args[0], e);
     } finally {
       IOUtils.closeQuietly(reader);
-      deleteQuietly(propertyFile);
+//      deleteQuietly(propertyFile);
     }
     return new Props(properties);
   }
