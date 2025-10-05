@@ -151,7 +151,6 @@ public class CachingRuleFinder implements ServerRuleFinder {
       .setKey(ruleDto.getRuleKey())
       .setConfigKey(ruleDto.getConfigKey())
       .setIsTemplate(ruleDto.isTemplate())
-      .setAiCodeFixEnabled(ruleDto.getAiCodeFixEnabled())
       .setCreatedAt(new Date(ruleDto.getCreatedAt()))
       .setUpdatedAt(new Date(ruleDto.getUpdatedAt()))
       .setRepositoryKey(ruleDto.getRepositoryKey())
