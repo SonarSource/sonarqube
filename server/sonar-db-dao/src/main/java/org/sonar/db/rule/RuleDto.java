@@ -118,6 +118,8 @@ public class RuleDto {
 
   private final RuleMetadataDto metadata;
 
+  private boolean aiCodeFixEnabled = false;
+
   public RuleDto() {
     this(new RuleMetadataDto());
   }
@@ -643,6 +645,15 @@ public class RuleDto {
 
   public RuleDto setOrganizationUuid(String organizationUuid) {
     metadata.setOrganizationUuid(organizationUuid);
+    return this;
+  }
+
+  public boolean getAiCodeFixEnabled() {
+    return aiCodeFixEnabled;
+  }
+
+  public RuleDto setAiCodeFixEnabled(boolean aiCodeFixEnabled) {
+    this.aiCodeFixEnabled = aiCodeFixEnabled;
     return this;
   }
 

@@ -157,6 +157,11 @@ public class RuleDao implements Dao {
     updateRuleTags(ruleDto, mapper);
   }
 
+  public void updateAiCodeFixEnabled(DbSession session, RuleDto ruleDto) {
+    RuleMapper mapper = mapper(session);
+    mapper.updateAiCodeFixEnabled(ruleDto.getUuid(), ruleDto.getAiCodeFixEnabled());
+  }
+
   public List<String> selectTags(DbSession session, String organizationUuid, @Nullable String query, Pagination pagination) {
     String queryUpgraded = toLowerCaseAndSurroundWithPercentSigns(query);
     return mapper(session).selectTags(organizationUuid, queryUpgraded, pagination);

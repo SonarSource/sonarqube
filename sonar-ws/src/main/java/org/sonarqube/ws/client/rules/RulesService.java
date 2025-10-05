@@ -158,8 +158,9 @@ public class RulesService extends BaseService {
         .setParam("tags", request.getTags() == null ? null : request.getTags().stream().collect(Collectors.joining(",")))
         .setParam("template_key", request.getTemplateKey())
               .setParam("cvss", request.getCvss() == null ? null : request.getCvss().stream().collect(Collectors.joining(",")))
-        .setParam("types", request.getTypes() == null ? null : request.getTypes().stream().collect(Collectors.joining(","))),
-      SearchResponse.parser());
+        .setParam("types", request.getTypes() == null ? null : request.getTypes().stream().collect(Collectors.joining(",")))
+        .setParam("ai_code_fix_enabled", request.getAiCodeFixEnabled()),
+    SearchResponse.parser());
   }
 
   /**

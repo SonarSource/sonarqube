@@ -328,6 +328,15 @@ public class RuleDoc extends BaseDoc {
     return this;
   }
 
+  public boolean getAiCodeFixEnabled() {
+    return getField(RuleIndexDefinition.FIELD_RULE_AI_CODE_FIX_ENABLED);
+  }
+
+  public RuleDoc setAiCodeFixEnabled(@Nullable Boolean b) {
+    setField(RuleIndexDefinition.FIELD_RULE_AI_CODE_FIX_ENABLED, b);
+    return this;
+  }
+
   @Override
   public String toString() {
     return ReflectionToStringBuilder.toString(this);
@@ -372,7 +381,8 @@ public class RuleDoc extends BaseDoc {
       .setHtmlDescription(getConcatenatedSectionsInHtml(dto))
       .setTemplateKey(getRuleKey(dto))
       .setCleanCodeAttributeCategory(dto.getTypeAsRuleType() != RuleType.SECURITY_HOTSPOT ? dto.getCleanCodeAttributeCategory() : null)
-      .setImpacts(dto.getImpacts().stream().collect(Collectors.toMap(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)));
+      .setImpacts(dto.getImpacts().stream().collect(Collectors.toMap(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)))
+      .setAiCodeFixEnabled(dto.getAiCodeFixEnabled());
   }
 
   @CheckForNull

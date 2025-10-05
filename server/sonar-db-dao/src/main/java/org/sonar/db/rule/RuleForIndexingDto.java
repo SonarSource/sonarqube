@@ -53,6 +53,7 @@ public class RuleForIndexingDto {
   private boolean isAdHoc;
   private Integer adHocType;
   private int type;
+  private boolean aiCodeFixEnabled;
 
   private long createdAt;
   private long updatedAt;
@@ -77,6 +78,7 @@ public class RuleForIndexingDto {
     ruleForIndexingDto.severity = r.getSeverity();
     ruleForIndexingDto.status = r.getStatus();
     ruleForIndexingDto.isTemplate = r.isTemplate();
+    ruleForIndexingDto.aiCodeFixEnabled = r.getAiCodeFixEnabled();
     ruleForIndexingDto.systemTags = Sets.newHashSet(r.getSystemTags());
     ruleForIndexingDto.tags = r.getTags() != null ? Sets.newHashSet(r.getTags()) : Collections.emptySet();
     ruleForIndexingDto.securityStandards = Sets.newHashSet(r.getSecurityStandards());
@@ -215,6 +217,10 @@ public class RuleForIndexingDto {
 
   public Set<RuleDescriptionSectionDto> getRuleDescriptionSectionsDtos() {
     return Collections.unmodifiableSet(ruleDescriptionSectionsDtos);
+  }
+
+  public boolean getAiCodeFixEnabled() {
+    return aiCodeFixEnabled;
   }
 
   public void setRuleDescriptionSectionsDtos(Set<RuleDescriptionSectionDto> ruleDescriptionSectionsDtos) {

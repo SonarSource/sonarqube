@@ -39,7 +39,8 @@
     rm.ad_hoc_severity as "adHocSeverity",
     rm.ad_hoc_type as "adHocType",
     r.education_principles as "educationPrinciplesField",
-    r.clean_code_attribute as "cleanCodeAttribute"
+    r.clean_code_attribute as "cleanCodeAttribute",
+    r.ai_code_fix_enabled as "aiCodeFixEnabled"
   </sql>
 
   <sql id="leftOuterJoinRulesMetadata">
@@ -296,7 +297,8 @@
     r.language as "language",
     r.rule_type as "type",
     r.created_at as "createdAt",
-    r.updated_at as "updatedAt"
+    r.updated_at as "updatedAt",
+    r.ai_code_fix_enabled as "aiCodeFixEnabled"
     from rules r
     left outer join rules t on t.uuid = r.template_uuid
   </sql>
@@ -510,6 +512,13 @@
       updated_at=#{updatedAt,jdbcType=BIGINT}
     where
       uuid=#{uuid,jdbcType=VARCHAR}
+  </update>
+
+  <update id="updateAiCodeFixEnabled">
+    update rules set
+    ai_code_fix_enabled=#{aiCodeFixEnabled,jdbcType=BOOLEAN}
+    where
+    uuid=#{ruleUuid,jdbcType=VARCHAR}
   </update>
 
   <delete id="deleteRuleDescriptionSection" parameterType="String">

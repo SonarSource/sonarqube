@@ -146,7 +146,8 @@ public class DefaultRuleFinder implements ServerRuleFinder {
       .setSeverity(severity != null ? RulePriority.valueOf(severity) : null)
       .setStatus(rule.getStatus().name())
       .setSystemTags(rule.getSystemTags().toArray(new String[rule.getSystemTags().size()]))
-      .setTags(rule.getTags().toArray(new String[rule.getTags().size()]));
+      .setTags(rule.getTags().toArray(new String[rule.getTags().size()]))
+      .setAiCodeFixEnabled(rule.getAiCodeFixEnabled());
 
     Optional.ofNullable(ruleDescriptionFormatter.getDescriptionAsHtml(rule)).ifPresent(apiRule::setDescription);
 

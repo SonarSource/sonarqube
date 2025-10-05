@@ -71,7 +71,8 @@ public record RuleRestResponse(
   List<Parameter> parameters,
   String remediationFunctionType,
   String remediationFunctionGapMultiplier,
-  String remediationFunctionBaseEffort
+  String remediationFunctionBaseEffort,
+  boolean aiCodeFixEnabled
 ) {
 
 
@@ -104,6 +105,7 @@ public record RuleRestResponse(
     private String remediationFunctionType;
     private String remediationFunctionGapMultiplier;
     private String remediationFunctionBaseEffort;
+    private boolean aiCodeFixEnabled;
 
     private Builder() {
     }
@@ -252,11 +254,16 @@ public record RuleRestResponse(
       return this;
     }
 
+    public Builder setAiCodeFixEnabled(boolean aiCodeFixEnabled) {
+      this.aiCodeFixEnabled = aiCodeFixEnabled;
+      return this;
+    }
+
     public RuleRestResponse build() {
       return new RuleRestResponse(id, key, repositoryKey, name, severity, type, impacts, cleanCodeAttribute, cleanCodeAttributeCategory,
         status, external, createdAt, descriptionSections, markdownDescription, gapDescription, htmlNote, markdownNote,
         educationPrinciples, template, templateId, tags, systemTags, languageKey, languageName, parameters, remediationFunctionType,
-        remediationFunctionGapMultiplier, remediationFunctionBaseEffort);
+        remediationFunctionGapMultiplier, remediationFunctionBaseEffort, aiCodeFixEnabled);
     }
   }
 }

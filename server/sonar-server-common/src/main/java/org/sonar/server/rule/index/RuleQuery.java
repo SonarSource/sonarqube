@@ -65,6 +65,7 @@ public class RuleQuery {
   private Collection<String> cleanCodeAttributesCategories;
   private Boolean prioritizedRule;
   private Collection<String> cvss;
+  private Boolean aiCodeFixEnabled;
 
   @CheckForNull
   public QProfileDto getQProfile() {
@@ -398,6 +399,16 @@ public class RuleQuery {
 
   public RuleQuery setPrioritizedRule(@Nullable Boolean prioritizedRule) {
     this.prioritizedRule = prioritizedRule;
+    return this;
+  }
+
+  @CheckForNull
+  public Boolean getAiCodeFixEnabled() {
+    return aiCodeFixEnabled;
+  }
+
+  public RuleQuery setAiCodeFixEnabled(@Nullable Boolean b) {
+    this.aiCodeFixEnabled = b;
     return this;
   }
 }

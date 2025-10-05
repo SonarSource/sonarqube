@@ -60,6 +60,7 @@ public class SearchRequest {
   private String templateKey;
   private List<String> types;
   private String organization;
+  private String aiCodeFixEnabled;
 
   public String getOrganization() {
     return organization;
@@ -186,6 +187,7 @@ public class SearchRequest {
    *   <li>"internalKey"</li>
    *   <li>"isExternal"</li>
    *   <li>"isTemplate"</li>
+   *   <li>"aiCodeFixEnabled"</li>
    *   <li>"lang"</li>
    *   <li>"langName"</li>
    *   <li>"mdDesc"</li>
@@ -275,6 +277,22 @@ public class SearchRequest {
 
   public String getIsTemplate() {
     return isTemplate;
+  }
+
+  /**
+   * Possible values:
+   * <ul>
+   *   <li>"true"</li>
+   *   <li>"false"</li>
+   * </ul>
+   */
+  public SearchRequest setAiCodeFixEnabled(String aiCodeFixEnabled) {
+    this.aiCodeFixEnabled = aiCodeFixEnabled;
+    return this;
+  }
+
+  public String getAiCodeFixEnabled() {
+    return aiCodeFixEnabled;
   }
 
   /**

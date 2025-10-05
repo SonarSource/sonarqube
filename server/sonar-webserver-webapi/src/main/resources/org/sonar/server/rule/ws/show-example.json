@@ -33,6 +33,7 @@
         "severity": "HIGH"
       }
     ],
+    "aiCodeFixEnabled": false,
     "descriptionSections": [
       {
         "key": "root_cause",

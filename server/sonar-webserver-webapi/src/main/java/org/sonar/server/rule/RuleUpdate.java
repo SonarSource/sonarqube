@@ -62,6 +62,7 @@ public class RuleUpdate {
   private RuleStatus status;
   private final Map<String, String> parameters = new HashMap<>();
   private OrganizationDto organization;
+  private boolean aiCodeFixEnabled = false;
 
   private RuleUpdate(RuleKey ruleKey, RuleUpdateUseCase useCase) {
     this.ruleKey = ruleKey;
@@ -201,6 +202,17 @@ public class RuleUpdate {
 
   public OrganizationDto getOrganization() {
     return organization;
+  }
+
+  public boolean getAiCodeFixEnabled() {
+    return aiCodeFixEnabled;
+  }
+
+  /**
+   * Use to toggle the aiCodeFixEnabled flag.
+   */
+  public void setAiCodeFixEnabled(boolean aiCodeFixEnabled) {
+    this.aiCodeFixEnabled = aiCodeFixEnabled;
   }
 
   boolean isCustomRule() {

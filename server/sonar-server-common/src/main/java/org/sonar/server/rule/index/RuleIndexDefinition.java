@@ -68,6 +68,7 @@ public class RuleIndexDefinition implements IndexDefinition {
   public static final String FIELD_RULE_SONARSOURCE_SECURITY = "sonarsourceSecurity";
   public static final String FIELD_RULE_TAGS = "tags";
   public static final String FIELD_RULE_CVSS = "cvss";
+  public static final String FIELD_RULE_AI_CODE_FIX_ENABLED = "aiCodeFixEnabled";
 
   public static final Set<String> SORT_FIELDS = Set.of(
     FIELD_RULE_NAME,
@@ -145,6 +146,7 @@ public class RuleIndexDefinition implements IndexDefinition {
 
     ruleMapping.createBooleanField(FIELD_RULE_IS_TEMPLATE);
     ruleMapping.createBooleanField(FIELD_RULE_IS_EXTERNAL);
+    ruleMapping.createBooleanField(FIELD_RULE_AI_CODE_FIX_ENABLED);
     ruleMapping.keywordFieldBuilder(FIELD_RULE_TEMPLATE_KEY).disableNorms().build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_ORGANIZATION_UUID).disableNorms().build();
 

@@ -352,6 +352,12 @@ public class RuleIndex {
         QueryBuilders.termQuery(FIELD_RULE_IS_TEMPLATE, Boolean.toString(isTemplate)));
     }
 
+    Boolean aiCodeFixEnabled = query.getAiCodeFixEnabled();
+    if (aiCodeFixEnabled != null) {
+      filters.put(FIELD_RULE_AI_CODE_FIX_ENABLED,
+              QueryBuilders.termQuery(FIELD_RULE_AI_CODE_FIX_ENABLED, Boolean.toString(aiCodeFixEnabled)));
+    }
+
     boolean includeExternal = query.includeExternal();
     if (!includeExternal) {
       filters.put(FIELD_RULE_IS_EXTERNAL,

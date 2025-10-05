@@ -70,6 +70,8 @@ public interface RuleMapper {
 
   void updateRule(RuleDto ruleDefinitionDto);
 
+  void updateAiCodeFixEnabled(@Param("ruleUuid") String ruleUuid, @Param("aiCodeFixEnabled") boolean aiCodeFixEnabled);
+
   void deleteRuleDescriptionSection(String ruleUuid);
 
   List<RuleParamDto> selectParamsByRuleUuids(@Param("ruleUuids") List<String> ruleUuids);

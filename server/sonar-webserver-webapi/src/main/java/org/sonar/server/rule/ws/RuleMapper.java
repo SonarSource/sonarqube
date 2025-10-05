@@ -83,6 +83,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_SYSTEM_TAGS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_TAGS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_TEMPLATE_KEY;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_UPDATED_AT;
+import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_AI_CODE_FIX_ENABLED;
 import static org.sonarqube.ws.Rules.Rule.DescriptionSection.Context.newBuilder;
 
 /**
@@ -154,6 +155,7 @@ public class RuleMapper {
     }
     setEducationPrinciples(ruleResponse, ruleDto, fieldsToReturn);
     setCleanCodeAttributes(ruleResponse, ruleDto, fieldsToReturn);
+    setAiCodeFixEnabled(ruleResponse, ruleDto, fieldsToReturn);
 
     return ruleResponse;
   }
@@ -536,4 +538,11 @@ public class RuleMapper {
       return paramResponse.build();
     }
   }
+
+  private static void setAiCodeFixEnabled(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+    if (shouldReturnField(fieldsToReturn, FIELD_AI_CODE_FIX_ENABLED)) {
+      ruleResponse.setAiCodeFixEnabled(ruleDto.getAiCodeFixEnabled());
+    }
+  }
+
 }

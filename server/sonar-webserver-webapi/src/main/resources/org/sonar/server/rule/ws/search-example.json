@@ -33,6 +33,7 @@
           "severity": "HIGH"
         }
       ],
+      "aiCodeFixEnabled": true,
       "descriptionSections": [
         {
           "key": "root_cause",
@@ -91,6 +92,7 @@
           "severity": "HIGH"
         }
       ],
+      "aiCodeFixEnabled": true,
       "params": [
         {
           "key": "max",
@@ -127,6 +129,7 @@
           "severity": "HIGH"
         }
       ],
+      "aiCodeFixEnabled": true,
       "params": [
         {
           "key": "max",
@@ -196,6 +199,7 @@
           "severity": "HIGH"
         }
       ],
+      "aiCodeFixEnabled": true,
       "params": [
         {
           "key": "xpathQuery",
