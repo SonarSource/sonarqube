@@ -71,8 +71,9 @@ runs:
       run: |
         export THIS_MONTH=$(date '+%Y-%m')
         echo "THIS_MONTH=${THIS_MONTH}" >> $GITHUB_ENV
-        echo "ORCHESTRATOR_HOME=${GITHUB_WORKSPACE}/orchestrator/${THIS_MONTH}" >> $GITHUB_ENV
-        mkdir -p "${GITHUB_WORKSPACE}/orchestrator/${THIS_MONTH}"
+        export ORCHESTRATOR_HOME=~/orchestrator/${THIS_MONTH}
+        mkdir -p ${ORCHESTRATOR_HOME}
+        echo "ORCHESTRATOR_HOME=${ORCHESTRATOR_HOME}" >> $GITHUB_ENV
     - name: Orchestrator Monthly Cache
       if: inputs.name == 'orchestrator'
       uses: SonarSource/ci-github-actions/cache@v1
@@ -84,10 +85,13 @@ runs:
       if: inputs.name == 'gradle'
       shell: bash
       run: |
-        export GRADLE_USER_HOME=${GITHUB_WORKSPACE}/.gradle
+        export GRADLE_USER_HOME=~/.gradle
         mkdir -p ${GRADLE_USER_HOME}
         echo "GRADLE_USER_HOME=${GRADLE_USER_HOME}" >> $GITHUB_ENV
+        export LC_ALL=en_US.UTF-8
         find -type f \( -name "*.gradle*" -or -name "gradle*.properties" \) | sort | xargs md5sum > gradle-md5-sums.txt 
+        echo "Files and their md5sums:"
+        cat gradle-md5-sums.txt
         export GRADLE_CACHE_KEY=$(md5sum gradle-md5-sums.txt | awk '{ print $1 }')
         echo "GRADLE_CACHE_KEY=${GRADLE_CACHE_KEY}" >> $GITHUB_ENV
         rm gradle-md5-sums.txt
