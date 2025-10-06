@@ -61,4 +61,9 @@
     DELETE FROM jira_project_bindings WHERE sonar_project_id = #{sonarProjectId, jdbcType=VARCHAR}
   </delete>
 
+  <select id="countAll" resultType="int">
+    SELECT COUNT(1)
+    FROM jira_project_bindings
+  </select>
+
 </mapper>

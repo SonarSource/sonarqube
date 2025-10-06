@@ -63,6 +63,10 @@ public class JiraProjectBindingDao implements Dao {
     getMapper(dbSession).deleteBySonarProjectId(sonarProjectId);
   }
 
+  public int countAll(DbSession dbSession) {
+    return getMapper(dbSession).countAll();
+  }
+
   private static JiraProjectBindingMapper getMapper(DbSession dbSession) {
     return dbSession.getMapper(JiraProjectBindingMapper.class);
   }

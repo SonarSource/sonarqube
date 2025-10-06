@@ -35,4 +35,6 @@ public interface JiraProjectBindingMapper {
   int update(@Param("dto") JiraProjectBindingDto dto, @Param("now") long now);
 
   int deleteBySonarProjectId(@Param("sonarProjectId") String sonarProjectId);
+
+  int countAll();
 }

@@ -35,6 +35,8 @@ class JiraProjectBindingDaoTest {
   private final System2 system2 = mock(System2.class);
   private final UuidFactory uuidFactory = mock(UuidFactory.class);
 
+  private static final String JIRA_ORGANIZATION_BINDING_ID = "organization-binding-id";
+
   @RegisterExtension
   private final DbTester db = DbTester.create(system2);
 
@@ -162,5 +164,43 @@ class JiraProjectBindingDaoTest {
   @Test
   void deleteBySonarProjectId_shouldDoNothing_whenNotExists() {
     assertDoesNotThrow(() -> underTest.deleteBySonarProjectId(db.getSession(), "non-existent"));
+  }
+
+  @Test
+  void countAll_shouldReturnZero_whenNoBindings() {
+    int count = underTest.countAll(db.getSession());
+
+    assertThat(count).isZero();
+  }
+
+  @Test
+  void countAll_shouldReturnCorrectCount_whenBindingsExist() {
+    when(uuidFactory.create()).thenReturn("uuid-1", "uuid-2", "uuid-3");
+    insertBinding("sonar-project-1", "PROJ-1");
+    insertBinding("sonar-project-2", "PROJ-2");
+    insertBinding("sonar-project-3", "PROJ-3");
+
+    int count = underTest.countAll(db.getSession());
+
+    assertThat(count).isEqualTo(3);
+  }
+
+  @Test
+  void countAll_shouldReturnCorrectCount_afterDeletion() {
+    when(uuidFactory.create()).thenReturn("uuid-1", "uuid-2");
+    insertBinding("sonar-project-1", "PROJ-1");
+    insertBinding("sonar-project-2", "PROJ-2");
+    assertThat(underTest.countAll(db.getSession())).isEqualTo(2);
+
+    underTest.deleteBySonarProjectId(db.getSession(), "sonar-project-1");
+
+    assertThat(underTest.countAll(db.getSession())).isEqualTo(1);
+  }
+
+  private void insertBinding(String sonarProjectId, String jiraProjectKey) {
+    underTest.insertOrUpdate(db.getSession(), new JiraProjectBindingDto()
+      .setSonarProjectId(sonarProjectId)
+      .setJiraOrganizationBindingId(JIRA_ORGANIZATION_BINDING_ID)
+      .setJiraProjectKey(jiraProjectKey));
   }
 }
