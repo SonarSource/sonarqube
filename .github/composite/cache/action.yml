@@ -1,16 +1,19 @@
 name: 'Invoke Cache'
 description: 'invoke a cache based on the cache name.'
 inputs:
-  name:
-    description: 'The name of the cache to invoke'
-    type: string
+  NAME:
+    description: 'The name(s) of the cache to invoke. Can be a single name or multiple names separated by spaces (e.g., "gradle jar build")'
+    required: true
+  BUILD_NUMBER:
+    description: 'The build number to append to the cache key'
     required: true
 
 runs:
   using: "composite"
   steps:
     - name: Artifacts Cache
-      if: inputs.name == 'artifact'
+      id: artifacts-cache
+      if: contains(inputs.NAME, 'artifact')
       uses: SonarSource/ci-github-actions/cache@v1
       with:
         path: |
@@ -19,54 +22,60 @@ runs:
           private/edition-enterprise/build/distributions/*.zip
           private/edition-enterprise-lw/build/distributions/*.zip
           private/edition-datacenter/build/distributions/*.zip
-        key: artifacts-${{ github.sha }}-${{ github.run_number }}
+        key: artifacts-${{ github.sha }}-${{ inputs.BUILD_NUMBER }}
     - name: Build Cache
-      if: inputs.name == 'build'
+      id: build-cache
+      if: contains(inputs.NAME, 'build')
       uses: SonarSource/ci-github-actions/cache@v1
       with:
         path: |
           **/build/**/*
-        key: build-${{ github.sha }}-${{ github.run_number }}
+        key: build-${{ github.sha }}-${{ inputs.BUILD_NUMBER }}
     - name: ES Lint cache
-      if: inputs.name == 'eslint'
+      id: eslint-cache
+      if: contains(inputs.NAME, 'eslint')
       uses: SonarSource/ci-github-actions/cache@v1
       with:
         path: |
           private/core-extension-securityreport/eslint-report/
           private/core-extension-enterprise-server/eslint-report/
           private/core-extension-developer-server/eslint-report/
-        key: eslint-${{ github.sha }}-${{ github.run_number }}
+        key: eslint-${{ github.sha }}-${{ inputs.BUILD_NUMBER }}
     - name: JAR cache
-      if: inputs.name == 'jar'
+      id: jar-cache
+      if: contains(inputs.NAME, 'jar')
       uses: SonarSource/ci-github-actions/cache@v1
       with:
         path: '**/build/libs/*.jar'
-        key: jar-${{ github.sha }}-${{ github.run_number }}
+        key: jar-${{ github.sha }}-${{ inputs.BUILD_NUMBER }}
     - name: Jest Cache
-      if: inputs.name == 'jest'
+      id: jest-cache
+      if: contains(inputs.NAME, 'jest')
       uses: SonarSource/ci-github-actions/cache@v1
       with:
         path: |
           private/core-extension-securityreport/coverage/
           private/core-extension-enterprise-server/coverage/
           private/core-extension-developer-server/coverage/
-        key: jest-${{ github.sha }}-${{ github.run_number }}
+        key: jest-${{ github.sha }}-${{ inputs.BUILD_NUMBER }}
     - name: JUnit Report Cache
-      if: inputs.name == 'junit-report'
+      id: junit-report-cache
+      if: contains(inputs.NAME, 'junit-report')
       uses: SonarSource/ci-github-actions/cache@v1
       with:
         path: |
           **/reports/jacoco
           **/test-results/test
-        key: junit-report-${{ github.sha }}-${{ github.run_number }}
+        key: junit-report-${{ github.sha }}-${{ inputs.BUILD_NUMBER }}
     - name: Yarn Cache
-      if: inputs.name == 'yarn'
+      id: yarn-cache
+      if: contains(inputs.NAME, 'yarn')
       uses: SonarSource/ci-github-actions/cache@v1
       with:
         path: '~/.yarn/berry/cache'
-        key: yarn-${{ github.sha }}-${{ github.run_number }}
+        key: yarn-${{ github.sha }}-${{ inputs.BUILD_NUMBER }}
     - name: Create Orchestrator Home
-      if: inputs.name == 'orchestrator'
+      if: contains(inputs.NAME, 'orchestrator')
       shell: bash
       run: |
         export THIS_MONTH=$(date '+%Y-%m')
@@ -75,14 +84,15 @@ runs:
         mkdir -p ${ORCHESTRATOR_HOME}
         echo "ORCHESTRATOR_HOME=${ORCHESTRATOR_HOME}" >> $GITHUB_ENV
     - name: Orchestrator Monthly Cache
-      if: inputs.name == 'orchestrator'
+      id: orchestrator-cache
+      if: contains(inputs.NAME, 'orchestrator')
       uses: SonarSource/ci-github-actions/cache@v1
       with:
         path: ${{ env.ORCHESTRATOR_HOME }}
         key: orchestrator-${{ env.THIS_MONTH }}
         restore-keys: orchestrator-${{ env.THIS_MONTH }}
     - name: Create Gradle User Home
-      if: inputs.name == 'gradle'
+      if: contains(inputs.NAME, 'gradle')
       shell: bash
       run: |
         export GRADLE_USER_HOME=~/.gradle
@@ -96,9 +106,11 @@ runs:
         echo "GRADLE_CACHE_KEY=${GRADLE_CACHE_KEY}" >> $GITHUB_ENV
         rm gradle-md5-sums.txt
     - name: Gradle Dependencies Cache
-      if: inputs.name == 'gradle'
+      id: gradle-cache
+      if: contains(inputs.NAME, 'gradle')
       uses: SonarSource/ci-github-actions/cache@v1
       with:
         path: ${{ env.GRADLE_USER_HOME }}
         key: gradle-${{ env.GRADLE_CACHE_KEY }}
-        restore-keys: gradle-${{ env.GRADLE_CACHE_KEY }}
+        restore-keys: |
+          gradle-${{ env.GRADLE_CACHE_KEY }}
