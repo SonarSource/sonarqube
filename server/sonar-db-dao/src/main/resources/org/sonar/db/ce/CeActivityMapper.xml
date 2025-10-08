@@ -51,6 +51,8 @@
 
   <sql id="fromClauseWithJoins">
     from ce_activity ca
+    inner join projects pj on pj.uuid = ca.entity_uuid
+    inner join organizations org ON pj.organization_uuid = org.uuid AND org.is_archived IS NOT true
     left outer join ce_task_message ctm on ca.uuid = ctm.task_uuid
     left outer join ce_scanner_context csc on csc.task_uuid = ca.uuid
   </sql>
@@ -98,6 +100,8 @@
   <sql id="sqlSelectByQueryWithoutPagination">
     select ca.uuid
     from ce_activity ca
+    inner join projects p ON ca.entity_uuid = p.uuid
+    inner join organizations org ON p.organization_uuid = org.uuid AND org.is_archived IS NOT true
     <where>
       <if test="query.onlyCurrents">
         and ca.main_is_last=${_true}

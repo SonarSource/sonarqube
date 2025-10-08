@@ -33,7 +33,7 @@ import OrganizationNameInput from '../../create/components/OrganizationNameInput
 import OrganizationUrlInput from '../../create/components/OrganizationUrlInput';
 import { withOrganizationContext } from '../OrganizationContext';
 import OrganizationAvatar from './OrganizationAvatar';
-import OrganizationDelete from './OrganizationDelete';
+import OrganizationArchive from './OrganizationArchive';
 import { Switch } from '~design-system';
 import InstanceMessage from 'src/main/js/components/common/InstanceMessage';
 
@@ -235,7 +235,7 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
         </Card>
         
 
-        {showDelete && <OrganizationDelete />}
+        {showDelete && <OrganizationArchive />}
       </div>
     );
   }

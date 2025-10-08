@@ -121,6 +121,7 @@
     INNER JOIN groups_users gu ON g.uuid=gu.group_uuid
     AND gu.user_uuid=(select uuid from users u <where>u.login = #{login}</where>)
     INNER JOIN organizations o ON g.organization_uuid=o.uuid
+    AND o.is_archived IS NOT true
     ORDER BY o.created_at DESC
   </select>
 

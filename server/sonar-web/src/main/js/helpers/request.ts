@@ -302,6 +302,19 @@ export function deleteRequest(url: string, bypassRedirect?: boolean): Promise<vo
 }
 
 /**
+ * Shortcut to do a PUT request
+ */
+export function archiveRequest(url: string, bypassRedirect?: boolean): Promise<void> {
+  return new Promise((resolve, reject) => {
+    request(url)
+      .setMethod('PUT')
+      .submit()
+      .then((response) => checkStatus(response, bypassRedirect))
+      .then(() => resolve(), reject);
+  });
+}
+
+/**
  * Shortcut to do a POST request
  */
 export function post(url: string, data?: RequestData, bypassRedirect = false): Promise<void> {

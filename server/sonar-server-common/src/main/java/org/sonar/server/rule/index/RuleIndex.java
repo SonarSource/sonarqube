@@ -96,6 +96,7 @@ import static org.sonar.server.es.EsUtils.optimizeScrollRequest;
 import static org.sonar.server.es.EsUtils.scrollIds;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
 import static org.sonar.server.es.StickyFacetBuilder.FACET_DEFAULT_SIZE;
+import static org.sonar.server.es.StickyFacetBuilder.FACET_MAX_SIZE;
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.ENGLISH_HTML_ANALYZER;
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SEARCH_WORDS_ANALYZER;
@@ -641,7 +642,7 @@ public class RuleIndex {
       Collection<String> categories = query.getCwe();
       aggregations.put(FACET_CWE,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_CWE, FACET_CWE,
-          FACET_DEFAULT_SIZE, filterSecurityCategories(),
+          FACET_MAX_SIZE, filterSecurityCategories(),
           (categories == null) ? (new String[0]) : categories.toArray()));
     }
     if (options.getFacets().contains(FACET_CVSS)) {

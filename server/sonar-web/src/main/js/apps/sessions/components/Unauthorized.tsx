@@ -36,6 +36,11 @@ export default function Unauthorized() {
     'invalid_client': 'unauthorized.oauth2.invalid_client'
   };
 
+  const ERROR_MESSAGES: Record<string, string> = {
+    email_not_verified: 'unauthorized.email_verification_required',
+    email_verification_failed: 'unauthorized.email_verification_failed',
+  };
+
   const rawJson = decodeURIComponent(getCookie('AUTHENTICATION-ERROR') || '');
   let errorObj;
   try {
@@ -45,7 +50,12 @@ export default function Unauthorized() {
   }
   const errorMessage = errorObj.error_message;
   const errorCode = errorObj.error;
-  const translationKey = errorCode ? OAUTH2_ERROR_CODES[errorCode] : OAUTH2_ERROR_CODES[errorMessage];
+  let translationKey = errorCode ? OAUTH2_ERROR_CODES[errorCode] : OAUTH2_ERROR_CODES[errorMessage];
+
+  if (errorCode === 'access_denied' && ERROR_MESSAGES[errorMessage]) {
+    translationKey = ERROR_MESSAGES[errorMessage];
+  }
+
   const message = translationKey ? translate(translationKey) : translate('unauthorized.generic_error');
 
   return (

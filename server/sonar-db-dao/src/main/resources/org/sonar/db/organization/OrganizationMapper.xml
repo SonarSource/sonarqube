@@ -13,6 +13,8 @@
     org.subscription as "subscription",
     org.created_at as "createdAt",
     org.updated_at as "updatedAt",
+    org.is_archived as "isArchived",
+    org.archived_at as "archivedAt",
     org.invite_users_enabled as "inviteUsersEnabled"
   </sql>
 
@@ -172,6 +174,7 @@
     where role = #{permission,jdbcType=VARCHAR} and user_uuid = #{userUuid,jdbcType=VARCHAR}
     ) AS user_orgs
     )
+    and org.is_archived IS NOT true
   </select>
 
   <select id="selectAllUuids" resultType="String">

@@ -39,7 +39,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { useIssueChangelogQuery } from '../../../queries/issues';
 import { useStandardExperienceModeQuery } from '../../../queries/mode';
 import { ReviewHistoryType } from '../../../types/security-hotspots';
-import { Issue, IssueChangelog } from '../../../types/types';
+import { Issue, IssueChangelog, Organization } from '../../../types/types';
 import HotspotCommentModal from '../../security-hotspots/components/HotspotCommentModal';
 import { useGetIssueReviewHistory } from '../crossComponentSourceViewer/utils';
 
@@ -47,6 +47,7 @@ export interface HotspotReviewHistoryProps {
   issue: Issue;
   onDeleteComment: (key: string) => void;
   onEditComment: (key: string, comment: string) => void;
+  organization?: Organization;
 }
 
 const getUpdatedChangelog = (
@@ -76,14 +77,14 @@ const getUpdatedChangelog = (
     .filter((changelogItem) => changelogItem.diffs.length > 0);
 
 export default function IssueReviewHistory(props: Readonly<HotspotReviewHistoryProps>) {
-  const { issue } = props;
+  const { issue, organization } = props;
   const { data: isStandardMode } = useStandardExperienceModeQuery();
   const [editCommentKey, setEditCommentKey] = React.useState('');
   const [deleteCommentKey, setDeleteCommentKey] = React.useState('');
   const { data: changelog = [], isLoading } = useIssueChangelogQuery(issue.key, {
     select: (data) => getUpdatedChangelog(data, isStandardMode),
   });
-  const history = useGetIssueReviewHistory(issue, changelog);
+  const history = useGetIssueReviewHistory(issue, changelog, organization);
 
   return (
     <Spinner isLoading={isLoading}>
@@ -96,7 +97,7 @@ export default function IssueReviewHistory(props: Readonly<HotspotReviewHistoryP
               </div>
 
               <Text isSubdued as="div" className="sw-mb-1">
-                {user.name !== undefined && (
+                {user.name && (
                   <div className="sw-flex sw-items-center sw-gap-1">
                     <Avatar hash={user.avatar} name={user.name} size="xs" />
                     <span className="sw-typo-semibold">

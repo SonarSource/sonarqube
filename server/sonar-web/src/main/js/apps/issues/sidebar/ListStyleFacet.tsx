@@ -306,7 +306,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
         );
 
     const limitedList = this.state.showFullList
-      ? sortedItems
+      ? sortedItems.slice(0, maxItems)
       : sortedItems.slice(0, maxInitialItems);
 
     // make sure all selected items are displayed
@@ -370,7 +370,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
             showLessAriaLabel ?? translateWithParameters('show_less_filter_x', facetHeader)
           }
           showMore={this.showFullList}
-          total={sortedItems.length}
+          total={ sortedItems.length < maxItems ? sortedItems.length : maxItems}
         />
 
         {mightHaveMoreResults && this.state.showFullList && (

@@ -25,13 +25,14 @@ import { addIssueComment, deleteIssueComment, editIssueComment } from '../../../
 import { updateIssue } from '../../../components/issue/actions';
 import { translate } from '../../../helpers/l10n';
 import { IssueActions } from '../../../types/issues';
-import { Issue } from '../../../types/types';
+import { Issue, Organization } from '../../../types/types';
 import HotspotCommentModal from '../../security-hotspots/components/HotspotCommentModal';
 import IssueReviewHistory from './IssueReviewHistory';
 
 interface Props {
   issue: Issue;
   onChange: (issue: Issue) => void;
+  organization?: Organization;
 }
 
 interface State {
@@ -73,7 +74,7 @@ export default class IssueReviewHistoryAndComments extends React.PureComponent<P
   };
 
   render() {
-    const { issue } = this.props;
+    const { issue, organization } = this.props;
     const { showAddCommentModal } = this.state;
 
     return (
@@ -94,6 +95,7 @@ export default class IssueReviewHistoryAndComments extends React.PureComponent<P
           issue={issue}
           onDeleteComment={this.handleDeleteComment}
           onEditComment={this.handleEditComment}
+          organization={organization}
         />
 
         {/* <IssueChangeLogContent issue={issue} /> */}

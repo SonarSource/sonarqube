@@ -21,6 +21,7 @@ package org.sonar.core.config;
 
 import static java.util.Arrays.asList;
 import static org.sonar.api.PropertyType.BOOLEAN;
+import static org.sonar.api.PropertyType.INTEGER;
 import static org.sonar.api.PropertyType.SINGLE_SELECT_LIST;
 import static org.sonar.api.PropertyType.STRING;
 import static org.sonar.api.PropertyType.TEXT;
@@ -34,13 +35,6 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinition.ConfigScope;
 import org.sonar.core.extension.PluginRiskConsent;
-
-import static java.util.Arrays.asList;
-import static org.sonar.api.PropertyType.BOOLEAN;
-import static org.sonar.api.PropertyType.SINGLE_SELECT_LIST;
-import static org.sonar.api.PropertyType.STRING;
-import static org.sonar.api.PropertyType.TEXT;
-import static org.sonar.core.extension.PluginRiskConsent.NOT_ACCEPTED;
 
 public class CorePropertyDefinitions {
 
@@ -56,6 +50,7 @@ public class CorePropertyDefinitions {
   public static final String ORGANIZATIONS_CREATE_PERSONAL_ORG = "sonar.organizations.createPersonalOrg";
   public static final String ORGANIZATIONS_DEFAULT_PUBLIC_VISIBILITY = "sonar.organizations.defaultPublicVisibility";
   public static final String CODESCAN_WHITE_LABEL_PRODUCT = "codescan.cloud.whiteLabelProduct";
+  public static final String CODESCAN_ORGANIZATION_RETENTION_PERIOD = "codescan.cloud.organizationRetentionPeriod";
 
   public static final String ALLOW_DISABLE_INHERITED_RULES = "sonar.qualityProfiles.allowDisableInheritedRules";
 
@@ -257,7 +252,12 @@ public class CorePropertyDefinitions {
                     .name("Default visibility for new organizations")
                     .defaultValue(Boolean.toString(true))
                     .category(CATEGORY_ORGANIZATIONS)
-                    .type(BOOLEAN)
+                    .type(BOOLEAN).build(),
+            PropertyDefinition.builder(CODESCAN_ORGANIZATION_RETENTION_PERIOD)
+                    .name("Retention Period for Archived Organizations (days)")
+                    .defaultValue(String.valueOf(30))
+                    .category(CATEGORY_ORGANIZATIONS)
+                    .type(INTEGER)
                     .build()));
 
     return defs;

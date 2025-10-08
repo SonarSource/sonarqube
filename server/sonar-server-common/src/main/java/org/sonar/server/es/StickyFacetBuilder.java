@@ -44,6 +44,7 @@ public class StickyFacetBuilder {
 
   private static final int FACET_DEFAULT_MIN_DOC_COUNT = 1;
   public static final int FACET_DEFAULT_SIZE = 10;
+  public static final int FACET_MAX_SIZE = 500;
   private static final BucketOrder FACET_DEFAULT_ORDER = BucketOrder.count(false);
   /** In some cases the user selects >15 items for one facet. In that case, we want to calculate the doc count for all of them (not just the first 15 items, which would be the
    * default for the TermsAggregation). */
