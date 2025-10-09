@@ -42,42 +42,8 @@ class PropertiesDBCleanerTest {
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
   private final SonarRuntime sonarRuntime = mock(SonarRuntime.class);
-  private static final String MISRA_SETTING = "sonar.earlyAccess.misra.enabled";
   private static final String SCA_FEATURE_ENABLED_PROPERTY = "sonar.sca.featureEnabled";
   private static final String SCA_LEGACY_ENABLED_PROPERTY = "sonar.sca.enabled";
-
-  @ParameterizedTest
-  @ValueSource(strings = { "COMMUNITY", "DEVELOPER" })
-  void should_clean_up_misra_prop_when_dev_or_community_edition(String edition) {
-    when(sonarRuntime.getEdition()).thenReturn(SonarEdition.valueOf(edition));
-
-    dbClient
-      .propertiesDao()
-      .saveProperty(dbSession, new PropertyDto()
-        .setKey(MISRA_SETTING)
-        .setValue("true"), null, null, null, null);
-    dbSession.commit();
-
-    new PropertiesDBCleaner(dbClient, sonarRuntime).start();
-    assertThat(dbClient.propertiesDao().selectGlobalProperty(MISRA_SETTING)).isNull();
-  }
-
-  @ParameterizedTest
-  @ValueSource(strings = { "ENTERPRISE", "DATACENTER" })
-  void should_not_clean_up_misra_prop_when_enterprise_or_above(String edition) {
-    when(sonarRuntime.getEdition()).thenReturn(SonarEdition.valueOf(edition));
-
-    PropertyDto prop = new PropertyDto()
-      .setKey(MISRA_SETTING)
-      .setValue("true");
-    dbClient
-      .propertiesDao()
-      .saveProperty(dbSession, prop, null, null, null, null);
-    dbSession.commit();
-
-    new PropertiesDBCleaner(dbClient, sonarRuntime).start();
-    assertThat(Objects.requireNonNull(dbClient.propertiesDao().selectGlobalProperty(MISRA_SETTING)).getValue()).isEqualTo(prop.getValue());
-  }
 
   @ParameterizedTest
   @ValueSource(strings = { "true", "false" })

@@ -42,19 +42,7 @@ public class PropertiesDBCleaner implements Startable {
   @Override
   public void start() {
     LOG.info("Clean up properties from db");
-    deleteMisraPropertyIfRequired();
     migrateScaPropertyIfRequired();
-  }
-
-  private void deleteMisraPropertyIfRequired() {
-    String misraProperty = "sonar.earlyAccess.misra.enabled";
-    SonarEdition edition = runtime.getEdition();
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      if (asList(SonarEdition.COMMUNITY, SonarEdition.DEVELOPER).contains(edition)) {
-        dbClient.propertiesDao().deleteGlobalProperty(misraProperty, dbSession);
-        dbSession.commit();
-      }
-    }
   }
 
   private void migrateScaPropertyIfRequired() {
