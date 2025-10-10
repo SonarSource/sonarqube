@@ -72,6 +72,7 @@ message SearchWsResponse {
     optional string lastAnalysisDate = 7;
     optional string revision = 8;
     optional bool managed = 9;
+    optional string projectUuid = 10;
   }
 }
 

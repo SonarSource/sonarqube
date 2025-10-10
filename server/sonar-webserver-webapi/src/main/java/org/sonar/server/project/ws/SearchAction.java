@@ -230,18 +230,33 @@ public class SearchAction implements ProjectsWsAction {
       .build();
 
     components.stream()
-      .map(dto -> dtoToProject(dto, snapshotsByComponentUuid.get(dto.uuid()), lastAnalysisDateByComponentUuid.get(projectUuidByComponentUuid.get(dto.uuid())),
-        PROJECT.equals(dto.qualifier()) ? componentUuidToManaged.get(dto.uuid()) : null))
+      .map(dto -> {
+        var projectUuid = projectUuidByComponentUuid.get(dto.uuid());
+        return dtoToProject(
+          dto,
+          snapshotsByComponentUuid.get(dto.uuid()),
+          lastAnalysisDateByComponentUuid.get(projectUuid),
+          PROJECT.equals(dto.qualifier()) ? componentUuidToManaged.get(dto.uuid()) : null,
+          projectUuid
+        );
+      })
       .forEach(responseBuilder::addComponents);
     return responseBuilder.build();
   }
 
-  private static Component dtoToProject(ComponentDto dto, @Nullable SnapshotDto snapshot, @Nullable Long lastAnalysisDate, @Nullable Boolean isManaged) {
-    Component.Builder builder = Component.newBuilder()
+  private static Component dtoToProject(
+    ComponentDto dto,
+    @Nullable SnapshotDto snapshot,
+    @Nullable Long lastAnalysisDate,
+    @Nullable Boolean isManaged,
+    @Nullable String projectUuid) {
+    var builder = Component.newBuilder()
       .setKey(dto.getKey())
       .setName(dto.name())
       .setQualifier(dto.qualifier())
       .setVisibility(dto.isPrivate() ? PRIVATE.getLabel() : PUBLIC.getLabel());
+
+    ofNullable(projectUuid).ifPresent(builder::setProjectUuid);
     ofNullable(snapshot).map(SnapshotDto::getRevision).ifPresent(builder::setRevision);
     ofNullable(lastAnalysisDate).ifPresent(d -> builder.setLastAnalysisDate(formatDateTime(d)));
     ofNullable(isManaged).ifPresent(builder::setManaged);
