@@ -182,9 +182,25 @@ public class ProjectFilePreprocessor {
         .ifPresentOrElse(
           processedFiles::add,
           // If the file is not processed, we don't need to save visibility data and can remove it
-          () -> hiddenFilesProjectData.getIsMarkedAsHiddenFileAndRemoveVisibilityInformation(file, module)),
+          () -> removeVisibilityInformationIfNotProcessed(module, file, type)),
         module, moduleConfiguration, moduleExclusionFilters, inputModuleHierarchy, type, hiddenFilesProjectData));
     return processedFiles;
+  }
+
+  private void removeVisibilityInformationIfNotProcessed(DefaultInputModule module, Path file, InputFile.Type type) {
+    boolean processedByMainSources = false;
+    // In case the file is classified as a test file, the file could have already been processed by the main sources visitation
+    // Before removing visibility data we'll verify if the file was processed or not
+    if (type == InputFile.Type.TEST) {
+      List<Path> processedSources = mainSourcesByModule.get(module);
+      if (processedSources != null) {
+        processedByMainSources = processedSources.contains(file);
+      }
+    }
+
+    if (!processedByMainSources) {
+      hiddenFilesProjectData.getIsMarkedAsHiddenFileAndRemoveVisibilityInformation(file, module);
+    }
   }
 
   public List<Path> getMainSourcesByModule(DefaultInputModule module) {

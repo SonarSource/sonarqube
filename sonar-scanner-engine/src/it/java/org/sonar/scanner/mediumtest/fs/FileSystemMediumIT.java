@@ -1498,7 +1498,6 @@ class FileSystemMediumIT {
     prepareHiddenFileProject();
     File projectDir = new File("test-resources/mediumtest/xoo/sample-with-hidden-files");
 
-
     AnalysisResult result = tester
       .addRules(new XooRulesDefinition())
       .addActiveRule("xoo", "OneIssuePerFile", null, "Issue Per File", "MAJOR", null, "xoo")
@@ -1531,6 +1530,32 @@ class FileSystemMediumIT {
       }
     }
     assertThat(result.inputFiles()).hasSize(5);
+  }
+
+  @Test
+  void shouldAnalyzeVisibilityCorrectlyWhenOverlappingSourceAndTestDirectories() throws IOException {
+    prepareHiddenFileProject();
+    File projectDir = new File("test-resources/mediumtest/xoo/sample-with-hidden-files");
+    AnalysisBuilder analysisBuilder = tester
+      .addRules(new XooRulesDefinition())
+      .addActiveRule("xoo", "OneIssuePerFile", null, "Issue Per File", "MAJOR", null, "xoo")
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
+      .property("sonar.exclusions", "**/*.ignore")
+      .property("sonar.tests", "xources")
+      .property("sonar.test.exclusions", "**/*.xoo,**/*.ignore")
+      .property("sonar.oneIssuePerFile.enableHiddenFileProcessing", "true");
+
+
+    AnalysisResult result = analysisBuilder.execute();
+
+    for (Map.Entry<String, Boolean> pathToHiddenStatus : hiddenFileProjectExpectedHiddenStatus().entrySet()) {
+      String filePath = pathToHiddenStatus.getKey();
+      boolean expectedIsHidden = pathToHiddenStatus.getValue();
+      assertHiddenFileScan(result, filePath, expectedIsHidden, true);
+      // we expect the sensor to process all files, regardless of visibility
+      assertFileIssue(result, filePath, true);
+    }
+    assertThat(result.inputFiles()).hasSize(10);
   }
 
   private File createModuleWithSubdirectory(String moduleName, String subDirName) {
