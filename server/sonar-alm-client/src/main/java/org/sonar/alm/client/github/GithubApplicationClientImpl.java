@@ -337,6 +337,9 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
         baseAppUrl = appUrl.substring(0, apiIndex);
       } else if (appUrl.startsWith("https://api.github.com")) {
         baseAppUrl = "https://github.com";
+      } else if (appUrl.startsWith("https://api.") && appUrl.contains(".ghe.com")) {
+        // For GHE instances with api.xx.ghe.com format, remove the "api." prefix
+        baseAppUrl = appUrl.replace("https://api.", "https://");
       } else {
         baseAppUrl = appUrl;
       }

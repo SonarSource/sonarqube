@@ -397,6 +397,9 @@ public class GithubApplicationClientImplTest {
       {"https://api.github.com", "https://github.com"},
       {"https://github.sonarsource.com/api/v3/", "https://github.sonarsource.com"},
       {"https://api.github.com/", "https://github.com"},
+      {"https://api.companyname.ghe.com", "https://companyname.ghe.com"},
+      {"https://api.my-company.ghe.com", "https://my-company.ghe.com"},
+      {"https://api.example-org.ghe.com", "https://example-org.ghe.com"},
     };
   }
 
