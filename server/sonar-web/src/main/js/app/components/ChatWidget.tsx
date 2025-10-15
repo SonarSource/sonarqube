@@ -36,7 +36,6 @@ const API_URL = '/_codescan/chatbot/query';
 const ChatWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [isMaximized, setIsMaximized] = useState(false); // Tracks if the widget is maximized
-  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const endRef = useRef<HTMLDivElement | null>(null);
@@ -59,18 +58,59 @@ const ChatWidget: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {
-    // add a welcome message on initial load
-    setMessages([
-      {
-        role: 'assistant',
-        content:
-          '**Welcome to CodeScan AI Assist!** Get instant solutions, explore CodeScan features, and access knowledge base articles & best practices. **👉 Type your question below to get started.**',
-      },
-    ]);
-  }, []);
+ // Persistent chat state (load previous messages if available)
+const [messages, setMessages] = useState<Message[]>(() => {
+  try {
+    const stored = sessionStorage.getItem('chatMessages');
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+});
+
+// On mount: if no stored messages, show welcome message
+useEffect(() => {
+  const stored = sessionStorage.getItem('chatMessages');
+  if (!stored) {
+    const welcomeMsg: Message = {
+      role: 'assistant',
+      content:
+        '**Welcome to CodeScan AI Assist!** Get instant solutions, explore CodeScan features, and access knowledge base articles & best practices.\n\n👉 **Type your question below to get started!**',
+    };
+    setMessages([welcomeMsg]);
+    sessionStorage.setItem('chatMessages', JSON.stringify([welcomeMsg]));
+  }
+}, []);
+
+// Persist messages whenever they change
+useEffect(() => {
+  try {
+    sessionStorage.setItem('chatMessages', JSON.stringify(messages));
+  } catch (error) {
+    console.error('Failed to save chat messages:', error);
+  }
+}, [messages]);
+
 
   const toggleMaximize = () => setIsMaximized((v) => !v); // Toggle maximized state
+
+  useEffect(() => {
+  const handlePopState = () => {
+    setIsMaximized(false); // When back is pressed, collapse the chat
+  };
+
+  if (isMaximized) {
+    // Push a fake history state when chat goes full screen
+    window.history.pushState({ chat: "maximized" }, "");
+    window.addEventListener("popstate", handlePopState);
+  }
+
+  return () => {
+    // Clean up the listener when component unmounts or chat collapses
+    window.removeEventListener("popstate", handlePopState);
+  };
+}, [isMaximized]);
+
 
   const sendMessage = async () => {
     const text = input.trim();
