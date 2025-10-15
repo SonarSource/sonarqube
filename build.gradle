@@ -232,6 +232,12 @@ subprojects {
     apply plugin: 'java-test-fixtures'
   }
 
+  java {
+    toolchain {
+      languageVersion = JavaLanguageVersion.of(17)
+    }
+  }
+
   ext {
     protobufVersion = '4.32.0'
     springSecurityVersion = '6.5.3'
