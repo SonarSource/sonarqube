@@ -1,13 +1,14 @@
 #!/bin/bash
 
-ADDITIONAL_PARAMS="-Dsonar.host.url=https://next.sonarqube.com/sonarqube \
+ADDITIONAL_PARAMS="-Dsonar.host.url=$SONARQUBE_URL \
   -Dsonar.projectKey=org.sonarsource.sonarqube:sonarqube-private \
   -Dsonar.projectName=sonar-enterprise \
-  -Dsonar.token=$SONARQUBE_NEXT_TOKEN \
+  -Dsonar.token=$SONARQUBE_TOKEN \
   -Dsonar.analysis.buildNumber=$BUILD_NUMBER \
   -Dsonar.analysis.pipeline=$GITHUB_RUN_ID \
   -Dsonar.analysis.repository=$GITHUB_REPOSITORY \
   -Dsonar.analysis.sha1=$GITHUB_SHA \
+  -Dsonar.organization=sonarsource \
   -Dsonar.sca.exclusions=.github/**,**/src/test/**,**/src/bbt/**,private/it-**/**,sonar-ws-generator/**,sonar-testing-ldap/**,sonar-testing-harness/**,sonar-scanner-engine/test-resources/** \
   "
 
