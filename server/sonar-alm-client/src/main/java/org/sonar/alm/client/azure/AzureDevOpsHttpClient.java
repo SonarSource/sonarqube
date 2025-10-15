@@ -26,9 +26,10 @@ import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.function.Function;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -42,10 +43,6 @@ import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.api.server.ServerSide;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
-import static java.util.stream.Collectors.joining;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.substringBeforeLast;
-
 @ServerSide
 public class AzureDevOpsHttpClient {
 
@@ -55,6 +52,21 @@ public class AzureDevOpsHttpClient {
 
   protected static final String GET = "GET";
   protected static final String UNABLE_TO_CONTACT_AZURE_SERVER = "Unable to contact Azure DevOps server";
+  protected static final String INVALID_SERVER_URL = "Invalid Azure DevOps server URL";
+  protected static final String MISSING_RESPONSE_BODY = "Response body is null";
+
+  // API version values
+  protected static final String API_VERSION_3_VALUE = "3.0";
+  protected static final String API_VERSION_3_PREVIEW_VALUE = "3.0-preview";
+
+  // Path segments
+  protected static final String PATH_APIS = "_apis";
+  protected static final String PATH_GIT = "git";
+  protected static final String PATH_REPOSITORIES = "repositories";
+  protected static final String PATH_PROJECTS = "projects";
+
+  // Query parameter names
+  protected static final String PARAM_API_VERSION = "api-version";
 
   protected final OkHttpClient client;
 
@@ -67,36 +79,68 @@ public class AzureDevOpsHttpClient {
   }
 
   public void checkPAT(String serverUrl, String token) {
-    String url = String.format("%s/_apis/projects?%s", getTrimmedUrl(serverUrl), API_VERSION_3);
+    HttpUrl url = Objects.requireNonNull(HttpUrl.parse(serverUrl), INVALID_SERVER_URL)
+      .newBuilder()
+      .addPathSegment(PATH_APIS)
+      .addPathSegment(PATH_PROJECTS)
+      .addQueryParameter(PARAM_API_VERSION, API_VERSION_3_VALUE)
+      .build();
     doGet(token, url);
   }
 
   public GsonAzureProjectList getProjects(String serverUrl, String token) {
-    String url = String.format("%s/_apis/projects?%s", getTrimmedUrl(serverUrl), API_VERSION_3);
-    return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), GsonAzureProjectList.class));
+    HttpUrl url = Objects.requireNonNull(HttpUrl.parse(serverUrl), INVALID_SERVER_URL)
+      .newBuilder()
+      .addPathSegment(PATH_APIS)
+      .addPathSegment(PATH_PROJECTS)
+      .addQueryParameter(PARAM_API_VERSION, API_VERSION_3_VALUE)
+      .build();
+    return doGet(token, url, r -> buildGson().fromJson(Objects.requireNonNull(r.body(), MISSING_RESPONSE_BODY).charStream(), GsonAzureProjectList.class));
   }
 
   public GsonAzureProject getProject(String serverUrl, String token, String projectName) {
-    String url = String.format("%s/_apis/projects/%s?%s", getTrimmedUrl(serverUrl), projectName, API_VERSION_3);
-    return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), GsonAzureProject.class));
-
+    HttpUrl url = Objects.requireNonNull(HttpUrl.parse(serverUrl), INVALID_SERVER_URL)
+      .newBuilder()
+      .addPathSegment(PATH_APIS)
+      .addPathSegment(PATH_PROJECTS)
+      .addPathSegment(projectName)
+      .addQueryParameter(PARAM_API_VERSION, API_VERSION_3_VALUE)
+      .build();
+    return doGet(token, url, r -> buildGson().fromJson(Objects.requireNonNull(r.body(), MISSING_RESPONSE_BODY).charStream(), GsonAzureProject.class));
   }
 
   public GsonAzureRepoList getRepos(String serverUrl, String token, @Nullable String projectName) {
-    String url = Stream.of(getTrimmedUrl(serverUrl), projectName, "_apis/git/repositories?" + API_VERSION_3)
-      .filter(StringUtils::isNotBlank)
-      .collect(joining("/"));
-    return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), GsonAzureRepoList.class));
+    HttpUrl.Builder urlBuilder = Objects.requireNonNull(HttpUrl.parse(serverUrl), INVALID_SERVER_URL).newBuilder();
+    
+    if (StringUtils.isNotBlank(projectName)) {
+      urlBuilder.addPathSegment(projectName);
+    }
+    
+    HttpUrl url = urlBuilder
+      .addPathSegment(PATH_APIS)
+      .addPathSegment(PATH_GIT)
+      .addPathSegment(PATH_REPOSITORIES)
+      .addQueryParameter(PARAM_API_VERSION, API_VERSION_3_VALUE)
+      .build();
+    
+    return doGet(token, url, r -> buildGson().fromJson(Objects.requireNonNull(r.body(), MISSING_RESPONSE_BODY).charStream(), GsonAzureRepoList.class));
   }
 
   public GsonAzureRepo getRepo(String serverUrl, String token, String projectName, String repositoryName) {
-    String url = Stream.of(getTrimmedUrl(serverUrl), projectName, "_apis/git/repositories", repositoryName + "?" + API_VERSION_3)
-      .filter(StringUtils::isNotBlank)
-      .collect(joining("/"));
-    return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), GsonAzureRepo.class));
+    HttpUrl url = Objects.requireNonNull(HttpUrl.parse(serverUrl), INVALID_SERVER_URL)
+      .newBuilder()
+      .addPathSegment(projectName)
+      .addPathSegment(PATH_APIS)
+      .addPathSegment(PATH_GIT)
+      .addPathSegment(PATH_REPOSITORIES)
+      .addPathSegment(repositoryName)
+      .addQueryParameter(PARAM_API_VERSION, API_VERSION_3_VALUE)
+      .build();
+    
+    return doGet(token, url, r -> buildGson().fromJson(Objects.requireNonNull(r.body(), MISSING_RESPONSE_BODY).charStream(), GsonAzureRepo.class));
   }
 
-  private void doGet(String token, String url) {
+  private void doGet(String token, HttpUrl url) {
     Request request = prepareRequestWithToken(token, GET, url, null);
     doCall(request);
   }
@@ -105,12 +149,13 @@ public class AzureDevOpsHttpClient {
     try (Response response = client.newCall(request).execute()) {
       checkResponseIsSuccessful(response);
     } catch (IOException e) {
-      LOG.error(String.format(UNABLE_TO_CONTACT_AZURE_SERVER + " for request [%s]: [%s]", request.url(), e.getMessage()));
-      throw new IllegalArgumentException(UNABLE_TO_CONTACT_AZURE_SERVER, e);
+      throw new IllegalArgumentException(
+        String.format("%s for request [%s]: [%s]", UNABLE_TO_CONTACT_AZURE_SERVER, request.url(), e.getMessage()),
+        e);
     }
   }
 
-  protected <G> G doGet(String token, String url, Function<Response, G> handler) {
+  protected <G> G doGet(String token, HttpUrl url, Function<Response, G> handler) {
     Request request = prepareRequestWithToken(token, GET, url, null);
     return doCall(request, handler);
   }
@@ -120,17 +165,17 @@ public class AzureDevOpsHttpClient {
       checkResponseIsSuccessful(response);
       return handler.apply(response);
     } catch (JsonSyntaxException e) {
-      LOG.error(String.format("Response from Azure for request [%s] could not be parsed: [%s]",
-        request.url(),
-        e.getMessage()));
-      throw new IllegalArgumentException(UNABLE_TO_CONTACT_AZURE_SERVER + ", got an unexpected response", e);
+      throw new IllegalArgumentException(
+        String.format("Response from Azure for request [%s] could not be parsed: [%s]", request.url(), e.getMessage()),
+        e);
     } catch (IOException e) {
-      LOG.error(String.format(UNABLE_TO_CONTACT_AZURE_SERVER + " for request [%s]: [%s]", request.url(), e.getMessage()));
-      throw new IllegalArgumentException(UNABLE_TO_CONTACT_AZURE_SERVER, e);
+      throw new IllegalArgumentException(
+        String.format("%s for request [%s]: [%s]", UNABLE_TO_CONTACT_AZURE_SERVER, request.url(), e.getMessage()),
+        e);
     }
   }
 
-  protected static Request prepareRequestWithToken(String token, String method, String url, @Nullable RequestBody body) {
+  protected static Request prepareRequestWithToken(String token, String method, HttpUrl url, @Nullable RequestBody body) {
     return new Request.Builder()
       .method(method, body)
       .url(url)
@@ -152,13 +197,13 @@ public class AzureDevOpsHttpClient {
 
       ResponseBody responseBody = response.body();
       String body = responseBody == null ? "" : responseBody.string();
-      String errorMessage = generateErrorMessage(body, UNABLE_TO_CONTACT_AZURE_SERVER);
+      String errorMessage = generateErrorMessage(body);
       LOG.error("Azure API call to [{}] failed with {} http code. Azure response content : [{}]", response.request().url(), response.code(), body);
       throw new AzureDevopsServerException(response.code(), errorMessage);
     }
   }
 
-  protected static String generateErrorMessage(String body, String defaultMessage) {
+  protected static String generateErrorMessage(String body) {
     GsonAzureError gsonAzureError = null;
     try {
       gsonAzureError = buildGson().fromJson(body, GsonAzureError.class);
@@ -166,21 +211,12 @@ public class AzureDevOpsHttpClient {
       // not a json payload, ignore the error
     }
     if (gsonAzureError != null && !Strings.isNullOrEmpty(gsonAzureError.message())) {
-      return defaultMessage + " : " + gsonAzureError.message();
+      return AzureDevOpsHttpClient.UNABLE_TO_CONTACT_AZURE_SERVER + " : " + gsonAzureError.message();
     } else {
-      return defaultMessage;
+      return AzureDevOpsHttpClient.UNABLE_TO_CONTACT_AZURE_SERVER;
     }
   }
 
-  protected static String getTrimmedUrl(String rawUrl) {
-    if (isBlank(rawUrl)) {
-      return rawUrl;
-    }
-    if (rawUrl.endsWith("/")) {
-      return substringBeforeLast(rawUrl, "/");
-    }
-    return rawUrl;
-  }
 
   protected static String encodeToken(String token) {
     return String.format("BASIC %s", Base64.encodeBase64String(token.getBytes(StandardCharsets.UTF_8)));
