@@ -17,13 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.jira;
+package org.sonar.db.jira.dao;
 
 import java.util.Optional;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.jira.dto.JiraProjectBindingDto;
+import org.sonar.db.jira.JiraProjectBindingMapper;
 
 public class JiraProjectBindingDao implements Dao {
 

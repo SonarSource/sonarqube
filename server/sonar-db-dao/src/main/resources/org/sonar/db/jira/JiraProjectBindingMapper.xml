@@ -12,7 +12,7 @@
     jpb.updated_at as updatedAt
   </sql>
 
-  <select id="selectById" parameterType="string" resultType="org.sonar.db.jira.JiraProjectBindingDto">
+  <select id="selectById" parameterType="string" resultType="org.sonar.db.jira.dto.JiraProjectBindingDto">
     select <include refid="sqlColumns"/>
     from
       jira_project_bindings jpb
@@ -20,7 +20,7 @@
       jpb.id = #{id, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectBySonarProjectId" parameterType="string" resultType="org.sonar.db.jira.JiraProjectBindingDto">
+  <select id="selectBySonarProjectId" parameterType="string" resultType="org.sonar.db.jira.dto.JiraProjectBindingDto">
     select <include refid="sqlColumns"/>
     from
       jira_project_bindings jpb

@@ -17,25 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.jira;
+@ParametersAreNonnullByDefault
+package org.sonar.db.jira.dto;
 
-import javax.annotation.CheckForNull;
-import org.apache.ibatis.annotations.Param;
-import org.sonar.db.jira.dto.JiraProjectBindingDto;
-
-public interface JiraProjectBindingMapper {
-
-  @CheckForNull
-  JiraProjectBindingDto selectById(@Param("id") String id);
-
-  @CheckForNull
-  JiraProjectBindingDto selectBySonarProjectId(@Param("sonarProjectId") String sonarProjectId);
-
-  void insert(@Param("dto") JiraProjectBindingDto dto, @Param("id") String id, @Param("now") long now);
-
-  int update(@Param("dto") JiraProjectBindingDto dto, @Param("now") long now);
-
-  int deleteBySonarProjectId(@Param("sonarProjectId") String sonarProjectId);
-
-  int countAll();
-}
+import javax.annotation.ParametersAreNonnullByDefault;

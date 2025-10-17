@@ -33,6 +33,7 @@ public class DbVersion202505 implements DbVersion {
       .add(2025_05_001, "Add 'from_sonarqube_update' column to 'issues' table", AddFromSonarQubeUpdateColumnToIssuesTable.class)
       .add(2025_05_002, "Add 'internal_tags' column to 'issues' table", AddInternalTagsToIssuesTable.class)
       .add(2025_05_003, "Create 'jira_project_bindings' table", CreateJiraProjectBindingsTable.class)
+      .add(2025_05_004, "Create 'atlassian_auth_details' table", CreateAtlassianAuthenticationDetailsTable.class)
     ;
   }
 }

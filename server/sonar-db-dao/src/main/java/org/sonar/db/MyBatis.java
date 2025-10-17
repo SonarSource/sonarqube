@@ -79,6 +79,7 @@ import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueFixedMapper;
 import org.sonar.db.issue.IssueMapper;
+import org.sonar.db.jira.AtlassianAuthenticationDetailsMapper;
 import org.sonar.db.jira.JiraProjectBindingMapper;
 import org.sonar.db.issue.NewCodeReferenceIssueDto;
 import org.sonar.db.issue.PrIssueDto;
@@ -305,6 +306,7 @@ public class MyBatis {
       IssueMapper.class,
       IssueFixedMapper.class,
       JiraProjectBindingMapper.class,
+      AtlassianAuthenticationDetailsMapper.class,
       MeasureMapper.class,
       ProjectMeasureMapper.class,
       MetricMapper.class,

@@ -21,21 +21,14 @@ package org.sonar.db.jira;
 
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
-import org.sonar.db.jira.dto.JiraProjectBindingDto;
+import org.sonar.db.jira.dto.AtlassianAuthenticationDetailsDto;
 
-public interface JiraProjectBindingMapper {
-
-  @CheckForNull
-  JiraProjectBindingDto selectById(@Param("id") String id);
+public interface AtlassianAuthenticationDetailsMapper {
 
   @CheckForNull
-  JiraProjectBindingDto selectBySonarProjectId(@Param("sonarProjectId") String sonarProjectId);
+  AtlassianAuthenticationDetailsDto selectFirst();
 
-  void insert(@Param("dto") JiraProjectBindingDto dto, @Param("id") String id, @Param("now") long now);
+  void insert(@Param("dto") AtlassianAuthenticationDetailsDto dto, @Param("now") long now);
 
-  int update(@Param("dto") JiraProjectBindingDto dto, @Param("now") long now);
-
-  int deleteBySonarProjectId(@Param("sonarProjectId") String sonarProjectId);
-
-  int countAll();
+  int update(@Param("dto") AtlassianAuthenticationDetailsDto dto, @Param("now") long now);
 }

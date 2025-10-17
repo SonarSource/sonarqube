@@ -24,6 +24,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbTester;
+import org.sonar.db.jira.dao.JiraProjectBindingDao;
+import org.sonar.db.jira.dto.JiraProjectBindingDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
