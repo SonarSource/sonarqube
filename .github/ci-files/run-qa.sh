@@ -1,6 +1,7 @@
 #!/bin/bash
 
-ORCHESTRATOR_CONFIG=$1
+# Convert first argument to lowercase (e.g., Postgres -> postgres)
+ORCHESTRATOR_CONFIG=${1,,}
 
 BUILD_TASK=":private:it-core:testClasses"
 TEST_TASK=":private:it-core:integrationTest"

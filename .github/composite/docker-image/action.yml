@@ -1,8 +1,8 @@
-name: 'Database Setup'
-description: 'Setup a database from a cached docker image'
+name: 'Service Container Setup'
+description: 'Setup a service container from a cached docker image'
 inputs:
   vendor:
-    description: 'The database vendor (e.g., postgres, mysql)'
+    description: 'The service vendor (e.g., keycloak, gitlab)'
     required: true
   tag:
     description: 'Tag for the Docker image (optional)'
@@ -29,15 +29,6 @@ runs:
       id: set-image
       run: |
         case "${{ inputs.vendor }}" in
-          "postgres")
-            IMAGE="postgres:${{ inputs.tag || '17' }}"
-            ;;
-          "oracle")
-            IMAGE="gvenzl/oracle-free:${{ inputs.tag || '23-faststart' }}"
-            ;;
-          "mssql")
-            IMAGE="mcr.microsoft.com/mssql/server:${{ inputs.tag || '2022-latest' }}"
-            ;;
           "keycloak")
             IMAGE="quay.io/keycloak/keycloak:26.0.7"
             ;;
@@ -90,50 +81,6 @@ runs:
           --health-timeout=5s \
           --health-retries=5  quay.io/keycloak/keycloak:26.0.7 start-dev --http-relative-path /auth
 
-    - name: Start Postgres Container
-      if: ${{ inputs.vendor == 'postgres' }}
-      shell: bash
-      run: |
-        docker run -d --name postgres \
-          -p 5432:5432 \
-          -e POSTGRES_USER=postgres \
-          -e POSTGRES_PASSWORD=postgres \
-          --health-cmd="pg_isready -U postgres" \
-          --health-interval=10s \
-          --health-timeout=5s \
-          --health-retries=5 \
-          postgres:${{ inputs.tag || '17' }}
-
-    - name: Start Oracle Container
-      if: ${{ inputs.vendor == 'oracle' }}
-      shell: bash
-      run: |
-        docker run -d --name oracle \
-          -p 1521:1521 \
-          -e ORACLE_PASSWORD=sonarqube \
-          -e APP_USER=sonarqube \
-          -e APP_USER_PASSWORD=sonarqube \
-          --health-cmd="echo 'SELECT status FROM v\$instance;' | sqlplus -s / as sysdba | grep 'OPEN' || exit 1" \
-          --health-interval=10s \
-          --health-timeout=5s \
-          --health-retries=10 \
-          gvenzl/oracle-free:${{ inputs.tag || '23-faststart' }}
-
-    - name: Start MS SQL Server Container
-      if: ${{ inputs.vendor == 'mssql' }}
-      shell: bash
-      run: |
-        docker run -d --name mssql \
-          -p 1433:1433 \
-          -e MSSQL_PID=Developer \
-          -e ACCEPT_EULA=Y \
-          -e SA_PASSWORD=sonarqube@1 \
-          --health-cmd="/opt/mssql-tools18/bin/sqlcmd -U sa -P 'sonarqube@1' -C -Q 'SELECT 1' || exit 1" \
-          --health-interval=10s \
-          --health-timeout=5s \
-          --health-retries=10 \
-          mcr.microsoft.com/mssql/server:${{ inputs.tag || '2022-latest' }}
-
     - name: Start Gitlab Container
       if: ${{ inputs.vendor == 'gitlab' }}
       shell: bash
@@ -151,7 +98,7 @@ runs:
         --health-retries=100 \
         gitlab/gitlab-ce:${{ inputs.tag || 'latest' }}
 
-    - name: Wait for database to be healthy
+    - name: Wait for container to be healthy
       shell: bash
       run: |
         timeout 500s bash -c 'until docker ps --filter "name=${{ inputs.vendor }}" --filter "health=healthy" | grep -q healthy; do sleep 5; done'

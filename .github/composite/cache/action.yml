@@ -7,10 +7,26 @@ inputs:
   BUILD_NUMBER:
     description: 'The build number to append to the cache key'
     required: true
+  JAVA_VERSION:
+    description: 'The version of Java to use for mise setup'
+    required: false
+    default: '17'
 
 runs:
   using: "composite"
   steps:
+    - name: Configure Mise
+      if: contains(inputs.NAME, 'mise')
+      uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2.4.4
+      with:
+        version: 2025.7.12
+        mise_toml: |
+          [tools]
+          yarn= "3.6.3"
+          node = "18"
+          maven = "3.9"
+          java = "temurin-${{ inputs.JAVA_VERSION }}"
+        mise_dir: ~/.mise
     - name: Artifacts Cache
       id: artifacts-cache
       if: contains(inputs.NAME, 'artifact')
@@ -99,7 +115,7 @@ runs:
         mkdir -p ${GRADLE_USER_HOME}
         echo "GRADLE_USER_HOME=${GRADLE_USER_HOME}" >> $GITHUB_ENV
         export LC_ALL=en_US.UTF-8
-        find -type f \( -name "*.gradle*" -or -name "gradle*.properties" \) | sort | xargs md5sum > gradle-md5-sums.txt 
+        find -type f \( -name "*.gradle*" -or -name "gradle*.properties" \) | sort | xargs md5sum > gradle-md5-sums.txt
         echo "Files and their md5sums:"
         cat gradle-md5-sums.txt
         export GRADLE_CACHE_KEY=$(md5sum gradle-md5-sums.txt | awk '{ print $1 }')
