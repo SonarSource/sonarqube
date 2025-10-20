@@ -111,8 +111,13 @@ sq_analysis_task:
     cpu: 7.5
     memory: 15Gb
   env:
-    SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
-    SONAR_TOKEN: ENCRYPTED[!b6fd814826c51e64ee61b0b6f3ae621551f6413383f7170f73580e2e141ac78c4b134b506f6288c74faa0dd564c05a29!]
+    matrix:
+      - SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
+        SONAR_TOKEN: ENCRYPTED[!b6fd814826c51e64ee61b0b6f3ae621551f6413383f7170f73580e2e141ac78c4b134b506f6288c74faa0dd564c05a29!]
+      - SONAR_HOST_URL: https://sonarcloud.io
+        SONAR_TOKEN: ENCRYPTED[!8d6906246b625d473c5a0f6319a6a980d75cb9fbbfcd8adbe59b32090be989b15376b739429644855f4ebc37b89cac79!]
+      - SONAR_HOST_URL: https://sonarqube.us
+        SONAR_TOKEN: ENCRYPTED[!6d37d449ff8c776f11e9cf956eb0674aa21860bd898cda6fdb83263c6462203c50e50ee26cff8f5b66510c8120fe54b8!]
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *BUILD_CACHE_TEMPLATE
   <<: *JUNIT_REPORT_CACHE_TEMPLATE
