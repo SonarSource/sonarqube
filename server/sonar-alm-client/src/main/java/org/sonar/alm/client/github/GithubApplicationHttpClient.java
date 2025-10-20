@@ -19,6 +19,7 @@
  */
 package org.sonar.alm.client.github;
 
+import okhttp3.OkHttpClient;
 import org.sonar.alm.client.GenericApplicationHttpClient;
 import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.api.ce.ComputeEngineSide;
@@ -27,7 +28,7 @@ import org.sonar.api.server.ServerSide;
 @ServerSide
 @ComputeEngineSide
 public class GithubApplicationHttpClient extends GenericApplicationHttpClient {
-  public GithubApplicationHttpClient(GithubHeaders githubHeaders, TimeoutConfiguration timeoutConfiguration) {
-    super(githubHeaders, timeoutConfiguration);
+  public GithubApplicationHttpClient(GithubHeaders githubHeaders, TimeoutConfiguration timeoutConfiguration, OkHttpClient okHttpClient) {
+    super(githubHeaders, timeoutConfiguration, okHttpClient);
   }
 }

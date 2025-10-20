@@ -17,18 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.alm.client.gitlab;
+package org.sonar.alm.client.github;
 
 import okhttp3.OkHttpClient;
+import org.junit.Test;
+import org.sonar.alm.client.ConstantTimeoutConfiguration;
 import org.sonar.alm.client.TimeoutConfiguration;
-import org.sonar.alm.client.GenericApplicationHttpClient;
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.server.ServerSide;
 
-@ServerSide
-@ComputeEngineSide
-public class GitlabApplicationHttpClient extends GenericApplicationHttpClient {
-  public GitlabApplicationHttpClient(GitlabHeaders gitlabHeaders, TimeoutConfiguration timeoutConfiguration, OkHttpClient okHttpClient) {
-    super(gitlabHeaders, timeoutConfiguration, okHttpClient);
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class GithubApplicationHttpClientTest {
+
+  @Test
+  public void constructor_should_initialize_with_okhttpclient() {
+    GithubHeaders githubHeaders = new GithubHeaders();
+    TimeoutConfiguration timeoutConfiguration = new ConstantTimeoutConfiguration(5000);
+    OkHttpClient okHttpClient = new OkHttpClient();
+
+    GithubApplicationHttpClient client = new GithubApplicationHttpClient(githubHeaders, timeoutConfiguration, okHttpClient);
+
+    assertThat(client).isNotNull();
   }
 }

@@ -38,7 +38,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.auth.github.security.AccessToken;
-import org.sonarqube.ws.client.OkHttpClientBuilder;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.net.HttpURLConnection.HTTP_ACCEPTED;
@@ -57,12 +56,15 @@ public abstract class GenericApplicationHttpClient implements ApplicationHttpCli
   private final DevopsPlatformHeaders devopsPlatformHeaders;
   private final OkHttpClient client;
 
-  protected GenericApplicationHttpClient(DevopsPlatformHeaders devopsPlatformHeaders, TimeoutConfiguration timeoutConfiguration) {
+  protected GenericApplicationHttpClient(DevopsPlatformHeaders devopsPlatformHeaders, TimeoutConfiguration timeoutConfiguration, OkHttpClient okHttpClient) {
     this.devopsPlatformHeaders = devopsPlatformHeaders;
-    client = new OkHttpClientBuilder()
-      .setConnectTimeoutMs(timeoutConfiguration.getConnectTimeout())
-      .setReadTimeoutMs(timeoutConfiguration.getReadTimeout())
-      .setFollowRedirects(false)
+    
+    // Use the injected OkHttpClient with configured proxy settings,
+    // but customize timeouts and redirect behavior for this client
+    client = okHttpClient.newBuilder()
+      .connectTimeout(timeoutConfiguration.getConnectTimeout(), java.util.concurrent.TimeUnit.MILLISECONDS)
+      .readTimeout(timeoutConfiguration.getReadTimeout(), java.util.concurrent.TimeUnit.MILLISECONDS)
+      .followRedirects(false)
       .build();
   }
 

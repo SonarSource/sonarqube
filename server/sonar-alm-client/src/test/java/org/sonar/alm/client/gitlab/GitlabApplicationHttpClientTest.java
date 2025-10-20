@@ -20,15 +20,22 @@
 package org.sonar.alm.client.gitlab;
 
 import okhttp3.OkHttpClient;
+import org.junit.Test;
+import org.sonar.alm.client.ConstantTimeoutConfiguration;
 import org.sonar.alm.client.TimeoutConfiguration;
-import org.sonar.alm.client.GenericApplicationHttpClient;
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.server.ServerSide;
 
-@ServerSide
-@ComputeEngineSide
-public class GitlabApplicationHttpClient extends GenericApplicationHttpClient {
-  public GitlabApplicationHttpClient(GitlabHeaders gitlabHeaders, TimeoutConfiguration timeoutConfiguration, OkHttpClient okHttpClient) {
-    super(gitlabHeaders, timeoutConfiguration, okHttpClient);
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class GitlabApplicationHttpClientTest {
+
+  @Test
+  public void constructor_should_initialize_with_okhttpclient() {
+    GitlabHeaders gitlabHeaders = new GitlabHeaders();
+    TimeoutConfiguration timeoutConfiguration = new ConstantTimeoutConfiguration(5000);
+    OkHttpClient okHttpClient = new OkHttpClient();
+
+    GitlabApplicationHttpClient client = new GitlabApplicationHttpClient(gitlabHeaders, timeoutConfiguration, okHttpClient);
+
+    assertThat(client).isNotNull();
   }
 }
