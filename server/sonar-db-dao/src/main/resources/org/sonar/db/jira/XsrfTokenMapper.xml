@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.jira.XsrfTokenMapper">
+
+  <select id="selectByIdAndUserUuid" parameterType="map" resultType="org.sonar.db.jira.dto.XsrfTokenDto">
+    SELECT
+      x.id as id,
+      x.user_uuid as userUuid,
+      x.created_at as createdAt,
+      x.updated_at as updatedAt
+    FROM xsrf_tokens x
+    WHERE x.id = #{id, jdbcType=VARCHAR}
+      AND x.user_uuid = #{userUuid, jdbcType=VARCHAR}
+  </select>
+
+  <insert id="insert" parameterType="Map" useGeneratedKeys="false">
+    INSERT INTO xsrf_tokens
+    (
+      id,
+      user_uuid,
+      created_at,
+      updated_at
+    )
+    VALUES (
+      #{dto.id, jdbcType=VARCHAR},
+      #{dto.userUuid, jdbcType=VARCHAR},
+      #{dto.createdAt, jdbcType=BIGINT},
+      #{dto.updatedAt, jdbcType=BIGINT}
+    )
+  </insert>
+
+  <delete id="deleteByUserUuid" parameterType="String">
+    DELETE FROM xsrf_tokens where user_uuid = #{userUuid, jdbcType=VARCHAR}
+  </delete>
+
+</mapper>
+

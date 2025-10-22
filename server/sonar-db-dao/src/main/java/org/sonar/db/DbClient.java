@@ -49,6 +49,7 @@ import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueFixedDao;
 import org.sonar.db.jira.dao.AtlassianAuthenticationDetailsDao;
 import org.sonar.db.jira.dao.JiraProjectBindingDao;
+import org.sonar.db.jira.dao.XsrfTokenDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.ProjectMeasureDao;
 import org.sonar.db.metric.MetricDao;
@@ -146,6 +147,7 @@ public class DbClient {
   private final IssueChangeDao issueChangeDao;
   private final JiraProjectBindingDao jiraProjectBindingDao;
   private final AtlassianAuthenticationDetailsDao atlassianAuthenticationDetailsDao;
+  private final XsrfTokenDao xsrfTokenDao;
   private final CeActivityDao ceActivityDao;
   private final CeQueueDao ceQueueDao;
   private final CeTaskInputDao ceTaskInputDao;
@@ -242,6 +244,7 @@ public class DbClient {
     issueChangeDao = getDao(map, IssueChangeDao.class);
     jiraProjectBindingDao = getDao(map, JiraProjectBindingDao.class);
     atlassianAuthenticationDetailsDao = getDao(map, AtlassianAuthenticationDetailsDao.class);
+    xsrfTokenDao = getDao(map, XsrfTokenDao.class);
     ceActivityDao = getDao(map, CeActivityDao.class);
     ceQueueDao = getDao(map, CeQueueDao.class);
     ceTaskInputDao = getDao(map, CeTaskInputDao.class);
@@ -362,6 +365,10 @@ public class DbClient {
 
   public AtlassianAuthenticationDetailsDao atlassianAuthenticationDetailsDao() {
     return atlassianAuthenticationDetailsDao;
+  }
+
+  public XsrfTokenDao xsrfTokenDao() {
+    return xsrfTokenDao;
   }
 
   public TelemetryMetricsSentDao telemetryMetricsSentDao() {

@@ -49,6 +49,7 @@ import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueFixedDao;
 import org.sonar.db.jira.dao.AtlassianAuthenticationDetailsDao;
 import org.sonar.db.jira.dao.JiraProjectBindingDao;
+import org.sonar.db.jira.dao.XsrfTokenDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.ProjectMeasureDao;
 import org.sonar.db.metric.MetricDao;
@@ -202,7 +203,8 @@ public class DaoModule extends Module {
     UserPermissionDao.class,
     UserTokenDao.class,
     WebhookDao.class,
-    WebhookDeliveryDao.class);
+    WebhookDeliveryDao.class,
+    XsrfTokenDao.class);
 
   @Override
   protected void configureModule() {
