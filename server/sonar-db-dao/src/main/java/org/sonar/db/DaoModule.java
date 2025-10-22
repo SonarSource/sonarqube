@@ -48,6 +48,7 @@ import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueFixedDao;
 import org.sonar.db.jira.dao.AtlassianAuthenticationDetailsDao;
+import org.sonar.db.jira.dao.JiraOrganizationBindingDao;
 import org.sonar.db.jira.dao.JiraProjectBindingDao;
 import org.sonar.db.jira.dao.XsrfTokenDao;
 import org.sonar.db.measure.MeasureDao;
@@ -153,6 +154,7 @@ public class DaoModule extends Module {
     IssueDao.class,
     IssueFixedDao.class,
     JiraProjectBindingDao.class,
+    JiraOrganizationBindingDao.class,
     AtlassianAuthenticationDetailsDao.class,
     MeasureDao.class,
     ProjectMeasureDao.class,

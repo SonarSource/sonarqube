@@ -35,6 +35,7 @@ public class DbVersion202505 implements DbVersion {
       .add(2025_05_003, "Create 'jira_project_bindings' table", CreateJiraProjectBindingsTable.class)
       .add(2025_05_004, "Create 'atlassian_auth_details' table", CreateAtlassianAuthenticationDetailsTable.class)
       .add(2025_05_005, "Create 'xsrf_tokens' table", CreateXsrfTokensTable.class)
+      .add(2025_05_006, "Create 'jira_org_bindings' table", CreateJiraOrganizationBindingsTable.class)
     ;
   }
 }
