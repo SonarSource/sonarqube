@@ -26,6 +26,7 @@ import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static java.sql.Types.BIGINT;
+import static java.sql.Types.CLOB;
 import static java.sql.Types.VARCHAR;
 import static org.sonar.db.MigrationDbTester.createForMigrationStep;
 
@@ -48,9 +49,9 @@ class CreateJiraOrganizationBindingsTableIT {
     db.assertColumnDefinition(TABLE_NAME, "sonar_organization_uuid", VARCHAR, 40, false);
     db.assertColumnDefinition(TABLE_NAME, "jira_instance_url", VARCHAR, 2048, true);
     db.assertColumnDefinition(TABLE_NAME, "jira_cloud_id", VARCHAR, 100, true);
-    db.assertColumnDefinition(TABLE_NAME, "jira_access_token", VARCHAR, 4096, true);
+    db.assertColumnDefinition(TABLE_NAME, "jira_access_token", CLOB, null, true);
     db.assertColumnDefinition(TABLE_NAME, "jira_access_token_expires_at", BIGINT, null, true);
-    db.assertColumnDefinition(TABLE_NAME, "jira_refresh_token", VARCHAR, 4096, true);
+    db.assertColumnDefinition(TABLE_NAME, "jira_refresh_token", CLOB, null, true);
     db.assertColumnDefinition(TABLE_NAME, "jira_refresh_token_created_at", BIGINT, null, true);
     db.assertColumnDefinition(TABLE_NAME, "jira_refresh_token_updated_at", BIGINT, null, true);
     db.assertColumnDefinition(TABLE_NAME, "updated_by", VARCHAR, 40, true);

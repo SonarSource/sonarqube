@@ -25,6 +25,7 @@ import org.sonar.server.platform.db.migration.sql.CreateTableBuilder;
 import org.sonar.server.platform.db.migration.step.CreateTableChange;
 
 import static org.sonar.server.platform.db.migration.def.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.ClobColumnDef.newClobColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class CreateJiraOrganizationBindingsTable extends CreateTableChange {
@@ -58,9 +59,9 @@ public class CreateJiraOrganizationBindingsTable extends CreateTableChange {
       .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_SONAR_ORGANIZATION_UUID).setIsNullable(false).setLimit(40).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_JIRA_INSTANCE_URL).setIsNullable(true).setLimit(2048).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_JIRA_CLOUD_ID).setIsNullable(true).setLimit(100).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_JIRA_ACCESS_TOKEN).setIsNullable(true).setLimit(4096).build())
+      .addColumn(newClobColumnDefBuilder().setColumnName(COLUMN_JIRA_ACCESS_TOKEN).setIsNullable(true).build())
       .addColumn(newBigIntegerColumnDefBuilder().setColumnName(COLUMN_JIRA_ACCESS_TOKEN_EXPIRES_AT).setIsNullable(true).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_JIRA_REFRESH_TOKEN).setIsNullable(true).setLimit(4096).build())
+      .addColumn(newClobColumnDefBuilder().setColumnName(COLUMN_JIRA_REFRESH_TOKEN).setIsNullable(true).build())
       .addColumn(newBigIntegerColumnDefBuilder().setColumnName(COLUMN_JIRA_REFRESH_TOKEN_CREATED_AT).setIsNullable(true).build())
       .addColumn(newBigIntegerColumnDefBuilder().setColumnName(COLUMN_JIRA_REFRESH_TOKEN_UPDATED_AT).setIsNullable(true).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_UPDATED_BY).setIsNullable(true).setLimit(40).build())
