@@ -351,6 +351,7 @@ subprojects {
       dependency 'com.sonarsource.architecture:sonar-architecture-java-frontend-plugin:2.3.0.6597'
       dependency 'com.sonarsource.architecture:sonar-architecture-javascript-frontend-plugin:2.3.0.6597'
       dependency 'com.sonarsource.sdlc-data:sdlc-data-core:0.0.1.6028'
+      dependency 'com.sonarsource.sdlc-data:sdlc-data-core-abstractions:0.0.1.6028'
 
       // Webapp
       dependency "org.sonarsource.sonarqube:webapp-assets:$webappVersion"
