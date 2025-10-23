@@ -22,6 +22,7 @@ package org.sonar.db;
 import com.sonar.orchestrator.config.Configuration;
 import com.sonar.orchestrator.db.DatabaseClient;
 import com.sonar.orchestrator.db.DatabaseFactory;
+import com.sonar.orchestrator.locator.Locators;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +62,7 @@ public class MigrationTestDb implements TestDb {
       .addProperties(settings.getProperties())
       .build();
 
-    DatabaseClient databaseClient = DatabaseFactory.create(configuration, configuration.locators());
+    DatabaseClient databaseClient = DatabaseFactory.create(configuration, new Locators(configuration));
     com.sonar.orchestrator.db.DefaultDatabase defaultDatabase = new com.sonar.orchestrator.db.DefaultDatabase(databaseClient);
     defaultDatabase.start();
   }

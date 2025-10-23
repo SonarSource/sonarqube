@@ -23,6 +23,7 @@ import com.sonar.orchestrator.config.Configuration;
 import com.sonar.orchestrator.db.DatabaseClient;
 import com.sonar.orchestrator.db.DatabaseFactory;
 import com.sonar.orchestrator.db.DefaultDatabase;
+import com.sonar.orchestrator.locator.Locators;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +49,7 @@ public class CreateDb {
       .setProperty("orchestrator.keepDatabase", "false")
       .build();
 
-    DatabaseClient databaseClient = DatabaseFactory.create(configuration, configuration.locators());
+    DatabaseClient databaseClient = DatabaseFactory.create(configuration, new Locators(configuration));
     DefaultDatabase defaultDatabase = new DefaultDatabase(databaseClient);
     defaultDatabase.killOtherConnections();
     try {

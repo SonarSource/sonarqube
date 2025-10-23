@@ -529,11 +529,13 @@ subprojects {
       dependency 'org.reflections:reflections:0.10.2'
       dependency 'org.simpleframework:simple:5.1.6'
       dependency 'org.sonarsource.git.blame:git-files-blame:2.0.0.2053'
-      dependency('org.sonarsource.orchestrator:sonar-orchestrator-junit4:5.6.2.2625') {
-        exclude 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
-      }
-      dependency('org.sonarsource.orchestrator:sonar-orchestrator-junit5:5.6.2.2625') {
-        exclude 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+      dependencySet(group: 'org.sonarsource.orchestrator', version: '6.0.0.3852') {
+        entry('sonar-orchestrator-junit4') {
+          exclude 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+        }
+        entry('sonar-orchestrator-junit5') {
+          exclude 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+        }
       }
       dependency "com.sonarsource.pdfreport:portfolio-report-pdf-generation:${pdfreportVersion}"
       dependency "com.sonarsource.pdfreport:regulatory-report-pdf-generation:${pdfreportVersion}"
