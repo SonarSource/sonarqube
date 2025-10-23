@@ -10,8 +10,18 @@
       x.created_at as createdAt,
       x.updated_at as updatedAt
     from
-      atlassian_auth_details as x
+      atlassian_auth_details x
     fetch next 1 rows only
+  </select>
+
+  <select id="selectFirst" parameterType="string" resultType="org.sonar.db.jira.dto.AtlassianAuthenticationDetailsDto" databaseId="mssql">
+    select top 1
+      x.client_id as clientId,
+      x.secret as secret,
+      x.created_at as createdAt,
+      x.updated_at as updatedAt
+    from
+      atlassian_auth_details x
   </select>
 
   <insert id="insert" parameterType="Map" useGeneratedKeys="false">

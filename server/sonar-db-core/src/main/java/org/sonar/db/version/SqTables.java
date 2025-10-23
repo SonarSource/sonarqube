@@ -37,6 +37,7 @@ public final class SqTables {
     "app_branch_project_branch",
     "app_projects",
     "architecture_graphs",
+    "atlassian_auth_details",
     "audits",
     "ce_activity",
     "ce_queue",
