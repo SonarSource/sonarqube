@@ -116,6 +116,7 @@ message CurrentWsResponse {
   optional bool usingSonarLintConnectedMode = 16;
   reserved 17; // sonarLintAdSeen removed
   map<string,bool> dismissedNotices = 18;
+  optional string id = 19;
 
   message Permissions {
     repeated string global = 1;

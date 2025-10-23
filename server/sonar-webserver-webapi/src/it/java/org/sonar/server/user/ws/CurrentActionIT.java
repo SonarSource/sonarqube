@@ -100,6 +100,7 @@ public class CurrentActionIT {
           CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getScmAccountsList)
         .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", "obiwan.kenobi@starwars.com", "f5aa64437a1821ffe8b563099d506aef", true, "obiwan", "sonarqube",
           newArrayList("obiwan:bitbucket", "obiwan:github"));
+      assertThat(response.getId()).isEqualTo(user.getUuid());
     }
 
     @Test
@@ -185,7 +186,7 @@ public class CurrentActionIT {
       assertThat(response.getPermissions().getGlobalList()).containsOnly("scan", "provisioning");
       assertThat(response)
         .extracting(CurrentWsResponse::hasLogin, CurrentWsResponse::hasName, CurrentWsResponse::hasEmail, CurrentWsResponse::hasLocal,
-          CurrentWsResponse::hasExternalIdentity, CurrentWsResponse::hasExternalProvider)
+          CurrentWsResponse::hasExternalIdentity, CurrentWsResponse::hasExternalProvider, CurrentWsResponse::hasId)
         .containsOnly(false);
       assertThat(response.getScmAccountsList()).isEmpty();
       assertThat(response.getGroupsList()).isEmpty();
