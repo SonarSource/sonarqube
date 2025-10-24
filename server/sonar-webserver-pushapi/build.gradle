@@ -23,6 +23,7 @@ dependencies {
     testFixturesCompileOnly testFixtures(project(':server:sonar-webserver-ws'))
 
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
 }
 

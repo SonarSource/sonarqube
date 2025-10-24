@@ -33,6 +33,7 @@ dependencies {
   testImplementation project(':sonar-testing-harness')
 
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
   testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
   testRuntimeOnly 'com.h2database:h2'
   testRuntimeOnly 'com.microsoft.sqlserver:mssql-jdbc'

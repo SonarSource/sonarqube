@@ -78,6 +78,7 @@ dependencies {
   testImplementation project(':sonar-testing-harness')
 
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
   testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
 
   runtimeOnly 'io.jsonwebtoken:jjwt-jackson'
