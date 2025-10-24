@@ -38,8 +38,6 @@ import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
 import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static okhttp3.internal.http.StatusLine.HTTP_PERM_REDIRECT;
-import static okhttp3.internal.http.StatusLine.HTTP_TEMP_REDIRECT;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @ServerSide
@@ -48,6 +46,9 @@ public class WebhookCallerImpl implements WebhookCaller {
 
   private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
   private static final String PROJECT_KEY_HEADER = "X-SonarQube-Project";
+  private static final int HTTP_TEMP_REDIRECT = 307;
+  private static final int HTTP_PERM_REDIRECT = 308;
+
 
   private final System2 system;
   private final OkHttpClient okHttpClient;

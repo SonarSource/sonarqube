@@ -117,7 +117,7 @@ public class BitbucketCloudRestClient {
         return buildGson().fromJson(response.body().charStream(), Token.class);
       }
 
-      ErrorDetails errorMsg = getTokenError(response.body());
+      ErrorDetails errorMsg = getTokenError(response.body(), response.message());
       if (errorMsg.body != null) {
         LOG.atInfo().log(() -> String.format(BBC_FAIL_WITH_RESPONSE, response.request().url(), response.code(), errorMsg.body));
         switch (errorMsg.body) {
@@ -195,7 +195,7 @@ public class BitbucketCloudRestClient {
   }
 
   private static void handleError(Response response) throws IOException {
-    ErrorDetails error = getError(response.body());
+    ErrorDetails error = getError(response.body(), response.message());
     LOG.atInfo().log(() -> String.format(BBC_FAIL_WITH_RESPONSE, response.request().url(), response.code(), error.body));
     if (error.parsedErrorMsg != null) {
       throw new IllegalStateException(ERROR_BBC_SERVERS + ": " + error.parsedErrorMsg);
@@ -204,8 +204,8 @@ public class BitbucketCloudRestClient {
     }
   }
 
-  private static ErrorDetails getError(@Nullable ResponseBody body) throws IOException {
-    return getErrorDetails(body, s -> {
+  private static ErrorDetails getError(@Nullable ResponseBody body, @Nullable String fallbackMessage) throws IOException {
+    return getErrorDetails(body, fallbackMessage, s -> {
       Error gsonError = buildGson().fromJson(s, Error.class);
       if (gsonError != null && gsonError.errorMsg != null && gsonError.errorMsg.message != null) {
         return gsonError.errorMsg.message;
@@ -214,11 +214,14 @@ public class BitbucketCloudRestClient {
     });
   }
 
-  private static ErrorDetails getTokenError(@Nullable ResponseBody body) throws IOException {
+  private static ErrorDetails getTokenError(@Nullable ResponseBody body, @Nullable String fallbackMessage) throws IOException {
     if (body == null) {
-      return new ErrorDetails(null, null);
+      return new ErrorDetails(fallbackMessage, null);
     }
     String bodyStr = body.string();
+    if (bodyStr.isBlank()) {
+      return new ErrorDetails(fallbackMessage, null);
+    }
     if (body.contentType() != null && Objects.equals(JSON_MEDIA_TYPE.type(), body.contentType().type())) {
       try {
         TokenError gsonError = buildGson().fromJson(bodyStr, TokenError.class);
@@ -245,9 +248,9 @@ public class BitbucketCloudRestClient {
     }
   }
 
-  private static ErrorDetails getErrorDetails(@Nullable ResponseBody body, UnaryOperator<String> parser) throws IOException {
+  private static ErrorDetails getErrorDetails(@Nullable ResponseBody body,@Nullable String fallbackMessage, UnaryOperator<String> parser) throws IOException {
     if (body == null) {
-      return new ErrorDetails("", null);
+      return new ErrorDetails(fallbackMessage, null);
     }
     String bodyStr = body.string();
     if (body.contentType() != null && Objects.equals(JSON_MEDIA_TYPE.type(), body.contentType().type())) {

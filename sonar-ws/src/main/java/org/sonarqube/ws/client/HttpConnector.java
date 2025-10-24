@@ -43,8 +43,6 @@ import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
 import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static okhttp3.internal.http.StatusLine.HTTP_PERM_REDIRECT;
-import static okhttp3.internal.http.StatusLine.HTTP_TEMP_REDIRECT;
 import static org.sonarqube.ws.WsUtils.checkArgument;
 import static org.sonarqube.ws.WsUtils.isNullOrEmpty;
 import static org.sonarqube.ws.WsUtils.nullToEmpty;
@@ -59,6 +57,9 @@ public class HttpConnector implements WsConnector {
   public static final int DEFAULT_READ_TIMEOUT_MILLISECONDS = 60_000;
   public static final int DEFAULT_RESPONSE_TIMEOUT_MILLISECONDS = 0;
   private static final String JSON = "application/json; charset=utf-8";
+  private static final int HTTP_TEMP_REDIRECT = 307;
+  private static final int HTTP_PERM_REDIRECT = 308;
+
 
   /**
    * Base URL with trailing slash, for instance "https://localhost/sonarqube/".

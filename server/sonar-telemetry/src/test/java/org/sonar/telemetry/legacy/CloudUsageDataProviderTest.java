@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.util.Objects;
 import javax.annotation.Nullable;
 import okhttp3.Call;
 import okhttp3.MediaType;
@@ -81,13 +82,17 @@ class CloudUsageDataProviderTest {
 
   private void mockHttpClientCall(int code, String message, @Nullable ResponseBody body) throws IOException {
     Call callMock = mock(Call.class);
-    when(callMock.execute()).thenReturn(new Response.Builder()
+
+    Response.Builder responseBuilder = new Response.Builder()
       .request(new Request.Builder().url("http://any.test/").build())
       .protocol(Protocol.HTTP_1_1)
       .code(code)
-      .message(message)
-      .body(body)
-      .build());
+      .message(message);
+
+    // Create an empty response body for error cases
+    responseBuilder.body(Objects.requireNonNullElseGet(body, () -> ResponseBody.create("", MediaType.parse("text/plain"))));
+
+    when(callMock.execute()).thenReturn(responseBuilder.build());
     when(httpClient.newCall(any())).thenReturn(callMock);
   }
 
