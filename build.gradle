@@ -492,7 +492,7 @@ subprojects {
       dependency 'org.hamcrest:hamcrest:3.0'
       dependency 'org.jsoup:jsoup:1.21.1'
       // JUnit 5
-      imports { mavenBom 'org.junit:junit-bom:5.11.4' }
+      imports { mavenBom 'org.junit:junit-bom:5.14.0' }
       dependency 'org.junit-pioneer:junit-pioneer:2.3.0'
       dependencySet(group: 'org.mockito', version: '5.19.0') {
         entry 'mockito-core'
