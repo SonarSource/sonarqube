@@ -478,7 +478,7 @@ subprojects {
       dependency('org.codehaus.sonar:sonar-channel:4.2') {
         exclude 'org.slf4j:slf4j-api'
       }
-      dependency 'org.cyclonedx:cyclonedx-core-java:10.2.1'
+      dependency 'org.cyclonedx:cyclonedx-core-java:11.0.0'
       dependency 'com.fasterxml.staxmate:staxmate:2.4.1'
       dependency("org.elasticsearch.client:elasticsearch-rest-high-level-client:${elasticSearchClientVersion}") {
         exclude 'org.apache.logging.log4j:log4j-core'
