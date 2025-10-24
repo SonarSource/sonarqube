@@ -485,7 +485,7 @@ subprojects {
       }
       dependency "org.elasticsearch.plugin:transport-netty4-client:${elasticSearchClientVersion}"
       dependency 'org.elasticsearch:mocksocket:1.2'
-      dependency 'org.eclipse.jgit:org.eclipse.jgit:7.3.0.202506031305-r'
+      dependency 'org.eclipse.jgit:org.eclipse.jgit:7.4.0.202509020913-r'
       dependency "org.codelibs.elasticsearch.module:analysis-common:7.17.22"
       dependency "org.codelibs.elasticsearch.module:reindex:7.17.22"
       dependency('org.tmatesoft.svnkit:svnkit:1.10.11')
