@@ -94,7 +94,7 @@ public class EsClientTest {
     "  }" +
     "}";
 
-  private final static String EXAMPLE_NODE_STATS_JSON = "{" +
+  private static final String EXAMPLE_NODE_STATS_JSON = "{" +
     "  \"nodes\": {" +
     "    \"YnKPZcbGRamRQGxjErLWoQ\": {" +
     "      \"name\": \"sonarqube\"," +
@@ -264,12 +264,13 @@ public class EsClientTest {
       .setBody(EXAMPLE_CLUSTER_STATS_JSON)
       .setHeader("Content-Type", "application/json"));
 
-    String password = "test-password";
-    EsClient underTest = new EsClient(password, null, null, new HttpHost(mockWebServer.getHostName(), mockWebServer.getPort()));
+    String password = "test-elasticsearch-password";
+    String expectedAuth = java.util.Base64.getEncoder().encodeToString(("elastic:" + password).getBytes());
+    EsClient esClient = new EsClient(password, null, null, new HttpHost(mockWebServer.getHostName(), mockWebServer.getPort()));
 
-    assertThat(underTest.clusterStats()).isNotNull();
+    assertThat(esClient.clusterStats()).isNotNull();
 
-    assertThat(mockWebServer.takeRequest().getHeader("Authorization")).isEqualTo("Basic ZWxhc3RpYzp0ZXN0LXBhc3N3b3Jk");
+    assertThat(mockWebServer.takeRequest().getHeader("Authorization")).isEqualTo("Basic " + expectedAuth);
   }
 
   @Test
@@ -280,15 +281,15 @@ public class EsClientTest {
       .setHeader("Content-Type", "application/json"));
 
     Path keyStorePath = temp.newFile("keystore.p12").toPath();
-    String password = "password";
+    String password = "test-keystore-password";
 
     HandshakeCertificates certificate = createCertificate(mockWebServer.getHostName(), keyStorePath, password);
     mockWebServer.useHttps(certificate.sslSocketFactory(), false);
 
-    EsClient underTest = new EsClient(null, keyStorePath.toString(), password,
+    EsClient esClient = new EsClient(null, keyStorePath.toString(), password,
       new HttpHost(mockWebServer.getHostName(), mockWebServer.getPort(), "https"));
 
-    assertThat(underTest.clusterStats()).isNotNull();
+    assertThat(esClient.clusterStats()).isNotNull();
   }
 
   static HandshakeCertificates createCertificate(String hostName, Path keyStorePath, String password) throws GeneralSecurityException, IOException {

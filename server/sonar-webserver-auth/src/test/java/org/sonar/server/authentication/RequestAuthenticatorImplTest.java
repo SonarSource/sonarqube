@@ -121,8 +121,10 @@ public class RequestAuthenticatorImplTest {
 
   @Test
   public void authenticate_from_basic_token() {
-    when(request.getHeader("Authorization")).thenReturn("Basic dGVzdDo=");
-    when(userTokenAuthentication.getUserToken("test")).thenReturn(A_USER_TOKEN);
+    String token = "test-user-authentication-token";
+    String basicAuthHeader = "Basic " + java.util.Base64.getEncoder().encodeToString((token + ":").getBytes());
+    when(request.getHeader("Authorization")).thenReturn(basicAuthHeader);
+    when(userTokenAuthentication.getUserToken(token)).thenReturn(A_USER_TOKEN);
     when(userTokenAuthentication.authenticate(request)).thenReturn(Optional.of(new UserAuthResult(A_USER, A_USER_TOKEN, UserAuthResult.AuthType.TOKEN)));
     when(httpHeadersAuthentication.authenticate(request, response)).thenReturn(Optional.empty());
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());

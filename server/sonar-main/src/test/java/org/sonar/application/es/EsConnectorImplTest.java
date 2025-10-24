@@ -116,14 +116,15 @@ public class EsConnectorImplTest {
   @Test
   public void should_add_authentication_header() throws InterruptedException {
     mockServerResponse(200, JSON_SUCCESS_RESPONSE);
-    String password = "test-password";
+    String password = "test-elasticsearch-password";
+    String expectedAuth = java.util.Base64.getEncoder().encodeToString(("elastic:" + password).getBytes());
 
-    EsConnectorImpl underTest = new EsConnectorImpl(Sets.newHashSet(HostAndPort.fromParts(mockWebServer.getHostName(), mockWebServer.getPort())),
+    EsConnectorImpl esConnector = new EsConnectorImpl(Sets.newHashSet(HostAndPort.fromParts(mockWebServer.getHostName(), mockWebServer.getPort())),
       password, null, null);
 
-    assertThat(underTest.getClusterHealthStatus())
+    assertThat(esConnector.getClusterHealthStatus())
       .hasValue(ClusterHealthStatus.YELLOW);
-    assertThat(mockWebServer.takeRequest().getHeader("Authorization")).isEqualTo("Basic ZWxhc3RpYzp0ZXN0LXBhc3N3b3Jk");
+    assertThat(mockWebServer.takeRequest().getHeader("Authorization")).isEqualTo("Basic " + expectedAuth);
   }
 
   @Test
@@ -131,15 +132,15 @@ public class EsConnectorImplTest {
     mockServerResponse(200, JSON_SUCCESS_RESPONSE);
 
     Path keyStorePath = temp.newFile("keystore.p12").toPath();
-    String password = "password";
+    String password = "test-keystore-password";
 
     HandshakeCertificates certificate = createCertificate(mockWebServer.getHostName(), keyStorePath, password);
     mockWebServer.useHttps(certificate.sslSocketFactory(), false);
 
-    EsConnectorImpl underTest = new EsConnectorImpl(Sets.newHashSet(HostAndPort.fromParts(mockWebServer.getHostName(),
+    EsConnectorImpl esConnector = new EsConnectorImpl(Sets.newHashSet(HostAndPort.fromParts(mockWebServer.getHostName(),
       mockWebServer.getPort())), null, keyStorePath, password);
 
-    assertThat(underTest.getClusterHealthStatus()).hasValue(ClusterHealthStatus.YELLOW);
+    assertThat(esConnector.getClusterHealthStatus()).hasValue(ClusterHealthStatus.YELLOW);
   }
 
   private HandshakeCertificates createCertificate(String hostName, Path keyStorePath, String password)
