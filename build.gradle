@@ -284,7 +284,7 @@ subprojects {
       // do not conflict with com.sun.mail:javax.mail
       exclude group: 'javax.mail', module: 'mail'
       resolutionStrategy {
-        force 'net.java.dev.jna:jna:5.17.0'
+        force 'net.java.dev.jna:jna:5.18.1'
       }
     }
   }
