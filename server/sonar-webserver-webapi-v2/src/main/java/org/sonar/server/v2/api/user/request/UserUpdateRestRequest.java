@@ -38,7 +38,7 @@ public class UserUpdateRestRequest {
   private UpdateField<String> externalId = UpdateField.undefined();
 
   @Size(min = 2, max = 100)
-  @Schema(description = "User login")
+  @Schema(description = "User login", implementation = String.class)
   public UpdateField<String> getLogin() {
     return login;
   }
