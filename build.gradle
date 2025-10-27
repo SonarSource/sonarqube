@@ -287,6 +287,12 @@ subprojects {
         force 'net.java.dev.jna:jna:5.18.1'
       }
     }
+
+    // Exclude log4j-to-slf4j from test classpaths when log4j-core is present
+    // to avoid ClassCastException: SLF4JLoggerContext cannot be cast to LoggerContext
+    testRuntimeClasspath {
+      exclude group: 'org.apache.logging.log4j', module: 'log4j-to-slf4j'
+    }
   }
 
   // Central place for definition dependency versions and exclusions.
@@ -536,7 +542,7 @@ subprojects {
       dependency 'com.sonarsource.fixsuggestions:ai-suggestions-shared:1.0.0.1775'
       dependency 'org.sonarsource.update-center:sonar-update-center-common:1.35.0.2835'
       dependency 'org.sonarsource.classloader:sonar-classloader:1.1.0.1059'
-      dependency 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.6'
+      dependency 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.13'
       dependencySet(group: 'com.icegreen', version: '2.1.7') {
         entry 'greenmail'
         entry 'greenmail-junit4'
