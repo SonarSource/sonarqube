@@ -467,7 +467,7 @@ subprojects {
       }
       //transitive dependency of SVNKit, to be re-assessed when updating SVNKit
       dependency 'org.apache.sshd:sshd-core:2.16.0'
-      dependencySet(group: 'org.assertj', version: '3.27.4') {
+      dependencySet(group: 'org.assertj', version: '3.27.6') {
         entry 'assertj-core'
         entry 'assertj-guava'
       }
