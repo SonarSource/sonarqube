@@ -75,10 +75,11 @@ public class FileMoveDetectionStep implements ComputationStep {
   private final SourceLinesHashRepository sourceLinesHash;
   private final ScoreMatrixDumper scoreMatrixDumper;
   private final MutableAddedFileRepository addedFileRepository;
+  private final HeapSizeChecker heapSizeChecker;
 
   public FileMoveDetectionStep(AnalysisMetadataHolder analysisMetadataHolder, TreeRootHolder rootHolder, DbClient dbClient,
     FileSimilarity fileSimilarity, MutableMovedFilesRepository movedFilesRepository, SourceLinesHashRepository sourceLinesHash,
-    ScoreMatrixDumper scoreMatrixDumper, MutableAddedFileRepository addedFileRepository) {
+    ScoreMatrixDumper scoreMatrixDumper, MutableAddedFileRepository addedFileRepository, HeapSizeChecker heapSizeChecker) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.rootHolder = rootHolder;
     this.dbClient = dbClient;
@@ -87,6 +88,7 @@ public class FileMoveDetectionStep implements ComputationStep {
     this.sourceLinesHash = sourceLinesHash;
     this.scoreMatrixDumper = scoreMatrixDumper;
     this.addedFileRepository = addedFileRepository;
+    this.heapSizeChecker = heapSizeChecker;
   }
 
   @Override
@@ -248,20 +250,25 @@ public class FileMoveDetectionStep implements ComputationStep {
       })
       .toArray(ScoreMatrix.ScoreFile[]::new);
 
+    int totalAddedFiles = addedFiles.length;
+    int totalRemovedFiles = removedFiles.length;
+
+    heapSizeChecker.checkHeapLimits(totalAddedFiles, totalRemovedFiles);
+
     // sort by highest line count first
     Arrays.sort(addedFiles, SCORE_FILE_COMPARATOR);
     Arrays.sort(removedFiles, SCORE_FILE_COMPARATOR);
-    int[][] scoreMatrix = new int[removedFiles.length][addedFiles.length];
-    int smallestAddedFileSize = addedFiles[0].getLineCount();
-    int largestAddedFileSize = addedFiles[addedFiles.length - 1].getLineCount();
+    int[][] scoreMatrix = new int[totalRemovedFiles][totalAddedFiles];
+    int highestAddedFileLineCount = addedFiles[0].getLineCount();
+    int lowestAddedFileLineCount = addedFiles[totalAddedFiles - 1].getLineCount();
 
     Map<String, Integer> removedFilesIndexesByUuid = new HashMap<>(removedFileUuids.size());
-    for (int removeFileIndex = 0; removeFileIndex < removedFiles.length; removeFileIndex++) {
+    for (int removeFileIndex = 0; removeFileIndex < totalRemovedFiles; removeFileIndex++) {
       ScoreMatrix.ScoreFile removedFile = removedFiles[removeFileIndex];
       int lowerBound = (int) Math.floor(removedFile.getLineCount() * LOWER_BOUND_RATIO);
       int upperBound = (int) Math.ceil(removedFile.getLineCount() * UPPER_BOUND_RATIO);
       // no need to compute score if all files are out of bound, so no need to load line hashes from DB
-      if (smallestAddedFileSize <= lowerBound || largestAddedFileSize >= upperBound) {
+      if (highestAddedFileLineCount <= lowerBound || lowestAddedFileLineCount >= upperBound) {
         continue;
       }
       removedFilesIndexesByUuid.put(removedFile.getFileUuid(), removeFileIndex);

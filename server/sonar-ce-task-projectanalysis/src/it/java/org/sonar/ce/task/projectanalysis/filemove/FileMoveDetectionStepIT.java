@@ -233,7 +233,7 @@ public class FileMoveDetectionStepIT {
   private final RecordingMutableAddedFileRepository addedFileRepository = new RecordingMutableAddedFileRepository();
 
   private final FileMoveDetectionStep underTest = new FileMoveDetectionStep(analysisMetadataHolder, treeRootHolder, dbClient,
-    fileSimilarity, movedFilesRepository, sourceLinesHash, scoreMatrixDumper, addedFileRepository);
+    fileSimilarity, movedFilesRepository, sourceLinesHash, scoreMatrixDumper, addedFileRepository, new NoOpHeapSizeChecker());
 
   @Before
   public void setUp() throws Exception {
