@@ -407,7 +407,6 @@ subprojects {
       }
       dependency 'com.microsoft.azure:msal4j:1.22.0'
       dependency 'com.oracle.database.jdbc:ojdbc11:23.9.0.25.07'
-      dependency 'com.datadoghq:dd-java-agent:1.49.0'
       dependency 'org.aspectj:aspectjtools:1.9.24'
       dependencySet(group: 'com.squareup.okhttp3', version: '4.12.0') {
         entry 'okhttp'
@@ -781,26 +780,6 @@ subprojects {
             }
           }
         }
-      }
-    }
-  }
-
-  tasks.withType(Test) {
-    configurations {
-      ddAgent
-    }
-
-    dependencies {
-      ddAgent 'com.datadoghq:dd-java-agent'
-    }
-
-    if (System.getenv('CI') == "true") {
-      doFirst {
-        ext {
-          ddJavaAgent = configurations.ddAgent.resolvedConfiguration.resolvedArtifacts.find { it.name == 'dd-java-agent' }
-        }
-        jvmArgs "-javaagent:${ddJavaAgent.file}"
-        jvmArgs "-Ddatadog.slf4j.simpleLogger.logFile=${project.projectDir}/build/datadog.log"
       }
     }
   }
