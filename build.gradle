@@ -459,7 +459,7 @@ subprojects {
         exclude 'log4j:log4j'
       }
       // Be aware that Log4j is used by Elasticsearch client
-      dependencySet(group: 'org.apache.logging.log4j', version: '2.24.3') {
+      dependencySet(group: 'org.apache.logging.log4j', version: '2.25.2') {
         entry 'log4j-core'
         entry 'log4j-api'
         entry 'log4j-to-slf4j'
