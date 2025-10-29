@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v202505;
+package org.sonar.server.platform.db.migration.version.v202506;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
@@ -25,27 +25,30 @@ import org.sonar.server.platform.db.migration.sql.CreateTableBuilder;
 import org.sonar.server.platform.db.migration.step.CreateTableChange;
 
 import static org.sonar.server.platform.db.migration.def.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
-import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.MAX_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class CreateAtlassianAuthenticationDetailsTable extends CreateTableChange {
+public class CreateJiraProjectBindingsTable extends CreateTableChange {
 
-  static final String TABLE_NAME = "atlassian_auth_details";
+  static final String JIRA_PROJECT_BINDINGS_TABLE_NAME = "jira_project_bindings";
 
-  static final String COLUMN_CLIENT_ID = "client_id";
-  static final String COLUMN_SECRET = "secret";
+  static final String COLUMN_ID = "id";
+  static final String COLUMN_SONAR_PROJECT_ID = "sonar_project_id";
+  static final String COLUMN_JIRA_ORGANIZATION_BINDING_ID = "jira_organization_binding_id";
+  static final String COLUMN_JIRA_PROJECT_KEY = "jira_project_key";
   static final String COLUMN_CREATED_AT = "created_at";
   static final String COLUMN_UPDATED_AT = "updated_at";
 
-  protected CreateAtlassianAuthenticationDetailsTable(Database db) {
-    super(db, TABLE_NAME);
+  protected CreateJiraProjectBindingsTable(Database db) {
+    super(db, JIRA_PROJECT_BINDINGS_TABLE_NAME);
   }
 
   @Override
   public void execute(Context context, String tableName) throws SQLException {
     context.execute(new CreateTableBuilder(getDialect(), tableName)
-      .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_CLIENT_ID).setIsNullable(false).setLimit(MAX_SIZE).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_SECRET).setIsNullable(false).setLimit(MAX_SIZE).build())
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_ID).setIsNullable(false).setLimit(40).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_SONAR_PROJECT_ID).setIsNullable(false).setLimit(50).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_JIRA_ORGANIZATION_BINDING_ID).setIsNullable(false).setLimit(40).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_JIRA_PROJECT_KEY).setIsNullable(false).setLimit(255).build())
       .addColumn(newBigIntegerColumnDefBuilder().setColumnName(COLUMN_CREATED_AT).setIsNullable(false).build())
       .addColumn(newBigIntegerColumnDefBuilder().setColumnName(COLUMN_UPDATED_AT).setIsNullable(false).build())
       .build());

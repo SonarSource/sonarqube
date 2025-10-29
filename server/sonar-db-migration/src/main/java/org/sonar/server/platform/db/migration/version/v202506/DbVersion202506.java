@@ -17,21 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v202505;
+package org.sonar.server.platform.db.migration.version.v202506;
 
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
 
-public class DbVersion202505 implements DbVersion {
-  // ignoring bad number formatting, as it's intended that we align the migration numbers to SQ versions
-  @SuppressWarnings("java:S3937")
+public class DbVersion202506 implements DbVersion {
 
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
-      .add(2025_05_000, "Add 'published_on' column to 'sca_vulnerability_issues' table", AddPublishedOnToScaVulnerabilityIssues.class)
-      .add(2025_05_001, "Add 'from_sonarqube_update' column to 'issues' table", AddFromSonarQubeUpdateColumnToIssuesTable.class)
-      .add(2025_05_002, "Add 'internal_tags' column to 'issues' table", AddInternalTagsToIssuesTable.class)
+      .add(2025_06_000, "Create 'jira_project_bindings' table", CreateJiraProjectBindingsTable.class)
+      .add(2025_06_001, "Create 'atlassian_auth_details' table", CreateAtlassianAuthenticationDetailsTable.class)
+      .add(2025_06_002, "Create 'xsrf_tokens' table", CreateXsrfTokensTable.class)
+      .add(2025_06_003, "Create 'jira_org_bindings' table", CreateJiraOrganizationBindingsTable.class)
     ;
   }
+
 }

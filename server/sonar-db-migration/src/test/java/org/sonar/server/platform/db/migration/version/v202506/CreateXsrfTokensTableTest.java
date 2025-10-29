@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v202505;
+package org.sonar.server.platform.db.migration.version.v202506;
 
 import java.sql.SQLException;
 import java.sql.Types;
@@ -25,11 +25,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
-import static org.sonar.server.platform.db.migration.version.v202505.CreateXsrfTokensTable.COLUMN_CREATED_AT;
-import static org.sonar.server.platform.db.migration.version.v202505.CreateXsrfTokensTable.COLUMN_ID;
-import static org.sonar.server.platform.db.migration.version.v202505.CreateXsrfTokensTable.COLUMN_UPDATED_AT;
-import static org.sonar.server.platform.db.migration.version.v202505.CreateXsrfTokensTable.COLUMN_USER_UUID;
-import static org.sonar.server.platform.db.migration.version.v202505.CreateXsrfTokensTable.XSRF_TOKENS_TABLE_NAME;
+import static org.sonar.server.platform.db.migration.version.v202506.CreateXsrfTokensTable.COLUMN_CREATED_AT;
+import static org.sonar.server.platform.db.migration.version.v202506.CreateXsrfTokensTable.COLUMN_ID;
+import static org.sonar.server.platform.db.migration.version.v202506.CreateXsrfTokensTable.COLUMN_UPDATED_AT;
+import static org.sonar.server.platform.db.migration.version.v202506.CreateXsrfTokensTable.COLUMN_USER_UUID;
+import static org.sonar.server.platform.db.migration.version.v202506.CreateXsrfTokensTable.XSRF_TOKENS_TABLE_NAME;
 
 class CreateXsrfTokensTableTest {
 

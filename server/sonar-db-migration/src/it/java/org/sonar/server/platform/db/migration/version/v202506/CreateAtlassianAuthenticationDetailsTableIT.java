@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v202505;
+package org.sonar.server.platform.db.migration.version.v202506;
 
 import java.sql.SQLException;
 import org.junit.jupiter.api.Test;
@@ -26,35 +26,26 @@ import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static java.sql.Types.BIGINT;
-import static java.sql.Types.CLOB;
 import static java.sql.Types.VARCHAR;
 import static org.sonar.db.MigrationDbTester.createForMigrationStep;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.MAX_SIZE;
 
-class CreateJiraOrganizationBindingsTableIT {
-  private static final String TABLE_NAME = "jira_org_bindings";
+class CreateAtlassianAuthenticationDetailsTableIT {
+  private static final String TABLE_NAME = "atlassian_auth_details";
 
   @RegisterExtension
-  public final MigrationDbTester db = createForMigrationStep(CreateJiraOrganizationBindingsTable.class);
-  private final DdlChange underTest = new CreateJiraOrganizationBindingsTable(db.database());
+  public final MigrationDbTester db = createForMigrationStep(CreateAtlassianAuthenticationDetailsTable.class);
+  private final DdlChange underTest = new CreateAtlassianAuthenticationDetailsTable(db.database());
 
   @Test
   void execute_shouldCreateTable() throws SQLException {
     db.assertTableDoesNotExist(TABLE_NAME);
     underTest.execute();
     db.assertTableExists(TABLE_NAME);
-    db.assertPrimaryKey(TABLE_NAME, "pk_jira_org_bindings", "id");
-    db.assertColumnDefinition(TABLE_NAME, "id", VARCHAR, 40, false);
+    db.assertColumnDefinition(TABLE_NAME, "client_id", VARCHAR, MAX_SIZE, false);
+    db.assertColumnDefinition(TABLE_NAME, "secret", VARCHAR, MAX_SIZE, false);
     db.assertColumnDefinition(TABLE_NAME, "created_at", BIGINT, null, false);
     db.assertColumnDefinition(TABLE_NAME, "updated_at", BIGINT, null, false);
-    db.assertColumnDefinition(TABLE_NAME, "sonar_organization_uuid", VARCHAR, 40, false);
-    db.assertColumnDefinition(TABLE_NAME, "jira_instance_url", VARCHAR, 2048, true);
-    db.assertColumnDefinition(TABLE_NAME, "jira_cloud_id", VARCHAR, 100, true);
-    db.assertColumnDefinition(TABLE_NAME, "jira_access_token", CLOB, null, true);
-    db.assertColumnDefinition(TABLE_NAME, "jira_access_token_expires_at", BIGINT, null, true);
-    db.assertColumnDefinition(TABLE_NAME, "jira_refresh_token", CLOB, null, true);
-    db.assertColumnDefinition(TABLE_NAME, "jira_refresh_token_created_at", BIGINT, null, true);
-    db.assertColumnDefinition(TABLE_NAME, "jira_refresh_token_updated_at", BIGINT, null, true);
-    db.assertColumnDefinition(TABLE_NAME, "updated_by", VARCHAR, 40, true);
   }
 
   @Test
