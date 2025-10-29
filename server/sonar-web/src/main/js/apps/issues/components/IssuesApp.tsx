@@ -470,7 +470,8 @@ const projectKey =
   (qs.componentKey as string | undefined) ??
   this.state.openIssue?.project;
 
-const prKey = (qs.pullRequest as string | undefined) ?? undefined;
+const prKey = qs.pullRequest as string | undefined;
+const branchKey = qs.branch as string | undefined;
 
 const scope = getBranchLikeQuery(this.props.branchLike) as Record<string, string | undefined>;
 
@@ -479,8 +480,9 @@ const scopedQuery: any = {
   ...scope,                               // Adds branch OR pullRequest if known
   ...(projectKey ? { components: projectKey } : {}),
   ...(prKey ? { pullRequest: prKey } : {}),
+  ...(branchKey ? { branch: branchKey } : {}),
 };
-
+// Remove branch if pullRequest is present (to avoid conflicts)
 if (scopedQuery.pullRequest) delete scopedQuery.branch;
 
 const response = await searchIssues(scopedQuery);

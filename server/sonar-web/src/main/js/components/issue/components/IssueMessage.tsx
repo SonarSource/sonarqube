@@ -82,6 +82,14 @@ const base: { pathname?: string; search?: string; hash?: string } =
 const sp = new URLSearchParams(base.search ?? '');
 if (projectKey) sp.set('id', projectKey);          // Ensure project key is present
 
+// Cast to any to access optional runtime props safely
+const branchLikeAny = branchLike as any;
+
+if (branchLikeAny?.pullRequest) {
+  sp.set('pullRequest', branchLikeAny.pullRequest);
+  sp.delete('branch'); // remove branch if PR exists
+} 
+
 const issueUrlWithProject = { ...base, search: `?${sp.toString()}` } as const;
 
   return (
