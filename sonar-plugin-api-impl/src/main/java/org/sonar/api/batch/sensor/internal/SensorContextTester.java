@@ -33,6 +33,7 @@ import java.util.Objects;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.NotImplementedException;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -452,6 +453,11 @@ public class SensorContextTester implements SensorContext {
   public void addAnalysisData(String key, String mimeType, InputStream data) {
     //No Need to check the source of the plugin in the tester
     sensorStorage.storeAnalysisData(key,mimeType, data);
+  }
+
+  @Override
+  public boolean isFeatureAvailable(String featureName) {
+    throw new NotImplementedException();
   }
 
   public void setCacheEnabled(boolean enabled) {

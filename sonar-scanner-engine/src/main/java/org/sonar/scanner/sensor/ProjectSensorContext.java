@@ -22,6 +22,7 @@ package org.sonar.scanner.sensor;
 import java.io.InputStream;
 import java.io.Serializable;
 import javax.annotation.concurrent.ThreadSafe;
+import org.apache.commons.lang.NotImplementedException;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -238,6 +239,11 @@ public class ProjectSensorContext implements SensorContext {
     } else {
       throw new IllegalStateException("Analysis data can only be added by SonarSource plugins");
     }
+  }
+
+  @Override
+  public boolean isFeatureAvailable(String featureName) {
+    throw new NotImplementedException();
   }
 
   @Override
