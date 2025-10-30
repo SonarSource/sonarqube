@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.jira.JiraSelectedWorkTypeMapper">
+
+  <select id="findByJiraProjectBindingId" parameterType="string" resultType="org.sonar.db.jira.dto.JiraSelectedWorkTypeDto">
+    SELECT
+      x.id as id,
+      x.jira_project_binding_id as jiraProjectBindingId,
+      x.work_type_id as workTypeId,
+      x.created_at as createdAt,
+      x.updated_at as updatedAt
+    FROM
+      jira_selected_work_types x
+    WHERE
+      x.jira_project_binding_id = #{jiraProjectBindingId, jdbcType=VARCHAR}
+  </select>
+
+  <delete id="deleteByJiraProjectBindingId" parameterType="String">
+    DELETE FROM
+      jira_selected_work_types
+    WHERE
+      jira_project_binding_id = #{jiraProjectBindingId, jdbcType=VARCHAR}
+  </delete>
+
+
+  <insert id="saveAll" parameterType="list">
+    INSERT INTO jira_selected_work_types
+    (
+      id,
+      jira_project_binding_id,
+      work_type_id,
+      created_at,
+      updated_at
+    )
+    VALUES
+    <foreach collection="list" item="workType" separator=",">
+      (
+        #{workType.id, jdbcType=VARCHAR},
+        #{workType.jiraProjectBindingId, jdbcType=VARCHAR},
+        #{workType.workTypeId, jdbcType=VARCHAR},
+        #{workType.createdAt, jdbcType=BIGINT},
+        #{workType.updatedAt, jdbcType=BIGINT}
+      )
+    </foreach>
+  </insert>
+
+</mapper>

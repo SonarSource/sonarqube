@@ -51,6 +51,7 @@ import org.sonar.db.jira.dao.AtlassianAuthenticationDetailsDao;
 import org.sonar.db.jira.dao.JiraOrganizationBindingDao;
 import org.sonar.db.jira.dao.JiraOrganizationBindingPendingDao;
 import org.sonar.db.jira.dao.JiraProjectBindingDao;
+import org.sonar.db.jira.dao.JiraSelectedWorkTypeDao;
 import org.sonar.db.jira.dao.XsrfTokenDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.ProjectMeasureDao;
@@ -152,6 +153,7 @@ public class DbClient {
   private final JiraOrganizationBindingPendingDao jiraOrganizationBindingPendingDao;
   private final AtlassianAuthenticationDetailsDao atlassianAuthenticationDetailsDao;
   private final XsrfTokenDao xsrfTokenDao;
+  private final JiraSelectedWorkTypeDao jiraSelectedWorkTypeDao;
   private final CeActivityDao ceActivityDao;
   private final CeQueueDao ceQueueDao;
   private final CeTaskInputDao ceTaskInputDao;
@@ -251,6 +253,7 @@ public class DbClient {
     jiraOrganizationBindingPendingDao = getDao(map, JiraOrganizationBindingPendingDao.class);
     atlassianAuthenticationDetailsDao = getDao(map, AtlassianAuthenticationDetailsDao.class);
     xsrfTokenDao = getDao(map, XsrfTokenDao.class);
+    jiraSelectedWorkTypeDao = getDao(map, JiraSelectedWorkTypeDao.class);
     ceActivityDao = getDao(map, CeActivityDao.class);
     ceQueueDao = getDao(map, CeQueueDao.class);
     ceTaskInputDao = getDao(map, CeTaskInputDao.class);
@@ -383,6 +386,10 @@ public class DbClient {
 
   public XsrfTokenDao xsrfTokenDao() {
     return xsrfTokenDao;
+  }
+
+  public JiraSelectedWorkTypeDao jiraSelectedWorkTypeDao() {
+    return jiraSelectedWorkTypeDao;
   }
 
   public TelemetryMetricsSentDao telemetryMetricsSentDao() {
