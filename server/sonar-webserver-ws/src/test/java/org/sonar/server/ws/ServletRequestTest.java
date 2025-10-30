@@ -217,4 +217,29 @@ public class ServletRequestTest {
     verify(source).startAsync();
   }
 
+  @Test
+  public void getHeaders_should_preserve_original_case() {
+    when(source.getHeaderNames()).thenReturn(java.util.Collections.enumeration(List.of("X-GitHub-Event", "Content-Type")));
+    when(source.getHeader("X-GitHub-Event")).thenReturn("code_scanning_alert");
+    when(source.getHeader("Content-Type")).thenReturn("application/json");
+
+    Map<String, String> headers = underTest.getHeaders();
+
+    assertThat(headers)
+      .hasSize(2)
+      .containsEntry("X-GitHub-Event", "code_scanning_alert")
+      .containsEntry("Content-Type", "application/json");
+  }
+
+  @Test
+  public void header_should_be_case_insensitive() {
+    when(source.getHeader("x-github-event")).thenReturn("code_scanning_alert");
+    when(source.getHeader("X-GitHub-Event")).thenReturn("code_scanning_alert");
+    when(source.getHeader("X-GITHUB-EVENT")).thenReturn("code_scanning_alert");
+
+    assertThat(underTest.header("x-github-event")).hasValue("code_scanning_alert");
+    assertThat(underTest.header("X-GitHub-Event")).hasValue("code_scanning_alert");
+    assertThat(underTest.header("X-GITHUB-EVENT")).hasValue("code_scanning_alert");
+  }
+
 }
