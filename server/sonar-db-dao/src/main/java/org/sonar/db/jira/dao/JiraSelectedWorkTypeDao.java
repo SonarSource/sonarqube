@@ -57,7 +57,6 @@ public class JiraSelectedWorkTypeDao implements Dao {
       dto.setId(uuidFactory.create())
         .setCreatedAt(now)
         .setUpdatedAt(now);
-
     }
     mapper.saveAll(dtos);
   }
@@ -65,4 +64,5 @@ public class JiraSelectedWorkTypeDao implements Dao {
   private static JiraSelectedWorkTypeMapper getMapper(DbSession dbSession) {
     return dbSession.getMapper(JiraSelectedWorkTypeMapper.class);
   }
+
 }
