@@ -33,6 +33,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.api.utils.UrlValidatorUtil;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -131,10 +132,13 @@ public class CreateAction implements QProfileWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
+
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION));
       userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
       CreateRequest createRequest = toRequest(request, organization);
+      checkArgument(UrlValidatorUtil.textContainsValidUrl(createRequest.getName()), "Invalid quality profile name");
+
       logger.info("Create QProfile Request:: organization: {}, qProfile: {}, language: {}, user: {}",
               organization.getKey(), createRequest.getName(), createRequest.getLanguage(), userSession.getLogin());
       writeProtobuf(doHandle(dbSession, createRequest, request, organization), request, response);

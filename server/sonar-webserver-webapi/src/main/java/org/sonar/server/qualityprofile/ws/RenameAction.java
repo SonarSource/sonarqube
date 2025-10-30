@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.api.utils.UrlValidatorUtil;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -32,6 +33,7 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
@@ -92,6 +94,8 @@ public class RenameAction implements QProfileWsAction {
 
   private void doHandle(String newName, String profileKey) {
     checkRequest(newName.length() <= MAXIMUM_NAME_LENGTH, "Name is too long (>%d characters)", MAXIMUM_NAME_LENGTH);
+    checkArgument(UrlValidatorUtil.textContainsValidUrl(newName), "Invalid quality profile name");
+
     userSession.checkLoggedIn();
 
     try (DbSession dbSession = dbClient.openSession(false)) {

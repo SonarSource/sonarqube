@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.UrlValidatorUtil;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -82,6 +83,7 @@ public class RenameAction implements QualityGatesWsAction {
   @Override
   public void handle(Request request, Response response) {
     String currentName = request.mandatoryParam(PARAM_CURRENT_NAME);
+    checkArgument(UrlValidatorUtil.textContainsValidUrl(currentName), "Invalid quality gate name");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);

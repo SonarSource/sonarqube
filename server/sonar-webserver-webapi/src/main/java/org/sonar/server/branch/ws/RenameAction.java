@@ -30,6 +30,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewController;
+import org.sonar.api.utils.UrlValidatorUtil;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -73,6 +74,7 @@ public class RenameAction implements BranchWsAction {
     userSession.checkLoggedIn();
     String projectKey = request.mandatoryParam(PARAM_PROJECT);
     String newBranchName = request.mandatoryParam(PARAM_NAME);
+    checkArgument(UrlValidatorUtil.textContainsValidUrl(newBranchName), "Invalid branch name");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = componentFinder.getProjectOrApplicationByKey(dbSession, projectKey);

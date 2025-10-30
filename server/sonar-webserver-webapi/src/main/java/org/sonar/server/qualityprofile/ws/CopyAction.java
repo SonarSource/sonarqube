@@ -29,6 +29,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.api.utils.UrlValidatorUtil;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -37,6 +38,7 @@ import org.sonar.server.qualityprofile.QProfileCopier;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualityprofiles.CopyWsResponse;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Optional.ofNullable;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
@@ -91,6 +93,8 @@ public class CopyAction implements QProfileWsAction {
 
     String newName = request.mandatoryParam(PARAM_TO_NAME);
     String profileKey = request.mandatoryParam(PARAM_FROM_KEY);
+
+    checkArgument(UrlValidatorUtil.textContainsValidUrl(newName), "Invalid quality profile name");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto sourceProfile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(profileKey));
