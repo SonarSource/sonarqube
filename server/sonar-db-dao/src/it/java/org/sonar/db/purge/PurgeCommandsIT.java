@@ -835,6 +835,24 @@ class PurgeCommandsIT {
       .hasSize(1);
   }
 
+  @Test
+  void deleteBranchInPortfolios_should_delete_branch_from_portfolios() {
+    var portfolio1 = dbTester.components().insertPrivatePortfolioDto();
+    ProjectDto project = dbTester.components().insertPrivateProject().getProjectDto();
+
+    dbTester.components().addPortfolioProject(portfolio1, project);
+    dbTester.components().addPortfolioProjectBranch(portfolio1, project, "projectBranch");
+    dbTester.components().addPortfolioProjectBranch(portfolio1, project, "anotherBranch");
+
+    PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
+
+    purgeCommands.deleteBranchInPortfolios("projectBranch");
+
+    assertThat(dbTester.getDbClient().portfolioDao().selectAllPortfolioProjects(dbTester.getSession()))
+      .extracting(PortfolioProjectDto::getPortfolioUuid, PortfolioProjectDto::getProjectUuid, PortfolioProjectDto::getBranchUuids)
+      .containsExactlyInAnyOrder(tuple(portfolio1.getUuid(), project.getUuid(), Set.of("anotherBranch")));
+  }
+
   private AnticipatedTransitionDto getAnticipatedTransitionsDto(String uuid, String projectUuid, Instant creationDate) {
     return new AnticipatedTransitionDto(uuid, projectUuid, "userUuid", "transition", null, null, null, null, "rule:key", "filePath",
       creationDate.toEpochMilli());

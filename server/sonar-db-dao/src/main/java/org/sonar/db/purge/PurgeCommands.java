@@ -489,6 +489,13 @@ class PurgeCommands {
     profiler.stop();
   }
 
+  public void deleteBranchInPortfolios(String branchUuid) {
+    profiler.start("deleteBranchInPortfolios (portfolio_proj_branches)");
+    purgeMapper.deletePortfolioProjectBranchesByBranchUuid(branchUuid);
+    session.commit();
+    profiler.stop();
+  }
+
   public void deleteScannerCache(String branchUuid) {
     profiler.start("deleteScannerCache (scanner_analysis_cache)");
     purgeMapper.deleteScannerAnalysisCacheByBranchUuid(branchUuid);

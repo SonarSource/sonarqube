@@ -39,7 +39,6 @@ import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
-import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -64,7 +63,7 @@ public class DeleteActionIT {
   @Test
   public void delete_branch() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    db.components().insertProjectBranch(project, b -> b.setKey("branch1"));
+    BranchDto branchDto = db.components().insertProjectBranch(project, b -> b.setKey("branch1"));
     userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
 
     tester.newRequest()
@@ -73,7 +72,7 @@ public class DeleteActionIT {
       .execute();
 
     verifyDeletedKey("branch1");
-    verify(projectLifeCycleListeners).onProjectBranchesChanged(singleton(Project.fromProjectDtoWithTags(project)), emptySet());
+    verify(projectLifeCycleListeners).onProjectBranchesChanged(singleton(Project.fromProjectDtoWithTags(project)), singleton(branchDto.getUuid()));
   }
 
   @Test

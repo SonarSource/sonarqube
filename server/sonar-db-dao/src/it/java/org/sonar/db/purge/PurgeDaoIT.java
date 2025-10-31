@@ -85,6 +85,7 @@ import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
+import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.portfolio.PortfolioProjectDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
@@ -121,6 +122,7 @@ import static org.sonar.db.component.SnapshotTesting.newSnapshot;
 import static org.sonar.db.event.EventDto.CATEGORY_SQ_UPGRADE;
 import static org.sonar.db.event.EventDto.CATEGORY_VERSION;
 import static org.sonar.db.issue.IssueTesting.newCodeReferenceIssue;
+import static org.sonar.db.portfolio.PortfolioDto.SelectionMode.MANUAL;
 import static org.sonar.db.webhook.WebhookDeliveryTesting.newDto;
 import static org.sonar.db.webhook.WebhookDeliveryTesting.selectAllDeliveryUuids;
 
@@ -1262,6 +1264,31 @@ project.getProjectDto().getKey());
     assertThat(db.countRowsOfTable("issues")).isEqualTo(issueCount);
     assertThat(db.countRowsOfTable("project_branches")).isEqualTo(branchCount);
     assertThat(db.countRowsOfTable("properties")).isEqualTo(1);
+  }
+
+  @Test
+  void delete_portfolio_branch_when_deleting_branch() {
+    ComponentDto root = db.components()
+      .insertPrivatePortfolio(component -> component.setKey("ROOT"), portfolio -> portfolio.setSelectionMode(MANUAL));
+    PortfolioDto rootPortfolio = db.components().getPortfolioDto(root);
+    var project1 = db.components().insertPrivateProject(project -> project.setKey("project:one").setName("Project One")).getProjectDto();
+
+    db.components().addPortfolioProject(rootPortfolio, project1);
+    BranchDto mainBranch = db.getDbClient().branchDao().selectMainBranchByProjectUuid(db.getSession(), project1.getUuid()).orElseThrow();
+    db.components().addPortfolioProjectBranch(rootPortfolio, project1, mainBranch.getUuid());
+
+    var featureBranch = db.components().insertProjectBranch(project1, b -> b.setKey("feature-branch"));
+    db.components().addPortfolioProjectBranch(rootPortfolio, project1, featureBranch.getUuid());
+    db.commit();
+
+    db.getDbClient().portfolioDao().selectPortfolioProjects(dbSession, rootPortfolio.getUuid())
+      .forEach(pp -> assertThat(pp.getBranchUuids()).containsExactlyInAnyOrder(featureBranch.getUuid(), mainBranch.getUuid()));
+
+    underTest.deleteBranch(dbSession, featureBranch.getUuid());
+    dbSession.commit();
+
+    db.getDbClient().portfolioDao().selectPortfolioProjects(dbSession, rootPortfolio.getUuid())
+      .forEach(pp -> assertThat(pp.getBranchUuids()).containsOnly(mainBranch.getUuid()));
   }
 
   @Test
