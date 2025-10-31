@@ -33,6 +33,9 @@ public class DbVersion202506 implements DbVersion {
       .add(2025_06_003, "Create 'jira_org_bindings' table", CreateJiraOrganizationBindingsTable.class)
       .add(2025_06_004, "Create 'jira_org_bindings_pending' table", CreateJiraOrganizationBindingsPendingTable.class)
       .add(2025_06_005, "Create 'jira_selected_work_types' table", CreateJiraSelectedWorkTypesTable.class)
+      .add(2025_06_006, "Create 'jira_work_items' table", CreateJiraWorkItemsTable.class)
+      .add(2025_06_007, "Create 'jira_work_items_linked_resources' table", CreateJiraWorkItemsResourcesTable.class)
     ;
   }
+
 }

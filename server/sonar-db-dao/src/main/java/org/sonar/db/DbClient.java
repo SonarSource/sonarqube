@@ -52,6 +52,7 @@ import org.sonar.db.jira.dao.JiraOrganizationBindingDao;
 import org.sonar.db.jira.dao.JiraOrganizationBindingPendingDao;
 import org.sonar.db.jira.dao.JiraProjectBindingDao;
 import org.sonar.db.jira.dao.JiraSelectedWorkTypeDao;
+import org.sonar.db.jira.dao.JiraWorkItemDao;
 import org.sonar.db.jira.dao.XsrfTokenDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.ProjectMeasureDao;
@@ -150,6 +151,7 @@ public class DbClient {
   private final IssueChangeDao issueChangeDao;
   private final JiraProjectBindingDao jiraProjectBindingDao;
   private final JiraOrganizationBindingDao jiraOrganizationBindingDao;
+  private final JiraWorkItemDao jiraWorkItemDao;
   private final JiraOrganizationBindingPendingDao jiraOrganizationBindingPendingDao;
   private final AtlassianAuthenticationDetailsDao atlassianAuthenticationDetailsDao;
   private final XsrfTokenDao xsrfTokenDao;
@@ -250,6 +252,7 @@ public class DbClient {
     issueChangeDao = getDao(map, IssueChangeDao.class);
     jiraProjectBindingDao = getDao(map, JiraProjectBindingDao.class);
     jiraOrganizationBindingDao = getDao(map, JiraOrganizationBindingDao.class);
+    jiraWorkItemDao = getDao(map, JiraWorkItemDao.class);
     jiraOrganizationBindingPendingDao = getDao(map, JiraOrganizationBindingPendingDao.class);
     atlassianAuthenticationDetailsDao = getDao(map, AtlassianAuthenticationDetailsDao.class);
     xsrfTokenDao = getDao(map, XsrfTokenDao.class);
@@ -374,6 +377,10 @@ public class DbClient {
 
   public JiraOrganizationBindingDao jiraOrganizationBindingDao() {
     return jiraOrganizationBindingDao;
+  }
+
+  public JiraWorkItemDao jiraWorkItemDao() {
+    return jiraWorkItemDao;
   }
 
   public JiraOrganizationBindingPendingDao jiraOrganizationBindingPendingDao() {

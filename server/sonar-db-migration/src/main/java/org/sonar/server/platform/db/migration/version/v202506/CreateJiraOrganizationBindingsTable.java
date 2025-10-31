@@ -31,7 +31,6 @@ import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVar
 public class CreateJiraOrganizationBindingsTable extends CreateTableChange {
 
   static final String TABLE_NAME = "jira_org_bindings";
-  static final String PK_NAME = "pk_jira_org_bindings";
 
   static final String COLUMN_ID = "id";
   static final String COLUMN_CREATED_AT = "created_at";

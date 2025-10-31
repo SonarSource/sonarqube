@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.jira.JiraWorkItemMapper">
+
+  <sql id="sqlColumns">
+    jwi.id as id,
+    jwi.created_at as createdAt,
+    jwi.updated_at as updatedAt,
+    jwi.jira_issue_id as jiraIssueId,
+    jwi.jira_issue_key as jiraIssueKey,
+    jwi.jira_issue_url as jiraIssueUrl,
+    jwi.jira_project_binding_id as jiraProjectBindingId
+  </sql>
+
+  <select id="findById" parameterType="string" resultType="org.sonar.db.jira.dto.JiraWorkItemDto">
+    select <include refid="sqlColumns"/>
+    from
+      jira_work_items jwi
+    where
+      jwi.id = #{id, jdbcType=VARCHAR}
+  </select>
+
+  <select id="findByResource" parameterType="map" resultType="org.sonar.db.jira.dto.JiraWorkItemDto">
+    select <include refid="sqlColumns"/>
+    from
+      jira_work_items jwi
+    inner join jira_work_items_resources jwir on jwi.id = jwir.jira_work_item_id
+    where
+      jwir.resource_id = #{resourceId, jdbcType=VARCHAR}
+      and jwir.resource_type = #{resourceType, jdbcType=VARCHAR}
+  </select>
+
+  <insert id="insert" parameterType="Map" useGeneratedKeys="false">
+    INSERT INTO jira_work_items
+    (
+      id,
+      created_at,
+      updated_at,
+      jira_issue_id,
+      jira_issue_key,
+      jira_issue_url,
+      jira_project_binding_id
+    )
+    VALUES (
+      #{dto.id, jdbcType=VARCHAR},
+      #{dto.createdAt, jdbcType=BIGINT},
+      #{dto.updatedAt, jdbcType=BIGINT},
+      #{dto.jiraIssueId, jdbcType=VARCHAR},
+      #{dto.jiraIssueKey, jdbcType=VARCHAR},
+      #{dto.jiraIssueUrl, jdbcType=VARCHAR},
+      #{dto.jiraProjectBindingId, jdbcType=VARCHAR}
+    )
+  </insert>
+
+  <update id="update" parameterType="map">
+    UPDATE jira_work_items
+    SET
+      jira_issue_id = #{dto.jiraIssueId, jdbcType=VARCHAR},
+      jira_issue_key = #{dto.jiraIssueKey, jdbcType=VARCHAR},
+      jira_issue_url = #{dto.jiraIssueUrl, jdbcType=VARCHAR},
+      jira_project_binding_id = #{dto.jiraProjectBindingId, jdbcType=VARCHAR},
+      updated_at = #{dto.updatedAt, jdbcType=BIGINT}
+    WHERE
+      id = #{dto.id, jdbcType=VARCHAR}
+  </update>
+
+  <delete id="deleteById" parameterType="String">
+    DELETE FROM jira_work_items WHERE id = #{id, jdbcType=VARCHAR}
+  </delete>
+
+  <select id="countAll" resultType="int">
+    SELECT COUNT(1)
+    FROM jira_work_items
+  </select>
+
+</mapper>
