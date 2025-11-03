@@ -19,6 +19,7 @@
  */
 package org.sonar.db.jira.dao;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
@@ -35,6 +36,8 @@ import static org.mockito.Mockito.when;
 
 class JiraWorkItemDaoTest {
 
+  public static final String JIRA_PROJECT_BINDING_ID = "project-binding-1";
+  public static final String SONAR_PROJECT_ID = "PROJ-1";
   private final System2 system2 = mock(System2.class);
   private final UuidFactory uuidFactory = mock(UuidFactory.class);
 
@@ -42,6 +45,11 @@ class JiraWorkItemDaoTest {
   private final DbTester db = DbTester.create(system2);
 
   private final JiraWorkItemDao underTest = new JiraWorkItemDao(system2, uuidFactory);
+
+  @BeforeEach
+  void beforeEach() {
+    clearDb();
+  }
 
   @Test
   void insertOrUpdate_shouldInsertNewWorkItem() {
@@ -157,7 +165,7 @@ class JiraWorkItemDaoTest {
   @Test
   void countAll_shouldReturnCorrectCount_whenWorkItemsExist() {
     when(uuidFactory.create()).thenReturn("work-item-uuid-1", "work-item-uuid-2", "work-item-uuid-3");
-    insertWorkItem("jira-issue-1", "PROJ-1", "binding-uuid-1");
+    insertWorkItem("jira-issue-1", SONAR_PROJECT_ID, "binding-uuid-1");
     insertWorkItem("jira-issue-2", "PROJ-2", "binding-uuid-1");
     insertWorkItem("jira-issue-3", "PROJ-3", "binding-uuid-2");
 
@@ -169,7 +177,7 @@ class JiraWorkItemDaoTest {
   @Test
   void countAll_shouldReturnCorrectCount_afterDeletion() {
     when(uuidFactory.create()).thenReturn("work-item-uuid-1", "work-item-uuid-2");
-    insertWorkItem("jira-issue-1", "PROJ-1", "binding-uuid-1");
+    insertWorkItem("jira-issue-1", SONAR_PROJECT_ID, "binding-uuid-1");
     insertWorkItem("jira-issue-2", "PROJ-2", "binding-uuid-1");
     assertThat(underTest.countAll(db.getSession())).isEqualTo(2);
 
@@ -180,7 +188,7 @@ class JiraWorkItemDaoTest {
 
   @Test
   void findByResource_shouldReturnEmpty_whenNoLinkedResources() {
-    var result = underTest.findByResource(db.getSession(), "resource-1", "SONAR_ISSUE");
+    var result = underTest.findByResource(db.getSession(), SONAR_PROJECT_ID, "resource-1", "SONAR_ISSUE");
 
     assertThat(result).isEmpty();
   }
@@ -191,17 +199,14 @@ class JiraWorkItemDaoTest {
     when(system2.now()).thenReturn(1000L);
     when(uuidFactory.create())
       .thenReturn("work-item-uuid-1", "work-item-uuid-2", "work-item-uuid-3");
-
-    // Insert work items
-    insertWorkItem("jira-issue-1", "PROJ-1", "binding-uuid-1");
-    insertWorkItem("jira-issue-2", "PROJ-2", "binding-uuid-1");
-    insertWorkItem("jira-issue-3", "PROJ-3", "binding-uuid-2");
-
-    // Link work items to resources
+    insertProjectBinding();
+    insertWorkItem("jira-issue-1", SONAR_PROJECT_ID, JIRA_PROJECT_BINDING_ID);
+    insertWorkItem("jira-issue-2", SONAR_PROJECT_ID, JIRA_PROJECT_BINDING_ID);
+    insertWorkItem("jira-issue-3", "PROJ-2", "project-binding-2");
     insertLinkedResource("work-item-uuid-1", resourceId, "SONAR_ISSUE");
     insertLinkedResource("work-item-uuid-2", resourceId, "SONAR_ISSUE");
 
-    var result = underTest.findByResource(db.getSession(), resourceId, "SONAR_ISSUE");
+    var result = underTest.findByResource(db.getSession(), SONAR_PROJECT_ID, resourceId, "SONAR_ISSUE");
 
     assertThat(result).hasSize(2);
     assertThat(result)
@@ -214,14 +219,13 @@ class JiraWorkItemDaoTest {
     var resourceId = "resource-work-items-filter-by-type";
     when(system2.now()).thenReturn(1000L);
     when(uuidFactory.create()).thenReturn("work-item-uuid-1", "work-item-uuid-2");
-
-    insertWorkItem("jira-issue-1", "PROJ-1", "binding-uuid-1");
-    insertWorkItem("jira-issue-2", "PROJ-2", "binding-uuid-1");
-
+    insertProjectBinding();
+    insertWorkItem("jira-issue-1", SONAR_PROJECT_ID, JIRA_PROJECT_BINDING_ID);
+    insertWorkItem("jira-issue-2", SONAR_PROJECT_ID, JIRA_PROJECT_BINDING_ID);
     insertLinkedResource("work-item-uuid-1", resourceId, "SONAR_ISSUE");
     insertLinkedResource("work-item-uuid-2", resourceId, "DEPENDENCY_RISK");
 
-    var result = underTest.findByResource(db.getSession(), resourceId, "SONAR_ISSUE");
+    var result = underTest.findByResource(db.getSession(), SONAR_PROJECT_ID, resourceId, "SONAR_ISSUE");
 
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getId()).isEqualTo("work-item-uuid-1");
@@ -234,12 +238,51 @@ class JiraWorkItemDaoTest {
     when(system2.now()).thenReturn(1000L);
     when(uuidFactory.create()).thenReturn("work-item-uuid-1");
 
-    insertWorkItem("jira-issue-1", "PROJ-1", "binding-uuid-1");
+    insertWorkItem("jira-issue-1", SONAR_PROJECT_ID, "binding-uuid-1");
     insertLinkedResource("work-item-uuid-1", existingResourceId, "SONAR_ISSUE");
 
-    var result = underTest.findByResource(db.getSession(), nonExistingResourceId, "SONAR_ISSUE");
+    var result = underTest.findByResource(db.getSession(), SONAR_PROJECT_ID, nonExistingResourceId, "SONAR_ISSUE");
 
     assertThat(result).isEmpty();
+  }
+
+  @Test
+  void deleteLinkedResource_shouldDeleteSpecificResourceLink() {
+    when(system2.now()).thenReturn(1000L);
+    when(uuidFactory.create()).thenReturn("work-item-uuid-1");
+    insertProjectBinding();
+    insertWorkItem("jira-issue-1", SONAR_PROJECT_ID, JIRA_PROJECT_BINDING_ID);
+    insertLinkedResource("work-item-uuid-1", "resource-1", "SONAR_ISSUE");
+    insertLinkedResource("work-item-uuid-1", "resource-2", "SONAR_ISSUE");
+    assertThat(countWorkItemResources()).isEqualTo(2);
+
+    int deletedCount = underTest.deleteLinkedResource(db.getSession(), "work-item-uuid-1", "resource-1", "SONAR_ISSUE");
+
+    assertThat(deletedCount).isEqualTo(1);
+    assertThat(countWorkItemResources()).isEqualTo(1);
+  }
+
+  @Test
+  void deleteLinkedResource_shouldReturnZero_whenNoMatchingLink() {
+    int deletedCount = underTest.deleteLinkedResource(db.getSession(), "non-existent-work-item", "non-existent-resource", "SONAR_ISSUE");
+
+    assertThat(deletedCount).isZero();
+  }
+
+  @Test
+  void deleteLinkedResource_shouldFilterByResourceType() {
+    when(system2.now()).thenReturn(1000L);
+    when(uuidFactory.create()).thenReturn("work-item-uuid-1");
+    insertProjectBinding();
+    insertWorkItem("jira-issue-1", SONAR_PROJECT_ID, JIRA_PROJECT_BINDING_ID);
+    insertLinkedResource("work-item-uuid-1", "resource-1", "SONAR_ISSUE");
+    insertLinkedResource("work-item-uuid-1", "resource-1", "DEPENDENCY_RISK");
+    assertThat(countWorkItemResources()).isEqualTo(2);
+
+    int deletedCount = underTest.deleteLinkedResource(db.getSession(), "work-item-uuid-1", "resource-1", "SONAR_ISSUE");
+
+    assertThat(deletedCount).isEqualTo(1);
+    assertThat(countWorkItemResources()).isEqualTo(1);
   }
 
   private void insertWorkItem(String jiraIssueId, String jiraIssueKey, String jiraProjectBindingId) {
@@ -259,5 +302,26 @@ class JiraWorkItemDaoTest {
       "created_at", 1000L,
       "updated_at", 1000L
     );
+  }
+
+  private void insertProjectBinding() {
+    db.executeInsert("jira_project_bindings",
+      "id", JIRA_PROJECT_BINDING_ID,
+      "sonar_project_id", SONAR_PROJECT_ID,
+      "jira_organization_binding_id", "organization-binding-id",
+      "jira_project_key", "project-key",
+      "created_at", 1000L,
+      "updated_at", 1000L
+    );
+  }
+
+  private int countWorkItemResources() {
+    return db.countRowsOfTable(db.getSession(), "jira_work_items_resources");
+  }
+
+  private void clearDb() {
+    db.executeUpdateSql("DELETE FROM jira_work_items_resources");
+    db.executeUpdateSql("DELETE FROM jira_work_items");
+    db.executeUpdateSql("DELETE FROM jira_project_bindings");
   }
 }

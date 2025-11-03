@@ -26,9 +26,11 @@
     from
       jira_work_items jwi
     inner join jira_work_items_resources jwir on jwi.id = jwir.jira_work_item_id
+    inner join jira_project_bindings jpb on jwi.jira_project_binding_id = jpb.id
     where
       jwir.resource_id = #{resourceId, jdbcType=VARCHAR}
       and jwir.resource_type = #{resourceType, jdbcType=VARCHAR}
+      and jpb.sonar_project_id = #{sonarProjectId, jdbcType=VARCHAR}
   </select>
 
   <insert id="insert" parameterType="Map" useGeneratedKeys="false">
@@ -68,6 +70,33 @@
   <delete id="deleteById" parameterType="String">
     DELETE FROM jira_work_items WHERE id = #{id, jdbcType=VARCHAR}
   </delete>
+
+  <delete id="deleteLinkedResource" parameterType="map">
+    DELETE FROM jira_work_items_resources
+    WHERE jira_work_item_id = #{workItemId, jdbcType=VARCHAR}
+      AND resource_id = #{resourceId, jdbcType=VARCHAR}
+      AND resource_type = #{resourceType, jdbcType=VARCHAR}
+  </delete>
+
+  <insert id="insertLinkedResource" parameterType="map" useGeneratedKeys="false">
+    INSERT INTO jira_work_items_resources
+    (
+      id,
+      jira_work_item_id,
+      resource_id,
+      resource_type,
+      created_at,
+      updated_at
+    )
+    VALUES (
+      #{id, jdbcType=VARCHAR},
+      #{workItemId, jdbcType=VARCHAR},
+      #{resourceId, jdbcType=VARCHAR},
+      #{resourceType, jdbcType=VARCHAR},
+      #{now, jdbcType=BIGINT},
+      #{now, jdbcType=BIGINT}
+    )
+  </insert>
 
   <select id="countAll" resultType="int">
     SELECT COUNT(1)

@@ -59,12 +59,36 @@ public class JiraWorkItemDao implements Dao {
     return Optional.ofNullable(getMapper(dbSession).findById(id));
   }
 
-  public List<JiraWorkItemDto> findByResource(DbSession dbSession, String resourceId, String resourceType) {
-    return getMapper(dbSession).findByResource(resourceId, resourceType);
+  public List<JiraWorkItemDto> findByResource(DbSession dbSession, String sonarProjectId, String resourceId, String resourceType) {
+    return getMapper(dbSession).findByResource(sonarProjectId, resourceId, resourceType);
   }
 
   public int deleteById(DbSession dbSession, String id) {
     return getMapper(dbSession).deleteById(id);
+  }
+
+  public int deleteLinkedResource(
+    DbSession dbSession,
+    String workItemId,
+    String resourceId,
+    String resourceType
+  ) {
+    return getMapper(dbSession).deleteLinkedResource(workItemId, resourceId, resourceType);
+  }
+
+  public void insertLinkedResource(
+    DbSession dbSession,
+    String workItemId,
+    String resourceId,
+    String resourceType
+  ) {
+    getMapper(dbSession).insertLinkedResource(
+      uuidFactory.create(),
+      workItemId,
+      resourceId,
+      resourceType,
+      system2.now()
+    );
   }
 
   public int countAll(DbSession dbSession) {

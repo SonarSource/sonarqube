@@ -29,13 +29,31 @@ public interface JiraWorkItemMapper {
   @CheckForNull
   JiraWorkItemDto findById(String id);
 
-  List<JiraWorkItemDto> findByResource(@Param("resourceId") String resourceId, @Param("resourceType") String resourceType);
+  List<JiraWorkItemDto> findByResource(
+    @Param("sonarProjectId") String sonarProjectId,
+    @Param("resourceId") String resourceId,
+    @Param("resourceType") String resourceType
+  );
 
   void insert(@Param("dto") JiraWorkItemDto dto);
 
   int update(@Param("dto") JiraWorkItemDto dto);
 
   int deleteById(String id);
+
+  int deleteLinkedResource(
+    @Param("workItemId") String workItemId,
+    @Param("resourceId") String resourceId,
+    @Param("resourceType") String resourceType
+  );
+
+  void insertLinkedResource(
+    @Param("id") String id,
+    @Param("workItemId") String workItemId,
+    @Param("resourceId") String resourceId,
+    @Param("resourceType") String resourceType,
+    @Param("now") long now
+  );
 
   int countAll();
 
