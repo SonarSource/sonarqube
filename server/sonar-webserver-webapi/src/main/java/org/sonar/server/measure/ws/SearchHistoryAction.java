@@ -23,7 +23,6 @@ import com.google.common.collect.Sets;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -37,7 +36,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -51,6 +49,7 @@ import org.sonar.db.measure.PastMeasureQuery;
 import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.RemovedMetricConverter;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.telemetry.TelemetryPortfolioActivityGraphTypeProvider;
 import org.sonar.server.telemetry.TelemetryPortfolioActivityRequestedMetricProvider;
@@ -187,8 +186,7 @@ public class SearchHistoryAction implements MeasuresWsAction {
   }
 
   private void writeTelemetry(Request request, SearchHistoryResult searchResult) {
-    Map<String, String> headers = request.getHeaders();
-    String referer = headers.getOrDefault("referer", "");
+    String referer = request.header("referer").orElse("");
     if (referer.contains("project/activity") && List.of(VIEW, SUBVIEW).contains(searchResult.getComponent().qualifier())) {
       toWsRequest(request).metrics.forEach(telemetryRequestedMetricProvider::metricRequested);
       getGraphType(referer).ifPresent(telemetryGraphTypeProvider::incrementCount);

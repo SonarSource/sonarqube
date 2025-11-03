@@ -19,10 +19,9 @@
  */
 package org.sonar.server.pushapi;
 
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import jakarta.servlet.http.HttpServletResponse;
 import org.sonar.server.ws.ServletRequest;
 import org.sonar.server.ws.ServletResponse;
 import org.sonar.server.ws.WsAction;
@@ -30,8 +29,7 @@ import org.sonar.server.ws.WsAction;
 public abstract class ServerPushAction implements WsAction {
 
   protected boolean isServerSideEventsRequest(ServletRequest request) {
-    Map<String, String> headers = request.getHeaders();
-    String accept = headers.get("accept");
+    String accept = request.header("accept").orElse(null);
     if (accept != null) {
       return accept.contains("text/event-stream");
     }

@@ -78,13 +78,22 @@ public class SonarLintPushActionTest {
 
   @Test
   public void handle_returnsNoResponseWhenParamsAndHeadersProvided() {
-    TestResponse response = ws.newPushRequest()
+    TestResponse response1 = ws.newPushRequest()
       .setParam("projectKeys", "project1,project2")
       .setParam("languages", "java")
       .setHeader("accept", "text/event-stream")
       .execute();
 
-    assertThat(response.getInput()).isEmpty();
+    TestResponse response2 = ws.newPushRequest()
+      .setParam("projectKeys", "project1,project2")
+      .setParam("languages", "java")
+      .setHeader("Accept", "text/event-stream")
+      .execute();
+
+    assertThat(response1.getInput()).isEmpty();
+    assertThat(response1.getStatus()).isNotEqualTo(406);
+    assertThat(response2.getInput()).isEmpty();
+    assertThat(response2.getStatus()).isNotEqualTo(406);
   }
 
   @Test
@@ -99,7 +108,7 @@ public class SonarLintPushActionTest {
   @Test
   public void handle_whenParamsNotProvided_throwException() {
     TestPushRequest testRequest = ws.newPushRequest()
-      .setHeader("accept", "text/event-stream");
+      .setHeader("Accept", "text/event-stream");
 
     assertThatThrownBy(testRequest::execute)
       .isInstanceOf(IllegalArgumentException.class)
@@ -111,7 +120,7 @@ public class SonarLintPushActionTest {
     TestPushRequest testRequest = ws.newPushRequest()
       .setParam("projectKeys", "not-valid-key")
       .setParam("languages", "java")
-      .setHeader("accept", "text/event-stream");
+      .setHeader("Accept", "text/event-stream");
     when(projectDao.selectProjectsByKeys(any(), any())).thenReturn(List.of());
 
     assertThatThrownBy(testRequest::execute)

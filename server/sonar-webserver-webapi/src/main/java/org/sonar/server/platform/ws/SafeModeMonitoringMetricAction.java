@@ -69,7 +69,7 @@ public class SafeModeMonitoringMetricAction implements MonitoringWsAction {
       throw new ForbiddenException("Insufficient privileges");
     }
 
-    String requestContentType = request.getHeaders().get("accept");
+    String requestContentType = request.header("accept").orElse(null);
     String contentType = TextFormat.chooseContentType(requestContentType);
 
     response.setHeader(HttpHeaders.CONTENT_TYPE, contentType);
