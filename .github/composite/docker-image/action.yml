@@ -27,16 +27,19 @@ runs:
     - name: Set Image Name
       shell: bash
       id: set-image
+      env:
+        VENDOR: ${{ inputs.vendor }}
+        TAG: ${{ inputs.tag || 'latest' }}
       run: |
-        case "${{ inputs.vendor }}" in
+        case "$VENDOR" in
           "keycloak")
             IMAGE="quay.io/keycloak/keycloak:26.0.7"
             ;;
           "gitlab")
-            IMAGE="gitlab/gitlab-ce:${{ inputs.tag || 'latest' }}"
+            IMAGE="gitlab/gitlab-ce:$TAG"
             ;;
           *)
-            echo "Unsupported vendor: ${{ inputs.vendor }}"
+            echo "Unsupported vendor: $VENDOR"
             exit 1
             ;;
         esac
@@ -81,14 +84,33 @@ runs:
           --health-timeout=5s \
           --health-retries=5  quay.io/keycloak/keycloak:26.0.7 start-dev --http-relative-path /auth
 
+    - name: Generate GitLab SSL Certificates
+      if: ${{ inputs.vendor == 'gitlab' }}
+      shell: bash
+      run: |
+        mkdir -p /tmp/gitlab
+
+        # Generate private key (4096-bit RSA)
+        openssl genrsa -out /tmp/gitlab/key-for-certificate.key 4096
+
+        # Generate self-signed certificate valid for 10 years
+        openssl req -new -x509 -key /tmp/gitlab/key-for-certificate.key \
+          -out /tmp/gitlab/certificate-until-2032-without-password.crt \
+          -days 3650 \
+          -subj "/C=CH/ST=GE/L=GE/O=localhost/OU=localhost/CN=localhost/emailAddress=local@localhost.com" \
+          -addext "subjectAltName=DNS:localhost"
+
+        cp /tmp/gitlab/certificate-until-2032-without-password.crt /tmp/certificate.crt
+        sudo keytool -import -trustcacerts -file /tmp/certificate.crt -alias gitlab -keystore ${JAVA_HOME}/lib/security/cacerts --storepass changeit -noprompt
+
     - name: Start Gitlab Container
       if: ${{ inputs.vendor == 'gitlab' }}
       shell: bash
       run: |
         docker run -d --name gitlab \
         -p 80:80 -p 443:443 \
-        -v $GITHUB_WORKSPACE/.github/ci-files/gitlab/certificate-until-2032-without-password.crt:/etc/gitlab/ssl/localhost.crt \
-        -v $GITHUB_WORKSPACE/.github/ci-files/gitlab/key-for-certificate.key:/etc/gitlab/ssl/localhost.key \
+        -v /tmp/gitlab/certificate-until-2032-without-password.crt:/etc/gitlab/ssl/localhost.crt \
+        -v /tmp/gitlab/key-for-certificate.key:/etc/gitlab/ssl/localhost.key \
         -v $GITHUB_WORKSPACE/.github/ci-files/gitlab/external_gitlab.rb:/etc/gitlab/external_gitlab.rb \
         -v $GITHUB_WORKSPACE/.github/ci-files/gitlab/setup.rb:/tmp/setup.rb \
         -e GITLAB_POST_RECONFIGURE_SCRIPT="gitlab-rails runner /tmp/setup.rb && echo 'from_file \"/etc/gitlab/external_gitlab.rb\"' >> /etc/gitlab/gitlab.rb && gitlab-ctl reconfigure" \
@@ -100,5 +122,7 @@ runs:
 
     - name: Wait for container to be healthy
       shell: bash
+      env:
+        VENDOR: ${{ inputs.vendor }}
       run: |
-        timeout 500s bash -c 'until docker ps --filter "name=${{ inputs.vendor }}" --filter "health=healthy" | grep -q healthy; do sleep 5; done'
+        timeout 500s bash -c 'until docker ps --filter "name=$VENDOR" --filter "health=healthy" | grep -q healthy; do sleep 5; done'
