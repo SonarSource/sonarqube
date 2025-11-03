@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -238,7 +239,7 @@ public class CompositeBlameCommand extends BlameCommand {
         break;
       }
       linesList.add(new BlameLine()
-        .date(fileBlame.getCommitDates()[i])
+        .date(Date.from(fileBlame.getCommitDates()[i].toInstant()))
         .revision(fileBlame.getCommitHashes()[i])
         .author(fileBlame.getAuthorEmails()[i]));
     }
