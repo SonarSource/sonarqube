@@ -30,6 +30,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.UrlValidatorUtil;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -41,6 +42,7 @@ import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates.CreateResponse;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.Metric.DIRECTION_BETTER;
@@ -111,6 +113,7 @@ public class CreateAction implements QualityGatesWsAction {
       userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, organizationDto.getUuid());
 
       String name = request.mandatoryParam(PARAM_NAME);
+      checkArgument(UrlValidatorUtil.textContainsValidUrl(name), "Invalid quality gate name");
 
       logger.info("Create Quality Gate:: organization: {}, qGate: {}, user: {}", organizationDto.getKey(), name,
               userSession.getLogin());
