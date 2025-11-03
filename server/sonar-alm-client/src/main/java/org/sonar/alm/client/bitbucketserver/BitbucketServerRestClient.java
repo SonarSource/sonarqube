@@ -146,7 +146,7 @@ public class BitbucketServerRestClient {
 
   private String getBodyString(Request request) {
     try (Response response = client.newCall(request).execute()) {
-      String bodyString = response.body() == null ? "" : response.body().string();
+      String bodyString = response.body().string();
       validateResponseBody(response.isSuccessful(), bodyString);
       handleHttpErrorIfAny(response.isSuccessful(), response.code(), bodyString);
       return bodyString;

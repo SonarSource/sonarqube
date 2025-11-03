@@ -80,15 +80,6 @@ class AzureBillingResponseHandlerTest {
   }
 
   @Test
-  void extractAccessTokenFromResponse_whenResponseBodyIsNull_returnEmptyOptional() {
-    Response mockResponse = mock();
-    when(mockResponse.body()).thenReturn(null);
-
-    var accessToken = underTest.extractAccessTokenFromResponse(mockResponse);
-    assertTrue(accessToken.isEmpty());
-  }
-
-  @Test
   void extractAccessTokenFromResponse_whenIoExceptionIsThrown_returnsEmpty() throws IOException {
     Response mockResponse = mock();
 

@@ -196,7 +196,7 @@ public class AzureDevOpsHttpClient {
       }
 
       ResponseBody responseBody = response.body();
-      String body = responseBody == null ? "" : responseBody.string();
+      String body = responseBody.string();
       String errorMessage = generateErrorMessage(body);
       LOG.error("Azure API call to [{}] failed with {} http code. Azure response content : [{}]", response.request().url(), response.code(), body);
       throw new AzureDevopsServerException(response.code(), errorMessage);

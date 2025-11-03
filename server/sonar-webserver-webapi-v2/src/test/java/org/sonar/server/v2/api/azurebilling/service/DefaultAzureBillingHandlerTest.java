@@ -96,7 +96,7 @@ class DefaultAzureBillingHandlerTest {
   void testBillAzureAccount_whenCallIsNotOkay_thenMessageShouldNotBeNull() throws IOException {
     when(mockMeteringResponse.isSuccessful()).thenReturn(false);
     when(mockMeteringResponse.code()).thenReturn(500);
-    when(mockMeteringResponse.body()).thenReturn(null);
+    when(mockMeteringResponse.body()).thenReturn(okhttp3.ResponseBody.create("", okhttp3.MediaType.parse("application/json")));
     when(mockMeteringResponse.message()).thenReturn("Bad Request");
 
     ResponseEntity<AzureBillingRestResponse> response = underTest.billAzureAccount();

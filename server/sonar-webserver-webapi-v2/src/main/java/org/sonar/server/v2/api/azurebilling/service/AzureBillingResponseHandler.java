@@ -39,16 +39,14 @@ public class AzureBillingResponseHandler {
   public Optional<String> extractAccessTokenFromResponse(Response response) {
     String fullResponseBody;
 
-    if (response.body() != null) {
-      try {
-        fullResponseBody = response.body().string();
-        if (fullResponseBody.contains(ACCESS_TOKEN_FIELD)) {
-          String accessTokenValue = fullResponseBody.split("\"" + ACCESS_TOKEN_FIELD + "\":\"")[1].split("\"")[0];
-          return Optional.of(accessTokenValue);
-        }
-      } catch (IOException e) {
-        return Optional.empty();
+    try {
+      fullResponseBody = response.body().string();
+      if (fullResponseBody.contains(ACCESS_TOKEN_FIELD)) {
+        String accessTokenValue = fullResponseBody.split("\"" + ACCESS_TOKEN_FIELD + "\":\"")[1].split("\"")[0];
+        return Optional.of(accessTokenValue);
       }
+    } catch (IOException e) {
+      return Optional.empty();
     }
     return Optional.empty();
   }
@@ -56,12 +54,14 @@ public class AzureBillingResponseHandler {
   public Optional<String> getErrorMessageFromResponse(Response response) {
     String fullResponseBody;
 
-    if (!response.isSuccessful() && response.body() != null) {
+    if (!response.isSuccessful()) {
       try {
         fullResponseBody = response.body().string();
-        Optional<String> code = extractCodeFromResponse(fullResponseBody);
-        Optional<String> message = extractMessageFromResponse(fullResponseBody);
-        return Optional.of(String.format(ERROR_MESSAGE_TEMPLATE, response.code(), code.orElse("No code"), message.orElse("No message")));
+        if (!fullResponseBody.isBlank()) {
+          Optional<String> code = extractCodeFromResponse(fullResponseBody);
+          Optional<String> message = extractMessageFromResponse(fullResponseBody);
+          return Optional.of(String.format(ERROR_MESSAGE_TEMPLATE, response.code(), code.orElse("No code"), message.orElse("No message")));
+        }
       } catch (IOException e) {
         return Optional.empty();
       }
@@ -75,7 +75,7 @@ public class AzureBillingResponseHandler {
     Optional<String> details = extractDetailedMessagesFromResponse(responseBody);
 
     if (mainMessage.isPresent() && details.isPresent()) {
-      return Optional.of( mainMessage.get() + " " + details.get().trim());
+      return Optional.of(mainMessage.get() + " " + details.get().trim());
     }
 
     return mainMessage;
@@ -105,7 +105,7 @@ public class AzureBillingResponseHandler {
 
       StringBuilder stringBuilder = new StringBuilder();
 
-      arrayNode.forEach( node -> stringBuilder.append(node.path(MESSAGE_FIELD).asText()).append(" "));
+      arrayNode.forEach(node -> stringBuilder.append(node.path(MESSAGE_FIELD).asText()).append(" "));
 
       return Optional.of(stringBuilder.toString());
 
