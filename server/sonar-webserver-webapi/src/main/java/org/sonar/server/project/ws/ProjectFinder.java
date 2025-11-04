@@ -24,14 +24,12 @@ import static java.util.Comparator.nullsFirst;
 import static java.util.Locale.ENGLISH;
 import static java.util.Objects.requireNonNull;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -67,7 +65,7 @@ public class ProjectFinder {
       candidateProjects.addAll(projectsWithOrgLevelScanPermissions);
     }
 
-    List<ProjectDto> filteredProjects = filterByQuery(searchQuery, new ArrayList<>(candidateProjects));
+    Set<ProjectDto> filteredProjects = filterByQuery(searchQuery, candidateProjects);
 
     List<Project> resultProjects = filteredProjects.stream()
         .sorted(comparing(ProjectDto::getName, nullsFirst(String.CASE_INSENSITIVE_ORDER)))
@@ -103,13 +101,13 @@ public class ProjectFinder {
     return dbClient.projectDao().selectProjectsByOrganizationUuids(dbSession, orgUuids);
   }
 
-  private List<ProjectDto> filterByQuery(@Nullable String searchQuery, List<ProjectDto> projects) {
+  private Set<ProjectDto> filterByQuery(@Nullable String searchQuery, Set<ProjectDto> projects) {
     if (searchQuery == null) {
       return projects;
     }
     return projects.stream()
         .filter(project -> !isFilteredByQuery(searchQuery, project.getName()))
-        .toList();
+        .collect(Collectors.toSet());
   }
 
   private static boolean isFilteredByQuery(@Nullable String query, String projectName) {
