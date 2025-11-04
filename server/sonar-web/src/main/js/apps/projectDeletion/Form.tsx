@@ -25,7 +25,7 @@ import { Router } from '~sonar-aligned/types/router';
 import ConfirmButton from '../../components/controls/ConfirmButton';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { Component } from '../../types/types';
-import { deleteProject } from '../../api/codescan';
+import { deleteBulkProjects } from '../../api/codescan';
 
 interface Props {
   component: Pick<Component, 'id' | 'key' | 'name' | 'qualifier' | 'organization'>;
@@ -35,7 +35,11 @@ interface Props {
 export function Form({ component, router }: Readonly<Props>) {
 
   const handleDelete = async () => {
-    deleteProject(component.id, true).then(() => {
+      const parameters = {
+            organization: component.organization,
+            projects: component.key,
+          }
+      deleteBulkProjects(parameters).then(() => {
       addGlobalSuccessMessage(translateWithParameters('project_deletion.resource_deleted', component.name));
       router.replace('/');
     });

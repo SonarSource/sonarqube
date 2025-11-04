@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { deleteRequest, post } from '../helpers/request';
+import { post } from '../helpers/request';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { Notification } from "../types/types";
 import axios from "axios";
@@ -25,11 +25,6 @@ import axios from "axios";
 export function getRawNotificationsForOrganization(key: string): Promise<Notification[]> {
   const params = { organizationId: key };
   return axios.get('/_codescan/notifications', { params })
-    .catch(throwGlobalError);
-}
-
-export function deleteProject(uuid: string, deleteProject?: boolean): Promise<void> {
-  return deleteRequest(`/_codescan/integrations/${uuid}?deleteProject=${deleteProject}`)
     .catch(throwGlobalError);
 }
 
