@@ -20,6 +20,7 @@
 package org.sonar.server.v2.api.system.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -39,6 +40,7 @@ import static org.sonar.server.v2.WebApiEndpoints.DATABASE_MIGRATIONS_ENDPOINT;
 
 @RestController
 @RequestMapping(DATABASE_MIGRATIONS_ENDPOINT)
+@Tag(name = "System")
 public class DatabaseMigrationsController {
 
   private final DatabaseVersion databaseVersion;

@@ -20,6 +20,7 @@
 package org.sonar.server.v2.api.azurebilling.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sonar.server.v2.api.azurebilling.response.AzureBillingRestResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,6 +32,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RequestMapping(value = AZURE_BILLING_ENDPOINT, produces = APPLICATION_JSON_VALUE)
 @RestController
+@Tag(name = "Marketplace Azure")
 public interface AzureBillingController {
 
   @PostMapping

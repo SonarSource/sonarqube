@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import javax.annotation.Nullable;
 import org.sonar.server.v2.api.model.RestPage;
@@ -52,6 +53,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RequestMapping(USER_ENDPOINT)
 @RestController
+@Tag(name = "Users Management")
 public interface UserController {
 
   @GetMapping(produces = APPLICATION_JSON_VALUE)

@@ -20,6 +20,7 @@
 package org.sonar.server.v2.api.projects.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.sonar.server.v2.api.projects.request.BoundProjectCreateRestRequest;
 import org.sonar.server.v2.api.projects.response.BoundProjectCreateRestResponse;
@@ -34,6 +35,7 @@ import static org.sonar.server.v2.WebApiEndpoints.BOUND_PROJECTS_ENDPOINT;
 
 @RequestMapping(BOUND_PROJECTS_ENDPOINT)
 @RestController
+@Tag(name = "Dop Translation")
 public interface BoundProjectsController {
 
 

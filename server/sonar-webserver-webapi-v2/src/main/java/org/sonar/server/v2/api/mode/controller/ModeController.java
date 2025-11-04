@@ -22,6 +22,7 @@ package org.sonar.server.v2.api.mode.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.sonar.server.v2.api.mode.resources.ModeResource;
 import org.springframework.http.HttpStatus;
@@ -38,6 +39,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RequestMapping(MODE_ENDPOINT)
 @RestController
+@Tag(name = "Clean Code Policy")
 public interface ModeController {
 
   @GetMapping(path = "", produces = APPLICATION_JSON_VALUE)

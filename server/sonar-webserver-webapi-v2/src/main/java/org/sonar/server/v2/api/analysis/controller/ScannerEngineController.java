@@ -20,6 +20,7 @@
 package org.sonar.server.v2.api.analysis.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sonar.server.v2.api.analysis.response.EngineInfoRestResponse;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +35,7 @@ import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE;
 
 @RequestMapping(value = SCANNER_ENGINE_ENDPOINT, produces = APPLICATION_JSON_VALUE)
 @RestController
+@Tag(name = "Analysis")
 public interface ScannerEngineController {
 
   String GET_ENGINE_SUMMARY = "Scanner engine download/metadata";

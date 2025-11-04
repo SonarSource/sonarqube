@@ -22,6 +22,7 @@ package org.sonar.server.v2.api.rule.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.sonar.server.v2.api.rule.request.RuleCreateRestRequest;
 import org.sonar.server.v2.api.rule.response.RuleRestResponse;
@@ -37,6 +38,7 @@ import static org.sonar.server.v2.WebApiEndpoints.RULES_ENDPOINT;
 
 @RequestMapping(RULES_ENDPOINT)
 @RestController
+@Tag(name = "Clean Code Policy")
 public interface RuleController {
 
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

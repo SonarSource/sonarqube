@@ -20,6 +20,7 @@
 package org.sonar.server.v2.api.dop.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sonar.server.v2.api.dop.response.DopSettingsRestResponse;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +31,7 @@ import static org.sonar.server.v2.WebApiEndpoints.DOP_SETTINGS_ENDPOINT;
 
 @RequestMapping(DOP_SETTINGS_ENDPOINT)
 @RestController
+@Tag(name = "Dop Translation")
 public interface DopSettingsController {
 
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)

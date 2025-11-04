@@ -21,6 +21,7 @@ package org.sonar.server.v2.api.analysis.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.sonar.server.rule.ActiveRuleRestReponse;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,6 +37,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping(value = ACTIVE_RULES_ENDPOINT, produces = APPLICATION_JSON_VALUE)
 @ResponseStatus(OK)
 @RestController
+@Tag(name = "Analysis")
 public interface ActiveRulesController {
 
   String PROJECT_KEY_PARAM_DESCRIPTION = "Project Key";

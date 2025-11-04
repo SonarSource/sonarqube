@@ -21,6 +21,7 @@ package org.sonar.server.v2.api.analysis.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.sonar.server.v2.api.analysis.response.JreInfoRestResponse;
 import org.springframework.core.io.InputStreamResource;
@@ -40,6 +41,7 @@ import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE;
 @RequestMapping(value = JRE_ENDPOINT, produces = APPLICATION_JSON_VALUE)
 @ResponseStatus(OK)
 @RestController
+@Tag(name = "Analysis")
 public interface JresController {
 
   String OS_PARAM_DESCRIPTION = "Filter the JRE by operating system. Accepted values are 'windows', 'linux', 'macos', 'alpine' (case-insensitive), with some aliases";

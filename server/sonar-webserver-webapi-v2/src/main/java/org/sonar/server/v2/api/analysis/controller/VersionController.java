@@ -20,6 +20,7 @@
 package org.sonar.server.v2.api.analysis.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -31,6 +32,7 @@ import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
 @RequestMapping(VERSION_ENDPOINT)
 @RestController
+@Tag(name = "Analysis")
 public interface VersionController {
 
   @GetMapping(produces = TEXT_PLAIN_VALUE)

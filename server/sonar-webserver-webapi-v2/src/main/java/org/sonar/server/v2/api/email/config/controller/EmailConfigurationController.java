@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.sonar.server.v2.api.email.config.request.EmailConfigurationCreateRestRequest;
 import org.sonar.server.v2.api.email.config.request.EmailConfigurationUpdateRestRequest;
@@ -47,6 +48,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RequestMapping(EMAIL_CONFIGURATION_ENDPOINT)
 @RestController
+@Tag(name = "System")
 public interface EmailConfigurationController {
 
   @PostMapping

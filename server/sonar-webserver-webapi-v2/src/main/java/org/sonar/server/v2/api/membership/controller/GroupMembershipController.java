@@ -22,6 +22,7 @@ package org.sonar.server.v2.api.membership.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.sonar.server.v2.api.membership.request.GroupMembershipCreateRestRequest;
 import org.sonar.server.v2.api.membership.request.GroupsMembershipSearchRestRequest;
@@ -44,6 +45,7 @@ import static org.sonar.server.v2.WebApiEndpoints.GROUP_MEMBERSHIPS_ENDPOINT;
 
 @RequestMapping(GROUP_MEMBERSHIPS_ENDPOINT)
 @RestController
+@Tag(name = "Authorizations")
 public interface GroupMembershipController {
 
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)

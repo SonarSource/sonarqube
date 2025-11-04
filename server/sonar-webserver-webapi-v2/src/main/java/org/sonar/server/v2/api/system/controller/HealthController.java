@@ -19,6 +19,7 @@
  */
 package org.sonar.server.v2.api.system.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.annotation.Nullable;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
@@ -42,6 +43,7 @@ This is not the final implementation, as we have to first define what are endpoi
 */
 @RestController
 @RequestMapping(HEALTH_ENDPOINT)
+@Tag(name = "System")
 public class HealthController {
 
   private final HealthChecker healthChecker;
