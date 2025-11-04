@@ -47,7 +47,6 @@ public class ProjectFinder {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private static final Logger LOGGER = LoggerFactory.getLogger(ProjectFinder.class);
 
   public ProjectFinder(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
@@ -55,46 +54,25 @@ public class ProjectFinder {
   }
 
   public SearchResult search(DbSession dbSession, @Nullable String searchQuery) {
-    long startTime = System.currentTimeMillis();
-
     Set<ProjectDto> candidateProjects;
+
     if (userSession.isRoot()) {
-      long loadAllStart = System.currentTimeMillis();
       candidateProjects = new HashSet<>(dbClient.projectDao().selectProjects(dbSession));
-      LOGGER.info("Loaded {} projects for root user, took {} ms", candidateProjects.size(),
-          System.currentTimeMillis() - loadAllStart);
     } else {
-      long directStart = System.currentTimeMillis();
-      List<ProjectDto> projectsWithDirectPermission = searchProjectsWithDirectScanPermission(dbSession);
-      LOGGER.info("Projects with direct scan permission {} projects, {} ms", projectsWithDirectPermission.size(),
-          System.currentTimeMillis() - directStart);
+      List<ProjectDto> projectsWithDirectScanPermission = searchProjectsWithDirectScanPermission(dbSession);
+      List<ProjectDto> projectsWithOrgLevelScanPermissions = searchProjectsWithOrgLevelScanPermissions(dbSession);
 
-      long orgLevelStart = System.currentTimeMillis();
-      List<ProjectDto> projectsWithOrgLevelPermissions = searchProjectsWithOrgLevelPermissions(dbSession);
-      LOGGER.info("Projects with org level scan permission {} projects, {} ms", projectsWithOrgLevelPermissions.size(),
-          System.currentTimeMillis() - orgLevelStart);
-
-      candidateProjects = new HashSet<>(projectsWithDirectPermission);
-      candidateProjects.addAll(projectsWithOrgLevelPermissions);
+      candidateProjects = new HashSet<>();
+      candidateProjects.addAll(projectsWithDirectScanPermission);
+      candidateProjects.addAll(projectsWithOrgLevelScanPermissions);
     }
 
-    long filterStart = System.currentTimeMillis();
     List<ProjectDto> filteredProjects = filterByQuery(searchQuery, new ArrayList<>(candidateProjects));
-    LOGGER.info("Apply query filter {} total ms, {} step ms", System.currentTimeMillis() - startTime,
-        System.currentTimeMillis() - filterStart);
 
-    long authorizationStart = System.currentTimeMillis();
-    List<ProjectDto> authorizedProjects = userSession.keepAuthorizedEntities(UserRole.SCAN, filteredProjects);
-    LOGGER.info("Keep authorized entities {} total ms, {} step ms", System.currentTimeMillis() - startTime,
-        System.currentTimeMillis() - authorizationStart);
-
-    long startResultTime = System.currentTimeMillis();
-    List<Project> resultProjects = authorizedProjects.stream()
+    List<Project> resultProjects = filteredProjects.stream()
         .sorted(comparing(ProjectDto::getName, nullsFirst(String.CASE_INSENSITIVE_ORDER)))
         .map(p -> new Project(p.getKey(), p.getName()))
         .toList();
-    LOGGER.info("Results project {} total ms, {} step ms", System.currentTimeMillis() - startTime,
-        System.currentTimeMillis() - startResultTime);
 
     return new SearchResult(resultProjects);
   }
@@ -115,7 +93,7 @@ public class ProjectFinder {
     return dbClient.projectDao().selectByUuids(dbSession, Set.copyOf(projectUuids));
   }
 
-  private List<ProjectDto> searchProjectsWithOrgLevelPermissions(DbSession dbSession) {
+  private List<ProjectDto> searchProjectsWithOrgLevelScanPermissions(DbSession dbSession) {
     List<OrganizationDto> orgs = dbClient.organizationDao().selectOrgsForUserAndRole(dbSession, userSession.getUuid(),
         OrganizationPermission.SCAN.toString());
     if (orgs.isEmpty()) {
