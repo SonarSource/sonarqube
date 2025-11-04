@@ -72,6 +72,10 @@ if [ "${QA_CATEGORY}" == "GITLAB_PROVISIONING" ]; then
   BUILD_TASK=":private:core-extension-gitlab-provisioning:bbtClasses"
   TEST_TASK=":private:core-extension-gitlab-provisioning:blackBoxTest"
 fi
+if [ "${QA_CATEGORY}" == "OPEN_API" ]; then
+  BUILD_TASK=":private:api-hub:testClasses"
+  TEST_TASK=":private:api-hub:integrationTest"
+fi
 
 set +e
 
