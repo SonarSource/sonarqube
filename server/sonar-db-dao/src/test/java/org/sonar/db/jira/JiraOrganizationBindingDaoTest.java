@@ -19,12 +19,20 @@
  */
 package org.sonar.db.jira;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.jira.dao.JiraOrganizationBindingDao;
+import org.sonar.db.jira.dao.JiraProjectBindingDao;
+import org.sonar.db.jira.dao.JiraSelectedWorkTypeDao;
+import org.sonar.db.jira.dao.JiraWorkItemDao;
 import org.sonar.db.jira.dto.JiraOrganizationBindingDto;
+import org.sonar.db.jira.dto.JiraProjectBindingDto;
+import org.sonar.db.jira.dto.JiraSelectedWorkTypeDto;
+import org.sonar.db.jira.dto.JiraWorkItemDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -33,11 +41,15 @@ import static org.mockito.Mockito.when;
 class JiraOrganizationBindingDaoTest {
 
   private final System2 system2 = mock(System2.class);
+  private final UuidFactory uuidFactory = mock(UuidFactory.class);
 
   @RegisterExtension
   private final DbTester db = DbTester.create(system2);
 
   private final JiraOrganizationBindingDao underTest = new JiraOrganizationBindingDao(system2);
+  private final JiraProjectBindingDao projectBindingDao = new JiraProjectBindingDao(system2, uuidFactory);
+  private final JiraWorkItemDao workItemDao = new JiraWorkItemDao(system2, uuidFactory);
+  private final JiraSelectedWorkTypeDao selectedWorkTypeDao = new JiraSelectedWorkTypeDao(system2, uuidFactory);
 
   @Test
   void insert_shouldInsertNewBinding() {
@@ -113,11 +125,7 @@ class JiraOrganizationBindingDaoTest {
   @Test
   void selectById_shouldReturnBinding_whenExists() {
     when(system2.now()).thenReturn(1000L);
-    var dto = new JiraOrganizationBindingDto()
-      .setId("binding-1")
-      .setSonarOrganizationUuid("org-uuid-1")
-      .setJiraInstanceUrl("https://jira.example.com");
-    underTest.insert(db.getSession(), dto);
+    insertOrganization("binding-1", "org-uuid-1");
 
     var result = underTest.selectById(db.getSession(), "binding-1");
 
@@ -134,11 +142,7 @@ class JiraOrganizationBindingDaoTest {
   @Test
   void selectBySonarOrganizationUuid_shouldReturnBinding_whenExists() {
     when(system2.now()).thenReturn(1000L);
-    var dto = new JiraOrganizationBindingDto()
-      .setId("binding-1")
-      .setSonarOrganizationUuid("org-uuid-1")
-      .setJiraInstanceUrl("https://jira.example.com");
-    underTest.insert(db.getSession(), dto);
+    insertOrganization("binding-1", "org-uuid-1");
 
     var result = underTest.selectBySonarOrganizationUuid(db.getSession(), "org-uuid-1");
 
@@ -150,22 +154,112 @@ class JiraOrganizationBindingDaoTest {
   @Test
   void deleteBySonarOrganizationUuid_shouldDeleteBinding() {
     when(system2.now()).thenReturn(1000L);
-    var dto = new JiraOrganizationBindingDto()
-      .setId("binding-1")
-      .setSonarOrganizationUuid("org-uuid-1")
-      .setJiraInstanceUrl("https://jira.example.com");
-    underTest.insert(db.getSession(), dto);
+    insertOrganization("binding-1", "org-uuid-1");
 
-    int deleted = underTest.deleteBySonarOrganizationUuid(db.getSession(), "org-uuid-1");
+    var deletedCount = underTest.deleteBySonarOrganizationUuid(db.getSession(), "org-uuid-1");
 
-    assertThat(deleted).isEqualTo(1);
+    assertThat(deletedCount).isEqualTo(1);
     assertThat(underTest.selectBySonarOrganizationUuid(db.getSession(), "org-uuid-1")).isEmpty();
   }
 
   @Test
   void deleteBySonarOrganizationUuid_shouldReturnZero_whenNotFound() {
-    int deleted = underTest.deleteBySonarOrganizationUuid(db.getSession(), "non-existent");
+    var deletedCount = underTest.deleteBySonarOrganizationUuid(db.getSession(), "non-existent");
 
-    assertThat(deleted).isZero();
+    assertThat(deletedCount).isZero();
+    assertThat(underTest.selectBySonarOrganizationUuid(db.getSession(), "non-existent")).isEmpty();
+  }
+
+  @Test
+  void deleteBySonarOrganizationUuid_shouldPerformCascadeDelete_withAllRelatedData() {
+    when(system2.now()).thenReturn(1000L);
+    when(uuidFactory.create()).thenReturn("project-1", "work-item-1", "linked-resource-1", "work-type-1");
+
+    insertOrganization("org-binding-1", "org-uuid-1");
+    var project1 = insertProject("org-binding-1", "sonar-project-1");
+    var workItem1 = insertWorkItem(project1.getId(), "issue-1");
+    workItemDao.insertLinkedResource(db.getSession(), workItem1.getId(), "resource-1", "ISSUE");
+    insertWorkType(project1.getId(), "10001");
+
+    // Verify that the data exist before deletion
+    assertThat(underTest.selectById(db.getSession(), "org-binding-1")).isPresent();
+    assertThat(projectBindingDao.selectById(db.getSession(), project1.getId())).isPresent();
+    assertThat(workItemDao.findById(db.getSession(), workItem1.getId())).isPresent();
+    assertThat(selectedWorkTypeDao.findByJiraProjectBindingId(db.getSession(), project1.getId())).hasSize(1);
+
+    var deletedCount = underTest.deleteBySonarOrganizationUuid(db.getSession(), "org-uuid-1");
+
+    // Verify count: 1 org + 1 project + 1 work item + 1 linked resource + 1 work type = 5
+    assertThat(deletedCount).isEqualTo(5);
+
+    // Verify all data is deleted
+    assertThat(underTest.selectById(db.getSession(), "org-binding-1")).isEmpty();
+    assertThat(projectBindingDao.selectById(db.getSession(), project1.getId())).isEmpty();
+    assertThat(workItemDao.findById(db.getSession(), workItem1.getId())).isEmpty();
+    assertThat(selectedWorkTypeDao.findByJiraProjectBindingId(db.getSession(), project1.getId())).isEmpty();
+  }
+
+  @Test
+  void deleteBySonarOrganizationUuid_shouldDeleteOnlySpecificOrganizationData_whenMultipleOrganizationsExist() {
+    when(system2.now()).thenReturn(1000L);
+    when(uuidFactory.create()).thenReturn("project-1", "project-2", "work-item-1", "work-item-2");
+
+    insertOrganization("org-1", "org-uuid-1");
+    insertOrganization("org-2", "org-uuid-2");
+    var project1 = insertProject("org-1", "sonar-project-1");
+    var project2 = insertProject("org-2", "sonar-project-2");
+    var workItem1 = insertWorkItem(project1.getId(), "issue-1");
+    var workItem2 = insertWorkItem(project2.getId(), "issue-2");
+
+    var deletedCount = underTest.deleteBySonarOrganizationUuid(db.getSession(), "org-uuid-1");
+
+    // Should count only org1 data: 1 org + 1 project + 1 work item = 3
+    assertThat(deletedCount).isEqualTo(3);
+
+    // Verify org1 data is deleted
+    assertThat(underTest.selectById(db.getSession(), "org-1")).isEmpty();
+    assertThat(projectBindingDao.selectById(db.getSession(), project1.getId())).isEmpty();
+    assertThat(workItemDao.findById(db.getSession(), workItem1.getId())).isEmpty();
+
+    // Verify org2 data still exists
+    assertThat(underTest.selectById(db.getSession(), "org-2")).isPresent();
+    assertThat(projectBindingDao.selectById(db.getSession(), project2.getId())).isPresent();
+    assertThat(workItemDao.findById(db.getSession(), workItem2.getId())).isPresent();
+  }
+
+  private JiraOrganizationBindingDto insertOrganization(String id, String sonarOrgUuid) {
+    return underTest.insert(
+      db.getSession(),
+      new JiraOrganizationBindingDto()
+        .setId(id)
+        .setSonarOrganizationUuid(sonarOrgUuid)
+        .setJiraInstanceUrl("https://jira.example.com"));
+  }
+
+  private JiraProjectBindingDto insertProject(String orgBindingId, String sonarProjectId) {
+    return projectBindingDao.insertOrUpdate(
+      db.getSession(),
+      new JiraProjectBindingDto()
+        .setSonarProjectId(sonarProjectId)
+        .setJiraOrganizationBindingId(orgBindingId)
+        .setJiraProjectKey("PROJ-KEY"));
+  }
+
+  private JiraWorkItemDto insertWorkItem(String projectBindingId, String issueId) {
+    return workItemDao.insertOrUpdate(
+      db.getSession(),
+      new JiraWorkItemDto()
+        .setJiraProjectBindingId(projectBindingId)
+        .setJiraIssueId(issueId)
+        .setJiraIssueKey("ISSUE-KEY")
+        .setJiraIssueUrl("https://jira.example.com/browse/ISSUE-KEY"));
+  }
+
+  private void insertWorkType(String projectBindingId, String workTypeId) {
+    selectedWorkTypeDao.saveAll(
+      db.getSession(),
+      List.of(new JiraSelectedWorkTypeDto()
+        .setJiraProjectBindingId(projectBindingId)
+        .setWorkTypeId(workTypeId)));
   }
 }

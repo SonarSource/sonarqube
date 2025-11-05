@@ -35,5 +35,7 @@ public interface JiraOrganizationBindingMapper {
 
   void update(@Param("dto") JiraOrganizationBindingDto dto);
 
-  int deleteBySonarOrganizationUuid(@Param("sonarOrganizationUuid") String sonarOrganizationUuid);
+  int countJiraRelatedDataBySonarOrganizationUuid(@Param("sonarOrganizationUuid") String sonarOrganizationUuid);
+
+  void deleteBySonarOrganizationUuid(@Param("sonarOrganizationUuid") String sonarOrganizationUuid);
 }

@@ -20,11 +20,12 @@
 package org.sonar.db.jira.dao;
 
 import java.util.Optional;
+
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.jira.dto.JiraOrganizationBindingDto;
 import org.sonar.db.jira.JiraOrganizationBindingMapper;
+import org.sonar.db.jira.dto.JiraOrganizationBindingDto;
 
 public class JiraOrganizationBindingDao implements Dao {
 
@@ -38,7 +39,8 @@ public class JiraOrganizationBindingDao implements Dao {
     return Optional.ofNullable(getMapper(dbSession).selectById(id));
   }
 
-  public Optional<JiraOrganizationBindingDto> selectBySonarOrganizationUuid(DbSession dbSession, String sonarOrganizationUuid) {
+  public Optional<JiraOrganizationBindingDto> selectBySonarOrganizationUuid(DbSession dbSession,
+      String sonarOrganizationUuid) {
     return Optional.ofNullable(getMapper(dbSession).selectBySonarOrganizationUuid(sonarOrganizationUuid));
   }
 
@@ -58,7 +60,10 @@ public class JiraOrganizationBindingDao implements Dao {
   }
 
   public int deleteBySonarOrganizationUuid(DbSession dbSession, String sonarOrganizationUuid) {
-    return getMapper(dbSession).deleteBySonarOrganizationUuid(sonarOrganizationUuid);
+    var mapper = getMapper(dbSession);
+    var totalCount = mapper.countJiraRelatedDataBySonarOrganizationUuid(sonarOrganizationUuid);
+    mapper.deleteBySonarOrganizationUuid(sonarOrganizationUuid);
+    return totalCount;
   }
 
   private static JiraOrganizationBindingMapper getMapper(DbSession dbSession) {

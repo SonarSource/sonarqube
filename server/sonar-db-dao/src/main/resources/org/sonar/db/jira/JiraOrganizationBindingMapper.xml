@@ -82,8 +82,74 @@
       id = #{dto.id, jdbcType=VARCHAR}
   </update>
 
+  <select id="countJiraRelatedDataBySonarOrganizationUuid" parameterType="String" resultType="int">
+    SELECT
+      (SELECT COUNT(*)
+       FROM jira_org_bindings ob
+       WHERE ob.sonar_organization_uuid = #{sonarOrganizationUuid, jdbcType=VARCHAR}) +
+      (SELECT COUNT(*)
+       FROM jira_project_bindings pb
+       INNER JOIN jira_org_bindings ob ON pb.jira_organization_binding_id = ob.id
+       WHERE ob.sonar_organization_uuid = #{sonarOrganizationUuid, jdbcType=VARCHAR}) +
+      (SELECT COUNT(*)
+       FROM jira_work_items wi
+       INNER JOIN jira_project_bindings pb ON wi.jira_project_binding_id = pb.id
+       INNER JOIN jira_org_bindings ob ON pb.jira_organization_binding_id = ob.id
+       WHERE ob.sonar_organization_uuid = #{sonarOrganizationUuid, jdbcType=VARCHAR}) +
+      (SELECT COUNT(*)
+       FROM jira_work_items_resources wir
+       INNER JOIN jira_work_items wi ON wir.jira_work_item_id = wi.id
+       INNER JOIN jira_project_bindings pb ON wi.jira_project_binding_id = pb.id
+       INNER JOIN jira_org_bindings ob ON pb.jira_organization_binding_id = ob.id
+       WHERE ob.sonar_organization_uuid = #{sonarOrganizationUuid, jdbcType=VARCHAR}) +
+      (SELECT COUNT(*)
+       FROM jira_selected_work_types swt
+       INNER JOIN jira_project_bindings pb ON swt.jira_project_binding_id = pb.id
+       INNER JOIN jira_org_bindings ob ON pb.jira_organization_binding_id = ob.id
+       WHERE ob.sonar_organization_uuid = #{sonarOrganizationUuid, jdbcType=VARCHAR})
+  </select>
+
+  <sql id="deleteBySonarOrganizationUuidQuery">
+    DELETE FROM jira_work_items_resources
+    WHERE jira_work_item_id IN (
+      SELECT wi.id
+      FROM jira_work_items wi
+      INNER JOIN jira_project_bindings pb ON wi.jira_project_binding_id = pb.id
+      INNER JOIN jira_org_bindings ob ON pb.jira_organization_binding_id = ob.id
+      WHERE ob.sonar_organization_uuid = #{sonarOrganizationUuid, jdbcType=VARCHAR}
+    );
+    DELETE FROM jira_work_items
+    WHERE jira_project_binding_id IN (
+      SELECT pb.id
+      FROM jira_project_bindings pb
+      INNER JOIN jira_org_bindings ob ON pb.jira_organization_binding_id = ob.id
+      WHERE ob.sonar_organization_uuid = #{sonarOrganizationUuid, jdbcType=VARCHAR}
+    );
+    DELETE FROM jira_selected_work_types
+    WHERE jira_project_binding_id IN (
+      SELECT pb.id
+      FROM jira_project_bindings pb
+      INNER JOIN jira_org_bindings ob ON pb.jira_organization_binding_id = ob.id
+      WHERE ob.sonar_organization_uuid = #{sonarOrganizationUuid, jdbcType=VARCHAR}
+    );
+    DELETE FROM jira_project_bindings
+    WHERE jira_organization_binding_id IN (
+      SELECT ob.id
+      FROM jira_org_bindings ob
+      WHERE ob.sonar_organization_uuid = #{sonarOrganizationUuid, jdbcType=VARCHAR}
+    );
+    DELETE FROM jira_org_bindings
+    WHERE sonar_organization_uuid = #{sonarOrganizationUuid, jdbcType=VARCHAR};
+  </sql>
+
   <delete id="deleteBySonarOrganizationUuid" parameterType="String">
-    DELETE FROM jira_org_bindings WHERE sonar_organization_uuid = #{sonarOrganizationUuid, jdbcType=VARCHAR}
+    <include refid="deleteBySonarOrganizationUuidQuery"/>
+  </delete>
+
+  <delete id="deleteBySonarOrganizationUuid" parameterType="String" databaseId="oracle">
+    BEGIN
+    <include refid="deleteBySonarOrganizationUuidQuery"/>
+    END;
   </delete>
 
 </mapper>
