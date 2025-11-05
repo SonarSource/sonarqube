@@ -35,6 +35,11 @@ public class DbVersion202506 implements DbVersion {
       .add(2025_06_005, "Create 'jira_selected_work_types' table", CreateJiraSelectedWorkTypesTable.class)
       .add(2025_06_006, "Create 'jira_work_items' table", CreateJiraWorkItemsTable.class)
       .add(2025_06_007, "Create 'jira_work_items_linked_resources' table", CreateJiraWorkItemsResourcesTable.class)
+      .add(2025_06_008, "Create 'integration_configs' table", CreateIntegrationConfigurationsTable.class)
+      .add(2025_06_009, "Create 'slack_subscriptions' table", CreateSlackSubscriptionsTable.class)
+      .add(2025_06_010, "Create 'slack_workspaces' table", CreateSlackWorkspacesTable.class)
+      .add(2025_06_011, "Create 'user_bindings' table", CreateUserBindingsTable.class)
+      .add(2025_06_012, "Create 'user_bindings_slack' table", CreateUserBindingsSlackTable.class)
     ;
   }
 
