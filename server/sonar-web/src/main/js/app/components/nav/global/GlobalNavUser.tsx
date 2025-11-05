@@ -55,6 +55,7 @@ export function GlobalNavUser({ currentUser, userOrganizations }: GlobalNavUserP
       const script = document.createElement('script');
       const sfAccountId = userOrganizations.find?.(o => o.sfAccountId != null)?.sfAccountId || null;
       const host = window.location.hostname;
+
       script.innerHTML =
         "  pendo.initialize({\n" +
         "        visitor: {\n" +
