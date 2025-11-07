@@ -112,7 +112,7 @@ export default function Changelog(props: Readonly<Props>) {
 
         <ContentCell
           cellClassName={classNames({ 'sw-border-transparent': !shouldDisplayDate })}
-          className={classNames('sw-whitespace-nowrap sw-align-top sw-max-w-[120px]')}
+          className={classNames('sw-whitespace sw-align-top')}
         >
           {shouldDisplayAuthor && (event.authorName ? event.authorName : <Note>System</Note>)}
         </ContentCell>
@@ -148,7 +148,7 @@ export default function Changelog(props: Readonly<Props>) {
   return (
     <Table
       columnCount={5}
-      columnWidths={['1%', '1%', '1%', 'auto', 'auto']}
+      columnWidths={['1%', 'auto', '1%', 'auto', 'auto']}
       header={
         <TableRow>
           <ContentCell>{intl.formatMessage({ id: 'date' })}</ContentCell>
