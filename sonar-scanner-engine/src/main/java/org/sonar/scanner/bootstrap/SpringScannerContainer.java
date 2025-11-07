@@ -32,6 +32,7 @@ import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.scanner.DefaultFileLinesContextFactory;
 import org.sonar.scanner.ProjectInfo;
+import org.sonar.scanner.a3s.NoopA3SContextCollector;
 import org.sonar.scanner.analysis.AnalysisTempFolderProvider;
 import org.sonar.scanner.cache.AnalysisCacheEnabled;
 import org.sonar.scanner.cache.AnalysisCacheMemoryStorage;
@@ -305,7 +306,9 @@ public class SpringScannerContainer extends SpringComponentContainer {
       DefaultLanguagesRepository.class,
 
       DefaultFeatureFlagsLoader.class,
-      DefaultFeatureFlagsRepository.class);
+      DefaultFeatureFlagsRepository.class,
+
+      NoopA3SContextCollector.class);
 
     add(GitScmSupport.getObjects());
     add(SvnScmSupport.getObjects());
