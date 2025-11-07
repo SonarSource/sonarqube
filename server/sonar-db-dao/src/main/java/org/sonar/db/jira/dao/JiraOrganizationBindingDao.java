@@ -66,6 +66,10 @@ public class JiraOrganizationBindingDao implements Dao {
     return totalCount;
   }
 
+  public int countAll(DbSession dbSession) {
+    return getMapper(dbSession).countAll();
+  }
+
   private static JiraOrganizationBindingMapper getMapper(DbSession dbSession) {
     return dbSession.getMapper(JiraOrganizationBindingMapper.class);
   }

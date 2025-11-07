@@ -262,4 +262,23 @@ class JiraOrganizationBindingDaoTest {
         .setJiraProjectBindingId(projectBindingId)
         .setWorkTypeId(workTypeId)));
   }
+
+  @Test
+  void countAll_shouldReturnZero_whenNoBindings() {
+    int count = underTest.countAll(db.getSession());
+
+    assertThat(count).isZero();
+  }
+
+  @Test
+  void countAll_shouldReturnCorrectCount_whenBindingsExist() {
+    when(system2.now()).thenReturn(1000L);
+    insertOrganization("binding-1", "org-uuid-1");
+    insertOrganization("binding-2", "org-uuid-2");
+    assertThat(underTest.countAll(db.getSession())).isEqualTo(2);
+
+    underTest.deleteBySonarOrganizationUuid(db.getSession(), "org-uuid-1");
+
+    assertThat(underTest.countAll(db.getSession())).isEqualTo(1);
+  }
 }

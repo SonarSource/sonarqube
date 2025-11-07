@@ -38,4 +38,6 @@ public interface JiraOrganizationBindingMapper {
   int countJiraRelatedDataBySonarOrganizationUuid(@Param("sonarOrganizationUuid") String sonarOrganizationUuid);
 
   void deleteBySonarOrganizationUuid(@Param("sonarOrganizationUuid") String sonarOrganizationUuid);
+
+  int countAll();
 }

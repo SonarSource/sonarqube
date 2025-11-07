@@ -152,4 +152,9 @@
     END;
   </delete>
 
+  <select id="countAll" resultType="int">
+    SELECT COUNT(*)
+    FROM jira_org_bindings
+  </select>
+
 </mapper>
