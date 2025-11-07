@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -77,7 +78,7 @@ public class ProjectFinder {
 
   private List<ProjectDto> searchProjectsWithDirectScanPermission(DbSession dbSession) {
     String userUuid = userSession.getUuid();
-    if (userUuid == null) {
+    if (StringUtils.isEmpty(userUuid)) {
       return List.of();
     }
 
@@ -102,7 +103,7 @@ public class ProjectFinder {
   }
 
   private Set<ProjectDto> filterByQuery(@Nullable String searchQuery, Set<ProjectDto> projects) {
-    if (searchQuery == null) {
+    if (StringUtils.isEmpty(searchQuery)) {
       return projects;
     }
     return projects.stream()
