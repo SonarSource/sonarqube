@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.measure;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.ce.common.scanner.ScannerReportReader;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
 

@@ -19,9 +19,6 @@
  */
 package org.sonar.duplications.detector.suffixtree;
 
-import org.sonar.duplications.detector.suffixtree.AbstractText;
-import org.sonar.duplications.detector.suffixtree.Text;
-
 /**
  * Implementation of {@link Text} based on {@link String}.
  */

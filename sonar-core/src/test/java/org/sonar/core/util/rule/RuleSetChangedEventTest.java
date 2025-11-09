@@ -46,10 +46,4 @@ public class RuleSetChangedEventTest {
     assertThatThrownBy(() -> new RuleSetChangedEvent(project, activatedRules, deactivatedRules))
       .isInstanceOf(IllegalArgumentException.class);
   }
-
-  private RuleChange createRuleChange(String language) {
-    RuleChange ruleChange = new RuleChange();
-    ruleChange.setLanguage(language);
-    return ruleChange;
-  }
 }

@@ -19,13 +19,9 @@
  */
 package org.sonar.db.ce;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Consumer;
@@ -784,28 +780,6 @@ class CeQueueDaoIT {
       .setUuid(uuid)
       .setTaskUuid(taskUuid);
     db.getDbClient().ceTaskCharacteristicsDao().insert(db.getSession(), dto1);
-  }
-
-  private static Iterable<Map<String, Object>> upperizeKeys(List<Map<String, Object>> select) {
-    return select.stream().map((Function<Map<String, Object>, Map<String, Object>>) input -> {
-      Map<String, Object> res = new HashMap<>(input.size());
-      for (Map.Entry<String, Object> entry : input.entrySet()) {
-        res.put(entry.getKey().toUpperCase(), entry.getValue());
-      }
-      return res;
-    }).toList();
-  }
-
-  private void verifyCeQueueStatuses(String[] taskUuids, CeQueueDto.Status[] statuses) {
-    Map<String, Object>[] rows = new Map[taskUuids.length];
-    for (int i = 0; i < taskUuids.length; i++) {
-      rows[i] = rowMap(taskUuids[i], statuses[i]);
-    }
-    assertThat(upperizeKeys(db.select(SELECT_QUEUE_UUID_AND_STATUS_QUERY))).containsOnly(rows);
-  }
-
-  private static Map<String, Object> rowMap(String uuid, CeQueueDto.Status status) {
-    return ImmutableMap.of("UUID", uuid, "STATUS", status.name());
   }
 
   private void mockSystem2ForSingleCall(long now) {

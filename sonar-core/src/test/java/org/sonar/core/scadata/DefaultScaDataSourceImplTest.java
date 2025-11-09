@@ -22,7 +22,7 @@ package org.sonar.core.scadata;
 import org.junit.Test;
 import java.util.OptionalInt;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
 public class DefaultScaDataSourceImplTest {

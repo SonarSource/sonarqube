@@ -20,7 +20,6 @@
 package org.sonar.server.issue.ws;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -29,7 +28,6 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import java.util.Objects;

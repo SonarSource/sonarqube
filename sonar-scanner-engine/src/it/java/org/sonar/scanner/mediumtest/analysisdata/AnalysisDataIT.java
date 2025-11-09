@@ -32,7 +32,6 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.xoo.Xoo;
 import org.sonar.xoo.XooPlugin;
 
 public class AnalysisDataIT {

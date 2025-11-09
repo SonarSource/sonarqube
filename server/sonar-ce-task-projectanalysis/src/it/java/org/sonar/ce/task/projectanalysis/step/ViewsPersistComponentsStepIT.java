@@ -517,22 +517,6 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
   }
 
   /**
-   * Assertions to verify the DTO created from {@link #createViewBuilder(ViewAttributes.Type)} ()}
-   */
-  private void assertDtoIsApplication(ComponentDto dto) {
-    assertThat(dto.name()).isEqualTo(VIEW_NAME);
-    assertThat(dto.longName()).isEqualTo(VIEW_NAME);
-    assertThat(dto.description()).isEqualTo(VIEW_DESCRIPTION);
-    assertThat(dto.path()).isNull();
-    assertThat(dto.uuid()).isEqualTo(VIEW_UUID);
-    assertThat(dto.branchUuid()).isEqualTo(VIEW_UUID);
-    assertThat(dto.qualifier()).isEqualTo(ComponentQualifiers.APP);
-    assertThat(dto.scope()).isEqualTo(ComponentScopes.PROJECT);
-    assertThat(dto.getCopyComponentUuid()).isNull();
-    assertThat(dto.getCreatedAt()).isEqualTo(now);
-  }
-
-  /**
    * Assertions to verify the DTO created from {@link #createProjectView1Builder(ComponentDto, Long)}
    */
   private void assertDtoIsSubView1(ComponentDto viewDto, ComponentDto sv1Dto) {
