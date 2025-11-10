@@ -40,6 +40,8 @@ public class DbVersion202506 implements DbVersion {
       .add(2025_06_010, "Create 'slack_workspaces' table", CreateSlackWorkspacesTable.class)
       .add(2025_06_011, "Create 'user_bindings' table", CreateUserBindingsTable.class)
       .add(2025_06_012, "Create 'user_bindings_slack' table", CreateUserBindingsSlackTable.class)
+      .add(2025_06_013, "Create 'issue_stats_by_rule_key' table", CreateIssueStatsByRuleKeyTable.class)
+      .add(2025_06_014, "Populate 'issue_stats_by_rule_key'", PopulateIssueStatsByRuleKey.class)
     ;
   }
 

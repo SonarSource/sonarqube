@@ -29,7 +29,6 @@ import static org.sonar.server.platform.db.migration.version.v202506.CreateIssue
 import static org.sonar.server.platform.db.migration.version.v202506.CreateIssueStatsByRuleKeyTable.COLUMN_AGGREGATION_TYPE;
 import static org.sonar.server.platform.db.migration.version.v202506.CreateIssueStatsByRuleKeyTable.COLUMN_HOTSPOTS_REVIEWED;
 import static org.sonar.server.platform.db.migration.version.v202506.CreateIssueStatsByRuleKeyTable.COLUMN_HOTSPOT_COUNT;
-import static org.sonar.server.platform.db.migration.version.v202506.CreateIssueStatsByRuleKeyTable.COLUMN_HOTSPOT_RATING;
 import static org.sonar.server.platform.db.migration.version.v202506.CreateIssueStatsByRuleKeyTable.COLUMN_ISSUE_COUNT;
 import static org.sonar.server.platform.db.migration.version.v202506.CreateIssueStatsByRuleKeyTable.COLUMN_RATING;
 import static org.sonar.server.platform.db.migration.version.v202506.CreateIssueStatsByRuleKeyTable.COLUMN_RULE_KEY;
@@ -56,7 +55,6 @@ class CreateIssueStatsByRuleKeyTableTest {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_ISSUE_COUNT, Types.INTEGER, null, false);
     db.assertColumnDefinition(TABLE_NAME, COLUMN_RATING, Types.INTEGER, null, false);
     db.assertColumnDefinition(TABLE_NAME, COLUMN_HOTSPOT_COUNT, Types.INTEGER, null, true);
-    db.assertColumnDefinition(TABLE_NAME, COLUMN_HOTSPOT_RATING, Types.INTEGER, null, true);
     db.assertColumnDefinition(TABLE_NAME, COLUMN_HOTSPOTS_REVIEWED, Types.INTEGER, null, true);
   }
 
