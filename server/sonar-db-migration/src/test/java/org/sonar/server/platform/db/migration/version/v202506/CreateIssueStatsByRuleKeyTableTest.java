@@ -27,6 +27,7 @@ import org.sonar.db.MigrationDbTester;
 
 import static org.sonar.server.platform.db.migration.version.v202506.CreateIssueStatsByRuleKeyTable.COLUMN_AGGREGATION_ID;
 import static org.sonar.server.platform.db.migration.version.v202506.CreateIssueStatsByRuleKeyTable.COLUMN_AGGREGATION_TYPE;
+import static org.sonar.server.platform.db.migration.version.v202506.CreateIssueStatsByRuleKeyTable.COLUMN_HOTSPOTS_REVIEWED;
 import static org.sonar.server.platform.db.migration.version.v202506.CreateIssueStatsByRuleKeyTable.COLUMN_HOTSPOT_COUNT;
 import static org.sonar.server.platform.db.migration.version.v202506.CreateIssueStatsByRuleKeyTable.COLUMN_HOTSPOT_RATING;
 import static org.sonar.server.platform.db.migration.version.v202506.CreateIssueStatsByRuleKeyTable.COLUMN_ISSUE_COUNT;
@@ -51,11 +52,12 @@ class CreateIssueStatsByRuleKeyTableTest {
     db.assertPrimaryKey(TABLE_NAME, "pk_issue_stats_by_rule_key", COLUMN_AGGREGATION_TYPE, COLUMN_AGGREGATION_ID, COLUMN_RULE_KEY);
     db.assertColumnDefinition(TABLE_NAME, COLUMN_AGGREGATION_TYPE, Types.VARCHAR, 20, false);
     db.assertColumnDefinition(TABLE_NAME, COLUMN_AGGREGATION_ID, Types.VARCHAR, 40, false);
-    db.assertColumnDefinition(TABLE_NAME, COLUMN_RULE_KEY, Types.VARCHAR, 100, false);
+    db.assertColumnDefinition(TABLE_NAME, COLUMN_RULE_KEY, Types.VARCHAR, 200, false);
     db.assertColumnDefinition(TABLE_NAME, COLUMN_ISSUE_COUNT, Types.INTEGER, null, false);
     db.assertColumnDefinition(TABLE_NAME, COLUMN_RATING, Types.INTEGER, null, false);
     db.assertColumnDefinition(TABLE_NAME, COLUMN_HOTSPOT_COUNT, Types.INTEGER, null, true);
     db.assertColumnDefinition(TABLE_NAME, COLUMN_HOTSPOT_RATING, Types.INTEGER, null, true);
+    db.assertColumnDefinition(TABLE_NAME, COLUMN_HOTSPOTS_REVIEWED, Types.INTEGER, null, true);
   }
 
   @Test

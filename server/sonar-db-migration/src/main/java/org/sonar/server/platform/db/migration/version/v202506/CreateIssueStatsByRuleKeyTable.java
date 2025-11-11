@@ -36,6 +36,7 @@ public class CreateIssueStatsByRuleKeyTable extends CreateTableChange {
   static final String COLUMN_RATING = "rating";
   static final String COLUMN_HOTSPOT_COUNT = "hotspot_count";
   static final String COLUMN_HOTSPOT_RATING = "hotspot_rating";
+  static final String COLUMN_HOTSPOTS_REVIEWED = "hotspots_reviewed";
 
   public CreateIssueStatsByRuleKeyTable(Database db) {
     super(db, TABLE_NAME);
@@ -48,11 +49,12 @@ public class CreateIssueStatsByRuleKeyTable extends CreateTableChange {
     context.execute(new CreateTableBuilder(dialect, tableName)
       .addPkColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_AGGREGATION_TYPE).setIsNullable(false).setLimit(20).build())
       .addPkColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_AGGREGATION_ID).setIsNullable(false).setLimit(40).build())
-      .addPkColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_RULE_KEY).setIsNullable(false).setLimit(100).build())
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_RULE_KEY).setIsNullable(false).setLimit(200).build())
       .addColumn(newIntegerColumnDefBuilder().setColumnName(COLUMN_ISSUE_COUNT).setIsNullable(false).build())
       .addColumn(newIntegerColumnDefBuilder().setColumnName(COLUMN_RATING).setIsNullable(false).build())
       .addColumn(newIntegerColumnDefBuilder().setColumnName(COLUMN_HOTSPOT_COUNT).setIsNullable(true).build())
       .addColumn(newIntegerColumnDefBuilder().setColumnName(COLUMN_HOTSPOT_RATING).setIsNullable(true).build())
+      .addColumn(newIntegerColumnDefBuilder().setColumnName(COLUMN_HOTSPOTS_REVIEWED).setIsNullable(true).build())
       .build());
   }
 }
