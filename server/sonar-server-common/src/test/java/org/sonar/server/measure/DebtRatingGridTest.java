@@ -92,4 +92,11 @@ public class DebtRatingGridTest {
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Rating grid should contains 4 values");
   }
+
+  @Test
+  public void matching_rating_should_be_A_on_lowest_density_as_zero() {
+    double[] gridValues = new double[]{0D, 0.2, 0.5, 1};
+    DebtRatingGrid zeroRatingGrid = new DebtRatingGrid(gridValues);
+    assertThat(zeroRatingGrid.getRatingForDensity(0)).isEqualTo(A);
+  }
 }
