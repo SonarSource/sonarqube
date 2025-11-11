@@ -19,56 +19,56 @@
  */
 package org.sonar.server.component.index;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 
-public class ComponentIndexMultipleWordsTest extends ComponentIndexTest {
+class ComponentIndexMultipleWordsTest extends ComponentIndexTest {
 
   @Test
-  public void should_find_perfect_match() {
+  void should_find_perfect_match() {
     assertResultOrder("struts java",
       "Struts.java");
   }
 
   @Test
-  public void should_find_partial_match() {
+  void should_find_partial_match() {
     features.set(ComponentTextSearchFeatureRepertoire.PARTIAL);
     assertResultOrder("struts java",
       "Xstrutsx.Xjavax");
   }
 
   @Test
-  public void should_find_partial_match_prefix_word1() {
+  void should_find_partial_match_prefix_word1() {
     assertResultOrder("struts java",
       "MyStruts.java");
   }
 
   @Test
-  public void should_find_partial_match_suffix_word1() {
+  void should_find_partial_match_suffix_word1() {
     assertResultOrder("struts java",
       "StrutsObject.java");
   }
 
   @Test
-  public void should_find_partial_match_prefix_word2() {
+  void should_find_partial_match_prefix_word2() {
     assertResultOrder("struts java",
       "MyStruts.xjava");
   }
 
   @Test
-  public void should_find_partial_match_suffix_word2() {
+  void should_find_partial_match_suffix_word2() {
     assertResultOrder("struts java",
       "MyStruts.javax");
   }
 
   @Test
-  public void should_find_partial_match_prefix_and_suffix_everywhere() {
+  void should_find_partial_match_prefix_and_suffix_everywhere() {
     assertResultOrder("struts java",
       "MyStrutsObject.xjavax");
   }
 
   @Test
-  public void should_find_subset_of_document_terms() {
+  void should_find_subset_of_document_terms() {
     assertResultOrder("struts java",
       "Some.Struts.Class.java.old");
   }

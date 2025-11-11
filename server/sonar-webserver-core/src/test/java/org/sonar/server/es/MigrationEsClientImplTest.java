@@ -20,7 +20,6 @@
 package org.sonar.server.es;
 
 import java.util.Iterator;
-import org.elasticsearch.client.indices.GetMappingsRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
@@ -69,7 +68,11 @@ class MigrationEsClientImplTest {
   }
 
   private Iterator<String> loadExistingIndices() {
-    return es.client().getMapping(new GetMappingsRequest()).mappings().keySet().iterator();
+    return es.client().getMappingV2(req ->
+      req.index("*"))
+      .result()
+      .keySet()
+      .iterator();
   }
 
   private static class SimpleIndexDefinition implements IndexDefinition {

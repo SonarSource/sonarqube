@@ -19,11 +19,10 @@
  */
 package org.sonar.server.common.health;
 
+import co.elastic.clients.elasticsearch._types.HealthStatus;
 import com.google.common.collect.ImmutableSet;
-import java.util.Random;
 import java.util.Set;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.sonar.process.cluster.health.NodeDetails;
 import org.sonar.process.cluster.health.NodeHealth;
@@ -37,16 +36,15 @@ import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.when;
 import static org.sonar.process.cluster.health.NodeHealth.Status.GREEN;
 
-public class EsStatusClusterCheckTest {
+class EsStatusClusterCheckTest {
 
-  private EsClient esClient = Mockito.mock(EsClient.class, RETURNS_DEEP_STUBS);
-  private Random random = new Random();
-  private EsStatusClusterCheck underTest = new EsStatusClusterCheck(esClient);
+  private final EsClient esClient = Mockito.mock(EsClient.class, RETURNS_DEEP_STUBS);
+  private final EsStatusClusterCheck underTest = new EsStatusClusterCheck(esClient);
 
   @Test
-  public void check_ignores_NodeHealth_arg_and_returns_RED_with_cause_if_an_exception_occurs_checking_ES_cluster_status() {
+  void check_ignores_NodeHealth_arg_and_returns_RED_with_cause_if_an_exception_occurs_checking_ES_cluster_status() {
     Set<NodeHealth> nodeHealths = ImmutableSet.of(newNodeHealth(NodeHealth.Status.GREEN));
-    when(esClient.clusterHealth(any())).thenThrow(new RuntimeException("Faking an exception occurring while using the EsClient"));
+    when(esClient.clusterHealthV2(any())).thenThrow(new RuntimeException("Faking an exception occurring while using the EsClient"));
 
     Health health = new EsStatusClusterCheck(esClient).check(nodeHealths);
 
@@ -55,10 +53,10 @@ public class EsStatusClusterCheckTest {
   }
 
   @Test
-  public void check_ignores_NodeHealth_arg_and_returns_GREEN_without_cause_if_ES_cluster_status_is_GREEN() {
+  void check_ignores_NodeHealth_arg_and_returns_GREEN_without_cause_if_ES_cluster_status_is_GREEN() {
     Set<NodeHealth> nodeHealths = ImmutableSet.of(newNodeHealth(NodeHealth.Status.YELLOW));
-    when(esClient.clusterHealth(any()).getStatus()).thenReturn(ClusterHealthStatus.GREEN);
-    when(esClient.clusterHealth(any()).getNumberOfNodes()).thenReturn(3);
+    when(esClient.clusterHealthV2(any()).status()).thenReturn(HealthStatus.Green);
+    when(esClient.clusterHealthV2(any()).numberOfNodes()).thenReturn(3);
 
     Health health = underTest.check(nodeHealths);
 
@@ -66,10 +64,10 @@ public class EsStatusClusterCheckTest {
   }
 
   @Test
-  public void check_returns_YELLOW_with_cause_if_ES_cluster_has_less_than_three_nodes_but_status_is_green() {
+  void check_returns_YELLOW_with_cause_if_ES_cluster_has_less_than_three_nodes_but_status_is_green() {
     Set<NodeHealth> nodeHealths = ImmutableSet.of(newNodeHealth(GREEN));
-    when(esClient.clusterHealth(any()).getStatus()).thenReturn(ClusterHealthStatus.GREEN);
-    when(esClient.clusterHealth(any()).getNumberOfNodes()).thenReturn(2);
+    when(esClient.clusterHealthV2(any()).status()).thenReturn(HealthStatus.Green);
+    when(esClient.clusterHealthV2(any()).numberOfNodes()).thenReturn(2);
 
     Health health = underTest.check(nodeHealths);
 
@@ -78,10 +76,10 @@ public class EsStatusClusterCheckTest {
   }
 
   @Test
-  public void check_returns_RED_with_cause_if_ES_cluster_has_less_than_three_nodes_and_status_is_RED() {
+  void check_returns_RED_with_cause_if_ES_cluster_has_less_than_three_nodes_and_status_is_RED() {
     Set<NodeHealth> nodeHealths = ImmutableSet.of(newNodeHealth(GREEN));
-    when(esClient.clusterHealth(any()).getStatus()).thenReturn(ClusterHealthStatus.RED);
-    when(esClient.clusterHealth(any()).getNumberOfNodes()).thenReturn(2);
+    when(esClient.clusterHealthV2(any()).status()).thenReturn(HealthStatus.Red);
+    when(esClient.clusterHealthV2(any()).numberOfNodes()).thenReturn(2);
 
     Health health = underTest.check(nodeHealths);
 
@@ -94,11 +92,11 @@ public class EsStatusClusterCheckTest {
     return NodeHealth.newNodeHealthBuilder()
       .setStatus(status)
       .setDetails(NodeDetails.newNodeDetailsBuilder()
-        .setType(random.nextBoolean() ? NodeDetails.Type.APPLICATION : NodeDetails.Type.SEARCH)
+        .setType(NodeDetails.Type.APPLICATION)
         .setName(secure().nextAlphanumeric(23))
         .setHost(secure().nextAlphanumeric(23))
-        .setPort(1 + random.nextInt(96))
-        .setStartedAt(1 + random.nextInt(966))
+        .setPort(1)
+        .setStartedAt(1)
         .build())
       .build();
   }

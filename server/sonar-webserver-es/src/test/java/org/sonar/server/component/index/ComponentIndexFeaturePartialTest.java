@@ -19,20 +19,20 @@
  */
 package org.sonar.server.component.index;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 
-public class ComponentIndexFeaturePartialTest extends ComponentIndexTest {
+class ComponentIndexFeaturePartialTest extends ComponentIndexTest {
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     features.set(ComponentTextSearchFeatureRepertoire.PARTIAL);
   }
 
   @Test
-  public void search_projects_by_exact_name() {
+  void search_projects_by_exact_name() {
     ProjectDto struts = indexProject("struts", "Apache Struts");
     indexProject("sonarqube", "SonarQube");
 
@@ -42,7 +42,7 @@ public class ComponentIndexFeaturePartialTest extends ComponentIndexTest {
   }
 
   @Test
-  public void should_search_by_name_with_two_characters() {
+  void should_search_by_name_with_two_characters() {
     ProjectDto project = indexProject("struts", "Apache Struts");
 
     assertSearchResults("st", project);
@@ -50,7 +50,7 @@ public class ComponentIndexFeaturePartialTest extends ComponentIndexTest {
   }
 
   @Test
-  public void search_projects_by_partial_name() {
+  void search_projects_by_partial_name() {
     ProjectDto struts = indexProject("struts", "Apache Struts");
 
     assertSearchResults("truts", struts);
@@ -60,7 +60,7 @@ public class ComponentIndexFeaturePartialTest extends ComponentIndexTest {
   }
 
   @Test
-  public void search_projects_and_files_by_partial_name() {
+  void search_projects_and_files_by_partial_name() {
     ProjectDto project = indexProject("struts", "Apache Struts");
 
     assertSearchResults("struts", project);
@@ -68,27 +68,27 @@ public class ComponentIndexFeaturePartialTest extends ComponentIndexTest {
   }
 
   @Test
-  public void should_search_for_word_and_suffix() {
+  void should_search_for_word_and_suffix() {
     assertResultOrder("plugin java", "AbstractPluginFactory.java");
   }
 
   @Test
-  public void should_search_for_word_and_suffix_in_any_order() {
+  void should_search_for_word_and_suffix_in_any_order() {
     assertResultOrder("java plugin", "AbstractPluginFactory.java");
   }
 
   @Test
-  public void should_search_for_two_words() {
+  void should_search_for_two_words() {
     assertResultOrder("abstract factory", "AbstractPluginFactory.java");
   }
 
   @Test
-  public void should_search_for_two_words_in_any_order() {
+  void should_search_for_two_words_in_any_order() {
     assertResultOrder("factory abstract", "AbstractPluginFactory.java");
   }
 
   @Test
-  public void should_require_at_least_one_matching_word() {
+  void should_require_at_least_one_matching_word() {
     indexProject("AbstractPluginFactory");
 
     assertNoSearchResults("monitor object");

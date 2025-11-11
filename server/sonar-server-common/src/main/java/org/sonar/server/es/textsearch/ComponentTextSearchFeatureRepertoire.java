@@ -19,22 +19,19 @@
  */
 package org.sonar.server.es.textsearch;
 
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.sonar.server.es.newindex.DefaultIndexSettings;
 import org.sonar.server.es.newindex.DefaultIndexSettingsElement;
 import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory.ComponentTextSearchQuery;
 
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SEARCH_PREFIX_ANALYZER;
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SEARCH_PREFIX_CASE_INSENSITIVE_ANALYZER;
@@ -46,75 +43,85 @@ public enum ComponentTextSearchFeatureRepertoire implements ComponentTextSearchF
 
   EXACT_IGNORE_CASE(CHANGE_ORDER_OF_RESULTS) {
     @Override
-    public QueryBuilder getQuery(ComponentTextSearchQuery query) {
-      return matchQuery(SORTABLE_ANALYZER.subField(query.getFieldName()), query.getQueryText())
-        .boost(2.5F);
+    public Query getQueryV2(ComponentTextSearchQuery query) {
+      return Query.of(q -> q.match(m -> m
+        .field(SORTABLE_ANALYZER.subField(query.getFieldName()))
+        .query(query.getQueryText())
+        .boost(2.5F)));
     }
   },
   PREFIX(CHANGE_ORDER_OF_RESULTS) {
     @Override
-    public Stream<QueryBuilder> getQueries(ComponentTextSearchQuery query) {
+    public Stream<Query> getQueriesV2(ComponentTextSearchQuery query) {
       List<String> tokens = query.getQueryTextTokens();
-      if (tokens.isEmpty()) {
-        return Stream.empty();
-      }
-      BoolQueryBuilder queryBuilder = prefixAndPartialQuery(tokens, query.getFieldName(), SEARCH_PREFIX_ANALYZER)
-        .boost(3F);
+      Query queryBuilder = prefixAndPartialQueryV2(tokens, query.getFieldName(), SEARCH_PREFIX_ANALYZER, 3F);
       return Stream.of(queryBuilder);
     }
   },
   PREFIX_IGNORE_CASE(GENERATE_RESULTS) {
     @Override
-    public Stream<QueryBuilder> getQueries(ComponentTextSearchQuery query) {
+    public Stream<Query> getQueriesV2(ComponentTextSearchQuery query) {
       List<String> tokens = query.getQueryTextTokens();
       if (tokens.isEmpty()) {
         return Stream.empty();
       }
       List<String> lowerCaseTokens = tokens.stream().map(t -> t.toLowerCase(Locale.ENGLISH)).toList();
-      BoolQueryBuilder queryBuilder = prefixAndPartialQuery(lowerCaseTokens, query.getFieldName(), SEARCH_PREFIX_CASE_INSENSITIVE_ANALYZER)
-        .boost(2F);
+      Query queryBuilder = prefixAndPartialQueryV2(lowerCaseTokens, query.getFieldName(), SEARCH_PREFIX_CASE_INSENSITIVE_ANALYZER, 2F);
       return Stream.of(queryBuilder);
     }
   },
   PARTIAL(GENERATE_RESULTS) {
     @Override
-    public Stream<QueryBuilder> getQueries(ComponentTextSearchQuery query) {
+    public Stream<Query> getQueriesV2(ComponentTextSearchQuery query) {
       List<String> tokens = query.getQueryTextTokens();
       if (tokens.isEmpty()) {
         return Stream.empty();
       }
-      BoolQueryBuilder queryBuilder = boolQuery().boost(0.5F);
-      tokens.stream()
-        .map(text -> tokenQuery(text, query.getFieldName(), SEARCH_GRAMS_ANALYZER))
-        .forEach(queryBuilder::must);
-      return Stream.of(queryBuilder);
+      List<Query> mustQueries = tokens.stream()
+        .map(text -> tokenQueryV2(text, query.getFieldName(), SEARCH_GRAMS_ANALYZER))
+        .toList();
+      return Stream.of(Query.of(q -> q.bool(b -> b.must(mustQueries).boost(0.5F))));
     }
   },
   KEY(GENERATE_RESULTS) {
     @Override
-    public QueryBuilder getQuery(ComponentTextSearchQuery query) {
-      return matchQuery(SORTABLE_ANALYZER.subField(query.getFieldKey()), query.getQueryText())
-        .boost(50F);
+    public Query getQueryV2(ComponentTextSearchQuery query) {
+      return Query.of(q -> q.match(m -> m
+        .field(SORTABLE_ANALYZER.subField(query.getFieldKey()))
+        .query(query.getQueryText())
+        .boost(50F)));
     }
   },
   RECENTLY_BROWSED(CHANGE_ORDER_OF_RESULTS) {
     @Override
-    public Stream<QueryBuilder> getQueries(ComponentTextSearchQuery query) {
+    public Stream<Query> getQueriesV2(ComponentTextSearchQuery query) {
       Set<String> recentlyBrowsedKeys = query.getRecentlyBrowsedKeys();
       if (recentlyBrowsedKeys.isEmpty()) {
         return Stream.empty();
       }
-      return Stream.of(termsQuery(query.getFieldKey(), recentlyBrowsedKeys).boost(100F));
+      List<FieldValue> values = recentlyBrowsedKeys.stream()
+        .map(FieldValue::of)
+        .toList();
+      return Stream.of(Query.of(q -> q.terms(t -> t
+        .field(query.getFieldKey())
+        .terms(tf -> tf.value(values))
+        .boost(100F))));
     }
   },
   FAVORITE(CHANGE_ORDER_OF_RESULTS) {
     @Override
-    public Stream<QueryBuilder> getQueries(ComponentTextSearchQuery query) {
+    public Stream<Query> getQueriesV2(ComponentTextSearchQuery query) {
       Set<String> favoriteKeys = query.getFavoriteKeys();
       if (favoriteKeys.isEmpty()) {
         return Stream.empty();
       }
-      return Stream.of(termsQuery(query.getFieldKey(), favoriteKeys).boost(1000F));
+      List<FieldValue> values = favoriteKeys.stream()
+        .map(FieldValue::of)
+        .toList();
+      return Stream.of(Query.of(q -> q.terms(t -> t
+        .field(query.getFieldKey())
+        .terms(tf -> tf.value(values))
+        .boost(1000F))));
     }
   };
 
@@ -125,31 +132,27 @@ public enum ComponentTextSearchFeatureRepertoire implements ComponentTextSearchF
   }
 
   @Override
-  public QueryBuilder getQuery(ComponentTextSearchQuery query) {
-    throw new UnsupportedOperationException();
+  public Query getQueryV2(ComponentTextSearchQuery query) {
+    throw new UnsupportedOperationException("Use getQueriesV2 instead");
   }
 
-  protected BoolQueryBuilder prefixAndPartialQuery(List<String> tokens, String originalFieldName, DefaultIndexSettingsElement analyzer) {
-    BoolQueryBuilder queryBuilder = boolQuery();
+  protected Query prefixAndPartialQueryV2(List<String> tokens, String originalFieldName, DefaultIndexSettingsElement analyzer, float boost) {
+    List<Query> mustQueries = new ArrayList<>();
     AtomicBoolean first = new AtomicBoolean(true);
-    tokens.stream()
-      .map(queryTerm -> {
-
-        if (first.getAndSet(false)) {
-          return tokenQuery(queryTerm, originalFieldName, analyzer);
-        }
-
-        return tokenQuery(queryTerm, originalFieldName, SEARCH_GRAMS_ANALYZER);
-      })
-      .forEach(queryBuilder::must);
-    return queryBuilder;
+    for (String token : tokens) {
+      var analyzerToUse = first.getAndSet(false) ? analyzer : SEARCH_GRAMS_ANALYZER;
+      mustQueries.add(tokenQueryV2(token, originalFieldName, analyzerToUse));
+    }
+    return Query.of(q -> q.bool(b -> b.must(mustQueries).boost(boost)));
   }
 
-  protected MatchQueryBuilder tokenQuery(String queryTerm, String fieldName, DefaultIndexSettingsElement analyzer) {
+  protected Query tokenQueryV2(String queryTerm, String fieldName, DefaultIndexSettingsElement analyzer) {
     // We will truncate the search to the maximum length of nGrams in the index.
-    // Otherwise the search would for sure not find any results.
+    // Otherwise, the search would for sure not find any results.
     String truncatedQuery = StringUtils.left(queryTerm, DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH);
-    return matchQuery(analyzer.subField(fieldName), truncatedQuery);
+    return Query.of(q -> q.match(m -> m
+      .field(analyzer.subField(fieldName))
+      .query(truncatedQuery)));
   }
 
   @Override

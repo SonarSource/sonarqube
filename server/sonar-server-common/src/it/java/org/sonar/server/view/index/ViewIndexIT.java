@@ -20,8 +20,8 @@
 package org.sonar.server.view.index;
 
 import java.util.List;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.server.es.EsTester;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -29,15 +29,15 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.view.index.ViewIndexDefinition.TYPE_VIEW;
 
-public class ViewIndexIT {
+class ViewIndexIT {
 
-  @Rule
+  @RegisterExtension
   public EsTester es = EsTester.create();
 
-  private ViewIndex index = new ViewIndex(es.client());
+  private final ViewIndex index = new ViewIndex(es.client());
 
   @Test
-  public void find_all_view_uuids() {
+  void find_all_view_uuids() {
     ViewDoc view1 = new ViewDoc().setUuid("UUID1").setProjectBranchUuids(singletonList("P1"));
     ViewDoc view2 = new ViewDoc().setUuid("UUID2").setProjectBranchUuids(singletonList("P2"));
     es.putDocuments(TYPE_VIEW, view1);
@@ -49,7 +49,7 @@ public class ViewIndexIT {
   }
 
   @Test
-  public void not_find_all_view_uuids() {
+  void not_find_all_view_uuids() {
     List<String> result = newArrayList(index.findAllViewUuids());
 
     assertThat(result).isEmpty();

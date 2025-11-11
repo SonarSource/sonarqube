@@ -20,42 +20,41 @@
 package org.sonar.server.component.index;
 
 import java.util.Collections;
-import java.util.Optional;
 import java.util.stream.Stream;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.db.component.ComponentQualifiers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ComponentIndexHighlightTest extends ComponentIndexTest {
+class ComponentIndexHighlightTest extends ComponentIndexTest {
 
   @Test
-  public void should_escape_html() {
+  void should_escape_html() {
     assertHighlighting("quick< brown fox", "brown", "quick&lt; <mark>brown</mark> fox");
   }
 
   @Test
-  public void should_highlight_partial_name() {
+  void should_highlight_partial_name() {
     assertHighlighting("quickbrownfox", "brown", "quick<mark>brown</mark>fox");
   }
 
   @Test
-  public void should_highlight_prefix() {
+  void should_highlight_prefix() {
     assertHighlighting("quickbrownfox", "quick", "<mark>quick</mark>brownfox");
   }
 
   @Test
-  public void should_highlight_suffix() {
+  void should_highlight_suffix() {
     assertHighlighting("quickbrownfox", "fox", "quickbrown<mark>fox</mark>");
   }
 
   @Test
-  public void should_highlight_multiple_words() {
+  void should_highlight_multiple_words() {
     assertHighlighting("quickbrownfox", "fox bro", "quick<mark>bro</mark>wn<mark>fox</mark>");
   }
 
   @Test
-  public void should_highlight_multiple_connected_words() {
+  void should_highlight_multiple_connected_words() {
     assertHighlighting("quickbrownfox", "fox brown", "quick<mark>brownfox</mark>");
   }
 
@@ -66,11 +65,10 @@ public class ComponentIndexHighlightTest extends ComponentIndexTest {
       .setQuery(search)
       .setQualifiers(Collections.singletonList(ComponentQualifiers.PROJECT))
       .build();
-    Stream<ComponentHitsPerQualifier> results = index.searchSuggestions(query, features.get()).getQualifiers();
+    Stream<ComponentHitsPerQualifier> results = index.searchSuggestionsV2(query, features.get()).getQualifiers();
 
     assertThat(results).flatExtracting(ComponentHitsPerQualifier::getHits)
-      .extracting(ComponentHit::getHighlightedText)
-      .extracting(Optional::get)
+      .extracting(ComponentHit::highlightedText)
       .containsExactly(expectedHighlighting);
   }
 }

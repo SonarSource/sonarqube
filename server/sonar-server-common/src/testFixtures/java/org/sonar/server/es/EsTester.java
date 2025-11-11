@@ -19,6 +19,7 @@
  */
 package org.sonar.server.es;
 
+import co.elastic.clients.json.JsonData;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
@@ -31,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -44,13 +46,7 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.forcemerge.ForceMergeRequest;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
-import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.ClearScrollRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequest;
@@ -109,7 +105,6 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.sonar.server.es.Index.ALL_INDICES;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
-import static org.sonar.server.es.newindex.DefaultIndexSettings.REFRESH_IMMEDIATE;
 
 public class EsTester extends ExternalResource implements AfterEachCallback {
 
@@ -199,7 +194,7 @@ public class EsTester extends ExternalResource implements AfterEachCallback {
     try {
       ES_REST_CLIENT.nativeClient()
         .deleteByQuery(new DeleteByQueryRequest(ALL_INDICES.getName()).setQuery(QueryBuilders.matchAllQuery()).setRefresh(true).setWaitForActiveShards(1), RequestOptions.DEFAULT);
-      ES_REST_CLIENT.forcemerge(new ForceMergeRequest());
+      ES_REST_CLIENT.forcemergeV2(req -> req);
     } catch (IOException e) {
       throw new IllegalStateException("Could not delete data from _all indices", e);
     }
@@ -238,29 +233,57 @@ public class EsTester extends ExternalResource implements AfterEachCallback {
   }
 
   public void putDocuments(IndexType indexType, BaseDoc... docs) {
-    BulkRequest bulk = new BulkRequest()
-      .setRefreshPolicy(REFRESH_IMMEDIATE);
-    for (BaseDoc doc : docs) {
-      bulk.add(doc.toIndexRequest());
-    }
-    BulkResponse bulkResponse = ES_REST_CLIENT.bulk(bulk);
-    if (bulkResponse.hasFailures()) {
-      fail("Bulk indexing of documents failed: " + bulkResponse.buildFailureMessage());
+    co.elastic.clients.elasticsearch.core.BulkResponse bulkResponse = ES_REST_CLIENT.bulkV2(b -> {
+      b.refresh(co.elastic.clients.elasticsearch._types.Refresh.True);
+      for (BaseDoc doc : docs) {
+        IndexType.IndexMainType mainType = indexType.getMainType();
+        String routing = doc.getRouting().orElse(null);
+        b.operations(op -> op.index(idx -> {
+          idx.index(mainType.getIndex().getName())
+            .id(doc.getId())
+            .document(doc.getFields());
+          if (routing != null) {
+            idx.routing(routing);
+          }
+          return idx;
+        }));
+      }
+      return b;
+    });
+
+    if (bulkResponse.errors()) {
+      StringBuilder errorMsg = new StringBuilder("Bulk indexing of documents failed:");
+      bulkResponse.items().forEach(item -> {
+        if (item.error() != null) {
+          errorMsg.append("\n- ").append(item.error().reason());
+        }
+      });
+      fail(errorMsg.toString());
     }
   }
 
   public void putDocuments(IndexType indexType, Map<String, Object>... docs) {
     try {
-      BulkRequest bulk = new BulkRequest()
-        .setRefreshPolicy(REFRESH_IMMEDIATE);
-      for (Map<String, Object> doc : docs) {
-        IndexType.IndexMainType mainType = indexType.getMainType();
-        bulk.add(new IndexRequest(mainType.getIndex().getName())
-          .source(doc));
-      }
-      BulkResponse bulkResponse = ES_REST_CLIENT.bulk(bulk);
-      if (bulkResponse.hasFailures()) {
-        throw new IllegalStateException(bulkResponse.buildFailureMessage());
+      co.elastic.clients.elasticsearch.core.BulkResponse bulkResponse = ES_REST_CLIENT.bulkV2(b -> {
+        b.refresh(co.elastic.clients.elasticsearch._types.Refresh.True);
+        for (Map<String, Object> doc : docs) {
+          IndexType.IndexMainType mainType = indexType.getMainType();
+          b.operations(op -> op.index(idx -> idx
+            .index(mainType.getIndex().getName())
+            .document(doc)
+          ));
+        }
+        return b;
+      });
+
+      if (bulkResponse.errors()) {
+        StringBuilder errorMsg = new StringBuilder("Bulk indexing of documents failed:");
+        bulkResponse.items().forEach(item -> {
+          if (item.error() != null) {
+            errorMsg.append("\n- ").append(item.error().reason());
+          }
+        });
+        throw new IllegalStateException(errorMsg.toString());
       }
     } catch (Exception e) {
       throw Throwables.propagate(e);
@@ -327,9 +350,8 @@ public class EsTester extends ExternalResource implements AfterEachCallback {
       response = ES_REST_CLIENT.scroll(new SearchScrollRequest(response.getScrollId()).scroll(new TimeValue(600000)));
       // Break condition: No hits are returned
       if (response.getHits().getHits().length == 0) {
-        ClearScrollRequest clearScrollRequest = new ClearScrollRequest();
-        clearScrollRequest.addScrollId(response.getScrollId());
-        ES_REST_CLIENT.clearScroll(clearScrollRequest);
+        String scrollId = response.getScrollId();
+        ES_REST_CLIENT.clearScrollV2( clr -> clr.scrollId(scrollId));
         break;
       }
     }
@@ -373,14 +395,13 @@ public class EsTester extends ExternalResource implements AfterEachCallback {
   }
 
   private void setIndexSettings(String index, Map<String, Object> settings) {
-    AcknowledgedResponse response = null;
-    try {
-      response = ES_REST_CLIENT.nativeClient().indices()
-        .putSettings(new UpdateSettingsRequest(index).settings(settings), RequestOptions.DEFAULT);
-    } catch (IOException e) {
-      throw new IllegalStateException("Could not update index settings", e);
-    }
-    checkState(response.isAcknowledged());
+    Map<String, JsonData> jsonSettings = new HashMap<>();
+    settings.forEach((key, value) -> jsonSettings.put(key, JsonData.of(value)));
+
+    ES_REST_CLIENT.putSettingsV2(req -> req
+      .index(index)
+      .settings(s -> s.otherSettings(jsonSettings))
+    );
   }
 
   private static void deleteIndexIfExists(String name) {

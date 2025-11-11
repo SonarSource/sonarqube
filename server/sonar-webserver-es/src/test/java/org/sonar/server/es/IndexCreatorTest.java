@@ -19,22 +19,27 @@
  */
 package org.sonar.server.es;
 
+import co.elastic.clients.elasticsearch._types.Refresh;
+import co.elastic.clients.elasticsearch.indices.get_mapping.IndexMappingRecord;
+import co.elastic.clients.json.JsonpMapper;
+import co.elastic.clients.json.JsonpSerializable;
+import co.elastic.clients.json.jackson.JacksonJsonProvider;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import jakarta.json.spi.JsonProvider;
+import jakarta.json.stream.JsonGenerator;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
-import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
-import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.support.WriteRequest;
-import org.elasticsearch.client.indices.GetMappingsRequest;
 import org.elasticsearch.cluster.metadata.MappingMetadata;
-import org.elasticsearch.common.settings.Settings;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.server.es.IndexType.IndexMainType;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
@@ -46,24 +51,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.es.IndexType.main;
 import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 
-public class IndexCreatorTest {
+class IndexCreatorTest {
 
   private static final SettingsConfiguration SETTINGS_CONFIGURATION = newBuilder(new MapSettings().asConfig()).build();
   private static final String LOG_DB_VENDOR_CHANGED = "Delete Elasticsearch indices (DB vendor changed)";
   private static final String LOG_DB_SCHEMA_CHANGED = "Delete Elasticsearch indices (DB schema changed)";
 
-  @Rule
-  public LogTester logTester = new LogTester();
-  @Rule
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
+  @RegisterExtension
   public EsTester es = EsTester.createCustom();
 
   private final MetadataIndexDefinition metadataIndexDefinition = new MetadataIndexDefinition(new MapSettings().asConfig());
   private final MetadataIndex metadataIndex = new MetadataIndexImpl(es.client());
   private final TestEsDbCompatibility esDbCompatibility = new TestEsDbCompatibility();
-  private final MapSettings settings = new MapSettings();
 
   @Test
-  public void create_index() {
+  void create_index() {
     IndexCreator underTest = run(new FakeIndexDefinition());
 
     // check that index is created with related mapping
@@ -75,15 +79,18 @@ public class IndexCreatorTest {
   }
 
   @Test
-  public void recreate_index_on_definition_changes() {
+  void recreate_index_on_definition_changes() {
     // v1
     run(new FakeIndexDefinition());
 
     IndexMainType fakeIndexType = main(Index.simple("fakes"), "fake");
     String id = "1";
-    es.client().index(new IndexRequest(fakeIndexType.getIndex().getName()).id(id).source(new FakeDoc().getFields())
-      .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE));
-    assertThat(es.client().get(new GetRequest(fakeIndexType.getIndex().getName()).id(id)).isExists()).isTrue();
+    es.client().indexV2(ir -> ir.index(fakeIndexType.getIndex().getName())
+      .id(id)
+      .document(new FakeDoc().getFields())
+      .refresh(Refresh.True));
+
+    assertThat(es.client().getV2(req -> req.index(fakeIndexType.getIndex().getName()).id(id), Map.class).found()).isTrue();
 
     // v2
     run(new FakeIndexDefinitionV2());
@@ -94,11 +101,11 @@ public class IndexCreatorTest {
     assertThat(field(mapping, "updatedAt")).containsEntry("type", "date");
     assertThat(field(mapping, "newField")).containsEntry("type", "integer");
 
-    assertThat(es.client().get(new GetRequest(fakeIndexType.getIndex().getName()).id(id)).isExists()).isFalse();
+    assertThat(es.client().getV2(req -> req.index(fakeIndexType.getIndex().getName()).id(id), Map.class).found()).isFalse();
   }
 
   @Test
-  public void mark_all_non_existing_index_types_as_uninitialized() {
+  void mark_all_non_existing_index_types_as_uninitialized() {
     Index fakesIndex = Index.simple("fakes");
     Index fakersIndex = Index.simple("fakers");
     run(context -> {
@@ -115,13 +122,13 @@ public class IndexCreatorTest {
   }
 
   @Test
-  public void delete_existing_indices_if_db_vendor_changed() {
+  void delete_existing_indices_if_db_vendor_changed() {
     testDeleteOnDbChange(LOG_DB_VENDOR_CHANGED,
       c -> c.setHasSameDbVendor(false));
   }
 
   @Test
-  public void do_not_check_db_compatibility_on_fresh_es() {
+  void do_not_check_db_compatibility_on_fresh_es() {
     // supposed to be ignored
     esDbCompatibility.setHasSameDbVendor(false);
 
@@ -135,7 +142,7 @@ public class IndexCreatorTest {
   }
 
   @Test
-  public void start_makes_metadata_index_read_write_if_read_only() {
+  void start_makes_metadata_index_read_write_if_read_only() {
     run(new FakeIndexDefinition());
 
     IndexMainType mainType = MetadataIndexDefinition.TYPE_METADATA;
@@ -147,7 +154,7 @@ public class IndexCreatorTest {
   }
 
   @Test
-  public void start_makes_index_read_write_if_read_only() {
+  void start_makes_index_read_write_if_read_only() {
     FakeIndexDefinition fakeIndexDefinition = new FakeIndexDefinition();
     IndexMainType fakeIndexMainType = FakeIndexDefinition.INDEX_TYPE.getMainType();
     run(fakeIndexDefinition);
@@ -164,15 +171,23 @@ public class IndexCreatorTest {
 
   private boolean isNotReadOnly(IndexMainType mainType) {
     String indexName = mainType.getIndex().getName();
-    String readOnly = es.client().getSettings(new GetSettingsRequest().indices(indexName))
-      .getSetting(indexName, "index.blocks.read_only_allow_delete");
+    co.elastic.clients.elasticsearch.indices.IndexSettings indexSettings = es.client().getSettingsV2(req -> req.index(indexName))
+      .get(indexName)
+      .settings();
+
+    String readOnly = indexSettings.otherSettings().containsKey("index.blocks.read_only_allow_delete")
+      ? indexSettings.otherSettings().get("index.blocks.read_only_allow_delete").to(String.class)
+      : null;
     return readOnly == null;
   }
 
   private void makeReadOnly(IndexMainType mainType) {
-    Settings.Builder builder = Settings.builder();
-    builder.put("index.blocks.read_only_allow_delete", "true");
-    es.client().putSettings(new UpdateSettingsRequest().indices(mainType.getIndex().getName()).settings(builder.build()));
+    String indexName = mainType.getIndex().getName();
+
+    es.client().putSettingsV2(req -> req
+      .index(indexName)
+      .settings(s -> s.otherSettings(java.util.Map.of("index.blocks.read_only_allow_delete", co.elastic.clients.json.JsonData.of(true))))
+    );
   }
 
   private void testDeleteOnDbChange(String expectedLog, Consumer<TestEsDbCompatibility> afterFirstStart) {
@@ -198,7 +213,38 @@ public class IndexCreatorTest {
   }
 
   private Map<String, MappingMetadata> mappings() {
-    return es.client().getMapping(new GetMappingsRequest()).mappings();
+    // This allows to maintain the retro compatibility with the MappingMetadata class used with ES client v7
+    return es.client().getMappingV2(req -> req.index("*")).result().entrySet()
+      .stream()
+      .collect(Collectors.toMap(
+        Map.Entry::getKey,
+        this::toMappingMetadata
+      ));
+  }
+
+  private MappingMetadata toMappingMetadata(Map.Entry<String, IndexMappingRecord> entry) {
+    try {
+      Map<String, Object> propertiesMap = new HashMap<>();
+      entry.getValue().mappings().properties().forEach((key, value) -> {
+        propertiesMap.put(key, serializeToMap(value));
+      });
+      Map<String, Object> sourceMap = Map.of("properties", propertiesMap);
+      return new MappingMetadata("_doc", sourceMap);
+    } catch (IOException ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private Map<String, Object> serializeToMap(JsonpSerializable value) {
+    StringWriter writer = new StringWriter();
+    JsonProvider provider = new JacksonJsonProvider();
+    JsonGenerator generator = provider.createGenerator(writer);
+    JsonpMapper mapper = new JacksonJsonpMapper();
+    value.serialize(generator, mapper);
+    generator.close();
+    // Parse the JSON string back to a Map
+    return new com.google.gson.Gson().fromJson(writer.toString(), Map.class);
   }
 
   @CheckForNull

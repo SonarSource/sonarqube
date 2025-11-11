@@ -19,27 +19,39 @@
  */
 package org.sonar.server.component.index;
 
-import org.junit.Before;
-import org.junit.Test;
+import co.elastic.clients.elasticsearch._types.query_dsl.MatchAllQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
+import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory.ComponentTextSearchQuery;
 
 import static com.google.common.collect.ImmutableSet.of;
 import static java.util.Collections.singletonList;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_KEY;
 
-public class ComponentIndexFeatureFavoriteTest extends ComponentIndexTest {
+class ComponentIndexFeatureFavoriteTest extends ComponentIndexTest {
 
-  @Before
-  public void before() {
-    features.set(q -> matchAllQuery(), ComponentTextSearchFeatureRepertoire.FAVORITE);
+  @BeforeEach
+  void before() {
+    features.set(new ComponentTextSearchFeature() {
+      @Override
+      public Query getQueryV2(ComponentTextSearchQuery query) {
+        return Query.of(q -> q.matchAll(new MatchAllQuery.Builder().build()));
+      }
+
+      @Override
+      public UseCase getUseCase() {
+        return UseCase.GENERATE_RESULTS;
+      }
+    }, ComponentTextSearchFeatureRepertoire.FAVORITE);
   }
 
   @Test
-  public void scoring_cares_about_favorites() {
+  void scoring_cares_about_favorites() {
     ProjectDto project1 = indexProject("sonarqube", "SonarQube");
     ProjectDto project2 = indexProject("recent", "SonarQube Recently");
 
@@ -59,8 +71,18 @@ public class ComponentIndexFeatureFavoriteTest extends ComponentIndexTest {
   }
 
   @Test
-  public void irrelevant_favorites_are_not_returned() {
-    features.set(q -> termQuery(FIELD_KEY, "non-existing-value"), ComponentTextSearchFeatureRepertoire.FAVORITE);
+  void irrelevant_favorites_are_not_returned() {
+    features.set(new ComponentTextSearchFeature() {
+      @Override
+      public Query getQueryV2(ComponentTextSearchQuery query) {
+        return Query.of(q -> q.term(t -> t.field(FIELD_KEY).value("non-existing-value")));
+      }
+
+      @Override
+      public UseCase getUseCase() {
+        return UseCase.GENERATE_RESULTS;
+      }
+    }, ComponentTextSearchFeatureRepertoire.FAVORITE);
     ProjectDto project1 = indexProject("foo", "foo");
 
     SuggestionQuery query1 = SuggestionQuery.builder()

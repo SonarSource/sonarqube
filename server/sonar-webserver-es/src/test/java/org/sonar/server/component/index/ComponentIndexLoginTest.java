@@ -19,7 +19,7 @@
  */
 package org.sonar.server.component.index;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -27,10 +27,10 @@ import org.sonar.db.user.UserDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
-public class ComponentIndexLoginTest extends ComponentIndexTest {
+class ComponentIndexLoginTest extends ComponentIndexTest {
 
   @Test
-  public void should_filter_unauthorized_results() {
+  void should_filter_unauthorized_results() {
     indexer.index(newProject("sonarqube", "Quality Product"));
 
     // do not give any permissions to that project
@@ -40,7 +40,7 @@ public class ComponentIndexLoginTest extends ComponentIndexTest {
   }
 
   @Test
-  public void should_find_project_for_which_the_user_has_direct_permission() {
+  void should_find_project_for_which_the_user_has_direct_permission() {
     UserDto user = newUserDto();
     userSession.logIn(user);
 
@@ -55,7 +55,7 @@ public class ComponentIndexLoginTest extends ComponentIndexTest {
   }
 
   @Test
-  public void should_find_project_for_which_the_user_has_indirect_permission_through_group() {
+  void should_find_project_for_which_the_user_has_indirect_permission_through_group() {
     GroupDto group = newGroupDto();
     userSession.logIn().setGroups(group);
 

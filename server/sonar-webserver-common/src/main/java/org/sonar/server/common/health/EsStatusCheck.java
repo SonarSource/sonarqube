@@ -19,9 +19,8 @@
  */
 package org.sonar.server.common.health;
 
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
+import co.elastic.clients.elasticsearch._types.HealthStatus;
+import co.elastic.clients.elasticsearch.cluster.HealthResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.server.es.EsClient;
@@ -49,30 +48,26 @@ abstract class EsStatusCheck {
     this.esClient = esClient;
   }
 
-  protected ClusterHealthResponse getEsClusterHealth() {
+  protected HealthResponse getEsClusterHealth() {
     try {
-      return esClient.clusterHealth(new ClusterHealthRequest());
+      return esClient.clusterHealthV2(req -> req);
     } catch (Exception e) {
       LOG.error("Failed to query ES status", e);
       return null;
     }
   }
 
-  protected static Health extractStatusHealth(ClusterHealthResponse healthResponse) {
-    ClusterHealthStatus esStatus = healthResponse.getStatus();
+  protected static Health extractStatusHealth(HealthResponse healthResponse) {
+    HealthStatus esStatus = healthResponse.status();
     if (esStatus == null) {
       return RED_HEALTH_UNAVAILABLE;
     }
-    switch (esStatus) {
-      case GREEN:
-        return Health.GREEN;
-      case YELLOW:
-        return YELLOW_HEALTH;
-      case RED:
-        return RED_HEALTH;
-      default:
-        throw new IllegalArgumentException("Unsupported Elasticsearch status " + esStatus);
-    }
+    return switch (esStatus) {
+      case Green -> Health.GREEN;
+      case Yellow -> YELLOW_HEALTH;
+      case Red -> RED_HEALTH;
+      default -> throw new IllegalArgumentException("Unsupported Elasticsearch status " + esStatus);
+    };
   }
 
 }

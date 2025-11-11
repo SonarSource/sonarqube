@@ -19,14 +19,22 @@
  */
 package org.sonar.server.es.textsearch;
 
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 
-public class ComponentTextSearchFeatureRule extends ExternalResource {
+public class ComponentTextSearchFeatureRule extends ExternalResource implements BeforeEachCallback, AfterEachCallback {
 
   private ComponentTextSearchFeature[] features;
 
   @Override
   protected void before() {
+    features = ComponentTextSearchFeatureRepertoire.values();
+  }
+
+  @Override
+  protected void after() {
     features = ComponentTextSearchFeatureRepertoire.values();
   }
 
@@ -36,5 +44,15 @@ public class ComponentTextSearchFeatureRule extends ExternalResource {
 
   public void set(ComponentTextSearchFeature... features) {
     this.features = features;
+  }
+
+  @Override
+  public void afterEach(ExtensionContext context) throws Exception {
+    after();
+  }
+
+  @Override
+  public void beforeEach(ExtensionContext context) throws Exception {
+    before();
   }
 }

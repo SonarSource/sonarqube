@@ -19,25 +19,25 @@
  */
 package org.sonar.server.monitoring;
 
+import co.elastic.clients.elasticsearch._types.HealthStatus;
+import co.elastic.clients.elasticsearch.cluster.HealthResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.prometheus.client.CollectorRegistry;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.apachecommons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.response.NodeStatsResponse;
 
@@ -49,10 +49,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class ElasticSearchMetricTaskTest {
+class ElasticSearchMetricTaskTest {
 
-  @Rule
-  public LogTester logTester = new LogTester();
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   private final ServerMonitoringMetrics serverMonitoringMetrics = mock(ServerMonitoringMetrics.class);
   private final EsClient esClient = mock(EsClient.class);
@@ -60,16 +60,16 @@ public class ElasticSearchMetricTaskTest {
 
   private final ElasticSearchMetricTask underTest = new ElasticSearchMetricTask(serverMonitoringMetrics, esClient, configuration);
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     CollectorRegistry.defaultRegistry.clear();
   }
 
   @Test
-  public void when_elasticsearch_up_status_is_updated_to_green() {
-    ClusterHealthResponse clusterHealthResponse = new ClusterHealthResponse();
-    clusterHealthResponse.setStatus(ClusterHealthStatus.GREEN);
-    when(esClient.clusterHealth(any())).thenReturn(clusterHealthResponse);
+  void when_elasticsearch_up_status_is_updated_to_green() {
+    HealthResponse healthResponse = Mockito.mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
+    when(healthResponse.status()).thenReturn(HealthStatus.Green);
+    when(esClient.clusterHealthV2(any())).thenReturn(healthResponse);
 
     underTest.run();
 
@@ -80,7 +80,7 @@ public class ElasticSearchMetricTaskTest {
 
 
   @Test
-  public void elasticsearch_free_disk_space_is_updated() throws IOException {
+  void elasticsearch_free_disk_space_is_updated() throws IOException {
     URL esNodeResponseUrl = getClass().getResource("es-node-response.json");
     String jsonPayload = StringUtils.trim(IOUtils.toString(esNodeResponseUrl, StandardCharsets.UTF_8));
 
@@ -101,10 +101,10 @@ public class ElasticSearchMetricTaskTest {
   }
 
   @Test
-  public void when_elasticsearch_yellow_status_is_updated_to_green() {
-    ClusterHealthResponse clusterHealthResponse = new ClusterHealthResponse();
-    clusterHealthResponse.setStatus(ClusterHealthStatus.YELLOW);
-    when(esClient.clusterHealth(any())).thenReturn(clusterHealthResponse);
+  void when_elasticsearch_yellow_status_is_updated_to_green() {
+    HealthResponse healthResponse = Mockito.mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
+    when(healthResponse.status()).thenReturn(HealthStatus.Yellow);
+    when(esClient.clusterHealthV2(any())).thenReturn(healthResponse);
 
     underTest.run();
 
@@ -113,10 +113,10 @@ public class ElasticSearchMetricTaskTest {
   }
 
   @Test
-  public void when_elasticsearch_down_status_is_updated_to_red() {
-    ClusterHealthResponse clusterHealthResponse = new ClusterHealthResponse();
-    clusterHealthResponse.setStatus(ClusterHealthStatus.RED);
-    when(esClient.clusterHealth(any())).thenReturn(clusterHealthResponse);
+  void when_elasticsearch_down_status_is_updated_to_red() {
+    HealthResponse healthResponse = Mockito.mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
+    when(healthResponse.status()).thenReturn(HealthStatus.Red);
+    when(esClient.clusterHealthV2(any())).thenReturn(healthResponse);
 
     underTest.run();
 
@@ -125,10 +125,10 @@ public class ElasticSearchMetricTaskTest {
   }
 
   @Test
-  public void when_no_es_status_null_status_is_updated_to_red() {
-    ClusterHealthResponse clusterHealthResponse = Mockito.mock(ClusterHealthResponse.class);
-    when(clusterHealthResponse.getStatus()).thenReturn(null);
-    when(esClient.clusterHealth(any())).thenReturn(clusterHealthResponse);
+  void when_no_es_status_null_status_is_updated_to_red() {
+    HealthResponse healthResponse = Mockito.mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
+    when(healthResponse.status()).thenReturn(null);
+    when(esClient.clusterHealthV2(any())).thenReturn(healthResponse);
 
     underTest.run();
 
@@ -137,8 +137,8 @@ public class ElasticSearchMetricTaskTest {
   }
 
   @Test
-  public void when_es_status_throw_exception_status_is_updated_to_red() {
-    when(esClient.clusterHealth(any())).thenThrow(new IllegalStateException("exception in cluster health"));
+  void when_es_status_throw_exception_status_is_updated_to_red() {
+    when(esClient.clusterHealthV2(any())).thenThrow(new IllegalStateException("exception in cluster health"));
 
     underTest.run();
 
@@ -150,7 +150,7 @@ public class ElasticSearchMetricTaskTest {
   }
 
   @Test
-  public void task_has_default_delay(){
+  void task_has_default_delay(){
     Assertions.assertThat(underTest.getDelay()).isPositive();
     Assertions.assertThat(underTest.getPeriod()).isPositive();
   }

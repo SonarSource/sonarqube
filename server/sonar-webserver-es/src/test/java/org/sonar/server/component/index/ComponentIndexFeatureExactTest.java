@@ -19,24 +19,33 @@
  */
 package org.sonar.server.component.index;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.MatchAllQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import java.util.Collections;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
+import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory.ComponentTextSearchQuery;
 
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 
-public class ComponentIndexFeatureExactTest extends ComponentIndexTest {
+class ComponentIndexFeatureExactTest extends ComponentIndexTest {
 
-  @Before
-  public void before() {
-    features.set(query -> matchAllQuery(), ComponentTextSearchFeatureRepertoire.EXACT_IGNORE_CASE);
+  @BeforeEach
+  void before() {
+    features.set(new ComponentTextSearchFeature() {
+      @Override
+      public Query getQueryV2(ComponentTextSearchQuery query) {
+        return Query.of(q -> q.matchAll(new MatchAllQuery.Builder().build()));
+      }
+    }, ComponentTextSearchFeatureRepertoire.EXACT_IGNORE_CASE);
   }
 
   @Test
-  public void scoring_cares_about_exact_matches() {
+  void scoring_cares_about_exact_matches() {
     ProjectDto project1 = indexProject("project1", "LongNameLongNameLongNameLongNameSonarQube");
     ProjectDto project2 = indexProject("project2", "LongNameLongNameLongNameLongNameSonarQubeX");
 

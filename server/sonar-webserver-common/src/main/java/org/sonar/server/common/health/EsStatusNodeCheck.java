@@ -19,7 +19,7 @@
  */
 package org.sonar.server.common.health;
 
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import co.elastic.clients.elasticsearch.cluster.HealthResponse;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.health.Health;
 
@@ -34,7 +34,7 @@ public class EsStatusNodeCheck extends EsStatusCheck implements NodeHealthCheck 
 
   @Override
   public Health check() {
-    ClusterHealthResponse healthResponse = getEsClusterHealth();
+    HealthResponse healthResponse = getEsClusterHealth();
     return healthResponse != null ? extractStatusHealth(healthResponse) : RED_HEALTH_UNAVAILABLE;
   }
 }

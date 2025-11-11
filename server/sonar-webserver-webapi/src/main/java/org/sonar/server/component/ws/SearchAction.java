@@ -117,7 +117,7 @@ public class SearchAction implements ComponentsWsAction {
   private SearchWsResponse doHandle(SearchRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentQuery esQuery = buildEsQuery(request);
-      SearchIdResult<String> results = componentIndex.search(esQuery, new SearchOptions().setPage(request.getPage(), request.getPageSize()));
+      SearchIdResult<String> results = componentIndex.searchV2(esQuery, new SearchOptions().setPage(request.getPage(), request.getPageSize()));
 
       List<EntityDto> components = dbClient.entityDao().selectByUuids(dbSession, results.getUuids());
       Map<String, String> projectKeysByUuids = searchProjectsKeysByUuids(dbSession, components);

@@ -19,20 +19,20 @@
  */
 package org.sonar.server.component.index;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 
-public class ComponentIndexFeatureKeyTest extends ComponentIndexTest {
+class ComponentIndexFeatureKeyTest extends ComponentIndexTest {
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     features.set(ComponentTextSearchFeatureRepertoire.KEY);
   }
 
   @Test
-  public void should_search_projects_by_exact_case_insensitive_key() {
+  void should_search_projects_by_exact_case_insensitive_key() {
     ProjectDto project1 = indexProject("keyOne", "Project One");
     indexProject("keyTwo", "Project Two");
 
@@ -42,7 +42,7 @@ public class ComponentIndexFeatureKeyTest extends ComponentIndexTest {
   }
 
   @Test
-  public void should_search_project_with_dot_in_key() {
+  void should_search_project_with_dot_in_key() {
     ProjectDto project = indexProject("org.sonarqube", "SonarQube");
 
     assertSearchResults("org.sonarqube", project);
@@ -50,7 +50,7 @@ public class ComponentIndexFeatureKeyTest extends ComponentIndexTest {
   }
 
   @Test
-  public void should_search_project_with_dash_in_key() {
+  void should_search_project_with_dash_in_key() {
     ProjectDto project = indexProject("org-sonarqube", "SonarQube");
 
     assertSearchResults("org-sonarqube", project);
@@ -58,7 +58,7 @@ public class ComponentIndexFeatureKeyTest extends ComponentIndexTest {
   }
 
   @Test
-  public void should_search_project_with_colon_in_key() {
+  void should_search_project_with_colon_in_key() {
     ProjectDto project = indexProject("org:sonarqube", "Quality Product");
 
     assertSearchResults("org:sonarqube", project);
@@ -68,14 +68,14 @@ public class ComponentIndexFeatureKeyTest extends ComponentIndexTest {
   }
 
   @Test
-  public void should_search_project_with_all_special_characters_in_key() {
+  void should_search_project_with_all_special_characters_in_key() {
     ProjectDto project = indexProject("org.sonarqube:sonar-sérvèr_ç", "SonarQube");
 
     assertSearchResults("org.sonarqube:sonar-sérvèr_ç", project);
   }
 
   @Test
-  public void should_not_return_results_when_searching_by_partial_key() {
+  void should_not_return_results_when_searching_by_partial_key() {
     indexProject("theKey", "some name");
 
     assertNoSearchResults("theke");

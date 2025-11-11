@@ -19,6 +19,9 @@
  */
 package org.sonar.server.es;
 
+import co.elastic.clients.elasticsearch._types.Time;
+import co.elastic.clients.elasticsearch.indices.IndexSettings;
+import co.elastic.clients.json.JsonData;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.LinkedHashMultiset;
 import com.google.common.collect.Multiset;
@@ -32,10 +35,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.DocWriteRequest;
-import org.elasticsearch.action.admin.indices.forcemerge.ForceMergeRequest;
-import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
-import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
-import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -44,12 +43,10 @@ import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.ClearScrollRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.cluster.metadata.IndexMetadata;
 import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
@@ -76,6 +73,7 @@ public class BulkIndexer {
   private static final ByteSizeValue FLUSH_BYTE_SIZE = new ByteSizeValue(1, ByteSizeUnit.MB);
   private static final int FLUSH_ACTIONS = -1;
   private static final String REFRESH_INTERVAL_SETTING = "index.refresh_interval";
+  private static final String SETTING_NUMBER_OF_REPLICAS = "index.number_of_replicas";
   private static final int DEFAULT_NUMBER_OF_SHARDS = 5;
 
   private final EsClient esClient;
@@ -126,7 +124,7 @@ public class BulkIndexer {
       throw new IllegalStateException("Elasticsearch bulk requests still being executed after 1 minute", e);
     }
 
-    esClient.refresh(indexType.getMainType().getIndex());
+    esClient.refreshV2(indexType.getMainType().getIndex());
 
     sizeHandler.afterStop(this);
     indexingListener.onFinish(result);
@@ -181,9 +179,7 @@ public class BulkIndexer {
       }
       searchResponse = esClient.scroll(new SearchScrollRequest(scrollId).scroll(TimeValue.timeValueMinutes(5)));
       if (hits.length == 0) {
-        ClearScrollRequest clearScrollRequest = new ClearScrollRequest();
-        clearScrollRequest.addScrollId(scrollId);
-        esClient.clearScroll(clearScrollRequest);
+        esClient.clearScrollV2(csr -> csr.scrollId(scrollId));
         break;
       }
     }
@@ -402,17 +398,20 @@ public class BulkIndexer {
       this.progress.start();
       Map<String, Object> temporarySettings = new HashMap<>();
 
-      GetSettingsResponse settingsResp = bulkIndexer.esClient.getSettings(new GetSettingsRequest());
+      co.elastic.clients.elasticsearch.indices.GetIndicesSettingsResponse settingsResp =
+        bulkIndexer.esClient.getSettingsV2(req -> req.index(index));
+
+      IndexSettings indexSettings = settingsResp.get(index).settings();
 
       // deactivate replicas
-      int initialReplicas = Integer.parseInt(settingsResp.getSetting(index, IndexMetadata.SETTING_NUMBER_OF_REPLICAS));
+      int initialReplicas = Integer.parseInt(indexSettings.index().numberOfReplicas());
       if (initialReplicas > 0) {
-        initialSettings.put(IndexMetadata.SETTING_NUMBER_OF_REPLICAS, initialReplicas);
-        temporarySettings.put(IndexMetadata.SETTING_NUMBER_OF_REPLICAS, 0);
+        initialSettings.put(SETTING_NUMBER_OF_REPLICAS, initialReplicas);
+        temporarySettings.put(SETTING_NUMBER_OF_REPLICAS, 0);
       }
 
       // deactivate periodical refresh
-      String refreshInterval = settingsResp.getSetting(index, REFRESH_INTERVAL_SETTING);
+      Time refreshInterval = indexSettings.index().refreshInterval();
       initialSettings.put(REFRESH_INTERVAL_SETTING, refreshInterval);
       temporarySettings.put(REFRESH_INTERVAL_SETTING, "-1");
 
@@ -424,16 +423,23 @@ public class BulkIndexer {
       // optimize lucene segments and revert index settings
       // Optimization must be done before re-applying replicas:
       // http://www.elasticsearch.org/blog/performance-considerations-elasticsearch-indexing/
-      bulkIndexer.esClient.forcemerge(new ForceMergeRequest(bulkIndexer.indexType.getMainType().getIndex().getName()));
+      String indexName = bulkIndexer.indexType.getMainType().getIndex().getName();
+      bulkIndexer.esClient.forcemergeV2(req -> req.index(indexName));
 
       updateSettings(bulkIndexer, initialSettings);
       this.progress.stop();
     }
 
     private static void updateSettings(BulkIndexer bulkIndexer, Map<String, Object> settings) {
-      UpdateSettingsRequest req = new UpdateSettingsRequest(bulkIndexer.indexType.getMainType().getIndex().getName());
-      req.settings(settings);
-      bulkIndexer.esClient.putSettings(req);
+      String indexName = bulkIndexer.indexType.getMainType().getIndex().getName();
+
+      Map<String, JsonData> jsonSettings = new HashMap<>();
+      settings.forEach((key, value) -> jsonSettings.put(key, JsonData.of(value)));
+
+      bulkIndexer.esClient.putSettingsV2(req -> req
+        .index(indexName)
+        .settings(s -> s.otherSettings(jsonSettings))
+        );
     }
   }
 }

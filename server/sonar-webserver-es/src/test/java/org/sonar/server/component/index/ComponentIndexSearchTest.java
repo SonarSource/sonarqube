@@ -22,8 +22,8 @@ package org.sonar.server.component.index;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -42,14 +42,15 @@ import org.sonar.server.tester.UserSessionRule;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ComponentIndexSearchTest {
-  @Rule
+class ComponentIndexSearchTest {
+
+  @RegisterExtension
   public EsTester es = EsTester.create();
-  @Rule
+  @RegisterExtension
   public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
+  @RegisterExtension
   public UserSessionRule userSession = UserSessionRule.standalone().logIn();
-  @Rule
+  @RegisterExtension
   public ComponentTextSearchFeatureRule features = new ComponentTextSearchFeatureRule();
 
   private final EntityDefinitionIndexer indexer = new EntityDefinitionIndexer(db.getDbClient(), es.client());
@@ -57,48 +58,48 @@ public class ComponentIndexSearchTest {
   private final ComponentIndex underTest = new ComponentIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
 
   @Test
-  public void filter_by_name() {
+  void filter_by_name() {
     ProjectData ignoredProject = db.components().insertPrivateProject(p -> p.setName("ignored project"));
     ProjectData project = db.components().insertPrivateProject(p -> p.setName("Project Shiny name"));
     index(ignoredProject.getProjectDto(), project.getProjectDto());
 
-    SearchIdResult<String> result = underTest.search(ComponentQuery.builder().setQuery("shiny").build(), new SearchOptions());
+    SearchIdResult<String> result = underTest.searchV2(ComponentQuery.builder().setQuery("shiny").build(), new SearchOptions());
 
     assertThat(result.getUuids()).containsExactlyInAnyOrder(project.projectUuid());
   }
 
   @Test
-  public void filter_by_key_with_exact_match() {
+  void filter_by_key_with_exact_match() {
     ProjectData ignoredProject = db.components().insertPrivateProject(p -> p.setKey("ignored-project"));
     ProjectData project = db.components().insertPrivateProject(p -> p.setKey("shiny-project"));
     db.components().insertPrivateProject(p -> p.setKey("another-shiny-project")).getMainBranchComponent();
     index(ignoredProject.getProjectDto(), project.getProjectDto());
 
-    SearchIdResult<String> result = underTest.search(ComponentQuery.builder().setQuery("shiny-project").build(), new SearchOptions());
+    SearchIdResult<String> result = underTest.searchV2(ComponentQuery.builder().setQuery("shiny-project").build(), new SearchOptions());
 
     assertThat(result.getUuids()).containsExactlyInAnyOrder(project.projectUuid());
   }
 
   @Test
-  public void filter_by_qualifier() {
+  void filter_by_qualifier() {
     ProjectData project = db.components().insertPrivateProject();
     ComponentDto portfolio = db.components().insertPrivatePortfolio();
     index(project.getProjectDto());
     index(db.components().getPortfolioDto(portfolio));
 
-    SearchIdResult<String> result = underTest.search(ComponentQuery.builder().setQualifiers(singleton(ComponentQualifiers.PROJECT)).build(), new SearchOptions());
+    SearchIdResult<String> result = underTest.searchV2(ComponentQuery.builder().setQualifiers(singleton(ComponentQualifiers.PROJECT)).build(), new SearchOptions());
 
     assertThat(result.getUuids()).containsExactlyInAnyOrder(project.projectUuid());
   }
 
   @Test
-  public void order_by_name_case_insensitive() {
+  void order_by_name_case_insensitive() {
     ProjectData project2 = db.components().insertPrivateProject(p -> p.setName("PROJECT 2"));
     ProjectData project3 = db.components().insertPrivateProject(p -> p.setName("project 3"));
     ProjectData project1 = db.components().insertPrivateProject(p -> p.setName("Project 1"));
     index(project1.getProjectDto(), project2.getProjectDto(), project3.getProjectDto());
 
-    SearchIdResult<String> result = underTest.search(ComponentQuery.builder().build(), new SearchOptions());
+    SearchIdResult<String> result = underTest.searchV2(ComponentQuery.builder().build(), new SearchOptions());
 
     assertThat(result.getUuids()).containsExactly(project1.projectUuid(),
       project2.projectUuid(),
@@ -106,14 +107,14 @@ public class ComponentIndexSearchTest {
   }
 
   @Test
-  public void paginate_results() {
+  void paginate_results() {
     List<ProjectData> projects = IntStream.range(0, 9)
       .mapToObj(i -> db.components().insertPrivateProject(p -> p.setName("project " + i)))
       .toList();
     ProjectDto[] projectDtos = projects.stream().map(ProjectData::getProjectDto).toArray(ProjectDto[]::new);
     index(projectDtos);
 
-    SearchIdResult<String> result = underTest.search(ComponentQuery.builder().build(), new SearchOptions().setPage(2, 3));
+    SearchIdResult<String> result = underTest.searchV2(ComponentQuery.builder().build(), new SearchOptions().setPage(2, 3));
 
     assertThat(result.getUuids()).containsExactlyInAnyOrder(projects.get(3).projectUuid(),
       projects.get(4).projectUuid(),
@@ -121,7 +122,7 @@ public class ComponentIndexSearchTest {
   }
 
   @Test
-  public void filter_unauthorized_components() {
+  void filter_unauthorized_components() {
     ProjectDto unauthorizedProject = db.components().insertPrivateProject().getProjectDto();
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
     ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
@@ -129,7 +130,7 @@ public class ComponentIndexSearchTest {
     authorizationIndexerTester.allowOnlyAnyone(project1);
     authorizationIndexerTester.allowOnlyAnyone(project2);
 
-    SearchIdResult<String> result = underTest.search(ComponentQuery.builder().build(), new SearchOptions());
+    SearchIdResult<String> result = underTest.searchV2(ComponentQuery.builder().build(), new SearchOptions());
 
     assertThat(result.getUuids()).containsExactlyInAnyOrder(project1.getUuid(), project2.getUuid())
       .doesNotContain(unauthorizedProject.getUuid());

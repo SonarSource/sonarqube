@@ -19,49 +19,31 @@
  */
 package org.sonar.server.component.index;
 
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import java.util.List;
 import java.util.Optional;
-import org.elasticsearch.common.text.Text;
-import org.elasticsearch.search.SearchHit;
+import javax.annotation.Nullable;
 
-import static java.util.Arrays.stream;
 import static java.util.Optional.ofNullable;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 
-public class ComponentHit {
-
-  private final String uuid;
-  private final Optional<String> highlightedText;
+public record ComponentHit(@Nullable String uuid, @Nullable String highlightedText) {
 
   public ComponentHit(String uuid) {
-    this.uuid = uuid;
-    this.highlightedText = Optional.empty();
+    this(uuid, null);
   }
 
-  public ComponentHit(SearchHit hit) {
-    this.uuid = hit.getId();
-    this.highlightedText = getHighlightedText(hit);
-  }
-
-  private static Optional<String> getHighlightedText(SearchHit hit) {
-    return ofNullable(hit.getHighlightFields())
-      .flatMap(fields -> ofNullable(fields.get(FIELD_NAME)))
-      .flatMap(field -> ofNullable(field.getFragments()))
-      .flatMap(fragments -> stream(fragments).findFirst())
-      .map(Text::string);
-  }
-
-  public String getUuid() {
-    return uuid;
-  }
-
-  public static List<ComponentHit> fromSearchHits(SearchHit... hits) {
-    return stream(hits)
-      .map(ComponentHit::new)
+  public static <T> List<ComponentHit> fromSearchHitsV2(List<Hit<T>> hits) {
+    return hits.stream()
+      .map(ComponentHit::fromHitV2)
       .toList();
   }
 
-  public Optional<String> getHighlightedText() {
-    return highlightedText;
+  private static <T> ComponentHit fromHitV2(Hit<T> hit) {
+    Optional<String> highlightedText = ofNullable(hit.highlight())
+      .flatMap(highlightMap -> ofNullable(highlightMap.get(FIELD_NAME)))
+      .flatMap(fragments -> fragments.stream().findFirst());
+
+    return new ComponentHit(hit.id(), highlightedText.orElse(null));
   }
 }

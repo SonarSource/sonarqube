@@ -19,21 +19,20 @@
  */
 package org.sonar.server.es;
 
-import java.util.Arrays;
+import co.elastic.clients.elasticsearch.indices.CreateIndexResponse;
+import co.elastic.clients.elasticsearch.indices.IndexSettings;
+import co.elastic.clients.elasticsearch.indices.PutMappingResponse;
+import co.elastic.clients.json.JsonData;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.StringReader;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
-import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
-import org.elasticsearch.action.support.master.AcknowledgedResponse;
-import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.elasticsearch.client.indices.CreateIndexResponse;
-import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.client.indices.PutMappingRequest;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
-import org.elasticsearch.common.settings.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
@@ -55,6 +54,7 @@ import static org.sonar.server.es.metadata.MetadataIndexDefinition.TYPE_METADATA
 public class IndexCreator implements Startable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(IndexCreator.class);
+  public static final String INDEX_BLOCKS_READ_ONLY_ALLOW_DELETE = "index.blocks.read_only_allow_delete";
 
   private final MetadataIndexDefinition metadataIndexDefinition;
   private final MetadataIndex metadataIndex;
@@ -75,7 +75,7 @@ public class IndexCreator implements Startable {
   public void start() {
     // create the "metadata" index first
     IndexType.IndexMainType metadataMainType = TYPE_METADATA;
-    if (!client.indexExists(new GetIndexRequest(metadataMainType.getIndex().getName()))) {
+    if (!client.indexExistsV2(req -> req.index(metadataMainType.getIndex().getName()))) {
       IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
       metadataIndexDefinition.define(context);
       NewIndex index = context.getIndices().values().iterator().next();
@@ -90,7 +90,7 @@ public class IndexCreator implements Startable {
     definitions.getIndices().values().stream()
       .filter(i -> !i.getMainType().equals(metadataMainType))
       .forEach(index -> {
-        boolean exists = client.indexExists(new GetIndexRequest(index.getMainType().getIndex().getName()));
+        boolean exists = client.indexExistsV2(req -> req.index(index.getMainType().getIndex().getName()));
         if (!exists) {
           createIndex(index, true);
         } else if (hasDefinitionChange(index)) {
@@ -109,8 +109,20 @@ public class IndexCreator implements Startable {
 
   private boolean isReadOnly(IndexType.IndexMainType mainType) {
     String indexName = mainType.getIndex().getName();
-    String readOnly = client.getSettings(new GetSettingsRequest().indices(indexName))
-      .getSetting(indexName, "index.blocks.read_only_allow_delete");
+    IndexSettings indexSettings = client.getSettingsV2(req -> req.index(indexName))
+      .get(indexName)
+      .settings();
+
+    if (indexSettings == null || indexSettings.otherSettings() == null) {
+      return false;
+    }
+
+    // Access the setting from the other settings map
+    String readOnly = Optional.ofNullable(indexSettings.otherSettings()
+        .get(INDEX_BLOCKS_READ_ONLY_ALLOW_DELETE))
+      .map(jsonData -> jsonData.to(String.class))
+      .orElse(null);
+
     return "true".equalsIgnoreCase(readOnly);
   }
 
@@ -118,10 +130,13 @@ public class IndexCreator implements Startable {
     LOGGER.info("Index [{}] is read-only. Making it writable...", mainType.getIndex().getName());
 
     String indexName = mainType.getIndex().getName();
-    Settings.Builder builder = Settings.builder();
-    builder.putNull("index.blocks.read_only_allow_delete");
 
-    client.putSettings(new UpdateSettingsRequest().indices(indexName).settings(builder.build()));
+    // To remove a setting in ES, we need to set it to null using JsonData.of with a null String value
+    // The new API requires us to build a proper null value
+    client.putSettingsV2(req -> req
+      .index(indexName)
+      .settings(s -> s.otherSettings(Map.of(INDEX_BLOCKS_READ_ONLY_ALLOW_DELETE, JsonData.fromJson("null"))))
+    );
   }
 
   @Override
@@ -132,32 +147,47 @@ public class IndexCreator implements Startable {
   private void createIndex(BuiltIndex<?> builtIndex, boolean useMetadata) {
     Index index = builtIndex.getMainType().getIndex();
     LOGGER.info("Create index [{}]", index.getName());
-    Settings.Builder settings = Settings.builder();
-    settings.put(builtIndex.getSettings());
+
     if (useMetadata) {
       metadataIndex.setHash(index, IndexDefinitionHash.of(builtIndex));
       metadataIndex.setInitialized(builtIndex.getMainType(), false);
       builtIndex.getRelationTypes().forEach(relationType -> metadataIndex.setInitialized(relationType, false));
     }
-    CreateIndexResponse indexResponse = client.create(new CreateIndexRequest(index.getName()).settings((settings)));
 
-    if (!indexResponse.isAcknowledged()) {
+    CreateIndexResponse indexResponse = client.createIndexV2(cir -> cir
+      .index(index.getName())
+      .withJson(new StringReader("{\"settings\":" + builtIndex.getSettings().toString() + "}"))
+    );
+
+    if (!indexResponse.acknowledged()) {
       throw new IllegalStateException("Failed to create index [" + index.getName() + "]");
     }
+
     client.waitForStatus(ClusterHealthStatus.YELLOW);
 
     LOGGER.info("Create mapping {}", builtIndex.getMainType().getIndex().getName());
-    AcknowledgedResponse mappingResponse = client.putMapping(new PutMappingRequest(builtIndex.getMainType().getIndex().getName())
-      .source(builtIndex.getAttributes()));
 
-    if (!mappingResponse.isAcknowledged()) {
+    PutMappingResponse putMappingResponse = client.putMappingV2(pmr -> {
+        try {
+          return pmr
+            .index(builtIndex.getMainType().getIndex().getName())
+            .withJson(new StringReader(
+              new ObjectMapper().writeValueAsString(builtIndex.getAttributes())
+            ));
+        } catch (JsonProcessingException e) {
+          throw new IllegalStateException("Cannot serialize mapping for index" + builtIndex.getMainType().getIndex().getName(), e);
+        }
+      }
+    );
+
+    if (!putMappingResponse.acknowledged()) {
       throw new IllegalStateException("Failed to create mapping " + builtIndex.getMainType().getIndex().getName());
     }
     client.waitForStatus(ClusterHealthStatus.YELLOW);
   }
 
   private void deleteIndex(String indexName) {
-    client.deleteIndex(new DeleteIndexRequest(indexName));
+    client.deleteIndexV2(indexName);
   }
 
   private void updateIndex(BuiltIndex<?> index) {
@@ -195,7 +225,8 @@ public class IndexCreator implements Startable {
     Set<String> definedNames = definitions.stream()
       .map(t -> t.getMainType().getIndex().getName())
       .collect(Collectors.toSet());
-    return Arrays.stream(client.getIndex(new GetIndexRequest("_all")).getIndices())
+    return client.getIndexV2("_all").result().keySet()
+      .stream()
       .filter(definedNames::contains)
       .filter(index -> !DESCRIPTOR.getName().equals(index))
       .toList();

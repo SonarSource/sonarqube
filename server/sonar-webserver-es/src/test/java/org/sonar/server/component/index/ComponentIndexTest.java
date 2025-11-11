@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import org.assertj.core.api.ListAssert;
-import org.junit.Rule;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.entity.EntityDto;
@@ -41,14 +41,14 @@ import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 
 public abstract class ComponentIndexTest {
 
-  @Rule
+  @RegisterExtension
   public EsTester es = EsTester.create();
-  @Rule
+  @RegisterExtension
   public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
+  @RegisterExtension
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  @Rule
+  @RegisterExtension
   public ComponentTextSearchFeatureRule features = new ComponentTextSearchFeatureRule();
 
   protected EntityDefinitionIndexer indexer = new EntityDefinitionIndexer(db.getDbClient(), es.client());
@@ -73,9 +73,9 @@ public abstract class ComponentIndexTest {
   }
 
   protected ListAssert<String> assertSearch(SuggestionQuery query) {
-    return (ListAssert<String>) assertThat(index.searchSuggestions(query, features.get()).getQualifiers())
+    return (ListAssert<String>) assertThat(index.searchSuggestionsV2(query, features.get()).getQualifiers())
       .flatExtracting(ComponentHitsPerQualifier::getHits)
-      .extracting(ComponentHit::getUuid);
+      .extracting(ComponentHit::uuid);
   }
 
   protected void assertSearchResults(String query, EntityDto... expectedComponents) {

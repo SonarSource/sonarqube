@@ -19,19 +19,18 @@
  */
 package org.sonar.server.es.textsearch;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import com.google.common.collect.ImmutableSet;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeature.UseCase;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.sonar.server.es.textsearch.JavaTokenizer.split;
 
 /**
@@ -45,24 +44,32 @@ public class ComponentTextSearchQueryFactory {
     // Only static methods
   }
 
-  public static QueryBuilder createQuery(ComponentTextSearchQuery query, ComponentTextSearchFeature... features) {
+  /**
+   * Create a query using the new Elasticsearch Java API Client (8.x).
+   */
+  public static Query createQueryV2(ComponentTextSearchQuery query, ComponentTextSearchFeature... features) {
     checkArgument(features.length > 0, "features cannot be empty");
-    BoolQueryBuilder esQuery = boolQuery().must(
-      createQuery(query, features, UseCase.GENERATE_RESULTS)
-        .orElseThrow(() -> new IllegalStateException("No text search features found to generate search results. Features: " + Arrays.toString(features))));
-    createQuery(query, features, UseCase.CHANGE_ORDER_OF_RESULTS)
-      .ifPresent(esQuery::should);
-    return esQuery;
+
+    Query mustQuery = createQueryV2(query, features, UseCase.GENERATE_RESULTS)
+      .orElseThrow(() -> new IllegalStateException("No text search features found to generate search results. Features: " + Arrays.toString(features)));
+
+    Optional<Query> shouldQuery = createQueryV2(query, features, UseCase.CHANGE_ORDER_OF_RESULTS);
+
+    List<Query> mustQueries = new ArrayList<>();
+    mustQueries.add(mustQuery);
+
+    return shouldQuery
+      .map(should -> Query.of(q -> q.bool(b -> b.must(mustQueries).should(should))))
+      .orElseGet(() -> Query.of(q -> q.bool(b -> b.must(mustQueries))));
   }
 
-  private static Optional<QueryBuilder> createQuery(ComponentTextSearchQuery query, ComponentTextSearchFeature[] features, UseCase useCase) {
-    BoolQueryBuilder generateResults = boolQuery();
-    Arrays.stream(features)
+  private static Optional<Query> createQueryV2(ComponentTextSearchQuery query, ComponentTextSearchFeature[] features, UseCase useCase) {
+    List<Query> shouldQueries = Arrays.stream(features)
       .filter(f -> f.getUseCase() == useCase)
-      .flatMap(f -> f.getQueries(query))
-      .forEach(generateResults::should);
-    if (!generateResults.should().isEmpty()) {
-      return Optional.of(generateResults);
+      .flatMap(f -> f.getQueriesV2(query))
+      .toList();
+    if (!shouldQueries.isEmpty()) {
+      return Optional.of(Query.of(q -> q.bool(b -> b.should(shouldQueries))));
     } else {
       return Optional.empty();
     }

@@ -19,6 +19,7 @@ dependencies {
   api 'org.apache.commons:commons-lang3'
   api 'org.bouncycastle:bcprov-jdk18on'
   api 'org.elasticsearch.client:elasticsearch-rest-high-level-client'
+  api 'co.elastic.clients:elasticsearch-java'
   api 'org.slf4j:slf4j-api'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
   api project(':server:sonar-db-dao')

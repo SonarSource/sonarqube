@@ -19,6 +19,11 @@
  */
 package org.sonar.server.rule.index;
 
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.aggregations.StringTermsAggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
+import co.elastic.clients.util.NamedValue;
 import com.google.common.base.Joiner;
 import io.sonarcloud.compliancereports.reports.MetadataRules.ComplianceCategoryRules;
 import io.sonarcloud.compliancereports.reports.MetadataRules.RepositoryRuleKey;
@@ -54,7 +59,6 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.issue.impact.SoftwareQuality;
@@ -76,7 +80,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.util.Collections.emptyList;
-import static java.util.Optional.ofNullable;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchPhraseQuery;
@@ -847,17 +850,17 @@ public class RuleIndex {
     if (query.getSortField() != null) {
       FieldSortBuilder sort = SortBuilders.fieldSort(appendSortSuffixIfNeeded(query.getSortField()));
       if (query.isAscendingSort()) {
-        sort.order(SortOrder.ASC);
+        sort.order(org.elasticsearch.search.sort.SortOrder.ASC);
       } else {
-        sort.order(SortOrder.DESC);
+        sort.order(org.elasticsearch.search.sort.SortOrder.DESC);
       }
       esSearch.sort(sort);
     } else if (StringUtils.isNotEmpty(queryText)) {
       esSearch.sort(SortBuilders.scoreSort());
     } else {
-      esSearch.sort(appendSortSuffixIfNeeded(FIELD_RULE_UPDATED_AT), SortOrder.DESC);
+      esSearch.sort(appendSortSuffixIfNeeded(FIELD_RULE_UPDATED_AT), org.elasticsearch.search.sort.SortOrder.DESC);
       // deterministic sort when exactly the same updated_at (same millisecond)
-      esSearch.sort(appendSortSuffixIfNeeded(FIELD_RULE_KEY), SortOrder.ASC);
+      esSearch.sort(appendSortSuffixIfNeeded(FIELD_RULE_KEY), org.elasticsearch.search.sort.SortOrder.ASC);
     }
   }
 
@@ -880,25 +883,35 @@ public class RuleIndex {
       return emptyList();
     }
 
-    TermsAggregationBuilder termsAggregation = AggregationBuilders.terms(AGGREGATION_NAME_FOR_TAGS)
-      .field(FIELD_RULE_TAGS)
-      .size(size)
-      .order(BucketOrder.key(true))
-      .minDocCount(1);
-    ofNullable(query)
-      .map(EsUtils::escapeSpecialRegexChars)
-      .map(queryString -> ".*" + queryString + ".*")
-      .map(s -> new IncludeExclude(s, null))
-      .ifPresent(termsAggregation::includeExclude);
-
-    SearchRequest request = EsClient.prepareSearch(TYPE_RULE.getMainType())
-      .source(new SearchSourceBuilder()
-        .query(matchAllQuery())
+    co.elastic.clients.elasticsearch.core.SearchResponse<Void> esResponse = client.searchV2(req -> {
+      req.index(TYPE_RULE.getMainType().getIndex().getName())
+        .query(q -> q.matchAll(m -> m))
         .size(0)
-        .aggregation(termsAggregation));
+        .aggregations(AGGREGATION_NAME_FOR_TAGS, agg -> agg.terms(t -> {
+          t.field(FIELD_RULE_TAGS)
+            .size(size)
+            .minDocCount(1)
+            .order(NamedValue.of("_key", SortOrder.Asc));
 
-    SearchResponse esResponse = client.search(request);
-    return EsUtils.termsKeys(esResponse.getAggregations().get(AGGREGATION_NAME_FOR_TAGS));
+          // Apply include/exclude filter if query is provided
+          if (query != null) {
+            String pattern = ".*" + EsUtils.escapeSpecialRegexChars(query) + ".*";
+            t.include(i -> i.regexp(pattern));
+          }
+
+          return t;
+        }));
+      return req;
+    }, Void.class);
+
+    // Extract terms aggregation results
+    StringTermsAggregate termsAggregate =
+      esResponse.aggregations().get(AGGREGATION_NAME_FOR_TAGS).sterms();
+
+    return termsAggregate.buckets().array().stream()
+      .map(StringTermsBucket::key)
+      .map(FieldValue::stringValue)
+      .toList();
   }
 
   @CheckForNull

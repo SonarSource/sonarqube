@@ -19,11 +19,12 @@
  */
 package org.sonar.server.es.metadata;
 
+import co.elastic.clients.elasticsearch._types.Refresh;
+import co.elastic.clients.elasticsearch.core.GetResponse;
+import co.elastic.clients.json.JsonData;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.common.document.DocumentField;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexType;
@@ -31,7 +32,6 @@ import org.sonar.server.es.IndexType.IndexMainType;
 import org.sonar.server.es.IndexType.IndexRelationType;
 
 import static org.sonar.server.es.metadata.MetadataIndexDefinition.TYPE_METADATA;
-import static org.sonar.server.es.newindex.DefaultIndexSettings.REFRESH_IMMEDIATE;
 
 public class MetadataIndexImpl implements MetadataIndex {
 
@@ -88,21 +88,31 @@ public class MetadataIndexImpl implements MetadataIndex {
     setMetadata(DB_VENDOR_KEY, vendor);
   }
 
+  @SuppressWarnings("unchecked")
   private Optional<String> getMetadata(String id) {
-    GetResponse response = esClient.get(new GetRequest(TYPE_METADATA.getIndex().getName())
-      .id(id)
-      .storedFields(MetadataIndexDefinition.FIELD_VALUE));
-    if (response.isExists()) {
-      DocumentField field = response.getField(MetadataIndexDefinition.FIELD_VALUE);
-      return Optional.of(field.getValue());
+    GetResponse<Map> response = esClient.getV2(
+      req -> req.index(TYPE_METADATA.getIndex().getName())
+        .id(id)
+        .storedFields(MetadataIndexDefinition.FIELD_VALUE),
+      Map.class);
+    if (response.found()) {
+      JsonData fieldData = response.fields().get(MetadataIndexDefinition.FIELD_VALUE);
+      if (fieldData != null) {
+        // Stored fields are returned as arrays, extract the first element
+        List<String> values = fieldData.to(List.class);
+        if (!values.isEmpty()) {
+          Object firstValue = values.get(0);
+          return Optional.of(firstValue.toString());
+        }
+      }
     }
     return Optional.empty();
   }
 
   private void setMetadata(String id, String value) {
-    esClient.index(new IndexRequest(TYPE_METADATA.getIndex().getName())
-        .id(id)
-      .source(MetadataIndexDefinition.FIELD_VALUE, value)
-      .setRefreshPolicy(REFRESH_IMMEDIATE));
+    esClient.indexV2(ir -> ir.index(TYPE_METADATA.getIndex().getName())
+      .id(id)
+      .document(Map.of(MetadataIndexDefinition.FIELD_VALUE, value))
+      .refresh(Refresh.True));
   }
 }

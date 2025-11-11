@@ -19,6 +19,11 @@
  */
 package org.sonar.server.permission.index;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.HasParentQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -47,7 +52,10 @@ public class WebAuthorizationTypeSupport {
   /**
    * Build a filter to restrict query to the documents on which
    * user has read access.
+   *
+   * @deprecated Use {@link #createQueryFilterV2()} instead. This method uses the old Elasticsearch API.
    */
+  @Deprecated(since = "2025.6", forRemoval = true)
   public QueryBuilder createQueryFilter() {
     BoolQueryBuilder filter = boolQuery();
 
@@ -69,4 +77,41 @@ public class WebAuthorizationTypeSupport {
       QueryBuilders.boolQuery().filter(filter),
       false);
   }
+
+  /**
+   * Build a filter to restrict query to the documents on which
+   * user has read access using the new Elasticsearch Java API Client (8.x).
+   */
+  public Query createQueryFilterV2() {
+    List<Query> shouldQueries = new ArrayList<>();
+
+    // anyone
+    shouldQueries.add(Query.of(q -> q.term(t -> t
+      .field(FIELD_ALLOW_ANYONE)
+      .value(true))));
+
+    // users
+    Optional.ofNullable(userSession.getUuid())
+      .ifPresent(uuid -> shouldQueries.add(Query.of(q -> q.term(t -> t
+        .field(FIELD_USER_IDS)
+        .value(uuid)))));
+
+    // groups
+    shouldQueries.addAll(
+      userSession.getGroups()
+        .stream()
+        .map(groupDto -> Query.of(q -> q.term(t -> t
+          .field(FIELD_GROUP_IDS)
+          .value(groupDto.getUuid()))))
+        .toList()
+    );
+
+    BoolQuery boolQuery = BoolQuery.of(b -> b.should(shouldQueries));
+
+    return Query.of(q -> q.hasParent(HasParentQuery.of(hp -> hp
+      .parentType(TYPE_AUTHORIZATION)
+      .query(Query.of(innerQ -> innerQ.bool(BoolQuery.of(innerB -> innerB.filter(Query.of(filterQ -> filterQ.bool(boolQuery)))))))
+      .score(false))));
+  }
 }
+

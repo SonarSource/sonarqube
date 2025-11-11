@@ -19,22 +19,15 @@
  */
 package org.sonar.server.view.index;
 
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch.core.ScrollResponse;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import java.util.ArrayList;
 import java.util.List;
-import org.elasticsearch.action.search.ClearScrollRequest;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchScrollRequest;
-import org.elasticsearch.core.TimeValue;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.server.es.EsClient;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 
 /**
  * The View Index indexes all views, root and not root (APP, VW, SVW), and all projects that are computed under each view.
@@ -44,7 +37,7 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 @ComputeEngineSide
 public class ViewIndex {
 
-  private static final int SCROLL_TIME_IN_MINUTES = 3;
+  private static final String SCROLL_TIMEOUT_IN_MINUTES = "3m";
 
   private final EsClient esClient;
 
@@ -53,31 +46,49 @@ public class ViewIndex {
   }
 
   public List<String> findAllViewUuids() {
-    SearchRequest esSearch = EsClient.prepareSearch(ViewIndexDefinition.TYPE_VIEW)
-      .source(new SearchSourceBuilder()
-        .sort("_doc", SortOrder.ASC)
-        .fetchSource(false)
-        .size(100)
-        .query(matchAllQuery()))
-      .scroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
+    SearchResponse<Void> searchResponse = esClient.searchV2(req -> req
+      .index(ViewIndexDefinition.TYPE_VIEW.getMainType().getIndex().getName())
+      .scroll(t -> t.time(SCROLL_TIMEOUT_IN_MINUTES))
+      .sort(s -> s.doc(d -> d.order(SortOrder.Asc)))
+      .source(s -> s.fetch(false))
+      .size(100)
+      .query(q -> q.matchAll(m -> m)),
+      Void.class);
 
-    SearchResponse response = esClient.search(esSearch);
-    List<String> result = new ArrayList<>();
-    while (true) {
-      List<SearchHit> hits = newArrayList(response.getHits());
-      for (SearchHit hit : hits) {
-        result.add(hit.getId());
-      }
-      String scrollId = response.getScrollId();
-      response = esClient.scroll(new SearchScrollRequest().scrollId(scrollId).scroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES)));
+    //process initial search results
+    List<String> result = new ArrayList<>(searchResponse.hits().hits()
+      .stream()
+      .map(Hit::id)
+      .toList());
+
+    String scrollId = searchResponse.scrollId();
+    if (scrollId == null) {
+      return result;
+    }
+
+    // Continue with scroll
+    while (scrollId != null) {
+      final String currentScrollId = scrollId;
+      ScrollResponse<Void> scrollResponse = esClient.scrollV2(ssr ->
+        ssr.scrollId(currentScrollId)
+          .scroll(b -> b.time(SCROLL_TIMEOUT_IN_MINUTES)));
+
+      List<Hit<Void>> hits = scrollResponse.hits().hits();
+
       // Break condition: No hits are returned
-      if (response.getHits().getHits().length == 0) {
-        ClearScrollRequest clearScrollRequest = new ClearScrollRequest();
-        clearScrollRequest.addScrollId(scrollId);
-        esClient.clearScroll(clearScrollRequest);
+      if (hits.isEmpty()) {
+        esClient.clearScrollV2(csr -> csr.scrollId(currentScrollId));
         break;
       }
+
+      // Process scroll results
+      for (Hit<Void> hit : hits) {
+        result.add(hit.id());
+      }
+
+      scrollId = scrollResponse.scrollId();
     }
+
     return result;
   }
 }

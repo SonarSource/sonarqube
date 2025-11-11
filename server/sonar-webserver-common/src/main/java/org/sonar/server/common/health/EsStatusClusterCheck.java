@@ -19,8 +19,8 @@
  */
 package org.sonar.server.common.health;
 
+import co.elastic.clients.elasticsearch.cluster.HealthResponse;
 import java.util.Set;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.sonar.process.cluster.health.NodeHealth;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.health.Health;
@@ -35,17 +35,20 @@ public class EsStatusClusterCheck extends EsStatusCheck implements ClusterHealth
 
   @Override
   public Health check(Set<NodeHealth> nodeHealths) {
-    ClusterHealthResponse esClusterHealth = this.getEsClusterHealth();
-    if (esClusterHealth != null) {
-      Health minimumNodes = checkMinimumNodes(esClusterHealth);
-      Health clusterStatus = extractStatusHealth(esClusterHealth);
-      return HealthReducer.merge(minimumNodes, clusterStatus);
+    HealthResponse esClusterHealth = this.getEsClusterHealth();
+
+    if (esClusterHealth == null) {
+      return RED_HEALTH_UNAVAILABLE;
     }
-    return RED_HEALTH_UNAVAILABLE;
+
+    Health minimumNodes = checkMinimumNodes(esClusterHealth);
+    Health clusterStatus = extractStatusHealth(esClusterHealth);
+    return HealthReducer.merge(minimumNodes, clusterStatus);
+
   }
 
-  private static Health checkMinimumNodes(ClusterHealthResponse esClusterHealth) {
-    int nodeCount = esClusterHealth.getNumberOfNodes();
+  private static Health checkMinimumNodes(HealthResponse esClusterHealth) {
+    int nodeCount = esClusterHealth.numberOfNodes();
     if (nodeCount < RECOMMENDED_MIN_NUMBER_OF_ES_NODES) {
       return Health.builder()
         .setStatus(Health.Status.YELLOW)

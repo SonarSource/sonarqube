@@ -19,25 +19,27 @@
  */
 package org.sonar.server.component.index;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.MatchAllQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import java.util.Collections;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 
 import static com.google.common.collect.ImmutableSet.of;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 
-public class ComponentIndexFeatureRecentlyBrowsedTest extends ComponentIndexTest {
+class ComponentIndexFeatureRecentlyBrowsedTest extends ComponentIndexTest {
 
-  @Before
-  public void before() {
-    features.set(query -> matchAllQuery(), ComponentTextSearchFeatureRepertoire.RECENTLY_BROWSED);
+  @BeforeEach
+  void before() {
+    features.set(query ->
+      Query.of(q -> q.matchAll(new MatchAllQuery.Builder().build())), ComponentTextSearchFeatureRepertoire.RECENTLY_BROWSED);
   }
 
   @Test
-  public void scoring_cares_about_recently_browsed() {
+  void scoring_cares_about_recently_browsed() {
     ProjectDto project1 = indexProject("sonarqube", "SonarQube");
     ProjectDto project2 = indexProject("recent", "SonarQube Recently");
 

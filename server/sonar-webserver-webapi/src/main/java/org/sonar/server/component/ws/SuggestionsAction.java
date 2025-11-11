@@ -34,8 +34,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.sonar.server.component.ComponentType;
-import org.sonar.server.component.ComponentTypes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -45,6 +43,8 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
+import org.sonar.server.component.ComponentType;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.server.component.index.ComponentHit;
 import org.sonar.server.component.index.ComponentHitsPerQualifier;
 import org.sonar.server.component.index.ComponentIndex;
@@ -224,7 +224,7 @@ public class SuggestionsAction implements ComponentsWsAction {
       Set<String> entityUuids = componentsPerQualifiers.getQualifiers()
         .map(ComponentHitsPerQualifier::getHits)
         .flatMap(Collection::stream)
-        .map(ComponentHit::getUuid)
+        .map(ComponentHit::uuid)
         .collect(Collectors.toSet());
       List<EntityDto> entities = dbClient.entityDao().selectByUuids(dbSession, entityUuids);
       Set<String> favoriteUuids = favorites.stream().map(EntityDto::getUuid).collect(Collectors.toSet());
@@ -260,7 +260,7 @@ public class SuggestionsAction implements ComponentsWsAction {
     return availableQualifiers.contains(qualifier) ? singletonList(qualifier) : emptyList();
   }
 
-  private SuggestionsWsResponse.Builder buildResponse(Set<String> recentlyBrowsedKeys, Set<String> favoriteUuids, ComponentIndexResults componentsPerQualifiers,
+  private static SuggestionsWsResponse.Builder buildResponse(Set<String> recentlyBrowsedKeys, Set<String> favoriteUuids, ComponentIndexResults componentsPerQualifiers,
     List<EntityDto> entities, int coveredItems) {
 
     Map<String, EntityDto> entitiesByUuids = entities.stream().collect(Collectors.toMap(EntityDto::getUuid, Function.identity()));
@@ -268,7 +268,7 @@ public class SuggestionsAction implements ComponentsWsAction {
   }
 
   private ComponentIndexResults searchInIndex(SuggestionQuery suggestionQuery) {
-    return index.searchSuggestions(suggestionQuery);
+    return index.searchSuggestionsV2(suggestionQuery);
   }
 
   private static SuggestionsWsResponse.Builder toResponse(ComponentIndexResults componentsPerQualifiers, Set<String> recentlyBrowsedKeys, Set<String> favoriteUuids,
@@ -303,11 +303,11 @@ public class SuggestionsAction implements ComponentsWsAction {
    * occurs when failed indexing requests are been recovering.
    */
   private static Optional<Suggestion> toSuggestion(ComponentHit hit, Set<String> recentlyBrowsedKeys, Set<String> favoriteUuids, Map<String, EntityDto> entitiesByUuids) {
-    return Optional.ofNullable(entitiesByUuids.get(hit.getUuid()))
+    return Optional.ofNullable(entitiesByUuids.get(hit.uuid()))
       .map(result -> Suggestion.newBuilder()
         .setKey(result.getKey())
         .setName(result.getName())
-        .setMatch(hit.getHighlightedText().orElse(HtmlEscapers.htmlEscaper().escape(result.getName())))
+        .setMatch(Optional.ofNullable(hit.highlightedText()).orElse(HtmlEscapers.htmlEscaper().escape(result.getName())))
         .setIsRecentlyBrowsed(recentlyBrowsedKeys.contains(result.getKey()))
         .setIsFavorite(favoriteUuids.contains(result.getUuid()))
         .build());

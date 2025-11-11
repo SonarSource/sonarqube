@@ -19,23 +19,19 @@
  */
 package org.sonar.server.es;
 
-import java.io.IOException;
+import co.elastic.clients.elasticsearch.indices.GetIndicesSettingsResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
-import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.cluster.metadata.IndexMetadata;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
 import org.sonar.api.impl.utils.TestSystem2;
-import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.db.DbTester;
 import org.sonar.server.es.BulkIndexer.Size;
 import org.sonar.server.es.newindex.FakeIndexDefinition;
@@ -46,19 +42,19 @@ import static org.sonar.server.es.newindex.FakeIndexDefinition.EXCPECTED_TYPE_FA
 import static org.sonar.server.es.newindex.FakeIndexDefinition.INDEX;
 import static org.sonar.server.es.newindex.FakeIndexDefinition.TYPE_FAKE;
 
-public class BulkIndexerIT {
+class BulkIndexerIT {
 
   private final TestSystem2 testSystem2 = new TestSystem2().setNow(1_000L);
 
-  @Rule
+  @RegisterExtension
   public EsTester es = EsTester.createCustom(new FakeIndexDefinition().setReplicas(1));
-  @Rule
+  @RegisterExtension
   public DbTester dbTester = DbTester.create(testSystem2);
-  @Rule
-  public LogTester logTester = new LogTester();
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @Test
-  public void index_nothing() {
+  void index_nothing() {
     BulkIndexer indexer = new BulkIndexer(es.client(), TYPE_FAKE, Size.REGULAR);
     indexer.start();
     indexer.stop();
@@ -67,7 +63,7 @@ public class BulkIndexerIT {
   }
 
   @Test
-  public void index_documents() {
+  void index_documents() {
     BulkIndexer indexer = new BulkIndexer(es.client(), TYPE_FAKE, Size.REGULAR);
     indexer.start();
     indexer.add(newIndexRequest(42));
@@ -82,7 +78,7 @@ public class BulkIndexerIT {
   }
 
   @Test
-  public void large_indexing() {
+  void large_indexing() {
     // index has one replica
     assertThat(replicas()).isOne();
 
@@ -107,7 +103,7 @@ public class BulkIndexerIT {
   }
 
   @Test
-  public void bulk_delete() {
+  void bulk_delete() {
     int max = 500;
     int removeFrom = 200;
     FakeDoc[] docs = new FakeDoc[max];
@@ -125,7 +121,7 @@ public class BulkIndexerIT {
   }
 
   @Test
-  public void listener_is_called_on_successful_requests() {
+  void listener_is_called_on_successful_requests() {
     FakeListener listener = new FakeListener();
     BulkIndexer indexer = new BulkIndexer(es.client(), TYPE_FAKE, Size.REGULAR, listener);
     indexer.start();
@@ -138,7 +134,7 @@ public class BulkIndexerIT {
   }
 
   @Test
-  public void listener_is_called_even_if_deleting_a_doc_that_does_not_exist() {
+  void listener_is_called_even_if_deleting_a_doc_that_does_not_exist() {
     FakeListener listener = new FakeListener();
     BulkIndexer indexer = new BulkIndexer(es.client(), TYPE_FAKE, Size.REGULAR, listener);
     indexer.start();
@@ -152,7 +148,7 @@ public class BulkIndexerIT {
   }
 
   @Test
-  public void listener_is_not_called_with_errors() {
+  void listener_is_not_called_with_errors() {
     FakeListener listener = new FakeListener();
     BulkIndexer indexer = new BulkIndexer(es.client(), TYPE_FAKE, Size.REGULAR, listener);
     indexer.start();
@@ -165,7 +161,7 @@ public class BulkIndexerIT {
   }
 
   @Test
-  public void log_requests_when_TRACE_level_is_enabled() {
+  void log_requests_when_TRACE_level_is_enabled() {
     logTester.setLevel(Level.TRACE);
 
     BulkIndexer indexer = new BulkIndexer(es.client(), TYPE_FAKE, Size.REGULAR, new FakeListener());
@@ -201,13 +197,9 @@ public class BulkIndexerIT {
   }
 
   private int replicas() {
-    try {
-      GetSettingsResponse settingsResp = es.client().nativeClient().indices()
-        .getSettings(new GetSettingsRequest().indices(INDEX), RequestOptions.DEFAULT);
-      return Integer.parseInt(settingsResp.getSetting(INDEX, IndexMetadata.SETTING_NUMBER_OF_REPLICAS));
-    } catch (IOException e) {
-      throw new IllegalStateException("Could not get index settings", e);
-    }
+    GetIndicesSettingsResponse settingsResp =
+      es.client().getSettingsV2(req -> req.index(INDEX));
+    return Integer.parseInt(settingsResp.get(INDEX).settings().index().numberOfReplicas());
   }
 
   private IndexRequest newIndexRequest(int intField) {

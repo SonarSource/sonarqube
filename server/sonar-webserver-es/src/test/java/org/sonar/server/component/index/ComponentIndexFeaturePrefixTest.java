@@ -19,42 +19,42 @@
  */
 package org.sonar.server.component.index;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 
-public class ComponentIndexFeaturePrefixTest extends ComponentIndexTest {
+class ComponentIndexFeaturePrefixTest extends ComponentIndexTest {
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     features.set(ComponentTextSearchFeatureRepertoire.PREFIX, ComponentTextSearchFeatureRepertoire.PREFIX_IGNORE_CASE);
   }
 
   @Test
-  public void should_find_prefix() {
+  void should_find_prefix() {
     assertResultOrder("comp", "component");
   }
 
   @Test
-  public void should_find_exact_match() {
+  void should_find_exact_match() {
     assertResultOrder("component.js", "component.js");
   }
 
   @Test
-  public void should_not_find_partially() {
+  void should_not_find_partially() {
     indexProject("my_component");
 
     assertNoSearchResults("component.js");
   }
 
   @Test
-  public void should_be_able_to_ignore_case() {
+  void should_be_able_to_ignore_case() {
     features.set(ComponentTextSearchFeatureRepertoire.PREFIX_IGNORE_CASE);
     assertResultOrder("cOmPoNeNt.Js", "CoMpOnEnT.jS");
   }
 
   @Test
-  public void should_prefer_matching_case() {
+  void should_prefer_matching_case() {
     assertResultOrder("cOmPoNeNt.Js", "cOmPoNeNt.Js", "CoMpOnEnT.jS");
   }
 }

@@ -19,8 +19,8 @@
  */
 package org.sonar.server.es.textsearch;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import java.util.stream.Stream;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory.ComponentTextSearchQuery;
 
 public interface ComponentTextSearchFeature {
@@ -33,9 +33,15 @@ public interface ComponentTextSearchFeature {
     return UseCase.GENERATE_RESULTS;
   }
 
-  default Stream<QueryBuilder> getQueries(ComponentTextSearchQuery query) {
-    return Stream.of(getQuery(query));
+  /**
+   * Get queries using the new Elasticsearch Java API Client (8.x).
+   */
+  default Stream<Query> getQueriesV2(ComponentTextSearchQuery query) {
+    return Stream.of(getQueryV2(query));
   }
 
-  QueryBuilder getQuery(ComponentTextSearchQuery query);
+  /**
+   * Get a single query using the new Elasticsearch Java API Client (8.x).
+   */
+  Query getQueryV2(ComponentTextSearchQuery query);
 }

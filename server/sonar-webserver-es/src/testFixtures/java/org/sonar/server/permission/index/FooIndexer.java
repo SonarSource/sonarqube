@@ -20,7 +20,6 @@
 package org.sonar.server.permission.index;
 
 import java.util.Optional;
-import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -64,11 +63,12 @@ public class FooIndexer implements AnalysisIndexer, NeedAuthorizationIndexer {
 
   private void addToIndex(String projectUuid, String name) {
     FooDoc fooDoc = new FooDoc(projectUuid, name);
-    esClient.index(new IndexRequest(TYPE_FOO.getMainType().getIndex().getName())
-      .type(TYPE_FOO.getMainType().getType())
+    esClient.indexV2(ir -> ir
+      .index(TYPE_FOO.getMainType().getIndex().getName())
       .id(fooDoc.getId())
       .routing(fooDoc.getRouting().orElse(null))
-      .source(fooDoc.getFields()));
+      .document(fooDoc.getFields())
+    );
   }
 
   private static final class FooDoc extends BaseDoc {

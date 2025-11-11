@@ -21,29 +21,29 @@ package org.sonar.server.component.index;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 
 import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 
-public class ComponentIndexScoreTest extends ComponentIndexTest {
+class ComponentIndexScoreTest extends ComponentIndexTest {
   @Test
-  public void should_prefer_components_without_prefix() {
+  void should_prefer_components_without_prefix() {
     assertResultOrder("File.java",
       "File.java",
       "MyFile.java");
   }
 
   @Test
-  public void should_prefer_components_without_suffix() {
+  void should_prefer_components_without_suffix() {
     assertResultOrder("File",
       "File",
       "Filex");
   }
 
   @Test
-  public void should_prefer_key_matching_over_name_matching() {
+  void should_prefer_key_matching_over_name_matching() {
     es.recreateIndexes();
     ProjectDto project1 = indexProject("quality", "SonarQube");
     ProjectDto project2 = indexProject("sonarqube", "Quality Product");
@@ -52,63 +52,63 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
   }
 
   @Test
-  public void should_prefer_prefix_matching_over_partial_matching() {
+  void should_prefer_prefix_matching_over_partial_matching() {
     assertResultOrder("corem",
       "CoreMetrics.java",
       "ScoreMatrix.java");
   }
 
   @Test
-  public void should_prefer_case_sensitive_prefix() {
+  void should_prefer_case_sensitive_prefix() {
     assertResultOrder("caSe",
       "caSeBla.java",
       "CaseBla.java");
   }
 
   @Test
-  public void scoring_prefix_with_multiple_words() {
+  void scoring_prefix_with_multiple_words() {
     assertResultOrder("index java",
       "IndexSomething.java",
       "MyIndex.java");
   }
 
   @Test
-  public void scoring_prefix_with_multiple_words_and_case() {
+  void scoring_prefix_with_multiple_words_and_case() {
     assertResultOrder("Index JAVA",
       "IndexSomething.java",
       "index_java.js");
   }
 
   @Test
-  public void scoring_long_items() {
+  void scoring_long_items() {
     assertResultOrder("ThisIsAVeryLongNameToSearchForAndItExceeds15Characters.java",
       "ThisIsAVeryLongNameToSearchForAndItExceeds15Characters.java",
       "ThisIsAVeryLongNameToSearchForAndItEndsDifferently.java");
   }
 
   @Test
-  public void scoring_perfect_match() {
+  void scoring_perfect_match() {
     assertResultOrder("SonarQube",
       "SonarQube",
       "SonarQube SCM Git");
   }
 
   @Test
-  public void scoring_perfect_match_dispite_case_changes() {
+  void scoring_perfect_match_dispite_case_changes() {
     assertResultOrder("sonarqube",
       "SonarQube",
       "SonarQube SCM Git");
   }
 
   @Test
-  public void scoring_perfect_match_with_matching_case_higher_than_without_matching_case() {
+  void scoring_perfect_match_with_matching_case_higher_than_without_matching_case() {
     assertResultOrder("sonarqube",
       "sonarqube",
       "SonarQube");
   }
 
   @Test
-  public void should_prefer_favorite_over_recently_browsed() {
+  void should_prefer_favorite_over_recently_browsed() {
     ProjectDto project1 = db.components().insertPrivateProject(c -> c.setName("File1")).getProjectDto();
     index(project1);
 
@@ -131,14 +131,14 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
   }
 
   @Test
-  public void if_relevancy_is_equal_fall_back_to_alphabetical_ordering() {
+  void if_relevancy_is_equal_fall_back_to_alphabetical_ordering() {
     assertResultOrder("sonarqube",
       "sonarqubeA",
       "sonarqubeB");
   }
 
   @Test
-  public void scoring_test_DbTester() {
+  void scoring_test_DbTester() {
     features.set(ComponentTextSearchFeatureRepertoire.PARTIAL);
 
     ProjectDto project = indexProject("key-1", "Quality Product");

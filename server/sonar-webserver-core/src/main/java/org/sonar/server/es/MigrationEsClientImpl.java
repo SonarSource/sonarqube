@@ -20,11 +20,9 @@
 package org.sonar.server.es;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.client.indices.GetIndexRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.server.platform.db.migration.es.MigrationEsClient;
@@ -39,19 +37,18 @@ public class MigrationEsClientImpl implements MigrationEsClient {
 
   @Override
   public void deleteIndexes(String name, String... otherNames) {
-    String[] indices = client.getIndex(new GetIndexRequest("_all")).getIndices();
-    Set<String> existingIndices = Arrays.stream(indices).collect(Collectors.toSet());
-    String[] toDelete = Stream.concat(Stream.of(name), Arrays.stream(otherNames))
+    Set<String> existingIndices = client.getIndexV2("_all").result().keySet();
+    List<String> toDelete = Stream.concat(Stream.of(name), Arrays.stream(otherNames))
       .distinct()
       .filter(existingIndices::contains)
-      .toArray(String[]::new);
-    if (toDelete.length > 0) {
+      .toList();
+    if (!toDelete.isEmpty()) {
       deleteIndex(toDelete);
     }
   }
 
-  private void deleteIndex(String... indices) {
+  private void deleteIndex(List<String> indices) {
     LOG.info("Drop Elasticsearch indices [{}]", String.join(",", indices));
-    client.deleteIndex(new DeleteIndexRequest(indices));
+    client.deleteIndexV2(indices);
   }
 }

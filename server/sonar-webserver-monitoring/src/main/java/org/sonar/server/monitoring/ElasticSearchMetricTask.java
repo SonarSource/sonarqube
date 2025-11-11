@@ -19,11 +19,10 @@
  */
 package org.sonar.server.monitoring;
 
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
-import org.sonar.api.config.Configuration;
+import co.elastic.clients.elasticsearch._types.HealthStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.config.Configuration;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.response.NodeStats;
 import org.sonar.server.es.response.NodeStatsResponse;
@@ -53,15 +52,15 @@ public class ElasticSearchMetricTask implements MonitoringTask {
 
   private void updateElasticSearchHealthStatus() {
     try {
-      ClusterHealthStatus esStatus = esClient.clusterHealth(new ClusterHealthRequest()).getStatus();
+      HealthStatus esStatus = esClient.clusterHealthV2(req -> req).status();
       if (esStatus == null) {
         serverMonitoringMetrics.setElasticSearchStatusToRed();
       } else {
         switch (esStatus) {
-          case GREEN, YELLOW:
+          case Green, Yellow:
             serverMonitoringMetrics.setElasticSearchStatusToGreen();
             break;
-          case RED:
+          case Red:
             serverMonitoringMetrics.setElasticSearchStatusToRed();
             break;
         }

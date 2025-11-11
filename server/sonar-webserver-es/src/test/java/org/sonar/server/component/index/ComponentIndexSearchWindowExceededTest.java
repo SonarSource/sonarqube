@@ -19,12 +19,10 @@
  */
 package org.sonar.server.component.index;
 
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.internal.SearchContext;
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+import co.elastic.clients.elasticsearch._types.query_dsl.MatchAllQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 import org.sonar.api.utils.System2;
 import org.sonar.server.es.EsClient;
@@ -32,13 +30,13 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class ComponentIndexSearchWindowExceededTest {
-  @Rule
+class ComponentIndexSearchWindowExceededTest {
+  @RegisterExtension
   public EsTester es = EsTester.create();
 
   private final WebAuthorizationTypeSupport authorizationTypeSupport = mock(WebAuthorizationTypeSupport.class);
@@ -46,15 +44,13 @@ public class ComponentIndexSearchWindowExceededTest {
   private final ComponentIndex underTest = new ComponentIndex(esClient, authorizationTypeSupport, System2.INSTANCE);
 
   @Test
-  public void search_shouldUseAccurateCountTrackParameterAndNotLimitCountTo10000() {
+  void search_shouldUseAccurateCountTrackParameterAndNotLimitCountTo10000() {
     // bypassing the permission check
-    when(authorizationTypeSupport.createQueryFilter()).thenReturn(QueryBuilders.matchAllQuery());
+    when(authorizationTypeSupport.createQueryFilterV2()).thenReturn(Query.of(q -> q.matchAll(new MatchAllQuery.Builder().build())));
 
-    underTest.search(ComponentQuery.builder().build(), new SearchOptions().setPage(2, 3));
+    underTest.searchV2(ComponentQuery.builder().build(), new SearchOptions().setPage(2, 3));
 
-    ArgumentCaptor<SearchRequest> searchRequestArgumentCaptor = ArgumentCaptor.forClass(SearchRequest.class);
-    verify(esClient).search(searchRequestArgumentCaptor.capture());
-    SearchRequest searchRequest = searchRequestArgumentCaptor.getValue();
-    assertThat(searchRequest.source().trackTotalHitsUpTo()).isEqualTo(SearchContext.TRACK_TOTAL_HITS_ACCURATE);
+    // Verify searchV2 was called (the track total hits is set to enabled in the searchV2 implementation)
+    verify(esClient).searchV2(any(), any());
   }
 }

@@ -19,31 +19,21 @@
  */
 package org.sonar.server.component.index;
 
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.aggregations.FiltersBucket;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
 import com.google.common.annotations.VisibleForTesting;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.lucene.search.TotalHits;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregator.KeyedFilter;
-import org.elasticsearch.search.aggregations.bucket.filter.ParsedFilters;
-import org.elasticsearch.search.aggregations.metrics.ParsedTopHits;
-import org.elasticsearch.search.aggregations.metrics.TopHitsAggregationBuilder;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.elasticsearch.search.sort.ScoreSortBuilder;
-import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.utils.System2;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchIdResult;
@@ -55,9 +45,6 @@ import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory.ComponentT
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 
 import static java.util.Optional.ofNullable;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_KEY;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_QUALIFIER;
@@ -81,96 +68,121 @@ public class ComponentIndex {
     this.system2 = system2;
   }
 
-  public SearchIdResult<String> search(ComponentQuery query, SearchOptions searchOptions) {
-    SearchSourceBuilder source = new SearchSourceBuilder()
-      .fetchSource(false)
-      .trackTotalHits(true)
-      .from(searchOptions.getOffset())
-      .size(searchOptions.getLimit());
+  /**
+   * Search using the new Elasticsearch Java API Client (8.x).
+   */
+  public SearchIdResult<String> searchV2(ComponentQuery query, SearchOptions searchOptions) {
+    Query esQuery = createSearchQueryV2(query);
 
-    BoolQueryBuilder esQuery = boolQuery();
-    esQuery.filter(authorizationTypeSupport.createQueryFilter());
-    setNullable(query.getQuery(), q -> {
+    SearchResponse<Void> response = client.searchV2(req -> req
+        .index(TYPE_COMPONENT.getMainType().getIndex().getName())
+        .query(esQuery)
+        .source(s -> s.fetch(false))
+        .trackTotalHits(t -> t.enabled(true))
+        .from(searchOptions.getOffset())
+        .size(searchOptions.getLimit())
+        .sort(sort -> sort.field(f -> f
+          .field(SORTABLE_ANALYZER.subField(FIELD_NAME))
+          .order(SortOrder.Asc))),
+      Void.class);
+
+    return new SearchIdResult<>(response, id -> id, system2.getDefaultTimeZone().toZoneId());
+  }
+
+  private Query createSearchQueryV2(ComponentQuery query) {
+    List<Query> filterQueries = new ArrayList<>();
+
+    // Authorization filter
+    filterQueries.add(authorizationTypeSupport.createQueryFilterV2());
+
+    // Text search query (optional)
+    List<Query> mustQueries = new ArrayList<>();
+    if (query.getQuery() != null) {
       ComponentTextSearchQuery componentTextSearchQuery = ComponentTextSearchQuery.builder()
-        .setQueryText(q)
+        .setQueryText(query.getQuery())
         .setFieldKey(FIELD_KEY)
         .setFieldName(FIELD_NAME)
         .build();
-      esQuery.must(ComponentTextSearchQueryFactory.createQuery(componentTextSearchQuery, ComponentTextSearchFeatureRepertoire.values()));
-    });
-    setEmptiable(query.getQualifiers(), q -> esQuery.must(termsQuery(FIELD_QUALIFIER, q)));
-    source.sort(SORTABLE_ANALYZER.subField(FIELD_NAME), SortOrder.ASC);
+      mustQueries.add(ComponentTextSearchQueryFactory.createQueryV2(componentTextSearchQuery, ComponentTextSearchFeatureRepertoire.values()));
+    }
 
-    source.query(esQuery);
+    // Qualifiers filter (optional)
+    if (!query.getQualifiers().isEmpty()) {
+      List<FieldValue> qualifierValues = query.getQualifiers().stream()
+        .map(FieldValue::of)
+        .toList();
+      mustQueries.add(Query.of(q -> q.terms(t -> t
+        .field(FIELD_QUALIFIER)
+        .terms(tf -> tf.value(qualifierValues)))));
+    }
 
-    SearchRequest request = EsClient.prepareSearch(TYPE_COMPONENT.getMainType()).source(source);
-
-    return new SearchIdResult<>(client.search(request), id -> id, system2.getDefaultTimeZone().toZoneId());
+    return Query.of(q -> q.bool(b -> {
+      b.filter(filterQueries);
+      if (!mustQueries.isEmpty()) {
+        b.must(mustQueries);
+      }
+      return b;
+    }));
   }
 
-  public ComponentIndexResults searchSuggestions(SuggestionQuery query) {
-    return searchSuggestions(query, ComponentTextSearchFeatureRepertoire.values());
+  /**
+   * Search suggestions using the new Elasticsearch Java API Client (8.x).
+   */
+  public ComponentIndexResults searchSuggestionsV2(SuggestionQuery query) {
+    return searchSuggestionsV2(query, ComponentTextSearchFeatureRepertoire.values());
   }
 
   @VisibleForTesting
-  ComponentIndexResults searchSuggestions(SuggestionQuery query, ComponentTextSearchFeature... features) {
+  ComponentIndexResults searchSuggestionsV2(SuggestionQuery query, ComponentTextSearchFeature... features) {
     Collection<String> qualifiers = query.getQualifiers();
     if (qualifiers.isEmpty()) {
       return ComponentIndexResults.newBuilder().build();
     }
 
-    SearchSourceBuilder source = new SearchSourceBuilder()
-      .query(createQuery(query, features))
-      .aggregation(createAggregation(query))
+    Query esQuery = createQueryV2(query, features);
 
-      // the search hits are part of the aggregations
-      .size(0);
+    // Build keyed filters map
+    Map<String, Query> filtersMap = qualifiers.stream()
+      .collect(Collectors.toMap(
+        qualifier -> qualifier,
+        qualifier -> Query.of(q -> q.term(t -> t
+          .field(FIELD_QUALIFIER)
+          .value(qualifier)))));
 
-    SearchRequest request = EsClient.prepareSearch(TYPE_COMPONENT.getMainType())
-      .source(source);
-    SearchResponse response = client.search(request);
+    SearchResponse<Void> response = client.searchV2(req -> req
+        .index(TYPE_COMPONENT.getMainType().getIndex().getName())
+        .query(esQuery)
+        // search hits are part of the aggregations
+        .size(0)
+        .aggregations(FILTERS_AGGREGATION_NAME, agg -> agg
+          .filters(f -> f.filters(b -> b.keyed(filtersMap)))
+          .aggregations(DOCS_AGGREGATION_NAME, subAgg -> subAgg
+            .topHits(th -> th
+              .from(query.getSkip())
+              .size(query.getLimit())
+              .sort(sort -> sort.score(s -> s.order(SortOrder.Desc)))
+              .sort(sort -> sort.field(f -> f.field(FIELD_NAME).order(SortOrder.Asc)))
+              .source(s -> s.fetch(false))
+              .highlight(h -> h
+                .encoder(co.elastic.clients.elasticsearch.core.search.HighlighterEncoder.Html)
+                .preTags("<mark>")
+                .postTags("</mark>")
+                .fields(FIELD_NAME, hf -> hf
+                  .type("fvh")
+                  .matchedFields(
+                    Stream.concat(
+                        Stream.of(FIELD_NAME),
+                        Arrays.stream(NAME_ANALYZERS).map(a -> a.subField(FIELD_NAME)))
+                      .toList())))))),
+      Void.class);
 
-    return aggregationsToQualifiers(response);
+    return aggregationsToQualifiersV2(response);
   }
 
-  private static HighlightBuilder.Field createHighlighterField() {
-    HighlightBuilder.Field field = new HighlightBuilder.Field(FIELD_NAME);
-    field.highlighterType("fvh");
-    field.matchedFields(
-      Stream.concat(
-        Stream.of(FIELD_NAME),
-        Arrays
-          .stream(NAME_ANALYZERS)
-          .map(a -> a.subField(FIELD_NAME)))
-        .toArray(String[]::new));
-    return field;
-  }
-
-  private static FiltersAggregationBuilder createAggregation(SuggestionQuery query) {
-    return AggregationBuilders.filters(
-      FILTERS_AGGREGATION_NAME,
-      query.getQualifiers().stream().map(q -> new KeyedFilter(q, termQuery(FIELD_QUALIFIER, q))).toArray(KeyedFilter[]::new))
-      .subAggregation(createSubAggregation(query));
-  }
-
-  private static TopHitsAggregationBuilder createSubAggregation(SuggestionQuery query) {
-    return AggregationBuilders.topHits(DOCS_AGGREGATION_NAME)
-      .highlighter(new HighlightBuilder()
-        .encoder("html")
-        .preTags("<mark>")
-        .postTags("</mark>")
-        .field(createHighlighterField()))
-      .from(query.getSkip())
-      .size(query.getLimit())
-      .sort(new ScoreSortBuilder())
-      .sort(new FieldSortBuilder(ComponentIndexDefinition.FIELD_NAME))
-      .fetchSource(false);
-  }
-
-  private QueryBuilder createQuery(SuggestionQuery query, ComponentTextSearchFeature... features) {
-    BoolQueryBuilder esQuery = boolQuery();
-    esQuery.filter(termQuery(FIELD_INDEX_TYPE, TYPE_COMPONENT.getName()));
-    esQuery.filter(authorizationTypeSupport.createQueryFilter());
+  /**
+   * Create query using the new Elasticsearch Java API Client (8.x).
+   */
+  private Query createQueryV2(SuggestionQuery query, ComponentTextSearchFeature... features) {
     ComponentTextSearchQuery componentTextSearchQuery = ComponentTextSearchQuery.builder()
       .setQueryText(query.getQuery())
       .setFieldKey(FIELD_KEY)
@@ -178,40 +190,53 @@ public class ComponentIndex {
       .setRecentlyBrowsedKeys(query.getRecentlyBrowsedKeys())
       .setFavoriteKeys(query.getFavoriteKeys())
       .build();
-    return esQuery.must(ComponentTextSearchQueryFactory.createQuery(componentTextSearchQuery, features));
+
+    Query textSearchQuery =
+      ComponentTextSearchQueryFactory.createQueryV2(componentTextSearchQuery, features);
+
+    Query authQuery = authorizationTypeSupport.createQueryFilterV2();
+
+    Query indexTypeQuery =
+      Query.of(q -> q.term(t -> t
+        .field(FIELD_INDEX_TYPE)
+        .value(TYPE_COMPONENT.getName())));
+
+    return Query.of(q -> q.bool(b -> b
+      .filter(indexTypeQuery)
+      .filter(authQuery)
+      .must(textSearchQuery)));
   }
 
-  private static ComponentIndexResults aggregationsToQualifiers(SearchResponse response) {
-    ParsedFilters filtersAgg = response.getAggregations().get(FILTERS_AGGREGATION_NAME);
-    List<ParsedFilters.ParsedBucket> buckets = (List<ParsedFilters.ParsedBucket>) filtersAgg.getBuckets();
+  private static ComponentIndexResults aggregationsToQualifiersV2(SearchResponse<Void> response) {
+    co.elastic.clients.elasticsearch._types.aggregations.FiltersAggregate filtersAgg =
+      response.aggregations().get(FILTERS_AGGREGATION_NAME).filters();
+
     return ComponentIndexResults.newBuilder()
       .setQualifiers(
-        buckets.stream().map(ComponentIndex::bucketToQualifier))
+        filtersAgg.buckets().keyed().entrySet().stream()
+          .map(entry -> bucketToQualifierV2(entry.getKey(), entry.getValue())))
       .build();
   }
 
-  private static ComponentHitsPerQualifier bucketToQualifier(ParsedFilters.ParsedBucket bucket) {
-    ParsedTopHits docs = bucket.getAggregations().get(DOCS_AGGREGATION_NAME);
+  private static ComponentHitsPerQualifier bucketToQualifierV2(String key, FiltersBucket bucket) {
+    co.elastic.clients.elasticsearch._types.aggregations.TopHitsAggregate topHitsAgg =
+      bucket.aggregations().get(DOCS_AGGREGATION_NAME).topHits();
 
-    SearchHits hitList = docs.getHits();
-    SearchHit[] hits = hitList.getHits();
-
-    return new ComponentHitsPerQualifier(bucket.getKey(), ComponentHit.fromSearchHits(hits), getTotalHits(hitList.getTotalHits()).value);
+    return new ComponentHitsPerQualifier(
+      key,
+      ComponentHit.fromSearchHitsV2(topHitsAgg.hits().hits()),
+      getTotalHitsV2(topHitsAgg.hits().total()).value);
   }
 
-  private static TotalHits getTotalHits(@Nullable TotalHits totalHits) {
-    return ofNullable(totalHits).orElseThrow(() -> new IllegalStateException("Could not get total hits of search results"));
-  }
-
-  private static <T> void setNullable(@Nullable T parameter, Consumer<T> consumer) {
-    if (parameter != null) {
-      consumer.accept(parameter);
-    }
-  }
-
-  private static <T> void setEmptiable(Collection<T> parameter, Consumer<Collection<T>> consumer) {
-    if (!parameter.isEmpty()) {
-      consumer.accept(parameter);
-    }
+  private static TotalHits getTotalHitsV2(@Nullable co.elastic.clients.elasticsearch.core.search.TotalHits totalHits) {
+    return ofNullable(totalHits)
+      .map(total -> {
+        TotalHits.Relation relation = switch (total.relation()) {
+          case Eq -> TotalHits.Relation.EQUAL_TO;
+          case Gte -> TotalHits.Relation.GREATER_THAN_OR_EQUAL_TO;
+        };
+        return new TotalHits(total.value(), relation);
+      })
+      .orElseThrow(() -> new IllegalStateException("Could not get total hits of search results"));
   }
 }

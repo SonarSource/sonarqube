@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.elasticsearch.action.admin.indices.cache.clear.ClearIndicesCacheRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -135,7 +134,7 @@ public class ViewIndexer implements ResilientIndexer {
 
   private void clearLookupCache(String viewUuid) {
     try {
-      esClient.clearCache(new ClearIndicesCacheRequest().queryCache(true));
+      esClient.clearCacheV2(req -> req.query(true));
     } catch (Exception e) {
       throw new IllegalStateException(String.format("Unable to clear lookup cache of view '%s'", viewUuid), e);
     }
