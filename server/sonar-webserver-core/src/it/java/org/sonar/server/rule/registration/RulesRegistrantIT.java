@@ -43,7 +43,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleScope;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.Context;
 import org.sonar.api.server.rule.RuleDescriptionSection;
@@ -51,6 +50,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
+import org.sonar.core.rule.RuleType;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
@@ -220,7 +220,7 @@ class RulesRegistrantIT {
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY2);
     assertThat(rule2.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.EFFICIENT);
     assertThat(rule2.getDefaultImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity).containsOnly(tuple(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM));
-    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids()).containsOnly(rule1.getUuid(), rule2.getUuid(), hotspotRule.getUuid());
+    assertThat(ruleIndex.searchV2(new RuleQuery(), new SearchOptions()).getUuids()).containsOnly(rule1.getUuid(), rule2.getUuid(), hotspotRule.getUuid());
     verifyIndicesMarkedAsInitialized();
 
     // verify repositories
@@ -294,7 +294,7 @@ class RulesRegistrantIT {
     RuleDto rule = rules.iterator().next();
 
     // verify index
-    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids())
+    assertThat(ruleIndex.searchV2(new RuleQuery(), new SearchOptions()).getUuids())
       .containsExactly(rule.getUuid());
     verifyIndicesMarkedAsInitialized();
 
@@ -311,7 +311,7 @@ class RulesRegistrantIT {
       .containsExactly(REMOVED);
 
     // verify index
-    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids())
+    assertThat(ruleIndex.searchV2(new RuleQuery(), new SearchOptions()).getUuids())
       .isEmpty();
     verifyIndicesNotMarkedAsInitialized();
   }
@@ -339,7 +339,7 @@ class RulesRegistrantIT {
 
     // verify index
     assertThat(es.countDocuments(RuleIndexDefinition.TYPE_RULE)).isEqualTo(numberOfRules);
-    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids())
+    assertThat(ruleIndex.searchV2(new RuleQuery(), new SearchOptions()).getUuids())
       .isNotEmpty();
 
     // register no rule
@@ -353,7 +353,7 @@ class RulesRegistrantIT {
 
     // verify index (documents are still in the index, but all are removed)
     assertThat(es.countDocuments(RuleIndexDefinition.TYPE_RULE)).isEqualTo(numberOfRules);
-    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids())
+    assertThat(ruleIndex.searchV2(new RuleQuery(), new SearchOptions()).getUuids())
       .isEmpty();
   }
 
@@ -411,7 +411,7 @@ class RulesRegistrantIT {
     assertThat(rule3.getStatus()).isEqualTo(READY);
 
     // verify index
-    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids()).containsOnly(rule1.getUuid(), rule3.getUuid());
+    assertThat(ruleIndex.searchV2(new RuleQuery(), new SearchOptions()).getUuids()).containsOnly(rule1.getUuid(), rule3.getUuid());
 
     // verify repositories
     assertThat(dbClient.ruleRepositoryDao().selectAll(db.getSession())).extracting(RuleRepositoryDto::getKey).containsOnly("fake");
@@ -523,8 +523,8 @@ class RulesRegistrantIT {
     assertThat(rule1.getName()).isEqualTo("Name2");
     assertThat(rule1.getDefaultRuleDescriptionSection().getContent()).isEqualTo("Description");
 
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions()).getTotal()).isOne();
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getTotal()).isZero();
+    assertThat(ruleIndex.searchV2(new RuleQuery().setQueryText("Name2"), new SearchOptions()).getTotal()).isOne();
+    assertThat(ruleIndex.searchV2(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getTotal()).isZero();
   }
 
   @Test
@@ -582,7 +582,7 @@ class RulesRegistrantIT {
     });
 
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RuleKey.of(repository, ruleKey1));
-    SearchIdResult<String> searchRule1 = ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions());
+    SearchIdResult<String> searchRule1 = ruleIndex.searchV2(new RuleQuery().setQueryText("Name1"), new SearchOptions());
     assertThat(searchRule1.getUuids()).containsOnly(rule1.getUuid());
     assertThat(searchRule1.getTotal()).isOne();
 
@@ -602,10 +602,10 @@ class RulesRegistrantIT {
     assertThat(rule2.getName()).isEqualTo("Name2");
     assertThat(rule2.getDefaultRuleDescriptionSection().getContent()).isEqualTo(rule1.getDefaultRuleDescriptionSection().getContent());
 
-    SearchIdResult<String> searchRule2 = ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions());
+    SearchIdResult<String> searchRule2 = ruleIndex.searchV2(new RuleQuery().setQueryText("Name2"), new SearchOptions());
     assertThat(searchRule2.getUuids()).containsOnly(rule2.getUuid());
     assertThat(searchRule2.getTotal()).isOne();
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getTotal()).isZero();
+    assertThat(ruleIndex.searchV2(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getTotal()).isZero();
   }
 
   @Test
@@ -624,7 +624,7 @@ class RulesRegistrantIT {
     });
 
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RuleKey.of(repository1, ruleKey));
-    SearchIdResult<String> searchRule1 = ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions());
+    SearchIdResult<String> searchRule1 = ruleIndex.searchV2(new RuleQuery().setQueryText("Name1"), new SearchOptions());
     assertThat(searchRule1.getUuids()).containsOnly(rule1.getUuid());
     assertThat(searchRule1.getTotal()).isOne();
 
@@ -644,10 +644,10 @@ class RulesRegistrantIT {
     assertThat(rule2.getName()).isEqualTo("Name2");
     assertThat(rule2.getDefaultRuleDescriptionSection().getContent()).isEqualTo(rule1.getDefaultRuleDescriptionSection().getContent());
 
-    SearchIdResult<String> searchRule2 = ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions());
+    SearchIdResult<String> searchRule2 = ruleIndex.searchV2(new RuleQuery().setQueryText("Name2"), new SearchOptions());
     assertThat(searchRule2.getUuids()).containsOnly(rule2.getUuid());
     assertThat(searchRule2.getTotal()).isOne();
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getTotal()).isZero();
+    assertThat(ruleIndex.searchV2(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getTotal()).isZero();
   }
 
   @ParameterizedTest
@@ -665,7 +665,7 @@ class RulesRegistrantIT {
     });
 
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RuleKey.of(repo1, ruleKey1));
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText(name), new SearchOptions()).getUuids())
+    assertThat(ruleIndex.searchV2(new RuleQuery().setQueryText(name), new SearchOptions()).getUuids())
       .containsOnly(rule1.getUuid());
 
     system.setNow(DATE2.getTime());
@@ -684,7 +684,7 @@ class RulesRegistrantIT {
     assertThat(rule2.getName()).isEqualTo(rule1.getName());
     assertThat(rule2.getDefaultRuleDescriptionSection().getContent()).isEqualTo(rule1.getDefaultRuleDescriptionSection().getContent());
 
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText(name), new SearchOptions()).getUuids())
+    assertThat(ruleIndex.searchV2(new RuleQuery().setQueryText(name), new SearchOptions()).getUuids())
       .containsOnly(rule2.getUuid());
   }
 
@@ -713,7 +713,7 @@ class RulesRegistrantIT {
     });
 
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RuleKey.of(repository1, ruleKey1));
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getUuids())
+    assertThat(ruleIndex.searchV2(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getUuids())
       .containsOnly(rule1.getUuid());
 
     system.setNow(DATE2.getTime());
@@ -732,7 +732,7 @@ class RulesRegistrantIT {
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RuleKey.of(repository2, ruleKey2));
     assertThat(rule2.getUuid()).isEqualTo(rule1.getUuid());
 
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions()).getUuids())
+    assertThat(ruleIndex.searchV2(new RuleQuery().setQueryText("Name2"), new SearchOptions()).getUuids())
       .containsOnly(rule1.getUuid());
   }
 
@@ -761,8 +761,8 @@ class RulesRegistrantIT {
     assertThat(rule1.getName()).isEqualTo("Name");
     assertThat(rule1.getDefaultRuleDescriptionSection().getContent()).isEqualTo("Desc2");
 
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Desc2"), new SearchOptions()).getTotal()).isOne();
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Desc1"), new SearchOptions()).getTotal()).isZero();
+    assertThat(ruleIndex.searchV2(new RuleQuery().setQueryText("Desc2"), new SearchOptions()).getTotal()).isOne();
+    assertThat(ruleIndex.searchV2(new RuleQuery().setQueryText("Desc1"), new SearchOptions()).getTotal()).isZero();
   }
 
   @Test
@@ -903,7 +903,7 @@ class RulesRegistrantIT {
 
     RuleDto rule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
     assertThat(rule.getStatus()).isEqualTo(REMOVED);
-    assertThat(ruleIndex.search(new RuleQuery().setKey(RULE_KEY1.toString()), new SearchOptions()).getTotal()).isZero();
+    assertThat(ruleIndex.searchV2(new RuleQuery().setKey(RULE_KEY1.toString()), new SearchOptions()).getTotal()).isZero();
 
     // Re-install rule
     system.setNow(DATE3.getTime());
@@ -911,7 +911,7 @@ class RulesRegistrantIT {
 
     rule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
     assertThat(rule.getStatus()).isEqualTo(RuleStatus.BETA);
-    assertThat(ruleIndex.search(new RuleQuery().setKey(RULE_KEY1.toString()), new SearchOptions()).getTotal()).isOne();
+    assertThat(ruleIndex.searchV2(new RuleQuery().setKey(RULE_KEY1.toString()), new SearchOptions()).getTotal()).isOne();
   }
 
   @Test
@@ -951,7 +951,7 @@ class RulesRegistrantIT {
     RuleDto rule3 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY3);
     assertThat(rule2.getStatus()).isEqualTo(REMOVED);
 
-    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids()).containsOnly(rule1.getUuid(), rule3.getUuid());
+    assertThat(ruleIndex.searchV2(new RuleQuery(), new SearchOptions()).getUuids()).containsOnly(rule1.getUuid(), rule3.getUuid());
 
     system.setNow(DATE3.getTime());
     executeWithPluginRules(new FakeRepositoryV2());
@@ -962,7 +962,7 @@ class RulesRegistrantIT {
     assertThat(rule2.getStatus()).isEqualTo(REMOVED);
     assertThat(rule2.getUpdatedAt()).isEqualTo(DATE2.getTime());
 
-    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids()).containsOnly(rule1.getUuid(), rule3.getUuid());
+    assertThat(ruleIndex.searchV2(new RuleQuery(), new SearchOptions()).getUuids()).containsOnly(rule1.getUuid(), rule3.getUuid());
   }
 
   @Test

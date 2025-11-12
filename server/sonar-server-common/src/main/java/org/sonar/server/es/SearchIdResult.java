@@ -54,7 +54,7 @@ public class SearchIdResult<ID> {
    * pass them separately using the LinkedHashMap constructor.
    */
   public <T> SearchIdResult(co.elastic.clients.elasticsearch.core.SearchResponse<T> response, Function<String, ID> converter, ZoneId timeZone) {
-    this.facets = new Facets(new java.util.LinkedHashMap<>(), timeZone);
+    this.facets = new Facets(response, timeZone);
     this.total = getTotalHitsV2(response).value;
     this.uuids = convertToIdsV2(response.hits().hits(), converter);
   }

@@ -133,7 +133,7 @@ public class QProfileRulesImpl implements QProfileRules {
 
   private BulkChangeResult doBulk(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery, BiFunction<RuleActivationContext, RuleDto, List<ActiveRuleChange>> fn) {
     BulkChangeResult result = new BulkChangeResult();
-    Collection<String> ruleUuids = Sets.newHashSet(ruleIndex.searchAll(ruleQuery));
+    Collection<String> ruleUuids = Sets.newHashSet(ruleIndex.searchAllV2(ruleQuery));
     RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleUuids);
 
     for (String ruleUuid : ruleUuids) {

@@ -154,7 +154,7 @@ class ChangeParentActionIT {
     assertThat(activeRules1).hasSize(1);
     assertThat(activeRules1.get(0).getKey().getRuleKey().rule()).isEqualTo(rule1.getRuleKey());
 
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).hasSize(1);
+    assertThat(ruleIndex.searchV2(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).hasSize(1);
   }
 
   @Test
@@ -186,7 +186,7 @@ class ChangeParentActionIT {
     assertThat(activeRules2).hasSize(1);
     assertThat(activeRules2.get(0).getKey().getRuleKey().rule()).isEqualTo(rule2.getRuleKey());
 
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).hasSize(1);
+    assertThat(ruleIndex.searchV2(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).hasSize(1);
   }
 
   @Test
@@ -212,7 +212,7 @@ class ChangeParentActionIT {
     // Check no rule enabled
     assertThat(dbClient.activeRuleDao().selectByProfile(dbSession, child)).isEmpty();
 
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).isEmpty();
+    assertThat(ruleIndex.searchV2(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).isEmpty();
   }
 
   @Test
@@ -242,7 +242,7 @@ class ChangeParentActionIT {
     List<OrgActiveRuleDto> activeRules1 = dbClient.activeRuleDao().selectByProfile(dbSession, child);
     assertThat(activeRules1).hasSize(1);
     assertThat(activeRules1.get(0).getKey().getRuleKey().rule()).isEqualTo(rule1.getRuleKey());
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).hasSize(1);
+    assertThat(ruleIndex.searchV2(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).hasSize(1);
 
     // 2. Set parent 2
     ws.newRequest()
@@ -268,7 +268,7 @@ class ChangeParentActionIT {
     // 3. check no rule enabled
     List<OrgActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByProfile(dbSession, child);
     assertThat(activeRules).isEmpty();
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).isEmpty();
+    assertThat(ruleIndex.searchV2(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).isEmpty();
   }
 
   @Test
@@ -296,7 +296,7 @@ class ChangeParentActionIT {
 
     // Check no rule enabled
     assertThat(dbClient.activeRuleDao().selectByProfile(dbSession, child)).isEmpty();
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).isEmpty();
+    assertThat(ruleIndex.searchV2(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).isEmpty();
   }
 
   @Test
@@ -328,7 +328,7 @@ class ChangeParentActionIT {
     assertThat(activeRules2).hasSize(1);
     assertThat(activeRules2.get(0).getKey().getRuleKey().rule()).isEqualTo(rule2.getRuleKey());
 
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).hasSize(1);
+    assertThat(ruleIndex.searchV2(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).hasSize(1);
   }
 
   @Test
@@ -338,7 +338,7 @@ class ChangeParentActionIT {
       .setIsBuiltIn(true));
 
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).isEmpty();
+    assertThat(ruleIndex.searchV2(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).isEmpty();
 
     TestRequest request = ws.newRequest()
       .setMethod("POST")

@@ -29,6 +29,7 @@ import co.elastic.clients.elasticsearch._types.aggregations.FiltersBucket;
 import co.elastic.clients.elasticsearch._types.aggregations.GlobalAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.MissingAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.NestedAggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.ReverseNestedAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch._types.aggregations.SumAggregate;
@@ -133,6 +134,7 @@ public class Facets {
       case Sum -> processSumV2(name, aggregate.sum());
       case Global -> processGlobalAggregation(name, aggregate.global());
       case Nested -> processNestedAggregation(name, aggregate.nested());
+      case ReverseNested -> processReverseNestedAggregation(name, aggregate.reverseNested());
       case Filters -> processFiltersAggregation(name, aggregate.filters());
       case Children -> processChildrenAggregation(name, aggregate.children());
       default -> throw new IllegalArgumentException("Aggregation type not supported yet: " + aggregate.getClass());
@@ -242,7 +244,7 @@ public class Facets {
         .reversed());
 
     for (Map.Entry<String, Aggregate> entry : orderedEntries) {
-      processAggregationV2(entry.getKey(), entry.getValue());
+      processAggregationV2(parentName, entry.getValue());
     }
   }
 
@@ -348,26 +350,67 @@ public class Facets {
     processSubAggregationsV2(name, aggregation.aggregations());
   }
 
+  void processReverseNestedAggregation(String name, ReverseNestedAggregate aggregation) {
+    processSubAggregationsV2(name, aggregation.aggregations());
+  }
+
   void processChildrenAggregation(String name, co.elastic.clients.elasticsearch._types.aggregations.ChildrenAggregate aggregation) {
     processSubAggregationsV2(name, aggregation.aggregations());
   }
 
-  void processFiltersAggregation(String name, FiltersAggregate aggregation) {
+  public void processFiltersAggregation(String name, FiltersAggregate aggregation) {
     Buckets<FiltersBucket> buckets = aggregation.buckets();
 
     if (buckets == null) {
       return;
     }
+
     if (buckets.isKeyed()) {
-      LinkedHashMap<String, Long> facet = getOrCreateFacet(name);
-      for (Map.Entry<String, FiltersBucket> entry : buckets.keyed().entrySet()) {
-        facet.put(entry.getKey(), entry.getValue().docCount());
-        processSubAggregationsV2(entry.getKey(), entry.getValue().aggregations());
-      }
+      processKeyedFiltersBuckets(name, buckets.keyed());
     } else {
-      for (FiltersBucket bucket : buckets.array()) {
-        processSubAggregationsV2(name, bucket.aggregations());
+      processNonKeyedFiltersBuckets(name, buckets.array());
+    }
+  }
+
+  private void processKeyedFiltersBuckets(String name, Map<String, FiltersBucket> keyedBuckets) {
+    LinkedHashMap<String, Long> facet = getOrCreateFacet(name);
+
+    for (Map.Entry<String, FiltersBucket> entry : keyedBuckets.entrySet()) {
+      String bucketKey = entry.getKey();
+      FiltersBucket bucket = entry.getValue();
+      long docCount = getBucketDocCount(bucket);
+
+      facet.put(bucketKey, docCount);
+      processSubAggregationsV2(bucketKey, bucket.aggregations());
+    }
+  }
+
+  private static long getBucketDocCount(FiltersBucket bucket) {
+    long docCount = bucket.docCount();
+
+    // Check for a reverse nested aggregation to use its doc_count
+    Map<String, Aggregate> subAggs = bucket.aggregations();
+    if (subAggs != null && !subAggs.isEmpty()) {
+      for (Aggregate subAgg : subAggs.values()) {
+        if (subAgg.isReverseNested()) {
+          // Use the doc count from the reverse nested aggregation
+          docCount = subAgg.reverseNested().docCount();
+          break;
+        }
       }
+    }
+    return docCount;
+  }
+
+  private void processNonKeyedFiltersBuckets(String name, List<FiltersBucket> arrayBuckets) {
+    for (FiltersBucket bucket : arrayBuckets) {
+      // Non-keyed buckets occur when a Filters aggregation is defined in Elasticsearch with "keyed: false"
+      // (the default is "keyed: false" in some versions or APIs). In this case, buckets are returned as an array
+      // without explicit keys, and only the order of filters in the request can be used to associate results.
+      // Since we do not have a specific key for each bucket, we cannot populate the facet map with meaningful keys.
+      // Therefore, we only process sub-aggregations for each bucket. For more details, see:
+      // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-filters-aggregation.html
+      processSubAggregationsV2(name, bucket.aggregations());
     }
   }
 

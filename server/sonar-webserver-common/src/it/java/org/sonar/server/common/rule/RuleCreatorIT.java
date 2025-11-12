@@ -141,7 +141,7 @@ public class RuleCreatorIT {
     // From user
     assertThat(param.getDefaultValue()).isEqualTo("a.*");
 
-    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids()).containsOnly(rule.getUuid(), templateRule.getUuid());
+    assertThat(ruleIndex.searchV2(new RuleQuery(), new SearchOptions()).getUuids()).containsOnly(rule.getUuid(), templateRule.getUuid());
   }
 
   private static void assertCleanCodeInformation(RuleDto rule) {

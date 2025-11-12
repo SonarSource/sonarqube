@@ -30,6 +30,7 @@ import co.elastic.clients.elasticsearch._types.aggregations.FiltersBucket;
 import co.elastic.clients.elasticsearch._types.aggregations.GlobalAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.MissingAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.NestedAggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.ReverseNestedAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch._types.aggregations.SumAggregate;
@@ -155,6 +156,17 @@ class FacetsTest {
   }
 
   @Test
+  void should_call_processReverseNestedAggregation_when_isReverseNested() {
+    Aggregate mockAggregate = getMockAggregate(Aggregate.Kind.ReverseNested);
+    ReverseNestedAggregate mockReverseNested = mock(ReverseNestedAggregate.class);
+    when(mockAggregate.reverseNested()).thenReturn(mockReverseNested);
+
+    facets.processAggregationV2(testName, mockAggregate);
+
+    verify(facets, times(1)).processReverseNestedAggregation(testName, mockReverseNested);
+  }
+
+  @Test
   void should_call_processFiltersAggregation_when_isFilters() {
     Aggregate mockAggregate = getMockAggregate(Aggregate.Kind.Filters);
     FiltersAggregate mockFilters = mock(FiltersAggregate.class);
@@ -225,6 +237,19 @@ class FacetsTest {
       .processSubAggregationsV2(anyString(), anyMap());
 
     facets.processNestedAggregation(testName, mockNested);
+
+    verify(facets, times(1)).processSubAggregationsV2(testName, mockSubAggs);
+  }
+
+  @Test
+  void processReverseNestedAggregation_should_delegate_to_processSubAggregationsV2() {
+    ReverseNestedAggregate mockReverseNested = mock(ReverseNestedAggregate.class);
+    Map<String, Aggregate> mockSubAggs = Collections.singletonMap("sub_agg", mock(Aggregate.class));
+    when(mockReverseNested.aggregations()).thenReturn(mockSubAggs);
+    doNothing().when(facets)
+      .processSubAggregationsV2(anyString(), anyMap());
+
+    facets.processReverseNestedAggregation(testName, mockReverseNested);
 
     verify(facets, times(1)).processSubAggregationsV2(testName, mockSubAggs);
   }
@@ -511,8 +536,8 @@ class FacetsTest {
 
     facets.processSubAggregationsV2(parentName, subAggs);
 
-    verify(facets, times(1)).processAggregationV2("sub_agg_1", agg1);
-    verify(facets, times(1)).processAggregationV2("sub_agg_2", agg2);
+    verify(facets, times(1)).processAggregationV2(parentName, agg1);
+    verify(facets, times(1)).processAggregationV2(parentName, agg2);
   }
 
   @Test
@@ -529,8 +554,8 @@ class FacetsTest {
 
     facets.processSubAggregationsV2(parentName, subAggs);
 
-    verify(facets, times(1)).processAggregationV2("severity_filter", matchingAgg);
-    verify(facets, times(1)).processAggregationV2("other_agg", otherAgg);
+    verify(facets, times(1)).processAggregationV2(parentName, matchingAgg);
+    verify(facets, times(1)).processAggregationV2(parentName, otherAgg);
   }
 
   @Test

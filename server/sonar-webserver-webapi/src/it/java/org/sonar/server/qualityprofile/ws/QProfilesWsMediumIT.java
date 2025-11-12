@@ -374,7 +374,7 @@ class QProfilesWsMediumIT {
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, profile.getKee())).isEmpty();
 
     // 2. Assert ActiveRule with BLOCKER severity
-    assertThat(ruleIndex.search(
+    assertThat(ruleIndex.searchV2(
       new RuleQuery().setSeverities(ImmutableSet.of("BLOCKER")),
       new SearchOptions()).getUuids()).hasSize(2);
 
@@ -387,7 +387,7 @@ class QProfilesWsMediumIT {
 
     // 2. Assert ActiveRule with MINOR severity
     assertThat(dbClient.activeRuleDao().selectByOrgRuleUuid(dbSession, rule0.getUuid()).get(0).getSeverityString()).isEqualTo("MINOR");
-    assertThat(ruleIndex.searchAll(new RuleQuery()
+    assertThat(ruleIndex.searchAllV2(new RuleQuery()
       .setQProfile(profile)
       .setKey(rule0.getKey().toString())
       .setActiveSeverities(Collections.singleton("MINOR"))

@@ -326,7 +326,7 @@ public class SearchAction implements RulesWsAction {
   }
 
   private SearchResult doSearch(DbSession dbSession, RuleQuery query, SearchOptions context) {
-    SearchIdResult<String> result = ruleIndex.search(query, context);
+    SearchIdResult<String> result = ruleIndex.searchV2(query, context);
     List<String> ruleUuids = result.getUuids();
     // rule order is managed by ES, this order by must be kept when fetching rule details
     Map<String, RuleDto> rulesByRuleKey = Maps.uniqueIndex(dbClient.ruleDao().selectByUuids(dbSession, ruleUuids), RuleDto::getUuid);

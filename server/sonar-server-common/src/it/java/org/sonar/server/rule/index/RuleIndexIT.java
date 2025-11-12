@@ -19,11 +19,9 @@
  */
 package org.sonar.server.rule.index;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import io.sonarcloud.compliancereports.reports.CategoryTree;
 import io.sonarcloud.compliancereports.reports.ComplianceCategoryRules;
-import io.sonarcloud.compliancereports.reports.RepositoryRuleKey;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -135,7 +133,7 @@ class RuleIndexIT {
     createRule();
     index();
 
-    SearchIdResult<String> results = underTest.search(new RuleQuery(), new SearchOptions());
+    SearchIdResult<String> results = underTest.searchV2(new RuleQuery(), new SearchOptions());
 
     assertThat(results.getTotal()).isEqualTo(2);
     assertThat(results.getUuids()).hasSize(2);
@@ -156,15 +154,15 @@ class RuleIndexIT {
 
     // key
     RuleQuery query = new RuleQuery().setQueryText("X001");
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).containsOnly(js1.getUuid(), cobol1.getUuid());
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).containsOnly(js1.getUuid(), cobol1.getUuid());
 
     // partial key does not match
     query = new RuleQuery().setQueryText("X00");
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).isEmpty();
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).isEmpty();
 
     // repo:key -> nice-to-have !
     query = new RuleQuery().setQueryText("javascript:X001");
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).containsOnly(js1.getUuid());
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).containsOnly(js1.getUuid());
   }
 
   @Test
@@ -175,7 +173,7 @@ class RuleIndexIT {
     index();
 
     RuleQuery query = new RuleQuery().setQueryText("x001");
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).containsOnly(ruleDto.getUuid());
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).containsOnly(ruleDto.getUuid());
   }
 
   @Test
@@ -194,11 +192,11 @@ class RuleIndexIT {
     // key
     RuleQuery query = new RuleQuery().setKey(RuleKey.of("javascript", "X001").toString());
 
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(1);
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).hasSize(1);
 
     // partial key does not match
     query = new RuleQuery().setKey("X001");
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).isEmpty();
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).isEmpty();
   }
 
   @Test
@@ -216,7 +214,7 @@ class RuleIndexIT {
     RuleQuery query = new RuleQuery()
       .setComplianceCategoryRules(List.of(complianceCategoryRules));
 
-    assertThat(underTest.search(query, new SearchOptions()).getUuids())
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids())
       .containsOnly(rule.getUuid(), rule1.getUuid(), rule2.getUuid());
   }
 
@@ -227,19 +225,19 @@ class RuleIndexIT {
 
     // substring
     RuleQuery query = new RuleQuery().setQueryText("test");
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(1);
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).hasSize(1);
 
     // substring
     query = new RuleQuery().setQueryText("partial match");
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(1);
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).hasSize(1);
 
     // case-insensitive
     query = new RuleQuery().setQueryText("TESTING");
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(1);
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).hasSize(1);
 
     // not found
     query = new RuleQuery().setQueryText("not present");
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).isEmpty();
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).isEmpty();
   }
 
   @Test
@@ -248,7 +246,7 @@ class RuleIndexIT {
     index();
 
     RuleQuery protectedCharsQuery = new RuleQuery().setQueryText(rule.getName());
-    List<String> results = underTest.search(protectedCharsQuery, new SearchOptions()).getUuids();
+    List<String> results = underTest.searchV2(protectedCharsQuery, new SearchOptions()).getUuids();
     assertThat(results).containsOnly(rule.getUuid());
   }
 
@@ -265,40 +263,41 @@ class RuleIndexIT {
     index();
 
     // partial match at word boundary
-    assertThat(underTest.search(new RuleQuery().setQueryText("CWE"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule1.getUuid(), rule2.getUuid(), rule3.getUuid());
+    assertThat(underTest.searchV2(new RuleQuery().setQueryText("CWE"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule1.getUuid(), rule2.getUuid(),
+      rule3.getUuid());
 
     // full match
-    assertThat(underTest.search(new RuleQuery().setQueryText("CWE-123"), new SearchOptions()).getUuids()).containsExactly(rule1.getUuid());
+    assertThat(underTest.searchV2(new RuleQuery().setQueryText("CWE-123"), new SearchOptions()).getUuids()).containsExactly(rule1.getUuid());
 
     // match somewhere else in the text
-    assertThat(underTest.search(new RuleQuery().setQueryText("CWE-1000"), new SearchOptions()).getUuids()).containsExactly(rule3.getUuid());
-    assertThat(underTest.search(new RuleQuery().setQueryText("CWE 1000"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule3.getUuid(), rule1.getUuid());
+    assertThat(underTest.searchV2(new RuleQuery().setQueryText("CWE-1000"), new SearchOptions()).getUuids()).containsExactly(rule3.getUuid());
+    assertThat(underTest.searchV2(new RuleQuery().setQueryText("CWE 1000"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule3.getUuid(), rule1.getUuid());
 
     // several words
-    assertThat(underTest.search(new RuleQuery().setQueryText("great rule"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule1.getUuid(), rule2.getUuid(),
+    assertThat(underTest.searchV2(new RuleQuery().setQueryText("great rule"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule1.getUuid(), rule2.getUuid(),
       rule3.getUuid());
-    assertThat(underTest.search(new RuleQuery().setQueryText("rule Another"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule2.getUuid(), rule3.getUuid());
+    assertThat(underTest.searchV2(new RuleQuery().setQueryText("rule Another"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule2.getUuid(), rule3.getUuid());
 
     // no matches
-    assertThat(underTest.search(new RuleQuery().setQueryText("unexisting"), new SearchOptions()).getUuids()).isEmpty();
-    assertThat(underTest.search(new RuleQuery().setQueryText("great rule unexisting"), new SearchOptions()).getUuids()).isEmpty();
+    assertThat(underTest.searchV2(new RuleQuery().setQueryText("unexisting"), new SearchOptions()).getUuids()).isEmpty();
+    assertThat(underTest.searchV2(new RuleQuery().setQueryText("great rule unexisting"), new SearchOptions()).getUuids()).isEmpty();
 
     // stopwords
-    assertThat(underTest.search(new RuleQuery().setQueryText("and"), new SearchOptions()).getUuids()).isEmpty();
-    assertThat(underTest.search(new RuleQuery().setQueryText("great and shiny"), new SearchOptions()).getUuids()).isEmpty();
+    assertThat(underTest.searchV2(new RuleQuery().setQueryText("and"), new SearchOptions()).getUuids()).isEmpty();
+    assertThat(underTest.searchV2(new RuleQuery().setQueryText("great and shiny"), new SearchOptions()).getUuids()).isEmpty();
 
     // html
-    assertThat(underTest.search(new RuleQuery().setQueryText("h1"), new SearchOptions()).getUuids()).isEmpty();
-    assertThat(underTest.search(new RuleQuery().setQueryText("style"), new SearchOptions()).getUuids()).isEmpty();
-    assertThat(underTest.search(new RuleQuery().setQueryText("special"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule4.getUuid());
-    assertThat(underTest.search(new RuleQuery().setQueryText("geeks formatting inside tables"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule4.getUuid());
+    assertThat(underTest.searchV2(new RuleQuery().setQueryText("h1"), new SearchOptions()).getUuids()).isEmpty();
+    assertThat(underTest.searchV2(new RuleQuery().setQueryText("style"), new SearchOptions()).getUuids()).isEmpty();
+    assertThat(underTest.searchV2(new RuleQuery().setQueryText("special"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule4.getUuid());
+    assertThat(underTest.searchV2(new RuleQuery().setQueryText("geeks formatting inside tables"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule4.getUuid());
 
     // long words
-    assertThat(underTest.search(new RuleQuery().setQueryText("missunderstand"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule5.getUuid());
-    assertThat(underTest.search(new RuleQuery().setQueryText("missunderstandings"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule5.getUuid());
-    assertThat(underTest.search(new RuleQuery().setQueryText("alsdkjfnadklsjfnadkdfnsksdjfn"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule5.getUuid());
-    assertThat(underTest.search(new RuleQuery().setQueryText("internationalization"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule5.getUuid());
-    assertThat(underTest.search(new RuleQuery().setQueryText("internationalizationBlaBla"), new SearchOptions()).getUuids()).isEmpty();
+    assertThat(underTest.searchV2(new RuleQuery().setQueryText("missunderstand"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule5.getUuid());
+    assertThat(underTest.searchV2(new RuleQuery().setQueryText("missunderstandings"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule5.getUuid());
+    assertThat(underTest.searchV2(new RuleQuery().setQueryText("alsdkjfnadklsjfnadkdfnsksdjfn"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule5.getUuid());
+    assertThat(underTest.searchV2(new RuleQuery().setQueryText("internationalization"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule5.getUuid());
+    assertThat(underTest.searchV2(new RuleQuery().setQueryText("internationalizationBlaBla"), new SearchOptions()).getUuids()).isEmpty();
   }
 
   private RuleDto insertJavaRule(String description, String ruleKey, String name) {
@@ -320,16 +319,16 @@ class RuleIndexIT {
     index();
 
     RuleQuery query = new RuleQuery().setRepositories(asList("checkstyle", "pmd"));
-    SearchIdResult<String> results = underTest.search(query, new SearchOptions());
+    SearchIdResult<String> results = underTest.searchV2(query, new SearchOptions());
     assertThat(results.getUuids()).containsExactly(pmd.getUuid());
 
     // no results
     query = new RuleQuery().setRepositories(singletonList("checkstyle"));
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).isEmpty();
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).isEmpty();
 
     // empty list => no filter
     query = new RuleQuery().setRepositories(emptyList());
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).containsOnly(findbugs.getUuid(), pmd.getUuid());
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).containsOnly(findbugs.getUuid(), pmd.getUuid());
   }
 
   @Test
@@ -366,7 +365,7 @@ class RuleIndexIT {
     SearchOptions options = new SearchOptions().addFacets(FACET_TAGS);
 
     // do not fail
-    assertThat(underTest.search(query, options).getTotal()).isZero();
+    assertThat(underTest.searchV2(query, options).getTotal()).isZero();
   }
 
   @Test
@@ -379,26 +378,26 @@ class RuleIndexIT {
 
     // find all
     RuleQuery query = new RuleQuery();
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(4);
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).hasSize(4);
 
     // type3 in filter
     query = new RuleQuery().setTypes(of(VULNERABILITY));
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).containsOnly(vulnerability.getUuid());
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).containsOnly(vulnerability.getUuid());
 
     query = new RuleQuery().setTypes(of(BUG));
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).containsOnly(bug1.getUuid(), bug2.getUuid());
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).containsOnly(bug1.getUuid(), bug2.getUuid());
 
     // types in query => nothing
     query = new RuleQuery().setQueryText("code smell bug vulnerability");
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).isEmpty();
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).isEmpty();
 
     // null list => no filter
     query = new RuleQuery().setTypes(emptySet());
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(4);
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).hasSize(4);
 
     // null list => no filter
     query = new RuleQuery().setTypes(null);
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(4);
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).hasSize(4);
   }
 
   @Test
@@ -409,22 +408,22 @@ class RuleIndexIT {
 
     // find all
     RuleQuery query = new RuleQuery();
-    SearchIdResult<String> results = underTest.search(query, new SearchOptions());
+    SearchIdResult<String> results = underTest.searchV2(query, new SearchOptions());
     assertThat(results.getUuids()).hasSize(2);
 
     // Only template
     query = new RuleQuery().setIsTemplate(true);
-    results = underTest.search(query, new SearchOptions());
+    results = underTest.searchV2(query, new SearchOptions());
     assertThat(results.getUuids()).containsOnly(ruleIsTemplate.getUuid());
 
     // Only not template
     query = new RuleQuery().setIsTemplate(false);
-    results = underTest.search(query, new SearchOptions());
+    results = underTest.searchV2(query, new SearchOptions());
     assertThat(results.getUuids()).containsOnly(ruleNoTemplate.getUuid());
 
     // null => no filter
     query = new RuleQuery().setIsTemplate(null);
-    results = underTest.search(query, new SearchOptions());
+    results = underTest.searchV2(query, new SearchOptions());
     assertThat(results.getUuids()).containsOnly(ruleIsTemplate.getUuid(), ruleNoTemplate.getUuid());
   }
 
@@ -436,12 +435,12 @@ class RuleIndexIT {
 
     // Only external
     RuleQuery query = new RuleQuery().setIncludeExternal(true);
-    SearchIdResult<String> results = underTest.search(query, new SearchOptions());
+    SearchIdResult<String> results = underTest.searchV2(query, new SearchOptions());
     assertThat(results.getUuids()).containsOnly(ruleIsExternal.getUuid(), ruleIsNotExternal.getUuid());
 
     // Only not external
     query = new RuleQuery().setIncludeExternal(false);
-    results = underTest.search(query, new SearchOptions());
+    results = underTest.searchV2(query, new SearchOptions());
     assertThat(results.getUuids()).containsOnly(ruleIsNotExternal.getUuid());
   }
 
@@ -453,17 +452,17 @@ class RuleIndexIT {
 
     // find all
     RuleQuery query = new RuleQuery();
-    SearchIdResult<String> results = underTest.search(query, new SearchOptions());
+    SearchIdResult<String> results = underTest.searchV2(query, new SearchOptions());
     assertThat(results.getUuids()).hasSize(2);
 
     // Only custom rule
     query = new RuleQuery().setTemplateKey(template.getKey().toString());
-    results = underTest.search(query, new SearchOptions());
+    results = underTest.searchV2(query, new SearchOptions());
     assertThat(results.getUuids()).containsOnly(customRule.getUuid());
 
     // null => no filter
     query = new RuleQuery().setTemplateKey(null);
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(2);
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).hasSize(2);
   }
 
   @Test
@@ -473,20 +472,20 @@ class RuleIndexIT {
     index();
 
     RuleQuery query = new RuleQuery().setLanguages(asList("cobol", "js"));
-    SearchIdResult<String> results = underTest.search(query, new SearchOptions());
+    SearchIdResult<String> results = underTest.searchV2(query, new SearchOptions());
     assertThat(results.getUuids()).containsOnly(javascript.getUuid());
 
     // no results
     query = new RuleQuery().setLanguages(singletonList("cpp"));
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).isEmpty();
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).isEmpty();
 
     // empty list => no filter
     query = new RuleQuery().setLanguages(emptyList());
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(2);
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).hasSize(2);
 
     // null list => no filter
     query = new RuleQuery().setLanguages(null);
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(2);
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).hasSize(2);
   }
 
   @ParameterizedTest
@@ -501,7 +500,7 @@ class RuleIndexIT {
     index();
 
     RuleQuery query = new RuleQuery().setCwe(of("543"));
-    SearchIdResult<String> results = underTest.search(query, new SearchOptions().addFacets("cwe"));
+    SearchIdResult<String> results = underTest.searchV2(query, new SearchOptions().addFacets("cwe"));
     assertThat(results.getUuids()).containsOnly(rule1.getUuid(), rule2.getUuid());
   }
 
@@ -517,7 +516,7 @@ class RuleIndexIT {
     index();
 
     RuleQuery query = new RuleQuery().setOwaspTop10(of("a5", "a10"));
-    SearchIdResult<String> results = underTest.search(query, new SearchOptions().addFacets("owaspTop10"));
+    SearchIdResult<String> results = underTest.searchV2(query, new SearchOptions().addFacets("owaspTop10"));
     assertThat(results.getUuids()).containsOnly(rule1.getUuid(), rule2.getUuid());
   }
 
@@ -533,7 +532,7 @@ class RuleIndexIT {
     index();
 
     RuleQuery query = new RuleQuery().setOwaspTop10For2021(of("a5", "a10"));
-    SearchIdResult<String> results = underTest.search(query, new SearchOptions().addFacets("owaspTop10-2021"));
+    SearchIdResult<String> results = underTest.searchV2(query, new SearchOptions().addFacets("owaspTop10-2021"));
     assertThat(results.getUuids()).containsOnly(rule1.getUuid(), rule2.getUuid());
   }
 
@@ -549,7 +548,7 @@ class RuleIndexIT {
     index();
 
     RuleQuery query = new RuleQuery().setOwaspMobileTop10For2024(of("m5", "m10"));
-    SearchIdResult<String> results = underTest.search(query, new SearchOptions().addFacets("owaspMobileTop10-2024"));
+    SearchIdResult<String> results = underTest.searchV2(query, new SearchOptions().addFacets("owaspMobileTop10-2024"));
     assertThat(results.getUuids()).containsOnly(rule1.getUuid(), rule2.getUuid());
   }
 
@@ -565,7 +564,7 @@ class RuleIndexIT {
     index();
 
     RuleQuery query = new RuleQuery().setSansTop25(of(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE));
-    SearchIdResult<String> results = underTest.search(query, new SearchOptions().addFacets("sansTop25"));
+    SearchIdResult<String> results = underTest.searchV2(query, new SearchOptions().addFacets("sansTop25"));
     assertThat(results.getUuids()).containsOnly(rule1.getUuid(), rule2.getUuid());
   }
 
@@ -581,32 +580,32 @@ class RuleIndexIT {
     index();
 
     RuleQuery query = new RuleQuery().setSonarsourceSecurity(of("sql-injection", "open-redirect"));
-    SearchIdResult<String> results = underTest.search(query, new SearchOptions().addFacets("sonarsourceSecurity"));
+    SearchIdResult<String> results = underTest.searchV2(query, new SearchOptions().addFacets("sonarsourceSecurity"));
     assertThat(results.getUuids()).containsOnly(rule1.getUuid(), rule3.getUuid());
   }
 
   @Test
   void search_by_security_should_count_issues_based_on_the_mode() {
 
-    //Should not be counted in MQR mode as it has no security impact
+    // Should not be counted in MQR mode as it has no security impact
     RuleDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10-2021:a10", "cwe:89")), r -> r.setType(VULNERABILITY));
 
-    //Should not be counted in Standard mode because it is not a Vulnerability type
+    // Should not be counted in Standard mode because it is not a Vulnerability type
     RuleDto rule2 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10-2021:a10", "cwe:89")),
       r -> r.setType(CODE_SMELL).replaceAllDefaultImpacts(List.of(new ImpactDto(SECURITY, Severity.HIGH))));
 
-    //Hotspots should be counted in both modes
+    // Hotspots should be counted in both modes
     RuleDto rule3 = createRule(setSecurityStandards(of("cwe:601")), r -> r.setType(SECURITY_HOTSPOT));
     index();
 
     RuleQuery query = new RuleQuery().setSonarsourceSecurity(of("sql-injection", "open-redirect"));
 
     doReturn(Optional.of(true)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
-    SearchIdResult<String> results = underTest.search(query, new SearchOptions().addFacets("sonarsourceSecurity"));
+    SearchIdResult<String> results = underTest.searchV2(query, new SearchOptions().addFacets("sonarsourceSecurity"));
     assertThat(results.getUuids()).containsOnly(rule2.getUuid(), rule3.getUuid());
 
     doReturn(Optional.of(false)).when(config).getBoolean(MULTI_QUALITY_MODE_ENABLED);
-    results = underTest.search(query, new SearchOptions().addFacets("sonarsourceSecurity"));
+    results = underTest.searchV2(query, new SearchOptions().addFacets("sonarsourceSecurity"));
     assertThat(results.getUuids()).containsOnly(rule1.getUuid(), rule3.getUuid());
   }
 
@@ -628,7 +627,7 @@ class RuleIndexIT {
     index();
 
     RuleQuery query = new RuleQuery();
-    SearchIdResult<String> results = underTest.search(query, new SearchOptions().addFacets("sonarsourceSecurity"));
+    SearchIdResult<String> results = underTest.searchV2(query, new SearchOptions().addFacets("sonarsourceSecurity"));
 
     assertThat(results.getFacets().get("sonarsourceSecurity"))
       .as("It should have as many facets returned as there are rules defined, and it is not truncated")
@@ -679,20 +678,20 @@ class RuleIndexIT {
     index();
 
     RuleQuery query = new RuleQuery().setSeverities(asList(org.sonar.api.rule.Severity.INFO, MINOR));
-    SearchIdResult<String> results = underTest.search(query, new SearchOptions());
+    SearchIdResult<String> results = underTest.searchV2(query, new SearchOptions());
     assertThat(results.getUuids()).containsOnly(info.getUuid());
 
     // no results
     query = new RuleQuery().setSeverities(singletonList(MINOR));
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).isEmpty();
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).isEmpty();
 
     // empty list => no filter
     query = new RuleQuery().setSeverities(emptyList());
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(2);
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).hasSize(2);
 
     // null list => no filter
     query = new RuleQuery().setSeverities();
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(2);
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).hasSize(2);
   }
 
   @Test
@@ -702,20 +701,20 @@ class RuleIndexIT {
     index();
 
     RuleQuery query = new RuleQuery().setStatuses(asList(RuleStatus.DEPRECATED, RuleStatus.READY));
-    SearchIdResult<String> results = underTest.search(query, new SearchOptions());
+    SearchIdResult<String> results = underTest.searchV2(query, new SearchOptions());
     assertThat(results.getUuids()).containsOnly(ready.getUuid());
 
     // no results
     query = new RuleQuery().setStatuses(singletonList(RuleStatus.DEPRECATED));
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).isEmpty();
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).isEmpty();
 
     // empty list => no filter
     query = new RuleQuery().setStatuses(emptyList());
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(2);
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).hasSize(2);
 
     // null list => no filter
     query = new RuleQuery().setStatuses(null);
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(2);
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).hasSize(2);
   }
 
   @Test
@@ -756,7 +755,7 @@ class RuleIndexIT {
   }
 
   private void verifySearch(RuleQuery query, RuleDto... expectedRules) {
-    SearchIdResult<String> result = underTest.search(query, new SearchOptions());
+    SearchIdResult<String> result = underTest.searchV2(query, new SearchOptions());
     assertThat(result.getTotal()).isEqualTo(expectedRules.length);
     assertThat(result.getUuids()).hasSize(expectedRules.length);
     for (RuleDto expectedRule : expectedRules) {
@@ -870,7 +869,7 @@ class RuleIndexIT {
 
     RuleQuery query = newRuleQuery().setActivation(true).setQProfile(profile1);
 
-    SearchIdResult result = underTest.search(query,
+    SearchIdResult result = underTest.searchV2(query,
       new SearchOptions().addFacets(singletonList("active_impactSeverities")));
 
     assertThat(result.getFacets().getAll()).hasSize(1);
@@ -880,8 +879,7 @@ class RuleIndexIT {
         entry("HIGH", 1L),
         entry("MEDIUM", 1L),
         entry("LOW", 1L),
-        entry("INFO", 2L)
-      );
+        entry("INFO", 2L));
   }
 
   @Test
@@ -906,10 +904,9 @@ class RuleIndexIT {
       Severity.INFO)));
     index();
 
-    RuleQuery query =
-      newRuleQuery().setActivation(true).setQProfile(profile1).setActiveImpactSeverities(List.of("BLOCKER"));
+    RuleQuery query = newRuleQuery().setActivation(true).setQProfile(profile1).setActiveImpactSeverities(List.of("BLOCKER"));
 
-    SearchIdResult result1 = underTest.search(query, new SearchOptions().addFacets(singletonList("active_impactSeverities")));
+    SearchIdResult result1 = underTest.searchV2(query, new SearchOptions().addFacets(singletonList("active_impactSeverities")));
 
     // Filtering on active Impact Severity should have no effect on the Active Severity Facets
     assertThat(result1.getFacets().getAll()).hasSize(1);
@@ -919,13 +916,12 @@ class RuleIndexIT {
         entry("HIGH", 1L),
         entry("MEDIUM", 1L),
         entry("LOW", 1L),
-        entry("INFO", 2L)
-      );
+        entry("INFO", 2L));
     assertThat(result1.getUuids()).containsExactlyInAnyOrder(rule1.getUuid(), rule3.getUuid());
 
     query = query.setActiveSeverities(List.of("MAJOR"));
 
-    SearchIdResult result2 = underTest.search(query, new SearchOptions().addFacets(singletonList("active_impactSeverities")));
+    SearchIdResult result2 = underTest.searchV2(query, new SearchOptions().addFacets(singletonList("active_impactSeverities")));
 
     // Filters other than "active impact severity" should affect the counts
     assertThat(result2.getFacets().getAll()).hasSize(1);
@@ -935,19 +931,18 @@ class RuleIndexIT {
         entry("HIGH", 0L),
         entry("MEDIUM", 1L),
         entry("LOW", 0L),
-        entry("INFO", 0L)
-      );
+        entry("INFO", 0L));
     assertThat(result2.getUuids()).containsExactlyInAnyOrder(rule3.getUuid());
   }
 
   private void verifyFacet(RuleQuery query, String facet, Map.Entry<String, Long>... expectedBuckets) {
-    SearchIdResult<String> result = underTest.search(query, new SearchOptions().addFacets(facet));
+    SearchIdResult<String> result = underTest.searchV2(query, new SearchOptions().addFacets(facet));
     assertThat(result.getFacets().get(facet))
       .containsOnly(expectedBuckets);
   }
 
   private void verifyNoFacet(RuleQuery query, String facet) {
-    SearchIdResult<String> result = underTest.search(query, new SearchOptions().addFacets(facet));
+    SearchIdResult<String> result = underTest.searchV2(query, new SearchOptions().addFacets(facet));
     assertThat(result.getFacets().get(facet)).isNull();
   }
 
@@ -993,13 +988,13 @@ class RuleIndexIT {
 
     RuleQuery query = new RuleQuery();
     query.setCleanCodeAttributesCategories(List.of(CleanCodeAttribute.LOGICAL.getAttributeCategory().name()));
-    SearchIdResult result1 = underTest.search(query, new SearchOptions());
+    SearchIdResult result1 = underTest.searchV2(query, new SearchOptions());
     assertThat(result1.getUuids()).isEmpty();
 
     query = new RuleQuery();
     query.setCleanCodeAttributesCategories(List.of(CleanCodeAttribute.FOCUSED.getAttributeCategory().name()));
 
-    SearchIdResult result2 = underTest.search(query, new SearchOptions());
+    SearchIdResult result2 = underTest.searchV2(query, new SearchOptions());
 
     assertThat(result2.getUuids()).containsOnly(ruleDto.getUuid());
   }
@@ -1011,12 +1006,12 @@ class RuleIndexIT {
     index();
 
     RuleQuery query = new RuleQuery();
-    SearchIdResult result1 = underTest.search(query.setImpactSoftwareQualities(List.of(MAINTAINABILITY.name())),
+    SearchIdResult result1 = underTest.searchV2(query.setImpactSoftwareQualities(List.of(MAINTAINABILITY.name())),
       new SearchOptions());
     assertThat(result1.getUuids()).isEmpty();
 
     query = new RuleQuery();
-    SearchIdResult result2 = underTest.search(query.setImpactSoftwareQualities(List.of(SECURITY.name())),
+    SearchIdResult result2 = underTest.searchV2(query.setImpactSoftwareQualities(List.of(SECURITY.name())),
       new SearchOptions());
     assertThat(result2.getUuids()).containsOnly(phpRule.getUuid());
   }
@@ -1028,11 +1023,11 @@ class RuleIndexIT {
     index();
 
     RuleQuery query = new RuleQuery();
-    SearchIdResult result1 = underTest.search(query.setImpactSeverities(List.of(Severity.MEDIUM.name())), new SearchOptions());
+    SearchIdResult result1 = underTest.searchV2(query.setImpactSeverities(List.of(Severity.MEDIUM.name())), new SearchOptions());
     assertThat(result1.getUuids()).isEmpty();
 
     query = new RuleQuery();
-    SearchIdResult result2 = underTest.search(query.setImpactSeverities(List.of(Severity.BLOCKER.name())), new SearchOptions());
+    SearchIdResult result2 = underTest.searchV2(query.setImpactSeverities(List.of(Severity.BLOCKER.name())), new SearchOptions());
     assertThat(result2.getUuids()).containsOnly(phpRule.getUuid());
   }
 
@@ -1044,11 +1039,10 @@ class RuleIndexIT {
 
     RuleQuery query = new RuleQuery();
 
-    SearchIdResult result2 = underTest.search(query, new SearchOptions().addFacets(singletonList("cleanCodeAttributeCategories")));
+    SearchIdResult result2 = underTest.searchV2(query, new SearchOptions().addFacets(singletonList("cleanCodeAttributeCategories")));
 
     assertThat(result2.getFacets().getAll()).hasSize(1);
-    assertThat(result2.getFacets().getAll().get("cleanCodeAttributeCategories")).containsOnly(entry("ADAPTABLE", 1L), entry("INTENTIONAL"
-      , 1L));
+    assertThat(result2.getFacets().getAll().get("cleanCodeAttributeCategories")).containsOnly(entry("ADAPTABLE", 1L), entry("INTENTIONAL", 1L));
   }
 
   @Test
@@ -1060,7 +1054,7 @@ class RuleIndexIT {
 
     RuleQuery query = new RuleQuery();
 
-    SearchIdResult result = underTest.search(
+    SearchIdResult result = underTest.searchV2(
       query.setCleanCodeAttributesCategories(List.of(CleanCodeAttributeCategory.CONSISTENT.name(),
         CleanCodeAttributeCategory.ADAPTABLE.name())),
       new SearchOptions().addFacets(singletonList("cleanCodeAttributeCategories")));
@@ -1078,7 +1072,7 @@ class RuleIndexIT {
 
     RuleQuery query = new RuleQuery();
 
-    SearchIdResult result2 = underTest.search(query, new SearchOptions().addFacets(singletonList("impactSoftwareQualities")));
+    SearchIdResult result2 = underTest.searchV2(query, new SearchOptions().addFacets(singletonList("impactSoftwareQualities")));
 
     assertThat(result2.getFacets().getAll()).hasSize(1);
     assertThat(result2.getFacets().getAll().get("impactSoftwareQualities"))
@@ -1098,7 +1092,7 @@ class RuleIndexIT {
 
     RuleQuery query = new RuleQuery();
 
-    SearchIdResult result2 = underTest.search(query.setImpactSeverities(of(Severity.HIGH.name())),
+    SearchIdResult result2 = underTest.searchV2(query.setImpactSeverities(of(Severity.HIGH.name())),
       new SearchOptions().addFacets(singletonList("impactSoftwareQualities")));
 
     assertThat(result2.getFacets().getAll()).hasSize(1);
@@ -1127,7 +1121,7 @@ class RuleIndexIT {
 
     RuleQuery query = new RuleQuery();
 
-    SearchIdResult result = underTest.search(
+    SearchIdResult result = underTest.searchV2(
       query.setImpactSeverities(of(Severity.LOW.name())).setImpactSoftwareQualities(List.of(MAINTAINABILITY.name())),
       new SearchOptions().addFacets(List.of("impactSoftwareQualities", "impactSeverities")));
 
@@ -1158,7 +1152,7 @@ class RuleIndexIT {
 
     RuleQuery query = new RuleQuery();
 
-    SearchIdResult result2 = underTest.search(query, new SearchOptions().addFacets(singletonList("impactSeverities")));
+    SearchIdResult result2 = underTest.searchV2(query, new SearchOptions().addFacets(singletonList("impactSeverities")));
 
     assertThat(result2.getFacets().getAll()).hasSize(1);
     assertThat(result2.getFacets().getAll().get("impactSeverities"))
@@ -1184,7 +1178,7 @@ class RuleIndexIT {
 
     RuleQuery query = new RuleQuery();
 
-    SearchIdResult result2 = underTest.search(query.setImpactSeverities(of("LOW")), new SearchOptions().addFacets(singletonList(
+    SearchIdResult result2 = underTest.searchV2(query.setImpactSeverities(of("LOW")), new SearchOptions().addFacets(singletonList(
       "impactSeverities")));
 
     assertThat(result2.getFacets().getAll()).hasSize(1);
@@ -1210,7 +1204,7 @@ class RuleIndexIT {
     RuleQuery query = new RuleQuery().setImpactSeverities(of("LOW"))
       .setImpactSoftwareQualities(of(MAINTAINABILITY.name()));
     SearchOptions searchOptions = new SearchOptions().addFacets(List.of("impactSeverities", "impactSoftwareQualities"));
-    SearchIdResult result2 = underTest.search(query, searchOptions);
+    SearchIdResult result2 = underTest.searchV2(query, searchOptions);
 
     assertThat(result2.getFacets().getAll()).hasSize(2);
     assertThat(result2.getFacets().getAll().get("impactSeverities"))
@@ -1235,17 +1229,17 @@ class RuleIndexIT {
 
     // should not have any facet!
     RuleQuery query = new RuleQuery();
-    SearchIdResult result1 = underTest.search(query, new SearchOptions());
+    SearchIdResult result1 = underTest.searchV2(query, new SearchOptions());
     assertThat(result1.getFacets().getAll()).isEmpty();
 
     // should not have any facet on non matching query!
-    SearchIdResult result2 = underTest.search(new RuleQuery().setQueryText("aeiou"), new SearchOptions().addFacets(singletonList(
+    SearchIdResult result2 = underTest.searchV2(new RuleQuery().setQueryText("aeiou"), new SearchOptions().addFacets(singletonList(
       "repositories")));
     assertThat(result2.getFacets().getAll()).hasSize(1);
     assertThat(result2.getFacets().getAll().get("repositories")).isEmpty();
 
     // Repositories Facet is preset
-    SearchIdResult result3 = underTest.search(query, new SearchOptions().addFacets(asList("repositories", "tags")));
+    SearchIdResult result3 = underTest.searchV2(query, new SearchOptions().addFacets(asList("repositories", "tags")));
     assertThat(result3.getFacets()).isNotNull();
 
     // Verify the value of a given facet
@@ -1280,7 +1274,7 @@ class RuleIndexIT {
 
     RuleQuery query = new RuleQuery();
 
-    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(9);
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids()).hasSize(9);
   }
 
   /**
@@ -1291,7 +1285,7 @@ class RuleIndexIT {
     setupStickyFacets();
     RuleQuery query = new RuleQuery();
 
-    SearchIdResult<String> result = underTest.search(query, new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES,
+    SearchIdResult<String> result = underTest.searchV2(query, new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES,
       FACET_TAGS, FACET_TYPES)));
     Map<String, LinkedHashMap<String, Long>> facets = result.getFacets().getAll();
     assertThat(facets).hasSize(4);
@@ -1308,9 +1302,9 @@ class RuleIndexIT {
   @Test
   void sticky_facets_with_1_filter() {
     setupStickyFacets();
-    RuleQuery query = new RuleQuery().setLanguages(ImmutableList.of("cpp"));
+    RuleQuery query = new RuleQuery().setLanguages(List.of("cpp"));
 
-    SearchIdResult<String> result = underTest.search(query, new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES,
+    SearchIdResult<String> result = underTest.searchV2(query, new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES,
       FACET_TAGS)));
     assertThat(result.getUuids()).hasSize(3);
     assertThat(result.getFacets().getAll()).hasSize(3);
@@ -1324,7 +1318,7 @@ class RuleIndexIT {
     rangeClosed(1, 101).forEach(i -> db.rules().insert(r -> r.setLanguage("lang" + i)));
     index();
 
-    SearchIdResult<String> result = underTest.search(new RuleQuery(), new SearchOptions().addFacets(singletonList(FACET_LANGUAGES)));
+    SearchIdResult<String> result = underTest.searchV2(new RuleQuery(), new SearchOptions().addFacets(singletonList(FACET_LANGUAGES)));
 
     assertThat(result.getFacets().get(FACET_LANGUAGES)).hasSize(100);
   }
@@ -1334,7 +1328,7 @@ class RuleIndexIT {
     rangeClosed(1, 101).forEach(i -> db.rules().insert(r -> r.setRepositoryKey("repo" + i)));
     index();
 
-    SearchIdResult<String> result = underTest.search(new RuleQuery(), new SearchOptions().addFacets(singletonList(FACET_REPOSITORIES)));
+    SearchIdResult<String> result = underTest.searchV2(new RuleQuery(), new SearchOptions().addFacets(singletonList(FACET_REPOSITORIES)));
 
     assertThat(result.getFacets().get(FACET_REPOSITORIES)).hasSize(100);
   }
@@ -1347,7 +1341,7 @@ class RuleIndexIT {
     RuleQuery query = new RuleQuery();
     SearchOptions options = new SearchOptions().addFacets(singletonList(FACET_TAGS));
 
-    SearchIdResult<String> result = underTest.search(query, options);
+    SearchIdResult<String> result = underTest.searchV2(query, options);
     assertThat(result.getFacets().get(FACET_TAGS)).contains(entry("bla", 1L));
   }
 
@@ -1360,7 +1354,7 @@ class RuleIndexIT {
 
     RuleQuery query = new RuleQuery();
     SearchOptions options = new SearchOptions().addFacets(singletonList(FACET_TAGS));
-    SearchIdResult<String> result = underTest.search(query, options);
+    SearchIdResult<String> result = underTest.searchV2(query, options);
     assertThat(result.getFacets().get(FACET_TAGS)).hasSize(100);
     assertThat(result.getFacets().get(FACET_TAGS)).contains(entry("tag0", 1L), entry("tag25", 1L), entry("tag99", 1L));
     assertThat(result.getFacets().get(FACET_TAGS)).doesNotContain(entry("tagA", 1L));
@@ -1376,7 +1370,7 @@ class RuleIndexIT {
     RuleQuery query = new RuleQuery()
       .setTags(singletonList("tagA"));
     SearchOptions options = new SearchOptions().addFacets(singletonList(FACET_TAGS));
-    SearchIdResult<String> result = underTest.search(query, options);
+    SearchIdResult<String> result = underTest.searchV2(query, options);
     assertThat(result.getFacets().get(FACET_TAGS)).hasSize(101);
     assertThat(result.getFacets().get(FACET_TAGS).entrySet()).extracting(e -> entry(e.getKey(), e.getValue())).contains(
 
@@ -1391,7 +1385,7 @@ class RuleIndexIT {
     RuleQuery query = new RuleQuery();
     SearchOptions options = new SearchOptions().addFacets(singletonList(FACET_TAGS));
 
-    SearchIdResult<String> result = underTest.search(query, options);
+    SearchIdResult<String> result = underTest.searchV2(query, options);
     assertThat(result.getFacets().get(FACET_TAGS)).isNotNull();
   }
 
@@ -1406,10 +1400,10 @@ class RuleIndexIT {
     setupStickyFacets();
 
     RuleQuery query = new RuleQuery()
-      .setLanguages(ImmutableList.of("cpp"))
-      .setTags(ImmutableList.of("T2"));
+      .setLanguages(List.of("cpp"))
+      .setTags(List.of("T2"));
 
-    SearchIdResult<String> result = underTest.search(query, new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES,
+    SearchIdResult<String> result = underTest.searchV2(query, new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES,
       FACET_TAGS)));
     assertThat(result.getUuids()).hasSize(1);
     Facets facets = result.getFacets();
@@ -1431,12 +1425,17 @@ class RuleIndexIT {
     setupStickyFacets();
 
     RuleQuery query = new RuleQuery()
-      .setLanguages(ImmutableList.of("cpp", "java"))
-      .setTags(ImmutableList.of("T2"))
+      .setLanguages(List.of("cpp", "java"))
+      .setTags(List.of("T2"))
       .setTypes(asList(BUG, CODE_SMELL));
 
-    SearchIdResult<String> result = underTest.search(query, new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES,
-      FACET_TAGS, FACET_TYPES)).addComplianceFacets(asList("cwe")));
+    SearchOptions options = new SearchOptions().addFacets(asList(FACET_LANGUAGES,
+      FACET_REPOSITORIES,
+      FACET_TAGS,
+      FACET_TYPES))
+      .addComplianceFacets(List.of("cwe"));
+
+    SearchIdResult<String> result = underTest.searchV2(query, options);
     assertThat(result.getUuids()).hasSize(2);
     assertThat(result.getFacets().getAll()).hasSize(5);
     assertThat(result.getFacets().get(FACET_LANGUAGES)).containsOnlyKeys("cpp", "java");
@@ -1455,12 +1454,12 @@ class RuleIndexIT {
 
     // ascending
     RuleQuery query = new RuleQuery().setSortField(RuleIndexDefinition.FIELD_RULE_NAME);
-    SearchIdResult<String> results = underTest.search(query, new SearchOptions());
+    SearchIdResult<String> results = underTest.searchV2(query, new SearchOptions());
     assertThat(results.getUuids()).containsExactly(abc.getUuid(), abcd.getUuid(), fgh.getUuid());
 
     // descending
     query = new RuleQuery().setSortField(RuleIndexDefinition.FIELD_RULE_NAME).setAscendingSort(false);
-    results = underTest.search(query, new SearchOptions());
+    results = underTest.searchV2(query, new SearchOptions());
     assertThat(results.getUuids()).containsExactly(fgh.getUuid(), abcd.getUuid(), abc.getUuid());
   }
 
@@ -1473,7 +1472,7 @@ class RuleIndexIT {
     RuleDto older = createRule(setCreatedAt(1000L), setUpdatedAt(currentTimeMillis + 2000L));
     index();
 
-    SearchIdResult<String> results = underTest.search(new RuleQuery(), new SearchOptions());
+    SearchIdResult<String> results = underTest.searchV2(new RuleQuery(), new SearchOptions());
     assertThat(results.getUuids()).containsExactly(oldest.getUuid(), older.getUuid(), old.getUuid());
   }
 
@@ -1498,19 +1497,19 @@ class RuleIndexIT {
     // from 0 to 1 included
     SearchOptions options = new SearchOptions();
     options.setOffset(0).setLimit(2);
-    SearchIdResult<String> results = underTest.search(new RuleQuery(), options);
+    SearchIdResult<String> results = underTest.searchV2(new RuleQuery(), options);
     assertThat(results.getTotal()).isEqualTo(3);
     assertThat(results.getUuids()).hasSize(2);
 
     // from 0 to 9 included
     options.setOffset(0).setLimit(10);
-    results = underTest.search(new RuleQuery(), options);
+    results = underTest.searchV2(new RuleQuery(), options);
     assertThat(results.getTotal()).isEqualTo(3);
     assertThat(results.getUuids()).hasSize(3);
 
     // from 2 to 11 included
     options.setOffset(2).setLimit(10);
-    results = underTest.search(new RuleQuery(), options);
+    results = underTest.searchV2(new RuleQuery(), options);
     assertThat(results.getTotal()).isEqualTo(3);
     assertThat(results.getUuids()).hasSize(1);
   }
@@ -1523,13 +1522,13 @@ class RuleIndexIT {
     index();
 
     // key
-    assertThat(underTest.searchAll(new RuleQuery().setQueryText("X001"))).toIterable().hasSize(2);
+    assertThat(underTest.searchAllV2(new RuleQuery().setQueryText("X001"))).toIterable().hasSize(2);
 
     // partial key does not match
-    assertThat(underTest.searchAll(new RuleQuery().setQueryText("X00"))).toIterable().isEmpty();
+    assertThat(underTest.searchAllV2(new RuleQuery().setQueryText("X00"))).toIterable().isEmpty();
 
     // repo:key -> nice-to-have !
-    assertThat(underTest.searchAll(new RuleQuery().setQueryText("javascript:X001"))).toIterable().hasSize(1);
+    assertThat(underTest.searchAllV2(new RuleQuery().setQueryText("javascript:X001"))).toIterable().hasSize(1);
   }
 
   @Test
@@ -1547,12 +1546,12 @@ class RuleIndexIT {
     // inactive rules on profile
     es.getDocuments(TYPE_RULE);
     es.getDocuments(TYPE_ACTIVE_RULE);
-    assertThat(underTest.searchAll(new RuleQuery().setActivation(false).setQProfile(profile2)))
+    assertThat(underTest.searchAllV2(new RuleQuery().setActivation(false).setQProfile(profile2)))
       .toIterable()
       .containsOnly(rule2.getUuid(), rule3.getUuid());
 
     // active rules on profile
-    assertThat(underTest.searchAll(new RuleQuery().setActivation(true).setQProfile(profile2)))
+    assertThat(underTest.searchAllV2(new RuleQuery().setActivation(true).setQProfile(profile2)))
       .toIterable()
       .containsOnly(rule1.getUuid());
   }
