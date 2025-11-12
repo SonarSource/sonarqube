@@ -71,6 +71,9 @@ public class ComponentIssuesLoaderIT {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
+  @Rule
+  public RuleRepositoryRule ruleRepositoryRule = new RuleRepositoryRule();
+
   private final DbClient dbClient = db.getDbClient();
   private final System2 system2 = mock(System2.class);
   private final IssueChangesToDeleteRepository issueChangesToDeleteRepository = new IssueChangesToDeleteRepository();
@@ -80,6 +83,7 @@ public class ComponentIssuesLoaderIT {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
+    ruleRepositoryRule.add(rule);
     Date issueDate = addDays(NOW, -10);
     IssueDto issue = db.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setType(CODE_SMELL));
     db.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(issueDate, 10));
@@ -99,6 +103,7 @@ public class ComponentIssuesLoaderIT {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
+    ruleRepositoryRule.add(rule);
     Date issueDate = addDays(NOW, -10);
     IssueDto issue = db.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setType(CODE_SMELL));
     db.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(issueDate, 10));
@@ -118,6 +123,7 @@ public class ComponentIssuesLoaderIT {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
+    ruleRepositoryRule.add(rule);
     Date issueDate = addDays(NOW, -10);
     IssueDto closedIssue = db.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setType(CODE_SMELL));
     db.issues().insertFieldDiffs(closedIssue, newToClosedDiffsWithLine(issueDate, 10));
@@ -131,6 +137,40 @@ public class ComponentIssuesLoaderIT {
     assertThat(defaultIssues)
       .extracting(DefaultIssue::key)
       .containsOnly(closedIssue.getKey());
+  }
+
+  @Test
+  public void loadClosedIssues_filters_out_issues_without_corresponding_rule() {
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDto ruleWithMatch = db.rules().insert(t -> t.setType(CODE_SMELL));
+    RuleDto ruleWithoutMatch = db.rules().insert(t -> t.setType(CODE_SMELL));
+
+    // Add only one rule to the repository
+    ruleRepositoryRule.add(ruleWithMatch);
+
+    Date issueDate = addDays(NOW, -10);
+    // Issue with corresponding rule in repository
+    IssueDto issueWithRule = db.issues().insert(ruleWithMatch, project, file,
+      t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setType(CODE_SMELL));
+    db.issues().insertFieldDiffs(issueWithRule, newToClosedDiffsWithLine(issueDate, 10));
+
+    // Issue without corresponding rule in repository
+    IssueDto issueWithoutRule = db.issues().insert(ruleWithoutMatch, project, file,
+      t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setType(CODE_SMELL));
+    db.issues().insertFieldDiffs(issueWithoutRule, newToClosedDiffsWithLine(issueDate, 20));
+
+    when(system2.now()).thenReturn(NOW.getTime());
+
+    ComponentIssuesLoader underTest = newComponentIssuesLoader(newEmptySettings());
+    List<DefaultIssue> defaultIssues = underTest.loadClosedIssues(file.uuid());
+
+    // Only the issue with corresponding rule should be returned
+    assertThat(defaultIssues)
+      .hasSize(1)
+      .extracting(DefaultIssue::key)
+      .containsOnly(issueWithRule.getKey());
+    assertThat(defaultIssues.get(0).getLine()).isEqualTo(10);
   }
 
   @Test
@@ -186,6 +226,7 @@ public class ComponentIssuesLoaderIT {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
+    ruleRepositoryRule.add(rule);
     Date[] issueDates = new Date[] {
       addDays(NOW, -10),
       addDays(NOW, -31),
@@ -425,7 +466,7 @@ public class ComponentIssuesLoaderIT {
   }
 
   private ComponentIssuesLoader newComponentIssuesLoader(Configuration configuration) {
-    return new ComponentIssuesLoader(dbClient, null /* not used in loadClosedIssues */, null /* not used in loadClosedIssues */,
+    return new ComponentIssuesLoader(dbClient, ruleRepositoryRule, null /* not used in loadClosedIssues */,
       configuration, system2, issueChangesToDeleteRepository);
   }
 

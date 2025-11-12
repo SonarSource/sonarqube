@@ -79,6 +79,7 @@ import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueFixedMapper;
 import org.sonar.db.issue.IssueMapper;
+import org.sonar.db.issue.IssueWithoutRuleInfoDto;
 import org.sonar.db.issue.NewCodeReferenceIssueDto;
 import org.sonar.db.issue.PrIssueDto;
 import org.sonar.db.jira.AtlassianAuthenticationDetailsMapper;
@@ -233,6 +234,7 @@ public class MyBatis {
     confBuilder.loadAlias("KeyLongValue", KeyLongValue.class);
     confBuilder.loadAlias("Impact", ImpactDto.class);
     confBuilder.loadAlias("Issue", IssueDto.class);
+    confBuilder.loadAlias("IssueWithoutRuleInfo", IssueWithoutRuleInfoDto.class);
     confBuilder.loadAlias("NewCodeReferenceIssue", NewCodeReferenceIssueDto.class);
     confBuilder.loadAlias("ProjectMeasure", ProjectMeasureDto.class);
     confBuilder.loadAlias("LargestBranchNclocDto", LargestBranchNclocDto.class);

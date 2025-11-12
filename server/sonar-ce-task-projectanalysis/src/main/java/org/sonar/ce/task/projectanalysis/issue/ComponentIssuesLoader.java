@@ -35,21 +35,24 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueChangeDto;
-import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
+import org.sonar.db.issue.IssueWithoutRuleInfoDto;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.groupingBy;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
+import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.server.issue.IssueFieldsSetter.FROM_BRANCH;
 import static org.sonar.server.issue.IssueFieldsSetter.STATUS;
 
@@ -180,8 +183,8 @@ public class ComponentIssuesLoader {
   private List<DefaultIssue> loadOpenIssues(String componentUuid, DbSession dbSession) {
     List<DefaultIssue> result = new ArrayList<>();
     dbSession.getMapper(IssueMapper.class).scrollNonClosedByComponentUuid(componentUuid, resultContext -> {
-      DefaultIssue issue = (resultContext.getResultObject()).toDefaultIssue();
-      Rule rule = ruleRepository.getByKey(issue.ruleKey());
+      Rule rule = ruleRepository.getByUuid(resultContext.getResultObject().getRuleUuid());
+      DefaultIssue issue = toDefaultIssue(resultContext.getResultObject(), rule);
 
       // TODO this field should be set outside this class
       if ((!rule.isExternal() && !isActive(issue.ruleKey())) || rule.getStatus() == RuleStatus.REMOVED) {
@@ -237,19 +240,24 @@ public class ComponentIssuesLoader {
     return activeRulesHolder.get(ruleKey).isPresent();
   }
 
-  private static List<DefaultIssue> loadClosedIssues(DbSession dbSession, String componentUuid, long closeDateAfter) {
-    ClosedIssuesResultHandler handler = new ClosedIssuesResultHandler();
+  private List<DefaultIssue> loadClosedIssues(DbSession dbSession, String componentUuid, long closeDateAfter) {
+    ClosedIssuesResultHandler handler = new ClosedIssuesResultHandler(ruleRepository);
     dbSession.getMapper(IssueMapper.class).scrollClosedByComponentUuid(componentUuid, closeDateAfter, handler);
     return unmodifiableList(handler.issues);
   }
 
-  private static class ClosedIssuesResultHandler implements ResultHandler<IssueDto> {
+  private static class ClosedIssuesResultHandler implements ResultHandler<IssueWithoutRuleInfoDto> {
     private final List<DefaultIssue> issues = new ArrayList<>();
     private String previousIssueKey = null;
+    private final RuleRepository ruleRepository;
+
+    public ClosedIssuesResultHandler(RuleRepository ruleRepository) {
+      this.ruleRepository = ruleRepository;
+    }
 
     @Override
-    public void handleResult(ResultContext<? extends IssueDto> resultContext) {
-      IssueDto resultObject = resultContext.getResultObject();
+    public void handleResult(ResultContext<? extends IssueWithoutRuleInfoDto> resultContext) {
+      IssueWithoutRuleInfoDto resultObject = resultContext.getResultObject();
 
       // issue are ordered by most recent change first, only the first row for a given issue is of interest
       if (previousIssueKey != null && previousIssueKey.equals(resultObject.getKey())) {
@@ -269,11 +277,13 @@ public class ComponentIssuesLoader {
         .orElse(null);
 
       previousIssueKey = resultObject.getKey();
-      DefaultIssue issue = resultObject.toDefaultIssue();
-      issue.setLine(line);
-      issue.setSelectedAt(System.currentTimeMillis());
+      ruleRepository.findByUuid(resultObject.getRuleUuid()).ifPresent(rule -> {
+        DefaultIssue issue = toDefaultIssue(resultObject, rule);
+        issue.setLine(line);
+        issue.setSelectedAt(System.currentTimeMillis());
 
-      issues.add(issue);
+        issues.add(issue);
+      });
     }
   }
 
@@ -338,5 +348,48 @@ public class ComponentIssuesLoader {
         }
       }
     }
+  }
+
+  private static DefaultIssue toDefaultIssue(IssueWithoutRuleInfoDto source, Rule rule) {
+    DefaultIssue issue = new DefaultIssue();
+    issue.setKey(source.getKee());
+    issue.setType(RuleType.fromDbConstant(source.getType()));
+    issue.setStatus(source.getStatus());
+    issue.setResolution(source.getResolution());
+    issue.setMessage(source.getMessage());
+    issue.setMessageFormattings(source.parseMessageFormattings());
+    issue.setGap(source.getGap());
+    issue.setEffort(source.getEffort() != null ? Duration.create(source.getEffort()) : null);
+    issue.setLine(source.getLine());
+    issue.setChecksum(source.getChecksum());
+    issue.setSeverity(source.getSeverity());
+    issue.setPrioritizedRule(source.isPrioritizedRule());
+    issue.setFromSonarQubeUpdate(source.isFromSonarQubeUpdate());
+    issue.setAssigneeUuid(source.getAssigneeUuid());
+    issue.setAssigneeLogin(source.getAssigneeLogin());
+    issue.setComponentKey(source.getComponentKey());
+    issue.setComponentUuid(source.getComponentUuid());
+    issue.setProjectUuid(source.getProjectUuid());
+    issue.setProjectKey(source.getProjectKey());
+    issue.setManualSeverity(source.isManualSeverity());
+    issue.setRuleKey(rule.getKey());
+    issue.setTags(source.getTags());
+    issue.setInternalTags(source.getInternalTags());
+    issue.setRuleDescriptionContextKey(source.getOptionalRuleDescriptionContextKey().orElse(null));
+    issue.setLanguage(rule.getLanguage());
+    issue.setAuthorLogin(source.getAuthorLogin());
+    issue.setNew(false);
+    issue.setCreationDate(longToDate(source.getIssueCreationTime()));
+    issue.setCloseDate(longToDate(source.getIssueCloseTime()));
+    issue.setUpdateDate(longToDate(source.getIssueUpdateTime()));
+    issue.setSelectedAt(source.getSelectedAt());
+    issue.setLocations(source.parseLocations());
+    issue.setIsFromExternalRuleEngine(rule.isExternal());
+    issue.setQuickFixAvailable(source.isQuickFixAvailable());
+    issue.setIsNewCodeReferenceIssue(source.isNewCodeReferenceIssue());
+    issue.setCodeVariants(source.getCodeVariants());
+    issue.setCleanCodeAttribute(source.getCleanCodeAttribute());
+    source.getImpacts().forEach(impact -> issue.addImpact(impact.getSoftwareQuality(), impact.getSeverity(), impact.isManualSeverity()));
+    return issue;
   }
 }

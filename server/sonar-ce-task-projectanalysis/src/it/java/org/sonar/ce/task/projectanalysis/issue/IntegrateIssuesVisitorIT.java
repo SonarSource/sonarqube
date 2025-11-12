@@ -145,7 +145,7 @@ class IntegrateIssuesVisitorIT {
   private TypeAwareVisitor underTest;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     IssueVisitors issueVisitors = new IssueVisitors(new IssueVisitor[] {issueVisitor});
 
     defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
@@ -352,7 +352,7 @@ class IntegrateIssuesVisitorIT {
 
     RuleDto ruleDto = RuleTesting.newRule(ruleKey);
     dbTester.rules().insert(ruleDto);
-    ruleRepositoryRule.add(ruleKey);
+    ruleRepositoryRule.add(ruleDto);
 
     IssueDto issue = IssueTesting.newIssue(ruleDto, project, file)
       .setKee("ISSUE")
@@ -368,7 +368,7 @@ class IntegrateIssuesVisitorIT {
 
     RuleDto ruleDto = RuleTesting.newRule(ruleKey);
     dbTester.rules().insert(ruleDto);
-    ruleRepositoryRule.add(ruleKey);
+    ruleRepositoryRule.add(ruleDto);
 
     IssueDto issue = IssueTesting.newIssue(ruleDto, project, file)
       .setKee("ISSUE")

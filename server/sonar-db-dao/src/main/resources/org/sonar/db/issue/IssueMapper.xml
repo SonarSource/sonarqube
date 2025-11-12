@@ -50,6 +50,45 @@
     <include refid="isNewCodeReferenceIssue"/>
   </sql>
 
+  <sql id="issueColumnsNoRulesColumn">
+    i.kee as kee,
+    i.rule_uuid as ruleUuid,
+    i.severity as severity,
+    i.manual_severity as manualSeverity,
+    i.message as message,
+    i.message_formattings as messageFormattings,
+    i.line as line,
+    i.locations as locations,
+    i.gap as gap,
+    i.effort as effort,
+    i.status as status,
+    i.resolution as resolution,
+    i.checksum as checksum,
+    i.assignee as assigneeUuid,
+    i.author_login as authorLogin,
+    i.tags as tagsString,
+    i.rule_description_context_key as ruleDescriptionContextKey,
+    i.issue_creation_date as issueCreationTime,
+    i.issue_update_date as issueUpdateTime,
+    i.issue_close_date as issueCloseTime,
+    i.created_at as createdAt,
+    i.updated_at as updatedAt,
+    i.clean_code_attribute as cleanCodeAttribute,
+    p.kee as componentKey,
+    i.component_uuid as componentUuid,
+    p.path as filePath,
+    root.kee as projectKey,
+    i.project_uuid as projectUuid,
+    i.issue_type as type,
+    i.quick_fix_available as quickFixAvailable,
+    i.code_variants as codeVariantsString,
+    i.prioritized_rule as prioritizedRule,
+    i.from_sonarqube_update as fromSonarQubeUpdate,
+    i.internal_tags as internalTagsString,
+    <include refid="issueImpactsColumns"/>
+    <include refid="isNewCodeReferenceIssue"/>
+  </sql>
+
    <sql id="issueColumnsInInnerQuery">
     i.kee,
     i.rule_uuid,
@@ -143,6 +182,17 @@
                 javaType="java.util.Set" ofType="Impact">
       <result property="softwareQuality" column="rdi_softwareQuality"/>
       <result property="severity" column="rdi_severity"/>
+    </collection>
+  </resultMap>
+
+  <resultMap id="issueWithoutRuleInfoResultMap" type="IssueWithoutRuleInfo" autoMapping="true">
+    <id property="kee" column="kee"/>
+
+    <collection property="impacts" column="ii_softwareQuality" notNullColumn="ii_softwareQuality"
+                javaType="java.util.Set" ofType="Impact">
+      <result property="softwareQuality" column="ii_softwareQuality"/>
+      <result property="severity" column="ii_severity"/>
+      <result property="manualSeverity" column="ii_manualSeverity"/>
     </collection>
   </resultMap>
 
@@ -290,31 +340,27 @@
     where i.kee=#{kee,jdbcType=VARCHAR}
   </select>
 
-  <select id="scrollNonClosedByComponentUuid" parameterType="String" resultMap="issueResultMap" fetchSize="${_scrollFetchSize}"
+  <select id="scrollNonClosedByComponentUuid" parameterType="String" resultMap="issueWithoutRuleInfoResultMap" fetchSize="${_scrollFetchSize}"
           resultSetType="FORWARD_ONLY" resultOrdered="true">
     select
-    <include refid="issueColumns"/>
+      <include refid="issueColumnsNoRulesColumn"/>
     from issues i
-    inner join rules r on r.uuid=i.rule_uuid
-    inner join components p on p.uuid=i.component_uuid
-    inner join components root on root.uuid=i.project_uuid
-    left join new_code_reference_issues n on i.kee = n.issue_key
-    left outer join issues_impacts ii on i.kee = ii.issue_key
-    left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+      inner join components p on p.uuid=i.component_uuid
+      inner join components root on root.uuid=i.project_uuid
+      left join new_code_reference_issues n on i.kee = n.issue_key
+      left outer join issues_impacts ii on i.kee = ii.issue_key
     where
-    i.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
-    i.status &lt;&gt; 'CLOSED'
+      i.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
+      i.status &lt;&gt; 'CLOSED'
     order by
       i.kee
   </select>
 
-  <select id="scrollClosedByComponentUuid" resultMap="issueResultMap" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY" resultOrdered="true">
+  <select id="scrollClosedByComponentUuid" resultMap="issueWithoutRuleInfoResultMap" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY" resultOrdered="true">
     select
-      <include refid="issueColumns"/>,
+      <include refid="issueColumnsNoRulesColumn"/>,
       ic.change_data as closedChangeData
     from issues i
-    inner join rules r on
-      r.uuid = i.rule_uuid
     inner join components p on
       p.uuid = i.component_uuid
     inner join components root on
@@ -327,8 +373,6 @@
       i.kee = n.issue_key
     left outer join issues_impacts ii on
       i.kee = ii.issue_key
-    left outer join rules_default_impacts rdi on
-      r.uuid = rdi.rule_uuid
     where
       i.component_uuid = #{componentUuid,jdbcType=VARCHAR}
       and i.status = 'CLOSED'

@@ -19,25 +19,15 @@
  */
 package org.sonar.db.issue;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableSet;
-import com.google.protobuf.InvalidProtocolBufferException;
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
@@ -49,76 +39,21 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.lang.String.format;
 import static java.util.stream.Collectors.toUnmodifiableMap;
-import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.longToDate;
 
-public final class IssueDto implements Serializable {
+public final class IssueDto extends IssueWithoutRuleInfoDto {
 
-  public static final int AUTHOR_MAX_SIZE = 255;
-  private static final char STRING_LIST_SEPARATOR = ',';
-  private static final Joiner STRING_LIST_JOINER = Joiner.on(STRING_LIST_SEPARATOR).skipNulls();
-  private static final Splitter STRING_LIST_SPLITTER = Splitter.on(STRING_LIST_SEPARATOR).trimResults().omitEmptyStrings();
-
-  private int type;
-  private String kee;
-  private String componentUuid;
-  private String projectUuid;
-  private String ruleUuid;
-  private String severity;
-  private boolean manualSeverity;
-  private String message;
-  private byte[] messageFormattings;
-  private Integer line;
-  private Double gap;
-  private Long effort;
-  private String status;
-  private String resolution;
-  private String checksum;
-  private String assigneeUuid;
-  private String assigneeLogin;
-  private String authorLogin;
   private String securityStandards;
-  private byte[] locations;
-  private long createdAt;
-  private long updatedAt;
-  private boolean quickFixAvailable;
-  private boolean isNewCodeReferenceIssue;
-  private String ruleDescriptionContextKey;
-  private boolean prioritizedRule;
-  private boolean fromSonarQubeUpdate;
-
-  // functional dates stored as Long
-  private Long issueCreationDate;
-  private Long issueUpdateDate;
-  private Long issueCloseDate;
-
-  /**
-   * Temporary date used only during scan
-   */
-  private Long selectedAt;
 
   // joins
   private String ruleKey;
   private String ruleRepo;
   private boolean isExternal;
   private String language;
-  private String componentKey;
-  private String projectKey;
-  private String filePath;
-  private String tags;
-  private String internalTags;
-  private String codeVariants;
-  // populate only when retrieving closed issue for issue tracking
-  private String closedChangeData;
-
-  private Set<ImpactDto> impacts = new LinkedHashSet<>();
 
   // non-persisted fields
   private Set<ImpactDto> ruleDefaultImpacts = new LinkedHashSet<>();
-  private CleanCodeAttribute cleanCodeAttribute;
   private CleanCodeAttribute ruleCleanCodeAttribute;
 
   public IssueDto() {
@@ -227,208 +162,111 @@ public final class IssueDto implements Serializable {
 
   }
 
-  public String getKey() {
-    return getKee();
-  }
-
-  public String getKee() {
-    return kee;
-  }
-
+  @Override
   public IssueDto setKee(String s) {
-    this.kee = s;
+    super.setKee(s);
     return this;
   }
 
+  @Override
   public IssueDto setComponent(ComponentDto component) {
-    this.componentKey = component.getKey();
-    this.componentUuid = component.uuid();
-    this.filePath = component.path();
+    super.setComponent(component);
     return this;
   }
 
-  /**
-   * The project branch where the issue is located.
-   * Note that the name is misleading - it should be branch.
-   */
+  @Override
   public IssueDto setProject(ComponentDto branch) {
-    this.projectKey = branch.getKey();
-    this.projectUuid = branch.uuid();
+    super.setProject(branch);
     return this;
   }
 
-  public String getRuleUuid() {
-    return ruleUuid;
-  }
-
-  /**
-   * please use setRule(RuleDto rule)
-   */
+  @Override
   public IssueDto setRuleUuid(String ruleUuid) {
-    this.ruleUuid = ruleUuid;
+    super.setRuleUuid(ruleUuid);
     return this;
   }
 
-  @CheckForNull
-  public String getSeverity() {
-    return severity;
-  }
-
+  @Override
   public IssueDto setSeverity(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 10, "Value is too long for issue severity: %s", s);
-    this.severity = s;
+    super.setSeverity(s);
     return this;
   }
 
-  public boolean isManualSeverity() {
-    return manualSeverity;
-  }
-
+  @Override
   public IssueDto setManualSeverity(boolean manualSeverity) {
-    this.manualSeverity = manualSeverity;
+    super.setManualSeverity(manualSeverity);
     return this;
   }
 
-  @CheckForNull
-  public String getMessage() {
-    return message;
-  }
-
+  @Override
   public IssueDto setMessage(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 4000, "Value is too long for issue message: %s", s);
-    this.message = s;
+    super.setMessage(s);
     return this;
   }
 
-  public byte[] getMessageFormattings() {
-    return messageFormattings;
-  }
-
+  @Override
   public IssueDto setMessageFormattings(byte[] messageFormattings) {
-    this.messageFormattings = messageFormattings;
+    super.setMessageFormattings(messageFormattings);
     return this;
   }
 
+  @Override
   public IssueDto setMessageFormattings(@Nullable DbIssues.MessageFormattings messageFormattings) {
-    if (messageFormattings == null) {
-      this.messageFormattings = null;
-    } else {
-      this.messageFormattings = messageFormattings.toByteArray();
-    }
+    super.setMessageFormattings(messageFormattings);
     return this;
   }
 
-  @CheckForNull
-  public DbIssues.MessageFormattings parseMessageFormattings() {
-    if (messageFormattings != null) {
-      try {
-        return DbIssues.MessageFormattings.parseFrom(messageFormattings);
-      } catch (InvalidProtocolBufferException e) {
-        throw new IllegalStateException(format("Fail to read ISSUES.MESSAGE_FORMATTINGS [KEE=%s]", kee), e);
-      }
-    }
-    return null;
-  }
-
-  @CheckForNull
-  public Integer getLine() {
-    return line;
-  }
-
+  @Override
   public IssueDto setLine(@Nullable Integer i) {
-    checkArgument(i == null || i >= 0, "Value of issue line must be positive: %d", i);
-    this.line = i;
+    super.setLine(i);
     return this;
   }
 
-  @CheckForNull
-  public Double getGap() {
-    return gap;
-  }
-
+  @Override
   public IssueDto setGap(@Nullable Double d) {
-    checkArgument(d == null || d >= 0, "Value of issue gap must be positive: %d", d);
-    this.gap = d;
+    super.setGap(d);
     return this;
   }
 
-  @CheckForNull
-  public Long getEffort() {
-    return effort;
-  }
-
+  @Override
   public IssueDto setEffort(@Nullable Long l) {
-    checkArgument(l == null || l >= 0, "Value of issue effort must be positive: %d", l);
-    this.effort = l;
+    super.setEffort(l);
     return this;
   }
 
-  public String getStatus() {
-    return status;
-  }
-
-  @Nullable
-  public IssueStatus getIssueStatus() {
-    return IssueStatus.of(status, resolution);
-  }
-
+  @Override
   public IssueDto setStatus(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 20, "Value is too long for issue status: %s", s);
-    this.status = s;
+    super.setStatus(s);
     return this;
   }
 
-  @CheckForNull
-  public String getResolution() {
-    return resolution;
-  }
-
+  @Override
   public IssueDto setResolution(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 20, "Value is too long for issue resolution: %s", s);
-    this.resolution = s;
+    super.setResolution(s);
     return this;
   }
 
-  @CheckForNull
-  public String getChecksum() {
-    return checksum;
-  }
-
+  @Override
   public IssueDto setChecksum(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 1000, "Value is too long for issue checksum: %s", s);
-    this.checksum = s;
+    super.setChecksum(s);
     return this;
   }
 
-  @CheckForNull
-  public String getAssigneeUuid() {
-    return assigneeUuid;
-  }
-
+  @Override
   public IssueDto setAssigneeUuid(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 255, "Value is too long for issue assigneeUuid: %s", s);
-    this.assigneeUuid = s;
+    super.setAssigneeUuid(s);
     return this;
   }
 
-  @CheckForNull
-  public String getAssigneeLogin() {
-    return assigneeLogin;
-  }
-
+  @Override
   public IssueDto setAssigneeLogin(@Nullable String s) {
-    this.assigneeLogin = s;
+    super.setAssigneeLogin(s);
     return this;
   }
 
-  @CheckForNull
-  public String getAuthorLogin() {
-    return authorLogin;
-  }
-
+  @Override
   public IssueDto setAuthorLogin(@Nullable String s) {
-    checkArgument(s == null || s.length() <= AUTHOR_MAX_SIZE, "Value is too long for issue author login: %s", s);
-    this.authorLogin = s;
+    super.setAuthorLogin(s);
     return this;
   }
 
@@ -441,81 +279,51 @@ public final class IssueDto implements Serializable {
     return RuleDto.deserializeSecurityStandardsString(securityStandards);
   }
 
-  /**
-   * Technical date
-   */
-  public long getCreatedAt() {
-    return createdAt;
-  }
-
+  @Override
   public IssueDto setCreatedAt(long createdAt) {
-    this.createdAt = createdAt;
+    super.setCreatedAt(createdAt);
     return this;
   }
 
-  /**
-   * Technical date
-   */
-  public long getUpdatedAt() {
-    return updatedAt;
-  }
-
+  @Override
   public IssueDto setUpdatedAt(long updatedAt) {
-    this.updatedAt = updatedAt;
+    super.setUpdatedAt(updatedAt);
     return this;
   }
 
-  public Long getIssueCreationTime() {
-    return issueCreationDate;
-  }
-
+  @Override
   public IssueDto setIssueCreationTime(Long time) {
-    this.issueCreationDate = time;
+    super.setIssueCreationTime(time);
     return this;
   }
 
-  public Date getIssueCreationDate() {
-    return longToDate(issueCreationDate);
-  }
-
+  @Override
   public IssueDto setIssueCreationDate(@Nullable Date d) {
-    this.issueCreationDate = dateToLong(d);
+    super.setIssueCreationDate(d);
     return this;
   }
 
-  public Long getIssueUpdateTime() {
-    return issueUpdateDate;
-  }
-
+  @Override
   public IssueDto setIssueUpdateTime(Long time) {
-    this.issueUpdateDate = time;
+    super.setIssueUpdateTime(time);
     return this;
   }
 
-  public Date getIssueUpdateDate() {
-    return longToDate(issueUpdateDate);
-  }
-
+  @Override
   public IssueDto setIssueUpdateDate(@Nullable Date d) {
-    this.issueUpdateDate = dateToLong(d);
+    super.setIssueUpdateDate(d);
     return this;
   }
 
-  public Long getIssueCloseTime() {
-    return issueCloseDate;
-  }
-
+  @Override
   public IssueDto setIssueCloseTime(Long time) {
-    this.issueCloseDate = time;
+    super.setIssueCloseTime(time);
     return this;
   }
 
-  public Date getIssueCloseDate() {
-    return longToDate(issueCloseDate);
-  }
-
+  @Override
   public IssueDto setIssueCloseDate(@Nullable Date d) {
-    this.issueCloseDate = dateToLong(d);
+    super.setIssueCloseDate(d);
     return this;
   }
 
@@ -565,81 +373,33 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
-  public String getComponentKey() {
-    return componentKey;
-  }
-
-  /**
-   * Should only be used to persist in E/S
-   * <p/>
-   * Please use {@link #setComponent(ComponentDto)} instead
-   */
+  @Override
   public IssueDto setComponentKey(String componentKey) {
-    this.componentKey = componentKey;
+    super.setComponentKey(componentKey);
     return this;
   }
 
-  /**
-   * Can be null on Views or Devs
-   */
-  @CheckForNull
-  public String getComponentUuid() {
-    return componentUuid;
-  }
-
-  /**
-   * Should only be used to persist in E/S
-   * <p/>
-   * Please use {@link #setComponent(ComponentDto)} instead
-   */
+  @Override
   public IssueDto setComponentUuid(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 50, "Value is too long for column ISSUES.COMPONENT_UUID: %s", s);
-    this.componentUuid = s;
+    super.setComponentUuid(s);
     return this;
   }
 
-  /**
-   * Used by the issue tracking mechanism, but it should used the component uuid instead
-   */
-  public String getProjectKey() {
-    return projectKey;
-  }
-
-  /**
-   * Should only be used to persist in E/S
-   * <p/>
-   * Please use {@link #setProject(ComponentDto)} instead
-   */
+  @Override
   public IssueDto setProjectKey(String projectKey) {
-    this.projectKey = projectKey;
+    super.setProjectKey(projectKey);
     return this;
   }
 
-  /**
-   * The project branch where the issue is located.
-   * Note that the name is misleading - it should be 'branchUuid'.
-   */
-  public String getProjectUuid() {
-    return projectUuid;
-  }
-
-  /**
-   * This is branch uuid, not a project uuid. The naming is wrong, the javadoc is right.
-   * Please use {@link #setProject(ComponentDto)} instead
-   */
+  @Override
   public IssueDto setProjectUuid(String s) {
-    checkArgument(s.length() <= 50, "Value is too long for column ISSUES.PROJECT_UUID: %s", s);
-    this.projectUuid = s;
+    super.setProjectUuid(s);
     return this;
   }
 
-  @CheckForNull
-  public Long getSelectedAt() {
-    return selectedAt;
-  }
-
+  @Override
   public IssueDto setSelectedAt(@Nullable Long d) {
-    this.selectedAt = d;
+    super.setSelectedAt(d);
     return this;
   }
 
@@ -654,156 +414,81 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
-  /**
-   * Should only be used to persist in E/S
-   * <p/>
-   * Please use {@link #setProject(ComponentDto)} instead
-   */
-  public String getFilePath() {
-    return filePath;
-  }
-
-  /**
-   * Should only be used to persist in E/S
-   * <p/>
-   * Please use {@link #setProject(ComponentDto)} instead
-   */
+  @Override
   public IssueDto setFilePath(String filePath) {
-    this.filePath = filePath;
+    super.setFilePath(filePath);
     return this;
   }
 
-  public Set<String> getTags() {
-    return ImmutableSet.copyOf(STRING_LIST_SPLITTER.split(tags == null ? "" : tags));
-  }
-
+  @Override
   public IssueDto setTags(@Nullable Collection<String> tags) {
-    if (tags == null || tags.isEmpty()) {
-      setTagsString(null);
-    } else {
-      setTagsString(STRING_LIST_JOINER.join(tags));
-    }
+    super.setTags(tags);
     return this;
   }
 
+  @Override
   public IssueDto setTagsString(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 4000, "Value is too long for column ISSUES.TAGS: %s", s);
-    this.tags = s;
+    super.setTagsString(s);
     return this;
   }
 
-  public String getTagsString() {
-    return tags;
-  }
-
-  public Set<String> getInternalTags() {
-    return ImmutableSet.copyOf(STRING_LIST_SPLITTER.split(internalTags == null ? "" : internalTags));
-  }
-
-  public String getInternalTagsString() {
-    return internalTags;
-  }
-
+  @Override
   public IssueDto setInternalTags(@Nullable Collection<String> internalTags) {
-    if (internalTags == null || internalTags.isEmpty()) {
-      setInternalTagsString(null);
-    } else {
-      setInternalTagsString(STRING_LIST_JOINER.join(internalTags));
-    }
+    super.setInternalTags(internalTags);
     return this;
   }
 
+  @Override
   public IssueDto setInternalTagsString(@Nullable String internalTags) {
-    checkArgument(internalTags == null || internalTags.length() <= 4000,
-      "Value is too long for column ISSUES.INTERNAL_TAGS: %s", internalTags);
-    this.internalTags = internalTags;
+    super.setInternalTagsString(internalTags);
     return this;
   }
 
-  public Set<String> getCodeVariants() {
-    return ImmutableSet.copyOf(STRING_LIST_SPLITTER.split(codeVariants == null ? "" : codeVariants));
-  }
-
-  public String getCodeVariantsString() {
-    return codeVariants;
-  }
-
+  @Override
   public IssueDto setCodeVariants(@Nullable Collection<String> codeVariants) {
-    if (codeVariants == null || codeVariants.isEmpty()) {
-      setCodeVariantsString(null);
-    } else {
-      setCodeVariantsString(STRING_LIST_JOINER.join(codeVariants));
-    }
+    super.setCodeVariants(codeVariants);
     return this;
   }
 
+  @Override
   public IssueDto setCodeVariantsString(@Nullable String codeVariants) {
-    checkArgument(codeVariants == null || codeVariants.length() <= 4000,
-      "Value is too long for column ISSUES.CODE_VARIANTS: %codeVariants", codeVariants);
-    this.codeVariants = codeVariants;
+    super.setCodeVariantsString(codeVariants);
     return this;
   }
 
-  @CheckForNull
-  public byte[] getLocations() {
-    return locations;
-  }
-
-  @CheckForNull
-  public DbIssues.Locations parseLocations() {
-    if (locations != null) {
-      try {
-        return DbIssues.Locations.parseFrom(locations);
-      } catch (InvalidProtocolBufferException e) {
-        throw new IllegalStateException(format("Fail to read ISSUES.LOCATIONS [KEE=%s]", kee), e);
-      }
-    }
-    return null;
-  }
-
+  @Override
   public IssueDto setLocations(@Nullable byte[] locations) {
-    this.locations = locations;
+    super.setLocations(locations);
     return this;
   }
 
+  @Override
   public IssueDto setLocations(@Nullable DbIssues.Locations locations) {
-    if (locations == null) {
-      this.locations = null;
-    } else {
-      this.locations = locations.toByteArray();
-    }
+    super.setLocations(locations);
     return this;
   }
 
-  public boolean isQuickFixAvailable() {
-    return quickFixAvailable;
-  }
-
+  @Override
   public IssueDto setQuickFixAvailable(boolean quickFixAvailable) {
-    this.quickFixAvailable = quickFixAvailable;
+    super.setQuickFixAvailable(quickFixAvailable);
     return this;
   }
 
-  public boolean isNewCodeReferenceIssue() {
-    return isNewCodeReferenceIssue;
-  }
-
+  @Override
   public IssueDto setIsNewCodeReferenceIssue(boolean isNewCodeReferenceIssue) {
-    this.isNewCodeReferenceIssue = isNewCodeReferenceIssue;
+    super.setIsNewCodeReferenceIssue(isNewCodeReferenceIssue);
     return this;
   }
 
-  public int getType() {
-    return type;
-  }
-
+  @Override
   public IssueDto setType(int type) {
-    this.type = type;
+    super.setType(type);
     return this;
   }
 
+  @Override
   public IssueDto setType(RuleType type) {
-    this.type = type.getDbConstant();
+    super.setType(type);
     return this;
   }
 
@@ -815,8 +500,9 @@ public final class IssueDto implements Serializable {
     return ruleCleanCodeAttribute;
   }
 
+  @Override
   public IssueDto setCleanCodeAttribute(CleanCodeAttribute cleanCodeAttribute) {
-    this.cleanCodeAttribute = cleanCodeAttribute;
+    super.setCleanCodeAttribute(cleanCodeAttribute);
     return this;
   }
 
@@ -825,35 +511,15 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
-  public Optional<String> getClosedChangeData() {
-    return Optional.ofNullable(closedChangeData);
-  }
-
-  public Optional<String> getOptionalRuleDescriptionContextKey() {
-    return Optional.ofNullable(ruleDescriptionContextKey);
-  }
-
+  @Override
   public IssueDto setRuleDescriptionContextKey(@Nullable String ruleDescriptionContextKey) {
-    this.ruleDescriptionContextKey = ruleDescriptionContextKey;
+    super.setRuleDescriptionContextKey(ruleDescriptionContextKey);
     return this;
   }
 
-  /**
-   * Return impacts defined on this issue.
-   *
-   * @return Collection of impacts
-   */
-  public Set<ImpactDto> getImpacts() {
-    return impacts;
-  }
-
+  @Override
   public IssueDto addImpact(ImpactDto impact) {
-    impacts.stream().filter(impactDto -> impactDto.getSoftwareQuality() == impact.getSoftwareQuality()).findFirst()
-      .ifPresent(impactDto -> {
-        throw new IllegalStateException(format("Impact already defined on issue for Software Quality [%s]", impact.getSoftwareQuality()));
-      });
-
-    impacts.add(impact);
+    super.addImpact(impact);
     return this;
   }
 
@@ -862,13 +528,9 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
+  @Override
   public IssueDto replaceAllImpacts(Collection<ImpactDto> newImpacts) {
-    Set<SoftwareQuality> newSoftwareQuality = newImpacts.stream().map(ImpactDto::getSoftwareQuality).collect(Collectors.toSet());
-    if (newSoftwareQuality.size() != newImpacts.size()) {
-      throw new IllegalStateException("Impacts must have unique Software Quality values");
-    }
-    impacts.clear();
-    impacts.addAll(newImpacts);
+    super.replaceAllImpacts(newImpacts);
     return this;
   }
 
@@ -890,27 +552,16 @@ public final class IssueDto implements Serializable {
       .collect(toUnmodifiableMap(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity));
   }
 
-  public boolean isPrioritizedRule() {
-    return prioritizedRule;
-  }
-
+  @Override
   public IssueDto setPrioritizedRule(boolean isBlockerRule) {
-    this.prioritizedRule = isBlockerRule;
-    return this;
-  }
-
-  public boolean isFromSonarQubeUpdate() {
-    return fromSonarQubeUpdate;
-  }
-
-  public IssueDto setFromSonarQubeUpdate(boolean fromSonarQubeUpdate) {
-    this.fromSonarQubeUpdate = fromSonarQubeUpdate;
+    super.setPrioritizedRule(isBlockerRule);
     return this;
   }
 
   @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  public IssueDto setFromSonarQubeUpdate(boolean fromSonarQubeUpdate) {
+    super.setFromSonarQubeUpdate(fromSonarQubeUpdate);
+    return this;
   }
 
   public DefaultIssue toDefaultIssue() {

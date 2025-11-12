@@ -28,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -77,6 +78,14 @@ public class RuleRepositoryRule extends ExternalResource implements RuleReposito
     DumbRule rule = new DumbRule(key);
     rule.setUuid(key.rule());
     rulesByKey.put(key, rule);
+    rulesByUuid.put(rule.getUuid(), rule);
+    return rule;
+  }
+
+  public DumbRule add(RuleDto ruleDto) {
+    DumbRule rule = new DumbRule(ruleDto.getKey());
+    rule.setUuid(ruleDto.getUuid());
+    rulesByKey.put(rule.getKey(), rule);
     rulesByUuid.put(rule.getUuid(), rule);
     return rule;
   }

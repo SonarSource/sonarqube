@@ -277,26 +277,9 @@ class IssueMapperIT {
     underTest.scrollClosedByComponentUuid(component.uuid(), NO_FILTERING_ON_CLOSE_DATE, resultHandler);
 
     assertThat(resultHandler.issues).hasSize(1);
-    IssueDto issue = resultHandler.issues.iterator().next();
+    IssueWithoutRuleInfoDto issue = resultHandler.issues.iterator().next();
     assertThat(issue.getKey()).isEqualTo(issue.getKey());
     assertThat(issue.getClosedChangeData()).contains(changeDto.getChangeData());
-  }
-
-  @ParameterizedTest
-  @MethodSource("closedIssuesSupportedRuleTypes")
-  void scrollClosedByComponentUuid_does_not_return_closed_issues_of_non_existing_rule(RuleType ruleType) {
-    ComponentDto component = randomComponent();
-    IssueDto issueWithRule = insertNewClosedIssue(component, ruleType);
-    IssueChangeDto issueChange = insertToClosedDiff(issueWithRule);
-    IssueDto issueWithoutRule = insertNewClosedIssue(component, new RuleDto().setType(ruleType).setUuid("uuid-50"));
-    insertToClosedDiff(issueWithoutRule);
-
-    RecorderResultHandler resultHandler = new RecorderResultHandler();
-    underTest.scrollClosedByComponentUuid(component.uuid(), NO_FILTERING_ON_CLOSE_DATE, resultHandler);
-
-    assertThat(resultHandler.issues)
-      .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
-      .containsOnly(tuple(issueWithRule.getKey(), issueChange.getChangeData()));
   }
 
   @ParameterizedTest
@@ -314,7 +297,7 @@ class IssueMapperIT {
     underTest.scrollClosedByComponentUuid(component.uuid(), NO_FILTERING_ON_CLOSE_DATE, resultHandler);
 
     assertThat(resultHandler.issues)
-      .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
+      .extracting(IssueWithoutRuleInfoDto::getKey, t -> t.getClosedChangeData().get())
       .containsOnly(tuple(issue.getKey(), issueChange.getChangeData()));
   }
 
@@ -330,7 +313,7 @@ class IssueMapperIT {
     underTest.scrollClosedByComponentUuid(component.uuid(), NO_FILTERING_ON_CLOSE_DATE, resultHandler);
 
     assertThat(resultHandler.issues)
-      .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
+      .extracting(IssueWithoutRuleInfoDto::getKey, t -> t.getClosedChangeData().get())
       .containsOnly(tuple(issueWithLineDiff.getKey(), issueChange.getChangeData()));
   }
 
@@ -347,7 +330,7 @@ class IssueMapperIT {
     underTest.scrollClosedByComponentUuid(component.uuid(), NO_FILTERING_ON_CLOSE_DATE, resultHandler);
 
     assertThat(resultHandler.issues)
-      .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
+      .extracting(IssueWithoutRuleInfoDto::getKey, t -> t.getClosedChangeData().get())
       .containsOnly(
         tuple(issue.getKey(), issueChange.getChangeData()),
         tuple(securityHotspotIssue.getKey(), hotspotChangedData.getChangeData()));
@@ -366,7 +349,7 @@ class IssueMapperIT {
     underTest.scrollClosedByComponentUuid(component.uuid(), NO_FILTERING_ON_CLOSE_DATE, resultHandler);
 
     assertThat(resultHandler.issues).hasSize(1);
-    IssueDto issue = resultHandler.issues.iterator().next();
+    IssueWithoutRuleInfoDto issue = resultHandler.issues.iterator().next();
     assertThat(issue.getKey()).isEqualTo(issue.getKey());
     assertThat(issue.getClosedChangeData()).contains(changeDto.getChangeData());
   }
@@ -388,7 +371,7 @@ class IssueMapperIT {
     underTest.scrollClosedByComponentUuid(component.uuid(), 4_000_000L, resultHandler);
 
     assertThat(resultHandler.issues)
-      .extracting(IssueDto::getKey)
+      .extracting(IssueWithoutRuleInfoDto::getKey)
       .containsOnly(issues[3].getKey());
 
     resultHandler = new RecorderResultHandler();
@@ -400,21 +383,21 @@ class IssueMapperIT {
     underTest.scrollClosedByComponentUuid(component.uuid(), 3_999_999L, resultHandler);
 
     assertThat(resultHandler.issues)
-      .extracting(IssueDto::getKey)
+      .extracting(IssueWithoutRuleInfoDto::getKey)
       .containsOnly(issues[3].getKey(), issues[1].getKey());
 
     resultHandler = new RecorderResultHandler();
     underTest.scrollClosedByComponentUuid(component.uuid(), 2_999_999L, resultHandler);
 
     assertThat(resultHandler.issues)
-      .extracting(IssueDto::getKey)
+      .extracting(IssueWithoutRuleInfoDto::getKey)
       .containsOnly(issues[3].getKey(), issues[1].getKey(), issues[2].getKey());
 
     resultHandler = new RecorderResultHandler();
     underTest.scrollClosedByComponentUuid(component.uuid(), 1L, resultHandler);
 
     assertThat(resultHandler.issues)
-      .extracting(IssueDto::getKey)
+      .extracting(IssueWithoutRuleInfoDto::getKey)
       .containsOnly(issues[3].getKey(), issues[1].getKey(), issues[2].getKey(), issues[0].getKey());
   }
 
@@ -436,7 +419,7 @@ class IssueMapperIT {
 
     assertThat(resultHandler.issues)
       .hasSize(1)
-      .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
+      .extracting(IssueWithoutRuleInfoDto::getKey, t -> t.getClosedChangeData().get())
       // we are interested only in the latest closed issue change data
       .containsExactly(tuple(issue.getKey(), changes[2].getChangeData()));
   }
@@ -459,7 +442,7 @@ class IssueMapperIT {
 
     assertThat(resultHandler.issues)
       .hasSize(1)
-      .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
+      .extracting(IssueWithoutRuleInfoDto::getKey, t -> t.getClosedChangeData().get())
       .containsExactly(
         // we are interested only in the latest closed issue change data
         tuple(issue.getKey(), changes[2].getChangeData()));
@@ -649,15 +632,15 @@ class IssueMapperIT {
       .setUpdatedAt(system2.now());
   }
 
-  private static class RecorderResultHandler implements ResultHandler<IssueDto> {
-    private final List<IssueDto> issues = new ArrayList<>();
+  private static class RecorderResultHandler implements ResultHandler<IssueWithoutRuleInfoDto> {
+    private final List<IssueWithoutRuleInfoDto> issues = new ArrayList<>();
 
     @Override
-    public void handleResult(ResultContext<? extends IssueDto> resultContext) {
+    public void handleResult(ResultContext<? extends IssueWithoutRuleInfoDto> resultContext) {
       issues.add(resultContext.getResultObject());
     }
 
-    public List<IssueDto> getIssues() {
+    public List<IssueWithoutRuleInfoDto> getIssues() {
       return issues;
     }
   }
