@@ -33,6 +33,7 @@ class JiraWorkItemDtoTest {
       .setJiraIssueKey("PROJ-123")
       .setJiraIssueUrl("https://jira.example.com/browse/PROJ-123")
       .setJiraProjectBindingId("binding-uuid-1")
+      .setCreatedBy("user-uuid-1")
       .setCreatedAt(1000L)
       .setUpdatedAt(2000L);
 
@@ -41,6 +42,7 @@ class JiraWorkItemDtoTest {
     assertThat(dto.getJiraIssueKey()).isEqualTo("PROJ-123");
     assertThat(dto.getJiraIssueUrl()).isEqualTo("https://jira.example.com/browse/PROJ-123");
     assertThat(dto.getJiraProjectBindingId()).isEqualTo("binding-uuid-1");
+    assertThat(dto.getCreatedBy()).isEqualTo("user-uuid-1");
     assertThat(dto.getCreatedAt()).isEqualTo(1000L);
     assertThat(dto.getUpdatedAt()).isEqualTo(2000L);
   }
@@ -72,6 +74,7 @@ class JiraWorkItemDtoTest {
       .setJiraIssueKey("PROJ-123")
       .setJiraIssueUrl("https://jira.example.com/browse/PROJ-123")
       .setJiraProjectBindingId("binding-uuid-1")
+      .setCreatedBy("user-uuid-1")
       .setCreatedAt(1000L)
       .setUpdatedAt(2000L);
 
@@ -83,6 +86,7 @@ class JiraWorkItemDtoTest {
       .contains("PROJ-123")
       .contains("https://jira.example.com/browse/PROJ-123")
       .contains("binding-uuid-1")
+      .contains("user-uuid-1")
       .contains("1000")
       .contains("2000");
   }

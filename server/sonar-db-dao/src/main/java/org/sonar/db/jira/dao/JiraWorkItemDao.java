@@ -95,6 +95,14 @@ public class JiraWorkItemDao implements Dao {
     return getMapper(dbSession).countAll();
   }
 
+  public int countDistinctResourcesByType(DbSession dbSession, String resourceType) {
+    return getMapper(dbSession).countDistinctResourcesByType(resourceType);
+  }
+
+  public int countDistinctCreators(DbSession dbSession) {
+    return getMapper(dbSession).countDistinctCreators();
+  }
+
   private static JiraWorkItemMapper getMapper(DbSession dbSession) {
     return dbSession.getMapper(JiraWorkItemMapper.class);
   }

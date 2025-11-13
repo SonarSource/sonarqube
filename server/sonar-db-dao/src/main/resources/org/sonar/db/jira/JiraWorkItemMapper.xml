@@ -10,7 +10,8 @@
     jwi.jira_issue_id as jiraIssueId,
     jwi.jira_issue_key as jiraIssueKey,
     jwi.jira_issue_url as jiraIssueUrl,
-    jwi.jira_project_binding_id as jiraProjectBindingId
+    jwi.jira_project_binding_id as jiraProjectBindingId,
+    jwi.created_by as createdBy
   </sql>
 
   <select id="findById" parameterType="string" resultType="org.sonar.db.jira.dto.JiraWorkItemDto">
@@ -42,7 +43,8 @@
       jira_issue_id,
       jira_issue_key,
       jira_issue_url,
-      jira_project_binding_id
+      jira_project_binding_id,
+      created_by
     )
     VALUES (
       #{dto.id, jdbcType=VARCHAR},
@@ -51,7 +53,8 @@
       #{dto.jiraIssueId, jdbcType=VARCHAR},
       #{dto.jiraIssueKey, jdbcType=VARCHAR},
       #{dto.jiraIssueUrl, jdbcType=VARCHAR},
-      #{dto.jiraProjectBindingId, jdbcType=VARCHAR}
+      #{dto.jiraProjectBindingId, jdbcType=VARCHAR},
+      #{dto.createdBy, jdbcType=VARCHAR}
     )
   </insert>
 
@@ -62,6 +65,7 @@
       jira_issue_key = #{dto.jiraIssueKey, jdbcType=VARCHAR},
       jira_issue_url = #{dto.jiraIssueUrl, jdbcType=VARCHAR},
       jira_project_binding_id = #{dto.jiraProjectBindingId, jdbcType=VARCHAR},
+      created_by = #{dto.createdBy, jdbcType=VARCHAR},
       updated_at = #{dto.updatedAt, jdbcType=BIGINT}
     WHERE
       id = #{dto.id, jdbcType=VARCHAR}
@@ -101,6 +105,18 @@
   <select id="countAll" resultType="int">
     SELECT COUNT(1)
     FROM jira_work_items
+  </select>
+
+  <select id="countDistinctResourcesByType" parameterType="String" resultType="int">
+    SELECT COUNT(DISTINCT jwir.resource_id)
+    FROM jira_work_items_resources jwir
+    WHERE jwir.resource_type = #{resourceType, jdbcType=VARCHAR}
+  </select>
+
+  <select id="countDistinctCreators" resultType="int">
+    SELECT COUNT(DISTINCT jwi.created_by)
+    FROM jira_work_items jwi
+    WHERE jwi.created_by IS NOT NULL
   </select>
 
 </mapper>

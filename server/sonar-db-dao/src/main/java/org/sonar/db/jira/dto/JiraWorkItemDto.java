@@ -30,6 +30,7 @@ public final class JiraWorkItemDto implements Serializable {
   private String jiraIssueKey;
   private String jiraIssueUrl;
   private String jiraProjectBindingId;
+  private String createdBy;
 
   private long createdAt;
   private long updatedAt;
@@ -102,6 +103,16 @@ public final class JiraWorkItemDto implements Serializable {
     return this;
   }
 
+  @CheckForNull
+  public String getCreatedBy() {
+    return createdBy;
+  }
+
+  public JiraWorkItemDto setCreatedBy(@Nullable String createdBy) {
+    this.createdBy = createdBy;
+    return this;
+  }
+
   @Override
   public String toString() {
     return "JiraWorkItemDto{" +
@@ -112,6 +123,7 @@ public final class JiraWorkItemDto implements Serializable {
       ", jiraIssueKey='" + jiraIssueKey + '\'' +
       ", jiraIssueUrl='" + jiraIssueUrl + '\'' +
       ", jiraProjectBindingId='" + jiraProjectBindingId + '\'' +
+      ", createdBy='" + createdBy + '\'' +
       '}';
   }
 

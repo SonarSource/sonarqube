@@ -57,4 +57,8 @@ public interface JiraWorkItemMapper {
 
   int countAll();
 
+  int countDistinctResourcesByType(String resourceType);
+
+  int countDistinctCreators();
+
 }
