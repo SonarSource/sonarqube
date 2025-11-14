@@ -37,7 +37,7 @@ If you enter '.', the field will be left blank.
 Country Name (2-letter code) [CH]:
 State or Province Name (full name) [Geneva]:
 Locality (e.g. city name) [Geneva]:
-Organization (e.g. company name) [SonarSource SA]:
+Organization (e.g. company name) [SonarSource Sàrl]:
 Common Name (your.domain.com) [localhost]:
 ```
 
@@ -68,7 +68,7 @@ $ openssl req -new -keyout server.key -out server.csr -nodes -newkey rsa:4096 -c
   Country Name (2-letter code) [CH]:
   State or Province Name (full name) [Geneva]:
   Locality (e.g. city name) [Geneva]:
-  Organization (e.g. company name) [SonarSource SA]:
+  Organization (e.g. company name) [SonarSource Sàrl]:
   Common Name (your.domain.com) [localhost]:
 ```
 
@@ -80,7 +80,7 @@ verify OK
 Certificate Request:
     Data:
         Version: 1 (0x0)
-        Subject: C = CH, ST = Geneva, L = Geneva, O = SonarSource SA, CN = localhost
+        Subject: C = CH, ST = Geneva, L = Geneva, O = SonarSource Sàrl, CN = localhost
         Subject Public Key Info:
             Public Key Algorithm: rsaEncryption
                 RSA Public-Key: (4096 bit)
@@ -169,7 +169,7 @@ We'll sign it to be valid for 10years (3650)
 ```bash
 $ openssl x509 -req -days 3650 -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.pem -sha256 -extfile v3.ext
 Signature ok
-subject=C = CH, ST = Geneva, L = Geneva, O = SonarSource SA, CN = localhost
+subject=C = CH, ST = Geneva, L = Geneva, O = SonarSource Sàrl, CN = localhost
 Getting CA Private Key
 ```
 
@@ -183,11 +183,11 @@ Certificate:
         Serial Number:
             d5:c5:2a:c2:c8:f6:43:c7
         Signature Algorithm: sha256WithRSAEncryption
-        Issuer: C = CH, ST = Geneva, L = Geneva, O = SonarSource SA, CN = SonarSource SA
+        Issuer: C = CH, ST = Geneva, L = Geneva, O = SonarSource Sàrl, CN = SonarSource Sàrl
         Validity
             Not Before: Mar 17 14:12:29 2020 GMT
             Not After : Mar 15 14:12:29 2030 GMT
-        Subject: C = CH, ST = Geneva, L = Geneva, O = SonarSource SA, CN = localhost
+        Subject: C = CH, ST = Geneva, L = Geneva, O = SonarSource Sàrl, CN = localhost
         Subject Public Key Info:
             Public Key Algorithm: rsaEncryption
                 RSA Public-Key: (4096 bit)
@@ -289,8 +289,8 @@ Since we don't need to add the key of the certificate (only required to sign, no
 $ keytool -import -trustcacerts -alias server-ca -keystore client-truststore.p12 -file ca.crt
 Enter keystore password: pwdClientWithServerCA 
 Re-enter new password: pwdClientWithServerCA
-Owner: CN=SonarSource, O=SonarSource SA, L=Geneva, ST=Geneva, C=CH
-Issuer: CN=SonarSource, O=SonarSource SA, L=Geneva, ST=Geneva, C=CH
+Owner: CN=SonarSource, O=SonarSource Sàrl, L=Geneva, ST=Geneva, C=CH
+Issuer: CN=SonarSource, O=SonarSource Sàrl, L=Geneva, ST=Geneva, C=CH
 Serial number: ed8bcadd4888ffac
 Valid from: Sat Sep 15 08:10:22 CEST 2018 until: Tue Sep 12 08:10:22 CEST 2028
 Certificate fingerprints:
@@ -354,7 +354,7 @@ In this use case, the extensions are not the same, so we'll use openssl-client-a
 One line to generate both the key `ca-lient-auth.key` and the CA certificate `ca-client-auth.crt`
 
 ```bash
-openssl req -newkey rsa:4096 -nodes -keyout ca-client-auth.key -new -x509 -days 3650 -sha256 -extensions ca_extensions -out ca-client-auth.crt -subj '/C=CH/ST=Geneva/L=Geneva/O=SonarSource SA/CN=SonarSource/' -config ./openssl-client-auth.conf
+openssl req -newkey rsa:4096 -nodes -keyout ca-client-auth.key -new -x509 -days 3650 -sha256 -extensions ca_extensions -out ca-client-auth.crt -subj '/C=CH/ST=Geneva/L=Geneva/O=SonarSource Sàrl/CN=SonarSource/' -config ./openssl-client-auth.conf
 Generating a 4096 bit RSA private key
 ...................................++
 ............................................................................................................................................................................................................................................................++
@@ -365,7 +365,7 @@ writing new private key to 'ca-client-auth.key'
 
 For the certificate, the Common Name is used to identify the user
 ```bash
-$ openssl req -new -keyout client.key -out client.csr -nodes -newkey rsa:4096 -subj '/C=CH/ST=Geneva/L=Geneva/O=SonarSource SA/CN=Julien Henry/' -config ./openssl-client-auth.conf
+$ openssl req -new -keyout client.key -out client.csr -nodes -newkey rsa:4096 -subj '/C=CH/ST=Geneva/L=Geneva/O=SonarSource Sàrl/CN=Julien Henry/' -config ./openssl-client-auth.conf
 Generating a 4096 bit RSA private key
 ..............................................++
 ................++
@@ -377,7 +377,7 @@ Let's sign this certificate
 ```bash
 $ openssl x509 -req -days 3650 -in client.csr -CA ca-client-auth.crt -CAkey ca-client-auth.key -CAcreateserial -out client.pem -sha256
 Signature ok
-subject=C = CH, ST = Geneva, L = Geneva, O = SonarSource SA, CN = Julien Henry
+subject=C = CH, ST = Geneva, L = Geneva, O = SonarSource Sàrl, CN = Julien Henry
 Getting CA Private Key
 ```
 
@@ -396,8 +396,8 @@ Now we'll generate the `server-with-client-ca.p12` file that will have the CA ce
 $ keytool -import -trustcacerts -alias client-ca -keystore server-with-client-ca.p12 -file ca-client-auth.crt
 Enter keystore password: pwdServerWithClientCA 
 Re-enter new password: pwdServerWithClientCA
-Owner: CN=SonarSource, O=SonarSource SA, L=Geneva, ST=Geneva, C=CH
-Issuer: CN=SonarSource, O=SonarSource SA, L=Geneva, ST=Geneva, C=CH
+Owner: CN=SonarSource, O=SonarSource Sàrl, L=Geneva, ST=Geneva, C=CH
+Issuer: CN=SonarSource, O=SonarSource Sàrl, L=Geneva, ST=Geneva, C=CH
 Serial number: ed8bcadd4888ffac
 Valid from: Sat Sep 15 08:10:22 CEST 2018 until: Tue Sep 12 08:10:22 CEST 2028
 Certificate fingerprints:
