@@ -32,7 +32,7 @@ import org.sonar.ce.task.projectanalysis.scm.ScmInfo;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepository;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.db.issue.IssueDto;
+import org.sonar.db.issue.IssueWithoutRuleInfoDto;
 import org.sonar.db.user.UserIdDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 
@@ -75,7 +75,7 @@ public class IssueAssigner extends IssueVisitor {
     Optional<String> scmAuthor = guessScmAuthor(issue, component);
 
     if (scmAuthor.isPresent()) {
-      if (scmAuthor.get().length() <= IssueDto.AUTHOR_MAX_SIZE) {
+      if (scmAuthor.get().length() <= IssueWithoutRuleInfoDto.AUTHOR_MAX_SIZE) {
         issueUpdater.setNewAuthor(issue, scmAuthor.get(), changeContext);
       } else {
         LOGGER.debug("SCM account '{}' is too long to be stored as issue author", scmAuthor.get());
