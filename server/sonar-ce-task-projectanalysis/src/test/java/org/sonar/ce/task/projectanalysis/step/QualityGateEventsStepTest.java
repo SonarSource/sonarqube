@@ -187,12 +187,13 @@ public class QualityGateEventsStepTest {
     assertThat(collectionCaptor.getValue().iterator().next()).isSameAs(notification);
     assertThat(notification).isInstanceOf(QGChangeNotification.class);
     assertThat(notification.getType()).isEqualTo("alerts");
-    assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getKey());
-    assertThat(notification.getFieldValue("projectName")).isEqualTo(PROJECT_COMPONENT.getName());
-    assertThat(notification.getFieldValue("projectVersion")).isEqualTo(PROJECT_COMPONENT.getProjectAttributes().getProjectVersion());
-    assertThat(notification.getFieldValue("branch")).isNull();
-    assertThat(notification.getFieldValue("alertLevel")).isEqualTo(rawAlterStatus.name());
-    assertThat(notification.getFieldValue("alertName")).isEqualTo(expectedLabel);
+    assertThat(notification.getFieldValue(QGChangeNotification.FIELD_PROJECT_KEY)).isEqualTo(PROJECT_COMPONENT.getKey());
+    assertThat(notification.getFieldValue(QGChangeNotification.FIELD_PROJECT_ID)).isEqualTo(PROJECT_COMPONENT.getUuid());
+    assertThat(notification.getFieldValue(QGChangeNotification.FIELD_PROJECT_NAME)).isEqualTo(PROJECT_COMPONENT.getName());
+    assertThat(notification.getFieldValue(QGChangeNotification.FIELD_PROJECT_VERSION)).isEqualTo(PROJECT_COMPONENT.getProjectAttributes().getProjectVersion());
+    assertThat(notification.getFieldValue(QGChangeNotification.FIELD_BRANCH)).isNull();
+    assertThat(notification.getFieldValue(QGChangeNotification.FIELD_ALERT_LEVEL)).isEqualTo(rawAlterStatus.name());
+    assertThat(notification.getFieldValue(QGChangeNotification.FIELD_ALERT_NAME)).isEqualTo(expectedLabel);
   }
 
   @Test
@@ -238,34 +239,12 @@ public class QualityGateEventsStepTest {
     verify(notificationService).deliver(notificationArgumentCaptor.capture());
     Notification notification = notificationArgumentCaptor.getValue();
     assertThat(notification.getType()).isEqualTo("alerts");
-    assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getKey());
-    assertThat(notification.getFieldValue("projectName")).isEqualTo(PROJECT_COMPONENT.getName());
-    assertThat(notification.getFieldValue("projectVersion")).isEqualTo(PROJECT_COMPONENT.getProjectAttributes().getProjectVersion());
-    assertThat(notification.getFieldValue("branch")).isNull();
-    assertThat(notification.getFieldValue("alertLevel")).isEqualTo(newQualityGateStatus.getStatus().name());
-    assertThat(notification.getFieldValue("alertName")).isEqualTo(expectedLabel);
-
-    reset(measureRepository, eventRepository, notificationService);
-  }
-
-  @Test
-  public void verify_branch_name_is_not_set_in_notification_when_main() {
-    analysisMetadataHolder.setBranch(new DefaultBranchImpl(DEFAULT_MAIN_BRANCH_NAME));
-
-    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric))
-      .thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(OK_QUALITY_GATE_STATUS).createNoValue()));
-    when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(
-      of(Measure.newMeasureBuilder().setQualityGateStatus(new QualityGateStatus(ERROR)).createNoValue()));
-
-    underTest.execute(new TestComputationStepContext());
-
-    verify(notificationService).deliver(notificationArgumentCaptor.capture());
-    Notification notification = notificationArgumentCaptor.getValue();
-    assertThat(notification.getType()).isEqualTo("alerts");
-    assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getKey());
-    assertThat(notification.getFieldValue("projectName")).isEqualTo(PROJECT_COMPONENT.getName());
-    assertThat(notification.getFieldValue("projectVersion")).isEqualTo(PROJECT_COMPONENT.getProjectAttributes().getProjectVersion());
-    assertThat(notification.getFieldValue("branch")).isNull();
+    assertThat(notification.getFieldValue(QGChangeNotification.FIELD_PROJECT_KEY)).isEqualTo(PROJECT_COMPONENT.getKey());
+    assertThat(notification.getFieldValue(QGChangeNotification.FIELD_PROJECT_NAME)).isEqualTo(PROJECT_COMPONENT.getName());
+    assertThat(notification.getFieldValue(QGChangeNotification.FIELD_PROJECT_VERSION)).isEqualTo(PROJECT_COMPONENT.getProjectAttributes().getProjectVersion());
+    assertThat(notification.getFieldValue(QGChangeNotification.FIELD_BRANCH)).isNull();
+    assertThat(notification.getFieldValue(QGChangeNotification.FIELD_ALERT_LEVEL)).isEqualTo(newQualityGateStatus.getStatus().name());
+    assertThat(notification.getFieldValue(QGChangeNotification.FIELD_ALERT_NAME)).isEqualTo(expectedLabel);
 
     reset(measureRepository, eventRepository, notificationService);
   }

@@ -73,7 +73,7 @@ public class QGChangeEmailTemplateTest {
   @Test
   public void shouldFormatAlertWithSeveralMessagesOnBranch() {
     Notification notification = createNotification("Failed", "violations > 4, coverage < 75%", "ERROR", "false")
-      .setFieldValue("branch", "feature");
+      .setFieldValue(QGChangeNotification.FIELD_BRANCH, "feature");
 
     EmailMessage message = underTest.format(notification);
     assertThat(message.getMessageId()).isEqualTo("alerts/45");
@@ -130,7 +130,7 @@ public class QGChangeEmailTemplateTest {
   @Test
   public void shouldFormatNewAlertWithoutVersion() {
     Notification notification = createNotification("Failed", "violations > 4", "ERROR", "true")
-      .setFieldValue("projectVersion", null);
+      .setFieldValue(QGChangeNotification.FIELD_PROJECT_VERSION, null);
 
     EmailMessage message = underTest.format(notification);
     assertThat(message.getMessageId()).isEqualTo("alerts/45");
@@ -163,7 +163,7 @@ public class QGChangeEmailTemplateTest {
   @Test
   public void shouldFormatNewAlertWithOneMessageOnBranch() {
     Notification notification = createNotification("Failed", "violations > 4", "ERROR", "true")
-      .setFieldValue("branch", "feature");
+      .setFieldValue(QGChangeNotification.FIELD_BRANCH, "feature");
 
     EmailMessage message = underTest.format(notification);
     assertThat(message.getMessageId()).isEqualTo("alerts/45");
@@ -182,7 +182,7 @@ public class QGChangeEmailTemplateTest {
   @Test
   public void shouldFormatBackToGreenMessageOnBranch() {
     Notification notification = createNotification("Passed", "", "OK", "false")
-      .setFieldValue("branch", "feature");
+      .setFieldValue(QGChangeNotification.FIELD_BRANCH, "feature");
 
     EmailMessage message = underTest.format(notification);
     assertThat(message.getMessageId()).isEqualTo("alerts/45");
@@ -243,15 +243,15 @@ public class QGChangeEmailTemplateTest {
 
   private Notification createNotification(String alertName, String alertText, String alertLevel, String isNewAlert) {
     return new Notification("alerts")
-      .setFieldValue("projectName", "Foo")
-      .setFieldValue("projectKey", "org.sonar.foo:foo")
-      .setFieldValue("projectId", "45")
-      .setFieldValue("projectVersion", "V1-SNAP")
-      .setFieldValue("alertName", alertName)
-      .setFieldValue("alertText", alertText)
-      .setFieldValue("alertLevel", alertLevel)
-      .setFieldValue("isNewAlert", isNewAlert)
-      .setFieldValue("ratingMetrics", "Maintainability Rating,Reliability Rating on New Code," +
+      .setFieldValue(QGChangeNotification.FIELD_PROJECT_NAME, "Foo")
+      .setFieldValue(QGChangeNotification.FIELD_PROJECT_KEY, "org.sonar.foo:foo")
+      .setFieldValue(QGChangeNotification.FIELD_PROJECT_ID, "45")
+      .setFieldValue(QGChangeNotification.FIELD_PROJECT_VERSION, "V1-SNAP")
+      .setFieldValue(QGChangeNotification.FIELD_ALERT_NAME, alertName)
+      .setFieldValue(QGChangeNotification.FIELD_ALERT_TEXT, alertText)
+      .setFieldValue(QGChangeNotification.FIELD_ALERT_LEVEL, alertLevel)
+      .setFieldValue(QGChangeNotification.FIELD_IS_NEW_ALERT, isNewAlert)
+      .setFieldValue(QGChangeNotification.FIELD_RATING_METRICS, "Maintainability Rating,Reliability Rating on New Code," +
         "Maintainability Rating on New Code,Reliability Rating," +
         "Security Rating on New Code,Security Review Rating," +
         "Security Review Rating on New Code,Security Rating");

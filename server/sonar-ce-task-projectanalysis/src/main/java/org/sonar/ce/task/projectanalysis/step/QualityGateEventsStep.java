@@ -104,8 +104,8 @@ public class QualityGateEventsStep implements ComputationStep {
     if (baseStatus.getStatus() != rawStatus.getStatus()) {
       // The QualityGate status has changed
       createEvent(rawStatus.getStatus().getLabel(), rawStatus.getText());
-      boolean isNewKo = rawStatus.getStatus() == Measure.Level.OK;
-      notifyUsers(project, rawStatus, isNewKo);
+      boolean isNewOk = rawStatus.getStatus() == Measure.Level.OK;
+      notifyUsers(project, rawStatus, baseStatus.getStatus(), isNewOk);
     }
   }
 
@@ -113,32 +113,37 @@ public class QualityGateEventsStep implements ComputationStep {
     if (rawStatus.getStatus() != Measure.Level.OK) {
       // There were no defined alerts before, so this one is a new one
       createEvent(rawStatus.getStatus().getLabel(), rawStatus.getText());
-      notifyUsers(project, rawStatus, true);
+      notifyUsers(project, rawStatus, null, true);
     }
   }
 
   /**
    * @param rawStatus OK or ERROR + optional text
    */
-  private void notifyUsers(Component project, QualityGateStatus rawStatus, boolean isNewAlert) {
+  private void notifyUsers(Component project, QualityGateStatus rawStatus, @Nullable Measure.Level previousStatus, boolean isNewAlert) {
     QGChangeNotification notification = new QGChangeNotification();
     notification
       .setDefaultMessage(String.format("Alert on %s: %s", project.getName(), rawStatus.getStatus().getLabel()))
-      .setFieldValue("projectName", project.getName())
-      .setFieldValue("projectKey", project.getKey())
-      .setFieldValue("projectVersion", project.getProjectAttributes().getProjectVersion())
-      .setFieldValue("alertName", rawStatus.getStatus().getLabel())
-      .setFieldValue("alertText", rawStatus.getText())
-      .setFieldValue("alertLevel", rawStatus.getStatus().toString())
-      .setFieldValue("isNewAlert", Boolean.toString(isNewAlert));
+      .setFieldValue(QGChangeNotification.FIELD_PROJECT_NAME, project.getName())
+      .setFieldValue(QGChangeNotification.FIELD_PROJECT_KEY, project.getKey())
+      .setFieldValue(QGChangeNotification.FIELD_PROJECT_ID, project.getUuid())
+      .setFieldValue(QGChangeNotification.FIELD_PROJECT_VERSION, project.getProjectAttributes().getProjectVersion())
+      .setFieldValue(QGChangeNotification.FIELD_ALERT_NAME, rawStatus.getStatus().getLabel())
+      .setFieldValue(QGChangeNotification.FIELD_ALERT_TEXT, rawStatus.getText())
+      .setFieldValue(QGChangeNotification.FIELD_ALERT_LEVEL, rawStatus.getStatus().toString())
+      .setFieldValue(QGChangeNotification.FIELD_IS_NEW_ALERT, Boolean.toString(isNewAlert));
+
     Branch branch = analysisMetadataHolder.getBranch();
-    if (!branch.isMain()) {
-      notification.setFieldValue("branch", branch.getName());
+    notification.setFieldValue(QGChangeNotification.FIELD_IS_MAIN_BRANCH, Boolean.toString(branch.isMain()));
+    notification.setFieldValue(QGChangeNotification.FIELD_BRANCH, branch.getName());
+
+    if (previousStatus != null) {
+      notification.setFieldValue(QGChangeNotification.FIELD_PREVIOUS_ALERT_LEVEL, previousStatus.getLabel());
     }
 
     List<Metric> ratingMetrics = metricRepository.getMetricsByType(MetricType.RATING);
     String ratingMetricsInOneString = ratingMetrics.stream().map(Metric::getName).collect(Collectors.joining(","));
-    notification.setFieldValue("ratingMetrics", ratingMetricsInOneString);
+    notification.setFieldValue(QGChangeNotification.FIELD_RATING_METRICS, ratingMetricsInOneString);
     notificationService.deliverEmails(singleton(notification));
 
     // compatibility with old API

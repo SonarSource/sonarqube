@@ -22,12 +22,26 @@ package org.sonar.server.qualitygate.notification;
 import javax.annotation.CheckForNull;
 import org.sonar.api.notifications.Notification;
 public class QGChangeNotification extends Notification {
+
+  public static final String FIELD_PROJECT_NAME = "projectName";
+  public static final String FIELD_PROJECT_KEY = "projectKey";
+  public static final String FIELD_PROJECT_ID = "projectId";
+  public static final String FIELD_PROJECT_VERSION = "projectVersion";
+  public static final String FIELD_ALERT_NAME = "alertName";
+  public static final String FIELD_ALERT_TEXT = "alertText";
+  public static final String FIELD_ALERT_LEVEL = "alertLevel";
+  public static final String FIELD_PREVIOUS_ALERT_LEVEL = "previousAlertLevel";
+  public static final String FIELD_IS_NEW_ALERT = "isNewAlert";
+  public static final String FIELD_BRANCH = "branch";
+  public static final String FIELD_IS_MAIN_BRANCH = "isMainBranch";
+  public static final String FIELD_RATING_METRICS = "ratingMetrics";
+
   public QGChangeNotification() {
     super("alerts");
   }
 
   @CheckForNull
   public String getProjectKey() {
-    return getFieldValue("projectKey");
+    return getFieldValue(FIELD_PROJECT_KEY);
   }
 }

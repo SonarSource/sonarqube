@@ -51,16 +51,17 @@ public class QGChangeEmailTemplate implements EmailTemplate {
     }
 
     // Retrieve useful values
-    String projectId = notification.getFieldValue("projectId");
-    String projectKey = notification.getFieldValue("projectKey");
-    String projectName = notification.getFieldValue("projectName");
-    String projectVersion = notification.getFieldValue("projectVersion");
-    String branchName = notification.getFieldValue("branch");
-    String alertName = notification.getFieldValue("alertName");
-    String alertText = notification.getFieldValue("alertText");
-    String alertLevel = notification.getFieldValue("alertLevel");
-    String ratingMetricsInOneString = notification.getFieldValue("ratingMetrics");
-    boolean isNewAlert = Boolean.parseBoolean(notification.getFieldValue("isNewAlert"));
+    String projectId = notification.getFieldValue(QGChangeNotification.FIELD_PROJECT_ID);
+    String projectKey = notification.getFieldValue(QGChangeNotification.FIELD_PROJECT_KEY);
+    String projectName = notification.getFieldValue(QGChangeNotification.FIELD_PROJECT_NAME);
+    String projectVersion = notification.getFieldValue(QGChangeNotification.FIELD_PROJECT_VERSION);
+    String branchName = Boolean.parseBoolean(notification.getFieldValue(QGChangeNotification.FIELD_IS_MAIN_BRANCH)) ? null :
+      notification.getFieldValue(QGChangeNotification.FIELD_BRANCH);
+    String alertName = notification.getFieldValue(QGChangeNotification.FIELD_ALERT_NAME);
+    String alertText = notification.getFieldValue(QGChangeNotification.FIELD_ALERT_TEXT);
+    String alertLevel = notification.getFieldValue(QGChangeNotification.FIELD_ALERT_LEVEL);
+    String ratingMetricsInOneString = notification.getFieldValue(QGChangeNotification.FIELD_RATING_METRICS);
+    boolean isNewAlert = Boolean.parseBoolean(notification.getFieldValue(QGChangeNotification.FIELD_IS_NEW_ALERT));
     String fullProjectName = computeFullProjectName(projectName, branchName);
 
     // Generate text
