@@ -30,8 +30,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.PropertyNewValue;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.user.UserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -302,35 +300,5 @@ class PropertiesDaoWithPersisterIT {
       .setEntityUuid(PROJECT_UUID)
       .setUserUuid(USER_UUID)
       .build();
-  }
-
-  private UserDto setUserProperties(@Nullable String value) {
-    when(auditPersister.isTrackedProperty(KEY)).thenReturn(true);
-    when(auditPersister.isTrackedProperty(ANOTHER_KEY)).thenReturn(false);
-    when(auditPersister.isTrackedProperty(SECURED_KEY)).thenReturn(true);
-
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    UserDto user = db.users().insertUser();
-
-    if (value == null) {
-      value = user.getLogin();
-    }
-
-    PropertyDto dto1 = new PropertyDto().setKey(KEY)
-      .setEntityUuid(project.uuid())
-      .setUserUuid(user.getUuid())
-      .setValue(value);
-    PropertyDto dto2 = new PropertyDto().setKey(ANOTHER_KEY)
-      .setEntityUuid(project.uuid())
-      .setUserUuid(user.getUuid())
-      .setValue(value);
-    PropertyDto dto3 = new PropertyDto().setKey(SECURED_KEY)
-      .setEntityUuid(project.uuid())
-      .setUserUuid(user.getUuid())
-      .setValue(value);
-    db.properties().insertProperty(dto1, project.getKey(), project.name(), project.qualifier(), user.getLogin());
-    db.properties().insertProperty(dto2, project.getKey(), project.name(), project.qualifier(), user.getLogin());
-    db.properties().insertProperty(dto3, project.getKey(), project.name(), project.qualifier(), user.getLogin());
-    return user;
   }
 }

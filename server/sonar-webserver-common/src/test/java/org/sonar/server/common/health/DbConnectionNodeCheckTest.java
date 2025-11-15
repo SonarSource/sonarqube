@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.IsAliveMapper;
-import org.sonar.server.common.health.DbConnectionNodeCheck;
 import org.sonar.server.health.Health;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -209,8 +209,4 @@ public class AllProcessesCommandsTest {
   private byte readByte(AllProcessesCommands commands, int offset) {
     return commands.mappedByteBuffer.get(commands.offset(PROCESS_NUMBER) + offset);
   }
-
-  private long readLong(AllProcessesCommands commands, int offset) {
-    return commands.mappedByteBuffer.getLong(offset + commands.offset(PROCESS_NUMBER));
-  }
 }

@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Random;
 import org.junit.Test;
 import org.sonar.server.app.RestartFlagHolder;
-import org.sonar.server.common.health.WebServerStatusNodeCheck;
 import org.sonar.server.health.Health;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
