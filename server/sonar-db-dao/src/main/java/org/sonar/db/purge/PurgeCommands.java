@@ -524,6 +524,13 @@ class PurgeCommands {
     profiler.stop();
   }
 
+  public void deleteIssueStatsByRuleKey(String branchUuid) {
+    profiler.start("deleteIssueStatsByRuleKey (issue_stats_by_rule_key)");
+    purgeMapper.deleteIssueStatsByRuleKey(branchUuid);
+    session.commit();
+    profiler.stop();
+  }
+
   public void deleteAnticipatedTransitions(String projectUuid, long createdAt) {
     profiler.start("deleteAnticipatedTransitions (anticipated_transitions)");
     purgeMapper.deleteAnticipatedTransitionsByProjectUuidAndCreationDate(projectUuid, createdAt);

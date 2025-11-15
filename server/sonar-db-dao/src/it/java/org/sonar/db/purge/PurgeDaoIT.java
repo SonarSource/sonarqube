@@ -2072,6 +2072,35 @@ oldCreationDate));
   }
 
   @Test
+  void deleteBranch_purgeIssueStatsByRuleKey() {
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    BranchDto branch1 = db.components().insertProjectBranch(project);
+    BranchDto branch2 = db.components().insertProjectBranch(project);
+
+    db.executeInsert("issue_stats_by_rule_key",
+      "aggregation_type", "PROJECT",
+      "aggregation_id", branch1.getUuid(),
+      "rule_key", "rule1",
+      "issue_count", 1,
+      "rating", 2,
+      "hotspot_count", 3,
+      "hotspots_reviewed", 4);
+
+    db.executeInsert("issue_stats_by_rule_key",
+      "aggregation_type", "PROJECT",
+      "aggregation_id", branch2.getUuid(),
+      "rule_key", "rule1",
+      "issue_count", 1,
+      "rating", 2,
+      "hotspot_count", 3,
+      "hotspots_reviewed", 4);
+
+    assertThat(db.countRowsOfTable(dbSession, "issue_stats_by_rule_key")).isEqualTo(2);
+    underTest.deleteBranch(dbSession, branch1.getUuid());
+    assertThat(db.countRowsOfTable(dbSession, "issue_stats_by_rule_key")).isEqualTo(1);
+  }
+
+  @Test
   void deleteProject_purgesScaLicenseProfiles() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
 

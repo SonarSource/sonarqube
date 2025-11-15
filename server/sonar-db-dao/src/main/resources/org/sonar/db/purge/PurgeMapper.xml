@@ -694,4 +694,7 @@
   <delete id="deleteScaLicenseProfileProjectsByProjectUuid">
     delete from sca_lic_prof_projects where project_uuid = #{projectUuid,jdbcType=VARCHAR}
   </delete>
+  <delete id="deleteIssueStatsByRuleKey">
+    delete from issue_stats_by_rule_key where aggregation_type = 'PROJECT' and aggregation_id = #{branchUuid,jdbcType=VARCHAR}
+  </delete>
 </mapper>
