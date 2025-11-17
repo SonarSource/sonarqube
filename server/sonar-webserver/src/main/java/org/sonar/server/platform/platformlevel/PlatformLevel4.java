@@ -95,6 +95,7 @@ import org.sonar.server.common.github.config.GithubConfigurationService;
 import org.sonar.server.common.gitlab.config.GitlabConfigurationService;
 import org.sonar.server.common.group.service.GroupMembershipService;
 import org.sonar.server.common.group.service.GroupService;
+import org.sonar.server.feature.JiraSonarQubeFeature;
 import org.sonar.server.network.NetworkInterfaceProvider;
 import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.common.permission.DefaultTemplatesResolverImpl;
@@ -516,6 +517,7 @@ public class PlatformLevel4 extends PlatformLevel {
       PermissionIndexer.class,
       PrioritizedRulesFeature.class,
       FromSonarQubeUpdateFeature.class,
+      JiraSonarQubeFeature.class,
       new IssueWsModule(),
       NewIssuesEmailTemplate.class,
       MyNewIssuesEmailTemplate.class,

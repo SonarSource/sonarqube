@@ -149,6 +149,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     doc.setCodeVariants(STRING_LIST_SPLITTER.splitToList(codeVariants == null ? "" : codeVariants));
     doc.setPrioritizedRule(indexedIssueDto.isPrioritizedRule());
     doc.setFromSonarQubeUpdate(indexedIssueDto.isFromSonarQubeUpdate());
+    doc.setLinkedTicketStatus(indexedIssueDto.getLinkedTicketStatus());
     return doc;
 
   }

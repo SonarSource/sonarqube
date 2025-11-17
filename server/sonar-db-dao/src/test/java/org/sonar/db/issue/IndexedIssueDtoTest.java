@@ -62,6 +62,7 @@ class IndexedIssueDtoTest {
       .setIssueType(6)
       .setBranchUuid("branchUuid")
       .setPrioritizedRule(true)
+      .setLinkedTicketStatus("linkedTicketStatus")
       .setFromSonarQubeUpdate(true);
 
     indexedIssueDto.getImpacts().add(new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH));
@@ -78,11 +79,15 @@ class IndexedIssueDtoTest {
         IndexedIssueDto::getPath, IndexedIssueDto::getProjectUuid, IndexedIssueDto::getQualifier, IndexedIssueDto::getResolution,
         IndexedIssueDto::getRuleUuid, IndexedIssueDto::getScope, IndexedIssueDto::getSeverity, IndexedIssueDto::getTags,
         IndexedIssueDto::getIssueType,
-        IndexedIssueDto::getBranchUuid, IndexedIssueDto::isPrioritizedRule, IndexedIssueDto::isFromSonarQubeUpdate)
+        IndexedIssueDto::getBranchUuid,
+        IndexedIssueDto::isPrioritizedRule,
+        IndexedIssueDto::isFromSonarQubeUpdate,
+        IndexedIssueDto::getLinkedTicketStatus)
       .containsExactly("issueKey", "assignee", "authorLogin", "status", true, "cleanCodeAttribute", "ruleCleanCodeAttribute",
         "codeVariants", "securityStandards",
         "componentUuid", 1L, 2L, 3L, 4L, true, "language", 5, "path", "projectUuid", "qualifier", "resolution", "ruleUuid",
-        "scope", "severity", "tags", 6, "branchUuid", true, true);
+        "scope", "severity", "tags", 6, "branchUuid", true, true,
+        "linkedTicketStatus");
 
     assertThat(indexedIssueDto.getImpacts())
       .extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)

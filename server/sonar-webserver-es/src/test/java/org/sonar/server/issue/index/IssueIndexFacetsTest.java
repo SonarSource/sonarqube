@@ -31,6 +31,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.Severity;
+import org.sonar.core.issue.LinkedTicketStatus;
 import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.rule.RulesDefinition.OwaspAsvsVersion;
 import org.sonar.db.component.ComponentDto;
@@ -541,6 +542,18 @@ class IssueIndexFacetsTest extends IssueIndexTestCommon {
     );
 
     assertThatFacetHasOnly(IssueQuery.builder(), "prioritizedRule", entry("true", 2L), entry("false", 1L));
+  }
+
+  @Test
+  void facets_on_linkedTicketStatus() {
+    var project = newPrivateProjectDto();
+    var file = newFileDto(project);
+
+    indexIssues(
+      newDoc("I1", project.uuid(), file).setLinkedTicketStatus(LinkedTicketStatus.LINKED)
+    );
+
+    assertThatFacetHasOnly(IssueQuery.builder(), "linkedTicketStatus", entry(LinkedTicketStatus.LINKED, 1L));
   }
 
   @Test

@@ -170,6 +170,7 @@ message Issue {
   optional bool prioritizedRule = 44;
   optional bool fromSonarQubeUpdate = 45;
   repeated string internalTags = 46;
+  optional string linkedTicketStatus = 47;
 }
 
 message Transitions {

@@ -149,6 +149,7 @@ import static org.sonar.server.issue.index.IssueIndex.Facet.IMPACT_SEVERITY;
 import static org.sonar.server.issue.index.IssueIndex.Facet.IMPACT_SOFTWARE_QUALITY;
 import static org.sonar.server.issue.index.IssueIndex.Facet.ISSUE_STATUSES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.LANGUAGES;
+import static org.sonar.server.issue.index.IssueIndex.Facet.LINKED_JIRA_WORK_ITEM;
 import static org.sonar.server.issue.index.IssueIndex.Facet.OWASP_ASVS_40;
 import static org.sonar.server.issue.index.IssueIndex.Facet.OWASP_MOBILE_TOP_10_2024;
 import static org.sonar.server.issue.index.IssueIndex.Facet.OWASP_TOP_10;
@@ -210,6 +211,7 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_STIG
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TAGS;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TYPE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_VULNERABILITY_PROBABILITY;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_LINKED_TICKET_STATUS;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_PRIORITIZED_RULE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 import static org.sonar.server.security.SecurityReviewRating.computePercent;
@@ -232,6 +234,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IMPACT_SEVE
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IMPACT_SOFTWARE_QUALITIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LINKED_TICKET_STATUS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_ASVS_40;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_MOBILE_TOP_10_2024;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10;
@@ -329,7 +332,8 @@ public class IssueIndex {
     SONARSOURCE_SECURITY(PARAM_SONARSOURCE_SECURITY, FIELD_ISSUE_SQ_SECURITY_CATEGORY, STICKY, DEFAULT_FACET_SIZE),
     CODE_VARIANTS(PARAM_CODE_VARIANTS, FIELD_ISSUE_CODE_VARIANTS, STICKY, MAX_FACET_SIZE),
     PRIORITIZED_RULE(PARAM_PRIORITIZED_RULE, FIELD_PRIORITIZED_RULE, STICKY, 2),
-    FROM_SONAR_QUBE_UPDATE(PARAM_FROM_SONAR_QUBE_UPDATE, FIELD_FROM_SONAR_QUBE_UPDATE, STICKY, 2);
+    FROM_SONAR_QUBE_UPDATE(PARAM_FROM_SONAR_QUBE_UPDATE, FIELD_FROM_SONAR_QUBE_UPDATE, STICKY, 2),
+    LINKED_JIRA_WORK_ITEM(PARAM_LINKED_TICKET_STATUS, FIELD_LINKED_TICKET_STATUS, STICKY, 2);
 
     private final String name;
     private final TopAggregationDefinition<FilterScope> topAggregation;
@@ -533,6 +537,7 @@ public class IssueIndex {
     filters.addFilter(FIELD_ISSUE_NEW_STATUS, ISSUE_STATUSES.getFilterScope(), createTermsFilter(FIELD_ISSUE_NEW_STATUS, query.issueStatuses()));
     filters.addFilter(FIELD_ISSUE_CODE_VARIANTS, CODE_VARIANTS.getFilterScope(), createTermsFilter(FIELD_ISSUE_CODE_VARIANTS, query.codeVariants()));
     filters.addFilter(FIELD_PRIORITIZED_RULE, PRIORITIZED_RULE.getFilterScope(), createTermFilter(FIELD_PRIORITIZED_RULE, query.prioritizedRule()));
+    filters.addFilter(FIELD_LINKED_TICKET_STATUS, LINKED_JIRA_WORK_ITEM.getFilterScope(), createTermsFilter(FIELD_LINKED_TICKET_STATUS, query.linkedTicketStatuses()));
     filters.addFilter(FIELD_FROM_SONAR_QUBE_UPDATE, FROM_SONAR_QUBE_UPDATE.getFilterScope(), createTermFilter(FIELD_FROM_SONAR_QUBE_UPDATE, query.fromSonarQubeUpdate()));
 
     // security category
@@ -920,6 +925,7 @@ public class IssueIndex {
     addFacetIfNeeded(options, aggregationHelper, esRequest, CLEAN_CODE_ATTRIBUTE_CATEGORY, query.cleanCodeAttributesCategories().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, PRIORITIZED_RULE, ArrayUtils.EMPTY_OBJECT_ARRAY);
     addFacetIfNeeded(options, aggregationHelper, esRequest, FROM_SONAR_QUBE_UPDATE, ArrayUtils.EMPTY_OBJECT_ARRAY);
+    addFacetIfNeeded(options, aggregationHelper, esRequest, LINKED_JIRA_WORK_ITEM, ArrayUtils.EMPTY_OBJECT_ARRAY);
 
     addSecurityCategoryFacetIfNeeded(PARAM_PCI_DSS_32, PCI_DSS_32, options, aggregationHelper, esRequest, query.pciDss32().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_PCI_DSS_40, PCI_DSS_40, options, aggregationHelper, esRequest, query.pciDss40().toArray());
@@ -1506,7 +1512,7 @@ public class IssueIndex {
       ));
     return new SeverityAggregationDetails(vulnerabilities, severityRating, severityDistribution);
   }
-  
+
   private AggregationBuilder newSecurityReportSubAggregations(AggregationBuilder categoriesAggs, String securityStandardVersionPrefix) {
     AggregationBuilder aggregationBuilder = addSecurityReportIssueCountAggregations(categoriesAggs);
     final TermsAggregationBuilder distributionAggregation = AggregationBuilders.terms(AGG_DISTRIBUTION)

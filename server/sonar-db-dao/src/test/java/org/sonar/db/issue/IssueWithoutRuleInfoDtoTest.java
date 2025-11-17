@@ -27,6 +27,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.core.issue.LinkedTicketStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -197,6 +198,22 @@ class IssueWithoutRuleInfoDtoTest {
     IssueWithoutRuleInfoDto dto = new IssueWithoutRuleInfoDto();
     assertThat(dto.getIssueStatus())
       .isEqualTo(IssueStatus.OPEN);
+  }
+
+  @Test
+  void getLinkedTicketStatus_shouldReturnNotLinkedByDefault() {
+    var dto = new IssueWithoutRuleInfoDto();
+
+    assertThat(dto.getLinkedTicketStatus()).isEqualTo(LinkedTicketStatus.NOT_LINKED);
+  }
+
+  @Test
+  void setLinkedTicketStatus_shouldSetLinkedTicketStatus() {
+    var dto = new IssueWithoutRuleInfoDto();
+
+    dto.setLinkedTicketStatus(LinkedTicketStatus.LINKED);
+
+    assertThat(dto.getLinkedTicketStatus()).isEqualTo(LinkedTicketStatus.LINKED);
   }
 
   private static ImpactDto newImpactDto(SoftwareQuality softwareQuality, Severity severity) {

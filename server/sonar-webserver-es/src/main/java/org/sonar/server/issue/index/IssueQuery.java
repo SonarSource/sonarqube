@@ -91,6 +91,7 @@ public class IssueQuery {
   private final Boolean assigned;
   private final Boolean resolved;
   private final Boolean prioritizedRule;
+  private final Collection<String> linkedTicketStatuses;
   private final Boolean fromSonarQubeUpdate;
   private final Date createdAt;
   private final PeriodStart createdAfter;
@@ -144,6 +145,7 @@ public class IssueQuery {
     this.assigned = builder.assigned;
     this.resolved = builder.resolved;
     this.prioritizedRule = builder.prioritizedRule;
+    this.linkedTicketStatuses = defaultCollection(builder.linkedTicketStatuses);
     this.fromSonarQubeUpdate = builder.fromSonarQubeUpdate;
     this.createdAt = builder.createdAt;
     this.createdAfter = builder.createdAfter;
@@ -316,6 +318,10 @@ public class IssueQuery {
     return prioritizedRule;
   }
 
+  public Collection<String> linkedTicketStatuses() {
+    return linkedTicketStatuses;
+  }
+
   @CheckForNull
   public Boolean fromSonarQubeUpdate() {
     return fromSonarQubeUpdate;
@@ -428,6 +434,7 @@ public class IssueQuery {
     private Boolean assigned = null;
     private Boolean resolved = null;
     private Boolean prioritizedRule = null;
+    private Collection<String> linkedTicketStatuses;
     private Boolean fromSonarQubeUpdate = null;
     private Date createdAt;
     private PeriodStart createdAfter;
@@ -645,6 +652,11 @@ public class IssueQuery {
 
     public Builder prioritizedRule(@Nullable Boolean prioritizedRule) {
       this.prioritizedRule = prioritizedRule;
+      return this;
+    }
+
+    public Builder linkedTicketStatuses(@Nullable Collection<String> linkedTicketStatuses) {
+      this.linkedTicketStatuses = linkedTicketStatuses;
       return this;
     }
 

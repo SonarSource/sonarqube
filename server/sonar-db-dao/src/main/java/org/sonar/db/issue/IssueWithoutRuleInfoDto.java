@@ -37,6 +37,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.CleanCodeAttribute;
+import org.sonar.core.issue.LinkedTicketStatus;
 import org.sonar.core.rule.RuleType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbIssues;
@@ -79,6 +80,7 @@ public class IssueWithoutRuleInfoDto implements Serializable {
   protected String ruleDescriptionContextKey;
   protected boolean prioritizedRule;
   protected boolean fromSonarQubeUpdate;
+  protected String linkedTicketStatus = LinkedTicketStatus.NOT_LINKED;
 
   // functional dates stored as Long
   protected Long issueCreationDate;
@@ -680,6 +682,15 @@ public class IssueWithoutRuleInfoDto implements Serializable {
 
   public IssueWithoutRuleInfoDto setPrioritizedRule(boolean isBlockerRule) {
     this.prioritizedRule = isBlockerRule;
+    return this;
+  }
+
+  public String getLinkedTicketStatus() {
+    return linkedTicketStatus;
+  }
+
+  public IssueWithoutRuleInfoDto setLinkedTicketStatus(String linkedTicketStatus) {
+    this.linkedTicketStatus = linkedTicketStatus;
     return this;
   }
 

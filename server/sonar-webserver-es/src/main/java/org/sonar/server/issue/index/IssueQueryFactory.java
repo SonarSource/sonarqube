@@ -39,7 +39,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -140,6 +139,7 @@ public class IssueQueryFactory {
         .issueStatuses(request.getIssueStatuses())
         .resolved(request.getResolved())
         .prioritizedRule(request.getPrioritizedRule())
+        .linkedTicketStatuses(request.getLinkedTicketStatuses())
         .fromSonarQubeUpdate(request.getFromSonarQubeUpdate())
         .rules(ruleDtos)
         .ruleUuids(ruleUuids)

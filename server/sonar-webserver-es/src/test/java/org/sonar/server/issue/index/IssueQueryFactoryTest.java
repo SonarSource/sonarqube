@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.core.issue.LinkedTicketStatus;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTester;
@@ -46,9 +47,7 @@ import org.sonar.server.tester.UserSessionRule;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.RandomStringUtils.secure;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.tuple;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -110,7 +109,8 @@ public class IssueQueryFactoryTest {
       .setAsc(true)
       .setCodeVariants(asList("variant1", "variant2"))
       .setPrioritizedRule(true)
-      .setFromSonarQubeUpdate(true);
+      .setFromSonarQubeUpdate(true)
+      .setLinkedTicketStatuses(List.of(LinkedTicketStatus.LINKED));
 
     IssueQuery query = underTest.create(request);
 
@@ -138,6 +138,7 @@ public class IssueQueryFactoryTest {
     assertThat(query.codeVariants()).containsOnly("variant1", "variant2");
     assertThat(query.prioritizedRule()).isTrue();
     assertThat(query.fromSonarQubeUpdate()).isTrue();
+    assertThat(query.linkedTicketStatuses()).containsOnly(LinkedTicketStatus.LINKED);
   }
 
   @Test
@@ -172,7 +173,8 @@ public class IssueQueryFactoryTest {
       .setAsc(true)
       .setCodeVariants(asList("variant1", "variant2"))
       .setPrioritizedRule(false)
-      .setFromSonarQubeUpdate(false);
+      .setFromSonarQubeUpdate(false)
+      .setLinkedTicketStatuses(List.of(LinkedTicketStatus.LINKED));
 
     IssueQuery query = underTest.create(request);
 
@@ -200,6 +202,7 @@ public class IssueQueryFactoryTest {
     assertThat(query.codeVariants()).containsOnly("variant1", "variant2");
     assertThat(query.prioritizedRule()).isFalse();
     assertThat(query.fromSonarQubeUpdate()).isFalse();
+    assertThat(query.linkedTicketStatuses()).containsOnly(LinkedTicketStatus.LINKED);
   }
 
   @Test

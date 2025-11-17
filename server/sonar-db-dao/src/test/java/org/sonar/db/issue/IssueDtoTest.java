@@ -253,7 +253,6 @@ class IssueDtoTest {
     assertThat(issueDto.isFromSonarQubeUpdate()).isTrue();
   }
 
-
   private DefaultIssue createExampleDefaultIssue(Date dateNow) {
     DefaultIssue defaultIssue = new DefaultIssue();
     defaultIssue.setKey("key")

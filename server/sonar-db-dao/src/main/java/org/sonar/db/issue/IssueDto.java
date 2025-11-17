@@ -559,6 +559,12 @@ public final class IssueDto extends IssueWithoutRuleInfoDto {
   }
 
   @Override
+  public IssueDto setLinkedTicketStatus(String linkedTicketStatus) {
+    super.setLinkedTicketStatus(linkedTicketStatus);
+    return this;
+  }
+
+  @Override
   public IssueDto setFromSonarQubeUpdate(boolean fromSonarQubeUpdate) {
     super.setFromSonarQubeUpdate(fromSonarQubeUpdate);
     return this;

@@ -455,6 +455,15 @@ public class IssueDoc extends BaseDoc {
     return this;
   }
 
+  public String getLinkedTicketStatus() {
+    return getField(IssueIndexDefinition.FIELD_LINKED_TICKET_STATUS);
+  }
+
+  public IssueDoc setLinkedTicketStatus(String linkedTicketStatus) {
+    setField(IssueIndexDefinition.FIELD_LINKED_TICKET_STATUS, linkedTicketStatus);
+    return this;
+  }
+
   public boolean isFromSonarQubeUpdate() {
     return getField(IssueIndexDefinition.FIELD_FROM_SONAR_QUBE_UPDATE);
   }

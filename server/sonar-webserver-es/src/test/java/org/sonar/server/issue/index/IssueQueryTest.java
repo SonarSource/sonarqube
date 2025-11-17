@@ -25,6 +25,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
+import org.sonar.core.issue.LinkedTicketStatus;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.issue.index.IssueQuery.PeriodStart;
@@ -66,6 +67,7 @@ class IssueQueryTest {
       .codeVariants(List.of("codeVariant1", "codeVariant2"))
       .prioritizedRule(true)
       .fromSonarQubeUpdate(true)
+      .linkedTicketStatuses(List.of(LinkedTicketStatus.LINKED))
       .build();
     assertThat(query.issueKeys()).containsOnly("ABCDE");
     assertThat(query.severities()).containsOnly(Severity.BLOCKER);
@@ -94,6 +96,7 @@ class IssueQueryTest {
     assertThat(query.codeVariants()).containsOnly("codeVariant1", "codeVariant2");
     assertThat(query.prioritizedRule()).isTrue();
     assertThat(query.fromSonarQubeUpdate()).isTrue();
+    assertThat(query.linkedTicketStatuses()).containsExactly(LinkedTicketStatus.LINKED);
   }
 
   @Test
@@ -242,6 +245,7 @@ class IssueQueryTest {
     assertThat(query.createdAfterByProjectUuids()).isEmpty();
     assertThat(query.prioritizedRule()).isNull();
     assertThat(query.fromSonarQubeUpdate()).isNull();
+    assertThat(query.linkedTicketStatuses()).isEmpty();
   }
 
   @Test

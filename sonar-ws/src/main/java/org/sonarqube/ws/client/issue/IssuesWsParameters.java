@@ -63,6 +63,7 @@ public class IssuesWsParameters {
   public static final String PARAM_ISSUE_STATUSES = "issueStatuses";
   public static final String PARAM_RESOLVED = "resolved";
   public static final String PARAM_PRIORITIZED_RULE = "prioritizedRule";
+  public static final String PARAM_LINKED_TICKET_STATUS = "linkedTicketStatus";
   public static final String PARAM_FROM_SONAR_QUBE_UPDATE = "fromSonarQubeUpdate";
   public static final String PARAM_COMPONENTS = "components";
   public static final String PARAM_COMPONENT_KEYS = "componentKeys";

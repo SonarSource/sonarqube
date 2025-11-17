@@ -39,6 +39,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.feature.JiraSonarQubeFeature;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.index.IssueIndex;
@@ -98,12 +99,25 @@ class SearchActionFacetsIT {
     new TextRangeResponseFormatter(), userFormatter);
   private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = new IssueIndexSyncProgressChecker(db.getDbClient());
   private final FromSonarQubeUpdateFeature fromSonarQubeUpdateFeature = mock(FromSonarQubeUpdateFeature.class);
-  
+  private final JiraSonarQubeFeature jiraSonarQubeFeature = mock(JiraSonarQubeFeature.class);
+
   {
     when(fromSonarQubeUpdateFeature.isAvailable()).thenReturn(true);
   }
   private final WsActionTester ws = new WsActionTester(
-    new SearchAction(userSession, issueIndex, issueQueryFactory, issueIndexSyncProgressChecker, searchResponseLoader, searchResponseFormat, System2.INSTANCE, db.getDbClient(), fromSonarQubeUpdateFeature));
+    new SearchAction(
+      userSession,
+      issueIndex,
+      issueQueryFactory,
+      issueIndexSyncProgressChecker,
+      searchResponseLoader,
+      searchResponseFormat,
+      System2.INSTANCE,
+      db.getDbClient(),
+      fromSonarQubeUpdateFeature,
+      jiraSonarQubeFeature
+    )
+  );
 
   @Test
   void display_all_facets() {

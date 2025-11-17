@@ -31,6 +31,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.core.issue.LinkedTicketStatus;
 import org.sonar.core.rule.RuleType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleDto;
@@ -631,6 +632,22 @@ class IssueIndexFiltersTest extends IssueIndexTestCommon {
     assertThatSearchReturnsOnly(IssueQuery.builder().prioritizedRule(null), "I1", "I2", "I3");
     assertThatSearchReturnsOnly(IssueQuery.builder().prioritizedRule(true), "I1", "I2");
     assertThatSearchReturnsOnly(IssueQuery.builder().prioritizedRule(false), "I3");
+  }
+
+  @Test
+  void filter_by_linkedTicketStatus() {
+    var project = newPrivateProjectDto();
+    var file = newFileDto(project);
+
+    indexIssues(
+      newDoc("I1", project.uuid(), file).setLinkedTicketStatus(LinkedTicketStatus.LINKED),
+      newDoc("I2", project.uuid(), file).setLinkedTicketStatus(LinkedTicketStatus.NOT_LINKED),
+      newDoc("I3", project.uuid(), file).setLinkedTicketStatus(LinkedTicketStatus.LINKED)
+    );
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().linkedTicketStatuses(null), "I1", "I2", "I3");
+    assertThatSearchReturnsOnly(IssueQuery.builder().linkedTicketStatuses(List.of(LinkedTicketStatus.LINKED)), "I1", "I3");
+    assertThatSearchReturnsOnly(IssueQuery.builder().linkedTicketStatuses(List.of(LinkedTicketStatus.NOT_LINKED)), "I2");
   }
 
   @Test

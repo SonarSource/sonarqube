@@ -27,12 +27,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
+import org.sonar.core.issue.LinkedTicketStatus;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
@@ -290,6 +293,19 @@ class SearchResponseFormatFormatOperationTest {
     Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getIssue().getIssueStatus()).isEqualTo(IssueStatus.ACCEPTED.name());
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {LinkedTicketStatus.LINKED, LinkedTicketStatus.NOT_LINKED})
+  void formatOperation_should_add_linkedTicketStatus_to_response(String linkedTicketStatus) {
+    issueDto.setLinkedTicketStatus(linkedTicketStatus);
+
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
+
+    assertThat(result.getIssue())
+      .isNotNull()
+      .extracting(Issue::getLinkedTicketStatus)
+      .isEqualTo(linkedTicketStatus);
   }
 
   private SearchResponseData newSearchResponseDataMainBranch() {

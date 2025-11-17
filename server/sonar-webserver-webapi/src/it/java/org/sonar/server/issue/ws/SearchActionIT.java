@@ -75,6 +75,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.feature.JiraSonarQubeFeature;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.issue.TextRangeResponseFormatter;
@@ -198,13 +199,24 @@ class SearchActionIT {
     new TextRangeResponseFormatter(), userFormatter);
   private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = new IssueIndexSyncProgressChecker(dbClient);
   private final FromSonarQubeUpdateFeature fromSonarQubeUpdateFeature = mock(FromSonarQubeUpdateFeature.class);
-  
   {
     when(fromSonarQubeUpdateFeature.isAvailable()).thenReturn(true);
   }
+  private final JiraSonarQubeFeature jiraSonarQubeFeature = mock(JiraSonarQubeFeature.class);
   private final WsActionTester ws = new WsActionTester(
-    new SearchAction(userSession, issueIndex, issueQueryFactory, issueIndexSyncProgressChecker, searchResponseLoader,
-      searchResponseFormat, System2.INSTANCE, dbClient, fromSonarQubeUpdateFeature));
+    new SearchAction(
+      userSession,
+      issueIndex,
+      issueQueryFactory,
+      issueIndexSyncProgressChecker,
+      searchResponseLoader,
+      searchResponseFormat,
+      System2.INSTANCE,
+      dbClient,
+      fromSonarQubeUpdateFeature,
+      jiraSonarQubeFeature
+    )
+  );
   private final PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
 
   @Test
@@ -714,7 +726,7 @@ class SearchActionIT {
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
-    
+
     IssueDto issueInSandbox = db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_IN_SANDBOX));
     db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_OPEN));
     db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_FIXED));
@@ -735,7 +747,7 @@ class SearchActionIT {
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
-    
+
     db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_OPEN));
     db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_IN_SANDBOX));
     db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_IN_SANDBOX));
@@ -750,7 +762,7 @@ class SearchActionIT {
     Optional<Common.Facet> statusFacet = response.getFacets().getFacetsList()
       .stream().filter(facet -> facet.getProperty().equals(PARAM_ISSUE_STATUSES))
       .findFirst();
-    
+
     assertThat(statusFacet.get().getValuesList())
       .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
       .contains(tuple(IssueStatus.IN_SANDBOX.name(), 2L));

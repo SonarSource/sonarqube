@@ -115,6 +115,7 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_ISSUE_IMPACT_SOFTWARE_QUALITY = FIELD_ISSUE_IMPACTS + "." + SUB_FIELD_SOFTWARE_QUALITY;
   public static final String FIELD_ISSUE_IMPACT_SEVERITY = FIELD_ISSUE_IMPACTS + "." + SUB_FIELD_SEVERITY;
   public static final String FIELD_PRIORITIZED_RULE = "prioritizedRule";
+  public static final String FIELD_LINKED_TICKET_STATUS = "linkedTicketStatus";
   public static final String FIELD_FROM_SONAR_QUBE_UPDATE = "fromSonarQubeUpdate";
 
   private final Configuration config;
@@ -195,5 +196,6 @@ public class IssueIndexDefinition implements IndexDefinition {
     mapping.keywordFieldBuilder(FIELD_ISSUE_CODE_VARIANTS).disableNorms().build();
     mapping.createBooleanField(FIELD_PRIORITIZED_RULE);
     mapping.createBooleanField(FIELD_FROM_SONAR_QUBE_UPDATE);
+    mapping.keywordFieldBuilder(FIELD_LINKED_TICKET_STATUS).disableNorms().build();
   }
 }

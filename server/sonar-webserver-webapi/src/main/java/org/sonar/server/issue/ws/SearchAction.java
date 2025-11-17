@@ -46,12 +46,14 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.System2;
+import org.sonar.core.issue.LinkedTicketStatus;
 import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.feature.JiraSonarQubeFeature;
 import org.sonar.server.issue.SearchRequest;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
@@ -119,12 +121,14 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CWE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FIXED_IN_PULL_REQUEST;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FROM_SONAR_QUBE_UPDATE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IMPACT_SEVERITIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IMPACT_SOFTWARE_QUALITIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IN_NEW_CODE_PERIOD;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LINKED_TICKET_STATUS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ON_COMPONENT_ONLY;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_ASVS_40;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_ASVS_LEVEL;
@@ -134,7 +138,6 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_1
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PCI_DSS_32;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PCI_DSS_40;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PRIORITIZED_RULE;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FROM_SONAR_QUBE_UPDATE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PULL_REQUEST;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLUTIONS;
@@ -195,6 +198,7 @@ public class SearchAction implements IssuesWsAction {
   private static final String NEW_PARAM_ADDED_MESSAGE = "Param '%s' has been added";
   private static final String V_2025_3 = "2025.3";
   private static final String V_2025_5 = "2025.5";
+  private static final String V_2025_6 = "2025.6";
   private static final Set<String> FACETS_REQUIRING_PROJECT = newHashSet(PARAM_FILES, PARAM_DIRECTORIES);
 
   private final UserSession userSession;
@@ -206,11 +210,12 @@ public class SearchAction implements IssuesWsAction {
   private final System2 system2;
   private final DbClient dbClient;
   private final FromSonarQubeUpdateFeature fromSonarQubeUpdateFeature;
+  private final JiraSonarQubeFeature jiraSonarQubeFeature;
 
   public SearchAction(UserSession userSession, IssueIndex issueIndex, IssueQueryFactory issueQueryFactory,
     IssueIndexSyncProgressChecker issueIndexSyncProgressChecker,
     SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat, System2 system2, DbClient dbClient,
-    FromSonarQubeUpdateFeature fromSonarQubeUpdateFeature) {
+    FromSonarQubeUpdateFeature fromSonarQubeUpdateFeature, JiraSonarQubeFeature jiraSonarQubeFeature) {
     this.userSession = userSession;
     this.issueIndex = issueIndex;
     this.issueQueryFactory = issueQueryFactory;
@@ -220,13 +225,15 @@ public class SearchAction implements IssuesWsAction {
     this.system2 = system2;
     this.dbClient = dbClient;
     this.fromSonarQubeUpdateFeature = fromSonarQubeUpdateFeature;
+    this.jiraSonarQubeFeature = jiraSonarQubeFeature;
   }
 
   private List<String> getSupportedFacets() {
     return Stream.concat(
       BASE_SUPPORTED_FACETS.stream(),
       Stream.of(
-        fromSonarQubeUpdateFeature.isAvailable() ? PARAM_FROM_SONAR_QUBE_UPDATE : null
+        fromSonarQubeUpdateFeature.isAvailable() ? PARAM_FROM_SONAR_QUBE_UPDATE : null,
+        jiraSonarQubeFeature.isAvailable() ? PARAM_LINKED_TICKET_STATUS : null
       ).filter(Objects::nonNull)
     ).toList();
   }
@@ -241,6 +248,7 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexing is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change(V_2025_6, format(NEW_FACET_ADDED_MESSAGE, PARAM_LINKED_TICKET_STATUS)),
         new Change(V_2025_5, "Response field 'internalTags' has been added"),
         new Change(V_2025_5, format(NEW_FACET_ADDED_MESSAGE, PARAM_FROM_SONAR_QUBE_UPDATE)),
         new Change(V_2025_5, format(NEW_PARAM_ADDED_MESSAGE, PARAM_FROM_SONAR_QUBE_UPDATE)),
@@ -376,6 +384,12 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_PRIORITIZED_RULE)
       .setDescription("To match issues with prioritized rule or not")
       .setBooleanPossibleValues();
+    if (jiraSonarQubeFeature.isAvailable()) {
+      action.createParam(PARAM_LINKED_TICKET_STATUS)
+        .setDescription("Has linked JIRA work item")
+        .setExampleValue(LinkedTicketStatus.LINKED)
+        .setPossibleValues(LinkedTicketStatus.LINKED, LinkedTicketStatus.NOT_LINKED);
+    }
     if (fromSonarQubeUpdateFeature.isAvailable()) {
       action.createParam(PARAM_FROM_SONAR_QUBE_UPDATE)
         .setDescription("To match issues detected because of SonarQube updates")
@@ -730,6 +744,7 @@ public class SearchAction implements IssuesWsAction {
       .setResolutions(request.paramAsStrings(PARAM_RESOLUTIONS))
       .setResolved(request.paramAsBoolean(PARAM_RESOLVED))
       .setPrioritizedRule(request.paramAsBoolean(PARAM_PRIORITIZED_RULE))
+      .setLinkedTicketStatuses(jiraSonarQubeFeature.isAvailable() ? request.paramAsStrings(PARAM_LINKED_TICKET_STATUS) : null)
       .setFromSonarQubeUpdate(fromSonarQubeUpdateFeature.isAvailable() ? request.paramAsBoolean(PARAM_FROM_SONAR_QUBE_UPDATE) : null)
       .setRules(request.paramAsStrings(PARAM_RULES))
       .setSort(request.param(Param.SORT))

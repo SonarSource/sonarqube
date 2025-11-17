@@ -29,6 +29,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.core.issue.LinkedTicketStatus;
 
 public final class IndexedIssueDto {
   private String issueKey = null;
@@ -59,6 +60,7 @@ public final class IndexedIssueDto {
   private boolean isNewCodeReferenceIssue = false;
   private String codeVariants = null;
   private boolean prioritizedRule = false;
+  private String linkedTicketStatus = LinkedTicketStatus.NOT_LINKED;
   private boolean fromSonarQubeUpdate = false;
 
   private Set<ImpactDto> impacts = new HashSet<>();
@@ -340,6 +342,15 @@ public final class IndexedIssueDto {
 
   public IndexedIssueDto setPrioritizedRule(boolean prioritizedRule) {
     this.prioritizedRule = prioritizedRule;
+    return this;
+  }
+
+  public String getLinkedTicketStatus() {
+    return linkedTicketStatus;
+  }
+
+  public IndexedIssueDto setLinkedTicketStatus(String linkedTicketStatus) {
+    this.linkedTicketStatus = linkedTicketStatus;
     return this;
   }
 

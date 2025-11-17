@@ -236,6 +236,7 @@ public class SearchResponseFormat {
 
     issueBuilder.setScope(UNIT_TEST_FILE.equals(component.qualifier()) ? IssueScope.TEST.name() : IssueScope.MAIN.name());
     issueBuilder.setPrioritizedRule(dto.isPrioritizedRule());
+    issueBuilder.setLinkedTicketStatus(dto.getLinkedTicketStatus());
     issueBuilder.setFromSonarQubeUpdate(dto.isFromSonarQubeUpdate());
   }
 

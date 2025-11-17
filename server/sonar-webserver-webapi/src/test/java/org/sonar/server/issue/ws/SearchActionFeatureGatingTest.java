@@ -20,16 +20,15 @@
 package org.sonar.server.issue.ws;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
+import org.sonar.server.feature.JiraSonarQubeFeature;
 import org.sonar.server.issue.FromSonarQubeUpdateFeature;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import java.util.Objects;
@@ -38,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FROM_SONAR_QUBE_UPDATE;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LINKED_TICKET_STATUS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PRIORITIZED_RULE;
 
 class SearchActionFeatureGatingTest {
@@ -48,6 +48,8 @@ class SearchActionFeatureGatingTest {
   private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
   private final SearchResponseLoader searchResponseLoader = mock(SearchResponseLoader.class);
   private final SearchResponseFormat searchResponseFormat = mock(SearchResponseFormat.class);
+  private final FromSonarQubeUpdateFeature fromSonarQubeUpdateFeature = mock(FromSonarQubeUpdateFeature.class);
+  private final JiraSonarQubeFeature jiraSonarQubeFeature = mock(JiraSonarQubeFeature.class);
   private final DbClient dbClient = mock(DbClient.class);
 
   @Test
@@ -55,12 +57,10 @@ class SearchActionFeatureGatingTest {
     FromSonarQubeUpdateFeature fromSonarQubeUpdateFeature = mock(FromSonarQubeUpdateFeature.class);
     when(fromSonarQubeUpdateFeature.isAvailable()).thenReturn(false);
 
-    WsActionTester ws = new WsActionTester(
-      new SearchAction(userSession, issueIndex, issueQueryFactory, issueIndexSyncProgressChecker, 
-        searchResponseLoader, searchResponseFormat, System2.INSTANCE, dbClient, fromSonarQubeUpdateFeature));
+    WsActionTester ws = createSearchActionTester(fromSonarQubeUpdateFeature, jiraSonarQubeFeature);
 
     WebService.Action definition = ws.getDef();
-    
+
     assertThat(definition.param(PARAM_FROM_SONAR_QUBE_UPDATE)).isNull();
     assertThat(definition.param(PARAM_PRIORITIZED_RULE)).isNotNull();
   }
@@ -70,12 +70,10 @@ class SearchActionFeatureGatingTest {
     FromSonarQubeUpdateFeature fromSonarQubeUpdateFeature = mock(FromSonarQubeUpdateFeature.class);
     when(fromSonarQubeUpdateFeature.isAvailable()).thenReturn(true);
 
-    WsActionTester ws = new WsActionTester(
-      new SearchAction(userSession, issueIndex, issueQueryFactory, issueIndexSyncProgressChecker, 
-        searchResponseLoader, searchResponseFormat, System2.INSTANCE, dbClient, fromSonarQubeUpdateFeature));
+    WsActionTester ws = createSearchActionTester(fromSonarQubeUpdateFeature, jiraSonarQubeFeature);
 
     WebService.Action definition = ws.getDef();
-    
+
     assertThat(definition.param(PARAM_FROM_SONAR_QUBE_UPDATE)).isNotNull();
     assertThat(definition.param(PARAM_PRIORITIZED_RULE)).isNotNull();
   }
@@ -84,23 +82,80 @@ class SearchActionFeatureGatingTest {
   void facetsListShouldIncludeFromSonarQubeUpdateOnlyWhenFeatureEnabled() {
     FromSonarQubeUpdateFeature enabledFeature = mock(FromSonarQubeUpdateFeature.class);
     when(enabledFeature.isAvailable()).thenReturn(true);
-    
+
     FromSonarQubeUpdateFeature disabledFeature = mock(FromSonarQubeUpdateFeature.class);
     when(disabledFeature.isAvailable()).thenReturn(false);
 
-    WsActionTester wsEnabled = new WsActionTester(
-      new SearchAction(userSession, issueIndex, issueQueryFactory, issueIndexSyncProgressChecker, 
-        searchResponseLoader, searchResponseFormat, System2.INSTANCE, dbClient, enabledFeature));
-    
-    WsActionTester wsDisabled = new WsActionTester(
-      new SearchAction(userSession, issueIndex, issueQueryFactory, issueIndexSyncProgressChecker, 
-        searchResponseLoader, searchResponseFormat, System2.INSTANCE, dbClient, disabledFeature));
+    WsActionTester wsEnabled = createSearchActionTester(enabledFeature, jiraSonarQubeFeature);
+    WsActionTester wsDisabled = createSearchActionTester(disabledFeature, jiraSonarQubeFeature);
 
     assertThat(Objects.requireNonNull(wsEnabled.getDef().param("facets")).possibleValues()).contains(PARAM_FROM_SONAR_QUBE_UPDATE);
     assertThat(Objects.requireNonNull(wsDisabled.getDef().param("facets")).possibleValues()).doesNotContain(PARAM_FROM_SONAR_QUBE_UPDATE);
-    
+
     // PARAM_PRIORITIZED_RULE should always be included
     assertThat(Objects.requireNonNull(wsEnabled.getDef().param("facets")).possibleValues()).contains(PARAM_PRIORITIZED_RULE);
     assertThat(Objects.requireNonNull(wsDisabled.getDef().param("facets")).possibleValues()).contains(PARAM_PRIORITIZED_RULE);
   }
+
+  @Test
+  void whenJiraFeatureIsDisabled_linkedTicketStatusParameterShouldNotBeAvailable() {
+    var disabledJiraSonarQubeFeature = mock(JiraSonarQubeFeature.class);
+    when(disabledJiraSonarQubeFeature.isAvailable()).thenReturn(false);
+    var ws = createSearchActionTester(fromSonarQubeUpdateFeature, disabledJiraSonarQubeFeature);
+
+    var definition = ws.getDef();
+
+    assertThat(definition).isNotNull();
+    assertThat(definition.param(PARAM_LINKED_TICKET_STATUS)).isNull();
+  }
+
+  @Test
+  void whenJiraFeatureIsEnabled_linkedTicketStatusParameterShouldBeAvailable() {
+    var enabledJiraSonarQubeFeature = mock(JiraSonarQubeFeature.class);
+    when(enabledJiraSonarQubeFeature.isAvailable()).thenReturn(true);
+    var ws = createSearchActionTester(fromSonarQubeUpdateFeature, enabledJiraSonarQubeFeature);
+
+    var definition = ws.getDef();
+
+    assertThat(definition).isNotNull();
+    assertThat(definition.param(PARAM_LINKED_TICKET_STATUS)).isNotNull();
+  }
+
+  @Test
+  void whenJiraFeatureIsEnabled_linkedTicketStatusFacetShouldBeAvailable() {
+    var enabledJiraSonarQubeFeature = mock(JiraSonarQubeFeature.class);
+    when(enabledJiraSonarQubeFeature.isAvailable()).thenReturn(true);
+
+    var searchActionTester = createSearchActionTester(fromSonarQubeUpdateFeature, enabledJiraSonarQubeFeature);
+
+    assertThat(Objects.requireNonNull(searchActionTester.getDef().param("facets")).possibleValues()).contains(PARAM_LINKED_TICKET_STATUS);
+  }
+
+  @Test
+  void whenJiraFeatureIsDisabled_linkedTicketStatusFacetShouldNotBeAvailable() {
+    var disabledJiraSonarQubeFeature = mock(JiraSonarQubeFeature.class);
+    when(disabledJiraSonarQubeFeature.isAvailable()).thenReturn(false);
+
+    var searchActionTester = createSearchActionTester(fromSonarQubeUpdateFeature, disabledJiraSonarQubeFeature);
+
+    assertThat(Objects.requireNonNull(searchActionTester.getDef().param("facets")).possibleValues()).doesNotContain(PARAM_LINKED_TICKET_STATUS);
+  }
+
+  private WsActionTester createSearchActionTester(FromSonarQubeUpdateFeature fromSonarQubeUpdateFeature, JiraSonarQubeFeature jiraSonarQubeFeature) {
+    return new WsActionTester(
+      new SearchAction(
+        userSession,
+        issueIndex,
+        issueQueryFactory,
+        issueIndexSyncProgressChecker,
+        searchResponseLoader,
+        searchResponseFormat,
+        System2.INSTANCE,
+        dbClient,
+        fromSonarQubeUpdateFeature,
+        jiraSonarQubeFeature
+      )
+    );
+  }
+
 }

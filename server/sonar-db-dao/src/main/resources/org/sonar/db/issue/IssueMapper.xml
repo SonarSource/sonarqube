@@ -47,7 +47,8 @@
     i.internal_tags as internalTagsString,
     <include refid="issueImpactsColumns"/>
     <include refid="ruleDefaultImpactsColumns"/>
-    <include refid="isNewCodeReferenceIssue"/>
+    <include refid="isNewCodeReferenceIssue"/>,
+    <include refid="linkedTicketStatus"/>
   </sql>
 
   <sql id="issueColumnsNoRulesColumn">
@@ -86,7 +87,8 @@
     i.from_sonarqube_update as fromSonarQubeUpdate,
     i.internal_tags as internalTagsString,
     <include refid="issueImpactsColumns"/>
-    <include refid="isNewCodeReferenceIssue"/>
+    <include refid="isNewCodeReferenceIssue"/>,
+    <include refid="linkedTicketStatus"/>
   </sql>
 
    <sql id="issueColumnsInInnerQuery">
@@ -131,6 +133,10 @@
   </sql>
   <sql id="isNewCodeReferenceIssue">
     n.uuid is not null as isNewCodeReferenceIssue
+  </sql>
+
+  <sql id="linkedTicketStatus">
+    case when jwir.resource_id is null then 'NOT_LINKED' else 'LINKED' end as linkedTicketStatus
   </sql>
 
   <sql id="sortColumn">
@@ -337,6 +343,7 @@
     left join new_code_reference_issues n on i.kee = n.issue_key
     left outer join issues_impacts ii on i.kee = ii.issue_key
     left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+    left join jira_work_items_resources jwir on jwir.resource_id = i.kee and jwir.resource_type = 'SONAR_ISSUE'
     where i.kee=#{kee,jdbcType=VARCHAR}
   </select>
 
@@ -349,6 +356,7 @@
       inner join components root on root.uuid=i.project_uuid
       left join new_code_reference_issues n on i.kee = n.issue_key
       left outer join issues_impacts ii on i.kee = ii.issue_key
+      left join jira_work_items_resources jwir on jwir.resource_id = i.kee and jwir.resource_type = 'SONAR_ISSUE'
     where
       i.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
       i.status &lt;&gt; 'CLOSED'
@@ -373,6 +381,8 @@
       i.kee = n.issue_key
     left outer join issues_impacts ii on
       i.kee = ii.issue_key
+    left join jira_work_items_resources jwir on
+      jwir.resource_id = i.kee and jwir.resource_type = 'SONAR_ISSUE'
     where
       i.component_uuid = #{componentUuid,jdbcType=VARCHAR}
       and i.status = 'CLOSED'
@@ -431,7 +441,8 @@
       i.from_sonarqube_update as fromSonarQubeUpdate,
       <include refid="issueImpactsColumns"/>
       <include refid="ruleDefaultImpactsColumns"/>
-      <include refid="isNewCodeReferenceIssue"/>
+      <include refid="isNewCodeReferenceIssue"/>,
+      <include refid="linkedTicketStatus"/>
     from issues i
     inner join rules r on r.uuid = i.rule_uuid
     inner join components c on c.uuid = i.component_uuid
@@ -439,6 +450,7 @@
     left join new_code_reference_issues n on n.issue_key = i.kee
     left outer join issues_impacts ii on i.kee = ii.issue_key
     left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+    left join jira_work_items_resources jwir on jwir.resource_id = i.kee and jwir.resource_type = 'SONAR_ISSUE'
     <where>
       <if test="branchUuid != null">
             and c.branch_uuid = #{branchUuid,jdbcType=VARCHAR} and i.project_uuid = #{branchUuid,jdbcType=VARCHAR}
@@ -471,6 +483,7 @@
     left join new_code_reference_issues n on i.kee = n.issue_key
     left outer join issues_impacts ii on i.kee = ii.issue_key
     left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+    left join jira_work_items_resources jwir on jwir.resource_id = i.kee and jwir.resource_type = 'SONAR_ISSUE'
     where i.kee in
     <foreach collection="list" open="(" close=")" item="key" separator=",">
       #{key,jdbcType=VARCHAR}
@@ -487,6 +500,7 @@
     left join new_code_reference_issues n on i.kee = n.issue_key
     left outer join issues_impacts ii on i.kee = ii.issue_key
     left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+    left join jira_work_items_resources jwir on jwir.resource_id = i.kee and jwir.resource_type = 'SONAR_ISSUE'
     where
       i.kee in
         <foreach collection="keys" open="(" close=")" item="key" separator=",">
@@ -759,7 +773,8 @@
     <include refid="issueImpactsColumns"/>
     <include refid="ruleDefaultImpactsColumns"/>
     i.clean_code_attribute as cleanCodeAttribute,
-    r.clean_code_attribute as ruleCleanCodeAttribute
+    r.clean_code_attribute as ruleCleanCodeAttribute,
+    <include refid="linkedTicketStatus"/>
   </sql>
 
   <select id="selectByBranch" parameterType="map" resultMap="issueResultMap" resultOrdered="true">
@@ -772,6 +787,7 @@
         left join users u on i.assignee = u.uuid
         left outer join issues_impacts ii on i.kee = ii.issue_key
         left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+        left join jira_work_items_resources jwir on jwir.resource_id = i.kee and jwir.resource_type = 'SONAR_ISSUE'
     where
       <if test="keys.size() > 0">
         i.kee IN

@@ -84,6 +84,7 @@ public class SearchRequest {
   private Integer owaspAsvsLevel;
   private List<String> codeVariants;
   private String fixedInPullRequest;
+  private List<String> linkedTicketStatus;
 
   public SearchRequest() {
     // nothing to do here
@@ -317,6 +318,16 @@ public class SearchRequest {
 
   public SearchRequest setPrioritizedRule(@Nullable Boolean prioritizedRule) {
     this.prioritizedRule = prioritizedRule;
+    return this;
+  }
+
+  @CheckForNull
+  public List<String> getLinkedTicketStatuses() {
+    return linkedTicketStatus;
+  }
+
+  public SearchRequest setLinkedTicketStatuses(@Nullable List<String> linkedTicketStatuses) {
+    this.linkedTicketStatus = linkedTicketStatuses;
     return this;
   }
 
