@@ -1,3 +1,8 @@
+plugins {
+    id 'java-test-fixtures'
+}
+
+
 sonarqube {
     properties {
         property 'sonar.projectName', "${projectTitle} :: WebServer :: WebAPIV2"
@@ -11,6 +16,7 @@ dependencies {
     api 'org.hibernate.validator:hibernate-validator'
 
     api project(':server:sonar-db-dao')
+    api project(':server:sonar-spring')
     api project(':server:sonar-webserver-common')
 
     testImplementation 'jakarta.servlet:jakarta.servlet-api'
@@ -22,11 +28,11 @@ dependencies {
     testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
     testImplementation 'com.tngtech.java:junit-dataprovider'
     testImplementation project(':sonar-testing-harness')
-
+    testImplementation testFixtures(project(':server:sonar-spring'))
+ 
     testImplementation testFixtures(project(':server:sonar-server-common'))
     testImplementation testFixtures(project(':server:sonar-webserver-auth'))
-
-    testFixturesApi 'org.springframework:spring-test'
+    testFixturesApi testFixtures(project(':server:sonar-spring'))
 
     testRuntimeOnly 'org.apache.logging.log4j:log4j-core'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'

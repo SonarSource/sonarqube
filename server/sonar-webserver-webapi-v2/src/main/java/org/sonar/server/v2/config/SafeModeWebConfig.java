@@ -34,7 +34,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @Configuration
 @EnableWebMvc
 @Import({
-  CommonWebConfig.class,
+  ServerWebConfig.class,
   DatabaseMigrationsController.class
 })
 public class SafeModeWebConfig {

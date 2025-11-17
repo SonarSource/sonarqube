@@ -19,12 +19,17 @@
  */
 package org.sonar.server.v2.common;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -63,10 +68,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 class RestResponseEntityExceptionHandlerTest {
 
   private final RestResponseEntityExceptionHandler underTest = new RestResponseEntityExceptionHandler();
@@ -78,7 +79,8 @@ class RestResponseEntityExceptionHandlerTest {
 
   @Test
   void handleHttpMessageNotReadableException_shouldReturnBadRequest() {
-    var ex = new HttpMessageNotReadableException("Invalid format", new MockHttpInputMessage(InputStream.nullInputStream()));
+    var ex = new HttpMessageNotReadableException("Invalid format",
+        new MockHttpInputMessage(InputStream.nullInputStream()));
     ResponseEntity<RestError> response = underTest.handleHttpMessageNotReadableException(ex);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -103,7 +105,8 @@ class RestResponseEntityExceptionHandlerTest {
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     assertThat(response.getBody()).isNotNull();
-    assertThat(response.getBody().message()).isEqualTo("Value <rejectedValue> for field <field> was rejected. Error: <defaultMessage>.");
+    assertThat(response.getBody().message())
+        .isEqualTo("Value <rejectedValue> for field <field> was rejected. Error: <defaultMessage>.");
 
     // Verify logging
     assertThat(logs.logs(Level.INFO)).anyMatch(log -> log.startsWith(ErrorMessages.VALIDATION_ERROR.getMessage()));
@@ -190,7 +193,10 @@ class RestResponseEntityExceptionHandlerTest {
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     assertThat(response.getBody()).isNotNull();
-    assertThat(response.getBody().message()).isEqualTo(ex.getMessage() /* ErrorMessages.INVALID_INPUT_PROVIDED.getMessage() */);
+    assertThat(response.getBody().message()).isEqualTo(ex.getMessage() /*
+                                                                        * ErrorMessages.INVALID_INPUT_PROVIDED.
+                                                                        * getMessage()
+                                                                        */);
 
     // Verify logging
     assertThat(logs.logs(Level.WARN)).contains(ErrorMessages.INVALID_INPUT_PROVIDED.getMessage());
@@ -226,8 +232,8 @@ class RestResponseEntityExceptionHandlerTest {
 
   static Stream<Arguments> badRequestsProvider() {
     return Stream.of(
-      Arguments.of(new NoSuchElementException("Element not found")),
-      Arguments.of(new ServletRequestBindingException("Binding error")));
+        Arguments.of(new NoSuchElementException("Element not found")),
+        Arguments.of(new ServletRequestBindingException("Binding error")));
   }
 
   // endregion client
@@ -250,11 +256,12 @@ class RestResponseEntityExceptionHandlerTest {
   @Test
   void handleAuthenticationException_shouldReturnUnauthorized() {
     var ex = AuthenticationException.newBuilder()
-      .setSource(AuthenticationEvent.Source.sso())
-      .setLogin("mockLogin")
-      .setPublicMessage("Authentication failed.")
-      .build();
-    ResponseEntity<RestError> response = underTest.handleAuthenticationException(ex);
+        .setSource(AuthenticationEvent.Source.sso())
+        .setLogin("mockLogin")
+        .setPublicMessage("Authentication failed.")
+        .build();
+    ServerRestResponseEntityExceptionHandler serverHandler = new ServerRestResponseEntityExceptionHandler();
+    ResponseEntity<RestError> response = serverHandler.handleAuthenticationException(ex);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     assertThat(response.getBody()).isNotNull();
@@ -296,8 +303,8 @@ class RestResponseEntityExceptionHandlerTest {
 
   static Stream<Arguments> resourceNotFoundExceptionProvider() {
     return Stream.of(
-      Arguments.of(new FileNotFoundException("File not found")),
-      Arguments.of(new NoHandlerFoundException("GET", "URL", HttpHeaders.EMPTY)));
+        Arguments.of(new FileNotFoundException("File not found")),
+        Arguments.of(new NoHandlerFoundException("GET", "URL", HttpHeaders.EMPTY)));
   }
 
   @Test
@@ -327,7 +334,7 @@ class RestResponseEntityExceptionHandlerTest {
   }
 
   @Test
-  void handleTooManyRequestsException_shouldReturnCorrectHttpStatus(){
+  void handleTooManyRequestsException_shouldReturnCorrectHttpStatus() {
     var ex = new TooManyRequestsException("Too many requests");
     ResponseEntity<RestError> response = underTest.handleTooManyRequestsException(ex);
 
@@ -349,12 +356,12 @@ class RestResponseEntityExceptionHandlerTest {
 
   static Stream<Arguments> serverExceptionsProvider() {
     return Stream.of(
-      Arguments.of(new BadConfigurationException("Scope", "Bad config"), HttpStatus.BAD_REQUEST),
-      Arguments.of(BadRequestException.create("Bad request"), HttpStatus.BAD_REQUEST),
-      Arguments.of(new ForbiddenException("Access forbidden"), HttpStatus.FORBIDDEN),
-      Arguments.of(new NotFoundException("Not found"), HttpStatus.NOT_FOUND),
-      Arguments.of(new TemplateMatchingKeyException("Template matching error"), HttpStatus.BAD_REQUEST),
-      Arguments.of(new UnauthorizedException("Unauthorized access"), HttpStatus.UNAUTHORIZED));
+        Arguments.of(new BadConfigurationException("Scope", "Bad config"), HttpStatus.BAD_REQUEST),
+        Arguments.of(BadRequestException.create("Bad request"), HttpStatus.BAD_REQUEST),
+        Arguments.of(new ForbiddenException("Access forbidden"), HttpStatus.FORBIDDEN),
+        Arguments.of(new NotFoundException("Not found"), HttpStatus.NOT_FOUND),
+        Arguments.of(new TemplateMatchingKeyException("Template matching error"), HttpStatus.BAD_REQUEST),
+        Arguments.of(new UnauthorizedException("Unauthorized access"), HttpStatus.UNAUTHORIZED));
   }
 
   @Test
@@ -372,7 +379,8 @@ class RestResponseEntityExceptionHandlerTest {
 
   @Test
   void handleBadRequestException_shouldReturnRelatedField_whenItIsProvided() {
-    ResponseEntity<RestError> response = underTest.handleBadRequestException(BadRequestException.createWithRelatedField("Bad request message", "related field"));
+    ResponseEntity<RestError> response = underTest
+        .handleBadRequestException(BadRequestException.createWithRelatedField("Bad request message", "related field"));
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     assertThat(response.getBody()).isNotNull();

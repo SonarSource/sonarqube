@@ -58,7 +58,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 @Import({
   ActiveRulesHandlerImpl.class,
   ActiveRuleService.class,
-  CommonWebConfig.class,
+  ServerWebConfig.class,
   DatabaseMigrationsController.class,
   DefaultActiveRulesController.class,
   DefaultBoundProjectsController.class,

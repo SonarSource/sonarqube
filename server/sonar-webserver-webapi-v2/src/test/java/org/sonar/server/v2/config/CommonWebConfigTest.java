@@ -54,8 +54,8 @@ public class CommonWebConfigTest {
     try (MockedStatic<MetadataLoader> metadataLoaderMock = mockStatic(MetadataLoader.class)) {
       metadataLoaderMock.when(() -> MetadataLoader.loadSQVersion(System2.INSTANCE)).thenReturn(expectedVersion);
 
-      var commonWebConfig = new CommonWebConfig();
-      var info = commonWebConfig.customOpenAPI().getInfo();
+      var serverWebConfig = new ServerWebConfig();
+      var info = serverWebConfig.customOpenAPI().getInfo();
 
       assertThat(info.getVersion()).isNotNull();
       assertThat(info.getDescription()).isEqualTo("""

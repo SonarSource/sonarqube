@@ -19,9 +19,10 @@
  */
 package org.sonar.server.v2.common;
 
+import static org.sonar.process.logging.LogbackHelper.DEPRECATION_LOGGER_NAME;
+
 import java.lang.reflect.Field;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
@@ -29,19 +30,21 @@ import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.core.MethodParameter;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import static org.sonar.process.logging.LogbackHelper.DEPRECATION_LOGGER_NAME;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Interceptor that logs deprecation warnings for deprecated web services and parameters that are used. The only thing this handler will not
- * log is used deprecated fields of {@link org.springframework.web.bind.annotation.RequestBody()}. This needs to be covered at some point.
+ * Interceptor that logs deprecation warnings for deprecated web services and
+ * parameters that are used. The only thing this handler will not
+ * log is used deprecated fields of
+ * {@link org.springframework.web.bind.annotation.RequestBody()}. This needs to
+ * be covered at some point.
  * </p>
  */
-@Component
 public class DeprecatedHandler implements HandlerInterceptor {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DEPRECATION_LOGGER_NAME);
@@ -104,22 +107,24 @@ public class DeprecatedHandler implements HandlerInterceptor {
 
   private boolean isAuthenticatedBrowserSessionOrUnauthenticatedUser() {
     return userSession instanceof ThreadLocalUserSession threadLocalUserSession
-      && (threadLocalUserSession.hasSession()
-      && (!userSession.isLoggedIn() || userSession.isAuthenticatedBrowserSession()));
+        && (threadLocalUserSession.hasSession()
+            && (!userSession.isLoggedIn() || userSession.isAuthenticatedBrowserSession()));
   }
 
   private static void logDeprecatedWebServiceMessage(Level logLevel, String deprecatedSince) {
-    LOGGER.atLevel(logLevel).log("Web service is deprecated since {} and will be removed in a future version.", deprecatedSince);
+    LOGGER.atLevel(logLevel).log("Web service is deprecated since {} and will be removed in a future version.",
+        deprecatedSince);
   }
 
   private static void logDeprecatedParamMessage(Level logLevel, String field, String deprecatedSince) {
-    LOGGER.atLevel(logLevel).log("Parameter '{}' is deprecated since {} and will be removed in a future version.", field, deprecatedSince);
+    LOGGER.atLevel(logLevel).log("Parameter '{}' is deprecated since {} and will be removed in a future version.",
+        field, deprecatedSince);
   }
 
   private static boolean isUsedDeprecatedRequestParam(HttpServletRequest request, MethodParameter param) {
     return param.hasParameterAnnotation(Deprecated.class) &&
-      param.hasParameterAnnotation(RequestParam.class) &&
-      request.getParameter(param.getParameterAnnotation(RequestParam.class).name()) != null;
+        param.hasParameterAnnotation(RequestParam.class) &&
+        request.getParameter(param.getParameterAnnotation(RequestParam.class).name()) != null;
   }
 
   private static boolean isUsedDeprecatedField(HttpServletRequest request, Field field) {
