@@ -206,7 +206,7 @@ public class GenerateActionIT {
     UserDto user = userLogin();
 
     // A date 10 days in the future with format yyyy-MM-dd
-    String expirationDateValue = LocalDate.now().plusDays(10).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
+    String expirationDateValue = LocalDate.now(ZoneOffset.UTC).plusDays(10).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
 
     GenerateWsResponse response = newRequest(null, TOKEN_NAME, expirationDateValue);
 
@@ -221,7 +221,7 @@ public class GenerateActionIT {
     logInAsSystemAdministrator();
 
     // A date 10 days in the future with format yyyy-MM-dd
-    String expirationDateValue = LocalDate.now().plusDays(10).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
+    String expirationDateValue = LocalDate.now(ZoneOffset.UTC).plusDays(10).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
 
     GenerateWsResponse response = newRequest(user.getLogin(), TOKEN_NAME, expirationDateValue);
 
@@ -352,7 +352,7 @@ public class GenerateActionIT {
       newRequest(login, TOKEN_NAME, "2022-06-29");
     })
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage(String.format("The minimum value for parameter %s is %s.", PARAM_EXPIRATION_DATE, LocalDate.now().plusDays(1).format(DateTimeFormatter.ISO_DATE)));
+      .hasMessage(String.format("The minimum value for parameter %s is %s.", PARAM_EXPIRATION_DATE, LocalDate.now(ZoneOffset.UTC).plusDays(1).format(DateTimeFormatter.ISO_DATE)));
   }
 
   @Test
@@ -360,7 +360,7 @@ public class GenerateActionIT {
     String login = userLogin().getLogin();
 
     mapSettings.setProperty(MAX_ALLOWED_TOKEN_LIFETIME, THIRTY_DAYS.getName());
-    String expirationDateString = LocalDate.now().plusDays(30).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
+    String expirationDateString = LocalDate.now(ZoneOffset.UTC).plusDays(30).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
 
     GenerateWsResponse response = newRequest(login, TOKEN_NAME, expirationDateString);
     assertThat(response.getLogin()).isEqualTo(login);
@@ -373,7 +373,7 @@ public class GenerateActionIT {
     String login = userLogin().getLogin();
 
     mapSettings.setProperty(MAX_ALLOWED_TOKEN_LIFETIME, THIRTY_DAYS.getName());
-    String expirationDateString = LocalDate.now().plusDays(29).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
+    String expirationDateString = LocalDate.now(ZoneOffset.UTC).plusDays(29).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
 
     GenerateWsResponse response = newRequest(login, TOKEN_NAME, expirationDateString);
     assertThat(response.getLogin()).isEqualTo(login);
@@ -386,7 +386,7 @@ public class GenerateActionIT {
     String login = userLogin().getLogin();
 
     mapSettings.setProperty(MAX_ALLOWED_TOKEN_LIFETIME, NO_EXPIRATION.getName());
-    String expirationDateString = LocalDate.now().plusDays(30).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
+    String expirationDateString = LocalDate.now(ZoneOffset.UTC).plusDays(30).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
 
     GenerateWsResponse response = newRequest(login, TOKEN_NAME, expirationDateString);
     assertThat(response.getLogin()).isEqualTo(login);
@@ -411,7 +411,7 @@ public class GenerateActionIT {
 
     mapSettings.setProperty(MAX_ALLOWED_TOKEN_LIFETIME, THIRTY_DAYS.getName());
 
-    String expirationDateString = LocalDate.now().plusDays(31).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
+    String expirationDateString = LocalDate.now(ZoneOffset.UTC).plusDays(31).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
 
     // with expiration date
     assertThatThrownBy(() -> {
@@ -419,7 +419,7 @@ public class GenerateActionIT {
     })
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Tokens expiring after %s are not allowed. Please use a valid expiration date.",
-        LocalDate.now().plusDays(THIRTY_DAYS.getDays().get()).format(DateTimeFormatter.ISO_DATE));
+        LocalDate.now(ZoneOffset.UTC).plusDays(THIRTY_DAYS.getDays().get()).format(DateTimeFormatter.ISO_DATE));
 
     // without expiration date
     when(tokenGenerator.hash(anyString())).thenReturn("random");
@@ -428,7 +428,7 @@ public class GenerateActionIT {
     })
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Tokens expiring after %s are not allowed. Please use an expiration date.",
-        LocalDate.now().plusDays(THIRTY_DAYS.getDays().get()).format(DateTimeFormatter.ISO_DATE));
+        LocalDate.now(ZoneOffset.UTC).plusDays(THIRTY_DAYS.getDays().get()).format(DateTimeFormatter.ISO_DATE));
   }
 
   @Test
@@ -462,7 +462,7 @@ public class GenerateActionIT {
       })
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("Tokens expiring after %s are not allowed. Please use an expiration date.",
-          LocalDate.now().plusDays(THIRTY_DAYS.getDays().get()).format(DateTimeFormatter.ISO_DATE));
+          LocalDate.now(ZoneOffset.UTC).plusDays(THIRTY_DAYS.getDays().get()).format(DateTimeFormatter.ISO_DATE));
     });
   }
 

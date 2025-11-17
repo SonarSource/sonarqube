@@ -20,6 +20,7 @@
 package org.sonar.server.usertoken.ws;
 
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.jetbrains.annotations.Nullable;
@@ -86,7 +87,7 @@ public final class GenerateActionValidation {
 
   static void validateMaxExpirationDate(MaxTokenLifetimeOption maxTokenLifetime, LocalDate expirationDate) {
     maxTokenLifetime.getDays()
-      .ifPresent(days -> compareExpirationDateToMaxAllowedLifetime(expirationDate, LocalDate.now().plusDays(days)));
+      .ifPresent(days -> compareExpirationDateToMaxAllowedLifetime(expirationDate, LocalDate.now(ZoneOffset.UTC).plusDays(days)));
   }
 
   static void validateMaxExpirationDate(MaxTokenLifetimeOption maxTokenLifetime) {
@@ -94,7 +95,7 @@ public final class GenerateActionValidation {
       .ifPresent(days -> {
         throw new IllegalArgumentException(
           String.format("Tokens expiring after %s are not allowed. Please use an expiration date.",
-            LocalDate.now().plusDays(days).format(DateTimeFormatter.ISO_DATE)));
+            LocalDate.now(ZoneOffset.UTC).plusDays(days).format(DateTimeFormatter.ISO_DATE)));
       });
   }
 
@@ -107,9 +108,9 @@ public final class GenerateActionValidation {
   }
 
   static void validateMinExpirationDate(LocalDate localDate) {
-    if (localDate.isBefore(LocalDate.now().plusDays(1))) {
+    if (localDate.isBefore(LocalDate.now(ZoneOffset.UTC).plusDays(1))) {
       throw new IllegalArgumentException(
-        String.format("The minimum value for parameter %s is %s.", PARAM_EXPIRATION_DATE, LocalDate.now().plusDays(1).format(DateTimeFormatter.ISO_DATE)));
+        String.format("The minimum value for parameter %s is %s.", PARAM_EXPIRATION_DATE, LocalDate.now(ZoneOffset.UTC).plusDays(1).format(DateTimeFormatter.ISO_DATE)));
     }
   }
 
