@@ -54,10 +54,10 @@ class SearchActionFeatureGatingTest {
 
   @Test
   void whenFromSonarQubeUpdateFeatureIsDisabled_parameterShouldNotBeAvailable() {
-    FromSonarQubeUpdateFeature fromSonarQubeUpdateFeature = mock(FromSonarQubeUpdateFeature.class);
-    when(fromSonarQubeUpdateFeature.isAvailable()).thenReturn(false);
+    FromSonarQubeUpdateFeature originFromSonarQubeUpdateFeature = mock(FromSonarQubeUpdateFeature.class);
+    when(originFromSonarQubeUpdateFeature.isAvailable()).thenReturn(false);
 
-    WsActionTester ws = createSearchActionTester(fromSonarQubeUpdateFeature, jiraSonarQubeFeature);
+    WsActionTester ws = createSearchActionTester(originFromSonarQubeUpdateFeature, jiraSonarQubeFeature);
 
     WebService.Action definition = ws.getDef();
 
@@ -67,10 +67,10 @@ class SearchActionFeatureGatingTest {
 
   @Test
   void whenFromSonarQubeUpdateFeatureIsEnabled_parameterShouldBeAvailable() {
-    FromSonarQubeUpdateFeature fromSonarQubeUpdateFeature = mock(FromSonarQubeUpdateFeature.class);
-    when(fromSonarQubeUpdateFeature.isAvailable()).thenReturn(true);
+    FromSonarQubeUpdateFeature originFromSonarQubeUpdateFeature = mock(FromSonarQubeUpdateFeature.class);
+    when(originFromSonarQubeUpdateFeature.isAvailable()).thenReturn(true);
 
-    WsActionTester ws = createSearchActionTester(fromSonarQubeUpdateFeature, jiraSonarQubeFeature);
+    WsActionTester ws = createSearchActionTester(originFromSonarQubeUpdateFeature, jiraSonarQubeFeature);
 
     WebService.Action definition = ws.getDef();
 
