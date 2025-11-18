@@ -19,6 +19,8 @@
  */
 package org.sonar.server.rule.ws;
 
+import io.sonarcloud.compliancereports.reports.MetadataLoader;
+import io.sonarcloud.compliancereports.reports.MetadataRules;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -60,6 +62,7 @@ import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.TestMetadataType;
 import org.sonar.server.common.text.MacroInterpreter;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
@@ -101,11 +104,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.RESOURCES_SECTION_KEY;
+import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.db.rule.RuleTesting.newRuleWithoutDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.setSystemTags;
 import static org.sonar.db.rule.RuleTesting.setTags;
+import static org.sonar.server.rule.index.RuleIndex.FACET_COMPLIANCE_STANDARDS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_CLEAN_CODE_ATTRIBUTE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
@@ -126,17 +131,19 @@ class SearchActionIT {
   @RegisterExtension
   private final EsTester es = EsTester.create();
   private final Configuration config = mock(Configuration.class);
-
+  private final MetadataLoader metadataLoader = new MetadataLoader(Set.of(new TestMetadataType()));
+  private final MetadataRules metadataRules = new MetadataRules(metadataLoader);
   private final RuleIndex ruleIndex = new RuleIndex(es.client(), system2, config);
   private final RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
   private final ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
   private final Languages languages = LanguageTesting.newLanguages(JAVA, "js");
-  private final RuleQueryFactory ruleQueryFactory = new RuleQueryFactory(db.getDbClient());
+  private final RuleQueryFactory ruleQueryFactory = new RuleQueryFactory(db.getDbClient(), metadataRules);
   private static final MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
   private final QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
   private final RuleMapper ruleMapper = new RuleMapper(languages, macroInterpreter, new RuleDescriptionFormatter());
   private final SearchAction underTest = new SearchAction(ruleIndex, ruleQueryFactory, db.getDbClient(),
-    new RulesResponseFormatter(db.getDbClient(), new RuleWsSupport(db.getDbClient(), userSession), ruleMapper, languages));
+    new RulesResponseFormatter(db.getDbClient(), new RuleWsSupport(db.getDbClient(), userSession), ruleMapper, languages), metadataLoader,
+    metadataRules);
   private final TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
   private final RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db.getDbClient(), UuidFactoryImpl.INSTANCE, typeValidations, userSession,
@@ -159,7 +166,7 @@ class SearchActionIT {
     assertThat(def.since()).isEqualTo("4.4");
     assertThat(def.isInternal()).isFalse();
     assertThat(def.responseExampleAsString()).isNotEmpty();
-    assertThat(def.params()).hasSize(34);
+    assertThat(def.params()).hasSize(35);
 
     WebService.Param compareToProfile = def.param("compareToProfile");
     assertThat(compareToProfile.since()).isEqualTo("6.5");
@@ -429,6 +436,20 @@ class SearchActionIT {
       .setParam("f", "repo,name")
       .setParam("tags", rule1.getTags().stream().collect(Collectors.joining(",")));
     verify(request, rule1);
+  }
+
+  @Test
+  void should_filter_on_compliance_standard() {
+    RuleDto rule1 = db.rules().insert(r -> r.setLanguage("java").setRuleKey(RuleKey.of("java", "S001")));
+    RuleDto rule2 = db.rules().insert(r -> r.setLanguage("java").setRuleKey(RuleKey.of("java", "S002")));
+    db.rules().insert(r -> r.setLanguage("java"));
+
+    db.rules().insert(r -> r.setLanguage("java"));
+    indexRules();
+
+    Consumer<TestRequest> request = r -> r
+      .setParam("complianceStandards", "test:V1=category1");
+    verify(request, rule1, rule2);
   }
 
   @Test
@@ -1074,6 +1095,26 @@ class SearchActionIT {
       tuple(rule1.getKey().toString(), rule1.getStatus().name()),
       tuple(rule2.getKey().toString(), rule2.getStatus().name()),
       tuple(rule3.getKey().toString(), rule3.getStatus().name()));
+  }
+
+  @Test
+  void return_compliance_facets() {
+    db.rules().insert(r -> r.setLanguage("java").setRuleKey(RuleKey.of("java", "S001")));
+    db.rules().insert(r -> r.setLanguage("java").setRuleKey(RuleKey.of("java", "S002")));
+    db.rules().insert(r -> r.setLanguage("java").setRuleKey(RuleKey.of("java", "S003")));
+    db.rules().insert(r -> r.setLanguage("java").setRuleKey(RuleKey.of("java", "S004")));
+    db.rules().insert(r -> r.setLanguage("java").setRuleKey(RuleKey.of("java", "S005")));
+
+    indexRules();
+
+    SearchResponse result = ws.newRequest()
+      .setParam(FACETS, FACET_COMPLIANCE_STANDARDS)
+      .executeProtobuf(SearchResponse.class);
+
+    assertThat(result.getRulesCount()).isEqualTo(5);
+    assertThat(result.getFacets().getFacets(0).getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsOnly(tuple("category1", 2L), tuple("category2", 1L));
   }
 
   @Test

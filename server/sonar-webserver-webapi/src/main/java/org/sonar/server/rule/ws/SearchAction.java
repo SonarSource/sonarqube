@@ -22,6 +22,11 @@ package org.sonar.server.rule.ws;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
+import io.sonarcloud.compliancereports.reports.MetadataLoader;
+import io.sonarcloud.compliancereports.reports.MetadataRules;
+import io.sonarcloud.compliancereports.reports.ReportKey;
+import io.sonarcloud.compliancereports.reports.RuleBuckets;
+import io.sonarcloud.compliancereports.reports.RuleBuckets.RuleBucket;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,6 +40,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.CleanCodeAttributeCategory;
 import org.sonar.api.server.ws.Change;
@@ -67,9 +73,11 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.rule.index.RuleIndex.ALL_STATUSES_EXCEPT_REMOVED;
+import static org.sonar.server.rule.index.RuleIndex.COMPLIANCE_FILTER_FACET_PREFIX;
 import static org.sonar.server.rule.index.RuleIndex.FACET_ACTIVE_IMPACT_SEVERITY;
 import static org.sonar.server.rule.index.RuleIndex.FACET_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY;
+import static org.sonar.server.rule.index.RuleIndex.FACET_COMPLIANCE_STANDARDS;
 import static org.sonar.server.rule.index.RuleIndex.FACET_CWE;
 import static org.sonar.server.rule.index.RuleIndex.FACET_IMPACT_SEVERITY;
 import static org.sonar.server.rule.index.RuleIndex.FACET_IMPACT_SOFTWARE_QUALITY;
@@ -89,6 +97,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.OPTIONAL_FIELDS;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_IMPACT_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_COMPLIANCE_STANDARDS;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CWE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IMPACT_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IMPACT_SOFTWARE_QUALITIES;
@@ -110,7 +119,7 @@ public class SearchAction implements RulesWsAction {
   public static final String ACTION = "search";
 
   private static final Collection<String> DEFAULT_FACETS = Set.of(PARAM_LANGUAGES, PARAM_REPOSITORIES, "tags");
-  private static final String[] POSSIBLE_FACETS = new String[] {
+  private static final String[] POSSIBLE_FACETS = new String[]{
     FACET_LANGUAGES,
     FACET_REPOSITORIES,
     FACET_TAGS,
@@ -128,19 +137,25 @@ public class SearchAction implements RulesWsAction {
     FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY,
     FACET_IMPACT_SEVERITY,
     FACET_IMPACT_SOFTWARE_QUALITY,
-    FACET_ACTIVE_IMPACT_SEVERITY
+    FACET_ACTIVE_IMPACT_SEVERITY,
+    FACET_COMPLIANCE_STANDARDS
   };
 
   private final RuleQueryFactory ruleQueryFactory;
   private final DbClient dbClient;
   private final RuleIndex ruleIndex;
   private final RulesResponseFormatter rulesResponseFormatter;
+  private final MetadataLoader metadataLoader;
+  private final MetadataRules metadataRules;
 
-  public SearchAction(RuleIndex ruleIndex, RuleQueryFactory ruleQueryFactory, DbClient dbClient, RulesResponseFormatter rulesResponseFormatter) {
+  public SearchAction(RuleIndex ruleIndex, RuleQueryFactory ruleQueryFactory, DbClient dbClient,
+    RulesResponseFormatter rulesResponseFormatter, MetadataLoader metadataLoader, MetadataRules metadataRules) {
     this.ruleIndex = ruleIndex;
     this.ruleQueryFactory = ruleQueryFactory;
     this.dbClient = dbClient;
     this.rulesResponseFormatter = rulesResponseFormatter;
+    this.metadataLoader = metadataLoader;
+    this.metadataRules = metadataRules;
   }
 
   @Override
@@ -184,32 +199,48 @@ public class SearchAction implements RulesWsAction {
         new Change("10.2", "The field 'cleanCodeAttribute' has been added to the 'fields' parameter."),
         new Change("10.2", "The value 'severity' for the 'fields' parameter has been deprecated."),
         new Change("10.2",
-          format("The values '%s', '%s' and '%s' have been added to the 'facets' parameter.", FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY, FACET_IMPACT_SOFTWARE_QUALITY,
+          format("The values '%s', '%s' and '%s' have been added to the 'facets' parameter.", FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY,
+            FACET_IMPACT_SOFTWARE_QUALITY,
             FACET_IMPACT_SEVERITY)),
-        new Change("10.2", format("The values 'severity' and 'types' for the 'facets' parameter have been deprecated. Use '%s' and '%s' instead.", FACET_IMPACT_SEVERITY,
+        new Change("10.2", format("The values 'severity' and 'types' for the 'facets' parameter have been deprecated. Use '%s' and '%s' " +
+            "instead.", FACET_IMPACT_SEVERITY,
           FACET_IMPACT_SOFTWARE_QUALITY)),
         new Change("10.2",
-          format("Parameters '%s', '%s', and '%s' are now deprecated. Use '%s' and '%s' instead.", PARAM_SEVERITIES, PARAM_TYPES, PARAM_ACTIVE_SEVERITIES,
+          format("Parameters '%s', '%s', and '%s' are now deprecated. Use '%s' and '%s' instead.", PARAM_SEVERITIES, PARAM_TYPES,
+            PARAM_ACTIVE_SEVERITIES,
             PARAM_IMPACT_SOFTWARE_QUALITIES, PARAM_IMPACT_SEVERITIES)),
         new Change("10.6", format("Parameter '%s has been added", PARAM_PRIORITIZED_RULE)),
-        new Change("10.8", format("Possible values '%s' and '%s' for response field 'impactSeverities' of 'facets' have been added", INFO.name(), BLOCKER.name())),
-        new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added", INFO.name(), BLOCKER.name())),
-        new Change("10.8", format("Parameter '%s' now supports values: '%s','%s'", IssuesWsParameters.PARAM_SEVERITIES, INFO.name(), BLOCKER.name())),
+        new Change("10.8", format("Possible values '%s' and '%s' for response field 'impactSeverities' of 'facets' have been added",
+          INFO.name(), BLOCKER.name())),
+        new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added", INFO.name()
+          , BLOCKER.name())),
+        new Change("10.8", format("Parameter '%s' now supports values: '%s','%s'", IssuesWsParameters.PARAM_SEVERITIES, INFO.name(),
+          BLOCKER.name())),
         new Change("10.8", "The field 'impacts' has been added to the response"),
-        new Change("10.8", format("The parameters '%s','%s and '%s' are not deprecated anymore.", PARAM_SEVERITIES, PARAM_TYPES, PARAM_ACTIVE_SEVERITIES)),
+        new Change("10.8", format("The parameters '%s','%s and '%s' are not deprecated anymore.", PARAM_SEVERITIES, PARAM_TYPES,
+          PARAM_ACTIVE_SEVERITIES)),
         new Change("10.8", "The values 'severity' and 'types' for the 'facets' parameter are not deprecated anymore."),
         new Change("10.8", "The fields 'type' and 'severity' in the response are not deprecated anymore."),
         new Change("10.8", "The value 'severity' for the 'fields' parameter is not deprecated anymore."),
         new Change("2025.1", format("The facet '%s' has been added.", FACET_ACTIVE_IMPACT_SEVERITY)),
-        new Change("2025.1", "The deprecated field 'htmlDesc' is not returned anymore, even if specified in the 'fields' parameter."));
+        new Change("2025.1", "The deprecated field 'htmlDesc' is not returned anymore, even if specified in the 'fields' parameter."),
+        new Change("2025.6", format("The facet '%s' was added.", FACET_COMPLIANCE_STANDARDS)),
+        new Change("2025.6", format("The parameter '%s' was added.", PARAM_COMPLIANCE_STANDARDS)));
 
     action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
       .setPossibleValues(POSSIBLE_FACETS)
       .setExampleValue(format("%s,%s", POSSIBLE_FACETS[0], POSSIBLE_FACETS[1]));
 
+    action
+      .createParam(PARAM_COMPLIANCE_STANDARDS)
+      .setDescription("Comma-separated list of compliance standards")
+      .setSince("2025.6")
+      .setExampleValue("asvs:4.0.3=6.1.2");
+
     WebService.NewParam paramFields = action.createParam(FIELDS)
-      .setDescription("Comma-separated list of additional fields to be returned in the response. All the fields are returned by default, except actives.")
+      .setDescription("Comma-separated list of additional fields to be returned in the response. All the fields are returned by default, " +
+        "except actives.")
       .setPossibleValues(Ordering.natural().sortedCopy(OPTIONAL_FIELDS));
 
     Iterator<String> it = OPTIONAL_FIELDS.iterator();
@@ -237,13 +268,15 @@ public class SearchAction implements RulesWsAction {
     }
   }
 
-  private SearchResponse buildResponse(DbSession dbSession, SearchRequest request, SearchOptions context, SearchResult result, RuleQuery query) {
+  private SearchResponse buildResponse(DbSession dbSession, SearchRequest request, SearchOptions context, SearchResult result,
+    RuleQuery query) {
     SearchResponse.Builder responseBuilder = SearchResponse.newBuilder();
     writeStatistics(responseBuilder, result, context);
     doContextResponse(dbSession, request, result, responseBuilder, query);
     if (!context.getFacets().isEmpty()) {
       writeFacets(responseBuilder, request, context, result);
     }
+    writeComplianceFacets(responseBuilder, context, result);
     return responseBuilder.build();
   }
 
@@ -261,17 +294,25 @@ public class SearchAction implements RulesWsAction {
       .setTotal(total.intValue());
   }
 
-  private static SearchOptions buildSearchOptions(SearchRequest request) {
+  private SearchOptions buildSearchOptions(SearchRequest request) {
     SearchOptions context = loadCommonContext(request);
     SearchOptions searchOptions = new SearchOptions()
       .setLimit(context.getLimit())
       .setOffset(context.getOffset());
     if (context.getFacets().contains(RuleIndex.FACET_OLD_DEFAULT)) {
       searchOptions.addFacets(DEFAULT_FACETS);
+    } else if (context.getFacets().contains(FACET_COMPLIANCE_STANDARDS)) {
+      Set<String> complianceStandards = metadataLoader.getAllMetadata().keySet().stream()
+        .map(SearchAction::complianceStandardToString).collect(Collectors.toSet());
+      searchOptions.addComplianceFacets(complianceStandards);
     } else {
       searchOptions.addFacets(context.getFacets());
     }
     return searchOptions;
+  }
+
+  private static String complianceStandardToString(ReportKey reportKey) {
+    return reportKey.standard() + ":" + reportKey.version();
   }
 
   private static SearchOptions loadCommonContext(SearchRequest request) {
@@ -315,7 +356,8 @@ public class SearchAction implements RulesWsAction {
       .setTotal(result.getTotal());
   }
 
-  private void doContextResponse(DbSession dbSession, SearchRequest request, SearchResult result, SearchResponse.Builder response, RuleQuery query) {
+  private void doContextResponse(DbSession dbSession, SearchRequest request, SearchResult result, SearchResponse.Builder response,
+    RuleQuery query) {
     SearchOptions contextForResponse = loadCommonContext(request);
     response.addAllRules(rulesResponseFormatter.formatRulesSearch(dbSession, result, contextForResponse.getFields()));
     if (contextForResponse.getFields().contains("actives")) {
@@ -394,11 +436,39 @@ public class SearchAction implements RulesWsAction {
     }
   }
 
+  private static ReportKey toReportKey(String s) {
+    String[] split = s.split(":");
+    return new ReportKey(split[0], split[1]);
+  }
+
+  private void writeComplianceFacets(SearchResponse.Builder response, SearchOptions context, SearchResult results) {
+    Common.Facet.Builder facet = Common.Facet.newBuilder();
+    Common.FacetValue.Builder value = Common.FacetValue.newBuilder();
+
+    for (String standardName : context.getComplianceFacets()) {
+      Map<String, Long> countByRuleKey = results.getFacets().get(COMPLIANCE_FILTER_FACET_PREFIX + standardName);
+      ReportKey reportKey = toReportKey(standardName);
+      Map<String, Long> ruleCountByComplianceCategory = metadataRules.getRuleCountByStandardCategory(reportKey, countByRuleKey);
+      facet.clear().setProperty(standardName);
+
+      for (Map.Entry<String, Long> ruleKeyCount : ruleCountByComplianceCategory.entrySet()) {
+        if (ruleKeyCount.getValue() > 0) {
+          facet.addValues(value
+            .clear()
+            .setVal(ruleKeyCount.getKey())
+            .setCount(ruleKeyCount.getValue()));
+        }
+      }
+      response.getFacetsBuilder().addFacets(facet);
+    }
+  }
+
   private static Collection<String> enumToStringCollection(Enum<?>... enumValues) {
     return Arrays.stream(enumValues).map(Enum::name).toList();
   }
 
-  private static void addZeroFacetsForSelectedItems(Common.Facet.Builder facet, @Nullable List<String> requestParams, Set<String> itemsFromFacets) {
+  private static void addZeroFacetsForSelectedItems(Common.Facet.Builder facet, @Nullable List<String> requestParams,
+    Set<String> itemsFromFacets) {
     if (requestParams != null) {
       Common.FacetValue.Builder value = Common.FacetValue.newBuilder();
       for (String param : requestParams) {

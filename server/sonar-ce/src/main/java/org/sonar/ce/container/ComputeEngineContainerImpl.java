@@ -20,6 +20,7 @@
 package org.sonar.ce.container;
 
 import com.google.common.annotations.VisibleForTesting;
+import io.sonarcloud.compliancereports.ingestion.IssueIngestionService;
 import java.time.Clock;
 import java.util.List;
 import javax.annotation.CheckForNull;
@@ -55,7 +56,7 @@ import org.sonar.ce.task.projectanalysis.ProjectAnalysisTaskModule;
 import org.sonar.ce.task.projectanalysis.analysis.ProjectConfigurationFactory;
 import org.sonar.ce.task.projectanalysis.issue.AdHocRuleCreator;
 import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotificationModule;
-import org.sonar.ce.task.projectanalysis.step.IssueStatsIndexer;
+import org.sonar.server.issue.IssueStatsIndexer;
 import org.sonar.ce.task.projectanalysis.taskprocessor.AuditPurgeTaskModule;
 import org.sonar.ce.task.projectanalysis.taskprocessor.IssueSyncTaskModule;
 import org.sonar.ce.taskprocessor.CeProcessingScheduler;
@@ -82,6 +83,7 @@ import org.sonar.db.MyBatis;
 import org.sonar.db.StartMyBatis;
 import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.purge.PurgeProfiler;
+import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.Props;
 import org.sonar.process.logging.LogbackHelper;
@@ -150,7 +152,6 @@ import org.sonar.server.qualitygate.notification.QGChangeNotificationHandler;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.rule.RuleDescriptionFormatter;
-import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.setting.DatabaseSettingLoader;
 import org.sonar.server.setting.DatabaseSettingsEnabler;
@@ -300,9 +301,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       // Elasticsearch
       new EsModule(),
 
-      // rules/qprofiles
-      RuleIndex.class,
-
       new OkHttpClientProvider(),
       computeEngineStatus,
       NoOpAuditPersister.class,
@@ -413,7 +411,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       IssueIteratorFactory.class,
       IssueFieldsSetter.class, // used in Web Services and CE's DebtCalculator
       TaintChecker.class,
-      IssueStatsIndexer.class,
       // used in Web Services and CE's DebtCalculator
       IssueWorkflow.class,
       CodeQualityIssueWorkflow.class,
@@ -429,6 +426,11 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       MyNewIssuesNotificationHandler.class,
       MyNewIssuesNotificationHandler.newMetadata(),
       new IssuesChangesNotificationModule(),
+
+      // compliance standards
+      IssueIngestionService.class,
+      IssueStatsByRuleKeyDaoImpl.class,
+      IssueStatsIndexer.class,
 
       // Notifications
       QGChangeEmailTemplate.class,

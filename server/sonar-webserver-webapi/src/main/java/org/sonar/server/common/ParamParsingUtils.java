@@ -19,6 +19,11 @@
  */
 package org.sonar.server.common;
 
+import io.sonarcloud.compliancereports.reports.ReportKey;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.commons.lang3.tuple.Pair;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
@@ -35,5 +40,26 @@ public class ParamParsingUtils {
     }
     return Pair.of(SoftwareQuality.valueOf(parts[0]),
       Severity.valueOf(parts[1]));
+  }
+
+  public static Map<ReportKey, String> parseComplianceStandardsFilter(@Nullable Collection<String> paramAsStrings) {
+    if (paramAsStrings == null) {
+      return Map.of();
+    }
+
+    Map<ReportKey, String> categoriesByStandard = new HashMap<>();
+
+    for (String complianceStandardsFilter : paramAsStrings) {
+      String[] parts = complianceStandardsFilter.split("=");
+      if (parts.length != 2) {
+        throw new IllegalArgumentException("Invalid format. Expected key=value: " + complianceStandardsFilter);
+      }
+      String[] standardParts = parts[0].split(":");
+      if (standardParts.length != 2) {
+        throw new IllegalArgumentException("Invalid format. Expected standard:version in " + complianceStandardsFilter);
+      }
+      categoriesByStandard.put(new ReportKey(standardParts[0], standardParts[1]), parts[1]);
+    }
+    return categoriesByStandard;
   }
 }

@@ -21,6 +21,8 @@ package org.sonar.server.rule.index;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import io.sonarcloud.compliancereports.reports.MetadataRules.ComplianceCategoryRules;
+import io.sonarcloud.compliancereports.reports.MetadataRules.RepositoryRuleKey;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -74,11 +76,11 @@ import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
+import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_ENABLED;
 import static org.sonar.core.rule.RuleType.BUG;
 import static org.sonar.core.rule.RuleType.CODE_SMELL;
 import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.core.rule.RuleType.VULNERABILITY;
-import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_ENABLED;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.db.rule.RuleTesting.setCleanCodeAttribute;
@@ -100,6 +102,7 @@ import static org.sonar.db.rule.RuleTesting.setType;
 import static org.sonar.db.rule.RuleTesting.setUpdatedAt;
 import static org.sonar.server.qualityprofile.ActiveRuleInheritance.INHERITED;
 import static org.sonar.server.qualityprofile.ActiveRuleInheritance.OVERRIDES;
+import static org.sonar.server.rule.index.RuleIndex.FACET_COMPLIANCE_STANDARDS;
 import static org.sonar.server.rule.index.RuleIndex.FACET_LANGUAGES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_REPOSITORIES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TAGS;
@@ -195,6 +198,22 @@ class RuleIndexIT {
     // partial key does not match
     query = new RuleQuery().setKey("X001");
     assertThat(underTest.search(query, new SearchOptions()).getUuids()).isEmpty();
+  }
+
+  @Test
+  void filter_by_compliance_category_rules() {
+    RuleDto rule = createRule(setRepositoryKey("javascript"), setRuleKey("X001"));
+    RuleDto rule1 = createRule(setRepositoryKey("cobol"), setRuleKey("X001"));
+    RuleDto rule2 = createRule(setRepositoryKey("php"), setRuleKey("S002"));
+    createRule(setRepositoryKey("java"), setRuleKey("S002"));
+    index();
+
+    // key
+    RuleQuery query = new RuleQuery().setComplianceCategoryRules(Map.of("standard",
+      new ComplianceCategoryRules(Set.of(RepositoryRuleKey.of("php:S002")), Set.of("X001"))));
+
+    assertThat(underTest.search(query, new SearchOptions()).getUuids())
+      .containsOnly(rule.getUuid(), rule1.getUuid(), rule2.getUuid());
   }
 
   @Test
@@ -1413,14 +1432,14 @@ class RuleIndexIT {
       .setTypes(asList(BUG, CODE_SMELL));
 
     SearchIdResult<String> result = underTest.search(query, new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES,
-      FACET_TAGS,
-      FACET_TYPES)));
+      FACET_TAGS, FACET_TYPES)).addComplianceFacets(asList("cwe")));
     assertThat(result.getUuids()).hasSize(2);
-    assertThat(result.getFacets().getAll()).hasSize(4);
+    assertThat(result.getFacets().getAll()).hasSize(5);
     assertThat(result.getFacets().get(FACET_LANGUAGES)).containsOnlyKeys("cpp", "java");
     assertThat(result.getFacets().get(FACET_REPOSITORIES)).containsOnlyKeys("foo", "xoo");
     assertThat(result.getFacets().get(FACET_TAGS)).containsOnlyKeys("T1", "T2", "T3");
     assertThat(result.getFacets().get(FACET_TYPES)).containsOnlyKeys("CODE_SMELL");
+    assertThat(result.getFacets().get("compliance_cwe")).containsOnlyKeys("foo:S113", "xoo:S003");
   }
 
   @Test

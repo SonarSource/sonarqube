@@ -61,6 +61,7 @@ public final class SqTables {
     "group_roles",
     "internal_component_props",
     "internal_properties",
+    "issue_stats_by_rule_key",
     "issues",
     "issues_fixed",
     "issues_impacts",

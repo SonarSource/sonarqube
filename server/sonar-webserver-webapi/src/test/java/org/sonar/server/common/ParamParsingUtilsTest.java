@@ -19,11 +19,16 @@
  */
 package org.sonar.server.common;
 
+import io.sonarcloud.compliancereports.reports.ReportKey;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -51,6 +56,29 @@ class ParamParsingUtilsTest {
     assertThatThrownBy(() -> ParamParsingUtils.parseImpact("BUG=LOW"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("No enum constant org.sonar.api.issue.impact.SoftwareQuality.BUG");
+  }
+
+  @Test
+  void parseComplianceStandardsFilter_ShouldReturnExpectedResult() {
+    Map<ReportKey, String> result = ParamParsingUtils.parseComplianceStandardsFilter(
+      List.of("standard1:1=category1", "standard2:1=category2"));
+    assertThat(result).containsOnly(
+      entry(new ReportKey("standard1", "1"), "category1"),
+      entry(new ReportKey("standard2", "1"), "category2"));
+  }
+
+  @Test
+  void parseComplianceStandardsFilter_WhenParamIsNullShouldReturnEmpty() {
+    assertThat(ParamParsingUtils.parseComplianceStandardsFilter(null)).isEmpty();
+  }
+
+  @Test
+  void parseComplianceStandardsFilter_WhenParamIsInvalidShouldThrowException() {
+    List<String> params = List.of("invalid");
+    assertThatThrownBy(() -> ParamParsingUtils.parseComplianceStandardsFilter(params))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Invalid format. Expected key=value: invalid");
+
   }
 }
 

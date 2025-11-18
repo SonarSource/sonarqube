@@ -17,19 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.step;
+package org.sonar.server.issue;
 
+import io.sonarcloud.compliancereports.ingestion.IssueIngestionService;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.batch.rule.Severity;
 import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.report.IssueStatsByRuleKeyMapper;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIterator;
 import org.sonar.server.issue.index.IssueIteratorFactory;
@@ -50,7 +51,8 @@ class IssueStatsIndexerTest {
 
   private final IssueIteratorFactory issueIteratorFactory = mock(IssueIteratorFactory.class);
   private final DbClient dbClient = mock(DbClient.class);
-  private final IssueStatsIndexer underTest = new IssueStatsIndexer(issueIteratorFactory, dbClient);
+  private final IssueIngestionService issueIngestionService = mock(IssueIngestionService.class);
+  private final IssueStatsIndexer underTest = new IssueStatsIndexer(issueIteratorFactory, dbClient, issueIngestionService);
 
   @Nested
   class WhenIndexingOnAnalysis {

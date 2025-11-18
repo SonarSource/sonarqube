@@ -12,6 +12,7 @@ dependencies {
   api 'com.google.guava:guava'
   api 'org.apache.tomcat.embed:tomcat-embed-core'
   api 'ch.qos.logback.access:logback-access-tomcat'
+  api "com.sonarsource.sonarcloud:compliance-reports:${complianceReportsVersion}"
   api project(':sonar-core')
   api project(':server:sonar-auth-bitbucket')
   api project(':server:sonar-auth-github')

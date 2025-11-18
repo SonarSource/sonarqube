@@ -1,0 +1,21 @@
+report:
+  key: test
+  versions:
+    - name: 1
+      key: V1
+      categories:
+        - name: category1
+          rules:
+            - java:S001
+            - :S002
+            - :3
+        - name: category2
+          rules:
+            - :S003
+            - :2
+            - :3
+        - name: category3
+          rules:
+            - :1
+            - :2
+            - :3

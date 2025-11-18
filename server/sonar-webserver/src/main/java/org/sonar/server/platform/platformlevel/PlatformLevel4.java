@@ -19,6 +19,8 @@
  */
 package org.sonar.server.platform.platformlevel;
 
+import io.sonarcloud.compliancereports.reports.MetadataLoader;
+import io.sonarcloud.compliancereports.reports.MetadataRules;
 import java.util.List;
 import org.sonar.alm.client.RatioBasedRateLimitChecker;
 import org.sonar.alm.client.TimeoutConfigurationImpl;
@@ -413,6 +415,10 @@ public class PlatformLevel4 extends PlatformLevel {
       LanguageWs.class,
       LanguageValidation.class,
       org.sonar.server.language.ws.ListAction.class,
+
+      // compliance reports
+      MetadataLoader.class,
+      MetadataRules.class,
 
       // measure
       new MetricsWsModule(),

@@ -42,6 +42,7 @@ public class RulesWsParameters {
   @Deprecated(since = "10.0", forRemoval = true)
   public static final String PARAM_SANS_TOP_25 = "sansTop25";
   public static final String PARAM_SONARSOURCE_SECURITY = "sonarsourceSecurity";
+  public static final String PARAM_COMPLIANCE_STANDARDS = "complianceStandards";
   public static final String PARAM_INHERITANCE = "inheritance";
   public static final String PARAM_ACTIVE_SEVERITIES = "active_severities";
   public static final String PARAM_IS_TEMPLATE = "is_template";

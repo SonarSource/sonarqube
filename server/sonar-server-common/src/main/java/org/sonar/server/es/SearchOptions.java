@@ -44,6 +44,7 @@ public class SearchOptions {
   private int offset = DEFAULT_OFFSET;
   private int limit = DEFAULT_LIMIT;
   private final Set<String> facets = new LinkedHashSet<>();
+  private final Set<String> complianceFacets = new LinkedHashSet<>();
   private final Set<String> fieldsToReturn = new HashSet<>();
 
   /**
@@ -93,6 +94,16 @@ public class SearchOptions {
     this.limit = limit;
     return this;
   }
+
+  public Collection<String> getComplianceFacets() {
+    return complianceFacets;
+  }
+
+  public SearchOptions addComplianceFacets(Collection<String> f) {
+    complianceFacets.addAll(f);
+    return this;
+  }
+
 
   /**
    * Lists selected facets.

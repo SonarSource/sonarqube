@@ -31,7 +31,6 @@ dependencies {
   api 'org.mybatis:mybatis'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
 
-  implementation "com.sonarsource.sonarcloud:compliance-reports:${complianceReportsVersion}"
   implementation 'org.apache.commons:commons-text'
 
   api project(':sonar-core')

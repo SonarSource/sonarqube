@@ -20,8 +20,11 @@
 package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.collect.ImmutableSet;
+import io.sonarcloud.compliancereports.reports.MetadataLoader;
+import io.sonarcloud.compliancereports.reports.MetadataRules;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -95,7 +98,9 @@ class QProfilesWsMediumIT {
     sonarQubeVersion);
   private final QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, ruleIndex, activeRuleIndexer, qualityProfileChangeEventService);
   private final QProfileWsSupport qProfileWsSupport = new QProfileWsSupport(dbClient, userSessionRule);
-  private final RuleQueryFactory ruleQueryFactory = new RuleQueryFactory(dbClient);
+  private final MetadataLoader metadataLoader = new MetadataLoader(Set.of());
+  private final MetadataRules metadataRules = new MetadataRules(metadataLoader);
+  private final RuleQueryFactory ruleQueryFactory = new RuleQueryFactory(dbClient, metadataRules);
 
   private final WsActionTester wsDeactivateRule = new WsActionTester(new DeactivateRuleAction(dbClient, qProfileRules, userSessionRule, qProfileWsSupport));
   private final WsActionTester wsDeactivateRules = new WsActionTester(new DeactivateRulesAction(ruleQueryFactory, userSessionRule, qProfileRules, qProfileWsSupport, dbClient));

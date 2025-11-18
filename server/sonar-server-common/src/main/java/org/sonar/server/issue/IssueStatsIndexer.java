@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.step;
+package org.sonar.server.issue;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.sonarcloud.compliancereports.dao.AggregationType;
@@ -30,11 +30,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.rule.Severity;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.server.es.AnalysisIndexer;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIterator;
@@ -47,10 +46,12 @@ public class IssueStatsIndexer implements AnalysisIndexer {
 
   private final IssueIteratorFactory issueIteratorFactory;
   private final DbClient dbClient;
+  private final IssueIngestionService issueIngestionService;
 
-  public IssueStatsIndexer(IssueIteratorFactory issueIteratorFactory, DbClient dbClient) {
+  public IssueStatsIndexer(IssueIteratorFactory issueIteratorFactory, DbClient dbClient, IssueIngestionService issueIngestionService) {
     this.issueIteratorFactory = issueIteratorFactory;
     this.dbClient = dbClient;
+    this.issueIngestionService = issueIngestionService;
   }
 
   @Override
@@ -64,7 +65,6 @@ public class IssueStatsIndexer implements AnalysisIndexer {
       }
       try (var dbSession = dbClient.openSession(false)) {
         var issuesForIngestion = transformToRepositoryRuleIssuesDtos(issuesWithRuleUuids, dbSession);
-        IssueIngestionService issueIngestionService = new IssueIngestionService(new IssueStatsByRuleKeyDaoImpl(dbSession));
         issueIngestionService.ingest(branchUuid, AggregationType.PROJECT, issuesForIngestion);
         dbSession.commit();
       } catch (Exception e) {

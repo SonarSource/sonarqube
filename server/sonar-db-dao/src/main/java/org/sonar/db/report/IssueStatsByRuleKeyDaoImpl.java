@@ -23,30 +23,31 @@ import io.sonarcloud.compliancereports.dao.AggregationType;
 import io.sonarcloud.compliancereports.dao.IssueStats;
 import io.sonarcloud.compliancereports.dao.IssueStatsByRuleKeyDao;
 import java.util.List;
-import java.util.UUID;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 
 public class IssueStatsByRuleKeyDaoImpl implements IssueStatsByRuleKeyDao {
 
-  private final DbSession dbSession;
+  private final DbClient dbClient;
 
-  public IssueStatsByRuleKeyDaoImpl(DbSession dbSession) {
-    this.dbSession = dbSession;
+  public IssueStatsByRuleKeyDaoImpl(DbClient dbClient) {
+    this.dbClient = dbClient;
   }
 
   @Override
   public List<IssueStats> getIssueStats(String uuid, AggregationType aggregationType) {
-    return mapper(dbSession).selectByAggregationId(String.valueOf(uuid));
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return mapper(dbSession).selectByAggregationId(uuid);
+    }
   }
 
   @Override
-  public void insertIssueStats(String aggregationId, AggregationType aggregationType, List<IssueStats> list) {
-    mapper(dbSession).insertIssueStatsForProject(String.valueOf(aggregationId), list);
-  }
-
-  @Override
-  public void deleteAllIssueStats(String uuid, AggregationType aggregationType) {
-    mapper(dbSession).deleteAllIssueStatsForProject(String.valueOf(uuid));
+  public void deleteAndInsertIssueStats(String aggregationId, AggregationType aggregationType, List<IssueStats> list) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      mapper(dbSession).deleteAllIssueStatsForProject(aggregationId);
+      mapper(dbSession).insertIssueStatsForProject(aggregationId, list);
+      dbSession.commit();
+    }
   }
 
   private static IssueStatsByRuleKeyMapper mapper(DbSession dbSession) {
