@@ -55,6 +55,7 @@ import org.sonar.ce.task.projectanalysis.ProjectAnalysisTaskModule;
 import org.sonar.ce.task.projectanalysis.analysis.ProjectConfigurationFactory;
 import org.sonar.ce.task.projectanalysis.issue.AdHocRuleCreator;
 import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotificationModule;
+import org.sonar.ce.task.projectanalysis.step.IssueStatsIndexer;
 import org.sonar.ce.task.projectanalysis.taskprocessor.AuditPurgeTaskModule;
 import org.sonar.ce.task.projectanalysis.taskprocessor.IssueSyncTaskModule;
 import org.sonar.ce.taskprocessor.CeProcessingScheduler;
@@ -412,6 +413,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       IssueIteratorFactory.class,
       IssueFieldsSetter.class, // used in Web Services and CE's DebtCalculator
       TaintChecker.class,
+      IssueStatsIndexer.class,
       // used in Web Services and CE's DebtCalculator
       IssueWorkflow.class,
       CodeQualityIssueWorkflow.class,

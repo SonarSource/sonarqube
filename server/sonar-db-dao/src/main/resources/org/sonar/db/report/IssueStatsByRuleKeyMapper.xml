@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.report.IssueStatsByRuleKeyMapper">
+  <sql id="IssueStatsColumns">
+    rule_key as ruleKey,
+    issue_count as issueCount,
+    rating as rating,
+    hotspot_count as hotspotCount,
+    hotspots_reviewed as hotspotsReviewed
+  </sql>
+
+  <select id="selectByAggregationId" parameterType="String" resultType="io.sonarcloud.compliancereports.dao.IssueStats">
+    select
+    <include refid="IssueStatsColumns"/>
+    from issue_stats_by_rule_key
+    where aggregation_id = #{aggregationId}
+  </select>
+
+  <insert id="insertIssueStatsForProject">
+    insert into issue_stats_by_rule_key (
+      aggregation_id,
+      aggregation_type,
+      rule_key,
+      issue_count,
+      rating,
+      hotspot_count,
+      hotspots_reviewed
+    ) values (
+      <foreach collection="list" item="item" separator="), (">
+        #{aggregationId},
+        'PROJECT',
+        #{item.ruleKey},
+        #{item.issueCount},
+        #{item.rating},
+        #{item.hotspotCount},
+        #{item.hotspotsReviewed}
+      </foreach>
+    )
+  </insert>
+
+  <delete id="deleteAllIssueStatsForProject" parameterType="String">
+    delete from issue_stats_by_rule_key
+    where aggregation_id = #{aggregationId}
+      and aggregation_type = 'PROJECT'
+  </delete>
+</mapper>

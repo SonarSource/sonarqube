@@ -55,12 +55,18 @@ public class PopulateIssueStatsByRuleKey extends DataChange {
       values (?, ?, ?, ?, ?, ?, ?);
     """;
 
+  private static final String DELETE_QUERY = """
+    delete from issue_stats_by_rule_key;
+    """;
+
   public PopulateIssueStatsByRuleKey(Database db) {
     super(db);
   }
 
   @Override
   protected void execute(Context context) throws SQLException {
+    context.prepareUpsert(DELETE_QUERY).execute().commit();
+
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select(SELECT_QUERY);
     massUpdate.update(UPDATE_QUERY);

@@ -1,0 +1,110 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2025 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.ce.task.projectanalysis.step;
+
+import com.google.common.annotations.VisibleForTesting;
+import io.sonarcloud.compliancereports.ingestion.IssueFromAnalysis;
+import io.sonarcloud.compliancereports.ingestion.IssueIngestionService;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.scanner.protocol.Constants.Severity;
+import org.sonar.server.es.AnalysisIndexer;
+import org.sonar.server.issue.index.IssueDoc;
+import org.sonar.server.issue.index.IssueIterator;
+import org.sonar.server.issue.index.IssueIteratorFactory;
+
+import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
+
+public class IssueStatsIndexer implements AnalysisIndexer {
+  private final IssueIteratorFactory issueIteratorFactory;
+  private final DbClient dbClient;
+
+  public IssueStatsIndexer(IssueIteratorFactory issueIteratorFactory, DbClient dbClient) {
+    this.issueIteratorFactory = issueIteratorFactory;
+    this.dbClient = dbClient;
+  }
+
+  @Override
+  public void indexOnAnalysis(String branchUuid) {
+    try (IssueIterator issues = issueIteratorFactory.createForBranch(branchUuid)) {
+
+      var issuesWithRuleUuids = getIssuesFromIssuesTable(issues);
+
+      if (issuesWithRuleUuids.isEmpty()) {
+        return;
+      }
+      try (var dbSession = dbClient.openSession(false)) {
+        var issuesForIngestion = transformToRepositoryRuleIssuesDtos(issuesWithRuleUuids, dbSession);
+        IssueIngestionService issueIngestionService = new IssueIngestionService(new IssueStatsByRuleKeyDaoImpl(dbSession));
+        issueIngestionService.ingest(UUID.fromString(branchUuid), issuesForIngestion);
+        dbSession.commit();
+      }
+    }
+  }
+
+  private static List<IssueWithRuleUuidDto> getIssuesFromIssuesTable(IssueIterator issues) {
+    List<IssueWithRuleUuidDto> issueWithRuleUuidDtos = new ArrayList<>();
+    while (issues.hasNext()) {
+      IssueDoc issue = issues.next();
+      issueWithRuleUuidDtos.add(getIssueWithRuleDto(issue));
+    }
+    return issueWithRuleUuidDtos;
+  }
+
+  @VisibleForTesting
+  List<IssueFromAnalysis> transformToRepositoryRuleIssuesDtos(List<IssueWithRuleUuidDto> issueWithRuleUuidDtos, DbSession dbSession) {
+    Set<String> ruleUuids = issueWithRuleUuidDtos.stream().map(IssueWithRuleUuidDto::ruleUuid).collect(Collectors.toSet());
+    Map<String, String> ruleUuidToFullRepositoryRuleKey = getRuleUuidToFullRepositoryRuleKey(dbSession, ruleUuids);
+    return issueWithRuleUuidDtos.stream()
+      .filter(dto -> ruleUuidToFullRepositoryRuleKey.containsKey(dto.ruleUuid()))
+      .map(issueWithRuleUuidDto -> new IssueFromAnalysis(ruleUuidToFullRepositoryRuleKey.get(issueWithRuleUuidDto.ruleUuid()),
+        issueWithRuleUuidDto.status(),
+        issueWithRuleUuidDto.isHotspot(),
+        issueWithRuleUuidDto.severity()))
+      .toList();
+  }
+
+  private Map<String, String> getRuleUuidToFullRepositoryRuleKey(DbSession dbSession, Set<String> ruleUuids) {
+    return dbClient.ruleDao().selectByUuids(dbSession, ruleUuids).stream().collect(Collectors.toMap(
+      RuleDto::getUuid,
+      dto -> dto.getRepositoryKey() + ":" + dto.getRuleKey()
+    ));
+  }
+
+  private static IssueWithRuleUuidDto getIssueWithRuleDto(IssueDoc issue) {
+    String ruleUuid = issue.ruleUuid();
+    String status = issue.status();
+    boolean isHotspot = SECURITY_HOTSPOT.equals(issue.type());
+    int severity = Severity.valueOf(issue.severity()).ordinal();
+    return new IssueWithRuleUuidDto(ruleUuid, status, isHotspot, severity);
+  }
+
+  @VisibleForTesting
+  record IssueWithRuleUuidDto(String ruleUuid, String status, boolean isHotspot, int severity) {
+  }
+}

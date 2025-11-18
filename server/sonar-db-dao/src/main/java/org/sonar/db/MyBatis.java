@@ -152,6 +152,7 @@ import org.sonar.db.qualityprofile.QProfileEditGroupsMapper;
 import org.sonar.db.qualityprofile.QProfileEditUsersMapper;
 import org.sonar.db.qualityprofile.QualityProfileExportMapper;
 import org.sonar.db.qualityprofile.QualityProfileMapper;
+import org.sonar.db.report.IssueStatsByRuleKeyMapper;
 import org.sonar.db.report.RegulatoryReportMapper;
 import org.sonar.db.report.ReportScheduleMapper;
 import org.sonar.db.report.ReportSubscriptionMapper;
@@ -312,6 +313,7 @@ public class MyBatis {
       IssueChangeMapper.class,
       IssueMapper.class,
       IssueFixedMapper.class,
+      IssueStatsByRuleKeyMapper.class,
       JiraProjectBindingMapper.class,
       JiraOrganizationBindingMapper.class,
       JiraOrganizationBindingPendingMapper.class,

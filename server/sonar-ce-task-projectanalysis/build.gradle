@@ -23,7 +23,6 @@ dependencies {
   api 'commons-codec:commons-codec'
   api 'commons-io:commons-io'
   api 'org.apache.commons:commons-lang3'
-  implementation 'org.apache.commons:commons-text'
   api 'com.google.code.gson:gson'
   api 'com.google.guava:guava'
   api 'com.github.spotbugs:spotbugs-annotations'
@@ -31,6 +30,9 @@ dependencies {
   api 'com.googlecode.java-diff-utils:diffutils'
   api 'org.mybatis:mybatis'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
+
+  implementation "com.sonarsource.sonarcloud:compliance-reports:${complianceReportsVersion}"
+  implementation 'org.apache.commons:commons-text'
 
   api project(':sonar-core')
   api project(':server:sonar-ce-common')
