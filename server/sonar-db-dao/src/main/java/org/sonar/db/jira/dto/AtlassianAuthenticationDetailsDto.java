@@ -68,4 +68,9 @@ public final class AtlassianAuthenticationDetailsDto implements Serializable {
     this.updatedAt = updatedAt;
     return this;
   }
+
+  @Override
+  public String toString() {
+    return "AtlassianAuthenticationDetailsDto[clientId=" + clientId + ", secret=******, createdAt=" + createdAt + ", updatedAt=" + updatedAt + "]";
+  }
 }
