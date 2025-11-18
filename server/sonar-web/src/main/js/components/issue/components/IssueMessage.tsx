@@ -73,10 +73,28 @@ export default function IssueMessage(props: IssueMessageProps) {
   };
 
   const issueUrl = orgIssueUrl();
+const projectKey = component?.key ?? issue.project;
+
+const baseTo = issueUrl as any;
+const base: { pathname?: string; search?: string; hash?: string } =
+  typeof baseTo === 'string' ? { pathname: baseTo } : baseTo;
+
+const sp = new URLSearchParams(base.search ?? '');
+if (projectKey) sp.set('id', projectKey);          // Ensure project key is present
+
+// Cast to any to access optional runtime props safely
+const branchLikeAny = branchLike as any;
+
+if (branchLikeAny?.pullRequest) {
+  sp.set('pullRequest', branchLikeAny.pullRequest);
+  sp.delete('branch'); // remove branch if PR exists
+} 
+
+const issueUrlWithProject = { ...base, search: `?${sp.toString()}` } as const;
 
   return (
     <>
-      <StandoutLink className="it__issue-message" to={issueUrl}>
+      <StandoutLink className="it__issue-message" to={issueUrlWithProject}>
         <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
       </StandoutLink>
 

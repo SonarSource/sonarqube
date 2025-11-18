@@ -19,26 +19,27 @@
  */
 package org.sonar.server.project.ws;
 
-import java.util.Iterator;
+import static java.util.Comparator.comparing;
+import static java.util.Comparator.nullsFirst;
+import static java.util.Locale.ENGLISH;
+import static java.util.Objects.requireNonNull;
+
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.user.UserSession;
-
-import static java.util.Comparator.comparing;
-import static java.util.Comparator.nullsFirst;
-import static java.util.Locale.ENGLISH;
-import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toSet;
 
 @ServerSide
 public class ProjectFinder {
@@ -52,59 +53,66 @@ public class ProjectFinder {
   }
 
   public SearchResult search(DbSession dbSession, @Nullable String searchQuery) {
-    List<ProjectDto> allProjects = dbClient.projectDao().selectProjects(dbSession);
+    Set<ProjectDto> candidateProjects;
 
-    Set<String> projectsUserHasAccessTo = userSession.keepAuthorizedEntities(UserRole.SCAN, allProjects)
-      .stream()
-      .map(ProjectDto::getKey)
-      .collect(toSet());
+    if (userSession.isRoot()) {
+      candidateProjects = new HashSet<>(dbClient.projectDao().selectProjects(dbSession));
+    } else {
+      List<ProjectDto> projectsWithDirectScanPermission = searchProjectsWithDirectScanPermission(dbSession);
+      List<ProjectDto> projectsWithOrgLevelScanPermissions = searchProjectsWithOrgLevelScanPermissions(dbSession);
 
-    applyQueryAndPermissionFilter(searchQuery, allProjects, projectsUserHasAccessTo);
-    List<ProjectDto> projectsWithOrgLevelPermissions = searchProjectsWithOrgLevelPermissions(dbSession);
-    if (!projectsWithOrgLevelPermissions.isEmpty()) {
-      List<ProjectDto> uniqueProjects = projectsWithOrgLevelPermissions
-              .stream()
-              .filter(p -> !allProjects.contains(p))
-              .toList();
-      if (!uniqueProjects.isEmpty()) {
-        allProjects.addAll(uniqueProjects);
-      }
+      candidateProjects = new HashSet<>();
+      candidateProjects.addAll(projectsWithDirectScanPermission);
+      candidateProjects.addAll(projectsWithOrgLevelScanPermissions);
     }
-    List<Project> resultProjects = allProjects.stream()
-            .sorted(comparing(ProjectDto::getName, nullsFirst(String.CASE_INSENSITIVE_ORDER)))
-            .map(p -> new Project(p.getKey(), p.getName())).collect(Collectors.toList());
+
+    Set<ProjectDto> filteredProjects = filterByQuery(searchQuery, candidateProjects);
+
+    List<Project> resultProjects = filteredProjects.stream()
+        .sorted(comparing(ProjectDto::getName, nullsFirst(String.CASE_INSENSITIVE_ORDER)))
+        .map(p -> new Project(p.getKey(), p.getName()))
+        .toList();
+
     return new SearchResult(resultProjects);
   }
 
-  private List<ProjectDto> searchProjectsWithOrgLevelPermissions(DbSession dbSession) {
+  private List<ProjectDto> searchProjectsWithDirectScanPermission(DbSession dbSession) {
+    String userUuid = userSession.getUuid();
+    if (StringUtils.isEmpty(userUuid)) {
+      return List.of();
+    }
+
+    List<String> projectUuids = dbClient.roleDao()
+        .selectEntityUuidsByPermissionAndUserUuidAndQualifier(dbSession, UserRole.SCAN, userUuid,
+            Set.of(ComponentQualifiers.PROJECT));
+    if (projectUuids.isEmpty()) {
+      return List.of();
+    }
+
+    return dbClient.projectDao().selectByUuids(dbSession, Set.copyOf(projectUuids));
+  }
+
+  private List<ProjectDto> searchProjectsWithOrgLevelScanPermissions(DbSession dbSession) {
     List<OrganizationDto> orgs = dbClient.organizationDao().selectOrgsForUserAndRole(dbSession, userSession.getUuid(),
-            OrganizationPermission.SCAN.toString());
+        OrganizationPermission.SCAN.toString());
     if (orgs.isEmpty()) {
       return List.of();
     }
-    List<String> orgUuids = orgs.stream().map(o -> o.getUuid())
-            .collect(Collectors.toList());
+    List<String> orgUuids = orgs.stream().map(OrganizationDto::getUuid).toList();
     return dbClient.projectDao().selectProjectsByOrganizationUuids(dbSession, orgUuids);
   }
 
-  private void applyQueryAndPermissionFilter(@Nullable String searchQuery, final List<ProjectDto> projects,
-          Set<String> projectsUserHasAccessTo) {
-    Iterator<ProjectDto> projectIterator = projects.iterator();
-    while (projectIterator.hasNext()) {
-      ProjectDto project = projectIterator.next();
-      if (isFilteredByQuery(searchQuery, project.getName()) || !hasPermission(projectsUserHasAccessTo,
-              project.getKey())) {
-        projectIterator.remove();
-      }
+  private Set<ProjectDto> filterByQuery(@Nullable String searchQuery, Set<ProjectDto> projects) {
+    if (StringUtils.isEmpty(searchQuery)) {
+      return projects;
     }
+    return projects.stream()
+        .filter(project -> !isFilteredByQuery(searchQuery, project.getName()))
+        .collect(Collectors.toSet());
   }
 
   private static boolean isFilteredByQuery(@Nullable String query, String projectName) {
     return query != null && !projectName.toLowerCase(ENGLISH).contains(query.toLowerCase(ENGLISH));
-  }
-
-  private boolean hasPermission(Set<String> projectsUserHasAccessTo, String projectKey) {
-    return userSession.hasPermission(OrganizationPermission.SCAN, "" /* TODO */) || projectsUserHasAccessTo.contains(projectKey);
   }
 
   public static class SearchResult {

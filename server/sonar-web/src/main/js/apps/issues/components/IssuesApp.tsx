@@ -452,11 +452,41 @@ export class App extends React.PureComponent<Props, State> {
       return { ...response, issues: parsedIssues } as FetchIssuesPromise;
     }
 
-    const response = await searchIssues({
-      ...query,
-      additionalFields: '_all',
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    });
+
+const base = {
+  ...query,
+  additionalFields: '_all', // if you already had these, keep as-is
+  timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+};
+
+const qs = this.props.location.query as RawQuery;
+
+const projectKey =
+  this.props.component?.key ??
+  (qs.components as string | undefined) ??
+  (qs.id as string | undefined) ??
+  (qs.project as string | undefined) ??
+  (qs.component as string | undefined) ??
+  (qs.componentKey as string | undefined) ??
+  this.state.openIssue?.project;
+
+const prKey = qs.pullRequest as string | undefined;
+const branchKey = qs.branch as string | undefined;
+
+const scope = getBranchLikeQuery(this.props.branchLike) as Record<string, string | undefined>;
+
+const scopedQuery: any = {
+  ...base,
+  ...scope,                               // Adds branch OR pullRequest if known
+  ...(projectKey ? { components: projectKey } : {}),
+  ...(prKey ? { pullRequest: prKey } : {}),
+  ...(branchKey ? { branch: branchKey } : {}),
+};
+// Remove branch if pullRequest is present (to avoid conflicts)
+if (scopedQuery.pullRequest) delete scopedQuery.branch;
+
+const response = await searchIssues(scopedQuery);
+
     const parsedIssues = response.issues.map((issue) =>
       parseIssueFromResponse(issue, response.components, response.users, response.rules),
     );
