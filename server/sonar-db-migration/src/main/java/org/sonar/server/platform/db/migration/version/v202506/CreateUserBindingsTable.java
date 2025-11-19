@@ -60,6 +60,12 @@ public class CreateUserBindingsTable extends CreateTableChange {
       .addColumn(COLUMN_INTEGRATION_CONFIG_UUID, false)
       .setUnique(true)
       .build());
+
+    context.execute(new CreateIndexBuilder(dialect)
+      .setTable(tableName)
+      .setName("ub_integration_config_uuid")
+      .addColumn(COLUMN_INTEGRATION_CONFIG_UUID, false)
+      .build());
   }
 
 }

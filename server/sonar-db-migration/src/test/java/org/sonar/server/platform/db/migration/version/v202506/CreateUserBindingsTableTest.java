@@ -53,6 +53,7 @@ class CreateUserBindingsTableTest {
     db.assertColumnDefinition(USER_BINDINGS_TABLE_NAME, COLUMN_CREATED_AT, Types.BIGINT, null, false);
     db.assertColumnDefinition(USER_BINDINGS_TABLE_NAME, COLUMN_UPDATED_AT, Types.BIGINT, null, false);
     db.assertUniqueIndex(USER_BINDINGS_TABLE_NAME, "ub_user_integration_config", COLUMN_USER_UUID, COLUMN_INTEGRATION_CONFIG_UUID);
+    db.assertIndex(USER_BINDINGS_TABLE_NAME, "ub_integration_config_uuid", COLUMN_INTEGRATION_CONFIG_UUID);
   }
 
   @Test
