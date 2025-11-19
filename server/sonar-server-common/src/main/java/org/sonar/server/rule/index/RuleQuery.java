@@ -22,7 +22,6 @@ package org.sonar.server.rule.index;
 import com.google.common.base.Preconditions;
 import io.sonarcloud.compliancereports.reports.MetadataRules.ComplianceCategoryRules;
 import java.util.Collection;
-import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleStatus;
@@ -65,7 +64,7 @@ public class RuleQuery {
   private Collection<String> activeImpactSeverities = null;
   private Collection<String> cleanCodeAttributesCategories = null;
   private Boolean prioritizedRule = null;
-  private Map<String, ComplianceCategoryRules> complianceCategoryRules = null;
+  private ComplianceCategoryRules complianceCategoryRules = null;
 
   @CheckForNull
   public QProfileDto getQProfile() {
@@ -370,13 +369,13 @@ public class RuleQuery {
     return impactSeverities;
   }
 
-  public RuleQuery setComplianceCategoryRules(@Nullable Map<String, ComplianceCategoryRules> complianceCategoryRules) {
+  public RuleQuery setComplianceCategoryRules(@Nullable ComplianceCategoryRules complianceCategoryRules) {
     this.complianceCategoryRules = complianceCategoryRules;
     return this;
   }
 
   @CheckForNull
-  public Map<String, ComplianceCategoryRules> getComplianceCategoryRules() {
+  public ComplianceCategoryRules getComplianceCategoryRules() {
     return complianceCategoryRules;
   }
 

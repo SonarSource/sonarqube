@@ -119,6 +119,7 @@ public class IssuesWsParameters {
   public static final String PARAM_TIMEZONE = "timeZone";
   public static final String PARAM_CODE_VARIANTS = "codeVariants";
   public static final String PARAM_FIXED_IN_PULL_REQUEST = "fixedInPullRequest";
+  public static final String PARAM_COMPLIANCE_STANDARDS = "complianceStandards";
 
   public static final String FACET_MODE_EFFORT = "effort";
 

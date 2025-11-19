@@ -84,6 +84,13 @@ public class RuleDao implements Dao {
     return executeLargeInputs(keys, chunk -> mapper(session).selectByKeys(chunk));
   }
 
+  public List<RuleDto> selectByRuleKeys(DbSession session, Collection<String> ruleKeys) {
+    if (ruleKeys.isEmpty()) {
+      return emptyList();
+    }
+    return executeLargeInputs(ruleKeys, chunk -> mapper(session).selectByRuleKeys(chunk));
+  }
+
   public List<RuleDto> selectEnabled(DbSession session) {
     return mapper(session).selectEnabled();
   }

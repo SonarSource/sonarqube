@@ -19,9 +19,12 @@
  */
 package org.sonar.server.issue.ws;
 
+import io.sonarcloud.compliancereports.reports.MetadataLoader;
+import io.sonarcloud.compliancereports.reports.MetadataRules;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
@@ -38,6 +41,7 @@ import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.server.TestMetadataType;
 import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.feature.JiraSonarQubeFeature;
@@ -108,7 +112,9 @@ class SearchActionComponentsIT {
   private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession), config);
   private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null);
   private final ViewIndexer viewIndexer = new ViewIndexer(dbClient, es.client());
-  private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession);
+  private final MetadataLoader metadataLoader = new MetadataLoader(Set.of(new TestMetadataType()));
+  private final MetadataRules metadataRules = new MetadataRules(metadataLoader);
+  private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession, metadataRules);
   private final IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
   private final IssueWorkflow issueWorkflow = new IssueWorkflow(
     new CodeQualityIssueWorkflow(new CodeQualityIssueWorkflowActionsFactory(issueFieldsSetter), new CodeQualityIssueWorkflowDefinition(), mock(TaintChecker.class)),
@@ -138,7 +144,9 @@ class SearchActionComponentsIT {
       System2.INSTANCE,
       dbClient,
       fromSonarQubeUpdateFeature,
-      jiraSonarQubeFeature
+      jiraSonarQubeFeature,
+      metadataLoader,
+      metadataRules
     )
   );
 

@@ -34,6 +34,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.assertj.core.api.AbstractListAssert;
+import org.assertj.core.api.ObjectAssert;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -45,12 +48,12 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
+import org.sonar.core.rule.RuleType;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbTester;
@@ -63,6 +66,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.TestMetadataType;
+import org.sonar.server.TestMetadataType2;
 import org.sonar.server.common.text.MacroInterpreter;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
@@ -97,12 +101,13 @@ import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.assertj.guava.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.rule.Severity.BLOCKER;
+import static org.sonar.api.rule.Severity.MAJOR;
+import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.RESOURCES_SECTION_KEY;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
@@ -114,8 +119,10 @@ import static org.sonar.server.rule.index.RuleIndex.FACET_COMPLIANCE_STANDARDS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_CLEAN_CODE_ATTRIBUTE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_COMPLIANCE_STANDARDS;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_QPROFILE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_RULE_KEY;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_SEVERITIES;
 import static org.sonarqube.ws.Rules.Rule.DescriptionSection.Context.newBuilder;
 
 class SearchActionIT {
@@ -131,7 +138,7 @@ class SearchActionIT {
   @RegisterExtension
   private final EsTester es = EsTester.create();
   private final Configuration config = mock(Configuration.class);
-  private final MetadataLoader metadataLoader = new MetadataLoader(Set.of(new TestMetadataType()));
+  private final MetadataLoader metadataLoader = new MetadataLoader(Set.of(new TestMetadataType(), new TestMetadataType2()));
   private final MetadataRules metadataRules = new MetadataRules(metadataLoader);
   private final RuleIndex ruleIndex = new RuleIndex(es.client(), system2, config);
   private final RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
@@ -146,7 +153,8 @@ class SearchActionIT {
     metadataRules);
   private final TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
-  private final RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db.getDbClient(), UuidFactoryImpl.INSTANCE, typeValidations, userSession,
+  private final RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db.getDbClient(), UuidFactoryImpl.INSTANCE,
+    typeValidations, userSession,
     mock(Configuration.class), sonarQubeVersion);
   private final QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, ruleIndex, activeRuleIndexer,
     qualityProfileChangeEventService);
@@ -453,6 +461,19 @@ class SearchActionIT {
   }
 
   @Test
+  void should_return_empty_if_invalid_compliance_standard_category() {
+    db.rules().insert(r -> r.setLanguage("java").setRuleKey(RuleKey.of("java", "S001")));
+    db.rules().insert(r -> r.setLanguage("java").setRuleKey(RuleKey.of("java", "S002")));
+    db.rules().insert(r -> r.setLanguage("java"));
+
+    db.rules().insert(r -> r.setLanguage("java"));
+    indexRules();
+
+    Consumer<TestRequest> request = r -> r.setParam("complianceStandards", "test:V1=nonexisting");
+    verify(request);
+  }
+
+  @Test
   void when_searching_for_several_tags_combine_them_with_OR() {
     RuleDto bothTagsRule = db.rules().insert(r -> r.setLanguage("java"), setTags("tag1", "tag2"));
     RuleDto oneTagRule = db.rules().insert(r -> r.setLanguage("java"), setTags("tag1"));
@@ -476,7 +497,7 @@ class SearchActionIT {
       .setParam("f", "repo,name")
       .setParam("facets", "tags")
       .executeProtobuf(SearchResponse.class);
-    assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+    assertThatFacet("tags", result)
       .contains(tuple("tag0", 1L), tuple("tag25", 1L), tuple("tag99", 1L))
       .doesNotContain(tuple("x", 1L));
   }
@@ -491,9 +512,9 @@ class SearchActionIT {
       .setParam("f", "repo,name")
       .setParam("facets", "tags")
       .executeProtobuf(SearchResponse.class);
-    assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .containsExactly(tuple("tag2", 2L), tuple("tag1", 1L), tuple("tag3", 1L), tuple("tag4", 1L), tuple("tag5", 1L), tuple("tag6", 1L), tuple("tag7", 1L), tuple("tag8", 1L),
-        tuple("tag9", 1L), tuple("tagA", 1L));
+    assertThatFacet("tags", result)
+      .containsExactly(tuple("tag2", 2L), tuple("tag1", 1L), tuple("tag3", 1L), tuple("tag4", 1L), tuple("tag5", 1L), tuple("tag6", 1L),
+        tuple("tag7", 1L), tuple("tag8", 1L), tuple("tag9", 1L), tuple("tagA", 1L));
   }
 
   @Test
@@ -507,7 +528,7 @@ class SearchActionIT {
       .setParam("facets", "tags")
       .setParam("tags", "x")
       .executeProtobuf(SearchResponse.class);
-    assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(v -> entry(v.getVal(), v.getCount())).contains(entry("x", 1L));
+    assertThatFacet("tags", result).contains(tuple("x", 1L));
   }
 
   @Test
@@ -522,8 +543,10 @@ class SearchActionIT {
       .setParam("facets", "impactSoftwareQualities")
       .setParam("impactSeverities", Severity.HIGH.name())
       .executeProtobuf(SearchResponse.class);
-    assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(v -> entry(v.getVal(), v.getCount()))
-      .contains(entry(SoftwareQuality.MAINTAINABILITY.name(), 1L), entry(SoftwareQuality.RELIABILITY.name(), 0L), entry(SoftwareQuality.SECURITY.name(), 0L));
+    assertThatFacet("impactSoftwareQualities", result).contains(
+        tuple(SoftwareQuality.MAINTAINABILITY.name(), 1L),
+        tuple(SoftwareQuality.RELIABILITY.name(), 0L),
+        tuple(SoftwareQuality.SECURITY.name(), 0L));
   }
 
   @Test
@@ -539,8 +562,11 @@ class SearchActionIT {
       .setParam("facets", "impactSeverities")
       .setParam("impactSoftwareQualities", SoftwareQuality.MAINTAINABILITY.name())
       .executeProtobuf(SearchResponse.class);
-    assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(v -> entry(v.getVal(), v.getCount()))
-      .contains(entry(Severity.HIGH.name(), 1L), entry(Severity.MEDIUM.name(), 0L), entry(Severity.LOW.name(), 0L), entry(Severity.INFO.name(), 1L));
+    assertThatFacet("impactSeverities", result).contains(
+      tuple(Severity.HIGH.name(), 1L),
+      tuple(Severity.MEDIUM.name(), 0L),
+      tuple(Severity.LOW.name(), 0L),
+      tuple(Severity.INFO.name(), 1L));
   }
 
   @Test
@@ -556,10 +582,9 @@ class SearchActionIT {
       .setParam("facets", "cleanCodeAttributeCategories")
       .setParam("impactSoftwareQualities", SoftwareQuality.RELIABILITY.name())
       .executeProtobuf(SearchResponse.class);
-    assertThat(result.getFacets().getFacets(0).getValuesList())
-      .extracting(v -> entry(v.getVal(), v.getCount())).contains(
-        entry(CleanCodeAttribute.COMPLETE.getAttributeCategory().name(), 1L),
-        entry(CleanCodeAttribute.CONVENTIONAL.getAttributeCategory().name(), 0L));
+    assertThatFacet("cleanCodeAttributeCategories", result).contains(
+        tuple(CleanCodeAttribute.COMPLETE.getAttributeCategory().name(), 1L),
+        tuple(CleanCodeAttribute.CONVENTIONAL.getAttributeCategory().name(), 0L));
   }
 
   @Test
@@ -571,7 +596,7 @@ class SearchActionIT {
       .setParam("facets", "tags")
       .setParam("tags", "x")
       .executeProtobuf(SearchResponse.class);
-    assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(v -> entry(v.getVal(), v.getCount())).contains(entry("x", 0L));
+    assertThatFacet("tags", result).contains(tuple("x", 0L));
   }
 
   @Test
@@ -590,8 +615,7 @@ class SearchActionIT {
 
   @Test
   void returnRuleCleanCodeFields_whenEndpointIsCalled() {
-    RuleDto rule = db.rules()
-      .insert();
+    db.rules().insert();
     indexRules();
 
     SearchResponse result = ws.newRequest()
@@ -1028,53 +1052,35 @@ class SearchActionIT {
       .containsExactlyInAnyOrder(
         rule1.getKey().toString());
 
-    assertThat(result.getFacets().getFacetsList().stream().filter(f -> "languages".equals(f.getProperty())).findAny().get().getValuesList())
-      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .as("Facet languages")
-      .containsExactlyInAnyOrder(
-        tuple(rule1.getLanguage(), 1L),
+    assertThatFacet("languages", result).as("Facet languages").containsExactlyInAnyOrder(
+      tuple(rule1.getLanguage(), 1L),
 
-        // known limitation: irrelevant languages are shown in this case (SONAR-9683)
-        tuple(rule3.getLanguage(), 1L));
+      // known limitation: irrelevant languages are shown in this case (SONAR-9683)
+      tuple(rule3.getLanguage(), 1L));
 
-    assertThat(result.getFacets().getFacetsList().stream().filter(f -> "tags".equals(f.getProperty())).findAny().get().getValuesList())
-      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .as("Facet tags")
-      .containsExactlyInAnyOrder(
-        tuple(rule1.getSystemTags().iterator().next(), 1L));
+    assertThatFacet("tags", result).as("Facet tags").containsExactlyInAnyOrder(
+      tuple(rule1.getSystemTags().iterator().next(), 1L));
 
-    assertThat(result.getFacets().getFacetsList().stream().filter(f -> "repositories".equals(f.getProperty())).findAny().get().getValuesList())
-      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .as("Facet repositories")
-      .containsExactlyInAnyOrder(
-        tuple(rule1.getRepositoryKey(), 1L));
+    assertThatFacet("repositories", result).as("Facet repositories").containsExactlyInAnyOrder(
+      tuple(rule1.getRepositoryKey(), 1L));
 
-    assertThat(result.getFacets().getFacetsList().stream().filter(f -> "severities".equals(f.getProperty())).findAny().get().getValuesList())
-      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .as("Facet severities")
-      .containsExactlyInAnyOrder(
-        tuple("BLOCKER" /* rule2 */, 0L),
-        tuple("CRITICAL"/* rule1 */, 1L),
-        tuple("MAJOR", 0L),
-        tuple("MINOR", 0L),
-        tuple("INFO", 0L));
+    assertThatFacet("severities", result).as("Facet severities").containsExactlyInAnyOrder(
+      tuple("BLOCKER" /* rule2 */, 0L),
+      tuple("CRITICAL"/* rule1 */, 1L),
+      tuple("MAJOR", 0L),
+      tuple("MINOR", 0L),
+      tuple("INFO", 0L));
 
-    assertThat(result.getFacets().getFacetsList().stream().filter(f -> "statuses".equals(f.getProperty())).findAny().get().getValuesList())
-      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .as("Facet statuses")
-      .containsExactlyInAnyOrder(
-        tuple("READY"/* rule2 */, 0L),
-        tuple("BETA" /* rule1 */, 1L),
-        tuple("DEPRECATED", 0L));
+    assertThatFacet("statuses", result).as("Facet statuses").containsExactlyInAnyOrder(
+      tuple("READY"/* rule2 */, 0L),
+      tuple("BETA" /* rule1 */, 1L),
+      tuple("DEPRECATED", 0L));
 
-    assertThat(result.getFacets().getFacetsList().stream().filter(f -> "types".equals(f.getProperty())).findAny().get().getValuesList())
-      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .as("Facet types")
-      .containsExactlyInAnyOrder(
-        tuple("BUG" /* rule2 */, 0L),
-        tuple("CODE_SMELL"/* rule1 */, 1L),
-        tuple("VULNERABILITY", 0L),
-        tuple("SECURITY_HOTSPOT", 0L));
+    assertThatFacet("types", result).as("Facet types").containsExactlyInAnyOrder(
+      tuple("BUG" /* rule2 */, 0L),
+      tuple("CODE_SMELL"/* rule1 */, 1L),
+      tuple("VULNERABILITY", 0L),
+      tuple("SECURITY_HOTSPOT", 0L));
   }
 
   @Test
@@ -1112,9 +1118,41 @@ class SearchActionIT {
       .executeProtobuf(SearchResponse.class);
 
     assertThat(result.getRulesCount()).isEqualTo(5);
-    assertThat(result.getFacets().getFacets(0).getValuesList())
-      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .containsOnly(tuple("category1", 2L), tuple("category2", 1L));
+    assertThatFacet("test:V1", result).containsOnly(tuple("category1", 2L), tuple("category2", 1L));
+  }
+
+  @Test
+  void return_compliance_facets_with_filters() {
+    db.rules().insert(r -> r.setLanguage("java").setRuleKey(RuleKey.of("java", "S001")).setSeverity(MINOR));
+    db.rules().insert(r -> r.setLanguage("java").setRuleKey(RuleKey.of("java", "S002")).setSeverity(MINOR));
+    db.rules().insert(r -> r.setLanguage("java").setRuleKey(RuleKey.of("java", "S003")).setSeverity(MINOR));
+    db.rules().insert(r -> r.setLanguage("java").setRuleKey(RuleKey.of("java", "1")).setSeverity(MAJOR));
+    db.rules().insert(r -> r.setLanguage("java").setRuleKey(RuleKey.of("java", "2")).setSeverity(MAJOR));
+    db.rules().insert(r -> r.setLanguage("java").setRuleKey(RuleKey.of("java", "3")).setSeverity(MAJOR));
+    indexRules();
+
+    SearchResponse result = ws.newRequest()
+      .setParam(FACETS, FACET_COMPLIANCE_STANDARDS)
+      .setParam(PARAM_COMPLIANCE_STANDARDS, "test:V2=cat1,test:V1=category1")
+      .setParam(PARAM_SEVERITIES, "MINOR")
+      .executeProtobuf(SearchResponse.class);
+
+    /*
+        Filter on severities reduces V1 facets to S001, S002 and S003
+        Filter on V2 reduces V1 facets to S001 and S003
+        Filter on V1 should not affect V1 facet
+     */
+    assertThatFacet("test:V1", result).containsOnly(tuple("category1", 1L), tuple("category2", 1L));
+  }
+
+  @Test
+  void always_return_selected_standard_in_compliance_facets() {
+    SearchResponse result = ws.newRequest()
+      .setParam(FACETS, FACET_COMPLIANCE_STANDARDS)
+      .setParam(PARAM_COMPLIANCE_STANDARDS, "test:V1=category1")
+      .executeProtobuf(SearchResponse.class);
+
+    assertThatFacet("test:V1", result).containsOnly(tuple("category1", 0L));
   }
 
   @Test
@@ -1169,6 +1207,12 @@ class SearchActionIT {
       .executeProtobuf(SearchResponse.class);
     assertThat(result.getRulesList()).extracting(Rule::getKey).containsExactly(rule.getKey().toString());
     assertThat(result.getRulesList()).extracting(responseExtractor).containsExactlyInAnyOrder(expected);
+  }
+
+  private AbstractListAssert<?, List<? extends Tuple>, Tuple, ObjectAssert<Tuple>> assertThatFacet(String name, SearchResponse result) {
+    return assertThat(result.getFacets().getFacetsList().stream()
+      .filter(f -> name.equals(f.getProperty())).findAny().get().getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount);
   }
 
   private void checkTags(RuleDto rule, Set<String> expected) {

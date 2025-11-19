@@ -68,6 +68,7 @@ class IssueQueryTest {
       .prioritizedRule(true)
       .fromSonarQubeUpdate(true)
       .linkedTicketStatuses(List.of(LinkedTicketStatus.LINKED))
+      .complianceCategoryRules(List.of("rule1", "rule2"))
       .build();
     assertThat(query.issueKeys()).containsOnly("ABCDE");
     assertThat(query.severities()).containsOnly(Severity.BLOCKER);
@@ -97,6 +98,7 @@ class IssueQueryTest {
     assertThat(query.prioritizedRule()).isTrue();
     assertThat(query.fromSonarQubeUpdate()).isTrue();
     assertThat(query.linkedTicketStatuses()).containsExactly(LinkedTicketStatus.LINKED);
+    assertThat(query.complianceCategoryRules()).isEqualTo(List.of("rule1", "rule2"));
   }
 
   @Test

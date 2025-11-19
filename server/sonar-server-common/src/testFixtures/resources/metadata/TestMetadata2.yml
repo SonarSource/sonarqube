@@ -1,0 +1,10 @@
+report:
+  key: test
+  versions:
+    - name: 2
+      key: V2
+      categories:
+        - name: cat1
+          rules:
+            - :S001
+            - :S003

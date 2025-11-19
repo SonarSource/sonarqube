@@ -19,6 +19,9 @@
  */
 package org.sonar.server.issue.index;
 
+import io.sonarcloud.compliancereports.reports.MetadataLoader;
+import io.sonarcloud.compliancereports.reports.MetadataRules;
+import io.sonarcloud.compliancereports.reports.ReportKey;
 import java.time.Clock;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -27,41 +30,45 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.issue.LinkedTicketStatus;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.core.issue.LinkedTicketStatus;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.rule.RuleDbTester;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.TestMetadataType;
 import org.sonar.server.issue.SearchRequest;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.RandomStringUtils.secure;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.ANALYSIS_FROM_SONARQUBE_9_4_KEY;
-import static org.sonar.db.component.ComponentQualifiers.APP;
 import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
-import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.ComponentQualifiers.APP;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.server.issue.index.IssueQueryFactory.ISSUE_STATUSES;
 
@@ -75,7 +82,8 @@ public class IssueQueryFactoryTest {
 
   private final RuleDbTester ruleDbTester = new RuleDbTester(db);
   private final Clock clock = mock(Clock.class);
-  private final IssueQueryFactory underTest = new IssueQueryFactory(db.getDbClient(), clock, userSession);
+  private final MetadataRules metadataRules = new MetadataRules(new MetadataLoader(Set.of(new TestMetadataType())));
+  private final IssueQueryFactory underTest = new IssueQueryFactory(db.getDbClient(), clock, userSession, metadataRules);
 
   @Test
   public void create_from_parameters() {
@@ -87,6 +95,8 @@ public class IssueQueryFactoryTest {
 
     RuleDto rule1 = ruleDbTester.insert(r -> r.setAdHocName(ruleAdHocName));
     RuleDto rule2 = ruleDbTester.insert(r -> r.setAdHocName(ruleAdHocName));
+    RuleDto rule3 = ruleDbTester.insert(r -> r.setRuleKey(RuleKey.of("java", "S001")));
+
     newRule(RuleKey.of("findbugs", "NullReference"));
     SearchRequest request = new SearchRequest()
       .setIssues(asList("anIssueKey"))
@@ -110,6 +120,7 @@ public class IssueQueryFactoryTest {
       .setCodeVariants(asList("variant1", "variant2"))
       .setPrioritizedRule(true)
       .setFromSonarQubeUpdate(true)
+      .setCategoriesByStandard(Map.of(new ReportKey("test", "V1"), "category1"))
       .setLinkedTicketStatuses(List.of(LinkedTicketStatus.LINKED));
 
     IssueQuery query = underTest.create(request);
@@ -139,6 +150,7 @@ public class IssueQueryFactoryTest {
     assertThat(query.prioritizedRule()).isTrue();
     assertThat(query.fromSonarQubeUpdate()).isTrue();
     assertThat(query.linkedTicketStatuses()).containsOnly(LinkedTicketStatus.LINKED);
+    assertThat(query.complianceCategoryRules()).containsOnly(rule3.getUuid());
   }
 
   @Test

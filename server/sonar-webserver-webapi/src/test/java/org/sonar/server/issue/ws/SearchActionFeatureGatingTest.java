@@ -19,6 +19,8 @@
  */
 package org.sonar.server.issue.ws;
 
+import io.sonarcloud.compliancereports.reports.MetadataLoader;
+import io.sonarcloud.compliancereports.reports.MetadataRules;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -51,6 +53,7 @@ class SearchActionFeatureGatingTest {
   private final FromSonarQubeUpdateFeature fromSonarQubeUpdateFeature = mock(FromSonarQubeUpdateFeature.class);
   private final JiraSonarQubeFeature jiraSonarQubeFeature = mock(JiraSonarQubeFeature.class);
   private final DbClient dbClient = mock(DbClient.class);
+  private final MetadataLoader metadataLoader = mock(MetadataLoader.class);
 
   @Test
   void whenFromSonarQubeUpdateFeatureIsDisabled_parameterShouldNotBeAvailable() {
@@ -153,7 +156,9 @@ class SearchActionFeatureGatingTest {
         System2.INSTANCE,
         dbClient,
         fromSonarQubeUpdateFeature,
-        jiraSonarQubeFeature
+        jiraSonarQubeFeature,
+        metadataLoader,
+        new MetadataRules(metadataLoader)
       )
     );
   }

@@ -21,6 +21,8 @@ package org.sonar.server.issue.index;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import io.sonarcloud.compliancereports.reports.MetadataRules;
+import io.sonarcloud.compliancereports.reports.MetadataRules.ComplianceCategoryRules;
 import java.time.Clock;
 import java.time.DateTimeException;
 import java.time.OffsetDateTime;
@@ -39,20 +41,21 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.ServerSide;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueFixedDto;
 import org.sonar.db.permission.GlobalPermission;
@@ -75,9 +78,9 @@ import static org.sonar.api.measures.CoreMetrics.ANALYSIS_FROM_SONARQUBE_9_4_KEY
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.db.permission.ProjectPermission.SCAN;
 import static org.sonar.db.permission.ProjectPermission.USER;
-import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
@@ -104,16 +107,19 @@ public class IssueQueryFactory {
     .map(Enum::name)
     .collect(Collectors.toSet());
   private static final ComponentDto UNKNOWN_COMPONENT = new ComponentDto().setUuid(UNKNOWN).setBranchUuid(UNKNOWN);
-  private static final Set<String> QUALIFIERS_WITHOUT_LEAK_PERIOD = new HashSet<>(Arrays.asList(ComponentQualifiers.APP, ComponentQualifiers.VIEW,
+  private static final Set<String> QUALIFIERS_WITHOUT_LEAK_PERIOD = new HashSet<>(Arrays.asList(ComponentQualifiers.APP,
+    ComponentQualifiers.VIEW,
     ComponentQualifiers.SUBVIEW));
   private final DbClient dbClient;
   private final Clock clock;
   private final UserSession userSession;
+  private final MetadataRules metadataRules;
 
-  public IssueQueryFactory(DbClient dbClient, Clock clock, UserSession userSession) {
+  public IssueQueryFactory(DbClient dbClient, Clock clock, UserSession userSession, MetadataRules metadataRules) {
     this.dbClient = dbClient;
     this.clock = clock;
     this.userSession = userSession;
+    this.metadataRules = metadataRules;
   }
 
   public IssueQuery create(SearchRequest request) {
@@ -168,6 +174,7 @@ public class IssueQueryFactory {
         .timeZone(timeZone)
         .codeVariants(request.getCodeVariants());
 
+      addComplianceStandardFilters(dbSession, builder, request);
       List<ComponentDto> allComponents = new ArrayList<>();
       boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(dbSession, request, allComponents);
       addComponentParameters(builder, dbSession, effectiveOnComponentOnly, allComponents, request);
@@ -182,6 +189,30 @@ public class IssueQueryFactory {
       }
       return builder.build();
     }
+  }
+
+  private void addComplianceStandardFilters(DbSession session, IssueQuery.Builder builder, SearchRequest request) {
+    if (request.getCategoriesByStandard() == null || request.getCategoriesByStandard().isEmpty()) {
+      return;
+    }
+
+    ComplianceCategoryRules rules = metadataRules.getRules(request.getCategoriesByStandard());
+    builder.complianceCategoryRules(getRuleIds(session, rules));
+  }
+
+  private Set<String> getRuleIds(DbSession session, ComplianceCategoryRules rules) {
+    Set<RuleKey> ruleKeys = rules.repoRuleKeys().stream().map(r -> RuleKey.of(r.repository(), r.rule())).collect(Collectors.toSet());
+
+    Set<String> ruleIds = Stream.concat(
+      dbClient.ruleDao().selectByKeys(session, ruleKeys).stream(),
+      dbClient.ruleDao().selectByRuleKeys(session, rules.ruleKeys()).stream()
+    ).map(RuleDto::getUuid).collect(Collectors.toSet());
+
+    // standard doesn't exist or it doesn't have any rules associated to it
+    if (ruleIds.isEmpty()) {
+      return Set.of("non-existing-uuid");
+    }
+    return ruleIds;
   }
 
   private Collection<String> collectIssueKeys(DbSession dbSession, SearchRequest request) {
@@ -522,7 +553,8 @@ public class IssueQueryFactory {
     }
   }
 
-  private static void unsetMainBranch(IssueQuery.Builder builder, boolean hasIssueKey, List<ComponentDto> components, SearchRequest request) {
+  private static void unsetMainBranch(IssueQuery.Builder builder, boolean hasIssueKey, List<ComponentDto> components,
+    SearchRequest request) {
     var pullRequest = request.getPullRequest();
     var branch = request.getBranch();
     if ((components.isEmpty() || UNKNOWN_COMPONENT.equals(components.get(0)) || (pullRequest == null && branch == null)) && hasIssueKey) {

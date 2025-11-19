@@ -54,11 +54,12 @@ public class ParamParsingUtils {
       if (parts.length != 2) {
         throw new IllegalArgumentException("Invalid format. Expected key=value: " + complianceStandardsFilter);
       }
-      String[] standardParts = parts[0].split(":");
-      if (standardParts.length != 2) {
+
+      int i = parts[0].indexOf(':');
+      if (i < 0) {
         throw new IllegalArgumentException("Invalid format. Expected standard:version in " + complianceStandardsFilter);
       }
-      categoriesByStandard.put(new ReportKey(standardParts[0], standardParts[1]), parts[1]);
+      categoriesByStandard.put(new ReportKey(parts[0].substring(0, i), parts[0].substring(i + 1)), parts[1]);
     }
     return categoriesByStandard;
   }

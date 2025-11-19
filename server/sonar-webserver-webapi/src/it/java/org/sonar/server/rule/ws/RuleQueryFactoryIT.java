@@ -21,9 +21,7 @@ package org.sonar.server.rule.ws;
 
 import io.sonarcloud.compliancereports.reports.MetadataLoader;
 import io.sonarcloud.compliancereports.reports.MetadataRules;
-import io.sonarcloud.compliancereports.reports.MetadataRules.ComplianceCategoryRules;
 import io.sonarcloud.compliancereports.reports.MetadataRules.RepositoryRuleKey;
-import java.util.List;
 import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,11 +48,11 @@ import static org.sonar.api.rule.RuleStatus.READY;
 import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
-import static org.sonar.core.rule.RuleType.BUG;
-import static org.sonar.core.rule.RuleType.CODE_SMELL;
 import static org.sonar.api.server.ws.WebService.Param.ASCENDING;
 import static org.sonar.api.server.ws.WebService.Param.SORT;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
+import static org.sonar.core.rule.RuleType.BUG;
+import static org.sonar.core.rule.RuleType.CODE_SMELL;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.INHERITED;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.OVERRIDES;
 import static org.sonar.server.rule.ws.RuleWsSupport.defineGenericRuleSearchParameters;
@@ -84,8 +82,7 @@ public class RuleQueryFactoryIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private DbClient dbClient = db.getDbClient();
-  private MetadataLoader metadataLoader = new MetadataLoader(Set.of(new TestMetadataType()));
-  private MetadataRules metadataRules = new MetadataRules(metadataLoader);
+  private MetadataRules metadataRules = new MetadataRules(new MetadataLoader(Set.of(new TestMetadataType())));
   private RuleQueryFactory underTest = new RuleQueryFactory(dbClient, metadataRules);
 
   private FakeAction fakeAction = new FakeAction(underTest);
@@ -149,9 +146,8 @@ public class RuleQueryFactoryIT {
 
     assertResult(result, qualityProfile, compareToQualityProfile);
     assertThat(result.includeExternal()).isFalse();
-    assertThat(result.getComplianceCategoryRules()).containsOnlyKeys("test:V1");
-    assertThat(result.getComplianceCategoryRules().get("test:V1").ruleKeys()).containsOnly("S002", "3");
-    assertThat(result.getComplianceCategoryRules().get("test:V1").repoRuleKeys()).containsOnly(RepositoryRuleKey.of("java:S001"));
+    assertThat(result.getComplianceCategoryRules().ruleKeys()).containsOnly("S002", "3");
+    assertThat(result.getComplianceCategoryRules().repoRuleKeys()).containsOnly(RepositoryRuleKey.of("java:S001"));
   }
 
   @Test

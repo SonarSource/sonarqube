@@ -106,6 +106,7 @@ public class IssueQuery {
   private final Collection<String> newCodeOnReferenceByProjectUuids;
   private final Collection<String> codeVariants;
   private final Collection<String> cleanCodeAttributesCategories;
+  private final Collection<String> complianceCategoryRules;
 
   private IssueQuery(Builder builder) {
     this.issueKeys = nullableDefaultCollection(builder.issueKeys);
@@ -160,6 +161,7 @@ public class IssueQuery {
     this.newCodeOnReferenceByProjectUuids = defaultCollection(builder.newCodeOnReferenceByProjectUuids);
     this.codeVariants = defaultCollection(builder.codeVariants);
     this.cleanCodeAttributesCategories = defaultCollection(builder.cleanCodeAttributesCategories);
+    this.complianceCategoryRules = builder.complianceCategoryRules;
   }
 
   public Collection<String> issueKeys() {
@@ -396,6 +398,11 @@ public class IssueQuery {
     return cleanCodeAttributesCategories;
   }
 
+  @CheckForNull
+  public Collection<String> complianceCategoryRules() {
+    return complianceCategoryRules;
+  }
+
   public static class Builder {
     private Collection<String> issueKeys;
     private Collection<String> severities;
@@ -449,6 +456,7 @@ public class IssueQuery {
     private Collection<String> newCodeOnReferenceByProjectUuids;
     private Collection<String> codeVariants;
     private Collection<String> cleanCodeAttributesCategories;
+    private Collection<String> complianceCategoryRules = null;
 
     private Builder() {
 
@@ -740,6 +748,11 @@ public class IssueQuery {
 
     public Builder cleanCodeAttributesCategories(@Nullable Collection<String> cleanCodeAttributesCategories) {
       this.cleanCodeAttributesCategories = cleanCodeAttributesCategories;
+      return this;
+    }
+
+    public Builder complianceCategoryRules(@Nullable Collection<String> complianceCategoryRules) {
+      this.complianceCategoryRules = complianceCategoryRules;
       return this;
     }
   }

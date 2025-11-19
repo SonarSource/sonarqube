@@ -398,6 +398,24 @@ class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
+  void facets_on_compliance_standards() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project);
+
+    indexIssues(
+      newDoc("I1", project.uuid(), file).setRuleUuid("r1"),
+      newDoc("I2", project.uuid(), file).setRuleUuid("r1"),
+      newDoc("I3", project.uuid(), file).setRuleUuid("r2")
+    );
+
+    IssueQuery query = IssueQuery.builder().build();
+    SearchResponse result = underTest.search(query, new SearchOptions().addComplianceFacets(singletonList("test:V1")));
+    Facets facets = new Facets(result, system2.getDefaultTimeZone().toZoneId());
+    assertThat(facets.getNames()).containsOnly("compliance", "effort");
+    assertThat(facets.get("compliance")).containsOnly(entry("r1", 2L), entry("r2", 1L));
+  }
+
+  @Test
   void facets_on_resolutions() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);

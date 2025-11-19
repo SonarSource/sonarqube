@@ -49,6 +49,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.NestedQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.TermsQueryBuilder;
 import org.elasticsearch.indices.TermsLookup;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -75,17 +76,14 @@ import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.joda.time.Duration;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.CleanCodeAttributeCategory;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.OwaspMobileTop10Version;
 import org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version;
 import org.sonar.api.server.rule.RulesDefinition.PciDssVersion;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.rule.RuleType;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.SearchOptions;
@@ -95,7 +93,6 @@ import org.sonar.server.es.searchrequest.RequestFiltersComputer.AllFilters;
 import org.sonar.server.es.searchrequest.SimpleFieldTopAggregationDefinition;
 import org.sonar.server.es.searchrequest.SubAggregationHelper;
 import org.sonar.server.es.searchrequest.TopAggregationDefinition;
-import org.sonar.server.es.searchrequest.TopAggregationDefinition.FilterScope;
 import org.sonar.server.es.searchrequest.TopAggregationDefinition.SimpleFieldFilterScope;
 import org.sonar.server.es.searchrequest.TopAggregationHelper;
 import org.sonar.server.issue.index.IssueQuery.PeriodStart;
@@ -131,43 +128,42 @@ import static org.sonar.core.rule.RuleType.VULNERABILITY;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
 import static org.sonar.server.es.searchrequest.TopAggregationDefinition.NON_STICKY;
-import static org.sonar.server.es.searchrequest.TopAggregationDefinition.STICKY;
 import static org.sonar.server.es.searchrequest.TopAggregationHelper.NO_EXTRA_FILTER;
 import static org.sonar.server.es.searchrequest.TopAggregationHelper.NO_OTHER_SUBAGGREGATION;
-import static org.sonar.server.issue.index.IssueIndex.Facet.ASSIGNED_TO_ME;
-import static org.sonar.server.issue.index.IssueIndex.Facet.ASSIGNEES;
-import static org.sonar.server.issue.index.IssueIndex.Facet.AUTHOR;
-import static org.sonar.server.issue.index.IssueIndex.Facet.CASA;
-import static org.sonar.server.issue.index.IssueIndex.Facet.CLEAN_CODE_ATTRIBUTE_CATEGORY;
-import static org.sonar.server.issue.index.IssueIndex.Facet.CODE_VARIANTS;
-import static org.sonar.server.issue.index.IssueIndex.Facet.CREATED_AT;
-import static org.sonar.server.issue.index.IssueIndex.Facet.CWE;
-import static org.sonar.server.issue.index.IssueIndex.Facet.DIRECTORIES;
-import static org.sonar.server.issue.index.IssueIndex.Facet.FILES;
-import static org.sonar.server.issue.index.IssueIndex.Facet.FROM_SONAR_QUBE_UPDATE;
-import static org.sonar.server.issue.index.IssueIndex.Facet.IMPACT_SEVERITY;
-import static org.sonar.server.issue.index.IssueIndex.Facet.IMPACT_SOFTWARE_QUALITY;
-import static org.sonar.server.issue.index.IssueIndex.Facet.ISSUE_STATUSES;
-import static org.sonar.server.issue.index.IssueIndex.Facet.LANGUAGES;
-import static org.sonar.server.issue.index.IssueIndex.Facet.LINKED_JIRA_WORK_ITEM;
-import static org.sonar.server.issue.index.IssueIndex.Facet.OWASP_ASVS_40;
-import static org.sonar.server.issue.index.IssueIndex.Facet.OWASP_MOBILE_TOP_10_2024;
-import static org.sonar.server.issue.index.IssueIndex.Facet.OWASP_TOP_10;
-import static org.sonar.server.issue.index.IssueIndex.Facet.OWASP_TOP_10_2021;
-import static org.sonar.server.issue.index.IssueIndex.Facet.PCI_DSS_32;
-import static org.sonar.server.issue.index.IssueIndex.Facet.PCI_DSS_40;
-import static org.sonar.server.issue.index.IssueIndex.Facet.PRIORITIZED_RULE;
-import static org.sonar.server.issue.index.IssueIndex.Facet.PROJECT_UUIDS;
-import static org.sonar.server.issue.index.IssueIndex.Facet.RESOLUTIONS;
-import static org.sonar.server.issue.index.IssueIndex.Facet.RULES;
-import static org.sonar.server.issue.index.IssueIndex.Facet.SANS_TOP_25;
-import static org.sonar.server.issue.index.IssueIndex.Facet.SCOPES;
-import static org.sonar.server.issue.index.IssueIndex.Facet.SEVERITIES;
-import static org.sonar.server.issue.index.IssueIndex.Facet.SONARSOURCE_SECURITY;
-import static org.sonar.server.issue.index.IssueIndex.Facet.STATUSES;
-import static org.sonar.server.issue.index.IssueIndex.Facet.STIG_ASD_V5R3;
-import static org.sonar.server.issue.index.IssueIndex.Facet.TAGS;
-import static org.sonar.server.issue.index.IssueIndex.Facet.TYPES;
+import static org.sonar.server.issue.index.Facet.ASSIGNED_TO_ME;
+import static org.sonar.server.issue.index.Facet.ASSIGNEES;
+import static org.sonar.server.issue.index.Facet.AUTHOR;
+import static org.sonar.server.issue.index.Facet.CASA;
+import static org.sonar.server.issue.index.Facet.CLEAN_CODE_ATTRIBUTE_CATEGORY;
+import static org.sonar.server.issue.index.Facet.CODE_VARIANTS;
+import static org.sonar.server.issue.index.Facet.CREATED_AT;
+import static org.sonar.server.issue.index.Facet.CWE;
+import static org.sonar.server.issue.index.Facet.DIRECTORIES;
+import static org.sonar.server.issue.index.Facet.FILES;
+import static org.sonar.server.issue.index.Facet.FROM_SONAR_QUBE_UPDATE;
+import static org.sonar.server.issue.index.Facet.IMPACT_SEVERITY;
+import static org.sonar.server.issue.index.Facet.IMPACT_SOFTWARE_QUALITY;
+import static org.sonar.server.issue.index.Facet.ISSUE_STATUSES;
+import static org.sonar.server.issue.index.Facet.LANGUAGES;
+import static org.sonar.server.issue.index.Facet.LINKED_JIRA_WORK_ITEM;
+import static org.sonar.server.issue.index.Facet.OWASP_ASVS_40;
+import static org.sonar.server.issue.index.Facet.OWASP_MOBILE_TOP_10_2024;
+import static org.sonar.server.issue.index.Facet.OWASP_TOP_10;
+import static org.sonar.server.issue.index.Facet.OWASP_TOP_10_2021;
+import static org.sonar.server.issue.index.Facet.PCI_DSS_32;
+import static org.sonar.server.issue.index.Facet.PCI_DSS_40;
+import static org.sonar.server.issue.index.Facet.PRIORITIZED_RULE;
+import static org.sonar.server.issue.index.Facet.PROJECT_UUIDS;
+import static org.sonar.server.issue.index.Facet.RESOLUTIONS;
+import static org.sonar.server.issue.index.Facet.RULES;
+import static org.sonar.server.issue.index.Facet.SANS_TOP_25;
+import static org.sonar.server.issue.index.Facet.SCOPES;
+import static org.sonar.server.issue.index.Facet.SEVERITIES;
+import static org.sonar.server.issue.index.Facet.SONARSOURCE_SECURITY;
+import static org.sonar.server.issue.index.Facet.STATUSES;
+import static org.sonar.server.issue.index.Facet.STIG_ASD_V5R3;
+import static org.sonar.server.issue.index.Facet.TAGS;
+import static org.sonar.server.issue.index.Facet.TYPES;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_FROM_SONAR_QUBE_UPDATE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN;
@@ -221,49 +217,30 @@ import static org.sonar.server.security.SecurityStandards.OWASP_ASVS_40_REQUIREM
 import static org.sonar.server.view.index.ViewIndexDefinition.TYPE_VIEW;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_AUTHOR;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CASA;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CODE_VARIANTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CWE;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FROM_SONAR_QUBE_UPDATE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IMPACT_SEVERITIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IMPACT_SOFTWARE_QUALITIES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE_STATUSES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LINKED_TICKET_STATUS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_ASVS_40;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_MOBILE_TOP_10_2024;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10_2021;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PCI_DSS_32;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PCI_DSS_40;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PRIORITIZED_RULE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLUTIONS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SANS_TOP_25;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SCOPES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SEVERITIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SONARSOURCE_SECURITY;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STIG_ASD_V5R3;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TAGS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
 
 /**
  * The unique entry-point to interact with Elasticsearch index "issues".
  * All the requests are listed here.
  */
 public class IssueIndex {
+  public static final String COMPLIANCE_FILTER_FACET_NAME = "compliance";
 
-  public static final String FACET_PROJECTS = "projects";
-  public static final String FACET_ASSIGNED_TO_ME = "assigned_to_me";
-
-  private static final int DEFAULT_FACET_SIZE = 15;
-  private static final int MAX_FACET_SIZE = 100;
   private static final String AGG_VULNERABILITIES = "vulnerabilities";
   private static final String AGG_SEVERITIES = "severities";
   private static final String ISSUES_WITH_SECURITY_IMPACT = "issues_with_security_impact";
@@ -296,83 +273,8 @@ public class IssueIndex {
 
 
   private static final Object[] NO_SELECTED_VALUES = {0};
-  private static final SimpleFieldTopAggregationDefinition EFFORT_TOP_AGGREGATION = new SimpleFieldTopAggregationDefinition(FIELD_ISSUE_EFFORT, NON_STICKY);
-
-  public enum Facet {
-    SEVERITIES(PARAM_SEVERITIES, FIELD_ISSUE_SEVERITY, STICKY, Severity.ALL.size()),
-    IMPACT_SOFTWARE_QUALITY(PARAM_IMPACT_SOFTWARE_QUALITIES, FIELD_ISSUE_IMPACTS, STICKY),
-    IMPACT_SEVERITY(PARAM_IMPACT_SEVERITIES, FIELD_ISSUE_IMPACTS, STICKY),
-    CLEAN_CODE_ATTRIBUTE_CATEGORY(PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES, FIELD_ISSUE_CLEAN_CODE_ATTRIBUTE_CATEGORY, STICKY, CleanCodeAttributeCategory.values().length),
-    STATUSES(PARAM_STATUSES, FIELD_ISSUE_STATUS, STICKY, Issue.STATUSES.size()),
-    // Resolutions facet returns one more element than the number of resolutions to take into account unresolved issues
-    RESOLUTIONS(PARAM_RESOLUTIONS, FIELD_ISSUE_RESOLUTION, STICKY, Issue.RESOLUTIONS.size() + 1),
-    ISSUE_STATUSES(PARAM_ISSUE_STATUSES, FIELD_ISSUE_NEW_STATUS, STICKY, IssueStatus.values().length),
-    TYPES(PARAM_TYPES, FIELD_ISSUE_TYPE, STICKY, RuleType.values().length),
-    SCOPES(PARAM_SCOPES, FIELD_ISSUE_SCOPE, STICKY, MAX_FACET_SIZE),
-    LANGUAGES(PARAM_LANGUAGES, FIELD_ISSUE_LANGUAGE, STICKY, MAX_FACET_SIZE),
-    RULES(PARAM_RULES, FIELD_ISSUE_RULE_UUID, STICKY, MAX_FACET_SIZE),
-    TAGS(PARAM_TAGS, FIELD_ISSUE_TAGS, STICKY, MAX_FACET_SIZE),
-    AUTHOR(PARAM_AUTHOR, FIELD_ISSUE_AUTHOR_LOGIN, STICKY, MAX_FACET_SIZE),
-    PROJECT_UUIDS(FACET_PROJECTS, FIELD_ISSUE_PROJECT_UUID, STICKY, MAX_FACET_SIZE),
-    FILES(PARAM_FILES, FIELD_ISSUE_FILE_PATH, STICKY, MAX_FACET_SIZE),
-    DIRECTORIES(PARAM_DIRECTORIES, FIELD_ISSUE_DIRECTORY_PATH, STICKY, MAX_FACET_SIZE),
-    ASSIGNEES(PARAM_ASSIGNEES, FIELD_ISSUE_ASSIGNEE_UUID, STICKY, MAX_FACET_SIZE),
-    ASSIGNED_TO_ME(FACET_ASSIGNED_TO_ME, FIELD_ISSUE_ASSIGNEE_UUID, STICKY, 1),
-    PCI_DSS_32(PARAM_PCI_DSS_32, FIELD_ISSUE_PCI_DSS_32, STICKY, DEFAULT_FACET_SIZE),
-    PCI_DSS_40(PARAM_PCI_DSS_40, FIELD_ISSUE_PCI_DSS_40, STICKY, DEFAULT_FACET_SIZE),
-    OWASP_ASVS_40(PARAM_OWASP_ASVS_40, FIELD_ISSUE_OWASP_ASVS_40, STICKY, DEFAULT_FACET_SIZE),
-    OWASP_MOBILE_TOP_10_2024(PARAM_OWASP_MOBILE_TOP_10_2024, FIELD_ISSUE_OWASP_MOBILE_TOP_10_2024, STICKY, DEFAULT_FACET_SIZE),
-    OWASP_TOP_10(PARAM_OWASP_TOP_10, FIELD_ISSUE_OWASP_TOP_10, STICKY, DEFAULT_FACET_SIZE),
-    OWASP_TOP_10_2021(PARAM_OWASP_TOP_10_2021, FIELD_ISSUE_OWASP_TOP_10_2021, STICKY, DEFAULT_FACET_SIZE),
-    STIG_ASD_V5R3(PARAM_STIG_ASD_V5R3, FIELD_ISSUE_STIG_ASD_V5R3, STICKY, DEFAULT_FACET_SIZE),
-    CASA(PARAM_CASA, FIELD_ISSUE_CASA, STICKY, DEFAULT_FACET_SIZE),
-    SANS_TOP_25(PARAM_SANS_TOP_25, FIELD_ISSUE_SANS_TOP_25, STICKY, DEFAULT_FACET_SIZE),
-    CWE(PARAM_CWE, FIELD_ISSUE_CWE, STICKY, DEFAULT_FACET_SIZE),
-    CREATED_AT(PARAM_CREATED_AT, FIELD_ISSUE_FUNC_CREATED_AT, NON_STICKY),
-    SONARSOURCE_SECURITY(PARAM_SONARSOURCE_SECURITY, FIELD_ISSUE_SQ_SECURITY_CATEGORY, STICKY, DEFAULT_FACET_SIZE),
-    CODE_VARIANTS(PARAM_CODE_VARIANTS, FIELD_ISSUE_CODE_VARIANTS, STICKY, MAX_FACET_SIZE),
-    PRIORITIZED_RULE(PARAM_PRIORITIZED_RULE, FIELD_PRIORITIZED_RULE, STICKY, 2),
-    FROM_SONAR_QUBE_UPDATE(PARAM_FROM_SONAR_QUBE_UPDATE, FIELD_FROM_SONAR_QUBE_UPDATE, STICKY, 2),
-    LINKED_JIRA_WORK_ITEM(PARAM_LINKED_TICKET_STATUS, FIELD_LINKED_TICKET_STATUS, STICKY, 2);
-
-    private final String name;
-    private final TopAggregationDefinition<FilterScope> topAggregation;
-    private final Integer numberOfTerms;
-
-    Facet(String name, String fieldName, boolean sticky, int numberOfTerms) {
-      this.name = name;
-      this.topAggregation = new SimpleFieldTopAggregationDefinition(fieldName, sticky);
-      this.numberOfTerms = numberOfTerms;
-    }
-
-    Facet(String name, String fieldName, boolean sticky) {
-      this.name = name;
-      this.topAggregation = new SimpleFieldTopAggregationDefinition(fieldName, sticky);
-      this.numberOfTerms = null;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public String getFieldName() {
-      return topAggregation.getFilterScope().getFieldName();
-    }
-
-    public FilterScope getFilterScope() {
-      return topAggregation.getFilterScope();
-    }
-
-    public TopAggregationDefinition<FilterScope> getTopAggregationDef() {
-      return topAggregation;
-    }
-
-    public int getNumberOfTerms() {
-      checkState(numberOfTerms != null, "numberOfTerms should have been provided in constructor");
-
-      return numberOfTerms;
-    }
-  }
+  private static final SimpleFieldTopAggregationDefinition EFFORT_TOP_AGGREGATION =
+    new SimpleFieldTopAggregationDefinition(FIELD_ISSUE_EFFORT, NON_STICKY);
 
   private static final Map<String, Facet> FACETS_BY_NAME = Arrays.stream(Facet.values())
     .collect(Collectors.toMap(Facet::getName, Function.identity()));
@@ -383,6 +285,8 @@ public class IssueIndex {
   private static final String FACET_SUFFIX_MISSING = "_missing";
   private static final String IS_ASSIGNED_FILTER = "__isAssigned";
   private static final SumAggregationBuilder EFFORT_AGGREGATION = AggregationBuilders.sum(FACET_MODE_EFFORT).field(FIELD_ISSUE_EFFORT);
+  private static final TopAggregationDefinition<?> COMPLIANCE_AGG_DEF = new SimpleFieldTopAggregationDefinition(COMPLIANCE_FILTER_FACET_NAME,
+    true);
   private static final BucketOrder EFFORT_AGGREGATION_ORDER = BucketOrder.aggregation(FACET_MODE_EFFORT, false);
   private static final Duration TWENTY_DAYS = Duration.standardDays(20L);
   private static final Duration TWENTY_WEEKS = Duration.standardDays(20L * 7L);
@@ -494,27 +398,30 @@ public class IssueIndex {
   }
 
   private AllFilters createAllFilters(IssueQuery query) {
+
     AllFilters filters = RequestFiltersComputer.newAllFilters();
     filters.addFilter("__indexType", new SimpleFieldFilterScope(FIELD_INDEX_TYPE), termQuery(FIELD_INDEX_TYPE, TYPE_ISSUE.getName()));
     filters.addFilter("__authorization", new SimpleFieldFilterScope("parent"), createAuthorizationFilter());
 
     // Issue is assigned Filter
     if (Boolean.TRUE.equals(query.assigned())) {
-      filters.addFilter(IS_ASSIGNED_FILTER, Facet.ASSIGNEES.getFilterScope(), existsQuery(FIELD_ISSUE_ASSIGNEE_UUID));
+      filters.addFilter(IS_ASSIGNED_FILTER, ASSIGNEES.getFilterScope(), existsQuery(FIELD_ISSUE_ASSIGNEE_UUID));
     } else if (Boolean.FALSE.equals(query.assigned())) {
       filters.addFilter(IS_ASSIGNED_FILTER, ASSIGNEES.getFilterScope(), boolQuery().mustNot(existsQuery(FIELD_ISSUE_ASSIGNEE_UUID)));
     }
 
     // Issue is Resolved Filter
     if (Boolean.TRUE.equals(query.resolved())) {
-      filters.addFilter("__isResolved", Facet.RESOLUTIONS.getFilterScope(), existsQuery(FIELD_ISSUE_RESOLUTION));
+      filters.addFilter("__isResolved", RESOLUTIONS.getFilterScope(), existsQuery(FIELD_ISSUE_RESOLUTION));
     } else if (Boolean.FALSE.equals(query.resolved())) {
-      filters.addFilter("__isResolved", Facet.RESOLUTIONS.getFilterScope(), boolQuery().mustNot(existsQuery(FIELD_ISSUE_RESOLUTION)));
+      filters.addFilter("__isResolved", RESOLUTIONS.getFilterScope(), boolQuery().mustNot(existsQuery(FIELD_ISSUE_RESOLUTION)));
     }
 
     // Field Filters
-    filters.addFilter(FIELD_ISSUE_KEY, new SimpleFieldFilterScope(FIELD_ISSUE_KEY), createTermsFilterForNullableCollection(FIELD_ISSUE_KEY, query.issueKeys()));
-    filters.addFilter(FIELD_ISSUE_ASSIGNEE_UUID, ASSIGNEES.getFilterScope(), createTermsFilter(FIELD_ISSUE_ASSIGNEE_UUID, query.assignees()));
+    filters.addFilter(FIELD_ISSUE_KEY, new SimpleFieldFilterScope(FIELD_ISSUE_KEY),
+      createTermsFilterForNullableCollection(FIELD_ISSUE_KEY, query.issueKeys()));
+    filters.addFilter(FIELD_ISSUE_ASSIGNEE_UUID, ASSIGNEES.getFilterScope(), createTermsFilter(FIELD_ISSUE_ASSIGNEE_UUID,
+      query.assignees()));
     filters.addFilter(FIELD_ISSUE_SCOPE, SCOPES.getFilterScope(), createTermsFilter(FIELD_ISSUE_SCOPE, query.scopes()));
     filters.addFilter(FIELD_ISSUE_LANGUAGE, LANGUAGES.getFilterScope(), createTermsFilter(FIELD_ISSUE_LANGUAGE, query.languages()));
     filters.addFilter(FIELD_ISSUE_TAGS, TAGS.getFilterScope(), createTermsFilter(FIELD_ISSUE_TAGS, query.tags()));
@@ -534,11 +441,16 @@ public class IssueIndex {
         FIELD_ISSUE_RULE_UUID,
         query.ruleUuids()));
     filters.addFilter(FIELD_ISSUE_STATUS, STATUSES.getFilterScope(), createTermsFilter(FIELD_ISSUE_STATUS, query.statuses()));
-    filters.addFilter(FIELD_ISSUE_NEW_STATUS, ISSUE_STATUSES.getFilterScope(), createTermsFilter(FIELD_ISSUE_NEW_STATUS, query.issueStatuses()));
-    filters.addFilter(FIELD_ISSUE_CODE_VARIANTS, CODE_VARIANTS.getFilterScope(), createTermsFilter(FIELD_ISSUE_CODE_VARIANTS, query.codeVariants()));
-    filters.addFilter(FIELD_PRIORITIZED_RULE, PRIORITIZED_RULE.getFilterScope(), createTermFilter(FIELD_PRIORITIZED_RULE, query.prioritizedRule()));
-    filters.addFilter(FIELD_LINKED_TICKET_STATUS, LINKED_JIRA_WORK_ITEM.getFilterScope(), createTermsFilter(FIELD_LINKED_TICKET_STATUS, query.linkedTicketStatuses()));
-    filters.addFilter(FIELD_FROM_SONAR_QUBE_UPDATE, FROM_SONAR_QUBE_UPDATE.getFilterScope(), createTermFilter(FIELD_FROM_SONAR_QUBE_UPDATE, query.fromSonarQubeUpdate()));
+    filters.addFilter(FIELD_ISSUE_NEW_STATUS, ISSUE_STATUSES.getFilterScope(), createTermsFilter(FIELD_ISSUE_NEW_STATUS,
+      query.issueStatuses()));
+    filters.addFilter(FIELD_ISSUE_CODE_VARIANTS, CODE_VARIANTS.getFilterScope(), createTermsFilter(FIELD_ISSUE_CODE_VARIANTS,
+      query.codeVariants()));
+    filters.addFilter(FIELD_PRIORITIZED_RULE, PRIORITIZED_RULE.getFilterScope(), createTermFilter(FIELD_PRIORITIZED_RULE,
+      query.prioritizedRule()));
+    filters.addFilter(FIELD_LINKED_TICKET_STATUS, LINKED_JIRA_WORK_ITEM.getFilterScope(), createTermsFilter(FIELD_LINKED_TICKET_STATUS,
+      query.linkedTicketStatuses()));
+    filters.addFilter(FIELD_FROM_SONAR_QUBE_UPDATE, FROM_SONAR_QUBE_UPDATE.getFilterScope(),
+      createTermFilter(FIELD_FROM_SONAR_QUBE_UPDATE, query.fromSonarQubeUpdate()));
 
     // security category
     addSecurityCategoryPrefixFilter(FIELD_ISSUE_PCI_DSS_32, PCI_DSS_32, query.pciDss32(), filters);
@@ -553,6 +465,7 @@ public class IssueIndex {
     addSecurityCategoryFilter(FIELD_ISSUE_CWE, CWE, query.cwe(), filters);
     addSecurityCategoryFilter(FIELD_ISSUE_SQ_SECURITY_CATEGORY, SONARSOURCE_SECURITY, query.sonarsourceSecurity(), filters);
 
+    addComplianceCategoriesFilter(query, filters);
     addSeverityFilter(query, filters);
     addImpactFilters(query, filters);
     addComponentRelatedFilters(query, filters);
@@ -560,6 +473,15 @@ public class IssueIndex {
     addNewCodeByProjectsFilter(filters, query);
     addNewCodeReferenceFilter(filters, query);
     return filters;
+  }
+
+  private static void addComplianceCategoriesFilter(IssueQuery query, AllFilters allFilters) {
+    if (query.complianceCategoryRules() == null) {
+      return;
+    }
+
+    TermsQueryBuilder queryBuilder = termsQuery(FIELD_ISSUE_RULE_UUID, query.complianceCategoryRules());
+    allFilters.addFilter(COMPLIANCE_FILTER_FACET_NAME, new SimpleFieldFilterScope(COMPLIANCE_FILTER_FACET_NAME), queryBuilder);
   }
 
   private void addOwaspAsvsFilter(String fieldName, Facet facet, IssueQuery query, AllFilters allFilters) {
@@ -608,8 +530,10 @@ public class IssueIndex {
   /**
    * <p>Builds the Elasticsearch boolean query to filter the PCI DSS and CASA.</p>
    *
-   * <p>The PCI DSS security report handles all the subcategories as one level. This means that subcategory 1.1 doesn't include the issues from 1.1.1.
-   * Taking this into account, the search filter follows the same logic and uses prefix matching for top-level categories and exact matching for subcategories</p>
+   * <p>The PCI DSS security report handles all the subcategories as one level. This means that subcategory 1.1 doesn't include the
+   * issues from 1.1.1.
+   * Taking this into account, the search filter follows the same logic and uses prefix matching for top-level categories and exact
+   * matching for subcategories</p>
    *
    * <p>Example</p>
    * <p>List of PCI DSS categories in issues: {1.5.8, 1.5.9, 1.6.7}
@@ -771,11 +695,13 @@ public class IssueIndex {
   private static RequestFiltersComputer newFilterComputer(SearchOptions options, AllFilters allFilters) {
     Collection<String> facetNames = options.getFacets();
     Set<TopAggregationDefinition<?>> facets = Stream.concat(
-      Stream.of(EFFORT_TOP_AGGREGATION),
-      facetNames.stream()
-        .map(FACETS_BY_NAME::get)
-        .filter(Objects::nonNull)
-        .map(Facet::getTopAggregationDef))
+        Stream.concat(
+          Stream.of(EFFORT_TOP_AGGREGATION),
+          facetNames.stream()
+            .map(FACETS_BY_NAME::get)
+            .filter(Objects::nonNull)
+            .map(Facet::getTopAggregationDef)),
+        Stream.of(COMPLIANCE_AGG_DEF))
       .collect(Collectors.toSet());
 
     return new RequestFiltersComputer(allFilters, facets);
@@ -922,22 +848,29 @@ public class IssueIndex {
     addFacetIfNeeded(options, aggregationHelper, esRequest, TAGS, query.tags().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, TYPES, query.types().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, CODE_VARIANTS, query.codeVariants().toArray());
-    addFacetIfNeeded(options, aggregationHelper, esRequest, CLEAN_CODE_ATTRIBUTE_CATEGORY, query.cleanCodeAttributesCategories().toArray());
+    addFacetIfNeeded(options, aggregationHelper, esRequest, CLEAN_CODE_ATTRIBUTE_CATEGORY,
+      query.cleanCodeAttributesCategories().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, PRIORITIZED_RULE, ArrayUtils.EMPTY_OBJECT_ARRAY);
     addFacetIfNeeded(options, aggregationHelper, esRequest, FROM_SONAR_QUBE_UPDATE, ArrayUtils.EMPTY_OBJECT_ARRAY);
     addFacetIfNeeded(options, aggregationHelper, esRequest, LINKED_JIRA_WORK_ITEM, ArrayUtils.EMPTY_OBJECT_ARRAY);
 
     addSecurityCategoryFacetIfNeeded(PARAM_PCI_DSS_32, PCI_DSS_32, options, aggregationHelper, esRequest, query.pciDss32().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_PCI_DSS_40, PCI_DSS_40, options, aggregationHelper, esRequest, query.pciDss40().toArray());
-    addSecurityCategoryFacetIfNeeded(PARAM_OWASP_ASVS_40, OWASP_ASVS_40, options, aggregationHelper, esRequest, query.owaspAsvs40().toArray());
-    addSecurityCategoryFacetIfNeeded(PARAM_OWASP_MOBILE_TOP_10_2024, OWASP_MOBILE_TOP_10_2024, options, aggregationHelper, esRequest, query.owaspMobileTop10For2024().toArray());
-    addSecurityCategoryFacetIfNeeded(PARAM_OWASP_TOP_10, OWASP_TOP_10, options, aggregationHelper, esRequest, query.owaspTop10().toArray());
-    addSecurityCategoryFacetIfNeeded(PARAM_OWASP_TOP_10_2021, OWASP_TOP_10_2021, options, aggregationHelper, esRequest, query.owaspTop10For2021().toArray());
-    addSecurityCategoryFacetIfNeeded(PARAM_STIG_ASD_V5R3, STIG_ASD_V5R3, options, aggregationHelper, esRequest, query.stigAsdV5R3().toArray());
+    addSecurityCategoryFacetIfNeeded(PARAM_OWASP_ASVS_40, OWASP_ASVS_40, options, aggregationHelper, esRequest,
+      query.owaspAsvs40().toArray());
+    addSecurityCategoryFacetIfNeeded(PARAM_OWASP_MOBILE_TOP_10_2024, OWASP_MOBILE_TOP_10_2024, options, aggregationHelper, esRequest,
+      query.owaspMobileTop10For2024().toArray());
+    addSecurityCategoryFacetIfNeeded(PARAM_OWASP_TOP_10, OWASP_TOP_10, options, aggregationHelper, esRequest,
+      query.owaspTop10().toArray());
+    addSecurityCategoryFacetIfNeeded(PARAM_OWASP_TOP_10_2021, OWASP_TOP_10_2021, options, aggregationHelper, esRequest,
+      query.owaspTop10For2021().toArray());
+    addSecurityCategoryFacetIfNeeded(PARAM_STIG_ASD_V5R3, STIG_ASD_V5R3, options, aggregationHelper, esRequest,
+      query.stigAsdV5R3().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_CASA, CASA, options, aggregationHelper, esRequest, query.casa().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_SANS_TOP_25, SANS_TOP_25, options, aggregationHelper, esRequest, query.sansTop25().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_CWE, CWE, options, aggregationHelper, esRequest, query.cwe().toArray());
-    addSecurityCategoryFacetIfNeeded(PARAM_SONARSOURCE_SECURITY, SONARSOURCE_SECURITY, options, aggregationHelper, esRequest, query.sonarsourceSecurity().toArray());
+    addSecurityCategoryFacetIfNeeded(PARAM_SONARSOURCE_SECURITY, SONARSOURCE_SECURITY, options, aggregationHelper, esRequest,
+      query.sonarsourceSecurity().toArray());
 
     addSeverityFacetIfNeeded(options, aggregationHelper, esRequest);
     addImpactSoftwareQualityFacetIfNeeded(options, query, aggregationHelper, esRequest);
@@ -947,6 +880,7 @@ public class IssueIndex {
     addCreatedAtFacetIfNeeded(options, query, aggregationHelper, queryFilters, esRequest);
     addAssignedToMeFacetIfNeeded(options, aggregationHelper, esRequest);
     addEffortTopAggregation(aggregationHelper, esRequest);
+    addComplianceStandardsFacetsIfNeeded(options, aggregationHelper, esRequest);
   }
 
   private static void addFacetIfNeeded(SearchOptions options, TopAggregationHelper aggregationHelper,
@@ -958,9 +892,21 @@ public class IssueIndex {
     FilterAggregationBuilder topAggregation = aggregationHelper.buildTermTopAggregation(
       facet.getName(), facet.getTopAggregationDef(), facet.getNumberOfTerms(),
       NO_EXTRA_FILTER,
-      t -> aggregationHelper.getSubAggregationHelper().buildSelectedItemsAggregation(facet.getName(), facet.getTopAggregationDef(), selectedValues)
+      t -> aggregationHelper.getSubAggregationHelper().buildSelectedItemsAggregation(facet.getName(), facet.getTopAggregationDef(),
+          selectedValues)
         .ifPresent(t::subAggregation));
     esRequest.aggregation(topAggregation);
+  }
+
+  private static void addComplianceStandardsFacetsIfNeeded(SearchOptions options, TopAggregationHelper aggregationHelper,
+    SearchSourceBuilder esRequest) {
+    if (options.getComplianceFacets().isEmpty()) {
+      return;
+    }
+    TopAggregationDefinition<?> aggDefinition = new SimpleFieldTopAggregationDefinition(FIELD_ISSUE_RULE_UUID, true);
+    AggregationBuilder aggregation = aggregationHelper.buildTermTopAggregation(COMPLIANCE_FILTER_FACET_NAME, aggDefinition, 65535,
+      COMPLIANCE_FILTER_FACET_NAME);
+    esRequest.aggregation(aggregation);
   }
 
   private void addSecurityCategoryFacetIfNeeded(String param, Facet facet, SearchOptions options, TopAggregationHelper aggregationHelper,
@@ -973,12 +919,14 @@ public class IssueIndex {
     AggregationBuilder aggregation = aggregationHelper.buildTermTopAggregation(
       facet.getName(), facet.getTopAggregationDef(), facet.getNumberOfTerms(),
       filter -> filter.must(isMQRMode() ? SECURITY_IMPACT_FILTER : termQuery(FIELD_ISSUE_TYPE, VULNERABILITY.name())),
-      t -> aggregationHelper.getSubAggregationHelper().buildSelectedItemsAggregation(facet.getName(), facet.getTopAggregationDef(), selectedValues)
+      t -> aggregationHelper.getSubAggregationHelper().buildSelectedItemsAggregation(facet.getName(), facet.getTopAggregationDef(),
+          selectedValues)
         .ifPresent(t::subAggregation));
     esRequest.aggregation(aggregation);
   }
 
-  private static void addSeverityFacetIfNeeded(SearchOptions options, TopAggregationHelper aggregationHelper, SearchSourceBuilder esRequest) {
+  private static void addSeverityFacetIfNeeded(SearchOptions options, TopAggregationHelper aggregationHelper,
+    SearchSourceBuilder esRequest) {
     if (!options.getFacets().contains(PARAM_SEVERITIES)) {
       return;
     }
@@ -991,7 +939,8 @@ public class IssueIndex {
     esRequest.aggregation(aggregation);
   }
 
-  private static void addImpactSoftwareQualityFacetIfNeeded(SearchOptions options, IssueQuery query, TopAggregationHelper aggregationHelper,
+  private static void addImpactSoftwareQualityFacetIfNeeded(SearchOptions options, IssueQuery query, TopAggregationHelper
+      aggregationHelper,
     SearchSourceBuilder esRequest) {
     if (!options.getFacets().contains(PARAM_IMPACT_SOFTWARE_QUALITIES)) {
       return;
@@ -1004,7 +953,7 @@ public class IssueIndex {
       .map(softwareQuality -> new FiltersAggregator.KeyedFilter(softwareQuality.name(),
         query.impactSeverities().isEmpty() ? mainQuery.apply(softwareQuality)
           : mainQuery.apply(softwareQuality)
-            .filter(termsQuery(FIELD_ISSUE_IMPACT_SEVERITY, query.impactSeverities()))))
+          .filter(termsQuery(FIELD_ISSUE_IMPACT_SEVERITY, query.impactSeverities()))))
       .toArray(FiltersAggregator.KeyedFilter[]::new);
 
     AggregationBuilder aggregation = aggregationHelper.buildTopAggregation(
@@ -1016,7 +965,8 @@ public class IssueIndex {
     esRequest.aggregation(aggregation);
   }
 
-  private static void addImpactSeverityFacetIfNeeded(SearchOptions options, IssueQuery query, TopAggregationHelper aggregationHelper, SearchSourceBuilder esRequest) {
+  private static void addImpactSeverityFacetIfNeeded(SearchOptions options, IssueQuery query, TopAggregationHelper aggregationHelper,
+    SearchSourceBuilder esRequest) {
     if (!options.getFacets().contains(PARAM_IMPACT_SEVERITIES)) {
       return;
     }
@@ -1028,7 +978,7 @@ public class IssueIndex {
       .map(severity -> new FiltersAggregator.KeyedFilter(severity.name(),
         query.impactSoftwareQualities().isEmpty() ? mainQuery.apply(severity)
           : mainQuery.apply(severity)
-            .filter(termsQuery(FIELD_ISSUE_IMPACT_SOFTWARE_QUALITY, query.impactSoftwareQualities()))))
+          .filter(termsQuery(FIELD_ISSUE_IMPACT_SOFTWARE_QUALITY, query.impactSoftwareQualities()))))
       .toArray(FiltersAggregator.KeyedFilter[]::new);
 
     AggregationBuilder aggregation = aggregationHelper.buildTopAggregation(
@@ -1041,7 +991,8 @@ public class IssueIndex {
     esRequest.aggregation(aggregation);
   }
 
-  private static void addResolutionFacetIfNeeded(SearchOptions options, IssueQuery query, TopAggregationHelper aggregationHelper, SearchSourceBuilder esRequest) {
+  private static void addResolutionFacetIfNeeded(SearchOptions options, IssueQuery query, TopAggregationHelper aggregationHelper,
+    SearchSourceBuilder esRequest) {
     if (!options.getFacets().contains(PARAM_RESOLUTIONS)) {
       return;
     }
@@ -1050,15 +1001,16 @@ public class IssueIndex {
       RESOLUTIONS.getName(), RESOLUTIONS.getTopAggregationDef(), RESOLUTIONS.getNumberOfTerms(),
       NO_EXTRA_FILTER,
       t ->
-      // add aggregation of type "missing" to return count of unresolved issues in the facet
-      t.subAggregation(
-        addEffortAggregationIfNeeded(query, AggregationBuilders
-          .missing(RESOLUTIONS.getName() + FACET_SUFFIX_MISSING)
-          .field(RESOLUTIONS.getFieldName()))));
+        // add aggregation of type "missing" to return count of unresolved issues in the facet
+        t.subAggregation(
+          addEffortAggregationIfNeeded(query, AggregationBuilders
+            .missing(RESOLUTIONS.getName() + FACET_SUFFIX_MISSING)
+            .field(RESOLUTIONS.getFieldName()))));
     esRequest.aggregation(aggregation);
   }
 
-  private static void addAssigneesFacetIfNeeded(SearchOptions options, IssueQuery query, TopAggregationHelper aggregationHelper, SearchSourceBuilder esRequest) {
+  private static void addAssigneesFacetIfNeeded(SearchOptions options, IssueQuery query, TopAggregationHelper aggregationHelper,
+    SearchSourceBuilder esRequest) {
     if (!options.getFacets().contains(PARAM_ASSIGNEES)) {
       return;
     }
@@ -1066,7 +1018,8 @@ public class IssueIndex {
     Consumer<FilterAggregationBuilder> assigneeAggregations = t -> {
       // optional second aggregation to return the issue count for selected assignees (if any)
       Object[] assignees = query.assignees().toArray();
-      aggregationHelper.getSubAggregationHelper().buildSelectedItemsAggregation(ASSIGNEES.getName(), ASSIGNEES.getTopAggregationDef(), assignees)
+      aggregationHelper.getSubAggregationHelper().buildSelectedItemsAggregation(ASSIGNEES.getName(), ASSIGNEES.getTopAggregationDef(),
+          assignees)
         .ifPresent(t::subAggregation);
 
       // third aggregation to always return the count of unassigned in the assignee facet
@@ -1081,7 +1034,8 @@ public class IssueIndex {
     esRequest.aggregation(aggregation);
   }
 
-  private void addCreatedAtFacetIfNeeded(SearchOptions options, IssueQuery query, TopAggregationHelper aggregationHelper, AllFilters allFilters,
+  private void addCreatedAtFacetIfNeeded(SearchOptions options, IssueQuery query, TopAggregationHelper aggregationHelper,
+    AllFilters allFilters,
     SearchSourceBuilder esRequest) {
     if (options.getFacets().contains(PARAM_CREATED_AT)) {
       getCreatedAtFacet(query, aggregationHelper, allFilters).ifPresent(esRequest::aggregation);
@@ -1173,10 +1127,10 @@ public class IssueIndex {
         ASSIGNED_TO_ME.getTopAggregationDef(),
         NO_EXTRA_FILTER,
         t ->
-        // add sub-aggregation to return issue count for current user
-        aggregationHelper.getSubAggregationHelper()
-          .buildSelectedItemsAggregation(ASSIGNED_TO_ME.getName(), ASSIGNED_TO_ME.getTopAggregationDef(), new String[] {uuid})
-          .ifPresent(t::subAggregation));
+          // add sub-aggregation to return issue count for current user
+          aggregationHelper.getSubAggregationHelper()
+            .buildSelectedItemsAggregation(ASSIGNED_TO_ME.getName(), ASSIGNED_TO_ME.getTopAggregationDef(), new String[]{uuid})
+            .ifPresent(t::subAggregation));
       esRequest.aggregation(aggregation);
     }
   }
@@ -1315,7 +1269,8 @@ public class IssueIndex {
     Arrays.stream(SQCategory.values())
       .forEach(sonarsourceCategory -> request.aggregation(
         newSecurityReportSubAggregations(
-          AggregationBuilders.filter(sonarsourceCategory.getKey(), boolQuery().filter(termQuery(FIELD_ISSUE_SQ_SECURITY_CATEGORY, sonarsourceCategory.getKey()))),
+          AggregationBuilders.filter(sonarsourceCategory.getKey(), boolQuery().filter(termQuery(FIELD_ISSUE_SQ_SECURITY_CATEGORY,
+            sonarsourceCategory.getKey()))),
           includeCwe,
           SecurityStandards.CWES_BY_SQ_CATEGORY.get(sonarsourceCategory))));
     return search(request, includeCwe, null);
@@ -1326,11 +1281,13 @@ public class IssueIndex {
     Arrays.stream(PciDss.values())
       .forEach(pciDss -> request.aggregation(
         newSecurityReportSubAggregations(
-          AggregationBuilders.filter(pciDss.category(), boolQuery().filter(prefixQuery(version.prefix(), pciDss.category() + "."))), version.prefix())));
+          AggregationBuilders.filter(pciDss.category(), boolQuery().filter(prefixQuery(version.prefix(), pciDss.category() + "."))),
+          version.prefix())));
     return searchWithDistribution(request, version.label(), null);
   }
 
-  public List<SecurityStandardCategoryStatistics> getOwaspAsvsReport(String projectUuid, boolean isViewOrApp, RulesDefinition.OwaspAsvsVersion version, Integer level) {
+  public List<SecurityStandardCategoryStatistics> getOwaspAsvsReport(String projectUuid, boolean isViewOrApp,
+    RulesDefinition.OwaspAsvsVersion version, Integer level) {
     SearchSourceBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
     Arrays.stream(SecurityStandards.OwaspAsvs.values())
       .forEach(owaspAsvs -> request.aggregation(
@@ -1342,7 +1299,8 @@ public class IssueIndex {
     return searchWithDistribution(request, version.label(), level);
   }
 
-  public List<SecurityStandardCategoryStatistics> getOwaspAsvsReportGroupedByLevel(String projectUuid, boolean isViewOrApp, RulesDefinition.OwaspAsvsVersion version, int level) {
+  public List<SecurityStandardCategoryStatistics> getOwaspAsvsReportGroupedByLevel(String projectUuid, boolean isViewOrApp,
+    RulesDefinition.OwaspAsvsVersion version, int level) {
     SearchSourceBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
     request.aggregation(
       newSecurityReportSubAggregations(
@@ -1353,7 +1311,8 @@ public class IssueIndex {
     return searchWithLevelDistribution(request, version.label(), Integer.toString(level));
   }
 
-  public List<SecurityStandardCategoryStatistics> getOwaspMobileTop10Report(String projectUuid, boolean isViewOrApp, boolean includeCwe, OwaspMobileTop10Version version) {
+  public List<SecurityStandardCategoryStatistics> getOwaspMobileTop10Report(String projectUuid, boolean isViewOrApp, boolean includeCwe,
+    OwaspMobileTop10Version version) {
     SearchSourceBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
     IntStream.rangeClosed(1, 10).mapToObj(i -> "m" + i)
       .forEach(owaspMobileCategory -> request.aggregation(
@@ -1364,7 +1323,8 @@ public class IssueIndex {
     return search(request, includeCwe, version.label());
   }
 
-  public List<SecurityStandardCategoryStatistics> getOwaspTop10Report(String projectUuid, boolean isViewOrApp, boolean includeCwe, OwaspTop10Version version) {
+  public List<SecurityStandardCategoryStatistics> getOwaspTop10Report(String projectUuid, boolean isViewOrApp, boolean includeCwe,
+    OwaspTop10Version version) {
     SearchSourceBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
     IntStream.rangeClosed(1, 10).mapToObj(i -> "a" + i)
       .forEach(owaspCategory -> request.aggregation(
@@ -1375,12 +1335,14 @@ public class IssueIndex {
     return search(request, includeCwe, version.label());
   }
 
-  public List<SecurityStandardCategoryStatistics> getStigReport(String projectUuid, boolean isViewOrApp, RulesDefinition.StigVersion stigVersion) {
+  public List<SecurityStandardCategoryStatistics> getStigReport(String projectUuid, boolean isViewOrApp,
+    RulesDefinition.StigVersion stigVersion) {
     SearchSourceBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
     Arrays.stream(StigSupportedRequirement.values())
       .forEach(stigSupportedRequirement -> request.aggregation(
         newSecurityReportSubAggregations(
-          AggregationBuilders.filter(stigSupportedRequirement.getRequirement(), boolQuery().filter(termQuery(stigVersion.prefix(), stigSupportedRequirement.getRequirement()))),
+          AggregationBuilders.filter(stigSupportedRequirement.getRequirement(), boolQuery().filter(termQuery(stigVersion.prefix(),
+            stigSupportedRequirement.getRequirement()))),
           false, null)));
     return search(request, false, stigVersion.label());
   }
@@ -1390,25 +1352,29 @@ public class IssueIndex {
     IntStream.range(1, 15)
       .forEach(casaTopCategory -> request.aggregation(
         newSecurityReportSubAggregations(
-          AggregationBuilders.filter(String.valueOf(casaTopCategory), boolQuery().filter(prefixQuery(FIELD_ISSUE_CASA, casaTopCategory + "."))), FIELD_ISSUE_CASA)));
+          AggregationBuilders.filter(String.valueOf(casaTopCategory), boolQuery().filter(prefixQuery(FIELD_ISSUE_CASA, casaTopCategory +
+            "."))), FIELD_ISSUE_CASA)));
     return searchWithDistribution(request, null, null);
   }
 
-  private List<SecurityStandardCategoryStatistics> searchWithLevelDistribution(SearchSourceBuilder sourceBuilder, String version, @Nullable String level) {
+  private List<SecurityStandardCategoryStatistics> searchWithLevelDistribution(SearchSourceBuilder sourceBuilder, String version,
+    @Nullable String level) {
     return getSearchResponse(sourceBuilder)
       .getAggregations().asList().stream()
       .map(c -> processSecurityReportIssueSearchResultsWithLevelDistribution((ParsedFilter) c, version, level))
       .toList();
   }
 
-  private List<SecurityStandardCategoryStatistics> searchWithDistribution(SearchSourceBuilder sourceBuilder, @Nullable String version, @Nullable Integer level) {
+  private List<SecurityStandardCategoryStatistics> searchWithDistribution(SearchSourceBuilder sourceBuilder, @Nullable String version,
+    @Nullable Integer level) {
     return getSearchResponse(sourceBuilder)
       .getAggregations().asList().stream()
       .map(c -> processSecurityReportIssueSearchResultsWithDistribution((ParsedFilter) c, version, level))
       .toList();
   }
 
-  private List<SecurityStandardCategoryStatistics> search(SearchSourceBuilder sourceBuilder, boolean includeDistribution, @Nullable String version) {
+  private List<SecurityStandardCategoryStatistics> search(SearchSourceBuilder sourceBuilder, boolean includeDistribution,
+    @Nullable String version) {
     return getSearchResponse(sourceBuilder)
       .getAggregations().asList().stream()
       .map(c -> processSecurityReportIssueSearchResults((ParsedFilter) c, includeDistribution, version))
@@ -1449,7 +1415,8 @@ public class IssueIndex {
     boolean includeDistribution, String version) {
     List<SecurityStandardCategoryStatistics> children = new ArrayList<>();
     if (includeDistribution) {
-      Stream<? extends Terms.Bucket> stream = ((ParsedStringTerms) categoryBucket.getAggregations().get(AGG_DISTRIBUTION)).getBuckets().stream();
+      Stream<? extends Terms.Bucket> stream =
+        ((ParsedStringTerms) categoryBucket.getAggregations().get(AGG_DISTRIBUTION)).getBuckets().stream();
       children = stream.map(cweBucket -> processSecurityReportCategorySearchResults(cweBucket, cweBucket.getKeyAsString(), null, null))
         .collect(toCollection(ArrayList<SecurityStandardCategoryStatistics>::new));
     }
@@ -1457,7 +1424,8 @@ public class IssueIndex {
     return processSecurityReportCategorySearchResults(categoryBucket, categoryBucket.getName(), children, version);
   }
 
-  private SecurityStandardCategoryStatistics processSecurityReportCategorySearchResults(HasAggregations categoryBucket, String categoryName,
+  private SecurityStandardCategoryStatistics processSecurityReportCategorySearchResults(HasAggregations categoryBucket, String
+      categoryName,
     @Nullable List<SecurityStandardCategoryStatistics> children, @Nullable String version) {
 
     Aggregation severitiesAggregations =
@@ -1469,10 +1437,12 @@ public class IssueIndex {
     OptionalInt severityRating = severityAggregationDetails.getRating();
     Map<String, Long> severityDistribution = severityAggregationDetails.getDistribution();
 
-    long toReviewSecurityHotspots = ((ParsedValueCount) ((ParsedFilter) categoryBucket.getAggregations().get(AGG_TO_REVIEW_SECURITY_HOTSPOTS)).getAggregations().get(AGG_COUNT))
-      .getValue();
-    long reviewedSecurityHotspots = ((ParsedValueCount) ((ParsedFilter) categoryBucket.getAggregations().get(AGG_REVIEWED_SECURITY_HOTSPOTS)).getAggregations().get(AGG_COUNT))
-      .getValue();
+    long toReviewSecurityHotspots =
+      ((ParsedValueCount) ((ParsedFilter) categoryBucket.getAggregations().get(AGG_TO_REVIEW_SECURITY_HOTSPOTS)).getAggregations().get(AGG_COUNT))
+        .getValue();
+    long reviewedSecurityHotspots =
+      ((ParsedValueCount) ((ParsedFilter) categoryBucket.getAggregations().get(AGG_REVIEWED_SECURITY_HOTSPOTS)).getAggregations().get(AGG_COUNT))
+        .getValue();
 
     Optional<Double> percent = computePercent(toReviewSecurityHotspots, reviewedSecurityHotspots);
     Integer securityReviewRating = computeRating(percent.orElse(null)).getIndex();
@@ -1518,7 +1488,7 @@ public class IssueIndex {
     final TermsAggregationBuilder distributionAggregation = AggregationBuilders.terms(AGG_DISTRIBUTION)
       .field(securityStandardVersionPrefix)
       // 100 should be enough to display all the requirements per category. If not, the UI will be broken anyway
-      .size(MAX_FACET_SIZE);
+      .size(Facet.MAX_FACET_SIZE);
     categoriesAggs.subAggregation(addSecurityReportIssueCountAggregations(distributionAggregation));
 
     return aggregationBuilder;
@@ -1531,7 +1501,7 @@ public class IssueIndex {
       final TermsAggregationBuilder cwesAgg = AggregationBuilders.terms(AGG_DISTRIBUTION)
         .field(FIELD_ISSUE_CWE)
         // 100 should be enough to display all CWEs. If not, the UI will be broken anyway
-        .size(MAX_FACET_SIZE);
+        .size(Facet.MAX_FACET_SIZE);
       if (cwesInCategory != null) {
         cwesAgg.includeExclude(new IncludeExclude(cwesInCategory.toArray(new String[0]), new String[0]));
       }
@@ -1558,9 +1528,9 @@ public class IssueIndex {
       return AggregationBuilders.nested(AGG_SEVERITIES, FIELD_ISSUE_IMPACTS)
         .subAggregation(AggregationBuilders.filter(ISSUES_WITH_SECURITY_IMPACT,
             boolQuery().filter(termsQuery(FIELD_ISSUE_IMPACT_SOFTWARE_QUALITY, SoftwareQuality.SECURITY.name())))
-        .subAggregation(AggregationBuilders.terms(AGG_IMPACT_SEVERITIES).field(FIELD_ISSUE_IMPACT_SEVERITY)
-          .subAggregation(
-            AggregationBuilders.count(AGG_COUNT).field(FIELD_ISSUE_IMPACT_SEVERITY))));
+          .subAggregation(AggregationBuilders.terms(AGG_IMPACT_SEVERITIES).field(FIELD_ISSUE_IMPACT_SEVERITY)
+            .subAggregation(
+              AggregationBuilders.count(AGG_COUNT).field(FIELD_ISSUE_IMPACT_SEVERITY))));
 
     } else {
       return AggregationBuilders.terms(AGG_SEVERITIES).field(FIELD_ISSUE_SEVERITY)
@@ -1569,6 +1539,7 @@ public class IssueIndex {
 
     }
   }
+
   private QueryBuilder getNonResolvedIssuesOrNonResolvedSecurityImpactQueryBuilderBasedOnMode() {
     return isMQRMode() ? NON_RESOLVED_SECURITY_IMPACT_FILTER : NON_RESOLVED_VULNERABILITIES_FILTER;
   }
@@ -1599,7 +1570,6 @@ public class IssueIndex {
   private boolean isMQRMode() {
     return config.getBoolean(MULTI_QUALITY_MODE_ENABLED).orElse(MULTI_QUALITY_MODE_DEFAULT_VALUE);
   }
-
 
   private static class SeverityAggregationDetails {
     private long count;

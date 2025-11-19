@@ -31,36 +31,38 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.sonar.server.common.ParamParsingUtils.parseComplianceStandardsFilter;
+import static org.sonar.server.common.ParamParsingUtils.parseImpact;
 
 class ParamParsingUtilsTest {
 
   @Test
   void parseImpact_whenCorrectParam_ShouldReturnExpectedResult() {
-    Pair<SoftwareQuality, Severity> result = ParamParsingUtils.parseImpact("MAINTAINABILITY=BLOCKER");
+    Pair<SoftwareQuality, Severity> result = parseImpact("MAINTAINABILITY=BLOCKER");
     assertEquals(SoftwareQuality.MAINTAINABILITY, result.getKey());
     assertEquals(Severity.BLOCKER, result.getValue());
   }
 
   @Test
   void parseImpact_whenInvalidParam_ShouldThrowException() {
-    assertThatThrownBy(() -> ParamParsingUtils.parseImpact("MAINTAINABILITY"))
+    assertThatThrownBy(() -> parseImpact("MAINTAINABILITY"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Invalid impact format: MAINTAINABILITY");
   }
 
   @Test
   void parseImpact_whenInvalidValues_ShouldThrowException() {
-    assertThatThrownBy(() -> ParamParsingUtils.parseImpact("MAINTAINABILITY=MAJOR"))
+    assertThatThrownBy(() -> parseImpact("MAINTAINABILITY=MAJOR"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("No enum constant org.sonar.api.issue.impact.Severity.MAJOR");
-    assertThatThrownBy(() -> ParamParsingUtils.parseImpact("BUG=LOW"))
+    assertThatThrownBy(() -> parseImpact("BUG=LOW"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("No enum constant org.sonar.api.issue.impact.SoftwareQuality.BUG");
   }
 
   @Test
   void parseComplianceStandardsFilter_ShouldReturnExpectedResult() {
-    Map<ReportKey, String> result = ParamParsingUtils.parseComplianceStandardsFilter(
+    Map<ReportKey, String> result = parseComplianceStandardsFilter(
       List.of("standard1:1=category1", "standard2:1=category2"));
     assertThat(result).containsOnly(
       entry(new ReportKey("standard1", "1"), "category1"),
@@ -69,13 +71,13 @@ class ParamParsingUtilsTest {
 
   @Test
   void parseComplianceStandardsFilter_WhenParamIsNullShouldReturnEmpty() {
-    assertThat(ParamParsingUtils.parseComplianceStandardsFilter(null)).isEmpty();
+    assertThat(parseComplianceStandardsFilter(null)).isEmpty();
   }
 
   @Test
   void parseComplianceStandardsFilter_WhenParamIsInvalidShouldThrowException() {
     List<String> params = List.of("invalid");
-    assertThatThrownBy(() -> ParamParsingUtils.parseComplianceStandardsFilter(params))
+    assertThatThrownBy(() -> parseComplianceStandardsFilter(params))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Invalid format. Expected key=value: invalid");
 

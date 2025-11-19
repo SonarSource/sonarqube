@@ -20,26 +20,36 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.collect.ImmutableMap;
+import io.sonarcloud.compliancereports.reports.MetadataLoader;
+import io.sonarcloud.compliancereports.reports.MetadataRules;
 import java.time.Clock;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.stream.IntStream;
+import org.assertj.core.api.AbstractListAssert;
+import org.assertj.core.api.ObjectAssert;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Languages;
-import org.sonar.core.rule.RuleType;
-import org.sonar.api.server.ws.WebService;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.TestMetadataType;
 import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.feature.JiraSonarQubeFeature;
+import org.sonar.server.issue.FromSonarQubeUpdateFeature;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.index.IssueIndex;
@@ -49,7 +59,6 @@ import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
-import org.sonar.server.issue.FromSonarQubeUpdateFeature;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
@@ -67,15 +76,12 @@ import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.tester.UserSessionRule.standalone;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPLIANCE_STANDARDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 
 class SearchActionFacetsIT {
-
-  private static final String[] ISSUE_STATUSES = Issue.STATUSES.stream().filter(s -> !Issue.STATUS_TO_REVIEW.equals(s)).filter(s -> !Issue.STATUS_REVIEWED.equals(s))
-    .toArray(String[]::new);
-
   @RegisterExtension
   private final UserSessionRule userSession = standalone();
   @RegisterExtension
@@ -89,8 +95,11 @@ class SearchActionFacetsIT {
     new WebAuthorizationTypeSupport(userSession), config);
   private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()),
     null);
+  private final MetadataLoader metadataLoader = new MetadataLoader(Set.of(new TestMetadataType()));
+  private final MetadataRules metadataRules = new MetadataRules(metadataLoader);
   private final PermissionIndexer permissionIndexer = new PermissionIndexer(db.getDbClient(), es.client(), issueIndexer);
-  private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(db.getDbClient(), Clock.systemUTC(), userSession);
+  private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(db.getDbClient(), Clock.systemUTC(), userSession,
+    metadataRules);
   private final SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, db.getDbClient(),
     new TransitionService(userSession, null));
   private final Languages languages = new Languages();
@@ -104,6 +113,7 @@ class SearchActionFacetsIT {
   {
     when(fromSonarQubeUpdateFeature.isAvailable()).thenReturn(true);
   }
+
   private final WsActionTester ws = new WsActionTester(
     new SearchAction(
       userSession,
@@ -115,7 +125,9 @@ class SearchActionFacetsIT {
       System2.INSTANCE,
       db.getDbClient(),
       fromSonarQubeUpdateFeature,
-      jiraSonarQubeFeature
+      jiraSonarQubeFeature,
+      metadataLoader,
+      metadataRules
     )
   );
 
@@ -131,8 +143,7 @@ class SearchActionFacetsIT {
       .setType(RuleType.CODE_SMELL)
       .setEffort(10L)
       .setAssigneeUuid(user.getUuid()));
-    indexPermissions();
-    indexIssues();
+    indexIssuesAndPermissions();
 
     SearchWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENTS, project.getKey())
@@ -142,18 +153,16 @@ class SearchActionFacetsIT {
     Map<String, Number> expectedStatuses = ImmutableMap.<String, Number>builder().put("OPEN", 1L).put("CONFIRMED", 0L)
       .put("REOPENED", 0L).put("RESOLVED", 0L).put("CLOSED", 0L).put("IN_SANDBOX", 0L).build();
 
-    assertThat(response.getFacets().getFacetsList())
-      .extracting(Common.Facet::getProperty, facet -> facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount)))
-      .containsExactlyInAnyOrder(
-        tuple("severities", of("INFO", 0L, "MINOR", 0L, "MAJOR", 1L, "CRITICAL", 0L, "BLOCKER", 0L)),
-        tuple("statuses", expectedStatuses),
-        tuple("resolutions", of("", 1L, "FALSE-POSITIVE", 0L, "FIXED", 0L, "REMOVED", 0L, "WONTFIX", 0L)),
-        tuple("rules", of(rule.getKey().toString(), 1L)),
-        tuple("types", of("CODE_SMELL", 1L, "BUG", 0L, "VULNERABILITY", 0L)),
-        tuple("languages", of(rule.getLanguage(), 1L)),
-        tuple("projects", of(project.getKey(), 1L)),
-        tuple("files", of(file.path(), 1L)),
-        tuple("assignees", of("", 0L, user.getLogin(), 1L)));
+    getFacets(response).containsExactlyInAnyOrder(
+      tuple("severities", of("INFO", 0L, "MINOR", 0L, "MAJOR", 1L, "CRITICAL", 0L, "BLOCKER", 0L)),
+      tuple("statuses", expectedStatuses),
+      tuple("resolutions", of("", 1L, "FALSE-POSITIVE", 0L, "FIXED", 0L, "REMOVED", 0L, "WONTFIX", 0L)),
+      tuple("rules", of(rule.getKey().toString(), 1L)),
+      tuple("types", of("CODE_SMELL", 1L, "BUG", 0L, "VULNERABILITY", 0L)),
+      tuple("languages", of(rule.getLanguage(), 1L)),
+      tuple("projects", of(project.getKey(), 1L)),
+      tuple("files", of(file.path(), 1L)),
+      tuple("assignees", of("", 0L, user.getLogin(), 1L)));
   }
 
   @Test
@@ -162,17 +171,47 @@ class SearchActionFacetsIT {
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, file);
+    indexIssuesAndPermissions();
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam(PARAM_PROJECTS, project.getKey())
+      .setParam(Param.FACETS, "projects")
+      .executeProtobuf(SearchWsResponse.class);
+
+    getFacets(response).containsExactlyInAnyOrder(tuple("projects", of(project.getKey(), 1L)));
+  }
+
+  @Test
+  void compliance_standards_facets() {
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDto rule = db.rules().insertIssueRule(RuleKey.of("java", "S001"));
+    db.issues().insertIssue(rule, project, file);
     indexPermissions();
     indexIssues();
 
     SearchWsResponse response = ws.newRequest()
-      .setParam(PARAM_PROJECTS, project.getKey())
-      .setParam(WebService.Param.FACETS, "projects")
+      .setParam(Param.FACETS, "complianceStandards")
       .executeProtobuf(SearchWsResponse.class);
 
-    assertThat(response.getFacets().getFacetsList())
-      .extracting(Common.Facet::getProperty, facet -> facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount)))
-      .containsExactlyInAnyOrder(tuple("projects", of(project.getKey(), 1L)));
+    getFacets(response).containsExactlyInAnyOrder(tuple("test:V1", of("category1", 1L)));
+  }
+
+  @Test
+  void compliance_standards_facets_is_sticky() {
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDto rule = db.rules().insertIssueRule(RuleKey.of("java", "S001"));
+    db.issues().insertIssue(rule, project, file);
+    indexPermissions();
+    indexIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam(Param.FACETS, "complianceStandards")
+      .setParam(PARAM_COMPLIANCE_STANDARDS, "test:V1=category2")
+      .executeProtobuf(SearchWsResponse.class);
+
+    getFacets(response).containsExactlyInAnyOrder(tuple("test:V1", of("category1", 1L, "category2", 0L)));
   }
 
   @Test
@@ -187,16 +226,14 @@ class SearchActionFacetsIT {
     db.issues().insertIssue(rule, project1, file1);
     db.issues().insertIssue(rule, project2, file2);
     db.issues().insertIssue(rule, project3, file3);
-    indexPermissions();
-    indexIssues();
+    indexIssuesAndPermissions();
 
     SearchWsResponse response = ws.newRequest()
       .setParam(PARAM_PROJECTS, project1.getKey())
-      .setParam(WebService.Param.FACETS, "projects")
+      .setParam(Param.FACETS, "projects")
       .executeProtobuf(SearchWsResponse.class);
 
-    assertThat(response.getFacets().getFacetsList())
-      .extracting(Common.Facet::getProperty, facet -> facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount)))
+    getFacets(response)
       .containsExactlyInAnyOrder(tuple("projects", of(project1.getKey(), 1L, project2.getKey(), 1L, project3.getKey(), 1L)));
   }
 
@@ -213,12 +250,10 @@ class SearchActionFacetsIT {
     SearchWsResponse response = ws.newRequest()
       .setParam("resolved", "false")
       .setParam(PARAM_COMPONENTS, project.getKey())
-      .setParam(WebService.Param.FACETS, "directories")
+      .setParam(Param.FACETS, "directories")
       .executeProtobuf(SearchWsResponse.class);
 
-    assertThat(response.getFacets().getFacetsList())
-      .extracting(Common.Facet::getProperty, facet -> facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount)))
-      .containsExactlyInAnyOrder(tuple("directories", of(directory.path(), 1L)));
+    getFacets(response).containsExactlyInAnyOrder(tuple("directories", of(directory.path(), 1L)));
   }
 
   @Test
@@ -228,12 +263,11 @@ class SearchActionFacetsIT {
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
     RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, file);
-    indexPermissions();
-    indexIssues();
+    indexIssuesAndPermissions();
 
     assertThatThrownBy(() -> {
       ws.newRequest()
-        .setParam(WebService.Param.FACETS, "directories")
+        .setParam(Param.FACETS, "directories")
         .execute();
     })
       .isInstanceOf(IllegalArgumentException.class)
@@ -255,12 +289,10 @@ class SearchActionFacetsIT {
     SearchWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENTS, project.getKey())
       .setParam(PARAM_FILES, file1.path())
-      .setParam(WebService.Param.FACETS, "files")
+      .setParam(Param.FACETS, "files")
       .executeProtobuf(SearchWsResponse.class);
 
-    assertThat(response.getFacets().getFacetsList())
-      .extracting(Common.Facet::getProperty, facet -> facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount)))
-      .containsExactlyInAnyOrder(tuple("files", of(file1.path(), 1L, file2.path(), 1L)));
+    getFacets(response).containsExactlyInAnyOrder(tuple("files", of(file1.path(), 1L, file2.path(), 1L)));
   }
 
   @Test
@@ -269,13 +301,12 @@ class SearchActionFacetsIT {
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, file);
-    indexPermissions();
-    indexIssues();
+    indexIssuesAndPermissions();
 
     assertThatThrownBy(() -> {
       ws.newRequest()
         .setParam(PARAM_FILES, file.path())
-        .setParam(WebService.Param.FACETS, "files")
+        .setParam(Param.FACETS, "files")
         .execute();
     })
       .isInstanceOf(IllegalArgumentException.class)
@@ -310,8 +341,7 @@ class SearchActionFacetsIT {
           .setStatus(random.nextBoolean() ? Issue.STATUS_TO_REVIEW : Issue.STATUS_REVIEWED));
       });
 
-    indexPermissions();
-    indexIssues();
+    indexIssuesAndPermissions();
 
     SearchWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENTS, project.getKey())
@@ -342,8 +372,7 @@ class SearchActionFacetsIT {
         ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
         db.issues().insertIssue(rule, project, project);
       });
-    indexPermissions();
-    indexIssues();
+    indexIssuesAndPermissions();
 
     SearchWsResponse response = ws.newRequest()
       .setParam(FACETS, "projects")
@@ -370,8 +399,7 @@ class SearchActionFacetsIT {
       .setType(RuleType.CODE_SMELL)
       .setEffort(10L)
       .setAssigneeUuid(user1.getUuid()));
-    indexPermissions();
-    indexIssues();
+    indexIssuesAndPermissions();
 
     SearchWsResponse response = ws.newRequest()
       .setParam(PARAM_PROJECTS, project1.getKey() + "," + project2.getKey())
@@ -386,18 +414,16 @@ class SearchActionFacetsIT {
     Map<String, Number> expectedStatuses = ImmutableMap.<String, Number>builder().put("OPEN", 1L).put("CONFIRMED", 0L)
       .put("REOPENED", 0L).put("RESOLVED", 0L).put("CLOSED", 0L).put("IN_SANDBOX", 0L).build();
 
-    assertThat(response.getFacets().getFacetsList())
-      .extracting(Common.Facet::getProperty, facet -> facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount)))
-      .containsExactlyInAnyOrder(
-        tuple("severities", of("INFO", 0L, "MINOR", 0L, "MAJOR", 1L, "CRITICAL", 0L, "BLOCKER", 0L)),
-        tuple("statuses", expectedStatuses),
-        tuple("resolutions", of("", 1L, "FALSE-POSITIVE", 0L, "FIXED", 0L, "REMOVED", 0L, "WONTFIX", 0L)),
-        tuple("rules", of(rule1.getKey().toString(), 1L, rule2.getKey().toString(), 0L)),
-        tuple("types", of("CODE_SMELL", 1L, "BUG", 0L, "VULNERABILITY", 0L)),
-        tuple("languages", of(rule1.getLanguage(), 1L, rule2.getLanguage(), 0L)),
-        tuple("projects", of(project1.getKey(), 1L, project2.getKey(), 0L)),
-        tuple("files", of(file1.path(), 1L, file2.path(), 0L)),
-        tuple("assignees", of("", 0L, user1.getLogin(), 1L, user2.getLogin(), 0L)));
+    getFacets(response).containsExactlyInAnyOrder(
+      tuple("severities", of("INFO", 0L, "MINOR", 0L, "MAJOR", 1L, "CRITICAL", 0L, "BLOCKER", 0L)),
+      tuple("statuses", expectedStatuses),
+      tuple("resolutions", of("", 1L, "FALSE-POSITIVE", 0L, "FIXED", 0L, "REMOVED", 0L, "WONTFIX", 0L)),
+      tuple("rules", of(rule1.getKey().toString(), 1L, rule2.getKey().toString(), 0L)),
+      tuple("types", of("CODE_SMELL", 1L, "BUG", 0L, "VULNERABILITY", 0L)),
+      tuple("languages", of(rule1.getLanguage(), 1L, rule2.getLanguage(), 0L)),
+      tuple("projects", of(project1.getKey(), 1L, project2.getKey(), 0L)),
+      tuple("files", of(file1.path(), 1L, file2.path(), 0L)),
+      tuple("assignees", of("", 0L, user1.getLogin(), 1L, user2.getLogin(), 0L)));
   }
 
   @Test
@@ -411,10 +437,7 @@ class SearchActionFacetsIT {
       .setParam(FACETS, "assigned_to_me")
       .executeProtobuf(SearchWsResponse.class);
 
-    assertThat(response.getFacets().getFacetsList())
-      .extracting(Common.Facet::getProperty, facet -> facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount)))
-      .containsExactlyInAnyOrder(
-        tuple("assigned_to_me", of("foo[", 0L)));
+    getFacets(response).containsExactlyInAnyOrder(tuple("assigned_to_me", of("foo[", 0L)));
   }
 
   @Test
@@ -437,11 +460,18 @@ class SearchActionFacetsIT {
       .setParam(FACETS, "assignees,assigned_to_me")
       .executeProtobuf(SearchWsResponse.class);
 
-    assertThat(response.getFacets().getFacetsList())
-      .extracting(Common.Facet::getProperty, facet -> facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount)))
-      .containsExactlyInAnyOrder(
-        tuple("assignees", of(john.getLogin(), 1L, alice.getLogin(), 1L, "", 1L)),
-        tuple("assigned_to_me", of(john.getLogin(), 1L)));
+    getFacets(response).containsExactlyInAnyOrder(
+      tuple("assignees", of(john.getLogin(), 1L, alice.getLogin(), 1L, "", 1L)),
+      tuple("assigned_to_me", of(john.getLogin(), 1L)));
+  }
+
+  private static AbstractListAssert<?, List<? extends Tuple>, Tuple, ObjectAssert<Tuple>> getFacets(SearchWsResponse response) {
+    return assertThat(response.getFacets().getFacetsList())
+      .extracting(Common.Facet::getProperty, SearchActionFacetsIT::facetToMap);
+  }
+
+  private static Map<String, Long> facetToMap(Common.Facet facet) {
+    return facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount));
   }
 
   private void indexPermissions() {
@@ -450,6 +480,11 @@ class SearchActionFacetsIT {
 
   private void indexIssues() {
     issueIndexer.indexAllIssues();
+  }
+
+  private void indexIssuesAndPermissions() {
+    indexIssues();
+    indexPermissions();
   }
 
 }

@@ -25,7 +25,6 @@ import io.sonarcloud.compliancereports.reports.ReportKey;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.Request;
@@ -34,9 +33,9 @@ import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.server.common.ParamParsingUtils;
 import org.sonar.server.rule.index.RuleQuery;
 
+import static org.sonar.server.common.ParamParsingUtils.parseComplianceStandardsFilter;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.rule.ws.EnumUtils.toEnums;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
@@ -86,7 +85,7 @@ public class RuleQueryFactory {
     RuleQuery query = createRuleQuery(dbSession, request);
     query.setIncludeExternal(request.mandatoryParamAsBoolean(PARAM_INCLUDE_EXTERNAL));
     query.setPrioritizedRule(request.paramAsBoolean(PARAM_PRIORITIZED_RULE));
-    setComplianceFilter(query, ParamParsingUtils.parseComplianceStandardsFilter(request.paramAsStrings(PARAM_COMPLIANCE_STANDARDS)));
+    setComplianceFilter(query, parseComplianceStandardsFilter(request.paramAsStrings(PARAM_COMPLIANCE_STANDARDS)));
     return query;
   }
 
@@ -141,10 +140,16 @@ public class RuleQueryFactory {
       return;
     }
 
-    Map<String, ComplianceCategoryRules> standardRules = categoriesByStandard.entrySet()
-      .stream()
-      .collect(Collectors.toMap(e -> e.getKey().standard() + ":" + e.getKey().version(), e -> metadataRules.getRules(Map.of(e.getKey(), e.getValue()))));
-    query.setComplianceCategoryRules(standardRules);
+    query.setComplianceCategoryRules(getComplianceStandardRules(categoriesByStandard));
+  }
+
+  private ComplianceCategoryRules getComplianceStandardRules(Map<ReportKey, String> categoriesByStandard) {
+    ComplianceCategoryRules rules = metadataRules.getRules(categoriesByStandard);
+    if (rules.ruleKeys().isEmpty() && rules.repoRuleKeys().isEmpty()) {
+      // either invalid category or category with no rules
+      return new ComplianceCategoryRules(List.of(), List.of("non-existing-uuid"));
+    }
+    return rules;
   }
 
   private void setProfile(DbSession dbSession, RuleQuery query, Request request) {

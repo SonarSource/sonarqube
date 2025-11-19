@@ -223,6 +223,21 @@
     order by r.uuid
   </select>
 
+    <select id="selectByRuleKeys" parameterType="map" resultMap="ruleResultMap">
+    select
+      <include refid="selectJoinedTablesColumns"/>
+    from
+      rules r
+    <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDefaultImpacts"/>
+    <include refid="leftOuterJoinRulesTags"/>
+    where r.plugin_rule_key in
+      <foreach collection="ruleKeys" index="index" item="ruleKey" open="(" separator=", " close=")">
+        #{ruleKey,jdbcType=VARCHAR}
+      </foreach>
+    order by r.uuid
+  </select>
+
   <select id="selectByQuery" parameterType="map" resultMap="ruleResultMap">
     select
       <include refid="selectJoinedTablesColumns"/>

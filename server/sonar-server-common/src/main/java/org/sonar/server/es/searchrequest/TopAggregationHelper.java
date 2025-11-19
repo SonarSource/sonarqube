@@ -96,6 +96,13 @@ public class TopAggregationHelper {
     return buildTopAggregation(topAggregationName, topAggregation, extraFilters, subAggregations);
   }
 
+  public FilterAggregationBuilder buildTermTopAggregation(String topAggregationName, TopAggregationDefinition<?> topAggregation,
+    @Nullable Integer numberOfTerms, String filterNameToExclude) {
+    BoolQueryBuilder filter = filterComputer.getPostFiltersExcluding(filterNameToExclude).orElseGet(QueryBuilders::boolQuery);
+    FilterAggregationBuilder filterAgg = AggregationBuilders.filter(topAggregationName, filter);
+    return filterAgg.subAggregation(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation, numberOfTerms));
+  }
+
   public SubAggregationHelper getSubAggregationHelper() {
     return subAggregationHelper;
   }

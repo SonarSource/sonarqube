@@ -152,6 +152,10 @@ public class RequestFiltersComputer {
       (e, v) -> !topAggregation.isSticky() || !topAggregation.getFilterScope().intersect(e.getFilterScope()));
   }
 
+  public Optional<BoolQueryBuilder> getPostFiltersExcluding(String filterNameToExclude) {
+    return toBoolQuery(postFilters, (e, v) -> !e.getFilterName().equals(filterNameToExclude));
+  }
+
   private static Optional<BoolQueryBuilder> toBoolQuery(Map<FilterNameAndScope, QueryBuilder> queryFilters,
     BiPredicate<FilterNameAndScope, QueryBuilder> predicate) {
     if (queryFilters.isEmpty()) {
@@ -230,6 +234,10 @@ public class RequestFiltersComputer {
     private FilterNameAndScope(String filterName, FilterScope filterScope) {
       this.filterName = filterName;
       this.filterScope = filterScope;
+    }
+
+    public String getFilterName() {
+      return filterName;
     }
 
     public FilterScope getFilterScope() {

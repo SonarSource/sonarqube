@@ -217,6 +217,19 @@ class RuleDaoIT {
   }
 
   @Test
+  void selectByRuleKeys() {
+    RuleDto r1 = db.rules().insert();
+    RuleDto r2 = db.rules().insert();
+    RuleDto removed = db.rules().insert(r -> r.setStatus(REMOVED));
+
+    assertThat(underTest.selectByRuleKeys(db.getSession(), singletonList(r1.getRuleKey()))).hasSize(1);
+    assertThat(underTest.selectByRuleKeys(db.getSession(), asList(r1.getRuleKey(), r2.getRuleKey()))).hasSize(2);
+    assertThat(underTest.selectByRuleKeys(db.getSession(), asList(r1.getRuleKey(), r2.getRuleKey(), UNKNOWN_RULE_UUID))).hasSize(2);
+    assertThat(underTest.selectByRuleKeys(db.getSession(), asList(r1.getRuleKey(), r2.getRuleKey(), removed.getRuleKey()))).hasSize(3);
+    assertThat(underTest.selectByRuleKeys(db.getSession(), singletonList(UNKNOWN_RULE_UUID))).isEmpty();
+  }
+
+  @Test
   void selectDefinitionByUuids() {
     RuleDto rule1 = db.rules().insert();
     RuleDto rule2 = db.rules().insert();

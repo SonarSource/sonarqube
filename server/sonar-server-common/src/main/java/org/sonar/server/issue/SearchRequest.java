@@ -20,8 +20,10 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.ImmutableSet;
+import io.sonarcloud.compliancereports.reports.ReportKey;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -85,6 +87,7 @@ public class SearchRequest {
   private List<String> codeVariants;
   private String fixedInPullRequest;
   private List<String> linkedTicketStatus;
+  private Map<ReportKey, String> categoriesByStandard;
 
   public SearchRequest() {
     // nothing to do here
@@ -634,6 +637,16 @@ public class SearchRequest {
 
   public SearchRequest setFixedInPullRequest(@Nullable String fixedInPullRequest) {
     this.fixedInPullRequest = fixedInPullRequest;
+    return this;
+  }
+
+  @CheckForNull
+  public Map<ReportKey, String> getCategoriesByStandard() {
+    return categoriesByStandard;
+  }
+
+  public SearchRequest setCategoriesByStandard(@Nullable Map<ReportKey, String> categoriesByStandard) {
+    this.categoriesByStandard = categoriesByStandard;
     return this;
   }
 }

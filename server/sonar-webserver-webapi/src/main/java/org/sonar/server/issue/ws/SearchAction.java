@@ -20,17 +20,21 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.collect.Lists;
+import io.sonarcloud.compliancereports.reports.MetadataLoader;
+import io.sonarcloud.compliancereports.reports.MetadataRules;
+import io.sonarcloud.compliancereports.reports.ReportKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.Objects;
 import javax.annotation.Nullable;
 import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.search.SearchResponse;
@@ -50,10 +54,12 @@ import org.sonar.core.issue.LinkedTicketStatus;
 import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.feature.JiraSonarQubeFeature;
+import org.sonar.server.issue.FromSonarQubeUpdateFeature;
 import org.sonar.server.issue.SearchRequest;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
@@ -62,7 +68,6 @@ import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.issue.index.IssueScope;
 import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition;
 import org.sonar.server.security.SecurityStandards.SQCategory;
-import org.sonar.server.issue.FromSonarQubeUpdateFeature;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 
@@ -88,9 +93,11 @@ import static org.sonar.api.issue.impact.Severity.MEDIUM;
 import static org.sonar.api.issue.impact.Severity.values;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.utils.Paging.forPageIndex;
+import static org.sonar.server.common.ParamParsingUtils.parseComplianceStandardsFilter;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
-import static org.sonar.server.issue.index.IssueIndex.FACET_ASSIGNED_TO_ME;
-import static org.sonar.server.issue.index.IssueIndex.FACET_PROJECTS;
+import static org.sonar.server.issue.index.Facet.FACET_ASSIGNED_TO_ME;
+import static org.sonar.server.issue.index.Facet.FACET_PROJECTS;
+import static org.sonar.server.issue.index.IssueIndex.COMPLIANCE_FILTER_FACET_NAME;
 import static org.sonar.server.issue.index.IssueQueryFactory.ISSUE_STATUSES;
 import static org.sonar.server.issue.index.IssueQueryFactory.UNKNOWN;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
@@ -111,6 +118,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CASA;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CODE_VARIANTS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPLIANCE_STANDARDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
@@ -156,7 +164,8 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
 public class SearchAction implements IssuesWsAction {
   private static final String LOGIN_MYSELF = "__me__";
   private static final Set<String> ISSUE_SCOPES = Arrays.stream(IssueScope.values()).map(Enum::name).collect(Collectors.toSet());
-  private static final EnumSet<RuleType> ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS = EnumSet.complementOf(EnumSet.of(RuleType.SECURITY_HOTSPOT));
+  private static final EnumSet<RuleType> ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS =
+    EnumSet.complementOf(EnumSet.of(RuleType.SECURITY_HOTSPOT));
 
   static final List<String> BASE_SUPPORTED_FACETS = List.of(
     FACET_PROJECTS,
@@ -190,7 +199,8 @@ public class SearchAction implements IssuesWsAction {
     PARAM_IMPACT_SOFTWARE_QUALITIES,
     PARAM_IMPACT_SEVERITIES,
     PARAM_ISSUE_STATUSES,
-    PARAM_PRIORITIZED_RULE);
+    PARAM_PRIORITIZED_RULE,
+    PARAM_COMPLIANCE_STANDARDS);
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of " +
     "the componentKeys parameter. ";
@@ -211,11 +221,14 @@ public class SearchAction implements IssuesWsAction {
   private final DbClient dbClient;
   private final FromSonarQubeUpdateFeature fromSonarQubeUpdateFeature;
   private final JiraSonarQubeFeature jiraSonarQubeFeature;
+  private final MetadataLoader metadataLoader;
+  private final MetadataRules metadataRules;
 
   public SearchAction(UserSession userSession, IssueIndex issueIndex, IssueQueryFactory issueQueryFactory,
     IssueIndexSyncProgressChecker issueIndexSyncProgressChecker,
     SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat, System2 system2, DbClient dbClient,
-    FromSonarQubeUpdateFeature fromSonarQubeUpdateFeature, JiraSonarQubeFeature jiraSonarQubeFeature) {
+    FromSonarQubeUpdateFeature fromSonarQubeUpdateFeature, JiraSonarQubeFeature jiraSonarQubeFeature, MetadataLoader metadataLoader,
+    MetadataRules metadataRules) {
     this.userSession = userSession;
     this.issueIndex = issueIndex;
     this.issueQueryFactory = issueQueryFactory;
@@ -226,6 +239,8 @@ public class SearchAction implements IssuesWsAction {
     this.dbClient = dbClient;
     this.fromSonarQubeUpdateFeature = fromSonarQubeUpdateFeature;
     this.jiraSonarQubeFeature = jiraSonarQubeFeature;
+    this.metadataLoader = metadataLoader;
+    this.metadataRules = metadataRules;
   }
 
   private List<String> getSupportedFacets() {
@@ -248,6 +263,8 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexing is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change(V_2025_6, format(NEW_PARAM_ADDED_MESSAGE, PARAM_COMPLIANCE_STANDARDS)),
+        new Change(V_2025_6, format(NEW_FACET_ADDED_MESSAGE, PARAM_COMPLIANCE_STANDARDS)),
         new Change(V_2025_6, format(NEW_FACET_ADDED_MESSAGE, PARAM_LINKED_TICKET_STATUS)),
         new Change(V_2025_5, "Response field 'internalTags' has been added"),
         new Change(V_2025_5, format(NEW_FACET_ADDED_MESSAGE, PARAM_FROM_SONAR_QUBE_UPDATE)),
@@ -257,8 +274,10 @@ public class SearchAction implements IssuesWsAction {
         new Change("10.8", "The response fields 'severity' and 'type' are not deprecated anymore.."),
         new Change("10.8", "The fields 'severity' and 'type' are not deprecated anymore."),
         new Change("10.8", format("The parameters '%s' and '%s' are not deprecated anymore.", PARAM_SEVERITIES, PARAM_TYPES)),
-        new Change("10.8", format("Possible values '%s' and '%s' for response field 'impactSeverities' of 'facets' have been added.", INFO.name(), BLOCKER.name())),
-        new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added.", INFO.name(), BLOCKER.name())),
+        new Change("10.8", format("Possible values '%s' and '%s' for response field 'impactSeverities' of 'facets' have been added.",
+          INFO.name(), BLOCKER.name())),
+        new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added.",
+          INFO.name(), BLOCKER.name())),
         new Change("10.8", format("Parameter '%s' now supports values: '%s','%s'.", PARAM_SEVERITIES, INFO.name(), BLOCKER.name())),
         new Change("10.7", format(NEW_FACET_ADDED_MESSAGE, PARAM_CASA)),
         new Change("10.7", format(NEW_PARAM_ADDED_MESSAGE, PARAM_CASA)),
@@ -270,13 +289,16 @@ public class SearchAction implements IssuesWsAction {
         new Change("10.4",
           "Value '%s' for 'transition' response field is deprecated, use '%s' instead".formatted(CodeQualityIssueWorkflowTransition.WONT_FIX,
             CodeQualityIssueWorkflowTransition.ACCEPT)),
-        new Change("10.4", "Possible value '%s' for 'transition' response field has been added".formatted(CodeQualityIssueWorkflowTransition.ACCEPT)),
+        new Change("10.4",
+          "Possible value '%s' for 'transition' response field has been added".formatted(CodeQualityIssueWorkflowTransition.ACCEPT)),
         new Change("10.4", format(NEW_PARAM_ADDED_MESSAGE, PARAM_ISSUE_STATUSES)),
-        new Change("10.4", format("Parameters '%s' and '%s' are deprecated in favor of '%s'.", PARAM_RESOLUTIONS, PARAM_STATUSES, PARAM_ISSUE_STATUSES)),
+        new Change("10.4", format("Parameters '%s' and '%s' are deprecated in favor of '%s'.", PARAM_RESOLUTIONS, PARAM_STATUSES,
+          PARAM_ISSUE_STATUSES)),
         new Change("10.4", format("Parameters '%s' and '%s' are deprecated, use '%s' and '%s' instead.", PARAM_SEVERITIES, PARAM_TYPES,
           PARAM_IMPACT_SEVERITIES, PARAM_IMPACT_SOFTWARE_QUALITIES)),
         new Change("10.4", format(NEW_FACET_ADDED_MESSAGE, PARAM_ISSUE_STATUSES)),
-        new Change("10.4", format("Facets '%s' and '%s' are deprecated in favor of '%s'", PARAM_RESOLUTIONS, PARAM_STATUSES, PARAM_ISSUE_STATUSES)),
+        new Change("10.4", format("Facets '%s' and '%s' are deprecated in favor of '%s'", PARAM_RESOLUTIONS, PARAM_STATUSES,
+          PARAM_ISSUE_STATUSES)),
         new Change("10.4", "Response fields 'severity' and 'type' are deprecated, use 'impacts' instead."),
         new Change("10.4", "Response field 'issueStatus' added"),
         new Change("10.4", "Response fields 'status' and 'resolutions' are deprecated, in favor of 'issueStatus'"),
@@ -510,6 +532,11 @@ public class SearchAction implements IssuesWsAction {
       .setPossibleValues(IssueStatus.values())
       .setExampleValue("%s,%S".formatted(IssueStatus.ACCEPTED, IssueStatus.FIXED))
       .setSince("10.4");
+    action
+      .createParam(PARAM_COMPLIANCE_STANDARDS)
+      .setDescription("Comma-separated list of compliance standards")
+      .setSince(V_2025_6)
+      .setExampleValue("asvs:4.0.3=6.1.2");
   }
 
   private static void addComponentRelatedParams(WebService.NewAction action) {
@@ -585,7 +612,7 @@ public class SearchAction implements IssuesWsAction {
       .filter(FACETS_REQUIRING_PROJECT::contains)
       .collect(Collectors.toSet());
     checkArgument(facetsRequiringProjectParameter.isEmpty() ||
-      (!query.projectUuids().isEmpty()), "Facet(s) '%s' require to also filter by project",
+        (!query.projectUuids().isEmpty()), "Facet(s) '%s' require to also filter by project",
       String.join(",", facetsRequiringProjectParameter));
 
     // execute request
@@ -611,9 +638,12 @@ public class SearchAction implements IssuesWsAction {
     preloadedData.addRules(List.copyOf(query.rules()));
     SearchResponseData data = searchResponseLoader.load(preloadedData, collector, additionalFields, facets);
 
+    Set<String> complianceFacets = transformComplianceFacets(facets, options.getComplianceFacets(), request.getCategoriesByStandard());
+
     // FIXME allow long in Paging
     Paging paging = forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) getTotalHits(result).value);
-    return searchResponseFormat.formatSearch(additionalFields, data, paging, facets, userSession.isLoggedIn(), getSupportedFacets());
+    List<String> allFacets = Stream.concat(complianceFacets.stream(), getSupportedFacets().stream()).toList();
+    return searchResponseFormat.formatSearch(additionalFields, data, paging, facets, userSession.isLoggedIn(), allFacets);
   }
 
   private static TotalHits getTotalHits(SearchResponse response) {
@@ -635,6 +665,11 @@ public class SearchAction implements IssuesWsAction {
     if (!userSession.isLoggedIn()) {
       requestedFacets.remove(PARAM_AUTHOR);
     }
+    if (requestedFacets.contains(PARAM_COMPLIANCE_STANDARDS)) {
+      requestedFacets.remove(PARAM_COMPLIANCE_STANDARDS);
+      options.addComplianceFacets(metadataLoader.getAllMetadata().keySet().stream().map(SearchAction::toString).toList());
+    }
+
     options.addFacets(requestedFacets);
     return options;
   }
@@ -681,6 +716,79 @@ public class SearchAction implements IssuesWsAction {
 
   private static Collection<String> enumToStringCollection(Enum<?>... enumValues) {
     return Arrays.stream(enumValues).map(Enum::name).toList();
+  }
+
+  private static String toString(ReportKey reportKey) {
+    return reportKey.standard() + ":" + reportKey.version();
+  }
+
+  private Set<String> transformComplianceFacets(Facets facets, Collection<String> requestedFacets,
+    Map<ReportKey, String> categoriesByStandardFilters) {
+    Set<ReportKey> standardsWithFacet = metadataLoader.getAllMetadata().keySet()
+      .stream()
+      .filter(standard -> requestedFacets.contains(toString(standard)))
+      .collect(Collectors.toSet());
+
+    if (standardsWithFacet.isEmpty()) {
+      return Set.of();
+    }
+
+    Map<String, Long> countByRuleId = facets.get(COMPLIANCE_FILTER_FACET_NAME);
+
+    try (DbSession session = dbClient.openSession(false)) {
+      Map<String, String> ruleKeyById = dbClient.ruleDao().selectByUuids(session, countByRuleId.keySet())
+        .stream().collect(Collectors.toMap(RuleDto::getUuid, r -> r.getKey().toString()));
+      Map<String, Long> countByRuleKey = countByRuleId.entrySet()
+        .stream().filter(e -> ruleKeyById.containsKey(e.getKey()))
+        .collect(Collectors.toMap(e -> ruleKeyById.get(e.getKey()), Map.Entry::getValue));
+
+      for (ReportKey standard : standardsWithFacet) {
+        Set<String> filteredRuleKeys = applyComplianceFiltersToFacet(countByRuleKey.keySet(), standard, categoriesByStandardFilters);
+        Map<String, Long> filteredCountByRuleKey = countByRuleKey.entrySet().stream()
+          .filter(e -> filteredRuleKeys.contains(e.getKey()))
+          .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        Map<String, Long> countByCategory = metadataRules.getRuleCountByStandardCategory(standard, filteredCountByRuleKey);
+
+        String selectedCategory = categoriesByStandardFilters.get(standard);
+        LinkedHashMap<String, Long> keyValues = new LinkedHashMap<>();
+
+        for (Map.Entry<String, Long> e : countByCategory.entrySet()) {
+          if (e.getValue() > 0 || e.getKey().equals(selectedCategory)) {
+            keyValues.put(e.getKey(), e.getValue());
+          }
+        }
+        facets.getAll().put(toString(standard), keyValues);
+      }
+    }
+    return standardsWithFacet.stream().map(SearchAction::toString).collect(Collectors.toSet());
+  }
+
+  /**
+   * Exclude rule keys that are being filtered out by filters on other compliance standards
+   */
+  private Set<String> applyComplianceFiltersToFacet(Set<String> ruleKeys, ReportKey reportKey, @Nullable Map<ReportKey, String> filters) {
+    if (filters == null) {
+      return ruleKeys;
+    }
+    Map<ReportKey, String> activeFilters = filters.entrySet().stream()
+      .filter(f -> !f.getKey().equals(reportKey))
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+    return ruleKeys.stream()
+      .filter(ruleKey -> filtersIncludeRule(activeFilters, ruleKey))
+      .collect(Collectors.toSet());
+  }
+
+  private boolean filtersIncludeRule(Map<ReportKey, String> filters, String ruleKey) {
+    for (Map.Entry<ReportKey, String> filter : filters.entrySet()) {
+      MetadataRules.ComplianceCategoryRules categoryRules = metadataRules.getRules(filter.getKey(), filter.getValue());
+      MetadataRules.RepositoryRuleKey repoRuleKey = MetadataRules.RepositoryRuleKey.of(ruleKey);
+      if (!categoryRules.ruleKeys().contains(repoRuleKey.rule()) && !categoryRules.repoRuleKeys().contains(repoRuleKey)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private static void setTypesFacet(Facets facets) {
@@ -770,7 +878,8 @@ public class SearchAction implements IssuesWsAction {
       .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY))
       .setTimeZone(request.param(PARAM_TIMEZONE))
       .setCodeVariants(request.paramAsStrings(PARAM_CODE_VARIANTS))
-      .setFixedInPullRequest(request.param(PARAM_FIXED_IN_PULL_REQUEST));
+      .setFixedInPullRequest(request.param(PARAM_FIXED_IN_PULL_REQUEST))
+      .setCategoriesByStandard(parseComplianceStandardsFilter(request.paramAsStrings(PARAM_COMPLIANCE_STANDARDS)));
   }
 
   private void checkIfNeedIssueSync(DbSession dbSession, SearchRequest searchRequest) {

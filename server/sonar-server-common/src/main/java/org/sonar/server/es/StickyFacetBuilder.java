@@ -44,7 +44,6 @@ public class StickyFacetBuilder {
 
   private static final int FACET_DEFAULT_MIN_DOC_COUNT = 1;
   public static final int FACET_DEFAULT_SIZE = 10;
-  private static final BucketOrder FACET_DEFAULT_ORDER = BucketOrder.count(false);
   /** In some cases the user selects >15 items for one facet. In that case, we want to calculate the doc count for all of them (not just the first 15 items, which would be the
    * default for the TermsAggregation). */
   private static final int MAXIMUM_NUMBER_OF_SELECTED_ITEMS_WHOSE_DOC_COUNT_WILL_BE_CALCULATED = 50;
@@ -52,17 +51,11 @@ public class StickyFacetBuilder {
 
   private final QueryBuilder query;
   private final Map<String, QueryBuilder> filters;
-  private final AbstractAggregationBuilder subAggregation;
   private final BucketOrder order;
 
-  public StickyFacetBuilder(QueryBuilder query, Map<String, QueryBuilder> filters) {
-    this(query, filters, null, FACET_DEFAULT_ORDER);
-  }
-
-  public StickyFacetBuilder(QueryBuilder query, Map<String, QueryBuilder> filters, @Nullable AbstractAggregationBuilder subAggregation, @Nullable BucketOrder order) {
+  public StickyFacetBuilder(QueryBuilder query, Map<String, QueryBuilder> filters, @Nullable BucketOrder order) {
     this.query = query;
     this.filters = filters;
-    this.subAggregation = subAggregation;
     this.order = order;
   }
 
@@ -134,15 +127,11 @@ public class StickyFacetBuilder {
   }
 
   private TermsAggregationBuilder buildTermsFacetAggregation(String fieldName, String facetName, int size) {
-    TermsAggregationBuilder termsAggregation = AggregationBuilders.terms(facetName)
+    return AggregationBuilders.terms(facetName)
       .field(fieldName)
       .order(order)
       .size(size)
       .minDocCount(FACET_DEFAULT_MIN_DOC_COUNT);
-    if (subAggregation != null) {
-      termsAggregation = termsAggregation.subAggregation(subAggregation);
-    }
-    return termsAggregation;
   }
 
   public FilterAggregationBuilder addSelectedItemsToFacet(String fieldName, String facetName, FilterAggregationBuilder facetTopAggregation,
@@ -159,9 +148,6 @@ public class StickyFacetBuilder {
       .size(max(MAXIMUM_NUMBER_OF_SELECTED_ITEMS_WHOSE_DOC_COUNT_WILL_BE_CALCULATED, includes.length()))
       .field(fieldName)
       .includeExclude(new IncludeExclude(includes, null));
-    if (subAggregation != null) {
-      selectedTerms = selectedTerms.subAggregation(subAggregation);
-    }
 
     AggregationBuilder improvedAggregation = additionalAggregationFilter.apply(selectedTerms);
     facetTopAggregation.subAggregation(improvedAggregation);

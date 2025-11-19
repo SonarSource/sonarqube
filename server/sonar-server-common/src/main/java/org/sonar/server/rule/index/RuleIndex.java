@@ -166,7 +166,7 @@ public class RuleIndex {
   public static final String FACET_IMPACT_SEVERITY = "impactSeverities";
   public static final String FACET_ACTIVE_IMPACT_SEVERITY = "active_impactSeverities";
   public static final String FACET_COMPLIANCE_STANDARDS = "complianceStandards";
-  public static final String COMPLIANCE_FILTER_FACET_PREFIX = "compliance_";
+  public static final String COMPLIANCE_FILTER_FACET = "compliance";
 
   private static final BoolQueryBuilder SECURITY_IMPACT_AND_HOTSPOT_FILTER =
     boolQuery()
@@ -435,27 +435,21 @@ public class RuleIndex {
     allFilters.put(FIELD_RULE_IMPACTS, nestedQuery(FIELD_ISSUE_IMPACTS, impactsFilter, ScoreMode.Avg));
   }
 
-  private static void addComplianceCategoriesFilter(Map<String, QueryBuilder> filters,
-    @Nullable Map<String, ComplianceCategoryRules> complianceCategoryRules) {
-    if (complianceCategoryRules == null) {
+  private static void addComplianceCategoriesFilter(Map<String, QueryBuilder> filters, @Nullable ComplianceCategoryRules rules) {
+    if (rules == null) {
       return;
     }
 
-    for (Map.Entry<String, ComplianceCategoryRules> standardRules : complianceCategoryRules.entrySet()) {
-      ComplianceCategoryRules rules = standardRules.getValue();
-      String standard = standardRules.getKey();
-
-      BoolQueryBuilder boolQueryBuilder = boolQuery();
-      if (!rules.ruleKeys().isEmpty()) {
-        boolQueryBuilder.should().add(QueryBuilders.termsQuery(FIELD_RULE_RULE_KEY, rules.ruleKeys()));
-      }
-      if (!rules.repoRuleKeys().isEmpty()) {
-        Collection<String> repoRuleKeys = rules.repoRuleKeys().stream().map(RepositoryRuleKey::toString).toList();
-        boolQueryBuilder.should().add(QueryBuilders.termsQuery(FIELD_RULE_KEY, repoRuleKeys));
-      }
-
-      filters.put(COMPLIANCE_FILTER_FACET_PREFIX + standard, boolQueryBuilder);
+    BoolQueryBuilder boolQueryBuilder = boolQuery();
+    if (!rules.ruleKeys().isEmpty()) {
+      boolQueryBuilder.should().add(QueryBuilders.termsQuery(FIELD_RULE_RULE_KEY, rules.ruleKeys()));
     }
+    if (!rules.repoRuleKeys().isEmpty()) {
+      Collection<String> repoRuleKeys = rules.repoRuleKeys().stream().map(RepositoryRuleKey::toString).toList();
+      boolQueryBuilder.should().add(QueryBuilders.termsQuery(FIELD_RULE_KEY, repoRuleKeys));
+    }
+
+    filters.put(COMPLIANCE_FILTER_FACET, boolQueryBuilder);
   }
 
   private void addSecurityStandardFilter(Map<String, QueryBuilder> filters, String key, Collection<String> values) {
@@ -609,9 +603,9 @@ public class RuleIndex {
 
   private static void addComplianceFacetsIfNeeded(SearchOptions options, Map<String, AggregationBuilder> aggregations,
     StickyFacetBuilder stickyFacetBuilder) {
-    for (String standardName : options.getComplianceFacets()) {
-      String name = COMPLIANCE_FILTER_FACET_PREFIX + standardName;
-      aggregations.put(name, stickyFacetBuilder.buildStickyFacet(FIELD_RULE_KEY, name, name, 65525, t -> t));
+    if (!options.getComplianceFacets().isEmpty()) {
+      aggregations.put(COMPLIANCE_FILTER_FACET,
+        stickyFacetBuilder.buildStickyFacet(FIELD_RULE_KEY, COMPLIANCE_FILTER_FACET, COMPLIANCE_FILTER_FACET, 65525, t -> t));
     }
   }
 
@@ -844,7 +838,7 @@ public class RuleIndex {
   }
 
   private static StickyFacetBuilder stickyFacetBuilder(QueryBuilder query, Map<String, QueryBuilder> filters) {
-    return new StickyFacetBuilder(query, filters, null, BucketOrder.compound(BucketOrder.count(false), BucketOrder.key(true)));
+    return new StickyFacetBuilder(query, filters, BucketOrder.compound(BucketOrder.count(false), BucketOrder.key(true)));
   }
 
   private static void setSorting(RuleQuery query, SearchSourceBuilder esSearch) {

@@ -60,6 +60,7 @@ dependencies {
   testImplementation project(':sonar-plugin-api-impl')
   testImplementation project(':sonar-testing-harness')
 
+  testFixturesApi "com.sonarsource.sonarcloud:compliance-reports:${complianceReportsVersion}"
   testFixturesApi 'junit:junit'
   testFixturesApi testFixtures(project(':server:sonar-db-dao'))
 
@@ -69,6 +70,7 @@ dependencies {
   testFixturesImplementation 'org.codelibs.elasticsearch.module:reindex'
   testFixturesImplementation 'org.elasticsearch:mocksocket'
   testFixturesImplementation 'org.junit.jupiter:junit-jupiter-api'
+
 
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
   testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

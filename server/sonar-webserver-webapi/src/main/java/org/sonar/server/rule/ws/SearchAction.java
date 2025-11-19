@@ -24,9 +24,9 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import io.sonarcloud.compliancereports.reports.MetadataLoader;
 import io.sonarcloud.compliancereports.reports.MetadataRules;
+import io.sonarcloud.compliancereports.reports.MetadataRules.ComplianceCategoryRules;
+import io.sonarcloud.compliancereports.reports.MetadataRules.RepositoryRuleKey;
 import io.sonarcloud.compliancereports.reports.ReportKey;
-import io.sonarcloud.compliancereports.reports.RuleBuckets;
-import io.sonarcloud.compliancereports.reports.RuleBuckets.RuleBucket;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -40,7 +40,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.impact.SoftwareQuality;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.CleanCodeAttributeCategory;
 import org.sonar.api.server.ws.Change;
@@ -71,9 +70,10 @@ import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.server.common.ParamParsingUtils.parseComplianceStandardsFilter;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.rule.index.RuleIndex.ALL_STATUSES_EXCEPT_REMOVED;
-import static org.sonar.server.rule.index.RuleIndex.COMPLIANCE_FILTER_FACET_PREFIX;
+import static org.sonar.server.rule.index.RuleIndex.COMPLIANCE_FILTER_FACET;
 import static org.sonar.server.rule.index.RuleIndex.FACET_ACTIVE_IMPACT_SEVERITY;
 import static org.sonar.server.rule.index.RuleIndex.FACET_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY;
@@ -276,7 +276,9 @@ public class SearchAction implements RulesWsAction {
     if (!context.getFacets().isEmpty()) {
       writeFacets(responseBuilder, request, context, result);
     }
-    writeComplianceFacets(responseBuilder, context, result);
+    if (!context.getComplianceFacets().isEmpty()) {
+      writeComplianceFacets(responseBuilder, request, context, result);
+    }
     return responseBuilder.build();
   }
 
@@ -437,22 +439,27 @@ public class SearchAction implements RulesWsAction {
   }
 
   private static ReportKey toReportKey(String s) {
-    String[] split = s.split(":");
-    return new ReportKey(split[0], split[1]);
+    int i = s.indexOf(':');
+    return new ReportKey(s.substring(0, i), s.substring(i + 1));
   }
 
-  private void writeComplianceFacets(SearchResponse.Builder response, SearchOptions context, SearchResult results) {
+  private void writeComplianceFacets(SearchResponse.Builder response, SearchRequest request, SearchOptions context, SearchResult results) {
     Common.Facet.Builder facet = Common.Facet.newBuilder();
     Common.FacetValue.Builder value = Common.FacetValue.newBuilder();
 
+    Set<String> ruleKeys = results.getFacets().get(COMPLIANCE_FILTER_FACET).keySet();
+
     for (String standardName : context.getComplianceFacets()) {
-      Map<String, Long> countByRuleKey = results.getFacets().get(COMPLIANCE_FILTER_FACET_PREFIX + standardName);
       ReportKey reportKey = toReportKey(standardName);
-      Map<String, Long> ruleCountByComplianceCategory = metadataRules.getRuleCountByStandardCategory(reportKey, countByRuleKey);
+      Set<String> standardRuleKeys = applyComplianceFiltersToFacet(ruleKeys, reportKey, request.complianceStandards());
+      Map<String, Long> counts = standardRuleKeys.stream().collect(Collectors.toMap(e -> e, e -> 1L));
+      Map<String, Long> ruleCountByComplianceCategory = metadataRules.getRuleCountByStandardCategory(reportKey, counts);
       facet.clear().setProperty(standardName);
 
+      String selectedCategory = request.complianceStandards() == null ? null : request.complianceStandards().get(reportKey);
+
       for (Map.Entry<String, Long> ruleKeyCount : ruleCountByComplianceCategory.entrySet()) {
-        if (ruleKeyCount.getValue() > 0) {
+        if (ruleKeyCount.getValue() > 0 || ruleKeyCount.getKey().equals(selectedCategory)) {
           facet.addValues(value
             .clear()
             .setVal(ruleKeyCount.getKey())
@@ -461,6 +468,33 @@ public class SearchAction implements RulesWsAction {
       }
       response.getFacetsBuilder().addFacets(facet);
     }
+  }
+
+  /**
+   * Exclude rule keys that are being filtered out by filters on other compliance standards
+   */
+  private Set<String> applyComplianceFiltersToFacet(Set<String> ruleKeys, ReportKey reportKey, @Nullable Map<ReportKey, String> filters) {
+    if (filters == null) {
+      return ruleKeys;
+    }
+    Map<ReportKey, String> activeFilters = filters.entrySet().stream()
+      .filter(f -> !f.getKey().equals(reportKey))
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+    return ruleKeys.stream()
+      .filter(ruleKey -> filtersIncludeRule(activeFilters, ruleKey))
+      .collect(Collectors.toSet());
+  }
+
+  private boolean filtersIncludeRule(Map<ReportKey, String> filters, String ruleKey) {
+    for (Map.Entry<ReportKey, String> filter : filters.entrySet()) {
+      ComplianceCategoryRules categoryRules = metadataRules.getRules(filter.getKey(), filter.getValue());
+      RepositoryRuleKey repoRuleKey = RepositoryRuleKey.of(ruleKey);
+      if (!categoryRules.ruleKeys().contains(repoRuleKey.rule()) && !categoryRules.repoRuleKeys().contains(repoRuleKey)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private static Collection<String> enumToStringCollection(Enum<?>... enumValues) {
@@ -521,7 +555,8 @@ public class SearchAction implements RulesWsAction {
       request.paramAsStrings(PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES),
       request.paramAsStrings(PARAM_ACTIVE_SEVERITIES),
       request.paramAsStrings(PARAM_ACTIVE_IMPACT_SEVERITIES),
-      request.paramAsBoolean(PARAM_PRIORITIZED_RULE)
+      request.paramAsBoolean(PARAM_PRIORITIZED_RULE),
+      parseComplianceStandardsFilter(request.paramAsStrings(PARAM_COMPLIANCE_STANDARDS))
     );
   }
 
@@ -547,7 +582,8 @@ public class SearchAction implements RulesWsAction {
     @Nullable List<String> cleanCodeAttributesCategories,
     @Nullable List<String> activeSeverities,
     @Nullable List<String> activeImpactSeverities,
-    @Nullable Boolean prioritizedRule
+    @Nullable Boolean prioritizedRule,
+    @Nullable Map<ReportKey, String> complianceStandards
   ) {
   }
 }

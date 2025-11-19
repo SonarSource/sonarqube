@@ -22,6 +22,8 @@ package org.sonar.server.issue.ws;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import io.sonarcloud.compliancereports.reports.MetadataLoader;
+import io.sonarcloud.compliancereports.reports.MetadataRules;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,6 +36,9 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import org.assertj.core.api.AbstractListAssert;
+import org.assertj.core.api.ObjectAssert;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -72,10 +77,12 @@ import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.TestMetadataType;
 import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.feature.JiraSonarQubeFeature;
+import org.sonar.server.issue.FromSonarQubeUpdateFeature;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.issue.TextRangeResponseFormatter;
@@ -86,22 +93,22 @@ import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.index.IssueQuery;
 import org.sonar.server.issue.index.IssueQueryFactory;
+import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflow;
 import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowActionsFactory;
 import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowDefinition;
-import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflow;
 import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowActionsFactory;
 import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowDefinition;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
-import org.sonar.server.issue.FromSonarQubeUpdateFeature;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.MessageFormattingUtils;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
+import org.sonarqube.ws.Common.FacetValue;
 import org.sonarqube.ws.Common.Severity;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Issues.SearchWsResponse;
@@ -156,6 +163,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ADDITIONAL_
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CODE_VARIANTS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPLIANCE_STANDARDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_HIDE_COMMENTS;
@@ -186,10 +194,13 @@ class SearchActionIT {
   private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession,
     new WebAuthorizationTypeSupport(userSession), config);
   private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null);
-  private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession);
+  private final MetadataLoader metadataLoader = new MetadataLoader(Set.of(new TestMetadataType()));
+  private final MetadataRules metadataRules = new MetadataRules(metadataLoader);
+  private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession, metadataRules);
   private final IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
   private final IssueWorkflow issueWorkflow = new IssueWorkflow(
-    new CodeQualityIssueWorkflow(new CodeQualityIssueWorkflowActionsFactory(issueFieldsSetter), new CodeQualityIssueWorkflowDefinition(), mock(TaintChecker.class)),
+    new CodeQualityIssueWorkflow(new CodeQualityIssueWorkflowActionsFactory(issueFieldsSetter), new CodeQualityIssueWorkflowDefinition(),
+      mock(TaintChecker.class)),
     new SecurityHotspotWorkflow(new SecurityHotspotWorkflowActionsFactory(issueFieldsSetter), new SecurityHotspotWorkflowDefinition()));
   private final SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, dbClient,
     new TransitionService(userSession, issueWorkflow));
@@ -199,9 +210,11 @@ class SearchActionIT {
     new TextRangeResponseFormatter(), userFormatter);
   private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = new IssueIndexSyncProgressChecker(dbClient);
   private final FromSonarQubeUpdateFeature fromSonarQubeUpdateFeature = mock(FromSonarQubeUpdateFeature.class);
+
   {
     when(fromSonarQubeUpdateFeature.isAvailable()).thenReturn(true);
   }
+
   private final JiraSonarQubeFeature jiraSonarQubeFeature = mock(JiraSonarQubeFeature.class);
   private final WsActionTester ws = new WsActionTester(
     new SearchAction(
@@ -214,7 +227,9 @@ class SearchActionIT {
       System2.INSTANCE,
       dbClient,
       fromSonarQubeUpdateFeature,
-      jiraSonarQubeFeature
+      jiraSonarQubeFeature,
+      metadataLoader,
+      metadataRules
     )
   );
   private final PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
@@ -255,8 +270,10 @@ class SearchActionIT {
 
     assertThat(response.getIssuesList())
       .extracting(
-        Issue::getKey, Issue::getRule, Issue::getSeverity, Issue::getComponent, Issue::getResolution, Issue::getStatus, Issue::getMessage, Issue::getMessageFormattingsList,
-        Issue::getEffort, Issue::getAssignee, Issue::getAuthor, Issue::getLine, Issue::getHash, Issue::getTagsList, Issue::getInternalTagsList,
+        Issue::getKey, Issue::getRule, Issue::getSeverity, Issue::getComponent, Issue::getResolution, Issue::getStatus, Issue::getMessage
+        , Issue::getMessageFormattingsList,
+        Issue::getEffort, Issue::getAssignee, Issue::getAuthor, Issue::getLine, Issue::getHash, Issue::getTagsList,
+        Issue::getInternalTagsList,
         Issue::getCreationDate, Issue::getUpdateDate,
         Issue::getQuickFixAvailable, Issue::getCodeVariantsList)
       .containsExactlyInAnyOrder(
@@ -420,7 +437,7 @@ class SearchActionIT {
 
     assertThat(result.getIssuesCount()).isOne();
     assertThat(result.getIssues(0).getFlows(0).getLocationsList()).extracting(Common.Location::getComponent, Common.Location::getMsg,
-      Common.Location::getMsgFormattingsList)
+        Common.Location::getMsgFormattingsList)
       .containsExactlyInAnyOrder(
         tuple(file.getKey(), "FLOW MESSAGE", List.of()),
         tuple(anotherFile.getKey(), "ANOTHER FLOW MESSAGE", List.of(Common.MessageFormatting.newBuilder()
@@ -539,11 +556,11 @@ class SearchActionIT {
     UserDto simon = db.users().insertUser(u -> u.setLogin("simon").setName("Simon").setEmail("simon@email.com"));
     UserDto fabrice = db.users().insertUser(u -> u.setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
 
-    ProjectData project = db.components().insertPublicProject("PROJECT_ID",
-      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java"));
+    ProjectData project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID"));
     grantPermissionToAnyone(project.getProjectDto(), ISSUE_ADMIN);
     indexPermissions();
-    ComponentDto file = db.components().insertComponent(newFileDto(project.getMainBranchComponent(), null, "FILE_ID").setKey("FILE_KEY").setLanguage("js"));
+    ComponentDto file =
+      db.components().insertComponent(newFileDto(project.getMainBranchComponent(), null, "FILE_ID").setKey("FILE_KEY").setLanguage("js"));
 
     IssueDto issue = newIssue(newIssueRule(), project.getMainBranchComponent(), file)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
@@ -563,8 +580,7 @@ class SearchActionIT {
   @Test
   void search_by_rule_key() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
-      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
+    ComponentDto project = insertProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
 
     db.issues().insertIssue(rule, project, file);
@@ -584,7 +600,6 @@ class SearchActionIT {
 
   @Test
   void search_adhoc_issue_by_rule_key_returns_correct_rule_name() {
-
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule(RuleTesting.EXTERNAL_XOO, r -> r.setIsExternal(true)
@@ -608,17 +623,14 @@ class SearchActionIT {
   @Test
   void search_by_non_existing_rule_key() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
-      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
 
     db.issues().insertIssue(rule, project, file);
     session.commit();
-    indexIssues();
 
-    userSession.logIn("john")
-      .addProjectPermission(ISSUE_ADMIN, project); // granted by Anyone
-    indexPermissions();
+    userSession.logIn("john").addProjectPermission(ISSUE_ADMIN, project); // granted by Anyone
+    indexPermissionsAndIssues();
 
     TestResponse execute = ws.newRequest()
       .setParam(PARAM_RULES, "nonexisting:rulekey")
@@ -630,8 +642,7 @@ class SearchActionIT {
   @Test
   void search_by_variants_with_facets() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
-      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
+    ComponentDto project = insertProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
     db.issues().insertIssue(rule, project, file, i -> i.setCodeVariants(List.of("variant1")));
     db.issues().insertIssue(rule, project, file, i -> i.setCodeVariants(List.of("variant2")));
@@ -649,8 +660,7 @@ class SearchActionIT {
   @Test
   void search_whenFilteringByIssueStatuses_shouldReturnIssueStatusesFacet() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
-      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
     db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_OPEN));
     IssueDto expectedIssue = db.issues().insertIssue(rule, project, file,
@@ -672,23 +682,17 @@ class SearchActionIT {
       .extracting(Issue::getKey)
       .containsExactlyInAnyOrder(expectedIssue.getKey());
 
-    Optional<Common.Facet> first = response.getFacets().getFacetsList()
-      .stream().filter(facet -> facet.getProperty().equals(PARAM_ISSUE_STATUSES))
-      .findFirst();
-    assertThat(first.get().getValuesList())
-      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .containsExactlyInAnyOrder(
-        tuple(IssueStatus.OPEN.name(), 1L),
-        tuple(IssueStatus.ACCEPTED.name(), 1L),
-        tuple(IssueStatus.FIXED.name(), 2L),
-        tuple(IssueStatus.FALSE_POSITIVE.name(), 1L));
+    assertThatFacet(response, PARAM_ISSUE_STATUSES).containsExactlyInAnyOrder(
+      tuple(IssueStatus.OPEN.name(), 1L),
+      tuple(IssueStatus.ACCEPTED.name(), 1L),
+      tuple(IssueStatus.FIXED.name(), 2L),
+      tuple(IssueStatus.FALSE_POSITIVE.name(), 1L));
   }
 
   @Test
   void search_whenIssueStatusesFacetRequested_shouldReturnFacet() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
-      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
     db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_OPEN));
     db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_REOPENED));
@@ -706,25 +710,18 @@ class SearchActionIT {
       .setParam(FACETS, PARAM_ISSUE_STATUSES)
       .executeProtobuf(SearchWsResponse.class);
 
-    Optional<Common.Facet> first = response.getFacets().getFacetsList()
-      .stream().filter(facet -> facet.getProperty().equals(PARAM_ISSUE_STATUSES))
-      .findFirst();
-    assertThat(first.get().getValuesList())
-      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .containsExactlyInAnyOrder(
-        tuple(IssueStatus.OPEN.name(), 2L),
-        tuple(IssueStatus.ACCEPTED.name(), 1L),
-        tuple(IssueStatus.CONFIRMED.name(), 1L),
-        tuple(IssueStatus.FIXED.name(), 3L),
-        tuple(IssueStatus.FALSE_POSITIVE.name(), 1L));
-
+    assertThatFacet(response, PARAM_ISSUE_STATUSES).containsExactlyInAnyOrder(
+      tuple(IssueStatus.OPEN.name(), 2L),
+      tuple(IssueStatus.ACCEPTED.name(), 1L),
+      tuple(IssueStatus.CONFIRMED.name(), 1L),
+      tuple(IssueStatus.FIXED.name(), 3L),
+      tuple(IssueStatus.FALSE_POSITIVE.name(), 1L));
   }
 
   @Test
   void search_whenFilteringByInSandboxStatus_shouldReturnCorrectIssues() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
-      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
 
     IssueDto issueInSandbox = db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_IN_SANDBOX));
@@ -744,8 +741,7 @@ class SearchActionIT {
   @Test
   void search_whenIssueStatusesFacetRequestedWithInSandbox_shouldIncludeInSandbox() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
-      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
 
     db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_OPEN));
@@ -759,20 +755,13 @@ class SearchActionIT {
       .setParam(FACETS, PARAM_ISSUE_STATUSES)
       .executeProtobuf(SearchWsResponse.class);
 
-    Optional<Common.Facet> statusFacet = response.getFacets().getFacetsList()
-      .stream().filter(facet -> facet.getProperty().equals(PARAM_ISSUE_STATUSES))
-      .findFirst();
-
-    assertThat(statusFacet.get().getValuesList())
-      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .contains(tuple(IssueStatus.IN_SANDBOX.name(), 2L));
+    assertThatFacet(response, PARAM_ISSUE_STATUSES).contains(tuple(IssueStatus.IN_SANDBOX.name(), 2L));
   }
 
   @Test
   void search_whenImpactSoftwareQualitiesFacetRequested_shouldReturnFacet() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
-      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
     IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i
       .addImpact(new ImpactDto(SECURITY, HIGH))
@@ -792,22 +781,16 @@ class SearchActionIT {
       .extracting(Issue::getKey)
       .containsExactlyInAnyOrder(issue1.getKey(), issue2.getKey(), issue3.getKey());
 
-    Optional<Common.Facet> first = response.getFacets().getFacetsList()
-      .stream().filter(facet -> facet.getProperty().equals(PARAM_IMPACT_SOFTWARE_QUALITIES))
-      .findFirst();
-    assertThat(first.get().getValuesList())
-      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .containsExactlyInAnyOrder(
-        tuple("MAINTAINABILITY", 3L),
-        tuple("RELIABILITY", 3L),
-        tuple("SECURITY", 2L));
+    assertThatFacet(response, PARAM_IMPACT_SOFTWARE_QUALITIES).containsExactlyInAnyOrder(
+      tuple("MAINTAINABILITY", 3L),
+      tuple("RELIABILITY", 3L),
+      tuple("SECURITY", 2L));
   }
 
   @Test
   void search_whenFilteredByImpactSeverities_shouldReturnImpactSoftwareQualitiesFacet() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
-      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
 
     db.issues().insertIssue(rule, project, file, i -> i
@@ -841,22 +824,16 @@ class SearchActionIT {
     assertThat(impactsInResponse).isEqualTo(expectedImpacts);
     assertThat(issue.getCleanCodeAttribute()).isEqualTo(Common.CleanCodeAttribute.CLEAR);
 
-    Optional<Common.Facet> first = response.getFacets().getFacetsList()
-      .stream().filter(facet -> facet.getProperty().equals(PARAM_IMPACT_SOFTWARE_QUALITIES))
-      .findFirst();
-    assertThat(first.get().getValuesList())
-      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .containsExactlyInAnyOrder(
-        tuple("MAINTAINABILITY", 0L),
-        tuple("RELIABILITY", 1L),
-        tuple("SECURITY", 0L));
+    assertThatFacet(response, PARAM_IMPACT_SOFTWARE_QUALITIES).containsExactlyInAnyOrder(
+      tuple("MAINTAINABILITY", 0L),
+      tuple("RELIABILITY", 1L),
+      tuple("SECURITY", 0L));
   }
 
   @Test
   void search_whenImpactSeveritiesFacetRequested_shouldReturnFacet() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
-      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
     IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
       new ImpactDto(SECURITY, HIGH),
@@ -880,24 +857,18 @@ class SearchActionIT {
       .extracting(Issue::getKey)
       .containsExactlyInAnyOrder(issue1.getKey(), issue2.getKey(), issue3.getKey(), issue4.getKey());
 
-    Optional<Common.Facet> first = response.getFacets().getFacetsList()
-      .stream().filter(facet -> facet.getProperty().equals(PARAM_IMPACT_SEVERITIES))
-      .findFirst();
-    assertThat(first.get().getValuesList())
-      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .containsExactlyInAnyOrder(
-        tuple("BLOCKER", 1L),
-        tuple("HIGH", 2L),
-        tuple("MEDIUM", 1L),
-        tuple("LOW", 1L),
-        tuple("INFO", 1L));
+    assertThatFacet(response, PARAM_IMPACT_SEVERITIES).containsExactlyInAnyOrder(
+      tuple("BLOCKER", 1L),
+      tuple("HIGH", 2L),
+      tuple("MEDIUM", 1L),
+      tuple("LOW", 1L),
+      tuple("INFO", 1L));
   }
 
   @Test
   void search_whenFilteredByImpactSoftwareQualities_shouldReturnFacet() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
-      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
     IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
       new ImpactDto(SECURITY, HIGH),
@@ -925,17 +896,12 @@ class SearchActionIT {
       .extracting(Issue::getKey)
       .containsExactlyInAnyOrder(issue1.getKey(), issue2.getKey(), issue3.getKey(), issue4.getKey(), issue5.getKey());
 
-    Optional<Common.Facet> first = response.getFacets().getFacetsList()
-      .stream().filter(facet -> facet.getProperty().equals(PARAM_IMPACT_SEVERITIES))
-      .findFirst();
-    assertThat(first.get().getValuesList())
-      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .containsExactlyInAnyOrder(
-        tuple("HIGH", 1L),
-        tuple("MEDIUM", 1L),
-        tuple("LOW", 0L),
-        tuple("INFO", 1L),
-        tuple("BLOCKER", 2L));
+    assertThatFacet(response, PARAM_IMPACT_SEVERITIES).containsExactlyInAnyOrder(
+      tuple("HIGH", 1L),
+      tuple("MEDIUM", 1L),
+      tuple("LOW", 0L),
+      tuple("INFO", 1L),
+      tuple("BLOCKER", 2L));
   }
 
   @Test
@@ -947,8 +913,7 @@ class SearchActionIT {
     RuleDto rule3 = newIssueRule("distinct-rule", ruleDto -> ruleDto.setCleanCodeAttribute(CleanCodeAttribute.DISTINCT));
     // RESPONSIBLE
     RuleDto rule4 = newIssueRule("lawful-rule", ruleDto -> ruleDto.setCleanCodeAttribute(CleanCodeAttribute.LAWFUL));
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
-      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
+    ComponentDto project = insertProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
     IssueDto issue1 = db.issues().insertIssue(rule1, project, file);
     IssueDto issue2 = db.issues().insertIssue(rule2, project, file);
@@ -966,22 +931,17 @@ class SearchActionIT {
       .extracting(Issue::getKey)
       .containsExactlyInAnyOrder(issue1.getKey(), issue2.getKey(), issue5.getKey());
 
-    Optional<Common.Facet> first = response.getFacets().getFacetsList()
-      .stream().filter(facet -> facet.getProperty().equals(PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES))
-      .findFirst();
-    assertThat(first.get().getValuesList())
-      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .containsExactlyInAnyOrder(
-        tuple("INTENTIONAL", 3L),
-        tuple("ADAPTABLE", 1L),
-        tuple("RESPONSIBLE", 1L),
-        tuple("CONSISTENT", 0L));
+    assertThatFacet(response, PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES).containsExactlyInAnyOrder(
+      tuple("INTENTIONAL", 3L),
+      tuple("ADAPTABLE", 1L),
+      tuple("RESPONSIBLE", 1L),
+      tuple("CONSISTENT", 0L));
   }
 
   @Test
   void issue_on_removed_file() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setKey("PROJECT_KEY")).getMainBranchComponent();
+    ComponentDto project = insertProject();
     indexPermissions();
     ComponentDto removedFile = db.components().insertComponent(newFileDto(project).setUuid("REMOVED_FILE_ID")
       .setKey("REMOVED_FILE_KEY")
@@ -1006,7 +966,7 @@ class SearchActionIT {
   @Test
   void apply_paging_with_one_component() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setKey("PROJECT_KEY")).getMainBranchComponent();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     for (int i = 0; i < SearchOptions.MAX_PAGE_SIZE + 1; i++) {
@@ -1021,11 +981,91 @@ class SearchActionIT {
   }
 
   @Test
+  void filter_by_unknown_compliance_standard() {
+    RuleDto r1 = newIssueRule("S001", r -> r.setRepositoryKey("java"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT1").getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID"));
+    db.issues().insertIssue(r1, project, file);
+
+    session.commit();
+    indexPermissionsAndIssues();
+
+    assertThat(ws.newRequest()
+      .setParam(PARAM_COMPLIANCE_STANDARDS, "test:V1=unknown")
+      .executeProtobuf(SearchWsResponse.class).getIssuesList())
+      .isEmpty();
+  }
+
+  @Test
+  void filter_by_compliance_standard() {
+    RuleDto r1 = newIssueRule("S001", r -> r.setRepositoryKey("java"));
+    RuleDto r2 = newIssueRule("S002", r -> r.setRepositoryKey("test"));
+    RuleDto r3 = newIssueRule("S001", r -> r.setRepositoryKey("php"));
+    newIssueRule("3", r -> r.setRepositoryKey("php"));
+
+    ComponentDto project = db.components().insertPublicProject("PROJECT1").getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID"));
+
+    IssueDto i1 = db.issues().insertIssue(r1, project, file);
+    IssueDto i2 = db.issues().insertIssue(r2, project, file);
+    db.issues().insertIssue(r3, project, file);
+
+    session.commit();
+    indexPermissionsAndIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPLIANCE_STANDARDS, "test:V1=category1")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsOnly(i1.getKey(), i2.getKey());
+
+    assertThat(ws.newRequest()
+      .setParam(PARAM_COMPLIANCE_STANDARDS, "test:V1=category3")
+      .executeProtobuf(SearchWsResponse.class).getIssuesList())
+      .isEmpty();
+  }
+
+  @Test
+  void filter_by_compliance_standards_returns_all_facets_values() {
+    RuleDto r1 = newIssueRule("S001", r -> r.setRepositoryKey("java"));
+    RuleDto r2 = newIssueRule("S002", r -> r.setRepositoryKey("test"));
+    RuleDto r3 = newIssueRule("1", r -> r.setRepositoryKey("php"));
+
+    ComponentDto project = db.components().insertPublicProject("PROJECT1").getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID"));
+
+    IssueDto i1 = db.issues().insertIssue(r1, project, file);
+    IssueDto i2 = db.issues().insertIssue(r2, project, file);
+    db.issues().insertIssue(r3, project, file);
+
+    session.commit();
+    indexPermissionsAndIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPLIANCE_STANDARDS, "test:V1=category1")
+      .setParam(FACETS, "complianceStandards")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsOnly(i1.getKey(), i2.getKey());
+
+    assertThatFacet(response, "test:V1").containsOnly(tuple("category1", 2L), tuple("category3", 1L));
+  }
+
+  @Test
+  void fail_if_compliance_standard_unknown() {
+    TestRequest request = ws.newRequest().setParam(PARAM_COMPLIANCE_STANDARDS, "unknown:V1=category1");
+    assertThatThrownBy(() -> request.executeProtobuf(SearchWsResponse.class)).isInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
   void filter_by_assigned_to_me() {
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
-    ComponentDto project = db.components().insertPublicProject(c -> c.setUuid("PROJECT_ID").setKey("PROJECT_KEY").setBranchUuid(
-      "PROJECT_ID")).getMainBranchComponent();
+    ComponentDto project = insertProject();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
@@ -1071,8 +1111,7 @@ class SearchActionIT {
   void filter_by_new_code_period() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
-      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID")).getMainBranchComponent();
+    ComponentDto project = insertProject();
     db.components().insertSnapshot(project, s -> s.setLast(true).setPeriodDate(parseDateTime("2014-09-05T00:00:00+0100").getTime()));
     indexPermissions();
 
@@ -1126,7 +1165,7 @@ class SearchActionIT {
   void filter_by_leak_period_without_a_period() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
+    ComponentDto project = insertProject();
     SnapshotDto snapshotDto = db.components().insertSnapshot(project);
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
@@ -1166,7 +1205,7 @@ class SearchActionIT {
   void filter_by_leak_period_has_no_effect_on_prs() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
+    ComponentDto project = insertProject();
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setKey("pr"));
     SnapshotDto snapshotDto = db.components().insertSnapshot(pr);
     indexPermissions();
@@ -1212,8 +1251,7 @@ class SearchActionIT {
   void return_empty_when_login_is_unknown() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
-    indexPermissions();
+    ComponentDto project = insertProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
     IssueDto issue1 = newIssue(rule, project, file)
@@ -1242,7 +1280,7 @@ class SearchActionIT {
       .setAssigneeUuid(null);
     dbClient.issueDao().insert(session, issue1, issue2, issue3);
     session.commit();
-    indexIssues();
+    indexPermissionsAndIssues();
 
     userSession.logIn(john);
 
@@ -1261,8 +1299,7 @@ class SearchActionIT {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto poy = db.users().insertUser(u -> u.setLogin("poy").setName("poypoy").setEmail("poypoy@email.com"));
     userSession.logIn(poy);
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY")).getMainBranchComponent();
-    indexPermissions();
+    ComponentDto project = insertProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
     IssueDto issue1 = newIssue(rule, project, file)
@@ -1279,7 +1316,7 @@ class SearchActionIT {
       .setAssigneeUuid(null);
     dbClient.issueDao().insert(session, issue1, issue2, issue3);
     session.commit();
-    indexIssues();
+    indexPermissionsAndIssues();
 
     ws.newRequest()
       .setParam("resolved", "false")
@@ -1306,14 +1343,10 @@ class SearchActionIT {
     assertThat(response.getIssuesList())
       .extracting(Issue::getKey)
       .containsExactlyInAnyOrder(issue1.getKey(), issue3.getKey());
-    Common.Facet facet = response.getFacets().getFacetsList().get(0);
-    assertThat(facet.getProperty()).isEqualTo("author");
-    assertThat(facet.getValuesList())
-      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .containsExactlyInAnyOrder(
-        tuple("leia", 1L),
-        tuple("luke", 1L),
-        tuple("han, solo", 1L));
+    assertThatFacet(response, "author").containsExactlyInAnyOrder(
+      tuple("leia", 1L),
+      tuple("luke", 1L),
+      tuple("han, solo", 1L));
 
     assertThat(ws.newRequest()
       .setMultiParam("author", singletonList("unknown"))
@@ -1344,10 +1377,7 @@ class SearchActionIT {
 
   @Test
   void filter_by_test_scope() {
-    ProjectData projectData = db.components().insertPublicProject("PROJECT_ID",
-      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID"));
-    ComponentDto project = projectData.getMainBranchComponent();
-    indexPermissions();
+    ComponentDto project = insertProject();
     ComponentDto mainCodeFile = db.components().insertComponent(
       newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     ComponentDto testCodeFile = db.components().insertComponent(
@@ -1376,7 +1406,7 @@ class SearchActionIT {
       .setSeverity("MAJOR");
     dbClient.issueDao().insert(session, issue1, issue2, issue3);
     session.commit();
-    indexIssues();
+    indexPermissionsAndIssues();
 
     ws.newRequest()
       .setParam("scopes", "TEST")
@@ -1387,9 +1417,7 @@ class SearchActionIT {
 
   @Test
   void filter_by_main_scope() {
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
-      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID")).getMainBranchComponent();
-    indexPermissions();
+    ComponentDto project = insertProject();
     ComponentDto mainCodeFile = db.components().insertComponent(
       newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     ComponentDto testCodeFile = db.components().insertComponent(
@@ -1418,7 +1446,7 @@ class SearchActionIT {
       .setSeverity("MAJOR");
     dbClient.issueDao().insert(session, issue1, issue2, issue3);
     session.commit();
-    indexIssues();
+    indexPermissionsAndIssues();
 
     ws.newRequest()
       .setParam("scopes", "MAIN")
@@ -1429,9 +1457,7 @@ class SearchActionIT {
 
   @Test
   void filter_by_scope_always_returns_all_scope_facet_values() {
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
-      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID")).getMainBranchComponent();
-    indexPermissions();
+    ComponentDto project = insertProject();
     ComponentDto mainCodeFile = db.components().insertComponent(
       newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
@@ -1451,7 +1477,7 @@ class SearchActionIT {
       .setSeverity("MAJOR");
     dbClient.issueDao().insert(session, issue1, issue2);
     session.commit();
-    indexIssues();
+    indexPermissionsAndIssues();
 
     ws.newRequest()
       .setParam("scopes", "MAIN")
@@ -1463,9 +1489,7 @@ class SearchActionIT {
   @Test
   void sort_by_updated_at() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
-      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID")).getMainBranchComponent();
-    indexPermissions();
+    ComponentDto project = insertProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     dbClient.issueDao().insert(session, newIssue(rule, project, file)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac1")
@@ -1477,7 +1501,7 @@ class SearchActionIT {
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac3")
       .setIssueUpdateDate(parseDateTime("2014-11-03T00:00:00+0100")));
     session.commit();
-    indexIssues();
+    indexPermissionsAndIssues();
 
     TestResponse response = ws.newRequest()
       .setParam("s", IssueQuery.SORT_BY_UPDATE_DATE)
@@ -1961,7 +1985,7 @@ class SearchActionIT {
       .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
 
     assertThat(result.getFacets().getFacets(0).getValuesList())
-      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .extracting(FacetValue::getVal, FacetValue::getCount)
       .containsExactlyInAnyOrder(tuple("m3", 2L));
   }
 
@@ -1997,7 +2021,7 @@ class SearchActionIT {
       .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
 
     assertThat(result.getFacets().getFacets(0).getValuesList())
-      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .extracting(FacetValue::getVal, FacetValue::getCount)
       .containsExactlyInAnyOrder(tuple("V-222402", 2L), tuple("V-222403", 2L), tuple("V-222404", 2L));
   }
 
@@ -2030,10 +2054,9 @@ class SearchActionIT {
       .extracting(Issue::getKey)
       .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
 
-    assertThat(result.getFacets().getFacets(0).getValuesList())
-      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .containsExactlyInAnyOrder(tuple("4.1.2", 2L), tuple("4.2.1", 2L), tuple("6.2.3", 2L),
-        tuple("6.2.4", 2L), tuple("6.2.7", 2L), tuple("9.1.2", 2L));
+    assertThatFacet(result, "casa").containsExactlyInAnyOrder(
+      tuple("4.1.2", 2L), tuple("4.2.1", 2L), tuple("6.2.3", 2L),
+      tuple("6.2.4", 2L), tuple("6.2.7", 2L), tuple("9.1.2", 2L));
 
     result = ws.newRequest()
       .setParam("casa", "4")
@@ -2274,9 +2297,8 @@ class SearchActionIT {
         tuple(bugIssue.getKey(), BUG),
         tuple(vulnerabilityIssue.getKey(), VULNERABILITY),
         tuple(codeSmellIssue.getKey(), Common.RuleType.CODE_SMELL));
-    assertThat(result.getFacets().getFacets(0).getValuesList())
-      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .containsExactlyInAnyOrder(tuple("MAJOR", 3L), tuple("INFO", 0L), tuple("MINOR", 0L), tuple("CRITICAL", 0L), tuple("BLOCKER", 0L));
+    assertThatFacet(result, "severities").containsExactlyInAnyOrder(
+      tuple("MAJOR", 3L), tuple("INFO", 0L), tuple("MINOR", 0L), tuple("CRITICAL", 0L), tuple("BLOCKER", 0L));
   }
 
   @Test
@@ -2394,13 +2416,11 @@ class SearchActionIT {
     assertThat(def.params()).extracting("key").containsExactlyInAnyOrder(
       "additionalFields", "asc", "assigned", "assignees", "author", "components", "branch", "pullRequest", "createdAfter", "createdAt",
       "createdBefore", "createdInLast", "directories", "facets", "files", "issues", "scopes", "languages", "onComponentOnly",
-      "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "statuses", "tags", "types", "pciDss-3.2", "pciDss-4" +
-        ".0",
-      "owaspAsvs-4.0", "owaspMobileTop10-2024",
-      "owaspAsvsLevel", "owaspTop10", "owaspTop10-2021", "stig-ASD_V5R3", "casa", "sansTop25", "cwe", "sonarsourceSecurity", "timeZone",
-      "inNewCodePeriod", "codeVariants",
+      "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "statuses", "tags", "types", "pciDss-3.2",
+      "pciDss-4.0", "owaspAsvs-4.0", "owaspMobileTop10-2024", "owaspAsvsLevel", "owaspTop10", "owaspTop10-2021", "stig-ASD_V5R3", "casa",
+      "sansTop25", "cwe", "sonarsourceSecurity", "timeZone", "inNewCodePeriod", "codeVariants",
       "cleanCodeAttributeCategories", "impactSeverities", "impactSoftwareQualities", "issueStatuses", "fixedInPullRequest",
-      "prioritizedRule", "fromSonarQubeUpdate");
+      "prioritizedRule", "fromSonarQubeUpdate", "complianceStandards");
 
     WebService.Param branch = def.param(PARAM_BRANCH);
     assertThat(branch.isInternal()).isFalse();
@@ -2667,6 +2687,14 @@ class SearchActionIT {
       .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey(), issueDto3.getKey());
   }
 
+  private AbstractListAssert<?, List<? extends Tuple>, Tuple, ObjectAssert<Tuple>> assertThatFacet(SearchWsResponse r, String facetName) {
+    Optional<Common.Facet> first = r.getFacets().getFacetsList()
+      .stream().filter(facet -> facet.getProperty().equals(facetName))
+      .findFirst();
+    return assertThat(first.get().getValuesList())
+      .extracting(FacetValue::getVal, FacetValue::getCount);
+  }
+
   private RuleDto newIssueRule() {
     RuleDto rule = newRule(XOO_X1, createDefaultRuleDescriptionSection(uuidFactory.create(), "Rule desc"))
       .setLanguage("xoo")
@@ -2695,6 +2723,12 @@ class SearchActionIT {
       .setType(SECURITY_HOTSPOT_VALUE);
     db.rules().insert(rule);
     return rule;
+  }
+
+  private ComponentDto insertProject() {
+    return db.components().insertPublicProject("PROJECT_ID",
+        c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java"))
+      .getMainBranchComponent();
   }
 
   private void indexPermissions() {

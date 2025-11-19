@@ -36,12 +36,14 @@ import org.sonar.core.rule.RuleType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.issue.IssueDocTesting;
 import org.sonar.server.security.SecurityStandards.SQCategory;
 import org.sonar.server.view.index.ViewDoc;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.List.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doReturn;
@@ -79,6 +81,20 @@ class IssueIndexFiltersTest extends IssueIndexTestCommon {
     assertThatSearchReturnsOnly(IssueQuery.builder().issueKeys(asList("I1", "I2")), "I1", "I2");
     assertThatSearchReturnsOnly(IssueQuery.builder().issueKeys(singletonList("I1")), "I1");
     assertThatSearchReturnsEmpty(IssueQuery.builder().issueKeys(asList("I3", "I4")));
+  }
+
+  @Test
+  void filter_by_compliance_standard() {
+    ComponentDto project = newPrivateProjectDto();
+
+    indexIssues(IssueDocTesting.
+      newDoc("I1", project.uuid(), true, newFileDto(project)).setRuleUuid("r1"),
+      newDoc("I2", project.uuid(), true, newFileDto(project)).setRuleUuid("r1"),
+      newDoc("I3", project.uuid(), true, newFileDto(project)).setRuleUuid("r2")
+    );
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().complianceCategoryRules(of("r1", "r2")), "I1", "I2", "I3");
+    assertThatSearchReturnsOnly(IssueQuery.builder().complianceCategoryRules(of("r1")), "I1", "I2");
   }
 
   @Test
@@ -646,8 +662,8 @@ class IssueIndexFiltersTest extends IssueIndexTestCommon {
     );
 
     assertThatSearchReturnsOnly(IssueQuery.builder().linkedTicketStatuses(null), "I1", "I2", "I3");
-    assertThatSearchReturnsOnly(IssueQuery.builder().linkedTicketStatuses(List.of(LinkedTicketStatus.LINKED)), "I1", "I3");
-    assertThatSearchReturnsOnly(IssueQuery.builder().linkedTicketStatuses(List.of(LinkedTicketStatus.NOT_LINKED)), "I2");
+    assertThatSearchReturnsOnly(IssueQuery.builder().linkedTicketStatuses(of(LinkedTicketStatus.LINKED)), "I1", "I3");
+    assertThatSearchReturnsOnly(IssueQuery.builder().linkedTicketStatuses(of(LinkedTicketStatus.NOT_LINKED)), "I2");
   }
 
   @Test

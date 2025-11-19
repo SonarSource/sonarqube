@@ -102,7 +102,7 @@ import static org.sonar.db.rule.RuleTesting.setType;
 import static org.sonar.db.rule.RuleTesting.setUpdatedAt;
 import static org.sonar.server.qualityprofile.ActiveRuleInheritance.INHERITED;
 import static org.sonar.server.qualityprofile.ActiveRuleInheritance.OVERRIDES;
-import static org.sonar.server.rule.index.RuleIndex.FACET_COMPLIANCE_STANDARDS;
+import static org.sonar.server.rule.index.RuleIndex.COMPLIANCE_FILTER_FACET;
 import static org.sonar.server.rule.index.RuleIndex.FACET_LANGUAGES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_REPOSITORIES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TAGS;
@@ -209,8 +209,8 @@ class RuleIndexIT {
     index();
 
     // key
-    RuleQuery query = new RuleQuery().setComplianceCategoryRules(Map.of("standard",
-      new ComplianceCategoryRules(Set.of(RepositoryRuleKey.of("php:S002")), Set.of("X001"))));
+    RuleQuery query = new RuleQuery()
+      .setComplianceCategoryRules(new ComplianceCategoryRules(Set.of(RepositoryRuleKey.of("php:S002")), Set.of("X001")));
 
     assertThat(underTest.search(query, new SearchOptions()).getUuids())
       .containsOnly(rule.getUuid(), rule1.getUuid(), rule2.getUuid());
@@ -1439,7 +1439,7 @@ class RuleIndexIT {
     assertThat(result.getFacets().get(FACET_REPOSITORIES)).containsOnlyKeys("foo", "xoo");
     assertThat(result.getFacets().get(FACET_TAGS)).containsOnlyKeys("T1", "T2", "T3");
     assertThat(result.getFacets().get(FACET_TYPES)).containsOnlyKeys("CODE_SMELL");
-    assertThat(result.getFacets().get("compliance_cwe")).containsOnlyKeys("foo:S113", "xoo:S003");
+    assertThat(result.getFacets().get(COMPLIANCE_FILTER_FACET)).containsOnlyKeys("foo:S113", "xoo:S003");
   }
 
   @Test
