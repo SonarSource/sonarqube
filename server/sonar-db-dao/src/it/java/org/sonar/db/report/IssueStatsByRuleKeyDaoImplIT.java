@@ -19,6 +19,7 @@
  */
 package org.sonar.db.report;
 
+import io.sonarcloud.compliancereports.dao.AggregationType;
 import io.sonarcloud.compliancereports.dao.IssueStats;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -29,7 +30,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
-import static java.util.UUID.fromString;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 
@@ -46,7 +46,7 @@ class IssueStatsByRuleKeyDaoImplIT {
       insertSampleIssueStats(sqlSession);
       session.commit();
 
-      var results = underTest.getIssueStatsForProject(fromString("b728478a-470f-4cb2-8a19-9302632e049f"));
+      var results = underTest.getIssueStats("b728478a-470f-4cb2-8a19-9302632e049f", AggregationType.PROJECT);
       assertThat(results).hasSize(2);
       assertThat(results)
         .anySatisfy(issueStats -> {
@@ -75,7 +75,7 @@ class IssueStatsByRuleKeyDaoImplIT {
       new IssueStats("githubactions:S7640", 3, 3, 1, 1)
     );
 
-    underTest.insertIssueStatsForProject(fromString("b728478a-470f-4cb2-8a19-9302632e049f"), issueStatsList);
+    underTest.insertIssueStats("b728478a-470f-4cb2-8a19-9302632e049f", AggregationType.PROJECT, issueStatsList);
 
     try (var session = db.getSession().getSqlSession(); var sqlSession = session.getConnection()) {
       var resultSet = sqlSession.prepareStatement(
@@ -120,7 +120,7 @@ class IssueStatsByRuleKeyDaoImplIT {
       insertSampleIssueStats(sqlSession);
       session.commit();
 
-      underTest.deleteAllIssueStatsForProject(fromString("b728478a-470f-4cb2-8a19-9302632e049f"));
+      underTest.deleteAllIssueStats("b728478a-470f-4cb2-8a19-9302632e049f", AggregationType.PROJECT);
 
       var resultSet = sqlSession.prepareStatement(
         "SELECT COUNT(*) AS total " +

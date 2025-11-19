@@ -20,14 +20,16 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import com.google.common.annotations.VisibleForTesting;
+import io.sonarcloud.compliancereports.dao.AggregationType;
 import io.sonarcloud.compliancereports.ingestion.IssueFromAnalysis;
 import io.sonarcloud.compliancereports.ingestion.IssueIngestionService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
@@ -41,6 +43,8 @@ import org.sonar.server.issue.index.IssueIteratorFactory;
 import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
 
 public class IssueStatsIndexer implements AnalysisIndexer {
+  private static final Logger LOGGER = LoggerFactory.getLogger(IssueStatsIndexer.class);
+
   private final IssueIteratorFactory issueIteratorFactory;
   private final DbClient dbClient;
 
@@ -61,8 +65,10 @@ public class IssueStatsIndexer implements AnalysisIndexer {
       try (var dbSession = dbClient.openSession(false)) {
         var issuesForIngestion = transformToRepositoryRuleIssuesDtos(issuesWithRuleUuids, dbSession);
         IssueIngestionService issueIngestionService = new IssueIngestionService(new IssueStatsByRuleKeyDaoImpl(dbSession));
-        issueIngestionService.ingest(UUID.fromString(branchUuid), issuesForIngestion);
+        issueIngestionService.ingest(branchUuid, AggregationType.PROJECT, issuesForIngestion);
         dbSession.commit();
+      } catch (Exception e) {
+        LOGGER.warn("Error ingesting issues for compliance reports", e);
       }
     }
   }

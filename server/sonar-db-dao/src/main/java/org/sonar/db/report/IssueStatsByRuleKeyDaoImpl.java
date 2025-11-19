@@ -19,6 +19,7 @@
  */
 package org.sonar.db.report;
 
+import io.sonarcloud.compliancereports.dao.AggregationType;
 import io.sonarcloud.compliancereports.dao.IssueStats;
 import io.sonarcloud.compliancereports.dao.IssueStatsByRuleKeyDao;
 import java.util.List;
@@ -34,17 +35,17 @@ public class IssueStatsByRuleKeyDaoImpl implements IssueStatsByRuleKeyDao {
   }
 
   @Override
-  public List<IssueStats> getIssueStatsForProject(UUID uuid) {
+  public List<IssueStats> getIssueStats(String uuid, AggregationType aggregationType) {
     return mapper(dbSession).selectByAggregationId(String.valueOf(uuid));
   }
 
   @Override
-  public void insertIssueStatsForProject(UUID aggregationId, List<IssueStats> list) {
+  public void insertIssueStats(String aggregationId, AggregationType aggregationType, List<IssueStats> list) {
     mapper(dbSession).insertIssueStatsForProject(String.valueOf(aggregationId), list);
   }
 
   @Override
-  public void deleteAllIssueStatsForProject(UUID uuid) {
+  public void deleteAllIssueStats(String uuid, AggregationType aggregationType) {
     mapper(dbSession).deleteAllIssueStatsForProject(String.valueOf(uuid));
   }
 
