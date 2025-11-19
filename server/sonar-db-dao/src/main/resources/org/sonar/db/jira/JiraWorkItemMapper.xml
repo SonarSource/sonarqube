@@ -119,4 +119,12 @@
     WHERE jwi.created_by IS NOT NULL
   </select>
 
+  <select id="countBySonarProjectId" parameterType="String" resultType="int">
+    SELECT COUNT(*)
+    FROM jira_work_items_resources jwir
+    INNER JOIN jira_work_items jwi ON jwir.jira_work_item_id = jwi.id
+    INNER JOIN jira_project_bindings jpb ON jwi.jira_project_binding_id = jpb.id
+    WHERE jpb.sonar_project_id = #{sonarProjectId, jdbcType=VARCHAR}
+  </select>
+
 </mapper>

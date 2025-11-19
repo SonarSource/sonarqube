@@ -103,6 +103,10 @@ public class JiraWorkItemDao implements Dao {
     return getMapper(dbSession).countDistinctCreators();
   }
 
+  public int countBySonarProjectId(DbSession dbSession, String sonarProjectId) {
+    return getMapper(dbSession).countBySonarProjectId(sonarProjectId);
+  }
+
   private static JiraWorkItemMapper getMapper(DbSession dbSession) {
     return dbSession.getMapper(JiraWorkItemMapper.class);
   }

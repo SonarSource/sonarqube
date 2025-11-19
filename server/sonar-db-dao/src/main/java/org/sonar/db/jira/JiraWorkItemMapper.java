@@ -61,4 +61,6 @@ public interface JiraWorkItemMapper {
 
   int countDistinctCreators();
 
+  int countBySonarProjectId(String sonarProjectId);
+
 }

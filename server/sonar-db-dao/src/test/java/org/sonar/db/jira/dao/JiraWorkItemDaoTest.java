@@ -285,6 +285,66 @@ class JiraWorkItemDaoTest {
     assertThat(countWorkItemResources()).isEqualTo(1);
   }
 
+  @Test
+  void countBySonarProjectId_shouldReturnZero_whenNoWorkItems() {
+    int count = underTest.countBySonarProjectId(db.getSession(), SONAR_PROJECT_ID);
+
+    assertThat(count).isZero();
+  }
+
+  @Test
+  void countBySonarProjectId_shouldReturnCorrectCount_whenWorkItemsExist() {
+    when(system2.now()).thenReturn(1000L);
+    when(uuidFactory.create()).thenReturn("work-item-uuid-1", "work-item-uuid-2", "work-item-uuid-3");
+
+    insertProjectBinding();
+    insertWorkItem("jira-issue-1", SONAR_PROJECT_ID, JIRA_PROJECT_BINDING_ID);
+    insertWorkItem("jira-issue-2", SONAR_PROJECT_ID, JIRA_PROJECT_BINDING_ID);
+    insertWorkItem("jira-issue-3", "PROJ-2", "project-binding-2");
+
+    insertLinkedResource("work-item-uuid-1", "resource-1", "SONAR_ISSUE");
+    insertLinkedResource("work-item-uuid-2", "resource-2", "SONAR_ISSUE");
+
+    int count = underTest.countBySonarProjectId(db.getSession(), SONAR_PROJECT_ID);
+
+    assertThat(count).isEqualTo(2);
+  }
+
+  @Test
+  void countBySonarProjectId_shouldFilterBySonarProjectId() {
+    when(system2.now()).thenReturn(1000L);
+    when(uuidFactory.create()).thenReturn("work-item-uuid-1", "work-item-uuid-2");
+
+    insertProjectBinding();
+    insertProjectBinding("project-binding-2", "PROJ-2");
+    insertWorkItem("jira-issue-1", SONAR_PROJECT_ID, JIRA_PROJECT_BINDING_ID);
+    insertWorkItem("jira-issue-2", "PROJ-2", "project-binding-2");
+
+    insertLinkedResource("work-item-uuid-1", "resource-1", "SONAR_ISSUE");
+    insertLinkedResource("work-item-uuid-2", "resource-2", "SONAR_ISSUE");
+
+    int count = underTest.countBySonarProjectId(db.getSession(), SONAR_PROJECT_ID);
+
+    assertThat(count).isEqualTo(1);
+  }
+
+  @Test
+  void countBySonarProjectId_shouldCountAllResourceTypes() {
+    when(system2.now()).thenReturn(1000L);
+    when(uuidFactory.create()).thenReturn("work-item-uuid-1", "work-item-uuid-2");
+
+    insertProjectBinding();
+    insertWorkItem("jira-issue-1", SONAR_PROJECT_ID, JIRA_PROJECT_BINDING_ID);
+    insertWorkItem("jira-issue-2", SONAR_PROJECT_ID, JIRA_PROJECT_BINDING_ID);
+
+    insertLinkedResource("work-item-uuid-1", "resource-1", "SONAR_ISSUE");
+    insertLinkedResource("work-item-uuid-2", "resource-2", "DEPENDENCY_RISK");
+
+    int count = underTest.countBySonarProjectId(db.getSession(), SONAR_PROJECT_ID);
+
+    assertThat(count).isEqualTo(2);
+  }
+
   private void insertWorkItem(String jiraIssueId, String jiraIssueKey, String jiraProjectBindingId) {
     underTest.insertOrUpdate(db.getSession(), new JiraWorkItemDto()
       .setJiraIssueId(jiraIssueId)
@@ -305,9 +365,13 @@ class JiraWorkItemDaoTest {
   }
 
   private void insertProjectBinding() {
+    insertProjectBinding(JIRA_PROJECT_BINDING_ID, SONAR_PROJECT_ID);
+  }
+
+  private void insertProjectBinding(String projectBindingId, String sonarProjectId) {
     db.executeInsert("jira_project_bindings",
-      "id", JIRA_PROJECT_BINDING_ID,
-      "sonar_project_id", SONAR_PROJECT_ID,
+      "id", projectBindingId,
+      "sonar_project_id", sonarProjectId,
       "jira_organization_binding_id", "organization-binding-id",
       "jira_project_key", "project-key",
       "created_at", 1000L,
