@@ -61,6 +61,7 @@ import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.core.scadata.DefaultScaDataSourceImpl;
+import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
 import org.sonar.server.ai.code.assurance.AiCodeAssuranceEntitlement;
 import org.sonar.server.ai.code.assurance.NoOpAiCodeAssuranceVerifier;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWSModule;
@@ -417,6 +418,7 @@ public class PlatformLevel4 extends PlatformLevel {
       org.sonar.server.language.ws.ListAction.class,
 
       // compliance reports
+      IssueStatsByRuleKeyDaoImpl.class,
       MetadataLoader.class,
       MetadataRules.class,
 
