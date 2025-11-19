@@ -231,7 +231,7 @@ class SearchProjectsActionIT {
     assertThat(def.isPost()).isFalse();
     assertThat(def.responseExampleAsString()).isNotEmpty();
     assertThat(def.params().stream().map(Param::key).toList()).containsOnly("filter", "facets", "s", "asc", "ps", "p", "f");
-    assertThat(def.changelog()).hasSize(9);
+    assertThat(def.changelog()).hasSize(10);
 
     Param sort = def.param("s");
     assertThat(sort.defaultValue()).isEqualTo("name");
@@ -310,8 +310,8 @@ class SearchProjectsActionIT {
       .setParam(FIELDS, "_all")
       .execute().getInput();
 
-    assertJson(jsonResult).ignoreFields("id").isSimilarTo(underTest.getDef().responseExampleAsString());
-    assertJson(underTest.getDef().responseExampleAsString()).ignoreFields("id").isSimilarTo(jsonResult);
+    assertJson(jsonResult).ignoreFields("id", "uuid").isSimilarTo(underTest.getDef().responseExampleAsString());
+    assertJson(underTest.getDef().responseExampleAsString()).ignoreFields("id", "uuid").isSimilarTo(jsonResult);
 
     SearchProjectsWsResponse protobufResult = underTest.newRequest()
       .setParam(FACETS, COVERAGE)
@@ -1385,6 +1385,23 @@ class SearchProjectsActionIT {
       .containsExactly(
         tuple(privateProject.getKey(), privateProject.isPrivate() ? "private" : "public"),
         tuple(publicProject.getKey(), publicProject.isPrivate() ? "private" : "public"));
+  }
+
+  @Test
+  void return_project_uuid() {
+    userSession.logIn();
+    var project1 = db.components().insertPublicProject(componentDto -> componentDto.setName("proj_A")).getProjectDto();
+    var project2 = db.components().insertPublicProject(componentDto -> componentDto.setName("proj_B")).getProjectDto();
+    authorizationIndexerTester.allowOnlyAnyone(project1);
+    authorizationIndexerTester.allowOnlyAnyone(project2);
+    index();
+
+    SearchProjectsWsResponse result = call(request);
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey, Component::getUuid)
+      .containsExactly(
+        tuple(project1.getKey(), project1.getUuid()),
+        tuple(project2.getKey(), project2.getUuid()));
   }
 
   @ParameterizedTest

@@ -94,6 +94,7 @@ public class SearchAction implements ProjectsWsAction {
         Requires 'Administer System' permission""")
       .addPagingParams(100, MAX_PAGE_SIZE)
       .setResponseExample(getClass().getResource("search-example.json"))
+      .setChangelog(new Change("2025.6", "Response includes 'projectUuid' field."))
       .setChangelog(new Change("10.2", "Response includes 'managed' field."))
       .setChangelog(new Change("9.1", "The parameter '" + PARAM_ANALYZED_BEFORE + "' and the field 'lastAnalysisDate' of the returned projects "
         + "take into account the analysis of all branches and pull requests, not only the main branch."))

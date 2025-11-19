@@ -17,7 +17,8 @@
       "visibility": "public",
       "isAiCodeFixEnabled": false,
       "aiCodeAssurance": "NONE",
-      "containsAiCode": false
+      "containsAiCode": false,
+      "uuid": "b8758c08-c624-43dd-97ed-02708c581f38"
     },
     {
       "key": "another_project",
@@ -28,7 +29,8 @@
       "visibility": "public",
       "isAiCodeFixEnabled": false,
       "aiCodeAssurance": "NONE",
-      "containsAiCode": false
+      "containsAiCode": false,
+      "uuid": "465dd3a2-8b3c-416f-87c8-493ffb5f203e"
     },
     {
       "key": "third_project",
@@ -43,7 +45,8 @@
       "visibility": "public",
       "isAiCodeFixEnabled": false,
       "aiCodeAssurance": "NONE",
-      "containsAiCode": false
+      "containsAiCode": false,
+      "uuid": "e856618b-4556-4795-bb0e-0b64e409c533"
     }
   ],
   "facets": [

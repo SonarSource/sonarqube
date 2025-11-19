@@ -118,6 +118,7 @@ message Component {
   optional bool isAiCodeFixEnabled = 23;
   optional AiCodeAssurance aiCodeAssurance = 24;
   optional bool containsAiCode = 25;
+  optional string uuid = 26;
 
   message Tags {
     repeated string tags = 1;

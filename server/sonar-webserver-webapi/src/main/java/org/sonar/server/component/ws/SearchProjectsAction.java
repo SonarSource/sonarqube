@@ -136,6 +136,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .addPagingParams(DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE)
       .setInternal(true)
       .setChangelog(
+        new Change("2025.6", "Field 'uuid' response field has been added."),
         new Change("2025.1", "Field 'containsAiCode' response field has added."),
         new Change("2025.1", "Field 'isAiCodeAssured' response field has been removed."),
         new Change("10.8", "Field 'isAiCodeAssured' response field has been deprecated. Use 'aiCodeAssurance' instead."),
@@ -506,6 +507,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
         .setName(dbProject.getName())
         .setQualifier(dbProject.getQualifier())
         .setVisibility(Visibility.getLabel(dbProject.isPrivate()))
+        .setUuid(dbProject.getUuid())
         .setContainsAiCode(dbProject.getContainsAiCode() && aiCodeAssuranceEntitlement.isEnabled())
         .setAiCodeAssurance(Components.AiCodeAssurance.valueOf(aiCodeAssurance.name()))
         .setIsAiCodeFixEnabled(dbProject.getAiCodeFixEnabled());
