@@ -20,15 +20,19 @@
 
 import { ThemeProvider } from '@emotion/react';
 import styled from '@emotion/styled';
+import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { lightTheme, themeColor } from '~design-system';
 import A11yProvider from '~sonar-aligned/components/a11y/A11yProvider';
 import A11ySkipLinks from '~sonar-aligned/components/a11y/A11ySkipLinks';
+import { getChatBotFlag } from '../../api/settings';
 import SuggestionsProvider from '../../components/embed-docs-modal/SuggestionsProvider';
 import NCDAutoUpdateMessage from '../../components/new-code-definition/NCDAutoUpdateMessage';
 import Workspace from '../../components/workspace/Workspace';
-import GlobalFooterCodescan from './GlobalFooterCodescan';
+import BranchStatusContextProvider from './branch-status/BranchStatusContextProvider';
 import CalculationChangeMessage from './calculation-notification/CalculationChangeMessage';
+import ChatWidget from './ChatWidget';
+import GlobalFooterCodescan from './GlobalFooterCodescan';
 import IndexationContextProvider from './indexation/IndexationContextProvider';
 import IndexationNotification from './indexation/IndexationNotification';
 import LanguagesContextProvider from './languages/LanguagesContextProvider';
@@ -38,7 +42,6 @@ import GlobalNav from './nav/global/GlobalNav';
 import StartupModal from './StartupModal';
 import SystemAnnouncement from './SystemAnnouncement';
 import { UpdateNotification } from './update-notification/UpdateNotification';
-import BranchStatusContextProvider from './branch-status/BranchStatusContextProvider';
 
 /*
  * These pages need a white background (aka 'secondary', rather than the default 'primary')
@@ -76,8 +79,23 @@ const PAGES_WITH_SECONDARY_BACKGROUND = [
 ];
 
 export default function GlobalContainer() {
-  // it is important to pass `location` down to `GlobalNav` to trigger render on url change
+  const [isChatEnabled, setIsChatEnabled] = useState(false); 
   const location = useLocation();
+
+  useEffect(() => {
+    async function fetchChatBotFlag() {
+      try {
+        const chatEnabled = await getChatBotFlag();
+        const isEnabled =
+          chatEnabled.settings.find((s) => s.key === 'codescan.chatbot.enabled').value === 'true';
+        setIsChatEnabled(isEnabled); // Update state
+      } catch (error) {
+        console.error('Error fetching chatbot flag:', error);
+      }
+    }
+
+    fetchChatBotFlag();
+  }, []); 
 
   return (
     <ThemeProvider theme={lightTheme}>
@@ -85,6 +103,7 @@ export default function GlobalContainer() {
         <A11yProvider>
           <A11ySkipLinks />
           <GlobalContainerWrapper>
+            {isChatEnabled && <ChatWidget />}
             <GlobalBackground
               secondary={PAGES_WITH_SECONDARY_BACKGROUND.includes(location.pathname)}
               className="sw-box-border sw-flex-[1_0_auto]"
@@ -104,8 +123,8 @@ export default function GlobalContainer() {
                           <ModeTour />
                           <CalculationChangeMessage />
                           {/* The following is the portal anchor point for the component nav
-                          * See ComponentContainer.tsx
-                          */}
+                           * See ComponentContainer.tsx
+                           */}
                           <div id="component-nav-portal" />
                         </div>
                         <Outlet />

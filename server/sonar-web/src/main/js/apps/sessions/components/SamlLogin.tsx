@@ -27,8 +27,10 @@ import './SamlLogin.css';
 import DataAccessConsent from './DataAccessConsent';
 import { getAccessConsentMessage } from '../../../api/settings';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { clearChatSession } from './Login';
 
 export default function SamlLogin() {
+  clearChatSession();
   const location = useLocation();
 
   const navigate = useNavigate();

@@ -105,7 +105,7 @@ export class LoginContainer extends React.PureComponent<Props, State> {
 
   handleSubmit = (id: string, password: string) => {
     return logIn(id, password)
-      .then(this.handleSuccessfulLogin)
+      .then(this.handleSuccessfulLogin).then(()=>sessionStorage.removeItem('chatMessages'))
       .catch(() => {
         addGlobalErrorMessage(translate('login.authentication_failed'));
         return Promise.reject();
