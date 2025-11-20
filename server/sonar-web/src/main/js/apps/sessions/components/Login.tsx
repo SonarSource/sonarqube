@@ -51,7 +51,7 @@ export interface LoginProps {
 }
 
 export default function Login(props: Readonly<LoginProps>) {
-   clearChatSession();
+  clearChatSession();
   const { identityProviders, loading, location, message, accessConsentMessage } = props;
   const returnTo = getReturnUrl(location);
   const displayError = Boolean(location.query.authorizationError);
