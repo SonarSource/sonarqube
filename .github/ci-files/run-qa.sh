@@ -80,6 +80,8 @@ fi
 set +e
 
 ./gradlew $BUILD_TASK \
+  -Dazure.pat="${AZURE_PAT}" \
+  -Dgitlab.pat="${GITLAB_PAT}" \
   -Pqa \
   --console plain --build-cache --parallel --profile -x jar
 
@@ -89,6 +91,8 @@ set +e
   -DbuildNumber=$BUILD_NUMBER \
   -Dcategory=$QA_CATEGORY \
   -Dorchestrator.configUrl=file:///$GITHUB_WORKSPACE/.github/ci-files/config/orchestrator-$ORCHESTRATOR_CONFIG.properties \
+  -Dazure.pat="${AZURE_PAT}" \
+  -Dgitlab.pat="${GITLAB_PAT}" \
   -Pqa \
   --console plain --build-cache --profile -x jar
 
