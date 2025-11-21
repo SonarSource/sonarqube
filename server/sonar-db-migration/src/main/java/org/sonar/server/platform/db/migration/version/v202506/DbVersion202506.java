@@ -44,6 +44,8 @@ public class DbVersion202506 implements DbVersion {
       .add(2025_06_014, "Populate 'issue_stats_by_rule_key'", PopulateIssueStatsByRuleKey.class)
       .add(2025_06_015, "Add 'created_by' column to 'jira_work_items' table", AddCreatedByColumnToJiraWorkItemsTable.class)
       .add(2025_06_016, "Add index based on 'resource_id' and 'resource_type' to 'jira_work_items_resources' table", AddResourceIndexForJiraWorkItemsResourcesTable.class)
+      .add(2025_06_017, "Remove unique index from 'user_bindings' table", RemoveUniqueIndexFromUserBindingsTable.class)
+      .add(2025_06_018, "Create index on 'user_uuid' column in 'user_bindings' table", CreateIndexOnUserBindingsUserUuid.class)
     ;
   }
 
