@@ -71,8 +71,4 @@ public class ModuleTest {
 
     assertThat(container.getAddedObjects()).hasSize(2);
   }
-
-  private static int sizeOf(SpringComponentContainer container) {
-    return container.context.getBeanDefinitionCount();
-  }
 }

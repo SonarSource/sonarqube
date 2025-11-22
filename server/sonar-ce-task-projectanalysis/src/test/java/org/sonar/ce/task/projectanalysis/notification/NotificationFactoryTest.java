@@ -38,7 +38,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.Durations;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
@@ -738,21 +737,6 @@ public class NotificationFactoryTest {
     when(nonMainBranch.getType()).thenReturn(branchType);
     when(nonMainBranch.getName()).thenReturn(branchName);
     return nonMainBranch;
-  }
-
-  private static Durations readDurationsField(NewIssuesNotification notification) {
-    return readField(notification, "durations");
-  }
-
-  private static Durations readField(NewIssuesNotification notification, String fieldName) {
-    try {
-      Field durationsField = NewIssuesNotification.class.getDeclaredField(fieldName);
-      durationsField.setAccessible(true);
-      Object o = durationsField.get(notification);
-      return (Durations) o;
-    } catch (IllegalAccessException | NoSuchFieldException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   private static DetailsSupplier readDetailsSupplier(NewIssuesNotification notification) {

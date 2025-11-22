@@ -28,10 +28,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -438,16 +436,6 @@ public class ChangesOnMyIssueNotificationHandlerTest {
 
   private static Rule newRule() {
     return newRandomNotAHotspotRule(secure().nextAlphabetic(5));
-  }
-
-  private static Set<IssuesChangesNotification> randomSetOfNotifications(@Nullable String projectKey, @Nullable String assignee, @Nullable String changeAuthor) {
-    return IntStream.range(0, 1 + new Random().nextInt(5))
-      .mapToObj(i -> newNotification(projectKey, assignee, changeAuthor))
-      .collect(Collectors.toSet());
-  }
-
-  private static IssuesChangesNotification newNotification(@Nullable String projectKey, @Nullable String assignee, @Nullable String changeAuthor) {
-    return mock(IssuesChangesNotification.class);
   }
 
   private static NotificationManager.EmailRecipient emailRecipientOf(String login) {

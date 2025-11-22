@@ -78,24 +78,6 @@ public class EventComponentChangeDto {
     return this;
   }
 
-  /**
-   * Used by MyBatis through reflection.
-   */
-  private String getChangeCategory() {
-    return category == null ? null : category.dbValue;
-  }
-
-  /**
-   * Used by MyBatis through reflection.
-   *
-   * @throws IllegalArgumentException if not a support change category DB value
-   */
-  private EventComponentChangeDto setChangeCategory(String changeCategory) {
-    this.category = ChangeCategory.fromDbValue(changeCategory)
-      .orElseThrow(() -> new IllegalArgumentException("Unsupported changeCategory DB value: " + changeCategory));
-    return this;
-  }
-
   public String getComponentUuid() {
     return componentUuid;
   }
@@ -135,12 +117,5 @@ public class EventComponentChangeDto {
 
   public long getCreatedAt() {
     return createdAt;
-  }
-
-  /**
-   * Used by MyBatis through reflection.
-   */
-  private void setCreatedAt(long createdAt) {
-    this.createdAt = createdAt;
   }
 }

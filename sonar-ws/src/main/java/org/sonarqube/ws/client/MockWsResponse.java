@@ -33,7 +33,7 @@ import java.util.Optional;
 import org.sonarqube.ws.MediaTypes;
 
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toMap;
 
 public class MockWsResponse extends BaseResponse {
 

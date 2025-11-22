@@ -21,7 +21,6 @@ package org.sonar.server.common.health;
 
 import org.junit.Test;
 import org.sonar.server.app.ProcessCommandWrapper;
-import org.sonar.server.common.health.CeStatusNodeCheck;
 import org.sonar.server.health.Health;
 
 import static org.assertj.core.api.Assertions.assertThat;
