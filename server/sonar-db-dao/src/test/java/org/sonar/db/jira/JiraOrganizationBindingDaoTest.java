@@ -65,7 +65,8 @@ class JiraOrganizationBindingDaoTest {
       .setJiraRefreshToken("refresh-token")
       .setJiraRefreshTokenCreatedAt(1000L)
       .setJiraRefreshTokenUpdatedAt(1000L)
-      .setUpdatedBy("user-uuid");
+      .setUpdatedBy("user-uuid")
+      .setIsTokenShared(true);
 
     var result = underTest.insert(db.getSession(), dto);
 
@@ -80,7 +81,7 @@ class JiraOrganizationBindingDaoTest {
     assertThat(result.getJiraRefreshTokenUpdatedAt()).isEqualTo(1000L);
     assertThat(result.getJiraAccessToken()).isEqualTo("access-token");
     assertThat(result.getJiraAccessTokenExpiresAt()).isEqualTo(2000L);
-
+    assertThat(result.isTokenShared()).isTrue();
   }
 
   @Test
@@ -96,13 +97,15 @@ class JiraOrganizationBindingDaoTest {
       .setJiraRefreshToken("refresh-token")
       .setJiraRefreshTokenCreatedAt(1000L)
       .setJiraRefreshTokenUpdatedAt(1000L)
-      .setUpdatedBy("user-uuid");
+      .setUpdatedBy("user-uuid")
+      .setIsTokenShared(false);
 
     underTest.insert(db.getSession(), dto);
 
     // Update the dto
     dto.setJiraAccessToken("new-access-token");
     dto.setJiraAccessTokenExpiresAt(3000L);
+    dto.setIsTokenShared(true);
 
     var updated = underTest.update(db.getSession(), dto);
 
@@ -110,11 +113,13 @@ class JiraOrganizationBindingDaoTest {
     assertThat(updated.getJiraAccessTokenExpiresAt()).isEqualTo(3000L);
     assertThat(updated.getCreatedAt()).isEqualTo(1000L);
     assertThat(updated.getUpdatedAt()).isEqualTo(2000L);
+    assertThat(updated.isTokenShared()).isTrue();
 
     var found = underTest.selectById(db.getSession(), "binding-1");
     assertThat(found).isPresent();
     assertThat(found.get().getJiraAccessToken()).isEqualTo("new-access-token");
     assertThat(found.get().getUpdatedAt()).isEqualTo(2000L);
+    assertThat(found.get().isTokenShared()).isTrue();
   }
 
   @Test

@@ -35,6 +35,7 @@ public final class JiraOrganizationBindingDto implements Serializable {
   private long jiraRefreshTokenCreatedAt;
   private long jiraRefreshTokenUpdatedAt;
   private String updatedBy;
+  private boolean isTokenShared;
 
   public JiraOrganizationBindingDto() {
     // Sonar rule S1258
@@ -145,6 +146,15 @@ public final class JiraOrganizationBindingDto implements Serializable {
 
   public JiraOrganizationBindingDto setUpdatedBy(String updatedBy) {
     this.updatedBy = updatedBy;
+    return this;
+  }
+
+  public boolean isTokenShared() {
+    return isTokenShared;
+  }
+
+  public JiraOrganizationBindingDto setIsTokenShared(boolean isTokenShared) {
+    this.isTokenShared = isTokenShared;
     return this;
   }
 }

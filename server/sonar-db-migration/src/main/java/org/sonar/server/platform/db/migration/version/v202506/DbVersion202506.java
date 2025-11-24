@@ -46,6 +46,7 @@ public class DbVersion202506 implements DbVersion {
       .add(2025_06_016, "Add index based on 'resource_id' and 'resource_type' to 'jira_work_items_resources' table", AddResourceIndexForJiraWorkItemsResourcesTable.class)
       .add(2025_06_017, "Remove unique index from 'user_bindings' table", RemoveUniqueIndexFromUserBindingsTable.class)
       .add(2025_06_018, "Create index on 'user_uuid' column in 'user_bindings' table", CreateIndexOnUserBindingsUserUuid.class)
+      .add(2025_06_019, "Add 'is_token_shared' column to 'jira_org_bindings' table", AddIsTokenSharedToJiraOrgBindingsTable.class)
     ;
   }
 
