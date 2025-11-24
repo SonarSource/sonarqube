@@ -1,18 +1,6 @@
 name: Build
 on:
   pull_request:
-    branches-ignore:
-      - 'dogfood/**'
-  push:
-    branches:
-      - 'master'
-      - 'branch-*'
-    branches-ignore:
-      - 'public_master'
-      - 'dogfood/**'
-    tags-ignore:
-      - '**'
-  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -39,6 +27,6 @@ jobs:
         with:
           deploy: false
           artifactory-reader-role: private-reader
-          artifactory-deployer-role: private-reader
+          artifactory-deployer-role: qa-deployer
           sonar-platform: next
           gradle-args: "-Dsonar.projectKey=sonarqube -Dsonar.organization=sonarsource -Dsonar.exclusions=**/design-system/theme/**,**/legacy-design-system/**"
