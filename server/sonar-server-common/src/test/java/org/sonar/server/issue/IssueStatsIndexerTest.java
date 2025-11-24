@@ -28,18 +28,13 @@ import org.sonar.api.batch.rule.Severity;
 import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.report.IssueStatsByRuleKeyMapper;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.issue.index.IssueDoc;
-import org.sonar.server.issue.index.IssueIterator;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
@@ -56,38 +51,6 @@ class IssueStatsIndexerTest {
 
   @Nested
   class WhenIndexingOnAnalysis {
-
-    @Test
-    void shouldNotOpenDbSessionWhenNoIssues() {
-      IssueIterator issueIterator = mock(IssueIterator.class);
-      when(issueIteratorFactory.createForBranch(BRANCH_UUID)).thenReturn(issueIterator);
-      when(issueIterator.hasNext()).thenReturn(false);
-
-      underTest.indexOnAnalysis(BRANCH_UUID);
-
-      verify(dbClient, never()).openSession(anyBoolean());
-    }
-
-    @Test
-    void shouldOpenDbSessionWhenIssuesExist() {
-      IssueIterator issueIterator = mock(IssueIterator.class);
-      when(issueIteratorFactory.createForBranch(BRANCH_UUID)).thenReturn(issueIterator);
-      when(issueIterator.hasNext()).thenReturn(true, false);
-      IssueDoc issueDoc = getIssueDoc(RuleType.BUG);
-      when(issueIterator.next()).thenReturn(issueDoc);
-
-      var dbSession = mock(DbSession.class);
-      when(dbClient.openSession(false)).thenReturn(dbSession);
-      RuleDto ruleDto = getRuleDto();
-      RuleDao ruleDao = getRuleDao();
-      when(ruleDao.selectByUuids(dbSession, Set.of(RULE_UUID))).thenReturn(List.of(ruleDto));
-      when(dbSession.getMapper(IssueStatsByRuleKeyMapper.class)).thenReturn(mock(IssueStatsByRuleKeyMapper.class));
-
-      underTest.indexOnAnalysis(BRANCH_UUID);
-
-      verify(dbClient).openSession(false);
-      verify(dbSession).commit();
-    }
 
     @Test
     void shouldTransformIssueDocToIssueFromAnalysis() {

@@ -21,18 +21,22 @@ package org.sonar.server.issue;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.sonarcloud.compliancereports.dao.AggregationType;
+import io.sonarcloud.compliancereports.dao.IssueStats;
 import io.sonarcloud.compliancereports.ingestion.IssueFromAnalysis;
 import io.sonarcloud.compliancereports.ingestion.IssueIngestionService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.entity.EntityDto;
+import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.AnalysisIndexer;
 import org.sonar.server.issue.index.IssueDoc;
@@ -56,20 +60,50 @@ public class IssueStatsIndexer implements AnalysisIndexer {
 
   @Override
   public void indexOnAnalysis(String branchUuid) {
+    try (var dbSession = dbClient.openSession(false)) {
+      EntityDto entity = dbClient.entityDao().selectByUuid(dbSession, branchUuid)
+        .or(() -> dbClient.entityDao().selectByComponentUuid(dbSession, branchUuid))
+        .orElseThrow(() -> new IllegalStateException("Can't find entity for uuid " + branchUuid));
+
+      if (entity.isPortfolio()) {
+        ingestForPortfolio(dbSession, branchUuid);
+      } else {
+        ingestForSingleBranch(dbSession, branchUuid);
+      }
+    } catch (Exception e) {
+      LOGGER.warn("Error ingesting issues for compliance reports", e);
+    }
+  }
+
+  private void ingestForPortfolio(DbSession dbSession, String portfolioUuid) {
+    var projectBranchUuids = dbClient.componentDao().selectProjectBranchUuidsFromView(dbSession, portfolioUuid, portfolioUuid);
+    var dao = new IssueStatsByRuleKeyDaoImpl(dbClient);
+    Map<String, IssueStats> issueStatsByRuleKey = dao.loadAllIssueStatsForProjectBranches(projectBranchUuids).stream()
+      .collect(Collectors.toMap(IssueStats::ruleKey, Function.identity(), IssueStatsIndexer::mergeIssueStats));
+    dao.deleteAndInsertIssueStats(portfolioUuid, AggregationType.PORTFOLIO, new ArrayList<>(issueStatsByRuleKey.values()));
+    dbSession.commit();
+  }
+
+  private static IssueStats mergeIssueStats(IssueStats a, IssueStats b) {
+    return new IssueStats(
+      a.ruleKey(),
+      a.issueCount() + b.issueCount(),
+      Math.max(a.rating(), b.rating()),
+      a.hotspotCount() + b.hotspotCount(),
+      a.hotspotsReviewed() + b.hotspotsReviewed()
+    );
+  }
+
+  private void ingestForSingleBranch(DbSession dbSession, String branchUuid) {
     try (IssueIterator issues = issueIteratorFactory.createForBranch(branchUuid)) {
-
-      var issuesWithRuleUuids = getIssuesFromIssuesTable(issues);
-
+      List<IssueWithRuleUuidDto> issuesWithRuleUuids = getIssuesFromIssuesTable(issues);
       if (issuesWithRuleUuids.isEmpty()) {
         return;
       }
-      try (var dbSession = dbClient.openSession(false)) {
-        var issuesForIngestion = transformToRepositoryRuleIssuesDtos(issuesWithRuleUuids, dbSession);
-        issueIngestionService.ingest(branchUuid, AggregationType.PROJECT, issuesForIngestion);
-        dbSession.commit();
-      } catch (Exception e) {
-        LOGGER.warn("Error ingesting issues for compliance reports", e);
-      }
+
+      var issuesForIngestion = transformToRepositoryRuleIssuesDtos(issuesWithRuleUuids, dbSession);
+      issueIngestionService.ingest(branchUuid, AggregationType.PROJECT, issuesForIngestion);
+      dbSession.commit();
     }
   }
 

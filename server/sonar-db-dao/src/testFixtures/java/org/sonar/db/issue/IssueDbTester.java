@@ -180,6 +180,13 @@ public class IssueDbTester {
     return insertHotspot(rule, project.getMainBranchComponent(), file, populators);
   }
 
+  public final IssueDto insertHotspot(RuleDto rule, BranchDto branch, ComponentDto file, Consumer<IssueDto>... populators) {
+    IssueDto issue = newIssue(rule, branch, file)
+      .setStatus(Issue.STATUS_TO_REVIEW);
+    stream(populators).forEach(p -> p.accept(issue));
+    return insertHotspot(issue);
+  }
+
   public final IssueDto insertHotspot(BranchDto branchDto, ComponentDto file, Consumer<IssueDto>... populators) {
     RuleDto rule = db.rules().insertHotspotRule();
     IssueDto issue = newIssue(rule, branchDto, file)

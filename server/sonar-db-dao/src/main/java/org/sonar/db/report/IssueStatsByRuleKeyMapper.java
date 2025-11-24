@@ -25,9 +25,15 @@ import org.apache.ibatis.annotations.Param;
 
 public interface IssueStatsByRuleKeyMapper {
 
-  List<IssueStats> selectByAggregationId(String aggregationId);
+  List<IssueStats> selectByAggregationId(@Param("aggregationId") String aggregationId, @Param("aggregationType") String aggregationType);
 
-  void insertIssueStatsForProject(@Param("aggregationId") String aggregationId, @Param("list") List<IssueStats> list);
+  List<IssueStats> selectByAggregationIds(@Param("aggregationIds") List<String> aggregationIds, @Param("aggregationType") String aggregationType);
 
-  void deleteAllIssueStatsForProject(String aggregationId);
+  void insertIssueStats(
+    @Param("aggregationId") String aggregationId,
+    @Param("aggregationType") String aggregationType,
+    @Param("list") List<IssueStats> list
+  );
+
+  void deleteAllIssueStats(@Param("aggregationId") String aggregationId, @Param("aggregationType") String aggregationType);
 }
