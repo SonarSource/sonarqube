@@ -21,7 +21,6 @@ package org.sonar.scanner.sca;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -32,8 +31,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
@@ -79,6 +76,7 @@ public class CliService {
   public File generateManifestsArchive(DefaultInputModule module, File cliExecutable, DefaultConfiguration configuration) throws IOException, IllegalStateException {
     long startTime = system2.now();
     boolean success = false;
+    Path excludesFilePath = null;
     try {
       String archiveName = "dependency-files.tar.xz";
       Path archivePath = module.getWorkDir().resolve(archiveName);
@@ -93,10 +91,10 @@ public class CliService {
       args.add(module.getBaseDir().toString());
       args.add("--recursive");
 
-      String excludeFlag = getExcludeFlag(module, configuration);
-      if (excludeFlag != null) {
-        args.add("--exclude");
-        args.add(excludeFlag);
+      excludesFilePath = createExcludesFile(module, configuration);
+      if (excludesFilePath != null) {
+        args.add("--exclude-from-file");
+        args.add(excludesFilePath.toAbsolutePath().toString());
       }
 
       if (LOG.isDebugEnabled()) {
@@ -121,12 +119,21 @@ public class CliService {
       success = true;
       return archivePath.toFile();
     } finally {
+      // Clean up the temporary exclusions file
+      if (excludesFilePath != null) {
+        try {
+          Files.deleteIfExists(excludesFilePath);
+        } catch (IOException e) {
+          LOG.warn("Failed to delete temporary exclusions file: {}", excludesFilePath, e);
+        }
+      }
       telemetryCache.put("scanner.sca.execution.cli.duration", String.valueOf(system2.now() - startTime));
       telemetryCache.put("scanner.sca.execution.cli.success", String.valueOf(success));
     }
   }
 
-  private @Nullable String getExcludeFlag(DefaultInputModule module, DefaultConfiguration configuration) throws IOException {
+  // public for testing purposes
+  public List<String> getAllExcludedPaths(DefaultInputModule module, DefaultConfiguration configuration) {
     List<String> configExcludedPaths = getConfigExcludedPaths(configuration, projectExclusionFilters);
     List<String> scmIgnoredPaths = getScmIgnoredPaths(module);
 
@@ -139,12 +146,19 @@ public class CliService {
       mergedExclusionPaths.add(workDirExcludedPath);
     }
 
+    return mergedExclusionPaths;
+  }
+
+  private @Nullable Path createExcludesFile(DefaultInputModule module, DefaultConfiguration configuration) throws IOException {
+    List<String> mergedExclusionPaths = getAllExcludedPaths(module, configuration);
     if (mergedExclusionPaths.isEmpty()) {
       return null;
     }
 
-    // wrap each exclusion path in quotes to handle commas in file paths
-    return toCsvString(mergedExclusionPaths);
+    // Create a temporary file for exclusions, one per line
+    Path excludesFile = Files.createTempFile(module.getWorkDir(), "sca-exclusions-", ".txt");
+    Files.write(excludesFile, mergedExclusionPaths);
+    return excludesFile;
   }
 
   private static List<String> getConfigExcludedPaths(DefaultConfiguration configuration, ProjectExclusionFilters projectExclusionFilters) {
@@ -201,14 +215,5 @@ public class CliService {
     }
 
     return null;
-  }
-
-  private static String toCsvString(List<String> values) throws IOException {
-    StringWriter sw = new StringWriter();
-    try (CSVPrinter printer = new CSVPrinter(sw, CSVFormat.DEFAULT)) {
-      printer.printRecord(values);
-    }
-    // trim to remove the trailing newline
-    return sw.toString().trim();
   }
 }

@@ -113,7 +113,8 @@ class CliServiceTest {
 
     assertThat(producedArchive).exists();
 
-    var expectedArguments = List.of(
+    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
+    var expectedArgs = List.of(
       "projects",
       "save-lockfiles",
       "--xz",
@@ -122,11 +123,12 @@ class CliServiceTest {
       "--directory",
       rootInputModule.getBaseDir().toString(),
       "--recursive",
-      "--exclude",
-      "foo,bar,baz/**,ignored.txt,.scannerwork/**");
+      "--exclude-from-file",
+      "sca-exclusions-",
+      ".txt");
+    assertThat(capturedArgs).containsSubsequence(expectedArgs);
 
     assertThat(logTester.logs(INFO))
-      .contains("Arguments Passed In: " + String.join(" ", expectedArguments))
       .contains("TIDELIFT_SKIP_UPDATE_CHECK=1")
       .contains("TIDELIFT_ALLOW_MANIFEST_FAILURES=1")
       .contains("Generated manifests archive file: " + producedArchive.getName());
@@ -143,7 +145,8 @@ class CliServiceTest {
 
     underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
 
-    var expectedArguments = List.of(
+    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
+    var expectedArgs = List.of(
       "projects",
       "save-lockfiles",
       "--xz",
@@ -152,12 +155,11 @@ class CliServiceTest {
       "--directory",
       rootInputModule.getBaseDir().toString(),
       "--recursive",
-      "--exclude",
-      "ignored.txt,.scannerwork/**",
+      "--exclude-from-file",
+      "sca-exclusions-",
+      ".txt",
       "--debug");
-
-    assertThat(logTester.logs(INFO))
-      .contains("Arguments Passed In: " + String.join(" ", expectedArguments));
+    assertThat(capturedArgs).containsSubsequence(expectedArgs);
   }
 
   @Test
@@ -166,7 +168,8 @@ class CliServiceTest {
 
     underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
 
-    var expectedArguments = List.of(
+    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
+    var expectedArgs = List.of(
       "projects",
       "save-lockfiles",
       "--xz",
@@ -175,11 +178,10 @@ class CliServiceTest {
       "--directory",
       rootInputModule.getBaseDir().toString(),
       "--recursive",
-      "--exclude",
-      "ignored.txt,.scannerwork/**");
-
-    assertThat(logTester.logs(INFO))
-      .contains("Arguments Passed In: " + String.join(" ", expectedArguments));
+      "--exclude-from-file",
+      "sca-exclusions-",
+      ".txt");
+    assertThat(capturedArgs).containsSubsequence(expectedArgs);
   }
 
   @Test
@@ -192,145 +194,133 @@ class CliServiceTest {
   }
 
   @Test
-  void generateManifestsArchive_includesIgnoredPathsFromGitProvider() throws Exception {
-    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
+  void generateManifestsArchive_withNoExcludes_shouldNotCreateExcludesFile() throws IOException, URISyntaxException {
+    // Setup: external work dir (no .scannerwork/** exclude) + no SCM ignores = no excludes at all
+    Path externalWorkDir = Files.createTempDirectory("externalWorkDir");
+    try {
+      rootInputModule = new DefaultInputModule(ProjectDefinition.create().setBaseDir(rootModuleDir.toFile()).setWorkDir(externalWorkDir.toFile()));
+      jGitUtilsMock.when(() -> JGitUtils.getAllIgnoredPaths(any(Path.class))).thenReturn(List.of());
 
-    var expectedArguments = List.of(
-      "projects",
-      "save-lockfiles",
-      "--xz",
-      "--xz-filename",
-      rootInputModule.getWorkDir().resolve("dependency-files.tar.xz").toString(),
-      "--directory",
-      rootInputModule.getBaseDir().toString(),
-      "--recursive",
-      "--exclude",
-      "ignored.txt,.scannerwork/**");
+      assertThat(rootModuleDir.resolve("test_file").toFile().createNewFile()).isTrue();
 
-    assertThat(logTester.logs(INFO))
-      .contains("Arguments Passed In: " + String.join(" ", expectedArguments))
-      .contains("TIDELIFT_SKIP_UPDATE_CHECK=1")
-      .contains("TIDELIFT_ALLOW_MANIFEST_FAILURES=1")
-      .contains("TIDELIFT_CLI_INSIDE_SCANNER_ENGINE=1")
-      .contains("TIDELIFT_CLI_SQ_SERVER_VERSION=1.0.0");
+      File producedArchive = underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
 
+      assertThat(producedArchive).exists();
+
+      String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
+      var expectedArgs = List.of(
+        "projects",
+        "save-lockfiles",
+        "--xz",
+        "--xz-filename",
+        externalWorkDir.resolve("dependency-files.tar.xz").toString(),
+        "--directory",
+        rootModuleDir.toString(),
+        "--recursive");
+      assertThat(capturedArgs).containsSubsequence(expectedArgs);
+      assertThat(capturedArgs)
+        .doesNotContain("--exclude-from-file")
+        .doesNotContain("sca-exclusions-");
+    } finally {
+      externalWorkDir.toFile().delete();
+    }
   }
 
   @Test
-  void generateManifestsArchive_withNoScm_doesNotIncludeScmIgnoredPaths() throws Exception {
+  void getAllExcludedPaths_includesIgnoredPathsFromGitProvider() {
+    List<String> excludes = underTest.getAllExcludedPaths(rootInputModule, configuration);
+
+    assertThat(excludes).containsExactlyInAnyOrder("ignored.txt", ".scannerwork/**");
+  }
+
+  @Test
+  void getAllExcludedPaths_withNoScm_doesNotIncludeScmIgnoredPaths() {
     when(scmConfiguration.provider()).thenReturn(null);
 
-    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
-
-    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
-    assertThat(capturedArgs).contains("--exclude .scannerwork/**");
+    List<String> excludes = underTest.getAllExcludedPaths(rootInputModule, configuration);
+    assertThat(excludes).containsExactlyInAnyOrder(".scannerwork/**");
   }
 
   @Test
-  void generateManifestsArchive_withNonGit_doesNotIncludeScmIgnoredPaths() throws Exception {
+  void getAllExcludedPaths_withNonGit_doesNotIncludeScmIgnoredPaths() {
     when(scmProvider.key()).thenReturn("notgit");
 
-    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
-
-    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
-    assertThat(capturedArgs).contains("--exclude .scannerwork/**");
+    List<String> excludes = underTest.getAllExcludedPaths(rootInputModule, configuration);
+    assertThat(excludes).containsExactlyInAnyOrder(".scannerwork/**");
   }
 
   @Test
-  void generateManifestsArchive_withScmExclusionDisabled_doesNotIncludeScmIgnoredPaths() throws Exception {
+  void getAllExcludedPaths_withScmExclusionDisabled_doesNotIncludeScmIgnoredPaths() {
     when(scmConfiguration.isExclusionDisabled()).thenReturn(true);
 
-    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
-
-    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
-    assertThat(capturedArgs).contains("--exclude .scannerwork/**");
+    List<String> excludes = underTest.getAllExcludedPaths(rootInputModule, configuration);
+    assertThat(excludes).containsExactlyInAnyOrder(".scannerwork/**");
   }
 
   @Test
-  void generateManifestsArchive_withNoScmIgnores_doesNotIncludeScmIgnoredPaths() throws Exception {
+  void getAllExcludedPaths_withNoScmIgnores_doesNotIncludeScmIgnoredPaths() {
     jGitUtilsMock.when(() -> JGitUtils.getAllIgnoredPaths(any(Path.class))).thenReturn(List.of());
 
-    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
-
-    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
-    assertThat(capturedArgs).contains("--exclude .scannerwork/**");
+    List<String> excludes = underTest.getAllExcludedPaths(rootInputModule, configuration);
+    assertThat(excludes).containsExactlyInAnyOrder(".scannerwork/**");
   }
 
   @Test
-  void generateManifestsArchive_withExcludedManifests_appendsScmIgnoredPaths() throws Exception {
+  void getAllExcludedPaths_withExcludedManifests_appendsScmIgnoredPaths() {
     when(configuration.getStringArray(CliService.SCA_EXCLUSIONS_KEY)).thenReturn(new String[] {"**/test/**"});
 
-    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
-
-    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
-    assertThat(capturedArgs).contains("--exclude **/test/**,ignored.txt,.scannerwork/**");
+    List<String> excludes = underTest.getAllExcludedPaths(rootInputModule, configuration);
+    assertThat(excludes).containsExactlyInAnyOrder(".scannerwork/**", "**/test/**", "ignored.txt");
   }
 
   @Test
-  void generateManifestsArchive_withExcludedManifestsContainingBadCharacters_handlesTheBadCharacters() throws Exception {
+  void getAllExcludedPaths_withExcludedManifestsContainingBadCharacters_handlesTheBadCharacters() {
     when(configuration.getStringArray(CliService.SCA_EXCLUSIONS_KEY)).thenReturn(new String[] {
       "**/test/**", "**/path with spaces/**", "**/path'with'quotes/**", "**/path\"with\"double\"quotes/**"});
 
-    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
-
-    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
-
-    String expectedExcludeFlag = """
-       --exclude **/test/**,**/path with spaces/**,**/path'with'quotes/**,"**/path""with""double""quotes/**",ignored.txt
-      """.strip();
-    if (SystemUtils.IS_OS_WINDOWS) {
-      expectedExcludeFlag = """
-         --exclude "**/test/**,**/path with spaces/**,**/path'with'quotes/**,"**/path""with""double""quotes/**",ignored.txt
-        """.strip();
-    }
-    assertThat(capturedArgs).contains(expectedExcludeFlag);
+    List<String> excludes = underTest.getAllExcludedPaths(rootInputModule, configuration);
+    assertThat(excludes).containsExactlyInAnyOrder("**/test/**",
+      "**/path with spaces/**",
+      "**/path'with'quotes/**",
+      "**/path\"with\"double\"quotes/**",
+       "ignored.txt",
+       ".scannerwork/**");
   }
 
   @Test
-  void generateManifestsArchive_withExcludedManifestsContainingDupes_dedupes() throws Exception {
+  void getAllExcludedPaths_withExcludedManifestsContainingDupes_dedupes() {
     when(configuration.getStringArray(CliService.SCA_EXCLUSIONS_KEY)).thenReturn(new String[] {"**/test1/**", "**/test2/**", "**/test1/**"});
     when(configuration.getStringArray(CliService.LEGACY_SCA_EXCLUSIONS_KEY)).thenReturn(new String[] {"**/test1/**", "**/test3/**"});
 
-    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
-
-    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
-    assertThat(capturedArgs).contains("--exclude **/test1/**,**/test2/**,**/test3/**,ignored.txt,.scannerwork/**");
+    List<String> excludes = underTest.getAllExcludedPaths(rootInputModule, configuration);
+    assertThat(excludes).containsExactlyInAnyOrder(".scannerwork/**", "**/test1/**", "**/test2/**", "**/test3/**", "ignored.txt");
   }
 
   @Test
-  void generateManifestsArchive_withExcludedManifestsAndSonarExcludesContainingDupes_mergesAndDedupes() throws Exception {
+  void getAllExcludedPaths_withExcludedManifestsAndSonarExcludesContainingDupes_mergesAndDedupes() {
     when(projectExclusionFilters.getExclusionsConfig(InputFile.Type.MAIN)).thenReturn(new String[] {"**/test1/**", "**/test4/**"});
     when(configuration.getStringArray(CliService.SCA_EXCLUSIONS_KEY)).thenReturn(new String[] {"**/test1/**", "**/test2/**", "**/test1/**"});
     when(configuration.getStringArray(CliService.LEGACY_SCA_EXCLUSIONS_KEY)).thenReturn(new String[] {"**/test1/**", "**/test3/**"});
 
-    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
-
-    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
-    assertThat(capturedArgs).contains("--exclude **/test1/**,**/test4/**,**/test2/**,**/test3/**,ignored.txt,.scannerwork/**");
+    List<String> excludes = underTest.getAllExcludedPaths(rootInputModule, configuration);
+    assertThat(excludes).containsExactlyInAnyOrder(".scannerwork/**", "**/test1/**", "**/test2/**", "**/test3/**", "**/test4/**", "ignored.txt");
   }
 
   @Test
-  void generateManifestsArchive_withScmIgnoresContainingBadCharacters_handlesTheBadCharacters() throws Exception {
+  void getAllExcludedPaths_withScmIgnoresContainingBadCharacters_handlesTheBadCharacters() {
     jGitUtilsMock.when(() -> JGitUtils.getAllIgnoredPaths(any(Path.class)))
       .thenReturn(List.of("**/test/**", "**/path with spaces/**", "**/path'with'quotes/**", "**/path\"with\"double\"quotes/**"));
 
-    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
-
-    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
-
-    String expectedExcludeFlag = """
-       --exclude **/test/**,**/path with spaces/**,**/path'with'quotes/**,"**/path""with""double""quotes/**"
-      """.strip();
-    if (SystemUtils.IS_OS_WINDOWS) {
-      expectedExcludeFlag = """
-         --exclude "**/test/**,**/path with spaces/**,**/path'with'quotes/**,"**/path""with""double""quotes/**"
-        """.strip();
-    }
-    assertThat(capturedArgs).contains(expectedExcludeFlag);
+    List<String> excludes = underTest.getAllExcludedPaths(rootInputModule, configuration);
+    assertThat(excludes).containsExactlyInAnyOrder("**/test/**",
+      "**/path with spaces/**",
+      "**/path'with'quotes/**",
+      "**/path\"with\"double\"quotes/**",
+       ".scannerwork/**");
   }
 
   @Test
-  void generateManifestsArchive_withIgnoredDirectories_GlobifiesDirectories() throws Exception {
+  void getAllExcludedPaths_withIgnoredDirectories_GlobifiesDirectories() throws IOException {
     String ignoredDirectory = "directory1";
     Files.createDirectories(rootModuleDir.resolve(ignoredDirectory));
     String ignoredFile = "directory2/file.txt";
@@ -339,22 +329,17 @@ class CliServiceTest {
     Files.createFile(ignoredFilePath);
 
     jGitUtilsMock.when(() -> JGitUtils.getAllIgnoredPaths(any(Path.class))).thenReturn(List.of(ignoredDirectory, ignoredFile));
-    underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
-
-    String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
-    assertThat(capturedArgs).contains("--exclude directory1/**,directory2/file.txt");
+    List<String> excludes = underTest.getAllExcludedPaths(rootInputModule, configuration);
+    assertThat(excludes).containsExactlyInAnyOrder(".scannerwork/**", "directory1/**", "directory2/file.txt");
   }
 
   @Test
-  void generateManifestsArchive_withExternalWorkDir_DoesNotExcludeWorkingDir() throws URISyntaxException, IOException {
+  void getAllExcludedPaths_withExternalWorkDir_DoesNotExcludeWorkingDir() throws IOException {
     Path externalWorkDir = Files.createTempDirectory("externalWorkDir");
     try {
       rootInputModule = new DefaultInputModule(ProjectDefinition.create().setBaseDir(rootModuleDir.toFile()).setWorkDir(externalWorkDir.toFile()));
-      underTest.generateManifestsArchive(rootInputModule, scriptDir(), configuration);
-      String capturedArgs = logTester.logs().stream().filter(log -> log.contains("Arguments Passed In:")).findFirst().get();
-
-      // externalWorkDir is not present in the exclude flag
-      assertThat(capturedArgs).contains("--exclude ignored.txt");
+      List<String> excludes = underTest.getAllExcludedPaths(rootInputModule, configuration);
+      assertThat(excludes).containsExactlyInAnyOrder("ignored.txt");
     } finally {
       externalWorkDir.toFile().delete();
     }
