@@ -1,0 +1,44 @@
+name: Build
+on:
+  pull_request:
+    branches-ignore:
+      - 'dogfood/**'
+  push:
+    branches:
+      - 'master'
+      - 'branch-*'
+    branches-ignore:
+      - 'public_master'
+      - 'dogfood/**'
+    tags-ignore:
+      - '**'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: sonar-s-public
+    name: Build, JUnit and SonarQube
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
+        with:
+          version: 2025.7.12
+          mise_toml: |
+            [tools]
+            yarn= "3.6.3"
+            node = "18"
+            java = "temurin-17"
+      - uses: SonarSource/ci-github-actions/build-gradle@v1
+        with:
+          deploy: false
+          artifactory-reader-role: private-reader
+          artifactory-deployer-role: private-reader
+          sonar-platform: next
+          gradle-args: "-Dsonar.projectKey=sonarqube -Dsonar.organization=sonarsource -Dsonar.exclusions=**/design-system/theme/**,**/legacy-design-system/**"
