@@ -110,7 +110,6 @@ class IssueStatsByRuleKeyDaoImplIT {
         """
     )) {
       statement.execute();
-      c.commit();
     }
   }
 }
