@@ -73,10 +73,11 @@ public class SendAnalysisTelemetryStep implements ComputationStep {
 
     String projectUuid = analysisMetadataHolder.getProject().getUuid();
     String analysisType = analysisMetadataHolder.isPullRequest() ? "pull_request" : "branch";
+    String analysisUuid = uuidFactory.create();
 
     // it was agreed to limit the number of telemetry entries to 1000 per one analysis among scanner report metrics and step metrics
-    Set<Metric> scannerReportMetrics = getScannerReportMetrics(projectUuid, analysisType);
-    Set<Metric> stepsStatisticsMetrics = getStepsTelemetryMetrics(projectUuid, analysisType, MAX_METRICS - scannerReportMetrics.size(),
+    Set<Metric> scannerReportMetrics = getScannerReportMetrics(projectUuid, analysisType, analysisUuid);
+    Set<Metric> stepsStatisticsMetrics = getStepsTelemetryMetrics(projectUuid, analysisType, analysisUuid, MAX_METRICS - scannerReportMetrics.size(),
       stepsTelemetryHolder.getTelemetryMetrics());
 
     Set<Metric> metrics = new HashSet<>();
@@ -100,23 +101,23 @@ public class SendAnalysisTelemetryStep implements ComputationStep {
     telemetryClient.uploadMetricAsync(jsonString);
   }
 
-  private Set<Metric> getScannerReportMetrics(String projectUuid, String analysisType) {
+  private Set<Metric> getScannerReportMetrics(String projectUuid, String analysisType, String analysisUuid) {
     Set<Metric> metrics = new HashSet<>();
     try (CloseableIterator<ScannerReport.TelemetryEntry> it = scannerReportReader.readTelemetryEntries()) {
       int count = 0;
       while (it.hasNext() && count < MAX_METRICS) {
         ScannerReport.TelemetryEntry telemetryEntry = it.next();
-        metrics.add(new AnalysisMetric(telemetryEntry.getKey(), telemetryEntry.getValue(), projectUuid, analysisType));
+        metrics.add(new AnalysisMetric(telemetryEntry.getKey(), telemetryEntry.getValue(), projectUuid, analysisType, analysisUuid));
         count++;
       }
     }
     return metrics;
   }
 
-  private static Set<Metric> getStepsTelemetryMetrics(String projectUuid, String analysisType, int maxMetrics, Map<String, Object> telemetryMetrics) {
+  private static Set<Metric> getStepsTelemetryMetrics(String projectUuid, String analysisType, String analysisUuid, int maxMetrics, Map<String, Object> telemetryMetrics) {
     return telemetryMetrics.entrySet().stream()
       .map(entry ->
-        new AnalysisMetric(entry.getKey(), String.valueOf(entry.getValue()), projectUuid, analysisType)
+        new AnalysisMetric(entry.getKey(), String.valueOf(entry.getValue()), projectUuid, analysisType, analysisUuid)
       )
       .limit(maxMetrics)
       .collect(Collectors.toSet());

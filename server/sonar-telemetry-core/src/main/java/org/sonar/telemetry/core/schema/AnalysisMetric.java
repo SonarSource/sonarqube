@@ -31,13 +31,17 @@ public class AnalysisMetric extends Metric {
   @JsonProperty("analysis_type")
   private String analysisType;
 
-  public AnalysisMetric(String key, String value, String projectUuid, String analysisType) {
+  @JsonProperty("analysis_uuid")
+  private String analysisUuid;
+
+  public AnalysisMetric(String key, String value, String projectUuid, String analysisType, String analysisUuid) {
     this.key = key;
     this.value = value;
     this.type = TelemetryDataType.STRING;
     this.granularity = Granularity.ADHOC;
     this.projectUuid = projectUuid;
     this.analysisType = analysisType;
+    this.analysisUuid = analysisUuid;
   }
 
   public String getProjectUuid() {
@@ -54,5 +58,13 @@ public class AnalysisMetric extends Metric {
 
   public void setAnalysisType(String analysisType) {
     this.analysisType = analysisType;
+  }
+
+  public String getAnalysisUuid() {
+    return analysisUuid;
+  }
+
+  public void setAnalysisUuid(String analysisUuid) {
+    this.analysisUuid = analysisUuid;
   }
 }
