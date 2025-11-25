@@ -304,17 +304,11 @@ public class SearchAction implements RulesWsAction {
     if (context.getFacets().contains(RuleIndex.FACET_OLD_DEFAULT)) {
       searchOptions.addFacets(DEFAULT_FACETS);
     } else if (context.getFacets().contains(FACET_COMPLIANCE_STANDARDS)) {
-      Set<String> complianceStandards = metadataLoader.getAllMetadata().keySet().stream()
-        .map(SearchAction::complianceStandardToString).collect(Collectors.toSet());
-      searchOptions.addComplianceFacets(complianceStandards);
+      searchOptions.addComplianceFacets(metadataLoader.getAllReportsAsStrings());
     } else {
       searchOptions.addFacets(context.getFacets());
     }
     return searchOptions;
-  }
-
-  private static String complianceStandardToString(ReportKey reportKey) {
-    return reportKey.standard() + ":" + reportKey.version();
   }
 
   private static SearchOptions loadCommonContext(SearchRequest request) {
@@ -438,11 +432,6 @@ public class SearchAction implements RulesWsAction {
     }
   }
 
-  private static ReportKey toReportKey(String s) {
-    int i = s.indexOf(':');
-    return new ReportKey(s.substring(0, i), s.substring(i + 1));
-  }
-
   private void writeComplianceFacets(SearchResponse.Builder response, SearchRequest request, SearchOptions context, SearchResult results) {
     Common.Facet.Builder facet = Common.Facet.newBuilder();
     Common.FacetValue.Builder value = Common.FacetValue.newBuilder();
@@ -450,7 +439,7 @@ public class SearchAction implements RulesWsAction {
     Set<String> ruleKeys = results.getFacets().get(COMPLIANCE_FILTER_FACET).keySet();
 
     for (String standardName : context.getComplianceFacets()) {
-      ReportKey reportKey = toReportKey(standardName);
+      ReportKey reportKey = ReportKey.parse(standardName);
       Set<String> standardRuleKeys = applyComplianceFiltersToFacet(ruleKeys, reportKey, request.complianceStandards());
       Map<String, Long> counts = standardRuleKeys.stream().collect(Collectors.toMap(e -> e, e -> 1L));
       Map<String, Long> ruleCountByComplianceCategory = metadataRules.getRuleCountByStandardCategory(reportKey, counts);

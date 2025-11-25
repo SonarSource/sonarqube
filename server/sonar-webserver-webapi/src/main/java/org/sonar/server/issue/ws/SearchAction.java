@@ -667,7 +667,7 @@ public class SearchAction implements IssuesWsAction {
     }
     if (requestedFacets.contains(PARAM_COMPLIANCE_STANDARDS)) {
       requestedFacets.remove(PARAM_COMPLIANCE_STANDARDS);
-      options.addComplianceFacets(metadataLoader.getAllMetadata().keySet().stream().map(SearchAction::toString).toList());
+      options.addComplianceFacets(metadataLoader.getAllReportsAsStrings());
     }
 
     options.addFacets(requestedFacets);
@@ -718,15 +718,11 @@ public class SearchAction implements IssuesWsAction {
     return Arrays.stream(enumValues).map(Enum::name).toList();
   }
 
-  private static String toString(ReportKey reportKey) {
-    return reportKey.standard() + ":" + reportKey.version();
-  }
-
   private Set<String> transformComplianceFacets(Facets facets, Collection<String> requestedFacets,
     Map<ReportKey, String> categoriesByStandardFilters) {
     Set<ReportKey> standardsWithFacet = metadataLoader.getAllMetadata().keySet()
       .stream()
-      .filter(standard -> requestedFacets.contains(toString(standard)))
+      .filter(standard -> requestedFacets.contains(standard.toString()))
       .collect(Collectors.toSet());
 
     if (standardsWithFacet.isEmpty()) {
@@ -758,10 +754,10 @@ public class SearchAction implements IssuesWsAction {
             keyValues.put(e.getKey(), e.getValue());
           }
         }
-        facets.getAll().put(toString(standard), keyValues);
+        facets.getAll().put(standard.toString(), keyValues);
       }
     }
-    return standardsWithFacet.stream().map(SearchAction::toString).collect(Collectors.toSet());
+    return standardsWithFacet.stream().map(ReportKey::toString).collect(Collectors.toSet());
   }
 
   /**
