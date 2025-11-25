@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.platformlevel;
 
+import io.sonarcloud.compliancereports.reports.ComplianceReportService;
 import io.sonarcloud.compliancereports.reports.MetadataLoader;
 import io.sonarcloud.compliancereports.reports.MetadataRules;
 import java.util.List;
@@ -98,6 +99,7 @@ import org.sonar.server.common.github.config.GithubConfigurationService;
 import org.sonar.server.common.gitlab.config.GitlabConfigurationService;
 import org.sonar.server.common.group.service.GroupMembershipService;
 import org.sonar.server.common.group.service.GroupService;
+import org.sonar.server.compliance.SqrActiveRuleDao;
 import org.sonar.server.feature.JiraSonarQubeFeature;
 import org.sonar.server.network.NetworkInterfaceProvider;
 import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
@@ -421,6 +423,8 @@ public class PlatformLevel4 extends PlatformLevel {
       IssueStatsByRuleKeyDaoImpl.class,
       MetadataLoader.class,
       MetadataRules.class,
+      SqrActiveRuleDao.class,
+      ComplianceReportService.class,
 
       // measure
       new MetricsWsModule(),

@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
 
 public class SecurityStandardCategoryStatistics {
 
-  private final String category;
+  private String category;
   private final long vulnerabilities;
   private final OptionalInt vulnerabilityRating;
   private final long toReviewSecurityHotspots;
@@ -37,7 +37,7 @@ public class SecurityStandardCategoryStatistics {
   private long activeRules;
   private long totalRules;
   private boolean hasMoreRules;
-  private final Optional<String> version;
+  private Optional<String> version;
   private Optional<String> level = Optional.empty();
   private final Map<String, Long> severityDistribution;
 
@@ -148,5 +148,15 @@ public class SecurityStandardCategoryStatistics {
 
   public Map<String, Long> getSeverityDistribution() {
     return severityDistribution;
+  }
+
+  public SecurityStandardCategoryStatistics setVersion(@Nullable String version) {
+    this.version = Optional.ofNullable(version);
+    return this;
+  }
+
+  public SecurityStandardCategoryStatistics setCategory(String category) {
+    this.category = category;
+    return this;
   }
 }
