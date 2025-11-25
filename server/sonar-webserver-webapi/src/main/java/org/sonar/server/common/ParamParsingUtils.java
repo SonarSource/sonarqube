@@ -20,9 +20,14 @@
 package org.sonar.server.common;
 
 import io.sonarcloud.compliancereports.reports.ReportKey;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.tuple.Pair;
 import org.sonar.api.issue.impact.Severity;
@@ -42,25 +47,30 @@ public class ParamParsingUtils {
       Severity.valueOf(parts[1]));
   }
 
-  public static Map<ReportKey, String> parseComplianceStandardsFilter(@Nullable Collection<String> paramAsStrings) {
-    if (paramAsStrings == null) {
+  public static Map<ReportKey, Collection<String>> parseComplianceStandardsFilter(@Nullable String param) {
+    if (param == null) {
       return Map.of();
     }
 
-    Map<ReportKey, String> categoriesByStandard = new HashMap<>();
-
-    for (String complianceStandardsFilter : paramAsStrings) {
-      String[] parts = complianceStandardsFilter.split("=");
-      if (parts.length != 2) {
-        throw new IllegalArgumentException("Invalid format. Expected key=value: " + complianceStandardsFilter);
-      }
-
-      int i = parts[0].indexOf(':');
-      if (i < 0) {
-        throw new IllegalArgumentException("Invalid format. Expected standard:version in " + complianceStandardsFilter);
-      }
-      categoriesByStandard.put(new ReportKey(parts[0].substring(0, i), parts[0].substring(i + 1)), parts[1]);
+    String decodedParam;
+    try {
+      decodedParam = URLDecoder.decode(param, StandardCharsets.UTF_8);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException("Can't URI decode: " + param, e);
     }
+
+    Map<ReportKey, Collection<String>> categoriesByStandard = new HashMap<>();
+
+    String[] parts = decodedParam.split("&");
+    for (String part : parts) {
+      String[] keyValue = part.split("=");
+      if (keyValue.length != 2) {
+        throw new IllegalArgumentException("Invalid format: " + decodedParam);
+      }
+      Set<String> values = Arrays.stream(keyValue[1].split(",")).filter(s -> !s.isBlank()).collect(Collectors.toSet());
+      categoriesByStandard.put(ReportKey.parse(keyValue[0]), values);
+    }
+
     return categoriesByStandard;
   }
 }

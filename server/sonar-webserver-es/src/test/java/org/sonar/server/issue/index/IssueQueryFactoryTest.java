@@ -120,7 +120,7 @@ public class IssueQueryFactoryTest {
       .setCodeVariants(asList("variant1", "variant2"))
       .setPrioritizedRule(true)
       .setFromSonarQubeUpdate(true)
-      .setCategoriesByStandard(Map.of(new ReportKey("test", "V1"), "category1"))
+      .setCategoriesByStandard(Map.of(new ReportKey("test", "V1"), Set.of("category1")))
       .setLinkedTicketStatuses(List.of(LinkedTicketStatus.LINKED));
 
     IssueQuery query = underTest.create(request);

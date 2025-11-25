@@ -20,8 +20,9 @@
 package org.sonar.server.common;
 
 import io.sonarcloud.compliancereports.reports.ReportKey;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.impact.Severity;
@@ -62,11 +63,10 @@ class ParamParsingUtilsTest {
 
   @Test
   void parseComplianceStandardsFilter_ShouldReturnExpectedResult() {
-    Map<ReportKey, String> result = parseComplianceStandardsFilter(
-      List.of("standard1:1=category1", "standard2:1=category2"));
+    Map<ReportKey, Collection<String>> result = parseComplianceStandardsFilter("standard1:1=category1,category2&standard2:1=category3");
     assertThat(result).containsOnly(
-      entry(new ReportKey("standard1", "1"), "category1"),
-      entry(new ReportKey("standard2", "1"), "category2"));
+      entry(new ReportKey("standard1", "1"), Set.of("category1", "category2")),
+      entry(new ReportKey("standard2", "1"), Set.of("category3")));
   }
 
   @Test
@@ -76,11 +76,9 @@ class ParamParsingUtilsTest {
 
   @Test
   void parseComplianceStandardsFilter_WhenParamIsInvalidShouldThrowException() {
-    List<String> params = List.of("invalid");
-    assertThatThrownBy(() -> parseComplianceStandardsFilter(params))
+    assertThatThrownBy(() -> parseComplianceStandardsFilter("invalid"))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Invalid format. Expected key=value: invalid");
-
+      .hasMessage("Invalid format: invalid");
   }
 }
 

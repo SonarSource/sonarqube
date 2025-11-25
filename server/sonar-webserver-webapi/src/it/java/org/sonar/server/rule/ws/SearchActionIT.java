@@ -1133,7 +1133,7 @@ class SearchActionIT {
 
     SearchResponse result = ws.newRequest()
       .setParam(FACETS, FACET_COMPLIANCE_STANDARDS)
-      .setParam(PARAM_COMPLIANCE_STANDARDS, "test:V2=cat1,test:V1=category1")
+      .setParam(PARAM_COMPLIANCE_STANDARDS, "test:V2=cat1&test:V1=category1")
       .setParam(PARAM_SEVERITIES, "MINOR")
       .executeProtobuf(SearchResponse.class);
 

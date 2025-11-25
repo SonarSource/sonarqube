@@ -719,7 +719,7 @@ public class SearchAction implements IssuesWsAction {
   }
 
   private Set<String> transformComplianceFacets(Facets facets, Collection<String> requestedFacets,
-    Map<ReportKey, String> categoriesByStandardFilters) {
+    Map<ReportKey, Collection<String>> categoriesByStandardFilters) {
     Set<ReportKey> standardsWithFacet = metadataLoader.getAllMetadata().keySet()
       .stream()
       .filter(standard -> requestedFacets.contains(standard.toString()))
@@ -739,18 +739,18 @@ public class SearchAction implements IssuesWsAction {
         .collect(Collectors.toMap(e -> ruleKeyById.get(e.getKey()), Map.Entry::getValue));
 
       for (ReportKey standard : standardsWithFacet) {
-        Set<String> filteredRuleKeys = applyComplianceFiltersToFacet(countByRuleKey.keySet(), standard, categoriesByStandardFilters);
+        Set<String> filteredRuleKeys = metadataRules.applyComplianceFiltersToFacet(countByRuleKey.keySet(), standard, categoriesByStandardFilters);
         Map<String, Long> filteredCountByRuleKey = countByRuleKey.entrySet().stream()
           .filter(e -> filteredRuleKeys.contains(e.getKey()))
           .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         Map<String, Long> countByCategory = metadataRules.getRuleCountByStandardCategory(standard, filteredCountByRuleKey);
 
-        String selectedCategory = categoriesByStandardFilters.get(standard);
+        Collection<String> selectedCategories = categoriesByStandardFilters.get(standard);
         LinkedHashMap<String, Long> keyValues = new LinkedHashMap<>();
 
         for (Map.Entry<String, Long> e : countByCategory.entrySet()) {
-          if (e.getValue() > 0 || e.getKey().equals(selectedCategory)) {
+          if (e.getValue() > 0 || (selectedCategories != null && selectedCategories.contains(e.getKey()))) {
             keyValues.put(e.getKey(), e.getValue());
           }
         }
@@ -758,33 +758,6 @@ public class SearchAction implements IssuesWsAction {
       }
     }
     return standardsWithFacet.stream().map(ReportKey::toString).collect(Collectors.toSet());
-  }
-
-  /**
-   * Exclude rule keys that are being filtered out by filters on other compliance standards
-   */
-  private Set<String> applyComplianceFiltersToFacet(Set<String> ruleKeys, ReportKey reportKey, @Nullable Map<ReportKey, String> filters) {
-    if (filters == null) {
-      return ruleKeys;
-    }
-    Map<ReportKey, String> activeFilters = filters.entrySet().stream()
-      .filter(f -> !f.getKey().equals(reportKey))
-      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-    return ruleKeys.stream()
-      .filter(ruleKey -> filtersIncludeRule(activeFilters, ruleKey))
-      .collect(Collectors.toSet());
-  }
-
-  private boolean filtersIncludeRule(Map<ReportKey, String> filters, String ruleKey) {
-    for (Map.Entry<ReportKey, String> filter : filters.entrySet()) {
-      MetadataRules.ComplianceCategoryRules categoryRules = metadataRules.getRules(filter.getKey(), filter.getValue());
-      MetadataRules.RepositoryRuleKey repoRuleKey = MetadataRules.RepositoryRuleKey.of(ruleKey);
-      if (!categoryRules.ruleKeys().contains(repoRuleKey.rule()) && !categoryRules.repoRuleKeys().contains(repoRuleKey)) {
-        return false;
-      }
-    }
-    return true;
   }
 
   private static void setTypesFacet(Facets facets) {
@@ -875,7 +848,7 @@ public class SearchAction implements IssuesWsAction {
       .setTimeZone(request.param(PARAM_TIMEZONE))
       .setCodeVariants(request.paramAsStrings(PARAM_CODE_VARIANTS))
       .setFixedInPullRequest(request.param(PARAM_FIXED_IN_PULL_REQUEST))
-      .setCategoriesByStandard(parseComplianceStandardsFilter(request.paramAsStrings(PARAM_COMPLIANCE_STANDARDS)));
+      .setCategoriesByStandard(parseComplianceStandardsFilter(request.param(PARAM_COMPLIANCE_STANDARDS)));
   }
 
   private void checkIfNeedIssueSync(DbSession dbSession, SearchRequest searchRequest) {

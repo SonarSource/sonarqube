@@ -22,6 +22,7 @@ package org.sonar.server.rule.ws;
 import io.sonarcloud.compliancereports.reports.MetadataRules;
 import io.sonarcloud.compliancereports.reports.MetadataRules.ComplianceCategoryRules;
 import io.sonarcloud.compliancereports.reports.ReportKey;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -85,7 +86,7 @@ public class RuleQueryFactory {
     RuleQuery query = createRuleQuery(dbSession, request);
     query.setIncludeExternal(request.mandatoryParamAsBoolean(PARAM_INCLUDE_EXTERNAL));
     query.setPrioritizedRule(request.paramAsBoolean(PARAM_PRIORITIZED_RULE));
-    setComplianceFilter(query, parseComplianceStandardsFilter(request.paramAsStrings(PARAM_COMPLIANCE_STANDARDS)));
+    setComplianceFilter(query, parseComplianceStandardsFilter(request.param(PARAM_COMPLIANCE_STANDARDS)));
     return query;
   }
 
@@ -135,7 +136,7 @@ public class RuleQueryFactory {
     return query;
   }
 
-  private void setComplianceFilter(RuleQuery query, Map<ReportKey, String> categoriesByStandard) {
+  private void setComplianceFilter(RuleQuery query, Map<ReportKey, Collection<String>> categoriesByStandard) {
     if (categoriesByStandard.isEmpty()) {
       return;
     }
@@ -143,7 +144,7 @@ public class RuleQueryFactory {
     query.setComplianceCategoryRules(getComplianceStandardRules(categoriesByStandard));
   }
 
-  private ComplianceCategoryRules getComplianceStandardRules(Map<ReportKey, String> categoriesByStandard) {
+  private ComplianceCategoryRules getComplianceStandardRules(Map<ReportKey, Collection<String>> categoriesByStandard) {
     ComplianceCategoryRules rules = metadataRules.getRules(categoriesByStandard);
     if (rules.ruleKeys().isEmpty() && rules.repoRuleKeys().isEmpty()) {
       // either invalid category or category with no rules

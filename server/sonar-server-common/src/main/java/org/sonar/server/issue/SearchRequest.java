@@ -87,7 +87,7 @@ public class SearchRequest {
   private List<String> codeVariants;
   private String fixedInPullRequest;
   private List<String> linkedTicketStatus;
-  private Map<ReportKey, String> categoriesByStandard;
+  private Map<ReportKey, Collection<String>> categoriesByStandard;
 
   public SearchRequest() {
     // nothing to do here
@@ -641,11 +641,11 @@ public class SearchRequest {
   }
 
   @CheckForNull
-  public Map<ReportKey, String> getCategoriesByStandard() {
+  public Map<ReportKey, Collection<String>> getCategoriesByStandard() {
     return categoriesByStandard;
   }
 
-  public SearchRequest setCategoriesByStandard(@Nullable Map<ReportKey, String> categoriesByStandard) {
+  public SearchRequest setCategoriesByStandard(@Nullable Map<ReportKey, Collection<String>> categoriesByStandard) {
     this.categoriesByStandard = categoriesByStandard;
     return this;
   }
