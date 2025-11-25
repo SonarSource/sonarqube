@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.jira.JiraPermissionMapper">
+
+  <select id="findProjectsAdministeredByCurrentUser" parameterType="String" resultType="String">
+  select
+    p.uuid project_uuid
+  from
+    groups g
+    inner join groups_users gu on g.uuid = gu.group_uuid
+    inner join users u on gu.user_uuid = u.uuid
+    inner join group_roles gr on g.uuid = gr.group_uuid
+    inner join projects p on gr.entity_uuid = p.uuid
+  where
+    gr.role = 'admin'
+    and u.uuid = #{userUuid, jdbcType=VARCHAR}
+
+  union all
+
+  select
+    p.uuid project_uuid
+  from
+    user_roles ur
+    inner join projects p on ur.entity_uuid = p.uuid
+  where
+    ur.role = 'admin'
+    and ur.user_uuid = #{userUuid, jdbcType=VARCHAR}
+ </select>
+
+</mapper>

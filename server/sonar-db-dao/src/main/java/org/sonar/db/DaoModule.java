@@ -50,6 +50,7 @@ import org.sonar.db.issue.IssueFixedDao;
 import org.sonar.db.jira.dao.AtlassianAuthenticationDetailsDao;
 import org.sonar.db.jira.dao.JiraOrganizationBindingDao;
 import org.sonar.db.jira.dao.JiraOrganizationBindingPendingDao;
+import org.sonar.db.jira.dao.JiraPermissionDao;
 import org.sonar.db.jira.dao.JiraProjectBindingDao;
 import org.sonar.db.jira.dao.JiraSelectedWorkTypeDao;
 import org.sonar.db.jira.dao.JiraWorkItemDao;
@@ -160,6 +161,7 @@ public class DaoModule extends Module {
     JiraOrganizationBindingDao.class,
     JiraWorkItemDao.class,
     JiraSelectedWorkTypeDao.class,
+    JiraPermissionDao.class,
     JiraOrganizationBindingPendingDao.class,
     AtlassianAuthenticationDetailsDao.class,
     MeasureDao.class,

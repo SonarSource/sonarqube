@@ -85,6 +85,7 @@ import org.sonar.db.issue.PrIssueDto;
 import org.sonar.db.jira.AtlassianAuthenticationDetailsMapper;
 import org.sonar.db.jira.JiraOrganizationBindingMapper;
 import org.sonar.db.jira.JiraOrganizationBindingPendingMapper;
+import org.sonar.db.jira.JiraPermissionMapper;
 import org.sonar.db.jira.JiraProjectBindingMapper;
 import org.sonar.db.jira.JiraSelectedWorkTypeMapper;
 import org.sonar.db.jira.JiraWorkItemMapper;
@@ -319,6 +320,7 @@ public class MyBatis {
       JiraOrganizationBindingPendingMapper.class,
       JiraWorkItemMapper.class,
       JiraSelectedWorkTypeMapper.class,
+      JiraPermissionMapper.class,
       AtlassianAuthenticationDetailsMapper.class,
       XsrfTokenMapper.class,
       MeasureMapper.class,
