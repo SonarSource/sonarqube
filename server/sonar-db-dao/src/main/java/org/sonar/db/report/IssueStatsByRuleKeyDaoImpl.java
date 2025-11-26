@@ -54,7 +54,9 @@ public class IssueStatsByRuleKeyDaoImpl implements IssueStatsByRuleKeyDao {
   public void deleteAndInsertIssueStats(String aggregationId, AggregationType aggregationType, List<IssueStats> list) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       mapper(dbSession).deleteAllIssueStats(aggregationId, aggregationType.toString());
-      mapper(dbSession).insertIssueStats(aggregationId, aggregationType.toString(), list);
+      if (!list.isEmpty()) {
+        mapper(dbSession).insertIssueStats(aggregationId, aggregationType.toString(), list);
+      }
       dbSession.commit();
     }
   }

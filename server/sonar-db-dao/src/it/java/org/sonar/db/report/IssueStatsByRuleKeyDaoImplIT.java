@@ -19,6 +19,7 @@
  */
 package org.sonar.db.report;
 
+import io.sonarcloud.compliancereports.dao.AggregationType;
 import io.sonarcloud.compliancereports.dao.IssueStats;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -99,6 +100,29 @@ class IssueStatsByRuleKeyDaoImplIT {
       }
     }
     return issueStats;
+  }
+
+  @Test
+  void shouldDeleteAllIssueStatsForProject() throws SQLException {
+    try (var session = db.getSession().getSqlSession(); var sqlSession = session.getConnection()) {
+      insertSampleIssueStats();
+      session.commit();
+
+      underTest.deleteAndInsertIssueStats("b728478a-470f-4cb2-8a19-9302632e049f", AggregationType.PROJECT, List.of());
+
+      var resultSet = sqlSession.prepareStatement(
+        "SELECT COUNT(*) AS total " +
+          "FROM issue_stats_by_rule_key " +
+          "WHERE aggregation_type='PROJECT' AND aggregation_id='b728478a-470f-4cb2-8a19-9302632e049f'"
+      ).executeQuery();
+
+      if (resultSet.next()) {
+        int total = resultSet.getInt("total");
+        assertThat(total).isZero();
+      } else {
+        throw new IllegalStateException("No result returned from count query");
+      }
+    }
   }
 
   private void insertSampleIssueStats() throws SQLException {
