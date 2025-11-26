@@ -24,8 +24,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import io.sonarcloud.compliancereports.reports.MetadataLoader;
 import io.sonarcloud.compliancereports.reports.MetadataRules;
-import io.sonarcloud.compliancereports.reports.MetadataRules.ComplianceCategoryRules;
-import io.sonarcloud.compliancereports.reports.MetadataRules.RepositoryRuleKey;
 import io.sonarcloud.compliancereports.reports.ReportKey;
 import java.util.Arrays;
 import java.util.Collection;
