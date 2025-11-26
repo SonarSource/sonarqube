@@ -57,6 +57,39 @@ class IssueStatsIndexerIT {
   class WhenIndexingOnAnalysis {
 
     @Test
+    void shouldIngestAllIssuesFromAllProjectBranchesInApplication() {
+      String applicationUuid = "application-uuid-1";
+      String branchUuid1 = "appProjectBranch-1";
+      String branchUuid2 = "appProjectBranch-2";
+      String branchUuid3 = "appProjectBranch-3";
+      String branchUuid4 = "appProjectBranch-4";
+      var branches = List.of(
+        insertProjectBranchWithIssues("appProject1", branchUuid1, Set.of(rule1)),
+        insertProjectBranchWithIssues("appProject2", branchUuid2, Set.of(rule1, rule2)),
+        insertProjectBranchWithIssues("appProject3", branchUuid3, Set.of(rule1, rule2)),
+        insertProjectBranchWithIssues("appProject4", branchUuid4, Set.of(rule3))
+      );
+      insertApplicationWithProjectBranches(applicationUuid, branches);
+
+      underTest.indexOnAnalysis(branchUuid1);
+      underTest.indexOnAnalysis(branchUuid2);
+      underTest.indexOnAnalysis(branchUuid3);
+      underTest.indexOnAnalysis(branchUuid4);
+      underTest.indexOnAnalysis(applicationUuid);
+
+      var issueStats = new IssueStatsByRuleKeyDaoImpl(dbClient).getIssueStats(applicationUuid, AggregationType.APPLICATION);
+
+      assertThat(issueStats)
+        .hasSize(3)
+        .extracting("ruleKey", "issueCount", "hotspotCount", "hotspotsReviewed")
+        .containsExactlyInAnyOrder(
+          tuple(rule1.getKey().toString(), 3, 0, 0),
+          tuple(rule2.getKey().toString(), 2, 0, 0),
+          tuple(rule3.getKey().toString(), 0, 1, 0)
+        );
+    }
+
+    @Test
     void shouldIngestAllIssuesFromAllProjectBranchesInPortfolio() {
       String portfolioUuid = "portfolio-uuid-1";
       String branchUuid1 = "branch-1";
@@ -108,6 +141,16 @@ class IssueStatsIndexerIT {
         );
     }
 
+    private void insertApplicationWithProjectBranches(String applicationUuid, List<BranchDto> branches) {
+      db.components().insertPrivateApplication(applicationUuid);
+
+      for (BranchDto branch : branches) {
+        insertChildProject(applicationUuid, branch);
+      }
+
+      db.commit();
+    }
+
     private void insertPortfolioWithProjectBranches(String portfolioUuid, List<BranchDto> branches) {
       var portfolio = new PortfolioDto()
         .setRootUuid(portfolioUuid)
@@ -127,17 +170,21 @@ class IssueStatsIndexerIT {
       db.components().insertComponent(portfolioComponent);
 
       for (BranchDto branch : branches) {
-        db.components().insertComponent(new ComponentDto()
-          .setBranchUuid(portfolioUuid)
-          .setKey(branch.getKey().substring(0, branch.getKey().length() - 5) + "_copy")
-          .setUuid(branch.getUuid() + "_copy_uuid")
-          .setUuidPath("." + portfolioUuid + "." + branch.getUuid())
-          .setCopyComponentUuid(branch.getUuid())
-          .setQualifier("TRK")
-          .setScope("PRJ"));
+        insertChildProject(portfolioUuid, branch);
       }
 
       db.commit();
+    }
+
+    private void insertChildProject(String applicationUuid, BranchDto branch) {
+      db.components().insertComponent(new ComponentDto()
+        .setBranchUuid(applicationUuid)
+        .setKey(branch.getKey().substring(0, branch.getKey().length() - 5) + "_copy")
+        .setUuid(branch.getUuid() + "_copy_uuid")
+        .setUuidPath("." + applicationUuid + "." + branch.getUuid())
+        .setCopyComponentUuid(branch.getUuid())
+        .setQualifier("TRK")
+        .setScope("PRJ"));
     }
 
     private BranchDto insertProjectBranchWithIssues(String projectUuid, String branchUuid, Set<RuleDto> rules) {
