@@ -49,6 +49,7 @@ public class DbVersion202506 implements DbVersion {
       .add(2025_06_019, "Add 'is_token_shared' column to 'jira_org_bindings' table", AddIsTokenSharedToJiraOrgBindingsTable.class)
       .add(2025_06_020, "Populate 'issue_stats_by_rule_key' for portfolios and apps", PopulateIssueStatsByRuleKeyForPortfoliosAndApps.class)
       .add(2025_06_021, "Add index based on 'jira_organization_binding_id' and 'sonar_project_id' to 'jira_project_bindings' table", AddUniqueIndexForJiraProjectBindingsTable.class)
+      .add(2025_06_022, "Create index on 'components' for case-insensitive key queries", CreateIndexOnComponentsLowerKee.class)
     ;
   }
 
