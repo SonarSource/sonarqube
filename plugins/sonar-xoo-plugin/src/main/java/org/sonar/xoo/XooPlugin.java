@@ -45,6 +45,7 @@ import org.sonar.xoo.rule.AnalysisErrorSensor;
 import org.sonar.xoo.rule.ChecksSensor;
 import org.sonar.xoo.rule.CreateIssueByInternalKeySensor;
 import org.sonar.xoo.rule.CustomMessageSensor;
+import org.sonar.xoo.rule.HardCodedSecurityRuleSensor;
 import org.sonar.xoo.rule.HasTagSensor;
 import org.sonar.xoo.rule.InternalTagsIssueSensor;
 import org.sonar.xoo.rule.MarkAsUnchangedSensor;
@@ -196,6 +197,7 @@ public class XooPlugin implements Plugin {
       HotspotWithContextsSensor.class,
       HotspotWithSingleContextSensor.class,
       HotspotWithCodeVariantsSensor.class,
+      HardCodedSecurityRuleSensor.class,
 
       ArchitectureSensor.class,
       InternalTagsIssueSensor.class,

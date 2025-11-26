@@ -29,11 +29,9 @@ public interface IssueStatsByRuleKeyMapper {
 
   List<IssueStats> selectByAggregationIds(@Param("aggregationIds") List<String> aggregationIds, @Param("aggregationType") String aggregationType);
 
-  void insertIssueStats(
-    @Param("aggregationId") String aggregationId,
+  void insertIssueStats(@Param("aggregationId") String aggregationId,
     @Param("aggregationType") String aggregationType,
-    @Param("list") List<IssueStats> list
-  );
+    @Param("list") List<IssueStats> list);
 
   void deleteAllIssueStats(@Param("aggregationId") String aggregationId, @Param("aggregationType") String aggregationType);
 }

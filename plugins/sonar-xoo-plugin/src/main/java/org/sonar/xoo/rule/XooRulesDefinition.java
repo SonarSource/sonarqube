@@ -358,6 +358,14 @@ public class XooRulesDefinition implements RulesDefinition {
     NewRule availableFeature = repo.createRule("AvailableFeature").setName("Creates issues when required features are available");
     addAllDescriptionSections(availableFeature, "Issue raised when a required feature is available");
 
+    NewRule hardcodedSecurityRule = repo.createRule(HardCodedSecurityRuleSensor.RULE_KEY)
+      .setName("Random rule hardcoded security rule")
+      .setType(RuleType.VULNERABILITY)
+      .setHtmlDescription("A random rule to test rule import/export");
+
+    hardcodedSecurityRule
+      .setDebtRemediationFunction(hasTag.debtRemediationFunctions().linear("5min"));
+
     repo.done();
   }
 
