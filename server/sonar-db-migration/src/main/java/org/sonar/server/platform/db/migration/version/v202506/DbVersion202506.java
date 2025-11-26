@@ -47,6 +47,7 @@ public class DbVersion202506 implements DbVersion {
       .add(2025_06_017, "Remove unique index from 'user_bindings' table", RemoveUniqueIndexFromUserBindingsTable.class)
       .add(2025_06_018, "Create index on 'user_uuid' column in 'user_bindings' table", CreateIndexOnUserBindingsUserUuid.class)
       .add(2025_06_019, "Add 'is_token_shared' column to 'jira_org_bindings' table", AddIsTokenSharedToJiraOrgBindingsTable.class)
+      .add(2025_06_020, "Populate 'issue_stats_by_rule_key' for portfolios and apps", PopulateIssueStatsByRuleKeyForPortfoliosAndApps.class)
     ;
   }
 

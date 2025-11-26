@@ -24,49 +24,40 @@ import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-public class PopulateIssueStatsByRuleKey extends DataChange {
-  private static final String SELECT_QUERY = """
-      select
-        b.uuid as "branchName",
-        r.plugin_name as "RuleRepository",
-        r.plugin_rule_key as "RuleKey",
-        sum(case when i.issue_type = 4 then 0 else 1 end) as "issueCount",
-        max(case when i.issue_type = 4 then 0 else
-          case
-            when i.severity = 'INFO' then 1
-            when i.severity in ('LOW', 'MINOR') then 2
-            when i.severity in ('MEDIUM', 'MAJOR') then 3
-            when i.severity in ('HIGH', 'CRITICAL') then 4
-            when i.severity = 'BLOCKER' then 5
-          end
-        end) as "issueRating",
-        sum(case when i.issue_type = 4 and i.status = 'TO_REVIEW' then 1 else 0 end) as "hotspotCount",
-        sum(case when i.issue_type = 4 and i.status = 'REVIEWED' then 1 else 0 end) as "hotspotsReviewed"
-      from issues i
-      join rules r on i.rule_uuid = r.uuid
-      join project_branches b on b.uuid = i.project_uuid
-      where b.branch_type = 'BRANCH'
-        and i.resolution is null
-      group by b.uuid, r.plugin_name, r.plugin_rule_key
-    """;
+public class PopulateIssueStatsByRuleKeyForPortfoliosAndApps extends DataChange {
   private static final String UPDATE_QUERY = """
       insert into issue_stats_by_rule_key
       (aggregation_type, aggregation_id, rule_key, issue_count, rating, hotspot_count, hotspots_reviewed)
       values (?, ?, ?, ?, ?, ?, ?);
     """;
 
-  private static final String DELETE_QUERY = """
-    delete from issue_stats_by_rule_key;
+  private static final String SELECT_QUERY = """
+      SELECT (CASE
+          WHEN apps.qualifier = 'APP' THEN 'APPLICATION'
+          WHEN apps.qualifier = 'VW' OR apps.qualifier = 'SVW' THEN 'PORTFOLIO'
+          END),
+        apps.uuid,
+        i.rule_key,
+        SUM(i.issue_count),
+        MAX(i.rating),
+        SUM(i.hotspot_count),
+        SUM(i.hotspots_reviewed)
+      FROM issue_stats_by_rule_key i
+      JOIN components projects ON projects.branch_uuid = i.aggregation_id
+      JOIN components copy_components ON projects.uuid = copy_components.copy_component_uuid
+      JOIN components apps ON apps.uuid = copy_components.branch_uuid
+      WHERE copy_components.copy_component_uuid IS NOT NULL
+      AND apps.qualifier IN ('VW', 'SVW', 'APP')
+      AND i.aggregation_type = 'PROJECT'
+      GROUP BY i.rule_key, apps.uuid, apps.qualifier;
     """;
 
-  public PopulateIssueStatsByRuleKey(Database db) {
+  public PopulateIssueStatsByRuleKeyForPortfoliosAndApps(Database db) {
     super(db);
   }
 
   @Override
   protected void execute(Context context) throws SQLException {
-    context.prepareUpsert(DELETE_QUERY).execute().commit();
-
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select(SELECT_QUERY);
     massUpdate.update(UPDATE_QUERY);
@@ -74,11 +65,11 @@ public class PopulateIssueStatsByRuleKey extends DataChange {
     massUpdate.execute((row, update, index) -> {
       update
         // aggregation_type
-        .setString(1, "PROJECT")
+        .setString(1, row.getString(1))
         // aggregation_id
-        .setString(2, row.getString(1))
+        .setString(2, row.getString(2))
         // rule_key
-        .setString(3, row.getString(2) + ":" + row.getString(3))
+        .setString(3, row.getString(3))
         // issue_count
         .setInt(4, row.getInt(4))
         // rating

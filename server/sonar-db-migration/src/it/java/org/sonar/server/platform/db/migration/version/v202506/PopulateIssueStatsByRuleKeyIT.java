@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.rule.Severity;
 import org.sonar.db.MigrationDbTester;
 
 import static java.util.UUID.randomUUID;
@@ -67,6 +68,47 @@ class PopulateIssueStatsByRuleKeyIT {
       tuple("PROJECT", branchUuid, "java:R1", 0L, 0L, 2L, 1L),
       tuple("PROJECT", branchUuid, "java:R2", 2L, 4L, 0L, 0L),
       tuple("PROJECT", branchUuid, "java:R3", 0L, 0L, 0L, 1L)
+      );
+  }
+
+  @Test
+  void execute_shouldPopulateStatusWithToReviewWithStandardModeSeverities() throws SQLException {
+    String branchUuid = insertBranch();
+
+    for (String severity : Severity.ALL) {
+      String ruleUuid = insertRule("java", "R" + severity);
+      insertIssue(branchUuid, ruleUuid, severity, null);
+    }
+
+    underTest.execute();
+
+    // aggregation_type, aggregation_id, rule_key, issue_count, rating, hotspot_rating, hotspot_count, hotspots_reviewed
+    assertRows(
+      tuple("PROJECT", branchUuid, "java:RINFO", 1L, 1L, 0L, 0L),
+      tuple("PROJECT", branchUuid, "java:RMINOR", 1L, 2L, 0L, 0L),
+      tuple("PROJECT", branchUuid, "java:RMAJOR", 1L, 3L, 0L, 0L),
+      tuple("PROJECT", branchUuid, "java:RCRITICAL", 1L, 4L, 0L, 0L),
+      tuple("PROJECT", branchUuid, "java:RBLOCKER", 1L, 5L, 0L, 0L)
+      );
+  }
+
+  @Test
+  void execute_shouldPopulateStatusWithToReviewWithMqrModeSeverities() throws SQLException {
+    String branchUuid = insertBranch();
+    for (org.sonar.api.issue.impact.Severity severity : org.sonar.api.issue.impact.Severity.values()) {
+      String ruleUuid = insertRule("java", "R" + severity.name());
+      insertIssue(branchUuid, ruleUuid, severity.name(), null);
+    }
+
+    underTest.execute();
+
+    // aggregation_type, aggregation_id, rule_key, issue_count, rating, hotspot_rating, hotspot_count, hotspots_reviewed
+    assertRows(
+      tuple("PROJECT", branchUuid, "java:RINFO", 1L, 1L, 0L, 0L),
+      tuple("PROJECT", branchUuid, "java:RLOW", 1L, 2L, 0L, 0L),
+      tuple("PROJECT", branchUuid, "java:RMEDIUM", 1L, 3L, 0L, 0L),
+      tuple("PROJECT", branchUuid, "java:RHIGH", 1L, 4L, 0L, 0L),
+      tuple("PROJECT", branchUuid, "java:RBLOCKER", 1L, 5L, 0L, 0L)
       );
   }
 
