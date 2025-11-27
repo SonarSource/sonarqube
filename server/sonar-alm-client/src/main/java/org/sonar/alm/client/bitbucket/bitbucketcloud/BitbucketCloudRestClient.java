@@ -103,6 +103,12 @@ public class BitbucketCloudRestClient {
    * Validate parameters provided.
    */
   public void validateAppPassword(String encodedCredentials, String workspace) {
+    // Validate token format first - App Passwords are no longer supported
+    if (!encodedCredentials.startsWith("ATAT") && !encodedCredentials.startsWith("ATCT")) {
+      throw new IllegalArgumentException(
+        "Bitbucket App Passwords are no longer supported. Please update your configuration to use API tokens or access tokens");
+    }
+
     try {
       doGetWithBasicAuth(encodedCredentials, buildUrl("/repositories/" + workspace), r -> null);
     } catch (NotFoundException | IllegalStateException e) {
@@ -248,7 +254,7 @@ public class BitbucketCloudRestClient {
     }
   }
 
-  private static ErrorDetails getErrorDetails(@Nullable ResponseBody body,@Nullable String fallbackMessage, UnaryOperator<String> parser) throws IOException {
+  private static ErrorDetails getErrorDetails(@Nullable ResponseBody body, @Nullable String fallbackMessage, UnaryOperator<String> parser) throws IOException {
     if (body == null) {
       return new ErrorDetails(fallbackMessage, null);
     }
