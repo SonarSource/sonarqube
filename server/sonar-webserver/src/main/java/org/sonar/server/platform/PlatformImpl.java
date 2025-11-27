@@ -19,13 +19,13 @@
  */
 package org.sonar.server.platform;
 
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletRegistration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import javax.annotation.Nullable;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletRegistration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -102,7 +102,7 @@ public class PlatformImpl implements Platform {
     // if AutoDbMigration kicked in or no DB migration was required, startup can be resumed in another thread
     if (dbRequiresMigration()) {
       DocumentationLinkGenerator docLinkGenerator = currentLevel.getContainer().getComponentByType(DocumentationLinkGenerator.class);
-      String documentationLink = docLinkGenerator.getDocumentationLink("/server-upgrade-and-maintenance/upgrade/upgrade-the-server/roadmap");
+      String documentationLink = docLinkGenerator.getDocumentationLink("/server-upgrade-and-maintenance/upgrade/roadmap/");
       LOGGER.info("Database needs to be migrated. Please refer to {}", documentationLink);
     } else {
       this.autoStarter = createAutoStarter();
@@ -115,7 +115,7 @@ public class PlatformImpl implements Platform {
           }
           runIfNotAborted(PlatformImpl.this::startLevel34Containers);
 
-          runIfNotAborted(()->servlet.initDispatcherLevel4(level4));
+          runIfNotAborted(() -> servlet.initDispatcherLevel4(level4));
           runIfNotAborted(PlatformImpl.this::executeStartupTasks);
 
           // switch current container last to avoid giving access to a partially initialized container
@@ -196,7 +196,6 @@ public class PlatformImpl implements Platform {
     level3 = start(new PlatformLevel3(level2));
     level4 = start(new PlatformLevel4(level3, level4AddedComponents));
   }
-
 
   private void executeStartupTasks() {
     new PlatformLevelStartup(level4)

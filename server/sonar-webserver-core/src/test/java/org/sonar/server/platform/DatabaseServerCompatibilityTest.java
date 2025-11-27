@@ -84,7 +84,7 @@ public class DatabaseServerCompatibilityTest {
   public void log_warning_if_requires_upgrade() {
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_UPGRADE);
     when(version.getVersion()).thenReturn(Optional.of(DatabaseVersion.MIN_UPGRADE_VERSION));
-    when(documentationLinkGenerator.getDocumentationLink("/server-upgrade-and-maintenance/upgrade/upgrade-the-server/roadmap")).thenReturn("[expected doc url]");
+    when(documentationLinkGenerator.getDocumentationLink("/server-upgrade-and-maintenance/upgrade/roadmap/")).thenReturn("[expected doc url]");
 
     compatibility.start();
 
