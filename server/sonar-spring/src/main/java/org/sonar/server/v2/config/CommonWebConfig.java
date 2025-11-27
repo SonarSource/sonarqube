@@ -27,7 +27,6 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.util.UrlPathHelper;
@@ -35,7 +34,6 @@ import org.springframework.web.util.UrlPathHelper;
 import jakarta.validation.Validation;
 
 @Configuration
-@EnableWebMvc
 public class CommonWebConfig implements WebMvcConfigurer {
 
   @Override

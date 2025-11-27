@@ -12,8 +12,6 @@ sonarqube {
 dependencies {
     // please keep the list grouped by configuration and ordered by name
     api 'org.springdoc:springdoc-openapi-starter-webmvc-api'
-    api 'org.springframework:spring-webmvc'
-    api 'org.hibernate.validator:hibernate-validator'
 
     api project(':server:sonar-db-dao')
     api project(':server:sonar-spring')

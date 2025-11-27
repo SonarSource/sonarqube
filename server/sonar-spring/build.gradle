@@ -9,16 +9,15 @@ sonar {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
   api 'com.fasterxml.jackson.core:jackson-annotations'
-
+  api 'com.google.code.findbugs:jsr305'
+  api 'com.google.guava:guava'
   api 'org.hibernate.validator:hibernate-validator'
+  api 'org.slf4j:slf4j-api'
   api 'org.springframework:spring-context'
   api 'org.springframework:spring-webmvc'
 
 
   compileOnlyApi 'jakarta.servlet:jakarta.servlet-api'
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
-  compileOnlyApi 'org.slf4j:slf4j-api'
-  compileOnlyApi 'com.google.guava:guava'
 
   testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.assertj:assertj-core'
@@ -31,6 +30,12 @@ dependencies {
 
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
   testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+compileJava {
+  options.compilerArgs += [
+    '--add-reads', 'org.sonar.server.spring=ALL-UNNAMED'
+  ]
 }
 
 test {

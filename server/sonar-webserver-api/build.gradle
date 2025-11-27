@@ -17,7 +17,6 @@ sourceSets {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  api 'com.google.guava:guava'
   api 'io.jsonwebtoken:jjwt-api'
   api 'io.jsonwebtoken:jjwt-impl'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
