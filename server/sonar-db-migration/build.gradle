@@ -15,6 +15,7 @@ dependencies {
   api project(':server:sonar-db-core')
   api project(':server:sonar-process')
   api project(':sonar-core')
+  api project(':sonar-markdown')
 
   implementation project(':server:sonar-telemetry-core')
 
