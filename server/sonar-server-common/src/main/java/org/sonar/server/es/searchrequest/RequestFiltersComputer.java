@@ -30,7 +30,6 @@ import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.sonar.server.es.searchrequest.TopAggregationDefinition.FilterScope;
