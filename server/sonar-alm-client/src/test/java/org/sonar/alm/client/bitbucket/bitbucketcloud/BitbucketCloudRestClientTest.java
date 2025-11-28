@@ -21,6 +21,8 @@ package org.sonar.alm.client.bitbucket.bitbucketcloud;
 
 import com.google.gson.Gson;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import javax.net.ssl.SSLHandshakeException;
 import okhttp3.Call;
@@ -36,8 +38,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
@@ -73,6 +73,11 @@ class BitbucketCloudRestClientTest {
     server.start();
     serverURL = server.url("/").toString();
     underTest = new BitbucketCloudRestClient(new OkHttpClientBuilder().build(), serverURL, serverURL);
+  }
+
+  private static String encodeCredentials(String password) {
+    byte[] bytes = ("username" + ":" + password).getBytes(StandardCharsets.UTF_8);
+    return Base64.getEncoder().encodeToString(bytes);
   }
 
   @AfterEach
@@ -293,7 +298,7 @@ class BitbucketCloudRestClientTest {
     server.enqueue(new MockResponse().setBody(reposResponse));
     server.enqueue(new MockResponse().setBody("OK"));
 
-    underTest.validateAppPassword("ATATvalidtoken123", "workspace");
+    underTest.validateAppPassword(encodeCredentials("ATATvalidtoken123"), "workspace");
 
     RecordedRequest request = server.takeRequest();
     assertThat(request.getPath()).isEqualTo("/2.0/repositories/workspace");
@@ -305,22 +310,52 @@ class BitbucketCloudRestClientTest {
     String response = "{\"type\": \"error\", \"error\": {\"message\": \"Invalid credentials.\"}}";
     server.enqueue(new MockResponse().setBody(response).setResponseCode(401).setHeader("Content-Type", JSON_MEDIA_TYPE));
 
+    String encodedCredentials = encodeCredentials("ATATinvalidtoken");
     assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() -> underTest.validateAppPassword("ATATinvalidtoken", "workspace"))
+      .isThrownBy(() -> underTest.validateAppPassword(encodedCredentials, "workspace"))
       .withMessage("Error returned by Bitbucket Cloud: Invalid credentials.");
     assertThat(logTester.logs(Level.INFO)).containsExactly(String.format(BBC_FAIL_WITH_RESPONSE, serverURL + "2.0/repositories/workspace", "401", response));
   }
 
-  @ParameterizedTest
-  @ValueSource(strings = {
-    "ATBBsome_large_string_12345", // ATBB prefix - no longer supported
-    "invalid-app-password", // No valid prefix
-    "user:oldapppassword" // Old format with colon
-  })
-  void validate_app_password_fails_with_invalid_token_format(String invalidToken) {
+  @Test
+  void validate_app_password_fails_with_old_app_password_prefix() {
+    // ATBB prefix - no longer supported
+    String encodedCredentials = encodeCredentials("ATBBsome_large_string_12345");
+
     assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() -> underTest.validateAppPassword(invalidToken, "workspace"))
+      .isThrownBy(() -> underTest.validateAppPassword(encodedCredentials, "workspace"))
       .withMessage("Bitbucket App Passwords are no longer supported. Please update your configuration to use API tokens or access tokens");
+  }
+
+  @Test
+  void validate_app_password_fails_with_no_valid_prefix() {
+    // No valid prefix
+    String encodedCredentials = encodeCredentials("invalid-app-password");
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(() -> underTest.validateAppPassword(encodedCredentials, "workspace"))
+      .withMessage("Bitbucket App Passwords are no longer supported. Please update your configuration to use API tokens or access tokens");
+  }
+
+  @Test
+  void validate_app_password_fails_with_invalid_base64() {
+    // Invalid Base64 format
+    String invalidBase64 = "not-valid-base64!@#$%";
+    
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(() -> underTest.validateAppPassword(invalidBase64, "workspace"))
+      .withMessage("Invalid Base64 encoded credentials");
+  }
+
+  @Test
+  void validate_app_password_fails_with_missing_colon_separator() {
+    // Valid Base64 but missing colon separator
+    byte[] bytes = "no-colon-separator".getBytes(StandardCharsets.UTF_8);
+    String encodedWithoutColon = Base64.getEncoder().encodeToString(bytes);
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(() -> underTest.validateAppPassword(encodedWithoutColon, "workspace"))
+      .withMessage("Invalid credential format - missing colon separator");
   }
 
   @Test

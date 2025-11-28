@@ -24,6 +24,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import jakarta.inject.Inject;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -103,8 +105,24 @@ public class BitbucketCloudRestClient {
    * Validate parameters provided.
    */
   public void validateAppPassword(String encodedCredentials, String workspace) {
-    // Validate token format first - App Passwords are no longer supported
-    if (!encodedCredentials.startsWith("ATAT") && !encodedCredentials.startsWith("ATCT")) {
+    // Decode Base64 credentials to get "username:password"
+    String decoded;
+    try {
+      decoded = new String(Base64.getDecoder().decode(encodedCredentials), StandardCharsets.UTF_8);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException("Invalid Base64 encoded credentials", e);
+    }
+
+    // Split to get password (format is "username:password")
+    int colonIndex = decoded.indexOf(':');
+    if (colonIndex == -1) {
+      throw new IllegalArgumentException("Invalid credential format - missing colon separator");
+    }
+
+    String password = decoded.substring(colonIndex + 1);
+
+    // Validate token format - App Passwords are no longer supported
+    if (!password.startsWith("ATAT") && !password.startsWith("ATCT")) {
       throw new IllegalArgumentException(
         "Bitbucket App Passwords are no longer supported. Please update your configuration to use API tokens or access tokens");
     }
