@@ -75,6 +75,12 @@ public class DevOpsPlatformSettingNewValue extends NewValue {
   @Nullable
   private Boolean isMonorepo;
 
+  @Nullable
+  private String scope;
+
+  @Nullable
+  private String errorMessage;
+
   public DevOpsPlatformSettingNewValue(String devOpsPlatformSettingUuid, String key) {
     this.devOpsPlatformSettingUuid = devOpsPlatformSettingUuid;
     this.key = key;
@@ -180,6 +186,24 @@ public class DevOpsPlatformSettingNewValue extends NewValue {
     return this.isMonorepo;
   }
 
+  @CheckForNull
+  public String getScope() {
+    return this.scope;
+  }
+
+  public void setScope(@Nullable String scope) {
+    this.scope = scope;
+  }
+
+  @CheckForNull
+  public String getErrorMessage() {
+    return this.errorMessage;
+  }
+
+  public void setErrorMessage(@Nullable String errorMessage) {
+    this.errorMessage = errorMessage;
+  }
+
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("{");
@@ -196,6 +220,8 @@ public class DevOpsPlatformSettingNewValue extends NewValue {
     addField(sb, "\"almSlug\": ", this.almSlug, true);
     addField(sb, "\"isSummaryCommentEnabled\": ", Objects.toString(this.isSummaryCommentEnabled, ""), false);
     addField(sb, "\"isMonorepo\": ", Objects.toString(this.isMonorepo, ""), false);
+    addField(sb, "\"scope\": ", this.scope, true);
+    addField(sb, "\"errorMessage\": ", this.errorMessage, true);
     endString(sb);
     return sb.toString();
   }
