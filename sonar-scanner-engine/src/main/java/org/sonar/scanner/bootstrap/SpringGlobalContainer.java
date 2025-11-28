@@ -90,6 +90,7 @@ public class SpringGlobalContainer extends SpringComponentContainer {
     DefaultAnalysisWarnings analysisWarnings = new DefaultAnalysisWarnings(System2.INSTANCE);
     LOG.debug("{} {}", edition.getLabel(), sqVersion);
     add(
+      JREDeprecationChecker.class,
       // plugins
       ScannerPluginRepository.class,
       PluginClassLoader.class,
