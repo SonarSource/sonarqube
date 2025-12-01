@@ -42,7 +42,7 @@ RUN DISTRO="$(lsb_release -s -c)" \
     xmlstarlet \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
-  && npm install -g yarn
+  && npm install -g yarn@1.22.22
 
 # Avoiding JVM Delays Caused by Random Number Generation (https://docs.oracle.com/cd/E13209_01/wlcp/wlss30/configwlss/jvmrand.html)
 RUN sed -i 's|securerandom.source=file:/dev/random|securerandom.source=file:/dev/urandom|g' "$JAVA_HOME/conf/security/java.security"
