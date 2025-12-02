@@ -549,7 +549,7 @@ subprojects {
       dependency "com.sonarsource.pdfreport:pdf-generator-utils:${pdfreportVersion}"
       dependency 'com.sonarsource.fixsuggestions:ai-suggestions-shared:1.0.0.1775'
       dependency 'org.sonarsource.update-center:sonar-update-center-common:1.35.0.2835'
-      dependency 'org.sonarsource.classloader:sonar-classloader:1.1.0.1059'
+      dependency 'org.sonarsource.classloader:sonar-classloader:1.2.0.2089'
       dependency 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.13'
       dependencySet(group: 'com.icegreen', version: '2.1.7') {
         entry 'greenmail'
