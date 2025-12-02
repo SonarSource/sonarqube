@@ -97,9 +97,6 @@ public class IssueStatsIndexer implements AnalysisIndexer {
   private void ingestForSingleBranch(DbSession dbSession, String branchUuid) {
     try (IssueIterator issues = issueIteratorFactory.createForBranch(branchUuid)) {
       List<IssueWithRuleUuidDto> issuesWithRuleUuids = getIssuesFromIssuesTable(issues);
-      if (issuesWithRuleUuids.isEmpty()) {
-        return;
-      }
 
       var issuesForIngestion = transformToRepositoryRuleIssuesDtos(issuesWithRuleUuids, dbSession);
       issueIngestionService.ingest(branchUuid, AggregationType.PROJECT, issuesForIngestion);
@@ -111,7 +108,9 @@ public class IssueStatsIndexer implements AnalysisIndexer {
     List<IssueWithRuleUuidDto> issueWithRuleUuidDtos = new ArrayList<>();
     while (issues.hasNext()) {
       IssueDoc issue = issues.next();
-      issueWithRuleUuidDtos.add(getIssueWithRuleDto(issue));
+      if (!issue.status().equals("CLOSED") && issue.resolution() == null) {
+        issueWithRuleUuidDtos.add(getIssueWithRuleDto(issue));
+      }
     }
     return issueWithRuleUuidDtos;
   }
@@ -140,7 +139,8 @@ public class IssueStatsIndexer implements AnalysisIndexer {
     String ruleUuid = issue.ruleUuid();
     String status = issue.status();
     boolean isHotspot = SECURITY_HOTSPOT.equals(issue.type());
-    int severity = Severity.valueOf(issue.severity()).ordinal();
+    // Adjust the 0-based (0-4) severity to 1-based (1-5) severity for the compliance module
+    int severity = Severity.valueOf(issue.severity()).ordinal() + 1;
     return new IssueWithRuleUuidDto(ruleUuid, status, isHotspot, severity);
   }
 

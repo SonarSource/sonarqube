@@ -19,6 +19,7 @@
  */
 package org.sonar.db.purge;
 
+import io.sonarcloud.compliancereports.dao.AggregationType;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -40,6 +41,7 @@ import org.sonar.db.audit.model.ComponentNewValue;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchMapper;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
@@ -243,7 +245,7 @@ public class PurgeDao implements Dao {
 
     branchUuids.forEach(id -> deleteBranch(id, purgeCommands));
 
-    deleteProject(uuid, purgeMapper, purgeCommands);
+    deleteProject(uuid, purgeMapper, purgeCommands, toAggregationType(qualifier));
     auditPersister.deleteComponent(session, new ComponentNewValue(uuid, name, key, qualifier));
     logProfiling(profiler, start);
   }
@@ -283,10 +285,10 @@ public class PurgeDao implements Dao {
     commands.deleteIssuesFixed(branchUuid);
     commands.deleteScaActivity(branchUuid);
     commands.deleteArchitectureGraphs(branchUuid);
-    commands.deleteIssueStatsByRuleKey(branchUuid);
+    commands.deleteIssueStatsByRuleKey(AggregationType.PROJECT, branchUuid);
   }
 
-  private static void deleteProject(String projectUuid, PurgeMapper mapper, PurgeCommands commands) {
+  private static void deleteProject(String projectUuid, PurgeMapper mapper, PurgeCommands commands, AggregationType aggregationType) {
     List<String> rootAndSubviews = mapper.selectRootAndSubviewsByProjectUuid(projectUuid);
     commands.deleteLinks(projectUuid);
     commands.deleteScannerCache(projectUuid);
@@ -317,6 +319,7 @@ public class PurgeDao implements Dao {
     commands.deleteReportSchedules(projectUuid);
     commands.deleteReportSubscriptions(projectUuid);
     commands.deleteScaLicenseProfiles(projectUuid);
+    commands.deleteIssueStatsByRuleKey(aggregationType, projectUuid);
   }
 
   /**
@@ -354,6 +357,14 @@ public class PurgeDao implements Dao {
 
   private static boolean isSubview(ComponentDto dto) {
     return SCOPE_PROJECT.equals(dto.scope()) && QUALIFIER_SUBVIEW.contains(dto.qualifier());
+  }
+
+  private static AggregationType toAggregationType(String qualifier) {
+    return switch(qualifier) {
+      case ComponentQualifiers.APP -> AggregationType.APPLICATION;
+      case ComponentQualifiers.VIEW, ComponentQualifiers.SUBVIEW -> AggregationType.PORTFOLIO;
+      default -> AggregationType.PROJECT;
+    };
   }
 
   public void deleteAnalyses(DbSession session, PurgeProfiler profiler, List<String> analysisUuids) {

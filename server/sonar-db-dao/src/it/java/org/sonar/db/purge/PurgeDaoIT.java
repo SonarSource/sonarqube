@@ -98,6 +98,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.webhook.WebhookDeliveryLiteDto;
 import org.sonar.db.webhook.WebhookDto;
 
+import static io.sonarcloud.compliancereports.dao.AggregationType.PORTFOLIO;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.ZoneOffset.UTC;
 import static java.util.Arrays.asList;
@@ -2097,6 +2098,62 @@ oldCreationDate));
 
     assertThat(db.countRowsOfTable(dbSession, "issue_stats_by_rule_key")).isEqualTo(2);
     underTest.deleteBranch(dbSession, branch1.getUuid());
+    assertThat(db.countRowsOfTable(dbSession, "issue_stats_by_rule_key")).isEqualTo(1);
+  }
+
+  @Test
+  void deletePortfolio_purgeIssueStatsByRuleKey() {
+    ComponentDto portfolio = db.components().insertPublicPortfolio();
+    ComponentDto otherPortfolio = db.components().insertPublicPortfolio();
+
+    db.executeInsert("issue_stats_by_rule_key",
+      "aggregation_type", "PORTFOLIO",
+      "aggregation_id", portfolio.uuid(),
+      "rule_key", "rule1",
+      "issue_count", 1,
+      "rating", 2,
+      "hotspot_count", 3,
+      "hotspots_reviewed", 4);
+
+    db.executeInsert("issue_stats_by_rule_key",
+      "aggregation_type", "PORTFOLIO",
+      "aggregation_id", otherPortfolio.uuid(),
+      "rule_key", "rule1",
+      "issue_count", 1,
+      "rating", 2,
+      "hotspot_count", 3,
+      "hotspots_reviewed", 4);
+
+    assertThat(db.countRowsOfTable(dbSession, "issue_stats_by_rule_key")).isEqualTo(2);
+    underTest.deleteProject(dbSession, portfolio.uuid(), portfolio.qualifier(), portfolio.name(), portfolio.getKey());
+    assertThat(db.countRowsOfTable(dbSession, "issue_stats_by_rule_key")).isEqualTo(1);
+  }
+
+  @Test
+  void deleteApplication_purgeIssueStatsByRuleKey() {
+    ProjectData application = db.components().insertPublicApplication();
+    ProjectData otherApplication = db.components().insertPublicApplication();
+
+    db.executeInsert("issue_stats_by_rule_key",
+      "aggregation_type", "APPLICATION",
+      "aggregation_id", application.getProjectDto().getUuid(),
+      "rule_key", "rule1",
+      "issue_count", 1,
+      "rating", 2,
+      "hotspot_count", 3,
+      "hotspots_reviewed", 4);
+
+    db.executeInsert("issue_stats_by_rule_key",
+      "aggregation_type", "APPLICATION",
+      "aggregation_id", otherApplication.getProjectDto().getUuid(),
+      "rule_key", "rule1",
+      "issue_count", 1,
+      "rating", 2,
+      "hotspot_count", 3,
+      "hotspots_reviewed", 4);
+
+    assertThat(db.countRowsOfTable(dbSession, "issue_stats_by_rule_key")).isEqualTo(2);
+    underTest.deleteProject(dbSession, application.getProjectDto().getUuid(), "APP", application.getProjectDto().getName(), application.getProjectDto().getKey());
     assertThat(db.countRowsOfTable(dbSession, "issue_stats_by_rule_key")).isEqualTo(1);
   }
 

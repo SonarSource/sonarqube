@@ -57,4 +57,11 @@
     where aggregation_id = #{aggregationId}
       and aggregation_type = #{aggregationType}
   </delete>
+
+  <delete id="deleteIssueStatsForAggregationAndRuleKey" parameterType="map">
+    delete from issue_stats_by_rule_key
+    where aggregation_id = #{aggregationId}
+      and aggregation_type = #{aggregationType}
+      and rule_key = #{ruleKey}
+  </delete>
 </mapper>

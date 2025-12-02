@@ -61,6 +61,14 @@ public class IssueStatsByRuleKeyDaoImpl implements IssueStatsByRuleKeyDao {
     }
   }
 
+  public void upsert(String aggregationId, AggregationType aggregationType, IssueStats issueStats) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      mapper(dbSession).deleteIssueStatsForAggregationAndRuleKey(aggregationId, aggregationType.toString(), issueStats.ruleKey());
+      mapper(dbSession).insertIssueStats(aggregationId, aggregationType.toString(), List.of(issueStats));
+      dbSession.commit();
+    }
+  }
+
   private static IssueStatsByRuleKeyMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(IssueStatsByRuleKeyMapper.class);
   }

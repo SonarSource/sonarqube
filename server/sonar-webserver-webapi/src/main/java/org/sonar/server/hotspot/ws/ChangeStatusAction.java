@@ -19,9 +19,12 @@
  */
 package org.sonar.server.hotspot.ws;
 
+import io.sonarcloud.compliancereports.dao.AggregationType;
+import io.sonarcloud.compliancereports.dao.IssueStats;
 import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -34,6 +37,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTransition;
@@ -49,6 +53,8 @@ import static org.sonar.api.issue.Issue.SECURITY_HOTSPOT_RESOLUTIONS;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.db.component.BranchType.BRANCH;
+import static org.sonar.db.rule.SeverityUtil.getOrdinalFromSeverity;
+import static org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTransition.RESET_AS_TO_REVIEW;
 
 public class ChangeStatusAction implements HotspotsWsAction {
 
@@ -143,7 +149,7 @@ public class ChangeStatusAction implements HotspotsWsAction {
 
   private static SecurityHotspotWorkflowTransition toTransition(String newStatus, @Nullable String newResolution) {
     if (STATUS_TO_REVIEW.equals(newStatus)) {
-      return SecurityHotspotWorkflowTransition.RESET_AS_TO_REVIEW;
+      return RESET_AS_TO_REVIEW;
     }
 
     if (STATUS_REVIEWED.equals(newStatus) && RESOLUTION_FIXED.equals(newResolution)) {
@@ -167,8 +173,9 @@ public class ChangeStatusAction implements HotspotsWsAction {
       }
 
       issueUpdater.saveIssueAndPreloadSearchResponseData(session, issueDto, defaultIssue, context);
-
       BranchDto branch = issueUpdater.getBranch(session, defaultIssue);
+      updateIssueStatsByRuleKey(branch, defaultIssue.ruleKey(), transition.getKey());
+
       if (BRANCH.equals(branch.getBranchType())) {
         HotspotChangedEvent hotspotChangedEvent = buildEventData(defaultIssue, issueDto);
         hotspotChangeEventService.distributeHotspotChangedEvent(branch.getProjectUuid(), hotspotChangedEvent);
@@ -186,6 +193,23 @@ public class ChangeStatusAction implements HotspotsWsAction {
       .setAssignee(issueDto.getAssigneeLogin())
       .setFilePath(issueDto.getFilePath())
       .build();
+  }
+
+  private void updateIssueStatsByRuleKey(BranchDto branchDto, RuleKey ruleKey, String transitionKey) {
+    IssueStatsByRuleKeyDaoImpl dao = new IssueStatsByRuleKeyDaoImpl(dbClient);
+    var issueStats = dao.getIssueStats(branchDto.getUuid(), AggregationType.PROJECT).stream()
+      .filter(i -> i.ruleKey().equals(ruleKey.toString()))
+      .findFirst()
+      .orElse(new IssueStats(ruleKey.toString(), 0, 0, 0, 0));
+
+    var updatedIssueStats = updateIssueStatsWithTransition(issueStats, transitionKey);
+
+    dao.upsert(branchDto.getUuid(), AggregationType.PROJECT, updatedIssueStats);
+  }
+
+  private IssueStats updateIssueStatsWithTransition(IssueStats oldStats, String transitionKey) {
+    int adjustment = transitionKey.equals(RESET_AS_TO_REVIEW.getKey()) ? 1 : -1;
+    return new IssueStats(oldStats.ruleKey(), 0, 1, oldStats.hotspotCount() + adjustment, oldStats.hotspotsReviewed() - adjustment);
   }
 
 }

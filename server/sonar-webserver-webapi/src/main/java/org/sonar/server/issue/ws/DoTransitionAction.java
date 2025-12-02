@@ -20,10 +20,15 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
+import io.sonarcloud.compliancereports.dao.AggregationType;
+import io.sonarcloud.compliancereports.dao.IssueStats;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -36,6 +41,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.pushapi.issues.IssueChangeEventService;
@@ -44,6 +50,7 @@ import org.sonar.server.user.UserSession;
 import static java.lang.String.format;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.db.component.BranchType.BRANCH;
+import static org.sonar.db.rule.SeverityUtil.getOrdinalFromSeverity;
 import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.ACCEPT;
 import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.CONFIRM;
 import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.FALSE_POSITIVE;
@@ -67,6 +74,11 @@ public class DoTransitionAction implements IssuesWsAction {
   private final TransitionService transitionService;
   private final OperationResponseWriter responseWriter;
   private final System2 system2;
+
+  private static final Set<String> REOPEN_TRANSITIONS = Set.of(
+    REOPEN.getKey(),
+    UNCONFIRM.getKey()
+  );
 
   public DoTransitionAction(DbClient dbClient, UserSession userSession, IssueChangeEventService issueChangeEventService,
     IssueFinder issueFinder, IssueUpdater issueUpdater, TransitionService transitionService,
@@ -149,6 +161,7 @@ public class DoTransitionAction implements IssuesWsAction {
     if (transitionService.doTransition(defaultIssue, context, transitionKey)) {
       BranchDto branch = issueUpdater.getBranch(session, defaultIssue);
       SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issueDto, defaultIssue, context, branch);
+      updateIssueStatsByRuleKey(branch, issueDto.getRuleKey(), defaultIssue, transitionKey);
 
       if (branch.getBranchType().equals(BRANCH) && response.getComponentByUuid(defaultIssue.projectUuid()) != null) {
         issueChangeEventService.distributeIssueChangeEvent(defaultIssue, null, Map.of(), null, transitionKey, branch,
@@ -157,5 +170,24 @@ public class DoTransitionAction implements IssuesWsAction {
       return response;
     }
     return new SearchResponseData(issueDto);
+  }
+
+  private void updateIssueStatsByRuleKey(BranchDto branchDto, RuleKey ruleKey, DefaultIssue issue, String transitionKey) {
+    IssueStatsByRuleKeyDaoImpl dao = new IssueStatsByRuleKeyDaoImpl(dbClient);
+    var issueStats = dao.getIssueStats(branchDto.getUuid(), AggregationType.PROJECT).stream()
+      .filter(i -> i.ruleKey().equals(ruleKey.toString()))
+      .findFirst()
+      .orElse(new IssueStats(ruleKey.toString(), 0, 0, 0, 0));
+
+    var updatedIssueStats = updateIssueStatsWithTransition(issueStats, issue, transitionKey);
+
+    dao.upsert(branchDto.getUuid(), AggregationType.PROJECT, updatedIssueStats);
+  }
+
+  private IssueStats updateIssueStatsWithTransition(IssueStats oldStats, DefaultIssue issue, String transitionKey) {
+    int adjustment = REOPEN_TRANSITIONS.contains(transitionKey) ? 1 : -1;
+    int newIssueCount = oldStats.issueCount() + adjustment;
+    int newRating = newIssueCount == 0 ? 1 : (getOrdinalFromSeverity(Objects.requireNonNull(issue.severity())) + 1);
+    return new IssueStats(oldStats.ruleKey(), newIssueCount, newRating, 0, 0);
   }
 }

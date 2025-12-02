@@ -19,9 +19,8 @@
  */
 package org.sonar.server.hotspot.ws;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import io.sonarcloud.compliancereports.dao.AggregationType;
+import io.sonarcloud.compliancereports.dao.IssueStats;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -29,10 +28,12 @@ import java.util.Random;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.System2;
@@ -50,6 +51,7 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -82,18 +84,21 @@ import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
+import static org.sonar.core.rule.RuleType.CODE_SMELL;
 import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
+import static org.sonar.db.permission.ProjectPermission.SECURITYHOTSPOT_ADMIN;
+import static org.sonar.db.permission.ProjectPermission.USER;
 
-@RunWith(DataProviderRunner.class)
-public class ChangeStatusActionIT {
+class ChangeStatusActionIT {
   private static final Random RANDOM = new Random();
   private static final String NO_COMMENT = null;
   private static final List<String> RESOLUTION_TYPES = List.of(RESOLUTION_FIXED, RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED);
 
-  @Rule
+  @RegisterExtension
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-  @Rule
+  @RegisterExtension
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private DbClient dbClient = dbTester.getDbClient();
@@ -107,18 +112,18 @@ public class ChangeStatusActionIT {
   private WsActionTester actionTester = new WsActionTester(underTest);
   private BranchDto branchDto = mock(BranchDto.class);
 
-  @Before
-  public void setMock() {
+  @BeforeEach
+  void setMock() {
     when(issueUpdater.getBranch(any(), any())).thenReturn(branchDto);
   }
 
   @Test
-  public void define_shouldMarkWebServiceAsPublic() {
+  void define_shouldMarkWebServiceAsPublic() {
     assertThat(actionTester.getDef().isInternal()).isFalse();
   }
 
   @Test
-  public void fails_with_UnauthorizedException_if_user_is_anonymous() {
+  void fails_with_UnauthorizedException_if_user_is_anonymous() {
     userSessionRule.anonymous();
 
     TestRequest request = actionTester.newRequest();
@@ -129,7 +134,7 @@ public class ChangeStatusActionIT {
   }
 
   @Test
-  public void fails_with_IAE_if_parameter_hotspot_is_missing() {
+  void fails_with_IAE_if_parameter_hotspot_is_missing() {
     userSessionRule.logIn();
     TestRequest request = actionTester.newRequest();
 
@@ -139,7 +144,7 @@ public class ChangeStatusActionIT {
   }
 
   @Test
-  public void fails_with_IAE_if_parameter_status_is_missing() {
+  void fails_with_IAE_if_parameter_status_is_missing() {
     String key = secure().nextAlphabetic(12);
     userSessionRule.logIn();
     TestRequest request = actionTester.newRequest()
@@ -150,9 +155,9 @@ public class ChangeStatusActionIT {
       .hasMessage("The 'status' parameter is missing");
   }
 
-  @Test
-  @UseDataProvider("badStatuses")
-  public void fail_with_IAE_if_status_value_is_neither_REVIEWED_nor_TO_REVIEW(String badStatus) {
+  @ParameterizedTest
+  @MethodSource("badStatuses")
+  void fail_with_IAE_if_status_value_is_neither_REVIEWED_nor_TO_REVIEW(String badStatus) {
     String key = secure().nextAlphabetic(12);
     userSessionRule.logIn();
     TestRequest request = actionTester.newRequest()
@@ -164,7 +169,6 @@ public class ChangeStatusActionIT {
       .hasMessage("Value of parameter 'status' (" + badStatus + ") must be one of: [TO_REVIEW, REVIEWED]");
   }
 
-  @DataProvider
   public static Object[][] badStatuses() {
     return Stream.concat(
       Issue.STATUSES.stream()
@@ -175,9 +179,9 @@ public class ChangeStatusActionIT {
       .toArray(Object[][]::new);
   }
 
-  @Test
-  @UseDataProvider("badResolutions")
-  public void fail_with_IAE_if_resolution_value_is_neither_FIXED_nor_SAFE(String validStatus, String badResolution) {
+  @ParameterizedTest
+  @MethodSource("badResolutions")
+  void fail_with_IAE_if_resolution_value_is_neither_FIXED_nor_SAFE(String validStatus, String badResolution) {
     String key = secure().nextAlphabetic(12);
     userSessionRule.logIn();
     TestRequest request = actionTester.newRequest()
@@ -190,7 +194,6 @@ public class ChangeStatusActionIT {
       .hasMessage("Value of parameter 'resolution' (" + badResolution + ") must be one of: [FIXED, SAFE, ACKNOWLEDGED]");
   }
 
-  @DataProvider
   public static Object[][] badResolutions() {
     return Stream.of(STATUS_TO_REVIEW, STATUS_REVIEWED)
       .flatMap(t -> Stream.concat(Issue.RESOLUTIONS.stream(), Issue.SECURITY_HOTSPOT_RESOLUTIONS.stream())
@@ -199,9 +202,9 @@ public class ChangeStatusActionIT {
       .toArray(Object[][]::new);
   }
 
-  @Test
-  @UseDataProvider("validResolutions")
-  public void fail_with_IAE_if_status_is_TO_REVIEW_and_resolution_is_set(String resolution) {
+  @ParameterizedTest
+  @MethodSource("validResolutions")
+  void fail_with_IAE_if_status_is_TO_REVIEW_and_resolution_is_set(String resolution) {
     String key = secure().nextAlphabetic(12);
     userSessionRule.logIn();
     TestRequest request = actionTester.newRequest()
@@ -214,7 +217,6 @@ public class ChangeStatusActionIT {
       .hasMessage("Parameter 'resolution' must not be specified when Parameter 'status' has value 'TO_REVIEW'");
   }
 
-  @DataProvider
   public static Object[][] validResolutions() {
     return new Object[][] {
       {RESOLUTION_FIXED},
@@ -223,7 +225,8 @@ public class ChangeStatusActionIT {
     };
   }
 
-  public void fail_with_IAE_if_status_is_RESOLVED_and_resolution_is_not_set() {
+  @Test
+  void fail_with_IAE_if_status_is_RESOLVED_and_resolution_is_not_set() {
     String key = secure().nextAlphabetic(12);
     userSessionRule.logIn();
     TestRequest request = actionTester.newRequest()
@@ -232,12 +235,12 @@ public class ChangeStatusActionIT {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Parameter 'resolution' must not be specified when Parameter 'status' has value 'TO_REVIEW'");
+      .hasMessage("Value of parameter 'status' (RESOLVED) must be one of: [TO_REVIEW, REVIEWED]");
   }
 
-  @Test
-  @UseDataProvider("validStatusAndResolutions")
-  public void fails_with_NotFoundException_if_hotspot_does_not_exist(String status, @Nullable String resolution) {
+  @ParameterizedTest
+  @MethodSource("validStatusAndResolutions")
+  void fails_with_NotFoundException_if_hotspot_does_not_exist(String status, @Nullable String resolution) {
     String key = secure().nextAlphabetic(12);
     userSessionRule.logIn();
     TestRequest request = actionTester.newRequest()
@@ -252,9 +255,9 @@ public class ChangeStatusActionIT {
       .hasMessage("Hotspot '%s' does not exist", key);
   }
 
-  @Test
-  @UseDataProvider("validStatusAndResolutions")
-  public void fails_with_NotFoundException_if_hotspot_is_closed(String status, @Nullable String resolution) {
+  @ParameterizedTest
+  @MethodSource("validStatusAndResolutions")
+  void fails_with_NotFoundException_if_hotspot_is_closed(String status, @Nullable String resolution) {
     ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
@@ -272,7 +275,6 @@ public class ChangeStatusActionIT {
       .hasMessage("Hotspot '%s' does not exist", closedHotspot.getKey());
   }
 
-  @DataProvider
   public static Object[][] validStatusAndResolutions() {
     return new Object[][] {
       {STATUS_TO_REVIEW, null},
@@ -282,9 +284,9 @@ public class ChangeStatusActionIT {
     };
   }
 
-  @Test
-  @UseDataProvider("ruleTypesButHotspot")
-  public void fails_with_NotFoundException_if_issue_is_not_a_hotspot(String status, @Nullable String resolution, RuleType ruleType) {
+  @ParameterizedTest
+  @MethodSource("ruleTypesButHotspot")
+  void fails_with_NotFoundException_if_issue_is_not_a_hotspot(String status, @Nullable String resolution, RuleType ruleType) {
     ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(ruleType);
@@ -297,7 +299,6 @@ public class ChangeStatusActionIT {
       .hasMessage("Hotspot '%s' does not exist", notAHotspot.getKey());
   }
 
-  @DataProvider
   public static Object[][] ruleTypesButHotspot() {
     return Arrays.stream(RuleType.values())
       .filter(t -> t != SECURITY_HOTSPOT)
@@ -305,9 +306,9 @@ public class ChangeStatusActionIT {
       .toArray(Object[][]::new);
   }
 
-  @Test
-  @UseDataProvider("anyPublicProjectPermissionButHotspotAdmin")
-  public void fails_with_ForbiddenException_if_project_is_public_and_user_has_no_HotspotAdmin_permission_on_it(ProjectPermission permission) {
+  @ParameterizedTest
+  @MethodSource("anyPublicProjectPermissionButHotspotAdmin")
+  void fails_with_ForbiddenException_if_project_is_public_and_user_has_no_HotspotAdmin_permission_on_it(ProjectPermission permission) {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -328,7 +329,6 @@ public class ChangeStatusActionIT {
       });
   }
 
-  @DataProvider
   public static Object[][] anyPublicProjectPermissionButHotspotAdmin() {
     return new Object[][] {
       {ProjectPermission.ADMIN},
@@ -337,9 +337,9 @@ public class ChangeStatusActionIT {
     };
   }
 
-  @Test
-  @UseDataProvider("anyPrivateProjectPermissionButHotspotAdmin")
-  public void fails_with_ForbiddenException_if_project_is_private_and_has_no_IssueAdmin_permission_on_it(ProjectPermission permission) {
+  @ParameterizedTest
+  @MethodSource("anyPrivateProjectPermissionButHotspotAdmin")
+  void fails_with_ForbiddenException_if_project_is_private_and_has_no_IssueAdmin_permission_on_it(ProjectPermission permission) {
     ProjectData projectData = dbTester.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -360,7 +360,6 @@ public class ChangeStatusActionIT {
       });
   }
 
-  @DataProvider
   public static Object[][] anyPrivateProjectPermissionButHotspotAdmin() {
     return new Object[][] {
       {ProjectPermission.USER},
@@ -371,9 +370,9 @@ public class ChangeStatusActionIT {
     };
   }
 
-  @Test
-  @UseDataProvider("validStatusAndResolutions")
-  public void succeeds_on_public_project_with_HotspotAdmin_permission(String status, @Nullable String resolution) {
+  @ParameterizedTest
+  @MethodSource("validStatusAndResolutions")
+  void succeeds_on_public_project_with_HotspotAdmin_permission(String status, @Nullable String resolution) {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -385,9 +384,9 @@ public class ChangeStatusActionIT {
     newRequest(hotspot, status, resolution, NO_COMMENT).execute().assertNoContent();
   }
 
-  @Test
-  @UseDataProvider("validStatusAndResolutions")
-  public void succeeds_on_private_project_with_HotspotAdmin_permission(String status, @Nullable String resolution) {
+  @ParameterizedTest
+  @MethodSource("validStatusAndResolutions")
+  void succeeds_on_private_project_with_HotspotAdmin_permission(String status, @Nullable String resolution) {
     ProjectData projectData = dbTester.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -399,9 +398,9 @@ public class ChangeStatusActionIT {
     newRequest(hotspot, status, resolution, NO_COMMENT).execute().assertNoContent();
   }
 
-  @Test
-  @UseDataProvider("validStatusAndResolutions")
-  public void no_effect_and_success_if_hotspot_already_has_specified_status_and_resolution(String status, @Nullable String resolution) {
+  @ParameterizedTest
+  @MethodSource("validStatusAndResolutions")
+  void no_effect_and_success_if_hotspot_already_has_specified_status_and_resolution(String status, @Nullable String resolution) {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -415,9 +414,9 @@ public class ChangeStatusActionIT {
     verifyNoInteractions(transitionService, issueUpdater, issueFieldsSetter);
   }
 
-  @Test
-  @UseDataProvider("reviewedResolutionsAndExpectedTransitionKey")
-  public void success_to_change_hostpot_to_review_into_reviewed_status(String resolution, SecurityHotspotWorkflowTransition expectedTransition, boolean transitionDone) {
+  @ParameterizedTest
+  @MethodSource("reviewedResolutionsAndExpectedTransitionKey")
+  void success_to_change_hostpot_to_review_into_reviewed_status(String resolution, SecurityHotspotWorkflowTransition expectedTransition, boolean transitionDone) {
     long now = RANDOM.nextInt(232_323);
     when(system2.now()).thenReturn(now);
     ProjectData projectData = dbTester.components().insertPublicProject();
@@ -428,6 +427,7 @@ public class ChangeStatusActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(STATUS_TO_REVIEW).setResolution(null));
     when(transitionService.doTransition(any(), any(), any(SecurityHotspotWorkflowTransition.class))).thenReturn(transitionDone);
+    when(branchDto.getUuid()).thenReturn(project.uuid());
 
     newRequest(hotspot, STATUS_REVIEWED, resolution, NO_COMMENT).execute().assertNoContent();
 
@@ -454,7 +454,7 @@ public class ChangeStatusActionIT {
   }
 
   @Test
-  public void wsExecution_whenOnMainBranch_shouldDistributeEvents() {
+  void wsExecution_whenOnMainBranch_shouldDistributeEvents() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -466,6 +466,7 @@ public class ChangeStatusActionIT {
     when(branchDto.getProjectUuid()).thenReturn(projectUuid);
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
     when(transitionService.doTransition(any(), any(), any(SecurityHotspotWorkflowTransition.class))).thenReturn(true);
+    when(branchDto.getUuid()).thenReturn(project.uuid());
 
     newRequest(hotspot, STATUS_REVIEWED, RESOLUTION_FIXED, NO_COMMENT).execute();
 
@@ -473,7 +474,7 @@ public class ChangeStatusActionIT {
   }
 
   @Test
-  public void wsExecution_whenOnNonMainBranch_shouldDistributeEvents() {
+  void wsExecution_whenOnNonMainBranch_shouldDistributeEvents() {
     ProjectDto project = dbTester.components().insertPublicProject().getProjectDto();
     BranchDto branch = dbTester.components().insertProjectBranch(project, b -> b.setKey("develop"));
     ComponentDto branchComponentDto = dbTester.components().getComponentDto(branch);
@@ -486,13 +487,14 @@ public class ChangeStatusActionIT {
     userSessionRule.logIn().registerProjects(project)
       .registerBranches(branch)
       .addProjectPermission(ProjectPermission.SECURITYHOTSPOT_ADMIN, project);
+    when(branchDto.getUuid()).thenReturn(project.getUuid());
     newRequest(hotspot, STATUS_REVIEWED, RESOLUTION_FIXED, NO_COMMENT).execute();
 
     verify(hotspotChangeEventService).distributeHotspotChangedEvent(eq(branchDto.getProjectUuid()), any(HotspotChangedEvent.class));
   }
 
   @Test
-  public void wsExecution_whenBranchTypeIsPullRequest_shouldNotDistributeEvents() {
+  void wsExecution_whenBranchTypeIsPullRequest_shouldNotDistributeEvents() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -508,7 +510,6 @@ public class ChangeStatusActionIT {
     verifyNoInteractions(hotspotChangeEventService);
   }
 
-  @DataProvider
   public static Object[][] reviewedResolutionsAndExpectedTransitionKey() {
     return new Object[][] {
       {RESOLUTION_FIXED, SecurityHotspotWorkflowTransition.RESOLVE_AS_REVIEWED, true},
@@ -520,9 +521,9 @@ public class ChangeStatusActionIT {
     };
   }
 
-  @Test
-  @UseDataProvider("reviewedResolutions")
-  public void success_to_change_reviewed_hotspot_back_to_to_review(String resolution, boolean transitionDone) {
+  @ParameterizedTest
+  @MethodSource("reviewedResolutions")
+  void success_to_change_reviewed_hotspot_back_to_to_review(String resolution, boolean transitionDone) {
     long now = RANDOM.nextInt(232_323);
     when(system2.now()).thenReturn(now);
     ProjectData projectData = dbTester.components().insertPublicProject();
@@ -534,6 +535,7 @@ public class ChangeStatusActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(STATUS_REVIEWED).setResolution(resolution));
     when(transitionService.doTransition(any(), any(), any(SecurityHotspotWorkflowTransition.class))).thenReturn(transitionDone);
+    when(branchDto.getUuid()).thenReturn(project.uuid());
 
     newRequest(hotspot, STATUS_TO_REVIEW, null, NO_COMMENT).execute().assertNoContent();
 
@@ -559,7 +561,6 @@ public class ChangeStatusActionIT {
     }
   }
 
-  @DataProvider
   public static Object[][] reviewedResolutions() {
     return new Object[][] {
       {RESOLUTION_FIXED, true},
@@ -571,9 +572,9 @@ public class ChangeStatusActionIT {
     };
   }
 
-  @Test
-  @UseDataProvider("changingStatusAndTransitionFlag")
-  public void persists_comment_if_hotspot_status_changes_and_transition_done(String currentStatus, @Nullable String currentResolution,
+  @ParameterizedTest
+  @MethodSource("changingStatusAndTransitionFlag")
+  void persists_comment_if_hotspot_status_changes_and_transition_done(String currentStatus, @Nullable String currentResolution,
     String newStatus, @Nullable String newResolution, boolean transitionDone) {
     long now = RANDOM.nextInt(232_323);
     when(system2.now()).thenReturn(now);
@@ -587,6 +588,7 @@ public class ChangeStatusActionIT {
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(currentStatus).setResolution(currentResolution));
     when(transitionService.doTransition(any(), any(), any(SecurityHotspotWorkflowTransition.class))).thenReturn(transitionDone);
     String comment = secure().nextAlphabetic(12);
+    when(branchDto.getUuid()).thenReturn(project.uuid());
 
     newRequest(hotspot, newStatus, newResolution, comment).execute().assertNoContent();
 
@@ -608,7 +610,6 @@ public class ChangeStatusActionIT {
     }
   }
 
-  @DataProvider
   public static Object[][] changingStatusAndTransitionFlag() {
     Object[][] changingStatuses = {
       {STATUS_TO_REVIEW, null, STATUS_REVIEWED, RESOLUTION_FIXED},
@@ -632,9 +633,9 @@ public class ChangeStatusActionIT {
       .toArray(Object[][]::new);
   }
 
-  @Test
-  @UseDataProvider("validStatusAndResolutions")
-  public void do_not_persist_comment_if_no_status_change(String status, @Nullable String resolution) {
+  @ParameterizedTest
+  @MethodSource("validStatusAndResolutions")
+  void do_not_persist_comment_if_no_status_change(String status, @Nullable String resolution) {
     long now = RANDOM.nextInt(232_323);
     when(system2.now()).thenReturn(now);
     ProjectData projectData = dbTester.components().insertPublicProject();
@@ -649,6 +650,40 @@ public class ChangeStatusActionIT {
     newRequest(hotspot, status, resolution, comment).execute().assertNoContent();
 
     verifyNoInteractions(transitionService, issueUpdater, issueFieldsSetter);
+  }
+
+  @ParameterizedTest
+  @CsvSource(textBlock = """
+    TO_REVIEW,REVIEWED,FIXED,-1
+    TO_REVIEW,REVIEWED,SAFE,-1
+    TO_REVIEW,REVIEWED,ACKNOWLEDGED,-1
+    REVIEWED,TO_REVIEW,,1
+    """)
+  void hotspot_transition_updates_issue_stats(String oldStatus, String newStatus, String resolution, int adjustment) {
+    ProjectData projectData = dbTester.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDto rule = dbTester.rules().insertHotspotRule();
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, h -> h.setStatus(oldStatus).setResolution(null).setSeverity("MAJOR"));
+    userSessionRule.logIn()
+      .addProjectPermission(SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
+    IssueStatsByRuleKeyDaoImpl issueStatsByRuleKeyDao = new IssueStatsByRuleKeyDaoImpl(dbClient);
+    int oldHotspotCount = 3;
+    int oldHotspotsReviewed = 2;
+    issueStatsByRuleKeyDao.deleteAndInsertIssueStats(project.uuid(), AggregationType.PROJECT, List.of(
+      new IssueStats(hotspot.getRuleKey().toString(), 0, 0, oldHotspotCount, oldHotspotsReviewed))
+    );
+    when(transitionService.doTransition(any(), any(), any(SecurityHotspotWorkflowTransition.class))).thenReturn(true);
+    when(branchDto.getUuid()).thenReturn(project.uuid());
+
+    newRequest(hotspot, newStatus, resolution, null).execute().assertNoContent();
+
+    // verify issue stats updated
+    var issueStats = issueStatsByRuleKeyDao.getIssueStats(project.uuid(), AggregationType.PROJECT);
+    assertThat(issueStats)
+      .containsOnly(
+        new IssueStats(hotspot.getRuleKey().toString(), 0, 0, oldHotspotCount + adjustment, oldHotspotsReviewed - adjustment)
+      );
   }
 
   private TestRequest newRequest(IssueDto hotspot, String newStatus, @Nullable String newResolution, @Nullable String comment) {

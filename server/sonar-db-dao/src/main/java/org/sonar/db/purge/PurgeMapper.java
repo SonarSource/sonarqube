@@ -209,6 +209,6 @@ public interface PurgeMapper {
 
   void deleteArchitectureGraphsByBranchUuid(@Param("branchUuid") String branchUuid);
 
-  void deleteIssueStatsByRuleKey(@Param("branchUuid") String branchUuid);
+  void deleteIssueStatsByRuleKey(@Param("aggregationType") String aggregationType, @Param("aggregationId") String aggregationId);
 
 }

@@ -21,6 +21,7 @@ package org.sonar.db.purge;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import io.sonarcloud.compliancereports.dao.AggregationType;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -524,9 +525,9 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  public void deleteIssueStatsByRuleKey(String branchUuid) {
+  public void deleteIssueStatsByRuleKey(AggregationType aggregationType, String aggregationId) {
     profiler.start("deleteIssueStatsByRuleKey (issue_stats_by_rule_key)");
-    purgeMapper.deleteIssueStatsByRuleKey(branchUuid);
+    purgeMapper.deleteIssueStatsByRuleKey(aggregationType.toString(), aggregationId);
     session.commit();
     profiler.stop();
   }

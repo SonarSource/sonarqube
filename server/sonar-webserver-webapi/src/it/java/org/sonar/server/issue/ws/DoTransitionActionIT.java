@@ -19,9 +19,14 @@
  */
 package org.sonar.server.issue.ws;
 
+import io.sonarcloud.compliancereports.dao.AggregationType;
+import io.sonarcloud.compliancereports.dao.IssueStats;
+import java.util.List;
 import javax.annotation.Nullable;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.server.ws.Request;
@@ -34,6 +39,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -79,21 +85,22 @@ import static org.sonar.core.rule.RuleType.CODE_SMELL;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newIssue;
 import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
+import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
 import static org.sonar.db.permission.ProjectPermission.USER;
 
-public class DoTransitionActionIT {
+class DoTransitionActionIT {
 
   private static final long NOW = 999_776_888L;
 
   private System2 system2 = new TestSystem2().setNow(NOW);
 
-  @Rule
+  @RegisterExtension
   public DbTester db = DbTester.create(system2);
 
-  @Rule
+  @RegisterExtension
   public EsTester es = EsTester.create();
 
-  @Rule
+  @RegisterExtension
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private DbClient dbClient = db.getDbClient();
@@ -118,7 +125,7 @@ public class DoTransitionActionIT {
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
-  public void do_transition() {
+  void do_transition() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
@@ -135,8 +142,41 @@ public class DoTransitionActionIT {
     assertThat(issueChangePostProcessor.calledComponents()).containsExactlyInAnyOrder(file);
   }
 
+  @ParameterizedTest
+  @CsvSource(textBlock = """
+    OPEN,confirm,-1
+    OPEN,falsepositive,-1
+    OPEN,accept,-1
+    OPEN,resolve,-1
+    CONFIRMED,unconfirm,1
+    RESOLVED,reopen,1
+    """)
+  void issue_transition_updates_issue_stats(String status, String transition, int adjustment) {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDto rule = db.rules().insertIssueRule();
+    IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setStatus(status).setResolution(null).setType(CODE_SMELL).setSeverity("MAJOR"));
+    userSession.logIn(db.users().insertUser())
+      .addProjectPermission(USER, project, file)
+      .addProjectPermission(ISSUE_ADMIN, project, file);
+    IssueStatsByRuleKeyDaoImpl issueStatsByRuleKeyDao = new IssueStatsByRuleKeyDaoImpl(dbClient);
+    int existingIssueCount = 5;
+    issueStatsByRuleKeyDao.deleteAndInsertIssueStats(project.uuid(), AggregationType.PROJECT, List.of(
+      new IssueStats(issue.getRuleKey().toString(), existingIssueCount, 3, 0, 0))
+    );
+
+    call(issue.getKey(), transition);
+
+    // verify issue stats updated
+    var issueStats = issueStatsByRuleKeyDao.getIssueStats(project.uuid(), AggregationType.PROJECT);
+    assertThat(issueStats)
+      .containsOnly(
+        new IssueStats(issue.getRuleKey().toString(), existingIssueCount + adjustment, 3, 0, 0)
+      );
+  }
+
   @Test
-  public void do_transition_is_not_distributed_for_pull_request() {
+  void do_transition_is_not_distributed_for_pull_request() {
     RuleDto rule = db.rules().insertIssueRule();
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
@@ -155,7 +195,7 @@ public class DoTransitionActionIT {
   }
 
   @Test
-  public void transition_succeeds_on_external_issue() {
+  void transition_succeeds_on_external_issue() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto externalRule = db.rules().insertIssueRule(r -> r.setIsExternal(true));
@@ -168,7 +208,7 @@ public class DoTransitionActionIT {
   }
 
   @Test
-  public void fail_if_hotspot() {
+  void fail_if_hotspot() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertHotspotRule();
@@ -182,7 +222,7 @@ public class DoTransitionActionIT {
   }
 
   @Test
-  public void fail_if_issue_does_not_exist() {
+  void fail_if_issue_does_not_exist() {
     userSession.logIn();
 
     assertThatThrownBy(() -> call("UNKNOWN", "confirm"))
@@ -190,7 +230,7 @@ public class DoTransitionActionIT {
   }
 
   @Test
-  public void fail_if_no_issue_param() {
+  void fail_if_no_issue_param() {
     userSession.logIn();
 
     assertThatThrownBy(() -> call(null, "confirm"))
@@ -198,7 +238,7 @@ public class DoTransitionActionIT {
   }
 
   @Test
-  public void fail_if_no_transition_param() {
+  void fail_if_no_transition_param() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
@@ -210,7 +250,7 @@ public class DoTransitionActionIT {
   }
 
   @Test
-  public void fail_if_not_enough_permission_to_access_issue() {
+  void fail_if_not_enough_permission_to_access_issue() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
@@ -222,7 +262,7 @@ public class DoTransitionActionIT {
   }
 
   @Test
-  public void fail_if_not_enough_permission_to_apply_transition() {
+  void fail_if_not_enough_permission_to_apply_transition() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
@@ -235,7 +275,7 @@ public class DoTransitionActionIT {
   }
 
   @Test
-  public void fail_if_not_authenticated() {
+  void fail_if_not_authenticated() {
     assertThatThrownBy(() -> call("ISSUE_KEY", "confirm"))
       .isInstanceOf(UnauthorizedException.class);
   }
