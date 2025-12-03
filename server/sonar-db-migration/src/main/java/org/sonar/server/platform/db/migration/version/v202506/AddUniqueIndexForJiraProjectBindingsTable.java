@@ -19,18 +19,19 @@
  */
 package org.sonar.server.platform.db.migration.version.v202506;
 
+import java.util.Map;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.step.CreateNonUniqueIndexOnColumns;
+import org.sonar.server.platform.db.migration.step.CreateUniqueIndexOnColumns;
 
-public class AddResourceIndexForJiraWorkItemsResourcesTable extends CreateNonUniqueIndexOnColumns {
+public class AddUniqueIndexForJiraProjectBindingsTable extends CreateUniqueIndexOnColumns {
 
-  private static final String TABLE_NAME = "jira_work_items_resources";
-  private static final String INDEX_PREFIX = "ix";
-  private static final String COLUMN_RESOURCE_ID = "resource_id";
-  private static final String COLUMN_RESOURCE_TYPE = "resource_type";
+  private static final String TABLE_NAME = "jira_project_bindings";
+  private static final String INDEX_NAME = "idx_jira_proj_bindings_unique";
+  static final String JIRA_ORGANIZATION_BINDING_ID = "jira_organization_binding_id";
+  static final String SONAR_PROJECT_ID = "sonar_project_id";
 
-  protected AddResourceIndexForJiraWorkItemsResourcesTable(Database db) {
-    super(db, TABLE_NAME, INDEX_PREFIX, COLUMN_RESOURCE_ID, COLUMN_RESOURCE_TYPE);
+  protected AddUniqueIndexForJiraProjectBindingsTable(Database db) {
+    super(db, TABLE_NAME, INDEX_NAME, Map.of(JIRA_ORGANIZATION_BINDING_ID, false, SONAR_PROJECT_ID, false));
   }
 
 }

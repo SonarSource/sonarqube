@@ -21,42 +21,37 @@ package org.sonar.server.platform.db.migration.step;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Map;
 import org.sonar.db.Database;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
 
-public abstract class CreateIndexOnColumns extends DdlChange {
+public abstract class CreateUniqueIndexOnColumns extends DdlChange {
 
   private final String table;
-  private final String indexPrefix;
-  private final String[] columnNames;
-  private final boolean unique;
+  private final String indexName;
+  private final Map<String, Boolean> columnNamesAndNullability;
 
-  protected CreateIndexOnColumns(Database db, String table, String indexPrefix, boolean unique, String... columnNames) {
+  protected CreateUniqueIndexOnColumns(Database db, String table, String indexName, Map<String, Boolean> columnNamesAndNullability) {
     super(db);
     this.table = table;
-    this.indexPrefix = indexPrefix;
-    this.unique = unique;
-    this.columnNames = columnNames;
+    this.indexName = indexName;
+    this.columnNamesAndNullability = columnNamesAndNullability;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
     try (Connection connection = getDatabase().getDataSource().getConnection()) {
-      if (!DatabaseUtils.indexExistsIgnoreCase(table, newIndexName(), connection)) {
+      if (!DatabaseUtils.indexExistsIgnoreCase(table, indexName, connection)) {
         CreateIndexBuilder builder = new CreateIndexBuilder(getDialect())
           .setTable(table)
-          .setName(newIndexName())
-          .setUnique(unique);
-        for (String columnName : columnNames) {
-          builder.addColumn(columnName);
+          .setName(indexName)
+          .setUnique(true);
+        for (var entry : columnNamesAndNullability.entrySet()) {
+          builder.addColumn(entry.getKey(), entry.getValue());
         }
         context.execute(builder.build());
       }
     }
-  }
-
-  public String newIndexName() {
-    return indexPrefix + "_" + String.join("_", columnNames);
   }
 }
