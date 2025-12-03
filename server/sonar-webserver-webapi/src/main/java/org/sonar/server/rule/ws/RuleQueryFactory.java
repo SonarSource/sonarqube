@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.Request;
@@ -148,7 +149,7 @@ public class RuleQueryFactory {
     ComplianceCategoryRules rules = metadataRules.getRules(categoriesByStandard);
     if (rules.ruleKeys().isEmpty() && rules.repoRuleKeys().isEmpty()) {
       // either invalid category or category with no rules
-      return new ComplianceCategoryRules(List.of(), List.of("non-existing-uuid"));
+      return new ComplianceCategoryRules(Set.of(), Set.of("non-existing-uuid"));
     }
     return rules;
   }
