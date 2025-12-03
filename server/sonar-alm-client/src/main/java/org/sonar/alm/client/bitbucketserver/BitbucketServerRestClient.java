@@ -46,6 +46,8 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static java.net.URLEncoder.encode;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.ENGLISH;
 import static org.apache.commons.lang3.Strings.CS;
 
@@ -88,7 +90,8 @@ public class BitbucketServerRestClient {
     String projectOrEmpty = Optional.ofNullable(project).orElse("");
     String repoOrEmpty = Optional.ofNullable(repo).orElse("");
     String startOrEmpty = Optional.ofNullable(start).map(String::valueOf).orElse("");
-    HttpUrl url = buildUrl(serverUrl, format("/rest/api/1.0/repos?projectname=%s&name=%s&start=%s&limit=%s", projectOrEmpty, repoOrEmpty, startOrEmpty, pageSize));
+    HttpUrl url = buildUrl(serverUrl, format("/rest/api/1.0/repos?projectname=%s&name=%s&start=%s&limit=%s", encode(projectOrEmpty,
+      UTF_8), encode(repoOrEmpty, UTF_8), startOrEmpty, pageSize));
     return doGet(token, url, body -> buildGson().fromJson(body, RepositoryList.class));
   }
 
