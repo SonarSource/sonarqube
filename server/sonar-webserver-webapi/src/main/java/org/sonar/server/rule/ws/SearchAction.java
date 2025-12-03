@@ -301,10 +301,12 @@ public class SearchAction implements RulesWsAction {
       .setOffset(context.getOffset());
     if (context.getFacets().contains(RuleIndex.FACET_OLD_DEFAULT)) {
       searchOptions.addFacets(DEFAULT_FACETS);
-    } else if (context.getFacets().contains(FACET_COMPLIANCE_STANDARDS)) {
-      searchOptions.addComplianceFacets(metadataLoader.getAllReportsAsStrings());
     } else {
       searchOptions.addFacets(context.getFacets());
+      if (context.getFacets().contains(FACET_COMPLIANCE_STANDARDS)) {
+        searchOptions.addComplianceFacets(metadataLoader.getAllReportsAsStrings());
+        searchOptions.getFacets().remove(FACET_COMPLIANCE_STANDARDS);
+      }
     }
     return searchOptions;
   }
