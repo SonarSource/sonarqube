@@ -331,4 +331,14 @@ public class NoOpAuditPersister implements AuditPersister {
   public void componentKeyBranchUpdate(DbSession session, ComponentKeyNewValue componentKeyNewValue, String qualifier) {
     // no op
   }
+
+  @Override
+  public void validateDevOpsPlatformSettingSuccess(DbSession dbSession, DevOpsPlatformSettingNewValue newValue) {
+    // no op
+  }
+
+  @Override
+  public void validateDevOpsPlatformSettingFailure(DbSession dbSession, DevOpsPlatformSettingNewValue newValue) {
+    // no op
+  }
 }
