@@ -47,7 +47,13 @@ public abstract class CreateUniqueIndexOnColumns extends DdlChange {
           .setTable(table)
           .setName(indexName)
           .setUnique(true);
-        for (var entry : columnNamesAndNullability.entrySet()) {
+
+        // sort the entries so that the index is deterministic.
+        var sortedEntries = columnNamesAndNullability.entrySet()
+          .stream()
+          .sorted(Map.Entry.comparingByKey())
+          .toList();
+        for (var entry : sortedEntries) {
           builder.addColumn(entry.getKey(), entry.getValue());
         }
         context.execute(builder.build());
