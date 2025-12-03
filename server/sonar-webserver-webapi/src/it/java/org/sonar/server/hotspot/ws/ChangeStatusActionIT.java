@@ -682,7 +682,7 @@ class ChangeStatusActionIT {
     var issueStats = issueStatsByRuleKeyDao.getIssueStats(project.uuid(), AggregationType.PROJECT);
     assertThat(issueStats)
       .containsOnly(
-        new IssueStats(hotspot.getRuleKey().toString(), 0, 0, oldHotspotCount + adjustment, oldHotspotsReviewed - adjustment)
+        new IssueStats(hotspot.getRuleKey().toString(), 0, 1, oldHotspotCount + adjustment, oldHotspotsReviewed - adjustment)
       );
   }
 

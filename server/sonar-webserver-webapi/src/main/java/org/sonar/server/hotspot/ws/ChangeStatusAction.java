@@ -29,7 +29,6 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
@@ -37,6 +36,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.TransitionService;
@@ -53,7 +53,6 @@ import static org.sonar.api.issue.Issue.SECURITY_HOTSPOT_RESOLUTIONS;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.db.component.BranchType.BRANCH;
-import static org.sonar.db.rule.SeverityUtil.getOrdinalFromSeverity;
 import static org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTransition.RESET_AS_TO_REVIEW;
 
 public class ChangeStatusAction implements HotspotsWsAction {
@@ -207,7 +206,7 @@ public class ChangeStatusAction implements HotspotsWsAction {
     dao.upsert(branchDto.getUuid(), AggregationType.PROJECT, updatedIssueStats);
   }
 
-  private IssueStats updateIssueStatsWithTransition(IssueStats oldStats, String transitionKey) {
+  private static IssueStats updateIssueStatsWithTransition(IssueStats oldStats, String transitionKey) {
     int adjustment = transitionKey.equals(RESET_AS_TO_REVIEW.getKey()) ? 1 : -1;
     return new IssueStats(oldStats.ruleKey(), 0, 1, oldStats.hotspotCount() + adjustment, oldStats.hotspotsReviewed() - adjustment);
   }

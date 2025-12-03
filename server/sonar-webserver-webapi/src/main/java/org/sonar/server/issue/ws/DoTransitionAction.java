@@ -75,7 +75,7 @@ public class DoTransitionAction implements IssuesWsAction {
   private final OperationResponseWriter responseWriter;
   private final System2 system2;
 
-  private static final Set<String> REOPEN_TRANSITIONS = Set.of(
+  private final static Set<String> REOPEN_TRANSITIONS = Set.of(
     REOPEN.getKey(),
     UNCONFIRM.getKey()
   );
@@ -184,7 +184,7 @@ public class DoTransitionAction implements IssuesWsAction {
     dao.upsert(branchDto.getUuid(), AggregationType.PROJECT, updatedIssueStats);
   }
 
-  private IssueStats updateIssueStatsWithTransition(IssueStats oldStats, DefaultIssue issue, String transitionKey) {
+  private static IssueStats updateIssueStatsWithTransition(IssueStats oldStats, DefaultIssue issue, String transitionKey) {
     int adjustment = REOPEN_TRANSITIONS.contains(transitionKey) ? 1 : -1;
     int newIssueCount = oldStats.issueCount() + adjustment;
     int newRating = newIssueCount == 0 ? 1 : (getOrdinalFromSeverity(Objects.requireNonNull(issue.severity())) + 1);
