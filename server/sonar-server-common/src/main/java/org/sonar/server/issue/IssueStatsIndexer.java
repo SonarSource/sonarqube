@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.issue.IssueStatsDto;
 import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
@@ -59,6 +60,10 @@ public class IssueStatsIndexer implements AnalysisIndexer {
         .orElseThrow(() -> new IllegalStateException("Can't find entity for uuid " + branchUuid));
 
       if (entity.isProject()) {
+        if (isPullRequestBranch(branchUuid, dbSession)) {
+          return;
+        }
+
         ingestForSingleBranch(dbSession, branchUuid);
       } else {
         ingestForPortfolioOrApp(dbSession, branchUuid, entity.isPortfolio() ? AggregationType.PORTFOLIO : AggregationType.APPLICATION);
@@ -106,4 +111,7 @@ public class IssueStatsIndexer implements AnalysisIndexer {
     return new IssueFromAnalysis(ruleKey, issue.getStatus(), isHotspot, severity);
   }
 
+  private boolean isPullRequestBranch(String branchUuid, DbSession dbSession) {
+    return dbClient.branchDao().selectByUuid(dbSession, branchUuid).stream().anyMatch(b -> b.getBranchType() == BranchType.PULL_REQUEST);
+  }
 }

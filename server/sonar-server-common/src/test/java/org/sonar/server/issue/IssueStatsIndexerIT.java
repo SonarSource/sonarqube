@@ -23,6 +23,7 @@ import io.sonarcloud.compliancereports.dao.AggregationType;
 import io.sonarcloud.compliancereports.ingestion.IssueIngestionService;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import org.junit.Rule;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -35,10 +36,10 @@ import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.issue.index.IssueIteratorFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 
 class IssueStatsIndexerIT {
   @Rule
@@ -140,6 +141,18 @@ class IssueStatsIndexerIT {
         );
     }
 
+    @Test
+    void shouldNotIngestOnPullRequestBranchAnalysis() {
+      String pullRequest = "pr-1234";
+
+      BranchDto branchDto = insertProjectBranchWithIssues("branch-1", Set.of(rule1), b -> b.setKey(pullRequest).setBranchType(PULL_REQUEST));
+
+      underTest.indexOnAnalysis(branchDto.getUuid());
+
+      var issueStats = new IssueStatsByRuleKeyDaoImpl(dbClient).getIssueStats(branchDto.getUuid(), AggregationType.PROJECT);
+      assertThat(issueStats).isEmpty();
+    }
+
     private void insertApplicationWithProjectBranches(String applicationUuid, List<BranchDto> branches) {
       db.components().insertPrivateApplication(applicationUuid);
 
@@ -187,8 +200,12 @@ class IssueStatsIndexerIT {
     }
 
     private BranchDto insertProjectBranchWithIssues(String projectUuid, String branchUuid, Set<RuleDto> rules) {
+      return insertProjectBranchWithIssues(projectUuid, rules, b -> b.setUuid(branchUuid));
+    }
+
+    private BranchDto insertProjectBranchWithIssues(String projectUuid, Set<RuleDto> rules, Consumer<BranchDto> branchDtoConsumer) {
       var project = db.components().insertPrivateProject(projectUuid);
-      var branch = db.components().insertProjectBranch(project.getProjectDto(), b -> b.setUuid(branchUuid));
+      var branch = db.components().insertProjectBranch(project.getProjectDto(), branchDtoConsumer);
       var file = db.components().insertFile(branch);
       for (RuleDto rule : rules) {
         if (rule.getEnumType() == RuleType.SECURITY_HOTSPOT) {
