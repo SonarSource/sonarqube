@@ -301,7 +301,7 @@ subprojects {
     dependencies {
       // bundled plugin list -- keep it alphabetically ordered
       dependency 'com.sonarsource.abap:sonar-abap-plugin:3.16.0.7570'
-      dependency 'com.sonarsource.armor:sonar-jasmin-plugin:1.10.0.8762'
+      dependency 'com.sonarsource.armor:sonar-jasmin-plugin:1.11.0.8805'
       dependency 'com.sonarsource.cobol:sonar-cobol-plugin:5.9.0.8697'
       dependency 'com.sonarsource.cpp:sonar-cfamily-dependencies-plugin:6.75.1.93101'
       dependency 'com.sonarsource.cpp:sonar-cfamily-plugin:6.75.1.93101'
