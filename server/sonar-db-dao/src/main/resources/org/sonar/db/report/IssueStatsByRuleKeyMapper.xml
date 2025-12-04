@@ -7,6 +7,7 @@
     rule_key as ruleKey,
     issue_count as issueCount,
     rating as rating,
+    mqr_rating as mqrRating,
     hotspot_count as hotspotCount,
     hotspots_reviewed as hotspotsReviewed
   </sql>
@@ -37,6 +38,7 @@
       rule_key,
       issue_count,
       rating,
+      mqr_rating,
       hotspot_count,
       hotspots_reviewed
     ) values (
@@ -46,6 +48,7 @@
         #{item.ruleKey},
         #{item.issueCount},
         #{item.rating},
+        #{item.mqrRating},
         #{item.hotspotCount},
         #{item.hotspotsReviewed}
       </foreach>

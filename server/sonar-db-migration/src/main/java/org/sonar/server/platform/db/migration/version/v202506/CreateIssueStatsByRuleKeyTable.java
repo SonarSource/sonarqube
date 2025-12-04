@@ -34,6 +34,7 @@ public class CreateIssueStatsByRuleKeyTable extends CreateTableChange {
   static final String COLUMN_RULE_KEY = "rule_key";
   static final String COLUMN_ISSUE_COUNT = "issue_count";
   static final String COLUMN_RATING = "rating";
+  static final String COLUMN_MQR_RATING = "mqr_rating";
   static final String COLUMN_HOTSPOT_COUNT = "hotspot_count";
   static final String COLUMN_HOTSPOTS_REVIEWED = "hotspots_reviewed";
 
@@ -51,6 +52,7 @@ public class CreateIssueStatsByRuleKeyTable extends CreateTableChange {
       .addPkColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_RULE_KEY).setIsNullable(false).setLimit(200).build())
       .addColumn(newIntegerColumnDefBuilder().setColumnName(COLUMN_ISSUE_COUNT).setIsNullable(false).build())
       .addColumn(newIntegerColumnDefBuilder().setColumnName(COLUMN_RATING).setIsNullable(false).build())
+      .addColumn(newIntegerColumnDefBuilder().setColumnName(COLUMN_MQR_RATING).setIsNullable(false).build())
       .addColumn(newIntegerColumnDefBuilder().setColumnName(COLUMN_HOTSPOT_COUNT).setIsNullable(true).build())
       .addColumn(newIntegerColumnDefBuilder().setColumnName(COLUMN_HOTSPOTS_REVIEWED).setIsNullable(true).build())
       .build());

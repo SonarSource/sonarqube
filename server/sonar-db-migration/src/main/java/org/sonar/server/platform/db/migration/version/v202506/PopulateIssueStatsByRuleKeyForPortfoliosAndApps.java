@@ -27,8 +27,8 @@ import org.sonar.server.platform.db.migration.step.MassUpdate;
 public class PopulateIssueStatsByRuleKeyForPortfoliosAndApps extends DataChange {
   private static final String UPDATE_QUERY = """
       insert into issue_stats_by_rule_key
-      (aggregation_type, aggregation_id, rule_key, issue_count, rating, hotspot_count, hotspots_reviewed)
-      values (?, ?, ?, ?, ?, ?, ?);
+      (aggregation_type, aggregation_id, rule_key, issue_count, rating, mqr_rating, hotspot_count, hotspots_reviewed)
+      values (?, ?, ?, ?, ?, ?, ?, ?);
     """;
 
   private static final String SELECT_QUERY = """
@@ -40,6 +40,7 @@ public class PopulateIssueStatsByRuleKeyForPortfoliosAndApps extends DataChange 
         i.rule_key,
         SUM(i.issue_count),
         MAX(i.rating),
+        MAX(i.mqr_rating),
         SUM(i.hotspot_count),
         SUM(i.hotspots_reviewed)
       FROM issue_stats_by_rule_key i
@@ -74,10 +75,12 @@ public class PopulateIssueStatsByRuleKeyForPortfoliosAndApps extends DataChange 
         .setInt(4, row.getInt(4))
         // rating
         .setInt(5, row.getInt(5))
-        // hotspot_count
+        // mqr_rating
         .setInt(6, row.getInt(6))
-        // hotspots_reviewed
+        // hotspot_count
         .setInt(7, row.getInt(7))
+        // hotspots_reviewed
+        .setInt(8, row.getInt(8))
       ;
       return true;
     });

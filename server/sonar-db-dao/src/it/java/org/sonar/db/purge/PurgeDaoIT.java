@@ -2077,23 +2077,8 @@ oldCreationDate));
     BranchDto branch1 = db.components().insertProjectBranch(project);
     BranchDto branch2 = db.components().insertProjectBranch(project);
 
-    db.executeInsert("issue_stats_by_rule_key",
-      "aggregation_type", "PROJECT",
-      "aggregation_id", branch1.getUuid(),
-      "rule_key", "rule1",
-      "issue_count", 1,
-      "rating", 2,
-      "hotspot_count", 3,
-      "hotspots_reviewed", 4);
-
-    db.executeInsert("issue_stats_by_rule_key",
-      "aggregation_type", "PROJECT",
-      "aggregation_id", branch2.getUuid(),
-      "rule_key", "rule1",
-      "issue_count", 1,
-      "rating", 2,
-      "hotspot_count", 3,
-      "hotspots_reviewed", 4);
+    insertIssueStats("PROJECT", branch1.getUuid());
+    insertIssueStats("PROJECT", branch2.getUuid());
 
     assertThat(db.countRowsOfTable(dbSession, "issue_stats_by_rule_key")).isEqualTo(2);
     underTest.deleteBranch(dbSession, branch1.getUuid());
@@ -2105,23 +2090,8 @@ oldCreationDate));
     ComponentDto portfolio = db.components().insertPublicPortfolio();
     ComponentDto otherPortfolio = db.components().insertPublicPortfolio();
 
-    db.executeInsert("issue_stats_by_rule_key",
-      "aggregation_type", "PORTFOLIO",
-      "aggregation_id", portfolio.uuid(),
-      "rule_key", "rule1",
-      "issue_count", 1,
-      "rating", 2,
-      "hotspot_count", 3,
-      "hotspots_reviewed", 4);
-
-    db.executeInsert("issue_stats_by_rule_key",
-      "aggregation_type", "PORTFOLIO",
-      "aggregation_id", otherPortfolio.uuid(),
-      "rule_key", "rule1",
-      "issue_count", 1,
-      "rating", 2,
-      "hotspot_count", 3,
-      "hotspots_reviewed", 4);
+    insertIssueStats("PORTFOLIO", portfolio.uuid());
+    insertIssueStats("PORTFOLIO", otherPortfolio.uuid());
 
     assertThat(db.countRowsOfTable(dbSession, "issue_stats_by_rule_key")).isEqualTo(2);
     underTest.deleteProject(dbSession, portfolio.uuid(), portfolio.qualifier(), portfolio.name(), portfolio.getKey());
@@ -2133,27 +2103,24 @@ oldCreationDate));
     ProjectData application = db.components().insertPublicApplication();
     ProjectData otherApplication = db.components().insertPublicApplication();
 
-    db.executeInsert("issue_stats_by_rule_key",
-      "aggregation_type", "APPLICATION",
-      "aggregation_id", application.getProjectDto().getUuid(),
-      "rule_key", "rule1",
-      "issue_count", 1,
-      "rating", 2,
-      "hotspot_count", 3,
-      "hotspots_reviewed", 4);
-
-    db.executeInsert("issue_stats_by_rule_key",
-      "aggregation_type", "APPLICATION",
-      "aggregation_id", otherApplication.getProjectDto().getUuid(),
-      "rule_key", "rule1",
-      "issue_count", 1,
-      "rating", 2,
-      "hotspot_count", 3,
-      "hotspots_reviewed", 4);
+    insertIssueStats("APPLICATION", application.getProjectDto().getUuid());
+    insertIssueStats("APPLICATION", otherApplication.getProjectDto().getUuid());
 
     assertThat(db.countRowsOfTable(dbSession, "issue_stats_by_rule_key")).isEqualTo(2);
     underTest.deleteProject(dbSession, application.getProjectDto().getUuid(), "APP", application.getProjectDto().getName(), application.getProjectDto().getKey());
     assertThat(db.countRowsOfTable(dbSession, "issue_stats_by_rule_key")).isEqualTo(1);
+  }
+
+  private void insertIssueStats(String aggregationType, String aggregationId) {
+    db.executeInsert("issue_stats_by_rule_key",
+      "aggregation_type", aggregationType,
+      "aggregation_id", aggregationId,
+      "rule_key", "rule1",
+      "issue_count", 1,
+      "rating", 2,
+      "mqr_rating", 3,
+      "hotspot_count", 3,
+      "hotspots_reviewed", 4);
   }
 
   @Test

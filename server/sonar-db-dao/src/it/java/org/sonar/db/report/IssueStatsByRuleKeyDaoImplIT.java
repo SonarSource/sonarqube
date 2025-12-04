@@ -50,6 +50,7 @@ class IssueStatsByRuleKeyDaoImplIT {
         assertThat(issueStats.ruleKey()).isEqualTo("githubactions:S7630");
         assertThat(issueStats.issueCount()).isEqualTo(6);
         assertThat(issueStats.rating()).isEqualTo(5);
+        assertThat(issueStats.mqrRating()).isEqualTo(4);
         assertThat(issueStats.hotspotCount()).isZero();
         assertThat(issueStats.hotspotsReviewed()).isZero();
       })
@@ -65,24 +66,25 @@ class IssueStatsByRuleKeyDaoImplIT {
   @Test
   void shouldDeleteAndInsertIssueStatsForProject() throws SQLException {
     var issueStatsList = List.of(
-      new IssueStats("githubactions:S7630", 6, 5, 0, 0),
-      new IssueStats("githubactions:S7640", 3, 3, 1, 1)
+      new IssueStats("githubactions:S7630", 6, 5, 3, 0, 0),
+      new IssueStats("githubactions:S7640", 3, 3, 5, 1, 1)
     );
 
     insertSampleIssueStats();
 
     underTest.deleteAndInsertIssueStats("b728478a-470f-4cb2-8a19-9302632e049f", PROJECT, issueStatsList);
     assertThat(getIssueStats())
-      .extracting(IssueStats::ruleKey, IssueStats::issueCount, IssueStats::rating, IssueStats::hotspotCount, IssueStats::hotspotsReviewed)
+      .extracting(IssueStats::ruleKey, IssueStats::issueCount, IssueStats::rating, IssueStats::mqrRating,
+        IssueStats::hotspotCount, IssueStats::hotspotsReviewed)
       .containsOnly(
-        tuple("githubactions:S7630", 6, 5, 0, 0),
-        tuple("githubactions:S7640", 3, 3, 1, 1)
+        tuple("githubactions:S7630", 6, 5, 3, 0, 0),
+        tuple("githubactions:S7640", 3, 3, 5, 1, 1)
       );
   }
 
   private List<IssueStats> getIssueStats() throws SQLException {
     var statement = db.getSession().getConnection().prepareStatement(
-      "SELECT rule_key, issue_count, rating, hotspot_count, hotspots_reviewed " +
+      "SELECT rule_key, issue_count, rating, mqr_rating, hotspot_count, hotspots_reviewed " +
         "FROM issue_stats_by_rule_key " +
         "WHERE aggregation_type='PROJECT' AND aggregation_id='b728478a-470f-4cb2-8a19-9302632e049f'"
     );
@@ -94,6 +96,7 @@ class IssueStatsByRuleKeyDaoImplIT {
           resultSet.getString("rule_key"),
           resultSet.getInt("issue_count"),
           resultSet.getInt("rating"),
+          resultSet.getInt("mqr_rating"),
           resultSet.getInt("hotspot_count"),
           resultSet.getInt("hotspots_reviewed")
         ));
@@ -128,9 +131,9 @@ class IssueStatsByRuleKeyDaoImplIT {
   private void insertSampleIssueStats() throws SQLException {
     try (var c = db.openConnection(); var statement = c.prepareStatement(
       """
-        INSERT INTO issue_stats_by_rule_key (aggregation_type, aggregation_id, rule_key, issue_count, rating, hotspot_count, hotspots_reviewed)
-        VALUES ('PROJECT', 'b728478a-470f-4cb2-8a19-9302632e049f', 'githubactions:S7630', 6, 5, 0, 0),
-        ('PROJECT', 'b728478a-470f-4cb2-8a19-9302632e049f', 'githubactions:S7640', 3, 3, 1, 1)
+        INSERT INTO issue_stats_by_rule_key (aggregation_type, aggregation_id, rule_key, issue_count, rating, mqr_rating, hotspot_count, hotspots_reviewed)
+        VALUES ('PROJECT', 'b728478a-470f-4cb2-8a19-9302632e049f', 'githubactions:S7630', 6, 5, 4, 0, 0),
+        ('PROJECT', 'b728478a-470f-4cb2-8a19-9302632e049f', 'githubactions:S7640', 3, 3, 3, 1, 1)
         """
     )) {
       statement.execute();

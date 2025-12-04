@@ -87,6 +87,7 @@ public class IssueStatsIndexer implements AnalysisIndexer {
       a.ruleKey(),
       a.issueCount() + b.issueCount(),
       Math.max(a.rating(), b.rating()),
+      Math.max(a.mqrRating(), b.mqrRating()),
       a.hotspotCount() + b.hotspotCount(),
       a.hotspotsReviewed() + b.hotspotsReviewed()
     );
@@ -108,7 +109,11 @@ public class IssueStatsIndexer implements AnalysisIndexer {
     boolean isHotspot = SECURITY_HOTSPOT.getDbConstant() == issue.getIssueType();
     // Adjust the 0-based (0-4) severity to 1-based (1-5) severity for the compliance module
     int severity = Severity.valueOf(issue.getSeverity()).ordinal() + 1;
-    return new IssueFromAnalysis(ruleKey, issue.getStatus(), isHotspot, severity);
+
+    int mqrSeverity = issue.getMqrSeverity() == null ?
+      org.sonar.api.issue.impact.Severity.INFO.ordinal() + 1
+      : org.sonar.api.issue.impact.Severity.valueOf(issue.getMqrSeverity()).ordinal() + 1;
+    return new IssueFromAnalysis(ruleKey, issue.getStatus(), isHotspot, severity, mqrSeverity);
   }
 
   private boolean isPullRequestBranch(String branchUuid, DbSession dbSession) {

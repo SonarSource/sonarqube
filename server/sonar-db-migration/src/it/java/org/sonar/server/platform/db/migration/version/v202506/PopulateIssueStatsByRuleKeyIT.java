@@ -48,26 +48,25 @@ class PopulateIssueStatsByRuleKeyIT {
     String ruleUuid3 = insertRule("java", "R3");
     String ruleUuid4 = insertRule("java", "R4");
 
-
-    insertHotspot(branchUuid, ruleUuid1, "MEDIUM", "TO_REVIEW");
-    insertHotspot(branchUuid, ruleUuid1, "HIGH", "TO_REVIEW");
+    insertHotspot(branchUuid, ruleUuid1, "MAJOR", "TO_REVIEW");
+    insertHotspot(branchUuid, ruleUuid1, "CRITICAL", "TO_REVIEW");
     insertHotspot(branchUuid, ruleUuid1, "BLOCKER", "REVIEWED");
 
     // resolved - should be ignored
     insertIssue(branchUuid, ruleUuid2, "BLOCKER", "wont fix");
-    insertIssue(branchUuid, ruleUuid2, "HIGH", null);
+    insertIssue(branchUuid, ruleUuid2, "CRITICAL", null);
     insertIssue(branchUuid, ruleUuid2, "MINOR", null);
 
-    insertHotspot(branchUuid, ruleUuid3, "LOW", "REVIEWED");
+    insertHotspot(branchUuid, ruleUuid3, "MINOR", "REVIEWED");
     insertIssue(branchUuid, ruleUuid4, "BLOCKER", "wont fix");
 
     underTest.execute();
 
-    // aggregation_type, aggregation_id, rule_key, issue_count, rating, hotspot_rating, hotspot_count, hotspots_reviewed
+    // aggregation_type, aggregation_id, rule_key, issue_count, rating, mqr_rating, hotspot_count, hotspots_reviewed
     assertRows(
-      tuple("PROJECT", branchUuid, "java:R1", 0L, 0L, 2L, 1L),
-      tuple("PROJECT", branchUuid, "java:R2", 2L, 4L, 0L, 0L),
-      tuple("PROJECT", branchUuid, "java:R3", 0L, 0L, 0L, 1L)
+      tuple("PROJECT", branchUuid, "java:R1", 0L, 0L, 0L, 2L, 1L),
+      tuple("PROJECT", branchUuid, "java:R2", 2L, 4L, 1L, 0L, 0L),
+      tuple("PROJECT", branchUuid, "java:R3", 0L, 0L, 0L, 0L, 1L)
       );
   }
 
@@ -82,13 +81,13 @@ class PopulateIssueStatsByRuleKeyIT {
 
     underTest.execute();
 
-    // aggregation_type, aggregation_id, rule_key, issue_count, rating, hotspot_rating, hotspot_count, hotspots_reviewed
+    // aggregation_type, aggregation_id, rule_key, issue_count, rating, mqr_rating, hotspot_count, hotspots_reviewed
     assertRows(
-      tuple("PROJECT", branchUuid, "java:RINFO", 1L, 1L, 0L, 0L),
-      tuple("PROJECT", branchUuid, "java:RMINOR", 1L, 2L, 0L, 0L),
-      tuple("PROJECT", branchUuid, "java:RMAJOR", 1L, 3L, 0L, 0L),
-      tuple("PROJECT", branchUuid, "java:RCRITICAL", 1L, 4L, 0L, 0L),
-      tuple("PROJECT", branchUuid, "java:RBLOCKER", 1L, 5L, 0L, 0L)
+      tuple("PROJECT", branchUuid, "java:RINFO", 1L, 1L, 1L, 0L, 0L),
+      tuple("PROJECT", branchUuid, "java:RMINOR", 1L, 2L, 1L, 0L, 0L),
+      tuple("PROJECT", branchUuid, "java:RMAJOR", 1L, 3L, 1L, 0L, 0L),
+      tuple("PROJECT", branchUuid, "java:RCRITICAL", 1L, 4L, 1L, 0L, 0L),
+      tuple("PROJECT", branchUuid, "java:RBLOCKER", 1L, 5L, 1L, 0L, 0L)
       );
   }
 
@@ -97,18 +96,19 @@ class PopulateIssueStatsByRuleKeyIT {
     String branchUuid = insertBranch();
     for (org.sonar.api.issue.impact.Severity severity : org.sonar.api.issue.impact.Severity.values()) {
       String ruleUuid = insertRule("java", "R" + severity.name());
-      insertIssue(branchUuid, ruleUuid, severity.name(), null);
+      String issueKey = insertIssue(branchUuid, ruleUuid, "MAJOR", null);
+      insertImpact(issueKey, severity.name());
     }
 
     underTest.execute();
 
-    // aggregation_type, aggregation_id, rule_key, issue_count, rating, hotspot_rating, hotspot_count, hotspots_reviewed
+    // aggregation_type, aggregation_id, rule_key, issue_count, rating, mqr_rating, hotspot_count, hotspots_reviewed
     assertRows(
-      tuple("PROJECT", branchUuid, "java:RINFO", 1L, 1L, 0L, 0L),
-      tuple("PROJECT", branchUuid, "java:RLOW", 1L, 2L, 0L, 0L),
-      tuple("PROJECT", branchUuid, "java:RMEDIUM", 1L, 3L, 0L, 0L),
-      tuple("PROJECT", branchUuid, "java:RHIGH", 1L, 4L, 0L, 0L),
-      tuple("PROJECT", branchUuid, "java:RBLOCKER", 1L, 5L, 0L, 0L)
+      tuple("PROJECT", branchUuid, "java:RINFO", 1L, 3L, 1L, 0L, 0L),
+      tuple("PROJECT", branchUuid, "java:RLOW", 1L, 3L, 2L, 0L, 0L),
+      tuple("PROJECT", branchUuid, "java:RMEDIUM", 1L, 3L, 3L, 0L, 0L),
+      tuple("PROJECT", branchUuid, "java:RHIGH", 1L, 3L, 4L, 0L, 0L),
+      tuple("PROJECT", branchUuid, "java:RBLOCKER", 1L, 3L, 5L, 0L, 0L)
       );
   }
 
@@ -119,18 +119,27 @@ class PopulateIssueStatsByRuleKeyIT {
 
   }
 
-  private void insertIssue(String branchUuid, String ruleUuid, String severity, @Nullable String resolution) {
-    insertIssueOrHotspots(branchUuid, ruleUuid, severity, 1, resolution, null);
+  private void insertImpact(String issueKey, String severity) {
+    db.executeInsert("issues_impacts",
+      "issue_key", issueKey,
+      "software_quality", "SECURITY",
+      "severity", severity,
+      "manual_severity", false);
   }
 
-  private void insertHotspot(String branchUuid, String ruleUuid, String severity, String status) {
-    insertIssueOrHotspots(branchUuid, ruleUuid, severity, 4, null, status);
+  private String insertIssue(String branchUuid, String ruleUuid, String severity, @Nullable String resolution) {
+    return insertIssueOrHotspots(branchUuid, ruleUuid, severity, 1, resolution, null);
   }
 
-  private void insertIssueOrHotspots(String branchUuid, String ruleUuid, String severity, int type,
+  private String insertHotspot(String branchUuid, String ruleUuid, String severity, String status) {
+    return insertIssueOrHotspots(branchUuid, ruleUuid, severity, 4, null, status);
+  }
+
+  private String insertIssueOrHotspots(String branchUuid, String ruleUuid, String severity, int type,
     @Nullable String resolution, @Nullable String status) {
+    String issueKey = randomUUID().toString();
     db.executeInsert("issues",
-      "kee", randomUUID().toString(),
+      "kee", issueKey,
       "project_uuid", branchUuid,
       "rule_uuid", ruleUuid,
       "severity", severity,
@@ -138,6 +147,7 @@ class PopulateIssueStatsByRuleKeyIT {
       "issue_type", type,
       "status", status,
       "resolution", resolution);
+    return issueKey;
   }
 
   private String insertRule(String repo, String ruleKey) {
@@ -170,7 +180,7 @@ class PopulateIssueStatsByRuleKeyIT {
 
   private void assertRows(Tuple... values) {
     List<Map<String, Object>> rows = db.select("""
-      select aggregation_type, aggregation_id, rule_key, issue_count, rating, hotspot_count, hotspots_reviewed
+      select aggregation_type, aggregation_id, rule_key, issue_count, rating, mqr_rating, hotspot_count, hotspots_reviewed
       from issue_stats_by_rule_key
       """
     );
@@ -180,6 +190,7 @@ class PopulateIssueStatsByRuleKeyIT {
       i -> i.get("rule_key"),
       i -> i.get("issue_count"),
       i -> i.get("rating"),
+      i -> i.get("mqr_rating"),
       i -> i.get("hotspot_count"),
       i -> i.get("hotspots_reviewed")
     ).containsOnly(values);

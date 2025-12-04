@@ -671,7 +671,7 @@ class ChangeStatusActionIT {
     int oldHotspotCount = 3;
     int oldHotspotsReviewed = 2;
     issueStatsByRuleKeyDao.deleteAndInsertIssueStats(project.uuid(), AggregationType.PROJECT, List.of(
-      new IssueStats(hotspot.getRuleKey().toString(), 0, 0, oldHotspotCount, oldHotspotsReviewed))
+      new IssueStats(hotspot.getRuleKey().toString(), 0, 0, 0, oldHotspotCount, oldHotspotsReviewed))
     );
     when(transitionService.doTransition(any(), any(), any(SecurityHotspotWorkflowTransition.class))).thenReturn(true);
     when(branchDto.getUuid()).thenReturn(project.uuid());
@@ -682,7 +682,7 @@ class ChangeStatusActionIT {
     var issueStats = issueStatsByRuleKeyDao.getIssueStats(project.uuid(), AggregationType.PROJECT);
     assertThat(issueStats)
       .containsOnly(
-        new IssueStats(hotspot.getRuleKey().toString(), 0, 1, oldHotspotCount + adjustment, oldHotspotsReviewed - adjustment)
+        new IssueStats(hotspot.getRuleKey().toString(), 0, 0, 0, oldHotspotCount + adjustment, oldHotspotsReviewed - adjustment)
       );
   }
 

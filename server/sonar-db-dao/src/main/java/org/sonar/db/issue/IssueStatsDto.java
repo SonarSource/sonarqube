@@ -26,6 +26,7 @@ import org.sonar.api.issue.IssueStatus;
 public final class IssueStatsDto {
   private String resolution;
   private String severity;
+  private String mqrSeverity;
   private String status;
   private Integer issueType;
   private String repositoryKey;
@@ -50,6 +51,15 @@ public final class IssueStatsDto {
 
   public IssueStatsDto setSeverity(String severity) {
     this.severity = severity;
+    return this;
+  }
+
+  public String getMqrSeverity() {
+    return mqrSeverity;
+  }
+
+  public IssueStatsDto setMqrSeverity(String mqrSeverity) {
+    this.mqrSeverity = mqrSeverity;
     return this;
   }
 

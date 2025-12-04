@@ -198,17 +198,18 @@ public class ChangeStatusAction implements HotspotsWsAction {
     IssueStatsByRuleKeyDaoImpl dao = new IssueStatsByRuleKeyDaoImpl(dbClient);
     var issueStats = dao.getIssueStats(branchDto.getUuid(), AggregationType.PROJECT).stream()
       .filter(i -> i.ruleKey().equals(ruleKey.toString()))
-      .findFirst()
-      .orElse(new IssueStats(ruleKey.toString(), 0, 0, 0, 0));
+      .findFirst();
 
-    var updatedIssueStats = updateIssueStatsWithTransition(issueStats, transitionKey);
-
-    dao.upsert(branchDto.getUuid(), AggregationType.PROJECT, updatedIssueStats);
+    if (issueStats.isPresent()) {
+      var updatedIssueStats = updateIssueStatsWithTransition(issueStats.get(), transitionKey);
+      dao.upsert(branchDto.getUuid(), AggregationType.PROJECT, updatedIssueStats);
+    }
   }
 
   private static IssueStats updateIssueStatsWithTransition(IssueStats oldStats, String transitionKey) {
     int adjustment = transitionKey.equals(RESET_AS_TO_REVIEW.getKey()) ? 1 : -1;
-    return new IssueStats(oldStats.ruleKey(), 0, 1, oldStats.hotspotCount() + adjustment, oldStats.hotspotsReviewed() - adjustment);
+    return new IssueStats(oldStats.ruleKey(), 0, oldStats.rating(), oldStats.mqrRating(), oldStats.hotspotCount() + adjustment,
+      oldStats.hotspotsReviewed() - adjustment);
   }
 
 }

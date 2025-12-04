@@ -34,25 +34,35 @@ public class PopulateIssueStatsByRuleKey extends DataChange {
         max(case when i.issue_type = 4 then 0 else
           case
             when i.severity = 'INFO' then 1
-            when i.severity in ('LOW', 'MINOR') then 2
-            when i.severity in ('MEDIUM', 'MAJOR') then 3
-            when i.severity in ('HIGH', 'CRITICAL') then 4
+            when i.severity = 'MINOR' then 2
+            when i.severity = 'MAJOR' then 3
+            when i.severity = 'CRITICAL' then 4
             when i.severity = 'BLOCKER' then 5
           end
         end) as "issueRating",
+        max(case when i.issue_type = 4 then 0 else
+          case
+            when ii.severity is null then 1
+            when ii.severity = 'INFO' then 1
+            when ii.severity = 'LOW' then 2
+            when ii.severity = 'MEDIUM' then 3
+            when ii.severity = 'HIGH' then 4
+            when ii.severity = 'BLOCKER' then 5
+          end
+        end) as "mqrIssueRating",
         sum(case when i.issue_type = 4 and i.status = 'TO_REVIEW' then 1 else 0 end) as "hotspotCount",
         sum(case when i.issue_type = 4 and i.status = 'REVIEWED' then 1 else 0 end) as "hotspotsReviewed"
       from issues i
       join rules r on i.rule_uuid = r.uuid
       join project_branches b on b.uuid = i.project_uuid
-      where b.branch_type = 'BRANCH'
-        and i.resolution is null
+      left outer join issues_impacts ii on i.kee = ii.issue_key and ii.software_quality = 'SECURITY'
+      where b.branch_type = 'BRANCH' and i.resolution is null
       group by b.uuid, r.plugin_name, r.plugin_rule_key
     """;
   private static final String UPDATE_QUERY = """
       insert into issue_stats_by_rule_key
-      (aggregation_type, aggregation_id, rule_key, issue_count, rating, hotspot_count, hotspots_reviewed)
-      values (?, ?, ?, ?, ?, ?, ?);
+      (aggregation_type, aggregation_id, rule_key, issue_count, rating, mqr_rating, hotspot_count, hotspots_reviewed)
+      values (?, ?, ?, ?, ?, ?, ?, ?);
     """;
 
   private static final String DELETE_QUERY = """
@@ -83,10 +93,12 @@ public class PopulateIssueStatsByRuleKey extends DataChange {
         .setInt(4, row.getInt(4))
         // rating
         .setInt(5, row.getInt(5))
-        // hotspot_count
+        // mqr_rating
         .setInt(6, row.getInt(6))
-        // hotspots_reviewed
+        // hotspot_count
         .setInt(7, row.getInt(7))
+        // hotspots_reviewed
+        .setInt(8, row.getInt(8))
       ;
       return true;
     });

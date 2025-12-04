@@ -20,7 +20,6 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
-import io.sonarcloud.compliancereports.dao.AggregationType;
 import io.sonarcloud.compliancereports.dao.IssueStats;
 import java.util.Date;
 import java.util.List;
@@ -28,6 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -47,6 +47,7 @@ import org.sonar.server.issue.TransitionService;
 import org.sonar.server.pushapi.issues.IssueChangeEventService;
 import org.sonar.server.user.UserSession;
 
+import static io.sonarcloud.compliancereports.dao.AggregationType.PROJECT;
 import static java.lang.String.format;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.db.component.BranchType.BRANCH;
@@ -104,7 +105,8 @@ public class DoTransitionAction implements IssuesWsAction {
       .setSince("3.6")
       .setChangelog(
         new Change("10.8", "The response fields 'severity' and 'type' are not deprecated anymore."),
-        new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added.", Severity.INFO.name(), Severity.BLOCKER.name())),
+        new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added.",
+          Severity.INFO.name(), Severity.BLOCKER.name())),
         new Change("10.4",
           "The transitions '%s' and '%s' are deprecated. Please use '%s' instead. The transition '%s' is deprecated too. ".formatted(WONT_FIX, CONFIRM, ACCEPT, UNCONFIRM)),
         new Change("10.4", "Add transition '%s'.".formatted(ACCEPT)),
@@ -115,7 +117,8 @@ public class DoTransitionAction implements IssuesWsAction {
         new Change("9.6", "Response field 'ruleDescriptionContextKey' added"),
         new Change("8.8", "The response field components.uuid is removed"),
         new Change("8.1", format("transitions '%s' and '%s' are no more supported", "setinreview", "openasvulnerability")),
-        new Change("7.8", format("added '%s', %s, %s and %s transitions for security hotspots ", "setinreview", RESOLVE_AS_REVIEWED, "openasvulnerability", RESET_AS_TO_REVIEW)),
+        new Change("7.8", format("added '%s', %s, %s and %s transitions for security hotspots ", "setinreview", RESOLVE_AS_REVIEWED,
+          "openasvulnerability", RESET_AS_TO_REVIEW)),
         new Change("7.3", "added transitions for security hotspots"),
         new Change("6.5", "the database ids of the components are removed from the response"),
         new Change("6.5", "the response field components.uuid is deprecated. Use components.key instead."))
@@ -156,7 +159,8 @@ public class DoTransitionAction implements IssuesWsAction {
 
   private SearchResponseData doTransition(DbSession session, IssueDto issueDto, String transitionKey) {
     DefaultIssue defaultIssue = issueDto.toDefaultIssue();
-    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(system2.now()), userSession.getUuid()).withRefreshMeasures().build();
+    IssueChangeContext context =
+      issueChangeContextByUserBuilder(new Date(system2.now()), userSession.getUuid()).withRefreshMeasures().build();
     transitionService.checkTransitionPermission(transitionKey, defaultIssue);
     if (transitionService.doTransition(defaultIssue, context, transitionKey)) {
       BranchDto branch = issueUpdater.getBranch(session, defaultIssue);
@@ -174,20 +178,25 @@ public class DoTransitionAction implements IssuesWsAction {
 
   private void updateIssueStatsByRuleKey(BranchDto branchDto, RuleKey ruleKey, DefaultIssue issue, String transitionKey) {
     IssueStatsByRuleKeyDaoImpl dao = new IssueStatsByRuleKeyDaoImpl(dbClient);
-    var issueStats = dao.getIssueStats(branchDto.getUuid(), AggregationType.PROJECT).stream()
+    var issueStats = dao.getIssueStats(branchDto.getUuid(), PROJECT).stream()
       .filter(i -> i.ruleKey().equals(ruleKey.toString()))
-      .findFirst()
-      .orElse(new IssueStats(ruleKey.toString(), 0, 0, 0, 0));
+      .findFirst();
 
-    var updatedIssueStats = updateIssueStatsWithTransition(issueStats, issue, transitionKey);
-
-    dao.upsert(branchDto.getUuid(), AggregationType.PROJECT, updatedIssueStats);
+    if (issueStats.isPresent()) {
+      var updatedIssueStats = updateIssueStatsWithTransition(issueStats.get(), issue, transitionKey);
+      dao.upsert(branchDto.getUuid(), PROJECT, updatedIssueStats);
+    }
   }
 
   private static IssueStats updateIssueStatsWithTransition(IssueStats oldStats, DefaultIssue issue, String transitionKey) {
     int adjustment = REOPEN_TRANSITIONS.contains(transitionKey) ? 1 : -1;
     int newIssueCount = oldStats.issueCount() + adjustment;
-    int newRating = newIssueCount == 0 ? 1 : (getOrdinalFromSeverity(Objects.requireNonNull(issue.severity())) + 1);
-    return new IssueStats(oldStats.ruleKey(), newIssueCount, newRating, 0, 0);
+    if (newIssueCount == 0) {
+      return new IssueStats(oldStats.ruleKey(), newIssueCount, 1, 1, 0, 0);
+    }
+
+    int newRating = getOrdinalFromSeverity(Objects.requireNonNull(issue.severity())) + 1;
+    int newMqrRating = issue.impacts().getOrDefault(SoftwareQuality.SECURITY, Severity.INFO).ordinal() + 1;
+    return new IssueStats(oldStats.ruleKey(), newIssueCount, newRating, newMqrRating, 0, 0);
   }
 }

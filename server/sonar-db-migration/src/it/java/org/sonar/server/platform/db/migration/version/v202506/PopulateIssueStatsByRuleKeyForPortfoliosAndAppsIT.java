@@ -84,64 +84,64 @@ class PopulateIssueStatsByRuleKeyForPortfoliosAndAppsIT {
 
     // insert issue_stats rows for each project
     // project1
-    insertIntoIssueStats(projectUuid1, "PROJECT", "java:001", 10, 2, 0, 0);
-    insertIntoIssueStats(projectUuid1, "PROJECT", "java:002", 0, 1, 10, 10);
-    insertIntoIssueStats(projectUuid1, "PROJECT", "java:003", 25, 2, 0, 0);
+    insertIntoIssueStats(projectUuid1, "PROJECT", "java:001", 10, 2, 4, 0, 0);
+    insertIntoIssueStats(projectUuid1, "PROJECT", "java:002", 0, 1, 3, 10, 10);
+    insertIntoIssueStats(projectUuid1, "PROJECT", "java:003", 25, 2, 2, 0, 0);
 
     // project 2
-    insertIntoIssueStats(projectUuid2, "PROJECT", "java:001", 100, 3, 0, 0);
-    insertIntoIssueStats(projectUuid2, "PROJECT", "java:002", 0, 1, 3, 27);
-    insertIntoIssueStats(projectUuid2, "PROJECT", "java:003", 6, 1, 0, 0);
+    insertIntoIssueStats(projectUuid2, "PROJECT", "java:001", 100, 3, 3, 0, 0);
+    insertIntoIssueStats(projectUuid2, "PROJECT", "java:002", 0, 1, 3, 3, 27);
+    insertIntoIssueStats(projectUuid2, "PROJECT", "java:003", 6, 1, 1, 0, 0);
 
     // project 3
-    insertIntoIssueStats(projectUuid3, "PROJECT", "java:001", 17, 1, 0, 0);
-    insertIntoIssueStats(projectUuid3, "PROJECT", "java:002", 0, 1, 103, 7);
-    insertIntoIssueStats(projectUuid3, "PROJECT", "java:003", 52, 4, 0, 0);
+    insertIntoIssueStats(projectUuid3, "PROJECT", "java:001", 17, 1, 3, 0, 0);
+    insertIntoIssueStats(projectUuid3, "PROJECT", "java:002", 0, 1, 3, 103, 7);
+    insertIntoIssueStats(projectUuid3, "PROJECT", "java:003", 52, 4, 2, 0, 0);
 
     // project 4
-    insertIntoIssueStats(projectUuid4, "PROJECT", "java:001", 17, 1, 0, 0);
-    insertIntoIssueStats(projectUuid4, "PROJECT", "java:002", 0, 1, 24, 7);
-    insertIntoIssueStats(projectUuid4, "PROJECT", "java:003", 52, 4, 0, 0);
+    insertIntoIssueStats(projectUuid4, "PROJECT", "java:001", 17, 1, 1, 0, 0);
+    insertIntoIssueStats(projectUuid4, "PROJECT", "java:002", 0, 1, 3, 24, 7);
+    insertIntoIssueStats(projectUuid4, "PROJECT", "java:003", 52, 4, 2, 0, 0);
 
     // project 5
-    insertIntoIssueStats(projectUuid5, "PROJECT", "java:001", 5, 4, 0, 0);
-    insertIntoIssueStats(projectUuid5, "PROJECT", "java:002", 0, 1, 16, 0);
-    insertIntoIssueStats(projectUuid5, "PROJECT", "java:003", 3, 4, 0, 0);
+    insertIntoIssueStats(projectUuid5, "PROJECT", "java:001", 5, 4, 1, 0, 0);
+    insertIntoIssueStats(projectUuid5, "PROJECT", "java:002", 0, 1, 1, 16, 0);
+    insertIntoIssueStats(projectUuid5, "PROJECT", "java:003", 3, 4, 3, 0, 0);
 
     // project 6
-    insertIntoIssueStats(projectUuid6, "PROJECT", "java:001", 14, 3, 0, 0);
-    insertIntoIssueStats(projectUuid6, "PROJECT", "java:002", 0, 1, 0, 12);
-    insertIntoIssueStats(projectUuid6, "PROJECT", "java:003", 2, 4, 0, 0);
+    insertIntoIssueStats(projectUuid6, "PROJECT", "java:001", 14, 3, 1, 0, 0);
+    insertIntoIssueStats(projectUuid6, "PROJECT", "java:002", 0, 1, 1, 0, 12);
+    insertIntoIssueStats(projectUuid6, "PROJECT", "java:003", 2, 4, 1, 0, 0);
 
     // project 7
-    insertIntoIssueStats(projectUuid7, "PROJECT", "java:001", 20, 1, 0, 0);
-    insertIntoIssueStats(projectUuid7, "PROJECT", "java:002", 0, 1, 10, 2);
-    insertIntoIssueStats(projectUuid7, "PROJECT", "java:003", 2, 4, 0, 0);
+    insertIntoIssueStats(projectUuid7, "PROJECT", "java:001", 20, 1, 1, 0, 0);
+    insertIntoIssueStats(projectUuid7, "PROJECT", "java:002", 0, 1, 1, 10, 2);
+    insertIntoIssueStats(projectUuid7, "PROJECT", "java:003", 2, 4, 1, 0, 0);
 
     // project 8
-    insertIntoIssueStats(projectUuid8, "PROJECT", "java:001", 1, 2, 0, 0);
-    insertIntoIssueStats(projectUuid8, "PROJECT", "java:002", 0, 1, 1, 1);
-    insertIntoIssueStats(projectUuid8, "PROJECT", "java:003", 3, 4, 0, 0);
+    insertIntoIssueStats(projectUuid8, "PROJECT", "java:001", 1, 2, 1, 0, 0);
+    insertIntoIssueStats(projectUuid8, "PROJECT", "java:002", 0, 1, 2, 1, 1);
+    insertIntoIssueStats(projectUuid8, "PROJECT", "java:003", 3, 4, 3, 0, 0);
 
     // verify that the migration aggregates the issues stats correctly
     underTest.execute();
 
     assertRowsForAggregation(appUuid1, "APPLICATION",
-      tuple("APPLICATION", appUuid1, "java:001", 127L, 3L, 0L, 0L),
-      tuple("APPLICATION", appUuid1, "java:002", 0L, 1L, 116L, 44L),
-      tuple("APPLICATION", appUuid1, "java:003", 83L, 4L, 0L, 0L)
+      tuple("APPLICATION", appUuid1, "java:001", 127L, 3L, 4L, 0L, 0L),
+      tuple("APPLICATION", appUuid1, "java:002", 0L, 1L, 3L, 116L, 44L),
+      tuple("APPLICATION", appUuid1, "java:003", 83L, 4L, 2L, 0L, 0L)
     );
 
     assertRowsForAggregation(appUuid2, "APPLICATION",
-      tuple("APPLICATION", appUuid2, "java:001", 36L, 4L, 0L, 0L),
-      tuple("APPLICATION", appUuid2, "java:002", 0L, 1L, 40L, 19L),
-      tuple("APPLICATION", appUuid2, "java:003", 57L, 4L, 0L, 0L)
+      tuple("APPLICATION", appUuid2, "java:001", 36L, 4L, 1L, 0L, 0L),
+      tuple("APPLICATION", appUuid2, "java:002", 0L, 1L, 3L, 40L, 19L),
+      tuple("APPLICATION", appUuid2, "java:003", 57L, 4L, 3L, 0L, 0L)
     );
 
     assertRowsForAggregation(portfolioUuid, "PORTFOLIO",
-      tuple("PORTFOLIO", portfolioUuid, "java:001", 21L, 2L, 0L, 0L),
-      tuple("PORTFOLIO", portfolioUuid, "java:002", 0L, 1L, 11L, 3L),
-      tuple("PORTFOLIO", portfolioUuid, "java:003", 5L, 4L, 0L, 0L)
+      tuple("PORTFOLIO", portfolioUuid, "java:001", 21L, 2L, 1L, 0L, 0L),
+      tuple("PORTFOLIO", portfolioUuid, "java:002", 0L, 1L, 2L, 11L, 3L),
+      tuple("PORTFOLIO", portfolioUuid, "java:003", 5L, 4L, 3L, 0L, 0L)
     );
   }
 
@@ -170,14 +170,15 @@ class PopulateIssueStatsByRuleKeyForPortfoliosAndAppsIT {
       "private", false);
   }
 
-  private void insertIntoIssueStats(String aggregationId, String aggregationType, String ruleKey, int issueCount, int rating, int hotspotCount,
-    int hotspotsReviewed) {
+  private void insertIntoIssueStats(String aggregationId, String aggregationType, String ruleKey, int issueCount, int rating,
+    int mqrRating, int hotspotCount, int hotspotsReviewed) {
     db.executeInsert("issue_stats_by_rule_key",
       "aggregation_type", aggregationType,
       "aggregation_id", aggregationId,
       "rule_key", ruleKey,
       "issue_count", issueCount,
       "rating", rating,
+      "mqr_rating", mqrRating,
       "hotspot_count", hotspotCount,
       "hotspots_reviewed", hotspotsReviewed
     );
@@ -185,7 +186,7 @@ class PopulateIssueStatsByRuleKeyForPortfoliosAndAppsIT {
 
   private void assertRowsForAggregation(String aggregationId, String aggregationType, Tuple... values) {
     List<Map<String, Object>> rows = db.select("""
-      select aggregation_type, aggregation_id, rule_key, issue_count, rating, hotspot_count, hotspots_reviewed
+      select aggregation_type, aggregation_id, rule_key, issue_count, rating, mqr_rating, hotspot_count, hotspots_reviewed
       from issue_stats_by_rule_key
       where aggregation_id = '%s'
       and aggregation_type = '%s'
@@ -197,6 +198,7 @@ class PopulateIssueStatsByRuleKeyForPortfoliosAndAppsIT {
       i -> i.get("rule_key"),
       i -> i.get("issue_count"),
       i -> i.get("rating"),
+      i -> i.get("mqr_rating"),
       i -> i.get("hotspot_count"),
       i -> i.get("hotspots_reviewed")
     ).containsOnly(values);
