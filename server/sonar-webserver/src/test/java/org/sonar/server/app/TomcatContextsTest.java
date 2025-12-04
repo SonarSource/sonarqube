@@ -88,9 +88,11 @@ public class TomcatContextsTest {
 
     underTest.addStaticDir(tomcat, "/deploy", dir);
 
-    assertThat(dir).isDirectory()
-      .exists()
-      .isEmptyDirectory();
+    assertThat(dir).isDirectory().exists();
+    assertThat(new File(dir, "foo.txt")).doesNotExist();
+    assertThat(new File(dir, "WEB-INF")).isDirectory();
+    assertThat(new File(dir, "WEB-INF/web.xml")).isFile();
+    assertThat(new File(dir, "error.html")).isFile();
   }
 
   @Test
@@ -99,8 +101,9 @@ public class TomcatContextsTest {
 
     TomcatContexts.Fs fs = mock(TomcatContexts.Fs.class);
     doThrow(new IOException()).when(fs).createOrCleanupDir(any(File.class));
+    TomcatContexts tomcatContexts = new TomcatContexts(fs);
 
-    assertThatThrownBy(() -> new TomcatContexts(fs).addStaticDir(tomcat, "/deploy", dir))
+    assertThatThrownBy(() -> tomcatContexts.addStaticDir(tomcat, "/deploy", dir))
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Fail to create or clean-up directory " + dir.getAbsolutePath());
   }
@@ -115,8 +118,9 @@ public class TomcatContextsTest {
   @Test
   public void context_path_must_start_with_slash() {
     props.setProperty("sonar.web.context", "foo");
+    Props propsToTest = new Props(props);
 
-    assertThatThrownBy(() -> underTest.configure(tomcat, new Props(props)))
+    assertThatThrownBy(() -> underTest.configure(tomcat, propsToTest))
       .isInstanceOf(MessageException.class)
       .hasMessageContaining("Value of 'sonar.web.context' must start with a forward slash: 'foo'");
   }
@@ -132,5 +136,68 @@ public class TomcatContextsTest {
   public void default_context_path_is_root() {
     String context = TomcatContexts.getContextPath(new Props(new Properties()));
     assertThat(context).isEmpty();
+  }
+
+  @Test
+  public void configure_creates_root_context_when_web_context_is_not_empty() {
+    props.setProperty("sonar.web.context", "/sonarqube");
+
+    underTest.configure(tomcat, new Props(props));
+
+    // Verify root context was created at "" path
+    verify(tomcat).addWebapp("", new File(props.getProperty(Property.PATH_DATA.getKey()), "web/root").getAbsolutePath());
+  }
+
+  @Test
+  public void configure_does_not_create_root_context_when_web_context_is_empty() {
+    // Default context is empty (root)
+    underTest.configure(tomcat, new Props(props));
+
+    // Should only create the main webapp and deploy contexts, not the root context
+    verify(tomcat).addWebapp("", new File(props.getProperty(Property.PATH_HOME.getKey()), "web").getAbsolutePath());
+  }
+
+  @Test
+  public void addRootContext_creates_directory_structure() {
+    props.setProperty("sonar.web.context", "/sonarqube");
+
+    underTest.configure(tomcat, new Props(props));
+
+    File rootDir = new File(props.getProperty(Property.PATH_DATA.getKey()), "web/root");
+    assertThat(rootDir).isDirectory().exists();
+    assertThat(new File(rootDir, "WEB-INF")).isDirectory().exists();
+    assertThat(new File(rootDir, "WEB-INF/web.xml")).isFile().exists();
+  }
+
+  @Test
+  public void addRootContext_web_xml_contains_servlet_configuration() throws Exception {
+    props.setProperty("sonar.web.context", "/sonarqube");
+
+    underTest.configure(tomcat, new Props(props));
+
+    File webXml = new File(props.getProperty(Property.PATH_DATA.getKey()), "web/root/WEB-INF/web.xml");
+    String content = FileUtils.readFileToString(webXml, "UTF-8");
+
+    assertThat(content)
+      .contains("org.sonar.server.app.RootContextServlet")
+      .contains("<servlet-name>root</servlet-name>")
+      .contains("<url-pattern>/*</url-pattern>")
+      .contains("<param-name>webContext</param-name>")
+      .contains("<param-value>/sonarqube</param-value>");
+  }
+
+  @Test
+  public void addRootContext_fails_gracefully_on_io_error() throws Exception {
+    props.setProperty("sonar.web.context", "/sonarqube");
+
+    TomcatContexts.Fs fs = mock(TomcatContexts.Fs.class);
+    doThrow(new IOException("Cannot create directory")).when(fs).createOrCleanupDir(any(File.class));
+    TomcatContexts tomcatContexts = new TomcatContexts(fs);
+    Props propsToTest = new Props(props);
+
+    assertThatThrownBy(() -> tomcatContexts.configure(tomcat, propsToTest))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Failed to configure ROOT context")
+      .hasCauseInstanceOf(IOException.class);
   }
 }
