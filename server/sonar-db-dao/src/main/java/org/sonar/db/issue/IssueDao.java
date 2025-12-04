@@ -104,6 +104,10 @@ public class IssueDao implements Dao {
     return mapper(dbSession).scrollIssuesForIndexation(branchUuid, issueKeys);
   }
 
+  public Cursor<IssueStatsDto> scrollIssuesForIssueStats(DbSession dbSession, @Param("branchUuid") String branchUuid) {
+    return mapper(dbSession).scrollIssuesForIssueStats(branchUuid);
+  }
+
   public void insert(DbSession session, IssueDto dto) {
     mapper(session).insert(dto);
     insertIssueImpacts(session, dto);

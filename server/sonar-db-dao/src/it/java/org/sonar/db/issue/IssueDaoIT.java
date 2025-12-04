@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -42,8 +43,8 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.System2;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.Pagination;
@@ -225,6 +226,32 @@ class IssueDaoIT {
   }
 
   @Test
+  void scrollIssues_shouldReturnNonResolvedIssues() {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("repo1").setRuleKey("rule1"));
+
+    ComponentDto branchA = db.components().insertProjectBranch(project, b -> b.setKey("branchA"));
+    ComponentDto fileA = db.components().insertComponent(newFileDto(branchA));
+
+    insertBranchIssue(branchA, fileA, rule, "id1", "OPEN", null, "MAJOR", 1000L);
+    insertBranchIssue(branchA, fileA, rule, "id2", "OPEN", null, "BLOCKER", 1000L);
+    insertBranchIssue(branchA, fileA, rule, "id3", "CLOSED", null, "MAJOR", 1000L);
+    insertBranchIssue(branchA, fileA, rule, "id4", "RESOLVED", "resolved", "MAJOR", 1000L);
+
+    Cursor<IssueStatsDto> cursor = underTest.scrollIssuesForIssueStats(db.getSession(), branchA.branchUuid());
+    List<IssueStatsDto> issues = new LinkedList<>();
+    cursor.forEach(issues::add);
+
+    assertThat(issues)
+      .extracting(IssueStatsDto::getRepositoryKey, IssueStatsDto::getRuleKey, IssueStatsDto::getIssueType,
+        IssueStatsDto::getStatus, IssueStatsDto::getResolution, IssueStatsDto::getSeverity)
+      .containsOnly(
+        tuple("repo1", "rule1", 1, "OPEN", null, "MAJOR"),
+        tuple("repo1", "rule1", 1, "OPEN", null, "BLOCKER")
+        );
+  }
+
+  @Test
   void scrollIndexationIssues_shouldReturnDto() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("java").setLanguage("java")
@@ -333,7 +360,7 @@ class IssueDaoIT {
     long changedSince = 1_000_000_000_000L;
 
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("java").setLanguage("java"));
+    RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("java").setLanguage("java").setType(RuleType.VULNERABILITY));
 
     ComponentDto branchA = db.components().insertProjectBranch(project, b -> b.setKey("branchA"));
     ComponentDto fileA = db.components().insertComponent(newFileDto(branchA));
@@ -1279,12 +1306,18 @@ class IssueDaoIT {
 
   private void insertBranchIssue(ComponentDto branch, ComponentDto file, RuleDto rule, String id, String status,
     @Nullable String resolution, Long updateAt) {
+    insertBranchIssue(branch, file, rule, id, status, resolution, "MAJOR", updateAt);
+  }
+
+  private void insertBranchIssue(ComponentDto branch, ComponentDto file, RuleDto rule, String id, String status,
+    @Nullable String resolution, String severity, Long updateAt) {
     db.issues().insert(rule, branch, file, i -> i.setKee("issue" + id)
       .setStatus(status)
       .setResolution(resolution)
       .setUpdatedAt(updateAt)
-      .setType(randomRuleTypeExceptHotspot())
+      .setType(rule.getType())
       .setMessage("message")
+      .setSeverity(severity)
       .setMessageFormattings(MESSAGE_FORMATTING));
   }
 
@@ -1309,7 +1342,7 @@ class IssueDaoIT {
   }
 
   private void insertBranchIssue(ComponentDto branch, ComponentDto file, RuleDto rule, String id, String status, Long updateAt) {
-    insertBranchIssue(branch, file, rule, id, status, null, updateAt);
+    insertBranchIssue(branch, file, rule, id, status, null, "MAJOR", updateAt);
   }
 
   private static IssueQueryParams buildSelectByBranchQuery(ComponentDto branch, boolean resolvedOnly, Long changedSince) {
