@@ -37,7 +37,7 @@ public interface DismissMessageWsAction extends WsAction {
 
   static void verifyProjectKeyAndMessageType(@Nullable String projectKey, MessageType type) {
     switch (type) {
-      case GLOBAL_NCD_90, GLOBAL_NCD_PAGE_90 -> {
+      case GLOBAL_NCD_90, GLOBAL_NCD_PAGE_90, BITBUCKET_CLOUD_APP_DEPRECATION -> {
         if (projectKey != null) {
           throw new IllegalArgumentException("The 'projectKey' parameter is not expected for message type: " + type);
         }

@@ -28,7 +28,8 @@ public enum MessageType {
   PROJECT_NCD_90(true, false),
   PROJECT_NCD_PAGE_90(true, false),
   BRANCH_NCD_90(true, false),
-  UNRESOLVED_FINDINGS_IN_AI_GENERATED_CODE(true, true);
+  UNRESOLVED_FINDINGS_IN_AI_GENERATED_CODE(true, true),
+  BITBUCKET_CLOUD_APP_DEPRECATION(true, false);
 
   private final boolean dismissible;
   private final boolean isWarning;

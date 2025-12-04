@@ -90,7 +90,7 @@ public class DismissAction implements DismissMessageWsAction {
     } else {
       result = dbClient.userDismissedMessagesDao().selectByUserAndProjectAndMessageType(dbSession, userSession.getUuid(), project, type);
     }
-    if (!result.isPresent()) {
+    if (result.isEmpty()) {
       dbClient.userDismissedMessagesDao().insert(dbSession, new UserDismissedMessageDto()
         .setUuid(Uuids.create())
         .setUserUuid(userSession.getUuid())
