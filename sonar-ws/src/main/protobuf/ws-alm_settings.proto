@@ -77,6 +77,7 @@ message GetBindingWsResponse {
   optional bool summaryCommentEnabled = 6;
   optional bool monorepo = 7;
   optional bool inlineAnnotationsEnabled = 8;
+  optional string repositoryUrl = 9;
 }
 
 enum Alm {

@@ -49,11 +49,11 @@ import org.sonar.auth.github.ExpiringAppInstallationToken;
 import org.sonar.auth.github.GitHubSettings;
 import org.sonar.auth.github.GithubAppConfiguration;
 import org.sonar.auth.github.GithubAppInstallation;
+import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.auth.github.GithubBinding;
 import org.sonar.auth.github.GsonRepositoryCollaborator;
 import org.sonar.auth.github.GsonRepositoryPermissions;
 import org.sonar.auth.github.GsonRepositoryTeam;
-import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.auth.github.security.AccessToken;
 import org.sonar.auth.github.security.UserAccessToken;
 import org.sonarqube.ws.client.HttpException;
@@ -1234,5 +1234,41 @@ public class GithubApplicationClientImplTest {
     public Optional<String> getNextEndPoint() {
       return Optional.ofNullable(nextEndPoint);
     }
+  }
+
+  @DataProvider
+  public static Object[][] convertApiUrlToBaseUrlData() {
+    return new Object[][] {
+      // GitHub.com API URLs
+      {"https://api.github.com", "https://github.com"},
+      {"https://api.github.com/", "https://github.com"},
+
+      // GitHub Enterprise Server URLs (with /api/v3 suffix)
+      {"https://github.company.com/api/v3", "https://github.company.com"},
+      {"https://github.company.com/api/v3/", "https://github.company.com"},
+      {"https://github.enterprise.com/api/v3", "https://github.enterprise.com"},
+      {"https://my-github.example.org/api/v3", "https://my-github.example.org"},
+
+      // GitHub Enterprise Cloud with data residency (api.*.ghe.com format)
+      {"https://api.company.ghe.com", "https://company.ghe.com"},
+      {"https://api.company.ghe.com/", "https://company.ghe.com"},
+      {"https://api.my-org.ghe.com", "https://my-org.ghe.com"},
+
+      // URLs that don't match any pattern (returned as-is)
+      {"https://github.com", "https://github.com"},
+      {"https://example.com", "https://example.com"},
+      {"https://not-an-api-url.com/some/path", "https://not-an-api-url.com/some/path"},
+
+      // Invalid patterns that should NOT be converted (negative test cases)
+      {"https://api.example.com", "https://api.example.com"}, // Not github.com or .ghe.com
+      {"https://api.random-domain.org", "https://api.random-domain.org"} // Not github.com or .ghe.com
+    };
+  }
+
+  @Test
+  @UseDataProvider("convertApiUrlToBaseUrlData")
+  public void convertApiUrlToBaseUrl_shouldConvertCorrectly(String apiUrl, String expectedBaseUrl) {
+    String result = GithubApplicationClientImpl.convertApiUrlToBaseUrl(apiUrl);
+    assertThat(result).isEqualTo(expectedBaseUrl);
   }
 }

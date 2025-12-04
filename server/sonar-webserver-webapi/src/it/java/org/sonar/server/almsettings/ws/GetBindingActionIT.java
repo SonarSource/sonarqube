@@ -63,7 +63,7 @@ public class GetBindingActionIT {
   @Test
   public void get_github_project_binding() {
     userSession.logIn(user).addProjectPermission(USER, project);
-    AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
+    AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting(setting -> setting.setUrl("https://api.github.com"));
     ProjectAlmSettingDto githubProjectAlmSetting = db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project);
 
     GetBindingWsResponse response = ws.newRequest()
@@ -75,6 +75,38 @@ public class GetBindingActionIT {
     assertThat(response.getRepository()).isEqualTo(githubProjectAlmSetting.getAlmRepo());
     assertThat(response.getUrl()).isEqualTo(githubAlmSetting.getUrl());
     assertThat(response.getSummaryCommentEnabled()).isTrue();
+    assertThat(response.getRepositoryUrl()).isEqualTo("https://github.com/" + githubProjectAlmSetting.getAlmRepo());
+  }
+
+  @Test
+  public void get_github_project_binding_with_enterprise_server() {
+    userSession.logIn(user).addProjectPermission(USER, project);
+    AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting(setting -> setting.setUrl("https://github.enterprise.com/api/v3"));
+    ProjectAlmSettingDto githubProjectAlmSetting = db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project);
+
+    GetBindingWsResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(GetBindingWsResponse.class);
+
+    assertThat(response.getAlm()).isEqualTo(AlmSettings.Alm.github);
+    assertThat(response.getKey()).isEqualTo(githubAlmSetting.getKey());
+    assertThat(response.getRepository()).isEqualTo(githubProjectAlmSetting.getAlmRepo());
+    assertThat(response.getUrl()).isEqualTo(githubAlmSetting.getUrl());
+    assertThat(response.getSummaryCommentEnabled()).isTrue();
+    assertThat(response.getRepositoryUrl()).isEqualTo("https://github.enterprise.com/" + githubProjectAlmSetting.getAlmRepo());
+  }
+
+  @Test
+  public void get_github_project_binding_with_trailing_slash_in_url() {
+    userSession.logIn(user).addProjectPermission(USER, project);
+    AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting(setting -> setting.setUrl("https://api.company.ghe.com/"));
+    ProjectAlmSettingDto githubProjectAlmSetting = db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project);
+
+    GetBindingWsResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(GetBindingWsResponse.class);
+
+    assertThat(response.getRepositoryUrl()).isEqualTo("https://company.ghe.com/" + githubProjectAlmSetting.getAlmRepo());
   }
 
   @Test
@@ -143,7 +175,7 @@ public class GetBindingActionIT {
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", "unknown")
       .execute())
-      .isInstanceOf(NotFoundException.class);
+        .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -155,7 +187,7 @@ public class GetBindingActionIT {
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
       .execute())
-      .isInstanceOf(ForbiddenException.class);
+        .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

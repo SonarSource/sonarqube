@@ -19,12 +19,15 @@
  */
 package org.sonar.server.almsettings.ws;
 
+import okhttp3.HttpUrl;
+import org.sonar.alm.client.github.GithubApplicationClientImpl;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.project.ProjectDto;
@@ -34,7 +37,9 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.AlmSettings.GetBindingWsResponse;
 
 import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.server.common.AlmSettingMapper.toResponseAlm;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -64,8 +69,8 @@ public class GetBindingAction implements AlmSettingsWsAction {
         new Change("8.6", "Azure binding now contains the project and repository names"),
         new Change("8.7", "Azure binding now contains a monorepo flag for monorepo feature in Enterprise Edition and above"),
         new Change("10.1", "Permission needed changed from 'Administer' to 'Browse'"),
-        new Change("2025.1", "Azure binding now contains a inlineAnnotationsEnabled flag for inline annotations feature")
-      )
+        new Change("2025.1", "Azure binding now contains a inlineAnnotationsEnabled flag for inline annotations feature"),
+        new Change("2025.6", "GitHub binding now contains a repositoryUrl field with the URL to the repository on GitHub"))
       .setHandler(this);
 
     action
@@ -99,6 +104,16 @@ public class GetBindingAction implements AlmSettingsWsAction {
       ofNullable(projectAlmSetting.getSummaryCommentEnabled()).ifPresent(builder::setSummaryCommentEnabled);
       ofNullable(projectAlmSetting.getMonorepo()).ifPresent(builder::setMonorepo);
       ofNullable(projectAlmSetting.getInlineAnnotationsEnabled()).ifPresent(builder::setInlineAnnotationsEnabled);
+
+      if (almSetting.getAlm() == ALM.GITHUB && isNotBlank(projectAlmSetting.getAlmRepo()) && isNotBlank(almSetting.getUrl())) {
+        String baseUrl = GithubApplicationClientImpl.convertApiUrlToBaseUrl(requireNonNull(almSetting.getUrl()));
+        HttpUrl repositoryUrl = HttpUrl.parse(baseUrl)
+          .newBuilder()
+          .addPathSegments(requireNonNull(projectAlmSetting.getAlmRepo()))
+          .build();
+        builder.setRepositoryUrl(repositoryUrl.toString());
+      }
+
       return builder.build();
     }
   }

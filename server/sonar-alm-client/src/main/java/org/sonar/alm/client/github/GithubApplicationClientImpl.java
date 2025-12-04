@@ -33,6 +33,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
@@ -67,12 +68,15 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 
 public class GithubApplicationClientImpl implements GithubApplicationClient {
-  private static final Logger LOG = LoggerFactory.getLogger(GithubApplicationClientImpl.class);
-  protected static final Gson GSON = new Gson();
 
+  private static final Logger LOG = LoggerFactory.getLogger(GithubApplicationClientImpl.class);
+  private static final Pattern TRAILING_SLASH_PATTERN = Pattern.compile("/$");
+
+  protected static final Gson GSON = new Gson();
   protected static final String WRITE_PERMISSION_NAME = "write";
   protected static final String READ_PERMISSION_NAME = "read";
   protected static final String FAILED_TO_REQUEST_BEGIN_MSG = "Failed to request ";
+
   private static final TypeToken<List<GsonRepositoryTeam>> REPOSITORY_TEAM_LIST_TYPE = new TypeToken<>() {
   };
   private static final TypeToken<List<GsonRepositoryCollaborator>> REPOSITORY_COLLABORATORS_LIST_TYPE = new TypeToken<>() {
@@ -331,18 +335,7 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
     try {
       String endpoint = "/login/oauth/access_token?client_id=" + clientId + "&client_secret=" + clientSecret + "&code=" + code;
 
-      String baseAppUrl;
-      int apiIndex = appUrl.indexOf("/api/v3");
-      if (apiIndex > 0) {
-        baseAppUrl = appUrl.substring(0, apiIndex);
-      } else if (appUrl.startsWith("https://api.github.com")) {
-        baseAppUrl = "https://github.com";
-      } else if (appUrl.startsWith("https://api.") && appUrl.contains(".ghe.com")) {
-        // For GHE instances with api.xx.ghe.com format, remove the "api." prefix
-        baseAppUrl = appUrl.replace("https://api.", "https://");
-      } else {
-        baseAppUrl = appUrl;
-      }
+      String baseAppUrl = convertApiUrlToBaseUrl(appUrl);
 
       ApplicationHttpClient.Response response = githubApplicationHttpClient.post(baseAppUrl, null, endpoint);
 
@@ -352,9 +345,9 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
 
       Optional<String> content = response.getContent();
       Optional<UserAccessToken> accessToken = content.flatMap(c -> Arrays.stream(c.split("&"))
-          .filter(t -> t.startsWith("access_token="))
-          .map(t -> t.split("=")[1])
-          .findAny())
+        .filter(t -> t.startsWith("access_token="))
+        .map(t -> t.split("=")[1])
+        .findAny())
         .map(UserAccessToken::new);
 
       if (accessToken.isPresent()) {
@@ -416,6 +409,40 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
 
   protected <E> List<E> executePaginatedQuery(String appUrl, AccessToken token, String query, Function<String, List<E>> responseDeserializer) {
     return githubPaginatedHttpClient.get(appUrl, token, query, responseDeserializer);
+  }
+
+  /**
+   * Converts a GitHub API URL to its corresponding base URL.
+   * <p>
+   * Handles three GitHub URL patterns:
+   * <ul>
+   *   <li>GitHub.com: https://api.github.com → https://github.com</li>
+   *   <li>GitHub Enterprise Server: https://github.company.com/api/v3 → https://github.company.com</li>
+   *   <li>GitHub Enterprise Cloud with data residency: https://api.company.ghe.com → https://company.ghe.com</li>
+   * </ul>
+   *
+   * @param apiUrl GitHub API URL
+   * @return Base URL without API path segments, or the original URL if no pattern matches
+   */
+  public static String convertApiUrlToBaseUrl(String apiUrl) {
+    // GitHub Enterprise Server: https://github.company.com/api/v3
+    int apiIndex = apiUrl.indexOf("/api/v3");
+    if (apiIndex > 0) {
+      return apiUrl.substring(0, apiIndex);
+    }
+
+    // GitHub.com: https://api.github.com
+    if (apiUrl.startsWith("https://api.github.com")) {
+      return "https://github.com";
+    }
+
+    // GitHub Enterprise Cloud with data residency: https://api.company.ghe.com
+    if (apiUrl.startsWith("https://api.") && apiUrl.contains(".ghe.com")) {
+      String result = apiUrl.replace("https://api.", "https://");
+      return TRAILING_SLASH_PATTERN.matcher(result).replaceAll("");
+    }
+
+    return apiUrl;
   }
 
 }

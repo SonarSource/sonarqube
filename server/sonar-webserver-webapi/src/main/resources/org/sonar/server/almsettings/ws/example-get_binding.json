@@ -4,5 +4,6 @@
   "repository": "repo1",
   "url": "https://api.github.com",
   "summaryCommentEnabled": true,
-  "monorepo": false
+  "monorepo": false,
+  "repositoryUrl": "https://github.com/repo1"
 }
