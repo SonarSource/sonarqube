@@ -38,6 +38,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
@@ -241,7 +244,7 @@ class BitbucketCloudRestClientTest {
 
     assertThatExceptionOfType(IllegalArgumentException.class)
       .isThrownBy(() -> underTest.validate("clientId", "clientSecret", "workspace"))
-      .withMessage("Error returned by Bitbucket Cloud: No workspace with identifier 'workspace'.");
+      .withMessage("Error returned by Bitbucket Cloud: No workspace with identifier 'workspace'. [HTTP 404]");
     assertThat(logTester.logs(Level.INFO)).containsExactly(String.format(BBC_FAIL_WITH_RESPONSE, serverURL + "2.0/repositories/workspace", "404", response));
   }
 
@@ -282,7 +285,7 @@ class BitbucketCloudRestClientTest {
 
     assertThatExceptionOfType(IllegalArgumentException.class)
       .isThrownBy(() -> underTest.validate("clientId", "clientSecret", "workspace"))
-      .withMessage("Error returned by Bitbucket Cloud: Your credentials lack one or more required privilege scopes.");
+      .withMessage("Error returned by Bitbucket Cloud: Your credentials lack one or more required privilege scopes. [HTTP 400]");
     assertThat(logTester.logs(Level.INFO)).containsExactly(String.format(BBC_FAIL_WITH_RESPONSE, serverURL + "2.0/repositories/workspace", "400", error));
   }
 
@@ -313,7 +316,7 @@ class BitbucketCloudRestClientTest {
     String encodedCredentials = encodeCredentials("ATATinvalidtoken");
     assertThatExceptionOfType(IllegalArgumentException.class)
       .isThrownBy(() -> underTest.validateAppPassword(encodedCredentials, "workspace"))
-      .withMessage("Error returned by Bitbucket Cloud: Invalid credentials.");
+      .withMessage("Error returned by Bitbucket Cloud: Invalid credentials. [HTTP 401]");
     assertThat(logTester.logs(Level.INFO)).containsExactly(String.format(BBC_FAIL_WITH_RESPONSE, serverURL + "2.0/repositories/workspace", "401", response));
   }
 
@@ -324,7 +327,7 @@ class BitbucketCloudRestClientTest {
 
     assertThatExceptionOfType(IllegalArgumentException.class)
       .isThrownBy(() -> underTest.validateAppPassword(encodedCredentials, "workspace"))
-      .withMessage("Bitbucket App Passwords are no longer supported. Please update your configuration to use API tokens or access tokens");
+      .withMessage("Bitbucket App Passwords are no longer supported. Please update your configuration to use API tokens");
   }
 
   @Test
@@ -334,29 +337,9 @@ class BitbucketCloudRestClientTest {
 
     assertThatExceptionOfType(IllegalArgumentException.class)
       .isThrownBy(() -> underTest.validateAppPassword(encodedCredentials, "workspace"))
-      .withMessage("Bitbucket App Passwords are no longer supported. Please update your configuration to use API tokens or access tokens");
+      .withMessage("Bitbucket App Passwords are no longer supported. Please update your configuration to use API tokens");
   }
 
-  @Test
-  void validate_app_password_fails_with_invalid_base64() {
-    // Invalid Base64 format
-    String invalidBase64 = "not-valid-base64!@#$%";
-    
-    assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() -> underTest.validateAppPassword(invalidBase64, "workspace"))
-      .withMessage("Invalid Base64 encoded credentials");
-  }
-
-  @Test
-  void validate_app_password_fails_with_missing_colon_separator() {
-    // Valid Base64 but missing colon separator
-    byte[] bytes = "no-colon-separator".getBytes(StandardCharsets.UTF_8);
-    String encodedWithoutColon = Base64.getEncoder().encodeToString(bytes);
-
-    assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() -> underTest.validateAppPassword(encodedWithoutColon, "workspace"))
-      .withMessage("Invalid credential format - missing colon separator");
-  }
 
   @Test
   void nullErrorBodyIsSupported() throws IOException {
@@ -421,5 +404,55 @@ class BitbucketCloudRestClientTest {
       .isThrownBy(() -> underTest.validate("clientId", "clientSecret", "workspace"))
       .withMessage(UNABLE_TO_CONTACT_BBC_SERVERS);
     assertThat(logTester.logs(Level.INFO)).containsExactly(String.format(BBC_FAIL_WITH_ERROR, serverURL, "SSL verification failed"));
+  }
+
+  @ParameterizedTest
+  @MethodSource("appPasswordDeprecationScenarios")
+  void operations_with_errors_and_app_password_show_deprecation_message(String operation, int httpCode, String credential, String errorMessage) {
+    String response = String.format("{\"type\": \"error\", \"error\": {\"message\": \"%s\"}}", errorMessage);
+    server.enqueue(new MockResponse().setBody(response).setResponseCode(httpCode).setHeader("Content-Type", JSON_MEDIA_TYPE));
+
+    String encodedCredentials = encodeCredentials(credential);
+    
+    if ("getRepo".equals(operation)) {
+      assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> underTest.getRepo(encodedCredentials, "workspace", "repo"))
+        .withMessageContaining(String.format("Error returned by Bitbucket Cloud: %s [HTTP %d]", errorMessage, httpCode))
+        .withMessageContaining(" - Note: Bitbucket App Passwords are deprecated and may cause authentication failures. Consider updating to API tokens using the SonarQube UI.");
+    } else if ("searchRepos".equals(operation)) {
+      assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> underTest.searchRepos(encodedCredentials, "workspace", "repo", 1, 100))
+        .withMessageContaining(String.format("Error returned by Bitbucket Cloud: %s [HTTP %d]", errorMessage, httpCode))
+        .withMessageContaining(" - Note: Bitbucket App Passwords are deprecated and may cause authentication failures. Consider updating to API tokens using the SonarQube UI.");
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource("validTokenScenarios")
+  void getRepo_with_errors_and_valid_token_does_not_show_deprecation_message(int httpCode, String credential, String errorMessage) {
+    String response = String.format("{\"type\": \"error\", \"error\": {\"message\": \"%s\"}}", errorMessage);
+    server.enqueue(new MockResponse().setBody(response).setResponseCode(httpCode).setHeader("Content-Type", JSON_MEDIA_TYPE));
+
+    String encodedCredentials = encodeCredentials(credential);
+    assertThatExceptionOfType(IllegalStateException.class)
+      .isThrownBy(() -> underTest.getRepo(encodedCredentials, "workspace", "repo"))
+      .withMessage(String.format("Error returned by Bitbucket Cloud: %s [HTTP %d]", errorMessage, httpCode))
+      .withMessageNotContaining("App Passwords");
+  }
+
+  private static java.util.stream.Stream<Arguments> appPasswordDeprecationScenarios() {
+    return java.util.stream.Stream.of(
+      Arguments.of("getRepo", 403, "old-app-password", "Access forbidden"),
+      Arguments.of("getRepo", 404, "simple-password", "Repository not found"),
+      Arguments.of("getRepo", 401, "old-app-password", "Authentication failed"),
+      Arguments.of("searchRepos", 403, "legacy-password", "Access forbidden")
+    );
+  }
+
+  private static java.util.stream.Stream<Arguments> validTokenScenarios() {
+    return java.util.stream.Stream.of(
+      Arguments.of(403, "ATATvalid_api_token", "Access forbidden"),
+      Arguments.of(404, "ATCTvalid_access_token", "Repository not found")
+    );
   }
 }
