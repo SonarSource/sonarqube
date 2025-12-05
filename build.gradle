@@ -336,7 +336,7 @@ subprojects {
       dependency 'org.sonarsource.go:sonar-go-plugin:1.31.0.4938'
       dependency 'org.sonarsource.html:sonar-html-plugin:3.21.0.7002'
       dependency 'org.sonarsource.jacoco:sonar-jacoco-plugin:1.4.0.4946'
-      dependency 'org.sonarsource.java:sonar-java-plugin:8.21.1.41883'
+      dependency 'org.sonarsource.java:sonar-java-plugin:8.22.0.41895'
       dependency 'org.sonarsource.java:sonar-java-symbolic-execution-plugin:8.16.1.344'
       dependency 'org.sonarsource.javascript:sonar-javascript-plugin:11.7.0.36965'
       dependency 'org.sonarsource.php:sonar-php-plugin:3.53.0.15220'
