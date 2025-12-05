@@ -19,10 +19,19 @@
  */
 package org.sonar.server.almsettings.ws;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.alm.client.gitlab.GitlabApplicationClient;
+import org.sonar.alm.client.gitlab.Project;
+import org.sonar.api.config.internal.Encryption;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
@@ -39,78 +48,78 @@ import org.sonarqube.ws.AlmSettings.GetBindingWsResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.test.JsonAssert.assertJson;
 
-public class GetBindingActionIT {
+class GetBindingActionIT {
 
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public DbTester db = DbTester.create();
+  @RegisterExtension
+  private final UserSessionRule userSession = UserSessionRule.standalone();
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
-  private WsActionTester ws = new WsActionTester(new GetBindingAction(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null)));
+  private final GitlabApplicationClient gitlabApplicationClient = mock(GitlabApplicationClient.class);
+  private final Encryption encryption = mock(Encryption.class);
+  private final Settings settings = createMockSettings();
+  private final WsActionTester ws = new WsActionTester(
+    new GetBindingAction(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null), gitlabApplicationClient, settings));
 
   private UserDto user;
   private ProjectDto project;
 
-  @Before
-  public void before() {
+  private Settings createMockSettings() {
+    Settings mockSettings = mock(Settings.class);
+    when(mockSettings.getEncryption()).thenReturn(encryption);
+    return mockSettings;
+  }
+
+  @BeforeEach
+  void before() {
     user = db.users().insertUser();
     project = db.components().insertPrivateProject().getProjectDto();
   }
 
-  @Test
-  public void get_github_project_binding() {
+  private static Stream<Arguments> githubBindingParameters() {
+    return Stream.of(
+      Arguments.of("GitHub.com", "https://api.github.com", "https://github.com/my-repo"),
+      Arguments.of("GitHub Enterprise Server", "https://github.enterprise.com/api/v3", "https://github.enterprise.com/my-repo"),
+      Arguments.of("GitHub Enterprise Server with trailing slash", "https://api.company.ghe.com/", "https://company.ghe.com/my-repo"));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("githubBindingParameters")
+  void get_github_project_binding(String testName, String githubApiUrl, String expectedRepositoryUrl) {
     userSession.logIn(user).addProjectPermission(USER, project);
-    AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting(setting -> setting.setUrl("https://api.github.com"));
-    ProjectAlmSettingDto githubProjectAlmSetting = db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project);
+    AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting(setting -> setting.setUrl(githubApiUrl));
+    ProjectAlmSettingDto githubProjectAlmSetting = db.almSettings().insertGitHubProjectAlmSetting(
+      githubAlmSetting, project, projectAlmSetting -> projectAlmSetting.setAlmRepo("my-repo"));
 
     GetBindingWsResponse response = ws.newRequest()
       .setParam("project", project.getKey())
       .executeProtobuf(GetBindingWsResponse.class);
 
-    assertThat(response.getAlm()).isEqualTo(AlmSettings.Alm.github);
-    assertThat(response.getKey()).isEqualTo(githubAlmSetting.getKey());
-    assertThat(response.getRepository()).isEqualTo(githubProjectAlmSetting.getAlmRepo());
-    assertThat(response.getUrl()).isEqualTo(githubAlmSetting.getUrl());
-    assertThat(response.getSummaryCommentEnabled()).isTrue();
-    assertThat(response.getRepositoryUrl()).isEqualTo("https://github.com/" + githubProjectAlmSetting.getAlmRepo());
+    assertThat(response)
+      .extracting(
+        GetBindingWsResponse::getAlm,
+        GetBindingWsResponse::getKey,
+        GetBindingWsResponse::getRepository,
+        GetBindingWsResponse::getUrl,
+        GetBindingWsResponse::getSummaryCommentEnabled,
+        GetBindingWsResponse::getRepositoryUrl)
+      .containsExactly(
+        AlmSettings.Alm.github,
+        githubAlmSetting.getKey(),
+        githubProjectAlmSetting.getAlmRepo(),
+        githubAlmSetting.getUrl(),
+        true,
+        expectedRepositoryUrl);
   }
 
   @Test
-  public void get_github_project_binding_with_enterprise_server() {
-    userSession.logIn(user).addProjectPermission(USER, project);
-    AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting(setting -> setting.setUrl("https://github.enterprise.com/api/v3"));
-    ProjectAlmSettingDto githubProjectAlmSetting = db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project);
-
-    GetBindingWsResponse response = ws.newRequest()
-      .setParam("project", project.getKey())
-      .executeProtobuf(GetBindingWsResponse.class);
-
-    assertThat(response.getAlm()).isEqualTo(AlmSettings.Alm.github);
-    assertThat(response.getKey()).isEqualTo(githubAlmSetting.getKey());
-    assertThat(response.getRepository()).isEqualTo(githubProjectAlmSetting.getAlmRepo());
-    assertThat(response.getUrl()).isEqualTo(githubAlmSetting.getUrl());
-    assertThat(response.getSummaryCommentEnabled()).isTrue();
-    assertThat(response.getRepositoryUrl()).isEqualTo("https://github.enterprise.com/" + githubProjectAlmSetting.getAlmRepo());
-  }
-
-  @Test
-  public void get_github_project_binding_with_trailing_slash_in_url() {
-    userSession.logIn(user).addProjectPermission(USER, project);
-    AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting(setting -> setting.setUrl("https://api.company.ghe.com/"));
-    ProjectAlmSettingDto githubProjectAlmSetting = db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project);
-
-    GetBindingWsResponse response = ws.newRequest()
-      .setParam("project", project.getKey())
-      .executeProtobuf(GetBindingWsResponse.class);
-
-    assertThat(response.getRepositoryUrl()).isEqualTo("https://company.ghe.com/" + githubProjectAlmSetting.getAlmRepo());
-  }
-
-  @Test
-  public void get_azure_project_binding() {
+  void get_azure_project_binding() {
     userSession.logIn(user).addProjectPermission(USER, project);
     AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
     ProjectAlmSettingDto projectAlmSettingDto = db.almSettings().insertAzureMonoRepoProjectAlmSetting(almSetting, project);
@@ -119,37 +128,79 @@ public class GetBindingActionIT {
       .setParam("project", project.getKey())
       .executeProtobuf(GetBindingWsResponse.class);
 
-    assertThat(response.getAlm()).isEqualTo(AlmSettings.Alm.azure);
-    assertThat(response.getKey()).isEqualTo(almSetting.getKey());
-    assertThat(response.getUrl()).isEqualTo(almSetting.getUrl());
-    assertThat(response.getRepository()).isEqualTo(projectAlmSettingDto.getAlmRepo());
-    assertThat(response.getSlug()).isEqualTo(projectAlmSettingDto.getAlmSlug());
-    assertThat(response.hasSummaryCommentEnabled()).isFalse();
-    assertThat(response.getMonorepo()).isTrue();
+    assertThat(response)
+      .extracting(
+        GetBindingWsResponse::getAlm,
+        GetBindingWsResponse::getKey,
+        GetBindingWsResponse::getUrl,
+        GetBindingWsResponse::getRepository,
+        GetBindingWsResponse::getSlug,
+        GetBindingWsResponse::hasSummaryCommentEnabled,
+        GetBindingWsResponse::getMonorepo)
+      .containsExactly(
+        AlmSettings.Alm.azure,
+        almSetting.getKey(),
+        almSetting.getUrl(),
+        projectAlmSettingDto.getAlmRepo(),
+        projectAlmSettingDto.getAlmSlug(),
+        false,
+        true);
   }
 
-  @Test
-  public void get_gitlab_project_binding() {
+  private static Stream<Arguments> gitlabBindingParameters() {
+    return Stream.of(
+      Arguments.of("GitLab.com", "https://gitlab.com", "https://gitlab.com/my-group/my-project"),
+      Arguments.of("Self-hosted GitLab", "https://gitlab.company.com", "https://gitlab.company.com/company-group/company-project"),
+      Arguments.of("Self-hosted GitLab with trailing slash", "https://gitlab.company.com/", "https://gitlab.company.com/another-group/another-project"));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("gitlabBindingParameters")
+  void get_gitlab_project_binding(String testName, String gitlabUrl, String expectedRepositoryUrl) {
+    var projectId = "12345";
     UserDto user = db.users().insertUser();
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn(user).addProjectPermission(USER, project);
-    AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting();
-    db.almSettings().insertGitlabProjectAlmSetting(almSetting, project);
+
+    AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting(setting -> setting.setUrl(gitlabUrl).setPersonalAccessToken("token"));
+    ProjectAlmSettingDto projectAlmSettingDto = db.almSettings().insertGitlabProjectAlmSetting(
+      almSetting, project, projectAlmSetting -> projectAlmSetting.setAlmRepo(projectId));
+
+    when(encryption.isEncrypted(anyString())).thenReturn(false);
+    when(gitlabApplicationClient.getProject(gitlabUrl, "token", Long.parseLong(projectId)))
+      .thenReturn(new Project(
+        Long.parseLong(projectId),
+        "project-name",
+        "namespace/project-name",
+        "project-name",
+        "namespace/project-name",
+        expectedRepositoryUrl));
 
     GetBindingWsResponse response = ws.newRequest()
       .setParam("project", project.getKey())
       .executeProtobuf(GetBindingWsResponse.class);
 
-    assertThat(response.getAlm()).isEqualTo(AlmSettings.Alm.gitlab);
-    assertThat(response.getKey()).isEqualTo(almSetting.getKey());
-    assertThat(response.hasRepository()).isFalse();
-    assertThat(response.getUrl()).isEqualTo(almSetting.getUrl());
-    assertThat(response.hasUrl()).isTrue();
-    assertThat(response.hasSummaryCommentEnabled()).isFalse();
+    assertThat(response)
+      .extracting(
+        GetBindingWsResponse::getAlm,
+        GetBindingWsResponse::getKey,
+        GetBindingWsResponse::getRepository,
+        GetBindingWsResponse::getUrl,
+        GetBindingWsResponse::hasUrl,
+        GetBindingWsResponse::hasSummaryCommentEnabled,
+        GetBindingWsResponse::getRepositoryUrl)
+      .containsExactly(
+        AlmSettings.Alm.gitlab,
+        almSetting.getKey(),
+        projectAlmSettingDto.getAlmRepo(),
+        almSetting.getUrl(),
+        true,
+        false,
+        expectedRepositoryUrl);
   }
 
   @Test
-  public void get_bitbucket_project_binding() {
+  void get_bitbucket_project_binding() {
     userSession.logIn(user).addProjectPermission(USER, project);
     AlmSettingDto almSetting = db.almSettings().insertBitbucketAlmSetting();
     ProjectAlmSettingDto projectAlmSettingDto = db.almSettings().insertBitbucketProjectAlmSetting(almSetting, project);
@@ -158,16 +209,100 @@ public class GetBindingActionIT {
       .setParam("project", project.getKey())
       .executeProtobuf(GetBindingWsResponse.class);
 
-    assertThat(response.getAlm()).isEqualTo(AlmSettings.Alm.bitbucket);
-    assertThat(response.getKey()).isEqualTo(almSetting.getKey());
-    assertThat(response.getRepository()).isEqualTo(projectAlmSettingDto.getAlmRepo());
-    assertThat(response.getUrl()).isEqualTo(almSetting.getUrl());
-    assertThat(response.getSlug()).isEqualTo(projectAlmSettingDto.getAlmSlug());
-    assertThat(response.hasSummaryCommentEnabled()).isFalse();
+    assertThat(response)
+      .extracting(
+        GetBindingWsResponse::getAlm,
+        GetBindingWsResponse::getKey,
+        GetBindingWsResponse::getRepository,
+        GetBindingWsResponse::getUrl,
+        GetBindingWsResponse::getSlug,
+        GetBindingWsResponse::hasSummaryCommentEnabled)
+      .containsExactly(
+        AlmSettings.Alm.bitbucket,
+        almSetting.getKey(),
+        projectAlmSettingDto.getAlmRepo(),
+        almSetting.getUrl(),
+        projectAlmSettingDto.getAlmSlug(),
+        false);
   }
 
   @Test
-  public void fail_when_project_does_not_exist() {
+  void get_github_project_binding_returns_without_repository_url_when_url_construction_fails() {
+    userSession.logIn(user).addProjectPermission(USER, project);
+    AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting(setting -> setting.setUrl("invalid-url"));
+    ProjectAlmSettingDto githubProjectAlmSetting = db.almSettings().insertGitHubProjectAlmSetting(
+      githubAlmSetting, project, projectAlmSetting -> projectAlmSetting.setAlmRepo("my-repo"));
+
+    GetBindingWsResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(GetBindingWsResponse.class);
+
+    assertThat(response)
+      .extracting(
+        GetBindingWsResponse::getAlm,
+        GetBindingWsResponse::getKey,
+        GetBindingWsResponse::getRepository,
+        GetBindingWsResponse::hasRepositoryUrl)
+      .containsExactly(
+        AlmSettings.Alm.github,
+        githubAlmSetting.getKey(),
+        githubProjectAlmSetting.getAlmRepo(),
+        false);
+  }
+
+  @Test
+  void get_gitlab_project_binding_returns_without_repository_url_when_project_id_is_invalid() {
+    userSession.logIn(user).addProjectPermission(USER, project);
+    AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting(setting -> setting.setUrl("https://gitlab.com").setPersonalAccessToken("token"));
+    db.almSettings().insertGitlabProjectAlmSetting(
+      almSetting, project, projectAlmSetting -> projectAlmSetting.setAlmRepo("invalid-project-id"));
+
+    when(encryption.isEncrypted(anyString())).thenReturn(false);
+
+    GetBindingWsResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(GetBindingWsResponse.class);
+
+    assertThat(response)
+      .extracting(
+        GetBindingWsResponse::getAlm,
+        GetBindingWsResponse::getKey,
+        GetBindingWsResponse::hasRepositoryUrl)
+      .containsExactly(
+        AlmSettings.Alm.gitlab,
+        almSetting.getKey(),
+        false);
+  }
+
+  @Test
+  void get_gitlab_project_binding_returns_without_repository_url_when_api_call_fails() {
+    var projectId = "12345";
+    userSession.logIn(user).addProjectPermission(USER, project);
+    AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting(setting -> setting.setUrl("https://gitlab.com").setPersonalAccessToken("token"));
+    db.almSettings().insertGitlabProjectAlmSetting(
+      almSetting, project, projectAlmSetting -> projectAlmSetting.setAlmRepo(projectId));
+
+    when(encryption.isEncrypted(anyString())).thenReturn(false);
+    when(gitlabApplicationClient.getProject("https://gitlab.com", "token", Long.parseLong(projectId)))
+      .thenThrow(new RuntimeException("API connection error"));
+
+    GetBindingWsResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(GetBindingWsResponse.class);
+
+    assertThat(response)
+      .extracting(
+        GetBindingWsResponse::getAlm,
+        GetBindingWsResponse::getKey,
+        GetBindingWsResponse::hasRepositoryUrl)
+      .containsExactly(
+        AlmSettings.Alm.gitlab,
+        almSetting.getKey(),
+        false);
+  }
+
+  @Test
+  void fail_when_project_does_not_exist() {
     userSession.logIn(user).addProjectPermission(USER, project);
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project);
@@ -179,7 +314,7 @@ public class GetBindingActionIT {
   }
 
   @Test
-  public void fail_when_missing_browse_permission_on_project() {
+  void fail_when_missing_browse_permission_on_project() {
     userSession.logIn(user);
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project);
@@ -191,7 +326,7 @@ public class GetBindingActionIT {
   }
 
   @Test
-  public void json_example() {
+  void json_example() {
     userSession.logIn(user).addProjectPermission(USER, project);
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting(
       almSettingDto -> almSettingDto
@@ -209,15 +344,18 @@ public class GetBindingActionIT {
   }
 
   @Test
-  public void definition() {
+  void definition() {
     WebService.Action def = ws.getDef();
 
-    assertThat(def.since()).isEqualTo("8.1");
-    assertThat(def.isPost()).isFalse();
-    assertThat(def.responseExampleAsString()).isNotEmpty();
+    assertThat(def)
+      .extracting(
+        WebService.Action::since,
+        WebService.Action::isPost,
+        action -> action.responseExampleAsString().isEmpty())
+      .containsExactly("8.1", false, false);
     assertThat(def.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
-      .containsExactlyInAnyOrder(tuple("project", true));
+      .containsExactly(tuple("project", true));
   }
 
 }

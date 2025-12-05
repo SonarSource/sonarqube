@@ -20,7 +20,13 @@
 package org.sonar.server.almsettings.ws;
 
 import okhttp3.HttpUrl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.alm.client.github.GithubApplicationClientImpl;
+import org.sonar.alm.client.gitlab.GitlabApplicationClient;
+import org.sonar.alm.client.gitlab.Project;
+import org.sonar.api.config.internal.Encryption;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -46,16 +52,21 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class GetBindingAction implements AlmSettingsWsAction {
 
+  private static final Logger LOG = LoggerFactory.getLogger(GetBindingAction.class);
   private static final String PARAM_PROJECT = "project";
 
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
+  private final GitlabApplicationClient gitlabApplicationClient;
+  private final Encryption encryption;
 
-  public GetBindingAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder) {
+  public GetBindingAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, GitlabApplicationClient gitlabApplicationClient, Settings settings) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
+    this.gitlabApplicationClient = gitlabApplicationClient;
+    this.encryption = settings.getEncryption();
   }
 
   @Override
@@ -70,7 +81,7 @@ public class GetBindingAction implements AlmSettingsWsAction {
         new Change("8.7", "Azure binding now contains a monorepo flag for monorepo feature in Enterprise Edition and above"),
         new Change("10.1", "Permission needed changed from 'Administer' to 'Browse'"),
         new Change("2025.1", "Azure binding now contains a inlineAnnotationsEnabled flag for inline annotations feature"),
-        new Change("2025.6", "GitHub binding now contains a repositoryUrl field with the URL to the repository on GitHub"))
+        new Change("2025.6", "GitHub and GitLab bindings now contain a repositoryUrl field with the URL to the repository"))
       .setHandler(this);
 
     action
@@ -105,16 +116,52 @@ public class GetBindingAction implements AlmSettingsWsAction {
       ofNullable(projectAlmSetting.getMonorepo()).ifPresent(builder::setMonorepo);
       ofNullable(projectAlmSetting.getInlineAnnotationsEnabled()).ifPresent(builder::setInlineAnnotationsEnabled);
 
-      if (almSetting.getAlm() == ALM.GITHUB && isNotBlank(projectAlmSetting.getAlmRepo()) && isNotBlank(almSetting.getUrl())) {
+      if (almSetting.getAlm() == ALM.GITHUB) {
+        setGithubRepositoryUrl(almSetting, projectAlmSetting, builder);
+      } else if (almSetting.getAlm() == ALM.GITLAB) {
+        setGitlabRepositoryUrl(almSetting, projectAlmSetting, builder);
+      }
+
+      return builder.build();
+    }
+  }
+
+  private static void setGithubRepositoryUrl(AlmSettingDto almSetting, ProjectAlmSettingDto projectAlmSetting, GetBindingWsResponse.Builder builder) {
+    if (isNotBlank(projectAlmSetting.getAlmRepo()) && isNotBlank(almSetting.getUrl())) {
+      try {
         String baseUrl = GithubApplicationClientImpl.convertApiUrlToBaseUrl(requireNonNull(almSetting.getUrl()));
         HttpUrl repositoryUrl = HttpUrl.parse(baseUrl)
           .newBuilder()
           .addPathSegments(requireNonNull(projectAlmSetting.getAlmRepo()))
           .build();
         builder.setRepositoryUrl(repositoryUrl.toString());
+      } catch (Exception e) {
+        LOG.warn("Failed to construct GitHub repository URL for ALM setting '{}' and repository '{}'",
+          almSetting.getKey(), projectAlmSetting.getAlmRepo(), e);
       }
-
-      return builder.build();
     }
   }
+
+  private void setGitlabRepositoryUrl(AlmSettingDto almSetting, ProjectAlmSettingDto projectAlmSetting, GetBindingWsResponse.Builder builder) {
+    if (isNotBlank(projectAlmSetting.getAlmRepo()) && isNotBlank(almSetting.getUrl())) {
+      try {
+        String personalAccessToken = almSetting.getDecryptedPersonalAccessToken(encryption);
+        if (isNotBlank(personalAccessToken)) {
+          Long gitlabProjectId = Long.parseLong(requireNonNull(projectAlmSetting.getAlmRepo()));
+          Project gitlabProject = gitlabApplicationClient.getProject(
+            requireNonNull(almSetting.getUrl()),
+            personalAccessToken,
+            gitlabProjectId);
+          builder.setRepositoryUrl(gitlabProject.getWebUrl());
+        }
+      } catch (NumberFormatException e) {
+        LOG.warn("Invalid GitLab project ID '{}' for ALM setting '{}': must be a valid number",
+          projectAlmSetting.getAlmRepo(), almSetting.getKey(), e);
+      } catch (Exception e) {
+        LOG.warn("Failed to fetch GitLab repository URL for ALM setting '{}' and project ID '{}'",
+          almSetting.getKey(), projectAlmSetting.getAlmRepo(), e);
+      }
+    }
+  }
+
 }
