@@ -76,7 +76,7 @@ public class DoTransitionAction implements IssuesWsAction {
   private final OperationResponseWriter responseWriter;
   private final System2 system2;
 
-  private final static Set<String> REOPEN_TRANSITIONS = Set.of(
+  private static final Set<String> REOPEN_TRANSITIONS = Set.of(
     REOPEN.getKey(),
     UNCONFIRM.getKey()
   );
