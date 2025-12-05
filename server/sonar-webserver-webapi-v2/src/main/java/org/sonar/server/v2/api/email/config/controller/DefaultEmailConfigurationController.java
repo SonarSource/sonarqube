@@ -20,7 +20,7 @@
 package org.sonar.server.v2.api.email.config.controller;
 
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.server.common.email.config.EmailConfiguration;
 import org.sonar.server.common.email.config.EmailConfigurationAuthMethod;
 import org.sonar.server.common.email.config.EmailConfigurationSecurityProtocol;

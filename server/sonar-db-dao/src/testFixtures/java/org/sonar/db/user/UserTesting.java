@@ -23,11 +23,10 @@ import java.security.SecureRandom;
 import java.util.Locale;
 import java.util.Random;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.RandomUtils;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 
 public class UserTesting {
@@ -40,7 +39,7 @@ public class UserTesting {
     return new UserDto()
       .setUuid(secure().nextAlphanumeric(40))
       .setActive(true)
-      .setLocal(RANDOM.nextBoolean())
+      .setLocal(RandomUtils.secure().randomBoolean())
       .setLogin(secure().nextAlphanumeric(30))
       .setName(secure().nextAlphanumeric(30))
       .setEmail(secure().nextAlphanumeric(30))
@@ -57,11 +56,11 @@ public class UserTesting {
   public static UserDto newUserDtoRealistic() {
     long timeNow = System.currentTimeMillis();
     String loginAndAndId = secure().nextAlphanumeric(30);
-    String realisticIdentityProvider = realisticIdentityProviders[nextInt(realisticIdentityProviders.length)];
-    boolean isExternal = nextBoolean();
+    String realisticIdentityProvider = realisticIdentityProviders[RandomUtils.secure().randomInt(0, realisticIdentityProviders.length)];
+    boolean isExternal = RandomUtils.secure().randomBoolean();
     String externalIdAndLogin = isExternal ? loginAndAndId + "_" + realisticIdentityProvider : loginAndAndId;
     return new UserDto().setUuid(secure().nextAlphanumeric(40))
-      .setActive(nextBoolean())
+      .setActive(RandomUtils.secure().randomBoolean())
       .setLocal(!isExternal)
       .setLogin(loginAndAndId)
       .setName(loginAndAndId + " " + loginAndAndId)
@@ -76,9 +75,9 @@ public class UserTesting {
       .setCryptedPassword("100000$arHk2+TbNYyFeUgAsDBz7O5M+W0Y3NKJGgvz0KsURHzfXaTXlLT0WYI3DWwXOgHLgyFidVJ4HF22h7zbJoaa8g==")
       .setCreatedAt(timeNow)
       .setUpdatedAt(timeNow)
-      .setLastConnectionDate(nextBoolean() ? timeNow : null)
-      .setResetPassword(nextBoolean() && nextBoolean() && nextBoolean())
-      .setHomepageParameter(nextInt(10) + "")
+      .setLastConnectionDate(RandomUtils.secure().randomBoolean() ? timeNow : null)
+      .setResetPassword(RandomUtils.secure().randomBoolean() && RandomUtils.secure().randomBoolean() && RandomUtils.secure().randomBoolean())
+      .setHomepageParameter(RandomUtils.secure().randomInt(0,10) + "")
       .setHomepageType("projects");
   }
 

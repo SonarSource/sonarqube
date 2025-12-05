@@ -20,7 +20,7 @@
 package org.sonar.server.v2.api.azurebilling.environment;
 
 import java.util.Map;
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 import org.sonar.process.System2;
 

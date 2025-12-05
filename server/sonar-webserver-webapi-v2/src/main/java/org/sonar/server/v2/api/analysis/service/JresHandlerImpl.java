@@ -40,7 +40,7 @@ import org.sonar.server.v2.common.model.Arch;
 import org.sonar.server.v2.common.model.OS;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.sonar.core.config.CorePropertyDefinitions.DISABLE_JRE_AUTO_PROVISIONING;
 
 public class JresHandlerImpl implements JresHandler {

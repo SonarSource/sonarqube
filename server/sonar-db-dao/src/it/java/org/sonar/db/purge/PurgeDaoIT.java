@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -330,13 +330,13 @@ project.getProjectDto().getUuid()), PurgeListener.EMPTY, new PurgeProfiler());
     MetricDto metric2 = db.measures().insertMetric();
 
     db.measures().insertMeasure(srcFile,
-      m -> m.addValue(metric1.getKey(), RandomUtils.nextInt(50)).addValue(metric2.getKey(), RandomUtils.nextInt(50)));
+      m -> m.addValue(metric1.getKey(), RandomUtils.secure().randomInt(0, 50)).addValue(metric2.getKey(), RandomUtils.secure().randomInt(0, 50)));
     db.measures().insertMeasure(dir,
-      m -> m.addValue(metric1.getKey(), RandomUtils.nextInt(50)).addValue(metric2.getKey(), RandomUtils.nextInt(50)));
+      m -> m.addValue(metric1.getKey(), RandomUtils.secure().randomInt(0, 50)).addValue(metric2.getKey(), RandomUtils.secure().randomInt(0, 50)));
     db.measures().insertMeasure(mainBranch,
-      m -> m.addValue(metric1.getKey(), RandomUtils.nextInt(50)).addValue(metric2.getKey(), RandomUtils.nextInt(50)));
+      m -> m.addValue(metric1.getKey(), RandomUtils.secure().randomInt(0, 50)).addValue(metric2.getKey(), RandomUtils.secure().randomInt(0, 50)));
     db.measures().insertMeasure(enabledFile,
-      m -> m.addValue(metric1.getKey(), RandomUtils.nextInt(50)).addValue(metric2.getKey(), RandomUtils.nextInt(50)));
+      m -> m.addValue(metric1.getKey(), RandomUtils.secure().randomInt(0, 50)).addValue(metric2.getKey(), RandomUtils.secure().randomInt(0, 50)));
     assertThat(db.countRowsOfTable("measures")).isEqualTo(4);
 
     // back to present
@@ -1727,13 +1727,13 @@ project.getProjectDto().getKey());
 
     ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto dir1 = db.components().insertComponent(newDirectory(project1, "path"));
-    db.measures().insertMeasure(project1, m -> m.addValue(metric.getKey(), RandomUtils.nextInt(50)));
-    db.measures().insertMeasure(dir1, m -> m.addValue(metric.getKey(), RandomUtils.nextInt(50)));
+    db.measures().insertMeasure(project1, m -> m.addValue(metric.getKey(), RandomUtils.secure().randomInt(0, 50)));
+    db.measures().insertMeasure(dir1, m -> m.addValue(metric.getKey(), RandomUtils.secure().randomInt(0, 50)));
 
     ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto dir2 = db.components().insertComponent(newDirectory(project2, "path"));
-    db.measures().insertMeasure(project2, m -> m.addValue(metric.getKey(), RandomUtils.nextInt(50)));
-    db.measures().insertMeasure(dir2, m -> m.addValue(metric.getKey(), RandomUtils.nextInt(50)));
+    db.measures().insertMeasure(project2, m -> m.addValue(metric.getKey(), RandomUtils.secure().randomInt(0, 50)));
+    db.measures().insertMeasure(dir2, m -> m.addValue(metric.getKey(), RandomUtils.secure().randomInt(0, 50)));
 
     underTest.deleteProject(dbSession, project1.uuid(), project1.qualifier(), project1.name(), project1.getKey());
 

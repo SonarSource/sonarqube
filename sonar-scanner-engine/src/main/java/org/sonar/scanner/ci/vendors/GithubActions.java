@@ -35,7 +35,7 @@ import org.sonar.scanner.ci.CiVendor;
 import org.sonar.scanner.ci.DevOpsPlatformInfo;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**

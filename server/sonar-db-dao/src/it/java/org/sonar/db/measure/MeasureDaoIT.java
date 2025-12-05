@@ -24,8 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.ibatis.session.ResultHandler;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -41,7 +40,7 @@ import org.sonar.db.metric.MetricDto;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -201,8 +200,8 @@ class MeasureDaoIT {
 
   @Test
   void selectByComponentUuidsAndMetricKeys_does_not_use_db_when_no_components() {
-    String metricKey = randomAlphabetic(7);
-    newMeasure().addValue(metricKey, randomAlphabetic(11));
+    String metricKey = secure().nextAlphabetic(7);
+    newMeasure().addValue(metricKey, secure().nextAlphabetic(11));
 
     DbSession dbSession = mock(DbSession.class);
     assertThat(underTest.selectByComponentUuidsAndMetricKeys(dbSession, emptyList(), singletonList(metricKey)))
@@ -220,8 +219,8 @@ class MeasureDaoIT {
 
   @Test
   void selectByComponentUuidsAndMetricKeys_with_single_component_and_single_metric() {
-    String metricKey = randomAlphabetic(7);
-    String value = randomAlphabetic(11);
+    String metricKey = secure().nextAlphabetic(7);
+    String value = secure().nextAlphabetic(11);
     MeasureDto measure = newMeasure().addValue(metricKey, value);
     underTest.insert(db.getSession(), measure);
 
@@ -233,8 +232,8 @@ class MeasureDaoIT {
 
   @Test
   void selectByComponentUuidsAndMetricKeys_with_nonexistent_component_returns_empty() {
-    String metricKey = randomAlphabetic(7);
-    String value = randomAlphabetic(11);
+    String metricKey = secure().nextAlphabetic(7);
+    String value = secure().nextAlphabetic(11);
     MeasureDto measure = newMeasure().addValue(metricKey, value);
     underTest.insert(db.getSession(), measure);
 
@@ -247,8 +246,8 @@ class MeasureDaoIT {
 
   @Test
   void selectByComponentUuidsAndMetricKeys_with_nonexistent_metric_returns_empty() {
-    String metricKey = randomAlphabetic(7);
-    String value = randomAlphabetic(11);
+    String metricKey = secure().nextAlphabetic(7);
+    String value = secure().nextAlphabetic(11);
     MeasureDto measure = newMeasure().addValue(metricKey, value);
     underTest.insert(db.getSession(), measure);
 
@@ -273,7 +272,7 @@ class MeasureDaoIT {
     underTest.insert(db.getSession(),
       newMeasure().setComponentUuid(component1)
         .addValue(metric1, component1measure1)
-        .addValue(nonRequestedMetric, randomAlphabetic(7)));
+        .addValue(nonRequestedMetric, secure().nextAlphabetic(7)));
 
     String component2 = "component2";
     String component2measure1 = "component2measure1";
@@ -282,11 +281,11 @@ class MeasureDaoIT {
       newMeasure().setComponentUuid(component2)
         .addValue(metric1, component2measure1)
         .addValue(metric2, component2measure2)
-        .addValue(nonRequestedMetric, randomAlphabetic(7)));
+        .addValue(nonRequestedMetric, secure().nextAlphabetic(7)));
 
     String nonRequestedComponent = "nonRequestedComponent";
     underTest.insert(db.getSession(),
-      newMeasure().setComponentUuid(nonRequestedComponent).addValue(metric1, randomAlphabetic(7)));
+      newMeasure().setComponentUuid(nonRequestedComponent).addValue(metric1, secure().nextAlphabetic(7)));
 
     List<MeasureDto> measureDtos = underTest.selectByComponentUuidsAndMetricKeys(
       db.getSession(), Arrays.asList(component1, component2), Arrays.asList(metric1, metric2));
@@ -371,7 +370,7 @@ class MeasureDaoIT {
 
     ComponentDto branch = db.components().insertPrivateProject().getMainBranchComponent();
 
-    ComponentDto dir = db.components().insertComponent(newDirectory(branch, RandomStringUtils.randomAlphabetic(15)));
+    ComponentDto dir = db.components().insertComponent(newDirectory(branch, secure().nextAlphabetic(15)));
     MeasureDto measureOnDirectory = newMeasureForMetrics(dir, metric1, metric2);
 
     ComponentDto file1 = db.components().insertComponent(newFileDto(dir));
@@ -498,7 +497,7 @@ class MeasureDaoIT {
 
   private MeasureDto newMeasureForMetrics(ComponentDto componentDto, MetricDto... metrics) {
     return db.measures().insertMeasure(componentDto,
-      m -> Arrays.stream(metrics).forEach(metric -> m.addValue(metric.getKey(), RandomUtils.nextInt(50))));
+      m -> Arrays.stream(metrics).forEach(metric -> m.addValue(metric.getKey(), RandomUtils.secure().randomInt(0,50))));
   }
 
   private void verifyTableSize(int expectedSize) {
@@ -512,6 +511,6 @@ class MeasureDaoIT {
   }
 
   private static double getDoubleValue() {
-    return RandomUtils.nextInt(100);
+    return RandomUtils.secure().randomInt(0,100);
   }
 }
