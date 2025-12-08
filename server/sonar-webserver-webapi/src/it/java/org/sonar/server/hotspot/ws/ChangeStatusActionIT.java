@@ -84,12 +84,9 @@ import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
-import static org.sonar.core.rule.RuleType.CODE_SMELL;
 import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
 import static org.sonar.db.permission.ProjectPermission.SECURITYHOTSPOT_ADMIN;
-import static org.sonar.db.permission.ProjectPermission.USER;
 
 class ChangeStatusActionIT {
   private static final Random RANDOM = new Random();
@@ -108,7 +105,8 @@ class ChangeStatusActionIT {
   private System2 system2 = mock(System2.class);
   private IssueFieldsSetter issueFieldsSetter = mock(IssueFieldsSetter.class);
   private HotspotWsSupport hotspotWsSupport = new HotspotWsSupport(dbClient, userSessionRule, system2);
-  private ChangeStatusAction underTest = new ChangeStatusAction(dbClient, hotspotWsSupport, transitionService, issueFieldsSetter, issueUpdater, hotspotChangeEventService);
+  private ChangeStatusAction underTest = new ChangeStatusAction(dbClient, hotspotWsSupport, transitionService, issueFieldsSetter,
+    issueUpdater, hotspotChangeEventService, new IssueStatsByRuleKeyDaoImpl(dbClient));
   private WsActionTester actionTester = new WsActionTester(underTest);
   private BranchDto branchDto = mock(BranchDto.class);
 

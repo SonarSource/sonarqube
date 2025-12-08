@@ -481,6 +481,41 @@
       and i.status not in ('CLOSED', 'IN_SANDBOX')
   </select>
 
+  <select id="aggregateIssueStatsForBranchUuidAndRuleKey" parameterType="map" resultType="org.sonar.db.issue.AggregatedIssueStatsDto">
+    select
+      max(case when i.issue_type = 4 then 0 else
+          case
+            when i.severity = 'INFO' then 1
+            when i.severity = 'MINOR' then 2
+            when i.severity = 'MAJOR' then 3
+            when i.severity = 'CRITICAL' then 4
+            when i.severity = 'BLOCKER' then 5
+          end
+        end) as "rating",
+        max(case when i.issue_type = 4 then 0 else
+          case
+            when ii.severity is null then 1
+            when ii.severity = 'INFO' then 1
+            when ii.severity = 'LOW' then 2
+            when ii.severity = 'MEDIUM' then 3
+            when ii.severity = 'HIGH' then 4
+            when ii.severity = 'BLOCKER' then 5
+          end
+        end) as "mqrRating",
+      sum(case when i.issue_type = 4 and i.status = 'TO_REVIEW' then 1 else 0 end) as "toReviewHotspots",
+      sum(case when i.issue_type = 4 and i.status = 'REVIEWED' then 1 else 0 end) as "reviewedHotspots"
+    from issues i
+    left outer join issues_impacts ii on i.kee = ii.issue_key and ii.software_quality = 'SECURITY'
+    join rules r on r.uuid = i.rule_uuid
+    join project_branches b on b.uuid = i.project_uuid
+    where i.project_uuid = #{branchUuid,jdbcType=VARCHAR}
+      and r.plugin_name = #{ruleRepository,jdbcType=VARCHAR}
+      and r.plugin_rule_key = #{ruleKey,jdbcType=VARCHAR}
+      and b.branch_type = 'BRANCH'
+      and i.resolution is null
+      and i.status not in ('CLOSED', 'IN_SANDBOX')
+  </select>
+
   <select id="selectComponentUuidsOfOpenIssuesForProjectUuid" parameterType="string" resultType="string">
     select distinct(i.component_uuid)
     from issues i

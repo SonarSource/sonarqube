@@ -46,6 +46,7 @@ import org.sonar.server.pushapi.hotspots.HotspotChangeEventService;
 import org.sonar.server.pushapi.hotspots.HotspotChangedEvent;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static io.sonarcloud.compliancereports.dao.AggregationType.PROJECT;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.sonar.api.issue.Issue.RESOLUTION_ACKNOWLEDGED;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
@@ -53,6 +54,7 @@ import static org.sonar.api.issue.Issue.SECURITY_HOTSPOT_RESOLUTIONS;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.db.component.BranchType.BRANCH;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTransition.RESET_AS_TO_REVIEW;
 
 public class ChangeStatusAction implements HotspotsWsAction {
@@ -68,15 +70,18 @@ public class ChangeStatusAction implements HotspotsWsAction {
   private final IssueFieldsSetter issueFieldsSetter;
   private final IssueUpdater issueUpdater;
   private final HotspotChangeEventService hotspotChangeEventService;
+  private final IssueStatsByRuleKeyDaoImpl issueStatsByRuleKeyDao;
 
   public ChangeStatusAction(DbClient dbClient, HotspotWsSupport hotspotWsSupport, TransitionService transitionService,
-    IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater, HotspotChangeEventService hotspotChangeEventService) {
+    IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater, HotspotChangeEventService hotspotChangeEventService,
+    IssueStatsByRuleKeyDaoImpl issueStatsByRuleKeyDao) {
     this.dbClient = dbClient;
     this.hotspotWsSupport = hotspotWsSupport;
     this.transitionService = transitionService;
     this.issueFieldsSetter = issueFieldsSetter;
     this.issueUpdater = issueUpdater;
     this.hotspotChangeEventService = hotspotChangeEventService;
+    this.issueStatsByRuleKeyDao = issueStatsByRuleKeyDao;
   }
 
   @Override
@@ -173,7 +178,10 @@ public class ChangeStatusAction implements HotspotsWsAction {
 
       issueUpdater.saveIssueAndPreloadSearchResponseData(session, issueDto, defaultIssue, context);
       BranchDto branch = issueUpdater.getBranch(session, defaultIssue);
-      updateIssueStatsByRuleKey(branch, defaultIssue.ruleKey(), transition.getKey());
+
+      if (!PULL_REQUEST.equals(branch.getBranchType())) {
+        updateIssueStatsByRuleKey(branch, defaultIssue.ruleKey(), transition.getKey());
+      }
 
       if (BRANCH.equals(branch.getBranchType())) {
         HotspotChangedEvent hotspotChangedEvent = buildEventData(defaultIssue, issueDto);
@@ -195,14 +203,16 @@ public class ChangeStatusAction implements HotspotsWsAction {
   }
 
   private void updateIssueStatsByRuleKey(BranchDto branchDto, RuleKey ruleKey, String transitionKey) {
-    IssueStatsByRuleKeyDaoImpl dao = new IssueStatsByRuleKeyDaoImpl(dbClient);
-    var issueStats = dao.getIssueStats(branchDto.getUuid(), AggregationType.PROJECT).stream()
+    var issueStats = issueStatsByRuleKeyDao.getIssueStats(branchDto.getUuid(), AggregationType.PROJECT).stream()
       .filter(i -> i.ruleKey().equals(ruleKey.toString()))
-      .findFirst();
+      .findFirst()
+      .orElse(new IssueStats(ruleKey.toString(), 0, 1, 1, 0, 0));
 
-    if (issueStats.isPresent()) {
-      var updatedIssueStats = updateIssueStatsWithTransition(issueStats.get(), transitionKey);
-      dao.upsert(branchDto.getUuid(), AggregationType.PROJECT, updatedIssueStats);
+    var updatedIssueStats = updateIssueStatsWithTransition(issueStats, transitionKey);
+    if (updatedIssueStats.issueCount() != 0 || updatedIssueStats.hotspotCount() != 0 || updatedIssueStats.hotspotsReviewed() != 0) {
+      issueStatsByRuleKeyDao.upsert(branchDto.getUuid(), PROJECT, updatedIssueStats);
+    } else {
+      issueStatsByRuleKeyDao.deleteByAggregationAndRuleKey(branchDto.getUuid(), PROJECT, ruleKey.toString());
     }
   }
 

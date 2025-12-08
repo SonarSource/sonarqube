@@ -76,6 +76,9 @@ public interface IssueMapper {
 
   Cursor<IssueStatsDto> scrollIssuesForIssueStats(@Param("branchUuid") String branchUuid);
 
+  AggregatedIssueStatsDto aggregateIssueStatsForBranchUuidAndRuleKey(@Param("branchUuid") String branchUuid,
+    @Param("ruleRepository") String repository, @Param("ruleKey") String rule);
+
   Collection<IssueGroupDto> selectIssueGroupsByComponent(@Param("component") ComponentDto component, @Param("leakPeriodBeginningDate") long leakPeriodBeginningDate);
 
   Collection<IssueImpactGroupDto> selectIssueImpactGroupsByComponent(@Param("component") ComponentDto component, @Param("leakPeriodBeginningDate") long leakPeriodBeginningDate);

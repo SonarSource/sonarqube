@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.cursor.Cursor;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
@@ -106,6 +107,11 @@ public class IssueDao implements Dao {
 
   public Cursor<IssueStatsDto> scrollIssuesForIssueStats(DbSession dbSession, @Param("branchUuid") String branchUuid) {
     return mapper(dbSession).scrollIssuesForIssueStats(branchUuid);
+  }
+
+  public AggregatedIssueStatsDto aggregateIssueStatsForBranchUuidAndRuleKey(DbSession dbSession,
+    String branchUuid, RuleKey ruleKey) {
+    return mapper(dbSession).aggregateIssueStatsForBranchUuidAndRuleKey(branchUuid, ruleKey.repository(), ruleKey.rule());
   }
 
   public void insert(DbSession session, IssueDto dto) {

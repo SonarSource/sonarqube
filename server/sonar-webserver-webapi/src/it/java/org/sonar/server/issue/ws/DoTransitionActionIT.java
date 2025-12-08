@@ -21,7 +21,9 @@ package org.sonar.server.issue.ws;
 
 import io.sonarcloud.compliancereports.dao.AggregationType;
 import io.sonarcloud.compliancereports.dao.IssueStats;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -31,6 +33,7 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.System2;
@@ -81,6 +84,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.rule.Severity.MAJOR;
@@ -124,7 +128,7 @@ class DoTransitionActionIT {
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
 
   private WsAction underTest = new DoTransitionAction(dbClient, userSession, issueChangeEventService,
-    new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter, system2);
+    new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter, system2, new IssueStatsByRuleKeyDaoImpl(dbClient));
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
@@ -147,38 +151,48 @@ class DoTransitionActionIT {
 
   @ParameterizedTest
   @CsvSource(textBlock = """
-    OPEN,confirm,-1
-    OPEN,falsepositive,-1
-    OPEN,accept,-1
-    OPEN,resolve,-1
-    CONFIRMED,unconfirm,1
-    RESOLVED,reopen,1
+    5,OPEN,falsepositive,4
+    5,OPEN,accept,4
+    1,OPEN,accept,0
+    5,OPEN,resolve,4
+    1,OPEN,resolve,0
+    5,RESOLVED,reopen,1
+    1,RESOLVED,reopen,1
     """)
-  void issue_transition_updates_issue_stats(String status, String transition, int adjustment) {
+  void issue_transition_updates_issue_stats(int existingIssueCount, String status, String transition, int expectedIssueCount) {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDto rule = db.rules().insertIssueRule();
-    IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setStatus(status).setResolution(null)
-      .setType(CODE_SMELL)
-      .setSeverity("MAJOR")
-      .addImpact(new ImpactDto(SoftwareQuality.SECURITY, Severity.BLOCKER)));
+    RuleKey ruleKey = RuleKey.of("java", "S123");
+    RuleDto rule = db.rules().insertIssueRule(ruleKey);
+    List<IssueDto> issues = IntStream.range(0, existingIssueCount)
+      .mapToObj(i -> db.issues().insertIssue(rule, project, file, issue -> issue.setStatus(status).setResolution(status.equals("RESOLVED") ? RESOLUTION_FIXED : null).setRuleKey(ruleKey.repository(), ruleKey.rule())
+        .setType(CODE_SMELL)
+        .setSeverity("MAJOR")
+        .addImpact(new ImpactDto(SoftwareQuality.SECURITY, Severity.BLOCKER))))
+      .toList();
     userSession.logIn(db.users().insertUser())
       .addProjectPermission(USER, project, file)
       .addProjectPermission(ISSUE_ADMIN, project, file);
     IssueStatsByRuleKeyDaoImpl issueStatsByRuleKeyDao = new IssueStatsByRuleKeyDaoImpl(dbClient);
-    int existingIssueCount = 5;
-    issueStatsByRuleKeyDao.deleteAndInsertIssueStats(project.uuid(), AggregationType.PROJECT, List.of(
-      new IssueStats(issue.getRuleKey().toString(), existingIssueCount, 3, 3, 0, 0))
-    );
+    if (!issues.isEmpty() && !status.equals("RESOLVED")) {
+      issueStatsByRuleKeyDao.deleteAndInsertIssueStats(project.uuid(), AggregationType.PROJECT, List.of(
+        new IssueStats(issues.get(0).getRuleKey().toString(), existingIssueCount, 3, 5, 0, 0))
+      );
+    }
 
-    call(issue.getKey(), transition);
+    call(issues.get(0).getKey(), transition);
 
     // verify issue stats updated
     var issueStats = issueStatsByRuleKeyDao.getIssueStats(project.uuid(), AggregationType.PROJECT);
-    assertThat(issueStats)
-      .containsOnly(
-        new IssueStats(issue.getRuleKey().toString(), existingIssueCount + adjustment, 3, 5, 0, 0)
-      );
+
+    if (expectedIssueCount > 0) {
+      assertThat(issueStats)
+        .containsOnly(
+          new IssueStats(issues.get(0).getRuleKey().toString(), expectedIssueCount, 3, 5, 0, 0)
+        );
+    } else {
+      assertThat(issueStats).isEmpty();
+    }
   }
 
   @Test

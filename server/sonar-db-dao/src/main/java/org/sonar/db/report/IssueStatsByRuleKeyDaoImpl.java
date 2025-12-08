@@ -64,6 +64,7 @@ public class IssueStatsByRuleKeyDaoImpl implements IssueStatsByRuleKeyDao {
   public void deleteByAggregationAndRuleKey(String aggregationId, AggregationType aggregationType, String ruleKey) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       mapper(dbSession).deleteIssueStatsForAggregationAndRuleKey(aggregationId, aggregationType.toString(), ruleKey);
+      dbSession.commit();
     }
   }
 
