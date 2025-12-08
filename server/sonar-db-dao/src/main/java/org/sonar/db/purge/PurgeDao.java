@@ -93,7 +93,7 @@ public class PurgeDao implements Dao {
 
     for (String branchUuid : branchUuids) {
       if (!rootUuid.equals(branchUuid)) {
-        deleteBranch(branchUuid, commands);
+        deleteBranch(branchUuid, commands, AggregationType.PROJECT);
       }
     }
   }
@@ -228,7 +228,7 @@ public class PurgeDao implements Dao {
   public void deleteBranch(DbSession session, String uuid) {
     PurgeProfiler profiler = new PurgeProfiler();
     PurgeCommands purgeCommands = new PurgeCommands(session, profiler, system2);
-    deleteBranch(uuid, purgeCommands);
+    deleteBranch(uuid, purgeCommands, AggregationType.PROJECT);
   }
 
   public void deleteProject(DbSession session, String uuid, String qualifier, String name, String key) {
@@ -242,10 +242,11 @@ public class PurgeDao implements Dao {
       .sorted(Comparator.comparing(BranchDto::isMain))
       .map(BranchDto::getUuid)
       .toList();
+    AggregationType aggregationType = toAggregationType(qualifier);
 
-    branchUuids.forEach(id -> deleteBranch(id, purgeCommands));
+    branchUuids.forEach(id -> deleteBranch(id, purgeCommands, aggregationType));
 
-    deleteProject(uuid, purgeMapper, purgeCommands, toAggregationType(qualifier));
+    deleteProject(uuid, purgeMapper, purgeCommands, aggregationType);
     auditPersister.deleteComponent(session, new ComponentNewValue(uuid, name, key, qualifier));
     logProfiling(profiler, start);
   }
@@ -267,7 +268,7 @@ public class PurgeDao implements Dao {
     }
   }
 
-  private static void deleteBranch(String branchUuid, PurgeCommands commands) {
+  private static void deleteBranch(String branchUuid, PurgeCommands commands, AggregationType aggregationType) {
     commands.deleteScannerCache(branchUuid);
     commands.deleteAnalyses(branchUuid);
     commands.deleteIssues(branchUuid);
@@ -285,7 +286,7 @@ public class PurgeDao implements Dao {
     commands.deleteIssuesFixed(branchUuid);
     commands.deleteScaActivity(branchUuid);
     commands.deleteArchitectureGraphs(branchUuid);
-    commands.deleteIssueStatsByRuleKey(AggregationType.PROJECT, branchUuid);
+    commands.deleteIssueStatsByRuleKey(aggregationType, branchUuid);
   }
 
   private static void deleteProject(String projectUuid, PurgeMapper mapper, PurgeCommands commands, AggregationType aggregationType) {
