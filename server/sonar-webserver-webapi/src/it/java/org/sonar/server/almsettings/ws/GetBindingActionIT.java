@@ -26,6 +26,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
+import org.sonar.alm.client.azure.GsonAzureRepo;
 import org.sonar.alm.client.gitlab.GitlabApplicationClient;
 import org.sonar.alm.client.gitlab.Project;
 import org.sonar.api.config.internal.Encryption;
@@ -62,10 +64,11 @@ class GetBindingActionIT {
   private final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final GitlabApplicationClient gitlabApplicationClient = mock(GitlabApplicationClient.class);
+  private final AzureDevOpsHttpClient azureDevOpsHttpClient = mock(AzureDevOpsHttpClient.class);
   private final Encryption encryption = mock(Encryption.class);
   private final Settings settings = createMockSettings();
   private final WsActionTester ws = new WsActionTester(
-    new GetBindingAction(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null), gitlabApplicationClient, settings));
+    new GetBindingAction(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null), gitlabApplicationClient, azureDevOpsHttpClient, settings));
 
   private UserDto user;
   private ProjectDto project;
@@ -121,8 +124,14 @@ class GetBindingActionIT {
   @Test
   void get_azure_project_binding() {
     userSession.logIn(user).addProjectPermission(USER, project);
-    AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
+    AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting(
+      setting -> setting.setUrl("https://dev.azure.com/org").setPersonalAccessToken("token"));
     ProjectAlmSettingDto projectAlmSettingDto = db.almSettings().insertAzureMonoRepoProjectAlmSetting(almSetting, project);
+
+    String expectedRepositoryUrl = "https://dev.azure.com/org/" + projectAlmSettingDto.getAlmSlug() + "/_git/" + projectAlmSettingDto.getAlmRepo();
+    when(encryption.isEncrypted(anyString())).thenReturn(false);
+    when(azureDevOpsHttpClient.getRepo("https://dev.azure.com/org", "token", projectAlmSettingDto.getAlmSlug(), projectAlmSettingDto.getAlmRepo()))
+      .thenReturn(new GsonAzureRepo("repo-id", projectAlmSettingDto.getAlmRepo(), "api-url", expectedRepositoryUrl, null, "refs/heads/main"));
 
     GetBindingWsResponse response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -136,7 +145,8 @@ class GetBindingActionIT {
         GetBindingWsResponse::getRepository,
         GetBindingWsResponse::getSlug,
         GetBindingWsResponse::hasSummaryCommentEnabled,
-        GetBindingWsResponse::getMonorepo)
+        GetBindingWsResponse::getMonorepo,
+        GetBindingWsResponse::getRepositoryUrl)
       .containsExactly(
         AlmSettings.Alm.azure,
         almSetting.getKey(),
@@ -144,7 +154,8 @@ class GetBindingActionIT {
         projectAlmSettingDto.getAlmRepo(),
         projectAlmSettingDto.getAlmSlug(),
         false,
-        true);
+        true,
+        expectedRepositoryUrl);
   }
 
   private static Stream<Arguments> gitlabBindingParameters() {
@@ -297,6 +308,32 @@ class GetBindingActionIT {
         GetBindingWsResponse::hasRepositoryUrl)
       .containsExactly(
         AlmSettings.Alm.gitlab,
+        almSetting.getKey(),
+        false);
+  }
+
+  @Test
+  void get_azure_project_binding_returns_without_repository_url_when_api_call_fails() {
+    userSession.logIn(user).addProjectPermission(USER, project);
+    AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting(
+      setting -> setting.setUrl("https://dev.azure.com/org").setPersonalAccessToken("token"));
+    ProjectAlmSettingDto projectAlmSettingDto = db.almSettings().insertAzureMonoRepoProjectAlmSetting(almSetting, project);
+
+    when(encryption.isEncrypted(anyString())).thenReturn(false);
+    when(azureDevOpsHttpClient.getRepo("https://dev.azure.com/org", "token", projectAlmSettingDto.getAlmSlug(), projectAlmSettingDto.getAlmRepo()))
+      .thenThrow(new RuntimeException("API connection error"));
+
+    GetBindingWsResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(GetBindingWsResponse.class);
+
+    assertThat(response)
+      .extracting(
+        GetBindingWsResponse::getAlm,
+        GetBindingWsResponse::getKey,
+        GetBindingWsResponse::hasRepositoryUrl)
+      .containsExactly(
+        AlmSettings.Alm.azure,
         almSetting.getKey(),
         false);
   }

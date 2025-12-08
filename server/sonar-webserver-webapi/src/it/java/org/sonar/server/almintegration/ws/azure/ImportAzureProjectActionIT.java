@@ -275,7 +275,7 @@ public class ImportAzureProjectActionIT {
     GsonAzureRepo repo = getEmptyGsonAzureRepo();
     when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
       "project-name", "repo-name"))
-      .thenReturn(repo);
+        .thenReturn(repo);
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -286,7 +286,7 @@ public class ImportAzureProjectActionIT {
 
     Projects.CreateWsResponse.Project result = response.getProject();
 
-    ProjectDto  projectDto = getProjectDto(result);
+    ProjectDto projectDto = getProjectDto(result);
     assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.getUuid()))
       .isPresent()
       .get()
@@ -324,7 +324,7 @@ public class ImportAzureProjectActionIT {
     GsonAzureRepo repo = getEmptyGsonAzureRepo();
     when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
       "project-name", "repo-name"))
-      .thenReturn(repo);
+        .thenReturn(repo);
 
     TestRequest request = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -489,7 +489,7 @@ public class ImportAzureProjectActionIT {
     GsonAzureRepo repo = getGsonAzureRepo();
     when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
       "project-name", "repo-name"))
-      .thenReturn(repo);
+        .thenReturn(repo);
     return repo;
   }
 
@@ -500,13 +500,13 @@ public class ImportAzureProjectActionIT {
   }
 
   private GsonAzureRepo getGsonAzureRepo() {
-    return new GsonAzureRepo("repo-id", "repo-name", "repo-url",
+    return new GsonAzureRepo("repo-id", "repo-name", "repo-url", "repo-web-url",
       new GsonAzureProject("project-name", "project-description"),
       "refs/heads/repo-default-branch");
   }
 
   private GsonAzureRepo getEmptyGsonAzureRepo() {
-    return new GsonAzureRepo("repo-id", "repo-name", "repo-url",
+    return new GsonAzureRepo("repo-id", "repo-name", "repo-url", "repo-web-url",
       new GsonAzureProject("project-name", "project-description"), null);
   }
 

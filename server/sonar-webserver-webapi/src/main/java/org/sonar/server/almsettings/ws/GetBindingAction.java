@@ -22,6 +22,8 @@ package org.sonar.server.almsettings.ws;
 import okhttp3.HttpUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
+import org.sonar.alm.client.azure.GsonAzureRepo;
 import org.sonar.alm.client.github.GithubApplicationClientImpl;
 import org.sonar.alm.client.gitlab.GitlabApplicationClient;
 import org.sonar.alm.client.gitlab.Project;
@@ -59,13 +61,16 @@ public class GetBindingAction implements AlmSettingsWsAction {
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
   private final GitlabApplicationClient gitlabApplicationClient;
+  private final AzureDevOpsHttpClient azureDevOpsHttpClient;
   private final Encryption encryption;
 
-  public GetBindingAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, GitlabApplicationClient gitlabApplicationClient, Settings settings) {
+  public GetBindingAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder,
+    GitlabApplicationClient gitlabApplicationClient, AzureDevOpsHttpClient azureDevOpsHttpClient, Settings settings) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
     this.gitlabApplicationClient = gitlabApplicationClient;
+    this.azureDevOpsHttpClient = azureDevOpsHttpClient;
     this.encryption = settings.getEncryption();
   }
 
@@ -81,7 +86,7 @@ public class GetBindingAction implements AlmSettingsWsAction {
         new Change("8.7", "Azure binding now contains a monorepo flag for monorepo feature in Enterprise Edition and above"),
         new Change("10.1", "Permission needed changed from 'Administer' to 'Browse'"),
         new Change("2025.1", "Azure binding now contains a inlineAnnotationsEnabled flag for inline annotations feature"),
-        new Change("2025.6", "GitHub and GitLab bindings now contain a repositoryUrl field with the URL to the repository"))
+        new Change("2025.6", "GitHub, GitLab and Azure bindings now contain a repositoryUrl field with the URL to the repository"))
       .setHandler(this);
 
     action
@@ -120,6 +125,8 @@ public class GetBindingAction implements AlmSettingsWsAction {
         setGithubRepositoryUrl(almSetting, projectAlmSetting, builder);
       } else if (almSetting.getAlm() == ALM.GITLAB) {
         setGitlabRepositoryUrl(almSetting, projectAlmSetting, builder);
+      } else if (almSetting.getAlm() == ALM.AZURE_DEVOPS) {
+        setAzureRepositoryUrl(almSetting, projectAlmSetting, builder);
       }
 
       return builder.build();
@@ -160,6 +167,25 @@ public class GetBindingAction implements AlmSettingsWsAction {
       } catch (Exception e) {
         LOG.warn("Failed to fetch GitLab repository URL for ALM setting '{}' and project ID '{}'",
           almSetting.getKey(), projectAlmSetting.getAlmRepo(), e);
+      }
+    }
+  }
+
+  private void setAzureRepositoryUrl(AlmSettingDto almSetting, ProjectAlmSettingDto projectAlmSetting, GetBindingWsResponse.Builder builder) {
+    if (isNotBlank(projectAlmSetting.getAlmSlug()) && isNotBlank(projectAlmSetting.getAlmRepo()) && isNotBlank(almSetting.getUrl())) {
+      try {
+        String personalAccessToken = almSetting.getDecryptedPersonalAccessToken(encryption);
+        if (isNotBlank(personalAccessToken)) {
+          GsonAzureRepo azureRepo = azureDevOpsHttpClient.getRepo(
+            requireNonNull(almSetting.getUrl()),
+            personalAccessToken,
+            requireNonNull(projectAlmSetting.getAlmSlug()),
+            requireNonNull(projectAlmSetting.getAlmRepo()));
+          builder.setRepositoryUrl(azureRepo.getWebUrl());
+        }
+      } catch (Exception e) {
+        LOG.warn("Failed to fetch Azure repository URL for ALM setting '{}', project '{}' and repository '{}'",
+          almSetting.getKey(), projectAlmSetting.getAlmSlug(), projectAlmSetting.getAlmRepo(), e);
       }
     }
   }

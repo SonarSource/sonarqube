@@ -34,6 +34,9 @@ public class GsonAzureRepo {
   @SerializedName("url")
   private String url;
 
+  @SerializedName("webUrl")
+  private String webUrl;
+
   @SerializedName("project")
   private GsonAzureProject project;
 
@@ -44,10 +47,11 @@ public class GsonAzureRepo {
     // http://stackoverflow.com/a/18645370/229031
   }
 
-  public GsonAzureRepo(String id, String name, String url, GsonAzureProject project, String defaultBranchFullName) {
+  public GsonAzureRepo(String id, String name, String url, String webUrl, GsonAzureProject project, String defaultBranchFullName) {
     this.id = id;
     this.name = name;
     this.url = url;
+    this.webUrl = webUrl;
     this.project = project;
     this.defaultBranchFullName = defaultBranchFullName;
   }
@@ -62,6 +66,10 @@ public class GsonAzureRepo {
 
   public String getUrl() {
     return url;
+  }
+
+  public String getWebUrl() {
+    return webUrl;
   }
 
   public GsonAzureProject getProject() {

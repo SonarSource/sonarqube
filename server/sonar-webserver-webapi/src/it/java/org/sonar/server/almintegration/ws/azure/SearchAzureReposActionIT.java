@@ -335,8 +335,7 @@ public class SearchAzureReposActionIT {
   }
 
   private ProjectDto insertProject(AlmSettingDto almSetting, String repoName, String projectName) {
-    ProjectDto projectDto1 =
-      db.components().insertPrivateProject(dto -> dto.setKey("key_" + projectId).setName("name" + projectId++)).getProjectDto();
+    ProjectDto projectDto1 = db.components().insertPrivateProject(dto -> dto.setKey("key_" + projectId).setName("name" + projectId++)).getProjectDto();
     db.almSettings().insertAzureProjectAlmSetting(almSetting, projectDto1, projectAlmSettingDto -> projectAlmSettingDto.setAlmRepo(repoName),
       projectAlmSettingDto -> projectAlmSettingDto.setAlmSlug(projectName));
     return projectDto1;
@@ -366,6 +365,6 @@ public class SearchAzureReposActionIT {
 
   private GsonAzureRepo getGsonAzureRepo(String projectName, String repoName) {
     GsonAzureProject project = new GsonAzureProject(projectName, "the best project ever");
-    return new GsonAzureRepo("repo-id", repoName, "url", project, "repo-default-branch");
+    return new GsonAzureRepo("repo-id", repoName, "url", "webUrl", project, "repo-default-branch");
   }
 }
