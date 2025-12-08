@@ -67,6 +67,11 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TRANSITION;
 
 public class DoTransitionAction implements IssuesWsAction {
 
+  private static final Set<String> REOPEN_TRANSITIONS = Set.of(
+    REOPEN.getKey(),
+    UNCONFIRM.getKey()
+  );
+
   private final DbClient dbClient;
   private final UserSession userSession;
   private final IssueChangeEventService issueChangeEventService;
@@ -75,11 +80,6 @@ public class DoTransitionAction implements IssuesWsAction {
   private final TransitionService transitionService;
   private final OperationResponseWriter responseWriter;
   private final System2 system2;
-
-  private static final Set<String> REOPEN_TRANSITIONS = Set.of(
-    REOPEN.getKey(),
-    UNCONFIRM.getKey()
-  );
 
   public DoTransitionAction(DbClient dbClient, UserSession userSession, IssueChangeEventService issueChangeEventService,
     IssueFinder issueFinder, IssueUpdater issueUpdater, TransitionService transitionService,
