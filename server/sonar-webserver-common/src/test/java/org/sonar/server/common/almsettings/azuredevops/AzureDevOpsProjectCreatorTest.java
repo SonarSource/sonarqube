@@ -41,6 +41,7 @@ import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
 import org.sonar.server.common.almsettings.DevOpsProjectDescriptor;
+import org.sonar.server.common.project.ProjectCreationRequest;
 import org.sonar.server.common.project.ProjectCreator;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.user.UserSession;
@@ -111,7 +112,7 @@ class AzureDevOpsProjectCreatorTest {
   @Test
   void createProjectAndBindToDevOpsPlatform_whenPatIsMissing_shouldThrow() {
     assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, null, null))
+      .isThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, null, null, false))
       .withMessage("personal access token for 'azuredevops_config_1' is missing");
   }
 
@@ -121,7 +122,7 @@ class AzureDevOpsProjectCreatorTest {
     when(azureDevOpsHttpClient.getRepo(AZURE_DEVOPS_URL, USER_PAT, DEVOPS_PROJECT_ID, REPOSITORY_NAME))
       .thenThrow(new AzureDevopsServerException(404, "Problem fetching repository from AzureDevOps"));
     assertThatExceptionOfType(IllegalStateException.class)
-      .isThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, null, null))
+      .isThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, null, null, false))
       .withMessage("Failed to fetch AzureDevOps repository 'repositoryName' from project 'project-identifier' from 'http://api.com'");
   }
 
@@ -131,7 +132,7 @@ class AzureDevOpsProjectCreatorTest {
     lenient().when(devOpsProjectDescriptor.projectIdentifier()).thenReturn(null);
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, null, null))
+      .isThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, null, null, false))
       .withMessage("DevOps Project Identifier cannot be null for Azure DevOps");
   }
 
@@ -140,9 +141,17 @@ class AzureDevOpsProjectCreatorTest {
     mockPatForUser();
     mockAzureDevOpsProject();
 
-    mockProjectCreation("projectKey", "projectName");
+    ArgumentCaptor<ProjectCreationRequest> projectCreationRequestCaptor = ArgumentCaptor.forClass(ProjectCreationRequest.class);
+    mockProjectCreation("projectKey", "projectName", projectCreationRequestCaptor);
 
-    underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, true, "projectKey", "projectName");
+    underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, true, "projectKey", "projectName", false);
+
+    ProjectCreationRequest capturedRequest = projectCreationRequestCaptor.getValue();
+    assertThat(capturedRequest.projectKey()).isEqualTo("projectKey");
+    assertThat(capturedRequest.projectName()).isEqualTo("projectName");
+    assertThat(capturedRequest.mainBranchName()).isEqualTo(MAIN_BRANCH_NAME);
+    assertThat(capturedRequest.creationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_API);
+    assertThat(capturedRequest.allowExisting()).isFalse();
 
     ArgumentCaptor<ProjectAlmSettingDto> projectAlmSettingCaptor = ArgumentCaptor.forClass(ProjectAlmSettingDto.class);
 
@@ -169,7 +178,7 @@ class AzureDevOpsProjectCreatorTest {
 
     mockProjectCreation(generatedProjectKey, REPOSITORY_NAME);
 
-    underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, true, null, null);
+    underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, true, null, null, false);
 
     ArgumentCaptor<ProjectAlmSettingDto> projectAlmSettingCaptor = ArgumentCaptor.forClass(ProjectAlmSettingDto.class);
 
@@ -199,14 +208,24 @@ class AzureDevOpsProjectCreatorTest {
   }
 
   private void mockProjectCreation(String projectKey, String projectName) {
+    mockProjectCreation(projectKey, projectName, null);
+  }
+
+  private void mockProjectCreation(String projectKey, String projectName, ArgumentCaptor<ProjectCreationRequest> captor) {
     ComponentCreationData componentCreationData = mock();
     ProjectDto projectDto = mock();
     when(componentCreationData.projectDto()).thenReturn(projectDto);
     when(projectDto.getUuid()).thenReturn(PROJECT_UUID);
     when(projectDto.getKey()).thenReturn(projectKey);
     when(projectDto.getName()).thenReturn(projectName);
-    when(projectCreator.createProject(any(), eq(projectKey), eq(projectName), eq(MAIN_BRANCH_NAME), eq(CreationMethod.ALM_IMPORT_API)))
-      .thenReturn(componentCreationData);
+    
+    if (captor != null) {
+      when(projectCreator.getOrCreateProject(any(), captor.capture()))
+        .thenReturn(componentCreationData);
+    } else {
+      when(projectCreator.getOrCreateProject(any(), any()))
+        .thenReturn(componentCreationData);
+    }
   }
 
 }

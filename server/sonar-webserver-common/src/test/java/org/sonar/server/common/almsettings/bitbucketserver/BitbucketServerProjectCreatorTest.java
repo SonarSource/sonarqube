@@ -43,6 +43,7 @@ import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
 import org.sonar.server.common.almsettings.DevOpsProjectDescriptor;
+import org.sonar.server.common.project.ProjectCreationRequest;
 import org.sonar.server.common.project.ProjectCreator;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.user.UserSession;
@@ -99,7 +100,7 @@ class BitbucketServerProjectCreatorTest {
   void createProjectAndBindToDevOpsPlatform_whenPatIsMissing_shouldThrow() {
     mockValidUserSession();
     mockValidAlmSettingsDto();
-    assertThatThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, null, null))
+    assertThatThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, null, null, false))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("personal access token for 'bitbucketserver_config_1' is missing");
   }
@@ -110,7 +111,7 @@ class BitbucketServerProjectCreatorTest {
     mockValidAlmSettingsDto();
     mockValidPatForUser();
 
-    assertThatThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, "projectKey", null))
+    assertThatThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, "projectKey", null, false))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The BitBucket project, in which the repository null is located, is mandatory");
   }
@@ -123,7 +124,7 @@ class BitbucketServerProjectCreatorTest {
     mockValidProjectDescriptor();
     when(bitbucketServerRestClient.getRepo(URL, USER_PAT, DOP_PROJECT_ID, DOP_REPOSITORY_ID)).thenThrow(new IllegalArgumentException("Problem"));
 
-    assertThatThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, "projectKey", null))
+    assertThatThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, "projectKey", null, false))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Problem");
   }
@@ -135,9 +136,18 @@ class BitbucketServerProjectCreatorTest {
     mockValidPatForUser();
     mockValidProjectDescriptor();
     mockValidBitBucketRepository();
-    mockProjectCreation("projectKey", "projectName");
+    
+    ArgumentCaptor<ProjectCreationRequest> projectCreationRequestCaptor = ArgumentCaptor.forClass(ProjectCreationRequest.class);
+    mockProjectCreation("projectKey", "projectName", projectCreationRequestCaptor);
 
-    underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, true, "projectKey", "projectName");
+    underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, true, "projectKey", "projectName", false);
+
+    ProjectCreationRequest capturedRequest = projectCreationRequestCaptor.getValue();
+    assertThat(capturedRequest.projectKey()).isEqualTo("projectKey");
+    assertThat(capturedRequest.projectName()).isEqualTo("projectName");
+    assertThat(capturedRequest.mainBranchName()).isEqualTo(MAIN_BRANCH_NAME);
+    assertThat(capturedRequest.creationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_API);
+    assertThat(capturedRequest.allowExisting()).isFalse();
 
     ArgumentCaptor<ProjectAlmSettingDto> projectAlmSettingCaptor = ArgumentCaptor.forClass(ProjectAlmSettingDto.class);
     verify(dbClient.projectAlmSettingDao()).insertOrUpdate(any(), projectAlmSettingCaptor.capture(), eq(ALM_SETTING_KEY), eq("projectName"), eq("projectKey"));
@@ -161,7 +171,7 @@ class BitbucketServerProjectCreatorTest {
     when(projectKeyGenerator.generateUniqueProjectKey(repository.getProject().getKey(), repository.getSlug())).thenReturn(generatedProjectKey);
     mockProjectCreation(generatedProjectKey, repository.getName());
 
-    underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, true, null, null);
+    underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, true, null, null, false);
 
     ArgumentCaptor<ProjectAlmSettingDto> projectAlmSettingCaptor = ArgumentCaptor.forClass(ProjectAlmSettingDto.class);
     verify(dbClient.projectAlmSettingDao()).insertOrUpdate(any(), projectAlmSettingCaptor.capture(), eq(ALM_SETTING_KEY), eq(repository.getName()), eq(generatedProjectKey));
@@ -211,13 +221,23 @@ class BitbucketServerProjectCreatorTest {
   }
 
   private void mockProjectCreation(String projectKey, String projectName) {
+    mockProjectCreation(projectKey, projectName, null);
+  }
+
+  private void mockProjectCreation(String projectKey, String projectName, ArgumentCaptor<ProjectCreationRequest> captor) {
     ComponentCreationData componentCreationData = mock();
     ProjectDto projectDto = mock();
     when(componentCreationData.projectDto()).thenReturn(projectDto);
     when(projectDto.getUuid()).thenReturn(PROJECT_UUID);
     when(projectDto.getKey()).thenReturn(projectKey);
     when(projectDto.getName()).thenReturn(projectName);
-    when(projectCreator.createProject(any(), eq(projectKey), eq(projectName), eq(MAIN_BRANCH_NAME), eq(CreationMethod.ALM_IMPORT_API)))
-      .thenReturn(componentCreationData);
+    
+    if (captor != null) {
+      when(projectCreator.getOrCreateProject(any(), captor.capture()))
+        .thenReturn(componentCreationData);
+    } else {
+      when(projectCreator.getOrCreateProject(any(), any()))
+        .thenReturn(componentCreationData);
+    }
   }
 }

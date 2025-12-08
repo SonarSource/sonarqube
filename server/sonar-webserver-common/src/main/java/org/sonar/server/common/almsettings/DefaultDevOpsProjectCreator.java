@@ -37,6 +37,7 @@ import org.sonar.server.common.almintegration.ProjectKeyGenerator;
 import org.sonar.server.common.permission.Operation;
 import org.sonar.server.common.permission.PermissionUpdater;
 import org.sonar.server.common.permission.UserPermissionChange;
+import org.sonar.server.common.project.ProjectCreationRequest;
 import org.sonar.server.common.project.ProjectCreator;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.management.ManagedProjectService;
@@ -76,13 +77,21 @@ public class DefaultDevOpsProjectCreator implements DevOpsProjectCreator {
 
   @Override
   public ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, CreationMethod creationMethod, Boolean monorepo, @Nullable String projectKey,
-    @Nullable String projectName) {
+    @Nullable String projectName, boolean allowExisting) {
     String key = Optional.ofNullable(projectKey).orElse(generateUniqueProjectKey());
     boolean isManaged = devOpsPlatformSettings.isProvisioningEnabled();
     Boolean shouldProjectBePrivate = shouldProjectBePrivate(devOpsProjectCreationContext.isPublic());
 
-    ComponentCreationData componentCreationData = projectCreator.createProject(dbSession, key, getProjectName(projectName),
-      devOpsProjectCreationContext.defaultBranchName(), creationMethod, shouldProjectBePrivate, isManaged);
+    ProjectCreationRequest request = new ProjectCreationRequest(
+      key,
+      getProjectName(projectName),
+      devOpsProjectCreationContext.defaultBranchName(),
+      creationMethod,
+      shouldProjectBePrivate,
+      isManaged,
+      allowExisting);
+
+    ComponentCreationData componentCreationData = projectCreator.getOrCreateProject(dbSession, request);
     ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
 
     createProjectAlmSettingDto(dbSession, projectDto, devOpsProjectCreationContext.almSettingDto(), monorepo);

@@ -34,6 +34,7 @@ public record ImportProjectRequest(
   String newCodeDefinitionType,
   @Nullable
   String newCodeDefinitionValue,
-  Boolean monorepo) {
+  Boolean monorepo,
+  boolean allowExisting) {
 
 }

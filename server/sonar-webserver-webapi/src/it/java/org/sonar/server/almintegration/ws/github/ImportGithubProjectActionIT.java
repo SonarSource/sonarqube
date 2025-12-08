@@ -144,7 +144,7 @@ public class ImportGithubProjectActionIT {
 
   private final GithubDevOpsProjectCreationContextService githubDevOpsProjectService = new GithubDevOpsProjectCreationContextService(db.getDbClient(), userSession, appClient);
 
-  private final ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
+  private final ProjectCreator projectCreator = new ProjectCreator(db.getDbClient(), userSession, projectDefaultVisibility, componentUpdater);
 
   private final GithubProjectCreatorFactory gitHubProjectCreatorFactory = new GithubProjectCreatorFactory(db.getDbClient(),
     null, appClient, projectKeyGenerator, projectCreator, gitHubSettings, githubPermissionConverter, userPermissionUpdater, permissionService,

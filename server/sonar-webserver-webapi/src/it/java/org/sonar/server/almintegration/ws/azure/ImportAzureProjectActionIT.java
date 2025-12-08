@@ -109,7 +109,7 @@ public class ImportAzureProjectActionIT {
 
   private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private final NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
-  private final ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
+  private final ProjectCreator projectCreator = new ProjectCreator(db.getDbClient(), userSession, projectDefaultVisibility, componentUpdater);
   private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactory = new AzureDevOpsProjectCreatorFactory(db.getDbClient(), userSession, azureDevOpsHttpClient, projectCreator,
     projectKeyGenerator);
 

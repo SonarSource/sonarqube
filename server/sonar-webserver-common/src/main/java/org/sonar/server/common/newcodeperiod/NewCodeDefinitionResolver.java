@@ -73,6 +73,20 @@ public class NewCodeDefinitionResolver {
   public void createNewCodeDefinition(DbSession dbSession, String projectUuid, String mainBranchUuid,
     String defaultBranchName, String newCodeDefinitionType, @Nullable String newCodeDefinitionValue) {
 
+    NewCodePeriodDto dto = buildNewCodePeriodDto(projectUuid, mainBranchUuid, defaultBranchName, newCodeDefinitionType, newCodeDefinitionValue);
+    dbClient.newCodePeriodDao().insert(dbSession, dto);
+  }
+
+  public void createOrUpdateNewCodeDefinition(DbSession dbSession, String projectUuid, String mainBranchUuid,
+    String defaultBranchName, String newCodeDefinitionType, @Nullable String newCodeDefinitionValue) {
+
+    NewCodePeriodDto dto = buildNewCodePeriodDto(projectUuid, mainBranchUuid, defaultBranchName, newCodeDefinitionType, newCodeDefinitionValue);
+    dbClient.newCodePeriodDao().upsert(dbSession, dto);
+  }
+
+  private NewCodePeriodDto buildNewCodePeriodDto(String projectUuid, String mainBranchUuid,
+    String defaultBranchName, String newCodeDefinitionType, @Nullable String newCodeDefinitionValue) {
+
     boolean isCommunityEdition = editionProvider.get().filter(EditionProvider.Edition.COMMUNITY::equals).isPresent();
     NewCodePeriodType newCodePeriodType = parseNewCodeDefinitionType(newCodeDefinitionType);
 
@@ -91,7 +105,7 @@ public class NewCodeDefinitionResolver {
         + "Please refer to the documentation for compliant options.");
     }
 
-    dbClient.newCodePeriodDao().insert(dbSession, dto);
+    return dto;
   }
 
   public static void checkNewCodeDefinitionParam(@Nullable String newCodeDefinitionType, @Nullable String newCodeDefinitionValue) {

@@ -119,7 +119,7 @@ public class ImportGitLabProjectActionIT {
   private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);
   private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private final NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
-  private final ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
+  private final ProjectCreator projectCreator = new ProjectCreator(db.getDbClient(), userSession, projectDefaultVisibility, componentUpdater);
 
   public EsTester es = EsTester.createCustom(new FooIndexDefinition());
   private final PermissionUpdater<UserPermissionChange> userPermissionUpdater = new PermissionUpdater(

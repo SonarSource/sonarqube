@@ -20,6 +20,7 @@
 package org.sonar.server.common.almsettings;
 
 import java.util.Collection;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -80,7 +81,7 @@ class DefaultDevOpsProjectCreatorTest {
   private static final String USER_LOGIN = "userLogin";
   private static final String USER_UUID = "userUuid";
 
-  @Mock
+  @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private DbClient dbClient;
   @Mock
   private ProjectKeyGenerator projectKeyGenerator;
@@ -127,7 +128,7 @@ class DefaultDevOpsProjectCreatorTest {
     lenient().when(devOpsProjectCreationContext.fullName()).thenReturn(ORGANIZATION_NAME + "/" + REPOSITORY_NAME);
     lenient().when(devOpsProjectCreationContext.defaultBranchName()).thenReturn(MAIN_BRANCH_NAME);
 
-    ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
+    ProjectCreator projectCreator = new ProjectCreator(dbClient, userSession, projectDefaultVisibility, componentUpdater);
     defaultDevOpsProjectCreator = new DefaultDevOpsProjectCreator(dbClient, devOpsProjectCreationContext, projectKeyGenerator, devOpsPlatformSettings, projectCreator,
       permissionService, permissionUpdater,
       managedProjectService);
@@ -154,10 +155,12 @@ class DefaultDevOpsProjectCreatorTest {
 
     // when
     ComponentCreationData actualComponentCreationData = defaultDevOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true),
-      SCANNER_API_DEVOPS_AUTO_CONFIG, false, null, null);
+      SCANNER_API_DEVOPS_AUTO_CONFIG, false, null, null, false);
 
     // then
-    assertThat(actualComponentCreationData).isEqualTo(componentCreationData);
+    assertThat(actualComponentCreationData.projectDto()).isEqualTo(componentCreationData.projectDto());
+    assertThat(actualComponentCreationData.mainBranchDto()).isEqualTo(componentCreationData.mainBranchDto());
+    assertThat(actualComponentCreationData.newProjectCreated()).isTrue();
 
     ComponentCreationParameters componentCreationParameters = componentCreationParametersCaptor.getValue();
     assertComponentCreationParametersContainsCorrectInformation(componentCreationParameters, "generated_orga2/repo1", SCANNER_API_DEVOPS_AUTO_CONFIG);
@@ -183,10 +186,12 @@ class DefaultDevOpsProjectCreatorTest {
 
     // when
     ComponentCreationData actualComponentCreationData = defaultDevOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true),
-      SCANNER_API_DEVOPS_AUTO_CONFIG, false, null, null);
+      SCANNER_API_DEVOPS_AUTO_CONFIG, false, null, null, false);
 
     // then
-    assertThat(actualComponentCreationData).isEqualTo(componentCreationData);
+    assertThat(actualComponentCreationData.projectDto()).isEqualTo(componentCreationData.projectDto());
+    assertThat(actualComponentCreationData.mainBranchDto()).isEqualTo(componentCreationData.mainBranchDto());
+    assertThat(actualComponentCreationData.newProjectCreated()).isTrue();
 
     ComponentCreationParameters componentCreationParameters = componentCreationParametersCaptor.getValue();
     assertThat(componentCreationParameters.newComponent().isPrivate()).isFalse();
@@ -205,10 +210,12 @@ class DefaultDevOpsProjectCreatorTest {
 
     // when
     ComponentCreationData actualComponentCreationData = defaultDevOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true),
-      SCANNER_API_DEVOPS_AUTO_CONFIG, false, null, null);
+      SCANNER_API_DEVOPS_AUTO_CONFIG, false, null, null, false);
 
     // then
-    assertThat(actualComponentCreationData).isEqualTo(componentCreationData);
+    assertThat(actualComponentCreationData.projectDto()).isEqualTo(componentCreationData.projectDto());
+    assertThat(actualComponentCreationData.mainBranchDto()).isEqualTo(componentCreationData.mainBranchDto());
+    assertThat(actualComponentCreationData.newProjectCreated()).isTrue();
 
     ComponentCreationParameters componentCreationParameters = componentCreationParametersCaptor.getValue();
     assertThat(componentCreationParameters.newComponent().isPrivate()).isTrue();
@@ -228,10 +235,12 @@ class DefaultDevOpsProjectCreatorTest {
     // when
     ComponentCreationData actualComponentCreationData = defaultDevOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true), ALM_IMPORT_API, false,
       projectKey,
-      null);
+      null, false);
 
     // then
-    assertThat(actualComponentCreationData).isEqualTo(componentCreationData);
+    assertThat(actualComponentCreationData.projectDto()).isEqualTo(componentCreationData.projectDto());
+    assertThat(actualComponentCreationData.mainBranchDto()).isEqualTo(componentCreationData.mainBranchDto());
+    assertThat(actualComponentCreationData.newProjectCreated()).isTrue();
 
     ComponentCreationParameters componentCreationParameters = componentCreationParametersCaptor.getValue();
     assertComponentCreationParametersContainsCorrectInformation(componentCreationParameters, projectKey, ALM_IMPORT_API);
@@ -260,10 +269,12 @@ class DefaultDevOpsProjectCreatorTest {
     // when
     ComponentCreationData actualComponentCreationData = defaultDevOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true), ALM_IMPORT_API, false,
       projectKey,
-      null);
+      null, false);
 
     // then
-    assertThat(actualComponentCreationData).isEqualTo(componentCreationData);
+    assertThat(actualComponentCreationData.projectDto()).isEqualTo(componentCreationData.projectDto());
+    assertThat(actualComponentCreationData.mainBranchDto()).isEqualTo(componentCreationData.mainBranchDto());
+    assertThat(actualComponentCreationData.newProjectCreated()).isTrue();
 
     ComponentCreationParameters componentCreationParameters = componentCreationParametersCaptor.getValue();
     assertComponentCreationParametersContainsCorrectInformation(componentCreationParameters, projectKey, ALM_IMPORT_API);
@@ -304,6 +315,7 @@ class DefaultDevOpsProjectCreatorTest {
     when(componentCreationData.projectDto()).thenReturn(projectDto);
     BranchDto branchDto = mock();
     when(componentCreationData.mainBranchDto()).thenReturn(branchDto);
+    when(dbClient.projectDao().selectProjectByKey(any(), any())).thenReturn(Optional.empty());
     when(componentUpdater.createWithoutCommit(any(), componentCreationParametersCaptor.capture())).thenReturn(componentCreationData);
     return componentCreationData;
   }
@@ -340,4 +352,3 @@ class DefaultDevOpsProjectCreatorTest {
   }
 
 }
-

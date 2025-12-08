@@ -26,6 +26,7 @@ import org.sonar.server.v2.api.projects.request.BoundProjectCreateRestRequest;
 import org.sonar.server.v2.api.projects.response.BoundProjectCreateRestResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -47,5 +48,15 @@ public interface BoundProjectsController {
     """)
   @ResponseStatus(HttpStatus.CREATED)
   BoundProjectCreateRestResponse createBoundProject(@Valid @RequestBody BoundProjectCreateRestRequest request);
+
+  @PutMapping
+  @Operation(summary = "Create or update a bound SonarQube project", description = """
+    Create a SonarQube project bound to a DevOps platform repository, or update the binding if the project already exists.
+    This is an idempotent operation. If the project already exists with the same key, its binding will be updated.
+    Autoconfigure Pull-Request decoration mechanism.
+    Requires the 'Create Projects' permission and setting a Personal Access Token with api/alm_integrations/set_pat for a user who will be using this endpoint
+    """)
+  @ResponseStatus(HttpStatus.OK)
+  BoundProjectCreateRestResponse createOrUpdateBoundProject(@Valid @RequestBody BoundProjectCreateRestRequest request);
 
 }

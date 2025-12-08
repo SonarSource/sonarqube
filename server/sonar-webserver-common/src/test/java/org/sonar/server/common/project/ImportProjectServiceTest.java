@@ -73,7 +73,7 @@ class ImportProjectServiceTest {
   private final ComponentUpdater componentUpdater = mock();
 
   private final ImportProjectService importProjectService = new ImportProjectService(dbClient, devOpsProjectCreatorFactory, userSession, componentUpdater,
-    newCodeDefinitionResolver);;
+    newCodeDefinitionResolver);
 
   @Test
   void createdImportedProject_whenAlmSettingDoesntExist_throws() {
@@ -81,7 +81,7 @@ class ImportProjectServiceTest {
     DbSession dbSession = mockDbSession();
     when(dbClient.almSettingDao().selectByUuid(dbSession, ALM_SETTING_ID)).thenReturn(Optional.empty());
 
-    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, null, null, true);
+    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, null, null, true, false);
 
     assertThatThrownBy(() -> importProjectService.importProject(request))
       .isInstanceOf(IllegalArgumentException.class)
@@ -99,7 +99,7 @@ class ImportProjectServiceTest {
     when(devOpsProjectCreatorFactory.getDevOpsProjectCreator(eq(almSetting), any()))
       .thenReturn(Optional.empty());
 
-    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, null, null, true);
+    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, null, null, true, false);
 
     assertThatThrownBy(() -> importProjectService.importProject(request))
       .isInstanceOf(IllegalArgumentException.class)
@@ -121,7 +121,7 @@ class ImportProjectServiceTest {
 
     ProjectAlmSettingDto projectAlmSettingDto = mockProjectAlmSetting(dbSession, projectDto);
 
-    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, null, null, true);
+    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, null, null, true, false);
 
     ImportedProject importedProject = importProjectService.importProject(request);
 
@@ -146,14 +146,14 @@ class ImportProjectServiceTest {
 
     ProjectAlmSettingDto projectAlmSettingDto = mockProjectAlmSetting(dbSession, projectDto);
 
-    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, "NUMBER_OF_DAYS", "10", false);
+    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, "NUMBER_OF_DAYS", "10", false, false);
 
     ImportedProject importedProject = importProjectService.importProject(request);
 
     assertThat(importedProject.projectDto()).isEqualTo(projectDto);
     assertThat(importedProject.projectAlmSettingDto()).isEqualTo(projectAlmSettingDto);
 
-    verify(newCodeDefinitionResolver).createNewCodeDefinition(
+    verify(newCodeDefinitionResolver).createOrUpdateNewCodeDefinition(
       dbSession,
       PROJECT_UUID,
       MAIN_BRANCH_UUID,
@@ -187,7 +187,7 @@ class ImportProjectServiceTest {
 
   private static ComponentCreationData mockProjectCreation(DevOpsProjectCreator devOpsProjectCreator, CreationMethod creationMethod, boolean monorepo, DbSession dbSession) {
     ComponentCreationData componentCreationData = mock(ComponentCreationData.class);
-    when(devOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbSession, creationMethod, monorepo, PROJECT_KEY, PROJECT_NAME))
+    when(devOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbSession, creationMethod, monorepo, PROJECT_KEY, PROJECT_NAME, false))
       .thenReturn(componentCreationData);
     return componentCreationData;
   }

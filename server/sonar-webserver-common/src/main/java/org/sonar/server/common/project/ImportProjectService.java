@@ -20,6 +20,8 @@
 package org.sonar.server.common.project;
 
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -43,6 +45,7 @@ import static org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver.ch
 
 @ServerSide
 public class ImportProjectService {
+  private static final Logger LOG = LoggerFactory.getLogger(ImportProjectService.class);
   private final DbClient dbClient;
   private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactory;
   private final UserSession userSession;
@@ -62,12 +65,21 @@ public class ImportProjectService {
     try (DbSession dbSession = dbClient.openSession(false)) {
       checkNewCodeDefinitionParam(request.newCodeDefinitionType(), request.newCodeDefinitionValue());
       AlmSettingDto almSetting = dbClient.almSettingDao().selectByUuid(dbSession, request.almSettingId()).orElseThrow(() ->
-              new IllegalArgumentException("devOpsPlatformSettingId value not found, must be the ID of the DevOps Platform configuration"));
+        new IllegalArgumentException("devOpsPlatformSettingId value not found, must be the ID of the DevOps Platform configuration"));
       DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(almSetting.getAlm(), almSetting.getUrl(), request.repositoryIdentifier(),
         request.projectIdentifier());
 
       DevOpsProjectCreator projectCreator = devOpsProjectCreatorFactory.getDevOpsProjectCreator(almSetting, projectDescriptor)
         .orElseThrow(() -> new IllegalArgumentException(format("Platform %s not supported", almSetting.getAlm().name())));
+
+      // Capture old binding before updating, for logging purposes
+      Optional<ProjectAlmSettingDto> oldBinding = Optional.empty();
+      if (request.projectKey() != null) {
+        Optional<ProjectDto> existingProject = dbClient.projectDao().selectProjectByKey(dbSession, request.projectKey());
+        if (existingProject.isPresent()) {
+          oldBinding = dbClient.projectAlmSettingDao().selectByProject(dbSession, existingProject.get());
+        }
+      }
 
       CreationMethod creationMethod = getCreationMethod(request.monorepo());
       ComponentCreationData componentCreationData = projectCreator.createProjectAndBindToDevOpsPlatform(
@@ -75,25 +87,43 @@ public class ImportProjectService {
         creationMethod,
         request.monorepo(),
         request.projectKey(),
-        request.projectName());
+        request.projectName(),
+        request.allowExisting());
 
       ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
       BranchDto mainBranchDto = Optional.ofNullable(componentCreationData.mainBranchDto()).orElseThrow();
 
+      if (!componentCreationData.newProjectCreated()) {
+        // Log the rebinding
+        if (oldBinding.isPresent()) {
+          LOG.info("Project '{}' rebound from DevOps platform. Old binding: [alm={}, repo={}], New binding: [alm={}, repo={}]",
+            projectDto.getKey(),
+            oldBinding.get().getAlmSettingUuid(),
+            oldBinding.get().getAlmRepo(),
+            almSetting.getUuid(),
+            projectDescriptor.repositoryIdentifier());
+        } else {
+          LOG.info("Project '{}' bound to DevOps platform. New binding: [alm={}, repo={}]",
+            projectDto.getKey(),
+            almSetting.getUuid(),
+            projectDescriptor.repositoryIdentifier());
+        }
+      }
+
       if (request.newCodeDefinitionType() != null) {
-        newCodeDefinitionResolver.createNewCodeDefinition(dbSession, projectDto.getUuid(), mainBranchDto.getUuid(),
+        newCodeDefinitionResolver.createOrUpdateNewCodeDefinition(dbSession, projectDto.getUuid(), mainBranchDto.getUuid(),
           mainBranchDto.getKey(), request.newCodeDefinitionType(), request.newCodeDefinitionValue());
       }
       componentUpdater.commitAndIndex(dbSession, componentCreationData);
       ProjectAlmSettingDto projectAlmSettingDto = dbClient.projectAlmSettingDao().selectByProject(dbSession, projectDto)
         .orElseThrow(() -> new IllegalStateException("Project ALM setting was not created"));
       dbSession.commit();
-      return new ImportedProject(projectDto, projectAlmSettingDto);
+      return new ImportedProject(projectDto, projectAlmSettingDto, componentCreationData.newProjectCreated());
     }
   }
 
-  private CreationMethod getCreationMethod(boolean monorepo) {
-    if (monorepo) {
+  private CreationMethod getCreationMethod(Boolean monorepo) {
+    if (Boolean.TRUE.equals(monorepo)) {
       return CreationMethod.getCreationMethod(ALM_IMPORT_MONOREPO, userSession.isAuthenticatedBrowserSession());
     } else {
       return CreationMethod.getCreationMethod(ALM_IMPORT, userSession.isAuthenticatedBrowserSession());

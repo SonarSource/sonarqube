@@ -107,7 +107,7 @@ public class ImportBitbucketCloudRepoAction implements AlmIntegrationsWsAction {
 
   private static ImportProjectRequest toServiceRequest(AlmSettingDto almSettingDto, String slug, @Nullable String newCodeDefinitionType,
     @Nullable String newCodeDefinitionValue) {
-    return new ImportProjectRequest(null, null, almSettingDto.getUuid(), slug, null, newCodeDefinitionType, newCodeDefinitionValue, false);
+    return new ImportProjectRequest(null, null, almSettingDto.getUuid(), slug, null, newCodeDefinitionType, newCodeDefinitionValue, false, false);
   }
 
 }

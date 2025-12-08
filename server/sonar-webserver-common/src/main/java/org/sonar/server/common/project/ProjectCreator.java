@@ -19,14 +19,22 @@
  */
 package org.sonar.server.common.project;
 
+import java.util.Optional;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ServerSide;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.CreationMethod;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.common.component.ComponentCreationParameters;
 import org.sonar.server.common.component.ComponentUpdater;
 import org.sonar.server.common.component.NewComponent;
 import org.sonar.server.component.ComponentCreationData;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.user.UserSession;
 
@@ -34,12 +42,15 @@ import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 
 @ServerSide
 public class ProjectCreator {
+  private static final Logger LOG = LoggerFactory.getLogger(ProjectCreator.class);
 
+  private final DbClient dbClient;
   private final UserSession userSession;
   private final ProjectDefaultVisibility projectDefaultVisibility;
   private final ComponentUpdater componentUpdater;
 
-  public ProjectCreator(UserSession userSession, ProjectDefaultVisibility projectDefaultVisibility, ComponentUpdater componentUpdater) {
+  public ProjectCreator(DbClient dbClient, UserSession userSession, ProjectDefaultVisibility projectDefaultVisibility, ComponentUpdater componentUpdater) {
+    this.dbClient = dbClient;
     this.userSession = userSession;
     this.projectDefaultVisibility = projectDefaultVisibility;
     this.componentUpdater = componentUpdater;
@@ -67,5 +78,41 @@ public class ProjectCreator {
 
   public ComponentCreationData createProject(DbSession dbSession, String projectKey, String projectName, @Nullable String mainBranchName, CreationMethod creationMethod) {
     return createProject(dbSession, projectKey, projectName, mainBranchName, creationMethod, projectDefaultVisibility.get(dbSession).isPrivate(), false);
+  }
+
+  public ComponentCreationData getOrCreateProject(DbSession dbSession, ProjectCreationRequest request) {
+    // Check if project already exists
+    Optional<ProjectDto> existingProject = dbClient.projectDao().selectProjectByKey(dbSession, request.projectKey());
+    
+    if (existingProject.isPresent()) {
+      if (!request.allowExisting()) {
+        throw BadRequestException.create("Could not create Project with key: \"" + request.projectKey() + "\". A similar key already exists: \"" + request.projectKey() + "\"");
+      }
+      
+      // Validate name matches
+      if (!existingProject.get().getName().equals(request.projectName())) {
+        // Log detailed info for debugging/auditing
+        LOG.warn("Project binding failed: key '{}' exists with name '{}', expected '{}'", 
+            request.projectKey(), existingProject.get().getName(), request.projectName());
+        // Return vague error to prevent information disclosure
+        throw BadRequestException.create("Project with key '" + request.projectKey() + "' cannot be bound - configuration mismatch");
+      }
+      
+      // Return existing project data (not created)
+      ComponentDto componentDto = dbClient.componentDao().selectByKey(dbSession, request.projectKey())
+        .orElseThrow(() -> new IllegalStateException("Component not found for existing project"));
+      BranchDto mainBranch = dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, existingProject.get().getUuid())
+        .orElseThrow(() -> new IllegalStateException("Main branch not found"));
+      
+      return new ComponentCreationData(componentDto, null, mainBranch, existingProject.get(), false);
+    }
+    
+    // Create new project
+    ComponentCreationData creationData = createProject(dbSession, request.projectKey(), request.projectName(), request.mainBranchName(), 
+        request.creationMethod(), request.isPrivate(), request.isManaged());
+    
+    // Explicitly mark as newly created
+    return new ComponentCreationData(creationData.mainBranchComponent(), creationData.portfolioDto(), 
+        creationData.mainBranchDto(), creationData.projectDto(), true);
   }
 }

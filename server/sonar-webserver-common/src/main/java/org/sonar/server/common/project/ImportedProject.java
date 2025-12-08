@@ -22,5 +22,5 @@ package org.sonar.server.common.project;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.project.ProjectDto;
 
-public record ImportedProject(ProjectDto projectDto, ProjectAlmSettingDto projectAlmSettingDto){
+public record ImportedProject(ProjectDto projectDto, ProjectAlmSettingDto projectAlmSettingDto, boolean newProjectCreated){
 }

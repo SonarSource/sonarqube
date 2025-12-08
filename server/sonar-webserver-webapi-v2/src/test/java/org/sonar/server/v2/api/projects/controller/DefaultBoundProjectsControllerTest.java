@@ -122,10 +122,12 @@ class DefaultBoundProjectsControllerTest {
       DOP_PROJECT_ID,
       "NUMBER_OF_DAYS",
       "10",
-      true)))
+      true,
+      false)))
       .thenReturn(new ImportedProject(
         projectDto,
-        projectAlmSettingDto));
+        projectAlmSettingDto,
+        true));
 
     mockMvc.perform(
       post(BOUND_PROJECTS_ENDPOINT)

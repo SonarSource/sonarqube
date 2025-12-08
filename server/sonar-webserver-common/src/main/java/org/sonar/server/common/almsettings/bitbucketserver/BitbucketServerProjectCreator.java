@@ -35,6 +35,7 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
 import org.sonar.server.common.almsettings.DevOpsProjectCreator;
 import org.sonar.server.common.almsettings.DevOpsProjectDescriptor;
+import org.sonar.server.common.project.ProjectCreationRequest;
 import org.sonar.server.common.project.ProjectCreator;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.user.UserSession;
@@ -71,7 +72,7 @@ public class BitbucketServerProjectCreator implements DevOpsProjectCreator {
 
   @Override
   public ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, CreationMethod creationMethod, Boolean monorepo, @Nullable String projectKey,
-    @Nullable String projectName) {
+    @Nullable String projectName, boolean allowExisting) {
 
     String pat = findPersonalAccessTokenOrThrow(dbSession);
     String url = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");
@@ -81,12 +82,16 @@ public class BitbucketServerProjectCreator implements DevOpsProjectCreator {
     Repository repository = bitbucketServerRestClient.getRepo(url, pat, bitbucketProject, bitbucketRepo);
     String defaultBranchName = getDefaultBranchName(url, pat, bitbucketProject, bitbucketRepo);
 
-    ComponentCreationData componentCreationData = projectCreator.createProject(
-      dbSession,
+    ProjectCreationRequest request = new ProjectCreationRequest(
       getProjectKey(projectKey, repository),
       getProjectName(projectName, repository),
       defaultBranchName,
-      creationMethod);
+      creationMethod,
+      null,
+      false,
+      allowExisting);
+
+    ComponentCreationData componentCreationData = projectCreator.getOrCreateProject(dbSession, request);
     ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
     createProjectAlmSettingDto(dbSession, repository, projectDto, almSettingDto, monorepo);
 

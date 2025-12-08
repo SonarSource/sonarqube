@@ -105,7 +105,7 @@ public class ImportBitbucketCloudRepoActionIT {
   private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);
   private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private final NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
-  private final ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
+  private final ProjectCreator projectCreator = new ProjectCreator(db.getDbClient(), userSession, projectDefaultVisibility, componentUpdater);
 
   private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactory = new BitbucketCloudProjectCreatorFactory(db.getDbClient(), userSession, bitbucketCloudRestClient,
     projectCreator, projectKeyGenerator);

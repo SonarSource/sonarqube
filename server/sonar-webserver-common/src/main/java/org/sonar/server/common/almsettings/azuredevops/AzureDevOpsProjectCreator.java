@@ -34,6 +34,7 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
 import org.sonar.server.common.almsettings.DevOpsProjectCreator;
 import org.sonar.server.common.almsettings.DevOpsProjectDescriptor;
+import org.sonar.server.common.project.ProjectCreationRequest;
 import org.sonar.server.common.project.ProjectCreator;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.user.UserSession;
@@ -70,18 +71,22 @@ public class AzureDevOpsProjectCreator implements DevOpsProjectCreator {
 
   @Override
   public ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, CreationMethod creationMethod, Boolean monorepo, @Nullable String projectKey,
-    @Nullable String projectName) {
+    @Nullable String projectName, boolean allowExisting) {
     String pat = findPersonalAccessTokenOrThrow(dbSession, almSettingDto);
     String url = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");
     checkArgument(devOpsProjectDescriptor.projectIdentifier() != null, "DevOps Project Identifier cannot be null for Azure DevOps");
     GsonAzureRepo repo = fetchAzureDevOpsProject(url, pat, devOpsProjectDescriptor.projectIdentifier(), devOpsProjectDescriptor.repositoryIdentifier());
 
-    ComponentCreationData componentCreationData = projectCreator.createProject(
-      dbSession,
+    ProjectCreationRequest request = new ProjectCreationRequest(
       getProjectKey(projectKey, repo),
       getProjectName(projectName, repo),
       repo.getDefaultBranchName(),
-      creationMethod);
+      creationMethod,
+      null,
+      false,
+      allowExisting);
+
+    ComponentCreationData componentCreationData = projectCreator.getOrCreateProject(dbSession, request);
     ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
     createProjectAlmSettingDto(dbSession, repo, projectDto, almSettingDto, monorepo);
     return componentCreationData;

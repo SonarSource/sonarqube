@@ -129,7 +129,7 @@ public class ReportSubmitterIT {
   private final ManagedInstanceService managedInstanceService = mock();
   private final GithubDevOpsProjectCreationContextService githubDevOpsProjectService = new GithubDevOpsProjectCreationContextService(db.getDbClient(), userSession,
     githubApplicationClient);
-  private final ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
+  private final ProjectCreator projectCreator = new ProjectCreator(db.getDbClient(), userSession, projectDefaultVisibility, componentUpdater);
   private final GithubProjectCreatorFactory githubProjectCreatorFactory = new GithubProjectCreatorFactory(db.getDbClient(), githubGlobalSettingsValidator,
     githubApplicationClient, projectKeyGenerator, projectCreator, gitHubSettings, null, permissionUpdater, permissionService,
     managedProjectService, githubDevOpsProjectService);

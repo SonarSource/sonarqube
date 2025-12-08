@@ -102,6 +102,6 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
 
   private static ImportProjectRequest toServiceRequest(AlmSettingDto almSettingDto, String gitlabProjectId, @Nullable String newCodeDefinitionType,
     @Nullable String newCodeDefinitionValue) {
-    return new ImportProjectRequest(null, null, almSettingDto.getUuid(), gitlabProjectId, null, newCodeDefinitionType, newCodeDefinitionValue, false);
+    return new ImportProjectRequest(null, null, almSettingDto.getUuid(), gitlabProjectId, null, newCodeDefinitionType, newCodeDefinitionValue, false, false);
   }
 }

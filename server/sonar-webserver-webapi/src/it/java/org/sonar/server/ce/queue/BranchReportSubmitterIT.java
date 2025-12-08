@@ -115,7 +115,7 @@ public class BranchReportSubmitterIT {
     null, null, null, null, null, null, null, null, null);
 
   private final ManagedInstanceService managedInstanceService = mock();
-  private final ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
+  private final ProjectCreator projectCreator = new ProjectCreator(db.getDbClient(), userSession, projectDefaultVisibility, componentUpdater);
   private final ReportSubmitter underTest = new ReportSubmitter(queue, userSession, projectCreator, componentUpdater, permissionTemplateService, db.getDbClient(), branchSupport,
     devOpsProjectCreatorFactory, managedInstanceService);
 

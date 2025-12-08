@@ -124,7 +124,7 @@ class GithubProjectCreatorTest {
 
     when(gitHubSettings.getDevOpsPlatform()).thenReturn(GITHUB.getKey());
 
-    ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
+    ProjectCreator projectCreator = new ProjectCreator(dbClient, userSession, projectDefaultVisibility, componentUpdater);
     githubProjectCreator = new GithubProjectCreator(dbClient, devOpsProjectCreationContext, projectKeyGenerator, gitHubSettings, projectCreator, permissionService,
       permissionUpdater,
       managedProjectService, githubApplicationClient, githubPermissionConverter, authAppInstallationToken);

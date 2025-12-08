@@ -116,7 +116,7 @@ public class ImportBitbucketServerProjectActionIT {
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
   private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);
 
-  private final ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
+  private final ProjectCreator projectCreator = new ProjectCreator(db.getDbClient(), userSession, projectDefaultVisibility, componentUpdater);
   private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactory = new BitbucketServerProjectCreatorFactory(db.getDbClient(), userSession, bitbucketServerRestClient,
     projectCreator, projectKeyGenerator);
   private final ImportProjectService importProjectService = new ImportProjectService(db.getDbClient(), devOpsProjectCreatorFactory, userSession, componentUpdater,

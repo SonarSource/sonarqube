@@ -27,5 +27,8 @@ public record BoundProjectCreateRestResponse(
   String projectId,
 
   @Schema(description = "The identifier of the binding between the created project and the DevOps platform project")
-  String bindingId) {
+  String bindingId,
+
+  @Schema(description = "True if a new project was created, false if an existing project was bound")
+  boolean newProjectCreated) {
 }

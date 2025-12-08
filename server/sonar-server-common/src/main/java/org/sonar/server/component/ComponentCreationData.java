@@ -26,5 +26,9 @@ import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 
 public record ComponentCreationData(ComponentDto mainBranchComponent, @Nullable PortfolioDto portfolioDto, @Nullable BranchDto mainBranchDto,
-                                    @Nullable ProjectDto projectDto) {
+                                    @Nullable ProjectDto projectDto, boolean newProjectCreated) {
+  public ComponentCreationData(ComponentDto mainBranchComponent, @Nullable PortfolioDto portfolioDto,
+    @Nullable BranchDto mainBranchDto, @Nullable ProjectDto projectDto) {
+    this(mainBranchComponent, portfolioDto, mainBranchDto, projectDto, true);
+  }
 }
