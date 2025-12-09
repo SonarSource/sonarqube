@@ -1,5 +1,5 @@
 @rem SonarQube
-@rem Copyright (C) 2009-2025 SonarSource SA
+@rem Copyright (C) 2009-2025 SonarSource Sàrl
 @rem mailto:info AT sonarsource DOT com
 @rem
 @rem This program is free software; you can redistribute it and/or
