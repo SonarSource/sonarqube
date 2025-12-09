@@ -23,7 +23,6 @@ import io.sonarcloud.compliancereports.reports.ReportKey;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -47,7 +46,7 @@ public class ParamParsingUtils {
       Severity.valueOf(parts[1]));
   }
 
-  public static Map<ReportKey, Collection<String>> parseComplianceStandardsFilter(@Nullable String param) {
+  public static Map<ReportKey, Set<String>> parseComplianceStandardsFilter(@Nullable String param) {
     if (param == null) {
       return Map.of();
     }
@@ -59,7 +58,7 @@ public class ParamParsingUtils {
       throw new IllegalArgumentException("Can't URI decode: " + param, e);
     }
 
-    Map<ReportKey, Collection<String>> categoriesByStandard = new HashMap<>();
+    Map<ReportKey, Set<String>> categoriesByStandard = new HashMap<>();
 
     String[] parts = decodedParam.split("&");
     for (String part : parts) {

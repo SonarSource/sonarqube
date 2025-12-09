@@ -20,7 +20,6 @@
 package org.sonar.server.common;
 
 import io.sonarcloud.compliancereports.reports.ReportKey;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
@@ -63,7 +62,7 @@ class ParamParsingUtilsTest {
 
   @Test
   void parseComplianceStandardsFilter_ShouldReturnExpectedResult() {
-    Map<ReportKey, Collection<String>> result = parseComplianceStandardsFilter("standard1:1=category1,category2&standard2:1=category3");
+    Map<ReportKey, Set<String>> result = parseComplianceStandardsFilter("standard1:1=category1,category2&standard2:1=category3");
     assertThat(result).containsOnly(
       entry(new ReportKey("standard1", "1"), Set.of("category1", "category2")),
       entry(new ReportKey("standard2", "1"), Set.of("category3")));

@@ -719,9 +719,8 @@ public class SearchAction implements IssuesWsAction {
   }
 
   private Set<String> transformComplianceFacets(Facets facets, Collection<String> requestedFacets,
-    Map<ReportKey, Collection<String>> categoriesByStandardFilters) {
-    Set<ReportKey> standardsWithFacet = metadataLoader.getAllMetadata().keySet()
-      .stream()
+    Map<ReportKey, Set<String>> categoriesByStandardFilters) {
+    Set<ReportKey> standardsWithFacet = metadataLoader.getAllMetadata().keySet().stream()
       .filter(standard -> requestedFacets.contains(standard.toString()))
       .collect(Collectors.toSet());
 
@@ -732,10 +731,10 @@ public class SearchAction implements IssuesWsAction {
     Map<String, Long> countByRuleId = facets.get(COMPLIANCE_FILTER_FACET_NAME);
 
     try (DbSession session = dbClient.openSession(false)) {
-      Map<String, String> ruleKeyById = dbClient.ruleDao().selectByUuids(session, countByRuleId.keySet())
-        .stream().collect(Collectors.toMap(RuleDto::getUuid, r -> r.getKey().toString()));
-      Map<String, Long> countByRuleKey = countByRuleId.entrySet()
-        .stream().filter(e -> ruleKeyById.containsKey(e.getKey()))
+      Map<String, String> ruleKeyById = dbClient.ruleDao().selectByUuids(session, countByRuleId.keySet()).stream()
+        .collect(Collectors.toMap(RuleDto::getUuid, r -> r.getKey().toString()));
+      Map<String, Long> countByRuleKey = countByRuleId.entrySet().stream()
+        .filter(e -> ruleKeyById.containsKey(e.getKey()))
         .collect(Collectors.toMap(e -> ruleKeyById.get(e.getKey()), Map.Entry::getValue));
 
       for (ReportKey standard : standardsWithFacet) {

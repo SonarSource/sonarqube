@@ -23,6 +23,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import io.sonarcloud.compliancereports.reports.MetadataRules;
 import io.sonarcloud.compliancereports.reports.MetadataRules.ComplianceCategoryRules;
+import io.sonarcloud.compliancereports.reports.ReportKey;
 import java.time.Clock;
 import java.time.DateTimeException;
 import java.time.OffsetDateTime;
@@ -196,21 +197,31 @@ public class IssueQueryFactory {
       return;
     }
 
-    ComplianceCategoryRules rules = metadataRules.getRules(request.getCategoriesByStandard());
-    builder.complianceCategoryRules(getRuleIds(session, rules));
+    Map<ReportKey, ComplianceCategoryRules> rulesByStandard = metadataRules.getRulesByStandard(request.getCategoriesByStandard());
+    builder.complianceCategoryRules(getRuleIds(session, rulesByStandard));
   }
 
-  private Set<String> getRuleIds(DbSession session, ComplianceCategoryRules rules) {
-    Set<RuleKey> ruleKeys = rules.repoRuleKeys().stream().map(r -> RuleKey.of(r.repository(), r.rule())).collect(Collectors.toSet());
+  private Set<String> getRuleIds(DbSession session, Map<ReportKey, ComplianceCategoryRules> rulesByStandard) {
+    Set<String> ruleIds = null;
 
-    Set<String> ruleIds = Stream.concat(
-      dbClient.ruleDao().selectByKeys(session, ruleKeys).stream(),
-      dbClient.ruleDao().selectByRuleKeys(session, rules.ruleKeys()).stream()
-    ).map(RuleDto::getUuid).collect(Collectors.toSet());
+    for(Map.Entry<ReportKey, ComplianceCategoryRules> e : rulesByStandard.entrySet()) {
+      ComplianceCategoryRules rules = e.getValue();
+      Set<RuleKey> ruleKeys = rules.repoRuleKeys().stream().map(r -> RuleKey.of(r.repository(), r.rule())).collect(Collectors.toSet());
 
-    // standard doesn't exist or it doesn't have any rules associated to it
-    if (ruleIds.isEmpty()) {
-      return Set.of("non-existing-uuid");
+      Set<String> ids = Stream.concat(
+        dbClient.ruleDao().selectByKeys(session, ruleKeys).stream(),
+        dbClient.ruleDao().selectByRuleKeys(session, rules.ruleKeys()).stream()
+      ).map(RuleDto::getUuid).collect(Collectors.toSet());
+
+      // standard doesn't exist or it doesn't have any rules associated to it
+      if (ids.isEmpty()) {
+        return Set.of("non-existing-uuid");
+      }
+      if(ruleIds == null) {
+        ruleIds = ids;
+      } else {
+        ruleIds.retainAll(ids);
+      }
     }
     return ruleIds;
   }

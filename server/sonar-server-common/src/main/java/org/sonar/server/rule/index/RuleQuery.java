@@ -64,7 +64,7 @@ public class RuleQuery {
   private Collection<String> activeImpactSeverities = null;
   private Collection<String> cleanCodeAttributesCategories = null;
   private Boolean prioritizedRule = null;
-  private ComplianceCategoryRules complianceCategoryRules = null;
+  private Collection<ComplianceCategoryRules> complianceCategoryRules = null;
 
   @CheckForNull
   public QProfileDto getQProfile() {
@@ -369,13 +369,13 @@ public class RuleQuery {
     return impactSeverities;
   }
 
-  public RuleQuery setComplianceCategoryRules(@Nullable ComplianceCategoryRules complianceCategoryRules) {
+  public RuleQuery setComplianceCategoryRules(@Nullable Collection<ComplianceCategoryRules> complianceCategoryRules) {
     this.complianceCategoryRules = complianceCategoryRules;
     return this;
   }
 
   @CheckForNull
-  public ComplianceCategoryRules getComplianceCategoryRules() {
+  public Collection<ComplianceCategoryRules> getComplianceCategoryRules() {
     return complianceCategoryRules;
   }
 
