@@ -22,7 +22,6 @@ package org.sonar.server.rule.ws;
 import io.sonarcloud.compliancereports.reports.MetadataRules;
 import io.sonarcloud.compliancereports.reports.MetadataRules.ComplianceCategoryRules;
 import io.sonarcloud.compliancereports.reports.ReportKey;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -137,7 +136,7 @@ public class RuleQueryFactory {
     return query;
   }
 
-  private void setComplianceFilter(RuleQuery query, Map<ReportKey, Collection<String>> categoriesByStandard) {
+  private void setComplianceFilter(RuleQuery query, Map<ReportKey, Set<String>> categoriesByStandard) {
     if (categoriesByStandard.isEmpty()) {
       return;
     }
@@ -145,13 +144,10 @@ public class RuleQueryFactory {
     query.setComplianceCategoryRules(getComplianceStandardRules(categoriesByStandard));
   }
 
-  private ComplianceCategoryRules getComplianceStandardRules(Map<ReportKey, Collection<String>> categoriesByStandard) {
-    ComplianceCategoryRules rules = metadataRules.getRules(categoriesByStandard);
-    if (rules.ruleKeys().isEmpty() && rules.repoRuleKeys().isEmpty()) {
-      // either invalid category or category with no rules
-      return new ComplianceCategoryRules(Set.of(), Set.of("non-existing-uuid"));
-    }
-    return rules;
+  private List<ComplianceCategoryRules> getComplianceStandardRules(Map<ReportKey, Set<String>> categoriesByStandard) {
+    return metadataRules.getRulesByStandard(categoriesByStandard).values().stream()
+      .map(e -> e.isEmpty() ? new ComplianceCategoryRules(Set.of(), Set.of("non-existing-uuid")) : e)
+      .toList();
   }
 
   private void setProfile(DbSession dbSession, RuleQuery query, Request request) {

@@ -1058,7 +1058,7 @@ class SearchActionIT {
   @Test
   void fail_if_compliance_standard_unknown() {
     TestRequest request = ws.newRequest().setParam(PARAM_COMPLIANCE_STANDARDS, "unknown:V1=category1");
-    assertThatThrownBy(() -> request.executeProtobuf(SearchWsResponse.class)).isInstanceOf(IllegalStateException.class);
+    assertThatThrownBy(() -> request.executeProtobuf(SearchWsResponse.class)).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test

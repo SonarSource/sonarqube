@@ -21,6 +21,7 @@ package org.sonar.server.rule.ws;
 
 import io.sonarcloud.compliancereports.reports.MetadataLoader;
 import io.sonarcloud.compliancereports.reports.MetadataRules;
+import io.sonarcloud.compliancereports.reports.MetadataRules.ComplianceCategoryRules;
 import io.sonarcloud.compliancereports.reports.MetadataRules.RepositoryRuleKey;
 import java.util.Set;
 import org.junit.Rule;
@@ -146,8 +147,8 @@ public class RuleQueryFactoryIT {
 
     assertResult(result, qualityProfile, compareToQualityProfile);
     assertThat(result.includeExternal()).isFalse();
-    assertThat(result.getComplianceCategoryRules().ruleKeys()).containsOnly("S002", "3");
-    assertThat(result.getComplianceCategoryRules().repoRuleKeys()).containsOnly(RepositoryRuleKey.of("java:S001"));
+    assertThat(result.getComplianceCategoryRules()).containsOnly(
+      new ComplianceCategoryRules(Set.of(RepositoryRuleKey.of("java:S001")), Set.of("S002", "3")));
   }
 
   @Test

@@ -210,7 +210,7 @@ class RuleIndexIT {
 
     // key
     RuleQuery query = new RuleQuery()
-      .setComplianceCategoryRules(new ComplianceCategoryRules(Set.of(RepositoryRuleKey.of("php:S002")), Set.of("X001")));
+      .setComplianceCategoryRules(List.of(new ComplianceCategoryRules(Set.of(RepositoryRuleKey.of("php:S002")), Set.of("X001"))));
 
     assertThat(underTest.search(query, new SearchOptions()).getUuids())
       .containsOnly(rule.getUuid(), rule1.getUuid(), rule2.getUuid());

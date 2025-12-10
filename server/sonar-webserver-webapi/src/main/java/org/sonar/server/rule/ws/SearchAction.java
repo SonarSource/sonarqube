@@ -545,7 +545,7 @@ public class SearchAction implements RulesWsAction {
     @Nullable List<String> activeSeverities,
     @Nullable List<String> activeImpactSeverities,
     @Nullable Boolean prioritizedRule,
-    @Nullable Map<ReportKey, Collection<String>> complianceStandards
+    @Nullable Map<ReportKey, Set<String>> complianceStandards
   ) {
   }
 }
