@@ -22,7 +22,7 @@ package org.sonar.server.issue.index;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import io.sonarcloud.compliancereports.reports.MetadataRules;
-import io.sonarcloud.compliancereports.reports.MetadataRules.ComplianceCategoryRules;
+import io.sonarcloud.compliancereports.reports.ComplianceCategoryRules;
 import io.sonarcloud.compliancereports.reports.ReportKey;
 import java.time.Clock;
 import java.time.DateTimeException;
@@ -206,11 +206,11 @@ public class IssueQueryFactory {
 
     for(Map.Entry<ReportKey, ComplianceCategoryRules> e : rulesByStandard.entrySet()) {
       ComplianceCategoryRules rules = e.getValue();
-      Set<RuleKey> ruleKeys = rules.repoRuleKeys().stream().map(r -> RuleKey.of(r.repository(), r.rule())).collect(Collectors.toSet());
+      Set<RuleKey> ruleKeys = rules.allRepoRuleKeys().stream().map(r -> RuleKey.of(r.repository(), r.rule())).collect(Collectors.toSet());
 
       Set<String> ids = Stream.concat(
         dbClient.ruleDao().selectByKeys(session, ruleKeys).stream(),
-        dbClient.ruleDao().selectByRuleKeys(session, rules.ruleKeys()).stream()
+        dbClient.ruleDao().selectByRuleKeys(session, rules.allRuleKeys()).stream()
       ).map(RuleDto::getUuid).collect(Collectors.toSet());
 
       // standard doesn't exist or it doesn't have any rules associated to it
