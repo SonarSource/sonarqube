@@ -30,12 +30,14 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
@@ -112,8 +114,16 @@ public class AssignAction implements IssuesWsAction {
   private SearchResponseData assign(String issueKey, @Nullable String login) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto issueDto = issueFinder.getByKey(dbSession, issueKey);
+      ProjectDto projectDto = dbClient.projectDao().selectByUuid(dbSession, issueDto.getProjectUuid()).orElseThrow(
+              ()-> new IllegalStateException(format("Project with UUID %s not found for issue %s", issueDto.getProjectUuid(), issueKey))
+      );
+      userSession.checkEntityPermission(UserRole.ADMIN, projectDto);
       DefaultIssue issue = issueDto.toDefaultIssue();
       UserDto user = getUser(dbSession, login);
+      if(user!=null && !hasProjectPermission(dbSession, user.getUuid(), issueDto.getProjectUuid())) {
+        throw new IllegalArgumentException(
+                format("User '%s' does not have permission to be assigned issues in project '%s'", user.getLogin(), projectDto.getKey()));
+      }
       IssueChangeContext context = issueChangeContextByUserBuilder(new Date(system2.now()), userSession.getUuid()).build();
       if (issueFieldsSetter.assign(issue, user, context)) {
         return issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, issueDto, issue, context);
@@ -134,6 +144,10 @@ public class AssignAction implements IssuesWsAction {
       return null;
     }
     return checkFound(dbClient.userDao().selectActiveUserByLogin(dbSession, assignee), "Unknown user: %s", assignee);
+  }
+
+  private boolean hasProjectPermission(DbSession dbSession, String userUuid, String projectUuid) {
+    return dbClient.authorizationDao().selectEntityPermissions(dbSession, projectUuid, userUuid).contains(UserRole.USER);
   }
 
 }
