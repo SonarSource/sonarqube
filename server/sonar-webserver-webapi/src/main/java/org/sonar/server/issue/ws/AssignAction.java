@@ -117,12 +117,13 @@ public class AssignAction implements IssuesWsAction {
       ProjectDto projectDto = dbClient.projectDao().selectByUuid(dbSession, issueDto.getProjectUuid()).orElseThrow(
               ()-> new IllegalStateException(format("Project with UUID %s not found for issue %s", issueDto.getProjectUuid(), issueKey))
       );
-      userSession.checkEntityPermission(UserRole.ADMIN, projectDto);
+      userSession.checkEntityPermission(UserRole.ISSUE_ADMIN, projectDto);
       DefaultIssue issue = issueDto.toDefaultIssue();
       UserDto user = getUser(dbSession, login);
-      if(user!=null && !hasProjectPermission(dbSession, user.getUuid(), issueDto.getProjectUuid())) {
+      if (user != null && !hasProjectPermission(dbSession, user.getUuid(), issueDto.getProjectUuid())) {
         throw new IllegalArgumentException(
-                format("User '%s' does not have permission to be assigned issues in project '%s'", user.getLogin(), projectDto.getKey()));
+                format("User '%s' does not have permission to be assigned issues in project '%s'", user.getLogin(),
+                        projectDto.getKey()));
       }
       IssueChangeContext context = issueChangeContextByUserBuilder(new Date(system2.now()), userSession.getUuid()).build();
       if (issueFieldsSetter.assign(issue, user, context)) {
