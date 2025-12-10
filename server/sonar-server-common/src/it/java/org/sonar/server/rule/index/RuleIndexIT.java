@@ -21,8 +21,9 @@ package org.sonar.server.rule.index;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import io.sonarcloud.compliancereports.reports.MetadataRules.ComplianceCategoryRules;
-import io.sonarcloud.compliancereports.reports.MetadataRules.RepositoryRuleKey;
+import io.sonarcloud.compliancereports.reports.CategoryTree;
+import io.sonarcloud.compliancereports.reports.ComplianceCategoryRules;
+import io.sonarcloud.compliancereports.reports.RepositoryRuleKey;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -207,10 +208,13 @@ class RuleIndexIT {
     RuleDto rule2 = createRule(setRepositoryKey("php"), setRuleKey("S002"));
     createRule(setRepositoryKey("java"), setRuleKey("S002"));
     index();
+    ComplianceCategoryRules complianceCategoryRules = new ComplianceCategoryRules(new CategoryTree.CategoryTreeNode(
+      "key", Set.of("php:S002", ":X001"), Set.of(), null, false, 0
+    ));
 
     // key
     RuleQuery query = new RuleQuery()
-      .setComplianceCategoryRules(List.of(new ComplianceCategoryRules(Set.of(RepositoryRuleKey.of("php:S002")), Set.of("X001"))));
+      .setComplianceCategoryRules(List.of(complianceCategoryRules));
 
     assertThat(underTest.search(query, new SearchOptions()).getUuids())
       .containsOnly(rule.getUuid(), rule1.getUuid(), rule2.getUuid());

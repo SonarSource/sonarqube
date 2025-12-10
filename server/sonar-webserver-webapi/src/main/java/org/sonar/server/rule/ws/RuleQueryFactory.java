@@ -19,13 +19,15 @@
  */
 package org.sonar.server.rule.ws;
 
+import io.sonarcloud.compliancereports.reports.CategoryTree;
 import io.sonarcloud.compliancereports.reports.MetadataRules;
-import io.sonarcloud.compliancereports.reports.MetadataRules.ComplianceCategoryRules;
+import io.sonarcloud.compliancereports.reports.ComplianceCategoryRules;
 import io.sonarcloud.compliancereports.reports.ReportKey;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.Request;
@@ -145,8 +147,10 @@ public class RuleQueryFactory {
   }
 
   private List<ComplianceCategoryRules> getComplianceStandardRules(Map<ReportKey, Set<String>> categoriesByStandard) {
+    var nonExistentComplianceRules = new ComplianceCategoryRules(new CategoryTree.CategoryTreeNode("empty", Set.of(":non-existing-uuid"),
+      Set.of(), null, false, 0));
     return metadataRules.getRulesByStandard(categoriesByStandard).values().stream()
-      .map(e -> e.isEmpty() ? new ComplianceCategoryRules(Set.of(), Set.of("non-existing-uuid")) : e)
+      .map(e -> e.isEmpty() ? nonExistentComplianceRules : e)
       .toList();
   }
 

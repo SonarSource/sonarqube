@@ -20,7 +20,7 @@
 package org.sonar.server.rule.index;
 
 import com.google.common.base.Preconditions;
-import io.sonarcloud.compliancereports.reports.MetadataRules.ComplianceCategoryRules;
+import io.sonarcloud.compliancereports.reports.ComplianceCategoryRules;
 import java.util.Collection;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
