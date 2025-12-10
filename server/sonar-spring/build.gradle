@@ -48,6 +48,10 @@ publishing {
   publications {
     mavenJava(MavenPublication) {
       from components.java
+      if (release) {
+        artifact sourcesJar
+        artifact javadocJar
+      }
     }
   }
 }
