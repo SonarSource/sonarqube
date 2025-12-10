@@ -399,4 +399,19 @@ public class SensorContextTesterTest {
     assertThat(tester.isFeatureAvailable("feature4")).isTrue();
     assertThat(tester.isFeatureAvailable("feature5")).isFalse();
   }
+
+  @Test
+  public void testGetTelemetryProperties() {
+    assertThat(tester.getTelemetryProperties()).isEmpty();
+
+    tester.addTelemetryProperty("telemetry1", "value1");
+    assertThat(tester.getTelemetryProperties()).containsOnly(entry("telemetry1", "value1"));
+
+    tester.addTelemetryProperty("telemetry2", "value2");
+    tester.addTelemetryProperty("telemetry3", "value3");
+    assertThat(tester.getTelemetryProperties()).containsOnly(
+      entry("telemetry1", "value1"),
+      entry("telemetry2", "value2"),
+      entry("telemetry3", "value3"));
+  }
 }

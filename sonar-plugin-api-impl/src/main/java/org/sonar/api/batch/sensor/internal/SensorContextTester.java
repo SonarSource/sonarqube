@@ -449,6 +449,10 @@ public class SensorContextTester implements SensorContext {
     sensorStorage.storeTelemetry(key, value);
   }
 
+  public Map<String, String> getTelemetryProperties() {
+    return unmodifiableMap(sensorStorage.telemetryEntries);
+  }
+
   @Override
   public void addAnalysisData(String key, String mimeType, InputStream data) {
     //No Need to check the source of the plugin in the tester
