@@ -27,6 +27,7 @@ import org.sonar.db.audit.model.DevOpsPlatformSettingNewValue;
 import org.sonar.db.audit.model.AbstractEditorNewValue;
 import org.sonar.db.audit.model.DevOpsPermissionsMappingNewValue;
 import org.sonar.db.audit.model.GroupPermissionNewValue;
+import org.sonar.db.audit.model.JiraOrganizationBindingNewValue;
 import org.sonar.db.audit.model.LicenseNewValue;
 import org.sonar.db.audit.model.PermissionTemplateNewValue;
 import org.sonar.db.audit.model.PersonalAccessTokenNewValue;
@@ -339,6 +340,26 @@ public class NoOpAuditPersister implements AuditPersister {
 
   @Override
   public void validateDevOpsPlatformSettingFailure(DbSession dbSession, DevOpsPlatformSettingNewValue newValue) {
+    // no op
+  }
+
+  @Override
+  public void jiraOrganizationBindingAdd(DbSession dbSession, JiraOrganizationBindingNewValue newValue) {
+    // no op
+  }
+
+  @Override
+  public void jiraOrganizationBindingReauthorize(DbSession dbSession, JiraOrganizationBindingNewValue newValue) {
+    // no op
+  }
+
+  @Override
+  public void jiraOrganizationBindingUpdate(DbSession dbSession, JiraOrganizationBindingNewValue newValue) {
+    // no op
+  }
+
+  @Override
+  public void jiraOrganizationBindingDelete(DbSession dbSession, JiraOrganizationBindingNewValue newValue) {
     // no op
   }
 }
