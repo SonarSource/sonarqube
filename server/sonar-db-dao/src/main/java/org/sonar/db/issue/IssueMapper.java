@@ -86,4 +86,6 @@ public interface IssueMapper {
   List<String> selectIssueKeysByQuery(@Param("query") IssueListQuery issueListQuery, @Param("pagination") Pagination pagination);
 
   void deleteIssueImpacts(String issueKey);
+
+  void updateHotspotExceptionExpiryDate(@Param("issueKey") String issueKey, @Param("expiryDate") Long expiryDate);
 }

@@ -40,6 +40,7 @@ import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.ws.IssueUpdater;
 import org.sonar.server.pushapi.hotspots.HotspotChangeEventService;
 import org.sonar.server.pushapi.hotspots.HotspotChangedEvent;
+import org.sonar.db.issue.IssueDao;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
@@ -64,9 +65,11 @@ public class ChangeStatusAction implements HotspotsWsAction {
   private final IssueFieldsSetter issueFieldsSetter;
   private final IssueUpdater issueUpdater;
   private final HotspotChangeEventService hotspotChangeEventService;
+  private static final String PARAM_EXPIRY_DATE = "hotspotExceptionExpiryDate";
 
   public ChangeStatusAction(DbClient dbClient, HotspotWsSupport hotspotWsSupport, TransitionService transitionService,
-    IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater, HotspotChangeEventService hotspotChangeEventService) {
+      IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater,
+      HotspotChangeEventService hotspotChangeEventService) {
     this.dbClient = dbClient;
     this.hotspotWsSupport = hotspotWsSupport;
     this.transitionService = transitionService;
@@ -78,29 +81,34 @@ public class ChangeStatusAction implements HotspotsWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller
-      .createAction("change_status")
-      .setHandler(this)
-      .setPost(true)
-      .setDescription("Change the status of a Security Hotpot.<br/>" +
-        "Requires the 'Administer Security Hotspot' permission.")
-      .setSince("8.1")
-      .setChangelog(
-        new Change("10.1", "Endpoint visibility change from internal to public"));
+        .createAction("change_status")
+        .setHandler(this)
+        .setPost(true)
+        .setDescription("Change the status of a Security Hotpot.<br/>" +
+            "Requires the 'Administer Security Hotspot' permission.")
+        .setSince("8.1")
+        .setChangelog(
+            new Change("10.1", "Endpoint visibility change from internal to public"));
 
     action.createParam(PARAM_HOTSPOT_KEY)
-      .setDescription("Key of the Security Hotspot")
-      .setExampleValue(Uuids.UUID_EXAMPLE_03)
-      .setRequired(true);
+        .setDescription("Key of the Security Hotspot")
+        .setExampleValue(Uuids.UUID_EXAMPLE_03)
+        .setRequired(true);
     action.createParam(PARAM_STATUS)
-      .setDescription("New status of the Security Hotspot.")
-      .setPossibleValues(STATUS_TO_REVIEW, STATUS_REVIEWED)
-      .setRequired(true);
+        .setDescription("New status of the Security Hotspot.")
+        .setPossibleValues(STATUS_TO_REVIEW, STATUS_REVIEWED)
+        .setRequired(true);
     action.createParam(PARAM_RESOLUTION)
-      .setDescription("Resolution of the Security Hotspot when new status is " + STATUS_REVIEWED + ", otherwise must not be set.")
-      .setPossibleValues(SECURITY_HOTSPOT_RESOLUTIONS);
+        .setDescription(
+            "Resolution of the Security Hotspot when new status is " + STATUS_REVIEWED + ", otherwise must not be set.")
+        .setPossibleValues(SECURITY_HOTSPOT_RESOLUTIONS);
     action.createParam(PARAM_COMMENT)
-      .setDescription("Comment text.")
-      .setExampleValue("This is safe because user input is validated by the calling code");
+        .setDescription("Comment text.")
+        .setExampleValue("This is safe because user input is validated by the calling code");
+    action.createParam("hotspotExceptionExpiryDate")
+        .setDescription("Expiry date for hotspot Exception(YYYY-MM-DD)")
+        .setExampleValue("2025-01-20")
+        .setRequired(false);
   }
 
   @Override
@@ -110,13 +118,28 @@ public class ChangeStatusAction implements HotspotsWsAction {
     String hotspotKey = request.mandatoryParam(PARAM_HOTSPOT_KEY);
     String newStatus = request.mandatoryParam(PARAM_STATUS);
     String newResolution = resolutionParam(request, newStatus);
+
+    String expiryDateStr = request.param(PARAM_EXPIRY_DATE);
+    Long expiryTimestamp = null;
+    if (expiryDateStr != null && expiryDateStr.isEmpty()) {
+      System.out.println("adding null when expiry date is empty string");
+      expiryTimestamp = null;   // clear date
+    }
+    else if (expiryDateStr != null ) {
+      System.out.println("Setting hotspot expiry date for hotspot in action " + expiryTimestamp + " to " + expiryDateStr);
+      expiryTimestamp = java.sql.Date.valueOf(expiryDateStr).getTime();
+    }
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto hotspot = hotspotWsSupport.loadHotspot(dbSession, hotspotKey);
       hotspotWsSupport.loadAndCheckBranch(dbSession, hotspot, UserRole.SECURITYHOTSPOT_ADMIN);
 
-      if (needStatusUpdate(hotspot, newStatus, newResolution)) {
+      boolean expiryChanged = request.hasParam(PARAM_EXPIRY_DATE);
+
+      if (needStatusUpdate(hotspot, newStatus, newResolution)||  expiryChanged) {
+        System.out.println("Changing hotspot status for hotspot " + hotspotKey + " to " + newStatus
+            + " with resolution " + newResolution);
         String transitionKey = toTransitionKey(newStatus, newResolution);
-        doTransition(dbSession, hotspot, transitionKey, trimToNull(request.param(PARAM_COMMENT)));
+        doTransition(dbSession, hotspot, transitionKey, trimToNull(request.param(PARAM_COMMENT)), expiryTimestamp);
       }
       response.noContent();
     }
@@ -126,15 +149,17 @@ public class ChangeStatusAction implements HotspotsWsAction {
   private static String resolutionParam(Request request, String newStatus) {
     String resolution = request.param(PARAM_RESOLUTION);
     checkArgument(STATUS_REVIEWED.equals(newStatus) || resolution == null,
-      "Parameter '%s' must not be specified when Parameter '%s' has value '%s'",
-      PARAM_RESOLUTION, PARAM_STATUS, STATUS_TO_REVIEW);
+        "Parameter '%s' must not be specified when Parameter '%s' has value '%s'",
+        PARAM_RESOLUTION, PARAM_STATUS, STATUS_TO_REVIEW);
     checkArgument(STATUS_TO_REVIEW.equals(newStatus) || resolution != null,
-      "Parameter '%s' must be specified when Parameter '%s' has value '%s'",
-      PARAM_RESOLUTION, PARAM_STATUS, STATUS_REVIEWED);
+        "Parameter '%s' must be specified when Parameter '%s' has value '%s'",
+        PARAM_RESOLUTION, PARAM_STATUS, STATUS_REVIEWED);
+
     return resolution;
   }
 
   private static boolean needStatusUpdate(IssueDto hotspot, String newStatus, @Nullable String newResolution) {
+    System.out.println("is needStatusUpdate called for hotspot " + hotspot.getStatus()+" to " + newStatus + " with resolution " + newResolution);
     return !(hotspot.getStatus().equals(newStatus) && Objects.equals(hotspot.getResolution(), newResolution));
   }
 
@@ -158,35 +183,102 @@ public class ChangeStatusAction implements HotspotsWsAction {
     return DefaultTransitions.RESOLVE_AS_SAFE;
   }
 
-  private void doTransition(DbSession session, IssueDto issueDto, String transitionKey, @Nullable String comment) {
+  private void doTransition(DbSession session, IssueDto issueDto, String transitionKey,
+          @Nullable String comment, @Nullable Long expiryTimestamp) {
+
+    System.out.println("Performing transition " + transitionKey + " for hotspot " + issueDto.getKey() + " time stamp "
+            + expiryTimestamp);
+
     DefaultIssue defaultIssue = issueDto.toDefaultIssue();
     IssueChangeContext context = hotspotWsSupport.newIssueChangeContextWithMeasureRefresh();
     transitionService.checkTransitionPermission(transitionKey, defaultIssue);
+
+    System.out.println("Permission check passed for transition " + transitionKey + " for hotspot " + issueDto.getKey());
+
     if (transitionService.doTransition(defaultIssue, context, transitionKey)) {
+      System.out.println("Transition " + transitionKey + " applied for hotspot " + issueDto.getKey());
+
       if (comment != null) {
+        System.out.println("Adding comment to hotspot " + issueDto.getKey() + ": " + comment);
         issueFieldsSetter.addComment(defaultIssue, comment, context);
       }
+    }
+
+    boolean expiryUpdated = false;
+    IssueDao issueDao = dbClient.issueDao();
+
+    System.out.println("Checking expiry update conditions for hotspot " + issueDto.getKey());
+
+    String resolution = defaultIssue.resolution();
+
+    // If resolution is NOT EXCEPTION → always clear from DB and do NOT run any expiry logic
+    if (!RESOLUTION_EXCEPTION.equals(defaultIssue.resolution())) {
+      System.out.println("Resolution is " + resolution
+              + " → expiry not applicable, clearing expiry safely for hotspot " + issueDto.getKey());
+
+      issueDao.updateHotspotExceptionExpiryDate(session, issueDto.getKey(), null);
+
+      issueDto.setUpdatedAt(System.currentTimeMillis());
+      issueDao.update(session, issueDto);
+      session.commit();
 
       issueUpdater.saveIssueAndPreloadSearchResponseData(session, issueDto, defaultIssue, context);
 
-      BranchDto branch = issueUpdater.getBranch(session, defaultIssue);
-      if (BRANCH.equals(branch.getBranchType())) {
-        HotspotChangedEvent hotspotChangedEvent = buildEventData(defaultIssue, issueDto);
-        hotspotChangeEventService.distributeHotspotChangedEvent(branch.getProjectUuid(), hotspotChangedEvent);
-      }
+      return; // Exit method early as no further expiry logic is needed
+    }
+
+    // Expiry set or update
+    if (expiryTimestamp != null) {
+      System.out.println("Setting hotspot exception expiry date for hotspot "
+              + issueDto.getKey() + " to ---->" + expiryTimestamp);
+
+      issueDao.updateHotspotExceptionExpiryDate(session, issueDto.getKey(), expiryTimestamp);
+
+      issueDto.setHotspotExceptionExpiresAt(expiryTimestamp);
+      issueDto.setUpdatedAt(System.currentTimeMillis());
+
+      defaultIssue.setHotspotExceptionExpiresAt(expiryTimestamp);
+      defaultIssue.setChanged(true);
+
+      expiryUpdated = true;
+    } else {
+      System.out.println("Clearing hotspot exception expiry date for hotspot "
+              + issueDto.getKey());
+
+      issueDao.updateHotspotExceptionExpiryDate(session, issueDto.getKey(), null);
+
+      issueDto.setHotspotExceptionExpiresAt(null);
+      issueDto.setUpdatedAt(System.currentTimeMillis());
+
+      defaultIssue.setHotspotExceptionExpiresAt(null);
+      defaultIssue.setChanged(true);
+
+      expiryUpdated = true;
+    }
+    issueDao.update(session, issueDto);
+    session.commit();
+
+    System.out.println(
+            "issueUpdater saving issue and preloading search response data for hotspot " + issueDto.getKey());
+    issueUpdater.saveIssueAndPreloadSearchResponseData(session, issueDto, defaultIssue, context);
+
+    BranchDto branch = issueUpdater.getBranch(session, defaultIssue);
+    if (BRANCH.equals(branch.getBranchType())) {
+      HotspotChangedEvent hotspotChangedEvent = buildEventData(defaultIssue, issueDto);
+      hotspotChangeEventService.distributeHotspotChangedEvent(branch.getProjectUuid(), hotspotChangedEvent);
     }
   }
 
   private static HotspotChangedEvent buildEventData(DefaultIssue defaultIssue, IssueDto issueDto) {
     return new HotspotChangedEvent.Builder()
-      .setKey(defaultIssue.key())
-      .setProjectKey(defaultIssue.projectKey())
-      .setStatus(defaultIssue.status())
-      .setResolution(defaultIssue.resolution())
-      .setUpdateDate(defaultIssue.updateDate())
-      .setAssignee(issueDto.getAssigneeLogin())
-      .setFilePath(issueDto.getFilePath())
-      .build();
+        .setKey(defaultIssue.key())
+        .setProjectKey(defaultIssue.projectKey())
+        .setStatus(defaultIssue.status())
+        .setResolution(defaultIssue.resolution())
+        .setUpdateDate(defaultIssue.updateDate())
+        .setAssignee(issueDto.getAssigneeLogin())
+        .setFilePath(issueDto.getFilePath())
+        .build();
   }
 
 }

@@ -69,6 +69,7 @@ public class DbVersion108 implements DbVersion {
       .add(10_8_026, "Rename 'ai_code_assurance' column in 'projects' table to 'contains_ai_code", RenameAiCodeAssuranceColumnInProjects.class)
       .add(10_8_027, "Add 'invite_users_enabled' column in 'organizations' table", AddInviteUsersEnabledColumnOrganizationsTable.class)
       .add(10_8_028, "Add 'is_archived' and 'archived_at' columns to 'organizations' table", AddArchiveColumnsToOrganizationsTable.class)
+      .add(10_8_029, "Add 'hotspot_exception_expires_at' column in 'issues' table", AddHotspotExceptionExpiryDateColumnToIssuesTable.class)
     ;
   }
 

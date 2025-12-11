@@ -43,6 +43,7 @@
     i.quick_fix_available as quickFixAvailable,
     i.code_variants as codeVariantsString,
     i.prioritized_rule as prioritizedRule,
+    i.hotspot_exception_expires_at AS hotspotExceptionExpiresAt,
     <include refid="issueImpactsColumns"/>
     <include refid="ruleDefaultImpactsColumns"/>
     <include refid="issuesDependencyColumns"/>
@@ -829,4 +830,11 @@
       </if>
     <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
+
+  <update id="updateHotspotExceptionExpiryDate">
+    UPDATE issues
+    SET hotspot_exception_expires_at = #{expiryDate, jdbcType=BIGINT}
+    WHERE kee = #{issueKey, jdbcType=VARCHAR}
+  </update>
+
 </mapper>

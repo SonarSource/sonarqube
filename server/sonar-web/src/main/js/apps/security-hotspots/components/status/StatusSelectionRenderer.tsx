@@ -20,24 +20,63 @@
 
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
 import * as React from 'react';
-import { FormField, InputTextArea, Modal, Note, SelectionCard } from '~design-system';
+import { useEffect, useState } from 'react';
+import { DatePicker, FormField, InputTextArea, Modal, Note, SelectionCard } from '~design-system';
 import FormattingTips from '../../../../components/common/FormattingTips';
 import { translate } from '../../../../helpers/l10n';
-import { HotspotStatusOption } from '../../../../types/security-hotspots';
+import { Hotspot, HotspotStatusOption } from '../../../../types/security-hotspots';
+
 
 export interface StatusSelectionRendererProps {
   comment?: string;
+  expiryDate?: string;
   loading: boolean;
   onCancel: () => void;
   onCommentChange: (comment: string) => void;
+  onExpiryDateChange: (date?: string) => void;
   onStatusChange: (statusOption: HotspotStatusOption) => void;
   onSubmit: () => Promise<void>;
   status: HotspotStatusOption;
   submitDisabled: boolean;
+  hotspotExceptionExpiryDate?: string
+  hotspot: Hotspot
 }
 
 export default function StatusSelectionRenderer(props: StatusSelectionRendererProps) {
-  const { comment, loading, status, submitDisabled } = props;
+  const { comment, expiryDate, loading, status, submitDisabled } = props;
+  const [date, setDate] = useState<Date | undefined>(expiryDate ? new Date(expiryDate) : undefined);
+
+  // Load existing expiry date from server when component mounts using the show api
+  useEffect(() => {
+    async function loadExistingExpiry() {
+
+      const { hotspot } = props;
+      const hotspotKey = props.hotspot.key;
+      if (!hotspot) return;
+
+      const response = await fetch(
+        `/api/hotspots/show?hotspot=${hotspotKey}&format=json`,
+        { headers: { Accept: "application/json" } }
+      );
+      
+      const data = await response.json();
+
+      if (data.hotspotExceptionExpiresAt && data.hotspotExceptionExpiresAt > 0) {
+        const loadedDate = new Date(data.hotspotExceptionExpiresAt);
+        setDate(loadedDate);
+
+        const yyyy = loadedDate.getFullYear();
+        const mm = String(loadedDate.getMonth() + 1).padStart(2, "0");
+        const dd = String(loadedDate.getDate()).padStart(2, "0");
+
+        props.onExpiryDateChange(`${yyyy}-${mm}-${dd}`);
+      } else {
+        setDate(undefined);
+        props.onExpiryDateChange(undefined); 
+      }
+    }
+    loadExistingExpiry();
+  }, [props.hotspot.key]);
 
   const renderOption = (statusOption: HotspotStatusOption) => {
     return (
@@ -52,6 +91,43 @@ export default function StatusSelectionRenderer(props: StatusSelectionRendererPr
         <Note className="sw-mt-1 sw-mr-12">
           {translate('hotspots.status_option', statusOption, 'description')}
         </Note>
+        {statusOption === HotspotStatusOption.EXCEPTION &&
+          <div style={{ marginTop: '40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <DatePicker
+              clearButtonLabel="Clear"
+              minDate={(() => {
+                const d = new Date();
+                d.setDate(d.getDate() + 1);        // Today + 1
+                return d;
+              })()}
+              maxDate={new Date(2050, 11, 31)}  // Maximum date
+              placeholder="No Expiry"
+              name="myDate"
+              value={date}  // Pass Date or undefined, not a string
+              onChange={(d?: Date) => {
+                const newDate = d ?? undefined;
+                setDate(newDate);
+
+                if (newDate) {
+                  const yyyy = newDate.getFullYear();
+                  const mm = String(newDate.getMonth() + 1).padStart(2, "0");
+                  const dd = String(newDate.getDate()).padStart(2, "0");
+                  props.onExpiryDateChange(`${yyyy}-${mm}-${dd}`);
+                } else {
+                  props.onExpiryDateChange(undefined);  
+                }
+              }}
+            />
+
+            {date && (
+              <div style={{ marginLeft: '16px' }}>
+                {`Expires in ${Math.ceil(
+                  (date.getTime() - Date.now()) /
+                  (1000 * 60 * 60 * 24)
+                )} days`}
+              </div>
+            )}
+          </div>}
       </SelectionCard>
     );
   };

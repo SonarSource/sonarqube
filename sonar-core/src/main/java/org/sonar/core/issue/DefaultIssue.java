@@ -85,6 +85,8 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   private boolean prioritizedRule = false;
   // temporarily an Object as long as DefaultIssue is used by sonar-batch
   private Object locations = null;
+  private Long hotspotExceptionExpiresAt;
+
 
   private boolean isFromExternalRuleEngine = false;
 
@@ -219,6 +221,17 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   public DefaultIssue setProjectUuid(String s) {
     this.projectUuid = s;
+    return this;
+  }
+
+
+  public Long hotspotExceptionExpiresAt() {
+    return hotspotExceptionExpiresAt;
+  }
+
+  public DefaultIssue setHotspotExceptionExpiresAt(@Nullable Long v) {
+    System.out.println("default issue Setting hotspotExceptionExpiresAt to " + v);
+    this.hotspotExceptionExpiresAt = v;
     return this;
   }
 

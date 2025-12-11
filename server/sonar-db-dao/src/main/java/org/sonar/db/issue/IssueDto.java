@@ -89,6 +89,9 @@ public final class IssueDto implements Serializable {
   private String ruleDescriptionContextKey;
   private boolean prioritizedRule;
 
+  @Nullable
+  private Long hotspotExceptionExpiresAt;
+
   // functional dates stored as Long
   private Long issueCreationDate;
   private Long issueUpdateDate;
@@ -178,7 +181,9 @@ public final class IssueDto implements Serializable {
   public static IssueDto toDtoForServerInsert(DefaultIssue issue, ComponentDto component, ComponentDto project, String ruleUuid, long now) {
     return toDtoForComputationInsert(issue, ruleUuid, now)
       .setComponent(component)
-      .setProject(project);
+      .setProject(project)
+      .setHotspotExceptionExpiresAt(issue.hotspotExceptionExpiresAt());
+
   }
 
   public static IssueDto toDtoForUpdate(DefaultIssue issue, long now) {
@@ -216,7 +221,8 @@ public final class IssueDto implements Serializable {
       .setCodeVariants(issue.codeVariants())
       .setCleanCodeAttribute(issue.getCleanCodeAttribute())
       .setPrioritizedRule(issue.isPrioritizedRule())
-      // technical date
+       .setHotspotExceptionExpiresAt(issue.hotspotExceptionExpiresAt())
+    // technical date
       .setUpdatedAt(now);
 
     issue.getImpacts().forEach(i -> issueDto.addImpact(new ImpactDto(i.softwareQuality(), i.severity(), i.manualSeverity())));
@@ -468,6 +474,17 @@ public final class IssueDto implements Serializable {
 
   public IssueDto setIssueCreationTime(Long time) {
     this.issueCreationDate = time;
+    return this;
+  }
+
+  public Long getHotspotExceptionExpiresAt() {
+    System.out.println("Getting hotspotExceptionExpiresAt: " + hotspotExceptionExpiresAt);
+    return hotspotExceptionExpiresAt;
+  }
+
+  public IssueDto setHotspotExceptionExpiresAt(@Nullable Long date) {
+    System.out.println("Setting hotspotExceptionExpiresAt to: " + date);
+    this.hotspotExceptionExpiresAt = date;
     return this;
   }
 
@@ -925,6 +942,7 @@ public final class IssueDto implements Serializable {
     issue.setCleanCodeAttribute(cleanCodeAttribute);
     impacts.forEach(i -> issue.addImpact(i.getSoftwareQuality(), i.getSeverity(), i.isManualSeverity()));
     issue.setCveId(cveId);
+    issue.setHotspotExceptionExpiresAt(this.hotspotExceptionExpiresAt);
     return issue;
   }
 }
