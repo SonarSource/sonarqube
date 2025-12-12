@@ -20,6 +20,7 @@
 package org.sonar.server.issue.index;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 
@@ -114,5 +115,38 @@ public class SecurityStandardCategoryStatisticsTest {
 
     assertThat(modified.getVulnerabilityRating()).isPresent();
     assertThat(modified.getVulnerabilityRating().getAsInt()).isEqualTo(5);
+  }
+
+  @Test
+  public void withNewChildren_modifiesOnlyChildren() {
+    SecurityStandardCategoryStatistics stats = new SecurityStandardCategoryStatistics(
+      "cat", 1, OptionalInt.of(5), 0,
+      0, 5, null, null, Map.of()
+    );
+    stats.setHasMoreRules(true);
+    stats.setTotalRules(100);
+    stats.setActiveRules(46);
+
+    var child = new SecurityStandardCategoryStatistics(
+      "child", 1, OptionalInt.of(5), 0,
+      0, 5, null, null, Map.of()
+    );
+
+    SecurityStandardCategoryStatistics modified = stats.withNewChildren(List.of(child));
+
+    assertThat(modified.getCategory()).isEqualTo(stats.getCategory());
+    assertThat(modified.getVulnerabilities()).isEqualTo(stats.getVulnerabilities());
+    assertThat(modified.getVulnerabilityRating()).isEqualTo(stats.getVulnerabilityRating());
+    assertThat(modified.getToReviewSecurityHotspots()).isEqualTo(stats.getToReviewSecurityHotspots());
+    assertThat(modified.getReviewedSecurityHotspots()).isEqualTo(stats.getReviewedSecurityHotspots());
+    assertThat(modified.getSecurityReviewRating()).isEqualTo(stats.getSecurityReviewRating());
+    assertThat(modified.getVersion()).isEqualTo(stats.getVersion());
+    assertThat(modified.getSeverityDistribution()).isEqualTo(stats.getSeverityDistribution());
+    assertThat(modified.hasMoreRules()).isEqualTo(stats.hasMoreRules());
+    assertThat(modified.getTotalRules()).isEqualTo(stats.getTotalRules());
+    assertThat(modified.getActiveRules()).isEqualTo(stats.getActiveRules());
+
+    assertThat(stats.getChildren()).isNull();
+    assertThat(modified.getChildren()).containsExactly(child);
   }
 }

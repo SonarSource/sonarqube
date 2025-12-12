@@ -79,6 +79,24 @@ public class SecurityStandardCategoryStatistics {
         this.getSeverityDistribution());
   }
 
+  public SecurityStandardCategoryStatistics withNewChildren(List<SecurityStandardCategoryStatistics> newChildren) {
+    SecurityStandardCategoryStatistics updated = new SecurityStandardCategoryStatistics(
+      this.getCategory(),
+      this.getVulnerabilities(),
+      this.getVulnerabilityRating(),
+      this.getToReviewSecurityHotspots(),
+      this.getReviewedSecurityHotspots(),
+      this.getSecurityReviewRating(),
+      newChildren,
+      this.getVersion().orElse(null),
+      this.getSeverityDistribution());
+    this.level.ifPresent(updated::setLevel);
+    updated.setActiveRules(this.activeRules);
+    updated.setTotalRules(this.totalRules);
+    updated.setHasMoreRules(this.hasMoreRules);
+    return updated;
+  }
+
   public String getCategory() {
     return category;
   }
