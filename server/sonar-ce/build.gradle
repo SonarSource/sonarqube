@@ -11,7 +11,7 @@ dependencies {
   api 'com.google.guava:guava'
   api 'com.google.protobuf:protobuf-java'
   api 'com.hazelcast:hazelcast'
-  api "com.sonarsource.sonarcloud:compliance-reports:${complianceReportsVersion}"
+  api "com.sonarsource.sonarcloud:compliance-reports"
   api 'commons-io:commons-io'
   api 'com.zaxxer:HikariCP'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
