@@ -31,7 +31,7 @@ dependencies {
   api project(':sonar-ws')
 
   implementation project(':server:sonar-statemachine')
-  implementation "com.sonarsource.sonarcloud:compliance-reports:${complianceReportsVersion}"
+  implementation "com.sonarsource.sonarcloud:compliance-reports"
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
@@ -61,7 +61,7 @@ dependencies {
   testImplementation project(':sonar-plugin-api-impl')
   testImplementation project(':sonar-testing-harness')
 
-  testFixturesApi "com.sonarsource.sonarcloud:compliance-reports:${complianceReportsVersion}"
+  testFixturesApi "com.sonarsource.sonarcloud:compliance-reports"
   testFixturesApi 'junit:junit'
   testFixturesApi testFixtures(project(':server:sonar-db-dao'))
 

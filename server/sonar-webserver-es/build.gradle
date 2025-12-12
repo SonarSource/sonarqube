@@ -15,7 +15,7 @@ dependencies {
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
   compileOnlyApi 'jakarta.servlet:jakarta.servlet-api'
 
-  implementation "com.sonarsource.sonarcloud:compliance-reports:${complianceReportsVersion}"
+  implementation "com.sonarsource.sonarcloud:compliance-reports"
 
   testImplementation 'org.apache.logging.log4j:log4j-api'
   testImplementation 'org.apache.logging.log4j:log4j-core'
