@@ -53,8 +53,10 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.Action;
 import org.sonar.server.issue.ActionContext;
 import org.sonar.server.issue.AddTagsAction;
@@ -221,6 +223,50 @@ public class BulkChangeAction implements IssuesWsAction {
       .toList();
     issueStorage.save(dbSession, items);
 
+    // Checking if the user has ISSUE_ADMIN permission on all projects involved in the bulk change
+    // Collect all project UUIDs from issues
+    Set<String> projectUuids = bulkChangeData.issues.stream()
+            .map(defaultIssue -> {
+              IssueDto dto = bulkChangeData.originalIssueByKey.get(defaultIssue.key());
+              if (dto == null) {
+                throw new NotFoundException(("No issues provided"));
+              }
+              return dto.getProjectUuid();
+            })
+            .collect(Collectors.toSet());
+
+    // Load all projects
+    List<ProjectDto> projectDtos = dbClient.projectDao()
+            .selectByUuids(dbSession, projectUuids);
+
+    if (projectDtos.size() != projectUuids.size()) {
+      throw new IllegalStateException("Some project UUIDs were not found");
+    }
+
+    // Check ISSUE_ADMIN permission ONCE per project
+    for (ProjectDto projectDtoOfEach : projectDtos) {
+      userSession.checkEntityPermission(UserRole.ISSUE_ADMIN, projectDtoOfEach);
+    }
+
+    // Checking the Permission of the assignee for first issue
+    DefaultIssue issue = bulkChangeData.issues.stream()
+            .findFirst()
+            .orElseThrow(() -> new NotFoundException(("No issues provided")));
+
+    IssueDto issueDto = bulkChangeData.originalIssueByKey.get(issue.key());
+    ProjectDto projectDto = dbClient.projectDao().selectByUuid(dbSession, issueDto.getProjectUuid()).orElseThrow(
+            () -> new IllegalStateException(
+                    format("Project with UUID %s not found for issue %s", issueDto.getProjectUuid(), issue))
+    );
+
+    if (issueDto.getAssigneeUuid() != null && !hasProjectPermission(dbSession, issueDto.getAssigneeUuid(),
+            issueDto.getProjectUuid())) {
+      throw new IllegalArgumentException(
+              format("User '%s' does not have permission to be assigned issues in project '%s'",
+                      issueDto.getAssigneeLogin(),
+                      projectDto.getKey()));
+    }
+
     refreshLiveMeasures(dbSession, bulkChangeData, result);
 
     Set<String> assigneeUuids = items.stream().map(DefaultIssue::assignee).filter(Objects::nonNull).collect(Collectors.toSet());
@@ -234,6 +280,9 @@ public class BulkChangeAction implements IssuesWsAction {
     return result;
   }
 
+  private boolean hasProjectPermission(DbSession dbSession, String assignee, String projectUuid) {
+    return dbClient.authorizationDao().selectEntityPermissions(dbSession, projectUuid, assignee).contains(UserRole.USER);
+  }
   private void refreshLiveMeasures(DbSession dbSession, BulkChangeData data, BulkChangeResult result) {
     if (!data.shouldRefreshMeasures()) {
       return;
