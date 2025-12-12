@@ -62,11 +62,11 @@ public class PopulateIssueStatsByRuleKey extends DataChange {
   private static final String UPDATE_QUERY = """
       insert into issue_stats_by_rule_key
       (aggregation_type, aggregation_id, rule_key, issue_count, rating, mqr_rating, hotspot_count, hotspots_reviewed)
-      values (?, ?, ?, ?, ?, ?, ?, ?);
+      values (?, ?, ?, ?, ?, ?, ?, ?)
     """;
 
   private static final String DELETE_QUERY = """
-    delete from issue_stats_by_rule_key;
+    delete from issue_stats_by_rule_key
     """;
 
   public PopulateIssueStatsByRuleKey(Database db) {

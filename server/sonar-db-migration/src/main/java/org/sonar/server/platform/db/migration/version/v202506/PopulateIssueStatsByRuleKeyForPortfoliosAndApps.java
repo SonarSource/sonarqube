@@ -28,7 +28,7 @@ public class PopulateIssueStatsByRuleKeyForPortfoliosAndApps extends DataChange 
   private static final String UPDATE_QUERY = """
       insert into issue_stats_by_rule_key
       (aggregation_type, aggregation_id, rule_key, issue_count, rating, mqr_rating, hotspot_count, hotspots_reviewed)
-      values (?, ?, ?, ?, ?, ?, ?, ?);
+      values (?, ?, ?, ?, ?, ?, ?, ?)
     """;
 
   private static final String SELECT_QUERY = """
@@ -50,7 +50,7 @@ public class PopulateIssueStatsByRuleKeyForPortfoliosAndApps extends DataChange 
       WHERE copy_components.copy_component_uuid IS NOT NULL
       AND apps.qualifier IN ('VW', 'SVW', 'APP')
       AND i.aggregation_type = 'PROJECT'
-      GROUP BY i.rule_key, apps.uuid, apps.qualifier;
+      GROUP BY i.rule_key, apps.uuid, apps.qualifier
     """;
 
   public PopulateIssueStatsByRuleKeyForPortfoliosAndApps(Database db) {
