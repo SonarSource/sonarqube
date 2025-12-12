@@ -61,8 +61,8 @@ public class JiraProjectBindingDao implements Dao {
     return Optional.ofNullable(getMapper(dbSession).selectBySonarProjectId(sonarProjectId));
   }
 
-  public void deleteBySonarProjectId(DbSession dbSession, String sonarProjectId) {
-    getMapper(dbSession).deleteBySonarProjectId(sonarProjectId);
+  public int deleteBySonarProjectId(DbSession dbSession, String sonarProjectId) {
+    return getMapper(dbSession).deleteBySonarProjectId(sonarProjectId);
   }
 
   public int countAll(DbSession dbSession) {
