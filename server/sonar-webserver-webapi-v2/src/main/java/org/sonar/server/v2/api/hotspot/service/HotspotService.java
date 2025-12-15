@@ -54,7 +54,7 @@ public class HotspotService {
         try (DbSession dbSession = dbClient.openSession(false)) {
             // Find all expired hotspot keys
             List<String> expiredKeys = dbClient.issueDao()
-                    .selectExpiredHotspotKeys(dbSession, currentTime); // uuid1, uuid2
+                    .selectExpiredHotspotKeys(dbSession, currentTime);
 
             if (expiredKeys.isEmpty()) {
                 return 0;
