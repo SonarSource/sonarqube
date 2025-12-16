@@ -241,6 +241,7 @@ public class EsSettings {
 
   private void configureOthers(Map<String, String> builder) {
     builder.put("action.auto_create_index", String.valueOf(false));
+
     if (props.value(JAVA_ADDITIONAL_OPS_PROPERTY, "").contains("-D" + SECCOMP_PROPERTY + "=" + Boolean.FALSE)) {
       builder.put(SECCOMP_PROPERTY, Boolean.FALSE.toString());
     }

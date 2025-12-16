@@ -151,7 +151,9 @@ public class ProcessLauncherImpl implements ProcessLauncher {
 
   private static void pruneElasticsearchConfDirectory(File confDir) {
     try {
-      Files.deleteIfExists(confDir.toPath());
+      if (confDir.exists()) {
+        FileUtils2.deleteDirectory(confDir);
+      }
     } catch (IOException e) {
       throw new IllegalStateException("Could not delete Elasticsearch temporary conf directory", e);
     }

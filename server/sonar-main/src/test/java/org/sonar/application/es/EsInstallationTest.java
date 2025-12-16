@@ -35,7 +35,6 @@ import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_PASSWO
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
-import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
 
 public class EsInstallationTest {
 
@@ -52,14 +51,14 @@ public class EsInstallationTest {
   }
 
   @Test
-  public void constructor_fails_with_IAE_if_temp_dir_property_is_not_defined() throws IOException {
+  public void constructor_fails_with_IAE_if_logs_dir_property_is_not_defined() throws IOException {
     Props props = new Props(new Properties());
     props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());
     props.set(PATH_HOME.getKey(), temp.newFolder().getAbsolutePath());
 
     assertThatThrownBy(() -> new EsInstallation(props))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Property sonar.path.temp is not set");
+      .hasMessage("Property sonar.path.logs is not set");
   }
 
   @Test
@@ -78,7 +77,6 @@ public class EsInstallationTest {
     Props props = new Props(new Properties());
     props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());
     props.set(PATH_HOME.getKey(), sqHomeDir.getAbsolutePath());
-    props.set(PATH_TEMP.getKey(), temp.newFolder().getAbsolutePath());
     props.set(PATH_LOGS.getKey(), temp.newFolder().getAbsolutePath());
 
     EsInstallation underTest = new EsInstallation(props);
@@ -89,11 +87,9 @@ public class EsInstallationTest {
   @Test
   public void override_data_dir() throws Exception {
     File sqHomeDir = temp.newFolder();
-    File tempDir = temp.newFolder();
     File dataDir = temp.newFolder();
     Props props = new Props(new Properties());
     props.set(PATH_HOME.getKey(), sqHomeDir.getAbsolutePath());
-    props.set(PATH_TEMP.getKey(), tempDir.getAbsolutePath());
     props.set(PATH_LOGS.getKey(), temp.newFolder().getAbsolutePath());
 
     props.set(PATH_DATA.getKey(), dataDir.getAbsolutePath());
@@ -110,7 +106,6 @@ public class EsInstallationTest {
     Props props = new Props(new Properties());
     props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());
     props.set(PATH_HOME.getKey(), sqHomeDir.getAbsolutePath());
-    props.set(PATH_TEMP.getKey(), temp.newFolder().getAbsolutePath());
     props.set(PATH_LOGS.getKey(), logDir.getAbsolutePath());
 
     EsInstallation underTest = new EsInstallation(props);
@@ -125,7 +120,6 @@ public class EsInstallationTest {
     Props props = new Props(new Properties());
     props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());
     props.set(PATH_HOME.getKey(), sqHomeDir.getAbsolutePath());
-    props.set(PATH_TEMP.getKey(), temp.newFolder().getAbsolutePath());
     props.set(PATH_LOGS.getKey(), logDir.getAbsolutePath());
 
     EsInstallation underTest = new EsInstallation(props);
@@ -136,17 +130,16 @@ public class EsInstallationTest {
   }
 
   @Test
-  public void conf_directory_is_conf_es_subdirectory_of_sq_temp_directory() throws IOException {
-    File tempDir = temp.newFolder();
+  public void conf_directory_is_config_subdirectory_of_es8_data_directory() throws IOException {
+    File dataDir = temp.newFolder();
     Props props = new Props(new Properties());
-    props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_DATA.getKey(), dataDir.getAbsolutePath());
     props.set(PATH_HOME.getKey(), temp.newFolder().getAbsolutePath());
-    props.set(PATH_TEMP.getKey(), tempDir.getAbsolutePath());
     props.set(PATH_LOGS.getKey(), temp.newFolder().getAbsolutePath());
 
     EsInstallation underTest = new EsInstallation(props);
 
-    assertThat(underTest.getConfDirectory()).isEqualTo(new File(tempDir, "conf/es"));
+    assertThat(underTest.getConfDirectory()).isEqualTo(new File(new File(dataDir, "es8"), "config"));
   }
 
   @Test
@@ -155,7 +148,6 @@ public class EsInstallationTest {
     Props props = new Props(new Properties());
     props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());
     props.set(PATH_HOME.getKey(), sqHomeDir.getAbsolutePath());
-    props.set(PATH_TEMP.getKey(), temp.newFolder().getAbsolutePath());
     props.set(PATH_LOGS.getKey(), temp.newFolder().getAbsolutePath());
 
     EsInstallation underTest = new EsInstallation(props);
@@ -165,44 +157,41 @@ public class EsInstallationTest {
 
   @Test
   public void getLog4j2Properties_is_in_es_conf_directory() throws IOException {
-    File tempDir = temp.newFolder();
+    File dataDir = temp.newFolder();
     Props props = new Props(new Properties());
-    props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_DATA.getKey(), dataDir.getAbsolutePath());
     props.set(PATH_HOME.getKey(), temp.newFolder().getAbsolutePath());
-    props.set(PATH_TEMP.getKey(), tempDir.getAbsolutePath());
     props.set(PATH_LOGS.getKey(), temp.newFolder().getAbsolutePath());
 
     EsInstallation underTest = new EsInstallation(props);
 
-    assertThat(underTest.getLog4j2PropertiesLocation()).isEqualTo(new File(tempDir, "conf/es/log4j2.properties"));
+    assertThat(underTest.getLog4j2PropertiesLocation()).isEqualTo(new File(new File(dataDir, "es8"), "config/log4j2.properties"));
   }
 
   @Test
   public void getElasticsearchYml_is_in_es_conf_directory() throws IOException {
-    File tempDir = temp.newFolder();
+    File dataDir = temp.newFolder();
     Props props = new Props(new Properties());
-    props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_DATA.getKey(), dataDir.getAbsolutePath());
     props.set(PATH_HOME.getKey(), temp.newFolder().getAbsolutePath());
-    props.set(PATH_TEMP.getKey(), tempDir.getAbsolutePath());
     props.set(PATH_LOGS.getKey(), temp.newFolder().getAbsolutePath());
 
     EsInstallation underTest = new EsInstallation(props);
 
-    assertThat(underTest.getElasticsearchYml()).isEqualTo(new File(tempDir, "conf/es/elasticsearch.yml"));
+    assertThat(underTest.getElasticsearchYml()).isEqualTo(new File(new File(dataDir, "es8"), "config/elasticsearch.yml"));
   }
 
   @Test
   public void getJvmOptions_is_in_es_conf_directory() throws IOException {
-    File tempDir = temp.newFolder();
+    File dataDir = temp.newFolder();
     Props props = new Props(new Properties());
-    props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_DATA.getKey(), dataDir.getAbsolutePath());
     props.set(PATH_HOME.getKey(), temp.newFolder().getAbsolutePath());
-    props.set(PATH_TEMP.getKey(), tempDir.getAbsolutePath());
     props.set(PATH_LOGS.getKey(), temp.newFolder().getAbsolutePath());
 
     EsInstallation underTest = new EsInstallation(props);
 
-    assertThat(underTest.getJvmOptions()).isEqualTo(new File(tempDir, "conf/es/jvm.options"));
+    assertThat(underTest.getJvmOptions()).isEqualTo(new File(new File(dataDir, "es8"), "config/jvm.options"));
   }
 
   @Test
@@ -211,7 +200,6 @@ public class EsInstallationTest {
     Props props = new Props(new Properties());
     props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());
     props.set(PATH_HOME.getKey(), temp.newFolder().getAbsolutePath());
-    props.set(PATH_TEMP.getKey(), sqHomeDir.getAbsolutePath());
     props.set(PATH_LOGS.getKey(), temp.newFolder().getAbsolutePath());
     props.set(CLUSTER_ENABLED.getKey(), "true");
     props.set(CLUSTER_SEARCH_PASSWORD.getKey(), "password");

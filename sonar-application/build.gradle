@@ -202,7 +202,6 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
     exclude '**/modules/frozen-indices/**'
     exclude '**/modules/inference/**'
     exclude '**/modules/ingest-attachment/**'
-    exclude '**/modules/ingest-common/**'
     exclude '**/modules/ingest-geoip/**'
     exclude '**/modules/ingest-user-agent/**'
     exclude '**/modules/kibana/**'

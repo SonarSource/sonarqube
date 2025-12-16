@@ -312,6 +312,31 @@ public class ProcessLauncherImplTest {
       .hasMessage("Fail to launch process [%s]", ProcessId.ELASTICSEARCH.getHumanReadableName());
   }
 
+  @Test
+  public void should_delete_elasticsearch_conf_directory_if_exists() throws Exception {
+    File tempDir = temp.newFolder();
+    File homeDir = temp.newFolder();
+    File dataDir = temp.newFolder();
+    File logDir = temp.newFolder();
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, TestProcessBuilder::new);
+    JavaCommand command = createEsCommand(tempDir, homeDir, dataDir, logDir);
+
+    // Create the ES conf directory that should be deleted
+    File esConfDir = command.getEsInstallation().getConfDirectory();
+    assertThat(esConfDir.mkdirs()).isTrue();
+    // Add some files to the directory to test recursive deletion
+    File fileInConfDir = new File(esConfDir, "test-file.txt");
+    assertThat(fileInConfDir.createNewFile()).isTrue();
+    assertThat(esConfDir).exists();
+    assertThat(fileInConfDir).exists();
+
+    underTest.launch(command);
+
+    // The old conf directory should be deleted and recreated
+    assertThat(esConfDir).exists();
+    assertThat(fileInConfDir).doesNotExist();
+  }
+
   private JavaCommand<?> createEsCommand(File tempDir, File homeDir, File dataDir, File logDir) throws IOException {
     JavaCommand command = new JavaCommand(ProcessId.ELASTICSEARCH, temp.newFolder());
     Props props = new Props(new Properties());

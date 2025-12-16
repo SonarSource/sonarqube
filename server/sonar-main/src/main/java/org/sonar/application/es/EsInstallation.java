@@ -43,7 +43,6 @@ import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_PASSWO
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
-import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
 
 /**
  * Holds {@link File} to the various directories of ElasticSearch distribution embedded in SonarQube and provides
@@ -120,8 +119,11 @@ public class EsInstallation {
   }
 
   private static File buildConfDir(Props props) {
-    File tempPath = props.nonNullValueAsFile(PATH_TEMP.getKey());
-    return new File(new File(tempPath, "conf"), "es");
+    // Elasticsearch 8.19+ forbids modules from having READ_WRITE access to paths under es.path.conf
+    // The keystore file needs write access, so we must place config in the data directory instead
+    // See: https://github.com/elastic/elasticsearch/pull/126852
+    String dataPath = props.nonNullValue(PATH_DATA.getKey());
+    return new File(new File(dataPath, "es8"), "config");
   }
 
   public File getHomeDirectory() {
