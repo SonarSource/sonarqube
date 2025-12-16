@@ -249,6 +249,17 @@ public class BulkChangeAction implements IssuesWsAction {
     }
 
     // Checking the Permission of the assignee for first issue
+    String assigneeLogin = request.getParam("assign") != null
+            ? request.getParam("assign").getValue()
+            : null;
+    UserDto assigneeUser = null;
+    if (assigneeLogin != null && !assigneeLogin.isEmpty()) {
+      assigneeUser = dbClient.userDao()
+              .selectByLogin(dbSession, assigneeLogin);
+    }
+    else {
+      throw new NotFoundException("Assignee login is null or empty");
+    }
     DefaultIssue issue = bulkChangeData.issues.stream()
             .findFirst()
             .orElseThrow(() -> new NotFoundException(("No issues provided")));
@@ -259,11 +270,11 @@ public class BulkChangeAction implements IssuesWsAction {
                     format("Project with UUID %s not found for issue %s", issueDto.getProjectUuid(), issue))
     );
 
-    if (issueDto.getAssigneeUuid() != null && !hasProjectPermission(dbSession, issueDto.getAssigneeUuid(),
+    if (requireNonNull(assigneeUser).getUuid() != null && !hasProjectPermission(dbSession, assigneeUser.getUuid(),
             issueDto.getProjectUuid())) {
       throw new IllegalArgumentException(
               format("User '%s' does not have permission to be assigned issues in project '%s'",
-                      issueDto.getAssigneeLogin(),
+                      assigneeUser.getLogin(),
                       projectDto.getKey()));
     }
 
