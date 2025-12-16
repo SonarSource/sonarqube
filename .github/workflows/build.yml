@@ -34,7 +34,7 @@ jobs:
             [tools]
             yarn= "3.6.3"
             node = "18"
-            java = "temurin-17"
+            java = "temurin-21"
       - uses: SonarSource/ci-github-actions/build-gradle@v1
         with:
           deploy: false

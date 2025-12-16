@@ -1,4 +1,4 @@
-ARG JDK_VERSION=17
+ARG JDK_VERSION=21
 FROM eclipse-temurin:${JDK_VERSION}-jdk-jammy
 
 ENV DEBIAN_FRONTEND=noninteractive

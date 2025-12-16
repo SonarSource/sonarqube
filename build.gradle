@@ -1,7 +1,7 @@
 import groovy.text.SimpleTemplateEngine
 import org.sonar.build.BlackBoxTest
 
-import static org.gradle.api.JavaVersion.VERSION_17
+import static org.gradle.api.JavaVersion.VERSION_21
 
 plugins {
   // Ordered alphabetically
@@ -16,8 +16,8 @@ plugins {
   id 'org.sonarqube' version '7.0.0.6105'
 }
 
-if (!JavaVersion.current().isCompatibleWith(VERSION_17)) {
-  throw new GradleException("JDK 17+ is required to perform this build. It's currently " + System.getProperty("java.home") + ".")
+if (!JavaVersion.current().isCompatibleWith(VERSION_21)) {
+  throw new GradleException("JDK 21+ is required to perform this build. It's currently " + System.getProperty("java.home") + ".")
 }
 
 /**
@@ -234,7 +234,7 @@ subprojects {
 
   java {
     toolchain {
-      languageVersion = JavaLanguageVersion.of(17)
+      languageVersion = JavaLanguageVersion.of(21)
     }
   }
 
