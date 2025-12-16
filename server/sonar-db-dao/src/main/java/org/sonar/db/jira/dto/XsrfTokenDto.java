@@ -68,4 +68,3 @@ public final class XsrfTokenDto implements Serializable {
     return this;
   }
 }
-

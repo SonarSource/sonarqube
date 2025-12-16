@@ -127,4 +127,9 @@ public final class JiraOrganizationBindingPendingDto implements Serializable {
     this.updatedBy = updatedBy;
     return this;
   }
+
+  @Override
+  public String toString() {
+    return StringSafeFormatter.toString(this);
+  }
 }

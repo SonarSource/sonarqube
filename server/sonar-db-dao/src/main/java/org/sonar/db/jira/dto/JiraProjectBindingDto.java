@@ -94,14 +94,6 @@ public final class JiraProjectBindingDto implements Serializable {
 
   @Override
   public String toString() {
-    return "JiraProjectBindingDto{" +
-      "id='" + id + '\'' +
-      ", sonarProjectId='" + sonarProjectId + '\'' +
-      ", jiraOrganizationBindingId='" + jiraOrganizationBindingId + '\'' +
-      ", jiraProjectKey='" + jiraProjectKey + '\'' +
-      ", createdAt=" + createdAt +
-      ", updatedAt=" + updatedAt +
-      '}';
+    return StringSafeFormatter.toString(this);
   }
-
 }

@@ -80,15 +80,18 @@ class JiraWorkItemDtoTest {
 
     var toString = dto.toString();
 
-    assertThat(toString)
-      .contains("uuid-1")
-      .contains("jira-issue-123")
-      .contains("PROJ-123")
-      .contains("https://jira.example.com/browse/PROJ-123")
-      .contains("binding-uuid-1")
-      .contains("user-uuid-1")
-      .contains("1000")
-      .contains("2000");
+    assertThat(toString).isEqualToIgnoringWhitespace("""
+      org.sonar.db.jira.dto.JiraWorkItemDto[
+      createdAt='1000',
+      createdBy='user-uuid-1',
+      id='uuid-1',
+      jiraIssueId='jira-issue-123',
+      jiraIssueKey='PROJ-123',
+      jiraIssueUrl='https://jira.example.com/browse/PROJ-123',
+      jiraProjectBindingId='binding-uuid-1',
+      updatedAt='2000'
+      ]
+      """);
   }
 
 }

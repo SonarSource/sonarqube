@@ -115,16 +115,6 @@ public final class JiraWorkItemDto implements Serializable {
 
   @Override
   public String toString() {
-    return "JiraWorkItemDto{" +
-      "id='" + id + '\'' +
-      ", createdAt=" + createdAt +
-      ", updatedAt=" + updatedAt +
-      ", jiraIssueId='" + jiraIssueId + '\'' +
-      ", jiraIssueKey='" + jiraIssueKey + '\'' +
-      ", jiraIssueUrl='" + jiraIssueUrl + '\'' +
-      ", jiraProjectBindingId='" + jiraProjectBindingId + '\'' +
-      ", createdBy='" + createdBy + '\'' +
-      '}';
+    return StringSafeFormatter.toString(this);
   }
-
 }

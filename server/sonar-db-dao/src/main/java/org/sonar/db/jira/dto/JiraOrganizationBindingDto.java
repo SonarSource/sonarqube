@@ -157,4 +157,9 @@ public final class JiraOrganizationBindingDto implements Serializable {
     this.isTokenShared = isTokenShared;
     return this;
   }
+
+  @Override
+  public String toString() {
+    return StringSafeFormatter.toString(this);
+  }
 }

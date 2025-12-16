@@ -82,4 +82,8 @@ public final class JiraSelectedWorkTypeDto implements Serializable {
     return this;
   }
 
+  @Override
+  public String toString() {
+    return StringSafeFormatter.toString(this);
+  }
 }
