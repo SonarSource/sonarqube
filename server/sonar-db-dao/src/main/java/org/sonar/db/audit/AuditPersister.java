@@ -29,6 +29,7 @@ import org.sonar.db.audit.model.DevOpsPermissionsMappingNewValue;
 import org.sonar.db.audit.model.GroupPermissionNewValue;
 import org.sonar.db.audit.model.JiraOrganizationBindingNewValue;
 import org.sonar.db.audit.model.JiraProjectBindingNewValue;
+import org.sonar.db.audit.model.JiraWorkItemNewValue;
 import org.sonar.db.audit.model.LicenseNewValue;
 import org.sonar.db.audit.model.PermissionTemplateNewValue;
 import org.sonar.db.audit.model.PersonalAccessTokenNewValue;
@@ -178,5 +179,9 @@ public interface AuditPersister {
   void jiraProjectBindingUpdate(DbSession dbSession, JiraProjectBindingNewValue newValue);
 
   void jiraProjectBindingDelete(DbSession dbSession, JiraProjectBindingNewValue newValue);
+
+  void jiraWorkItemAdd(DbSession dbSession, JiraWorkItemNewValue newValue);
+
+  void jiraWorkItemDelete(DbSession dbSession, JiraWorkItemNewValue newValue);
 
 }

@@ -29,6 +29,7 @@ import org.sonar.db.audit.model.DevOpsPermissionsMappingNewValue;
 import org.sonar.db.audit.model.GroupPermissionNewValue;
 import org.sonar.db.audit.model.JiraOrganizationBindingNewValue;
 import org.sonar.db.audit.model.JiraProjectBindingNewValue;
+import org.sonar.db.audit.model.JiraWorkItemNewValue;
 import org.sonar.db.audit.model.LicenseNewValue;
 import org.sonar.db.audit.model.PermissionTemplateNewValue;
 import org.sonar.db.audit.model.PersonalAccessTokenNewValue;
@@ -376,6 +377,16 @@ public class NoOpAuditPersister implements AuditPersister {
 
   @Override
   public void jiraProjectBindingDelete(DbSession dbSession, JiraProjectBindingNewValue newValue) {
+    // no op
+  }
+
+  @Override
+  public void jiraWorkItemAdd(DbSession dbSession, JiraWorkItemNewValue newValue) {
+    // no op
+  }
+
+  @Override
+  public void jiraWorkItemDelete(DbSession dbSession, JiraWorkItemNewValue newValue) {
     // no op
   }
 }
