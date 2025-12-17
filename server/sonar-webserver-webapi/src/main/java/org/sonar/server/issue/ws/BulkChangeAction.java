@@ -218,11 +218,6 @@ public class BulkChangeAction implements IssuesWsAction {
     BulkChangeResult result = new BulkChangeResult(bulkChangeData.issues.size());
     IssueChangeContext issueChangeContext = issueChangeContextByUserBuilder(new Date(system2.now()), userSession.getUuid()).build();
 
-    List<DefaultIssue> items = bulkChangeData.issues.stream()
-      .filter(bulkChange(issueChangeContext, bulkChangeData, result))
-      .toList();
-    issueStorage.save(dbSession, items);
-
     // Checking if the user has ISSUE_ADMIN permission on all projects involved in the bulk change
     // Collect all project UUIDs from issues
     Set<String> projectUuids = bulkChangeData.issues.stream()
@@ -234,7 +229,6 @@ public class BulkChangeAction implements IssuesWsAction {
               return dto.getProjectUuid();
             })
             .collect(Collectors.toSet());
-
     // Load all projects
     List<ProjectDto> projectDtos = dbClient.projectDao()
             .selectByUuids(dbSession, projectUuids);
@@ -257,9 +251,7 @@ public class BulkChangeAction implements IssuesWsAction {
       assigneeUser = dbClient.userDao()
               .selectByLogin(dbSession, assigneeLogin);
     }
-    else {
-      throw new NotFoundException("Assignee login is null or empty");
-    }
+
     DefaultIssue issue = bulkChangeData.issues.stream()
             .findFirst()
             .orElseThrow(() -> new NotFoundException(("No issues provided")));
@@ -270,7 +262,7 @@ public class BulkChangeAction implements IssuesWsAction {
                     format("Project with UUID %s not found for issue %s", issueDto.getProjectUuid(), issue))
     );
 
-    if (requireNonNull(assigneeUser).getUuid() != null && !hasProjectPermission(dbSession, assigneeUser.getUuid(),
+    if (assigneeUser!=null && assigneeUser.getUuid() != null && !hasProjectPermission(dbSession, assigneeUser.getUuid(),
             issueDto.getProjectUuid())) {
       throw new IllegalArgumentException(
               format("User '%s' does not have permission to be assigned issues in project '%s'",
@@ -278,6 +270,11 @@ public class BulkChangeAction implements IssuesWsAction {
                       projectDto.getKey()));
     }
 
+
+    List<DefaultIssue> items = bulkChangeData.issues.stream()
+      .filter(bulkChange(issueChangeContext, bulkChangeData, result))
+      .toList();
+    issueStorage.save(dbSession, items);
     refreshLiveMeasures(dbSession, bulkChangeData, result);
 
     Set<String> assigneeUuids = items.stream().map(DefaultIssue::assignee).filter(Objects::nonNull).collect(Collectors.toSet());
