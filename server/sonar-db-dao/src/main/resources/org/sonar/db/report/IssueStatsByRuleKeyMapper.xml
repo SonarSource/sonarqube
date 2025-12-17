@@ -12,7 +12,7 @@
     hotspots_reviewed as hotspotsReviewed
   </sql>
 
-  <select id="selectByAggregationId" parameterType="map" resultType="io.sonarcloud.compliancereports.dao.IssueStats">
+  <select id="selectByAggregationId" parameterType="map" resultType="org.sonarsource.compliancereports.dao.IssueStats">
     select
     <include refid="IssueStatsColumns"/>
     from issue_stats_by_rule_key
@@ -20,7 +20,7 @@
       and aggregation_type = #{aggregationType}
   </select>
 
-  <select id="selectByAggregationIds" parameterType="map" resultType="io.sonarcloud.compliancereports.dao.IssueStats">
+  <select id="selectByAggregationIds" parameterType="map" resultType="org.sonarsource.compliancereports.dao.IssueStats">
     select
     <include refid="IssueStatsColumns"/>
     from issue_stats_by_rule_key

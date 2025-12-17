@@ -19,8 +19,6 @@
  */
 package org.sonar.server.rule.ws;
 
-import io.sonarcloud.compliancereports.reports.MetadataLoader;
-import io.sonarcloud.compliancereports.reports.MetadataRules;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -91,6 +89,8 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.Rule;
 import org.sonarqube.ws.Rules.SearchResponse;
+import org.sonarsource.compliancereports.reports.MetadataLoader;
+import org.sonarsource.compliancereports.reports.MetadataRules;
 
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;

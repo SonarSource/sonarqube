@@ -19,8 +19,6 @@
  */
 package org.sonar.server.issue.ws;
 
-import io.sonarcloud.compliancereports.dao.AggregationType;
-import io.sonarcloud.compliancereports.dao.IssueStats;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
@@ -57,10 +55,10 @@ import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
+import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflow;
 import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowActionsFactory;
 import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowDefinition;
-import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflow;
 import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowActionsFactory;
 import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowDefinition;
@@ -73,6 +71,8 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsAction;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarsource.compliancereports.dao.AggregationType;
+import org.sonarsource.compliancereports.dao.IssueStats;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

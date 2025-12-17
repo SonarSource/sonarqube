@@ -20,7 +20,6 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
-import io.sonarcloud.compliancereports.dao.IssueStats;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -46,8 +45,8 @@ import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.pushapi.issues.IssueChangeEventService;
 import org.sonar.server.user.UserSession;
+import org.sonarsource.compliancereports.dao.IssueStats;
 
-import static io.sonarcloud.compliancereports.dao.AggregationType.PROJECT;
 import static java.lang.String.format;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.db.component.BranchType.BRANCH;
@@ -64,6 +63,7 @@ import static org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWor
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_DO_TRANSITION;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TRANSITION;
+import static org.sonarsource.compliancereports.dao.AggregationType.PROJECT;
 
 public class DoTransitionAction implements IssuesWsAction {
 

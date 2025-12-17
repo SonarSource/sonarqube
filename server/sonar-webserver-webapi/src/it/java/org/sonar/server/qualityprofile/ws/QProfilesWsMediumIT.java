@@ -20,8 +20,6 @@
 package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.collect.ImmutableSet;
-import io.sonarcloud.compliancereports.reports.MetadataLoader;
-import io.sonarcloud.compliancereports.reports.MetadataRules;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -62,6 +60,8 @@ import org.sonar.server.rule.ws.RuleQueryFactory;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.util.TypeValidations;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarsource.compliancereports.reports.MetadataLoader;
+import org.sonarsource.compliancereports.reports.MetadataRules;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;

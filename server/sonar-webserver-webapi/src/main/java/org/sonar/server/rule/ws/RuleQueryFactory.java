@@ -19,15 +19,10 @@
  */
 package org.sonar.server.rule.ws;
 
-import io.sonarcloud.compliancereports.reports.CategoryTree;
-import io.sonarcloud.compliancereports.reports.MetadataRules;
-import io.sonarcloud.compliancereports.reports.ComplianceCategoryRules;
-import io.sonarcloud.compliancereports.reports.ReportKey;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.Request;
@@ -37,6 +32,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.rule.index.RuleQuery;
+import org.sonarsource.compliancereports.reports.CategoryTree;
+import org.sonarsource.compliancereports.reports.ComplianceCategoryRules;
+import org.sonarsource.compliancereports.reports.MetadataRules;
+import org.sonarsource.compliancereports.reports.ReportKey;
 
 import static org.sonar.server.common.ParamParsingUtils.parseComplianceStandardsFilter;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;

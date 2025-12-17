@@ -19,7 +19,7 @@
  */
 package org.sonar.server;
 
-import io.sonarcloud.compliancereports.reports.metadata.MetadataType;
+import org.sonarsource.compliancereports.reports.metadata.MetadataType;
 
 public class TestMetadataType implements MetadataType {
   @Override

@@ -21,9 +21,6 @@ package org.sonar.server.rule.index;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import io.sonarcloud.compliancereports.reports.CategoryTree;
-import io.sonarcloud.compliancereports.reports.ComplianceCategoryRules;
-import io.sonarcloud.compliancereports.reports.RepositoryRuleKey;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -56,6 +53,8 @@ import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.security.SecurityStandards;
+import org.sonarsource.compliancereports.reports.CategoryTree;
+import org.sonarsource.compliancereports.reports.ComplianceCategoryRules;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;

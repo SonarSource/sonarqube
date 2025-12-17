@@ -19,8 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
-import io.sonarcloud.compliancereports.reports.MetadataLoader;
-import io.sonarcloud.compliancereports.reports.MetadataRules;
+import java.util.Objects;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -32,8 +31,8 @@ import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-
-import java.util.Objects;
+import org.sonarsource.compliancereports.reports.MetadataLoader;
+import org.sonarsource.compliancereports.reports.MetadataRules;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

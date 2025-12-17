@@ -20,8 +20,6 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.collect.ImmutableMap;
-import io.sonarcloud.compliancereports.reports.MetadataLoader;
-import io.sonarcloud.compliancereports.reports.MetadataRules;
 import java.time.Clock;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +62,8 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Common.FacetValue;
 import org.sonarqube.ws.Issues.SearchWsResponse;
+import org.sonarsource.compliancereports.reports.MetadataLoader;
+import org.sonarsource.compliancereports.reports.MetadataRules;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static java.util.stream.Collectors.toMap;

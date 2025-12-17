@@ -19,9 +19,6 @@
  */
 package org.sonar.server.issue.index;
 
-import io.sonarcloud.compliancereports.reports.MetadataLoader;
-import io.sonarcloud.compliancereports.reports.MetadataRules;
-import io.sonarcloud.compliancereports.reports.ReportKey;
 import java.time.Clock;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -48,6 +45,9 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.TestMetadataType;
 import org.sonar.server.issue.SearchRequest;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonarsource.compliancereports.reports.MetadataLoader;
+import org.sonarsource.compliancereports.reports.MetadataRules;
+import org.sonarsource.compliancereports.reports.ReportKey;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;

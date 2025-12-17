@@ -19,8 +19,6 @@
  */
 package org.sonar.server.issue.ws;
 
-import io.sonarcloud.compliancereports.reports.MetadataLoader;
-import io.sonarcloud.compliancereports.reports.MetadataRules;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Date;
@@ -45,6 +43,7 @@ import org.sonar.server.TestMetadataType;
 import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.feature.JiraSonarQubeFeature;
+import org.sonar.server.issue.FromSonarQubeUpdateFeature;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.issue.TextRangeResponseFormatter;
@@ -63,7 +62,6 @@ import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowAc
 import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowDefinition;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
-import org.sonar.server.issue.FromSonarQubeUpdateFeature;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.WsActionTester;
@@ -71,6 +69,8 @@ import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Component;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Issues.SearchWsResponse;
+import org.sonarsource.compliancereports.reports.MetadataLoader;
+import org.sonarsource.compliancereports.reports.MetadataRules;
 
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;

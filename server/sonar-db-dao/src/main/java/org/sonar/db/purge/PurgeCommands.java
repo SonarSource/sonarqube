@@ -21,12 +21,12 @@ package org.sonar.db.purge;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import io.sonarcloud.compliancereports.dao.AggregationType;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
+import org.sonarsource.compliancereports.dao.AggregationType;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 

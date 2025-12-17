@@ -19,10 +19,6 @@
  */
 package org.sonar.server.issue;
 
-import io.sonarcloud.compliancereports.dao.AggregationType;
-import io.sonarcloud.compliancereports.dao.IssueStats;
-import io.sonarcloud.compliancereports.ingestion.IssueFromAnalysis;
-import io.sonarcloud.compliancereports.ingestion.IssueIngestionService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +34,10 @@ import org.sonar.db.entity.EntityDto;
 import org.sonar.db.issue.IssueStatsDto;
 import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
 import org.sonar.server.es.AnalysisIndexer;
+import org.sonarsource.compliancereports.dao.AggregationType;
+import org.sonarsource.compliancereports.dao.IssueStats;
+import org.sonarsource.compliancereports.ingestion.IssueFromAnalysis;
+import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 
 import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
 

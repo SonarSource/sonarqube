@@ -19,7 +19,6 @@
  */
 package org.sonar.server.common;
 
-import io.sonarcloud.compliancereports.reports.ReportKey;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -31,6 +30,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.tuple.Pair;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonarsource.compliancereports.reports.ReportKey;
 
 public class ParamParsingUtils {
   private ParamParsingUtils() {

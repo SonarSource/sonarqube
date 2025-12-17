@@ -19,7 +19,6 @@
  */
 package org.sonar.db.purge;
 
-import io.sonarcloud.compliancereports.dao.AggregationType;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -42,6 +41,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchMapper;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQualifiers;
+import org.sonarsource.compliancereports.dao.AggregationType;
 
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
