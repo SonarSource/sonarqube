@@ -22,8 +22,6 @@ package org.sonar.server.issue.ws;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import io.sonarcloud.compliancereports.reports.MetadataLoader;
-import io.sonarcloud.compliancereports.reports.MetadataRules;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
@@ -112,6 +110,8 @@ import org.sonarqube.ws.Common.FacetValue;
 import org.sonarqube.ws.Common.Severity;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Issues.SearchWsResponse;
+import org.sonarsource.compliancereports.reports.MetadataLoader;
+import org.sonarsource.compliancereports.reports.MetadataRules;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;

@@ -19,8 +19,6 @@
  */
 package org.sonar.server.hotspot.ws;
 
-import io.sonarcloud.compliancereports.dao.AggregationType;
-import io.sonarcloud.compliancereports.dao.IssueStats;
 import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -44,9 +42,10 @@ import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTr
 import org.sonar.server.issue.ws.IssueUpdater;
 import org.sonar.server.pushapi.hotspots.HotspotChangeEventService;
 import org.sonar.server.pushapi.hotspots.HotspotChangedEvent;
+import org.sonarsource.compliancereports.dao.AggregationType;
+import org.sonarsource.compliancereports.dao.IssueStats;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static io.sonarcloud.compliancereports.dao.AggregationType.PROJECT;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.sonar.api.issue.Issue.RESOLUTION_ACKNOWLEDGED;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
@@ -56,6 +55,7 @@ import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTransition.RESET_AS_TO_REVIEW;
+import static org.sonarsource.compliancereports.dao.AggregationType.PROJECT;
 
 public class ChangeStatusAction implements HotspotsWsAction {
 

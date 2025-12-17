@@ -28,8 +28,6 @@ import co.elastic.clients.elasticsearch._types.query_dsl.ChildScoreMode;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.util.NamedValue;
 import com.google.common.base.Joiner;
-import io.sonarcloud.compliancereports.reports.ComplianceCategoryRules;
-import io.sonarcloud.compliancereports.reports.RepositoryRuleKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -58,6 +56,8 @@ import org.sonar.server.es.StickyFacetBuilder;
 import org.sonar.server.es.newindex.DefaultIndexSettings;
 import org.sonar.server.es.textsearch.JavaTokenizer;
 import org.sonar.server.security.SecurityStandards;
+import org.sonarsource.compliancereports.reports.ComplianceCategoryRules;
+import org.sonarsource.compliancereports.reports.RepositoryRuleKey;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.Boolean.FALSE;

@@ -20,13 +20,13 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.ImmutableSet;
-import io.sonarcloud.compliancereports.reports.ReportKey;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonarsource.compliancereports.reports.ReportKey;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;

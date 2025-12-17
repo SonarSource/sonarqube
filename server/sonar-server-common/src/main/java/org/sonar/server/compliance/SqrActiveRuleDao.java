@@ -19,8 +19,6 @@
  */
 package org.sonar.server.compliance;
 
-import io.sonarcloud.compliancereports.dao.ActiveRuleDao;
-import io.sonarcloud.compliancereports.dao.AggregationType;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -32,6 +30,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.OrgActiveRuleDto;
 import org.sonar.server.qualityprofile.QPMeasureData;
 import org.sonar.server.qualityprofile.QualityProfile;
+import org.sonarsource.compliancereports.dao.ActiveRuleDao;
+import org.sonarsource.compliancereports.dao.AggregationType;
 
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 

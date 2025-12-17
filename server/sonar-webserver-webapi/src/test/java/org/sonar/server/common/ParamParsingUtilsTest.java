@@ -19,13 +19,13 @@
  */
 package org.sonar.server.common;
 
-import io.sonarcloud.compliancereports.reports.ReportKey;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonarsource.compliancereports.reports.ReportKey;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;

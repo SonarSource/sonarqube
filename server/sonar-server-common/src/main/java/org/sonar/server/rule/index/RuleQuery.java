@@ -20,7 +20,6 @@
 package org.sonar.server.rule.index;
 
 import com.google.common.base.Preconditions;
-import io.sonarcloud.compliancereports.reports.ComplianceCategoryRules;
 import java.util.Collection;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -28,6 +27,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.rule.RuleType;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonarsource.compliancereports.reports.ComplianceCategoryRules;
 
 import static java.util.Arrays.asList;
 

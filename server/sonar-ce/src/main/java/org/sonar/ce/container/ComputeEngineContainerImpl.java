@@ -20,7 +20,6 @@
 package org.sonar.ce.container;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.sonarcloud.compliancereports.ingestion.IssueIngestionService;
 import java.time.Clock;
 import java.util.List;
 import javax.annotation.CheckForNull;
@@ -56,7 +55,6 @@ import org.sonar.ce.task.projectanalysis.ProjectAnalysisTaskModule;
 import org.sonar.ce.task.projectanalysis.analysis.ProjectConfigurationFactory;
 import org.sonar.ce.task.projectanalysis.issue.AdHocRuleCreator;
 import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotificationModule;
-import org.sonar.server.issue.IssueStatsIndexer;
 import org.sonar.ce.task.projectanalysis.taskprocessor.AuditPurgeTaskModule;
 import org.sonar.ce.task.projectanalysis.taskprocessor.IssueSyncTaskModule;
 import org.sonar.ce.taskprocessor.CeProcessingScheduler;
@@ -98,6 +96,7 @@ import org.sonar.server.extension.CoreExtensionBootstraper;
 import org.sonar.server.extension.CoreExtensionStopper;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.IssueStatsIndexer;
 import org.sonar.server.issue.IssueStorage;
 import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -162,6 +161,7 @@ import org.sonar.server.view.index.ViewIndex;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.webhook.WebhookModule;
 import org.sonarqube.ws.Rules;
+import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;

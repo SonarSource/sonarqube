@@ -19,8 +19,6 @@
  */
 package org.sonar.server.hotspot.ws;
 
-import io.sonarcloud.compliancereports.dao.AggregationType;
-import io.sonarcloud.compliancereports.dao.IssueStats;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -66,6 +64,8 @@ import org.sonar.server.pushapi.hotspots.HotspotChangedEvent;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarsource.compliancereports.dao.AggregationType;
+import org.sonarsource.compliancereports.dao.IssueStats;
 
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;

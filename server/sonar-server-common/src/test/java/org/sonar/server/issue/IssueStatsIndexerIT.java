@@ -19,8 +19,6 @@
  */
 package org.sonar.server.issue;
 
-import io.sonarcloud.compliancereports.dao.AggregationType;
-import io.sonarcloud.compliancereports.ingestion.IssueIngestionService;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -36,6 +34,8 @@ import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonarsource.compliancereports.dao.AggregationType;
+import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
