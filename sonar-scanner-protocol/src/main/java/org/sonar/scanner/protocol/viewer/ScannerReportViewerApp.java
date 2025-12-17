@@ -371,10 +371,7 @@ public class ScannerReportViewerApp {
     builder.append("Project key: ").append(data.getProjectKey()).append("\n");
     builder.append("Project version: ").append(data.getProjectVersion()).append("\n");
     builder.append("Scm revision ID: ").append(data.getScmRevisionId()).append("\n");
-    if (data.getNotAnalyzedFilesByLanguageCount() > 0) {
-      builder.append("Not analyzed files in project:").append("\n");
-      data.getNotAnalyzedFilesByLanguageMap().forEach((key, value) -> builder.append("   ").append(key).append(": ").append(value).append("\n"));
-    }
+
     metadataEditor.setText(builder.toString());
   }
 

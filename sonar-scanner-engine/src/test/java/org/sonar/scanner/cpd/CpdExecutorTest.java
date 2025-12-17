@@ -36,9 +36,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentMatchers;
 import org.slf4j.event.Level;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.core.util.CloseableIterator;
@@ -73,7 +71,6 @@ public class CpdExecutorTest {
   private final ExecutorService executorService = mock(ExecutorService.class);
   private final CpdSettings settings = mock(CpdSettings.class);
   private final ReportPublisher publisher = mock(ReportPublisher.class);
-  private final SonarRuntime sonarRuntime = mock(SonarRuntime.class);
   private final SonarCpdBlockIndex index = new SonarCpdBlockIndex(publisher, settings);
   private ScannerReportReader reader;
   private DefaultInputFile batchComponent1;
@@ -89,8 +86,8 @@ public class CpdExecutorTest {
     baseDir = temp.newFolder();
     when(publisher.getWriter()).thenReturn(new ScannerReportWriter(fileStructure));
 
-    DefaultInputProject project = TestInputFileBuilder.newDefaultInputProject("foo", baseDir);
-    componentStore = new InputComponentStore(mock(BranchConfiguration.class), sonarRuntime);
+    TestInputFileBuilder.newDefaultInputProject("foo", baseDir);
+    componentStore = new InputComponentStore(mock(BranchConfiguration.class));
     executor = new CpdExecutor(settings, index, publisher, componentStore, executorService);
     reader = new ScannerReportReader(fileStructure);
 

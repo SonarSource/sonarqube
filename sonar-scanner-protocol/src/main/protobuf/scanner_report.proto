@@ -58,10 +58,13 @@ message Metadata {
   string target_branch_name = 18;
 
   reserved 19; // forkDate (no longer used)
-
-  map<string, int32> not_analyzed_files_by_language = 20;
+  reserved 20; // not_analyzed_files_by_language (replaced by not_analyzed_indexed_file_count_per_type)
 
   string new_code_reference_branch = 21;
+
+  map<string, int32> analyzed_indexed_file_count_per_type = 22;
+
+  map<string, int32> not_analyzed_indexed_file_count_per_type = 23;
 
   message QProfile {
     string key = 1;

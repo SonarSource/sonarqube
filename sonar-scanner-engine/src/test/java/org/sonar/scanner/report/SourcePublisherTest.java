@@ -27,9 +27,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -59,8 +57,8 @@ public class SourcePublisherTest {
       .setCharset(StandardCharsets.ISO_8859_1)
       .build();
 
-    DefaultInputProject rootProject = TestInputFileBuilder.newDefaultInputProject(moduleKey, baseDir);
-    InputComponentStore componentStore = new InputComponentStore(mock(BranchConfiguration.class), mock(SonarRuntime.class));
+    TestInputFileBuilder.newDefaultInputProject(moduleKey, baseDir);
+    InputComponentStore componentStore = new InputComponentStore(mock(BranchConfiguration.class));
     componentStore.put(moduleKey, inputFile);
 
     publisher = new SourcePublisher(componentStore);

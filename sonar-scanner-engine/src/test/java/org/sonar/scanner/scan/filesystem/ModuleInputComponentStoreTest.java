@@ -67,7 +67,7 @@ class ModuleInputComponentStoreTest {
     File moduleBaseDir = new File(projectBaseDir, "module");
     moduleBaseDir.mkdir();
     sensorContextTester = SensorContextTester.create(moduleBaseDir);
-    componentStore = spy(new InputComponentStore(branchConfiguration, sonarRuntime));
+    componentStore = spy(new InputComponentStore(branchConfiguration));
   }
 
   @Test

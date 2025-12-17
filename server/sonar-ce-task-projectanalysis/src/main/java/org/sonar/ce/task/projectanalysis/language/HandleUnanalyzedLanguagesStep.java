@@ -19,14 +19,16 @@
  */
 package org.sonar.ce.task.projectanalysis.language;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 import org.sonar.api.utils.System2;
-import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.common.scanner.ScannerReportReader;
+import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
@@ -39,6 +41,7 @@ import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.dismissmessage.MessageType;
 
 import static java.lang.String.format;
+import static java.util.Locale.ENGLISH;
 import static org.sonar.core.language.UnanalyzedLanguages.C;
 import static org.sonar.core.language.UnanalyzedLanguages.CPP;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP_KEY;
@@ -54,6 +57,9 @@ public class HandleUnanalyzedLanguagesStep implements ComputationStep {
   private static final String LANGUAGE_UPGRADE_MESSAGE = "%s detected in this project during the last analysis. %s cannot be analyzed with your" +
     " current SonarQube edition. Please consider <a target=\"_blank\" href=\"https://www.sonarsource.com/plans-and-pricing/developer/?referrer=sonarqube-cpp\">upgrading to" +
     " Developer Edition</a> to find Bugs, Code Smells, Vulnerabilities and Security Hotspots in %s.";
+
+  private static final Set<String> C_EXTENSIONS = Set.of("c");
+  private static final Set<String> CPP_EXTENSIONS = Set.of("cpp", "cc", "cxx", "c++");
 
   private final ScannerReportReader reportReader;
   private final CeTaskMessages ceTaskMessages;
@@ -83,11 +89,7 @@ public class HandleUnanalyzedLanguagesStep implements ComputationStep {
         return;
       }
 
-      Map<String, Integer> filesPerLanguage = reportReader.readMetadata().getNotAnalyzedFilesByLanguageMap()
-        .entrySet()
-        .stream()
-        .filter(entry -> entry.getValue() > 0)
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+      Map<String, Integer> filesPerLanguage = extractUnanalyzedFilesFromIndexedFileCount();
 
       if (filesPerLanguage.isEmpty()) {
         return;
@@ -96,6 +98,26 @@ public class HandleUnanalyzedLanguagesStep implements ComputationStep {
       ceTaskMessages.add(constructMessage(filesPerLanguage));
       computeMeasures(filesPerLanguage);
     });
+  }
+
+  private Map<String, Integer> extractUnanalyzedFilesFromIndexedFileCount() {
+    Map<String, Integer> notAnalyzedindexedFileCountPerType = reportReader.readMetadata().getNotAnalyzedIndexedFileCountPerTypeMap();
+    Map<String, Integer> filesPerLanguage = new HashMap<>();
+
+    addFileCountForLanguage(filesPerLanguage, notAnalyzedindexedFileCountPerType, C_EXTENSIONS, C.toString());
+    addFileCountForLanguage(filesPerLanguage, notAnalyzedindexedFileCountPerType, CPP_EXTENSIONS, CPP.toString());
+
+    return filesPerLanguage;
+  }
+
+  private static void addFileCountForLanguage(Map<String, Integer> filesPerLanguage, Map<String, Integer> fileCountPerType, Collection<String> extensions, String languageKey) {
+    long count = fileCountPerType.entrySet().stream()
+      .filter(entry -> extensions.contains(entry.getKey().toLowerCase(ENGLISH)))
+      .mapToLong(Map.Entry::getValue)
+      .sum();
+    if (count > 0) {
+      filesPerLanguage.put(languageKey, (int) count);
+    }
   }
 
   private CeTaskMessages.Message constructMessage(Map<String, Integer> filesPerLanguage) {

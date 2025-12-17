@@ -27,7 +27,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
@@ -50,8 +49,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ComponentsPublisherTest {
-
-  private final SonarRuntime sonarRuntime = mock(SonarRuntime.class);
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -82,7 +79,7 @@ public class ComponentsPublisherTest {
       .setWorkDir(temp.newFolder());
     DefaultInputProject project = new DefaultInputProject(rootDef, 1);
 
-    InputComponentStore store = new InputComponentStore(branchConfiguration, sonarRuntime);
+    InputComponentStore store = new InputComponentStore(branchConfiguration);
 
     Path moduleBaseDir = temp.newFolder().toPath();
     ProjectDefinition module1Def = ProjectDefinition.create()
@@ -155,7 +152,7 @@ public class ComponentsPublisherTest {
       .setWorkDir(temp.newFolder());
     DefaultInputProject project = new DefaultInputProject(rootDef, 1);
 
-    InputComponentStore store = new InputComponentStore(branchConfiguration, sonarRuntime);
+    InputComponentStore store = new InputComponentStore(branchConfiguration);
 
     DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.java", 5)
       .setLines(2)
@@ -192,7 +189,7 @@ public class ComponentsPublisherTest {
       .setWorkDir(temp.newFolder());
     DefaultInputProject project = new DefaultInputProject(rootDef, 1);
 
-    InputComponentStore store = new InputComponentStore(branchConfiguration, sonarRuntime);
+    InputComponentStore store = new InputComponentStore(branchConfiguration);
     ComponentsPublisher publisher = new ComponentsPublisher(project, store);
     publisher.publish(writer);
 
@@ -222,7 +219,7 @@ public class ComponentsPublisherTest {
       .setWorkDir(temp.newFolder());
     DefaultInputProject project = new DefaultInputProject(rootDef, 1);
 
-    InputComponentStore store = new InputComponentStore(branchConfiguration, sonarRuntime);
+    InputComponentStore store = new InputComponentStore(branchConfiguration);
     ComponentsPublisher publisher = new ComponentsPublisher(project, store);
     publisher.publish(writer);
 

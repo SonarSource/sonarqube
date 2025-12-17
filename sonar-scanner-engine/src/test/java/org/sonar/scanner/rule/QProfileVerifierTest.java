@@ -22,7 +22,6 @@ package org.sonar.scanner.rule;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
@@ -39,7 +38,7 @@ public class QProfileVerifierTest {
 
   @Before
   public void before() {
-    store = new InputComponentStore(mock(BranchConfiguration.class), mock(SonarRuntime.class));
+    store = new InputComponentStore(mock(BranchConfiguration.class));
     profiles = mock(QualityProfiles.class);
     QProfile javaProfile = new QProfile("p1", "My Java profile", "java", null);
     when(profiles.findByLanguage("java")).thenReturn(javaProfile);

@@ -97,9 +97,10 @@ public class HandleUnanalyzedLanguagesStepTest {
     ImmutableList<ScannerReport.AnalysisWarning> warnings = of(warning1, warning2);
     reportReader.setAnalysisWarnings(warnings);
     reportReader.setMetadata(ScannerReport.Metadata.newBuilder()
-      .putNotAnalyzedFilesByLanguage("C++", 20)
-      .putNotAnalyzedFilesByLanguage("C", 10)
-      .putNotAnalyzedFilesByLanguage("SomeLang", 1000)
+      .putNotAnalyzedIndexedFileCountPerType("c", 10)
+      .putNotAnalyzedIndexedFileCountPerType("cpp", 15)
+      .putNotAnalyzedIndexedFileCountPerType("cc", 5)
+      .putNotAnalyzedIndexedFileCountPerType("unknown", 1000)
       .build());
 
     underTest.execute(new TestComputationStepContext());
@@ -108,8 +109,8 @@ public class HandleUnanalyzedLanguagesStepTest {
     assertThat(argumentCaptor.getAllValues())
       .extracting(Message::getText, Message::getType)
       .containsExactly(tuple(
-        "10 unanalyzed C, 20 unanalyzed C++ and 1000 unanalyzed SomeLang files were detected in this project during the last analysis. C," +
-          " C++ and SomeLang cannot be analyzed with your current SonarQube edition. Please consider" +
+        "10 unanalyzed C and 20 unanalyzed C++ files were detected in this project during the last analysis. C and" +
+          " C++ cannot be analyzed with your current SonarQube edition. Please consider" +
           " <a target=\"_blank\" href=\"https://www.sonarsource.com/plans-and-pricing/developer/?referrer=sonarqube-cpp\">upgrading to Developer Edition</a> to find Bugs," +
           " Code Smells, Vulnerabilities and Security Hotspots in these files.",
         MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE));
@@ -121,7 +122,7 @@ public class HandleUnanalyzedLanguagesStepTest {
   public void adds_warning_and_measures_in_SQ_community_edition_if_there_are_c_files() {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
     reportReader.setMetadata(ScannerReport.Metadata.newBuilder()
-      .putNotAnalyzedFilesByLanguage("C", 10)
+      .putNotAnalyzedIndexedFileCountPerType("c", 10)
       .build());
 
     underTest.execute(new TestComputationStepContext());
@@ -140,7 +141,7 @@ public class HandleUnanalyzedLanguagesStepTest {
   public void adds_warning_in_SQ_community_edition_if_there_are_cpp_files() {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
     reportReader.setMetadata(ScannerReport.Metadata.newBuilder()
-      .putNotAnalyzedFilesByLanguage("C++", 1)
+      .putNotAnalyzedIndexedFileCountPerType("cpp", 1)
       .build());
 
     underTest.execute(new TestComputationStepContext());
@@ -162,7 +163,7 @@ public class HandleUnanalyzedLanguagesStepTest {
     ScannerReport.AnalysisWarning warning2 = ScannerReport.AnalysisWarning.newBuilder().setText("warning 2").build();
     ImmutableList<ScannerReport.AnalysisWarning> warnings = of(warning1, warning2);
     reportReader.setAnalysisWarnings(warnings);
-    reportReader.setMetadata(ScannerReport.Metadata.newBuilder().putNotAnalyzedFilesByLanguage("C++", 0).build());
+    reportReader.setMetadata(ScannerReport.Metadata.newBuilder().putNotAnalyzedIndexedFileCountPerType("cpp", 0).build());
 
     underTest.execute(new TestComputationStepContext());
 
@@ -195,7 +196,7 @@ public class HandleUnanalyzedLanguagesStepTest {
     ScannerReport.AnalysisWarning warning2 = ScannerReport.AnalysisWarning.newBuilder().setText("warning 2").build();
     ImmutableList<ScannerReport.AnalysisWarning> warnings = of(warning1, warning2);
     reportReader.setAnalysisWarnings(warnings);
-    reportReader.setMetadata(ScannerReport.Metadata.newBuilder().putNotAnalyzedFilesByLanguage("C++", 20).build());
+    reportReader.setMetadata(ScannerReport.Metadata.newBuilder().putNotAnalyzedIndexedFileCountPerType("C++", 20).build());
 
     underTest.execute(new TestComputationStepContext());
 

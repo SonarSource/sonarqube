@@ -20,9 +20,7 @@
 package org.sonar.scanner.report;
 
 import com.google.common.collect.ImmutableMap;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,12 +28,14 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -67,11 +67,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(DataProviderRunner.class)
-public class MetadataPublisherTest {
+class MetadataPublisherTest {
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  @TempDir
+  File temp;
 
   private MetadataPublisher underTest;
   private final QualityProfiles qProfiles = mock(QualityProfiles.class);
@@ -87,9 +86,11 @@ public class MetadataPublisherTest {
   private ScannerReportWriter writer;
   private ScannerReportReader reader;
 
-  @Before
-  public void prepare() throws IOException {
-    FileStructure fileStructure = new FileStructure(temp.newFolder());
+  @BeforeEach
+  void prepare() throws IOException {
+    File tempFolder = new File(temp, "fileStructure");
+    assertThat(tempFolder.mkdir()).isTrue();
+    FileStructure fileStructure = new FileStructure(tempFolder);
     writer = new ScannerReportWriter(fileStructure);
     reader = new ScannerReportReader(fileStructure);
     when(projectInfo.getAnalysisDate()).thenReturn(new Date(1234567L));
@@ -101,19 +102,25 @@ public class MetadataPublisherTest {
   }
 
   private void createPublisher(ProjectDefinition def) throws IOException {
-    Path rootBaseDir = temp.newFolder().toPath();
+    File rootBaseDirFile = new File(temp, "rootBaseDir");
+    assertThat(rootBaseDirFile.mkdir()).isTrue();
+    Path rootBaseDir = rootBaseDirFile.toPath();
     Path moduleBaseDir = rootBaseDir.resolve("moduleDir");
     Files.createDirectory(moduleBaseDir);
+    File rootWorkDir = new File(temp, "rootWorkDir");
+    assertThat(rootWorkDir.mkdir()).isTrue();
     DefaultInputModule rootModule = new DefaultInputModule(def
       .setBaseDir(rootBaseDir.toFile())
       .setKey("root")
-      .setWorkDir(temp.newFolder()), TestInputFileBuilder.nextBatchId());
+      .setWorkDir(rootWorkDir), TestInputFileBuilder.nextBatchId());
     InputModuleHierarchy inputModuleHierarchy = mock(InputModuleHierarchy.class);
     when(inputModuleHierarchy.root()).thenReturn(rootModule);
+    File childWorkDir = new File(temp, "childWorkDir");
+    assertThat(childWorkDir.mkdir()).isTrue();
     DefaultInputModule child = new DefaultInputModule(ProjectDefinition.create()
       .setKey("module")
       .setBaseDir(moduleBaseDir.toFile())
-      .setWorkDir(temp.newFolder()), TestInputFileBuilder.nextBatchId());
+      .setWorkDir(childWorkDir), TestInputFileBuilder.nextBatchId());
     when(inputModuleHierarchy.children(rootModule)).thenReturn(Collections.singletonList(child));
     when(inputModuleHierarchy.relativePathToRoot(child)).thenReturn("modulePath");
     when(inputModuleHierarchy.relativePathToRoot(rootModule)).thenReturn("");
@@ -125,7 +132,7 @@ public class MetadataPublisherTest {
   }
 
   @Test
-  public void write_metadata() {
+  void write_metadata() {
     Date date = new Date();
     when(qProfiles.findAll()).thenReturn(Collections.singletonList(new QProfile("q1", "Q1", "java", date)));
     when(pluginRepository.getPluginsByKey()).thenReturn(ImmutableMap.of(
@@ -139,7 +146,6 @@ public class MetadataPublisherTest {
     assertThat(metadata.getNewCodeReferenceBranch()).isEqualTo("newCodeReference");
     assertThat(metadata.getProjectKey()).isEqualTo("root");
     assertThat(metadata.getProjectVersion()).isEmpty();
-    assertThat(metadata.getNotAnalyzedFilesByLanguageCount()).isZero();
     assertThat(metadata.getQprofilesPerLanguageMap()).containsOnly(entry("java", org.sonar.scanner.protocol.output.ScannerReport.Metadata.QProfile.newBuilder()
       .setKey("q1")
       .setName("Q1")
@@ -157,18 +163,20 @@ public class MetadataPublisherTest {
   }
 
   @Test
-  public void write_not_analysed_file_counts() {
-    when(componentStore.getNotAnalysedFilesByLanguage()).thenReturn(ImmutableMap.of("c", 10, "cpp", 20));
+  void write_analyzed_and_not_analyzed_indexed_file_count_per_extension() {
+    when(componentStore.getAnalyzedIndexedFileCountPerExtension()).thenReturn(ImmutableMap.of("java", 150, "js", 43));
+    when(componentStore.getNotAnalyzedIndexedFileCountPerExtension()).thenReturn(ImmutableMap.of("ts", 27, "py", 10));
 
     underTest.publish(writer);
 
     ScannerReport.Metadata metadata = reader.readMetadata();
-    assertThat(metadata.getNotAnalyzedFilesByLanguageMap()).contains(entry("c", 10), entry("cpp", 20));
+    assertThat(metadata.getAnalyzedIndexedFileCountPerTypeMap()).contains(entry("java", 150), entry("js", 43));
+    assertThat(metadata.getNotAnalyzedIndexedFileCountPerTypeMap()).contains(entry("ts", 27), entry("py", 10));
   }
 
-  @Test
-  @UseDataProvider("projectVersions")
-  public void write_project_version(@Nullable String projectVersion, String expected) {
+  @ParameterizedTest
+  @MethodSource("projectVersions")
+  void write_project_version(@Nullable String projectVersion, String expected) {
     when(projectInfo.getProjectVersion()).thenReturn(Optional.ofNullable(projectVersion));
 
     underTest.publish(writer);
@@ -177,20 +185,19 @@ public class MetadataPublisherTest {
     assertThat(metadata.getProjectVersion()).isEqualTo(expected);
   }
 
-  @DataProvider
-  public static Object[][] projectVersions() {
+  static Stream<Arguments> projectVersions() {
     String version = secure().nextAlphabetic(15);
-    return new Object[][] {
-      {null, ""},
-      {"", ""},
-      {"5.6.3", "5.6.3"},
-      {version, version}
-    };
+    return Stream.of(
+      Arguments.of(null, ""),
+      Arguments.of("", ""),
+      Arguments.of("5.6.3", "5.6.3"),
+      Arguments.of(version, version)
+    );
   }
 
-  @Test
-  @UseDataProvider("buildStrings")
-  public void write_buildString(@Nullable String buildString, String expected) {
+  @ParameterizedTest
+  @MethodSource("buildStrings")
+  void write_buildString(@Nullable String buildString, String expected) {
     when(projectInfo.getBuildString()).thenReturn(Optional.ofNullable(buildString));
 
     underTest.publish(writer);
@@ -199,19 +206,18 @@ public class MetadataPublisherTest {
     assertThat(metadata.getBuildString()).isEqualTo(expected);
   }
 
-  @DataProvider
-  public static Object[][] buildStrings() {
+  static Stream<Arguments> buildStrings() {
     String randomBuildString = secure().nextAlphabetic(15);
-    return new Object[][] {
-      {null, ""},
-      {"", ""},
-      {"5.6.3", "5.6.3"},
-      {randomBuildString, randomBuildString}
-    };
+    return Stream.of(
+      Arguments.of(null, ""),
+      Arguments.of("", ""),
+      Arguments.of("5.6.3", "5.6.3"),
+      Arguments.of(randomBuildString, randomBuildString)
+    );
   }
 
   @Test
-  public void write_branch_info() {
+  void write_branch_info() {
     String branchName = "name";
     String targetName = "target";
 
@@ -229,7 +235,7 @@ public class MetadataPublisherTest {
   }
 
   @Test
-  public void dont_write_new_code_reference_if_not_specified_in_properties() {
+  void dont_write_new_code_reference_if_not_specified_in_properties() {
     when(referenceBranchSupplier.get()).thenReturn("ref");
     when(referenceBranchSupplier.getFromProperties()).thenReturn(null);
 
@@ -241,7 +247,7 @@ public class MetadataPublisherTest {
   }
 
   @Test
-  public void write_project_basedir() {
+  void write_project_basedir() {
     String path = "some/dir";
     Path relativePathFromScmRoot = Paths.get(path);
     when(scmProvider.relativePathFromScmRoot(any(Path.class))).thenReturn(relativePathFromScmRoot);
@@ -253,7 +259,7 @@ public class MetadataPublisherTest {
   }
 
   @Test
-  public void write_revision_id() throws Exception {
+  void write_revision_id() {
     String revisionId = "some-sha1";
     when(scmRevision.get()).thenReturn(Optional.of(revisionId));
 
@@ -264,7 +270,7 @@ public class MetadataPublisherTest {
   }
 
   @Test
-  public void should_not_crash_when_scm_provider_does_not_support_relativePathFromScmRoot() {
+  void should_not_crash_when_scm_provider_does_not_support_relativePathFromScmRoot() {
     ScmProvider fakeScmProvider = new ScmProvider() {
       @Override
       public String key() {

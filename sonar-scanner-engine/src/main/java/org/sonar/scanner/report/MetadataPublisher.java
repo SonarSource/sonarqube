@@ -95,7 +95,7 @@ public class MetadataPublisher implements ReportPublisherStep {
     }
 
     addScmInformation(builder);
-    addNotAnalyzedFileCountsByLanguage(builder);
+    addIndexedFileCountsByExtension(builder);
 
     for (QProfile qp : qProfiles.findAll()) {
       builder.putQprofilesPerLanguage(qp.getLanguage(), ScannerReport.Metadata.QProfile.newBuilder()
@@ -140,8 +140,9 @@ public class MetadataPublisher implements ReportPublisherStep {
     }
   }
 
-  private void addNotAnalyzedFileCountsByLanguage(ScannerReport.Metadata.Builder builder) {
-    builder.putAllNotAnalyzedFilesByLanguage(componentStore.getNotAnalysedFilesByLanguage());
+  private void addIndexedFileCountsByExtension(ScannerReport.Metadata.Builder builder) {
+    builder.putAllAnalyzedIndexedFileCountPerType(componentStore.getAnalyzedIndexedFileCountPerExtension());
+    builder.putAllNotAnalyzedIndexedFileCountPerType(componentStore.getNotAnalyzedIndexedFileCountPerExtension());
   }
 
   private void addBranchInformation(ScannerReport.Metadata.Builder builder) {

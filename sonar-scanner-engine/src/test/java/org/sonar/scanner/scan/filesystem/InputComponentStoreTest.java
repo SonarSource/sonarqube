@@ -24,11 +24,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarRuntime;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
@@ -43,31 +40,29 @@ import org.sonar.scanner.scan.branch.BranchConfiguration;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-public class InputComponentStoreTest {
+class InputComponentStoreTest {
 
-  private final SonarRuntime sonarRuntime = mock(SonarRuntime.class);
-
-  @ClassRule
-  public static TemporaryFolder temp = new TemporaryFolder();
+  @TempDir
+  static File temp;
 
   @Test
-  public void should_add_input_file() throws Exception {
+  void should_add_input_file() {
     String rootModuleKey = "struts";
     String subModuleKey = "struts-core";
 
-    File rootBaseDir = temp.newFolder();
+    File rootBaseDir = new File(temp, "rootBaseDir");
+    assertThat(rootBaseDir.mkdir()).isTrue();
 
     ProjectDefinition moduleDef = ProjectDefinition.create()
-      .setKey(subModuleKey).setBaseDir(rootBaseDir).setWorkDir(temp.newFolder());
+      .setKey(subModuleKey).setBaseDir(rootBaseDir).setWorkDir(new File(temp, "moduleWorkDir"));
     ProjectDefinition rootDef = ProjectDefinition.create()
-      .setKey(rootModuleKey).setBaseDir(rootBaseDir).setWorkDir(temp.newFolder()).addSubProject(moduleDef);
+      .setKey(rootModuleKey).setBaseDir(rootBaseDir).setWorkDir(new File(temp, "rootWorkDir")).addSubProject(moduleDef);
 
     DefaultInputProject rootProject = TestInputFileBuilder.newDefaultInputProject(rootDef);
     DefaultInputModule subModule = TestInputFileBuilder.newDefaultInputModule(moduleDef);
 
-    InputComponentStore store = new InputComponentStore(mock(BranchConfiguration.class), sonarRuntime);
+    InputComponentStore store = new InputComponentStore(mock(BranchConfiguration.class));
     store.put(subModule);
 
     DefaultInputFile fooFile = new TestInputFileBuilder(rootModuleKey, "src/main/java/Foo.java")
@@ -75,6 +70,8 @@ public class InputComponentStoreTest {
       .setPublish(true)
       .build();
     store.put(rootProject.key(), fooFile);
+    File barModuleBaseDir = new File(temp, "barModuleBaseDir");
+    assertThat(barModuleBaseDir.mkdir()).isTrue();
     store.put(subModuleKey, new TestInputFileBuilder(rootModuleKey, "src/main/java/Bar.java")
       .setLanguage("bla")
       .setPublish(false)
@@ -82,10 +79,11 @@ public class InputComponentStoreTest {
       .setStatus(Status.ADDED)
       .setLines(2)
       .setCharset(StandardCharsets.UTF_8)
-      .setModuleBaseDir(temp.newFolder().toPath())
+      .setModuleBaseDir(barModuleBaseDir.toPath())
       .build());
 
     DefaultInputFile loadedFile = (DefaultInputFile) store.getFile(subModuleKey, "src/main/java/Bar.java");
+    assertThat(loadedFile).isNotNull();
     assertThat(loadedFile.relativePath()).isEqualTo("src/main/java/Bar.java");
     assertThat(loadedFile.charset()).isEqualTo(StandardCharsets.UTF_8);
 
@@ -102,8 +100,8 @@ public class InputComponentStoreTest {
   }
 
   static class InputComponentStoreTester extends InputComponentStore {
-    InputComponentStoreTester(SonarRuntime sonarRuntime) {
-      super(mock(BranchConfiguration.class), sonarRuntime);
+    InputComponentStoreTester() {
+      super(mock(BranchConfiguration.class));
     }
 
     InputFile addFile(String moduleKey, String relpath, @Nullable String language) {
@@ -120,11 +118,20 @@ public class InputComponentStoreTest {
       put(moduleKey, file);
       return file;
     }
+
+    InputFile addFile(String moduleKey, String relPath, @Nullable String language, boolean published) {
+      TestInputFileBuilder fileBuilder = new TestInputFileBuilder(moduleKey, relPath);
+      ofNullable(language).ifPresent(fileBuilder::setLanguage);
+      fileBuilder.setPublish(published);
+      DefaultInputFile file = fileBuilder.build();
+      put(moduleKey, file);
+      return file;
+    }
   }
 
   @Test
-  public void should_add_languages_per_module_and_globally() {
-    InputComponentStoreTester tester = new InputComponentStoreTester(sonarRuntime);
+  void should_add_languages_per_module_and_globally() {
+    InputComponentStoreTester tester = new InputComponentStoreTester();
 
     String mod1Key = "mod1";
     tester.addFile(mod1Key, "src/main/java/Foo.java", "java");
@@ -138,8 +145,8 @@ public class InputComponentStoreTest {
   }
 
   @Test
-  public void should_find_files_per_module_and_globally() {
-    InputComponentStoreTester tester = new InputComponentStoreTester(sonarRuntime);
+  void should_find_files_per_module_and_globally() {
+    InputComponentStoreTester tester = new InputComponentStoreTester();
 
     String mod1Key = "mod1";
     InputFile mod1File = tester.addFile(mod1Key, "src/main/java/Foo.java", "java");
@@ -153,53 +160,31 @@ public class InputComponentStoreTest {
   }
 
   @Test
-  public void stores_not_analysed_c_file_count_in_sq_community_edition() {
-    when(sonarRuntime.getEdition()).thenReturn(SonarEdition.COMMUNITY);
-    InputComponentStoreTester underTest = new InputComponentStoreTester(sonarRuntime);
+  void stores_analyzed_and_not_analyzed_indexed_file_count_per_extension() {
+    InputComponentStoreTester underTest = new InputComponentStoreTester();
     String mod1Key = "mod1";
-    underTest.addFile(mod1Key, "src/main/java/Foo.java", "java");
-    underTest.addFile(mod1Key, "src/main/c/file1.c");
-    underTest.addFile(mod1Key, "src/main/c/file2.c");
+
+    underTest.addFile(mod1Key, "src/main/java/Foo.java", "java", true);
+    underTest.addFile(mod1Key, "src/main/java/Bar.java", "java", true);
+    underTest.addFile(mod1Key, "src/main/js/app.js", "js", true);
+    underTest.addFile(mod1Key, "src/main/ts/module.ts", "ts", true);
+
+    underTest.addFile(mod1Key, "src/main/js/util.js", null, false);
     String mod2Key = "mod2";
-    underTest.addFile(mod2Key, "src/main/groovy/Foo.groovy", "groovy");
-    underTest.addFile(mod2Key, "src/main/c/file3.c");
+    underTest.addFile(mod2Key, "src/main/groovy/Foo.groovy", null, false);
+    underTest.addFile(mod2Key, "src/test/groovy/FooTest.groovy", null, false);
+    underTest.addFile(mod2Key, "src/main/py/script.py", null, false);
 
-    assertThat(underTest.getNotAnalysedFilesByLanguage()).hasSize(1);
-    assertThat(underTest.getNotAnalysedFilesByLanguage()).containsEntry("C", 3);
-  }
+    assertThat(underTest.getAnalyzedIndexedFileCountPerExtension())
+      .containsEntry("java", 2)
+      .containsEntry("js", 1)
+      .containsEntry("ts", 1)
+      .hasSize(3);
 
-  @Test
-  public void stores_not_analysed_cpp_file_count_in_sq_community_edition() {
-    when(sonarRuntime.getEdition()).thenReturn(SonarEdition.COMMUNITY);
-    InputComponentStoreTester underTest = new InputComponentStoreTester(sonarRuntime);
-    String mod1Key = "mod1";
-    underTest.addFile(mod1Key, "src/main/java/Foo.java", "java");
-    underTest.addFile(mod1Key, "src/main/c/file1.c");
-    underTest.addFile(mod1Key, "src/main/c/file2.cpp");
-    underTest.addFile(mod1Key, "src/main/c/file3.cxx");
-    underTest.addFile(mod1Key, "src/main/c/file4.c++");
-    underTest.addFile(mod1Key, "src/main/c/file5.cc");
-    underTest.addFile(mod1Key, "src/main/c/file6.CPP");
-    String mod2Key = "mod2";
-    underTest.addFile(mod2Key, "src/main/groovy/Foo.groovy", "groovy");
-    underTest.addFile(mod2Key, "src/main/c/file3.cpp");
-
-    assertThat(underTest.getNotAnalysedFilesByLanguage()).hasSize(2);
-    assertThat(underTest.getNotAnalysedFilesByLanguage()).containsEntry("C++", 6);
-  }
-
-  @Test
-  public void does_not_store_not_analysed_file_counts_in_sq_non_community_editions() {
-    when(sonarRuntime.getEdition()).thenReturn(SonarEdition.DEVELOPER);
-    InputComponentStoreTester underTest = new InputComponentStoreTester(sonarRuntime);
-    String mod1Key = "mod1";
-    underTest.addFile(mod1Key, "src/main/java/Foo.java", "java");
-    underTest.addFile(mod1Key, "src/main/java/file1.c");
-    underTest.addFile(mod1Key, "src/main/java/file2.c");
-    String mod2Key = "mod2";
-    underTest.addFile(mod2Key, "src/main/groovy/Foo.groovy", "groovy");
-    underTest.addFile(mod2Key, "src/main/groovy/file4.c");
-
-    assertThat(underTest.getNotAnalysedFilesByLanguage()).isEmpty();
+    assertThat(underTest.getNotAnalyzedIndexedFileCountPerExtension())
+      .containsEntry("js", 1)
+      .containsEntry("groovy", 2)
+      .containsEntry("py", 1)
+      .hasSize(3);
   }
 }
