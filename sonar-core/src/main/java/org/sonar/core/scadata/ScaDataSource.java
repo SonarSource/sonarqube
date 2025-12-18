@@ -19,15 +19,45 @@
  */
 package org.sonar.core.scadata;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.OptionalInt;
+import java.util.UUID;
 
+/**
+ * Interface to access data from the SCA extension, when it is present.
+ * Currently this is a grab-bag kind of interface to keep it simple, but
+ * there will be a time when we maybe design it from first principles
+ * a bit more.
+ */
 public interface ScaDataSource {
+  /**
+   * One "issue release" (dependency risk).
+   */
+  record IssueRelease(
+    UUID uuid,
+    String title,
+    String projectKey,
+    String projectUuid,
+    String packageUrl,
+    long createdAt
+  ) {
+  }
+
   /**
    * The component UUID could be a regular project, or it could be an application.
    * It is not yet resolved to a list of real branches.
+   *
    * @param componentUuid the component UUID
    * @return count of how many vulnerabilities
    */
   int getVulnerabilityCount(String componentUuid);
+
   OptionalInt getVulnerabilityRating(String componentUuid);
+
+  /**
+   * Look up details about issue-releases (aka dependency risks) by their uuids.
+   * Any that aren't found simply aren't in the returned collection.
+   */
+  List<IssueRelease> getIssueReleasesByUuids(Collection<UUID> uuids);
 }

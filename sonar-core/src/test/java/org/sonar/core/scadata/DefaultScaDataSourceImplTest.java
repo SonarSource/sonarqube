@@ -19,10 +19,12 @@
  */
 package org.sonar.core.scadata;
 
-import org.junit.Test;
 import java.util.OptionalInt;
+import java.util.UUID;
+import org.junit.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class DefaultScaDataSourceImplTest {
@@ -44,5 +46,16 @@ public class DefaultScaDataSourceImplTest {
     OptionalInt vulnerabilityRating = dataSource.getVulnerabilityRating(componentUuid);
 
     assertEquals(OptionalInt.empty(), vulnerabilityRating);
+  }
+
+  @Test
+  public void getIssueReleasesByUuids_defaultsToEmptyList() {
+    var uuids = java.util.List.of(
+      UUID.fromString("00000000-000-0000-0000-000000000001"),
+      UUID.fromString("00000000-000-0000-0000-000000000002"));
+
+    var issueReleases = dataSource.getIssueReleasesByUuids(uuids);
+
+    assertTrue(issueReleases.isEmpty());
   }
 }
