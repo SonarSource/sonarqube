@@ -44,6 +44,11 @@ task fatJar(type: Jar) {
 
 build.dependsOn fatJar
 
+// Produce Java 17 bytecode while making sure the code does not use any APIs from Java 21
+tasks.withType(JavaCompile).configureEach {
+  options.release = 17
+}
+
 // Used by sonar-db-core to run DB Unit Tests
 artifactoryPublish.skip = !deployCommunity
 publishing {

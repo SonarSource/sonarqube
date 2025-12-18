@@ -38,6 +38,11 @@ jar {
   }
 }
 
+// Produce Java 17 bytecode while making sure the code does not use any APIs from Java 21
+tasks.withType(JavaCompile).configureEach {
+  options.release = 17
+}
+
 artifactoryPublish.skip = !deployCommunity
 
 publishing {

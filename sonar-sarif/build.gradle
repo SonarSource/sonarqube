@@ -25,3 +25,8 @@ license {
 tasks.withType(License).configureEach { licenseTask ->
   licenseTask.mustRunAfter(tasks.named("generateJsonSchema2Pojo"))
 }
+
+// Produce Java 17 bytecode while making sure the code does not use any APIs from Java 21
+tasks.withType(JavaCompile).configureEach {
+  options.release = 17
+}
