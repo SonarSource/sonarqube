@@ -19,45 +19,50 @@
  */
 package org.sonar.core.metric;
 
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ScaMetricsTest {
   @Test
   void scaMetricsKeys_thenContainsExpectedKeys() {
-    assertThat(ScaMetrics.SCA_METRICS_KEYS).containsExactlyInAnyOrder(
-      ScaMetrics.NEW_SCA_COUNT_ANY_ISSUE_KEY,
-      ScaMetrics.NEW_SCA_SEVERITY_ANY_ISSUE_KEY,
-      ScaMetrics.NEW_SCA_SEVERITY_VULNERABILITY_KEY,
-      ScaMetrics.NEW_SCA_SEVERITY_LICENSING_KEY,
-      ScaMetrics.NEW_SCA_RATING_ANY_ISSUE_KEY,
-      ScaMetrics.NEW_SCA_RATING_VULNERABILITY_KEY,
-      ScaMetrics.NEW_SCA_RATING_LICENSING_KEY,
-      ScaMetrics.SCA_COUNT_ANY_ISSUE_KEY,
-      ScaMetrics.SCA_SEVERITY_ANY_ISSUE_KEY,
-      ScaMetrics.SCA_SEVERITY_VULNERABILITY_KEY,
-      ScaMetrics.SCA_SEVERITY_LICENSING_KEY,
-      ScaMetrics.SCA_RATING_ANY_ISSUE_KEY,
-      ScaMetrics.SCA_RATING_VULNERABILITY_KEY,
-      ScaMetrics.SCA_RATING_LICENSING_KEY);
+    // arguments are swapped to appease SonarQube rule
+    assertThat(scaMetricKeyProvider()
+      .map(args -> (String) args.get()[0])
+      .toList()).containsExactlyInAnyOrderElementsOf(
+        ScaMetrics.SCA_METRICS_KEYS);
   }
 
-  @Test
-  void scaMetricKeys_thenHaveCorrectFormat() {
-    assertThat(ScaMetrics.NEW_SCA_RATING_LICENSING_KEY).isEqualTo("new_sca_rating_licensing");
-    assertThat(ScaMetrics.NEW_SCA_RATING_VULNERABILITY_KEY).isEqualTo("new_sca_rating_vulnerability");
-    assertThat(ScaMetrics.NEW_SCA_RATING_ANY_ISSUE_KEY).isEqualTo("new_sca_rating_any_issue");
-    assertThat(ScaMetrics.NEW_SCA_SEVERITY_LICENSING_KEY).isEqualTo("new_sca_severity_licensing");
-    assertThat(ScaMetrics.NEW_SCA_SEVERITY_VULNERABILITY_KEY).isEqualTo("new_sca_severity_vulnerability");
-    assertThat(ScaMetrics.NEW_SCA_SEVERITY_ANY_ISSUE_KEY).isEqualTo("new_sca_severity_any_issue");
-    assertThat(ScaMetrics.NEW_SCA_COUNT_ANY_ISSUE_KEY).isEqualTo("new_sca_count_any_issue");
-    assertThat(ScaMetrics.SCA_RATING_LICENSING_KEY).isEqualTo("sca_rating_licensing");
-    assertThat(ScaMetrics.SCA_RATING_VULNERABILITY_KEY).isEqualTo("sca_rating_vulnerability");
-    assertThat(ScaMetrics.SCA_RATING_ANY_ISSUE_KEY).isEqualTo("sca_rating_any_issue");
-    assertThat(ScaMetrics.SCA_SEVERITY_LICENSING_KEY).isEqualTo("sca_severity_licensing");
-    assertThat(ScaMetrics.SCA_SEVERITY_VULNERABILITY_KEY).isEqualTo("sca_severity_vulnerability");
-    assertThat(ScaMetrics.SCA_SEVERITY_ANY_ISSUE_KEY).isEqualTo("sca_severity_any_issue");
-    assertThat(ScaMetrics.SCA_COUNT_ANY_ISSUE_KEY).isEqualTo("sca_count_any_issue");
+  @ParameterizedTest
+  @MethodSource("scaMetricKeyProvider")
+  void scaMetricKeys_thenHaveCorrectFormat(String actual, String expected) {
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  static Stream<Arguments> scaMetricKeyProvider() {
+    return Stream.of(
+      Arguments.of(ScaMetrics.NEW_SCA_RATING_ANY_ISSUE_KEY, "new_sca_rating_any_issue"),
+      Arguments.of(ScaMetrics.NEW_SCA_RATING_VULNERABILITY_KEY, "new_sca_rating_vulnerability"),
+      Arguments.of(ScaMetrics.NEW_SCA_RATING_LICENSING_KEY, "new_sca_rating_licensing"),
+      Arguments.of(ScaMetrics.NEW_SCA_RATING_MALWARE_KEY, "new_sca_rating_malware"),
+      Arguments.of(ScaMetrics.NEW_SCA_SEVERITY_ANY_ISSUE_KEY, "new_sca_severity_any_issue"),
+      Arguments.of(ScaMetrics.NEW_SCA_SEVERITY_VULNERABILITY_KEY, "new_sca_severity_vulnerability"),
+      Arguments.of(ScaMetrics.NEW_SCA_SEVERITY_LICENSING_KEY, "new_sca_severity_licensing"),
+      Arguments.of(ScaMetrics.NEW_SCA_SEVERITY_MALWARE_KEY, "new_sca_severity_malware"),
+      Arguments.of(ScaMetrics.NEW_SCA_COUNT_ANY_ISSUE_KEY, "new_sca_count_any_issue"),
+      Arguments.of(ScaMetrics.SCA_RATING_ANY_ISSUE_KEY, "sca_rating_any_issue"),
+      Arguments.of(ScaMetrics.SCA_RATING_VULNERABILITY_KEY, "sca_rating_vulnerability"),
+      Arguments.of(ScaMetrics.SCA_RATING_LICENSING_KEY, "sca_rating_licensing"),
+      Arguments.of(ScaMetrics.SCA_RATING_MALWARE_KEY, "sca_rating_malware"),
+      Arguments.of(ScaMetrics.SCA_SEVERITY_ANY_ISSUE_KEY, "sca_severity_any_issue"),
+      Arguments.of(ScaMetrics.SCA_SEVERITY_VULNERABILITY_KEY, "sca_severity_vulnerability"),
+      Arguments.of(ScaMetrics.SCA_SEVERITY_LICENSING_KEY, "sca_severity_licensing"),
+      Arguments.of(ScaMetrics.SCA_SEVERITY_MALWARE_KEY, "sca_severity_malware"),
+      Arguments.of(ScaMetrics.SCA_COUNT_ANY_ISSUE_KEY, "sca_count_any_issue"));
   }
 }
