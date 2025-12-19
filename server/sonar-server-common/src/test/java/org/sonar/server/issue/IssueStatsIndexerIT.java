@@ -30,6 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
 import org.sonar.db.rule.RuleDto;
@@ -39,6 +40,8 @@ import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
+import static org.sonar.api.issue.impact.Severity.MEDIUM;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 
 class IssueStatsIndexerIT {
@@ -142,6 +145,27 @@ class IssueStatsIndexerIT {
     }
 
     @Test
+    void shouldIngestAllIssuesThatHaveIdenticalStats() {
+      String branchUuid = "project-uuid";
+      var project = db.components().insertPrivateProject("project");
+      var branch = db.components().insertProjectBranch(project.getProjectDto(), b -> b.setUuid(branchUuid));
+      var file = db.components().insertFile(branch);
+      insertSimpleIssueWithSecurityImpact(branch, file);
+      insertSimpleIssueWithSecurityImpact(branch, file);
+
+      underTest.indexOnAnalysis(branchUuid);
+
+      var issueStats = new IssueStatsByRuleKeyDaoImpl(dbClient).getIssueStats(branchUuid, AggregationType.PROJECT);
+
+      assertThat(issueStats)
+        .hasSize(1)
+        .extracting("ruleKey", "issueCount", "hotspotCount", "hotspotsReviewed")
+        .containsExactlyInAnyOrder(
+          tuple(rule1.getKey().toString(), 2, 0, 0)
+        );
+    }
+
+    @Test
     void shouldNotIngestOnPullRequestBranchAnalysis() {
       String pullRequest = "pr-1234";
 
@@ -217,5 +241,14 @@ class IssueStatsIndexerIT {
       db.commit();
       return branch;
     }
+  }
+
+  private void insertSimpleIssueWithSecurityImpact(BranchDto branch, ComponentDto file) {
+    db.issues().insert(rule1, branch, file, i -> i
+      .setStatus("OPEN")
+      .setResolution(null)
+      .setType(rule1.getType())
+      .addImpact(new ImpactDto().setSoftwareQuality(SECURITY).setSeverity(MEDIUM))
+      .setSeverity("BLOCKER"));
   }
 }

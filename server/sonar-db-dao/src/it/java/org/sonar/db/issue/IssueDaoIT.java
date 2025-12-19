@@ -252,6 +252,59 @@ class IssueDaoIT {
   }
 
   @Test
+  void scrollIssuesForIssueStats_shouldReturnTheCorrectMqrRating() {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("repo1").setRuleKey("rule1"));
+
+    ComponentDto branchA = db.components().insertProjectBranch(project, b -> b.setKey("branchA"));
+    ComponentDto fileA = db.components().insertComponent(newFileDto(branchA));
+
+    db.issues().insert(rule, branchA, fileA, i -> i.setKee("issue" + "id1")
+      .setStatus("OPEN")
+      .setResolution(null)
+      .setType(rule.getType())
+      .addImpact(new ImpactDto().setSoftwareQuality(SECURITY).setSeverity(LOW))
+      .setSeverity("MAJOR"));
+    db.issues().insert(rule, branchA, fileA, i -> i.setKee("issue" + "id2")
+      .setStatus("OPEN")
+      .setResolution(null)
+      .setType(rule.getType())
+      .addImpact(new ImpactDto().setSoftwareQuality(SECURITY).setSeverity(MEDIUM))
+      .setSeverity("BLOCKER"));
+
+    Cursor<IssueStatsDto> cursor = underTest.scrollIssuesForIssueStats(db.getSession(), branchA.branchUuid());
+    List<IssueStatsDto> issues = new LinkedList<>();
+    cursor.forEach(issues::add);
+
+    assertThat(issues)
+      .hasSize(2)
+      .extracting(IssueStatsDto::getMqrSeverity)
+      .containsOnly("LOW", "MEDIUM");
+  }
+
+  @Test
+  void scrollIssuesForIssueStats_shouldReturnNullMqrRatingWhenImpactIsNotSupported() {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("repo1").setRuleKey("rule1"));
+
+    ComponentDto branchA = db.components().insertProjectBranch(project, b -> b.setKey("branchA"));
+    ComponentDto fileA = db.components().insertComponent(newFileDto(branchA));
+
+    insertBranchIssue(branchA, fileA, rule, "id1", "OPEN", null, "MAJOR", 1000L);
+    insertBranchIssue(branchA, fileA, rule, "id2", "OPEN", null, "BLOCKER", 1000L);
+    insertBranchIssue(branchA, fileA, rule, "id3", "OPEN", null, "BLOCKER", 1000L);
+
+    Cursor<IssueStatsDto> cursor = underTest.scrollIssuesForIssueStats(db.getSession(), branchA.branchUuid());
+    List<IssueStatsDto> issues = new LinkedList<>();
+    cursor.forEach(issues::add);
+
+    assertThat(issues)
+      .hasSize(3)
+      .extracting(IssueStatsDto::getMqrSeverity)
+      .containsOnly(null, null, null);
+  }
+
+  @Test
   void scrollIndexationIssues_shouldReturnDto() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("java").setLanguage("java")

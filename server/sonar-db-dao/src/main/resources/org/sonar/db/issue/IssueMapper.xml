@@ -473,9 +473,11 @@
       i.status,
       i.issue_type as issueType,
       r.plugin_rule_key as ruleKey,
+      ii.severity as mqrSeverity,
       r.plugin_name as repositoryKey
     from issues i
     inner join rules r on r.uuid = i.rule_uuid
+    left outer join issues_impacts ii on i.kee = ii.issue_key and ii.software_quality = 'SECURITY'
     where i.project_uuid = #{branchUuid,jdbcType=VARCHAR}
       and i.resolution is null
       and i.status not in ('CLOSED', 'IN_SANDBOX')
