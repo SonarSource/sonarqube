@@ -216,7 +216,7 @@ class SnapshotDaoIT {
       .mapToObj(i -> {
         ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
         return IntStream.range(0, 1 + random.nextInt(20))
-          .mapToObj(j -> db.components().insertSnapshot(project));
+          .mapToObj(j -> db.components().insertSnapshot(project, s -> s.setLast(false)));
       })
       .flatMap(t -> t)
       .toList();
@@ -231,10 +231,10 @@ class SnapshotDaoIT {
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     List<SnapshotDto> snapshots1 = IntStream.range(0, 1 + random.nextInt(20))
-      .mapToObj(j -> db.components().insertSnapshot(project1))
+      .mapToObj(j -> db.components().insertSnapshot(project1, s -> s.setLast(false)))
       .toList();
     List<SnapshotDto> snapshots2 = IntStream.range(0, 1 + random.nextInt(20))
-      .mapToObj(j -> db.components().insertSnapshot(project2))
+      .mapToObj(j -> db.components().insertSnapshot(project2, s -> s.setLast(false)))
       .toList();
 
     assertThat(underTest.selectAnalysesByQuery(db.getSession(), new SnapshotQuery().setRootComponentUuid(project1.uuid())))
@@ -251,7 +251,7 @@ class SnapshotDaoIT {
   void selectAnalysesByQuery_sort_by_date() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     List<SnapshotDto> snapshots = IntStream.range(0, 1 + random.nextInt(20))
-      .mapToObj(j -> SnapshotTesting.newAnalysis(project).setCreatedAt(1_000L + j))
+      .mapToObj(j -> SnapshotTesting.newAnalysis(project).setCreatedAt(1_000L + j).setLast(false))
       .collect(toList());
     Collections.shuffle(snapshots);
     snapshots.forEach(db.components()::insertSnapshot);
@@ -287,25 +287,12 @@ class SnapshotDaoIT {
   }
 
   @Test
-  void selectAnalysesByQuery_get_last_supports_multiple_last_snapshots() {
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    db.components().insertSnapshot(project1, t -> t.setLast(false));
-    SnapshotDto lastSnapshot1 = db.components().insertSnapshot(project1, t -> t.setLast(true));
-    SnapshotDto lastSnapshot2 = db.components().insertSnapshot(project1, t -> t.setLast(true));
-    db.components().insertSnapshot(project1, t -> t.setLast(false));
-
-    assertThat(underTest.selectAnalysesByQuery(db.getSession(), new SnapshotQuery().setRootComponentUuid(project1.uuid()).setIsLast(true)))
-      .extracting(SnapshotDto::getUuid)
-      .containsOnly(lastSnapshot1.getUuid(), lastSnapshot2.getUuid());
-  }
-
-  @Test
   void selectOldestSnapshot() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.getDbClient().snapshotDao().insert(dbSession,
       newAnalysis(project).setCreatedAt(5L),
-      newAnalysis(project).setCreatedAt(2L),
-      newAnalysis(project).setCreatedAt(1L));
+      newAnalysis(project).setCreatedAt(2L).setLast(false),
+      newAnalysis(project).setCreatedAt(1L).setLast(false));
     dbSession.commit();
 
     Optional<SnapshotDto> dto = underTest.selectOldestAnalysis(dbSession, project.uuid());
@@ -322,12 +309,12 @@ class SnapshotDaoIT {
     ProjectData firstProject = db.components().insertPublicProject();
     ProjectData secondProject = db.components().insertPublicProject();
     ProjectData thirdProject = db.components().insertPublicProject();
-    SnapshotDto finishedAnalysis = db.components().insertSnapshot(firstProject, s -> s.setStatus(STATUS_PROCESSED).setCreatedAt(from));
+    SnapshotDto finishedAnalysis = db.components().insertSnapshot(firstProject, s -> s.setStatus(STATUS_PROCESSED).setCreatedAt(from).setLast(false));
     insertActivity(firstProject.getMainBranchComponent().uuid(), finishedAnalysis, SUCCESS);
     SnapshotDto otherFinishedAnalysis = db.components().insertSnapshot(firstProject,
       s -> s.setStatus(STATUS_PROCESSED).setCreatedAt(from + 1_000_000L));
     insertActivity(firstProject.getMainBranchComponent().uuid(), otherFinishedAnalysis, SUCCESS);
-    SnapshotDto oldAnalysis = db.components().insertSnapshot(firstProject, s -> s.setStatus(STATUS_PROCESSED).setCreatedAt(from - 1L));
+    SnapshotDto oldAnalysis = db.components().insertSnapshot(firstProject, s -> s.setStatus(STATUS_PROCESSED).setCreatedAt(from - 1L).setLast(false));
     insertActivity(firstProject.getMainBranchComponent().uuid(), oldAnalysis, SUCCESS);
     SnapshotDto analysisOnSecondProject = db.components().insertSnapshot(secondProject,
       s -> s.setStatus(STATUS_PROCESSED).setCreatedAt(otherFrom));
@@ -349,9 +336,9 @@ class SnapshotDaoIT {
     long from = 1_500_000_000_000L;
     ProjectData project = db.components().insertPublicProject();
     SnapshotDto unprocessedAnalysis = db.components().insertSnapshot(project,
-      s -> s.setStatus(STATUS_UNPROCESSED).setCreatedAt(from + 1_000_000L));
+      s -> s.setStatus(STATUS_UNPROCESSED).setCreatedAt(from + 1_000_000L).setLast(false));
     insertActivity(project.getMainBranchComponent().uuid(), unprocessedAnalysis, CANCELED);
-    SnapshotDto finishedAnalysis = db.components().insertSnapshot(project, s -> s.setStatus(STATUS_PROCESSED).setCreatedAt(from));
+    SnapshotDto finishedAnalysis = db.components().insertSnapshot(project, s -> s.setStatus(STATUS_PROCESSED).setCreatedAt(from).setLast(false));
     insertActivity(project.getMainBranchComponent().uuid(), finishedAnalysis, SUCCESS);
     SnapshotDto canceledAnalysis = db.components().insertSnapshot(project, s -> s.setStatus(STATUS_PROCESSED).setCreatedAt(from));
     insertActivity(project.getMainBranchComponent().uuid(), canceledAnalysis, CANCELED);
@@ -368,12 +355,12 @@ class SnapshotDaoIT {
     ProjectData project = db.components().insertPublicProject();
     ComponentDto firstBranch = db.components().insertProjectBranch(project.getMainBranchComponent());
     ComponentDto secondBranch = db.components().insertProjectBranch(project.getMainBranchComponent());
-    SnapshotDto finishedAnalysis = db.components().insertSnapshot(firstBranch, s -> s.setStatus(STATUS_PROCESSED).setCreatedAt(from));
+    SnapshotDto finishedAnalysis = db.components().insertSnapshot(firstBranch, s -> s.setStatus(STATUS_PROCESSED).setCreatedAt(from).setLast(false));
     insertActivity(project.getProjectDto().getUuid(), finishedAnalysis, SUCCESS);
     SnapshotDto otherFinishedAnalysis = db.components().insertSnapshot(firstBranch,
       s -> s.setStatus(STATUS_PROCESSED).setCreatedAt(from + 1_000_000L));
     insertActivity(project.getProjectDto().getUuid(), otherFinishedAnalysis, SUCCESS);
-    SnapshotDto oldAnalysis = db.components().insertSnapshot(firstBranch, s -> s.setStatus(STATUS_PROCESSED).setCreatedAt(from - 1L));
+    SnapshotDto oldAnalysis = db.components().insertSnapshot(firstBranch, s -> s.setStatus(STATUS_PROCESSED).setCreatedAt(from - 1L).setLast(false));
     insertActivity(project.getProjectDto().getUuid(), oldAnalysis, SUCCESS);
     SnapshotDto analysisOnSecondBranch = db.components().insertSnapshot(secondBranch,
       s -> s.setStatus(STATUS_PROCESSED).setCreatedAt(from));
@@ -391,8 +378,8 @@ class SnapshotDaoIT {
   void selectSnapshotBefore() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto analysis1 = newAnalysis(project).setCreatedAt(50L).setPeriodDate(20L);
-    SnapshotDto analysis2 = newAnalysis(project).setCreatedAt(20L).setPeriodDate(10L);
-    SnapshotDto analysis3 = newAnalysis(project).setCreatedAt(10L).setPeriodDate(null);
+    SnapshotDto analysis2 = newAnalysis(project).setCreatedAt(20L).setPeriodDate(10L).setLast(false);
+    SnapshotDto analysis3 = newAnalysis(project).setCreatedAt(10L).setPeriodDate(null).setLast(false);
     db.components().insertSnapshots(analysis1, analysis2, analysis3);
 
     assertThat(underTest.selectSnapshotBefore(project.uuid(), 50L, dbSession))

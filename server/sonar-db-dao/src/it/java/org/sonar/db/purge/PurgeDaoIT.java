@@ -303,7 +303,7 @@ project.getProjectDto().getUuid()), PurgeListener.EMPTY, new PurgeProfiler());
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     db.components().insertSnapshot(mainBranch);
-    db.components().insertSnapshot(mainBranch);
+    db.components().insertSnapshot(mainBranch, s -> s.setLast(false));
     db.components().insertSnapshot(mainBranch, s -> s.setLast(false));
 
     ComponentDto dir = db.components().insertComponent(newDirectory(mainBranch, "sub").setEnabled(false));
@@ -346,7 +346,7 @@ project.getProjectDto().getUuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
 
     // set purged=true for non-last snapshot
-    assertThat(countPurgedSnapshots()).isOne();
+    assertThat(countPurgedSnapshots()).isEqualTo(2);
 
     // close open issues of selected
     assertThat(db.countSql("select count(*) from issues where status = 'CLOSED'")).isEqualTo(4);
@@ -382,8 +382,8 @@ project.getProjectDto().getUuid()), PurgeListener.EMPTY, new PurgeProfiler());
   void shouldDeleteAnalyses() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto analysis1 = db.components().insertSnapshot(project);
-    SnapshotDto analysis2 = db.components().insertSnapshot(project);
-    SnapshotDto analysis3 = db.components().insertSnapshot(project);
+    SnapshotDto analysis2 = db.components().insertSnapshot(project, s -> s.setLast(false));
+    SnapshotDto analysis3 = db.components().insertSnapshot(project, s -> s.setLast(false));
     ComponentDto otherProject = db.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto otherAnalysis1 = db.components().insertSnapshot(otherProject);
 
@@ -427,9 +427,9 @@ project.getProjectDto().getUuid()), PurgeListener.EMPTY, new PurgeProfiler());
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
     dbClient.componentDao().insert(dbSession, project, true);
     SnapshotDto projectAnalysis1 = db.components().insertSnapshot(project);
-    SnapshotDto projectAnalysis2 = db.components().insertSnapshot(project);
-    SnapshotDto projectAnalysis3 = db.components().insertSnapshot(project);
-    SnapshotDto projectAnalysis4 = db.components().insertSnapshot(project);
+    SnapshotDto projectAnalysis2 = db.components().insertSnapshot(project, s -> s.setLast(false));
+    SnapshotDto projectAnalysis3 = db.components().insertSnapshot(project, s -> s.setLast(false));
+    SnapshotDto projectAnalysis4 = db.components().insertSnapshot(project, s -> s.setLast(false));
     EventDto projectEvent1 = db.events().insertEvent(projectAnalysis1);
     EventDto projectEvent2 = db.events().insertEvent(projectAnalysis2);
     EventDto projectEvent3 = db.events().insertEvent(projectAnalysis3);
@@ -1171,12 +1171,12 @@ project.getProjectDto().getKey());
     insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
 
     SnapshotDto projectAnalysis1 = db.components().insertSnapshot(project);
-    SnapshotDto projectAnalysis2 = db.components().insertSnapshot(project);
+    SnapshotDto projectAnalysis2 = db.components().insertSnapshot(project, s -> s.setLast(false));
     EventDto projectEvent1 = db.events().insertEvent(projectAnalysis1);
     EventDto projectEvent2 = db.events().insertEvent(projectAnalysis2);
-    EventDto projectEvent3 = db.events().insertEvent(db.components().insertSnapshot(project));
+    EventDto projectEvent3 = db.events().insertEvent(db.components().insertSnapshot(project, s -> s.setLast(false)));
     SnapshotDto branchAnalysis1 = db.components().insertSnapshot(branch);
-    SnapshotDto branchAnalysis2 = db.components().insertSnapshot(branch);
+    SnapshotDto branchAnalysis2 = db.components().insertSnapshot(branch, s -> s.setLast(false));
     EventDto branchEvent1 = db.events().insertEvent(branchAnalysis1);
     EventDto branchEvent2 = db.events().insertEvent(branchAnalysis2);
     SnapshotDto anotherBranchAnalysis = db.components().insertSnapshot(anotherBranch);

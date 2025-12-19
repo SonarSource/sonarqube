@@ -112,9 +112,9 @@ class PurgeCommandsIT {
   void purgeAnalyses_deletes_duplications() {
     ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto analysis1 = dbTester.components().insertSnapshot(project);
-    SnapshotDto analysis2 = dbTester.components().insertSnapshot(project);
-    SnapshotDto analysis3 = dbTester.components().insertSnapshot(project);
-    SnapshotDto analysis4 = dbTester.components().insertSnapshot(project);
+    SnapshotDto analysis2 = dbTester.components().insertSnapshot(project, s -> s.setLast(false));
+    SnapshotDto analysis3 = dbTester.components().insertSnapshot(project, s -> s.setLast(false));
+    SnapshotDto analysis4 = dbTester.components().insertSnapshot(project, s -> s.setLast(false));
     int count = 8;
     for (SnapshotDto analysis : asList(analysis1, analysis2, analysis3, analysis4)) {
       IntStream.range(0, count).forEach(i -> insertDuplication(project, analysis));
@@ -284,10 +284,10 @@ class PurgeCommandsIT {
   void deleteAnalyses_by_rootUuid_deletes_events(ComponentDto projectOrView) {
     dbTester.components().insertComponent(projectOrView);
     SnapshotDto analysis1 = dbTester.components().insertSnapshot(projectOrView);
-    SnapshotDto analysis2 = dbTester.components().insertSnapshot(projectOrView);
+    SnapshotDto analysis2 = dbTester.components().insertSnapshot(projectOrView, s -> s.setLast(false));
     ComponentDto otherProject = dbTester.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto otherAnalysis1 = dbTester.components().insertSnapshot(otherProject);
-    SnapshotDto otherAnalysis2 = dbTester.components().insertSnapshot(otherProject);
+    SnapshotDto otherAnalysis2 = dbTester.components().insertSnapshot(otherProject, s -> s.setLast(false));
     int count = 7;
     IntStream.range(0, count).forEach(i -> {
       dbTester.events().insertEvent(analysis1);
@@ -311,10 +311,10 @@ class PurgeCommandsIT {
     MetricDto metric2 = dbTester.measures().insertMetric();
     dbTester.components().insertComponent(projectOrView);
     SnapshotDto analysis1 = dbTester.components().insertSnapshot(projectOrView);
-    SnapshotDto analysis2 = dbTester.components().insertSnapshot(projectOrView);
+    SnapshotDto analysis2 = dbTester.components().insertSnapshot(projectOrView, s -> s.setLast(false));
     ComponentDto otherProject = dbTester.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto otherAnalysis1 = dbTester.components().insertSnapshot(otherProject);
-    SnapshotDto otherAnalysis2 = dbTester.components().insertSnapshot(otherProject);
+    SnapshotDto otherAnalysis2 = dbTester.components().insertSnapshot(otherProject, s -> s.setLast(false));
     int count = 5;
     Stream.of(metric1, metric2)
       .forEach(metric -> IntStream.range(0, count).forEach(i -> {
@@ -337,10 +337,10 @@ class PurgeCommandsIT {
   void deleteAnalyses_by_rootUuid_deletes_analysis_properties(ComponentDto projectOrView) {
     dbTester.components().insertComponent(projectOrView);
     SnapshotDto analysis1 = dbTester.components().insertSnapshot(projectOrView);
-    SnapshotDto analysis2 = dbTester.components().insertSnapshot(projectOrView);
+    SnapshotDto analysis2 = dbTester.components().insertSnapshot(projectOrView, s -> s.setLast(false));
     ComponentDto otherProject = dbTester.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto otherAnalysis1 = dbTester.components().insertSnapshot(otherProject);
-    SnapshotDto otherAnalysis2 = dbTester.components().insertSnapshot(otherProject);
+    SnapshotDto otherAnalysis2 = dbTester.components().insertSnapshot(otherProject, s -> s.setLast(false));
     int count = 5;
     IntStream.range(0, count).forEach(i -> {
       insertRandomAnalysisProperty(analysis1);
@@ -367,17 +367,15 @@ class PurgeCommandsIT {
         dbTester.components().insertSnapshot(p, t -> t.setStatus(STATUS_PROCESSED).setLast(false));
         dbTester.components().insertSnapshot(p, t -> t.setStatus(STATUS_PROCESSED).setLast(true));
         dbTester.components().insertSnapshot(p, t -> t.setStatus(STATUS_UNPROCESSED).setLast(false));
-        // unrealistic case but the last analysis is never deleted even if unprocessed
-        dbTester.components().insertSnapshot(p, t -> t.setStatus(STATUS_UNPROCESSED).setLast(true));
       });
 
     underTest.deleteAbortedAnalyses(projectOrView.uuid());
 
-    assertThat(countAnalysesOfRoot(projectOrView, STATUS_UNPROCESSED, true)).isOne();
+    assertThat(countAnalysesOfRoot(projectOrView, STATUS_UNPROCESSED, true)).isZero();
     assertThat(countAnalysesOfRoot(projectOrView, STATUS_UNPROCESSED, false)).isZero();
     assertThat(countAnalysesOfRoot(projectOrView, STATUS_PROCESSED, true)).isOne();
     assertThat(countAnalysesOfRoot(projectOrView, STATUS_PROCESSED, false)).isOne();
-    assertThat(countAnalysesOfRoot(otherProject, STATUS_UNPROCESSED, true)).isOne();
+    assertThat(countAnalysesOfRoot(otherProject, STATUS_UNPROCESSED, true)).isZero();
     assertThat(countAnalysesOfRoot(otherProject, STATUS_UNPROCESSED, false)).isOne();
     assertThat(countAnalysesOfRoot(otherProject, STATUS_PROCESSED, true)).isOne();
     assertThat(countAnalysesOfRoot(otherProject, STATUS_PROCESSED, false)).isOne();
@@ -388,9 +386,9 @@ class PurgeCommandsIT {
   void deleteAnalyses_by_analyses_deletes_specified_analysis(ComponentDto projectOrView) {
     dbTester.components().insertComponent(projectOrView);
     SnapshotDto analysis1 = dbTester.components().insertSnapshot(projectOrView, s -> s.setStatus(STATUS_PROCESSED));
-    SnapshotDto analysis2 = dbTester.components().insertSnapshot(projectOrView, s -> s.setStatus(STATUS_PROCESSED));
-    SnapshotDto analysis3 = dbTester.components().insertSnapshot(projectOrView, s -> s.setStatus(STATUS_UNPROCESSED));
-    SnapshotDto analysis4 = dbTester.components().insertSnapshot(projectOrView, s -> s.setStatus(STATUS_UNPROCESSED));
+    SnapshotDto analysis2 = dbTester.components().insertSnapshot(projectOrView, s -> s.setStatus(STATUS_PROCESSED).setLast(false));
+    SnapshotDto analysis3 = dbTester.components().insertSnapshot(projectOrView, s -> s.setStatus(STATUS_UNPROCESSED).setLast(false));
+    SnapshotDto analysis4 = dbTester.components().insertSnapshot(projectOrView, s -> s.setStatus(STATUS_UNPROCESSED).setLast(false));
 
     underTest.deleteAnalyses(singletonList(analysis1.getUuid()));
     assertThat(uuidsOfAnalysesOfRoot(projectOrView))
@@ -414,7 +412,7 @@ class PurgeCommandsIT {
   @MethodSource("projectsAndViews")
   void deleteAnalyses_by_analyses_deletes_event_component_changes(ComponentDto projectOrView) {
     dbTester.components().insertComponent(projectOrView);
-    SnapshotDto analysis = dbTester.components().insertSnapshot(projectOrView, randomLastAndStatus());
+    SnapshotDto analysis = dbTester.components().insertSnapshot(projectOrView, randomStatus());
     SnapshotDto otherAnalysis = dbTester.components().insertSnapshot(projectOrView);
     int count = 5;
     IntStream.range(0, count).forEach(i -> {
@@ -432,7 +430,7 @@ class PurgeCommandsIT {
   @MethodSource("projectsAndViews")
   void deleteAnalyses_by_analyses_deletes_events(ComponentDto projectOrView) {
     dbTester.components().insertComponent(projectOrView);
-    SnapshotDto analysis = dbTester.components().insertSnapshot(projectOrView, randomLastAndStatus());
+    SnapshotDto analysis = dbTester.components().insertSnapshot(projectOrView, randomStatus());
     SnapshotDto otherAnalysis = dbTester.components().insertSnapshot(projectOrView);
     int count = 5;
     IntStream.range(0, count).forEach(i -> {
@@ -452,7 +450,7 @@ class PurgeCommandsIT {
     MetricDto metric1 = dbTester.measures().insertMetric();
     MetricDto metric2 = dbTester.measures().insertMetric();
     dbTester.components().insertComponent(projectOrView);
-    SnapshotDto analysis = dbTester.components().insertSnapshot(projectOrView, randomLastAndStatus());
+    SnapshotDto analysis = dbTester.components().insertSnapshot(projectOrView, randomStatus());
     SnapshotDto otherAnalysis = dbTester.components().insertSnapshot(projectOrView);
     int count = 5;
     Stream.of(metric1, metric2)
@@ -471,7 +469,7 @@ class PurgeCommandsIT {
   @MethodSource("projectsAndViews")
   void deleteAnalyses_by_analyses_deletes_analysis_properties(ComponentDto projectOrView) {
     dbTester.components().insertComponent(projectOrView);
-    SnapshotDto analysis = dbTester.components().insertSnapshot(projectOrView, randomLastAndStatus());
+    SnapshotDto analysis = dbTester.components().insertSnapshot(projectOrView, randomStatus());
     SnapshotDto otherAnalysis = dbTester.components().insertSnapshot(projectOrView);
     int count = 4;
     IntStream.range(0, count).forEach(i -> {
@@ -1003,8 +1001,8 @@ class PurgeCommandsIT {
     return Stream.concat(Arrays.stream(views()), Arrays.stream(projects())).toArray(Object[]::new);
   }
 
-  private Consumer<SnapshotDto> randomLastAndStatus() {
-    return t -> t.setLast(random.nextBoolean()).setStatus(random.nextBoolean() ? STATUS_PROCESSED : STATUS_UNPROCESSED);
+  private Consumer<SnapshotDto> randomStatus() {
+    return t -> t.setLast(false).setStatus(random.nextBoolean() ? STATUS_PROCESSED : STATUS_UNPROCESSED);
   }
 
   private int countIssuesOfRoot(ComponentDto root) {
