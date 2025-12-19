@@ -26,7 +26,6 @@ import FormattingTips from '../../../../components/common/FormattingTips';
 import { translate } from '../../../../helpers/l10n';
 import { Hotspot, HotspotStatusOption } from '../../../../types/security-hotspots';
 
-
 export interface StatusSelectionRendererProps {
   comment?: string;
   expiryDate?: string;
@@ -38,8 +37,8 @@ export interface StatusSelectionRendererProps {
   onSubmit: () => Promise<void>;
   status: HotspotStatusOption;
   submitDisabled: boolean;
-  hotspotExceptionExpiryDate?: string
-  hotspot: Hotspot
+  hotspotExceptionExpiryDate?: string;
+  hotspot: Hotspot;
 }
 
 export default function StatusSelectionRenderer(props: StatusSelectionRendererProps) {
@@ -48,35 +47,22 @@ export default function StatusSelectionRenderer(props: StatusSelectionRendererPr
 
   // Load existing expiry date from server when component mounts using the show api
   useEffect(() => {
-    async function loadExistingExpiry() {
+    const expiryTimestamp = props.hotspot.hotspotExceptionExpiresAt;
 
-      const { hotspot } = props;
-      const hotspotKey = props.hotspot.key;
-      if (!hotspot) return;
+    if (typeof expiryTimestamp === 'number' && expiryTimestamp > 0) {
+      const loadedDate = new Date(expiryTimestamp);
+      setDate(loadedDate);
 
-      const response = await fetch(
-        `/api/hotspots/show?hotspot=${hotspotKey}&format=json`,
-        { headers: { Accept: "application/json" } }
-      );
-      
-      const data = await response.json();
+      const yyyy = loadedDate.getFullYear();
+      const mm = String(loadedDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(loadedDate.getDate()).padStart(2, '0');
 
-      if (data.hotspotExceptionExpiresAt && data.hotspotExceptionExpiresAt > 0) {
-        const loadedDate = new Date(data.hotspotExceptionExpiresAt);
-        setDate(loadedDate);
-
-        const yyyy = loadedDate.getFullYear();
-        const mm = String(loadedDate.getMonth() + 1).padStart(2, "0");
-        const dd = String(loadedDate.getDate()).padStart(2, "0");
-
-        props.onExpiryDateChange(`${yyyy}-${mm}-${dd}`);
-      } else {
-        setDate(undefined);
-        props.onExpiryDateChange(undefined); 
-      }
+      props.onExpiryDateChange(`${yyyy}-${mm}-${dd}`);
+    } else {
+      setDate(undefined);
+      props.onExpiryDateChange(undefined);
     }
-    loadExistingExpiry();
-  }, [props.hotspot.key]);
+  }, [props.hotspot.key, props.hotspot.hotspotExceptionExpiresAt]);
 
   const renderOption = (statusOption: HotspotStatusOption) => {
     return (
@@ -91,30 +77,30 @@ export default function StatusSelectionRenderer(props: StatusSelectionRendererPr
         <Note className="sw-mt-1 sw-mr-12">
           {translate('hotspots.status_option', statusOption, 'description')}
         </Note>
-        {statusOption === HotspotStatusOption.EXCEPTION &&
-          <div style={{ marginTop: '40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {statusOption === HotspotStatusOption.EXCEPTION && (
+          <div style={{ marginTop: '40px', display: 'flex', alignItems: 'center', gap: '12px' }}>
             <DatePicker
               clearButtonLabel="Clear"
               minDate={(() => {
                 const d = new Date();
-                d.setDate(d.getDate() + 1);        // Today + 1
+                d.setDate(d.getDate() + 1); // Today + 1
                 return d;
               })()}
-              maxDate={new Date(2050, 11, 31)}  // Maximum date
+              maxDate={new Date(2050, 11, 31)} // Maximum date
               placeholder="No Expiry"
               name="myDate"
-              value={date}  // Pass Date or undefined, not a string
+              value={date} // Pass Date or undefined, not a string
               onChange={(d?: Date) => {
                 const newDate = d ?? undefined;
                 setDate(newDate);
 
                 if (newDate) {
                   const yyyy = newDate.getFullYear();
-                  const mm = String(newDate.getMonth() + 1).padStart(2, "0");
-                  const dd = String(newDate.getDate()).padStart(2, "0");
+                  const mm = String(newDate.getMonth() + 1).padStart(2, '0');
+                  const dd = String(newDate.getDate()).padStart(2, '0');
                   props.onExpiryDateChange(`${yyyy}-${mm}-${dd}`);
                 } else {
-                  props.onExpiryDateChange(undefined);  
+                  props.onExpiryDateChange(undefined);
                 }
               }}
             />
@@ -122,12 +108,12 @@ export default function StatusSelectionRenderer(props: StatusSelectionRendererPr
             {date && (
               <div style={{ marginLeft: '16px' }}>
                 {`Expires in ${Math.ceil(
-                  (date.getTime() - Date.now()) /
-                  (1000 * 60 * 60 * 24)
+                  (date.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
                 )} days`}
               </div>
             )}
-          </div>}
+          </div>
+        )}
       </SelectionCard>
     );
   };

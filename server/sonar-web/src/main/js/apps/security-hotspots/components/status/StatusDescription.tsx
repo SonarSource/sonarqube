@@ -21,14 +21,35 @@
 import styled from '@emotion/styled';
 import { LightLabel, LightPrimary } from '~design-system';
 import { translate } from '../../../../helpers/l10n';
-import { HotspotStatusOption } from '../../../../types/security-hotspots';
+import { Hotspot, HotspotStatusOption } from '../../../../types/security-hotspots';
 
 export interface StatusDescriptionProps {
   statusOption: HotspotStatusOption;
+  hotspot: Hotspot;
 }
 
 export default function StatusDescription(props: StatusDescriptionProps) {
-  const { statusOption } = props;
+  const { statusOption, hotspot } = props;
+
+  // Calculate expiry days if status is EXCEPTION and expiry date exists
+  const expiryDays =
+    statusOption === HotspotStatusOption.EXCEPTION &&
+    hotspot.hotspotExceptionExpiresAt &&
+    (typeof hotspot.hotspotExceptionExpiresAt === 'number'
+      ? hotspot.hotspotExceptionExpiresAt > 0
+      : true)
+      ? Math.ceil(
+          (new Date(hotspot.hotspotExceptionExpiresAt).getTime() - Date.now()) /
+            (1000 * 60 * 60 * 24),
+        )
+      : null;
+
+  const expiryText =
+    expiryDays !== null
+      ? expiryDays > 0
+        ? `(Expires in ${expiryDays} ${expiryDays === 1 ? 'day' : 'days'})`
+        : '(Expired)'
+      : null;
 
   return (
     <div>
@@ -36,6 +57,11 @@ export default function StatusDescription(props: StatusDescriptionProps) {
         <LightPrimary className="sw-typo-semibold">
           {`${translate('status')}: `}
           {translate('hotspots.status_option', statusOption)}
+          {expiryText && (
+            <span className="sw-ml-2" style={{ fontWeight: 'sw-typo-semibold' }}>
+              {expiryText}
+            </span>
+          )}
         </LightPrimary>
       </h2>
       <Description className="sw-mt-1">

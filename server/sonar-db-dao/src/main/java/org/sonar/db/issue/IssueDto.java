@@ -221,8 +221,8 @@ public final class IssueDto implements Serializable {
       .setCodeVariants(issue.codeVariants())
       .setCleanCodeAttribute(issue.getCleanCodeAttribute())
       .setPrioritizedRule(issue.isPrioritizedRule())
-       .setHotspotExceptionExpiresAt(issue.hotspotExceptionExpiresAt())
-    // technical date
+      .setHotspotExceptionExpiresAt(issue.hotspotExceptionExpiresAt())
+      // technical date
       .setUpdatedAt(now);
 
     issue.getImpacts().forEach(i -> issueDto.addImpact(new ImpactDto(i.softwareQuality(), i.severity(), i.manualSeverity())));
@@ -478,12 +478,10 @@ public final class IssueDto implements Serializable {
   }
 
   public Long getHotspotExceptionExpiresAt() {
-    System.out.println("Getting hotspotExceptionExpiresAt: " + hotspotExceptionExpiresAt);
     return hotspotExceptionExpiresAt;
   }
 
   public IssueDto setHotspotExceptionExpiresAt(@Nullable Long date) {
-    System.out.println("Setting hotspotExceptionExpiresAt to: " + date);
     this.hotspotExceptionExpiresAt = date;
     return this;
   }

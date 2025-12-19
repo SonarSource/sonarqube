@@ -230,7 +230,6 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   }
 
   public DefaultIssue setHotspotExceptionExpiresAt(@Nullable Long v) {
-    System.out.println("default issue Setting hotspotExceptionExpiresAt to " + v);
     this.hotspotExceptionExpiresAt = v;
     return this;
   }
