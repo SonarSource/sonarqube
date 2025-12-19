@@ -20,7 +20,7 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.ImmutableSet;
-import io.sonarcloud.compliancereports.reports.ReportKey;
+import org.sonarsource.compliancereports.reports.ReportKey;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;

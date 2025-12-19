@@ -21,8 +21,7 @@ dependencies {
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
-  implementation "com.sonarsource.sonarcloud:compliance-reports:${complianceReportsVersion}"
-  implementation "com.sonarsource.sonarcloud:compliance-reports-metadata:${complianceReportsVersion}"
+  implementation "org.sonarsource.compliancereports:compliance-reports:${complianceReportsVersion}"
 
   testImplementation 'commons-dbutils:commons-dbutils'
   testImplementation 'org.assertj:assertj-core'

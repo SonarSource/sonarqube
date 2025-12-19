@@ -19,9 +19,9 @@
  */
 package org.sonar.server.platform.platformlevel;
 
-import io.sonarcloud.compliancereports.reports.ComplianceReportService;
-import io.sonarcloud.compliancereports.reports.MetadataLoader;
-import io.sonarcloud.compliancereports.reports.MetadataRules;
+import org.sonarsource.compliancereports.reports.ComplianceReportService;
+import org.sonarsource.compliancereports.reports.MetadataLoader;
+import org.sonarsource.compliancereports.reports.MetadataRules;
 import java.util.List;
 import org.sonar.alm.client.RatioBasedRateLimitChecker;
 import org.sonar.alm.client.TimeoutConfigurationImpl;

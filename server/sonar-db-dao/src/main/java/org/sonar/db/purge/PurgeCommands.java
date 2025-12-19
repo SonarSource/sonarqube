@@ -21,7 +21,7 @@ package org.sonar.db.purge;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import io.sonarcloud.compliancereports.dao.AggregationType;
+import org.sonarsource.compliancereports.dao.AggregationType;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;

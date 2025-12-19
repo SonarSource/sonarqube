@@ -20,9 +20,9 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.collect.Lists;
-import io.sonarcloud.compliancereports.reports.MetadataLoader;
-import io.sonarcloud.compliancereports.reports.MetadataRules;
-import io.sonarcloud.compliancereports.reports.ReportKey;
+import org.sonarsource.compliancereports.reports.MetadataLoader;
+import org.sonarsource.compliancereports.reports.MetadataRules;
+import org.sonarsource.compliancereports.reports.ReportKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;

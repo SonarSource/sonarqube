@@ -19,8 +19,8 @@
  */
 package org.sonar.server.issue.ws;
 
-import io.sonarcloud.compliancereports.reports.MetadataLoader;
-import io.sonarcloud.compliancereports.reports.MetadataRules;
+import org.sonarsource.compliancereports.reports.MetadataLoader;
+import org.sonarsource.compliancereports.reports.MetadataRules;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;

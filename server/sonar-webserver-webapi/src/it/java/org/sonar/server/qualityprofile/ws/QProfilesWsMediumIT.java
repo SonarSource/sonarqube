@@ -20,8 +20,8 @@
 package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.collect.ImmutableSet;
-import io.sonarcloud.compliancereports.reports.MetadataLoader;
-import io.sonarcloud.compliancereports.reports.MetadataRules;
+import org.sonarsource.compliancereports.reports.MetadataLoader;
+import org.sonarsource.compliancereports.reports.MetadataRules;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;

@@ -19,9 +19,9 @@
  */
 package org.sonar.server.issue.index;
 
-import io.sonarcloud.compliancereports.reports.MetadataLoader;
-import io.sonarcloud.compliancereports.reports.MetadataRules;
-import io.sonarcloud.compliancereports.reports.ReportKey;
+import org.sonarsource.compliancereports.reports.MetadataLoader;
+import org.sonarsource.compliancereports.reports.MetadataRules;
+import org.sonarsource.compliancereports.reports.ReportKey;
 import java.time.Clock;
 import java.time.ZoneId;
 import java.time.ZoneOffset;

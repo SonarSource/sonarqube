@@ -20,8 +20,8 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.collect.ImmutableMap;
-import io.sonarcloud.compliancereports.reports.MetadataLoader;
-import io.sonarcloud.compliancereports.reports.MetadataRules;
+import org.sonarsource.compliancereports.reports.MetadataLoader;
+import org.sonarsource.compliancereports.reports.MetadataRules;
 import java.time.Clock;
 import java.util.List;
 import java.util.Map;

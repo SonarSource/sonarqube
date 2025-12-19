@@ -19,7 +19,7 @@
  */
 package org.sonar.server.common;
 
-import io.sonarcloud.compliancereports.reports.ReportKey;
+import org.sonarsource.compliancereports.reports.ReportKey;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;

@@ -20,8 +20,8 @@
 package org.sonar.server.rule.index;
 
 import com.google.common.collect.Sets;
-import io.sonarcloud.compliancereports.reports.CategoryTree;
-import io.sonarcloud.compliancereports.reports.ComplianceCategoryRules;
+import org.sonarsource.compliancereports.reports.CategoryTree;
+import org.sonarsource.compliancereports.reports.ComplianceCategoryRules;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;

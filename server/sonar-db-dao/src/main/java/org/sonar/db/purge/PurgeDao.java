@@ -19,7 +19,7 @@
  */
 package org.sonar.db.purge;
 
-import io.sonarcloud.compliancereports.dao.AggregationType;
+import org.sonarsource.compliancereports.dao.AggregationType;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;

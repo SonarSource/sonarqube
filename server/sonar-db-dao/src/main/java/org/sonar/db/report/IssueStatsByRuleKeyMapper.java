@@ -19,7 +19,7 @@
  */
 package org.sonar.db.report;
 
-import io.sonarcloud.compliancereports.dao.IssueStats;
+import org.sonarsource.compliancereports.dao.IssueStats;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 

@@ -21,9 +21,9 @@ package org.sonar.server.issue.index;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import io.sonarcloud.compliancereports.reports.MetadataRules;
-import io.sonarcloud.compliancereports.reports.ComplianceCategoryRules;
-import io.sonarcloud.compliancereports.reports.ReportKey;
+import org.sonarsource.compliancereports.reports.MetadataRules;
+import org.sonarsource.compliancereports.reports.ComplianceCategoryRules;
+import org.sonarsource.compliancereports.reports.ReportKey;
 import java.time.Clock;
 import java.time.DateTimeException;
 import java.time.OffsetDateTime;

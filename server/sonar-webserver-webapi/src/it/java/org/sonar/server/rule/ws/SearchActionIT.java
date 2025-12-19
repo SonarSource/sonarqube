@@ -19,8 +19,8 @@
  */
 package org.sonar.server.rule.ws;
 
-import io.sonarcloud.compliancereports.reports.MetadataLoader;
-import io.sonarcloud.compliancereports.reports.MetadataRules;
+import org.sonarsource.compliancereports.reports.MetadataLoader;
+import org.sonarsource.compliancereports.reports.MetadataRules;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;

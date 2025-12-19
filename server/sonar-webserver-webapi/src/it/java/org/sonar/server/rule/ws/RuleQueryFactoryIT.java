@@ -19,10 +19,10 @@
  */
 package org.sonar.server.rule.ws;
 
-import io.sonarcloud.compliancereports.reports.ComplianceCategoryRules;
-import io.sonarcloud.compliancereports.reports.MetadataLoader;
-import io.sonarcloud.compliancereports.reports.MetadataRules;
-import io.sonarcloud.compliancereports.reports.RepositoryRuleKey;
+import org.sonarsource.compliancereports.reports.ComplianceCategoryRules;
+import org.sonarsource.compliancereports.reports.MetadataLoader;
+import org.sonarsource.compliancereports.reports.MetadataRules;
+import org.sonarsource.compliancereports.reports.RepositoryRuleKey;
 import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;

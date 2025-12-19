@@ -19,8 +19,8 @@
  */
 package org.sonar.db.report;
 
-import io.sonarcloud.compliancereports.dao.AggregationType;
-import io.sonarcloud.compliancereports.dao.IssueStats;
+import org.sonarsource.compliancereports.dao.AggregationType;
+import org.sonarsource.compliancereports.dao.IssueStats;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
-import static io.sonarcloud.compliancereports.dao.AggregationType.PROJECT;
+import static org.sonarsource.compliancereports.dao.AggregationType.PROJECT;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 

@@ -20,7 +20,7 @@
 package org.sonar.ce.container;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.sonarcloud.compliancereports.ingestion.IssueIngestionService;
+import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 import java.time.Clock;
 import java.util.List;
 import javax.annotation.CheckForNull;

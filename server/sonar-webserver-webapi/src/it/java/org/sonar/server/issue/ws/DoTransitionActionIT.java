@@ -19,8 +19,8 @@
  */
 package org.sonar.server.issue.ws;
 
-import io.sonarcloud.compliancereports.dao.AggregationType;
-import io.sonarcloud.compliancereports.dao.IssueStats;
+import org.sonarsource.compliancereports.dao.AggregationType;
+import org.sonarsource.compliancereports.dao.IssueStats;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;

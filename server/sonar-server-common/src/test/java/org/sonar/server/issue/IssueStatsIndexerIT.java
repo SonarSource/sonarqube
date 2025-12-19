@@ -19,8 +19,8 @@
  */
 package org.sonar.server.issue;
 
-import io.sonarcloud.compliancereports.dao.AggregationType;
-import io.sonarcloud.compliancereports.ingestion.IssueIngestionService;
+import org.sonarsource.compliancereports.dao.AggregationType;
+import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;

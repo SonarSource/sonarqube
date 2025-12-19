@@ -19,9 +19,9 @@
  */
 package org.sonar.db.report;
 
-import io.sonarcloud.compliancereports.dao.AggregationType;
-import io.sonarcloud.compliancereports.dao.IssueStats;
-import io.sonarcloud.compliancereports.dao.IssueStatsByRuleKeyDao;
+import org.sonarsource.compliancereports.dao.AggregationType;
+import org.sonarsource.compliancereports.dao.IssueStats;
+import org.sonarsource.compliancereports.dao.IssueStatsByRuleKeyDao;
 import java.util.List;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;

@@ -19,8 +19,8 @@
  */
 package org.sonar.server.compliance;
 
-import io.sonarcloud.compliancereports.dao.ActiveRuleDao;
-import io.sonarcloud.compliancereports.dao.AggregationType;
+import org.sonarsource.compliancereports.dao.ActiveRuleDao;
+import org.sonarsource.compliancereports.dao.AggregationType;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;

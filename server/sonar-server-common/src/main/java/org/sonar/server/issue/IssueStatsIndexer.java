@@ -19,10 +19,10 @@
  */
 package org.sonar.server.issue;
 
-import io.sonarcloud.compliancereports.dao.AggregationType;
-import io.sonarcloud.compliancereports.dao.IssueStats;
-import io.sonarcloud.compliancereports.ingestion.IssueFromAnalysis;
-import io.sonarcloud.compliancereports.ingestion.IssueIngestionService;
+import org.sonarsource.compliancereports.dao.AggregationType;
+import org.sonarsource.compliancereports.dao.IssueStats;
+import org.sonarsource.compliancereports.ingestion.IssueFromAnalysis;
+import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
