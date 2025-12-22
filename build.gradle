@@ -534,7 +534,7 @@ subprojects {
       dependency 'org.postgresql:postgresql:42.7.8'
       dependency 'org.reflections:reflections:0.10.2'
       dependency 'org.simpleframework:simple:5.1.6'
-      dependency 'org.sonarsource.git.blame:git-files-blame:2.0.0.2053'
+      dependency 'org.sonarsource.git.blame:git-files-blame:2.0.1.17'
       dependencySet(group: 'org.sonarsource.orchestrator', version: '6.0.3.3907') {
         entry('sonar-orchestrator-junit4') {
           exclude 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
