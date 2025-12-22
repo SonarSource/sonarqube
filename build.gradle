@@ -505,7 +505,7 @@ subprojects {
       // JUnit 5
       imports { mavenBom 'org.junit:junit-bom:5.14.0' }
       dependency 'org.junit-pioneer:junit-pioneer:2.3.0'
-      dependencySet(group: 'org.mockito', version: '5.20.0') {
+      dependencySet(group: 'org.mockito', version: '5.21.0') {
         entry 'mockito-core'
         entry('mockito-junit-jupiter') {
           exclude 'org.junit.jupiter:junit-jupiter-api'
