@@ -449,7 +449,7 @@ subprojects {
       dependency 'org.awaitility:awaitility:4.3.0'
       dependency 'org.apache.commons:commons-collections4:4.5.0'
       dependency 'org.apache.commons:commons-csv:1.14.1'
-      dependency 'org.apache.commons:commons-lang3:3.19.0'
+      dependency 'org.apache.commons:commons-lang3:3.20.0'
       dependency 'org.apache.commons:commons-email2-jakarta:2.0.0-M1'
       dependency 'org.apache.commons:commons-exec:1.6.0'
       dependency 'org.apache.commons:commons-text:1.15.0'
