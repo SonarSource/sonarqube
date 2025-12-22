@@ -379,7 +379,7 @@ subprojects {
         entry 'scribejava-apis'
         entry 'scribejava-core'
       }
-      dependency('com.github.erosb:json-sKema:0.27.0') {
+      dependency('com.github.erosb:json-sKema:0.28.0') {
         // this version of json-sKema does not make use of commons-collections, so we can exclude it safely
         exclude 'commons-collections:commons-collections'
       }
