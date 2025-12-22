@@ -19,21 +19,25 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.Optional;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.projectanalysis.scanner.MutableScannerReportDirectoryHolder;
 import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.db.DbInputStream;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbInputStream;
 import org.sonar.db.DbSession;
 import org.sonar.process.FileUtils2;
 
@@ -63,30 +67,63 @@ public class ExtractReportStep implements ComputationStep {
 
   @Override
   public void execute(ComputationStep.Context context) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<DbInputStream> opt = dbClient.ceTaskInputDao().selectData(dbSession, task.getUuid());
-      if (opt.isPresent()) {
-        File unzippedDir = tempFolder.newDir();
-        try (DbInputStream reportStream = opt.get();
-             InputStream zipStream = new BufferedInputStream(reportStream)) {
-          ZipUtils.unzip(zipStream, unzippedDir, REPORT_SIZE_THRESHOLD_IN_BYTES);
-        } catch (IOException e) {
-          throw new IllegalStateException("Fail to extract report " + task.getUuid() + " from database", e);
-        }
-        reportDirectoryHolder.setDirectory(unzippedDir);
-        if (LOGGER.isDebugEnabled()) {
-          // size is not added to context statistics because computation
-          // can take time. It's enabled only if log level is DEBUG.
-          try {
-            String dirSize = humanReadableByteCountSI(FileUtils2.sizeOf(unzippedDir.toPath()));
-            LOGGER.debug("Analysis report is {} uncompressed", dirSize);
-          } catch (IOException e) {
-            LOGGER.warn("Fail to compute size of directory " + unzippedDir, e);
-          }
-        }
+    File unzippedDir = tempFolder.newDir();
 
+    readParts(unzippedDir);
+  }
+
+  private void readParts(File unzippedDir) {
+    int nbParts = task.getReportPartCount();
+    LOGGER.debug("Reading report file in {} parts", nbParts);
+    File zipfile = unzippedDir.toPath().resolve(task.getUuid() + "-report.zip").toFile();
+
+    for (int i = 0; i < nbParts; i++) {
+      appendPart(zipfile, i + 1);
+    }
+    LOGGER.debug("Finished reading report files in {} parts", nbParts);
+
+    unzip(zipfile, unzippedDir);
+    reportDirectoryHolder.setDirectory(unzippedDir);
+
+    if (LOGGER.isDebugEnabled()) {
+      // size is not added to context statistics because computation
+      // can take time. It's enabled only if log level is DEBUG.
+      try {
+        String dirSize = humanReadableByteCountSI(FileUtils2.sizeOf(unzippedDir.toPath()));
+        LOGGER.debug("Analysis report is {} uncompressed", dirSize);
+      } catch (IOException e) {
+        LOGGER.warn("Fail to compute size of directory {}", unzippedDir, e);
+      }
+    }
+  }
+
+  private void unzip(File zipfile, File unzippedDir) {
+    try (InputStream inputStream = new FileInputStream(zipfile)) {
+      ZipUtils.unzip(inputStream, unzippedDir, REPORT_SIZE_THRESHOLD_IN_BYTES);
+    } catch (IOException e) {
+      throw new IllegalStateException("Fail to extract report " + task.getUuid() + " from database", e);
+    } finally {
+      try {
+        Files.delete(zipfile.toPath());
+      } catch (IOException e) {
+        LOGGER.warn("Fail to delete Zip file {}", zipfile, e);
+      }
+    }
+  }
+
+  private void appendPart(File destinationFile, int partNumber) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      LOGGER.debug("Reading part {} from DB", partNumber);
+      Optional<DbInputStream> opt = dbClient.ceTaskInputDao().selectData(dbSession, task.getUuid(), partNumber);
+      if (opt.isPresent()) {
+        try (DbInputStream reportStream = opt.get();
+             OutputStream out = FileUtils.newOutputStream(destinationFile, true)) {
+          IOUtils.copy(reportStream, out);
+        } catch (IOException e) {
+          throw new IllegalStateException("Fail to read report " + task.getUuid() + " part " + partNumber + " from database", e);
+        }
       } else {
-        throw MessageException.of("Analysis report " + task.getUuid() + " is missing in database");
+        throw MessageException.of("Analysis report " + task.getUuid() + " part " + partNumber + " is missing in database");
       }
     }
   }

@@ -19,15 +19,23 @@
  */
 package org.sonar.server.ce.queue;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Blob;
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.LongStream;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.impl.utils.JUnitTempFolder;
 import org.sonar.api.utils.System2;
 import org.sonar.auth.github.GitHubSettings;
 import org.sonar.auth.github.GithubApplicationClient;
@@ -109,6 +117,8 @@ public class ReportSubmitterIT {
   public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public final DbTester db = DbTester.create();
+  @Rule
+  public JUnitTempFolder tempFolder = new JUnitTempFolder();
 
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
   private final DefaultBranchNameResolver defaultBranchNameResolver = mock(DefaultBranchNameResolver.class);
@@ -133,13 +143,14 @@ public class ReportSubmitterIT {
   private final GithubProjectCreatorFactory githubProjectCreatorFactory = new GithubProjectCreatorFactory(db.getDbClient(), githubGlobalSettingsValidator,
     githubApplicationClient, projectKeyGenerator, projectCreator, gitHubSettings, null, permissionUpdater, permissionService,
     managedProjectService, githubDevOpsProjectService);
+  private final Configuration configuration = mock(Configuration.class);
 
   private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactory = new DelegatingDevOpsProjectCreatorFactory(Set.of(githubProjectCreatorFactory));
 
   private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactorySpy = spy(devOpsProjectCreatorFactory);
 
-  private final ReportSubmitter underTest = new ReportSubmitter(queue, userSession, projectCreator, componentUpdater, permissionTemplateService, db.getDbClient(),
-    ossEditionBranchSupport, devOpsProjectCreatorFactorySpy, managedInstanceService);
+  private final ReportSubmitter underTest = spy(new ReportSubmitter(queue, userSession, projectCreator, componentUpdater, permissionTemplateService, db.getDbClient(),
+    ossEditionBranchSupport, devOpsProjectCreatorFactorySpy, managedInstanceService, tempFolder, configuration));
 
   @Before
   public void before() {
@@ -179,6 +190,48 @@ public class ReportSubmitterIT {
   }
 
   @Test
+  public void submit_with_big_report_stores_in_parts() {
+    userSession
+      .addPermission(GlobalPermission.SCAN)
+      .addPermission(PROVISION_PROJECTS);
+    mockSuccessfulPrepareSubmitCall();
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), any(), eq(PROJECT_KEY)))
+      .thenReturn(true);
+
+    String input = "{binarycontent}";
+    when(underTest.getReportMaxSizeBytes()).thenReturn(2L);
+
+    underTest.submit(PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream(input, UTF_8));
+
+    List<Map<String, Object>> taskInputs = db.select("select task_uuid, part_number, input_data from ce_task_input where task_uuid='" + TASK_UUID + "' order by part_number asc");
+    int partNumber = 8;
+
+    assertThat(taskInputs).hasSize(partNumber);
+    assertThat(taskInputs)
+      .extracting(row -> row.get("part_number"))
+      .containsExactlyElementsOf(LongStream.range(1, partNumber + 1).boxed().toList());
+
+    Optional<String> data = taskInputs.stream().map(r -> (Blob) r.get("input_data"))
+      .map(ReportSubmitterIT::getBytes)
+      .reduce(ArrayUtils::addAll)
+      .map(String::new);
+
+    assertThat(data).hasValue(input);
+
+    verify(queue).submit(argThat(submit ->
+      submit.getUuid().equals(TASK_UUID)
+      && submit.getReportPartCount() == partNumber));
+  }
+
+  private static byte[] getBytes(Blob blob) {
+    try (var dataStream = blob.getBinaryStream()) {
+      return dataStream.readAllBytes();
+    } catch (SQLException | IOException e) {
+      throw new AssertionError("Failed to read bytes from blob");
+    }
+  }
+
+  @Test
   public void submit_a_report_on_existing_project() {
     ProjectData project = db.components().insertPrivateProject();
     UserDto user = db.users().insertUser();
@@ -192,10 +245,11 @@ public class ReportSubmitterIT {
     verifyNoInteractions(permissionTemplateService);
     verify(queue).submit(argThat(submit -> submit.getType().equals(CeTaskTypes.REPORT)
       && submit.getComponent()
-        .filter(cpt -> cpt.getUuid().equals(project.getMainBranchComponent().uuid()) && cpt.getEntityUuid().equals(project.projectUuid()))
-        .isPresent()
+      .filter(cpt -> cpt.getUuid().equals(project.getMainBranchComponent().uuid()) && cpt.getEntityUuid().equals(project.projectUuid()))
+      .isPresent()
       && submit.getSubmitterUuid().equals(user.getUuid())
-      && submit.getUuid().equals(TASK_UUID)));
+      && submit.getUuid().equals(TASK_UUID)
+      && submit.getReportPartCount() == 1));
   }
 
   @Test
@@ -215,7 +269,7 @@ public class ReportSubmitterIT {
     verifyReportIsPersisted(TASK_UUID);
     verify(queue).submit(argThat(submit -> submit.getType().equals(CeTaskTypes.REPORT)
       && submit.getComponent().filter(cpt -> cpt.getUuid().equals(createdProject.uuid()) && cpt.getEntityUuid().equals(projectDto.getUuid()))
-        .isPresent()
+      .isPresent()
       && submit.getUuid().equals(TASK_UUID)));
     assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.SCANNER_API);
   }
@@ -468,7 +522,7 @@ public class ReportSubmitterIT {
       .extracting(throwable -> ((BadRequestException) throwable).errors())
       .asList()
       .contains(format("The project '%s' is already defined in SonarQube but as a module of project '%s'. " +
-        "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
+          "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
         dir.getKey(), project.getKey(), project.getKey(), dir.getKey()));
   }
 

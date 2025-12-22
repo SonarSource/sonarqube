@@ -51,6 +51,7 @@ public class CeQueueDto {
    * UUID of the worker that is executing, or of the last worker that executed, the current task.
    */
   private String workerUuid;
+  private int partCount = 1;
   private Long startedAt;
   private long createdAt;
   private long updatedAt;
@@ -130,6 +131,14 @@ public class CeQueueDto {
     return this;
   }
 
+  public int getPartCount() {
+    return partCount;
+  }
+
+  public void setPartCount(int partCount) {
+    this.partCount = partCount;
+  }
+
   @CheckForNull
   public Long getStartedAt() {
     return startedAt;
@@ -166,6 +175,7 @@ public class CeQueueDto {
       ", componentUuid='" + componentUuid + '\'' +
       ", entityUuid='" + entityUuid + '\'' +
       ", status=" + status +
+      ", partCount=" + partCount +
       ", submitterLogin='" + submitterUuid + '\'' +
       ", workerUuid='" + workerUuid + '\'' +
       ", startedAt=" + startedAt +

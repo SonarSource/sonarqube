@@ -19,16 +19,24 @@
  */
 package org.sonar.server.ce.queue;
 
+import com.google.common.annotations.VisibleForTesting;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.db.component.ComponentScopes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
-import org.sonar.db.permission.ProjectPermission;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeTaskSubmit;
 import org.sonar.ce.task.CeTask;
@@ -37,19 +45,23 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.server.common.almsettings.DevOpsProjectCreator;
 import org.sonar.server.common.almsettings.DevOpsProjectCreatorFactory;
-import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.common.component.ComponentUpdater;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.common.permission.PermissionTemplateService;
 import org.sonar.server.common.project.ProjectCreator;
+import org.sonar.server.component.ComponentCreationData;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
+import static org.sonar.core.config.CorePropertyDefinitions.REPORT_PART_MAX_SIZE_MBYTES;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.db.project.CreationMethod.SCANNER_API;
 import static org.sonar.db.project.CreationMethod.SCANNER_API_DEVOPS_AUTO_CONFIG;
@@ -57,6 +69,8 @@ import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesEx
 
 @ServerSide
 public class ReportSubmitter {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ReportSubmitter.class);
 
   private final CeQueue queue;
   private final UserSession userSession;
@@ -68,10 +82,12 @@ public class ReportSubmitter {
   private final BranchSupport branchSupport;
   private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactory;
   private final ManagedInstanceService managedInstanceService;
+  private final TempFolder tempFolder;
+  private final Configuration configuration;
 
   public ReportSubmitter(CeQueue queue, UserSession userSession, ProjectCreator projectCreator, ComponentUpdater componentUpdater,
     PermissionTemplateService permissionTemplateService, DbClient dbClient, BranchSupport branchSupport,
-    DevOpsProjectCreatorFactory devOpsProjectCreatorFactory, ManagedInstanceService managedInstanceService) {
+    DevOpsProjectCreatorFactory devOpsProjectCreatorFactory, ManagedInstanceService managedInstanceService, TempFolder tempFolder, Configuration configuration) {
     this.queue = queue;
     this.userSession = userSession;
     this.projectCreator = projectCreator;
@@ -81,6 +97,8 @@ public class ReportSubmitter {
     this.branchSupport = branchSupport;
     this.devOpsProjectCreatorFactory = devOpsProjectCreatorFactory;
     this.managedInstanceService = managedInstanceService;
+    this.tempFolder = tempFolder;
+    this.configuration = configuration;
   }
 
   public CeTask submit(String projectKey, @Nullable String projectName, Map<String, String> characteristics, InputStream reportInput) {
@@ -153,7 +171,7 @@ public class ReportSubmitter {
       // Project key is already used as a module of another project
       ComponentDto anotherBaseProject = dbClient.componentDao().selectOrFailByUuid(dbSession, component.branchUuid());
       errors.add(format("The project '%s' is already defined in SonarQube but as a module of project '%s'. "
-        + "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
+          + "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
         rawProjectKey, anotherBaseProject.getKey(), anotherBaseProject.getKey(), rawProjectKey));
     }
     if (!errors.isEmpty()) {
@@ -194,14 +212,101 @@ public class ReportSubmitter {
   private CeTask submitReport(DbSession dbSession, InputStream reportInput, ComponentDto branch, BranchDto mainBranch, Map<String, String> characteristics) {
     CeTaskSubmit.Builder submit = queue.prepareSubmit();
 
-    // the report file must be saved before submitting the task
-    dbClient.ceTaskInputDao().insert(dbSession, submit.getUuid(), reportInput);
+    int nbParts = saveReport(dbSession, reportInput, submit);
+
     dbSession.commit();
-    submit.setType(CeTaskTypes.REPORT);
-    submit.setComponent(CeTaskSubmit.Component.fromDto(branch.uuid(), mainBranch.getProjectUuid()));
-    submit.setSubmitterUuid(userSession.getUuid());
-    submit.setCharacteristics(characteristics);
+    submit
+      .setType(CeTaskTypes.REPORT)
+      .setComponent(CeTaskSubmit.Component.fromDto(branch.uuid(), mainBranch.getProjectUuid()))
+      .setSubmitterUuid(userSession.getUuid())
+      .setCharacteristics(characteristics)
+      .setReportPartCount(nbParts);
     return queue.submit(submit.build());
+  }
+
+  private int saveReport(DbSession dbSession, InputStream reportInput, CeTaskSubmit.Builder submit) {
+    File tempFile = tempFolder.newFile();
+    writeReportToTempFile(reportInput, tempFile);
+
+    long sourceSize = getSourceSize(tempFile);
+    long reportPartMaxSizeBytes = getReportMaxSizeBytes();
+
+    if (sourceSize <= reportPartMaxSizeBytes) {
+      saveFileOnDb(dbSession, submit, 0, tempFile);
+      return 1;
+    }
+
+    return splitFile(tempFile, sourceSize, reportPartMaxSizeBytes, dbSession, submit);
+  }
+
+  @VisibleForTesting
+  long getReportMaxSizeBytes() {
+    return configuration.getInt(REPORT_PART_MAX_SIZE_MBYTES)
+      .map(mBytes -> mBytes * 1024 * 1024)
+      .orElse(450 * 1024 * 1024);
+  }
+
+  private static void writeReportToTempFile(InputStream reportInput, File tempFile) {
+    try {
+      Files.copy(reportInput, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    } catch (IOException e) {
+      throw new IllegalStateException("Could not save scanner report to temp file", e);
+    }
+  }
+
+  private static long getSourceSize(File tempFile) {
+    try {
+      return Files.size(tempFile.toPath());
+    } catch (IOException e) {
+      throw new IllegalStateException("Could not check the size of the report temp file", e);
+    }
+  }
+
+  public int splitFile(File bigFile, long sourceSize, long reportPartMaxSizeBytes, DbSession dbSession, CeTaskSubmit.Builder submit) {
+    int position = 0;
+    LOGGER.debug("Splitting report file {} of size {}", bigFile.toPath(), sourceSize);
+    try (RandomAccessFile sourceFile = new RandomAccessFile(bigFile, "r");
+         FileChannel sourceChannel = sourceFile.getChannel()) {
+
+      final long numSplits = sourceSize / reportPartMaxSizeBytes;
+      final long remainingBytes = sourceSize % reportPartMaxSizeBytes;
+      LOGGER.debug("Report file {} will be split in {} parts", bigFile.toPath(), numSplits + (remainingBytes > 0 ? 1 : 0));
+
+      for (; position < numSplits; position++) {
+        //write multipart files.
+        writePartToDb(dbSession, submit, reportPartMaxSizeBytes, position, sourceChannel, reportPartMaxSizeBytes);
+      }
+      if (remainingBytes > 0) {
+        writePartToDb(dbSession, submit, remainingBytes, position, sourceChannel, reportPartMaxSizeBytes);
+        return position + 1;
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to split report for task " + submit.getUuid(), e);
+    }
+    return position;
+  }
+
+  private void writePartToDb(DbSession dbSession, CeTaskSubmit.Builder submit, long byteSize, long partIndex, FileChannel sourceChannel, long reportPartMaxSizeBytes)
+    throws IOException {
+    File file = tempFolder.newFile();
+    try (RandomAccessFile toFile = new RandomAccessFile(file, "rw");
+         FileChannel toChannel = toFile.getChannel()
+    ) {
+      sourceChannel.position(partIndex * reportPartMaxSizeBytes);
+      toChannel.transferFrom(sourceChannel, 0, byteSize);
+    }
+
+    saveFileOnDb(dbSession, submit, partIndex, file);
+  }
+
+  private void saveFileOnDb(DbSession dbSession, CeTaskSubmit.Builder submit, long partIndex, File file) {
+    long partNumber = partIndex + 1;
+    LOGGER.debug("Saving report {} part {} on DB from file {}", submit.getUuid(), partNumber, file.toPath());
+    try (InputStream is = Files.newInputStream(file.toPath())) {
+      dbClient.ceTaskInputDao().insert(dbSession, submit.getUuid(), partNumber, is);
+    } catch (IOException e) {
+      throw new IllegalStateException("Could not save report " + submit.getUuid() + " part " + partNumber + " file to database", e);
+    }
   }
 
 }

@@ -29,7 +29,9 @@ import org.sonar.api.config.PropertyDefinition.ConfigScope;
 import org.sonar.core.extension.PluginRiskConsent;
 
 import static java.util.Arrays.asList;
+import static org.sonar.api.CoreProperties.CATEGORY_GENERAL;
 import static org.sonar.api.PropertyType.BOOLEAN;
+import static org.sonar.api.PropertyType.INTEGER;
 import static org.sonar.api.PropertyType.SINGLE_SELECT_LIST;
 import static org.sonar.api.PropertyType.STRING;
 import static org.sonar.api.PropertyType.TEXT;
@@ -44,6 +46,7 @@ public class CorePropertyDefinitions {
 
   public static final String DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES = "sonar.builtInQualityProfiles.disableNotificationOnUpdate";
   public static final String DISABLE_JRE_AUTO_PROVISIONING = "sonar.jreAutoProvisioning.disabled";
+  public static final String REPORT_PART_MAX_SIZE_MBYTES = "sonar.report.partMaxSizeMBytes";
   public static final String ALLOW_DISABLE_INHERITED_RULES = "sonar.qualityProfiles.allowDisableInheritedRules";
 
   public static final String PLUGINS_RISK_CONSENT = "sonar.plugins.risk.consent";
@@ -74,7 +77,7 @@ public class CorePropertyDefinitions {
         .description("DEPRECATED - List of the properties that were previously configured at sub-project / module level. " +
           "These properties are not used anymore and should now be configured at project level. When you've made the " +
           "necessary changes, clear this setting to prevent analysis from showing a warning about it.")
-        .category(CoreProperties.CATEGORY_GENERAL)
+        .category(CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_MODULES)
         .onlyOnConfigScopes(ConfigScope.PROJECT)
         .type(TEXT)
@@ -84,11 +87,11 @@ public class CorePropertyDefinitions {
         .description(
           "HTTP(S) URL of this SonarQube server, such as <i>https://yourhost.yourdomain/sonar</i>. "
             + "This value is used outside SonarQube itself, e.g. for PR decoration, emails, etc.")
-        .category(CoreProperties.CATEGORY_GENERAL)
+        .category(CATEGORY_GENERAL)
         .build(),
       PropertyDefinition.builder(SONAR_PROJECTCREATION_MAINBRANCHNAME)
         .name("Default main branch name")
-        .category(CoreProperties.CATEGORY_GENERAL)
+        .category(CATEGORY_GENERAL)
         .subCategory(SUBCATEGORY_PROJECT_CREATION)
         .description("Each project has a main branch at creation. This setting defines the instance-wide default main branch name. "
           + " A user can override this when creating a project. This setting does not apply to projects imported from a DevOps platform.")
@@ -112,7 +115,7 @@ public class CorePropertyDefinitions {
         .name("Avoid quality profiles notification")
         .description("Avoid sending email notification on each update of built-in quality profiles to quality profile administrators.")
         .defaultValue(Boolean.toString(false))
-        .category(CoreProperties.CATEGORY_GENERAL)
+        .category(CATEGORY_GENERAL)
         .subCategory(SUBCATEGORY_QUALITY_PROFILE)
         .type(BOOLEAN)
         .build(),
@@ -120,7 +123,7 @@ public class CorePropertyDefinitions {
         .name("Enable deactivation of inherited rules")
         .description("Set if users with 'Administer Quality Profiles' permission are allowed to deactivate inherited rules in quality profiles.")
         .defaultValue(Boolean.toString(true))
-        .category(CoreProperties.CATEGORY_GENERAL)
+        .category(CATEGORY_GENERAL)
         .subCategory(SUBCATEGORY_QUALITY_PROFILE)
         .type(BOOLEAN)
         .build(),
@@ -144,14 +147,14 @@ public class CorePropertyDefinitions {
         .deprecatedKey("sonar.branding.image")
         .name("Logo URL")
         .description("URL to logo image. Any standard format is accepted.")
-        .category(CoreProperties.CATEGORY_GENERAL)
+        .category(CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
         .build(),
       PropertyDefinition.builder(WebConstants.SONAR_LF_LOGO_WIDTH_PX)
         .deprecatedKey("sonar.branding.image.width")
         .name("Width of image in pixels")
         .description("Width in pixels, constrained to 150px (the height of the image is constrained to 40px).")
-        .category(CoreProperties.CATEGORY_GENERAL)
+        .category(CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
         .build(),
       PropertyDefinition.builder(WebConstants.SONAR_LF_ENABLE_GRAVATAR)
@@ -159,14 +162,14 @@ public class CorePropertyDefinitions {
         .description("Gravatars are profile pictures of users based on their email.")
         .type(BOOLEAN)
         .defaultValue(String.valueOf(false))
-        .category(CoreProperties.CATEGORY_GENERAL)
+        .category(CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
         .build(),
       PropertyDefinition.builder(WebConstants.SONAR_LF_GRAVATAR_SERVER_URL)
         .name("Gravatar URL")
         .description("Optional URL of custom Gravatar service. Accepted variables are {EMAIL_MD5} for MD5 hash of email and {SIZE} for the picture size in pixels.")
         .defaultValue("https://secure.gravatar.com/avatar/{EMAIL_MD5}.jpg?s={SIZE}&d=identicon")
-        .category(CoreProperties.CATEGORY_GENERAL)
+        .category(CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
         .build(),
 
@@ -174,7 +177,7 @@ public class CorePropertyDefinitions {
       PropertyDefinition.builder(CoreProperties.DEVELOPER_AGGREGATED_INFO_DISABLED)
         .name("Disable developer aggregated information")
         .description("Don't show issue facets aggregating information per developer")
-        .category(CoreProperties.CATEGORY_GENERAL)
+        .category(CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_ISSUES)
         .onConfigScopes(ConfigScope.PROJECT)
         .type(BOOLEAN)
@@ -184,7 +187,7 @@ public class CorePropertyDefinitions {
       PropertyDefinition.builder(CoreProperties.DEFAULT_ISSUE_ASSIGNEE)
         .name("Default Assignee")
         .description("New issues will be assigned to this user each time it is not possible to determine the user who is the author of the issue.")
-        .category(CoreProperties.CATEGORY_GENERAL)
+        .category(CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_ISSUES)
         .onConfigScopes(ConfigScope.PROJECT)
         .type(PropertyType.USER_LOGIN)
@@ -194,7 +197,7 @@ public class CorePropertyDefinitions {
       PropertyDefinition.builder(CoreProperties.QUALITY_GATE_IGNORE_SMALL_CHANGES)
         .name("Ignore duplication and coverage on small changes")
         .description("Quality Gate conditions about duplications in new code and coverage on new code are ignored until the number of new lines is at least 20.")
-        .category(CoreProperties.CATEGORY_GENERAL)
+        .category(CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_QUALITY_GATE)
         .onConfigScopes(ConfigScope.PROJECT)
         .type(BOOLEAN)
@@ -212,7 +215,7 @@ public class CorePropertyDefinitions {
           + "and therefore badly impact the performances of report processing as more and more projects "
           + "are getting involved in this cross project duplication mechanism.")
         .onConfigScopes(ConfigScope.PROJECT)
-        .category(CoreProperties.CATEGORY_GENERAL)
+        .category(CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS)
         .type(BOOLEAN)
         .build(),
@@ -233,8 +236,17 @@ public class CorePropertyDefinitions {
         .name("Disable Scanner JRE auto provisioning")
         .description("Deactivates the automatic download and use of a Java Runtime (JRE) by the scanner. " +
           "When toggled on, you must ensure a compatible JRE is available on your build servers.")
-        .category(CoreProperties.CATEGORY_GENERAL)
+        .category(CATEGORY_GENERAL)
         .type(BOOLEAN)
+        .build(),
+
+      // REPORT SUBMISSION
+      PropertyDefinition.builder(REPORT_PART_MAX_SIZE_MBYTES)
+        .defaultValue("450")
+        .name("Configure the max size of the report parts when saving it on DB")
+        .description("When scanner reports are bigger than this size,they'll be transparently split into several lines in the database.")
+        .category(CATEGORY_GENERAL)
+        .type(INTEGER)
         .build()));
 
     return defs;

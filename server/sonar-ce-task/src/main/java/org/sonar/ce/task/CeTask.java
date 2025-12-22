@@ -43,10 +43,12 @@ public class CeTask {
   private final Component entity;
   private final User submitter;
   private final Map<String, String> characteristics;
+  private final int reportPartCount;
 
   private CeTask(Builder builder) {
     this.uuid = requireNonNull(emptyToNull(builder.uuid), "uuid can't be null nor empty");
     this.type = requireNonNull(emptyToNull(builder.type), "type can't be null nor empty");
+    this.reportPartCount = builder.reportPartCount;
     checkArgument((builder.component == null) == (builder.entity == null),
       "None or both component and entity must be non null");
     this.component = builder.component;
@@ -116,6 +118,10 @@ public class CeTask {
     return characteristics;
   }
 
+  public int getReportPartCount() {
+    return reportPartCount;
+  }
+
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
@@ -151,6 +157,7 @@ public class CeTask {
     private Component entity;
     private User submitter;
     private Map<String, String> characteristics;
+    private int reportPartCount = 1;
 
     public Builder setUuid(String uuid) {
       this.uuid = uuid;
@@ -179,6 +186,11 @@ public class CeTask {
 
     public Builder setCharacteristics(@Nullable Map<String, String> m) {
       this.characteristics = m;
+      return this;
+    }
+
+    public Builder setReportPartCount(int reportPartCount) {
+      this.reportPartCount = reportPartCount;
       return this;
     }
 

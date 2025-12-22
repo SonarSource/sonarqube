@@ -11,6 +11,7 @@
     cq.status as status,
     cq.submitter_uuid as submitterUuid,
     cq.worker_uuid as workerUuid,
+    cq.part_count as partCount,
     cq.started_at as startedAt,
     cq.created_at as createdAt,
     cq.updated_at as updatedAt
@@ -215,6 +216,7 @@
       submitter_uuid,
       worker_uuid,
       execution_count,
+      part_count,
       created_at,
       updated_at,
       started_at
@@ -228,6 +230,7 @@
       #{submitterUuid,jdbcType=VARCHAR},
       #{workerUuid,jdbcType=VARCHAR},
       0,
+      #{partCount,jdbcType=INTEGER},
       #{createdAt,jdbcType=BIGINT},
       #{updatedAt,jdbcType=BIGINT},
       #{startedAt,jdbcType=BIGINT}

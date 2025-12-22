@@ -2178,7 +2178,7 @@ oldCreationDate));
   }
 
   private Optional<DbInputStream> selectTaskInput(String taskUuid) {
-    return db.getDbClient().ceTaskInputDao().selectData(db.getSession(), taskUuid);
+    return db.getDbClient().ceTaskInputDao().selectData(db.getSession(), taskUuid, 1);
   }
 
   private boolean scannerContextExists(String uuid) {
@@ -2300,7 +2300,7 @@ oldCreationDate));
   }
 
   private void insertCeTaskInput(String uuid) {
-    dbClient.ceTaskInputDao().insert(dbSession, uuid, new ByteArrayInputStream("some content man!".getBytes()));
+    dbClient.ceTaskInputDao().insert(dbSession, uuid, 1, new ByteArrayInputStream("some content man!".getBytes()));
     dbSession.commit();
   }
 

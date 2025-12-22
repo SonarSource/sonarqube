@@ -219,6 +219,7 @@ public class CeQueueImpl implements CeQueue {
       .setEntityUuid(component.getEntityUuid()));
     dto.setStatus(PENDING);
     dto.setSubmitterUuid(submission.getSubmitterUuid());
+    dto.setPartCount(submission.getReportPartCount());
     dbClient.ceQueueDao().insert(dbSession, dto);
 
     return dto;
@@ -374,7 +375,8 @@ public class CeQueueImpl implements CeQueue {
       .setUuid(taskDto.getUuid())
       .setType(taskDto.getTaskType())
       .setCharacteristics(characteristics)
-      .setSubmitter(resolveSubmitter(dbSession, taskDto.getSubmitterUuid()));
+      .setSubmitter(resolveSubmitter(dbSession, taskDto.getSubmitterUuid()))
+      .setReportPartCount(taskDto.getPartCount());
 
     String componentUuid = taskDto.getComponentUuid();
     if (component != null) {

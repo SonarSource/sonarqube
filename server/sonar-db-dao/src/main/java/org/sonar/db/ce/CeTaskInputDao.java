@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Optional;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
-import org.sonar.db.DbInputStream;
 import org.sonar.db.DatabaseUtils;
+import org.sonar.db.DbInputStream;
 import org.sonar.db.DbSession;
 
 public class CeTaskInputDao implements Dao {
@@ -41,15 +41,16 @@ public class CeTaskInputDao implements Dao {
     this.system = system;
   }
 
-  public void insert(DbSession dbSession, String taskUuid, InputStream data) {
+  public void insert(DbSession dbSession, String taskUuid, long partNumber, InputStream data) {
     long now = system.now();
     Connection connection = dbSession.getConnection();
     try (PreparedStatement stmt = connection.prepareStatement(
-      "INSERT INTO ce_task_input (task_uuid, created_at, updated_at, input_data) VALUES (?, ?, ?, ?)")) {
+      "INSERT INTO ce_task_input (task_uuid, part_number, created_at, updated_at, input_data) VALUES (?,?, ?, ?, ?)")) {
       stmt.setString(1, taskUuid);
-      stmt.setLong(2, now);
+      stmt.setLong(2, partNumber);
       stmt.setLong(3, now);
-      stmt.setBinaryStream(4, data);
+      stmt.setLong(4, now);
+      stmt.setBinaryStream(5, data);
       stmt.executeUpdate();
       connection.commit();
     } catch (SQLException e) {
@@ -57,13 +58,14 @@ public class CeTaskInputDao implements Dao {
     }
   }
 
-  public Optional<DbInputStream> selectData(DbSession dbSession, String taskUuid) {
+  public Optional<DbInputStream> selectData(DbSession dbSession, String taskUuid, int partNumber) {
     PreparedStatement stmt = null;
     ResultSet rs = null;
     DbInputStream result = null;
     try {
-      stmt = dbSession.getConnection().prepareStatement("SELECT input_data FROM ce_task_input WHERE task_uuid=? AND input_data IS NOT NULL");
+      stmt = dbSession.getConnection().prepareStatement("SELECT input_data FROM ce_task_input WHERE task_uuid=? AND part_number=? AND input_data IS NOT NULL");
       stmt.setString(1, taskUuid);
+      stmt.setInt(2, partNumber);
       rs = stmt.executeQuery();
       if (rs.next()) {
         result = new DbInputStream(stmt, rs, rs.getBinaryStream(1));
@@ -71,7 +73,7 @@ public class CeTaskInputDao implements Dao {
       }
       return Optional.empty();
     } catch (SQLException e) {
-      throw new IllegalStateException("Fail to select data of CE task " + taskUuid, e);
+      throw new IllegalStateException("Fail to select data of CE task " + taskUuid + " part " + partNumber, e);
     } finally {
       if (result == null) {
         DatabaseUtils.closeQuietly(rs);

@@ -97,7 +97,7 @@ public class InternalCeQueueImplIT {
 
   @Test
   public void submit_returns_task_populated_from_CeTaskSubmit_and_creates_CeQueue_row() {
-    CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, "entity", "component", "rob");
+    CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, "entity", "component", "rob", 3);
     CeTask task = underTest.submit(taskSubmit);
     UserDto userDto = db.getDbClient().userDao().selectByUuid(db.getSession(), taskSubmit.getSubmitterUuid());
     verifyCeTask(taskSubmit, task, null, userDto);
@@ -647,6 +647,7 @@ public class InternalCeQueueImplIT {
   private void verifyCeTask(CeTaskSubmit taskSubmit, CeTask task, @Nullable ComponentDto componentDto, @Nullable UserDto userDto) {
     assertThat(task.getUuid()).isEqualTo(taskSubmit.getUuid());
     assertThat(task.getType()).isEqualTo(taskSubmit.getType());
+    assertThat(task.getReportPartCount()).isEqualTo(taskSubmit.getReportPartCount());
     if (componentDto != null) {
       CeTask.Component component = task.getComponent().get();
       assertThat(component.getUuid()).isEqualTo(componentDto.uuid());
@@ -704,12 +705,16 @@ public class InternalCeQueueImplIT {
   private CeTaskSubmit createTaskSubmit(String type, ProjectData projectData, @Nullable String submitterUuid) {
     return createTaskSubmit(type, projectData.projectUuid(), projectData.getMainBranchDto().getUuid(), submitterUuid);
   }
-
   private CeTaskSubmit createTaskSubmit(String type, @Nullable String entityUuid, @Nullable String componentUuid, @Nullable String submitterUuid) {
+    return createTaskSubmit(type, entityUuid, componentUuid, submitterUuid, 1);
+  }
+
+  private CeTaskSubmit createTaskSubmit(String type, @Nullable String entityUuid, @Nullable String componentUuid, @Nullable String submitterUuid, int partCount) {
     CeTaskSubmit.Builder builder = underTest.prepareSubmit()
       .setType(type)
       .setSubmitterUuid(submitterUuid)
-      .setCharacteristics(emptyMap());
+      .setCharacteristics(emptyMap())
+      .setReportPartCount(partCount);
     if (componentUuid != null && entityUuid != null) {
       builder.setComponent(CeTaskSubmit.Component.fromDto(componentUuid, entityUuid));
     }

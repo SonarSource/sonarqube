@@ -51,10 +51,10 @@ class CeTaskInputDaoIT {
   void insert_and_select_data_stream() throws Exception {
     when(system.now()).thenReturn(NOW);
 
-    InputStream report = IOUtils.toInputStream(SOME_DATA);
-    underTest.insert(dbTester.getSession(), A_UUID, report);
+    InputStream report = IOUtils.toInputStream(SOME_DATA, UTF_8);
+    underTest.insert(dbTester.getSession(), A_UUID, 1, report);
 
-    Optional<DbInputStream> result = underTest.selectData(dbTester.getSession(), A_UUID);
+    Optional<DbInputStream> result = underTest.selectData(dbTester.getSession(), A_UUID, 1);
     assertThat(result).isPresent();
     try (DbInputStream is = result.get()) {
       assertThat(IOUtils.toString(is, UTF_8)).isEqualTo(SOME_DATA);
@@ -63,13 +63,13 @@ class CeTaskInputDaoIT {
 
   @Test
   void fail_to_insert_invalid_row() {
-    assertThatThrownBy(() -> underTest.insert(dbTester.getSession(), null, IOUtils.toInputStream(SOME_DATA)))
+    assertThatThrownBy(() -> underTest.insert(dbTester.getSession(), null, 1, IOUtils.toInputStream(SOME_DATA, UTF_8)))
       .hasMessage("Fail to insert data of CE task null");
   }
 
   @Test
   void selectData_returns_absent_if_uuid_not_found() {
-    Optional<DbInputStream> result = underTest.selectData(dbTester.getSession(), A_UUID);
+    Optional<DbInputStream> result = underTest.selectData(dbTester.getSession(), A_UUID, 1);
     assertThat(result).isNotPresent();
   }
 
@@ -77,7 +77,7 @@ class CeTaskInputDaoIT {
   void selectData_returns_absent_if_uuid_exists_but_data_is_null() {
     insertData(A_UUID);
 
-    Optional<DbInputStream> result = underTest.selectData(dbTester.getSession(), A_UUID);
+    Optional<DbInputStream> result = underTest.selectData(dbTester.getSession(), A_UUID, 1);
     assertThat(result).isNotPresent();
   }
 

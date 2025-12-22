@@ -32,6 +32,7 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskInputDao;
 import org.sonar.db.ce.CeTaskTypes;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -76,11 +77,11 @@ public class CeQueueCleanerIT {
     runCleaner();
 
     CeTaskInputDao dataDao = dbTester.getDbClient().ceTaskInputDao();
-    Optional<DbInputStream> task1Data = dataDao.selectData(dbTester.getSession(), "TASK_1");
+    Optional<DbInputStream> task1Data = dataDao.selectData(dbTester.getSession(), "TASK_1", 1);
     assertThat(task1Data).isPresent();
     task1Data.get().close();
 
-    assertThat(dataDao.selectData(dbTester.getSession(), "TASK_2")).isNotPresent();
+    assertThat(dataDao.selectData(dbTester.getSession(), "TASK_2", 1)).isNotPresent();
   }
 
   private CeQueueDto insertInQueue(String taskUuid, CeQueueDto.Status status) {
@@ -95,7 +96,7 @@ public class CeQueueCleanerIT {
   }
 
   private void insertTaskData(String taskUuid) {
-    dbTester.getDbClient().ceTaskInputDao().insert(dbTester.getSession(), taskUuid, IOUtils.toInputStream("{binary}"));
+    dbTester.getDbClient().ceTaskInputDao().insert(dbTester.getSession(), taskUuid, 1, IOUtils.toInputStream("{binary}", UTF_8));
     dbTester.getSession().commit();
   }
 

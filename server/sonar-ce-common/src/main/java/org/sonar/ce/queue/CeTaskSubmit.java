@@ -41,6 +41,7 @@ public final class CeTaskSubmit {
   private final Component component;
   private final String submitterUuid;
   private final Map<String, String> characteristics;
+  private final int reportPartCount;
 
   private CeTaskSubmit(Builder builder) {
     this.uuid = requireNonNull(builder.uuid);
@@ -48,6 +49,7 @@ public final class CeTaskSubmit {
     this.component = builder.component;
     this.submitterUuid = builder.submitterUuid;
     this.characteristics = unmodifiableMap(builder.characteristics);
+    this.reportPartCount = builder.reportPartCount;
   }
 
   public String getType() {
@@ -71,12 +73,17 @@ public final class CeTaskSubmit {
     return characteristics;
   }
 
+  public int getReportPartCount() {
+    return reportPartCount;
+  }
+
   public static final class Builder {
     private final String uuid;
     private String type;
     private Component component;
     private String submitterUuid;
     private Map<String, String> characteristics = null;
+    private  int reportPartCount = 1;
 
     public Builder(String uuid) {
       this.uuid = emptyToNull(uuid);
@@ -103,6 +110,11 @@ public final class CeTaskSubmit {
 
     public Builder setCharacteristics(Map<String, String> m) {
       this.characteristics = m;
+      return this;
+    }
+
+    public Builder setReportPartCount(int reportPartCount) {
+      this.reportPartCount = reportPartCount;
       return this;
     }
 

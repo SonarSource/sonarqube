@@ -32,6 +32,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.impl.utils.JUnitTempFolder;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeQueueImpl;
@@ -83,8 +85,6 @@ import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH_TYPE;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
-import static org.sonar.db.permission.GlobalPermission.SCAN;
-import static org.sonar.db.permission.ProjectPermission.SCAN;
 
 /**
  * Tests of {@link ReportSubmitter} when branch support is installed.
@@ -101,6 +101,8 @@ public class BranchReportSubmitterIT {
   public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public final DbTester db = DbTester.create(System2.INSTANCE);
+  @Rule
+  public JUnitTempFolder tempFolder = new JUnitTempFolder();
 
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
 
@@ -110,6 +112,7 @@ public class BranchReportSubmitterIT {
   private final FavoriteUpdater favoriteUpdater = mock(FavoriteUpdater.class);
   private final BranchSupportDelegate branchSupportDelegate = mock(BranchSupportDelegate.class);
   private final BranchSupport branchSupport = spy(new BranchSupport(branchSupportDelegate));
+  private final Configuration configuration = mock(Configuration.class);
 
   private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactory = new GithubProjectCreatorFactory(db.getDbClient(), null,
     null, null, null, null, null, null, null, null, null);
@@ -117,7 +120,7 @@ public class BranchReportSubmitterIT {
   private final ManagedInstanceService managedInstanceService = mock();
   private final ProjectCreator projectCreator = new ProjectCreator(db.getDbClient(), userSession, projectDefaultVisibility, componentUpdater);
   private final ReportSubmitter underTest = new ReportSubmitter(queue, userSession, projectCreator, componentUpdater, permissionTemplateService, db.getDbClient(), branchSupport,
-    devOpsProjectCreatorFactory, managedInstanceService);
+    devOpsProjectCreatorFactory, managedInstanceService, tempFolder, configuration);
 
   @Before
   public void before() {

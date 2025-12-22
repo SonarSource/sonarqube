@@ -139,6 +139,7 @@ class CeQueueDaoIT {
     assertThat(saved.getCreatedAt()).isEqualTo(INIT_TIME);
     assertThat(saved.getUpdatedAt()).isEqualTo(INIT_TIME);
     assertThat(saved.getStartedAt()).isNull();
+    assertThat(saved.getPartCount()).isEqualTo(2);
   }
 
   @Test
@@ -766,6 +767,7 @@ class CeQueueDaoIT {
     dto.setComponentUuid("uuid_" + pendingComponentUuidGenerator++);
     dto.setStatus(PENDING);
     dto.setSubmitterUuid("henri");
+    dto.setPartCount(2);
     underTest.insert(db.getSession(), dto);
     db.getSession().commit();
     return dto;
