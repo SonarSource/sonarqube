@@ -496,7 +496,7 @@ subprojects {
 
       // New Elasticsearch Java API Client (8.x) - For migration
       dependency "co.elastic.clients:elasticsearch-java:${elasticSearchJavaClientVersion}"
-      dependency 'org.eclipse.jgit:org.eclipse.jgit:7.4.0.202509020913-r'
+      dependency 'org.eclipse.jgit:org.eclipse.jgit:7.5.0.202512021534-r'
       dependency "org.codelibs.elasticsearch.module:analysis-common:7.17.22"
       dependency "org.codelibs.elasticsearch.module:reindex:7.17.22"
       dependency('org.tmatesoft.svnkit:svnkit:1.10.11')
