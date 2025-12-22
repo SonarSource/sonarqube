@@ -415,7 +415,7 @@ subprojects {
       }
       dependency 'com.microsoft.azure:msal4j:1.23.1'
       dependency 'com.oracle.database.jdbc:ojdbc11:23.9.0.25.07'
-      dependency 'org.aspectj:aspectjtools:1.9.24'
+      dependency 'org.aspectj:aspectjtools:1.9.25'
       dependencySet(group: 'com.squareup.okhttp3', version: '5.3.2') {
         entry 'okhttp'
         entry 'mockwebserver'
