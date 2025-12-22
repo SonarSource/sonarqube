@@ -452,7 +452,7 @@ subprojects {
       dependency 'org.apache.commons:commons-lang3:3.19.0'
       dependency 'org.apache.commons:commons-email2-jakarta:2.0.0-M1'
       dependency 'org.apache.commons:commons-exec:1.5.0'
-      dependency 'org.apache.commons:commons-text:1.14.0'
+      dependency 'org.apache.commons:commons-text:1.15.0'
       dependency 'org.apache.mina:mina-core:2.2.4'
       dependency 'org.apache.kerby:kerb-simplekdc:2.1.0'
       dependency 'org.apache.kerby:ldap-backend:2.1.0'
