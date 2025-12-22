@@ -390,7 +390,7 @@ subprojects {
       dependency('com.googlecode.json-simple:json-simple:1.1.1') {
         exclude 'junit:junit'
       }
-      dependency 'io.github.hakky54:ayza:10.0.1'
+      dependency 'io.github.hakky54:ayza:10.0.2'
       dependency 'io.prometheus:simpleclient:0.16.0'
       dependency 'io.prometheus:simpleclient_common:0.16.0'
       dependency 'io.prometheus:simpleclient_servlet:0.16.0'
