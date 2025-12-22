@@ -557,7 +557,7 @@ subprojects {
         entry 'greenmail-junit5'
       }
       dependency 'org.yaml:snakeyaml:2.5'
-      dependency 'org.hibernate.validator:hibernate-validator:9.0.1.Final'
+      dependency 'org.hibernate.validator:hibernate-validator:9.1.0.Final'
       dependency 'org.kohsuke:github-api:1.330'
       dependency 'org.wiremock:wiremock-standalone:3.13.2'
       dependency 'org.skyscreamer:jsonassert:1.5.3'
