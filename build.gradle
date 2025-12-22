@@ -551,7 +551,7 @@ subprojects {
       dependency 'org.sonarsource.update-center:sonar-update-center-common:1.36.0.4317'
       dependency 'org.sonarsource.classloader:sonar-classloader:1.2.1.2095'
       dependency 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.13'
-      dependencySet(group: 'com.icegreen', version: '2.1.7') {
+      dependencySet(group: 'com.icegreen', version: '2.1.8') {
         entry 'greenmail'
         entry 'greenmail-junit4'
         entry 'greenmail-junit5'
