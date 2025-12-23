@@ -31,4 +31,6 @@ public interface JiraOrganizationBindingPendingMapper {
   void insert(@Param("dto") JiraOrganizationBindingPendingDto dto);
 
   int deleteBySonarOrganizationUuid(@Param("sonarOrganizationUuid") String sonarOrganizationUuid);
+
+  int countAll();
 }

@@ -50,6 +50,10 @@ public class JiraOrganizationBindingPendingDao implements Dao {
     return getMapper(dbSession).deleteBySonarOrganizationUuid(sonarOrganizationUuid);
   }
 
+  public int countAll(DbSession dbSession) {
+    return getMapper(dbSession).countAll();
+  }
+
   private static JiraOrganizationBindingPendingMapper getMapper(DbSession dbSession) {
     return dbSession.getMapper(JiraOrganizationBindingPendingMapper.class);
   }

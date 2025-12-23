@@ -53,4 +53,9 @@
     DELETE FROM jira_org_bindings_pending WHERE sonar_organization_uuid = #{sonarOrganizationUuid, jdbcType=VARCHAR}
   </delete>
 
+  <select id="countAll" resultType="int">
+    SELECT COUNT(*)
+    FROM jira_org_bindings_pending
+  </select>
+
 </mapper>
