@@ -949,7 +949,7 @@
 
   <update id="resetFlagFromSonarQubeUpdate">
     UPDATE issues
-    SET from_sonarqube_update = false, updated_at = #{now,jdbcType=BIGINT}
-    WHERE from_sonarqube_update = true
+    SET from_sonarqube_update = ${_false}, updated_at = #{now,jdbcType=BIGINT}
+    WHERE from_sonarqube_update = ${_true}
   </update>
 </mapper>
