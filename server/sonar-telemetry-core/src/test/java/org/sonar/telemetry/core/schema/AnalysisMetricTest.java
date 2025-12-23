@@ -29,12 +29,12 @@ class AnalysisMetricTest {
 
   @Test
   void getters() {
-    AnalysisMetric metric = new AnalysisMetric("memory", "100", "projectUuid", "analysisType", "analysisUuid");
+    AnalysisMetric metric = new AnalysisMetric("memory", "100", "projectUuid", AnalysisMetric.AnalysisType.BRANCH, "analysisUuid");
 
     assertThat(metric.getKey()).isEqualTo("memory");
     assertThat(metric.getValue()).isEqualTo("100");
     assertThat(metric.getProjectUuid()).isEqualTo("projectUuid");
-    assertThat(metric.getAnalysisType()).isEqualTo("analysisType");
+    assertThat(metric.getAnalysisType()).isEqualTo("branch");
     assertThat(metric.getAnalysisUuid()).isEqualTo("analysisUuid");
     assertThat(metric.getGranularity()).isEqualTo(Granularity.ADHOC);
     assertThat(metric.getType()).isEqualTo(TelemetryDataType.STRING);
@@ -42,13 +42,13 @@ class AnalysisMetricTest {
 
   @Test
   void setters() {
-    AnalysisMetric metric = new AnalysisMetric("memory", "100", "projectUuid", "analysisType", "analysisUuid");
+    AnalysisMetric metric = new AnalysisMetric("memory", "100", "projectUuid", AnalysisMetric.AnalysisType.BRANCH, "analysisUuid");
     metric.setProjectUuid("newProjectUuid");
-    metric.setAnalysisType("newAnalysisType");
+    metric.setAnalysisType(AnalysisMetric.AnalysisType.PULL_REQUEST);
     metric.setAnalysisUuid("newAnalysisUuid");
 
     assertThat(metric.getProjectUuid()).isEqualTo("newProjectUuid");
-    assertThat(metric.getAnalysisType()).isEqualTo("newAnalysisType");
+    assertThat(metric.getAnalysisType()).isEqualTo("pull_request");
     assertThat(metric.getAnalysisUuid()).isEqualTo("newAnalysisUuid");
   }
 }

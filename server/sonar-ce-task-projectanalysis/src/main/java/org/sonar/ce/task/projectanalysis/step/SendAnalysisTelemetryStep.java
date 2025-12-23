@@ -26,9 +26,14 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.platform.Server;
 import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
+import org.sonar.ce.task.projectanalysis.measure.Measure;
+import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
+import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.telemetry.StepsTelemetryHolder;
 import org.sonar.core.util.CloseableIterator;
@@ -50,6 +55,9 @@ public class SendAnalysisTelemetryStep implements ComputationStep {
 
   private static final Pattern EXTENSION_SANITIZE_PATTERN = Pattern.compile("[^a-zA-Z0-9_.]");
 
+  protected static final String ANALYZED_LINES_OF_CODE_METRIC_KEY = "analyzed_ncloc";
+  protected static final String ANALYZED_LINES_OF_CODE_NOT_SET_VALUE = "NOT_SET";
+
   private final TelemetryClient telemetryClient;
   private final ScannerReportReader scannerReportReader;
   private final Server server;
@@ -57,10 +65,13 @@ public class SendAnalysisTelemetryStep implements ComputationStep {
   private final Configuration config;
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final StepsTelemetryHolder stepsTelemetryHolder;
+  private final MetricRepository metricRepository;
+  private final MeasureRepository measureRepository;
+  private final TreeRootHolder treeRootHolder;
 
   public SendAnalysisTelemetryStep(TelemetryClient telemetryClient, ScannerReportReader scannerReportReader,
     UuidFactory uuidFactory, Server server, Configuration configuration, AnalysisMetadataHolder analysisMetadataHolder,
-    StepsTelemetryHolder stepsTelemetryHolder) {
+    StepsTelemetryHolder stepsTelemetryHolder, MetricRepository metricRepository, MeasureRepository measureRepository, TreeRootHolder treeRootHolder) {
     this.telemetryClient = telemetryClient;
     this.scannerReportReader = scannerReportReader;
     this.server = server;
@@ -68,6 +79,9 @@ public class SendAnalysisTelemetryStep implements ComputationStep {
     this.config = configuration;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.stepsTelemetryHolder = stepsTelemetryHolder;
+    this.metricRepository = metricRepository;
+    this.measureRepository = measureRepository;
+    this.treeRootHolder = treeRootHolder;
   }
 
   @Override
@@ -77,10 +91,11 @@ public class SendAnalysisTelemetryStep implements ComputationStep {
     }
 
     String projectUuid = analysisMetadataHolder.getProject().getUuid();
-    String analysisType = analysisMetadataHolder.isPullRequest() ? "pull_request" : "branch";
+    AnalysisMetric.AnalysisType analysisType = analysisMetadataHolder.isPullRequest() ? AnalysisMetric.AnalysisType.PULL_REQUEST : AnalysisMetric.AnalysisType.BRANCH;
     String analysisUuid = uuidFactory.create();
 
     MetricsBuilder builder = new MetricsBuilder();
+    builder.addMetrics(() -> Set.of(getAnalyzedLinesOfCodeMetric(projectUuid, analysisType, analysisUuid)));
 
     if (analysisMetadataHolder.getBranch().isMain()) {
       builder.addMetrics(() -> getNotAnalyzedIndexedFileCountMetrics(projectUuid, analysisType, analysisUuid));
@@ -92,6 +107,15 @@ public class SendAnalysisTelemetryStep implements ComputationStep {
       .addMetrics(() -> getStepsTelemetryMetrics(projectUuid, analysisType, analysisUuid, stepsTelemetryHolder.getTelemetryMetrics()));
 
     sendMetrics(builder.build());
+  }
+
+  private Metric getAnalyzedLinesOfCodeMetric(String projectUuid, AnalysisMetric.AnalysisType analysisType, String analysisUuid) {
+    String metricValue = measureRepository.getRawMeasure(treeRootHolder.getRoot(), metricRepository.getByKey(CoreMetrics.NCLOC_KEY))
+      .map(Measure::getIntValue)
+      .map(String::valueOf)
+      .orElse(ANALYZED_LINES_OF_CODE_NOT_SET_VALUE);
+
+    return new AnalysisMetric(ANALYZED_LINES_OF_CODE_METRIC_KEY, metricValue, projectUuid, analysisType, analysisUuid);
   }
 
   private void sendMetrics(Set<Metric> metrics) {
@@ -109,7 +133,7 @@ public class SendAnalysisTelemetryStep implements ComputationStep {
     telemetryClient.uploadMetricAsync(jsonString);
   }
 
-  private Set<Metric> getNotAnalyzedIndexedFileCountMetrics(String projectUuid, String analysisType, String analysisUuid) {
+  private Set<Metric> getNotAnalyzedIndexedFileCountMetrics(String projectUuid, AnalysisMetric.AnalysisType analysisType, String analysisUuid) {
     Set<Metric> metrics = new HashSet<>();
     ScannerReport.Metadata metadata = scannerReportReader.readMetadata();
 
@@ -122,7 +146,7 @@ public class SendAnalysisTelemetryStep implements ComputationStep {
     return metrics;
   }
 
-  private Set<Metric> getAnalyzedIndexedFileCountMetrics(String projectUuid, String analysisType, String analysisUuid) {
+  private Set<Metric> getAnalyzedIndexedFileCountMetrics(String projectUuid, AnalysisMetric.AnalysisType analysisType, String analysisUuid) {
     Set<Metric> metrics = new HashSet<>();
     ScannerReport.Metadata metadata = scannerReportReader.readMetadata();
 
@@ -141,7 +165,7 @@ public class SendAnalysisTelemetryStep implements ComputationStep {
       .toLowerCase(ENGLISH);
   }
 
-  private Set<Metric> getScannerReportMetrics(String projectUuid, String analysisType, String analysisUuid) {
+  private Set<Metric> getScannerReportMetrics(String projectUuid, AnalysisMetric.AnalysisType analysisType, String analysisUuid) {
     Set<Metric> metrics = new HashSet<>();
     try (CloseableIterator<ScannerReport.TelemetryEntry> it = scannerReportReader.readTelemetryEntries()) {
       while (it.hasNext()) {
@@ -152,7 +176,7 @@ public class SendAnalysisTelemetryStep implements ComputationStep {
     return metrics;
   }
 
-  private static Set<Metric> getStepsTelemetryMetrics(String projectUuid, String analysisType, String analysisUuid, Map<String, Object> telemetryMetrics) {
+  private static Set<Metric> getStepsTelemetryMetrics(String projectUuid, AnalysisMetric.AnalysisType analysisType, String analysisUuid, Map<String, Object> telemetryMetrics) {
     return telemetryMetrics.entrySet().stream()
       .map(entry ->
         new AnalysisMetric(entry.getKey(), String.valueOf(entry.getValue()), projectUuid, analysisType, analysisUuid)

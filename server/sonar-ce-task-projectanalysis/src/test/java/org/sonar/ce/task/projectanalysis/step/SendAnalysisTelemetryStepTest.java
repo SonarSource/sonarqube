@@ -19,9 +19,13 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -32,6 +36,9 @@ import org.sonar.api.platform.Server;
 import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
+import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
+import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
+import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.telemetry.StepsTelemetryHolder;
 import org.sonar.core.util.CloseableIterator;
@@ -41,12 +48,16 @@ import org.sonar.server.project.Project;
 import org.sonar.telemetry.core.TelemetryClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
+import static org.sonar.ce.task.projectanalysis.step.SendAnalysisTelemetryStep.ANALYZED_LINES_OF_CODE_METRIC_KEY;
+import static org.sonar.ce.task.projectanalysis.step.SendAnalysisTelemetryStep.ANALYZED_LINES_OF_CODE_NOT_SET_VALUE;
 
 class SendAnalysisTelemetryStepTest {
 
@@ -59,16 +70,19 @@ class SendAnalysisTelemetryStepTest {
   private final ComputationStep.Context context = mock();
   private final Configuration configuration = mock();
   private final AnalysisMetadataHolder analysisMetadataHolder = mock();
+  private final MetricRepository metricRepository = mock();
+  private final MeasureRepository measureRepository = mock();
+  private final TreeRootHolder treeRootHolder = mock();
   private final StepsTelemetryHolder stepsTelemetryHolder = mock();
   private final Branch branch = mock();
   private final SendAnalysisTelemetryStep underTest = new SendAnalysisTelemetryStep(telemetryClient, scannerReportReader, uuidFactory,
-    server, configuration, analysisMetadataHolder, stepsTelemetryHolder);
+    server, configuration, analysisMetadataHolder, stepsTelemetryHolder, metricRepository, measureRepository, treeRootHolder);
 
   {
     when(uuidFactory.create()).thenReturn("uuid");
     when(server.getId()).thenReturn("serverId");
     when(configuration.getBoolean("sonar.telemetry.enable")).thenReturn(Optional.of(true));
-    when(analysisMetadataHolder.getProject()).thenReturn(new Project("uuid", "key", "name",null, Collections.emptyList()));
+    when(analysisMetadataHolder.getProject()).thenReturn(new Project("uuid", "key", "name", null, Collections.emptyList()));
     when(analysisMetadataHolder.getBranch()).thenReturn(branch);
     when(branch.isMain()).thenReturn(true);
     when(stepsTelemetryHolder.getTelemetryMetrics()).thenReturn(Collections.emptyMap());
@@ -76,12 +90,36 @@ class SendAnalysisTelemetryStepTest {
   }
 
   @Test
-  void execute_whenNoMetrics_dontSendAnything() {
+  void execute_whenNoMetrics_sendPopulatedAnalyzedLinesOfCode() throws JsonProcessingException {
+    // analyzed_ncloc has populated value
+    when(measureRepository.getRawMeasure(any(), any())).thenReturn(Optional.of(newMeasureBuilder().create(50)));
     when(scannerReportReader.readTelemetryEntries()).thenReturn(CloseableIterator.emptyCloseableIterator());
 
     underTest.execute(context);
 
-    verifyNoInteractions(telemetryClient);
+    ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
+    verify(telemetryClient).uploadMetricAsync(argumentCaptor.capture());
+    assertAnalyzedLinesOfCodeMetric(argumentCaptor.getValue(), "50");
+  }
+
+  @Test
+  void execute_whenNoMetrics_sendNotPopulatedAnalyzedLinesOfCode() throws JsonProcessingException {
+    // analyzed_ncloc has empty value
+    when(measureRepository.getRawMeasure(any(), any())).thenReturn(Optional.empty());
+    when(scannerReportReader.readTelemetryEntries()).thenReturn(CloseableIterator.emptyCloseableIterator());
+
+    underTest.execute(context);
+
+    ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
+    verify(telemetryClient).uploadMetricAsync(argumentCaptor.capture());
+    assertAnalyzedLinesOfCodeMetric(argumentCaptor.getValue(), ANALYZED_LINES_OF_CODE_NOT_SET_VALUE);
+  }
+
+  private void assertAnalyzedLinesOfCodeMetric(String jsonBaseMessage, String expectedValue) throws JsonProcessingException {
+    var message = new ObjectMapper().readValue(jsonBaseMessage, JsonNode.class);
+    assertThat(message.get("metric_values")).hasSize(1)
+      .extracting(values -> List.of(values.get("key").asText(), values.get("value").asText()))
+      .containsExactly(List.of(ANALYZED_LINES_OF_CODE_METRIC_KEY, expectedValue));
   }
 
   @Test
@@ -135,6 +173,7 @@ class SendAnalysisTelemetryStepTest {
     String capturedArgument = argumentCaptor.getValue();
     // +1 because split on "key" will create an extra element before the first match
     assertThat(capturedArgument.split("key")).hasSize(MAX_METRICS + 1);
+    assertThat(argumentCaptor.getValue()).contains(ANALYZED_LINES_OF_CODE_METRIC_KEY);
   }
 
   @Test
