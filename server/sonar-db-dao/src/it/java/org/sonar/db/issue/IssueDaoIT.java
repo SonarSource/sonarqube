@@ -127,7 +127,7 @@ class IssueDaoIT {
 
   @BeforeEach
   void setup() {
-    int i = db.countSql(db.getSession(), "select count(1) from rules_default_impacts");
+    db.countSql(db.getSession(), "select count(1) from rules_default_impacts");
 
     db.rules().insert(RULE.setIsExternal(true));
     projectData = db.components().insertPrivateProject(t -> t.setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
@@ -1228,6 +1228,55 @@ class IssueDaoIT {
     assertThat(underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1).getImpacts()).extracting(ImpactDto::getSoftwareQuality,
       ImpactDto::getSeverity, ImpactDto::isManualSeverity)
       .containsExactlyInAnyOrder(tuple(MAINTAINABILITY, MEDIUM, true), tuple(RELIABILITY, HIGH, false));
+  }
+
+  @Test
+  void resetFlagFromSonarQubeUpdate_shouldResetFlagAndUpdateTimestamp() {
+    RuleDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+
+    // Insert issues with from_sonarqube_update = true
+    db.issues().insert(rule, project, file,
+      i -> i.setKee("issue1").setFromSonarQubeUpdate(true).setUpdatedAt(1_000_000_000_000L));
+    db.issues().insert(rule, project, file,
+      i -> i.setKee("issue2").setFromSonarQubeUpdate(true).setUpdatedAt(1_000_000_000_000L));
+    db.issues().insert(rule, project, file,
+      i -> i.setKee("issue3").setFromSonarQubeUpdate(true).setUpdatedAt(1_000_000_000_000L));
+
+    // Insert issues with from_sonarqube_update = false
+    db.issues().insert(rule, project, file,
+      i -> i.setKee("issue4").setFromSonarQubeUpdate(false).setUpdatedAt(1_000_000_000_000L));
+    db.issues().insert(rule, project, file,
+      i -> i.setKee("issue5").setFromSonarQubeUpdate(false).setUpdatedAt(1_000_000_000_000L));
+
+    // Execute the method under test
+    int affectedRows = underTest.resetFlagFromSonarQubeUpdate(db.getSession());
+    db.getSession().commit();
+
+    assertThat(affectedRows).isEqualTo(3);
+
+    IssueDto updatedIssue1 = underTest.selectByKey(db.getSession(), "issue1").get();
+    IssueDto updatedIssue2 = underTest.selectByKey(db.getSession(), "issue2").get();
+    IssueDto updatedIssue3 = underTest.selectByKey(db.getSession(), "issue3").get();
+
+    assertThat(updatedIssue1.isFromSonarQubeUpdate()).isFalse();
+    assertThat(updatedIssue2.isFromSonarQubeUpdate()).isFalse();
+    assertThat(updatedIssue3.isFromSonarQubeUpdate()).isFalse();
+
+    // Verify that updated_at was changed for affected issues
+    assertThat(updatedIssue1.getUpdatedAt()).isGreaterThan(1_000_000_000_000L);
+    assertThat(updatedIssue2.getUpdatedAt()).isGreaterThan(1_000_000_000_000L);
+    assertThat(updatedIssue3.getUpdatedAt()).isGreaterThan(1_000_000_000_000L);
+
+    // Verify that issues with flag=false remain unchanged
+    IssueDto unchangedIssue4 = underTest.selectByKey(db.getSession(), "issue4").get();
+    IssueDto unchangedIssue5 = underTest.selectByKey(db.getSession(), "issue5").get();
+
+    assertThat(unchangedIssue4.isFromSonarQubeUpdate()).isFalse();
+    assertThat(unchangedIssue5.isFromSonarQubeUpdate()).isFalse();
+    assertThat(unchangedIssue4.getUpdatedAt()).isEqualTo(1_000_000_000_000L);
+    assertThat(unchangedIssue5.getUpdatedAt()).isEqualTo(1_000_000_000_000L);
   }
 
   private static IssueDto createIssueWithKey(String issueKey) {
