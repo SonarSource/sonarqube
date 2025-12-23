@@ -95,6 +95,7 @@ public class IssuesWsParameters {
   public static final String PARAM_PCI_DSS_40 = "pciDss-4.0";
   public static final String PARAM_OWASP_ASVS = "owaspAsvs";
   public static final String PARAM_OWASP_ASVS_40 = "owaspAsvs-4.0";
+  public static final String PARAM_OWASP_MASVS = "owaspMasvs-v2";
   public static final String PARAM_OWASP_LLM_TOP_10 = "owaspLlmTop10";
   public static final String PARAM_OWASP_MOBILE_TOP_10 = "owaspMobileTop10";
   public static final String PARAM_OWASP_MOBILE_TOP_10_2024 = "owaspMobileTop10-2024";

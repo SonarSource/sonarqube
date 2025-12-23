@@ -336,6 +336,34 @@ public final class SecurityStandards {
   private static final Ordering<SQCategory> SQ_CATEGORY_ORDERING = Ordering.explicit(stream(SQCategory.values()).toList());
   public static final Ordering<String> SQ_CATEGORY_KEYS_ORDERING = Ordering.explicit(stream(SQCategory.values()).map(SQCategory::getKey).toList());
 
+  public static final List<String> OWASP_MASVS_CATEGORIES = List.of(
+    "MASVS-STORAGE-1",
+    "MASVS-STORAGE-2",
+    "MASVS-CRYPTO-1",
+    "MASVS-CRYPTO-2",
+    "MASVS-AUTH-1",
+    "MASVS-AUTH-2",
+    "MASVS-AUTH-3",
+    "MASVS-NETWORK-1",
+    "MASVS-NETWORK-2",
+    "MASVS-PLATFORM-1",
+    "MASVS-PLATFORM-2",
+    "MASVS-PLATFORM-3",
+    "MASVS-CODE-1",
+    "MASVS-CODE-2",
+    "MASVS-CODE-3",
+    "MASVS-CODE-4",
+    "MASVS-RESILIENCE-1",
+    "MASVS-RESILIENCE-2",
+    "MASVS-RESILIENCE-3",
+    "MASVS-RESILIENCE-4",
+    "MASVS-PRIVACY-1",
+    "MASVS-PRIVACY-2",
+    "MASVS-PRIVACY-3",
+    "MASVS-PRIVACY-4"
+  );
+  public static final Ordering<String> OWASP_MASVS_CATEGORY_KEYS_ORDERING = Ordering.explicit(OWASP_MASVS_CATEGORIES);
+
   public static final Map<String, String> CWES_BY_CASA_CATEGORY;
 
   static {
