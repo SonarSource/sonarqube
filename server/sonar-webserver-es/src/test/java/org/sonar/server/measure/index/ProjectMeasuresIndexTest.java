@@ -21,6 +21,7 @@ package org.sonar.server.measure.index;
 
 import com.google.common.collect.Sets;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -1698,6 +1699,7 @@ class ProjectMeasuresIndexTest {
     ProjectMeasuresStatistics result = underTest.searchSupportStatistics();
 
     assertThat(result.getProjectCount()).isEqualTo(2);
+    assertThat(result.getProjectNotAnalyzedCount()).isEqualTo(2);
     assertThat(result.getProjectCountByLanguage()).containsOnly(
       entry("java", 2L), entry("cs", 1L), entry("js", 1L), entry("python", 1L), entry("kotlin", 1L));
     assertThat(result.getNclocByLanguage()).containsOnly(
@@ -1776,6 +1778,53 @@ class ProjectMeasuresIndexTest {
 
     assertThat(result.getProjectCount()).isZero();
     assertThat(result.getProjectCountByLanguage()).isEmpty();
+  }
+
+  @Test
+  void search_statistics_should_count_projects_not_analyzed() {
+    es.putDocuments(TYPE_PROJECT_MEASURES,
+      newDoc("lines", 10, "coverage", 80)
+        .setLanguages(Arrays.asList("java"))
+        .setAnalysedAt(new Date(1_000_000L)),
+      newDoc("lines", 20, "coverage", 80)
+        .setLanguages(Arrays.asList("python"))
+      // No analysedAt set - project not analyzed
+    );
+
+    ProjectMeasuresStatistics result = underTest.searchSupportStatistics();
+
+    assertThat(result.getProjectCount()).isEqualTo(2);
+    assertThat(result.getProjectNotAnalyzedCount()).isEqualTo(1);
+  }
+
+  @Test
+  void search_statistics_should_count_zero_when_all_projects_analyzed() {
+    es.putDocuments(TYPE_PROJECT_MEASURES,
+      newDoc("lines", 10, "coverage", 80)
+        .setLanguages(Arrays.asList("java"))
+        .setAnalysedAt(new Date(1_000_000L)),
+      newDoc("lines", 20, "coverage", 80)
+        .setLanguages(Arrays.asList("python"))
+        .setAnalysedAt(new Date(2_000_000L))
+    );
+
+    ProjectMeasuresStatistics result = underTest.searchSupportStatistics();
+
+    assertThat(result.getProjectCount()).isEqualTo(2);
+    assertThat(result.getProjectNotAnalyzedCount()).isZero();
+  }
+
+  @Test
+  void search_statistics_should_count_zero_not_analyzed_when_no_projects() {
+    es.putDocuments(TYPE_PROJECT_MEASURES,
+      newDoc(ComponentTesting.newApplication(), "lines", 1000, "coverage", 70)
+        .setLanguages(Arrays.asList("java"))
+    );
+
+    ProjectMeasuresStatistics result = underTest.searchSupportStatistics();
+
+    assertThat(result.getProjectCount()).isZero();
+    assertThat(result.getProjectNotAnalyzedCount()).isZero();
   }
 
   @Test

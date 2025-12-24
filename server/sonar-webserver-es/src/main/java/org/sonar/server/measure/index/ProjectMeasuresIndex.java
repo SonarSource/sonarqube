@@ -45,6 +45,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation.Bucket;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.filter.ParsedFilter;
 import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregator.KeyedFilter;
 import org.elasticsearch.search.aggregations.bucket.nested.Nested;
 import org.elasticsearch.search.aggregations.bucket.range.RangeAggregationBuilder;
@@ -78,6 +79,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
 import static org.elasticsearch.index.query.QueryBuilders.nestedQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
@@ -119,6 +121,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresDoc.QUALITY_GATE_STA
 import static org.sonar.server.measure.index.ProjectMeasuresIndex.Facet.ALERT_STATUS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndex.Facet.LANGUAGES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndex.Facet.TAGS;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.AGGREGATION_PROJECTS_NOT_ANALYZED;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_CREATED_AT;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_KEY;
@@ -291,6 +294,8 @@ public class ProjectMeasuresIndex {
     searchSourceBuilder.aggregation(AggregationBuilders.nested(NCLOC_KEY, FIELD_MEASURES)
       .subAggregation(AggregationBuilders.filter(NCLOC_KEY + "_filter", termQuery(FIELD_MEASURES_MEASURE_KEY, NCLOC_KEY))
         .subAggregation(sum(NCLOC_KEY + "_filter_sum").field(FIELD_MEASURES_MEASURE_VALUE))));
+    searchSourceBuilder.aggregation(
+      AggregationBuilders.filter(AGGREGATION_PROJECTS_NOT_ANALYZED, boolQuery().mustNot(existsQuery(FIELD_ANALYSED_AT))));
     searchSourceBuilder.size(SCROLL_SIZE);
 
     return EsClient.prepareSearch(TYPE_PROJECT_MEASURES.getMainType()).source(searchSourceBuilder).scroll(KEEP_ALIVE_SCROLL_DURATION);
@@ -300,6 +305,8 @@ public class ProjectMeasuresIndex {
     ProjectMeasuresStatistics.Builder statistics = ProjectMeasuresStatistics.builder();
     statistics.setProjectCount(getTotalHits(response.getHits().getTotalHits()).value);
     statistics.setProjectCountByLanguage(termsToMap(response.getAggregations().get(FIELD_LANGUAGES)));
+    ParsedFilter notAnalyzedFilter = response.getAggregations().get(AGGREGATION_PROJECTS_NOT_ANALYZED);
+    statistics.setProjectNotAnalyzedCount(notAnalyzedFilter.getDocCount());
 
     Function<Terms.Bucket, Long> bucketToNcloc = bucket -> Math.round(((Sum) bucket.getAggregations().get(FIELD_NCLOC_DISTRIBUTION_NCLOC)).getValue());
     Map<String, Long> nclocByLanguage = Stream.of((Nested) response.getAggregations().get(FIELD_NCLOC_DISTRIBUTION))

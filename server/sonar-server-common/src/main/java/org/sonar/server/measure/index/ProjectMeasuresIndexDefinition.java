@@ -65,6 +65,7 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
   public static final String SUB_FIELD_DISTRIB_NCLOC = "ncloc";
   public static final String FIELD_NCLOC_DISTRIBUTION_LANGUAGE = FIELD_NCLOC_DISTRIBUTION + "." + SUB_FIELD_DISTRIB_LANGUAGE;
   public static final String FIELD_NCLOC_DISTRIBUTION_NCLOC = FIELD_NCLOC_DISTRIBUTION + "." + SUB_FIELD_DISTRIB_NCLOC;
+  public static final String AGGREGATION_PROJECTS_NOT_ANALYZED = "projectsNotAnalyzed";
 
   private static final String METRICS_CUSTOM_METADATA_KEY = "metrics";
   private final Configuration config;

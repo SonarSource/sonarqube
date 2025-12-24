@@ -27,11 +27,13 @@ public class ProjectMeasuresStatistics {
   private final long projectCount;
   private final Map<String, Long> projectCountByLanguage;
   private final Map<String, Long> nclocByLanguage;
+  private final long projectNotAnalyzedCount;
 
   private ProjectMeasuresStatistics(Builder builder) {
     projectCount = builder.projectCount;
     projectCountByLanguage = builder.projectCountByLanguage;
     nclocByLanguage = builder.nclocByLanguage;
+    projectNotAnalyzedCount = builder.projectNotAnalyzedCount;
   }
 
   public long getProjectCount() {
@@ -46,6 +48,10 @@ public class ProjectMeasuresStatistics {
     return nclocByLanguage;
   }
 
+  public long getProjectNotAnalyzedCount() {
+    return projectNotAnalyzedCount;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -54,6 +60,7 @@ public class ProjectMeasuresStatistics {
     private Long projectCount;
     private Map<String, Long> projectCountByLanguage;
     private Map<String, Long> nclocByLanguage;
+    private Long projectNotAnalyzedCount;
 
     private Builder() {
       // enforce static factory method
@@ -74,10 +81,16 @@ public class ProjectMeasuresStatistics {
       return this;
     }
 
+    public Builder setProjectNotAnalyzedCount(long projectNotAnalyzedCount) {
+      this.projectNotAnalyzedCount = projectNotAnalyzedCount;
+      return this;
+    }
+
     public ProjectMeasuresStatistics build() {
       requireNonNull(projectCount);
       requireNonNull(projectCountByLanguage);
       requireNonNull(nclocByLanguage);
+      requireNonNull(projectNotAnalyzedCount);
       return new ProjectMeasuresStatistics(this);
     }
   }
