@@ -80,22 +80,23 @@ public class PurgeDao implements Dao {
 
   }
 
-  private static void purgeStaleBranches(PurgeCommands commands, PurgeConfiguration conf, PurgeMapper mapper, String rootUuid) {
+  public List<BranchDto> getStaleBranchesToPurge(PurgeConfiguration conf, PurgeMapper mapper, String rootUuid) {
     Optional<Date> maxDate = conf.maxLiveDateOfInactiveBranches();
     if (maxDate.isEmpty()) {
       // not available if branch plugin is not installed
-      return;
+      return List.of();
     }
     LOG.debug("<- Purge stale branches");
 
     Long maxDateValue = ofNullable(dateToLong(maxDate.get())).orElseThrow(IllegalStateException::new);
-    List<String> branchUuids = mapper.selectStaleBranchesAndPullRequests(conf.projectUuid(), maxDateValue);
+    List<BranchDto> branchDtos = mapper.selectStaleBranchesAndPullRequests(conf.projectUuid(), maxDateValue);
 
-    for (String branchUuid : branchUuids) {
-      if (!rootUuid.equals(branchUuid)) {
-        deleteBranch(branchUuid, commands, AggregationType.PROJECT);
-      }
-    }
+    return branchDtos.stream().filter(branchDto -> !branchDto.getUuid().equals(rootUuid)).toList();
+  }
+
+  private void purgeStaleBranches(PurgeCommands commands, PurgeConfiguration conf, PurgeMapper mapper, String rootUuid) {
+    getStaleBranchesToPurge(conf, mapper, rootUuid).forEach(branchDto -> deleteBranch(branchDto.getUuid(), commands,
+      AggregationType.PROJECT));
   }
 
   private static void purgeAnalyses(PurgeCommands commands, String rootUuid) {
@@ -361,7 +362,7 @@ public class PurgeDao implements Dao {
   }
 
   private static AggregationType toAggregationType(String qualifier) {
-    return switch(qualifier) {
+    return switch (qualifier) {
       case ComponentQualifiers.APP -> AggregationType.APPLICATION;
       case ComponentQualifiers.VIEW, ComponentQualifiers.SUBVIEW -> AggregationType.PORTFOLIO;
       default -> AggregationType.PROJECT;

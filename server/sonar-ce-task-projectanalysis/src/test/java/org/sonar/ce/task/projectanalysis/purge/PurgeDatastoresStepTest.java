@@ -66,9 +66,10 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
   private ProjectCleaner projectCleaner = mock(ProjectCleaner.class);
   private ConfigurationRepository settingsRepository = mock(ConfigurationRepository.class);
   private MutableDisabledComponentsHolder disabledComponentsHolder = mock(MutableDisabledComponentsHolder.class, RETURNS_DEEP_STUBS);
+  private PurgeTelemetry purgeTelemetry = mock(PurgeTelemetry.class);
 
   private PurgeDatastoresStep underTest = new PurgeDatastoresStep(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS), projectCleaner, treeRootHolder,
-    settingsRepository, disabledComponentsHolder, analysisMetadataHolder);
+    settingsRepository, disabledComponentsHolder, analysisMetadataHolder, purgeTelemetry);
 
   @Before
   public void before() {
@@ -97,14 +98,8 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
 
     ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
     verify(projectCleaner).purge(any(), argumentCaptor.capture(), anyString(), any(), any());
+    verify(purgeTelemetry).sendTelemetry();
     assertThat(argumentCaptor.getValue()).isEqualTo(PROJECT_UUID);
-  }
-
-  private static Object[][] dataproviderFromComponentTypeValues(Predicate<Component.Type> predicate) {
-    return Arrays.stream(Component.Type.values())
-      .filter(predicate)
-      .map(WrapInSingleElementArray.INSTANCE)
-      .toArray(Object[][]::new);
   }
 
   @Override

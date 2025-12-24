@@ -3,6 +3,18 @@
 
 <mapper namespace="org.sonar.db.purge.PurgeMapper">
 
+    <sql id="branchColumns">
+    pb.uuid as uuid,
+    pb.project_uuid as projectUuid,
+    pb.kee as kee,
+    pb.branch_type as branchType,
+    pb.merge_branch_uuid as mergeBranchUuid,
+    pb.pull_request_binary as pullRequestBinary,
+    pb.exclude_from_purge as excludeFromPurge,
+    pb.need_issue_sync as needIssueSync,
+    pb.is_main as isMain
+  </sql>
+
   <select id="selectAnalysisUuids" parameterType="map" resultType="String">
     select
       s.uuid as uuid
@@ -59,9 +71,9 @@
       AND ncp.branch_uuid=#{projectUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectStaleBranchesAndPullRequests" parameterType="map" resultType="String">
+  <select id="selectStaleBranchesAndPullRequests" parameterType="map" resultType="org.sonar.db.component.BranchDto">
     select
-      pb.uuid
+      <include refid="branchColumns"/>
     from
       project_branches pb
     left join snapshots s

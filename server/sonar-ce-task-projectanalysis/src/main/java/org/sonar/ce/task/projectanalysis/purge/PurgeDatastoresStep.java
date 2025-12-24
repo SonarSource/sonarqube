@@ -35,15 +35,18 @@ public class PurgeDatastoresStep implements ComputationStep {
   private final ConfigurationRepository configRepository;
   private final DisabledComponentsHolder disabledComponentsHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final PurgeTelemetry purgeTelemetry;
 
   public PurgeDatastoresStep(DbClient dbClient, ProjectCleaner projectCleaner, TreeRootHolder treeRootHolder,
-    ConfigurationRepository configRepository, DisabledComponentsHolder disabledComponentsHolder, AnalysisMetadataHolder analysisMetadataHolder) {
+    ConfigurationRepository configRepository, DisabledComponentsHolder disabledComponentsHolder,
+    AnalysisMetadataHolder analysisMetadataHolder, PurgeTelemetry purgeTelemetry) {
     this.projectCleaner = projectCleaner;
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.configRepository = configRepository;
     this.disabledComponentsHolder = disabledComponentsHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
+    this.purgeTelemetry = purgeTelemetry;
   }
 
   @Override
@@ -51,9 +54,11 @@ public class PurgeDatastoresStep implements ComputationStep {
     try (DbSession dbSession = dbClient.openSession(true)) {
       // applies to views and projects
       String projectUuid = analysisMetadataHolder.getProject().getUuid();
-      projectCleaner.purge(dbSession, treeRootHolder.getRoot().getUuid(), projectUuid, configRepository.getConfiguration(), disabledComponentsHolder.getUuids());
+      projectCleaner.purge(dbSession, treeRootHolder.getRoot().getUuid(), projectUuid, configRepository.getConfiguration(),
+        disabledComponentsHolder.getUuids());
       dbSession.commit();
     }
+    purgeTelemetry.sendTelemetry();
   }
 
   @Override

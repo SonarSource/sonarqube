@@ -24,6 +24,7 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
+import org.sonar.db.component.BranchDto;
 
 public interface PurgeMapper {
 
@@ -96,7 +97,7 @@ public interface PurgeMapper {
 
   List<String> selectOldClosedIssueKeys(@Param("projectUuid") String projectUuid, @Nullable @Param("toDate") Long toDate);
 
-  List<String> selectStaleBranchesAndPullRequests(@Param("projectUuid") String projectUuid, @Param("toDate") Long toDate);
+  List<BranchDto> selectStaleBranchesAndPullRequests(@Param("projectUuid") String projectUuid, @Param("toDate") Long toDate);
 
   @CheckForNull
   String selectSpecificAnalysisNewCodePeriod(@Param("projectUuid") String projectUuid);

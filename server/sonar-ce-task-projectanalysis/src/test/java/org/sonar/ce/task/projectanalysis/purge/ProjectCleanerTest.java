@@ -52,18 +52,19 @@ public class ProjectCleanerTest {
 
   public static final String DUMMY_PROFILE_CONTENT = "DUMMY PROFILE CONTENT";
   private ProjectCleaner underTest;
-  private PurgeDao dao = mock(PurgeDao.class);
-  private PurgeProfiler profiler = mock(PurgeProfiler.class);
-  private DefaultPeriodCleaner periodCleaner = mock(DefaultPeriodCleaner.class);
-  private PurgeListener purgeListener = mock(PurgeListener.class);
-  private MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, PurgeProperties.all()));
+  private final PurgeDao dao = mock(PurgeDao.class);
+  private final PurgeProfiler profiler = mock(PurgeProfiler.class);
+  private final DefaultPeriodCleaner periodCleaner = mock(DefaultPeriodCleaner.class);
+  private final PurgeListener purgeListener = mock(PurgeListener.class);
+  private final MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, PurgeProperties.all()));
+  private final PrQgEnforcementTelemetries prQgEnforcementTelemetries = mock(PrQgEnforcementTelemetries.class);
 
   @Rule
   public LogTester logTester = new LogTester();
 
   @Before
   public void before() {
-    this.underTest = new ProjectCleaner(dao, periodCleaner, profiler, purgeListener);
+    this.underTest = new ProjectCleaner(dao, periodCleaner, profiler, purgeListener, prQgEnforcementTelemetries);
   }
 
   @Test

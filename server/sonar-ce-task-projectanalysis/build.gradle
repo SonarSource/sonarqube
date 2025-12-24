@@ -55,6 +55,7 @@ dependencies {
   testImplementation 'org.assertj:assertj-guava'
   testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.junit.jupiter:junit-jupiter-params'
+  testImplementation 'org.mockito:mockito-junit-jupiter'
   testImplementation 'org.reflections:reflections'
   testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
   testImplementation project(':sonar-testing-harness')
