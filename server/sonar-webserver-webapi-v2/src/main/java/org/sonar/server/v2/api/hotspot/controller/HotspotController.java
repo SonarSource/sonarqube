@@ -22,7 +22,7 @@ public interface HotspotController {
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Expire security hotspot exceptions", description = """
             Expire security hotspot exceptions that have reached their expiry date.
-            Automatically transitions expired hotspots from EXCEPTION status back to TO_REVIEW status.
+            Automatically transitions expired hotspots from EXCEPTION status back to TO_REVIEW status. Requires 'Administer System' permission.
             """, extensions = @Extension(properties = {@ExtensionProperty(name = INTERNAL, value = "true")}))
     ExpireHotspotsRestResponse expireHotspots();
 }
