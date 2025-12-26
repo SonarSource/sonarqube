@@ -40,7 +40,7 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.core.TelemetryClient;
 import org.sonar.telemetry.core.TelemetryDataType;
-import org.sonar.telemetry.core.schema.InstallationMetric;
+import org.sonar.telemetry.core.schema.ProjectMetric;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
@@ -50,18 +50,21 @@ import static org.mockito.Mockito.when;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_ENABLE;
 
 @ExtendWith(MockitoExtension.class)
-class PurgeTelemetryTest {
+class TelemetryQGOnMergedPRProviderTest {
   private static final long TEST_METRIC_VALUE = 42L;
   private static final String TEST_METRIC_KEY = "test_metric_key";
-  private static final InstallationMetric TEST_METRIC = new InstallationMetric(
+  private static final String PROJECT_UUID = "test-project-uuid";
+  private static final ProjectMetric TEST_METRIC = new ProjectMetric(
     TEST_METRIC_KEY,
     TEST_METRIC_VALUE,
+    PROJECT_UUID,
     TelemetryDataType.INTEGER,
     Granularity.ADHOC
   );
-  private static final InstallationMetric TEST_METRIC_2 = new InstallationMetric(
+  private static final ProjectMetric TEST_METRIC_2 = new ProjectMetric(
     "some_other_metric_key",
     123,
+    PROJECT_UUID,
     TelemetryDataType.INTEGER,
     Granularity.ADHOC
   );
@@ -74,17 +77,17 @@ class PurgeTelemetryTest {
   @Mock
   private Configuration configuration;
   @Mock
-  private PrQgEnforcementTelemetries prQgEnforcementTelemetries;
+  private TelemetryQGOnMergedPRDataLoader telemetryQGOnMergedPRDataLoader;
 
   @InjectMocks
-  private PurgeTelemetry underTest;
+  private TelemetryQGOnMergedPRProvider underTest;
 
   @Test
   void sendTelemetry_whenTelemetryEnabled_sendsMessageWithCorrectStructure() throws JsonProcessingException {
     when(configuration.getBoolean(SONAR_TELEMETRY_ENABLE.getKey())).thenReturn(Optional.of(true));
     when(server.getId()).thenReturn("test-server-id");
     when(uuidFactory.create()).thenReturn("test-message-uuid");
-    when(prQgEnforcementTelemetries.getMetrics()).thenReturn(Set.of(TEST_METRIC));
+    when(telemetryQGOnMergedPRDataLoader.getMetrics()).thenReturn(Set.of(TEST_METRIC));
 
     underTest.sendTelemetry();
 
@@ -96,14 +99,15 @@ class PurgeTelemetryTest {
 
     assertThat(message.get("message_uuid").asText()).isEqualTo("test-message-uuid");
     assertThat(message.get("installation_id").asText()).isEqualTo("test-server-id");
-    assertThat(message.get("dimension").asText()).isEqualTo("installation");
+    assertThat(message.get("dimension").asText()).isEqualTo("project");
     assertThat(message.get("metric_values")).hasSize(1);
 
     JsonNode metricValue = message.get("metric_values").get(0);
     assertThat(metricValue.get("key").asText()).isEqualTo(TEST_METRIC_KEY);
     assertThat(metricValue.get("value").asLong()).isEqualTo(TEST_METRIC_VALUE);
+    assertThat(metricValue.get("project_uuid").asText()).isEqualTo(PROJECT_UUID);
 
-    verify(prQgEnforcementTelemetries).resetMetrics();
+    verify(telemetryQGOnMergedPRDataLoader).resetMetrics();
   }
 
   @ParameterizedTest
@@ -114,7 +118,7 @@ class PurgeTelemetryTest {
     underTest.sendTelemetry();
 
     verifyNoInteractions(telemetryClient);
-    verify(prQgEnforcementTelemetries).resetMetrics();
+    verify(telemetryQGOnMergedPRDataLoader).resetMetrics();
   }
 
   private static Stream<Boolean> sonarTelemetryDisabled() {
@@ -124,12 +128,12 @@ class PurgeTelemetryTest {
   @Test
   void sendTelemetry_whenTelemetryEnabledWithEmptyMetrics_doesNotSendMessage() {
     when(configuration.getBoolean(SONAR_TELEMETRY_ENABLE.getKey())).thenReturn(Optional.of(true));
-    when(prQgEnforcementTelemetries.getMetrics()).thenReturn(Collections.emptySet());
+    when(telemetryQGOnMergedPRDataLoader.getMetrics()).thenReturn(Collections.emptySet());
 
     underTest.sendTelemetry();
 
     verifyNoInteractions(telemetryClient);
-    verify(prQgEnforcementTelemetries).resetMetrics();
+    verify(telemetryQGOnMergedPRDataLoader).resetMetrics();
   }
 
   @Test
@@ -138,7 +142,7 @@ class PurgeTelemetryTest {
     when(server.getId()).thenReturn("test-server-id");
     when(uuidFactory.create()).thenReturn("test-message-uuid");
 
-    when(prQgEnforcementTelemetries.getMetrics()).thenReturn(Set.of(TEST_METRIC, TEST_METRIC_2));
+    when(telemetryQGOnMergedPRDataLoader.getMetrics()).thenReturn(Set.of(TEST_METRIC, TEST_METRIC_2));
 
     underTest.sendTelemetry();
 
@@ -150,6 +154,6 @@ class PurgeTelemetryTest {
 
     assertThat(message.get("metric_values")).hasSize(2);
 
-    verify(prQgEnforcementTelemetries).resetMetrics();
+    verify(telemetryQGOnMergedPRDataLoader).resetMetrics();
   }
 }

@@ -38,20 +38,20 @@ import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeMapper;
 import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.core.TelemetryDataType;
-import org.sonar.telemetry.core.schema.InstallationMetric;
 import org.sonar.telemetry.core.schema.Metric;
+import org.sonar.telemetry.core.schema.ProjectMetric;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
-import static org.sonar.ce.task.projectanalysis.purge.PrQgEnforcementTelemetries.QualityGateStatus.ERROR;
-import static org.sonar.ce.task.projectanalysis.purge.PrQgEnforcementTelemetries.QualityGateStatus.OK;
+import static org.sonar.ce.task.projectanalysis.purge.TelemetryQGOnMergedPRDataLoader.QualityGateStatus.ERROR;
+import static org.sonar.ce.task.projectanalysis.purge.TelemetryQGOnMergedPRDataLoader.QualityGateStatus.OK;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_ENABLE;
 
 @ServerSide
 @ComputeEngineSide
-public class PrQgEnforcementTelemetries {
-  private static final String FAILED_COUNT_METRIC = "installation_pr_qg_failed_count";
-  private static final String PASSED_COUNT_METRIC = "installation_pr_qg_passed_count";
+public class TelemetryQGOnMergedPRDataLoader {
+  private static final String FAILED_COUNT_METRIC = "project_pr_qg_failed_count";
+  private static final String PASSED_COUNT_METRIC = "project_pr_qg_passed_count";
   private final PurgeDao purgeDao;
   private final MeasureDao measureDao;
   private final Configuration configuration;
@@ -61,7 +61,7 @@ public class PrQgEnforcementTelemetries {
     OK, ERROR
   }
 
-  public PrQgEnforcementTelemetries(PurgeDao purgeDao, MeasureDao measureDao, Configuration configuration) {
+  public TelemetryQGOnMergedPRDataLoader(PurgeDao purgeDao, MeasureDao measureDao, Configuration configuration) {
     this.measureDao = measureDao;
     this.purgeDao = purgeDao;
     this.configuration = configuration;
@@ -77,18 +77,20 @@ public class PrQgEnforcementTelemetries {
     }
     Map<String, Long> qgStatusesCount = getQualityGateStatuses(session, conf);
     if (qgStatusesCount.containsKey(ERROR.name())) {
-      InstallationMetric failedMetric = new InstallationMetric(
+      ProjectMetric failedMetric = new ProjectMetric(
         FAILED_COUNT_METRIC,
         qgStatusesCount.get(ERROR.name()),
+        conf.projectUuid(),
         TelemetryDataType.INTEGER,
         Granularity.ADHOC
       );
       metrics.add(failedMetric);
     }
     if (qgStatusesCount.containsKey(OK.name())) {
-      InstallationMetric passedMetric = new InstallationMetric(
+      ProjectMetric passedMetric = new ProjectMetric(
         PASSED_COUNT_METRIC,
         qgStatusesCount.get(OK.name()),
+        conf.projectUuid(),
         TelemetryDataType.INTEGER,
         Granularity.ADHOC
       );

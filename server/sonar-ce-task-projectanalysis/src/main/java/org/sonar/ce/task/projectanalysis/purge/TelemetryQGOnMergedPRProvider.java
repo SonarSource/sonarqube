@@ -33,21 +33,21 @@ import org.sonar.telemetry.core.schema.Metric;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_ENABLE;
 
 @ComputeEngineSide
-public class PurgeTelemetry {
+public class TelemetryQGOnMergedPRProvider {
 
   private final TelemetryClient telemetryClient;
   private final UuidFactory uuidFactory;
   private final Server server;
-  private final PrQgEnforcementTelemetries prQgEnforcementTelemetries;
+  private final TelemetryQGOnMergedPRDataLoader telemetryQGOnMergedPRDataLoader;
   private final Configuration config;
 
-  public PurgeTelemetry(Server server, UuidFactory uuidFactory, Configuration configuration, TelemetryClient telemetryClient,
-    PrQgEnforcementTelemetries prQgEnforcementTelemetries) {
+  public TelemetryQGOnMergedPRProvider(Server server, UuidFactory uuidFactory, Configuration configuration, TelemetryClient telemetryClient,
+    TelemetryQGOnMergedPRDataLoader telemetryQGOnMergedPRDataLoader) {
     this.server = server;
     this.uuidFactory = uuidFactory;
     this.config = configuration;
     this.telemetryClient = telemetryClient;
-    this.prQgEnforcementTelemetries = prQgEnforcementTelemetries;
+    this.telemetryQGOnMergedPRDataLoader = telemetryQGOnMergedPRDataLoader;
   }
 
   public void sendTelemetry() {
@@ -62,7 +62,7 @@ public class PurgeTelemetry {
     BaseMessage baseMessage = new BaseMessage.Builder()
       .setMessageUuid(uuidFactory.create())
       .setInstallationId(server.getId())
-      .setDimension(Dimension.INSTALLATION)
+      .setDimension(Dimension.PROJECT)
       .setMetrics(metrics)
       .build();
 
@@ -71,10 +71,10 @@ public class PurgeTelemetry {
   }
 
   private Set<Metric> getMetrics() {
-    return prQgEnforcementTelemetries.getMetrics();
+    return telemetryQGOnMergedPRDataLoader.getMetrics();
   }
 
   private void resetMetrics() {
-    prQgEnforcementTelemetries.resetMetrics();
+    telemetryQGOnMergedPRDataLoader.resetMetrics();
   }
 }

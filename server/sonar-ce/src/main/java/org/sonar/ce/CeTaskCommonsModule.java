@@ -20,9 +20,9 @@
 package org.sonar.ce;
 
 import org.sonar.ce.task.projectanalysis.purge.IndexPurgeListener;
-import org.sonar.ce.task.projectanalysis.purge.PrQgEnforcementTelemetries;
+import org.sonar.ce.task.projectanalysis.purge.TelemetryQGOnMergedPRDataLoader;
 import org.sonar.ce.task.projectanalysis.purge.ProjectCleaner;
-import org.sonar.ce.task.projectanalysis.purge.PurgeTelemetry;
+import org.sonar.ce.task.projectanalysis.purge.TelemetryQGOnMergedPRProvider;
 import org.sonar.core.platform.Module;
 import org.sonar.db.purge.period.DefaultPeriodCleaner;
 import org.sonar.telemetry.core.TelemetryClient;
@@ -35,8 +35,8 @@ public class CeTaskCommonsModule extends Module {
   protected void configureModule() {
     add(
       DefaultPeriodCleaner.class,
-      PurgeTelemetry.class,
-      PrQgEnforcementTelemetries.class,
+      TelemetryQGOnMergedPRProvider.class,
+      TelemetryQGOnMergedPRDataLoader.class,
       ProjectCleaner.class,
       IndexPurgeListener.class,
       TelemetryClient.class);

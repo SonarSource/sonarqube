@@ -44,6 +44,7 @@ import org.sonar.db.purge.PurgeMapper;
 import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.core.TelemetryDataType;
 import org.sonar.telemetry.core.schema.Metric;
+import org.sonar.telemetry.core.schema.ProjectMetric;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,7 +57,7 @@ import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_ENABLE;
 
 @ExtendWith(MockitoExtension.class)
-class PrQgEnforcementTelemetriesTest {
+class TelemetryQGOnMergedPRDataLoaderTest {
   private static final MeasureDto OK_QG_MEASURE = createQgMeasure("OK");
   private static final MeasureDto ERROR_QG_MEASURE = createQgMeasure("ERROR");
   private static final String PR_UUID = "pr-uuid-1";
@@ -64,6 +65,7 @@ class PrQgEnforcementTelemetriesTest {
   private static final String PR_UUID_3 = "pr-uuid-3";
   private static final String BRANCH_UUID = "branch-uuid-1";
   private static final String ROOT_UUID = "root-uuid";
+  private static final String PROJECT_UUID = "project-uuid";
 
   @Mock
   private PurgeDao purgeDao;
@@ -79,12 +81,13 @@ class PrQgEnforcementTelemetriesTest {
   private Configuration configuration;
 
   @InjectMocks
-  private PrQgEnforcementTelemetries underTest;
+  private TelemetryQGOnMergedPRDataLoader underTest;
 
   @BeforeEach
   void setUp() {
     lenient().when(session.getMapper(PurgeMapper.class)).thenReturn(purgeMapper);
     lenient().when(conf.rootUuid()).thenReturn(ROOT_UUID);
+    lenient().when(conf.projectUuid()).thenReturn(PROJECT_UUID);
     when(configuration.getBoolean(SONAR_TELEMETRY_ENABLE.getKey())).thenReturn(Optional.of(true));
   }
 
@@ -118,6 +121,8 @@ class PrQgEnforcementTelemetriesTest {
     Metric metric = underTest.getMetrics().iterator().next();
     assertThat(metric.getKey()).isEqualTo(expectedMetricKey);
     assertThat(metric.getValue()).isEqualTo(expectedValue);
+    assertThat(metric).isInstanceOf(ProjectMetric.class);
+    assertThat(((ProjectMetric) metric).getProjectUuid()).isEqualTo(PROJECT_UUID);
     assertThat(metric.getType()).isEqualTo(TelemetryDataType.INTEGER);
     assertThat(metric.getGranularity()).isEqualTo(Granularity.ADHOC);
   }
@@ -168,16 +173,16 @@ class PrQgEnforcementTelemetriesTest {
     assertThat(underTest.getMetrics())
       .hasSize(2)
       .extracting(Metric::getKey)
-      .containsExactlyInAnyOrder("installation_pr_qg_passed_count", "installation_pr_qg_failed_count");
+      .containsExactlyInAnyOrder("project_pr_qg_passed_count", "project_pr_qg_failed_count");
 
     Metric passedMetric = underTest.getMetrics().stream()
-      .filter(m -> m.getKey().equals("installation_pr_qg_passed_count"))
+      .filter(m -> m.getKey().equals("project_pr_qg_passed_count"))
       .findFirst()
       .orElseThrow();
     assertThat(passedMetric.getValue()).isEqualTo(2L);
 
     Metric failedMetric = underTest.getMetrics().stream()
-      .filter(m -> m.getKey().equals("installation_pr_qg_failed_count"))
+      .filter(m -> m.getKey().equals("project_pr_qg_failed_count"))
       .findFirst()
       .orElseThrow();
     assertThat(failedMetric.getValue()).isEqualTo(1L);
@@ -199,8 +204,8 @@ class PrQgEnforcementTelemetriesTest {
 
   private static Stream<Arguments> provideQgStatusScenarios() {
     return Stream.of(
-      arguments(OK_QG_MEASURE, "installation_pr_qg_passed_count", 1L),
-      arguments(ERROR_QG_MEASURE, "installation_pr_qg_failed_count", 1L)
+      arguments(OK_QG_MEASURE, "project_pr_qg_passed_count", 1L),
+      arguments(ERROR_QG_MEASURE, "project_pr_qg_failed_count", 1L)
     );
   }
 

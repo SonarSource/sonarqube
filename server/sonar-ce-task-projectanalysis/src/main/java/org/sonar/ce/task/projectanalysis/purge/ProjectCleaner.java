@@ -45,15 +45,15 @@ public class ProjectCleaner {
   private final PurgeListener purgeListener;
   private final PurgeDao purgeDao;
   private final DefaultPeriodCleaner periodCleaner;
-  private final PrQgEnforcementTelemetries prQgEnforcementTelemetries;
+  private final TelemetryQGOnMergedPRDataLoader telemetryQGOnMergedPRDataLoader;
 
   public ProjectCleaner(PurgeDao purgeDao, DefaultPeriodCleaner periodCleaner, PurgeProfiler profiler, PurgeListener purgeListener,
-    PrQgEnforcementTelemetries prQgEnforcementTelemetries) {
+    TelemetryQGOnMergedPRDataLoader telemetryQGOnMergedPRDataLoader) {
     this.purgeDao = purgeDao;
     this.periodCleaner = periodCleaner;
     this.profiler = profiler;
     this.purgeListener = purgeListener;
-    this.prQgEnforcementTelemetries = prQgEnforcementTelemetries;
+    this.telemetryQGOnMergedPRDataLoader = telemetryQGOnMergedPRDataLoader;
   }
 
   public ProjectCleaner purge(DbSession session, String rootUuid, String projectUuid, Configuration projectConfig,
@@ -64,7 +64,7 @@ public class ProjectCleaner {
     periodCleaner.clean(session, rootUuid, projectConfig);
 
     PurgeConfiguration configuration = newDefaultPurgeConfiguration(projectConfig, rootUuid, projectUuid, disabledComponentUuids);
-    prQgEnforcementTelemetries.calculateMetrics(session, configuration);
+    telemetryQGOnMergedPRDataLoader.calculateMetrics(session, configuration);
     purgeDao.purge(session, configuration, purgeListener, profiler);
 
     session.commit();
