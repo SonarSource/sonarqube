@@ -37,10 +37,11 @@ public class QualityGateEvaluatorImpl implements QualityGateEvaluator {
   /**
    * Some metrics will be ignored on very small change sets.
    */
-  public static final Set<String> METRICS_TO_IGNORE_ON_SMALL_CHANGESETS = ImmutableSet.of(
+  public static final Set<String> COVERAGE_METRICS_TO_IGNORE_ON_SMALL_CHANGESETS = ImmutableSet.of(
     CoreMetrics.NEW_COVERAGE_KEY,
     CoreMetrics.NEW_LINE_COVERAGE_KEY,
-    CoreMetrics.NEW_BRANCH_COVERAGE_KEY,
+    CoreMetrics.NEW_BRANCH_COVERAGE_KEY);
+  public static final Set<String> DUPLICATION_METRICS_TO_IGNORE_ON_SMALL_CHANGESETS = ImmutableSet.of(
     CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY,
     CoreMetrics.NEW_DUPLICATED_LINES_KEY,
     CoreMetrics.NEW_BLOCKS_DUPLICATED_KEY);
@@ -57,7 +58,6 @@ public class QualityGateEvaluatorImpl implements QualityGateEvaluator {
       .setQualityGate(gate);
 
     boolean ignoreSmallChanges = configuration.getBoolean(CoreProperties.QUALITY_GATE_IGNORE_SMALL_CHANGES).orElse(true);
-    boolean isSmallChangeset = ignoreSmallChanges && isSmallChangeset(measures);
 
     gate.getConditions().forEach(condition -> {
       String metricKey = condition.getMetricKey();
@@ -69,7 +69,8 @@ public class QualityGateEvaluatorImpl implements QualityGateEvaluator {
           .orElse(evaluation);
       }
 
-      if (isSmallChangeset && evaluation.getStatus() != EvaluationStatus.OK && METRICS_TO_IGNORE_ON_SMALL_CHANGESETS.contains(metricKey)) {
+      if (ignoreSmallChanges && evaluation.getStatus() != EvaluationStatus.OK &&
+        isMetricIgnoredOnSmallChangeset(measures, metricKey)) {
         result.addEvaluatedCondition(new EvaluatedCondition(evaluation.getCondition(), evaluation.getOriginalCondition(),
           EvaluationStatus.OK, evaluation.getValue().orElse(null), evaluation.isMissingMeasure()));
         result.setIgnoredConditionsOnSmallChangeset(true);
@@ -87,6 +88,7 @@ public class QualityGateEvaluatorImpl implements QualityGateEvaluator {
   public Set<String> getMetricKeys(QualityGate gate) {
     Set<String> metricKeys = new HashSet<>();
     metricKeys.add(CoreMetrics.NEW_LINES_KEY);
+    metricKeys.add(CoreMetrics.NEW_LINES_TO_COVER_KEY);
     for (Condition condition : gate.getConditions()) {
       metricKeys.add(condition.getMetricKey());
       qualityGateFallbackManager.getFallbackCondition(condition)
@@ -95,11 +97,31 @@ public class QualityGateEvaluatorImpl implements QualityGateEvaluator {
     return metricKeys;
   }
 
-  private static boolean isSmallChangeset(Measures measures) {
-    Optional<Measure> newLines = measures.get(CoreMetrics.NEW_LINES_KEY);
-    return newLines.isPresent() &&
-      newLines.get().getValue().isPresent() &&
-      newLines.get().getValue().getAsDouble() < MAXIMUM_NEW_LINES_FOR_SMALL_CHANGESETS;
+  private static boolean isMetricIgnoredOnSmallChangeset(Measures measures, String metricKey) {
+    if (COVERAGE_METRICS_TO_IGNORE_ON_SMALL_CHANGESETS.contains(metricKey)) {
+      return isSmallCoverageChangeset(measures);
+    }
+
+    if (DUPLICATION_METRICS_TO_IGNORE_ON_SMALL_CHANGESETS.contains(metricKey)) {
+      return isSmallDuplicationChangeset(measures);
+    }
+
+    return false;
+  }
+
+  private static boolean isSmallChangeset(Measures measures, String metricKey) {
+    Optional<Measure> measure = measures.get(metricKey);
+    return measure.isPresent() &&
+      measure.get().getValue().isPresent() &&
+      measure.get().getValue().getAsDouble() < MAXIMUM_NEW_LINES_FOR_SMALL_CHANGESETS;
+  }
+
+  private static boolean isSmallDuplicationChangeset(Measures measures) {
+    return isSmallChangeset(measures, CoreMetrics.NEW_LINES_KEY);
+  }
+
+  private static boolean isSmallCoverageChangeset(Measures measures) {
+    return isSmallChangeset(measures, CoreMetrics.NEW_LINES_TO_COVER_KEY);
   }
 
   private static Level overallStatusOf(Set<EvaluatedCondition> conditions) {

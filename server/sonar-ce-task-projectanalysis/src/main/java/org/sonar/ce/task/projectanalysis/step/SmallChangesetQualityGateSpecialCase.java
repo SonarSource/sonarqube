@@ -31,7 +31,8 @@ import org.sonar.ce.task.projectanalysis.qualitygate.EvaluationResult;
 import org.sonar.ce.task.projectanalysis.step.QualityGateMeasuresStep.MetricEvaluationResult;
 
 import static org.sonar.server.qualitygate.QualityGateEvaluatorImpl.MAXIMUM_NEW_LINES_FOR_SMALL_CHANGESETS;
-import static org.sonar.server.qualitygate.QualityGateEvaluatorImpl.METRICS_TO_IGNORE_ON_SMALL_CHANGESETS;
+import static org.sonar.server.qualitygate.QualityGateEvaluatorImpl.COVERAGE_METRICS_TO_IGNORE_ON_SMALL_CHANGESETS;
+import static org.sonar.server.qualitygate.QualityGateEvaluatorImpl.DUPLICATION_METRICS_TO_IGNORE_ON_SMALL_CHANGESETS;
 
 public class SmallChangesetQualityGateSpecialCase {
   private final MeasureRepository measureRepository;
@@ -47,9 +48,22 @@ public class SmallChangesetQualityGateSpecialCase {
   public boolean appliesTo(Component project, @Nullable MetricEvaluationResult metricEvaluationResult) {
     return metricEvaluationResult != null
       && metricEvaluationResult.evaluationResult.level() != Measure.Level.OK
-      && METRICS_TO_IGNORE_ON_SMALL_CHANGESETS.contains(metricEvaluationResult.condition.getMetric().getKey())
       && config.getConfiguration().getBoolean(CoreProperties.QUALITY_GATE_IGNORE_SMALL_CHANGES).orElse(true)
-      && isSmallChangeset(project);
+      && isMetricIgnoredOnSmallChangeset(project, metricEvaluationResult);
+  }
+
+  private boolean isMetricIgnoredOnSmallChangeset(Component project, MetricEvaluationResult metricEvaluationResult) {
+    String metricKey = metricEvaluationResult.condition.getMetric().getKey();
+
+    if (COVERAGE_METRICS_TO_IGNORE_ON_SMALL_CHANGESETS.contains(metricKey)) {
+      return isSmallCoverageChangeset(project);
+    }
+
+    if (DUPLICATION_METRICS_TO_IGNORE_ON_SMALL_CHANGESETS.contains(metricKey)) {
+      return isSmallDuplicationChangeset(project);
+    }
+
+    return false;
   }
 
   MetricEvaluationResult apply(MetricEvaluationResult metricEvaluationResult) {
@@ -57,7 +71,13 @@ public class SmallChangesetQualityGateSpecialCase {
       new EvaluationResult(Measure.Level.OK, metricEvaluationResult.evaluationResult.value()), metricEvaluationResult.condition);
   }
 
-  private boolean isSmallChangeset(Component project) {
+  private boolean isSmallCoverageChangeset(Component project) {
+    return measureRepository.getRawMeasure(project, metricRepository.getByKey(CoreMetrics.NEW_LINES_TO_COVER_KEY))
+      .map(newLines -> newLines.getIntValue() < MAXIMUM_NEW_LINES_FOR_SMALL_CHANGESETS)
+      .orElse(false);
+  }
+
+  private boolean isSmallDuplicationChangeset(Component project) {
     return measureRepository.getRawMeasure(project, metricRepository.getByKey(CoreMetrics.NEW_LINES_KEY))
       .map(newLines -> newLines.getIntValue() < MAXIMUM_NEW_LINES_FOR_SMALL_CHANGESETS)
       .orElse(false);
