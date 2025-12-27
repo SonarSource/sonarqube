@@ -27,7 +27,6 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import {
   getStandards,
-  renderCVSSCategory,
   renderCWECategory,
   renderOwaspTop102021Category,
   renderOwaspTop10Category,
@@ -37,6 +36,7 @@ import { Facet } from '../../../types/issues';
 import { SecurityStandard, Standards } from '../../../types/security';
 import { Dict } from '../../../types/types';
 import { Query, STANDARDS, formatFacetStat } from '../utils';
+import { CvssRangeSlider } from './CvssRangeSlider';
 import { FacetItemsList } from './FacetItemsList';
 import { ListStyleFacet } from './ListStyleFacet';
 import { ListStyleFacetFooter } from './ListStyleFacetFooter';
@@ -49,7 +49,6 @@ interface Props {
   fetchingCwe: boolean;
   cvss: string[];
   cvssOpen: boolean;
-  cvssStats: Dict<number> | undefined;
   fetchingCvss: boolean;
   fetchingOwaspTop10: boolean;
   'fetchingOwaspTop10-2021': boolean;
@@ -79,8 +78,7 @@ type StatsProp =
   | 'owaspTop10-2021Stats'
   | 'owaspTop10Stats'
   | 'cweStats'
-  | 'sonarsourceSecurityStats'
-  | 'cvssStats';
+  | 'sonarsourceSecurityStats';
 
 type ValuesProp = 'owaspTop10-2021' | 'owaspTop10' | 'sonarsourceSecurity' | 'cwe' | 'cvss';
 
@@ -168,7 +166,49 @@ export class StandardFacet extends React.PureComponent<Props, State> {
     );
   };
 
+  parseCvssRange = (cvssValues: string[]): { min: number; max: number } => {
+    if (cvssValues.length === 0) {
+      return { min: 0, max: 10 };
+    }
+
+    // Parse the first CVSS value (could be range like "3.0-7.5" or single value)
+    const firstValue = cvssValues[0];
+    if (firstValue.includes('-')) {
+      const [min, max] = firstValue.split('-').map(parseFloat);
+      return {
+        min: isNaN(min) ? 0 : min,
+        max: isNaN(max) ? 10 : max,
+      };
+    }
+
+    // Single value - treat as both min and max
+    const singleValue = parseFloat(firstValue);
+    if (!isNaN(singleValue)) {
+      return { min: singleValue, max: singleValue };
+    }
+
+    return { min: 0, max: 10 };
+  };
+
+  formatCvssRange = (min: number, max: number): string[] => {
+    // If default range, return empty array (no filter)
+    if (min === 0 && max === 10) {
+      return [];
+    }
+
+    // If single value (min === max), return as single value string
+    if (min === max) {
+      return [min.toFixed(1)];
+    }
+
+    // Return as range string
+    return [`${min.toFixed(1)}-${max.toFixed(1)}`];
+  };
+
   getValues = () => {
+    const cvssRange = this.parseCvssRange(this.props.cvss);
+    const cvssDisplay = this.formatCvssRange(cvssRange.min, cvssRange.max);
+
     return [
       ...this.props.sonarsourceSecurity.map((item) =>
         renderSonarSourceSecurityCategory(this.state.standards, item, true),
@@ -180,7 +220,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
         renderOwaspTop102021Category(this.state.standards, item, true),
       ),
       ...this.props.cwe.map((item) => renderCWECategory(this.state.standards, item)),
-      ...this.props.cvss.map((item) => renderCVSSCategory(this.state.standards, item)),
+      ...cvssDisplay,
     ];
   };
 
@@ -251,14 +291,6 @@ export class StandardFacet extends React.PureComponent<Props, State> {
     });
   };
 
-  handleCVSSSearch = (query: string) => {
-    return Promise.resolve({
-      results: Object.keys(this.state.standards.cvss).filter((cvss) =>
-        renderCVSSCategory(this.state.standards, cvss).toLowerCase().includes(query.toLowerCase()),
-      ),
-    });
-  };
-
   loadCWESearchResultCount = (categories: string[]) => {
     const { loadSearchResultCount } = this.props;
 
@@ -266,12 +298,10 @@ export class StandardFacet extends React.PureComponent<Props, State> {
       ? loadSearchResultCount('cwe', { cwe: categories })
       : Promise.resolve({});
   };
-  loadCVSSSearchResultCount = (categories: string[]) => {
-    const { loadSearchResultCount } = this.props;
 
-    return loadSearchResultCount
-      ? loadSearchResultCount('cvss', { cvss: categories })
-      : Promise.resolve({});
+  handleCvssRangeChange = (min: number, max: number) => {
+    const cvssValues = this.formatCvssRange(min, max);
+    this.props.onChange({ cvss: cvssValues });
   };
 
   renderList = (
@@ -450,7 +480,6 @@ export class StandardFacet extends React.PureComponent<Props, State> {
       cweOpen,
       cvssOpen,
       cweStats,
-      cvssStats,
       fetchingCwe,
       fetchingCvss,
       fetchingOwaspTop10,
@@ -536,23 +565,38 @@ export class StandardFacet extends React.PureComponent<Props, State> {
           values={cwe}
         />
 
-        <ListStyleFacet<string>
-          facetHeader={translate('issues.facet.cvss')}
-          fetching={fetchingCvss}
-          getFacetItemText={(item) => renderCVSSCategory(this.state.standards, item)}
-          getSearchResultText={(item) => renderCVSSCategory(this.state.standards, item)}
+        <FacetBox
+          className="it__search-navigator-facet-box it__search-navigator-facet-header"
+          count={cvss.length > 0 ? 1 : 0}
+          countLabel={
+            cvss.length > 0
+              ? (() => {
+                  const range = this.parseCvssRange(cvss);
+                  return range.min === range.max
+                    ? `${range.min.toFixed(1)}`
+                    : `${range.min.toFixed(1)} → ${range.max.toFixed(1)}`;
+                })()
+              : undefined
+          }
+          data-property={SecurityStandard.CVSS}
+          id={this.getFacetHeaderId(SecurityStandard.CVSS)}
           inner
-          loadSearchResultCount={this.loadCVSSSearchResultCount}
-          onChange={this.props.onChange}
-          onToggle={this.props.onToggle}
+          loading={fetchingCvss}
+          name={translate('issues.facet.cvss')}
+          onClear={() => this.props.onChange({ cvss: [] })}
+          onClick={() => this.props.onToggle(SecurityStandard.CVSS)}
           open={cvssOpen}
-          property={SecurityStandard.CVSS}
-          query={omit(query, 'cvss')}
-          renderFacetItem={(item) => renderCVSSCategory(this.state.standards, item)}
-          stats={cvssStats}
-          values={cvss}
-          ShowSearch={'inactive'}
-        />
+        >
+          {cvssOpen && (
+            <FacetItemsList labelledby={this.getFacetHeaderId(SecurityStandard.CVSS)}>
+              <CvssRangeSlider
+                disabled={fetchingCvss}
+                onChange={this.handleCvssRangeChange}
+                value={this.parseCvssRange(cvss)}
+              />
+            </FacetItemsList>
+          )}
+        </FacetBox>
       </>
     );
   }

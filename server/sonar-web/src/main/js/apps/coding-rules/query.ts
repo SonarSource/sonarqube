@@ -151,7 +151,6 @@ export function shouldRequestFacet(facet: string): facet is FacetKey {
   const facetsToRequest = [
     'activationSeverities',
     'cwe',
-    'cvss',
     'languages',
     'owaspTop10',
     'owaspTop10-2021',

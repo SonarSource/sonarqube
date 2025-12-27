@@ -349,20 +349,6 @@ export function Sidebar(props: Readonly<Props>) {
             cweStats={facets.cwe}
             cvss={query.cvss}
             cvssOpen={!!openFacets.cvss}
-            cvssStats={
-              facets.cvss
-                ? Object.entries(facets.cvss).reduce(
-                    (acc, [range, count]) => {
-                      const numericCount = Number(count);
-                      if (numericCount > 0) {
-                        acc[range.trim()] = numericCount;
-                      }
-                      return acc;
-                    },
-                    {} as Record<string, number>,
-                  )
-                : undefined
-            }
             fetchingCvss={props.loadingFacets.cvss === true}
             fetchingCwe={props.loadingFacets.cwe === true}
             fetchingOwaspTop10={props.loadingFacets.owaspTop10 === true}
