@@ -288,6 +288,7 @@ import org.sonar.server.setting.SettingsChangeNotifier;
 import org.sonar.server.setting.ws.SettingsWsModule;
 import org.sonar.server.source.ws.SourceWsModule;
 import org.sonar.server.startup.LogServerId;
+import org.sonar.server.telemetry.TelemetryQualityGateBeforeNcdStartProvider;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ui.WebAnalyticsLoaderImpl;
 import org.sonar.server.ui.ws.NavigationWsModule;
@@ -732,6 +733,7 @@ public class PlatformLevel4 extends PlatformLevel {
       TelemetryClient.class,
       CloudUsageDataProvider.class,
       QualityProfileDataProvider.class,
+      TelemetryQualityGateBeforeNcdStartProvider.class,
       ProjectLocDistributionDataProvider.class,
 
       // database migration logging and telemetry

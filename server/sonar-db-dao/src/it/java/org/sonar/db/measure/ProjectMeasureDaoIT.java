@@ -185,6 +185,74 @@ class ProjectMeasureDaoIT {
     assertThat(result).hasSize(2).extracting(ProjectMeasureDto::getData).containsOnly("PROJECT_M1", "PROJECT_M2");
   }
 
+  @Test
+  void select_measures_by_analyses_returns_measures_for_given_analyses_and_metric() {
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    SnapshotDto analysis1 = insertAnalysis(project1.uuid(), true);
+    SnapshotDto analysis2 = insertAnalysis(project2.uuid(), true);
+    SnapshotDto analysis3 = insertAnalysis(project1.uuid(), false);
+
+    insertMeasure("MEASURE_1", analysis1.getUuid(), project1.uuid(), ncloc.getUuid());
+    insertMeasure("MEASURE_2", analysis2.getUuid(), project2.uuid(), ncloc.getUuid());
+    insertMeasure("MEASURE_3", analysis3.getUuid(), project1.uuid(), ncloc.getUuid());
+    insertMeasure("MEASURE_COVERAGE", analysis1.getUuid(), project1.uuid(), coverage.getUuid());
+    db.commit();
+
+    List<ProjectMeasureDto> result = underTest.selectMeasuresByAnalysisUuids(db.getSession(),
+      List.of(analysis1.getUuid(), analysis2.getUuid()), ncloc.getKey());
+
+    assertThat(result)
+      .hasSize(2)
+      .extracting(ProjectMeasureDto::getData)
+      .containsOnly("MEASURE_1", "MEASURE_2");
+  }
+
+  @Test
+  void select_measures_by_analyses_returns_empty_when_no_matching_analyses() {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    SnapshotDto analysis = insertAnalysis(project.uuid(), true);
+    insertMeasure("MEASURE_1", analysis.getUuid(), project.uuid(), ncloc.getUuid());
+    db.commit();
+
+    List<ProjectMeasureDto> result = underTest.selectMeasuresByAnalysisUuids(db.getSession(),
+      List.of("UNKNOWN_ANALYSIS"), ncloc.getKey());
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void select_measures_by_analyses_returns_empty_when_no_matching_metric() {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    SnapshotDto analysis = insertAnalysis(project.uuid(), true);
+    insertMeasure("MEASURE_1", analysis.getUuid(), project.uuid(), ncloc.getUuid());
+    db.commit();
+
+    List<ProjectMeasureDto> result = underTest.selectMeasuresByAnalysisUuids(db.getSession(),
+      List.of(analysis.getUuid()), "unknown_metric");
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void select_measures_by_analyses_handles_large_input() {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+
+    // Insert 1500 analyses and measures (more than the 1000 batch size)
+    List<String> analysisUuids = new java.util.ArrayList<>();
+    for (int i = 0; i < 1500; i++) {
+      SnapshotDto analysis = insertAnalysis(project.uuid(), false);
+      insertMeasure("MEASURE_" + i, analysis.getUuid(), project.uuid(), ncloc.getUuid());
+      analysisUuids.add(analysis.getUuid());
+    }
+    db.commit();
+
+    List<ProjectMeasureDto> result = underTest.selectMeasuresByAnalysisUuids(db.getSession(),
+      analysisUuids, ncloc.getKey());
+
+    assertThat(result).hasSize(1500);
+  }
+
   private void verifyMeasure(String componentUuid, String metricKey, String analysisUuid, String value) {
     Optional<ProjectMeasureDto> measure = underTest.selectMeasure(db.getSession(), analysisUuid, componentUuid, metricKey);
     assertThat(measure.map(ProjectMeasureDto::getData)).contains(value);
