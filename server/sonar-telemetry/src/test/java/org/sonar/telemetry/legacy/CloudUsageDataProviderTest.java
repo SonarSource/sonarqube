@@ -43,7 +43,9 @@ import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.sonar.telemetry.legacy.CloudUsageDataProvider.DOCKER_RUNNING;
 import static org.sonar.telemetry.legacy.CloudUsageDataProvider.KUBERNETES_SERVICE_HOST;
@@ -57,13 +59,22 @@ class CloudUsageDataProviderTest {
   private final OkHttpClient httpClient = mock(OkHttpClient.class);
   private final ContainerSupport containerSupport = mock(ContainerSupport.class);
   private final ProcessBuilder processBuilder = mock(ProcessBuilder.class);
-  private final CloudUsageDataProvider underTest = new CloudUsageDataProvider(containerSupport, system2, paths2, () -> processBuilder,
-    httpClient);
+  private CloudUsageDataProvider underTest;
 
   @BeforeEach
   void setUp() throws Exception {
+    reset(system2, paths2, httpClient, containerSupport, processBuilder);
+
     when(system2.envVariable(KUBERNETES_SERVICE_HOST)).thenReturn("localhost");
     when(system2.envVariable(KUBERNETES_SERVICE_PORT)).thenReturn("443");
+
+    // Create a temp file for the token since Files.readString needs a real file
+    java.nio.file.Path tempToken = java.nio.file.Files.createTempFile("test-token", ".txt");
+    java.nio.file.Files.writeString(tempToken, "test-service-account-token");
+    tempToken.toFile().deleteOnExit();
+    doReturn(tempToken).when(paths2).get(anyString());
+
+    underTest = new CloudUsageDataProvider(containerSupport, system2, paths2, () -> processBuilder, httpClient);
 
     mockHttpClientCall(200, "OK", ResponseBody.create("""
       {
