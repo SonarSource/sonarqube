@@ -85,7 +85,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   private boolean prioritizedRule = false;
   // temporarily an Object as long as DefaultIssue is used by sonar-batch
   private Object locations = null;
-  private Long hotspotExceptionExpiresAt;
+  private Long issueResolutionExpiresAt;
 
 
   private boolean isFromExternalRuleEngine = false;
@@ -225,12 +225,12 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   }
 
 
-  public Long hotspotExceptionExpiresAt() {
-    return hotspotExceptionExpiresAt;
+  public Long issueResolutionExpiresAt() {
+    return issueResolutionExpiresAt;
   }
 
-  public DefaultIssue setHotspotExceptionExpiresAt(@Nullable Long v) {
-    this.hotspotExceptionExpiresAt = v;
+  public DefaultIssue setIssueResolutionExpiresAt(@Nullable Long v) {
+    this.issueResolutionExpiresAt = v;
     return this;
   }
 

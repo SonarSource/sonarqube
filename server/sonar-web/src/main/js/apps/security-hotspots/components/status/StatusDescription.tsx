@@ -34,12 +34,12 @@ export default function StatusDescription(props: StatusDescriptionProps) {
   // Calculate expiry days if status is EXCEPTION and expiry date exists
   const expiryDays =
     statusOption === HotspotStatusOption.EXCEPTION &&
-    hotspot.hotspotExceptionExpiresAt &&
-    (typeof hotspot.hotspotExceptionExpiresAt === 'number'
-      ? hotspot.hotspotExceptionExpiresAt > 0
+    hotspot.issueResolutionExpiresAt &&
+    (typeof hotspot.issueResolutionExpiresAt === 'number'
+      ? hotspot.issueResolutionExpiresAt > 0
       : true)
       ? Math.ceil(
-          (new Date(hotspot.hotspotExceptionExpiresAt).getTime() - Date.now()) /
+          (new Date(hotspot.issueResolutionExpiresAt).getTime() - Date.now()) /
             (1000 * 60 * 60 * 24),
         )
       : null;

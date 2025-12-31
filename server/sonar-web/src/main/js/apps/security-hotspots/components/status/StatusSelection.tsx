@@ -31,7 +31,7 @@ interface Props {
   hotspot: Hotspot;
   onClose: () => void;
   onStatusOptionChange: (statusOption: HotspotStatusOption) => Promise<void>;
-  hotspotExceptionExpiryDate?: string;
+  issueResolutionExpiryDate?: string;
 }
 export default function StatusSelection(props: Props) {
   const { hotspot } = props;
@@ -42,8 +42,8 @@ export default function StatusSelection(props: Props) {
   );
 
   const originalExpiryDate = React.useMemo(() => {
-    if (typeof hotspot.hotspotExceptionExpiresAt === "number" && hotspot.hotspotExceptionExpiresAt > 0) {
-      const d = new Date(hotspot.hotspotExceptionExpiresAt);
+    if (typeof hotspot.issueResolutionExpiresAt === "number" && hotspot.issueResolutionExpiresAt > 0) {
+      const d = new Date(hotspot.issueResolutionExpiresAt);
       const yyyy = d.getFullYear();
       const mm = String(d.getMonth() + 1).padStart(2, "0");
       const dd = String(d.getDate()).padStart(2, "0");
@@ -72,7 +72,7 @@ export default function StatusSelection(props: Props) {
         await setSecurityHotspotStatus(hotspot.key, {
           ...getStatusAndResolutionFromStatusOption(status),
           comment: comment || undefined,
-          hotspotExceptionExpiryDate: expiryDate || "",
+          issueResolutionExpiryDate: expiryDate || "",
         });
         await props.onStatusOptionChange(status);
         props.onClose();

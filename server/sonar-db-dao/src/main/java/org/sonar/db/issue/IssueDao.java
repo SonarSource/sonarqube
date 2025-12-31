@@ -189,7 +189,7 @@ public class IssueDao implements Dao {
     return mapper(dbSession).selectIssueKeysByQuery(issueListQuery, pagination);
   }
 
-  public void updateHotspotExceptionExpiryDate(DbSession dbSession, String issueKey, Long expiryDate) {
-    mapper(dbSession).updateHotspotExceptionExpiryDate(issueKey, expiryDate);
+  public void updateIssueResolutionExpiryDate(DbSession dbSession, String issueKey, Long expiryDate) {
+    mapper(dbSession).updateIssueResolutionExpiryDate(issueKey, expiryDate);
   }
 }
