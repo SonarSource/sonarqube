@@ -147,7 +147,7 @@ public class RuleQueryFactory {
 
   private List<ComplianceCategoryRules> getComplianceStandardRules(Map<ReportKey, Set<String>> categoriesByStandard) {
     var nonExistentComplianceRules = new ComplianceCategoryRules(new CategoryTree.CategoryTreeNode("empty", Set.of(":non-existing-uuid"),
-      Set.of(), null, false, 0));
+      Set.of(), null, false, 0, null));
     return metadataRules.getRulesByStandard(categoriesByStandard).values().stream()
       .map(e -> e.isEmpty() ? nonExistentComplianceRules : e)
       .toList();

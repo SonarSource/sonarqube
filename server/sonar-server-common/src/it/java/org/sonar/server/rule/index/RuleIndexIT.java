@@ -207,7 +207,7 @@ class RuleIndexIT {
     createRule(setRepositoryKey("java"), setRuleKey("S002"));
     index();
     ComplianceCategoryRules complianceCategoryRules = new ComplianceCategoryRules(new CategoryTree.CategoryTreeNode(
-      "key", Set.of("php:S002", ":X001"), Set.of(), null, false, 0
+      "key", Set.of("php:S002", ":X001"), Set.of(), null, false, 0, null
     ));
 
     // key
