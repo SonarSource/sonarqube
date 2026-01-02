@@ -195,13 +195,13 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
       }
       ruleChange.setParams(paramChanges.toArray(new ParamChange[0]));
 
-      if (ACTIVATED.equals(arc.getType()) || UPDATED.equals(arc.getType())) {
+      if (ACTIVATED == arc.getType() || UPDATED == arc.getType()) {
         activatedRules.add(ruleChange);
       }
     }
 
     Set<String> deactivatedRules = activeRuleChanges.stream()
-      .filter(r -> DEACTIVATED.equals(r.getType()))
+      .filter(r -> DEACTIVATED == r.getType())
       .map(ActiveRuleChange::getActiveRule)
       .filter(not(Objects::isNull))
       .map(ActiveRuleDto::getRuleKey)

@@ -48,7 +48,7 @@ public class PluginConsentVerifier implements Startable {
 
   @Override
   public void start() {
-    boolean hasExternalPlugins = pluginRepository.getPlugins().stream().anyMatch(plugin -> plugin.getType().equals(PluginType.EXTERNAL));
+    boolean hasExternalPlugins = pluginRepository.getPlugins().stream().anyMatch(plugin -> plugin.getType() == PluginType.EXTERNAL);
     try (DbSession session = dbClient.openSession(false)) {
       PropertyDto property = Optional.ofNullable(dbClient.propertiesDao().selectGlobalProperty(session, PLUGINS_RISK_CONSENT))
         .orElse(defaultPluginRiskConsentProperty());

@@ -91,7 +91,7 @@ public class Event {
     }
     Event event = (Event) o;
     return Objects.equals(name, event.name) &&
-        Objects.equals(category, event.category);
+      category == event.category;
   }
 
   @Override

@@ -47,7 +47,7 @@ public class LegacyHotspotRuleDescriptionSectionsGenerator implements RuleDescri
 
   @Override
   public boolean isGeneratorForRule(RulesDefinition.Rule rule) {
-    return SECURITY_HOTSPOT.equals(RuleTypeMapper.toRuleType(rule.type())) && rule.ruleDescriptionSections().isEmpty();
+    return SECURITY_HOTSPOT == RuleTypeMapper.toRuleType(rule.type()) && rule.ruleDescriptionSections().isEmpty();
   }
 
   @Override

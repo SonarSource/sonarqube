@@ -42,7 +42,7 @@ public enum ImpactSeverityRestEnum {
 
   public static ImpactSeverityRestEnum from(Severity severity) {
     return Arrays.stream(ImpactSeverityRestEnum.values())
-      .filter(severityRestResponse -> severityRestResponse.severity.equals(severity))
+      .filter(severityRestResponse -> severityRestResponse.severity == severity)
       .findFirst()
       .orElseThrow(() -> new IllegalArgumentException("Unsupported impact severity: " + severity));
   }

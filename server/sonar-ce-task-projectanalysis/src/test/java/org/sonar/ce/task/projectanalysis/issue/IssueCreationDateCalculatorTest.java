@@ -327,7 +327,7 @@ public class IssueCreationDateCalculatorTest {
 
   public static Stream<Arguments> backdatingDateAndChangedQPStatusCases() {
     return Stream.of(QProfileStatusRepository.Status.values())
-      .filter(s -> !UNCHANGED.equals(s))
+      .filter(s -> UNCHANGED != s)
       .flatMap(s -> Stream.of(
         arguments(new NoIssueLocation(), 1200L, s),
         arguments(new OnlyPrimaryLocation(), 1300L, s),

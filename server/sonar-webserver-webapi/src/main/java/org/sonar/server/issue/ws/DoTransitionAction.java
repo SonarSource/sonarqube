@@ -168,11 +168,11 @@ public class DoTransitionAction implements IssuesWsAction {
       BranchDto branch = issueUpdater.getBranch(session, defaultIssue);
       SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issueDto, defaultIssue, context, branch);
 
-      if (!branch.getBranchType().equals(BranchType.PULL_REQUEST)) {
+      if (branch.getBranchType() != BranchType.PULL_REQUEST) {
         updateIssueStatsByRuleKey(session, branch, issueDto.getRuleKey(), defaultIssue, transitionKey);
       }
 
-      if (branch.getBranchType().equals(BRANCH) && response.getComponentByUuid(defaultIssue.projectUuid()) != null) {
+      if (branch.getBranchType() == BRANCH && response.getComponentByUuid(defaultIssue.projectUuid()) != null) {
         issueChangeEventService.distributeIssueChangeEvent(defaultIssue, null, Map.of(), null, transitionKey, branch,
           response.getComponentByUuid(defaultIssue.projectUuid()).getKey());
       }
@@ -200,7 +200,7 @@ public class DoTransitionAction implements IssuesWsAction {
   }
 
   private static int getMqrRating(DefaultIssue issue) {
-    return issue.getImpacts().stream().filter(i -> i.softwareQuality().equals(SoftwareQuality.SECURITY))
+    return issue.getImpacts().stream().filter(i -> i.softwareQuality() == SoftwareQuality.SECURITY)
       .findFirst()
       .map(impact -> impact.severity().ordinal() + 1)
       .orElse(1);

@@ -71,7 +71,7 @@ public class DefaultModeController implements ModeController {
   @Override
   public ModeResource patchMode(ModeResource modeResource) {
     userSession.checkIsSystemAdministrator();
-    Boolean isMQREnabledRequest = modeResource.mode().equals(ModeEnum.MQR);
+    Boolean isMQREnabledRequest = modeResource.mode() == ModeEnum.MQR;
     Boolean isMqREnabled = configuration.getBoolean(MULTI_QUALITY_MODE_ENABLED).orElse(MULTI_QUALITY_MODE_DEFAULT_VALUE);
 
     try (DbSession dbSession = dbClient.openSession(false)) {

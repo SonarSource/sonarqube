@@ -97,7 +97,7 @@ public class InstallAction implements PluginsWsAction {
 
   private void checkEdition() {
     Edition edition = editionProvider.get().orElse(Edition.COMMUNITY);
-    if (!Edition.COMMUNITY.equals(edition)) {
+    if (Edition.COMMUNITY != edition) {
       throw new IllegalArgumentException("This WS is unsupported in commercial edition. Please install plugin manually.");
     }
   }

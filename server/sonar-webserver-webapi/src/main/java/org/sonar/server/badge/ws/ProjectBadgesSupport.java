@@ -81,7 +81,7 @@ public class ProjectBadgesSupport {
 
       BranchDto branch = componentFinder.getBranchOrPullRequest(dbSession, project, branchName, null);
 
-      if (!branch.getBranchType().equals(BRANCH)) {
+      if (branch.getBranchType() != BRANCH) {
         throw generateInvalidProjectException();
       }
 

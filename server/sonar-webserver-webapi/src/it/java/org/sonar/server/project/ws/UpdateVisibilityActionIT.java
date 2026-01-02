@@ -103,7 +103,7 @@ public class UpdateVisibilityActionIT {
   private final ComponentTypes componentTypes = new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT);
   private final PermissionService permissionService = new PermissionServiceImpl(componentTypes);
   private final Set<String> PROJECT_PERMISSIONS_BUT_USER_AND_CODEVIEWER = permissionService.getAllProjectPermissions().stream()
-    .filter(perm -> !perm.equals(ProjectPermission.USER) && !perm.equals(ProjectPermission.CODEVIEWER))
+    .filter(perm -> perm != ProjectPermission.USER && perm != ProjectPermission.CODEVIEWER)
     .map(ProjectPermission::getKey)
     .collect(Collectors.toSet());
 

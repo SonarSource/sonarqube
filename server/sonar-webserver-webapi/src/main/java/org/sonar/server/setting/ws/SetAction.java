@@ -234,7 +234,7 @@ public class SetAction implements SettingsWsAction {
 
   private static void validatePropertySet(SetRequest request, @Nullable PropertyDefinition definition) {
     checkRequest(definition != null, "Setting '%s' is undefined", request.getKey());
-    checkRequest(PropertyType.PROPERTY_SET.equals(definition.type()), "Parameter '%s' is used for setting of property set type only", PARAM_FIELD_VALUES);
+    checkRequest(PropertyType.PROPERTY_SET == definition.type(), "Parameter '%s' is used for setting of property set type only", PARAM_FIELD_VALUES);
 
     Set<String> fieldKeys = definition.fields().stream().map(PropertyFieldDefinition::key).collect(Collectors.toSet());
     ListMultimap<String, String> valuesByFieldKeys = ArrayListMultimap.create(fieldKeys.size(), request.getFieldValues().size() * fieldKeys.size());

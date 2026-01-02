@@ -41,7 +41,7 @@ public enum RuleTypeRestEnum {
 
   public static RuleTypeRestEnum from(RuleType ruleType) {
     return Arrays.stream(RuleTypeRestEnum.values())
-      .filter(ruleTypeRestEnum -> ruleTypeRestEnum.ruleType.equals(ruleType))
+      .filter(ruleTypeRestEnum -> ruleTypeRestEnum.ruleType == ruleType)
       .findFirst()
       .orElseThrow(() -> new IllegalArgumentException("Unsupported RuleType: " + ruleType));
   }

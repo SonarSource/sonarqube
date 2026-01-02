@@ -615,7 +615,7 @@ public class CeProcessingSchedulerImplTest {
         return false;
       }
       SchedulerCall that = (SchedulerCall) o;
-      return delay == that.delay && callable == that.callable && unit.equals(that.unit);
+      return delay == that.delay && callable == that.callable && unit == that.unit;
     }
 
     @Override

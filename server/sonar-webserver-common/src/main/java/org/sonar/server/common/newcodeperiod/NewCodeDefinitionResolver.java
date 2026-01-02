@@ -87,7 +87,7 @@ public class NewCodeDefinitionResolver {
   private NewCodePeriodDto buildNewCodePeriodDto(String projectUuid, String mainBranchUuid,
     String defaultBranchName, String newCodeDefinitionType, @Nullable String newCodeDefinitionValue) {
 
-    boolean isCommunityEdition = editionProvider.get().filter(EditionProvider.Edition.COMMUNITY::equals).isPresent();
+    boolean isCommunityEdition = editionProvider.get().filter((v) -> v == EditionProvider.Edition.COMMUNITY).isPresent();
     NewCodePeriodType newCodePeriodType = parseNewCodeDefinitionType(newCodeDefinitionType);
 
     NewCodePeriodDto dto = new NewCodePeriodDto();

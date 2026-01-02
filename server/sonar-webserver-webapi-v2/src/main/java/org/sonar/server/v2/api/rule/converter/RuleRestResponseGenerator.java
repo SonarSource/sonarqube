@@ -144,7 +144,7 @@ public class RuleRestResponseGenerator {
       .map(sectionDto -> toDescriptionSectionResponse(ruleDto, sectionDto))
       .toList());
 
-    if (MARKDOWN.equals(ruleDto.getDescriptionFormat())) {
+    if (MARKDOWN == ruleDto.getDescriptionFormat()) {
       Optional.ofNullable(ruleDto.getDefaultRuleDescriptionSection())
         .map(RuleDescriptionSectionDto::getContent)
         .ifPresent(builder::setMarkdownDescription);

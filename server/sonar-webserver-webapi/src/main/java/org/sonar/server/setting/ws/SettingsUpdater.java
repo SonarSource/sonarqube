@@ -67,7 +67,7 @@ public class SettingsUpdater {
 
   private void delete(DbSession dbSession, String settingKey, @Nullable EntityDto entity) {
     PropertyDefinition definition = definitions.get(settingKey);
-    if (definition == null || !definition.type().equals(PropertyType.PROPERTY_SET)) {
+    if (definition == null || definition.type() != PropertyType.PROPERTY_SET) {
       deleteSetting(dbSession, settingKey, entity);
     } else {
       deletePropertySet(dbSession, settingKey, definition, entity);

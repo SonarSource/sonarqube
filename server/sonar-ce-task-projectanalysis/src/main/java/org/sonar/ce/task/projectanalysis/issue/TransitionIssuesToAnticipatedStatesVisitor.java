@@ -63,7 +63,7 @@ public class TransitionIssuesToAnticipatedStatesVisitor extends IssueVisitor {
 
   @Override
   public void beforeComponent(Component component) {
-    if (FILE.equals(component.getType())) {
+    if (FILE == component.getType()) {
       anticipatedTransitions = anticipatedTransitionRepository.getAnticipatedTransitionByComponent(component);
     } else {
       anticipatedTransitions = Collections.emptyList();

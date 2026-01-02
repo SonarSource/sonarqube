@@ -129,9 +129,9 @@ public class ComponentTreeSort {
       return numericalMetricOrdering(isAscending, metric, measuresByComponentUuidAndMetric);
     } else if (TEXTUAL_VALUE_TYPES.contains(metricValueType)) {
       return stringOrdering(isAscending, new ComponentDtoToTextualMeasureValue(metric, measuresByComponentUuidAndMetric));
-    } else if (ValueType.LEVEL.equals(ValueType.valueOf(metric.getValueType()))) {
+    } else if (ValueType.LEVEL == ValueType.valueOf(metric.getValueType())) {
       return levelMetricOrdering(isAscending, metric, measuresByComponentUuidAndMetric);
-    } else if (ValueType.DATA.equals(ValueType.valueOf(metric.getValueType()))
+    } else if (ValueType.DATA == ValueType.valueOf(metric.getValueType())
                && DataSupportedMetrics.IMPACTS_SUPPORTED_METRICS.contains(metric.getKey())) {
       return totalMetricOrdering(isAscending, metric, measuresByComponentUuidAndMetric);
     }
@@ -151,7 +151,7 @@ public class ComponentTreeSort {
     ValueType metricValueType = ValueType.valueOf(metric.getValueType());
     if (NUMERIC_VALUE_TYPES.contains(metricValueType)) {
       return numericalMetricPeriodOrdering(isAscending, metric, measuresByComponentUuidAndMetric);
-    } else if (ValueType.DATA.equals(metricValueType)
+    } else if (ValueType.DATA == metricValueType
                && DataSupportedMetrics.IMPACTS_SUPPORTED_METRICS.contains(metric.getKey())) {
       return totalNewPeriodMetricOrdering(isAscending, metric, measuresByComponentUuidAndMetric);
     }

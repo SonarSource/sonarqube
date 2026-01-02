@@ -249,7 +249,7 @@ class IssueFieldsSetterTest {
     boolean updated = underTest.setImpactManualSeverity(issue, SoftwareQuality.MAINTAINABILITY, Severity.BLOCKER, context);
 
     assertThat(updated).isTrue();
-    issue.getImpacts().stream().filter(impact -> impact.softwareQuality().equals(SoftwareQuality.MAINTAINABILITY)).forEach(impact -> {
+    issue.getImpacts().stream().filter(impact -> impact.softwareQuality() == SoftwareQuality.MAINTAINABILITY).forEach(impact -> {
       assertThat(impact.severity()).isEqualTo(Severity.BLOCKER);
       assertThat(impact.manualSeverity()).isTrue();
     });
@@ -264,7 +264,7 @@ class IssueFieldsSetterTest {
     boolean updated = underTest.setImpactManualSeverity(issue, SoftwareQuality.MAINTAINABILITY, Severity.LOW, context);
 
     assertThat(updated).isTrue();
-    issue.getImpacts().stream().filter(impact -> impact.softwareQuality().equals(SoftwareQuality.MAINTAINABILITY)).forEach(impact -> {
+    issue.getImpacts().stream().filter(impact -> impact.softwareQuality() == SoftwareQuality.MAINTAINABILITY).forEach(impact -> {
       assertThat(impact.severity()).isEqualTo(Severity.LOW);
       assertThat(impact.manualSeverity()).isTrue();
     });
@@ -277,7 +277,7 @@ class IssueFieldsSetterTest {
     boolean updated = underTest.setImpactManualSeverity(issue, SoftwareQuality.MAINTAINABILITY, Severity.BLOCKER, context);
 
     assertThat(updated).isTrue();
-    issue.getImpacts().stream().filter(impact -> impact.softwareQuality().equals(SoftwareQuality.MAINTAINABILITY)).forEach(impact -> {
+    issue.getImpacts().stream().filter(impact -> impact.softwareQuality() == SoftwareQuality.MAINTAINABILITY).forEach(impact -> {
       assertThat(impact.severity()).isEqualTo(Severity.BLOCKER);
       assertThat(impact.manualSeverity()).isTrue();
     });

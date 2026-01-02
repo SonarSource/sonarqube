@@ -137,7 +137,7 @@ public class RegisterPlugins implements Startable {
   }
 
   private static boolean pluginTypeOrJarHashChanged(ServerPlugin installed, PluginDto previousDto) {
-    return !previousDto.getFileHash().equals(installed.getJar().getMd5()) || !previousDto.getType().equals(toTypeDto(installed.getType()));
+    return !previousDto.getFileHash().equals(installed.getJar().getMd5()) || previousDto.getType() != toTypeDto(installed.getType());
   }
 
   private static PluginDto.Type toTypeDto(PluginType type) {

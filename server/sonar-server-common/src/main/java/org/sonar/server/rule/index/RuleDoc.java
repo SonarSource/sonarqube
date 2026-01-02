@@ -381,7 +381,7 @@ public class RuleDoc extends BaseDoc {
   }
 
   private static String convertToHtmlIfNecessary(RuleDto.Format format, String content) {
-    if (RuleDto.Format.MARKDOWN.equals(format)) {
+    if (RuleDto.Format.MARKDOWN == format) {
       return Markdown.convertToHtml(content);
     }
     return content;

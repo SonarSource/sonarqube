@@ -75,7 +75,7 @@ public class ConditionTest {
       .isEqualTo(new Condition(METRIC_KEY, OPERATOR, ERROR_THRESHOLD))
       .isNotEqualTo(new Condition("other_metric_key", OPERATOR, ERROR_THRESHOLD));
     Arrays.stream(Condition.Operator.values())
-      .filter(s -> !OPERATOR.equals(s))
+      .filter(s -> OPERATOR != s)
       .forEach(otherOperator -> assertThat(underTest)
         .isNotEqualTo(new Condition(METRIC_KEY, otherOperator, ERROR_THRESHOLD)));
     assertThat(underTest).isNotEqualTo(new Condition(METRIC_KEY, OPERATOR, "other_error_threshold"));
@@ -88,7 +88,7 @@ public class ConditionTest {
     assertThat(underTest).hasSameHashCodeAs(new Condition(METRIC_KEY, OPERATOR, ERROR_THRESHOLD));
     assertThat(underTest.hashCode()).isNotEqualTo(new Condition("other_metric_key", OPERATOR, ERROR_THRESHOLD).hashCode());
     Arrays.stream(Condition.Operator.values())
-      .filter(s -> !OPERATOR.equals(s))
+      .filter(s -> OPERATOR != s)
       .forEach(otherOperator -> assertThat(underTest.hashCode())
         .isNotEqualTo(new Condition(METRIC_KEY, otherOperator, ERROR_THRESHOLD).hashCode()));
     assertThat(underTest.hashCode()).isNotEqualTo(new Condition(METRIC_KEY, OPERATOR, "other_error_threshold").hashCode());

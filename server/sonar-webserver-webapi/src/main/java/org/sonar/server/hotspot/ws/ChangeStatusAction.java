@@ -179,11 +179,11 @@ public class ChangeStatusAction implements HotspotsWsAction {
       issueUpdater.saveIssueAndPreloadSearchResponseData(session, issueDto, defaultIssue, context);
       BranchDto branch = issueUpdater.getBranch(session, defaultIssue);
 
-      if (!PULL_REQUEST.equals(branch.getBranchType())) {
+      if (PULL_REQUEST != branch.getBranchType()) {
         updateIssueStatsByRuleKey(branch, defaultIssue.ruleKey(), transition.getKey());
       }
 
-      if (BRANCH.equals(branch.getBranchType())) {
+      if (BRANCH == branch.getBranchType()) {
         HotspotChangedEvent hotspotChangedEvent = buildEventData(defaultIssue, issueDto);
         hotspotChangeEventService.distributeHotspotChangedEvent(branch.getProjectUuid(), hotspotChangedEvent);
       }

@@ -131,7 +131,7 @@ public class GithubConfigurationService {
 
   private static boolean shouldTriggerProvisioningAfterTypeChange(UpdatedValue<Boolean> provisioningEnabled, GithubConfiguration currentConfiguration) {
     return provisioningEnabled.orElse(false)
-      && !currentConfiguration.provisioningType().equals(AUTO_PROVISIONING);
+      && currentConfiguration.provisioningType() != AUTO_PROVISIONING;
   }
 
   private static boolean shouldTriggerProvisioningAfterUserConsent(UpdateGithubConfigurationRequest updateRequest,
@@ -177,8 +177,8 @@ public class GithubConfigurationService {
   }
 
   private static boolean shouldDisableAutoProvisioning(GithubConfiguration currentConfiguration, UpdatedValue<ProvisioningType> provisioningTypeFromUpdate) {
-    return provisioningTypeFromUpdate.map(provisioningType -> provisioningType.equals(JIT)).orElse(false)
-      && currentConfiguration.provisioningType().equals(AUTO_PROVISIONING);
+    return provisioningTypeFromUpdate.map(provisioningType -> provisioningType == JIT).orElse(false)
+      && currentConfiguration.provisioningType() == AUTO_PROVISIONING;
   }
 
   public GithubConfiguration getConfiguration(String id) {
@@ -279,7 +279,7 @@ public class GithubConfigurationService {
   }
 
   private static boolean isTypeAutoProvisioning(ProvisioningType provisioningType) {
-    return AUTO_PROVISIONING.equals(provisioningType);
+    return AUTO_PROVISIONING == provisioningType;
   }
 
   private void setProperty(DbSession dbSession, String propertyName, @Nullable String value) {
@@ -333,7 +333,7 @@ public class GithubConfigurationService {
 
   private void throwIfConfigIncompleteOrInstanceAlreadyManaged(GithubConfiguration configuration) {
     checkInstanceNotManagedByAnotherProvider();
-    checkState(AUTO_PROVISIONING.equals(configuration.provisioningType()), "Auto provisioning must be activated");
+    checkState(AUTO_PROVISIONING == configuration.provisioningType(), "Auto provisioning must be activated");
     checkState(configuration.enabled(), getErrorMessage("GitHub authentication must be turned on"));
   }
 

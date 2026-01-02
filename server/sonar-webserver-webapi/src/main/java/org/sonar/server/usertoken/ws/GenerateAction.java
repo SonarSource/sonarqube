@@ -176,7 +176,7 @@ public class GenerateAction implements UserTokensWsAction {
   }
 
   public void setProjectFromRequest(DbSession session, UserTokenDto token, Request request) {
-    if (!PROJECT_ANALYSIS_TOKEN.equals(getTokenTypeFromRequest(request))) {
+    if (PROJECT_ANALYSIS_TOKEN != getTokenTypeFromRequest(request)) {
       return;
     }
 

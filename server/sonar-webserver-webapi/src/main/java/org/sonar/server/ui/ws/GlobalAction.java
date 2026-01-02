@@ -183,7 +183,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
   private void writeVersion(JsonWriter json) {
     final String displayVersion;
     // if edition is community
-    if(editionProvider.get().filter(e -> e.equals(EditionProvider.Edition.COMMUNITY)).isPresent()) {
+    if(editionProvider.get().filter(e -> e == EditionProvider.Edition.COMMUNITY).isPresent()) {
       displayVersion = server.getVersion();
     } else {
       displayVersion = VersionFormatter.format(server.getVersion());

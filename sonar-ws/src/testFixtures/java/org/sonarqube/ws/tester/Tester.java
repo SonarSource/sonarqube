@@ -161,11 +161,11 @@ public class Tester extends ExternalResource implements TesterSession, BeforeEac
     groups().deleteAllGenerated();
 
     Edition edition = orchestrator.getDistribution().getEdition();
-    if (edition.equals(ENTERPRISE)) {
+    if (edition == ENTERPRISE) {
       applications().deleteAll();
       views().deleteAll();
       applications().deleteAll();
-    } else if (edition.equals(DEVELOPER)) {
+    } else if (edition == DEVELOPER) {
       applications().deleteAll();
     }
 

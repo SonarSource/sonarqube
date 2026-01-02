@@ -27,7 +27,7 @@ public class AiCodeAssuranceEntitlement {
   private final boolean isSupported;
 
   public AiCodeAssuranceEntitlement(PlatformEditionProvider editionProvider) {
-    this.isSupported = editionProvider.get().map(edition -> !edition.equals(COMMUNITY)).orElse(false);
+    this.isSupported = editionProvider.get().map(edition -> edition != COMMUNITY).orElse(false);
   }
 
   public boolean isEnabled() {

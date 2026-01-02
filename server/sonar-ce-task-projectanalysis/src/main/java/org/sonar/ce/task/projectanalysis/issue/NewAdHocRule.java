@@ -72,7 +72,7 @@ public class NewAdHocRule {
     this.hasDetails = true;
     this.ruleType = determineType(ruleFromScannerReport);
     this.severity = determineSeverity(ruleFromScannerReport);
-    if (!ScannerReport.IssueType.SECURITY_HOTSPOT.equals(ruleFromScannerReport.getType())) {
+    if (ScannerReport.IssueType.SECURITY_HOTSPOT != ruleFromScannerReport.getType()) {
       this.cleanCodeAttribute = mapCleanCodeAttribute(trimToNull(ruleFromScannerReport.getCleanCodeAttribute()));
       this.defaultImpacts.putAll(determineImpacts(ruleFromScannerReport));
     }
@@ -89,14 +89,14 @@ public class NewAdHocRule {
     this.severity = null;
     this.ruleType = null;
     this.hasDetails = false;
-    if (!ScannerReport.IssueType.SECURITY_HOTSPOT.equals(fromIssue.getType())) {
+    if (ScannerReport.IssueType.SECURITY_HOTSPOT != fromIssue.getType()) {
       this.cleanCodeAttribute = CleanCodeAttribute.defaultCleanCodeAttribute();
       this.defaultImpacts.put(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM);
     }
   }
 
   private Map<SoftwareQuality, Severity> determineImpacts(ScannerReport.AdHocRule ruleFromScannerReport) {
-    if (ruleFromScannerReport.getType().equals(ScannerReport.IssueType.SECURITY_HOTSPOT)) {
+    if (ruleFromScannerReport.getType() == ScannerReport.IssueType.SECURITY_HOTSPOT) {
       return Collections.emptyMap();
     }
     Map<SoftwareQuality, Severity> impacts = mapImpacts(ruleFromScannerReport.getDefaultImpactsList());

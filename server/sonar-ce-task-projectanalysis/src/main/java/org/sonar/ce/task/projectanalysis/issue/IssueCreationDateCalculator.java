@@ -100,7 +100,7 @@ public class IssueCreationDateCalculator extends IssueVisitor {
   }
 
   private boolean qualityProfileChanged(String qpKey) {
-    return qProfileStatusRepository.get(qpKey).filter(s -> !s.equals(UNCHANGED)).isPresent();
+    return qProfileStatusRepository.get(qpKey).filter(s -> s != UNCHANGED).isPresent();
   }
 
   private boolean isNewFile(Component component) {

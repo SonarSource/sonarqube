@@ -220,7 +220,7 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
       .setShortName("filename")
       .setReportAttributes(mock(ReportAttributes.class));
 
-    if (PROJECT.equals(type)) {
+    if (PROJECT == type) {
       builder.setProjectAttributes(mock(ProjectAttributes.class));
     }
 

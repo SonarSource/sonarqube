@@ -44,19 +44,19 @@ public class LivenessCheckerImpl implements LivenessChecker {
 
   public boolean liveness() {
 
-    if (!Health.Status.GREEN.equals(dbConnectionNodeCheck.check().getStatus())) {
+    if (Health.Status.GREEN != dbConnectionNodeCheck.check().getStatus()) {
       return false;
     }
 
-    if (!Health.Status.GREEN.equals(webServerStatusNodeCheck.check().getStatus())) {
+    if (Health.Status.GREEN != webServerStatusNodeCheck.check().getStatus()) {
       return false;
     }
 
-    if (!Health.Status.GREEN.equals(ceStatusNodeCheck.check().getStatus())) {
+    if (Health.Status.GREEN != ceStatusNodeCheck.check().getStatus()) {
       return false;
     }
 
-    if (esStatusNodeCheck != null && Health.Status.RED.equals(esStatusNodeCheck.check().getStatus())) {
+    if (esStatusNodeCheck != null && Health.Status.RED == esStatusNodeCheck.check().getStatus()) {
       return false;
     }
 

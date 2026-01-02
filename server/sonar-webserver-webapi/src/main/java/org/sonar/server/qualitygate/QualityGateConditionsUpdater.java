@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -245,7 +244,7 @@ public class QualityGateConditionsUpdater {
   }
 
   private static void checkRatingGreaterThanOperator(@Nullable String value, List<String> errors) {
-    check(isNullOrEmpty(value) || !Objects.equals(toRating(value), E), errors, "There's no worse rating than E (%s)", value);
+    check(isNullOrEmpty(value) || toRating(value) != E, errors, "There's no worse rating than E (%s)", value);
   }
 
   private static Rating toRating(String value) {

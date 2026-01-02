@@ -56,9 +56,9 @@ public class BuiltInQualityProfilesUpdateListener {
         String profileName = changedProfile.getName();
         Language language = languages.get(changedProfile.getLanguage());
         Collection<ActiveRuleChange> activeRuleChanges = changedProfiles.get(changedProfile);
-        int newRules = (int) activeRuleChanges.stream().map(ActiveRuleChange::getType).filter(ACTIVATED::equals).count();
-        int updatedRules = (int) activeRuleChanges.stream().map(ActiveRuleChange::getType).filter(UPDATED::equals).count();
-        int removedRules = (int) activeRuleChanges.stream().map(ActiveRuleChange::getType).filter(DEACTIVATED::equals).count();
+        int newRules = (int) activeRuleChanges.stream().map(ActiveRuleChange::getType).filter((v) -> v == ACTIVATED).count();
+        int updatedRules = (int) activeRuleChanges.stream().map(ActiveRuleChange::getType).filter((v) -> v == UPDATED).count();
+        int removedRules = (int) activeRuleChanges.stream().map(ActiveRuleChange::getType).filter((v) -> v == DEACTIVATED).count();
         return Profile.newBuilder()
           .setProfileName(profileName)
           .setLanguageKey(language.getKey())

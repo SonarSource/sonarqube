@@ -157,7 +157,7 @@ public class RuleIndex {
   private static final int MAX_FACET_SIZE = 100;
 
   public static final List<String> ALL_STATUSES_EXCEPT_REMOVED = Arrays.stream(RuleStatus.values())
-    .filter(status -> !RuleStatus.REMOVED.equals(status))
+    .filter(status -> RuleStatus.REMOVED != status)
     .map(RuleStatus::toString)
     .toList();
 

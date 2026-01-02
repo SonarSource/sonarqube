@@ -30,7 +30,7 @@ enum RuleGroup {
   ISSUES;
 
   static RuleGroup resolveGroup(@Nullable RuleType ruleType) {
-    return SECURITY_HOTSPOT.equals(ruleType) ? SECURITY_HOTSPOTS : ISSUES;
+    return SECURITY_HOTSPOT == ruleType ? SECURITY_HOTSPOTS : ISSUES;
   }
 
   static String formatIssuesOrHotspots(Collection<?> issues, Collection<?> hotspots) {
@@ -50,14 +50,14 @@ enum RuleGroup {
   }
 
   static String formatIssueOrHotspot(@Nullable RuleType ruleType) {
-    if (SECURITY_HOTSPOT.equals(ruleType)) {
+    if (SECURITY_HOTSPOT == ruleType) {
       return "hotspot";
     }
     return "issue";
   }
 
   static String formatIssuesOrHotspots(@Nullable RuleType ruleType) {
-    if (SECURITY_HOTSPOT.equals(ruleType)) {
+    if (SECURITY_HOTSPOT == ruleType) {
       return "hotspots";
     }
     return "issues";

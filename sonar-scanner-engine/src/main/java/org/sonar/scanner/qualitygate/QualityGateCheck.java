@@ -89,14 +89,14 @@ public class QualityGateCheck implements Startable {
 
     Ce.Task task = waitForCeTaskToFinish(taskId);
 
-    if (!TaskStatus.SUCCESS.equals(task.getStatus())) {
+    if (TaskStatus.SUCCESS != task.getStatus()) {
       throw MessageException.of(String.format("CE Task finished abnormally with status: %s, you can check details here: %s",
         task.getStatus().name(), ceTaskReportDataHolder.getCeTaskUrl()));
     }
 
     Status qualityGateStatus = getQualityGateStatus(task.getAnalysisId());
 
-    if (Status.OK.equals(qualityGateStatus)) {
+    if (Status.OK == qualityGateStatus) {
       LOG.info("QUALITY GATE STATUS: PASSED - View details on " + ceTaskReportDataHolder.getDashboardUrl());
     } else {
       throw MessageException.of("QUALITY GATE STATUS: FAILED - View details on " + ceTaskReportDataHolder.getDashboardUrl());

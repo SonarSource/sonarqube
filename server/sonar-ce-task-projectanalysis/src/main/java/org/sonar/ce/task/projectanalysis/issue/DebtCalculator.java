@@ -66,7 +66,7 @@ public class DebtCalculator {
   }
 
   private static void verifyEffortToFix(DefaultIssue issue, DebtRemediationFunction fn) {
-    if (Type.CONSTANT_ISSUE.equals(fn.type()) && issue.gap() != null) {
+    if (Type.CONSTANT_ISSUE == fn.type() && issue.gap() != null) {
       throw new IllegalArgumentException("Rule '" + issue.getRuleKey() + "' can not use 'Constant/issue' remediation function " +
         "because this rule does not have a fixed remediation cost.");
     }

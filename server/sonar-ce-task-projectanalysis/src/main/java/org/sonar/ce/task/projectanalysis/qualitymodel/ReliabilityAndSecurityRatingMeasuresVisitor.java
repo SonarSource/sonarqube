@@ -112,9 +112,9 @@ public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisito
 
   private static void processIssue(Path<Counter> path, DefaultIssue issue) {
     Rating rating = RATING_BY_SEVERITY.get(issue.severity());
-    if (issue.type().equals(BUG)) {
+    if (issue.type() == BUG) {
       path.current().ratingValueByMetric.get(RELIABILITY_RATING_KEY).increment(rating);
-    } else if (issue.type().equals(VULNERABILITY)) {
+    } else if (issue.type() == VULNERABILITY) {
       path.current().ratingValueByMetric.get(SECURITY_RATING_KEY).increment(rating);
     }
 

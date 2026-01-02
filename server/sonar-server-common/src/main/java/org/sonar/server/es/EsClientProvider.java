@@ -60,7 +60,7 @@ public class EsClientProvider {
     esSettings.put("cluster.name", config.get(CLUSTER_NAME.getKey()).get());
 
     boolean clusterEnabled = config.getBoolean(CLUSTER_ENABLED.getKey()).orElse(false);
-    boolean searchNode = !clusterEnabled || SEARCH.equals(NodeType.parse(config.get(CLUSTER_NODE_TYPE.getKey()).orElse(null)));
+    boolean searchNode = !clusterEnabled || SEARCH == NodeType.parse(config.get(CLUSTER_NODE_TYPE.getKey()).orElse(null));
     List<HttpHost> httpHosts;
     if (clusterEnabled && !searchNode) {
       httpHosts = getHttpHosts(config);

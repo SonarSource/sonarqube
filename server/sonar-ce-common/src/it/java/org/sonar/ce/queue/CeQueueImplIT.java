@@ -634,10 +634,6 @@ public class CeQueueImplIT {
       .build();
   }
 
-  private ComponentDto insertComponent(ComponentDto componentDto) {
-    return db.components().insertComponent(componentDto);
-  }
-
   private UserDto insertUser(UserDto userDto) {
     db.getDbClient().userDao().insert(session, userDto);
     session.commit();

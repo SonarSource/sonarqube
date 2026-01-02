@@ -100,7 +100,7 @@ public class DetectPluginChange implements Startable {
   }
 
   private static boolean changed(PluginDto dbPlugin, ServerPlugin filePlugin) {
-    return !dbPlugin.getFileHash().equals(filePlugin.getJar().getMd5()) || !dbPlugin.getType().equals(toTypeDto(filePlugin.getType()));
+    return !dbPlugin.getFileHash().equals(filePlugin.getJar().getMd5()) || dbPlugin.getType() != toTypeDto(filePlugin.getType());
   }
 
   static PluginDto.Type toTypeDto(PluginType type) {

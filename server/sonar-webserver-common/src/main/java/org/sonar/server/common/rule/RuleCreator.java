@@ -268,7 +268,7 @@ public class RuleCreator {
   }
 
   private RuleDto updateExistingRule(RuleDto ruleDto, NewCustomRule newRule, DbSession dbSession) {
-    if (ruleDto.getStatus().equals(RuleStatus.REMOVED)) {
+    if (ruleDto.getStatus() == RuleStatus.REMOVED) {
       if (newRule.isPreventReactivation()) {
         throw new ReactivationException(format("A removed rule with the key '%s' already exists", ruleDto.getKey().rule()), ruleDto.getKey());
       } else {

@@ -171,7 +171,7 @@ public class SetSeverityAction implements IssuesWsAction {
       }
       BranchDto branch = issueUpdater.getBranch(session, issue);
       SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issueDto, issue, context, branch);
-      if (branch.getBranchType().equals(BRANCH) && response.getComponentByUuid(issue.projectUuid()) != null) {
+      if (branch.getBranchType() == BRANCH && response.getComponentByUuid(issue.projectUuid()) != null) {
         issueChangeEventService.distributeIssueChangeEvent(issue, severityHasChanged ? manualSeverity : null, Map.of(softwareQuality, manualImpactSeverity), null, null,
           branch, getProjectKey(issue, response));
       }
@@ -191,7 +191,7 @@ public class SetSeverityAction implements IssuesWsAction {
       }
       BranchDto branch = issueUpdater.getBranch(session, issue);
       SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issueDto, issue, context, branch);
-      if (branch.getBranchType().equals(BRANCH) && response.getComponentByUuid(issue.projectUuid()) != null) {
+      if (branch.getBranchType() == BRANCH && response.getComponentByUuid(issue.projectUuid()) != null) {
         issueChangeEventService.distributeIssueChangeEvent(issue, severity, impactHasChanged ? Map.of(softwareQuality, mapImpactSeverity(severity)) : Map.of(), null, null,
           branch, getProjectKey(issue, response));
       }

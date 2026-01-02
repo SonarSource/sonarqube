@@ -263,7 +263,7 @@ public class CeQueueImpl implements CeQueue {
 
   @Override
   public void cancel(DbSession dbSession, CeQueueDto ceQueueDto) {
-    checkState(PENDING.equals(ceQueueDto.getStatus()), "Task is in progress and can't be canceled [uuid=%s]", ceQueueDto.getUuid());
+    checkState(PENDING == ceQueueDto.getStatus(), "Task is in progress and can't be canceled [uuid=%s]", ceQueueDto.getUuid());
     cancelImpl(dbSession, ceQueueDto);
   }
 
@@ -276,7 +276,7 @@ public class CeQueueImpl implements CeQueue {
 
   @Override
   public void fail(DbSession dbSession, CeQueueDto task, @Nullable String errorType, @Nullable String errorMessage) {
-    checkState(IN_PROGRESS.equals(task.getStatus()), "Task is not in-progress and can't be marked as failed [uuid=%s]", task.getUuid());
+    checkState(IN_PROGRESS == task.getStatus(), "Task is not in-progress and can't be marked as failed [uuid=%s]", task.getUuid());
     CeActivityDto activityDto = new CeActivityDto(task);
     activityDto.setNodeName(nodeInformation.getNodeName().orElse(null));
     activityDto.setStatus(CeActivityDto.Status.FAILED);
@@ -325,7 +325,7 @@ public class CeQueueImpl implements CeQueue {
     int count = 0;
     try (DbSession dbSession = dbClient.openSession(false)) {
       for (CeQueueDto queueDto : dbClient.ceQueueDao().selectAllInAscOrder(dbSession)) {
-        if (includeInProgress || !queueDto.getStatus().equals(IN_PROGRESS)) {
+        if (includeInProgress || queueDto.getStatus() != IN_PROGRESS) {
           cancelImpl(dbSession, queueDto);
           count++;
         }

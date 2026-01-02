@@ -60,7 +60,7 @@ public class ComponentIssuesRepositoryImpl implements MutableComponentIssuesRepo
   @Override
   public List<DefaultIssue> getNotSandboxedIssues(Component component) {
     return getIssues(component).stream()
-      .filter(issue -> !IssueStatus.IN_SANDBOX.equals(issue.issueStatus()))
+      .filter(issue -> IssueStatus.IN_SANDBOX != issue.issueStatus())
       .toList();
   }
 }

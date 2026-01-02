@@ -476,7 +476,7 @@ public class GitlabConfigurationServiceIT {
     verifySettingWasSet(GITLAB_AUTH_ALLOWED_GROUPS, String.join(",", configuration.allowedGroups()));
     verifySettingWasSet(GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP, String.valueOf(configuration.allowUsersToSignUp()));
     verifySettingWasSet(GITLAB_AUTH_PROVISIONING_TOKEN, Strings.nullToEmpty(configuration.provisioningToken()));
-    verifySettingWasSet(GITLAB_AUTH_PROVISIONING_ENABLED, String.valueOf(configuration.provisioningType().equals(AUTO_PROVISIONING)));
+    verifySettingWasSet(GITLAB_AUTH_PROVISIONING_ENABLED, String.valueOf(configuration.provisioningType() == AUTO_PROVISIONING));
   }
 
   private void verifySettingWasSet(String setting, @Nullable String value) {

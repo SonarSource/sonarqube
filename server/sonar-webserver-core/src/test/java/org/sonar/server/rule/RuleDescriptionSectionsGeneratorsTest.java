@@ -131,9 +131,9 @@ public class RuleDescriptionSectionsGeneratorsTest {
 
   @Test
   public void scenario() {
-    assertThat(advancedRuleDescriptionSectionsGenerator.isGeneratorForRule(rule)).isEqualTo(ADVANCED_RULE.equals(testData.getExpectedGenerator()));
-    assertThat(legacyHotspotRuleDescriptionSectionsGenerator.isGeneratorForRule(rule)).isEqualTo(LEGACY_HOTSPOT.equals(testData.getExpectedGenerator()));
-    assertThat(legacyIssueRuleDescriptionSectionsGenerator.isGeneratorForRule(rule)).isEqualTo(LEGACY_ISSUE.equals(testData.getExpectedGenerator()));
+    assertThat(advancedRuleDescriptionSectionsGenerator.isGeneratorForRule(rule)).isEqualTo(ADVANCED_RULE == testData.getExpectedGenerator());
+    assertThat(legacyHotspotRuleDescriptionSectionsGenerator.isGeneratorForRule(rule)).isEqualTo(LEGACY_HOTSPOT == testData.getExpectedGenerator());
+    assertThat(legacyIssueRuleDescriptionSectionsGenerator.isGeneratorForRule(rule)).isEqualTo(LEGACY_ISSUE == testData.getExpectedGenerator());
 
     generateAndVerifySectionsContent(idToGenerator.get(testData.getExpectedGenerator()));
   }

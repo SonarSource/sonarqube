@@ -146,7 +146,7 @@ public class InstalledAction implements PluginsWsAction {
   private SortedSet<ServerPlugin> loadInstalledPlugins(@Nullable String typeParam) {
     if (typeParam != null) {
       return copyOf(NAME_KEY_COMPARATOR, serverPluginRepository.getPlugins().stream()
-        .filter(serverPlugin -> serverPlugin.getType().equals(PluginType.valueOf(typeParam)))
+        .filter(serverPlugin -> serverPlugin.getType() == PluginType.valueOf(typeParam))
         .collect(Collectors.toSet()));
     }
     return copyOf(NAME_KEY_COMPARATOR, serverPluginRepository.getPlugins());

@@ -98,7 +98,7 @@ public class SetPatAction implements AlmIntegrationsWsAction {
       String userUuid = requireNonNull(userSession.getUuid(), "User UUID cannot be null");
       AlmSettingDto almSettingDto = importHelper.getAlmSettingDto(request);
 
-      if (almSettingDto.getAlm().equals(BITBUCKET_CLOUD)) {
+      if (almSettingDto.getAlm() == BITBUCKET_CLOUD) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(username), "Username cannot be null for Bitbucket Cloud");
       }
 

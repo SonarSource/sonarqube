@@ -58,7 +58,7 @@ public class IssueFlagResetSetupTask implements Startable {
 
   @Override
   public void start() {
-    if (sonarRuntime.getEdition().equals(COMMUNITY)) {
+    if (sonarRuntime.getEdition() == COMMUNITY) {
       LOGGER.debug("Skipping IssueFlagResetSetupTask - requires Developer edition or above");
       return;
     }

@@ -337,7 +337,7 @@ public class IssueCounter extends IssueVisitor {
     }
 
     void add(DefaultIssue issue) {
-      if (IssueStatus.IN_SANDBOX.equals(issue.issueStatus())) {
+      if (IssueStatus.IN_SANDBOX == issue.issueStatus()) {
         inSandbox++;
         return;
       }
@@ -351,9 +351,9 @@ public class IssueCounter extends IssueVisitor {
         unresolved++;
         typeBag.add(issue.type());
         severityBag.add(issue.severity());
-      } else if (IssueStatus.FALSE_POSITIVE.equals(issue.issueStatus())) {
+      } else if (IssueStatus.FALSE_POSITIVE == issue.issueStatus()) {
         falsePositives++;
-      } else if (IssueStatus.ACCEPTED.equals(issue.issueStatus())) {
+      } else if (IssueStatus.ACCEPTED == issue.issueStatus()) {
         accepted++;
         if (issue.impacts().values().stream().anyMatch(severity -> severity == Severity.HIGH || severity == Severity.BLOCKER)) {
           highImpactAccepted++;

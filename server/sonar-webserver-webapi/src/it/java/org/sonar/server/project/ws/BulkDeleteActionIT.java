@@ -43,7 +43,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.PortfolioData;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.portfolio.PortfolioDto;
@@ -342,10 +341,6 @@ public class BulkDeleteActionIT {
 
   private void verifyListenersOnProjectsDeleted(ProjectData... projectData) {
     verifyListenersOnProjectsDeleted(Arrays.stream(projectData).collect(Collectors.toMap(ProjectData::getProjectDto, data -> data.getMainBranchDto().getUuid())));
-  }
-
-  private void verifyListenersOnProjectsDeleted(PortfolioData... portfolioData) {
-    verifyListenersOnProjectsDeleted(Arrays.stream(portfolioData).collect(Collectors.toMap(PortfolioData::getPortfolioDto, null)));
   }
 
   private void verifyListenersOnProjectsDeleted(Map<EntityDto, String> entityWithBranchUuid) {

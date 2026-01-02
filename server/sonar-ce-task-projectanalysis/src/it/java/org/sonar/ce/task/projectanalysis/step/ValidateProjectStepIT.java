@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.Date;
-import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
@@ -35,13 +34,10 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotTesting;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 
 public class ValidateProjectStepIT {
@@ -109,12 +105,5 @@ public class ValidateProjectStepIT {
         "The project key ‘inv$lid!’ contains invalid characters.",
         "Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.",
         "You should update the project key with the expected format.");
-  }
-
-  private void setBranch(BranchType type, @Nullable String mergeBranchUuid) {
-    Branch branch = mock(Branch.class);
-    when(branch.getType()).thenReturn(type);
-    when(branch.getReferenceBranchUuid()).thenReturn(mergeBranchUuid);
-    analysisMetadataHolder.setBranch(branch);
   }
 }

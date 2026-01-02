@@ -208,7 +208,7 @@ public class ShowAction implements HotspotsWsAction {
   }
 
   private static String getContentAndConvertToHtmlIfNecessary(@Nullable RuleDto.Format descriptionFormat, RuleDescriptionSectionDto section) {
-    if (RuleDto.Format.MARKDOWN.equals(descriptionFormat)) {
+    if (RuleDto.Format.MARKDOWN == descriptionFormat) {
       return Markdown.convertToHtml(section.getContent());
     }
     return section.getContent();
