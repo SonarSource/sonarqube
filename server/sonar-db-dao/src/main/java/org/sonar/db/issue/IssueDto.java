@@ -90,7 +90,7 @@ public final class IssueDto implements Serializable {
   private boolean prioritizedRule;
 
   @Nullable
-  private Long hotspotExceptionExpiresAt;
+  private Long issueResolutionExpiresAt;
 
   // functional dates stored as Long
   private Long issueCreationDate;
@@ -182,7 +182,7 @@ public final class IssueDto implements Serializable {
     return toDtoForComputationInsert(issue, ruleUuid, now)
       .setComponent(component)
       .setProject(project)
-      .setHotspotExceptionExpiresAt(issue.hotspotExceptionExpiresAt());
+      .setIssueResolutionExpiresAt(issue.issueResolutionExpiresAt());
 
   }
 
@@ -221,7 +221,7 @@ public final class IssueDto implements Serializable {
       .setCodeVariants(issue.codeVariants())
       .setCleanCodeAttribute(issue.getCleanCodeAttribute())
       .setPrioritizedRule(issue.isPrioritizedRule())
-      .setHotspotExceptionExpiresAt(issue.hotspotExceptionExpiresAt())
+      .setIssueResolutionExpiresAt(issue.issueResolutionExpiresAt())
       // technical date
       .setUpdatedAt(now);
 
@@ -477,12 +477,12 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
-  public Long getHotspotExceptionExpiresAt() {
-    return hotspotExceptionExpiresAt;
+  public Long getIssueResolutionExpiresAt() {
+    return issueResolutionExpiresAt;
   }
 
-  public IssueDto setHotspotExceptionExpiresAt(@Nullable Long date) {
-    this.hotspotExceptionExpiresAt = date;
+  public IssueDto setIssueResolutionExpiresAt(@Nullable Long date) {
+    this.issueResolutionExpiresAt = date;
     return this;
   }
 
@@ -940,7 +940,7 @@ public final class IssueDto implements Serializable {
     issue.setCleanCodeAttribute(cleanCodeAttribute);
     impacts.forEach(i -> issue.addImpact(i.getSoftwareQuality(), i.getSeverity(), i.isManualSeverity()));
     issue.setCveId(cveId);
-    issue.setHotspotExceptionExpiresAt(this.hotspotExceptionExpiresAt);
+    issue.setIssueResolutionExpiresAt(this.issueResolutionExpiresAt);
     return issue;
   }
 }

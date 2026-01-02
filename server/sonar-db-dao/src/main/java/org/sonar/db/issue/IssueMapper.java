@@ -87,7 +87,7 @@ public interface IssueMapper {
 
   void deleteIssueImpacts(String issueKey);
 
-  void updateHotspotExceptionExpiryDate(@Param("issueKey") String issueKey, @Param("expiryDate") Long expiryDate);
+  void updateIssueResolutionExpiryDate(@Param("issueKey") String issueKey, @Param("expiryDate") Long expiryDate);
 
   void bulkClearHotspotExceptionExpiryDate(@Param("keys") List<String> keys);
 

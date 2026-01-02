@@ -37,7 +37,7 @@ export interface StatusSelectionRendererProps {
   onSubmit: () => Promise<void>;
   status: HotspotStatusOption;
   submitDisabled: boolean;
-  hotspotExceptionExpiryDate?: string;
+  issueResolutionExpiryDate?: string;
   hotspot: Hotspot;
 }
 
@@ -47,7 +47,7 @@ export default function StatusSelectionRenderer(props: StatusSelectionRendererPr
 
   // Load existing expiry date from server when component mounts using the show api
   useEffect(() => {
-    const expiryTimestamp = props.hotspot.hotspotExceptionExpiresAt;
+    const expiryTimestamp = props.hotspot.issueResolutionExpiresAt;
 
     if (typeof expiryTimestamp === 'number' && expiryTimestamp > 0) {
       const loadedDate = new Date(expiryTimestamp);
@@ -62,7 +62,7 @@ export default function StatusSelectionRenderer(props: StatusSelectionRendererPr
       setDate(undefined);
       props.onExpiryDateChange(undefined);
     }
-  }, [props.hotspot.key, props.hotspot.hotspotExceptionExpiresAt]);
+  }, [props.hotspot.key, props.hotspot.issueResolutionExpiresAt]);
 
   const renderOption = (statusOption: HotspotStatusOption) => {
     return (

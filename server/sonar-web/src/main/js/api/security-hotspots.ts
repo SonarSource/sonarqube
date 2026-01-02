@@ -80,7 +80,7 @@ export function getSecurityHotspots(
     ps: number;
     resolution?: HotspotResolution;
     status?: HotspotStatus;
-    hotspotExceptionExpiryDate?: string;
+    issueResolutionExpiryDate?: string;
   } & BranchParameters,
   projectIsIndexing = false,
 ): Promise<HotspotSearchResponse> {

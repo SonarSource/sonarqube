@@ -26,25 +26,24 @@ import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 import static org.sonar.db.DatabaseUtils.tableColumnExists;
 
-
-public class AddHotspotExceptionExpiryDateColumnToIssuesTable extends  DdlChange{
+public class AddIssueResolutionExpiryDateColumnToIssuesTable extends  DdlChange{
     public static final String TABLE_NAME = "issues";
-    public static final String HOTSPOT_EXCEPTION_EXPIRY_COLUMN = "hotspot_exception_expires_at";
+    public static final String ISSUE_RESOLUTION_EXPIRY_COLUMN = "issue_resolution_expires_at";
 
-    public AddHotspotExceptionExpiryDateColumnToIssuesTable(Database db) {
+    public AddIssueResolutionExpiryDateColumnToIssuesTable(Database db) {
         super(db);
     }
 
     @Override
     public void execute(Context context) throws SQLException {
         try (var connection = getDatabase().getDataSource().getConnection()) {
-            if (!tableColumnExists(connection, TABLE_NAME, HOTSPOT_EXCEPTION_EXPIRY_COLUMN)) {
-                var hotspotExceptionExpiry = BigIntegerColumnDef.newBigIntegerColumnDefBuilder()
-                        .setColumnName(HOTSPOT_EXCEPTION_EXPIRY_COLUMN)
+            if (!tableColumnExists(connection, TABLE_NAME, ISSUE_RESOLUTION_EXPIRY_COLUMN)) {
+                var issueResolutionExpiry = BigIntegerColumnDef.newBigIntegerColumnDefBuilder()
+                        .setColumnName(ISSUE_RESOLUTION_EXPIRY_COLUMN)
                         .setIsNullable(true)
                         .build();
                 context.execute(
-                        new AddColumnsBuilder(getDialect(), TABLE_NAME).addColumn(hotspotExceptionExpiry).build());
+                        new AddColumnsBuilder(getDialect(), TABLE_NAME).addColumn(issueResolutionExpiry).build());
             }
         }
     }

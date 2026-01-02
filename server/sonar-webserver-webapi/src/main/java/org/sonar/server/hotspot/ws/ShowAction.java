@@ -170,9 +170,9 @@ public class ShowAction implements HotspotsWsAction {
     builder.setUpdateDate(formatDateTime(hotspot.getIssueUpdateDate()));
     users.getAssignee().map(UserDto::getLogin).ifPresent(builder::setAssignee);
     Optional.ofNullable(hotspot.getAuthorLogin()).ifPresent(builder::setAuthor);
-    Long expiry = hotspot.getHotspotExceptionExpiresAt();
+    Long expiry = hotspot.getIssueResolutionExpiresAt();
     if (expiry != null) {
-      builder.setHotspotExceptionExpiresAt(expiry);
+      builder.setIssueResolutionExpiresAt(expiry);
     }
     builder.addAllCodeVariants(hotspot.getCodeVariants());
   }
