@@ -436,7 +436,9 @@ public class ExternalIssueReportValidatorTest {
     assertThat(logTester.getLogs(Level.WARN))
       .extracting(LogAndArguments::getFormattedMsg)
       .contains("External issues were imported with a deprecated format which will be removed soon. " +
-        "Please switch to the newest format to fully benefit from Clean Code: " + TEST_URL);
+        "The \"rules\" field is missing. " +
+        "Please switch to the newest format. " +
+        "Look at the documentation for more information, including what default values have been set: " + TEST_URL);
   }
 
   private ExternalIssueReport read(String location) throws IOException {
