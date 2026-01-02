@@ -175,7 +175,7 @@ public class TaskFormatter {
 
   private static List<String> extractInfoMessages(CeActivityDto activityDto) {
     return activityDto.getCeTaskMessageDtos().stream()
-      .filter(ceTaskMessageDto -> MessageType.INFO.equals(ceTaskMessageDto.getType()))
+      .filter(ceTaskMessageDto -> MessageType.INFO == ceTaskMessageDto.getType())
       .sorted(Comparator.comparing(CeTaskMessageDto::getCreatedAt))
       .map(CeTaskMessageDto::getMessage)
       .toList();

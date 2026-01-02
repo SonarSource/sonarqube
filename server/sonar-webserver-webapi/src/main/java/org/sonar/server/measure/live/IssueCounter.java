@@ -60,7 +60,7 @@ class IssueCounter {
   IssueCounter(Collection<IssueGroupDto> groups, Collection<IssueImpactGroupDto> impactGroups,
     Collection<IssueImpactSeverityGroupDto> impactSeverityGroups) {
     for (IssueGroupDto group : groups) {
-      if (RuleType.fromDbConstant(group.getRuleType()).equals(SECURITY_HOTSPOT)) {
+      if (RuleType.fromDbConstant(group.getRuleType()) == SECURITY_HOTSPOT) {
         processHotspotGroup(group);
       } else {
         processGroup(group);

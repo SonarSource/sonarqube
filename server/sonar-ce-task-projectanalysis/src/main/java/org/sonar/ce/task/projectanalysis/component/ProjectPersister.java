@@ -57,7 +57,7 @@ public class ProjectPersister {
   }
 
   private static boolean shouldSkip(Component rootComponent) {
-    return !rootComponent.getType().equals(Component.Type.PROJECT) && !rootComponent.getType().equals(Component.Type.PROJECT_VIEW);
+    return rootComponent.getType() != Component.Type.PROJECT && rootComponent.getType() != Component.Type.PROJECT_VIEW;
   }
 
   private static boolean hasChanged(ProjectDto dbProject, ProjectDto newProject) {
@@ -73,7 +73,7 @@ public class ProjectPersister {
     projectDto.setDescription(root.getDescription());
     projectDto.setUpdatedAt(system2.now());
     projectDto.setKey(root.getKey());
-    projectDto.setQualifier(root.getType().equals(Component.Type.PROJECT) ? ComponentQualifiers.PROJECT : ComponentQualifiers.APP);
+    projectDto.setQualifier(root.getType() == Component.Type.PROJECT ? ComponentQualifiers.PROJECT : ComponentQualifiers.APP);
     return projectDto;
   }
 }

@@ -108,12 +108,12 @@ public class EmailConfigurationService {
   }
 
   private static void throwIfParamsConstraintsAreNotMetForCreation(EmailConfiguration configuration) {
-    if (configuration.authMethod().equals(EmailConfigurationAuthMethod.OAUTH)) {
+    if (configuration.authMethod() == EmailConfigurationAuthMethod.OAUTH) {
       checkArgument(StringUtils.isNotEmpty(configuration.oauthAuthenticationHost()), "OAuth authentication host is required.");
       checkArgument(StringUtils.isNotEmpty(configuration.oauthClientId()), "OAuth client id is required.");
       checkArgument(StringUtils.isNotEmpty(configuration.oauthClientSecret()), "OAuth client secret is required.");
       checkArgument(StringUtils.isNotEmpty(configuration.oauthTenant()), "OAuth tenant is required.");
-    } else if (configuration.authMethod().equals(EmailConfigurationAuthMethod.BASIC)) {
+    } else if (configuration.authMethod() == EmailConfigurationAuthMethod.BASIC) {
       checkArgument(StringUtils.isNotEmpty(configuration.basicPassword()), "Password is required.");
     }
   }
@@ -241,7 +241,7 @@ public class EmailConfigurationService {
     if (isRequestParameterDefined(request.authMethod())) {
       return request.authMethod().contains(EmailConfigurationAuthMethod.OAUTH);
     }
-    return existingConfig.authMethod().equals(EmailConfigurationAuthMethod.OAUTH);
+    return existingConfig.authMethod() == EmailConfigurationAuthMethod.OAUTH;
   }
 
   private static boolean isRequestParameterDefined(@Nullable NonNullUpdatedValue<?> parameter) {

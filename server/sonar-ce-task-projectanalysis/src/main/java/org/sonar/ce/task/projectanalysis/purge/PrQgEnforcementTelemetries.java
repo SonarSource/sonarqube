@@ -103,7 +103,7 @@ public class PrQgEnforcementTelemetries {
   private Map<String, Long> getQualityGateStatuses(DbSession session, PurgeConfiguration conf) {
     List<String> prsToPurge = purgeDao.getStaleBranchesToPurge(conf, session.getMapper(PurgeMapper.class),
         conf.rootUuid()).stream()
-      .filter(branchDto -> BranchType.PULL_REQUEST.equals(branchDto.getBranchType()))
+      .filter(branchDto -> BranchType.PULL_REQUEST == branchDto.getBranchType())
       .map(BranchDto::getUuid)
       .toList();
     return measureDao.selectByComponentUuidsAndMetricKeys(session, prsToPurge, singletonList(ALERT_STATUS_KEY))

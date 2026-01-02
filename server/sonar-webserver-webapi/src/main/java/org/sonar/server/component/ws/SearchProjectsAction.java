@@ -728,7 +728,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
   private boolean isProjectAnalysisToken() {
     if (userSession instanceof TokenUserSession tokenUserSession) {
-      return TokenType.PROJECT_ANALYSIS_TOKEN.equals(tokenUserSession.getTokenType());
+      return TokenType.PROJECT_ANALYSIS_TOKEN == tokenUserSession.getTokenType();
     }
     return false;
   }

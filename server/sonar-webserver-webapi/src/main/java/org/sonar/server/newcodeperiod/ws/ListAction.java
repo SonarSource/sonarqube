@@ -105,7 +105,7 @@ public class ListAction implements NewCodePeriodsWsAction {
       NewCodePeriodDto projectDefault = newCodePeriodByBranchUuid.getOrDefault(null, getGlobalOrDefault(dbSession));
 
       Map<String, String> analysis = newCodePeriods.stream()
-        .filter(newCodePeriodDto -> newCodePeriodDto.getType().equals(NewCodePeriodType.SPECIFIC_ANALYSIS))
+        .filter(newCodePeriodDto -> newCodePeriodDto.getType() == NewCodePeriodType.SPECIFIC_ANALYSIS)
         .collect(Collectors.toMap(NewCodePeriodDto::getUuid, NewCodePeriodDto::getValue));
 
       Map<String, Long> analysisUuidDateMap = dbClient.snapshotDao().selectByUuids(dbSession, new HashSet<>(analysis.values()))

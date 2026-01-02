@@ -51,7 +51,7 @@ public class RuleDescriptionFormatter {
   }
 
   public String toHtml(@Nullable RuleDto.Format descriptionFormat, RuleDescriptionSectionDto ruleDescriptionSectionDto) {
-    if (MARKDOWN.equals(descriptionFormat)) {
+    if (MARKDOWN == descriptionFormat) {
       return Markdown.convertToHtml(ruleDescriptionSectionDto.getContent());
     }
     return ruleDescriptionSectionDto.getContent();

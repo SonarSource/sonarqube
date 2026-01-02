@@ -102,6 +102,20 @@ junit_task:
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
+sanity_task:
+  name: Sanity Check 🦢
+  depends_on: cache_dependencies
+  container:
+    dockerfile: .cirrus/Dockerfile
+    cpu: 8
+    memory: 8Gb
+  <<: *DEFAULT_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  script:
+    - .cirrus/cirrus-sanity.sh
+  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
+
 sq_analysis_task:
   depends_on:
     - build

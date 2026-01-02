@@ -177,15 +177,6 @@ public class JwtCsrfVerifierTest {
     assertThat(cookie.getMaxAge()).isZero();
   }
 
-  private void verifyCookie(Cookie cookie) {
-    assertThat(cookie.getName()).isEqualTo("XSRF-TOKEN");
-    assertThat(cookie.getValue()).isNotEmpty();
-    assertThat(cookie.getPath()).isEqualTo("/");
-    assertThat(cookie.isHttpOnly()).isFalse();
-    assertThat(cookie.getMaxAge()).isEqualTo(TIMEOUT);
-    assertThat(cookie.isSecure()).isFalse();
-  }
-
   private void mockPostJavaWsRequest() {
     when(request.getRequestURI()).thenReturn(JAVA_WS_URL);
     when(request.getMethod()).thenReturn("POST");

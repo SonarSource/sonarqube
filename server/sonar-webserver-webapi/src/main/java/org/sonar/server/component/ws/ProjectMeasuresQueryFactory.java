@@ -88,11 +88,11 @@ class ProjectMeasuresQueryFactory {
     Operator operator = criterion.getOperator();
     String value = criterion.getValue();
     List<String> values = criterion.getValues();
-    if (value != null && EQ.equals(operator)) {
+    if (value != null && EQ == operator) {
       query.setLanguages(singleton(value));
       return;
     }
-    if (!values.isEmpty() && IN.equals(operator)) {
+    if (!values.isEmpty() && IN == operator) {
       query.setLanguages(new HashSet<>(values));
       return;
     }
@@ -104,11 +104,11 @@ class ProjectMeasuresQueryFactory {
     Operator operator = criterion.getOperator();
     String value = criterion.getValue();
     List<String> values = criterion.getValues();
-    if (value != null && EQ.equals(operator)) {
+    if (value != null && EQ == operator) {
       query.setTags(singleton(value));
       return;
     }
-    if (!values.isEmpty() && IN.equals(operator)) {
+    if (!values.isEmpty() && IN == operator) {
       query.setTags(new HashSet<>(values));
       return;
     }
@@ -120,7 +120,7 @@ class ProjectMeasuresQueryFactory {
     checkValue(criterion);
     Operator operator = criterion.getOperator();
     String value = criterion.getValue();
-    checkArgument(EQ.equals(operator), "Only equals operator is available for qualifier criteria");
+    checkArgument(EQ == operator, "Only equals operator is available for qualifier criteria");
     String qualifier = Stream.of(ComponentQualifiers.APP, ComponentQualifiers.PROJECT).filter(q -> q.equalsIgnoreCase(value)).findFirst()
       .orElseThrow(() -> new IllegalArgumentException(format("Unknown qualifier : '%s'", value)));
     query.setQualifiers(Sets.newHashSet(qualifier));
@@ -131,7 +131,7 @@ class ProjectMeasuresQueryFactory {
     Operator operatorValue = criterion.getOperator();
     String value = criterion.getValue();
     checkArgument(value != null, "Query is invalid");
-    checkArgument(EQ.equals(operatorValue), "Query should only be used with equals operator");
+    checkArgument(EQ == operatorValue, "Query should only be used with equals operator");
     query.setQueryText(value);
   }
 
@@ -140,7 +140,7 @@ class ProjectMeasuresQueryFactory {
     checkValue(criterion);
     Operator operator = criterion.getOperator();
     String value = criterion.getValue();
-    checkArgument(EQ.equals(operator), "Only equals operator is available for quality gate criteria");
+    checkArgument(EQ == operator, "Only equals operator is available for quality gate criteria");
     Level qualityGate = Arrays.stream(Level.values()).filter(level -> level.name().equalsIgnoreCase(value)).findFirst()
       .orElseThrow(() -> new IllegalArgumentException(format("Unknown quality gate status : '%s'", value)));
     query.setQualityGateStatus(qualityGate);
@@ -154,7 +154,7 @@ class ProjectMeasuresQueryFactory {
 
   private static MetricCriterion createMetricCriterion(Criterion criterion, String metricKey, Operator operator) {
     if (NO_DATA.equalsIgnoreCase(criterion.getValue())) {
-      checkArgument(EQ.equals(operator), "%s can only be used with equals operator", NO_DATA);
+      checkArgument(EQ == operator, "%s can only be used with equals operator", NO_DATA);
       return MetricCriterion.createNoData(metricKey);
     }
     return MetricCriterion.create(metricKey, operator, parseValue(criterion.getValue()));

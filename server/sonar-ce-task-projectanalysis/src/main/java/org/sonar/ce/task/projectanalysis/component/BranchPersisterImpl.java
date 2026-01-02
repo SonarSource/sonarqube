@@ -67,7 +67,7 @@ public class BranchPersisterImpl implements BranchPersister {
       return true;
     }
 
-    if (BranchType.PULL_REQUEST.equals(analysisMetadataHolder.getBranch().getType())) {
+    if (BranchType.PULL_REQUEST == analysisMetadataHolder.getBranch().getType()) {
       return false;
     }
 

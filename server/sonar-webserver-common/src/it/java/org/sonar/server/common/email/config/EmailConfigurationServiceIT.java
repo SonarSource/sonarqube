@@ -339,7 +339,7 @@ class EmailConfigurationServiceIT {
     }
 
     for (Param param : params) {
-      if (param.paramOrigin.equals(ParamOrigin.REQUEST)) {
+      if (param.paramOrigin == ParamOrigin.REQUEST) {
         switch (param.paramName()) {
           case "host":
             requestBuilder.host(withValueOrThrow(param.value()));
@@ -392,7 +392,7 @@ class EmailConfigurationServiceIT {
       "oauthTenant", EMAIL_CONFIG_SMTP_OAUTH_TENANT
     );
     params.stream()
-      .filter(param -> param.paramOrigin.equals(ParamOrigin.CONFIG))
+      .filter(param -> param.paramOrigin == ParamOrigin.CONFIG)
       .forEach(param -> setInternalProperty(dbTester.getSession(), paramNameToPropertyKey.get(param.paramName()), param.value));
     dbTester.commit();
 
@@ -426,7 +426,7 @@ class EmailConfigurationServiceIT {
 
   private void assertUpdatesMadeFromParams(ConfigTypeAndOrigin configTypeAndOrigin, List<Param> params, EmailConfiguration updatedConfig) {
     for (Param param : params) {
-      if (param.paramOrigin.equals(ParamOrigin.REQUEST)) {
+      if (param.paramOrigin == ParamOrigin.REQUEST) {
         switch (param.paramName()) {
           case "host":
             assertThat(updatedConfig.host()).isEqualTo(param.value());

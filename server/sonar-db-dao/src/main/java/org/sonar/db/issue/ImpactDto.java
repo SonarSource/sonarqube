@@ -81,8 +81,8 @@ public class ImpactDto implements Serializable {
     }
 
     ImpactDto impactDto = (ImpactDto) o;
-    return Objects.equals(softwareQuality, impactDto.softwareQuality)
-      && Objects.equals(severity, impactDto.severity)
+    return softwareQuality == impactDto.softwareQuality
+      && severity == impactDto.severity
       && Objects.equals(manualSeverity, impactDto.manualSeverity);
   }
 

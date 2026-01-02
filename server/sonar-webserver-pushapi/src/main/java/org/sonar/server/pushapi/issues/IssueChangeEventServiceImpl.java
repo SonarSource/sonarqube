@@ -102,7 +102,7 @@ public class IssueChangeEventServiceImpl implements IssueChangeEventService {
         .collect(Collectors.toSet());
 
       Map<String, Issue> issueChanges = issuesInProject.stream()
-        .filter(i -> branchesByProjectUuid.get(i.projectUuid()).getBranchType().equals(BRANCH))
+        .filter(i -> branchesByProjectUuid.get(i.projectUuid()).getBranchType() == BRANCH)
         .map(i -> new Issue(i.key(), branchesByProjectUuid.get(i.projectUuid()).getKey()))
         .collect(Collectors.toMap(Issue::getIssueKey, i -> i));
 

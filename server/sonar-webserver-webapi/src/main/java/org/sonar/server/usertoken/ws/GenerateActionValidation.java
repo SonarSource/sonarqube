@@ -115,9 +115,9 @@ public final class GenerateActionValidation {
   }
 
   static void validateParametersCombination(UserTokenSupport userTokenSupport, DbSession dbSession, Request request, TokenType tokenType) {
-    if (PROJECT_ANALYSIS_TOKEN.equals(tokenType)) {
+    if (PROJECT_ANALYSIS_TOKEN == tokenType) {
       validateProjectAnalysisParameters(userTokenSupport, dbSession, request);
-    } else if (GLOBAL_ANALYSIS_TOKEN.equals(tokenType)) {
+    } else if (GLOBAL_ANALYSIS_TOKEN == tokenType) {
       validateGlobalAnalysisParameters(userTokenSupport, request);
     }
   }

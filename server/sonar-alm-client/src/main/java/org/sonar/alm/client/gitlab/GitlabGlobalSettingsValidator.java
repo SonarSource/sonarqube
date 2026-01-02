@@ -53,7 +53,7 @@ public class GitlabGlobalSettingsValidator {
       throw new IllegalArgumentException("Your Gitlab global configuration is incomplete. The GitLab URL must be set.");
     }
     gitlabApplicationClient.checkUrl(gitlabApiUrl);
-    if (ValidationMode.AUTH_ONLY.equals(validationMode)) {
+    if (ValidationMode.AUTH_ONLY == validationMode) {
       return;
     }
 

@@ -218,8 +218,8 @@ class SearchResponseBuilder {
         changes.stream().map(EventComponentChangeDto::getUuid).collect(Collectors.joining(","))));
     }
 
-    Optional<EventComponentChangeDto> addedChange = changes.stream().filter(c -> c.getCategory().equals(EventComponentChangeDto.ChangeCategory.ADDED)).findFirst();
-    Optional<EventComponentChangeDto> removedChange = changes.stream().filter(c -> c.getCategory().equals(EventComponentChangeDto.ChangeCategory.REMOVED)).findFirst();
+    Optional<EventComponentChangeDto> addedChange = changes.stream().filter(c -> c.getCategory() == EventComponentChangeDto.ChangeCategory.ADDED).findFirst();
+    Optional<EventComponentChangeDto> removedChange = changes.stream().filter(c -> c.getCategory() == EventComponentChangeDto.ChangeCategory.REMOVED).findFirst();
 
     if (!addedChange.isPresent() || !removedChange.isPresent() || addedChange.equals(removedChange)) {
       Iterator<EventComponentChangeDto> iterator = changes.iterator();

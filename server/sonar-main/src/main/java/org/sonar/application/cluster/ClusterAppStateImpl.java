@@ -103,7 +103,7 @@ public class ClusterAppStateImpl implements ClusterAppState {
       return operationalLocalProcesses.computeIfAbsent(processId, p -> false);
     }
 
-    if (processId.equals(ProcessId.ELASTICSEARCH)) {
+    if (processId == ProcessId.ELASTICSEARCH) {
       boolean operational = isElasticSearchOperational();
       if (!operational) {
         asyncWaitForEsToBecomeOperational();
@@ -112,7 +112,7 @@ public class ClusterAppStateImpl implements ClusterAppState {
     }
 
     for (Map.Entry<ClusterProcess, Boolean> entry : operationalProcesses.entrySet()) {
-      if (entry.getKey().getProcessId().equals(processId) && entry.getValue()) {
+      if (entry.getKey().getProcessId() == processId && entry.getValue()) {
         return true;
       }
     }
@@ -225,7 +225,7 @@ public class ClusterAppStateImpl implements ClusterAppState {
   private boolean isElasticSearchOperational() {
     try {
       return esConnector.getClusterHealthStatus()
-        .filter(t -> ClusterHealthStatus.GREEN.equals(t) || ClusterHealthStatus.YELLOW.equals(t))
+        .filter(t -> ClusterHealthStatus.GREEN == t || ClusterHealthStatus.YELLOW == t)
         .isPresent();
     } catch (ElasticsearchException e) {
       LOGGER.warn("Cannot check at current time whether Elasticsearch is operational", e);

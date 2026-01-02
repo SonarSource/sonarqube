@@ -31,6 +31,6 @@ public class SafeModeLivenessCheckerImpl implements LivenessChecker {
   }
 
   public boolean liveness() {
-    return Health.Status.GREEN.equals(dbConnectionNodeCheck.check().getStatus());
+    return Health.Status.GREEN == dbConnectionNodeCheck.check().getStatus();
   }
 }

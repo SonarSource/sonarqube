@@ -53,7 +53,7 @@ public class TokenUserSession extends ServerUserSession {
     TokenType tokenType = TokenType.valueOf(userToken.getType());
     return switch (tokenType) {
       case USER_TOKEN -> super.hasEntityUuidPermission(permission, entityUuid);
-      case PROJECT_ANALYSIS_TOKEN -> SCAN.equals(permission) &&
+      case PROJECT_ANALYSIS_TOKEN -> SCAN == permission &&
         entityUuid.equals(userToken.getProjectUuid()) &&
         (super.hasEntityUuidPermission(SCAN, entityUuid) || super.hasPermissionImpl(GlobalPermission.SCAN));
       case GLOBAL_ANALYSIS_TOKEN ->
@@ -86,7 +86,7 @@ public class TokenUserSession extends ServerUserSession {
     return switch (tokenType) {
       case USER_TOKEN, GLOBAL_ANALYSIS_TOKEN -> super.doKeepAuthorizedEntities(permission, entities);
       case PROJECT_ANALYSIS_TOKEN ->
-        (SCAN.equals(permission) || USER.equals(permission)) ? entities.stream()
+        (SCAN == permission || USER == permission) ? entities.stream()
           .filter(entity -> entity.getUuid().equals(userToken.getProjectUuid()))
           .toList() : Collections.emptyList();
       default -> throw new IllegalArgumentException(format(TOKEN_ASSERTION_ERROR_MESSAGE, tokenType.name()));
@@ -102,7 +102,7 @@ public class TokenUserSession extends ServerUserSession {
     return switch (tokenType) {
       case USER_TOKEN, GLOBAL_ANALYSIS_TOKEN -> super.keepAuthorizedProjectsUuids(dbSession, permission, entityUuids);
       case PROJECT_ANALYSIS_TOKEN ->
-        (SCAN.equals(permission) || USER.equals(permission)) ? Collections.singleton(userToken.getProjectUuid()) : Collections.emptySet();
+        (SCAN == permission || USER == permission) ? Collections.singleton(userToken.getProjectUuid()) : Collections.emptySet();
       default -> throw new IllegalArgumentException(format(TOKEN_ASSERTION_ERROR_MESSAGE, tokenType.name()));
     };
   }

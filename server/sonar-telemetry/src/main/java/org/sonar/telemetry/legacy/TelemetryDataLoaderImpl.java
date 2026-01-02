@@ -278,7 +278,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
 
   private void resolveUnanalyzedLanguageCode(TelemetryData.Builder data, DbSession dbSession) {
     editionProvider.get()
-      .filter(edition -> edition.equals(COMMUNITY))
+      .filter(edition -> edition == COMMUNITY)
       .ifPresent(edition -> {
         List<BranchDto> mainBranches = dbClient.branchDao().selectMainBranches(dbSession);
         List<MeasureDto> measureDtos = dbClient.measureDao().selectByComponentUuidsAndMetricKeys(dbSession,

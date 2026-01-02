@@ -102,7 +102,7 @@ public class HazelcastMemberBuilder {
     joinConfig.getMulticastConfig().setEnabled(false);
 
     final int defaultHzNodePort = Integer.parseInt(CLUSTER_NODE_HZ_PORT.getDefaultValue());
-    if (KUBERNETES.equals(type)) {
+    if (KUBERNETES == type) {
       joinConfig.getKubernetesConfig().setEnabled(true)
         .setProperty("service-dns", requireNonNull(members, "Service DNS is missing"))
         .setProperty("service-port", String.valueOf(defaultHzNodePort));

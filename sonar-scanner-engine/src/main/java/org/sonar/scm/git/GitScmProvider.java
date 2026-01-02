@@ -195,7 +195,7 @@ public class GitScmProvider extends ScmProvider {
     return renameDetector
       .compute()
       .stream()
-      .filter(entry -> RENAME.equals(entry.getChangeType()))
+      .filter(entry -> RENAME == entry.getChangeType())
       .collect(toUnmodifiableMap(DiffEntry::getNewPath, DiffEntry::getOldPath));
   }
 
@@ -208,7 +208,7 @@ public class GitScmProvider extends ScmProvider {
   }
 
   private static Predicate<DiffEntry> isAllowedChangeType(ChangeType... changeTypes) {
-    Function<ChangeType, Predicate<DiffEntry>> isChangeType = type -> entry -> type.equals(entry.getChangeType());
+    Function<ChangeType, Predicate<DiffEntry>> isChangeType = type -> entry -> type == entry.getChangeType();
 
     return Arrays
       .stream(changeTypes)

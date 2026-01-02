@@ -288,7 +288,7 @@ public class GroupPermissionChangerIT {
   @Test
   public void fail_to_add_global_permission_but_SCAN_and_ADMIN_on_private_project() {
     permissionService.getGlobalPermissions().stream()
-      .filter(perm -> !ADMINISTER.equals(perm) && !GlobalPermission.SCAN.equals(perm))
+      .filter(perm -> ADMINISTER != perm && GlobalPermission.SCAN != perm)
       .forEach(perm -> {
         var permissionKey = perm.getKey();
         assertThatThrownBy(() -> new GroupPermissionChange(Operation.ADD, permissionKey, privateProject, group, permissionService))
@@ -301,7 +301,7 @@ public class GroupPermissionChangerIT {
   @Test
   public void fail_to_add_global_permission_but_SCAN_and_ADMIN_on_public_project() {
     permissionService.getGlobalPermissions().stream()
-      .filter(perm -> !ADMINISTER.equals(perm) && !GlobalPermission.SCAN.equals(perm))
+      .filter(perm -> ADMINISTER != perm && GlobalPermission.SCAN != perm)
       .forEach(perm -> {
         var permissionKey = perm.getKey();
         assertThatThrownBy(() -> new GroupPermissionChange(Operation.ADD, permissionKey, publicProject, group, permissionService))
@@ -315,7 +315,7 @@ public class GroupPermissionChangerIT {
   public void fail_to_add_project_permission_but_SCAN_and_ADMIN_on_global_group() {
     permissionService.getAllProjectPermissions()
       .stream()
-      .filter(perm -> !ProjectPermission.SCAN.equals(perm) && !ProjectPermission.ADMIN.equals(perm))
+      .filter(perm -> ProjectPermission.SCAN != perm && ProjectPermission.ADMIN != perm)
       .forEach(permission -> {
         var permissionKey = permission.getKey();
         assertThatThrownBy(() -> new GroupPermissionChange(Operation.ADD, permissionKey, null, group, permissionService))

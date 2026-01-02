@@ -113,7 +113,7 @@ public class QualityProfileEventsStep implements ComputationStep {
 
   private void detectNoMoreUsedProfiles(Map<String, QualityProfile> baseProfiles) {
     for (QualityProfile baseProfile : baseProfiles.values()) {
-      if (qProfileStatusRepository.get(baseProfile.getQpKey()).filter(REMOVED::equals).isPresent()) {
+      if (qProfileStatusRepository.get(baseProfile.getQpKey()).filter((v) -> v == REMOVED).isPresent()) {
         markAsRemoved(baseProfile);
       }
     }
@@ -122,9 +122,9 @@ public class QualityProfileEventsStep implements ComputationStep {
   private void detectNewOrUpdatedProfiles(Map<String, QualityProfile> baseProfiles, Map<String, QualityProfile> rawProfiles, String componentUuid) {
     for (QualityProfile profile : rawProfiles.values()) {
       qProfileStatusRepository.get(profile.getQpKey()).ifPresent(status -> {
-        if (status.equals(ADDED)) {
+        if (status == ADDED) {
           markAsAdded(profile);
-        } else if (status.equals(UPDATED)) {
+        } else if (status == UPDATED) {
           markAsChanged(baseProfiles.get(profile.getQpKey()), profile, componentUuid);
         }
       });

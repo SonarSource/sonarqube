@@ -22,7 +22,6 @@ package org.sonar.server.platform.web;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import jakarta.servlet.ServletContext;
 import org.apache.commons.io.IOUtils;
@@ -70,11 +69,11 @@ public class WebPagesCache {
     String htmlPath = HTML_PATHS.contains(path) ? path : INDEX_HTML_PATH;
     checkState(servletContext != null, "init has not been called");
     // Optimization to not have to call platform.currentStatus on each call
-    if (Objects.equals(status, UP)) {
+    if (status == UP) {
       return indexHtmlByPath.get(htmlPath);
     }
     Status currentStatus = platform.status();
-    if (!Objects.equals(status, currentStatus)) {
+    if (status != currentStatus) {
       generate(currentStatus);
     }
     return indexHtmlByPath.get(htmlPath);

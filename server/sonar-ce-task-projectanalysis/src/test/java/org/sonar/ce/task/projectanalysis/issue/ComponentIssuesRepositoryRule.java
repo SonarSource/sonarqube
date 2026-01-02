@@ -64,9 +64,9 @@ public class ComponentIssuesRepositoryRule extends ExternalResource implements M
   public List<DefaultIssue> getIssues(Component component) {
     checkNotNull(component, "component cannot be null");
     // Views has no issues
-    if (component.getType().equals(Component.Type.PROJECT_VIEW)
-      || component.getType().equals(Component.Type.SUBVIEW)
-      || component.getType().equals(Component.Type.VIEW)) {
+    if (component.getType() == Component.Type.PROJECT_VIEW
+      || component.getType() == Component.Type.SUBVIEW
+      || component.getType() == Component.Type.VIEW) {
       return Collections.emptyList();
     }
     return getIssues(component.getReportAttributes().getRef());
@@ -85,7 +85,7 @@ public class ComponentIssuesRepositoryRule extends ExternalResource implements M
   @Override
   public List<DefaultIssue> getNotSandboxedIssues(Component component) {
     return getIssues(component).stream()
-      .filter(issue -> !IssueStatus.IN_SANDBOX.equals(issue.issueStatus()))
+      .filter(issue -> IssueStatus.IN_SANDBOX != issue.issueStatus())
       .toList();
   }
 

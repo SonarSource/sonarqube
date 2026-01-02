@@ -31,10 +31,10 @@ public class BaseAllowedQualityGateRatingMetricKeysSource extends AllowedQuality
       CoreMetrics.getMetrics().stream()
         // All Rating types are integers, but they come out of getMetrics as just Metric.
         // Convert them to Metric<Integer> here and below.
-        .filter(m -> m.getType().equals(Metric.ValueType.RATING))
+        .filter(m -> m.getType() == Metric.ValueType.RATING)
         .map(m -> (Metric<Integer>) m),
       new SoftwareQualitiesMetrics().getMetrics().stream()
-        .filter(m -> m.getType().equals(Metric.ValueType.RATING))
+        .filter(m -> m.getType() == Metric.ValueType.RATING)
         .map(m -> (Metric<Integer>) m));
   }
 }

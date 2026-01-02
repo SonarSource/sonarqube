@@ -85,7 +85,7 @@ public class HandleUnanalyzedLanguagesStep implements ComputationStep {
   @Override
   public void execute(Context context) {
     editionProvider.get().ifPresent(edition -> {
-      if (!edition.equals(EditionProvider.Edition.COMMUNITY)) {
+      if (edition != EditionProvider.Edition.COMMUNITY) {
         return;
       }
 

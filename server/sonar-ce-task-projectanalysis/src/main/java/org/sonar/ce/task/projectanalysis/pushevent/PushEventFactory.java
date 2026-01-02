@@ -92,7 +92,7 @@ public class PushEventFactory {
   }
 
   private static boolean isSecurityHotspot(DefaultIssue issue) {
-    return RuleType.SECURITY_HOTSPOT.equals(issue.type());
+    return RuleType.SECURITY_HOTSPOT == issue.type();
   }
 
   private Optional<PushEventDto> raiseTaintVulnerabilityEvent(String projectUuid, Component component, DefaultIssue issue) {

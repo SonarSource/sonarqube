@@ -132,7 +132,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
     componentIssuesRepository.getNotSandboxedIssues(component)
       .stream()
       .filter(issue -> issue.resolution() == null)
-      .filter(issue -> issue.type().equals(BUG) || issue.type().equals(VULNERABILITY))
+      .filter(issue -> issue.type() == BUG || issue.type() == VULNERABILITY)
       .forEach(issue -> path.current().processIssue(issue));
   }
 
@@ -170,9 +170,9 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
     void processIssue(DefaultIssue issue) {
       if (newIssueClassifier.isNew(component, issue)) {
         Rating rating = RATING_BY_SEVERITY.get(issue.severity());
-        if (issue.type().equals(BUG)) {
+        if (issue.type() == BUG) {
           newRatingValueByMetric.get(NEW_RELIABILITY_RATING_KEY).increment(rating);
-        } else if (issue.type().equals(VULNERABILITY)) {
+        } else if (issue.type() == VULNERABILITY) {
           newRatingValueByMetric.get(NEW_SECURITY_RATING_KEY).increment(rating);
         }
       }

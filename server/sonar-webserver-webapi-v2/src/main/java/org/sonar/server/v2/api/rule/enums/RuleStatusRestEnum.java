@@ -40,7 +40,7 @@ public enum RuleStatusRestEnum {
 
   public static RuleStatusRestEnum from(RuleStatus ruleStatus) {
     return Arrays.stream(RuleStatusRestEnum.values())
-      .filter(ruleStatusRestEnum -> ruleStatusRestEnum.ruleStatus.equals(ruleStatus))
+      .filter(ruleStatusRestEnum -> ruleStatusRestEnum.ruleStatus == ruleStatus)
       .findFirst()
       .orElseThrow(() -> new IllegalArgumentException("Unsupported RuleStatus: " + ruleStatus));
   }

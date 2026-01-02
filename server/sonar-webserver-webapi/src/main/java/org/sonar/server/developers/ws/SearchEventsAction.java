@@ -193,7 +193,7 @@ public class SearchEventsAction implements DevelopersWsAction {
         ProjectDto project = projectsByUuid.get(branch.getProjectUuid());
         long issueCount = e.getIssueCount();
         long lastIssueDate = e.getLastIssueDate();
-        String branchType = branch.getBranchType().equals(PULL_REQUEST) ? "pull request" : "branch";
+        String branchType = branch.getBranchType() == PULL_REQUEST ? "pull request" : "branch";
         return Event.newBuilder()
           .setCategory("NEW_ISSUES")
           .setMessage(format("You have %s new %s on project '%s'", issueCount, issueCount == 1 ? "issue" : "issues",
@@ -211,7 +211,7 @@ public class SearchEventsAction implements DevelopersWsAction {
   }
 
   private String computeIssuesSearchLink(ProjectDto project, BranchDto branch, long functionalFromDate, String login) {
-    String branchParam = branch.getBranchType().equals(PULL_REQUEST) ? "pullRequest" : "branch";
+    String branchParam = branch.getBranchType() == PULL_REQUEST ? "pullRequest" : "branch";
     String link = format("%s/project/issues?id=%s&createdAfter=%s&assignees=%s&resolved=false",
       server.getPublicRootUrl(), encode(project.getKey()), encode(formatDateTime(functionalFromDate)), encode(login));
     link += branch.isMain() ? "" : format("&%s=%s", branchParam, encode(branch.getKey()));

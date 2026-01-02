@@ -49,7 +49,7 @@ public class SourceLinesRepositoryRule extends ExternalResource implements Sourc
   @Override
   public CloseableIterator<String> readLines(Component component) {
     checkNotNull(component, "Component should not be bull");
-    if (!component.getType().equals(Component.Type.FILE)) {
+    if (component.getType() != Component.Type.FILE) {
       throw new IllegalArgumentException(String.format("Component '%s' is not a file", component));
     }
     Collection<String> componentLines = lines.get(component.getReportAttributes().getRef());

@@ -65,13 +65,13 @@ public class IndexAnalysisStep implements ComputationStep {
   private boolean hasPreviousAnalysisSucceeded(String branchUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       return dbClient.ceActivityDao().selectLastByComponentUuidAndTaskType(dbSession, branchUuid, CeTaskTypes.REPORT)
-        .filter(activityDto -> CeActivityDto.Status.SUCCESS.equals(activityDto.getStatus()))
+        .filter(activityDto -> CeActivityDto.Status.SUCCESS == activityDto.getStatus())
         .isPresent();
     }
   }
 
   private static boolean isDiffIndexingSupported(Component root, AnalysisIndexer indexer) {
-    return Component.Type.PROJECT.equals(root.getType()) && indexer.supportDiffIndexing();
+    return Component.Type.PROJECT == root.getType() && indexer.supportDiffIndexing();
   }
 
   private boolean isBranchNeedIssueSync(String branchUuid) {

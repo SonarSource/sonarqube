@@ -127,7 +127,7 @@ public class CachingRuleFinder implements ServerRuleFinder {
   }
 
   private static boolean matchQuery(RuleDto ruleDto, RuleQuery ruleQuery) {
-    if (RuleStatus.REMOVED.equals(ruleDto.getStatus())) {
+    if (RuleStatus.REMOVED == ruleDto.getStatus()) {
       return false;
     }
     String repositoryKey = ruleQuery.getRepositoryKey();

@@ -1,0 +1,52 @@
+type: specs.openrewrite.org/v1beta/recipe
+name: org.opensearch.openrewrite.SanityCheck
+displayName: Apply all Java & Gradle best practices
+description: Comprehensive code quality recipe combining modernization, security, and best practices.
+recipeList:
+  - org.openrewrite.staticanalysis.RemoveUnusedPrivateMethods
+  - tech.picnic.errorprone.refasterrules.EqualityRulesRecipes
+# - org.openrewrite.java.format.NormalizeFormat
+# - org.openrewrite.java.format.NormalizeLineBreaks
+# - org.openrewrite.java.format.RemoveTrailingWhitespace
+# - org.openrewrite.java.migrate.UpgradeToJava17
+# - org.openrewrite.java.recipes.JavaRecipeBestPractices
+# - org.openrewrite.java.recipes.RecipeTestingBestPractices
+# - org.openrewrite.java.testing.junit.JupiterBestPractices
+# - org.openrewrite.java.testing.junit5.CleanupAssertions
+# - org.openrewrite.java.testing.junit5.StaticImports
+# - org.openrewrite.maven.BestPractices
+# - org.openrewrite.staticanalysis.BufferedWriterCreationRecipes
+# - org.openrewrite.staticanalysis.EqualsAvoidsNull
+# - org.openrewrite.staticanalysis.InlineVariable
+# - org.openrewrite.staticanalysis.JavaApiBestPractices
+# - org.openrewrite.staticanalysis.LowercasePackage
+# - org.openrewrite.staticanalysis.MissingOverrideAnnotation
+# - org.openrewrite.staticanalysis.ModifierOrder
+# - org.openrewrite.staticanalysis.NoFinalizer
+# - org.openrewrite.staticanalysis.NoToStringOnStringType
+# - org.openrewrite.staticanalysis.RemoveUnusedLocalVariables
+# - org.openrewrite.staticanalysis.RemoveUnusedPrivateFields
+# - org.openrewrite.staticanalysis.ReplaceLambdaWithMethodReference
+# - org.openrewrite.staticanalysis.SimplifyTernaryRecipes
+# - org.openrewrite.staticanalysis.URLEqualsHashCodeRecipes
+# - org.openrewrite.staticanalysis.UnnecessaryCloseInTryWithResources
+# - org.openrewrite.staticanalysis.UnnecessaryExplicitTypeArguments
+# - org.openrewrite.staticanalysis.UnnecessaryParentheses
+# - org.openrewrite.staticanalysis.UnnecessaryReturnAsLastStatement
+# - org.openrewrite.staticanalysis.UseLambdaForFunctionalInterface
+# - tech.picnic.errorprone.refasterrules.BigDecimalRulesRecipes
+# - tech.picnic.errorprone.refasterrules.CharSequenceRulesRecipes
+# - tech.picnic.errorprone.refasterrules.ClassRulesRecipes
+# - tech.picnic.errorprone.refasterrules.CollectionRulesRecipes
+# - tech.picnic.errorprone.refasterrules.ComparatorRulesRecipes
+# - tech.picnic.errorprone.refasterrules.FileRulesRecipes
+# - tech.picnic.errorprone.refasterrules.MapRulesRecipes
+# - tech.picnic.errorprone.refasterrules.MicrometerRulesRecipes
+# - tech.picnic.errorprone.refasterrules.MockitoRulesRecipes
+# - tech.picnic.errorprone.refasterrules.NullRulesRecipes
+# - tech.picnic.errorprone.refasterrules.PatternRulesRecipes
+# - tech.picnic.errorprone.refasterrules.PreconditionsRulesRecipes
+# - tech.picnic.errorprone.refasterrules.PrimitiveRulesRecipes
+# - tech.picnic.errorprone.refasterrules.StreamRulesRecipes
+# - tech.picnic.errorprone.refasterrules.StringRulesRecipes
+# - tech.picnic.errorprone.refasterrules.TimeRulesRecipes

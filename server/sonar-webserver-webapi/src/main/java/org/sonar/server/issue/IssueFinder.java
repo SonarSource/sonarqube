@@ -45,7 +45,7 @@ public class IssueFinder {
     IssueDto issue = dbClient.issueDao().selectByKey(session, issueKey).orElseThrow(() -> new NotFoundException(format("Issue with key '%s' does not exist", issueKey)));
 
     RuleType ruleType = RuleType.valueOfNullable(issue.getType());
-    if (SECURITY_HOTSPOT.equals(ruleType)) {
+    if (SECURITY_HOTSPOT == ruleType) {
       throw new NotFoundException(format("Issue with key '%s' does not exist", issueKey));
     }
 

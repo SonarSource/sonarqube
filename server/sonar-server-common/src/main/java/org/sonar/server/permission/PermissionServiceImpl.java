@@ -47,8 +47,8 @@ public class PermissionServiceImpl implements PermissionService {
 
   public PermissionServiceImpl(ComponentTypes componentTypes) {
     globalPermissions = List.copyOf(ALL_GLOBAL_PERMISSIONS.stream()
-      .filter(s -> !s.equals(GlobalPermission.APPLICATION_CREATOR) || componentTypes.isQualifierPresent(ComponentQualifiers.APP))
-      .filter(s -> !s.equals(GlobalPermission.PORTFOLIO_CREATOR) || componentTypes.isQualifierPresent(ComponentQualifiers.VIEW))
+      .filter(s -> s != GlobalPermission.APPLICATION_CREATOR || componentTypes.isQualifierPresent(ComponentQualifiers.APP))
+      .filter(s -> s != GlobalPermission.PORTFOLIO_CREATOR || componentTypes.isQualifierPresent(ComponentQualifiers.VIEW))
       .toList());
   }
 

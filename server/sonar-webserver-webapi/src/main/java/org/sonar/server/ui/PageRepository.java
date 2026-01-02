@@ -131,9 +131,9 @@ public class PageRepository implements Startable {
 
   private List<Page> getPages(Scope scope, boolean isAdmin, @Nullable Qualifier qualifier) {
     return getAllPages().stream()
-      .filter(p -> p.getScope().equals(scope))
+      .filter(p -> p.getScope() == scope)
       .filter(p -> p.isAdmin() == isAdmin)
-      .filter(p -> !COMPONENT.equals(p.getScope()) || p.getComponentQualifiers().contains(qualifier))
+      .filter(p -> COMPONENT != p.getScope() || p.getComponentQualifiers().contains(qualifier))
       .toList();
   }
 

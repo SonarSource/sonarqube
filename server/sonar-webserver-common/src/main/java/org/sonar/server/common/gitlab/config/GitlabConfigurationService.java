@@ -133,8 +133,8 @@ public class GitlabConfigurationService {
     DbSession dbSession,
     GitlabConfiguration currentConfiguration,
     UpdatedValue<ProvisioningType> provisioningTypeFromUpdate) {
-    boolean disableAutoProvisioning = provisioningTypeFromUpdate.map(provisioningType -> provisioningType.equals(JIT)).orElse(false)
-      && currentConfiguration.provisioningType().equals(AUTO_PROVISIONING);
+    boolean disableAutoProvisioning = provisioningTypeFromUpdate.map(provisioningType -> provisioningType == JIT).orElse(false)
+      && currentConfiguration.provisioningType() == AUTO_PROVISIONING;
     if (disableAutoProvisioning) {
       dbClient.externalGroupDao().deleteByExternalIdentityProvider(dbSession, GitLabIdentityProvider.KEY);
     }
@@ -234,7 +234,7 @@ public class GitlabConfigurationService {
   }
 
   private static boolean shouldEnableAutoProvisioning(ProvisioningType provisioningType) {
-    return AUTO_PROVISIONING.equals(provisioningType);
+    return AUTO_PROVISIONING == provisioningType;
   }
 
   private void setProperty(DbSession dbSession, String propertyName, @Nullable String value) {
@@ -277,7 +277,7 @@ public class GitlabConfigurationService {
 
   private void throwIfConfigIncompleteOrInstanceAlreadyManaged(GitlabConfiguration configuration) {
     checkInstanceNotManagedByAnotherProvider();
-    checkState(AUTO_PROVISIONING.equals(configuration.provisioningType()), "Auto provisioning must be activated");
+    checkState(AUTO_PROVISIONING == configuration.provisioningType(), "Auto provisioning must be activated");
     checkState(configuration.enabled(), getErrorMessage("GitLab authentication must be turned on"));
     checkState(isNotBlank(configuration.provisioningToken()), getErrorMessage("Provisioning token must be set"));
   }
@@ -313,6 +313,6 @@ public class GitlabConfigurationService {
   }
 
   private static GitlabGlobalSettingsValidator.ValidationMode toValidationMode(ProvisioningType provisioningType) {
-    return AUTO_PROVISIONING.equals(provisioningType) ? COMPLETE : AUTH_ONLY;
+    return AUTO_PROVISIONING == provisioningType ? COMPLETE : AUTH_ONLY;
   }
 }

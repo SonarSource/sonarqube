@@ -364,7 +364,7 @@ public class RuleMapper {
       ruleResponse.setDescriptionSections(Rules.Rule.DescriptionSections.newBuilder().addAllDescriptionSections(sections).build());
     }
 
-    if (shouldReturnField(fieldsToReturn, FIELD_MARKDOWN_DESCRIPTION) && MARKDOWN.equals(ruleDto.getDescriptionFormat())) {
+    if (shouldReturnField(fieldsToReturn, FIELD_MARKDOWN_DESCRIPTION) && MARKDOWN == ruleDto.getDescriptionFormat()) {
       Optional.ofNullable(ruleDto.getDefaultRuleDescriptionSection())
         .map(RuleDescriptionSectionDto::getContent)
         .ifPresent(ruleResponse::setMdDesc);

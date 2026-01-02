@@ -261,7 +261,7 @@ public class ClusterSettings implements Consumer<Props> {
    * Hazelcast must be started when cluster is activated on all nodes but search ones
    */
   public static boolean shouldStartHazelcast(AppSettings appSettings) {
-    return isClusterEnabled(appSettings.getProps()) && toNodeType(appSettings.getProps()).equals(NodeType.APPLICATION);
+    return isClusterEnabled(appSettings.getProps()) && toNodeType(appSettings.getProps()) == NodeType.APPLICATION;
   }
 
   public static List<ProcessId> getEnabledProcesses(AppSettings settings) {

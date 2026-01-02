@@ -46,7 +46,7 @@ public enum CleanCodeAttributeCategoryRestEnum {
       return null;
     }
     return Arrays.stream(CleanCodeAttributeCategoryRestEnum.values())
-      .filter(cleanCodeAttributeCategoryRestEnum -> cleanCodeAttributeCategoryRestEnum.cleanCodeAttributeCategory.equals(cleanCodeAttributeCategory))
+      .filter(cleanCodeAttributeCategoryRestEnum -> cleanCodeAttributeCategoryRestEnum.cleanCodeAttributeCategory == cleanCodeAttributeCategory)
       .findFirst()
       .orElseThrow(() -> new IllegalArgumentException("Unsupported clean code attribute category: " + cleanCodeAttributeCategory));
   }

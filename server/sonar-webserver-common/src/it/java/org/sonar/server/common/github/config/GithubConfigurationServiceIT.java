@@ -442,7 +442,7 @@ public class GithubConfigurationServiceIT {
     verifySettingWasSet(GITHUB_API_URL, configuration.apiUrl());
     verifySettingWasSet(GITHUB_WEB_URL, configuration.webUrl());
     verifySettingWasSet(GITHUB_ORGANIZATIONS, String.join(",", configuration.allowedOrganizations()));
-    verifyInternalSettingWasSet(GITHUB_PROVISIONING, String.valueOf(configuration.provisioningType().equals(AUTO_PROVISIONING)));
+    verifyInternalSettingWasSet(GITHUB_PROVISIONING, String.valueOf(configuration.provisioningType() == AUTO_PROVISIONING));
     verifySettingWasSet(GITHUB_ALLOW_USERS_TO_SIGN_UP, String.valueOf(configuration.allowUsersToSignUp()));
     verifySettingWasSet(GITHUB_PROVISION_PROJECT_VISIBILITY, String.valueOf(configuration.provisionProjectVisibility()));
     verifySettingExistsButEmpty(GITHUB_USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE);

@@ -38,7 +38,7 @@ import static org.sonar.api.measures.Metric.ValueType.RATING;
 public abstract class AllowedQualityGateRatingMetricKeysSource {
   public Set<String> metricKeys() {
     return allMetrics()
-      .filter(metric -> metric.getType().equals(RATING))
+      .filter(metric -> metric.getType() == RATING)
       .map(Metric::getKey)
       .collect(Collectors.toSet());
   }

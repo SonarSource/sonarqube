@@ -32,7 +32,7 @@ public class CredentialsEncoderHelper {
   }
 
   public static String encodeCredentials(ALM alm, String pat, @Nullable String username) {
-    if (!alm.equals(BITBUCKET_CLOUD)) {
+    if (alm != BITBUCKET_CLOUD) {
       return pat;
     }
 

@@ -213,7 +213,7 @@ public class ValuesAction implements SettingsWsAction {
   private Set<String> getPropertySetKeys(List<PropertyDto> properties) {
     return properties.stream()
       .filter(propertyDto -> propertyDefinitions.get(propertyDto.getKey()) != null)
-      .filter(propertyDto -> propertyDefinitions.get(propertyDto.getKey()).type().equals(PROPERTY_SET))
+      .filter(propertyDto -> propertyDefinitions.get(propertyDto.getKey()).type() == PROPERTY_SET)
       .flatMap(propertyDto -> extractPropertySetKeys(propertyDto, propertyDefinitions.get(propertyDto.getKey())).stream())
       .collect(Collectors.toSet());
   }
@@ -280,9 +280,9 @@ public class ValuesAction implements SettingsWsAction {
         valueBuilder.setValue(value);
         return;
       }
-      if (definition.type().equals(PROPERTY_SET)) {
+      if (definition.type() == PROPERTY_SET) {
         valueBuilder.setFieldValues(createFieldValuesBuilder(filterVisiblePropertySets(setting.getPropertySets())));
-      } else if (definition.type().equals(FORMATTED_TEXT)) {
+      } else if (definition.type() == FORMATTED_TEXT) {
         valueBuilder.setValues(createFormattedTextValuesBuilder(value));
       } else if (definition.multiValues()) {
         valueBuilder.setValues(createValuesBuilder(value));
@@ -301,7 +301,7 @@ public class ValuesAction implements SettingsWsAction {
           return;
         }
 
-        if (definition.type().equals(PROPERTY_SET)) {
+        if (definition.type() == PROPERTY_SET) {
           valueBuilder.setParentFieldValues(
             createFieldValuesBuilder(valueBuilder.getInherited() ? filterVisiblePropertySets(setting.getPropertySets()) : filterVisiblePropertySets(parent.getPropertySets())));
         } else if (definition.multiValues()) {

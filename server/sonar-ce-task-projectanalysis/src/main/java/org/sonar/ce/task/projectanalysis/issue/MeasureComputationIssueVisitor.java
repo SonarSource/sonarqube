@@ -30,7 +30,7 @@ public abstract class MeasureComputationIssueVisitor extends IssueVisitor {
 
   @Override
   public final void onIssue(Component component, DefaultIssue issue) {
-    if (IssueStatus.IN_SANDBOX.equals(IssueStatus.of(issue.getStatus(), issue.resolution()))) {
+    if (IssueStatus.IN_SANDBOX == IssueStatus.of(issue.getStatus(), issue.resolution())) {
       return;
     }
     onNonSandboxedIssue(component, issue);

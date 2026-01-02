@@ -59,7 +59,7 @@ public enum CleanCodeAttributeRestEnum {
       return null;
     }
     return Arrays.stream(CleanCodeAttributeRestEnum.values())
-      .filter(cleanCodeAttributeRestEnum -> cleanCodeAttributeRestEnum.cleanCodeAttribute.equals(cleanCodeAttribute))
+      .filter(cleanCodeAttributeRestEnum -> cleanCodeAttributeRestEnum.cleanCodeAttribute == cleanCodeAttribute)
       .findFirst()
       .orElseThrow(() -> new IllegalArgumentException("Unsupported clean code attribute: " + cleanCodeAttribute));
   }

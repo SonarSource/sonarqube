@@ -141,10 +141,6 @@ class CreateTableBuilderIT {
     assertThat(row).isEmpty();
   }
 
-  private CreateTableBuilder newCreateTableBuilder() {
-    return new CreateTableBuilder(dialect, createTableName());
-  }
-
   private static String createTableName() {
     return "table_" + tableNameGenerator++;
   }

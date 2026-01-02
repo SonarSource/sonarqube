@@ -90,7 +90,7 @@ public class AdHocRuleCreator {
     }
 
     CleanCodeAttribute cleanCodeAttribute = adHoc.getCleanCodeAttribute();
-    if (!Objects.equals(ruleDtoToUpdate.getCleanCodeAttribute(), cleanCodeAttribute)) {
+    if (ruleDtoToUpdate.getCleanCodeAttribute() != cleanCodeAttribute) {
       ruleDtoToUpdate.setCleanCodeAttribute(cleanCodeAttribute);
       changed = true;
     }

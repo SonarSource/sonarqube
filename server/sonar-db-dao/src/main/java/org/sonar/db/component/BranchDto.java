@@ -115,13 +115,6 @@ public class BranchDto {
     return this;
   }
 
-  /**
-   * This is the getter used by MyBatis mapper.
-   */
-  private String getKee() {
-    return kee;
-  }
-
   public String getKey() {
     return kee;
   }

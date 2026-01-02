@@ -105,7 +105,7 @@ class ConditionEvaluator {
       return measure.getValue().isPresent() ? getNumericValue(measure.getType(), measure.getValue().getAsDouble()) : null;
     }
 
-    checkArgument(ValueType.LEVEL.equals(measure.getType()), "Condition is not allowed for type %s", measure.getType());
+    checkArgument(ValueType.LEVEL == measure.getType(), "Condition is not allowed for type %s", measure.getType());
     return measure.getStringValue().orElse(null);
 
   }

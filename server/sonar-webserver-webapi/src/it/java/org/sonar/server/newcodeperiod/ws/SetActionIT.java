@@ -358,7 +358,7 @@ public class SetActionIT {
     ProjectData projectData = db.components().insertPublicProject();
     ProjectDto project = projectData.getProjectDto();
 
-    if (value != null && NewCodePeriodType.SPECIFIC_ANALYSIS.equals(type)) {
+    if (value != null && NewCodePeriodType.SPECIFIC_ANALYSIS == type) {
       db.components().insertSnapshot(project, snapshotDto -> snapshotDto.setUuid(value));
     }
 

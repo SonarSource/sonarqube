@@ -93,7 +93,7 @@ public class IssueFieldsSetter {
   private static final Joiner CHANGELOG_LIST_JOINER = Joiner.on(" ").skipNulls();
 
   public boolean setType(DefaultIssue issue, RuleType type, IssueChangeContext context) {
-    if (!Objects.equals(type, issue.type())) {
+    if (type != issue.type()) {
       issue.setFieldChange(context, TYPE, issue.type(), type);
       issue.setType(type);
       issue.setUpdateDate(context.date());
@@ -144,7 +144,7 @@ public class IssueFieldsSetter {
     IssueChangeContext context) {
     Map<SoftwareQuality, Severity> oldImpacts = issue.impacts();
     if ((oldImpacts.containsKey(softwareQuality)
-      && (!Objects.equals(oldImpacts.get(softwareQuality), severity) || !hasManualSeverity(issue, softwareQuality)))) {
+      && (oldImpacts.get(softwareQuality) != severity || !hasManualSeverity(issue, softwareQuality)))) {
       issue.addImpact(softwareQuality, severity, true);
       issue.setFieldChange(context, IMPACT_SEVERITY,
         softwareQuality + ":" + oldImpacts.get(softwareQuality),
@@ -158,7 +158,7 @@ public class IssueFieldsSetter {
   }
 
   private static boolean hasManualSeverity(DefaultIssue issue, SoftwareQuality softwareQuality) {
-    return issue.getImpacts().stream().filter(i -> i.softwareQuality().equals(softwareQuality)).anyMatch(DefaultImpact::manualSeverity);
+    return issue.getImpacts().stream().filter(i -> i.softwareQuality() == softwareQuality).anyMatch(DefaultImpact::manualSeverity);
   }
 
   public boolean assign(DefaultIssue issue, @Nullable UserDto user, IssueChangeContext context) {
@@ -292,7 +292,7 @@ public class IssueFieldsSetter {
   }
 
   public boolean setIssueStatus(DefaultIssue issue, @Nullable IssueStatus previousIssueStatus, @Nullable IssueStatus newIssueStatus, IssueChangeContext context) {
-    if (!Objects.equals(newIssueStatus, previousIssueStatus)) {
+    if (newIssueStatus != previousIssueStatus) {
       // Currently, issue status is not persisted in database, but is considered as an issue change
       issue.setFieldChange(context, ISSUE_STATUS, previousIssueStatus, issue.issueStatus());
       return true;
@@ -521,7 +521,7 @@ public class IssueFieldsSetter {
       && issue.getImpacts().stream().noneMatch(DefaultImpact::manualSeverity)) {
       issue.getImpacts()
         .stream()
-        .filter(i -> convertToSoftwareQuality(toApiRuleType(issue.type())).equals(i.softwareQuality()))
+        .filter(i -> convertToSoftwareQuality(toApiRuleType(issue.type())) == i.softwareQuality())
         .forEach(i -> {
           Severity newSeverity = ImpactSeverityMapper.mapImpactSeverity(issue.severity());
           issue.addImpact(i.softwareQuality(), newSeverity, true);
@@ -542,7 +542,7 @@ public class IssueFieldsSetter {
 
   public boolean setCleanCodeAttribute(DefaultIssue raw, @Nullable CleanCodeAttribute previousCleanCodeAttribute, IssueChangeContext changeContext) {
     CleanCodeAttribute newCleanCodeAttribute = requireNonNull(raw.getCleanCodeAttribute());
-    if (Objects.equals(previousCleanCodeAttribute, newCleanCodeAttribute)) {
+    if (previousCleanCodeAttribute == newCleanCodeAttribute) {
       return false;
     }
     raw.setFieldChange(changeContext, CLEAN_CODE_ATTRIBUTE, previousCleanCodeAttribute, newCleanCodeAttribute.name());
