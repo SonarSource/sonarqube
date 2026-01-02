@@ -1146,6 +1146,21 @@ class SearchActionIT {
   }
 
   @Test
+  void return_compliance_facets_with_filters_for_wildcard_repos() {
+    db.rules().insert(r -> r.setLanguage("secrets").setRuleKey(RuleKey.of("secrets", "S001")).setSeverity(MINOR));
+    db.rules().insert(r -> r.setLanguage("java").setRuleKey(RuleKey.of("java", "S001")).setSeverity(MINOR));
+    indexRules();
+
+    SearchResponse result = ws.newRequest()
+      .setParam(FACETS, FACET_COMPLIANCE_STANDARDS)
+      .setParam(PARAM_COMPLIANCE_STANDARDS, "test:V1=category4withsecretrules")
+      .setParam(PARAM_SEVERITIES, "MINOR")
+      .executeProtobuf(SearchResponse.class);
+
+    assertThatFacet("test:V1", result).containsOnly(tuple("category1", 1L), tuple("category4withsecretrules", 1L));
+  }
+
+  @Test
   void always_return_selected_standard_in_compliance_facets() {
     SearchResponse result = ws.newRequest()
       .setParam(FACETS, FACET_COMPLIANCE_STANDARDS)

@@ -219,6 +219,23 @@ class RuleIndexIT {
   }
 
   @Test
+  void filter_by_compliance_category_rules_with_wildcard_repos() {
+    RuleDto rule = createRule(setRepositoryKey("secrets"), setRuleKey("Y001"));
+    createRule(setRepositoryKey("cobol"), setRuleKey("X001"));
+    index();
+    ComplianceCategoryRules complianceCategoryRules = new ComplianceCategoryRules(new CategoryTree.CategoryTreeNode(
+      "key", Set.of("php:S002", "secrets:"), Set.of(), null, false, 0, null
+    ));
+
+    // key
+    RuleQuery query = new RuleQuery()
+      .setComplianceCategoryRules(List.of(complianceCategoryRules));
+
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids())
+      .containsOnly(rule.getUuid());
+  }
+
+  @Test
   void search_name_by_query() {
     createRule(setName("testing the partial match and matching of rule"));
     index();

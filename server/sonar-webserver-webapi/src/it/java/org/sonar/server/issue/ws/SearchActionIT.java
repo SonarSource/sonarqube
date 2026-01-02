@@ -1032,6 +1032,7 @@ class SearchActionIT {
     RuleDto r1 = newIssueRule("S001", r -> r.setRepositoryKey("java"));
     RuleDto r2 = newIssueRule("S002", r -> r.setRepositoryKey("test"));
     RuleDto r3 = newIssueRule("1", r -> r.setRepositoryKey("php"));
+    RuleDto r4 = newIssueRule("S004", r -> r.setRepositoryKey("secrets"));
 
     ComponentDto project = db.components().insertPublicProject("PROJECT1").getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID"));
@@ -1039,6 +1040,7 @@ class SearchActionIT {
     IssueDto i1 = db.issues().insertIssue(r1, project, file);
     IssueDto i2 = db.issues().insertIssue(r2, project, file);
     db.issues().insertIssue(r3, project, file);
+    db.issues().insertIssue(r4, project, file);
 
     session.commit();
     indexPermissionsAndIssues();
@@ -1052,7 +1054,7 @@ class SearchActionIT {
       .extracting(Issue::getKey)
       .containsOnly(i1.getKey(), i2.getKey());
 
-    assertThatFacet(response, "test:V1").containsOnly(tuple("category1", 2L), tuple("category3", 1L));
+    assertThatFacet(response, "test:V1").containsOnly(tuple("category1", 2L), tuple("category3", 1L), tuple("category4withsecretrules", 1L));
   }
 
   @Test
