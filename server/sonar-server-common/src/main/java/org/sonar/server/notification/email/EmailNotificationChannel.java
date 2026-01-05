@@ -19,8 +19,8 @@
  */
 package org.sonar.server.notification.email;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.Properties;
@@ -284,8 +284,8 @@ public class EmailNotificationChannel extends NotificationChannel {
   @CheckForNull
   private String resolveHost() {
     try {
-      return new URL(server.getPublicRootUrl()).getHost();
-    } catch (MalformedURLException e) {
+      return new URI(server.getPublicRootUrl()).getHost();
+    } catch (URISyntaxException e) {
       // ignore
       return null;
     }

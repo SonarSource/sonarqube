@@ -41,14 +41,14 @@ public class CallbackHandlerImpl implements CallbackHandler {
   @Override
   public void handle(Callback[] callbacks) throws UnsupportedCallbackException, IOException {
     for (Callback callBack : callbacks) {
-      if (callBack instanceof NameCallback nameCallback) {
-        // Handles username callback
-        nameCallback.setName(name);
-      } else if (callBack instanceof PasswordCallback passwordCallback) {
-        // Handles password callback
-        passwordCallback.setPassword(password.toCharArray());
-      } else {
-        throw new UnsupportedCallbackException(callBack, "Callback not supported");
+      switch (callBack) {
+        case NameCallback nameCallback ->
+          // Handles username callback
+          nameCallback.setName(name);
+        case PasswordCallback passwordCallback ->
+          // Handles password callback
+          passwordCallback.setPassword(password.toCharArray());
+        case null, default -> throw new UnsupportedCallbackException(callBack, "Callback not supported");
       }
     }
   }

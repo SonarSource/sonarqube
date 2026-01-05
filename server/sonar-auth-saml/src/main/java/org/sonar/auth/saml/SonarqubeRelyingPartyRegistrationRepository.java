@@ -21,8 +21,8 @@ package org.sonar.auth.saml;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.Optional;
@@ -71,8 +71,8 @@ public class SonarqubeRelyingPartyRegistrationRepository implements RelyingParty
 
   private static String validateLoginUrl(String url) {
     try {
-      return new URL(url).toURI().toString();
-    } catch (MalformedURLException | URISyntaxException e) {
+      return new URI(url).toURL().toExternalForm();
+    } catch (MalformedURLException | URISyntaxException | IllegalArgumentException e) {
       throw new IllegalStateException("Invalid SAML Login URL", e);
     }
   }

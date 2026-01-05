@@ -30,7 +30,7 @@ class EsServerCliJvmOptions extends JvmOptions<EsServerCliJvmOptions> {
   }
 
   private static Map<String, String> mandatoryOptions(EsInstallation esInstallation) {
-    Map<String, String> res = new LinkedHashMap<>(9);
+    Map<String, String> res = LinkedHashMap.newLinkedHashMap(9);
     res.put("-Xms4m", "");
     res.put("-Xmx64m", "");
     res.put("-XX:+UseSerialGC", "");

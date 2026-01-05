@@ -30,7 +30,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  * Map based implementation of {@link InternalProperties} to be used for unit testing.
  */
 public class MapInternalProperties implements InternalProperties {
-  private final Map<String, String> values = new HashMap<>(1);
+  private final Map<String, String> values = HashMap.newHashMap(1);
 
   @Override
   public Optional<String> read(String propertyKey) {

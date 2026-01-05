@@ -149,13 +149,11 @@ public class VisitorsCrawler implements ComponentCrawler {
 
     @Override
     public VisitorWrapper apply(@Nonnull ComponentVisitor componentVisitor) {
-      if (componentVisitor instanceof TypeAwareVisitor typeAwareVisitor) {
-        return new TypeAwareVisitorWrapper(typeAwareVisitor);
-      } else if (componentVisitor instanceof PathAwareVisitor<?> pathAwareVisitor) {
-        return new PathAwareVisitorWrapper(pathAwareVisitor);
-      } else {
-        throw new IllegalArgumentException("Only TypeAwareVisitor and PathAwareVisitor can be used");
-      }
+      return switch (componentVisitor) {
+        case TypeAwareVisitor typeAwareVisitor -> new TypeAwareVisitorWrapper(typeAwareVisitor);
+        case PathAwareVisitor<?> pathAwareVisitor -> new PathAwareVisitorWrapper(pathAwareVisitor);
+        default -> throw new IllegalArgumentException("Only TypeAwareVisitor and PathAwareVisitor can be used");
+      };
     }
   }
 

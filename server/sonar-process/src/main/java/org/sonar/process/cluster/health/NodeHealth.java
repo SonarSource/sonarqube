@@ -82,7 +82,7 @@ public class NodeHealth implements Externalizable {
     this.status = Status.values()[in.readInt()];
     int size = in.readInt();
     if (size > 0) {
-      Set<String> readCauses = new HashSet<>(size);
+      Set<String> readCauses = HashSet.newHashSet(size);
       for (int i = 0; i < size; i++) {
         readCauses.add(in.readUTF());
       }
@@ -126,7 +126,7 @@ public class NodeHealth implements Externalizable {
     private static final String DETAILS_CANT_BE_NULL = "details can't be null";
 
     private Status status;
-    private Set<String> causes = new HashSet<>(0);
+    private Set<String> causes = HashSet.newHashSet(0);
     private NodeDetails details;
 
     private Builder() {

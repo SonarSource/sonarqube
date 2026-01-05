@@ -45,7 +45,7 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
   // this basically writes down the content of jvm.options file distributed in vanilla Elasticsearch package
   // with some changes to fit running bundled in SQ
   private static Map<String, String> mandatoryOptions(File tmpDir, Props props) {
-    Map<String, String> res = new LinkedHashMap<>(30);
+    Map<String, String> res = LinkedHashMap.newLinkedHashMap(30);
     fromJvmDotOptionsFile(tmpDir, res, props);
     fromSystemJvmOptionsClass(tmpDir, res);
 

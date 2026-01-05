@@ -129,7 +129,7 @@ public class PermissionTemplateDao implements Dao {
    * Each row returns a #{@link CountPerEntityPermission}
    */
   public void usersCountByTemplateUuidAndPermission(DbSession dbSession, List<String> templateUuids, ResultHandler<CountByTemplateAndPermissionDto> resultHandler) {
-    Map<String, Object> parameters = new HashMap<>(1);
+    Map<String, Object> parameters = HashMap.newHashMap(1);
 
     executeLargeInputsWithoutOutput(
       templateUuids,
@@ -143,7 +143,7 @@ public class PermissionTemplateDao implements Dao {
    * Each row returns a #{@link CountPerEntityPermission}
    */
   public void groupsCountByTemplateUuidAndPermission(DbSession dbSession, List<String> templateUuids, ResultHandler<CountByTemplateAndPermissionDto> resultHandler) {
-    Map<String, Object> parameters = new HashMap<>(2);
+    Map<String, Object> parameters = HashMap.newHashMap(2);
     parameters.put(ANYONE_GROUP_PARAMETER, ANYONE);
 
     executeLargeInputsWithoutOutput(

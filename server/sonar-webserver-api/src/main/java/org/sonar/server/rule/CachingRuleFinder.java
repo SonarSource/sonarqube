@@ -72,7 +72,7 @@ public class CachingRuleFinder implements ServerRuleFinder {
 
   private Map<RuleDto, Rule> buildRulesByRuleDefinitionDto(DbClient dbClient, DbSession dbSession, List<RuleDto> dtos) {
     Map<String, List<RuleParamDto>> ruleParamsByRuleUuid = retrieveRuleParameters(dbClient, dbSession);
-    Map<RuleDto, Rule> rulesByDefinition = new HashMap<>(dtos.size());
+    Map<RuleDto, Rule> rulesByDefinition = HashMap.newHashMap(dtos.size());
     for (RuleDto definition : dtos) {
       rulesByDefinition.put(definition, toRule(definition, ruleParamsByRuleUuid.getOrDefault(definition.getUuid(), emptyList())));
     }

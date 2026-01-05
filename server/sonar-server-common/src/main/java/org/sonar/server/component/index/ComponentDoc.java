@@ -33,7 +33,7 @@ import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COM
 public class ComponentDoc extends BaseDoc {
 
   public ComponentDoc() {
-    super(TYPE_COMPONENT, new HashMap<>(6));
+    super(TYPE_COMPONENT, HashMap.newHashMap(6));
   }
 
   /**

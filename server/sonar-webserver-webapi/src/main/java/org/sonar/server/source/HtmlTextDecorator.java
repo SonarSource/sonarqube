@@ -77,7 +77,7 @@ class HtmlTextDecorator {
         addLine(decoratedHtmlLines, currentHtmlLine.toString(), currentLine, from, to);
         currentLine++;
         addLine(decoratedHtmlLines, "", currentLine, from, to);
-      } else if (currentHtmlLine.length() > 0) {
+      } else if (!currentHtmlLine.isEmpty()) {
         addLine(decoratedHtmlLines, currentHtmlLine.toString(), currentLine, from, to);
       }
 
@@ -93,11 +93,10 @@ class HtmlTextDecorator {
   }
 
   private static void addCharToCurrentLine(CharactersReader charsReader, StringBuilder currentHtmlLine, DecorationDataHolder decorationDataHolder) {
-    if (shouldStartNewLine(charsReader)) {
-      if (shouldReopenPendingTags(charsReader)) {
+    if (shouldStartNewLine(charsReader) && shouldReopenPendingTags(charsReader)) {
         reopenCurrentSyntaxTags(charsReader, currentHtmlLine);
       }
-    }
+
 
     int numberOfTagsToClose = getNumberOfTagsToClose(charsReader.getCurrentIndex(), decorationDataHolder);
     closeCompletedTags(charsReader, numberOfTagsToClose, currentHtmlLine);
@@ -131,14 +130,11 @@ class HtmlTextDecorator {
 
   private static char[] normalize(char currentChar) {
     char[] normalizedChars;
-    if (currentChar == HTML_OPENING) {
-      normalizedChars = ENCODED_HTML_OPENING.toCharArray();
-    } else if (currentChar == HTML_CLOSING) {
-      normalizedChars = ENCODED_HTML_CLOSING.toCharArray();
-    } else if (currentChar == AMPERSAND) {
-      normalizedChars = ENCODED_AMPERSAND.toCharArray();
-    } else {
-      normalizedChars = new char[] {currentChar};
+    switch (currentChar) {
+      case HTML_OPENING -> normalizedChars = ENCODED_HTML_OPENING.toCharArray();
+      case HTML_CLOSING -> normalizedChars = ENCODED_HTML_CLOSING.toCharArray();
+      case AMPERSAND -> normalizedChars = ENCODED_AMPERSAND.toCharArray();
+      default -> normalizedChars = new char[]{currentChar};
     }
     return normalizedChars;
   }

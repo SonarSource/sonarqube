@@ -116,7 +116,7 @@ public class PluginJarLoader {
       externalPluginsByKey.put(downloaded.getKey(), installedPlugin);
     }
 
-    Map<String, ServerPluginInfo> plugins = new HashMap<>(externalPluginsByKey.size() + bundledPluginsByKey.size());
+    Map<String, ServerPluginInfo> plugins = HashMap.newHashMap(externalPluginsByKey.size() + bundledPluginsByKey.size());
     plugins.putAll(externalPluginsByKey);
     plugins.putAll(bundledPluginsByKey);
 

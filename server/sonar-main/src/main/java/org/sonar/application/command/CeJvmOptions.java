@@ -30,7 +30,7 @@ public class CeJvmOptions extends JvmOptions<CeJvmOptions> {
   }
 
   private static Map<String, String> mandatoryOptions(File tmpDir) {
-    Map<String, String> res = new LinkedHashMap<>(3);
+    Map<String, String> res = LinkedHashMap.newLinkedHashMap(3);
     res.put("-Djava.awt.headless=", "true");
     res.put("-Dfile.encoding=", "UTF-8");
     res.put("-Djava.io.tmpdir=", tmpDir.getAbsolutePath());

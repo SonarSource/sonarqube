@@ -106,6 +106,7 @@ public class EsUtils {
   /**
    * Optimize scolling, by specifying document sorting.
    * @see <a href="https://www.elastic.co/guide/en/elasticsearch/reference/2.4/search-request-scroll.html#search-request-scroll">Elasticsearch scroll documentation</a>
+   * @deprecated ES scroll API is deprecated in favor of search_after API for deep pagination.
    */
   @Deprecated(since = "2025.6", forRemoval = true)
   public static void optimizeScrollRequest(SearchSourceBuilder esSearch) {
@@ -137,6 +138,10 @@ public class EsUtils {
     return SPECIAL_REGEX_CHARS.matcher(str).replaceAll("\\\\$0");
   }
 
+  /**
+   * ES 7 and earlier: Iterate through search results using scroll API
+   * @deprecated ES scroll API is deprecated in favor of search_after API for deep pagination.
+   */
   @Deprecated(since = "2025.6", forRemoval = true)
   public static <I> Iterator<I> scrollIds(EsClient esClient, SearchResponse scrollResponse, Function<String, I> idConverter) {
     return new IdScrollIterator<>(esClient, scrollResponse, idConverter);
@@ -151,6 +156,10 @@ public class EsUtils {
     return new SearchAfterIterator<>(esClient, initialRequest, tClass, idConverter);
   }
 
+  /**
+   * ES 7 and earlier: Iterator to scroll through search results using scroll API
+   * @deprecated ES scroll API is deprecated in favor of search_after API for deep pagination.
+   */
   @Deprecated(since = "2025.6", forRemoval = true)
   private static class IdScrollIterator<I> implements Iterator<I> {
 

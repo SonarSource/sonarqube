@@ -118,7 +118,7 @@ public class EsKeyStoreCli {
     }
 
     private static Map<String, String> mandatoryOptions(EsInstallation esInstallation) {
-      Map<String, String> res = new LinkedHashMap<>(7);
+      Map<String, String> res = LinkedHashMap.newLinkedHashMap(7);
       res.put("-Xms4m", "");
       res.put("-Xmx64m", "");
       res.put("-XX:+UseSerialGC", "");

@@ -127,7 +127,7 @@ public class DatabaseUtils {
 
   public static <OUTPUT, INPUT extends Comparable<INPUT>> Set<OUTPUT> executeLargeInputsIntoSet(Collection<INPUT> input, Function<List<INPUT>, Set<OUTPUT>> function,
     IntFunction<Integer> partitionSizeManipulations) {
-    return executeLargeInputs(input, function, size -> size == 0 ? Collections.emptySet() : new HashSet<>(size), partitionSizeManipulations);
+    return executeLargeInputs(input, function, size -> size == 0 ? Collections.emptySet() : HashSet.newHashSet(size), partitionSizeManipulations);
   }
 
   private static <OUTPUT, INPUT extends Comparable<INPUT>, RESULT extends Collection<OUTPUT>> RESULT executeLargeInputs(Collection<INPUT> input,

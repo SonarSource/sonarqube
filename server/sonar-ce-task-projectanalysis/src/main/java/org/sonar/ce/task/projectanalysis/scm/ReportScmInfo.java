@@ -58,7 +58,7 @@ class ReportScmInfo {
 
     private LineIndexToChangeset(ScannerReport.Changesets changesets) {
       this.changesets = changesets;
-      this.changesetCache = new HashMap<>(changesets.getChangesetCount());
+      this.changesetCache = HashMap.newHashMap(changesets.getChangesetCount());
     }
 
     @Override

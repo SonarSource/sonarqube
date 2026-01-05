@@ -68,13 +68,13 @@ public class InitFilter extends AuthenticationFilter {
 
   private void handleProvider(HttpRequest request, HttpResponse response, IdentityProvider provider) {
     try {
-      if (provider instanceof BaseIdentityProvider baseIdentityProvider) {
-        handleBaseIdentityProvider(request, response, baseIdentityProvider);
-      } else if (provider instanceof OAuth2IdentityProvider oAuth2IdentityProvider) {
-        oAuthOAuth2AuthenticationParameters.init(request, response);
-        handleOAuth2IdentityProvider(request, response, oAuth2IdentityProvider);
-      } else {
-        handleError(request, response, format("Unsupported IdentityProvider class: %s", provider.getClass()));
+      switch (provider) {
+        case BaseIdentityProvider baseIdentityProvider -> handleBaseIdentityProvider(request, response, baseIdentityProvider);
+        case OAuth2IdentityProvider oAuth2IdentityProvider -> {
+          oAuthOAuth2AuthenticationParameters.init(request, response);
+          handleOAuth2IdentityProvider(request, response, oAuth2IdentityProvider);
+        }
+        default -> handleError(request, response, format("Unsupported IdentityProvider class: %s", provider.getClass()));
       }
     } catch (AuthenticationException e) {
       oAuthOAuth2AuthenticationParameters.delete(request, response);

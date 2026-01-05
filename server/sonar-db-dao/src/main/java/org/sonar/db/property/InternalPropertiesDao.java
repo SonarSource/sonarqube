@@ -140,7 +140,7 @@ public class InternalPropertiesDao implements Dao {
 
     InternalPropertiesMapper mapper = getMapper(dbSession);
     List<InternalPropertyDto> res = mapper.selectAsText(ImmutableList.copyOf(keys));
-    Map<String, Optional<String>> builder = new HashMap<>(keys.size());
+    Map<String, Optional<String>> builder = HashMap.newHashMap(keys.size());
     res.forEach(internalPropertyDto -> {
       String key = internalPropertyDto.getKey();
       if (internalPropertyDto.isEmpty()) {
