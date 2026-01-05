@@ -19,7 +19,6 @@
  */
 package org.sonar.server.source;
 
-import com.google.common.io.Closeables;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -51,9 +50,7 @@ class HtmlTextDecorator {
     List<String> decoratedHtmlLines = newArrayList();
     int currentLine = 1;
 
-    BufferedReader stringBuffer = null;
-    try {
-      stringBuffer = new BufferedReader(new StringReader(text));
+    try (BufferedReader stringBuffer = new BufferedReader(new StringReader(text))) {
 
       CharactersReader charsReader = new CharactersReader(stringBuffer);
 
@@ -85,8 +82,6 @@ class HtmlTextDecorator {
       String errorMsg = "An exception occurred while highlighting the syntax of one of the project's files";
       LoggerFactory.getLogger(HtmlTextDecorator.class).error(errorMsg);
       throw new IllegalStateException(errorMsg, exception);
-    } finally {
-      Closeables.closeQuietly(stringBuffer);
     }
 
     return decoratedHtmlLines;
@@ -94,8 +89,8 @@ class HtmlTextDecorator {
 
   private static void addCharToCurrentLine(CharactersReader charsReader, StringBuilder currentHtmlLine, DecorationDataHolder decorationDataHolder) {
     if (shouldStartNewLine(charsReader) && shouldReopenPendingTags(charsReader)) {
-        reopenCurrentSyntaxTags(charsReader, currentHtmlLine);
-      }
+      reopenCurrentSyntaxTags(charsReader, currentHtmlLine);
+    }
 
 
     int numberOfTagsToClose = getNumberOfTagsToClose(charsReader.getCurrentIndex(), decorationDataHolder);
@@ -171,7 +166,7 @@ class HtmlTextDecorator {
   private static boolean shouldReopenPendingTags(CharactersReader charactersReader) {
     return (charactersReader.getPreviousValue() == LF_END_OF_LINE && charactersReader.getCurrentValue() != LF_END_OF_LINE)
       || (charactersReader.getPreviousValue() == CR_END_OF_LINE && charactersReader.getCurrentValue() != CR_END_OF_LINE
-        && charactersReader.getCurrentValue() != LF_END_OF_LINE);
+      && charactersReader.getCurrentValue() != LF_END_OF_LINE);
   }
 
   private static boolean shouldStartNewLine(CharactersReader charactersReader) {
