@@ -19,14 +19,19 @@
  */
 package org.sonar.server.hotspot.ws;
 
+import static org.sonar.api.utils.DateUtils.dateToLong;
+
+import java.util.Date;
 import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
@@ -50,6 +55,7 @@ import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.SECURITY_HOTSPOT_RESOLUTIONS;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
+import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.db.component.BranchType.BRANCH;
 
 public class ChangeStatusAction implements HotspotsWsAction {
@@ -121,11 +127,11 @@ public class ChangeStatusAction implements HotspotsWsAction {
 
     String expiryDateStr = request.param(PARAM_EXPIRY_DATE);
     Long expiryTimestamp = null;
-    if (expiryDateStr != null && expiryDateStr.isEmpty()) {
-      expiryTimestamp = null;   // Clear date
-    }
-    else if (expiryDateStr != null ) {
-      expiryTimestamp = java.sql.Date.valueOf(expiryDateStr).getTime();
+    // When the expiry date string is empty, we clear the date OR we assign null to expiryTimestamp
+    if (StringUtils.isBlank(expiryDateStr)) {
+      expiryTimestamp = null; // Clear date
+    } else {
+      expiryTimestamp = DateUtils.dateToLong(DateUtils.parseDate(expiryDateStr));
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto hotspot = hotspotWsSupport.loadHotspot(dbSession, hotspotKey);
@@ -133,7 +139,7 @@ public class ChangeStatusAction implements HotspotsWsAction {
 
       boolean expiryChanged = request.hasParam(PARAM_EXPIRY_DATE);
 
-      if (needStatusUpdate(hotspot, newStatus, newResolution)||  expiryChanged) {
+      if (needStatusUpdate(hotspot, newStatus, newResolution) || expiryChanged) {
         String transitionKey = toTransitionKey(newStatus, newResolution);
         doTransition(dbSession, hotspot, transitionKey, trimToNull(request.param(PARAM_COMMENT)), expiryTimestamp);
       }
@@ -197,36 +203,26 @@ public class ChangeStatusAction implements HotspotsWsAction {
     // If resolution is NOT EXCEPTION → always clear from DB and do NOT run any expiry logic
     if (!RESOLUTION_EXCEPTION.equals(defaultIssue.resolution())) {
       issueDao.updateIssueResolutionExpiryDate(session, issueDto.getKey(), null);
-
       issueDto.setUpdatedAt(System.currentTimeMillis());
       issueDao.update(session, issueDto);
       session.commit();
-
       issueUpdater.saveIssueAndPreloadSearchResponseData(session, issueDto, defaultIssue, context);
-
       return; // Exit method early as no further expiry logic is needed
     }
-
     // Expiry set or update
     if (expiryTimestamp != null) {
       issueDao.updateIssueResolutionExpiryDate(session, issueDto.getKey(), expiryTimestamp);
-
       issueDto.setIssueResolutionExpiresAt(expiryTimestamp);
       issueDto.setUpdatedAt(System.currentTimeMillis());
-
       defaultIssue.setIssueResolutionExpiresAt(expiryTimestamp);
       defaultIssue.setChanged(true);
-
       expiryUpdated = true;
     } else {
       issueDao.updateIssueResolutionExpiryDate(session, issueDto.getKey(), null);
-
       issueDto.setIssueResolutionExpiresAt(null);
       issueDto.setUpdatedAt(System.currentTimeMillis());
-
       defaultIssue.setIssueResolutionExpiresAt(null);
       defaultIssue.setChanged(true);
-
       expiryUpdated = true;
     }
     issueDao.update(session, issueDto);
