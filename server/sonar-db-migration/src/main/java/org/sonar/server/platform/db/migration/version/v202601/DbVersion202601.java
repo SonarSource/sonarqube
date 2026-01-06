@@ -28,6 +28,7 @@ public class DbVersion202601 implements DbVersion {
   public void addSteps(MigrationStepRegistry registry) {
     registry
       .add(2026_01_000, "Create 'components_copy_component_uuid' index", CreateIndexOnCopyComponentUuid.class)
+      .add(2026_01_001, "Populate the 'analyses.counter.date' internal property", PopulateAnalysesCounterStartDateProperty.class)
     ;
   }
 
