@@ -48,7 +48,7 @@ public class HotspotService {
      *
      * @return the number of hotspots that were expired
      */
-    public int expireExpiredHotspotExceptions() {
+    public int expireHotspotExceptions() {
         long currentTime = System.currentTimeMillis();
 
         try (DbSession dbSession = dbClient.openSession(false)) {

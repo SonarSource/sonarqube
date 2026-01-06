@@ -18,7 +18,7 @@ public class DefaultHotspotController implements HotspotController {
     public ExpireHotspotsRestResponse expireHotspots() {
         userSession.checkIsSystemAdministrator();
 
-        int expiredCount = hotspotService.expireExpiredHotspotExceptions();
+        int expiredCount = hotspotService.expireHotspotExceptions();
 
         return new ExpireHotspotsRestResponse(expiredCount);
     }

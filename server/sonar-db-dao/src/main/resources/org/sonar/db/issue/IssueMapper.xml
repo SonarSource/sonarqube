@@ -837,9 +837,9 @@
     WHERE kee = #{issueKey, jdbcType=VARCHAR}
   </update>
 
-  <update id="bulkClearHotspotExceptionExpiryDate">
+  <update id="bulkClearIssueResolutionExpiryDate">
     UPDATE issues
-    SET hotspot_exception_expires_at = NULL
+    SET issue_resolution_expires_at = NULL
     WHERE kee IN
     <foreach collection="keys" open="(" close=")" item="key" separator=",">
       #{key,jdbcType=VARCHAR}
@@ -852,9 +852,9 @@
     WHERE i.issue_type = 4
       AND i.status = 'REVIEWED'
       AND i.resolution = 'EXCEPTION'
-      AND i.hotspot_exception_expires_at IS NOT NULL
-      AND i.hotspot_exception_expires_at &lt;= #{currentTime, jdbcType=BIGINT}
-    ORDER BY i.hotspot_exception_expires_at
+      AND i.issue_resolution_expires_at IS NOT NULL
+      AND i.issue_resolution_expires_at &lt;= #{currentTime, jdbcType=BIGINT}
+    ORDER BY i.issue_resolution_expires_at
   </select>
 
 </mapper>
