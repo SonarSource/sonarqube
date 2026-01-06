@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import java.util.List;
+import javax.annotation.Nullable;
 
 /**
  * Lite representation of JSON response of GET https://docs.gitlab.com/ee/api/groups.html
@@ -33,15 +34,18 @@ public class GsonGroup {
   private String id;
   @SerializedName("full_path")
   private String fullPath;
+  @SerializedName("marked_for_deletion_on")
+  private String markedForDeletionOn;
 
   public GsonGroup() {
     // http://stackoverflow.com/a/18645370/229031
-    this("", "");
+    this("", "", null);
   }
 
-  private GsonGroup(String id, String fullPath) {
+  private GsonGroup(String id, String fullPath, @Nullable String markedForDeletionOn) {
     this.id = id;
     this.fullPath = fullPath;
+    this.markedForDeletionOn = markedForDeletionOn;
   }
 
   public String getId() {
@@ -52,10 +56,23 @@ public class GsonGroup {
     return fullPath;
   }
 
+  public String getMarkedForDeletionOn() {
+    return markedForDeletionOn;
+  }
+
+  public boolean isMarkedForDeletion() {
+    return markedForDeletionOn != null;
+  }
+
   static List<GsonGroup> parse(String json) {
     Gson gson = new Gson();
-    return gson.fromJson(json, new TypeToken<List<GsonGroup>>() {
+    return gson.fromJson(json, new TypeToken<>() {
     });
+  }
+
+  public static GsonGroup parseOne(String json) {
+    Gson gson = new Gson();
+    return gson.fromJson(json, GsonGroup.class);
   }
 
 }
