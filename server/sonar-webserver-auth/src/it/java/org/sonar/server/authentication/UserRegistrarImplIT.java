@@ -574,6 +574,67 @@ public class UserRegistrarImplIT {
     checkGroupMembership(user, defaultGroup);
   }
 
+  @Test
+  public void authenticate_existing_user_should_not_remove_groups_when_instance_is_externally_managed_with_github() {
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
+    when(managedInstanceService.getProviderName()).thenReturn(GITHUB_PROVIDER);
+
+    UserDto user = insertUser("login", "John", USER_IDENTITY.getEmail(), "id", USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
+
+    GroupDto group1 = db.users().insertGroup("group1");
+    GroupDto group2 = db.users().insertGroup("group2");
+    GroupDto group3 = db.users().insertGroup("group3");
+    db.users().insertMember(group1, user);
+    db.users().insertMember(group2, user);
+    db.users().insertMember(group3, user);
+
+    authenticate(USER_IDENTITY.getProviderLogin(), USER_IDENTITY.getEmail(), "group1", "group2");
+
+    checkGroupMembership(user, group1, group2, group3);
+  }
+
+  @Test
+  public void authenticate_existing_user_should_remove_groups_when_instance_is_externally_managed_with_non_github_provider() {
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
+    when(managedInstanceService.getProviderName()).thenReturn("gitlab");
+
+   TestIdentityProvider gitlabProvider = composeIdentityProvider(GITLAB_PROVIDER, "GitLab", true, true);
+    UserIdentity userIdentity = UserIdentity.builder()
+      .setProviderId("gitlab-id")
+      .setProviderLogin("gitlabuser")
+      .setName("John")
+      .setEmail("john@gitlab.com")
+      .setGroups(Set.of("group1"))
+      .build();
+
+    UserDto user = insertUser("login", "John", "john@gitlab.com", "gitlab-id", "gitlabuser", GITLAB_PROVIDER, false, true);
+
+    GroupDto group1 = db.users().insertGroup("group1");
+    GroupDto group2 = db.users().insertGroup("group2");
+    db.users().insertMember(group1, user);
+    db.users().insertMember(group2, user);
+
+    underTest.register(composeUserRegistration(userIdentity, gitlabProvider, local(BASIC), true));
+
+    checkGroupMembership(user, group1);
+  }
+
+  @Test
+  public void authenticate_existing_user_should_remove_groups_when_instance_is_not_externally_managed() {
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(false);
+
+    UserDto user = insertUser("login", "John", USER_IDENTITY.getEmail(), "id", USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
+
+    GroupDto group1 = db.users().insertGroup("group1");
+    GroupDto group2 = db.users().insertGroup("group2");
+    db.users().insertMember(group1, user);
+    db.users().insertMember(group2, user);
+
+    authenticate(USER_IDENTITY.getProviderLogin(), USER_IDENTITY.getEmail(), "group1");
+
+    checkGroupMembership(user, group1);
+  }
+
   private static UserRegistration newUserRegistration(UserIdentity userIdentity) {
     return newUserRegistration(userIdentity, local(BASIC));
   }
