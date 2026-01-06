@@ -43,9 +43,9 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
@@ -57,19 +57,23 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.TestMetadataType;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.issue.IssueStatsIndexer;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.index.AsyncIssueIndexing;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
+import org.sonar.server.issue.index.IssueQueryComplianceStandardService;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.security.SecurityStandards;
@@ -81,6 +85,9 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Hotspots.Component;
 import org.sonarqube.ws.Hotspots.SearchWsResponse;
+import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
+import org.sonarsource.compliancereports.reports.MetadataLoader;
+import org.sonarsource.compliancereports.reports.MetadataRules;
 
 import static com.google.common.collect.ImmutableSet.of;
 import static java.util.Collections.singleton;
@@ -103,16 +110,17 @@ import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
-import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.db.permission.ProjectPermission.USER;
+import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newDirectoryOnBranch;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newCodeReferenceIssue;
 import static org.sonar.db.issue.IssueTesting.newIssue;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
+import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CASA;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPLIANCE_STANDARDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STIG_ASD_V5R3;
 
 class SearchActionIT {
@@ -153,13 +161,18 @@ class SearchActionIT {
   private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule,
     new WebAuthorizationTypeSupport(userSessionRule), config);
   private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), mock(AsyncIssueIndexing.class));
+  private final IssueIngestionService issueIngestionService = new IssueIngestionService(new IssueStatsByRuleKeyDaoImpl(dbClient));
+  private final IssueStatsIndexer issueStatsIndexer = new IssueStatsIndexer(dbClient, issueIngestionService);
   private final ViewIndexer viewIndexer = new ViewIndexer(dbClient, es.client());
   private final PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
   private final HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter(new TextRangeResponseFormatter());
   private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
   private final ComponentFinder componentFinder = TestComponentFinder.from(dbTester);
+  private final MetadataRules metadataRules = new MetadataRules(new MetadataLoader(Set.of(new TestMetadataType())));
+  private final IssueQueryComplianceStandardService issueQueryComplianceStandardService = new IssueQueryComplianceStandardService(
+    metadataRules, dbClient);
   private final SearchAction underTest = new SearchAction(dbClient, userSessionRule, issueIndex,
-    issueIndexSyncProgressChecker, responseFormatter, system2, componentFinder);
+    issueIndexSyncProgressChecker, responseFormatter, system2, componentFinder, issueQueryComplianceStandardService);
   private final WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
@@ -1772,6 +1785,31 @@ class SearchActionIT {
   }
 
   @Test
+  void returns_hotspots_with_specified_compliance_standard_category() {
+    ProjectData projectData = dbTester.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSessionRule.registerProjects(projectData.getProjectDto());
+    indexPermissions();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDto rule1 = newRule(SECURITY_HOTSPOT);
+    RuleDto rule2 = newRule(SECURITY_HOTSPOT);
+    RuleDto rule3 = newRule(SECURITY_HOTSPOT, r -> r.setRuleKey(RuleKey.of("java", "S001")));
+    insertHotspot(project, file, rule1);
+    insertHotspot(project, file, rule2);
+    IssueDto hotspot3 = insertHotspot(project, file, rule3);
+    indexIssues();
+    indexIssueStats(project);
+
+    SearchWsResponse response = newRequest(project).setParam(PARAM_COMPLIANCE_STANDARDS, "test:V1=category1")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactly(hotspot3.getKey());
+  }
+
+  @Test
   void search_whenMoreThan500KeysPassed_throwException() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
@@ -2230,6 +2268,10 @@ class SearchActionIT {
 
   private void indexIssues() {
     issueIndexer.indexAllIssues();
+  }
+
+  private void indexIssueStats(ComponentDto project) {
+    issueStatsIndexer.indexOnAnalysis(project.branchUuid());
   }
 
   private void indexViews() {

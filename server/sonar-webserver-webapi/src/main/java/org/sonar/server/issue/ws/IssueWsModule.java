@@ -29,6 +29,7 @@ import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.WebIssueStorage;
+import org.sonar.server.issue.index.IssueQueryComplianceStandardService;
 import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflow;
@@ -62,6 +63,7 @@ public class IssueWsModule extends Module {
       SecurityHotspotWorkflow.class,
       SecurityHotspotWorkflowActionsFactory.class,
       SecurityHotspotWorkflowDefinition.class,
+      IssueQueryComplianceStandardService.class,
       IssueQueryFactory.class,
       IssuesWs.class,
       AvatarResolverImpl.class,

@@ -83,7 +83,9 @@ public class IssueQueryFactoryTest {
   private final RuleDbTester ruleDbTester = new RuleDbTester(db);
   private final Clock clock = mock(Clock.class);
   private final MetadataRules metadataRules = new MetadataRules(new MetadataLoader(Set.of(new TestMetadataType())));
-  private final IssueQueryFactory underTest = new IssueQueryFactory(db.getDbClient(), clock, userSession, metadataRules);
+  private final IssueQueryComplianceStandardService complianceStandardService = new IssueQueryComplianceStandardService(metadataRules,
+    db.getDbClient());
+  private final IssueQueryFactory underTest = new IssueQueryFactory(db.getDbClient(), clock, userSession, complianceStandardService);
 
   @Test
   public void create_from_parameters() {

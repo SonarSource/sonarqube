@@ -90,6 +90,7 @@ import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.index.IssueQuery;
+import org.sonar.server.issue.index.IssueQueryComplianceStandardService;
 import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflow;
@@ -196,7 +197,9 @@ class SearchActionIT {
   private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null);
   private final MetadataLoader metadataLoader = new MetadataLoader(Set.of(new TestMetadataType()));
   private final MetadataRules metadataRules = new MetadataRules(metadataLoader);
-  private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession, metadataRules);
+  private final IssueQueryComplianceStandardService complianceStandardService = new IssueQueryComplianceStandardService(metadataRules,
+    db.getDbClient());
+  private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession, complianceStandardService);
   private final IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
   private final IssueWorkflow issueWorkflow = new IssueWorkflow(
     new CodeQualityIssueWorkflow(new CodeQualityIssueWorkflowActionsFactory(issueFieldsSetter), new CodeQualityIssueWorkflowDefinition(),

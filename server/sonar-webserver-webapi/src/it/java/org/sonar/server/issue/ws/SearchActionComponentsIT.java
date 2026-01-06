@@ -52,6 +52,7 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
+import org.sonar.server.issue.index.IssueQueryComplianceStandardService;
 import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflow;
@@ -114,7 +115,9 @@ class SearchActionComponentsIT {
   private final ViewIndexer viewIndexer = new ViewIndexer(dbClient, es.client());
   private final MetadataLoader metadataLoader = new MetadataLoader(Set.of(new TestMetadataType()));
   private final MetadataRules metadataRules = new MetadataRules(metadataLoader);
-  private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession, metadataRules);
+  private final IssueQueryComplianceStandardService complianceStandardService = new IssueQueryComplianceStandardService(metadataRules,
+    db.getDbClient());
+  private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession, complianceStandardService);
   private final IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
   private final IssueWorkflow issueWorkflow = new IssueWorkflow(
     new CodeQualityIssueWorkflow(new CodeQualityIssueWorkflowActionsFactory(issueFieldsSetter), new CodeQualityIssueWorkflowDefinition(), mock(TaintChecker.class)),
