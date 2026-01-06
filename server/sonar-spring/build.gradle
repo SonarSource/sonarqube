@@ -43,6 +43,13 @@ test {
   useJUnitPlatform()
 }
 
+javadoc {
+  exclude 'module-info.java'
+  doFirst {
+    options.classpath = classpath.files.toList()
+  }
+}
+
 artifactoryPublish.skip = !deployCommunity
 publishing {
   publications {
