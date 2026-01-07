@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v202506;
+package org.sonar.server.platform.db.migration.version.v202601;
 
 import java.sql.SQLException;
 import org.junit.jupiter.api.Test;
@@ -27,9 +27,9 @@ import org.sonar.server.platform.db.migration.sql.DbPrimaryKeyConstraintFinder;
 import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 
 import static java.sql.Types.INTEGER;
-import static org.sonar.server.platform.db.migration.version.v202506.AddPartNumberColumnToCeTaskInputTable.COLUMN_NAME;
-import static org.sonar.server.platform.db.migration.version.v202506.AddPartNumberColumnToCeTaskInputTable.TABLE_NAME;
-import static org.sonar.server.platform.db.migration.version.v202506.AddPartNumberColumnToCeTaskInputTable.TASK_UUID;
+import static org.sonar.server.platform.db.migration.version.v202601.AddPartNumberColumnToCeTaskInputTable.COLUMN_NAME;
+import static org.sonar.server.platform.db.migration.version.v202601.AddPartNumberColumnToCeTaskInputTable.TABLE_NAME;
+import static org.sonar.server.platform.db.migration.version.v202601.AddPartNumberColumnToCeTaskInputTable.TASK_UUID;
 
 class AddPartNumberColumnToCeTaskInputTableTest {
 

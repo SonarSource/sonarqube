@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v202506;
+package org.sonar.server.platform.db.migration.version.v202601;
 
 import java.sql.SQLException;
 import org.junit.jupiter.api.Test;
@@ -25,8 +25,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static java.sql.Types.INTEGER;
-import static org.sonar.server.platform.db.migration.version.v202506.AddPartCountColumnToCeQueueTable.COLUMN_NAME;
-import static org.sonar.server.platform.db.migration.version.v202506.AddPartCountColumnToCeQueueTable.TABLE_NAME;
+import static org.sonar.server.platform.db.migration.version.v202601.AddPartCountColumnToCeQueueTable.COLUMN_NAME;
+import static org.sonar.server.platform.db.migration.version.v202601.AddPartCountColumnToCeQueueTable.TABLE_NAME;
 
 class AddPartCountColumnToCeQueueTableTest {
 

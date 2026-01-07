@@ -17,27 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v202506;
+package org.sonar.server.platform.db.migration.version.v202601;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.def.IntegerColumnDef;
 import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
-import org.sonar.server.platform.db.migration.sql.AddPrimaryKeyBuilder;
-import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.db.DatabaseUtils.tableColumnExists;
 
-public class AddPartNumberColumnToCeTaskInputTable extends DdlChange {
-  static final String TABLE_NAME = "ce_task_input";
-  static final String COLUMN_NAME = "part_number";
-  static final String TASK_UUID = "task_uuid";
-  private final DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator;
+public class AddPartCountColumnToCeQueueTable extends DdlChange {
+  static final String TABLE_NAME = "ce_queue";
+  static final String COLUMN_NAME = "part_count";
 
-  public AddPartNumberColumnToCeTaskInputTable(Database db, DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator) {
+  public AddPartCountColumnToCeQueueTable(Database db) {
     super(db);
-    this.dropPrimaryKeySqlGenerator = dropPrimaryKeySqlGenerator;
   }
 
   @Override
@@ -53,10 +48,6 @@ public class AddPartNumberColumnToCeTaskInputTable extends DdlChange {
           .addColumn(columnDef)
           .build());
       }
-
-      context.execute(dropPrimaryKeySqlGenerator.generate(TABLE_NAME, TASK_UUID, false));
-
-      context.execute(new AddPrimaryKeyBuilder(TABLE_NAME, TASK_UUID, COLUMN_NAME).build());
     }
   }
 }
