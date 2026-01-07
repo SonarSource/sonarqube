@@ -207,6 +207,7 @@ import org.sonar.server.platform.db.migration.DatabaseMigrationPersister;
 import org.sonar.server.platform.db.migration.DatabaseMigrationTelemetry;
 import org.sonar.server.platform.telemetry.TelemetryFipsEnabledProvider;
 import org.sonar.server.platform.telemetry.TelemetryIpv6EnabledProvider;
+import org.sonar.server.platform.telemetry.TelemetryIssueCountsPerStatusProvider;
 import org.sonar.server.platform.telemetry.TelemetryMQRModePropertyProvider;
 import org.sonar.server.platform.telemetry.TelemetryNclocProvider;
 import org.sonar.server.platform.telemetry.TelemetryPortfolioSelectionModeProvider;
@@ -725,6 +726,7 @@ public class PlatformLevel4 extends PlatformLevel {
       TelemetrySubportfolioSelectionModeProvider.class,
       TelemetryPortfolioSelectionModeProvider.class,
       TelemetryApplicationsCountProvider.class,
+      TelemetryIssueCountsPerStatusProvider.class,
 
       // Reports telemetry
       TelemetryApplicationSubscriptionsProvider.class,

@@ -1396,6 +1396,73 @@ class IssueDaoIT {
       );
   }
 
+  @Test
+  void countIssuesByStatusOnMainBranches() {
+    ProjectData projectData1 = db.components().insertPrivateProject();
+    ProjectData projectData2 = db.components().insertPrivateProject();
+    ComponentDto project1 = projectData1.getMainBranchComponent();
+    ComponentDto project2 = projectData2.getMainBranchComponent();
+
+    ComponentDto mainFile = db.components().insertComponent(newFileDto(projectDto));
+    ComponentDto file1 = db.components().insertComponent(newFileDto(project1));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(project2));
+
+    RuleDto rule1 = db.rules().insert(r -> r.setType(RuleType.CODE_SMELL));
+    RuleDto rule2 = db.rules().insert(r -> r.setType(RuleType.BUG));
+    RuleDto hotspotRule = db.rules().insert(r -> r.setType(RuleType.SECURITY_HOTSPOT));
+
+    // Insert issues on main branches with different status/resolution combinations
+    // OPEN issues (status=OPEN, resolution=null)
+    db.issues().insert(rule1, projectDto, mainFile, i -> i.setKee("open1")
+      .setStatus(STATUS_OPEN).setResolution(null).setType(RuleType.CODE_SMELL));
+    db.issues().insert(rule2, project1, file1, i -> i.setKee("open2")
+      .setStatus(STATUS_OPEN).setResolution(null).setType(RuleType.BUG));
+
+    // CONFIRMED issues (status=CONFIRMED, resolution=null)
+    db.issues().insert(rule1, project2, file2, i -> i.setKee("confirmed1")
+      .setStatus(STATUS_CONFIRMED).setResolution(null).setType(RuleType.CODE_SMELL));
+
+    // FIXED issues (status=CLOSED, resolution=FIXED)
+    db.issues().insert(rule2, projectDto, mainFile, i -> i.setKee("fixed1")
+      .setStatus(STATUS_CLOSED).setResolution(RESOLUTION_FIXED).setType(RuleType.BUG));
+    db.issues().insert(rule1, project1, file1, i -> i.setKee("fixed2")
+      .setStatus(STATUS_CLOSED).setResolution(RESOLUTION_FIXED).setType(RuleType.CODE_SMELL));
+
+    // FALSE_POSITIVE issues (status=RESOLVED, resolution=FALSE_POSITIVE)
+    db.issues().insert(rule2, project2, file2, i -> i.setKee("fp1")
+      .setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_FALSE_POSITIVE).setType(RuleType.BUG));
+
+    // ACCEPTED issues (status=RESOLVED, resolution=WONT_FIX)
+    db.issues().insert(rule1, projectDto, mainFile, i -> i.setKee("accepted1")
+      .setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_WONT_FIX).setType(RuleType.CODE_SMELL));
+    db.issues().insert(rule2, project1, file1, i -> i.setKee("accepted2")
+      .setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_WONT_FIX).setType(RuleType.BUG));
+
+    // Insert a security hotspot (type = 4) which should be excluded
+    db.issues().insert(hotspotRule, project2, file2, i -> i.setKee("hotspot1")
+      .setStatus(STATUS_REVIEWED).setResolution(null).setType(RuleType.SECURITY_HOTSPOT));
+
+    // Insert issues on pull request branches (should be excluded)
+    BranchDto prBranch = db.components().insertProjectBranch(projectData1.getProjectDto(), b -> b.setBranchType(PULL_REQUEST));
+    ComponentDto prBranchComponent = db.components().getComponentDto(prBranch);
+    ComponentDto prFile = db.components().insertComponent(newFileDto(prBranchComponent));
+    db.issues().insert(rule1, prBranchComponent, prFile, i -> i.setKee("pr1")
+      .setStatus(STATUS_OPEN).setResolution(null).setType(RuleType.CODE_SMELL));
+
+    List<IssueCountByStatusAndResolution> result = underTest.countIssuesByStatusOnMainBranches(db.getSession());
+
+    assertThat(result).hasSize(5);
+    assertThat(result)
+      .extracting(IssueCountByStatusAndResolution::getStatus, IssueCountByStatusAndResolution::getResolution, IssueCountByStatusAndResolution::getCount)
+      .containsExactlyInAnyOrder(
+        tuple(STATUS_OPEN, null, 2),                              // OPEN
+        tuple(STATUS_CONFIRMED, null, 1),                         // CONFIRMED
+        tuple(STATUS_CLOSED, RESOLUTION_FIXED, 2),                // FIXED
+        tuple(STATUS_RESOLVED, RESOLUTION_FALSE_POSITIVE, 1),     // FALSE_POSITIVE
+        tuple(STATUS_RESOLVED, RESOLUTION_WONT_FIX, 2)            // ACCEPTED
+      );
+  }
+
   private static ImpactDto newIssueImpact(SoftwareQuality softwareQuality, Severity severity) {
     return new ImpactDto()
       .setSoftwareQuality(softwareQuality)

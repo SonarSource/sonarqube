@@ -54,6 +54,8 @@ public interface IssueMapper {
 
   List<IssueCount> countSandboxIssuesPerProject();
 
+  List<IssueCountByStatusAndResolution> countIssuesByStatusOnMainBranches();
+
   List<PrIssueDto> selectOpenByComponentUuids(List<String> componentUuids);
 
   void insert(IssueDto issue);
