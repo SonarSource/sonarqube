@@ -37,17 +37,17 @@ import org.sonar.xoo.Xoo;
 public class WildcardRuleKeySensor implements Sensor {
 
   public static final String RULE_KEY_S1493 = "S1493";
-  public static final String RULE_KEY_S2184 = "S2184";
   public static final String RULE_KEY_S4639 = "S4639";
   public static final String RULE_KEY_S5144 = "S5144";
   public static final String RULE_KEY_S8233 = "S8233";
+  public static final String RULE_KEY_S1079 = "S1079";
 
   private static final Set<String> ALL_RULE_KEYS = Set.of(
     RULE_KEY_S1493,
-    RULE_KEY_S2184,
     RULE_KEY_S4639,
     RULE_KEY_S5144,
-    RULE_KEY_S8233
+    RULE_KEY_S8233,
+    RULE_KEY_S1079
   );
 
   private final FileSystem fs;
