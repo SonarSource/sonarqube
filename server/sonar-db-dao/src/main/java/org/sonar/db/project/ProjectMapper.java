@@ -86,4 +86,6 @@ public interface ProjectMapper {
   int countProjectsByAiCodeFixEnablement(@Param("aiCodeFixEnabled") boolean aiCodeFixEnabled);
 
   Set<String> selectProjectKeysByAiCodeFixEnablement(@Param("aiCodeFixEnabled") boolean aiCodeFixEnabled);
+
+  Set<String> selectProjectUuidsWithMinActiveRulesHavingTag(@Param("ruleTag") String ruleTag, @Param("minRuleCount") int minRuleCount);
 }

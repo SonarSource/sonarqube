@@ -37,6 +37,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -49,6 +50,8 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.entity.EntityDto;
+import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.rule.RuleDto;
 
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -531,6 +534,57 @@ class ProjectDaoIT {
     assertThat(projectDao.countProjects(db.getSession())).isEqualTo(3);
     assertThat(projectDao.countAiCodeFixEnabledProjects(db.getSession())).isEqualTo(1);
     assertThat(projectDao.countAiCodeFixDisabledProjects(db.getSession())).isEqualTo(2);
+  }
+
+  @Test
+  void selectProjectUuidsWithMinActiveRulesHavingTag_returnsEmptySetWhenNoProjects() {
+    Set<String> result = projectDao.selectProjectUuidsWithMinActiveRulesHavingTag(db.getSession(), "misra-c++2023", 1);
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void selectProjectUuidsWithMinActiveRulesHavingTag_returnsProjectsWithMinActiveRules() {
+    QProfileDto cppProfile = db.qualityProfiles().insert(qp -> qp.setLanguage("cpp").setName("MISRA C++ Profile"));
+
+    String misraTag = "misra-c++2023";
+    
+    for (int i = 0; i < 5; i++) {
+      RuleDto rule = db.rules().insert(r -> r
+        .setLanguage("cpp")
+        .setStatus(RuleStatus.READY)
+        .setSystemTags(Set.of(misraTag)));
+      db.qualityProfiles().activateRule(cppProfile, rule);
+    }
+
+    for (int i = 0; i < 2; i++) {
+      RuleDto rule = db.rules().insert(r -> r
+        .setLanguage("cpp")
+        .setStatus(RuleStatus.READY)
+        .setSystemTags(Set.of("other-tag")));
+      db.qualityProfiles().activateRule(cppProfile, rule);
+    }
+
+    RuleDto removedRule = db.rules().insert(r -> r
+      .setLanguage("cpp")
+      .setStatus(RuleStatus.REMOVED)
+      .setSystemTags(Set.of(misraTag)));
+    db.qualityProfiles().activateRule(cppProfile, removedRule);
+
+    var projectData1 = db.components().insertPrivateProject();
+    db.qualityProfiles().associateWithProject(projectData1.getProjectDto(), cppProfile);
+
+    db.components().insertPrivateProject();
+
+    db.commit();
+
+    Set<String> result1 = projectDao.selectProjectUuidsWithMinActiveRulesHavingTag(db.getSession(), misraTag, 1);
+    assertThat(result1).containsExactly(projectData1.projectUuid());
+
+    Set<String> result5 = projectDao.selectProjectUuidsWithMinActiveRulesHavingTag(db.getSession(), misraTag, 5);
+    assertThat(result5).containsExactly(projectData1.projectUuid());
+
+    Set<String> result6 = projectDao.selectProjectUuidsWithMinActiveRulesHavingTag(db.getSession(), misraTag, 6);
+    assertThat(result6).isEmpty();
   }
 
   private void assertProject(ProjectDto dto, String name, String kee, String uuid, String desc, @Nullable String tags, boolean isPrivate) {

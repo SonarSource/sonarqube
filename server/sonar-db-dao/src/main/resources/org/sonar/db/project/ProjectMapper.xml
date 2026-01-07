@@ -257,4 +257,20 @@
     and ai_code_fix_enabled = #{aiCodeFixEnabled,jdbcType=BOOLEAN}
   </select>
 
+  <select id="selectProjectUuidsWithMinActiveRulesHavingTag" resultType="String">
+    select p.uuid
+    from projects p
+    inner join project_qprofiles pqp on pqp.project_uuid = p.uuid
+    inner join org_qprofiles oqp on oqp.uuid = pqp.profile_key
+    inner join rules_profiles rp on rp.uuid = oqp.rules_profile_uuid
+    inner join active_rules ar on ar.profile_uuid = rp.uuid
+    inner join rules r on r.uuid = ar.rule_uuid
+    inner join rule_tags rt on rt.rule_uuid = r.uuid
+    where p.qualifier = 'TRK'
+      and rt.value = #{ruleTag,jdbcType=VARCHAR}
+      and r.status != 'REMOVED'
+    group by p.uuid
+    having count(distinct r.uuid) &gt;= #{minRuleCount,jdbcType=INTEGER}
+  </select>
+
 </mapper>
