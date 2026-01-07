@@ -20,10 +20,11 @@
 package org.sonar.core.scadata;
 
 import jakarta.annotation.Priority;
+
 import java.util.Collection;
 import java.util.List;
-import java.util.OptionalInt;
 import java.util.UUID;
+
 import org.sonar.api.server.ServerSide;
 
 /**
@@ -34,17 +35,12 @@ import org.sonar.api.server.ServerSide;
 @Priority(2)
 public class DefaultScaDataSourceImpl implements ScaDataSource {
   @Override
-  public int getVulnerabilityCount(String componentUuid) {
-    return 0;
-  }
-
-  @Override
-  public OptionalInt getVulnerabilityRating(String componentUuid) {
-    return OptionalInt.empty();
-  }
-
-  @Override
   public List<IssueRelease> getIssueReleasesByUuids(Collection<UUID> uuids) {
     return List.of();
+  }
+
+  @Override
+  public ComponentIssueAggregations getComponentIssueAggregations(String componentUuid) {
+    return ComponentIssueAggregations.empty();
   }
 }
