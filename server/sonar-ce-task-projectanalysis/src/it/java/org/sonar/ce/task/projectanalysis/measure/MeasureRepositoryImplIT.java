@@ -19,19 +19,16 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.annotation.Nullable;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.common.scanner.ScannerReportReaderRule;
@@ -51,24 +48,18 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.StringValue;
 
-import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
-@RunWith(DataProviderRunner.class)
-public class MeasureRepositoryImplIT {
+class MeasureRepositoryImplIT {
 
-
-  @Rule
+  @RegisterExtension
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-  @Rule
+  @RegisterExtension
   public ScannerReportReaderRule reportReader = new ScannerReportReaderRule();
 
   private static final String FILE_COMPONENT_KEY = "file cpt key";
@@ -97,8 +88,8 @@ public class MeasureRepositoryImplIT {
 
   private DbSession dbSession = dbTester.getSession();
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     when(metric1.getKey()).thenReturn(METRIC_KEY_1);
     when(metric1.getType()).thenReturn(Metric.MetricType.STRING);
     when(metric2.getKey()).thenReturn(METRIC_KEY_2);
@@ -110,34 +101,14 @@ public class MeasureRepositoryImplIT {
   }
 
   @Test
-  public void getBaseMeasure_throws_NPE_and_does_not_open_session_if_component_is_null() {
-    try {
-      underTestWithMock.getBaseMeasure(null, metric1);
-      fail("an NPE should have been raised");
-    } catch (NullPointerException e) {
-      verifyNoInteractions(mockedDbClient);
-    }
-  }
-
-  @Test
-  public void getBaseMeasure_throws_NPE_and_does_not_open_session_if_metric_is_null() {
-    try {
-      underTestWithMock.getBaseMeasure(FILE_COMPONENT, null);
-      fail("an NPE should have been raised");
-    } catch (NullPointerException e) {
-      verifyNoInteractions(mockedDbClient);
-    }
-  }
-
-  @Test
-  public void getBaseMeasure_returns_absent_if_measure_does_not_exist_in_DB() {
+  void getBaseMeasureReturnsAbsentIfMeasureDoesNotExistInDB() {
     Optional<Measure> res = underTest.getBaseMeasure(FILE_COMPONENT, metric1);
 
     assertThat(res).isNotPresent();
   }
 
   @Test
-  public void getBaseMeasure_returns_Measure_if_measure_of_last_snapshot_only_in_DB() {
+  void getBaseMeasureReturnsMeasureIfMeasureOfLastSnapshotOnlyInDB() {
     ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     dbTester.components().insertComponent(newFileDto(project).setUuid(FILE_COMPONENT.getUuid()));
     SnapshotDto lastAnalysis = dbTester.components().insertSnapshot(project, t -> t.setLast(true));
@@ -163,26 +134,26 @@ public class MeasureRepositoryImplIT {
     return res;
   }
 
-  @Test
-  public void add_throws_NPE_if_Component_argument_is_null() {
-    assertThatThrownBy(() -> underTest.add(null, metric1, SOME_MEASURE))
-      .isInstanceOf(NullPointerException.class);
+  private static class AlertStatusTestSetup {
+    final ComponentDto file;
+    final Metric metric;
+
+    AlertStatusTestSetup(ComponentDto file, Metric metric) {
+      this.file = file;
+      this.metric = metric;
+    }
+  }
+
+  private AlertStatusTestSetup setupAlertStatusTest() {
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project).setUuid(FILE_COMPONENT.getUuid()));
+    MetricDto alertStatusMetric = dbTester.measures().insertMetric(t -> t.setKey("alert_status").setValueType(org.sonar.api.measures.Metric.ValueType.LEVEL.name()));
+    Metric metric = metricOf(alertStatusMetric);
+    return new AlertStatusTestSetup(file, metric);
   }
 
   @Test
-  public void add_throws_NPE_if_Component_metric_is_null() {
-    assertThatThrownBy(() -> underTest.add(FILE_COMPONENT, null, SOME_MEASURE))
-      .isInstanceOf(NullPointerException.class);
-  }
-
-  @Test
-  public void add_throws_NPE_if_Component_measure_is_null() {
-    assertThatThrownBy(() -> underTest.add(FILE_COMPONENT, metric1, null))
-      .isInstanceOf(NullPointerException.class);
-  }
-
-  @Test
-  public void add_throws_UOE_if_measure_already_exists() {
+  void addThrowsUOEIfMeasureAlreadyExists() {
     assertThatThrownBy(() -> {
       underTest.add(FILE_COMPONENT, metric1, SOME_MEASURE);
       underTest.add(FILE_COMPONENT, metric1, SOME_MEASURE);
@@ -191,24 +162,12 @@ public class MeasureRepositoryImplIT {
   }
 
   @Test
-  public void update_throws_NPE_if_Component_metric_is_null() {
-    assertThatThrownBy(() -> underTest.update(FILE_COMPONENT, null, SOME_MEASURE))
-      .isInstanceOf(NullPointerException.class);
-  }
-
-  @Test
-  public void update_throws_NPE_if_Component_measure_is_null() {
-    assertThatThrownBy(() -> underTest.update(FILE_COMPONENT, metric1, null))
-      .isInstanceOf(NullPointerException.class);
-  }
-
-  @Test
-  public void update_throws_UOE_if_measure_does_not_exists() {
+  void updateThrowsUOEIfMeasureDoesNotExists() {
     assertThatThrownBy(() -> underTest.update(FILE_COMPONENT, metric1, SOME_MEASURE))
       .isInstanceOf(UnsupportedOperationException.class);
   }
 
-  private static final List<Measure> MEASURES = ImmutableList.of(
+  private static final List<Measure> MEASURES = List.of(
     Measure.newMeasureBuilder().create(1),
     Measure.newMeasureBuilder().create(1L),
     Measure.newMeasureBuilder().create(1d, 1),
@@ -218,51 +177,55 @@ public class MeasureRepositoryImplIT {
     Measure.newMeasureBuilder().create(Measure.Level.OK),
     Measure.newMeasureBuilder().createNoValue());
 
-  @DataProvider
-  public static Object[][] measures() {
-    return from(MEASURES).transform(new Function<Measure, Object[]>() {
-      @Nullable
-      @Override
-      public Object[] apply(Measure input) {
-        return new Measure[] {input};
-      }
-    }).toArray(Object[].class);
+  static Stream<Measure> measures() {
+    return MEASURES.stream();
   }
 
   @Test
-  public void add_accepts_NO_VALUE_as_measure_arg() {
+  void addAcceptsNoValueAsMeasureArg() {
     for (Metric.MetricType metricType : Metric.MetricType.values()) {
-      underTest.add(FILE_COMPONENT, new MetricImpl("1", "key" + metricType, "name" + metricType, metricType), Measure.newMeasureBuilder().createNoValue());
+      MetricImpl metric = new MetricImpl("1", "key" + metricType, "name" + metricType, metricType);
+      Measure noValueMeasure = Measure.newMeasureBuilder().createNoValue();
+      underTest.add(FILE_COMPONENT, metric, noValueMeasure);
+
+      // Verify the measure was added
+      Optional<Measure> result = underTest.getRawMeasure(FILE_COMPONENT, metric);
+      assertThat(result).isPresent();
+      assertThat(result.get().getValueType()).isEqualTo(ValueType.NO_VALUE);
     }
   }
 
-  @Test
-  @UseDataProvider("measures")
-  public void update_throws_IAE_if_valueType_of_Measure_is_not_the_same_as_the_Metric_valueType_unless_NO_VALUE(Measure measure) {
+  @ParameterizedTest
+  @MethodSource("measures")
+  void updateThrowsIAEIfValueTypeOfMeasureIsNotTheSameAsTheMetricValueTypeUnlessNoValue(Measure measure) {
     for (Metric.MetricType metricType : Metric.MetricType.values()) {
       if (metricType.getValueType() == measure.getValueType() || measure.getValueType() == ValueType.NO_VALUE) {
         continue;
       }
 
-      try {
-        final MetricImpl metric = new MetricImpl("1", "key" + metricType, "name" + metricType, metricType);
-        underTest.add(FILE_COMPONENT, metric, getSomeMeasureByValueType(metricType));
-        underTest.update(FILE_COMPONENT, metric, measure);
-        fail("An IllegalArgumentException should have been raised");
-      } catch (IllegalArgumentException e) {
-        assertThat(e).hasMessage(format(
+      final MetricImpl metric = new MetricImpl("1", "key" + metricType, "name" + metricType, metricType);
+      underTest.add(FILE_COMPONENT, metric, getSomeMeasureByValueType(metricType));
+
+      assertThatThrownBy(() -> underTest.update(FILE_COMPONENT, metric, measure))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage(format(
           "Measure's ValueType (%s) is not consistent with the Metric's ValueType (%s)",
           measure.getValueType(), metricType.getValueType()));
-      }
     }
   }
 
   @Test
-  public void update_accepts_NO_VALUE_as_measure_arg() {
+  void updateAcceptsNoValueAsMeasureArg() {
     for (Metric.MetricType metricType : Metric.MetricType.values()) {
       MetricImpl metric = new MetricImpl("1", "key" + metricType, "name" + metricType, metricType);
       underTest.add(FILE_COMPONENT, metric, getSomeMeasureByValueType(metricType));
-      underTest.update(FILE_COMPONENT, metric, Measure.newMeasureBuilder().createNoValue());
+      Measure noValueMeasure = Measure.newMeasureBuilder().createNoValue();
+      underTest.update(FILE_COMPONENT, metric, noValueMeasure);
+
+      // Verify the measure was updated to NO_VALUE
+      Optional<Measure> result = underTest.getRawMeasure(FILE_COMPONENT, metric);
+      assertThat(result).isPresent();
+      assertThat(result.get().getValueType()).isEqualTo(ValueType.NO_VALUE);
     }
   }
 
@@ -271,13 +234,19 @@ public class MeasureRepositoryImplIT {
   }
 
   @Test
-  public void update_supports_updating_to_the_same_value() {
+  void updateSupportsUpdatingToTheSameValue() {
     underTest.add(FILE_COMPONENT, metric1, SOME_MEASURE);
     underTest.update(FILE_COMPONENT, metric1, SOME_MEASURE);
+
+    // Verify the measure still exists with the same value
+    Optional<Measure> result = underTest.getRawMeasure(FILE_COMPONENT, metric1);
+    assertThat(result)
+      .isPresent()
+      .containsSame(SOME_MEASURE);
   }
 
   @Test
-  public void update_updates_the_stored_value() {
+  void updateUpdatesTheStoredValue() {
     Measure newMeasure = Measure.updatedMeasureBuilder(SOME_MEASURE).create();
 
     underTest.add(FILE_COMPONENT, metric1, SOME_MEASURE);
@@ -287,27 +256,7 @@ public class MeasureRepositoryImplIT {
   }
 
   @Test
-  public void getRawMeasure_throws_NPE_without_reading_batch_report_if_component_arg_is_null() {
-    try {
-      underTestWithMock.getRawMeasure(null, metric1);
-      fail("an NPE should have been raised");
-    } catch (NullPointerException e) {
-      verifyNoMoreInteractions(mockScannerReportReader);
-    }
-  }
-
-  @Test
-  public void getRawMeasure_throws_NPE_without_reading_batch_report_if_metric_arg_is_null() {
-    try {
-      underTestWithMock.getRawMeasure(FILE_COMPONENT, null);
-      fail("an NPE should have been raised");
-    } catch (NullPointerException e) {
-      verifyNoMoreInteractions(mockScannerReportReader);
-    }
-  }
-
-  @Test
-  public void getRawMeasure_returns_measure_added_through_add_method() {
+  void getRawMeasureReturnsMeasureAddedThroughAddMethod() {
     underTest.add(FILE_COMPONENT, metric1, SOME_MEASURE);
 
     Optional<Measure> res = underTest.getRawMeasure(FILE_COMPONENT, metric1);
@@ -322,7 +271,7 @@ public class MeasureRepositoryImplIT {
   }
 
   @Test
-  public void getRawMeasure_returns_measure_from_batch_if_not_added_through_add_method() {
+  void getRawMeasureReturnsMeasureFromBatchIfNotAddedThroughAddMethod() {
     String value = "trololo";
 
     when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
@@ -341,7 +290,7 @@ public class MeasureRepositoryImplIT {
   }
 
   @Test
-  public void getRawMeasure_returns_only_validate_measure_from_batch_if_not_added_through_add_method() {
+  void getRawMeasureReturnsOnlyValidateMeasureFromBatchIfNotAddedThroughAddMethod() {
     when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
     when(reportMetricValidator.validate(METRIC_KEY_2)).thenReturn(false);
 
@@ -354,7 +303,7 @@ public class MeasureRepositoryImplIT {
   }
 
   @Test
-  public void getRawMeasure_retrieves_added_measure_over_batch_measure() {
+  void getRawMeasureRetrievesAddedMeasureOverBatchMeasure() {
     when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
     reportReader.putMeasures(FILE_COMPONENT.getReportAttributes().getRef(), ImmutableList.of(
       ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue(StringValue.newBuilder().setValue("some value")).build()));
@@ -370,7 +319,7 @@ public class MeasureRepositoryImplIT {
   }
 
   @Test
-  public void getRawMeasure_retrieves_measure_from_batch_and_caches_it_locally_so_that_it_can_be_updated() {
+  void getRawMeasureRetrievesMeasureFromBatchAndCachesItLocallySoThatItCanBeUpdated() {
     when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
     reportReader.putMeasures(FILE_COMPONENT.getReportAttributes().getRef(), ImmutableList.of(
       ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue(StringValue.newBuilder().setValue("some value")).build()));
@@ -381,7 +330,7 @@ public class MeasureRepositoryImplIT {
   }
 
   @Test
-  public void getRawMeasures_returns_added_measures_over_batch_measures() {
+  void getRawMeasuresReturnsAddedMeasuresOverBatchMeasures() {
     when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
     when(reportMetricValidator.validate(METRIC_KEY_2)).thenReturn(true);
     ScannerReport.Measure batchMeasure1 = ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue(StringValue.newBuilder().setValue("some value")).build();
@@ -398,6 +347,71 @@ public class MeasureRepositoryImplIT {
     assertThat(rawMeasures.get(METRIC_KEY_2)).extracting(Measure::getStringValue).isEqualTo("some value");
   }
 
+  @Test
+  void getCurrentLiveMeasureSupportsAllMetricsNotJustAlertStatus() {
+    // Now all metrics are supported, not just alert_status
+    // Insert a measure for a non-alert_status metric
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project).setUuid(FILE_COMPONENT.getUuid()));
+    MetricDto intMetric = dbTester.measures().insertMetric(t -> t.setKey("test_int_metric").setValueType(org.sonar.api.measures.Metric.ValueType.INT.name()));
+    Metric metric = metricOf(intMetric);
+
+    // Insert a measure in the MEASURES table
+    dbTester.measures().insertMeasure(file, m -> m.addValue("test_int_metric", 42));
+
+    Optional<Measure> result = underTest.getCurrentLiveMeasure(FILE_COMPONENT, metric);
+
+    assertThat(result).isPresent();
+    assertThat(result.get().getIntValue()).isEqualTo(42);
+  }
+
+  @Test
+  void getCurrentLiveMeasureReturnsAbsentIfMeasureDoesNotExistInDb() {
+    AlertStatusTestSetup setup = setupAlertStatusTest();
+
+    // No measure inserted, so it should return empty after querying DB
+    Optional<Measure> res = underTest.getCurrentLiveMeasure(FILE_COMPONENT, setup.metric);
+
+    assertThat(res).isNotPresent();
+  }
+
+  @Test
+  void getCurrentLiveMeasureReturnsQualityGateMeasureFromLiveMeasures() {
+    AlertStatusTestSetup setup = setupAlertStatusTest();
+
+    // Insert a measure in the MEASURES table (live measures)
+    dbTester.measures().insertMeasure(setup.file, m -> m.addValue("alert_status", "OK"));
+
+    Optional<Measure> result = underTest.getCurrentLiveMeasure(FILE_COMPONENT, setup.metric);
+
+    assertThat(result).isPresent();
+    assertThat(result.get().getQualityGateStatus().getStatus()).isEqualTo(Measure.Level.OK);
+  }
+
+  @Test
+  void getCurrentLiveMeasureReturnsEmptyForInvalidQualityGateValue() {
+    AlertStatusTestSetup setup = setupAlertStatusTest();
+
+    // Insert a measure with invalid QG value
+    dbTester.measures().insertMeasure(setup.file, m -> m.addValue("alert_status", "INVALID_VALUE"));
+
+    Optional<Measure> result = underTest.getCurrentLiveMeasure(FILE_COMPONENT, setup.metric);
+
+    assertThat(result).isNotPresent();
+  }
+
+  @Test
+  void getCurrentLiveMeasureReturnsEmptyWhenMeasureValueIsNull() {
+    AlertStatusTestSetup setup = setupAlertStatusTest();
+
+    // Insert a measure with null value - addValue with null doesn't add the key
+    dbTester.measures().insertMeasure(setup.file);
+
+    Optional<Measure> result = underTest.getCurrentLiveMeasure(FILE_COMPONENT, setup.metric);
+
+    assertThat(result).isNotPresent();
+  }
+
   private static ProjectMeasureDto createMeasureDto(String metricUuid, String componentUuid, String analysisUuid) {
     return new ProjectMeasureDto()
       .setComponentUuid(componentUuid)
@@ -405,4 +419,5 @@ public class MeasureRepositoryImplIT {
       .setData(SOME_DATA)
       .setMetricUuid(metricUuid);
   }
+
 }

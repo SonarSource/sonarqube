@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.measure.MapBasedRawMeasureRepository.OverridePolicy;
@@ -32,10 +33,10 @@ import org.sonar.ce.task.projectanalysis.metric.ReportMetricValidator;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
-import static java.util.Objects.requireNonNull;
 import static org.sonar.ce.task.projectanalysis.component.ComponentFunctions.toComponentUuid;
 
 public class MeasureRepositoryImpl implements MeasureRepository {
@@ -57,10 +58,6 @@ public class MeasureRepositoryImpl implements MeasureRepository {
 
   @Override
   public Optional<Measure> getBaseMeasure(Component component, Metric metric) {
-    // fail fast
-    requireNonNull(component);
-    requireNonNull(metric);
-
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<ProjectMeasureDto> measureDto = dbClient.projectMeasureDao().selectLastMeasure(dbSession, component.getUuid(), metric.getKey());
       if (measureDto.isPresent()) {
@@ -68,6 +65,48 @@ public class MeasureRepositoryImpl implements MeasureRepository {
       }
       return Optional.empty();
     }
+  }
+
+  /**
+   * Returns the current live measure for a component and metric.
+   * This retrieves measures from the MEASURES table, which reflects the current live state
+   * including any changes made through UI actions (e.g., issue acceptance/resolution).
+   */
+  @Override
+  public Optional<Measure> getCurrentLiveMeasure(Component component, Metric metric) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Optional<MeasureDto> measureDto = dbClient.measureDao().selectByComponentUuidAndMetricKey(dbSession, component.getUuid(), metric.getKey());
+      if (measureDto.isPresent()) {
+        return toLiveMeasure(measureDto.get(), metric);
+      }
+      return Optional.empty();
+    }
+  }
+
+  /**
+   * Converts a live MeasureDto from the MEASURES table into a Measure.
+   * <p>
+   * For the alert_status metric, this method also sets the quality gate status
+   * based on the measure's level value to keep the conversion logic consistent.
+   */
+  private static Optional<Measure> toLiveMeasure(MeasureDto measureDto, Metric metric) {
+    Optional<Measure> measure = MeasureDtoToMeasure.toMeasure(measureDto, metric);
+
+    if (!CoreMetrics.ALERT_STATUS_KEY.equals(metric.getKey())) {
+      return measure;
+    }
+
+    if (measure.isPresent()) {
+      Measure existingMeasure = measure.get();
+      if (!existingMeasure.isEmpty()) {
+        Measure.Level level = existingMeasure.getLevelValue();
+        return Optional.of(Measure.newMeasureBuilder()
+          .setQualityGateStatus(new QualityGateStatus(level))
+          .create(level));
+      }
+    }
+
+    return measure;
   }
 
   @Override

@@ -22,80 +22,76 @@ package org.sonar.ce.task.projectanalysis.measure;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
-import org.sonar.db.measure.ProjectMeasureDto;
+import org.sonar.db.measure.MeasureDto;
 
 import static java.util.Objects.requireNonNull;
-import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.toLevel;
 
 /**
- * Converts ProjectMeasureDto (from PROJECT_MEASURES table - historical analysis data) to Measure objects.
+ * Converts MeasureDto (from MEASURES table - current live state) to Measure objects.
  */
-public class ProjectMeasureDtoToMeasure {
+public class MeasureDtoToMeasure {
 
-  private ProjectMeasureDtoToMeasure() {
+  private MeasureDtoToMeasure() {
     // utility class
   }
 
-  public static Optional<Measure> toMeasure(@Nullable ProjectMeasureDto measureDto, Metric metric) {
+  public static Optional<Measure> toMeasure(@Nullable MeasureDto measureDto, Metric metric) {
     requireNonNull(metric);
     if (measureDto == null) {
       return Optional.empty();
     }
-    return MeasureConverter.toMeasure(new ProjectMeasureAdapter(measureDto), metric);
+    return MeasureConverter.toMeasure(new LiveMeasureAdapter(measureDto, metric.getKey()), metric);
   }
 
   /**
-   * Adapter for ProjectMeasureDto to work with the common MeasureConverter.
+   * Adapter for MeasureDto to work with the common MeasureConverter.
+   * MeasureDto stores values in a JSON map, so we need the metric key to extract values.
    */
-  private static class ProjectMeasureAdapter implements MeasureConverter.MeasureDataAdapter {
-    private final ProjectMeasureDto dto;
+  private static class LiveMeasureAdapter implements MeasureConverter.MeasureDataAdapter {
+    private final MeasureDto dto;
+    private final String metricKey;
 
-    ProjectMeasureAdapter(ProjectMeasureDto dto) {
+    LiveMeasureAdapter(MeasureDto dto, String metricKey) {
       this.dto = dto;
+      this.metricKey = metricKey;
     }
 
     @Override
     public Integer getIntValue() {
-      Double value = dto.getValue();
-      return value != null ? value.intValue() : null;
+      return dto.getInt(metricKey);
     }
 
     @Override
     public Long getLongValue() {
-      Double value = dto.getValue();
-      return value != null ? value.longValue() : null;
+      return dto.getLong(metricKey);
     }
 
     @Override
     public Double getDoubleValue() {
-      return dto.getValue();
+      return dto.getDouble(metricKey);
     }
 
     @Override
     public String getStringValue() {
-      return dto.getData();
+      return dto.getString(metricKey);
     }
 
     @Override
     public String getData() {
-      return dto.getData();
+      // MeasureDto doesn't support additional data field
+      return null;
     }
 
     @Override
     public QualityGateStatus getQualityGateStatus() {
-      if (dto.getAlertStatus() != null) {
-        Optional<Measure.Level> qualityGateStatus = toLevel(dto.getAlertStatus());
-        if (qualityGateStatus.isPresent()) {
-          return new QualityGateStatus(qualityGateStatus.get(), dto.getAlertText());
-        }
-      }
+      // MeasureDto doesn't store QG status separately - it's just another metric value
       return null;
     }
 
     @Override
     public boolean useNoValueForMissing() {
-      // ProjectMeasureDto: a row exists but value is null -> NoValue measure
-      return true;
+      // MeasureDto: key doesn't exist in JSON map -> no measure data exists
+      return false;
     }
   }
 

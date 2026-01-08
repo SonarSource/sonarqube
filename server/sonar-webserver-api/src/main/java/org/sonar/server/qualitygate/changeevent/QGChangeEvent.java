@@ -21,6 +21,7 @@ package org.sonar.server.qualitygate.changeevent;
 
 import java.util.Optional;
 import java.util.function.Supplier;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.config.Configuration;
@@ -34,6 +35,7 @@ import static java.util.Objects.requireNonNull;
 
 @Immutable
 public class QGChangeEvent {
+
   private final ProjectDto project;
   private final BranchDto branch;
   private final SnapshotDto analysis;
@@ -41,11 +43,11 @@ public class QGChangeEvent {
   private final Metric.Level previousStatus;
   private final Supplier<Optional<EvaluatedQualityGate>> qualityGateSupplier;
 
-  public QGChangeEvent(ProjectDto project, BranchDto branch, SnapshotDto analysis, Configuration projectConfiguration,
+  public QGChangeEvent(ProjectDto project, BranchDto branch, @Nullable SnapshotDto analysis, Configuration projectConfiguration,
     @Nullable Metric.Level previousStatus, Supplier<Optional<EvaluatedQualityGate>> qualityGateSupplier) {
     this.project = requireNonNull(project, "project can't be null");
     this.branch = requireNonNull(branch, "branch can't be null");
-    this.analysis = requireNonNull(analysis, "analysis can't be null");
+    this.analysis = analysis;
     this.projectConfiguration = requireNonNull(projectConfiguration, "projectConfiguration can't be null");
     this.previousStatus = previousStatus;
     this.qualityGateSupplier = requireNonNull(qualityGateSupplier, "qualityGateSupplier can't be null");
@@ -59,6 +61,7 @@ public class QGChangeEvent {
     return project;
   }
 
+  @CheckForNull
   public SnapshotDto getAnalysis() {
     return analysis;
   }
@@ -98,4 +101,5 @@ public class QGChangeEvent {
   private static String toString(SnapshotDto analysis) {
     return analysis.getUuid() + ":" + analysis.getCreatedAt();
   }
+
 }

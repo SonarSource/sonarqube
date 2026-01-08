@@ -163,6 +163,12 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
   }
 
   @Override
+  public Optional<Measure> getCurrentLiveMeasure(Component component, Metric metric) {
+    // For test purposes, return the base measure (simulates live measure being in sync with base)
+    return getBaseMeasure(component, metric);
+  }
+
+  @Override
   public Optional<Measure> getRawMeasure(Component component, Metric metric) {
     return Optional.ofNullable(rawMeasures.get(new InternalKey(component, metric)));
   }
