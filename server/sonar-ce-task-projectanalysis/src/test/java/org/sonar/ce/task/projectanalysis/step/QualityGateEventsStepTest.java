@@ -58,7 +58,7 @@ import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.ERROR;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.OK;
 
-public class QualityGateEventsStepTest {
+class QualityGateEventsStepTest {
   private static final String PROJECT_VERSION = secure().nextAlphabetic(19);
   private static final ReportComponent PROJECT_COMPONENT = ReportComponent.builder(Component.Type.PROJECT, 1)
     .setUuid("uuid 1")
