@@ -20,7 +20,13 @@
 package org.sonar.db.issue;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.annotation.CheckForNull;
+import org.sonar.api.issue.IssueStatus;
+
+import static java.util.Locale.ENGLISH;
 
 public final class IssueCountByStatusAndResolution implements Serializable {
 
@@ -58,5 +64,17 @@ public final class IssueCountByStatusAndResolution implements Serializable {
   public IssueCountByStatusAndResolution setCount(Integer count) {
     this.count = count;
     return this;
+  }
+
+  public static Map<String, Integer> toStatusMap(List<IssueCountByStatusAndResolution> counts) {
+    Map<String, Integer> result = new HashMap<>();
+    for (IssueCountByStatusAndResolution count : counts) {
+      IssueStatus issueStatus = IssueStatus.of(count.getStatus(), count.getResolution());
+      if (issueStatus != null) {
+        String entryKey = issueStatus.toString().toLowerCase(ENGLISH);
+        result.merge(entryKey, count.getCount(), Integer::sum);
+      }
+    }
+    return result;
   }
 }

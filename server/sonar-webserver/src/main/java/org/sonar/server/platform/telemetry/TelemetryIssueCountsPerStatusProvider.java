@@ -19,10 +19,8 @@
  */
 package org.sonar.server.platform.telemetry;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -31,8 +29,6 @@ import org.sonar.telemetry.core.AbstractTelemetryDataProvider;
 import org.sonar.telemetry.core.Dimension;
 import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.core.TelemetryDataType;
-
-import static java.util.Locale.ENGLISH;
 
 @ServerSide
 public class TelemetryIssueCountsPerStatusProvider extends AbstractTelemetryDataProvider<Integer> {
@@ -50,17 +46,7 @@ public class TelemetryIssueCountsPerStatusProvider extends AbstractTelemetryData
   public Map<String, Integer> getValues() {
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<IssueCountByStatusAndResolution> counts = dbClient.issueDao().countIssuesByStatusOnMainBranches(dbSession);
-
-      Map<String, Integer> result = new HashMap<>();
-      for (IssueCountByStatusAndResolution count : counts) {
-        IssueStatus issueStatus = IssueStatus.of(count.getStatus(), count.getResolution());
-        if (issueStatus != null) {
-          String entryKey = issueStatus.toString().toLowerCase(ENGLISH);
-          result.merge(entryKey, count.getCount(), Integer::sum);
-        }
-      }
-
-      return result;
+      return IssueCountByStatusAndResolution.toStatusMap(counts);
     }
   }
 }
