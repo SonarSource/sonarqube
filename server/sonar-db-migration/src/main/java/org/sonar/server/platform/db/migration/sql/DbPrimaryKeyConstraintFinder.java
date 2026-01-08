@@ -87,7 +87,7 @@ public class DbPrimaryKeyConstraintFinder {
         "FROM pg_constraint c " +
         "JOIN pg_namespace n on c.connamespace = n.oid " +
         "JOIN pg_class cls on c.conrelid = cls.oid " +
-        "WHERE cls.relname = '%s' AND n.nspname = '%s'", tableName, connection.getSchema());
+        "WHERE cls.relname = '%s' AND n.nspname = '%s' AND c.contype = 'p'", tableName, connection.getSchema());
     } catch (SQLException throwables) {
       throw new IllegalStateException("Can not get database connection");
     }

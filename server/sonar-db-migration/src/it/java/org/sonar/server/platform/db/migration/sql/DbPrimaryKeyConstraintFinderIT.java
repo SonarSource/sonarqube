@@ -81,7 +81,7 @@ class DbPrimaryKeyConstraintFinderIT {
     when(dbMock.getDataSource()).thenReturn(dataSource);
 
     assertThat(underTest.getDbVendorSpecificQuery("my_table"))
-      .isEqualTo("SELECT conname FROM pg_constraint c JOIN pg_namespace n on c.connamespace = n.oid JOIN pg_class cls on c.conrelid = cls.oid WHERE cls.relname = 'my_table' AND n.nspname = 'SonarQube'");
+      .isEqualTo("SELECT conname FROM pg_constraint c JOIN pg_namespace n on c.connamespace = n.oid JOIN pg_class cls on c.conrelid = cls.oid WHERE cls.relname = 'my_table' AND n.nspname = 'SonarQube' AND c.contype = 'p'");
   }
 
   @Test
