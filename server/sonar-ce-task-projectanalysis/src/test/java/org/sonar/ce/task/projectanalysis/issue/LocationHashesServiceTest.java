@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -26,19 +27,19 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.rule.RuleType;
-import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesRepository;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.rule.RuleType;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
@@ -51,7 +52,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class ComputeLocationHashesVisitorTest {
+class LocationHashesServiceTest {
   private static final String EXAMPLE_LINE_OF_CODE_FORMAT = "int example = line + of + code + %d; ";
   private static final DbCommons.TextRange EXAMPLE_TEXT_RANGE = DbCommons.TextRange.newBuilder()
     .setStartLine(1).setStartOffset(0)
@@ -73,14 +74,14 @@ public class ComputeLocationHashesVisitorTest {
   private final SourceLinesRepository sourceLinesRepository = mock(SourceLinesRepository.class);
   private final MutableConfiguration configuration = new MutableConfiguration();
   private final TaintChecker taintChecker = new TaintChecker(configuration);
-  @Rule
+  @RegisterExtension
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-  @Rule
-  public LogTester logTester = new LogTester();
-  private final ComputeLocationHashesVisitor underTest = new ComputeLocationHashesVisitor(taintChecker, sourceLinesRepository, treeRootHolder);
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
+  private final LocationHashesService underTest = new LocationHashesService(taintChecker, sourceLinesRepository, treeRootHolder);
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     Iterator<String> stringIterator = IntStream.rangeClosed(1, 9)
       .mapToObj(i -> String.format(EXAMPLE_LINE_OF_CODE_FORMAT, i))
       .iterator();
@@ -91,7 +92,7 @@ public class ComputeLocationHashesVisitorTest {
   }
 
   @Test
-  public void beforeCaching_whenIssueUnchangedAndHasChecksum_shouldDoNothing() {
+  void beforeCaching_whenIssueUnchangedAndHasChecksum_shouldDoNothing() {
     DefaultIssue notTaintedIssue = createNotTaintedIssue()
       .setLocationsChanged(false)
       .setNew(false)
@@ -100,7 +101,7 @@ public class ComputeLocationHashesVisitorTest {
         .setTextRange(EXAMPLE_TEXT_RANGE)
         .build());
 
-    executeBeforeCaching(FILE_1, notTaintedIssue);
+    underTest.computeHashesAndUpdateIssues(Collections.emptyList(), List.of(notTaintedIssue), FILE_1);
 
     DbIssues.Locations locations = notTaintedIssue.getLocations();
     assertThat(locations.getChecksum()).isEqualTo(CHECKSUM);
@@ -108,10 +109,10 @@ public class ComputeLocationHashesVisitorTest {
   }
 
   @Test
-  public void beforeCaching_whenIssueHasNoLocation_shouldDoNothing() {
+  void beforeCaching_whenIssueHasNoLocation_shouldDoNothing() {
     DefaultIssue notTaintedIssue = createNotTaintedIssue();
 
-    executeBeforeCaching(FILE_1, notTaintedIssue);
+    underTest.computeHashesAndUpdateIssues(List.of(notTaintedIssue), Collections.emptyList(), FILE_1);
 
     DbIssues.Locations locations = notTaintedIssue.getLocations();
     assertThat(locations).isNull();
@@ -119,15 +120,15 @@ public class ComputeLocationHashesVisitorTest {
   }
 
   @Test
-  public void beforeCaching_whenIssueIsExternal_shouldDoNothing() {
+  void beforeCaching_whenIssueIsExternal_shouldDoNothing() {
     DefaultIssue notTaintedIssue = createNotTaintedIssue()
       .setIsFromExternalRuleEngine(true)
       .setLocations(DbIssues.Locations.newBuilder()
         .setChecksum(CHECKSUM)
         .setTextRange(EXAMPLE_TEXT_RANGE)
-        .build());;
+        .build());
 
-    executeBeforeCaching(FILE_1, notTaintedIssue);
+    underTest.computeHashesAndUpdateIssues(List.of(notTaintedIssue), Collections.emptyList(), FILE_1);
 
     DbIssues.Locations locations = notTaintedIssue.getLocations();
     assertThat(locations.getChecksum()).isEqualTo(CHECKSUM);
@@ -135,15 +136,15 @@ public class ComputeLocationHashesVisitorTest {
   }
 
   @Test
-  public void beforeCaching_whenIssueNoLongerExists_shouldDoNothing() {
+  void beforeCaching_whenIssueNoLongerExists_shouldDoNothing() {
     DefaultIssue notTaintedIssue = createNotTaintedIssue()
       .setBeingClosed(true)
       .setLocations(DbIssues.Locations.newBuilder()
         .setChecksum(CHECKSUM)
         .setTextRange(EXAMPLE_TEXT_RANGE)
-        .build());;
+        .build());
 
-    executeBeforeCaching(FILE_1, notTaintedIssue);
+    underTest.computeHashesAndUpdateIssues(List.of(notTaintedIssue), Collections.emptyList(), FILE_1);
 
     DbIssues.Locations locations = notTaintedIssue.getLocations();
     assertThat(locations.getChecksum()).isEqualTo(CHECKSUM);
@@ -151,7 +152,7 @@ public class ComputeLocationHashesVisitorTest {
   }
 
   @Test
-  public void beforeCaching_whenIssueLocationIsOutOfBound_shouldLog() {
+  void beforeCaching_whenIssueLocationIsOutOfBound_shouldLog() {
     DefaultIssue notTaintedIssue = createNotTaintedIssue()
       .setChecksum(CHECKSUM)
       .setLocations(DbIssues.Locations.newBuilder()
@@ -161,13 +162,13 @@ public class ComputeLocationHashesVisitorTest {
           .build())
         .build());
 
-    executeBeforeCaching(FILE_1, notTaintedIssue);
+    underTest.computeHashesAndUpdateIssues(List.of(notTaintedIssue), Collections.emptyList(), FILE_1);
 
     assertThat(logTester.logs(Level.DEBUG)).contains("Try to compute issue location hash from 0 to 38 on line (36 chars): " + String.format(EXAMPLE_LINE_OF_CODE_FORMAT, 1));
   }
 
   @Test
-  public void beforeCaching_whenIssueHasNoChecksum_shouldComputeChecksum() {
+  void beforeCaching_whenIssueHasNoChecksum_shouldComputeChecksum() {
     DefaultIssue notTaintedIssue = createNotTaintedIssue()
       .setLocationsChanged(false)
       .setNew(false)
@@ -175,58 +176,58 @@ public class ComputeLocationHashesVisitorTest {
         .setTextRange(EXAMPLE_TEXT_RANGE)
         .build());
 
-    executeBeforeCaching(FILE_1, notTaintedIssue);
+    underTest.computeHashesAndUpdateIssues(Collections.emptyList(), List.of(notTaintedIssue), FILE_1);
 
     assertLocationHashIsMadeOf(notTaintedIssue, "intexample=line+of+code+1;intexample=line+of+code+2;intexample=line+of+code+3;");
     verify(sourceLinesRepository).readLines(FILE_1);
   }
 
   @Test
-  public void beforeCaching_whenMultipleLinesTaintedIssue_shouldComputeChecksum() {
+  void beforeCaching_whenMultipleLinesTaintedIssue_shouldComputeChecksum() {
     DefaultIssue taintedIssue = createTaintedIssue()
       .setLocations(DbIssues.Locations.newBuilder().setTextRange(EXAMPLE_TEXT_RANGE).build());
 
-    executeBeforeCaching(FILE_1, taintedIssue);
+    underTest.computeHashesAndUpdateIssues(List.of(taintedIssue), Collections.emptyList(), FILE_1);
 
     assertLocationHashIsMadeOf(taintedIssue, "intexample=line+of+code+1;intexample=line+of+code+2;intexample=line+of+code+3;");
   }
 
   @Test
-  public void beforeCaching_whenMultipleTaintedIssuesAndMultipleComponents_shouldComputeAllChecksums() {
+  void beforeCaching_whenMultipleTaintedIssuesAndMultipleComponents_shouldComputeAllChecksums() {
     DefaultIssue taintedIssue1 = createTaintedIssue()
       .setLocations(DbIssues.Locations.newBuilder().setTextRange(EXAMPLE_TEXT_RANGE).build());
     DefaultIssue taintedIssue2 = createTaintedIssue()
       .setLocations(DbIssues.Locations.newBuilder().setTextRange(createRange(1, 0, 1, LINE_IN_ANOTHER_FILE.length())).build());
 
-    executeBeforeCaching(FILE_1, taintedIssue1);
-    executeBeforeCaching(FILE_2, taintedIssue2);
+    underTest.computeHashesAndUpdateIssues(List.of(taintedIssue1), Collections.emptyList(), FILE_1);
+    underTest.computeHashesAndUpdateIssues(List.of(taintedIssue2), Collections.emptyList(), FILE_2);
 
     assertLocationHashIsMadeOf(taintedIssue1, "intexample=line+of+code+1;intexample=line+of+code+2;intexample=line+of+code+3;");
     assertLocationHashIsMadeOf(taintedIssue2, "Stringstring='line-in-the-another-file';");
   }
 
   @Test
-  public void beforeCaching_whenPartialLineTaintedIssue_shouldComputeChecksum() {
+  void beforeCaching_whenPartialLineTaintedIssue_shouldComputeChecksum() {
     DefaultIssue taintedIssue = createTaintedIssue()
       .setLocations(DbIssues.Locations.newBuilder().setTextRange(createRange(1, 13, 1, EXAMPLE_LINE_OF_CODE_FORMAT.length() - 1)).build());
 
-    executeBeforeCaching(FILE_1, taintedIssue);
+    underTest.computeHashesAndUpdateIssues(List.of(taintedIssue), Collections.emptyList(), FILE_1);
 
     assertLocationHashIsMadeOf(taintedIssue, "line+of+code+1;");
   }
 
   @Test
-  public void beforeCaching_whenPartialMultipleLinesTaintedIssue_shouldComputeChecksum() {
+  void beforeCaching_whenPartialMultipleLinesTaintedIssue_shouldComputeChecksum() {
     DefaultIssue taintedIssue = createTaintedIssue()
       .setLocations(DbIssues.Locations.newBuilder().setTextRange(createRange(1, 13, 3, 11)).build());
 
-    executeBeforeCaching(FILE_1, taintedIssue);
+    underTest.computeHashesAndUpdateIssues(List.of(taintedIssue), Collections.emptyList(), FILE_1);
 
     assertLocationHashIsMadeOf(taintedIssue, "line+of+code+1;intexample=line+of+code+2;intexample");
   }
 
   @Test
-  public void beforeCaching_whenNoTextRange_shouldNotComputeChecksum() {
+  void beforeCaching_whenNoTextRange_shouldNotComputeChecksum() {
     // primary location and one of the secondary locations have no text range
     DefaultIssue taintedIssue = createTaintedIssue()
       .setLocations(DbIssues.Locations.newBuilder()
@@ -243,7 +244,7 @@ public class ComputeLocationHashesVisitorTest {
 
     when(sourceLinesRepository.readLines(FILE_1)).thenReturn(newOneLineIterator(LINE_IN_THE_MAIN_FILE));
 
-    executeBeforeCaching(FILE_1, taintedIssue);
+    underTest.computeHashesAndUpdateIssues(List.of(taintedIssue), Collections.emptyList(), FILE_1);
 
     verify(sourceLinesRepository).readLines(FILE_1);
     verifyNoMoreInteractions(sourceLinesRepository);
@@ -253,7 +254,7 @@ public class ComputeLocationHashesVisitorTest {
   }
 
   @Test
-  public void beforeCaching_whenMultipleLocationsInMultipleFiles_shouldComputeAllChecksums() {
+  void beforeCaching_whenMultipleLocationsInMultipleFiles_shouldComputeAllChecksums() {
     DefaultIssue taintedIssue = createTaintedIssue()
       .setLocations(DbIssues.Locations.newBuilder()
         .setTextRange(createRange(1, 0, 1, LINE_IN_THE_MAIN_FILE.length()))
@@ -272,7 +273,7 @@ public class ComputeLocationHashesVisitorTest {
     when(sourceLinesRepository.readLines(FILE_1)).thenReturn(newOneLineIterator(LINE_IN_THE_MAIN_FILE));
     when(sourceLinesRepository.readLines(FILE_2)).thenReturn(newOneLineIterator(LINE_IN_ANOTHER_FILE));
 
-    executeBeforeCaching(FILE_1, taintedIssue);
+    underTest.computeHashesAndUpdateIssues(List.of(taintedIssue), Collections.emptyList(), FILE_1);
 
     DbIssues.Locations locations = taintedIssue.getLocations();
 
@@ -281,7 +282,7 @@ public class ComputeLocationHashesVisitorTest {
   }
 
   @Test
-  public void beforeCaching_whenMultipleLocationsInSameFile_shouldComputeAllChecksums() {
+  void beforeCaching_whenMultipleLocationsInSameFile_shouldComputeAllChecksums() {
     DefaultIssue taintedIssue = createTaintedIssue()
       .setComponentUuid(FILE_1.getUuid())
       .setLocations(DbIssues.Locations.newBuilder()
@@ -300,7 +301,7 @@ public class ComputeLocationHashesVisitorTest {
 
     when(sourceLinesRepository.readLines(FILE_1)).thenReturn(manyLinesIterator(LINE_IN_THE_MAIN_FILE, ANOTHER_LINE_IN_THE_MAIN_FILE));
 
-    executeBeforeCaching(FILE_1, taintedIssue);
+    underTest.computeHashesAndUpdateIssues(List.of(taintedIssue), Collections.emptyList(), FILE_1);
 
     DbIssues.Locations locations = taintedIssue.getLocations();
 
@@ -309,7 +310,7 @@ public class ComputeLocationHashesVisitorTest {
   }
 
   @Test
-  public void beforeCaching_whenNotTaintedIssue_shouldNotComputeChecksumForSecondaryLocations() {
+  void beforeCaching_whenNotTaintedIssue_shouldNotComputeChecksumForSecondaryLocations() {
     DefaultIssue notTaintedIssue = createNotTaintedIssue()
       .setLocations(DbIssues.Locations.newBuilder()
         .setTextRange(createRange(1, 0, 1, LINE_IN_THE_MAIN_FILE.length()))
@@ -327,18 +328,12 @@ public class ComputeLocationHashesVisitorTest {
     when(sourceLinesRepository.readLines(FILE_1)).thenReturn(newOneLineIterator(LINE_IN_THE_MAIN_FILE));
     when(sourceLinesRepository.readLines(FILE_2)).thenReturn(newOneLineIterator(LINE_IN_ANOTHER_FILE));
 
-    executeBeforeCaching(FILE_1, notTaintedIssue);
+    underTest.computeHashesAndUpdateIssues(List.of(notTaintedIssue), Collections.emptyList(), FILE_1);
 
     DbIssues.Locations locations = notTaintedIssue.getLocations();
     assertLocationHashIsMadeOf(notTaintedIssue, "Stringstring='line-in-the-main-file';");
     assertThat(locations.getFlow(0).getLocation(0).getChecksum()).isEmpty();
     assertThat(locations.getFlow(0).getLocation(1).getChecksum()).isEmpty();
-  }
-
-  private void executeBeforeCaching(Component component, DefaultIssue issue) {
-    underTest.beforeComponent(component);
-    underTest.onIssue(component, issue);
-    underTest.beforeCaching(component);
   }
 
   private DbCommons.TextRange createRange(int startLine, int startOffset, int endLine, int endOffset) {

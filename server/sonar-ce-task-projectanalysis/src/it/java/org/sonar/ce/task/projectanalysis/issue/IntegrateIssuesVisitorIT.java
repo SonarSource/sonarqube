@@ -35,11 +35,11 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
+import org.sonar.ce.common.scanner.ScannerReportReaderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.analysis.ScannerPlugin;
-import org.sonar.ce.common.scanner.ScannerReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.BranchComponentUuidsDelegate;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.FileStatuses;
@@ -78,10 +78,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class IntegrateIssuesVisitorIT {
@@ -140,13 +142,14 @@ class IntegrateIssuesVisitorIT {
   private final ComponentIssuesLoader issuesLoader = new ComponentIssuesLoader(dbTester.getDbClient(), ruleRepositoryRule, activeRulesHolderRule, new MapSettings().asConfig(),
     System2.INSTANCE, mock(IssueChangesToDeleteRepository.class));
   private final ActiveRulesHolder activeRulesHolder = new AlwaysActiveRulesHolderImpl();
+  private final LocationHashesService locationHashesService = mock(LocationHashesService.class);
   private ProtoIssueCache protoIssueCache;
 
   private TypeAwareVisitor underTest;
 
   @BeforeEach
   void setUp() throws Exception {
-    IssueVisitors issueVisitors = new IssueVisitors(new IssueVisitor[] {issueVisitor});
+    IssueVisitors issueVisitors = new IssueVisitors(new IssueVisitor[]{issueVisitor});
 
     defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
     when(movedFilesRepository.getOriginalFile(any(Component.class))).thenReturn(Optional.empty());
@@ -168,7 +171,7 @@ class IntegrateIssuesVisitorIT {
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
     when(issueChangeContext.date()).thenReturn(new Date());
     underTest = new IntegrateIssuesVisitor(protoIssueCache, rawInputFactory, baseInputFactory, issueLifecycle, issueVisitors, trackingDelegator, issueStatusCopier,
-      referenceBranchComponentUuids, mock(PullRequestSourceBranchMerger.class), fileStatuses, analysisMetadataHolder, targetInputFactory);
+      referenceBranchComponentUuids, mock(PullRequestSourceBranchMerger.class), fileStatuses, analysisMetadataHolder, targetInputFactory, locationHashesService);
   }
 
   @Test
@@ -186,6 +189,7 @@ class IntegrateIssuesVisitorIT {
     assertThat(issues.get(0).internalTags()).containsExactlyInAnyOrder("internalTag1", "internalTag2");
     assertThat(issues.get(0).codeVariants()).containsExactlyInAnyOrder("foo", "bar");
     assertThat(issues.get(0).severity()).isEqualTo(Severity.MAJOR);
+    verify(locationHashesService).computeHashesAndUpdateIssues(anyCollection(), anyCollection(), eq(FILE));
   }
 
   @Test
@@ -202,6 +206,7 @@ class IntegrateIssuesVisitorIT {
     assertThat(issues).hasSize(1);
     assertThat(issues.get(0).codeVariants()).containsExactlyInAnyOrder("foo", "bar");
     assertThat(issues.get(0).severity()).isEqualTo(Severity.BLOCKER);
+    verify(locationHashesService).computeHashesAndUpdateIssues(anyCollection(), anyCollection(), eq(FILE));
   }
 
   @Test
@@ -219,6 +224,7 @@ class IntegrateIssuesVisitorIT {
     List<DefaultIssue> issues = newArrayList(protoIssueCache.traverse());
     assertThat(issues).hasSize(1);
     assertThat(issues.get(0).severity()).isEqualTo(Severity.MAJOR);
+    verify(locationHashesService).computeHashesAndUpdateIssues(anyCollection(), anyCollection(), eq(FILE));
   }
 
   @Test
@@ -233,6 +239,7 @@ class IntegrateIssuesVisitorIT {
     verify(issueVisitor).afterComponent(FILE);
     verify(issueVisitor).onIssue(eq(FILE), defaultIssueCaptor.capture());
     assertThat(defaultIssueCaptor.getValue().ruleKey().rule()).isEqualTo("x1");
+    verify(locationHashesService).computeHashesAndUpdateIssues(anyCollection(), anyCollection(), eq(FILE));
   }
 
   @Test
@@ -254,7 +261,7 @@ class IntegrateIssuesVisitorIT {
     verify(issueVisitor).onRawIssues(eq(FILE), rawInputCaptor.capture(), targetInputCaptor.capture());
     assertThat(rawInputCaptor.getValue().getIssues()).extracting(i -> i.ruleKey().rule()).containsExactly("x1");
     assertThat(targetInputCaptor.getValue().getIssues()).extracting(DefaultIssue::key).containsExactly(otherBranchIssueDto.getKee());
-
+    verify(locationHashesService).computeHashesAndUpdateIssues(anyCollection(), anyCollection(), eq(FILE));
   }
 
   @Test
@@ -267,6 +274,7 @@ class IntegrateIssuesVisitorIT {
 
     List<DefaultIssue> issues = newArrayList(protoIssueCache.traverse());
     assertThat(issues).isEmpty();
+    verify(locationHashesService).computeHashesAndUpdateIssues(anyCollection(), anyCollection(), eq(FILE));
   }
 
   @Test
@@ -288,6 +296,7 @@ class IntegrateIssuesVisitorIT {
     // most issues won't go to the cache since they aren't changed and don't need to be persisted
     // In this test they are being closed but the workflows aren't working (we mock them) so nothing is changed on the issue is not cached.
     assertThat(newArrayList(protoIssueCache.traverse())).isEmpty();
+    verifyNoInteractions(locationHashesService);
   }
 
   @Test
@@ -319,6 +328,7 @@ class IntegrateIssuesVisitorIT {
     assertThat(issues.get(0).isCopied()).isTrue();
     assertThat(issues.get(0).changes()).hasSize(1);
     assertThat(issues.get(0).changes().get(0).diffs()).contains(entry(IssueFieldsSetter.FROM_BRANCH, new FieldDiffs.Diff<>("master", null)));
+    verify(locationHashesService).computeHashesAndUpdateIssues(anyCollection(), anyCollection(), eq(FILE));
   }
 
   @Test
@@ -343,6 +353,7 @@ class IntegrateIssuesVisitorIT {
     underTest.visitAny(FILE);
 
     verify(rawInputFactory).create(FILE);
+    verify(locationHashesService).computeHashesAndUpdateIssues(anyCollection(), anyCollection(), eq(FILE));
   }
 
   private void addBaseIssue(RuleKey ruleKey) {

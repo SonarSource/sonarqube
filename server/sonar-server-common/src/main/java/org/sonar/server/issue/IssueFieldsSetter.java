@@ -226,17 +226,23 @@ public class IssueFieldsSetter {
   }
 
   /**
-   * New value will be set if the locations are different, ignoring the hashes. If that's the case, we mark the issue as changed,
-   * and we also flag that the locations have changed, so that we calculate all the hashes later, in an efficient way.
-   * WARNING: It is possible that the hashes changes without the text ranges changing, but for optimization we take that risk.
+   * New value will be set if the locations are different when comparing by hashes or text ranges (positions). If either is true, we mark the issue as changed,
+   * to correctly display new locations. However, we only flag that the locations have changed in case of difference in hashes.
+   * For example, the setLocationsChanged flag will be false in case of issue locations shift due to unrelated new line in the file.
    *
-   * @see ComputeLocationHashesVisitor
+   * @see LocationHashesService
    */
   public boolean setLocations(DefaultIssue issue, @Nullable Object locations) {
-    if (!locationsEqualsIgnoreHashes(locations, issue.getLocations())) {
+    if (!locationsEqualsBasedOnLineHashes(locations, issue.getLocations())) {
       issue.setLocations(locations);
       issue.setChanged(true);
       issue.setLocationsChanged(true);
+      return true;
+    } else if (!locationsEqualsIgnoreHashes(locations, issue.getLocations())) {
+      // update the locations for correct display
+      issue.setLocations(locations);
+      issue.setChanged(true);
+      // do not set locationsChanged flag as the location contents have not changed
       return true;
     }
     return false;
@@ -269,8 +275,39 @@ public class IssueFieldsSetter {
     return true;
   }
 
+  private static boolean locationsEqualsBasedOnLineHashes(@Nullable Object l1, @Nullable DbIssues.Locations l2) {
+    if (l1 == null && l2 == null) {
+      return true;
+    }
+
+    if (l2 == null || !(l1 instanceof DbIssues.Locations)) {
+      return false;
+    }
+
+    DbIssues.Locations l1c = (DbIssues.Locations) l1;
+    if (!Objects.equals(l1c.getChecksum(), l2.getChecksum()) || l1c.getFlowCount() != l2.getFlowCount()) {
+      return false;
+    }
+
+    for (int i = 0; i < l1c.getFlowCount(); i++) {
+      if (l1c.getFlow(i).getLocationCount() != l2.getFlow(i).getLocationCount()) {
+        return false;
+      }
+      for (int j = 0; j < l1c.getFlow(i).getLocationCount(); j++) {
+        if (!locationEqualsBasedOnHashes(l1c.getFlow(i).getLocation(j), l2.getFlow(i).getLocation(j))) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
   private static boolean locationEqualsIgnoreHashes(DbIssues.Location l1, DbIssues.Location l2) {
     return Objects.equals(l1.getComponentId(), l2.getComponentId()) && Objects.equals(l1.getTextRange(), l2.getTextRange()) && Objects.equals(l1.getMsg(), l2.getMsg());
+  }
+
+  private static boolean locationEqualsBasedOnHashes(DbIssues.Location l1, DbIssues.Location l2) {
+    return Objects.equals(l1.getComponentId(), l2.getComponentId()) && Objects.equals(l1.getChecksum(), l2.getChecksum()) && Objects.equals(l1.getMsg(), l2.getMsg());
   }
 
   public boolean setPastLocations(DefaultIssue issue, @Nullable Object previousLocations) {

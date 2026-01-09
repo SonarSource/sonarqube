@@ -19,10 +19,13 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
@@ -39,77 +42,70 @@ import org.sonar.server.issue.TaintChecker;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 
 /**
- * This visitor will update the locations field of issues, by filling hashes for their locations:
+ * This service will update the locations field of issues, by filling hashes for their locations:
  * - Primary location hash: for all issues, when needed (ie. is missing or the issue is new/updated)
  * - Secondary location hash: only for taint vulnerabilities and security hotspots, when needed (the issue is new/updated)
  * For performance reasons, it will read each source code file once and feed the lines to all locations in that file.
  */
-public class ComputeLocationHashesVisitor extends IssueVisitor {
-  private static final Logger LOGGER = LoggerFactory.getLogger(ComputeLocationHashesVisitor.class);
+public class LocationHashesService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(LocationHashesService.class);
 
   private static final Pattern MATCH_ALL_WHITESPACES = Pattern.compile("\\s");
-  private final List<DefaultIssue> issuesForAllLocations = new LinkedList<>();
-  private final List<DefaultIssue> issuesForPrimaryLocation = new LinkedList<>();
+
+  private static final Predicate<DefaultIssue> issueNeedsLocationHashes = issue -> {
+    DbIssues.Locations locations = issue.getLocations();
+    return !issue.isFromExternalRuleEngine()
+      && !issue.isBeingClosed()
+      && locations != null;
+  };
+
+  private static final Predicate<DefaultIssue> shouldComputePrimaryHashesForIssues = issue -> {
+    DbIssues.Locations locations = issue.getLocations();
+    return locations.hasTextRange() && !locations.hasChecksum();
+  };
+
   private final SourceLinesRepository sourceLinesRepository;
   private final TreeRootHolder treeRootHolder;
   private final TaintChecker taintChecker;
 
-  public ComputeLocationHashesVisitor(TaintChecker taintChecker, SourceLinesRepository sourceLinesRepository, TreeRootHolder treeRootHolder) {
+  public LocationHashesService(TaintChecker taintChecker, SourceLinesRepository sourceLinesRepository, TreeRootHolder treeRootHolder) {
     this.taintChecker = taintChecker;
     this.sourceLinesRepository = sourceLinesRepository;
     this.treeRootHolder = treeRootHolder;
   }
 
-  @Override
-  public void beforeComponent(Component component) {
-    issuesForAllLocations.clear();
-    issuesForPrimaryLocation.clear();
-  }
+  public void computeHashesAndUpdateIssues(Collection<DefaultIssue> newIssuesOrLocationsUpdated, Collection<DefaultIssue> otherIssues, Component component) {
+    if (newIssuesOrLocationsUpdated.isEmpty() && otherIssues.isEmpty()) {
+      return;
+    }
 
-  @Override
-  public void onIssue(Component component, DefaultIssue issue) {
-    if (issueNeedsLocationHashes(issue)) {
-      if (shouldComputeAllLocationHashes(issue)) {
+    List<DefaultIssue> issuesForAllLocations = new ArrayList<>();
+    List<DefaultIssue> issuesForPrimaryLocation = new ArrayList<>();
+
+    newIssuesOrLocationsUpdated.stream().filter(issueNeedsLocationHashes).forEach(issue -> {
+      if (taintChecker.isTaintVulnerability(issue)) {
         issuesForAllLocations.add(issue);
-      } else if (shouldComputePrimaryLocationHash(issue)) {
-        // Issues in this situation are not necessarily marked as changed, so we do it to ensure persistence
-        issue.setChanged(true);
+      } else {
         issuesForPrimaryLocation.add(issue);
       }
-    }
+    });
+
+    issuesForPrimaryLocation.addAll(otherIssues.stream().filter(issueNeedsLocationHashes).filter(shouldComputePrimaryHashesForIssues)
+      // Issues in this situation are not necessarily marked as changed, so we do it to ensure persistence
+      .map(issue -> issue.setChanged(true))
+      .toList());
+
+    computeAndUpdateLocationHashes(component, issuesForAllLocations, issuesForPrimaryLocation);
   }
 
-  private static boolean issueNeedsLocationHashes(DefaultIssue issue) {
-    DbIssues.Locations locations = issue.getLocations();
-    return !issue.isFromExternalRuleEngine()
-      && !issue.isBeingClosed()
-      && locations != null;
-  }
-
-  private boolean shouldComputeAllLocationHashes(DefaultIssue issue) {
-    return taintChecker.isTaintVulnerability(issue)
-      && isIssueUpdated(issue);
-  }
-
-  private static boolean shouldComputePrimaryLocationHash(DefaultIssue issue) {
-    DbIssues.Locations locations = issue.getLocations();
-    return (locations.hasTextRange() && !locations.hasChecksum())
-      || isIssueUpdated(issue);
-  }
-
-  private static boolean isIssueUpdated(DefaultIssue issue) {
-    return issue.isNew() || issue.locationsChanged();
-  }
-
-  @Override
-  public void beforeCaching(Component component) {
+  private void computeAndUpdateLocationHashes(Component component, List<DefaultIssue> issuesForAllLocations, List<DefaultIssue> issuesForPrimaryLocation) {
     Map<Component, List<Location>> locationsByComponent = new HashMap<>();
     List<LocationToSet> locationsToSet = new LinkedList<>();
 
     // Issues that needs both primary and secondary locations hashes
-    extractForAllLocations(component, locationsByComponent, locationsToSet);
+    extractForAllLocations(component, locationsByComponent, locationsToSet, issuesForAllLocations);
     // Then issues that needs only primary locations
-    extractForPrimaryLocation(component, locationsByComponent, locationsToSet);
+    extractForPrimaryLocation(component, locationsByComponent, locationsToSet, issuesForPrimaryLocation);
 
     // Feed lines to locations, component by component
     locationsByComponent.forEach(this::updateLocationsInComponent);
@@ -119,12 +115,10 @@ public class ComputeLocationHashesVisitor extends IssueVisitor {
 
     // set new locations to issues
     locationsToSet.forEach(LocationToSet::set);
-
-    issuesForAllLocations.clear();
-    issuesForPrimaryLocation.clear();
   }
 
-  private void extractForAllLocations(Component component, Map<Component, List<Location>> locationsByComponent, List<LocationToSet> locationsToSet) {
+  private void extractForAllLocations(Component component, Map<Component, List<Location>> locationsByComponent, List<LocationToSet> locationsToSet,
+    List<DefaultIssue> issuesForAllLocations) {
     for (DefaultIssue issue : issuesForAllLocations) {
       DbIssues.Locations.Builder locationsBuilder = ((DbIssues.Locations) issue.getLocations()).toBuilder();
       addPrimaryLocation(component, locationsByComponent, locationsBuilder);
@@ -133,7 +127,8 @@ public class ComputeLocationHashesVisitor extends IssueVisitor {
     }
   }
 
-  private void extractForPrimaryLocation(Component component, Map<Component, List<Location>> locationsByComponent, List<LocationToSet> locationsToSet) {
+  private static void extractForPrimaryLocation(Component component, Map<Component, List<Location>> locationsByComponent, List<LocationToSet> locationsToSet,
+    List<DefaultIssue> issuesForPrimaryLocation) {
     for (DefaultIssue issue : issuesForPrimaryLocation) {
       DbIssues.Locations.Builder locationsBuilder = ((DbIssues.Locations) issue.getLocations()).toBuilder();
       addPrimaryLocation(component, locationsByComponent, locationsBuilder);

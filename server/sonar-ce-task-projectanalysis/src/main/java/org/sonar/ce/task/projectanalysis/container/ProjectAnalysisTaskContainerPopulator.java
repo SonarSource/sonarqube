@@ -61,7 +61,7 @@ import org.sonar.ce.task.projectanalysis.issue.ClosedIssuesInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.ComponentIssuesLoader;
 import org.sonar.ce.task.projectanalysis.issue.ComponentIssuesRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.issue.ComponentsWithUnprocessedIssues;
-import org.sonar.ce.task.projectanalysis.issue.ComputeLocationHashesVisitor;
+import org.sonar.ce.task.projectanalysis.issue.LocationHashesService;
 import org.sonar.ce.task.projectanalysis.issue.DebtCalculator;
 import org.sonar.ce.task.projectanalysis.issue.DefaultAssignee;
 import org.sonar.ce.task.projectanalysis.issue.EffortAggregator;
@@ -286,7 +286,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       RuleTagsCopier.class,
       IssueCreationDateCalculator.class,
       TransitionIssuesToAnticipatedStatesVisitor.class,
-      ComputeLocationHashesVisitor.class,
+      LocationHashesService.class,
       DebtCalculator.class,
       EffortAggregator.class,
       NewEffortAggregator.class,

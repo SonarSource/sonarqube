@@ -35,12 +35,12 @@ import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultImpact;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.protobuf.DbIssues.MessageFormattingType;
@@ -348,19 +348,35 @@ class IssueFieldsSetterTest {
   }
 
   @Test
-  void change_locations_if_primary_text_rage_changed() {
+  void do_not_mark_locations_changed_if_primary_text_range_changed_but_not_checksum() {
     DbCommons.TextRange range = DbCommons.TextRange.newBuilder().setStartLine(1).build();
     DbIssues.Locations locations = DbIssues.Locations.newBuilder()
       .setTextRange(range)
+      .setChecksum("1")
       .build();
-    DbIssues.Locations locations2 = locations.toBuilder().setTextRange(range.toBuilder().setEndLine(2).build()).build();
+    DbIssues.Locations locations2 = locations.toBuilder().setTextRange(range.toBuilder().setEndLine(2).build()).setChecksum("1").build();
+    issue.setLocations(locations);
+    boolean updated = underTest.setLocations(issue, locations2);
+    assertThat(updated).isTrue();
+    assertThat((Object) issue.getLocations()).isEqualTo(locations2);
+    assertThat(issue.locationsChanged()).isFalse();
+    assertThat(issue.currentChange()).isNull();
+    assertThat(issue.mustSendNotifications()).isFalse();
+  }
+
+  @Test
+  void mark_locations_changed_if_location_checksum_changed() {
+    DbCommons.TextRange range = DbCommons.TextRange.newBuilder().setStartLine(1).build();
+    DbIssues.Locations locations = DbIssues.Locations.newBuilder()
+      .setTextRange(range)
+      .setChecksum("1")
+      .build();
+    DbIssues.Locations locations2 = locations.toBuilder().setTextRange(range).setChecksum("2").build();
     issue.setLocations(locations);
     boolean updated = underTest.setLocations(issue, locations2);
     assertThat(updated).isTrue();
     assertThat((Object) issue.getLocations()).isEqualTo(locations2);
     assertThat(issue.locationsChanged()).isTrue();
-    assertThat(issue.currentChange()).isNull();
-    assertThat(issue.mustSendNotifications()).isFalse();
   }
 
   @Test
@@ -376,6 +392,7 @@ class IssueFieldsSetterTest {
     builder.getFlowBuilder(0).getLocationBuilder(0).setTextRange(range.toBuilder().setEndLine(2));
     boolean updated = underTest.setLocations(issue, builder.build());
     assertThat(updated).isTrue();
+    assertThat(issue.locationsChanged()).isFalse();
   }
 
   @Test
@@ -390,6 +407,7 @@ class IssueFieldsSetterTest {
     builder.getFlowBuilder(0).getLocationBuilder(0).setMsg("msg2");
     boolean updated = underTest.setLocations(issue, builder.build());
     assertThat(updated).isTrue();
+    assertThat(issue.locationsChanged()).isTrue();
   }
 
   @Test
@@ -404,10 +422,11 @@ class IssueFieldsSetterTest {
     builder.clearFlow();
     boolean updated = underTest.setLocations(issue, builder.build());
     assertThat(updated).isTrue();
+    assertThat(issue.locationsChanged()).isTrue();
   }
 
   @Test
-  void do_not_change_locations_if_primary_hash_changed() {
+  void change_locations_if_primary_hash_changed() {
     DbCommons.TextRange range = DbCommons.TextRange.newBuilder().setStartLine(1).build();
     DbIssues.Locations locations = DbIssues.Locations.newBuilder()
       .setTextRange(range)
@@ -415,11 +434,12 @@ class IssueFieldsSetterTest {
       .build();
     issue.setLocations(locations);
     boolean updated = underTest.setLocations(issue, locations.toBuilder().setChecksum("2").build());
-    assertThat(updated).isFalse();
+    assertThat(updated).isTrue();
+    assertThat(issue.locationsChanged()).isTrue();
   }
 
   @Test
-  void do_not_change_locations_if_secondary_hash_changed() {
+  void change_locations_if_secondary_hash_changed() {
     DbCommons.TextRange range = DbCommons.TextRange.newBuilder().setStartLine(1).build();
     DbIssues.Locations locations = DbIssues.Locations.newBuilder()
       .addFlow(DbIssues.Flow.newBuilder()
@@ -431,9 +451,10 @@ class IssueFieldsSetterTest {
     DbIssues.Locations.Builder builder = locations.toBuilder();
     builder.getFlowBuilder(0).getLocationBuilder(0).setChecksum("2");
     boolean updated = underTest.setLocations(issue, builder.build());
-    assertThat(updated).isFalse();
+    assertThat(updated).isTrue();
     assertThat(issue.currentChange()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
+    assertThat(issue.locationsChanged()).isTrue();
   }
 
   @Test
@@ -444,6 +465,7 @@ class IssueFieldsSetterTest {
     assertThat(issue.getLocations().toString()).isEqualTo("[1-4]");
     assertThat(issue.currentChange()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
+    assertThat(issue.locationsChanged()).isTrue();
   }
 
   @Test
