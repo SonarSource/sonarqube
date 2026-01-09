@@ -249,6 +249,10 @@ public class BulkChangeAction implements IssuesWsAction {
       throw new IllegalStateException("Some project UUIDs were not found");
     }
 
+    // Use projects from branches if available, otherwise use projects from PR
+    if(projectDtosForBranches.isEmpty()) {
+      projectDtosForBranches=projectDtosForPR;
+    }
     // Check ISSUE_ADMIN permission ONCE per project
     for (ProjectDto projectDtoOfEach : projectDtosForBranches) {
       userSession.checkEntityPermission(UserRole.ISSUE_ADMIN, projectDtoOfEach);
@@ -276,20 +280,20 @@ public class BulkChangeAction implements IssuesWsAction {
     String projectDtoForIssue = issueDto.getProjectUuid();
 
     // If the issue is from PR, we need to get the project key from component table and then get the project UUID from project table
-    ComponentDto pKeyIssue=dbClient.componentDao().selectOrFailByUuid(dbSession,projectDtoForIssue);
-    String pKeyForFirstIssue = pKeyIssue.getKey();
+    ComponentDto componentDto=dbClient.componentDao().selectOrFailByUuid(dbSession,projectDtoForIssue);
+    String projectKeyForFirstIssue = componentDto.getKey();
 
-    // Get project key from project UUID, if not found use pKeyForFirstIssue which we got from component table
-    String projectId = dbClient.projectDao()
+    // Get project key from project UUID, if not found use projectKeyForFirstIssue which we got from component table
+    String projectKey = dbClient.projectDao()
             .selectByUuid(dbSession, issueDto.getProjectUuid())
             .map(ProjectDto::getKey)
-            .orElse(pKeyForFirstIssue);
+            .orElse(projectKeyForFirstIssue);
 
     // Now get the project UUID from project key
-    String projectUuid = dbClient.projectDao().selectProjectByKey(dbSession,projectId)
+    String projectUuid = dbClient.projectDao().selectProjectByKey(dbSession,projectKey)
             .map(ProjectDto::getUuid)
             .orElseThrow(() -> new IllegalStateException(
-                    format("Project with key %s not found for issue %s", projectId, issue.key()))
+                    format("Project with key %s not found for issue %s", projectKey, issue.key()))
             );
 
     if (assigneeUser!=null && assigneeUser.getUuid() != null && !hasProjectPermission(dbSession, assigneeUser.getUuid(),
@@ -297,22 +301,22 @@ public class BulkChangeAction implements IssuesWsAction {
       throw new IllegalArgumentException(
               format("User '%s' does not have permission to be assigned issues in project '%s'",
                       assigneeUser.getLogin(),
-                      projectId));
+                      projectKey));
     }
 
-    List<DefaultIssue> items = bulkChangeData.issues.stream()
+    List<DefaultIssue> defaultIssues = bulkChangeData.issues.stream()
       .filter(bulkChange(issueChangeContext, bulkChangeData, result))
       .toList();
-    issueStorage.save(dbSession, items);
+    issueStorage.save(dbSession, defaultIssues);
     refreshLiveMeasures(dbSession, bulkChangeData, result);
 
-    Set<String> assigneeUuids = items.stream().map(DefaultIssue::assignee).filter(Objects::nonNull).collect(Collectors.toSet());
+    Set<String> assigneeUuids = defaultIssues.stream().map(DefaultIssue::assignee).filter(Objects::nonNull).collect(Collectors.toSet());
     Map<String, UserDto> userDtoByUuid = dbClient.userDao().selectByUuids(dbSession, assigneeUuids).stream().collect(toMap(UserDto::getUuid, u -> u));
     String authorUuid = requireNonNull(userSession.getUuid(), "User uuid cannot be null");
     UserDto author = dbClient.userDao().selectByUuid(dbSession, authorUuid);
     checkState(author != null, "User with uuid '%s' does not exist");
-    sendNotification(items, bulkChangeData, userDtoByUuid, author);
-    distributeEvents(items, bulkChangeData);
+    sendNotification(defaultIssues, bulkChangeData, userDtoByUuid, author);
+    distributeEvents(defaultIssues, bulkChangeData);
 
     return result;
   }
