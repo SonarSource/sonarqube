@@ -277,10 +277,9 @@ public class BulkChangeAction implements IssuesWsAction {
     IssueDto issueDto = bulkChangeData.originalIssueByKey.get(issue.key());
 
     // If the issue is from a master branch, we can get the project UUID directly
-    String projectDtoForIssue = issueDto.getProjectUuid();
-
+    String issueDtoProjectUuid = issueDto.getProjectUuid();
     // If the issue is from PR, we need to get the project key from component table and then get the project UUID from project table
-    ComponentDto componentDto=dbClient.componentDao().selectOrFailByUuid(dbSession,projectDtoForIssue);
+    ComponentDto componentDto=dbClient.componentDao().selectOrFailByUuid(dbSession,issueDtoProjectUuid);
     String projectKeyForFirstIssue = componentDto.getKey();
 
     // Get project key from project UUID, if not found use projectKeyForFirstIssue which we got from component table
