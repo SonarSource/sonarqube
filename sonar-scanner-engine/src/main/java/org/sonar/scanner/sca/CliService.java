@@ -211,7 +211,9 @@ public class CliService {
     if (workDir.startsWith(baseDir)) {
       // workDir is inside baseDir, so return the relative path as a glob
       Path relativeWorkDir = baseDir.relativize(workDir);
-      return relativeWorkDir + "/**";
+      // Normalize path separators to forward slashes for cross-platform compatibility
+      String normalizedPath = relativeWorkDir.toString().replace('\\', '/');
+      return normalizedPath + "/**";
     }
 
     return null;

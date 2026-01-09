@@ -151,9 +151,10 @@ public class DefaultFilePredicatesTest {
     Files.createParentDirs(javaFile.file());
     Files.touch(javaFile.file());
 
-    // relative file
+    // relative file - normalize path to use forward slashes for cross-platform compatibility
     Path relativePath = moduleBasePath.relativize(javaFile.path());
-    assertThat(predicates.is(relativePath.toFile()).apply(javaFile)).isTrue();
+    String normalizedPath = relativePath.toString().replace('\\', '/');
+    assertThat(predicates.is(new File(normalizedPath)).apply(javaFile)).isTrue();
 
     // absolute file
     assertThat(predicates.is(javaFile.file()).apply(javaFile)).isTrue();
