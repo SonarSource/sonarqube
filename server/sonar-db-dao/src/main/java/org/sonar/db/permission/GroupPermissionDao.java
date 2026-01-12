@@ -85,7 +85,7 @@ public class GroupPermissionDao implements Dao {
    * Each row returns a {@link CountPerEntityPermission}
    */
   public void groupsCountByComponentUuidAndPermission(DbSession dbSession, List<String> entityUuids, ResultHandler<CountPerEntityPermission> resultHandler) {
-    Map<String, Object> parameters = new HashMap<>(2);
+    Map<String, Object> parameters = HashMap.newHashMap(2);
     parameters.put(ANYONE_GROUP_PARAMETER, DefaultGroups.ANYONE);
 
     executeLargeInputsWithoutOutput(

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.source;
 
-import com.google.common.io.Closeables;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -51,9 +50,7 @@ class HtmlTextDecorator {
     List<String> decoratedHtmlLines = newArrayList();
     int currentLine = 1;
 
-    BufferedReader stringBuffer = null;
-    try {
-      stringBuffer = new BufferedReader(new StringReader(text));
+    try (BufferedReader stringBuffer = new BufferedReader(new StringReader(text))) {
 
       CharactersReader charsReader = new CharactersReader(stringBuffer);
 
@@ -77,7 +74,7 @@ class HtmlTextDecorator {
         addLine(decoratedHtmlLines, currentHtmlLine.toString(), currentLine, from, to);
         currentLine++;
         addLine(decoratedHtmlLines, "", currentLine, from, to);
-      } else if (currentHtmlLine.length() > 0) {
+      } else if (!currentHtmlLine.isEmpty()) {
         addLine(decoratedHtmlLines, currentHtmlLine.toString(), currentLine, from, to);
       }
 
@@ -85,19 +82,16 @@ class HtmlTextDecorator {
       String errorMsg = "An exception occurred while highlighting the syntax of one of the project's files";
       LoggerFactory.getLogger(HtmlTextDecorator.class).error(errorMsg);
       throw new IllegalStateException(errorMsg, exception);
-    } finally {
-      Closeables.closeQuietly(stringBuffer);
     }
 
     return decoratedHtmlLines;
   }
 
   private static void addCharToCurrentLine(CharactersReader charsReader, StringBuilder currentHtmlLine, DecorationDataHolder decorationDataHolder) {
-    if (shouldStartNewLine(charsReader)) {
-      if (shouldReopenPendingTags(charsReader)) {
-        reopenCurrentSyntaxTags(charsReader, currentHtmlLine);
-      }
+    if (shouldStartNewLine(charsReader) && shouldReopenPendingTags(charsReader)) {
+      reopenCurrentSyntaxTags(charsReader, currentHtmlLine);
     }
+
 
     int numberOfTagsToClose = getNumberOfTagsToClose(charsReader.getCurrentIndex(), decorationDataHolder);
     closeCompletedTags(charsReader, numberOfTagsToClose, currentHtmlLine);
@@ -131,14 +125,11 @@ class HtmlTextDecorator {
 
   private static char[] normalize(char currentChar) {
     char[] normalizedChars;
-    if (currentChar == HTML_OPENING) {
-      normalizedChars = ENCODED_HTML_OPENING.toCharArray();
-    } else if (currentChar == HTML_CLOSING) {
-      normalizedChars = ENCODED_HTML_CLOSING.toCharArray();
-    } else if (currentChar == AMPERSAND) {
-      normalizedChars = ENCODED_AMPERSAND.toCharArray();
-    } else {
-      normalizedChars = new char[] {currentChar};
+    switch (currentChar) {
+      case HTML_OPENING -> normalizedChars = ENCODED_HTML_OPENING.toCharArray();
+      case HTML_CLOSING -> normalizedChars = ENCODED_HTML_CLOSING.toCharArray();
+      case AMPERSAND -> normalizedChars = ENCODED_AMPERSAND.toCharArray();
+      default -> normalizedChars = new char[]{currentChar};
     }
     return normalizedChars;
   }
@@ -175,7 +166,7 @@ class HtmlTextDecorator {
   private static boolean shouldReopenPendingTags(CharactersReader charactersReader) {
     return (charactersReader.getPreviousValue() == LF_END_OF_LINE && charactersReader.getCurrentValue() != LF_END_OF_LINE)
       || (charactersReader.getPreviousValue() == CR_END_OF_LINE && charactersReader.getCurrentValue() != CR_END_OF_LINE
-        && charactersReader.getCurrentValue() != LF_END_OF_LINE);
+      && charactersReader.getCurrentValue() != LF_END_OF_LINE);
   }
 
   private static boolean shouldStartNewLine(CharactersReader charactersReader) {

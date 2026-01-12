@@ -111,7 +111,7 @@ public class DefaultIssue implements Issue, Trackable {
   // true if the issue is being copied between branch
   private boolean isCopied = false;
 
-  // true if any of the locations have changed (ignoring hashes)
+  // true if any of the locations have changed (based on hashes)
   private boolean locationsChanged = false;
 
   // True if the issue did exist in the previous scan but not in the current one. That means

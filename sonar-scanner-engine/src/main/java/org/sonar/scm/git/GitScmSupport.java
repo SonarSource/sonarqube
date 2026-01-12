@@ -39,6 +39,7 @@ public final class GitScmSupport {
       DefaultBlameStrategy.class,
       ProcessWrapperFactory.class,
       GitScmProvider.class,
-      GitIgnoreCommand.class);
+      GitIgnoreCommand.class,
+      GitRemoteUrlProvider.class);
   }
 }

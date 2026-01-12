@@ -25,9 +25,11 @@ import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.db.measure.ProjectMeasureDto;
 
 import static java.util.Objects.requireNonNull;
-import static java.util.Optional.of;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.toLevel;
 
+/**
+ * Converts ProjectMeasureDto (from PROJECT_MEASURES table - historical analysis data) to Measure objects.
+ */
 public class ProjectMeasureDtoToMeasure {
 
   private ProjectMeasureDtoToMeasure() {
@@ -39,87 +41,62 @@ public class ProjectMeasureDtoToMeasure {
     if (measureDto == null) {
       return Optional.empty();
     }
-    Double value = measureDto.getValue();
-    String data = measureDto.getData();
-    switch (metric.getType().getValueType()) {
-      case INT:
-        return toIntegerMeasure(measureDto, value, data);
-      case LONG:
-        return toLongMeasure(measureDto, value, data);
-      case DOUBLE:
-        return toDoubleMeasure(measureDto, value, data);
-      case BOOLEAN:
-        return toBooleanMeasure(measureDto, value, data);
-      case STRING:
-        return toStringMeasure(measureDto, data);
-      case LEVEL:
-        return toLevelMeasure(measureDto, data);
-      case NO_VALUE:
-        return toNoValueMeasure(measureDto);
-      default:
-        throw new IllegalArgumentException("Unsupported Measure.ValueType " + metric.getType().getValueType());
-    }
+    return MeasureConverter.toMeasure(new ProjectMeasureAdapter(measureDto), metric);
   }
 
-  private static Optional<Measure> toIntegerMeasure(ProjectMeasureDto measureDto, @Nullable Double value, @Nullable String data) {
-    if (value == null) {
-      return toNoValueMeasure(measureDto);
-    }
-    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(value.intValue(), data));
-  }
+  /**
+   * Adapter for ProjectMeasureDto to work with the common MeasureConverter.
+   */
+  private static class ProjectMeasureAdapter implements MeasureConverter.MeasureDataAdapter {
+    private final ProjectMeasureDto dto;
 
-  private static Optional<Measure> toLongMeasure(ProjectMeasureDto measureDto, @Nullable Double value, @Nullable String data) {
-    if (value == null) {
-      return toNoValueMeasure(measureDto);
-    }
-    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(value.longValue(), data));
-  }
-
-  private static Optional<Measure> toDoubleMeasure(ProjectMeasureDto measureDto, @Nullable Double value, @Nullable String data) {
-    if (value == null) {
-      return toNoValueMeasure(measureDto);
+    ProjectMeasureAdapter(ProjectMeasureDto dto) {
+      this.dto = dto;
     }
 
-    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto)
-      .create(value, org.sonar.api.measures.Metric.MAX_DECIMAL_SCALE, data));
-  }
-
-  private static Optional<Measure> toBooleanMeasure(ProjectMeasureDto measureDto, @Nullable Double value, @Nullable String data) {
-    if (value == null) {
-      return toNoValueMeasure(measureDto);
+    @Override
+    public Integer getIntValue() {
+      Double value = dto.getValue();
+      return value != null ? value.intValue() : null;
     }
-    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(Double.compare(value, 1.0D) == 0, data));
-  }
 
-  private static Optional<Measure> toStringMeasure(ProjectMeasureDto measureDto, @Nullable String data) {
-    if (data == null) {
-      return toNoValueMeasure(measureDto);
+    @Override
+    public Long getLongValue() {
+      Double value = dto.getValue();
+      return value != null ? value.longValue() : null;
     }
-    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(data));
-  }
 
-  private static Optional<Measure> toLevelMeasure(ProjectMeasureDto measureDto, @Nullable String data) {
-    if (data == null) {
-      return toNoValueMeasure(measureDto);
+    @Override
+    public Double getDoubleValue() {
+      return dto.getValue();
     }
-    Optional<Measure.Level> level = toLevel(data);
-    if (!level.isPresent()) {
-      return toNoValueMeasure(measureDto);
+
+    @Override
+    public String getStringValue() {
+      return dto.getData();
     }
-    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(level.get()));
-  }
 
-  private static Optional<Measure> toNoValueMeasure(ProjectMeasureDto measureDto) {
-    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).createNoValue());
-  }
+    @Override
+    public String getData() {
+      return dto.getData();
+    }
 
-  private static Measure.NewMeasureBuilder setCommonProperties(Measure.NewMeasureBuilder builder, ProjectMeasureDto measureDto) {
-    if (measureDto.getAlertStatus() != null) {
-      Optional<Measure.Level> qualityGateStatus = toLevel(measureDto.getAlertStatus());
-      if (qualityGateStatus.isPresent()) {
-        builder.setQualityGateStatus(new QualityGateStatus(qualityGateStatus.get(), measureDto.getAlertText()));
+    @Override
+    public QualityGateStatus getQualityGateStatus() {
+      if (dto.getAlertStatus() != null) {
+        Optional<Measure.Level> qualityGateStatus = toLevel(dto.getAlertStatus());
+        if (qualityGateStatus.isPresent()) {
+          return new QualityGateStatus(qualityGateStatus.get(), dto.getAlertText());
+        }
       }
+      return null;
     }
-    return builder;
+
+    @Override
+    public boolean useNoValueForMissing() {
+      // ProjectMeasureDto: a row exists but value is null -> NoValue measure
+      return true;
+    }
   }
+
 }

@@ -43,11 +43,22 @@ test {
   useJUnitPlatform()
 }
 
+javadoc {
+  exclude 'module-info.java'
+  doFirst {
+    options.classpath = classpath.files.toList()
+  }
+}
+
 artifactoryPublish.skip = !deployCommunity
 publishing {
   publications {
     mavenJava(MavenPublication) {
       from components.java
+      if (release) {
+        artifact sourcesJar
+        artifact javadocJar
+      }
     }
   }
 }

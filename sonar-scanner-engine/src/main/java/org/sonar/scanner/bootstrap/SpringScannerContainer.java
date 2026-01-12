@@ -107,6 +107,7 @@ import org.sonar.scanner.scan.ProjectReactorBuilder;
 import org.sonar.scanner.scan.ProjectReactorValidator;
 import org.sonar.scanner.scan.ProjectServerSettingsProvider;
 import org.sonar.scanner.scan.ScanProperties;
+import org.sonar.scanner.scan.ScanPropertiesTelemetryProvider;
 import org.sonar.scanner.scan.SonarGlobalPropertiesFilter;
 import org.sonar.scanner.scan.SpringProjectScanContainer;
 import org.sonar.scanner.scan.WorkDirectoriesInitializer;
@@ -227,6 +228,7 @@ public class SpringScannerContainer extends SpringComponentContainer {
       // context
       ContextPropertiesCache.class,
       TelemetryCache.class,
+      ScanPropertiesTelemetryProvider.class,
 
       SonarGlobalPropertiesFilter.class,
       ProjectConfigurationProvider.class,

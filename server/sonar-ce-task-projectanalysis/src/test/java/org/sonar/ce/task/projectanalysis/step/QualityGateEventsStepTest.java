@@ -21,9 +21,9 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.Collection;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.notifications.Notification;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
@@ -58,7 +58,7 @@ import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.ERROR;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.OK;
 
-public class QualityGateEventsStepTest {
+class QualityGateEventsStepTest {
   private static final String PROJECT_VERSION = secure().nextAlphabetic(19);
   private static final ReportComponent PROJECT_COMPONENT = ReportComponent.builder(Component.Type.PROJECT, 1)
     .setUuid("uuid 1")
@@ -73,11 +73,11 @@ public class QualityGateEventsStepTest {
   private static final QualityGateStatus OK_QUALITY_GATE_STATUS = new QualityGateStatus(OK, ALERT_TEXT);
   private static final QualityGateStatus ERROR_QUALITY_GATE_STATUS = new QualityGateStatus(ERROR, ALERT_TEXT);
 
-  @Rule
-  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+  @RegisterExtension
+  TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
-  @Rule
-  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
+  @RegisterExtension
+  AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
   private ArgumentCaptor<Event> eventArgumentCaptor = ArgumentCaptor.forClass(Event.class);
   private ArgumentCaptor<Notification> notificationArgumentCaptor = ArgumentCaptor.forClass(Notification.class);
@@ -91,8 +91,8 @@ public class QualityGateEventsStepTest {
   private QualityGateEventsStep underTest = new QualityGateEventsStep(treeRootHolder, metricRepository, measureRepository, eventRepository, notificationService,
     analysisMetadataHolder);
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     when(metricRepository.getByKey(ALERT_STATUS_KEY)).thenReturn(alertStatusMetric);
     analysisMetadataHolder
       .setProject(new Project(PROJECT_COMPONENT.getUuid(), PROJECT_COMPONENT.getKey(), PROJECT_COMPONENT.getName(), PROJECT_COMPONENT.getDescription(), emptyList()));
@@ -101,7 +101,7 @@ public class QualityGateEventsStepTest {
   }
 
   @Test
-  public void no_event_if_no_raw_ALERT_STATUS_measure() {
+  void no_event_if_no_raw_ALERT_STATUS_measure() {
     when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(Optional.empty());
 
     underTest.execute(new TestComputationStepContext());
@@ -111,7 +111,7 @@ public class QualityGateEventsStepTest {
   }
 
   @Test
-  public void no_event_created_if_raw_ALERT_STATUS_measure_is_null() {
+  void no_event_created_if_raw_ALERT_STATUS_measure_is_null() {
     when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().createNoValue()));
 
     underTest.execute(new TestComputationStepContext());
@@ -125,7 +125,7 @@ public class QualityGateEventsStepTest {
   }
 
   @Test
-  public void no_event_created_if_raw_ALERT_STATUS_measure_is_unsupported_value() {
+  void no_event_created_if_raw_ALERT_STATUS_measure_is_unsupported_value() {
     when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().create(INVALID_ALERT_STATUS)));
 
     underTest.execute(new TestComputationStepContext());
@@ -135,26 +135,26 @@ public class QualityGateEventsStepTest {
   }
 
   @Test
-  public void no_event_created_if_no_base_ALERT_STATUS_and_raw_is_OK() {
+  void no_event_created_if_no_base_ALERT_STATUS_and_raw_is_OK() {
     QualityGateStatus someQGStatus = new QualityGateStatus(Measure.Level.OK);
 
     when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(someQGStatus).createNoValue()));
-    when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().createNoValue()));
+    when(measureRepository.getCurrentLiveMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().createNoValue()));
 
     underTest.execute(new TestComputationStepContext());
 
     verify(measureRepository).getRawMeasure(PROJECT_COMPONENT, alertStatusMetric);
-    verify(measureRepository).getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric);
+    verify(measureRepository).getCurrentLiveMeasure(PROJECT_COMPONENT, alertStatusMetric);
     verifyNoMoreInteractions(measureRepository, eventRepository);
   }
 
   @Test
-  public void event_created_if_base_ALERT_STATUS_has_no_alertStatus_and_raw_is_ERROR() {
+  void event_created_if_base_ALERT_STATUS_has_no_alertStatus_and_raw_is_ERROR() {
     verify_event_created_if_no_base_ALERT_STATUS_measure(ERROR, "Failed");
   }
 
   @Test
-  public void event_created_if_base_ALERT_STATUS_has_invalid_alertStatus_and_raw_is_ERROR() {
+  void event_created_if_base_ALERT_STATUS_has_invalid_alertStatus_and_raw_is_ERROR() {
     verify_event_created_if_no_base_ALERT_STATUS_measure(ERROR, "Failed");
   }
 
@@ -162,12 +162,12 @@ public class QualityGateEventsStepTest {
     QualityGateStatus someQGStatus = new QualityGateStatus(rawAlterStatus, ALERT_TEXT);
 
     when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(someQGStatus).createNoValue()));
-    when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().createNoValue()));
+    when(measureRepository.getCurrentLiveMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().createNoValue()));
 
     underTest.execute(new TestComputationStepContext());
 
     verify(measureRepository).getRawMeasure(PROJECT_COMPONENT, alertStatusMetric);
-    verify(measureRepository).getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric);
+    verify(measureRepository).getCurrentLiveMeasure(PROJECT_COMPONENT, alertStatusMetric);
     verify(eventRepository).add(eventArgumentCaptor.capture());
     verifyNoMoreInteractions(measureRepository, eventRepository);
 
@@ -195,21 +195,21 @@ public class QualityGateEventsStepTest {
   }
 
   @Test
-  public void no_event_created_if_base_ALERT_STATUS_measure_but_status_is_the_same() {
+  void no_event_created_if_base_ALERT_STATUS_measure_but_status_is_the_same() {
     when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric))
       .thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(OK_QUALITY_GATE_STATUS).createNoValue()));
-    when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric))
+    when(measureRepository.getCurrentLiveMeasure(PROJECT_COMPONENT, alertStatusMetric))
       .thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(OK_QUALITY_GATE_STATUS).createNoValue()));
 
     underTest.execute(new TestComputationStepContext());
 
     verify(measureRepository).getRawMeasure(PROJECT_COMPONENT, alertStatusMetric);
-    verify(measureRepository).getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric);
+    verify(measureRepository).getCurrentLiveMeasure(PROJECT_COMPONENT, alertStatusMetric);
     verifyNoMoreInteractions(measureRepository, eventRepository);
   }
 
   @Test
-  public void event_created_if_base_ALERT_STATUS_measure_exists_and_status_has_changed() {
+  void event_created_if_base_ALERT_STATUS_measure_exists_and_status_has_changed() {
     verify_event_created_if_base_ALERT_STATUS_measure_exists_and_status_has_changed(OK, ERROR_QUALITY_GATE_STATUS, "Failed");
     verify_event_created_if_base_ALERT_STATUS_measure_exists_and_status_has_changed(ERROR, OK_QUALITY_GATE_STATUS, "Passed");
   }
@@ -218,13 +218,13 @@ public class QualityGateEventsStepTest {
     QualityGateStatus newQualityGateStatus, String expectedLabel) {
     when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric))
       .thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(newQualityGateStatus).createNoValue()));
-    when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(
+    when(measureRepository.getCurrentLiveMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(
       of(Measure.newMeasureBuilder().setQualityGateStatus(new QualityGateStatus(previousAlertStatus)).createNoValue()));
 
     underTest.execute(new TestComputationStepContext());
 
     verify(measureRepository).getRawMeasure(PROJECT_COMPONENT, alertStatusMetric);
-    verify(measureRepository).getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric);
+    verify(measureRepository).getCurrentLiveMeasure(PROJECT_COMPONENT, alertStatusMetric);
     verify(eventRepository).add(eventArgumentCaptor.capture());
     verifyNoMoreInteractions(measureRepository, eventRepository);
 
@@ -248,7 +248,7 @@ public class QualityGateEventsStepTest {
   }
 
   @Test
-  public void no_alert_on_pull_request_branches() {
+  void no_alert_on_pull_request_branches() {
     Branch pr = mock(Branch.class);
     when(pr.getType()).thenReturn(BranchType.PULL_REQUEST);
     analysisMetadataHolder.setBranch(pr);

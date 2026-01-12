@@ -95,6 +95,9 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
       metricKeys,
       components.getAllUuids());
 
+    // Load previous status BEFORE updating measures, otherwise we'll read the already-updated value
+    Metric.Level previousStatus = liveMeasureUpdaterWorkflow.loadPreviousStatus();
+
     treeUpdater.update(
       dbSession,
       lastAnalysis.get(),
@@ -103,7 +106,6 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
       liveMeasureUpdaterWorkflow.getBranchDto(),
       matrix);
 
-    Metric.Level previousStatus = liveMeasureUpdaterWorkflow.loadPreviousStatus();
     EvaluatedQualityGate evaluatedQualityGate = liveMeasureUpdaterWorkflow.updateQualityGateMeasures(matrix);
 
     projectIndexer.commitAndIndexBranches(dbSession, singleton(liveMeasureUpdaterWorkflow.getBranchDto()), Indexers.BranchEvent.MEASURE_CHANGE);

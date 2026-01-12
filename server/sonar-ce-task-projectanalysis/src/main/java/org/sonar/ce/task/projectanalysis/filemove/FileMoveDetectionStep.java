@@ -262,7 +262,7 @@ public class FileMoveDetectionStep implements ComputationStep {
     int highestAddedFileLineCount = addedFiles[0].getLineCount();
     int lowestAddedFileLineCount = addedFiles[totalAddedFiles - 1].getLineCount();
 
-    Map<String, Integer> removedFilesIndexesByUuid = new HashMap<>(removedFileUuids.size());
+    Map<String, Integer> removedFilesIndexesByUuid = HashMap.newHashMap(removedFileUuids.size());
     for (int removeFileIndex = 0; removeFileIndex < totalRemovedFiles; removeFileIndex++) {
       ScoreMatrix.ScoreFile removedFile = removedFiles[removeFileIndex];
       int lowerBound = (int) Math.floor(removedFile.getLineCount() * LOWER_BOUND_RATIO);
@@ -386,7 +386,7 @@ public class FileMoveDetectionStep implements ComputationStep {
 
     public ElectedMatches(MatchesByScore matchesByScore, Set<String> dbFileUuids, Map<String, File> reportFileHashesByUuid) {
       this.matches = new ArrayList<>(matchesByScore.getSize());
-      this.matchedFileUuids = new HashSet<>(dbFileUuids.size() + reportFileHashesByUuid.size());
+      this.matchedFileUuids =  HashSet.newHashSet(dbFileUuids.size() + reportFileHashesByUuid.size());
     }
 
     public void add(Match match) {

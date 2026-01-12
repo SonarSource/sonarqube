@@ -53,7 +53,7 @@ public class ProjectMeasuresDoc extends BaseDoc {
   public static final Map<String, Integer> QUALITY_GATE_STATUS = Map.of(OK.name(), 1, ERROR.name(), 3);
 
   public ProjectMeasuresDoc() {
-    super(TYPE_PROJECT_MEASURES, new HashMap<>(8));
+    super(TYPE_PROJECT_MEASURES, HashMap.newHashMap(8));
   }
 
   @Override

@@ -57,14 +57,14 @@ public class ProjectCleanerTest {
   private final DefaultPeriodCleaner periodCleaner = mock(DefaultPeriodCleaner.class);
   private final PurgeListener purgeListener = mock(PurgeListener.class);
   private final MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, PurgeProperties.all()));
-  private final PrQgEnforcementTelemetries prQgEnforcementTelemetries = mock(PrQgEnforcementTelemetries.class);
+  private final TelemetryQGOnMergedPRDataLoader telemetryQGOnMergedPRDataLoader = mock(TelemetryQGOnMergedPRDataLoader.class);
 
   @Rule
   public LogTester logTester = new LogTester();
 
   @Before
   public void before() {
-    this.underTest = new ProjectCleaner(dao, periodCleaner, profiler, purgeListener, prQgEnforcementTelemetries);
+    this.underTest = new ProjectCleaner(dao, periodCleaner, profiler, purgeListener, telemetryQGOnMergedPRDataLoader);
   }
 
   @Test

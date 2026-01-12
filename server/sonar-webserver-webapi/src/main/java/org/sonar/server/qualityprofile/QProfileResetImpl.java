@@ -64,7 +64,7 @@ public class QProfileResetImpl implements QProfileReset {
     Set<String> rulesToBeDeactivated = db.activeRuleDao().selectByProfile(dbSession, profile).stream()
       .map(ActiveRuleDto::getRuleUuid)
       .collect(Collectors.toSet());
-    Set<String> ruleUuids = new HashSet<>(rulesToBeDeactivated.size() + activations.size());
+    Set<String> ruleUuids = HashSet.newHashSet(rulesToBeDeactivated.size() + activations.size());
     ruleUuids.addAll(rulesToBeDeactivated);
     activations.forEach(a -> ruleUuids.add(a.getRuleUuid()));
     RuleActivationContext context = activator.createContextForUserProfile(dbSession, profile, ruleUuids);

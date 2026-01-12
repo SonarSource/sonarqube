@@ -41,17 +41,17 @@ import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_D
 import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_DNA_TOUR;
 import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_ENABLE_SCA;
 import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_NEW_MODES_BANNER;
-import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_NEW_MODES_TOUR;
+import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_SANDBOXED_ISSUES_INTRO;
 
 public class DismissNoticeAction implements UsersWsAction {
 
   public enum DismissNotices {
+    SHOW_SANDBOXED_ISSUES_INTRO("showSandboxedIssuesIntro"),
     EDUCATION_PRINCIPLES("educationPrinciples"),
     SONARLINT_AD("sonarlintAd"),
     ISSUE_CLEAN_CODE_GUIDE("issueCleanCodeGuide"),
     OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION("overviewZeroNewIssuesSimplification"),
     ISSUE_NEW_ISSUE_STATUS_AND_TRANSITION_GUIDE("issueNewIssueStatusAndTransitionGuide"),
-    SHOW_NEW_MODES_TOUR("showNewModesTour"),
     SHOW_NEW_MODES_BANNER("showNewModesBanner"),
     SHOW_DNA_OPTIN_BANNER("showDesignAndArchitectureOptInBanner"),
     SHOW_DNA_BANNER("showDesignAndArchitectureBanner"),
@@ -101,9 +101,9 @@ public class DismissNoticeAction implements UsersWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("dismiss_notice")
       .setDescription("Dismiss a notice for the current user. Silently ignore if the notice is already dismissed.")
+      .setChangelog(new Change("2026.1", printNewNotice(SHOW_SANDBOXED_ISSUES_INTRO)))
       .setChangelog(new Change("2025.3", printNewNotice(SHOW_ENABLE_SCA)))
       .setChangelog(new Change("2025.3", printNewNotice(SHOW_DNA_OPTIN_BANNER, SHOW_DNA_BANNER, SHOW_DNA_TOUR)))
-      .setChangelog(new Change("10.8", printNewNotice(SHOW_NEW_MODES_TOUR)))
       .setChangelog(new Change("10.8", printNewNotice(SHOW_NEW_MODES_BANNER)))
       .setChangelog(new Change("10.4", printNewNotice(ISSUE_NEW_ISSUE_STATUS_AND_TRANSITION_GUIDE)))
       .setChangelog(new Change("10.2", printNewNotice(ISSUE_CLEAN_CODE_GUIDE)))

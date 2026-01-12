@@ -173,7 +173,7 @@ public class RulesRegistrant implements Startable {
   }
 
   private Set<PluginRuleUpdate> registerRules(RulesRegistrationContext context, List<RulesDefinition.Rule> ruleDefs, DbSession session) {
-    Map<RulesDefinition.Rule, RuleDto> dtos = new LinkedHashMap<>(ruleDefs.size());
+    Map<RulesDefinition.Rule, RuleDto> dtos = LinkedHashMap.newLinkedHashMap(ruleDefs.size());
     Set<PluginRuleUpdate> pluginRuleUpdates = new HashSet<>();
 
     for (RulesDefinition.Rule ruleDef : ruleDefs) {

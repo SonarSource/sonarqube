@@ -58,7 +58,9 @@ public class ExternalIssueReportValidator {
     } else if (report.rules == null && report.issues != null) {
       String documentationLink = documentationLinkGenerator.getDocumentationLink(DOCUMENTATION_SUFFIX);
       LOGGER.warn("External issues were imported with a deprecated format which will be removed soon. " +
-        "Please switch to the newest format to fully benefit from Clean Code: {}", documentationLink);
+        "The \"rules\" field is missing. " +
+        "Please switch to the newest format. " +
+        "Look at the documentation for more information, including what default values have been set: {}", documentationLink);
       validateIssuesDeprecatedFormat(report.issues, reportPath);
     } else {
       throw new IllegalStateException(String.format("Failed to parse report '%s': invalid report detected.", reportPath));

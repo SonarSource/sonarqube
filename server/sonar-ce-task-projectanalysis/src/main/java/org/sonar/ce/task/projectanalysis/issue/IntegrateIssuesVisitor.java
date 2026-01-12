@@ -57,6 +57,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   private final FileStatuses fileStatuses;
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final TrackerTargetBranchInputFactory targetInputFactory;
+  private final LocationHashesService computeLocationHashesService;
 
 
   public IntegrateIssuesVisitor(
@@ -71,7 +72,8 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     PullRequestSourceBranchMerger pullRequestSourceBranchMerger,
     FileStatuses fileStatuses,
     AnalysisMetadataHolder analysisMetadataHolder,
-    TrackerTargetBranchInputFactory targetInputFactory
+    TrackerTargetBranchInputFactory targetInputFactory,
+    LocationHashesService computeLocationHashesService
   ) {
 
     super(CrawlerDepthLimit.FILE, POST_ORDER);
@@ -87,6 +89,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     this.fileStatuses = fileStatuses;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.targetInputFactory = targetInputFactory;
+    this.computeLocationHashesService = computeLocationHashesService;
   }
 
   @Override
@@ -152,7 +155,13 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
 
   private List<DefaultIssue> getRawIssues(Input<DefaultIssue> rawInput, @Nullable Input<DefaultIssue> targetInput, Component component) {
     TrackingResult tracking = issueTracking.track(component, rawInput, targetInput);
-    var newOpenIssues = fillNewOpenIssues(component, tracking.newIssues(), rawInput);
+
+    List<DefaultIssue> rawNewIssuesList = tracking.newIssues().toList();
+    // update issue location hashes, not needed for closed issues
+    // needs to happen before filling new existing issues to properly compute if locationsHave changed
+    updateIssueLocationHashes(tracking.issuesToMerge().keySet(), rawNewIssuesList, tracking.issuesToCopy().keySet(), component);
+
+    var newOpenIssues = fillNewOpenIssues(component, rawNewIssuesList, rawInput);
     var existingOpenIssues = fillExistingOpenIssues(tracking.issuesToMerge());
     var closedIssues = closeIssues(tracking.issuesToClose());
     var copiedIssues = copyIssues(tracking.issuesToCopy());
@@ -161,12 +170,16 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
       .toList();
   }
 
+  private void updateIssueLocationHashes(Collection<DefaultIssue> existingOpenIssues, Collection<DefaultIssue> newIssues, Collection<DefaultIssue> issuesToCopy,
+    Component component) {
+    computeLocationHashesService.computeHashesAndUpdateIssues(Stream.of(existingOpenIssues, newIssues).flatMap(Collection::stream).toList(), issuesToCopy, component);
+  }
+
   private void processIssues(Component component, Collection<DefaultIssue> issues) {
     issues.forEach(issue -> processIssue(component, issue));
   }
 
-  private List<DefaultIssue> fillNewOpenIssues(Component component, Stream<DefaultIssue> newIssues, Input<DefaultIssue> rawInput) {
-    List<DefaultIssue> newIssuesList = newIssues.toList();
+  private List<DefaultIssue> fillNewOpenIssues(Component component, List<DefaultIssue> newIssuesList, Input<DefaultIssue> rawInput) {
     if (newIssuesList.isEmpty()) {
       return newIssuesList;
     }

@@ -19,3 +19,6 @@ report:
             - :1
             - :2
             - :3
+        - name: category4withsecretrules
+          rules:
+            - 'secrets:'

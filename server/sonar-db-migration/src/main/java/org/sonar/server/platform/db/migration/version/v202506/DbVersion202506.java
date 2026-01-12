@@ -51,8 +51,6 @@ public class DbVersion202506 implements DbVersion {
       .add(2025_06_024, "Create 'issue_stats_by_rule_key' table", CreateIssueStatsByRuleKeyTable.class)
       .add(2025_06_025, "Populate 'issue_stats_by_rule_key'", PopulateIssueStatsByRuleKey.class)
       .add(2025_06_026, "Populate 'issue_stats_by_rule_key' for portfolios and apps", PopulateIssueStatsByRuleKeyForPortfoliosAndApps.class)
-      .add(2025_06_027, "Add 'part_number' column to 'ce_task_input'", AddPartNumberColumnToCeTaskInputTable.class)
-      .add(2025_06_028, "Add 'part_count' column to 'ce_queue'", AddPartCountColumnToCeQueueTable.class)
     ;
   }
 

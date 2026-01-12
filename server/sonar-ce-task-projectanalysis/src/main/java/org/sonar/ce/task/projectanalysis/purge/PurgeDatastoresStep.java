@@ -35,18 +35,18 @@ public class PurgeDatastoresStep implements ComputationStep {
   private final ConfigurationRepository configRepository;
   private final DisabledComponentsHolder disabledComponentsHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
-  private final PurgeTelemetry purgeTelemetry;
+  private final TelemetryQGOnMergedPRProvider telemetryQGOnMergedPRProvider;
 
   public PurgeDatastoresStep(DbClient dbClient, ProjectCleaner projectCleaner, TreeRootHolder treeRootHolder,
     ConfigurationRepository configRepository, DisabledComponentsHolder disabledComponentsHolder,
-    AnalysisMetadataHolder analysisMetadataHolder, PurgeTelemetry purgeTelemetry) {
+    AnalysisMetadataHolder analysisMetadataHolder, TelemetryQGOnMergedPRProvider telemetryQGOnMergedPRProvider) {
     this.projectCleaner = projectCleaner;
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.configRepository = configRepository;
     this.disabledComponentsHolder = disabledComponentsHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
-    this.purgeTelemetry = purgeTelemetry;
+    this.telemetryQGOnMergedPRProvider = telemetryQGOnMergedPRProvider;
   }
 
   @Override
@@ -58,7 +58,7 @@ public class PurgeDatastoresStep implements ComputationStep {
         disabledComponentsHolder.getUuids());
       dbSession.commit();
     }
-    purgeTelemetry.sendTelemetry();
+    telemetryQGOnMergedPRProvider.sendTelemetry();
   }
 
   @Override

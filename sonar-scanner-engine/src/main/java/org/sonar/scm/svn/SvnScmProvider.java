@@ -20,9 +20,8 @@
 package org.sonar.scm.svn;
 
 import java.io.File;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -149,8 +148,8 @@ public class SvnScmProvider extends ScmProvider {
   private static Path toPath(SVNURL svnUrl) {
     if ("file".equals(svnUrl.getProtocol())) {
       try {
-        return Paths.get(new URL("file", svnUrl.getHost(), svnUrl.getPath()).toURI());
-      } catch (URISyntaxException | MalformedURLException e) {
+        return Paths.get(new URI("file", svnUrl.getHost(), svnUrl.getPath(), null));
+      } catch (URISyntaxException e) {
         throw new IllegalStateException(e);
       }
     }

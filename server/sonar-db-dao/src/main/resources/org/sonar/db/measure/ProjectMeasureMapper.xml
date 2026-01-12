@@ -60,6 +60,18 @@
     and analysis.status=#{query.status, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByAnalysisUuids" parameterType="map" resultType="ProjectMeasure">
+    select <include refid="measureColumns"/>
+    from project_measures pm
+    inner join metrics m on m.uuid = pm.metric_uuid
+    where
+    pm.analysis_uuid in
+    <foreach collection="analysisUuids" open="(" close=")" item="uuid" separator=",">
+      #{uuid,jdbcType=VARCHAR}
+    </foreach>
+    and m.name = #{metricKey,jdbcType=VARCHAR}
+  </select>
+
   <insert id="insert" parameterType="ProjectMeasure" useGeneratedKeys="false">
     insert into project_measures (
     uuid,

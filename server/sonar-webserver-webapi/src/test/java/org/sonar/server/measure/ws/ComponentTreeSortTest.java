@@ -28,9 +28,9 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric.ValueType;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.measure.ImpactMeasureBuilder;
 
@@ -90,13 +90,13 @@ class ComponentTreeSortTest {
 
     measuresByComponentUuidAndMetric = HashBasedTable.create(components.size(), 2);
     // same number than path field
-    double currentValue = 9;
+    int currentValue = 9;
     for (ComponentDto component : components) {
-      measuresByComponentUuidAndMetric.put(component.uuid(), violationsMetric, createFromMetricValue(violationsMetric, currentValue));
-      measuresByComponentUuidAndMetric.put(component.uuid(), newViolationsMetric, createFromMetricValue(newViolationsMetric, currentValue));
-      measuresByComponentUuidAndMetric.put(component.uuid(), sqaleIndexMetric, createFromMetricValue(sqaleIndexMetric, currentValue));
-      measuresByComponentUuidAndMetric.put(component.uuid(), reliabilityIssueMetric, createFromMetricValue(reliabilityIssueMetric, buildJsonImpact((int) currentValue)));
-      measuresByComponentUuidAndMetric.put(component.uuid(), newReliabilityIssueMetric, createFromMetricValue(newReliabilityIssueMetric, buildJsonImpact((int) currentValue)));
+      measuresByComponentUuidAndMetric.put(component.uuid(), violationsMetric, createFromMetricValue(violationsMetric, (double) currentValue));
+      measuresByComponentUuidAndMetric.put(component.uuid(), newViolationsMetric, createFromMetricValue(newViolationsMetric, (double) currentValue));
+      measuresByComponentUuidAndMetric.put(component.uuid(), sqaleIndexMetric, createFromMetricValue(sqaleIndexMetric, (double) currentValue));
+      measuresByComponentUuidAndMetric.put(component.uuid(), reliabilityIssueMetric, createFromMetricValue(reliabilityIssueMetric, buildJsonImpact(currentValue)));
+      measuresByComponentUuidAndMetric.put(component.uuid(), newReliabilityIssueMetric, createFromMetricValue(newReliabilityIssueMetric, buildJsonImpact(currentValue)));
       currentValue--;
     }
   }

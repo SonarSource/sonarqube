@@ -86,7 +86,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
   }
 
   private static IssueDoc toIssueDoc(IndexedIssueDto indexedIssueDto) {
-    IssueDoc doc = new IssueDoc(new HashMap<>(30));
+    IssueDoc doc = new IssueDoc(HashMap.newHashMap(30));
 
     String key = indexedIssueDto.getIssueKey();
 

@@ -88,24 +88,26 @@ public class QualityGateEventsStep implements ComputationStep {
   }
 
   private void checkQualityGateStatusChange(Component project, Metric metric, QualityGateStatus rawStatus) {
-    Optional<Measure> baseMeasure = measureRepository.getBaseMeasure(project, metric);
-    if (!baseMeasure.isPresent()) {
+    // Compare against current live measure (MEASURES table) instead of historical PROJECT_MEASURES
+    // This avoids duplicate notifications when issues are accepted/resolved outside of analysis
+    Optional<Measure> currentLiveMeasure = measureRepository.getCurrentLiveMeasure(project, metric);
+    if (!currentLiveMeasure.isPresent()) {
       checkNewQualityGate(project, rawStatus);
       return;
     }
 
-    if (!baseMeasure.get().hasQualityGateStatus()) {
-      LOGGER.warn("Previous Quality gate status for project {} is not a supported value. Can not compute Quality Gate event", project.getKey());
+    if (!currentLiveMeasure.get().hasQualityGateStatus()) {
+      LOGGER.warn("Current live quality gate status for project {} is missing. Cannot compute Quality Gate event.", project.getKey());
       checkNewQualityGate(project, rawStatus);
       return;
     }
-    QualityGateStatus baseStatus = baseMeasure.get().getQualityGateStatus();
+    QualityGateStatus currentStatus = currentLiveMeasure.get().getQualityGateStatus();
 
-    if (baseStatus.getStatus() != rawStatus.getStatus()) {
-      // The QualityGate status has changed
+    if (currentStatus.getStatus() != rawStatus.getStatus()) {
+      // The QualityGate status has changed from current live state
       createEvent(rawStatus.getStatus().getLabel(), rawStatus.getText());
       boolean isNewOk = rawStatus.getStatus() == Measure.Level.OK;
-      notifyUsers(project, rawStatus, baseStatus.getStatus(), isNewOk);
+      notifyUsers(project, rawStatus, currentStatus.getStatus(), isNewOk);
     }
   }
 

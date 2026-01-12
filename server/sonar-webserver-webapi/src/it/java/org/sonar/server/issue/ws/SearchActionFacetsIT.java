@@ -54,6 +54,7 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
+import org.sonar.server.issue.index.IssueQueryComplianceStandardService;
 import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
@@ -98,8 +99,10 @@ class SearchActionFacetsIT {
   private final MetadataLoader metadataLoader = new MetadataLoader(Set.of(new TestMetadataType()));
   private final MetadataRules metadataRules = new MetadataRules(metadataLoader);
   private final PermissionIndexer permissionIndexer = new PermissionIndexer(db.getDbClient(), es.client(), issueIndexer);
+  private final IssueQueryComplianceStandardService complianceStandardService = new IssueQueryComplianceStandardService(metadataRules,
+    db.getDbClient());
   private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(db.getDbClient(), Clock.systemUTC(), userSession,
-    metadataRules);
+    complianceStandardService);
   private final SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, db.getDbClient(),
     new TransitionService(userSession, null));
   private final Languages languages = new Languages();

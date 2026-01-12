@@ -129,13 +129,11 @@ public class ProjectsAction implements QProfileWsAction {
     List<ProjectQprofileAssociationDto> projects;
     SelectionMode selectionMode = SelectionMode.fromParam(selected);
 
-    if (SelectionMode.SELECTED == selectionMode) {
-      projects = dbClient.qualityProfileDao().selectSelectedProjects(session, profile, query);
-    } else if (SelectionMode.DESELECTED == selectionMode) {
-      projects = dbClient.qualityProfileDao().selectDeselectedProjects(session, profile, query);
-    } else {
-      projects = dbClient.qualityProfileDao().selectProjectAssociations(session, profile, query);
-    }
+    projects = switch (selectionMode) {
+      case SELECTED -> dbClient.qualityProfileDao().selectSelectedProjects(session, profile, query);
+      case DESELECTED -> dbClient.qualityProfileDao().selectDeselectedProjects(session, profile, query);
+      case null, default -> dbClient.qualityProfileDao().selectProjectAssociations(session, profile, query);
+    };
 
     return projects;
   }

@@ -179,4 +179,8 @@ public class ProjectDao implements Dao {
   public Set<String> selectAiCodeFixEnabledProjectKeys(DbSession session) {
     return mapper(session).selectProjectKeysByAiCodeFixEnablement(true);
   }
+
+  public Set<String> selectProjectUuidsWithMinActiveRulesHavingTag(DbSession session, String ruleTag, int minRuleCount) {
+    return mapper(session).selectProjectUuidsWithMinActiveRulesHavingTag(ruleTag, minRuleCount);
+  }
 }

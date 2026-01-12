@@ -61,11 +61,13 @@ import org.sonar.server.hotspot.ws.HotspotWsResponseFormatter.SearchResponseData
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueQuery;
+import org.sonar.server.issue.index.IssueQueryComplianceStandardService;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.Hotspots.SearchWsResponse;
+import org.sonarsource.compliancereports.reports.ReportKey;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -82,6 +84,7 @@ import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
+import static org.sonar.server.common.ParamParsingUtils.parseComplianceStandardsFilter;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
@@ -90,6 +93,7 @@ import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPLIANCE_STANDARDS;
 
 public class SearchAction implements HotspotsWsAction {
   private static final Set<String> SUPPORTED_QUALIFIERS = Set.of(ComponentQualifiers.PROJECT, ComponentQualifiers.APP);
@@ -118,6 +122,8 @@ public class SearchAction implements HotspotsWsAction {
   private static final String PARAM_SONARSOURCE_SECURITY = "sonarsourceSecurity";
   private static final String PARAM_CWE = "cwe";
   private static final String PARAM_FILES = "files";
+  private static final String V_2025_6 = "2025.6";
+  private static final String NEW_PARAM_ADDED_MESSAGE = "Param '%s' has been added";
 
   private static final List<String> STATUSES = List.of(STATUS_TO_REVIEW, STATUS_REVIEWED);
 
@@ -128,9 +134,11 @@ public class SearchAction implements HotspotsWsAction {
   private final HotspotWsResponseFormatter responseFormatter;
   private final System2 system2;
   private final ComponentFinder componentFinder;
+  private final IssueQueryComplianceStandardService issueQueryComplianceStandardService;
 
   public SearchAction(DbClient dbClient, UserSession userSession, IssueIndex issueIndex, IssueIndexSyncProgressChecker issueIndexSyncProgressChecker,
-    HotspotWsResponseFormatter responseFormatter, System2 system2, ComponentFinder componentFinder) {
+    HotspotWsResponseFormatter responseFormatter, System2 system2, ComponentFinder componentFinder,
+    IssueQueryComplianceStandardService issueQueryComplianceStandardService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.issueIndex = issueIndex;
@@ -138,6 +146,7 @@ public class SearchAction implements HotspotsWsAction {
     this.responseFormatter = responseFormatter;
     this.system2 = system2;
     this.componentFinder = componentFinder;
+    this.issueQueryComplianceStandardService = issueQueryComplianceStandardService;
   }
 
   private static Set<String> setFromList(@Nullable List<String> list) {
@@ -157,12 +166,14 @@ public class SearchAction implements HotspotsWsAction {
     Set<String> sonarsourceSecurity = setFromList(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY));
     Set<String> cwes = setFromList(request.paramAsStrings(PARAM_CWE));
     Set<String> files = setFromList(request.paramAsStrings(PARAM_FILES));
+    var categoriesByStandard = parseComplianceStandardsFilter(request.param(PARAM_COMPLIANCE_STANDARDS));
 
     return new WsRequest(
       request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE), request.param(PARAM_PROJECT), request.param(PARAM_BRANCH),
       request.param(PARAM_PULL_REQUEST), hotspotKeys, request.param(PARAM_STATUS), request.param(PARAM_RESOLUTION),
       request.paramAsBoolean(PARAM_IN_NEW_CODE_PERIOD), request.paramAsBoolean(PARAM_ONLY_MINE), request.paramAsInt(PARAM_OWASP_ASVS_LEVEL),
-      pciDss32, pciDss40, owaspAsvs40, owasp2017Top10, owasp2021Top10, stigAsdV5R3, casa, sansTop25, sonarsourceSecurity, cwes, files);
+      pciDss32, pciDss40, owaspAsvs40, owasp2017Top10, owasp2021Top10, stigAsdV5R3, casa, sansTop25, sonarsourceSecurity, cwes, files,
+      categoriesByStandard);
   }
 
   @Override
@@ -173,6 +184,7 @@ public class SearchAction implements HotspotsWsAction {
       checkIfNeedIssueSync(dbSession, wsRequest);
       Optional<ProjectAndBranch> project = getAndValidateProjectOrApplication(dbSession, wsRequest);
       SearchResponseData searchResponseData = searchHotspots(wsRequest, dbSession, project.orElse(null));
+
       loadComponents(dbSession, searchResponseData);
       writeProtobuf(formatResponse(searchResponseData), request, response);
     }
@@ -233,6 +245,7 @@ public class SearchAction implements HotspotsWsAction {
         + "When issue indexing is in progress returns 503 service unavailable HTTP code.")
       .setSince("8.1")
       .setChangelog(
+        new Change(V_2025_6, format(NEW_PARAM_ADDED_MESSAGE, PARAM_COMPLIANCE_STANDARDS)),
         new Change("10.7", format("Added parameter '%s' and '%s'", PARAM_STIG_ASD_V5R3, PARAM_CASA)),
         new Change("10.2", format("Parameter '%s' renamed to '%s'", PARAM_PROJECT_KEY, PARAM_PROJECT)),
         new Change("10.0", "Parameter 'sansTop25' is deprecated"),
@@ -280,6 +293,11 @@ public class SearchAction implements HotspotsWsAction {
       .setDescription("Comma-separated list of files. Returns only hotspots found in those files")
       .setExampleValue("src/main/java/org/sonar/server/Test.java")
       .setSince("9.0");
+    action
+      .createParam(PARAM_COMPLIANCE_STANDARDS)
+      .setDescription("Comma-separated list of compliance standards")
+      .setSince(V_2025_6)
+      .setExampleValue("asvs:4.0.3=6.1.2");
 
     action.setResponseExample(getClass().getResource("search-example.json"));
   }
@@ -424,6 +442,8 @@ public class SearchAction implements HotspotsWsAction {
     wsRequest.getStatus().ifPresent(status -> builder.resolved(STATUS_REVIEWED.equals(status)));
     wsRequest.getResolution().ifPresent(resolution -> builder.resolutions(singleton(resolution)));
     addSecurityStandardFilters(wsRequest, builder);
+
+    issueQueryComplianceStandardService.addComplianceStandardFilters(dbSession, builder, wsRequest.getCategoriesByStandard());
 
     IssueQuery query = builder.build();
     SearchOptions searchOptions = new SearchOptions()
@@ -635,13 +655,14 @@ public class SearchAction implements HotspotsWsAction {
     private final Set<String> sonarsourceSecurity;
     private final Set<String> cwe;
     private final Set<String> files;
+    private final Map<ReportKey, Set<String>> categoriesByStandard;
 
     private WsRequest(int page, int index,
       @Nullable String projectKey, @Nullable String branch, @Nullable String pullRequest, Set<String> hotspotKeys,
       @Nullable String status, @Nullable String resolution, @Nullable Boolean inNewCodePeriod, @Nullable Boolean onlyMine,
       @Nullable Integer owaspAsvsLevel, Set<String> pciDss32, Set<String> pciDss40, Set<String> owaspAsvs40,
       Set<String> owaspTop10For2017, Set<String> owaspTop10For2021, Set<String> stigAsdV5R3, Set<String> casa, Set<String> sansTop25, Set<String> sonarsourceSecurity,
-      Set<String> cwe, @Nullable Set<String> files) {
+      Set<String> cwe, @Nullable Set<String> files, @Nullable Map<ReportKey, Set<String>> categoriesByStandard) {
       this.page = page;
       this.index = index;
       this.projectKey = projectKey;
@@ -664,6 +685,7 @@ public class SearchAction implements HotspotsWsAction {
       this.sonarsourceSecurity = sonarsourceSecurity;
       this.cwe = cwe;
       this.files = files;
+      this.categoriesByStandard = categoriesByStandard;
     }
 
     int getPage() {
@@ -752,6 +774,10 @@ public class SearchAction implements HotspotsWsAction {
 
     public Set<String> getFiles() {
       return files;
+    }
+
+    public Map<ReportKey, Set<String>> getCategoriesByStandard() {
+      return categoriesByStandard;
     }
   }
 }

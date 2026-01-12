@@ -599,6 +599,19 @@
     group by p.uuid
   </select>
 
+  <select id="countIssuesByStatusOnMainBranches" parameterType="map" resultType="org.sonar.db.issue.IssueCountByStatusAndResolution">
+    select
+      i.status as status,
+      i.resolution as resolution,
+      count(1) as count
+    from issues i
+    inner join project_branches pb
+      on i.project_uuid = pb.uuid
+      and pb.is_main = ${_true}
+    where i.issue_type &lt;&gt; 4
+    group by i.status, i.resolution
+  </select>
+
   <select id="selectIssueGroupsByComponent" resultType="org.sonar.db.issue.IssueGroupDto" parameterType="map">
     select
       i.issue_type as ruleType,

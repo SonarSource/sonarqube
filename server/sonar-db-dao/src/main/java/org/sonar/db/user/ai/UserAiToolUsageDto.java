@@ -22,6 +22,10 @@ package org.sonar.db.user.ai;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+/**
+ * @deprecated Automatic AI code detection is deprecated and will be removed in a future release.
+ */
+@Deprecated(since = "2026.1", forRemoval = true)
 public class UserAiToolUsageDto {
 
   private String uuid = null;

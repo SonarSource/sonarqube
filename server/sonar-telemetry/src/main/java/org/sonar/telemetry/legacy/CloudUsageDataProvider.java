@@ -24,6 +24,7 @@ import com.google.gson.Gson;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
@@ -62,6 +63,7 @@ public class CloudUsageDataProvider {
   private static final Logger LOG = LoggerFactory.getLogger(CloudUsageDataProvider.class);
 
   private static final String SERVICEACCOUNT_CA_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt";
+  private static final String SERVICEACCOUNT_TOKEN_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/token";
   static final String KUBERNETES_SERVICE_HOST = "KUBERNETES_SERVICE_HOST";
   static final String KUBERNETES_SERVICE_PORT = "KUBERNETES_SERVICE_PORT";
   static final String SONAR_HELM_CHART_VERSION = "SONAR_HELM_CHART_VERSION";
@@ -198,7 +200,7 @@ public class CloudUsageDataProvider {
     }
   }
 
-  private Request buildRequest() throws URISyntaxException {
+  private Request buildRequest() throws URISyntaxException, IOException {
     String host = system2.envVariable(KUBERNETES_SERVICE_HOST);
     String port = system2.envVariable(KUBERNETES_SERVICE_PORT);
     if (host == null || port == null) {
@@ -206,11 +208,17 @@ public class CloudUsageDataProvider {
     }
 
     URI uri = new URI("https", null, host, Integer.parseInt(port), "/version", null, null);
+    String token = readServiceAccountToken();
 
     return new Request.Builder()
       .get()
       .url(uri.toString())
+      .header("Authorization", "Bearer " + token)
       .build();
+  }
+
+  private String readServiceAccountToken() throws IOException {
+    return Files.readString(paths2.get(SERVICEACCOUNT_TOKEN_PATH));
   }
 
   @CheckForNull

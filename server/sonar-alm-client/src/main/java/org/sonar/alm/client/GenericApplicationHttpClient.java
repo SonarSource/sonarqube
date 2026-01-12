@@ -21,7 +21,8 @@ package org.sonar.alm.client;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -58,7 +59,7 @@ public abstract class GenericApplicationHttpClient implements ApplicationHttpCli
 
   protected GenericApplicationHttpClient(DevopsPlatformHeaders devopsPlatformHeaders, TimeoutConfiguration timeoutConfiguration, OkHttpClient okHttpClient) {
     this.devopsPlatformHeaders = devopsPlatformHeaders;
-    
+
     // Use the injected OkHttpClient with configured proxy settings,
     // but customize timeouts and redirect behavior for this client
     client = okHttpClient.newBuilder()
@@ -198,8 +199,8 @@ public abstract class GenericApplicationHttpClient implements ApplicationHttpCli
       return endPoint;
     }
     try {
-      return new URL(host + endPoint).toExternalForm();
-    } catch (MalformedURLException e) {
+      return new URI(host + endPoint).toURL().toExternalForm();
+    } catch (URISyntaxException | IllegalArgumentException | MalformedURLException e) {
       throw new IllegalArgumentException(String.format("%s is not a valid url", host + endPoint));
     }
   }

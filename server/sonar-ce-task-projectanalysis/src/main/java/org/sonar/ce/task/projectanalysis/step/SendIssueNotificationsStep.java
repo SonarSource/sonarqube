@@ -135,7 +135,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
   private void processIssues(NewIssuesStatistics newIssuesStats, CloseableIterator<DefaultIssue> issues,
     Map<String, UserDto> assigneesByUuid, NotificationStatistics notificationStatistics) {
     int batchSize = 1000;
-    Set<DefaultIssue> changedIssuesToNotify = new HashSet<>(batchSize);
+    Set<DefaultIssue> changedIssuesToNotify = HashSet.newHashSet(batchSize);
     while (issues.hasNext()) {
       DefaultIssue issue = issues.next();
       if (issue.type() != RuleType.SECURITY_HOTSPOT) {

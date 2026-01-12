@@ -51,6 +51,14 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
     throw new UnsupportedOperationException("This implementation of MeasureRepository supports only raw measures");
   }
 
+  /**
+   * @throws UnsupportedOperationException all the time, not supported
+   */
+  @Override
+  public Optional<Measure> getCurrentLiveMeasure(Component component, Metric metric) {
+    throw new UnsupportedOperationException("This implementation of MeasureRepository supports only raw measures");
+  }
+
   @Override
   public Optional<Measure> getRawMeasure(final Component component, final Metric metric) {
     // fail fast

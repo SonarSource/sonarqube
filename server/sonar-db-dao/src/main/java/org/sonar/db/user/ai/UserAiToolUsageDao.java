@@ -23,6 +23,10 @@ import java.util.List;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
+/**
+ * @deprecated Automatic AI code detection is deprecated and will be removed in a future release.
+ */
+@Deprecated(since = "2026.1", forRemoval = true)
 public class UserAiToolUsageDao implements Dao {
 
   public void insert(DbSession dbSession, UserAiToolUsageDto userAiToolUsageDto) {

@@ -249,4 +249,12 @@ public class MapBasedRawMeasureRepositoryTest {
     assertThat(underTest.getRawMeasure(OTHER_COMPONENT, metric1)).isNotPresent();
     assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric2)).isNotPresent();
   }
+
+  @Test
+  public void getCurrentLiveMeasure_throws_UOE() {
+    assertThatThrownBy(() -> underTest.getCurrentLiveMeasure(FILE_COMPONENT, metric1))
+      .isInstanceOf(UnsupportedOperationException.class)
+      .hasMessage("This implementation of MeasureRepository supports only raw measures");
+  }
+
 }

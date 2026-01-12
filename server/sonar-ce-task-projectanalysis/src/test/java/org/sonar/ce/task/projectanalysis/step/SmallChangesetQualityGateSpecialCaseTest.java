@@ -19,12 +19,16 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.internal.ConfigurationBridge;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TestSettingsRepository;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
@@ -36,9 +40,18 @@ import org.sonar.ce.task.projectanalysis.qualitygate.Condition;
 import org.sonar.ce.task.projectanalysis.qualitygate.EvaluationResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
+import static org.sonar.api.measures.CoreMetrics.NEW_BUGS;
 import static org.sonar.api.measures.CoreMetrics.NEW_BUGS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE;
+import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY;
+import static org.sonar.api.measures.CoreMetrics.NEW_LINES;
+import static org.sonar.api.measures.CoreMetrics.NEW_LINES_TO_COVER;
+import static org.sonar.api.measures.CoreMetrics.NEW_LINES_TO_COVER_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.ERROR;
@@ -51,9 +64,11 @@ public class SmallChangesetQualityGateSpecialCaseTest {
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
-    .add(CoreMetrics.NEW_LINES)
-    .add(CoreMetrics.NEW_COVERAGE)
-    .add(CoreMetrics.NEW_BUGS);
+    .add(NEW_LINES)
+    .add(NEW_LINES_TO_COVER)
+    .add(NEW_COVERAGE)
+    .add(NEW_DUPLICATED_LINES_DENSITY)
+    .add(NEW_BUGS);
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
@@ -66,7 +81,19 @@ public class SmallChangesetQualityGateSpecialCaseTest {
     mapSettings.setProperty(CoreProperties.QUALITY_GATE_IGNORE_SMALL_CHANGES, true);
     QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_COVERAGE_KEY, ERROR);
     Component project = generateNewRootProject();
-    measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().create(19));
+    measureRepository.addRawMeasure(PROJECT_REF, NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(19));
+
+    boolean result = underTest.appliesTo(project, metricEvaluationResult);
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  public void ignore_errors_about_new_duplications_for_small_changesets() {
+    mapSettings.setProperty(CoreProperties.QUALITY_GATE_IGNORE_SMALL_CHANGES, true);
+    QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_DUPLICATED_LINES_DENSITY_KEY, ERROR);
+    Component project = generateNewRootProject();
+    measureRepository.addRawMeasure(PROJECT_REF, NEW_LINES_KEY, newMeasureBuilder().create(19));
 
     boolean result = underTest.appliesTo(project, metricEvaluationResult);
 
@@ -78,7 +105,7 @@ public class SmallChangesetQualityGateSpecialCaseTest {
     mapSettings.setProperty(CoreProperties.QUALITY_GATE_IGNORE_SMALL_CHANGES, false);
     QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_COVERAGE_KEY, ERROR);
     Component project = generateNewRootProject();
-    measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().create(19));
+    measureRepository.addRawMeasure(PROJECT_REF, NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(19));
 
     boolean result = underTest.appliesTo(project, metricEvaluationResult);
 
@@ -86,21 +113,47 @@ public class SmallChangesetQualityGateSpecialCaseTest {
   }
 
   @Test
-  public void should_not_change_for_bigger_changesets() {
-    QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_COVERAGE_KEY, ERROR);
+  public void dont_ignore_errors_about_new_duplication_for_small_changesets_if_disabled() {
+    mapSettings.setProperty(CoreProperties.QUALITY_GATE_IGNORE_SMALL_CHANGES, false);
+    QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_DUPLICATED_LINES_DENSITY_KEY, ERROR);
     Component project = generateNewRootProject();
-    measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().create(20));
+    measureRepository.addRawMeasure(PROJECT_REF, NEW_LINES_KEY, newMeasureBuilder().create(19));
 
     boolean result = underTest.appliesTo(project, metricEvaluationResult);
 
     assertThat(result).isFalse();
   }
 
-  @Test
-  public void should_not_change_issue_related_metrics() {
+  @ParameterizedTest
+  @MethodSource("coverageAndDuplication")
+  void should_not_change_for_bigger_changesets(String conditionKey, String measureKey) {
+    QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(conditionKey, ERROR);
+    Component project = generateNewRootProject();
+    measureRepository.addRawMeasure(PROJECT_REF, measureKey, newMeasureBuilder().create(20));
+
+    boolean result = underTest.appliesTo(project, metricEvaluationResult);
+
+    assertThat(result).isFalse();
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {NEW_LINES_TO_COVER_KEY, NEW_LINES_KEY})
+  void should_not_change_issue_related_metrics(String measureKey) {
     QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_BUGS_KEY, ERROR);
     Component project = generateNewRootProject();
-    measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().create(19));
+    measureRepository.addRawMeasure(PROJECT_REF, measureKey, newMeasureBuilder().create(19));
+
+    boolean result = underTest.appliesTo(project, metricEvaluationResult);
+
+    assertThat(result).isFalse();
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {NEW_LINES_TO_COVER_KEY, NEW_LINES_KEY})
+  void should_not_change_green_conditions(String measureKey) {
+    QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_BUGS_KEY, OK);
+    Component project = generateNewRootProject();
+    measureRepository.addRawMeasure(PROJECT_REF, measureKey, newMeasureBuilder().create(19));
 
     boolean result = underTest.appliesTo(project, metricEvaluationResult);
 
@@ -108,10 +161,10 @@ public class SmallChangesetQualityGateSpecialCaseTest {
   }
 
   @Test
-  public void should_not_change_green_conditions() {
-    QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_BUGS_KEY, OK);
+  public void should_not_change_quality_gate_if_new_lines_to_cover_is_not_defined() {
+    QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_COVERAGE_KEY, ERROR);
     Component project = generateNewRootProject();
-    measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().create(19));
+    measureRepository.addRawMeasure(PROJECT_REF, NEW_LINES_KEY, newMeasureBuilder().create(19));
 
     boolean result = underTest.appliesTo(project, metricEvaluationResult);
 
@@ -120,8 +173,9 @@ public class SmallChangesetQualityGateSpecialCaseTest {
 
   @Test
   public void should_not_change_quality_gate_if_new_lines_is_not_defined() {
-    QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_COVERAGE_KEY, ERROR);
+    QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_DUPLICATED_LINES_DENSITY_KEY, ERROR);
     Component project = generateNewRootProject();
+    measureRepository.addRawMeasure(PROJECT_REF, NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(19));
 
     boolean result = underTest.appliesTo(project, metricEvaluationResult);
 
@@ -130,7 +184,6 @@ public class SmallChangesetQualityGateSpecialCaseTest {
 
   @Test
   public void should_silently_ignore_null_values() {
-
     boolean result = underTest.appliesTo(mock(Component.class), null);
 
     assertThat(result).isFalse();
@@ -160,5 +213,12 @@ public class SmallChangesetQualityGateSpecialCaseTest {
     Condition condition = new Condition(newCoverageMetric, "LT", "80");
     EvaluationResult evaluationResult = new EvaluationResult(level, mock(Comparable.class));
     return new QualityGateMeasuresStep.MetricEvaluationResult(evaluationResult, condition);
+  }
+
+  private static Stream<Arguments> coverageAndDuplication() {
+    return Stream.of(
+      arguments(NEW_COVERAGE_KEY, NEW_LINES_TO_COVER_KEY),
+      arguments(NEW_DUPLICATED_LINES_DENSITY_KEY, NEW_LINES_KEY)
+    );
   }
 }

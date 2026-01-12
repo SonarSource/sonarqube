@@ -238,7 +238,15 @@ public class UserRegistrarImpl implements UserRegistrar {
       .collect(Collectors.toMap(GroupDto::getName, Function.identity()));
 
     addGroups(dbSession, userDto, groupsToAdd, groupsByName);
-    removeGroups(dbSession, userDto, groupsToRemove, groupsByName);
+
+    if (shouldRemoveGroups()) {
+      removeGroups(dbSession, userDto, groupsToRemove, groupsByName);
+    }
+  }
+
+  private boolean shouldRemoveGroups() {
+    return !managedInstanceService.isInstanceExternallyManaged()
+      || !GITHUB_PROVIDER.equals(managedInstanceService.getProviderName());
   }
 
   private void addGroups(DbSession dbSession, UserDto userDto, Collection<String> groupsToAdd, Map<String, GroupDto> groupsByName) {

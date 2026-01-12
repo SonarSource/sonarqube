@@ -2,6 +2,7 @@ import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.sonar.build.LicenseReader
+import org.cyclonedx.model.ExternalReference
 
 plugins {
   id "com.github.hierynomus.license-report"
@@ -403,15 +404,16 @@ artifacts { zip zip }
 artifactoryPublish.skip = !deployCommunity
 
 def bomFile = layout.buildDirectory.file('reports/bom.json')
-cyclonedxBom {
-  setVCSGit { vcs ->
-    vcs.url = "https://github.com/SonarSource/sonarqube"
-  }
+tasks.cyclonedxDirectBom {
+  externalReferences = [
+    new ExternalReference().tap {
+      url = "https://github.com/SonarSource/sonarqube"
+      type = ExternalReference.Type.VCS
+    }
+  ]
   includeConfigs = ["runtimeClasspath", "web", "shutdowner", "jdbc_mssql", "jdbc_mssql_entra", "jdbc_postgresql", "jdbc_h2", "bundledPlugin_deps",
                     "cyclonedx"]
-  outputs.file bomFile
-}
-tasks.cyclonedxBom {
+  jsonOutput = bomFile
   inputs.files(configurations.runtimeClasspath, configurations.shutdowner, configurations.jdbc_mssql, configurations.jdbc_mssql_entra,
           configurations.jdbc_postgresql, configurations.jdbc_h2, configurations.bundledPlugin_deps, configurations.cyclonedx)
 }

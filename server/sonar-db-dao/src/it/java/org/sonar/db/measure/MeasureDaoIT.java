@@ -153,6 +153,26 @@ class MeasureDaoIT {
   }
 
   @Test
+  void selectByComponentUuidAndMetricKey() {
+    ComponentDto branch1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto branch2 = db.components().insertPrivateProject().getMainBranchComponent();
+    String metricKey1 = "metric1";
+    String metricKey2 = "metric2";
+    String value = "foo";
+    db.measures().insertMeasure(branch1, m -> m.addValue(metricKey1, value).addValue(metricKey2, value));
+    db.measures().insertMeasure(branch2, m -> m.addValue(metricKey1, value));
+
+    assertThat(underTest.selectByComponentUuidAndMetricKey(db.getSession(), branch1.uuid(), metricKey1))
+      .hasValueSatisfying(selected -> {
+        assertThat(selected.getComponentUuid()).isEqualTo(branch1.uuid());
+        assertThat(selected.getMetricValues()).containsOnlyKeys(metricKey1);
+      });
+
+    assertThat(underTest.selectByComponentUuidAndMetricKey(db.getSession(), "unknown-component", metricKey1)).isEmpty();
+    assertThat(underTest.selectByComponentUuidAndMetricKey(db.getSession(), branch1.uuid(), "random-metric")).isEmpty();
+  }
+
+  @Test
   void selectByComponentUuidAndMetricKeys() {
     ComponentDto branch1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch2 = db.components().insertPrivateProject().getMainBranchComponent();

@@ -27,6 +27,8 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+
 public class ProjectMeasureDao implements Dao {
 
   private final UuidFactory uuidFactory;
@@ -54,6 +56,22 @@ public class ProjectMeasureDao implements Dao {
    */
   public List<ProjectMeasureDto> selectPastMeasures(DbSession dbSession, PastMeasureQuery query) {
     return mapper(dbSession).selectPastMeasuresOnSeveralAnalyses(query);
+  }
+
+
+  /**
+   * Select measures of:
+   * - multiple components (potentially)
+   * - on multiple analysis IDs
+   * - for a single metric
+   *
+   * This will use executeLargeInputs() under the hood.
+   */
+  public List<ProjectMeasureDto> selectMeasuresByAnalysisUuids(DbSession dbSession, Collection<String> analysisUuids, String metricKey) {
+    return executeLargeInputs(
+      analysisUuids,
+      partition -> mapper(dbSession).selectByAnalysisUuids(partition, metricKey)
+    );
   }
 
   public void insert(DbSession session, ProjectMeasureDto projectMeasureDto) {

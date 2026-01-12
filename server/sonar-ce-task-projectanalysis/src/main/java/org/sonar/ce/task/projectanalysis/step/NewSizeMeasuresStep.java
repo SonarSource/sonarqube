@@ -147,7 +147,7 @@ public class NewSizeMeasuresStep implements ComputationStep {
 
     private DuplicationCounters(Set<Integer> changedLines) {
       this.changedLines = changedLines;
-      this.lineCounts = new HashSet<>(changedLines.size());
+      this.lineCounts = HashSet.newHashSet(changedLines.size());
     }
 
     void addBlock(TextBlock textBlock) {

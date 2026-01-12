@@ -127,7 +127,7 @@ public class DefaultI18nTest {
 
   @Test
   public void get_french_label_if_swiss_country() {
-    Locale swiss = new Locale("fr", "CH");
+    Locale swiss = new Locale.Builder().setLanguage("fr").setRegion("CH").build();
     assertThat(underTest.message(swiss, "checkstyle.rule1.name", null)).isEqualTo("Rule un");
     assertThat(underTest.message(swiss, "any", null)).isEqualTo("Tous");
 

@@ -207,7 +207,7 @@ class RuleIndexIT {
     createRule(setRepositoryKey("java"), setRuleKey("S002"));
     index();
     ComplianceCategoryRules complianceCategoryRules = new ComplianceCategoryRules(new CategoryTree.CategoryTreeNode(
-      "key", Set.of("php:S002", ":X001"), Set.of(), null, false, 0
+      "key", Set.of("php:S002", ":X001"), Set.of(), null, false, 0, null
     ));
 
     // key
@@ -216,6 +216,23 @@ class RuleIndexIT {
 
     assertThat(underTest.searchV2(query, new SearchOptions()).getUuids())
       .containsOnly(rule.getUuid(), rule1.getUuid(), rule2.getUuid());
+  }
+
+  @Test
+  void filter_by_compliance_category_rules_with_wildcard_repos() {
+    RuleDto rule = createRule(setRepositoryKey("secrets"), setRuleKey("Y001"));
+    createRule(setRepositoryKey("cobol"), setRuleKey("X001"));
+    index();
+    ComplianceCategoryRules complianceCategoryRules = new ComplianceCategoryRules(new CategoryTree.CategoryTreeNode(
+      "key", Set.of("php:S002", "secrets:"), Set.of(), null, false, 0, null
+    ));
+
+    // key
+    RuleQuery query = new RuleQuery()
+      .setComplianceCategoryRules(List.of(complianceCategoryRules));
+
+    assertThat(underTest.searchV2(query, new SearchOptions()).getUuids())
+      .containsOnly(rule.getUuid());
   }
 
   @Test

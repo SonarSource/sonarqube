@@ -39,7 +39,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -62,9 +61,6 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.server.issue.SearchRequest;
 import org.sonar.server.issue.index.IssueQuery.PeriodStart;
 import org.sonar.server.user.UserSession;
-import org.sonarsource.compliancereports.reports.ComplianceCategoryRules;
-import org.sonarsource.compliancereports.reports.MetadataRules;
-import org.sonarsource.compliancereports.reports.ReportKey;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -114,13 +110,13 @@ public class IssueQueryFactory {
   private final DbClient dbClient;
   private final Clock clock;
   private final UserSession userSession;
-  private final MetadataRules metadataRules;
-
-  public IssueQueryFactory(DbClient dbClient, Clock clock, UserSession userSession, MetadataRules metadataRules) {
+  private final IssueQueryComplianceStandardService complianceStandardService;
+  public IssueQueryFactory(DbClient dbClient, Clock clock, UserSession userSession,
+    IssueQueryComplianceStandardService complianceStandardService) {
     this.dbClient = dbClient;
     this.clock = clock;
     this.userSession = userSession;
-    this.metadataRules = metadataRules;
+    this.complianceStandardService = complianceStandardService;
   }
 
   public IssueQuery create(SearchRequest request) {
@@ -175,7 +171,7 @@ public class IssueQueryFactory {
         .timeZone(timeZone)
         .codeVariants(request.getCodeVariants());
 
-      addComplianceStandardFilters(dbSession, builder, request);
+      complianceStandardService.addComplianceStandardFilters(dbSession, builder, request.getCategoriesByStandard());
       List<ComponentDto> allComponents = new ArrayList<>();
       boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(dbSession, request, allComponents);
       addComponentParameters(builder, dbSession, effectiveOnComponentOnly, allComponents, request);
@@ -190,41 +186,6 @@ public class IssueQueryFactory {
       }
       return builder.build();
     }
-  }
-
-  private void addComplianceStandardFilters(DbSession session, IssueQuery.Builder builder, SearchRequest request) {
-    if (request.getCategoriesByStandard() == null || request.getCategoriesByStandard().isEmpty()) {
-      return;
-    }
-
-    Map<ReportKey, ComplianceCategoryRules> rulesByStandard = metadataRules.getRulesByStandard(request.getCategoriesByStandard());
-    builder.complianceCategoryRules(getRuleIds(session, rulesByStandard));
-  }
-
-  private Set<String> getRuleIds(DbSession session, Map<ReportKey, ComplianceCategoryRules> rulesByStandard) {
-    Set<String> ruleIds = null;
-
-    for(Map.Entry<ReportKey, ComplianceCategoryRules> e : rulesByStandard.entrySet()) {
-      ComplianceCategoryRules rules = e.getValue();
-      Set<RuleKey> ruleKeys = rules.allRepoRuleKeys().stream().map(r -> RuleKey.of(r.repository(), r.rule())).collect(Collectors.toSet());
-
-      Set<String> ids = Stream.concat(
-        dbClient.ruleDao().selectByKeys(session, ruleKeys).stream(),
-        dbClient.ruleDao().selectByRuleKeys(session, rules.allRuleKeys()).stream()
-      ).map(RuleDto::getUuid).collect(Collectors.toSet());
-
-      // standard doesn't exist or it doesn't have any rules associated to it
-      if (ids.isEmpty()) {
-        return Set.of("non-existing-uuid");
-      }
-      if(ruleIds == null) {
-        ruleIds = ids;
-      } else {
-        ruleIds.retainAll(ids);
-      }
-    }
-
-    return ruleIds;
   }
 
   private Collection<String> collectIssueKeys(DbSession dbSession, SearchRequest request) {

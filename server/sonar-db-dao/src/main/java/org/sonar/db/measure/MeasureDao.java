@@ -83,9 +83,18 @@ public class MeasureDao implements Dao {
     return Optional.empty();
   }
 
+  public Optional<MeasureDto> selectByComponentUuidAndMetricKey(DbSession dbSession, String componentUuid, String metricKey) {
+    List<MeasureDto> measures = selectByComponentUuidsAndMetricKeys(dbSession, singletonList(componentUuid), singletonList(metricKey));
+    // The combination of component_uuid and metric_key is unique. List can't have more than 1 item.
+    if (measures.size() == 1) {
+      return Optional.of(measures.get(0));
+    }
+    return Optional.empty();
+  }
+
   public Optional<MeasureDto> selectByComponentUuidAndMetricKeys(DbSession dbSession, String componentUuid, Collection<String> metricKeys) {
     List<MeasureDto> measures = selectByComponentUuidsAndMetricKeys(dbSession, singletonList(componentUuid), metricKeys);
-    // component_uuid column is unique. List can't have more than 1 item.
+    // The combination of component_uuid and metric_key is unique.
     if (measures.size() == 1) {
       return Optional.of(measures.get(0));
     }

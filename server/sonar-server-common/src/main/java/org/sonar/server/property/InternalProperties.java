@@ -56,6 +56,13 @@ public interface InternalProperties {
   String DEFAULT_ADMIN_CREDENTIAL_USAGE_EMAIL = "default.admin.cred";
 
   /**
+   * Analysis counters
+   */
+  String BRANCH_ANALYSES_COUNT = "analyses.counter.branch";
+  String PR_ANALYSES_COUNT = "analyses.counter.pr";
+  String ANALYSIS_COUNTER_DATE = "analyses.counter.date";
+
+  /**
    * Read the value of the specified property.
    *
    * @return {@link Optional#empty()} if the property does not exist, an empty string if the property is empty,

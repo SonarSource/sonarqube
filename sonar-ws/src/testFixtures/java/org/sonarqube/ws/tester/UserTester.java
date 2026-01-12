@@ -128,8 +128,8 @@ public class UserTester {
       new org.sonarqube.ws.client.permissions.AddUserRequest()
         .setLogin(u.getLogin())
         .setPermission("admin"));
-    dismissModesTour(u);
     dimissDnaTour(u);
+    dismissSandboxIssuesIntro(u);
     return u;
   }
 
@@ -141,22 +141,23 @@ public class UserTester {
     User user = generate(populators);
     session.wsClient().permissions().addUser(new org.sonarqube.ws.client.permissions.AddUserRequest().setLogin(user.getLogin()).setPermission("admin"));
     session.wsClient().userGroups().addUser(new AddUserRequest().setLogin(user.getLogin()).setName("sonar-administrators"));
-    dismissModesTour(user);
     dimissDnaTour(user);
+    dismissSandboxIssuesIntro(user);
     return user;
   }
 
-  private void dismissModesTour(User user) {
-    WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
-      .url(session.wsClient().wsConnector().baseUrl())
-      .credentials(user.getLogin(), user.getLogin())
-      .build()).users().dismissNotice("showNewModesTour");
-  }
-   private void dimissDnaTour(User user) {
+  private void dimissDnaTour(User user) {
     WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
       .url(session.wsClient().wsConnector().baseUrl())
       .credentials(user.getLogin(), user.getLogin())
       .build()).users().dismissNotice("showDesignAndArchitectureTour");
+  }
+
+  private void dismissSandboxIssuesIntro(User user) {
+    WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
+      .url(session.wsClient().wsConnector().baseUrl())
+      .credentials(user.getLogin(), user.getLogin())
+      .build()).users().dismissNotice("showSandboxedIssuesIntro");
   }
 
   public UsersService service() {

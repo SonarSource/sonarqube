@@ -19,6 +19,7 @@
  */
 package org.sonar.db.measure;
 
+import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
@@ -39,6 +40,11 @@ public interface ProjectMeasureMapper {
   );
 
   List<ProjectMeasureDto> selectPastMeasuresOnSeveralAnalyses(@Param("query") PastMeasureQuery query);
+
+  List<ProjectMeasureDto> selectByAnalysisUuids(
+    @Param("analysisUuids") Collection<String> analysisUuids,
+    @Param("metricKey") String metricKey
+  );
 
   void insert(ProjectMeasureDto projectMeasureDto);
 

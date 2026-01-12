@@ -57,8 +57,9 @@ abstract class AbstractStopperThread extends Thread {
       LoggerFactory.getLogger(getClass()).warn("Can not stop in {}ms", terminationTimeoutMs);
     } catch (ExecutionException e) {
       LoggerFactory.getLogger(getClass()).error("Can not stop in {}ms", terminationTimeoutMs, e);
+    } finally {
+      executor.shutdownNow();
     }
-    executor.shutdownNow();
   }
 
   public void stopIt() {

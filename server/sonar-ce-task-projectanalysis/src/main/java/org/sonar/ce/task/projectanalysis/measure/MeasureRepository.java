@@ -39,6 +39,15 @@ public interface MeasureRepository {
   Optional<Measure> getBaseMeasure(Component component, Metric metric);
 
   /**
+   * Retrieves the current live measure from the MEASURES table (not historical PROJECT_MEASURES).
+   * This represents the live/current state, potentially updated by live measure recalculations
+   * when issues are accepted/resolved outside of analysis runs.
+   *
+   * @throws NullPointerException if either argument is {@code null}
+   */
+  Optional<Measure> getCurrentLiveMeasure(Component component, Metric metric);
+
+  /**
    * Retrieves the measure created during the current analysis for the specified {@link Component} for the specified
    * {@link Metric} if it exists (ie. one created by the Compute Engine or the Scanner).
    */

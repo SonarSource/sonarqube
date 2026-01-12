@@ -107,7 +107,7 @@ class EventDaoIT {
   void select_by_analysis_uuid() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
     SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
-    SnapshotDto otherAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
+    SnapshotDto otherAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setLast(false));
     dbTester.commit();
     dbTester.events().insertEvent(newEvent(analysis).setUuid("A1"));
     dbTester.events().insertEvent(newEvent(otherAnalysis).setUuid("O1"));
@@ -125,8 +125,8 @@ class EventDaoIT {
   @Test
   void select_by_analysis_uuids() {
     ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
-    SnapshotDto a1 = dbTester.components().insertSnapshot(newAnalysis(project));
-    SnapshotDto a2 = dbTester.components().insertSnapshot(newAnalysis(project));
+    SnapshotDto a1 = dbTester.components().insertSnapshot(newAnalysis(project).setLast(false));
+    SnapshotDto a2 = dbTester.components().insertSnapshot(newAnalysis(project).setLast(false));
     SnapshotDto a42 = dbTester.components().insertSnapshot(newAnalysis(project));
     dbTester.events().insertEvent(newEvent(newAnalysis(project)));
     dbTester.events().insertEvent(newEvent(a1).setUuid("A11"));

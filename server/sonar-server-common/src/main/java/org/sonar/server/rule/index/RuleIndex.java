@@ -428,6 +428,9 @@ public class RuleIndex {
         Collection<String> repoRuleKeys = rules.allRepoRuleKeys().stream().map(RepositoryRuleKey::toString).toList();
         shouldQueries.add(ES8QueryHelper.termsQuery(FIELD_RULE_KEY, repoRuleKeys));
       }
+      if (!rules.allRepos().isEmpty()) {
+        shouldQueries.add(ES8QueryHelper.termsQuery(FIELD_RULE_REPOSITORY, rules.allRepos()));
+      }
 
       if (!shouldQueries.isEmpty()) {
         Query boolQuery = ES8QueryHelper.boolQuery(b -> b.should(shouldQueries));

@@ -21,6 +21,10 @@ package org.sonar.db.user.ai;
 
 import java.util.List;
 
+/**
+ * @deprecated Automatic AI code detection is deprecated and will be removed in a future release.
+ */
+@Deprecated(since = "2026.1", forRemoval = true)
 public interface UserAiToolUsageMapper {
 
   void insert(UserAiToolUsageDto userAiToolUsageDto);

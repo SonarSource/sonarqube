@@ -68,10 +68,9 @@ public class QGChangeEventTest {
   }
 
   @Test
-  public void constructor_fails_with_NPE_if_analysis_is_null() {
-    assertThatThrownBy(() -> new QGChangeEvent(project, branch, null, configuration, previousStatus, supplier))
-      .isInstanceOf(NullPointerException.class)
-      .hasMessage("analysis can't be null");
+  public void constructor_accepts_null_analysis_for_ui_triggered_events() {
+    assertThatCode(() -> new QGChangeEvent(project, branch, null, configuration, previousStatus, supplier))
+      .doesNotThrowAnyException();
   }
 
   @Test

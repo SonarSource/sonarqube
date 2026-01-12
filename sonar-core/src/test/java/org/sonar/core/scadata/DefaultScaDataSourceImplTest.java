@@ -19,34 +19,16 @@
  */
 package org.sonar.core.scadata;
 
-import java.util.OptionalInt;
 import java.util.UUID;
+
 import org.junit.Test;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
 
 public class DefaultScaDataSourceImplTest {
-  private final DefaultScaDataSourceImpl dataSource = mock(DefaultScaDataSourceImpl.class);
-
-  @Test
-  public void getVulnerabilityCount_defaultsToZero() {
-    String componentUuid = "component-uuid";
-
-    int vulnerabilityCount = dataSource.getVulnerabilityCount(componentUuid);
-
-    assertEquals(0, vulnerabilityCount);
-  }
-
-  @Test
-  public void getVulnerabilityRating_defaultsToEmpty() {
-    String componentUuid = "component-uuid";
-
-    OptionalInt vulnerabilityRating = dataSource.getVulnerabilityRating(componentUuid);
-
-    assertEquals(OptionalInt.empty(), vulnerabilityRating);
-  }
+  private final DefaultScaDataSourceImpl dataSource = new DefaultScaDataSourceImpl();
 
   @Test
   public void getIssueReleasesByUuids_defaultsToEmptyList() {
@@ -57,5 +39,15 @@ public class DefaultScaDataSourceImplTest {
     var issueReleases = dataSource.getIssueReleasesByUuids(uuids);
 
     assertTrue(issueReleases.isEmpty());
+  }
+
+  @Test
+  public void getComponentIssueAggregations_defaultsToEmpty() {
+    String componentUuid = "component-uuid";
+
+    var metrics = dataSource.getComponentIssueAggregations(componentUuid);
+
+    assertEquals(0, metrics.issueCount());
+    assertNull(metrics.finalRating());
   }
 }

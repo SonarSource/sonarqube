@@ -20,9 +20,7 @@
 package org.sonar.ce.task.projectanalysis.purge;
 
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.function.Predicate;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,7 +36,6 @@ import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
 import org.sonar.ce.task.projectanalysis.step.BaseStepTest;
-import org.sonar.ce.task.projectanalysis.util.WrapInSingleElementArray;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
@@ -66,10 +63,10 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
   private ProjectCleaner projectCleaner = mock(ProjectCleaner.class);
   private ConfigurationRepository settingsRepository = mock(ConfigurationRepository.class);
   private MutableDisabledComponentsHolder disabledComponentsHolder = mock(MutableDisabledComponentsHolder.class, RETURNS_DEEP_STUBS);
-  private PurgeTelemetry purgeTelemetry = mock(PurgeTelemetry.class);
+  private TelemetryQGOnMergedPRProvider telemetryQGOnMergedPRProvider = mock(TelemetryQGOnMergedPRProvider.class);
 
   private PurgeDatastoresStep underTest = new PurgeDatastoresStep(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS), projectCleaner, treeRootHolder,
-    settingsRepository, disabledComponentsHolder, analysisMetadataHolder, purgeTelemetry);
+    settingsRepository, disabledComponentsHolder, analysisMetadataHolder, telemetryQGOnMergedPRProvider);
 
   @Before
   public void before() {
@@ -98,7 +95,7 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
 
     ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
     verify(projectCleaner).purge(any(), argumentCaptor.capture(), anyString(), any(), any());
-    verify(purgeTelemetry).sendTelemetry();
+    verify(telemetryQGOnMergedPRProvider).sendTelemetry();
     assertThat(argumentCaptor.getValue()).isEqualTo(PROJECT_UUID);
   }
 

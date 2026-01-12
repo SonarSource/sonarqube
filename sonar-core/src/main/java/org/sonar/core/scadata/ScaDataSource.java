@@ -26,9 +26,6 @@ import java.util.UUID;
 
 /**
  * Interface to access data from the SCA extension, when it is present.
- * Currently this is a grab-bag kind of interface to keep it simple, but
- * there will be a time when we maybe design it from first principles
- * a bit more.
  */
 public interface ScaDataSource {
   /**
@@ -40,8 +37,22 @@ public interface ScaDataSource {
     String projectKey,
     String projectUuid,
     String packageUrl,
-    long createdAt
-  ) {
+    long createdAt) {
+  }
+
+  record ComponentIssueAggregations(int issueCount,
+    OptionalInt issueRatingOpt) {
+    public static ComponentIssueAggregations empty() {
+      return new ComponentIssueAggregations(0, OptionalInt.empty());
+    }
+
+    public int totalCount() {
+      return issueCount;
+    }
+
+    public Integer finalRating() {
+      return issueRatingOpt.isPresent() ? issueRatingOpt.getAsInt() : null;
+    }
   }
 
   /**
@@ -49,11 +60,8 @@ public interface ScaDataSource {
    * It is not yet resolved to a list of real branches.
    *
    * @param componentUuid the component UUID
-   * @return count of how many vulnerabilities
    */
-  int getVulnerabilityCount(String componentUuid);
-
-  OptionalInt getVulnerabilityRating(String componentUuid);
+  ComponentIssueAggregations getComponentIssueAggregations(String componentUuid);
 
   /**
    * Look up details about issue-releases (aka dependency risks) by their uuids.
