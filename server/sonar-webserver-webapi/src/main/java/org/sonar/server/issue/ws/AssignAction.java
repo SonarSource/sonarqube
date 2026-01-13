@@ -22,6 +22,7 @@ package org.sonar.server.issue.ws;
 import com.google.common.base.Strings;
 import com.google.common.io.Resources;
 import java.util.Date;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.impact.Severity;
@@ -36,6 +37,7 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -114,13 +116,11 @@ public class AssignAction implements IssuesWsAction {
   private SearchResponseData assign(String issueKey, @Nullable String login) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto issueDto = issueFinder.getByKey(dbSession, issueKey);
-      ProjectDto projectDto = dbClient.projectDao().selectByUuid(dbSession, issueDto.getProjectUuid()).orElseThrow(
-              ()-> new IllegalStateException(format("Project with UUID %s not found for issue %s", issueDto.getProjectUuid(), issueKey))
-      );
+      ProjectDto projectDto = getProjectForIssue(dbSession, issueDto, issueKey);
       userSession.checkEntityPermission(UserRole.ISSUE_ADMIN, projectDto);
       DefaultIssue issue = issueDto.toDefaultIssue();
       UserDto user = getUser(dbSession, login);
-      if (user != null && !hasProjectPermission(dbSession, user.getUuid(), issueDto.getProjectUuid())) {
+      if (user != null && !hasProjectPermission(dbSession, user.getUuid(), projectDto.getUuid())) {
         throw new IllegalArgumentException(
                 format("User '%s' does not have permission to be assigned issues in project '%s'", user.getLogin(),
                         projectDto.getKey()));
@@ -149,6 +149,25 @@ public class AssignAction implements IssuesWsAction {
 
   private boolean hasProjectPermission(DbSession dbSession, String userUuid, String projectUuid) {
     return dbClient.authorizationDao().selectEntityPermissions(dbSession, projectUuid, userUuid).contains(UserRole.USER);
+  }
+
+  private ProjectDto getProjectForIssue(DbSession dbSession, IssueDto issueDto, String issueKey) {
+    Optional<ProjectDto> projectDtoOpt = dbClient.projectDao().selectByUuid(dbSession, issueDto.getProjectUuid());
+
+    if (projectDtoOpt.isPresent()) {
+      return projectDtoOpt.get();
+    }
+
+    // If project not found by UUID, it might be a PR/comparison branch - try via component
+    ComponentDto componentDto = dbClient.componentDao()
+            .selectByUuid(dbSession, issueDto.getProjectUuid())
+            .orElseThrow(() -> new IllegalStateException(
+                    format("Component with UUID %s not found for issue %s", issueDto.getProjectUuid(), issueKey)));
+
+    return dbClient.projectDao()
+            .selectProjectByKey(dbSession, componentDto.getKey())
+            .orElseThrow(() -> new IllegalStateException(
+                    format("Project with key %s not found for issue %s", componentDto.getKey(), issueKey)));
   }
 
 }
