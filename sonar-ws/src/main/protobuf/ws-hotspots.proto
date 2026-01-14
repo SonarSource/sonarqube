@@ -51,6 +51,7 @@ message SearchWsResponse {
     optional string ruleKey = 16;
     repeated sonarqube.ws.commons.MessageFormatting messageFormattings = 17;
     optional string cveId = 18;
+    repeated sonarqube.ws.commons.Comment comments = 19;
   }
 }
 

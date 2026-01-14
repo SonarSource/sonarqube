@@ -171,6 +171,7 @@ public class ShowAction implements HotspotsWsAction {
     users.getAssignee().map(UserDto::getLogin).ifPresent(builder::setAssignee);
     Optional.ofNullable(hotspot.getAuthorLogin()).ifPresent(builder::setAuthor);
     builder.addAllCodeVariants(hotspot.getCodeVariants());
+    builder.addAllComment( builder.getCommentList() );
   }
 
   private void formatComponents(Components components, ShowWsResponse.Builder responseBuilder) {
