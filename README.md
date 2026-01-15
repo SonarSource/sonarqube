@@ -123,3 +123,5 @@ Note that contributing extensions for translations into other languages still wo
 Copyright 2008-2025 SonarSource Sàrl.
 
 Licensed under the [GNU Lesser General Public License, Version 3.0](https://www.gnu.org/licenses/lgpl.txt)
+
+<!-- Cleanup telemetry debug logging -->
