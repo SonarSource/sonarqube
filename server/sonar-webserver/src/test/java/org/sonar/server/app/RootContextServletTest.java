@@ -31,6 +31,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -85,6 +87,39 @@ class RootContextServletTest {
     servlet.doHead(request, response);
 
     verify(response).setStatus(HttpServletResponse.SC_NOT_FOUND);
+  }
+
+  @Test
+  void doGet_whenSendRedirectThrowsIOException_shouldLogErrorAndSetInternalServerError() throws IOException {
+    when(config.getInitParameter("webContext")).thenReturn("/sonarqube");
+    underTest.init(config);
+
+    doThrow(new IOException("Network error")).when(response).sendRedirect(anyString());
+
+    underTest.doGet(request, response);
+
+    verify(response).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+  }
+
+  @Test
+  void doPost_whenSendRedirectThrowsIOException_shouldLogErrorAndSetInternalServerError() throws IOException {
+    when(config.getInitParameter("webContext")).thenReturn("/sonarqube");
+    underTest.init(config);
+
+    doThrow(new IOException("Network error")).when(response).sendRedirect(anyString());
+
+    underTest.doPost(request, response);
+
+    verify(response).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+  }
+
+  @Test
+  void constructor_shouldInitializeWithDefaultWebContext() throws IOException {
+    RootContextServlet servlet = new RootContextServlet();
+
+    servlet.doGet(request, response);
+
+    verify(response).sendRedirect("/not-found");
   }
 
   private static Stream<Arguments> webContextParameters() {

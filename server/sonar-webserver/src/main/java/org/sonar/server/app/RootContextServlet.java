@@ -25,6 +25,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Serial;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Servlet for the ROOT context that redirects to the main webapp to show the React 404 page.
@@ -32,11 +34,17 @@ import java.io.Serial;
  */
 public class RootContextServlet extends HttpServlet {
 
+  private static final Logger LOG = LoggerFactory.getLogger(RootContextServlet.class);
+
   @Serial
   private static final long serialVersionUID = 1L;
   private static final String NOT_FOUND = "/not-found";
 
-  private String webContext;
+  private String webContext = "";
+
+  public RootContextServlet() {
+    // Default constructor with default value for webContext
+  }
 
   @Override
   public void init(ServletConfig config) {
@@ -50,13 +58,23 @@ public class RootContextServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Redirect to a non-existent page in the main webapp context
     // This will be handled by the React app and show the proper 404 page
-    String redirectUrl = webContext + NOT_FOUND;
-    response.sendRedirect(redirectUrl);
+    try {
+      String redirectUrl = webContext + NOT_FOUND;
+      response.sendRedirect(redirectUrl);
+    } catch (IOException e) {
+      LOG.error("Failed to redirect to not-found page", e);
+      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Override
-  protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    doGet(request, response);
+  protected void doPost(HttpServletRequest request, HttpServletResponse response) {
+    try {
+      doGet(request, response);
+    } catch (IOException e) {
+      LOG.error("Failed to handle POST request", e);
+      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Override
