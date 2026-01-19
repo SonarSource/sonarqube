@@ -138,7 +138,7 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
 
   if(release) {
     dependsOn tasks.downloadLicenses
-    into("${archiveDir}/") {
+    into("${archiveDir}/licenses/") {
       from(tasks.downloadLicenses.outputs) {
         include 'dependency-license.json'
         filter(LicenseReader)
@@ -162,6 +162,11 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
         return fileName
       }
     }
+  }
+
+
+  into("${archiveDir}/licenses") {
+    from file('src/main/assembly/sonarsource-svnkit-license.txt')
   }
 
   ResolvedArtifact elasticSearchArtifact = configurations.zipDist.resolvedConfiguration.resolvedArtifacts.find {

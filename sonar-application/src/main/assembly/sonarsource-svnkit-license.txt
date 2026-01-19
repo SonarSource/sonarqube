@@ -1,0 +1,43 @@
+Copyright (C) 2009-2026 TMate Software Ltd
+
+SVNKit Library Software License
+
+* Definitions
+
+SVNKit Library - means SVNKit software library, developed by TMate Software (https://svnkit.com/).
+
+SonarSource Applications - means any of software applications developed by SonarSource Sarl
+
+* License
+
+As part of SonarSource Applications, SVNKit library could be used and distributed in binary or source form without any limitations when the following conditions are met:
+
+(1) SVNKit library is distributed along with SonarSource Applications and SVNKit library API is used programmatically by SonarSource Applications .
+
+(2) SVNKit library is distributed along with third-party software application based on SonarSource Applications and SVNKit library API is used programmatically by SonarSource Applications.
+
+Above licensing conditions are only applicable when SVNKit library is distributed as part of SonarSource Applications or third-party software application based on SonarSource Applications.
+
+For licensing terms applicable to SVNKit library outside of SonarSource Applications, please refer to https://svnkit.com/licensing.html web page or contact TMate Software at support@tmatesoft.com
+
+Copyright (C) 2009-2026 TMate Software Ltd
+
+SQLJet Library Software License
+
+* Definitions
+
+SQLJet Library - means SQLJet software library, developed by TMate Software (http://sqljet.com/).
+
+SonarSource Applications - means any of software applications developed by SonarSource
+
+* License
+
+As part of SonarSource Applications, SQLJet library could be used and distributed in binary or source form without any limitations when the following conditions are met:
+
+(1) SQLJet library is distributed along with SonarSource Applications and SQLJet library API is used programmatically by SonarSource Applications.
+
+(2) SQLJet library is distributed along with third-party software application based on SonarSource Applications and SQLJet library API is used programmatically by SonarSource Applications.
+
+Above licensing conditions are only applicable when SQLJet library is distributed as part of SonarSource Applications or third-party software application based on SonarSource Applications.
+
+For licensing terms applicable to SQLJet library outside of SonarSource Applications, please refer to http://sqljet.com/ web page or contact TMate Software at support@tmatesoft.com
