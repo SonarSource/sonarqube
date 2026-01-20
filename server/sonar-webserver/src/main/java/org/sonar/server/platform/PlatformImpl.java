@@ -43,7 +43,11 @@ import org.sonar.server.platform.platformlevel.PlatformLevelSafeMode;
 import org.sonar.server.platform.platformlevel.PlatformLevelStartup;
 import org.sonar.server.platform.web.ApiV2Servlet;
 
+import static jakarta.servlet.DispatcherType.ASYNC;
+import static jakarta.servlet.DispatcherType.ERROR;
+import static jakarta.servlet.DispatcherType.REQUEST;
 import static org.sonar.process.ProcessId.WEB_SERVER;
+import static org.springframework.web.filter.UrlHandlerFilter.trailingSlashHandler;
 
 /**
  * @since 2.2
@@ -136,6 +140,19 @@ public class PlatformImpl implements Platform {
     ServletRegistration.Dynamic app = this.servletContext.addServlet("app", servlet);
     app.addMapping("/api/v2/*");
     app.setLoadOnStartup(1);
+    registerTrailingSlashFilter();
+  }
+
+  private void registerTrailingSlashFilter() {
+    var filter = trailingSlashHandler("/api/v2/**")
+      .wrapRequest()
+      .build();
+    var filterRegistration = this.servletContext.addFilter("trailingSlashFilter", filter);
+    filterRegistration.addMappingForUrlPatterns(
+      java.util.EnumSet.of(REQUEST, ERROR, ASYNC),
+      false,
+      "/api/v2/*"
+    );
   }
 
   private AutoStarter createAutoStarter() {

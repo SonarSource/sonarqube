@@ -19,14 +19,22 @@
  */
 package org.sonar.server.v2.api;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Validation;
 import jakarta.validation.ValidatorFactory;
+import java.io.IOException;
 import java.util.List;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
+import org.jspecify.annotations.NonNull;
 import org.sonar.server.v2.common.RestResponseEntityExceptionHandler;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.filter.UrlHandlerFilter;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
@@ -45,7 +53,7 @@ public class ControllerTester {
       .setValidator(new SpringValidatorAdapter(validatorFactory.getValidator()))
       .setCustomHandlerMapping(() -> resolveRequestMappingHandlerMapping(handlerInterceptors))
       .setControllerAdvice(new RestResponseEntityExceptionHandler())
-      .setUseTrailingSlashPatternMatch(true)
+      .addFilter(new TrailingSlashHandlerFilter())
       .build();
   }
 
@@ -53,6 +61,21 @@ public class ControllerTester {
     RequestMappingHandlerMapping handlerMapping = new RequestMappingHandlerMapping();
     handlerMapping.setInterceptors(handlerInterceptors != null ? handlerInterceptors.toArray() : new Object[0]);
     return handlerMapping;
+  }
+
+  /**
+   * Replace deprecated {@link org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder#setUseTrailingShashPatternMatch()}
+   */
+  private static class TrailingSlashHandlerFilter extends OncePerRequestFilter {
+    @Override
+
+    protected void doFilterInternal(
+      @NonNull HttpServletRequest request,
+      @NonNull HttpServletResponse response,
+      @NonNull FilterChain filterChain) throws ServletException, IOException {
+      UrlHandlerFilter filter = UrlHandlerFilter.trailingSlashHandler("/**").wrapRequest().build();
+      filter.doFilter(request, response, filterChain);
+    }
   }
 }
 

@@ -40,7 +40,7 @@ public class CommonWebConfig implements WebMvcConfigurer {
   public void configurePathMatch(PathMatchConfigurer configurer) {
     UrlPathHelper urlPathHelper = new UrlPathHelper();
     urlPathHelper.setUrlDecode(false);
-    configurer.setUrlPathHelper(urlPathHelper).setUseTrailingSlashMatch(true);
+    configurer.setUrlPathHelper(urlPathHelper);
   }
 
   @Override

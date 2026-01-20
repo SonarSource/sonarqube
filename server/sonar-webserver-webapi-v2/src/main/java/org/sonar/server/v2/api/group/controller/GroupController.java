@@ -64,7 +64,7 @@ public interface GroupController {
     """)
   GroupsSearchRestResponse search(
     @Valid @ParameterObject GroupsSearchRestRequest groupsSearchRestRequest,
-    @RequestParam(name = "userId!") @Nullable @Schema(description = "Find groups without this user. Only available for system administrators.",
+    @RequestParam(name = "userId!", required = false) @Nullable @Schema(description = "Find groups without this user. Only available for system administrators.",
       extensions = @Extension(properties = {@ExtensionProperty(name = "internal", value = "true")}), hidden = true) String excludedUserId,
     @Valid @ParameterObject RestPage restPage);
 

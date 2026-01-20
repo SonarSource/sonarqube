@@ -516,14 +516,10 @@ subprojects {
       dependency 'org.spdx:java-spdx-library:2.0.2'
       dependency 'org.spdx:spdx-v3jsonld-store:1.0.1'
       dependency 'org.spdx:spdx-jackson-store:2.0.3'
-      dependencySet(group: 'org.springframework', version: '6.2.12') {
+      dependencySet(group: 'org.springframework', version: '7.0.2') {
         entry 'spring-test'
-        entry('spring-context') {
-          exclude 'commons-logging:commons-logging'
-        }
-        entry('spring-webmvc') {
-          exclude 'commons-logging:commons-logging'
-        }
+        entry 'spring-context'
+        entry 'spring-webmvc'
       }
       dependency "org.springframework.security:spring-security-saml2-service-provider:${springSecurityVersion}"
       dependency 'org.mybatis:mybatis:3.5.19'
