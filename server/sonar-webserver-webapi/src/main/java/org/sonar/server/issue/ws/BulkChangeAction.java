@@ -33,6 +33,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.DefaultTransitions;
@@ -224,28 +225,45 @@ public class BulkChangeAction implements IssuesWsAction {
             .map(defaultIssue -> {
               IssueDto dto = bulkChangeData.originalIssueByKey.get(defaultIssue.key());
               if (dto == null) {
-                throw new NotFoundException(("No issues provided"));
+                throw new NotFoundException(("No issues found for the given request"));
               }
               return dto.getProjectUuid();
             })
             .collect(Collectors.toSet());
     // Load all projects
-    List<ProjectDto> projectDtos = dbClient.projectDao()
+    List<ProjectDto> projectDtosForBranches = dbClient.projectDao()
             .selectByUuids(dbSession, projectUuids);
 
-    if (projectDtos.size() != projectUuids.size()) {
+    // If the project UUID is from PR, we need to get the project key from component table and then get the project UUID from project table
+    List<ComponentDto> componentDtoList=dbClient.componentDao().selectByUuids(dbSession, projectUuids);
+    List<String> projectKeysList =
+            componentDtoList.stream()
+                    .map(ComponentDto::getKey)
+                    .collect(Collectors.toList());
+
+    // Now load all projects by keys fetched from component table
+    List<ProjectDto> projectDtosForPR = dbClient.projectDao().selectProjectsByKeys(dbSession,projectKeysList);
+
+    // Verify we found all projects UUIDs
+    if (projectDtosForBranches.size() != projectUuids.size() && (projectUuids.size() != projectDtosForPR.size())) {
       throw new IllegalStateException("Some project UUIDs were not found");
     }
 
+    // Use projects from branches if available, otherwise use projects from PR
+    if(projectDtosForBranches.isEmpty()) {
+      projectDtosForBranches=projectDtosForPR;
+    }
     // Check ISSUE_ADMIN permission ONCE per project
-    for (ProjectDto projectDtoOfEach : projectDtos) {
+    for (ProjectDto projectDtoOfEach : projectDtosForBranches) {
       userSession.checkEntityPermission(UserRole.ISSUE_ADMIN, projectDtoOfEach);
     }
 
     // Checking the Permission of the assignee for first issue
     String assigneeLogin = request.getParam("assign") != null
+            && request.getParam("assign").isPresent()
             ? request.getParam("assign").getValue()
             : null;
+
     UserDto assigneeUser = null;
     if (assigneeLogin != null && !assigneeLogin.isEmpty()) {
       assigneeUser = dbClient.userDao()
@@ -257,33 +275,47 @@ public class BulkChangeAction implements IssuesWsAction {
             .orElseThrow(() -> new NotFoundException(("No issues provided")));
 
     IssueDto issueDto = bulkChangeData.originalIssueByKey.get(issue.key());
-    ProjectDto projectDto = dbClient.projectDao().selectByUuid(dbSession, issueDto.getProjectUuid()).orElseThrow(
-            () -> new IllegalStateException(
-                    format("Project with UUID %s not found for issue %s", issueDto.getProjectUuid(), issue))
-    );
+
+    // If the issue is from a master branch, we can get the project UUID directly
+    String issueDtoProjectUuid = issueDto.getProjectUuid();
+    // If the issue is from PR, we need to get the project key from component table and then get the project UUID from project table
+    ComponentDto componentDto=dbClient.componentDao().selectOrFailByUuid(dbSession,issueDtoProjectUuid);
+    String projectKeyForFirstIssue = componentDto.getKey();
+
+    // Get project key from project UUID, if not found use projectKeyForFirstIssue which we got from component table
+    String projectKey = dbClient.projectDao()
+            .selectByUuid(dbSession, issueDto.getProjectUuid())
+            .map(ProjectDto::getKey)
+            .orElse(projectKeyForFirstIssue);
+
+    // Now get the project UUID from project key
+    String projectUuid = dbClient.projectDao().selectProjectByKey(dbSession,projectKey)
+            .map(ProjectDto::getUuid)
+            .orElseThrow(() -> new IllegalStateException(
+                    format("Project with key %s not found for issue %s", projectKey, issue.key()))
+            );
 
     if (assigneeUser!=null && assigneeUser.getUuid() != null && !hasProjectPermission(dbSession, assigneeUser.getUuid(),
-            issueDto.getProjectUuid())) {
+            projectUuid)) {
       throw new IllegalArgumentException(
               format("User '%s' does not have permission to be assigned issues in project '%s'",
                       assigneeUser.getLogin(),
-                      projectDto.getKey()));
+                      projectKey));
     }
 
-
-    List<DefaultIssue> items = bulkChangeData.issues.stream()
+    List<DefaultIssue> defaultIssues = bulkChangeData.issues.stream()
       .filter(bulkChange(issueChangeContext, bulkChangeData, result))
       .toList();
-    issueStorage.save(dbSession, items);
+    issueStorage.save(dbSession, defaultIssues);
     refreshLiveMeasures(dbSession, bulkChangeData, result);
 
-    Set<String> assigneeUuids = items.stream().map(DefaultIssue::assignee).filter(Objects::nonNull).collect(Collectors.toSet());
+    Set<String> assigneeUuids = defaultIssues.stream().map(DefaultIssue::assignee).filter(Objects::nonNull).collect(Collectors.toSet());
     Map<String, UserDto> userDtoByUuid = dbClient.userDao().selectByUuids(dbSession, assigneeUuids).stream().collect(toMap(UserDto::getUuid, u -> u));
     String authorUuid = requireNonNull(userSession.getUuid(), "User uuid cannot be null");
     UserDto author = dbClient.userDao().selectByUuid(dbSession, authorUuid);
     checkState(author != null, "User with uuid '%s' does not exist");
-    sendNotification(items, bulkChangeData, userDtoByUuid, author);
-    distributeEvents(items, bulkChangeData);
+    sendNotification(defaultIssues, bulkChangeData, userDtoByUuid, author);
+    distributeEvents(defaultIssues, bulkChangeData);
 
     return result;
   }
