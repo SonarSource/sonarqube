@@ -54,10 +54,13 @@ public class PopulateAnnouncementHtmlMessageProperty extends DataChange {
 
       if (!StringUtils.isEmpty(sourceValue)) {
         final String htmlValue = Markdown.convertToHtml(sourceValue);
-        if (targetValue == null) {
-          insertValue(context, htmlValue);
-        } else {
+        // Check if the row exists (Oracle treats empty strings as NULL, so we can't rely on targetValue)
+        final boolean targetPropertyExists = propertyExists(context);
+
+        if (targetPropertyExists) {
           updatedValue(context, htmlValue);
+        } else {
+          insertValue(context, htmlValue);
         }
       }
     }
@@ -85,4 +88,12 @@ public class PopulateAnnouncementHtmlMessageProperty extends DataChange {
       .execute()
       .commit();
   }
+
+  private static boolean propertyExists(Context context) throws SQLException {
+    Long count = context.prepareSelect("select count(*) from properties where prop_key = ?")
+      .setString(1, TARGET_PROPERTY)
+      .get(r -> r.getLong(1));
+    return count != null && count > 0;
+  }
+
 }

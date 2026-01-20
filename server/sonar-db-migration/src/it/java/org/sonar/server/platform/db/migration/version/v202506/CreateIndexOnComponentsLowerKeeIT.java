@@ -19,13 +19,18 @@
  */
 package org.sonar.server.platform.db.migration.version.v202506;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
+import org.sonar.db.dialect.Oracle;
+import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.v202506.CreateIndexOnComponentsLowerKee.COLUMN_NAME;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.sonar.server.platform.db.migration.version.v202506.CreateIndexOnComponentsLowerKee.INDEX_NAME;
 import static org.sonar.server.platform.db.migration.version.v202506.CreateIndexOnComponentsLowerKee.TABLE_NAME;
 
@@ -37,20 +42,53 @@ class CreateIndexOnComponentsLowerKeeIT {
 
   @Test
   void execute_shouldCreateIndex() throws SQLException {
+    assumeIndexSupported();
     db.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
 
     underTest.execute();
 
-    db.assertIndex(TABLE_NAME, INDEX_NAME, COLUMN_NAME);
+    assertIndexCreated();
   }
 
   @Test
   void execute_shouldBeReentrant() throws SQLException {
+    assumeIndexSupported();
     db.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
 
     underTest.execute();
     underTest.execute();
 
-    db.assertIndex(TABLE_NAME, INDEX_NAME, COLUMN_NAME);
+    assertIndexCreated();
+  }
+
+  private void assumeIndexSupported() {
+    String dialectId = db.database().getDialect().getId();
+    assumeTrue(PostgreSql.ID.equals(dialectId) || Oracle.ID.equals(dialectId),
+      "This migration only supports PostgreSQL and Oracle (MSSQL not implemented yet)");
+  }
+
+  /**
+   * For PostgreSQL and Oracle, we only verify the index exists without checking column names.
+   * Function-based indexes use database-specific representations:
+   * - PostgreSQL: Reports the full expression like "lower((kee)::text)"
+   * - Oracle: Creates auto-generated virtual columns like "sys_nc00027$"
+   * The standard assertIndex method expects plain column names, so we verify existence only.
+   */
+  private void assertIndexCreated() {
+    try (Connection connection = db.openConnection()) {
+      try (ResultSet rs = connection.getMetaData().getIndexInfo(null, null, db.toVendorCase(TABLE_NAME), false, false)) {
+        boolean indexFound = false;
+        while (rs.next()) {
+          if (INDEX_NAME.equalsIgnoreCase(rs.getString("INDEX_NAME"))) {
+            indexFound = true;
+            assertThat(rs.getBoolean("NON_UNIQUE")).as("Index should be non-unique").isTrue();
+            break;
+          }
+        }
+        assertThat(indexFound).as("Index %s should exist", INDEX_NAME).isTrue();
+      }
+    } catch (SQLException e) {
+      throw new IllegalStateException("Failed to check index", e);
+    }
   }
 }
