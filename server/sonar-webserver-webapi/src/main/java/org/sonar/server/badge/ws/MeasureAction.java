@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -199,8 +200,8 @@ public class MeasureAction extends AbstractProjectBadgesWsAction {
 
   private static <P> P getNonNullValue(MeasureDto measure, Function<MeasureDto, P> function) {
     P value = function.apply(measure);
-    checkState(value != null, "Measure has not been found");
-    return value;
+    return Optional.ofNullable(value)
+      .orElseThrow(() -> new ProjectBadgesException("Measure has not been found"));
   }
 
 }

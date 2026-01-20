@@ -459,7 +459,7 @@ class MeasureActionIT {
   }
 
   @Test
-  void error_when_measure_not_found() {
+  void error_when_measure_not_found() throws ParseException {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -471,9 +471,9 @@ class MeasureActionIT {
       .setParam("project", project.getKey())
       .setParam("metric", metric.getKey());
 
-    assertThatThrownBy(request::execute)
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Measure has not been found");
+    TestResponse response = request.execute();
+
+    checkError(response, "Measure has not been found");
   }
 
   @Test
