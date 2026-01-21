@@ -19,37 +19,57 @@
  */
 package org.sonar.auth.saml;
 
-import java.util.Map;
-import java.util.function.Consumer;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
+import org.jetbrains.annotations.Nullable;
 import org.opensaml.saml.saml2.assertion.SAML2AssertionValidationParameters;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.Subject;
+import org.opensaml.saml.saml2.core.SubjectConfirmation;
+import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.saml2.core.Saml2ResponseValidatorResult;
-import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider;
 
 @Configuration
 public class SamlConfiguration {
 
   @Bean
-  OpenSaml4AuthenticationProvider openSaml4AuthenticationProvider(SonarqubeSaml2ResponseValidator sonarqubeSaml2ResponseValidator){
-    OpenSaml4AuthenticationProvider openSaml4AuthenticationProvider = new OpenSaml4AuthenticationProvider();
-    openSaml4AuthenticationProvider.setAssertionValidator(createIgnoringResponseToAssertionValidator(sonarqubeSaml2ResponseValidator));
-    openSaml4AuthenticationProvider.setResponseValidator(sonarqubeSaml2ResponseValidator);
-    return openSaml4AuthenticationProvider;
+  OpenSaml5AuthenticationProvider openSaml5AuthenticationProvider(SonarqubeSaml2ResponseValidator sonarqubeSaml2ResponseValidator) {
+    OpenSaml5AuthenticationProvider openSaml5AuthenticationProvider = new OpenSaml5AuthenticationProvider();
+    openSaml5AuthenticationProvider.setResponseValidator(sonarqubeSaml2ResponseValidator);
+    openSaml5AuthenticationProvider.setAssertionValidator(createIgnoringResponseToAssertionValidator());
+
+    return openSaml5AuthenticationProvider;
   }
 
-  private static Converter<OpenSaml4AuthenticationProvider.AssertionToken, Saml2ResponseValidatorResult> createIgnoringResponseToAssertionValidator(
-    Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2ResponseValidatorResult> customResponseValidator) {
-    Consumer<Map<String, Object>> validationContextParameters = validationContextParameterConsumer(((SonarqubeSaml2ResponseValidator) customResponseValidator));
-    return OpenSaml4AuthenticationProvider.createDefaultAssertionValidatorWithParameters(validationContextParameters);
-  }
+  private static Converter<OpenSaml5AuthenticationProvider.AssertionToken, Saml2ResponseValidatorResult> createIgnoringResponseToAssertionValidator() {
+    return assertionToken -> {
+      Assertion assertion = assertionToken.getAssertion();
+      String inResponseTo = extractInResponseTo(assertion);
 
-  private static Consumer<Map<String, Object>> validationContextParameterConsumer(SonarqubeSaml2ResponseValidator saml2CustomResponseValidator) {
-    return params -> {
-      String dynamicValidInResponseToValue = saml2CustomResponseValidator.getValidInResponseToSupplier().get();
-      params.put(SAML2AssertionValidationParameters.SC_VALID_IN_RESPONSE_TO, dynamicValidInResponseToValue);
+      return OpenSaml5AuthenticationProvider.AssertionValidator.builder()
+        .validationContextParameters(params -> params.put(SAML2AssertionValidationParameters.SC_VALID_IN_RESPONSE_TO, inResponseTo))
+        .build()
+        .convert(assertionToken);
     };
+  }
+
+  @Nullable
+  private static String extractInResponseTo(Assertion assertion) {
+    return Optional.ofNullable(assertion.getSubject())
+      .map(Subject::getSubjectConfirmations)
+      .stream()
+      .flatMap(Collection::stream)
+      .map(SubjectConfirmation::getSubjectConfirmationData)
+      .filter(Objects::nonNull)
+      .map(SubjectConfirmationData::getInResponseTo)
+      .filter(Objects::nonNull)
+      .findFirst()
+      .orElse(null);
   }
 
 }

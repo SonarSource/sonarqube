@@ -20,7 +20,7 @@
 package org.sonar.auth.saml;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -28,12 +28,12 @@ import static org.mockito.Mockito.mock;
 class SamlConfigurationTest {
 
   @Test
-  void openSaml4AuthenticationProvider_doesNotFail() {
+  void openSaml5AuthenticationProvider_doesNotFail() {
     SamlConfiguration samlConfiguration = new SamlConfiguration();
     SonarqubeSaml2ResponseValidator sonarqubeSaml2ResponseValidator = mock();
 
-    OpenSaml4AuthenticationProvider openSaml4AuthenticationProvider = samlConfiguration.openSaml4AuthenticationProvider(sonarqubeSaml2ResponseValidator);
+    OpenSaml5AuthenticationProvider openSaml5AuthenticationProvider = samlConfiguration.openSaml5AuthenticationProvider(sonarqubeSaml2ResponseValidator);
 
-    assertThat(openSaml4AuthenticationProvider).isNotNull();
+    assertThat(openSaml5AuthenticationProvider).isNotNull();
   }
 }

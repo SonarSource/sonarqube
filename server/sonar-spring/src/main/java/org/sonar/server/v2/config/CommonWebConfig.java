@@ -23,14 +23,17 @@ import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator
 import org.sonar.server.v2.common.RestResponseEntityExceptionHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import org.springframework.web.filter.UrlHandlerFilter;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.util.UrlPathHelper;
 
+import jakarta.servlet.Filter;
 import jakarta.validation.Validation;
 
 @Configuration
@@ -41,6 +44,17 @@ public class CommonWebConfig implements WebMvcConfigurer {
     UrlPathHelper urlPathHelper = new UrlPathHelper();
     urlPathHelper.setUrlDecode(false);
     configurer.setUrlPathHelper(urlPathHelper);
+  }
+
+  /**
+   * Handle trailing slashes by redirecting to the non-trailing slash version.
+   * Replaces the deprecated setUseTrailingSlashMatch(true) behavior.
+   */
+  @Bean
+  public Filter trailingSlashFilter() {
+    return UrlHandlerFilter.trailingSlashHandler("/**")
+      .redirect(HttpStatus.PERMANENT_REDIRECT)
+      .build();
   }
 
   @Override

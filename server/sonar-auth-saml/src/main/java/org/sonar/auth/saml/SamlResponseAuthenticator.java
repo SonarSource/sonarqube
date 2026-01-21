@@ -24,7 +24,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.server.http.JakartaHttpRequest;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationToken;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
@@ -32,18 +32,18 @@ import org.springframework.security.saml2.provider.service.web.Saml2Authenticati
 @ServerSide
 class SamlResponseAuthenticator {
 
-  private final OpenSaml4AuthenticationProvider openSaml4AuthenticationProvider;
+  private final OpenSaml5AuthenticationProvider openSaml5AuthenticationProvider;
   private final RelyingPartyRegistrationRepositoryProvider relyingPartyRegistrationRepositoryProvider;
 
-  SamlResponseAuthenticator(OpenSaml4AuthenticationProvider openSaml4AuthenticationProvider,
+  SamlResponseAuthenticator(OpenSaml5AuthenticationProvider openSaml5AuthenticationProvider,
     RelyingPartyRegistrationRepositoryProvider relyingPartyRegistrationRepositoryProvider) {
-    this.openSaml4AuthenticationProvider = openSaml4AuthenticationProvider;
+    this.openSaml5AuthenticationProvider = openSaml5AuthenticationProvider;
     this.relyingPartyRegistrationRepositoryProvider = relyingPartyRegistrationRepositoryProvider;
   }
 
   Saml2AuthenticatedPrincipal authenticate(HttpRequest request, String callbackUrl) {
     Authentication authenticationToken = processSamlResponse(request, callbackUrl);
-    authenticationToken = openSaml4AuthenticationProvider.authenticate(authenticationToken);
+    authenticationToken = openSaml5AuthenticationProvider.authenticate(authenticationToken);
     return (Saml2AuthenticatedPrincipal) authenticationToken.getPrincipal();
   }
 

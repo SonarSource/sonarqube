@@ -240,7 +240,7 @@ subprojects {
 
   ext {
     protobufVersion = '4.33.2'
-    springSecurityVersion = '6.5.6'
+    springSecurityVersion = '7.0.2'
     elasticSearchClientVersion = '7.17.29' // Old REST High Level Client (to be removed)
     elasticSearchJavaClientVersion = '8.16.6' // New Java API Client
   }
@@ -548,7 +548,7 @@ subprojects {
       dependency 'com.sonarsource.fixsuggestions:ai-suggestions-shared:1.0.0.1775'
       dependency 'org.sonarsource.update-center:sonar-update-center-common:1.36.0.4317'
       dependency 'org.sonarsource.classloader:sonar-classloader:1.2.1.2095'
-      dependency 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.13'
+      dependency 'org.springdoc:springdoc-openapi-starter-webmvc-api:3.0.0'
       dependencySet(group: 'com.icegreen', version: '2.1.8') {
         entry 'greenmail'
         entry 'greenmail-junit4'

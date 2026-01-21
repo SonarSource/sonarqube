@@ -26,7 +26,7 @@ import org.sonar.api.server.http.HttpRequest;
 import org.sonar.server.http.JakartaHttpRequest;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest;
-import org.springframework.security.saml2.provider.service.web.authentication.OpenSaml4AuthenticationRequestResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.OpenSaml5AuthenticationRequestResolver;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
@@ -40,7 +40,7 @@ public class RedirectToUrlProvider {
   }
 
   String getRedirectToUrl(HttpRequest httpRequest, String callbackUrl, String relayState) {
-    OpenSaml4AuthenticationRequestResolver requestResolver = getOpenSaml4AuthenticationRequestResolver(callbackUrl, relayState);
+    OpenSaml5AuthenticationRequestResolver requestResolver = getOpenSaml5AuthenticationRequestResolver(callbackUrl, relayState);
 
     HttpServletRequest httpServletRequest = ((JakartaHttpRequest) httpRequest).getDelegate();
     Saml2RedirectAuthenticationRequest authenticationRequest = requestResolver.resolve(httpServletRequest);
@@ -48,10 +48,10 @@ public class RedirectToUrlProvider {
     return buildSamlLoginRequest(authenticationRequest).build().toUriString();
   }
 
-  private OpenSaml4AuthenticationRequestResolver getOpenSaml4AuthenticationRequestResolver(String callbackUrl, String relayState) {
+  private OpenSaml5AuthenticationRequestResolver getOpenSaml5AuthenticationRequestResolver(String callbackUrl, String relayState) {
     SonarqubeRelyingPartyRegistrationResolver relyingPartyRegistrationResolver = new SonarqubeRelyingPartyRegistrationResolver(relyingPartyRegistrationRepositoryProvider,
       callbackUrl);
-    OpenSaml4AuthenticationRequestResolver authRequestResolver = new OpenSaml4AuthenticationRequestResolver(relyingPartyRegistrationResolver);
+    OpenSaml5AuthenticationRequestResolver authRequestResolver = new OpenSaml5AuthenticationRequestResolver(relyingPartyRegistrationResolver);
     authRequestResolver.setRelayStateResolver(httpServletRequest -> relayState);
     authRequestResolver.setRequestMatcher(httpServletRequest -> true);
     return authRequestResolver;

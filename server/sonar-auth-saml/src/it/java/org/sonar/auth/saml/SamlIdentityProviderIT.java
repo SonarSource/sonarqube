@@ -45,7 +45,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.server.http.JakartaHttpRequest;
 import org.sonar.server.http.JakartaHttpResponse;
-import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -94,8 +94,8 @@ public class SamlIdentityProviderIT {
   SonarqubeSaml2ResponseValidator sonarqubeSaml2ResponseValidator = new SonarqubeSaml2ResponseValidator(samlMessageIdChecker);
 
   private final SamlConfiguration samlConfiguration = new SamlConfiguration();
-  private final OpenSaml4AuthenticationProvider openSaml4AuthenticationProvider = samlConfiguration.openSaml4AuthenticationProvider(sonarqubeSaml2ResponseValidator);
-  private final SamlResponseAuthenticator samlResponseAuthenticator = new SamlResponseAuthenticator(openSaml4AuthenticationProvider, relyingPartyRegistrationRepositoryProvider);
+  private final OpenSaml5AuthenticationProvider openSaml5AuthenticationProvider = samlConfiguration.openSaml5AuthenticationProvider(sonarqubeSaml2ResponseValidator);
+  private final SamlResponseAuthenticator samlResponseAuthenticator = new SamlResponseAuthenticator(openSaml5AuthenticationProvider, relyingPartyRegistrationRepositoryProvider);
 
   private final PrincipalToUserIdentityConverter principalToUserIdentityConverter = new PrincipalToUserIdentityConverter(samlSettings);
 

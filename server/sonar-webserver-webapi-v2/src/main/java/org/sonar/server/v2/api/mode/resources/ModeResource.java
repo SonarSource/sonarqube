@@ -19,11 +19,13 @@
  */
 package org.sonar.server.v2.api.mode.resources;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import org.sonar.server.v2.api.mode.enums.ModeEnum;
 
 public record ModeResource(
   @NotNull @Schema(accessMode = Schema.AccessMode.READ_WRITE) ModeEnum mode,
-  @Schema(accessMode = Schema.AccessMode.READ_ONLY) boolean modified) {
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY) Boolean modified) {
 }
