@@ -144,6 +144,7 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
   }
 
   private static String escapePathTraversalChars(String path) {
-    return Path.of(path).normalize().toString();
+    String normalizedPath = Path.of(path).normalize().toString();
+    return normalizedPath.replace('\\', '/');
   }
 }
