@@ -19,15 +19,19 @@
  */
 package org.sonar.server.platform.ws;
 
+import java.util.Map;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.hz.DistributedCall;
 import org.sonar.process.cluster.hz.HazelcastMember;
 import org.sonar.process.cluster.hz.HazelcastMemberSelectors;
 import org.sonar.server.log.ServerLogging;
+
+import static org.sonar.process.cluster.hz.HazelcastObjects.LOG_LEVEL_KEY;
+import static org.sonar.process.cluster.hz.HazelcastObjects.RUNTIME_CONFIG;
 
 public class ChangeLogLevelClusterService implements ChangeLogLevelService {
 
@@ -41,8 +45,15 @@ public class ChangeLogLevelClusterService implements ChangeLogLevelService {
   }
 
   public void changeLogLevel(LoggerLevel level) throws InterruptedException {
+    storeLogLevelInHazelcast(level);
     member.call(setLogLevelForNode(level), HazelcastMemberSelectors.selectorForProcessIds(ProcessId.WEB_SERVER, ProcessId.COMPUTE_ENGINE), CLUSTER_TIMEOUT_MILLIS)
       .propagateExceptions();
+  }
+
+  private void storeLogLevelInHazelcast(final LoggerLevel level) {
+    Map<String, String> runtimeConfig = member.getReplicatedMap(RUNTIME_CONFIG);
+    runtimeConfig.put(LOG_LEVEL_KEY, level.name());
+    LOGGER.debug("Stored log level '{}' in Hazelcast for new nodes", level);
   }
 
   private static DistributedCall<Object> setLogLevelForNode(LoggerLevel level) {

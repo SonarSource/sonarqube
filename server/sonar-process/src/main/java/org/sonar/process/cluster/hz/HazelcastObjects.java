@@ -63,6 +63,17 @@ public final class HazelcastObjects {
    */
   public static final String SECRETS = "SECRETS";
 
+  /**
+   * The key of replicated map holding runtime configuration (e.g., log level).
+   * Used to propagate runtime changes to new nodes joining the cluster.
+   */
+  public static final String RUNTIME_CONFIG = "RUNTIME_CONFIG";
+
+  /**
+   * The key within the RUNTIME_CONFIG map for storing the log level.
+   */
+  public static final String LOG_LEVEL_KEY = "log.level";
+
   private HazelcastObjects() {
     // Holder for clustered objects
   }

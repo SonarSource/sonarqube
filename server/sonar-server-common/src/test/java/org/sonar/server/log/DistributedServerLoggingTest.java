@@ -184,4 +184,44 @@ public class DistributedServerLoggingTest {
 
     assertThat(distributedLogs).isNotNull();
   }
+
+  @Test
+  public void start_whenLogLevelExistsInHazelcast_shouldApplyLogLevel() {
+    ServerProcessLogging mockServerProcessLogging = mock();
+    Map<Object, Object> runtimeConfig = new java.util.HashMap<>();
+    runtimeConfig.put(org.sonar.process.cluster.hz.HazelcastObjects.LOG_LEVEL_KEY, "DEBUG");
+    when(hazelcastMember.getReplicatedMap(org.sonar.process.cluster.hz.HazelcastObjects.RUNTIME_CONFIG)).thenReturn(runtimeConfig);
+
+    DistributedServerLogging spyInstance = org.mockito.Mockito.spy(new DistributedServerLogging(settings.asConfig(), mockServerProcessLogging,
+      database, hazelcastMember, client));
+    spyInstance.start();
+
+    verify(spyInstance).changeLevel(org.sonar.api.utils.log.LoggerLevel.DEBUG);
+  }
+
+  @Test
+  public void start_whenLogLevelDoesNotExistInHazelcast_shouldNotChangeLogLevel() {
+    ServerProcessLogging mockServerProcessLogging = mock();
+    Map<Object, Object> runtimeConfig = new java.util.HashMap<>();
+    when(hazelcastMember.getReplicatedMap(org.sonar.process.cluster.hz.HazelcastObjects.RUNTIME_CONFIG)).thenReturn(runtimeConfig);
+
+    DistributedServerLogging spyInstance = org.mockito.Mockito.spy(new DistributedServerLogging(settings.asConfig(), mockServerProcessLogging,
+      database, hazelcastMember, client));
+    spyInstance.start();
+
+    verify(spyInstance, org.mockito.Mockito.never()).changeLevel(any(org.sonar.api.utils.log.LoggerLevel.class));
+  }
+
+  @Test
+  public void start_whenHazelcastThrowsException_shouldNotFail() {
+    ServerProcessLogging mockServerProcessLogging = mock();
+    when(hazelcastMember.getReplicatedMap(org.sonar.process.cluster.hz.HazelcastObjects.RUNTIME_CONFIG)).thenThrow(new RuntimeException("Hazelcast error"));
+
+    DistributedServerLogging newInstance = new DistributedServerLogging(settings.asConfig(), mockServerProcessLogging,
+      database, hazelcastMember, client);
+
+    newInstance.start();
+
+    assertThat(newInstance).isNotNull();
+  }
 }

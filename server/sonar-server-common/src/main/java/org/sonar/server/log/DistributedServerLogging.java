@@ -44,7 +44,10 @@ import okio.BufferedSource;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.Database;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.hz.DistributedAnswer;
@@ -55,17 +58,19 @@ import org.sonarqube.ws.client.OkHttpClientBuilder;
 
 import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.PROCESS_KEY;
 import static org.sonar.process.cluster.hz.HazelcastObjects.AUTH_SECRET;
+import static org.sonar.process.cluster.hz.HazelcastObjects.LOG_LEVEL_KEY;
+import static org.sonar.process.cluster.hz.HazelcastObjects.RUNTIME_CONFIG;
 import static org.sonar.process.cluster.hz.HazelcastObjects.SECRETS;
 
 public class DistributedServerLogging extends ServerLogging {
 
   public static final String NODE_TO_NODE_SECRET = "node_to_node_secret";
+  private static final Logger LOGGER = LoggerFactory.getLogger(DistributedServerLogging.class);
   private final HazelcastMember hazelcastMember;
   private final OkHttpClient client;
 
   @Inject
-  public DistributedServerLogging(Configuration config, ServerProcessLogging serverProcessLogging, Database database,
-    HazelcastMember hazelcastMember) {
+  public DistributedServerLogging(Configuration config, ServerProcessLogging serverProcessLogging, Database database, HazelcastMember hazelcastMember) {
     super(config, serverProcessLogging, database);
     this.hazelcastMember = hazelcastMember;
     this.client = new OkHttpClientBuilder()
@@ -76,11 +81,30 @@ public class DistributedServerLogging extends ServerLogging {
   }
 
   @VisibleForTesting
-  public DistributedServerLogging(Configuration config, ServerProcessLogging serverProcessLogging, Database database,
-    HazelcastMember hazelcastMember, OkHttpClient client) {
+  public DistributedServerLogging(Configuration config, ServerProcessLogging serverProcessLogging, Database database, HazelcastMember hazelcastMember, OkHttpClient client) {
     super(config, serverProcessLogging, database);
     this.hazelcastMember = hazelcastMember;
     this.client = client;
+  }
+
+  @Override
+  public void start() {
+    super.start();
+    loadLogLevelFromHazelcast();
+  }
+
+  private void loadLogLevelFromHazelcast() {
+    try {
+      Map<String, String> runtimeConfig = hazelcastMember.getReplicatedMap(RUNTIME_CONFIG);
+      final String logLevelStr = runtimeConfig.get(LOG_LEVEL_KEY);
+      if (logLevelStr != null) {
+        final LoggerLevel level = LoggerLevel.valueOf(logLevelStr);
+        changeLevel(level);
+        LOGGER.debug("Applied runtime log level '{}' from Hazelcast", level);
+      }
+    } catch (Exception e) {
+      LOGGER.warn("Failed to load log level from Hazelcast", e);
+    }
   }
 
   private WebAddress retrieveWebAddressOfAMember(Member member) {
