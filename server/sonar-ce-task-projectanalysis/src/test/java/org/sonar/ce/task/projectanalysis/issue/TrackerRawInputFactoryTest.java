@@ -36,7 +36,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.ce.common.scanner.ScannerReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -48,6 +47,7 @@ import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderRule;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -344,7 +344,7 @@ class TrackerRawInputFactoryTest {
   @ParameterizedTest
   @MethodSource("ruleTypeAndStatusByIssueType")
   void load_external_issues_from_report(IssueType issueType, RuleType expectedRuleType, String expectedStatus) {
-    registerRule(RuleKey.of("external_eslint", "S001"), "rule", r -> r.addDefaultImpact(MAINTAINABILITY, LOW));
+    registerRule(RuleKey.of("external_eslint", "S001"), "rule", r -> r.addDefaultImpact(MAINTAINABILITY, LOW).setIsAdHoc(true));
     ScannerReport.ExternalIssue reportIssue = ScannerReport.ExternalIssue.newBuilder()
       .setTextRange(newTextRange(2))
       .setMsg("the message")
@@ -405,7 +405,7 @@ class TrackerRawInputFactoryTest {
   @ParameterizedTest
   @MethodSource("ruleTypeAndStatusByIssueType")
   void load_external_issues_from_report_with_default_effort(IssueType issueType, RuleType expectedRuleType, String expectedStatus) {
-    registerRule(RuleKey.of("external_eslint", "S001"), "rule");
+    registerRule(RuleKey.of("external_eslint", "S001"), "rule", r -> r.setIsAdHoc(true));
     ScannerReport.ExternalIssue reportIssue = ScannerReport.ExternalIssue.newBuilder()
       .setTextRange(newTextRange(2))
       .setMsg("the message")
@@ -451,6 +451,27 @@ class TrackerRawInputFactoryTest {
 
     assertThat(issue.type()).isEqualTo(RuleType.BUG);
     assertThat(issue.severity()).isEqualTo(Severity.MAJOR);
+  }
+
+  @Test
+  void create_whenPluginRuleHasType_shouldTakePrecedenceOverScannerType() {
+    registerRule(RuleKey.of("external_eslint", "S001"), "rule", r -> {
+      r.setType(RuleType.SECURITY_HOTSPOT);
+      r.setSeverity(Severity.MAJOR);
+      // Mark as NOT ad-hoc to simulate a rule from a plugin
+      r.setIsAdHoc(false);
+    });
+    ScannerReport.ExternalIssue reportIssue = createIssue(RuleType.VULNERABILITY, Severity.BLOCKER);
+    reportReader.putExternalIssues(FILE.getReportAttributes().getRef(), asList(reportIssue));
+    Input<DefaultIssue> input = underTest.create(FILE);
+
+    Collection<DefaultIssue> issues = input.getIssues();
+    assertThat(issues).hasSize(1);
+    DefaultIssue issue = Iterators.getOnlyElement(issues.iterator());
+
+    assertThat(issue.type()).isEqualTo(RuleType.SECURITY_HOTSPOT);
+    assertThat(issue.severity()).isEqualTo(Severity.BLOCKER);
+    assertThat(issue.status()).isEqualTo(STATUS_TO_REVIEW);
   }
 
   @Test

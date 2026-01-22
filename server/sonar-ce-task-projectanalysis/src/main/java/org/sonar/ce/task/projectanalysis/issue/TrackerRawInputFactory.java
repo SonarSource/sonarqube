@@ -377,7 +377,9 @@ public class TrackerRawInputFactory {
     }
 
     private RuleType determineDeprecatedType(ScannerReport.ExternalIssue reportExternalIssue, Rule rule) {
-      if (reportExternalIssue.getType() != ScannerReport.IssueType.UNSET) {
+      if (!rule.isAdHoc() && rule.getType() != null) {
+        return rule.getType();
+      } else if (reportExternalIssue.getType() != ScannerReport.IssueType.UNSET) {
         return toRuleType(reportExternalIssue.getType());
       } else if (rule.getType() != null) {
         return rule.getType();
