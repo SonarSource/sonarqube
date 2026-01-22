@@ -226,17 +226,21 @@ public class ReportSubmitter {
 
   private int saveReport(DbSession dbSession, InputStream reportInput, CeTaskSubmit.Builder submit) {
     File tempFile = tempFolder.newFile();
-    writeReportToTempFile(reportInput, tempFile);
+    try {
+      writeReportToTempFile(reportInput, tempFile);
 
-    long sourceSize = getSourceSize(tempFile);
-    long reportPartMaxSizeBytes = getReportMaxSizeBytes();
+      long sourceSize = getSourceSize(tempFile);
+      long reportPartMaxSizeBytes = getReportMaxSizeBytes();
 
-    if (sourceSize <= reportPartMaxSizeBytes) {
-      saveFileOnDb(dbSession, submit, 0, tempFile);
-      return 1;
+      if (sourceSize <= reportPartMaxSizeBytes) {
+        saveFileOnDb(dbSession, submit, 0, tempFile);
+        return 1;
+      }
+
+      return splitFile(tempFile, sourceSize, reportPartMaxSizeBytes, dbSession, submit);
+    } finally {
+      deleteTempFile(tempFile);
     }
-
-    return splitFile(tempFile, sourceSize, reportPartMaxSizeBytes, dbSession, submit);
   }
 
   @VisibleForTesting
@@ -289,14 +293,30 @@ public class ReportSubmitter {
   private void writePartToDb(DbSession dbSession, CeTaskSubmit.Builder submit, long byteSize, long partIndex, FileChannel sourceChannel, long reportPartMaxSizeBytes)
     throws IOException {
     File file = tempFolder.newFile();
+    try {
+      writePart(byteSize, partIndex, sourceChannel, reportPartMaxSizeBytes, file);
+
+      saveFileOnDb(dbSession, submit, partIndex, file);
+    } finally {
+      deleteTempFile(file);
+    }
+  }
+
+  private static void writePart(long byteSize, long partIndex, FileChannel sourceChannel, long reportPartMaxSizeBytes, File file) throws IOException {
     try (RandomAccessFile toFile = new RandomAccessFile(file, "rw");
          FileChannel toChannel = toFile.getChannel()
     ) {
       sourceChannel.position(partIndex * reportPartMaxSizeBytes);
       toChannel.transferFrom(sourceChannel, 0, byteSize);
     }
+  }
 
-    saveFileOnDb(dbSession, submit, partIndex, file);
+  private static void deleteTempFile(File file) {
+    try {
+      Files.delete(file.toPath());
+    } catch (IOException e) {
+      LOGGER.warn("Failed to delete temp file {}", file.getAbsolutePath(), e);
+    }
   }
 
   private void saveFileOnDb(DbSession dbSession, CeTaskSubmit.Builder submit, long partIndex, File file) {

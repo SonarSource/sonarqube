@@ -187,6 +187,7 @@ public class ReportSubmitterIT {
     underTest.submit(PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
 
     verifyReportIsPersisted(TASK_UUID);
+    assertThat(tempFolder.getRoot()).isEmptyDirectory();
   }
 
   @Test
@@ -221,6 +222,8 @@ public class ReportSubmitterIT {
     verify(queue).submit(argThat(submit ->
       submit.getUuid().equals(TASK_UUID)
       && submit.getReportPartCount() == partNumber));
+
+    assertThat(tempFolder.getRoot()).isEmptyDirectory();
   }
 
   private static byte[] getBytes(Blob blob) {
