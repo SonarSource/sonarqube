@@ -185,7 +185,7 @@ public class HotspotWsResponseFormatter {
     private final List<IssueDto> hotspots;
     private final Map<String, ComponentDto> componentsByUuid = new HashMap<>();
     private final Map<String, BranchDto> branchesByBranchUuid = new HashMap<>();
-    private final ListMultimap < String, IssueChangeDto> commentsByIssuKey = ArrayListMultimap.create();
+    private final ListMultimap < String, IssueChangeDto> commentsByIssueKey = ArrayListMultimap.create();
     private final Set<String> updatableComments = new HashSet<>();
     private final Map<String, UserDto> usersByUuid = new HashMap<>();
 
@@ -239,15 +239,15 @@ public class HotspotWsResponseFormatter {
       }
     }
     public List<IssueChangeDto> getCommentsForIssueKey(String issueKey) {
-      if (commentsByIssuKey.containsKey(issueKey)) {
-           return commentsByIssuKey.get(issueKey);
+      if (commentsByIssueKey.containsKey(issueKey)) {
+           return commentsByIssueKey.get(issueKey);
       }
       return new ArrayList<>();
     }
 
     public void setComments(@Nullable List<IssueChangeDto> comments) {
        for (IssueChangeDto comment : comments) {
-         commentsByIssuKey.put(comment.getIssueKey(), comment);
+         commentsByIssueKey.put(comment.getIssueKey(), comment);
        }
     }
 
