@@ -32,6 +32,7 @@ public class HotspotChangedEvent implements Serializable {
   private final String assignee;
   private final String resolution;
   private final String filePath;
+  private final Long issueResolutionExpiresAt ;
 
   private HotspotChangedEvent(Builder builder) {
     this.key = builder.getKey();
@@ -41,6 +42,7 @@ public class HotspotChangedEvent implements Serializable {
     this.filePath = builder.getFilePath();
     this.resolution = builder.getResolution();
     this.assignee = builder.getAssignee();
+    this.issueResolutionExpiresAt = builder.getIssueResolutionExpiresAt();
   }
 
   public String getKey() {
@@ -73,6 +75,10 @@ public class HotspotChangedEvent implements Serializable {
     return assignee;
   }
 
+  public Long getIssueResolutionExpiresAT() {
+    return issueResolutionExpiresAt;
+  }
+
   public static class Builder {
     private String key;
     private String projectKey;
@@ -81,6 +87,7 @@ public class HotspotChangedEvent implements Serializable {
     private String assignee;
     private String resolution;
     private String filePath;
+    private Long issueResolutionExpiresAt;
 
     public Builder setKey(String key) {
       this.key = key;
@@ -117,6 +124,11 @@ public class HotspotChangedEvent implements Serializable {
       return this;
     }
 
+    public Builder setIssueResolutionExpiresAt(Long issueResolutionExpiresAt) {
+      this.issueResolutionExpiresAt = issueResolutionExpiresAt;
+      return this;
+    }
+
     public String getKey() {
       return key;
     }
@@ -143,6 +155,10 @@ public class HotspotChangedEvent implements Serializable {
 
     public String getFilePath() {
       return filePath;
+    }
+
+    public Long getIssueResolutionExpiresAt() {
+      return issueResolutionExpiresAt;
     }
 
     public HotspotChangedEvent build() {
