@@ -105,7 +105,7 @@ class PersistMeasuresStepIT {
   private final DbClient dbClient = db.getDbClient();
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     MetricDto stringMetricDto = db.measures().insertMetric(m -> m.setKey(STRING_METRIC.getKey()).setValueType(Metric.ValueType.STRING.name()));
     MetricDto intMetricDto = db.measures().insertMetric(m -> m.setKey(INT_METRIC.getKey()).setValueType(Metric.ValueType.INT.name()));
     MetricDto bestValueMetricDto = db.measures()
@@ -389,14 +389,13 @@ class PersistMeasuresStepIT {
     db.commit();
   }
 
-  private ComponentDto insertComponent(String key, String uuid) {
+  private void insertComponent(String key, String uuid) {
     ComponentDto componentDto = new ComponentDto()
       .setKey(key)
       .setUuid(uuid)
       .setUuidPath(uuid + ".")
       .setBranchUuid(uuid);
     db.components().insertComponent(componentDto);
-    return componentDto;
   }
 
   private PersistMeasuresStep step() {

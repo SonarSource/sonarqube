@@ -51,7 +51,7 @@ public class DeprecatedPropertiesWarningGeneratorTest {
     analysisWarnings, environmentInformation);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     settings.removeProperty(CoreProperties.LOGIN);
     when(environmentInformation.getKey()).thenReturn("ScannerCLI");
   }

@@ -31,7 +31,7 @@ import org.sonar.api.utils.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -107,9 +107,9 @@ class DefaultIssueTest {
 
   @Test
   void comments_should_not_be_modifiable() {
-    DefaultIssue issue = new DefaultIssue().setKey("AAA");
+    DefaultIssue defaultIssue = new DefaultIssue().setKey("AAA");
 
-    List<DefaultIssueComment> comments = issue.defaultIssueComments();
+    List<DefaultIssueComment> comments = defaultIssue.defaultIssueComments();
     assertThat(comments).isEmpty();
     DefaultIssueComment defaultIssueComment = new DefaultIssueComment();
     try {
@@ -128,12 +128,12 @@ class DefaultIssueTest {
     when(issueChangeContext.getExternalUser()).thenReturn("toto");
     when(issueChangeContext.getWebhookSource()).thenReturn("github");
 
-    DefaultIssue issue = new DefaultIssue()
+    DefaultIssue defaultIssue = new DefaultIssue()
       .setKey("AAA")
       .setFieldChange(issueChangeContext, "actionPlan", "1.0", "1.1");
 
-    assertThat(issue.changes()).hasSize(1);
-    FieldDiffs actualDiffs = issue.changes().iterator().next();
+    assertThat(defaultIssue.changes()).hasSize(1);
+    FieldDiffs actualDiffs = defaultIssue.changes().iterator().next();
     assertThat(actualDiffs.externalUser()).contains(issueChangeContext.getExternalUser());
     assertThat(actualDiffs.webhookSource()).contains(issueChangeContext.getWebhookSource());
   }
@@ -141,17 +141,17 @@ class DefaultIssueTest {
   @Test
   void setFieldChange_whenAddingChange_shouldUpdateCurrentChange() {
     IssueChangeContext issueChangeContext = mock(IssueChangeContext.class);
-    DefaultIssue issue = new DefaultIssue().setKey("AAA");
+    DefaultIssue defaultIssue = new DefaultIssue().setKey("AAA");
 
-    issue.setFieldChange(issueChangeContext, "actionPlan", "1.0", "1.1");
-    assertThat(issue.changes()).hasSize(1);
-    FieldDiffs currentChange = issue.currentChange();
+    defaultIssue.setFieldChange(issueChangeContext, "actionPlan", "1.0", "1.1");
+    assertThat(defaultIssue.changes()).hasSize(1);
+    FieldDiffs currentChange = defaultIssue.currentChange();
     assertThat(currentChange).isNotNull();
     assertThat(currentChange.get("actionPlan")).isNotNull();
     assertThat(currentChange.get("authorLogin")).isNull();
 
-    issue.setFieldChange(issueChangeContext, "authorLogin", null, "testuser");
-    assertThat(issue.changes()).hasSize(1);
+    defaultIssue.setFieldChange(issueChangeContext, "authorLogin", null, "testuser");
+    assertThat(defaultIssue.changes()).hasSize(1);
     assertThat(currentChange.get("actionPlan")).isNotNull();
     assertThat(currentChange.get("authorLogin")).isNotNull();
     assertThat(currentChange.get("authorLogin").newValue()).isEqualTo("testuser");
@@ -159,11 +159,11 @@ class DefaultIssueTest {
 
   @Test
   void adding_null_change_has_no_effect() {
-    DefaultIssue issue = new DefaultIssue();
+    DefaultIssue defaultIssue = new DefaultIssue();
 
-    issue.addChange(null);
+    defaultIssue.addChange(null);
 
-    assertThat(issue.changes()).isEmpty();
+    assertThat(defaultIssue.changes()).isEmpty();
   }
 
   @Test
