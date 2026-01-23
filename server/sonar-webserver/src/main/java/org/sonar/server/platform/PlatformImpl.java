@@ -144,7 +144,8 @@ public class PlatformImpl implements Platform {
   }
 
   private void registerTrailingSlashFilter() {
-    var filter = trailingSlashHandler("/api/v2/**")
+    String contextPath = this.servletContext.getContextPath();
+    var filter = trailingSlashHandler(contextPath + "/api/v2/**")
       .wrapRequest()
       .build();
     var filterRegistration = this.servletContext.addFilter("trailingSlashFilter", filter);
