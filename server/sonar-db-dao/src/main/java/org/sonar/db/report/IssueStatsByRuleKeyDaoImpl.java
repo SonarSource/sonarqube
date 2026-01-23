@@ -61,6 +61,7 @@ public class IssueStatsByRuleKeyDaoImpl implements IssueStatsByRuleKeyDao {
     }
   }
 
+  @Override
   public void deleteByAggregationAndRuleKey(String aggregationId, AggregationType aggregationType, String ruleKey) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       mapper(dbSession).deleteIssueStatsForAggregationAndRuleKey(aggregationId, aggregationType.toString(), ruleKey);
@@ -68,11 +69,19 @@ public class IssueStatsByRuleKeyDaoImpl implements IssueStatsByRuleKeyDao {
     }
   }
 
+  @Override
   public void upsert(String aggregationId, AggregationType aggregationType, IssueStats issueStats) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       mapper(dbSession).deleteIssueStatsForAggregationAndRuleKey(aggregationId, aggregationType.toString(), issueStats.ruleKey());
       mapper(dbSession).insertIssueStats(aggregationId, aggregationType.toString(), List.of(issueStats));
       dbSession.commit();
+    }
+  }
+
+  @Override
+  public IssueStats aggregateIssueStatsForBranchUuidAndRuleKey(String aggregationId, String ruleKey) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return mapper(dbSession).getIssueStatsByAggregationIdAndRuleKey(aggregationId, ruleKey);
     }
   }
 

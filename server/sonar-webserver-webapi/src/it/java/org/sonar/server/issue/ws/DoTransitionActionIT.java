@@ -75,6 +75,7 @@ import org.sonar.server.ws.WsAction;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarsource.compliancereports.dao.AggregationType;
 import org.sonarsource.compliancereports.dao.IssueStats;
+import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -125,9 +126,10 @@ class DoTransitionActionIT {
     new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class)), issueIndexer, new SequenceUuidFactory()),
     mock(NotificationManager.class), issueChangePostProcessor, issuesChangesSerializer);
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
+  private IssueStatsByRuleKeyDaoImpl issueStatsByRuleKeyDaoImpl = new IssueStatsByRuleKeyDaoImpl(dbClient);
 
   private WsAction underTest = new DoTransitionAction(dbClient, userSession, issueChangeEventService,
-    new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter, system2, new IssueStatsByRuleKeyDaoImpl(dbClient));
+    new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter, system2, new IssueIngestionService(issueStatsByRuleKeyDaoImpl));
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Test

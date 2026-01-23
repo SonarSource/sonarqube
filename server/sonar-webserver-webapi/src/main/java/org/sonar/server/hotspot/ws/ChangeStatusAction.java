@@ -44,6 +44,7 @@ import org.sonar.server.pushapi.hotspots.HotspotChangeEventService;
 import org.sonar.server.pushapi.hotspots.HotspotChangedEvent;
 import org.sonarsource.compliancereports.dao.AggregationType;
 import org.sonarsource.compliancereports.dao.IssueStats;
+import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
@@ -70,18 +71,18 @@ public class ChangeStatusAction implements HotspotsWsAction {
   private final IssueFieldsSetter issueFieldsSetter;
   private final IssueUpdater issueUpdater;
   private final HotspotChangeEventService hotspotChangeEventService;
-  private final IssueStatsByRuleKeyDaoImpl issueStatsByRuleKeyDao;
+  private final IssueIngestionService issueIngestionService;
 
   public ChangeStatusAction(DbClient dbClient, HotspotWsSupport hotspotWsSupport, TransitionService transitionService,
     IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater, HotspotChangeEventService hotspotChangeEventService,
-    IssueStatsByRuleKeyDaoImpl issueStatsByRuleKeyDao) {
+    IssueIngestionService issueIngestionService) {
     this.dbClient = dbClient;
     this.hotspotWsSupport = hotspotWsSupport;
     this.transitionService = transitionService;
     this.issueFieldsSetter = issueFieldsSetter;
     this.issueUpdater = issueUpdater;
     this.hotspotChangeEventService = hotspotChangeEventService;
-    this.issueStatsByRuleKeyDao = issueStatsByRuleKeyDao;
+    this.issueIngestionService = issueIngestionService;
   }
 
   @Override
@@ -203,23 +204,8 @@ public class ChangeStatusAction implements HotspotsWsAction {
   }
 
   private void updateIssueStatsByRuleKey(BranchDto branchDto, RuleKey ruleKey, String transitionKey) {
-    var issueStats = issueStatsByRuleKeyDao.getIssueStats(branchDto.getUuid(), AggregationType.PROJECT).stream()
-      .filter(i -> i.ruleKey().equals(ruleKey.toString()))
-      .findFirst()
-      .orElse(new IssueStats(ruleKey.toString(), 0, 1, 1, 0, 0));
-
-    var updatedIssueStats = updateIssueStatsWithTransition(issueStats, transitionKey);
-    if (updatedIssueStats.issueCount() != 0 || updatedIssueStats.hotspotCount() != 0 || updatedIssueStats.hotspotsReviewed() != 0) {
-      issueStatsByRuleKeyDao.upsert(branchDto.getUuid(), PROJECT, updatedIssueStats);
-    } else {
-      issueStatsByRuleKeyDao.deleteByAggregationAndRuleKey(branchDto.getUuid(), PROJECT, ruleKey.toString());
-    }
-  }
-
-  private static IssueStats updateIssueStatsWithTransition(IssueStats oldStats, String transitionKey) {
     int adjustment = transitionKey.equals(RESET_AS_TO_REVIEW.getKey()) ? 1 : -1;
-    return new IssueStats(oldStats.ruleKey(), 0, oldStats.rating(), oldStats.mqrRating(), oldStats.hotspotCount() + adjustment,
-      oldStats.hotspotsReviewed() - adjustment);
+    issueIngestionService.adjustHotspotStats(branchDto.getUuid(), PROJECT, ruleKey.toString(), adjustment);
   }
 
 }

@@ -38,4 +38,6 @@ public interface IssueStatsByRuleKeyMapper {
   void deleteIssueStatsForAggregationAndRuleKey(@Param("aggregationId") String aggregationId,
     @Param("aggregationType") String aggregationType,
     @Param("ruleKey") String ruleKey);
+
+  IssueStats getIssueStatsByAggregationIdAndRuleKey(@Param("aggregationId") String aggregationId, @Param("ruleKey") String ruleKey);
 }

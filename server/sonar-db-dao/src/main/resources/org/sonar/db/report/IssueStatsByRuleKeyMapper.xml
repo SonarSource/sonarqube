@@ -31,6 +31,14 @@
       and aggregation_type = #{aggregationType}
   </select>
 
+  <select id="getIssueStatsByAggregationIdAndRuleKey" parameterType="map" resultType="org.sonarsource.compliancereports.dao.IssueStats">
+    select
+    <include refid="IssueStatsColumns"/>
+    from issue_stats_by_rule_key
+    where aggregation_id = #{aggregationId}
+    and rule_key = #{ruleKey}
+  </select>
+
   <insert id="insertIssueStats">
     insert into issue_stats_by_rule_key (
       aggregation_id,

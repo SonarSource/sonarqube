@@ -66,6 +66,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarsource.compliancereports.dao.AggregationType;
 import org.sonarsource.compliancereports.dao.IssueStats;
+import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -105,8 +106,10 @@ class ChangeStatusActionIT {
   private System2 system2 = mock(System2.class);
   private IssueFieldsSetter issueFieldsSetter = mock(IssueFieldsSetter.class);
   private HotspotWsSupport hotspotWsSupport = new HotspotWsSupport(dbClient, userSessionRule, system2);
+  private IssueStatsByRuleKeyDaoImpl issueStatsbyRuleKeyDaoImpl = new IssueStatsByRuleKeyDaoImpl(dbClient);
+  private IssueIngestionService issueIngestionService = new IssueIngestionService(issueStatsbyRuleKeyDaoImpl);
   private ChangeStatusAction underTest = new ChangeStatusAction(dbClient, hotspotWsSupport, transitionService, issueFieldsSetter,
-    issueUpdater, hotspotChangeEventService, new IssueStatsByRuleKeyDaoImpl(dbClient));
+    issueUpdater, hotspotChangeEventService, issueIngestionService);
   private WsActionTester actionTester = new WsActionTester(underTest);
   private BranchDto branchDto = mock(BranchDto.class);
 

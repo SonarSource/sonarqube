@@ -323,6 +323,7 @@ import org.sonar.telemetry.legacy.QualityProfileDataProvider;
 import org.sonar.telemetry.legacy.TelemetryDataJsonWriter;
 import org.sonar.telemetry.legacy.TelemetryDataLoaderImpl;
 import org.sonar.telemetry.metrics.TelemetryMetricsLoader;
+import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 import org.sonarsource.compliancereports.reports.ComplianceReportService;
 import org.sonarsource.compliancereports.reports.MetadataLoader;
 import org.sonarsource.compliancereports.reports.MetadataRules;
@@ -425,6 +426,7 @@ public class PlatformLevel4 extends PlatformLevel {
       org.sonar.server.language.ws.ListAction.class,
 
       // compliance reports
+      IssueIngestionService.class,
       IssueStatsByRuleKeyDaoImpl.class,
       MetadataLoader.class,
       MetadataRules.class,

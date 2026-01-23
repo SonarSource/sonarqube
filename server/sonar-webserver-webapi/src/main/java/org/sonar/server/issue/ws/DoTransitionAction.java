@@ -48,6 +48,7 @@ import org.sonar.server.issue.TransitionService;
 import org.sonar.server.pushapi.issues.IssueChangeEventService;
 import org.sonar.server.user.UserSession;
 import org.sonarsource.compliancereports.dao.IssueStats;
+import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 
 import static java.lang.String.format;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
@@ -80,11 +81,11 @@ public class DoTransitionAction implements IssuesWsAction {
   private final TransitionService transitionService;
   private final OperationResponseWriter responseWriter;
   private final System2 system2;
-  private final IssueStatsByRuleKeyDaoImpl issueStatsByRuleKeyDao;
+  private final IssueIngestionService issueIngestionService;
 
   public DoTransitionAction(DbClient dbClient, UserSession userSession, IssueChangeEventService issueChangeEventService,
     IssueFinder issueFinder, IssueUpdater issueUpdater, TransitionService transitionService,
-    OperationResponseWriter responseWriter, System2 system2, IssueStatsByRuleKeyDaoImpl issueStatsByRuleKeyDao) {
+    OperationResponseWriter responseWriter, System2 system2,IssueIngestionService issueIngestionService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.issueChangeEventService = issueChangeEventService;
@@ -93,7 +94,7 @@ public class DoTransitionAction implements IssuesWsAction {
     this.transitionService = transitionService;
     this.responseWriter = responseWriter;
     this.system2 = system2;
-    this.issueStatsByRuleKeyDao = issueStatsByRuleKeyDao;
+    this.issueIngestionService = issueIngestionService;
   }
 
   @Override
@@ -169,7 +170,7 @@ public class DoTransitionAction implements IssuesWsAction {
       SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issueDto, defaultIssue, context, branch);
 
       if (!branch.getBranchType().equals(BranchType.PULL_REQUEST)) {
-        updateIssueStatsByRuleKey(session, branch, issueDto.getRuleKey(), defaultIssue, transitionKey);
+        updateIssueStatsByRuleKey(branch, issueDto.getRuleKey(), defaultIssue, transitionKey);
       }
 
       if (branch.getBranchType().equals(BRANCH) && response.getComponentByUuid(defaultIssue.projectUuid()) != null) {
@@ -181,18 +182,9 @@ public class DoTransitionAction implements IssuesWsAction {
     return new SearchResponseData(issueDto);
   }
 
-  private void updateIssueStatsByRuleKey(DbSession session, BranchDto branchDto, RuleKey ruleKey, DefaultIssue issue, String transitionKey) {
-    var issueStats = issueStatsByRuleKeyDao.getIssueStats(branchDto.getUuid(), PROJECT).stream()
-      .filter(i -> i.ruleKey().equals(ruleKey.toString()))
-      .findFirst()
-      .orElse(new IssueStats(ruleKey.toString(), 0, getRating(issue), getMqrRating(issue), 0, 0));
-
-    var updatedIssueStats = updateIssueStatsWithTransition(session, branchDto, issueStats, issue, transitionKey);
-    if (updatedIssueStats.issueCount() != 0 || updatedIssueStats.hotspotCount() != 0 || updatedIssueStats.hotspotsReviewed() != 0) {
-      issueStatsByRuleKeyDao.upsert(branchDto.getUuid(), PROJECT, updatedIssueStats);
-    } else {
-      issueStatsByRuleKeyDao.deleteByAggregationAndRuleKey(branchDto.getUuid(), PROJECT, ruleKey.toString());
-    }
+  private void updateIssueStatsByRuleKey(BranchDto branchDto, RuleKey ruleKey, DefaultIssue issue, String transitionKey) {
+    int adjustment = REOPEN_TRANSITIONS.contains(transitionKey) ? 1 : -1;
+    issueIngestionService.adjustIssueStats(branchDto.getUuid(), PROJECT, ruleKey.toString(), getRating(issue), getMqrRating(issue), adjustment);
   }
 
   private static int getRating(DefaultIssue issue) {
@@ -204,21 +196,5 @@ public class DoTransitionAction implements IssuesWsAction {
       .findFirst()
       .map(impact -> impact.severity().ordinal() + 1)
       .orElse(1);
-  }
-
-  private IssueStats updateIssueStatsWithTransition(DbSession session, BranchDto branch, IssueStats oldStats, DefaultIssue issue,
-    String transitionKey) {
-    int adjustment = REOPEN_TRANSITIONS.contains(transitionKey) ? 1 : -1;
-    int newIssueCount = oldStats.issueCount() + adjustment;
-    if (newIssueCount == 0) {
-      return new IssueStats(oldStats.ruleKey(), newIssueCount, 1, 1, 0, 0);
-    }
-
-    var newIssueStats = dbClient.issueDao().aggregateIssueStatsForBranchUuidAndRuleKey(session, branch.getUuid(),
-      issue.ruleKey());
-    int newRating = newIssueStats == null ? oldStats.rating() : newIssueStats.getRating();
-    int newMqrRating = newIssueStats == null ? oldStats.mqrRating() : newIssueStats.getMqrRating();
-
-    return new IssueStats(oldStats.ruleKey(), newIssueCount, newRating, newMqrRating, 0, 0);
   }
 }
