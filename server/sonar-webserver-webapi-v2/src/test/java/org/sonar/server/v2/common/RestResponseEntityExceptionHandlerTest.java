@@ -325,7 +325,7 @@ class RestResponseEntityExceptionHandlerTest {
     var ex = new MaxUploadSizeExceededException(0);
     ResponseEntity<RestError> response = underTest.handleMaxUploadSizeExceededException(ex);
 
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
+    assertThat(response.getStatusCode().value()).isEqualTo(413);
     assertThat(response.getBody()).isNotNull();
     assertThat(response.getBody().message()).isEqualTo(ErrorMessages.SIZE_EXCEEDED.getMessage());
 
