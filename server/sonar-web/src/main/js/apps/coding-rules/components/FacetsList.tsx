@@ -216,20 +216,6 @@ export default function FacetsList(props: FacetsListProps) {
         cweOpen={!!props.openFacets.cwe}
         cvssOpen={!!props.openFacets.cvss}
         cweStats={props.facets?.cwe}
-        cvssStats={
-          props.facets?.cvss
-            ? Object.entries(props.facets.cvss).reduce(
-                (acc, [range, count]) => {
-                  const numericCount = Number(count);
-                  if (numericCount > 0) {
-                    acc[range.trim()] = numericCount;
-                  }
-                  return acc;
-                },
-                {} as Record<string, number>,
-              )
-            : undefined
-        }
         fetchingCwe={false}
         fetchingCvss={false}
         fetchingOwaspTop10={false}
