@@ -51,6 +51,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbIssues;
@@ -77,6 +78,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.issue.Issue.RESOLUTION_ACKNOWLEDGED;
 import static org.sonar.api.issue.Issue.RESOLUTION_EXCEPTION;
@@ -183,9 +185,32 @@ public class SearchAction implements HotspotsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       checkIfNeedIssueSync(dbSession, wsRequest);
       Optional<ProjectAndBranch> project = getAndValidateProjectOrApplication(dbSession, wsRequest);
-      SearchResponseData searchResponseData = searchHotspots(wsRequest, dbSession, project.orElse(null));
+      Collector collector = new Collector();
+      SearchResponseData searchResponseData =  searchHotspots(collector,wsRequest, dbSession, project.orElse(null));
       loadComponents(dbSession, searchResponseData);
+      loadComments( collector, dbSession, searchResponseData );
       writeProtobuf(formatResponse(searchResponseData), request, response);
+    }
+  }
+
+  private boolean canEditOrDelete(IssueChangeDto dto) {
+     return userSession.isLoggedIn() && requireNonNull(userSession.getUuid(), "User uuid should not be null").equals(
+              dto.getUserUuid());
+  }
+
+  private void loadComments( Collector collector,DbSession dbSession, SearchResponseData result){
+     List<IssueChangeDto> comments = dbClient.issueChangeDao()
+              .selectByTypeAndIssueKeys(dbSession, collector.getIssueKeys(), IssueChangeDto.TYPE_COMMENT);
+     result.setComments(comments);
+     comments.stream().filter(c -> c.getUserUuid() != null)
+              .forEach(comment -> loadComment(collector, result, comment));
+     result.addUsers(dbClient.userDao().selectByUuids(dbSession, collector.getUserUuids()));
+  }
+
+  private void loadComment(Collector collector, SearchResponseData result, IssueChangeDto comment) {
+    collector.addUserUuids(singletonList(comment.getUserUuid()));
+    if (canEditOrDelete(comment)) {
+       result.addUpdatableComment(comment.getKey());
     }
   }
 
@@ -385,13 +410,13 @@ public class SearchAction implements HotspotsWsAction {
     });
   }
 
-  private SearchResponseData searchHotspots(WsRequest wsRequest, DbSession dbSession, @Nullable ProjectAndBranch projectorApp) {
+  private SearchResponseData searchHotspots(Collector collector, WsRequest wsRequest, DbSession dbSession, @Nullable ProjectAndBranch projectorApp) {
     SearchResponse result = doIndexSearch(wsRequest, dbSession, projectorApp);
     result.getHits();
     List<String> issueKeys = Arrays.stream(result.getHits().getHits())
       .map(SearchHit::getId)
       .toList();
-
+    collector.setIssueKeys(issueKeys);
     List<IssueDto> hotspots = toIssueDtos(dbSession, issueKeys);
 
     Paging paging = forPageIndex(wsRequest.getPage()).withPageSize(wsRequest.getIndex()).andTotal((int) getTotalHits(result).value);
@@ -786,5 +811,40 @@ public class SearchAction implements HotspotsWsAction {
     public Set<String> getFiles() {
       return files;
     }
+  }
+
+  /**
+   * Collects the keys of all the data to be loaded (comments, users )
+   */
+  public static class Collector {
+
+      private List<String> issueKeys;
+      private final Set<String> userUuids = new HashSet<>();
+
+      public Collector() {
+
+      }
+
+      void setIssueKeys(List<String> issueKeys) {
+          this.issueKeys = issueKeys;
+      }
+
+      void addUserUuids(@Nullable Collection<String> userUuids) {
+          if (userUuids != null) {
+              this.userUuids.addAll(userUuids);
+          }
+      }
+
+      Set<String> getUserUuids() {
+          return userUuids;
+      }
+
+      public Collector(List<String> issueKeys) {
+          this.issueKeys = issueKeys;
+      }
+
+      public List<String> getIssueKeys() {
+          return issueKeys;
+      }
   }
 }

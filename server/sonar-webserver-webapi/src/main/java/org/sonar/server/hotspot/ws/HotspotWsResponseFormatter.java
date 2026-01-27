@@ -19,23 +19,34 @@
  */
 package org.sonar.server.hotspot.ws;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Paging;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.db.user.UserDto;
+import org.sonar.markdown.Markdown;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.ws.MessageFormattingUtils;
 import org.sonarqube.ws.Common;
+import org.sonarqube.ws.Common.Comment;
 import org.sonarqube.ws.Hotspots;
 
 import static java.util.Collections.emptyList;
@@ -114,9 +125,33 @@ public class HotspotWsResponseFormatter {
       builder.setUpdateDate(formatDateTime(hotspot.getIssueUpdateDate()));
       completeHotspotLocations(hotspot, builder, searchResponseData);
       ofNullable(hotspot.getCveId()).ifPresent(builder::setCveId);
+      builder.addAllComments(createIssueComments(searchResponseData, hotspot));
       hotspotsList.add(builder.build());
     }
     return hotspotsList;
+  }
+
+  private List<Comment> createIssueComments(SearchResponseData data, IssueDto dto) {
+     List<IssueChangeDto> comments = data.getCommentsForIssueKey(dto.getKey());
+     if (comments == null) {
+         return new ArrayList<>();
+     }
+     List<Comment> wsComments = new ArrayList<>(comments.size());
+     Comment.Builder wsComment = Comment.newBuilder();
+
+     for (IssueChangeDto comment : comments) {
+         String markdown = comment.getChangeData();
+         wsComment.clear()
+                  .setKey(comment.getKey())
+                  .setUpdatable(data.isUpdatableComment(comment.getKey()))
+                  .setCreatedAt(DateUtils.formatDateTime(new Date(comment.getIssueChangeCreationDate())));
+         ofNullable(data.getUserByUuid(comment.getUserUuid())).ifPresent(user -> wsComment.setLogin(user.getLogin()));
+         if (markdown != null) {
+          wsComment.setHtmlText(Markdown.convertToHtml(markdown)).setMarkdown(markdown);
+         }
+       wsComments.add(wsComment.build());
+     }
+    return wsComments;
   }
 
   void completeHotspotLocations(IssueDto hotspot, Hotspots.SearchWsResponse.Hotspot.Builder hotspotBuilder, SearchResponseData data) {
@@ -150,6 +185,9 @@ public class HotspotWsResponseFormatter {
     private final List<IssueDto> hotspots;
     private final Map<String, ComponentDto> componentsByUuid = new HashMap<>();
     private final Map<String, BranchDto> branchesByBranchUuid = new HashMap<>();
+    private final ListMultimap < String, IssueChangeDto> commentsByIssueKey = ArrayListMultimap.create();
+    private final Set<String> updatableComments = new HashSet<>();
+    private final Map<String, UserDto> usersByUuid = new HashMap<>();
 
     SearchResponseData(Paging paging, List<IssueDto> hotspots) {
       this.paging = paging;
@@ -190,6 +228,40 @@ public class HotspotWsResponseFormatter {
 
     public Map<String, ComponentDto> getComponentsByUuid() {
       return componentsByUuid;
+    }
+    public List<UserDto> getUsers() {
+      return new ArrayList<>(usersByUuid.values());
+    }
+
+    void addUsers(@Nullable List<UserDto> users) {
+      if (users != null) {
+        users.forEach(u -> usersByUuid.put(u.getUuid(), u));
+      }
+    }
+    public List<IssueChangeDto> getCommentsForIssueKey(String issueKey) {
+      if (commentsByIssueKey.containsKey(issueKey)) {
+           return commentsByIssueKey.get(issueKey);
+      }
+      return new ArrayList<>();
+    }
+
+    public void setComments(@Nullable List<IssueChangeDto> comments) {
+       for (IssueChangeDto comment : comments) {
+         commentsByIssueKey.put(comment.getIssueKey(), comment);
+       }
+    }
+
+    void addUpdatableComment(String commentKey) {
+      updatableComments.add(commentKey);
+    }
+
+    boolean isUpdatableComment(String commentKey) {
+      return updatableComments.contains(commentKey);
+    }
+
+      @CheckForNull
+    UserDto getUserByUuid(@Nullable String userUuid) {
+      return usersByUuid.get(userUuid);
     }
   }
 
