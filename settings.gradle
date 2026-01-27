@@ -59,7 +59,6 @@ include 'server:sonar-webserver-pushapi'
 include 'server:sonar-webserver-ws'
 include 'server:sonar-alm-client'
 include 'server:sonar-webserver-monitoring'
-include 'server:sonar-spring'
 
 include 'sonar-application'
 include 'sonar-core'

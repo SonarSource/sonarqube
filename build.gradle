@@ -361,6 +361,9 @@ subprojects {
       // Webapp
       dependency "org.sonarsource.sonarqube:webapp-assets:$webappVersion"
 
+      // Shared libraries from sonarqube-unification
+      dependency 'org.sonarsource.sonarqube:sonar-spring:1.0.0.72'
+
       // please keep this list alphabetically ordered
       dependencySet(group: 'ch.qos.logback', version: '1.5.26') {
         entry 'logback-classic'
