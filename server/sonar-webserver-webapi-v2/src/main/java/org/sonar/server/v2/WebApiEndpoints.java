@@ -53,6 +53,9 @@ public class WebApiEndpoints {
   public static final String JRE_ENDPOINT = ANALYSIS_DOMAIN + "/jres";
   public static final String SCANNER_ENGINE_ENDPOINT = ANALYSIS_DOMAIN + "/engine";
 
+  public static final String HOTSPOTS_DOMAIN = "/hotspots";
+  public static final String HOTSPOT_EXPIRE_ENDPOINT = HOTSPOTS_DOMAIN + "/expire";
+
   private WebApiEndpoints() {
   }
 }

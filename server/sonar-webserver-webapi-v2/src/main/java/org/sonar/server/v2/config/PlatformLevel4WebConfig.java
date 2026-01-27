@@ -88,10 +88,16 @@ import org.sonar.server.v2.api.system.controller.DatabaseMigrationsController;
 import org.sonar.server.v2.api.system.controller.DefaultLivenessController;
 import org.sonar.server.v2.api.system.controller.HealthController;
 import org.sonar.server.v2.api.system.controller.LivenessController;
+import org.sonar.server.v2.api.hotspot.controller.DefaultHotspotController;
+import org.sonar.server.v2.api.hotspot.controller.HotspotController;
+import org.sonar.server.v2.api.hotspot.service.HotspotService;
 import org.sonar.server.v2.api.user.controller.DefaultUserController;
 import org.sonar.server.v2.api.user.controller.UserController;
 import org.sonar.server.v2.api.user.converter.UsersSearchRestResponseGenerator;
 import org.sonar.server.v2.common.DeprecatedHandler;
+import org.sonar.server.issue.IssueChangePostProcessor;
+import org.sonar.server.issue.TransitionService;
+import org.sonar.server.issue.WebIssueStorage;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -229,4 +235,27 @@ public class PlatformLevel4WebConfig {
     return new DefaultModeController(userSession, dbClient, configuration, settingsChangeNotifier, notificationManager, qualityGateConditionsValidator);
   }
 
+  @Bean
+  public HotspotService hotspotService(
+          DbClient dbClient,
+          UserSession userSession,
+          TransitionService transitionService,
+          WebIssueStorage issueStorage,
+          IssueChangePostProcessor issueChangePostProcessor) {
+    return new HotspotService(
+            dbClient,
+            userSession,
+            transitionService,
+            issueStorage,
+            issueChangePostProcessor);
+  }
+
+  @Bean
+  public HotspotController hotspotController(
+          UserSession userSession,
+          HotspotService hotspotService) {
+    return new DefaultHotspotController(
+            userSession,
+            hotspotService);
+  }
 }
