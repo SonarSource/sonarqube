@@ -32,10 +32,6 @@ import org.sonar.server.v2.api.azurebilling.controller.DefaultAzureBillingContro
 import org.sonar.server.v2.api.azurebilling.environment.AzureEnvironment;
 import org.sonar.server.v2.api.azurebilling.service.DefaultAzureBillingHandler;
 import org.sonar.server.v2.api.dop.controller.DefaultDopSettingsController;
-import org.sonar.server.v2.api.dop.jfrog.JFrogEvidenceSonarQubeFeature;
-import org.sonar.server.v2.api.dop.jfrog.controller.DefaultJFrogEvidenceController;
-import org.sonar.server.v2.api.dop.jfrog.service.JFrogEvidenceHandlerImpl;
-import org.sonar.server.v2.api.dop.jfrog.service.JFrogEvidenceMarkdownService;
 import org.sonar.server.v2.api.email.config.controller.DefaultEmailConfigurationController;
 import org.sonar.server.v2.api.github.config.controller.DefaultGithubConfigurationController;
 import org.sonar.server.v2.api.gitlab.config.controller.DefaultGitlabConfigurationController;
@@ -72,7 +68,6 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
   DefaultGitlabConfigurationController.class,
   DefaultGroupController.class,
   DefaultGroupMembershipController.class,
-  DefaultJFrogEvidenceController.class,
   DefaultJresController.class,
   DefaultLivenessController.class,
   DefaultModeController.class,
@@ -82,9 +77,6 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
   DefaultUserController.class,
   DefaultVersionController.class,
   HealthController.class,
-  JFrogEvidenceHandlerImpl.class,
-  JFrogEvidenceMarkdownService.class,
-  JFrogEvidenceSonarQubeFeature.class,
   JresHandlerImpl.class,
   ScannerEngineHandlerImpl.class,
   UsersSearchRestResponseGenerator.class,

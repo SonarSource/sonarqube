@@ -4,5 +4,6 @@ gradle.properties @SonarSource/platform-onprem-squad
 /private/core-extension-enterprise-server/ @sonarsource/orchestration-reporting-squad
 /private/core-extension-jira/ @sonarsource/orchestration-integration-squad
 /private/core-extension-slack/ @sonarsource/orchestration-integrations-squad
+/private/core-extension-jfrog/ @sonarsource/orchestration-integrations-squad
 /private/core-extension-software-quality-reports/ @sonarsource/orchestration-reporting-squad
 /private/it-governance/ @sonarsource/orchestration-reporting-squad
