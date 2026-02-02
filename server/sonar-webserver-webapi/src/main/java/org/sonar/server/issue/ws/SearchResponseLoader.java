@@ -96,6 +96,9 @@ public class SearchResponseLoader {
       loadRules(preloadedResponseData, collector, dbSession, result);
       // order is important - loading of comments complete the list of users: loadComments() is before loadUsers()
       loadComments(collector, dbSession, fields, result);
+      if (facets != null) {
+        loadStatusMarkedByUsers(collector, dbSession, result);
+      }
       loadUsers(preloadedResponseData, collector, dbSession, result);
       loadComponents(preloadedResponseData, collector, dbSession, result);
       loadOrganizations(dbSession, result);
@@ -107,6 +110,36 @@ public class SearchResponseLoader {
       completeTotalEffortFromFacet(facets, result);
       return result;
     }
+  }
+
+  private void loadStatusMarkedByUsers(Collector collector, DbSession dbSession, SearchResponseData result) {
+    List<IssueChangeDto> changes = dbClient.issueChangeDao()
+             .selectByTypeAndIssueKeys(dbSession, collector.getIssueKeys(), IssueChangeDto.TYPE_FIELD_CHANGE);
+
+    Map<String, IssueChangeDto> latestByIssueKey = new HashMap<>();
+    for (IssueChangeDto dto : changes) {
+       String changeData = dto.getChangeData();
+       if (changeData == null || !(changeData.startsWith("status=") || changeData.startsWith("resolution="))) {
+         continue;
+       }
+
+       latestByIssueKey.merge(dto.getIssueKey(), dto,
+                 (a, b) -> a.getIssueChangeCreationDate() >= b.getIssueChangeCreationDate() ? a : b);
+    }
+
+    Map<String, String> statusChangedByIssueKey = result.getStatusChangedByIssueKey();
+    Set<String> userUuids = new HashSet<>();
+
+    for (IssueChangeDto dto : latestByIssueKey.values()) {
+       String userUuid = dto.getUserUuid();
+       if (userUuid == null || userUuid.isBlank()) {
+         continue;
+       }
+       statusChangedByIssueKey.put(dto.getIssueKey(), userUuid);
+       userUuids.add(userUuid);
+    }
+
+    collector.addUserUuids(userUuids);
   }
 
   private List<IssueDto> loadIssues(SearchResponseData preloadedResponseData, Collector collector, DbSession dbSession) {
