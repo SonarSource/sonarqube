@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,7 @@ import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.jetbrains.annotations.NotNull;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
@@ -56,6 +58,7 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.user.TokenType;
+import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ProjectAndBranch;
@@ -119,7 +122,10 @@ public class SearchAction implements HotspotsWsAction {
   private static final String PARAM_OWASP_TOP_10_2021 = "owaspTop10-2021";
   private static final String PARAM_STIG_ASD_V5R3 = "stig-ASD_V5R3";
   private static final String PARAM_CASA = "casa";
-  /**
+  private static final String FIELD_STATUS = "status";
+  private static final String FIELD_RESOLUTION = "resolution";
+
+    /**
    * @deprecated SansTop25 report is outdated, it has been completely deprecated in version 10.0 and will be removed from version 11.0
    */
   @Deprecated(since = "10.0", forRemoval = true)
@@ -187,6 +193,7 @@ public class SearchAction implements HotspotsWsAction {
       Optional<ProjectAndBranch> project = getAndValidateProjectOrApplication(dbSession, wsRequest);
       Collector collector = new Collector();
       SearchResponseData searchResponseData =  searchHotspots(collector,wsRequest, dbSession, project.orElse(null));
+      loadStatusMarkedBy(dbSession, searchResponseData);
       loadComponents(dbSession, searchResponseData);
       loadComments( collector, dbSession, searchResponseData );
       writeProtobuf(formatResponse(searchResponseData), request, response);
@@ -605,7 +612,111 @@ public class SearchAction implements HotspotsWsAction {
     }
   }
 
-  private static Set<String> getHotspotLocationComponentUuids(IssueDto hotspot) {
+    private void loadStatusMarkedBy(DbSession dbSession, SearchResponseData data) {
+        List<IssueDto> hotspots = data.getHotspots();
+        if (hotspots.isEmpty()) {
+            return;
+        }
+
+        Map<String, IssueDto> issueByKey = hotspots.stream()
+                .collect(Collectors.toMap(IssueDto::getKey, h -> h));
+
+        List<String> issueKeys = hotspots.stream().map(IssueDto::getKey).toList();
+
+        List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(dbSession, issueKeys);
+        if (changes.isEmpty()) {
+            return;
+        }
+
+        Map<String, IssueChangeDto> bestByIssueKey = new HashMap<>();
+
+        for (IssueChangeDto change : changes) {
+            if (!IssueChangeDto.TYPE_FIELD_CHANGE.equals(change.getChangeType())) {
+                continue;
+            }
+            if (change.getUserUuid() == null) {
+                continue;
+            }
+
+            IssueDto issue = issueByKey.get(change.getIssueKey());
+            if (issue == null) {
+                continue;
+            }
+
+            String currentStatus = issue.getStatus();
+            String currentResolution = issue.getResolution();
+
+            FieldDiffs diffs;
+            try {
+                diffs = change.toFieldDiffs();
+            } catch (Exception e) {
+                continue;
+            }
+
+            if (!matchesCurrentReviewState(diffs, currentStatus, currentResolution)) {
+                continue;
+            }
+
+            IssueChangeDto prev = bestByIssueKey.get(change.getIssueKey());
+            if (prev == null || change.getIssueChangeCreationDate() > prev.getIssueChangeCreationDate()) {
+                bestByIssueKey.put(change.getIssueKey(), change);
+            }
+        }
+
+        if (bestByIssueKey.isEmpty()) {
+            return;
+        }
+
+        List<String> userUuids = bestByIssueKey.values().stream()
+                .map(IssueChangeDto::getUserUuid)
+                .distinct()
+                .toList();
+
+        Map<String, String> nameByUuid = dbClient.userDao()
+                .selectByUuids(dbSession, userUuids).stream()
+                .collect(Collectors.toMap(
+                        UserDto::getUuid,
+                        u -> {
+                            String name = u.getName();
+                            if (name != null && name.startsWith("sq-removed-") && !u.isActive()) {
+                                return "";
+                            }
+                            return (name != null && !name.trim().isEmpty()) ? name : "";
+                        },
+                        (a, b) -> a
+                ));
+        Map<String, String> statusMarkedBy = new HashMap<>();
+        for (Map.Entry<String, IssueChangeDto> e : bestByIssueKey.entrySet()) {
+            String issueKey = e.getKey();
+            String userUuid = e.getValue().getUserUuid();
+            statusMarkedBy.put(issueKey, nameByUuid.getOrDefault(userUuid, ""));
+        }
+
+        data.addStatusMarkedBy(statusMarkedBy);
+    }
+
+    private boolean matchesCurrentReviewState(FieldDiffs diffs, String currentStatus, String currentResolution) {
+        if (currentStatus == null) {
+            return false;
+        }
+
+        if ("REVIEWED".equals(currentStatus) && currentResolution != null) {
+            FieldDiffs.Diff<?> resolutionDiff = diffs.get(FIELD_RESOLUTION);
+            if (resolutionDiff != null && resolutionDiff.newValue() != null) {
+                return currentResolution.equals(resolutionDiff.newValue().toString());
+            }
+            FieldDiffs.Diff<?> statusDiff = diffs.get(FIELD_STATUS);
+            return statusDiff != null && statusDiff.newValue() != null && "REVIEWED".equals(
+                    statusDiff.newValue().toString());
+        }
+
+        FieldDiffs.Diff<?> statusDiff = diffs.get(FIELD_STATUS);
+        return statusDiff != null && statusDiff.newValue() != null && currentStatus.equals(
+                statusDiff.newValue().toString());
+    }
+
+
+    private static Set<String> getHotspotLocationComponentUuids(IssueDto hotspot) {
     Set<String> locationComponentUuids = new HashSet<>();
     DbIssues.Locations locations = hotspot.parseLocations();
 

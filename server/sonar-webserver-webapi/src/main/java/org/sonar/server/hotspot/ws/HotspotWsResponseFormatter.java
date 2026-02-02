@@ -115,6 +115,7 @@ public class HotspotWsResponseFormatter {
         .setVulnerabilityProbability(sqCategory.getVulnerability().name())
         .setRuleKey(hotspot.getRuleKey().toString());
       ofNullable(hotspot.getStatus()).ifPresent(builder::setStatus);
+      builder.setStatusMarkedBy(nullToEmpty(searchResponseData.getStatusMarkedBy(hotspot.getKey())));
       ofNullable(hotspot.getResolution()).ifPresent(builder::setResolution);
       ofNullable(hotspot.getLine()).ifPresent(builder::setLine);
       builder.setMessage(nullToEmpty(hotspot.getMessage()));
@@ -188,6 +189,7 @@ public class HotspotWsResponseFormatter {
     private final ListMultimap < String, IssueChangeDto> commentsByIssueKey = ArrayListMultimap.create();
     private final Set<String> updatableComments = new HashSet<>();
     private final Map<String, UserDto> usersByUuid = new HashMap<>();
+    private final Map<String, String> statusMarkedByByIssueKey = new HashMap<>();
 
     SearchResponseData(Paging paging, List<IssueDto> hotspots) {
       this.paging = paging;
@@ -263,6 +265,15 @@ public class HotspotWsResponseFormatter {
     UserDto getUserByUuid(@Nullable String userUuid) {
       return usersByUuid.get(userUuid);
     }
+
+      void addStatusMarkedBy(Map<String, String> map) {
+          statusMarkedByByIssueKey.putAll(map);
+      }
+
+      @Nullable
+      String getStatusMarkedBy(String issueKey) {
+          return statusMarkedByByIssueKey.get(issueKey);
+      }
   }
 
 }
