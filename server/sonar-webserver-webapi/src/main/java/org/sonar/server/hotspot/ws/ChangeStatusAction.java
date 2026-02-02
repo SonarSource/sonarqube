@@ -245,7 +245,6 @@ public class ChangeStatusAction implements HotspotsWsAction {
         .setUpdateDate(defaultIssue.updateDate())
         .setAssignee(issueDto.getAssigneeLogin())
         .setFilePath(issueDto.getFilePath())
-        .setIssueResolutionExpiresAt(defaultIssue.issueResolutionExpiresAt())
         .build();
   }
 

@@ -167,7 +167,6 @@ public class AssignAction implements HotspotsWsAction {
       .setProjectKey(defaultIssue.projectKey())
       .setStatus(defaultIssue.status())
       .setResolution(defaultIssue.resolution())
-      .setIssueResolutionExpiresAt(defaultIssue.issueResolutionExpiresAt())
       .setUpdateDate(defaultIssue.updateDate())
       .setAssignee(assignee == null ? null : assignee.getLogin())
       .setFilePath(filePath)

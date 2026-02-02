@@ -79,7 +79,6 @@
     i.quick_fix_available,
     i.code_variants,
     i.clean_code_attribute,
-    i.issue_resolution_expires_at,
     i.prioritized_rule
   </sql>
 
@@ -236,8 +235,7 @@
     issue_type=#{type,jdbcType=INTEGER},
     code_variants=#{codeVariantsString,jdbcType=VARCHAR},
     clean_code_attribute=#{effectiveCleanCodeAttribute,jdbcType=VARCHAR},
-    prioritized_rule=#{prioritizedRule,jdbcType=BOOLEAN},
-    issue_resolution_expires_at=#{issueResolutionExpiresAt,jdbcType=BIGINT}
+    prioritized_rule=#{prioritizedRule,jdbcType=BOOLEAN}
     where kee = #{kee}
   </update>
 
@@ -270,7 +268,6 @@
     issue_type=#{type,jdbcType=INTEGER},
     code_variants=#{codeVariantsString,jdbcType=VARCHAR},
     clean_code_attribute=#{effectiveCleanCodeAttribute,jdbcType=VARCHAR},
-    issue_resolution_expires_at=#{issueResolutionExpiresAt,jdbcType=BIGINT},
     prioritized_rule=#{prioritizedRule,jdbcType=BOOLEAN}
     where kee = #{kee} and updated_at &lt;= #{selectedAt}
   </update>
