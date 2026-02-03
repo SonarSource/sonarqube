@@ -124,7 +124,9 @@ public class SearchAction implements HotspotsWsAction {
   private static final String PARAM_CASA = "casa";
   private static final String FIELD_STATUS = "status";
   private static final String FIELD_RESOLUTION = "resolution";
-  /**
+  private static final String REMOVED_USER_PREFIX = "sq-removed-";
+
+    /**
    * @deprecated SansTop25 report is outdated, it has been completely deprecated in version 10.0 and will be removed from version 11.0
    */
   @Deprecated(since = "10.0", forRemoval = true)
@@ -677,7 +679,7 @@ public class SearchAction implements HotspotsWsAction {
                         UserDto::getUuid,
                         u -> {
                             String name = u.getName();
-                            if (name != null && name.startsWith("sq-removed-") && !u.isActive()) {
+                            if (name != null && name.startsWith(REMOVED_USER_PREFIX) && !u.isActive()) {
                                 return "";
                             }
                             return (name != null && !name.trim().isEmpty()) ? name : "";
@@ -699,13 +701,13 @@ public class SearchAction implements HotspotsWsAction {
             return false;
         }
 
-        if ("REVIEWED".equals(currentStatus) && currentResolution != null) {
+        if (STATUS_REVIEWED.equals(currentStatus) && currentResolution != null) {
             FieldDiffs.Diff<?> resolutionDiff = diffs.get(FIELD_RESOLUTION);
             if (resolutionDiff != null && resolutionDiff.newValue() != null) {
                 return currentResolution.equals(resolutionDiff.newValue().toString());
             }
             FieldDiffs.Diff<?> statusDiff = diffs.get(FIELD_STATUS);
-            return statusDiff != null && statusDiff.newValue() != null && "REVIEWED".equals(
+            return statusDiff != null && statusDiff.newValue() != null && STATUS_REVIEWED.equals(
                     statusDiff.newValue().toString());
         }
 
