@@ -714,8 +714,7 @@ public class SearchAction implements HotspotsWsAction {
                 statusDiff.newValue().toString());
     }
 
-
-    private static Set<String> getHotspotLocationComponentUuids(IssueDto hotspot) {
+  private static Set<String> getHotspotLocationComponentUuids(IssueDto hotspot) {
     Set<String> locationComponentUuids = new HashSet<>();
     DbIssues.Locations locations = hotspot.parseLocations();
 
