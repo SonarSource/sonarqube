@@ -74,6 +74,8 @@ public class SearchResponseLoader {
   private final UserSession userSession;
   private final DbClient dbClient;
   private final TransitionService transitionService;
+  private static final String FIELD_STATUS = "status";
+  private static final String FIELD_RESOLUTION = "resolution";
 
   public SearchResponseLoader(UserSession userSession, DbClient dbClient, TransitionService transitionService) {
     this.userSession = userSession;
@@ -119,7 +121,7 @@ public class SearchResponseLoader {
     Map<String, IssueChangeDto> latestByIssueKey = new HashMap<>();
     for (IssueChangeDto dto : changes) {
        String changeData = dto.getChangeData();
-       if (changeData == null || !(changeData.startsWith("status=") || changeData.startsWith("resolution="))) {
+       if (changeData == null || !(changeData.startsWith(FIELD_STATUS) || changeData.startsWith(FIELD_RESOLUTION ))) {
          continue;
        }
 
