@@ -32,8 +32,8 @@ public class FipsDetector {
   public static boolean isFipsEnabled() {
     Provider[] providers = Security.getProviders();
     for (Provider provider : providers) {
-      String nameLowerCase = provider.getName().toUpperCase(Locale.ENGLISH);
-      if (nameLowerCase.contains("FIPS")) {
+      String nameUpperCase = provider.getName().toUpperCase(Locale.ENGLISH);
+      if (nameUpperCase.contains("FIPS")) {
         return true;
       }
     }
