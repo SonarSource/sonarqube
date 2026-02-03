@@ -5,6 +5,8 @@ on:
       - master
       - branch-*
   workflow_dispatch:
+  schedule:
+    - cron: '0 14 * * *'  # Run at 2PM UTC everyday
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
