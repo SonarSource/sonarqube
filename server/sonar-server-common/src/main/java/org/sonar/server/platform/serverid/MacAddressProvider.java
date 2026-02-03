@@ -36,6 +36,7 @@ import org.sonar.core.util.UuidFactoryImpl;
 class MacAddressProvider {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MacAddressProvider.class);
+  private static final SecureRandom SECURE_RANDOM = new SecureRandom();
   public static final int BYTE_SIZE = 6;
 
   private MacAddressProvider() {
@@ -57,7 +58,7 @@ class MacAddressProvider {
     }
 
     byte[] mungedBytes = new byte[BYTE_SIZE];
-    new SecureRandom().nextBytes(mungedBytes);
+    SECURE_RANDOM.nextBytes(mungedBytes);
     for (int i = 0; i < BYTE_SIZE; ++i) {
       mungedBytes[i] ^= address[i];
     }
@@ -100,7 +101,7 @@ class MacAddressProvider {
   @VisibleForTesting
   static byte[] constructDummyMulticastAddress() {
     byte[] dummy = new byte[BYTE_SIZE];
-    new SecureRandom().nextBytes(dummy);
+    SECURE_RANDOM.nextBytes(dummy);
     // Set the broadcast bit to indicate this is not a _real_ mac address
     dummy[0] |= (byte) 0x01;
     return dummy;

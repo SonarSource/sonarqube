@@ -65,6 +65,7 @@ import static org.sonar.process.cluster.hz.HazelcastObjects.SECRETS;
 public class DistributedServerLogging extends ServerLogging {
 
   public static final String NODE_TO_NODE_SECRET = "node_to_node_secret";
+  private static final SecureRandom SECURE_RANDOM = new SecureRandom();
   private static final Logger LOGGER = LoggerFactory.getLogger(DistributedServerLogging.class);
   private final HazelcastMember hazelcastMember;
   private final OkHttpClient client;
@@ -153,9 +154,8 @@ public class DistributedServerLogging extends ServerLogging {
   }
 
   private static String generateOneTimeToken() {
-    SecureRandom random = new SecureRandom();
     byte[] randomBytes = new byte[20];
-    random.nextBytes(randomBytes);
+    SECURE_RANDOM.nextBytes(randomBytes);
     return Hex.encodeHexString(randomBytes);
   }
 

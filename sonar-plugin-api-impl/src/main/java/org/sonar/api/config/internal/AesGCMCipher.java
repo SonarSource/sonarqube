@@ -31,6 +31,7 @@ final class AesGCMCipher extends AesCipher {
   private static final int GCM_TAG_LENGTH_IN_BITS = 128;
   private static final int GCM_IV_LENGTH_IN_BYTES = 12;
 
+  private static final SecureRandom SECURE_RANDOM = new SecureRandom();
   private static final String CRYPTO_ALGO = "AES/GCM/NoPadding";
 
   AesGCMCipher(@Nullable String pathToSecretKey) {
@@ -42,7 +43,7 @@ final class AesGCMCipher extends AesCipher {
     try {
       javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_ALGO);
       byte[] iv = new byte[GCM_IV_LENGTH_IN_BYTES];
-      new SecureRandom().nextBytes(iv);
+      SECURE_RANDOM.nextBytes(iv);
       cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, loadSecretFile(), new GCMParameterSpec(GCM_TAG_LENGTH_IN_BITS, iv));
       byte[] encryptedText = cipher.doFinal(clearText.getBytes(StandardCharsets.UTF_8.name()));
       return Base64.encodeBase64String(

@@ -35,7 +35,8 @@ public final class ServerIdGenerator {
   private static class IdGeneratorBase {
     // We only use bottom 3 bytes for the sequence number. Paranoia: init with random int so that if JVM/OS/machine goes down, clock slips
     // backwards, and JVM comes back up, we are less likely to be on the same sequenceNumber at the same time:
-    private final AtomicInteger sequenceNumber = new AtomicInteger(new SecureRandom().nextInt());
+    private final SecureRandom random = new SecureRandom();
+    private final AtomicInteger sequenceNumber = new AtomicInteger(random.nextInt());
     private final byte[] secureMungedAddress = MacAddressProvider.getSecureMungedAddress();
     // Used to ensure clock moves forward
     private long lastTimestamp = 0L;

@@ -27,6 +27,7 @@ import org.sonar.db.user.TokenType;
 public class TokenGeneratorImpl implements TokenGenerator {
 
   private static final String SONARQUBE_TOKEN_PREFIX = "sq";
+  private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
   @Override
   public String generate(TokenType tokenType) {
@@ -39,9 +40,8 @@ public class TokenGeneratorImpl implements TokenGenerator {
   }
 
   private static String generateRawToken() {
-    SecureRandom random = new SecureRandom();
     byte[] randomBytes = new byte[20];
-    random.nextBytes(randomBytes);
+    SECURE_RANDOM.nextBytes(randomBytes);
     return Hex.encodeHexString(randomBytes);
   }
 
