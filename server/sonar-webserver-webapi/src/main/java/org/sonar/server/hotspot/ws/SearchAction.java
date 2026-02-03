@@ -125,8 +125,7 @@ public class SearchAction implements HotspotsWsAction {
   private static final String FIELD_STATUS = "status";
   private static final String FIELD_RESOLUTION = "resolution";
   private static final String REMOVED_USER_PREFIX = "sq-removed-";
-
-    /**
+  /**
    * @deprecated SansTop25 report is outdated, it has been completely deprecated in version 10.0 and will be removed from version 11.0
    */
   @Deprecated(since = "10.0", forRemoval = true)

@@ -275,4 +275,5 @@ public class HotspotWsResponseFormatter {
           return statusMarkedByByIssueKey.get(issueKey);
       }
   }
+
 }
