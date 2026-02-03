@@ -113,6 +113,7 @@ public final class SqTables {
     "sca_analyses",
     "sca_dependencies",
     "sca_encountered_licenses",
+    "sca_ir_cve_locations",
     "sca_issues",
     "sca_issues_releases",
     "sca_issue_rels_changes",
