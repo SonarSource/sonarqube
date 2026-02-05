@@ -28,12 +28,6 @@ import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistryImpl;
 import org.sonar.server.platform.db.migration.step.MigrationStepsProvider;
 import org.sonar.server.platform.db.migration.version.v00.DbVersion00;
-import org.sonar.server.platform.db.migration.version.v202501.DbVersion202501;
-import org.sonar.server.platform.db.migration.version.v202502.DbVersion202502;
-import org.sonar.server.platform.db.migration.version.v202503.DbVersion202503;
-import org.sonar.server.platform.db.migration.version.v202504.DbVersion202504;
-import org.sonar.server.platform.db.migration.version.v202505.DbVersion202505;
-import org.sonar.server.platform.db.migration.version.v202506.DbVersion202506;
 import org.sonar.server.platform.db.migration.version.v202601.DbVersion202601;
 
 public class MigrationConfigurationModule extends Module {
@@ -43,12 +37,6 @@ public class MigrationConfigurationModule extends Module {
       MigrationHistoryTableImpl.class,
       // DbVersion implementations
       DbVersion00.class,
-      DbVersion202501.class,
-      DbVersion202502.class,
-      DbVersion202503.class,
-      DbVersion202504.class,
-      DbVersion202505.class,
-      DbVersion202506.class,
       DbVersion202601.class,
 
       // migration steps

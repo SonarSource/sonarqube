@@ -30,11 +30,12 @@ public class DatabaseVersion {
    * versions must be previously upgraded to LTA version.
    * Note that the value can't be less than current LTA version.
    */
-  public static final long MIN_UPGRADE_VERSION = 108026;
+  
+  public static final long MIN_UPGRADE_VERSION = 2026_01_000;
 
   // In reality user is required to upgrade just to 10.8 but we want to 'market' 2025.1
-  public static final String MIN_UPGRADE_VERSION_HUMAN_READABLE = "2025.1";
-  public static final String MIN_UPGRADE_VERSION_COMMUNITY_BUILD_READABLE = "24.12";
+  public static final String MIN_UPGRADE_VERSION_HUMAN_READABLE = "2026.1";
+  public static final String MIN_UPGRADE_VERSION_COMMUNITY_BUILD_READABLE = "25.12";
 
 
   private final MigrationSteps migrationSteps;

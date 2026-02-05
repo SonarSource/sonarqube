@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.utils.System2;
 import org.sonar.core.config.CorePropertyDefinitions;
@@ -48,6 +49,9 @@ import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.SCAN;
 import static org.sonar.api.web.UserRole.SECURITYHOTSPOT_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.core.config.AiCodeFixEnablementConstants.SUGGESTION_FEATURE_ENABLED_PROPERTY;
+import static org.sonar.core.config.AiCodeFixEnablementConstants.SUGGESTION_PROVIDER_KEY_PROPERTY;
+import static org.sonar.core.config.AiCodeFixEnablementConstants.SUGGESTION_PROVIDER_MODEL_KEY_PROPERTY;
 import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_ENABLED;
 
 public class PopulateInitialSchema extends DataChange {
@@ -58,6 +62,9 @@ public class PopulateInitialSchema extends DataChange {
   private static final String ADMIN_CRYPTED_PASSWORD = "100000$R9xDN18ebKxA3ZTaputi6wDt+fcKhP2h3GgAjGbcBlCSlkMLENxw9wziHS46QIW3fWOjEMpeyEts+pNuPXSbYA==";
   private static final String ADMIN_SALT = "pSDhsn3IM3KCa74CRRf7T7Vx+OE=";
   private static final List<String> ADMIN_ROLES = Arrays.asList("admin", "profileadmin", "gateadmin", "provisioning", "applicationcreator", "portfoliocreator");
+  private static final String DISABLED = "DISABLED";
+  private static final String DEFAULT_AI_PROVIDER_KEY = "OPENAI";
+  private static final String DEFAULT_AI_PROVIDER_MODEL_KEY = "OPENAI_GPT_4O";
 
   private final System2 system2;
   private final UuidFactory uuidFactory;
@@ -84,6 +91,7 @@ public class PopulateInitialSchema extends DataChange {
     insertGroupUsers(context, adminUserUuid, groups);
     insertDevopsPermissionMapping(context);
     insertGitlabPermissionMapping(context);
+    insertDefaultAiSuggestionProperties(context);
     enableSpecificMqrMode(context);
   }
 
@@ -327,6 +335,33 @@ public class PopulateInitialSchema extends DataChange {
     }
   }
 
+  private void insertDefaultAiSuggestionProperties(Context context) throws SQLException {
+    boolean isAiCodeFixEnabled = Optional.ofNullable(context.prepareSelect("select text_value from properties where prop_key=?")
+        .setString(1, SUGGESTION_FEATURE_ENABLED_PROPERTY)
+        .get(r -> r.getString(1)))
+      .map(value -> !DISABLED.equals(value))
+      .orElse(false);
+
+    if (isAiCodeFixEnabled) {
+      insertProperty(context, SUGGESTION_PROVIDER_KEY_PROPERTY, DEFAULT_AI_PROVIDER_KEY);
+      insertProperty(context, SUGGESTION_PROVIDER_MODEL_KEY_PROPERTY, DEFAULT_AI_PROVIDER_MODEL_KEY);
+    }
+  }
+
+  private void insertProperty(Context context, String key, String value) throws SQLException {
+    context.prepareUpsert("""
+        INSERT INTO properties
+        (prop_key, is_empty, text_value, created_at, uuid)
+        VALUES(?, ?, ?, ?, ?)
+      """)
+      .setString(1, key)
+      .setBoolean(2, false)
+      .setString(3, value)
+      .setLong(4, system2.now())
+      .setString(5, uuidFactory.create())
+      .execute()
+      .commit();
+  }
 
   private void enableSpecificMqrMode(Context context) throws SQLException {
     try (Connection connection = getDatabase().getDataSource().getConnection()) {

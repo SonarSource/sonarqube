@@ -118,8 +118,6 @@ public class CreateInitialSchema extends DdlChange {
     createCeTaskInput(context);
     createCeTaskMessage(context);
     createComponents(context);
-    createCves(context);
-    createCveCwe(context);
     createDefaultQProfiles(context);
     createDeprecatedRuleKeys(context);
     createDuplicationsIndex(context);
@@ -138,10 +136,10 @@ public class CreateInitialSchema extends DdlChange {
     createIssueChanges(context);
     createIssueImpacts(context);
     createIssues(context);
-    createIssuesDependency(context);
     createIssuesFixed(context);
     createMetrics(context);
     createMeasures(context);
+    createMigrationLogs(context);
     createNewCodePeriods(context);
     createNewCodeReferenceIssues(context);
     createNotifications(context);
@@ -180,6 +178,19 @@ public class CreateInitialSchema extends DdlChange {
     createScimGroups(context);
     createScimUsers(context);
     createScmAccounts(context);
+    createArchitectureGraphs(context);
+    createScaAnalyses(context);
+    createScaDependencies(context);
+    createScaEncounteredLicenses(context);
+    createScaIssues(context);
+    createScaIssuesReleases(context);
+    createScaIssuesReleasesChanges(context);
+    createScaLicenseProfileCategories(context);
+    createScaLicenseProfileCustomizations(context);
+    createScaLicenseProfileProjects(context);
+    createScaLicenseProfiles(context);
+    createScaReleases(context);
+    createScaVulnerabilityIssues(context);
     createSessionTokens(context);
     createTelemetryMetricsSent(context);
     createRulesRepository(context);
@@ -192,11 +203,26 @@ public class CreateInitialSchema extends DdlChange {
     createScannerAnalysisCache(context);
     createSnapshots(context);
     createUserRoles(context);
+    createUserAIToolUsages(context);
     createUserDismissedMessage(context);
     createUserTokens(context);
     createUsers(context);
     createWebhookDeliveries(context);
     createWebhooks(context);
+    createAtlassianAuthenticationDetails(context);
+    createIntegrationConfigurations(context);
+    createIssueStatsByRuleKey(context);
+    createJiraOrganizationBindings(context);
+    createJiraOrganizationBindingsPending(context);
+    createJiraProjectBindings(context);
+    createJiraSelectedWorkTypes(context);
+    createJiraWorkItems(context);
+    createJiraWorkItemsResources(context);
+    createSlackSubscriptions(context);
+    createSlackWorkspaces(context);
+    createUserBindings(context);
+    createUserBindingsSlack(context);
+    createXsrfTokens(context);
   }
 
   private void createAnticipatedTransitions(Context context) {
@@ -293,6 +319,7 @@ public class CreateInitialSchema extends DdlChange {
     VarcharColumnDef almRepoCol = newVarcharColumnDefBuilder("alm_repo").setIsNullable(true).setLimit(256).build();
     VarcharColumnDef almSlugCol = newVarcharColumnDefBuilder("alm_slug").setIsNullable(true).setLimit(256).build();
     BooleanColumnDef summaryCommentEnabledCol = newBooleanColumnDefBuilder("summary_comment_enabled").setIsNullable(true).build();
+    BooleanColumnDef inlineAnnotationsEnabledCol = newBooleanColumnDefBuilder("inline_annotations_enabled").setIsNullable(true).build();
     BooleanColumnDef monorepoCol = newBooleanColumnDefBuilder("monorepo").setIsNullable(false).build();
 
     context.execute(newTableBuilder(tableName)
@@ -304,11 +331,13 @@ public class CreateInitialSchema extends DdlChange {
       .addColumn(TECHNICAL_UPDATED_AT_COL)
       .addColumn(TECHNICAL_CREATED_AT_COL)
       .addColumn(summaryCommentEnabledCol)
+      .addColumn(inlineAnnotationsEnabledCol)
       .addColumn(monorepoCol)
       .build());
     addIndex(context, tableName, "uniq_project_alm_settings", true, projectUuidCol);
     addIndex(context, tableName, "project_alm_settings_alm", false, almSettingUuidCol);
     addIndex(context, tableName, "project_alm_settings_slug", false, almSlugCol);
+    addIndex(context, tableName, "project_alm_settings_alm_repo", false, almRepoCol);
   }
 
   private void createAnalysisProperties(Context context) {
@@ -542,57 +571,18 @@ public class CreateInitialSchema extends DdlChange {
     addIndex(context, tableName, "components_uuid", true, uuidCol);
     addIndex(context, tableName, "components_branch_uuid", false, branchUuidCol);
     addIndex(context, tableName, "components_kee_branch_uuid", true, keeCol, branchUuidCol);
+
+    // Function-based index on LOWER(kee) for case-insensitive searches
+    String dialectId = getDialect().getId();
+    if ("h2".equals(dialectId)) {
+      // H2 doesn't support function-based indexes; create regular index for tests
+      context.execute("CREATE INDEX components_lower_kee ON " + tableName + " (kee)");
+    } else if ("postgresql".equals(dialectId) || "oracle".equals(dialectId)) {
+      context.execute("CREATE INDEX components_lower_kee ON " + tableName + " (LOWER(kee))");
+    }
+    // MSSQL support can be added in a future migration if needed
   }
 
-
-  private void createCves(Context context) {
-    String tableName = "cves";
-
-    VarcharColumnDef uuidColumn = newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
-    VarcharColumnDef idColumn = newVarcharColumnDefBuilder().setColumnName("id").setIsNullable(false).setLimit(DESCRIPTION_SECTION_KEY_SIZE).build();
-    VarcharColumnDef descriptionColumn = newVarcharColumnDefBuilder().setColumnName("description").setIsNullable(false).setLimit(MAX_SIZE).build();
-    BigIntegerColumnDef updatedAtColumn = newBigIntegerColumnDefBuilder().setColumnName("updated_at").setIsNullable(false).build();
-    BigIntegerColumnDef createdAtColumn = newBigIntegerColumnDefBuilder().setColumnName("created_at").setIsNullable(false).build();
-    BigIntegerColumnDef lastModifiedColumn = newBigIntegerColumnDefBuilder().setColumnName("last_modified_at").setIsNullable(true).build();
-    BigIntegerColumnDef publishedColumn = newBigIntegerColumnDefBuilder().setColumnName("published_at").setIsNullable(true).build();
-    DecimalColumnDef cvssScoreColumn = newDecimalColumnDefBuilder().setColumnName("cvss_score").setIsNullable(true).build();
-    DecimalColumnDef epssScoreColumn = newDecimalColumnDefBuilder().setColumnName("epss_score").setIsNullable(true).build();
-    DecimalColumnDef epssPercentileColumn = newDecimalColumnDefBuilder().setColumnName("epss_percentile").setIsNullable(true).build();
-
-    context.execute(new CreateTableBuilder(getDialect(), tableName)
-      .addPkColumn(uuidColumn)
-      .addColumn(idColumn)
-      .addColumn(descriptionColumn)
-      .addColumn(cvssScoreColumn)
-      .addColumn(epssScoreColumn)
-      .addColumn(epssPercentileColumn)
-      .addColumn(publishedColumn)
-      .addColumn(lastModifiedColumn)
-      .addColumn(createdAtColumn)
-      .addColumn(updatedAtColumn)
-      .build());
-  }
-
-  private void createCveCwe(Context context) {
-    String tableName = "cve_cwe";
-
-    VarcharColumnDef cveUuidColumn = newVarcharColumnDefBuilder().setColumnName("cve_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
-    VarcharColumnDef cweColumn = newVarcharColumnDefBuilder().setColumnName("cwe").setIsNullable(false).setLimit(DESCRIPTION_SECTION_KEY_SIZE).build();
-
-    context.execute(new CreateTableBuilder(getDialect(), tableName)
-      .addPkColumn(cveUuidColumn)
-      .addPkColumn(cweColumn)
-      .build());
-  }
-
-  private void createIssuesDependency(Context context) {
-    String tableName = "issues_dependency";
-
-    context.execute(new CreateTableBuilder(getDialect(), tableName)
-      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("issue_uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("cve_uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
-      .build());
-  }
 
   private void createDefaultQProfiles(Context context) {
     String tableName = "default_qprofiles";
@@ -932,6 +922,8 @@ public class CreateInitialSchema extends DdlChange {
         .addColumn(newVarcharColumnDefBuilder().setColumnName("code_variants").setLimit(4000).setIsNullable(true).build())
         .addColumn(newVarcharColumnDefBuilder().setColumnName("clean_code_attribute").setLimit(40).setIsNullable(true).build())
         .addColumn(newBooleanColumnDefBuilder().setColumnName("prioritized_rule").setIsNullable(true).build())
+        .addColumn(newBooleanColumnDefBuilder().setColumnName("from_sonarqube_update").setIsNullable(false).setDefaultValue(false).build())
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("internal_tags").setLimit(4000).setIsNullable(true).build())
         .build());
 
     addIndex(context, tableName, "issues_assignee", false, assigneeCol);
@@ -964,6 +956,18 @@ public class CreateInitialSchema extends DdlChange {
       .build());
 
     addIndex(context, tableName, "measures_branch_uuid", false, branchUuidColumnDef);
+  }
+
+  private void createMigrationLogs(Context context) {
+    String tableName = "migration_logs";
+    context.execute(new CreateTableBuilder(getDialect(), tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("step").setIsNullable(false).setLimit(40).build())
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("duration_in_ms").setIsNullable(false).build())
+      .addColumn(newBooleanColumnDefBuilder().setColumnName("success").setIsNullable(false).build())
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("started_at").setIsNullable(false).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("target_version").setIsNullable(false).setLimit(40).build())
+      .build());
   }
 
   private void createMetrics(Context context) {
@@ -1311,6 +1315,7 @@ public class CreateInitialSchema extends DdlChange {
         .addColumn(newBigIntegerColumnDefBuilder().setColumnName("ncloc").setIsNullable(true).build())
         .addColumn(newVarcharColumnDefBuilder().setColumnName("creation_method").setLimit(50).setIsNullable(false).build())
         .addColumn(newBooleanColumnDefBuilder().setColumnName("contains_ai_code").setIsNullable(false).setDefaultValue(false).build())
+        .addColumn(newBooleanColumnDefBuilder().setColumnName("detected_ai_code").setIsNullable(false).setDefaultValue(false).build())
         .addColumn(newBooleanColumnDefBuilder().setColumnName("ai_code_fix_enabled").setIsNullable(false).setDefaultValue(false).build())
         .withPkConstraintName("pk_new_projects")
         .build());
@@ -1547,6 +1552,229 @@ public class CreateInitialSchema extends DdlChange {
     addIndex(context, tableName, "scm_accounts_scm_account", false, scmAccountColumn);
   }
 
+  private void createArchitectureGraphs(Context context) {
+    String tableName = "architecture_graphs";
+    VarcharColumnDef branchUuidCol = newVarcharColumnDefBuilder().setColumnName("branch_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
+    VarcharColumnDef typeCol = newVarcharColumnDefBuilder().setColumnName("type").setIsNullable(false).setLimit(255).build();
+    VarcharColumnDef ecosystemCol = newVarcharColumnDefBuilder().setColumnName("ecosystem").setIsNullable(false).setLimit(255).build();
+    VarcharColumnDef perspectiveKeyCol = newVarcharColumnDefBuilder().setColumnName("perspective_key").setIsNullable(true).setLimit(255).build();
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(UUID_COL)
+      .addColumn(branchUuidCol)
+      .addColumn(ecosystemCol)
+      .addColumn(typeCol)
+      .addColumn(perspectiveKeyCol)
+      .addColumn(newClobColumnDefBuilder().setColumnName("graph_data").setIsNullable(false).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("analysis_uuid").setIsNullable(true).setLimit(UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("graph_version").setIsNullable(false).setDefaultValue("1.0.0").setLimit(255).build())
+      .build());
+    addIndex(context, tableName, "uq_idx_ag_brch_tp_src_pspctv", true, branchUuidCol, typeCol, ecosystemCol, perspectiveKeyCol);
+  }
+
+  private void createScaAnalyses(Context context) {
+    String tableName = "sca_analyses";
+    VarcharColumnDef componentUuidCol = newVarcharColumnDefBuilder().setColumnName("component_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(componentUuidCol)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("status").setIsNullable(false).setLimit(40).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("failed_reason").setIsNullable(true).setLimit(255).build())
+      .addColumn(newClobColumnDefBuilder().setColumnName("errors").setIsNullable(false).build())
+      .addColumn(newClobColumnDefBuilder().setColumnName("parsed_files").setIsNullable(false).build())
+      .addColumn(newClobColumnDefBuilder().setColumnName("analysis_parameters").setIsNullable(true).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .build());
+    addIndex(context, tableName, "sca_analyses_component_uniq", true, componentUuidCol);
+  }
+
+  private void createScaDependencies(Context context) {
+    String tableName = "sca_dependencies";
+    VarcharColumnDef scaReleaseUuidCol = newVarcharColumnDefBuilder().setColumnName("sca_release_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(UUID_COL)
+      .addColumn(scaReleaseUuidCol)
+      .addColumn(newBooleanColumnDefBuilder().setColumnName("direct").setIsNullable(false).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("scope").setIsNullable(false).setLimit(100).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("user_dependency_file_path").setIsNullable(true).setLimit(1000).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("lockfile_dependency_file_path").setIsNullable(true).setLimit(1000).build())
+      .addColumn(newClobColumnDefBuilder().setColumnName("chains").setIsNullable(true).build())
+      .addColumn(newBooleanColumnDefBuilder().setColumnName("production_scope").setIsNullable(false).setDefaultValue(true).build())
+      .addColumn(newBooleanColumnDefBuilder().setColumnName("is_new").setIsNullable(false).setDefaultValue(false).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .build());
+    addIndex(context, tableName, "sca_dependencies_release_uuid", false, scaReleaseUuidCol);
+  }
+
+  private void createScaEncounteredLicenses(Context context) {
+    String tableName = "sca_encountered_licenses";
+    VarcharColumnDef licensePolicyIdCol = newVarcharColumnDefBuilder().setColumnName("license_policy_id").setIsNullable(false).setLimit(127).build();
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(licensePolicyIdCol)
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .build());
+    addIndex(context, tableName, "sca_encountered_lic_uniq", true, licensePolicyIdCol);
+  }
+
+  private void createScaIssues(Context context) {
+    String tableName = "sca_issues";
+    VarcharColumnDef scaIssueTypeCol = newVarcharColumnDefBuilder().setColumnName("sca_issue_type").setIsNullable(false).setLimit(40).build();
+    VarcharColumnDef packageUrlCol = newVarcharColumnDefBuilder().setColumnName("package_url").setIsNullable(false).setLimit(400).build();
+    VarcharColumnDef vulnerabilityIdCol = newVarcharColumnDefBuilder().setColumnName("vulnerability_id").setIsNullable(false).setLimit(63).build();
+    VarcharColumnDef spdxLicenseIdCol = newVarcharColumnDefBuilder().setColumnName("spdx_license_id").setIsNullable(false).setLimit(127).build();
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(UUID_COL)
+      .addColumn(scaIssueTypeCol)
+      .addColumn(packageUrlCol)
+      .addColumn(vulnerabilityIdCol)
+      .addColumn(spdxLicenseIdCol)
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .build());
+    addIndex(context, tableName, "sca_issues_unique", true, scaIssueTypeCol, vulnerabilityIdCol, packageUrlCol, spdxLicenseIdCol);
+  }
+
+  private void createScaIssuesReleases(Context context) {
+    String tableName = "sca_issues_releases";
+    VarcharColumnDef scaIssueUuidCol = newVarcharColumnDefBuilder().setColumnName("sca_issue_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
+    VarcharColumnDef scaReleaseUuidCol = newVarcharColumnDefBuilder().setColumnName("sca_release_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(UUID_COL)
+      .addColumn(scaIssueUuidCol)
+      .addColumn(scaReleaseUuidCol)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("severity").setIsNullable(false).setLimit(15).build())
+      .addColumn(newIntegerColumnDefBuilder().setColumnName("severity_sort_key").setIsNullable(false).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("assignee_uuid").setIsNullable(true).setLimit(40).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("previous_manual_status").setIsNullable(true).setLimit(40).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("status").setIsNullable(false).setLimit(40).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("original_severity").setIsNullable(false).setLimit(15).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("manual_severity").setIsNullable(true).setLimit(15).build())
+      .addColumn(newBooleanColumnDefBuilder().setColumnName("show_increased_severity_warning").setDefaultValue(false).setIsNullable(false).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .build());
+    addIndex(context, tableName, "sca_issues_releases_unique", true, scaIssueUuidCol, scaReleaseUuidCol);
+    addIndex(context, tableName, "sca_issues_releases_sca_issue", false, scaIssueUuidCol);
+    addIndex(context, tableName, "sca_issues_releases_sca_releas", false, scaReleaseUuidCol);
+  }
+
+  private void createScaIssuesReleasesChanges(Context context) {
+    String tableName = "sca_issue_rels_changes";
+    VarcharColumnDef scaIssuesReleasesUuidCol = newVarcharColumnDefBuilder().setColumnName("sca_issues_releases_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(scaIssuesReleasesUuidCol)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("user_uuid").setIsNullable(true).setLimit(UUID_SIZE).build())
+      .addColumn(newClobColumnDefBuilder().setColumnName("change_data").setIsNullable(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("change_comment").setIsNullable(true).setLimit(MAX_SIZE).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .build());
+    addIndex(context, tableName, "sca_iss_rels_changes_ir_uuid", false, scaIssuesReleasesUuidCol);
+  }
+
+  private void createScaLicenseProfileCategories(Context context) {
+    String tableName = "sca_lic_prof_categories";
+    VarcharColumnDef scaLicenseProfileUuidCol = newVarcharColumnDefBuilder().setColumnName("sca_license_profile_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
+    VarcharColumnDef categoryCol = newVarcharColumnDefBuilder().setColumnName("category").setIsNullable(false).setLimit(40).build();
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(scaLicenseProfileUuidCol)
+      .addColumn(categoryCol)
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .build());
+    addIndex(context, tableName, "sca_lic_prof_categories_uniq", true, scaLicenseProfileUuidCol, categoryCol);
+  }
+
+  private void createScaLicenseProfileCustomizations(Context context) {
+    String tableName = "sca_lic_prof_customs";
+    VarcharColumnDef scaLicenseProfileUuidCol = newVarcharColumnDefBuilder().setColumnName("sca_license_profile_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
+    VarcharColumnDef licensePolicyIdCol = newVarcharColumnDefBuilder().setColumnName("license_policy_id").setIsNullable(false).setLimit(127).build();
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(scaLicenseProfileUuidCol)
+      .addColumn(licensePolicyIdCol)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("status").setIsNullable(false).setLimit(40).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .build());
+    addIndex(context, tableName, "sca_lic_prof_customs_uniq", true, scaLicenseProfileUuidCol, licensePolicyIdCol);
+  }
+
+  private void createScaLicenseProfileProjects(Context context) {
+    String tableName = "sca_lic_prof_projects";
+    VarcharColumnDef projectUuidCol = newVarcharColumnDefBuilder().setColumnName("project_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(projectUuidCol)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("sca_license_profile_uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .build());
+    addIndex(context, tableName, "sca_lic_prof_projects_uniq", true, projectUuidCol);
+  }
+
+  private void createScaLicenseProfiles(Context context) {
+    String tableName = "sca_license_profiles";
+    VarcharColumnDef nameCol = newVarcharColumnDefBuilder().setColumnName("name").setIsNullable(false).setLimit(400).build();
+    VarcharColumnDef organizationUuidCol = newVarcharColumnDefBuilder().setColumnName("organization_uuid")
+      .setIsNullable(false).setDefaultValue("00000000-0000-4000-0000-000000000000").setLimit(40).build();
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(newBooleanColumnDefBuilder().setColumnName("is_default_profile").setIsNullable(false).build())
+      .addColumn(nameCol)
+      .addColumn(organizationUuidCol)
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("policy_updated_at").setIsNullable(false).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .build());
+    addIndex(context, tableName, "sca_license_profiles_uniq", true, organizationUuidCol, nameCol);
+  }
+
+  private void createScaReleases(Context context) {
+    String tableName = "sca_releases";
+    VarcharColumnDef componentUuidCol = newVarcharColumnDefBuilder().setColumnName("component_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
+    VarcharColumnDef packageManagerCol = newVarcharColumnDefBuilder().setColumnName("package_manager").setIsNullable(false).setLimit(20).build();
+    VarcharColumnDef packageNameCol = newVarcharColumnDefBuilder().setColumnName("package_name").setIsNullable(false).setLimit(400).build();
+    VarcharColumnDef versionCol = newVarcharColumnDefBuilder().setColumnName("version").setIsNullable(false).setLimit(400).build();
+    VarcharColumnDef packageUrlCol = newVarcharColumnDefBuilder().setColumnName("package_url").setIsNullable(false).setLimit(400).build();
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(UUID_COL)
+      .addColumn(componentUuidCol)
+      .addColumn(packageUrlCol)
+      .addColumn(packageManagerCol)
+      .addColumn(packageNameCol)
+      .addColumn(versionCol)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("license_expression").setIsNullable(false).setLimit(400).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("declared_license_expression").setIsNullable(false).setDefaultValue("NOASSERTION").setLimit(400).build())
+      .addColumn(newBooleanColumnDefBuilder().setColumnName("known").setIsNullable(false).build())
+      .addColumn(newBooleanColumnDefBuilder().setColumnName("known_package").setIsNullable(false).build())
+      .addColumn(newBooleanColumnDefBuilder().setColumnName("is_new").setIsNullable(false).setDefaultValue(false).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .build());
+    addIndex(context, tableName, "sca_releases_comp_uuid_uuid", false, componentUuidCol, UUID_COL);
+    addIndex(context, tableName, "sca_releases_package_url_uniq", true, packageUrlCol, componentUuidCol);
+  }
+
+  private void createScaVulnerabilityIssues(Context context) {
+    String tableName = "sca_vulnerability_issues";
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(UUID_COL)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("base_severity").setIsNullable(false).setLimit(15).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("cwe_ids").setIsNullable(false).setLimit(255).build())
+      .addColumn(newDecimalColumnDefBuilder().setColumnName("cvss_score").setIsNullable(true).setPrecision(3).setScale(1).build())
+      .addColumn(newBooleanColumnDefBuilder().setColumnName("withdrawn").setDefaultValue(false).setIsNullable(false).build())
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("published_on").setIsNullable(true).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .build());
+  }
+
   private void createSessionTokens(Context context) {
     String tableName = "session_tokens";
     VarcharColumnDef userUuidCol = newVarcharColumnDefBuilder(USER_UUID_COL_NAME).setLimit(255).setIsNullable(false).build();
@@ -1595,7 +1823,7 @@ public class CreateInitialSchema extends DdlChange {
     context.execute(
       newTableBuilder("rules")
         .addPkColumn(UUID_COL)
-        .addColumn(newVarcharColumnDefBuilder("name").setLimit(200).setIsNullable(true).build())
+        .addColumn(newVarcharColumnDefBuilder("name").setLimit(255).setIsNullable(true).build())
         .addColumn(pluginRuleKeyCol)
         .addColumn(newVarcharColumnDefBuilder("plugin_key").setLimit(200).setIsNullable(true).build())
         .addColumn(newVarcharColumnDefBuilder("plugin_config_key").setLimit(200).setIsNullable(true).build())
@@ -1682,11 +1910,15 @@ public class CreateInitialSchema extends DdlChange {
 
   private void createRuleTags(Context context) {
     String tableName = "rule_tags";
+    VarcharColumnDef valueCol = newVarcharColumnDefBuilder().setColumnName("value").setIsNullable(false).setLimit(400).build();
+    VarcharColumnDef ruleUuidCol = newVarcharColumnDefBuilder().setColumnName("rule_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
+    BooleanColumnDef isSystemTagCol = newBooleanColumnDefBuilder().setColumnName("is_system_tag").setIsNullable(false).build();
     context.execute(new CreateTableBuilder(getDialect(), tableName)
-      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("value").setIsNullable(false).setLimit(400).build())
-      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("rule_uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
-      .addColumn(newBooleanColumnDefBuilder().setColumnName("is_system_tag").setIsNullable(false).build())
+      .addPkColumn(valueCol)
+      .addPkColumn(ruleUuidCol)
+      .addColumn(isSystemTagCol)
       .build());
+    addIndex(context, tableName, "rule_tags_rule_uuid", true, ruleUuidCol, valueCol, isSystemTagCol);
   }
 
   private void createSamlMessageIds(Context context) {
@@ -1758,6 +1990,16 @@ public class CreateInitialSchema extends DdlChange {
         .build());
     addIndex(context, tableName, "user_roles_user", false, userUuidCol);
     addIndex(context, tableName, "user_roles_entity_uuid", false, componentUuidCol);
+  }
+
+  private void createUserAIToolUsages(Context context) {
+    String tableName = "user_ai_tool_usages";
+    context.execute(new CreateTableBuilder(getDialect(), tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("user_uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("activated_at").setIsNullable(false).build())
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("last_activity_at").setIsNullable(true).build())
+      .build());
   }
 
   private void createUserDismissedMessage(Context context) {
@@ -1875,6 +2117,215 @@ public class CreateInitialSchema extends DdlChange {
       .addColumn(newVarcharColumnDefBuilder("secret").setLimit(200).setIsNullable(true).build())
       .addColumn(TECHNICAL_CREATED_AT_COL)
       .addColumn(NULLABLE_TECHNICAL_UPDATED_AT_COL)
+      .build());
+  }
+
+  private void createAtlassianAuthenticationDetails(Context context) {
+    String tableName = "atlassian_auth_details";
+    context.execute(newTableBuilder(tableName)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("client_id").setIsNullable(false).setLimit(MAX_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("secret").setIsNullable(false).setLimit(MAX_SIZE).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .build());
+  }
+
+  private void createIntegrationConfigurations(Context context) {
+    String tableName = "integration_configs";
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("integration_type").setIsNullable(false).setLimit(20).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("client_id").setIsNullable(true).setLimit(255).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("client_secret").setIsNullable(true).setLimit(255).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("signing_secret").setIsNullable(true).setLimit(255).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("app_id").setIsNullable(true).setLimit(255).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .build());
+  }
+
+  private void createIssueStatsByRuleKey(Context context) {
+    String tableName = "issue_stats_by_rule_key";
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("aggregation_type").setIsNullable(false).setLimit(20).build())
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("aggregation_id").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("rule_key").setIsNullable(false).setLimit(200).build())
+      .addColumn(newIntegerColumnDefBuilder().setColumnName("issue_count").setIsNullable(false).build())
+      .addColumn(newIntegerColumnDefBuilder().setColumnName("rating").setIsNullable(false).build())
+      .addColumn(newIntegerColumnDefBuilder().setColumnName("mqr_rating").setIsNullable(false).build())
+      .addColumn(newIntegerColumnDefBuilder().setColumnName("hotspot_count").setIsNullable(true).build())
+      .addColumn(newIntegerColumnDefBuilder().setColumnName("hotspots_reviewed").setIsNullable(true).build())
+      .build());
+  }
+
+  private void createJiraOrganizationBindings(Context context) {
+    String tableName = "jira_org_bindings";
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("id").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("sonar_organization_uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("jira_instance_url").setIsNullable(true).setLimit(2048).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("jira_cloud_id").setIsNullable(true).setLimit(100).build())
+      .addColumn(newClobColumnDefBuilder().setColumnName("jira_access_token").setIsNullable(true).build())
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("jira_access_token_expires_at").setIsNullable(true).build())
+      .addColumn(newClobColumnDefBuilder().setColumnName("jira_refresh_token").setIsNullable(true).build())
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("jira_refresh_token_created_at").setIsNullable(true).build())
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("jira_refresh_token_updated_at").setIsNullable(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("updated_by").setIsNullable(true).setLimit(UUID_SIZE).build())
+      .addColumn(newBooleanColumnDefBuilder().setColumnName("is_token_shared").setIsNullable(false).setDefaultValue(false).build())
+      .build());
+  }
+
+  private void createJiraOrganizationBindingsPending(Context context) {
+    String tableName = "jira_org_bindings_pending";
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("id").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("sonar_organization_uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(newClobColumnDefBuilder().setColumnName("jira_access_token").setIsNullable(false).build())
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("jira_access_token_expires_at").setIsNullable(false).build())
+      .addColumn(newClobColumnDefBuilder().setColumnName("jira_refresh_token").setIsNullable(false).build())
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("jira_refresh_token_created_at").setIsNullable(false).build())
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("jira_refresh_token_updated_at").setIsNullable(false).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("updated_by").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .build());
+  }
+
+  private void createJiraProjectBindings(Context context) {
+    String tableName = "jira_project_bindings";
+    VarcharColumnDef jiraOrgBindingIdCol = newVarcharColumnDefBuilder().setColumnName("jira_organization_binding_id").setIsNullable(false).setLimit(UUID_SIZE).build();
+    VarcharColumnDef sonarProjectIdCol = newVarcharColumnDefBuilder().setColumnName("sonar_project_id").setIsNullable(false).setLimit(OLD_UUID_VARCHAR_SIZE).build();
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("id").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(sonarProjectIdCol)
+      .addColumn(jiraOrgBindingIdCol)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("jira_project_key").setIsNullable(false).setLimit(255).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .build());
+    addIndex(context, tableName, "idx_jira_proj_bindings_unique", true, jiraOrgBindingIdCol, sonarProjectIdCol);
+  }
+
+  private void createJiraSelectedWorkTypes(Context context) {
+    String tableName = "jira_selected_work_types";
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("id").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("jira_project_binding_id").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("work_type_id").setIsNullable(false).setLimit(255).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .build());
+  }
+
+  private void createJiraWorkItems(Context context) {
+    String tableName = "jira_work_items";
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("id").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("jira_issue_id").setIsNullable(false).setLimit(400).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("jira_issue_key").setIsNullable(false).setLimit(400).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("jira_issue_url").setIsNullable(false).setLimit(2048).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("jira_project_binding_id").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("created_by").setIsNullable(true).setLimit(255).build())
+      .build());
+  }
+
+  private void createJiraWorkItemsResources(Context context) {
+    String tableName = "jira_work_items_resources";
+    VarcharColumnDef resourceIdCol = newVarcharColumnDefBuilder().setColumnName("resource_id").setIsNullable(false).setLimit(400).build();
+    VarcharColumnDef resourceTypeCol = newVarcharColumnDefBuilder().setColumnName("resource_type").setIsNullable(false).setLimit(100).build();
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("id").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("jira_work_item_id").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(resourceIdCol)
+      .addColumn(resourceTypeCol)
+      .build());
+    addIndex(context, tableName, "ix_resource_id_resource_type", false, resourceIdCol, resourceTypeCol);
+  }
+
+  private void createSlackSubscriptions(Context context) {
+    String tableName = "slack_subscriptions";
+    VarcharColumnDef userBindingUuidCol = newVarcharColumnDefBuilder().setColumnName("user_binding_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
+    VarcharColumnDef slackWorkspaceUuidCol = newVarcharColumnDefBuilder().setColumnName("slack_workspace_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
+    VarcharColumnDef resourceTypeCol = newVarcharColumnDefBuilder().setColumnName("resource_type").setIsNullable(false).setLimit(20).build();
+    VarcharColumnDef resourceIdCol = newVarcharColumnDefBuilder().setColumnName("resource_id").setIsNullable(false).setLimit(UUID_SIZE).build();
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(userBindingUuidCol)
+      .addColumn(slackWorkspaceUuidCol)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("channel_id").setIsNullable(false).setLimit(255).build())
+      .addColumn(resourceTypeCol)
+      .addColumn(resourceIdCol)
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .build());
+    addIndex(context, tableName, "ss_user_binding_uuid", false, userBindingUuidCol);
+    addIndex(context, tableName, "ss_slack_workspace_uuid", false, slackWorkspaceUuidCol);
+    addIndex(context, tableName, "ss_resource_type_id", false, resourceTypeCol, resourceIdCol);
+  }
+
+  private void createSlackWorkspaces(Context context) {
+    String tableName = "slack_workspaces";
+    VarcharColumnDef integrationConfigUuidCol = newVarcharColumnDefBuilder().setColumnName("integration_config_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
+    VarcharColumnDef workspaceIdCol = newVarcharColumnDefBuilder().setColumnName("workspace_id").setIsNullable(false).setLimit(255).build();
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(integrationConfigUuidCol)
+      .addColumn(workspaceIdCol)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("workspace_name").setIsNullable(true).setLimit(255).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("access_token").setIsNullable(true).setLimit(2000).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("refresh_token").setIsNullable(true).setLimit(2000).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("bot_user_id").setIsNullable(true).setLimit(255).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .build());
+    addIndex(context, tableName, "sw_workspace_id", true, workspaceIdCol);
+    addIndex(context, tableName, "sw_integration_config_uuid", false, integrationConfigUuidCol);
+  }
+
+  private void createUserBindings(Context context) {
+    String tableName = "user_bindings";
+    VarcharColumnDef userUuidCol = newVarcharColumnDefBuilder().setColumnName(USER_UUID_COL_NAME).setIsNullable(false).setLimit(UUID_SIZE).build();
+    VarcharColumnDef integrationConfigUuidCol = newVarcharColumnDefBuilder().setColumnName("integration_config_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(userUuidCol)
+      .addColumn(integrationConfigUuidCol)
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
+      .build());
+    addIndex(context, tableName, "ub_integration_config_uuid", false, integrationConfigUuidCol);
+    addIndex(context, tableName, "user_bindings_user_uuid", false, userUuidCol);
+  }
+
+  private void createUserBindingsSlack(Context context) {
+    String tableName = "user_bindings_slack";
+    VarcharColumnDef userBindingUuidCol = newVarcharColumnDefBuilder().setColumnName("user_binding_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
+    VarcharColumnDef slackWorkspaceUuidCol = newVarcharColumnDefBuilder().setColumnName("slack_workspace_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
+    VarcharColumnDef slackUserIdCol = newVarcharColumnDefBuilder().setColumnName("slack_user_id").setIsNullable(false).setLimit(255).build();
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(userBindingUuidCol)
+      .addColumn(slackWorkspaceUuidCol)
+      .addColumn(slackUserIdCol)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("user_type").setIsNullable(false).setLimit(20).build())
+      .build());
+    addIndex(context, tableName, "ubs_binding_workspace_user", true, userBindingUuidCol, slackWorkspaceUuidCol, slackUserIdCol);
+    addIndex(context, tableName, "ubs_slack_workspace_uuid", false, slackWorkspaceUuidCol);
+  }
+
+  private void createXsrfTokens(Context context) {
+    String tableName = "xsrf_tokens";
+    context.execute(newTableBuilder(tableName)
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("id").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName(USER_UUID_COL_NAME).setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(TECHNICAL_CREATED_AT_COL)
+      .addColumn(TECHNICAL_UPDATED_AT_COL)
       .build());
   }
 
