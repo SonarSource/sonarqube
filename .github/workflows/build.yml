@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - branch-*
+      - task/mm/testing-unified-dogfooding
   workflow_dispatch:
 
 concurrency:
@@ -33,4 +34,5 @@ jobs:
           artifactory-reader-role: private-reader
           artifactory-deployer-role: qa-deployer
           sonar-platform: next
+          run-shadow-scans: true
           gradle-args: "jacocoTestReport -Dsonar.projectKey=sonarqube -Dsonar.organization=sonarsource -Dsonar.exclusions=**/design-system/theme/**,**/legacy-design-system/**"
