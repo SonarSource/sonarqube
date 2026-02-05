@@ -67,6 +67,7 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.impact.Severity.HIGH;
 import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
 import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
@@ -233,6 +234,43 @@ class RuleIndexIT {
 
     assertThat(underTest.searchV2(query, new SearchOptions()).getUuids())
       .containsOnly(rule.getUuid());
+  }
+
+  @Test
+  void search_by_compliance_category_with_multiple_category_rules() {
+    // matches ruleKey of categoryRules1 and repository of categoryRules2
+    RuleDto rule1 = createRule(setRepositoryKey("java"), setRuleKey("S001"));
+
+    // does not match ruleKey of categoryRules1
+    createRule(setRepositoryKey("java"), setRuleKey("S002"));
+    // does not match repository of categoryRules2
+    createRule(setRepositoryKey("javascript"), setRuleKey("S001"));
+    index();
+
+    ComplianceCategoryRules categoryRules1 =
+      mock(ComplianceCategoryRules.class);
+
+    when(categoryRules1.allRuleKeys()).thenReturn(of("S001"));
+    when(categoryRules1.allRepoRuleKeys()).thenReturn(emptySet());
+    when(categoryRules1.allRepos()).thenReturn(emptySet());
+
+    ComplianceCategoryRules categoryRules2 =
+      mock(ComplianceCategoryRules.class);
+
+    when(categoryRules2.allRuleKeys()).thenReturn(emptySet());
+    when(categoryRules2.allRepoRuleKeys()).thenReturn(emptySet());
+    when(categoryRules2.allRepos()).thenReturn(of("php", "java"));
+
+    RuleQuery query = new RuleQuery()
+      .setComplianceCategoryRules(List.of(categoryRules1, categoryRules2));
+
+    SearchIdResult<String> results =
+      underTest.searchV2(query, new SearchOptions());
+
+    // With multiple ComplianceCategoryRules, all should be combined with AND
+    // logic, so we should get rules matching both categoryRules1 (S001) and
+    // categoryRules2 (java repository)
+    assertThat(results.getUuids()).containsExactlyInAnyOrder(rule1.getUuid());
   }
 
   @Test

@@ -418,9 +418,11 @@ public class RuleIndex {
       return;
     }
 
-    for (ComplianceCategoryRules rules : rulesCollection) {
+    List<Query> mustQueries = new ArrayList<>();
 
+    for (ComplianceCategoryRules rules : rulesCollection) {
       List<Query> shouldQueries = new ArrayList<>();
+
       if (!rules.allRuleKeys().isEmpty()) {
         shouldQueries.add(ES8QueryHelper.termsQuery(FIELD_RULE_RULE_KEY, rules.allRuleKeys()));
       }
@@ -433,9 +435,14 @@ public class RuleIndex {
       }
 
       if (!shouldQueries.isEmpty()) {
-        Query boolQuery = ES8QueryHelper.boolQuery(b -> b.should(shouldQueries));
-        filters.put(COMPLIANCE_FILTER_FACET, boolQuery);
+        Query standardQuery = ES8QueryHelper.boolQuery(b -> b.should(shouldQueries));
+        mustQueries.add(standardQuery);
       }
+    }
+
+    if (!mustQueries.isEmpty()) {
+      Query boolQuery = ES8QueryHelper.boolQuery(b -> b.must(mustQueries));
+      filters.put(COMPLIANCE_FILTER_FACET, boolQuery);
     }
   }
 

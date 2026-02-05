@@ -461,6 +461,26 @@ class SearchActionIT {
   }
 
   @Test
+  void should_filter_on_multiple_compliance_standards() {
+    RuleDto rule1 = db.rules().insert(
+      r -> r.setLanguage("java").setRuleKey(RuleKey.of("java", "S001"))
+    );
+
+    db.rules().insert(
+      r -> r.setLanguage("java").setRuleKey(RuleKey.of("java", "S002"))
+    );
+
+    db.rules().insert(r -> r.setLanguage("java"));
+    db.rules().insert(r -> r.setLanguage("java"));
+    indexRules();
+
+    Consumer<TestRequest> request = r -> r
+      .setParam("complianceStandards", "test:V1=category1&test2:V2=cat1");
+
+    verify(request, rule1);
+  }
+
+  @Test
   void should_return_empty_if_invalid_compliance_standard_category() {
     db.rules().insert(r -> r.setLanguage("java").setRuleKey(RuleKey.of("java", "S001")));
     db.rules().insert(r -> r.setLanguage("java").setRuleKey(RuleKey.of("java", "S002")));
