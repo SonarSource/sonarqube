@@ -35,4 +35,5 @@ jobs:
           artifactory-reader-role: private-reader
           artifactory-deployer-role: qa-deployer
           sonar-platform: next
+          run-shadow-scans: true
           gradle-args: "jacocoTestReport -Dsonar.projectKey=sonarqube -Dsonar.organization=sonarsource -Dsonar.exclusions=**/design-system/theme/**,**/legacy-design-system/**"
