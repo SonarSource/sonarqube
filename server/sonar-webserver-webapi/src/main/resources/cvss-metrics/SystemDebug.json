@@ -1,0 +1,127 @@
+{
+  "SystemDebug": {
+    "cvssScore": "9.0",
+    "baseScore": "7.7",
+    "temporalScore": "7.1",
+    "environmentalScore": "9.0",
+    "vectorString": "",
+    "metrics": {
+      "BASE": [
+        {
+          "name": "ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "The issue can be exploited remotely because system.debug statements present."
+        },
+        {
+          "name": "ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "The presence of debug statements alone can expose sensitive information without requiring complex conditions"
+        },
+        {
+          "name": "PRIVILEGES_REQUIRED",
+          "value": "Low (L)",
+          "justification": "An attacker generally needs limited access, such as access to logs or a role that can trigger execution paths producing debug output."
+        },
+        {
+          "name": "USER_INTERACTION",
+          "value": "None (N)",
+          "justification": "Sensitive data may be logged automatically during execution without any user interaction"
+        },
+        {
+          "name": "SCOPE",
+          "value": "Changed (C)",
+          "justification": "Sensitive log data can be exported or shared outside the Salesforce org, crossing security boundaries."
+        },
+        {
+          "name": "CONFIDENTIALITY",
+          "value": "High (H)",
+          "justification": "Debug logs can contain credentials, PII, tokens, or business-sensitive data."
+        },
+        {
+          "name": "INTEGRITY",
+          "value": "None (N)",
+          "justification": "The issue does not directly allow modification of data or logic."
+        },
+        {
+          "name": "AVAILABILITY",
+          "value": "None (N)",
+          "justification": "Leaving debug statements does not affect system availability."
+        }
+      ],
+      "TEMPORAL": [
+        {
+          "name": "EXPLOIT_CODE_MATURITY",
+          "value": "Proof-of-Concept (P)",
+          "justification": "The issue is well known and demonstrable."
+        },
+        {
+          "name": "REMEDIATION_LEVEL",
+          "value": "Workaround (W)",
+          "justification": "Debug logging can be mitigated by disabling logs, restricting access,"
+        },
+        {
+          "name": "REPORT_CONFIDENCE",
+          "value": "Confirmed (C)",
+          "justification": "The risk of sensitive data exposure through logs is well documented."
+        }
+      ],
+      "ENVIRONMENTAL": [
+        {
+          "name": "MODIFIED_ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "Logs are typically accessed through Salesforce UI or APIs over the network."
+        },
+        {
+          "name": "MODIFIED_ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "No additional environmental constraints significantly increase exploitation difficulty."
+        },
+        {
+          "name": "MODIFIED_PRIVILEGES_REQUIRED",
+          "value": "Low (L)",
+          "justification": "Only limited privileges are usually required to access or receive logs."
+        },
+        {
+          "name": "MODIFIED_USER_INTERACTION",
+          "value": "None (N)",
+          "justification": "The vulnerability manifests automatically during execution."
+        },
+        {
+          "name": "MODIFIED_SCOPE",
+          "value": "Changed (C)",
+          "justification": "Sensitive log data can be exported or shared outside the Salesforce org, crossing security boundaries."
+        },
+        {
+          "name": "MODIFIED_CONFIDENTIALITY",
+          "value": "High (H)",
+          "justification": "Sensitive data leakage remains a serious concern in most environments."
+        },
+        {
+          "name": "MODIFIED_INTEGRITY",
+          "value": "None (N)",
+          "justification": "Sensitive data leakage remains a serious concern in most environments."
+        },
+        {
+          "name": "MODIFIED_AVAILABILITY",
+          "value": "None (N)",
+          "justification": "Availability is not impacted."
+        },
+        {
+          "name": "CONFIDENTIALITY_REQUIREMENT",
+          "value": "High (H)",
+          "justification": "Salesforce orgs often process sensitive customer and business data."
+        },
+        {
+          "name": "INTEGRITY_REQUIREMENT",
+          "value": "Low (L)",
+          "justification": "The issue does not allow modification of data or logic; it only risks exposure of information via logs."
+        },
+        {
+          "name": "AVAILABILITY_REQUIREMENT",
+          "value": "Low (L)",
+          "justification": "Availability is not a key risk factor for debug logging issues."
+        }
+      ]
+    }
+  }
+}

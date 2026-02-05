@@ -560,8 +560,33 @@ export interface RulesUpdateRequest {
   organization: string;
 }
 
+export interface CvssBreakdown {
+  scores: CvssScoreSummary;
+  base?: CvssMetrics;
+  temporal?: CvssMetrics;
+  environmental?: CvssMetrics;
+}
+
+export interface CvssScoreSummary {
+  base?: number;
+  temporal?: number;
+  environmental?: number;
+  overall?: number;
+}
+
+export interface CvssMetrics {
+  metrics: CvssMetric[];
+}
+
+export interface CvssMetric {
+  name: string;
+  value: string;
+  justification?: string;
+}
+
 export interface RuleDetails extends Rule {
   createdAt: string;
+  cvssBreakdown?: CvssBreakdown;
   defaultRemFnBaseEffort?: string;
   defaultRemFnType?: string;
   descriptionSections?: RuleDescriptionSection[];

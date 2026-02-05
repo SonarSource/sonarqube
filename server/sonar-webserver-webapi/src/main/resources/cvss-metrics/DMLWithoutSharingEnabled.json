@@ -1,0 +1,127 @@
+{
+  "DMLWithoutSharingEnabled": {
+    "cvssScore": "7.6",
+    "baseScore": "7.1",
+    "temporalScore": "6.4",
+    "environmentalScore": "7.6",
+    "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:L/A:N/E:P/RL:O/RC:C/MAV:N/MAC:L/MPR:L/MUI:N/MS:U/MC:H/MI:L/MA:N/CR:H/IR:M/AR:L",
+    "metrics": {
+      "BASE": [
+        {
+          "name": "ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "Apex classes are invoked via web/API flows within Salesforce."
+        },
+        {
+          "name": "ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "Once a vulnerable class/method is reachable, no complex setup is required."
+        },
+        {
+          "name": "PRIVILEGES_REQUIRED",
+          "value": "Low (L)",
+          "justification": "Requires an authenticated user able to reach the code path."
+        },
+        {
+          "name": "USER_INTERACTION",
+          "value": "None (N)",
+          "justification": "Does not require social engineering or user clicks beyond normal access."
+        },
+        {
+          "name": "SCOPE",
+          "value": "Unchanged (U)",
+          "justification": "Operates within the same org boundary."
+        },
+        {
+          "name": "CONFIDENTIALITY",
+          "value": "High (H)",
+          "justification": "Without sharing, code may access records the user should not see."
+        },
+        {
+          "name": "INTEGRITY",
+          "value": "Low (L)",
+          "justification": "May enable limited unauthorized changes via DML depending on logic."
+        },
+        {
+          "name": "AVAILABILITY",
+          "value": "None (N)",
+          "justification": "No availability impact assumed."
+        }
+      ],
+      "TEMPORAL": [
+        {
+          "name": "EXPLOIT_CODE_MATURITY",
+          "value": "Proof-of-Concept (P)",
+          "justification": "Often demonstrated during security testing by invoking methods under low-priv users."
+        },
+        {
+          "name": "REMEDIATION_LEVEL",
+          "value": "Official Fix (O)",
+          "justification": "Add 'with sharing' or 'inherited sharing' and review access patterns."
+        },
+        {
+          "name": "REPORT_CONFIDENCE",
+          "value": "Confirmed (C)",
+          "justification": "Rule maps to established access-control weaknesses."
+        }
+      ],
+      "ENVIRONMENTAL": [
+        {
+          "name": "MODIFIED_ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "Apex classes are invoked via web/API flows within Salesforce."
+        },
+        {
+          "name": "MODIFIED_ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "Once a vulnerable class/method is reachable, no complex setup is required."
+        },
+        {
+          "name": "MODIFIED_PRIVILEGES_REQUIRED",
+          "value": "Low (L)",
+          "justification": "Requires an authenticated user able to reach the code path."
+        },
+        {
+          "name": "MODIFIED_USER_INTERACTION",
+          "value": "None (N)",
+          "justification": "Does not require social engineering or user clicks beyond normal access."
+        },
+        {
+          "name": "MODIFIED_SCOPE",
+          "value": "Unchanged (U)",
+          "justification": "Operates within the same org boundary."
+        },
+        {
+          "name": "MODIFIED_CONFIDENTIALITY",
+          "value": "High (H)",
+          "justification": "Without sharing, code may access records the user should not see."
+        },
+        {
+          "name": "MODIFIED_INTEGRITY",
+          "value": "Low (L)",
+          "justification": "May enable limited unauthorized changes via DML depending on logic."
+        },
+        {
+          "name": "MODIFIED_AVAILABILITY",
+          "value": "None (N)",
+          "justification": "No availability impact assumed."
+        },
+        {
+          "name": "CONFIDENTIALITY_REQUIREMENT",
+          "value": "High (H)",
+          "justification": "Record visibility is critical for compliance/privacy."
+        },
+        {
+          "name": "INTEGRITY_REQUIREMENT",
+          "value": "Medium (M)",
+          "justification": "Integrity matters but typically less than confidentiality for sharing issues."
+        },
+        {
+          "name": "AVAILABILITY_REQUIREMENT",
+          "value": "Low (L)",
+          "justification": "No availability impact."
+        }
+      ]
+    }
+  }
+}

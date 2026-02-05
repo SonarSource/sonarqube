@@ -1,0 +1,127 @@
+{
+  "UnencodedScript": {
+    "cvssScore": "8.2",
+    "baseScore": "8.1",
+    "temporalScore": "7.5",
+    "environmentalScore": "8.2",
+    "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:N/E:F/RL:O/RC:C/MAV:N/MAC:L/MPR:N/MUI:R/MS:U/MC:H/MI:H/MA:N/CR:H/IR:H/AR:L",
+    "metrics": {
+      "BASE": [
+        {
+          "name": "ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "Unencoded values inserted into <script> can be supplied via URL parameters."
+        },
+        {
+          "name": "ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "Direct script-context injection is typically straightforward."
+        },
+        {
+          "name": "PRIVILEGES_REQUIRED",
+          "value": "None (N)",
+          "justification": "No privileges needed if page is reachable."
+        },
+        {
+          "name": "USER_INTERACTION",
+          "value": "Required (R)",
+          "justification": "Victim must load the page."
+        },
+        {
+          "name": "SCOPE",
+          "value": "Unchanged (U)",
+          "justification": "Client-side impact within the app context."
+        },
+        {
+          "name": "CONFIDENTIALITY",
+          "value": "High (H)",
+          "justification": "Script injection can steal session tokens or sensitive in-page data."
+        },
+        {
+          "name": "INTEGRITY",
+          "value": "High (H)",
+          "justification": "Injected scripts can perform actions on behalf of the user and alter application behavior."
+        },
+        {
+          "name": "AVAILABILITY",
+          "value": "None (N)",
+          "justification": "No availability impact assumed."
+        }
+      ],
+      "TEMPORAL": [
+        {
+          "name": "EXPLOIT_CODE_MATURITY",
+          "value": "Functional (F)",
+          "justification": "Widely available XSS payloads for script contexts."
+        },
+        {
+          "name": "REMEDIATION_LEVEL",
+          "value": "Official Fix (O)",
+          "justification": "JSONENCODE/JSENCODE are standard and recommended fixes."
+        },
+        {
+          "name": "REPORT_CONFIDENCE",
+          "value": "Confirmed (C)",
+          "justification": "Rule targets unencoded script contexts reliably."
+        }
+      ],
+      "ENVIRONMENTAL": [
+        {
+          "name": "MODIFIED_ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "The affected Visualforce or web page is accessed over HTTP(S), allowing remote attackers to exploit the issue without local access."
+        },
+        {
+          "name": "MODIFIED_ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "No additional environmental conditions or protections significantly increase the difficulty of exploitation."
+        },
+        {
+          "name": "MODIFIED_PRIVILEGES_REQUIRED",
+          "value": "None (N)",
+          "justification": "Attackers do not require authentication or elevated privileges to supply malicious input if the page is publicly or broadly accessible."
+        },
+        {
+          "name": "MODIFIED_USER_INTERACTION",
+          "value": "Required (R)",
+          "justification": "A user must view or interact with the affected page for the injected script to execute in the browser."
+        },
+        {
+          "name": "MODIFIED_SCOPE",
+          "value": "Unchanged (U)",
+          "justification": "The impact remains within the same application and browser execution context without crossing into another security authority."
+        },
+        {
+          "name": "MODIFIED_CONFIDENTIALITY",
+          "value": "High (H)",
+          "justification": "Injected scripts can access cookies, session identifiers, and sensitive page data specific to the user."
+        },
+        {
+          "name": "MODIFIED_INTEGRITY",
+          "value": "High (H)",
+          "justification": "Malicious scripts can manipulate DOM content, perform unauthorized actions, or submit forged requests on behalf of the user."
+        },
+        {
+          "name": "MODIFIED_AVAILABILITY",
+          "value": "None (N)",
+          "justification": "The vulnerability does not directly impact application uptime or service availability."
+        },
+        {
+          "name": "CONFIDENTIALITY_REQUIREMENT",
+          "value": "High (H)",
+          "justification": "Protecting user sessions, authentication tokens, and sensitive business data is critical in this environment."
+        },
+        {
+          "name": "INTEGRITY_REQUIREMENT",
+          "value": "High (H)",
+          "justification": "Preventing unauthorized actions and manipulation of application behavior is essential for maintaining trust and correctness."
+        },
+        {
+          "name": "AVAILABILITY_REQUIREMENT",
+          "value": "Low (L)",
+          "justification": "Availability is not the primary concern for this vulnerability compared to confidentiality and integrity impacts."
+        }
+      ]
+    }
+  }
+}

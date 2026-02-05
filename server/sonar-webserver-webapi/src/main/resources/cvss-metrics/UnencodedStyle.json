@@ -1,0 +1,127 @@
+{
+  "UnencodedStyle": {
+    "cvssScore": "5.0",
+    "baseScore": "5.4",
+    "temporalScore": "5.0",
+    "environmentalScore": "5.0",
+    "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:N/E:F/RL:O/RC:C/MAV:N/MAC:L/MPR:N/MUI:R/MS:U/MC:L/MI:L/MA:N/CR:M/IR:M/AR:L",
+    "metrics": {
+      "BASE": [
+        {
+          "name": "ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "Style tag formulas using URL parameters are reachable via web requests."
+        },
+        {
+          "name": "ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "Injection is straightforward if output is unencoded."
+        },
+        {
+          "name": "PRIVILEGES_REQUIRED",
+          "value": "None (N)",
+          "justification": "No auth required in many cases (depends on page access)."
+        },
+        {
+          "name": "USER_INTERACTION",
+          "value": "Required (R)",
+          "justification": "User must load the affected page."
+        },
+        {
+          "name": "SCOPE",
+          "value": "Unchanged (U)",
+          "justification": "Client-side effect within app context."
+        },
+        {
+          "name": "CONFIDENTIALITY",
+          "value": "Low (L)",
+          "justification": "Limited direct exposure; may support broader XSS chains."
+        },
+        {
+          "name": "INTEGRITY",
+          "value": "Low (L)",
+          "justification": "Can manipulate client-side styling/behavior."
+        },
+        {
+          "name": "AVAILABILITY",
+          "value": "None (N)",
+          "justification": "No availability impact."
+        }
+      ],
+      "TEMPORAL": [
+        {
+          "name": "EXPLOIT_CODE_MATURITY",
+          "value": "Functional (F)",
+          "justification": "Common XSS patterns and payloads work reliably."
+        },
+        {
+          "name": "REMEDIATION_LEVEL",
+          "value": "Official Fix (O)",
+          "justification": "Encoding functions (e.g., JSENCODE) are available and recommended."
+        },
+        {
+          "name": "REPORT_CONFIDENCE",
+          "value": "Confirmed (C)",
+          "justification": "Rule identifies unencoded formulas in style contexts."
+        }
+      ],
+      "ENVIRONMENTAL": [
+        {
+          "name": "MODIFIED_ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "The vulnerable Visualforce or web page is accessed remotely over HTTP(S), allowing attackers to exploit the issue without local access."
+        },
+        {
+          "name": "MODIFIED_ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "Environmental factors do not introduce additional complexity beyond supplying unencoded input."
+        },
+        {
+          "name": "MODIFIED_PRIVILEGES_REQUIRED",
+          "value": "None (N)",
+          "justification": "Attackers do not require authentication or elevated privileges if the affected page is accessible."
+        },
+        {
+          "name": "MODIFIED_USER_INTERACTION",
+          "value": "Required (R)",
+          "justification": "A user must load the affected page for injected style content to be interpreted by the browser."
+        },
+        {
+          "name": "MODIFIED_SCOPE",
+          "value": "Unchanged (U)",
+          "justification": "The impact remains confined to the same application and browser execution context."
+        },
+        {
+          "name": "MODIFIED_CONFIDENTIALITY",
+          "value": "Low (L)",
+          "justification": "Unencoded style injection may expose limited UI or contextual information but does not directly leak sensitive backend data."
+        },
+        {
+          "name": "MODIFIED_INTEGRITY",
+          "value": "Low (L)",
+          "justification": "Injected styles can alter the appearance or minor behavior of the UI but do not directly modify application data."
+        },
+        {
+          "name": "MODIFIED_AVAILABILITY",
+          "value": "None (N)",
+          "justification": "The vulnerability does not impact application uptime or service availability."
+        },
+        {
+          "name": "CONFIDENTIALITY_REQUIREMENT",
+          "value": "Medium (M)",
+          "justification": "While highly sensitive data is not typically exposed, maintaining confidentiality of UI-displayed information remains important."
+        },
+        {
+          "name": "INTEGRITY_REQUIREMENT",
+          "value": "Medium (M)",
+          "justification": "Preserving the integrity of UI presentation and user trust is important for correct application behavior."
+        },
+        {
+          "name": "AVAILABILITY_REQUIREMENT",
+          "value": "Low (L)",
+          "justification": "Availability is not a primary concern for this class of client-side injection issue."
+        }
+      ]
+    }
+  }
+}

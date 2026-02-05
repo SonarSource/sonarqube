@@ -1,0 +1,127 @@
+{
+  "CheckSystemAdministrator": {
+    "cvssScore": "6.0",
+    "baseScore": "6.0",
+    "temporalScore": "5.4",
+    "environmentalScore": "6.0",
+    "vectorString": "CVSS:3.1/AV:L/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:N/E:P/RL:O/RC:C/MAV:L/MAC:L/MPR:H/MUI:N/MS:U/MC:H/MI:H/MA:N/CR:H/IR:H/AR:L",
+    "metrics": {
+      "BASE": [
+        {
+          "name": "ATTACK_VECTOR",
+          "value": "Local (L)",
+          "justification": "This is an org configuration risk; exploitation assumes access within the Salesforce admin/control plane context."
+        },
+        {
+          "name": "ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "Risk arises directly from excess privileged accounts; no complex exploitation conditions."
+        },
+        {
+          "name": "PRIVILEGES_REQUIRED",
+          "value": "High (H)",
+          "justification": "The harmful capability is tied to high-privileged accounts (System Administrator profile)."
+        },
+        {
+          "name": "USER_INTERACTION",
+          "value": "None (N)",
+          "justification": "No user interaction needed once an admin account is abused/compromised."
+        },
+        {
+          "name": "SCOPE",
+          "value": "Unchanged (U)",
+          "justification": "Impact remains within the same org boundary."
+        },
+        {
+          "name": "CONFIDENTIALITY",
+          "value": "High (H)",
+          "justification": "Admin access can expose all data in the org."
+        },
+        {
+          "name": "INTEGRITY",
+          "value": "High (H)",
+          "justification": "Admin access can modify configuration and data broadly."
+        },
+        {
+          "name": "AVAILABILITY",
+          "value": "None (N)",
+          "justification": "Availability impact is not the primary concern for this control."
+        }
+      ],
+      "TEMPORAL": [
+        {
+          "name": "EXPLOIT_CODE_MATURITY",
+          "value": "Proof-of-Concept (P)",
+          "justification": "Misuse scenarios are easy to demonstrate (e.g., compromised admin account impact)."
+        },
+        {
+          "name": "REMEDIATION_LEVEL",
+          "value": "Official Fix (O)",
+          "justification": "Standard remediation is to reduce admins and apply least-privilege profiles/delegated admin."
+        },
+        {
+          "name": "REPORT_CONFIDENCE",
+          "value": "Confirmed (C)",
+          "justification": "Rule directly counts privileged users; high confidence."
+        }
+      ],
+      "ENVIRONMENTAL": [
+        {
+          "name": "MODIFIED_ATTACK_VECTOR",
+          "value": "Local (L)",
+          "justification": "Same; tied to internal org administration context."
+        },
+        {
+          "name": "MODIFIED_ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "Risk arises directly from excess privileged accounts."
+        },
+        {
+          "name": "MODIFIED_PRIVILEGES_REQUIRED",
+          "value": "High (H)",
+          "justification": "The harmful capability is tied to high-privileged accounts."
+        },
+        {
+          "name": "MODIFIED_USER_INTERACTION",
+          "value": "None (N)",
+          "justification": "No user interaction needed once an admin account is abused/compromised."
+        },
+        {
+          "name": "MODIFIED_SCOPE",
+          "value": "Unchanged (U)",
+          "justification": "Impact remains within the same org boundary."
+        },
+        {
+          "name": "MODIFIED_CONFIDENTIALITY",
+          "value": "High (H)",
+          "justification": "Admin access can expose all data in the org."
+        },
+        {
+          "name": "MODIFIED_INTEGRITY",
+          "value": "High (H)",
+          "justification": "Admin access can modify configuration and data broadly."
+        },
+        {
+          "name": "MODIFIED_AVAILABILITY",
+          "value": "None (N)",
+          "justification": "Availability impact is not the primary concern for this control."
+        },
+        {
+          "name": "CONFIDENTIALITY_REQUIREMENT",
+          "value": "High (H)",
+          "justification": "Admin access exposes all sensitive data."
+        },
+        {
+          "name": "INTEGRITY_REQUIREMENT",
+          "value": "High (H)",
+          "justification": "Admin misuse can change critical config/data."
+        },
+        {
+          "name": "AVAILABILITY_REQUIREMENT",
+          "value": "Low (L)",
+          "justification": "Availability not primary for this issue."
+        }
+      ]
+    }
+  }
+}

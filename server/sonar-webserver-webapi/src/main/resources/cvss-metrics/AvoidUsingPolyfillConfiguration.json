@@ -1,0 +1,127 @@
+{
+  "AvoidUsingPolyfillConfiguration": {
+    "cvssScore": "8.9",
+    "baseScore": "8.2",
+    "temporalScore": "7.5",
+    "environmentalScore": "8.9",
+    "vectorString": "",
+    "metrics": {
+      "BASE": [
+        {
+          "name": "ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "The configuration references an external domain that can be abused remotely."
+        },
+        {
+          "name": "ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "Exploitation relies on external resource manipulation without special conditions."
+        },
+        {
+          "name": "PRIVILEGES_REQUIRED",
+          "value": "None (N)",
+          "justification": "An attacker may leverage misconfigured profiles or injected resources without elevated privileges."
+        },
+        {
+          "name": "USER_INTERACTION",
+          "value": "Required (R)",
+          "justification": "The external resource may execute automatically without user interaction."
+        },
+        {
+          "name": "SCOPE",
+          "value": "Changed (C)",
+          "justification": "The impact remains within the Salesforce org consuming the external resource."
+        },
+        {
+          "name": "CONFIDENTIALITY",
+          "value": "Low (L)",
+          "justification": "Malicious external scripts may exfiltrate sensitive user or session data."
+        },
+        {
+          "name": "INTEGRITY",
+          "value": "High (H)",
+          "justification": "Injected or redirected scripts can alter application behavior and data."
+        },
+        {
+          "name": "AVAILABILITY",
+          "value": "None (N)",
+          "justification": "Availability may be impacted if the external service becomes unavailable."
+        }
+      ],
+      "TEMPORAL": [
+        {
+          "name": "EXPLOIT_CODE_MATURITY",
+          "value": "Proof-of-Concept (P)",
+          "justification": "External script hijacking and open redirect abuses are well documented."
+        },
+        {
+          "name": "REMEDIATION_LEVEL",
+          "value": "Workaround (W)",
+          "justification": "Salesforce recommends removing external references and using trusted static resources."
+        },
+        {
+          "name": "REPORT_CONFIDENCE",
+          "value": "Confirmed (C)",
+          "justification": "The risk is clearly identified through configuration analysis."
+        }
+      ],
+      "ENVIRONMENTAL": [
+        {
+          "name": "MODIFIED_ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "The external dependency remains reachable over the network."
+        },
+        {
+          "name": "MODIFIED_ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "Environmental factors do not significantly reduce exploitability."
+        },
+        {
+          "name": "MODIFIED_PRIVILEGES_REQUIRED",
+          "value": "None (N)",
+          "justification": "No additional privileges are required in the target org."
+        },
+        {
+          "name": "MODIFIED_USER_INTERACTION",
+          "value": "Required (R)",
+          "justification": "Scripts may load automatically based on configuration."
+        },
+        {
+          "name": "MODIFIED_SCOPE",
+          "value": "Changed (C)",
+          "justification": "The scope remains within the Salesforce organization."
+        },
+        {
+          "name": "MODIFIED_CONFIDENTIALITY",
+          "value": "High (H)",
+          "justification": "Sensitive org and user data may be exposed."
+        },
+        {
+          "name": "MODIFIED_INTEGRITY",
+          "value": "High (H)",
+          "justification": "Injected scripts can compromise application integrity."
+        },
+        {
+          "name": "MODIFIED_AVAILABILITY",
+          "value": "None (N)",
+          "justification": "Availability impact is possible but secondary."
+        },
+        {
+          "name": "CONFIDENTIALITY_REQUIREMENT",
+          "value": "Medium (M)",
+          "justification": "Protection of Salesforce data is critical."
+        },
+        {
+          "name": "INTEGRITY_REQUIREMENT",
+          "value": "High (H)",
+          "justification": "Integrity of UI and org behavior is essential."
+        },
+        {
+          "name": "AVAILABILITY_REQUIREMENT",
+          "value": "Low (L)",
+          "justification": "Availability is important but not the primary concern."
+        }
+      ]
+    }
+  }
+}

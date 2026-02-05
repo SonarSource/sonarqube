@@ -1,0 +1,127 @@
+{
+  "AvoidUsingHardCodedIP": {
+    "cvssScore": "6.8",
+    "baseScore": "7.3",
+    "temporalScore": "6.8",
+    "environmentalScore": "6.8",
+    "vectorString": "",
+    "metrics": {
+      "BASE": [
+        {
+          "name": "ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "The issue can be exploited remotely because hardcoded ip addresses used."
+        },
+        {
+          "name": "ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "No special conditions are required to exploit this issue."
+        },
+        {
+          "name": "PRIVILEGES_REQUIRED",
+          "value": "None (N)",
+          "justification": "No privileges needed if IP is embedded and used in publicly accessible logic."
+        },
+        {
+          "name": "USER_INTERACTION",
+          "value": "None (N)",
+          "justification": "No user interaction is required."
+        },
+        {
+          "name": "SCOPE",
+          "value": "Unchanged (U)",
+          "justification": "The impact is limited to the same application scope."
+        },
+        {
+          "name": "CONFIDENTIALITY",
+          "value": "Low (L)",
+          "justification": "Limited data exposure is possible."
+        },
+        {
+          "name": "INTEGRITY",
+          "value": "Low (L)",
+          "justification": "Data or logic may be modified."
+        },
+        {
+          "name": "AVAILABILITY",
+          "value": "Low (L)",
+          "justification": "Minimal availability impact."
+        }
+      ],
+      "TEMPORAL": [
+        {
+          "name": "EXPLOIT_CODE_MATURITY",
+          "value": "Functional Exploit Exists(F)",
+          "justification": "Attack method is trivial and known from prior CVEs."
+        },
+        {
+          "name": "REMEDIATION_LEVEL",
+          "value": "Official Fix (O)",
+          "justification": "Vendor or best-practice remediation exists."
+        },
+        {
+          "name": "REPORT_CONFIDENCE",
+          "value": "Confirmed (C)",
+          "justification": "The issue is clearly identified by static analysis."
+        }
+      ],
+      "ENVIRONMENTAL": [
+        {
+          "name": "MODIFIED_ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "Deployment does not reduce exposure."
+        },
+        {
+          "name": "MODIFIED_ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "No additional complexity in deployment."
+        },
+        {
+          "name": "MODIFIED_PRIVILEGES_REQUIRED",
+          "value": "None (N)",
+          "justification": "No privileges needed if IP is embedded and used in publicly accessible logic."
+        },
+        {
+          "name": "MODIFIED_USER_INTERACTION",
+          "value": "None (N)",
+          "justification": "No interaction required."
+        },
+        {
+          "name": "MODIFIED_SCOPE",
+          "value": "Unchanged (U)",
+          "justification": "Scope remains unchanged."
+        },
+        {
+          "name": "MODIFIED_CONFIDENTIALITY",
+          "value": "Low (L)",
+          "justification": "Limited exposure in this environment."
+        },
+        {
+          "name": "MODIFIED_INTEGRITY",
+          "value": "Low (L)",
+          "justification": "Limited integrity impact."
+        },
+        {
+          "name": "MODIFIED_AVAILABILITY",
+          "value": "Low (L)",
+          "justification": "Limited availability impact."
+        },
+        {
+          "name": "CONFIDENTIALITY_REQUIREMENT",
+          "value": "Medium (M)",
+          "justification": "Confidential data is relevant."
+        },
+        {
+          "name": "INTEGRITY_REQUIREMENT",
+          "value": "Medium (M)",
+          "justification": "Integrity is important."
+        },
+        {
+          "name": "AVAILABILITY_REQUIREMENT",
+          "value": "Medium (M)",
+          "justification": "IP misrouting may cause service inaccessibility."
+        }
+      ]
+    }
+  }
+}

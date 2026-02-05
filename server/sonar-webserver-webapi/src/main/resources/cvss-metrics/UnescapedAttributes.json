@@ -1,0 +1,127 @@
+{
+  "UnescapedAttributes": {
+    "cvssScore": "5.0",
+    "baseScore": "5.4",
+    "temporalScore": "5.0",
+    "environmentalScore": "5.0",
+    "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:N/E:F/RL:O/RC:C/MAV:N/MAC:L/MPR:N/MUI:R/MS:U/MC:L/MI:L/MA:N/CR:M/IR:M/AR:L",
+    "metrics": {
+      "BASE": [
+        {
+          "name": "ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "Unescaped attributes can be influenced through web inputs and rendered to users."
+        },
+        {
+          "name": "ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "Standard reflected XSS-style injection patterns."
+        },
+        {
+          "name": "PRIVILEGES_REQUIRED",
+          "value": "None (N)",
+          "justification": "Often exploitable without authentication, depending on page exposure."
+        },
+        {
+          "name": "USER_INTERACTION",
+          "value": "Required (R)",
+          "justification": "Victim must load the vulnerable page."
+        },
+        {
+          "name": "SCOPE",
+          "value": "Unchanged (U)",
+          "justification": "Primarily impacts the same application scope in the client context."
+        },
+        {
+          "name": "CONFIDENTIALITY",
+          "value": "Low (L)",
+          "justification": "Potential limited exposure, such as access to page-level data or tokens."
+        },
+        {
+          "name": "INTEGRITY",
+          "value": "Low (L)",
+          "justification": "Injected attributes can alter client-side behavior or content presentation."
+        },
+        {
+          "name": "AVAILABILITY",
+          "value": "None (N)",
+          "justification": "No direct availability impact."
+        }
+      ],
+      "TEMPORAL": [
+        {
+          "name": "EXPLOIT_CODE_MATURITY",
+          "value": "Functional (F)",
+          "justification": "The vulnerability can be reliably exploited using well-known and commonly available techniques."
+        },
+        {
+          "name": "REMEDIATION_LEVEL",
+          "value": "Official Fix (O)",
+          "justification": "Proper output encoding using recommended functions effectively mitigates the issue."
+        },
+        {
+          "name": "REPORT_CONFIDENCE",
+          "value": "Confirmed (C)",
+          "justification": "The detection logic reliably identifies unescaped attribute contexts."
+        }
+      ],
+      "ENVIRONMENTAL": [
+        {
+          "name": "MODIFIED_ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "The affected page is accessed remotely over the network, allowing exploitation through standard HTTP requests."
+        },
+        {
+          "name": "MODIFIED_ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "Environmental conditions do not significantly increase the difficulty of exploiting unescaped attributes."
+        },
+        {
+          "name": "MODIFIED_PRIVILEGES_REQUIRED",
+          "value": "None (N)",
+          "justification": "Attackers do not need authentication or elevated privileges if the vulnerable page is reachable."
+        },
+        {
+          "name": "MODIFIED_USER_INTERACTION",
+          "value": "Required (R)",
+          "justification": "A user must load the affected page for the injected attribute payload to execute in the browser."
+        },
+        {
+          "name": "MODIFIED_SCOPE",
+          "value": "Unchanged (U)",
+          "justification": "The impact remains within the same application and browser execution context."
+        },
+        {
+          "name": "MODIFIED_CONFIDENTIALITY",
+          "value": "Low (L)",
+          "justification": "Unescaped attributes may expose limited client-side information but do not directly leak backend data."
+        },
+        {
+          "name": "MODIFIED_INTEGRITY",
+          "value": "Low (L)",
+          "justification": "Injected attributes can modify UI behavior or presentation without directly altering server-side data."
+        },
+        {
+          "name": "MODIFIED_AVAILABILITY",
+          "value": "None (N)",
+          "justification": "The issue does not affect application uptime or availability."
+        },
+        {
+          "name": "CONFIDENTIALITY_REQUIREMENT",
+          "value": "Medium (M)",
+          "justification": "Protecting UI-displayed data and session context is important but not typically mission-critical."
+        },
+        {
+          "name": "INTEGRITY_REQUIREMENT",
+          "value": "Medium (M)",
+          "justification": "Maintaining UI correctness and preventing client-side manipulation is important for user trust."
+        },
+        {
+          "name": "AVAILABILITY_REQUIREMENT",
+          "value": "Low (L)",
+          "justification": "Availability is not a primary concern for this client-side injection vulnerability."
+        }
+      ]
+    }
+  }
+}

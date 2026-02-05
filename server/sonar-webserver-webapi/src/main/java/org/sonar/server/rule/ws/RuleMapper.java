@@ -25,6 +25,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
@@ -46,6 +47,9 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.common.text.MacroInterpreter;
+import org.sonar.server.cvss.CvssMetadataService;
+import org.sonar.server.cvss.CvssMetricEntry;
+import org.sonar.server.cvss.CvssMetricGroup;
 import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.rule.ws.RulesResponseFormatter.SearchResult;
 import org.sonarqube.ws.Common;
@@ -93,6 +97,7 @@ public class RuleMapper {
   private final Languages languages;
   private final MacroInterpreter macroInterpreter;
   private final RuleDescriptionFormatter ruleDescriptionFormatter;
+  private final CvssMetadataService cvssMetadataService=new CvssMetadataService();
 
   public RuleMapper(final Languages languages, final MacroInterpreter macroInterpreter, RuleDescriptionFormatter ruleDescriptionFormatter) {
     this.languages = languages;
@@ -154,6 +159,7 @@ public class RuleMapper {
     }
     setEducationPrinciples(ruleResponse, ruleDto, fieldsToReturn);
     setCleanCodeAttributes(ruleResponse, ruleDto, fieldsToReturn);
+    setCvssBreakdown(ruleResponse,ruleDto.getRuleKey(), cvssMetadataService);
 
     return ruleResponse;
   }
@@ -229,6 +235,73 @@ public class RuleMapper {
       ruleResponse.setCleanCodeAttribute(Common.CleanCodeAttribute.valueOf(cleanCodeAttribute.name()));
       ruleResponse.setCleanCodeAttributeCategory(Common.CleanCodeAttributeCategory.valueOf(cleanCodeAttribute.getAttributeCategory().name()));
     }
+  }
+
+  private static void setCvssBreakdown(Rules.Rule.Builder ruleResponse, String ruleKey,
+          CvssMetadataService cvssMetadataService) {
+    cvssMetadataService.forRule(ruleKey).ifPresent(cvss -> {
+      Rules.CvssBreakdown.Builder breakdownBuilder =
+              Rules.CvssBreakdown.newBuilder();
+
+      // ---- Scores (boxed Double) ----
+      Rules.CvssScoreSummary.Builder scores =
+              Rules.CvssScoreSummary.newBuilder();
+      if (cvss.getBaseScore() > 0.0) {
+        scores.setBase(cvss.getBaseScore());
+      }
+      if (cvss.getTemporalScore() > 0) {
+        scores.setTemporal(cvss.getTemporalScore());
+      }
+      if (cvss.getEnvironmentalScore() > 0.0) {
+        scores.setEnvironmental(cvss.getEnvironmentalScore());
+      }
+      if (cvss.getCvssScore() > 0.0) {
+        scores.setOverall(cvss.getCvssScore());
+      }
+
+      breakdownBuilder.setScores(scores.build());
+
+      // ---- Metrics ----
+      Map<CvssMetricGroup, List<CvssMetricEntry>> metrics =
+              cvss.getMetrics();
+
+      if (metrics != null) {
+        addMetrics(breakdownBuilder::setBase,
+                metrics.get(CvssMetricGroup.BASE));
+
+        addMetrics(breakdownBuilder::setTemporal,
+                metrics.get(CvssMetricGroup.TEMPORAL));
+
+        addMetrics(breakdownBuilder::setEnvironmental,
+                metrics.get(CvssMetricGroup.ENVIRONMENTAL));
+      }
+
+      ruleResponse.setCvssBreakdown(breakdownBuilder.build());
+    });
+  }
+
+  private static void addMetrics(Consumer<Rules.CvssMetrics> setter, List<CvssMetricEntry> metrics) {
+    if (metrics == null || metrics.isEmpty()) {
+      return;
+    }
+
+    Rules.CvssMetrics.Builder metricsBuilder =
+            Rules.CvssMetrics.newBuilder();
+
+    for (CvssMetricEntry metric : metrics) {
+      Rules.CvssMetric.Builder metricBuilder =
+              Rules.CvssMetric.newBuilder()
+                      .setName(metric.getName().getDisplayName())   // enum → string
+                      .setValue(metric.getValue());
+
+      if (metric.getJustification() != null) {
+        metricBuilder.setJustification(metric.getJustification());
+      }
+
+      metricsBuilder.addMetrics(metricBuilder.build());
+    }
+
+    setter.accept(metricsBuilder.build());
   }
 
   private static void setDeprecatedKeys(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn,
