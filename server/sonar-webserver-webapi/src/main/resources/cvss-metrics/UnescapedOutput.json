@@ -1,0 +1,127 @@
+{
+  "UnescapedOutput": {
+    "cvssScore": "5.0",
+    "baseScore": "5.4",
+    "temporalScore": "5.0",
+    "environmentalScore": "5.0",
+    "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:N/E:F/RL:O/RC:C/MAV:N/MAC:L/MPR:N/MUI:R/MS:U/MC:L/MI:L/MA:N/CR:M/IR:M/AR:L",
+    "metrics": {
+      "BASE": [
+        {
+          "name": "ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "Unescaped addError messages can be triggered via web requests or user-controlled inputs and rendered in the UI."
+        },
+        {
+          "name": "ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "Straightforward XSS-style injection is possible if attacker-controlled content is rendered without encoding."
+        },
+        {
+          "name": "PRIVILEGES_REQUIRED",
+          "value": "None (N)",
+          "justification": "The issue may be exploitable without authentication depending on the entry point."
+        },
+        {
+          "name": "USER_INTERACTION",
+          "value": "Required (R)",
+          "justification": "A user must view the page where the unescaped error message is displayed."
+        },
+        {
+          "name": "SCOPE",
+          "value": "Unchanged (U)",
+          "justification": "The impact remains within the same application and browser execution context."
+        },
+        {
+          "name": "CONFIDENTIALITY",
+          "value": "Low (L)",
+          "justification": "Limited exposure is possible through access to page context or session-related information."
+        },
+        {
+          "name": "INTEGRITY",
+          "value": "Low (L)",
+          "justification": "Client-side content or behavior may be manipulated without affecting backend data."
+        },
+        {
+          "name": "AVAILABILITY",
+          "value": "None (N)",
+          "justification": "The issue does not impact application availability."
+        }
+      ],
+      "TEMPORAL": [
+        {
+          "name": "EXPLOIT_CODE_MATURITY",
+          "value": "Functional (F)",
+          "justification": "XSS payloads targeting unescaped output are well known and reliably exploitable."
+        },
+        {
+          "name": "REMEDIATION_LEVEL",
+          "value": "Official Fix (O)",
+          "justification": "Enabling proper output encoding or escaping fully mitigates the vulnerability."
+        },
+        {
+          "name": "REPORT_CONFIDENCE",
+          "value": "Confirmed (C)",
+          "justification": "The rule accurately detects unescaped output patterns such as escaping=false."
+        }
+      ],
+      "ENVIRONMENTAL": [
+        {
+          "name": "MODIFIED_ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "The vulnerable page or component is accessed remotely over HTTP(S), allowing exploitation via crafted requests."
+        },
+        {
+          "name": "MODIFIED_ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "No additional environmental protections significantly increase the difficulty of exploiting unescaped output."
+        },
+        {
+          "name": "MODIFIED_PRIVILEGES_REQUIRED",
+          "value": "None (N)",
+          "justification": "Attackers do not require authentication or elevated privileges if the affected page is reachable."
+        },
+        {
+          "name": "MODIFIED_USER_INTERACTION",
+          "value": "Required (R)",
+          "justification": "A user must view the affected page for the unescaped content to be rendered and executed."
+        },
+        {
+          "name": "MODIFIED_SCOPE",
+          "value": "Unchanged (U)",
+          "justification": "The impact does not extend beyond the current application and browser security boundary."
+        },
+        {
+          "name": "MODIFIED_CONFIDENTIALITY",
+          "value": "Low (L)",
+          "justification": "Unescaped error output may expose limited client-side information but not direct backend data."
+        },
+        {
+          "name": "MODIFIED_INTEGRITY",
+          "value": "Low (L)",
+          "justification": "Injected content can alter UI behavior or presentation without modifying server-side state."
+        },
+        {
+          "name": "MODIFIED_AVAILABILITY",
+          "value": "None (N)",
+          "justification": "The vulnerability does not affect service uptime or performance."
+        },
+        {
+          "name": "CONFIDENTIALITY_REQUIREMENT",
+          "value": "Medium (M)",
+          "justification": "Protecting UI-rendered data and session context is important but not typically mission-critical."
+        },
+        {
+          "name": "INTEGRITY_REQUIREMENT",
+          "value": "Medium (M)",
+          "justification": "Maintaining correct UI behavior and preventing client-side manipulation is important for user trust."
+        },
+        {
+          "name": "AVAILABILITY_REQUIREMENT",
+          "value": "Low (L)",
+          "justification": "Availability is not a primary concern for this client-side output-escaping issue."
+        }
+      ]
+    }
+  }
+}

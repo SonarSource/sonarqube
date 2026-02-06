@@ -31,6 +31,7 @@ import { translate } from '../../helpers/l10n';
 import { RuleDetails } from '../../types/types';
 import { NoticeType } from '../../types/users';
 import withLocation from '../hoc/withLocation';
+import CvssBreakdown from './CvssBreakdown';
 import MoreInfoRuleDescription from './MoreInfoRuleDescription';
 import RuleDescription from './RuleDescription';
 
@@ -60,6 +61,7 @@ export enum TabKeys {
   AssessTheIssue = 'assess_the_problem',
   Activity = 'activity',
   MoreInfo = 'more_info',
+  CvssBreakdown = 'cvss_breakdown',
 }
 
 const DEBOUNCE_FOR_SCROLL = 250;
@@ -151,7 +153,13 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
 
   computeTabs = (displayEducationalPrinciplesNotification: boolean) => {
     const {
-      ruleDetails: { descriptionSections, educationPrinciples, lang: ruleLanguage, type: ruleType },
+      ruleDetails: {
+        descriptionSections,
+        educationPrinciples,
+        lang: ruleLanguage,
+        type: ruleType,
+        cvssBreakdown,
+      },
     } = this.props;
 
     // As we might tamper with the description later on, we clone to avoid any side effect
@@ -197,6 +205,15 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
         value: TabKeys.HowToFixIt,
         label: translate('coding_rules.description_section.title', TabKeys.HowToFixIt),
       },
+      ...(cvssBreakdown
+        ? [
+            {
+              content: <CvssBreakdown cvssBreakdown={cvssBreakdown} />,
+              value: TabKeys.CvssBreakdown,
+              label: translate('coding_rules.description_section.title', TabKeys.CvssBreakdown),
+            },
+          ]
+        : []),
       {
         content: ((educationPrinciples && educationPrinciples.length > 0) ||
           descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]) && (

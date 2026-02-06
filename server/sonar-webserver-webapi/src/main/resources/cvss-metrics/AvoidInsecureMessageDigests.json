@@ -1,0 +1,127 @@
+{
+  "AvoidInsecureMessageDigests": {
+    "cvssScore": "8.4",
+    "baseScore": "7.5",
+    "temporalScore": "6.7",
+    "environmentalScore": "8.4",
+    "vectorString": "",
+    "metrics": {
+      "BASE": [
+        {
+          "name": "ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "The issue can be exploited remotely because weak hash algorithms like md5/sha1 used."
+        },
+        {
+          "name": "ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "No special conditions are required to exploit this issue."
+        },
+        {
+          "name": "PRIVILEGES_REQUIRED",
+          "value": "None (N)",
+          "justification": "Basic authenticated access is sufficient."
+        },
+        {
+          "name": "USER_INTERACTION",
+          "value": "None (N)",
+          "justification": "No user interaction is required."
+        },
+        {
+          "name": "SCOPE",
+          "value": "Unchanged (U)",
+          "justification": "The impact is limited to the same application scope."
+        },
+        {
+          "name": "CONFIDENTIALITY",
+          "value": "None (N)",
+          "justification": "Vulnerability does not expose data but allows data forgery."
+        },
+        {
+          "name": "INTEGRITY",
+          "value": "High (H)",
+          "justification": "Entire trust in data integrity can be subverted."
+        },
+        {
+          "name": "AVAILABILITY",
+          "value": "None (N)",
+          "justification": "No direct impact on system uptime or service availability."
+        }
+      ],
+      "TEMPORAL": [
+        {
+          "name": "EXPLOIT_CODE_MATURITY",
+          "value": "Proof-of-Concept (P)",
+          "justification": "The issue is well known and demonstrable."
+        },
+        {
+          "name": "REMEDIATION_LEVEL",
+          "value": "Official Fix (O)",
+          "justification": "Vendor or best-practice remediation exists."
+        },
+        {
+          "name": "REPORT_CONFIDENCE",
+          "value": "Confirmed (C)",
+          "justification": "The issue is clearly identified by static analysis."
+        }
+      ],
+      "ENVIRONMENTAL": [
+        {
+          "name": "MODIFIED_ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "Deployment does not reduce exposure."
+        },
+        {
+          "name": "MODIFIED_ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "No additional complexity in deployment."
+        },
+        {
+          "name": "MODIFIED_PRIVILEGES_REQUIRED",
+          "value": "None (N)",
+          "justification": "The attacker doesn’t need special privileges to exploit the hash weakness."
+        },
+        {
+          "name": "MODIFIED_USER_INTERACTION",
+          "value": "None (N)",
+          "justification": "No interaction required."
+        },
+        {
+          "name": "MODIFIED_SCOPE",
+          "value": "Unchanged (U)",
+          "justification": "Scope remains unchanged."
+        },
+        {
+          "name": "MODIFIED_CONFIDENTIALITY",
+          "value": "None (N)",
+          "justification": "Vulnerability does not expose data but allows data forgery."
+        },
+        {
+          "name": "MODIFIED_INTEGRITY",
+          "value": "High (H)",
+          "justification": "Entire trust in data integrity can be subverted."
+        },
+        {
+          "name": "MODIFIED_AVAILABILITY",
+          "value": "None (N)",
+          "justification": "No direct impact on system uptime or service availability."
+        },
+        {
+          "name": "CONFIDENTIALITY_REQUIREMENT",
+          "value": "Low (L)",
+          "justification": "Integrity is critical, confidentiality less so in this context."
+        },
+        {
+          "name": "INTEGRITY_REQUIREMENT",
+          "value": "High (H)",
+          "justification": "Integrity of hashed data is paramount (e.g., digital signatures, verification)."
+        },
+        {
+          "name": "AVAILABILITY_REQUIREMENT",
+          "value": "Low (L)",
+          "justification": "Availability not relevant to the threat."
+        }
+      ]
+    }
+  }
+}

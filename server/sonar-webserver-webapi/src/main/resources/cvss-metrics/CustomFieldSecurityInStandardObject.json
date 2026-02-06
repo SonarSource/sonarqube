@@ -1,0 +1,127 @@
+{
+  "CustomFieldSecurityInStandardObject": {
+    "cvssScore": "7.7",
+    "baseScore": "7.1",
+    "temporalScore": "6.5",
+    "environmentalScore": "7.7",
+    "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:L/A:N/E:P/RL:T/RC:C/MAV:N/MAC:L/MPR:L/MUI:N/MS:U/MC:H/MI:L/MA:N/CR:H/IR:M/AR:L",
+    "metrics": {
+      "BASE": [
+        {
+          "name": "ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "Issue is exploitable through normal remote access to Salesforce UI/APIs where the field enforcement is relied upon."
+        },
+        {
+          "name": "ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "No special conditions are needed beyond the misconfiguration being present."
+        },
+        {
+          "name": "PRIVILEGES_REQUIRED",
+          "value": "Low (L)",
+          "justification": "A standard authenticated user can be affected by missing/incorrect required-field enforcement paths."
+        },
+        {
+          "name": "USER_INTERACTION",
+          "value": "None (N)",
+          "justification": "No additional user action is required once the misconfiguration exists."
+        },
+        {
+          "name": "SCOPE",
+          "value": "Unchanged (U)",
+          "justification": "Impacts occur within the same Salesforce org/application scope."
+        },
+        {
+          "name": "CONFIDENTIALITY",
+          "value": "High (H)",
+          "justification": "Inconsistent enforcement can expose data entry/visibility paths and business-sensitive fields to unintended audiences."
+        },
+        {
+          "name": "INTEGRITY",
+          "value": "Low (L)",
+          "justification": "Primary issue is enforcement/validation; potential data quality integrity impact is limited."
+        },
+        {
+          "name": "AVAILABILITY",
+          "value": "None (N)",
+          "justification": "No direct availability impact."
+        }
+      ],
+      "TEMPORAL": [
+        {
+          "name": "EXPLOIT_CODE_MATURITY",
+          "value": "Proof-of-Concept (P)",
+          "justification": "Misconfiguration consequences are easily demonstrated and commonly understood."
+        },
+        {
+          "name": "REMEDIATION_LEVEL",
+          "value": "Temporary Fix (T)",
+          "justification": "Can be quickly addressed by updating Page Layout / FLS configuration."
+        },
+        {
+          "name": "REPORT_CONFIDENCE",
+          "value": "Confirmed (C)",
+          "justification": "Static analysis rule provides high-confidence identification."
+        }
+      ],
+      "ENVIRONMENTAL": [
+        {
+          "name": "MODIFIED_ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "Attack remains feasible over network access paths."
+        },
+        {
+          "name": "MODIFIED_ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "No added complexity in typical deployments."
+        },
+        {
+          "name": "MODIFIED_PRIVILEGES_REQUIRED",
+          "value": "Low (L)",
+          "justification": "A standard authenticated user can be affected by missing/incorrect required-field enforcement paths"
+        },
+        {
+          "name": "MODIFIED_USER_INTERACTION",
+          "value": "None (N)",
+          "justification": "No user interaction needed."
+        },
+        {
+          "name": "MODIFIED_SCOPE",
+          "value": "Unchanged (U)",
+          "justification": "Scope does not change."
+        },
+        {
+          "name": "MODIFIED_CONFIDENTIALITY",
+          "value": "High (H)",
+          "justification": "Sensitive business fields often raise confidentiality impact."
+        },
+        {
+          "name": "MODIFIED_INTEGRITY",
+          "value": "Low (L)",
+          "justification": "Integrity impact remains limited."
+        },
+        {
+          "name": "MODIFIED_AVAILABILITY",
+          "value": "None (N)",
+          "justification": "No availability impact."
+        },
+        {
+          "name": "CONFIDENTIALITY_REQUIREMENT",
+          "value": "High (H)",
+          "justification": "Salesforce orgs frequently treat customer/business data as highly sensitive."
+        },
+        {
+          "name": "INTEGRITY_REQUIREMENT",
+          "value": "Medium (M)",
+          "justification": "Data correctness is important but usually secondary to confidentiality here."
+        },
+        {
+          "name": "AVAILABILITY_REQUIREMENT",
+          "value": "Low (L)",
+          "justification": "Availability is not materially affected by this rule."
+        }
+      ]
+    }
+  }
+}

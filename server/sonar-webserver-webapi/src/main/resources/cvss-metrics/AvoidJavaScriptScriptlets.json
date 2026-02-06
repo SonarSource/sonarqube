@@ -1,0 +1,127 @@
+{
+  "AvoidJavaScriptScriptlets": {
+    "cvssScore": "9.0",
+    "baseScore": "9.3",
+    "temporalScore": "8.6",
+    "environmentalScore": "9.0",
+    "vectorString": "",
+    "metrics": {
+      "BASE": [
+        {
+          "name": "ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "The issue can be exploited remotely because script tags used directly in vf/aura."
+        },
+        {
+          "name": "ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "No special conditions are required to exploit this issue."
+        },
+        {
+          "name": "PRIVILEGES_REQUIRED",
+          "value": "None (N)",
+          "justification": "No privileges needed to exploit the issue—just user interaction."
+        },
+        {
+          "name": "USER_INTERACTION",
+          "value": "Required (R)",
+          "justification": "XSS typically requires a victim to view or click a crafted page."
+        },
+        {
+          "name": "SCOPE",
+          "value": "Changed (C)",
+          "justification": "A successful attack can affect the security of users outside the vulnerable component (browser context)."
+        },
+        {
+          "name": "CONFIDENTIALITY",
+          "value": "High (H)",
+          "justification": "Sensitive data such as cookies or session tokens can be stolen."
+        },
+        {
+          "name": "INTEGRITY",
+          "value": "High (H)",
+          "justification": "Malicious scripts can alter the DOM, redirect, or fake content."
+        },
+        {
+          "name": "AVAILABILITY",
+          "value": "None (N)",
+          "justification": "Usually no DoS effect; the focus is on data theft or manipulation."
+        }
+      ],
+      "TEMPORAL": [
+        {
+          "name": "EXPLOIT_CODE_MATURITY",
+          "value": "Functional Exploit Exists",
+          "justification": "XSS is widely exploited with ready-to-use scripts."
+        },
+        {
+          "name": "REMEDIATION_LEVEL",
+          "value": "Official Fix (O)",
+          "justification": "Vendor or best-practice remediation exists."
+        },
+        {
+          "name": "REPORT_CONFIDENCE",
+          "value": "Confirmed (C)",
+          "justification": "The issue is clearly identified by static analysis."
+        }
+      ],
+      "ENVIRONMENTAL": [
+        {
+          "name": "MODIFIED_ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "Deployment does not reduce exposure."
+        },
+        {
+          "name": "MODIFIED_ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "No additional complexity in deployment."
+        },
+        {
+          "name": "MODIFIED_PRIVILEGES_REQUIRED",
+          "value": "None (N)",
+          "justification": "No privileges needed to exploit the issue—just user interaction."
+        },
+        {
+          "name": "MODIFIED_USER_INTERACTION",
+          "value": "Required (R)",
+          "justification": "XSS typically requires a victim to view or click a crafted page."
+        },
+        {
+          "name": "MODIFIED_SCOPE",
+          "value": "Changed (C)",
+          "justification": "A successful attack can affect the security of users outside the vulnerable component (browser context)."
+        },
+        {
+          "name": "MODIFIED_CONFIDENTIALITY",
+          "value": "High (H)",
+          "justification": "Sensitive data such as cookies or session tokens can be stolen."
+        },
+        {
+          "name": "MODIFIED_INTEGRITY",
+          "value": "High (H)",
+          "justification": "Malicious scripts can alter the DOM, redirect, or fake content."
+        },
+        {
+          "name": "MODIFIED_AVAILABILITY",
+          "value": "None (N)",
+          "justification": "Usually no DoS effect; the focus is on data theft or manipulation."
+        },
+        {
+          "name": "CONFIDENTIALITY_REQUIREMENT",
+          "value": "High (H)",
+          "justification": "Salesforce components handle sensitive session data."
+        },
+        {
+          "name": "INTEGRITY_REQUIREMENT",
+          "value": "High (H)",
+          "justification": "Content integrity is vital in rendering components."
+        },
+        {
+          "name": "AVAILABILITY_REQUIREMENT",
+          "value": "Low (L)",
+          "justification": "Availability impact is minor."
+        }
+      ]
+    }
+  }
+}

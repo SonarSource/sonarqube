@@ -124,6 +124,7 @@ message Rule {
   optional sonarqube.ws.commons.CleanCodeAttribute cleanCodeAttribute = 52;
   optional sonarqube.ws.commons.CleanCodeAttributeCategory cleanCodeAttributeCategory = 53;
   optional Impacts impacts = 54;
+  optional CvssBreakdown cvssBreakdown = 55;
 
   message DescriptionSections {
     repeated DescriptionSection descriptionSections = 1;
@@ -207,4 +208,28 @@ message QProfile {
   optional string lang = 2;
   optional string langName = 3;
   optional string parent = 4;
+}
+
+message CvssBreakdown {
+  optional CvssScoreSummary scores = 1;
+  optional CvssMetrics base = 2;
+  optional CvssMetrics temporal = 3;
+  optional CvssMetrics environmental = 4;
+}
+
+message CvssScoreSummary {
+  optional double base = 1;
+  optional double temporal = 2;
+  optional double environmental = 3;
+  optional double overall = 4;
+}
+
+message CvssMetrics {
+  repeated CvssMetric metrics = 1;
+}
+
+message CvssMetric {
+  required string name = 1;
+  required string value = 2;
+  optional string justification = 3;
 }

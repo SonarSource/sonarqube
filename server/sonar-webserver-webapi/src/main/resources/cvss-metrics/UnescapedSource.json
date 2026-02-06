@@ -1,0 +1,127 @@
+{
+  "UnescapedSource": {
+    "cvssScore": "9.0",
+    "baseScore": "6.1",
+    "temporalScore": "5.7",
+    "environmentalScore": "9.0",
+    "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N/E:F/RL:O/RC:C/MAV:N/MAC:L/MPR:N/MUI:R/MS:C/MC:H/MI:H/MA:N/CR:H/IR:H/AR:L",
+    "metrics": {
+      "BASE": [
+        {
+          "name": "ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "Unsanitized URL or request parameters can be supplied remotely via standard web requests."
+        },
+        {
+          "name": "ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "No special conditions are required; common reflected XSS techniques are sufficient."
+        },
+        {
+          "name": "PRIVILEGES_REQUIRED",
+          "value": "None (N)",
+          "justification": "The attack does not require authentication if the vulnerable page is publicly reachable."
+        },
+        {
+          "name": "USER_INTERACTION",
+          "value": "Required (R)",
+          "justification": "A victim must load the crafted URL or page for the injected script to execute."
+        },
+        {
+          "name": "SCOPE",
+          "value": "Changed (C)",
+          "justification": "Injected script executes in the victim’s browser, crossing from server-side control into client-side execution context."
+        },
+        {
+          "name": "CONFIDENTIALITY",
+          "value": "Low (L)",
+          "justification": "Limited data accessible by default, such as page-level data or non-privileged session information."
+        },
+        {
+          "name": "INTEGRITY",
+          "value": "Low (L)",
+          "justification": "Attacker can manipulate rendered content or perform limited actions as the user in the browser."
+        },
+        {
+          "name": "AVAILABILITY",
+          "value": "None (N)",
+          "justification": "The vulnerability does not directly impact system or service availability."
+        }
+      ],
+      "TEMPORAL": [
+        {
+          "name": "EXPLOIT_CODE_MATURITY",
+          "value": "Functional (F)",
+          "justification": "Reflected XSS payloads and exploitation techniques are well-known and reliably exploitable."
+        },
+        {
+          "name": "REMEDIATION_LEVEL",
+          "value": "Official Fix (O)",
+          "justification": "Salesforce provides standard encoding and sanitization mechanisms to remediate this issue."
+        },
+        {
+          "name": "REPORT_CONFIDENCE",
+          "value": "Confirmed (C)",
+          "justification": "The weakness is well understood, documented, and consistently detected by static analysis."
+        }
+      ],
+      "ENVIRONMENTAL": [
+        {
+          "name": "MODIFIED_ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "The vulnerability remains remotely exploitable through network-based requests in the target environment."
+        },
+        {
+          "name": "MODIFIED_ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "No additional environmental conditions increase exploitation difficulty."
+        },
+        {
+          "name": "MODIFIED_PRIVILEGES_REQUIRED",
+          "value": "None (N)",
+          "justification": "No privileges are required in the deployed environment to exploit the vulnerability."
+        },
+        {
+          "name": "MODIFIED_USER_INTERACTION",
+          "value": "Required (R)",
+          "justification": "User interaction is still required for the injected script to execute in the browser."
+        },
+        {
+          "name": "MODIFIED_SCOPE",
+          "value": "Changed (C)",
+          "justification": "The execution context still crosses trust boundaries from server-side code to client-side execution."
+        },
+        {
+          "name": "MODIFIED_CONFIDENTIALITY",
+          "value": "High (H)",
+          "justification": "In this environment, sensitive user data, tokens, or business information may be accessible via the browser context."
+        },
+        {
+          "name": "MODIFIED_INTEGRITY",
+          "value": "High (H)",
+          "justification": "Successful exploitation may allow execution of unauthorized actions as the user, impacting business integrity."
+        },
+        {
+          "name": "MODIFIED_AVAILABILITY",
+          "value": "None (N)",
+          "justification": "No service disruption or denial-of-service impact is expected."
+        },
+        {
+          "name": "CONFIDENTIALITY_REQUIREMENT",
+          "value": "High (H)",
+          "justification": "Protection of customer and user data is critical in this environment."
+        },
+        {
+          "name": "INTEGRITY_REQUIREMENT",
+          "value": "High (H)",
+          "justification": "Preventing unauthorized actions and data manipulation is a high priority."
+        },
+        {
+          "name": "AVAILABILITY_REQUIREMENT",
+          "value": "Low (L)",
+          "justification": "Availability is not significantly impacted by this vulnerability class."
+        }
+      ]
+    }
+  }
+}

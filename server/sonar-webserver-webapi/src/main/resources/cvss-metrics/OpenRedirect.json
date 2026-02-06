@@ -1,0 +1,127 @@
+{
+  "OpenRedirect": {
+    "cvssScore": "4.9",
+    "baseScore": "5.4",
+    "temporalScore": "4.9",
+    "environmentalScore": "4.9",
+    "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:N/E:P/RL:T/RC:C/MAV:N/MAC:L/MPR:N/MUI:R/MS:U/MC:L/MI:L/MA:N/CR:M/IR:M/AR:L",
+    "metrics": {
+      "BASE": [
+        {
+          "name": "ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "The attacker can exploit the open redirect remotely by crafting malicious URLs delivered over the network."
+        },
+        {
+          "name": "ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "Exploitation only requires supplying an untrusted redirect destination without special conditions."
+        },
+        {
+          "name": "PRIVILEGES_REQUIRED",
+          "value": "None (N)",
+          "justification": "No authentication or special privileges are required to exploit the redirect."
+        },
+        {
+          "name": "USER_INTERACTION",
+          "value": "Required (R)",
+          "justification": "A victim must click or follow the crafted redirect link."
+        },
+        {
+          "name": "SCOPE",
+          "value": "Unchanged (U)",
+          "justification": "The redirect occurs within the same application boundary without executing attacker code."
+        },
+        {
+          "name": "CONFIDENTIALITY",
+          "value": "Low (L)",
+          "justification": "The redirect itself does not expose data but can facilitate phishing or credential harvesting."
+        },
+        {
+          "name": "INTEGRITY",
+          "value": "Low (L)",
+          "justification": "User navigation and trust can be manipulated, but no direct data modification occurs."
+        },
+        {
+          "name": "AVAILABILITY",
+          "value": "None (N)",
+          "justification": "The vulnerability does not affect service availability."
+        }
+      ],
+      "TEMPORAL": [
+        {
+          "name": "EXPLOIT_CODE_MATURITY",
+          "value": "Proof-of-Concept (P)",
+          "justification": "Open redirect exploits are trivial to demonstrate and commonly documented."
+        },
+        {
+          "name": "REMEDIATION_LEVEL",
+          "value": "Temporary Fix (T)",
+          "justification": "Redirect risks can be mitigated through input validation or allowlisting, but may require broader refactoring."
+        },
+        {
+          "name": "REPORT_CONFIDENCE",
+          "value": "Confirmed (C)",
+          "justification": "The issue is well understood and reliably detected by static analysis."
+        }
+      ],
+      "ENVIRONMENTAL": [
+        {
+          "name": "MODIFIED_ATTACK_VECTOR",
+          "value": "Network (N)",
+          "justification": "In the deployed environment, the redirect remains remotely exploitable via network-based links."
+        },
+        {
+          "name": "MODIFIED_ATTACK_COMPLEXITY",
+          "value": "Low (L)",
+          "justification": "No environmental factors increase the difficulty of exploiting the redirect."
+        },
+        {
+          "name": "MODIFIED_PRIVILEGES_REQUIRED",
+          "value": "None (N)",
+          "justification": "Attackers do not require authentication in the target environment."
+        },
+        {
+          "name": "MODIFIED_USER_INTERACTION",
+          "value": "Required (R)",
+          "justification": "Successful exploitation still depends on a user following the malicious link."
+        },
+        {
+          "name": "MODIFIED_SCOPE",
+          "value": "Unchanged (U)",
+          "justification": "The redirect does not cause execution outside the application’s trust boundary."
+        },
+        {
+          "name": "MODIFIED_CONFIDENTIALITY",
+          "value": "Low (L)",
+          "justification": "Indirect confidentiality impact may occur through phishing, but no direct data exposure is inherent."
+        },
+        {
+          "name": "MODIFIED_INTEGRITY",
+          "value": "Low (L)",
+          "justification": "User trust and navigation flow can be manipulated, but backend data integrity remains intact."
+        },
+        {
+          "name": "MODIFIED_AVAILABILITY",
+          "value": "None (N)",
+          "justification": "The redirect does not degrade or interrupt application availability."
+        },
+        {
+          "name": "CONFIDENTIALITY_REQUIREMENT",
+          "value": "Medium (M)",
+          "justification": "Protection against phishing and credential theft is important in most environments."
+        },
+        {
+          "name": "INTEGRITY_REQUIREMENT",
+          "value": "Medium (M)",
+          "justification": "Maintaining trusted navigation and preventing user deception is a moderate priority."
+        },
+        {
+          "name": "AVAILABILITY_REQUIREMENT",
+          "value": "Low (L)",
+          "justification": "Availability is not a concern for this class of vulnerability."
+        }
+      ]
+    }
+  }
+}
