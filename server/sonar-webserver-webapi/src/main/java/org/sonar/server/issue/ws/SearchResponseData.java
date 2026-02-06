@@ -127,12 +127,12 @@ public class SearchResponseData {
     return null;
   }
 
- String getStatusChangedByIssueKey(String issueKey){
-      if( statusChangedByIssueKey.containsKey(issueKey)) {
-          return statusChangedByIssueKey.get(issueKey);
-      }
-      return null ;
- }
+  String getStatusChangedByIssueKey(String issueKey) {
+    if (statusChangedByIssueKey.containsKey(issueKey)) {
+      return statusChangedByIssueKey.get(issueKey);
+    }
+    return null ;
+  }
 
   @CheckForNull
   List<Transition> getTransitionsForIssueKey(String issueKey) {
