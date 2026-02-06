@@ -74,7 +74,7 @@ public class CvssMetadataService {
 
     private Map<String, CvssScoreBreakdown> loadFromJarUri(URI jarUri) throws IOException {
 
-        Map<String, CvssScoreBreakdown> map = new HashMap<>();
+        Map<String, CvssScoreBreakdown> cvssScoreBreakdownMap = new HashMap<>();
 
         // Jar:file:/path/to/jar.jar!/cvss-metrics
         String[] jarParts = jarUri.toString().split("!");
@@ -88,14 +88,14 @@ public class CvssMetadataService {
                         .filter(p -> p.getFileName().toString().endsWith(".json"))
                         .forEach(p -> {
                             try (InputStream in = Files.newInputStream(p)) {
-                                parseJson(in, map);
+                                parseJson(in, cvssScoreBreakdownMap);
                             } catch (IOException e) {
                                 LOG.error("Failed to parse CVSS file {}", p, e);
                             }
                         });
             }
         }
-        return Map.copyOf(map);
+        return Map.copyOf(cvssScoreBreakdownMap);
     }
 
     /**
@@ -104,7 +104,7 @@ public class CvssMetadataService {
      * 1) Flat JSON with "ruleKey"
      * 2) Wrapped JSON: { "RuleKey": { ... } }
      */
-    private void parseJson(InputStream in, Map<String, CvssScoreBreakdown> map) throws IOException {
+    private void parseJson(InputStream in, Map<String, CvssScoreBreakdown> cvssScoreBreakdownMap) throws IOException {
         JsonNode root = MAPPER.readTree(in);
 
         // Case 1: flat JSON
@@ -112,7 +112,7 @@ public class CvssMetadataService {
             CvssScoreBreakdown cvss =
                     MAPPER.treeToValue(root, CvssScoreBreakdown.class);
 
-            map.put(cvss.getRuleKey(), cvss);
+            cvssScoreBreakdownMap.put(cvss.getRuleKey(), cvss);
             return;
         }
 
@@ -127,7 +127,7 @@ public class CvssMetadataService {
             if (cvss.getRuleKey() == null) {
                 cvss.setRuleKey(entry.getKey());
             }
-            map.put(cvss.getRuleKey(), cvss);
+            cvssScoreBreakdownMap.put(cvss.getRuleKey(), cvss);
         }
     }
 }
