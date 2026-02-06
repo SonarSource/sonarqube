@@ -50,7 +50,7 @@ import org.sonar.server.common.text.MacroInterpreter;
 import org.sonar.server.cvss.CvssMetadataService;
 import org.sonar.server.cvss.CvssMetricEntry;
 import org.sonar.server.cvss.CvssMetricGroup;
-import org.sonar.server.cvss.CvssRuleBreakdown;
+import org.sonar.server.cvss.CvssScoreBreakdown;
 import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.rule.ws.RulesResponseFormatter.SearchResult;
 import org.sonarqube.ws.Common;
@@ -160,7 +160,7 @@ public class RuleMapper {
     }
     setEducationPrinciples(ruleResponse, ruleDto, fieldsToReturn);
     setCleanCodeAttributes(ruleResponse, ruleDto, fieldsToReturn);
-    setCvssBreakdown(ruleResponse,ruleDto.getRuleKey(), cvssMetadataService);
+    setCvssBreakdown(ruleResponse, ruleDto.getRuleKey(), cvssMetadataService);
 
     return ruleResponse;
   }
@@ -240,29 +240,34 @@ public class RuleMapper {
 
   private static void setCvssBreakdown(Rules.Rule.Builder ruleResponse, String ruleKey,
           CvssMetadataService cvssMetadataService) {
-    cvssMetadataService.forRule(ruleKey).ifPresent(cvss -> {
-      Rules.CvssBreakdown.Builder breakdownBuilder =
-              Rules.CvssBreakdown.newBuilder();
 
-      // Set scores (overall, base, temporal, environmental) only if present and > 0
-      breakdownBuilder.setScores(buildCvssScoreSummary(cvss));
+    CvssScoreBreakdown cvss = cvssMetadataService.forRule(ruleKey);
+    if (cvss == null) {
+      return;
+    }
 
-      // ---- Metrics ----
-      Map<CvssMetricGroup, List<CvssMetricEntry>> metrics =
-              cvss.getMetrics();
+    Rules.CvssBreakdown.Builder breakdownBuilder = Rules.CvssBreakdown.newBuilder();
 
-      if (metrics != null) {
-        addMetrics(breakdownBuilder::setBase,
-                metrics.get(CvssMetricGroup.BASE));
+    // Sets overall, base, temporal, environmental only if > 0
+    breakdownBuilder.setScores(buildCvssScoreSummary(cvss));
 
-        addMetrics(breakdownBuilder::setTemporal,
-                metrics.get(CvssMetricGroup.TEMPORAL));
+    // Metrics
+    Map<CvssMetricGroup, List<CvssMetricEntry>> metrics = cvss.getMetrics();
+    if (metrics != null && !metrics.isEmpty()) {
 
-        addMetrics(breakdownBuilder::setEnvironmental,
-                metrics.get(CvssMetricGroup.ENVIRONMENTAL));
-      }
-      ruleResponse.setCvssBreakdown(breakdownBuilder.build());
-    });
+      addMetrics(
+              breakdownBuilder::setBase,
+              metrics.get(CvssMetricGroup.BASE));
+
+      addMetrics(
+              breakdownBuilder::setTemporal,
+              metrics.get(CvssMetricGroup.TEMPORAL));
+
+      addMetrics(
+              breakdownBuilder::setEnvironmental,
+              metrics.get(CvssMetricGroup.ENVIRONMENTAL));
+    }
+    ruleResponse.setCvssBreakdown(breakdownBuilder.build());
   }
 
   /**
@@ -271,7 +276,7 @@ public class RuleMapper {
    * Only positive score values are set to avoid exposing meaningless zero values in the Web API response. Missing
    * scores are intentionally
    */
-  private static Rules.CvssScoreSummary buildCvssScoreSummary(CvssRuleBreakdown cvss) {
+  private static Rules.CvssScoreSummary buildCvssScoreSummary(CvssScoreBreakdown cvss) {
     Rules.CvssScoreSummary.Builder scores =
             Rules.CvssScoreSummary.newBuilder();
 
@@ -310,7 +315,6 @@ public class RuleMapper {
 
       metricsBuilder.addMetrics(metricBuilder.build());
     }
-
     setter.accept(metricsBuilder.build());
   }
 

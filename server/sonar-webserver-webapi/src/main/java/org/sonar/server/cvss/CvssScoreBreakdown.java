@@ -27,7 +27,7 @@ import java.util.Map;
  * CVSS score breakdown for a single rule. Instances of this class are loaded
  * from JSON at startup and associated with rule keys.
  */
-public class CvssRuleBreakdown {
+public class CvssScoreBreakdown {
 
     private String ruleKey;
     private double cvssScore;

@@ -1,115 +1,129 @@
-/*
- * SonarQube
- * Copyright (C) 2009-2024 SonarSource SA
- * mailto:info AT sonarsource DOT com
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
 package org.sonar.server.cvss;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.File;
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Optional;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.net.URISyntaxException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.stream.Stream;
+
 /**
- * Service to load CVSS metadata files packaged within the server JAR.
+ * Loads CVSS metadata from JSON files located under a classpath directory.
+ * This implementation relies on classpath resources being available as
+ * real filesystem directories (exploded resources).
  */
 public class CvssMetadataService {
 
-    private static final String CVSS_METRICS_PREFIX = "cvss-metrics/";
     private static final Logger LOG = LoggerFactory.getLogger(CvssMetadataService.class);
-    private static final ObjectMapper mapper = new ObjectMapper();
 
-    private final Map<String, CvssRuleBreakdown> byRuleKey;
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    private final Map<String, CvssScoreBreakdown> metadata;
 
     public CvssMetadataService() {
-        this.byRuleKey = loadMetadata();
+        this.metadata = loadMetadata();
     }
 
-    public Optional<CvssRuleBreakdown> forRule(String ruleKey) {
-        return Optional.ofNullable(byRuleKey.get(ruleKey));
+    public CvssScoreBreakdown forRule(String ruleKey) {
+        return metadata.get(ruleKey);
     }
 
-    private Map<String, CvssRuleBreakdown> loadMetadata() {
-        Map<String, CvssRuleBreakdown> map = new HashMap<>();
-        try {
-            File codeSource =
-                    new File(CvssMetadataService.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-
-            if (isRunningFromPackagedJar(codeSource)) {
-                loadFromJar(map, codeSource);
-            }
-        } catch (Exception e) {
-            LOG.error("Failed to load CVSS metadata: {}", e.getMessage());
-        }
-        return Collections.unmodifiableMap(map);
+    public Map<String, CvssScoreBreakdown> getAll() {
+        return metadata;
     }
 
     /**
-     * Determines whether the server is running from a packaged JAR.
+     * Loads CVSS metadata by resolving the classpath directory to a filesystem path
+     * and iterating over JSON files.
      */
-    private static boolean isRunningFromPackagedJar(File codeSource) {
-        return codeSource.isFile() && codeSource.getName().endsWith(".jar");
+
+    private Map<String, CvssScoreBreakdown> loadMetadata() {
+        try {
+            URL dirUrl = this.getClass()
+                    .getClassLoader()
+                    .getResource("cvss-metrics");
+
+            if (dirUrl == null) {
+                LOG.warn("CVSS metrics directory not found on classpath");
+                return Map.of();
+            }
+
+            URI uri = dirUrl.toURI();
+
+            if ("jar".equals(uri.getScheme())) {
+                return loadFromJarUri(uri);
+            }
+
+        } catch (IOException | URISyntaxException e) {
+            LOG.error("Failed to load CVSS metadata from filesystem resources", e);
+        }
+        return Map.of();
     }
 
-    private void loadFromJar(Map<String, CvssRuleBreakdown> map, File jarFile) throws Exception {
-        try (JarFile jar = new JarFile(jarFile)) {
-            for (JarEntry entry : Collections.list(jar.entries())) {
-                if (entry.isDirectory()) {
-                    continue;
-                }
-                String name = entry.getName();
-                if (!name.startsWith(CVSS_METRICS_PREFIX) || !name.endsWith(".json")) {
-                    continue;
-                }
-                try (InputStream in = jar.getInputStream(entry)) {
-                    parseJson(in, map);
-                }
+    private Map<String, CvssScoreBreakdown> loadFromJarUri(URI jarUri) throws IOException {
+
+        Map<String, CvssScoreBreakdown> map = new HashMap<>();
+
+        // Jar:file:/path/to/jar.jar!/cvss-metrics
+        String[] jarParts = jarUri.toString().split("!");
+        URI zipUri = URI.create(jarParts[0]); // jar:file:/path/to/jar.jar
+
+        try (FileSystem fileSystem = FileSystems.newFileSystem(zipUri, Map.of())) {
+            Path cvssMetricsDir = fileSystem.getPath("/cvss-metrics");
+
+            try (Stream<Path> jsonFilePaths = Files.list(cvssMetricsDir)) {
+                jsonFilePaths
+                        .filter(p -> p.getFileName().toString().endsWith(".json"))
+                        .forEach(p -> {
+                            try (InputStream in = Files.newInputStream(p)) {
+                                parseJson(in, map);
+                            } catch (IOException e) {
+                                LOG.error("Failed to parse CVSS file {}", p, e);
+                            }
+                        });
             }
         }
+        return Map.copyOf(map);
     }
 
-    private void parseJson(InputStream in, Map<String, CvssRuleBreakdown> map) throws Exception {
-        JsonNode root = mapper.readTree(in);
-        // CASE 1: Flat JSON → directly CvssRuleBreakdown
+    /**
+     * Parses a CVSS JSON resource and appends rule entries into the map.
+     * Supported formats:
+     * 1) Flat JSON with "ruleKey"
+     * 2) Wrapped JSON: { "RuleKey": { ... } }
+     */
+    private void parseJson(InputStream in, Map<String, CvssScoreBreakdown> map) throws IOException {
+        JsonNode root = MAPPER.readTree(in);
+
+        // Case 1: flat JSON
         if (root.has("ruleKey")) {
-            CvssRuleBreakdown cvss =
-                    mapper.treeToValue(root, CvssRuleBreakdown.class);
+            CvssScoreBreakdown cvss =
+                    MAPPER.treeToValue(root, CvssScoreBreakdown.class);
+
             map.put(cvss.getRuleKey(), cvss);
             return;
         }
 
-        // CASE 2: Wrapped JSON → { "Csrf": { ... } }
+        // Case 2: wrapped JSON
         Iterator<Map.Entry<String, JsonNode>> fields = root.fields();
         while (fields.hasNext()) {
             Map.Entry<String, JsonNode> entry = fields.next();
-            CvssRuleBreakdown cvss =
-                    mapper.treeToValue(entry.getValue(), CvssRuleBreakdown.class);
-            // Fallback: use wrapper key if ruleKey missing
+
+            CvssScoreBreakdown cvss =
+                    MAPPER.treeToValue(entry.getValue(), CvssScoreBreakdown.class);
+
             if (cvss.getRuleKey() == null) {
                 cvss.setRuleKey(entry.getKey());
             }
