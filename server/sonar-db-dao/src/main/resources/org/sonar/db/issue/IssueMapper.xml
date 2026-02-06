@@ -153,7 +153,7 @@
     message, message_formattings, line, locations, gap, effort, status, tags, rule_description_context_key,
     resolution, checksum, assignee, author_login, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at, component_uuid, project_uuid, issue_type, quick_fix_available, code_variants,
-    clean_code_attribute, prioritized_rule)
+    clean_code_attribute, prioritized_rule, issue_resolution_expires_at)
     VALUES (
     #{kee,jdbcType=VARCHAR},
     #{ruleUuid,jdbcType=VARCHAR},
@@ -176,7 +176,8 @@
     #{quickFixAvailable, jdbcType=BOOLEAN},
     #{codeVariantsString,jdbcType=VARCHAR},
     #{effectiveCleanCodeAttribute,jdbcType=VARCHAR},
-    #{prioritizedRule,jdbcType=BOOLEAN})
+    #{prioritizedRule,jdbcType=BOOLEAN},
+    #{issueResolutionExpiresAt,jdbcType=BIGINT})
   </insert>
 
   <insert id="insertAsNewCodeOnReferenceBranch" parameterType="NewCodeReferenceIssue" useGeneratedKeys="false">
