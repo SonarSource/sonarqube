@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Service to load CVSS metadata files packaged within the server JAR.
@@ -39,6 +41,8 @@ import java.util.jar.JarFile;
 public class CvssMetadataService {
 
     private static final String CVSS_METRICS_PREFIX = "cvss-metrics/";
+    private static final Logger LOG = LoggerFactory.getLogger(CvssMetadataService.class);
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     private final Map<String, CvssRuleBreakdown> byRuleKey;
 
@@ -52,55 +56,45 @@ public class CvssMetadataService {
 
     private Map<String, CvssRuleBreakdown> loadMetadata() {
         Map<String, CvssRuleBreakdown> map = new HashMap<>();
-        ObjectMapper mapper = new ObjectMapper();
         try {
             File codeSource =
                     new File(CvssMetadataService.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 
-            if (codeSource.isFile() && codeSource.getName().endsWith(".jar")) {
-                loadFromJar(map, mapper, codeSource);
+            if (isRunningFromPackagedJar(codeSource)) {
+                loadFromJar(map, codeSource);
             }
-
         } catch (Exception e) {
-            System.err.println("Failed to load CVSS metadata: " + e.getMessage());
+            LOG.error("Failed to load CVSS metadata: {}", e.getMessage());
         }
-
         return Collections.unmodifiableMap(map);
     }
 
-    private void loadFromJar(Map<String, CvssRuleBreakdown> map,
-            ObjectMapper mapper,
-            File jarFile) throws Exception {
+    /**
+     * Determines whether the server is running from a packaged JAR.
+     */
+    private static boolean isRunningFromPackagedJar(File codeSource) {
+        return codeSource.isFile() && codeSource.getName().endsWith(".jar");
+    }
 
+    private void loadFromJar(Map<String, CvssRuleBreakdown> map, File jarFile) throws Exception {
         try (JarFile jar = new JarFile(jarFile)) {
-            Enumeration<JarEntry> entries = jar.entries();
-
-            while (entries.hasMoreElements()) {
-                JarEntry entry = entries.nextElement();
-
+            for (JarEntry entry : Collections.list(jar.entries())) {
                 if (entry.isDirectory()) {
                     continue;
                 }
-
                 String name = entry.getName();
-
                 if (!name.startsWith(CVSS_METRICS_PREFIX) || !name.endsWith(".json")) {
                     continue;
                 }
-
                 try (InputStream in = jar.getInputStream(entry)) {
-                    parseJson(in, mapper, map);
+                    parseJson(in, map);
                 }
             }
         }
     }
 
-    private void parseJson(InputStream in,
-            ObjectMapper mapper,
-            Map<String, CvssRuleBreakdown> map) throws Exception {
-
+    private void parseJson(InputStream in, Map<String, CvssRuleBreakdown> map) throws Exception {
         JsonNode root = mapper.readTree(in);
-
         // CASE 1: Flat JSON → directly CvssRuleBreakdown
         if (root.has("ruleKey")) {
             CvssRuleBreakdown cvss =
@@ -113,17 +107,13 @@ public class CvssMetadataService {
         Iterator<Map.Entry<String, JsonNode>> fields = root.fields();
         while (fields.hasNext()) {
             Map.Entry<String, JsonNode> entry = fields.next();
-
             CvssRuleBreakdown cvss =
                     mapper.treeToValue(entry.getValue(), CvssRuleBreakdown.class);
-
             // Fallback: use wrapper key if ruleKey missing
             if (cvss.getRuleKey() == null) {
                 cvss.setRuleKey(entry.getKey());
             }
-
             map.put(cvss.getRuleKey(), cvss);
-
         }
     }
 }

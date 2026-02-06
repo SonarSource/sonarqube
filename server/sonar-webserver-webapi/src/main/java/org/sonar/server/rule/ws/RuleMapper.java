@@ -50,6 +50,7 @@ import org.sonar.server.common.text.MacroInterpreter;
 import org.sonar.server.cvss.CvssMetadataService;
 import org.sonar.server.cvss.CvssMetricEntry;
 import org.sonar.server.cvss.CvssMetricGroup;
+import org.sonar.server.cvss.CvssRuleBreakdown;
 import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.rule.ws.RulesResponseFormatter.SearchResult;
 import org.sonarqube.ws.Common;
@@ -243,23 +244,8 @@ public class RuleMapper {
       Rules.CvssBreakdown.Builder breakdownBuilder =
               Rules.CvssBreakdown.newBuilder();
 
-      // ---- Scores (boxed Double) ----
-      Rules.CvssScoreSummary.Builder scores =
-              Rules.CvssScoreSummary.newBuilder();
-      if (cvss.getBaseScore() > 0.0) {
-        scores.setBase(cvss.getBaseScore());
-      }
-      if (cvss.getTemporalScore() > 0) {
-        scores.setTemporal(cvss.getTemporalScore());
-      }
-      if (cvss.getEnvironmentalScore() > 0.0) {
-        scores.setEnvironmental(cvss.getEnvironmentalScore());
-      }
-      if (cvss.getCvssScore() > 0.0) {
-        scores.setOverall(cvss.getCvssScore());
-      }
-
-      breakdownBuilder.setScores(scores.build());
+      // Set scores (overall, base, temporal, environmental) only if present and > 0
+      breakdownBuilder.setScores(buildCvssScoreSummary(cvss));
 
       // ---- Metrics ----
       Map<CvssMetricGroup, List<CvssMetricEntry>> metrics =
@@ -275,9 +261,33 @@ public class RuleMapper {
         addMetrics(breakdownBuilder::setEnvironmental,
                 metrics.get(CvssMetricGroup.ENVIRONMENTAL));
       }
-
       ruleResponse.setCvssBreakdown(breakdownBuilder.build());
     });
+  }
+
+  /**
+   * Builds the CVSS score summary for the rule response.
+   * <p>
+   * Only positive score values are set to avoid exposing meaningless zero values in the Web API response. Missing
+   * scores are intentionally
+   */
+  private static Rules.CvssScoreSummary buildCvssScoreSummary(CvssRuleBreakdown cvss) {
+    Rules.CvssScoreSummary.Builder scores =
+            Rules.CvssScoreSummary.newBuilder();
+
+    if (cvss.getBaseScore() > 0.0) {
+      scores.setBase(cvss.getBaseScore());
+    }
+    if (cvss.getTemporalScore() > 0.0) {
+      scores.setTemporal(cvss.getTemporalScore());
+    }
+    if (cvss.getEnvironmentalScore() > 0.0) {
+      scores.setEnvironmental(cvss.getEnvironmentalScore());
+    }
+    if (cvss.getCvssScore() > 0.0) {
+      scores.setOverall(cvss.getCvssScore());
+    }
+    return scores.build();
   }
 
   private static void addMetrics(Consumer<Rules.CvssMetrics> setter, List<CvssMetricEntry> metrics) {
