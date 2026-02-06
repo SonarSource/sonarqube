@@ -197,6 +197,17 @@
         where upper(name) like #{upperCaseNameLikeSql} escape '/'
     </if>
     order by upper(name), name
+    <if test="pagination != null">
+      <include refid="org.sonar.db.common.Common.pagination"/>
+    </if>
+  </select>
+
+  <select id="countAll" parameterType="map" resultType="int">
+    SELECT COUNT(1)
+    FROM permission_templates
+    <if test="upperCaseNameLikeSql != null">
+      where upper(name) like #{upperCaseNameLikeSql} escape '/'
+    </if>
   </select>
 
   <select id="selectByName" parameterType="map" resultType="PermissionTemplate">

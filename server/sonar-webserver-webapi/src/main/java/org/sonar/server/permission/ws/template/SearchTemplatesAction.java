@@ -25,10 +25,12 @@ import java.util.List;
 import java.util.Locale;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.api.utils.Paging;
 import org.sonar.core.i18n.I18n;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -50,6 +52,8 @@ import org.sonarqube.ws.Permissions.SearchTemplatesWsResponse.TemplateIdQualifie
 
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.api.utils.Paging.forPageIndex;
+import static org.sonar.db.Pagination.forPage;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.template.SearchTemplatesData.builder;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -57,6 +61,8 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 public class SearchTemplatesAction implements PermissionsWsAction {
   private static final String PROPERTY_PREFIX = "projects_role.";
   private static final String DESCRIPTION_SUFFIX = ".desc";
+  private static final int DEFAULT_PAGE_SIZE = 100;
+  private static final int RESULTS_MAX_SIZE = 500;
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -75,23 +81,50 @@ public class SearchTemplatesAction implements PermissionsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    context.createAction("search_templates")
+    WebService.NewAction action = context.createAction("search_templates")
       .setDescription("List permission templates.<br />" +
         "Requires the following permission: 'Administer System'.")
       .setResponseExample(getClass().getResource("search_templates-example-without-views.json"))
       .setSince("5.2")
       .addSearchQuery("defau", "permission template names")
-      .setHandler(this);
+      .setHandler(this)
+      .setChangelog(new Change("2026.2", "Add optional pagination support to search_templates API."));
+
+    action.createParam(Param.PAGE)
+      .setDescription("1-based page number")
+      .setExampleValue("2");
+
+    action.createParam(Param.PAGE_SIZE)
+      .setDescription("Page size. Must be greater than or equal to 0 and less or equal than " + RESULTS_MAX_SIZE + ". " +
+        "If this and p param are not provided, pagination is disabled and all results are returned. " +
+        "If pageSize=0, no results are returned but the response will contain the total count of matching templates.")
+      .setExampleValue("100");
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      SearchTemplatesRequest request = new SearchTemplatesRequest().setQuery(wsRequest.param(Param.TEXT_QUERY));
+      SearchTemplatesRequest request = new SearchTemplatesRequest()
+        .setQuery(wsRequest.param(Param.TEXT_QUERY))
+        .setPage(wsRequest.paramAsInt(Param.PAGE))
+        .setPageSize(wsRequest.paramAsInt(Param.PAGE_SIZE));
+
+      validatePaginationParameters(request);
       checkGlobalAdmin(userSession);
 
       SearchTemplatesWsResponse searchTemplatesWsResponse = buildResponse(load(dbSession, request));
       writeProtobuf(searchTemplatesWsResponse, wsRequest, wsResponse);
+    }
+  }
+
+  private static void validatePaginationParameters(SearchTemplatesRequest request) {
+    if (request.getPageSize() != null) {
+      if (request.getPageSize() < 0) {
+        throw new IllegalArgumentException("Page size must be >= 0");
+      }
+      if (request.getPageSize() > RESULTS_MAX_SIZE) {
+        throw new IllegalArgumentException("Page size must not exceed " + RESULTS_MAX_SIZE);
+      }
     }
   }
 
@@ -150,6 +183,21 @@ public class SearchTemplatesAction implements PermissionsWsAction {
     buildTemplatesResponse(response, data);
     buildDefaultTemplatesResponse(response, data);
     buildPermissionsResponse(response);
+    if (data.paging() != null) {
+      Paging paging = data.paging();
+      response.getPagingBuilder()
+        .setPageIndex(paging.pageIndex())
+        .setPageSize(paging.pageSize())
+        .setTotal(paging.total())
+        .build();
+    } else if (data.pagingPageIndex() != null) {
+      // Handle pageSize=0 case (stored as separate values, not in Paging object)
+      response.getPagingBuilder()
+        .setPageIndex(data.pagingPageIndex())
+        .setPageSize(data.pagingPageSize())
+        .setTotal(data.pagingTotal())
+        .build();
+    }
 
     return response.build();
   }
@@ -186,11 +234,50 @@ public class SearchTemplatesAction implements PermissionsWsAction {
       .groupCountByTemplateUuidAndPermission(groupCountByTemplateUuidAndPermission(dbSession, templateUuids))
       .withProjectCreatorByTemplateUuidAndPermission(withProjectCreatorsByTemplateUuidAndPermission(dbSession, templateUuids));
 
+    // Only add pagination info if at least one pagination parameter was provided
+    if (isPaginationRequested(request)) {
+      int total = dbClient.permissionTemplateDao().countAll(dbSession, request.getQuery());
+      int pageSize = getPageSizeOrDefault(request);
+      int page = getPageOrDefault(request);
+
+      // Special case: pageSize=0 means only return count, no results
+      // We can't use Paging.forPageIndex().withPageSize(0) as it requires >= 1
+      // So we store the values directly in SearchTemplatesData
+      if (pageSize == 0) {
+        data.pagingValues(page, pageSize, total);
+      } else {
+        Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(total);
+        data.paging(paging);
+      }
+    }
+
     return data.build();
   }
 
   private List<PermissionTemplateDto> searchTemplates(DbSession dbSession, SearchTemplatesRequest request) {
-    return dbClient.permissionTemplateDao().selectAll(dbSession, request.getQuery());
+    if (isPaginationRequested(request)) {
+      int pageSize = getPageSizeOrDefault(request);
+      if (pageSize == 0) {
+        return List.of();
+      }
+      return dbClient.permissionTemplateDao().selectAll(dbSession, request.getQuery(),
+        forPage(getPageOrDefault(request)).andSize(pageSize));
+    } else {
+      // When pagination is not provided, fetch all results
+      return dbClient.permissionTemplateDao().selectAll(dbSession, request.getQuery(), null);
+    }
+  }
+
+  private static boolean isPaginationRequested(SearchTemplatesRequest request) {
+    return request.getPage() != null || request.getPageSize() != null;
+  }
+
+  private static int getPageOrDefault(SearchTemplatesRequest request) {
+    return request.getPage() != null ? request.getPage().intValue() : 1;
+  }
+
+  private static int getPageSizeOrDefault(SearchTemplatesRequest request) {
+    return request.getPageSize() != null ? request.getPageSize().intValue() : DEFAULT_PAGE_SIZE;
   }
 
   private Table<String, String, Integer> userCountByTemplateUuidAndPermission(DbSession dbSession, List<String> templateUuids) {
@@ -228,6 +315,12 @@ public class SearchTemplatesAction implements PermissionsWsAction {
 
   private static class SearchTemplatesRequest {
     private String query;
+    private Integer page;
+    private Integer pageSize;
+
+    public SearchTemplatesRequest() {
+      // For deserialization
+    }
 
     @CheckForNull
     public String getQuery() {
@@ -236,6 +329,26 @@ public class SearchTemplatesAction implements PermissionsWsAction {
 
     public SearchTemplatesRequest setQuery(@Nullable String query) {
       this.query = query;
+      return this;
+    }
+
+    @CheckForNull
+    public Integer getPage() {
+      return page;
+    }
+
+    public SearchTemplatesRequest setPage(@Nullable Integer page) {
+      this.page = page;
+      return this;
+    }
+
+    @CheckForNull
+    public Integer getPageSize() {
+      return pageSize;
+    }
+
+    public SearchTemplatesRequest setPageSize(@Nullable Integer pageSize) {
+      this.pageSize = pageSize;
       return this;
     }
   }

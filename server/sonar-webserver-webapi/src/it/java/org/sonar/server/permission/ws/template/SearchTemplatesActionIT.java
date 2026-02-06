@@ -45,6 +45,8 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
@@ -74,9 +76,9 @@ public class SearchTemplatesActionIT extends BasePermissionWsIT<SearchTemplatesA
 
   @Before
   public void setUp() {
-    DefaultTemplatesResolver defaultTemplatesResolverWithViews = new DefaultTemplatesResolverImpl(dbClient, resourceTypesWithoutViews);
+    DefaultTemplatesResolver defaultTemplatesResolverWithoutViews = new DefaultTemplatesResolverImpl(dbClient, resourceTypesWithoutViews);
     underTestWithoutViews = new WsActionTester(
-      new SearchTemplatesAction(dbClient, userSession, i18n, defaultTemplatesResolverWithViews, permissionServiceWithoutViews));
+      new SearchTemplatesAction(dbClient, userSession, i18n, defaultTemplatesResolverWithoutViews, permissionServiceWithoutViews));
     i18n.setProjectPermissions();
     userSession.logIn().addPermission(ADMINISTER);
   }
@@ -90,8 +92,8 @@ public class SearchTemplatesActionIT extends BasePermissionWsIT<SearchTemplatesA
     UserDto user3 = db.users().insertUser();
 
     GroupDto group1 = db.users().insertGroup();
-    GroupDto group2 = db.users().insertGroup();
-    GroupDto group3 = db.users().insertGroup();
+    db.users().insertGroup();
+    db.users().insertGroup();
 
     addUserToTemplate(projectTemplate.getUuid(), user1.getUuid(), ProjectPermission.ISSUE_ADMIN, projectTemplate.getName(), user1.getLogin());
     addUserToTemplate(projectTemplate.getUuid(), user2.getUuid(), ProjectPermission.ISSUE_ADMIN, projectTemplate.getName(), user2.getLogin());
@@ -378,5 +380,279 @@ public class SearchTemplatesActionIT extends BasePermissionWsIT<SearchTemplatesA
 
   private TestRequest newRequest(WsActionTester underTest) {
     return underTest.newRequest().setMethod("POST");
+  }
+
+  @Test
+  public void returns_all_results_when_pagination_not_provided() {
+    db.permissionTemplates().setDefaultTemplates(db.permissionTemplates().insertTemplate(), null, null);
+    for (int i = 0; i < 10; i++) {
+      insertTemplate(newPermissionTemplateDto()
+        .setName("Template " + i)
+        .setDescription("Template " + i));
+    }
+
+    String result = newRequest(wsTester).execute().getInput();
+
+    // When pagination params are not provided, all results should be returned without pagination info
+    assertThat(result)
+      .doesNotContain("\"paging\"")
+      .doesNotContain("\"pageSize\"")
+      .doesNotContain("\"pageIndex\"")
+      .doesNotContain("\"total\"")
+      .contains("Template 0")
+      .contains("Template 9");
+  }
+
+  @Test
+  public void pagination_with_default_page_size() {
+    db.permissionTemplates().setDefaultTemplates(db.permissionTemplates().insertTemplate(), null, null);
+    for (int i = 0; i < 10; i++) {
+      insertTemplate(newPermissionTemplateDto()
+        .setName("Template " + i)
+        .setDescription("Template " + i));
+    }
+
+    String result = newRequest(wsTester)
+      .setParam(PAGE, "1")
+      .setParam(PAGE_SIZE, "100")
+      .execute()
+      .getInput();
+
+    // When pagination params are provided, pagination info should be included
+    assertThat(result)
+      .contains("\"paging\"")
+      .contains("\"pageSize\":100")
+      .contains("\"total\":11")
+      .contains("\"pageIndex\":1");
+  }
+
+  @Test
+  public void pagination_with_custom_page_size() {
+    db.permissionTemplates().setDefaultTemplates(db.permissionTemplates().insertTemplate(), null, null);
+    for (int i = 0; i < 10; i++) {
+      insertTemplate(newPermissionTemplateDto()
+        .setName("Template " + i)
+        .setDescription("Template " + i));
+    }
+
+    String result = newRequest(wsTester)
+      .setParam(PAGE, "2")
+      .setParam(PAGE_SIZE, "5")
+      .execute()
+      .getInput();
+
+    // When pagination params ARE provided, they should be respected
+    assertThat(result)
+      .contains("\"paging\"")
+      .contains("\"pageSize\":5")
+      .contains("\"total\":11")
+      .contains("\"pageIndex\":2");
+  }
+
+  @Test
+  public void pagination_returns_correct_templates() {
+    db.permissionTemplates().setDefaultTemplates(db.permissionTemplates().insertTemplate(), null, null);
+    for (int i = 0; i < 10; i++) {
+      insertTemplate(newPermissionTemplateDto()
+        .setName("Template " + String.format("%02d", i))
+        .setDescription("Template " + i));
+    }
+
+    String result = newRequest(wsTester)
+      .setParam(PAGE, "1")
+      .setParam(PAGE_SIZE, "3")
+      .execute()
+      .getInput();
+
+    // When pagination params ARE provided, they should be respected
+    assertThat(result)
+      .contains("\"total\":11")
+      .contains("\"pageSize\":3");
+  }
+
+  @Test
+  public void pagination_with_name_filter() {
+    db.permissionTemplates().setDefaultTemplates(db.permissionTemplates().insertTemplate(), null, null);
+    for (int i = 0; i < 10; i++) {
+      insertTemplate(newPermissionTemplateDto()
+        .setName("Template " + i)
+        .setDescription("Template " + i));
+    }
+    for (int i = 0; i < 5; i++) {
+      insertTemplate(newPermissionTemplateDto()
+        .setName("Special " + i)
+        .setDescription("Special " + i));
+    }
+
+    String result = newRequest(wsTester)
+      .setParam(TEXT_QUERY, "Special")
+      .setParam(PAGE_SIZE, "3")
+      .execute()
+      .getInput();
+
+    // When pagination params ARE provided, they should be respected
+    assertThat(result)
+      .contains("\"paging\"")
+      .contains("\"total\":5")
+      .contains("\"pageSize\":3")
+      .contains("Special");
+  }
+
+  @Test
+  public void fail_when_page_is_zero() {
+    db.permissionTemplates().setDefaultTemplates(db.permissionTemplates().insertTemplate(), null, null);
+
+    TestRequest request = newRequest(wsTester)
+      .setParam(PAGE, "0")
+      .setParam(PAGE_SIZE, "10");
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("page index must be >= 1");
+  }
+
+  @Test
+  public void fail_when_page_is_negative() {
+    db.permissionTemplates().setDefaultTemplates(db.permissionTemplates().insertTemplate(), null, null);
+
+    TestRequest request = newRequest(wsTester)
+      .setParam(PAGE, "-1")
+      .setParam(PAGE_SIZE, "10");
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("page index must be >= 1");
+  }
+
+  @Test
+  public void return_only_count_when_page_size_is_zero() {
+    db.permissionTemplates().setDefaultTemplates(db.permissionTemplates().insertTemplate(), null, null);
+    for (int i = 0; i < 10; i++) {
+      insertTemplate(newPermissionTemplateDto()
+        .setName("Template " + i)
+        .setDescription("Template " + i));
+    }
+
+    String result = newRequest(wsTester)
+      .setParam(PAGE, "1")
+      .setParam(PAGE_SIZE, "0")
+      .execute()
+      .getInput();
+
+    // pageSize=0 should return no results but include the total count
+    assertThat(result)
+      .contains("\"paging\"")
+      .contains("\"pageSize\":0")
+      .contains("\"pageIndex\":1")
+      .contains("\"total\":11")
+      .contains("\"permissionTemplates\":[]");
+  }
+
+  @Test
+  public void backwards_compatibility_no_pagination_params_returns_all() {
+    db.permissionTemplates().setDefaultTemplates(db.permissionTemplates().insertTemplate(), null, null);
+    for (int i = 0; i < 5; i++) {
+      insertTemplate(newPermissionTemplateDto()
+        .setName("Template " + i)
+        .setDescription("Template " + i));
+    }
+
+    String result = newRequest(wsTester).execute().getInput();
+
+    // No pagination params = backwards compatible, returns all results, no paging info
+    assertThat(result)
+      .doesNotContain("\"paging\"")
+      .contains("Template 0")
+      .contains("Template 1")
+      .contains("Template 2")
+      .contains("Template 3")
+      .contains("Template 4");
+  }
+
+  @Test
+  public void return_only_count_when_only_page_size_zero_provided() {
+    db.permissionTemplates().setDefaultTemplates(db.permissionTemplates().insertTemplate(), null, null);
+    for (int i = 0; i < 10; i++) {
+      insertTemplate(newPermissionTemplateDto()
+        .setName("Template " + i)
+        .setDescription("Template " + i));
+    }
+
+    String result = newRequest(wsTester)
+      .setParam(PAGE_SIZE, "0")
+      .execute()
+      .getInput();
+
+    // pageSize=0 without page should use default page=1 and return count only
+    assertThat(result)
+      .contains("\"paging\"")
+      .contains("\"pageSize\":0")
+      .contains("\"pageIndex\":1")
+      .contains("\"total\":11")
+      .contains("\"permissionTemplates\":[]");
+  }
+
+  @Test
+  public void fail_when_page_size_is_negative() {
+    db.permissionTemplates().setDefaultTemplates(db.permissionTemplates().insertTemplate(), null, null);
+
+    TestRequest request = newRequest(wsTester)
+      .setParam(PAGE, "1")
+      .setParam(PAGE_SIZE, "-1");
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Page size must be >= 0");
+  }
+
+  @Test
+  public void fail_when_page_size_exceeds_maximum() {
+    db.permissionTemplates().setDefaultTemplates(db.permissionTemplates().insertTemplate(), null, null);
+
+    TestRequest request = newRequest(wsTester)
+      .setParam(PAGE, "1")
+      .setParam(PAGE_SIZE, "501");
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Page size must not exceed 500");
+  }
+
+  @Test
+  public void use_default_page_size_when_only_page_provided() {
+    db.permissionTemplates().setDefaultTemplates(db.permissionTemplates().insertTemplate(), null, null);
+    for (int i = 0; i < 10; i++) {
+      insertTemplate(newPermissionTemplateDto()
+        .setName("Template " + i)
+        .setDescription("Template " + i));
+    }
+
+    String result = newRequest(wsTester)
+      .setParam(PAGE, "1")
+      .execute()
+      .getInput();
+
+    assertThat(result)
+      .contains("\"paging\"")
+      .contains("\"pageSize\":100")
+      .contains("\"pageIndex\":1")
+      .contains("\"total\":11");
+  }
+
+  @Test
+  public void return_empty_results_when_page_beyond_available() {
+    db.permissionTemplates().setDefaultTemplates(db.permissionTemplates().insertTemplate(), null, null);
+    insertTemplate(newPermissionTemplateDto()
+      .setName("Template 1")
+      .setDescription("Template 1"));
+
+    String result = newRequest(wsTester)
+      .setParam(PAGE, "999")
+      .setParam(PAGE_SIZE, "10")
+      .execute()
+      .getInput();
+
+    assertThat(result)
+      .contains("\"paging\"")
+      .contains("\"pageSize\":10")
+      .contains("\"pageIndex\":999")
+      .contains("\"total\":2")
+      .contains("\"permissionTemplates\":[]");
   }
 }

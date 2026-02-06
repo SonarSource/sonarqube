@@ -30,6 +30,7 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.Pagination;
 import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.ProjectPermission;
@@ -123,11 +124,69 @@ class PermissionTemplateDaoIT {
   void selectAll_with_name_filtering() {
     PermissionTemplateDto t1InOrg1 = templateDb.insertTemplate(newPermissionTemplateDto().setName("aBcDeF"));
     PermissionTemplateDto t2InOrg1 = templateDb.insertTemplate(newPermissionTemplateDto().setName("cdefgh"));
-    PermissionTemplateDto t3InOrg1 = templateDb.insertTemplate(newPermissionTemplateDto().setName("hijkl"));
+    templateDb.insertTemplate(newPermissionTemplateDto().setName("hijkl"));
 
     assertThat(underTest.selectAll(dbSession, "def")).extracting(PermissionTemplateDto::getUuid).containsExactly(t1InOrg1.getUuid(),
       t2InOrg1.getUuid());
     assertThat(underTest.selectAll(dbSession, "missing")).isEmpty();
+  }
+
+  @Test
+  void selectAll_with_pagination() {
+    templateDb.insertTemplate(newPermissionTemplateDto().setName("template1"));
+    templateDb.insertTemplate(newPermissionTemplateDto().setName("template2"));
+    templateDb.insertTemplate(newPermissionTemplateDto().setName("template3"));
+    templateDb.insertTemplate(newPermissionTemplateDto().setName("template4"));
+    templateDb.insertTemplate(newPermissionTemplateDto().setName("template5"));
+
+    assertThat(underTest.selectAll(dbSession, null, Pagination.forPage(1).andSize(2)))
+      .extracting(PermissionTemplateDto::getName)
+      .containsExactly("template1", "template2");
+
+    assertThat(underTest.selectAll(dbSession, null, Pagination.forPage(2).andSize(2)))
+      .extracting(PermissionTemplateDto::getName)
+      .containsExactly("template3", "template4");
+
+    assertThat(underTest.selectAll(dbSession, null, Pagination.forPage(3).andSize(2)))
+      .extracting(PermissionTemplateDto::getName)
+      .containsExactly("template5");
+  }
+
+  @Test
+  void selectAll_with_pagination_and_name_filter() {
+    templateDb.insertTemplate(newPermissionTemplateDto().setName("aBcDeF1"));
+    templateDb.insertTemplate(newPermissionTemplateDto().setName("aBcDeF2"));
+    templateDb.insertTemplate(newPermissionTemplateDto().setName("aBcDeF3"));
+    templateDb.insertTemplate(newPermissionTemplateDto().setName("other1"));
+    templateDb.insertTemplate(newPermissionTemplateDto().setName("other2"));
+
+    assertThat(underTest.selectAll(dbSession, "def", Pagination.forPage(1).andSize(2)))
+      .extracting(PermissionTemplateDto::getName)
+      .containsExactly("aBcDeF1", "aBcDeF2");
+
+    assertThat(underTest.selectAll(dbSession, "def", Pagination.forPage(2).andSize(2)))
+      .extracting(PermissionTemplateDto::getName)
+      .containsExactly("aBcDeF3");
+  }
+
+  @Test
+  void countAll_without_filter() {
+    templateDb.insertTemplate(newPermissionTemplateDto().setName("template1"));
+    templateDb.insertTemplate(newPermissionTemplateDto().setName("template2"));
+    templateDb.insertTemplate(newPermissionTemplateDto().setName("template3"));
+
+    assertThat(underTest.countAll(dbSession, null)).isEqualTo(3);
+  }
+
+  @Test
+  void countAll_with_name_filter() {
+    templateDb.insertTemplate(newPermissionTemplateDto().setName("aBcDeF1"));
+    templateDb.insertTemplate(newPermissionTemplateDto().setName("aBcDeF2"));
+    templateDb.insertTemplate(newPermissionTemplateDto().setName("other1"));
+
+    assertThat(underTest.countAll(dbSession, "def")).isEqualTo(2);
+    assertThat(underTest.countAll(dbSession, "other")).isEqualTo(1);
+    assertThat(underTest.countAll(dbSession, "missing")).isZero();
   }
 
   @Test
@@ -404,7 +463,7 @@ class PermissionTemplateDaoIT {
 
     assertThat(db.select("select template_uuid as \"templateUuid\", user_uuid as \"userUuid\", permission_reference as \"permission\" " +
       "from perm_templates_users"))
-      .extracting((row) -> row.get("templateUuid"), (row) -> row.get("userUuid"), (row) -> row.get("permission"))
+      .extracting(row -> row.get("templateUuid"), row -> row.get("userUuid"), row -> row.get("permission"))
       .containsOnly(tuple(template.getUuid(), anotherUser.getUuid(), permission));
   }
 }

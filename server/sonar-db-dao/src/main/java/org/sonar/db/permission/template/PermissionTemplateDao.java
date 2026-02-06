@@ -106,8 +106,26 @@ public class PermissionTemplateDao implements Dao {
   }
 
   public List<PermissionTemplateDto> selectAll(DbSession session, @Nullable String nameMatch) {
-    String upperCaseNameLikeSql = nameMatch != null ? toUppercaseSqlQuery(nameMatch) : null;
-    return mapper(session).selectAll(upperCaseNameLikeSql);
+    String upperCaseNameLikeSql = buildUpperLikeSql(nameMatch);
+    return mapper(session).selectAll(upperCaseNameLikeSql, null);
+  }
+
+  public List<PermissionTemplateDto> selectAll(DbSession session, @Nullable String nameMatch, @Nullable Pagination pagination) {
+    String upperCaseNameLikeSql = buildUpperLikeSql(nameMatch);
+    return mapper(session).selectAll(upperCaseNameLikeSql, pagination);
+  }
+
+  public int countAll(DbSession session, @Nullable String nameMatch) {
+    String upperCaseNameLikeSql = buildUpperLikeSql(nameMatch);
+    return mapper(session).countAll(upperCaseNameLikeSql);
+  }
+
+  @CheckForNull
+  private static String buildUpperLikeSql(@Nullable String nameMatch) {
+    if (nameMatch == null) {
+      return null;
+    }
+    return toUppercaseSqlQuery(nameMatch);
   }
 
   private static String toUppercaseSqlQuery(String nameMatch) {

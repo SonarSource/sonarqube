@@ -85,6 +85,7 @@ message SearchTemplatesWsResponse {
   repeated PermissionTemplate permissionTemplates = 1;
   repeated TemplateIdQualifier defaultTemplates = 2;
   repeated Permission permissions = 3;
+  optional sonarqube.ws.commons.Paging paging = 4;
 }
 
 message Permission {

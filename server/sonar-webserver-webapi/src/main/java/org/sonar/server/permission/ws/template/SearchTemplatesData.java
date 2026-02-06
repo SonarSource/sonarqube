@@ -21,6 +21,8 @@ package org.sonar.server.permission.ws.template;
 
 import com.google.common.collect.Table;
 import java.util.List;
+import javax.annotation.Nullable;
+import org.sonar.api.utils.Paging;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.common.permission.DefaultTemplatesResolver.ResolvedDefaultTemplates;
 
@@ -35,6 +37,11 @@ class SearchTemplatesData {
   private final Table<String, String, Integer> userCountByTemplateUuidAndPermission;
   private final Table<String, String, Integer> groupCountByTemplateUuidAndPermission;
   private final Table<String, String, Boolean> withProjectCreatorByTemplateUuidAndPermission;
+  private final Paging paging;
+  // Special fields for pageSize=0 case (can't be represented by standard Paging)
+  private final Integer pagingPageIndex;
+  private final Integer pagingPageSize;
+  private final Integer pagingTotal;
 
   private SearchTemplatesData(Builder builder) {
     this.templates = copyOf(builder.templates);
@@ -42,6 +49,10 @@ class SearchTemplatesData {
     this.userCountByTemplateUuidAndPermission = copyOf(builder.userCountByTemplateUuidAndPermission);
     this.groupCountByTemplateUuidAndPermission = copyOf(builder.groupCountByTemplateUuidAndPermission);
     this.withProjectCreatorByTemplateUuidAndPermission = copyOf(builder.withProjectCreatorByTemplateUuidAndPermission);
+    this.paging = builder.paging;
+    this.pagingPageIndex = builder.pagingPageIndex;
+    this.pagingPageSize = builder.pagingPageSize;
+    this.pagingTotal = builder.pagingTotal;
   }
 
   public static Builder builder() {
@@ -68,12 +79,36 @@ class SearchTemplatesData {
     return firstNonNull(withProjectCreatorByTemplateUuidAndPermission.get(templateUuid, permission), false);
   }
 
+  @Nullable
+  public Paging paging() {
+    return paging;
+  }
+
+  @Nullable
+  public Integer pagingPageIndex() {
+    return pagingPageIndex;
+  }
+
+  @Nullable
+  public Integer pagingPageSize() {
+    return pagingPageSize;
+  }
+
+  @Nullable
+  public Integer pagingTotal() {
+    return pagingTotal;
+  }
+
   public static class Builder {
     private List<PermissionTemplateDto> templates;
     private ResolvedDefaultTemplates defaultTemplates;
     private Table<String, String, Integer> userCountByTemplateUuidAndPermission;
     private Table<String, String, Integer> groupCountByTemplateUuidAndPermission;
     private Table<String, String, Boolean> withProjectCreatorByTemplateUuidAndPermission;
+    private Paging paging;
+    private Integer pagingPageIndex;
+    private Integer pagingPageSize;
+    private Integer pagingTotal;
 
     private Builder() {
       // prevents instantiation outside main class
@@ -111,6 +146,18 @@ class SearchTemplatesData {
 
     public Builder withProjectCreatorByTemplateUuidAndPermission(Table<String, String, Boolean> withProjectCreatorByTemplateUuidAndPermission) {
       this.withProjectCreatorByTemplateUuidAndPermission = withProjectCreatorByTemplateUuidAndPermission;
+      return this;
+    }
+
+    public Builder paging(Paging paging) {
+      this.paging = paging;
+      return this;
+    }
+
+    public Builder pagingValues(int pageIndex, int pageSize, int total) {
+      pagingPageIndex = pageIndex;
+      pagingPageSize = pageSize;
+      pagingTotal = total;
       return this;
     }
   }

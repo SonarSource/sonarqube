@@ -70,7 +70,9 @@ public interface PermissionTemplateMapper {
 
   int countGroupNamesByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateUuid") String templateUuid);
 
-  List<PermissionTemplateDto> selectAll(@Nullable @Param("upperCaseNameLikeSql") String upperCaseNameLikeSql);
+  List<PermissionTemplateDto> selectAll(@Nullable @Param("upperCaseNameLikeSql") String upperCaseNameLikeSql, @Nullable @Param("pagination") Pagination pagination);
+
+  int countAll(@Nullable @Param("upperCaseNameLikeSql") String upperCaseNameLikeSql);
 
   void usersCountByTemplateUuidAndPermission(Map<String, Object> parameters, ResultHandler<CountByTemplateAndPermissionDto> resultHandler);
 
