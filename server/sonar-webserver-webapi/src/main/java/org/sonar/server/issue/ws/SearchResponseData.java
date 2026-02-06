@@ -131,7 +131,7 @@ public class SearchResponseData {
     if (statusChangedByIssueKey.containsKey(issueKey)) {
       return statusChangedByIssueKey.get(issueKey);
     }
-    return null ;
+    return null;
   }
 
   @CheckForNull
