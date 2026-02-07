@@ -68,4 +68,6 @@ public interface ScaDataSource {
    * Any that aren't found simply aren't in the returned collection.
    */
   List<IssueRelease> getIssueReleasesByUuids(Collection<UUID> uuids);
+    
+  String getCycloneDxJsonSbom(String branchUuid);
 }

@@ -43,4 +43,9 @@ public class DefaultScaDataSourceImpl implements ScaDataSource {
   public ComponentIssueAggregations getComponentIssueAggregations(String componentUuid) {
     return ComponentIssueAggregations.empty();
   }
+
+  
+  public String getCycloneDxJsonSbom(String branchUuid) {
+    return "";
+  }
 }
