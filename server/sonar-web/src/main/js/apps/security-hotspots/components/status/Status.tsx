@@ -36,7 +36,7 @@ export default function Status(props: StatusProps) {
 
   return (
     <HighlightedSection className="sw-flex sw-rounded-1 sw-p-4 sw-items-center sw-justify-between sw-gap-2 sw-flex-row">
-      <StatusDescription statusOption={statusOption} />
+      <StatusDescription statusOption={statusOption} hotspot={hotspot} />
       <StatusReviewButton hotspot={hotspot} onStatusChange={props.onStatusChange} />
     </HighlightedSection>
   );

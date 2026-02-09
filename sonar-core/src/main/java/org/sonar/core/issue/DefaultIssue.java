@@ -85,6 +85,8 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   private boolean prioritizedRule = false;
   // temporarily an Object as long as DefaultIssue is used by sonar-batch
   private Object locations = null;
+  private Long issueResolutionExpiresAt;
+
 
   private boolean isFromExternalRuleEngine = false;
 
@@ -219,6 +221,16 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   public DefaultIssue setProjectUuid(String s) {
     this.projectUuid = s;
+    return this;
+  }
+
+
+  public Long issueResolutionExpiresAt() {
+    return issueResolutionExpiresAt;
+  }
+
+  public DefaultIssue setIssueResolutionExpiresAt(@Nullable Long v) {
+    this.issueResolutionExpiresAt = v;
     return this;
   }
 

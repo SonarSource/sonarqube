@@ -89,6 +89,9 @@ public final class IssueDto implements Serializable {
   private String ruleDescriptionContextKey;
   private boolean prioritizedRule;
 
+  @Nullable
+  private Long issueResolutionExpiresAt;
+
   // functional dates stored as Long
   private Long issueCreationDate;
   private Long issueUpdateDate;
@@ -163,6 +166,7 @@ public final class IssueDto implements Serializable {
       .setIsNewCodeReferenceIssue(issue.isNewCodeReferenceIssue())
       .setCodeVariants(issue.codeVariants())
       .setCleanCodeAttribute(issue.getCleanCodeAttribute())
+      .setIssueResolutionExpiresAt(issue.issueResolutionExpiresAt())
       // technical dates
       .setCreatedAt(now)
       .setUpdatedAt(now)
@@ -178,7 +182,9 @@ public final class IssueDto implements Serializable {
   public static IssueDto toDtoForServerInsert(DefaultIssue issue, ComponentDto component, ComponentDto project, String ruleUuid, long now) {
     return toDtoForComputationInsert(issue, ruleUuid, now)
       .setComponent(component)
-      .setProject(project);
+      .setProject(project)
+      .setIssueResolutionExpiresAt(issue.issueResolutionExpiresAt());
+
   }
 
   public static IssueDto toDtoForUpdate(DefaultIssue issue, long now) {
@@ -216,6 +222,7 @@ public final class IssueDto implements Serializable {
       .setCodeVariants(issue.codeVariants())
       .setCleanCodeAttribute(issue.getCleanCodeAttribute())
       .setPrioritizedRule(issue.isPrioritizedRule())
+      .setIssueResolutionExpiresAt(issue.issueResolutionExpiresAt())
       // technical date
       .setUpdatedAt(now);
 
@@ -468,6 +475,15 @@ public final class IssueDto implements Serializable {
 
   public IssueDto setIssueCreationTime(Long time) {
     this.issueCreationDate = time;
+    return this;
+  }
+
+  public Long getIssueResolutionExpiresAt() {
+    return issueResolutionExpiresAt;
+  }
+
+  public IssueDto setIssueResolutionExpiresAt(@Nullable Long date) {
+    this.issueResolutionExpiresAt = date;
     return this;
   }
 
@@ -925,6 +941,7 @@ public final class IssueDto implements Serializable {
     issue.setCleanCodeAttribute(cleanCodeAttribute);
     impacts.forEach(i -> issue.addImpact(i.getSoftwareQuality(), i.getSeverity(), i.isManualSeverity()));
     issue.setCveId(cveId);
+    issue.setIssueResolutionExpiresAt(this.issueResolutionExpiresAt);
     return issue;
   }
 }

@@ -84,6 +84,7 @@ message ShowWsResponse {
   repeated sonarqube.ws.commons.Flow flows = 19;
   repeated sonarqube.ws.commons.MessageFormatting messageFormattings = 20;
   repeated string codeVariants = 21;
+  optional int64 issueResolutionExpiresAt = 22;
 }
 
 message Component {

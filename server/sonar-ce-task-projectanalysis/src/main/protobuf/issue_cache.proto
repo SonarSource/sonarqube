@@ -88,6 +88,7 @@ message Issue {
   optional string clean_code_attribute = 50;
   optional bool is_prioritized_rule = 51;
   optional string cve_id = 52;
+  optional int64 issue_resolution_expires_at = 53;
 }
 
 message Comment {

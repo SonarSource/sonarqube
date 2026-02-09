@@ -130,6 +130,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     defaultIssue.setCloseDate(next.hasCloseDate() ? new Date(next.getCloseDate()) : null);
     defaultIssue.setCurrentChangeWithoutAddChange(next.hasCurrentChanges() ? toDefaultIssueChanges(next.getCurrentChanges()) : null);
     defaultIssue.setNew(next.getIsNew());
+    defaultIssue.setIssueResolutionExpiresAt(next.hasIssueResolutionExpiresAt() ? next.getIssueResolutionExpiresAt() : null);
     defaultIssue.setIsOnChangedLine(next.getIsOnChangedLine());
     defaultIssue.setIsNewCodeReferenceIssue(next.getIsNewCodeReferenceIssue());
     defaultIssue.setCopied(next.getIsCopied());
@@ -160,6 +161,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
   static IssueCache.Issue toProto(IssueCache.Issue.Builder builder, DefaultIssue defaultIssue) {
     builder.clear();
     builder.setKey(defaultIssue.key());
+    ofNullable(defaultIssue.issueResolutionExpiresAt()).ifPresent(builder::setIssueResolutionExpiresAt);
     builder.setRuleType(defaultIssue.type().getDbConstant());
     ofNullable(defaultIssue.getCleanCodeAttribute()).ifPresent(value -> builder.setCleanCodeAttribute(value.name()));
     ofNullable(defaultIssue.componentUuid()).ifPresent(builder::setComponentUuid);

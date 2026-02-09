@@ -81,6 +81,7 @@ export interface RawHotspot {
 }
 
 export interface Hotspot {
+  issueResolutionExpiresAt: string | number | Date;
   assignee?: string;
   assigneeUser?: UserBase;
   author: string;
@@ -104,6 +105,7 @@ export interface Hotspot {
   textRange?: TextRange;
   updateDate: string;
   users: UserBase[];
+  issueResolutionExpiryDate?:string;
 }
 
 export interface HotspotComponent {
@@ -169,6 +171,7 @@ export interface HotspotSetStatusRequest {
   comment?: string;
   resolution?: HotspotResolution;
   status: HotspotStatus;
+  issueResolutionExpiryDate?: string;
 }
 
 export interface HotspotAssignRequest {
