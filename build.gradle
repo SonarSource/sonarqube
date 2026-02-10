@@ -520,7 +520,7 @@ subprojects {
       dependency 'org.spdx:java-spdx-library:2.0.2'
       dependency 'org.spdx:spdx-v3jsonld-store:1.0.1'
       dependency 'org.spdx:spdx-jackson-store:2.0.3'
-      dependencySet(group: 'org.springframework', version: '7.0.2') {
+      dependencySet(group: 'org.springframework', version: '7.0.3') {
         entry 'spring-test'
         entry 'spring-context'
         entry 'spring-webmvc'
