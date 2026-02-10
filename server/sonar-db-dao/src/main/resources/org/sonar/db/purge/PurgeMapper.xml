@@ -104,36 +104,13 @@
       )
   </select>
 
-  <select id="selectDisabledComponentsWithFileSource" parameterType="map" resultType="String">
+  <select id="selectDisabledComponentUuids" parameterType="map" resultType="String">
     select
-      file_uuid
-    from file_sources fs
-    inner join components p on
-      p.uuid = fs.file_uuid
-      and p.enabled = ${_false}
-      and p.branch_uuid=#{branchUuid,jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectDisabledComponentsWithUnresolvedIssues" parameterType="map" resultType="String">
-    select
-      i.component_uuid
-    from issues i
-    inner join components p on
-      p.uuid = i.component_uuid
-      and p.enabled = ${_false}
-      and p.branch_uuid=#{branchUuid,jdbcType=VARCHAR}
+      uuid
+    from components
     where
-      resolution is null
-  </select>
-
-  <select id="selectDisabledComponentsWithMeasures" parameterType="map" resultType="String">
-    select
-      m.component_uuid
-    from measures m
-    inner join components p on
-      p.uuid = m.component_uuid
-      and p.enabled = ${_false}
-      and p.branch_uuid=#{branchUuid,jdbcType=VARCHAR}
+      enabled = ${_false}
+      and branch_uuid=#{branchUuid,jdbcType=VARCHAR}
   </select>
 
   <delete id="deleteAnalysisMeasures" parameterType="map">

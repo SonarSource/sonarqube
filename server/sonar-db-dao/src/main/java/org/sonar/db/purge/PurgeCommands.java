@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
@@ -139,33 +140,31 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  void purgeDisabledComponents(String rootComponentUuid, Collection<String> disabledComponentUuids, PurgeListener listener) {
+  void purgeDisabledComponents(String rootComponentUuid) {
+    Set<String> disabledComponentUuids = purgeMapper.selectDisabledComponentUuids(rootComponentUuid);
+    if (disabledComponentUuids.isEmpty()) {
+      return;
+    }
 
     profiler.start("purgeDisabledComponents (file_sources)");
-      executeLargeInputs(
-        purgeMapper.selectDisabledComponentsWithFileSource(rootComponentUuid),
-        input -> {
-          purgeMapper.deleteFileSourcesByFileUuid(input);
-          return input;
-        });
+    executeLargeInputs(disabledComponentUuids, input -> {
+      purgeMapper.deleteFileSourcesByFileUuid(input);
+      return input;
+    });
     profiler.stop();
 
     profiler.start("purgeDisabledComponents (unresolved_issues)");
-      executeLargeInputs(
-        purgeMapper.selectDisabledComponentsWithUnresolvedIssues(rootComponentUuid),
-        input -> {
-          purgeMapper.resolveComponentIssuesNotAlreadyResolved(input, system2.now());
-          return input;
-        });
+    executeLargeInputs(disabledComponentUuids, input -> {
+      purgeMapper.resolveComponentIssuesNotAlreadyResolved(input, system2.now());
+      return input;
+    });
     profiler.stop();
 
     profiler.start("purgeDisabledComponents (measures)");
-    executeLargeInputs(
-      purgeMapper.selectDisabledComponentsWithMeasures(rootComponentUuid),
-      input -> {
-        purgeMapper.deleteMeasuresByComponentUuids(input);
-        return input;
-      });
+    executeLargeInputs(disabledComponentUuids, input -> {
+      purgeMapper.deleteMeasuresByComponentUuids(input);
+      return input;
+    });
     profiler.stop();
 
     session.commit();

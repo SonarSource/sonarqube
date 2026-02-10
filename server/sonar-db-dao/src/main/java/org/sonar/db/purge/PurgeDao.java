@@ -68,7 +68,7 @@ public class PurgeDao implements Dao {
     String rootUuid = conf.rootUuid();
     deleteAbortedAnalyses(rootUuid, commands);
     purgeAnalyses(commands, rootUuid);
-    purgeDisabledComponents(commands, conf, listener);
+    purgeDisabledComponents(commands, conf);
     deleteOldClosedIssues(conf, mapper, listener);
     deleteOrphanIssues(mapper, rootUuid);
     purgeOldCeActivities(session, rootUuid, commands);
@@ -107,9 +107,8 @@ public class PurgeDao implements Dao {
     commands.purgeAnalyses(analysisUuids);
   }
 
-  private static void purgeDisabledComponents(PurgeCommands commands, PurgeConfiguration conf, PurgeListener listener) {
-    String rootUuid = conf.rootUuid();
-    commands.purgeDisabledComponents(rootUuid, conf.getDisabledComponentUuids(), listener);
+  private static void purgeDisabledComponents(PurgeCommands commands, PurgeConfiguration conf) {
+    commands.purgeDisabledComponents(conf.rootUuid());
   }
 
   private static void deleteOrphanIssues(PurgeMapper mapper, String rootUuid) {

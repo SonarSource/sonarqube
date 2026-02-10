@@ -35,11 +35,7 @@ public interface PurgeMapper {
    */
   List<String> selectRootAndSubviewsByProjectUuid(@Param("rootUuid") String rootUuid);
 
-  Set<String> selectDisabledComponentsWithFileSource(@Param("branchUuid") String branchUuid);
-
-  Set<String> selectDisabledComponentsWithUnresolvedIssues(@Param("branchUuid") String branchUuid);
-
-  Set<String> selectDisabledComponentsWithMeasures(@Param("branchUuid") String branchUuid);
+  Set<String> selectDisabledComponentUuids(@Param("branchUuid") String branchUuid);
 
   void deleteAnalyses(@Param("analysisUuids") List<String> analysisUuids);
 
