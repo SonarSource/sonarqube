@@ -26,27 +26,12 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
-import org.springframework.validation.Validator;
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
-import org.springframework.web.util.UrlPathHelper;
 
-import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mockStatic;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CommonWebConfigTest {
-
-  @Test
-  public void configurePathMatch_shouldDisableUrlDecode() {
-    CommonWebConfig commonWebConfig = new CommonWebConfig();
-    PathMatchConfigurer pathMatchConfigurer = new PathMatchConfigurer();
-    commonWebConfig.configurePathMatch(pathMatchConfigurer);
-
-    UrlPathHelper actualUrlPathHelper = requireNonNull(pathMatchConfigurer.getUrlPathHelper());
-
-    assertThat(actualUrlPathHelper.isUrlDecode()).isFalse();
-  }
 
   @Test
   public void customOpenAPI_shouldIncludeNonNullVersion() {
@@ -59,19 +44,11 @@ public class CommonWebConfigTest {
 
       assertThat(info.getVersion()).isNotNull();
       assertThat(info.getDescription()).isEqualTo("""
-          The SonarQube API v2 is a REST API which enables you to interact with SonarQube programmatically.
-          While not all endpoints of the former Web API are available yet, the ones available are stable and can be used in production environments.
-          """);
+        The SonarQube API v2 is a REST API which enables you to interact with SonarQube programmatically.
+        While not all endpoints of the former Web API are available yet, the ones available are stable and can be used in production environments.
+        """);
       assertThat(info.getVersion()).isEqualTo(expectedVersion.toString());
     }
-  }
-
-  @Test
-  public void getValidator_shouldReturnNonNull() {
-    CommonWebConfig commonWebConfig = new CommonWebConfig();
-    Validator validator = commonWebConfig.getValidator();
-
-    assertThat(validator).isNotNull();
   }
 
 }

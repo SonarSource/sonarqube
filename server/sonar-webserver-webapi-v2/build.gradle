@@ -26,11 +26,11 @@ dependencies {
     testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
     testImplementation 'com.tngtech.java:junit-dataprovider'
     testImplementation project(':sonar-testing-harness')
-    testImplementation testFixtures('org.sonarsource.sonarqube:sonar-spring')
- 
+
     testImplementation testFixtures(project(':server:sonar-server-common'))
     testImplementation testFixtures(project(':server:sonar-webserver-auth'))
-    testFixturesApi testFixtures('org.sonarsource.sonarqube:sonar-spring')
+
+    testFixturesApi 'org.springframework:spring-test'
 
     testRuntimeOnly 'org.apache.logging.log4j:log4j-core'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
