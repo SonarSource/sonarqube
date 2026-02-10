@@ -1,7 +1,7 @@
 import nl.javadude.gradle.plugins.license.License
 
 plugins {
-  id "org.jsonschema2pojo" version "1.2.2"
+  id "org.jsonschema2pojo" version "1.3.3"
 }
 
 dependencies {
