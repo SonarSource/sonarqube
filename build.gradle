@@ -491,7 +491,7 @@ subprojects {
       dependency('org.codehaus.sonar:sonar-channel:4.2') {
         exclude 'org.slf4j:slf4j-api'
       }
-      dependency 'org.cyclonedx:cyclonedx-core-java:11.0.1'
+      dependency 'org.cyclonedx:cyclonedx-core-java:12.1.0'
       dependency 'com.fasterxml.staxmate:staxmate:2.4.1'
       // Old Elasticsearch REST High Level Client (7.x) - Keep temporarily for compatibility
       dependency("org.elasticsearch.client:elasticsearch-rest-high-level-client:${elasticSearchClientVersion}") {
