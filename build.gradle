@@ -430,7 +430,7 @@ subprojects {
       dependency 'org.json:json:20250517'
       // To be removed after migration to JUnit5 is finished
       dependency 'com.tngtech.java:junit-dataprovider:1.13.1'
-      dependency 'com.tngtech.junit.dataprovider:junit-jupiter-params-dataprovider:2.10'
+      dependency 'com.tngtech.junit.dataprovider:junit-jupiter-params-dataprovider:2.12'
       dependencySet(group: 'io.jsonwebtoken', version: '0.13.0') {
         entry 'jjwt-api'
         entry 'jjwt-impl'
