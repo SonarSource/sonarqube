@@ -28,8 +28,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.rule.RuleType;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
@@ -91,13 +91,38 @@ class ShowActionIT {
   private final RuleWsSupport ruleWsSupport = new RuleWsSupport(db.getDbClient(), userSession);
   private final RuleMapper ruleMapper = new RuleMapper(languages, macroInterpreter, new RuleDescriptionFormatter());
   private final WsActionTester ws = new WsActionTester(
-    new ShowAction(db.getDbClient(), new RulesResponseFormatter(db.getDbClient(), ruleWsSupport, ruleMapper, languages)));
+    new ShowAction(db.getDbClient(), new RulesResponseFormatter(db.getDbClient(), ruleWsSupport, ruleMapper, languages), userSession));
   private UserDto userDto;
 
   @BeforeEach
   void before() {
+    userSession.logIn();
     userDto = db.users().insertUser();
     doReturn(INTERPRETED).when(macroInterpreter).interpret(anyString());
+  }
+
+  @Test
+  void obfuscate_description_fields_when_not_logged_in() {
+    userSession.anonymous();
+    RuleDto rule = db.rules().insert(r -> r
+      .setNoteUserUuid(userDto.getUuid())
+      .setNoteData("note data")
+      .setGapDescription("gap desc"));
+
+    ShowResponse result = ws.newRequest()
+      .setParam(PARAM_KEY, rule.getKey().toString())
+      .executeProtobuf(ShowResponse.class);
+
+    Rule resultRule = result.getRule();
+    assertThat(resultRule.getDescriptionSections().getDescriptionSectionsList()).isEmpty();
+    assertThat(resultRule.getEducationPrinciples().getEducationPrinciplesList()).isEmpty();
+    assertThat(resultRule.hasGapDescription()).isFalse();
+    assertThat(resultRule.hasMdDesc()).isFalse();
+    assertThat(resultRule.hasHtmlNote()).isFalse();
+    assertThat(resultRule.hasMdNote()).isFalse();
+    // Non-description fields should still be present
+    assertThat(resultRule.getKey()).isEqualTo(rule.getKey().toString());
+    assertThat(resultRule.getName()).isEqualTo(rule.getName());
   }
 
   @Test

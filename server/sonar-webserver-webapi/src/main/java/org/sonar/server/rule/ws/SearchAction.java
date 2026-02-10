@@ -52,6 +52,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.rule.ws.RulesResponseFormatter.SearchResult;
+import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.SearchResponse;
@@ -145,15 +146,18 @@ public class SearchAction implements RulesWsAction {
   private final RulesResponseFormatter rulesResponseFormatter;
   private final MetadataLoader metadataLoader;
   private final MetadataRules metadataRules;
+  private final UserSession userSession;
 
   public SearchAction(RuleIndex ruleIndex, RuleQueryFactory ruleQueryFactory, DbClient dbClient,
-    RulesResponseFormatter rulesResponseFormatter, MetadataLoader metadataLoader, MetadataRules metadataRules) {
+    RulesResponseFormatter rulesResponseFormatter, MetadataLoader metadataLoader, MetadataRules metadataRules,
+    UserSession userSession) {
     this.ruleIndex = ruleIndex;
     this.ruleQueryFactory = ruleQueryFactory;
     this.dbClient = dbClient;
     this.rulesResponseFormatter = rulesResponseFormatter;
     this.metadataLoader = metadataLoader;
     this.metadataRules = metadataRules;
+    this.userSession = userSession;
   }
 
   @Override
@@ -223,7 +227,8 @@ public class SearchAction implements RulesWsAction {
         new Change("2025.1", format("The facet '%s' has been added.", FACET_ACTIVE_IMPACT_SEVERITY)),
         new Change("2025.1", "The deprecated field 'htmlDesc' is not returned anymore, even if specified in the 'fields' parameter."),
         new Change("2025.6", format("The facet '%s' was added.", FACET_COMPLIANCE_STANDARDS)),
-        new Change("2025.6", format("The parameter '%s' was added.", PARAM_COMPLIANCE_STANDARDS)));
+        new Change("2025.6", format("The parameter '%s' was added.", PARAM_COMPLIANCE_STANDARDS)),
+        new Change("2026.2", "Description-related fields in the response are obfuscated for anonymous users."));
 
     action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
@@ -355,7 +360,11 @@ public class SearchAction implements RulesWsAction {
   private void doContextResponse(DbSession dbSession, SearchRequest request, SearchResult result, SearchResponse.Builder response,
     RuleQuery query) {
     SearchOptions contextForResponse = loadCommonContext(request);
-    response.addAllRules(rulesResponseFormatter.formatRulesSearch(dbSession, result, contextForResponse.getFields()));
+    List<Rules.Rule> rules = rulesResponseFormatter.formatRulesSearch(dbSession, result, contextForResponse.getFields());
+    if (!userSession.isLoggedIn()) {
+      rules = rules.stream().map(RuleMapper::obfuscateRuleDescription).toList();
+    }
+    response.addAllRules(rules);
     if (contextForResponse.getFields().contains("actives")) {
       Rules.Actives actives = rulesResponseFormatter.formatActiveRules(dbSession, query.getQProfile(), result.getRules());
       Set<String> qProfiles = actives.getActivesMap().values()

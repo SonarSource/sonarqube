@@ -36,6 +36,7 @@ import org.assertj.core.api.AbstractListAssert;
 import org.assertj.core.api.ObjectAssert;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
@@ -150,7 +151,7 @@ class SearchActionIT {
   private final RuleMapper ruleMapper = new RuleMapper(languages, macroInterpreter, new RuleDescriptionFormatter());
   private final SearchAction underTest = new SearchAction(ruleIndex, ruleQueryFactory, db.getDbClient(),
     new RulesResponseFormatter(db.getDbClient(), new RuleWsSupport(db.getDbClient(), userSession), ruleMapper, languages), metadataLoader,
-    metadataRules);
+    metadataRules, userSession);
   private final TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
   private final RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db.getDbClient(), UuidFactoryImpl.INSTANCE,
@@ -164,6 +165,35 @@ class SearchActionIT {
   @BeforeAll
   static void before() {
     doReturn("interpreted").when(macroInterpreter).interpret(anyString());
+  }
+
+  @BeforeEach
+  void setUp() {
+    userSession.logIn();
+  }
+
+  @Test
+  void obfuscate_description_fields_when_not_logged_in() {
+    userSession.anonymous();
+    RuleDto rule = db.rules().insert(r -> r
+      .setGapDescription("gap desc")
+      .setNoteData("note data")
+      .setNoteUserUuid(null));
+    ruleIndexer.indexAll();
+
+    SearchResponse response = ws.newRequest()
+      .executeProtobuf(SearchResponse.class);
+
+    assertThat(response.getRulesCount()).isEqualTo(1);
+    Rule resultRule = response.getRules(0);
+    assertThat(resultRule.getDescriptionSections().getDescriptionSectionsList()).isEmpty();
+    assertThat(resultRule.getEducationPrinciples().getEducationPrinciplesList()).isEmpty();
+    assertThat(resultRule.hasGapDescription()).isFalse();
+    assertThat(resultRule.hasMdDesc()).isFalse();
+    assertThat(resultRule.hasHtmlNote()).isFalse();
+    assertThat(resultRule.hasMdNote()).isFalse();
+    // Non-description fields should still be present
+    assertThat(resultRule.getKey()).isEqualTo(rule.getKey().toString());
   }
 
   @Test
@@ -564,9 +594,9 @@ class SearchActionIT {
       .setParam("impactSeverities", Severity.HIGH.name())
       .executeProtobuf(SearchResponse.class);
     assertThatFacet("impactSoftwareQualities", result).contains(
-        tuple(SoftwareQuality.MAINTAINABILITY.name(), 1L),
-        tuple(SoftwareQuality.RELIABILITY.name(), 0L),
-        tuple(SoftwareQuality.SECURITY.name(), 0L));
+      tuple(SoftwareQuality.MAINTAINABILITY.name(), 1L),
+      tuple(SoftwareQuality.RELIABILITY.name(), 0L),
+      tuple(SoftwareQuality.SECURITY.name(), 0L));
   }
 
   @Test
@@ -603,8 +633,8 @@ class SearchActionIT {
       .setParam("impactSoftwareQualities", SoftwareQuality.RELIABILITY.name())
       .executeProtobuf(SearchResponse.class);
     assertThatFacet("cleanCodeAttributeCategories", result).contains(
-        tuple(CleanCodeAttribute.COMPLETE.getAttributeCategory().name(), 1L),
-        tuple(CleanCodeAttribute.CONVENTIONAL.getAttributeCategory().name(), 0L));
+      tuple(CleanCodeAttribute.COMPLETE.getAttributeCategory().name(), 1L),
+      tuple(CleanCodeAttribute.CONVENTIONAL.getAttributeCategory().name(), 0L));
   }
 
   @Test

@@ -32,6 +32,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.ShowResponse;
 
 import static java.lang.String.format;
@@ -51,10 +53,12 @@ public class ShowAction implements RulesWsAction {
 
   private final DbClient dbClient;
   private final RulesResponseFormatter rulesResponseFormatter;
+  private final UserSession userSession;
 
-  public ShowAction(DbClient dbClient, RulesResponseFormatter rulesResponseFormatter) {
+  public ShowAction(DbClient dbClient, RulesResponseFormatter rulesResponseFormatter, UserSession userSession) {
     this.dbClient = dbClient;
     this.rulesResponseFormatter = rulesResponseFormatter;
+    this.userSession = userSession;
   }
 
   @Override
@@ -89,7 +93,8 @@ public class ShowAction implements RulesWsAction {
         new Change("10.2", "The field 'severity' and 'type' in the response have been deprecated, use 'impacts' instead."),
         new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added.", INFO.name(), BLOCKER.name())),
         new Change("10.8", "The field 'severity' and 'type' in the response  are not deprecated anymore."),
-        new Change("2025.1", "The deprecated field 'htmlDesc' is not returned anymore, even if specified in the 'fields' parameter."));
+        new Change("2025.1", "The deprecated field 'htmlDesc' is not returned anymore, even if specified in the 'fields' parameter."),
+        new Change("2026.2", "Description-related fields in the response are obfuscated for anonymous users."));
 
     action
       .createParam(PARAM_KEY)
@@ -129,7 +134,11 @@ public class ShowAction implements RulesWsAction {
   private ShowResponse buildResponse(DbSession dbSession, Request request, RulesResponseFormatter.SearchResult searchResult) {
     ShowResponse.Builder responseBuilder = ShowResponse.newBuilder();
     RuleDto rule = searchResult.getRules().get(0);
-    responseBuilder.setRule(rulesResponseFormatter.formatRule(dbSession, searchResult));
+    Rules.Rule wsRule = rulesResponseFormatter.formatRule(dbSession, searchResult);
+    if (!userSession.isLoggedIn()) {
+      wsRule = RuleMapper.obfuscateRuleDescription(wsRule);
+    }
+    responseBuilder.setRule(wsRule);
     if (request.mandatoryParamAsBoolean(PARAM_ACTIVES)) {
       responseBuilder.addAllActives(rulesResponseFormatter.formatActiveRule(dbSession, rule));
     }

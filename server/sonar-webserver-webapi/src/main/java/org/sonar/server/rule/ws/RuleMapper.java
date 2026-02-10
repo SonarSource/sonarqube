@@ -488,6 +488,17 @@ public class RuleMapper {
     }
   }
 
+  public static Rules.Rule obfuscateRuleDescription(Rules.Rule rule) {
+    return rule.toBuilder()
+      .clearDescriptionSections()
+      .clearEducationPrinciples()
+      .clearGapDescription()
+      .clearHtmlNote()
+      .clearMdDesc()
+      .clearMdNote()
+      .build();
+  }
+
   private enum RuleParamDtoToWsRuleParam implements Function<RuleParamDto, Rules.Rule.Param> {
     INSTANCE;
 
