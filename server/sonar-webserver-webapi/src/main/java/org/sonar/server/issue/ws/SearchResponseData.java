@@ -60,6 +60,7 @@ public class SearchResponseData {
   private final Set<String> userOrganizationUuids = new HashSet<>();
   private final Map<String, BranchDto> branchesByUuid = new HashMap<>();
   private final Map<String, ProjectDto> projectsByUuid = new HashMap<>();
+  private final Map<String,String> statusChangedByIssueKey = new HashMap<>();
 
   public SearchResponseData() {
     this.issues = List.of();
@@ -92,6 +93,10 @@ public class SearchResponseData {
     return componentsByUuid;
   }
 
+  public Map<String, String> getStatusChangedByIssueKey() {
+    return statusChangedByIssueKey;
+  }
+
   public List<UserDto> getUsers() {
     return new ArrayList<>(usersByUuid.values());
   }
@@ -118,6 +123,13 @@ public class SearchResponseData {
   List<String> getActionsForIssueKey(String issueKey) {
     if (actionsByIssueKey.containsKey(issueKey)) {
       return actionsByIssueKey.get(issueKey);
+    }
+    return null;
+  }
+
+  String getStatusChangedByIssueKey(String issueKey) {
+    if (statusChangedByIssueKey.containsKey(issueKey)) {
+      return statusChangedByIssueKey.get(issueKey);
     }
     return null;
   }
