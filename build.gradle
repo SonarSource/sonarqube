@@ -373,7 +373,7 @@ subprojects {
 
       // https://mvnrepository.com/artifact/ch.qos.logback.access/common
       dependency('ch.qos.logback.access:common:2.0.3')
-      dependency('ch.qos.logback.access:logback-access-tomcat:2.0.6')
+      dependency('ch.qos.logback.access:logback-access-tomcat:2.0.9')
       dependency 'commons-codec:commons-codec:1.21.0'
       dependency 'commons-dbutils:commons-dbutils:1.8.1'
       dependency 'commons-io:commons-io:2.21.0'
