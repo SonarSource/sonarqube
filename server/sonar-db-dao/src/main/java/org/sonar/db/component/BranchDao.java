@@ -34,6 +34,7 @@ import org.sonar.db.project.ProjectDto;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.DatabaseUtils.executeLargeInputsForMap;
 
 public class BranchDao implements Dao {
 
@@ -74,7 +75,7 @@ public class BranchDao implements Dao {
     if (branchKeyByProjectUuid.isEmpty()) {
       return emptyList();
     }
-    return mapper(dbSession).selectByBranchKeys(branchKeyByProjectUuid);
+    return executeLargeInputsForMap(branchKeyByProjectUuid, mapper(dbSession)::selectByBranchKeys);
   }
 
   public Optional<BranchDto> selectByPullRequestKey(DbSession dbSession, String projectUuid, String key) {

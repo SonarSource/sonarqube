@@ -35,9 +35,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -219,6 +221,65 @@ public class DatabaseUtils {
     for (List<T> partition : partitions) {
       consumer.accept(partition);
     }
+  }
+
+  /**
+   * Partition a map and execute a function on each part.
+   * <p>
+   * With Oracle's limit of 1000 parameters and each map entry using 2 parameters,
+   * the default partition size is 500 (1000 / 2).
+   * <p>
+   * The goal is to prevent issue with ORACLE when there's more than 1000 elements in an 'in ('X', 'Y', ...)' clause
+   * and with MsSQL when there's more than 2000 parameters in a query
+   *
+   * @param input                      the map to partition
+   * @param function                   the function to execute on each partition
+   * @param partitionSizeManipulations function to compute partition size based on parameters per entry.
+   *                                   For example, {@code i -> i / 2} when each map entry uses 2 SQL parameters.
+   * @return aggregated results from all partitions
+   */
+  public static <K, V, T> List<T> executeLargeInputsForMap(
+      Map<K, V> input,
+      Function<Map<K, V>, List<T>> function,
+      IntFunction<Integer> partitionSizeManipulations
+  ) {
+    if (input.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    int partitionSize = partitionSizeManipulations.apply(PARTITION_SIZE_FOR_ORACLE);
+    List<Map<K, V>> partitions = new ArrayList<>();
+    Map<K, V> currentPartition = new HashMap<>();
+    for (Map.Entry<K, V> entry : input.entrySet()) {
+      currentPartition.put(entry.getKey(), entry.getValue());
+      if (currentPartition.size() == partitionSize) {
+        partitions.add(currentPartition);
+        currentPartition = new HashMap<>();
+      }
+    }
+    if (!currentPartition.isEmpty()) {
+      partitions.add(currentPartition);
+    }
+
+    List<T> results = new ArrayList<>(input.size());
+    for (Map<K, V> partition : partitions) {
+      List<T> subResults = function.apply(partition);
+      if (subResults != null) {
+        results.addAll(subResults);
+      }
+    }
+
+    return results;
+  }
+
+  /**
+   * Convenience overload for maps where each entry uses 2 SQL parameters (key + value).
+   * Uses default partition size of 500 (PARTITION_SIZE_FOR_ORACLE / 2).
+   * <p>
+   * See {@link #executeLargeInputsForMap(Map, Function, IntFunction)} for more details.
+   */
+  public static <K, V, T> List<T> executeLargeInputsForMap(Map<K, V> input, Function<Map<K, V>, List<T>> function) {
+    return executeLargeInputsForMap(input, function, i -> i / 2);
   }
 
   /**

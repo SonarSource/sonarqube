@@ -27,12 +27,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -402,6 +405,30 @@ public class DatabaseUtilsIT {
       processed.addAll(input);
     });
     assertThat(processed).containsExactlyElementsOf(inputs);
+  }
+
+  @Test
+  public void executeLargeInputsForMap_whenALotOfElementsPassed_shouldProcessAllItems() {
+    Map<Integer, Integer> inputs = new HashMap<>();
+    for (int i = 0; i < 2010; i++) {
+      inputs.put(i, i);
+    }
+
+    Map<Integer, Integer> result = DatabaseUtils.executeLargeInputsForMap(inputs, input -> {
+      assertThat(input).hasSizeLessThanOrEqualTo(500);
+      return new ArrayList<>(input.entrySet());
+    }).stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    assertThat(result).containsExactlyInAnyOrderEntriesOf(inputs);
+  }
+
+  @Test
+  public void executeLargeInputsForMap_containsNullElements() {
+    Map<Integer, Integer> inputs = new HashMap<>();
+    inputs.put(1, null);
+    inputs.put(null, 2);
+
+    List<Map.Entry<Integer, Integer>> result = DatabaseUtils.executeLargeInputsForMap(inputs, input -> new ArrayList<>(input.entrySet()));
+    assertThat(result).size().isEqualTo(2);
   }
 
   @Test
