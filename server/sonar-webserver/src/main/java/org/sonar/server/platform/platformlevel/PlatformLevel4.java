@@ -304,6 +304,7 @@ import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.ws.UsersWsModule;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.usergroups.ws.UserGroupsModule;
+import org.sonar.server.users.UsersServiceImpl;
 import org.sonar.server.usertoken.UserTokenModule;
 import org.sonar.server.usertoken.ws.UserTokenWsModule;
 import org.sonar.server.util.TypeValidationModule;
@@ -480,6 +481,7 @@ public class PlatformLevel4 extends PlatformLevel {
       SecurityRealmFactory.class,
       NewUserNotifier.class,
       UserUpdater.class,
+      UsersServiceImpl.class,
       new UsersWsModule(),
       new UserTokenModule(),
       new UserTokenWsModule(),

@@ -1,0 +1,29 @@
+description = 'SonarQube :: Server :: Users'
+
+sonar {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: Server :: Users"
+  }
+}
+
+dependencies {
+  api 'org.sonarsource.sonarqube:users-apis:1.0.0.246'
+
+  implementation project(':server:sonar-db-dao')
+  implementation project(':server:sonar-webserver-common')
+
+  testImplementation(platform("org.junit:junit-bom"))
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
+  testImplementation 'org.junit.jupiter:junit-jupiter-params'
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation testFixtures(project(':server:sonar-db-dao'))
+  testImplementation project(':sonar-testing-harness')
+
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.test {
+  useJUnitPlatform()
+}

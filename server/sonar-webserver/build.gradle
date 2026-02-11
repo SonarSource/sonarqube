@@ -22,6 +22,7 @@ dependencies {
   api project(':server:sonar-ce-task-projectanalysis')
   api project(':server:sonar-process')
   api project(':server:sonar-telemetry')
+  api project(':server:sonar-users')
   api project(':server:sonar-webserver-core')
   api project(':server:sonar-webserver-webapi')
   api project(':server:sonar-webserver-webapi-v2')
