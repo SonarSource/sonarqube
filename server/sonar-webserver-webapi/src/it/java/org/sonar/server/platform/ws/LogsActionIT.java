@@ -48,8 +48,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Configuration;
-import org.sonar.core.platform.EditionProvider;
-import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.Database;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
@@ -85,22 +83,17 @@ public class LogsActionIT {
   private final Configuration configuration = mock();
   private final Database database = mock();
   private final ServerLogging serverLogging = new ServerLogging(configuration, mock(), database);
-  private final PlatformEditionProvider editionProvider = mock();
-  private final LogsAction underTest = new LogsAction(userSession, serverLogging, editionProvider);
+  private final LogsAction underTest = new LogsAction(userSession, serverLogging);
   private final WsActionTester actionTester = new WsActionTester(underTest);
 
   private final OkHttpClient client = mock();
   private final HazelcastMember hazelcastMember = mock();
   private final DistributedServerLogging distributedServerLogging = new DistributedServerLogging(configuration, mock(), database, hazelcastMember, client);
-  private final PlatformEditionProvider editionProviderDataCenter = mock();
-  private final LogsAction underTestDataCenter = new LogsAction(userSession, distributedServerLogging, editionProviderDataCenter);
+  private final LogsAction underTestDataCenter = new LogsAction(userSession, distributedServerLogging);
   private final WsActionTester actionTesterDataCenter = new WsActionTester(underTestDataCenter);
 
   @Before
   public void before() throws InterruptedException, IOException {
-    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
-    when(editionProviderDataCenter.get()).thenReturn(Optional.of(EditionProvider.Edition.DATACENTER));
-
     Cluster cluster = mock();
     Member member1 = mock(), member2 = mock();
     Set<Member> members = Set.of(member1, member2);

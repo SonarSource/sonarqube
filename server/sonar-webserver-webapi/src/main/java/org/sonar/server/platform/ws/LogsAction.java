@@ -27,9 +27,8 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.platform.EditionProvider;
-import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.process.ProcessId;
+import org.sonar.server.log.DistributedServerLogging;
 import org.sonar.server.log.ServerLogging;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
@@ -45,12 +44,10 @@ public class LogsAction implements SystemWsAction {
 
   private final UserSession userSession;
   private final ServerLogging serverLogging;
-  private final PlatformEditionProvider editionProvider;
 
-  public LogsAction(UserSession userSession, ServerLogging serverLogging, PlatformEditionProvider editionProvider) {
+  public LogsAction(UserSession userSession, ServerLogging serverLogging) {
     this.userSession = userSession;
     this.serverLogging = serverLogging;
-    this.editionProvider = editionProvider;
   }
 
   @Override
@@ -89,7 +86,7 @@ public class LogsAction implements SystemWsAction {
     String logName = wsRequest.mandatoryParam(NAME);
     String filePrefix = getFilePrefix(logName);
 
-    if (!nodeToNodeCall && editionProvider.get().orElseThrow() == EditionProvider.Edition.DATACENTER) {
+    if (!nodeToNodeCall && serverLogging instanceof DistributedServerLogging) {
       buildAndSendLogsForDataCenterEdition(wsResponse, filePrefix, logName);
     } else {
       buildAndSendLogsForSingleNode(wsResponse, filePrefix);
