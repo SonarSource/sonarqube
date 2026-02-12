@@ -473,7 +473,13 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       QualityGateFinder.class,
       QualityGateEvaluatorImpl.class,
 
-      new AnalysisCacheCleaningModule()
+      new AnalysisCacheCleaningModule(),
+
+      // Avatar resolution (needed for user operations in CE context)
+      org.sonar.server.common.avatar.AvatarResolverImpl.class,
+
+      // Users service API implementation
+      org.sonar.server.users.UsersServiceImpl.class
 
     );
 

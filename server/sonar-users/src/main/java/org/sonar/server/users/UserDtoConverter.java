@@ -19,9 +19,11 @@
  */
 package org.sonar.server.users;
 
+import com.google.common.base.Strings;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.user.UserDto;
@@ -41,7 +43,7 @@ class UserDtoConverter {
       dto.getName(),
       dto.getEmail(),
       dto.getExternalIdentityProvider(),
-      avatarResolver.create(dto),
+      Optional.ofNullable(Strings.emptyToNull(dto.getEmail())).map(s-> avatarResolver.create(dto)).orElse(null),
       toOffsetDateTime(dto.getLastConnectionDate()),
       toOffsetDateTime(dto.getCreatedAt()),
       dto.getExternalLogin(),

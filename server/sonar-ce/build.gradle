@@ -21,6 +21,7 @@ dependencies {
   api project(':server:sonar-process')
   api project(':server:sonar-ce-task')
   api project(':server:sonar-server-common')
+  api project(':server:sonar-users')
   api project(':sonar-core')
   api project(':sonar-plugin-api-impl')
   api project(':sonar-ws')
