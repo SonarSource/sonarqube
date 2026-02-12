@@ -172,6 +172,14 @@ public class CorePropertyDefinitions {
         .category(CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
         .build(),
+      PropertyDefinition.builder(WebConstants.SONAR_UI_FORCE_OLD_NAVIGATION)
+        .name("Force old navigation")
+        .description("Force the use of the old UI navigation.")
+        .type(BOOLEAN)
+        .defaultValue(String.valueOf(false))
+        .category(CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
+        .build(),
 
       // ISSUES
       PropertyDefinition.builder(CoreProperties.DEVELOPER_AGGREGATED_INFO_DISABLED)

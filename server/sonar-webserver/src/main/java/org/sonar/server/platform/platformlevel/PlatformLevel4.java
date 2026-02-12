@@ -206,6 +206,7 @@ import org.sonar.server.platform.db.CheckAnyonePermissionsAtStartup;
 import org.sonar.server.platform.db.migration.DatabaseMigrationPersister;
 import org.sonar.server.platform.db.migration.DatabaseMigrationTelemetry;
 import org.sonar.server.platform.telemetry.TelemetryFipsEnabledProvider;
+import org.sonar.server.platform.telemetry.TelemetryForceOldNavigationPropertyProvider;
 import org.sonar.server.platform.telemetry.TelemetryIpv6EnabledProvider;
 import org.sonar.server.platform.telemetry.TelemetryIssueCountsPerStatusProvider;
 import org.sonar.server.platform.telemetry.TelemetryMQRModePropertyProvider;
@@ -723,6 +724,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // new telemetry metrics
       TelemetryVersionProvider.class,
       TelemetryMQRModePropertyProvider.class,
+      TelemetryForceOldNavigationPropertyProvider.class,
       TelemetryNclocProvider.class,
       TelemetryUserEnabledProvider.class,
       TelemetryFipsEnabledProvider.class,
