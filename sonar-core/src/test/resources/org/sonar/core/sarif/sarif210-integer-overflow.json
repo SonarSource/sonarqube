@@ -1,0 +1,22 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "TestTool"
+        }
+      },
+      "results": [
+        {
+          "ruleId": "rule1",
+          "ruleIndex": 99999999999999999999,
+          "message": {
+            "text": "test message"
+          }
+        }
+      ]
+    }
+  ]
+}

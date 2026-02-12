@@ -19,8 +19,9 @@
  */
 package org.sonar.scanner.externalissue.sarif;
 
+import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.google.common.collect.MoreCollectors;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Optional;
 import org.junit.Before;
@@ -32,15 +33,15 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTester;
-import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.core.sarif.SarifDeserializationException;
+import org.sonar.core.sarif.SarifDeserializationException.Category;
 import org.sonar.core.sarif.SarifSerializer;
 import org.sonar.sarif.pojo.SarifSchema210;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -57,6 +58,8 @@ public class SarifIssuesImportSensorTest {
   private SarifSerializer sarifSerializer;
   @Mock
   private Sarif210Importer sarifImporter;
+  @Mock
+  private AnalysisWarnings analysisWarnings;
 
   private MapSettings sensorSettings;
 
@@ -71,12 +74,12 @@ public class SarifIssuesImportSensorTest {
   private final SensorContextTester sensorContext = SensorContextTester.create(Path.of("."));
 
   @Test
-  public void execute_whenSingleFileIsSpecified_shouldImportResults() throws NoSuchFileException {
+  public void execute_whenSingleFileIsSpecified_shouldImportResults() {
     sensorSettings.setProperty("sonar.sarifReportPaths", FILE_1);
 
     ReportAndResults reportAndResults = mockSuccessfulReportAndResults(FILE_1);
 
-    SarifIssuesImportSensor sensor = new SarifIssuesImportSensor(sarifSerializer, sarifImporter, sensorSettings.asConfig());
+    SarifIssuesImportSensor sensor = new SarifIssuesImportSensor(sarifSerializer, sarifImporter, sensorSettings.asConfig(), analysisWarnings);
     sensor.execute(sensorContext);
 
     verify(sarifImporter).importSarif(reportAndResults.getSarifReport());
@@ -86,12 +89,12 @@ public class SarifIssuesImportSensorTest {
   }
 
   @Test
-  public void execute_whenMultipleFilesAreSpecified_shouldImportResults() throws NoSuchFileException {
+  public void execute_whenMultipleFilesAreSpecified_shouldImportResults() {
     sensorSettings.setProperty("sonar.sarifReportPaths", SARIF_REPORT_PATHS_PARAM);
     ReportAndResults reportAndResults1 = mockSuccessfulReportAndResults(FILE_1);
     ReportAndResults reportAndResults2 = mockSuccessfulReportAndResults(FILE_2);
 
-    SarifIssuesImportSensor sensor = new SarifIssuesImportSensor(sarifSerializer, sarifImporter, sensorSettings.asConfig());
+    SarifIssuesImportSensor sensor = new SarifIssuesImportSensor(sarifSerializer, sarifImporter, sensorSettings.asConfig(), analysisWarnings);
     sensor.execute(sensorContext);
 
     verify(sarifImporter).importSarif(reportAndResults1.getSarifReport());
@@ -102,36 +105,36 @@ public class SarifIssuesImportSensorTest {
   }
 
   @Test
-  public void execute_whenFileContainsOnlySuccessfulRuns_shouldLogCorrectMessage() throws NoSuchFileException {
+  public void execute_whenFileContainsOnlySuccessfulRuns_shouldLogCorrectMessage() {
     sensorSettings.setProperty("sonar.sarifReportPaths", FILE_1);
     ReportAndResults reportAndResults = mockSuccessfulReportAndResults(FILE_1);
 
-    SarifIssuesImportSensor sensor = new SarifIssuesImportSensor(sarifSerializer, sarifImporter, sensorSettings.asConfig());
+    SarifIssuesImportSensor sensor = new SarifIssuesImportSensor(sarifSerializer, sarifImporter, sensorSettings.asConfig(), analysisWarnings);
     sensor.execute(sensorContext);
 
     assertSummaryIsCorrectlyDisplayedForSuccessfulFile(FILE_1, reportAndResults.getSarifImportResults());
   }
 
   @Test
-  public void execute_whenFileContainsOnlyFailedRuns_shouldLogCorrectMessage() throws NoSuchFileException {
+  public void execute_whenFileContainsOnlyFailedRuns_shouldLogCorrectMessage() {
 
     sensorSettings.setProperty("sonar.sarifReportPaths", FILE_1);
     ReportAndResults reportAndResults = mockFailedReportAndResults(FILE_1);
 
-    SarifIssuesImportSensor sensor = new SarifIssuesImportSensor(sarifSerializer, sarifImporter, sensorSettings.asConfig());
+    SarifIssuesImportSensor sensor = new SarifIssuesImportSensor(sarifSerializer, sarifImporter, sensorSettings.asConfig(), analysisWarnings);
     sensor.execute(sensorContext);
 
     assertSummaryIsCorrectlyDisplayedForFailedFile(FILE_1, reportAndResults.getSarifImportResults());
   }
 
   @Test
-  public void execute_whenFileContainsFailedAndSuccessfulRuns_shouldLogCorrectMessage() throws NoSuchFileException {
+  public void execute_whenFileContainsFailedAndSuccessfulRuns_shouldLogCorrectMessage() {
 
     sensorSettings.setProperty("sonar.sarifReportPaths", FILE_1);
 
     ReportAndResults reportAndResults = mockMixedReportAndResults(FILE_1);
 
-    SarifIssuesImportSensor sensor = new SarifIssuesImportSensor(sarifSerializer, sarifImporter, sensorSettings.asConfig());
+    SarifIssuesImportSensor sensor = new SarifIssuesImportSensor(sarifSerializer, sarifImporter, sensorSettings.asConfig(), analysisWarnings);
     sensor.execute(sensorContext);
 
     verify(sarifImporter).importSarif(reportAndResults.getSarifReport());
@@ -140,7 +143,7 @@ public class SarifIssuesImportSensorTest {
   }
 
   @Test
-  public void execute_whenImportFails_shouldSkipReport() throws NoSuchFileException {
+  public void execute_whenImportFails_shouldSkipReport() {
     sensorSettings.setProperty("sonar.sarifReportPaths", SARIF_REPORT_PATHS_PARAM);
 
     ReportAndResults reportAndResults1 = mockFailedReportAndResults(FILE_1);
@@ -148,54 +151,101 @@ public class SarifIssuesImportSensorTest {
 
     doThrow(new NullPointerException("import failed")).when(sarifImporter).importSarif(reportAndResults1.getSarifReport());
 
-    SarifIssuesImportSensor sensor = new SarifIssuesImportSensor(sarifSerializer, sarifImporter, sensorSettings.asConfig());
+    SarifIssuesImportSensor sensor = new SarifIssuesImportSensor(sarifSerializer, sarifImporter, sensorSettings.asConfig(), analysisWarnings);
     sensor.execute(sensorContext);
 
     verify(sarifImporter).importSarif(reportAndResults2.getSarifReport());
-    assertThat(logTester.logs(Level.WARN)).contains("Failed to process SARIF report from file 'path/to/sarif/file.sarif', error: 'import failed'");
+    assertThat(logTester.logs(Level.WARN))
+      .contains("File path/to/sarif/file.sarif could not be parsed, 0 runs imported (import failed).");
     assertSummaryIsCorrectlyDisplayedForSuccessfulFile(FILE_2, reportAndResults2.getSarifImportResults());
   }
 
   @Test
-  public void execute_whenDeserializationFails_shouldSkipReport() throws NoSuchFileException {
+  public void execute_whenDeserializationFails_shouldSkipReport() {
     sensorSettings.setProperty("sonar.sarifReportPaths", SARIF_REPORT_PATHS_PARAM);
 
     failDeserializingReport(FILE_1);
     ReportAndResults reportAndResults2 = mockSuccessfulReportAndResults(FILE_2);
 
-    SarifIssuesImportSensor sensor = new SarifIssuesImportSensor(sarifSerializer, sarifImporter, sensorSettings.asConfig());
+    SarifIssuesImportSensor sensor = new SarifIssuesImportSensor(sarifSerializer, sarifImporter, sensorSettings.asConfig(), analysisWarnings);
     sensor.execute(sensorContext);
 
     verify(sarifImporter).importSarif(reportAndResults2.getSarifReport());
-    assertThat(logTester.logs(Level.WARN)).contains("Failed to process SARIF report from file 'path/to/sarif/file.sarif', error: 'deserialization failed'");
+    assertThat(logTester.logs(Level.WARN))
+      .contains("File path/to/sarif/file.sarif could not be parsed, 0 runs imported (deserialization failed).");
     assertSummaryIsCorrectlyDisplayedForSuccessfulFile(FILE_2, reportAndResults2.getSarifImportResults());
   }
 
   @Test
-  public void execute_whenDeserializationThrowsMessageException_shouldRethrow() throws NoSuchFileException {
+  public void execute_whenDeserializationThrowsFileNotFound_shouldLogWarning() {
     sensorSettings.setProperty("sonar.sarifReportPaths", FILE_1);
 
-    NoSuchFileException e = new NoSuchFileException("non-existent");
-    failDeserializingReportWithException(FILE_1, e);
+    failDeserializingReportWithException(FILE_1, new SarifDeserializationException(Category.FILE_NOT_FOUND, "file not found", new RuntimeException("non-existent")));
 
-    SarifIssuesImportSensor sensor = new SarifIssuesImportSensor(sarifSerializer, sarifImporter, sensorSettings.asConfig());
-    assertThatThrownBy(() -> sensor.execute(sensorContext))
-      .isInstanceOf(MessageException.class)
-      .hasMessage("SARIF report file not found: non-existent");
+    SarifIssuesImportSensor sensor = new SarifIssuesImportSensor(sarifSerializer, sarifImporter, sensorSettings.asConfig(), analysisWarnings);
+    sensor.execute(sensorContext);
 
+    assertThat(logTester.logs(Level.WARN))
+      .contains("File path/to/sarif/file.sarif could not be parsed, 0 runs imported (file not found).");
+    verify(analysisWarnings).addUnique(SarifIssuesImportSensor.SARIF_IMPORT_ANALYSIS_WARNING);
   }
 
-  private void failDeserializingReport(String path) throws NoSuchFileException {
+  @Test
+  public void execute_whenSyntaxExceptionWithJsonLocation_shouldLogWithLineNumber() {
+    sensorSettings.setProperty("sonar.sarifReportPaths", FILE_1);
+
+    JsonLocation location = new JsonLocation(null, 0, 42, 5);
+    JsonParseException jsonCause = new JsonParseException(null, "parse error", location);
+    failDeserializingReportWithException(FILE_1, new SarifDeserializationException(Category.SYNTAX, "syntax error", jsonCause));
+
+    SarifIssuesImportSensor sensor = new SarifIssuesImportSensor(sarifSerializer, sarifImporter, sensorSettings.asConfig(), analysisWarnings);
+    sensor.execute(sensorContext);
+
+    assertThat(logTester.logs(Level.WARN))
+      .contains("File path/to/sarif/file.sarif could not be parsed, 0 runs imported (invalid JSON syntax or non-UTF-8 encoding at line 42).");
+    verify(analysisWarnings).addUnique(SarifIssuesImportSensor.SARIF_IMPORT_ANALYSIS_WARNING);
+  }
+
+  @Test
+  public void execute_whenValueExceptionWithNullLocation_shouldLogWithoutLineNumber() {
+    sensorSettings.setProperty("sonar.sarifReportPaths", FILE_1);
+
+    JsonParseException jsonCause = new JsonParseException(null, "value overflow");
+    failDeserializingReportWithException(FILE_1, new SarifDeserializationException(Category.VALUE, "value error", jsonCause));
+
+    SarifIssuesImportSensor sensor = new SarifIssuesImportSensor(sarifSerializer, sarifImporter, sensorSettings.asConfig(), analysisWarnings);
+    sensor.execute(sensorContext);
+
+    assertThat(logTester.logs(Level.WARN))
+      .contains("File path/to/sarif/file.sarif could not be parsed, 0 runs imported (value overflow or type mismatch).");
+    verify(analysisWarnings).addUnique(SarifIssuesImportSensor.SARIF_IMPORT_ANALYSIS_WARNING);
+  }
+
+  @Test
+  public void execute_whenMappingExceptionWithNonJsonCause_shouldLogWithoutLineNumber() {
+    sensorSettings.setProperty("sonar.sarifReportPaths", FILE_1);
+
+    failDeserializingReportWithException(FILE_1, new SarifDeserializationException(Category.MAPPING, "mapping error", new RuntimeException("bad data")));
+
+    SarifIssuesImportSensor sensor = new SarifIssuesImportSensor(sarifSerializer, sarifImporter, sensorSettings.asConfig(), analysisWarnings);
+    sensor.execute(sensorContext);
+
+    assertThat(logTester.logs(Level.WARN))
+      .contains("File path/to/sarif/file.sarif could not be parsed, 0 runs imported (cannot map to SARIF schema).");
+    verify(analysisWarnings).addUnique(SarifIssuesImportSensor.SARIF_IMPORT_ANALYSIS_WARNING);
+  }
+
+  private void failDeserializingReport(String path) {
     Path reportFilePath = sensorContext.fileSystem().resolvePath(path).toPath();
     when(sarifSerializer.deserialize(reportFilePath)).thenThrow(new NullPointerException("deserialization failed"));
   }
 
-  private void failDeserializingReportWithException(String path, Exception exception) throws NoSuchFileException {
+  private void failDeserializingReportWithException(String path, Exception exception) {
     Path reportFilePath = sensorContext.fileSystem().resolvePath(path).toPath();
     when(sarifSerializer.deserialize(reportFilePath)).thenThrow(exception);
   }
 
-  private ReportAndResults mockSuccessfulReportAndResults(String path) throws NoSuchFileException {
+  private ReportAndResults mockSuccessfulReportAndResults(String path) {
     SarifSchema210 report = mockSarifReport(path);
 
     SarifImportResults sarifImportResults = mock(SarifImportResults.class);
@@ -207,14 +257,14 @@ public class SarifIssuesImportSensorTest {
     return new ReportAndResults(report, sarifImportResults);
   }
 
-  private SarifSchema210 mockSarifReport(String path) throws NoSuchFileException {
+  private SarifSchema210 mockSarifReport(String path) {
     SarifSchema210 report = mock(SarifSchema210.class);
     Path reportFilePath = sensorContext.fileSystem().resolvePath(path).toPath();
     when(sarifSerializer.deserialize(reportFilePath)).thenReturn(report);
     return report;
   }
 
-  private ReportAndResults mockFailedReportAndResults(String path) throws NoSuchFileException {
+  private ReportAndResults mockFailedReportAndResults(String path) {
     SarifSchema210 report = mockSarifReport(path);
 
     SarifImportResults sarifImportResults = mock(SarifImportResults.class);
@@ -225,7 +275,7 @@ public class SarifIssuesImportSensorTest {
     return new ReportAndResults(report, sarifImportResults);
   }
 
-  private ReportAndResults mockMixedReportAndResults(String path) throws NoSuchFileException {
+  private ReportAndResults mockMixedReportAndResults(String path) {
     SarifSchema210 report = mockSarifReport(path);
 
     SarifImportResults sarifImportResults = mock(SarifImportResults.class);
@@ -238,22 +288,22 @@ public class SarifIssuesImportSensorTest {
   }
 
   private void assertSummaryIsCorrectlyDisplayedForSuccessfulFile(String filePath, SarifImportResults sarifImportResults) {
-    verifyLogContainsLine(LoggerLevel.INFO, filePath, "File {}: {} run(s) successfully imported ({} vulnerabilities in total).",
+    verifyLogContainsLine(Level.INFO, filePath, "File {}: {} run(s) successfully imported ({} vulnerabilities in total).",
       filePath, sarifImportResults.getSuccessFullyImportedRuns(), sarifImportResults.getSuccessFullyImportedIssues());
   }
 
   private void assertSummaryIsCorrectlyDisplayedForFailedFile(String filePath, SarifImportResults sarifImportResults) {
-    verifyLogContainsLine(LoggerLevel.WARN, filePath, "File {}: {} run(s) could not be imported (see warning above).",
+    verifyLogContainsLine(Level.WARN, filePath, "File {}: {} run(s) could not be imported (see warning above).",
       filePath, sarifImportResults.getFailedRuns());
   }
 
   private void assertSummaryIsCorrectlyDisplayedForMixedFile(String filePath, SarifImportResults sarifImportResults) {
-    verifyLogContainsLine(LoggerLevel.WARN, filePath,
+    verifyLogContainsLine(Level.WARN, filePath,
       "File {}: {} run(s) could not be imported (see warning above) and {} run(s) successfully imported ({} vulnerabilities in total).",
       filePath, sarifImportResults.getFailedRuns(), sarifImportResults.getSuccessFullyImportedRuns(), sarifImportResults.getSuccessFullyImportedIssues());
   }
 
-  private void verifyLogContainsLine(LoggerLevel level, String filePath, String rawMsg, Object... arguments) {
+  private void verifyLogContainsLine(Level level, String filePath, String rawMsg, Object... arguments) {
     LogAndArguments logAndArguments = findLogEntry(level, filePath);
     assertThat(logAndArguments.getRawMsg())
       .isEqualTo(rawMsg);
@@ -261,7 +311,7 @@ public class SarifIssuesImportSensorTest {
       .contains(arguments);
   }
 
-  private LogAndArguments findLogEntry(LoggerLevel level, String filePath) {
+  private LogAndArguments findLogEntry(Level level, String filePath) {
     Optional<LogAndArguments> optLogAndArguments = logTester.getLogs(level).stream()
       .filter(log -> log.getFormattedMsg().contains(filePath))
       .collect(MoreCollectors.toOptional());

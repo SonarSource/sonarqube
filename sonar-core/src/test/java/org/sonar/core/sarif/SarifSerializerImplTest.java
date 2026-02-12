@@ -19,6 +19,9 @@
  */
 package org.sonar.core.sarif;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -48,6 +51,10 @@ import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.core.sarif.SarifDeserializationException.Category;
 import static org.sonar.core.sarif.SarifSerializerImpl.UNSUPPORTED_VERSION_MESSAGE_TEMPLATE;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -71,7 +78,7 @@ public class SarifSerializerImplTest {
   }
 
   @Test
-  public void deserialize() throws URISyntaxException {
+  public void deserialize() throws Exception {
     URL sarifResource = requireNonNull(getClass().getResource("eslint-sarif210.json"));
     Path sarif = Paths.get(sarifResource.toURI());
 
@@ -86,18 +93,9 @@ public class SarifSerializerImplTest {
     Path sarif = Paths.get(file);
 
     assertThatThrownBy(() -> serializer.deserialize(sarif))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to read SARIF report at 'wrongPathToFile'");
-  }
-
-  @Test
-  public void deserialize_shouldFail_whenJsonSyntaxIsIncorrect() throws URISyntaxException {
-    URL sarifResource = requireNonNull(getClass().getResource("invalid-json-syntax.json"));
-    Path sarif = Paths.get(sarifResource.toURI());
-
-    assertThatThrownBy(() -> serializer.deserialize(sarif))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage(format("Failed to read SARIF report at '%s': invalid JSON syntax or file is not UTF-8 encoded", sarif));
+      .isInstanceOf(SarifDeserializationException.class)
+      .hasFieldOrPropertyWithValue("category", Category.FILE_NOT_FOUND)
+      .hasMessageContaining("Failed to read SARIF report at 'wrongPathToFile'");
   }
 
   @Test
@@ -106,8 +104,9 @@ public class SarifSerializerImplTest {
     Path sarif = Paths.get(sarifResource.toURI());
 
     assertThatThrownBy(() -> serializer.deserialize(sarif))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage(format("Failed to read SARIF report at '%s': invalid JSON syntax or file is not UTF-8 encoded", sarif));
+      .isInstanceOf(SarifDeserializationException.class)
+      .hasFieldOrPropertyWithValue("category", Category.SYNTAX)
+      .hasMessageContaining("Failed to read SARIF report at '" + sarif + "'");
   }
 
   @Test
@@ -116,8 +115,47 @@ public class SarifSerializerImplTest {
     Path sarif = Paths.get(sarifResource.toURI());
 
     assertThatThrownBy(() -> serializer.deserialize(sarif))
+      .isInstanceOf(SarifDeserializationException.class)
+      .hasFieldOrPropertyWithValue("category", Category.MAPPING)
+      .hasMessageContaining(format(UNSUPPORTED_VERSION_MESSAGE_TEMPLATE, "A.B.C"));
+  }
+
+  @Test
+  public void serialize_whenWriteFails_shouldThrowIllegalStateException() throws Exception {
+    ObjectMapper mockMapper = mock(ObjectMapper.class);
+    ObjectWriter mockWriter = mock(ObjectWriter.class);
+    when(mockMapper.writerWithDefaultPrettyPrinter()).thenReturn(mockWriter);
+    when(mockWriter.writeValueAsString(any())).thenThrow(new JsonProcessingException("write failed") {});
+
+    SarifSerializerImpl serializerWithMock = new SarifSerializerImpl(mockMapper);
+    SarifSchema210 sarif = new SarifSchema210();
+
+    assertThatThrownBy(() -> serializerWithMock.serialize(sarif))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage(format(UNSUPPORTED_VERSION_MESSAGE_TEMPLATE, "A.B.C"));
+      .hasMessage("Unable to serialize SARIF")
+      .hasCauseInstanceOf(JsonProcessingException.class);
+  }
+
+  @Test
+  public void deserialize_whenNonVersionEnumIsInvalid_shouldThrowMappingException() throws URISyntaxException {
+    URL sarifResource = requireNonNull(getClass().getResource("sarif210-invalid-level.json"));
+    Path sarif = Paths.get(sarifResource.toURI());
+
+    assertThatThrownBy(() -> serializer.deserialize(sarif))
+      .isInstanceOf(SarifDeserializationException.class)
+      .hasFieldOrPropertyWithValue("category", Category.MAPPING)
+      .hasMessageContaining("Failed to read SARIF report at '" + sarif + "'");
+  }
+
+  @Test
+  public void deserialize_whenIntegerOverflows_shouldThrowValueException() throws URISyntaxException {
+    URL sarifResource = requireNonNull(getClass().getResource("sarif210-integer-overflow.json"));
+    Path sarif = Paths.get(sarifResource.toURI());
+
+    assertThatThrownBy(() -> serializer.deserialize(sarif))
+      .isInstanceOf(SarifDeserializationException.class)
+      .hasFieldOrPropertyWithValue("category", Category.VALUE)
+      .hasMessageContaining("Failed to read SARIF report at '" + sarif + "'");
   }
 
   private void verifySarif(SarifSchema210 deserializationResult) {
