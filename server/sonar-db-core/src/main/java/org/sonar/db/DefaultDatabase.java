@@ -55,6 +55,7 @@ import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
 import static org.sonar.process.ProcessProperties.Property.JDBC_USERNAME;
 import static org.sonar.process.ProcessProperties.Property.JDBC_USE_AZURE_MANAGED_IDENTITY;
 import static org.sonar.process.ProcessProperties.Property.JDBC_VALIDATION_TIMEOUT;
+
 /**
  * @since 2.12
  */
@@ -163,18 +164,15 @@ public class DefaultDatabase implements Database {
       dialect = DialectUtils.find(properties.getProperty(SONAR_JDBC_DIALECT), jdbcUrl);
 
       if (dialect.getId().equals(MsSql.ID)) {
-        //sql server case, validated
+        // sql server case, validated
         LOG.warn("sql server jdbc detected");
         return createHikariDataSourceWithManagedIdentitySQLserver();
-      }
-      else if (dialect.getId().equals(PostgreSql.ID))
-      {
-        //postgresql server case, validated
+      } else if (dialect.getId().equals(PostgreSql.ID)) {
+        // postgresql server case, validated
         LOG.warn("postgresql server jdbc detected");
         return createHikariDataSourceWithManagedIdentityPOSTGRESQLserver();
-      }
-      else {
-        //oracle jdbc, ignore all
+      } else {
+        // oracle jdbc, ignore all
         return createdefaultHikariDataSource();
       }
     } else {
@@ -182,7 +180,7 @@ public class DefaultDatabase implements Database {
     }
   }
 
-  private HikariDataSource createdefaultHikariDataSource (){
+  private HikariDataSource createdefaultHikariDataSource() {
     HikariConfig config = new HikariConfig(extractCommonsHikariProperties(properties));
     if (!dialect.getConnectionInitStatements().isEmpty()) {
       config.setConnectionInitSql(dialect.getConnectionInitStatements().get(0));
@@ -192,20 +190,20 @@ public class DefaultDatabase implements Database {
   }
 
   private HikariDataSource createHikariDataSourceWithManagedIdentitySQLserver() {
-    //Create SQLServerDataSource
+    // Create SQLServerDataSource
     SQLServerDataSource ds = new SQLServerDataSource();
-    //jbdc url doesn't need to have Authentication=, azure library take care of it after while the chain authentication and enter on the appropriate option
-    //https://learn.microsoft.com/en-us/azure/developer/java/sdk/authentication/credential-chains
+    // jbdc url doesn't need to have Authentication=, azure library take care of it after while the chain authentication and enter on the appropriate option
+    // https://learn.microsoft.com/en-us/azure/developer/java/sdk/authentication/credential-chains
     ds.setURL(properties.getProperty(JDBC_URL.getKey()));
-    //Get token from Azure Identity
+    // Get token from Azure Identity
     String token = Objects.requireNonNull(new DefaultAzureCredentialBuilder()
-                    .build()
-                    .getToken(new TokenRequestContext().addScopes("https://database.windows.net/.default"))
-                    .block())
-                    .getToken();
+      .build()
+      .getToken(new TokenRequestContext().addScopes("https://database.windows.net/.default"))
+      .block())
+      .getToken();
     ds.setAccessToken(token);
 
-    //Wrap SQLServerDataSource in HikariConfig
+    // Wrap SQLServerDataSource in HikariConfig
     HikariConfig config = new HikariConfig();
     config.setDataSource(ds);
     config.setConnectionTestQuery(dialect.getValidationQuery());
@@ -215,11 +213,11 @@ public class DefaultDatabase implements Database {
   private HikariDataSource createHikariDataSourceWithManagedIdentityPOSTGRESQLserver() {
     // Get token from Azure Identity
     String token = Objects.requireNonNull(new DefaultAzureCredentialBuilder()
-                    .build()
-                    .getToken(new TokenRequestContext()
-                            .addScopes("https://ossrdbms-aad.database.windows.net/.default"))
-                    .block())
-                    .getToken();
+      .build()
+      .getToken(new TokenRequestContext()
+        .addScopes("https://ossrdbms-aad.database.windows.net/.default"))
+      .block())
+      .getToken();
 
     HikariConfig config = new HikariConfig();
 
@@ -230,8 +228,7 @@ public class DefaultDatabase implements Database {
     // Optional: configure pool settings from Sonar properties
     if (properties.containsKey(SONAR_JDBC_MAX_ACTIVE)) {
       config.setMaximumPoolSize(Integer.parseInt(properties.getProperty(SONAR_JDBC_MAX_ACTIVE)));
-    }
-    else {
+    } else {
       config.setMaximumPoolSize(5);
     }
     if (properties.containsKey(JDBC_MIN_IDLE.getKey())) {
@@ -312,7 +309,7 @@ public class DefaultDatabase implements Database {
         }
         continue;
       }
-      if (CS.startsWith(key, SONAR_JDBC) && !CS.contains(key,JDBC_USE_AZURE_MANAGED_IDENTITY.getKey())) {
+      if (CS.startsWith(key, SONAR_JDBC) && !CS.contains(key, JDBC_USE_AZURE_MANAGED_IDENTITY.getKey())) {
         String resolvedKey = toHikariPropertyKey(key);
         String existingValue = (String) result.setProperty(resolvedKey, (String) entry.getValue());
         checkState(existingValue == null || existingValue.equals(entry.getValue()),

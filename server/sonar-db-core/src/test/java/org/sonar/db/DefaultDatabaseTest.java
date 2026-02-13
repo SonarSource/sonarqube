@@ -65,6 +65,7 @@ public class DefaultDatabaseTest {
     DefaultDatabase db = new DefaultDatabase(logbackHelper, settings);
     assertThat(db.getSettings()).isEqualTo(settings);
   }
+
   @Test
   public void shouldExtractHikariProperties() {
     Properties props = new Properties();
