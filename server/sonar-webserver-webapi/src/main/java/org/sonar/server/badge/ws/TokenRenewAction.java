@@ -24,9 +24,9 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.TokenType;
 import org.sonar.server.user.UserSession;
@@ -56,10 +56,13 @@ public class TokenRenewAction implements ProjectBadgesWsAction {
       .setSince("9.2")
       .setPost(true)
       .setChangelog(new Change("10.1", format("Application key can be used for %s parameter.", PROJECT_KEY_PARAM)))
-      .setDescription("Creates new token replacing any existing token for project or application badge access for private projects and " +
-        "applications.<br/>" +
-        "This token can be used to authenticate with api/project_badges/quality_gate and api/project_badges/measure endpoints.<br/>" +
-        "Requires 'Administer' permission on the specified project or application.");
+      .setDescription(
+        "Creates new token replacing any existing token for project or application badge access for private projects and "
+          + "applications.<br/>"
+          + "This token can be used to authenticate with api/project_badges/quality_gate and api/project_badges/measure endpoints.<br/>"
+          + "Requires 'Administer' permission on the specified project or application.<br/>"
+          + "If the 'sonar.forceAuthentication' setting is enabled, then a token is required for public projects as well."
+      );
     action.createParam(PROJECT_KEY_PARAM)
       .setDescription("Project or application key")
       .setRequired(true)

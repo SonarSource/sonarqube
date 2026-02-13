@@ -25,9 +25,9 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectBadgeTokenDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.TokenType;
@@ -59,9 +59,12 @@ public class TokenAction implements ProjectBadgesWsAction {
       .setHandler(this)
       .setSince("9.2")
       .setChangelog(new Change("10.1", format("Application key can be used for %s parameter.", PROJECT_KEY_PARAM)))
-      .setDescription("Retrieve a token to use for project or application badge access for private projects or applications.<br/>" +
-        "This token can be used to authenticate with api/project_badges/quality_gate and api/project_badges/measure endpoints.<br/>" +
-        "Requires 'Browse' permission on the specified project or application.")
+      .setDescription(
+        "Retrieve a token to use for project or application badge access for private projects or applications.<br/>"
+          + "This token can be used to authenticate with api/project_badges/quality_gate and api/project_badges/measure endpoints.<br/>"
+          + "Requires 'Browse' permission on the specified project or application.<br/>"
+          + "If the 'sonar.forceAuthentication' setting is enabled, then a token is required for public projects as well."
+      )
       .setResponseExample(Resources.getResource(getClass(), "token-example.json"));
     action.createParam(PROJECT_KEY_PARAM)
       .setDescription("Project or application key")

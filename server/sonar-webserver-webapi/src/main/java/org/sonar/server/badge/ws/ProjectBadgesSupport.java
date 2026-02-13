@@ -70,7 +70,9 @@ public class ProjectBadgesSupport {
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
     action
       .createParam(PARAM_TOKEN)
-      .setDescription("Project badge token")
+      .setDescription(
+        "Project badge token. Required for private projects or if the 'sonar.forceAuthentication' setting is enabled."
+      )
       .setExampleValue(PROJECT_BADGE_TOKEN_EXAMPLE);
   }
 
