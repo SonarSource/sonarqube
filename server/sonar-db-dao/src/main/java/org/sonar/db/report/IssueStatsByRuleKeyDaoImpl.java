@@ -52,10 +52,10 @@ public class IssueStatsByRuleKeyDaoImpl implements IssueStatsByRuleKeyDao {
 
   @Override
   public void deleteAndInsertIssueStats(String aggregationId, AggregationType aggregationType, List<IssueStats> list) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
+    try (DbSession dbSession = dbClient.openSession(true)) {
       mapper(dbSession).deleteAllIssueStats(aggregationId, aggregationType.toString());
-      if (!list.isEmpty()) {
-        mapper(dbSession).insertIssueStats(aggregationId, aggregationType.toString(), list);
+      for (IssueStats i : list) {
+        mapper(dbSession).insertIssueStats(aggregationId, aggregationType.toString(), i);
       }
       dbSession.commit();
     }
@@ -73,7 +73,7 @@ public class IssueStatsByRuleKeyDaoImpl implements IssueStatsByRuleKeyDao {
   public void upsert(String aggregationId, AggregationType aggregationType, IssueStats issueStats) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       mapper(dbSession).deleteIssueStatsForAggregationAndRuleKey(aggregationId, aggregationType.toString(), issueStats.ruleKey());
-      mapper(dbSession).insertIssueStats(aggregationId, aggregationType.toString(), List.of(issueStats));
+      mapper(dbSession).insertIssueStats(aggregationId, aggregationType.toString(), issueStats);
       dbSession.commit();
     }
   }

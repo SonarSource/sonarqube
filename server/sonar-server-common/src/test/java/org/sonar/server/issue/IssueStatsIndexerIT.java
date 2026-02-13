@@ -53,8 +53,9 @@ class IssueStatsIndexerIT {
   private final RuleDto rule3 = db.rules().insert(RuleTesting.randomRuleKey(), r -> r.setType(RuleType.SECURITY_HOTSPOT));
 
   private final DbClient dbClient = db.getDbClient();
-  IssueIngestionService issueIngestionService = new IssueIngestionService(new IssueStatsByRuleKeyDaoImpl(dbClient));
-  private final IssueStatsIndexer underTest = new IssueStatsIndexer(dbClient, issueIngestionService);
+  private final IssueStatsByRuleKeyDaoImpl issueStatsByRuleKeyDao = new IssueStatsByRuleKeyDaoImpl(dbClient);
+  private final IssueIngestionService issueIngestionService = new IssueIngestionService(issueStatsByRuleKeyDao);
+  private final IssueStatsIndexer underTest = new IssueStatsIndexer(dbClient, issueIngestionService, issueStatsByRuleKeyDao);
 
   @Nested
   class WhenIndexingOnAnalysis {

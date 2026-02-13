@@ -50,16 +50,14 @@
       hotspot_count,
       hotspots_reviewed
     ) values (
-      <foreach collection="list" item="item" separator="), (">
         #{aggregationId},
         #{aggregationType},
-        #{item.ruleKey},
-        #{item.issueCount},
-        #{item.rating},
-        #{item.mqrRating},
-        #{item.hotspotCount},
-        #{item.hotspotsReviewed}
-      </foreach>
+        #{issueStats.ruleKey},
+        #{issueStats.issueCount},
+        #{issueStats.rating},
+        #{issueStats.mqrRating},
+        #{issueStats.hotspotCount},
+        #{issueStats.hotspotsReviewed}
     )
   </insert>
 

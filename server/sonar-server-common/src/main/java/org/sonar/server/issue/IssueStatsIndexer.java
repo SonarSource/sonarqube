@@ -46,15 +46,18 @@ public class IssueStatsIndexer implements AnalysisIndexer {
 
   private final DbClient dbClient;
   private final IssueIngestionService issueIngestionService;
+  private final IssueStatsByRuleKeyDaoImpl issueStatsByRuleKeyDao;
 
-  public IssueStatsIndexer(DbClient dbClient, IssueIngestionService issueIngestionService) {
+  public IssueStatsIndexer(DbClient dbClient, IssueIngestionService issueIngestionService,
+    IssueStatsByRuleKeyDaoImpl issueStatsByRuleKeyDao) {
     this.dbClient = dbClient;
     this.issueIngestionService = issueIngestionService;
+    this.issueStatsByRuleKeyDao = issueStatsByRuleKeyDao;
   }
 
   @Override
   public void indexOnAnalysis(String branchUuid) {
-    try (var dbSession = dbClient.openSession(false)) {
+    try (var dbSession = dbClient.openSession(true)) {
       EntityDto entity = dbClient.entityDao().selectByUuid(dbSession, branchUuid)
         .or(() -> dbClient.entityDao().selectByComponentUuid(dbSession, branchUuid))
         .orElseThrow(() -> new IllegalStateException("Can't find entity for uuid " + branchUuid));
@@ -75,10 +78,9 @@ public class IssueStatsIndexer implements AnalysisIndexer {
 
   private void ingestForPortfolioOrApp(DbSession dbSession, String portfolioOrAppUuid, AggregationType aggregationType) {
     var projectBranchUuids = dbClient.componentDao().selectProjectBranchUuidsFromView(dbSession, portfolioOrAppUuid, portfolioOrAppUuid);
-    var dao = new IssueStatsByRuleKeyDaoImpl(dbClient);
-    Map<String, IssueStats> issueStatsByRuleKey = dao.loadAllIssueStatsForProjectBranches(projectBranchUuids).stream()
+    Map<String, IssueStats> issueStatsByRuleKey = issueStatsByRuleKeyDao.loadAllIssueStatsForProjectBranches(projectBranchUuids).stream()
       .collect(Collectors.toMap(IssueStats::ruleKey, Function.identity(), IssueStatsIndexer::mergeIssueStats));
-    dao.deleteAndInsertIssueStats(portfolioOrAppUuid, aggregationType, new ArrayList<>(issueStatsByRuleKey.values()));
+    issueStatsByRuleKeyDao.deleteAndInsertIssueStats(portfolioOrAppUuid, aggregationType, new ArrayList<>(issueStatsByRuleKey.values()));
     dbSession.commit();
   }
 

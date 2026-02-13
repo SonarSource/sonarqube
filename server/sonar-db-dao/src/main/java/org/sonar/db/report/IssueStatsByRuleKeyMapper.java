@@ -31,7 +31,7 @@ public interface IssueStatsByRuleKeyMapper {
 
   void insertIssueStats(@Param("aggregationId") String aggregationId,
     @Param("aggregationType") String aggregationType,
-    @Param("list") List<IssueStats> list);
+    @Param("issueStats") IssueStats issueStats);
 
   void deleteAllIssueStats(@Param("aggregationId") String aggregationId, @Param("aggregationType") String aggregationType);
 

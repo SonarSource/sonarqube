@@ -22,6 +22,7 @@ package org.sonar.db.report;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
@@ -43,24 +44,24 @@ class IssueStatsByRuleKeyDaoImplIT {
   void shouldGetIssuesByAggregationId() throws SQLException {
     insertSampleIssueStats();
 
-    var results = underTest.getIssueStats("b728478a-470f-4cb2-8a19-9302632e049f", PROJECT);
-    assertThat(results).hasSize(2);
-    assertThat(results)
-      .anySatisfy(issueStats -> {
-        assertThat(issueStats.ruleKey()).isEqualTo("githubactions:S7630");
-        assertThat(issueStats.issueCount()).isEqualTo(6);
-        assertThat(issueStats.rating()).isEqualTo(5);
-        assertThat(issueStats.mqrRating()).isEqualTo(4);
-        assertThat(issueStats.hotspotCount()).isZero();
-        assertThat(issueStats.hotspotsReviewed()).isZero();
-      })
-      .anySatisfy(issueStats -> {
-        assertThat(issueStats.ruleKey()).isEqualTo("githubactions:S7640");
-        assertThat(issueStats.issueCount()).isEqualTo(3);
-        assertThat(issueStats.rating()).isEqualTo(3);
-        assertThat(issueStats.hotspotCount()).isEqualTo(1);
-        assertThat(issueStats.hotspotsReviewed()).isEqualTo(1);
-      });
+    assertThat(underTest.getIssueStats("b728478a-470f-4cb2-8a19-9302632e049f", PROJECT))
+      .extracting(IssueStats::ruleKey, IssueStats::issueCount, IssueStats::rating, IssueStats::mqrRating,
+        IssueStats::hotspotCount, IssueStats::hotspotsReviewed)
+      .containsOnly(
+        tuple("githubactions:S7630", 6, 5, 4, 0, 0),
+        tuple("githubactions:S7640", 3, 3, 3, 1, 1)
+      );
+  }
+
+  @Test
+  void shouldDeleteAndInsertLargeSetOfIssueStatsForProject() throws SQLException {
+    int size = 1000;
+    List<IssueStats> issueStatsList = IntStream.range(0, size)
+      .mapToObj(i -> new IssueStats("githubactions:S" + i, 6, 5, 3, 0, 0))
+      .toList();
+
+    underTest.deleteAndInsertIssueStats("b728478a-470f-4cb2-8a19-9302632e049f", PROJECT, issueStatsList);
+    assertThat(getIssueStats()).hasSize(size);
   }
 
   @Test
@@ -107,25 +108,10 @@ class IssueStatsByRuleKeyDaoImplIT {
 
   @Test
   void shouldDeleteAllIssueStatsForProject() throws SQLException {
-    try (var session = db.getSession().getSqlSession(); var sqlSession = session.getConnection()) {
-      insertSampleIssueStats();
-      session.commit();
+    insertSampleIssueStats();
 
-      underTest.deleteAndInsertIssueStats("b728478a-470f-4cb2-8a19-9302632e049f", AggregationType.PROJECT, List.of());
-
-      var resultSet = sqlSession.prepareStatement(
-        "SELECT COUNT(*) AS total " +
-          "FROM issue_stats_by_rule_key " +
-          "WHERE aggregation_type='PROJECT' AND aggregation_id='b728478a-470f-4cb2-8a19-9302632e049f'"
-      ).executeQuery();
-
-      if (resultSet.next()) {
-        int total = resultSet.getInt("total");
-        assertThat(total).isZero();
-      } else {
-        throw new IllegalStateException("No result returned from count query");
-      }
-    }
+    underTest.deleteAndInsertIssueStats("b728478a-470f-4cb2-8a19-9302632e049f", AggregationType.PROJECT, List.of());
+    assertThat(getIssueStats()).isEmpty();
   }
 
   private void insertSampleIssueStats() throws SQLException {

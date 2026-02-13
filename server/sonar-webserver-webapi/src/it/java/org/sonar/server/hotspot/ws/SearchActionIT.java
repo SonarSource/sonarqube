@@ -160,9 +160,10 @@ class SearchActionIT {
   private final DbClient dbClient = dbTester.getDbClient();
   private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule,
     new WebAuthorizationTypeSupport(userSessionRule), config);
+  private final IssueStatsByRuleKeyDaoImpl issueStatsByRuleKeyDao = new IssueStatsByRuleKeyDaoImpl(dbClient);
   private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), mock(AsyncIssueIndexing.class));
-  private final IssueIngestionService issueIngestionService = new IssueIngestionService(new IssueStatsByRuleKeyDaoImpl(dbClient));
-  private final IssueStatsIndexer issueStatsIndexer = new IssueStatsIndexer(dbClient, issueIngestionService);
+  private final IssueIngestionService issueIngestionService = new IssueIngestionService(issueStatsByRuleKeyDao);
+  private final IssueStatsIndexer issueStatsIndexer = new IssueStatsIndexer(dbClient, issueIngestionService, issueStatsByRuleKeyDao);
   private final ViewIndexer viewIndexer = new ViewIndexer(dbClient, es.client());
   private final PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
   private final HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter(new TextRangeResponseFormatter());
