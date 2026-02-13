@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.db.dialect.MsSql;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.process.logging.LogbackHelper;
 
@@ -82,7 +83,7 @@ public class DefaultDatabaseTest {
     props.setProperty("sonar.jdbc.leakDetectionThreshold", "0");
     props.setProperty("sonar.jdbc.keepaliveTime", "30000");
     props.setProperty("sonar.jdbc.idleTimeout", "600000");
-
+    props.setProperty("sonar.jdbc.azure.identity", "false");
     Properties hikariProps = DefaultDatabase.extractCommonsHikariProperties(props);
 
     assertThat(hikariProps).hasSize(15);
@@ -183,6 +184,40 @@ public class DefaultDatabaseTest {
   public void shouldGuessDialectFromUrl() {
     MapSettings settings = new MapSettings();
     settings.setProperty("sonar.jdbc.url", "jdbc:postgresql://localhost/sonar");
+
+    DefaultDatabase database = new DefaultDatabase(logbackHelper, settings);
+    database.initSettings();
+
+    assertThat(database.getDialect().getId()).isEqualTo(PostgreSql.ID);
+  }
+
+  @Test
+  public void shouldSetManagedIdentityToFalseIfnotFound() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty("sonar.jdbc.url", "jdbc:sqlserver://localhost/sonar");
+
+    DefaultDatabase database = new DefaultDatabase(logbackHelper, settings);
+    database.initSettings();
+    assertThat(database.getProperties().getProperty("sonar.jdbc.azure.identity")).isEqualTo("false");
+  }
+
+  @Test
+  public void shouldselectDialectFromUrlMIsqlserver() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty("sonar.jdbc.url", "jdbc:sqlserver://localhost/sonar");
+    settings.setProperty("sonar.jdbc.azure.identity", true);
+
+    DefaultDatabase database = new DefaultDatabase(logbackHelper, settings);
+    database.initSettings();
+
+    assertThat(database.getDialect().getId()).isEqualTo(MsSql.ID);
+  }
+
+  @Test
+  public void shouldSELECTDialectFromUrlMIpostgresql() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty("sonar.jdbc.url", "jdbc:postgresql://localhost/sonar");
+    settings.setProperty("sonar.jdbc.azure.identity", true);
 
     DefaultDatabase database = new DefaultDatabase(logbackHelper, settings);
     database.initSettings();

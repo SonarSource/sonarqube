@@ -53,6 +53,7 @@ public class ProcessProperties {
   public enum Property {
     JDBC_URL("sonar.jdbc.url"),
     JDBC_USERNAME("sonar.jdbc.username", ""),
+    JDBC_USE_AZURE_MANAGED_IDENTITY("sonar.jdbc.azure.identity", ""),
     JDBC_PASSWORD("sonar.jdbc.password", ""),
     JDBC_DRIVER_PATH("sonar.jdbc.driverPath"),
     JDBC_ADDITIONAL_LIB_PATHS("sonar.jdbc.additionalLibPaths"),

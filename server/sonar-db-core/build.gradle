@@ -20,6 +20,11 @@ dependencies {
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
+  implementation 'com.microsoft.sqlserver:mssql-jdbc'
+  implementation 'com.azure:azure-identity'
+  implementation 'com.azure:azure-core'
+  implementation 'org.postgresql:postgresql'
+
   testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'com.h2database:h2'
   testImplementation 'com.microsoft.sqlserver:mssql-jdbc'
