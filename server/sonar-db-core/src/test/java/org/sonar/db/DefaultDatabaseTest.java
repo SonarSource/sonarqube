@@ -198,6 +198,7 @@ public class DefaultDatabaseTest {
 
     DefaultDatabase database = new DefaultDatabase(logbackHelper, settings);
     database.initSettings();
+
     assertThat(database.getProperties().getProperty("sonar.jdbc.azure.identity")).isEqualTo("false");
   }
 
