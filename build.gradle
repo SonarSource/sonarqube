@@ -301,6 +301,8 @@ subprojects {
     dependencies {
       dependency 'com.azure:azure-identity:1.15.0'
       dependency 'com.azure:azure-core:1.52.0'
+      dependency 'software.amazon.awssdk:auth:2.40.17'
+      dependency 'software.amazon.awssdk:rds:2.40.17'
       //for azure managed identity support
       // bundled plugin list -- keep it alphabetically ordered
       dependency 'com.sonarsource.abap:sonar-abap-plugin:3.17.0.7722'
