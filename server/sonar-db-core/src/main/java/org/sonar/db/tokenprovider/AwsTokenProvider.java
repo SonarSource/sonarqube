@@ -34,10 +34,10 @@ public class AwsTokenProvider implements TokenProvider {
   @Override
   public String getToken(Properties properties) {
 
-    String region = require(properties,properties.getProperty(JDBC_AWS_REGION.getKey()));
-    String hostName = require(properties,properties.getProperty(JDBC_AWS_HOSTNAME.getKey()));
-    String portStr = require(properties,properties.getProperty(JDBC_AWS_PORT.getKey()));
-    String username = require(properties,properties.getProperty(JDBC_USERNAME.getKey()));
+    String region = require(properties, JDBC_AWS_REGION.getKey());
+    String hostName = require(properties, JDBC_AWS_HOSTNAME.getKey());
+    String portStr = require(properties, JDBC_AWS_PORT.getKey());
+    String username = require(properties, JDBC_USERNAME.getKey());
 
     int port;
     try {
@@ -70,4 +70,3 @@ public class AwsTokenProvider implements TokenProvider {
   }
 
 }
-
