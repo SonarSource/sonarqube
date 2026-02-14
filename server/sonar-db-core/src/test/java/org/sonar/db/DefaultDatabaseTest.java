@@ -85,6 +85,8 @@ public class DefaultDatabaseTest {
     props.setProperty("sonar.jdbc.keepaliveTime", "30000");
     props.setProperty("sonar.jdbc.idleTimeout", "600000");
     props.setProperty("sonar.jdbc.azure.identity", "false");
+    props.setProperty("sonar.jdbc.aws.identity", "false");
+
     Properties hikariProps = DefaultDatabase.extractCommonsHikariProperties(props);
 
     assertThat(hikariProps).hasSize(15);
@@ -193,7 +195,7 @@ public class DefaultDatabaseTest {
   }
 
   @Test
-  public void shouldSetManagedIdentityToFalseIfnotFound() {
+  public void shouldSetIdentityToFalseIfnotFound() {
     MapSettings settings = new MapSettings();
     settings.setProperty("sonar.jdbc.url", "jdbc:sqlserver://localhost/sonar");
 
@@ -201,6 +203,8 @@ public class DefaultDatabaseTest {
     database.initSettings();
 
     assertThat(database.getProperties().getProperty("sonar.jdbc.azure.identity")).isEqualTo("false");
+    assertThat(database.getProperties().getProperty("sonar.jdbc.aws.identity")).isEqualTo("false");
+
   }
 
   @Test
