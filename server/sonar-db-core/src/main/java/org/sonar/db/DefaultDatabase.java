@@ -245,6 +245,7 @@ public class DefaultDatabase implements Database {
   private static void enableSqlLogging(ProfiledDataSource ds, boolean enable) {
     ds.setConnectionInterceptor(enable ? ProfiledConnectionInterceptor.INSTANCE : NullConnectionInterceptor.INSTANCE);
   }
+
   /**
    * Override this method to add JDBC properties at runtime
    */
