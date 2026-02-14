@@ -19,6 +19,13 @@ dependencies {
   api project(':sonar-plugin-api-impl')
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
+  implementation 'com.microsoft.sqlserver:mssql-jdbc'
+  implementation 'com.azure:azure-identity'
+  implementation 'com.azure:azure-core'
+  implementation 'software.amazon.awssdk:auth'
+  implementation 'software.amazon.awssdk:rds'
+  implementation 'software.amazon.awssdk:sts'
+  implementation 'org.postgresql:postgresql'
 
   testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'com.h2database:h2'

@@ -35,9 +35,15 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.DialectUtils;
+import org.sonar.db.dialect.MsSql;
+import org.sonar.db.dialect.PostgreSql;
 import org.sonar.db.profiling.NullConnectionInterceptor;
 import org.sonar.db.profiling.ProfiledConnectionInterceptor;
 import org.sonar.db.profiling.ProfiledDataSource;
+import org.sonar.db.tokenprovider.AwsTokenProvider;
+import org.sonar.db.tokenprovider.AzureTokenProvider;
+import org.sonar.db.tokenprovider.MssqlHikariConfigProvider;
+import org.sonar.db.tokenprovider.PostgresqlHikariConfigProvider;
 import org.sonar.process.logging.LogbackHelper;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -51,6 +57,8 @@ import static org.sonar.process.ProcessProperties.Property.JDBC_MIN_IDLE;
 import static org.sonar.process.ProcessProperties.Property.JDBC_PASSWORD;
 import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
 import static org.sonar.process.ProcessProperties.Property.JDBC_USERNAME;
+import static org.sonar.process.ProcessProperties.Property.JDBC_USE_AWS_MANAGED_IDENTITY;
+import static org.sonar.process.ProcessProperties.Property.JDBC_USE_AZURE_MANAGED_IDENTITY;
 import static org.sonar.process.ProcessProperties.Property.JDBC_VALIDATION_TIMEOUT;
 
 /**
@@ -75,6 +83,8 @@ public class DefaultDatabase implements Database {
     JDBC_USERNAME.getKey(),
     JDBC_PASSWORD.getKey(),
     JDBC_EMBEDDED_PORT.getKey(),
+    JDBC_USE_AZURE_MANAGED_IDENTITY.getKey(),
+    JDBC_USE_AWS_MANAGED_IDENTITY.getKey(),
     JDBC_URL.getKey(),
     JDBC_MIN_IDLE.getKey(),
     SONAR_JDBC_MAX_WAIT,
@@ -135,6 +145,8 @@ public class DefaultDatabase implements Database {
     properties = new Properties();
     completeProperties(settings, properties, SONAR_JDBC);
     completeDefaultProperty(properties, JDBC_URL.getKey(), DEFAULT_URL);
+    completeDefaultProperty(properties, JDBC_USE_AZURE_MANAGED_IDENTITY.getKey(), "false");
+    completeDefaultProperty(properties, JDBC_USE_AWS_MANAGED_IDENTITY.getKey(), "false");
     doCompleteProperties(properties);
 
     String jdbcUrl = properties.getProperty(JDBC_URL.getKey());
@@ -152,10 +164,42 @@ public class DefaultDatabase implements Database {
   }
 
   private HikariDataSource createHikariDataSource() {
+    boolean useIdentityAzure = Boolean.parseBoolean(properties.getProperty(JDBC_USE_AZURE_MANAGED_IDENTITY.getKey(), "false"));
+    boolean useIdentityAws = Boolean.parseBoolean(properties.getProperty(JDBC_USE_AWS_MANAGED_IDENTITY.getKey(), "false"));
+
+    String token = null;
+    if (useIdentityAzure)
+      token = new AzureTokenProvider().getToken(properties);
+    if (useIdentityAws)
+      token = new AwsTokenProvider().getToken(properties);
+    if (token != null && !token.isEmpty()) {
+      if (dialect.getId().equals(MsSql.ID))
+        return MSSQLserver(token);
+      if (dialect.getId().equals(PostgreSql.ID))
+        return POSTGRESQLserver(token);
+    }
+    LOG.warn("Acces token cannot be obtain");
+    return createdefaultHikariDataSource(); // oracle and non-identity-managed goes here
+  }
+
+  private HikariDataSource createdefaultHikariDataSource() {
     HikariConfig config = new HikariConfig(extractCommonsHikariProperties(properties));
     if (!dialect.getConnectionInitStatements().isEmpty()) {
       config.setConnectionInitSql(dialect.getConnectionInitStatements().get(0));
     }
+    config.setConnectionTestQuery(dialect.getValidationQuery());
+    return new HikariDataSource(config);
+  }
+
+  private HikariDataSource MSSQLserver(String token) {
+    HikariConfig config = new MssqlHikariConfigProvider().getConfig(token, properties);
+    config.setConnectionTestQuery(dialect.getValidationQuery());
+    return new HikariDataSource(config);
+  }
+
+  private HikariDataSource POSTGRESQLserver(String token) {
+    // Get token from Azure Identity
+    HikariConfig config = new PostgresqlHikariConfigProvider().getConfig(token, properties);
     config.setConnectionTestQuery(dialect.getValidationQuery());
     return new HikariDataSource(config);
   }
@@ -228,7 +272,7 @@ public class DefaultDatabase implements Database {
         }
         continue;
       }
-      if (CS.startsWith(key, SONAR_JDBC)) {
+      if (CS.startsWith(key, SONAR_JDBC) && !CS.contains(key, JDBC_USE_AZURE_MANAGED_IDENTITY.getKey()) && !CS.contains(key, JDBC_USE_AWS_MANAGED_IDENTITY.getKey())) {
         String resolvedKey = toHikariPropertyKey(key);
         String existingValue = (String) result.setProperty(resolvedKey, (String) entry.getValue());
         checkState(existingValue == null || existingValue.equals(entry.getValue()),
