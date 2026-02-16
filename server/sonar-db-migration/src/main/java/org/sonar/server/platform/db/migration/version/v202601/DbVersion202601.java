@@ -33,6 +33,7 @@ public class DbVersion202601 implements DbVersion {
       .add(2026_01_003, "Add 'part_number' column to 'ce_task_input'", AddPartNumberColumnToCeTaskInputTable.class)
       .add(2026_01_004, "Add 'part_count' column to 'ce_queue'", AddPartCountColumnToCeQueueTable.class)
       .add(2026_01_005, "Create 'sca_ir_cve_locations' table", CreateScaIrCveLocationsTable.class)
+      .add(2026_01_006, "Create 'integration_bindings' table", CreateIntegrationBindingsTable.class)
     ;
   }
 
