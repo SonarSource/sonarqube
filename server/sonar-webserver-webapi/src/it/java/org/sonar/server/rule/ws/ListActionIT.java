@@ -61,7 +61,7 @@ public class ListActionIT {
 
   private final Languages languages = LanguageTesting.newLanguages("java", "js");
   private final MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
-  private final RuleMapper ruleMapper = new RuleMapper(languages, macroInterpreter, new RuleDescriptionFormatter());
+  private final RuleMapper ruleMapper = new RuleMapper(languages, macroInterpreter, new RuleDescriptionFormatter(), userSession);
   private final RuleWsSupport ruleWsSupport = new RuleWsSupport(db.getDbClient(), userSession);
   private final RulesResponseFormatter rulesResponseFormatter = new RulesResponseFormatter(db.getDbClient(), ruleWsSupport, ruleMapper, languages);
   private final WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient(), rulesResponseFormatter));

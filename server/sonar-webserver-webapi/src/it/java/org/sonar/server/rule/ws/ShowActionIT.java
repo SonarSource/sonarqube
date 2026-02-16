@@ -89,9 +89,9 @@ class ShowActionIT {
   private final MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
   private final Languages languages = new Languages(newLanguage("xoo", "Xoo"));
   private final RuleWsSupport ruleWsSupport = new RuleWsSupport(db.getDbClient(), userSession);
-  private final RuleMapper ruleMapper = new RuleMapper(languages, macroInterpreter, new RuleDescriptionFormatter());
+  private final RuleMapper ruleMapper = new RuleMapper(languages, macroInterpreter, new RuleDescriptionFormatter(), userSession);
   private final WsActionTester ws = new WsActionTester(
-    new ShowAction(db.getDbClient(), new RulesResponseFormatter(db.getDbClient(), ruleWsSupport, ruleMapper, languages), userSession));
+    new ShowAction(db.getDbClient(), new RulesResponseFormatter(db.getDbClient(), ruleWsSupport, ruleMapper, languages)));
   private UserDto userDto;
 
   @BeforeEach

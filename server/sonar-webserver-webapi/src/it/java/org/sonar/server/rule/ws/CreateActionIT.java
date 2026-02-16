@@ -75,7 +75,7 @@ public class CreateActionIT {
   private final WsActionTester ws = new WsActionTester(new CreateAction(db.getDbClient(),
     new RuleService(db.getDbClient(),
       new RuleCreator(system2, new RuleIndexer(es.client(), db.getDbClient()), db.getDbClient(), newFullTypeValidations(), uuidFactory)),
-    new RuleMapper(new Languages(), createMacroInterpreter(), new RuleDescriptionFormatter()),
+    new RuleMapper(new Languages(), createMacroInterpreter(), new RuleDescriptionFormatter(), userSession),
     new RuleWsSupport(db.getDbClient(), userSession)));
 
   @Test

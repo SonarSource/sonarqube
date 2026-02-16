@@ -91,7 +91,7 @@ class UpdateActionIT {
   private final RuleDescriptionFormatter ruleDescriptionFormatter = new RuleDescriptionFormatter();
 
   private final Languages languages = new Languages();
-  private final RuleMapper mapper = new RuleMapper(languages, createMacroInterpreter(), ruleDescriptionFormatter);
+  private final RuleMapper mapper = new RuleMapper(languages, createMacroInterpreter(), ruleDescriptionFormatter, userSession);
   private final RuleIndexer ruleIndexer = new RuleIndexer(esClient, dbClient);
   private final UuidFactoryFast uuidFactory = UuidFactoryFast.getInstance();
 

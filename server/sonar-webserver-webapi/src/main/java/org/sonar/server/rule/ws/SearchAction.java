@@ -52,7 +52,6 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.rule.ws.RulesResponseFormatter.SearchResult;
-import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.SearchResponse;
@@ -146,18 +145,15 @@ public class SearchAction implements RulesWsAction {
   private final RulesResponseFormatter rulesResponseFormatter;
   private final MetadataLoader metadataLoader;
   private final MetadataRules metadataRules;
-  private final UserSession userSession;
 
   public SearchAction(RuleIndex ruleIndex, RuleQueryFactory ruleQueryFactory, DbClient dbClient,
-    RulesResponseFormatter rulesResponseFormatter, MetadataLoader metadataLoader, MetadataRules metadataRules,
-    UserSession userSession) {
+    RulesResponseFormatter rulesResponseFormatter, MetadataLoader metadataLoader, MetadataRules metadataRules) {
     this.ruleIndex = ruleIndex;
     this.ruleQueryFactory = ruleQueryFactory;
     this.dbClient = dbClient;
     this.rulesResponseFormatter = rulesResponseFormatter;
     this.metadataLoader = metadataLoader;
     this.metadataRules = metadataRules;
-    this.userSession = userSession;
   }
 
   @Override
@@ -361,9 +357,6 @@ public class SearchAction implements RulesWsAction {
     RuleQuery query) {
     SearchOptions contextForResponse = loadCommonContext(request);
     List<Rules.Rule> rules = rulesResponseFormatter.formatRulesSearch(dbSession, result, contextForResponse.getFields());
-    if (!userSession.isLoggedIn()) {
-      rules = rules.stream().map(RuleMapper::obfuscateRuleDescription).toList();
-    }
     response.addAllRules(rules);
     if (contextForResponse.getFields().contains("actives")) {
       Rules.Actives actives = rulesResponseFormatter.formatActiveRules(dbSession, query.getQProfile(), result.getRules());

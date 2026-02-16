@@ -148,10 +148,10 @@ class SearchActionIT {
   private final RuleQueryFactory ruleQueryFactory = new RuleQueryFactory(db.getDbClient(), metadataRules);
   private static final MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
   private final QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
-  private final RuleMapper ruleMapper = new RuleMapper(languages, macroInterpreter, new RuleDescriptionFormatter());
+  private final RuleMapper ruleMapper = new RuleMapper(languages, macroInterpreter, new RuleDescriptionFormatter(), userSession);
   private final SearchAction underTest = new SearchAction(ruleIndex, ruleQueryFactory, db.getDbClient(),
     new RulesResponseFormatter(db.getDbClient(), new RuleWsSupport(db.getDbClient(), userSession), ruleMapper, languages), metadataLoader,
-    metadataRules, userSession);
+    metadataRules);
   private final TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
   private final RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db.getDbClient(), UuidFactoryImpl.INSTANCE,

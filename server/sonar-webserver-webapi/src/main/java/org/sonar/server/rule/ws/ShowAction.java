@@ -32,7 +32,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.ShowResponse;
 
@@ -53,12 +52,10 @@ public class ShowAction implements RulesWsAction {
 
   private final DbClient dbClient;
   private final RulesResponseFormatter rulesResponseFormatter;
-  private final UserSession userSession;
 
-  public ShowAction(DbClient dbClient, RulesResponseFormatter rulesResponseFormatter, UserSession userSession) {
+  public ShowAction(DbClient dbClient, RulesResponseFormatter rulesResponseFormatter) {
     this.dbClient = dbClient;
     this.rulesResponseFormatter = rulesResponseFormatter;
-    this.userSession = userSession;
   }
 
   @Override
@@ -135,9 +132,6 @@ public class ShowAction implements RulesWsAction {
     ShowResponse.Builder responseBuilder = ShowResponse.newBuilder();
     RuleDto rule = searchResult.getRules().get(0);
     Rules.Rule wsRule = rulesResponseFormatter.formatRule(dbSession, searchResult);
-    if (!userSession.isLoggedIn()) {
-      wsRule = RuleMapper.obfuscateRuleDescription(wsRule);
-    }
     responseBuilder.setRule(wsRule);
     if (request.mandatoryParamAsBoolean(PARAM_ACTIVES)) {
       responseBuilder.addAllActives(rulesResponseFormatter.formatActiveRule(dbSession, rule));

@@ -48,6 +48,7 @@ import org.sonar.markdown.Markdown;
 import org.sonar.server.common.text.MacroInterpreter;
 import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.rule.ws.RulesResponseFormatter.SearchResult;
+import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Common.RuleScope;
 import org.sonarqube.ws.Rules;
@@ -92,16 +93,22 @@ public class RuleMapper {
   private final Languages languages;
   private final MacroInterpreter macroInterpreter;
   private final RuleDescriptionFormatter ruleDescriptionFormatter;
+  private final UserSession userSession;
 
-  public RuleMapper(final Languages languages, final MacroInterpreter macroInterpreter, RuleDescriptionFormatter ruleDescriptionFormatter) {
+  public RuleMapper(final Languages languages, final MacroInterpreter macroInterpreter, RuleDescriptionFormatter ruleDescriptionFormatter,
+    UserSession userSession) {
     this.languages = languages;
     this.macroInterpreter = macroInterpreter;
     this.ruleDescriptionFormatter = ruleDescriptionFormatter;
+    this.userSession = userSession;
   }
 
   public Rules.Rule toWsRule(RuleDto ruleDefinitionDto, SearchResult result, Set<String> fieldsToReturn) {
     Rules.Rule.Builder ruleResponse = Rules.Rule.newBuilder();
     applyRuleDefinition(ruleResponse, ruleDefinitionDto, result, fieldsToReturn, Collections.emptyMap());
+    if (!userSession.isLoggedIn()) {
+      obfuscateRuleDescription(ruleResponse);
+    }
     return ruleResponse.build();
   }
 
@@ -111,6 +118,9 @@ public class RuleMapper {
     applyRuleDefinition(ruleResponse, ruleDto, result, fieldsToReturn, deprecatedRuleKeysByRuleUuid);
     setDebtRemediationFunctionFields(ruleResponse, ruleDto, fieldsToReturn);
     setNotesFields(ruleResponse, ruleDto, usersByUuid, fieldsToReturn);
+    if (!userSession.isLoggedIn()) {
+      obfuscateRuleDescription(ruleResponse);
+    }
     return ruleResponse.build();
   }
 
@@ -488,15 +498,14 @@ public class RuleMapper {
     }
   }
 
-  public static Rules.Rule obfuscateRuleDescription(Rules.Rule rule) {
-    return rule.toBuilder()
+  private static void obfuscateRuleDescription(Rules.Rule.Builder ruleResponse) {
+    ruleResponse
       .clearDescriptionSections()
       .clearEducationPrinciples()
       .clearGapDescription()
       .clearHtmlNote()
       .clearMdDesc()
-      .clearMdNote()
-      .build();
+      .clearMdNote();
   }
 
   private enum RuleParamDtoToWsRuleParam implements Function<RuleParamDto, Rules.Rule.Param> {
