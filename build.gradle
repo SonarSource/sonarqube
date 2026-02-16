@@ -349,8 +349,8 @@ subprojects {
       dependency "org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures:$pluginApiVersion"
       dependency "org.sonarsource.sonarqube:users-apis:$usersApiVersion"
       dependency 'org.sonarsource.xml:sonar-xml-plugin:2.15.0.7513'
-      dependency 'org.sonarsource.iac:sonar-iac-plugin:2.5.0.18803'
-      dependency 'com.sonarsource.iac:sonar-iac-enterprise-plugin:2.5.0.18803'
+      dependency 'org.sonarsource.iac:sonar-iac-plugin:2.6.1.19203'
+      dependency 'com.sonarsource.iac:sonar-iac-enterprise-plugin:2.6.1.19203'
       dependency 'org.sonarsource.text:sonar-text-plugin:2.38.0.10279'
       dependency 'com.sonarsource.text:sonar-text-developer-plugin:2.38.0.10279'
       dependency 'com.sonarsource.text:sonar-text-enterprise-plugin:2.38.0.10279'
