@@ -420,4 +420,89 @@ class MeasureRepositoryImplIT {
       .setMetricUuid(metricUuid);
   }
 
+  @Test
+  void should_filter_ncloc_from_test_files_in_scanner_report() {
+    String nclocKey = "ncloc";
+    String testsKey = "tests";
+    MetricDto nclocMetric = dbTester.measures().insertMetric(t -> t.setKey(nclocKey).setValueType(org.sonar.api.measures.Metric.ValueType.INT.name()));
+    MetricDto testsMetric = dbTester.measures().insertMetric(t -> t.setKey(testsKey).setValueType(org.sonar.api.measures.Metric.ValueType.INT.name()));
+
+    Metric nclocMetricImpl = metricOf(nclocMetric);
+    Metric testsMetricImpl = metricOf(testsMetric);
+    when(metricRepository.getByKey(nclocKey)).thenReturn(nclocMetricImpl);
+    when(metricRepository.getByKey(testsKey)).thenReturn(testsMetricImpl);
+    when(reportMetricValidator.validate(nclocKey)).thenReturn(true);
+    when(reportMetricValidator.validate(testsKey)).thenReturn(true);
+
+    ReportComponent testFile = ReportComponent.builder(Component.Type.FILE, 10)
+      .setKey("test_file_key")
+      .setFileAttributes(new org.sonar.ce.task.projectanalysis.component.FileAttributes(true, "xoo", 1))
+      .build();
+
+    reportReader.putMeasures(10, List.of(
+      ScannerReport.Measure.newBuilder().setMetricKey(nclocKey).setIntValue(ScannerReport.Measure.IntValue.newBuilder().setValue(22)).build(),
+      ScannerReport.Measure.newBuilder().setMetricKey(testsKey).setIntValue(ScannerReport.Measure.IntValue.newBuilder().setValue(2)).build()
+    ));
+
+    Optional<Measure> nclocMeasure = underTest.getRawMeasure(testFile, nclocMetricImpl);
+    Optional<Measure> testsMeasure = underTest.getRawMeasure(testFile, testsMetricImpl);
+
+    assertThat(nclocMeasure).isEmpty();
+    assertThat(testsMeasure).isPresent();
+  }
+
+  @Test
+  void should_load_ncloc_from_main_files_in_scanner_report() {
+    String nclocKey = "ncloc";
+    MetricDto nclocMetric = dbTester.measures().insertMetric(t -> t.setKey(nclocKey).setValueType(org.sonar.api.measures.Metric.ValueType.INT.name()));
+
+    Metric nclocMetricImpl = metricOf(nclocMetric);
+    when(metricRepository.getByKey(nclocKey)).thenReturn(nclocMetricImpl);
+    when(reportMetricValidator.validate(nclocKey)).thenReturn(true);
+
+    ReportComponent mainFile = ReportComponent.builder(Component.Type.FILE, 11)
+      .setKey("main_file_key")
+      .setFileAttributes(new org.sonar.ce.task.projectanalysis.component.FileAttributes(false, "xoo", 1))
+      .build();
+
+    reportReader.putMeasures(11, List.of(
+      ScannerReport.Measure.newBuilder().setMetricKey(nclocKey).setIntValue(ScannerReport.Measure.IntValue.newBuilder().setValue(13)).build()
+    ));
+
+    Optional<Measure> nclocMeasure = underTest.getRawMeasure(mainFile, nclocMetricImpl);
+
+    assertThat(nclocMeasure).isPresent();
+    assertThat(nclocMeasure.get().getIntValue()).isEqualTo(13);
+  }
+
+  @Test
+  void should_not_filter_lines_from_test_files_in_scanner_report() {
+    String linesKey = "lines";
+    String nclocKey = "ncloc";
+    MetricDto linesMetric = dbTester.measures().insertMetric(t -> t.setKey(linesKey).setValueType(org.sonar.api.measures.Metric.ValueType.INT.name()));
+    MetricDto nclocMetric = dbTester.measures().insertMetric(t -> t.setKey(nclocKey).setValueType(org.sonar.api.measures.Metric.ValueType.INT.name()));
+
+    Metric linesMetricImpl = metricOf(linesMetric);
+    Metric nclocMetricImpl = metricOf(nclocMetric);
+    when(metricRepository.getByKey(linesKey)).thenReturn(linesMetricImpl);
+    when(metricRepository.getByKey(nclocKey)).thenReturn(nclocMetricImpl);
+    when(reportMetricValidator.validate(linesKey)).thenReturn(true);
+    when(reportMetricValidator.validate(nclocKey)).thenReturn(true);
+
+    ReportComponent testFile = ReportComponent.builder(Component.Type.FILE, 12)
+      .setKey("test_file_key2")
+      .setFileAttributes(new org.sonar.ce.task.projectanalysis.component.FileAttributes(true, "xoo", 1))
+      .build();
+
+    reportReader.putMeasures(12, List.of(
+      ScannerReport.Measure.newBuilder().setMetricKey(linesKey).setIntValue(ScannerReport.Measure.IntValue.newBuilder().setValue(30)).build(),
+      ScannerReport.Measure.newBuilder().setMetricKey(nclocKey).setIntValue(ScannerReport.Measure.IntValue.newBuilder().setValue(22)).build()
+    ));
+
+    Optional<Measure> linesMeasure = underTest.getRawMeasure(testFile, linesMetricImpl);
+
+    assertThat(linesMeasure).isPresent();
+    assertThat(linesMeasure.get().getIntValue()).isEqualTo(30);
+  }
+
 }

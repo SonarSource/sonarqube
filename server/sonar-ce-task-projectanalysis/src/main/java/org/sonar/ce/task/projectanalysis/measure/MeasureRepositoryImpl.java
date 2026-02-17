@@ -40,6 +40,9 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import static org.sonar.ce.task.projectanalysis.component.ComponentFunctions.toComponentUuid;
 
 public class MeasureRepositoryImpl implements MeasureRepository {
+
+  private static final Set<String> FILTERED_METRICS_FOR_TEST_FILES = Set.of(CoreMetrics.NCLOC_KEY);
+
   private final MapBasedRawMeasureRepository<String> delegate = new MapBasedRawMeasureRepository<>(toComponentUuid());
   private final DbClient dbClient;
   private final ScannerReportReader reportReader;
@@ -143,16 +146,32 @@ public class MeasureRepositoryImpl implements MeasureRepository {
       return;
     }
 
+    boolean isTestFile = isTestFile(component);
+
     try (CloseableIterator<ScannerReport.Measure> readIt = reportReader.readComponentMeasures(component.getReportAttributes().getRef())) {
       while (readIt.hasNext()) {
         ScannerReport.Measure batchMeasure = readIt.next();
         String metricKey = batchMeasure.getMetricKey();
+
+        if (isTestFile && shouldFilterMetricForTestFiles(metricKey)) {
+          continue;
+        }
+
         if (reportMetricValidator.validate(metricKey)) {
           Metric metric = metricRepository.getByKey(metricKey);
           BatchMeasureToMeasure.toMeasure(batchMeasure, metric).ifPresent(measure -> delegate.add(component, metric, measure, OverridePolicy.DO_NOT_OVERRIDE));
         }
       }
     }
+  }
+
+  private static boolean isTestFile(Component component) {
+    return component.getType() == Component.Type.FILE
+      && component.getFileAttributes().isUnitTest();
+  }
+
+  private static boolean shouldFilterMetricForTestFiles(String metricKey) {
+    return FILTERED_METRICS_FOR_TEST_FILES.contains(metricKey);
   }
 
 }
