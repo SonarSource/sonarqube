@@ -56,7 +56,6 @@ export default function IssueAssignee(props: Props) {
   const { currentUser } = React.useContext(CurrentUserContext);
   const [aiEnabled, setAiEnabled] = React.useState(false);
   
-  console.log("issue", props.issue.projectKey);
   const allowCurrentUserSelection = isLoggedIn(currentUser) && currentUser?.login !== assigneeLogin;
   const defaultOptions = allowCurrentUserSelection
     ? [
@@ -91,12 +90,8 @@ export default function IssueAssignee(props: Props) {
           ]
         : [])
     ], [defaultOptions, aiEnabled]); 
-  console.log('defaultOptionsWithAi in IssueAssignee', defaultOptionsWithAi);
-
 
     const controlLabel = assinedUser ? (() => {
-
-    
       const icon =
         assinedUser === "Ai Code Assistant"
           ? <img src="/images/ai-assistant.svg" />
@@ -163,8 +158,6 @@ export default function IssueAssignee(props: Props) {
   const handleAssign = (userOption: SingleValue<LabelValueSelectOption<string>>) => {
     if (userOption) {
       props.onAssign(userOption.value);
-      if(userOption.value=='ai-code-assistant')
-        console.log("AI Code Assistant assigned!");
     }
   };
 
