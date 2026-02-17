@@ -22,6 +22,7 @@ package org.sonar.db.permission;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -108,6 +109,164 @@ class AuthorizationDaoIT {
     Set<String> permissions = underTest.selectGlobalPermissions(dbSession, user.getUuid());
 
     assertThat(permissions).containsOnly("perm1", "perm2", "perm3");
+  }
+
+  @Test
+  void selectGlobalPermissionsBatch_returns_empty_map_for_empty_input() {
+    Map<String, Set<String>> result = underTest.selectGlobalPermissionsBatch(dbSession, Collections.emptyList());
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void selectGlobalPermissionsBatch_returns_permissions_for_single_user() {
+    db.users().insertMember(group1, user);
+    db.users().insertPermissionOnUser(user, "perm1");
+    db.users().insertPermissionOnGroup(group1, "perm2");
+    db.users().insertPermissionOnAnyone("perm3");
+
+    Map<String, Set<String>> result = underTest.selectGlobalPermissionsBatch(dbSession, List.of(user.getUuid()));
+
+    assertThat(result).hasSize(1);
+    assertThat(result.get(user.getUuid())).containsOnly("perm1", "perm2", "perm3");
+  }
+
+  @Test
+  void selectGlobalPermissionsBatch_returns_permissions_for_multiple_users() {
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    UserDto user3 = db.users().insertUser();
+
+    db.users().insertMember(group1, user1);
+    db.users().insertMember(group2, user2);
+
+    db.users().insertPermissionOnUser(user1, "perm1");
+    db.users().insertPermissionOnUser(user2, "perm2");
+    db.users().insertPermissionOnUser(user3, "perm3");
+    db.users().insertPermissionOnGroup(group1, "perm4");
+    db.users().insertPermissionOnGroup(group2, "perm5");
+
+    Map<String, Set<String>> result = underTest.selectGlobalPermissionsBatch(dbSession,
+      List.of(user1.getUuid(), user2.getUuid(), user3.getUuid()));
+
+    assertThat(result).hasSize(3);
+    assertThat(result.get(user1.getUuid())).containsOnly("perm1", "perm4");
+    assertThat(result.get(user2.getUuid())).containsOnly("perm2", "perm5");
+    assertThat(result.get(user3.getUuid())).containsOnly("perm3");
+  }
+
+  @Test
+  void selectGlobalPermissionsBatch_returns_only_users_with_permissions() {
+    UserDto userWithPermission = db.users().insertUser();
+    UserDto userWithoutPermissions = db.users().insertUser();
+    db.users().insertPermissionOnUser(userWithPermission, "perm1");
+
+    Map<String, Set<String>> result = underTest.selectGlobalPermissionsBatch(dbSession,
+      List.of(userWithPermission.getUuid(), userWithoutPermissions.getUuid()));
+
+    assertThat(result)
+      .hasSize(1)
+      .containsKey(userWithPermission.getUuid());
+    assertThat(result.get(userWithPermission.getUuid())).containsOnly("perm1");
+    assertThat(result).doesNotContainKey(userWithoutPermissions.getUuid());
+  }
+
+  @Test
+  void selectGlobalPermissionsBatch_handles_users_with_multiple_permissions() {
+    db.users().insertMember(group1, user);
+    db.users().insertMember(group2, user);
+    db.users().insertPermissionOnUser(user, "perm1");
+    db.users().insertPermissionOnUser(user, "perm2");
+    db.users().insertPermissionOnGroup(group1, "perm3");
+    db.users().insertPermissionOnGroup(group2, "perm4");
+
+    Map<String, Set<String>> result = underTest.selectGlobalPermissionsBatch(dbSession, List.of(user.getUuid()));
+
+    assertThat(result).hasSize(1);
+    assertThat(result.get(user.getUuid())).containsOnly("perm1", "perm2", "perm3", "perm4");
+  }
+
+  @Test
+  void selectEntityPermissionsBatch_returns_empty_map_for_empty_input() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+
+    Map<String, Set<String>> result = underTest.selectEntityPermissionsBatch(dbSession, project.getUuid(),
+      Collections.emptyList());
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void selectEntityPermissionsBatch_returns_permissions_for_single_user() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    db.users().insertMember(group1, user);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, project);
+    db.users().insertEntityPermissionOnGroup(group1, ProjectPermission.CODEVIEWER, project);
+
+    Map<String, Set<String>> result = underTest.selectEntityPermissionsBatch(dbSession, project.getUuid(),
+      List.of(user.getUuid()));
+
+    assertThat(result).hasSize(1);
+    assertThat(result.get(user.getUuid())).containsOnly(ProjectPermission.USER.getKey(),
+      ProjectPermission.CODEVIEWER.getKey());
+  }
+
+  @Test
+  void selectEntityPermissionsBatch_returns_permissions_for_multiple_users() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    UserDto user3 = db.users().insertUser();
+
+    db.users().insertMember(group1, user1);
+    db.users().insertProjectPermissionOnUser(user1, ProjectPermission.USER, project);
+    db.users().insertProjectPermissionOnUser(user2, ProjectPermission.ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(group1, ProjectPermission.CODEVIEWER, project);
+
+    Map<String, Set<String>> result = underTest.selectEntityPermissionsBatch(dbSession, project.getUuid(),
+      List.of(user1.getUuid(), user2.getUuid(), user3.getUuid()));
+
+    assertThat(result).hasSize(2);
+    assertThat(result.get(user1.getUuid())).containsOnly(ProjectPermission.USER.getKey(),
+      ProjectPermission.CODEVIEWER.getKey());
+    assertThat(result.get(user2.getUuid())).containsOnly(ProjectPermission.ADMIN.getKey());
+    assertThat(result).doesNotContainKey(user3.getUuid());
+  }
+
+  @Test
+  void selectEntityPermissionsBatch_excludes_permissions_from_other_projects() {
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, project1);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, project2);
+
+    Map<String, Set<String>> result = underTest.selectEntityPermissionsBatch(dbSession, project1.getUuid(),
+      List.of(user.getUuid()));
+
+    assertThat(result).hasSize(1);
+    assertThat(result.get(user.getUuid())).containsOnly(ProjectPermission.USER.getKey());
+  }
+
+  @Test
+  void selectEntityPermissionsBatch_handles_users_with_multiple_permissions() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    db.users().insertMember(group1, user);
+    db.users().insertMember(group2, user);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, project);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(group1, ProjectPermission.CODEVIEWER, project);
+    db.users().insertEntityPermissionOnGroup(group2, ProjectPermission.ISSUE_ADMIN, project);
+
+    Map<String, Set<String>> result = underTest.selectEntityPermissionsBatch(dbSession, project.getUuid(),
+      List.of(user.getUuid()));
+
+    assertThat(result).hasSize(1);
+    assertThat(result.get(user.getUuid())).containsOnly(
+      ProjectPermission.USER.getKey(),
+      ProjectPermission.ADMIN.getKey(),
+      ProjectPermission.CODEVIEWER.getKey(),
+      ProjectPermission.ISSUE_ADMIN.getKey()
+    );
   }
 
   @Test

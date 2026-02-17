@@ -20,8 +20,11 @@
 package org.sonar.db.permission;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -50,6 +53,29 @@ public class AuthorizationDao implements Dao {
   }
 
   /**
+   * Loads global permissions for multiple users
+   *
+   * @return Map of userUuid -> Set of permission strings.
+   */
+  public Map<String, Set<String>> selectGlobalPermissionsBatch(DbSession dbSession, Collection<String> userUuids) {
+    if (userUuids.isEmpty()) {
+      return new HashMap<>();
+    }
+
+    // executeLargeInputs flattens results from all partitions into a single List
+    List<UserAndPermissionDto> allResults = executeLargeInputs(
+      userUuids,
+      partition -> mapper(dbSession).selectGlobalPermissionsBatch(partition)
+    );
+
+    return allResults.stream()
+      .collect(Collectors.groupingBy(
+        UserAndPermissionDto::userUuid,
+        Collectors.mapping(UserAndPermissionDto::role, Collectors.toSet())
+      ));
+  }
+
+  /**
    * Loads all the permissions granted to anonymous user
    */
   public Set<String> selectGlobalPermissionsOfAnonymous(DbSession dbSession) {
@@ -65,6 +91,28 @@ public class AuthorizationDao implements Dao {
    */
   public Set<String> selectEntityPermissions(DbSession dbSession, String entityUuid, String userUuid) {
     return mapper(dbSession).selectEntityPermissions(entityUuid, userUuid);
+  }
+
+  /**
+   * Loads entity permissions for multiple users for a specific entity in a single batch query.
+   *
+   * @return Map of userUuid -> Set of permission strings.
+   */
+  public Map<String, Set<String>> selectEntityPermissionsBatch(DbSession dbSession, String entityUuid, Collection<String> userUuids) {
+    if (userUuids.isEmpty()) {
+      return new HashMap<>();
+    }
+
+    List<UserAndPermissionDto> allResults = executeLargeInputs(
+      userUuids,
+      partition -> mapper(dbSession).selectEntityPermissionsBatch(entityUuid, partition)
+    );
+
+    return allResults.stream()
+      .collect(Collectors.groupingBy(
+        UserAndPermissionDto::userUuid,
+        Collectors.mapping(UserAndPermissionDto::role, Collectors.toSet())
+      ));
   }
 
   public Set<UserAndPermissionDto> selectEntityPermissionsObtainedViaManagedGroup(DbSession dbSession, String entityUuid, String managedInstanceProvider) {

@@ -32,6 +32,8 @@ public interface AuthorizationMapper {
 
   Set<String> selectGlobalPermissions(@Param("userUuid") String userUuid);
 
+  List<UserAndPermissionDto> selectGlobalPermissionsBatch(@Param("userUuids") Collection<String> userUuids);
+
   Set<String> selectGlobalPermissionsOfAnonymous();
 
   int countUsersWithGlobalPermissionExcludingGroup(@Param("permission") String permission, @Param("excludedGroupUuid") String excludedGroupUuid);
@@ -52,6 +54,8 @@ public interface AuthorizationMapper {
   Set<String> keepAuthorizedEntityUuidsForAnonymous(@Param("role") String role, @Param("entityUuids") Collection<String> entityUuids);
 
   Set<String> selectEntityPermissions(@Param("entityUuid") String entityUuid, @Param("userUuid") String userUuid);
+
+  List<UserAndPermissionDto> selectEntityPermissionsBatch(@Param("entityUuid") String entityUuid, @Param("userUuids") Collection<String> userUuids);
 
   Set<UserAndPermissionDto> selectEntityPermissionsObtainedViaManagedGroup(
     @Param("entityUuid") String entityUuid,

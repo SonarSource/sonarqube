@@ -12,6 +12,8 @@ dependencies {
   implementation project(':server:sonar-db-dao')
   implementation project(':server:sonar-webserver-common')
 
+  implementation 'org.sonarsource.sonarqube:organizations-server-app:1.2.0.506'
+
   testImplementation(platform("org.junit:junit-bom"))
   testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.junit.jupiter:junit-jupiter-params'

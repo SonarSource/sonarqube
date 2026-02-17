@@ -28,6 +28,49 @@
     and ur.entity_uuid is null
   </select>
 
+  <select id="selectGlobalPermissionsBatch" parameterType="map" resultType="org.sonar.db.permission.UserAndPermissionDto">
+    select
+      gu.user_uuid as userUuid,
+      gr.role as role
+    from group_roles gr
+    inner join groups_users gu on gr.group_uuid=gu.group_uuid
+    where
+      gr.entity_uuid is null and
+      gu.user_uuid in
+      <foreach collection="userUuids" open="(" close=")" item="userUuid" separator=",">
+        #{userUuid, jdbcType=VARCHAR}
+      </foreach>
+
+    union
+
+    select
+      u.uuid as userUuid,
+      gr.role as role
+    from group_roles gr,
+    (
+      select uuid from users where uuid in
+      <foreach collection="userUuids" open="(" close=")" item="userUuid" separator=",">
+        #{userUuid, jdbcType=VARCHAR}
+      </foreach>
+    ) u
+    where
+      gr.group_uuid is null and
+      gr.entity_uuid is null
+
+    union
+
+    select
+      ur.user_uuid as userUuid,
+      ur.role as role
+    from user_roles ur
+    where
+      ur.entity_uuid is null and
+      ur.user_uuid in
+      <foreach collection="userUuids" open="(" close=")" item="userUuid" separator=",">
+        #{userUuid, jdbcType=VARCHAR}
+      </foreach>
+  </select>
+
     <select id="selectGlobalPermissionsOfAnonymous" parameterType="map" resultType="string">
     select gr.role
     from group_roles gr
@@ -292,6 +335,52 @@
     union
 
     <include refid="sql_selectEntityPermissionsOfAnonymous"/>
+  </select>
+
+  <select id="selectEntityPermissionsBatch" parameterType="map" resultType="org.sonar.db.permission.UserAndPermissionDto">
+    select
+      ur.user_uuid as userUuid,
+      ur.role as role
+    from user_roles ur
+    inner join  (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on entity.uuid = ur.entity_uuid
+    where
+      entity.uuid = #{entityUuid, jdbcType=VARCHAR} and
+      ur.user_uuid in
+      <foreach collection="userUuids" open="(" close=")" item="userUuid" separator=",">
+        #{userUuid, jdbcType=VARCHAR}
+      </foreach>
+
+    union
+
+    select
+      gu.user_uuid as userUuid,
+      gr.role as role
+    from group_roles gr
+    inner join groups_users gu on gr.group_uuid = gu.group_uuid
+    inner join  (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on entity.uuid = gr.entity_uuid
+    where
+      entity.uuid = #{entityUuid, jdbcType=VARCHAR} and
+      gu.user_uuid in
+      <foreach collection="userUuids" open="(" close=")" item="userUuid" separator=",">
+        #{userUuid, jdbcType=VARCHAR}
+      </foreach>
+
+    union
+
+    select
+      u.uuid as userUuid,
+      gr.role as role
+    from group_roles gr
+    inner join  (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on entity.uuid = gr.entity_uuid,
+    (
+      select uuid from users where uuid in
+      <foreach collection="userUuids" open="(" close=")" item="userUuid" separator=",">
+        #{userUuid, jdbcType=VARCHAR}
+      </foreach>
+    ) u
+    where
+      entity.uuid = #{entityUuid, jdbcType=VARCHAR} and
+      gr.group_uuid is null
   </select>
 
   <select id="selectEntityPermissionsObtainedViaManagedGroup" parameterType="map" resultType="org.sonar.db.permission.UserAndPermissionDto">
