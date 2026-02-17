@@ -25,7 +25,7 @@ import java.util.Optional;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.sonar.db.CoreDbTester;
+import org.sonar.db.H2DbTester;
 import org.sonar.db.Database;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 class DbPrimaryKeyConstraintFinderIT {
 
   @RegisterExtension
-  public final CoreDbTester db = CoreDbTester.createForSchema(DbPrimaryKeyConstraintFinderIT.class, "schema.sql");
+  public final H2DbTester db = H2DbTester.createForSchema(DbPrimaryKeyConstraintFinderIT.class, "schema.sql");
 
   private final Database dbMock = mock(Database.class);
   private final DbPrimaryKeyConstraintFinder underTest = new DbPrimaryKeyConstraintFinder(dbMock);

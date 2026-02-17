@@ -7,12 +7,12 @@ sonar {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  api 'com.google.guava:guava'
-  api 'org.apache.commons:commons-lang3'
+  api 'ch.qos.logback:logback-classic'
+  api 'ch.qos.logback:logback-core'
   api 'commons-codec:commons-codec'
   api 'com.fasterxml.staxmate:staxmate'
 
-  api project(':server:sonar-db-core')
+  api project(':server:sonar-db-profiling')
   api project(':server:sonar-process')
   api project(':sonar-core')
   api project(':sonar-markdown')
@@ -35,11 +35,11 @@ dependencies {
   testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
   testImplementation project(':sonar-scanner-protocol')
   testImplementation project(':sonar-testing-harness')
-  testImplementation testFixtures(project(':server:sonar-db-core'))
+  testImplementation testFixtures(project(':server:sonar-db-commons'))
 
   testFixturesImplementation 'org.sonarsource.orchestrator:sonar-orchestrator-junit4'
   testFixturesImplementation 'org.junit.jupiter:junit-jupiter-api'
-  testFixturesImplementation testFixtures(project(':server:sonar-db-core'))
+  testFixturesImplementation testFixtures(project(':server:sonar-db-commons'))
 
   testRuntimeOnly 'com.h2database:h2'
   testRuntimeOnly 'com.microsoft.sqlserver:mssql-jdbc'

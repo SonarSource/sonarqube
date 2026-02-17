@@ -26,9 +26,9 @@ import org.sonar.api.Startable;
  * MyBatis is not Startable because in the unit tests it's cached and added to the container, and in that situation we don't want it to be started.
  */
 public class StartMyBatis implements Startable {
-  private final MyBatis myBatis;
+  private final DefaultMyBatis myBatis;
 
-  public StartMyBatis(MyBatis myBatis) {
+  public StartMyBatis(DefaultMyBatis myBatis) {
     this.myBatis = myBatis;
   }
 

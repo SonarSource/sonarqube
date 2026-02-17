@@ -23,11 +23,13 @@ import com.sonar.orchestrator.config.Configuration;
 import com.sonar.orchestrator.db.DatabaseClient;
 import com.sonar.orchestrator.db.DatabaseFactory;
 import com.sonar.orchestrator.locator.Locators;
+import java.sql.SQLException;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.config.internal.Settings;
+import org.sonar.db.version.SqTables;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 
 public class MigrationTestDb implements TestDb {
@@ -87,5 +89,15 @@ public class MigrationTestDb implements TestDb {
   @Override
   public DefaultDatabase getDatabase() {
     return database;
+  }
+
+  @Override
+  public void truncateTables() {
+    //Some DataChange steps might fill the tables with some data, data will be removed to ensure tests run on empty tables
+    try {
+      DatabaseTestUtils.truncateTables(database.getDataSource(), SqTables.TABLES);
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to truncate db tables", e);
+    }
   }
 }

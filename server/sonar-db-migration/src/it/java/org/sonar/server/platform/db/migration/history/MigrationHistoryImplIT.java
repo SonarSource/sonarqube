@@ -25,7 +25,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.sonar.db.CoreDbTester;
+import org.sonar.db.H2DbTester;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
 
@@ -36,7 +36,7 @@ import static org.mockito.Mockito.verify;
 
 class MigrationHistoryImplIT {
   @RegisterExtension
-  public final CoreDbTester dbTester = CoreDbTester.createForSchema(MigrationHistoryImplIT.class, "schema_migration.sql");
+  public final H2DbTester dbTester = H2DbTester.createForSchema(MigrationHistoryImplIT.class, "schema_migration.sql");
 
   private MigrationHistoryMeddler migrationHistoryMeddler = mock(MigrationHistoryMeddler.class);
   private MigrationHistoryImpl underTest = new MigrationHistoryImpl(dbTester.database(), migrationHistoryMeddler);

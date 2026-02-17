@@ -7,15 +7,10 @@ sonar {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  api 'com.google.guava:guava'
   api 'com.google.protobuf:protobuf-java'
-  api 'commons-io:commons-io'
-  api 'org.apache.commons:commons-lang3'
   api 'org.lz4:lz4-java'
-  api 'org.mybatis:mybatis'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
 
-  api project(':server:sonar-db-core')
   api project(':server:sonar-db-migration')
   api project(':sonar-core')
 
@@ -45,10 +40,11 @@ dependencies {
   testRuntimeOnly 'org.postgresql:postgresql'
 
   testFixturesApi 'org.junit.jupiter:junit-jupiter-api'
-  testFixturesApi testFixtures(project(':server:sonar-db-core'))
+  testFixturesApi testFixtures(project(':server:sonar-db-commons'))
   testFixturesApi testFixtures(project(':server:sonar-db-migration'))
 
   testFixturesImplementation 'com.h2database:h2'
+  testFixturesImplementation project(':sonar-plugin-api-impl')
 
   testFixturesCompileOnly 'com.github.spotbugs:spotbugs-annotations'
 }

@@ -22,15 +22,12 @@ package org.sonar.db;
 import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
@@ -65,13 +62,12 @@ import org.sonar.db.webhook.WebhookDeliveryDbTester;
  * This class should be called using @Rule.
  * Data is truncated between each test. The schema is created between each test.
  */
-public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEachCallback, AfterEachCallback {
+public class DbTester extends AbstractDbTester<TestDbImpl> {
 
   private final UuidFactory uuidFactory;
   private final System2 system2;
   private final AuditPersister auditPersister;
   private DbClient client;
-  ThreadLocal<DbSessionContext> session = new ThreadLocal<>();
   private final UserDbTester userTester;
   private final ComponentDbTester componentTester;
   private final ProjectLinkDbTester projectLinkTester;
@@ -97,7 +93,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEach
   private final AuditDbTester auditDbTester;
   private final AnticipatedTransitionDbTester anticipatedTransitionDbTester;
 
-  private DbTester(UuidFactory uuidFactory, System2 system2, @Nullable String schemaPath, AuditPersister auditPersister, MyBatisConfExtension... confExtensions) {
+  private DbTester(UuidFactory uuidFactory, System2 system2, @Nullable String schemaPath, AuditPersister auditPersister, BaseMyBatisConfExtension... confExtensions) {
     super(TestDbImpl.create(schemaPath, confExtensions));
     this.uuidFactory = uuidFactory;
     this.system2 = system2;
@@ -150,12 +146,17 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEach
     return new DbTester(new SequenceUuidFactory(), system2, null, new NoOpAuditPersister(), new DbTesterMyBatisConfExtension(firstMapperClass, otherMapperClasses));
   }
 
-  public static DbTester createWithConfExtension(System2 system2, MyBatisConfExtension myBatisConfExtension) {
+  public static DbTester createWithConfExtension(System2 system2, BaseMyBatisConfExtension myBatisConfExtension) {
     return new DbTester(new SequenceUuidFactory(), system2, null, new NoOpAuditPersister(), myBatisConfExtension);
   }
 
   public static DbTester createWithDifferentUuidFactory(UuidFactory uuidFactory) {
     return new DbTester(uuidFactory, System2.INSTANCE, null, new NoOpAuditPersister());
+  }
+
+  public static DbTester createWithConfExtensions(System2 system2, Collection<BaseMyBatisConfExtension> confExtensions) {
+    BaseMyBatisConfExtension[] extensionsArray = confExtensions.toArray(new BaseMyBatisConfExtension[0]);
+    return new DbTester(new SequenceUuidFactory(), system2, null, new NoOpAuditPersister(), extensionsArray);
   }
 
   private void initDbClient() {
@@ -173,13 +174,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEach
   }
 
   @Override
-  public void beforeEach(ExtensionContext context) throws Exception {
-    before();
-  }
-
-  @Override
-  protected void before() {
-    db.start();
+  public void truncateTables() {
     db.truncateTables();
   }
 
@@ -280,39 +275,8 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEach
   }
 
   @Override
-  public void afterEach(ExtensionContext context) throws Exception {
-    after();
-  }
-
-  @Override
-  protected void after() {
-    if (session.get() != null) {
-      session.get().dbSession().rollback();
-      session.get().dbSession().close();
-      session.remove();
-    }
-    db.stop();
-  }
-
-  public DbSession getSession() {
-    return getSession(false);
-  }
-
-  public DbSession getSession(boolean batched) {
-    if (session.get() == null) {
-      session.set(new DbSessionContext(db.getMyBatis().openSession(batched), batched));
-    }
-    return session.get().dbSession;
-  }
-
-  public void forceCommit() {
-    getSession().commit(true);
-  }
-
-  public void commit() {
-    if(session.get() != null && !session.get().isBatched()) {
-      getSession().commit();
-    }
+  protected DbSession openSession(boolean batched) {
+    return db.getMyBatis().openSession(batched);
   }
 
   public DbClient getDbClient() {
@@ -338,8 +302,6 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEach
   public String getUrl() {
     return ((HikariDataSource) db.getDatabase().getDataSource()).getJdbcUrl();
   }
-
-  private record DbSessionContext(@NotNull DbSession dbSession, boolean isBatched){}
 
   private static class DbSessionConnectionSupplier implements ConnectionSupplier {
     private final DbSession dbSession;

@@ -77,7 +77,7 @@ import org.sonar.db.DBSessionsImpl;
 import org.sonar.db.DaoModule;
 import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
-import org.sonar.db.MyBatis;
+import org.sonar.db.DefaultMyBatis;
 import org.sonar.db.StartMyBatis;
 import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.purge.PurgeProfiler;
@@ -282,7 +282,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       DefaultNodeInformation.class,
       LogbackHelper.class,
       DefaultDatabase.class,
-      MyBatis.class,
+      DefaultMyBatis.class,
       StartMyBatis.class,
       PurgeProfiler.class,
       ServerFileSystemImpl.class,
@@ -511,7 +511,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   }
 
   private static Object[] startupComponents() {
-    return new Object[] {
+    return new Object[]{
       ServerLifecycleNotifier.class,
       PurgeCeActivities.class
     };

@@ -1,0 +1,55 @@
+sonar {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: Database Profiling"
+  }
+}
+
+dependencies {
+  // please keep the list grouped by configuration and ordered by name
+
+  api project(':server:sonar-db-commons')
+  api project(':server:sonar-process')
+
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
+
+  testImplementation 'com.github.spotbugs:spotbugs-annotations'
+  testImplementation 'com.h2database:h2'
+  testImplementation 'com.microsoft.sqlserver:mssql-jdbc'
+  testImplementation 'com.oracle.database.jdbc:ojdbc11'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.postgresql:postgresql'
+  testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
+
+  testImplementation project(':sonar-testing-harness')
+
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+  testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+  testRuntimeOnly 'com.h2database:h2'
+  testRuntimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+  testRuntimeOnly 'com.oracle.database.jdbc:ojdbc11'
+  testRuntimeOnly 'org.postgresql:postgresql'
+}
+
+test {
+  useJUnitPlatform()
+  if (System.hasProperty('orchestrator.configUrl'))
+    systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
+}
+
+artifactoryPublish.skip = !deployCommunity
+
+// Used by core plugins
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+      if (release) {
+        artifact sourcesJar
+        artifact javadocJar
+      }
+    }
+  }
+}

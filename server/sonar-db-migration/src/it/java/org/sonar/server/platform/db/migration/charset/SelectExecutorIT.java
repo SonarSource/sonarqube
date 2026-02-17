@@ -23,14 +23,14 @@ import java.sql.Connection;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.sonar.db.CoreDbTester;
+import org.sonar.db.H2DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SelectExecutorIT {
 
   @RegisterExtension
-  public final CoreDbTester dbTester = CoreDbTester.createForSchema(SelectExecutorIT.class, "users_table.sql");
+  public final H2DbTester dbTester = H2DbTester.createForSchema(SelectExecutorIT.class, "users_table.sql");
 
   SqlExecutor underTest = new SqlExecutor();
 

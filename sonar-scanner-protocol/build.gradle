@@ -49,7 +49,6 @@ tasks.withType(JavaCompile).configureEach {
   options.release = 17
 }
 
-// Used by sonar-db-core to run DB Unit Tests
 artifactoryPublish.skip = !deployCommunity
 publishing {
   publications {

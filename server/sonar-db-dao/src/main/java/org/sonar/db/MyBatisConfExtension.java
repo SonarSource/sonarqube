@@ -19,18 +19,9 @@
  */
 package org.sonar.db;
 
-import java.util.stream.Stream;
 import org.sonar.core.extension.PlatformLevel;
 
 @PlatformLevel(1)
-public interface MyBatisConfExtension {
-  default void loadAliases(LoadAliasContext context) {
-    // no alias to load
-  }
+public interface MyBatisConfExtension extends BaseMyBatisConfExtension {
 
-  interface LoadAliasContext {
-    void loadAlias(String alias, Class<?> dtoClass);
-  }
-
-  Stream<Class<?>> getMapperClasses();
 }

@@ -38,7 +38,7 @@ import org.sonar.db.DBSessionsImpl;
 import org.sonar.db.DaoModule;
 import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
-import org.sonar.db.MyBatis;
+import org.sonar.db.DefaultMyBatis;
 import org.sonar.db.StartMyBatis;
 import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.purge.PurgeProfiler;
@@ -110,7 +110,7 @@ public class PlatformLevel1 extends PlatformLevel {
       LogbackHelper.class,
       WebServerProcessLogging.class,
       DefaultDatabase.class,
-      MyBatis.class,
+      DefaultMyBatis.class,
       StartMyBatis.class,
       PurgeProfiler.class,
       ServerFileSystemImpl.class,

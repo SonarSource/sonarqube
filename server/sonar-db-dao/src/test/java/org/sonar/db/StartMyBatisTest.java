@@ -29,7 +29,7 @@ class StartMyBatisTest {
 
   @Test
   void should_start_mybatis_instance() {
-    var myBatis = mock(MyBatis.class);
+    var myBatis = mock(DefaultMyBatis.class);
     var startMyBatis = new StartMyBatis(myBatis);
     startMyBatis.start();
     verify(myBatis).start();

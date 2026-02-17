@@ -1,0 +1,90 @@
+sonar {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: Database Commons"
+  }
+}
+
+dependencies {
+  // please keep the list grouped by configuration and ordered by name
+
+  api 'com.google.guava:guava'
+  api 'commons-io:commons-io'
+  api 'org.apache.commons:commons-lang3'
+  api 'com.zaxxer:HikariCP'
+  api 'org.mybatis:mybatis'
+  api 'org.slf4j:slf4j-api'
+  api 'org.sonarsource.api.plugin:sonar-plugin-api'
+
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
+
+  testImplementation 'com.github.spotbugs:spotbugs-annotations'
+  testImplementation 'com.h2database:h2'
+  testImplementation 'com.microsoft.sqlserver:mssql-jdbc'
+  testImplementation 'com.oracle.database.jdbc:ojdbc11'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.postgresql:postgresql'
+  testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
+
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+  testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+  testRuntimeOnly 'com.h2database:h2'
+  testRuntimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+  testRuntimeOnly 'com.oracle.database.jdbc:ojdbc11'
+  testRuntimeOnly 'org.postgresql:postgresql'
+
+  testFixturesApi 'com.h2database:h2'
+  testFixturesApi 'commons-codec:commons-codec'
+  testFixturesApi 'commons-dbutils:commons-dbutils'
+  testFixturesApi 'junit:junit'
+  testFixturesApi 'org.assertj:assertj-core'
+  testFixturesApi 'org.apache.commons:commons-collections4'
+
+  testFixturesImplementation 'com.oracle.database.jdbc:ojdbc11'
+  testFixturesImplementation 'org.junit.jupiter:junit-jupiter-api'
+
+  testFixturesCompileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
+}
+
+test {
+  useJUnitPlatform()
+}
+
+artifactoryPublish.skip = !deployCommunity
+
+// we need gradle module metadata for the testFixtures to be visible
+// when published
+tasks.withType(GenerateModuleMetadata) {
+  enabled = true
+}
+
+// Used by core plugins
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+
+      if (release) {
+        artifact sourcesJar
+        artifact javadocJar
+      }
+
+      // This is needed to publish version numbers in the Gradle module metadata
+      // when using Spring dependency management
+      // See  https://docs.gradle.org/current/userguide/publishing_maven.html#publishing_maven:resolved_dependencies
+      // and https://github.com/spring-gradle-plugins/dependency-management-plugin/issues/262
+      versionMapping {
+        usage('java-api') {
+          fromResolutionOf('runtimeClasspath')
+        }
+        usage('java-runtime') {
+          // 'runtimeClasspath' is the default configuration for 'java-runtime'
+          // so we don't say it specifically
+          fromResolutionResult()
+        }
+      }
+    }
+  }
+}

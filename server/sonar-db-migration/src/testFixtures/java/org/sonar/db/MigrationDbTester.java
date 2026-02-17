@@ -19,14 +19,12 @@
  */
 package org.sonar.db;
 
-import java.sql.SQLException;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 
-public class MigrationDbTester extends AbstractDbTester<MigrationTestDb> implements BeforeEachCallback, AfterEachCallback {
+public class MigrationDbTester extends AbstractSqlDbTester<MigrationTestDb> implements BeforeEachCallback, AfterEachCallback {
 
   private MigrationDbTester(@Nullable Class<? extends MigrationStep> migrationStepClass) {
     super(new MigrationTestDb(migrationStepClass));
@@ -38,36 +36,5 @@ public class MigrationDbTester extends AbstractDbTester<MigrationTestDb> impleme
 
   public static MigrationDbTester createForMigrationStep(Class<? extends MigrationStep> migrationStepClass) {
     return new MigrationDbTester(migrationStepClass);
-  }
-
-  @Override
-  protected void before() {
-    db.start();
-
-    //Some DataChange steps might fill the tables with some data, data will be removed to ensure tests run on empty tables
-    truncateAllTables();
-  }
-
-  @Override
-  protected void after() {
-    db.stop();
-  }
-
-  public void truncateAllTables() {
-    try {
-      DatabaseTestUtils.truncateAllTables(db.getDatabase().getDataSource());
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to truncate db tables", e);
-    }
-  }
-
-  @Override
-  public void afterEach(ExtensionContext extensionContext) throws Exception {
-    after();
-  }
-
-  @Override
-  public void beforeEach(ExtensionContext extensionContext) throws Exception {
-    before();
   }
 }

@@ -19,8 +19,6 @@
  */
 package org.sonar.db;
 
-import java.util.IdentityHashMap;
-import java.util.Map;
 import org.sonar.db.alm.pat.AlmPatDao;
 import org.sonar.db.alm.setting.AlmSettingDao;
 import org.sonar.db.alm.setting.ProjectAlmSettingDao;
@@ -116,12 +114,7 @@ import org.sonar.db.user.ai.UserAiToolUsageDao;
 import org.sonar.db.webhook.WebhookDao;
 import org.sonar.db.webhook.WebhookDeliveryDao;
 
-public class DbClient {
-
-  private final Database database;
-  private final MyBatis myBatis;
-  private final DBSessions dbSessions;
-
+public class DbClient extends AbstractDbClient {
   private final SchemaMigrationDao schemaMigrationDao;
   private final AuthorizationDao authorizationDao;
   private final QualityProfileDao qualityProfileDao;
@@ -218,116 +211,102 @@ public class DbClient {
   private final TelemetryMetricsSentDao telemetryMetricsSentDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
-    this.database = database;
-    this.myBatis = myBatis;
-    this.dbSessions = dbSessions;
+    super(database, myBatis, dbSessions, daos);
 
-    Map<Class, Dao> map = new IdentityHashMap<>();
-    for (Dao dao : daos) {
-      map.put(dao.getClass(), dao);
-    }
-    almSettingDao = getDao(map, AlmSettingDao.class);
-    auditDao = getDao(map, AuditDao.class);
-    almPatDao = getDao(map, AlmPatDao.class);
-    projectAlmSettingDao = getDao(map, ProjectAlmSettingDao.class);
-    schemaMigrationDao = getDao(map, SchemaMigrationDao.class);
-    authorizationDao = getDao(map, AuthorizationDao.class);
-    qualityProfileDao = getDao(map, QualityProfileDao.class);
-    qualityProfileExportDao = getDao(map, QualityProfileExportDao.class);
-    propertiesDao = getDao(map, PropertiesDao.class);
-    internalPropertiesDao = getDao(map, InternalPropertiesDao.class);
-    snapshotDao = getDao(map, SnapshotDao.class);
-    componentDao = getDao(map, ComponentDao.class);
-    componentKeyUpdaterDao = getDao(map, ComponentKeyUpdaterDao.class);
-    measureDao = getDao(map, MeasureDao.class);
-    projectMeasureDao = getDao(map, ProjectMeasureDao.class);
-    userDao = getDao(map, UserDao.class);
-    userGroupDao = getDao(map, UserGroupDao.class);
-    userTokenDao = getDao(map, UserTokenDao.class);
-    userAiToolUsageDao = getDao(map, UserAiToolUsageDao.class);
-    groupMembershipDao = getDao(map, GroupMembershipDao.class);
-    roleDao = getDao(map, RoleDao.class);
-    groupPermissionDao = getDao(map, GroupPermissionDao.class);
-    permissionTemplateDao = getDao(map, PermissionTemplateDao.class);
-    permissionTemplateCharacteristicDao = getDao(map, PermissionTemplateCharacteristicDao.class);
-    issueDao = getDao(map, IssueDao.class);
-    issueChangeDao = getDao(map, IssueChangeDao.class);
-    jiraProjectBindingDao = getDao(map, JiraProjectBindingDao.class);
-    jiraOrganizationBindingDao = getDao(map, JiraOrganizationBindingDao.class);
-    jiraWorkItemDao = getDao(map, JiraWorkItemDao.class);
-    jiraOrganizationBindingPendingDao = getDao(map, JiraOrganizationBindingPendingDao.class);
-    atlassianAuthenticationDetailsDao = getDao(map, AtlassianAuthenticationDetailsDao.class);
-    xsrfTokenDao = getDao(map, XsrfTokenDao.class);
-    jiraSelectedWorkTypeDao = getDao(map, JiraSelectedWorkTypeDao.class);
-    jiraPermissionDao = getDao(map, JiraPermissionDao.class);
-    ceActivityDao = getDao(map, CeActivityDao.class);
-    ceQueueDao = getDao(map, CeQueueDao.class);
-    ceTaskInputDao = getDao(map, CeTaskInputDao.class);
-    ceTaskCharacteristicsDao = getDao(map, CeTaskCharacteristicDao.class);
-    ceScannerContextDao = getDao(map, CeScannerContextDao.class);
-    ceTaskMessageDao = getDao(map, CeTaskMessageDao.class);
-    fileSourceDao = getDao(map, FileSourceDao.class);
-    projectLinkDao = getDao(map, ProjectLinkDao.class);
-    eventDao = getDao(map, EventDao.class);
-    eventComponentChangeDao = getDao(map, EventComponentChangeDao.class);
-    pushEventDao = getDao(map, PushEventDao.class);
-    purgeDao = getDao(map, PurgeDao.class);
-    qualityGateDao = getDao(map, QualityGateDao.class);
-    qualityGateUserPermissionsDao = getDao(map, QualityGateUserPermissionsDao.class);
-    gateConditionDao = getDao(map, QualityGateConditionDao.class);
-    qualityGateGroupPermissionsDao = getDao(map, QualityGateGroupPermissionsDao.class);
-    projectQgateAssociationDao = getDao(map, ProjectQgateAssociationDao.class);
-    duplicationDao = getDao(map, DuplicationDao.class);
-    regulatoryReportDao = getDao(map, RegulatoryReportDao.class);
-    notificationQueueDao = getDao(map, NotificationQueueDao.class);
-    metricDao = getDao(map, MetricDao.class);
-    migrationLogDao = getDao(map, MigrationLogDao.class);
-    groupDao = getDao(map, GroupDao.class);
-    githubOrganizationGroupDao = getDao(map, GithubOrganizationGroupDao.class);
-    devopsPermissionsMappingDao = getDao(map, DevOpsPermissionsMappingDao.class);
-    externalGroupDao = getDao(map, ExternalGroupDao.class);
-    ruleDao = getDao(map, RuleDao.class);
-    ruleRepositoryDao = getDao(map, RuleRepositoryDao.class);
-    activeRuleDao = getDao(map, ActiveRuleDao.class);
-    qProfileChangeDao = getDao(map, QProfileChangeDao.class);
-    userPermissionDao = getDao(map, UserPermissionDao.class);
-    defaultQProfileDao = getDao(map, DefaultQProfileDao.class);
-    esQueueDao = getDao(map, EsQueueDao.class);
-    pluginDao = getDao(map, PluginDao.class);
-    branchDao = getDao(map, BranchDao.class);
-    analysisPropertiesDao = getDao(map, AnalysisPropertiesDao.class);
-    qProfileEditUsersDao = getDao(map, QProfileEditUsersDao.class);
-    qProfileEditGroupsDao = getDao(map, QProfileEditGroupsDao.class);
-    webhookDao = getDao(map, WebhookDao.class);
-    webhookDeliveryDao = getDao(map, WebhookDeliveryDao.class);
-    internalComponentPropertiesDao = getDao(map, InternalComponentPropertiesDao.class);
-    newCodePeriodDao = getDao(map, NewCodePeriodDao.class);
-    projectDao = getDao(map, ProjectDao.class);
-    projectBadgeTokenDao = getDao(map, ProjectBadgeTokenDao.class);
-    portfolioDao = getDao(map, PortfolioDao.class);
-    sessionTokensDao = getDao(map, SessionTokensDao.class);
-    samlMessageIdDao = getDao(map, SamlMessageIdDao.class);
-    userDismissedMessagesDao = getDao(map, UserDismissedMessagesDao.class);
-    applicationProjectsDao = getDao(map, ApplicationProjectsDao.class);
-    scannerAnalysisCacheDao = getDao(map, ScannerAnalysisCacheDao.class);
-    scimUserDao = getDao(map, ScimUserDao.class);
-    scimGroupDao = getDao(map, ScimGroupDao.class);
-    entityDao = getDao(map, EntityDao.class);
-    reportScheduleDao = getDao(map, ReportScheduleDao.class);
-    reportSubscriptionDao = getDao(map, ReportSubscriptionDao.class);
-    anticipatedTransitionDao = getDao(map, AnticipatedTransitionDao.class);
-    ruleChangeDao = getDao(map, RuleChangeDao.class);
-    projectExportDao = getDao(map, ProjectExportDao.class);
-    issueFixedDao = getDao(map, IssueFixedDao.class);
-    telemetryMetricsSentDao = getDao(map, TelemetryMetricsSentDao.class);
-  }
-
-  public DbSession openSession(boolean batch) {
-    return dbSessions.openSession(batch);
-  }
-
-  public Database getDatabase() {
-    return database;
+    almSettingDao = getDao(AlmSettingDao.class);
+    auditDao = getDao(AuditDao.class);
+    almPatDao = getDao(AlmPatDao.class);
+    projectAlmSettingDao = getDao(ProjectAlmSettingDao.class);
+    schemaMigrationDao = getDao(SchemaMigrationDao.class);
+    authorizationDao = getDao(AuthorizationDao.class);
+    qualityProfileDao = getDao(QualityProfileDao.class);
+    qualityProfileExportDao = getDao(QualityProfileExportDao.class);
+    propertiesDao = getDao(PropertiesDao.class);
+    internalPropertiesDao = getDao(InternalPropertiesDao.class);
+    snapshotDao = getDao(SnapshotDao.class);
+    componentDao = getDao(ComponentDao.class);
+    componentKeyUpdaterDao = getDao(ComponentKeyUpdaterDao.class);
+    measureDao = getDao(MeasureDao.class);
+    projectMeasureDao = getDao(ProjectMeasureDao.class);
+    userDao = getDao(UserDao.class);
+    userGroupDao = getDao(UserGroupDao.class);
+    userTokenDao = getDao(UserTokenDao.class);
+    userAiToolUsageDao = getDao(UserAiToolUsageDao.class);
+    groupMembershipDao = getDao(GroupMembershipDao.class);
+    roleDao = getDao(RoleDao.class);
+    groupPermissionDao = getDao(GroupPermissionDao.class);
+    permissionTemplateDao = getDao(PermissionTemplateDao.class);
+    permissionTemplateCharacteristicDao = getDao(PermissionTemplateCharacteristicDao.class);
+    issueDao = getDao(IssueDao.class);
+    issueChangeDao = getDao(IssueChangeDao.class);
+    jiraProjectBindingDao = getDao(JiraProjectBindingDao.class);
+    jiraOrganizationBindingDao = getDao(JiraOrganizationBindingDao.class);
+    jiraWorkItemDao = getDao(JiraWorkItemDao.class);
+    jiraOrganizationBindingPendingDao = getDao(JiraOrganizationBindingPendingDao.class);
+    atlassianAuthenticationDetailsDao = getDao(AtlassianAuthenticationDetailsDao.class);
+    xsrfTokenDao = getDao(XsrfTokenDao.class);
+    jiraSelectedWorkTypeDao = getDao(JiraSelectedWorkTypeDao.class);
+    jiraPermissionDao = getDao(JiraPermissionDao.class);
+    ceActivityDao = getDao(CeActivityDao.class);
+    ceQueueDao = getDao(CeQueueDao.class);
+    ceTaskInputDao = getDao(CeTaskInputDao.class);
+    ceTaskCharacteristicsDao = getDao(CeTaskCharacteristicDao.class);
+    ceScannerContextDao = getDao(CeScannerContextDao.class);
+    ceTaskMessageDao = getDao(CeTaskMessageDao.class);
+    fileSourceDao = getDao(FileSourceDao.class);
+    projectLinkDao = getDao(ProjectLinkDao.class);
+    eventDao = getDao(EventDao.class);
+    eventComponentChangeDao = getDao(EventComponentChangeDao.class);
+    pushEventDao = getDao(PushEventDao.class);
+    purgeDao = getDao(PurgeDao.class);
+    qualityGateDao = getDao(QualityGateDao.class);
+    qualityGateUserPermissionsDao = getDao(QualityGateUserPermissionsDao.class);
+    gateConditionDao = getDao(QualityGateConditionDao.class);
+    qualityGateGroupPermissionsDao = getDao(QualityGateGroupPermissionsDao.class);
+    projectQgateAssociationDao = getDao(ProjectQgateAssociationDao.class);
+    duplicationDao = getDao(DuplicationDao.class);
+    regulatoryReportDao = getDao(RegulatoryReportDao.class);
+    notificationQueueDao = getDao(NotificationQueueDao.class);
+    metricDao = getDao(MetricDao.class);
+    migrationLogDao = getDao(MigrationLogDao.class);
+    groupDao = getDao(GroupDao.class);
+    githubOrganizationGroupDao = getDao(GithubOrganizationGroupDao.class);
+    devopsPermissionsMappingDao = getDao(DevOpsPermissionsMappingDao.class);
+    externalGroupDao = getDao(ExternalGroupDao.class);
+    ruleDao = getDao(RuleDao.class);
+    ruleRepositoryDao = getDao(RuleRepositoryDao.class);
+    activeRuleDao = getDao(ActiveRuleDao.class);
+    qProfileChangeDao = getDao(QProfileChangeDao.class);
+    userPermissionDao = getDao(UserPermissionDao.class);
+    defaultQProfileDao = getDao(DefaultQProfileDao.class);
+    esQueueDao = getDao(EsQueueDao.class);
+    pluginDao = getDao(PluginDao.class);
+    branchDao = getDao(BranchDao.class);
+    analysisPropertiesDao = getDao(AnalysisPropertiesDao.class);
+    qProfileEditUsersDao = getDao(QProfileEditUsersDao.class);
+    qProfileEditGroupsDao = getDao(QProfileEditGroupsDao.class);
+    webhookDao = getDao(WebhookDao.class);
+    webhookDeliveryDao = getDao(WebhookDeliveryDao.class);
+    internalComponentPropertiesDao = getDao(InternalComponentPropertiesDao.class);
+    newCodePeriodDao = getDao(NewCodePeriodDao.class);
+    projectDao = getDao(ProjectDao.class);
+    projectBadgeTokenDao = getDao(ProjectBadgeTokenDao.class);
+    portfolioDao = getDao(PortfolioDao.class);
+    sessionTokensDao = getDao(SessionTokensDao.class);
+    samlMessageIdDao = getDao(SamlMessageIdDao.class);
+    userDismissedMessagesDao = getDao(UserDismissedMessagesDao.class);
+    applicationProjectsDao = getDao(ApplicationProjectsDao.class);
+    scannerAnalysisCacheDao = getDao(ScannerAnalysisCacheDao.class);
+    scimUserDao = getDao(ScimUserDao.class);
+    scimGroupDao = getDao(ScimGroupDao.class);
+    entityDao = getDao(EntityDao.class);
+    reportScheduleDao = getDao(ReportScheduleDao.class);
+    reportSubscriptionDao = getDao(ReportSubscriptionDao.class);
+    anticipatedTransitionDao = getDao(AnticipatedTransitionDao.class);
+    ruleChangeDao = getDao(RuleChangeDao.class);
+    projectExportDao = getDao(ProjectExportDao.class);
+    issueFixedDao = getDao(IssueFixedDao.class);
+    telemetryMetricsSentDao = getDao(TelemetryMetricsSentDao.class);
   }
 
   public AlmSettingDao almSettingDao() {
@@ -636,16 +615,6 @@ public class DbClient {
 
   public QProfileEditGroupsDao qProfileEditGroupsDao() {
     return qProfileEditGroupsDao;
-  }
-
-  protected <K extends Dao> K getDao(Map<Class, Dao> map, Class<K> clazz) {
-    return (K) map.get(clazz);
-  }
-
-  // should be removed. Still used by some old DAO in sonar-server
-
-  public MyBatis getMyBatis() {
-    return myBatis;
   }
 
   public WebhookDao webhookDao() {

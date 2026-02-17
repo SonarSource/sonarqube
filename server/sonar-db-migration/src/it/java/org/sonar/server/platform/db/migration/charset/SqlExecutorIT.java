@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.sonar.db.CoreDbTester;
+import org.sonar.db.H2DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,7 +38,7 @@ class SqlExecutorIT {
   private SqlExecutor underTest = new SqlExecutor();
 
   @RegisterExtension
-  public final CoreDbTester dbTester = CoreDbTester.createForSchema(SqlExecutorIT.class, "users_table.sql");
+  public final H2DbTester dbTester = H2DbTester.createForSchema(SqlExecutorIT.class, "users_table.sql");
 
   @Test
   void executeSelect_executes_PreparedStatement() throws Exception {
