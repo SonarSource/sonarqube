@@ -38,7 +38,6 @@
     "typescript.preferences.importModuleSpecifier": "project-relative",
     "javascript.updateImportsOnFileMove.enabled": "always",
     "javascript.validate.enable": false,
-    "prettier.configPath": "server/sonar-web/.prettierrc",
     "search.exclude": {
       "**/build": true,
       "**/target": true,
