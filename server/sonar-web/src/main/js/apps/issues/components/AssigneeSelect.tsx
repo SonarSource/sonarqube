@@ -78,7 +78,6 @@ export default function AssigneeSelect(props: Readonly<AssigneeSelectProps>) {
 
     return allowCurrentUserSelection ? [UNASSIGNED, userToOption(currentUser)] : [UNASSIGNED];
   }, [currentUser, issues]);
-  console.log("issues", issues);
   
 
 const defaultOptionsWithAi = React.useMemo((): Option[] => {
@@ -98,10 +97,7 @@ const defaultOptionsWithAi = React.useMemo((): Option[] => {
 
 React.useEffect(() => {
   setOptions(undefined); // Clear search results when AI status changes
-}, [aiEnabled]);
-
- console.log('optuonss in AssigneeSelect', defaultOptionsWithAi, aiEnabled);
-  
+}, [aiEnabled]);  
 
   const handleAssigneeSearch = React.useCallback(
     async (query: string) => {

@@ -70,7 +70,6 @@ export default function IssueAssignee(props: Props) {
 
     React.useEffect(() => {
       async function checkAiEnabled() {
-        console.log('project key', props.issue.projectKey);
         const projectKey = props.issue.projectKey || "";
         const enabled = await isAiAssistantEnabled(projectKey);
         setAiEnabled(enabled);
