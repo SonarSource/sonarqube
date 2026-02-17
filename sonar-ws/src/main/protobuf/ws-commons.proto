@@ -59,6 +59,7 @@ message Rule {
   optional string lang = 3;
   optional RuleStatus status = 4;
   optional string langName = 5;
+  optional bool aiCodeFixEnabled = 6;
 }
 
 message Rules {

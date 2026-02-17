@@ -257,6 +257,7 @@ export interface Issue extends Omit<RawIssue, 'flows' | 'comments'> {
   pullRequest?: string;
   ruleName: string;
   secondaryLocations: FlowLocation[];
+  aiCodeFixEnabled?: boolean;
 }
 
 export interface IssueChangelog {

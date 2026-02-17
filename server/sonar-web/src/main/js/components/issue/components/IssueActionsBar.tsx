@@ -27,6 +27,7 @@ import IssueTransition from './IssueTransition';
 import SonarLintBadge from './SonarLintBadge';
 
 interface Props {
+  showAiAssistantBadge?: boolean;
   canSetTags?: boolean;
   currentPopup?: string;
   issue: Issue;
@@ -77,6 +78,13 @@ export default function IssueActionsBar(props: Readonly<Props>) {
             onAssign={onAssign}
           />
         </li>
+        {
+          props.showAiAssistantBadge &&
+          <div className="sparkle-label sw-mr-5">
+            <img src="/images/sparkle.svg" className="" alt="Sparkle" />
+            <span className="sparkle-text">Ai Fix Available</span>
+          </div>
+        }
 
         {showTags && (
           <li>

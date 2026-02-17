@@ -25,6 +25,7 @@ import IssueItem from '../../../components/issue/Issue';
 import { BranchLike } from '../../../types/branch-like';
 import { Component, Issue } from '../../../types/types';
 import ComponentBreadcrumbs from './ComponentBreadcrumbs';
+import { getValues } from 'src/main/js/api/settings';
 
 interface Props {
   branchLike: BranchLike | undefined;
@@ -41,6 +42,7 @@ interface Props {
 
 interface State {
   prerender: boolean;
+  aiAssistantEnabled?: boolean;
 }
 
 export default class IssuesList extends React.PureComponent<Props, State> {
@@ -51,6 +53,7 @@ export default class IssuesList extends React.PureComponent<Props, State> {
   componentDidMount() {
     if (this.props.issues.length > 0) {
       this.setState({ prerender: false });
+      this.fetchAiAssistantFlag();
     }
   }
 
@@ -59,6 +62,25 @@ export default class IssuesList extends React.PureComponent<Props, State> {
       this.setState({ prerender: false });
     }
   }
+  private fetchAiAssistantFlag = async () => {
+    const { issues } = this.props;
+
+    if (!issues.length) {
+      this.setState({ aiAssistantEnabled: false });
+      return;
+    }
+    const projectKey = issues[0].projectKey;
+    const res = await getValues({
+      keys: ['codescan.cloud.aiAssistant'],
+      component: projectKey,
+    });
+
+    const raw = res?.[0]?.value;
+    const enabled = raw === 'true';
+
+    this.setState({ aiAssistantEnabled: enabled });
+  };
+
 
   renderIssueComponentList = ([key, issues]: [string, Issue[]]) => {
     const { branchLike, checked, component, openPopup, selectedIssue } = this.props;
@@ -78,6 +100,7 @@ export default class IssuesList extends React.PureComponent<Props, State> {
               onPopupToggle={this.props.onPopupToggle}
               openPopup={openPopup && openPopup.issue === issue.key ? openPopup.name : undefined}
               selected={selectedIssue != null && selectedIssue.key === issue.key}
+              aiAssistantEnabled={this.state.aiAssistantEnabled}
             />
           ))}
         </ul>
