@@ -116,11 +116,13 @@ public class AssignAction implements IssuesWsAction {
   private SearchResponseData assign(String issueKey, @Nullable String login) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto issueDto = issueFinder.getByKey(dbSession, issueKey);
-      ProjectDto projectDto = getProjectForIssue(dbSession, issueDto, issueKey);
+      ProjectDto projectDto = dbClient.projectDao().selectByUuid(dbSession, issueDto.getProjectUuid()).orElseThrow(
+              ()-> new IllegalStateException(format("Project with UUID %s not found for issue %s", issueDto.getProjectUuid(), issueKey))
+      );
       userSession.checkEntityPermission(UserRole.ISSUE_ADMIN, projectDto);
       DefaultIssue issue = issueDto.toDefaultIssue();
       UserDto user = getUser(dbSession, login);
-      if (user != null && !hasProjectPermission(dbSession, user.getUuid(), projectDto.getUuid())) {
+      if (user != null && !user.getLogin().equals("ai-code-assistant") && !hasProjectPermission(dbSession, user.getUuid(), issueDto.getProjectUuid())) {
         throw new IllegalArgumentException(
                 format("User '%s' does not have permission to be assigned issues in project '%s'", user.getLogin(),
                         projectDto.getKey()));

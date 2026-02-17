@@ -296,7 +296,7 @@ public class BulkChangeAction implements IssuesWsAction {
             );
 
     if (assigneeUser!=null && assigneeUser.getUuid() != null && !hasProjectPermission(dbSession, assigneeUser.getUuid(),
-            projectUuid)) {
+            projectUuid) && !assigneeUser.getLogin().equals("ai-code-assistant")) {
       throw new IllegalArgumentException(
               format("User '%s' does not have permission to be assigned issues in project '%s'",
                       assigneeUser.getLogin(),

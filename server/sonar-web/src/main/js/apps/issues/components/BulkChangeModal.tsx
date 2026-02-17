@@ -198,6 +198,10 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
         this.setState({ submitting: false });
         this.props.refreshBranchStatus();
         this.props.onDone();
+        if(query.assign==='ai-code-assistant'){
+          for(let i=0;i<issueKeys.length;i++)
+        console.log('Bulk change applied successfully', 'query:', query);
+        }
       },
       (error) => {
         this.setState({ submitting: false });

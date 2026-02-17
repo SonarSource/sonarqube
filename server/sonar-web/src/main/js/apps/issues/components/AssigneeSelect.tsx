@@ -27,6 +27,7 @@ import { isDefined } from '../../../helpers/types';
 import { Issue } from '../../../types/types';
 import { RestUser, UserActive, isLoggedIn, isUserActive } from '../../../types/users';
 import { searchAssignees } from '../utils';
+import { isAiAssistantEnabled } from 'src/main/js/api/settings';
 
 // exported for test
 export const MIN_QUERY_LENGTH = 2;
@@ -60,20 +61,52 @@ export default function AssigneeSelect(props: Readonly<AssigneeSelectProps>) {
   const { className, issues, inputId, label, selectedAssigneeKey } = props;
 
   const { currentUser } = React.useContext(CurrentUserContext);
-
+  const [aiEnabled, setAiEnabled] = React.useState(false);
   const [options, setOptions] = React.useState<Option[]>();
+  React.useEffect(() => {
+    async function checkAiEnabled() {
+      const projectKey = issues?.[0]?.projectKey || "";
+      const enabled = await isAiAssistantEnabled(projectKey);
+      setAiEnabled(enabled);
+    }
 
+    checkAiEnabled();
+  }, [issues]);
   const defaultOptions = React.useMemo((): Option[] => {
     const allowCurrentUserSelection =
       isLoggedIn(currentUser) && issues.some((issue) => currentUser.login !== issue.assignee);
 
     return allowCurrentUserSelection ? [UNASSIGNED, userToOption(currentUser)] : [UNASSIGNED];
   }, [currentUser, issues]);
+  console.log("issues", issues);
+  
+
+const defaultOptionsWithAi = React.useMemo((): Option[] => {
+  return [
+    ...defaultOptions,
+    ...(aiEnabled
+      ? [
+          {
+            value: "ai-code-assistant",
+            label: "Ai Code Assistant",
+            Icon: <img src='/images/ai-assistant.svg'/>
+          }
+        ]
+      : [])
+  ];
+}, [defaultOptions, aiEnabled]); 
+
+React.useEffect(() => {
+  setOptions(undefined); // Clear search results when AI status changes
+}, [aiEnabled]);
+
+ console.log('optuonss in AssigneeSelect', defaultOptionsWithAi, aiEnabled);
+  
 
   const handleAssigneeSearch = React.useCallback(
     async (query: string) => {
       if (query.length < MIN_QUERY_LENGTH) {
-        setOptions(defaultOptions);
+        setOptions(undefined);
         return;
       }
       const assignees = await searchAssignees(query, props.organization).then(({ results }) =>              
@@ -82,7 +115,7 @@ export default function AssigneeSelect(props: Readonly<AssigneeSelectProps>) {
 
       setOptions(assignees);
     },
-    [defaultOptions],
+    [props.issues[0]?.projectKey],
   );
 
   return (
@@ -90,7 +123,7 @@ export default function AssigneeSelect(props: Readonly<AssigneeSelectProps>) {
       ariaLabel={translate('issue_bulk_change.assignee.change')}
       className={className}
       id={inputId}
-      data={options ?? defaultOptions}
+      data={options ?? defaultOptionsWithAi}
       helpText={translateWithParameters('select.search.tooShort', MIN_QUERY_LENGTH)}
       label={label}
       labelNotFound={translate('select.search.noMatches')}
