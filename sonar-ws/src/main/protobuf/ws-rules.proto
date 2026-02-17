@@ -125,6 +125,7 @@ message Rule {
   optional sonarqube.ws.commons.CleanCodeAttributeCategory cleanCodeAttributeCategory = 53;
   optional Impacts impacts = 54;
   optional CvssBreakdown cvssBreakdown = 55;
+  optional bool aiCodeFixEnabled = 56;
 
   message DescriptionSections {
     repeated DescriptionSection descriptionSections = 1;

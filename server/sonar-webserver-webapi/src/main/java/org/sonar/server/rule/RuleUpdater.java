@@ -97,12 +97,27 @@ public class RuleUpdater {
     return true;
   }
 
+
+  // Update aiCodeFixEnabled flag for manual rules.
+  public void updateAiCodeFixEnabled(DbSession dbSession, RuleUpdate update) {
+    RuleDto rule = getRuleDtoWithoutOrgParam(update);
+    rule.setAiCodeFixEnabled(update.getAiCodeFixEnabled());
+    dbClient.ruleDao().updateAiCodeFixEnabled(dbSession, rule);
+    ruleIndexer.commitAndIndex(dbSession, rule.getUuid());
+  }
+
   /**
    * Load all the DTOs required for validating changes and updating rule
    */
   private RuleDto getRuleDto(RuleUpdate change) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       return dbClient.ruleDao().selectOrFailByKey(dbSession, change.getOrganization(), change.getRuleKey());
+    }
+  }
+
+  private RuleDto getRuleDtoWithoutOrgParam(RuleUpdate change) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.ruleDao().selectOrFailByKey(dbSession, change.getRuleKey());
     }
   }
 

@@ -386,6 +386,7 @@ public class PlatformLevel4 extends PlatformLevel {
       org.sonar.server.rule.ws.CreateAction.class,
       org.sonar.server.rule.ws.DeleteAction.class,
       org.sonar.server.rule.ws.ListAction.class,
+      org.sonar.server.rule.ws.UpdateAiCodeFixAction.class,
       TagsAction.class,
       RuleMapper.class,
       RulesResponseFormatter.class,

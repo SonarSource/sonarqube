@@ -99,7 +99,8 @@ public class RuleRestResponseGenerator {
       .setSystemTags(new ArrayList<>(ruleDto.getSystemTags()))
       .setLanguageKey(ruleDto.getLanguage())
       .setLanguageName(getLanguageName(ruleDto.getLanguage()))
-      .setParameters(toRuleParameterResponse(ruleInformation.params()));
+      .setParameters(toRuleParameterResponse(ruleInformation.params()))
+      .setAiCodeFixEnabled(ruleDto.getAiCodeFixEnabled());
 
     setDescriptionFields(builder, ruleDto);
     setRemediationFunctionFields(builder, ruleDto);

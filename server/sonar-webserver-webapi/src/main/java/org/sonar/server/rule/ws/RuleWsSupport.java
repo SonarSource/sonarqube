@@ -69,6 +69,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IMPACT_SOFTWARE_Q
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INCLUDE_EXTERNAL;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INHERITANCE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_TEMPLATE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_AI_CODE_FIX_ENABLED;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10_2021;
@@ -270,6 +271,11 @@ public class RuleWsSupport {
       .setDescription("Ascending sort")
       .setBooleanPossibleValues()
       .setDefaultValue(true);
+
+    action
+      .createParam(PARAM_AI_CODE_FIX_ENABLED)
+      .setDescription("Filter ai Code Fix Enabled rules")
+      .setBooleanPossibleValues();
   }
 
   static void defineIsExternalParam(WebService.NewAction action) {
