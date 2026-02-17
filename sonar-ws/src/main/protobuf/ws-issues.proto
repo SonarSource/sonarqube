@@ -46,6 +46,7 @@ message SearchWsResponse {
   optional ActionPlans unusedActionPlans = 10;
   optional Languages languages = 11;
   optional sonarqube.ws.commons.Facets facets = 12;
+  optional bool aiCodeFixEnabled = 14;
 }
 
 message Operation {
@@ -170,6 +171,7 @@ message Issue {
   // Codescan customization:
   optional Sort sort = 50;
   optional string issueMarkedBy = 51;
+  optional bool aiCodeFixEnabled = 52;
 }
 
 message Sort {

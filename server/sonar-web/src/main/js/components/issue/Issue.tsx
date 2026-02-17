@@ -42,10 +42,12 @@ interface Props {
   onSelect: (issueKey: string) => void;
   openPopup?: string;
   selected: boolean;
+  aiAssistantEnabled?: boolean;
 }
 
 function Issue(props: Readonly<Props>) {
   const {
+    aiAssistantEnabled = false,
     selected = false,
     issue,
     branchLike,
@@ -118,6 +120,7 @@ function Issue(props: Readonly<Props>) {
 
   return (
     <IssueView
+      aiAssistantEnabled={aiAssistantEnabled}
       branchLike={branchLike}
       checked={checked}
       currentPopup={openPopup}

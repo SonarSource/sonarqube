@@ -32,6 +32,7 @@ export const PULL_REQUEST_DECORATION_BINDING_CATEGORY = 'pull_request_decoration
 export const EMAIL_NOTIFICATION_CATEGORY = 'email_notification';
 export const MODE_CATEGORY = 'mode';
 export const CUSTOMER_CATEGORY = 'customer';
+export const CODESCAN_AI = 'codescan ai';
 
 export const CATEGORY_OVERRIDES: Dict<string> = {
   abap: LANGUAGES_CATEGORY,
