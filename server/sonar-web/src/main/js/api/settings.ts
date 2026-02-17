@@ -128,3 +128,10 @@ export async function getChatBotFlag(): Promise<{ message: boolean }> {
     throwGlobalError,
   );
 }
+
+export async function isAiAssistantEnabled(projectKey: string): Promise<boolean> {
+  const res = await getValues({ keys: ['codescan.cloud.aiAssistant'], component: projectKey });
+  const raw = res?.[0]?.value;
+  const enabled = raw === 'true';
+  return enabled;
+}

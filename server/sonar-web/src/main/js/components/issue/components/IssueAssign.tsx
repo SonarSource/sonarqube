@@ -27,6 +27,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
 import { RestUser, isLoggedIn, isUserActive } from '../../../types/users';
 import Avatar from '../../ui/Avatar';
+import { isAiAssistantEnabled } from 'src/main/js/api/settings';
 
 interface Props {
   organization: string;
@@ -53,9 +54,9 @@ export default function IssueAssignee(props: Props) {
 
   const assinedUser = assigneeName ?? assignee;
   const { currentUser } = React.useContext(CurrentUserContext);
-
+  const [aiEnabled, setAiEnabled] = React.useState(false);
+  
   const allowCurrentUserSelection = isLoggedIn(currentUser) && currentUser?.login !== assigneeLogin;
-
   const defaultOptions = allowCurrentUserSelection
     ? [
         UNASSIGNED,
@@ -67,13 +68,43 @@ export default function IssueAssignee(props: Props) {
       ]
     : [UNASSIGNED];
 
-  const controlLabel = assinedUser ? (
-    <>
-      {renderAvatar(assinedUser, assigneeAvatar)} {assinedUser}
-    </>
-  ) : (
-    UNASSIGNED.label
-  );
+    React.useEffect(() => {
+      async function checkAiEnabled() {
+        const projectKey = props.issue.projectKey || "";
+        const enabled = await isAiAssistantEnabled(projectKey);
+        setAiEnabled(enabled);
+      }
+  
+      checkAiEnabled();
+    }, [props.issue.projectKey]);
+    const defaultOptionsWithAi = React.useMemo(() => [
+      ...defaultOptions,
+      ...(aiEnabled
+        ? [
+            {
+              value: "ai-code-assistant",
+              label: "Ai Code Assistant",
+              Icon: <img src="/images/ai-assistant.svg" alt="Ai Code Assistant" />
+            }
+          ]
+        : [])
+    ], [defaultOptions, aiEnabled]); 
+
+    const controlLabel = assinedUser ? (() => {
+      const icon =
+        assinedUser === "Ai Code Assistant"
+          ? <img src="/images/ai-assistant.svg" />
+          : renderAvatar(assinedUser, assigneeAvatar);
+    
+      return (
+        <>
+          {icon} {assinedUser}
+        </>
+      );
+    })() : (
+      UNASSIGNED.label
+    );
+    
 
   const toggleAssign = (open?: boolean) => {
     props.togglePopup('assign', open);
@@ -143,7 +174,7 @@ export default function IssueAssignee(props: Props) {
             ? translateWithParameters('issue.assign.assigned_to_x_click_to_change', assinedUser)
             : translate('issue.assign.unassigned_click_to_assign')
         }
-        defaultOptions={defaultOptions}
+        defaultOptions={defaultOptionsWithAi}
         onChange={handleAssign}
         loadOptions={handleSearchAssignees}
         menuIsOpen={props.isOpen}
