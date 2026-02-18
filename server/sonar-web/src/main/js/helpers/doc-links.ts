@@ -46,7 +46,7 @@ export enum DocLink {
   AlmSamlScimAuth = '/instance-administration/authentication/saml/scim/overview/',
   AnalysisScope = '/product-guides/codescan/report-and-analysis/analysis-scope-on-codescan-cloud',
   AuthOverview = 'https://knowledgebase.autorabit.com/codescan/docs',
-  BackgroundTasks = '/codescan/docs/background-tasks',
+  BackgroundTasks = '/product-guides/codescan/report-and-analysis/background-tasks',
   BranchAnalysis = 'codescan/docs/understanding-branches-in-codescan-cloud',
   CaYC = '/codescan/docs/',
   CFamilyBuildWrapper = 'https://knowledgebase.autorabit.com/codescan/docs',
