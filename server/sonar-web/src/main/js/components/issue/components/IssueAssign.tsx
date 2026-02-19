@@ -160,14 +160,12 @@ export default function IssueAssignee(props: Props) {
       props.onAssign(userOption.value);
     }
     if(userOption?.value === "ai-code-assistant") {
-    console.log("Issue", props.issue.organization, props.issue.projectKey, props.issue.key)
     queueCodeFix({
       organizationKey: props.issue.organization,
       projectKey: props.issue.projectKey,
       issueKey: props.issue.key,
     });
     }
-    console.log("Assigned user", userOption?.value);
   };
 
   if (!canAssign) {
