@@ -28,6 +28,7 @@ import { Issue } from '../../../types/types';
 import { RestUser, isLoggedIn, isUserActive } from '../../../types/users';
 import Avatar from '../../ui/Avatar';
 import { isAiAssistantEnabled } from 'src/main/js/api/settings';
+import { queueCodeFix } from 'src/main/js/api/ai-codefix';
 
 interface Props {
   organization: string;
@@ -79,7 +80,7 @@ export default function IssueAssignee(props: Props) {
     }, [props.issue.projectKey]);
     const defaultOptionsWithAi = React.useMemo(() => [
       ...defaultOptions,
-      ...(aiEnabled
+      ...(aiEnabled && props.issue.aiCodeFixEnabled
         ? [
             {
               value: "ai-code-assistant",
@@ -158,6 +159,15 @@ export default function IssueAssignee(props: Props) {
     if (userOption) {
       props.onAssign(userOption.value);
     }
+    if(userOption?.value === "ai-code-assistant") {
+    console.log("Issue", props.issue.organization, props.issue.projectKey, props.issue.key)
+    queueCodeFix({
+      organizationKey: props.issue.organization,
+      projectKey: props.issue.projectKey,
+      issueKey: props.issue.key,
+    });
+    }
+    console.log("Assigned user", userOption?.value);
   };
 
   if (!canAssign) {
