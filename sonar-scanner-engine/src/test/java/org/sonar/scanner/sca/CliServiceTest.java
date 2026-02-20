@@ -215,7 +215,7 @@ class CliServiceTest {
         "--xz-filename",
         externalWorkDir.resolve("dependency-files.tar.xz").toString(),
         "--directory",
-        rootModuleDir.toString(),
+        rootInputModule.getBaseDir().toString(),
         "--recursive");
       assertThat(capturedArgs).containsSubsequence(expectedArgs);
       assertThat(capturedArgs)

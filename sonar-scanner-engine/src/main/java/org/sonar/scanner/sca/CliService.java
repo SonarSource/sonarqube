@@ -205,8 +205,8 @@ public class CliService {
   }
 
   private static String getWorkDirExcludedPath(DefaultInputModule module) {
-    Path baseDir = module.getBaseDir().toAbsolutePath().normalize();
-    Path workDir = module.getWorkDir().toAbsolutePath().normalize();
+    Path baseDir = getComparablePath(module.getBaseDir());
+    Path workDir = getComparablePath(module.getWorkDir());
 
     if (workDir.startsWith(baseDir)) {
       // workDir is inside baseDir, so return the relative path as a glob
@@ -217,5 +217,24 @@ public class CliService {
     }
 
     return null;
+  }
+
+  /**
+   * Returns a canonical path that can be compared with other paths.
+   * <p>
+   * On Windows, long paths can be represented in two different ways:
+   * - Long form:  C:\Users\runneradmin\AppData\
+   * - Short form: C:\Users\RUNNER~1\AppData\
+   * <p>
+   * Using toRealPath() ensures consistent path resolution for comparison purposes.
+   * This was needed because of test failures on Windows CI runners. The difference was possibly introduced by different directory resolution methods happening in
+   * AbstractProjectOrModule for initBaseDir() vs initWorkingDir()
+   */
+  private static Path getComparablePath(Path path) {
+    try {
+      return path.toRealPath();
+    } catch (IOException e) {
+      return path.toAbsolutePath().normalize();
+    }
   }
 }
