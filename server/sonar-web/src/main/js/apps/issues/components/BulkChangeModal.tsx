@@ -43,6 +43,7 @@ import AssigneeSelect from './AssigneeSelect';
 import TagsSelect from './TagsSelect';
 import { withOrganizationContext } from "../../organizations/OrganizationContext";
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
+import { queueCodeFix } from 'src/main/js/api/ai-codefix';
 
 interface Props {
   organization: Organization;
@@ -204,6 +205,14 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
         throwGlobalError(error);
       },
     );
+    for(const issue of issues){
+      if(query.assign === "ai-code-assistant")
+        queueCodeFix({
+          organizationKey: issue.organization,
+          projectKey: issue.projectKey,
+          issueKey: issue.key,
+        });
+    }
   };
 
   getAvailableTransitions(issues: Issue[]) {
