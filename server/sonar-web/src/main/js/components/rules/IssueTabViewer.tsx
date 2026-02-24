@@ -44,6 +44,7 @@ interface IssueTabViewerProps extends CurrentUserContextInterface {
   activityTabContent?: React.ReactNode;
   aiSuggestionAvailable: boolean;
   codeTabContent?: React.ReactNode;
+  fixDiffContent?: React.ReactNode;
   currentUser: CurrentUser;
   cveId?: string;
   extendedDescription?: string;
@@ -73,6 +74,7 @@ export interface Tab {
 
 export enum TabKeys {
   Code = 'code',
+  FixDiff = 'fix_diff',
   WhyIsThisAnIssue = 'why',
   HowToFixIt = 'how_to_fix',
   AssessTheIssue = 'assess_the_problem',
@@ -126,6 +128,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
       selectedFlowIndex,
       selectedLocationIndex,
       aiSuggestionAvailable,
+      fixDiffContent
     } = this.props;
 
     const { selectedTab } = this.state;
@@ -137,7 +140,8 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
       prevProps.selectedFlowIndex !== selectedFlowIndex ||
       (prevProps.selectedLocationIndex ?? -1) !== (selectedLocationIndex ?? -1) ||
       prevProps.currentUser !== currentUser ||
-      prevProps.aiSuggestionAvailable !== aiSuggestionAvailable
+      prevProps.aiSuggestionAvailable !== aiSuggestionAvailable ||
+      prevProps.fixDiffContent !== fixDiffContent
     ) {
       this.setState((pState) =>
         this.computeState(
@@ -194,6 +198,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
   computeTabs = (displayEducationalPrinciplesNotification: boolean) => {
     const {
       codeTabContent,
+      fixDiffContent,
       ruleDetails: { descriptionSections, educationPrinciples, lang: ruleLanguage, type: ruleType },
       ruleDescriptionContextKey,
       extendedDescription,
@@ -276,6 +281,16 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
               key: TabKeys.CodeFix,
               label: translate('coding_rules.description_section.title', TabKeys.CodeFix),
               content: suggestionTabContent,
+            },
+          ]
+        : []),
+      ...(fixDiffContent
+        ? [
+            {
+              value: TabKeys.FixDiff,
+              key: TabKeys.FixDiff,
+              label: translate('coding_rules.description_section.title', TabKeys.FixDiff),
+              content: fixDiffContent,
             },
           ]
         : []),
