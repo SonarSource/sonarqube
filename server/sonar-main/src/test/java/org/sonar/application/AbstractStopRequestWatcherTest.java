@@ -42,12 +42,13 @@ public class AbstractStopRequestWatcherTest {
   private TestAction stopAction = new TestAction();
 
   @Test
-  public void constructor_sets_thread_name_and_daemon_true() {
+  public void constructor_sets_thread_name() {
     AbstractStopRequestWatcher underTest = new AbstractStopRequestWatcher(threadName, booleanSupplier, stopAction) {
 
     };
-    assertThat(underTest.getName()).isEqualTo(threadName);
-    assertThat(underTest.isDaemon()).isTrue();
+    underTest.startWatching();
+    assertThat(underTest.getThreadName()).isEqualTo(threadName);
+    underTest.stopWatching();
   }
 
   @Test

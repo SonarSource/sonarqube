@@ -24,11 +24,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.config.AppSettings;
 import org.sonar.process.ProcessId;
+import org.sonar.process.VirtualThreadTask;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
@@ -187,8 +187,8 @@ public class ManagedProcessHandler {
       return;
     }
 
-    interrupt(eventWatcher);
-    interrupt(stopWatcher);
+    eventWatcher.interrupt();
+    stopWatcher.interrupt();
     if (process != null) {
       process.destroyForcibly();
       waitForDown();
@@ -204,15 +204,6 @@ public class ManagedProcessHandler {
     }
     // will trigger state listeners
     lifecycle.tryToMoveTo(ManagedProcessLifecycle.State.STOPPED);
-  }
-
-  private static void interrupt(@Nullable Thread thread) {
-    Thread currentThread = Thread.currentThread();
-    // prevent current thread from interrupting itself
-    if (thread != null && currentThread != thread) {
-      thread.interrupt();
-      LOG.trace("{} interrupted {}", currentThread.getName(), thread.getName(), new Exception("(capturing stack trace for debugging purpose)"));
-    }
   }
 
   void refreshState() {
@@ -242,12 +233,9 @@ public class ManagedProcessHandler {
    * <li>no delay, instantaneous notification that process is down</li>
    * </ul>
    */
-  private class StopWatcher extends Thread {
-    StopWatcher() {
-      // this name is different than Thread#toString(), which includes name, priority
-      // and thread group
-      // -> do not override toString()
-      super(format("StopWatcher[%s]", processId.getHumanReadableName()));
+  private class StopWatcher extends VirtualThreadTask {
+    void start() {
+      startVirtualThread(format("StopWatcher[%s]", processId.getHumanReadableName()));
     }
 
     @Override
@@ -270,12 +258,9 @@ public class ManagedProcessHandler {
     }
   }
 
-  private class EventWatcher extends Thread {
-    EventWatcher() {
-      // this name is different than Thread#toString(), which includes name, priority
-      // and thread group
-      // -> do not override toString()
-      super(format("EventWatcher[%s]", processId.getHumanReadableName()));
+  private class EventWatcher extends VirtualThreadTask {
+    void start() {
+      startVirtualThread(format("EventWatcher[%s]", processId.getHumanReadableName()));
     }
 
     @Override

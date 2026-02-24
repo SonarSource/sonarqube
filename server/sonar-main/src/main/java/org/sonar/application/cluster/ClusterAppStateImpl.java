@@ -47,6 +47,7 @@ import org.sonar.application.es.EsConnector;
 import org.sonar.process.MessageException;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessId;
+import org.sonar.process.VirtualThreadTask;
 import org.sonar.process.cluster.hz.DistributedReference;
 import org.sonar.process.cluster.hz.HazelcastMember;
 
@@ -235,15 +236,14 @@ public class ClusterAppStateImpl implements ClusterAppState {
 
   private void asyncWaitForEsToBecomeOperational() {
     if (esPoolingThreadRunning.compareAndSet(false, true)) {
-      Thread thread = new EsPoolingThread();
-      thread.start();
+      EsPoolingTask task = new EsPoolingTask();
+      task.start();
     }
   }
 
-  private class EsPoolingThread extends Thread {
-    private EsPoolingThread() {
-      super("es-state-pooling");
-      this.setDaemon(true);
+  private class EsPoolingTask extends VirtualThreadTask {
+    void start() {
+      startVirtualThread("es-state-pooling");
     }
 
     @Override

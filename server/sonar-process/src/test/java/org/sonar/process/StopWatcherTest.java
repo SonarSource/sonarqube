@@ -51,7 +51,7 @@ public class StopWatcherTest {
       Thread.sleep(1L);
     }
     verify(stoppable).hardStopAsync();
-    assertThat(underTest.getName()).isEqualTo("TheThreadName");
+    assertThat(underTest.getThreadName()).isEqualTo("TheThreadName");
   }
 
   @Test
@@ -68,6 +68,26 @@ public class StopWatcherTest {
       Thread.sleep(1L);
     }
     verify(stoppable, never()).hardStopAsync();
-    assertThat(underTest.getName()).isEqualTo("TheThreadName");
+    assertThat(underTest.getThreadName()).isEqualTo("TheThreadName");
+  }
+
+  @Test
+  public void start_throws_exception_when_called_twice() {
+    ProcessCommands commands = mock(ProcessCommands.class);
+    when(commands.askedForHardStop()).thenReturn(false);
+    Stoppable stoppable = mock(Stoppable.class);
+
+    StopWatcher underTest = new StopWatcher("TheThreadName", stoppable::hardStopAsync, commands::askedForHardStop, 1L);
+    underTest.start();
+
+    assertThat(underTest.isAlive()).isTrue();
+    try {
+      underTest.start();
+      throw new AssertionError("Expected IllegalThreadStateException");
+    } catch (IllegalThreadStateException expected) {
+      assertThat(expected.getMessage()).isEqualTo("Virtual thread already started");
+    } finally {
+      underTest.interrupt();
+    }
   }
 }

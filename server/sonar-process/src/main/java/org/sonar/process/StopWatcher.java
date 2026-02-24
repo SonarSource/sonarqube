@@ -24,8 +24,9 @@ import java.util.function.BooleanSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StopWatcher extends Thread {
+public class StopWatcher extends VirtualThreadTask {
   private static final Logger LOG = LoggerFactory.getLogger(StopWatcher.class);
+  private final String threadName;
   private final Runnable stopCommand;
   private final BooleanSupplier shouldStopTest;
   private final long delayMs;
@@ -37,17 +38,21 @@ public class StopWatcher extends Thread {
 
   @VisibleForTesting
   StopWatcher(String threadName, Runnable stopCommand, BooleanSupplier shouldStopTest, long delayMs) {
-    super(threadName);
+    this.threadName = threadName;
     this.stopCommand = stopCommand;
     this.shouldStopTest = shouldStopTest;
     this.delayMs = delayMs;
+  }
+
+  public void start() {
+    startVirtualThread(threadName);
   }
 
   @Override
   public void run() {
     while (watching) {
       if (shouldStopTest.getAsBoolean()) {
-        LOG.trace("{} triggering stop command", this.getName());
+        LOG.trace("{} triggering stop command", threadName);
         stopCommand.run();
         watching = false;
       } else {
@@ -63,7 +68,7 @@ public class StopWatcher extends Thread {
   }
 
   public void stopWatching() {
-    super.interrupt();
+    interrupt();
     watching = false;
   }
 }

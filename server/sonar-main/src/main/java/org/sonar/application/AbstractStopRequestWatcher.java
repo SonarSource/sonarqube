@@ -21,9 +21,11 @@ package org.sonar.application;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.function.BooleanSupplier;
+import org.sonar.process.VirtualThreadTask;
 
-public abstract class AbstractStopRequestWatcher extends Thread implements StopRequestWatcher {
+public abstract class AbstractStopRequestWatcher extends VirtualThreadTask implements StopRequestWatcher {
   private static final long DEFAULT_WATCHER_DELAY_MS = 500L;
+  private final String threadName;
   private final BooleanSupplier stopRequestedTest;
   private final Runnable stopAction;
   private final long delayMs;
@@ -34,14 +36,10 @@ public abstract class AbstractStopRequestWatcher extends Thread implements StopR
 
   @VisibleForTesting
   AbstractStopRequestWatcher(String threadName, BooleanSupplier stopRequestedTest, Runnable stopAction, long delayMs) {
-    super(threadName);
+    this.threadName = threadName;
     this.stopRequestedTest = stopRequestedTest;
     this.stopAction = stopAction;
     this.delayMs = delayMs;
-
-    // safeguard, do not block the JVM if thread is not interrupted
-    // (method stopWatching() never called).
-    setDaemon(true);
   }
 
   @Override
@@ -55,7 +53,7 @@ public abstract class AbstractStopRequestWatcher extends Thread implements StopR
         Thread.sleep(delayMs);
       }
     } catch (InterruptedException e) {
-      interrupt();
+      Thread.currentThread().interrupt();
       // stop watching the commands
     }
   }
@@ -66,7 +64,7 @@ public abstract class AbstractStopRequestWatcher extends Thread implements StopR
   }
 
   public void startWatching() {
-    start();
+    startVirtualThread(threadName);
   }
 
   public void stopWatching() {
