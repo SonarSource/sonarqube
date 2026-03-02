@@ -57,5 +57,5 @@ export function getCodefixFixedFile(issueKey: string): Promise<CodefixFixedFileR
 }
 
 export function createCodefixPr(jobId: string): Promise<void> {
-  return post(`${CODEFIX_BASE}/create_pr/${encodeURIComponent(jobId)}`);
+  return post(`${CODEFIX_BASE}/create-pr/${encodeURIComponent(jobId)}`);
 }
