@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
@@ -62,7 +65,7 @@ import org.sonar.db.webhook.WebhookDeliveryDbTester;
  * This class should be called using @Rule.
  * Data is truncated between each test. The schema is created between each test.
  */
-public class DbTester extends AbstractDbTester<TestDbImpl> {
+public class DbTester extends AbstractDbTester<TestDbImpl> implements TestRule {
 
   private final UuidFactory uuidFactory;
   private final System2 system2;
@@ -124,6 +127,21 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     this.almPatsDbtester = new AlmPatsDbTester(this);
     this.auditDbTester = new AuditDbTester(this);
     this.anticipatedTransitionDbTester = new AnticipatedTransitionDbTester(this);
+  }
+
+  @Override
+  public Statement apply(Statement base, Description description) {
+    return new Statement() {
+      @Override
+      public void evaluate() throws Throwable {
+        before();
+        try {
+          base.evaluate();
+        } finally {
+          after();
+        }
+      }
+    };
   }
 
   public static DbTester create() {
