@@ -17,7 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.sparkle-text {
+
+.status-text {
+  font-weight: 500;
+  padding-left: 3px;
+}
+
+.magic-wand-text {
     color: #008223;
-    font-weight: 500;
-  }
+}
+
+.spinner-text {
+    color: #767676;
+}
+
+.warning-text {
+    color: #D92D20;
+}
+
+.lightning-text {
+    color: #3665EF;
+}
+
+.pull-request-text {
+    color: #A222A0;
+}

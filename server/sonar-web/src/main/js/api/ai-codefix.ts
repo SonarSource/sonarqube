@@ -65,3 +65,17 @@ export function getCodefixFixedFile(issueKey: string): Promise<CodefixFixedFileR
 export function createCodefixPr(jobId: string): Promise<void> {
   return post(`${CODEFIX_BASE}/create-pr/${encodeURIComponent(jobId)}`);
 }
+
+export function getCodefixStatus(issueKey: string): Promise<CodefixJobStatusResponse> {
+  const url = `${getBaseUrl()}${CODEFIX_BASE}/get-status?issueKey=${encodeURIComponent(issueKey)}`;
+  return fetch(url, {
+    method: 'GET',
+    credentials: 'same-origin',
+    headers: {
+      Accept: 'application/json',
+      ...getCSRFToken(),
+    },
+  })
+    .then(checkStatus)
+    .then(parseJSON);
+}

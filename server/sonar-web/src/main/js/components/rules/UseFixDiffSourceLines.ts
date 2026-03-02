@@ -21,8 +21,8 @@
 import { diffLines } from 'diff';
 import hljs from 'highlight.js/lib/core';
 import * as React from 'react';
-import { DiffSourceLine } from './fixDiffTypes';
-import { escapeHtml, splitLines } from './fixDiffUtils';
+import { DiffSourceLine } from './FixDiffTypes';
+import { escapeHtml, splitLines } from './FixDiffUtils';
 
 interface UseFixDiffSourceLinesParams {
   originalSource: string | undefined;

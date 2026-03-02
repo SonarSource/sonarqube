@@ -21,7 +21,7 @@
 import { useQuery } from '@tanstack/react-query';
 import * as React from 'react';
 import { FlagMessage, Spinner } from '~design-system';
-import { getCodefixFixedFile } from '../../api/codefix';
+import { getCodefixFixedFile } from '../../api/ai-codefix';
 import { getBranchLikeDisplayName } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';
 import { useRawSourceQuery } from '../../queries/sources';

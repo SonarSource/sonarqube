@@ -19,8 +19,8 @@
  */
 
 import * as React from 'react';
-import { DiffSourceLine, SnippetRange } from './fixDiffTypes';
-import { determineSnippetLineCount } from './fixDiffUtils';
+import { DiffSourceLine, SnippetRange } from './FixDiffTypes';
+import { determineSnippetLineCount } from './FixDiffUtils';
 
 interface IssueContext {
   sourceSnippetStartLine?: number;
