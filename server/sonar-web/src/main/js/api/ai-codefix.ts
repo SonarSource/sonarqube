@@ -19,16 +19,18 @@
  */
 import {
   postJSONBody,
-  getCSRFToken,
   parseJSON,
   post,
-  checkStatus,
+  get,
 } from '../helpers/request';
-import { getBaseUrl } from '../helpers/system';
 
 export interface CodefixFixedFileResponse {
   jobId: string;
   fixedFileContent: string;
+}
+
+export interface CodefixStatusResponse {
+  status: string;
 }
 
 const CODEFIX_BASE = '/_codescan/codefix';
@@ -38,7 +40,7 @@ export function queueCodeFix(data: {
     projectKey: string;
     issueKey: string;
 }): Promise<void> {
-  return postJSONBody('/_codescan/codefix/queue', data);
+  return postJSONBody(`${CODEFIX_BASE}/queue`, data);
 }
 
 /**
@@ -49,33 +51,13 @@ export function queueCodeFix(data: {
  * so it is not callable from outside with a raw token.
  */
 export function getCodefixFixedFile(issueKey: string): Promise<CodefixFixedFileResponse> {
-  const url = `${getBaseUrl()}${CODEFIX_BASE}/fixed-file?issueKey=${encodeURIComponent(issueKey)}`;
-  return fetch(url, {
-    method: 'GET',
-    credentials: 'same-origin',
-    headers: {
-      Accept: 'application/json',
-      ...getCSRFToken(),
-    },
-  })
-    .then(checkStatus)
-    .then(parseJSON);
+  return get(`${CODEFIX_BASE}/fixed-file`, { issueKey }).then(parseJSON);
 }
 
 export function createCodefixPr(jobId: string): Promise<void> {
   return post(`${CODEFIX_BASE}/create-pr/${encodeURIComponent(jobId)}`);
 }
 
-export function getCodefixStatus(issueKey: string): Promise<CodefixJobStatusResponse> {
-  const url = `${getBaseUrl()}${CODEFIX_BASE}/get-status?issueKey=${encodeURIComponent(issueKey)}`;
-  return fetch(url, {
-    method: 'GET',
-    credentials: 'same-origin',
-    headers: {
-      Accept: 'application/json',
-      ...getCSRFToken(),
-    },
-  })
-    .then(checkStatus)
-    .then(parseJSON);
+export function getCodefixStatus(issueKey: string): Promise<CodefixStatusResponse> {
+  return get(`${CODEFIX_BASE}/get-status`, { issueKey }).then(parseJSON);
 }
