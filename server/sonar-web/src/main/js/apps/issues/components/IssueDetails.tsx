@@ -48,7 +48,6 @@ import IssuesSourceViewer from './IssuesSourceViewer';
 const AI_CODE_ASSISTANT_ASSIGNEE = 'ai-code-assistant';
 
 function isAssignedToAiCodeAssistant(issue: Issue): boolean {
-  console.log('issue asignee', issue.asignee);
   return (
     issue.assignee === AI_CODE_ASSISTANT_ASSIGNEE ||
     issue.assigneeLogin === AI_CODE_ASSISTANT_ASSIGNEE
