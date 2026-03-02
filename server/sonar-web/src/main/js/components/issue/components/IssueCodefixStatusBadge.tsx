@@ -94,7 +94,7 @@ export default function AiCodefixBadge({ issue }: { issue: Issue }) {
         : false;
     },
   });
-  console.log(statusData);
+
   if (!assignedToAi || isLoading || isError || !statusData?.status) {
     return (
       <div className="sparkle-label sw-mr-5">
