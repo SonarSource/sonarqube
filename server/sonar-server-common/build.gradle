@@ -32,6 +32,9 @@ dependencies {
 
   implementation project(':server:sonar-statemachine')
   implementation "org.sonarsource.compliancereports:compliance-reports:${complianceReportsVersion}"
+  implementation 'org.sonarsource.sonarqube:organizations-api'
+  implementation 'org.sonarsource.sonarqube:organizations-server-app'
+  implementation 'org.springdoc:springdoc-openapi-starter-webmvc-api'
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 

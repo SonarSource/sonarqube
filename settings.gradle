@@ -76,6 +76,32 @@ include 'sonar-testing-ldap'
 include 'sonar-ws'
 include 'sonar-ws-generator'
 
+// Use local organizations build instead of published artifacts from Artifactory
+// Set useLocalOrg=true in ~/.gradle/gradle.properties
+// Requires SONARQUBE_UNIFICATION_PATH environment variable pointing to sonarqube-unification directory
+def useLocalOrg = settings.hasProperty('useLocalOrg') && settings.useLocalOrg.toBoolean()
+if (useLocalOrg) {
+  def orgPath = System.getenv('SONARQUBE_UNIFICATION_PATH')
+  if (!orgPath) {
+    throw new GradleException(
+      "useLocalOrg is enabled but SONARQUBE_UNIFICATION_PATH environment variable is not set.\n" +
+      "Please set it to the path of your sonarqube-unification directory:\n" +
+      "  export SONARQUBE_UNIFICATION_PATH=/path/to/sonarqube-unification"
+    )
+  }
+  def orgDir = new File(orgPath, 'organizations')
+  println "Using local organizations build from: ${orgDir.absolutePath}"
+  includeBuild(orgDir.absolutePath) {
+    dependencySubstitution {
+      substitute module("org.sonarsource.sonarqube:organizations-api") using project(':organizations-api')
+      substitute module("org.sonarsource.sonarqube:organizations-server-app") using project(':organizations-server-app')
+    }
+  }
+} else {
+  println "Using published organizations artifacts from Artifactory"
+}
+
+
 ext.isCiServer = System.getenv().containsKey("GITHUB_ACTIONS")
 
 develocity {

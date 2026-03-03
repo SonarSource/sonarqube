@@ -272,6 +272,7 @@ import org.sonar.server.qualityprofile.builtin.BuiltInQProfileRepositoryImpl;
 import org.sonar.server.qualityprofile.builtin.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.qualityprofile.ws.QProfilesWsModule;
+import org.sonar.server.resolver.OrganizationDefaultsWebMvcConfigurer;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.rule.RuleUpdater;
@@ -330,6 +331,7 @@ import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 import org.sonarsource.compliancereports.reports.ComplianceReportService;
 import org.sonarsource.compliancereports.reports.MetadataLoader;
 import org.sonarsource.compliancereports.reports.MetadataRules;
+import org.sonarsource.organizations.server.OrganizationsServiceServerImpl;
 
 import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
 import static org.sonar.core.extension.PlatformLevelPredicates.hasPlatformLevel4OrNone;
@@ -373,6 +375,8 @@ public class PlatformLevel4 extends PlatformLevel {
       DelegatingManagedServices.class,
       DelegatingDevOpsProjectCreatorFactory.class,
       NetworkInterfaceProvider.class,
+      OrganizationsServiceServerImpl.class,
+      OrganizationDefaultsWebMvcConfigurer.class,
 
       // ai code assurance
       NoOpAiCodeAssuranceVerifier.class,
