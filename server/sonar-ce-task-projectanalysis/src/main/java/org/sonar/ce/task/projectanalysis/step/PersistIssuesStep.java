@@ -80,7 +80,7 @@ public class PersistIssuesStep implements ComputationStep {
     context.getStatistics().add("cacheSize", humanReadableByteCountSI(protoIssueCache.fileSize()));
     IssueStatistics statistics = new IssueStatistics();
     try (DbSession dbSession = dbClient.openSession(true);
-      CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse()) {
+         CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse()) {
       List<DefaultIssue> addedIssues = new ArrayList<>(ISSUE_BATCHING_SIZE);
       List<DefaultIssue> updatedIssues = new ArrayList<>(ISSUE_BATCHING_SIZE);
       List<DefaultIssue> noLongerNewIssues = new ArrayList<>(ISSUE_BATCHING_SIZE);
@@ -94,24 +94,28 @@ public class PersistIssuesStep implements ComputationStep {
           addedIssues.add(issue);
           if (addedIssues.size() >= ISSUE_BATCHING_SIZE) {
             persistNewIssues(statistics, addedIssues, issueDao, changeMapper, anticipatedTransitionMapper, dbSession);
+            flush(dbSession);
             addedIssues.clear();
           }
         } else if (issue.isChanged()) {
           updatedIssues.add(issue);
           if (updatedIssues.size() >= ISSUE_BATCHING_SIZE) {
             persistUpdatedIssues(statistics, updatedIssues, issueDao, changeMapper, dbSession);
+            flush(dbSession);
             updatedIssues.clear();
           }
         } else if (isOnBranchUsingReferenceBranch() && issue.isNoLongerNewCodeReferenceIssue()) {
           noLongerNewIssues.add(issue);
           if (noLongerNewIssues.size() >= ISSUE_BATCHING_SIZE) {
             persistNoLongerNewIssues(statistics, noLongerNewIssues, issueDao, dbSession);
+            flush(dbSession);
             noLongerNewIssues.clear();
           }
         } else if (isOnBranchUsingReferenceBranch() && issue.isToBeMigratedAsNewCodeReferenceIssue()) {
           newCodeIssuesToMigrate.add(issue);
           if (newCodeIssuesToMigrate.size() >= ISSUE_BATCHING_SIZE) {
             persistNewCodeIssuesToMigrate(statistics, newCodeIssuesToMigrate, issueDao, dbSession);
+            flush(dbSession);
             newCodeIssuesToMigrate.clear();
           }
         }
@@ -121,7 +125,7 @@ public class PersistIssuesStep implements ComputationStep {
       persistUpdatedIssues(statistics, updatedIssues, issueDao, changeMapper, dbSession);
       persistNoLongerNewIssues(statistics, noLongerNewIssues, issueDao, dbSession);
       persistNewCodeIssuesToMigrate(statistics, newCodeIssuesToMigrate, issueDao, dbSession);
-      flushSession(dbSession);
+      flushAndCommitSession(dbSession);
     } finally {
       statistics.dumpTo(context);
     }
@@ -218,9 +222,13 @@ public class PersistIssuesStep implements ComputationStep {
     });
   }
 
-  private static void flushSession(DbSession dbSession) {
+  private static void flushAndCommitSession(DbSession dbSession) {
     dbSession.flushStatements();
     dbSession.commit();
+  }
+
+  private static void flush(DbSession dbSession) {
+    dbSession.flushStatements();
   }
 
   private boolean isOnBranchUsingReferenceBranch() {
