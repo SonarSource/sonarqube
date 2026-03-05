@@ -20,11 +20,6 @@
 package org.sonar.db;
 
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,28 +29,21 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.db.dialect.H2;
+import org.sonar.db.testfixtures.DatabaseTestUtils;
+import org.sonar.db.testfixtures.TestDb;
 import org.sonar.db.version.SqTables;
 import org.sonar.process.logging.LogbackHelper;
 
-class TestDbImpl extends AbstractTestDb {
+class TestDbImpl implements TestDb {
   private static final Logger LOG = LoggerFactory.getLogger(TestDbImpl.class);
   private static TestDbImpl defaultSchemaBaseTestDb;
-  // instantiating MyBatis objects is costly => we cache them for default schema
-  private static final Map<Set<String>, TestDbImpl> defaultSchemaTestDbsWithExtensions = new HashMap<>();
 
+  private final Database database;
   private final boolean isDefault;
-  private final MyBatis myBatis;
 
-  private TestDbImpl(@Nullable String schemaPath, BaseMyBatisConfExtension... confExtensions) {
-    super(createDatabase(schemaPath));
+  private TestDbImpl(@Nullable String schemaPath) {
+    database = createDatabase(schemaPath);
     isDefault = (schemaPath == null);
-    myBatis = newMyBatis(getDatabase(), confExtensions);
-  }
-
-  private TestDbImpl(TestDbImpl base, MyBatis myBatis) {
-    super(base.getDatabase());
-    this.isDefault = base.isDefault;
-    this.myBatis = myBatis;
   }
 
   private static Database createDatabase(@Nullable String schemaPath) {
@@ -91,29 +79,14 @@ class TestDbImpl extends AbstractTestDb {
     return database;
   }
 
-  private static MyBatis newMyBatis(Database db, BaseMyBatisConfExtension[] extensions) {
-    var newMyBatis = new DefaultMyBatis(db, extensions);
-    newMyBatis.start();
-    return newMyBatis;
-  }
-
-  static TestDbImpl create(@Nullable String schemaPath, BaseMyBatisConfExtension... confExtensions) {
+  static TestDbImpl create(@Nullable String schemaPath) {
     if (schemaPath == null) {
       if (defaultSchemaBaseTestDb == null) {
         defaultSchemaBaseTestDb = new TestDbImpl(null);
       }
-      if (confExtensions.length > 0) {
-        Set<String> key = Arrays.stream(confExtensions)
-          .flatMap(BaseMyBatisConfExtension::getMapperClasses)
-          .map(Class::getName)
-          .collect(Collectors.toSet());
-        return defaultSchemaTestDbsWithExtensions.computeIfAbsent(
-          key,
-          k -> new TestDbImpl(defaultSchemaBaseTestDb, newMyBatis(defaultSchemaBaseTestDb.getDatabase(), confExtensions)));
-      }
       return defaultSchemaBaseTestDb;
     }
-    return new TestDbImpl(schemaPath, confExtensions);
+    return new TestDbImpl(schemaPath);
   }
 
   @Override
@@ -131,6 +104,11 @@ class TestDbImpl extends AbstractTestDb {
   }
 
   @Override
+  public Database getDatabase() {
+    return database;
+  }
+
+  @Override
   public void truncateTables() {
     try {
       // we are overriding truncateTables to use a fixed list of tables instead of loading them from the database
@@ -139,9 +117,5 @@ class TestDbImpl extends AbstractTestDb {
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to truncate db tables", e);
     }
-  }
-
-  MyBatis getMyBatis() {
-    return myBatis;
   }
 }

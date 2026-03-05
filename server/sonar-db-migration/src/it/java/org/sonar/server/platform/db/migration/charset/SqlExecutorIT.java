@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.sonar.db.H2DbTester;
+import org.sonar.db.testfixtures.H2DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

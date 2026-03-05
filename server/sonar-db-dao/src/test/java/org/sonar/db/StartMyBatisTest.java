@@ -24,15 +24,23 @@ import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 class StartMyBatisTest {
 
   @Test
   void should_start_mybatis_instance() {
     var myBatis = mock(DefaultMyBatis.class);
+    var cluster = mock(DatabaseCluster.class);
+    var writer = mock(Database.class);
+    when(myBatis.getCluster()).thenReturn(cluster);
+    when(cluster.getWriter()).thenReturn(writer);
     var startMyBatis = new StartMyBatis(myBatis);
     startMyBatis.start();
     verify(myBatis).start();
+    verify(myBatis).getCluster();
+    verify(cluster).getWriter();
+    verify(writer).start();
     verifyNoMoreInteractions(myBatis);
   }
 

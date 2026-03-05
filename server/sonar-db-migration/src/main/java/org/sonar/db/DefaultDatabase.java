@@ -30,9 +30,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import javax.sql.DataSource;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.internal.Settings;
+import org.sonar.api.utils.MessageException;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.DialectUtils;
 import org.sonar.db.profiling.NullConnectionInterceptor;
@@ -138,7 +140,10 @@ public class DefaultDatabase implements Database {
     doCompleteProperties(properties);
 
     String jdbcUrl = properties.getProperty(JDBC_URL.getKey());
-    dialect = DialectUtils.find(properties.getProperty(SONAR_JDBC_DIALECT), jdbcUrl);
+    String dialectId = properties.getProperty(SONAR_JDBC_DIALECT);
+    dialect = (StringUtils.isNotBlank(dialectId) ? DialectUtils.findById(dialectId) : DialectUtils.findByJdbcUrl(jdbcUrl))
+      .orElseThrow(() -> MessageException.of(
+        "Unable to determine database dialect to use within sonar with dialect " + dialectId + " jdbc url " + jdbcUrl));
     properties.setProperty(SONAR_JDBC_DRIVER, dialect.getDefaultDriverClassName());
   }
 

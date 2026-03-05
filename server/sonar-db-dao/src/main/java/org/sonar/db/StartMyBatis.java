@@ -33,6 +33,10 @@ public class StartMyBatis implements Startable {
   }
 
   public void start() {
+    // we are also responsible for starting the Database; we can't have a separate
+    // StartDatabase bean because we wouldn't know its start() would happen
+    // before myBatis.start(), so we do both here to guarantee the order.
+    myBatis.getCluster().getWriter().start();
     myBatis.start();
   }
 

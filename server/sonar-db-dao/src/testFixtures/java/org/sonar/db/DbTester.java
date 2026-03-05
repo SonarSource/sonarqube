@@ -57,6 +57,8 @@ import org.sonar.db.qualitygate.QualityGateDbTester;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.rule.RuleDbTester;
 import org.sonar.db.source.FileSourceTester;
+import org.sonar.db.testfixtures.AbstractDbTester;
+import org.sonar.db.testfixtures.TestDBSessions;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.db.webhook.WebhookDeliveryDbTester;
@@ -67,9 +69,18 @@ import org.sonar.db.webhook.WebhookDeliveryDbTester;
  */
 public class DbTester extends AbstractDbTester<TestDbImpl> implements TestRule {
 
+  /**
+   * Shared MyBatis for the default (no-extension) case; built once per JVM.
+   * Building MyBatis (loading 80+ mappers, building SqlSessionFactory) is expensive,
+   * and this cache avoids rebuilding it for every {@code @Rule DbTester} in a test run.
+   */
+  private static volatile MyBatis cachedDefaultMyBatis;
+
   private final UuidFactory uuidFactory;
   private final System2 system2;
   private final AuditPersister auditPersister;
+  private MyBatis myBatis;
+  private boolean myBatisStarted = false;
   private DbClient client;
   private final UserDbTester userTester;
   private final ComponentDbTester componentTester;
@@ -97,12 +108,12 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements TestRule {
   private final AnticipatedTransitionDbTester anticipatedTransitionDbTester;
 
   private DbTester(UuidFactory uuidFactory, System2 system2, @Nullable String schemaPath, AuditPersister auditPersister, BaseMyBatisConfExtension... confExtensions) {
-    super(TestDbImpl.create(schemaPath, confExtensions));
+    super(TestDbImpl.create(schemaPath));
     this.uuidFactory = uuidFactory;
     this.system2 = system2;
     this.auditPersister = auditPersister;
 
-    initDbClient();
+    initDbClient(confExtensions);
     this.userTester = new UserDbTester(this);
     this.componentTester = new ComponentDbTester(this);
     this.projectLinkTester = new ProjectLinkDbTester(this);
@@ -177,10 +188,29 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements TestRule {
     return new DbTester(new SequenceUuidFactory(), system2, null, new NoOpAuditPersister(), extensionsArray);
   }
 
-  private void initDbClient() {
+  private void initDbClient(BaseMyBatisConfExtension... confExtensions) {
+    // We are calling start() on MyBatis here in the constructor because it's allowed
+    // to call getDbClient() in test class field initializers, which
+    // means before before() is called. However, we still have to stop the MyBatis
+    // in after() in the case of the non-cached MyBatis, or we would leak resources.
+    if (confExtensions.length == 0) {
+      if (cachedDefaultMyBatis == null) {
+        synchronized (DbTester.class) {
+          if (cachedDefaultMyBatis == null) {
+            cachedDefaultMyBatis = new ServerTestDbProvider().createMyBatis(db.getDatabase(), List.of());
+            cachedDefaultMyBatis.start();
+          }
+        }
+      }
+      myBatis = cachedDefaultMyBatis;
+    } else {
+      myBatis = new ServerTestDbProvider().createMyBatis(db.getDatabase(), Arrays.asList(confExtensions));
+      myBatis.start();
+      myBatisStarted = true;
+    }
     FastSpringContainer ioc = new FastSpringContainer();
     ioc.add(auditPersister);
-    ioc.add(db.getMyBatis());
+    ioc.add(myBatis);
     ioc.add(system2);
     ioc.add(uuidFactory);
     for (Class<?> daoClass : DaoModule.classes()) {
@@ -188,12 +218,36 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements TestRule {
     }
     ioc.start();
     List<Dao> daos = ioc.getComponentsByType(Dao.class);
-    client = new DbClient(db.getDatabase(), db.getMyBatis(), new TestDBSessions(db.getMyBatis()), daos.toArray(new Dao[daos.size()]));
+    client = new DbClient(myBatis, new TestDBSessions(myBatis), daos.toArray(new Dao[daos.size()]));
   }
 
   @Override
   public void truncateTables() {
     db.truncateTables();
+  }
+
+  @Override
+  public void before() {
+    if (myBatis != cachedDefaultMyBatis && !myBatisStarted) {
+      // this happens if you have a DbTester in a static Test class field
+      // instead of a per-instance test class field, and then after each
+      // test we are calling myBatis.stop() so here we have to start it
+      // again. If DbTester is in an instance field then each test gets
+      // a new DbTester which starts MyBatis in the constructor so starting
+      // it here would not happen.
+      myBatis.start();
+      myBatisStarted = true;
+    }
+    super.before();
+  }
+
+  @Override
+  public void after() {
+    if (myBatis != cachedDefaultMyBatis) {
+      myBatis.stop();
+      myBatisStarted = false;
+    }
+    super.after();
   }
 
   public UserDbTester users() {
@@ -294,7 +348,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements TestRule {
 
   @Override
   protected DbSession openSession(boolean batched) {
-    return db.getMyBatis().openSession(batched);
+    return myBatis.openSession(batched);
   }
 
   public DbClient getDbClient() {
@@ -340,7 +394,6 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements TestRule {
   }
 
   private static class DbTesterMyBatisConfExtension implements MyBatisConfExtension {
-    // do not replace with a lambda to allow cache of MyBatis instances in TestDbImpl to work
     private final Class<?>[] mapperClasses;
 
     public DbTesterMyBatisConfExtension(Class<?> firstMapperClass, Class<?>... otherMapperClasses) {

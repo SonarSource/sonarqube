@@ -23,7 +23,7 @@ import java.sql.Connection;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.sonar.db.H2DbTester;
+import org.sonar.db.testfixtures.H2DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

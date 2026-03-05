@@ -20,8 +20,8 @@
 package org.sonar.server.platform.db.migration.version;
 
 import java.sql.SQLException;
-import org.sonar.db.AbstractDbTester;
-import org.sonar.db.TestDb;
+import org.sonar.db.testfixtures.AbstractDbTester;
+import org.sonar.db.testfixtures.TestDb;
 import org.sonar.server.platform.db.migration.step.RenameVarcharColumnChange;
 
 import static java.sql.Types.VARCHAR;

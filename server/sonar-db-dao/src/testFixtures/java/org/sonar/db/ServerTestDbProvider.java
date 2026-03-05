@@ -19,6 +19,10 @@
  */
 package org.sonar.db;
 
+import java.util.Collection;
+import org.sonar.db.testfixtures.TestDb;
+import org.sonar.db.testfixtures.TestDbProvider;
+
 /**
  * Server TestDb provider that creates TestDbImpl instances with full SonarQube schema.
  * Loaded via ServiceLoader for standard SonarQube server testing.
@@ -27,5 +31,11 @@ public class ServerTestDbProvider implements TestDbProvider {
   @Override
   public TestDb create() {
     return TestDbImpl.create(null);
+  }
+
+  @Override
+  public MyBatis createMyBatis(Database db, Collection<BaseMyBatisConfExtension> extensions) {
+    return new DefaultMyBatis(db, extensions.toArray(new BaseMyBatisConfExtension[0]));
+    // Note: NOT calling start() — the DbTester is responsible for lifecycle management
   }
 }

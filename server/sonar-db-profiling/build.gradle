@@ -7,6 +7,7 @@ sonar {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
+  api 'com.zaxxer:HikariCP'
   api 'org.sonarsource.sonarqube:sonar-db-commons'
   api project(':server:sonar-process')
 

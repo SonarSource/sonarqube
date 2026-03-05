@@ -210,8 +210,8 @@ public class DbClient extends AbstractDbClient {
   private final IssueFixedDao issueFixedDao;
   private final TelemetryMetricsSentDao telemetryMetricsSentDao;
 
-  public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
-    super(database, myBatis, dbSessions, daos);
+  public DbClient(MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
+    super(myBatis, dbSessions, daos);
 
     almSettingDao = getDao(AlmSettingDao.class);
     auditDao = getDao(AuditDao.class);

@@ -20,11 +20,10 @@
 package org.sonar.db;
 
 import javax.annotation.Nullable;
-import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.sonar.db.testfixtures.AbstractSqlDbTester;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 
-public class MigrationDbTester extends AbstractSqlDbTester<MigrationTestDb> implements BeforeEachCallback, AfterEachCallback {
+public class MigrationDbTester extends AbstractSqlDbTester<MigrationTestDb> {
 
   private MigrationDbTester(@Nullable Class<? extends MigrationStep> migrationStepClass) {
     super(new MigrationTestDb(migrationStepClass));

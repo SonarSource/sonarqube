@@ -360,4 +360,13 @@ public class DefaultMyBatis extends AbstractMyBatis {
   protected void configureAfterMappersOnStart(MyBatisConfBuilder confBuilder) {
     confBuilder.loadMappers(MAPPERS);
   }
+
+  @Override
+  public void start() {
+    if (getCluster().getWriter().getDataSource() == null) {
+      // If this is thrown, it's probably because database.start() was not called before MyBatis was started.
+      throw new IllegalStateException("DefaultMyBatis assumes the database is already started and has a DataSource.");
+    }
+    super.start();
+  }
 }

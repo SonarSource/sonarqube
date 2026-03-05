@@ -39,6 +39,7 @@ dependencies {
   testRuntimeOnly 'com.oracle.database.jdbc:ojdbc11'
   testRuntimeOnly 'org.postgresql:postgresql'
 
+  testFixturesApi 'org.assertj:assertj-core'
   testFixturesApi 'org.junit.jupiter:junit-jupiter-api'
   testFixturesApi 'org.sonarsource.sonarqube:sonar-db-commons-testfixtures'
   testFixturesApi testFixtures(project(':server:sonar-db-migration'))
