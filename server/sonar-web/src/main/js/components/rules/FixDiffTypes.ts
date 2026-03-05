@@ -18,27 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-.status-text {
-  font-weight: 500;
-  padding-left: 3px;
+import { SourceLine } from '../../types/types';
+
+export interface DiffSourceLine extends SourceLine {
+  isRemoved?: boolean;
+  isAdded?: boolean;
+  originalLineNumber?: number; // Line number in original file (for removed/unchanged lines)
+  modifiedLineNumber?: number; // Line number in modified file (for added/unchanged lines)
+  uniqueId: string; // Added for unique identification
 }
 
-.magic-wand-text {
-    color: #008223;
+export interface SnippetRange {
+  start: number;
+  end: number;
 }
 
-.spinner-text {
-    color: #767676;
-}
-
-.warning-text {
-    color: #D92D20;
-}
-
-.lightning-text {
-    color: #3665EF;
-}
-
-.pull-request-text {
-    color: #A222A0;
-}

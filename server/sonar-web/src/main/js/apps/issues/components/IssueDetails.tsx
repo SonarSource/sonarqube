@@ -32,6 +32,7 @@ import {
 } from '~design-system';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { AiCodeFixTab } from '../../../components/rules/AiCodeFixTab';
+import { FixDiffTab } from '../../../components/rules/FixDiffTab';
 import IssueTabViewer from '../../../components/rules/IssueTabViewer';
 import { fillBranchLike } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
@@ -43,6 +44,15 @@ import { Component, Issue, Organization, Paging } from '../../../types/types';
 import SubnavigationIssuesList from '../issues-subnavigation/SubnavigationIssuesList';
 import IssueReviewHistoryAndComments from './IssueReviewHistoryAndComments';
 import IssuesSourceViewer from './IssuesSourceViewer';
+
+const AI_CODE_ASSISTANT_ASSIGNEE = 'ai-code-assistant';
+
+function isAssignedToAiCodeAssistant(issue: Issue): boolean {
+  return (
+    issue.assignee === AI_CODE_ASSISTANT_ASSIGNEE ||
+    issue.assigneeLogin === AI_CODE_ASSISTANT_ASSIGNEE
+  );
+}
 
 interface IssueDetailsProps {
   component?: Component;
@@ -187,6 +197,16 @@ export default function IssueDetails({
                               issue={openIssue}
                               language={openRuleDetails.lang}
                             />
+                          }
+                          fixDiffContent={
+                            isAssignedToAiCodeAssistant(openIssue)
+                              ? (
+                                  <FixDiffTab
+                                    branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
+                                    issue={openIssue}
+                                  />
+                                )
+                              : undefined
                           }
                           extendedDescription={openRuleDetails.htmlNote}
                           issue={openIssue}

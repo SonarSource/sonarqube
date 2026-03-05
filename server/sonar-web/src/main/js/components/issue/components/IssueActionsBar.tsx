@@ -21,6 +21,7 @@
 import { HighlightRing } from '~design-system';
 import { IssueActions } from '../../../types/issues';
 import { Issue } from '../../../types/types';
+import AiCodefixBadge from './IssueCodefixStatusBadge';
 import IssueAssign from './IssueAssign';
 import IssueTags from './IssueTags';
 import IssueTransition from './IssueTransition';
@@ -78,13 +79,9 @@ export default function IssueActionsBar(props: Readonly<Props>) {
             onAssign={onAssign}
           />
         </li>
-        {
-          props.showAiAssistantBadge &&
-          <div className="sparkle-label sw-mr-5">
-            <img src="/images/sparkle.svg" className="" alt="Sparkle" />
-            <span className="sparkle-text">Ai Fix Available</span>
-          </div>
-        }
+        {props.showAiAssistantBadge && (
+          <AiCodefixBadge issue={props.issue} />
+        )}
 
         {showTags && (
           <li>

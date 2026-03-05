@@ -17,12 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { postJSONBody } from '../helpers/request';
+import {
+  postJSONBody,
+  parseJSON,
+  post,
+  get,
+} from '../helpers/request';
+
+export interface CodefixFixedFileResponse {
+  jobId: string;
+  fixedFileContent: string;
+}
+
+export interface CodefixStatusResponse {
+  status: string;
+}
+
+const CODEFIX_BASE = '/_codescan/codefix';
 
 export function queueCodeFix(data: {
     organizationKey: string;
     projectKey: string;
     issueKey: string;
 }): Promise<void> {
-  return postJSONBody('/_codescan/codefix/queue', data);
+  return postJSONBody(`${CODEFIX_BASE}/queue`, data);
+}
+
+/**
+ * Fetches the fixed file content for an issue from the internal codefix API.
+ * Request is sent with same-origin credentials (session cookie) so the backend
+ * can authenticate the user. The backend must restrict this API to logged-in
+ * users and, when proxying to CodeScan, forward the request with the SQ token
+ * so it is not callable from outside with a raw token.
+ */
+export function getCodefixFixedFile(issueKey: string): Promise<CodefixFixedFileResponse> {
+  return get(`${CODEFIX_BASE}/fixed-file`, { issueKey }).then(parseJSON);
+}
+
+export function createCodefixPr(jobId: string): Promise<void> {
+  return post(`${CODEFIX_BASE}/create-pr/${encodeURIComponent(jobId)}`);
+}
+
+export function getCodefixStatus(issueKey: string): Promise<CodefixStatusResponse> {
+  return get(`${CODEFIX_BASE}/get-status`, { issueKey }).then(parseJSON);
 }

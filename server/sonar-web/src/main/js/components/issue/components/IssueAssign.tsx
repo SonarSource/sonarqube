@@ -19,6 +19,7 @@
  */
 
 import * as React from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Options, SingleValue } from 'react-select';
 import { LabelValueSelectOption, PopupZLevel, SearchSelectDropdown } from '~design-system';
 import { getUsers } from '../../../api/users';
@@ -34,7 +35,7 @@ interface Props {
   organization: string;
   canAssign: boolean;
   isOpen: boolean;
-  issue: Pick<Issue, 'assignee' | 'assigneeActive' | 'assigneeAvatar' | 'assigneeName' | 'projectOrganization' | 'organization'>;
+  issue: Pick<Issue, 'assignee' | 'assigneeActive' | 'assigneeAvatar' | 'assigneeName' | 'assigneeLogin' | 'aiCodeFixEnabled' | 'key' | 'projectKey' | 'projectOrganization' | 'organization'>;
   onAssign: (login: string) => void;
   togglePopup: (popup: string, show?: boolean) => void;
 }
@@ -55,6 +56,7 @@ export default function IssueAssignee(props: Props) {
 
   const assinedUser = assigneeName ?? assignee;
   const { currentUser } = React.useContext(CurrentUserContext);
+  const queryClient = useQueryClient();
   const [aiEnabled, setAiEnabled] = React.useState(false);
   
   const allowCurrentUserSelection = isLoggedIn(currentUser) && currentUser?.login !== assigneeLogin;
@@ -159,12 +161,17 @@ export default function IssueAssignee(props: Props) {
     if (userOption) {
       props.onAssign(userOption.value);
     }
-    if(userOption?.value === "ai-code-assistant") {
-    queueCodeFix({
-      organizationKey: props.issue.organization,
-      projectKey: props.issue.projectKey,
-      issueKey: props.issue.key,
-    });
+    if (userOption?.value === 'ai-code-assistant') {
+      const { key: issueKey, organization: organizationKey, projectKey } = props.issue;
+      queueCodeFix({
+        organizationKey,
+        projectKey: projectKey ?? '',
+        issueKey: issueKey ?? '',
+      }).then(() => {
+        if (issueKey) {
+          queryClient.invalidateQueries({ queryKey: ['codefix-status', issueKey] });
+        }
+      });
     }
   };
 
