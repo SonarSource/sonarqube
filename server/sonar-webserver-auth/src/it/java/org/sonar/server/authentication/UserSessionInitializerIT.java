@@ -112,6 +112,7 @@ public class UserSessionInitializerIT {
     assertPathIsIgnoredWithAnonymousAccess("/api/ce/resume");
     assertPathIsIgnoredWithAnonymousAccess("/api/system/health");
     assertPathIsIgnoredWithAnonymousAccess("/api/system/liveness");
+    assertPathIsIgnoredWithAnonymousAccess("/api/system/logs");
     assertPathIsIgnoredWithAnonymousAccess("/api/monitoring/metrics");
 
     // exclude static resources

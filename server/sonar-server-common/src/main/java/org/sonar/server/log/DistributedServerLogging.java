@@ -26,6 +26,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
@@ -56,6 +58,7 @@ import org.sonar.process.cluster.hz.HazelcastMember;
 import org.sonar.process.cluster.hz.HazelcastMemberSelectors;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
+import static java.net.InetAddress.getByName;
 import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.PROCESS_KEY;
 import static org.sonar.process.cluster.hz.HazelcastObjects.AUTH_SECRET;
 import static org.sonar.process.cluster.hz.HazelcastObjects.LOG_LEVEL_KEY;
@@ -216,7 +219,7 @@ public class DistributedServerLogging extends ServerLogging {
       return;
     }
 
-    String url = String.format("http://%s:%d%s/api/system/logs?name=%s", address, port, context, logName);
+    final String url = String.format("http://%s:%d%s/api/system/logs?name=%s", wrapIPv6AddressIfNeeded(address), port, context, logName);
     Request request = new Request.Builder().url(url)
       .addHeader(NODE_TO_NODE_SECRET, oneTimeToken)
       .build();
@@ -225,6 +228,19 @@ public class DistributedServerLogging extends ServerLogging {
       out.putNextEntry(createZipEntry(filePrefix, member.getUuid().toString()));
       addLogFromResponseToZip(response, out);
     }
+  }
+
+  @VisibleForTesting
+  static String wrapIPv6AddressIfNeeded(final String host) {
+    try {
+      InetAddress inetAddress = getByName(host);
+      if (inetAddress instanceof Inet6Address) {
+        return "[" + host + "]";
+      }
+    } catch (Exception e) {
+      LOGGER.debug("Could not resolve host {}, using as-is", host);
+    }
+    return host;
   }
 
   @VisibleForTesting

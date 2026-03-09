@@ -117,6 +117,7 @@ public class LogsActionIT {
     when(member2.getUuid()).thenReturn(UUID.fromString("00000000-0000-0000-0000-000000000003"));
     when(client.newCall(any())).thenReturn(call);
     when(response.body()).thenReturn(responseBody);
+    when(response.isSuccessful()).thenReturn(true);
     when(responseBody.source()).thenReturn(buffer);
     when(call.execute()).thenReturn(response);
     distributedServerLogging.start();

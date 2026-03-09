@@ -73,7 +73,7 @@ public class UserSessionInitializer {
     "/api/ce/info", "/api/ce/pause",
     "/api/ce/resume", "/api/system/health",
     "/api/system/analytics", "/api/system/migrate_es",
-    "/api/system/liveness",
+    "/api/system/liveness", "/api/system/logs",
     "/api/monitoring/metrics");
 
   private static final UrlPattern URL_PATTERN = UrlPattern.builder()

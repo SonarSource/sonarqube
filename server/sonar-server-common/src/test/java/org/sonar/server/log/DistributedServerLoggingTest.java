@@ -224,4 +224,56 @@ public class DistributedServerLoggingTest {
 
     assertThat(newInstance).isNotNull();
   }
+
+  @Test
+  public void wrapIPv6AddressIfNeeded_whenIPv4Address_shouldReturnAsIs() {
+    String result = DistributedServerLogging.wrapIPv6AddressIfNeeded("192.168.1.10");
+
+    assertThat(result).isEqualTo("192.168.1.10");
+  }
+
+  @Test
+  public void wrapIPv6AddressIfNeeded_whenFullIPv6Address_shouldWrapInBrackets() {
+    String result = DistributedServerLogging.wrapIPv6AddressIfNeeded("2001:db8:3::92");
+
+    assertThat(result).isEqualTo("[2001:db8:3::92]");
+  }
+
+  @Test
+  public void wrapIPv6AddressIfNeeded_whenHostname_shouldReturnAsIs() {
+    String result = DistributedServerLogging.wrapIPv6AddressIfNeeded("sonarqube-app1");
+
+    assertThat(result).isEqualTo("sonarqube-app1");
+  }
+
+  @Test
+  public void getDistributedLogs_whenResponseIsNotSuccessful_shouldContinueWithOtherNodes() throws IOException {
+    Call call = mock();
+    Response response = mock();
+    when(client.newCall(any())).thenReturn(call);
+    when(call.execute()).thenReturn(response);
+    when(response.isSuccessful()).thenReturn(false);
+    when(response.code()).thenReturn(401);
+
+    FileUtils.write(new File(dirWithLogs, "ce.log"), "ce_logs_data", Charset.defaultCharset());
+
+    File distributedLogs = underTest.getDistributedLogs("ce", "ce");
+
+    // Should still return a file with at least the local node's logs
+    assertThat(distributedLogs).isNotNull().exists();
+  }
+
+  @Test
+  public void getDistributedLogs_whenConnectionFails_shouldContinueWithOtherNodes() throws IOException {
+    Call call = mock();
+    when(client.newCall(any())).thenReturn(call);
+    when(call.execute()).thenThrow(new IOException("Connection refused"));
+
+    FileUtils.write(new File(dirWithLogs, "ce.log"), "ce_logs_data", Charset.defaultCharset());
+
+    File distributedLogs = underTest.getDistributedLogs("ce", "ce");
+
+    // Should still return a file with at least the local node's logs
+    assertThat(distributedLogs).isNotNull().exists();
+  }
 }
