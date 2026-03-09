@@ -209,7 +209,7 @@ public class DistributedServerLogging extends ServerLogging {
   }
 
   private void processMember(String filePrefix, String logName, Member member, WebAddress localWebAPIAddress,
-    String oneTimeToken, ZipOutputStream out) throws IOException {
+    String oneTimeToken, ZipOutputStream out) {
     WebAddress addressAndPort = retrieveWebAddressOfAMember(member);
     String address = addressAndPort.address;
 
@@ -225,8 +225,16 @@ public class DistributedServerLogging extends ServerLogging {
       .build();
 
     try (Response response = client.newCall(request).execute()) {
+      if (!response.isSuccessful()) {
+        LOGGER.warn("Failed to retrieve logs from node {} ({}:{}): HTTP {}", member.getUuid(), address, port, response.code());
+        return;
+      }
       out.putNextEntry(createZipEntry(filePrefix, member.getUuid().toString()));
       addLogFromResponseToZip(response, out);
+      out.closeEntry();
+    } catch (IOException e) {
+      LOGGER.warn("Failed to connect to node {} ({}:{}): {}", member.getUuid(), address, port, e.getMessage());
+      // Continue processing other nodes even if this one fails
     }
   }
 
