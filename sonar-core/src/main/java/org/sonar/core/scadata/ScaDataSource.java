@@ -70,4 +70,6 @@ public interface ScaDataSource {
   List<IssueRelease> getIssueReleasesByUuids(Collection<UUID> uuids);
     
   String getCycloneDxJsonSbom(String branchUuid);
+
+  String getJsonRisksReport(String branchUuid);
 }

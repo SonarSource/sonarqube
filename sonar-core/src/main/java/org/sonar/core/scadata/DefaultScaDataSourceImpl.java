@@ -48,4 +48,9 @@ public class DefaultScaDataSourceImpl implements ScaDataSource {
   public String getCycloneDxJsonSbom(String branchUuid) {
     return "";
   }
+
+  @Override
+  public String getJsonRisksReport(String branchUuid) {
+    return "";
+  }
 }

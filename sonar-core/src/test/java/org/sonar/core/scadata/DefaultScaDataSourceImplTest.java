@@ -50,4 +50,11 @@ public class DefaultScaDataSourceImplTest {
     assertEquals(0, metrics.issueCount());
     assertNull(metrics.finalRating());
   }
+
+  @Test
+  public void getJsonRisksReport_defaultsToEmptyString() {
+    var result = dataSource.getJsonRisksReport("branch-uuid");
+
+    assertEquals("", result);
+  }
 }
