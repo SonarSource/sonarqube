@@ -306,8 +306,6 @@ import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.ws.UsersWsModule;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.usergroups.ws.UserGroupsModule;
-import org.sonar.server.users.EffectiveRolesServiceImpl;
-import org.sonar.server.users.UsersServiceImpl;
 import org.sonar.server.usertoken.UserTokenModule;
 import org.sonar.server.usertoken.ws.UserTokenWsModule;
 import org.sonar.server.util.TypeValidationModule;
@@ -332,6 +330,7 @@ import org.sonarsource.compliancereports.reports.ComplianceReportService;
 import org.sonarsource.compliancereports.reports.MetadataLoader;
 import org.sonarsource.compliancereports.reports.MetadataRules;
 import org.sonarsource.organizations.server.OrganizationsServiceServerImpl;
+import org.sonarsource.users.server.bean.UsersServerComponents;
 
 import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
 import static org.sonar.core.extension.PlatformLevelPredicates.hasPlatformLevel4OrNone;
@@ -487,8 +486,6 @@ public class PlatformLevel4 extends PlatformLevel {
       SecurityRealmFactory.class,
       NewUserNotifier.class,
       UserUpdater.class,
-      EffectiveRolesServiceImpl.class,
-      UsersServiceImpl.class,
       new UsersWsModule(),
       new UserTokenModule(),
       new UserTokenWsModule(),
@@ -789,6 +786,9 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // sca-provided capabilities
       DefaultScaDataSourceImpl.class);
+
+    // registered via users-server-app
+    addAll(UsersServerComponents.components());
 
     // system info
     add(new SystemInfoWriterModule(getWebServer()));

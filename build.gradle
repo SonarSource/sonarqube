@@ -351,6 +351,7 @@ subprojects {
       dependency "org.sonarsource.api.plugin:sonar-plugin-api:$pluginApiVersion"
       dependency "org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures:$pluginApiVersion"
       dependency "org.sonarsource.sonarqube:users-api:$usersApiVersion"
+      dependency "org.sonarsource.sonarqube:users-server-app:$usersApiVersion"
       dependency 'org.sonarsource.xml:sonar-xml-plugin:2.16.0.7616'
       dependency 'org.sonarsource.iac:sonar-iac-plugin:2.6.1.19203'
       dependency 'com.sonarsource.iac:sonar-iac-enterprise-plugin:2.6.1.19203'
@@ -366,7 +367,7 @@ subprojects {
       dependency "org.sonarsource.sonarqube:webapp-assets:$webappVersion"
 
       // Shared libraries from sonarqube-unification
-      dependencySet(group: 'org.sonarsource.sonarqube', version: '1.3.0.1381') {
+      dependencySet(group: 'org.sonarsource.sonarqube', version: '1.4.0.1697') {
         entry 'sonar-db-commons'
         entry 'sonar-db-commons-testfixtures'
         entry 'sonar-spring'

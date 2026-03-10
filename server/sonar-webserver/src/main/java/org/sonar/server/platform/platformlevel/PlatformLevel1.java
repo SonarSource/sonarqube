@@ -37,6 +37,7 @@ import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DBSessionsImpl;
 import org.sonar.db.DaoModule;
 import org.sonar.db.DbClient;
+import org.sonarsource.users.server.bean.UsersServerPlatformLevel1Module;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.DefaultMyBatis;
 import org.sonar.db.StartMyBatis;
@@ -150,6 +151,8 @@ public class PlatformLevel1 extends PlatformLevel {
       NoOpAuditPersister.class
     );
     addAll(CorePropertyDefinitions.all());
+    // users
+    addAll(UsersServerPlatformLevel1Module.components());
 
     // cluster
     add(DefaultNodeInformation.class);

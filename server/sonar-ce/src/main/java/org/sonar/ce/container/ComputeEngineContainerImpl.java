@@ -162,6 +162,7 @@ import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.webhook.WebhookModule;
 import org.sonarqube.ws.Rules;
 import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
+import org.sonarsource.users.server.bean.UsersServerComponents;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
@@ -473,15 +474,12 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       QualityGateFinder.class,
       QualityGateEvaluatorImpl.class,
 
-      new AnalysisCacheCleaningModule(),
-
-      // Avatar resolution (needed for user operations in CE context)
-      org.sonar.server.common.avatar.AvatarResolverImpl.class,
-
-      // Users service API implementation
-      org.sonar.server.users.UsersServiceImpl.class
+      new AnalysisCacheCleaningModule()
 
     );
+
+    // registered via users-server-app
+    level4Container.add(toArray(UsersServerComponents.components()));
 
     if (props.valueAsBoolean(CLUSTER_ENABLED.getKey())) {
       level4Container.add(
