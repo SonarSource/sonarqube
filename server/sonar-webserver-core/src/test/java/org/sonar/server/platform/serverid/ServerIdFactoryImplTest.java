@@ -19,14 +19,11 @@
  */
 package org.sonar.server.platform.serverid;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.stream.Stream;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.core.platform.ServerId;
@@ -43,23 +40,22 @@ import static org.sonar.core.platform.ServerId.UUID_DATASET_ID_LENGTH;
 import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
 import static org.sonar.server.platform.serverid.ServerIdFactoryImpl.crc32Hex;
 
-@RunWith(DataProviderRunner.class)
-public class ServerIdFactoryImplTest {
+class ServerIdFactoryImplTest {
   private static final ServerId A_SERVERID = ServerId.of(secure().nextAlphabetic(DATABASE_ID_LENGTH), secure().nextAlphabetic(UUID_DATASET_ID_LENGTH));
 
-  private MapSettings settings = new MapSettings();
-  private Configuration config = settings.asConfig();
-  private ServerIdGenerator serverIdGenerator = spy(new ServerIdGenerator());
-  private JdbcUrlSanitizer jdbcUrlSanitizer = mock(JdbcUrlSanitizer.class);
-  private ServerIdFactoryImpl underTest = new ServerIdFactoryImpl(config, serverIdGenerator, jdbcUrlSanitizer);
+  private final MapSettings settings = new MapSettings();
+  private final Configuration config = settings.asConfig();
+  private final ServerIdGenerator serverIdGenerator = spy(new ServerIdGenerator());
+  private final JdbcUrlSanitizer jdbcUrlSanitizer = mock(JdbcUrlSanitizer.class);
+  private final ServerIdFactoryImpl underTest = new ServerIdFactoryImpl(config, serverIdGenerator, jdbcUrlSanitizer);
 
   @Test
-  public void create_from_scratch_fails_with_ISE_if_JDBC_property_not_set() {
-    expectMissingJdbcUrlISE(() ->  underTest.create());
+  void create_from_scratch_fails_with_ISE_if_JDBC_property_not_set() {
+    expectMissingJdbcUrlISE(underTest::create);
   }
 
   @Test
-  public void create_from_scratch_creates_ServerId_from_JDBC_URL_and_new_uuid() {
+  void create_from_scratch_creates_ServerId_from_JDBC_URL_and_new_uuid() {
     String jdbcUrl = "jdbc";
     String sanitizedJdbcUrl = "sanitized_jdbc";
 
@@ -76,13 +72,13 @@ public class ServerIdFactoryImplTest {
   }
 
   @Test
-  public void create_from_ServerId_fails_with_ISE_if_JDBC_property_not_set() {
+  void create_from_ServerId_fails_with_ISE_if_JDBC_property_not_set() {
     expectMissingJdbcUrlISE(() -> underTest.create(A_SERVERID));
   }
 
-  @Test
-  @UseDataProvider("anyFormatServerId")
-  public void create_from_ServerId_creates_ServerId_from_JDBC_URL_and_serverId_datasetId(ServerId currentServerId) {
+  @ParameterizedTest
+  @MethodSource("anyFormatServerId")
+  void create_from_ServerId_creates_ServerId_from_JDBC_URL_and_serverId_datasetId(ServerId currentServerId) {
     String jdbcUrl = "jdbc";
     String sanitizedJdbcUrl = "sanitized_jdbc";
     settings.setProperty(JDBC_URL.getKey(), jdbcUrl);
@@ -95,15 +91,11 @@ public class ServerIdFactoryImplTest {
     assertThat(serverId.getDatasetId()).isEqualTo(currentServerId.getDatasetId());
   }
 
-  @DataProvider
-  public static Object[][] anyFormatServerId() {
-    return new Object[][] {
-      {ServerId.parse(new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()))},
-      {ServerId.parse(secure().nextAlphabetic(NOT_UUID_DATASET_ID_LENGTH))},
-      {ServerId.parse(secure().nextAlphabetic(UUID_DATASET_ID_LENGTH))},
-      {ServerId.of(secure().nextAlphabetic(DATABASE_ID_LENGTH), secure().nextAlphabetic(NOT_UUID_DATASET_ID_LENGTH))},
-      {ServerId.of(secure().nextAlphabetic(DATABASE_ID_LENGTH), secure().nextAlphabetic(UUID_DATASET_ID_LENGTH))}
-    };
+  static Stream<ServerId> anyFormatServerId() {
+    return Stream.of(
+      ServerId.of(secure().nextAlphabetic(DATABASE_ID_LENGTH), secure().nextAlphabetic(NOT_UUID_DATASET_ID_LENGTH)),
+      ServerId.of(secure().nextAlphabetic(DATABASE_ID_LENGTH), secure().nextAlphabetic(UUID_DATASET_ID_LENGTH))
+    );
   }
 
   private void expectMissingJdbcUrlISE(ThrowingCallable callback) {

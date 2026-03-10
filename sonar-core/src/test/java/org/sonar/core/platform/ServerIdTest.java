@@ -36,9 +36,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.core.platform.ServerId.DATABASE_ID_LENGTH;
 import static org.sonar.core.platform.ServerId.DEPRECATED_SERVER_ID_LENGTH;
-import static org.sonar.core.platform.ServerId.Format.DEPRECATED;
-import static org.sonar.core.platform.ServerId.Format.NO_DATABASE_ID;
-import static org.sonar.core.platform.ServerId.Format.WITH_DATABASE_ID;
 import static org.sonar.core.platform.ServerId.NOT_UUID_DATASET_ID_LENGTH;
 import static org.sonar.core.platform.ServerId.SPLIT_CHARACTER;
 import static org.sonar.core.platform.ServerId.UUID_DATASET_ID_LENGTH;
@@ -85,7 +82,7 @@ public class ServerIdTest {
     String startWithSplitChar = SPLIT_CHARACTER + secure().nextAlphabetic(DATABASE_ID_LENGTH - 1);
 
     Stream<String> databaseIds = Stream.of(
-            OLD_UUID_FORMAT,
+      OLD_UUID_FORMAT,
       secure().nextAlphabetic(NOT_UUID_DATASET_ID_LENGTH),
       secure().nextAlphabetic(UUID_DATASET_ID_LENGTH),
       repeat(SPLIT_CHARACTER + "", NOT_UUID_DATASET_ID_LENGTH),
@@ -106,26 +103,20 @@ public class ServerIdTest {
   }
 
   @Test
-  public void parse_parses_deprecated_format_serverId() {
+  public void parse_throws_IAE_for_deprecated_format_serverId() {
     String deprecated = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
 
-    ServerId serverId = ServerId.parse(deprecated);
-
-    assertThat(serverId.getFormat()).isEqualTo(DEPRECATED);
-    assertThat(serverId.getDatasetId()).isEqualTo(deprecated);
-    assertThat(serverId.getDatabaseId()).isEmpty();
-    assertThat(serverId).hasToString(deprecated);
+    assertThatThrownBy(() -> ServerId.parse(deprecated))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("serverId does not have a supported length. Only WITH_DATABASE_ID format is supported.");
   }
 
   @Test
   @UseDataProvider("validOldFormatServerIds")
-  public void parse_parses_no_databaseId_format_serverId(String noDatabaseId) {
-    ServerId serverId = ServerId.parse(noDatabaseId);
-
-    assertThat(serverId.getFormat()).isEqualTo(NO_DATABASE_ID);
-    assertThat(serverId.getDatasetId()).isEqualTo(noDatabaseId);
-    assertThat(serverId.getDatabaseId()).isEmpty();
-    assertThat(serverId).hasToString(noDatabaseId);
+  public void parse_throws_IAE_for_no_databaseId_format_serverId(String noDatabaseId) {
+    assertThatThrownBy(() -> ServerId.parse(noDatabaseId))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("serverId does not have a supported length. Only WITH_DATABASE_ID format is supported.");
   }
 
   @DataProvider
@@ -146,7 +137,6 @@ public class ServerIdTest {
 
     ServerId serverId = ServerId.parse(rawServerId);
 
-    assertThat(serverId.getFormat()).isEqualTo(WITH_DATABASE_ID);
     assertThat(serverId.getDatasetId()).isEqualTo(datasetId);
     assertThat(serverId.getDatabaseId()).contains(databaseId);
     assertThat(serverId).hasToString(rawServerId);
@@ -165,39 +155,47 @@ public class ServerIdTest {
 
   @Test
   public void parse_does_not_support_deprecated_server_id_with_database_id() {
-    assertThatThrownBy(() -> ServerId.parse(secure().nextAlphabetic(DATABASE_ID_LENGTH) + SPLIT_CHARACTER + secure().nextAlphabetic(DEPRECATED_SERVER_ID_LENGTH)))
+    String deprecatedServerId = secure().nextAlphabetic(DATABASE_ID_LENGTH) + SPLIT_CHARACTER + secure().nextAlphabetic(DEPRECATED_SERVER_ID_LENGTH);
+
+    assertThatThrownBy(() -> ServerId.parse(deprecatedServerId))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("serverId does not have a supported length");
+      .hasMessage("serverId does not have a supported length. Only WITH_DATABASE_ID format is supported.");
   }
 
   @Test
   public void of_throws_NPE_if_datasetId_is_null() {
-    assertThatThrownBy(() -> ServerId.of(secure().nextAlphabetic(DATABASE_ID_LENGTH), null))
+    String databaseId = secure().nextAlphabetic(DATABASE_ID_LENGTH);
+
+    assertThatThrownBy(() -> ServerId.of(databaseId, null))
       .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void of_throws_IAE_if_datasetId_is_empty() {
-    assertThatThrownBy(() -> ServerId.of(secure().nextAlphabetic(DATABASE_ID_LENGTH), ""))
+    String databaseId = secure().nextAlphabetic(DATABASE_ID_LENGTH);
+
+    assertThatThrownBy(() -> ServerId.of(databaseId, ""))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Illegal datasetId length (0)");
   }
 
   @Test
   public void of_throws_IAE_if_databaseId_is_empty() {
-    assertThatThrownBy(() -> ServerId.of("", secure().nextAlphabetic(UUID_DATASET_ID_LENGTH)))
+    String datasetId = secure().nextAlphabetic(UUID_DATASET_ID_LENGTH);
+
+    assertThatThrownBy(() -> ServerId.of("", datasetId))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Illegal databaseId length (0)");
   }
 
   @Test
   @UseDataProvider("datasetIdSupportedLengths")
-  public void of_accepts_null_databaseId(int datasetIdLength) {
+  public void of_throws_IAE_for_null_databaseId(int datasetIdLength) {
     String datasetId = secure().nextAlphabetic(datasetIdLength);
-    ServerId serverId = ServerId.of(null, datasetId);
 
-    assertThat(serverId.getDatabaseId()).isEmpty();
-    assertThat(serverId.getDatasetId()).isEqualTo(datasetId);
+    assertThatThrownBy(() -> ServerId.of(null, datasetId))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("databaseId is required. Deprecated formats without database ID are no longer supported.");
   }
 
   @Test
@@ -258,12 +256,13 @@ public class ServerIdTest {
       .isNotEqualTo(ServerId.of(databaseId, otherDatasetId))
       .isNotEqualTo(ServerId.of(otherDatabaseId, otherDatasetId));
 
-    ServerId oldServerId = ServerId.parse(datasetId);
-    assertThat(oldServerId)
-      .isEqualTo(oldServerId)
-      .isEqualTo(ServerId.parse(datasetId))
-      .isNotEqualTo(ServerId.parse(otherDatasetId))
-      .isNotEqualTo(ServerId.of(databaseId, datasetId));
+    ServerId withDatabaseId = ServerId.of(databaseId, datasetId);
+    ServerId withOtherDatabaseId = ServerId.of(otherDatabaseId, datasetId);
+    assertThat(withDatabaseId)
+      .isEqualTo(withDatabaseId)
+      .isEqualTo(ServerId.of(databaseId, datasetId))
+      .isNotEqualTo(withOtherDatabaseId)
+      .isNotEqualTo(ServerId.of(databaseId, otherDatasetId));
   }
 
   @Test
@@ -284,13 +283,14 @@ public class ServerIdTest {
       .isNotEqualTo(ServerId.of(databaseId, otherDatasetId).hashCode())
       .isNotEqualTo(ServerId.of(otherDatabaseId, otherDatasetId).hashCode());
 
-    ServerId oldServerId = ServerId.parse(datasetId);
-    assertThat(oldServerId)
-      .hasSameHashCodeAs(oldServerId)
-      .hasSameHashCodeAs(ServerId.parse(datasetId));
-    assertThat(oldServerId.hashCode())
-      .isNotEqualTo(ServerId.parse(otherDatasetId).hashCode())
-      .isNotEqualTo(ServerId.of(databaseId, datasetId).hashCode());
+    ServerId withDatabaseId = ServerId.of(databaseId, datasetId);
+    ServerId withOtherDatabaseId = ServerId.of(otherDatabaseId, datasetId);
+    assertThat(withDatabaseId)
+      .hasSameHashCodeAs(withDatabaseId)
+      .hasSameHashCodeAs(ServerId.of(databaseId, datasetId));
+    assertThat(withDatabaseId.hashCode())
+      .isNotEqualTo(withOtherDatabaseId.hashCode())
+      .isNotEqualTo(ServerId.of(databaseId, otherDatasetId).hashCode());
   }
 
   @DataProvider
