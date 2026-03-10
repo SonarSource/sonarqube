@@ -87,6 +87,7 @@ import static org.sonar.server.issue.ws.SearchAdditionalField.COMMENTS;
 import static org.sonar.server.issue.ws.SearchAdditionalField.RULE_DESCRIPTION_CONTEXT_KEY;
 import static org.sonar.server.issue.ws.SearchAdditionalField.TRANSITIONS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE_CODEFIX_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 
 public class SearchResponseFormat {
@@ -441,12 +442,36 @@ public class SearchResponseFormat {
       .filter(f -> !f.equals(FACET_ASSIGNED_TO_ME))
       .filter(f -> !f.equals(PARAM_ASSIGNEES))
       .filter(f -> !f.equals(PARAM_RULES))
+      .filter(f -> !f.equals(PARAM_ISSUE_CODEFIX_STATUSES))
       .forEach(f -> computeStandardFacet(wsFacets, facets, f));
     computeAssigneesFacet(wsFacets, facets, data);
     computeAssignedToMeFacet(wsFacets, facets, data);
     computeRulesFacet(wsFacets, facets, data);
     computeProjectsFacet(wsFacets, facets, data);
+    computeCodefixStatusFacet(wsFacets, facets);
     wsSearch.setFacets(wsFacets.build());
+  }
+
+  /**
+   * Codefix status facet: ES stores backend values (AVAILABLE, PENDING, IN_PROGRESS, ...).
+   * Map to frontend values (AI_FIX_AVAILABLE, AI_FIX_IN_PROGRESS, ...). AI_FIX_IN_PROGRESS = PENDING + IN_PROGRESS.
+   */
+  private static void computeCodefixStatusFacet(Common.Facets.Builder wsFacets, Facets facets) {
+    LinkedHashMap<String, Long> facet = facets.get(PARAM_ISSUE_CODEFIX_STATUSES);
+    if (facet == null) {
+      return;
+    }
+    Common.Facet.Builder wsFacet = wsFacets.addFacetsBuilder();
+    wsFacet.setProperty(PARAM_ISSUE_CODEFIX_STATUSES);
+     Map<String, List<String>> frontendToBackends = SearchAction.CODEFIX_STATUS_FRONTEND_TO_BACKEND;
+    for (String frontendValue : SearchAction.CODEFIX_STATUS_FRONTEND_VALUES) {
+      List<String> backendValues = frontendToBackends.get(frontendValue);
+      long count = backendValues != null
+        ? backendValues.stream().mapToLong(b -> facet.getOrDefault(b, 0L)).sum()
+        : 0L;
+      wsFacet.addValuesBuilder().setVal(frontendValue).setCount(count).build();
+    }
+    wsFacet.build();
   }
 
   private static void computeStandardFacet(Common.Facets.Builder wsFacets, Facets facets, String facetKey) {

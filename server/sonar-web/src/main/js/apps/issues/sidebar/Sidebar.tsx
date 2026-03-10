@@ -42,6 +42,7 @@ import { GlobalSettingKeys } from '../../../types/settings';
 import { Component, Dict, Organization } from '../../../types/types';
 import { UserBase } from '../../../types/users';
 import { Query } from '../utils';
+import { AiCodeAssistantFacet } from './AiCodeAssistantFacet';
 import { AssigneeFacet } from './AssigneeFacet';
 import { AttributeCategoryFacet } from './AttributeCategoryFacet';
 import { AuthorFacet } from './AuthorFacet';
@@ -474,6 +475,18 @@ export function Sidebar(props: Readonly<Props>) {
                   />
                 </>
               )}
+
+              <BasicSeparator className="sw-my-4" />
+
+              <AiCodeAssistantFacet
+                issueCodefixStatuses={query.issueCodefixStatuses}
+                fetching={props.loadingFacets.issueCodefixStatuses === true}
+                needIssueSync={needIssueSync}
+                onChange={props.onFilterChange}
+                onToggle={props.onFacetToggle}
+                open={!!openFacets.issueCodefixStatuses}
+                stats={facets.issueCodefixStatuses}
+              />
 
               <BasicSeparator className="sw-my-4" />
 

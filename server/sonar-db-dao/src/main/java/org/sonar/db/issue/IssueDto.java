@@ -90,6 +90,9 @@ public final class IssueDto implements Serializable {
   private boolean prioritizedRule;
 
   @Nullable
+  private String codefixStatus;
+
+  @Nullable
   private Long issueResolutionExpiresAt;
 
   // functional dates stored as Long
@@ -222,6 +225,7 @@ public final class IssueDto implements Serializable {
       .setCodeVariants(issue.codeVariants())
       .setCleanCodeAttribute(issue.getCleanCodeAttribute())
       .setPrioritizedRule(issue.isPrioritizedRule())
+      .setCodefixStatus(issue.getCodefixStatus())
       .setIssueResolutionExpiresAt(issue.issueResolutionExpiresAt())
       // technical date
       .setUpdatedAt(now);
@@ -888,6 +892,16 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
+  @Nullable
+  public String getCodefixStatus() {
+    return codefixStatus;
+  }
+
+  public IssueDto setCodefixStatus(@Nullable String codefixStatus) {
+    this.codefixStatus = codefixStatus;
+    return this;
+  }
+
   public String getCveId() {
     return cveId;
   }
@@ -916,6 +930,7 @@ public final class IssueDto implements Serializable {
     issue.setChecksum(checksum);
     issue.setSeverity(severity);
     issue.setPrioritizedRule(prioritizedRule);
+    issue.setCodefixStatus(codefixStatus);
     issue.setAssigneeUuid(assigneeUuid);
     issue.setAssigneeLogin(assigneeLogin);
     issue.setComponentKey(componentKey);

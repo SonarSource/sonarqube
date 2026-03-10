@@ -43,6 +43,7 @@
     i.quick_fix_available as quickFixAvailable,
     i.code_variants as codeVariantsString,
     i.prioritized_rule as prioritizedRule,
+    i.codefix_status as codefixStatus,
     i.issue_resolution_expires_at AS issueResolutionExpiresAt,
     <include refid="issueImpactsColumns"/>
     <include refid="ruleDefaultImpactsColumns"/>
@@ -235,7 +236,8 @@
     issue_type=#{type,jdbcType=INTEGER},
     code_variants=#{codeVariantsString,jdbcType=VARCHAR},
     clean_code_attribute=#{effectiveCleanCodeAttribute,jdbcType=VARCHAR},
-    prioritized_rule=#{prioritizedRule,jdbcType=BOOLEAN}
+    prioritized_rule=#{prioritizedRule,jdbcType=BOOLEAN},
+    codefix_status=#{codefixStatus,jdbcType=VARCHAR}
     where kee = #{kee}
   </update>
 
@@ -268,7 +270,8 @@
     issue_type=#{type,jdbcType=INTEGER},
     code_variants=#{codeVariantsString,jdbcType=VARCHAR},
     clean_code_attribute=#{effectiveCleanCodeAttribute,jdbcType=VARCHAR},
-    prioritized_rule=#{prioritizedRule,jdbcType=BOOLEAN}
+    prioritized_rule=#{prioritizedRule,jdbcType=BOOLEAN},
+    codefix_status=#{codefixStatus,jdbcType=VARCHAR}
     where kee = #{kee} and updated_at &lt;= #{selectedAt}
   </update>
 
@@ -388,6 +391,7 @@
       c.qualifier,
       i.code_variants as codeVariants,
       i.prioritized_rule as prioritizedRule,
+      COALESCE(i.codefix_status, CASE WHEN r.ai_code_fix_enabled = true THEN 'AVAILABLE' END) as codefixStatus,
       <include refid="issueImpactsColumns"/>
       <include refid="ruleDefaultImpactsColumns"/>
       <include refid="issuesDependencyColumns"/>

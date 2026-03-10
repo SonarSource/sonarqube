@@ -39,6 +39,7 @@ type AiCodefixStatusDisplay = {
 
 function getAiCodefixStatusDisplay(status: string): AiCodefixStatusDisplay {
   const s = (status || '').toUpperCase();
+  console.log(s);
   if (s === 'PENDING' || s === 'IN_PROGRESS') {
     return {
       icon: '/images/spinner.svg',
@@ -94,7 +95,7 @@ export default function AiCodefixBadge({ issue }: { issue: Issue }) {
         : false;
     },
   });
-
+  console.log(getCodefixStatus(issue.key));
   if (!assignedToAi || isLoading || isError || !statusData?.status) {
     return (
       <div className="sparkle-label sw-mr-5">

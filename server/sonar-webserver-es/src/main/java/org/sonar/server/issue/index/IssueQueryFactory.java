@@ -144,6 +144,7 @@ public class IssueQueryFactory {
         .statuses(request.getStatuses())
         .resolutions(request.getResolutions())
         .issueStatuses(request.getIssueStatuses())
+        .issueCodefixStatuses(request.getIssueCodefixStatuses())
         .resolved(request.getResolved())
         .prioritizedRule(request.getPrioritizedRule())
         .rules(ruleDtos)

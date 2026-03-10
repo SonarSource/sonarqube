@@ -243,6 +243,16 @@ public class IssueDoc extends BaseDoc {
     return this;
   }
 
+  @CheckForNull
+  public String getCodefixStatus() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_CODEFIX_STATUS);
+  }
+
+  public IssueDoc setCodefixStatus(@Nullable String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_CODEFIX_STATUS, s);
+    return this;
+  }
+
   public IssueDoc setAssigneeUuid(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID, s);
     return this;

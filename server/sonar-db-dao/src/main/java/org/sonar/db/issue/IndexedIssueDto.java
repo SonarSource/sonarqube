@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
@@ -60,6 +61,7 @@ public final class IndexedIssueDto {
   private boolean isNewCodeReferenceIssue = false;
   private String codeVariants = null;
   private boolean prioritizedRule = false;
+  private String codefixStatus = null;
 
   private Set<ImpactDto> impacts = new HashSet<>();
   private Set<ImpactDto> ruleDefaultImpacts = new HashSet<>();
@@ -349,6 +351,16 @@ public final class IndexedIssueDto {
 
   public IndexedIssueDto setPrioritizedRule(boolean prioritizedRule) {
     this.prioritizedRule = prioritizedRule;
+    return this;
+  }
+
+  @CheckForNull
+  public String getCodefixStatus() {
+    return codefixStatus;
+  }
+
+  public IndexedIssueDto setCodefixStatus(@Nullable String codefixStatus) {
+    this.codefixStatus = codefixStatus;
     return this;
   }
 }

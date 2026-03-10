@@ -74,6 +74,15 @@ export enum IssueStatus {
   FalsePositive = 'FALSE_POSITIVE',
 }
 
+/** AI Codefix status values for the "AI Code Assistant" filter */
+export enum IssueCodefixStatus {
+  AiFixAvailable = 'AI_FIX_AVAILABLE',
+  AiFixGenerated = 'AI_FIX_GENERATED',
+  AiFixFailed = 'AI_FIX_FAILED',
+  AiFixInProgress = 'AI_FIX_IN_PROGRESS',
+  PullRequestCreated = 'PULL_REQUEST_CREATED',
+}
+
 export enum IssueActions {
   SetType = 'set_type',
   SetTags = 'set_tags',
@@ -228,6 +237,7 @@ export interface Facet {
 }
 
 export enum FacetName {
+  AiCodefixStatuses = 'issueCodefixStatuses',
   AssignedToMe = 'assigned_to_me',
   Assignees = 'assignees',
   Author = 'author',
