@@ -30,8 +30,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
+import org.sonar.api.utils.System2;
 import org.sonar.process.ProcessId;
-import org.sonar.process.System2;
 
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -94,7 +94,7 @@ public class AbstractCommandTest {
     File workDir = temp.newFolder();
     System2 system2 = Mockito.mock(System2.class);
     Map<String, String> env = IntStream.range(0, 1 + new Random().nextInt(99)).mapToObj(String::valueOf).collect(Collectors.toMap(i -> "key" + i, j -> "value" + j));
-    when(system2.getenv()).thenReturn(env);
+    when(system2.envVariables()).thenReturn(env);
     AbstractCommand underTest = new AbstractCommand(ProcessId.ELASTICSEARCH, workDir, system2) {
 
     };
@@ -109,7 +109,7 @@ public class AbstractCommandTest {
     Map<String, String> env = new HashMap<>();
     String key1 = secure().nextAlphanumeric(3);
     env.put(key1, secure().nextAlphanumeric(9));
-    when(system2.getenv()).thenReturn(env);
+    when(system2.envVariables()).thenReturn(env);
     AbstractCommand underTest = new AbstractCommand(ProcessId.ELASTICSEARCH, workDir, system2) {
 
     };

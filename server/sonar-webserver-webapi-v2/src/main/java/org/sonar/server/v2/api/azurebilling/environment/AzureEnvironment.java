@@ -21,7 +21,7 @@ package org.sonar.server.v2.api.azurebilling.environment;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Optional;
-import org.sonar.process.System2;
+import org.sonar.api.utils.System2;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class AzureEnvironment {
@@ -44,18 +44,18 @@ public class AzureEnvironment {
   }
 
   public boolean isAzureBillingEnabled() {
-    return Boolean.parseBoolean(system2.getenv(MARKETPLACE_AZURE_BILLING));
+    return Boolean.parseBoolean(system2.envVariable(MARKETPLACE_AZURE_BILLING));
   }
 
   public Optional<String> getAzureClientId() {
-    return Optional.ofNullable(system2.getenv(CLIENT_ID));
+    return Optional.ofNullable(system2.envVariable(CLIENT_ID));
   }
 
   public Optional<String> getResourceId() {
-    return Optional.ofNullable(system2.getenv(EXTENSION_RESOURCE_ID));
+    return Optional.ofNullable(system2.envVariable(EXTENSION_RESOURCE_ID));
   }
 
   public Optional<String> getPlanId() {
-    return Optional.ofNullable(system2.getenv(PLAN_ID));
+    return Optional.ofNullable(system2.envVariable(PLAN_ID));
   }
 }

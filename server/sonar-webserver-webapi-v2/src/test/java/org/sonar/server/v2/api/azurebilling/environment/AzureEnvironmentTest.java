@@ -20,9 +20,8 @@
 package org.sonar.server.v2.api.azurebilling.environment;
 
 import java.util.Map;
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
-import org.sonar.process.System2;
+import org.sonar.api.utils.System2;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -55,24 +54,17 @@ class AzureEnvironmentTest {
     assertEquals("plan-id", underTest.getPlanId().orElse(null));
   }
 
-  private static class testSystemEnv implements System2 {
+  private static class testSystemEnv extends System2 {
+
+    private final Map<String, String> envVariables = Map.of(
+      MARKETPLACE_AZURE_BILLING, "true",
+      CLIENT_ID, "client-id",
+      EXTENSION_RESOURCE_ID, "resource-id",
+      PLAN_ID, "plan-id");
 
     @Override
-    public Map<String, String> getenv() {
-      return Map.of(MARKETPLACE_AZURE_BILLING, "true",
-                    CLIENT_ID, "client-id",
-                    EXTENSION_RESOURCE_ID, "resource-id",
-                    PLAN_ID, "plan-id");
-    }
-
-    @Override
-    public String getenv(String name) {
-      return getenv().get(name);
-    }
-
-    @Override
-    public boolean isOsWindows() {
-      throw new NotImplementedException("Method not implemented");
+    public String envVariable(String name) {
+      return envVariables.get(name);
     }
   }
 

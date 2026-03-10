@@ -25,9 +25,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import org.sonar.api.utils.System2;
 import org.sonar.application.es.EsInstallation;
 import org.sonar.process.ProcessId;
-import org.sonar.process.System2;
 
 import static java.util.Objects.requireNonNull;
 
@@ -42,7 +42,7 @@ public abstract class AbstractCommand<T extends AbstractCommand> {
   protected AbstractCommand(ProcessId id, File workDir, System2 system2) {
     this.id = requireNonNull(id, "ProcessId can't be null");
     this.workDir = requireNonNull(workDir, "workDir can't be null");
-    this.envVariables = new HashMap<>(system2.getenv());
+    this.envVariables = new HashMap<>(system2.envVariables());
   }
 
   public ProcessId getProcessId() {
@@ -79,7 +79,6 @@ public abstract class AbstractCommand<T extends AbstractCommand> {
       requireNonNull(value, "value can't be null"));
     return castThis();
   }
-
 
   public T setEsInstallation(EsInstallation esInstallation) {
     this.esInstallation = esInstallation;

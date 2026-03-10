@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.internal.MetadataLoader;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.application.es.EsInstallation;
 import org.sonar.application.es.EsLogging;
@@ -33,7 +34,6 @@ import org.sonar.application.es.EsYmlSettings;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
-import org.sonar.process.System2;
 
 import static org.sonar.process.ProcessProperties.parseTimeoutMs;
 import static org.sonar.process.ProcessProperties.Property.CE_GRACEFUL_STOP_TIMEOUT;
@@ -80,13 +80,13 @@ public class CommandFactoryImpl implements CommandFactory {
   public CommandFactoryImpl(Props props, File tempDir, System2 system2) {
     this.props = props;
     this.tempDir = tempDir;
-    String javaToolOptions = system2.getenv(ENV_VAR_JAVA_TOOL_OPTIONS);
+    String javaToolOptions = system2.envVariable(ENV_VAR_JAVA_TOOL_OPTIONS);
     if (javaToolOptions != null && !javaToolOptions.trim().isEmpty()) {
       LoggerFactory.getLogger(CommandFactoryImpl.class)
         .warn("JAVA_TOOL_OPTIONS is defined but will be ignored. " +
           "Use properties sonar.*.javaOpts and/or sonar.*.javaAdditionalOpts in sonar.properties to change SQ JVM processes options");
     }
-    String esJavaOpts = system2.getenv(ENV_VAR_ES_JAVA_OPTS);
+    String esJavaOpts = system2.envVariable(ENV_VAR_ES_JAVA_OPTS);
     if (esJavaOpts != null && !esJavaOpts.trim().isEmpty()) {
       LoggerFactory.getLogger(CommandFactoryImpl.class)
         .warn("ES_JAVA_OPTS is defined but will be ignored. " +

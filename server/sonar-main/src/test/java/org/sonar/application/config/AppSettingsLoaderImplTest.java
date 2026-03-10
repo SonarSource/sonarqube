@@ -28,8 +28,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.utils.System2;
 import org.sonar.core.extension.ServiceLoaderWrapper;
-import org.sonar.process.System2;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,13 +65,13 @@ public class AppSettingsLoaderImplTest {
 
   @Test
   public void load_properties_from_env() throws Exception {
-    when(system.getenv()).thenReturn(ImmutableMap.of(
+    when(system.envVariables()).thenReturn(ImmutableMap.of(
       "SONAR_DASHED_PROPERTY", "2",
       "SONAR_JDBC_URL", "some_jdbc_url",
       "SONAR_EMBEDDEDDATABASE_PORT", "8765"));
-    when(system.getenv("SONAR_DASHED_PROPERTY")).thenReturn("2");
-    when(system.getenv("SONAR_JDBC_URL")).thenReturn("some_jdbc_url");
-    when(system.getenv("SONAR_EMBEDDEDDATABASE_PORT")).thenReturn("8765");
+    when(system.envVariable("SONAR_DASHED_PROPERTY")).thenReturn("2");
+    when(system.envVariable("SONAR_JDBC_URL")).thenReturn("some_jdbc_url");
+    when(system.envVariable("SONAR_EMBEDDEDDATABASE_PORT")).thenReturn("8765");
     File homeDir = temp.newFolder();
     File propsFile = new File(homeDir, "conf/sonar.properties");
     FileUtils.write(propsFile, "sonar.dashed-property=1", UTF_8);
@@ -87,11 +87,11 @@ public class AppSettingsLoaderImplTest {
 
   @Test
   public void load_multi_ldap_settings() throws IOException {
-    when(system.getenv()).thenReturn(ImmutableMap.of(
+    when(system.envVariables()).thenReturn(ImmutableMap.of(
       "LDAP_FOO_URL", "url1",
       "LDAP_RANDOM_PROP", "5"));
-    when(system.getenv("LDAP_FOO_URL")).thenReturn("url1");
-    when(system.getenv("LDAP_RANDOM_PROP")).thenReturn("5");
+    when(system.envVariable("LDAP_FOO_URL")).thenReturn("url1");
+    when(system.envVariable("LDAP_RANDOM_PROP")).thenReturn("5");
     File homeDir = temp.newFolder();
     File propsFile = new File(homeDir, "conf/sonar.properties");
     FileUtils.write(propsFile, "ldap.servers=foo,bar\n" +
@@ -155,8 +155,8 @@ public class AppSettingsLoaderImplTest {
 
   @Test
   public void env_vars_take_precedence_over_properties_file() throws Exception {
-    when(system.getenv()).thenReturn(ImmutableMap.of("SONAR_CUSTOMPROP", "11"));
-    when(system.getenv("SONAR_CUSTOMPROP")).thenReturn("11");
+    when(system.envVariables()).thenReturn(ImmutableMap.of("SONAR_CUSTOMPROP", "11"));
+    when(system.envVariable("SONAR_CUSTOMPROP")).thenReturn("11");
     File homeDir = temp.newFolder();
     File propsFile = new File(homeDir, "conf/sonar.properties");
     FileUtils.write(propsFile, "sonar.customProp=10", UTF_8);
@@ -169,8 +169,8 @@ public class AppSettingsLoaderImplTest {
 
   @Test
   public void command_line_arguments_take_precedence_over_env_vars() throws Exception {
-    when(system.getenv()).thenReturn(ImmutableMap.of("SONAR_CUSTOMPROP", "11"));
-    when(system.getenv("SONAR_CUSTOMPROP")).thenReturn("11");
+    when(system.envVariables()).thenReturn(ImmutableMap.of("SONAR_CUSTOMPROP", "11"));
+    when(system.envVariable("SONAR_CUSTOMPROP")).thenReturn("11");
     File homeDir = temp.newFolder();
     File propsFile = new File(homeDir, "conf/sonar.properties");
     FileUtils.write(propsFile, "sonar.customProp=10", UTF_8);

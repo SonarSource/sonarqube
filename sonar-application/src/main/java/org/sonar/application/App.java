@@ -20,13 +20,13 @@
 package org.sonar.application;
 
 import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.System2;
 import org.sonar.application.command.CommandFactory;
 import org.sonar.application.command.CommandFactoryImpl;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.AppSettingsLoader;
 import org.sonar.application.config.AppSettingsLoaderImpl;
 import org.sonar.core.extension.ServiceLoaderWrapper;
-import org.sonar.process.System2;
 import org.sonar.process.SystemExit;
 
 import static org.sonar.application.config.SonarQubeVersionHelper.getSonarqubeVersion;

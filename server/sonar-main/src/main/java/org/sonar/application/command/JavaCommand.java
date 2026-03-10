@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import javax.annotation.Nullable;
+import org.sonar.api.utils.System2;
 import org.sonar.process.ProcessId;
-import org.sonar.process.System2;
 
 import static java.util.Objects.requireNonNull;
 

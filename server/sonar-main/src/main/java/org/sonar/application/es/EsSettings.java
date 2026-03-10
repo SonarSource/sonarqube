@@ -29,10 +29,10 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.System2;
 import org.sonar.process.MessageException;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
-import org.sonar.process.System2;
 
 import static java.lang.String.valueOf;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
@@ -87,7 +87,7 @@ public class EsSettings {
       this.nodeName = STANDALONE_NODE_NAME;
     }
     this.loopbackAddress = InetAddress.getLoopbackAddress();
-    String esJvmOptions = system2.getenv("ES_JVM_OPTIONS");
+    String esJvmOptions = system2.envVariable("ES_JVM_OPTIONS");
     if (esJvmOptions != null && !esJvmOptions.trim().isEmpty()) {
       LOGGER.warn("ES_JVM_OPTIONS is defined but will be ignored. " +
         "Use sonar.search.javaOpts and/or sonar.search.javaAdditionalOpts in sonar.properties to specify jvm options for Elasticsearch");

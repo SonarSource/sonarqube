@@ -32,12 +32,12 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.System2;
 import org.sonar.core.extension.ServiceLoaderWrapper;
 import org.sonar.core.util.SettingFormatter;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
-import org.sonar.process.System2;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.stream;
@@ -119,7 +119,7 @@ public class AppSettingsLoaderImpl implements AppSettingsLoader {
   private static void loadPropertiesFromEnvironment(System2 system, Properties properties, Set<String> overridableSettings) {
     overridableSettings.forEach(key -> {
       String environmentVarName = fromJavaPropertyToEnvVariable(key);
-      Optional<String> envVarValue = ofNullable(system.getenv(environmentVarName));
+      Optional<String> envVarValue = ofNullable(system.envVariable(environmentVarName));
       envVarValue.ifPresent(value -> properties.put(key, value));
     });
   }

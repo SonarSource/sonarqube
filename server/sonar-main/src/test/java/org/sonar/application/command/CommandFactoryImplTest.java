@@ -31,13 +31,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
+import org.sonar.api.utils.System2;
 import org.sonar.application.es.EsInstallation;
 import org.sonar.application.logging.ListAppender;
 import org.sonar.core.extension.ServiceLoaderWrapper;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
-import org.sonar.process.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -80,7 +80,7 @@ public class CommandFactoryImplTest {
 
   @Test
   public void constructor_logs_warning_if_env_variable_JAVA_TOOL_OPTIONS_is_set() {
-    when(system2.getenv("JAVA_TOOL_OPTIONS")).thenReturn("sds");
+    when(system2.envVariable("JAVA_TOOL_OPTIONS")).thenReturn("sds");
     attachMemoryAppenderToLoggerOf(CommandFactoryImpl.class);
 
     new CommandFactoryImpl(new Props(new Properties()), tempDir, system2);
@@ -94,7 +94,7 @@ public class CommandFactoryImplTest {
 
   @Test
   public void constructor_logs_warning_if_env_variable_ES_JAVA_OPTS_is_set() {
-    when(system2.getenv("ES_JAVA_OPTS")).thenReturn("xyz");
+    when(system2.envVariable("ES_JAVA_OPTS")).thenReturn("xyz");
     attachMemoryAppenderToLoggerOf(CommandFactoryImpl.class);
 
     new CommandFactoryImpl(new Props(new Properties()), tempDir, system2);

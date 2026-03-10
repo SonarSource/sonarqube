@@ -34,13 +34,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+import org.sonar.api.utils.System2;
 import org.sonar.application.logging.ListAppender;
 import org.sonar.core.extension.ServiceLoaderWrapper;
 import org.sonar.process.MessageException;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.ProcessProperties.Property;
 import org.sonar.process.Props;
-import org.sonar.process.System2;
 
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.RandomStringUtils.secure;
@@ -101,7 +101,7 @@ public class EsSettingsTest {
   public void constructor_does_not_logs_warning_if_env_variable_ES_JVM_OPTIONS_is_set_and_empty() {
     this.listAppender = ListAppender.attachMemoryAppenderToLoggerOf(EsSettings.class);
     Props props = minimalProps();
-    when(system.getenv("ES_JVM_OPTIONS")).thenReturn("  ");
+    when(system.envVariable("ES_JVM_OPTIONS")).thenReturn("  ");
     new EsSettings(props, new EsInstallation(props), system);
 
     assertThat(listAppender.getLogs()).isEmpty();
@@ -111,7 +111,7 @@ public class EsSettingsTest {
   public void constructor_logs_warning_if_env_variable_ES_JVM_OPTIONS_is_set_and_non_empty() {
     this.listAppender = ListAppender.attachMemoryAppenderToLoggerOf(EsSettings.class);
     Props props = minimalProps();
-    when(system.getenv("ES_JVM_OPTIONS")).thenReturn(secure().nextAlphanumeric(2));
+    when(system.envVariable("ES_JVM_OPTIONS")).thenReturn(secure().nextAlphanumeric(2));
     new EsSettings(props, new EsInstallation(props), system);
 
     assertThat(listAppender.getLogs())
