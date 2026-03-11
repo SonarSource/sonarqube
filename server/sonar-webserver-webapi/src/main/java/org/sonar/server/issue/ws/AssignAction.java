@@ -40,6 +40,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
@@ -49,12 +50,15 @@ import static com.google.common.base.Strings.emptyToNull;
 import static java.lang.String.format;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
+import static org.sonarqube.ws.WsUtils.checkArgument;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_ASSIGN;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
 
 public class AssignAction implements IssuesWsAction {
+
   private static final String ASSIGN_TO_ME_VALUE = "_me";
+  public static final String AI_CODE_ASSISTANT = "ai-code-assistant";
 
   private final System2 system2;
   private final UserSession userSession;
@@ -122,7 +126,16 @@ public class AssignAction implements IssuesWsAction {
       userSession.checkEntityPermission(UserRole.ISSUE_ADMIN, projectDto);
       DefaultIssue issue = issueDto.toDefaultIssue();
       UserDto user = getUser(dbSession, login);
-      if (user != null && !user.getLogin().equals("ai-code-assistant") && !hasProjectPermission(dbSession, user.getUuid(), issueDto.getProjectUuid())) {
+      if (AI_CODE_ASSISTANT.equals(login)) {
+        RuleDto ruleDto = dbClient.ruleDao().selectByKey(dbSession, issue.ruleKey())
+                .orElseThrow(() -> new IllegalStateException(
+                        format("Rule with key %s not found for issue %s", issue.ruleKey(), issueKey)));
+
+        checkArgument(
+                ruleDto.getAiCodeFixEnabled(),
+                "AI Agent can only be assigned to issues where AI CodeFix is available.");
+      }
+      if (user != null && !user.getLogin().equals(AI_CODE_ASSISTANT) && !hasProjectPermission(dbSession, user.getUuid(), issueDto.getProjectUuid())) {
         throw new IllegalArgumentException(
                 format("User '%s' does not have permission to be assigned issues in project '%s'", user.getLogin(),
                         projectDto.getKey()));
