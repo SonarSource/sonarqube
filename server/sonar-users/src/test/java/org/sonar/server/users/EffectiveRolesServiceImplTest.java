@@ -47,6 +47,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class EffectiveRolesServiceImplTest {
 
+  public static final String MEMBER_ROLE = "member";
+
   @RegisterExtension
   private final DbTester db = DbTester.create();
 
@@ -71,7 +73,7 @@ class EffectiveRolesServiceImplTest {
 
     List<EffectiveRole> roles = underTest.getEffectiveRoles(query);
 
-    assertThat(roles).containsExactlyInAnyOrder(new EffectiveRole("admin"), new EffectiveRole("provisioning"));
+    assertThat(roles).containsExactlyInAnyOrder(new EffectiveRole("admin"), new EffectiveRole("provisioning"), new EffectiveRole("member"));
   }
 
   @Test
@@ -143,10 +145,15 @@ class EffectiveRolesServiceImplTest {
 
     List<EffectiveRoleBatch> batches = underTest.getEffectiveRolesBatch(query);
 
-    assertThat(batches).containsExactlyInAnyOrder(
-      new EffectiveRoleBatch(user1.getUuid(), PrincipalType.USER, DefaultOrganizationProvider.ID.toString(), ResourceType.ORGANIZATION, List.of(new EffectiveRole("admin"))),
-      new EffectiveRoleBatch(user2.getUuid(), PrincipalType.USER, DefaultOrganizationProvider.ID.toString(), ResourceType.ORGANIZATION, List.of(new EffectiveRole("provisioning")))
-    );
+    assertThat(batches).hasSize(2)
+      .anySatisfy(batch -> {
+        assertThat(batch.principalId()).isEqualTo(user1.getUuid());
+        assertThat(batch.effectiveRoles()).containsExactlyInAnyOrder(new EffectiveRole("admin"), new EffectiveRole("member"));
+      })
+      .anySatisfy(batch -> {
+        assertThat(batch.principalId()).isEqualTo(user2.getUuid());
+        assertThat(batch.effectiveRoles()).containsExactlyInAnyOrder(new EffectiveRole("provisioning"), new EffectiveRole("member"));
+      });
   }
 
   @Test
@@ -331,5 +338,74 @@ class EffectiveRolesServiceImplTest {
     db.users().insertProjectPermissionOnUser(user, ProjectPermission.CODEVIEWER, project.getProjectDto());
 
     assertThat(underTest.hasProjectRole(user.getUuid(), project.projectUuid(), "user")).isFalse();
+  }
+
+  @Test
+  void getOrganizationRolesBatch_whenUserExistsWithNoOtherPermissions_shouldReturnMemberRole() {
+    var user = db.users().insertUser();
+    var query = new EffectiveRolesBatchQuery(
+      List.of(user.getUuid()),
+      PrincipalType.USER,
+      List.of(),
+      ResourceType.ORGANIZATION,
+      null
+    );
+
+    var batches = underTest.getEffectiveRolesBatch(query);
+
+    assertThat(batches).containsExactly(
+      new EffectiveRoleBatch(user.getUuid(), PrincipalType.USER, DefaultOrganizationProvider.ID.toString(), ResourceType.ORGANIZATION, List.of(new EffectiveRole(MEMBER_ROLE)))
+    );
+  }
+
+  @Test
+  void getOrganizationRolesBatch_whenUserExistsWithOtherPermissions_shouldIncludeMemberRole() {
+    var user = db.users().insertUser();
+    db.users().insertGlobalPermissionOnUser(user, GlobalPermission.ADMINISTER);
+    var query = new EffectiveRolesBatchQuery(
+      List.of(user.getUuid()),
+      PrincipalType.USER,
+      List.of(),
+      ResourceType.ORGANIZATION,
+      null
+    );
+
+    var batches = underTest.getEffectiveRolesBatch(query);
+
+    assertThat(batches).hasSize(1);
+    assertThat(batches.getFirst().effectiveRoles()).containsExactlyInAnyOrder(new EffectiveRole("admin"), new EffectiveRole(MEMBER_ROLE));
+  }
+
+  @Test
+  void getOrganizationRolesBatch_whenUserDoesNotExist_shouldNotReturnMemberRole() {
+    var query = new EffectiveRolesBatchQuery(
+      List.of("non-existent-uuid"),
+      PrincipalType.USER,
+      List.of(),
+      ResourceType.ORGANIZATION,
+      null
+    );
+
+    var batches = underTest.getEffectiveRolesBatch(query);
+
+    assertThat(batches).isEmpty();
+  }
+
+  @Test
+  void getOrganizationRolesBatch_withMixedExistingAndNonExistingUsers_shouldOnlyAddMemberForExistingUsers() {
+    var existingUser = db.users().insertUser();
+    var query = new EffectiveRolesBatchQuery(
+      List.of(existingUser.getUuid(), "non-existent-uuid"),
+      PrincipalType.USER,
+      List.of(),
+      ResourceType.ORGANIZATION,
+      null
+    );
+
+    var batches = underTest.getEffectiveRolesBatch(query);
+
+    assertThat(batches).containsExactly(
+      new EffectiveRoleBatch(existingUser.getUuid(), PrincipalType.USER, DefaultOrganizationProvider.ID.toString(), ResourceType.ORGANIZATION, List.of(new EffectiveRole(MEMBER_ROLE)))
+    );
   }
 }

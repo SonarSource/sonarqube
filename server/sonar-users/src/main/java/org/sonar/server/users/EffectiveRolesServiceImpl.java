@@ -20,6 +20,7 @@
 package org.sonar.server.users;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +40,7 @@ import org.sonarsource.users.api.model.ResourceType;
 @ServerSide
 public class EffectiveRolesServiceImpl implements EffectiveRolesService {
   public static final String ADMIN_ROLE = "admin";
+  public static final String MEMBER_ROLE = "member";
   private final DbClient dbClient;
 
   public EffectiveRolesServiceImpl(DbClient dbClient) {
@@ -101,6 +103,13 @@ public class EffectiveRolesServiceImpl implements EffectiveRolesService {
   private List<EffectiveRoleBatch> getOrganizationRolesBatch(DbSession dbSession, EffectiveRolesBatchQuery query) {
     Map<String, Set<String>> rolesPerPrincipal =
       dbClient.authorizationDao().selectGlobalPermissionsBatch(dbSession, query.principalIds());
+
+    // Temporary solution to add the "member" role to existing users (at runtime).
+    // See: https://sonarsource.atlassian.net/browse/EA-211
+    dbClient.userDao().selectByUuids(dbSession, query.principalIds())
+      .forEach(user -> rolesPerPrincipal
+        .computeIfAbsent(user.getUuid(), k -> new HashSet<>())
+        .add(MEMBER_ROLE));
 
     return transformToEffectiveRoleBatches(rolesPerPrincipal, DefaultOrganizationProvider.ID.toString(), query);
   }
