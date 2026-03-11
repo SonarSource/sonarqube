@@ -85,6 +85,7 @@ enum InputField {
 }
 
 export const MAX_PAGE_SIZE = 500;
+export const MAX_AI_CODE_ASSISTANT_BULK_ASSIGN = 10;
 
 export class BulkChangeModal extends React.PureComponent<Props, State> {
   mounted = false;
@@ -176,6 +177,29 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
       type,
     } = this.state;
 
+    if (assignee === 'ai-code-assistant') {
+      const hasAnyAiDisabled = issues.some((issue) => issue.aiCodeFixEnabled !== true);
+      if (hasAnyAiDisabled) {
+        throwGlobalError({
+          data: {
+            message:
+              'AI Agent can only be assigned to issues where AI CodeFix is available.',
+          },
+        });
+        return;
+      }
+
+      if (issues.length > MAX_AI_CODE_ASSISTANT_BULK_ASSIGN) {
+        throwGlobalError({
+          data: {
+            message:
+                'You can assign a maximum of 10 issues to the AI Agent in a single bulk action.',
+          },
+        });
+        return;
+      }
+    }
+
     const query = pickBy(
       {
         add_tags: addTags?.join(),
@@ -197,6 +221,17 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
     bulkChangeIssues(issueKeys, query).then(
       () => {
         this.setState({ submitting: false });
+
+        if (query.assign === 'ai-code-assistant') {
+          for (const issue of issues) {
+            queueCodeFix({
+              organizationKey: issue.organization,
+              projectKey: issue.projectKey,
+              issueKey: issue.key,
+            });
+          }
+        }
+
         this.props.refreshBranchStatus();
         this.props.onDone();
       },
@@ -205,14 +240,6 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
         throwGlobalError(error);
       },
     );
-    for(const issue of issues){
-      if(query.assign === "ai-code-assistant")
-        queueCodeFix({
-          organizationKey: issue.organization,
-          projectKey: issue.projectKey,
-          issueKey: issue.key,
-        });
-    }
   };
 
   getAvailableTransitions(issues: Issue[]) {

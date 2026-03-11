@@ -263,7 +263,19 @@ public class BulkChangeAction implements IssuesWsAction {
             && request.getParam("assign").isPresent()
             ? request.getParam("assign").getValue()
             : null;
+    if ("ai-code-assistant".equals(assigneeLogin)) {
+      checkArgument(
+              bulkChangeData.issues.size() <= 10,
+              "You can assign a maximum of 10 issues to the AI Agent in a single bulk action.");
 
+      boolean hasAnyRuleWithoutAiCodeFix = bulkChangeData.issues.stream()
+              .map(issue -> bulkChangeData.rulesByKey.get(issue.ruleKey()))
+              .anyMatch(rule -> rule == null || !rule.getAiCodeFixEnabled());
+
+      checkArgument(
+              !hasAnyRuleWithoutAiCodeFix,
+              "AI Agent can only be assigned to issues where AI CodeFix is available.");
+    }
     UserDto assigneeUser = null;
     if (assigneeLogin != null && !assigneeLogin.isEmpty()) {
       assigneeUser = dbClient.userDao()
