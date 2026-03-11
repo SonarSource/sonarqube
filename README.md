@@ -38,6 +38,13 @@ Willing to contribute to SonarSource products? We are looking for smart, passion
 
 To build sources locally follow these instructions.
 
+### Requirements
+
+- Java 17 - Required to build the project
+- Native Git - Must be installed and available in your PATH
+- npm - Required for building
+- Tests - Can be disabled if needed by adding `-x test` to the gradle command (useful if you just want to build without running tests)
+
 ### Build and Run Unit Tests
 
 Execute from the project base directory:
