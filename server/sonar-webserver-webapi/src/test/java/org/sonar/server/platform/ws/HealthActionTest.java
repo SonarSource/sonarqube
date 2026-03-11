@@ -79,6 +79,7 @@ public class HealthActionTest {
     assertThat(definition.key()).isEqualTo("health");
     assertThat(definition.isPost()).isFalse();
     assertThat(definition.description()).isNotEmpty();
+    assertThat(definition.description()).contains("sonar.web.systemPasscode");
     assertThat(definition.since()).isEqualTo("6.6");
     assertThat(definition.isInternal()).isFalse();
     assertThat(definition.responseExample()).isNotNull();

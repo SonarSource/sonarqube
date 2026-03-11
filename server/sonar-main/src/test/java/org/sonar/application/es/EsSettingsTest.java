@@ -426,7 +426,7 @@ public class EsSettingsTest {
 
     assertThatThrownBy(settings::build)
       .isInstanceOf(MessageException.class)
-      .hasMessage("CLUSTER_ES_KEYSTORE property need to be set when using elastic search authentication");
+      .hasMessage("sonar.cluster.es.ssl.keystore property need to be set when using elastic search authentication");
   }
 
   @Test

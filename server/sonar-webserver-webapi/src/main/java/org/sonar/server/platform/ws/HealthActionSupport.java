@@ -58,7 +58,7 @@ public class HealthActionSupport {
         " </ul>" +
         "</p><br>" +
         "Requires the 'Administer System' permission or " +
-        "system passcode (see " + ProcessProperties.Property.WEB_SYSTEM_PASS_CODE + " in sonar.properties).<br>" +
+        "system passcode (see " + ProcessProperties.Property.WEB_SYSTEM_PASS_CODE.getKey() + " in sonar.properties).<br>" +
         "When SonarQube is in safe mode (waiting or running a database upgrade), only the authentication with a system passcode is supported.")
       .setSince("6.6")
       .setResponseExample(Resources.getResource(this.getClass(), "example-health.json"))

@@ -53,6 +53,7 @@ public class PauseActionTest {
     assertThat(def.isPost()).isTrue();
     assertThat(def.params()).isEmpty();
     assertThat(def.responseExampleAsString()).isNull();
+    assertThat(def.description()).contains("sonar.web.systemPasscode");
   }
 
   @Test

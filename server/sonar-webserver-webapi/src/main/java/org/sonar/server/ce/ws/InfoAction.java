@@ -46,7 +46,7 @@ public class InfoAction implements CeWsAction {
   public void define(WebService.NewController controller) {
     controller.createAction("info")
       .setDescription("Gets information about Compute Engine. Requires the system administration permission or " +
-        "system passcode (see " + ProcessProperties.Property.WEB_SYSTEM_PASS_CODE + " in sonar.properties).")
+        "system passcode (see " + ProcessProperties.Property.WEB_SYSTEM_PASS_CODE.getKey() + " in sonar.properties).")
       .setSince("7.2")
       .setInternal(true)
       .setHandler(this)

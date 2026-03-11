@@ -52,6 +52,7 @@ public class InfoActionTest {
     assertThat(def.isInternal()).isTrue();
     assertThat(def.isPost()).isFalse();
     assertThat(def.params()).isEmpty();
+    assertThat(def.description()).contains("sonar.web.systemPasscode");
   }
 
   @Test

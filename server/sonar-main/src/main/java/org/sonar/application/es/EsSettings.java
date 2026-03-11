@@ -143,7 +143,7 @@ public class EsSettings {
     String processPropertyPath = props.value(processProperty.getKey());
 
     if (processPropertyPath == null) {
-      throw new MessageException(processProperty.name() + " property need to be set " +
+      throw new MessageException(processProperty.getKey() + " property need to be set " +
         "when using elastic search authentication");
     }
     Path path = Paths.get(processPropertyPath);

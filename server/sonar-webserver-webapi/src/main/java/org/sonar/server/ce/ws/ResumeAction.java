@@ -44,7 +44,7 @@ public class ResumeAction implements CeWsAction {
   public void define(WebService.NewController controller) {
     controller.createAction("resume")
       .setDescription("Resumes pause of Compute Engine workers. Requires the system administration permission or " +
-        "system passcode (see " + ProcessProperties.Property.WEB_SYSTEM_PASS_CODE + " in sonar.properties).")
+        "system passcode (see " + ProcessProperties.Property.WEB_SYSTEM_PASS_CODE.getKey() + " in sonar.properties).")
       .setSince("7.2")
       .setInternal(true)
       .setHandler(this)
