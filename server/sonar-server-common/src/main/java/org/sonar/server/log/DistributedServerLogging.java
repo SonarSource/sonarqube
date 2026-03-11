@@ -164,7 +164,7 @@ public class DistributedServerLogging extends ServerLogging {
 
   @Override
   public File getDistributedLogs(String filePrefix, String logName) {
-    File zipFile = createZipFile();
+    File zipFile = createZipFile(getLogsDir());
     if (filePrefix.equals(ProcessId.ELASTICSEARCH.getLogFilenamePrefix())) {
       // Elasticsearch logs are not distributed, something to implement in the future
       throw new IllegalArgumentException("Elasticsearch logs are not distributed");
@@ -192,9 +192,9 @@ public class DistributedServerLogging extends ServerLogging {
     return zipFile;
   }
 
-  private static File createZipFile() {
+  private static File createZipFile(File logsDir) {
     try {
-      Path tempDir = Files.createTempDirectory("logs");
+      Path tempDir = Files.createTempDirectory(logsDir.toPath(), "logs");
       return new File(tempDir.toFile(), "logs.zip");
     } catch (IOException e) {
       throw new IllegalStateException(e);

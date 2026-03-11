@@ -183,6 +183,7 @@ public class DistributedServerLoggingTest {
     File distributedLogs = underTest.getDistributedLogs("ce", "ce");
 
     assertThat(distributedLogs).isNotNull();
+    assertThat(distributedLogs.getParentFile()).hasParent(dirWithLogs);
   }
 
   @Test

@@ -94,10 +94,13 @@ public class LogsAction implements SystemWsAction {
   }
 
   private void buildAndSendLogsForDataCenterEdition(Response wsResponse, String filePrefix, String logName) throws IOException {
-    File zipfile = serverLogging.getDistributedLogs(filePrefix, logName);
-
-    wsResponse.stream().setMediaType(MediaTypes.ZIP);
-    FileUtils.copyFile(zipfile, wsResponse.stream().output());
+    File zipFile = serverLogging.getDistributedLogs(filePrefix, logName);
+    try {
+      wsResponse.stream().setMediaType(MediaTypes.ZIP);
+      FileUtils.copyFile(zipFile, wsResponse.stream().output());
+    } finally {
+      FileUtils.deleteDirectory(zipFile.getParentFile());
+    }
   }
 
   private void buildAndSendLogsForSingleNode(Response wsResponse, String filePrefix) throws IOException {
