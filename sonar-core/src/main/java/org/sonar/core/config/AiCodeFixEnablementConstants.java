@@ -25,6 +25,8 @@ public final class AiCodeFixEnablementConstants {
   public static final String SUGGESTION_PROVIDER_MODEL_KEY_PROPERTY = "sonar.ai.suggestions.provider.modelKey";
   public static final String SUGGESTION_PROVIDER_ENDPOINT_PROPERTY = "sonar.ai.suggestions.provider.endpoint";
   public static final String SUGGESTION_PROVIDER_API_KEY_INTERNAL_PROPERTY = "sonar.ai.suggestions.provider.apiKey";
+  public static final String SUGGESTION_PROVIDER_AWS_REGION_PROPERTY = "sonar.ai.suggestions.aws.region";
+  public static final String SUGGESTION_PROVIDER_AWS_MODEL_ID_PROPERTY = "sonar.ai.suggestions.aws.modelId";
 
   private AiCodeFixEnablementConstants() {
   }
