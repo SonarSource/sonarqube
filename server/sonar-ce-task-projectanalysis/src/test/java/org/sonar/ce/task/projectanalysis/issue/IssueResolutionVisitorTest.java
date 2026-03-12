@@ -23,20 +23,25 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.event.Level;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.component.ReportAttributes;
+import org.sonar.ce.task.projectanalysis.component.TestSettingsRepository;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfo;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepository;
+import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.rule.RuleType;
 import org.sonar.core.util.CloseableIterator;
@@ -72,7 +77,12 @@ class IssueResolutionVisitorTest {
   private final ScmInfoRepository scmInfoRepository = mock(ScmInfoRepository.class);
   private final ScmAccountToUser scmAccountToUser = mock(ScmAccountToUser.class);
   private final ScannerReportReader reportReader = mock(ScannerReportReader.class);
-  private final IssueResolutionVisitor underTest = new IssueResolutionVisitor(issueLifecycle, scmInfoRepository, scmAccountToUser, reportReader);
+  private IssueResolutionVisitor underTest;
+
+  @BeforeEach
+  void setUp() {
+    underTest = createVisitor(true);
+  }
 
   @Test
   void onIssue_whenNoIssueResolutionInReport_doesNothing() {
@@ -83,6 +93,68 @@ class IssueResolutionVisitorTest {
 
     DefaultIssue issue = newIssue();
     issue.setLine(1);
+    underTest.onIssue(component, issue);
+
+    verifyNoInteractions(issueLifecycle);
+    assertThat(issue.internalTags()).doesNotContain(IssueFieldsSetter.ISSUE_RESOLUTION_TAG);
+  }
+
+  @Test
+  void onIssue_whenIssueResolutionDisabled_matchingDataIsIgnored() {
+    underTest = createVisitor(false);
+    ScannerReport.IssueResolution issueResolution = ScannerReport.IssueResolution.newBuilder()
+      .addAllRuleKeys(List.of("java:S123"))
+      .setTextRange(ScannerReport.TextRange.newBuilder().setStartLine(3).setEndLine(3).build())
+      .setComment("comment")
+      .setStatus(ScannerReport.IssueResolutionStatus.DEFAULT)
+      .build();
+    when(reportReader.readIssueResolution(1)).thenReturn(CloseableIterator.from(List.of(issueResolution).iterator()));
+    Component component = createComponent(1);
+
+    underTest.beforeComponent(component);
+
+    DefaultIssue issue = newIssue();
+    issue.setLine(3);
+    underTest.onIssue(component, issue);
+
+    verifyNoInteractions(issueLifecycle);
+    assertThat(issue.internalTags()).doesNotContain(IssueFieldsSetter.ISSUE_RESOLUTION_TAG);
+  }
+
+  @Test
+  void onIssue_whenIssueResolutionDisabled_taggedIssueIsLeftUnchanged() {
+    underTest = createVisitor(false);
+    Component component = createComponent(1);
+
+    underTest.beforeComponent(component);
+
+    DefaultIssue issue = newIssue();
+    issue.setLine(3);
+    issue.setStatus(STATUS_RESOLVED);
+    issue.setResolution(RESOLUTION_WONT_FIX);
+    issue.setInternalTags(Set.of(IssueFieldsSetter.ISSUE_RESOLUTION_TAG));
+    underTest.onIssue(component, issue);
+
+    verifyNoInteractions(issueLifecycle);
+    assertThat(issue.internalTags()).contains(IssueFieldsSetter.ISSUE_RESOLUTION_TAG);
+  }
+
+  @Test
+  void onIssue_whenIssueResolutionDisabled_hotspotMatchingDataIsIgnored() {
+    underTest = createVisitor(false);
+    ScannerReport.IssueResolution issueResolution = ScannerReport.IssueResolution.newBuilder()
+      .addAllRuleKeys(List.of("xoo:Hotspot"))
+      .setTextRange(ScannerReport.TextRange.newBuilder().setStartLine(3).setEndLine(3).build())
+      .setComment("approved")
+      .setStatus(ScannerReport.IssueResolutionStatus.DEFAULT)
+      .build();
+    when(reportReader.readIssueResolution(1)).thenReturn(CloseableIterator.from(List.of(issueResolution).iterator()));
+    Component component = createComponent(1);
+
+    underTest.beforeComponent(component);
+
+    DefaultIssue issue = newHotspotIssue();
+    issue.setLine(3);
     underTest.onIssue(component, issue);
 
     verifyNoInteractions(issueLifecycle);
@@ -479,6 +551,13 @@ class IssueResolutionVisitorTest {
     return Stream.of(
       Arguments.of(ScannerReport.IssueResolutionStatus.DEFAULT, RESOLUTION_FALSE_POSITIVE, CodeQualityIssueWorkflowTransition.ACCEPT),
       Arguments.of(ScannerReport.IssueResolutionStatus.FALSE_POSITIVE, RESOLUTION_WONT_FIX, CodeQualityIssueWorkflowTransition.FALSE_POSITIVE));
+  }
+
+  private IssueResolutionVisitor createVisitor(boolean issueResolutionEnabled) {
+    MapSettings settings = new MapSettings();
+    settings.setProperty(CorePropertyDefinitions.ISSUE_RESOLUTION_ENABLED, String.valueOf(issueResolutionEnabled));
+    ConfigurationRepository configurationRepository = new TestSettingsRepository(settings.asConfig());
+    return new IssueResolutionVisitor(issueLifecycle, scmInfoRepository, scmAccountToUser, reportReader, configurationRepository);
   }
 
   private static Component createComponent(int ref) {

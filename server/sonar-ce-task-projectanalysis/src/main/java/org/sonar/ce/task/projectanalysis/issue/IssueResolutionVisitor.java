@@ -33,10 +33,12 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfo;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepository;
 import org.sonar.ce.task.projectanalysis.util.TextRangeUtils;
+import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.rule.RuleType;
 import org.sonar.core.util.CloseableIterator;
@@ -74,32 +76,44 @@ public class IssueResolutionVisitor extends IssueVisitor {
   private final ScmInfoRepository scmInfoRepository;
   private final ScmAccountToUser scmAccountToUser;
   private final ScannerReportReader reportReader;
+  private final ConfigurationRepository configurationRepository;
 
   private ScmInfo scmInfo = null;
+  private boolean issueResolutionEnabled = false;
   private List<IssueResolution> componentIssueResolution;
 
   public IssueResolutionVisitor(IssueLifecycle issueLifecycle,
-    ScmInfoRepository scmInfoRepository, ScmAccountToUser scmAccountToUser, ScannerReportReader reportReader) {
+    ScmInfoRepository scmInfoRepository, ScmAccountToUser scmAccountToUser, ScannerReportReader reportReader,
+    ConfigurationRepository configurationRepository) {
     this.issueLifecycle = issueLifecycle;
     this.scmInfoRepository = scmInfoRepository;
     this.scmAccountToUser = scmAccountToUser;
     this.reportReader = reportReader;
+    this.configurationRepository = configurationRepository;
   }
 
   @Override
   public void beforeComponent(Component component) {
     scmInfo = scmInfoRepository.getScmInfo(component).orElse(null);
-    componentIssueResolution = Optional.ofNullable(component.getReportAttributes().getRef()).map(this::getIssueResolutionForComponent).orElse(null);
+    issueResolutionEnabled = configurationRepository.getConfiguration().getBoolean(CorePropertyDefinitions.ISSUE_RESOLUTION_ENABLED).orElse(false);
+    componentIssueResolution = issueResolutionEnabled
+      ? Optional.ofNullable(component.getReportAttributes().getRef()).map(this::getIssueResolutionForComponent).orElse(null)
+      : null;
   }
 
   @Override
   public void afterComponent(Component component) {
     scmInfo = null;
+    issueResolutionEnabled = false;
     componentIssueResolution = null;
   }
 
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
+    if (!issueResolutionEnabled) {
+      return;
+    }
+
     IssueResolution issueResolution = lookForIssueResolution(issue);
     boolean hasTag = issue.internalTags().contains(IssueFieldsSetter.ISSUE_RESOLUTION_TAG);
 
