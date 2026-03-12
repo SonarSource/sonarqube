@@ -41,4 +41,17 @@ public class CorePropertyDefinitionsTest {
       .filter(def -> def.key().equals(ScannerProperties.BRANCH_NAME))
       .findFirst()).isPresent();
   }
+
+  @Test
+  public void all_includes_issue_resolution_property() {
+    List<PropertyDefinition> defs = CorePropertyDefinitions.all();
+
+    assertThat(defs.stream()
+      .filter(def -> def.key().equals(CorePropertyDefinitions.ISSUE_RESOLUTION_ENABLED))
+      .findFirst())
+      .isPresent()
+      .get()
+      .extracting(PropertyDefinition::defaultValue)
+      .isEqualTo("false");
+  }
 }

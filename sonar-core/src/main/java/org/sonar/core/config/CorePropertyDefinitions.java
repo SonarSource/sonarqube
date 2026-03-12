@@ -48,6 +48,7 @@ public class CorePropertyDefinitions {
   public static final String DISABLE_JRE_AUTO_PROVISIONING = "sonar.jreAutoProvisioning.disabled";
   public static final String REPORT_PART_MAX_SIZE_MBYTES = "sonar.report.partMaxSizeMBytes";
   public static final String ALLOW_DISABLE_INHERITED_RULES = "sonar.qualityProfiles.allowDisableInheritedRules";
+  public static final String ISSUE_RESOLUTION_ENABLED = "sonar.issues.issueResolution.enabled";
 
   public static final String PLUGINS_RISK_CONSENT = "sonar.plugins.risk.consent";
 
@@ -199,6 +200,15 @@ public class CorePropertyDefinitions {
         .subCategory(CoreProperties.SUBCATEGORY_ISSUES)
         .onConfigScopes(ConfigScope.PROJECT)
         .type(PropertyType.USER_LOGIN)
+        .build(),
+      PropertyDefinition.builder(ISSUE_RESOLUTION_ENABLED)
+        .name("Enable in-code issue suppression (sonar-resolve)")
+        .description("Allow issues to be resolved from source code through sonar-resolve annotations.")
+        .category(CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_ISSUES)
+        .onConfigScopes(ConfigScope.PROJECT)
+        .type(BOOLEAN)
+        .defaultValue(Boolean.toString(false))
         .build(),
 
       // QUALITY GATE
