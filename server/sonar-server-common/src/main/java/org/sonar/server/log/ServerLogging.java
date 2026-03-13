@@ -92,11 +92,13 @@ public class ServerLogging implements Startable {
   public static String getWebAPIAddressFromHazelcastQuery() {
     return instance.config.get(ProcessProperties.Property.WEB_HOST.getKey())
       .orElseGet(() -> instance.config.get(ProcessProperties.Property.CLUSTER_NODE_HOST.getKey())
-      .orElseThrow(() -> new IllegalStateException("No web host found in configuration")));
+        .orElseThrow(() -> new IllegalStateException("No web host found in configuration")));
   }
 
   public static String getWebAPIContextFromHazelcastQuery() {
-    return instance.config.get(ProcessProperties.Property.WEB_CONTEXT.getKey()).orElse("");
+    final String context = instance.config.get(ProcessProperties.Property.WEB_CONTEXT.getKey()).orElse("");
+    // Strip trailing slash to avoid double slashes in URL construction (e.g., /sonarqube//api)
+    return context.endsWith("/") ? context.substring(0, context.length() - 1) : context;
   }
 
   public void changeLevel(LoggerLevel level) {

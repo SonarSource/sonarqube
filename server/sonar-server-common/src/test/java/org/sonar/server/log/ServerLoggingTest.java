@@ -239,4 +239,27 @@ public class ServerLoggingTest {
 
     assertThat(ServerLogging.getWebAPIContextFromHazelcastQuery()).isEqualTo("any_context");
   }
+
+  @Test
+  public void getWebAPIContextFromHazelcastQuery_whenContextHasTrailingSlash_shouldStripIt() {
+    underTest.start();
+    settings.setProperty(ProcessProperties.Property.WEB_CONTEXT.getKey(), "/sonarqube/");
+
+    assertThat(ServerLogging.getWebAPIContextFromHazelcastQuery()).isEqualTo("/sonarqube");
+  }
+
+  @Test
+  public void getWebAPIContextFromHazelcastQuery_whenContextHasNoTrailingSlash_shouldReturnAsIs() {
+    underTest.start();
+    settings.setProperty(ProcessProperties.Property.WEB_CONTEXT.getKey(), "/sonarqube");
+
+    assertThat(ServerLogging.getWebAPIContextFromHazelcastQuery()).isEqualTo("/sonarqube");
+  }
+
+  @Test
+  public void getWebAPIContextFromHazelcastQuery_whenContextIsEmpty_shouldReturnEmpty() {
+    underTest.start();
+
+    assertThat(ServerLogging.getWebAPIContextFromHazelcastQuery()).isEmpty();
+  }
 }
