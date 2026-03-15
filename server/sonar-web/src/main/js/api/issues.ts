@@ -27,12 +27,26 @@ import {
   IssueResponse,
   IssueSeverity,
   ListIssuesResponse,
+  mapFrontendToBackendCodefixStatuses,
   RawIssuesResponse,
 } from '../types/issues';
 import { Dict, FacetValue, IssueChangelog, SnippetsByComponent, SourceLine } from '../types/types';
 
 export function searchIssues(query: RequestData): Promise<RawIssuesResponse> {
-  return getJSON('/api/issues/search', query).catch(error => {
+  const apiQuery = { ...query };
+  const raw = apiQuery.issueCodefixStatuses;
+  const frontendStatuses = Array.isArray(raw)
+    ? raw
+    : raw != null && raw !== ''
+      ? [raw]
+      : [];
+  if (frontendStatuses.length > 0) {
+    const backendStatuses = mapFrontendToBackendCodefixStatuses(frontendStatuses);
+    if (backendStatuses?.length) {
+      apiQuery.issueCodefixStatuses = backendStatuses;
+    }
+  }
+  return getJSON('/api/issues/search', apiQuery).catch(error => {
     if (error?.status === 403 ) {
       window.location.href = '/account'; 
     }

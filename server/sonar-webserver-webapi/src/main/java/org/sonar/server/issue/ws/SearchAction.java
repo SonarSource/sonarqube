@@ -477,8 +477,8 @@ public class SearchAction implements IssuesWsAction {
       .setExampleValue("%s,%S".formatted(IssueStatus.ACCEPTED, IssueStatus.FIXED))
       .setSince("10.4");
     action.createParam(PARAM_ISSUE_CODEFIX_STATUSES)
-      .setDescription("Comma-separated list of AI Code Assistant / codefix statuses to filter by.")
-      .setExampleValue("AI_FIX_AVAILABLE,AI_FIX_IN_PROGRESS")
+      .setDescription("Comma-separated list of codefix statuses to filter by (backend values: AVAILABLE, PENDING, IN_PROGRESS, FIX_GENERATED, PULL_REQUEST_CREATED, FAILED).")
+      .setExampleValue("PENDING,IN_PROGRESS")
       .setSince("10.7");
     action.createParam(PARAM_ORGANIZATION)
       .setDescription("Organization key")
@@ -737,22 +737,13 @@ public class SearchAction implements IssuesWsAction {
     "PULL_REQUEST_CREATED", "PULL_REQUEST_CREATED",
     "FAILED", "AI_FIX_FAILED");
 
-  /** Frontend → backend(s). AI_FIX_IN_PROGRESS matches both PENDING (queued) and IN_PROGRESS (running). */
+  /** Frontend → backend(s). Used when formatting facet response (backend counts → frontend buckets). */
   public static final Map<String, List<String>> CODEFIX_STATUS_FRONTEND_TO_BACKEND = Map.of(
     "AI_FIX_AVAILABLE", List.of("AVAILABLE"),
     "AI_FIX_IN_PROGRESS", List.of("PENDING", "IN_PROGRESS"),
     "AI_FIX_GENERATED", List.of("FIX_GENERATED"),
     "PULL_REQUEST_CREATED", List.of("PULL_REQUEST_CREATED"),
     "AI_FIX_FAILED", List.of("FAILED"));
-
-  private static List<String> mapFrontendToBackendCodefixStatuses(@Nullable List<String> frontendValues) {
-    if (frontendValues == null || frontendValues.isEmpty()) {
-      return null;
-    }
-    return frontendValues.stream()
-      .flatMap(fv -> Optional.ofNullable(CODEFIX_STATUS_FRONTEND_TO_BACKEND.get(fv)).orElse(emptyList()).stream())
-      .toList();
-  }
 
   private static Collection<String> enumToStringCollection(Enum<?>... enumValues) {
     return Arrays.stream(enumValues).map(Enum::name).toList();
@@ -827,7 +818,7 @@ public class SearchAction implements IssuesWsAction {
             .setCleanCodeAttributesCategories(request.paramAsStrings(PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES))
             .setStatuses(request.paramAsStrings(PARAM_STATUSES))
             .setIssueStatuses(request.paramAsStrings(PARAM_ISSUE_STATUSES))
-            .setIssueCodefixStatuses(mapFrontendToBackendCodefixStatuses(request.paramAsStrings(PARAM_ISSUE_CODEFIX_STATUSES)))
+            .setIssueCodefixStatuses(request.paramAsStrings(PARAM_ISSUE_CODEFIX_STATUSES))
             .setTags(request.paramAsStrings(PARAM_TAGS))
             .setTypes(allRuleTypesExceptHotspotsIfEmpty(request.paramAsStrings(PARAM_TYPES)))
             .setPciDss32(request.paramAsStrings(PARAM_PCI_DSS_32))

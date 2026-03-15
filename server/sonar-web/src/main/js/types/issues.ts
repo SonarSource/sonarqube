@@ -83,6 +83,30 @@ export enum IssueCodefixStatus {
   PullRequestCreated = 'PULL_REQUEST_CREATED',
 }
 
+/**
+ * Map frontend filter values to backend (storage) values for the issues search API.
+ * Keeps presentation in the UI; backend contract uses storage values only.
+ */
+const CODEFIX_STATUS_FRONTEND_TO_BACKEND: Record<string, string[]> = {
+  [IssueCodefixStatus.AiFixAvailable]: ['AVAILABLE'],
+  [IssueCodefixStatus.AiFixInProgress]: ['PENDING', 'IN_PROGRESS'],
+  [IssueCodefixStatus.AiFixGenerated]: ['FIX_GENERATED'],
+  [IssueCodefixStatus.PullRequestCreated]: ['PULL_REQUEST_CREATED'],
+  [IssueCodefixStatus.AiFixFailed]: ['FAILED'],
+};
+
+export function mapFrontendToBackendCodefixStatuses(
+  frontendValues: string[] | undefined | null,
+): string[] | undefined {
+  if (!frontendValues?.length) {
+    return undefined;
+  }
+  const backend = frontendValues.flatMap(
+    (fv) => CODEFIX_STATUS_FRONTEND_TO_BACKEND[fv] ?? [],
+  );
+  return backend.length > 0 ? backend : undefined;
+}
+
 export enum IssueActions {
   SetType = 'set_type',
   SetTags = 'set_tags',
@@ -138,6 +162,7 @@ export interface RawIssue {
   codeVariants?: string[];
   comments?: Comment[];
   component: string;
+  codefixStatus?: string;
   creationDate: string;
   cveId?: string;
   flows?: Array<{

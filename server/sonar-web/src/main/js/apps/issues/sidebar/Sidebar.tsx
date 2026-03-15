@@ -61,6 +61,7 @@ import { StandardFacet } from './StandardFacet';
 import { TagFacet } from './TagFacet';
 import { TypeFacet } from './TypeFacet';
 import { VariantFacet } from './VariantFacet';
+import { isAiAssistantEnabled } from 'src/main/js/api/settings';
 
 export interface Props {
   organization?: Organization;
@@ -98,6 +99,16 @@ export function Sidebar(props: Readonly<Props>) {
   const { settings } = useAppState();
   const { hasFeature } = useAvailableFeatures();
   const { data: isStandardMode } = useStandardExperienceModeQuery();
+  const [aiEnabled, setAiEnabled] = React.useState(false);
+  React.useEffect(() => {
+        async function checkAiEnabled() {
+          const projectKey = props.component.key || "";
+          const enabled = await isAiAssistantEnabled(projectKey);
+          setAiEnabled(enabled);
+        }
+
+        checkAiEnabled();
+      }, [props.component.key]);
   const renderComponentFacets = () => {
     const hasFileOrDirectory =
       !isApplication(component?.qualifier) && !isPortfolioLike(component?.qualifier);
@@ -476,17 +487,21 @@ export function Sidebar(props: Readonly<Props>) {
                 </>
               )}
 
-              <BasicSeparator className="sw-my-4" />
+              { aiEnabled && (
+                <>
+                  <BasicSeparator className="sw-my-4" />
 
-              <AiCodeAssistantFacet
-                issueCodefixStatuses={query.issueCodefixStatuses}
-                fetching={props.loadingFacets.issueCodefixStatuses === true}
-                needIssueSync={needIssueSync}
-                onChange={props.onFilterChange}
-                onToggle={props.onFacetToggle}
-                open={!!openFacets.issueCodefixStatuses}
-                stats={facets.issueCodefixStatuses}
-              />
+                  <AiCodeAssistantFacet
+                    issueCodefixStatuses={query.issueCodefixStatuses}
+                    fetching={props.loadingFacets.issueCodefixStatuses === true}
+                    needIssueSync={needIssueSync}
+                    onChange={props.onFilterChange}
+                    onToggle={props.onFacetToggle}
+                    open={!!openFacets.issueCodefixStatuses}
+                    stats={facets.issueCodefixStatuses}
+                  />
+                </>
+              )}
 
               <BasicSeparator className="sw-my-4" />
 

@@ -20,6 +20,10 @@
 package org.sonar.server.issue.ws;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -44,11 +48,13 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
  */
 public class SetCodefixStatusAction implements IssuesWsAction {
 
+  private static final Logger log = LoggerFactory.getLogger(SetCodefixStatusAction.class);
   private final DbClient dbClient;
   private final IssueFinder issueFinder;
   private final IssueUpdater issueUpdater;
   private final UserSession userSession;
   private final System2 system2;
+  private static final Set<String> VALID_STATUS = new HashSet<>(Set.of("PENDING", "IN_PROGRESS", "FIX_GENERATED", "PULL_REQUEST_CREATED", "FAILED"));
 
   public SetCodefixStatusAction(DbClient dbClient, IssueFinder issueFinder, IssueUpdater issueUpdater,
     UserSession userSession, System2 system2) {
@@ -81,6 +87,10 @@ public class SetCodefixStatusAction implements IssuesWsAction {
     userSession.checkLoggedIn();
     String issueKey = request.mandatoryParam(PARAM_ISSUE);
     String codefixStatus = request.mandatoryParam(PARAM_ISSUE_CODEFIX_STATUSES);
+    if (!VALID_STATUS.contains(codefixStatus)) {
+      log.error("Failed to update issue status for {}: invalid status value '{}'", issueKey, codefixStatus);
+      return;
+    }
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto issueDto = issueFinder.getByKey(dbSession, issueKey);

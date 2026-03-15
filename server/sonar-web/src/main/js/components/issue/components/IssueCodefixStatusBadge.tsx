@@ -39,7 +39,6 @@ type AiCodefixStatusDisplay = {
 
 function getAiCodefixStatusDisplay(status: string): AiCodefixStatusDisplay {
   const s = (status || '').toUpperCase();
-  console.log(s);
   if (s === 'PENDING' || s === 'IN_PROGRESS') {
     return {
       icon: '/images/spinner.svg',

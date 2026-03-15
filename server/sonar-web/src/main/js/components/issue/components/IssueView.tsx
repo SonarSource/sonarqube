@@ -209,7 +209,8 @@ export default function IssueView(props: Readonly<Props>) {
               onAssign={onAssign}
               onChange={onChange}
               togglePopup={togglePopup}
-              showAiAssistantBadge={aiAssistantEnabled && issue.aiCodeFixEnabled}
+              showAiAssistantBadge={(aiAssistantEnabled && issue.aiCodeFixEnabled) ||
+                (!aiAssistantEnabled && issue.assignee == 'ai-code-assistant')}
             />
             <IssueMetaBar issue={issue} />
           </div>
