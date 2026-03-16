@@ -568,6 +568,7 @@ subprojects {
       dependency 'dev.langchain4j:langchain4j-bedrock:1.11.0'
       dependency 'dev.langchain4j:langchain4j-http-client-jdk:1.11.0'
       dependency 'dev.langchain4j:langchain4j-open-ai:1.11.0'
+      dependency 'software.amazon.awssdk:apache-client:2.33.5'
       dependency 'org.sonarsource.update-center:sonar-update-center-common:1.36.0.4317'
       dependency 'org.sonarsource.classloader:sonar-classloader:1.2.1.2095'
       dependency 'org.springdoc:springdoc-openapi-starter-webmvc-api:3.0.1'
