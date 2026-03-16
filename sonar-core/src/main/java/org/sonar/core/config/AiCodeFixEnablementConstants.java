@@ -27,6 +27,9 @@ public final class AiCodeFixEnablementConstants {
   public static final String SUGGESTION_PROVIDER_API_KEY_INTERNAL_PROPERTY = "sonar.ai.suggestions.provider.apiKey";
   public static final String SUGGESTION_PROVIDER_AWS_REGION_PROPERTY = "sonar.ai.suggestions.aws.region";
   public static final String SUGGESTION_PROVIDER_AWS_MODEL_ID_PROPERTY = "sonar.ai.suggestions.aws.modelId";
+  public static final String SUGGESTION_PROVIDER_CUSTOM_ENDPOINT_PROPERTY = "sonar.ai.suggestions.custom.endpoint";
+  public static final String SUGGESTION_PROVIDER_CUSTOM_MODEL_ID_PROPERTY = "sonar.ai.suggestions.custom.modelId";
+  public static final String SUGGESTION_PROVIDER_CUSTOM_HEADERS_INTERNAL_PROPERTY = "sonar.ai.suggestions.custom.headers";
 
   private AiCodeFixEnablementConstants() {
   }
