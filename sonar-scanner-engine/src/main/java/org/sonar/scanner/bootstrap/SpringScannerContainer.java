@@ -103,6 +103,7 @@ import org.sonar.scanner.scan.InputProjectProvider;
 import org.sonar.scanner.scan.ModuleIndexer;
 import org.sonar.scanner.scan.MutableProjectReactorProvider;
 import org.sonar.scanner.scan.ProjectBuildersExecutor;
+import org.sonar.scanner.scan.DocumentationLinkGeneratorProvider;
 import org.sonar.scanner.scan.ProjectConfigurationProvider;
 import org.sonar.scanner.scan.ProjectLock;
 import org.sonar.scanner.scan.ProjectReactorBuilder;
@@ -235,6 +236,7 @@ public class SpringScannerContainer extends SpringComponentContainer {
 
       SonarGlobalPropertiesFilter.class,
       ProjectConfigurationProvider.class,
+      new DocumentationLinkGeneratorProvider(),
 
       ProjectCoverageAndDuplicationExclusions.class,
 

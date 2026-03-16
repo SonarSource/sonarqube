@@ -37,7 +37,6 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.Version;
-import org.sonar.core.documentation.DefaultDocumentationLinkGenerator;
 import org.sonar.core.extension.CoreExtensionRepositoryImpl;
 import org.sonar.core.extension.CoreExtensionsLoader;
 import org.sonar.core.platform.PluginClassLoader;
@@ -102,7 +101,6 @@ public class SpringGlobalContainer extends SpringComponentContainer {
       new GlobalConfigurationProvider(),
       new ScannerWsClientProvider(),
       DefaultServer.class,
-      DefaultDocumentationLinkGenerator.class,
       new GlobalTempFolderProvider(),
       new SonarUserHomeProvider(),
       analysisWarnings,
