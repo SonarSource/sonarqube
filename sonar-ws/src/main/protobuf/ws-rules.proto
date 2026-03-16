@@ -123,6 +123,8 @@ message Rule {
   optional sonarqube.ws.commons.CleanCodeAttribute cleanCodeAttribute = 52;
   optional sonarqube.ws.commons.CleanCodeAttributeCategory cleanCodeAttributeCategory = 53;
   optional Impacts impacts = 54;
+  reserved 55;
+  reserved 56;
 
   message DescriptionSections {
     repeated DescriptionSection descriptionSections = 1;
