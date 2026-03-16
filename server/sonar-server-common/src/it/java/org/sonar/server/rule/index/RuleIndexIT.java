@@ -208,8 +208,7 @@ class RuleIndexIT {
     createRule(setRepositoryKey("java"), setRuleKey("S002"));
     index();
     ComplianceCategoryRules complianceCategoryRules = new ComplianceCategoryRules(new CategoryTree.CategoryTreeNode(
-      "key", Set.of("php:S002", ":X001"), Set.of(), null, false, 0, null
-    ));
+      "key", Set.of("php:S002", ":X001"), Set.of(), null, false, 0, null, null));
 
     // key
     RuleQuery query = new RuleQuery()
@@ -225,8 +224,7 @@ class RuleIndexIT {
     createRule(setRepositoryKey("cobol"), setRuleKey("X001"));
     index();
     ComplianceCategoryRules complianceCategoryRules = new ComplianceCategoryRules(new CategoryTree.CategoryTreeNode(
-      "key", Set.of("php:S002", "secrets:"), Set.of(), null, false, 0, null
-    ));
+      "key", Set.of("php:S002", "secrets:"), Set.of(), null, false, 0, null, null));
 
     // key
     RuleQuery query = new RuleQuery()
@@ -247,15 +245,13 @@ class RuleIndexIT {
     createRule(setRepositoryKey("javascript"), setRuleKey("S001"));
     index();
 
-    ComplianceCategoryRules categoryRules1 =
-      mock(ComplianceCategoryRules.class);
+    ComplianceCategoryRules categoryRules1 = mock(ComplianceCategoryRules.class);
 
     when(categoryRules1.allRuleKeys()).thenReturn(of("S001"));
     when(categoryRules1.allRepoRuleKeys()).thenReturn(emptySet());
     when(categoryRules1.allRepos()).thenReturn(emptySet());
 
-    ComplianceCategoryRules categoryRules2 =
-      mock(ComplianceCategoryRules.class);
+    ComplianceCategoryRules categoryRules2 = mock(ComplianceCategoryRules.class);
 
     when(categoryRules2.allRuleKeys()).thenReturn(emptySet());
     when(categoryRules2.allRepoRuleKeys()).thenReturn(emptySet());
@@ -264,8 +260,7 @@ class RuleIndexIT {
     RuleQuery query = new RuleQuery()
       .setComplianceCategoryRules(List.of(categoryRules1, categoryRules2));
 
-    SearchIdResult<String> results =
-      underTest.searchV2(query, new SearchOptions());
+    SearchIdResult<String> results = underTest.searchV2(query, new SearchOptions());
 
     // With multiple ComplianceCategoryRules, all should be combined with AND
     // logic, so we should get rules matching both categoryRules1 (S001) and

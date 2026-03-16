@@ -19,7 +19,10 @@
  */
 package org.sonar.db.report;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonarsource.compliancereports.dao.AggregationType;
@@ -40,6 +43,17 @@ public class IssueStatsByRuleKeyDaoImpl implements IssueStatsByRuleKeyDao {
   public List<IssueStats> getIssueStats(String uuid, AggregationType aggregationType) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       return mapper(dbSession).selectByAggregationId(uuid, aggregationType.toString());
+    }
+  }
+
+  @Override
+  public Map<String, List<IssueStats>> getIssueStatsByAggregationIds(Collection<String> aggregationIds, AggregationType aggregationType) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Map<String, List<IssueStats>> result = new HashMap<>();
+      for (String aggregationId : aggregationIds) {
+        result.put(aggregationId, mapper(dbSession).selectByAggregationId(aggregationId, aggregationType.toString()));
+      }
+      return result;
     }
   }
 

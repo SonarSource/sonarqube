@@ -20,6 +20,7 @@
 package org.sonar.server.rule.ws;
 
 import java.util.Set;
+import org.sonar.core.config.SecurityStandardParameters;
 
 public class RulesWsParameters {
   public static final String PARAM_REPOSITORIES = "repositories";
@@ -32,16 +33,16 @@ public class RulesWsParameters {
   public static final String PARAM_LANGUAGES = "languages";
   public static final String PARAM_TAGS = "tags";
   public static final String PARAM_TYPES = "types";
-  public static final String PARAM_CWE = "cwe";
-  public static final String PARAM_OWASP_TOP_10 = "owaspTop10";
-  public static final String PARAM_OWASP_TOP_10_2021 = "owaspTop10-2021";
-  public static final String PARAM_OWASP_MOBILE_TOP_10_2024 = "owaspMobileTop10-2024";
+  public static final String PARAM_CWE = SecurityStandardParameters.PARAM_CWE;
+  public static final String PARAM_OWASP_TOP_10 = SecurityStandardParameters.PARAM_OWASP_TOP_10;
+  public static final String PARAM_OWASP_TOP_10_2021 = SecurityStandardParameters.PARAM_OWASP_TOP_10_2021;
+  public static final String PARAM_OWASP_MOBILE_TOP_10_2024 = SecurityStandardParameters.PARAM_OWASP_MOBILE_TOP_10_2024;
   /**
    * @deprecated SansTop25 report is outdated, it has been completely deprecated in version 10.0 and will be removed from version 11.0
    */
   @Deprecated(since = "10.0", forRemoval = true)
-  public static final String PARAM_SANS_TOP_25 = "sansTop25";
-  public static final String PARAM_SONARSOURCE_SECURITY = "sonarsourceSecurity";
+  public static final String PARAM_SANS_TOP_25 = SecurityStandardParameters.PARAM_SANS_TOP_25;
+  public static final String PARAM_SONARSOURCE_SECURITY = SecurityStandardParameters.PARAM_SONARSOURCE_SECURITY;
   public static final String PARAM_COMPLIANCE_STANDARDS = "complianceStandards";
   public static final String PARAM_INHERITANCE = "inheritance";
   public static final String PARAM_ACTIVE_SEVERITIES = "active_severities";

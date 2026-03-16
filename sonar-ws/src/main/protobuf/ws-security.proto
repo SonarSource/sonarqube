@@ -44,6 +44,8 @@ message SecurityStandardCategoryStatistics {
   optional bool hasMoreRules = 11;
   optional string version = 12;
   optional string level = 13;
+  optional int64 dependencyRisks = 14;
+  optional int64 dependencyRiskRating = 15;
 }
 
 message CweStatistics {
@@ -57,6 +59,8 @@ message CweStatistics {
   optional int64 totalRules = 9;
   optional bool hasMoreRules = 10;
   optional string category = 11;
+  optional int64 dependencyRisks = 12;
+  optional int64 dependencyRiskRating = 13;
 }
 
 
