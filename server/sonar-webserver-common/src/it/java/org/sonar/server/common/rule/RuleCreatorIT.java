@@ -495,7 +495,7 @@ public class RuleCreatorIT {
       .setDescriptionFormat(Format.MARKDOWN)
       .setSeverity(Severity.INFO);
     dbTester.rules().insert(rule);
-    dbTester.rules().insertRuleParam(rule, param -> param.setDefaultValue("a.*"));
+    dbTester.rules().insertRuleParam(rule, param -> param.setName("regex").setDefaultValue("a.*"));
     dbSession.commit();
 
     // Create custom rule with same key, but with different values
@@ -511,14 +511,14 @@ public class RuleCreatorIT {
     assertThat(result.getKey()).isEqualTo(CUSTOM_RULE_KEY);
     assertThat(result.getStatus()).isEqualTo(RuleStatus.READY);
 
-    // These values should be the same than before
-    assertThat(result.getName()).isEqualTo("Old name");
-    assertThat(result.getDefaultRuleDescriptionSection().getContent()).isEqualTo("Old description");
-    assertThat(result.getSeverityString()).isEqualTo(Severity.INFO);
+    // These values should be updated to the new values
+    assertThat(result.getName()).isEqualTo("New name");
+    assertThat(result.getDefaultRuleDescriptionSection().getContent()).isEqualTo("New description");
+    assertThat(result.getSeverityString()).isEqualTo(Severity.MAJOR);
 
     List<RuleParamDto> params = dbTester.getDbClient().ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);
-    assertThat(params.get(0).getDefaultValue()).isEqualTo("a.*");
+    assertThat(params.get(0).getDefaultValue()).isEqualTo("c.*");
   }
 
   @Test

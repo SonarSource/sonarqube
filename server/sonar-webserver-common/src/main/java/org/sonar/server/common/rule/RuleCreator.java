@@ -89,7 +89,7 @@ public class RuleCreator {
     validateCustomRule(newRule, dbSession, templateKey, true);
 
     Optional<RuleDto> definition = loadRule(dbSession, newRule.ruleKey());
-    RuleDto ruleDto = definition.map(dto -> updateExistingRule(dto, newRule, dbSession))
+    RuleDto ruleDto = definition.map(dto -> updateExistingRule(dto, newRule, templateRule, dbSession))
       .orElseGet(() -> createCustomRule(newRule, templateRule, dbSession));
 
     ruleIndexer.commitAndIndex(dbSession, ruleDto.getUuid());
@@ -267,14 +267,26 @@ public class RuleCreator {
     dbClient.ruleDao().insertRuleParam(dbSession, ruleDto, ruleParamDto);
   }
 
-  private RuleDto updateExistingRule(RuleDto ruleDto, NewCustomRule newRule, DbSession dbSession) {
+  private RuleDto updateExistingRule(RuleDto ruleDto, NewCustomRule newRule, RuleDto templateRule, DbSession dbSession) {
     if (ruleDto.getStatus().equals(RuleStatus.REMOVED)) {
       if (newRule.isPreventReactivation()) {
         throw new ReactivationException(format("A removed rule with the key '%s' already exists", ruleDto.getKey().rule()), ruleDto.getKey());
       } else {
         ruleDto.setStatus(RuleStatus.READY)
+          .setName(newRule.name())
+          .replaceRuleDescriptionSectionDtos(Set.of(
+            createDefaultRuleDescriptionSection(uuidFactory.create(), newRule.markdownDescription())))
           .setUpdatedAt(system2.now());
+
+        ruleDto.replaceAllDefaultImpacts(Set.of());
+        setCleanCodeAttributeAndImpacts(newRule, ruleDto, templateRule);
+
         dbClient.ruleDao().update(dbSession, ruleDto);
+        for (RuleParamDto ruleParamDto : dbClient.ruleDao().selectRuleParamsByRuleKey(dbSession, ruleDto.getKey())) {
+          String newValue = Strings.emptyToNull(newRule.parameter(ruleParamDto.getName()));
+          ruleParamDto.setDefaultValue(newValue);
+          dbClient.ruleDao().updateRuleParam(dbSession, ruleDto, ruleParamDto);
+        }
       }
     } else {
       throw new IllegalArgumentException(format("A rule with the key '%s' already exists", ruleDto.getKey().rule()));
