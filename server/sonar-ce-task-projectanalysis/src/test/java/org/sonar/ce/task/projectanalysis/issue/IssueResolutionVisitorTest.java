@@ -122,7 +122,7 @@ class IssueResolutionVisitorTest {
   }
 
   @Test
-  void onIssue_whenIssueResolutionDisabled_taggedIssueIsLeftUnchanged() {
+  void onIssue_whenIssueResolutionDisabled_taggedIssueIsReopened() {
     underTest = createVisitor(false);
     Component component = createComponent(1);
 
@@ -135,8 +135,25 @@ class IssueResolutionVisitorTest {
     issue.setInternalTags(Set.of(IssueFieldsSetter.ISSUE_RESOLUTION_TAG));
     underTest.onIssue(component, issue);
 
-    verifyNoInteractions(issueLifecycle);
-    assertThat(issue.internalTags()).contains(IssueFieldsSetter.ISSUE_RESOLUTION_TAG);
+    verify(issueLifecycle).doManualTransition(issue, CodeQualityIssueWorkflowTransition.REOPEN.getKey(), null);
+    assertThat(issue.internalTags()).doesNotContain(IssueFieldsSetter.ISSUE_RESOLUTION_TAG);
+  }
+
+  @Test
+  void onIssue_whenIssueResolutionDisabled_hotspotTaggedIssueIsReopened() {
+    underTest = createVisitor(false);
+    Component component = createComponent(1);
+    underTest.beforeComponent(component);
+
+    DefaultIssue issue = newHotspotIssue();
+    issue.setLine(3);
+    issue.setStatus(STATUS_REVIEWED);
+    issue.setResolution(RESOLUTION_ACKNOWLEDGED);
+    issue.setInternalTags(Set.of(IssueFieldsSetter.ISSUE_RESOLUTION_TAG));
+    underTest.onIssue(component, issue);
+
+    verify(issueLifecycle).doManualTransition(issue, SecurityHotspotWorkflowTransition.RESET_AS_TO_REVIEW.getKey(), null);
+    assertThat(issue.internalTags()).doesNotContain(IssueFieldsSetter.ISSUE_RESOLUTION_TAG);
   }
 
   @Test

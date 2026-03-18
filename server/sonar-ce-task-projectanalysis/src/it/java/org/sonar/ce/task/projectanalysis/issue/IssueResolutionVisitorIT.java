@@ -43,6 +43,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
+import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 
 class IssueResolutionVisitorIT {
 
@@ -92,7 +94,7 @@ class IssueResolutionVisitorIT {
   }
 
   @Test
-  void disabled_keepsAlreadyTaggedIssueUnchanged() {
+  void disabled_reopensAlreadyTaggedIssue() {
     underTest = createVisitor(false);
     putDefaultIssueResolution();
     Component component = createComponent(1);
@@ -101,11 +103,13 @@ class IssueResolutionVisitorIT {
 
     DefaultIssue issue = newIssue();
     issue.setLine(3);
+    issue.setStatus(STATUS_RESOLVED);
+    issue.setResolution(RESOLUTION_WONT_FIX);
     issue.setInternalTags(Set.of(IssueFieldsSetter.ISSUE_RESOLUTION_TAG));
     underTest.onIssue(component, issue);
 
-    verifyNoInteractions(issueLifecycle);
-    assertThat(issue.internalTags()).contains(IssueFieldsSetter.ISSUE_RESOLUTION_TAG);
+    verify(issueLifecycle).doManualTransition(issue, CodeQualityIssueWorkflowTransition.REOPEN.getKey(), null);
+    assertThat(issue.internalTags()).doesNotContain(IssueFieldsSetter.ISSUE_RESOLUTION_TAG);
   }
 
   private static Component createComponent(int ref) {

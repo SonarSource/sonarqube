@@ -111,6 +111,9 @@ public class IssueResolutionVisitor extends IssueVisitor {
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
     if (!issueResolutionEnabled) {
+      if (issue.internalTags().contains(IssueFieldsSetter.ISSUE_RESOLUTION_TAG)) {
+        reopenAndRemoveTag(issue);
+      }
       return;
     }
 
