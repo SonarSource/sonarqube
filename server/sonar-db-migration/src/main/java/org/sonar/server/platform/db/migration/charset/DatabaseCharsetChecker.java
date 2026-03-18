@@ -20,11 +20,10 @@
 package org.sonar.server.platform.db.migration.charset;
 
 import com.google.common.annotations.VisibleForTesting;
+import jakarta.inject.Inject;
 import java.sql.Connection;
 import java.sql.SQLException;
 import javax.annotation.CheckForNull;
-import jakarta.inject.Inject;
-
 import org.sonar.db.Database;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
