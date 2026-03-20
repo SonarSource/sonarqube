@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbTester;
@@ -47,6 +48,7 @@ import org.sonar.telemetry.core.schema.ProjectMetric;
 import org.sonar.telemetry.core.schema.UserMetric;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -70,15 +72,15 @@ class TelemetryMetricsLoaderIT {
   public DbTester db = DbTester.create(system2);
   private final FakeServer server = new FakeServer();
   private final UuidFactory uuidFactory = mock(UuidFactory.class);
+  private final MapSettings settings = new MapSettings();
   private final List<TelemetryDataProvider<?>> providers = List.of(
     getBean(KEY_IS_VALID, Dimension.INSTALLATION, Granularity.DAILY, false),
     getBean(KEY_COVERAGE, Dimension.PROJECT, Granularity.WEEKLY, 12.05F, "module-1", "module-2"),
     getBean(KEY_NCLOC, Dimension.LANGUAGE, Granularity.MONTHLY, 125, "java", "cpp"),
     getBean(KEY_LAST_ACTIVE, Dimension.USER, Granularity.DAILY, "2024-01-01", "user-1"),
     getBean(KEY_UPDATE_FINISHED, Dimension.INSTALLATION, Granularity.ADHOC, true),
-    getBean(KEY_UPDATE_FINISHED, Dimension.INSTALLATION, Granularity.ADHOC, false)
-  );
-  private final TelemetryMetricsLoader underTest = new TelemetryMetricsLoader(system2, server, db.getDbClient(), uuidFactory, providers);
+    getBean(KEY_UPDATE_FINISHED, Dimension.INSTALLATION, Granularity.ADHOC, false));
+  private final TelemetryMetricsLoader underTest = new TelemetryMetricsLoader(system2, server, db.getDbClient(), uuidFactory, providers, settings.asConfig());
 
   @Test
   void sendTelemetryData() {
@@ -97,8 +99,7 @@ class TelemetryMetricsLoaderIT {
         tuple(KEY_NCLOC, DIMENSION_LANGUAGE, 0L),
         tuple(KEY_LAST_ACTIVE, "user", 0L),
         tuple(KEY_UPDATE_FINISHED, DIMENSION_INSTALLATION, 0L),
-        tuple(KEY_UPDATE_FINISHED, DIMENSION_INSTALLATION, 0L)
-      );
+        tuple(KEY_UPDATE_FINISHED, DIMENSION_INSTALLATION, 0L));
 
     assertThat(messages)
       .hasSize(4)
@@ -107,8 +108,7 @@ class TelemetryMetricsLoaderIT {
         tuple(SOME_UUID, SERVER_ID, Dimension.INSTALLATION),
         tuple(SOME_UUID, SERVER_ID, Dimension.USER),
         tuple(SOME_UUID, SERVER_ID, Dimension.PROJECT),
-        tuple(SOME_UUID, SERVER_ID, Dimension.LANGUAGE)
-      );
+        tuple(SOME_UUID, SERVER_ID, Dimension.LANGUAGE));
 
     messages.forEach(message -> {
       switch (message.getDimension()) {
@@ -119,6 +119,76 @@ class TelemetryMetricsLoaderIT {
         default -> throw new IllegalArgumentException("Should not get here");
       }
     });
+  }
+
+  @Test
+  void shouldSplitMetricsIntoBatches() {
+    // Set batchSize to 5
+    settings.setProperty("sonar.telemetry.metricsBatchSize", "5");
+
+    // Create a provider with 12 user dimensionMetrics (should result in 3 baseMessages: 5+5+2)
+    String[] userIds = new String[12];
+    for (int i = 0; i < 12; i++) {
+      userIds[i] = "user-" + i;
+    }
+    List<TelemetryDataProvider<?>> largeProviders = List.of(
+      getBean("user_active", Dimension.USER, Granularity.DAILY, true, userIds));
+
+    TelemetryMetricsLoader loader = new TelemetryMetricsLoader(system2, server, db.getDbClient(), uuidFactory, largeProviders, settings.asConfig());
+    when(uuidFactory.create()).thenReturn("uuid-1", "uuid-2", "uuid-3");
+
+    server.setId(SERVER_ID);
+    TelemetryMetricsLoader.Context context = loader.loadData();
+    Set<BaseMessage> result = context.getMessages();
+
+    // Should create 3 batchMetrics for USER dimension
+    assertThat(result).hasSize(3);
+    assertThat(result)
+      .extracting(BaseMessage::getDimension)
+      .containsOnly(Dimension.USER);
+
+    // Verify batchMetrics sizes: 5, 5, 2
+    List<Integer> metricCounts = result.stream()
+      .map(msg -> msg.getMetrics().size())
+      .sorted()
+      .toList();
+    assertThat(metricCounts).containsExactly(2, 5, 5);
+
+    // Verify all 12 dimensionMetrics are present across all baseMessages
+    long totalMetrics = result.stream()
+      .mapToLong(msg -> msg.getMetrics().size())
+      .sum();
+    assertThat(totalMetrics).isEqualTo(12);
+  }
+
+  @Test
+  void shouldThrowExceptionWhenBatchSizeIsZero() {
+    MapSettings invalidSettings = new MapSettings();
+    invalidSettings.setProperty("sonar.telemetry.metricsBatchSize", "0");
+
+    List<TelemetryDataProvider<?>> testProviders = List.of(
+      getBean("test_metric", Dimension.INSTALLATION, Granularity.DAILY, true));
+
+    TelemetryMetricsLoader loader = new TelemetryMetricsLoader(system2, server, db.getDbClient(), uuidFactory, testProviders, invalidSettings.asConfig());
+
+    assertThatThrownBy(loader::loadData)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("sonar.telemetry.metricsBatchSize must be a positive integer, got: 0");
+  }
+
+  @Test
+  void shouldThrowExceptionWhenBatchSizeIsNegative() {
+    MapSettings invalidSettings = new MapSettings();
+    invalidSettings.setProperty("sonar.telemetry.metricsBatchSize", "-5");
+
+    List<TelemetryDataProvider<?>> testProviders = List.of(
+      getBean("test_metric", Dimension.INSTALLATION, Granularity.DAILY, true));
+
+    TelemetryMetricsLoader loader = new TelemetryMetricsLoader(system2, server, db.getDbClient(), uuidFactory, testProviders, invalidSettings.asConfig());
+
+    assertThatThrownBy(loader::loadData)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("sonar.telemetry.metricsBatchSize must be a positive integer, got: -5");
   }
 
   @ParameterizedTest
@@ -169,7 +239,7 @@ class TelemetryMetricsLoaderIT {
 
   @DataProvider
   public static Object[][] shouldBeUpdatedMetrics() {
-    return new Object[][]{
+    return new Object[][] {
       {KEY_IS_VALID, DIMENSION_INSTALLATION, TimeUnit.DAYS, 100},
       {KEY_COVERAGE, DIMENSION_PROJECT, TimeUnit.DAYS, 100},
       {KEY_NCLOC, DIMENSION_LANGUAGE, TimeUnit.DAYS, 100}
@@ -178,7 +248,7 @@ class TelemetryMetricsLoaderIT {
 
   @DataProvider
   public static Object[][] shouldNotBeUpdatedMetrics() {
-    return new Object[][]{
+    return new Object[][] {
       {KEY_IS_VALID, DIMENSION_INSTALLATION, TimeUnit.HOURS, 1},
       {KEY_COVERAGE, DIMENSION_PROJECT, TimeUnit.DAYS, 5},
       {KEY_NCLOC, DIMENSION_LANGUAGE, TimeUnit.DAYS, 24}
@@ -188,23 +258,21 @@ class TelemetryMetricsLoaderIT {
   private static void assertProjectMetrics(BaseMessage message) {
     assertThat(message.getInstallationId()).isEqualTo(SERVER_ID);
     assertThat(message.getDimension()).isEqualTo(Dimension.PROJECT);
-    assertThat((Set< ProjectMetric>) (Set<?>) message.getMetrics())
+    assertThat((Set<ProjectMetric>) (Set<?>) message.getMetrics())
       .extracting(ProjectMetric::getKey, ProjectMetric::getGranularity, ProjectMetric::getType, ProjectMetric::getProjectUuid, ProjectMetric::getValue)
       .containsExactlyInAnyOrder(
         tuple(KEY_COVERAGE, Granularity.WEEKLY, TelemetryDataType.FLOAT, "module-1", 12.05f),
-        tuple(KEY_COVERAGE, Granularity.WEEKLY, TelemetryDataType.FLOAT, "module-2", 12.05f)
-      );
+        tuple(KEY_COVERAGE, Granularity.WEEKLY, TelemetryDataType.FLOAT, "module-2", 12.05f));
   }
 
   private static void assertLanguageMetrics(BaseMessage message) {
     assertThat(message.getInstallationId()).isEqualTo(SERVER_ID);
     assertThat(message.getDimension()).isEqualTo(Dimension.LANGUAGE);
-    assertThat((Set< LanguageMetric>) (Set<?>) message.getMetrics())
+    assertThat((Set<LanguageMetric>) (Set<?>) message.getMetrics())
       .extracting(LanguageMetric::getKey, LanguageMetric::getGranularity, LanguageMetric::getType, LanguageMetric::getLanguage, LanguageMetric::getValue)
       .containsExactlyInAnyOrder(
         tuple(KEY_NCLOC, Granularity.MONTHLY, TelemetryDataType.INTEGER, "java", 125),
-        tuple(KEY_NCLOC, Granularity.MONTHLY, TelemetryDataType.INTEGER, "cpp", 125)
-      );
+        tuple(KEY_NCLOC, Granularity.MONTHLY, TelemetryDataType.INTEGER, "cpp", 125));
   }
 
   private static void assertUserMetrics(BaseMessage message) {
@@ -213,8 +281,7 @@ class TelemetryMetricsLoaderIT {
     assertThat((Set<UserMetric>) (Set<?>) message.getMetrics())
       .extracting(UserMetric::getKey, UserMetric::getGranularity, UserMetric::getType, UserMetric::getUserUuid, UserMetric::getValue)
       .containsExactlyInAnyOrder(
-        tuple(KEY_LAST_ACTIVE, Granularity.DAILY, TelemetryDataType.STRING, "user-1", "2024-01-01")
-      );
+        tuple(KEY_LAST_ACTIVE, Granularity.DAILY, TelemetryDataType.STRING, "user-1", "2024-01-01"));
   }
 
   private static void assertInstallationMetrics(BaseMessage message) {
@@ -224,8 +291,7 @@ class TelemetryMetricsLoaderIT {
       .extracting(InstallationMetric::getKey, InstallationMetric::getGranularity, InstallationMetric::getType, InstallationMetric::getValue)
       .containsExactlyInAnyOrder(
         tuple(KEY_IS_VALID, Granularity.DAILY, TelemetryDataType.BOOLEAN, false),
-        tuple(KEY_UPDATE_FINISHED, Granularity.ADHOC, TelemetryDataType.BOOLEAN, true)
-      );
+        tuple(KEY_UPDATE_FINISHED, Granularity.ADHOC, TelemetryDataType.BOOLEAN, true));
   }
 
   private <T> TelemetryDataProvider<T> getBean(String key, Dimension dimension, Granularity granularity, T value, String... keys) {
@@ -274,8 +340,7 @@ class TelemetryMetricsLoaderIT {
         return Stream.of(keys)
           .collect(Collectors.toMap(
             key -> key,
-            key -> value
-          ));
+            key -> value));
       }
     };
   }

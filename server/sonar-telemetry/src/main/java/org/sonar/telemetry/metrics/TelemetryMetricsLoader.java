@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
@@ -39,20 +39,24 @@ import org.sonar.telemetry.core.schema.BaseMessage;
 import org.sonar.telemetry.core.schema.Metric;
 import org.sonar.telemetry.metrics.util.SentMetricsStorage;
 
+import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_METRICS_BATCH_SIZE;
+
 public class TelemetryMetricsLoader {
   private final System2 system2;
   private final Server server;
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
   private final List<TelemetryDataProvider<?>> providers;
+  private final Configuration config;
 
-
-  public TelemetryMetricsLoader(System2 system2, Server server, DbClient dbClient, UuidFactory uuidFactory, List<TelemetryDataProvider<?>> providers) {
+  public TelemetryMetricsLoader(System2 system2, Server server, DbClient dbClient, UuidFactory uuidFactory, List<TelemetryDataProvider<?>> providers,
+    Configuration config) {
     this.system2 = system2;
     this.server = server;
     this.dbClient = dbClient;
     this.providers = providers;
     this.uuidFactory = uuidFactory;
+    this.config = config;
   }
 
   public Context loadData() {
@@ -77,8 +81,7 @@ public class TelemetryMetricsLoader {
             context.addDto(dto.get());
           } else {
             TelemetryMetricsSentDto newDto = new TelemetryMetricsSentDto(
-              provider.getMetricKey(), provider.getDimension().getValue()
-            );
+              provider.getMetricKey(), provider.getDimension().getValue());
             context.addDto(newDto);
           }
         }
@@ -95,16 +98,37 @@ public class TelemetryMetricsLoader {
   }
 
   private Set<BaseMessage> retrieveBaseMessages(Map<Dimension, Set<Metric>> metrics) {
-    return metrics.entrySet().stream()
-      // we do not want to send payloads with zero metrics
-      .filter(v -> !v.getValue().isEmpty())
-      .map(entry -> new BaseMessage.Builder()
-        .setMessageUuid(uuidFactory.create())
-        .setInstallationId(server.getId())
-        .setDimension(entry.getKey())
-        .setMetrics(entry.getValue())
-        .build())
-      .collect(Collectors.toSet());
+    int batchSize = config.getInt(SONAR_TELEMETRY_METRICS_BATCH_SIZE.getKey())
+      .orElse(Integer.parseInt(SONAR_TELEMETRY_METRICS_BATCH_SIZE.getDefaultValue()));
+
+    if (batchSize <= 0) {
+      throw new IllegalStateException("sonar.telemetry.metricsBatchSize must be a positive integer, got: " + batchSize);
+    }
+
+    Set<BaseMessage> result = new LinkedHashSet<>();
+    for (Map.Entry<Dimension, Set<Metric>> entry : metrics.entrySet()) {
+      Set<Metric> dimensionMetrics = entry.getValue();
+      if (dimensionMetrics.isEmpty()) {
+        continue;
+      }
+
+      Dimension dimension = entry.getKey();
+      List<Metric> metricsList = new ArrayList<>(dimensionMetrics);
+
+      // Split metrics into chunks if they exceed the batch size
+      for (int i = 0; i < metricsList.size(); i += batchSize) {
+        int endIndex = Math.min(i + batchSize, metricsList.size());
+        Set<Metric> batchMetrics = new LinkedHashSet<>(metricsList.subList(i, endIndex));
+
+        result.add(new BaseMessage.Builder()
+          .setMessageUuid(uuidFactory.create())
+          .setInstallationId(server.getId())
+          .setDimension(dimension)
+          .setMetrics(batchMetrics)
+          .build());
+      }
+    }
+    return result;
   }
 
   public static class Context {
@@ -121,7 +145,7 @@ public class TelemetryMetricsLoader {
       this.metricsSentDtos.add(dto);
     }
 
-    protected void setBaseMessages(Set<BaseMessage> baseMessages){
+    protected void setBaseMessages(Set<BaseMessage> baseMessages) {
       this.baseMessages = baseMessages;
     }
 
