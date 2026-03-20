@@ -185,7 +185,7 @@ public class GitIgnoreCommandTest {
     Files.write(subRoot.resolve(".gitignore"), Arrays.asList("**/*.java"), UTF_8, TRUNCATE_EXISTING, CREATE);
     createFolderStructure(subRoot, 1, 0, 1);
 
-    try (Git subGit = Git.init().setDirectory(subRoot.toFile()).call()) {
+    try (Git subGit = GitUtils.createRepository(subRoot)) {
       subGit.add().addFilepattern(".").call();
       subGit.commit().setMessage("first").call();
     }

@@ -375,7 +375,7 @@ public class GitScmProviderTest {
 
     Files.write(submodule2File, randomizedContent("sub2.js", 3).getBytes(), StandardOpenOption.APPEND);
     gitForSubmodule2.add().addFilepattern("sub2.js").call();
-    gitForSubmodule2.commit().setAuthor("joe", "joe@example.com").setMessage("important change").call();
+    gitForSubmodule2.commit().setAuthor("joe", "joe@example.com").setMessage("important change").setSign(false).call();
 
     Map<Path, Set<Integer>> changedLines = newScmProvider().branchChangedLines("master", submodule2Path, Set.of(submodule2File));
 
