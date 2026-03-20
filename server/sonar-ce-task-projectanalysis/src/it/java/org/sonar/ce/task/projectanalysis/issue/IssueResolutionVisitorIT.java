@@ -132,6 +132,7 @@ class IssueResolutionVisitorIT {
 
   private IssueResolutionVisitor createVisitor(boolean enabled) {
     MapSettings settings = new MapSettings();
+    settings.setProperty(CorePropertyDefinitions.ISSUE_RESOLUTION_GLOBAL_ENABLED, String.valueOf(enabled));
     settings.setProperty(CorePropertyDefinitions.ISSUE_RESOLUTION_ENABLED, String.valueOf(enabled));
     ConfigurationRepository configurationRepository = new TestSettingsRepository(settings.asConfig());
     return new IssueResolutionVisitor(issueLifecycle, scmInfoRepository, scmAccountToUser, reportReader, configurationRepository);

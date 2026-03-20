@@ -230,6 +230,7 @@ public class SetAction implements SettingsWsAction {
     validations.validateScope(settingData);
     validations.validateQualifier(settingData);
     validations.validateValueType(settingData);
+    validations.validateIssueResolution(settingData);
   }
 
   private static void validatePropertySet(SetRequest request, @Nullable PropertyDefinition definition) {

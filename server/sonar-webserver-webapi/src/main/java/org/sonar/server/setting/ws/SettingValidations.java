@@ -39,11 +39,13 @@ import org.apache.commons.io.IOUtils;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.i18n.I18n;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.entity.EntityDto;
+import org.sonar.db.property.PropertyDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 
@@ -87,6 +89,32 @@ public class SettingValidations {
 
   public void validateValueType(SettingData data) {
     valueTypeValidation.validateValueType(data);
+  }
+
+  public void validateIssueResolution(SettingData data) {
+    if (!CorePropertyDefinitions.ISSUE_RESOLUTION_ENABLED.equals(data.key)) {
+      return;
+    }
+
+    boolean isEnablingIssueResolutionSetting = data.values.stream().anyMatch("true"::equalsIgnoreCase);
+    if (!isEnablingIssueResolutionSetting) {
+      return;
+    }
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      PropertyDto globalProperty = dbClient.propertiesDao().selectGlobalProperty(dbSession, CorePropertyDefinitions.ISSUE_RESOLUTION_GLOBAL_ENABLED);
+
+      String globalDefaultValue = globalProperty != null
+        ? globalProperty.getValue()
+        : Optional.ofNullable(definitions.get(CorePropertyDefinitions.ISSUE_RESOLUTION_GLOBAL_ENABLED))
+        .map(PropertyDefinition::defaultValue)
+        .orElse(null);
+
+      boolean globalEnabled = "true".equalsIgnoreCase(globalDefaultValue);
+      checkRequest(globalEnabled,
+        "Setting '%s' cannot be enabled when the global SONAR-RESOLVE feature ('%s') is disabled.",
+        CorePropertyDefinitions.ISSUE_RESOLUTION_ENABLED, CorePropertyDefinitions.ISSUE_RESOLUTION_GLOBAL_ENABLED);
+    }
   }
 
   private static boolean checkComponentQualifier(SettingData data, @Nullable PropertyDefinition definition) {

@@ -32,6 +32,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
 import org.sonar.api.PropertyType;
+import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinition.ConfigScope;
 import org.sonar.api.config.PropertyDefinitions;
@@ -1216,6 +1217,44 @@ class SetActionIT {
       .isNotNull()
       .extracting(PropertyDto::getKey, PropertyDto::getValue, PropertyDto::getEntityUuid)
       .containsExactly(key, value, entityUuid);
+  }
+
+  @Test
+  void fail_when_enabling_issue_resolution_without_global_enabled() {
+    definitions.addComponent(PropertyDefinition.builder(CorePropertyDefinitions.ISSUE_RESOLUTION_ENABLED)
+      .name("Enable in-code issue resolution for projects by default")
+      .type(PropertyType.BOOLEAN)
+      .onConfigScopes(ConfigScope.PROJECT)
+      .build());
+    ProjectData project = randomPublicOrPrivateProject();
+    logInAsProjectAdministrator(project.getProjectDto());
+    String projectKey = project.projectKey();
+
+    assertThatThrownBy(() -> callForProjectSettingByKey(CorePropertyDefinitions.ISSUE_RESOLUTION_ENABLED, "true", projectKey))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Setting '%s' cannot be enabled when the global SONAR-RESOLVE feature ('%s') is disabled.",
+        CorePropertyDefinitions.ISSUE_RESOLUTION_ENABLED, CorePropertyDefinitions.ISSUE_RESOLUTION_GLOBAL_ENABLED);
+  }
+
+  @Test
+  void succeed_when_enabling_issue_resolution_with_global_enabled() {
+    definitions.addComponent(PropertyDefinition.builder(CorePropertyDefinitions.ISSUE_RESOLUTION_ENABLED)
+      .name("Enable in-code issue resolution for projects by default")
+      .type(PropertyType.BOOLEAN)
+      .onConfigScopes(ConfigScope.PROJECT)
+      .build());
+    definitions.addComponent(PropertyDefinition.builder(CorePropertyDefinitions.ISSUE_RESOLUTION_GLOBAL_ENABLED)
+      .name("Enable in-code issue resolution")
+      .type(PropertyType.BOOLEAN)
+      .build());
+    callForGlobalSetting(CorePropertyDefinitions.ISSUE_RESOLUTION_GLOBAL_ENABLED, "true");
+
+    ProjectData project = randomPublicOrPrivateProject();
+    logInAsProjectAdministrator(project.getProjectDto());
+
+    callForProjectSettingByKey(CorePropertyDefinitions.ISSUE_RESOLUTION_ENABLED, "true", project.projectKey());
+
+    assertComponentSetting(CorePropertyDefinitions.ISSUE_RESOLUTION_ENABLED, "true", project.projectUuid());
   }
 
   private void callForGlobalSetting(@Nullable String key, @Nullable String value) {

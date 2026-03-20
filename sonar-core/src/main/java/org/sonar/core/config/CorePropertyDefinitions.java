@@ -49,6 +49,7 @@ public class CorePropertyDefinitions {
   public static final String REPORT_PART_MAX_SIZE_MBYTES = "sonar.report.partMaxSizeMBytes";
   public static final String ALLOW_DISABLE_INHERITED_RULES = "sonar.qualityProfiles.allowDisableInheritedRules";
   public static final String ISSUE_RESOLUTION_ENABLED = "sonar.issues.issueResolution.enabled";
+  public static final String ISSUE_RESOLUTION_GLOBAL_ENABLED = "sonar.issues.issueResolution.global.enabled";
 
   public static final String PLUGINS_RISK_CONSENT = "sonar.plugins.risk.consent";
 
@@ -56,6 +57,7 @@ public class CorePropertyDefinitions {
 
   public static final String SUBCATEGORY_PROJECT_CREATION = "subProjectCreation";
   public static final String SUBCATEGORY_QUALITY_PROFILE = "qualityProfile";
+  public static final String SUBCATEGORY_SONAR_RESOLVE = "sonarResolve";
 
   private CorePropertyDefinitions() {
     // only static stuff
@@ -201,11 +203,24 @@ public class CorePropertyDefinitions {
         .onConfigScopes(ConfigScope.PROJECT)
         .type(PropertyType.USER_LOGIN)
         .build(),
-      PropertyDefinition.builder(ISSUE_RESOLUTION_ENABLED)
-        .name("Enable in-code issue suppression (sonar-resolve)")
-        .description("Allow issues to be resolved from source code through sonar-resolve annotations.")
+      PropertyDefinition.builder(ISSUE_RESOLUTION_GLOBAL_ENABLED)
+        .name("Enable in-code issue resolution")
+        .description("Enable usage of in-code issue resolution with SONAR-RESOLVE across projects. "
+          + "Disabling this setting will prevent usage of SONAR-RESOLVE on all projects.")
         .category(CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_ISSUES)
+        .subCategory(SUBCATEGORY_SONAR_RESOLVE)
+        .type(BOOLEAN)
+        .defaultValue(Boolean.toString(false))
+        .build(),
+      PropertyDefinition.builder(ISSUE_RESOLUTION_ENABLED)
+        // NOTE: the name and description is different on the project settings page
+        // This is handled on by webapp
+        .name("Enable in-code issue resolution for projects by default")
+        .description("Enable in-code issue resolution with SONAR-RESOLVE for all projects by default. "
+          + "Can be overridden at the project level. "
+          + "This setting is unavailable when the 'Enable in-code issue resolution' option is disabled.")
+        .category(CATEGORY_GENERAL)
+        .subCategory(SUBCATEGORY_SONAR_RESOLVE)
         .onConfigScopes(ConfigScope.PROJECT)
         .type(BOOLEAN)
         .defaultValue(Boolean.toString(false))

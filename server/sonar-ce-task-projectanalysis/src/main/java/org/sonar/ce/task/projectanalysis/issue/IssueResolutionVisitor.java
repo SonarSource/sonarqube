@@ -29,6 +29,7 @@ import javax.annotation.CheckForNull;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.ce.common.scanner.ScannerReportReader;
@@ -95,7 +96,7 @@ public class IssueResolutionVisitor extends IssueVisitor {
   @Override
   public void beforeComponent(Component component) {
     scmInfo = scmInfoRepository.getScmInfo(component).orElse(null);
-    issueResolutionEnabled = configurationRepository.getConfiguration().getBoolean(CorePropertyDefinitions.ISSUE_RESOLUTION_ENABLED).orElse(false);
+    issueResolutionEnabled = isIssueResolutionEnabled();
     componentIssueResolution = issueResolutionEnabled
       ? Optional.ofNullable(component.getReportAttributes().getRef()).map(this::getIssueResolutionForComponent).orElse(null)
       : null;
@@ -236,6 +237,13 @@ public class IssueResolutionVisitor extends IssueVisitor {
       }
     }
     return null;
+  }
+
+  private boolean isIssueResolutionEnabled() {
+    Configuration config = configurationRepository.getConfiguration();
+    boolean globalGateEnabled = config.getBoolean(CorePropertyDefinitions.ISSUE_RESOLUTION_GLOBAL_ENABLED).orElse(false);
+    boolean projectEnabled = config.getBoolean(CorePropertyDefinitions.ISSUE_RESOLUTION_ENABLED).orElse(false);
+    return globalGateEnabled && projectEnabled;
   }
 
   private Optional<String> resolveIssueResolutionAuthorUuid(IssueResolution issueResolution) {
