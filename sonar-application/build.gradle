@@ -153,6 +153,7 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
       exclude 'bin/windows-x86-64/StartSonar.bat'
       exclude 'bin/linux-x86-64/sonar.sh'
       exclude 'bin/macosx-universal-64/sonar.sh'
+      exclude 'security/report-metadata.json'
       rename { fileName ->
         if (fileName == 'CVE-review-and-treatment-status-sqcb.csv') {
           return "CVE-review-and-treatment-status-sqcb-${version}.csv"
@@ -164,6 +165,13 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
     }
   }
 
+  into("${archiveDir}/security/") {
+    from file('src/main/assembly/security/report-metadata.json')
+    filter(ReplaceTokens, tokens: [
+            'generated_at': new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone("UTC")),
+            'sqcbVersion': version
+    ])
+  }
 
   into("${archiveDir}/licenses") {
     from file('src/main/assembly/sonarsource-svnkit-license.txt')
