@@ -178,6 +178,7 @@ public final class SecurityStandards {
   }
 
   public enum SQCategory {
+    MALICIOUS_DEPENDENCIES("malicious-dependencies", LOW),
     BUFFER_OVERFLOW("buffer-overflow", HIGH),
     SQL_INJECTION("sql-injection", HIGH),
     RCE("rce", MEDIUM),
@@ -309,6 +310,7 @@ public final class SecurityStandards {
   }
 
   public static final Map<SQCategory, Set<String>> CWES_BY_SQ_CATEGORY = ImmutableMap.<SQCategory, Set<String>>builder()
+    .put(SQCategory.MALICIOUS_DEPENDENCIES, Set.of("1395"))
     .put(SQCategory.BUFFER_OVERFLOW, Set.of("119", "120", "131", "676", "788"))
     .put(SQCategory.SQL_INJECTION, Set.of("89", "564", "943"))
     .put(SQCategory.COMMAND_INJECTION, Set.of("77", "78", "88", "214"))
@@ -360,8 +362,7 @@ public final class SecurityStandards {
     "MASVS-PRIVACY-1",
     "MASVS-PRIVACY-2",
     "MASVS-PRIVACY-3",
-    "MASVS-PRIVACY-4"
-  );
+    "MASVS-PRIVACY-4");
   public static final Ordering<String> OWASP_MASVS_CATEGORY_KEYS_ORDERING = Ordering.explicit(OWASP_MASVS_CATEGORIES);
 
   public static final Map<String, String> CWES_BY_CASA_CATEGORY;
@@ -444,8 +445,7 @@ public final class SecurityStandards {
     CWES_BY_CASA_CATEGORY = Collections.unmodifiableMap(map);
   }
 
-  public static final List<String> CASA_ROOT_CATEGORIES =
-    IntStream.rangeClosed(1, 14).mapToObj(String::valueOf).collect(Collectors.toUnmodifiableList());
+  public static final List<String> CASA_ROOT_CATEGORIES = IntStream.rangeClosed(1, 14).mapToObj(String::valueOf).collect(Collectors.toUnmodifiableList());
 
   private final Set<String> standards;
   private final Set<String> cwe;

@@ -36,6 +36,7 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.sonar.server.security.SecurityStandards.CWES_BY_SQ_CATEGORY;
@@ -145,6 +146,12 @@ class SecurityStandardsTest {
 
       sqCategories.remove(expected);
     }
+  }
+
+  @Test
+  void sq_category_keys_ordering_supports_malicious_dependencies() {
+    assertThatCode(() -> SQ_CATEGORY_KEYS_ORDERING.compare("malicious-dependencies", "others"))
+      .doesNotThrowAnyException();
   }
 
   @Test
