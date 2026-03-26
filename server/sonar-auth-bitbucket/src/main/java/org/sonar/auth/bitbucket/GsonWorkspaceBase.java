@@ -22,21 +22,21 @@ package org.sonar.auth.bitbucket;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * Lite representation of team https://api.bitbucket.org/2.0/user/permissions/workspaces
+ * Lite representation of the workspace object nested in https://api.bitbucket.org/2.0/user/workspaces
  */
-public class GsonWorkspaceMembership {
+public class GsonWorkspaceBase {
 
-  @SerializedName("workspace")
-  private GsonWorkspace workspace;
+  @SerializedName("slug")
+  private String slug;
 
-  public GsonWorkspaceMembership() {
+  public GsonWorkspaceBase() {
     // even if empty constructor is not required for Gson, it is strongly
     // recommended:
     // http://stackoverflow.com/a/18645370/229031
   }
 
-  public GsonWorkspace getWorkspace() {
-    return workspace;
+  public String getSlug() {
+    return slug;
   }
 
 }

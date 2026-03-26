@@ -19,30 +19,24 @@
  */
 package org.sonar.auth.bitbucket;
 
-import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * Lite representation of JSON response of GET https://api.bitbucket.org/2.0/workspaces/{workspace}
+ * Lite representation of workspace access https://api.bitbucket.org/2.0/user/workspaces
  */
-public class GsonWorkspace extends GsonWorkspaceBase {
+public class GsonWorkspaceAccess {
 
-  @SerializedName("name")
-  private String name;
+  @SerializedName("workspace")
+  private GsonWorkspaceBase workspace;
 
-  public GsonWorkspace() {
+  public GsonWorkspaceAccess() {
     // even if empty constructor is not required for Gson, it is strongly
     // recommended:
     // http://stackoverflow.com/a/18645370/229031
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public static GsonWorkspace parse(String json) {
-    Gson gson = new Gson();
-    return gson.fromJson(json, GsonWorkspace.class);
+  public GsonWorkspaceBase getWorkspace() {
+    return workspace;
   }
 
 }

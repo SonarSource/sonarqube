@@ -28,6 +28,8 @@ import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -164,16 +166,18 @@ public class BitbucketIdentityProvider implements OAuth2IdentityProvider {
   private void checkTeamRestriction(OAuth20Service service, OAuth2AccessToken accessToken, GsonUser user) throws InterruptedException, ExecutionException, IOException {
     String[] workspaceAllowed = settings.workspaceAllowedList();
     if (workspaceAllowed != null && workspaceAllowed.length > 0) {
-      GsonWorkspaceMemberships userWorkspaces = requestWorkspaces(service, accessToken);
+      GsonWorkspaceAccesses userWorkspaces = requestWorkspaces(service, accessToken);
       String errorMessage = format("User %s is not part of allowed workspaces list", user.getUsername());
       if (userWorkspaces == null || userWorkspaces.getWorkspaces() == null) {
         throw new UnauthorizedException(errorMessage);
       } else {
-        Set<String> uniqueUserWorkspaces = new HashSet<>();
-        uniqueUserWorkspaces.addAll(userWorkspaces.getWorkspaces().stream().map(w -> w.getWorkspace().getName()).collect(toSet()));
-        uniqueUserWorkspaces.addAll(userWorkspaces.getWorkspaces().stream().map(w -> w.getWorkspace().getSlug()).collect(toSet()));
+        Set<String> uniqueUserWorkspaceSlugs = userWorkspaces.getWorkspaces().stream().map(w -> w.getWorkspace().getSlug()).collect(toSet());
         List<String> workspaceAllowedList = asList(workspaceAllowed);
-        if (uniqueUserWorkspaces.stream().noneMatch(workspaceAllowedList::contains)) {
+        if (uniqueUserWorkspaceSlugs.stream().anyMatch(workspaceAllowedList::contains)) {
+          return;
+        }
+        List<String> workspaceNames = requestWorkspaceNames(service, accessToken, uniqueUserWorkspaceSlugs);
+        if (workspaceNames.stream().noneMatch(workspaceAllowedList::contains)) {
           throw new UnauthorizedException(errorMessage);
         }
       }
@@ -181,15 +185,34 @@ public class BitbucketIdentityProvider implements OAuth2IdentityProvider {
   }
 
   @CheckForNull
-  private GsonWorkspaceMemberships requestWorkspaces(OAuth20Service service, OAuth2AccessToken accessToken) throws InterruptedException, ExecutionException, IOException {
-    OAuthRequest userRequest = new OAuthRequest(Verb.GET, settings.apiURL() + "2.0/user/permissions/workspaces?q=permission=\"member\"");
+  private GsonWorkspaceAccesses requestWorkspaces(OAuth20Service service, OAuth2AccessToken accessToken) throws InterruptedException, ExecutionException, IOException {
+    OAuthRequest userRequest = new OAuthRequest(Verb.GET, settings.apiURL() + "2.0/user/workspaces");
     service.signRequest(accessToken, userRequest);
     Response teamsResponse = service.execute(userRequest);
     if (teamsResponse.isSuccessful()) {
-      return GsonWorkspaceMemberships.parse(teamsResponse.getBody());
+      return GsonWorkspaceAccesses.parse(teamsResponse.getBody());
     }
-    LOGGER.warn("Fail to retrieve the teams of Bitbucket user: {}", teamsResponse.getBody());
+    LOGGER.warn("Fail to retrieve the workspaces of Bitbucket user: {}", teamsResponse.getBody());
     return null;
+  }
+
+  private List<String> requestWorkspaceNames(OAuth20Service service, OAuth2AccessToken accessToken, Collection<String> workspaceSlugs)
+    throws InterruptedException, ExecutionException, IOException {
+    List<String> names = new ArrayList<>();
+    for (String slug : workspaceSlugs) {
+      OAuthRequest workspaceRequest = new OAuthRequest(Verb.GET, settings.apiURL() + "2.0/workspaces/" + slug);
+      service.signRequest(accessToken, workspaceRequest);
+      Response workspaceResponse = service.execute(workspaceRequest);
+      if (workspaceResponse.isSuccessful()) {
+        GsonWorkspace workspace = GsonWorkspace.parse(workspaceResponse.getBody());
+        if (workspace.getName() != null) {
+          names.add(workspace.getName());
+        }
+      } else {
+        LOGGER.warn("Fail to retrieve workspace details for slug {}: {}", slug, workspaceResponse.getBody());
+      }
+    }
+    return names;
   }
 
 }

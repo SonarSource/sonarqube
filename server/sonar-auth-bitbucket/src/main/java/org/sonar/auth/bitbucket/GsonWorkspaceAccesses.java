@@ -24,26 +24,26 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 /**
- * Lite representation of JSON response of GET https://api.bitbucket.org/2.0/user/permissions/workspaces
+ * Lite representation of JSON response of GET https://api.bitbucket.org/2.0/user/workspaces
  */
-public class GsonWorkspaceMemberships {
+public class GsonWorkspaceAccesses {
 
   @SerializedName("values")
-  private List<GsonWorkspaceMembership> values;
+  private List<GsonWorkspaceAccess> values;
 
-  public GsonWorkspaceMemberships() {
+  public GsonWorkspaceAccesses() {
     // even if empty constructor is not required for Gson, it is strongly
     // recommended:
     // http://stackoverflow.com/a/18645370/229031
   }
 
-  public List<GsonWorkspaceMembership> getWorkspaces() {
+  public List<GsonWorkspaceAccess> getWorkspaces() {
     return values;
   }
 
-  public static GsonWorkspaceMemberships parse(String json) {
+  public static GsonWorkspaceAccesses parse(String json) {
     Gson gson = new Gson();
-    return gson.fromJson(json, GsonWorkspaceMemberships.class);
+    return gson.fromJson(json, GsonWorkspaceAccesses.class);
   }
 
 }

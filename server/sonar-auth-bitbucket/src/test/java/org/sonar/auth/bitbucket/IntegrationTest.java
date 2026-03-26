@@ -144,7 +144,7 @@ public class IntegrationTest {
     bitbucket.enqueue(newSuccessfulAccessTokenResponse());
     bitbucket.enqueue(newUserResponse("john", "John", "john-uuid"));
     bitbucket.enqueue(newPrimaryEmailResponse("john@bitbucket.org"));
-    bitbucket.enqueue(newWorkspacesResponse("workspace3", "workspace2"));
+    bitbucket.enqueue(newUserWorkspacesResponse("workspace3", "workspace2"));
 
     HttpServletRequest request = newRequest("the-verifier-code");
     DumbCallbackContext callbackContext = new DumbCallbackContext(request);
@@ -163,7 +163,8 @@ public class IntegrationTest {
     bitbucket.enqueue(newSuccessfulAccessTokenResponse());
     bitbucket.enqueue(newUserResponse("john", "John", "john-uuid"));
     bitbucket.enqueue(newPrimaryEmailResponse("john@bitbucket.org"));
-    bitbucket.enqueue(newWorkspacesResponse("workspace3"));
+    bitbucket.enqueue(newUserWorkspacesResponse("workspace3"));
+    bitbucket.enqueue(newWorkspaceResponse("workspace3", "Workspace Three"));
     DumbCallbackContext context = new DumbCallbackContext(newRequest("the-verifier-code"));
 
     assertThatThrownBy(() -> underTest.callback(context))
@@ -177,11 +178,66 @@ public class IntegrationTest {
     bitbucket.enqueue(newSuccessfulAccessTokenResponse());
     bitbucket.enqueue(newUserResponse("john", "John", "john-uuid"));
     bitbucket.enqueue(newPrimaryEmailResponse("john@bitbucket.org"));
-    bitbucket.enqueue(newWorkspacesResponse(/* no workspaces */));
+    bitbucket.enqueue(newUserWorkspacesResponse(/* no workspaces */));
     DumbCallbackContext context = new DumbCallbackContext(newRequest("the-verifier-code"));
 
     assertThatThrownBy(() -> underTest.callback(context))
       .isInstanceOf(UnauthorizedException.class);
+  }
+
+  @Test
+  public void allow_authentication_if_user_workspace_name_matches_allowlist() {
+    // Allowlist uses the workspace name, not the slug
+    settings.setProperty("sonar.auth.bitbucket.workspaces", new String[] {"Workspace One"});
+
+    bitbucket.enqueue(newSuccessfulAccessTokenResponse());
+    bitbucket.enqueue(newUserResponse("john", "John", "john-uuid"));
+    bitbucket.enqueue(newPrimaryEmailResponse("john@bitbucket.org"));
+    // user belongs to "workspace1" — slug does not match "Workspace One"
+    bitbucket.enqueue(newUserWorkspacesResponse("workspace1"));
+    // name lookup for "workspace1" returns "Workspace One" — matches allowlist
+    bitbucket.enqueue(newWorkspaceResponse("workspace1", "Workspace One"));
+
+    DumbCallbackContext callbackContext = new DumbCallbackContext(newRequest("the-verifier-code"));
+    underTest.callback(callbackContext);
+
+    assertThat(callbackContext.userIdentity.getProviderLogin()).isEqualTo("john");
+    assertThat(callbackContext.redirectedToRequestedPage.get()).isTrue();
+  }
+
+  @Test
+  public void forbid_authentication_if_neither_slug_nor_name_matches_allowlist() {
+    settings.setProperty("sonar.auth.bitbucket.workspaces", new String[] {"workspace1", "Workspace One"});
+
+    bitbucket.enqueue(newSuccessfulAccessTokenResponse());
+    bitbucket.enqueue(newUserResponse("john", "John", "john-uuid"));
+    bitbucket.enqueue(newPrimaryEmailResponse("john@bitbucket.org"));
+    // user belongs to "workspace3" — slug does not match
+    bitbucket.enqueue(newUserWorkspacesResponse("workspace3"));
+    // name lookup for "workspace3" returns "Workspace Three" — name does not match either
+    bitbucket.enqueue(newWorkspaceResponse("workspace3", "Workspace Three"));
+    DumbCallbackContext context = new DumbCallbackContext(newRequest("the-verifier-code"));
+
+    assertThatThrownBy(() -> underTest.callback(context))
+      .isInstanceOf(UnauthorizedException.class);
+  }
+
+  @Test
+  public void does_not_call_workspace_names_endpoint_when_slug_already_matches() {
+    settings.setProperty("sonar.auth.bitbucket.workspaces", new String[] {"Workspace One", "workspace2"});
+
+    bitbucket.enqueue(newSuccessfulAccessTokenResponse());
+    bitbucket.enqueue(newUserResponse("john", "John", "john-uuid"));
+    bitbucket.enqueue(newPrimaryEmailResponse("john@bitbucket.org"));
+    // slug "workspace2" matches the allowlist directly — no name lookup needed
+    bitbucket.enqueue(newUserWorkspacesResponse("workspace3", "workspace2"));
+
+    DumbCallbackContext callbackContext = new DumbCallbackContext(newRequest("the-verifier-code"));
+    underTest.callback(callbackContext);
+
+    assertThat(callbackContext.redirectedToRequestedPage.get()).isTrue();
+    // access token + user + emails + workspaces = 4 requests; no /2.0/workspaces/{slug} calls
+    assertThat(bitbucket.getRequestCount()).isEqualTo(4);
   }
 
   /**
@@ -199,13 +255,20 @@ public class IntegrationTest {
   }
 
   /**
-   * Response of https://api.bitbucket.org/2.0/user/permissions/workspaces?q=permission="member"
+   * Response of https://api.bitbucket.org/2.0/user/workspaces
    */
-  private static MockResponse newWorkspacesResponse(String... workspaces) {
+  private static MockResponse newUserWorkspacesResponse(String... workspaces) {
     String s = Arrays.stream(workspaces)
-      .map(w -> "{\"workspace\":{\"name\":\"" + w + "\",\"slug\":\"" + w + "\"}}")
+      .map(w -> "{\"workspace\":{\"slug\":\"" + w + "\"}}")
       .collect(Collectors.joining(","));
     return new MockResponse().setBody("{\"values\":[" + s + "]}");
+  }
+
+  /**
+   * Response of https://api.bitbucket.org/2.0/workspaces/{workspace}
+   */
+  private static MockResponse newWorkspaceResponse(String slug, String name) {
+    return new MockResponse().setBody("{\"slug\":\"" + slug + "\",\"name\":\"" + name + "\"}");
   }
 
   /**
