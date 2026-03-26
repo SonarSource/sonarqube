@@ -26,6 +26,7 @@ import io.prometheus.client.Gauge;
 import io.prometheus.client.exporter.common.TextFormat;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -54,10 +55,12 @@ public class SafeModeMonitoringMetricAction implements MonitoringWsAction {
     context.createAction("metrics")
       .setSince("9.3")
       .setDescription("""
-         Return monitoring metrics in Prometheus format. \s
-         Support content type 'text/plain' (default) and 'application/openmetrics-text'.
-         This endpoint can be accessed using a Bearer token, which needs to be defined in sonar.properties with the 'sonar.web.systemPasscode' key.""")
-      .setResponseExample(Resources.getResource(this.getClass(), "monitoring-metrics.txt"))
+        Return monitoring metrics in Prometheus format. \s
+        Support content type 'text/plain' (default) and 'application/openmetrics-text'.
+        This endpoint can be accessed using a Bearer token, which needs to be defined in sonar.properties with the 'sonar.web.systemPasscode' key.""")
+      .setChangelog(
+        new Change("2026.3", "Added 'sonarqube_elasticsearch_read_only_indices_total' and 'sonarqube_elasticsearch_disk_usage_percent' metrics"))
+      .setResponseExample(Resources.getResource(SafeModeMonitoringMetricAction.class, "monitoring-metrics.txt"))
       .setHandler(this);
     isWebUpGauge.set(1D);
   }

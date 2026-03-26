@@ -39,6 +39,12 @@ sonarqube_elasticsearch_disk_space_total_bytes{node_name="sonarqube",} 9.9466258
 # HELP sonarqube_elasticsearch_disk_space_free_bytes Space left on device
 # TYPE sonarqube_elasticsearch_disk_space_free_bytes gauge
 sonarqube_elasticsearch_disk_space_free_bytes{node_name="sonarqube",} 9.00287975424E11
+# HELP sonarqube_elasticsearch_read_only_indices_total Number of indices in read-only mode due to disk space issues
+# TYPE sonarqube_elasticsearch_read_only_indices_total gauge
+sonarqube_elasticsearch_read_only_indices_total 0.0
+# HELP sonarqube_elasticsearch_disk_usage_percent Maximum disk usage percentage across all Elasticsearch nodes
+# TYPE sonarqube_elasticsearch_disk_usage_percent gauge
+sonarqube_elasticsearch_disk_usage_percent 15.0
 # HELP sonarqube_compute_engine_pending_tasks_total Number of tasks at given point of time that were pending in the Compute Engine queue [SHARED, same value for every SonarQube instance]
 # TYPE sonarqube_compute_engine_pending_tasks_total gauge
 sonarqube_compute_engine_pending_tasks_total 0.0

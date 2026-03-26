@@ -40,6 +40,8 @@ public class ServerMonitoringMetrics {
   private final Summary ceSystemTasksRunningDuration;
   private final Gauge elasticsearchDiskSpaceFreeBytesGauge;
   private final Gauge elasticSearchDiskSpaceTotalBytes;
+  private final Gauge elasticsearchReadOnlyIndicesGauge;
+  private final Gauge elasticsearchDiskUsagePercentGauge;
 
   private final Gauge licenseDaysBeforeExpiration;
   private final Gauge linesOfCodeRemaining;
@@ -122,6 +124,16 @@ public class ServerMonitoringMetrics {
       .name("sonarqube_elasticsearch_disk_space_total_bytes")
       .help("Total disk space on the device")
       .labelNames("node_name")
+      .register();
+
+    elasticsearchReadOnlyIndicesGauge = Gauge.build()
+      .name("sonarqube_elasticsearch_read_only_indices_total")
+      .help("Number of indices in read-only mode due to disk space issues")
+      .register();
+
+    elasticsearchDiskUsagePercentGauge = Gauge.build()
+      .name("sonarqube_elasticsearch_disk_usage_percent")
+      .help("Maximum disk usage percentage across all Elasticsearch nodes")
       .register();
 
     webUptimeMinutes = Gauge.build()
@@ -214,6 +226,14 @@ public class ServerMonitoringMetrics {
 
   public void setElasticSearchDiskSpaceTotalBytes(String name, long diskTotalBytes) {
     elasticSearchDiskSpaceTotalBytes.labels(name).set(diskTotalBytes);
+  }
+
+  public void setElasticSearchReadOnlyIndicesCount(long count) {
+    elasticsearchReadOnlyIndicesGauge.set(count);
+  }
+
+  public void setElasticSearchDiskUsagePercent(double percent) {
+    elasticsearchDiskUsagePercentGauge.set(percent);
   }
 
   public void setWebUptimeMinutes(long minutes) {
