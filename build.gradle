@@ -314,7 +314,7 @@ subprojects {
       dependency 'com.sonarsource.dbd:sonar-dbd-python-frontend-plugin:2.7.0.20531'
       dependency 'com.sonarsource.dotnet:sonar-csharp-enterprise-plugin:10.22.0.136894'
       dependency 'com.sonarsource.dotnet:sonar-vbnet-enterprise-plugin:10.22.0.136894'
-      dependency 'com.sonarsource.dre:sonar-dre-plugin:1.4.0.9730'
+      dependency 'com.sonarsource.dre:sonar-dre-plugin:2.0.0.11053'
       dependency 'com.sonarsource.go:sonar-go-enterprise-plugin:1.33.0.5387'
       dependency 'com.sonarsource.pli:sonar-pli-plugin:1.21.0.7212'
       dependency 'com.sonarsource.plsql:sonar-plsql-plugin:3.18.1.230'
