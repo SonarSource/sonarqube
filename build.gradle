@@ -374,6 +374,8 @@ subprojects {
       }
       dependency "org.sonarsource.sonarqube:organizations-api:$organizationsApiVersion"
       dependency "org.sonarsource.sonarqube:organizations-server-app:$organizationsApiVersion"
+      // Keep in sync with sonar-sca's dependency management
+      dependency "org.sonarsource.sonarqube:sonar-feature-flags-api:$featureFlagsApiVersion"
 
       // please keep this list alphabetically ordered
       dependencySet(group: 'ch.qos.logback', version: '1.5.28') {
@@ -460,6 +462,7 @@ subprojects {
       dependency 'org.lz4:lz4-java:1.8.0'
       dependency 'org.littleshoot:littleproxy:1.1.2'
       dependency 'net.sf.trove4j:core:3.1.0'
+      dependency 'nl.jqno.equalsverifier:equalsverifier:3.17.3'
       dependency 'org.awaitility:awaitility:4.3.0'
       dependency 'org.apache.commons:commons-collections4:4.5.0'
       dependency 'org.apache.commons:commons-csv:1.14.1'
