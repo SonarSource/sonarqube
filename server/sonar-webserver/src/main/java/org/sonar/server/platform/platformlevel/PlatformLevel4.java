@@ -332,6 +332,7 @@ import org.sonarsource.compliancereports.reports.MetadataLoader;
 import org.sonarsource.compliancereports.reports.MetadataRules;
 import org.sonarsource.organizations.server.OrganizationsServiceServerImpl;
 import org.sonarsource.users.server.bean.UsersServerComponents;
+import org.sonar.server.events.EventsWebComponents;
 
 import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
 import static org.sonar.core.extension.PlatformLevelPredicates.hasPlatformLevel4OrNone;
@@ -791,6 +792,9 @@ public class PlatformLevel4 extends PlatformLevel {
 
     // registered via users-server-app
     addAll(UsersServerComponents.components());
+
+    // registered via sonar-unified-events
+    addAll(EventsWebComponents.components());
 
     // system info
     add(new SystemInfoWriterModule(getWebServer()));

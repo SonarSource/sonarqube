@@ -1,0 +1,32 @@
+description = 'SonarQube Events CE Bridge'
+
+sonar {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: Sonar Events"
+  }
+}
+
+dependencies {
+  implementation project(':server:sonar-ce-common')
+  implementation project(':server:sonar-ce-task')
+  implementation 'org.sonarsource.sonarqube:sonar-events-server'
+  implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+  compileOnly 'com.github.spotbugs:spotbugs-annotations'
+
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.mockito:mockito-junit-jupiter'
+  testImplementation 'junit:junit'
+  testImplementation project(':sonar-plugin-api-impl')
+  testImplementation testFixtures(project(':server:sonar-db-dao'))
+
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+  testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+  useJUnitPlatform()
+}

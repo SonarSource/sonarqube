@@ -381,6 +381,7 @@ subprojects {
       dependency "org.sonarsource.sonarqube:organizations-server-app:$organizationsApiVersion"
       // Keep in sync with sonar-sca's dependency management
       dependency "org.sonarsource.sonarqube:sonar-feature-flags-api:$featureFlagsApiVersion"
+      dependency "org.sonarsource.sonarqube:sonar-events-server:$eventsApiVersion"
 
       // please keep this list alphabetically ordered
       dependencySet(group: 'ch.qos.logback', version: '1.5.32') {

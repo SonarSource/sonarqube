@@ -163,6 +163,7 @@ import org.sonar.server.webhook.WebhookModule;
 import org.sonarqube.ws.Rules;
 import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 import org.sonarsource.users.server.bean.UsersServerComponents;
+import org.sonar.server.events.EventsCeComponents;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
@@ -480,6 +481,9 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
     // registered via users-server-app
     level4Container.add(toArray(UsersServerComponents.components()));
+
+    // registered via sonar-unified-events
+    level4Container.add(toArray(EventsCeComponents.components()));
 
     if (props.valueAsBoolean(CLUSTER_ENABLED.getKey())) {
       level4Container.add(

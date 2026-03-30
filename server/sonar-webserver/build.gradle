@@ -28,6 +28,7 @@ dependencies {
   api project(':server:sonar-webserver-webapi-v2')
   api project(':server:sonar-webserver-pushapi')
   api project(':server:sonar-webserver-monitoring')
+  api project(':server:sonar-events')
   api 'org.sonarsource.sonarqube:organizations-server-app'
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
