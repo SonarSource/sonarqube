@@ -122,11 +122,11 @@ public class StandardToMQRMetrics {
   }
 
   public static Set<String> getMQRMetrics() {
-    return STANDARD_TO_MQR_MODE_METRICS.keySet();
+    return MQR_TO_STANDARD_MODE_METRICS.keySet();
   }
 
   public static Set<String> getStandardMetrics() {
-    return MQR_TO_STANDARD_MODE_METRICS.keySet();
+    return STANDARD_TO_MQR_MODE_METRICS.keySet();
   }
 
   /**
