@@ -32,6 +32,7 @@
     "org.sonarsource.sonarqube:organizations-server-app",
     "org.sonarsource.sonarqube:sonar-db-commons",
     "org.sonarsource.sonarqube:sonar-db-commons-testfixtures",
+    "org.sonarsource.sonarqube:sonar-feature-flags-api",
     "org.sonarsource.sonarqube:sonar-spring",
     "org.sonarsource.sonarqube:users-api",
     "org.sonarsource.sonarqube:users-server-app",
