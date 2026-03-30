@@ -66,6 +66,7 @@ public class SearchRequest {
   private List<String> cleanCodeAttributesCategories;
   private List<String> statuses;
   private List<String> issueStatuses;
+  private List<String> issueCodefixStatuses;
   private List<String> tags;
   private Set<String> types;
   private List<String> pciDss32;
@@ -380,6 +381,16 @@ public class SearchRequest {
   @CheckForNull
   public List<String> getIssueStatuses() {
     return issueStatuses;
+  }
+
+  public SearchRequest setIssueCodefixStatuses(@Nullable List<String> issueCodefixStatuses) {
+    this.issueCodefixStatuses = issueCodefixStatuses;
+    return this;
+  }
+
+  @CheckForNull
+  public List<String> getIssueCodefixStatuses() {
+    return issueCodefixStatuses;
   }
 
   @CheckForNull

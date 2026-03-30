@@ -74,6 +74,39 @@ export enum IssueStatus {
   FalsePositive = 'FALSE_POSITIVE',
 }
 
+/** AI Codefix status values for the "AI Code Assistant" filter */
+export enum IssueCodefixStatus {
+  AiFixAvailable = 'AI_FIX_AVAILABLE',
+  AiFixGenerated = 'AI_FIX_GENERATED',
+  AiFixFailed = 'AI_FIX_FAILED',
+  AiFixInProgress = 'AI_FIX_IN_PROGRESS',
+  PullRequestCreated = 'PULL_REQUEST_CREATED',
+}
+
+/**
+ * Map frontend filter values to backend (storage) values for the issues search API.
+ * Keeps presentation in the UI; backend contract uses storage values only.
+ */
+const CODEFIX_STATUS_FRONTEND_TO_BACKEND: Record<string, string[]> = {
+  [IssueCodefixStatus.AiFixAvailable]: ['AVAILABLE'],
+  [IssueCodefixStatus.AiFixInProgress]: ['PENDING', 'IN_PROGRESS'],
+  [IssueCodefixStatus.AiFixGenerated]: ['FIX_GENERATED'],
+  [IssueCodefixStatus.PullRequestCreated]: ['PULL_REQUEST_CREATED'],
+  [IssueCodefixStatus.AiFixFailed]: ['FAILED'],
+};
+
+export function mapFrontendToBackendCodefixStatuses(
+  frontendValues: string[] | undefined | null,
+): string[] | undefined {
+  if (!frontendValues?.length) {
+    return undefined;
+  }
+  const backend = frontendValues.flatMap(
+    (fv) => CODEFIX_STATUS_FRONTEND_TO_BACKEND[fv] ?? [],
+  );
+  return backend.length > 0 ? backend : undefined;
+}
+
 export enum IssueActions {
   SetType = 'set_type',
   SetTags = 'set_tags',
@@ -129,6 +162,7 @@ export interface RawIssue {
   codeVariants?: string[];
   comments?: Comment[];
   component: string;
+  codefixStatus?: string;
   creationDate: string;
   cveId?: string;
   flows?: Array<{
@@ -228,6 +262,7 @@ export interface Facet {
 }
 
 export enum FacetName {
+  AiCodefixStatuses = 'issueCodefixStatuses',
   AssignedToMe = 'assigned_to_me',
   Assignees = 'assignees',
   Author = 'author',

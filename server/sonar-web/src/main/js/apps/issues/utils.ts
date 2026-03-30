@@ -50,6 +50,7 @@ import {
   IssueDeprecatedStatus,
   IssueResolution,
   IssueStatus,
+  IssueCodefixStatus,
   RawFacet,
 } from '../../types/issues';
 import { SecurityStandard } from '../../types/security';
@@ -60,6 +61,7 @@ const OWASP_ASVS_4_0 = 'owaspAsvs-4.0';
 
 export interface Query {
   [OWASP_ASVS_4_0]: string[];
+  issueCodefixStatuses: IssueCodefixStatus[];
   assigned: boolean;
   assignees: string[];
   author: string[];
@@ -107,6 +109,7 @@ const ISSUES_DEFAULT = 'sonarqube.issues.default';
 
 export function parseQuery(query: RawQuery, needIssueSync = false): Query {
   return {
+    issueCodefixStatuses: parseAsArray<IssueCodefixStatus>(query.issueCodefixStatuses, parseAsString),
     assigned: parseAsBoolean(query.assigned),
     assignees: parseAsArray(query.assignees, parseAsString),
     author: isArray(query.author) ? query.author : [query.author].filter(isDefined),
@@ -230,6 +233,7 @@ export const areMyIssuesSelected = (query: RawQuery) => query.myIssues === 'true
 
 export function serializeQuery(query: Query): RawQuery {
   const filter = {
+    issueCodefixStatuses: serializeStringArray(query.issueCodefixStatuses),
     assigned: query.assigned ? undefined : 'false',
     assignees: serializeStringArray(query.assignees),
     author: query.author,

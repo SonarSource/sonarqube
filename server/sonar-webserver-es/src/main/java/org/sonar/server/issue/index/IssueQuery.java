@@ -61,6 +61,7 @@ public class IssueQuery {
   private final Collection<String> impactSoftwareQualities;
   private final Collection<String> statuses;
   private final Collection<String> issueStatuses;
+  private final Collection<String> issueCodefixStatuses;
   private final Collection<String> resolutions;
   private final Collection<String> components;
   private final Collection<String> projects;
@@ -119,6 +120,7 @@ public class IssueQuery {
     this.statuses = defaultCollection(builder.statuses);
     this.resolutions = defaultCollection(builder.resolutions);
     this.issueStatuses = defaultCollection(builder.issueStatuses);
+    this.issueCodefixStatuses = defaultCollection(builder.issueCodefixStatuses);
     this.components = defaultCollection(builder.components);
     this.projects = defaultCollection(builder.projects);
     this.directories = defaultCollection(builder.directories);
@@ -194,6 +196,10 @@ public class IssueQuery {
 
   public Collection<String> issueStatuses() {
     return issueStatuses;
+  }
+
+  public Collection<String> issueCodefixStatuses() {
+    return issueCodefixStatuses;
   }
 
   public Collection<String> resolutions() {
@@ -414,6 +420,7 @@ public class IssueQuery {
     private Collection<String> statuses;
     private Collection<String> resolutions;
     private Collection<String> issueStatuses;
+    private Collection<String> issueCodefixStatuses;
     private Collection<String> components;
     private Collection<String> projects;
     private Collection<String> directories;
@@ -488,6 +495,11 @@ public class IssueQuery {
 
     public Builder issueStatuses(@Nullable Collection<String> l) {
       this.issueStatuses = l;
+      return this;
+    }
+
+    public Builder issueCodefixStatuses(@Nullable Collection<String> l) {
+      this.issueCodefixStatuses = l;
       return this;
     }
 

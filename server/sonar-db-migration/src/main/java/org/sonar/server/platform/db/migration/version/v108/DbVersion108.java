@@ -71,6 +71,7 @@ public class DbVersion108 implements DbVersion {
       .add(10_8_028, "Add 'is_archived' and 'archived_at' columns to 'organizations' table", AddArchiveColumnsToOrganizationsTable.class)
       .add(10_8_029, "Add 'issue_resolution_expires_at' column in 'issues' table", AddIssueResolutionExpiryDateColumnToIssuesTable.class)
       .add(10_8_030, "Add 'ai_code_fix_enabled' column to 'rules' table", AddAICodeFixEnabledColumnToRulesTable.class)
+      .add(10_8_031, "Add 'codefix_status' column to 'issues' table", AddCodefixStatusColumnToIssuesTable.class)
     ;
   }
 

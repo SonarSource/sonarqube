@@ -125,6 +125,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IMPACT_SEVE
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IMPACT_SOFTWARE_QUALITIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IN_NEW_CODE_PERIOD;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE_CODEFIX_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ON_COMPONENT_ONLY;
@@ -189,6 +190,7 @@ public class SearchAction implements IssuesWsAction {
     PARAM_IMPACT_SOFTWARE_QUALITIES,
     PARAM_IMPACT_SEVERITIES,
     PARAM_ISSUE_STATUSES,
+    PARAM_ISSUE_CODEFIX_STATUSES,
     PARAM_PRIORITIZED_RULE);
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of " +
@@ -474,6 +476,10 @@ public class SearchAction implements IssuesWsAction {
       .setPossibleValues(IssueStatus.values())
       .setExampleValue("%s,%S".formatted(IssueStatus.ACCEPTED, IssueStatus.FIXED))
       .setSince("10.4");
+    action.createParam(PARAM_ISSUE_CODEFIX_STATUSES)
+      .setDescription("Comma-separated list of codefix statuses to filter by (backend values: AVAILABLE, PENDING, IN_PROGRESS, FIX_GENERATED, PULL_REQUEST_CREATED, FAILED).")
+      .setExampleValue("PENDING,IN_PROGRESS")
+      .setSince("10.7");
     action.createParam(PARAM_ORGANIZATION)
       .setDescription("Organization key")
       .setRequired(false)
@@ -703,7 +709,41 @@ public class SearchAction implements IssuesWsAction {
 
     addMandatoryValuesToFacet(facets, PARAM_SONARSOURCE_SECURITY, request.getSonarsourceSecurity());
     addMandatoryValuesToFacet(facets, PARAM_CODE_VARIANTS, request.getCodeVariants());
+    addMandatoryValuesToFacet(facets, PARAM_ISSUE_CODEFIX_STATUSES, CODEFIX_STATUS_BACKEND_VALUES);
   }
+
+  private static final List<String> CODEFIX_STATUS_BACKEND_VALUES = List.of(
+    "AVAILABLE",
+    "PENDING",
+    "IN_PROGRESS",
+    "FIX_GENERATED",
+    "PULL_REQUEST_CREATED",
+    "FAILED");
+
+  /** Frontend values returned in API and used in filter params. Order defines facet display order. */
+  public static final List<String> CODEFIX_STATUS_FRONTEND_VALUES = List.of(
+    "AI_FIX_AVAILABLE",
+    "AI_FIX_IN_PROGRESS",
+    "AI_FIX_GENERATED",
+    "PULL_REQUEST_CREATED",
+    "AI_FIX_FAILED");
+
+  /** Map backend (storage) → frontend (API/UI). */
+  public static final Map<String, String> CODEFIX_STATUS_BACKEND_TO_FRONTEND = Map.of(
+    "AVAILABLE", "AI_FIX_AVAILABLE",
+    "PENDING", "AI_FIX_IN_PROGRESS",
+    "IN_PROGRESS", "AI_FIX_IN_PROGRESS",
+    "FIX_GENERATED", "AI_FIX_GENERATED",
+    "PULL_REQUEST_CREATED", "PULL_REQUEST_CREATED",
+    "FAILED", "AI_FIX_FAILED");
+
+  /** Frontend → backend(s). Used when formatting facet response (backend counts → frontend buckets). */
+  public static final Map<String, List<String>> CODEFIX_STATUS_FRONTEND_TO_BACKEND = Map.of(
+    "AI_FIX_AVAILABLE", List.of("AVAILABLE"),
+    "AI_FIX_IN_PROGRESS", List.of("PENDING", "IN_PROGRESS"),
+    "AI_FIX_GENERATED", List.of("FIX_GENERATED"),
+    "PULL_REQUEST_CREATED", List.of("PULL_REQUEST_CREATED"),
+    "AI_FIX_FAILED", List.of("FAILED"));
 
   private static Collection<String> enumToStringCollection(Enum<?>... enumValues) {
     return Arrays.stream(enumValues).map(Enum::name).toList();
@@ -778,6 +818,7 @@ public class SearchAction implements IssuesWsAction {
             .setCleanCodeAttributesCategories(request.paramAsStrings(PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES))
             .setStatuses(request.paramAsStrings(PARAM_STATUSES))
             .setIssueStatuses(request.paramAsStrings(PARAM_ISSUE_STATUSES))
+            .setIssueCodefixStatuses(request.paramAsStrings(PARAM_ISSUE_CODEFIX_STATUSES))
             .setTags(request.paramAsStrings(PARAM_TAGS))
             .setTypes(allRuleTypesExceptHotspotsIfEmpty(request.paramAsStrings(PARAM_TYPES)))
             .setPciDss32(request.paramAsStrings(PARAM_PCI_DSS_32))

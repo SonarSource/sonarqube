@@ -42,6 +42,7 @@ import { GlobalSettingKeys } from '../../../types/settings';
 import { Component, Dict, Organization } from '../../../types/types';
 import { UserBase } from '../../../types/users';
 import { Query } from '../utils';
+import { AiCodeAssistantFacet } from './AiCodeAssistantFacet';
 import { AssigneeFacet } from './AssigneeFacet';
 import { AttributeCategoryFacet } from './AttributeCategoryFacet';
 import { AuthorFacet } from './AuthorFacet';
@@ -60,6 +61,7 @@ import { StandardFacet } from './StandardFacet';
 import { TagFacet } from './TagFacet';
 import { TypeFacet } from './TypeFacet';
 import { VariantFacet } from './VariantFacet';
+import { isAiAssistantEnabled } from 'src/main/js/api/settings';
 
 export interface Props {
   organization?: Organization;
@@ -97,6 +99,16 @@ export function Sidebar(props: Readonly<Props>) {
   const { settings } = useAppState();
   const { hasFeature } = useAvailableFeatures();
   const { data: isStandardMode } = useStandardExperienceModeQuery();
+  const [aiEnabled, setAiEnabled] = React.useState(false);
+  React.useEffect(() => {
+        async function checkAiEnabled() {
+          const projectKey = props.component.key || "";
+          const enabled = await isAiAssistantEnabled(projectKey);
+          setAiEnabled(enabled);
+        }
+
+        checkAiEnabled();
+      }, [props.component.key]);
   const renderComponentFacets = () => {
     const hasFileOrDirectory =
       !isApplication(component?.qualifier) && !isPortfolioLike(component?.qualifier);
@@ -471,6 +483,22 @@ export function Sidebar(props: Readonly<Props>) {
                     query={query}
                     referencedUsers={props.referencedUsers}
                     stats={facets.assignees}
+                  />
+                </>
+              )}
+
+              { aiEnabled && (
+                <>
+                  <BasicSeparator className="sw-my-4" />
+
+                  <AiCodeAssistantFacet
+                    issueCodefixStatuses={query.issueCodefixStatuses}
+                    fetching={props.loadingFacets.issueCodefixStatuses === true}
+                    needIssueSync={needIssueSync}
+                    onChange={props.onFilterChange}
+                    onToggle={props.onFacetToggle}
+                    open={!!openFacets.issueCodefixStatuses}
+                    stats={facets.issueCodefixStatuses}
                   />
                 </>
               )}
