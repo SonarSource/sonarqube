@@ -100,10 +100,11 @@ public class WebServiceEngine implements LocalConnector, Startable {
   }
 
   public void execute(Request request, Response response) {
+    WebService.Action action = null;
     try {
       ActionExtractor actionExtractor = new ActionExtractor(request.getPath());
       WebService.Action foundAction = getAction(actionExtractor);
-      WebService.Action action = checkFound(foundAction, "Unknown url : %s", request.getPath());
+      action = checkFound(foundAction, "Unknown url : %s", request.getPath());
       if (request instanceof ValidatingRequest validatingRequest) {
         validatingRequest.setAction(action);
         validatingRequest.setLocalConnector(this);
@@ -122,12 +123,22 @@ public class WebServiceEngine implements LocalConnector, Startable {
       sendErrors(request, response, e, e.httpCode(), singletonList(e.getMessage()));
     } catch (Exception e) {
       sendErrors(request, response, e, 500, singletonList("An error has occurred. Please contact your administrator"));
+    } finally {
+      if (action != null) {
+        postAction(action, request);
+      }
     }
   }
 
   private void preAction(WebService.Action action, Request request) {
     for (ActionInterceptor interceptor : actionInterceptors) {
       interceptor.preAction(action, request);
+    }
+  }
+
+  private void postAction(WebService.Action action, Request request) {
+    for (ActionInterceptor interceptor : actionInterceptors) {
+      interceptor.postAction(action, request);
     }
   }
 

@@ -19,24 +19,28 @@
  */
 package org.sonar.server.ws;
 
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.WebService;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Allows to intercept web service actions
+ * Limits the maximum number of concurrent calls for a web service action.
+ * When the limit is reached, incoming requests are immediately rejected with HTTP 503.
+ * Place this annotation on the {@link WsAction} implementation class.
+ *
+ * <pre>
+ * {@literal @}ConcurrentCallsLimit(10)
+ * public class MyAction implements WsAction {
+ *   // at most 10 concurrent calls are allowed
+ * }
+ * </pre>
  */
-public interface ActionInterceptor {
-
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ConcurrentCallsLimit {
   /**
-   * Called before the action is executed
+   * Maximum number of concurrent calls allowed for the annotated action.
    */
-  void preAction(WebService.Action action, Request request);
-
-  /**
-   * Called after the action is executed (whether it succeeded or failed).
-   * Default implementation does nothing.
-   */
-  default void postAction(WebService.Action action, Request request) {
-    // no-op by default
-  }
+  int value();
 }

@@ -22,6 +22,7 @@ package org.sonar.server.ws;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.List;
 import java.util.function.Consumer;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.catalina.connector.ClientAbortException;
@@ -44,6 +45,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.substringAfterLast;
 import static org.apache.commons.lang3.StringUtils.substringBeforeLast;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -436,7 +438,11 @@ public class WebServiceEngineTest {
   }
 
   private static Response run(Request request, Response response, WebService... webServices) {
-    WebServiceEngine underTest = new WebServiceEngine(webServices, new ActionInterceptor[] {});
+    return run(request, response, List.of(), webServices);
+  }
+
+  private static Response run(Request request, Response response, List<ActionInterceptor> interceptors, WebService... webServices) {
+    WebServiceEngine underTest = new WebServiceEngine(webServices, interceptors.toArray(new ActionInterceptor[0]));
     underTest.start();
     try {
       underTest.execute(request, response);
@@ -460,6 +466,30 @@ public class WebServiceEngineTest {
     return newWs("api/foo", a -> a.setHandler((req, resp) -> {
       throw new ClientAbortException();
     }));
+  }
+
+  @Test
+  public void postAction_is_called_after_successful_action() {
+    ActionInterceptor interceptor = mock(ActionInterceptor.class);
+    Request request = new TestRequest().setPath("api/ping");
+    run(request, new DumbResponse(), List.of(interceptor), newPingWs(a -> {}));
+    verify(interceptor).postAction(any(WebService.Action.class), any(Request.class));
+  }
+
+  @Test
+  public void postAction_is_called_after_failed_action() {
+    ActionInterceptor interceptor = mock(ActionInterceptor.class);
+    Request request = new TestRequest().setPath("api/foo");
+    run(request, new DumbResponse(), List.of(interceptor), newClientAbortWs());
+    verify(interceptor).postAction(any(WebService.Action.class), any(Request.class));
+  }
+
+  @Test
+  public void postAction_is_not_called_when_action_not_found() {
+    ActionInterceptor interceptor = mock(ActionInterceptor.class);
+    Request request = new TestRequest().setPath("api/unknown");
+    run(request, new DumbResponse(), List.of(interceptor), newPingWs(a -> {}));
+    verify(interceptor, never()).postAction(any(), any());
   }
 
   private static WebService.NewAction createNewDefaultAction(WebService.NewController controller, String key) {
