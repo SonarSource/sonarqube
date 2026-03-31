@@ -48,6 +48,7 @@ message SearchWsResponse {
     optional string userUpdatedAt = 14;
     optional bool isBuiltIn = 16;
     optional Actions actions = 17;
+    reserved 18;
 
     message Actions {
         optional bool edit = 1;
