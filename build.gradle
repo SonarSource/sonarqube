@@ -453,7 +453,7 @@ subprojects {
         entry 'jjwt-impl'
         entry 'jjwt-jackson'
       }
-      dependency 'com.auth0:java-jwt:4.5.0'
+      dependency 'com.auth0:java-jwt:4.5.1'
       dependency 'io.netty:netty-all:4.2.12.Final'
       dependency 'jakarta.mail:jakarta.mail-api:2.1.5'
       dependency 'jakarta.annotation:jakarta.annotation-api:3.0.0'
