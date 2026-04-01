@@ -242,7 +242,7 @@ subprojects {
   }
 
   ext {
-    protobufVersion = '4.33.5'
+    protobufVersion = '4.34.1'
     springSecurityVersion = '7.0.4'
     elasticSearchClientVersion = '7.17.29' // Old REST High Level Client (to be removed)
     elasticSearchJavaClientVersion = '8.16.6' // New Java API Client
