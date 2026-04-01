@@ -30,6 +30,7 @@ import {
   InputTextArea,
   LightLabel,
   Modal,
+  addGlobalErrorMessage,
 } from '~design-system';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { bulkChangeIssues, searchIssueTags } from '../../../api/issues';
@@ -43,7 +44,7 @@ import AssigneeSelect from './AssigneeSelect';
 import TagsSelect from './TagsSelect';
 import { withOrganizationContext } from "../../organizations/OrganizationContext";
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
-import { queueCodeFix } from 'src/main/js/api/ai-codefix';
+import { getCodefixQuota, queueCodeFix } from '../../../api/ai-codefix';
 
 interface Props {
   organization: Organization;
@@ -223,15 +224,28 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
         this.setState({ submitting: false });
 
         if (query.assign === 'ai-code-assistant') {
-          for (const issue of issues) {
-            queueCodeFix({
-              organizationKey: issue.organization,
-              projectKey: issue.projectKey,
-              issueKey: issue.key,
-            });
-          }
+          getCodefixQuota(this.props.organization.kee).then((quota) => {
+            if (quota.currentUsage + issues.length > quota.dailyLimit) {
+              addGlobalErrorMessage(translate('aicodefix.daily_limit_exceeded'));
+              return;
+            }
+
+            for (const issue of issues) {
+              queueCodeFix({
+                organizationKey: issue.organization,
+                projectKey: issue.projectKey,
+                issueKey: issue.key,
+              });
+            }
+
+            this.props.refreshBranchStatus();
+            this.props.onDone();
+          });
+
+          return;
         }
 
+        // For non-AI-assistant assignments, runs normally
         this.props.refreshBranchStatus();
         this.props.onDone();
       },

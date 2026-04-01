@@ -23,6 +23,7 @@ import {
   post,
   get,
 } from '../helpers/request';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
 
 export interface CodefixFixedFileResponse {
   jobId: string;
@@ -41,6 +42,15 @@ export function queueCodeFix(data: {
     issueKey: string;
 }): Promise<void> {
   return postJSONBody(`${CODEFIX_BASE}/queue`, data);
+}
+
+export function getCodefixQuota(organizationKey: string): Promise<{
+  dailyLimit: number;
+  currentUsage: number;
+}> {
+  return get(`${CODEFIX_BASE}/quota`, { organizationKey })
+    .then(parseJSON)
+    .catch(throwGlobalError);
 }
 
 /**
