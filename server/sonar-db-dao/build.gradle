@@ -8,7 +8,7 @@ dependencies {
   // please keep the list grouped by configuration and ordered by name
 
   api 'com.google.protobuf:protobuf-java'
-  api 'org.lz4:lz4-java'
+  api 'at.yawk.lz4:lz4-java'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
 
   api project(':server:sonar-db-migration')

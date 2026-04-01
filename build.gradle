@@ -289,6 +289,11 @@ subprojects {
       exclude group: 'javax.mail', module: 'mail'
       resolutionStrategy {
         force 'net.java.dev.jna:jna:5.18.1'
+        // at.yawk.lz4:lz4-java is a drop-in replacement for org.lz4:lz4-java and declares the same capability.
+        // Prefer the newer fork over the version pulled in transitively by various libraries.
+        capabilitiesResolution.withCapability('org.lz4:lz4-java') {
+          selectHighestVersion()
+        }
       }
     }
 
@@ -459,7 +464,7 @@ subprojects {
         entry 'xmlunit-core'
         entry 'xmlunit-matchers'
       }
-      dependency 'org.lz4:lz4-java:1.8.0'
+      dependency 'at.yawk.lz4:lz4-java:1.10.4'
       dependency 'org.littleshoot:littleproxy:1.1.2'
       dependency 'net.sf.trove4j:core:3.1.0'
       dependency 'nl.jqno.equalsverifier:equalsverifier:4.4.1'
