@@ -367,7 +367,7 @@ subprojects {
       dependency "org.sonarsource.sonarqube:webapp-assets:$webappVersion"
 
       // Shared libraries from sonarqube-unification
-      dependencySet(group: 'org.sonarsource.sonarqube', version: '1.4.0.1697') {
+      dependencySet(group: 'org.sonarsource.sonarqube', version: '1.7.0.2189') {
         entry 'sonar-db-commons'
         entry 'sonar-db-commons-testfixtures'
         entry 'sonar-spring'
