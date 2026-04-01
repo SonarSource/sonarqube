@@ -22,11 +22,14 @@ package org.sonar.server.issue;
 import com.google.common.base.Joiner;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
@@ -92,6 +95,22 @@ public class IssueFieldsSetter {
   public static final String ISSUE_RESOLUTION_TAG = "issue-resolution";
 
   private static final Joiner CHANGELOG_LIST_JOINER = Joiner.on(" ").skipNulls();
+
+  // Comparators used to canonicalize flow/location order before comparison.
+  // The scanner may emit semantically identical flows in different order between analyses;
+  // without canonicalization this would falsely set locationsChanged=true and reopen resolved issues.
+  private static final Comparator<DbIssues.Location> LOCATION_COMPARATOR_BY_HASH =
+    Comparator.comparing(DbIssues.Location::getComponentId)
+      .thenComparing(DbIssues.Location::getChecksum)
+      .thenComparing(DbIssues.Location::getMsg);
+
+  private static final Comparator<DbIssues.Location> LOCATION_COMPARATOR_BY_RANGE =
+    Comparator.comparing(DbIssues.Location::getComponentId)
+      .thenComparing(l -> l.getTextRange().getStartLine())
+      .thenComparing(l -> l.getTextRange().getStartOffset())
+      .thenComparing(l -> l.getTextRange().getEndLine())
+      .thenComparing(l -> l.getTextRange().getEndOffset())
+      .thenComparing(DbIssues.Location::getMsg);
 
   public boolean setType(DefaultIssue issue, RuleType type, IssueChangeContext context) {
     if (!Objects.equals(type, issue.type())) {
@@ -253,22 +272,50 @@ public class IssueFieldsSetter {
     if (l1 == null && l2 == null) {
       return true;
     }
-
-    if (l2 == null || !(l1 instanceof DbIssues.Locations)) {
+    if (l2 == null || !(l1 instanceof DbIssues.Locations l1c)) {
       return false;
     }
-
-    DbIssues.Locations l1c = (DbIssues.Locations) l1;
-    if (!Objects.equals(l1c.getTextRange(), l2.getTextRange()) || l1c.getFlowCount() != l2.getFlowCount()) {
+    if (!Objects.equals(l1c.getTextRange(), l2.getTextRange())) {
       return false;
     }
+    return flowsEqual(l1c.getFlowList(), l2.getFlowList(), LOCATION_COMPARATOR_BY_RANGE, IssueFieldsSetter::locationEqualsIgnoreHashes);
+  }
 
-    for (int i = 0; i < l1c.getFlowCount(); i++) {
-      if (l1c.getFlow(i).getLocationCount() != l2.getFlow(i).getLocationCount()) {
+  private static boolean locationsEqualsBasedOnLineHashes(@Nullable Object l1, @Nullable DbIssues.Locations l2) {
+    if (l1 == null && l2 == null) {
+      return true;
+    }
+    if (l2 == null || !(l1 instanceof DbIssues.Locations l1c)) {
+      return false;
+    }
+    if (!Objects.equals(l1c.getChecksum(), l2.getChecksum())) {
+      return false;
+    }
+    return flowsEqual(l1c.getFlowList(), l2.getFlowList(), LOCATION_COMPARATOR_BY_HASH, IssueFieldsSetter::locationEqualsBasedOnHashes);
+  }
+
+  /**
+   * Order-insensitive comparison of two flow lists. Flows and locations within each flow are sorted
+   * into a canonical order before being compared pairwise with the provided equality predicate.
+   */
+  private static boolean flowsEqual(
+    List<DbIssues.Flow> flows1,
+    List<DbIssues.Flow> flows2,
+    Comparator<DbIssues.Location> locationComparator,
+    BiPredicate<DbIssues.Location, DbIssues.Location> locationEquals) {
+    if (flows1.size() != flows2.size()) {
+      return false;
+    }
+    List<List<DbIssues.Location>> sorted1 = sortedFlowLocations(flows1, locationComparator);
+    List<List<DbIssues.Location>> sorted2 = sortedFlowLocations(flows2, locationComparator);
+    for (int i = 0; i < sorted1.size(); i++) {
+      List<DbIssues.Location> locs1 = sorted1.get(i);
+      List<DbIssues.Location> locs2 = sorted2.get(i);
+      if (locs1.size() != locs2.size()) {
         return false;
       }
-      for (int j = 0; j < l1c.getFlow(i).getLocationCount(); j++) {
-        if (!locationEqualsIgnoreHashes(l1c.getFlow(i).getLocation(j), l2.getFlow(i).getLocation(j))) {
+      for (int j = 0; j < locs1.size(); j++) {
+        if (!locationEquals.test(locs1.get(j), locs2.get(j))) {
           return false;
         }
       }
@@ -276,31 +323,30 @@ public class IssueFieldsSetter {
     return true;
   }
 
-  private static boolean locationsEqualsBasedOnLineHashes(@Nullable Object l1, @Nullable DbIssues.Locations l2) {
-    if (l1 == null && l2 == null) {
-      return true;
-    }
-
-    if (l2 == null || !(l1 instanceof DbIssues.Locations)) {
-      return false;
-    }
-
-    DbIssues.Locations l1c = (DbIssues.Locations) l1;
-    if (!Objects.equals(l1c.getChecksum(), l2.getChecksum()) || l1c.getFlowCount() != l2.getFlowCount()) {
-      return false;
-    }
-
-    for (int i = 0; i < l1c.getFlowCount(); i++) {
-      if (l1c.getFlow(i).getLocationCount() != l2.getFlow(i).getLocationCount()) {
-        return false;
+  /**
+   * Produces a canonical representation: sorts flows lexicographically by their location lists,
+   * so that flow-level comparison is order-independent. Location order within each flow is preserved
+   * because it is semantically meaningful (e.g. source -> intermediate -> sink in taint flows).
+   */
+  private static List<List<DbIssues.Location>> sortedFlowLocations(List<DbIssues.Flow> flows, Comparator<DbIssues.Location> locationComparator) {
+    // Lexicographic comparator for flows: first by size, then element-by-element
+    Comparator<List<DbIssues.Location>> listComparator = (list1, list2) -> {
+      int sizeCompare = Integer.compare(list1.size(), list2.size());
+      if (sizeCompare != 0) {
+        return sizeCompare;
       }
-      for (int j = 0; j < l1c.getFlow(i).getLocationCount(); j++) {
-        if (!locationEqualsBasedOnHashes(l1c.getFlow(i).getLocation(j), l2.getFlow(i).getLocation(j))) {
-          return false;
+      for (int i = 0; i < list1.size(); i++) {
+        int c = locationComparator.compare(list1.get(i), list2.get(i));
+        if (c != 0) {
+          return c;
         }
       }
-    }
-    return true;
+      return 0;
+    };
+    return flows.stream()
+      .map(DbIssues.Flow::getLocationList)
+      .sorted(listComparator)
+      .toList();
   }
 
   private static boolean locationEqualsIgnoreHashes(DbIssues.Location l1, DbIssues.Location l2) {

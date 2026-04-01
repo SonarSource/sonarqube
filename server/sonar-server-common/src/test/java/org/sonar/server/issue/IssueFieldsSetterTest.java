@@ -469,6 +469,122 @@ class IssueFieldsSetterTest {
   }
 
   @Test
+  void do_not_mark_locations_changed_if_flows_reordered() {
+    DbIssues.Flow flow1 = DbIssues.Flow.newBuilder()
+      .addLocation(DbIssues.Location.newBuilder().setComponentId("comp1").setChecksum("hash1").setMsg("msg1"))
+      .build();
+    DbIssues.Flow flow2 = DbIssues.Flow.newBuilder()
+      .addLocation(DbIssues.Location.newBuilder().setComponentId("comp2").setChecksum("hash2").setMsg("msg2"))
+      .build();
+    DbIssues.Locations locations1 = DbIssues.Locations.newBuilder()
+      .setChecksum("primary")
+      .addFlow(flow1).addFlow(flow2)
+      .build();
+    DbIssues.Locations locations2 = DbIssues.Locations.newBuilder()
+      .setChecksum("primary")
+      .addFlow(flow2).addFlow(flow1)
+      .build();
+    issue.setLocations(locations1);
+    boolean updated = underTest.setLocations(issue, locations2);
+    assertThat(updated).isFalse();
+    assertThat(issue.locationsChanged()).isFalse();
+  }
+
+  @Test
+  void mark_locations_changed_if_locations_within_flow_reordered() {
+    DbIssues.Location loc1 = DbIssues.Location.newBuilder().setComponentId("comp1").setChecksum("hash1").setMsg("msg1").build();
+    DbIssues.Location loc2 = DbIssues.Location.newBuilder().setComponentId("comp2").setChecksum("hash2").setMsg("msg2").build();
+    DbIssues.Locations locations1 = DbIssues.Locations.newBuilder()
+      .setChecksum("primary")
+      .addFlow(DbIssues.Flow.newBuilder().addLocation(loc1).addLocation(loc2))
+      .build();
+    DbIssues.Locations locations2 = DbIssues.Locations.newBuilder()
+      .setChecksum("primary")
+      .addFlow(DbIssues.Flow.newBuilder().addLocation(loc2).addLocation(loc1))
+      .build();
+    issue.setLocations(locations1);
+    boolean updated = underTest.setLocations(issue, locations2);
+    assertThat(updated).isTrue();
+    assertThat(issue.locationsChanged()).isTrue();
+  }
+
+  @Test
+  void mark_locations_changed_if_both_flow_and_location_order_differ() {
+    DbIssues.Location loc1 = DbIssues.Location.newBuilder().setComponentId("comp1").setChecksum("hash1").setMsg("msg1").build();
+    DbIssues.Location loc2 = DbIssues.Location.newBuilder().setComponentId("comp2").setChecksum("hash2").setMsg("msg2").build();
+    DbIssues.Location loc3 = DbIssues.Location.newBuilder().setComponentId("comp3").setChecksum("hash3").setMsg("msg3").build();
+    DbIssues.Locations locations1 = DbIssues.Locations.newBuilder()
+      .setChecksum("primary")
+      .addFlow(DbIssues.Flow.newBuilder().addLocation(loc1).addLocation(loc2))
+      .addFlow(DbIssues.Flow.newBuilder().addLocation(loc3))
+      .build();
+    DbIssues.Locations locations2 = DbIssues.Locations.newBuilder()
+      .setChecksum("primary")
+      .addFlow(DbIssues.Flow.newBuilder().addLocation(loc3))
+      .addFlow(DbIssues.Flow.newBuilder().addLocation(loc2).addLocation(loc1))
+      .build();
+    issue.setLocations(locations1);
+    boolean updated = underTest.setLocations(issue, locations2);
+    assertThat(updated).isTrue();
+    assertThat(issue.locationsChanged()).isTrue();
+  }
+
+  @Test
+  void mark_locations_changed_if_flow_added() {
+    DbIssues.Flow flow1 = DbIssues.Flow.newBuilder()
+      .addLocation(DbIssues.Location.newBuilder().setComponentId("comp1").setChecksum("hash1").setMsg("msg1"))
+      .build();
+    DbIssues.Locations locations1 = DbIssues.Locations.newBuilder()
+      .setChecksum("primary")
+      .addFlow(flow1)
+      .build();
+    DbIssues.Locations locations2 = locations1.toBuilder()
+      .addFlow(DbIssues.Flow.newBuilder().addLocation(DbIssues.Location.newBuilder().setComponentId("comp2").setChecksum("hash2").setMsg("msg2")))
+      .build();
+    issue.setLocations(locations1);
+    boolean updated = underTest.setLocations(issue, locations2);
+    assertThat(updated).isTrue();
+    assertThat(issue.locationsChanged()).isTrue();
+  }
+
+  @Test
+  void mark_locations_changed_if_location_added_within_flow() {
+    DbIssues.Locations locations1 = DbIssues.Locations.newBuilder()
+      .setChecksum("primary")
+      .addFlow(DbIssues.Flow.newBuilder()
+        .addLocation(DbIssues.Location.newBuilder().setComponentId("comp1").setChecksum("hash1").setMsg("msg1")))
+      .build();
+    DbIssues.Locations locations2 = DbIssues.Locations.newBuilder()
+      .setChecksum("primary")
+      .addFlow(DbIssues.Flow.newBuilder()
+        .addLocation(DbIssues.Location.newBuilder().setComponentId("comp1").setChecksum("hash1").setMsg("msg1"))
+        .addLocation(DbIssues.Location.newBuilder().setComponentId("comp2").setChecksum("hash2").setMsg("msg2")))
+      .build();
+    issue.setLocations(locations1);
+    boolean updated = underTest.setLocations(issue, locations2);
+    assertThat(updated).isTrue();
+    assertThat(issue.locationsChanged()).isTrue();
+  }
+
+  @Test
+  void mark_locations_changed_if_location_content_changed_despite_same_count() {
+    DbIssues.Locations locations1 = DbIssues.Locations.newBuilder()
+      .setChecksum("primary")
+      .addFlow(DbIssues.Flow.newBuilder()
+        .addLocation(DbIssues.Location.newBuilder().setComponentId("comp1").setChecksum("hash1").setMsg("msg1")))
+      .build();
+    DbIssues.Locations locations2 = DbIssues.Locations.newBuilder()
+      .setChecksum("primary")
+      .addFlow(DbIssues.Flow.newBuilder()
+        .addLocation(DbIssues.Location.newBuilder().setComponentId("comp1").setChecksum("CHANGED").setMsg("msg1")))
+      .build();
+    issue.setLocations(locations1);
+    boolean updated = underTest.setLocations(issue, locations2);
+    assertThat(updated).isTrue();
+    assertThat(issue.locationsChanged()).isTrue();
+  }
+
+  @Test
   void setResolution_shouldNotTriggerFieldChange() {
     boolean updated = underTest.setResolution(issue, Issue.STATUS_OPEN, context);
     assertThat(updated).isTrue();
