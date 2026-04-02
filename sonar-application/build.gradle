@@ -48,7 +48,9 @@ jar.enabled = false
 shadowJar {
   archiveBaseName = 'sonar-application'
   archiveClassifier = null
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
   mergeServiceFiles()
+  filesNotMatching("META-INF/services/**") { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }
   zip64 true
   manifest {
     attributes('Main-Class': 'org.sonar.application.App')
