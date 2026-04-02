@@ -107,7 +107,7 @@ public class FileSourceDto extends FileHashesDto {
   }
 
   private static DbFileSources.Data decodeRegularSourceData(byte[] binaryData) throws IOException {
-    try (LZ4BlockInputStream lz4Input = new LZ4BlockInputStream(new ByteArrayInputStream(binaryData))) {
+    try (LZ4BlockInputStream lz4Input = LZ4BlockInputStream.newBuilder().build(new ByteArrayInputStream(binaryData))) {
       return DbFileSources.Data.parseFrom(lz4Input);
     } catch (InvalidProtocolBufferException e) {
       if (SIZE_LIMIT_EXCEEDED_EXCEPTION_MESSAGE.equals(e.getMessage())) {
@@ -118,7 +118,7 @@ public class FileSourceDto extends FileHashesDto {
   }
 
   private static DbFileSources.Data decodeHugeSourceData(byte[] binaryData) throws IOException {
-    try (LZ4BlockInputStream lz4Input = new LZ4BlockInputStream(new ByteArrayInputStream(binaryData))) {
+    try (LZ4BlockInputStream lz4Input = LZ4BlockInputStream.newBuilder().build(new ByteArrayInputStream(binaryData))) {
       CodedInputStream input = CodedInputStream.newInstance(lz4Input);
       input.setSizeLimit(Integer.MAX_VALUE);
       return DbFileSources.Data.parseFrom(input);
