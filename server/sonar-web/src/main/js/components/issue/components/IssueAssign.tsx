@@ -21,7 +21,7 @@
 import * as React from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Options, SingleValue } from 'react-select';
-import { LabelValueSelectOption, PopupZLevel, SearchSelectDropdown } from '~design-system';
+import { LabelValueSelectOption, PopupZLevel, SearchSelectDropdown, addGlobalErrorMessage } from '~design-system';
 import { getUsers } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -29,7 +29,7 @@ import { Issue } from '../../../types/types';
 import { RestUser, isLoggedIn, isUserActive } from '../../../types/users';
 import Avatar from '../../ui/Avatar';
 import { isAiAssistantEnabled } from 'src/main/js/api/settings';
-import { queueCodeFix } from 'src/main/js/api/ai-codefix';
+import { getCodefixQuota, queueCodeFix } from '../../../api/ai-codefix';
 
 interface Props {
   organization: string;
@@ -158,20 +158,33 @@ export default function IssueAssignee(props: Props) {
   };
 
   const handleAssign = (userOption: SingleValue<LabelValueSelectOption<string>>) => {
-    if (userOption) {
-      props.onAssign(userOption.value);
-    }
     if (userOption?.value === 'ai-code-assistant') {
       const { key: issueKey, organization: organizationKey, projectKey } = props.issue;
-      queueCodeFix({
-        organizationKey,
-        projectKey: projectKey ?? '',
-        issueKey: issueKey ?? '',
-      }).then(() => {
-        if (issueKey) {
-          queryClient.invalidateQueries({ queryKey: ['codefix-status', issueKey] });
+
+      getCodefixQuota(organizationKey).then((quota) => {
+        if (quota.currentUsage + 1 > quota.dailyLimit) {
+          addGlobalErrorMessage(translate('aicodefix.daily_limit_exceeded'));
+          return;
         }
+
+        props.onAssign(userOption.value);
+
+        queueCodeFix({
+          organizationKey,
+          projectKey: projectKey ?? '',
+          issueKey: issueKey ?? '',
+        }).then(() => {
+          if (issueKey) {
+            queryClient.invalidateQueries({ queryKey: ['codefix-status', issueKey] });
+          }
+        });
       });
+
+      return;
+    }
+
+    if (userOption) {
+      props.onAssign(userOption.value);
     }
   };
 
