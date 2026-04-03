@@ -31,6 +31,8 @@ public class PurgeConstants {
   public static final String BRANCHES_TO_KEEP_WHEN_INACTIVE = "sonar.dbcleaner.branchesToKeepWhenInactive";
   public static final String AUDIT_HOUSEKEEPING_FREQUENCY = "sonar.dbcleaner.auditHousekeeping";
   public static final String DAYS_BEFORE_DELETING_ANTICIPATED_TRANSITIONS = "sonar.dbcleaner.daysBeforeDeletingAnticipatedTransitions";
+  public static final String DAYS_BEFORE_DELETING_SCANNER_CACHE = "sonar.dbcleaner.daysBeforeDeletingScannerCache";
+  public static final int DEFAULT_SCANNER_CACHE_RETENTION_DAYS = 7;
 
   private PurgeConstants() {
     //class cannot be instantiated

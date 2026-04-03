@@ -47,7 +47,7 @@ import static org.mockito.Mockito.when;
 class ScannerAnalysisCacheDaoIT {
   @RegisterExtension
   private final DbTester dbTester = DbTester.create(System2.INSTANCE);
-  private final static UuidFactory uuidFactory = new SequenceUuidFactory();
+  private static final UuidFactory uuidFactory = new SequenceUuidFactory();
   private final DbSession dbSession = dbTester.getSession();
   private final ScannerAnalysisCacheDao underTest = dbTester.getDbClient().scannerAnalysisCacheDao();
 
@@ -93,7 +93,7 @@ class ScannerAnalysisCacheDaoIT {
   }
 
   @Test
-  void cleanOlderThan7Days() {
+  void cleanOlderThanConfiguredDays() {
     var snapshotDao = dbTester.getDbClient().snapshotDao();
     var snapshot1 = createSnapshot(LocalDateTime.now().minusDays(1).toInstant(ZoneOffset.UTC).toEpochMilli());
     snapshotDao.insert(dbSession, snapshot1);
@@ -110,7 +110,7 @@ class ScannerAnalysisCacheDaoIT {
 
     assertThat(dbTester.countRowsOfTable("scanner_analysis_cache")).isEqualTo(4);
 
-    underTest.cleanOlderThan7Days(dbSession);
+    underTest.cleanOlderThan(dbSession, 7);
     dbSession.commit();
 
     assertThat(dbTester.countRowsOfTable("scanner_analysis_cache")).isEqualTo(2);

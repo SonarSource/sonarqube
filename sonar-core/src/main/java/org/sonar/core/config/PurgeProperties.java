@@ -114,6 +114,16 @@ public final class PurgeProperties {
         .category(CoreProperties.CATEGORY_HOUSEKEEPING)
         .subCategory(CoreProperties.SUBCATEGORY_GENERAL)
         .index(7)
+        .build(),
+
+      PropertyDefinition.builder(PurgeConstants.DAYS_BEFORE_DELETING_SCANNER_CACHE)
+        .defaultValue(String.valueOf(PurgeConstants.DEFAULT_SCANNER_CACHE_RETENTION_DAYS))
+        .name("Delete scanner cache after")
+        .description("Scanner analysis cache entries that have not been updated for more than this number of days will be deleted.")
+        .type(PropertyType.INTEGER)
+        .category(CoreProperties.CATEGORY_HOUSEKEEPING)
+        .subCategory(CoreProperties.SUBCATEGORY_GENERAL)
+        .index(8)
         .build());
   }
 }

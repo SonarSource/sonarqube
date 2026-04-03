@@ -19,14 +19,25 @@
  */
 package org.sonar.core.config;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import org.junit.Test;
+import org.sonar.api.config.PropertyDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PurgePropertiesTest {
 
   @Test
-  public void shouldGetExtensions() {
-    assertThat(PurgeProperties.all()).hasSize(7);
+  public void daysBeforeDeletingScannerCache_must_be_global_and_have_7_as_default() {
+    List<PropertyDefinition> properties = PurgeProperties.all();
+
+    Optional<PropertyDefinition> property = properties.stream()
+      .filter(p -> Objects.equals(p.key(), PurgeConstants.DAYS_BEFORE_DELETING_SCANNER_CACHE))
+      .findFirst();
+    assertThat(property).isNotEmpty();
+    assertThat(property.get().defaultValue()).isEqualTo("7");
+    assertThat(property.get().configScopes()).isEmpty();
   }
 }
