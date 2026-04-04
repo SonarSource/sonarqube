@@ -24,13 +24,15 @@ import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.OAuthConstants;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.google.common.annotations.VisibleForTesting;
+import jakarta.inject.Inject;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Stream;
-import jakarta.inject.Inject;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
@@ -42,23 +44,30 @@ import static java.util.stream.Collectors.toSet;
 
 public class GitLabIdentityProvider implements OAuth2IdentityProvider {
 
+  private static final Logger LOG = LoggerFactory.getLogger(GitLabIdentityProvider.class);
+
   public static final String KEY = "gitlab";
+
+  private static final int MAX_CONCURRENT_REQUESTS = 5;
   private final GitLabSettings gitLabSettings;
   private final ScribeGitLabOauth2Api scribeApi;
   private final GitLabRestClient gitLabRestClient;
+  private final GitLabGraphQlClient gitLabGraphQlClient;
   private final ScribeFactory scribeFactory;
 
   @Inject
-  public GitLabIdentityProvider(GitLabSettings gitLabSettings, GitLabRestClient gitLabRestClient, ScribeGitLabOauth2Api scribeApi) {
-    this(gitLabSettings, gitLabRestClient, scribeApi, new ScribeFactory());
+  public GitLabIdentityProvider(GitLabSettings gitLabSettings, GitLabRestClient gitLabRestClient, GitLabGraphQlClient gitLabGraphQlClient,
+    ScribeGitLabOauth2Api scribeApi) {
+    this(gitLabSettings, gitLabRestClient, gitLabGraphQlClient, scribeApi, new ScribeFactory());
   }
 
   @VisibleForTesting
-  GitLabIdentityProvider(GitLabSettings gitLabSettings, GitLabRestClient gitLabRestClient, ScribeGitLabOauth2Api scribeApi,
-    ScribeFactory scribeFactory) {
+  GitLabIdentityProvider(GitLabSettings gitLabSettings, GitLabRestClient gitLabRestClient, GitLabGraphQlClient gitLabGraphQlClient,
+    ScribeGitLabOauth2Api scribeApi, ScribeFactory scribeFactory) {
     this.gitLabSettings = gitLabSettings;
     this.scribeApi = scribeApi;
     this.gitLabRestClient = gitLabRestClient;
+    this.gitLabGraphQlClient = gitLabGraphQlClient;
     this.scribeFactory = scribeFactory;
   }
 
@@ -126,15 +135,15 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
       .setEmail(user.getEmail());
 
     if (gitLabSettings.syncUserGroups()) {
-      Set<String> userGroups = getGroups(scribe, accessToken);
-      validateUserInAllowedGroups(userGroups, gitLabSettings.allowedGroups());
+      Set<String> userGroups = getGroups(accessToken);
+      validateUserInAllowedGroups(user.getUsername(), userGroups);
       builder.setGroups(userGroups);
     }
     context.authenticate(builder.build());
     context.redirectToRequestedPage();
   }
 
-  private void validateUserInAllowedGroups(Set<String> userGroups, Set<String> allowedGroups) {
+  private void validateUserInAllowedGroups(String gitlabUserName, Set<String> userGroups) {
     if (gitLabSettings.allowedGroups().isEmpty()) {
       return;
     }
@@ -143,16 +152,44 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
       .anyMatch(gitLabSettings::isAllowedGroup);
 
     if (!allowedUser) {
+      LOG.info("Login for user with GitLab user name {} rejected, as the user do not belong to the allowlisted groups", gitlabUserName);
       throw new UnauthorizedException("You are not allowed to authenticate");
     }
   }
 
-  private Set<String> getGroups(OAuth20Service scribe, OAuth2AccessToken accessToken) {
-    List<GsonGroup> groups = gitLabRestClient.getGroups(scribe, accessToken);
-    return Stream.of(groups)
-      .flatMap(Collection::stream)
+  private Set<String> getGroups(OAuth2AccessToken accessToken) {
+    Set<String> allowedGroups = gitLabSettings.allowedGroups();
+    List<GsonGroup> groups;
+    if (allowedGroups.isEmpty()) {
+      groups = gitLabGraphQlClient.getGroups(accessToken.getAccessToken(), null);
+    } else {
+      groups = findGroupsUsingGraphQlApiInParallel(accessToken, allowedGroups);
+    }
+    return groups.stream()
       .map(GsonGroup::getFullPath)
       .collect(toSet());
+  }
+
+  private List<GsonGroup> findGroupsUsingGraphQlApiInParallel(OAuth2AccessToken accessToken, Set<String> allowedGroups) {
+    try (var executor = Executors.newFixedThreadPool(MAX_CONCURRENT_REQUESTS)) {
+      List<Future<List<GsonGroup>>> futures = allowedGroups.stream()
+        .map(group -> executor.submit(() -> gitLabGraphQlClient.getGroups(accessToken.getAccessToken(), group)))
+        .toList();
+      return futures.stream()
+        .flatMap(future -> getResult(future).stream())
+        .toList();
+    }
+  }
+
+  private static <T> T getResult(Future<T> future) {
+    try {
+      return future.get();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IllegalStateException(e);
+    } catch (ExecutionException e) {
+      throw new IllegalStateException(e.getCause());
+    }
   }
 
   static class ScribeFactory {

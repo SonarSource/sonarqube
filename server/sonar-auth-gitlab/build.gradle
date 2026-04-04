@@ -14,12 +14,10 @@ dependencies {
     api project(':server:sonar-server-common')
 
     compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
-    compileOnlyApi 'com.squareup.okhttp3:okhttp'
     compileOnlyApi 'jakarta.servlet:jakarta.servlet-api'
     compileOnlyApi project(':sonar-core')
 
     testImplementation 'com.squareup.okhttp3:mockwebserver'
-    testImplementation 'com.squareup.okhttp3:okhttp'
     testImplementation 'com.tngtech.java:junit-dataprovider'
     testImplementation 'junit:junit'
     testImplementation 'org.assertj:assertj-core'

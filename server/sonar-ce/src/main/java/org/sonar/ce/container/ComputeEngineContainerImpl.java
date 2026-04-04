@@ -85,6 +85,7 @@ import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.Props;
 import org.sonar.process.logging.LogbackHelper;
+import org.sonar.server.common.graphql.GraphQlClient;
 import org.sonar.server.component.ComponentTypes;
 import org.sonar.server.component.DefaultComponentTypes;
 import org.sonar.server.component.index.EntityDefinitionIndexer;
@@ -475,7 +476,9 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       QualityGateFinder.class,
       QualityGateEvaluatorImpl.class,
 
-      new AnalysisCacheCleaningModule()
+      new AnalysisCacheCleaningModule(),
+
+      GraphQlClient.class
 
     );
 

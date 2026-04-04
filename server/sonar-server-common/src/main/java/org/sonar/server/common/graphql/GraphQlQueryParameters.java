@@ -17,26 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.auth.gitlab;
+package org.sonar.server.common.graphql;
 
+import java.lang.reflect.Type;
 import java.util.List;
-import org.sonar.api.config.PropertyDefinition;
-import org.sonar.core.platform.Module;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
-import static org.sonar.auth.gitlab.GitLabSettings.definitions;
+public interface GraphQlQueryParameters {
 
-public class GitLabModule extends Module {
-
-  @Override
-  protected void configureModule() {
-    add(
-      GitLabIdentityProvider.class,
-      GitLabGraphQlClient.class,
-      GitLabRestClient.class,
-      GitLabSettings.class,
-      ScribeGitLabOauth2Api.class);
-    List<PropertyDefinition> definitions = definitions();
-    add(definitions.toArray(new Object[definitions.size()]));
-  }
-
+  record QueryWithPagination<T, U>(String appUrl,
+                                   String accessToken,
+                                   String queryString,
+                                   Map<String, String> queryVariables,
+                                   Function<GsonGraphQlAnswer<T>, List<U>> extractAndMapResultsFunction,
+                                   Function<GsonGraphQlAnswer<T>, String> extractCursorFunction,
+                                   Predicate<GsonGraphQlAnswer<T>> hasNextPage, Type answerDataType) {}
 }

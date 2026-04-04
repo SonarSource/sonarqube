@@ -56,6 +56,10 @@ public class GsonGroup {
     return fullPath;
   }
 
+  void setFullPath(String fullPath) {
+    this.fullPath = fullPath;
+  }
+
   public String getMarkedForDeletionOn() {
     return markedForDeletionOn;
   }

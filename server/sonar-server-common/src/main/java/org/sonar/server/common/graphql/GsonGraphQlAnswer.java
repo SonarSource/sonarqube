@@ -17,28 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.auth.gitlab;
+package org.sonar.server.common.graphql;
 
-import com.github.scribejava.core.model.OAuth2AccessToken;
-import com.github.scribejava.core.model.Response;
-import com.github.scribejava.core.oauth.OAuth20Service;
-import java.io.IOException;
-import org.sonar.auth.OAuthRestClient;
+import com.google.gson.annotations.SerializedName;
+import java.util.List;
+import java.util.Objects;
+import javax.annotation.Nullable;
 
-public class GitLabRestClient {
+public record GsonGraphQlAnswer<T>(@SerializedName("data") @Nullable T data, @SerializedName("errors") @Nullable List<Object> errors) {
 
-  private final GitLabSettings gitLabSettings;
-
-  public GitLabRestClient(GitLabSettings gitLabSettings) {
-    this.gitLabSettings = gitLabSettings;
+  public T getNonNullData() {
+    return Objects.requireNonNull(data, "The answer does not contain a data field.");
   }
-
-  GsonUser getUser(OAuth20Service scribe, OAuth2AccessToken accessToken) {
-    try (Response response = OAuthRestClient.executeRequest(gitLabSettings.apiUrl() + "/user", scribe, accessToken)) {
-      String responseBody = response.getBody();
-      return GsonUser.parse(responseBody);
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to get gitlab user", e);
-    }
+  public boolean isValid() {
+    return errors == null || errors.isEmpty();
   }
 }

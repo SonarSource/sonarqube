@@ -19,8 +19,10 @@
  */
 package org.sonar.auth.gitlab;
 
+import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,6 +33,7 @@ import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.server.http.HttpRequest;
+import org.sonar.server.common.graphql.GraphQlClient;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,6 +64,7 @@ public class IntegrationTest {
 
   private final GitLabIdentityProvider gitLabIdentityProvider = new GitLabIdentityProvider(gitLabSettings,
     new GitLabRestClient(gitLabSettings),
+    new GitLabGraphQlClient(gitLabSettings, new GraphQlClient(new OkHttpClient())),
     new ScribeGitLabOauth2Api(gitLabSettings));
 
   @Before
@@ -82,7 +86,9 @@ public class IntegrationTest {
 
     mockAccessTokenResponse();
     mockUserResponse();
-    mockSingleGroupReponse("group1");
+
+    enqueueGraphQlGroupResponse("group1");
+    enqueueGraphQlGroupResponse("group1");
 
     gitLabIdentityProvider.callback(callbackContext);
 
@@ -102,7 +108,9 @@ public class IntegrationTest {
 
     mockAccessTokenResponse();
     mockUserResponse();
-    mockSingleGroupReponse("wrong-group");
+
+    enqueueGraphQlGroupResponse("wrong-group");
+    enqueueGraphQlGroupResponse("wrong-group");
 
     assertThatThrownBy(() -> gitLabIdentityProvider.callback(callbackContext))
       .isInstanceOf((UnauthorizedException.class))
@@ -116,7 +124,6 @@ public class IntegrationTest {
 
     mockAccessTokenResponse();
     mockUserResponse();
-    mockSingleGroupReponse("wrong-group");
 
     gitLabIdentityProvider.callback(callbackContext);
 
@@ -130,14 +137,15 @@ public class IntegrationTest {
 
     mockAccessTokenResponse();
     mockUserResponse();
-    mockSingleGroupReponse("group1/subgroup");
+
+    enqueueGraphQlGroupResponse("group1/subgroup");
+    enqueueGraphQlGroupResponse("group1/subgroup");
 
     gitLabIdentityProvider.callback(callbackContext);
 
     verify(callbackContext).authenticate(any());
     verify(callbackContext).redirectToRequestedPage();
   }
-
 
   @Test
   public void callback_shouldSynchronizeGroups() throws InterruptedException {
@@ -146,19 +154,9 @@ public class IntegrationTest {
 
     mockAccessTokenResponse();
     mockUserResponse();
-    // Response for /groups
-    gitlab.enqueue(new MockResponse().setBody("""
-      [
-        {
-          "id": 1,
-          "full_path": "group1"
-        },
-        {
-          "id": 2,
-          "full_path": "group2"
-        }
-      ]
-      """));
+
+    enqueueGraphQlGroupResponse("group1");
+    enqueueGraphQlGroupResponse("group2");
 
     gitLabIdentityProvider.callback(callbackContext);
 
@@ -166,75 +164,86 @@ public class IntegrationTest {
     verify(callbackContext).authenticate(captor.capture());
     UserIdentity value = captor.getValue();
     assertThat(value.getGroups()).contains("group1", "group2");
+
     assertThat(gitlab.takeRequest().getPath()).isEqualTo("/oauth/token");
     assertThat(gitlab.takeRequest().getPath()).isEqualTo("/api/v4/user");
-    assertThat(gitlab.takeRequest().getPath()).isEqualTo("/api/v4/groups?min_access_level=10&per_page=100");
+
+    // Two GraphQL POST requests (one per root group)
+    RecordedRequest firstGraphQl = gitlab.takeRequest();
+    assertThat(firstGraphQl.getPath()).isEqualTo("/api/graphql");
+    assertThat(firstGraphQl.getMethod()).isEqualTo("POST");
+    String firstBody = firstGraphQl.getBody().readUtf8();
+    assertThat(firstBody).contains("\"search\":");
+
+    RecordedRequest secondGraphQl = gitlab.takeRequest();
+    assertThat(secondGraphQl.getPath()).isEqualTo("/api/graphql");
+    assertThat(secondGraphQl.getMethod()).isEqualTo("POST");
+    String secondBody = secondGraphQl.getBody().readUtf8();
+    assertThat(secondBody).contains("\"search\":");
+
+    // Verify the two search terms are group1 and group2 (order may vary)
+    assertThat(firstBody + secondBody).contains("group1").contains("group2");
   }
 
   @Test
-  public void callback_whenMultiplePagesOfGroups_shouldSynchronizeAllGroups() {
+  public void callback_whenMultiplePagesOfGroups_shouldSynchronizeAllGroups() throws InterruptedException {
+    // Clear allowedGroups so it does a full fetch with null search
+    mapSettings.removeProperty(GITLAB_AUTH_ALLOWED_GROUPS);
     mapSettings.setProperty(GITLAB_AUTH_SYNC_USER_GROUPS, "true");
     OAuth2IdentityProvider.CallbackContext callbackContext = mockCallbackContext();
 
     mockAccessTokenResponse();
     mockUserResponse();
-    // Response for /groups, first page
-    gitlab.enqueue(new MockResponse()
-      .setBody("""
-        [
-          {
-            "id": 1,
-            "full_path": "group1"
-          },
-          {
-            "id": 2,
-            "full_path": "group2"
-          }
-        ]
-        """)
-      .setHeader("Link", format(" <%s/groups?per_page=100&page=2>; rel=\"next\"," +
-        "  <%s/groups?per_page=100&&page=3>; rel=\"last\"," +
-        "  <%s/groups?per_page=100&&page=1>; rel=\"first\"", gitLabUrl, gitLabUrl, gitLabUrl)));
-    // Response for /groups, page 2
-    gitlab.enqueue(new MockResponse()
-      .setBody("""
-        [
-          {
-            "id": 3,
-            "full_path": "group3"
-          },
-          {
-            "id": 4,
-            "full_path": "group4"
-          }
-        ]
-        """)
-      .setHeader("Link", format("<%s/groups?per_page=100&page=3>; rel=\"next\"," +
-        "  <%s/groups?per_page=100&&page=3>; rel=\"last\"," +
-        "  <%s/groups?per_page=100&&page=1>; rel=\"first\"", gitLabUrl, gitLabUrl, gitLabUrl)));
-    // Response for /groups, page 3
-    gitlab.enqueue(new MockResponse()
-      .setBody("""
-        [
-          {
-            "id": 5,
-            "full_path": "group5"
-          },
-          {
-            "id": 6,
-            "full_path": "group6"
-          }
-        ]
-        """)
-      .setHeader("Link", format("<%s/groups?per_page=100&&page=3>; rel=\"last\"," +
-        "  <%s/groups?per_page=100&&page=1>; rel=\"first\"", gitLabUrl, gitLabUrl)));
+    // First page of GraphQL results with hasNextPage=true
+    mockGraphQlGroupResponseWithNextPage("cursor1", "group1", "group2");
+    // Second page with hasNextPage=false
+    enqueueGraphQlGroupResponse("group3", "group4");
 
     gitLabIdentityProvider.callback(callbackContext);
 
     ArgumentCaptor<UserIdentity> captor = ArgumentCaptor.forClass(UserIdentity.class);
     verify(callbackContext).authenticate(captor.capture());
     UserIdentity value = captor.getValue();
-    assertThat(value.getGroups()).contains("group1", "group2", "group3", "group4", "group5", "group6");
+    assertThat(value.getGroups()).contains("group1", "group2", "group3", "group4");
+
+    // Verify pagination: token request, user request, then 2 GraphQL requests
+    assertThat(gitlab.takeRequest().getPath()).isEqualTo("/oauth/token");
+    assertThat(gitlab.takeRequest().getPath()).isEqualTo("/api/v4/user");
+
+    RecordedRequest firstGraphQl = gitlab.takeRequest();
+    assertThat(firstGraphQl.getPath()).isEqualTo("/api/graphql");
+    String firstBody = firstGraphQl.getBody().readUtf8();
+    assertThat(firstBody).contains("\"search\":null");
+
+    RecordedRequest secondGraphQl = gitlab.takeRequest();
+    assertThat(secondGraphQl.getPath()).isEqualTo("/api/graphql");
+    String secondBody = secondGraphQl.getBody().readUtf8();
+    assertThat(secondBody).contains("\"cursor\":\"cursor1\"");
+  }
+
+  @Test
+  public void callback_whenNoAllowedGroupsConfigured_shouldFetchAllGroupsWithNullSearch() throws InterruptedException {
+    mapSettings.removeProperty(GITLAB_AUTH_ALLOWED_GROUPS);
+    mapSettings.setProperty(GITLAB_AUTH_SYNC_USER_GROUPS, "true");
+    OAuth2IdentityProvider.CallbackContext callbackContext = mockCallbackContext();
+
+    mockAccessTokenResponse();
+    mockUserResponse();
+    enqueueGraphQlGroupResponse("some-group");
+
+    gitLabIdentityProvider.callback(callbackContext);
+
+    verify(callbackContext).authenticate(any());
+    verify(callbackContext).redirectToRequestedPage();
+
+    // Skip token and user requests
+    gitlab.takeRequest();
+    gitlab.takeRequest();
+
+    RecordedRequest graphQlRequest = gitlab.takeRequest();
+    assertThat(graphQlRequest.getPath()).isEqualTo("/api/graphql");
+    String body = graphQlRequest.getBody().readUtf8();
+    assertThat(body).contains("\"search\":null");
   }
 
   @Test
@@ -284,16 +293,59 @@ public class IntegrationTest {
       """));
   }
 
-  private void mockSingleGroupReponse(String group) {
-    // Response for /groups
-    gitlab.enqueue(new MockResponse().setBody("""
-      [
+  private void enqueueGraphQlGroupResponse(String... fullPaths) {
+    StringBuilder nodes = new StringBuilder();
+    for (int i = 0; i < fullPaths.length; i++) {
+      if (i > 0) {
+        nodes.append(",");
+      }
+      nodes.append("""
+        {"fullPath": "%s"}""".formatted(fullPaths[i]));
+    }
+    gitlab.enqueue(new MockResponse()
+      .setHeader("Content-Type", "application/json")
+      .setBody("""
         {
-          "id": 1,
-          "full_path": "%s"
+          "data": {
+            "currentUser": {
+              "groups": {
+                "nodes": [%s],
+                "pageInfo": {
+                  "hasNextPage": false,
+                  "endCursor": null
+                }
+              }
+            }
+          }
         }
-      ]
-      """.formatted(group)));
+        """.formatted(nodes)));
   }
 
+  private void mockGraphQlGroupResponseWithNextPage(String endCursor, String... fullPaths) {
+    StringBuilder nodes = new StringBuilder();
+    for (int i = 0; i < fullPaths.length; i++) {
+      if (i > 0) {
+        nodes.append(",");
+      }
+      nodes.append("""
+        {"fullPath": "%s"}""".formatted(fullPaths[i]));
+    }
+    gitlab.enqueue(new MockResponse()
+      .setHeader("Content-Type", "application/json")
+      .setBody("""
+        {
+          "data": {
+            "currentUser": {
+              "groups": {
+                "nodes": [%s],
+                "pageInfo": {
+                  "hasNextPage": true,
+                  "endCursor": "%s"
+                }
+              }
+            }
+          }
+        }
+        """.formatted(nodes, endCursor)));
+  }
 }

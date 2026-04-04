@@ -46,6 +46,7 @@ import org.sonar.auth.bitbucket.BitbucketModule;
 import org.sonar.auth.github.GitHubModule;
 import org.sonar.auth.github.GitHubSettings;
 import org.sonar.auth.gitlab.GitLabModule;
+import org.sonar.server.common.graphql.GraphQlClient;
 import org.sonar.auth.ldap.LdapModule;
 import org.sonar.auth.saml.SamlModule;
 import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotificationModule;
@@ -471,6 +472,7 @@ public class PlatformLevel4 extends PlatformLevel {
       GitHubSettings.class,
       GithubConfigurationService.class,
       new GitHubModule(),
+      GraphQlClient.class,
       new GitLabModule(),
       new LdapModule(),
       new SamlModule(),
