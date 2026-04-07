@@ -93,6 +93,6 @@ public class GithubConfigurationService extends BaseService {
       """, provisioningMode);
     call(
       new PatchRequest(path(configId)).setBody(body).setContentType(APPLICATION_MERGE_PATCH_JSON)
-    );
+    ).close();
   }
 }
