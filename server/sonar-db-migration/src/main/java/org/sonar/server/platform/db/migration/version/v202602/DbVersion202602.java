@@ -17,21 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v202601;
+package org.sonar.server.platform.db.migration.version.v202602;
 
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
 
-public class DbVersion202601 implements DbVersion {
+public class DbVersion202602 implements DbVersion {
 
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
-      .add(2026_01_000, "Create 'components_copy_component_uuid' index", CreateIndexOnCopyComponentUuid.class)
-      .add(2026_01_001, "Populate the 'analyses.counter.date' internal property", PopulateAnalysesCounterStartDateProperty.class)
-      .add(2026_01_002, "Create unique partial index on 'snapshots' for root_component_uuid where islast = true", CreateUniqueIndexOnSnapshotsRootComponentUuidIsLast.class)
-      .add(2026_01_003, "Add 'part_number' column to 'ce_task_input'", AddPartNumberColumnToCeTaskInputTable.class)
-      .add(2026_01_004, "Add 'part_count' column to 'ce_queue'", AddPartCountColumnToCeQueueTable.class);
+      .add(2026_02_000, "Create 'sca_ir_cve_locations' table", CreateScaIrCveLocationsTable.class)
+      .add(2026_02_001, "Create 'integration_bindings' table", CreateIntegrationBindingsTable.class);
+    // No migration allowed here anymore, if you need to add a migration, make sure to add it for the appropriate release.
   }
-
 }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v202601;
+package org.sonar.server.platform.db.migration.version.v202602;
 
 import java.sql.SQLException;
 import java.sql.Types;
@@ -25,21 +25,21 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
-import static org.sonar.server.platform.db.migration.version.v202601.CreateScaIrCveLocationsTable.COLUMN_CREATED_AT;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateScaIrCveLocationsTable.COLUMN_CVE_ID;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateScaIrCveLocationsTable.COLUMN_END_LINE;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateScaIrCveLocationsTable.COLUMN_END_LINE_OFFSET;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateScaIrCveLocationsTable.COLUMN_FILE_PATH;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateScaIrCveLocationsTable.COLUMN_SCA_ISSUES_RELEASES_UUID;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateScaIrCveLocationsTable.COLUMN_SIGNATURE;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateScaIrCveLocationsTable.COLUMN_START_LINE;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateScaIrCveLocationsTable.COLUMN_START_LINE_OFFSET;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateScaIrCveLocationsTable.COLUMN_UPDATED_AT;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateScaIrCveLocationsTable.COLUMN_UUID;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateScaIrCveLocationsTable.CVE_ID_SIZE;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateScaIrCveLocationsTable.FILE_PATH_SIZE;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateScaIrCveLocationsTable.SIGNATURE_SIZE;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateScaIrCveLocationsTable.TABLE_NAME;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateScaIrCveLocationsTable.COLUMN_CREATED_AT;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateScaIrCveLocationsTable.COLUMN_CVE_ID;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateScaIrCveLocationsTable.COLUMN_END_LINE;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateScaIrCveLocationsTable.COLUMN_END_LINE_OFFSET;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateScaIrCveLocationsTable.COLUMN_FILE_PATH;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateScaIrCveLocationsTable.COLUMN_SCA_ISSUES_RELEASES_UUID;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateScaIrCveLocationsTable.COLUMN_SIGNATURE;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateScaIrCveLocationsTable.COLUMN_START_LINE;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateScaIrCveLocationsTable.COLUMN_START_LINE_OFFSET;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateScaIrCveLocationsTable.COLUMN_UPDATED_AT;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateScaIrCveLocationsTable.COLUMN_UUID;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateScaIrCveLocationsTable.CVE_ID_SIZE;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateScaIrCveLocationsTable.FILE_PATH_SIZE;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateScaIrCveLocationsTable.SIGNATURE_SIZE;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateScaIrCveLocationsTable.TABLE_NAME;
 
 class CreateScaIrCveLocationsTableTest {
 

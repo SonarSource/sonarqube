@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v202601;
+package org.sonar.server.platform.db.migration.version.v202602;
 
 import java.sql.SQLException;
 import java.sql.Types;
@@ -25,24 +25,24 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
-import static org.sonar.server.platform.db.migration.version.v202601.CreateIntegrationBindingsTable.COLUMN_ACCESS_TOKEN;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateIntegrationBindingsTable.COLUMN_CREATED_AT;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateIntegrationBindingsTable.COLUMN_ENTITY_TYPE;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateIntegrationBindingsTable.COLUMN_ENTITY_UUID;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateIntegrationBindingsTable.COLUMN_EXPIRES_IN_SECONDS;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateIntegrationBindingsTable.COLUMN_EXTRA_DETAILS;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateIntegrationBindingsTable.COLUMN_ID;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateIntegrationBindingsTable.COLUMN_INTEGRATION_TYPE;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateIntegrationBindingsTable.COLUMN_REFRESH_TOKEN;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateIntegrationBindingsTable.COLUMN_SCOPE;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateIntegrationBindingsTable.COLUMN_TOKEN_TYPE;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateIntegrationBindingsTable.COLUMN_UPDATED_AT;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateIntegrationBindingsTable.COLUMN_UPDATED_BY;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateIntegrationBindingsTable.ENTITY_TYPE_SIZE;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateIntegrationBindingsTable.INTEGRATION_TYPE_SIZE;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateIntegrationBindingsTable.TABLE_NAME;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateIntegrationBindingsTable.TOKEN_TYPE_SIZE;
-import static org.sonar.server.platform.db.migration.version.v202601.CreateIntegrationBindingsTable.UUID_SIZE;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateIntegrationBindingsTable.COLUMN_ACCESS_TOKEN;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateIntegrationBindingsTable.COLUMN_CREATED_AT;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateIntegrationBindingsTable.COLUMN_ENTITY_TYPE;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateIntegrationBindingsTable.COLUMN_ENTITY_UUID;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateIntegrationBindingsTable.COLUMN_EXPIRES_IN_SECONDS;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateIntegrationBindingsTable.COLUMN_EXTRA_DETAILS;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateIntegrationBindingsTable.COLUMN_ID;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateIntegrationBindingsTable.COLUMN_INTEGRATION_TYPE;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateIntegrationBindingsTable.COLUMN_REFRESH_TOKEN;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateIntegrationBindingsTable.COLUMN_SCOPE;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateIntegrationBindingsTable.COLUMN_TOKEN_TYPE;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateIntegrationBindingsTable.COLUMN_UPDATED_AT;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateIntegrationBindingsTable.COLUMN_UPDATED_BY;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateIntegrationBindingsTable.ENTITY_TYPE_SIZE;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateIntegrationBindingsTable.INTEGRATION_TYPE_SIZE;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateIntegrationBindingsTable.TABLE_NAME;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateIntegrationBindingsTable.TOKEN_TYPE_SIZE;
+import static org.sonar.server.platform.db.migration.version.v202602.CreateIntegrationBindingsTable.UUID_SIZE;
 
 class CreateIntegrationBindingsTableTest {
 
