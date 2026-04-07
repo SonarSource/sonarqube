@@ -47,6 +47,7 @@ interface FixDiffHeaderProps {
   projectName: string;
   branchLike?: BranchLike;
   jobId?: string;
+  issueKey?: string;
 }
 
 export function FixDiffHeader({
@@ -56,6 +57,7 @@ export function FixDiffHeader({
   projectName,
   branchLike,
   jobId,
+  issueKey,
 }: Readonly<FixDiffHeaderProps>) {
   return (
     <StyledFixDiffHeader>
@@ -76,14 +78,7 @@ export function FixDiffHeader({
           copyLabel={translate('source_viewer.click_to_copy_filepath')}
         />
       </div>
-      <BranchSelect>
-        <BranchSelectButton>
-        <img src="/images/branch-icon.svg" className="sw-mr-2" alt="branch-icon-icon" />
-          <BranchText>{branchDisplayName}</BranchText>
-          <ChevronDownIcon className="sw-ml-1" />
-        </BranchSelectButton>
-      </BranchSelect>
-    <CreatePullRequestButton jobId={jobId} />
+    <CreatePullRequestButton issueKey={issueKey} jobId={jobId} />
     </StyledFixDiffHeader>
   );
 }

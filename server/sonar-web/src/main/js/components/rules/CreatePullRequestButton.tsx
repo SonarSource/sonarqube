@@ -19,48 +19,46 @@
  */
 
 import * as React from 'react';
-import { createCodefixPr } from '../../api/ai-codefix';
 import { CreatePRButton, CreatePRIcon, CreatePRText } from './FixDiffStyles';
+import { CreatePullRequestModal } from './CreatePullRequestModal';
 
 interface CreatePullRequestButtonProps {
   jobId?: string;
+  issueKey?: string;
 }
 
-export function CreatePullRequestButton({ jobId }: Readonly<CreatePullRequestButtonProps>) {
+export function CreatePullRequestButton({ jobId, issueKey }: Readonly<CreatePullRequestButtonProps>) {
   const [isActive, setIsActive] = React.useState(false);
   const [isDisabled, setIsDisabled] = React.useState(false);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [modalOpen, setModalOpen] = React.useState(false);
 
-  const handleCreatePR = React.useCallback(() => {
-    if (!jobId || isDisabled) return;
-    setIsSubmitting(true);
-    createCodefixPr(jobId)
-      .then(() => {
-        setIsActive(true);
-        setIsDisabled(true);
-      })
-      .catch(() => {
-        // Error already handled by request layer; keep button clickable for retry
-      })
-      .finally(() => {
-        setIsSubmitting(false);
-      });
-  }, [jobId, isDisabled]);
-
-  const disabled = !jobId || isDisabled || isSubmitting;
+  const disabled = !jobId || !issueKey || isDisabled;
 
   return (
-    <CreatePRButton
-      type="button"
-      onClick={handleCreatePR}
-      disabled={disabled}
-      $active={isActive}
-    >
-      <CreatePRIcon>
-           <img src="/images/pull-request-icon.svg" className="" alt="pull-request-icon" />
-      </CreatePRIcon>
-      <CreatePRText>Create Pull Request</CreatePRText>
-    </CreatePRButton>
+    <>
+      <CreatePRButton
+        type="button"
+        onClick={() => setModalOpen(true)}
+        disabled={disabled}
+        $active={isActive}
+      >
+        <CreatePRIcon>
+          <img src="/images/pull-request-icon.svg" className="" alt="pull-request-icon" />
+        </CreatePRIcon>
+        <CreatePRText>Create Pull Request</CreatePRText>
+      </CreatePRButton>
+      {modalOpen && jobId && issueKey && (
+        <CreatePullRequestModal
+          issueKey={issueKey}
+          jobId={jobId}
+          onClose={() => setModalOpen(false)}
+          onSuccess={() => {
+            setIsActive(true);
+            setIsDisabled(true);
+          }}
+        />
+      )}
+    </>
   );
 }
 

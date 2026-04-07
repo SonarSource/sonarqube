@@ -20,14 +20,30 @@
 import {
   postJSONBody,
   parseJSON,
-  post,
   get,
+  request,
+  checkStatus,
 } from '../helpers/request';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 
 export interface CodefixFixedFileResponse {
   jobId: string;
   fixedFileContent: string;
+}
+
+export interface CodefixCreatePrDraft {
+  branchNamePrefix: string;
+  baseBranch: string;
+  pullRequestTitle: string;
+  commitMessage: string;
+  pullRequestDescription: string;
+}
+
+export interface CodefixCreatePrSubmit {
+  baseBranch: string;
+  pullRequestTitle: string;
+  commitMessage: string;
+  pullRequestDescription: string;
 }
 
 export interface CodefixStatusResponse {
@@ -64,8 +80,22 @@ export function getCodefixFixedFile(issueKey: string): Promise<CodefixFixedFileR
   return get(`${CODEFIX_BASE}/fixed-file`, { issueKey }).then(parseJSON);
 }
 
-export function createCodefixPr(jobId: string): Promise<void> {
-  return post(`${CODEFIX_BASE}/create-pr/${encodeURIComponent(jobId)}`);
+export function getCodefixCreatePrDraft(jobId: string): Promise<CodefixCreatePrDraft> {
+  return get(`${CODEFIX_BASE}/create-pr-draft`, { jobId }).then(parseJSON);
+}
+
+export function createCodefixPr(
+  jobId: string,
+  body?: Partial<CodefixCreatePrSubmit>,
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    request(`${CODEFIX_BASE}/create-pr/${encodeURIComponent(jobId)}`)
+      .setMethod('POST')
+      .setData(body ?? {}, true)
+      .submit()
+      .then((response) => checkStatus(response, false))
+      .then(() => resolve(), reject);
+  });
 }
 
 export function getCodefixStatus(issueKey: string): Promise<CodefixStatusResponse> {
