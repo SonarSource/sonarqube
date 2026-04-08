@@ -3,11 +3,6 @@
   "generated_at": "@generated_at@",
   "version": "@sqcbVersion@",
   "projects": [
-    "com.sonarsource.fixsuggestions:ai-suggestions-shared",
-    "com.sonarsource.pdfreport:pdf-generator-utils",
-    "com.sonarsource.pdfreport:portfolio-report-pdf-generation",
-    "com.sonarsource.pdfreport:regulatory-report-pdf-generation",
-    "com.sonarsource.pdfreport:security-report-pdf-generation",
     "org.sonarsource.api.plugin:sonar-plugin-api",
     "org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures",
     "org.sonarsource.classloader:sonar-classloader",
