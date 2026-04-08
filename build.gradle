@@ -309,7 +309,7 @@ subprojects {
     dependencies {
       // bundled plugin list -- keep it alphabetically ordered
       dependency 'com.sonarsource.abap:sonar-abap-plugin:3.17.0.7722'
-      dependency 'com.sonarsource.armor:sonar-jasmin-plugin:1.14.0.9781'
+      dependency 'com.sonarsource.armor:sonar-jasmin-plugin:1.14.2.10232'
       dependency 'com.sonarsource.cobol:sonar-cobol-plugin:5.11.0.10062'
       dependency 'com.sonarsource.cpp:sonar-cfamily-dependencies-plugin:6.79.0.97291'
       dependency 'com.sonarsource.cpp:sonar-cfamily-plugin:6.79.0.97291'
@@ -344,7 +344,7 @@ subprojects {
       dependency 'org.sonarsource.go:sonar-go-plugin:1.35.0.5808'
       dependency 'org.sonarsource.html:sonar-html-plugin:3.25.0.7473'
       dependency 'org.sonarsource.jacoco:sonar-jacoco-plugin:1.5.1.5340'
-      dependency 'org.sonarsource.java:sonar-java-plugin:8.26.0.42915'
+      dependency 'org.sonarsource.java:sonar-java-plugin:8.27.0.43088'
       dependency 'org.sonarsource.java:sonar-java-symbolic-execution-plugin:8.16.3.1589'
       dependency 'org.sonarsource.javascript:sonar-javascript-plugin:12.3.0.39932'
       dependency 'org.sonarsource.php:sonar-php-plugin:3.55.0.15704'
