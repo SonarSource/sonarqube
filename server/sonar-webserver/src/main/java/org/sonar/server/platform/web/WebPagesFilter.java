@@ -52,6 +52,7 @@ public class WebPagesFilter implements Filter {
     .builder()
     .excludes(patterns())
     .excludes("/api/v2/*")
+    .excludes("/mcp/*", "/mcp")
     .build();
 
   private WebPagesCache webPagesCache;
