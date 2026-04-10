@@ -20,6 +20,7 @@
 package org.sonar.scanner.scan.filesystem;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.jar.Manifest;
+import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
@@ -140,15 +143,46 @@ public class ProjectFilePreprocessor {
     // Default to index basedir when no sources provided
     List<Path> mainSourceDirsOrFiles = module.getSourceDirsOrFiles()
       .orElseGet(() -> hasChildModules || hasTests ? emptyList() : singletonList(module.getBaseDir().toAbsolutePath()));
-    List<Path> processedSources = processModuleSources(module, moduleConfig, moduleExclusionFilters, mainSourceDirsOrFiles, InputFile.Type.MAIN,
-      exclusionCounter);
-    mainSourcesByModule.put(module, processedSources);
-    totalFilesPreprocessed += processedSources.size();
-    module.getTestDirsOrFiles().ifPresent(tests -> {
-      List<Path> processedTestSources = processModuleSources(module, moduleConfig, moduleExclusionFilters, tests, InputFile.Type.TEST, exclusionCounter);
+    if (!hasTests && isEclipseTestPlugin(module)) {
+      // Eclipse test plugin: treat sources as test sources
+      List<Path> processedTestSources = processModuleSources(module, moduleConfig, moduleExclusionFilters, mainSourceDirsOrFiles, InputFile.Type.TEST,
+        exclusionCounter);
       testSourcesByModule.put(module, processedTestSources);
       totalFilesPreprocessed += processedTestSources.size();
-    });
+      mainSourcesByModule.put(module, emptyList());
+    } else {
+      List<Path> processedSources = processModuleSources(module, moduleConfig, moduleExclusionFilters, mainSourceDirsOrFiles, InputFile.Type.MAIN,
+        exclusionCounter);
+      mainSourcesByModule.put(module, processedSources);
+      totalFilesPreprocessed += processedSources.size();
+      module.getTestDirsOrFiles().ifPresent(tests -> {
+        List<Path> processedTestSources = processModuleSources(module, moduleConfig, moduleExclusionFilters, tests, InputFile.Type.TEST, exclusionCounter);
+        testSourcesByModule.put(module, processedTestSources);
+        totalFilesPreprocessed += processedTestSources.size();
+      });
+    }
+  }
+
+  @VisibleForTesting
+  static boolean isEclipseTestPlugin(DefaultInputModule module) {
+    Path manifestPath = module.getBaseDir().resolve("META-INF/MANIFEST.MF");
+    if (!Files.isRegularFile(manifestPath)) {
+      return false;
+    }
+    try (InputStream is = Files.newInputStream(manifestPath)) {
+      Manifest manifest = new Manifest(is);
+      String bundleSymbolicName = manifest.getMainAttributes().getValue("Bundle-SymbolicName");
+      if (bundleSymbolicName != null) {
+        int semicolonIndex = bundleSymbolicName.indexOf(';');
+        if (semicolonIndex != -1) {
+          bundleSymbolicName = bundleSymbolicName.substring(0, semicolonIndex).trim();
+        }
+        return bundleSymbolicName.endsWith(".test") || bundleSymbolicName.endsWith(".tests");
+      }
+    } catch (IOException e) {
+      LOG.debug("Failed to read MANIFEST.MF at {}: {}", manifestPath, e.getMessage());
+    }
+    return false;
   }
 
   private List<Path> processModuleSources(DefaultInputModule module, ModuleConfiguration moduleConfiguration, ModuleExclusionFilters moduleExclusionFilters, List<Path> sources,

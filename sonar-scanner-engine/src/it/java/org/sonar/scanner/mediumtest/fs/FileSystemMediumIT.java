@@ -1668,4 +1668,79 @@ class FileSystemMediumIT {
       assertThat(issues).isEmpty();
     }
   }
+
+  @Test
+  void eclipseTestPluginSourcesAreIndexedAsTestFiles() throws IOException {
+    File srcDir = new File(baseDir, "src");
+    assertThat(srcDir.mkdir()).isTrue();
+    writeFile(srcDir, "SampleTest.xoo", "Sample test content");
+
+    File metaInf = new File(baseDir, "META-INF");
+    assertThat(metaInf.mkdir()).isTrue();
+    writeFile(metaInf, "MANIFEST.MF",
+      "Manifest-Version: 1.0\n" +
+        "Bundle-SymbolicName: com.example.myfeature.tests\n" +
+        "Bundle-Version: 1.0.0\n");
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .build())
+      .execute();
+
+    assertThat(result.inputFiles()).hasSize(1);
+    InputFile inputFile = result.inputFile("src/SampleTest.xoo");
+    assertThat(inputFile).isNotNull();
+    assertThat(inputFile.type()).isEqualTo(InputFile.Type.TEST);
+  }
+
+  @Test
+  void eclipseTestPluginWithSingleTestSuffixSourcesAreIndexedAsTestFiles() throws IOException {
+    File srcDir = new File(baseDir, "src");
+    assertThat(srcDir.mkdir()).isTrue();
+    writeFile(srcDir, "SampleTest.xoo", "Sample test content");
+
+    File metaInf = new File(baseDir, "META-INF");
+    assertThat(metaInf.mkdir()).isTrue();
+    writeFile(metaInf, "MANIFEST.MF",
+      "Manifest-Version: 1.0\n" +
+        "Bundle-SymbolicName: com.example.myfeature.test;singleton:=true\n" +
+        "Bundle-Version: 1.0.0\n");
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .build())
+      .execute();
+
+    assertThat(result.inputFiles()).hasSize(1);
+    InputFile inputFile = result.inputFile("src/SampleTest.xoo");
+    assertThat(inputFile).isNotNull();
+    assertThat(inputFile.type()).isEqualTo(InputFile.Type.TEST);
+  }
+
+  @Test
+  void regularEclipsePluginSourcesAreIndexedAsMainFiles() throws IOException {
+    File srcDir = new File(baseDir, "src");
+    assertThat(srcDir.mkdir()).isTrue();
+    writeFile(srcDir, "Sample.xoo", "Sample content");
+
+    File metaInf = new File(baseDir, "META-INF");
+    assertThat(metaInf.mkdir()).isTrue();
+    writeFile(metaInf, "MANIFEST.MF",
+      "Manifest-Version: 1.0\n" +
+        "Bundle-SymbolicName: com.example.myfeature\n" +
+        "Bundle-Version: 1.0.0\n");
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .build())
+      .execute();
+
+    assertThat(result.inputFiles()).hasSize(1);
+    InputFile inputFile = result.inputFile("src/Sample.xoo");
+    assertThat(inputFile).isNotNull();
+    assertThat(inputFile.type()).isEqualTo(InputFile.Type.MAIN);
+  }
 }
