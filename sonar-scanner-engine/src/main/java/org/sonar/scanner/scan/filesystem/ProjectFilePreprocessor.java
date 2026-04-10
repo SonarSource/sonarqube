@@ -177,7 +177,7 @@ public class ProjectFilePreprocessor {
         if (semicolonIndex != -1) {
           bundleSymbolicName = bundleSymbolicName.substring(0, semicolonIndex).trim();
         }
-        return bundleSymbolicName.endsWith(".test") || bundleSymbolicName.endsWith(".tests");
+        return !bundleSymbolicName.isEmpty() && (bundleSymbolicName.endsWith(".test") || bundleSymbolicName.endsWith(".tests"));
       }
     } catch (IOException e) {
       LOG.debug("Failed to read MANIFEST.MF at {}: {}", manifestPath, e.getMessage());
