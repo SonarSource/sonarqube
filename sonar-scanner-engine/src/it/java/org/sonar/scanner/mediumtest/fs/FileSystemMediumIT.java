@@ -1695,6 +1695,41 @@ class FileSystemMediumIT {
   }
 
   @Test
+  void eclipseTestPluginWithExplicitSonarTestsKeepsSourcesAsMainFiles() throws IOException {
+    File srcDir = new File(baseDir, "src");
+    assertThat(srcDir.mkdir()).isTrue();
+    writeFile(srcDir, "Sample.xoo", "Sample content");
+
+    File testDir = new File(baseDir, "test");
+    assertThat(testDir.mkdir()).isTrue();
+    writeFile(testDir, "SampleTest.xoo", "Sample test content");
+
+    File metaInf = new File(baseDir, "META-INF");
+    assertThat(metaInf.mkdir()).isTrue();
+    writeFile(metaInf, "MANIFEST.MF",
+      "Manifest-Version: 1.0\n" +
+        "Bundle-SymbolicName: com.example.myfeature.tests\n" +
+        "Bundle-Version: 1.0.0\n");
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .put("sonar.tests", "test")
+        .build())
+      .execute();
+
+    assertThat(result.inputFiles()).hasSize(2);
+
+    InputFile sourceFile = result.inputFile("src/Sample.xoo");
+    assertThat(sourceFile).isNotNull();
+    assertThat(sourceFile.type()).isEqualTo(InputFile.Type.MAIN);
+
+    InputFile testFile = result.inputFile("test/SampleTest.xoo");
+    assertThat(testFile).isNotNull();
+    assertThat(testFile.type()).isEqualTo(InputFile.Type.TEST);
+  }
+
+  @Test
   void eclipseTestPluginWithSingleTestSuffixSourcesAreIndexedAsTestFiles() throws IOException {
     File srcDir = new File(baseDir, "src");
     assertThat(srcDir.mkdir()).isTrue();
