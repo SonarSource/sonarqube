@@ -180,7 +180,7 @@ public class ProjectFilePreprocessor {
         return !bundleSymbolicName.isEmpty() && (bundleSymbolicName.endsWith(".test") || bundleSymbolicName.endsWith(".tests"));
       }
     } catch (IOException e) {
-      LOG.debug("Failed to read MANIFEST.MF at {}: {}", manifestPath, e.getMessage());
+      LOG.debug("Failed to read MANIFEST.MF at {}", manifestPath, e);
     }
     return false;
   }
