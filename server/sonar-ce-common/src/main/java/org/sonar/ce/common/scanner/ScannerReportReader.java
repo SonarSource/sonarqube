@@ -23,7 +23,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
-import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 public interface ScannerReportReader {

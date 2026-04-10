@@ -22,7 +22,7 @@ package org.sonar.db.ce;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
 import static com.google.common.base.Preconditions.checkArgument;
 

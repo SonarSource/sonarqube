@@ -25,8 +25,8 @@ import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
 import org.sonar.core.hash.SourceHashComputer;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
 public class FileSourceDataComputer {
   private final SourceLinesRepository sourceLinesRepository;

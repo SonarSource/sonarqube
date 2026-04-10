@@ -32,7 +32,7 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
 import org.sonar.core.hash.SourceHashComputer;
-import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

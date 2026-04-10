@@ -19,12 +19,12 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import org.sonar.ce.task.CeTask;
 import org.sonar.ce.common.scanner.ScannerReportReader;
+import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
 import static java.util.Collections.singleton;
 

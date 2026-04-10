@@ -26,13 +26,13 @@ import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.common.scanner.ScannerReportReader;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.step.TestComputationStepContext;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.AnalysisPropertyDto;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static org.apache.commons.lang3.RandomStringUtils.secure;

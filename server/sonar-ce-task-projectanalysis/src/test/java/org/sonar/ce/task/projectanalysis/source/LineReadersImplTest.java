@@ -31,8 +31,8 @@ import org.sonar.ce.task.projectanalysis.scm.Changeset;
 import org.sonar.ce.task.projectanalysis.source.linereader.LineReader;
 import org.sonar.ce.task.projectanalysis.source.linereader.LineReader.ReadError;
 import org.sonar.ce.task.projectanalysis.source.linereader.ScmLineReader;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;

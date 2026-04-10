@@ -17,43 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.source;
+package org.sonar.ce.task.projectanalysis.scanner;
 
-import com.google.common.base.Throwables;
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.Parser;
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import java.io.Reader;
 import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
-public class ReportIterator<E> extends CloseableIterator<E> {
+/**
+ * Read lines from a {@link Reader}
+ * @see BufferedReader
+ */
+public class LineReaderIterator extends CloseableIterator<String> {
 
-  private final Parser<E> parser;
-  private InputStream stream;
+  private final BufferedReader reader;
 
-  public ReportIterator(File file, Parser<E> parser) {
+  public LineReaderIterator(Reader reader) {
+    if (reader instanceof BufferedReader bufferedReader) {
+      this.reader = bufferedReader;
+    } else {
+      this.reader = new BufferedReader(reader);
+    }
+  }
+
+  @Override
+  protected String doNext() {
     try {
-      this.parser = parser;
-      this.stream = FileUtils.openInputStream(file);
+      return reader.readLine();
     } catch (IOException e) {
-      throw Throwables.propagate(e);
+      throw new IllegalStateException("Fail to read line", e);
     }
   }
 
   @Override
-  protected E doNext() {
-    try {
-      return parser.parseDelimitedFrom(stream);
-    } catch (InvalidProtocolBufferException e) {
-      throw Throwables.propagate(e);
-    }
-  }
-
-  @Override
-  protected void doClose() {
-    IOUtils.closeQuietly(stream);
+  protected void doClose() throws IOException {
+    reader.close();
   }
 }

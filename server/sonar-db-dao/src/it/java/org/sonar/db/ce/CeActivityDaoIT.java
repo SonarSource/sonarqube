@@ -39,7 +39,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.impl.utils.TestSystem2;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -47,6 +46,7 @@ import org.sonar.db.Pagination;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;

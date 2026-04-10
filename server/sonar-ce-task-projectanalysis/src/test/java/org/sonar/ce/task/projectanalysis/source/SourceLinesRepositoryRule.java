@@ -27,7 +27,7 @@ import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;

@@ -30,11 +30,11 @@ import org.sonar.ce.task.projectanalysis.measure.MapBasedRawMeasureRepository.Ov
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.projectanalysis.metric.ReportMetricValidator;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.ProjectMeasureDto;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static org.sonar.ce.task.projectanalysis.component.ComponentFunctions.toComponentUuid;

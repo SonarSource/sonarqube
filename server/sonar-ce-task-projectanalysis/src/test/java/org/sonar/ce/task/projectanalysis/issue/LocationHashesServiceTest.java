@@ -40,9 +40,9 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesRepository;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.rule.RuleType;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 import org.sonar.server.issue.TaintChecker;
 
 import static org.assertj.core.api.Assertions.assertThat;

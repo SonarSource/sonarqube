@@ -21,7 +21,7 @@ package org.sonar.ce.task.projectanalysis.source;
 
 import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
 public interface SourceLinesRepository {
 

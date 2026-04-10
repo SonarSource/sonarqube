@@ -20,7 +20,7 @@
 package org.sonar.ce.task.projectanalysis.util.cache;
 
 import java.io.Serializable;
-import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
 public interface DiskCache<O extends Serializable> {
   long fileSize();

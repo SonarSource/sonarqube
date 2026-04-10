@@ -25,8 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.hash.LineRange;
 import org.sonar.core.hash.SourceLineHashesComputer;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.source.LineHashVersion;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
 public class SourceLinesHashRepositoryImpl implements SourceLinesHashRepository {
   private final SourceLinesRepository sourceLinesRepository;

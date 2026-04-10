@@ -23,11 +23,10 @@ import com.google.common.collect.ImmutableSet;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
-import static java.lang.System.lineSeparator;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;

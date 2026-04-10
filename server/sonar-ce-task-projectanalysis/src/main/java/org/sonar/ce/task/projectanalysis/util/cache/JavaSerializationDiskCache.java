@@ -28,7 +28,7 @@ import java.io.Serializable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
 /**
  * Serialize and deserialize objects on disk. No search capabilities, only traversal (full scan).

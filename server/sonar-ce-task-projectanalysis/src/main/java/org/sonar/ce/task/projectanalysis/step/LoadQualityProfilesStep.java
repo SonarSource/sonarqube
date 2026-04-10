@@ -36,7 +36,7 @@ import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRule;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderImpl;
 import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 public class LoadQualityProfilesStep implements ComputationStep {

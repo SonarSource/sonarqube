@@ -27,10 +27,10 @@ import org.sonar.ce.task.projectanalysis.issue.ProtoIssueCache;
 import org.sonar.ce.task.projectanalysis.pushevent.PushEventFactory;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.pushevent.PushEventDto;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
 public class PersistPushEventsStep implements ComputationStep {
   private static final int MAX_BATCH_SIZE = 250;

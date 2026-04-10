@@ -22,14 +22,14 @@ package org.sonar.ce.task.projectanalysis.step;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.common.scanner.ScannerReportReader;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.AnalysisPropertyDto;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS;

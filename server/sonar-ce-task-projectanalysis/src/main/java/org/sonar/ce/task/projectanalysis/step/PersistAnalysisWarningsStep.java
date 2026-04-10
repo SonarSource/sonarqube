@@ -21,10 +21,10 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.common.scanner.ScannerReportReader;
+import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 /**

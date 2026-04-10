@@ -27,7 +27,7 @@ dependencies {
   api (project(':server:sonar-auth-saml')) {
     exclude group:'org.apache.santuario'
   }
-  api project(':sonar-scanner-protocol')
+  api 'com.sonarsource.scanner.engine:scanner-engine-protocol-server'
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
   compileOnlyApi 'jakarta.servlet:jakarta.servlet-api'

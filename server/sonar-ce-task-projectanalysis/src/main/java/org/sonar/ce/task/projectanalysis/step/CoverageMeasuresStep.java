@@ -19,9 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import jakarta.inject.Inject;
 import java.util.List;
 import javax.annotation.Nullable;
-import jakarta.inject.Inject;
 import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
@@ -40,7 +40,7 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static java.lang.Math.min;

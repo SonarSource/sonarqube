@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.ce.posttask.ScannerContext;
-import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 @Immutable

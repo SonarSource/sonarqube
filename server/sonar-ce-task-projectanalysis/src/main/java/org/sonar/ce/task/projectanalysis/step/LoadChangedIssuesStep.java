@@ -24,8 +24,8 @@ import org.sonar.ce.task.projectanalysis.issue.ProtoIssueCache;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
 public class LoadChangedIssuesStep implements ComputationStep {
   private final PeriodHolder periodHolder;

@@ -32,7 +32,6 @@ import org.sonar.ce.task.projectanalysis.issue.UpdateConflictResolver;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.BatchSession;
 import org.sonar.db.DbClient;
@@ -43,6 +42,7 @@ import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.NewCodeReferenceIssueDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 import org.sonar.server.issue.IssueStorage;
 
 import static org.sonar.core.util.FileUtils.humanReadableByteCountSI;

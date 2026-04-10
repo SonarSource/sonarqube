@@ -38,12 +38,12 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.metric.SoftwareQualitiesMetrics;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;

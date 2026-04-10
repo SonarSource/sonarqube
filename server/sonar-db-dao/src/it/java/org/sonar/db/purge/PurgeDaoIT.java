@@ -50,7 +50,6 @@ import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
@@ -97,6 +96,7 @@ import org.sonar.db.user.UserDismissedMessageDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.webhook.WebhookDeliveryLiteDto;
 import org.sonar.db.webhook.WebhookDto;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.ZoneOffset.UTC;

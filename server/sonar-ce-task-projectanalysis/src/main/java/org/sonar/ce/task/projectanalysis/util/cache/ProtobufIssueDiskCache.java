@@ -36,16 +36,16 @@ import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultImpact;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.core.util.CloseableIterator;
-import org.sonar.core.util.Protobuf;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
+import org.sonar.scanner.protobuf.utils.Protobuf;
 
 import static java.util.Optional.ofNullable;
 

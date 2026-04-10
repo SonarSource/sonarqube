@@ -40,8 +40,8 @@ import org.sonar.ce.task.projectanalysis.source.linereader.LineReader;
 import org.sonar.ce.task.projectanalysis.source.linereader.RangeOffsetConverter;
 import org.sonar.ce.task.projectanalysis.source.linereader.ScmLineReader;
 import org.sonar.ce.task.projectanalysis.source.linereader.SymbolsLineReader;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 public class SourceLineReadersFactory {

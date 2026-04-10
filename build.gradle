@@ -439,6 +439,7 @@ subprojects {
       dependency 'org.aspectj:aspectjtools:1.9.25.1'
       dependencySet(group: 'com.squareup.okhttp3', version: '5.3.2') {
         entry 'okhttp'
+        entry 'okhttp-jvm'
         entry 'mockwebserver'
         entry 'okhttp-tls'
         entry 'logging-interceptor'
@@ -594,7 +595,12 @@ subprojects {
       // to be used only in sonar-ws-generator
       dependency 'org.apache.velocity:velocity-engine-core:2.4.1'
       dependency 'com.google.code.findbugs:jsr305:3.0.2'
-      // please keep this list alphabetically ordered
+      // Scanner Engine
+      dependencySet(group: 'com.sonarsource.scanner.engine', version: "${scannerEngineVersion}") {
+        entry 'scanner-engine-community'
+        entry 'scanner-engine-protocol-server'
+        entry 'protobuf-utils'
+      }
     }
   }
 
