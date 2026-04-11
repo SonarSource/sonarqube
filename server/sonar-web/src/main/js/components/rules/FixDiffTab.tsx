@@ -190,6 +190,7 @@ export function FixDiffTab({ branchLike, issue }: Readonly<FixDiffTabProps>) {
         projectKey={issue.projectKey}
         projectName={issue.projectName}
         branchLike={branchLike}
+        issueKey={issue.key}
         jobId={jobId}
       />
       <FixDiffTable
