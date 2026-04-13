@@ -230,13 +230,11 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
               return;
             }
 
-            for (const issue of issues) {
-              queueCodeFix({
-                organizationKey: issue.organization,
-                projectKey: issue.projectKey,
-                issueKey: issue.key,
-              });
-            }
+            queueCodeFix({
+              organizationKey: issues[0].organization,
+              projectKey: issues[0].projectKey,
+              issueKeys: issues.map((issue) => issue.key),
+            });
 
             this.props.refreshBranchStatus();
             this.props.onDone();

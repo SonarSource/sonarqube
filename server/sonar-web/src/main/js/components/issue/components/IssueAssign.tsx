@@ -172,7 +172,7 @@ export default function IssueAssignee(props: Props) {
         queueCodeFix({
           organizationKey,
           projectKey: projectKey ?? '',
-          issueKey: issueKey ?? '',
+          issueKeys: issueKey ? [issueKey] : [],
         }).then(() => {
           if (issueKey) {
             queryClient.invalidateQueries({ queryKey: ['codefix-status', issueKey] });

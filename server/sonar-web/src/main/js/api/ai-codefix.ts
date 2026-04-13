@@ -55,7 +55,7 @@ const CODEFIX_BASE = '/_codescan/codefix';
 export function queueCodeFix(data: {
     organizationKey: string;
     projectKey: string;
-    issueKey: string;
+    issueKeys: string[];
 }): Promise<void> {
   return postJSONBody(`${CODEFIX_BASE}/queue`, data);
 }
