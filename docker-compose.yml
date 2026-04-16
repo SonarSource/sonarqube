@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: topsec-sonarqube-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sonarqube}
+      POSTGRES_USER: ${POSTGRES_USER:-sonarqube}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sonarqube}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sonarqube} -d ${POSTGRES_DB:-sonarqube}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  app:
+    image: ${DOCKERHUB_NAMESPACE:-local}/${IMAGE_NAME:-topsec-ai-code-audit}:${IMAGE_TAG:-qianduanV1.0}
+    container_name: topsec-sonarqube
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-sonarqube}
+      POSTGRES_USER: ${POSTGRES_USER:-sonarqube}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sonarqube}
+      SONAR_WEB_PORT: ${SONAR_WEB_PORT:-9000}
+      SONAR_CORE_SERVER_BASE_URL: ${SONAR_CORE_SERVER_BASE_URL:-http://localhost:9000}
+      SONAR_FORCE_AUTHENTICATION: ${SONAR_FORCE_AUTHENTICATION:-true}
+      SONAR_SEARCH_JAVAOPTS: ${SONAR_SEARCH_JAVAOPTS:--Xms512m -Xmx512m}
+      SONAR_WEB_JAVAOPTS: ${SONAR_WEB_JAVAOPTS:--Xms512m -Xmx512m}
+      SONAR_CE_JAVAOPTS: ${SONAR_CE_JAVAOPTS:--Xms512m -Xmx512m}
+    ports:
+      - "${SONAR_WEB_PORT:-9000}:9000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:9000/api/system/status | grep -q 'UP\\|STARTING\\|DB_MIGRATION_NEEDED\\|DB_MIGRATION_RUNNING'"]
+      interval: 20s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+    volumes:
+      - sonarqube_data:/opt/topsec-sonarqube/data
+      - sonarqube_extensions:/opt/topsec-sonarqube/extensions
+      - sonarqube_logs:/opt/topsec-sonarqube/logs
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:

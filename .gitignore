@@ -73,3 +73,8 @@ gherkin-features/
 
 # claude code
 .claude/
+
+# local deployment
+.env
+build/docker/
+server/sonar-core/

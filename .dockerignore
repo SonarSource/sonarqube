@@ -1,3 +1,7 @@
 *
-!docker
+!Dockerfile
+!docker/
+!docker/topsec/
+!build/docker/
+!build/docker/**
 !private/docker
