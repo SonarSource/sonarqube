@@ -22,8 +22,8 @@ package org.sonar.alm.client.bitbucket.bitbucketcloud;
 import com.google.gson.annotations.SerializedName;
 
 public class Token {
-  @SerializedName("scopes")
-  private String scopes;
+  @SerializedName("scope")
+  private String scope;
   @SerializedName("access_token")
   private String accessToken;
   @SerializedName("exires_in")
@@ -39,8 +39,8 @@ public class Token {
     // nothing to do here
   }
 
-  public String getScopes() {
-    return scopes;
+  public String getScope() {
+    return scope;
   }
 
   public String getAccessToken() {
