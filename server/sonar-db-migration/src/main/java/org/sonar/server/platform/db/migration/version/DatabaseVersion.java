@@ -35,7 +35,7 @@ public class DatabaseVersion {
 
   // In reality user is required to upgrade just to 10.8 but we want to 'market' 2025.1
   public static final String MIN_UPGRADE_VERSION_HUMAN_READABLE = "2026.1";
-  public static final String MIN_UPGRADE_VERSION_COMMUNITY_BUILD_READABLE = "25.12";
+  public static final String MIN_UPGRADE_VERSION_COMMUNITY_BUILD_READABLE = "26.1";
 
 
   private final MigrationSteps migrationSteps;
