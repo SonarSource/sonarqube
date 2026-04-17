@@ -123,6 +123,13 @@ public class BranchDao implements Dao {
     return executeLargeInputs(projectUuids, partition -> mapper(dbSession).selectMainBranchesByProjectUuids(partition));
   }
 
+  public List<BranchDto> selectAllByProjectUuids(DbSession dbSession, Collection<String> projectUuids) {
+    if (projectUuids.isEmpty()) {
+      return List.of();
+    }
+    return executeLargeInputs(projectUuids, partition -> mapper(dbSession).selectAllByProjectUuids(partition));
+  }
+
   public List<PrBranchAnalyzedLanguageCountByProjectDto> countPrBranchAnalyzedLanguageByProjectUuid(DbSession dbSession) {
     return mapper(dbSession).countPrBranchAnalyzedLanguageByProjectUuid();
   }

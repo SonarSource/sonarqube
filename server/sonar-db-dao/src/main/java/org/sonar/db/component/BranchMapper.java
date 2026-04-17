@@ -76,6 +76,8 @@ public interface BranchMapper {
 
   List<BranchDto> selectMainBranchesByProjectUuids(@Param("projectUuids") Collection<String> projectUuids);
 
+  List<BranchDto> selectAllByProjectUuids(@Param("projectUuids") Collection<String> projectUuids);
+
   List<BranchMeasuresDto> selectBranchMeasuresWithCaycMetric(long yesterday);
 
   List<BranchDto> selectMainBranches();

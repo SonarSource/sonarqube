@@ -941,6 +941,29 @@ class BranchDaoIT {
     assertThat(result.stream().map(BranchDto::getUuid).toList()).containsExactlyInAnyOrder("U2", "U3");
   }
 
+  @Test
+  void selectAllByProjectUuids_whenEmpty_returnsEmptyList() {
+    var result = underTest.selectAllByProjectUuids(dbSession, emptyList());
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void selectAllByProjectUuids_whenHasProjects_returnsAllBranches() {
+    var projectData1 = db.components().insertPrivateProject();
+    var projectData2 = db.components().insertPrivateProject();
+    BranchDto branch1 = db.components().insertProjectBranch(projectData1.getProjectDto(), b -> b.setKey("branch1"));
+    BranchDto branch2 = db.components().insertProjectBranch(projectData2.getProjectDto(), b -> b.setKey("branch2"));
+
+    var result = underTest.selectAllByProjectUuids(dbSession, List.of(projectData1.projectUuid(), projectData2.projectUuid()));
+
+    assertThat(result).extracting(BranchDto::getUuid)
+      .containsExactlyInAnyOrder(
+        projectData1.getMainBranchDto().getUuid(),
+        branch1.getUuid(),
+        projectData2.getMainBranchDto().getUuid(),
+        branch2.getUuid());
+  }
+
   private void insertBranchesForProjectUuids(boolean mainBranch, String... uuids) {
     for (String uuid : uuids) {
       BranchDto dto = new BranchDto();

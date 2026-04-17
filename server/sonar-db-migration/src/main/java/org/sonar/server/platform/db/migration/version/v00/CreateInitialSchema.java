@@ -24,7 +24,6 @@ import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.def.BigIntegerColumnDef;
 import org.sonar.server.platform.db.migration.def.BooleanColumnDef;
 import org.sonar.server.platform.db.migration.def.ColumnDef;
-import org.sonar.server.platform.db.migration.def.DecimalColumnDef;
 import org.sonar.server.platform.db.migration.def.IntegerColumnDef;
 import org.sonar.server.platform.db.migration.def.TimestampColumnDef;
 import org.sonar.server.platform.db.migration.def.TinyIntColumnDef;
@@ -2341,4 +2340,5 @@ public class CreateInitialSchema extends DdlChange {
   private CreateTableBuilder newTableBuilder(String tableName) {
     return new CreateTableBuilder(getDialect(), tableName);
   }
+
 }
