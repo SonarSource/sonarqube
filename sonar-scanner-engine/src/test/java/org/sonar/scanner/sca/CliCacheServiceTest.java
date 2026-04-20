@@ -28,6 +28,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Locale;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,6 +68,8 @@ import static org.sonar.scanner.sca.CliCacheService.sleep;
 
 @ExtendWith(MockitoExtension.class)
 class CliCacheServiceTest {
+  private static final String ARCH = SystemUtils.OS_ARCH.toLowerCase(Locale.ENGLISH);
+
   @Mock
   private SonarUserHome sonarUserHome;
   @Mock
@@ -102,9 +105,9 @@ class CliCacheServiceTest {
           "filename": "tidelift_darwin",
           "sha256": "%s",
           "os": "mac",
-          "arch": "x64_86"
+          "arch": "%s"
         }
-      ]""".formatted(id, checksum)));
+      ]""".formatted(id, checksum, ARCH)));
 
     WsTestUtil.mockStream(scannerWsClient, CLI_WS_URL + "/" + id, new ByteArrayInputStream("cli content".getBytes()));
 
@@ -130,16 +133,16 @@ class CliCacheServiceTest {
           "filename": "tidelift_darwin",
           "sha256": "1",
           "os": "mac",
-          "arch": "x64_86"
+          "arch": "%s"
         },
         {
           "id": "tidelift_other",
           "filename": "tidelift",
           "sha256": "2",
           "os": "mac",
-          "arch": "x64_86"
+          "arch": "%s"
         }
-      ]"""));
+      ]""".formatted(ARCH, ARCH)));
 
     assertThatThrownBy(underTest::cacheCli).isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Multiple CLI matches found. Unable to correctly cache CLI.");
@@ -184,9 +187,9 @@ class CliCacheServiceTest {
           "filename": "tidelift_darwin",
           "sha256": "%s",
           "os": "mac",
-          "arch": "x64_86"
+          "arch": "%s"
         }
-      ]""".formatted(id, checksum)));
+      ]""".formatted(id, checksum, ARCH)));
 
     assertThatThrownBy(underTest::cacheCli).isInstanceOf(IllegalStateException.class)
       .hasMessageMatching("Unable to download CLI executable");
@@ -204,9 +207,9 @@ class CliCacheServiceTest {
           "filename": "tidelift_darwin",
           "sha256": "%s",
           "os": "mac",
-          "arch": "x64_86"
+          "arch": "%s"
         }
-      ]""".formatted(checksum)));
+      ]""".formatted(checksum, ARCH)));
     when(system2.isOsWindows()).thenReturn(false);
 
     String fileContent = "test content";
@@ -276,9 +279,9 @@ class CliCacheServiceTest {
             "filename": "tidelift_darwin",
             "sha256": "%s",
             "os": "mac",
-            "arch": "x64_86"
+            "arch": "%s"
           }
-        ]""".formatted(id, checksum)));
+        ]""".formatted(id, checksum, ARCH)));
 
     WsTestUtil.mockStream(scannerWsClient, CLI_WS_URL + "/" + id, new ByteArrayInputStream("cli content".getBytes()));
 
@@ -318,7 +321,7 @@ class CliCacheServiceTest {
 
       assertThatThrownBy(() -> {
         underTest.cacheCli();
-      }).hasMessageContaining("linux amd64");
+      }).hasMessageContaining("linux " + ARCH);
     }
   }
 
@@ -333,9 +336,9 @@ class CliCacheServiceTest {
           "filename": "tidelift_darwin",
           "sha256": "%s",
           "os": "mac",
-          "arch": "x64_86"
+          "arch": "%s"
         }
-      ]""".formatted(id, checksum)));
+      ]""".formatted(id, checksum, ARCH)));
 
     HttpException http = new HttpException("url", 500, "some error message");
 
@@ -360,9 +363,9 @@ class CliCacheServiceTest {
           "filename": "tidelift_darwin",
           "sha256": "%s",
           "os": "mac",
-          "arch": "x64_86"
+          "arch": "%s"
         }
-      ]""".formatted(id, checksum)));
+      ]""".formatted(id, checksum, ARCH)));
 
     HttpException http = new HttpException("url", 500, "some error message");
 
