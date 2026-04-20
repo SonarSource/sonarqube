@@ -73,7 +73,6 @@ public class CorePropertyDefinitions {
     defs.addAll(ScannerProperties.all());
     defs.addAll(MQRModeProperties.all());
     defs.addAll(AiCodefixPropertyDefinitions.all());
-    defs.addAll(McpPropertyDefinitions.all());
 
     defs.addAll(asList(
       PropertyDefinition.builder(CoreProperties.MODULE_LEVEL_ARCHIVED_SETTINGS)
