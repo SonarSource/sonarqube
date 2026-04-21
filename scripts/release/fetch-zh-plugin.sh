@@ -3,13 +3,8 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-
-if [[ -f "${ROOT_DIR}/.env" ]]; then
-  set -a
-  # shellcheck disable=SC1091
-  source "${ROOT_DIR}/.env"
-  set +a
-fi
+# shellcheck disable=SC1091
+source "${ROOT_DIR}/scripts/release/load-env.sh"
 
 BUILD_DIR="${ROOT_DIR}/build/docker/plugins"
 PLUGIN_TAG="${PLUGIN_TAG:-sonar-l10n-zh-plugin-26.4}"

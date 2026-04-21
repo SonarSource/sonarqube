@@ -17,6 +17,9 @@ services:
 
   app:
     image: ${DOCKERHUB_NAMESPACE:-local}/${IMAGE_NAME:-topsec-ai-code-audit}:${IMAGE_TAG:-qianduanV1.0}
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: topsec-sonarqube
     depends_on:
       postgres:

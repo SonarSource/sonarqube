@@ -1,6 +1,9 @@
 # 天融信AI代码审计平台 Ubuntu 22.04 Docker 部署文档
 
-本文档对应两个本地源码仓库 `sonarqube` 与 `sonarqube-webapp` 的 `qianduanV1.0` 分支，交付物为单一应用镜像与 `docker-compose.yml`。
+本文档对应两个本地源码仓库 `sonarqube` 与 `sonarqube-webapp` 的 `qianduanV1.0` 分支，支持两种部署路径：
+
+- 路径 A：在 Ubuntu 服务器上直接构建并部署，不依赖 Docker Hub
+- 路径 B：本地构建镜像后推送到 Docker Hub，再到服务器拉取部署
 
 ## 1. 前置条件
 
@@ -28,7 +31,61 @@ git -C sonarqube switch qianduanV1.0
 git -C sonarqube-webapp switch qianduanV1.0
 ```
 
-## 3. 构建定制发行包与镜像
+## 3. 路径 A：在 Ubuntu 服务器上直接构建并部署
+
+这种方式最适合你当前的情况：跳过本机构建镜像，直接把源码放到 Ubuntu 服务器，在服务器本机完成前端、后端、镜像和 Compose 启动。
+
+进入 `sonarqube` 仓库：
+
+```bash
+cd "$SRC_ROOT/sonarqube"
+cp .env.example .env
+```
+
+按需修改 `.env` 中的以下值：
+
+- `POSTGRES_PASSWORD`
+- `SONAR_CORE_SERVER_BASE_URL`
+- `PLUGIN_TAG`
+- `SONAR_SEARCH_JAVAOPTS`
+- `SONAR_WEB_JAVAOPTS`
+- `SONAR_CE_JAVAOPTS`
+
+执行一键部署：
+
+```bash
+./scripts/release/deploy-topsec-on-server.sh
+```
+
+该脚本会自动完成：
+
+1. 构建 `sonarqube-webapp`
+2. 使用 `WEBAPP_BUILD_PATH` 构建 `sonarqube` 发行包
+3. 下载中文语言包插件
+4. 通过 `docker compose up -d --build` 构建应用镜像并启动 PostgreSQL 与应用
+
+如果你希望分步执行，也可以手动运行：
+
+```bash
+./scripts/release/build-topsec-distribution.sh
+./scripts/release/fetch-zh-plugin.sh
+docker compose up -d --build
+```
+
+查看状态：
+
+```bash
+docker compose ps
+docker compose logs -f app
+```
+
+平台默认访问地址：
+
+```bash
+http://<服务器IP>:9000
+```
+
+## 4. 路径 B：本地构建定制发行包与镜像
 
 进入 `sonarqube` 仓库：
 
@@ -62,7 +119,7 @@ cp .env.example .env
 3. 下载中文语言包插件
 4. 生成并构建 Docker 镜像
 
-## 4. 推送到 Docker Hub
+## 5. 推送到 Docker Hub
 
 先登录：
 
@@ -88,7 +145,7 @@ ${DOCKERHUB_NAMESPACE}/${IMAGE_NAME}:${IMAGE_TAG}
 your-dockerhub-namespace/topsec-ai-code-audit:qianduanV1.0
 ```
 
-## 5. Ubuntu 服务器部署
+## 6. Ubuntu 服务器拉取现成镜像部署
 
 在目标服务器准备部署目录：
 
@@ -136,16 +193,16 @@ docker compose logs -f app
 http://<服务器IP>:9000
 ```
 
-## 6. 生产环境建议
+## 7. 生产环境建议
 
-### 6.1 调整内核参数
+### 7.1 调整内核参数
 
 ```bash
 echo 'vm.max_map_count=524288' | sudo tee /etc/sysctl.d/99-topsec-ai-audit.conf
 sudo sysctl --system
 ```
 
-### 6.2 调整 `.env`
+### 7.2 调整 `.env`
 
 至少确认以下配置：
 
@@ -155,11 +212,11 @@ sudo sysctl --system
 - `SONAR_WEB_JAVAOPTS`
 - `SONAR_CE_JAVAOPTS`
 
-### 6.3 反向代理
+### 7.3 反向代理
 
 生产环境建议在 Nginx 或 Traefik 后暴露 80/443，并将 `SONAR_CORE_SERVER_BASE_URL` 配置为外部访问地址。
 
-## 7. 常用运维命令
+## 8. 常用运维命令
 
 重启：
 
@@ -198,5 +255,5 @@ docker compose logs -f postgres
 - 前端构建成功
 - `./gradlew build -x test` 成功
 - 数据库连接参数正确
-- `docker compose up -d` 可正常启动
+- `docker compose up -d --build` 或 `docker compose up -d` 可正常启动
 - 访问首页后，左上角品牌、默认中文、页脚文案、主题色均符合预期

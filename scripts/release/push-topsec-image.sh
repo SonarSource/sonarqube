@@ -3,13 +3,8 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-
-if [[ -f "${ROOT_DIR}/.env" ]]; then
-  set -a
-  # shellcheck disable=SC1091
-  source "${ROOT_DIR}/.env"
-  set +a
-fi
+# shellcheck disable=SC1091
+source "${ROOT_DIR}/scripts/release/load-env.sh"
 
 IMAGE_NAMESPACE="${IMAGE_NAMESPACE:-${DOCKERHUB_NAMESPACE:?DOCKERHUB_NAMESPACE is required}}"
 IMAGE_NAME="${IMAGE_NAME:-topsec-ai-code-audit}"
