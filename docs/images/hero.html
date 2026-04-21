@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>sonarqube — hero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #04101f;
+    --bg-2: #061a33;
+    --ink: #f2f5fb;
+    --ink-dim: #8ca4c8;
+    --ink-dimmer: #556a8c;
+    --rule: #12253f;
+
+    --blue: #4b9fff;
+    --blue-deep: #1d6fe5;
+    --cyan: #5ad9d4;
+    --coral: #ff6a55;
+    --coral-deep: #e14a35;
+    --amber: #f4b940;
+    --green: #3ed598;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #02070e; }
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    color: var(--ink);
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.005em;
+  }
+  @media screen and (min-width: 1300px) {
+    body { padding: 40px; align-items: center; justify-content: center; }
+  }
+
+  .stage {
+    width: 1200px;
+    height: 500px;
+    position: relative;
+    background:
+      radial-gradient(ellipse 900px 500px at 20% -10%, rgba(75, 159, 255, 0.22) 0%, transparent 55%),
+      radial-gradient(ellipse 700px 400px at 105% 110%, rgba(255, 106, 85, 0.18) 0%, transparent 55%),
+      linear-gradient(180deg, #04101f 0%, #020814 100%);
+    overflow: hidden;
+    box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.8);
+  }
+
+  /* concentric sonar rings — the signature metaphor */
+  .rings {
+    position: absolute;
+    right: -180px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 760px; height: 760px;
+    opacity: 0.9;
+    pointer-events: none;
+  }
+  .rings svg { width: 100%; height: 100%; }
+
+  /* subtle grid */
+  .grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(75, 159, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(75, 159, 255, 0.04) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 900px 500px at 30% 40%, black 0%, transparent 80%);
+    pointer-events: none;
+  }
+
+  /* ================= HEADER ================= */
+  .header {
+    position: absolute;
+    top: 34px;
+    left: 52px; right: 52px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 5;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .brand .mark {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #4b9fff 0%, #1d6fe5 100%);
+    display: grid;
+    place-items: center;
+    box-shadow: 0 6px 18px -4px rgba(75, 159, 255, 0.55), inset 0 1px 0 rgba(255,255,255,0.25);
+  }
+  .brand .mark svg { width: 20px; height: 20px; }
+  .brand .name {
+    font-weight: 700;
+    font-size: 19px;
+    letter-spacing: -0.02em;
+  }
+  .brand .name b { color: var(--ink); }
+  .brand .name i { color: var(--blue); font-style: normal; font-weight: 700; }
+
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.06em;
+  }
+  .meta .dot { width: 3px; height: 3px; background: var(--ink-dimmer); border-radius: 50%; }
+  .meta b { color: var(--ink); font-weight: 500; }
+
+  /* ================= HERO ================= */
+  .hero {
+    position: absolute;
+    top: 106px;
+    left: 52px;
+    right: 52px;
+    z-index: 4;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--blue);
+    font-weight: 600;
+    margin-bottom: 22px;
+  }
+  .eyebrow .rule {
+    width: 30px; height: 1px; background: var(--blue);
+    box-shadow: 0 0 8px var(--blue);
+  }
+
+  .headline {
+    font-size: 54px;
+    line-height: 0.96;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    margin: 0;
+    color: var(--ink);
+  }
+  .headline .big {
+    display: block;
+    font-weight: 800;
+    font-size: 78px;
+    letter-spacing: -0.045em;
+    background: linear-gradient(105deg,
+      #ffffff 0%,
+      #ffffff 45%,
+      #4b9fff 68%,
+      #ff6a55 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 0.9;
+    padding-bottom: 6px;
+  }
+
+  .subhead {
+    margin-top: 18px;
+    font-size: 15px;
+    color: var(--ink-dim);
+    line-height: 1.55;
+    max-width: 560px;
+    font-weight: 400;
+  }
+  .subhead b {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* ================= STATS BAR ================= */
+  .stats {
+    position: absolute;
+    left: 52px; right: 52px; bottom: 34px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 32px;
+    z-index: 4;
+  }
+  .stats .grp {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 28px;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+    flex: 1;
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .stat .n {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat .n .u {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink-dim);
+    margin-left: 2px;
+  }
+  .stat .n .acc { color: var(--blue); }
+  .stat .n .cor { color: var(--coral); }
+  .stat .l {
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .cta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--ink);
+    background: rgba(75, 159, 255, 0.08);
+    border: 1px solid rgba(75, 159, 255, 0.3);
+    padding: 10px 16px;
+    border-radius: 8px;
+    letter-spacing: 0.04em;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+  }
+  .cta .gt { color: var(--blue); }
+  .cta .arr { color: var(--blue); font-family: 'Inter'; font-size: 14px; }
+
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <div class="grid"></div>
+
+  <!-- Concentric sonar-wave rings, right side -->
+  <div class="rings">
+    <svg viewBox="0 0 800 800" fill="none">
+      <defs>
+        <radialGradient id="rg1" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#4b9fff" stop-opacity="0.55"/>
+          <stop offset="60%" stop-color="#4b9fff" stop-opacity="0.12"/>
+          <stop offset="100%" stop-color="#4b9fff" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="rstroke" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#4b9fff" stop-opacity="0.9"/>
+          <stop offset="50%" stop-color="#9b8cff" stop-opacity="0.7"/>
+          <stop offset="100%" stop-color="#ff6a55" stop-opacity="0.6"/>
+        </linearGradient>
+      </defs>
+      <circle cx="400" cy="400" r="380" stroke="url(#rstroke)" stroke-width="1" opacity="0.35"/>
+      <circle cx="400" cy="400" r="320" stroke="url(#rstroke)" stroke-width="1" opacity="0.45"/>
+      <circle cx="400" cy="400" r="260" stroke="url(#rstroke)" stroke-width="1" opacity="0.55"/>
+      <circle cx="400" cy="400" r="200" stroke="url(#rstroke)" stroke-width="1" opacity="0.65"/>
+      <circle cx="400" cy="400" r="140" stroke="url(#rstroke)" stroke-width="1.2" opacity="0.75"/>
+      <circle cx="400" cy="400" r="84"  stroke="url(#rstroke)" stroke-width="1.4" opacity="0.88"/>
+      <circle cx="400" cy="400" r="44"  fill="url(#rg1)"/>
+      <circle cx="400" cy="400" r="10"  fill="#4b9fff"/>
+      <!-- scan beam -->
+      <path d="M 400 400 L 780 180" stroke="#4b9fff" stroke-width="1.4" opacity="0.5"/>
+      <circle cx="780" cy="180" r="5" fill="#ff6a55"/>
+      <!-- tick points -->
+      <circle cx="660" cy="400" r="3" fill="#4b9fff" opacity="0.9"/>
+      <circle cx="540" cy="260" r="3" fill="#9b8cff" opacity="0.8"/>
+      <circle cx="260" cy="540" r="3" fill="#ff6a55" opacity="0.7"/>
+      <circle cx="540" cy="540" r="2.5" fill="#3ed598" opacity="0.7"/>
+    </svg>
+  </div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="brand">
+      <div class="mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 12c3 0 3-7 6-7s3 14 6 14 3-7 6-7 3 0 2 0" />
+        </svg>
+      </div>
+      <div class="name"><b>Sonar</b><i>Qube</i></div>
+    </div>
+    <div class="meta">
+      <span>Since <b>2008</b></span>
+      <span class="dot"></span>
+      <span><b>LGPL-3.0</b></span>
+      <span class="dot"></span>
+      <span>Self-hosted</span>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="eyebrow">
+      <span class="rule"></span>
+      Continuous Inspection
+    </div>
+    <h1 class="headline">
+      The standard for<br>
+      <span class="big">Clean Code.</span>
+    </h1>
+    <p class="subhead">
+      SonarQube inspects every commit for <b>bugs</b>, <b>vulnerabilities</b>, <b>code smells</b>
+      and <b>security hotspots</b> — and gates releases on the Quality Gate you define.
+    </p>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="grp">
+      <div class="stat">
+        <div class="n"><span class="acc">30+</span></div>
+        <div class="l">Languages</div>
+      </div>
+      <div class="stat">
+        <div class="n">5,000<span class="u">+</span></div>
+        <div class="l">Analysis Rules</div>
+      </div>
+      <div class="stat">
+        <div class="n">400K<span class="u">+</span></div>
+        <div class="l">Projects Analyzed</div>
+      </div>
+      <div class="stat">
+        <div class="n"><span class="cor">17</span><span class="u">&nbsp;yrs</span></div>
+        <div class="l">Defining Quality</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
