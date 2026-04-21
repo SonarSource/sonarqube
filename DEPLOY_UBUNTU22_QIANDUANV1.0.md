@@ -64,6 +64,10 @@ cp .env.example .env
 3. 下载中文语言包插件
 4. 通过 `docker compose up -d --build` 构建应用镜像并启动 PostgreSQL 与应用
 
+说明：
+
+- 应用运行镜像必须使用完整 JDK，不能使用精简 JRE，否则 Elasticsearch 会因缺少 `jdk.attach`、`jdk.jlink` 模块而启动失败。
+
 如果你希望分步执行，也可以手动运行：
 
 ```bash
@@ -84,6 +88,21 @@ docker compose logs -f app
 ```bash
 http://<服务器IP>:9000
 ```
+
+如果应用容器已经部署过，但日志里出现以下错误：
+
+- `Module jdk.attach not found`
+- `Module jdk.jlink not found`
+
+请在服务器源码目录执行以下恢复命令，重建应用镜像并重启应用容器：
+
+```bash
+docker compose build --pull --no-cache app
+docker compose up -d --force-recreate app
+docker compose logs -f app
+```
+
+不要执行 `docker compose down -v`，避免删除数据库和 SonarQube 数据卷。
 
 ## 4. 路径 B：本地构建定制发行包与镜像
 

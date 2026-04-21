@@ -7,6 +7,7 @@ set -euo pipefail
 : "${SONARQUBE_LOGS:=/opt/topsec-sonarqube/logs}"
 : "${SONARQUBE_TEMP:=/opt/topsec-sonarqube/temp}"
 : "${SONARQUBE_EXTENSIONS:=/opt/topsec-sonarqube/extensions}"
+: "${SONARQUBE_BUNDLED_PLUGINS:=/opt/topsec-bundled-plugins}"
 : "${SONAR_WEB_PORT:=9000}"
 : "${SONAR_WEB_HOST:=0.0.0.0}"
 : "${POSTGRES_HOST:=postgres}"
@@ -16,8 +17,13 @@ set -euo pipefail
 : "${POSTGRES_PASSWORD:=sonarqube}"
 
 SONAR_PROPERTIES="${SONARQUBE_HOME}/conf/sonar.properties"
+SONARQUBE_PLUGINS_DIR="${SONARQUBE_EXTENSIONS}/plugins"
 
-mkdir -p "${SONARQUBE_DATA}" "${SONARQUBE_LOGS}" "${SONARQUBE_TEMP}" "${SONARQUBE_EXTENSIONS}" "${SONARQUBE_EXTENSIONS}/plugins"
+mkdir -p "${SONARQUBE_DATA}" "${SONARQUBE_LOGS}" "${SONARQUBE_TEMP}" "${SONARQUBE_EXTENSIONS}" "${SONARQUBE_PLUGINS_DIR}"
+
+if compgen -G "${SONARQUBE_BUNDLED_PLUGINS}/*.jar" > /dev/null; then
+  cp -f "${SONARQUBE_BUNDLED_PLUGINS}/"*.jar "${SONARQUBE_PLUGINS_DIR}/"
+fi
 
 upsert_property() {
   local key="$1"

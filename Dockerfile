@@ -1,10 +1,11 @@
-FROM eclipse-temurin:21-jre-jammy
+FROM eclipse-temurin:21-jdk-jammy
 
 ENV SONARQUBE_HOME=/opt/topsec-sonarqube \
     SONARQUBE_DATA=/opt/topsec-sonarqube/data \
     SONARQUBE_LOGS=/opt/topsec-sonarqube/logs \
     SONARQUBE_TEMP=/opt/topsec-sonarqube/temp \
     SONARQUBE_EXTENSIONS=/opt/topsec-sonarqube/extensions \
+    SONARQUBE_BUNDLED_PLUGINS=/opt/topsec-bundled-plugins \
     LANG=C.UTF-8 \
     LC_ALL=C.UTF-8
 
@@ -19,13 +20,13 @@ COPY build/docker/sonarqube.zip /tmp/sonarqube.zip
 RUN unzip -q /tmp/sonarqube.zip -d /opt \
   && mv /opt/sonarqube-* "${SONARQUBE_HOME}" \
   && rm -f /tmp/sonarqube.zip \
-  && mkdir -p "${SONARQUBE_DATA}" "${SONARQUBE_LOGS}" "${SONARQUBE_TEMP}" "${SONARQUBE_EXTENSIONS}/plugins"
+  && mkdir -p "${SONARQUBE_DATA}" "${SONARQUBE_LOGS}" "${SONARQUBE_TEMP}" "${SONARQUBE_EXTENSIONS}/plugins" "${SONARQUBE_BUNDLED_PLUGINS}"
 
-COPY build/docker/plugins/ "${SONARQUBE_HOME}/extensions/plugins/"
+COPY build/docker/plugins/ "${SONARQUBE_BUNDLED_PLUGINS}/"
 COPY docker/topsec/run.sh /usr/local/bin/topsec-sonarqube-run
 
 RUN chmod +x /usr/local/bin/topsec-sonarqube-run \
-  && chown -R sonarqube:sonarqube /usr/local/bin/topsec-sonarqube-run "${SONARQUBE_HOME}"
+  && chown -R sonarqube:sonarqube /usr/local/bin/topsec-sonarqube-run "${SONARQUBE_HOME}" "${SONARQUBE_BUNDLED_PLUGINS}"
 
 USER sonarqube
 WORKDIR ${SONARQUBE_HOME}
