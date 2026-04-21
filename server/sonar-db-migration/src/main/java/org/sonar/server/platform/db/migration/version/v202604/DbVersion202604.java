@@ -27,6 +27,7 @@ public class DbVersion202604 implements DbVersion {
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
-      .add(202604000, "Add epss_score, epss_percentile, known_exploited columns to 'sca_vulnerability_issues'", AddEpssColumnsToScaVulnerabilityIssues.class);
+      .add(2026_04_000, "Add epss_score, epss_percentile, known_exploited columns to 'sca_vulnerability_issues'", AddEpssColumnsToScaVulnerabilityIssues.class)
+      .add(2026_04_001, "Alter 'sca_analyses.failed_reason' column type to clob", AlterScaAnalysesFailedReasonColumnToClob.class);
   }
 }
