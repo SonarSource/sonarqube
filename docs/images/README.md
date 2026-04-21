@@ -17,7 +17,7 @@ The image embeds stats that may need periodic refresh:
 | Languages | 30+ | [sonarsource.com product page](https://www.sonarsource.com/products/sonarqube) |
 | Analysis rules | 5,000+ | [rules.sonarsource.com](https://rules.sonarsource.com) |
 | Projects analyzed | 400K+ | SonarSource marketing / public decks |
-| Years defining quality | 17 | SonarQube was released in 2008 (`2026 − 2008 = 18`; round down) |
+| Years defining quality | 18 | SonarQube was released in 2008 (`current_year − 2008`) |
 
 Update those in `hero.html` under the `.stats` block (`.stat .n`) and re-render.
 
