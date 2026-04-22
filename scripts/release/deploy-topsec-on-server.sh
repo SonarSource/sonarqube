@@ -4,6 +4,9 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
+echo "Checking host kernel prerequisites"
+"${ROOT_DIR}/scripts/release/check-topsec-host.sh"
+
 echo "Building customized distribution package"
 "${ROOT_DIR}/scripts/release/build-topsec-distribution.sh"
 

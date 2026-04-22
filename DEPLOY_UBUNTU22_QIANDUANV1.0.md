@@ -51,6 +51,12 @@ cp .env.example .env
 - `SONAR_WEB_JAVAOPTS`
 - `SONAR_CE_JAVAOPTS`
 
+部署前先检查宿主机内核参数：
+
+```bash
+./scripts/release/check-topsec-host.sh
+```
+
 执行一键部署：
 
 ```bash
@@ -71,6 +77,7 @@ cp .env.example .env
 如果你希望分步执行，也可以手动运行：
 
 ```bash
+./scripts/release/check-topsec-host.sh
 ./scripts/release/build-topsec-distribution.sh
 ./scripts/release/fetch-zh-plugin.sh
 docker compose up -d --build
@@ -93,10 +100,15 @@ http://<服务器IP>:9000
 
 - `Module jdk.attach not found`
 - `Module jdk.jlink not found`
+- `bootstrap check failure`
+- `vm.max_map_count ... is too low`
 
 请在服务器源码目录执行以下恢复命令，重建应用镜像并重启应用容器：
 
 ```bash
+sudo sysctl -w vm.max_map_count=524288
+echo 'vm.max_map_count=524288' | sudo tee /etc/sysctl.d/99-topsec-ai-audit.conf
+sudo sysctl --system
 docker compose build --pull --no-cache app
 docker compose up -d --force-recreate app
 docker compose logs -f app
@@ -193,6 +205,12 @@ cp .env.example .env
 docker pull ${DOCKERHUB_NAMESPACE}/${IMAGE_NAME}:${IMAGE_TAG}
 ```
 
+启动前先检查宿主机内核参数：
+
+```bash
+./scripts/release/check-topsec-host.sh
+```
+
 启动：
 
 ```bash
@@ -217,6 +235,7 @@ http://<服务器IP>:9000
 ### 7.1 调整内核参数
 
 ```bash
+sudo sysctl -w vm.max_map_count=524288
 echo 'vm.max_map_count=524288' | sudo tee /etc/sysctl.d/99-topsec-ai-audit.conf
 sudo sysctl --system
 ```
@@ -274,5 +293,6 @@ docker compose logs -f postgres
 - 前端构建成功
 - `./gradlew build -x test` 成功
 - 数据库连接参数正确
+- `./scripts/release/check-topsec-host.sh` 通过
 - `docker compose up -d --build` 或 `docker compose up -d` 可正常启动
 - 访问首页后，左上角品牌、默认中文、页脚文案、主题色均符合预期
