@@ -468,6 +468,7 @@ subprojects {
       dependency 'at.yawk.lz4:lz4-java:1.10.4'
       dependency 'org.littleshoot:littleproxy:1.1.2'
       dependency 'net.sf.trove4j:core:3.1.0'
+      dependency 'nl.jqno.equalsverifier:equalsverifier:3.17.3'
       dependency 'org.awaitility:awaitility:4.3.0'
       dependency 'org.apache.commons:commons-csv:1.14.1'
       dependency 'org.apache.commons:commons-lang3:3.20.0'
