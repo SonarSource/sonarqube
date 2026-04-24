@@ -54,7 +54,7 @@ seed_gradle_wrapper_cache
 echo "Installing webapp dependencies in ${WEBAPP_DIR}"
 (
   cd "${WEBAPP_DIR}"
-  corepack yarn install --immutable
+  corepack yarn install
   corepack yarn workspace sq-server build
 )
 
