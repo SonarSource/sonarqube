@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -172,14 +172,6 @@ public class CorePropertyDefinitions {
         .name("Gravatar URL")
         .description("Optional URL of custom Gravatar service. Accepted variables are {EMAIL_MD5} for MD5 hash of email and {SIZE} for the picture size in pixels.")
         .defaultValue("https://secure.gravatar.com/avatar/{EMAIL_MD5}.jpg?s={SIZE}&d=identicon")
-        .category(CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
-        .build(),
-      PropertyDefinition.builder(WebConstants.SONAR_UI_FORCE_OLD_NAVIGATION)
-        .name("Force old navigation")
-        .description("Force the use of the old UI navigation.")
-        .type(BOOLEAN)
-        .defaultValue(String.valueOf(false))
         .category(CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
         .build(),

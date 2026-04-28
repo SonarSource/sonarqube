@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -206,7 +206,6 @@ import org.sonar.server.platform.db.CheckAnyonePermissionsAtStartup;
 import org.sonar.server.platform.db.migration.DatabaseMigrationPersister;
 import org.sonar.server.platform.db.migration.DatabaseMigrationTelemetry;
 import org.sonar.server.platform.telemetry.TelemetryFipsEnabledProvider;
-import org.sonar.server.platform.telemetry.TelemetryForceOldNavigationPropertyProvider;
 import org.sonar.server.platform.telemetry.TelemetryIpv6EnabledProvider;
 import org.sonar.server.platform.telemetry.TelemetryIssueCountsPerStatusProvider;
 import org.sonar.server.platform.telemetry.TelemetryMQRModePropertyProvider;
@@ -332,6 +331,7 @@ import org.sonarsource.compliancereports.reports.MetadataLoader;
 import org.sonarsource.compliancereports.reports.MetadataRules;
 import org.sonarsource.organizations.server.OrganizationsServiceServerImpl;
 import org.sonarsource.users.server.bean.UsersServerComponents;
+import org.sonar.server.events.EventsWebComponents;
 
 import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
 import static org.sonar.core.extension.PlatformLevelPredicates.hasPlatformLevel4OrNone;
@@ -729,7 +729,6 @@ public class PlatformLevel4 extends PlatformLevel {
       // new telemetry metrics
       TelemetryVersionProvider.class,
       TelemetryMQRModePropertyProvider.class,
-      TelemetryForceOldNavigationPropertyProvider.class,
       TelemetryNclocProvider.class,
       TelemetryUserEnabledProvider.class,
       TelemetryFipsEnabledProvider.class,
@@ -791,6 +790,9 @@ public class PlatformLevel4 extends PlatformLevel {
 
     // registered via users-server-app
     addAll(UsersServerComponents.components());
+
+    // registered via sonar-unified-events
+    addAll(EventsWebComponents.components());
 
     // system info
     add(new SystemInfoWriterModule(getWebServer()));

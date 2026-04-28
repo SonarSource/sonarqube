@@ -171,6 +171,7 @@ message Issue {
   optional bool fromSonarQubeUpdate = 45;
   repeated string internalTags = 46;
   optional string linkedTicketStatus = 47;
+  reserved 48, 49; // reserved for lastChangeAnalysisUuid and lastChangeSource
 }
 
 message Transitions {

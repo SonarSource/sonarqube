@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,13 +20,12 @@
 package org.sonar.ce.task.projectanalysis.util.cache;
 
 import com.google.common.base.Throwables;
-import org.apache.commons.io.IOUtils;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import org.sonar.core.util.CloseableIterator;
+import org.apache.commons.io.IOUtils;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
 public class ObjectInputStreamIterator<E> extends CloseableIterator<E> {
 

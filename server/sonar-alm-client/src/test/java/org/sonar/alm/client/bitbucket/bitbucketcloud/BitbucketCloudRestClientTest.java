@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -207,7 +207,7 @@ class BitbucketCloudRestClientTest {
 
   @Test
   void validate_success() throws Exception {
-    String tokenResponse = "{\"scopes\": \"webhook pullrequest:write\", \"access_token\": \"token\", \"expires_in\": 7200, "
+    String tokenResponse = "{\"scope\": \"webhook pullrequest:write\", \"access_token\": \"token\", \"expires_in\": 7200, "
       + "\"token_type\": \"bearer\", \"state\": \"client_credentials\", \"refresh_token\": \"abc\"}";
 
     server.enqueue(new MockResponse().setBody(tokenResponse));
@@ -223,7 +223,7 @@ class BitbucketCloudRestClientTest {
 
   @Test
   void validate_fails_if_unsufficient_pull_request_privileges() {
-    String tokenResponse = "{\"scopes\": \"\", \"access_token\": \"token\", \"expires_in\": 7200, "
+    String tokenResponse = "{\"scope\": \"\", \"access_token\": \"token\", \"expires_in\": 7200, "
       + "\"token_type\": \"bearer\", \"state\": \"client_credentials\", \"refresh_token\": \"abc\"}";
     server.enqueue(new MockResponse().setBody(tokenResponse));
 
@@ -235,7 +235,7 @@ class BitbucketCloudRestClientTest {
 
   @Test
   void validate_with_invalid_workspace() {
-    String tokenResponse = "{\"scopes\": \"webhook pullrequest:write\", \"access_token\": \"token\", \"expires_in\": 7200, "
+    String tokenResponse = "{\"scope\": \"webhook pullrequest:write\", \"access_token\": \"token\", \"expires_in\": 7200, "
       + "\"token_type\": \"bearer\", \"state\": \"client_credentials\", \"refresh_token\": \"abc\"}";
     server.enqueue(new MockResponse().setBody(tokenResponse).setResponseCode(200).setHeader("Content-Type", JSON_MEDIA_TYPE));
 
@@ -275,7 +275,7 @@ class BitbucketCloudRestClientTest {
 
   @Test
   void validate_with_insufficient_privileges() {
-    String tokenResponse = "{\"scopes\": \"webhook pullrequest:write\", \"access_token\": \"token\", \"expires_in\": 7200, "
+    String tokenResponse = "{\"scope\": \"webhook pullrequest:write\", \"access_token\": \"token\", \"expires_in\": 7200, "
       + "\"token_type\": \"bearer\", \"state\": \"client_credentials\", \"refresh_token\": \"abc\"}";
     server.enqueue(new MockResponse().setBody(tokenResponse).setResponseCode(200).setHeader("Content-Type", JSON_MEDIA_TYPE));
 

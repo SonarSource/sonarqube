@@ -308,58 +308,58 @@ subprojects {
   dependencyManagement {
     dependencies {
       // bundled plugin list -- keep it alphabetically ordered
-      dependency 'com.sonarsource.abap:sonar-abap-plugin:3.17.0.7722'
-      dependency 'com.sonarsource.armor:sonar-jasmin-plugin:1.14.2.10232'
+      dependency 'com.sonarsource.abap:sonar-abap-plugin:3.18.0.8030'
+      dependency 'com.sonarsource.armor:sonar-jasmin-plugin:1.16.0.10523'
       dependency 'com.sonarsource.cobol:sonar-cobol-plugin:5.11.0.10062'
-      dependency 'com.sonarsource.cpp:sonar-cfamily-dependencies-plugin:6.79.0.97291'
-      dependency 'com.sonarsource.cpp:sonar-cfamily-plugin:6.79.0.97291'
+      dependency 'com.sonarsource.cpp:sonar-cfamily-dependencies-plugin:6.80.0.98490'
+      dependency 'com.sonarsource.cpp:sonar-cfamily-plugin:6.80.0.98490'
       dependency 'com.sonarsource.dart:sonar-dart-plugin:1.4.0.4183'
       dependency 'com.sonarsource.dbd:sonar-dbd-plugin:2.7.0.20531'
       dependency 'com.sonarsource.dbd:sonar-dbd-java-frontend-plugin:2.7.0.20531'
       dependency 'com.sonarsource.dbd:sonar-dbd-python-frontend-plugin:2.7.0.20531'
-      dependency 'com.sonarsource.dotnet:sonar-csharp-enterprise-plugin:10.23.0.137933'
-      dependency 'com.sonarsource.dotnet:sonar-vbnet-enterprise-plugin:10.23.0.137933'
-      dependency 'com.sonarsource.dre:sonar-dre-plugin:2.0.0.11053'
-      dependency 'com.sonarsource.go:sonar-go-enterprise-plugin:1.35.0.5808'
+      dependency 'com.sonarsource.dotnet:sonar-csharp-enterprise-plugin:10.25.0.139117'
+      dependency 'com.sonarsource.dotnet:sonar-vbnet-enterprise-plugin:10.25.0.139117'
+      dependency 'com.sonarsource.dre:sonar-dre-plugin:2.1.0.11347'
+      dependency 'com.sonarsource.go:sonar-go-enterprise-plugin:1.36.0.5922'
       dependency 'com.sonarsource.pli:sonar-pli-plugin:1.21.0.7212'
       dependency 'com.sonarsource.plsql:sonar-plsql-plugin:3.18.1.230'
       dependency 'com.sonarsource.plugins.vb:sonar-vb-plugin:2.17.0.7134'
       dependency 'com.sonarsource.rpg:sonar-rpg-plugin:3.15.0.8032'
-      dependency 'com.sonarsource.security:sonar-security-csharp-frontend-plugin:11.25.0.44939'
-      dependency 'com.sonarsource.security:sonar-security-go-frontend-plugin:11.25.0.44939'
-      dependency 'com.sonarsource.security:sonar-security-java-frontend-plugin:11.25.0.44939'
-      dependency 'com.sonarsource.security:sonar-security-kotlin-frontend-plugin:11.25.0.44939'
-      dependency 'com.sonarsource.security:sonar-security-php-frontend-plugin:11.25.0.44939'
-      dependency 'com.sonarsource.security:sonar-security-plugin:11.25.0.44939'
-      dependency 'com.sonarsource.security:sonar-security-python-frontend-plugin:11.25.0.44939'
-      dependency 'com.sonarsource.security:sonar-security-vbnet-frontend-plugin:11.25.0.44939'
+      dependency 'com.sonarsource.security:sonar-security-csharp-frontend-plugin:11.28.0.45686'
+      dependency 'com.sonarsource.security:sonar-security-go-frontend-plugin:11.28.0.45686'
+      dependency 'com.sonarsource.security:sonar-security-java-frontend-plugin:11.28.0.45686'
+      dependency 'com.sonarsource.security:sonar-security-kotlin-frontend-plugin:11.28.0.45686'
+      dependency 'com.sonarsource.security:sonar-security-php-frontend-plugin:11.28.0.45686'
+      dependency 'com.sonarsource.security:sonar-security-plugin:11.28.0.45686'
+      dependency 'com.sonarsource.security:sonar-security-python-frontend-plugin:11.28.0.45686'
+      dependency 'com.sonarsource.security:sonar-security-vbnet-frontend-plugin:11.28.0.45686'
       dependency 'com.sonarsource.slang:sonar-apex-plugin:1.24.0.2040'
       dependency 'org.sonarsource.slang:sonar-ruby-plugin:1.22.0.1992'
       dependency 'org.sonarsource.slang:sonar-scala-plugin:1.22.0.2217'
       dependency 'com.sonarsource.swift:sonar-swift-plugin:5.2.0.12490'
       dependency 'com.sonarsource.tsql:sonar-tsql-plugin:1.16.1.9133'
-      dependency 'org.sonarsource.dotnet:sonar-csharp-plugin:10.23.0.137933'
-      dependency 'org.sonarsource.dotnet:sonar-vbnet-plugin:10.23.0.137933'
+      dependency 'org.sonarsource.dotnet:sonar-csharp-plugin:10.25.0.139117'
+      dependency 'org.sonarsource.dotnet:sonar-vbnet-plugin:10.25.0.139117'
       dependency 'org.sonarsource.flex:sonar-flex-plugin:2.17.0.6043'
-      dependency 'org.sonarsource.go:sonar-go-plugin:1.35.0.5808'
-      dependency 'org.sonarsource.html:sonar-html-plugin:3.25.0.7473'
+      dependency 'org.sonarsource.go:sonar-go-plugin:1.36.0.5922'
+      dependency 'org.sonarsource.html:sonar-html-plugin:3.26.0.7600'
       dependency 'org.sonarsource.jacoco:sonar-jacoco-plugin:1.5.1.5340'
-      dependency 'org.sonarsource.java:sonar-java-plugin:8.27.0.43088'
-      dependency 'org.sonarsource.java:sonar-java-symbolic-execution-plugin:8.16.3.1589'
+      dependency 'org.sonarsource.java:sonar-java-plugin:8.28.0.43176'
+      dependency 'org.sonarsource.java:sonar-java-symbolic-execution-plugin:8.16.4.1912'
       dependency 'org.sonarsource.javascript:sonar-javascript-plugin:12.3.0.39932'
-      dependency 'org.sonarsource.php:sonar-php-plugin:3.55.0.15704'
+      dependency 'org.sonarsource.php:sonar-php-plugin:3.56.0.15870'
       dependency 'org.sonarsource.plugins.cayc:sonar-cayc-plugin:2.6.0.3665'
-      dependency 'org.sonarsource.python:sonar-python-plugin:5.20.0.32295'
+      dependency 'org.sonarsource.python:sonar-python-plugin:5.21.0.32726'
       dependency 'org.sonarsource.rust:sonar-rust-plugin:1.4.0.2802'
-      dependency 'com.sonarsource.python:sonar-python-enterprise-plugin:5.20.0.32295'
-      dependency 'org.sonarsource.kotlin:sonar-kotlin-plugin:3.4.0.8957'
+      dependency 'com.sonarsource.python:sonar-python-enterprise-plugin:5.21.0.32726'
+      dependency 'org.sonarsource.kotlin:sonar-kotlin-plugin:3.5.0.9240'
       dependency "org.sonarsource.api.plugin:sonar-plugin-api:$pluginApiVersion"
       dependency "org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures:$pluginApiVersion"
       dependency "org.sonarsource.sonarqube:users-api:$usersApiVersion"
       dependency "org.sonarsource.sonarqube:users-server-app:$usersApiVersion"
       dependency 'org.sonarsource.xml:sonar-xml-plugin:2.16.0.7616'
-      dependency 'org.sonarsource.iac:sonar-iac-plugin:2.8.0.19776'
-      dependency 'com.sonarsource.iac:sonar-iac-enterprise-plugin:2.8.0.19776'
+      dependency 'org.sonarsource.iac:sonar-iac-plugin:2.9.0.20183'
+      dependency 'com.sonarsource.iac:sonar-iac-enterprise-plugin:2.9.0.20183'
       dependency 'org.sonarsource.text:sonar-text-plugin:2.42.0.10784'
       dependency 'com.sonarsource.text:sonar-text-developer-plugin:2.42.0.10784'
       dependency 'com.sonarsource.text:sonar-text-enterprise-plugin:2.42.0.10784'
@@ -381,6 +381,7 @@ subprojects {
       dependency "org.sonarsource.sonarqube:organizations-server-app:$organizationsApiVersion"
       // Keep in sync with sonar-sca's dependency management
       dependency "org.sonarsource.sonarqube:sonar-feature-flags-api:$featureFlagsApiVersion"
+      dependency "org.sonarsource.sonarqube:sonar-events-server:$eventsApiVersion"
 
       // please keep this list alphabetically ordered
       dependencySet(group: 'ch.qos.logback', version: '1.5.32') {
@@ -438,6 +439,7 @@ subprojects {
       dependency 'org.aspectj:aspectjtools:1.9.25.1'
       dependencySet(group: 'com.squareup.okhttp3', version: '5.3.2') {
         entry 'okhttp'
+        entry 'okhttp-jvm'
         entry 'mockwebserver'
         entry 'okhttp-tls'
         entry 'logging-interceptor'
@@ -466,6 +468,7 @@ subprojects {
       dependency 'at.yawk.lz4:lz4-java:1.10.4'
       dependency 'org.littleshoot:littleproxy:1.1.2'
       dependency 'net.sf.trove4j:core:3.1.0'
+      dependency 'nl.jqno.equalsverifier:equalsverifier:3.17.3'
       dependency 'org.awaitility:awaitility:4.3.0'
       dependency 'org.apache.commons:commons-csv:1.14.1'
       dependency 'org.apache.commons:commons-lang3:3.20.0'
@@ -593,7 +596,12 @@ subprojects {
       // to be used only in sonar-ws-generator
       dependency 'org.apache.velocity:velocity-engine-core:2.4.1'
       dependency 'com.google.code.findbugs:jsr305:3.0.2'
-      // please keep this list alphabetically ordered
+      // Scanner Engine
+      dependencySet(group: 'com.sonarsource.scanner.engine', version: "${scannerEngineVersion}") {
+        entry 'scanner-engine-community'
+        entry 'scanner-engine-protocol-server'
+        entry 'protobuf-utils'
+      }
     }
   }
 

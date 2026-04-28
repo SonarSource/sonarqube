@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -102,10 +102,10 @@ public class BitbucketCloudRestClient {
   public void validate(String clientId, String clientSecret, String workspace) {
     Token token = validateAccessToken(clientId, clientSecret);
 
-    if (token.getScopes() == null || !token.getScopes().contains("pullrequest")) {
+    if (token.getScope() == null || !token.getScope().contains("pullrequest")) {
       LOG.atInfo()
         .addArgument(MISSING_PULL_REQUEST_READ_PERMISSION)
-        .addArgument(() -> String.format(SCOPE, token.getScopes()))
+        .addArgument(() -> String.format(SCOPE, token.getScope()))
         .log("{}{}");
       throw new IllegalArgumentException(ERROR_BBC_SERVERS + ": " + MISSING_PULL_REQUEST_READ_PERMISSION);
     }

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,10 +21,10 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.common.scanner.ScannerReportReader;
+import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 /**

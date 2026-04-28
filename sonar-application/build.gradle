@@ -73,8 +73,7 @@ dependencies {
 
     compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
-    scanner project(path: ':sonar-scanner-engine-shaded', configuration: 'shadow')
-    cyclonedx project(path: ':sonar-scanner-engine-shaded')
+    scanner 'com.sonarsource.scanner.engine:scanner-engine-community'
     shutdowner project(':sonar-shutdowner')
 
     jdbc_h2 'com.h2database:h2'

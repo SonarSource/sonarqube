@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,13 +22,12 @@ package org.sonar.ce.task.projectanalysis.source;
 import com.google.common.base.Throwables;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Parser;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.sonar.core.util.CloseableIterator;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
 public class ReportIterator<E> extends CloseableIterator<E> {
 

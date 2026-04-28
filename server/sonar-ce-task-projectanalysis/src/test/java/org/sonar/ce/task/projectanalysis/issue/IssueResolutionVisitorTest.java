@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -44,8 +44,8 @@ import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepository;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.rule.RuleType;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.user.UserIdDto;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition;

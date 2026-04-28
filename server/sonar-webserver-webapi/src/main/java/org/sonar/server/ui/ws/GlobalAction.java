@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -56,7 +56,6 @@ import static org.sonar.core.config.WebConstants.SONAR_LF_ENABLE_GRAVATAR;
 import static org.sonar.core.config.WebConstants.SONAR_LF_GRAVATAR_SERVER_URL;
 import static org.sonar.core.config.WebConstants.SONAR_LF_LOGO_URL;
 import static org.sonar.core.config.WebConstants.SONAR_LF_LOGO_WIDTH_PX;
-import static org.sonar.core.config.WebConstants.SONAR_UI_FORCE_OLD_NAVIGATION;
 import static org.sonar.process.ProcessProperties.Property.SONAR_UPDATECENTER_ACTIVATE;
 
 public class GlobalAction implements NavigationWsAction, Startable {
@@ -66,7 +65,6 @@ public class GlobalAction implements NavigationWsAction, Startable {
     SONAR_LF_LOGO_WIDTH_PX,
     SONAR_LF_ENABLE_GRAVATAR,
     SONAR_LF_GRAVATAR_SERVER_URL,
-    SONAR_UI_FORCE_OLD_NAVIGATION,
     RATING_GRID,
     DEVELOPER_AGGREGATED_INFO_DISABLED);
 
