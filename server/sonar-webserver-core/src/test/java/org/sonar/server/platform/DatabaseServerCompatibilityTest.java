@@ -69,14 +69,14 @@ public class DatabaseServerCompatibilityTest {
   }
 
   @Test
-  public void fail_if_requires_firstly_to_upgrade_to_25_12() {
+  public void fail_if_requires_firstly_to_upgrade_to_26_1() {
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_UPGRADE);
     when(version.getVersion()).thenReturn(Optional.of(12L));
     when(sonarRuntime.getEdition()).thenReturn(SonarEdition.COMMUNITY);
 
     assertThatThrownBy(compatibility::start)
       .isInstanceOf(MessageException.class)
-      .hasMessage("The version of SonarQube you are trying to upgrade from is too old. Please upgrade to the 25.12 version first.");
+      .hasMessage("The version of SonarQube you are trying to upgrade from is too old. Please upgrade to the 26.1 version first.");
     verifyNoInteractions(documentationLinkGenerator);
   }
 
