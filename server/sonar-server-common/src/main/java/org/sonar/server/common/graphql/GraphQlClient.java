@@ -57,11 +57,12 @@ public class GraphQlClient {
     this.client = client;
   }
 
-  public <T, U> List<U> executeQuery(GraphQlQueryParameters.QueryWithPagination<T, U> graphQlQueryParameters) {
+  public <T, U, V> List<U> executeQuery(GraphQlQueryParameters.QueryWithPagination<T, U, V> graphQlQueryParameters) {
     GsonGraphQlAnswer<T> graphQlAnswer;
     String cursor = null;
     List<U> results = new ArrayList<>();
-    GsonGraphQlQuery graphQlQuery = new GsonGraphQlQuery(graphQlQueryParameters.queryString(), graphQlQueryParameters.queryVariables());
+    Map<String, Object> variables = new HashMap<>(graphQlQueryParameters.queryVariables());
+    GsonGraphQlQuery graphQlQuery = new GsonGraphQlQuery(graphQlQueryParameters.queryString(), variables);
     do {
       GsonGraphQlQuery paginatedQuery = buildQueryForCursor(graphQlQuery, cursor);
       try {
@@ -83,7 +84,7 @@ public class GraphQlClient {
   }
 
   public void executeMutation(GraphQlMutationParameters.SimpleMutation mutationParameters) {
-    GsonGraphQlQuery graphQlQuery = new GsonGraphQlQuery(mutationParameters.queryString(), mutationParameters.queryVariables());
+    GsonGraphQlQuery graphQlQuery = new GsonGraphQlQuery(mutationParameters.queryString(), new HashMap<>(mutationParameters.queryVariables()));
     try {
       fetchValidDataOrThrow(
         mutationParameters.url(),
@@ -97,7 +98,7 @@ public class GraphQlClient {
   }
 
   private static GsonGraphQlQuery buildQueryForCursor(GsonGraphQlQuery query, @Nullable String cursor) {
-    Map<String, String> variables = new HashMap<>(query.variables());
+    Map<String, Object> variables = new HashMap<>(query.variables());
     variables.put("cursor", cursor);
     return new GsonGraphQlQuery(query.query(), variables);
   }

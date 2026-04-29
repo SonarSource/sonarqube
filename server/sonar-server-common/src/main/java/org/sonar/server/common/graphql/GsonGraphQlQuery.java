@@ -22,5 +22,5 @@ package org.sonar.server.common.graphql;
 import com.google.gson.annotations.SerializedName;
 import java.util.Map;
 
-public record GsonGraphQlQuery(@SerializedName("query") String query, @SerializedName("variables") Map<String, String> variables) {
+public record GsonGraphQlQuery(@SerializedName("query") String query, @SerializedName("variables") Map<String, Object> variables) {
 }

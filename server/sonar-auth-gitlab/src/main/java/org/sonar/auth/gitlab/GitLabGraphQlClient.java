@@ -19,6 +19,7 @@
  */
 package org.sonar.auth.gitlab;
 
+import com.google.common.collect.Lists;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -31,9 +32,12 @@ import org.sonar.server.common.graphql.GraphQlClient;
 import org.sonar.server.common.graphql.GraphQlQueryParameters;
 import org.sonar.server.common.graphql.GsonGraphQlAnswer;
 
+import static com.google.common.base.Preconditions.checkState;
+
 public class GitLabGraphQlClient {
 
   private static final Logger LOG = LoggerFactory.getLogger(GitLabGraphQlClient.class);
+  private static final int GRAPHQL_MAX_ARGS_SIZE = 100;
 
   private static final String GRAPHQL_GROUPS_QUERY = """
     query($search: String, $cursor: String) {
@@ -51,6 +55,23 @@ public class GitLabGraphQlClient {
     }""";
 
   private static final Type GROUPS_ANSWER_TYPE = TypeToken.getParameterized(GsonGraphQlAnswer.class, GroupsData.class).getType();
+
+  private static final String GRAPHQL_PROJECTS_QUERY = """
+    query($ids: [ID!], $cursor: String) {
+      projects(ids: $ids, first: 100, after: $cursor) {
+        nodes {
+          id
+          name
+          visibility
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+      }
+    }""";
+
+  private static final Type PROJECTS_ANSWER_TYPE = TypeToken.getParameterized(GsonGraphQlAnswer.class, ProjectsData.class).getType();
 
   private final GitLabSettings gitLabSettings;
   private final GraphQlClient graphQlClient;
@@ -78,6 +99,37 @@ public class GitLabGraphQlClient {
     return graphQlClient.executeQuery(queryWithPagination);
   }
 
+  public List<ProjectsData.ProjectNode> getProjectsDetails(String accessToken, List<String> ids) {
+    return Lists.partition(ids, GRAPHQL_MAX_ARGS_SIZE).stream()
+      .flatMap(chunk -> {
+        Map<String, List<String>> variables = new HashMap<>();
+        variables.put("ids", chunk);
+        var queryWithPagination = new GraphQlQueryParameters.QueryWithPagination<>(
+          gitLabSettings.url() + "/api/graphql",
+          accessToken,
+          GRAPHQL_PROJECTS_QUERY,
+          variables,
+          GitLabGraphQlClient::toProjectNodes,
+          GitLabGraphQlClient::extractProjectsCursor,
+          GitLabGraphQlClient::hasNextProjectsPage,
+          PROJECTS_ANSWER_TYPE);
+        return graphQlClient.executeQuery(queryWithPagination).stream();
+      })
+      .toList();
+  }
+
+  private static List<ProjectsData.ProjectNode> toProjectNodes(GsonGraphQlAnswer<ProjectsData> answer) {
+    return answer.getNonNullData().projects().nodes();
+  }
+
+  private static String extractProjectsCursor(GsonGraphQlAnswer<ProjectsData> answer) {
+    return answer.getNonNullData().projects().pageInfo().endCursor();
+  }
+
+  private static boolean hasNextProjectsPage(GsonGraphQlAnswer<ProjectsData> answer) {
+    return answer.getNonNullData().projects().pageInfo().hasNextPage();
+  }
+
   private static List<GsonGroup> toGsonGroups(GsonGraphQlAnswer<GroupsData> answer) {
     return answer.getNonNullData().currentUser().groups().nodes().stream()
       .map(node -> {
@@ -96,15 +148,28 @@ public class GitLabGraphQlClient {
     return answer.getNonNullData().currentUser().groups().pageInfo().hasNextPage();
   }
 
+  public record ProjectsData(ProjectConnection projects) {
+    record ProjectConnection(List<ProjectNode> nodes, PageInfo pageInfo) {
+    }
+
+    public record ProjectNode(String id, String name, String visibility) {
+      public long numericId() {
+        checkState(id != null, "id must be non-null");
+        return Long.parseLong(id.substring(id.lastIndexOf('/') + 1));
+      }
+    }
+  }
+
   record GroupsData(CurrentUser currentUser) {
     record CurrentUser(GroupConnection groups) {
       record GroupConnection(List<GroupNode> nodes, PageInfo pageInfo) {
         record GroupNode(String fullPath) {
         }
 
-        record PageInfo(boolean hasNextPage, String endCursor) {
-        }
       }
     }
+  }
+
+  record PageInfo(boolean hasNextPage, String endCursor) {
   }
 }

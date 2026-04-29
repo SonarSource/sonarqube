@@ -27,11 +27,12 @@ import java.util.function.Predicate;
 
 public interface GraphQlQueryParameters {
 
-  record QueryWithPagination<T, U>(String appUrl,
-                                   String accessToken,
-                                   String queryString,
-                                   Map<String, String> queryVariables,
-                                   Function<GsonGraphQlAnswer<T>, List<U>> extractAndMapResultsFunction,
-                                   Function<GsonGraphQlAnswer<T>, String> extractCursorFunction,
-                                   Predicate<GsonGraphQlAnswer<T>> hasNextPage, Type answerDataType) {}
+  record QueryWithPagination<T, U, V>(String appUrl,
+                                      String accessToken,
+                                      String queryString,
+                                      Map<String, V> queryVariables,
+                                      Function<GsonGraphQlAnswer<T>, List<U>> extractAndMapResultsFunction,
+                                      Function<GsonGraphQlAnswer<T>, String> extractCursorFunction,
+                                      Predicate<GsonGraphQlAnswer<T>> hasNextPage, Type answerDataType) {
+  }
 }
