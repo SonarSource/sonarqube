@@ -1,5 +1,5 @@
-gradle.properties @SonarSource/platform-onprem-squad
-.github/CODEOWNERS @SonarSource/platform-onprem-squad
+gradle.properties @SonarSource/platform-server-squad
+.github/CODEOWNERS @SonarSource/platform-server-squad
 /private/core-extension-securityreport/ @sonarsource/orchestration-reporting-squad
 /private/core-extension-enterprise-server/ @sonarsource/orchestration-reporting-squad
 /private/core-extension-jira/ @sonarsource/orchestration-integration-squad
@@ -7,3 +7,4 @@ gradle.properties @SonarSource/platform-onprem-squad
 /private/core-extension-jfrog/ @sonarsource/orchestration-integrations-squad
 /private/core-extension-software-quality-reports/ @sonarsource/orchestration-reporting-squad
 /private/it-governance/ @sonarsource/orchestration-reporting-squad
+/server/sonar-db-migration/src/main/java/org/sonar/server/platform/db/migration/version/ @SonarSource/platform-server-squad

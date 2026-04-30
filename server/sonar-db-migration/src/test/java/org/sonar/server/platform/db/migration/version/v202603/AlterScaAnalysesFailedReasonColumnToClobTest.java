@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v202604;
+package org.sonar.server.platform.db.migration.version.v202603;
 
 import java.sql.SQLException;
 import java.sql.Types;
@@ -30,9 +30,9 @@ import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.server.platform.db.migration.def.ClobColumnDef.newClobColumnDefBuilder;
-import static org.sonar.server.platform.db.migration.version.v202604.AlterScaAnalysesFailedReasonColumnToClob.COLUMN_NAME;
-import static org.sonar.server.platform.db.migration.version.v202604.AlterScaAnalysesFailedReasonColumnToClob.TABLE_NAME;
-import static org.sonar.server.platform.db.migration.version.v202604.AlterScaAnalysesFailedReasonColumnToClob.TEMP_COLUMN_NAME;
+import static org.sonar.server.platform.db.migration.version.v202603.AlterScaAnalysesFailedReasonColumnToClob.COLUMN_NAME;
+import static org.sonar.server.platform.db.migration.version.v202603.AlterScaAnalysesFailedReasonColumnToClob.TABLE_NAME;
+import static org.sonar.server.platform.db.migration.version.v202603.AlterScaAnalysesFailedReasonColumnToClob.TEMP_COLUMN_NAME;
 
 class AlterScaAnalysesFailedReasonColumnToClobTest {
 

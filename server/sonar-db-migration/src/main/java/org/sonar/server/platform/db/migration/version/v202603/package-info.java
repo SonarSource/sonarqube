@@ -17,24 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v202604;
+@ParametersAreNonnullByDefault
+package org.sonar.server.platform.db.migration.version.v202603;
 
-import org.junit.jupiter.api.Test;
-
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationNotEmpty;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
-
-class DbVersion202604Test {
-
-  private final DbVersion202604 underTest = new DbVersion202604();
-
-  @Test
-  void migrationNumber_starts_at_2026_04_000() {
-    verifyMinimumMigrationNumber(underTest, 202604000);
-  }
-
-  @Test
-  void verify_migration_is_not_empty() {
-    verifyMigrationNotEmpty(underTest);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

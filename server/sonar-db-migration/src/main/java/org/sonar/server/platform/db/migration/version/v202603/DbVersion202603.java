@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v202604;
+package org.sonar.server.platform.db.migration.version.v202603;
 
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
 
-public class DbVersion202604 implements DbVersion {
+public class DbVersion202603 implements DbVersion {
 
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
-      .add(2026_04_000, "Add epss_score, epss_percentile, known_exploited columns to 'sca_vulnerability_issues'", AddEpssColumnsToScaVulnerabilityIssues.class)
-      .add(2026_04_001, "Alter 'sca_analyses.failed_reason' column type to clob", AlterScaAnalysesFailedReasonColumnToClob.class);
+      .add(2026_03_000, "Add epss_score, epss_percentile, known_exploited columns to 'sca_vulnerability_issues'", AddEpssColumnsToScaVulnerabilityIssues.class)
+      .add(2026_03_001, "Alter 'sca_analyses.failed_reason' column type to clob", AlterScaAnalysesFailedReasonColumnToClob.class);
   }
 }
