@@ -19,17 +19,27 @@
  */
 package org.sonar.server.platform.db.migration.version.v202603;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.util.List;
+import org.sonar.db.Database;
 
-public class DbVersion202603 implements DbVersion {
+import static org.sonar.api.web.UserRole.CODEVIEWER;
+import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.api.web.UserRole.SECURITYHOTSPOT_ADMIN;
+import static org.sonar.api.web.UserRole.USER;
+
+public class AddGitlabSecurityManagerRolePermissionMapping extends org.sonar.server.platform.db.migration.version.v202603.AddGitlabRolePermissionMapping {
+
+  public AddGitlabSecurityManagerRolePermissionMapping(Database db) {
+    super(db);
+  }
 
   @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(2026_03_000, "Add epss_score, epss_percentile, known_exploited columns to 'sca_vulnerability_issues'", AddEpssColumnsToScaVulnerabilityIssues.class)
-      .add(2026_03_001, "Alter 'sca_analyses.failed_reason' column type to clob", AlterScaAnalysesFailedReasonColumnToClob.class)
-      .add(2026_03_002, "Add GitLab Planner role permission mapping", AddGitlabPlannerRolePermissionMapping.class)
-      .add(2026_03_003, "Add GitLab Security Manager role permission mapping", AddGitlabSecurityManagerRolePermissionMapping.class);
+  String getGitlabRoleName() {
+    return "security manager";
+  }
+
+  @Override
+  List<String> getSonarqubePermissions() {
+    return List.of(USER, CODEVIEWER, SECURITYHOTSPOT_ADMIN, ISSUE_ADMIN);
   }
 }
