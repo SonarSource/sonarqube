@@ -31,6 +31,7 @@ public final class SqTables {
   public static final Set<String> TABLES = Set.of(
     "active_rules",
     "active_rule_parameters",
+    "admin_alert_status",
     "alm_settings",
     "alm_pats",
     "analysis_properties",

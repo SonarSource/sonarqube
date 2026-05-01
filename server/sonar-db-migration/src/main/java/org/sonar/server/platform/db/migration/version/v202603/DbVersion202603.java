@@ -33,6 +33,7 @@ public class DbVersion202603 implements DbVersion {
       .add(2026_03_003, "Add GitLab Security Manager role permission mapping", AddGitlabSecurityManagerRolePermissionMapping.class)
       .add(2026_03_004, "Add 'component_uuid' column to 'sca_issues_releases' table", AddComponentUuidToScaIssuesReleases.class)
       .add(2026_03_005, "Backfill 'component_uuid' on 'sca_issues_releases' from 'sca_releases'", BackfillComponentUuidOnScaIssuesReleases.class)
-      .add(2026_03_006, "Make 'sca_issues_releases.component_uuid' not nullable", MakeScaIssuesReleasesComponentUuidNotNullable.class);
+      .add(2026_03_006, "Make 'sca_issues_releases.component_uuid' not nullable", MakeScaIssuesReleasesComponentUuidNotNullable.class)
+      .add(2026_03_007, "Create 'admin_alert_status' table", CreateAdminAlertStatusTable.class);
   }
 }

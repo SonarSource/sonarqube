@@ -19,6 +19,7 @@
  */
 package org.sonar.db;
 
+import org.sonar.db.adminalert.AdminAlertStatusDao;
 import org.sonar.db.alm.pat.AlmPatDao;
 import org.sonar.db.alm.setting.AlmSettingDao;
 import org.sonar.db.alm.setting.ProjectAlmSettingDao;
@@ -177,6 +178,7 @@ public class DbClient extends AbstractDbClient {
   private final RuleDao ruleDao;
   private final RuleRepositoryDao ruleRepositoryDao;
   private final ActiveRuleDao activeRuleDao;
+  private final AdminAlertStatusDao adminAlertStatusDao;
   private final QProfileChangeDao qProfileChangeDao;
   private final UserPermissionDao userPermissionDao;
   private final DefaultQProfileDao defaultQProfileDao;
@@ -276,6 +278,7 @@ public class DbClient extends AbstractDbClient {
     ruleDao = getDao(RuleDao.class);
     ruleRepositoryDao = getDao(RuleRepositoryDao.class);
     activeRuleDao = getDao(ActiveRuleDao.class);
+    adminAlertStatusDao = getDao(AdminAlertStatusDao.class);
     qProfileChangeDao = getDao(QProfileChangeDao.class);
     userPermissionDao = getDao(UserPermissionDao.class);
     defaultQProfileDao = getDao(DefaultQProfileDao.class);
@@ -583,6 +586,10 @@ public class DbClient extends AbstractDbClient {
 
   public ActiveRuleDao activeRuleDao() {
     return activeRuleDao;
+  }
+
+  public AdminAlertStatusDao adminAlertStatusDao() {
+    return adminAlertStatusDao;
   }
 
   public QProfileChangeDao qProfileChangeDao() {

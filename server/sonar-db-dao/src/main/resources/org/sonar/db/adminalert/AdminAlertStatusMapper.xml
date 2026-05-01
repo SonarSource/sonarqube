@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.db.adminalert.AdminAlertStatusMapper">
+
+  <sql id="columns">
+    aas.uuid          as "uuid",
+    aas.alert_key     as "alertKey",
+    aas.is_active     as "active",
+    aas.activated_at  as "activatedAt",
+    aas.deactivated_at as "deactivatedAt",
+    aas.updated_at    as "updatedAt"
+  </sql>
+
+  <select id="selectCurrentActiveByAlertKey" parameterType="String" resultType="org.sonar.db.adminalert.AdminAlertStatusDto">
+    SELECT
+      <include refid="columns"/>
+    FROM admin_alert_status aas
+    WHERE aas.alert_key = #{alertKey, jdbcType=VARCHAR}
+    AND aas.is_active = ${_true}
+  </select>
+
+  <select id="selectAll" resultType="org.sonar.db.adminalert.AdminAlertStatusDto">
+    SELECT
+      <include refid="columns"/>
+    FROM admin_alert_status aas
+    ORDER BY aas.activated_at ASC
+  </select>
+
+  <select id="selectAllActive" resultType="org.sonar.db.adminalert.AdminAlertStatusDto">
+    SELECT
+      <include refid="columns"/>
+    FROM admin_alert_status aas
+    WHERE aas.is_active = ${_true}
+  </select>
+
+  <insert id="insert" parameterType="map">
+    INSERT INTO admin_alert_status (
+      uuid,
+      alert_key,
+      is_active,
+      activated_at,
+      deactivated_at,
+      updated_at
+    ) VALUES (
+      #{dto.uuid,          jdbcType=VARCHAR},
+      #{dto.alertKey,      jdbcType=VARCHAR},
+      #{dto.active,        jdbcType=BOOLEAN},
+      #{dto.activatedAt,   jdbcType=BIGINT},
+      #{dto.deactivatedAt, jdbcType=BIGINT},
+      #{dto.updatedAt,     jdbcType=BIGINT}
+    )
+  </insert>
+
+  <update id="deactivateCurrent" parameterType="map">
+    UPDATE admin_alert_status
+    SET
+      is_active      = ${_false},
+      deactivated_at = #{deactivatedAt, jdbcType=BIGINT},
+      updated_at     = #{updatedAt,     jdbcType=BIGINT}
+    WHERE alert_key  = #{alertKey,      jdbcType=VARCHAR}
+    AND   is_active  = ${_true}
+  </update>
+
+</mapper>
