@@ -99,6 +99,22 @@ public class UserUpdaterUpdateIT {
   }
 
   @Test
+  public void update_deactivated_user_does_not_reactivate_it() {
+    UserDto user = db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@email.com")
+      .setActive(false));
+    createDefaultGroup();
+
+    underTest.updateAndCommit(session, user, new UpdateUser()
+      .setName("Marius2")
+      .setEmail("marius2@mail.com"), EMPTY_USER_CONSUMER);
+
+    UserDto updatedUser = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
+    assertThat(updatedUser.isActive()).isFalse();
+    assertThat(updatedUser.getName()).isEqualTo("Marius2");
+    assertThat(updatedUser.getEmail()).isEqualTo("marius2@mail.com");
+  }
+
+  @Test
   public void update_user_external_identity_when_user_was_not_local() {
     UserDto user = db.users().insertUser(newExternalUser(DEFAULT_LOGIN, "Marius", "marius@email.com"));
     createDefaultGroup();

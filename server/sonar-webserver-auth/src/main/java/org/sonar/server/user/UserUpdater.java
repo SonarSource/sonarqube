@@ -120,6 +120,7 @@ public class UserUpdater {
       updateUser.setPassword(password);
     }
     updateDto(dbSession, updateUser, reactivatedUser);
+    reactivatedUser.setActive(true);
     updateUser(dbSession, reactivatedUser);
     addUserToDefaultGroup(dbSession, reactivatedUser);
   }
@@ -429,7 +430,6 @@ public class UserUpdater {
   }
 
   private void updateUser(DbSession dbSession, UserDto dto) {
-    dto.setActive(true);
     dbClient.userDao().update(dbSession, dto);
   }
 
