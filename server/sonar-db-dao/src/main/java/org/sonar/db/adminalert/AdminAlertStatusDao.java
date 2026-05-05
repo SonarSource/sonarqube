@@ -60,18 +60,20 @@ public class AdminAlertStatusDao implements Dao {
   }
 
   /**
-   * Inserts a new active entry for the given alert key.
+   * Inserts a new active entry for the given alert key and returns the generated UUID.
    * Callers must commit the session after this call.
    */
-  public void insertActivation(DbSession dbSession, String alertKey) {
+  public String insertActivation(DbSession dbSession, String alertKey) {
     long now = system2.now();
+    String uuid = uuidFactory.create();
     AdminAlertStatusDto dto = new AdminAlertStatusDto()
-      .setUuid(uuidFactory.create())
+      .setUuid(uuid)
       .setAlertKey(alertKey)
       .setActive(true)
       .setActivatedAt(now)
       .setUpdatedAt(now);
     getMapper(dbSession).insert(dto);
+    return uuid;
   }
 
   /**
