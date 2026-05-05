@@ -19,13 +19,20 @@
  */
 package org.sonar.server.badge.ws;
 
+import java.io.IOException;
 import java.util.Collections;
 import org.junit.Test;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.ws.DumbResponse;
+import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 
 public class ProjectBadgesWsTest {
 
@@ -40,6 +47,39 @@ public class ProjectBadgesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("7.1");
+  }
+
+  @Test
+  public void handleSetsCorsHeader() throws IOException {
+    ProjectBadgesSupport support = mock(ProjectBadgesSupport.class);
+    DumbResponse response = new DumbResponse();
+    createFakeAbstractAction(support).handle(new TestRequest(), response);
+
+    assertThat(response.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+  }
+
+  @Test
+  public void handleSetsCorsHeaderOnErrorResponse() throws IOException {
+    ProjectBadgesSupport support = mock(ProjectBadgesSupport.class);
+    doThrow(new ForbiddenException("not allowed")).when(support).validateToken(any());
+    DumbResponse response = new DumbResponse();
+    createFakeAbstractAction(support).handle(new TestRequest(), response);
+
+    assertThat(response.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+  }
+
+  private AbstractProjectBadgesWsAction createFakeAbstractAction(ProjectBadgesSupport support) {
+    return new AbstractProjectBadgesWsAction(support, mock(SvgGenerator.class)) {
+      @Override
+      public void define(WebService.NewController context) {
+        context.createAction("fake").setHandler(this);
+      }
+
+      @Override
+      protected String getBadge(Request request) {
+        return "<svg/>";
+      }
+    };
   }
 
   private ProjectBadgesWsAction createFakeAction() {

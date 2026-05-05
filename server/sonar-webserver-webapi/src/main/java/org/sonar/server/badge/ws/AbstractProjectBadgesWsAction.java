@@ -47,6 +47,7 @@ public abstract class AbstractProjectBadgesWsAction implements ProjectBadgesWsAc
   @Override
   public void handle(Request request, Response response) throws IOException {
     response.setHeader("Cache-Control", "no-cache");
+    response.setHeader("Access-Control-Allow-Origin", "*");
     response.stream().setMediaType(SVG);
     try {
       support.validateToken(request);
