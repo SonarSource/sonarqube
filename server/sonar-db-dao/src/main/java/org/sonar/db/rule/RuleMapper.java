@@ -46,6 +46,8 @@ public interface RuleMapper {
 
   List<RuleDto> selectByRuleKeys(@Param("ruleKeys") List<String> ruleKeys);
 
+  List<RuleDto> selectByRepositories(@Param("repositories") List<String> repositories);
+
   List<RuleExtensionForIndexingDto> selectIndexingRuleExtensionsByIds(@Param("ruleExtensionIds") List<String> ruleExtensionIds);
 
   List<RuleDto> selectByQuery(@Param("query") RuleQuery ruleQuery);

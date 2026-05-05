@@ -230,6 +230,24 @@ class RuleDaoIT {
   }
 
   @Test
+  void selectByRepositories() {
+    RuleDto secretsRule1 = db.rules().insert(r -> r.setRepositoryKey("secrets"));
+    RuleDto secretsRule2 = db.rules().insert(r -> r.setRepositoryKey("secrets"));
+    RuleDto javaRule = db.rules().insert(r -> r.setRepositoryKey("java"));
+    RuleDto removedRule = db.rules().insert(r -> r.setRepositoryKey("secrets").setStatus(REMOVED));
+    db.rules().insert(r -> r.setRepositoryKey("python"));
+
+    assertThat(underTest.selectByRepositories(db.getSession(), singletonList("secrets")))
+      .extracting(RuleDto::getUuid)
+      .containsOnly(secretsRule1.getUuid(), secretsRule2.getUuid(), removedRule.getUuid());
+    assertThat(underTest.selectByRepositories(db.getSession(), asList("secrets", "java")))
+      .extracting(RuleDto::getUuid)
+      .containsOnly(secretsRule1.getUuid(), secretsRule2.getUuid(), javaRule.getUuid(), removedRule.getUuid());
+    assertThat(underTest.selectByRepositories(db.getSession(), singletonList("unknown"))).isEmpty();
+    assertThat(underTest.selectByRepositories(db.getSession(), emptyList())).isEmpty();
+  }
+
+  @Test
   void selectDefinitionByUuids() {
     RuleDto rule1 = db.rules().insert();
     RuleDto rule2 = db.rules().insert();
