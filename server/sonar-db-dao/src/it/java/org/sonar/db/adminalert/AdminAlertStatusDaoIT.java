@@ -22,7 +22,6 @@ package org.sonar.db.adminalert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;

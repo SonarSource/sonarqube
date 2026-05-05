@@ -32,6 +32,10 @@ public class AdminAlertStatusDto {
   private Long deactivatedAt;
   private long updatedAt;
 
+  public AdminAlertStatusDto() {
+    // nothing to do here
+  }
+
   public String getUuid() {
     return uuid;
   }
