@@ -56,7 +56,7 @@ public class UserTokenDao implements Dao {
   }
 
   public List<UserTokenDto> selectTokensExpiredInDays(DbSession dbSession, long days){
-    long timestamp = LocalDate.now().plusDays(days).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+    long timestamp = LocalDate.now(ZoneOffset.UTC).plusDays(days).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
     return mapper(dbSession).selectTokensExpiredOnDate(timestamp);
   }
 

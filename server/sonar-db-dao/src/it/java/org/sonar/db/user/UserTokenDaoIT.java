@@ -96,7 +96,7 @@ class UserTokenDaoIT {
   }
 
   private String insertTokenExpiredInDays(long days) {
-    long expirationDate = LocalDate.now().plusDays(days).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+    long expirationDate = LocalDate.now(ZoneOffset.UTC).plusDays(days).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
     UserTokenDto userToken = newUserToken().setExpirationDate(expirationDate);
     underTest.insert(dbSession, userToken, "login");
     return userToken.getTokenHash();

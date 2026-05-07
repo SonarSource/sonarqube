@@ -55,7 +55,7 @@ public class ScannerAnalysisCacheDao implements Dao {
   }
 
   public void cleanOlderThan(DbSession session, int days) {
-    long timestamp = LocalDateTime.now().minusDays(days).toInstant(ZoneOffset.UTC).toEpochMilli();
+    long timestamp = LocalDateTime.now(ZoneOffset.UTC).minusDays(days).toInstant(ZoneOffset.UTC).toEpochMilli();
     mapper(session).cleanOlderThan(timestamp);
   }
 

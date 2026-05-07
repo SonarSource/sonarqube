@@ -22,6 +22,7 @@ package org.sonar.server.usertoken.notification;
 import com.google.common.annotations.VisibleForTesting;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.server.util.GlobalLockManager;
@@ -47,7 +48,7 @@ public class TokenExpirationNotificationSchedulerImpl implements TokenExpiration
 
   @Override
   public void startScheduling() {
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
     // schedule run at midnight everyday
     LocalDateTime nextRun = now.plusDays(1).withHour(0).withMinute(0).withSecond(0);
     long initialDelay = Duration.between(now, nextRun).getSeconds();

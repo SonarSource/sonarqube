@@ -19,6 +19,7 @@
  */
 package org.sonar.server.v2.api.azurebilling.service;
 
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import okhttp3.Request;
@@ -47,7 +48,7 @@ public class AzureBillingRequestBuilder {
     return String.format(REQUEST_BODY_TEMPLATE,
       resourceId,
       DIMENSION,
-      ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
+      ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
       planId);
   }
 

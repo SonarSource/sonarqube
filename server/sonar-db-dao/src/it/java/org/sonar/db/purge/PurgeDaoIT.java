@@ -1416,7 +1416,7 @@ project.getProjectDto().getKey());
 
   @Test
   void delete_ce_analysis_older_than_180_and_scanner_context_older_than_40_days_of_specified_project_when_purging_project() {
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
     ProjectData projectData1 = db.components().insertPublicProject();
     ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
     Consumer<CeQueueDto> belongsToProject1 = t -> t.setEntityUuid(projectData1.projectUuid()).setComponentUuid(mainBranch1.uuid());
@@ -1476,7 +1476,7 @@ project.getProjectDto().getKey());
 
   @Test
   void delete_ce_analysis_older_than_180_and_scanner_context_older_than_40_days_of_project_and_branches_when_purging_project() {
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto mainBranch1 = projectData.getMainBranchComponent();
     ComponentDto branch1 = db.components().insertProjectBranch(mainBranch1, b -> b.setExcludeFromPurge(true));
@@ -1535,7 +1535,7 @@ project.getProjectDto().getKey());
 
   @Test
   void delete_ce_analysis_of_branch_older_than_180_and_scanner_context_older_than_40_days_when_purging_branch() {
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
     ProjectData projectData1 = db.components().insertPublicProject();
     ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
     ComponentDto branch1 = db.components().insertProjectBranch(mainBranch1);
@@ -1902,7 +1902,7 @@ projects[2].getMainBranchComponent().uuid(),
 
   @Test
   void purgeCeActivities_deletes_activity_older_than_180_days_and_their_scanner_context() {
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
     insertCeActivityAndChildDataWithDate("VERY_OLD", now.minusDays(180).minusMonths(10));
     insertCeActivityAndChildDataWithDate("JUST_OLD_ENOUGH", now.minusDays(180).minusDays(1));
     insertCeActivityAndChildDataWithDate("NOT_OLD_ENOUGH", now.minusDays(180));
@@ -1934,7 +1934,7 @@ projects[2].getMainBranchComponent().uuid(),
 
   @Test
   void purgeCeScannerContexts_deletes_ce_scanner_context_older_than_28_days() {
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
     insertCeActivityAndChildDataWithDate("VERY_OLD", now.minusDays(28).minusMonths(12));
     insertCeActivityAndChildDataWithDate("JUST_OLD_ENOUGH", now.minusDays(28).minusDays(1));
     insertCeActivityAndChildDataWithDate("NOT_OLD_ENOUGH", now.minusDays(28));
