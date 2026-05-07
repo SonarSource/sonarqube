@@ -20,6 +20,7 @@
 package org.sonar.db.user;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -49,10 +50,10 @@ class UserQueryTest {
       .searchText("search text")
       .isActive(true)
       .isManagedClause("is managed clause")
-      .lastConnectionDateFrom(OffsetDateTime.now().minus(1, ChronoUnit.DAYS))
-      .lastConnectionDateTo(OffsetDateTime.now().plus(1, ChronoUnit.DECADES))
-      .sonarLintLastConnectionDateFrom(OffsetDateTime.now().plus(2, ChronoUnit.DAYS))
-      .sonarLintLastConnectionDateTo(OffsetDateTime.now().minus(2, ChronoUnit.DECADES))
+      .lastConnectionDateFrom(OffsetDateTime.now(ZoneOffset.UTC).minus(1, ChronoUnit.DAYS))
+      .lastConnectionDateTo(OffsetDateTime.now(ZoneOffset.UTC).plus(1, ChronoUnit.DECADES))
+      .sonarLintLastConnectionDateFrom(OffsetDateTime.now(ZoneOffset.UTC).plus(2, ChronoUnit.DAYS))
+      .sonarLintLastConnectionDateTo(OffsetDateTime.now(ZoneOffset.UTC).minus(2, ChronoUnit.DECADES))
       .externalLogin("externalLogin")
       .build();
   }
