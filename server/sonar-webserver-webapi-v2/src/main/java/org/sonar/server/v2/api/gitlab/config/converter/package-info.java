@@ -18,6 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 @ParametersAreNonnullByDefault
-package org.sonar.server.v2.api.gitlab.config.resource;
+package org.sonar.server.v2.api.gitlab.config.converter;
 
 import javax.annotation.ParametersAreNonnullByDefault;

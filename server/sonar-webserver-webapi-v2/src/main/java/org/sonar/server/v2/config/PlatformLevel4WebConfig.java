@@ -35,6 +35,7 @@ import org.sonar.server.v2.api.dop.controller.DefaultDopSettingsController;
 import org.sonar.server.v2.api.email.config.controller.DefaultEmailConfigurationController;
 import org.sonar.server.v2.api.github.config.controller.DefaultGithubConfigurationController;
 import org.sonar.server.v2.api.gitlab.config.controller.DefaultGitlabConfigurationController;
+import org.sonar.server.v2.api.gitlab.config.converter.GitlabConfigurationResponseGenerator;
 import org.sonar.server.v2.api.group.controller.DefaultGroupController;
 import org.sonar.server.v2.api.membership.controller.DefaultGroupMembershipController;
 import org.sonar.server.v2.api.mode.controller.DefaultModeController;
@@ -68,6 +69,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
   DefaultEmailConfigurationController.class,
   DefaultGithubConfigurationController.class,
   DefaultGitlabConfigurationController.class,
+  GitlabConfigurationResponseGenerator.class,
   DefaultGroupController.class,
   DefaultGroupMembershipController.class,
   DefaultJresController.class,

@@ -21,18 +21,17 @@ package org.sonar.server.v2.api.gitlab.config.controller;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.apache.commons.lang3.StringUtils;
 import org.sonar.server.common.gitlab.config.GitlabConfiguration;
 import org.sonar.server.common.gitlab.config.GitlabConfigurationService;
 import org.sonar.server.common.gitlab.config.ProvisioningType;
 import org.sonar.server.common.gitlab.config.UpdateGitlabConfigurationRequest;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.v2.api.gitlab.config.converter.GitlabConfigurationResponseGenerator;
 import org.sonar.server.v2.api.gitlab.config.request.GitlabConfigurationCreateRestRequest;
 import org.sonar.server.v2.api.gitlab.config.request.GitlabConfigurationUpdateRestRequest;
-import org.sonar.server.v2.api.gitlab.config.resource.GitlabConfigurationResource;
+import org.sonar.server.v2.api.gitlab.config.response.GitlabConfigurationRestResponse;
 import org.sonar.server.v2.api.gitlab.config.response.GitlabConfigurationSearchRestResponse;
 import org.sonar.server.v2.api.response.PageRestResponse;
 
@@ -43,36 +42,39 @@ public class DefaultGitlabConfigurationController implements GitlabConfiguration
 
   private final UserSession userSession;
   private final GitlabConfigurationService gitlabConfigurationService;
+  private final GitlabConfigurationResponseGenerator gitlabConfigurationResponseGenerator;
 
-  public DefaultGitlabConfigurationController(UserSession userSession, GitlabConfigurationService gitlabConfigurationService) {
+  public DefaultGitlabConfigurationController(UserSession userSession, GitlabConfigurationService gitlabConfigurationService,
+    GitlabConfigurationResponseGenerator gitlabConfigurationResponseGenerator) {
     this.userSession = userSession;
     this.gitlabConfigurationService = gitlabConfigurationService;
+    this.gitlabConfigurationResponseGenerator = gitlabConfigurationResponseGenerator;
   }
 
   @Override
-  public GitlabConfigurationResource getGitlabConfiguration(String id) {
-    userSession.checkIsSystemAdministrator();
-    return getGitlabConfigurationResource(id);
+  public GitlabConfigurationRestResponse getGitlabConfiguration(String id) {
+    userSession.checkLoggedIn();
+    return gitlabConfigurationResponseGenerator.toResponse(gitlabConfigurationService.getConfiguration(id));
   }
 
   @Override
   public GitlabConfigurationSearchRestResponse searchGitlabConfiguration() {
-    userSession.checkIsSystemAdministrator();
+    userSession.checkLoggedIn();
 
-    List<GitlabConfigurationResource> gitlabConfigurationResources = gitlabConfigurationService.findConfigurations()
+    List<GitlabConfigurationRestResponse> responses = gitlabConfigurationService.findConfigurations()
       .stream()
-      .map(this::toGitLabConfigurationResource)
+      .map(gitlabConfigurationResponseGenerator::toResponse)
       .toList();
 
-    PageRestResponse pageRestResponse = new PageRestResponse(1, 1000, gitlabConfigurationResources.size());
-    return new GitlabConfigurationSearchRestResponse(gitlabConfigurationResources, pageRestResponse);
+    PageRestResponse pageRestResponse = new PageRestResponse(1, 1000, responses.size());
+    return new GitlabConfigurationSearchRestResponse(responses, pageRestResponse);
   }
 
   @Override
-  public GitlabConfigurationResource create(GitlabConfigurationCreateRestRequest createRequest) {
+  public GitlabConfigurationRestResponse create(GitlabConfigurationCreateRestRequest createRequest) {
     userSession.checkIsSystemAdministrator();
     GitlabConfiguration createdConfiguration = gitlabConfigurationService.createConfiguration(toGitlabConfiguration(createRequest));
-    return toGitLabConfigurationResource(createdConfiguration);
+    return gitlabConfigurationResponseGenerator.toResponse(createdConfiguration);
   }
 
   private static GitlabConfiguration toGitlabConfiguration(GitlabConfigurationCreateRestRequest createRestRequest) {
@@ -90,15 +92,11 @@ public class DefaultGitlabConfigurationController implements GitlabConfiguration
       createRestRequest.provisioningToken());
   }
 
-  private GitlabConfigurationResource getGitlabConfigurationResource(String id) {
-    return toGitLabConfigurationResource(gitlabConfigurationService.getConfiguration(id));
-  }
-
   @Override
-  public GitlabConfigurationResource updateGitlabConfiguration(String id, GitlabConfigurationUpdateRestRequest updateRequest) {
+  public GitlabConfigurationRestResponse updateGitlabConfiguration(String id, GitlabConfigurationUpdateRestRequest updateRequest) {
     userSession.checkIsSystemAdministrator();
     UpdateGitlabConfigurationRequest updateGitlabConfigurationRequest = toUpdateGitlabConfigurationRequest(id, updateRequest);
-    return toGitLabConfigurationResource(gitlabConfigurationService.updateConfiguration(updateGitlabConfigurationRequest));
+    return gitlabConfigurationResponseGenerator.toResponse(gitlabConfigurationService.updateConfiguration(updateGitlabConfigurationRequest));
   }
 
   private static UpdateGitlabConfigurationRequest toUpdateGitlabConfigurationRequest(String id,
@@ -123,32 +121,8 @@ public class DefaultGitlabConfigurationController implements GitlabConfiguration
     return new HashSet<>(groups);
   }
 
-  private GitlabConfigurationResource toGitLabConfigurationResource(GitlabConfiguration configuration) {
-    Optional<String> configurationError = gitlabConfigurationService.validate(configuration);
-    return new GitlabConfigurationResource(
-      configuration.id(),
-      configuration.enabled(),
-      configuration.applicationId(),
-      configuration.url(),
-      configuration.synchronizeGroups(),
-      sortGroups(configuration.allowedGroups()),
-      configuration.allowAllGroups(),
-      configuration.allowUsersToSignUp(),
-      toRestProvisioningType(configuration),
-      StringUtils.isNotEmpty(configuration.provisioningToken()),
-      configurationError.orElse(null));
-  }
-
-  private static org.sonar.server.v2.api.model.ProvisioningType toRestProvisioningType(GitlabConfiguration configuration) {
-    return org.sonar.server.v2.api.model.ProvisioningType.valueOf(configuration.provisioningType().name());
-  }
-
   private static ProvisioningType toProvisioningType(org.sonar.server.v2.api.model.ProvisioningType provisioningType) {
     return ProvisioningType.valueOf(provisioningType.name());
-  }
-
-  private static List<String> sortGroups(Set<String> groups) {
-    return groups.stream().sorted().toList();
   }
 
   @Override

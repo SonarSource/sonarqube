@@ -21,6 +21,12 @@ package org.sonar.server.v2.api.gitlab.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -36,7 +42,10 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.v2.api.ControllerTester;
 import org.sonar.server.v2.api.gitlab.config.controller.DefaultGitlabConfigurationController;
-import org.sonar.server.v2.api.gitlab.config.resource.GitlabConfigurationResource;
+import org.sonar.server.v2.api.gitlab.config.converter.GitlabConfigurationResponseGenerator;
+import org.sonar.server.v2.api.gitlab.config.response.GitlabConfigurationRestResponse;
+import org.sonar.server.v2.api.gitlab.config.response.GitlabConfigurationRestResponseForAdmins;
+import org.sonar.server.v2.api.gitlab.config.response.GitlabConfigurationRestResponseForLoggedInUsers;
 import org.sonar.server.v2.api.gitlab.config.response.GitlabConfigurationSearchRestResponse;
 import org.sonar.server.v2.api.model.ProvisioningType;
 import org.springframework.http.MediaType;
@@ -61,7 +70,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class DefaultGitlabConfigurationControllerTest {
-  private static final Gson GSON = new GsonBuilder().create();
+
+  private static final Gson GSON = new GsonBuilder()
+    .registerTypeAdapter(GitlabConfigurationRestResponse.class, new GitlabConfigurationRestResponseDeserializer())
+    .create();
 
   private static final GitlabConfiguration GITLAB_CONFIGURATION = new GitlabConfiguration(
     "existing-id",
@@ -77,7 +89,7 @@ public class DefaultGitlabConfigurationControllerTest {
     "provisioning-token"
   );
 
-  private static final GitlabConfigurationResource EXPECTED_GITLAB_CONF_RESOURCE = new GitlabConfigurationResource(
+  private static final GitlabConfigurationRestResponseForAdmins EXPECTED_GITLAB_CONF_RESOURCE = new GitlabConfigurationRestResponseForAdmins(
     GITLAB_CONFIGURATION.id(),
     GITLAB_CONFIGURATION.enabled(),
     GITLAB_CONFIGURATION.applicationId(),
@@ -112,7 +124,8 @@ public class DefaultGitlabConfigurationControllerTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   private final GitlabConfigurationService gitlabConfigurationService = mock();
-  private final MockMvc mockMvc = ControllerTester.getMockMvc(new DefaultGitlabConfigurationController(userSession, gitlabConfigurationService));
+  private final GitlabConfigurationResponseGenerator responseGenerator = new GitlabConfigurationResponseGenerator(userSession, gitlabConfigurationService);
+  private final MockMvc mockMvc = ControllerTester.getMockMvc(new DefaultGitlabConfigurationController(userSession, gitlabConfigurationService, responseGenerator));
 
   @Before
   public void setUp() {
@@ -120,13 +133,40 @@ public class DefaultGitlabConfigurationControllerTest {
   }
 
   @Test
-  public void fetchConfiguration_whenUserIsNotAdministrator_shouldReturnForbidden() throws Exception {
-    userSession.logIn().setNonSystemAdministrator();
+  public void fetchConfiguration_whenAnonymous_shouldReturnUnauthorized() throws Exception {
+    userSession.anonymous();
 
-    mockMvc.perform(get(GITLAB_CONFIGURATION_ENDPOINT + "/1"))
-      .andExpectAll(
-        status().isForbidden(),
-        content().json("{\"message\":\"Insufficient privileges\"}"));
+    mockMvc.perform(get(GITLAB_CONFIGURATION_ENDPOINT + "/existing-id"))
+      .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  public void fetchConfiguration_whenUserIsNotAdministrator_returnsReducedShape() throws Exception {
+    userSession.logIn().setNonSystemAdministrator();
+    when(gitlabConfigurationService.getConfiguration("existing-id")).thenReturn(GITLAB_CONFIGURATION);
+
+    MvcResult result = mockMvc.perform(get(GITLAB_CONFIGURATION_ENDPOINT + "/existing-id"))
+      .andExpect(status().isOk())
+      .andReturn();
+
+    GitlabConfigurationRestResponseForLoggedInUsers response = GSON.fromJson(result.getResponse().getContentAsString(), GitlabConfigurationRestResponseForLoggedInUsers.class);
+    assertThat(response).isEqualTo(new GitlabConfigurationRestResponseForLoggedInUsers("existing-id", true, ProvisioningType.AUTO_PROVISIONING));
+  }
+
+  @Test
+  public void fetchConfiguration_whenUserIsNotAdministratorAndConfigDisabled_returnsEnabledFalse() throws Exception {
+    userSession.logIn().setNonSystemAdministrator();
+    GitlabConfiguration disabled = new GitlabConfiguration(
+      "existing-id", false, "application-id", "www.url.com", "secret", true,
+      Set.of("group1"), false, true, JIT, "provisioning-token");
+    when(gitlabConfigurationService.getConfiguration("existing-id")).thenReturn(disabled);
+
+    MvcResult result = mockMvc.perform(get(GITLAB_CONFIGURATION_ENDPOINT + "/existing-id"))
+      .andExpect(status().isOk())
+      .andReturn();
+
+    GitlabConfigurationRestResponseForLoggedInUsers response = GSON.fromJson(result.getResponse().getContentAsString(), GitlabConfigurationRestResponseForLoggedInUsers.class);
+    assertThat(response).isEqualTo(new GitlabConfigurationRestResponseForLoggedInUsers("existing-id", false, ProvisioningType.JIT));
   }
 
   @Test
@@ -149,6 +189,40 @@ public class DefaultGitlabConfigurationControllerTest {
       .andExpectAll(
         status().isOk(),
         content().json(EXPECTED_CONFIGURATION));
+  }
+
+  @Test
+  public void search_whenAnonymous_shouldReturnUnauthorized() throws Exception {
+    userSession.anonymous();
+
+    mockMvc.perform(get(GITLAB_CONFIGURATION_ENDPOINT))
+      .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  public void search_whenUserIsNotAdministrator_returnsReducedShapes() throws Exception {
+    userSession.logIn().setNonSystemAdministrator();
+    when(gitlabConfigurationService.findConfigurations()).thenReturn(Optional.of(GITLAB_CONFIGURATION));
+
+    MvcResult result = mockMvc.perform(get(GITLAB_CONFIGURATION_ENDPOINT))
+      .andExpect(status().isOk())
+      .andReturn();
+
+    GitlabConfigurationSearchRestResponse response = GSON.fromJson(result.getResponse().getContentAsString(), GitlabConfigurationSearchRestResponse.class);
+    assertThat(response.gitlabConfigurations()).containsExactly(new GitlabConfigurationRestResponseForLoggedInUsers("existing-id", true, ProvisioningType.AUTO_PROVISIONING));
+  }
+
+  @Test
+  public void search_whenUserIsNotAdministratorAndNoConfig_returnsEmptyList() throws Exception {
+    userSession.logIn().setNonSystemAdministrator();
+    when(gitlabConfigurationService.findConfigurations()).thenReturn(Optional.empty());
+
+    MvcResult result = mockMvc.perform(get(GITLAB_CONFIGURATION_ENDPOINT))
+      .andExpect(status().isOk())
+      .andReturn();
+
+    GitlabConfigurationSearchRestResponse response = GSON.fromJson(result.getResponse().getContentAsString(), GitlabConfigurationSearchRestResponse.class);
+    assertThat(response.gitlabConfigurations()).isEmpty();
   }
 
   @Test
@@ -376,6 +450,7 @@ public class DefaultGitlabConfigurationControllerTest {
           """));
 
   }
+
   @Test
   public void create_whenConfigCreatedWithoutOptionalParams_returnsIt() throws Exception {
     userSession.logIn().setSystemAdministrator();
@@ -520,4 +595,19 @@ public class DefaultGitlabConfigurationControllerTest {
         content().json("{\"message\":\"Not found\"}"));
   }
 
+  static class GitlabConfigurationRestResponseDeserializer extends TypeAdapter<GitlabConfigurationRestResponse> {
+    @Override
+    public void write(JsonWriter out, GitlabConfigurationRestResponse value) throws IOException {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public GitlabConfigurationRestResponse read(JsonReader in) throws IOException {
+      JsonElement element = JsonParser.parseReader(in);
+      if (element.getAsJsonObject().has("applicationId")) {
+        return new Gson().fromJson(element, GitlabConfigurationRestResponseForAdmins.class);
+      }
+      return new Gson().fromJson(element, GitlabConfigurationRestResponseForLoggedInUsers.class);
+    }
+  }
 }

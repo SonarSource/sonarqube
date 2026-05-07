@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.v2.api.gitlab.config.resource;
+package org.sonar.server.v2.api.gitlab.config.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.server.v2.api.model.ProvisioningType;
 
-public record GitlabConfigurationResource(
+public record GitlabConfigurationRestResponseForAdmins(
 
   @Schema(accessMode = Schema.AccessMode.READ_ONLY)
   String id,
@@ -63,6 +63,5 @@ public record GitlabConfigurationResource(
   @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "In case the GitLab configuration is incorrect, error message")
   @Nullable
   String errorMessage
-) {
+) implements GitlabConfigurationRestResponse {
 }
-

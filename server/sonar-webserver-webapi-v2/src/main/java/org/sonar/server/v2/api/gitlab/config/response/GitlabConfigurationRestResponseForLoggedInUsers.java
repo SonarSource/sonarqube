@@ -19,8 +19,17 @@
  */
 package org.sonar.server.v2.api.gitlab.config.response;
 
-import java.util.List;
-import org.sonar.server.v2.api.response.PageRestResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
+import org.sonar.server.v2.api.model.ProvisioningType;
 
-public record GitlabConfigurationSearchRestResponse(List<GitlabConfigurationRestResponse> gitlabConfigurations, PageRestResponse page) {}
+public record GitlabConfigurationRestResponseForLoggedInUsers(
 
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+  String id,
+
+  boolean enabled,
+
+  ProvisioningType provisioningType
+
+) implements GitlabConfigurationRestResponse {
+}
