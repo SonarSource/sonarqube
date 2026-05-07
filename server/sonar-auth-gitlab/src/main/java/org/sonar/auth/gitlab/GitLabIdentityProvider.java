@@ -144,7 +144,7 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
   }
 
   private void validateUserInAllowedGroups(String gitlabUserName, Set<String> userGroups) {
-    if (gitLabSettings.allowedGroups().isEmpty()) {
+    if (gitLabSettings.allowedGroups().isEmpty() || gitLabSettings.allowAllGroups()) {
       return;
     }
 
@@ -160,7 +160,7 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
   private Set<String> getGroups(OAuth2AccessToken accessToken) {
     Set<String> allowedGroups = gitLabSettings.allowedGroups();
     List<GsonGroup> groups;
-    if (allowedGroups.isEmpty()) {
+    if (allowedGroups.isEmpty() || gitLabSettings.allowAllGroups()) {
       groups = gitLabGraphQlClient.getGroups(accessToken.getAccessToken(), null);
     } else {
       groups = findGroupsUsingGraphQlApiInParallel(accessToken, allowedGroups);

@@ -27,6 +27,7 @@ import org.sonar.api.utils.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ALLOWED_GROUPS;
+import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ALLOW_ALL_GROUPS;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_APPLICATION_ID;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ENABLED;
@@ -140,10 +141,62 @@ public class GitLabSettingsTest {
     assertThat(config.getProjectsPermissionsProvisioningTaskName()).isEqualTo(GITLAB_PROJECT_PERMISSIONS_PROVISIONING);
   }
 
+  @Test
+  public void allowAllGroups_defaultsToFalse() {
+    assertThat(config.allowAllGroups()).isFalse();
+  }
+
+  @Test
+  public void allowAllGroups_returnsConfiguredValue() {
+    enableAutoProvisioning();
+    settings.setProperty(GITLAB_AUTH_ALLOW_ALL_GROUPS, true);
+    assertThat(config.allowAllGroups()).isTrue();
+  }
+
+  @Test
+  public void allowAllGroups_whenProvisioningDisabled_returnsFalseEvenIfPropertyIsTrue() {
+    settings.setProperty(GITLAB_AUTH_ALLOW_ALL_GROUPS, true);
+    assertThat(config.allowAllGroups()).isFalse();
+  }
+
+  @Test
+  public void isAllowedGroup_whenAllowAllGroupsIsTrue_returnsTrueRegardlessOfAllowedGroupsContent() {
+    enableAutoProvisioning();
+    settings.setProperty(GITLAB_AUTH_ALLOW_ALL_GROUPS, true);
+    settings.setProperty(GITLAB_AUTH_ALLOWED_GROUPS, new String[] {"team-a"});
+
+    assertThat(config.isAllowedGroup("team-a")).isTrue();
+    assertThat(config.isAllowedGroup("unrelated-group")).isTrue();
+    assertThat(config.isAllowedGroup("nested/sub-group")).isTrue();
+  }
+
+  @Test
+  public void isAllowedGroup_whenAllowAllGroupsIsTrueAndAllowedGroupsEmpty_returnsTrue() {
+    enableAutoProvisioning();
+    settings.setProperty(GITLAB_AUTH_ALLOW_ALL_GROUPS, true);
+
+    assertThat(config.isAllowedGroup("any-group")).isTrue();
+  }
+
+  @Test
+  public void isAllowedGroup_whenAllowAllGroupsIsFalse_appliesAllowedGroupsFilter() {
+    settings.setProperty(GITLAB_AUTH_ALLOW_ALL_GROUPS, false);
+    settings.setProperty(GITLAB_AUTH_ALLOWED_GROUPS, new String[] {"team-a"});
+
+    assertThat(config.isAllowedGroup("team-a")).isTrue();
+    assertThat(config.isAllowedGroup("team-a/sub")).isTrue();
+    assertThat(config.isAllowedGroup("team-b")).isFalse();
+  }
+
   private void enableGitlabAuthentication() {
     settings.setProperty(GITLAB_AUTH_ENABLED, true);
     settings.setProperty(GITLAB_AUTH_APPLICATION_ID, "on");
     settings.setProperty(GITLAB_AUTH_SECRET, "on");
+  }
+
+  private void enableAutoProvisioning() {
+    enableGitlabAuthentication();
+    settings.setProperty(GITLAB_AUTH_PROVISIONING_ENABLED, true);
   }
 
 }

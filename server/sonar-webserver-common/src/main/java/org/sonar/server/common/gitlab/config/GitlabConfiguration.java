@@ -37,6 +37,8 @@ public record GitlabConfiguration(
 
   Set<String> allowedGroups,
 
+  boolean allowAllGroups,
+
   boolean allowUsersToSignUp,
 
   ProvisioningType provisioningType,

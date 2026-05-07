@@ -34,6 +34,7 @@ public class GitlabConfigurationUpdateRestRequest {
   private UpdateField<String> secret = UpdateField.undefined();
   private UpdateField<Boolean> synchronizeGroups = UpdateField.undefined();
   private UpdateField<List<String>> allowedGroups = UpdateField.undefined();
+  private UpdateField<Boolean> allowAllGroups = UpdateField.undefined();
   private UpdateField<ProvisioningType> provisioningType = UpdateField.undefined();
   private UpdateField<Boolean> allowUsersToSignUp = UpdateField.undefined();
   private UpdateField<String> provisioningToken = UpdateField.undefined();
@@ -83,13 +84,32 @@ public class GitlabConfigurationUpdateRestRequest {
     this.synchronizeGroups = UpdateField.withValue(synchronizeGroups);
   }
 
-  @ArraySchema(arraySchema = @Schema(description = "Root Gitlab groups allowed to authenticate and provisioned"), schema = @Schema(implementation = String.class))
+  @ArraySchema(
+    arraySchema = @Schema(description = "Root Gitlab groups allowed to authenticate and provisioned. Ignored when allowAllGroups is true."),
+    schema = @Schema(implementation = String.class))
   public UpdateField<List<String>> getAllowedGroups() {
     return allowedGroups;
   }
 
   public void setAllowedGroups(List<String> allowedGroups) {
     this.allowedGroups = UpdateField.withValue(allowedGroups);
+  }
+
+  @Schema(implementation = Boolean.class, description = """
+    When true with Auto-provisioning, every group visible to the provisioning token is provisioned \
+    and the allowedGroups list is ignored. Has no effect with Just-in-Time provisioning. \
+    Security risk: any user belonging to any group accessible by the provisioning token will be granted access. \
+    Restrict access using allowedGroups unless broad access is intentional. \
+    When using GitLab.com, be especially careful — unlike a self-managed instance, the provisioning token may have \
+    visibility into a much larger number of groups, greatly increasing the attack surface. \
+    Performance note: login may be slower for users belonging to a large number of groups, \
+    as all their groups must be fetched from GitLab on every authentication.""")
+  public UpdateField<Boolean> getAllowAllGroups() {
+    return allowAllGroups;
+  }
+
+  public void setAllowAllGroups(Boolean allowAllGroups) {
+    this.allowAllGroups = UpdateField.withValue(allowAllGroups);
   }
 
   @Schema(implementation = ProvisioningType.class, description = "Type of synchronization")

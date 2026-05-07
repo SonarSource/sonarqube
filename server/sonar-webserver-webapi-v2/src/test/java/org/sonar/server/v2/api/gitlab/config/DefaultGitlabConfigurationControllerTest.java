@@ -72,6 +72,7 @@ public class DefaultGitlabConfigurationControllerTest {
     true,
     Set.of("group1", "group2"),
     true,
+    true,
     AUTO_PROVISIONING,
     "provisioning-token"
   );
@@ -83,6 +84,7 @@ public class DefaultGitlabConfigurationControllerTest {
     GITLAB_CONFIGURATION.url(),
     GITLAB_CONFIGURATION.synchronizeGroups(),
     List.of("group1", "group2"),
+    GITLAB_CONFIGURATION.allowAllGroups(),
     GITLAB_CONFIGURATION.allowUsersToSignUp(),
     ProvisioningType.valueOf(GITLAB_CONFIGURATION.provisioningType().name()),
     !GITLAB_CONFIGURATION.provisioningToken().isEmpty(),
@@ -99,6 +101,7 @@ public class DefaultGitlabConfigurationControllerTest {
         "group1",
         "group2"
       ],
+      "allowAllGroups": true,
       "provisioningType": "AUTO_PROVISIONING",
       "allowUsersToSignUp": true,
       "errorMessage": "error-message",
@@ -234,6 +237,7 @@ public class DefaultGitlabConfigurationControllerTest {
               "group1",
               "group2"
             ],
+            "allowAllGroups": true,
             "provisioningType": "AUTO_PROVISIONING",
             "allowUsersToSignUp": true,
             "provisioningToken": "token"
@@ -255,6 +259,7 @@ public class DefaultGitlabConfigurationControllerTest {
       NonNullUpdatedValue.withValueOrThrow("newSecret"),
       NonNullUpdatedValue.withValueOrThrow(true),
       NonNullUpdatedValue.withValueOrThrow(Set.of("group1", "group2")),
+      NonNullUpdatedValue.withValueOrThrow(true),
       NonNullUpdatedValue.withValueOrThrow(true),
       UpdatedValue.withValue("token"),
       NonNullUpdatedValue.withValueOrThrow(AUTO_PROVISIONING)
@@ -285,6 +290,7 @@ public class DefaultGitlabConfigurationControllerTest {
     verify(gitlabConfigurationService).updateConfiguration(new UpdateGitlabConfigurationRequest(
       "existing-id",
       NonNullUpdatedValue.withValueOrThrow(false),
+      NonNullUpdatedValue.undefined(),
       NonNullUpdatedValue.undefined(),
       NonNullUpdatedValue.undefined(),
       NonNullUpdatedValue.undefined(),
@@ -342,6 +348,7 @@ public class DefaultGitlabConfigurationControllerTest {
                 "group1",
                 "group2"
               ],
+              "allowAllGroups": true,
               "provisioningType": "AUTO_PROVISIONING",
               "provisioningToken": "token",
               "allowUsersToSignUp": true
@@ -361,6 +368,7 @@ public class DefaultGitlabConfigurationControllerTest {
               "group1",
               "group2"
             ],
+            "allowAllGroups": true,
             "provisioningType": "AUTO_PROVISIONING",
             "allowUsersToSignUp": true,
             "isProvisioningTokenSet": true
@@ -379,6 +387,7 @@ public class DefaultGitlabConfigurationControllerTest {
       "secret",
       true,
       Set.of("group1", "group2"),
+      false,
       false,
       AUTO_PROVISIONING,
       null
@@ -415,6 +424,7 @@ public class DefaultGitlabConfigurationControllerTest {
               "group1",
               "group2"
             ],
+            "allowAllGroups": false,
             "provisioningType": "AUTO_PROVISIONING",
             "allowUsersToSignUp": false,
             "isProvisioningTokenSet": false

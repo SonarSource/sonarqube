@@ -44,6 +44,7 @@ public class GitLabSettings implements DevOpsPlatformSettings {
   public static final String GITLAB_AUTH_SECRET = "sonar.auth.gitlab.secret.secured";
   public static final String GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP = "sonar.auth.gitlab.allowUsersToSignUp";
   public static final String GITLAB_AUTH_ALLOWED_GROUPS = "sonar.auth.gitlab.allowedGroups";
+  public static final String GITLAB_AUTH_ALLOW_ALL_GROUPS = "sonar.auth.gitlab.allowAllGroups";
   public static final String GITLAB_AUTH_SYNC_USER_GROUPS = "sonar.auth.gitlab.groupsSync";
   public static final String GITLAB_AUTH_PROVISIONING_TOKEN = "provisioning.gitlab.token.secured";
   public static final String GITLAB_AUTH_PROVISIONING_ENABLED = "provisioning.gitlab.enabled";
@@ -90,6 +91,10 @@ public class GitLabSettings implements DevOpsPlatformSettings {
     return Set.of(configuration.getStringArray(GITLAB_AUTH_ALLOWED_GROUPS));
   }
 
+  public boolean allowAllGroups() {
+    return isProvisioningEnabled() && configuration.getBoolean(GITLAB_AUTH_ALLOW_ALL_GROUPS).orElse(false);
+  }
+
   public boolean syncUserGroups() {
     return configuration.getBoolean(GITLAB_AUTH_SYNC_USER_GROUPS).orElse(false);
   }
@@ -124,6 +129,9 @@ public class GitLabSettings implements DevOpsPlatformSettings {
   }
 
   public boolean isAllowedGroup(String group) {
+    if (allowAllGroups()) {
+      return true;
+    }
     return allowedGroups().stream().anyMatch(allowedGroup -> isExactGroupOrParentGroup(group, allowedGroup));
   }
 
@@ -178,11 +186,28 @@ public class GitLabSettings implements DevOpsPlatformSettings {
         .name("Allowed groups")
         .description("Only members of these groups (and sub-groups) will be allowed to authenticate. " +
           "Please enter the group slug as it appears in the GitLab URL, for instance `my-gitlab-group`. " +
-          "If you use Auto-provisioning, only members of these groups (and sub-groups) will be provisioned")
+          "If you use Auto-provisioning, only members of these groups (and sub-groups) will be provisioned. " +
+          "Ignored when 'Allow all groups' is enabled.")
         .multiValues(true)
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .index(6)
+        .build(),
+      PropertyDefinition.builder(GITLAB_AUTH_ALLOW_ALL_GROUPS)
+        .name("Allow all groups")
+        .description("When enabled with Auto-provisioning, every group visible to the provisioning token is provisioned, " +
+          "and the Allowed groups list is ignored. Has no effect with Just-in-Time provisioning. " +
+          "Security risk: any user belonging to any group accessible by the provisioning token will be granted access. " +
+          "Restrict access using Allowed groups unless broad access is intentional. " +
+          "When using GitLab.com, be especially careful — unlike a self-managed instance, the provisioning token may have " +
+          "visibility into a much larger number of groups, greatly increasing the attack surface. " +
+          "Performance note: login may be slower for users belonging to a large number of groups, " +
+          "as all their groups must be fetched from GitLab on every authentication.")
+        .category(CATEGORY)
+        .subCategory(SUBCATEGORY)
+        .type(BOOLEAN)
+        .defaultValue(valueOf(false))
+        .index(7)
         .build(),
       PropertyDefinition.builder(GITLAB_AUTH_SYNC_USER_GROUPS)
         .deprecatedKey("sonar.auth.gitlab.sync_user_groups")
@@ -193,7 +218,7 @@ public class GitLabSettings implements DevOpsPlatformSettings {
         .subCategory(SUBCATEGORY)
         .type(PropertyType.BOOLEAN)
         .defaultValue(valueOf(false))
-        .index(7)
+        .index(8)
         .build(),
       PropertyDefinition.builder(GITLAB_AUTH_PROVISIONING_TOKEN)
         .name("Provisioning token")
@@ -202,7 +227,7 @@ public class GitLabSettings implements DevOpsPlatformSettings {
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .type(PASSWORD)
-        .index(8)
+        .index(9)
         .build(),
       PropertyDefinition.builder(GITLAB_AUTH_PROVISIONING_ENABLED)
         .name("Provisioning enabled")
@@ -211,7 +236,7 @@ public class GitLabSettings implements DevOpsPlatformSettings {
         .subCategory(SUBCATEGORY)
         .type(BOOLEAN)
         .defaultValue(valueOf(false))
-        .index(9)
+        .index(10)
         .build());
 
   }

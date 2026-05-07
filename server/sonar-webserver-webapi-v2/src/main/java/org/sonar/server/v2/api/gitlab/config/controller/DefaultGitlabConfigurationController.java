@@ -84,6 +84,7 @@ public class DefaultGitlabConfigurationController implements GitlabConfiguration
       createRestRequest.secret(),
       createRestRequest.synchronizeGroups(),
       Set.copyOf(createRestRequest.allowedGroups()),
+      createRestRequest.allowAllGroups() != null && createRestRequest.allowAllGroups(),
       createRestRequest.allowUsersToSignUp() != null && createRestRequest.allowUsersToSignUp(),
       toProvisioningType(createRestRequest.provisioningType()),
       createRestRequest.provisioningToken());
@@ -110,6 +111,7 @@ public class DefaultGitlabConfigurationController implements GitlabConfiguration
       .secret(updateRequest.getSecret().toNonNullUpdatedValue())
       .synchronizeGroups(updateRequest.getSynchronizeGroups().toNonNullUpdatedValue())
       .allowedGroups(updateRequest.getAllowedGroups().map(DefaultGitlabConfigurationController::getGroups).toNonNullUpdatedValue())
+      .allowAllGroups(updateRequest.getAllowAllGroups().toNonNullUpdatedValue())
       .provisioningType(updateRequest.getProvisioningType().map(DefaultGitlabConfigurationController::toProvisioningType).toNonNullUpdatedValue())
       .allowUserToSignUp(updateRequest.getAllowUsersToSignUp().toNonNullUpdatedValue())
       .provisioningToken(updateRequest.getProvisioningToken().toUpdatedValue())
@@ -130,6 +132,7 @@ public class DefaultGitlabConfigurationController implements GitlabConfiguration
       configuration.url(),
       configuration.synchronizeGroups(),
       sortGroups(configuration.allowedGroups()),
+      configuration.allowAllGroups(),
       configuration.allowUsersToSignUp(),
       toRestProvisioningType(configuration),
       StringUtils.isNotEmpty(configuration.provisioningToken()),
