@@ -73,7 +73,7 @@ dependencies {
 
     compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
-    scanner 'com.sonarsource.scanner.engine:scanner-engine-community'
+    scanner 'org.sonarsource.scanner.engine:sonar-scanner-engine-community'
     shutdowner project(':sonar-shutdowner')
 
     jdbc_h2 'com.h2database:h2'
