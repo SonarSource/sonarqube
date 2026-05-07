@@ -598,8 +598,8 @@ subprojects {
       dependency 'org.apache.velocity:velocity-engine-core:2.4.1'
       dependency 'com.google.code.findbugs:jsr305:3.0.2'
       // Scanner Engine
-      dependencySet(group: 'com.sonarsource.scanner.engine', version: "${scannerEngineVersion}") {
-        entry 'scanner-engine-community'
+      dependencySet(group: 'org.sonarsource.scanner.engine', version: "${scannerEngineVersion}") {
+        entry 'sonar-scanner-engine-community'
         entry 'scanner-engine-protocol-server'
         entry 'protobuf-utils'
       }

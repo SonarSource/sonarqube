@@ -11,7 +11,7 @@ dependencies {
   api 'at.yawk.lz4:lz4-java'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
   // CloseableIterator is exposed by ProjectMeasuresIndexerIterator
-  api "com.sonarsource.scanner.engine:protobuf-utils"
+  api "org.sonarsource.scanner.engine:protobuf-utils"
 
   api project(':server:sonar-db-migration')
   api project(':sonar-core')
