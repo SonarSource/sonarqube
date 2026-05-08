@@ -28,7 +28,7 @@ if (!JavaVersion.current().isCompatibleWith(VERSION_21)) {
  */
 def bomTasks = "cyclonedxBom"
 def ghBranch = System.getenv()["GITHUB_REF_NAME"]
-def isMainBranch = ghBranch in ['master'] || ghBranch ==~ 'branch-[\\d.]+'
+def isMainBranch = ghBranch in ['master'] || ghBranch ==~ 'branch-[\\d.]+[a-z]*'
 
 boolean enableBom = System.getenv('CI') == "true" && (isMainBranch) ||
   System.getProperty("bom") != null ||
