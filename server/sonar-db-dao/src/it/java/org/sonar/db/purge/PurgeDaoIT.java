@@ -2024,9 +2024,9 @@ oldCreationDate));
       "severity", "INFO", "original_severity", "INFO", "manual_severity", false,
       "severity_sort_key", 42, "status", "TO_REVIEW");
     db.executeInsert("sca_issues_releases", merge(issueReleaseBase, Map.of("uuid", "issue-release-uuid1",
-      "sca_issue_uuid", "issue-uuid1", "sca_release_uuid", "release-uuid1")));
+      "sca_issue_uuid", "issue-uuid1", "sca_release_uuid", "release-uuid1", "component_uuid", branch1Uuid)));
     db.executeInsert("sca_issues_releases", merge(issueReleaseBase, Map.of("uuid", "issue-release-uuid2",
-      "sca_issue_uuid", "issue-uuid2", "sca_release_uuid", "release-uuid2")));
+      "sca_issue_uuid", "issue-uuid2", "sca_release_uuid", "release-uuid2", "component_uuid", branch2Uuid)));
 
     assertThat(db.countRowsOfTable(dbSession, "sca_issues_releases")).isEqualTo(2);
 
