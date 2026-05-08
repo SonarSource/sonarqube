@@ -19,8 +19,11 @@
  */
 package org.sonar.auth.gitlab;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
@@ -37,22 +40,23 @@ import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_SECRET;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_SYNC_USER_GROUPS;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_URL;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_USER_CONSENT_FOR_PERMISSION_PROVISIONING_REQUIRED;
+import static org.sonar.auth.gitlab.GitLabSettings.isGitlabCloudUrl;
 import static org.sonar.db.ce.CeTaskTypes.GITLAB_PROJECT_PERMISSIONS_PROVISIONING;
 
-public class GitLabSettingsTest {
+class GitLabSettingsTest {
 
   private MapSettings settings;
   private GitLabSettings config;
 
 
-  @Before
-  public void prepare() {
+  @BeforeEach
+  void prepare() {
     settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, GitLabSettings.definitions()));
     config = new GitLabSettings(settings.asConfig());
   }
 
   @Test
-  public void test_settings() {
+  void test_settings() {
     assertThat(config.url()).isEqualTo("https://gitlab.com");
     assertThat(config.apiUrl()).isEqualTo("https://gitlab.com/api/v4");
 
@@ -95,73 +99,82 @@ public class GitLabSettingsTest {
   }
 
   @Test
-  public void isProvisioningEnabled_whenNotSet_returnsFalse() {
+  void isProvisioningEnabled_whenNotSet_returnsFalse() {
     enableGitlabAuthentication();
     assertThat(config.isProvisioningEnabled()).isFalse();
   }
 
   @Test
-  public void isProvisioningEnabled_ifProvisioningDisabled_returnsFalse() {
+  void isProvisioningEnabled_ifProvisioningDisabled_returnsFalse() {
     enableGitlabAuthentication();
     settings.setProperty(GITLAB_AUTH_PROVISIONING_ENABLED, false);
     assertThat(config.isProvisioningEnabled()).isFalse();
   }
 
   @Test
-  public void isProvisioningEnabled_ifProvisioningEnabledButGithubAuthDisabled_returnsFalse() {
+  void isProvisioningEnabled_ifProvisioningEnabledButGithubAuthDisabled_returnsFalse() {
     settings.setProperty(GITLAB_AUTH_PROVISIONING_ENABLED, true);
     assertThat(config.isProvisioningEnabled()).isFalse();
   }
 
   @Test
-  public void isProvisioningEnabled_ifProvisioningEnabledAndGithubAuthEnabled_returnsTrue() {
+  void isProvisioningEnabled_ifProvisioningEnabledAndGithubAuthEnabled_returnsTrue() {
     enableGitlabAuthentication();
     settings.setProperty(GITLAB_AUTH_PROVISIONING_ENABLED, true);
     assertThat(config.isProvisioningEnabled()).isTrue();
   }
 
   @Test
-  public void isProjectVisibilitySynchronizationActivated_alwaysReturnsTrue() {
+  void isProjectVisibilitySynchronizationActivated_alwaysReturnsTrue() {
     assertThat(config.isProjectVisibilitySynchronizationActivated()).isTrue();
   }
 
   @Test
-  public void isUserConsentRequiredForPermissionProvisioning_returnsFalseByDefault() {
+  void isUserConsentRequiredForPermissionProvisioning_returnsFalseByDefault() {
     assertThat(config.isUserConsentRequiredAfterUpgrade()).isFalse();
   }
 
   @Test
-  public void isUserConsentRequiredForPermissionProvisioning_returnsTrueWhenPropertyPresent() {
+  void isUserConsentRequiredForPermissionProvisioning_returnsTrueWhenPropertyPresent() {
     settings.setProperty(GITLAB_USER_CONSENT_FOR_PERMISSION_PROVISIONING_REQUIRED, "");
     assertThat(config.isUserConsentRequiredAfterUpgrade()).isTrue();
   }
 
   @Test
-  public void getProjectsPermissionsProvisioningTaskName_returnsCorrectTaskName() {
+  void getProjectsPermissionsProvisioningTaskName_returnsCorrectTaskName() {
     assertThat(config.getProjectsPermissionsProvisioningTaskName()).isEqualTo(GITLAB_PROJECT_PERMISSIONS_PROVISIONING);
   }
 
   @Test
-  public void allowAllGroups_defaultsToFalse() {
+  void allowAllGroups_defaultsToFalse() {
     assertThat(config.allowAllGroups()).isFalse();
   }
 
   @Test
-  public void allowAllGroups_returnsConfiguredValue() {
-    enableAutoProvisioning();
+  void allowAllGroups_returnsConfiguredValue() {
+    enableAutoProvisioningOnSelfManaged();
     settings.setProperty(GITLAB_AUTH_ALLOW_ALL_GROUPS, true);
     assertThat(config.allowAllGroups()).isTrue();
   }
 
   @Test
-  public void allowAllGroups_whenProvisioningDisabled_returnsFalseEvenIfPropertyIsTrue() {
+  void allowAllGroups_whenProvisioningDisabled_returnsFalseEvenIfPropertyIsTrue() {
     settings.setProperty(GITLAB_AUTH_ALLOW_ALL_GROUPS, true);
     assertThat(config.allowAllGroups()).isFalse();
   }
 
   @Test
-  public void isAllowedGroup_whenAllowAllGroupsIsTrue_returnsTrueRegardlessOfAllowedGroupsContent() {
+  void allowAllGroups_whenGitlabCloud_returnsFalseEvenIfPropertyIsTrue() {
     enableAutoProvisioning();
+    settings.setProperty(GITLAB_AUTH_URL, "https://gitlab.com");
+    settings.setProperty(GITLAB_AUTH_ALLOW_ALL_GROUPS, true);
+
+    assertThat(config.allowAllGroups()).isFalse();
+  }
+
+  @Test
+  void isAllowedGroup_whenAllowAllGroupsIsTrue_returnsTrueRegardlessOfAllowedGroupsContent() {
+    enableAutoProvisioningOnSelfManaged();
     settings.setProperty(GITLAB_AUTH_ALLOW_ALL_GROUPS, true);
     settings.setProperty(GITLAB_AUTH_ALLOWED_GROUPS, new String[] {"team-a"});
 
@@ -171,15 +184,46 @@ public class GitLabSettingsTest {
   }
 
   @Test
-  public void isAllowedGroup_whenAllowAllGroupsIsTrueAndAllowedGroupsEmpty_returnsTrue() {
-    enableAutoProvisioning();
+  void isAllowedGroup_whenAllowAllGroupsIsTrueAndAllowedGroupsEmpty_returnsTrue() {
+    enableAutoProvisioningOnSelfManaged();
     settings.setProperty(GITLAB_AUTH_ALLOW_ALL_GROUPS, true);
 
     assertThat(config.isAllowedGroup("any-group")).isTrue();
   }
 
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "https://gitlab.com",
+    "https://gitlab.com/",
+    "https://GitLab.com",
+    "http://gitlab.com",
+    "  https://gitlab.com  ",
+    "gitlab.com",
+    "GitLab.com",
+    "gitlab.com/api/v4",
+    "gitlab.com:8080"
+  })
+  void isGitlabCloudUrl_whenUrlMatches_returnsTrue(String url) {
+    assertThat(isGitlabCloudUrl(url)).isTrue();
+  }
+
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = {
+    "https://onpremise.gitlab.com",
+    "https://gitlab.acme.com",
+    "https://gitlab.com.evil.example",
+    "onpremise.gitlab.com",
+    "gitlab.com.evil.example",
+    "not a url",
+    "://broken"
+  })
+  void isGitlabCloudUrl_whenUrlDoesNotMatch_returnsFalse(String url) {
+    assertThat(isGitlabCloudUrl(url)).isFalse();
+  }
+
   @Test
-  public void isAllowedGroup_whenAllowAllGroupsIsFalse_appliesAllowedGroupsFilter() {
+  void isAllowedGroup_whenAllowAllGroupsIsFalse_appliesAllowedGroupsFilter() {
     settings.setProperty(GITLAB_AUTH_ALLOW_ALL_GROUPS, false);
     settings.setProperty(GITLAB_AUTH_ALLOWED_GROUPS, new String[] {"team-a"});
 
@@ -197,6 +241,11 @@ public class GitLabSettingsTest {
   private void enableAutoProvisioning() {
     enableGitlabAuthentication();
     settings.setProperty(GITLAB_AUTH_PROVISIONING_ENABLED, true);
+  }
+
+  private void enableAutoProvisioningOnSelfManaged() {
+    enableAutoProvisioning();
+    settings.setProperty(GITLAB_AUTH_URL, "https://gitlab.example.com");
   }
 
 }

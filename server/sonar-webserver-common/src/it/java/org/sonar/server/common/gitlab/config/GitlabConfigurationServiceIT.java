@@ -217,6 +217,41 @@ public class GitlabConfigurationServiceIT {
   }
 
   @Test
+  public void updateConfiguration_whenEnablingAllowAllGroupsOnGitlabCloud_throwsException() {
+    GitlabConfiguration baseConfiguration = buildGitlabConfiguration(AUTO_PROVISIONING);
+    when(baseConfiguration.url()).thenReturn("https://gitlab.com");
+    gitlabConfigurationService.createConfiguration(baseConfiguration);
+
+    UpdateGitlabConfigurationRequest updateRequest = builder()
+      .gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID)
+      .allowAllGroups(withValueOrThrow(true))
+      .build();
+
+    assertThatThrownBy(() -> gitlabConfigurationService.updateConfiguration(updateRequest))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("allowAllGroups cannot be enabled when the GitLab URL is gitlab.com (GitLab SaaS). "
+        + "Use a self-managed GitLab instance, or restrict access via allowedGroups.");
+  }
+
+  @Test
+  public void updateConfiguration_whenSwitchingUrlToGitlabCloudWithAllowAllGroupsOn_throwsException() {
+    GitlabConfiguration baseConfiguration = buildGitlabConfiguration(AUTO_PROVISIONING);
+    when(baseConfiguration.allowAllGroups()).thenReturn(true);
+    gitlabConfigurationService.createConfiguration(baseConfiguration);
+
+    UpdateGitlabConfigurationRequest updateRequest = builder()
+      .gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID)
+      .url(withValueOrThrow("https://gitlab.com"))
+      .secret(withValueOrThrow("new-secret"))
+      .build();
+
+    assertThatThrownBy(() -> gitlabConfigurationService.updateConfiguration(updateRequest))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("allowAllGroups cannot be enabled when the GitLab URL is gitlab.com (GitLab SaaS). "
+        + "Use a self-managed GitLab instance, or restrict access via allowedGroups.");
+  }
+
+  @Test
   public void updateConfiguration_switchingProvisioningToJitWithAllowAllGroupsOn_automaticallyClearsAllowAllGroups() {
     GitlabConfiguration baseConfiguration = buildGitlabConfiguration(AUTO_PROVISIONING);
     when(baseConfiguration.allowAllGroups()).thenReturn(true);
@@ -548,6 +583,18 @@ public class GitlabConfigurationServiceIT {
     assertThatThrownBy(() -> gitlabConfigurationService.createConfiguration(configuration))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("allowAllGroups can only be enabled when Auto-provisioning is enabled.");
+  }
+
+  @Test
+  public void createConfiguration_whenAllowAllGroupsIsTrueAndUrlIsGitlabCloud_throwsException() {
+    GitlabConfiguration configuration = buildGitlabConfiguration(AUTO_PROVISIONING);
+    when(configuration.allowAllGroups()).thenReturn(true);
+    when(configuration.url()).thenReturn("https://gitlab.com");
+
+    assertThatThrownBy(() -> gitlabConfigurationService.createConfiguration(configuration))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("allowAllGroups cannot be enabled when the GitLab URL is gitlab.com (GitLab SaaS). "
+        + "Use a self-managed GitLab instance, or restrict access via allowedGroups.");
   }
 
   @Test

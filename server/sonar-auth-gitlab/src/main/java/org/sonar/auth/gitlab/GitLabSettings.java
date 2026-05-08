@@ -20,9 +20,11 @@
 package org.sonar.auth.gitlab;
 
 import com.google.common.base.Strings;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.PropertyType;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
@@ -92,7 +94,29 @@ public class GitLabSettings implements DevOpsPlatformSettings {
   }
 
   public boolean allowAllGroups() {
+    if (isGitlabCloud()) {
+      return false;
+    }
     return isProvisioningEnabled() && configuration.getBoolean(GITLAB_AUTH_ALLOW_ALL_GROUPS).orElse(false);
+  }
+
+  private boolean isGitlabCloud() {
+    return isGitlabCloudUrl(url());
+  }
+
+  public static boolean isGitlabCloudUrl(@Nullable String url) {
+    if (url == null) {
+      return false;
+    }
+    String normalized = url.trim();
+    if (!normalized.contains("://")) {
+      normalized = "https://" + normalized;
+    }
+    try {
+      return "gitlab.com".equalsIgnoreCase(URI.create(normalized).getHost());
+    } catch (IllegalArgumentException e) {
+      return false;
+    }
   }
 
   public boolean syncUserGroups() {
@@ -199,8 +223,8 @@ public class GitLabSettings implements DevOpsPlatformSettings {
           "and the Allowed groups list is ignored. Has no effect with Just-in-Time provisioning. " +
           "Security risk: any user belonging to any group accessible by the provisioning token will be granted access. " +
           "Restrict access using Allowed groups unless broad access is intentional. " +
-          "When using GitLab.com, be especially careful — unlike a self-managed instance, the provisioning token may have " +
-          "visibility into a much larger number of groups, greatly increasing the attack surface. " +
+          "Not supported on GitLab.com (SaaS): the setting is ignored when the configured URL is gitlab.com, " +
+          "since the provisioning token may have visibility into a much larger and unbounded set of groups. " +
           "Performance note: login may be slower for users belonging to a large number of groups, " +
           "as all their groups must be fetched from GitLab on every authentication.")
         .category(CATEGORY)

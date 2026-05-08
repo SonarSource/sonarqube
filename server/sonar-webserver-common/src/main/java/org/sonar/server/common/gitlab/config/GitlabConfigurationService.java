@@ -54,6 +54,7 @@ import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_PROVISIONING_TOKE
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_SECRET;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_SYNC_USER_GROUPS;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_URL;
+import static org.sonar.auth.gitlab.GitLabSettings.isGitlabCloudUrl;
 import static org.sonar.server.common.gitlab.config.ProvisioningType.AUTO_PROVISIONING;
 import static org.sonar.server.common.gitlab.config.ProvisioningType.JIT;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
@@ -98,8 +99,10 @@ public class GitlabConfigurationService {
       Set<String> allowedGroups = updateRequest.allowedGroups().orElse(currentConfiguration.allowedGroups());
       boolean allowAllGroups = updateRequest.allowAllGroups()
         .orElse(provisioningType == AUTO_PROVISIONING && currentConfiguration.allowAllGroups());
+      String url = updateRequest.url().orElse(currentConfiguration.url());
       throwIfInvalidAllowedGroupConfigurationAndAutoProvisioning(provisioningType, allowedGroups, allowAllGroups);
       throwIfAllowAllGroupsAndJit(provisioningType, allowAllGroups);
+      throwIfAllowAllGroupsAndGitlabCloud(url, allowAllGroups);
 
       setIfDefined(dbSession, GITLAB_AUTH_ENABLED, updateRequest.enabled().map(String::valueOf));
       setIfDefined(dbSession, GITLAB_AUTH_APPLICATION_ID, updateRequest.applicationId());
@@ -206,6 +209,7 @@ public class GitlabConfigurationService {
     throwIfConfigurationAlreadyExists();
     throwIfInvalidAllowedGroupConfigurationAndAutoProvisioning(configuration.provisioningType(), configuration.allowedGroups(), configuration.allowAllGroups());
     throwIfAllowAllGroupsAndJit(configuration.provisioningType(), configuration.allowAllGroups());
+    throwIfAllowAllGroupsAndGitlabCloud(configuration.url(), configuration.allowAllGroups());
 
     boolean enableAutoProvisioning = shouldEnableAutoProvisioning(configuration.provisioningType());
     try (DbSession dbSession = dbClient.openSession(false)) {
@@ -244,6 +248,14 @@ public class GitlabConfigurationService {
   private static void throwIfAllowAllGroupsAndJit(ProvisioningType provisioningType, boolean allowAllGroups) {
     if (allowAllGroups && provisioningType != AUTO_PROVISIONING) {
       throw new IllegalArgumentException("allowAllGroups can only be enabled when Auto-provisioning is enabled.");
+    }
+  }
+
+  private static void throwIfAllowAllGroupsAndGitlabCloud(String url, boolean allowAllGroups) {
+    if (allowAllGroups && isGitlabCloudUrl(url)) {
+      throw new IllegalArgumentException(
+        "allowAllGroups cannot be enabled when the GitLab URL is gitlab.com (GitLab SaaS). "
+          + "Use a self-managed GitLab instance, or restrict access via allowedGroups.");
     }
   }
 
