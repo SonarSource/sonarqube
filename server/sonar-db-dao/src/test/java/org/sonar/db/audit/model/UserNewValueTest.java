@@ -61,6 +61,28 @@ class UserNewValueTest {
     assertValidJSON(jsonString);
   }
 
+  @Test
+  void toString_givenFieldWithTrailingBackslash_returnValidJSON() {
+    UserDto userDto = createUserDto();
+    userDto.setName("name\\");
+    UserNewValue userNewValue = new UserNewValue(userDto);
+
+    String jsonString = userNewValue.toString();
+
+    assertValidJSON(jsonString);
+  }
+
+  @Test
+  void toString_givenFieldWithEmbeddedBackslashAndQuote_returnValidJSON() {
+    UserDto userDto = createUserDto();
+    userDto.setName("a\\b\"c\\");
+    UserNewValue userNewValue = new UserNewValue(userDto);
+
+    String jsonString = userNewValue.toString();
+
+    assertValidJSON(jsonString);
+  }
+
   private static UserDto createUserDto() {
     UserDto userDto = new UserDto();
     userDto.setName("name");

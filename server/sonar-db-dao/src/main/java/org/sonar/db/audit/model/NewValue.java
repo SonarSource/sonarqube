@@ -21,6 +21,7 @@ package org.sonar.db.audit.model;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.db.component.ComponentQualifiers.APP;
@@ -33,13 +34,20 @@ public abstract class NewValue {
     if (!isNullOrEmpty(value)) {
       sb.append(field);
       addQuote(sb, isString);
-      if (value.contains("\"")) {
-        value = value.replace("\"", "\\\"");
-      }
+      value = sanitizeBackslash(value);
+      value = sanitizeDoubleQuote(value);
       sb.append(value);
       addQuote(sb, isString);
       sb.append(", ");
     }
+  }
+
+  private static @NonNull String sanitizeDoubleQuote(@NonNull String value) {
+    return value.replace("\"", "\\\"");
+  }
+
+  private static @NonNull String sanitizeBackslash(@NonNull String value) {
+    return value.replace("\\", "\\\\");
   }
 
   protected void endString(StringBuilder sb) {
