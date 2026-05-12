@@ -57,7 +57,7 @@ class AdminAlertStatusDaoIT {
     assertThat(result).isPresent();
     assertThat(result.get().getAlertKey()).isEqualTo("MY_ALERT");
     assertThat(result.get().isActive()).isTrue();
-    assertThat(result.get().getActivatedAt()).isNotNull();
+    assertThat(result.get().getActivatedAt()).isNotZero();
     assertThat(result.get().getDeactivatedAt()).isNull();
   }
 

@@ -54,7 +54,7 @@ public class CreateAdminAlertStatusTable extends CreateTableChange {
       .addPkColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_UUID).setIsNullable(false).setLimit(UUID_SIZE).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_ALERT_KEY).setIsNullable(false).setLimit(ALERT_KEY_SIZE).build())
       .addColumn(newBooleanColumnDefBuilder().setColumnName(COLUMN_IS_ACTIVE).setIsNullable(false).build())
-      .addColumn(newBigIntegerColumnDefBuilder().setColumnName(COLUMN_ACTIVATED_AT).setIsNullable(true).build())
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName(COLUMN_ACTIVATED_AT).setIsNullable(false).build())
       .addColumn(newBigIntegerColumnDefBuilder().setColumnName(COLUMN_DEACTIVATED_AT).setIsNullable(true).build())
       .addColumn(newBigIntegerColumnDefBuilder().setColumnName(COLUMN_UPDATED_AT).setIsNullable(false).build())
       .build());

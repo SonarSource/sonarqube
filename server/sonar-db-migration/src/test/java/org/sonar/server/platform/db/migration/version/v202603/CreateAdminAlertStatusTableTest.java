@@ -53,7 +53,7 @@ class CreateAdminAlertStatusTableTest {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_UUID, Types.VARCHAR, UUID_SIZE, false);
     db.assertColumnDefinition(TABLE_NAME, COLUMN_ALERT_KEY, Types.VARCHAR, ALERT_KEY_SIZE, false);
     db.assertColumnDefinition(TABLE_NAME, COLUMN_IS_ACTIVE, Types.BOOLEAN, null, false);
-    db.assertColumnDefinition(TABLE_NAME, COLUMN_ACTIVATED_AT, Types.BIGINT, null, true);
+    db.assertColumnDefinition(TABLE_NAME, COLUMN_ACTIVATED_AT, Types.BIGINT, null, false);
     db.assertColumnDefinition(TABLE_NAME, COLUMN_DEACTIVATED_AT, Types.BIGINT, null, true);
     db.assertColumnDefinition(TABLE_NAME, COLUMN_UPDATED_AT, Types.BIGINT, null, false);
     db.assertIndex(TABLE_NAME, "idx_admin_alert_status_key", COLUMN_ALERT_KEY);

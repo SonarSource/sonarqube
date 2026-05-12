@@ -26,8 +26,7 @@ public class AdminAlertStatusDto {
   private String uuid;
   private String alertKey;
   private boolean active;
-  @Nullable
-  private Long activatedAt;
+  private long activatedAt;
   @Nullable
   private Long deactivatedAt;
   private long updatedAt;
@@ -63,12 +62,11 @@ public class AdminAlertStatusDto {
     return this;
   }
 
-  @Nullable
-  public Long getActivatedAt() {
+  public long getActivatedAt() {
     return activatedAt;
   }
 
-  public AdminAlertStatusDto setActivatedAt(@Nullable Long activatedAt) {
+  public AdminAlertStatusDto setActivatedAt(long activatedAt) {
     this.activatedAt = activatedAt;
     return this;
   }
