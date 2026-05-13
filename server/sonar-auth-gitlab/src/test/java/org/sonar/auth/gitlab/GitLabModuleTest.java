@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -33,7 +33,7 @@ public class GitLabModuleTest {
   public void verify_count_of_added_components() {
     ListContainer container = new ListContainer();
     new GitLabModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(13);
+    assertThat(container.getAddedObjects()).hasSize(15);
   }
 
   private static class ListContainer implements Container {

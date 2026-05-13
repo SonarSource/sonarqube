@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -227,6 +227,24 @@ class RuleDaoIT {
     assertThat(underTest.selectByRuleKeys(db.getSession(), asList(r1.getRuleKey(), r2.getRuleKey(), UNKNOWN_RULE_UUID))).hasSize(2);
     assertThat(underTest.selectByRuleKeys(db.getSession(), asList(r1.getRuleKey(), r2.getRuleKey(), removed.getRuleKey()))).hasSize(3);
     assertThat(underTest.selectByRuleKeys(db.getSession(), singletonList(UNKNOWN_RULE_UUID))).isEmpty();
+  }
+
+  @Test
+  void selectByRepositories() {
+    RuleDto secretsRule1 = db.rules().insert(r -> r.setRepositoryKey("secrets"));
+    RuleDto secretsRule2 = db.rules().insert(r -> r.setRepositoryKey("secrets"));
+    RuleDto javaRule = db.rules().insert(r -> r.setRepositoryKey("java"));
+    RuleDto removedRule = db.rules().insert(r -> r.setRepositoryKey("secrets").setStatus(REMOVED));
+    db.rules().insert(r -> r.setRepositoryKey("python"));
+
+    assertThat(underTest.selectByRepositories(db.getSession(), singletonList("secrets")))
+      .extracting(RuleDto::getUuid)
+      .containsOnly(secretsRule1.getUuid(), secretsRule2.getUuid(), removedRule.getUuid());
+    assertThat(underTest.selectByRepositories(db.getSession(), asList("secrets", "java")))
+      .extracting(RuleDto::getUuid)
+      .containsOnly(secretsRule1.getUuid(), secretsRule2.getUuid(), javaRule.getUuid(), removedRule.getUuid());
+    assertThat(underTest.selectByRepositories(db.getSession(), singletonList("unknown"))).isEmpty();
+    assertThat(underTest.selectByRepositories(db.getSession(), emptyList())).isEmpty();
   }
 
   @Test

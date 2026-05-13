@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,13 +24,13 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.ce.common.scanner.ScannerReportReaderRule;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
-import org.sonar.ce.common.scanner.ScannerReportReaderRule;
 import org.sonar.ce.task.step.TestComputationStepContext;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -121,6 +121,13 @@ public class BranchDao implements Dao {
       return List.of();
     }
     return executeLargeInputs(projectUuids, partition -> mapper(dbSession).selectMainBranchesByProjectUuids(partition));
+  }
+
+  public List<BranchDto> selectAllByProjectUuids(DbSession dbSession, Collection<String> projectUuids) {
+    if (projectUuids.isEmpty()) {
+      return List.of();
+    }
+    return executeLargeInputs(projectUuids, partition -> mapper(dbSession).selectAllByProjectUuids(partition));
   }
 
   public List<PrBranchAnalyzedLanguageCountByProjectDto> countPrBranchAnalyzedLanguageByProjectUuid(DbSession dbSession) {

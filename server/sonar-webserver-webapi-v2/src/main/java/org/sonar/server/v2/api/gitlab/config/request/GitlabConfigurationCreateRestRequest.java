@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -54,9 +54,22 @@ public record GitlabConfigurationCreateRestRequest(
     GitLab groups allowed to authenticate.
     Subgroups will automatically be included.
     When Auto-provisioning is enabled, members of these groups will be automatically provisioned in SonarQube.
-    This field is required to be non-empty for Auto-provisioning.
+    This field is required to be non-empty for Auto-provisioning unless allowAllGroups is true.
+    Ignored when allowAllGroups is true.
     """))
   List<String> allowedGroups,
+
+  @Nullable
+  @Schema(description = """
+    When true with Auto-provisioning, every group visible to the provisioning token is provisioned \
+    and the allowedGroups list is ignored. Has no effect with Just-in-Time provisioning. \
+    Security risk: any user belonging to any group accessible by the provisioning token will be granted access. \
+    Restrict access using allowedGroups unless broad access is intentional. \
+    Not supported on GitLab.com (SaaS): the request is rejected when the configured URL is gitlab.com, \
+    since the provisioning token may have visibility into a much larger and unbounded set of groups. \
+    Performance note: login may be slower for users belonging to a large number of groups, \
+    as all their groups must be fetched from GitLab on every authentication.""")
+  Boolean allowAllGroups,
 
   @NotNull
   @Schema(description = "Type of synchronization")

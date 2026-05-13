@@ -35,13 +35,13 @@ dependencies {
 
   testImplementation 'org.apache.logging.log4j:log4j-api'
   testImplementation 'org.apache.logging.log4j:log4j-core'
-  testImplementation 'com.squareup.okhttp3:mockwebserver'
   testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.junit.jupiter:junit-jupiter-params'
   testImplementation 'org.mockito:mockito-core'
   testImplementation 'org.mockito:mockito-junit-jupiter'
+  testImplementation 'org.springframework:spring-test'
   testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
   testImplementation testFixtures(project(':server:sonar-server-common'))
   testImplementation testFixtures(project(':server:sonar-webserver-auth'))

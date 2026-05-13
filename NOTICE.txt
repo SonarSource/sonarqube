@@ -1,6 +1,10 @@
 SonarQube
-Copyright (C) 2009-2025 SonarSource Sàrl
-mailto:info AT sonarsource DOT com
 
-This product includes software developed at
-SonarSource (https://www.sonarsource.com/).
+Copyright © SonarSource Sàrl mailto:info AT sonarsource DOT com
+
+This product includes software developed at SonarSource: https://sonarsource.com/
+
+See LICENSE.txt file for details of the applicable license.
+
+For further legal information, see https://sonarsource.com/legal/
+

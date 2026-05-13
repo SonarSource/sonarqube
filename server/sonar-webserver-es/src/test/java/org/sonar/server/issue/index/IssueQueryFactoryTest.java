@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -153,6 +153,20 @@ public class IssueQueryFactoryTest {
     assertThat(query.fromSonarQubeUpdate()).isTrue();
     assertThat(query.linkedTicketStatuses()).containsOnly(LinkedTicketStatus.LINKED);
     assertThat(query.complianceCategoryRules()).containsOnly(rule3.getUuid());
+  }
+
+  @Test
+  public void create_from_compliance_standards_includes_rules_from_repository_wildcards() {
+    RuleDto secretsRule1 = ruleDbTester.insert(r -> r.setRuleKey(RuleKey.of("secrets", "S001")));
+    RuleDto secretsRule2 = ruleDbTester.insert(r -> r.setRuleKey(RuleKey.of("secrets", "S002")));
+    ruleDbTester.insert(r -> r.setRuleKey(RuleKey.of("java", "S001")));
+
+    SearchRequest request = new SearchRequest()
+      .setCategoriesByStandard(Map.of(new ReportKey("test", "V1"), Set.of("category4withsecretrules")));
+
+    IssueQuery query = underTest.create(request);
+
+    assertThat(query.complianceCategoryRules()).containsOnly(secretsRule1.getUuid(), secretsRule2.getUuid());
   }
 
   @Test

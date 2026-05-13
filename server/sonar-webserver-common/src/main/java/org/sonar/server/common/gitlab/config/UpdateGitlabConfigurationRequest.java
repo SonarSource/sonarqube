@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,6 +31,7 @@ public record UpdateGitlabConfigurationRequest(
   NonNullUpdatedValue<String> secret,
   NonNullUpdatedValue<Boolean> synchronizeGroups,
   NonNullUpdatedValue<Set<String>> allowedGroups,
+  NonNullUpdatedValue<Boolean> allowAllGroups,
   NonNullUpdatedValue<Boolean> allowUsersToSignUp,
   UpdatedValue<String> provisioningToken,
   NonNullUpdatedValue<ProvisioningType> provisioningType
@@ -48,6 +49,7 @@ public record UpdateGitlabConfigurationRequest(
     private NonNullUpdatedValue<String> secret = NonNullUpdatedValue.undefined();
     private NonNullUpdatedValue<Boolean> synchronizeGroups = NonNullUpdatedValue.undefined();
     private NonNullUpdatedValue<Set<String>> allowedGroups = NonNullUpdatedValue.undefined();
+    private NonNullUpdatedValue<Boolean> allowAllGroups = NonNullUpdatedValue.undefined();
     private NonNullUpdatedValue<ProvisioningType> provisioningType = NonNullUpdatedValue.undefined();
     private NonNullUpdatedValue<Boolean> allowUserToSignUp = NonNullUpdatedValue.undefined();
     private UpdatedValue<String> provisioningToken = UpdatedValue.undefined();
@@ -90,6 +92,11 @@ public record UpdateGitlabConfigurationRequest(
       return this;
     }
 
+    public Builder allowAllGroups(NonNullUpdatedValue<Boolean> allowAllGroups) {
+      this.allowAllGroups = allowAllGroups;
+      return this;
+    }
+
     public Builder provisioningType(NonNullUpdatedValue<ProvisioningType> provisioningType) {
       this.provisioningType = provisioningType;
       return this;
@@ -106,8 +113,8 @@ public record UpdateGitlabConfigurationRequest(
     }
 
     public UpdateGitlabConfigurationRequest build() {
-      return new UpdateGitlabConfigurationRequest(gitlabConfigurationId, enabled, applicationId, url, secret, synchronizeGroups, allowedGroups, allowUserToSignUp,
-        provisioningToken, provisioningType
+      return new UpdateGitlabConfigurationRequest(gitlabConfigurationId, enabled, applicationId, url, secret, synchronizeGroups, allowedGroups, allowAllGroups,
+        allowUserToSignUp, provisioningToken, provisioningType
       );
     }
   }

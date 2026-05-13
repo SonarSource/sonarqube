@@ -127,6 +127,6 @@ Note that contributing extensions for translations into other languages still wo
 
 ## License
 
-Copyright 2008-2025 SonarSource Sàrl.
+Copyright (C) SonarSource Sàrl.
 
 Licensed under the [GNU Lesser General Public License, Version 3.0](https://www.gnu.org/licenses/lgpl.txt)

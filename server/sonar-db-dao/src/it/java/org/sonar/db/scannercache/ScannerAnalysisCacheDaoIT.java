@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -95,16 +95,16 @@ class ScannerAnalysisCacheDaoIT {
   @Test
   void cleanOlderThanConfiguredDays() {
     var snapshotDao = dbTester.getDbClient().snapshotDao();
-    var snapshot1 = createSnapshot(LocalDateTime.now().minusDays(1).toInstant(ZoneOffset.UTC).toEpochMilli());
+    var snapshot1 = createSnapshot(LocalDateTime.now(ZoneOffset.UTC).minusDays(1).toInstant(ZoneOffset.UTC).toEpochMilli());
     snapshotDao.insert(dbSession, snapshot1);
     underTest.insert(dbSession, snapshot1.getRootComponentUuid(), stringToInputStream("test data"));
-    var snapshot2 = createSnapshot(LocalDateTime.now().minusDays(6).toInstant(ZoneOffset.UTC).toEpochMilli());
+    var snapshot2 = createSnapshot(LocalDateTime.now(ZoneOffset.UTC).minusDays(6).toInstant(ZoneOffset.UTC).toEpochMilli());
     snapshotDao.insert(dbSession, snapshot2);
     underTest.insert(dbSession, snapshot2.getRootComponentUuid(), stringToInputStream("test data"));
-    var snapshot3 = createSnapshot(LocalDateTime.now().minusDays(8).toInstant(ZoneOffset.UTC).toEpochMilli());
+    var snapshot3 = createSnapshot(LocalDateTime.now(ZoneOffset.UTC).minusDays(8).toInstant(ZoneOffset.UTC).toEpochMilli());
     snapshotDao.insert(dbSession, snapshot3);
     underTest.insert(dbSession, snapshot3.getRootComponentUuid(), stringToInputStream("test data"));
-    var snapshot4 = createSnapshot(LocalDateTime.now().minusDays(30).toInstant(ZoneOffset.UTC).toEpochMilli());
+    var snapshot4 = createSnapshot(LocalDateTime.now(ZoneOffset.UTC).minusDays(30).toInstant(ZoneOffset.UTC).toEpochMilli());
     snapshotDao.insert(dbSession, snapshot4);
     underTest.insert(dbSession, snapshot4.getRootComponentUuid(), stringToInputStream("test data"));
 

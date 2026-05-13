@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -58,6 +58,7 @@ import org.sonar.db.es.EsQueueMapper;
 import org.sonar.db.event.EventComponentChangeMapper;
 import org.sonar.db.event.EventDto;
 import org.sonar.db.event.EventMapper;
+import org.sonar.db.adminalert.AdminAlertStatusMapper;
 import org.sonar.db.issue.AnticipatedTransitionDto;
 import org.sonar.db.issue.AnticipatedTransitionMapper;
 import org.sonar.db.issue.ImpactDto;
@@ -182,6 +183,7 @@ public class DefaultMyBatis extends AbstractMyBatis {
   // keep them sorted alphabetically
   private static final Class<?>[] MAPPERS = {
     ActiveRuleMapper.class,
+    AdminAlertStatusMapper.class,
     AlmPatMapper.class,
     AlmSettingMapper.class,
     AnalysisPropertiesMapper.class,

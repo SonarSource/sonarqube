@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -52,6 +52,7 @@ public class WebPagesFilter implements Filter {
     .builder()
     .excludes(patterns())
     .excludes("/api/v2/*")
+    .excludes("/mcp/*", "/mcp")
     .build();
 
   private WebPagesCache webPagesCache;

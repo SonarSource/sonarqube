@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -55,7 +55,7 @@ public class ScannerAnalysisCacheDao implements Dao {
   }
 
   public void cleanOlderThan(DbSession session, int days) {
-    long timestamp = LocalDateTime.now().minusDays(days).toInstant(ZoneOffset.UTC).toEpochMilli();
+    long timestamp = LocalDateTime.now(ZoneOffset.UTC).minusDays(days).toInstant(ZoneOffset.UTC).toEpochMilli();
     mapper(session).cleanOlderThan(timestamp);
   }
 

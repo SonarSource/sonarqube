@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +21,7 @@ package org.sonar.server.user.ws;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -568,7 +569,7 @@ public class SearchActionIT {
 
     Stream.of(SearchAction.LAST_CONNECTION_DATE_FROM, SearchAction.LAST_CONNECTION_DATE_TO,
       SearchAction.SONAR_LINT_LAST_CONNECTION_DATE_FROM, SearchAction.SONAR_LINT_LAST_CONNECTION_DATE_TO)
-      .map(param -> ws.newRequest().setParam(param, formatDateTime(OffsetDateTime.now())))
+      .map(param -> ws.newRequest().setParam(param, formatDateTime(OffsetDateTime.now(ZoneOffset.UTC))))
       .forEach(SearchActionIT::assertForbiddenException);
   }
 

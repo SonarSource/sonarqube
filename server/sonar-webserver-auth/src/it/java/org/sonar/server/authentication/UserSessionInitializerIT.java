@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -206,7 +206,7 @@ public class UserSessionInitializerIT {
 
   @Test
   public void expiration_header_added_when_authenticating_with_an_expiring_token() {
-    long expirationTimestamp = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
+    long expirationTimestamp = LocalDateTime.now(ZoneOffset.UTC).toInstant(ZoneOffset.UTC).toEpochMilli();
     UserDto userDto = new UserDto();
     UserTokenDto userTokenDto = new UserTokenDto().setExpirationDate(expirationTimestamp);
     UserSession session = new TokenUserSession(DbTester.create().getDbClient(), userDto, userTokenDto);

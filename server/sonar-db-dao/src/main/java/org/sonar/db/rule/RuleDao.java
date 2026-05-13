@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -89,6 +89,13 @@ public class RuleDao implements Dao {
       return emptyList();
     }
     return executeLargeInputs(ruleKeys, chunk -> mapper(session).selectByRuleKeys(chunk));
+  }
+
+  public List<RuleDto> selectByRepositories(DbSession session, Collection<String> repositories) {
+    if (repositories.isEmpty()) {
+      return emptyList();
+    }
+    return executeLargeInputs(repositories, chunk -> mapper(session).selectByRepositories(chunk));
   }
 
   public List<RuleDto> selectEnabled(DbSession session) {

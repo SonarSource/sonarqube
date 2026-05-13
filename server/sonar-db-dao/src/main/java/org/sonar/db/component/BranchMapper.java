@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -75,6 +75,8 @@ public interface BranchMapper {
   Optional<BranchDto> selectMainBranchByProjectUuid(String projectUuid);
 
   List<BranchDto> selectMainBranchesByProjectUuids(@Param("projectUuids") Collection<String> projectUuids);
+
+  List<BranchDto> selectAllByProjectUuids(@Param("projectUuids") Collection<String> projectUuids);
 
   List<BranchMeasuresDto> selectBranchMeasuresWithCaycMetric(long yesterday);
 

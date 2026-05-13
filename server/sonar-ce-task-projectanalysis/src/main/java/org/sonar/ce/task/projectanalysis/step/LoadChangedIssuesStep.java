@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,8 +24,8 @@ import org.sonar.ce.task.projectanalysis.issue.ProtoIssueCache;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
 public class LoadChangedIssuesStep implements ComputationStep {
   private final PeriodHolder periodHolder;

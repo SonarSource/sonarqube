@@ -1,9 +1,0 @@
-package hello;
-
-public class HelloJava {
-
-  public static void main(String[] args) {
-    {xoo-start-issue:1}System.out
-      .println("Hello"){xoo-end-issue:1};
-  }
-}

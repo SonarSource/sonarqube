@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -50,7 +50,6 @@ import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
@@ -97,6 +96,7 @@ import org.sonar.db.user.UserDismissedMessageDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.webhook.WebhookDeliveryLiteDto;
 import org.sonar.db.webhook.WebhookDto;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.ZoneOffset.UTC;
@@ -1416,7 +1416,7 @@ project.getProjectDto().getKey());
 
   @Test
   void delete_ce_analysis_older_than_180_and_scanner_context_older_than_40_days_of_specified_project_when_purging_project() {
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
     ProjectData projectData1 = db.components().insertPublicProject();
     ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
     Consumer<CeQueueDto> belongsToProject1 = t -> t.setEntityUuid(projectData1.projectUuid()).setComponentUuid(mainBranch1.uuid());
@@ -1476,7 +1476,7 @@ project.getProjectDto().getKey());
 
   @Test
   void delete_ce_analysis_older_than_180_and_scanner_context_older_than_40_days_of_project_and_branches_when_purging_project() {
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto mainBranch1 = projectData.getMainBranchComponent();
     ComponentDto branch1 = db.components().insertProjectBranch(mainBranch1, b -> b.setExcludeFromPurge(true));
@@ -1535,7 +1535,7 @@ project.getProjectDto().getKey());
 
   @Test
   void delete_ce_analysis_of_branch_older_than_180_and_scanner_context_older_than_40_days_when_purging_branch() {
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
     ProjectData projectData1 = db.components().insertPublicProject();
     ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
     ComponentDto branch1 = db.components().insertProjectBranch(mainBranch1);
@@ -1902,7 +1902,7 @@ projects[2].getMainBranchComponent().uuid(),
 
   @Test
   void purgeCeActivities_deletes_activity_older_than_180_days_and_their_scanner_context() {
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
     insertCeActivityAndChildDataWithDate("VERY_OLD", now.minusDays(180).minusMonths(10));
     insertCeActivityAndChildDataWithDate("JUST_OLD_ENOUGH", now.minusDays(180).minusDays(1));
     insertCeActivityAndChildDataWithDate("NOT_OLD_ENOUGH", now.minusDays(180));
@@ -1934,7 +1934,7 @@ projects[2].getMainBranchComponent().uuid(),
 
   @Test
   void purgeCeScannerContexts_deletes_ce_scanner_context_older_than_28_days() {
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
     insertCeActivityAndChildDataWithDate("VERY_OLD", now.minusDays(28).minusMonths(12));
     insertCeActivityAndChildDataWithDate("JUST_OLD_ENOUGH", now.minusDays(28).minusDays(1));
     insertCeActivityAndChildDataWithDate("NOT_OLD_ENOUGH", now.minusDays(28));
@@ -2024,9 +2024,9 @@ oldCreationDate));
       "severity", "INFO", "original_severity", "INFO", "manual_severity", false,
       "severity_sort_key", 42, "status", "TO_REVIEW");
     db.executeInsert("sca_issues_releases", merge(issueReleaseBase, Map.of("uuid", "issue-release-uuid1",
-      "sca_issue_uuid", "issue-uuid1", "sca_release_uuid", "release-uuid1")));
+      "sca_issue_uuid", "issue-uuid1", "sca_release_uuid", "release-uuid1", "component_uuid", branch1Uuid)));
     db.executeInsert("sca_issues_releases", merge(issueReleaseBase, Map.of("uuid", "issue-release-uuid2",
-      "sca_issue_uuid", "issue-uuid2", "sca_release_uuid", "release-uuid2")));
+      "sca_issue_uuid", "issue-uuid2", "sca_release_uuid", "release-uuid2", "component_uuid", branch2Uuid)));
 
     assertThat(db.countRowsOfTable(dbSession, "sca_issues_releases")).isEqualTo(2);
 

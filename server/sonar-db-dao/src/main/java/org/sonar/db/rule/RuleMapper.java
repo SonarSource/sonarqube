@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -45,6 +45,8 @@ public interface RuleMapper {
   List<RuleDto> selectByKeys(@Param("ruleKeys") List<RuleKey> keys);
 
   List<RuleDto> selectByRuleKeys(@Param("ruleKeys") List<String> ruleKeys);
+
+  List<RuleDto> selectByRepositories(@Param("repositories") List<String> repositories);
 
   List<RuleExtensionForIndexingDto> selectIndexingRuleExtensionsByIds(@Param("ruleExtensionIds") List<String> ruleExtensionIds);
 

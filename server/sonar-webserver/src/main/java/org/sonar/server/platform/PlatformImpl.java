@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -43,6 +43,7 @@ import org.sonar.server.platform.platformlevel.PlatformLevelSafeMode;
 import org.sonar.server.platform.platformlevel.PlatformLevelStartup;
 import org.sonar.server.platform.web.ApiV2Servlet;
 import org.sonar.server.platform.web.ConditionalSpringSecurityFilter;
+import org.sonar.server.platform.web.McpProxyServlet;
 
 import static jakarta.servlet.DispatcherType.ASYNC;
 import static jakarta.servlet.DispatcherType.ERROR;
@@ -144,19 +145,30 @@ public class PlatformImpl implements Platform {
     app.setLoadOnStartup(1);
     registerSpringSecurityFilter();
     registerTrailingSlashFilter();
+    registerMcpProxyServlet();
+  }
+
+  private void registerMcpProxyServlet() {
+    ServletRegistration.Dynamic mcp = this.servletContext.addServlet("mcp",
+      new McpProxyServlet(() -> getContainer().getOptionalComponentByType(McpRequestHandler.class)));
+    if (mcp == null) {
+      LOGGER.warn("MCP proxy servlet could not be registered: a servlet named 'mcp' is already registered "
+        + "or the ServletContext is already initialized. Requests to /mcp will not be handled.");
+      return;
+    }
+    mcp.addMapping("/mcp/*", "/mcp");
+    mcp.setLoadOnStartup(2);
   }
 
   private void registerSpringSecurityFilter() {
     var springSecurityFilter = new ConditionalSpringSecurityFilter(
       "springSecurityFilterChain",
-      "org.springframework.web.servlet.FrameworkServlet.CONTEXT.app"
-    );
+      "org.springframework.web.servlet.FrameworkServlet.CONTEXT.app");
     var filterRegistration = this.servletContext.addFilter("springSecurityFilterChain", springSecurityFilter);
     filterRegistration.addMappingForServletNames(
       java.util.EnumSet.of(REQUEST, ERROR, ASYNC, FORWARD),
       false,
-      "app"
-    );
+      "app", "mcp");
   }
 
   private void registerTrailingSlashFilter() {
@@ -168,8 +180,7 @@ public class PlatformImpl implements Platform {
     filterRegistration.addMappingForUrlPatterns(
       java.util.EnumSet.of(REQUEST, ERROR, ASYNC),
       false,
-      "/api/v2/*"
-    );
+      "/api/v2/*");
   }
 
   private AutoStarter createAutoStarter() {

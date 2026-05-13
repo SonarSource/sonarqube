@@ -1,8 +1,0 @@
-<testExecutions version="1">
-  <file path="testx/ClassOneTest.xoo">
-    <testCase name="test1b" duration="5"/>
-    <testCase name="test2" duration="500">
-      <skipped>other</skipped>
-    </testCase>
-  </file>
-</testExecutions>

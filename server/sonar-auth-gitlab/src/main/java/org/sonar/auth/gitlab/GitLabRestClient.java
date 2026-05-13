@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,6 @@ import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import java.io.IOException;
-import java.util.List;
 import org.sonar.auth.OAuthRestClient;
 
 public class GitLabRestClient {
@@ -41,9 +40,5 @@ public class GitLabRestClient {
     } catch (IOException e) {
       throw new IllegalStateException("Failed to get gitlab user", e);
     }
-  }
-
-  List<GsonGroup> getGroups(OAuth20Service scribe, OAuth2AccessToken accessToken) {
-    return OAuthRestClient.executePaginatedRequest(gitLabSettings.apiUrl() + "/groups?min_access_level=10", scribe, accessToken, GsonGroup::parse);
   }
 }

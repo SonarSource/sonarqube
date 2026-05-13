@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,6 +31,7 @@ import org.sonar.db.ce.CeScannerContextDao;
 import org.sonar.db.ce.CeTaskCharacteristicDao;
 import org.sonar.db.ce.CeTaskInputDao;
 import org.sonar.db.ce.CeTaskMessageDao;
+import org.sonar.db.adminalert.AdminAlertStatusDao;
 import org.sonar.db.component.AnalysisPropertiesDao;
 import org.sonar.db.component.ApplicationProjectsDao;
 import org.sonar.db.component.BranchDao;
@@ -122,6 +123,7 @@ public class DaoModule extends Module {
     // for readability and easier merge, keep list ordered alphabetically
     // =====================================================================
     ActiveRuleDao.class,
+    AdminAlertStatusDao.class,
     AnalysisPropertiesDao.class,
     AnticipatedTransitionDao.class,
     AuthorizationDao.class,

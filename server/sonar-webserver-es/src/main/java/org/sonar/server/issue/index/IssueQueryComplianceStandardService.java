@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -66,7 +66,9 @@ public class IssueQueryComplianceStandardService {
 
       Set<String> ids = Stream.concat(
         dbClient.ruleDao().selectByKeys(session, ruleKeys).stream(),
-        dbClient.ruleDao().selectByRuleKeys(session, rules.allRuleKeys()).stream()
+        Stream.concat(
+          dbClient.ruleDao().selectByRuleKeys(session, rules.allRuleKeys()).stream(),
+          dbClient.ruleDao().selectByRepositories(session, rules.allRepos()).stream())
       ).map(RuleDto::getUuid).collect(Collectors.toSet());
 
       // standard doesn't exist or it doesn't have any rules associated to it

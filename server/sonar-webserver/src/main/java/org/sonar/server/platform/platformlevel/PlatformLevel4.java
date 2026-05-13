@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -46,6 +46,7 @@ import org.sonar.auth.bitbucket.BitbucketModule;
 import org.sonar.auth.github.GitHubModule;
 import org.sonar.auth.github.GitHubSettings;
 import org.sonar.auth.gitlab.GitLabModule;
+import org.sonar.server.common.graphql.GraphQlClient;
 import org.sonar.auth.ldap.LdapModule;
 import org.sonar.auth.saml.SamlModule;
 import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotificationModule;
@@ -206,7 +207,6 @@ import org.sonar.server.platform.db.CheckAnyonePermissionsAtStartup;
 import org.sonar.server.platform.db.migration.DatabaseMigrationPersister;
 import org.sonar.server.platform.db.migration.DatabaseMigrationTelemetry;
 import org.sonar.server.platform.telemetry.TelemetryFipsEnabledProvider;
-import org.sonar.server.platform.telemetry.TelemetryForceOldNavigationPropertyProvider;
 import org.sonar.server.platform.telemetry.TelemetryIpv6EnabledProvider;
 import org.sonar.server.platform.telemetry.TelemetryIssueCountsPerStatusProvider;
 import org.sonar.server.platform.telemetry.TelemetryMQRModePropertyProvider;
@@ -472,6 +472,7 @@ public class PlatformLevel4 extends PlatformLevel {
       GitHubSettings.class,
       GithubConfigurationService.class,
       new GitHubModule(),
+      GraphQlClient.class,
       new GitLabModule(),
       new LdapModule(),
       new SamlModule(),
@@ -730,7 +731,6 @@ public class PlatformLevel4 extends PlatformLevel {
       // new telemetry metrics
       TelemetryVersionProvider.class,
       TelemetryMQRModePropertyProvider.class,
-      TelemetryForceOldNavigationPropertyProvider.class,
       TelemetryNclocProvider.class,
       TelemetryUserEnabledProvider.class,
       TelemetryFipsEnabledProvider.class,

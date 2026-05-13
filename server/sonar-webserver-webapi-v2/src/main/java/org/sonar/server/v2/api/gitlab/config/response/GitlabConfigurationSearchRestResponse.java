@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,8 +20,7 @@
 package org.sonar.server.v2.api.gitlab.config.response;
 
 import java.util.List;
-import org.sonar.server.v2.api.gitlab.config.resource.GitlabConfigurationResource;
 import org.sonar.server.v2.api.response.PageRestResponse;
 
-public record GitlabConfigurationSearchRestResponse(List<GitlabConfigurationResource> gitlabConfigurations, PageRestResponse page) {}
+public record GitlabConfigurationSearchRestResponse(List<GitlabConfigurationRestResponse> gitlabConfigurations, PageRestResponse page) {}
 

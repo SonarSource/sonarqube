@@ -1,9 +1,0 @@
-syntax = "proto3";
-
-option java_package = "org.sonar.scanner.protocol.internal";
-option optimize_for = SPEED;
-
-message SensorCacheEntry {
-    string key = 1;
-    bytes data = 2;
-}

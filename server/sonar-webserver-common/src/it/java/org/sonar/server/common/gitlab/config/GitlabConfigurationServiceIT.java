@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -56,6 +56,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator.ValidationMode.AUTH_ONLY;
 import static org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator.ValidationMode.COMPLETE;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ALLOWED_GROUPS;
+import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ALLOW_ALL_GROUPS;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_APPLICATION_ID;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ENABLED;
@@ -159,7 +160,7 @@ public class GitlabConfigurationServiceIT {
   }
 
   @Test
-  public void updateConfiguration_whenAllowedGroupsIsEmptyAndAutoProvisioningIsEnabled_throwsException() {
+  public void updateConfiguration_whenAllowedGroupsIsEmptyAndAllowAllGroupsIsFalseAndAutoProvisioningIsEnabled_throwsException() {
     gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(AUTO_PROVISIONING));
     UpdateGitlabConfigurationRequest updateGitlabConfigurationRequest = builder()
       .gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID)
@@ -168,7 +169,121 @@ public class GitlabConfigurationServiceIT {
 
     assertThatThrownBy(() -> gitlabConfigurationService.updateConfiguration(updateGitlabConfigurationRequest))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("allowedGroups cannot be empty when Auto-provisioning is enabled.");
+      .hasMessage("allowedGroups cannot be empty when Auto-provisioning is enabled and allowAllGroups is set to false.");
+  }
+
+  @Test
+  public void updateConfiguration_whenAllowAllGroupsIsTrueAndAutoProvisioning_persistsFlagAndAcceptsEmptyAllowedGroups() {
+    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(AUTO_PROVISIONING));
+    UpdateGitlabConfigurationRequest updateRequest = builder()
+      .gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID)
+      .allowedGroups(withValueOrThrow(new LinkedHashSet<>()))
+      .allowAllGroups(withValueOrThrow(true))
+      .build();
+
+    GitlabConfiguration updated = gitlabConfigurationService.updateConfiguration(updateRequest);
+
+    verifySettingWasSet(GITLAB_AUTH_ALLOW_ALL_GROUPS, "true");
+    assertThat(updated.allowAllGroups()).isTrue();
+    assertThat(updated.allowedGroups()).isEmpty();
+  }
+
+  @Test
+  public void updateConfiguration_whenAllowAllGroupsIsTrueAndAllowedGroupsNonEmpty_preservesBothPropertiesIgnoringList() {
+    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(AUTO_PROVISIONING));
+    UpdateGitlabConfigurationRequest updateRequest = builder()
+      .gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID)
+      .allowAllGroups(withValueOrThrow(true))
+      .build();
+
+    GitlabConfiguration updated = gitlabConfigurationService.updateConfiguration(updateRequest);
+
+    verifySettingWasSet(GITLAB_AUTH_ALLOW_ALL_GROUPS, "true");
+    assertThat(updated.allowAllGroups()).isTrue();
+    assertThat(updated.allowedGroups()).containsExactlyInAnyOrder("group1", "group2", "group3");
+  }
+
+  @Test
+  public void updateConfiguration_whenAllowAllGroupsIsTrueAndProvisioningIsJit_throwsException() {
+    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(JIT));
+    UpdateGitlabConfigurationRequest updateRequest = builder()
+      .gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID)
+      .allowAllGroups(withValueOrThrow(true))
+      .build();
+
+    assertThatThrownBy(() -> gitlabConfigurationService.updateConfiguration(updateRequest))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("allowAllGroups can only be enabled when Auto-provisioning is enabled.");
+  }
+
+  @Test
+  public void updateConfiguration_whenEnablingAllowAllGroupsOnGitlabCloud_throwsException() {
+    GitlabConfiguration baseConfiguration = buildGitlabConfiguration(AUTO_PROVISIONING);
+    when(baseConfiguration.url()).thenReturn("https://gitlab.com");
+    gitlabConfigurationService.createConfiguration(baseConfiguration);
+
+    UpdateGitlabConfigurationRequest updateRequest = builder()
+      .gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID)
+      .allowAllGroups(withValueOrThrow(true))
+      .build();
+
+    assertThatThrownBy(() -> gitlabConfigurationService.updateConfiguration(updateRequest))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("allowAllGroups cannot be enabled when the GitLab URL is gitlab.com (GitLab SaaS). "
+        + "Use a self-managed GitLab instance, or restrict access via allowedGroups.");
+  }
+
+  @Test
+  public void updateConfiguration_whenSwitchingUrlToGitlabCloudWithAllowAllGroupsOn_throwsException() {
+    GitlabConfiguration baseConfiguration = buildGitlabConfiguration(AUTO_PROVISIONING);
+    when(baseConfiguration.allowAllGroups()).thenReturn(true);
+    gitlabConfigurationService.createConfiguration(baseConfiguration);
+
+    UpdateGitlabConfigurationRequest updateRequest = builder()
+      .gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID)
+      .url(withValueOrThrow("https://gitlab.com"))
+      .secret(withValueOrThrow("new-secret"))
+      .build();
+
+    assertThatThrownBy(() -> gitlabConfigurationService.updateConfiguration(updateRequest))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("allowAllGroups cannot be enabled when the GitLab URL is gitlab.com (GitLab SaaS). "
+        + "Use a self-managed GitLab instance, or restrict access via allowedGroups.");
+  }
+
+  @Test
+  public void updateConfiguration_switchingProvisioningToJitWithAllowAllGroupsOn_automaticallyClearsAllowAllGroups() {
+    GitlabConfiguration baseConfiguration = buildGitlabConfiguration(AUTO_PROVISIONING);
+    when(baseConfiguration.allowAllGroups()).thenReturn(true);
+    gitlabConfigurationService.createConfiguration(baseConfiguration);
+
+    UpdateGitlabConfigurationRequest updateRequest = builder()
+      .gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID)
+      .provisioningToken(withValue(null))
+      .provisioningType(withValueOrThrow(JIT))
+      .build();
+
+    GitlabConfiguration updated = gitlabConfigurationService.updateConfiguration(updateRequest);
+
+    verifySettingWasSet(GITLAB_AUTH_ALLOW_ALL_GROUPS, "false");
+    assertThat(updated.allowAllGroups()).isFalse();
+  }
+
+  @Test
+  public void updateConfiguration_togglingAllowAllGroupsOff_restoresEmptyListRejection() {
+    GitlabConfiguration baseConfiguration = buildGitlabConfiguration(AUTO_PROVISIONING);
+    when(baseConfiguration.allowAllGroups()).thenReturn(true);
+    when(baseConfiguration.allowedGroups()).thenReturn(new LinkedHashSet<>());
+    gitlabConfigurationService.createConfiguration(baseConfiguration);
+
+    UpdateGitlabConfigurationRequest updateRequest = builder()
+      .gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID)
+      .allowAllGroups(withValueOrThrow(false))
+      .build();
+
+    assertThatThrownBy(() -> gitlabConfigurationService.updateConfiguration(updateRequest))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("allowedGroups cannot be empty when Auto-provisioning is enabled and allowAllGroups is set to false.");
   }
 
   @Test
@@ -375,13 +490,14 @@ public class GitlabConfigurationServiceIT {
       "secret",
       true,
       Set.of(),
+      false,
       true,
       AUTO_PROVISIONING,
       "provisioningToken");
 
     assertThatThrownBy(() -> gitlabConfigurationService.createConfiguration(configuration))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("allowedGroups cannot be empty when Auto-provisioning is enabled.");
+      .hasMessage("allowedGroups cannot be empty when Auto-provisioning is enabled and allowAllGroups is set to false.");
   }
 
   @Test
@@ -408,6 +524,7 @@ public class GitlabConfigurationServiceIT {
       "secret",
       true,
       Set.of("group1", "group2", "group3"),
+      false,
       true,
       AUTO_PROVISIONING,
       null);
@@ -445,6 +562,42 @@ public class GitlabConfigurationServiceIT {
   }
 
   @Test
+  public void createConfiguration_whenAllowAllGroupsIsTrueAndAutoProvisioning_persistsFlagWithEmptyAllowedGroups() {
+    GitlabConfiguration configuration = buildGitlabConfiguration(AUTO_PROVISIONING);
+    when(configuration.allowedGroups()).thenReturn(new LinkedHashSet<>());
+    when(configuration.allowAllGroups()).thenReturn(true);
+
+    GitlabConfiguration created = gitlabConfigurationService.createConfiguration(configuration);
+
+    verifySettingWasSet(GITLAB_AUTH_ALLOW_ALL_GROUPS, "true");
+    assertThat(created.allowAllGroups()).isTrue();
+    assertThat(created.allowedGroups()).isEmpty();
+    verify(managedInstanceService).queueSynchronisationTask();
+  }
+
+  @Test
+  public void createConfiguration_whenAllowAllGroupsIsTrueAndProvisioningIsJit_throwsException() {
+    GitlabConfiguration configuration = buildGitlabConfiguration(JIT);
+    when(configuration.allowAllGroups()).thenReturn(true);
+
+    assertThatThrownBy(() -> gitlabConfigurationService.createConfiguration(configuration))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("allowAllGroups can only be enabled when Auto-provisioning is enabled.");
+  }
+
+  @Test
+  public void createConfiguration_whenAllowAllGroupsIsTrueAndUrlIsGitlabCloud_throwsException() {
+    GitlabConfiguration configuration = buildGitlabConfiguration(AUTO_PROVISIONING);
+    when(configuration.allowAllGroups()).thenReturn(true);
+    when(configuration.url()).thenReturn("https://gitlab.com");
+
+    assertThatThrownBy(() -> gitlabConfigurationService.createConfiguration(configuration))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("allowAllGroups cannot be enabled when the GitLab URL is gitlab.com (GitLab SaaS). "
+        + "Use a self-managed GitLab instance, or restrict access via allowedGroups.");
+  }
+
+  @Test
   public void createConfiguration_whenJitProvisioningAndProvisioningTokenNotSet_shouldCreateCorrectConfiguration() {
     GitlabConfiguration configuration = new GitlabConfiguration(
       UNIQUE_GITLAB_CONFIGURATION_ID,
@@ -454,6 +607,7 @@ public class GitlabConfigurationServiceIT {
       "secret",
       true,
       Set.of("group1", "group2", "group3"),
+      false,
       true,
       JIT,
       null);
@@ -474,6 +628,7 @@ public class GitlabConfigurationServiceIT {
     verifySettingWasSet(GITLAB_AUTH_SECRET, configuration.secret());
     verifySettingWasSet(GITLAB_AUTH_SYNC_USER_GROUPS, String.valueOf(configuration.synchronizeGroups()));
     verifySettingWasSet(GITLAB_AUTH_ALLOWED_GROUPS, String.join(",", configuration.allowedGroups()));
+    verifySettingWasSet(GITLAB_AUTH_ALLOW_ALL_GROUPS, String.valueOf(configuration.allowAllGroups()));
     verifySettingWasSet(GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP, String.valueOf(configuration.allowUsersToSignUp()));
     verifySettingWasSet(GITLAB_AUTH_PROVISIONING_TOKEN, Strings.nullToEmpty(configuration.provisioningToken()));
     verifySettingWasSet(GITLAB_AUTH_PROVISIONING_ENABLED, String.valueOf(configuration.provisioningType().equals(AUTO_PROVISIONING)));
@@ -512,6 +667,7 @@ public class GitlabConfigurationServiceIT {
     assertPropertyIsDeleted(GITLAB_AUTH_SECRET);
     assertPropertyIsDeleted(GITLAB_AUTH_SYNC_USER_GROUPS);
     assertPropertyIsDeleted(GITLAB_AUTH_ALLOWED_GROUPS);
+    assertPropertyIsDeleted(GITLAB_AUTH_ALLOW_ALL_GROUPS);
     assertPropertyIsDeleted(GITLAB_AUTH_PROVISIONING_ENABLED);
     assertPropertyIsDeleted(GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP);
     assertPropertyIsDeleted(GITLAB_AUTH_PROVISIONING_TOKEN);
@@ -630,6 +786,7 @@ public class GitlabConfigurationServiceIT {
     assertThat(actualConfiguration.secret()).isEqualTo(expectedConfiguration.secret());
     assertThat(actualConfiguration.synchronizeGroups()).isEqualTo(expectedConfiguration.synchronizeGroups());
     assertThat(actualConfiguration.allowedGroups()).containsExactlyInAnyOrderElementsOf(expectedConfiguration.allowedGroups());
+    assertThat(actualConfiguration.allowAllGroups()).isEqualTo(expectedConfiguration.allowAllGroups());
     assertThat(actualConfiguration.provisioningType()).isEqualTo(expectedConfiguration.provisioningType());
     assertThat(actualConfiguration.allowUsersToSignUp()).isEqualTo(expectedConfiguration.allowUsersToSignUp());
     assertThat(actualConfiguration.provisioningToken()).isEqualTo(expectedConfiguration.provisioningToken());

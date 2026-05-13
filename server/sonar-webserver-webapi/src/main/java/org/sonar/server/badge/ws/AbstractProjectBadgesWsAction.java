@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -47,6 +47,7 @@ public abstract class AbstractProjectBadgesWsAction implements ProjectBadgesWsAc
   @Override
   public void handle(Request request, Response response) throws IOException {
     response.setHeader("Cache-Control", "no-cache");
+    response.setHeader("Access-Control-Allow-Origin", "*");
     response.stream().setMediaType(SVG);
     try {
       support.validateToken(request);

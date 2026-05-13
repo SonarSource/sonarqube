@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,7 +30,6 @@ public final class WebConstants {
   public static final String SONAR_LF_LOGO_WIDTH_PX = "sonar.lf.logoWidthPx";
   public static final String SONAR_LOGIN_MESSAGE = "sonar.login.message";
   public static final String SONAR_LOGIN_DISPLAY_MESSAGE = "sonar.login.displayMessage";
-  public static final String SONAR_UI_FORCE_OLD_NAVIGATION = "sonar.ui.forceOldNavigation";
 
   private WebConstants() {
   }

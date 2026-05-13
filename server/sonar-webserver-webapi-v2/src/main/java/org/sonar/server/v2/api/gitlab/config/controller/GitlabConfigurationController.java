@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,7 +28,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.sonar.server.v2.api.gitlab.config.request.GitlabConfigurationCreateRestRequest;
 import org.sonar.server.v2.api.gitlab.config.request.GitlabConfigurationUpdateRestRequest;
-import org.sonar.server.v2.api.gitlab.config.resource.GitlabConfigurationResource;
+import org.sonar.server.v2.api.gitlab.config.response.GitlabConfigurationRestResponse;
+
 import org.sonar.server.v2.api.gitlab.config.response.GitlabConfigurationSearchRestResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -54,17 +55,19 @@ public interface GitlabConfigurationController {
   @GetMapping(path = "/{id}", produces = APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Fetch a GitLab configuration", description = """
-    Fetch a GitLab configuration. Requires 'Administer System' permission.
+    Fetch a GitLab configuration. Requires authentication. System administrators receive the full
+    configuration; other logged-in users receive a reduced response with only the provisioning status.
     """,
     extensions = @Extension(properties = {@ExtensionProperty(name = INTERNAL, value = "true")}))
-  GitlabConfigurationResource getGitlabConfiguration(
+  GitlabConfigurationRestResponse getGitlabConfiguration(
     @PathVariable("id") @Parameter(description = "The id of the configuration to fetch.", required = true, in = ParameterIn.PATH) String id);
 
   @GetMapping
   @Operation(summary = "Search GitLab configs", description = """
       Get the list of GitLab configurations.
       Note that a single configuration is supported at this time.
-      Requires 'Administer System' permission.
+      Requires authentication. System administrators receive the full configuration; other
+      logged-in users receive a reduced response with only the provisioning status.
     """,
     extensions = @Extension(properties = {@ExtensionProperty(name = INTERNAL, value = "true")}))
   GitlabConfigurationSearchRestResponse searchGitlabConfiguration();
@@ -75,7 +78,7 @@ public interface GitlabConfigurationController {
     Update a Gitlab configuration. Requires 'Administer System' permission.
     """,
     extensions = @Extension(properties = {@ExtensionProperty(name = INTERNAL, value = "true")}))
-  GitlabConfigurationResource updateGitlabConfiguration(@PathVariable("id") String id, @Valid @RequestBody GitlabConfigurationUpdateRestRequest updateRequest);
+  GitlabConfigurationRestResponse updateGitlabConfiguration(@PathVariable("id") String id, @Valid @RequestBody GitlabConfigurationUpdateRestRequest updateRequest);
 
   @PostMapping
   @Operation(summary = "Create Gitlab configuration", description = """
@@ -84,7 +87,7 @@ public interface GitlabConfigurationController {
       Requires 'Administer System' permission.
     """,
     extensions = @Extension(properties = {@ExtensionProperty(name = INTERNAL, value = "true")}))
-  GitlabConfigurationResource create(@Valid @RequestBody GitlabConfigurationCreateRestRequest createRequest);
+  GitlabConfigurationRestResponse create(@Valid @RequestBody GitlabConfigurationCreateRestRequest createRequest);
 
   @DeleteMapping(path = "/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)

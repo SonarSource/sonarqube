@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +22,7 @@ package org.sonar.ce.analysis.cache.cleaning;
 import com.google.common.annotations.VisibleForTesting;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.core.config.PurgeConstants;
@@ -45,7 +46,7 @@ public class AnalysisCacheCleaningSchedulerImpl implements AnalysisCacheCleaning
 
   @Override
   public void onServerStart(Server server) {
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
     // schedule run at midnight everyday
     LocalDateTime nextRun = now.plusDays(1).withHour(0).withMinute(0).withSecond(0);
     long initialDelay = Duration.between(now, nextRun).getSeconds();

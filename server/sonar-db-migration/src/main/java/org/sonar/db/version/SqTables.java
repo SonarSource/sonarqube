@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -31,6 +31,7 @@ public final class SqTables {
   public static final Set<String> TABLES = Set.of(
     "active_rules",
     "active_rule_parameters",
+    "admin_alert_status",
     "alm_settings",
     "alm_pats",
     "analysis_properties",

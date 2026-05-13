@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -54,7 +54,7 @@ class TokenExpirationEmailComposerTest {
 
   @Test
   void composer_email_with_expiring_project_token() throws EmailException {
-    long expiredDate = LocalDate.now().atStartOfDay(ZoneOffset.UTC).plusDays(7).toInstant().toEpochMilli();
+    long expiredDate = LocalDate.now(ZoneOffset.UTC).atStartOfDay(ZoneOffset.UTC).plusDays(7).toInstant().toEpochMilli();
     var token = createToken("projectToken", "projectA", expiredDate);
     var emailData = new TokenExpirationEmail("admin@sonarsource.com", token);
     var email = mock(HtmlEmail.class);
@@ -76,7 +76,7 @@ class TokenExpirationEmailComposerTest {
 
   @Test
   void composer_email_with_expired_global_token() throws EmailException {
-    long expiredDate = LocalDate.now().atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+    long expiredDate = LocalDate.now(ZoneOffset.UTC).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
     var token = createToken("globalToken", null, expiredDate);
     var emailData = new TokenExpirationEmail("admin@sonarsource.com", token);
     var email = mock(HtmlEmail.class);
@@ -110,8 +110,8 @@ class TokenExpirationEmailComposerTest {
 
   private static Stream<Arguments> tokenExpirationAndExpectedEmailSubject() {
     return Stream.of(
-      Arguments.of(LocalDate.now().atStartOfDay(ZoneOffset.UTC).plusDays(7).toInstant().toEpochMilli(), "[PREFIX] Your token \"projectToken\" will expire."),
-      Arguments.of(LocalDate.now().atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(), "[PREFIX] Your token \"projectToken\" has expired.")
+      Arguments.of(LocalDate.now(ZoneOffset.UTC).atStartOfDay(ZoneOffset.UTC).plusDays(7).toInstant().toEpochMilli(), "[PREFIX] Your token \"projectToken\" will expire."),
+      Arguments.of(LocalDate.now(ZoneOffset.UTC).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(), "[PREFIX] Your token \"projectToken\" has expired.")
     );
   }
 
