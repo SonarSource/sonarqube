@@ -6,6 +6,7 @@
       "releaseDate": "2015-04-02",
       "changeLogUrl": "http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=11694&version=20666",
       "downloadUrl": "http://dist.sonar.codehaus.org/sonarqube-5.1.zip",
+      "documentationUrl": "https://docs.sonarsource.com/sonarqube-server/2025.1/server-update-and-maintenance/update/roadmap",
       "plugins": {
         "requireUpdate": [
           {
