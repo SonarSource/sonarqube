@@ -37,6 +37,7 @@ public class ComponentQuery {
   private final Boolean isPrivate;
   private final Set<String> componentUuids;
   private final Set<String> componentKeys;
+  private final Set<String> componentKeysV2;
   private final Long analyzedBefore;
   private final Long allBranchesAnalyzedBefore;
   private final Date createdAfter;
@@ -48,6 +49,7 @@ public class ComponentQuery {
     this.qualifiers = builder.qualifiers;
     this.componentUuids = builder.componentUuids;
     this.componentKeys = builder.componentKeys;
+    this.componentKeysV2 = builder.componentKeysV2;
     this.isPrivate = builder.isPrivate;
     this.analyzedBefore = builder.analyzedBefore;
     this.allBranchesAnalyzedBefore = builder.allBranchesAnalyzedBefore;
@@ -90,6 +92,11 @@ public class ComponentQuery {
   }
 
   @CheckForNull
+  public Set<String> getComponentKeysV2() {
+    return componentKeysV2;
+  }
+
+  @CheckForNull
   public Boolean getPrivate() {
     return isPrivate;
   }
@@ -114,7 +121,7 @@ public class ComponentQuery {
   }
 
   boolean hasEmptySetOfComponents() {
-    return Stream.of(componentKeys, componentUuids)
+    return Stream.of(componentKeys, componentKeysV2, componentUuids)
       .anyMatch(list -> list != null && list.isEmpty());
   }
 
@@ -129,6 +136,7 @@ public class ComponentQuery {
     private Boolean isPrivate;
     private Set<String> componentUuids;
     private Set<String> componentKeys;
+    private Set<String> componentKeysV2;
     private Long analyzedBefore;
     private Long allBranchesAnalyzedBefore;
     private Date createdAfter;
@@ -159,6 +167,11 @@ public class ComponentQuery {
 
     public Builder setComponentKeys(@Nullable Set<String> componentKeys) {
       this.componentKeys = componentKeys;
+      return this;
+    }
+
+    public Builder setComponentKeysV2(@Nullable Set<String> componentKeysV2) {
+      this.componentKeysV2 = componentKeysV2;
       return this;
     }
 

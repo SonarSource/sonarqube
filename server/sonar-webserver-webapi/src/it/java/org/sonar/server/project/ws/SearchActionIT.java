@@ -71,6 +71,7 @@ import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFIL
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ANALYZED_BEFORE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ON_PROVISIONED_ONLY;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_KEYS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
 
@@ -329,6 +330,36 @@ public class SearchActionIT {
   }
 
   @Test
+  public void handle_whenSearchingByProjectKeys_shouldReturnMatchingProjects() {
+    userSession.addPermission(ADMINISTER);
+    ProjectDto jdk = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto sonarqube = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto sonarlint = db.components().insertPrivateProject().getProjectDto();
+
+    SearchWsResponse result = call(SearchRequest.builder()
+      .setProjectKeys(Arrays.asList(jdk.getKey(), sonarqube.getKey()))
+      .build());
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey)
+      .containsExactlyInAnyOrder(jdk.getKey(), sonarqube.getKey())
+      .doesNotContain(sonarlint.getKey());
+  }
+
+  @Test
+  public void handle_whenSearchingByProjectKeys_shouldBeCaseInsensitive() {
+    userSession.addPermission(ADMINISTER);
+    db.components().insertPrivateProject(p -> p.setKey("my-project")).getProjectDto();
+    db.components().insertPrivateProject(p -> p.setKey("another-project")).getProjectDto();
+
+    SearchWsResponse result = call(SearchRequest.builder()
+      .setProjectKeys(singletonList("MY-PROJECT"))
+      .build());
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey)
+      .containsExactly("my-project");
+  }
+
+  @Test
   public void handle_whenSearchingMoreThanThousandProjects_shouldFail() {
     SearchRequest request = SearchRequest.builder()
       .setProjects(Collections.nCopies(1_001, "foo"))
@@ -383,7 +414,8 @@ public class SearchActionIT {
           null),
         tuple("qualifiers", false, "Comma-separated list of component qualifiers. Filter the results with the specified qualifiers", Set.of("TRK", "VW", "APP"), "TRK", null),
         tuple("p", false, "1-based page number", null, "1", null),
-        tuple("projects", false, "Comma-separated list of project keys", null, null, "6.6"),
+        tuple("projects", false, "Comma-separated list of project keys. Deprecated, use projectKeys instead", null, null, "6.6"),
+        tuple("projectKeys", false, "Comma-separated list of project keys (case insensitive)", null, null, "2026.3"),
         tuple("ps", false, "Page size. Must be greater than 0 and less or equal than 500", null, "100", null),
         tuple("visibility", false,
           "Filter the projects that should be visible to everyone (public), or only specific user/groups (private).<br/>If no visibility is specified, the default project visibility will be used.",
@@ -427,6 +459,7 @@ public class SearchActionIT {
     ofNullable(wsRequest.getVisibility()).ifPresent(v -> request.setParam(PARAM_VISIBILITY, v));
     ofNullable(wsRequest.getAnalyzedBefore()).ifPresent(d -> request.setParam(PARAM_ANALYZED_BEFORE, d));
     ofNullable(wsRequest.getProjects()).ifPresent(l1 -> request.setParam(PARAM_PROJECTS, String.join(",", l1)));
+    ofNullable(wsRequest.getProjectKeys()).ifPresent(l -> request.setParam(PARAM_PROJECT_KEYS, String.join(",", l)));
     request.setParam(PARAM_ON_PROVISIONED_ONLY, String.valueOf(wsRequest.isOnProvisionedOnly()));
     return request.executeProtobuf(SearchWsResponse.class);
   }
