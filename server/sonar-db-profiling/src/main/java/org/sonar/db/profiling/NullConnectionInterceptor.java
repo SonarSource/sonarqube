@@ -23,8 +23,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import javax.sql.DataSource;
 
-public enum NullConnectionInterceptor implements ConnectionInterceptor {
-  INSTANCE;
+public class NullConnectionInterceptor implements ConnectionInterceptor {
 
   @Override
   public Connection getConnection(DataSource dataSource) throws SQLException {

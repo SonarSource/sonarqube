@@ -25,7 +25,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -349,7 +348,7 @@ public class RuleMapper {
   private static void setParams(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, SearchResult searchResult, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_PARAMS)) {
       List<RuleParamDto> ruleParameters = searchResult.getRuleParamsByRuleUuid().get(ruleDto.getUuid());
-      ruleResponse.getParamsBuilder().addAllParams(ruleParameters.stream().map(RuleParamDtoToWsRuleParam.INSTANCE).toList());
+      ruleResponse.getParamsBuilder().addAllParams(ruleParameters.stream().map(RuleMapper::toWsRuleParam).toList());
     }
   }
 
@@ -508,25 +507,20 @@ public class RuleMapper {
       .clearMdNote();
   }
 
-  private enum RuleParamDtoToWsRuleParam implements Function<RuleParamDto, Rules.Rule.Param> {
-    INSTANCE;
-
-    @Override
-    public Rules.Rule.Param apply(RuleParamDto param) {
-      Rules.Rule.Param.Builder paramResponse = Rules.Rule.Param.newBuilder();
-      paramResponse.setKey(param.getName());
-      if (param.getDescription() != null) {
-        paramResponse.setHtmlDesc(Markdown.convertToHtml(param.getDescription()));
-      }
-      String defaultValue = param.getDefaultValue();
-      if (defaultValue != null) {
-        paramResponse.setDefaultValue(defaultValue);
-      }
-      if (param.getType() != null) {
-        paramResponse.setType(param.getType());
-      }
-
-      return paramResponse.build();
+  private static Rules.Rule.Param toWsRuleParam(RuleParamDto param) {
+    Rules.Rule.Param.Builder paramResponse = Rules.Rule.Param.newBuilder();
+    paramResponse.setKey(param.getName());
+    if (param.getDescription() != null) {
+      paramResponse.setHtmlDesc(Markdown.convertToHtml(param.getDescription()));
     }
+    String defaultValue = param.getDefaultValue();
+    if (defaultValue != null) {
+      paramResponse.setDefaultValue(defaultValue);
+    }
+    if (param.getType() != null) {
+      paramResponse.setType(param.getType());
+    }
+
+    return paramResponse.build();
   }
 }

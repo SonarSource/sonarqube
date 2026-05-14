@@ -152,7 +152,7 @@ public class DefaultDatabase implements Database {
       .addArgument(() -> properties.getProperty(JDBC_URL.getKey(), DEFAULT_URL))
       .log("Create JDBC data source for {}");
     HikariDataSource ds = createHikariDataSource();
-    datasource = new ProfiledDataSource(ds, NullConnectionInterceptor.INSTANCE);
+    datasource = new ProfiledDataSource(ds, new NullConnectionInterceptor());
     enableSqlLogging(datasource, logbackHelper.getLoggerLevel("sql") == Level.TRACE);
   }
 
@@ -204,7 +204,7 @@ public class DefaultDatabase implements Database {
   }
 
   private static void enableSqlLogging(ProfiledDataSource ds, boolean enable) {
-    ds.setConnectionInterceptor(enable ? ProfiledConnectionInterceptor.INSTANCE : NullConnectionInterceptor.INSTANCE);
+    ds.setConnectionInterceptor(enable ? ProfiledConnectionInterceptor.INSTANCE : new NullConnectionInterceptor());
   }
 
   /**

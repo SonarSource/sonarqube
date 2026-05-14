@@ -50,8 +50,8 @@ public class VisitorsCrawler implements ComponentCrawler {
 
   public VisitorsCrawler(Collection<ComponentVisitor> visitors, boolean computeDuration) {
     List<VisitorWrapper> visitorWrappers = visitors.stream().map(ToVisitorWrapper.INSTANCE).toList();
-    this.preOrderVisitorWrappers = visitorWrappers.stream().filter(MathPreOrderVisitor.INSTANCE).toList();
-    this.postOrderVisitorWrappers = visitorWrappers.stream().filter(MatchPostOrderVisitor.INSTANCE).toList();
+    this.preOrderVisitorWrappers = visitorWrappers.stream().filter(MATCH_PRE_ORDER_VISITOR).toList();
+    this.postOrderVisitorWrappers = visitorWrappers.stream().filter(MATCH_POST_ORDER_VISITOR).toList();
     this.computeDuration = computeDuration;
     this.visitorCumulativeDurations = computeDuration ? visitors.stream().collect(Collectors.toMap(v -> v, v -> new VisitorDuration())) : Collections.emptyMap();
   }
@@ -184,23 +184,11 @@ public class VisitorsCrawler implements ComponentCrawler {
     }
   }
 
-  private enum MathPreOrderVisitor implements Predicate<VisitorWrapper> {
-    INSTANCE;
+  private static final Predicate<VisitorWrapper> MATCH_PRE_ORDER_VISITOR =
+    visitorWrapper -> visitorWrapper.getOrder() == ComponentVisitor.Order.PRE_ORDER;
 
-    @Override
-    public boolean test(VisitorWrapper visitorWrapper) {
-      return visitorWrapper.getOrder() == ComponentVisitor.Order.PRE_ORDER;
-    }
-  }
-
-  private enum MatchPostOrderVisitor implements Predicate<VisitorWrapper> {
-    INSTANCE;
-
-    @Override
-    public boolean test(VisitorWrapper visitorWrapper) {
-      return visitorWrapper.getOrder() == ComponentVisitor.Order.POST_ORDER;
-    }
-  }
+  private static final Predicate<VisitorWrapper> MATCH_POST_ORDER_VISITOR =
+    visitorWrapper -> visitorWrapper.getOrder() == ComponentVisitor.Order.POST_ORDER;
 
   private static final class VisitorDuration {
     private long duration = 0;

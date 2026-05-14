@@ -55,6 +55,7 @@ import static org.springframework.web.filter.UrlHandlerFilter.trailingSlashHandl
 /**
  * @since 2.2
  */
+@SuppressWarnings("java:S6548")
 public class PlatformImpl implements Platform {
 
   private static final Logger LOGGER = Loggers.get(Platform.class);
