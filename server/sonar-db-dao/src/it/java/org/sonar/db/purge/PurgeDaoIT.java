@@ -99,6 +99,12 @@ import org.sonar.db.webhook.WebhookDeliveryLiteDto;
 import org.sonar.db.webhook.WebhookDto;
 import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.ZoneOffset.UTC;
 import static java.util.Arrays.asList;
@@ -1953,6 +1959,74 @@ projects[2].getMainBranchComponent().uuid(),
   }
 
   @Test
+  void purgeCeScannerContexts_terminates_when_more_than_one_chunk_of_old_rows() {
+    LocalDateTime now = LocalDateTime.of(2026, Month.JANUARY, 1, 0, 0, 0);
+    // Insert more than MAX_SNAPSHOTS_PER_QUERY (1000) old rows to exercise the chunked loop
+    for (int i = 0; i < 1100; i++) {
+      insertCeActivityAndChildDataWithDate("OLD_" + i, now.minusDays(29));
+    }
+    insertCeActivityAndChildDataWithDate("RECENT", now.minusDays(1));
+    when(system2.now()).thenReturn(now.toInstant(ZoneOffset.UTC).toEpochMilli());
+
+    underTest.purgeCeScannerContexts(db.getSession(), new PurgeProfiler());
+
+    assertThat(scannerContextExists("OLD_0")).isFalse();
+    assertThat(scannerContextExists("OLD_1099")).isFalse();
+    assertThat(scannerContextExists("RECENT")).isTrue();
+  }
+
+  @Test
+  void purgeCeActivities_does_not_deadlock_when_concurrent_writes_on_ce_scanner_context() throws Exception {
+    LocalDateTime now = LocalDateTime.of(2026, Month.JANUARY, 1, 0, 0, 0);
+    // Insert enough old rows to span multiple chunks (>1000) — all on the main thread to avoid Mockito thread-safety issues
+    for (int i = 0; i < 1100; i++) {
+      insertCeActivityAndChildDataWithDate("OLD_" + i, now.minusDays(181));
+    }
+    insertCeActivityAndChildDataWithDate("RECENT_0", now.minusDays(1));
+    insertCeActivityAndChildDataWithDate("RECENT_1", now.minusDays(1));
+    when(system2.now()).thenReturn(now.toInstant(ZoneOffset.UTC).toEpochMilli());
+
+    CountDownLatch startLatch = new CountDownLatch(1);
+    AtomicBoolean writerFailed = new AtomicBoolean(false);
+
+    // Simulate concurrent CE worker using a dedicated separate DB session (separate connection = real concurrent locking)
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    Future<?> concurrentWriter = executor.submit(() -> {
+      try (DbSession writerSession = dbClient.openSession(false)) {
+        startLatch.await();
+        for (int i = 0; i < 50; i++) {
+          String uuid = "CONCURRENT_" + i;
+          CeQueueDto queueDto = new CeQueueDto();
+          queueDto.setUuid(uuid);
+          queueDto.setTaskType(CeTaskTypes.REPORT);
+          CeActivityDto dto = new CeActivityDto(queueDto);
+          dto.setStatus(CeActivityDto.Status.SUCCESS);
+          dbClient.ceActivityDao().insert(writerSession, dto);
+          dbClient.ceScannerContextDao().insert(writerSession, uuid, CloseableIterator.from(Arrays.asList("a", "b", "c").iterator()));
+          writerSession.commit();
+        }
+      } catch (Exception e) {
+        writerFailed.set(true);
+      }
+    });
+
+    startLatch.countDown();
+    // Must not throw a deadlock exception
+    underTest.purgeCeActivities(db.getSession(), new PurgeProfiler());
+
+    concurrentWriter.get(10, TimeUnit.SECONDS);
+    executor.shutdown();
+
+    assertThat(writerFailed).isFalse();
+    // Old rows are deleted
+    assertThat(selectActivity("OLD_0")).isEmpty();
+    assertThat(scannerContextExists("OLD_0")).isFalse();
+    // Recent rows survive
+    assertThat(selectActivity("RECENT_0")).isNotEmpty();
+    assertThat(scannerContextExists("RECENT_0")).isTrue();
+  }
+
+  @Test
   void purge_old_anticipated_transitions() {
     ProjectData project = db.components().insertPrivateProject();
 
@@ -2166,6 +2240,39 @@ oldCreationDate));
     assertThat(db.countRowsOfTable(dbSession, "architecture_graphs")).isEqualTo(1);
     underTest.deleteBranch(dbSession, branch2.getUuid());
     assertThat(db.countRowsOfTable(dbSession, "architecture_graphs")).isZero();
+  }
+
+  @Test
+  void getStaleBranchesToPurge_returns_empty_when_maxLiveDateOfInactiveBranches_is_absent() {
+    ProjectData project = db.components().insertPublicProject();
+    db.components().insertProjectBranch(project.getProjectDto(), b -> b.setBranchType(BranchType.BRANCH));
+
+    PurgeConfiguration conf = new PurgeConfiguration(
+      project.getMainBranchComponent().uuid(), project.projectUuid(), 30, Optional.empty(), system2, Collections.emptySet(), 30);
+    PurgeMapper mapper = dbSession.getMapper(PurgeMapper.class);
+
+    List<BranchDto> result = underTest.getStaleBranchesToPurge(conf, mapper, project.getMainBranchComponent().uuid());
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void getStaleBranchesToPurge_excludes_root_uuid_from_results() {
+    long nowMs = 1_700_000_000_000L;
+    when(system2.now()).thenReturn(nowMs);
+    ProjectData project = db.components().insertPublicProject();
+    BranchDto staleBranch = db.components().insertProjectBranch(project.getProjectDto(),
+      b -> b.setBranchType(BranchType.BRANCH));
+    db.components().insertSnapshot(staleBranch, s -> s.setCreatedAt(nowMs - 60L * 24 * 60 * 60 * 1000).setLast(true));
+
+    PurgeConfiguration conf = new PurgeConfiguration(
+      project.getMainBranchComponent().uuid(), project.projectUuid(), 30, Optional.of(30), system2, Collections.emptySet(), 30);
+    PurgeMapper mapper = dbSession.getMapper(PurgeMapper.class);
+
+    // When rootUuid matches the stale branch, it should be excluded
+    List<BranchDto> result = underTest.getStaleBranchesToPurge(conf, mapper, staleBranch.getUuid());
+
+    assertThat(result).extracting(BranchDto::getUuid).doesNotContain(staleBranch.getUuid()).isEmpty();
   }
 
   private AnticipatedTransitionDto getAnticipatedTransitionsDto(String uuid, String projectUuid, Date creationDate) {

@@ -22,6 +22,7 @@ package org.sonar.ce.queue;
 import org.junit.Test;
 import org.sonar.api.platform.Server;
 import org.sonar.ce.CeDistributedInformation;
+import org.sonar.ce.cleaning.CeActivitiesPurgeScheduler;
 import org.sonar.ce.cleaning.CeCleaningScheduler;
 import org.sonar.ce.taskprocessor.CeProcessingScheduler;
 
@@ -35,7 +36,8 @@ public class CeQueueInitializerTest {
   private Server server = mock(Server.class);
   private CeProcessingScheduler processingScheduler = mock(CeProcessingScheduler.class);
   private CeCleaningScheduler cleaningScheduler = mock(CeCleaningScheduler.class);
-  private CeQueueInitializer underTest = new CeQueueInitializer(processingScheduler, cleaningScheduler, mock(CeDistributedInformation.class));
+  private CeActivitiesPurgeScheduler ceActivitiesPurgeScheduler = mock(CeActivitiesPurgeScheduler.class);
+  private CeQueueInitializer underTest = new CeQueueInitializer(processingScheduler, cleaningScheduler, ceActivitiesPurgeScheduler, mock(CeDistributedInformation.class));
 
   @Test
   public void clean_queue_then_start_scheduler_of_workers() {
@@ -43,16 +45,17 @@ public class CeQueueInitializerTest {
 
     verify(processingScheduler).startScheduling();
     verify(cleaningScheduler).startScheduling();
+    verify(ceActivitiesPurgeScheduler).startScheduling();
   }
 
   @Test
   public void onServerStart_has_no_effect_if_called_twice_to_support_medium_test_doing_startup_tasks_multiple_times() {
     underTest.onServerStart(server);
-    reset(processingScheduler, cleaningScheduler);
+    reset(processingScheduler, cleaningScheduler, ceActivitiesPurgeScheduler);
 
     underTest.onServerStart(server);
 
-    verifyNoInteractions(processingScheduler, cleaningScheduler);
+    verifyNoInteractions(processingScheduler, cleaningScheduler, ceActivitiesPurgeScheduler);
 
   }
 }

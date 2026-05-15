@@ -447,6 +447,91 @@
     </foreach>
   </delete>
 
+  <select id="selectCeActivityUuidsByRootUuidOrBeforeWithLimit" resultType="String">
+    select uuid from ce_activity
+    <include refid="whereClauseCeActivityByRootUuidOrBefore"/>
+    limit #{limit,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectCeActivityUuidsByRootUuidOrBeforeWithLimit" resultType="String" databaseId="oracle">
+    select uuid from (
+      select uuid from ce_activity
+      <include refid="whereClauseCeActivityByRootUuidOrBefore"/>
+    ) where rownum &lt;= #{limit,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectCeActivityUuidsByRootUuidOrBeforeWithLimit" resultType="String" databaseId="mssql">
+    select top (#{limit,jdbcType=INTEGER}) uuid from ce_activity
+    <include refid="whereClauseCeActivityByRootUuidOrBefore"/>
+  </select>
+
+  <select id="selectCeScannerContextUuidsByRootUuidOrBeforeWithLimit" resultType="String">
+    select task_uuid from ce_scanner_context
+    where task_uuid in (
+      select uuid from ce_activity
+      <include refid="whereClauseCeActivityByRootUuidOrBefore"/>
+    )
+    limit #{limit,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectCeScannerContextUuidsByRootUuidOrBeforeWithLimit" resultType="String" databaseId="oracle">
+    select task_uuid from (
+      select task_uuid from ce_scanner_context
+      where task_uuid in (
+        select uuid from ce_activity
+        <include refid="whereClauseCeActivityByRootUuidOrBefore"/>
+      )
+    ) where rownum &lt;= #{limit,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectCeScannerContextUuidsByRootUuidOrBeforeWithLimit" resultType="String" databaseId="mssql">
+    select top (#{limit,jdbcType=INTEGER}) task_uuid from ce_scanner_context
+    where task_uuid in (
+      select uuid from ce_activity
+      <include refid="whereClauseCeActivityByRootUuidOrBefore"/>
+    )
+  </select>
+
+  <delete id="deleteCeScannerContextOfCeActivityByUuids">
+    delete from ce_scanner_context
+    where task_uuid in
+    <foreach collection="ceActivityUuids" open="(" close=")" item="ceActivityUuid" separator=",">
+      #{ceActivityUuid,jdbcType=VARCHAR}
+    </foreach>
+  </delete>
+
+  <delete id="deleteCeTaskCharacteristicsOfCeActivityByUuids">
+    delete from ce_task_characteristics
+    where task_uuid in
+    <foreach collection="ceActivityUuids" open="(" close=")" item="ceActivityUuid" separator=",">
+      #{ceActivityUuid,jdbcType=VARCHAR}
+    </foreach>
+  </delete>
+
+  <delete id="deleteCeTaskInputOfCeActivityByUuids">
+    delete from ce_task_input
+    where task_uuid in
+    <foreach collection="ceActivityUuids" open="(" close=")" item="ceActivityUuid" separator=",">
+      #{ceActivityUuid,jdbcType=VARCHAR}
+    </foreach>
+  </delete>
+
+  <delete id="deleteCeTaskMessageOfCeActivityByUuids">
+    delete from ce_task_message
+    where task_uuid in
+    <foreach collection="ceActivityUuids" open="(" close=")" item="ceActivityUuid" separator=",">
+      #{ceActivityUuid,jdbcType=VARCHAR}
+    </foreach>
+  </delete>
+
+  <delete id="deleteCeActivityByUuids">
+    delete from ce_activity
+    where uuid in
+    <foreach collection="ceActivityUuids" open="(" close=")" item="ceActivityUuid" separator=",">
+      #{ceActivityUuid,jdbcType=VARCHAR}
+    </foreach>
+  </delete>
+
   <delete id="deleteCeScannerContextOfCeActivityByRootUuidOrBefore">
     delete from ce_scanner_context
     where

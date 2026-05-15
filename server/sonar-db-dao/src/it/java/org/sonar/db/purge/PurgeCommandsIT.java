@@ -1011,4 +1011,23 @@ class PurgeCommandsIT {
     return dbTester.countSql("select count(*) from issues where project_uuid='" + root.uuid() + "'");
   }
 
+  @Test
+  void deleteComponents_does_nothing_when_list_is_empty() {
+    dbTester.components().insertPrivateProject().getMainBranchComponent();
+
+    assertThatNoException().isThrownBy(() -> underTest.deleteComponents(List.of()));
+    assertThat(dbTester.countRowsOfTable("components")).isOne();
+  }
+
+  @Test
+  void deleteComponentMeasures_does_nothing_when_list_is_empty() {
+    ComponentDto component = dbTester.components().insertPrivateProject().getMainBranchComponent();
+    SnapshotDto analysis = dbTester.components().insertSnapshot(component);
+    MetricDto metric = dbTester.measures().insertMetric();
+    dbTester.measures().insertProjectMeasure(component, analysis, metric);
+
+    assertThatNoException().isThrownBy(() -> underTest.deleteComponentMeasures(List.of()));
+    assertThat(dbTester.countRowsOfTable("project_measures")).isOne();
+  }
+
 }

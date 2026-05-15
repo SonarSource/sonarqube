@@ -130,6 +130,24 @@ public interface PurgeMapper {
   void deleteCeActivityByRootUuidOrBefore(@Nullable @Param("rootUuid") String rootUuid,
     @Nullable @Param("entityUuidToPurge") String entityUuidToPurge, @Nullable @Param("createdAtBefore") Long createdAtBefore);
 
+  List<String> selectCeActivityUuidsByRootUuidOrBeforeWithLimit(@Nullable @Param("rootUuid") String rootUuid,
+    @Nullable @Param("entityUuidToPurge") String entityUuidToPurge, @Nullable @Param("createdAtBefore") Long createdAtBefore,
+    @Param("limit") int limit);
+
+  List<String> selectCeScannerContextUuidsByRootUuidOrBeforeWithLimit(@Nullable @Param("rootUuid") String rootUuid,
+    @Nullable @Param("entityUuidToPurge") String entityUuidToPurge, @Nullable @Param("createdAtBefore") Long createdAtBefore,
+    @Param("limit") int limit);
+
+  void deleteCeScannerContextOfCeActivityByUuids(@Param("ceActivityUuids") List<String> ceActivityUuids);
+
+  void deleteCeTaskCharacteristicsOfCeActivityByUuids(@Param("ceActivityUuids") List<String> ceActivityUuids);
+
+  void deleteCeTaskInputOfCeActivityByUuids(@Param("ceActivityUuids") List<String> ceActivityUuids);
+
+  void deleteCeTaskMessageOfCeActivityByUuids(@Param("ceActivityUuids") List<String> ceActivityUuids);
+
+  void deleteCeActivityByUuids(@Param("ceActivityUuids") List<String> ceActivityUuids);
+
   void deleteCeScannerContextOfCeQueueByRootUuid(@Param("rootUuid") String rootUuid);
 
   void deleteCeTaskCharacteristicsOfCeQueueByRootUuid(@Param("rootUuid") String rootUuid);

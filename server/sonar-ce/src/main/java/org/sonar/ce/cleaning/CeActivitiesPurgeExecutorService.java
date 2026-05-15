@@ -17,36 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.queue;
+package org.sonar.ce.cleaning;
 
-import org.sonar.api.Startable;
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.purge.PurgeProfiler;
+import java.util.concurrent.ScheduledExecutorService;
 
-@ComputeEngineSide
-public class PurgeCeActivities implements Startable {
-
-  private final DbClient dbClient;
-  private final PurgeProfiler profiler;
-
-  public PurgeCeActivities(DbClient dbClient, PurgeProfiler profiler) {
-    this.dbClient = dbClient;
-    this.profiler = profiler;
-  }
-
-  @Override
-  public void start() {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      dbClient.purgeDao().purgeCeActivities(dbSession, profiler);
-      dbClient.purgeDao().purgeCeScannerContexts(dbSession, profiler);
-      dbSession.commit();
-    }
-  }
-
-  @Override
-  public void stop() {
-    // nothing to do
-  }
+public interface CeActivitiesPurgeExecutorService extends ScheduledExecutorService {
 }

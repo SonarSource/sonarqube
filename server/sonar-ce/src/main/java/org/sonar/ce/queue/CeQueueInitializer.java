@@ -22,6 +22,7 @@ package org.sonar.ce.queue;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerStartHandler;
+import org.sonar.ce.cleaning.CeActivitiesPurgeScheduler;
 import org.sonar.ce.cleaning.CeCleaningScheduler;
 import org.sonar.ce.taskprocessor.CeProcessingScheduler;
 import org.sonar.ce.CeDistributedInformation;
@@ -36,13 +37,15 @@ public class CeQueueInitializer implements ServerStartHandler {
 
   private final CeProcessingScheduler processingScheduler;
   private final CeCleaningScheduler cleaningScheduler;
+  private final CeActivitiesPurgeScheduler ceActivitiesPurgeScheduler;
   private final CeDistributedInformation ceDistributedInformation;
   private boolean done = false;
 
   public CeQueueInitializer(CeProcessingScheduler processingScheduler, CeCleaningScheduler cleaningScheduler,
-    CeDistributedInformation ceDistributedInformation) {
+    CeActivitiesPurgeScheduler ceActivitiesPurgeScheduler, CeDistributedInformation ceDistributedInformation) {
     this.processingScheduler = processingScheduler;
     this.cleaningScheduler = cleaningScheduler;
+    this.ceActivitiesPurgeScheduler = ceActivitiesPurgeScheduler;
     this.ceDistributedInformation = ceDistributedInformation;
   }
 
@@ -58,5 +61,6 @@ public class CeQueueInitializer implements ServerStartHandler {
     ceDistributedInformation.broadcastWorkerUUIDs();
     processingScheduler.startScheduling();
     cleaningScheduler.startScheduling();
+    ceActivitiesPurgeScheduler.startScheduling();
   }
 }

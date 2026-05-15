@@ -338,33 +338,46 @@ class PurgeCommands {
   }
 
   void deleteCeActivityBefore(@Nullable String rootUuid, @Nullable String entityUuidToPurge, long createdAt) {
-    profiler.start("deleteCeActivityBefore (ce_scanner_context)");
-    purgeMapper.deleteCeScannerContextOfCeActivityByRootUuidOrBefore(rootUuid, entityUuidToPurge, createdAt);
-    session.commit();
-    profiler.stop();
-    profiler.start("deleteCeActivityBefore (ce_task_characteristics)");
-    purgeMapper.deleteCeTaskCharacteristicsOfCeActivityByRootUuidOrBefore(rootUuid, entityUuidToPurge, createdAt);
-    session.commit();
-    profiler.stop();
-    profiler.start("deleteCeActivityBefore (ce_task_input)");
-    purgeMapper.deleteCeTaskInputOfCeActivityByRootUuidOrBefore(rootUuid, entityUuidToPurge, createdAt);
-    session.commit();
-    profiler.stop();
-    profiler.start("deleteCeActivityBefore (ce_task_message)");
-    purgeMapper.deleteCeTaskMessageOfCeActivityByRootUuidOrBefore(rootUuid, entityUuidToPurge, createdAt);
-    session.commit();
-    profiler.stop();
-    profiler.start("deleteCeActivityBefore (ce_activity)");
-    purgeMapper.deleteCeActivityByRootUuidOrBefore(rootUuid, entityUuidToPurge, createdAt);
-    session.commit();
-    profiler.stop();
+    List<String> chunk;
+    do {
+      chunk = purgeMapper.selectCeActivityUuidsByRootUuidOrBeforeWithLimit(rootUuid, entityUuidToPurge, createdAt, MAX_SNAPSHOTS_PER_QUERY);
+      if (chunk.isEmpty()) {
+        break;
+      }
+
+      profiler.start("deleteCeActivityBefore (ce_scanner_context)");
+      purgeMapper.deleteCeScannerContextOfCeActivityByUuids(chunk);
+      profiler.stop();
+      profiler.start("deleteCeActivityBefore (ce_task_characteristics)");
+      purgeMapper.deleteCeTaskCharacteristicsOfCeActivityByUuids(chunk);
+      profiler.stop();
+      profiler.start("deleteCeActivityBefore (ce_task_input)");
+      purgeMapper.deleteCeTaskInputOfCeActivityByUuids(chunk);
+      profiler.stop();
+      profiler.start("deleteCeActivityBefore (ce_task_message)");
+      purgeMapper.deleteCeTaskMessageOfCeActivityByUuids(chunk);
+      profiler.stop();
+      profiler.start("deleteCeActivityBefore (ce_activity)");
+      purgeMapper.deleteCeActivityByUuids(chunk);
+      profiler.stop();
+
+      session.commit();
+    } while (chunk.size() == MAX_SNAPSHOTS_PER_QUERY);
   }
 
   void deleteCeScannerContextBefore(@Nullable String rootUuid, @Nullable String entityUuidToPurge, long createdAt) {
     // assuming CeScannerContext of rows in table CE_QUEUE can't be older than createdAt
-    profiler.start("deleteCeScannerContextBefore");
-    purgeMapper.deleteCeScannerContextOfCeActivityByRootUuidOrBefore(rootUuid, entityUuidToPurge, createdAt);
-    session.commit();
+    List<String> chunk;
+    do {
+      chunk = purgeMapper.selectCeScannerContextUuidsByRootUuidOrBeforeWithLimit(rootUuid, entityUuidToPurge, createdAt, MAX_SNAPSHOTS_PER_QUERY);
+      if (chunk.isEmpty()) {
+        break;
+      }
+      profiler.start("deleteCeScannerContextBefore");
+      purgeMapper.deleteCeScannerContextOfCeActivityByUuids(chunk);
+      profiler.stop();
+      session.commit();
+    } while (chunk.size() == MAX_SNAPSHOTS_PER_QUERY);
   }
 
   void deleteCeQueue(String rootUuid) {

@@ -43,6 +43,7 @@ import org.sonar.ce.CeTaskCommonsModule;
 import org.sonar.ce.StandaloneCeDistributedInformation;
 import org.sonar.ce.analysis.cache.cleaning.AnalysisCacheCleaningModule;
 import org.sonar.ce.async.SynchronousAsyncExecution;
+import org.sonar.ce.cleaning.CeActivitiesPurgeModule;
 import org.sonar.ce.cleaning.CeCleaningModule;
 import org.sonar.ce.issue.index.NoAsyncIssueIndexing;
 import org.sonar.ce.logging.CeProcessLogging;
@@ -50,7 +51,6 @@ import org.sonar.ce.monitoring.CEQueueStatusImpl;
 import org.sonar.ce.platform.CECoreExtensionsInstaller;
 import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
 import org.sonar.ce.platform.DatabaseCompatibility;
-import org.sonar.ce.queue.PurgeCeActivities;
 import org.sonar.ce.task.projectanalysis.ProjectAnalysisTaskModule;
 import org.sonar.ce.task.projectanalysis.analysis.ProjectConfigurationFactory;
 import org.sonar.ce.task.projectanalysis.issue.AdHocRuleCreator;
@@ -491,6 +491,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     if (props.valueAsBoolean(CLUSTER_ENABLED.getKey())) {
       level4Container.add(
         new CeCleaningModule(),
+        new CeActivitiesPurgeModule(),
 
         // system health
         CeDistributedInformationImpl.class,
@@ -502,6 +503,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     } else {
       level4Container.add(
         new CeCleaningModule(),
+        new CeActivitiesPurgeModule(),
         ServerLogging.class,
         StandaloneCeDistributedInformation.class);
     }
@@ -517,8 +519,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
   private static Object[] startupComponents() {
     return new Object[]{
-      ServerLifecycleNotifier.class,
-      PurgeCeActivities.class
+      ServerLifecycleNotifier.class
     };
   }
 
