@@ -22,6 +22,7 @@ package org.sonar.ce.httpd;
 import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -74,8 +75,20 @@ public class CeHttpServerTest {
   @Test
   public void start_publishes_URL_in_IPC() {
     try (DefaultProcessCommands commands = DefaultProcessCommands.secondary(this.sharedDir, 1)) {
-      assertThat(commands.getHttpUrl()).startsWith("http://127.0.0.1:");
+      assertThat(commands.getHttpUrl()).matches("http://(127\\.0\\.0\\.1|\\[.*]):\\d+");
     }
+  }
+
+  @Test
+  public void toUrl_formats_ipv4_address_without_brackets() throws Exception {
+    InetAddress ipv4 = InetAddress.getByName("127.0.0.1");
+    assertThat(CeHttpServer.toUrl(ipv4, 9000)).isEqualTo("http://127.0.0.1:9000");
+  }
+
+  @Test
+  public void toUrl_wraps_ipv6_address_in_brackets() throws Exception {
+    InetAddress ipv6 = InetAddress.getByName("::1");
+    assertThat(CeHttpServer.toUrl(ipv6, 9000)).isEqualTo("http://[0:0:0:0:0:0:0:1]:9000");
   }
 
   @Test

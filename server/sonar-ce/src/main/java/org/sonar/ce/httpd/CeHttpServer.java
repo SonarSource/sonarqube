@@ -21,6 +21,7 @@ package org.sonar.ce.httpd;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.List;
 import java.util.Properties;
@@ -90,7 +91,13 @@ public class CeHttpServer implements Startable {
 
   // visible for testing
   String getUrl() {
-    return "http://" + this.httpServer.getInetAddress().getHostAddress() + ":" + this.httpServer.getLocalPort();
+    return toUrl(this.httpServer.getInetAddress(), this.httpServer.getLocalPort());
+  }
+
+  // visible for testing
+  static String toUrl(InetAddress address, int port) {
+    String host = address instanceof Inet6Address ? ("[" + address.getHostAddress() + "]") : address.getHostAddress();
+    return "http://" + host + ":" + port;
   }
 
   private static class NotFoundHttpRequestHandler implements HttpRequestHandler {
