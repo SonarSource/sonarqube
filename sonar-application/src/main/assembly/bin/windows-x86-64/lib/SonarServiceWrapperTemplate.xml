@@ -22,9 +22,9 @@
   <!-- Path to the Java executable. To be replaced by SonarService.bat script -->
   <executable>JAVA_EXE</executable>
 
+  <!-- To set a JVM heap limit for the app process, edit the arguments section below (e.g. add -Xmx256m) before installing the service -->
   <!-- DO NOT EDIT THE FOLLOWING SECTIONS -->
   <arguments>
-    -Xms8m -Xmx32m
     -Djava.awt.headless=true
     --add-exports=java.base/jdk.internal.ref=ALL-UNNAMED
     --add-opens=java.base/java.lang=ALL-UNNAMED

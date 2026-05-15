@@ -29,7 +29,9 @@ call "%REALPATH%lib\find_java.bat" set_java_exe FAIL || goto:eof
 call :check_if_sonar_is_running FAIL || goto:eof
 
 echo Starting SonarQube...
-%JAVA_EXE% -Xms8m -Xmx32m^
+rem Optional: set SONAR_APP_JAVA_OPTS to pass JVM options to the app process (e.g. set SONAR_APP_JAVA_OPTS=-Xmx256m)
+IF NOT DEFINED SONAR_APP_JAVA_OPTS SET SONAR_APP_JAVA_OPTS=
+%JAVA_EXE% %SONAR_APP_JAVA_OPTS%^
      -Djava.awt.headless=true^
      --add-exports=java.base/jdk.internal.ref=ALL-UNNAMED^
      --add-opens=java.base/java.lang=ALL-UNNAMED^
