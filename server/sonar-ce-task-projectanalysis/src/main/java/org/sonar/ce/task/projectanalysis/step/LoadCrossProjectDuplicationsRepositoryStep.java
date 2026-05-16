@@ -104,13 +104,13 @@ public class LoadCrossProjectDuplicationsRepositoryStep implements ComputationSt
         return;
       }
 
-      Collection<String> hashes = cpdTextBlocks.stream().map(CpdTextBlockToHash.INSTANCE).toList();
+      Collection<String> hashes = cpdTextBlocks.stream().map(CpdTextBlock::getHash).toList();
       List<DuplicationUnitDto> dtos = selectDuplicates(file, hashes);
       if (dtos.isEmpty()) {
         return;
       }
 
-      Collection<Block> duplicatedBlocks = dtos.stream().map(DtoToBlock.INSTANCE).toList();
+      Collection<Block> duplicatedBlocks = dtos.stream().map(LoadCrossProjectDuplicationsRepositoryStep::dtoToBlock).toList();
       Collection<Block> originBlocks = cpdTextBlocks.stream().map(new CpdTextBlockToBlock(file.getKey())).toList();
       LOGGER.trace("Found {} duplicated cpd blocks on file {}", duplicatedBlocks.size(), file.getKey());
 
@@ -126,28 +126,14 @@ public class LoadCrossProjectDuplicationsRepositoryStep implements ComputationSt
     }
   }
 
-  private enum CpdTextBlockToHash implements Function<CpdTextBlock, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull CpdTextBlock duplicationBlock) {
-      return duplicationBlock.getHash();
-    }
-  }
-
-  private enum DtoToBlock implements Function<DuplicationUnitDto, Block> {
-    INSTANCE;
-
-    @Override
-    public Block apply(@Nonnull DuplicationUnitDto dto) {
-      // Note that the dto doesn't contains start/end token indexes
-      return Block.builder()
-        .setResourceId(dto.getComponentKey())
-        .setBlockHash(new ByteArray(dto.getHash()))
-        .setIndexInFile(dto.getIndexInFile())
-        .setLines(dto.getStartLine(), dto.getEndLine())
-        .build();
-    }
+  // Note that the dto doesn't contains start/end token indexes
+  private static Block dtoToBlock(DuplicationUnitDto dto) {
+    return Block.builder()
+      .setResourceId(dto.getComponentKey())
+      .setBlockHash(new ByteArray(dto.getHash()))
+      .setIndexInFile(dto.getIndexInFile())
+      .setLines(dto.getStartLine(), dto.getEndLine())
+      .build();
   }
 
   private static class CpdTextBlockToBlock implements Function<CpdTextBlock, Block> {

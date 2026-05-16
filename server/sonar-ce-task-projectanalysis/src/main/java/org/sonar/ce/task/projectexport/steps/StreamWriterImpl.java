@@ -27,7 +27,7 @@ import java.io.OutputStream;
 import org.sonar.api.utils.System2;
 
 import static org.sonar.ce.task.util.Files2.FILES2;
-import static org.sonar.ce.task.util.Protobuf2.PROTOBUF2;
+import org.sonar.ce.task.util.Protobuf2;
 
 public class StreamWriterImpl<M extends Message> implements StreamWriter<M> {
 
@@ -39,7 +39,7 @@ public class StreamWriterImpl<M extends Message> implements StreamWriter<M> {
 
   @Override
   public void write(M message) {
-    PROTOBUF2.writeDelimitedTo(message, output);
+    Protobuf2.writeDelimitedTo(message, output);
   }
 
   @Override

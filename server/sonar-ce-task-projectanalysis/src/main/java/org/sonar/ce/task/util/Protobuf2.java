@@ -27,32 +27,28 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import javax.annotation.CheckForNull;
 
-public class Protobuf2 {
-
-  public static final Protobuf2 PROTOBUF2 = new Protobuf2();
+public final class Protobuf2 {
 
   private Protobuf2() {
   }
 
-  public Protobuf2 writeTo(Message msg, OutputStream output) {
+  public static void writeTo(Message msg, OutputStream output) {
     try {
       msg.writeTo(output);
     } catch (IOException e) {
       throw new IllegalStateException("Can not write message " + msg, e);
     }
-    return this;
   }
 
-  public Protobuf2 writeDelimitedTo(Message msg, OutputStream output) {
+  public static void writeDelimitedTo(Message msg, OutputStream output) {
     try {
       msg.writeDelimitedTo(output);
     } catch (IOException e) {
       throw new IllegalStateException("Can not write message " + msg, e);
     }
-    return this;
   }
 
-  public <M extends Message> M parseFrom(Parser<M> parser, InputStream input) {
+  public static <M extends Message> M parseFrom(Parser<M> parser, InputStream input) {
     try {
       return parser.parseFrom(input);
     } catch (InvalidProtocolBufferException e) {
@@ -61,7 +57,7 @@ public class Protobuf2 {
   }
 
   @CheckForNull
-  public <M extends Message> M parseDelimitedFrom(Parser<M> parser, InputStream input) {
+  public static <M extends Message> M parseDelimitedFrom(Parser<M> parser, InputStream input) {
     try {
       return parser.parseDelimitedFrom(input);
     } catch (InvalidProtocolBufferException e) {

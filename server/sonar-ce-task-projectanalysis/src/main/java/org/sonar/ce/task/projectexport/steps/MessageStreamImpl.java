@@ -28,7 +28,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.utils.System2;
 import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
-import static org.sonar.ce.task.util.Protobuf2.PROTOBUF2;
+import org.sonar.ce.task.util.Protobuf2;
 
 public class MessageStreamImpl<M extends Message> implements MessageStream<M> {
 
@@ -54,7 +54,7 @@ public class MessageStreamImpl<M extends Message> implements MessageStream<M> {
     @CheckForNull
     @Override
     protected M doNext() {
-      return PROTOBUF2.parseDelimitedFrom(parser, input);
+      return Protobuf2.parseDelimitedFrom(parser, input);
     }
 
     @Override

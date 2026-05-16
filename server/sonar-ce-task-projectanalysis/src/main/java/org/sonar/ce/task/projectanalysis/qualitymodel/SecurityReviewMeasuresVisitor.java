@@ -50,7 +50,7 @@ public class SecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Secur
   private final Metric securityHotspotsToReviewStatusMetric;
 
   public SecurityReviewMeasuresVisitor(ComponentIssuesRepository componentIssuesRepository, MeasureRepository measureRepository, MetricRepository metricRepository) {
-    super(FILE, POST_ORDER, SecurityReviewMeasuresVisitor.CounterFactory.INSTANCE);
+    super(FILE, POST_ORDER, new SecurityReviewMeasuresVisitor.CounterFactory());
     this.componentIssuesRepository = componentIssuesRepository;
     this.measureRepository = measureRepository;
     this.securityReviewRatingMetric = metricRepository.getByKey(SECURITY_REVIEW_RATING_KEY);
@@ -92,8 +92,6 @@ public class SecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Secur
   }
 
   private static final class CounterFactory extends PathAwareVisitorAdapter.SimpleStackElementFactory<SecurityReviewCounter> {
-    public static final SecurityReviewMeasuresVisitor.CounterFactory INSTANCE = new SecurityReviewMeasuresVisitor.CounterFactory();
-
     private CounterFactory() {
       // prevents instantiation
     }

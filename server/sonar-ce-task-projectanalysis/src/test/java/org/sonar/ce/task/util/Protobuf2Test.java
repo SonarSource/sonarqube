@@ -42,16 +42,14 @@ public class Protobuf2Test {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  Protobuf2 underTest = Protobuf2.PROTOBUF2;
-
   @Test
   public void write_to_and_parse_from_file() throws Exception {
     File file = temp.newFile();
     try (FileOutputStream output = FILES2.openOutputStream(file, false)) {
-      underTest.writeTo(newMetadata(PROJECT_KEY_1), output);
+      Protobuf2.writeTo(newMetadata(PROJECT_KEY_1), output);
     }
     try (FileInputStream input = FILES2.openInputStream(file)) {
-      Metadata metadata = underTest.parseFrom(Metadata.parser(), input);
+      Metadata metadata = Protobuf2.parseFrom(Metadata.parser(), input);
       assertThat(metadata.getProjectKey()).isEqualTo(PROJECT_KEY_1);
     }
   }
@@ -60,20 +58,20 @@ public class Protobuf2Test {
   public void write_to_and_parse_delimited_from_file() throws Exception {
     File file = temp.newFile();
     try (FileOutputStream output = FILES2.openOutputStream(file, false)) {
-      underTest.writeDelimitedTo(newMetadata(PROJECT_KEY_1), output);
-      underTest.writeDelimitedTo(newMetadata(PROJECT_KEY_2), output);
+      Protobuf2.writeDelimitedTo(newMetadata(PROJECT_KEY_1), output);
+      Protobuf2.writeDelimitedTo(newMetadata(PROJECT_KEY_2), output);
     }
     try (FileInputStream input = FILES2.openInputStream(file)) {
-      assertThat(underTest.parseDelimitedFrom(Metadata.parser(), input).getProjectKey()).isEqualTo(PROJECT_KEY_1);
-      assertThat(underTest.parseDelimitedFrom(Metadata.parser(), input).getProjectKey()).isEqualTo(PROJECT_KEY_2);
-      assertThat(underTest.parseDelimitedFrom(Metadata.parser(), input)).isNull();
+      assertThat(Protobuf2.parseDelimitedFrom(Metadata.parser(), input).getProjectKey()).isEqualTo(PROJECT_KEY_1);
+      assertThat(Protobuf2.parseDelimitedFrom(Metadata.parser(), input).getProjectKey()).isEqualTo(PROJECT_KEY_2);
+      assertThat(Protobuf2.parseDelimitedFrom(Metadata.parser(), input)).isNull();
     }
   }
 
   @Test
   public void writeTo_throws_ISE_on_error() throws Exception {
     try (FailureOutputStream output = new FailureOutputStream()) {
-      assertThatThrownBy(() -> underTest.writeTo(newMetadata(PROJECT_KEY_1), output))
+      assertThatThrownBy(() -> Protobuf2.writeTo(newMetadata(PROJECT_KEY_1), output))
         .isInstanceOf(IllegalStateException.class)
         .hasMessageContaining("Can not write message");
     }
@@ -82,7 +80,7 @@ public class Protobuf2Test {
   @Test
   public void writeDelimitedTo_throws_ISE_on_error() throws Exception {
     try (FailureOutputStream output = new FailureOutputStream()) {
-      assertThatThrownBy(() -> underTest.writeDelimitedTo(newMetadata(PROJECT_KEY_1), output))
+      assertThatThrownBy(() -> Protobuf2.writeDelimitedTo(newMetadata(PROJECT_KEY_1), output))
         .isInstanceOf(IllegalStateException.class)
         .hasMessageContaining("Can not write message");
     }
@@ -91,7 +89,7 @@ public class Protobuf2Test {
   @Test
   public void parseFrom_throws_ISE_on_error() throws Exception {
     try (FailureInputStream input = new FailureInputStream()) {
-      assertThatThrownBy(() -> underTest.parseFrom(Metadata.parser(), input))
+      assertThatThrownBy(() -> Protobuf2.parseFrom(Metadata.parser(), input))
         .isInstanceOf(IllegalStateException.class)
         .hasMessage("Can not parse message");
     }
@@ -100,7 +98,7 @@ public class Protobuf2Test {
   @Test
   public void parseDelimitedFrom_throws_ISE_on_error() throws Exception {
     try (FailureInputStream input = new FailureInputStream()) {
-      assertThatThrownBy(() -> underTest.parseDelimitedFrom(Metadata.parser(), input))
+      assertThatThrownBy(() -> Protobuf2.parseDelimitedFrom(Metadata.parser(), input))
         .isInstanceOf(IllegalStateException.class)
         .hasMessage("Can not parse message");
     }

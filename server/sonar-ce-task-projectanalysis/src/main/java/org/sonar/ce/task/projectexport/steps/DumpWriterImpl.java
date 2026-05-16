@@ -33,7 +33,7 @@ import org.sonar.ce.task.projectexport.util.ProjectExportDumpFS;
 import static org.apache.commons.io.FileUtils.sizeOf;
 import static org.sonar.ce.task.projectexport.steps.DumpElement.METADATA;
 import static org.sonar.ce.task.util.Files2.FILES2;
-import static org.sonar.ce.task.util.Protobuf2.PROTOBUF2;
+import org.sonar.ce.task.util.Protobuf2;
 import static org.sonar.core.util.FileUtils.humanReadableByteCountSI;
 
 public class DumpWriterImpl implements DumpWriter {
@@ -61,7 +61,7 @@ public class DumpWriterImpl implements DumpWriter {
     }
     File file = new File(rootDir, METADATA.filename());
     try (FileOutputStream output = FILES2.openOutputStream(file, false)) {
-      PROTOBUF2.writeTo(metadata, output);
+      Protobuf2.writeTo(metadata, output);
       metadataWritten.set(true);
     } catch (IOException e) {
       throw new IllegalStateException("Can not write to file " + file, e);

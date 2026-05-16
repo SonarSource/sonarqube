@@ -74,7 +74,7 @@ public class MaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<Main
   private final Metric softwareQualityMaintainabilityRatingMetric;
 
   public MaintainabilityMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, RatingSettings ratingSettings) {
-    super(CrawlerDepthLimit.FILE, Order.POST_ORDER, CounterFactory.INSTANCE);
+    super(CrawlerDepthLimit.FILE, Order.POST_ORDER, new CounterFactory());
     this.measureRepository = measureRepository;
     this.ratingSettings = ratingSettings;
 
@@ -194,11 +194,7 @@ public class MaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<Main
   }
 
   private static final class CounterFactory extends SimpleStackElementFactory<Counter> {
-    public static final CounterFactory INSTANCE = new CounterFactory();
-
-    private CounterFactory() {
-      // prevents instantiation
-    }
+    // prevents instantiation
 
     @Override
     public Counter createForAny(Component component) {

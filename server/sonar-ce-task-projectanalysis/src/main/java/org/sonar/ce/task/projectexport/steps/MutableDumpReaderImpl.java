@@ -31,7 +31,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.ce.task.projectexport.steps.DumpElement.METADATA;
 import static org.sonar.ce.task.util.Files2.FILES2;
-import static org.sonar.ce.task.util.Protobuf2.PROTOBUF2;
+import org.sonar.ce.task.util.Protobuf2;
 
 public class MutableDumpReaderImpl implements MutableDumpReader {
 
@@ -71,7 +71,7 @@ public class MutableDumpReaderImpl implements MutableDumpReader {
     File file = new File(tempRootDir(), METADATA.filename());
     checkState(file.exists(), "Missing metadata file: %s", file);
     try (FileInputStream input = FILES2.openInputStream(file)) {
-      return PROTOBUF2.parseFrom(METADATA.parser(), input);
+      return Protobuf2.parseFrom(METADATA.parser(), input);
     } catch (IOException e) {
       throw new IllegalStateException("Can not read file " + file, e);
     }
