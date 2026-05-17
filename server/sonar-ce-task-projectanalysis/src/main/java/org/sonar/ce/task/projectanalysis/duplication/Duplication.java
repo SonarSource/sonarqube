@@ -22,8 +22,6 @@ package org.sonar.ce.task.projectanalysis.duplication;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.Function;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
@@ -32,8 +30,8 @@ import static java.util.Objects.requireNonNull;
 
 @Immutable
 public final class Duplication {
-  private static final Comparator<Duplicate> DUPLICATE_COMPARATOR = DuplicateComparatorByType.INSTANCE
-    .thenComparing(DuplicateToFileKey.INSTANCE).thenComparing(DuplicateToTextBlock.INSTANCE);
+  private static final Comparator<Duplicate> DUPLICATE_COMPARATOR = Duplication.compareDuplicatesByType()
+    .thenComparing(Duplication::duplicateToFileKey).thenComparing(Duplication::duplicateToTextBlock);
 
   private final TextBlock original;
   private final Duplicate[] duplicates;
@@ -106,54 +104,37 @@ public final class Duplication {
       '}';
   }
 
-  private enum DuplicateComparatorByType implements Comparator<Duplicate> {
-    INSTANCE;
-
-    @Override
-    public int compare(Duplicate o1, Duplicate o2) {
-      return toIndexType(o1) - toIndexType(o2);
-    }
-
-    private static int toIndexType(Duplicate duplicate) {
-      if (duplicate instanceof InnerDuplicate) {
-        return 0;
-      }
-      if (duplicate instanceof InProjectDuplicate) {
-        return 1;
-      }
-      if (duplicate instanceof CrossProjectDuplicate) {
-        return 2;
-      }
-      throw new IllegalArgumentException("Unsupported type of Duplicate " + duplicate.getClass().getName());
-    }
+  private static Comparator<Duplicate> compareDuplicatesByType() {
+    return (o1, o2) -> toIndexType(o1) - toIndexType(o2);
   }
 
-  private enum DuplicateToTextBlock implements Function<Duplicate, TextBlock> {
-    INSTANCE;
-
-    @Override
-    @Nonnull
-    public TextBlock apply(@Nonnull Duplicate input) {
-      return input.getTextBlock();
+  private static int toIndexType(Duplicate duplicate) {
+    if (duplicate instanceof InnerDuplicate) {
+      return 0;
     }
+    if (duplicate instanceof InProjectDuplicate) {
+      return 1;
+    }
+    if (duplicate instanceof CrossProjectDuplicate) {
+      return 2;
+    }
+    throw new IllegalArgumentException("Unsupported type of Duplicate " + duplicate.getClass().getName());
   }
 
-  private enum DuplicateToFileKey implements Function<Duplicate, String> {
-    INSTANCE;
+  private static TextBlock duplicateToTextBlock(Duplicate input) {
+    return input.getTextBlock();
+  }
 
-    @Override
-    @Nonnull
-    public String apply(@Nonnull Duplicate duplicate) {
-      if (duplicate instanceof InnerDuplicate) {
-        return "";
-      }
-      if (duplicate instanceof InProjectDuplicate inProjectDuplicate) {
-        return inProjectDuplicate.getFile().getKey();
-      }
-      if (duplicate instanceof CrossProjectDuplicate crossProjectDuplicate) {
-        return crossProjectDuplicate.getFileKey();
-      }
-      throw new IllegalArgumentException("Unsupported type of Duplicate " + duplicate.getClass().getName());
+  private static String duplicateToFileKey(Duplicate duplicate) {
+    if (duplicate instanceof InnerDuplicate) {
+      return "";
     }
+    if (duplicate instanceof InProjectDuplicate inProjectDuplicate) {
+      return inProjectDuplicate.getFile().getKey();
+    }
+    if (duplicate instanceof CrossProjectDuplicate crossProjectDuplicate) {
+      return crossProjectDuplicate.getFileKey();
+    }
+    throw new IllegalArgumentException("Unsupported type of Duplicate " + duplicate.getClass().getName());
   }
 }

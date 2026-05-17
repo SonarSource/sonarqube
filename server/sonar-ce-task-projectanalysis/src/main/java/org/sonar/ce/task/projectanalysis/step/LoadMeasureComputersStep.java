@@ -88,7 +88,7 @@ public class LoadMeasureComputersStep implements ComputationStep {
 
   @Override
   public void execute(Context context) {
-    List<MeasureComputerWrapper> wrappers = Arrays.stream(measureComputers).map(ToMeasureWrapper.INSTANCE).toList();
+    List<MeasureComputerWrapper> wrappers = Arrays.stream(measureComputers).map(LoadMeasureComputersStep::toMeasureWrapper).toList();
     validateMetrics(wrappers);
     measureComputersHolder.setMeasureComputers(sortComputers(wrappers));
   }
@@ -126,8 +126,8 @@ public class LoadMeasureComputersStep implements ComputationStep {
   }
 
   private void validateMetrics(List<MeasureComputerWrapper> wrappers) {
-    wrappers.stream().flatMap(s -> ToInputMetrics.INSTANCE.apply(s).stream()).forEach(this::validateInputMetric);
-    wrappers.stream().flatMap(s -> ToOutputMetrics.INSTANCE.apply(s).stream()).forEach(this::validateOutputMetric);
+    wrappers.stream().flatMap(s -> s.getDefinition().getInputMetrics().stream()).forEach(this::validateInputMetric);
+    wrappers.stream().flatMap(s -> s.getDefinition().getOutputMetrics().stream()).forEach(this::validateOutputMetric);
     ValidateUniqueOutputMetric validateUniqueOutputMetric = new ValidateUniqueOutputMetric();
     wrappers.forEach(validateUniqueOutputMetric::validate);
   }
@@ -159,50 +159,27 @@ public class LoadMeasureComputersStep implements ComputationStep {
     }
   }
 
-  private enum ToMeasureWrapper implements Function<MeasureComputer, MeasureComputerWrapper> {
-    INSTANCE;
-
-    @Override
-    public MeasureComputerWrapper apply(@Nonnull MeasureComputer measureComputer) {
-      MeasureComputerDefinition def = measureComputer.define(MeasureComputerDefinitionImpl.BuilderImpl::new);
-      return new MeasureComputerWrapper(measureComputer, validateDef(def));
-    }
-
-    private static MeasureComputerDefinition validateDef(MeasureComputerDefinition def) {
-      if (def instanceof MeasureComputerDefinitionImpl) {
-        return def;
-      }
-      // If the computer has not been created by the builder, we recreate it to make sure it's valid
-      Set<String> inputMetrics = def.getInputMetrics();
-      Set<String> outputMetrics = def.getOutputMetrics();
-      return new MeasureComputerDefinitionImpl.BuilderImpl()
-        .setInputMetrics(from(inputMetrics).toArray(String.class))
-        .setOutputMetrics(from(outputMetrics).toArray(String.class))
-        .build();
-    }
+  private static MeasureComputerWrapper toMeasureWrapper(MeasureComputer measureComputer) {
+    MeasureComputerDefinition def = measureComputer.define(MeasureComputerDefinitionImpl.BuilderImpl::new);
+    return new MeasureComputerWrapper(measureComputer, validateDef(def));
   }
 
-  private enum ToInputMetrics implements Function<MeasureComputerWrapper, Collection<String>> {
-    INSTANCE;
-
-    @Override
-    public Collection<String> apply(@Nonnull MeasureComputerWrapper input) {
-      return input.getDefinition().getInputMetrics();
+  private static MeasureComputerDefinition validateDef(MeasureComputerDefinition def) {
+    if (def instanceof MeasureComputerDefinitionImpl) {
+      return def;
     }
+    // If the computer has not been created by the builder, we recreate it to make sure it's valid
+    Set<String> inputMetrics = def.getInputMetrics();
+    Set<String> outputMetrics = def.getOutputMetrics();
+    return new MeasureComputerDefinitionImpl.BuilderImpl()
+      .setInputMetrics(from(inputMetrics).toArray(String.class))
+      .setOutputMetrics(from(outputMetrics).toArray(String.class))
+      .build();
   }
 
   private void validateInputMetric(String metric) {
     checkState(pluginMetricKeys.contains(metric) || CORE_METRIC_KEYS.contains(metric),
       "Metric '%s' cannot be used as an input metric as it's not a core metric and no plugin declare this metric", metric);
-  }
-
-  private enum ToOutputMetrics implements Function<MeasureComputerWrapper, Collection<String>> {
-    INSTANCE;
-
-    @Override
-    public Collection<String> apply(@Nonnull MeasureComputerWrapper input) {
-      return input.getDefinition().getOutputMetrics();
-    }
   }
 
   private void validateOutputMetric(String metric) {
