@@ -73,31 +73,32 @@ include 'sonar-testing-ldap'
 include 'sonar-ws'
 include 'sonar-ws-generator'
 
-// Use local organizations build instead of published artifacts from Artifactory
-// Set useLocalOrg=true in ~/.gradle/gradle.properties
-// Requires SONARQUBE_UNIFICATION_PATH environment variable pointing to sonarqube-unification directory
-def useLocalOrg = settings.hasProperty('useLocalOrg') && settings.useLocalOrg.toBoolean()
-if (useLocalOrg) {
-  def orgPath = System.getenv('SONARQUBE_UNIFICATION_PATH')
-  if (!orgPath) {
-    throw new GradleException(
-      "useLocalOrg is enabled but SONARQUBE_UNIFICATION_PATH environment variable is not set.\n" +
-      "Please set it to the path of your sonarqube-unification directory:\n" +
-      "  export SONARQUBE_UNIFICATION_PATH=/path/to/sonarqube-unification"
-    )
-  }
-  def orgDir = new File(orgPath, 'organizations')
-  println "Using local organizations build from: ${orgDir.absolutePath}"
-  includeBuild(orgDir.absolutePath) {
-    dependencySubstitution {
-      substitute module("org.sonarsource.sonarqube:organizations-api") using project(':organizations-api')
-      substitute module("org.sonarsource.sonarqube:organizations-server-app") using project(':organizations-server-app')
+// Registers a local composite build from the sonarqube-unification repo as a substitute for published artifacts.
+// Set the property to true and optionally sonarqubeUnificationPath in ~/.gradle/gradle.properties.
+// Falls back to the SONARQUBE_UNIFICATION_PATH environment variable if the Gradle property is not set.
+def useLocalUnificationModule = { String propName, String label, String subPath, List<String> modules ->
+  if (settings.hasProperty(propName) && settings[propName].toBoolean()) {
+    def basePath = settings.hasProperty('sonarqubeUnificationPath')
+      ? settings['sonarqubeUnificationPath']
+      : System.getenv('SONARQUBE_UNIFICATION_PATH')
+    if (!basePath) {
+      throw new GradleException(
+        "${propName} is enabled but the sonarqube-unification path is not configured.\n" +
+        "Set sonarqubeUnificationPath in ~/.gradle/gradle.properties or export SONARQUBE_UNIFICATION_PATH."
+      )
+    }
+    def dir = new File(basePath, subPath)
+    println "Using local ${label} build from: ${dir.absolutePath}"
+    includeBuild(dir.absolutePath) {
+      dependencySubstitution {
+        modules.each { name -> substitute module("org.sonarsource.sonarqube:${name}") using project(":${name}") }
+      }
     }
   }
-} else {
-  println "Using published organizations artifacts from Artifactory"
 }
 
+useLocalUnificationModule('useLocalOrg', 'organizations', 'organizations', ['organizations-api', 'organizations-server-app'])
+useLocalUnificationModule('useLocalMetrics', 'metrics', 'analysis-processing/metrics', ['metrics-api', 'metrics-server-app'])
 
 ext.isCiServer = System.getenv().containsKey("GITHUB_ACTIONS")
 
