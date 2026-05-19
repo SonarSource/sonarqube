@@ -45,6 +45,14 @@ public class WebPagesCache {
   private static final String SONARQUBE_INSTANCE_VALUE = "SonarQube";
 
   private static final String INDEX_HTML_PATH = "/index.html";
+  private static final String EDGE_PASSWORD_REVEAL_STYLE = """
+      <style>
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+          display: none;
+        }
+      </style>
+      """;
 
   private static final Set<String> HTML_PATHS = Set.of(INDEX_HTML_PATH);
 
@@ -94,10 +102,11 @@ public class WebPagesCache {
     try (InputStream input = servletContext.getResourceAsStream(path)) {
       String template = IOUtils.toString(requireNonNull(input), UTF_8);
       return template
-        .replace(WEB_CONTEXT_PLACEHOLDER, servletContext.getContextPath())
-        .replace(SERVER_STATUS_PLACEHOLDER, serverStatus)
-        .replace(INSTANCE_PLACEHOLDER, WebPagesCache.SONARQUBE_INSTANCE_VALUE)
-        .replace(OFFICIAL_PLACEHOLDER, String.valueOf(officialDistribution.check()));
+          .replace(WEB_CONTEXT_PLACEHOLDER, servletContext.getContextPath())
+          .replace(SERVER_STATUS_PLACEHOLDER, serverStatus)
+          .replace(INSTANCE_PLACEHOLDER, WebPagesCache.SONARQUBE_INSTANCE_VALUE)
+          .replace(OFFICIAL_PLACEHOLDER, String.valueOf(officialDistribution.check()))
+          .replace("</head>", EDGE_PASSWORD_REVEAL_STYLE + "</head>");
     } catch (Exception e) {
       throw new IllegalStateException("Fail to load file " + path, e);
     }
