@@ -476,6 +476,42 @@ public class GitlabApplicationClientTest {
   }
 
   @Test
+  public void throws_when_get_projects_returns_403_forbidden_without_insufficient_scope() {
+    MockResponse projects = new MockResponse()
+      .setResponseCode(403)
+      .setBody("{\"message\":\"403 Forbidden\"}");
+    server.enqueue(projects);
+
+    assertThatThrownBy(() -> underTest.searchProjects(gitlabUrl, "pat", "example", 1, 2))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Forbidden access to GitLab. Verify your token's permissions and IP restrictions.");
+  }
+
+  @Test
+  public void throws_when_get_projects_returns_403_with_insufficient_scope() {
+    MockResponse projects = new MockResponse()
+      .setResponseCode(403)
+      .setBody("{\"error\":\"insufficient_scope\"}");
+    server.enqueue(projects);
+
+    assertThatThrownBy(() -> underTest.searchProjects(gitlabUrl, "pat", "example", 1, 2))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Your GitLab token has insufficient scope");
+  }
+
+  @Test
+  public void throws_when_get_projects_returns_429_too_many_requests() {
+    MockResponse projects = new MockResponse()
+      .setResponseCode(429)
+      .setBody("{\"message\":\"429 Too Many Requests\"}");
+    server.enqueue(projects);
+
+    assertThatThrownBy(() -> underTest.searchProjects(gitlabUrl, "pat", "example", 1, 2))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("GitLab API rate limit exceeded. Try again later.");
+  }
+
+  @Test
   public void fail_check_read_permission_with_unexpected_io_exception_with_detailed_log() throws IOException {
     server.shutdown();
 

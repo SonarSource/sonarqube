@@ -65,6 +65,8 @@ public class GitlabApplicationClient {
   private static final TypeToken<List<GsonProjectMember>> GITLAB_PROJECT_MEMBER = new TypeToken<>() {
   };
 
+  private static final int HTTP_TOO_MANY_REQUESTS = 429;
+
   protected static final String PRIVATE_TOKEN = "Private-Token";
   private static final String GITLAB_GROUPS_MEMBERS_ENDPOINT = "/groups/%s/members";
   protected final OkHttpClient client;
@@ -188,6 +190,10 @@ public class GitlabApplicationClient {
         throw new GitlabServerException(response.code(), "Your GitLab token is expired");
       } else if (isInsufficientScope(response, body)) {
         throw new GitlabServerException(response.code(), "Your GitLab token has insufficient scope");
+      } else if (response.code() == HTTP_FORBIDDEN) {
+        throw new GitlabServerException(response.code(), "Forbidden access to GitLab. Verify your token's permissions and IP restrictions.");
+      } else if (response.code() == HTTP_TOO_MANY_REQUESTS) {
+        throw new GitlabServerException(response.code(), "GitLab API rate limit exceeded. Try again later.");
       } else if (response.code() == HTTP_UNAUTHORIZED) {
         throw new GitlabServerException(response.code(), "Invalid personal access token");
       } else if (response.isRedirect()) {
