@@ -17,31 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v202603;
+package org.sonar.server.platform.db.migration.version.v202604;
 
-import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.dialect.Oracle;
 import org.sonar.server.platform.db.migration.step.DropIndexChange;
 
-/**
- * Oracle reuses this unique index as the backing index for {@code PK_ISSUES_IMPACTS}, so dropping it
- * would break the primary key. On Oracle this step is a no-op; the index is renamed instead by
- * {@link RenameIndexOnIssuesImpactsToPk}.
- */
-public class DropUniqueIndexOnIssuesImpacts extends DropIndexChange {
-  private static final String TABLE_NAME = "issues_impacts";
-  private static final String INDEX_NAME = "uniq_iss_key_sof_qual";
+public class DropRedundantIndexOnIssueChangesIssueKey extends DropIndexChange {
+  private static final String TABLE_NAME = "issue_changes";
+  private static final String INDEX_NAME = "issue_changes_issue_key";
 
-  public DropUniqueIndexOnIssuesImpacts(Database db) {
+  public DropRedundantIndexOnIssueChangesIssueKey(Database db) {
     super(db, INDEX_NAME, TABLE_NAME);
-  }
-
-  @Override
-  public void execute(Context context) throws SQLException {
-    if (Oracle.ID.equals(getDialect().getId())) {
-      return;
-    }
-    super.execute(context);
   }
 }

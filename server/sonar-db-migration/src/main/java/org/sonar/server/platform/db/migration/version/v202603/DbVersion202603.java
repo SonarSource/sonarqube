@@ -34,10 +34,6 @@ public class DbVersion202603 implements DbVersion {
       .add(2026_03_004, "Add 'component_uuid' column to 'sca_issues_releases' table", AddComponentUuidToScaIssuesReleases.class)
       .add(2026_03_005, "Backfill 'component_uuid' on 'sca_issues_releases' from 'sca_releases'", BackfillComponentUuidOnScaIssuesReleases.class)
       .add(2026_03_006, "Make 'sca_issues_releases.component_uuid' not nullable", MakeScaIssuesReleasesComponentUuidNotNullable.class)
-      .add(2026_03_007, "Create 'admin_alert_status' table", CreateAdminAlertStatusTable.class)
-      .add(2026_03_008, "Drop redundant unique index 'uniq_iss_key_sof_qual' on 'issues_impacts'", DropUniqueIndexOnIssuesImpacts.class)
-      .add(2026_03_009, "Drop redundant unique index 'uniq_rul_uuid_sof_qual' on 'rules_default_impacts'", DropUniqueIndexOnRulesDefaultImpacts.class)
-      .add(2026_03_010, "Rename index 'uniq_iss_key_sof_qual' to 'pk_issues_impacts' on Oracle", RenameIndexOnIssuesImpactsToPk.class)
-      .add(2026_03_011, "Rename index 'uniq_rul_uuid_sof_qual' to 'pk_rules_default_impacts' on Oracle", RenameIndexOnRulesDefaultImpactsToPk.class);
+      .add(2026_03_007, "Create 'admin_alert_status' table", CreateAdminAlertStatusTable.class);
   }
 }

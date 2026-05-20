@@ -17,38 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v202603;
+package org.sonar.server.platform.db.migration.version.v202604;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.db.dialect.Oracle;
-import org.sonar.server.platform.db.migration.step.DdlChange;
-
-import static org.sonar.db.DatabaseUtils.findExistingIndex;
+import org.sonar.server.platform.db.migration.step.DropIndexChange;
 
 /**
- * On Oracle, {@link DropUniqueIndexOnIssuesImpacts} leaves the {@code uniq_iss_key_sof_qual} index in place
- * because Oracle reuses it as the backing index for {@code PK_ISSUES_IMPACTS}. This migration renames it to
- * match the PK constraint name for consistency. No-op on every other dialect.
+ * Oracle reuses this unique index as the backing index for {@code PK_ISSUES_IMPACTS}, so dropping it
+ * would break the primary key. On Oracle this step is a no-op; the index is renamed instead by
+ * {@link RenameIndexOnIssuesImpactsToPk}.
  */
-public class RenameIndexOnIssuesImpactsToPk extends DdlChange {
+public class DropUniqueIndexOnIssuesImpacts extends DropIndexChange {
   private static final String TABLE_NAME = "issues_impacts";
-  private static final String OLD_INDEX_NAME = "uniq_iss_key_sof_qual";
-  private static final String NEW_INDEX_NAME = "pk_issues_impacts";
+  private static final String INDEX_NAME = "uniq_iss_key_sof_qual";
 
-  public RenameIndexOnIssuesImpactsToPk(Database db) {
-    super(db);
+  public DropUniqueIndexOnIssuesImpacts(Database db) {
+    super(db, INDEX_NAME, TABLE_NAME);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    if (!Oracle.ID.equals(getDialect().getId())) {
+    if (Oracle.ID.equals(getDialect().getId())) {
       return;
     }
-    try (Connection connection = getDatabase().getDataSource().getConnection()) {
-      findExistingIndex(connection, TABLE_NAME, OLD_INDEX_NAME)
-        .ifPresent(existingIndex -> context.execute("ALTER INDEX " + existingIndex + " RENAME TO " + NEW_INDEX_NAME));
-    }
+    super.execute(context);
   }
 }
