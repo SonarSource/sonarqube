@@ -462,7 +462,7 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
       .setUuid(SUBVIEW_1_UUID)
       .setName(SUBVIEW_1_NAME)
       .setDescription(SUBVIEW_1_DESCRIPTION)
-      .setSubViewAttributes(new SubViewAttributes(originalViewUuid));
+      .setSubViewAttributes(new SubViewAttributes(originalViewUuid, ComponentQualifiers.VIEW));
   }
 
   private static ViewsComponent.Builder createProjectView1Builder(ComponentDto project, Long analysisDate) {
