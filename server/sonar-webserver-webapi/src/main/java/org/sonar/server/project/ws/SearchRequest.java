@@ -39,6 +39,7 @@ class SearchRequest {
   private final String analyzedBefore;
   private final boolean onProvisionedOnly;
   private final List<String> projects;
+  private final List<String> projectKeys;
 
   public SearchRequest(Builder builder) {
     this.query = builder.query;
@@ -49,6 +50,7 @@ class SearchRequest {
     this.analyzedBefore = builder.analyzedBefore;
     this.onProvisionedOnly = builder.onProvisionedOnly;
     this.projects = builder.projects;
+    this.projectKeys = builder.projectKeys;
   }
 
   public List<String> getQualifiers() {
@@ -89,6 +91,11 @@ class SearchRequest {
     return projects;
   }
 
+  @CheckForNull
+  public List<String> getProjectKeys() {
+    return projectKeys;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -102,6 +109,7 @@ class SearchRequest {
     private String analyzedBefore;
     private boolean onProvisionedOnly = false;
     private List<String> projects;
+    private List<String> projectKeys;
 
     public Builder setQualifiers(List<String> qualifiers) {
       this.qualifiers = requireNonNull(qualifiers, "Qualifiers cannot be null");
@@ -143,8 +151,17 @@ class SearchRequest {
       return this;
     }
 
+    public Builder setProjectKeys(@Nullable List<String> projectKeys) {
+      this.projectKeys = projectKeys;
+      return this;
+    }
+
     public SearchRequest build() {
       checkArgument(projects == null || !projects.isEmpty(), "Project key list must not be empty");
+      checkArgument(
+        projectKeys == null || !projectKeys.isEmpty(),
+        "Project key list must not be empty"
+      );
       checkArgument(pageSize == null || pageSize <= MAX_PAGE_SIZE, "Page size must not be greater than %s", MAX_PAGE_SIZE);
       return new SearchRequest(this);
     }

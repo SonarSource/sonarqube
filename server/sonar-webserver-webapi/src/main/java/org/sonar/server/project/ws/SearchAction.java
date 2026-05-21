@@ -48,12 +48,12 @@ import org.sonarqube.ws.Projects.SearchWsResponse;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static org.sonar.db.component.ComponentQualifiers.APP;
-import static org.sonar.db.component.ComponentQualifiers.PROJECT;
-import static org.sonar.db.component.ComponentQualifiers.VIEW;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
 import static org.sonar.db.Pagination.forPage;
+import static org.sonar.db.component.ComponentQualifiers.APP;
+import static org.sonar.db.component.ComponentQualifiers.PROJECT;
+import static org.sonar.db.component.ComponentQualifiers.VIEW;
 import static org.sonar.server.project.Visibility.PRIVATE;
 import static org.sonar.server.project.Visibility.PUBLIC;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -66,6 +66,7 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.MAX_PAGE_SIZE
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ANALYZED_BEFORE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ON_PROVISIONED_ONLY;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECTS;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_KEYS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
 
@@ -135,13 +136,25 @@ public class SearchAction implements ProjectsWsAction {
 
     action
       .createParam(PARAM_PROJECTS)
-      .setDescription("Comma-separated list of project keys")
+      .setDescription(
+        "Comma-separated list of project keys. Deprecated, use "
+          + PARAM_PROJECT_KEYS + " instead"
+      )
+      .setDeprecatedSince("2026.3")
       .setSince("6.6")
       // Limitation of ComponentDao#selectByQuery(), max 1000 values are accepted.
       // Restricting size of HTTP parameter allows to not fail with SQL error
       .setMaxValuesAllowed(DatabaseUtils.PARTITION_SIZE_FOR_ORACLE)
       .setExampleValue(String.join(",", KEY_PROJECT_EXAMPLE_001, KEY_PROJECT_EXAMPLE_002));
 
+    action
+      .createParam(PARAM_PROJECT_KEYS)
+      .setDescription("Comma-separated list of project keys (case insensitive)")
+      .setSince("2026.3")
+      .setMaxValuesAllowed(DatabaseUtils.PARTITION_SIZE_FOR_ORACLE)
+      .setExampleValue(
+        String.join(",", KEY_PROJECT_EXAMPLE_001, KEY_PROJECT_EXAMPLE_002)
+      );
   }
 
   @Override
@@ -160,6 +173,7 @@ public class SearchAction implements ProjectsWsAction {
       .setAnalyzedBefore(request.param(PARAM_ANALYZED_BEFORE))
       .setOnProvisionedOnly(request.mandatoryParamAsBoolean(PARAM_ON_PROVISIONED_ONLY))
       .setProjects(request.paramAsStrings(PARAM_PROJECTS))
+      .setProjectKeys(request.paramAsStrings(PARAM_PROJECT_KEYS))
       .build();
   }
 
@@ -210,6 +224,8 @@ public class SearchAction implements ProjectsWsAction {
     ofNullable(request.getAnalyzedBefore()).ifPresent(d -> query.setAllBranchesAnalyzedBefore(parseDateOrDateTime(d).getTime()));
     query.setOnProvisionedOnly(request.isOnProvisionedOnly());
     ofNullable(request.getProjects()).ifPresent(keys -> query.setComponentKeys(new HashSet<>(keys)));
+    ofNullable(request.getProjectKeys())
+      .ifPresent(keys -> query.setComponentKeysV2(new HashSet<>(keys)));
 
     return query.build();
   }

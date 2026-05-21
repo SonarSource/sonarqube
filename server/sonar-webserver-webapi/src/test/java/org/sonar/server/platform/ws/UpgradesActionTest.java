@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.ws.TestResponse;
@@ -56,9 +57,10 @@ class UpgradesActionTest {
   private final UpdateCenter updateCenter = mock(UpdateCenter.class);
   private final Sonar sonar = mock(Sonar.class);
   private final System2 system2 = mock(System2.class);
+  private final DocumentationLinkGenerator documentationLinkGenerator = mock(DocumentationLinkGenerator.class);
 
   private final ActiveVersionEvaluator activeVersionEvaluator = new ActiveVersionEvaluator(sonarQubeVersion, system2);
-  private final UpgradesAction underTest = new UpgradesAction(updateCenterFactory, activeVersionEvaluator);
+  private final UpgradesAction underTest = new UpgradesAction(updateCenterFactory, activeVersionEvaluator, documentationLinkGenerator);
 
   private final WsActionTester tester = new WsActionTester(underTest);
 
@@ -106,6 +108,7 @@ class UpgradesActionTest {
     when(updateCenter.getDate()).thenReturn(DateUtils.parseDateTime("2015-04-24T16:08:36+0200"));
     when(sonar.getLtaVersion()).thenReturn(new Release(sonar, Version.create("9.9.4")));
     when(sonar.getPastLtaVersion()).thenReturn(new Release(sonar, Version.create("8.9.10")));
+    when(documentationLinkGenerator.getDocumentationLink(null)).thenReturn("https://docs.sonarsource.com/sonarqube-server/8.9");
   }
 
   @Test

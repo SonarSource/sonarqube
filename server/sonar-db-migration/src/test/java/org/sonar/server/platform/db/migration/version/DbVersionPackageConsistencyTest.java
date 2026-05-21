@@ -25,8 +25,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.OptionalInt;
 import java.util.Properties;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
@@ -37,7 +39,9 @@ class DbVersionPackageConsistencyTest {
 
   @TestFactory
   Collection<DynamicTest> each_version_package_should_not_exceed_current_commercial_version() throws IOException {
-    int currentVersion = readCurrentVersion();
+    OptionalInt currentVersion = readCurrentVersion();
+    Assumptions.assumeTrue(currentVersion.isPresent(), "private/gradle.properties not found — skipping (open-source build)");
+    int version = currentVersion.getAsInt();
 
     Path versionDir = Paths.get("src/main/java/org/sonar/server/platform/db/migration/version");
     assertThat(versionDir).exists();
@@ -47,21 +51,21 @@ class DbVersionPackageConsistencyTest {
         .filter(Files::isDirectory)
         .map(p -> p.getFileName().toString())
         .filter(name -> name.matches("v\\d+"))
-        .map(name -> dynamicTest(name + " must not exceed current version " + currentVersion, () -> assertThat(Integer.parseInt(name.substring(1)))
+        .map(name -> dynamicTest(name + " must not exceed current version " + version, () -> assertThat(Integer.parseInt(name.substring(1)))
           .describedAs(
             "Package '%s' references a version beyond the current version %d (from private/gradle.properties). "
               + "Package names under 'version/' must not reference a future release.",
-            name, currentVersion)
-          .isLessThanOrEqualTo(currentVersion)))
+            name, version)
+          .isLessThanOrEqualTo(version)))
         .toList();
     }
   }
 
-  private static int readCurrentVersion() throws IOException {
+  private static OptionalInt readCurrentVersion() throws IOException {
     Path gradleProperties = Paths.get("../../private/gradle.properties");
-    assertThat(gradleProperties)
-      .describedAs("private/gradle.properties not found — this test requires an enterprise/commercial build")
-      .exists();
+    if (!Files.exists(gradleProperties)) {
+      return OptionalInt.empty();
+    }
     Properties properties = new Properties();
     try (InputStream is = Files.newInputStream(gradleProperties)) {
       properties.load(is);
@@ -71,7 +75,9 @@ class DbVersionPackageConsistencyTest {
       .describedAs("commercialVersion not found in private/gradle.properties")
       .isNotNull();
     String[] parts = commercialVersion.split("\\.");
-    assertThat(parts).hasSize(2);
-    return Integer.parseInt(parts[0]) * 100 + Integer.parseInt(parts[1]);
+    assertThat(parts)
+      .describedAs("commercialVersion in private/gradle.properties must have format 'MAJOR.MINOR'")
+      .hasSize(2);
+    return OptionalInt.of(Integer.parseInt(parts[0]) * 100 + Integer.parseInt(parts[1]));
   }
 }

@@ -82,11 +82,8 @@ HAZELCAST_ADDITIONAL="--add-exports=java.base/jdk.internal.ref=ALL-UNNAMED \
 --add-opens=java.management/sun.management=ALL-UNNAMED \
 --add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED"
 
-# Sonar app launching process memory setting
-XMS="-Xms8m"
-XMX="-Xmx32m"
-
-COMMAND_LINE="$JAVA_CMD $XMS $XMX $HAZELCAST_ADDITIONAL -jar $LIB_DIR/sonar-application-@sqversion@.jar"
+# Optional: set JVM options for the app process (e.g. SONAR_APP_JAVA_OPTS="-Xmx256m")
+COMMAND_LINE="$JAVA_CMD ${SONAR_APP_JAVA_OPTS} $HAZELCAST_ADDITIONAL -jar $LIB_DIR/sonar-application-@sqversion@.jar"
 
 # Location of the pid file.
 PIDFILE="$PIDDIR/$APP_NAME.pid"

@@ -254,7 +254,13 @@
       <if test="query.componentKeys!=null">
         and p.kee in
         <foreach collection="query.componentKeys" item="componentKey" open="(" close=")" separator=",">
-          #{componentKey,jdbcType=BIGINT}
+          #{componentKey,jdbcType=VARCHAR}
+        </foreach>
+      </if>
+      <if test="query.componentKeysV2!=null">
+        and LOWER(p.kee) in
+        <foreach collection="query.componentKeysV2" item="componentKey" open="(" close=")" separator=",">
+          LOWER(#{componentKey,jdbcType=VARCHAR})
         </foreach>
       </if>
       <if test="query.componentUuids!=null">

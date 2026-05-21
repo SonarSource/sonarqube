@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v202603;
+package org.sonar.server.platform.db.migration.version.v202604;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -28,16 +28,16 @@ import org.sonar.server.platform.db.migration.step.DdlChange;
 import static org.sonar.db.DatabaseUtils.findExistingIndex;
 
 /**
- * On Oracle, {@link DropUniqueIndexOnRulesDefaultImpacts} leaves the {@code uniq_rul_uuid_sof_qual} index in
- * place because Oracle reuses it as the backing index for {@code PK_RULES_DEFAULT_IMPACTS}. This migration
- * renames it to match the PK constraint name for consistency. No-op on every other dialect.
+ * On Oracle, {@link DropUniqueIndexOnIssuesImpacts} leaves the {@code uniq_iss_key_sof_qual} index in place
+ * because Oracle reuses it as the backing index for {@code PK_ISSUES_IMPACTS}. This migration renames it to
+ * match the PK constraint name for consistency. No-op on every other dialect.
  */
-public class RenameIndexOnRulesDefaultImpactsToPk extends DdlChange {
-  private static final String TABLE_NAME = "rules_default_impacts";
-  private static final String OLD_INDEX_NAME = "uniq_rul_uuid_sof_qual";
-  private static final String NEW_INDEX_NAME = "pk_rules_default_impacts";
+public class RenameIndexOnIssuesImpactsToPk extends DdlChange {
+  private static final String TABLE_NAME = "issues_impacts";
+  private static final String OLD_INDEX_NAME = "uniq_iss_key_sof_qual";
+  private static final String NEW_INDEX_NAME = "pk_issues_impacts";
 
-  public RenameIndexOnRulesDefaultImpactsToPk(Database db) {
+  public RenameIndexOnIssuesImpactsToPk(Database db) {
     super(db);
   }
 

@@ -26,9 +26,14 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public class SubViewAttributes {
   private final String originalViewUuid;
+  private final String originalViewType;
 
-  public SubViewAttributes(@Nullable String originalViewUuid) {
+  public SubViewAttributes(
+    @Nullable String originalViewUuid,
+    @Nullable String originalViewType
+  ) {
     this.originalViewUuid = originalViewUuid;
+    this.originalViewType = originalViewType;
   }
 
   /**
@@ -39,10 +44,16 @@ public class SubViewAttributes {
     return originalViewUuid;
   }
 
+  @CheckForNull
+  public String getOriginalViewType() {
+    return originalViewType;
+  }
+
   @Override
   public String toString() {
     return "SubViewAttributes{" +
       "originalViewUuid='" + originalViewUuid + '\'' +
+      ", originalViewType=" + originalViewType +
       '}';
   }
 }

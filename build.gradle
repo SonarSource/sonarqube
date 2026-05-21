@@ -317,10 +317,10 @@ subprojects {
       dependency 'com.sonarsource.dbd:sonar-dbd-plugin:2.7.0.20531'
       dependency 'com.sonarsource.dbd:sonar-dbd-java-frontend-plugin:2.7.0.20531'
       dependency 'com.sonarsource.dbd:sonar-dbd-python-frontend-plugin:2.7.0.20531'
-      dependency 'com.sonarsource.dotnet:sonar-csharp-enterprise-plugin:10.25.0.139117'
-      dependency 'com.sonarsource.dotnet:sonar-vbnet-enterprise-plugin:10.25.0.139117'
+      dependency 'com.sonarsource.dotnet:sonar-csharp-enterprise-plugin:10.26.0.140279'
+      dependency 'com.sonarsource.dotnet:sonar-vbnet-enterprise-plugin:10.26.0.140279'
       dependency 'com.sonarsource.dre:sonar-dre-plugin:2.3.0.12320'
-      dependency 'com.sonarsource.go:sonar-go-enterprise-plugin:1.37.0.6200'
+      dependency 'com.sonarsource.go:sonar-go-enterprise-plugin:1.38.0.6335'
       dependency 'com.sonarsource.pli:sonar-pli-plugin:1.22.0.7415'
       dependency 'com.sonarsource.plsql:sonar-plsql-plugin:3.19.0.8197'
       dependency 'com.sonarsource.plugins.vb:sonar-vb-plugin:2.17.0.7134'
@@ -338,10 +338,10 @@ subprojects {
       dependency 'org.sonarsource.slang:sonar-scala-plugin:1.23.0.2394'
       dependency 'com.sonarsource.swift:sonar-swift-plugin:5.3.0.12759'
       dependency 'com.sonarsource.tsql:sonar-tsql-plugin:1.16.1.9133'
-      dependency 'org.sonarsource.dotnet:sonar-csharp-plugin:10.25.0.139117'
-      dependency 'org.sonarsource.dotnet:sonar-vbnet-plugin:10.25.0.139117'
+      dependency 'org.sonarsource.dotnet:sonar-csharp-plugin:10.26.0.140279'
+      dependency 'org.sonarsource.dotnet:sonar-vbnet-plugin:10.26.0.140279'
       dependency 'org.sonarsource.flex:sonar-flex-plugin:2.17.0.6043'
-      dependency 'org.sonarsource.go:sonar-go-plugin:1.37.0.6200'
+      dependency 'org.sonarsource.go:sonar-go-plugin:1.38.0.6335'
       dependency 'org.sonarsource.html:sonar-html-plugin:3.26.0.7600'
       dependency 'org.sonarsource.jacoco:sonar-jacoco-plugin:1.5.1.5340'
       dependency 'org.sonarsource.java:sonar-java-plugin:8.29.0.43460'
@@ -379,6 +379,10 @@ subprojects {
       }
       dependency "org.sonarsource.sonarqube:organizations-api:$organizationsApiVersion"
       dependency "org.sonarsource.sonarqube:organizations-server-app:$organizationsApiVersion"
+      dependencySet(group: 'org.sonarsource.sonarqube', version: "$metricsApiVersion") {
+        entry 'metrics-api'
+        entry 'metrics-server-app'
+      }
       // Keep in sync with sonar-sca's dependency management
       dependency "org.sonarsource.sonarqube:sonar-feature-flags-api:$featureFlagsApiVersion"
       dependency "org.sonarsource.sonarqube:sonar-events-server:$eventsApiVersion"
