@@ -25,12 +25,16 @@ import org.sonar.server.platform.db.migration.version.DbVersion;
 public class DbVersion202604 implements DbVersion {
 
   @Override
+  @SuppressWarnings("java:S3937")
   public void addSteps(MigrationStepRegistry registry) {
     registry
       .add(2026_04_000, "Drop redundant unique index 'uniq_iss_key_sof_qual' on 'issues_impacts'", DropUniqueIndexOnIssuesImpacts.class)
       .add(2026_04_001, "Drop redundant unique index 'uniq_rul_uuid_sof_qual' on 'rules_default_impacts'", DropUniqueIndexOnRulesDefaultImpacts.class)
       .add(2026_04_002, "Rename index 'uniq_iss_key_sof_qual' to 'pk_issues_impacts' on Oracle", RenameIndexOnIssuesImpactsToPk.class)
       .add(2026_04_003, "Rename index 'uniq_rul_uuid_sof_qual' to 'pk_rules_default_impacts' on Oracle", RenameIndexOnRulesDefaultImpactsToPk.class)
-      .add(2026_04_004, "Drop redundant index 'issue_changes_issue_key' on 'issue_changes'", DropRedundantIndexOnIssueChangesIssueKey.class);
+      .add(2026_04_004, "Drop redundant index 'issue_changes_issue_key' on 'issue_changes'", DropRedundantIndexOnIssueChangesIssueKey.class)
+      .add(2026_04_005, "Create index 'sca_issues_updated_at' on 'sca_issues.updated_at'", CreateIndexOnScaIssuesUpdatedAt.class)
+      .add(2026_04_006, "Create index 'sca_releases_updated_at' on 'sca_releases.updated_at'", CreateIndexOnScaReleasesUpdatedAt.class)
+      .add(2026_04_007, "Create index 'sca_issues_releases_updated_at' on 'sca_issues_releases.updated_at'", CreateIndexOnScaIssuesReleasesUpdatedAt.class);
   }
 }
