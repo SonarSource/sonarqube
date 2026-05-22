@@ -35,6 +35,8 @@ dependencies {
   implementation "org.sonarsource.compliancereports:compliance-reports:${complianceReportsVersion}"
   implementation 'org.sonarsource.sonarqube:organizations-api'
   implementation 'org.sonarsource.sonarqube:organizations-server-app'
+  implementation 'org.sonarsource.sonarqube:enterprises-api'
+  implementation 'org.sonarsource.sonarqube:enterprises-server-app'
   implementation 'org.springdoc:springdoc-openapi-starter-webmvc-api'
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'

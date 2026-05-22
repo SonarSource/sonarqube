@@ -23,9 +23,9 @@ import java.util.List;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-public class OrganizationDefaultsWebMvcConfigurer implements WebMvcConfigurer {
+public class DefaultsWebMvcConfigurer implements WebMvcConfigurer {
   @Override
   public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-    resolvers.add(new OrganizationDefaultsArgumentResolver());
+    resolvers.add(new DefaultsArgumentResolver());
   }
 }

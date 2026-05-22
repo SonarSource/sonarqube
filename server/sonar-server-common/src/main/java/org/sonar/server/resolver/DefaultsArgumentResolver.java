@@ -30,6 +30,8 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
+import org.sonarsource.enterprises.api.rest.EnterpriseId;
+import org.sonarsource.enterprises.server.DefaultEnterpriseProvider;
 import org.sonarsource.organizations.api.rest.OrganizationId;
 import org.sonarsource.organizations.api.rest.OrganizationKey;
 import org.sonarsource.organizations.api.rest.OrganizationLegacyId;
@@ -43,21 +45,22 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.mvc.method.annotation.ServletModelAttributeMethodProcessor;
 
 /**
- * Custom argument resolver that automatically injects default organization values for parameters
- * annotated with @OrganizationId, @OrganizationKey, or @OrganizationLegacyId
+ * Custom argument resolver that automatically injects default values for parameters
+ * annotated with organization or enterprise annotations.
  * <p>
  * In server mode (on-prem), there is no multi-tenancy, so all requests belong to a single
- * default organization. This resolver automatically forces organization identifiers to their
- * default values, overriding any user-provided values.
+ * default organization and enterprise. This resolver automatically forces those identifiers
+ * to their default values, overriding any user-provided values.
  * <p>
- * The default organization values must match those in {@link DefaultOrganizationProvider}.
+ * The default values must match those in {@link DefaultOrganizationProvider} and {@link DefaultEnterpriseProvider}.
  */
 @ServerSide
-public class OrganizationDefaultsArgumentResolver implements HandlerMethodArgumentResolver {
-  private static final Map<Class<? extends Annotation>, String> ORGANIZATION_ANNOTATIONS = Map.of(
+public class DefaultsArgumentResolver implements HandlerMethodArgumentResolver {
+  private static final Map<Class<? extends Annotation>, String> ANNOTATIONS = Map.of(
     OrganizationId.class, DefaultOrganizationProvider.ID.toString(),
     OrganizationKey.class, DefaultOrganizationProvider.KEY,
-    OrganizationLegacyId.class, DefaultOrganizationProvider.LEGACY_ID
+    OrganizationLegacyId.class, DefaultOrganizationProvider.LEGACY_ID,
+    EnterpriseId.class, DefaultEnterpriseProvider.ENTERPRISE_ID.toString()
   );
 
   private final ServletModelAttributeMethodProcessor delegate = new ServletModelAttributeMethodProcessor(false);
@@ -67,27 +70,9 @@ public class OrganizationDefaultsArgumentResolver implements HandlerMethodArgume
     if (parameter.hasParameterAnnotation(ParameterObject.class)) {
       return true;
     }
-    return hasOrganizationAnnotation(parameter.getParameter());
+    return hasAnnotation(parameter.getParameter());
   }
 
-  /**
-   * Resolves a method parameter by either returning a default organization value or injecting
-   * defaults into a complex parameter object.
-   *
-   * @param parameter the method parameter to resolve
-   * @param mavContainer the ModelAndViewContainer for the current request
-   * @param webRequest the current web request
-   * @param binderFactory the factory for creating WebDataBinder instances
-   * @return the resolved parameter value:
-   *         <ul>
-   *           <li>A {@link String} when the parameter is directly annotated with an organization annotation
-   *               (@OrganizationId, @OrganizationKey, or @OrganizationLegacyId)</li>
-   *           <li>A complex object (record or POJO) when the parameter is annotated with @ParameterObject
-   *               and contains fields with organization annotations</li>
-   *           <li>{@code null} if the delegate resolver returns null</li>
-   *         </ul>
-   * @throws Exception if the argument resolution fails
-   */
   @Override
   public Object resolveArgument(
     MethodParameter parameter,
@@ -95,18 +80,18 @@ public class OrganizationDefaultsArgumentResolver implements HandlerMethodArgume
     NativeWebRequest webRequest,
     @Nullable WebDataBinderFactory binderFactory) throws Exception {
 
-    if (hasOrganizationAnnotation(parameter.getParameter())) {
-      return getOrganizationDefault(parameter.getParameter());
+    if (hasAnnotation(parameter.getParameter())) {
+      return getDefault(parameter.getParameter());
     }
 
     Object boundObject = delegate.resolveArgument(parameter, mavContainer, webRequest, binderFactory);
     if (boundObject == null) {
       return null;
     }
-    return injectOrganizationDefaults(boundObject, parameter.getParameterType());
+    return injectDefaults(boundObject, parameter.getParameterType());
   }
 
-  private Object injectOrganizationDefaults(Object boundObject, Class<?> parameterType)
+  private Object injectDefaults(Object boundObject, Class<?> parameterType)
     throws ReflectiveOperationException {
     return parameterType.isRecord()
       ? injectIntoRecord(boundObject, parameterType)
@@ -143,7 +128,7 @@ public class OrganizationDefaultsArgumentResolver implements HandlerMethodArgume
   private static Object injectIntoClass(Object boundObject, Class<?> classType) throws IllegalAccessException {
     for (Field field : classType.getDeclaredFields()) {
       field.setAccessible(true);
-      String defaultValue = getOrganizationDefault(field);
+      String defaultValue = getDefault(field);
       if (defaultValue != null) {
         field.set(boundObject, defaultValue);
       }
@@ -152,21 +137,21 @@ public class OrganizationDefaultsArgumentResolver implements HandlerMethodArgume
   }
 
   private static Object getValueOrDefault(AnnotatedElement element, @Nullable Object currentValue) {
-    String defaultValue = getOrganizationDefault(element);
+    String defaultValue = getDefault(element);
     return defaultValue != null ? defaultValue : currentValue;
   }
 
   @CheckForNull
-  private static String getOrganizationDefault(AnnotatedElement element) {
-    return ORGANIZATION_ANNOTATIONS.entrySet().stream()
+  private static String getDefault(AnnotatedElement element) {
+    return ANNOTATIONS.entrySet().stream()
       .filter(entry -> element.getAnnotation(entry.getKey()) != null)
       .map(Map.Entry::getValue)
       .findFirst()
       .orElse(null);
   }
 
-  private static boolean hasOrganizationAnnotation(AnnotatedElement element) {
-    return ORGANIZATION_ANNOTATIONS.keySet().stream()
+  private static boolean hasAnnotation(AnnotatedElement element) {
+    return ANNOTATIONS.keySet().stream()
       .anyMatch(element::isAnnotationPresent);
   }
 

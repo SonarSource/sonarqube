@@ -273,7 +273,7 @@ import org.sonar.server.qualityprofile.builtin.BuiltInQProfileRepositoryImpl;
 import org.sonar.server.qualityprofile.builtin.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.qualityprofile.ws.QProfilesWsModule;
-import org.sonar.server.resolver.OrganizationDefaultsWebMvcConfigurer;
+import org.sonar.server.resolver.DefaultsWebMvcConfigurer;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.rule.RuleUpdater;
@@ -378,7 +378,7 @@ public class PlatformLevel4 extends PlatformLevel {
       DelegatingDevOpsProjectCreatorFactory.class,
       NetworkInterfaceProvider.class,
       OrganizationsServiceServerImpl.class,
-      OrganizationDefaultsWebMvcConfigurer.class,
+      DefaultsWebMvcConfigurer.class,
 
       // ai code assurance
       NoOpAiCodeAssuranceVerifier.class,
