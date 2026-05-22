@@ -41,6 +41,8 @@ public interface MetricMapper {
 
   int disableByKey(@Param("key") String key);
 
+  int enableByKey(@Param("key") String key);
+
   int countEnabled();
 
   void update(MetricDto metric);

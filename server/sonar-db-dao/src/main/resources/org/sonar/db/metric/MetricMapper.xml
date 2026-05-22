@@ -93,6 +93,13 @@
     and enabled=${_true}
   </update>
 
+  <update id="enableByKey" parameterType="string">
+    update metrics
+    set enabled=${_true}
+    where name=#{key}
+    and enabled=${_false}
+  </update>
+
   <select id="selectByKeys" resultType="org.sonar.db.metric.MetricDto">
     SELECT
     <include refid="metricColumns"/>

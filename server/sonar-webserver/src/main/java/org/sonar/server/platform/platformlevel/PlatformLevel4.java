@@ -46,7 +46,6 @@ import org.sonar.auth.bitbucket.BitbucketModule;
 import org.sonar.auth.github.GitHubModule;
 import org.sonar.auth.github.GitHubSettings;
 import org.sonar.auth.gitlab.GitLabModule;
-import org.sonar.server.common.graphql.GraphQlClient;
 import org.sonar.auth.ldap.LdapModule;
 import org.sonar.auth.saml.SamlModule;
 import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotificationModule;
@@ -95,6 +94,7 @@ import org.sonar.server.common.almsettings.gitlab.GitlabProjectCreatorFactory;
 import org.sonar.server.common.component.ComponentUpdater;
 import org.sonar.server.common.github.config.GithubConfigurationService;
 import org.sonar.server.common.gitlab.config.GitlabConfigurationService;
+import org.sonar.server.common.graphql.GraphQlClient;
 import org.sonar.server.common.group.service.GroupMembershipService;
 import org.sonar.server.common.group.service.GroupService;
 import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
@@ -131,6 +131,7 @@ import org.sonar.server.es.RecoveryIndexer;
 import org.sonar.server.es.metadata.EsDbCompatibilityImpl;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
 import org.sonar.server.es.metadata.MetadataIndexImpl;
+import org.sonar.server.events.EventsWebComponents;
 import org.sonar.server.extension.CoreExtensionBootstraper;
 import org.sonar.server.extension.CoreExtensionStopper;
 import org.sonar.server.favorite.FavoriteModule;
@@ -295,6 +296,7 @@ import org.sonar.server.setting.SettingsChangeNotifier;
 import org.sonar.server.setting.ws.SettingsWsModule;
 import org.sonar.server.source.ws.SourceWsModule;
 import org.sonar.server.startup.LogServerId;
+import org.sonar.server.startup.SeverityMetricsModeHandler;
 import org.sonar.server.telemetry.TelemetryQualityGateBeforeNcdStartProvider;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ui.WebAnalyticsLoaderImpl;
@@ -333,7 +335,6 @@ import org.sonarsource.compliancereports.reports.MetadataRules;
 import org.sonarsource.metrics.server.bean.MetricsServerComponents;
 import org.sonarsource.organizations.server.OrganizationsServiceServerImpl;
 import org.sonarsource.users.server.bean.UsersServerComponents;
-import org.sonar.server.events.EventsWebComponents;
 
 import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
 import static org.sonar.core.extension.PlatformLevelPredicates.hasPlatformLevel4OrNone;
@@ -369,6 +370,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ComponentTypes.class,
       DefaultComponentTypes.get(),
       SettingsChangeNotifier.class,
+      SeverityMetricsModeHandler.class,
       ServerWs.class,
       IndexDefinitions.class,
       WebAnalyticsLoaderImpl.class,

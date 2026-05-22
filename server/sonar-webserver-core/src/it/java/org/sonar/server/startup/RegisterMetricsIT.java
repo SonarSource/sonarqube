@@ -26,12 +26,11 @@ import java.util.Random;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
-import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
@@ -42,20 +41,21 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class RegisterMetricsIT {
+class RegisterMetricsIT {
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  DbTester dbTester = DbTester.create();
 
   private final UuidFactory uuidFactory = new SequenceUuidFactory();
   private final DbClient dbClient = dbTester.getDbClient();
-  private final RegisterMetrics register = new RegisterMetrics(dbClient, uuidFactory);
+  private final SeverityMetricsModeHandler severityMetricsModeHandler = new SeverityMetricsModeHandler(dbClient);
+  private final RegisterMetrics register = new RegisterMetrics(dbClient, uuidFactory, severityMetricsModeHandler);
 
   /**
    * Insert new metrics, including custom metrics
    */
   @Test
-  public void insert_new_metrics() {
+  void insert_new_metrics() {
     Metric m1 = new Metric.Builder("m1", "One", Metric.ValueType.FLOAT)
       .setDescription("desc1")
       .setDirection(1)
@@ -80,7 +80,7 @@ public class RegisterMetricsIT {
    * Update existing metrics
    */
   @Test
-  public void update_metrics() {
+  void update_metrics() {
     dbTester.measures().insertMetric(t -> t.setKey("m1")
       .setShortName("name")
       .setValueType(Metric.ValueType.INT.name())
@@ -110,7 +110,7 @@ public class RegisterMetricsIT {
   }
 
   @Test
-  public void disable_undefined_metrics() {
+  void disable_undefined_metrics() {
     Random random = new Random();
     int count = 1 + random.nextInt(10);
     IntStream.range(0, count)
@@ -124,7 +124,7 @@ public class RegisterMetricsIT {
   }
 
   @Test
-  public void enable_disabled_metrics() {
+  void enable_disabled_metrics() {
     MetricDto enabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(true));
     MetricDto disabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(false));
 
@@ -136,7 +136,7 @@ public class RegisterMetricsIT {
   }
 
   @Test
-  public void insert_core_metrics_without_removed_metric() {
+  void insert_core_metrics_without_removed_metric() {
     register.start();
 
     assertThat(dbTester.countRowsOfTable("metrics"))
@@ -147,19 +147,19 @@ public class RegisterMetricsIT {
   }
 
   @Test
-  public void fail_if_duplicated_plugin_metrics() {
+  void fail_if_duplicated_plugin_metrics() {
     Metrics plugin1 = new TestMetrics(new Metric.Builder("m1", "In first plugin", Metric.ValueType.FLOAT).create());
     Metrics plugin2 = new TestMetrics(new Metric.Builder("m1", "In second plugin", Metric.ValueType.FLOAT).create());
 
-    assertThatThrownBy(() -> new RegisterMetrics(dbClient, uuidFactory, new Metrics[] {plugin1, plugin2}).start())
+    assertThatThrownBy(() -> new RegisterMetrics(dbClient, uuidFactory, new Metrics[]{plugin1, plugin2}, severityMetricsModeHandler).start())
       .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
-  public void fail_if_plugin_duplicates_core_metric() {
+  void fail_if_plugin_duplicates_core_metric() {
     Metrics plugin = new TestMetrics(new Metric.Builder("ncloc", "In plugin", Metric.ValueType.FLOAT).create());
 
-    assertThatThrownBy(() -> new RegisterMetrics(dbClient, uuidFactory, new Metrics[] {plugin}).start())
+    assertThatThrownBy(() -> new RegisterMetrics(dbClient, uuidFactory, new Metrics[]{plugin}, severityMetricsModeHandler).start())
       .isInstanceOf(IllegalStateException.class);
   }
 
@@ -191,6 +191,34 @@ public class RegisterMetricsIT {
     assertThat(actual.isQualitative()).isEqualTo(expected.getQualitative());
   }
 
+  @Test
+  void in_mqr_mode_standard_severity_metrics_are_disabled() {
+    dbTester.properties().insertProperty("sonar.multi-quality-mode.enabled", "true", null);
+    new RegisterMetrics(dbClient, uuidFactory, severityMetricsModeHandler).start();
+
+    Map<String, MetricDto> metrics = selectAllMetrics();
+    assertThat(metrics.get("new_bugs_severity").isEnabled()).isFalse();
+    assertThat(metrics.get("new_vulnerabilities_severity").isEnabled()).isFalse();
+    assertThat(metrics.get("new_code_smells_severity").isEnabled()).isFalse();
+    assertThat(metrics.get("new_reliability_issue_severity").isEnabled()).isTrue();
+    assertThat(metrics.get("new_security_issue_severity").isEnabled()).isTrue();
+    assertThat(metrics.get("new_maintainability_issue_severity").isEnabled()).isTrue();
+  }
+
+  @Test
+  void in_standard_mode_mqr_severity_metrics_are_disabled() {
+    dbTester.properties().insertProperty("sonar.multi-quality-mode.enabled", "false", null);
+    new RegisterMetrics(dbClient, uuidFactory, severityMetricsModeHandler).start();
+
+    Map<String, MetricDto> metrics = selectAllMetrics();
+    assertThat(metrics.get("new_bugs_severity").isEnabled()).isTrue();
+    assertThat(metrics.get("new_vulnerabilities_severity").isEnabled()).isTrue();
+    assertThat(metrics.get("new_code_smells_severity").isEnabled()).isTrue();
+    assertThat(metrics.get("new_reliability_issue_severity").isEnabled()).isFalse();
+    assertThat(metrics.get("new_security_issue_severity").isEnabled()).isFalse();
+    assertThat(metrics.get("new_maintainability_issue_severity").isEnabled()).isFalse();
+  }
+
   private static Metric.Builder builderOf(MetricDto enabledMetric) {
     return new Metric.Builder(enabledMetric.getKey(), enabledMetric.getShortName(), Metric.ValueType.valueOf(enabledMetric.getValueType()))
       .setDescription(enabledMetric.getDescription())
@@ -200,4 +228,5 @@ public class RegisterMetricsIT {
       .setDomain(enabledMetric.getDomain())
       .setHidden(enabledMetric.isHidden());
   }
+
 }
