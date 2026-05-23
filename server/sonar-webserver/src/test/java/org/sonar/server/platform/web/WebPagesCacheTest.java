@@ -53,7 +53,7 @@ public class WebPagesCacheTest {
   public void setUp() {
     when(servletContext.getContextPath()).thenReturn(TEST_CONTEXT);
     when(servletContext.getResourceAsStream("/index.html")).thenAnswer(
-      (Answer<InputStream>) invocationOnMock -> toInputStream("Content of default index.html with context [WEB_CONTEXT], status [%SERVER_STATUS%], instance [%INSTANCE%]",
+      (Answer<InputStream>) invocationOnMock -> toInputStream("<html><head></head><body>Content of default index.html with context [WEB_CONTEXT], status [%SERVER_STATUS%], instance [%INSTANCE%]</body></html>",
         UTF_8));
   }
 
@@ -124,6 +124,16 @@ public class WebPagesCacheTest {
     when(platform.status()).thenReturn(STARTING);
     assertThat(underTest.getContent("/foo"))
       .contains(UP.name());
+  }
+
+  @Test
+  public void injects_edge_password_reveal_css() {
+    doInit();
+    when(platform.status()).thenReturn(UP);
+
+    assertThat(underTest.getContent("/foo"))
+      .contains("::-ms-reveal")
+      .contains("::-ms-clear");
   }
 
   @Test
