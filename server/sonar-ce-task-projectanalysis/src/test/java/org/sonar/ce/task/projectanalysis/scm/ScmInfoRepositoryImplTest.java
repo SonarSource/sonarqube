@@ -33,9 +33,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.testfixtures.log.LogTester;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.common.scanner.ScannerReportReaderRule;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.Component.Status;
 import org.sonar.ce.task.projectanalysis.component.Component.Type;
@@ -43,7 +43,10 @@ import org.sonar.ce.task.projectanalysis.component.FileAttributes;
 import org.sonar.ce.task.projectanalysis.component.FileStatuses;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
+import org.sonar.ce.task.projectanalysis.period.Period;
+import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesDiff;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.protobuf.DbFileSources.Line;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Changesets;
@@ -73,17 +76,20 @@ public class ScmInfoRepositoryImplTest {
   public ScannerReportReaderRule reportReader = new ScannerReportReaderRule();
   @Rule
   public AnalysisMetadataHolderRule analysisMetadata = new AnalysisMetadataHolderRule();
+  @Rule
+  public PeriodHolderRule periodHolder = new PeriodHolderRule();
 
   private final FileStatuses fileStatuses = mock(FileStatuses.class);
   private final SourceLinesDiff diff = mock(SourceLinesDiff.class);
   private final ScmInfoDbLoader dbLoader = mock(ScmInfoDbLoader.class);
   private final Date analysisDate = new Date();
-  private final ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(reportReader, analysisMetadata, dbLoader, diff, fileStatuses);
+  private final ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(reportReader, analysisMetadata, dbLoader, diff, fileStatuses, periodHolder);
 
   @Before
   public void setUp() {
     logTester.setLevel(TRACE);
     analysisMetadata.setAnalysisDate(analysisDate);
+    periodHolder.setPeriod(null);
   }
 
   @Test
@@ -140,7 +146,7 @@ public class ScmInfoRepositoryImplTest {
     assertChangeset(scmInfo.getChangesetForLine(1), null, null, 10L);
 
     verify(fileStatuses).isUnchanged(FILE_SAME);
-    verify(dbLoader).getScmInfo(FILE_SAME);
+    verify(dbLoader).getScmInfo(FILE_SAME, false);
 
     verifyNoMoreInteractions(dbLoader);
     verifyNoMoreInteractions(fileStatuses);
@@ -159,7 +165,7 @@ public class ScmInfoRepositoryImplTest {
     assertThat(scmInfo.hasChangesetForLine(2)).isFalse();
 
     verify(fileStatuses).isUnchanged(FILE_SAME);
-    verify(dbLoader).getScmInfo(FILE_SAME);
+    verify(dbLoader).getScmInfo(FILE_SAME, false);
 
     verifyNoMoreInteractions(dbLoader);
     verifyNoMoreInteractions(fileStatuses);
@@ -178,7 +184,7 @@ public class ScmInfoRepositoryImplTest {
     assertChangeset(scmInfo.getChangesetForLine(1), "rev1", "author1", 10L);
 
     verify(fileStatuses).isUnchanged(FILE_SAME);
-    verify(dbLoader).getScmInfo(FILE_SAME);
+    verify(dbLoader).getScmInfo(FILE_SAME, false);
 
     verifyNoMoreInteractions(dbLoader);
     verifyNoMoreInteractions(fileStatuses);
@@ -187,7 +193,7 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void generate_scm_info_when_nothing_in_report_nor_db() {
-    when(dbLoader.getScmInfo(FILE)).thenReturn(Optional.empty());
+    when(dbLoader.getScmInfo(FILE, false)).thenReturn(Optional.empty());
     ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
     assertThat(scmInfo.getAllChangesets()).hasSize(3);
 
@@ -195,7 +201,7 @@ public class ScmInfoRepositoryImplTest {
       assertChangeset(scmInfo.getChangesetForLine(i), null, null, analysisDate.getTime());
     }
 
-    verify(dbLoader).getScmInfo(FILE);
+    verify(dbLoader).getScmInfo(FILE, false);
     verifyNoMoreInteractions(dbLoader);
     verifyNoInteractions(fileStatuses);
     verifyNoInteractions(diff);
@@ -203,7 +209,7 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void generate_scm_info_when_nothing_in_db_and_report_is_has_no_changesets() {
-    when(dbLoader.getScmInfo(FILE)).thenReturn(Optional.empty());
+    when(dbLoader.getScmInfo(FILE, false)).thenReturn(Optional.empty());
     addFileSourceInReport(3);
     ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
     assertThat(scmInfo.getAllChangesets()).hasSize(3);
@@ -212,7 +218,7 @@ public class ScmInfoRepositoryImplTest {
       assertChangeset(scmInfo.getChangesetForLine(i), null, null, analysisDate.getTime());
     }
 
-    verify(dbLoader).getScmInfo(FILE);
+    verify(dbLoader).getScmInfo(FILE, false);
     verifyNoMoreInteractions(dbLoader);
     verifyNoInteractions(fileStatuses);
     verifyNoInteractions(diff);
@@ -221,7 +227,7 @@ public class ScmInfoRepositoryImplTest {
   @Test
   public void generate_scm_info_for_new_and_changed_lines_when_report_is_empty() {
     createDbScmInfoWithOneLine();
-    when(diff.computeMatchingLines(FILE)).thenReturn(new int[] {1, 0, 0});
+    when(diff.computeMatchingLines(FILE, false)).thenReturn(new int[] {1, 0, 0});
     addFileSourceInReport(3);
     ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
     assertThat(scmInfo.getAllChangesets()).hasSize(3);
@@ -230,17 +236,86 @@ public class ScmInfoRepositoryImplTest {
     assertChangeset(scmInfo.getChangesetForLine(2), null, null, analysisDate.getTime());
     assertChangeset(scmInfo.getChangesetForLine(3), null, null, analysisDate.getTime());
 
-    verify(dbLoader).getScmInfo(FILE);
-    verify(diff).computeMatchingLines(FILE);
+    verify(dbLoader).getScmInfo(FILE, false);
+    verify(diff).computeMatchingLines(FILE, false);
     verifyNoMoreInteractions(dbLoader);
     verifyNoMoreInteractions(diff);
+  }
+
+  @Test
+  public void reference_branch_ncd_with_no_scm_in_report_passes_useReferenceBranchForNcd_flag() {
+    // SONAR-27766: when REFERENCE_BRANCH NCD is active and the scanner sent no SCM (case C),
+    // both scmInfoDbLoader and sourceLinesDiff must be called with useReferenceBranchForNcd=true
+    // so they consult the reference branch's file consistently.
+    periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "main", null));
+    createDbScmInfo("rev1", "author1", 10L, true);
+    when(diff.computeMatchingLines(FILE, true)).thenReturn(new int[] {1, 0, 0});
+    addFileSourceInReport(3);
+
+    ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
+    assertThat(scmInfo.getAllChangesets()).hasSize(3);
+    assertChangeset(scmInfo.getChangesetForLine(1), null, null, 10L);
+    assertChangeset(scmInfo.getChangesetForLine(2), null, null, analysisDate.getTime());
+    assertChangeset(scmInfo.getChangesetForLine(3), null, null, analysisDate.getTime());
+
+    verify(dbLoader).getScmInfo(FILE, true);
+    verify(diff).computeMatchingLines(FILE, true);
+    verifyNoMoreInteractions(dbLoader);
+    verifyNoMoreInteractions(diff);
+  }
+
+  @Test
+  public void reference_branch_ncd_with_no_scm_skips_isUnchanged_shortcut_to_avoid_wrong_sized_scmInfo() {
+    // SONAR-27766: even when fileStatuses.isUnchanged(file) is true (file unchanged on current branch),
+    // we must still run computeMatchingLines for case C. The DbScmInfo is dimensioned for the reference
+    // branch's file, which may have a different line count than the current file. Returning it directly
+    // would surface wrong-sized changesets to downstream consumers (e.g. ArrayIndexOutOfBoundsException).
+    periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "main", null));
+    createDbScmInfo("rev1", "author1", 10L, true);
+    when(fileStatuses.isUnchanged(FILE)).thenReturn(true);
+    when(diff.computeMatchingLines(FILE, true)).thenReturn(new int[] {1, 0, 0});
+    addFileSourceInReport(3);
+
+    ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
+    assertThat(scmInfo.getAllChangesets()).hasSize(3);
+
+    verify(diff).computeMatchingLines(FILE, true);
+  }
+
+  @Test
+  public void reference_branch_ncd_with_copyFromPrevious_keeps_useReferenceBranchForNcd_flag_off() {
+    // SONAR-27766: case B (copyFromPrevious=true) preserves author/revision, so the flag MUST NOT be set —
+    // otherwise blame attribution would be wrongly redirected to the reference branch.
+    periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "main", null));
+    createDbScmInfoWithOneLine();
+    when(fileStatuses.isUnchanged(FILE_SAME)).thenReturn(true);
+    addCopyFromPrevious();
+
+    ScmInfo scmInfo = underTest.getScmInfo(FILE_SAME).get();
+    assertThat(scmInfo.getAllChangesets()).hasSize(1);
+    assertChangeset(scmInfo.getChangesetForLine(1), "rev1", "author1", 10L);
+
+    verify(dbLoader).getScmInfo(FILE_SAME, false);
+    verifyNoMoreInteractions(dbLoader);
+    verifyNoInteractions(diff);
+  }
+
+  private DbScmInfo createDbScmInfo(String revision, String author, long date, boolean referenceBranchFlag) {
+    Line line1 = Line.newBuilder().setLine(1)
+      .setScmRevision(revision)
+      .setScmAuthor(author)
+      .setScmDate(date)
+      .build();
+    DbScmInfo scmInfo = DbScmInfo.create(Collections.singletonList(line1), 1, "hash1").get();
+    when(dbLoader.getScmInfo(FILE, referenceBranchFlag)).thenReturn(Optional.of(scmInfo));
+    return scmInfo;
   }
 
   @Test
   public void generate_scm_info_for_db_changesets_without_date_when_report_is_empty() {
     // changeset for line 1 will have no date, so won't be loaded
     createDbScmInfoWithOneLineWithoutDate();
-    when(diff.computeMatchingLines(FILE)).thenReturn(new int[] {1, 0, 0});
+    when(diff.computeMatchingLines(FILE, false)).thenReturn(new int[] {1, 0, 0});
     addFileSourceInReport(3);
     ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
     assertThat(scmInfo.getAllChangesets()).hasSize(3);
@@ -262,9 +337,9 @@ public class ScmInfoRepositoryImplTest {
   @UseDataProvider("allTypeComponentButFile")
   public void do_not_query_db_nor_report_if_component_type_is_not_FILE(Component component) {
     ScannerReportReader scannerReportReader = mock(ScannerReportReader.class);
-    ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(scannerReportReader, analysisMetadata, dbLoader, diff, fileStatuses);
+    ScmInfoRepositoryImpl underTest2 = new ScmInfoRepositoryImpl(scannerReportReader, analysisMetadata, dbLoader, diff, fileStatuses, periodHolder);
 
-    assertThat(underTest.getScmInfo(component)).isEmpty();
+    assertThat(underTest2.getScmInfo(component)).isEmpty();
 
     verifyNoInteractions(scannerReportReader, dbLoader);
   }
@@ -318,7 +393,7 @@ public class ScmInfoRepositoryImplTest {
       .setScmDate(10L)
       .build();
     DbScmInfo scmInfo = DbScmInfo.create(Collections.singletonList(line1), 1, "hash1").get();
-    when(dbLoader.getScmInfo(FILE)).thenReturn(Optional.of(scmInfo));
+    when(dbLoader.getScmInfo(FILE, false)).thenReturn(Optional.of(scmInfo));
     return scmInfo;
   }
 
@@ -333,7 +408,7 @@ public class ScmInfoRepositoryImplTest {
       .setScmDate(10L)
       .build();
     DbScmInfo scmInfo = DbScmInfo.create(List.of(line1, line2), 2, "hash1").get();
-    when(dbLoader.getScmInfo(FILE)).thenReturn(Optional.of(scmInfo));
+    when(dbLoader.getScmInfo(FILE, false)).thenReturn(Optional.of(scmInfo));
     return scmInfo;
   }
 
@@ -344,7 +419,7 @@ public class ScmInfoRepositoryImplTest {
       .setScmDate(10L)
       .build();
     DbScmInfo scmInfo = DbScmInfo.create(Collections.singletonList(line1), 2, "hash1").get();
-    when(dbLoader.getScmInfo(FILE)).thenReturn(Optional.of(scmInfo));
+    when(dbLoader.getScmInfo(FILE, false)).thenReturn(Optional.of(scmInfo));
     return scmInfo;
   }
 

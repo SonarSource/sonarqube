@@ -31,7 +31,9 @@ import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.common.scanner.ScannerReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.FileStatuses;
+import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesDiff;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static java.util.Objects.requireNonNull;
@@ -46,14 +48,16 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
   private final AnalysisMetadataHolder analysisMetadata;
   private final SourceLinesDiff sourceLinesDiff;
   private final FileStatuses fileStatuses;
+  private final PeriodHolder periodHolder;
 
   public ScmInfoRepositoryImpl(ScannerReportReader scannerReportReader, AnalysisMetadataHolder analysisMetadata, ScmInfoDbLoader scmInfoDbLoader,
-    SourceLinesDiff sourceLinesDiff, FileStatuses fileStatuses) {
+    SourceLinesDiff sourceLinesDiff, FileStatuses fileStatuses, PeriodHolder periodHolder) {
     this.scannerReportReader = scannerReportReader;
     this.analysisMetadata = analysisMetadata;
     this.scmInfoDbLoader = scmInfoDbLoader;
     this.sourceLinesDiff = sourceLinesDiff;
     this.fileStatuses = fileStatuses;
+    this.periodHolder = periodHolder;
   }
 
   @Override
@@ -118,20 +122,37 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
    * we generate change dates based on the analysis date.
    */
   private Optional<ScmInfo> generateAndMergeDb(Component file, boolean keepAuthorAndRevision) {
-    Optional<DbScmInfo> dbInfoOpt = scmInfoDbLoader.getScmInfo(file);
+    // SONAR-27766: when SCM is unavailable AND REFERENCE_BRANCH NCD is active, both the DB SCM lookup and
+    // the line-hash diff must consult the same reference-branch file. Otherwise GeneratedScmInfo.create
+    // would index a matchingLines[] derived from one file into a DbScmInfo derived from another.
+    // We only flip this for the !keepAuthorAndRevision path (the "no SCM in report" case); the
+    // copyFromPrevious path keeps the historical behavior so author/revision attribution stays correct.
+    boolean useReferenceBranchForNcd = !keepAuthorAndRevision && isReferenceBranchNcd();
+
+    Optional<DbScmInfo> dbInfoOpt = scmInfoDbLoader.getScmInfo(file, useReferenceBranchForNcd);
     if (dbInfoOpt.isEmpty()) {
       return generateScmInfoForAllFile(file);
     }
 
     ScmInfo scmInfo = keepAuthorAndRevision ? dbInfoOpt.get() : removeAuthorAndRevision(dbInfoOpt.get());
-    if (fileStatuses.isUnchanged(file)) {
+    // SONAR-27766: the isUnchanged shortcut compares against the current branch's last analysis, not the
+    // reference branch. When useReferenceBranchForNcd=true the DbScmInfo we just loaded is dimensioned for the
+    // reference branch's file, not the current file — returning it directly would surface wrong-sized
+    // changesets to downstream consumers. Force the matching-lines computation so reference-branch
+    // changesets are mapped onto the current file's lines.
+    if (!useReferenceBranchForNcd && fileStatuses.isUnchanged(file)) {
       return Optional.of(scmInfo);
     }
 
     // generate date for new/changed lines
-    int[] matchingLines = sourceLinesDiff.computeMatchingLines(file);
+    int[] matchingLines = sourceLinesDiff.computeMatchingLines(file, useReferenceBranchForNcd);
 
     return Optional.of(GeneratedScmInfo.create(analysisMetadata.getAnalysisDate(), matchingLines, scmInfo));
+  }
+
+  private boolean isReferenceBranchNcd() {
+    return periodHolder.hasPeriod()
+      && NewCodePeriodType.REFERENCE_BRANCH.name().equals(periodHolder.getPeriod().getMode());
   }
 
 }

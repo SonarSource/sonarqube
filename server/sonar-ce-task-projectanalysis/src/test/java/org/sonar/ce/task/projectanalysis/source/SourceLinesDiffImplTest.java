@@ -27,7 +27,9 @@ import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.BranchComponentUuidsDelegate;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.filemove.MutableMovedFilesRepositoryRule;
+import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
@@ -89,7 +91,7 @@ class SourceLinesDiffImplTest {
     when(analysisMetadataHolder.isPullRequest()).thenReturn(true);
     when(referenceBranchComponentUuids.getComponentUuid(component.getKey())).thenReturn("uuid_2");
 
-    assertThat(underTest.computeMatchingLines(component)).containsExactly(1, 2, 3, 4, 5, 6, 7);
+    assertThat(underTest.computeMatchingLines(component, false)).containsExactly(1, 2, 3, 4, 5, 6, 7);
   }
 
   @Test
@@ -99,7 +101,7 @@ class SourceLinesDiffImplTest {
 
     setLineHashesInReport(component, CONTENT);
 
-    assertThat(underTest.computeMatchingLines(component)).containsExactly(0, 0, 0, 0, 0, 0, 0);
+    assertThat(underTest.computeMatchingLines(component, false)).containsExactly(0, 0, 0, 0, 0, 0, 0);
   }
 
   @Test
@@ -110,7 +112,33 @@ class SourceLinesDiffImplTest {
     mockLineHashesInDb(FILE_REF, CONTENT);
     setLineHashesInReport(component, CONTENT);
 
-    assertThat(underTest.computeMatchingLines(component)).containsExactly(1, 2, 3, 4, 5, 6, 7);
+    assertThat(underTest.computeMatchingLines(component, false)).containsExactly(1, 2, 3, 4, 5, 6, 7);
+  }
+
+  @Test
+  void useReferenceBranchForNcd_flag_loads_hashes_from_reference_branch_uuid() {
+    // SONAR-27766: when ScmInfoRepositoryImpl passes useReferenceBranchForNcd=true (REFERENCE_BRANCH NCD,
+    // no SCM in report), DB line hashes must come from the reference-branch file so that the resulting
+    // matchingLines stay consistent with the DbScmInfo loaded by ScmInfoDbLoader on the same call.
+    periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "main", null));
+    Component component = fileComponent(FILE_REF);
+
+    mockLineHashesInDb(2, CONTENT);
+    setLineHashesInReport(component, CONTENT);
+
+    when(referenceBranchComponentUuids.getComponentUuid(component.getKey())).thenReturn("uuid_2");
+
+    assertThat(underTest.computeMatchingLines(component, true)).containsExactly(1, 2, 3, 4, 5, 6, 7);
+  }
+
+  @Test
+  void useReferenceBranchForNcd_flag_returns_empty_diff_when_reference_branch_does_not_have_the_file() {
+    Component component = fileComponent(FILE_REF);
+    setLineHashesInReport(component, CONTENT);
+
+    when(referenceBranchComponentUuids.getComponentUuid(component.getKey())).thenReturn(null);
+
+    assertThat(underTest.computeMatchingLines(component, true)).containsExactly(0, 0, 0, 0, 0, 0, 0);
   }
 
   private void mockLineHashesInDb(int ref, String[] lineHashes) {

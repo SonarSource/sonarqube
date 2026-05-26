@@ -95,7 +95,7 @@ class ScmInfoDbLoaderIT {
     String hash = computeSourceHash(1);
     addFileSourceInDb("henry", DATE_1, "rev-1", hash);
 
-    DbScmInfo scmInfo = underTest.getScmInfo(FILE).orElseGet(() -> fail("Expected SCM info"));
+    DbScmInfo scmInfo = underTest.getScmInfo(FILE, false).orElseGet(() -> fail("Expected SCM info"));
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
     assertThat(scmInfo.fileHash()).isEqualTo(hash);
 
@@ -113,7 +113,7 @@ class ScmInfoDbLoaderIT {
     when(referenceBranchComponentUuids.getComponentUuid(FILE.getKey())).thenReturn(referenceFileUuid);
     addFileSourceInDb("henry", DATE_1, "rev-1", hash, referenceFileUuid);
 
-    DbScmInfo scmInfo = underTest.getScmInfo(FILE).orElseGet(() -> fail("Expected SCM info"));
+    DbScmInfo scmInfo = underTest.getScmInfo(FILE, false).orElseGet(() -> fail("Expected SCM info"));
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
     assertThat(scmInfo.fileHash()).isEqualTo(hash);
     assertThat(logTester.logs(TRACE)).contains("Reading SCM info from DB for file 'referenceFileUuid'");
@@ -131,7 +131,7 @@ class ScmInfoDbLoaderIT {
     when(referenceBranchComponentUuids.getComponentUuid(FILE.getKey())).thenReturn(targetBranchFileUuid);
     addFileSourceInDb("henry", DATE_1, "rev-1", hash, targetBranchFileUuid);
 
-    DbScmInfo scmInfo = underTest.getScmInfo(FILE).orElseGet(() -> fail("Expected SCM info"));
+    DbScmInfo scmInfo = underTest.getScmInfo(FILE, false).orElseGet(() -> fail("Expected SCM info"));
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
     assertThat(scmInfo.fileHash()).isEqualTo(hash);
     assertThat(logTester.logs(TRACE)).contains("Reading SCM info from DB for file 'targetBranchFileUuid'");
@@ -151,10 +151,41 @@ class ScmInfoDbLoaderIT {
     when(referenceBranchComponentUuids.getComponentUuid(FILE.getKey())).thenReturn(targetBranchFileUuid);
     addFileSourceInDb("henry", DATE_1, "rev-1", hash, targetBranchFileUuid);
 
-    DbScmInfo scmInfo = underTest.getScmInfo(FILE).orElseGet(() -> fail("Expected SCM info"));
+    DbScmInfo scmInfo = underTest.getScmInfo(FILE, false).orElseGet(() -> fail("Expected SCM info"));
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
     assertThat(scmInfo.fileHash()).isEqualTo(hash);
     assertThat(logTester.logs(TRACE)).contains("Reading SCM info from DB for file 'targetBranchFileUuid'");
+  }
+
+  @Test
+  void read_from_reference_branch_when_useReferenceBranchForNcd_flag_is_set() {
+    // SONAR-27766: when ScmInfoRepositoryImpl runs the no-SCM merge path with REFERENCE_BRANCH NCD,
+    // it passes useReferenceBranchForNcd=true so SCM info is read from the reference-branch file
+    // (matching what SourceLinesDiff.computeMatchingLines reads on the same call).
+    analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
+    analysisMetadataHolder.setBranch(null);
+
+    String referenceBranchFileUuid = "referenceBranchFileUuid";
+    String hash = computeSourceHash(1);
+
+    when(referenceBranchComponentUuids.getComponentUuid(FILE.getKey())).thenReturn(referenceBranchFileUuid);
+    addFileSourceInDb("henry", DATE_1, "rev-1", hash, referenceBranchFileUuid);
+
+    DbScmInfo scmInfo = underTest.getScmInfo(FILE, true).orElseGet(() -> fail("Expected SCM info"));
+    assertThat(scmInfo.getAllChangesets()).hasSize(1);
+    assertThat(scmInfo.fileHash()).isEqualTo(hash);
+    assertThat(logTester.logs(TRACE)).contains("Reading SCM info from DB for file 'referenceBranchFileUuid'");
+  }
+
+  @Test
+  void useReferenceBranchForNcd_flag_returns_empty_if_reference_branch_does_not_have_the_file() {
+    analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
+    analysisMetadataHolder.setBranch(null);
+
+    when(referenceBranchComponentUuids.getComponentUuid(FILE.getKey())).thenReturn(null);
+
+    assertThat(underTest.getScmInfo(FILE, true)).isEmpty();
+    assertThat(logTester.logs(TRACE)).isEmpty();
   }
 
   @Test
@@ -169,7 +200,7 @@ class ScmInfoDbLoaderIT {
 
     addFileSourceInDb("henry", DATE_1, "rev-1", hash, FILE.getUuid());
 
-    DbScmInfo scmInfo = underTest.getScmInfo(FILE).orElseGet(() -> fail("Expected SCM info"));
+    DbScmInfo scmInfo = underTest.getScmInfo(FILE, false).orElseGet(() -> fail("Expected SCM info"));
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
     assertThat(scmInfo.fileHash()).isEqualTo(hash);
     assertThat(logTester.logs(TRACE)).contains("Reading SCM info from DB for file 'FILE_UUID'");
@@ -180,7 +211,7 @@ class ScmInfoDbLoaderIT {
     analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
     analysisMetadataHolder.setBranch(null);
 
-    Optional<DbScmInfo> scmInfo = underTest.getScmInfo(FILE);
+    Optional<DbScmInfo> scmInfo = underTest.getScmInfo(FILE, false);
 
     assertThat(logTester.logs(TRACE)).contains("Reading SCM info from DB for file 'FILE_UUID'");
     assertThat(scmInfo).isEmpty();
@@ -192,7 +223,7 @@ class ScmInfoDbLoaderIT {
     analysisMetadataHolder.setBaseAnalysis(null);
     analysisMetadataHolder.setBranch(branch);
 
-    assertThat(underTest.getScmInfo(FILE)).isEmpty();
+    assertThat(underTest.getScmInfo(FILE, false)).isEmpty();
     assertThat(logTester.logs(TRACE)).isEmpty();
   }
 

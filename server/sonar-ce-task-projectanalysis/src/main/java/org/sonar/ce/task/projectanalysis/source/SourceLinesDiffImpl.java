@@ -33,7 +33,8 @@ public class SourceLinesDiffImpl implements SourceLinesDiff {
   private final SourceLinesHashRepository sourceLinesHash;
   private final OriginalFileResolver originalFileResolver;
 
-  public SourceLinesDiffImpl(DbClient dbClient, FileSourceDao fileSourceDao, SourceLinesHashRepository sourceLinesHash, OriginalFileResolver originalFileResolver) {
+  public SourceLinesDiffImpl(DbClient dbClient, FileSourceDao fileSourceDao, SourceLinesHashRepository sourceLinesHash,
+    OriginalFileResolver originalFileResolver) {
     this.dbClient = dbClient;
     this.fileSourceDao = fileSourceDao;
     this.sourceLinesHash = sourceLinesHash;
@@ -41,22 +42,19 @@ public class SourceLinesDiffImpl implements SourceLinesDiff {
   }
 
   @Override
-  public int[] computeMatchingLines(Component component) {
-    List<String> database = getDBLines(component);
+  public int[] computeMatchingLines(Component component, boolean useReferenceBranchForNcd) {
+    List<String> database = getDBLines(component, useReferenceBranchForNcd);
     List<String> report = getReportLines(component);
 
     return new SourceLinesDiffFinder().findMatchingLines(database, report);
   }
 
-  private List<String> getDBLines(Component component) {
+  private List<String> getDBLines(Component component, boolean useReferenceBranchForNcd) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-
-      String uuid = originalFileResolver.getFileUuid(component).orElse(null);
-
+      String uuid = originalFileResolver.getFileUuid(component, useReferenceBranchForNcd).orElse(null);
       if (uuid == null) {
         return Collections.emptyList();
       }
-
       List<String> database = fileSourceDao.selectLineHashes(dbSession, uuid);
       if (database == null) {
         return Collections.emptyList();

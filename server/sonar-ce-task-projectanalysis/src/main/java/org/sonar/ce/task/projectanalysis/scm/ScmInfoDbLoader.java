@@ -39,8 +39,16 @@ public class ScmInfoDbLoader {
     this.originalFileResolver = originalFileResolver;
   }
 
-  public Optional<DbScmInfo> getScmInfo(Component file) {
-    Optional<String> uuid = originalFileResolver.getFileUuid(file);
+  /**
+   * Load DB-stored SCM info for {@code file}.
+   *
+   * <p>When {@code useReferenceBranchForNcd} is {@code true} (REFERENCE_BRANCH NCD with no SCM in the report)
+   * the SCM info is read from the file's counterpart on the reference branch — so that downstream consumers
+   * (notably {@code SourceLinesDiff}) can index into it consistently. When {@code false}, the usual
+   * {@link OriginalFileResolver} logic is used.
+   */
+  public Optional<DbScmInfo> getScmInfo(Component file, boolean useReferenceBranchForNcd) {
+    Optional<String> uuid = originalFileResolver.getFileUuid(file, useReferenceBranchForNcd);
     if (uuid.isEmpty()) {
       return Optional.empty();
     }

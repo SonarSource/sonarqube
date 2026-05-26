@@ -25,8 +25,14 @@ public interface SourceLinesDiff {
   /**
    * Creates a diff between the file in the database and the file in the report using Myers' algorithm, and links matching lines between
    * both files.
-   * @return an array with one entry for each line in the left side. Those entries point either to a line in the right side, or to 0, 
+   *
+   * <p>When {@code useReferenceBranchForNcd} is {@code true} (REFERENCE_BRANCH NCD with no SCM in the report) the DB side of the
+   * diff is loaded from the reference branch's file rather than via {@link OriginalFileResolver}. Used by
+   * {@code ScmInfoRepositoryImpl} so that the returned {@code matchingLines} stays consistent with the
+   * {@code DbScmInfo} that {@code ScmInfoDbLoader} produced on the same call.
+   *
+   * @return an array with one entry for each line in the left side. Those entries point either to a line in the right side, or to 0,
    * in which case it means the line was added.
    */
-  int[] computeMatchingLines(Component component);
+  int[] computeMatchingLines(Component component, boolean useReferenceBranchForNcd);
 }

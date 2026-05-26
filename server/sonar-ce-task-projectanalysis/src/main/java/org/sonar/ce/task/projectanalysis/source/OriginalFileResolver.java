@@ -44,7 +44,21 @@ public class OriginalFileResolver {
   }
 
   public Optional<String> getFileUuid(Component file) {
+    return getFileUuid(file, false);
+  }
+
+  /**
+   * Resolve the file UUID to compare against.
+   *
+   * <p>When {@code useReferenceBranchForNcd} is {@code true}, the caller is asserting that the
+   * reference-branch counterpart of {@code file} should be used (REFERENCE_BRANCH NCD with no SCM in
+   * the report). This short-circuits the normal first-analysis / move-detection logic.
+   */
+  public Optional<String> getFileUuid(Component file, boolean useReferenceBranchForNcd) {
     String componentUuid = branchComponentUuidsDelegate.getComponentUuid(file.getKey());
+    if (useReferenceBranchForNcd) {
+      return Optional.ofNullable(componentUuid);
+    }
     if (analysisMetadataHolder.isPullRequest()) {
       return Optional.ofNullable(componentUuid);
     }
