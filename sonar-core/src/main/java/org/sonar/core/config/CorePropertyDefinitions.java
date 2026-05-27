@@ -53,6 +53,8 @@ public class CorePropertyDefinitions {
 
   public static final String PLUGINS_RISK_CONSENT = "sonar.plugins.risk.consent";
 
+  public static final String SONAR_UI_BANNERS_VISIBILITY = "sonar.ui.banners.visibility";
+
   public static final String DOCUMENTATION_BASE_URL = "sonar.documentation.baseUrl";
 
   public static final String SUBCATEGORY_PROJECT_CREATION = "subProjectCreation";
@@ -143,6 +145,18 @@ public class CorePropertyDefinitions {
         .description("Override the base URL to be used in SonarQube documentation links.")
         .hidden()
         .type(STRING)
+        .build(),
+
+      // UI BANNERS
+      PropertyDefinition.builder(SONAR_UI_BANNERS_VISIBILITY)
+        .name("Global UI Banners Visibility")
+        .description("Controls who can see global UI banners such as update and upgrade notifications. "
+          + "ALL shows banners to all users, ADMINS_ONLY restricts them to administrators, DISABLED hides them entirely.")
+        .category(CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
+        .type(SINGLE_SELECT_LIST)
+        .options("ALL", "ADMINS_ONLY", "DISABLED")
+        .defaultValue("ADMINS_ONLY")
         .build(),
 
       // WEB LOOK&FEEL

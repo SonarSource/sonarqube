@@ -54,4 +54,19 @@ public class CorePropertyDefinitionsTest {
       .extracting(PropertyDefinition::defaultValue)
       .isEqualTo("false");
   }
+
+  @Test
+  public void all_includes_ui_banners_visibility_property() {
+    List<PropertyDefinition> defs = CorePropertyDefinitions.all();
+
+    assertThat(defs.stream()
+      .filter(def -> def.key().equals(CorePropertyDefinitions.SONAR_UI_BANNERS_VISIBILITY))
+      .findFirst())
+      .isPresent()
+      .get()
+      .satisfies(def -> {
+        assertThat(def.defaultValue()).isEqualTo("ADMINS_ONLY");
+        assertThat(def.options()).containsExactlyInAnyOrder("ALL", "ADMINS_ONLY", "DISABLED");
+      });
+  }
 }
