@@ -391,7 +391,9 @@ public class ProjectMeasuresIndexerIT {
   }
 
   private void assertThatIndexContainsCreationDate(ProjectData... projectDatas) {
-    List<Map<String, Object>> documents = es.getDocuments(TYPE_PROJECT_MEASURES).stream().map(SearchHit::getSourceAsMap).toList();
+    List<Map<String, Object>> documents = es.getDocuments(TYPE_PROJECT_MEASURES).stream()
+      .map(hit -> (Map<String, Object>) hit.source())
+      .toList();
 
     List<Tuple> expected = Arrays.stream(projectDatas).map(
         projectData -> tuple(

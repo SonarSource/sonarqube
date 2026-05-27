@@ -59,7 +59,7 @@ public class SearchAction implements ProjectTagsWsAction {
   }
 
   private ProjectTags.SearchResponse doHandle(Request request) {
-    List<String> tags = index.searchTags(request.param(TEXT_QUERY), request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE));
+    List<String> tags = index.searchTagsV2(request.param(TEXT_QUERY), request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE));
     return ProjectTags.SearchResponse.newBuilder().addAllTags(tags).build();
   }
 }

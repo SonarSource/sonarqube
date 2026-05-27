@@ -19,6 +19,7 @@
  */
 package org.sonar.server.es.searchrequest;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import com.google.common.collect.ImmutableSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,6 +33,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.sonar.server.es.ES8QueryHelper;
 import org.sonar.server.es.searchrequest.TopAggregationDefinition.FilterScope;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -55,14 +57,20 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
  */
 public class RequestFiltersComputer {
 
+  private static final String DUPLICATE_MESSAGE = "Duplicate: %s";
+
   private final Set<TopAggregationDefinition<?>> topAggregations;
   private final Map<FilterNameAndScope, QueryBuilder> postFilters;
   private final Map<FilterNameAndScope, QueryBuilder> queryFilters;
+  private final Map<FilterNameAndScope, Query> postFiltersV2;
+  private final Map<FilterNameAndScope, Query> queryFiltersV2;
 
   public RequestFiltersComputer(AllFilters allFilters, Set<TopAggregationDefinition<?>> topAggregations) {
     this.topAggregations = ImmutableSet.copyOf(topAggregations);
     this.postFilters = computePostFilters((AllFiltersImpl) allFilters, topAggregations);
     this.queryFilters = computeQueryFilter((AllFiltersImpl) allFilters, postFilters);
+    this.postFiltersV2 = computePostFiltersV2((AllFiltersImpl) allFilters, topAggregations);
+    this.queryFiltersV2 = computeQueryFilterV2((AllFiltersImpl) allFilters, postFiltersV2);
   }
 
   public static AllFilters newAllFilters() {
@@ -86,7 +94,7 @@ public class RequestFiltersComputer {
     Map<FilterNameAndScope, QueryBuilder> res = new LinkedHashMap<>();
     allFilters.internalStream()
       .filter(e -> enabledStickyTopAggregationtedFieldNames.contains(e.getKey().filterScope()))
-      .forEach(e -> checkState(res.put(e.getKey(), e.getValue()) == null, "Duplicate: %s", e.getKey()));
+      .forEach(e -> checkState(res.put(e.getKey(), e.getValue()) == null, DUPLICATE_MESSAGE, e.getKey()));
     return res;
   }
 
@@ -106,7 +114,32 @@ public class RequestFiltersComputer {
     Map<FilterNameAndScope, QueryBuilder> res = new LinkedHashMap<>();
     allFilters.internalStream()
       .filter(e -> !postFilterKeys.contains(e.getKey()))
-      .forEach(e -> checkState(res.put(e.getKey(), e.getValue()) == null, "Duplicate: %s", e.getKey()));
+      .forEach(e -> checkState(res.put(e.getKey(), e.getValue()) == null, DUPLICATE_MESSAGE, e.getKey()));
+    return res;
+  }
+
+  private static Map<FilterNameAndScope, Query> computePostFiltersV2(AllFiltersImpl allFilters,
+    Set<TopAggregationDefinition<?>> topAggregations) {
+    Set<FilterScope> enabledStickyTopAggregationtedFieldNames = topAggregations.stream()
+      .filter(TopAggregationDefinition::isSticky)
+      .map(TopAggregationDefinition::getFilterScope)
+      .collect(Collectors.toSet());
+
+    Map<FilterNameAndScope, Query> res = new LinkedHashMap<>();
+    allFilters.internalStreamV2()
+      .filter(e -> enabledStickyTopAggregationtedFieldNames.contains(e.getKey().filterScope()))
+      .forEach(e -> checkState(res.put(e.getKey(), e.getValue()) == null, DUPLICATE_MESSAGE, e.getKey()));
+    return res;
+  }
+
+  private static Map<FilterNameAndScope, Query> computeQueryFilterV2(AllFiltersImpl allFilters,
+    Map<FilterNameAndScope, Query> postFilters) {
+    Set<FilterNameAndScope> postFilterKeys = postFilters.keySet();
+
+    Map<FilterNameAndScope, Query> res = new LinkedHashMap<>();
+    allFilters.internalStreamV2()
+      .filter(e -> !postFilterKeys.contains(e.getKey()))
+      .forEach(e -> checkState(res.put(e.getKey(), e.getValue()) == null, DUPLICATE_MESSAGE, e.getKey()));
     return res;
   }
 
@@ -155,6 +188,25 @@ public class RequestFiltersComputer {
     return toBoolQuery(postFilters, (e, v) -> !e.filterName().equals(filterNameToExclude));
   }
 
+  public Optional<Query> getQueryFiltersV2() {
+    return toBoolQueryV2(this.queryFiltersV2, (e, v) -> true);
+  }
+
+  public Optional<Query> getPostFiltersV2() {
+    return toBoolQueryV2(postFiltersV2, (e, v) -> true);
+  }
+
+  public Optional<Query> getTopAggregationFilterV2(TopAggregationDefinition<?> topAggregation) {
+    checkArgument(topAggregations.contains(topAggregation), "topAggregation must have been declared in constructor");
+    return toBoolQueryV2(
+      postFiltersV2,
+      (e, v) -> !topAggregation.isSticky() || !topAggregation.getFilterScope().intersect(e.filterScope()));
+  }
+
+  public Optional<Query> getPostFiltersExcludingV2(String filterNameToExclude) {
+    return toBoolQueryV2(postFiltersV2, (e, v) -> !e.filterName().equals(filterNameToExclude));
+  }
+
   private static Optional<BoolQueryBuilder> toBoolQuery(Map<FilterNameAndScope, QueryBuilder> queryFilters,
     BiPredicate<FilterNameAndScope, QueryBuilder> predicate) {
     if (queryFilters.isEmpty()) {
@@ -174,6 +226,23 @@ public class RequestFiltersComputer {
     return of(res);
   }
 
+  private static Optional<Query> toBoolQueryV2(Map<FilterNameAndScope, Query> queryFilters,
+    BiPredicate<FilterNameAndScope, Query> predicate) {
+    if (queryFilters.isEmpty()) {
+      return empty();
+    }
+
+    List<Query> selectQueries = queryFilters.entrySet().stream()
+      .filter(e -> predicate.test(e.getKey(), e.getValue()))
+      .map(Map.Entry::getValue)
+      .toList();
+    if (selectQueries.isEmpty()) {
+      return empty();
+    }
+
+    return of(ES8QueryHelper.boolQuery(b -> selectQueries.forEach(b::must)));
+  }
+
   /**
    * A mean to put together all filters which apply to a given Search request.
    */
@@ -184,7 +253,17 @@ public class RequestFiltersComputer {
      */
     AllFilters addFilter(String name, FilterScope filterScope, @Nullable QueryBuilder filter);
 
+    /**
+     * ES 8 variant: adds an ES 8 {@link Query} filter alongside the legacy {@link QueryBuilder} ones.
+     * V1 and V2 filters live in independent maps; populate whichever your call path needs.
+     *
+     * @throws IllegalArgumentException if a filter with the specified name has already been added
+     */
+    AllFilters addFilterV2(String name, FilterScope filterScope, @Nullable Query filter);
+
     Stream<QueryBuilder> stream();
+
+    Stream<Query> streamV2();
   }
 
   private static class AllFiltersImpl implements AllFilters {
@@ -193,6 +272,7 @@ public class RequestFiltersComputer {
      * ES doesn't care of the order.
      */
     private final Map<FilterNameAndScope, QueryBuilder> filters = new LinkedHashMap<>();
+    private final Map<FilterNameAndScope, Query> filtersV2 = new LinkedHashMap<>();
 
     @Override
     public AllFilters addFilter(String name, FilterScope filterScope, @Nullable QueryBuilder filter) {
@@ -210,12 +290,36 @@ public class RequestFiltersComputer {
     }
 
     @Override
+    public AllFilters addFilterV2(String name, FilterScope filterScope, @Nullable Query filter) {
+      requireNonNull(name, "name can't be null");
+      requireNonNull(filterScope, "filterScope can't be null");
+
+      if (filter == null) {
+        return this;
+      }
+
+      checkArgument(
+        filtersV2.put(new FilterNameAndScope(name, filterScope), filter) == null,
+        "A filter with name %s has already been added", name);
+      return this;
+    }
+
+    @Override
     public Stream<QueryBuilder> stream() {
       return filters.values().stream();
     }
 
+    @Override
+    public Stream<Query> streamV2() {
+      return filtersV2.values().stream();
+    }
+
     private Stream<Map.Entry<FilterNameAndScope, QueryBuilder>> internalStream() {
       return filters.entrySet().stream();
+    }
+
+    private Stream<Map.Entry<FilterNameAndScope, Query>> internalStreamV2() {
+      return filtersV2.entrySet().stream();
     }
   }
 

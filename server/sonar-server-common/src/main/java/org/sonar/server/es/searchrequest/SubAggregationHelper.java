@@ -19,7 +19,11 @@
  */
 package org.sonar.server.es.searchrequest;
 
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
+import co.elastic.clients.util.NamedValue;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collector;
@@ -48,9 +52,13 @@ public class SubAggregationHelper {
   @CheckForNull
   private final AbstractAggregationBuilder<?> subAggregation;
   private final BucketOrder order;
+  @CheckForNull
+  private final Aggregation subAggregationV2;
+  @CheckForNull
+  private final List<NamedValue<SortOrder>> orderV2;
 
   public SubAggregationHelper() {
-    this(null, null);
+    this((AbstractAggregationBuilder<?>) null, null);
   }
 
   public SubAggregationHelper(@Nullable AbstractAggregationBuilder<?> subAggregation) {
@@ -60,6 +68,15 @@ public class SubAggregationHelper {
   public SubAggregationHelper(@Nullable AbstractAggregationBuilder<?> subAggregation, @Nullable BucketOrder order) {
     this.subAggregation = subAggregation;
     this.order = order == null ? ORDER_BY_BUCKET_SIZE_DESC : order;
+    this.subAggregationV2 = null;
+    this.orderV2 = null;
+  }
+
+  public SubAggregationHelper(@Nullable Aggregation subAggregationV2, @Nullable List<NamedValue<SortOrder>> orderV2) {
+    this.subAggregation = null;
+    this.order = ORDER_BY_BUCKET_SIZE_DESC;
+    this.subAggregationV2 = subAggregationV2;
+    this.orderV2 = orderV2;
   }
 
   public TermsAggregationBuilder buildTermsAggregation(String name,
@@ -94,6 +111,52 @@ public class SubAggregationHelper {
     if (subAggregation != null) {
       selectedTerms = selectedTerms.subAggregation(subAggregation);
     }
+
+    return of(selectedTerms);
+  }
+
+  public Aggregation buildTermsAggregationV2(TopAggregationDefinition<?> topAggregation, @Nullable Integer numberOfTerms) {
+    return Aggregation.of(a -> {
+      a.terms(t -> {
+        t.field(topAggregation.getFilterScope().getFieldName())
+          .minDocCount(TERM_AGGREGATION_MIN_DOC_COUNT);
+        if (numberOfTerms != null) {
+          t.size(numberOfTerms);
+        }
+        if (orderV2 != null && !orderV2.isEmpty()) {
+          t.order(orderV2);
+        } else {
+          t.order(List.of(new NamedValue<>("_count", SortOrder.Desc)));
+        }
+        return t;
+      });
+      if (subAggregationV2 != null) {
+        a.aggregations("subAggregation", subAggregationV2);
+      }
+      return a;
+    });
+  }
+
+  public <T> Optional<Aggregation> buildSelectedItemsAggregationV2(TopAggregationDefinition<?> topAggregation, T[] selected) {
+    if (selected.length <= 0) {
+      return Optional.empty();
+    }
+
+    String includes = Arrays.stream(selected)
+      .filter(Objects::nonNull)
+      .map(s -> EsUtils.escapeSpecialRegexChars(s.toString()))
+      .collect(PIPE_JOINER);
+
+    Aggregation selectedTerms = Aggregation.of(a -> {
+      a.terms(t -> t
+        .size(max(MAXIMUM_NUMBER_OF_SELECTED_ITEMS_WHOSE_DOC_COUNT_WILL_BE_CALCULATED, includes.length()))
+        .field(topAggregation.getFilterScope().getFieldName())
+        .include(i -> i.regexp(includes)));
+      if (subAggregationV2 != null) {
+        a.aggregations("subAggregation", subAggregationV2);
+      }
+      return a;
+    });
 
     return of(selectedTerms);
   }

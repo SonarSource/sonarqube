@@ -29,6 +29,8 @@ import co.elastic.clients.elasticsearch._types.aggregations.FiltersBucket;
 import co.elastic.clients.elasticsearch._types.aggregations.GlobalAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.MissingAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.NestedAggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.RangeAggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.RangeBucket;
 import co.elastic.clients.elasticsearch._types.aggregations.ReverseNestedAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
@@ -137,8 +139,29 @@ public class Facets {
       case ReverseNested -> processReverseNestedAggregation(name, aggregate.reverseNested());
       case Filters -> processFiltersAggregation(name, aggregate.filters());
       case Children -> processChildrenAggregation(name, aggregate.children());
+      case Range -> processRangeAggregation(name, aggregate.range());
       default -> throw new IllegalArgumentException("Aggregation type not supported yet: " + aggregate.getClass());
     }
+  }
+
+  void processRangeAggregation(String name, RangeAggregate aggregation) {
+    LinkedHashMap<String, Long> facet = getOrCreateFacet(name);
+    Buckets<RangeBucket> buckets = aggregation.buckets();
+    if (buckets == null) {
+      return;
+    }
+    for (RangeBucket bucket : buckets.array()) {
+      facet.put(rangeBucketKey(bucket), bucket.docCount());
+    }
+  }
+
+  private static String rangeBucketKey(RangeBucket bucket) {
+    if (bucket.key() != null) {
+      return bucket.key();
+    }
+    String from = bucket.from() != null ? bucket.from().toString() : "*";
+    String to = bucket.to() != null ? bucket.to().toString() : "*";
+    return from + "-" + to;
   }
 
   private void processMissingAggregation(Missing aggregation) {
@@ -244,7 +267,9 @@ public class Facets {
         .reversed());
 
     for (Map.Entry<String, Aggregate> entry : orderedEntries) {
-      processAggregationV2(parentName, entry.getValue());
+      // For NO_DATA filter sub-aggregations, use the sub-aggregation's own name so the NO_DATA_PREFIX check fires.
+      String childName = entry.getKey().startsWith(NO_DATA_PREFIX) ? entry.getKey() : parentName;
+      processAggregationV2(childName, entry.getValue());
     }
   }
 

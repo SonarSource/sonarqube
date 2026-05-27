@@ -255,7 +255,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
     ProjectMeasuresQueryValidator.validate(query);
 
-    SearchIdResult<String> esResults = index.search(query, new SearchOptions()
+    SearchIdResult<String> esResults = index.searchV2(query, new SearchOptions()
       // skip facets for project token authorization, avoid exposing unauthorized projects count
       .addFacets(isProjectAnalysisToken() ? emptyList() : request.getFacets())
       .setPage(request.getPage(), request.getPageSize()));

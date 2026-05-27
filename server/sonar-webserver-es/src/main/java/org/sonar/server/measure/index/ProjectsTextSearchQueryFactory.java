@@ -19,20 +19,15 @@
  */
 package org.sonar.server.measure.index;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
+import org.sonar.server.es.ES8QueryHelper;
 import org.sonar.server.es.newindex.DefaultIndexSettings;
 
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.prefixQuery;
-import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_KEY;
@@ -47,59 +42,59 @@ class ProjectsTextSearchQueryFactory {
     // Only static methods
   }
 
-  static QueryBuilder createQuery(String queryText) {
-    BoolQueryBuilder featureQuery = boolQuery();
-    Arrays.stream(ComponentTextSearchFeature.values())
-      .map(f -> f.getQuery(queryText))
-      .forEach(featureQuery::should);
-    return featureQuery;
+  static Query createQueryV2(String queryText) {
+    return ES8QueryHelper.boolQuery(b -> Arrays.stream(ComponentTextSearchFeature.values())
+      .map(f -> f.getQueryV2(queryText))
+      .forEach(b::should));
   }
 
   private enum ComponentTextSearchFeature {
 
     EXACT_IGNORE_CASE {
       @Override
-      QueryBuilder getQuery(String queryText) {
-        return matchQuery(SORTABLE_ANALYZER.subField(FIELD_NAME), queryText)
-          .boost(2.5F);
+      Query getQueryV2(String queryText) {
+        return Query.of(q -> q.match(m -> m
+          .field(SORTABLE_ANALYZER.subField(FIELD_NAME))
+          .query(queryText)
+          .boost(2.5F)));
       }
     },
     PREFIX {
       @Override
-      QueryBuilder getQuery(String queryText) {
-        return prefixAndPartialQuery(queryText, FIELD_NAME, FIELD_NAME)
-          .boost(2F);
+      Query getQueryV2(String queryText) {
+        return prefixAndPartialQueryV2(queryText, FIELD_NAME, FIELD_NAME, 2F);
       }
     },
     PREFIX_IGNORE_CASE {
       @Override
-      QueryBuilder getQuery(String queryText) {
+      Query getQueryV2(String queryText) {
         String lowerCaseQueryText = queryText.toLowerCase(Locale.ENGLISH);
-        return prefixAndPartialQuery(lowerCaseQueryText, SORTABLE_ANALYZER.subField(FIELD_NAME), FIELD_NAME)
-          .boost(3F);
+        return prefixAndPartialQueryV2(lowerCaseQueryText, SORTABLE_ANALYZER.subField(FIELD_NAME), FIELD_NAME, 3F);
       }
     },
     PARTIAL {
       @Override
-      QueryBuilder getQuery(String queryText) {
-        BoolQueryBuilder queryBuilder = boolQuery();
-        split(queryText)
-          .map(text -> partialTermQuery(text, FIELD_NAME))
-          .forEach(queryBuilder::must);
-        return queryBuilder
-          .boost(0.5F);
+      Query getQueryV2(String queryText) {
+        return Query.of(q -> q.bool(b -> {
+          split(queryText)
+            .map(text -> partialTermQueryV2(text, FIELD_NAME))
+            .forEach(b::must);
+          return b.boost(0.5F);
+        }));
       }
     },
     KEY {
       @Override
-      QueryBuilder getQuery(String queryText) {
-        return wildcardQuery(SORTABLE_ANALYZER.subField(FIELD_KEY), "*" + queryText + "*")
+      Query getQueryV2(String queryText) {
+        return Query.of(q -> q.wildcard(w -> w
+          .field(SORTABLE_ANALYZER.subField(FIELD_KEY))
+          .value("*" + queryText + "*")
           .caseInsensitive(true)
-          .boost(50F);
+          .boost(50F)));
       }
     };
 
-    abstract QueryBuilder getQuery(String queryText);
+    abstract Query getQueryV2(String queryText);
 
     protected Stream<String> split(String queryText) {
       return Arrays.stream(
@@ -107,25 +102,28 @@ class ProjectsTextSearchQueryFactory {
         .filter(StringUtils::isNotEmpty);
     }
 
-    protected BoolQueryBuilder prefixAndPartialQuery(String queryText, String fieldName, String originalFieldName) {
-      BoolQueryBuilder queryBuilder = boolQuery();
-      AtomicBoolean first = new AtomicBoolean(true);
-      split(queryText)
-        .map(queryTerm -> {
-          if (first.getAndSet(false)) {
-            return prefixQuery(fieldName, queryTerm);
-          }
-          return partialTermQuery(queryTerm, originalFieldName);
-        })
-        .forEach(queryBuilder::must);
-      return queryBuilder;
+    protected Query prefixAndPartialQueryV2(String queryText, String fieldName, String originalFieldName, float boost) {
+      return Query.of(q -> q.bool(b -> {
+        AtomicBoolean first = new AtomicBoolean(true);
+        split(queryText)
+          .map(queryTerm -> {
+            if (first.getAndSet(false)) {
+              return Query.of(qb -> qb.prefix(p -> p.field(fieldName).value(queryTerm)));
+            }
+            return partialTermQueryV2(queryTerm, originalFieldName);
+          })
+          .forEach(b::must);
+        return b.boost(boost);
+      }));
     }
 
-    protected MatchQueryBuilder partialTermQuery(String queryTerm, String fieldName) {
+    protected Query partialTermQueryV2(String queryTerm, String fieldName) {
       // We will truncate the search to the maximum length of nGrams in the index.
       // Otherwise the search would for sure not find any results.
       String truncatedQuery = StringUtils.left(queryTerm, DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH);
-      return matchQuery(SEARCH_GRAMS_ANALYZER.subField(fieldName), truncatedQuery);
+      return Query.of(q -> q.match(m -> m
+        .field(SEARCH_GRAMS_ANALYZER.subField(fieldName))
+        .query(truncatedQuery)));
     }
   }
 }
