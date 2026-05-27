@@ -136,7 +136,7 @@ public class CheckPatActionIT {
       .execute();
 
     assertThat(almSetting.getUrl()).isNotNull();
-    verify(gitlabApplicationClient).searchProjects(almSetting.getUrl(), PAT_SECRET, null, null, null);
+    verify(gitlabApplicationClient).checkReadPermission(almSetting.getUrl(), PAT_SECRET);
   }
 
   @Test
@@ -178,8 +178,8 @@ public class CheckPatActionIT {
 
   @Test
   public void fail_when_personal_access_token_is_invalid_for_gitlab() {
-    when(gitlabApplicationClient.searchProjects(any(), any(), any(), any(), any()))
-      .thenThrow(new IllegalArgumentException("Invalid personal access token"));
+    doThrow(new IllegalArgumentException("Invalid personal access token"))
+      .when(gitlabApplicationClient).checkReadPermission(any(), any());
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
     AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting();

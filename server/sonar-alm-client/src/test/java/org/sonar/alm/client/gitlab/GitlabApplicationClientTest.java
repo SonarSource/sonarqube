@@ -362,7 +362,7 @@ public class GitlabApplicationClientTest {
   }
 
   @Test
-  public void search_projects_projectName_param_null_should_pass_empty_string() throws InterruptedException {
+  public void search_projects_projectName_param_null_should_not_include_search_param() throws InterruptedException {
     MockResponse projects = new MockResponse()
       .setResponseCode(200)
       .setBody("[]");
@@ -377,7 +377,7 @@ public class GitlabApplicationClientTest {
     String gitlabUrlCall = projectGitlabRequest.getRequestUrl().toString();
     assertThat(projectList.getProjects()).isEmpty();
     assertThat(gitlabUrlCall).isEqualTo(
-      server.url("") + "projects?archived=false&simple=true&membership=true&order_by=name&sort=asc&search=&page=1&per_page=10");
+      server.url("") + "projects?archived=false&simple=true&membership=true&order_by=name&sort=asc&page=1&per_page=10");
     assertThat(projectGitlabRequest.getMethod()).isEqualTo("GET");
   }
 
@@ -586,7 +586,7 @@ public class GitlabApplicationClientTest {
       .hasMessageContaining("Failed to connect to");
     assertThat(logTester.logs(Level.INFO).get(0))
       .contains(
-        "Gitlab API call to [" + server.url("/projects?archived=false&simple=true&membership=true&order_by=name&sort=asc&search=&page=1&per_page=1")
+        "Gitlab API call to [" + server.url("/projects?archived=false&simple=true&membership=true&order_by=name&sort=asc&page=1&per_page=1")
           + "] " +
           "failed with error message : [Failed to connect to ")
       .contains( server.getHostName());

@@ -114,10 +114,9 @@ public class CheckPatAction implements AlmIntegrationsWsAction {
             requireNonNull(almPatDto.getPersonalAccessToken(), PAT_CANNOT_BE_NULL));
           break;
         case GITLAB:
-          gitlabApplicationClient.searchProjects(
+          gitlabApplicationClient.checkReadPermission(
             requireNonNull(almSettingDto.getUrl(), URL_CANNOT_BE_NULL),
-            requireNonNull(almPatDto.getPersonalAccessToken(), PAT_CANNOT_BE_NULL),
-            null, null, null);
+            requireNonNull(almPatDto.getPersonalAccessToken(), PAT_CANNOT_BE_NULL));
           break;
         case BITBUCKET_CLOUD:
           bitbucketCloudRestClient.validateAppPassword(

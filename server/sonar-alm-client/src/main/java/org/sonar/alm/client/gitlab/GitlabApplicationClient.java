@@ -319,9 +319,9 @@ public class GitlabApplicationClient {
 
   public ProjectList searchProjects(String gitlabUrl, String personalAccessToken, @Nullable String projectName,
     @Nullable Integer pageNumber, @Nullable Integer pageSize) {
-    String url = format("%s/projects?archived=false&simple=true&membership=true&order_by=name&sort=asc&search=%s%s%s",
+    String url = format("%s/projects?archived=false&simple=true&membership=true&order_by=name&sort=asc%s%s%s",
       gitlabUrl,
-      projectName == null ? "" : urlEncode(projectName),
+      projectName == null ? "" : ("&search=" + urlEncode(projectName)),
       pageNumber == null ? "" : format("&page=%d", pageNumber),
       pageSize == null ? "" : format("&per_page=%d", pageSize)
     );
