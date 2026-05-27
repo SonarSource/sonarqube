@@ -55,6 +55,8 @@ public class ServerMonitoringMetrics {
   private final Histogram webApiV1RequestDuration;
   private final Histogram webApiV2RequestDuration;
 
+  private final Histogram dbQueryDuration;
+
   public ServerMonitoringMetrics() {
     githubHealthIntegrationStatus = Gauge.build()
       .name("sonarqube_health_integration_github_status")
@@ -148,6 +150,13 @@ public class ServerMonitoringMetrics {
     numberOfConnectedSonarLintClients = Gauge.build()
       .name("sonarqube_number_of_connected_sonarlint_clients")
       .help("Number of connected SonarLint clients")
+      .register();
+
+    dbQueryDuration = Histogram.build()
+      .name("sonarqube_db_query_duration_seconds")
+      .help("Duration of database queries in seconds, labelled by MyBatis mapper method")
+      .labelNames("mapper_method")
+      .buckets(0.01, 0.1, 0.5, 1.0, 5.0, 10.0)
       .register();
 
     webApiV1RequestDuration = Histogram.build()
@@ -267,5 +276,9 @@ public class ServerMonitoringMetrics {
 
   public void observeWebApiV2RequestDuration(double durationSeconds, String endpoint, String httpMethod) {
     webApiV2RequestDuration.labels(endpoint, httpMethod).observe(durationSeconds);
+  }
+
+  public void observeDbQueryDuration(double durationSeconds, String mapperMethod) {
+    dbQueryDuration.labels(mapperMethod).observe(durationSeconds);
   }
 }

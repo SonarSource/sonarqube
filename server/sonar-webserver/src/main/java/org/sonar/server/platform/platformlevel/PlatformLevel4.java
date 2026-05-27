@@ -179,6 +179,7 @@ import org.sonar.server.monitoring.ComputeEngineMetricStatusTask;
 import org.sonar.server.monitoring.ElasticSearchMetricTask;
 import org.sonar.server.monitoring.MainCollector;
 import org.sonar.server.monitoring.MonitoringWsModule;
+import org.sonar.server.monitoring.MyBatisMetricsInterceptorRegistrar;
 import org.sonar.server.monitoring.ServerMonitoringMetrics;
 import org.sonar.server.monitoring.SonarLintConnectedClientsTask;
 import org.sonar.server.monitoring.WebUptimeTask;
@@ -767,6 +768,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // monitoring
       ServerMonitoringMetrics.class,
+      MyBatisMetricsInterceptorRegistrar.class,
 
       // dismiss message
       new DismissMessageWsModule(),

@@ -20,6 +20,8 @@
 package org.sonar.db;
 
 import javax.annotation.Nullable;
+import org.apache.ibatis.plugin.Interceptor;
+import org.apache.ibatis.session.Configuration;
 import org.sonar.db.alm.pat.AlmPatMapper;
 import org.sonar.db.alm.setting.AlmSettingMapper;
 import org.sonar.db.alm.setting.ProjectAlmKeyAndProject;
@@ -370,5 +372,19 @@ public class DefaultMyBatis extends AbstractMyBatis {
       throw new IllegalStateException("DefaultMyBatis assumes the database is already started and has a DataSource.");
     }
     super.start();
+  }
+
+  public void addInterceptor(Interceptor interceptor) {
+    Configuration writerConfig;
+    try (DbSession session = openSession(false)) {
+      writerConfig = session.getConfiguration();
+      writerConfig.addInterceptor(interceptor);
+    }
+    try (ReaderDbSession session = openReadOnlySession()) {
+      Configuration readerConfig = session.getConfiguration();
+      if (readerConfig != writerConfig) {
+        readerConfig.addInterceptor(interceptor);
+      }
+    }
   }
 }

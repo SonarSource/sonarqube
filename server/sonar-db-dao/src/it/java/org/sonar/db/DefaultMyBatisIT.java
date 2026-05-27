@@ -19,6 +19,12 @@
  */
 package org.sonar.db;
 
+import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.plugin.Interceptor;
+import org.apache.ibatis.plugin.Intercepts;
+import org.apache.ibatis.plugin.Invocation;
+import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.session.Configuration;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -61,6 +67,26 @@ class DefaultMyBatisIT {
     try (DbSession session = underTest.openSession(false)) {
       assertThat(session.getConnection()).isNotNull();
       assertThat(session.getMapper(RuleMapper.class)).isNotNull();
+    }
+  }
+
+  @Test
+  void addInterceptor_registersInterceptorOnAllSessionFactories() {
+    underTest.start();
+    Interceptor interceptor = new NoOpInterceptor();
+
+    underTest.addInterceptor(interceptor);
+
+    try (DbSession session = underTest.openSession(false)) {
+      assertThat(session.getConfiguration().getInterceptors()).contains(interceptor);
+    }
+  }
+
+  @Intercepts(@Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}))
+  private static class NoOpInterceptor implements Interceptor {
+    @Override
+    public Object intercept(Invocation invocation) throws Throwable {
+      return invocation.proceed();
     }
   }
 }

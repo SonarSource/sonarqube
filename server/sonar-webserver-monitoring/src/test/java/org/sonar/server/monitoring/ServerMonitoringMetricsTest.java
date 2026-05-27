@@ -171,6 +171,20 @@ public class ServerMonitoringMetricsTest {
   }
 
   @Test
+  public void observeDbQueryDurationTest() {
+    ServerMonitoringMetrics metrics = new ServerMonitoringMetrics();
+    String[] labelNames = {"mapper_method"};
+    String[] labelValues = {"org.sonar.db.user.UserMapper.selectByUuid"};
+
+    metrics.observeDbQueryDuration(0.123, labelValues[0]);
+
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_db_query_duration_seconds_sum",
+      labelNames, labelValues)).isEqualTo(0.123);
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_db_query_duration_seconds_count",
+      labelNames, labelValues)).isEqualTo(1);
+  }
+
+  @Test
   public void observeWebApiV1RequestDurationTest() {
     ServerMonitoringMetrics metrics = new ServerMonitoringMetrics();
     String[] labelNames = {"endpoint"};
