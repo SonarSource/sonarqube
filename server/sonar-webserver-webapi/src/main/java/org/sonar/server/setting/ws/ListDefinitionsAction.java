@@ -96,6 +96,7 @@ public class ListDefinitionsAction implements SettingsWsAction {
     ListDefinitionsWsResponse.Builder wsResponse = ListDefinitionsWsResponse.newBuilder();
     propertyDefinitions.getAll().stream()
       .filter(definition -> qualifier.map(s -> definition.qualifiers().contains(s)).orElseGet(definition::global))
+      .filter(definition -> !definition.hidden())
       .filter(definition -> settingsWsSupport.isVisible(definition.key(), component))
       .sorted(comparing(PropertyDefinition::category, String::compareToIgnoreCase)
         .thenComparingInt(PropertyDefinition::index)

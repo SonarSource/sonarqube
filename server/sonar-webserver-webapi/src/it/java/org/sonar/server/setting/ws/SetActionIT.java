@@ -736,6 +736,38 @@ class SetActionIT {
   }
 
   @Test
+  void persist_project_setting_when_definition_is_hidden_and_project_scoped() {
+    definitions.addComponent(PropertyDefinition
+      .builder("my.key")
+      .name("foo")
+      .type(PropertyType.STRING)
+      .onConfigScopes(ConfigScope.PROJECT)
+      .hidden()
+      .build());
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    logInAsProjectAdministrator(project);
+
+    callForProjectSettingByKey("my.key", "my value", project.getKey());
+
+    assertComponentSetting("my.key", "my value", project.getUuid());
+  }
+
+  @Test
+  void fail_when_global_set_of_hidden_property_only_on_projects() {
+    definitions.addComponent(PropertyDefinition
+      .builder("my.key")
+      .name("foo")
+      .type(PropertyType.STRING)
+      .onlyOnConfigScopes(ConfigScope.PROJECT)
+      .hidden()
+      .build());
+
+    assertThatThrownBy(() -> callForGlobalSetting("my.key", "42"))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Setting 'my.key' cannot be global");
+  }
+
+  @Test
   void fail_when_view_property_when_on_projects_only() {
     definitions.addComponent(PropertyDefinition
       .builder("my.key")

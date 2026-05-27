@@ -134,6 +134,17 @@ public class ResetActionIT {
   }
 
   @Test
+  public void remove_hidden_project_setting() {
+    logInAsProjectAdmin();
+    definitions.addComponent(PropertyDefinition.builder("foo").hidden().onQualifiers(PROJECT).build());
+    propertyDb.insertProperties(null, project.getName(), project.getKey(), project.getQualifier(),
+      newComponentPropertyDto(project).setKey("foo").setValue("one"));
+
+    executeRequestOnProjectSetting("foo");
+    assertProjectPropertyDoesNotExist("foo");
+  }
+
+  @Test
   public void ignore_project_setting_when_removing_global_setting() {
     logInAsSystemAdministrator();
     propertyDb.insertProperties(null, null, null, null,

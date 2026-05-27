@@ -298,6 +298,28 @@ public class ListDefinitionsActionIT {
   }
 
   @Test
+  public void does_not_return_hidden_properties_at_project_scope() {
+    logInAsProjectUser();
+    propertyDefinitions.addComponents(asList(
+      PropertyDefinition.builder("visible-at-project").onQualifiers(PROJECT).build(),
+      PropertyDefinition.builder("hidden-at-project").hidden().onQualifiers(PROJECT).build()));
+
+    ListDefinitionsWsResponse result = executeRequest(project.getKey());
+
+    assertThat(result.getDefinitionsList()).extracting(Definition::getKey).containsOnly("visible-at-project");
+  }
+
+  @Test
+  public void does_not_return_hidden_properties_at_global_scope_when_project_scoped() {
+    logInAsAdmin();
+    propertyDefinitions.addComponent(PropertyDefinition.builder("hidden-at-project").hidden().onQualifiers(PROJECT).build());
+
+    ListDefinitionsWsResponse result = executeRequest();
+
+    assertThat(result.getDefinitionsList()).isEmpty();
+  }
+
+  @Test
   public void does_not_returned_secured_and_license_settings_when_not_authenticated() {
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),

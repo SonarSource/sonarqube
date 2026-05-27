@@ -76,7 +76,7 @@ public class SettingValidations {
 
   public void validateScope(SettingData data) {
     PropertyDefinition definition = definitions.get(data.key);
-    checkRequest(data.entity != null || definition == null || definition.global() || isGlobal(definition),
+    checkRequest(data.entity != null || definition == null || definition.global(),
       "Setting '%s' cannot be global", data.key);
   }
 
@@ -126,10 +126,6 @@ public class SettingValidations {
       return SUPPORTED_QUALIFIERS.contains(entity.getQualifier());
     }
     return definition.qualifiers().contains(entity.getQualifier());
-  }
-
-  private static boolean isGlobal(PropertyDefinition definition) {
-    return !definition.global() && definition.qualifiers().isEmpty();
   }
 
   public static class SettingData {
