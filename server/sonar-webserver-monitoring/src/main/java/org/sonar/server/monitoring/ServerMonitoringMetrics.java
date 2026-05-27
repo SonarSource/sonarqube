@@ -20,6 +20,7 @@
 package org.sonar.server.monitoring;
 
 import io.prometheus.client.Gauge;
+import io.prometheus.client.Histogram;
 import io.prometheus.client.Summary;
 import org.sonar.api.server.ServerSide;
 
@@ -50,6 +51,9 @@ public class ServerMonitoringMetrics {
   private final Gauge webUptimeMinutes;
 
   private final Gauge numberOfConnectedSonarLintClients;
+
+  private final Histogram webApiV1RequestDuration;
+  private final Histogram webApiV2RequestDuration;
 
   public ServerMonitoringMetrics() {
     githubHealthIntegrationStatus = Gauge.build()
@@ -146,6 +150,19 @@ public class ServerMonitoringMetrics {
       .help("Number of connected SonarLint clients")
       .register();
 
+    webApiV1RequestDuration = Histogram.build()
+      .name("sonarqube_web_api_v1_request_duration_seconds")
+      .help("Duration of WebAPI v1 requests in seconds")
+      .labelNames("endpoint")
+      .buckets(0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 10.0)
+      .register();
+
+    webApiV2RequestDuration = Histogram.build()
+      .name("sonarqube_web_api_v2_request_duration_seconds")
+      .help("Duration of WebAPI v2 requests in seconds")
+      .labelNames("endpoint", "http_method")
+      .buckets(0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 10.0)
+      .register();
   }
 
   public void setGithubStatusToGreen() {
@@ -242,5 +259,13 @@ public class ServerMonitoringMetrics {
 
   public void setNumberOfConnectedSonarLintClients(long noOfClients) {
     numberOfConnectedSonarLintClients.set(noOfClients);
+  }
+
+  public void observeWebApiV1RequestDuration(double durationSeconds, String endpoint) {
+    webApiV1RequestDuration.labels(endpoint).observe(durationSeconds);
+  }
+
+  public void observeWebApiV2RequestDuration(double durationSeconds, String endpoint, String httpMethod) {
+    webApiV2RequestDuration.labels(endpoint, httpMethod).observe(durationSeconds);
   }
 }

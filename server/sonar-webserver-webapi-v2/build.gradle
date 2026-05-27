@@ -16,6 +16,7 @@ dependencies {
     api 'org.springframework.security:spring-security-web'
 
     api project(':server:sonar-db-dao')
+    api project(':server:sonar-webserver-monitoring')
     api 'org.sonarsource.sonarqube:sonar-spring'
     api project(':server:sonar-webserver-common')
 

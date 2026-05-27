@@ -218,6 +218,7 @@ import org.sonar.server.platform.telemetry.TelemetryUserEnabledProvider;
 import org.sonar.server.platform.telemetry.TelemetryVersionProvider;
 import org.sonar.server.platform.web.ActionDeprecationLoggerInterceptor;
 import org.sonar.server.platform.web.ConcurrentCallsLimitInterceptor;
+import org.sonar.server.platform.web.WebApiV1MetricsInterceptor;
 import org.sonar.server.platform.web.NoCacheFilter;
 import org.sonar.server.platform.web.SonarQubeIdeConnectionFilter;
 import org.sonar.server.platform.web.WebServiceFilter;
@@ -457,6 +458,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // web services
       ActionDeprecationLoggerInterceptor.class,
       ConcurrentCallsLimitInterceptor.class,
+      WebApiV1MetricsInterceptor.class,
       WebServiceEngine.class,
       new WebServicesWsModule(),
       SonarQubeIdeConnectionFilter.class,

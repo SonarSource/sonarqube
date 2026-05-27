@@ -48,7 +48,9 @@ import org.sonar.server.v2.api.system.controller.DefaultLivenessController;
 import org.sonar.server.v2.api.system.controller.HealthController;
 import org.sonar.server.v2.api.user.controller.DefaultUserController;
 import org.sonar.server.v2.api.user.converter.UsersSearchRestResponseGenerator;
+import org.sonar.server.monitoring.ServerMonitoringMetrics;
 import org.sonar.server.v2.common.DeprecatedHandler;
+import org.sonar.server.v2.common.WebApiV2MetricsInterceptor;
 import org.sonar.server.v2.security.WebSecurityConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -94,9 +96,10 @@ public class PlatformLevel4WebConfig {
 
   @Primary
   @Bean("org.sonar.server.v2.config.PlatformLevel4WebConfig.requestMappingHandlerMapping")
-  public RequestMappingHandlerMapping requestMappingHandlerMapping(UserSession userSession) {
+  public RequestMappingHandlerMapping requestMappingHandlerMapping(UserSession userSession,
+    ServerMonitoringMetrics metrics, org.sonar.api.config.Configuration config) {
     RequestMappingHandlerMapping handlerMapping = new RequestMappingHandlerMapping();
-    handlerMapping.setInterceptors(new DeprecatedHandler(userSession));
+    handlerMapping.setInterceptors(new DeprecatedHandler(userSession), new WebApiV2MetricsInterceptor(metrics, config));
     return handlerMapping;
   }
 

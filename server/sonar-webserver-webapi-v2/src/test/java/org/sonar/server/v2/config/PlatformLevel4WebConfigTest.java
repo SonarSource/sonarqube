@@ -23,6 +23,8 @@ import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.api.config.Configuration;
+import org.sonar.server.monitoring.ServerMonitoringMetrics;
 import org.sonar.server.user.UserSession;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
@@ -36,7 +38,8 @@ class PlatformLevel4WebConfigTest {
 
   private static Stream<Arguments> components() {
     return Stream.of(
-      arguments(platformLevel4WebConfig.requestMappingHandlerMapping(mock(UserSession.class)), RequestMappingHandlerMapping.class));
+      arguments(platformLevel4WebConfig.requestMappingHandlerMapping(mock(UserSession.class), mock(ServerMonitoringMetrics.class), mock(Configuration.class)),
+        RequestMappingHandlerMapping.class));
   }
 
   @ParameterizedTest
