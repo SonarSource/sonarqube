@@ -68,6 +68,8 @@ import static org.sonar.server.issue.notification.IssuesChangesNotificationBuild
 
 public class IssueUpdaterIT {
 
+  private static final long NOW = 1_704_067_200_000L;
+
   private System2 system2 = mock(System2.class);
 
   @Rule
@@ -94,7 +96,7 @@ public class IssueUpdaterIT {
     IssueDto originalIssueDto = db.issues().insertIssue(i -> i.setSeverity(MAJOR));
     DefaultIssue issue = originalIssueDto.toDefaultIssue();
     UserDto user = db.users().insertUser();
-    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), user.getUuid()).build();
+    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(NOW), user.getUuid()).build();
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
     underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), originalIssueDto, issue, context);
@@ -114,7 +116,7 @@ public class IssueUpdaterIT {
     DefaultIssue issue = originalIssueDto
       .toDefaultIssue();
     UserDto changeAuthor = db.users().insertUser();
-    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), changeAuthor.getUuid()).build();
+    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(NOW), changeAuthor.getUuid()).build();
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
     underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), originalIssueDto, issue, context);
@@ -143,7 +145,7 @@ public class IssueUpdaterIT {
     DefaultIssue issue = originalIssueDto
       .toDefaultIssue();
     UserDto changeAuthor = db.users().insertUser();
-    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), changeAuthor.getUuid()).build();
+    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(NOW), changeAuthor.getUuid()).build();
     issueFieldsSetter.setResolution(issue, RESOLUTION_FIXED, context);
     issueFieldsSetter.setStatus(issue, STATUS_RESOLVED, context);
 
@@ -174,7 +176,7 @@ public class IssueUpdaterIT {
       t -> t.setSeverity(MAJOR));
     DefaultIssue issue = originalIssueDto.toDefaultIssue();
     UserDto changeAuthor = db.users().insertUser();
-    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), changeAuthor.getUuid()).build();
+    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(NOW), changeAuthor.getUuid()).build();
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
     underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), originalIssueDto, issue, context);
@@ -200,7 +202,7 @@ public class IssueUpdaterIT {
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     IssueDto originalIssueDto = db.issues().insertIssue(rule, branch, file, t -> t.setSeverity(MAJOR));
     DefaultIssue issue = originalIssueDto.toDefaultIssue();
-    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), "user_uuid").build();
+    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(NOW), "user_uuid").build();
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
     underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), originalIssueDto, issue, context);
@@ -215,7 +217,7 @@ public class IssueUpdaterIT {
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto originalIssueDto = db.issues().insertIssue(rule, project, file, t -> t.setSeverity(MAJOR));
     DefaultIssue issue = originalIssueDto.toDefaultIssue();
-    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), "user_uuid").build();
+    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(NOW), "user_uuid").build();
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
     underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), originalIssueDto, issue, context);
@@ -233,7 +235,7 @@ public class IssueUpdaterIT {
     DefaultIssue issue = originalIssueDto
       .toDefaultIssue();
     UserDto changeAuthor = db.users().insertUser();
-    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), changeAuthor.getUuid()).build();
+    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(NOW), changeAuthor.getUuid()).build();
     UserDto newAssignee = db.users().insertUser();
     issueFieldsSetter.assign(issue, newAssignee, context);
 
@@ -260,7 +262,7 @@ public class IssueUpdaterIT {
     IssueDto originalIssueDto = db.issues().insertIssue(rule, project, file);
     DefaultIssue issue = originalIssueDto.setSeverity(MAJOR).toDefaultIssue();
     UserDto changeAuthor = db.users().insertUser();
-    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), changeAuthor.getUuid()).withRefreshMeasures().build();
+    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(NOW), changeAuthor.getUuid()).withRefreshMeasures().build();
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
     SearchResponseData preloadedSearchResponseData = underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), originalIssueDto, issue, context);
@@ -285,7 +287,7 @@ public class IssueUpdaterIT {
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto originalIssueDto = db.issues().insertIssue(rule, project, file);
     DefaultIssue issue = originalIssueDto.setSeverity(MAJOR).toDefaultIssue();
-    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), "user_uuid").build();
+    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(NOW), "user_uuid").build();
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
     SearchResponseData preloadedSearchResponseData = underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), originalIssueDto, issue, context);

@@ -55,7 +55,7 @@ class ServerIdManagerTest {
   @Test
   void start_fails_when_deprecated_date_format_serverId_in_database() {
     // Given a deprecated server ID (date format) in the database
-    String deprecatedServerId = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+    String deprecatedServerId = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(1_704_067_200_000L));
     db.properties().insertProperty(new PropertyDto().setKey(SERVER_ID).setValue(deprecatedServerId), null, null, null, null);
 
     when(runtime.getSonarQubeSide()).thenReturn(SonarQubeSide.SERVER);

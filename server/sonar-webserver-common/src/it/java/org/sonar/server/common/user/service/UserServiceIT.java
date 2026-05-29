@@ -485,7 +485,7 @@ public class UserServiceIT {
 
   @Test
   public void search_whenFilteringConnectionDate_shouldApplyFilter() {
-    final Instant lastConnection = Instant.now();
+    final Instant lastConnection = Instant.ofEpochMilli(1_704_067_200_000L);
     UserDto user = db.users().insertUser(u -> u
       .setLogin("user-%_%-login")
       .setName("user-name")
@@ -517,7 +517,7 @@ public class UserServiceIT {
 
   @Test
   public void search_whenNoLastConnection_shouldReturnForBeforeOnly() {
-    final Instant lastConnection = Instant.now();
+    final Instant lastConnection = Instant.ofEpochMilli(1_704_067_200_000L);
     UserDto user = db.users().insertUser(u -> u
       .setLogin("user-%_%-login")
       .setName("user-name")

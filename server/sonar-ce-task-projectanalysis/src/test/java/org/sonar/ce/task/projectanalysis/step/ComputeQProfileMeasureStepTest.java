@@ -127,7 +127,7 @@ public class ComputeQProfileMeasureStepTest {
   }
 
   private static QualityProfile createQProfile(String qpName, String languageKey) {
-    return new QualityProfile(qpName + "-" + languageKey, qpName, languageKey, new Date());
+    return new QualityProfile(qpName + "-" + languageKey, qpName, languageKey, new Date(1_704_067_200_000L));
   }
 
   private static String toJson(QualityProfile... qps) {

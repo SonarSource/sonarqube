@@ -93,7 +93,7 @@ class UserNewValueTest {
     userDto.setExternalLogin("name");
     userDto.setExternalIdentityProvider("github");
     userDto.setLocal(false);
-    userDto.setLastConnectionDate(System.currentTimeMillis());
+    userDto.setLastConnectionDate(1_704_067_200_000L);
     return userDto;
   }
 

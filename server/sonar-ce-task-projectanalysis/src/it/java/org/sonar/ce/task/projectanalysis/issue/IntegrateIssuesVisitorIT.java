@@ -88,6 +88,7 @@ import static org.mockito.Mockito.when;
 
 class IntegrateIssuesVisitorIT {
 
+  private static final long NOW = 1_704_067_200_000L;
   private static final String FILE_UUID = "FILE_UUID";
   private static final String FILE_UUID_ON_BRANCH = "FILE_UUID_BRANCH";
   private static final String FILE_KEY = "FILE_KEY";
@@ -169,7 +170,7 @@ class IntegrateIssuesVisitorIT {
     File temp = new File(tempDirectory, "temp");
     protoIssueCache = new ProtoIssueCache(temp, System2.INSTANCE);
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
-    when(issueChangeContext.date()).thenReturn(new Date());
+    when(issueChangeContext.date()).thenReturn(new Date(NOW));
     underTest = new IntegrateIssuesVisitor(protoIssueCache, rawInputFactory, baseInputFactory, issueLifecycle, issueVisitors, trackingDelegator, issueStatusCopier,
       referenceBranchComponentUuids, mock(PullRequestSourceBranchMerger.class), fileStatuses, analysisMetadataHolder, targetInputFactory, locationHashesService);
   }

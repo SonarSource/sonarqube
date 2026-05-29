@@ -50,7 +50,7 @@ public class NodeHealthModuleTest {
     // settings required by NodeHealthProvider
     mapSettings.setProperty("sonar.cluster.node.name", secure().nextAlphanumeric(3));
     mapSettings.setProperty("sonar.cluster.node.port", valueOf(1 + random.nextInt(10)));
-    when(server.getStartedAt()).thenReturn(new Date());
+    when(server.getStartedAt()).thenReturn(new Date(1_704_067_200_000L));
     when(networkUtils.getHostname()).thenReturn(secure().nextAlphanumeric(12));
     // upper level dependencies
     container.add(

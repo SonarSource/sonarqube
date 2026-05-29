@@ -76,8 +76,8 @@ class ForceReloadingOfAllPluginsIT {
     map.put("UUID", uuid);
     map.put("KEE", secure().nextAlphabetic(20));
     map.put("FILE_HASH", secure().nextAlphabetic(32));
-    map.put("CREATED_AT", System.currentTimeMillis());
-    map.put("UPDATED_AT", System.currentTimeMillis());
+    map.put("CREATED_AT", 1_704_067_200_000L);
+    map.put("UPDATED_AT", 1_704_067_200_000L);
     map.put("TYPE", "EXTERNAL");
     map.put("REMOVED", false);
     db.executeInsert("plugins", map);

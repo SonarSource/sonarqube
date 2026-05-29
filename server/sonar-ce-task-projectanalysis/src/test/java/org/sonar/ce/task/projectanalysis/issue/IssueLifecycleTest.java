@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
@@ -35,6 +34,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
@@ -63,7 +63,8 @@ import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBu
 import static org.sonar.db.rule.RuleTesting.XOO_X1;
 
 public class IssueLifecycleTest {
-  private static final Date DEFAULT_DATE = new Date();
+  private static final long NOW = 1_704_067_200_000L;
+  private static final Date DEFAULT_DATE = new Date(NOW);
   private static final Duration DEFAULT_DURATION = Duration.create(10);
   private static final String TEST_CONTEXT_KEY = "test_context_key";
 
@@ -128,14 +129,14 @@ public class IssueLifecycleTest {
     fromShort.setStatus("status");
     fromShort.setCleanCodeAttribute(CleanCodeAttribute.COMPLETE);
 
-    Date commentDate = new Date();
+    Date commentDate = DEFAULT_DATE;
     fromShort.addComment(new DefaultIssueComment()
       .setIssueKey("short")
       .setCreatedAt(commentDate)
       .setUserUuid("user_uuid")
       .setMarkdownText("A comment"));
 
-    Date diffDate = new Date();
+    Date diffDate = DEFAULT_DATE;
     // file diff alone
     fromShort.addChange(new FieldDiffs()
       .setCreationDate(diffDate)
@@ -191,14 +192,14 @@ public class IssueLifecycleTest {
     fromShort.setStatus("status");
     fromShort.setCleanCodeAttribute(CleanCodeAttribute.DISTINCT);
 
-    Date commentDate = new Date();
+    Date commentDate = DEFAULT_DATE;
     fromShort.addComment(new DefaultIssueComment()
       .setIssueKey("short")
       .setCreatedAt(commentDate)
       .setUserUuid("user_uuid")
       .setMarkdownText("A comment"));
 
-    Date diffDate = new Date();
+    Date diffDate = DEFAULT_DATE;
     // file diff alone
     fromShort.addChange(new FieldDiffs()
       .setCreationDate(diffDate)
@@ -250,7 +251,7 @@ public class IssueLifecycleTest {
 
     FieldDiffs sourceFieldDiffs = new FieldDiffs();
     sourceIssue.addChange(sourceFieldDiffs
-      .setCreationDate(new Date())
+      .setCreationDate(new Date(NOW))
       .setIssueKey("short")
       .setUserUuid("user_uuid")
       .setExternalUser("toto")

@@ -197,8 +197,8 @@ class PermissionTemplateDaoWithPersisterIT {
       .setGroupUuid("group-id")
       .setPermission(ADMIN)
       .setTemplateUuid(templateDto.getUuid())
-      .setCreatedAt(new Date())
-      .setUpdatedAt(new Date());
+      .setCreatedAt(new Date(1_704_067_200_000L))
+      .setUpdatedAt(new Date(1_704_067_200_000L));
     underTest.insertGroupPermission(session, templateGroupDto, templateDto.getName());
 
     verify(auditPersister).addGroupToPermissionTemplate(eq(session), newValueCaptor.capture());

@@ -58,6 +58,8 @@ import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
 
 class ComputeEngineContainerImplIT {
 
+  private static final long NOW = 1_704_067_200_000L;
+
   // Sometimes JUnit tried to cleanup the folder before the CE process is completely stopped and it fails
   @TempDir(cleanup = CleanupMode.NEVER)
   private File tempFolder;
@@ -85,7 +87,7 @@ class ComputeEngineContainerImplIT {
 
     // required persisted properties
     insertProperty(CoreProperties.SERVER_ID, "a_server_id");
-    insertProperty(CoreProperties.SERVER_STARTTIME, DateUtils.formatDateTime(new Date()));
+    insertProperty(CoreProperties.SERVER_STARTTIME, DateUtils.formatDateTime(new Date(NOW)));
     insertInternalProperty(InternalProperties.SERVER_ID_CHECKSUM, DigestUtils.sha256Hex("a_server_id|" + cleanJdbcUrl()));
 
     underTest.start(new Props(properties));

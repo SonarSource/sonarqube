@@ -39,14 +39,14 @@ public class PullHotspotsActionProtobufObjectGeneratorTest {
 
   @Test
   public void generateTimestampMessage_shouldMapTimestamp() {
-    long timestamp = System.currentTimeMillis();
+    long timestamp = 1_704_067_200_000L;
     HotspotPullQueryTimestamp result = underTest.generateTimestampMessage(timestamp);
     assertThat(result.getQueryTimestamp()).isEqualTo(timestamp);
   }
 
   @Test
   public void generateIssueMessage_shouldMapDtoFields() {
-    Date creationDate = new Date();
+    Date creationDate = new Date(1_704_067_200_000L);
     IssueDto issueDto = new IssueDto()
       .setKee("key")
       .setFilePath("/home/src/Class.java")
@@ -83,7 +83,7 @@ public class PullHotspotsActionProtobufObjectGeneratorTest {
 
   @Test
   public void generateIssueMessage_whenFilePathIsNull_shouldMapDtoFields() {
-    Date creationDate = new Date();
+    Date creationDate = new Date(1_704_067_200_000L);
     IssueDto issueDto = new IssueDto()
       .setKee("key")
       .setProjectKey("my-project-key")

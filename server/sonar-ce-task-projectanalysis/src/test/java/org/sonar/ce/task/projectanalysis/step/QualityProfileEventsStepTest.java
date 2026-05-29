@@ -72,6 +72,7 @@ import static org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRep
 import static org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepository.Status.UPDATED;
 
 public class QualityProfileEventsStepTest {
+  private static final long NOW = 1_704_067_200_000L;
   private static final Date BEFORE_DATE = parseDateTime("2011-04-25T01:05:13+0100");
   private static final Date AFTER_DATE = parseDateTime("2011-04-25T01:05:17+0100");
   private static final Date BEFORE_DATE_PLUS_1_SEC = parseDateTime("2011-04-25T01:05:14+0100");
@@ -140,7 +141,7 @@ public class QualityProfileEventsStepTest {
 
   @Test
   public void added_event_if_qp_is_added() {
-    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date());
+    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date(NOW));
     qProfileStatusRepository.register(qp.getQpKey(), ADDED);
 
     Language language = mockLanguageInRepository(LANGUAGE_KEY_1);
@@ -155,7 +156,7 @@ public class QualityProfileEventsStepTest {
 
   @Test
   public void added_event_uses_language_key_in_message_if_language_not_found() {
-    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date());
+    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date(NOW));
     qProfileStatusRepository.register(qp.getQpKey(), ADDED);
 
     mockLanguageNotInRepository(LANGUAGE_KEY_1);
@@ -170,7 +171,7 @@ public class QualityProfileEventsStepTest {
 
   @Test
   public void no_more_used_event_if_qp_is_removed() {
-    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date());
+    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date(NOW));
     qProfileStatusRepository.register(qp.getQpKey(), REMOVED);
 
     mockQualityProfileMeasures(treeRootHolder.getRoot(), arrayOf(qp), null);
@@ -185,7 +186,7 @@ public class QualityProfileEventsStepTest {
 
   @Test
   public void no_more_used_event_uses_language_key_in_message_if_language_not_found() {
-    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date());
+    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date(NOW));
     qProfileStatusRepository.register(qp.getQpKey(), REMOVED);
     mockQualityProfileMeasures(treeRootHolder.getRoot(), arrayOf(qp), null);
     mockLanguageNotInRepository(LANGUAGE_KEY_1);
@@ -199,7 +200,7 @@ public class QualityProfileEventsStepTest {
 
   @Test
   public void no_event_if_qp_is_unchanged() {
-    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date());
+    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date(NOW));
     qProfileStatusRepository.register(qp.getQpKey(), UNCHANGED);
     mockQualityProfileMeasures(treeRootHolder.getRoot(), arrayOf(qp), arrayOf(qp));
 
@@ -311,7 +312,7 @@ public class QualityProfileEventsStepTest {
       return null;
     }).when(eventRepository).add(any(Event.class));
 
-    Date date = new Date();
+    Date date = new Date(NOW);
     QualityProfile qp1 = qp(QP_NAME_2, LANGUAGE_KEY_1, date);
     QualityProfile qp2 = qp(QP_NAME_2, LANGUAGE_KEY_2, date);
     QualityProfile qp3 = qp(QP_NAME_1, LANGUAGE_KEY_1, BEFORE_DATE);

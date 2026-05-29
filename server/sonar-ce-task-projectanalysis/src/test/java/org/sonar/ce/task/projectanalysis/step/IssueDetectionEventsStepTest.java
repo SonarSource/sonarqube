@@ -62,6 +62,7 @@ public class IssueDetectionEventsStepTest {
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
+  private static final long NOW = 1_704_067_200_000L;
   private static final String QP_NAME_1 = "qp_1";
   private static final String QP_NAME_2 = "qp_2";
   private static final String LANGUAGE_KEY_1 = "language_key1";
@@ -116,7 +117,7 @@ public class IssueDetectionEventsStepTest {
 
   @Test
   public void execute_whenAnalyzerChangedAndLanguageNotSupported_shouldSkipRaisingEvent() {
-    QualityProfile qp1 = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date());
+    QualityProfile qp1 = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date(NOW));
 
     mockLanguageInRepository(LANGUAGE_KEY_1);
     when(measureRepository.getBaseMeasure(treeRootHolder.getRoot(), qualityProfileMetric)).thenReturn(Optional.of(newMeasure()));
@@ -132,8 +133,8 @@ public class IssueDetectionEventsStepTest {
 
   @Test
   public void execute_whenAnalyzerChanged_shouldRaiseEventForAllLanguages() {
-    QualityProfile qp1 = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date());
-    QualityProfile qp2 = qp(QP_NAME_2, LANGUAGE_KEY_2, new Date());
+    QualityProfile qp1 = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date(NOW));
+    QualityProfile qp2 = qp(QP_NAME_2, LANGUAGE_KEY_2, new Date(NOW));
 
     mockLanguageInRepository(LANGUAGE_KEY_1);
     mockLanguageInRepository(LANGUAGE_KEY_2);
@@ -160,7 +161,7 @@ public class IssueDetectionEventsStepTest {
 
   @Test
   public void execute_whenAnalyzerChangedAndAnalyzerUpdateDateBeforeAnalysis_shouldNotRaiseEvent() {
-    QualityProfile qp1 = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date());
+    QualityProfile qp1 = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date(NOW));
 
     mockLanguageInRepository(LANGUAGE_KEY_1);
 
@@ -179,7 +180,7 @@ public class IssueDetectionEventsStepTest {
 
   @Test
   public void execute_whenAnalyzerDidNotChange_shouldNotRaiseEvent() {
-    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date());
+    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date(NOW));
 
     mockLanguage1AsNotInRepository();
 

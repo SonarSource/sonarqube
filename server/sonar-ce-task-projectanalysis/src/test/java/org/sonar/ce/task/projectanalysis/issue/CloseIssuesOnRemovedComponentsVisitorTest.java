@@ -69,7 +69,7 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
     String issueUuid = "ABCD";
 
     when(componentsWithUnprocessedIssues.getUuids()).thenReturn(newHashSet(fileUuid));
-    DefaultIssue issue = new DefaultIssue().setKey(issueUuid).setType(RuleType.BUG).setCreationDate(new Date())
+    DefaultIssue issue = new DefaultIssue().setKey(issueUuid).setType(RuleType.BUG).setCreationDate(new Date(1_704_067_200_000L))
       .setComponentKey("c").setProjectUuid("u").setProjectKey("k").setRuleKey(RuleKey.of("r", "r")).setStatus("OPEN");
     when(issuesLoader.loadOpenIssues(fileUuid)).thenReturn(Collections.singletonList(issue));
 

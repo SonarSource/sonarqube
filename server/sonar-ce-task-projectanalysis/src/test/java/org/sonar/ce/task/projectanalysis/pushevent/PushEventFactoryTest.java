@@ -415,7 +415,7 @@ public class PushEventFactoryTest {
       .setAssigneeLogin("some-user-login")
       .setType(RuleType.VULNERABILITY)
       .setLanguage("java")
-      .setCreationDate(new Date())
+      .setCreationDate(new Date(1_704_067_200_000L))
       .setLocations(DbIssues.Locations.newBuilder()
         .addFlow(DbIssues.Flow.newBuilder()
           .addLocation(DbIssues.Location.newBuilder()

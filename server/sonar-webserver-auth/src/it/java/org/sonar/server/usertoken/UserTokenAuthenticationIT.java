@@ -206,7 +206,7 @@ public class UserTokenAuthenticationIT {
   public void throw_authentication_exception_if_token_is_expired() {
     String token = "known-token";
     String tokenHash = "123456789";
-    long expirationTimestamp = System.currentTimeMillis() - 1;
+    long expirationTimestamp = 1_704_067_200_000L - 1;
     when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64(token + ":"));
     when(tokenGenerator.hash(token)).thenReturn(tokenHash);
     UserDto user1 = db.users().insertUser();

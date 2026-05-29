@@ -52,6 +52,7 @@ import static org.mockito.Mockito.when;
 
 public class PersistPushEventsStepIT {
 
+  private static final long NOW = 1_704_067_200_000L;
   private final TestSystem2 system2 = new TestSystem2().setNow(1L);
 
   @Rule
@@ -192,7 +193,7 @@ public class PersistPushEventsStepIT {
       .setProjectUuid("project-uuid")
       .setComponentKey("c")
       .setRuleKey(RuleKey.of("r", "r"))
-      .setCreationDate(new Date());
+      .setCreationDate(new Date(NOW));
   }
 
   private PushEventDto createPushEvent() {

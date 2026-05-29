@@ -51,6 +51,8 @@ import static org.mockito.Mockito.when;
 
 class MigrationStepsExecutorImplTest {
 
+  private static final long NOW = 1_704_067_200_000L;
+
   @RegisterExtension
   private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
@@ -59,7 +61,7 @@ class MigrationStepsExecutorImplTest {
   private final MutableDatabaseMigrationState databaseMigrationState = mock();
   private final Server server = mock(Server.class);
   private final DatabaseMigrationLoggerContext databaseMigrationLoggerContext = mock(DatabaseMigrationLoggerContext.class);
-  private final TestSystem2 system2 = new TestSystem2().setNow(System.currentTimeMillis());
+  private final TestSystem2 system2 = new TestSystem2().setNow(NOW);
   private final MigrationStepsExecutorImpl underTest = new MigrationStepsExecutorImpl(migrationContainer, migrationHistory, databaseMigrationState, databaseMigrationLoggerContext, server, system2);
   private final NoOpMigrationStatusListener migrationStatusListener = mock();
 

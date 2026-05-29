@@ -59,6 +59,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ExportAdHocRulesStepIT {
+  private static final long NOW = 1_704_067_200_000L;
   private static final String PROJECT_UUID = "some-uuid";
   private static final List<BranchDto> BRANCHES = ImmutableList.of(
     new BranchDto().setBranchType(BranchType.PULL_REQUEST).setProjectUuid(PROJECT_UUID).setKey("pr-1").setUuid("pr-1-uuid").setMergeBranchUuid("master").setIsMain(false),
@@ -220,10 +221,9 @@ public class ExportAdHocRulesStepIT {
   }
 
   private ProjectDto createProject() {
-    Date createdAt = new Date();
     ProjectData projectData = dbTester.components().insertPublicProject(PROJECT_UUID);
     mainBranch = projectData.getMainBranchComponent();
-    BRANCHES.forEach(branch -> dbTester.components().insertProjectBranch(projectData.getProjectDto(), branch).setCreatedAt(createdAt));
+    BRANCHES.forEach(branch -> dbTester.components().insertProjectBranch(projectData.getProjectDto(), branch).setCreatedAt(new Date(NOW)));
     dbTester.commit();
     return projectData.getProjectDto();
   }

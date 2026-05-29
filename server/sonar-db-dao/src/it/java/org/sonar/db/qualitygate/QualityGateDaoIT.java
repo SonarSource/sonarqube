@@ -55,7 +55,7 @@ class QualityGateDaoIT {
     QualityGateDto newQgate = new QualityGateDto()
       .setName("My Quality Gate")
       .setBuiltIn(false)
-      .setUpdatedAt(new Date());
+      .setUpdatedAt(new Date(1_704_067_200_000L));
 
     underTest.insert(dbSession, newQgate);
     dbSession.commit();

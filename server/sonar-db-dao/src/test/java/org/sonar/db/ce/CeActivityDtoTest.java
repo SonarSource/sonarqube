@@ -19,7 +19,6 @@
  */
 package org.sonar.db.ce;
 
-import java.time.Instant;
 import java.util.Random;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -37,7 +36,7 @@ class CeActivityDtoTest {
 
   @Test
   void constructor_from_CeQueueDto_populates_fields() {
-    long now = Instant.now().toEpochMilli();
+    long now = 1_704_067_200_000L;
     CeQueueDto ceQueueDto = new CeQueueDto()
       .setUuid(secure().nextAlphanumeric(10))
       .setTaskType(secure().nextAlphanumeric(11))

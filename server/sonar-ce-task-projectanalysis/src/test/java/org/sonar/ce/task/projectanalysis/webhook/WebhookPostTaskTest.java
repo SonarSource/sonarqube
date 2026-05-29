@@ -114,7 +114,7 @@ public class WebhookPostTaskTest {
       .setStatus(CeTask.Status.values()[random.nextInt(CeTask.Status.values().length)])
       .setId(secure().nextAlphanumeric(6))
       .build();
-    Date date = new Date();
+    Date date = new Date(1_704_067_200_000L);
     Map<String, String> properties = ImmutableMap.of(secure().nextAlphanumeric(17), secure().nextAlphanumeric(18));
     Branch branch = newBranchBuilder()
       .setIsMain(random.nextBoolean())

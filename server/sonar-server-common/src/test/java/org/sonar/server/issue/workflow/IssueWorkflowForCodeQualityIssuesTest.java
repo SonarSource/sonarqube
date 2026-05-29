@@ -65,6 +65,7 @@ import static org.sonar.core.rule.RuleType.VULNERABILITY;
 
 class IssueWorkflowForCodeQualityIssuesTest {
 
+  private static final long NOW = 1_704_067_200_000L;
   private static final String[] ALL_STATUSES_LEADING_TO_CLOSED = new String[] {STATUS_OPEN, STATUS_REOPENED, STATUS_CONFIRMED, STATUS_RESOLVED};
   private static final String[] ALL_RESOLUTIONS_BEFORE_CLOSING = new String[] {
     null,
@@ -136,7 +137,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
       .setStatus(STATUS_RESOLVED)
       .setNew(false)
       .setBeingClosed(true);
-    Date now = new Date();
+    Date now = new Date(NOW);
     underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
     assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
@@ -154,7 +155,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
         return issue;
       })
       .toArray(DefaultIssue[]::new);
-    Date now = new Date();
+    Date now = new Date(NOW);
 
     Arrays.stream(issues).forEach(issue -> {
       underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
@@ -172,14 +173,14 @@ class IssueWorkflowForCodeQualityIssuesTest {
     DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
       .map(resolution -> {
         DefaultIssue issue = newClosedIssue(resolution);
-        Date now = new Date();
+        Date now = new Date(NOW);
         addStatusChange(issue, addDays(now, -60), STATUS_OPEN, STATUS_CONFIRMED);
         addStatusChange(issue, addDays(now, -10), STATUS_CONFIRMED, previousStatus);
         setStatusPreviousToClosed(issue, previousStatus);
         return issue;
       })
       .toArray(DefaultIssue[]::new);
-    Date now = new Date();
+    Date now = new Date(NOW);
 
     Arrays.stream(issues).forEach(issue -> {
       underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
@@ -198,11 +199,11 @@ class IssueWorkflowForCodeQualityIssuesTest {
     DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
       .map(resolution -> {
         DefaultIssue issue = newClosedIssue(resolution);
-        addResolutionAndStatusChange(issue, new Date(), randomPreviousStatus, STATUS_CLOSED, resolutionBeforeClosed, resolution);
+        addResolutionAndStatusChange(issue, new Date(NOW), randomPreviousStatus, STATUS_CLOSED, resolutionBeforeClosed, resolution);
         return issue;
       })
       .toArray(DefaultIssue[]::new);
-    Date now = new Date();
+    Date now = new Date(NOW);
 
     Arrays.stream(issues).forEach(issue -> {
       underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
@@ -225,7 +226,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
         return issue;
       })
       .toArray(DefaultIssue[]::new);
-    Date now = new Date();
+    Date now = new Date(NOW);
 
     Arrays.stream(issues).forEach(issue -> {
       underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
@@ -245,14 +246,14 @@ class IssueWorkflowForCodeQualityIssuesTest {
     DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
       .map(resolution -> {
         DefaultIssue issue = newClosedIssue(resolution);
-        Date now = new Date();
+        Date now = new Date(NOW);
         addResolutionChange(issue, addDays(now, -60), null, RESOLUTION_FALSE_POSITIVE);
         addResolutionChange(issue, addDays(now, -10), RESOLUTION_FALSE_POSITIVE, resolutionBeforeClosed);
         addResolutionAndStatusChange(issue, now, randomPreviousStatus, STATUS_CLOSED, resolutionBeforeClosed, resolution);
         return issue;
       })
       .toArray(DefaultIssue[]::new);
-    Date now = new Date();
+    Date now = new Date(NOW);
 
     Arrays.stream(issues).forEach(issue -> {
       underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
@@ -274,7 +275,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
     DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
       .map(IssueWorkflowForCodeQualityIssuesTest::newClosedIssue)
       .toArray(DefaultIssue[]::new);
-    Date now = new Date();
+    Date now = new Date(NOW);
 
     Arrays.stream(issues).forEach(issue -> {
       underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
@@ -296,7 +297,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
     when(taintChecker.isTaintVulnerability(issue))
       .thenReturn(true);
 
-    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date()).build());
+    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date(NOW)).build());
 
     assertThat(issue.issueStatus()).isEqualTo(IssueStatus.OPEN);
     List<DefaultIssueComment> issueComments = issue.defaultIssueComments();
@@ -317,7 +318,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
     when(taintChecker.isTaintVulnerability(issue))
       .thenReturn(false);
 
-    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date()).build());
+    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date(NOW)).build());
 
     assertThat(issue.issueStatus()).isEqualTo(IssueStatus.FALSE_POSITIVE);
   }
@@ -334,7 +335,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
     when(taintChecker.isTaintVulnerability(issue))
       .thenReturn(true);
 
-    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date()).build());
+    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date(NOW)).build());
 
     assertThat(issue.issueStatus()).isEqualTo(IssueStatus.FALSE_POSITIVE);
   }
@@ -351,7 +352,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
       .setStatus(STATUS_OPEN)
       .setNew(false)
       .setBeingClosed(true);
-    Date now = new Date();
+    Date now = new Date(NOW);
     underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
     assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
@@ -367,7 +368,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
       .setStatus(STATUS_REOPENED)
       .setNew(false)
       .setBeingClosed(true);
-    Date now = new Date();
+    Date now = new Date(NOW);
     underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
     assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
@@ -383,7 +384,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
       .setStatus(STATUS_CONFIRMED)
       .setNew(false)
       .setBeingClosed(true);
-    Date now = new Date();
+    Date now = new Date(NOW);
     underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
     assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
@@ -400,7 +401,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
       .setNew(false)
       .setBeingClosed(true);
 
-    IssueChangeContext issueChangeContext = issueChangeContextByScanBuilder(new Date()).build();
+    IssueChangeContext issueChangeContext = issueChangeContextByScanBuilder(new Date(NOW)).build();
     assertThatThrownBy(() -> underTest.doAutomaticTransition(issue, issueChangeContext))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Unknown status: xxx [issue=ABCDE]");
@@ -414,7 +415,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
       .setRuleKey(RuleKey.of("java", "AvoidCycle"))
       .setAssigneeUuid("morgan");
 
-    underTest.doManualTransition(issue, CodeQualityIssueWorkflowTransition.FALSE_POSITIVE, issueChangeContextByScanBuilder(new Date()).build());
+    underTest.doManualTransition(issue, CodeQualityIssueWorkflowTransition.FALSE_POSITIVE, issueChangeContextByScanBuilder(new Date(NOW)).build());
 
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_FALSE_POSITIVE);
     assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);
@@ -431,7 +432,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
       .setRuleKey(RuleKey.of("java", "AvoidCycle"))
       .setAssigneeUuid("morgan");
 
-    underTest.doManualTransition(issue, CodeQualityIssueWorkflowTransition.WONT_FIX, issueChangeContextByScanBuilder(new Date()).build());
+    underTest.doManualTransition(issue, CodeQualityIssueWorkflowTransition.WONT_FIX, issueChangeContextByScanBuilder(new Date(NOW)).build());
 
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_WONT_FIX);
     assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);
@@ -448,7 +449,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
       .setRuleKey(RuleKey.of("java", "AvoidCycle"))
       .setAssigneeUuid("morgan");
 
-    underTest.doManualTransition(issue, CodeQualityIssueWorkflowTransition.ACCEPT, issueChangeContextByScanBuilder(new Date()).build());
+    underTest.doManualTransition(issue, CodeQualityIssueWorkflowTransition.ACCEPT, issueChangeContextByScanBuilder(new Date(NOW)).build());
 
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_WONT_FIX);
     assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);
@@ -471,7 +472,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
     when(taintChecker.isTaintVulnerability(issue))
       .thenReturn(true);
 
-    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date()).build());
+    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date(NOW)).build());
 
     assertThat(issue.issueStatus()).isEqualTo(IssueStatus.OPEN);
     List<DefaultIssueComment> issueComments = issue.defaultIssueComments();
@@ -489,7 +490,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
   }
 
   private static void setStatusPreviousToClosed(DefaultIssue issue, String previousStatus) {
-    addStatusChange(issue, new Date(), previousStatus, STATUS_CLOSED);
+    addStatusChange(issue, new Date(NOW), previousStatus, STATUS_CLOSED);
   }
 
   private static void addStatusChange(DefaultIssue issue, Date date, String previousStatus, String newStatus) {
@@ -542,7 +543,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
       .setKey("ISSUE-1")
       .setStatus(STATUS_IN_SANDBOX)
       .setResolution(null);
-    Date now = new Date();
+    Date now = new Date(NOW);
     
     boolean result = underTest.doManualTransition(issue, "reopen", issueChangeContextByScanBuilder(now).build());
     
@@ -558,7 +559,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
       .setKey("ISSUE-1")
       .setStatus(STATUS_IN_SANDBOX)
       .setResolution(null);
-    Date now = new Date();
+    Date now = new Date(NOW);
     
     boolean result = underTest.doManualTransition(issue, "confirm", issueChangeContextByScanBuilder(now).build());
     
@@ -574,7 +575,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
       .setKey("ISSUE-1")
       .setStatus(STATUS_IN_SANDBOX)
       .setResolution(null);
-    Date now = new Date();
+    Date now = new Date(NOW);
     
     boolean result = underTest.doManualTransition(issue, "resolve", issueChangeContextByScanBuilder(now).build());
     
@@ -590,7 +591,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
       .setKey("ISSUE-1")
       .setStatus(STATUS_IN_SANDBOX)
       .setResolution(null);
-    Date now = new Date();
+    Date now = new Date(NOW);
     
     boolean result = underTest.doManualTransition(issue, "falsepositive", issueChangeContextByScanBuilder(now).build());
     
@@ -606,7 +607,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
       .setKey("ISSUE-1")
       .setStatus(STATUS_IN_SANDBOX)
       .setResolution(null);
-    Date now = new Date();
+    Date now = new Date(NOW);
     
     boolean result = underTest.doManualTransition(issue, "accept", issueChangeContextByScanBuilder(now).build());
     
@@ -622,7 +623,7 @@ class IssueWorkflowForCodeQualityIssuesTest {
       .setKey("ISSUE-1")
       .setStatus(STATUS_IN_SANDBOX)
       .setResolution(null);
-    Date now = new Date();
+    Date now = new Date(NOW);
     
     boolean result = underTest.doManualTransition(issue, "wontfix", issueChangeContextByScanBuilder(now).build());
     

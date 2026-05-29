@@ -49,6 +49,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 class AnalysisCacheCleaningSchedulerImplIT {
+  private static final LocalDateTime BASE_DATE = LocalDateTime.now(ZoneOffset.UTC);
+
   private System2 system2 = mock(System2.class);
   private static final UuidFactory uuidFactory = new SequenceUuidFactory();
   @RegisterExtension
@@ -73,16 +75,16 @@ class AnalysisCacheCleaningSchedulerImplIT {
     settings.setProperty(PurgeConstants.DAYS_BEFORE_DELETING_SCANNER_CACHE, 5);
 
     var snapshotDao = dbTester.getDbClient().snapshotDao();
-    var snapshot1 = createSnapshot(LocalDateTime.now(ZoneOffset.UTC).minusDays(1).toInstant(ZoneOffset.UTC).toEpochMilli());
+    var snapshot1 = createSnapshot(BASE_DATE.minusDays(1).toInstant(ZoneOffset.UTC).toEpochMilli());
     snapshotDao.insert(dbSession, snapshot1);
     scannerAnalysisCacheDao.insert(dbSession, snapshot1.getRootComponentUuid(), new ByteArrayInputStream("data".getBytes()));
-    var snapshot2 = createSnapshot(LocalDateTime.now(ZoneOffset.UTC).minusDays(6).toInstant(ZoneOffset.UTC).toEpochMilli());
+    var snapshot2 = createSnapshot(BASE_DATE.minusDays(6).toInstant(ZoneOffset.UTC).toEpochMilli());
     snapshotDao.insert(dbSession, snapshot2);
     scannerAnalysisCacheDao.insert(dbSession, snapshot2.getRootComponentUuid(), new ByteArrayInputStream("data".getBytes()));
-    var snapshot3 = createSnapshot(LocalDateTime.now(ZoneOffset.UTC).minusDays(8).toInstant(ZoneOffset.UTC).toEpochMilli());
+    var snapshot3 = createSnapshot(BASE_DATE.minusDays(8).toInstant(ZoneOffset.UTC).toEpochMilli());
     snapshotDao.insert(dbSession, snapshot3);
     scannerAnalysisCacheDao.insert(dbSession, snapshot3.getRootComponentUuid(), new ByteArrayInputStream("data".getBytes()));
-    var snapshot4 = createSnapshot(LocalDateTime.now(ZoneOffset.UTC).minusDays(30).toInstant(ZoneOffset.UTC).toEpochMilli());
+    var snapshot4 = createSnapshot(BASE_DATE.minusDays(30).toInstant(ZoneOffset.UTC).toEpochMilli());
     snapshotDao.insert(dbSession, snapshot4);
     scannerAnalysisCacheDao.insert(dbSession, snapshot4.getRootComponentUuid(), new ByteArrayInputStream("data".getBytes()));
 
@@ -103,16 +105,16 @@ class AnalysisCacheCleaningSchedulerImplIT {
     settings.setProperty(PurgeConstants.DAYS_BEFORE_DELETING_SCANNER_CACHE, value);
 
     var snapshotDao = dbTester.getDbClient().snapshotDao();
-    var snapshot1 = createSnapshot(LocalDateTime.now(ZoneOffset.UTC).minusDays(1).toInstant(ZoneOffset.UTC).toEpochMilli());
+    var snapshot1 = createSnapshot(BASE_DATE.minusDays(1).toInstant(ZoneOffset.UTC).toEpochMilli());
     snapshotDao.insert(dbSession, snapshot1);
     scannerAnalysisCacheDao.insert(dbSession, snapshot1.getRootComponentUuid(), new ByteArrayInputStream("data".getBytes()));
-    var snapshot2 = createSnapshot(LocalDateTime.now(ZoneOffset.UTC).minusDays(6).toInstant(ZoneOffset.UTC).toEpochMilli());
+    var snapshot2 = createSnapshot(BASE_DATE.minusDays(6).toInstant(ZoneOffset.UTC).toEpochMilli());
     snapshotDao.insert(dbSession, snapshot2);
     scannerAnalysisCacheDao.insert(dbSession, snapshot2.getRootComponentUuid(), new ByteArrayInputStream("data".getBytes()));
-    var snapshot3 = createSnapshot(LocalDateTime.now(ZoneOffset.UTC).minusDays(8).toInstant(ZoneOffset.UTC).toEpochMilli());
+    var snapshot3 = createSnapshot(BASE_DATE.minusDays(8).toInstant(ZoneOffset.UTC).toEpochMilli());
     snapshotDao.insert(dbSession, snapshot3);
     scannerAnalysisCacheDao.insert(dbSession, snapshot3.getRootComponentUuid(), new ByteArrayInputStream("data".getBytes()));
-    var snapshot4 = createSnapshot(LocalDateTime.now(ZoneOffset.UTC).minusDays(30).toInstant(ZoneOffset.UTC).toEpochMilli());
+    var snapshot4 = createSnapshot(BASE_DATE.minusDays(30).toInstant(ZoneOffset.UTC).toEpochMilli());
     snapshotDao.insert(dbSession, snapshot4);
     scannerAnalysisCacheDao.insert(dbSession, snapshot4.getRootComponentUuid(), new ByteArrayInputStream("data".getBytes()));
 

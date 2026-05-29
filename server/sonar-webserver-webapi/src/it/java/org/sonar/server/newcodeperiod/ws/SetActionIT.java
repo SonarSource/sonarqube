@@ -329,7 +329,7 @@ public class SetActionIT {
   public void update_project_new_code_period() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectAdministrator(project);
-    var currentTime = System.currentTimeMillis();
+    var currentTime = 1_704_067_200_000L;
 
     db.newCodePeriods().insert(new NewCodePeriodDto()
       .setProjectUuid(project.getUuid())

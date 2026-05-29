@@ -49,6 +49,7 @@ import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
 
 public class UpdateQualityProfilesLastUsedDateStepIT {
+  private static final long NOW = 1_704_067_200_000L;
   private static final long ANALYSIS_DATE = 1_123_456_789L;
   private static final Component PROJECT = ReportComponent.DUMB_PROJECT;
   private QProfileDto sonarWayJava = newProfile("sonar-way-java");
@@ -162,7 +163,7 @@ public class UpdateQualityProfilesLastUsedDateStepIT {
   private static String toJson(String... keys) {
     return QPMeasureData.toJson(new QPMeasureData(
       Arrays.stream(keys)
-        .map(key -> new QualityProfile(key, key, key, new Date()))
+        .map(key -> new QualityProfile(key, key, key, new Date(NOW)))
         .toList()));
   }
 }

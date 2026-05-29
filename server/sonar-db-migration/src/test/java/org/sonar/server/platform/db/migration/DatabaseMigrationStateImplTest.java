@@ -30,6 +30,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
 class DatabaseMigrationStateImplTest {
+  private static final Instant NOW = Instant.ofEpochMilli(1_704_067_200_000L);
+
   private final DatabaseMigrationStateImpl underTest = new DatabaseMigrationStateImpl();
 
   @Test
@@ -53,7 +55,7 @@ class DatabaseMigrationStateImplTest {
 
   @Test
   void getStartedAt_shouldReturnArgumentOfSetStartedAt() {
-    Instant expected = Instant.now();
+    Instant expected = NOW;
     underTest.setStartedAt(expected);
 
     assertThat(underTest.getStartedAt()).get().isSameAs(expected);
@@ -90,7 +92,7 @@ class DatabaseMigrationStateImplTest {
 
   @Test
   void when_noStartedMigration_expectedFinishDateShouldBeAbsent() {
-    Instant startDate = Instant.now();
+    Instant startDate = NOW;
     Instant later = startDate.plus(1, ChronoUnit.MINUTES);
 
     underTest.setTotalMigrations(2);
@@ -100,7 +102,7 @@ class DatabaseMigrationStateImplTest {
 
   @Test
   void when_noStepCompleted_expectedFinishDateShouldBeAbsent() {
-    Instant startDate = Instant.now();
+    Instant startDate = NOW;
     Instant later = startDate.plus(1, ChronoUnit.MINUTES);
 
     underTest.setStartedAt(startDate);
@@ -112,7 +114,7 @@ class DatabaseMigrationStateImplTest {
 
   @Test
   void when_StepCompleted_expectedFinishDateShouldBePresent() {
-    Instant startDate = Instant.now();
+    Instant startDate = NOW;
     Instant later = startDate.plus(1, ChronoUnit.MINUTES);
     Instant expectedEnd = startDate.plus(2, ChronoUnit.MINUTES);
 
@@ -129,7 +131,7 @@ class DatabaseMigrationStateImplTest {
   @EnumSource(value = DatabaseMigrationStateImpl.Status.class,
     names = {"SUCCEEDED", "FAILED", "MIGRATION_REQUIRED", "NONE", "STATUS_NOT_SUPPORTED"})
   void getExpectedFinishDate_whenStatusIsNotRunning_shouldReturnEmptyOptional(DatabaseMigrationState.Status status) {
-    Instant startDate = Instant.now();
+    Instant startDate = NOW;
     Instant later = startDate.plus(1, ChronoUnit.MINUTES);
 
     underTest.setStartedAt(startDate);
@@ -142,7 +144,7 @@ class DatabaseMigrationStateImplTest {
 
   @Test
   void getExpectedFinishDate_whenTotalMigrationsAreZero_shouldReturnEmptyOptional() {
-    Instant startDate = Instant.now();
+    Instant startDate = NOW;
     Instant later = startDate.plus(1, ChronoUnit.MINUTES);
 
     underTest.setStartedAt(startDate);
@@ -155,7 +157,7 @@ class DatabaseMigrationStateImplTest {
 
   @Test
   void getExpectedFinishDate_whenStartedAtIsNull_shouldReturnEmptyOptional() {
-    Instant startDate = Instant.now();
+    Instant startDate = NOW;
     Instant later = startDate.plus(1, ChronoUnit.MINUTES);
 
     underTest.setStartedAt(null);

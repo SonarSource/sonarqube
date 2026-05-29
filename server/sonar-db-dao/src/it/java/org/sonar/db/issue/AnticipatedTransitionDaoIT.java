@@ -19,7 +19,6 @@
  */
 package org.sonar.db.issue;
 
-import java.time.Instant;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
@@ -122,7 +121,7 @@ class AnticipatedTransitionDaoIT {
       "lineHash",
       "ruleKey",
       filePath,
-      Instant.now().getEpochSecond());
+      1_704_067_200L);
 
     // insert one
     underTest.insert(db.getSession(), transition);

@@ -122,7 +122,7 @@ public class TransitionServiceIT {
     IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
 
     DefaultIssue defaultIssue = issue.toDefaultIssue();
-    boolean result = underTest.doTransition(defaultIssue, issueChangeContextByUserBuilder(new Date(), "user_uuid").build(), "confirm");
+    boolean result = underTest.doTransition(defaultIssue, issueChangeContextByUserBuilder(new Date(1_704_067_200_000L), "user_uuid").build(), "confirm");
 
     assertThat(result).isTrue();
     assertThat(defaultIssue.status()).isEqualTo(STATUS_CONFIRMED);
@@ -136,7 +136,7 @@ public class TransitionServiceIT {
     IssueDto externalIssue = db.issues().insert(externalRule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
 
     DefaultIssue defaultIssue = externalIssue.toDefaultIssue();
-    boolean result = underTest.doTransition(defaultIssue, issueChangeContextByUserBuilder(new Date(), "user_uuid").build(), "confirm");
+    boolean result = underTest.doTransition(defaultIssue, issueChangeContextByUserBuilder(new Date(1_704_067_200_000L), "user_uuid").build(), "confirm");
 
     assertThat(result).isTrue();
     assertThat(defaultIssue.status()).isEqualTo(STATUS_CONFIRMED);

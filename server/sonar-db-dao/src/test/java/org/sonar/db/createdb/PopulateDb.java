@@ -203,7 +203,7 @@ public class PopulateDb {
   }
 
   private static void createUserTokensDto(SqContext sqContext, UserDto userDto, ProjectDto randomProject) {
-    long now = System.currentTimeMillis();
+    long now = 1_704_067_200_000L;
     Long expirationDate = ThreadLocalRandom.current().nextBoolean() ? now + 123_123 : null;
     sqContext.dbTester.users().insertToken(userDto, a -> a.setCreatedAt(now).setExpirationDate(expirationDate).setProjectKey(randomProject.getKey())
       .setLastConnectionDate(now).setType(randomProject.getKey() != null ? TokenType.PROJECT_ANALYSIS_TOKEN.name() : TokenType.USER_TOKEN.name()));

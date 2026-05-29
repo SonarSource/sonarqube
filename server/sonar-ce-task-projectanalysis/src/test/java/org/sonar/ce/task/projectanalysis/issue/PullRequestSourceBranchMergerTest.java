@@ -49,6 +49,7 @@ import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builde
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 public class PullRequestSourceBranchMergerTest {
+  private static final long NOW = 1_704_067_200_000L;
   private static final String PROJECT_KEY = "project";
   private static final String PROJECT_UUID = "projectUuid";
   private static final int FILE_1_REF = 12341;
@@ -102,7 +103,7 @@ public class PullRequestSourceBranchMergerTest {
     db.components().insertComponent(newFileDto(branch2Dto, projectDto.uuid()).setKey(FILE_1_KEY + ":PULL_REQUEST:myBranch2"));
     db.components().insertComponent(newFileDto(branch3Dto, projectDto.uuid()).setKey(FILE_1_KEY + ":PULL_REQUEST:myBranch3"));
     rule = db.rules().insert();
-    rawIssue = createIssue("issue1", rule.getKey(), Issue.STATUS_OPEN, new Date());
+    rawIssue = createIssue("issue1", rule.getKey(), Issue.STATUS_OPEN, new Date(NOW));
     rawIssuesInput = new DefaultTrackingInput(singletonList(rawIssue), mock(LineHashSequence.class), mock(BlockHashSequence.class));
   }
 
@@ -117,7 +118,7 @@ public class PullRequestSourceBranchMergerTest {
 
   @Test
   public void tryMergeIssuesFromSourceBranchOfPullRequest_merges_issue_state_from_source_branch_into_pull_request() {
-    DefaultIssue sourceBranchIssue = createIssue("issue2", rule.getKey(), Issue.STATUS_CONFIRMED, new Date());
+    DefaultIssue sourceBranchIssue = createIssue("issue2", rule.getKey(), Issue.STATUS_CONFIRMED, new Date(NOW));
     Input<DefaultIssue> sourceBranchInput = new DefaultTrackingInput(singletonList(sourceBranchIssue), mock(LineHashSequence.class), mock(BlockHashSequence.class));
     when(sourceBranchInputFactory.hasSourceBranchAnalysis()).thenReturn(true);
     when(sourceBranchInputFactory.createForSourceBranch(any())).thenReturn(sourceBranchInput);

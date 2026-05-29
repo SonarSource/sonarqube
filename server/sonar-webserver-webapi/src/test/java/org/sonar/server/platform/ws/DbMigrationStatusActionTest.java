@@ -57,7 +57,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 @RunWith(DataProviderRunner.class)
 public class DbMigrationStatusActionTest {
 
-  private static final Instant SOME_DATE = Instant.now();
+  private static final Instant SOME_DATE = Instant.ofEpochMilli(1_704_067_200_000L);
   private static final String SOME_THROWABLE_MSG = "blablabla pop !";
   private static final String DEFAULT_ERROR_MSG = "No failure error";
   public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");

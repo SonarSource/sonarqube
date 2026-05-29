@@ -97,6 +97,7 @@ public class JwtSerializer implements Startable {
     Claims claims = null;
     try {
       claims = Jwts.parser()
+        .clock(() -> new Date(system2.now()))
         .verifyWith(secretKey)
         .build()
         .parseSignedClaims(token)

@@ -58,7 +58,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 @RunWith(DataProviderRunner.class)
 public class MigrateDbActionTest {
 
-  private static final Instant SOME_DATE = Instant.now();
+  private static final Instant SOME_DATE = Instant.ofEpochMilli(1_704_067_200_000L);
   private static final String SOME_THROWABLE_MSG = "blablabla pop !";
   private static final String DEFAULT_ERROR_MSG = "No failure error";
 

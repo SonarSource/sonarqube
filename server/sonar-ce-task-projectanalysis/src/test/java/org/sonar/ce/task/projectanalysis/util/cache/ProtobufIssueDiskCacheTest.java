@@ -139,7 +139,7 @@ public class ProtobufIssueDiskCacheTest {
     defaultIssue.setProjectKey("project_key");
     defaultIssue.setRuleKey(RuleKey.of("ruleRepo", "rule1"));
     defaultIssue.setStatus("open");
-    defaultIssue.setCreationDate(new Date());
+    defaultIssue.setCreationDate(new Date(1_704_067_200_000L));
     return defaultIssue;
   }
 

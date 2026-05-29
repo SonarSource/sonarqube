@@ -49,6 +49,7 @@ import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 
 class IssueDtoTest {
 
+  private static final long NOW = 1_704_067_200_000L;
   private static final String TEST_CONTEXT_KEY = "test_context_key";
 
   private static final DbIssues.MessageFormattings EXAMPLE_MESSAGE_FORMATTINGS = DbIssues.MessageFormattings.newBuilder()
@@ -58,9 +59,9 @@ class IssueDtoTest {
 
   @Test
   void toDefaultIssue_ShouldSetIssueFields() throws InvalidProtocolBufferException {
-    Date createdAt = DateUtils.addDays(new Date(), -5);
-    Date updatedAt = DateUtils.addDays(new Date(), -3);
-    Date closedAt = DateUtils.addDays(new Date(), -1);
+    Date createdAt = DateUtils.addDays(new Date(NOW), -5);
+    Date updatedAt = DateUtils.addDays(new Date(NOW), -3);
+    Date closedAt = DateUtils.addDays(new Date(NOW), -1);
 
     IssueDto dto = new IssueDto()
       .setKee("100")
@@ -184,7 +185,7 @@ class IssueDtoTest {
 
   @Test
   void toDtoForComputationInsert_givenDefaultIssueWithAllFields_returnFullIssueDto() {
-    long now = System.currentTimeMillis();
+    long now = NOW;
     Date dateNow = Date.from(new Date(now).toInstant().truncatedTo(ChronoUnit.SECONDS));
     DefaultIssue defaultIssue = createExampleDefaultIssue(dateNow);
 
@@ -220,7 +221,7 @@ class IssueDtoTest {
 
   @Test
   void toDtoForUpdate_givenDefaultIssueWithAllFields_returnFullIssueDto() {
-    long now = System.currentTimeMillis();
+    long now = NOW;
     Date dateNow = Date.from(new Date(now).toInstant().truncatedTo(ChronoUnit.SECONDS));
     DefaultIssue defaultIssue = createExampleDefaultIssue(dateNow);
 

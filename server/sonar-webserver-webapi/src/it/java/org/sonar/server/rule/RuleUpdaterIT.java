@@ -22,7 +22,6 @@ package org.sonar.server.rule;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -74,7 +73,7 @@ class RuleUpdaterIT {
 
   private static final RuleKey RULE_KEY = RuleKey.of("java", "S001");
 
-  private final System2 system2 = new TestSystem2().setNow(Instant.now().toEpochMilli());
+  private final System2 system2 = new TestSystem2().setNow(1_704_067_200_000L);
 
   @RegisterExtension
   private final UserSessionRule userSessionRule = UserSessionRule.standalone();

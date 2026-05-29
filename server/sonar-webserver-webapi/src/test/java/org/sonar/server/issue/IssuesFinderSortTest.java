@@ -33,6 +33,8 @@ import static org.mockito.Mockito.when;
 
 public class IssuesFinderSortTest {
 
+  private static final long NOW = 1_704_067_200_000L;
+
   @Test
   public void should_sort_by_status() {
     IssueDto issue1 = new IssueDto().setKee("A").setStatus("CLOSED");
@@ -89,7 +91,7 @@ public class IssuesFinderSortTest {
 
   @Test
   public void should_sort_by_creation_date() {
-    Date date = new Date();
+    Date date = new Date(NOW);
     Date date1 = DateUtils.addDays(date, -3);
     Date date2 = DateUtils.addDays(date, -2);
     Date date3 = DateUtils.addDays(date, -1);
@@ -111,7 +113,7 @@ public class IssuesFinderSortTest {
 
   @Test
   public void should_sort_by_update_date() {
-    Date date = new Date();
+    Date date = new Date(NOW);
     Date date1 = DateUtils.addDays(date, -3);
     Date date2 = DateUtils.addDays(date, -2);
     Date date3 = DateUtils.addDays(date, -1);
@@ -133,7 +135,7 @@ public class IssuesFinderSortTest {
 
   @Test
   public void should_sort_by_close_date() {
-    Date date = new Date();
+    Date date = new Date(NOW);
     Date date1 = DateUtils.addDays(date, -3);
     Date date2 = DateUtils.addDays(date, -2);
     Date date3 = DateUtils.addDays(date, -1);

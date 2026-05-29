@@ -49,6 +49,7 @@ import static org.sonar.db.newcodeperiod.NewCodePeriodType.SPECIFIC_ANALYSIS;
 
 public class ExportNewCodePeriodsStepIT {
 
+  private static final long NOW = 1_704_067_200_000L;
   private static final String PROJECT_UUID = "project_uuid";
   private static final String ANOTHER_PROJECT_UUID = "another_project_uuid";
   private static final ComponentDto ANOTHER_PROJECT = new ComponentDto()
@@ -84,12 +85,11 @@ public class ExportNewCodePeriodsStepIT {
   @Before
   public void setUp() {
     logTester.setLevel(Level.DEBUG);
-    Date createdAt = new Date();
     project = dbTester.components().insertPrivateProject(PROJECT_UUID).getProjectDto();
-    PROJECT_BRANCHES.forEach(branch -> dbTester.components().insertProjectBranch(project, branch).setCreatedAt(createdAt));
+    PROJECT_BRANCHES.forEach(branch -> dbTester.components().insertProjectBranch(project, branch).setCreatedAt(new Date(NOW)));
 
     ComponentDto anotherProjectDto = dbTester.components().insertPublicProject(ANOTHER_PROJECT).getMainBranchComponent();
-    ANOTHER_PROJECT_BRANCHES.forEach(branch -> dbTester.components().insertProjectBranch(anotherProjectDto, branch).setCreatedAt(createdAt));
+    ANOTHER_PROJECT_BRANCHES.forEach(branch -> dbTester.components().insertProjectBranch(anotherProjectDto, branch).setCreatedAt(new Date(NOW)));
 
     dbTester.commit();
     projectHolder.setProjectDto(project);

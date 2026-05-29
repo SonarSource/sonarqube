@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile.ws;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
@@ -261,7 +260,7 @@ class InheritanceActionIT {
   }
 
   private RuleDto createRule(String lang, String id) {
-    long now = new Date().getTime();
+    long now = 1_704_067_200_000L;
     RuleDto rule = RuleTesting.newRule(RuleKey.of("blah", id))
       .setLanguage(lang)
       .setSeverity(Severity.BLOCKER)
@@ -274,7 +273,7 @@ class InheritanceActionIT {
   }
 
   private ActiveRuleDto createActiveRule(RuleDto rule, QProfileDto profile) {
-    long now = new Date().getTime();
+    long now = 1_704_067_200_000L;
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(rule.getSeverityString())
       .setUpdatedAt(now)

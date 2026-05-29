@@ -470,7 +470,7 @@ class SnapshotDaoIT {
 
   @Test
   void isLast_is_true_when_previous_snapshot_is_older() {
-    Date today = new Date();
+    Date today = new Date(1_704_067_200_000L);
     Date yesterday = DateUtils.addDays(today, -1);
 
     SnapshotDto snapshot = defaultSnapshot().setCreatedAt(today.getTime());
@@ -483,7 +483,7 @@ class SnapshotDaoIT {
 
   @Test
   void isLast_is_false_when_previous_snapshot_is_newer() {
-    Date today = new Date();
+    Date today = new Date(1_704_067_200_000L);
     Date yesterday = DateUtils.addDays(today, -1);
 
     SnapshotDto snapshot = defaultSnapshot().setCreatedAt(yesterday.getTime());

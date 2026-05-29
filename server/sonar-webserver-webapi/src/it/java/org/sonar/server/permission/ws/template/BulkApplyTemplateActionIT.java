@@ -269,7 +269,7 @@ public class BulkApplyTemplateActionIT extends BasePermissionWsIT<BulkApplyTempl
     ProjectData recentProject = db.components().insertPrivateProject();
     db.components().insertSnapshot(oldProject1.getMainBranchComponent(), a -> a.setCreatedAt(parseDate("2015-02-03").getTime()));
     db.components().insertSnapshot(oldProject2.getMainBranchComponent(), a -> a.setCreatedAt(parseDate("2016-12-11").getTime()));
-    db.components().insertSnapshot(recentProject.getMainBranchComponent(), a -> a.setCreatedAt(System.currentTimeMillis()));
+    db.components().insertSnapshot(recentProject.getMainBranchComponent(), a -> a.setCreatedAt(1_704_067_200_000L));
     loginAsAdmin();
 
     newRequest()

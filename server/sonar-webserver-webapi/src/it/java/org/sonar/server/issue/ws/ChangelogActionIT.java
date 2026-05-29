@@ -58,6 +58,8 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class ChangelogActionIT {
 
+  private static final long NOW = 1_704_067_200_000L;
+
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -104,7 +106,7 @@ public class ChangelogActionIT {
     return new FieldDiffs()
       .setUserUuid(user.getUuid())
       .setDiff("severity", "MAJOR", "BLOCKER")
-      .setCreationDate(new Date())
+      .setCreationDate(new Date(NOW))
       .setExternalUser("toto")
       .setWebhookSource("github");
   }
@@ -115,7 +117,7 @@ public class ChangelogActionIT {
     IssueDto issueDto = insertNewIssue();
     userSession.logIn("john")
       .addProjectPermission(USER, project, file);
-    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserUuid(user.getUuid()).setDiff("severity", "MAJOR", "BLOCKER").setCreationDate(new Date()));
+    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserUuid(user.getUuid()).setDiff("severity", "MAJOR", "BLOCKER").setCreationDate(new Date(NOW)));
 
     ChangelogWsResponse result = call(issueDto.getKey());
 
@@ -130,7 +132,7 @@ public class ChangelogActionIT {
     IssueDto issueDto = insertNewIssue();
     userSession.logIn("john")
       .addProjectPermission(USER, project, file);
-    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserUuid(null).setDiff("severity", "MAJOR", "BLOCKER").setCreationDate(new Date()));
+    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserUuid(null).setDiff("severity", "MAJOR", "BLOCKER").setCreationDate(new Date(NOW)));
 
     ChangelogWsResponse result = call(issueDto.getKey());
 
@@ -146,7 +148,7 @@ public class ChangelogActionIT {
     IssueDto issueDto = insertNewIssue();
     userSession.logIn("john")
       .addProjectPermission(USER, project, file);
-    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserUuid("UNKNOWN").setDiff("severity", "MAJOR", "BLOCKER").setCreationDate(new Date()));
+    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserUuid("UNKNOWN").setDiff("severity", "MAJOR", "BLOCKER").setCreationDate(new Date(NOW)));
 
     ChangelogWsResponse result = call(issueDto.getKey());
 
@@ -163,7 +165,7 @@ public class ChangelogActionIT {
     IssueDto issueDto = insertNewIssue();
     userSession.logIn("john")
       .addProjectPermission(USER, project, file);
-    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserUuid(user.getUuid()).setDiff("severity", "MAJOR", "BLOCKER").setCreationDate(new Date()));
+    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserUuid(user.getUuid()).setDiff("severity", "MAJOR", "BLOCKER").setCreationDate(new Date(NOW)));
 
     ChangelogWsResponse result = call(issueDto.getKey());
 
@@ -182,8 +184,8 @@ public class ChangelogActionIT {
     userSession.logIn("john")
       .addProjectPermission(USER, project, file);
     db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserUuid(user.getUuid())
-      .setDiff("severity", "MAJOR", "BLOCKER").setCreationDate(new Date())
-      .setDiff("status", "RESOLVED", "CLOSED").setCreationDate(new Date()));
+      .setDiff("severity", "MAJOR", "BLOCKER").setCreationDate(new Date(NOW))
+      .setDiff("status", "RESOLVED", "CLOSED").setCreationDate(new Date(NOW)));
 
     ChangelogWsResponse result = call(issueDto.getKey());
 
@@ -198,7 +200,7 @@ public class ChangelogActionIT {
     IssueDto issueDto = insertNewIssue();
     userSession.logIn("john")
       .addProjectPermission(USER, project, file);
-    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserUuid(user.getUuid()).setDiff("severity", null, "BLOCKER").setCreationDate(new Date()));
+    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserUuid(user.getUuid()).setDiff("severity", null, "BLOCKER").setCreationDate(new Date(NOW)));
 
     ChangelogWsResponse result = call(issueDto.getKey());
 
@@ -212,7 +214,7 @@ public class ChangelogActionIT {
     IssueDto issueDto = insertNewIssue();
     userSession.logIn("john")
       .addProjectPermission(USER, project, file);
-    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserUuid(user.getUuid()).setDiff("severity", "MAJOR", null).setCreationDate(new Date()));
+    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserUuid(user.getUuid()).setDiff("severity", "MAJOR", null).setCreationDate(new Date(NOW)));
 
     ChangelogWsResponse result = call(issueDto.getKey());
 
@@ -227,8 +229,8 @@ public class ChangelogActionIT {
     userSession.logIn("john")
       .addProjectPermission(USER, project, file);
     db.issues().insertFieldDiffs(issueDto,
-      new FieldDiffs().setUserUuid(user.getUuid()).setDiff("severity", "MAJOR", "BLOCKER").setCreationDate(new Date()),
-      new FieldDiffs().setDiff("status", "RESOLVED", "CLOSED").setCreationDate(new Date()));
+      new FieldDiffs().setUserUuid(user.getUuid()).setDiff("severity", "MAJOR", "BLOCKER").setCreationDate(new Date(NOW)),
+      new FieldDiffs().setDiff("status", "RESOLVED", "CLOSED").setCreationDate(new Date(NOW)));
 
     ChangelogWsResponse result = call(issueDto.getKey());
 
@@ -241,7 +243,7 @@ public class ChangelogActionIT {
     IssueDto issueDto = insertNewIssue();
     userSession.logIn("john")
       .addProjectPermission(USER, project, file);
-    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserUuid(user.getUuid()).setDiff("technicalDebt", "10", "20").setCreationDate(new Date()));
+    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserUuid(user.getUuid()).setDiff("technicalDebt", "10", "20").setCreationDate(new Date(NOW)));
 
     ChangelogWsResponse result = call(issueDto.getKey());
 

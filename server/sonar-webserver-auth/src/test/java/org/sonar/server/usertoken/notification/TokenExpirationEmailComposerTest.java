@@ -21,6 +21,7 @@ package org.sonar.server.usertoken.notification;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Stream;
@@ -54,7 +55,7 @@ class TokenExpirationEmailComposerTest {
 
   @Test
   void composer_email_with_expiring_project_token() throws EmailException {
-    long expiredDate = LocalDate.now(ZoneOffset.UTC).atStartOfDay(ZoneOffset.UTC).plusDays(7).toInstant().toEpochMilli();
+    long expiredDate = LocalDate.of(2099, Month.JANUARY.getValue(), 1).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
     var token = createToken("projectToken", "projectA", expiredDate);
     var emailData = new TokenExpirationEmail("admin@sonarsource.com", token);
     var email = mock(HtmlEmail.class);
@@ -76,7 +77,7 @@ class TokenExpirationEmailComposerTest {
 
   @Test
   void composer_email_with_expired_global_token() throws EmailException {
-    long expiredDate = LocalDate.now(ZoneOffset.UTC).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+    long expiredDate = LocalDate.of(2024, Month.JANUARY.getValue(), 1).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
     var token = createToken("globalToken", null, expiredDate);
     var emailData = new TokenExpirationEmail("admin@sonarsource.com", token);
     var email = mock(HtmlEmail.class);
@@ -110,8 +111,8 @@ class TokenExpirationEmailComposerTest {
 
   private static Stream<Arguments> tokenExpirationAndExpectedEmailSubject() {
     return Stream.of(
-      Arguments.of(LocalDate.now(ZoneOffset.UTC).atStartOfDay(ZoneOffset.UTC).plusDays(7).toInstant().toEpochMilli(), "[PREFIX] Your token \"projectToken\" will expire."),
-      Arguments.of(LocalDate.now(ZoneOffset.UTC).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(), "[PREFIX] Your token \"projectToken\" has expired.")
+      Arguments.of(LocalDate.of(2099, Month.JANUARY.getValue(), 1).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(), "[PREFIX] Your token \"projectToken\" will expire."),
+      Arguments.of(LocalDate.of(2024, Month.JANUARY.getValue(), 1).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(), "[PREFIX] Your token \"projectToken\" has expired.")
     );
   }
 

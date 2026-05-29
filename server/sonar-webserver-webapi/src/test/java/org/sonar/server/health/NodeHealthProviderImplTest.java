@@ -41,6 +41,8 @@ import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 
 public class NodeHealthProviderImplTest {
 
+  private static final long NOW = 1_704_067_200_000L;
+
   private final Random random = new Random();
   private MapSettings mapSettings = new MapSettings();
   private HealthChecker healthChecker = mock(HealthChecker.class);
@@ -204,7 +206,7 @@ public class NodeHealthProviderImplTest {
   public void get_returns_started_from_server_startedAt_at_constructor_time() {
     setRequiredPropertiesForConstructor();
     when(networkUtils.getHostname()).thenReturn(secure().nextAlphanumeric(4));
-    Date date = new Date();
+    Date date = new Date(NOW);
     when(server.getStartedAt()).thenReturn(date);
     when(healthChecker.checkNode()).thenReturn(Health.builder()
       .setStatus(Health.Status.values()[random.nextInt(Health.Status.values().length)])
@@ -224,7 +226,7 @@ public class NodeHealthProviderImplTest {
   }
 
   private void setStartedAt() {
-    when(server.getStartedAt()).thenReturn(new Date());
+    when(server.getStartedAt()).thenReturn(new Date(NOW));
   }
 
   private void setRequiredPropertiesForConstructor() {

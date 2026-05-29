@@ -240,9 +240,9 @@ class ComponentTreeActionIT {
     ComponentDto mainBranch = db.components().insertPrivateProject().getMainBranchComponent();
     dbClient.snapshotDao().insert(dbSession,
       newAnalysis(mainBranch)
-        .setPeriodDate(System.currentTimeMillis())
+        .setPeriodDate(1_704_067_200_000L)
         .setPeriodMode("last_version")
-        .setPeriodDate(System.currentTimeMillis()));
+        .setPeriodDate(1_704_067_200_000L));
     userSession.anonymous().addProjectPermission(USER, mainBranch);
     ComponentDto directory = newDirectory(mainBranch, "directory-uuid", "path/to/directory").setName("directory-1");
     db.components().insertComponent(directory);

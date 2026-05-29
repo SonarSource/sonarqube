@@ -75,7 +75,7 @@ public class TransitionActionIT {
   @Before
   public void setUp() {
     when(context.issue()).thenReturn(issue);
-    when(context.issueChangeContext()).thenReturn(issueChangeContextByUserBuilder(new Date(), "user_uuid").build());
+    when(context.issueChangeContext()).thenReturn(issueChangeContextByUserBuilder(new Date(1_704_067_200_000L), "user_uuid").build());
   }
 
   @Test

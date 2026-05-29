@@ -96,6 +96,8 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class ComponentActionIT {
 
+  private static final long NOW = 1_704_067_200_000L;
+
   @Rule
   public final DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
@@ -372,8 +374,8 @@ public class ComponentActionIT {
     QProfileDto qp1 = db.qualityProfiles().insert(t -> t.setKee("qp1").setName("Sonar Way Java").setLanguage("java"));
     QProfileDto qp2 = db.qualityProfiles().insert(t -> t.setKee("qp2").setName("Sonar Way Xoo").setLanguage("xoo"));
     addQualityProfiles(project.getMainBranchComponent(),
-      new QualityProfile(qp1.getKee(), qp1.getName(), qp1.getLanguage(), new Date()),
-      new QualityProfile(qp2.getKee(), qp2.getName(), qp2.getLanguage(), new Date()));
+      new QualityProfile(qp1.getKee(), qp1.getName(), qp1.getLanguage(), new Date(NOW)),
+      new QualityProfile(qp2.getKee(), qp2.getName(), qp2.getLanguage(), new Date(NOW)));
     userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
     init();
@@ -879,7 +881,7 @@ public class ComponentActionIT {
   }
 
   private static QualityProfile createQProfile(String qpKey, String qpName, String languageKey) {
-    return new QualityProfile(qpKey, qpName, languageKey, new Date());
+    return new QualityProfile(qpKey, qpName, languageKey, new Date(NOW));
   }
 
   private static String qualityProfilesToJson(QualityProfile... qps) {

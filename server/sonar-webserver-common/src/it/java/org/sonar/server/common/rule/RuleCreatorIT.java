@@ -20,9 +20,7 @@
 package org.sonar.server.common.rule;
 
 import com.google.common.collect.Sets;
-import java.time.Instant;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -78,8 +76,9 @@ import static org.sonar.server.util.TypeValidationsTesting.newFullTypeValidation
 
 public class RuleCreatorIT {
 
+  private static final long NOW = 1_704_067_200_000L;
   private static final RuleKey CUSTOM_RULE_KEY = RuleKey.parse("java:CUSTOM_RULE");
-  private final System2 system2 = new TestSystem2().setNow(Instant.now().toEpochMilli());
+  private final System2 system2 = new TestSystem2().setNow(NOW);
 
   @Rule
   public DbTester dbTester = DbTester.create(system2);
@@ -707,8 +706,8 @@ public class RuleCreatorIT {
       .setTags(Sets.newHashSet("usertag1", "usertag2"))
       .setSystemTags(Sets.newHashSet("tag1", "tag4"))
       .setSecurityStandards(Sets.newHashSet("owaspTop10:a1", "cwe:123"))
-      .setCreatedAt(new Date().getTime())
-      .setUpdatedAt(new Date().getTime());
+      .setCreatedAt(NOW)
+      .setUpdatedAt(NOW);
     dbTester.rules().insert(templateRule);
     dbTester.rules().insertRuleParam(templateRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
     ruleIndexer.commitAndIndex(dbTester.getSession(), templateRule.getUuid());
@@ -724,8 +723,8 @@ public class RuleCreatorIT {
       .setDefRemediationGapMultiplier("1h")
       .setDefRemediationBaseEffort("5min")
       .setGapDescription("desc")
-      .setCreatedAt(new Date().getTime())
-      .setUpdatedAt(new Date().getTime());
+      .setCreatedAt(NOW)
+      .setUpdatedAt(NOW);
     dbTester.rules().insert(templateRule);
     dbTester.rules().insertRuleParam(templateRule,
       param -> param.setName("myIntegers").setType("INTEGER,multiple=true,values=1;2;3").setDescription("My Integers").setDefaultValue("1"));
@@ -742,8 +741,8 @@ public class RuleCreatorIT {
       .setDefRemediationGapMultiplier("1h")
       .setDefRemediationBaseEffort("5min")
       .setGapDescription("desc")
-      .setCreatedAt(new Date().getTime())
-      .setUpdatedAt(new Date().getTime());
+      .setCreatedAt(NOW)
+      .setUpdatedAt(NOW);
     dbTester.rules().insert(templateRule);
     dbTester.rules().insertRuleParam(templateRule, param -> param.setName("first").setType("INTEGER").setDescription("First integer").setDefaultValue("0"));
     dbTester.rules().insertRuleParam(templateRule, param -> param.setName("second").setType("INTEGER").setDescription("Second integer").setDefaultValue("0"));

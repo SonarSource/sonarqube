@@ -35,6 +35,8 @@ import static org.assertj.core.api.Assertions.entry;
 
 class IssueQueryTest {
 
+  private static final long NOW = 1_704_067_200_000L;
+
   @Test
   void build_query() {
     RuleDto rule = new RuleDto().setUuid(Uuids.createFast());
@@ -56,9 +58,9 @@ class IssueQueryTest {
       .branchUuid("my_branch")
       .createdAfterByProjectUuids(ImmutableMap.of("PROJECT", filterDate))
       .assigned(true)
-      .createdAfter(new Date())
-      .createdBefore(new Date())
-      .createdAt(new Date())
+      .createdAfter(new Date(NOW))
+      .createdBefore(new Date(NOW))
+      .createdAt(new Date(NOW))
       .resolved(true)
       .newCodeOnReference(true)
       .newCodeOnReferenceByProjectUuids(List.of("PROJECT"))

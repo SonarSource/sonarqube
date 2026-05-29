@@ -58,6 +58,7 @@ import static org.assertj.core.api.Assertions.tuple;
 
 class IssueMapperIT {
 
+  private static final long NOW = 1_704_067_200_000L;
   private static final long NO_FILTERING_ON_CLOSE_DATE = 1L;
 
   @RegisterExtension
@@ -261,7 +262,7 @@ class IssueMapperIT {
     String componentUuid = secure().nextAlphabetic(10);
     RecorderResultHandler resultHandler = new RecorderResultHandler();
 
-    underTest.scrollClosedByComponentUuid(componentUuid, new Date().getTime(), resultHandler);
+    underTest.scrollClosedByComponentUuid(componentUuid, new Date(NOW).getTime(), resultHandler);
 
     assertThat(resultHandler.issues).isEmpty();
   }
@@ -406,7 +407,7 @@ class IssueMapperIT {
   void scrollClosedByComponentUuid_return_one_row_per_status_diff_to_CLOSED_sorted_by_most_recent_creation_date_first(RuleType ruleType) {
     ComponentDto component = randomComponent();
     IssueDto issue = insertNewClosedIssue(component, ruleType);
-    Date date = new Date();
+    Date date = new Date(NOW);
     IssueChangeDto[] changes = new IssueChangeDto[]{
       insertToClosedDiff(issue, DateUtils.addDays(date, -10)),
       insertToClosedDiff(issue, DateUtils.addDays(date, -60)),
@@ -429,7 +430,7 @@ class IssueMapperIT {
   void scrollClosedByComponentUuid_does_not_return_row_for_status_change_from_close(RuleType ruleType) {
     ComponentDto component = randomComponent();
     IssueDto issue = insertNewClosedIssue(component, ruleType);
-    Date date = new Date();
+    Date date = new Date(NOW);
     IssueChangeDto[] changes = new IssueChangeDto[]{
       insertToClosedDiff(issue, DateUtils.addDays(date, -10), Issue.STATUS_CLOSED, Issue.STATUS_REOPENED),
       insertToClosedDiff(issue, DateUtils.addDays(date, -60)),
@@ -449,7 +450,7 @@ class IssueMapperIT {
   }
 
   private IssueChangeDto insertToClosedDiff(IssueDto issueDto) {
-    return insertToClosedDiff(issueDto, new Date());
+    return insertToClosedDiff(issueDto, new Date(NOW));
   }
 
   private IssueChangeDto insertToClosedDiff(IssueDto issueDto, Date date) {

@@ -82,7 +82,7 @@ public class ScmInfoRepositoryImplTest {
   private final FileStatuses fileStatuses = mock(FileStatuses.class);
   private final SourceLinesDiff diff = mock(SourceLinesDiff.class);
   private final ScmInfoDbLoader dbLoader = mock(ScmInfoDbLoader.class);
-  private final Date analysisDate = new Date();
+  private final Date analysisDate = new Date(1_704_067_200_000L);
   private final ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(reportReader, analysisMetadata, dbLoader, diff, fileStatuses, periodHolder);
 
   @Before

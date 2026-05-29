@@ -31,6 +31,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class AddGitlabSecurityManagerRolePermissionMappingTest {
 
+  private static final long NOW = 1_704_067_200_000L;
+
   @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(AddGitlabSecurityManagerRolePermissionMapping.class);
 
@@ -79,7 +81,7 @@ class AddGitlabSecurityManagerRolePermissionMappingTest {
       "prop_key", "provisioning.gitlab.enabled",
       "is_empty", false,
       "text_value", "true",
-      "created_at", System.currentTimeMillis());
+      "created_at", NOW);
 
     underTest.execute();
 

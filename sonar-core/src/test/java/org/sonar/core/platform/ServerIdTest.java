@@ -104,7 +104,7 @@ public class ServerIdTest {
 
   @Test
   public void parse_throws_IAE_for_deprecated_format_serverId() {
-    String deprecated = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+    String deprecated = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(1_704_067_200_000L));
 
     assertThatThrownBy(() -> ServerId.parse(deprecated))
       .isInstanceOf(IllegalArgumentException.class)

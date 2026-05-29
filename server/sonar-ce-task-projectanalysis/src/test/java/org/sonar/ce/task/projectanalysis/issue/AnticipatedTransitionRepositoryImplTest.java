@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
-import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -154,7 +153,7 @@ public class AnticipatedTransitionRepositoryImplTest {
   }
 
   private AnticipatedTransitionDto getAnticipatedTransition(String projectUuid, String filename) {
-    return new AnticipatedTransitionDto(Uuids.createFast(), projectUuid, "admin", "wontfix", null, null, null, null, "rule:key", filename, (new Date()).getTime());
+    return new AnticipatedTransitionDto(Uuids.createFast(), projectUuid, "admin", "wontfix", null, null, null, null, "rule:key", filename, 1_704_067_200_000L);
   }
 
 }

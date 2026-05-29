@@ -1515,7 +1515,7 @@ class RuleIndexIT {
 
   @Test
   void default_sort_is_by_updated_at_desc() {
-    long currentTimeMillis = System.currentTimeMillis();
+    long currentTimeMillis = 1_704_067_200_000L;
 
     RuleDto old = createRule(setCreatedAt(1000L), setUpdatedAt(currentTimeMillis + 1000L));
     RuleDto oldest = createRule(setCreatedAt(1000L), setUpdatedAt(currentTimeMillis + 3000L));

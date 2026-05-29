@@ -198,7 +198,7 @@ public class TrackerTest {
   @Test
   public void do_not_fail_if_raw_line_does_not_exist() {
     FakeInput baseInput = new FakeInput();
-    FakeInput rawInput = new FakeInput("H1").addIssue(new Issue(200, "H200", RULE_SYSTEM_PRINT, "msg", org.sonar.api.issue.Issue.STATUS_OPEN, new Date()));
+    FakeInput rawInput = new FakeInput("H1").addIssue(new Issue(200, "H200", RULE_SYSTEM_PRINT, "msg", org.sonar.api.issue.Issue.STATUS_OPEN, new Date(1_704_067_200_000L)));
 
     Tracking<Issue, Issue> tracking = tracker.trackNonClosed(rawInput, baseInput);
 
@@ -524,7 +524,7 @@ public class TrackerTest {
     }
 
     Issue createIssueOnLine(int line, RuleKey ruleKey, String message) {
-      Issue issue = new Issue(line, lineHashes.get(line - 1), ruleKey, message, org.sonar.api.issue.Issue.STATUS_OPEN, new Date());
+      Issue issue = new Issue(line, lineHashes.get(line - 1), ruleKey, message, org.sonar.api.issue.Issue.STATUS_OPEN, new Date(1_704_067_200_000L));
       issues.add(issue);
       return issue;
     }
@@ -533,7 +533,7 @@ public class TrackerTest {
      * No line (line 0)
      */
     Issue createIssue(RuleKey ruleKey, @Nullable String message) {
-      Issue issue = new Issue(null, "", ruleKey, message, org.sonar.api.issue.Issue.STATUS_OPEN, new Date());
+      Issue issue = new Issue(null, "", ruleKey, message, org.sonar.api.issue.Issue.STATUS_OPEN, new Date(1_704_067_200_000L));
       issues.add(issue);
       return issue;
     }

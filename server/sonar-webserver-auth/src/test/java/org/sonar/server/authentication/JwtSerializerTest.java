@@ -31,8 +31,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.System2;
 import org.sonar.server.authentication.JwtSerializer.JwtSession;
 import org.sonar.server.authentication.event.AuthenticationException;
 
@@ -49,9 +49,10 @@ public class JwtSerializerTest {
   private static final String A_SECRET_KEY = "HrPSavOYLNNrwTY+SOqpChr7OwvbR/zbDLdVXRN0+Eg=";
   private static final String USER_LOGIN = "john";
   private static final String SESSION_TOKEN_UUID = "ABCD";
+  private static final long NOW = 1_704_067_200_000L;
 
   private final MapSettings settings = new MapSettings();
-  private final System2 system2 = System2.INSTANCE;
+  private final TestSystem2 system2 = new TestSystem2().setNow(NOW);
   private final JwtSerializer underTest = new JwtSerializer(settings.asConfig(), system2);
 
   @Test
@@ -59,7 +60,7 @@ public class JwtSerializerTest {
     setSecretKey(A_SECRET_KEY);
     underTest.start();
 
-    String token = underTest.encode(new JwtSession(USER_LOGIN, SESSION_TOKEN_UUID, addMinutes(new Date(), 20).getTime()));
+    String token = underTest.encode(new JwtSession(USER_LOGIN, SESSION_TOKEN_UUID, addMinutes(new Date(system2.now()), 20).getTime()));
 
     assertThat(token).isNotEmpty();
   }
@@ -70,12 +71,12 @@ public class JwtSerializerTest {
 
     underTest.start();
 
-    String token = underTest.encode(new JwtSession(USER_LOGIN, SESSION_TOKEN_UUID, addMinutes(new Date(), 20).getTime()));
+    String token = underTest.encode(new JwtSession(USER_LOGIN, SESSION_TOKEN_UUID, addMinutes(new Date(system2.now()), 20).getTime()));
 
     assertThat(token).isNotEmpty();
     Claims claims = underTest.decode(token).get();
     assertThat(claims.getExpiration().getTime())
-      .isGreaterThanOrEqualTo(addMinutes(new Date(), 19).getTime());
+      .isGreaterThanOrEqualTo(addMinutes(new Date(system2.now()), 19).getTime());
   }
 
   @Test
@@ -83,7 +84,7 @@ public class JwtSerializerTest {
     setSecretKey(A_SECRET_KEY);
     underTest.start();
 
-    long oneYearLater = addYears(new Date(), 1).getTime();
+    long oneYearLater = addYears(new Date(system2.now()), 1).getTime();
     String token = underTest.encode(new JwtSession(USER_LOGIN, SESSION_TOKEN_UUID, oneYearLater));
 
     assertThat(token).isNotEmpty();
@@ -97,7 +98,7 @@ public class JwtSerializerTest {
     setSecretKey(A_SECRET_KEY);
     underTest.start();
 
-    String token = underTest.encode(new JwtSession(USER_LOGIN, SESSION_TOKEN_UUID, addMinutes(new Date(), 20).getTime(), ImmutableMap.of("custom", "property")));
+    String token = underTest.encode(new JwtSession(USER_LOGIN, SESSION_TOKEN_UUID, addMinutes(new Date(system2.now()), 20).getTime(), ImmutableMap.of("custom", "property")));
 
     assertThat(token).isNotEmpty();
     Claims claims = underTest.decode(token).get();
@@ -109,7 +110,7 @@ public class JwtSerializerTest {
     setSecretKey(A_SECRET_KEY);
     underTest.start();
 
-    String token = underTest.encode(new JwtSession(USER_LOGIN, SESSION_TOKEN_UUID, addMinutes(new Date(), 20).getTime()));
+    String token = underTest.encode(new JwtSession(USER_LOGIN, SESSION_TOKEN_UUID, addMinutes(new Date(system2.now()), 20).getTime()));
 
     Claims claims = underTest.decode(token).get();
     assertThat(claims.getId()).isEqualTo(SESSION_TOKEN_UUID);
@@ -117,7 +118,7 @@ public class JwtSerializerTest {
     assertThat(claims.getExpiration()).isNotNull();
     assertThat(claims.getIssuedAt()).isNotNull();
     // Check expiration date it set to more than 19 minutes in the future
-    assertThat(claims.getExpiration()).isAfterOrEqualTo(addMinutes(new Date(), 19));
+    assertThat(claims.getExpiration()).isAfterOrEqualTo(addMinutes(new Date(system2.now()), 19));
   }
 
   @Test
@@ -128,7 +129,7 @@ public class JwtSerializerTest {
     String token = Jwts.builder()
       .id("123")
       .issuedAt(new Date(system2.now()))
-      .expiration(addMinutes(new Date(), -20))
+      .expiration(addMinutes(new Date(system2.now()), -20))
       .signWith(decodeSecretKey(A_SECRET_KEY), SIGNATURE_ALGORITHM)
       .compact();
 
@@ -144,7 +145,7 @@ public class JwtSerializerTest {
       .id("123")
       .subject(USER_LOGIN)
       .issuedAt(new Date(system2.now()))
-      .expiration(addMinutes(new Date(), 20))
+      .expiration(addMinutes(new Date(system2.now()), 20))
       .signWith(decodeSecretKey("LyWgHktP0FuHB2K+kMs3KWMCJyFHVZDdDSqpIxAMVaQ="), SIGNATURE_ALGORITHM)
       .compact();
 
@@ -160,7 +161,7 @@ public class JwtSerializerTest {
       .id("123")
       .subject(USER_LOGIN)
       .issuedAt(new Date(system2.now()))
-      .expiration(addMinutes(new Date(), 20))
+      .expiration(addMinutes(new Date(system2.now()), 20))
       .compact();
 
     assertThat(underTest.decode(token)).isEmpty();
@@ -175,7 +176,7 @@ public class JwtSerializerTest {
       .subject(USER_LOGIN)
       .issuer("sonarqube")
       .issuedAt(new Date(system2.now()))
-      .expiration(addMinutes(new Date(), 20))
+      .expiration(addMinutes(new Date(system2.now()), 20))
       .signWith(decodeSecretKey(A_SECRET_KEY), SIGNATURE_ALGORITHM)
       .compact();
 
@@ -195,7 +196,7 @@ public class JwtSerializerTest {
       .id("123")
       .issuer("sonarqube")
       .issuedAt(new Date(system2.now()))
-      .expiration(addMinutes(new Date(), 20))
+      .expiration(addMinutes(new Date(system2.now()), 20))
       .signWith(decodeSecretKey(A_SECRET_KEY), SIGNATURE_ALGORITHM)
       .compact();
 
@@ -233,7 +234,7 @@ public class JwtSerializerTest {
     String token = Jwts.builder()
       .id("123")
       .subject(USER_LOGIN)
-      .expiration(addMinutes(new Date(), 20))
+      .expiration(addMinutes(new Date(system2.now()), 20))
       .signWith(decodeSecretKey(A_SECRET_KEY), SIGNATURE_ALGORITHM)
       .compact();
 
@@ -268,11 +269,11 @@ public class JwtSerializerTest {
     setSecretKey(A_SECRET_KEY);
     underTest.start();
 
-    Date now = new Date();
+    Date now = new Date(system2.now());
     Date createdAt = DateUtils.parseDate("2016-01-01");
     // Expired in 10 minutes
-    Date expiredAt = addMinutes(new Date(), 10);
-    Date lastRefreshDate = addMinutes(new Date(), -4);
+    Date expiredAt = addMinutes(new Date(system2.now()), 10);
+    Date lastRefreshDate = addMinutes(new Date(system2.now()), -4);
     Claims token = new DefaultClaimsBuilder()
       .setId("id")
       .subject("subject")
@@ -284,7 +285,7 @@ public class JwtSerializerTest {
       .build();
 
     // Refresh the token with a higher expiration time
-    String encodedToken = underTest.refresh(token, addMinutes(new Date(), 20).getTime());
+    String encodedToken = underTest.refresh(token, addMinutes(new Date(system2.now()), 20).getTime());
 
     Claims result = underTest.decode(encodedToken).get();
     assertThat(result.getId()).isEqualTo("id");
@@ -295,24 +296,24 @@ public class JwtSerializerTest {
     assertThat(result).containsEntry("key", "value");
     // Expiration date has been changed
     assertThat(result.getExpiration()).isNotEqualTo(expiredAt)
-      .isAfterOrEqualTo(addMinutes(new Date(), 19));
+      .isAfterOrEqualTo(addMinutes(new Date(system2.now()), 19));
   }
 
   @Test
   public void refresh_token_generate_a_new_hash() {
     setSecretKey(A_SECRET_KEY);
     underTest.start();
-    String token = underTest.encode(new JwtSession(USER_LOGIN, SESSION_TOKEN_UUID, addMinutes(new Date(), 20).getTime()));
+    String token = underTest.encode(new JwtSession(USER_LOGIN, SESSION_TOKEN_UUID, addMinutes(new Date(system2.now()), 20).getTime()));
     Optional<Claims> claims = underTest.decode(token);
 
-    String newToken = underTest.refresh(claims.get(), addMinutes(new Date(), 45).getTime());
+    String newToken = underTest.refresh(claims.get(), addMinutes(new Date(system2.now()), 45).getTime());
 
     assertThat(newToken).isNotEqualTo(token);
   }
 
   @Test
   public void encode_fail_when_not_started() {
-    JwtSession jwtSession = new JwtSession(USER_LOGIN, SESSION_TOKEN_UUID, addMinutes(new Date(), 10).getTime());
+    JwtSession jwtSession = new JwtSession(USER_LOGIN, SESSION_TOKEN_UUID, addMinutes(new Date(system2.now()), 10).getTime());
     assertThatThrownBy(() -> underTest.encode(jwtSession))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("org.sonar.server.authentication.JwtSerializer not started");
@@ -328,7 +329,7 @@ public class JwtSerializerTest {
   @Test
   public void refresh_fail_when_not_started() {
     Claims claims = new DefaultClaimsBuilder().build();
-    long time = addMinutes(new Date(), 10).getTime();
+    long time = addMinutes(new Date(system2.now()), 10).getTime();
 
     assertThatThrownBy(() -> underTest.refresh(claims, time))
       .isInstanceOf(NullPointerException.class)

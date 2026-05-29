@@ -62,7 +62,7 @@ import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_URL;
 
 class TelemetryDaemonTest {
 
-  protected final TestSystem2 system2 = new TestSystem2().setNow(System.currentTimeMillis());
+  protected final TestSystem2 system2 = new TestSystem2().setNow(1_704_067_200_000L);
 
   @RegisterExtension
   private final LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);

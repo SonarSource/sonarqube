@@ -30,7 +30,7 @@ import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBu
 
 public class IssueChangeContextTest {
 
-  private static final Date NOW = new Date();
+  private static final Date NOW = new Date(1_704_067_200_000L);
   private static final String USER_UUID = "user_uuid";
   private static final String EXTERNAL_USER = "toto@tata.com";
   private static final String WEBHOOK_SOURCE = "github";

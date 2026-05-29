@@ -369,7 +369,7 @@ class IssueIndexFiltersTest extends IssueIndexTestCommon {
 
   @Test
   void filter_by_created_after_by_projects() {
-    Date now = new Date();
+    Date now = new Date(1_704_067_200_000L);
     ComponentDto project1 = newPrivateProjectDto();
     IssueDoc project1Issue1 = newDocForProject(project1).setFuncCreationDate(addDays(now, -10));
     IssueDoc project1Issue2 = newDocForProject(project1).setFuncCreationDate(addDays(now, -20));
@@ -405,7 +405,7 @@ class IssueIndexFiltersTest extends IssueIndexTestCommon {
 
   @Test
   void filter_by_created_after_by_project_branches() {
-    Date now = new Date();
+    Date now = new Date(1_704_067_200_000L);
 
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     IssueDoc project1Issue1 = newDocForProject(project1).setFuncCreationDate(addDays(now, -10));

@@ -93,7 +93,7 @@ public class IssueCreationDateCalculatorTest {
   @BeforeEach
   void before() {
     analysisMetadataHolder.setScannerPluginsByKey(scannerPlugins);
-    analysisMetadataHolder.setAnalysisDate(new Date());
+    analysisMetadataHolder.setAnalysisDate(new Date(1_704_067_200_000L));
     when(component.getUuid()).thenReturn(COMPONENT_UUID);
     underTest = new IssueCreationDateCalculator(analysisMetadataHolder, scmInfoRepository, issueUpdater, activeRulesHolder, ruleRepository, addedFileRepository, qProfileStatusRepository);
 

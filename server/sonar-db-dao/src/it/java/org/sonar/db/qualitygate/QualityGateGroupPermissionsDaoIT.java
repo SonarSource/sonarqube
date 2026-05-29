@@ -314,7 +314,7 @@ class QualityGateGroupPermissionsDaoIT {
       .setUuid(Uuids.create())
       .setQualityGateUuid(qualityGateUuid)
       .setGroupUuid(groupUuid)
-      .setCreatedAt(new Date());
+      .setCreatedAt(new Date(1_704_067_200_000L));
     underTest.insert(dbTester.getSession(), qgg, qualityGateName, groupName);
     dbTester.commit();
     return qgg;

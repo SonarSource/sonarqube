@@ -51,6 +51,8 @@ import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.TAG
 
 public class NewIssuesNotificationIT {
 
+  private static final long NOW = 1_704_067_200_000L;
+
   @Rule
   public DbTester db = DbTester.create();
 
@@ -126,7 +128,7 @@ public class NewIssuesNotificationIT {
 
   @Test
   public void set_date() {
-    Date date = new Date();
+    Date date = new Date(NOW);
 
     underTest.setAnalysisDate(date);
 

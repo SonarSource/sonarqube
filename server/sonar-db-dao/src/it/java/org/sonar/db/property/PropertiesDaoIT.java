@@ -21,7 +21,6 @@ package org.sonar.db.property;
 
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -1051,9 +1050,9 @@ class PropertiesDaoIT {
   void insert_shouldFail_whenPropertyAlreadyExists() {
     PropertiesMapper mapper = db.getSession().getSqlSession().getMapper(PropertiesMapper.class);
 
-    mapper.insertAsText("uuid1", "key", null, null, "value", new Date().getTime());
+    mapper.insertAsText("uuid1", "key", null, null, "value", system2.now());
     assertThatThrownBy(() -> {
-      mapper.insertAsText("uuid2", "key", null, null, "value", new Date().getTime());
+      mapper.insertAsText("uuid2", "key", null, null, "value", system2.now());
     }).hasCauseInstanceOf(SQLException.class);
   }
 
@@ -1061,8 +1060,8 @@ class PropertiesDaoIT {
   void insert_shouldFail_whenPropertyAlreadyExistsOnKeyAndUser() {
     PropertiesMapper mapper = db.getSession().getSqlSession().getMapper(PropertiesMapper.class);
 
-    mapper.insertAsText("uuid3", "key", "user", null, "value", new Date().getTime());
-    assertThatThrownBy(() -> mapper.insertAsText("uuid4", "key", "user", null, "value", new Date().getTime()))
+    mapper.insertAsText("uuid3", "key", "user", null, "value", system2.now());
+    assertThatThrownBy(() -> mapper.insertAsText("uuid4", "key", "user", null, "value", system2.now()))
       .hasCauseInstanceOf(SQLException.class);
   }
 
@@ -1070,8 +1069,8 @@ class PropertiesDaoIT {
   void insert_shouldFail_whenPropertyAlreadyExistsOnKeyAndUserAndEntity() {
     PropertiesMapper mapper = db.getSession().getSqlSession().getMapper(PropertiesMapper.class);
 
-    mapper.insertAsText("uuid5", "key", "user", "entity", "value", new Date().getTime());
-    assertThatThrownBy(() -> mapper.insertAsText("uuid6", "key", "user", "entity", "value", new Date().getTime()))
+    mapper.insertAsText("uuid5", "key", "user", "entity", "value", system2.now());
+    assertThatThrownBy(() -> mapper.insertAsText("uuid6", "key", "user", "entity", "value", system2.now()))
       .hasCauseInstanceOf(SQLException.class);
 
   }

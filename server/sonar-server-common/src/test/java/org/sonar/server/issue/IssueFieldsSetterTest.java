@@ -65,7 +65,7 @@ class IssueFieldsSetterTest {
   private final String DEFAULT_RULE_DESCRIPTION_CONTEXT_KEY = "spring";
 
   private final DefaultIssue issue = new DefaultIssue();
-  private final IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), "user_uuid").build();
+  private final IssueChangeContext context = issueChangeContextByUserBuilder(new Date(1_704_067_200_000L), "user_uuid").build();
   private final IssueFieldsSetter underTest = new IssueFieldsSetter();
 
   @Test

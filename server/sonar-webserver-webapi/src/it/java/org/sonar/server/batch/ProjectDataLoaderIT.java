@@ -167,8 +167,8 @@ public class ProjectDataLoaderIT {
       .setProjectUuid(file.branchUuid())
       .setDataHash("0263047cd758c68c27683625f072f010")
       .setLineHashes(of("8d7b3d6b83c0a517eac07e1aac94b773"))
-      .setCreatedAt(System.currentTimeMillis())
-      .setUpdatedAt(System.currentTimeMillis())
+      .setCreatedAt(1_704_067_200_000L)
+      .setUpdatedAt(1_704_067_200_000L)
       .setRevision("123456789")
       .setSrcHash("123456");
   }

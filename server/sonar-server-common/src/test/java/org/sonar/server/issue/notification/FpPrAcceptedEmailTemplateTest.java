@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableSet;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -66,7 +65,7 @@ public class FpPrAcceptedEmailTemplateTest {
   private final Server server = mock();
   private final FpOrAcceptedEmailTemplate underTest = new FpOrAcceptedEmailTemplate(i18n, server);
 
-  private static final long DATE_LONG = Instant.now().toEpochMilli();
+  private static final long DATE_LONG = 1_704_067_200_000L;
   
   @Test
   public void format_returns_null_on_Notification() {

@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 
 class NewCodeReferenceIssueDtoTest {
 
+  private static final long NOW = 1_704_067_200_000L;
   private static final IssueDto ISSUE_DTO = mock(IssueDto.class);
   private static final String KEY = "issue-key";
   private static final String UUID = "uuid";
@@ -37,7 +38,7 @@ class NewCodeReferenceIssueDtoTest {
   void create_from_issue_dto() {
     when(ISSUE_DTO.getKey()).thenReturn(KEY);
     when(UUID_FACTORY.create()).thenReturn(UUID);
-    long now = System.currentTimeMillis();
+    long now = NOW;
 
     NewCodeReferenceIssueDto dto = NewCodeReferenceIssueDto.fromIssueDto(ISSUE_DTO, now, UUID_FACTORY);
 
@@ -49,7 +50,7 @@ class NewCodeReferenceIssueDtoTest {
   @Test
   void create_from_issue_key() {
     when(UUID_FACTORY.create()).thenReturn(UUID);
-    long now = System.currentTimeMillis();
+    long now = NOW;
 
     NewCodeReferenceIssueDto dto = NewCodeReferenceIssueDto.fromIssueKey(KEY, now, UUID_FACTORY);
 

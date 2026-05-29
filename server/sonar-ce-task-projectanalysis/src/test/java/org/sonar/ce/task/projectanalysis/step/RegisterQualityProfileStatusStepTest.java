@@ -100,7 +100,7 @@ public class RegisterQualityProfileStatusStepTest {
 
   @Test
   public void register_removed_profile() {
-    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date());
+    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date(1_704_067_200_000L));
 
     mockBaseQPMeasures(treeRootHolder.getRoot(), new QualityProfile[] {qp});
 

@@ -185,7 +185,7 @@ public class WebIssueStorageIT {
       .setChecksum("FFFFF")
       .setAuthorLogin("simon")
       .setAssigneeUuid("loic")
-      .setFieldChange(issueChangeContextByUserBuilder(new Date(), "user_uuid").build(), "severity", "INFO", "BLOCKER")
+      .setFieldChange(issueChangeContextByUserBuilder(new Date(1_704_067_200_000L), "user_uuid").build(), "severity", "INFO", "BLOCKER")
       .addComment(DefaultIssueComment.create("ABCDE", "user_uuid", "the comment"))
       .setResolution("FIXED")
       .setStatus("RESOLVED")

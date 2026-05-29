@@ -84,7 +84,7 @@ public class BaseDocTest {
       }
 
     };
-    Date now = new Date();
+    Date now = new Date(1_704_067_200_000L);
     doc.setField("javaDate", now);
     assertThat(doc.getFieldAsDate("javaDate")).isEqualToIgnoringMillis(now);
 
@@ -101,7 +101,7 @@ public class BaseDocTest {
       }
 
     };
-    Date now = new Date();
+    Date now = new Date(1_704_067_200_000L);
     doc.setField("javaDate", now);
     assertThat(doc.getNullableFieldAsDate("javaDate")).isEqualToIgnoringMillis(now);
 

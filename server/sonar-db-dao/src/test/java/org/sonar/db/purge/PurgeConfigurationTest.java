@@ -32,6 +32,9 @@ import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PurgeConfigurationTest {
+
+  private static final long NOW = 1_704_067_200_000L;
+
   @Test
   void should_delete_all_closed_issues() {
     PurgeConfiguration conf = new PurgeConfiguration("root", "project", 0, Optional.empty(), System2.INSTANCE, emptySet(), 0);
@@ -55,9 +58,10 @@ class PurgeConfigurationTest {
 
   @Test
   void should_have_empty_branch_purge_date() {
-    PurgeConfiguration conf = new PurgeConfiguration("root", "project", 30, Optional.of(10), System2.INSTANCE, emptySet(), 0);
+    TestSystem2 fixedSystem2 = new TestSystem2().setNow(NOW);
+    PurgeConfiguration conf = new PurgeConfiguration("root", "project", 30, Optional.of(10), fixedSystem2, emptySet(), 0);
     assertThat(conf.maxLiveDateOfInactiveBranches()).isNotEmpty();
-    long tenDaysAgo = DateUtils.addDays(new Date(System2.INSTANCE.now()), -10).getTime();
+    long tenDaysAgo = DateUtils.addDays(new Date(NOW), -10).getTime();
     assertThat(conf.maxLiveDateOfInactiveBranches().get().getTime()).isBetween(tenDaysAgo - 5000, tenDaysAgo + 5000);
   }
 
@@ -71,15 +75,16 @@ class PurgeConfigurationTest {
   void should_delete_only_old_anticipated_transitions() {
     int anticipatedTransitionMaxAge = 30;
     TestSystem2 system2 = new TestSystem2();
-    system2.setNow(Instant.now().toEpochMilli());
+    system2.setNow(NOW);
     PurgeConfiguration conf = new PurgeConfiguration("root", "project", 30, Optional.empty(), system2, emptySet(),
       anticipatedTransitionMaxAge);
 
     Instant toDate = conf.maxLiveDateOfAnticipatedTransitions();
 
+    Instant nowInstant = Instant.ofEpochMilli(NOW);
     assertThat(toDate)
-      .isBeforeOrEqualTo(Instant.now().minus(30, ChronoUnit.DAYS))
-      .isAfter(Instant.now().minus(31, ChronoUnit.DAYS));
+      .isBeforeOrEqualTo(nowInstant.minus(30, ChronoUnit.DAYS))
+      .isAfter(nowInstant.minus(31, ChronoUnit.DAYS));
   }
 
 }

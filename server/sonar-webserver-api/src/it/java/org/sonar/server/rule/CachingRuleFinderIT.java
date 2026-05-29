@@ -266,7 +266,7 @@ public class CachingRuleFinderIT {
   @Test
   public void findAll_returns_all_rules_with_exact_same_repository_key_and_order_them_most_recent_first() {
     String repoKey = "ABCD";
-    long currentTimeMillis = System.currentTimeMillis();
+    long currentTimeMillis = 1_704_067_200_000L;
     RuleDto[] sameRepoKey = {
       dbTester.rules().insert(rule -> rule.setRepositoryKey(repoKey).setUpdatedAt(currentTimeMillis + system2.now())),
       dbTester.rules().insert(rule -> rule.setRepositoryKey(repoKey).setUpdatedAt(currentTimeMillis + system2.now()))

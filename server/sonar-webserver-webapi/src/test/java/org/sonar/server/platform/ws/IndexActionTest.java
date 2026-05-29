@@ -43,6 +43,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class IndexActionTest {
+  private static final long NOW = 1_704_067_200_000L;
   private static final String KEY_1 = "key1";
   private static final String KEY_2 = "key2";
   private static final String KEY_3 = "key3";
@@ -56,7 +57,7 @@ public class IndexActionTest {
 
   @Test
   public void execute_shouldAllowClientToCacheMessages() {
-    Date now = new Date();
+    Date now = new Date(NOW);
     Date aBitLater = new Date(now.getTime() + 1000);
     when(server.getStartedAt()).thenReturn(now);
 
@@ -69,7 +70,7 @@ public class IndexActionTest {
 
   @Test
   public void execute_shouldReturnAllL10nMessages_whenUsingAcceptHeaderWithCacheExpired() {
-    Date now = new Date();
+    Date now = new Date(NOW);
     Date aBitEarlier = new Date(now.getTime() - 1000);
     when(server.getStartedAt()).thenReturn(now);
     when(i18n.getPropertyKeys()).thenReturn(Set.of(KEY_1, KEY_2, KEY_3));

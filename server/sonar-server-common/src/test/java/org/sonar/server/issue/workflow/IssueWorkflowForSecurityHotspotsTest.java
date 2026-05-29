@@ -64,7 +64,8 @@ import static org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWor
 
 @RunWith(DataProviderRunner.class)
 public class IssueWorkflowForSecurityHotspotsTest {
-  private static final IssueChangeContext SOME_CHANGE_CONTEXT = issueChangeContextByUserBuilder(new Date(), "USER1").build();
+  private static final long NOW = 1_704_067_200_000L;
+  private static final IssueChangeContext SOME_CHANGE_CONTEXT = issueChangeContextByUserBuilder(new Date(NOW), "USER1").build();
   private static final List<String> RESOLUTION_TYPES = List.of(RESOLUTION_FIXED, RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED);
 
   private final IssueFieldsSetter updater = new IssueFieldsSetter();
@@ -214,7 +215,7 @@ public class IssueWorkflowForSecurityHotspotsTest {
     DefaultIssue hotspot = newHotspot(STATUS_TO_REVIEW, null)
       .setNew(false)
       .setBeingClosed(true);
-    Date now = new Date();
+    Date now = new Date(NOW);
 
     underTest.doAutomaticTransition(hotspot, issueChangeContextByScanBuilder(now).build());
 
@@ -230,7 +231,7 @@ public class IssueWorkflowForSecurityHotspotsTest {
     DefaultIssue hotspot = newHotspot(STATUS_REVIEWED, resolution)
       .setNew(false)
       .setBeingClosed(true);
-    Date now = new Date();
+    Date now = new Date(NOW);
 
     underTest.doAutomaticTransition(hotspot, issueChangeContextByScanBuilder(now).build());
 
@@ -256,7 +257,7 @@ public class IssueWorkflowForSecurityHotspotsTest {
     DefaultIssue hotspot2 = newClosedHotspot(RESOLUTION_FIXED);
     setStatusPreviousToClosed(hotspot2, STATUS_TO_REVIEW, null, RESOLUTION_FIXED);
 
-    Date now = new Date();
+    Date now = new Date(NOW);
 
     underTest.doAutomaticTransition(hotspot1, issueChangeContextByScanBuilder(now).build());
     underTest.doAutomaticTransition(hotspot2, issueChangeContextByScanBuilder(now).build());
@@ -276,7 +277,7 @@ public class IssueWorkflowForSecurityHotspotsTest {
       .setKey("ABCDE")
       .setRuleKey(XOO_X1);
 
-    underTest.doAutomaticTransition(hotspot, issueChangeContextByScanBuilder(new Date()).build());
+    underTest.doAutomaticTransition(hotspot, issueChangeContextByScanBuilder(new Date(NOW)).build());
 
     assertThat(hotspot.status()).isEqualTo(STATUS_TO_REVIEW);
     assertThat(hotspot.resolution()).isNull();
@@ -287,7 +288,7 @@ public class IssueWorkflowForSecurityHotspotsTest {
   }
 
   private static void setStatusPreviousToClosed(DefaultIssue hotspot, String previousStatus, @Nullable String previousResolution, @Nullable String newResolution) {
-    addStatusChange(hotspot, new Date(), previousStatus, STATUS_CLOSED, previousResolution, newResolution);
+    addStatusChange(hotspot, new Date(NOW), previousStatus, STATUS_CLOSED, previousResolution, newResolution);
   }
 
   private static void addStatusChange(DefaultIssue issue, Date date, String previousStatus, String newStatus, @Nullable String previousResolution, @Nullable String newResolution) {

@@ -181,8 +181,6 @@ public class RegisterQualityProfilesIT {
 
   @Test
   public void rename_and_drop_built_in_flag_for_quality_profile() {
-    System.out.println(System.currentTimeMillis());
-
     RulesProfileDto ruleProfileWithoutRule = newRuleProfileDto(rp -> rp.setIsBuiltIn(true).setName("Foo way").setLanguage(FOO_LANGUAGE.getKey()));
     RulesProfileDto ruleProfileLongNameWithoutRule = newRuleProfileDto(rp -> rp.setIsBuiltIn(true).setName("That's a very very very very very very "
                                                                                                            + "very very very very long name").setLanguage(FOO_LANGUAGE.getKey()));

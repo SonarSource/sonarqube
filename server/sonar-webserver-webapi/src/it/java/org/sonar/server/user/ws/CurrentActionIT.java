@@ -220,7 +220,7 @@ public class CurrentActionIT {
 
     @Test
     public void handle_givenSonarLintUserInDatabase_returnSonarLintUserFromTheEndpoint() {
-      UserDto user = db.users().insertUser(u -> u.setLastSonarlintConnectionDate(System.currentTimeMillis()));
+      UserDto user = db.users().insertUser(u -> u.setLastSonarlintConnectionDate(1_704_067_200_000L));
       userSession.logIn(user);
 
       CurrentWsResponse response = call();

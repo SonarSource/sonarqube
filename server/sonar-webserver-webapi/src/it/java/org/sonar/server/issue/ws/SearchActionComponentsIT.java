@@ -475,7 +475,7 @@ class SearchActionComponentsIT {
 
   @Test
   void search_by_application_and_by_new_code_period() {
-    Date now = new Date();
+    Date now = new Date(1_704_067_200_000L);
     RuleDto rule = db.rules().insertIssueRule();
     ProjectData applicationData = db.components().insertPublicApplication();
     ComponentDto application = applicationData.getMainBranchComponent();
@@ -537,7 +537,7 @@ class SearchActionComponentsIT {
 
   @Test
   void search_by_application_and_project_and_new_code_period() {
-    Date now = new Date();
+    Date now = new Date(1_704_067_200_000L);
     RuleDto rule = db.rules().insertIssueRule();
     ProjectData applicationData = db.components().insertPublicApplication();
     ComponentDto application = applicationData.getMainBranchComponent();
@@ -573,7 +573,7 @@ class SearchActionComponentsIT {
 
   @Test
   void search_by_application_and_by_new_code_period_when_one_project_has_no_leak() {
-    Date now = new Date();
+    Date now = new Date(1_704_067_200_000L);
     RuleDto rule = db.rules().insertIssueRule();
     ProjectData applicationData = db.components().insertPublicApplication();
     ComponentDto application = applicationData.getMainBranchComponent();

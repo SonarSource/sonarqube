@@ -49,6 +49,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ExportBranchesStepIT {
+  private static final long NOW = 1_704_067_200_000L;
   private static final String PROJECT_UUID = "PROJECT_UUID";
 
   @Rule
@@ -94,7 +95,7 @@ public class ExportBranchesStepIT {
   @Before
   public void setUp() {
     logTester.setLevel(Level.DEBUG);
-    Date createdAt = new Date();
+    Date createdAt = new Date(NOW);
     ProjectData projectData = dbTester.components().insertPublicProject(PROJECT_UUID);
     for (BranchDto branch : branches) {
       createdAt = DateUtils.addMinutes(createdAt, 10);

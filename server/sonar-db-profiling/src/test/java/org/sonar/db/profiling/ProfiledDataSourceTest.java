@@ -85,8 +85,8 @@ public class ProfiledDataSourceTest {
     String sqlWithParams = "insert into polop (col1, col2, col3, col4) values (?, ?, ?, ?, ?)";
     int param1 = 42;
     String param2 = "plouf";
-    Date param3 = new Date(System.currentTimeMillis());
-    Timestamp param4 = new Timestamp(System.currentTimeMillis());
+    Date param3 = new Date(1_704_067_200_000L);
+    Timestamp param4 = new Timestamp(1_704_067_200_000L);
     byte[] param5 = "blob".getBytes(UTF_8);
 
     PreparedStatement preparedStatement = mock(PreparedStatement.class);

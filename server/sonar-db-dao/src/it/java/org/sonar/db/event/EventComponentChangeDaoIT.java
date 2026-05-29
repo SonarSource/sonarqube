@@ -19,7 +19,6 @@
  */
 package org.sonar.db.event;
 
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.IntStream;
@@ -49,7 +48,7 @@ class EventComponentChangeDaoIT {
   private final System2 system2 = mock(System2.class);
   private final EventComponentChangeDao underTest = new EventComponentChangeDao(system2);
 
-  private static final long now = Instant.now().toEpochMilli();
+  private static final long NOW = 1_704_067_200_000L;
 
   @Test
   void selectByEventUuid_on_empty_table() {
@@ -72,7 +71,7 @@ class EventComponentChangeDaoIT {
       .setComponentName(rowBase + "_component_name")
       .setComponentBranchKey(rowBase + "_component_branch_key");
     EventPurgeData purgeData = new EventPurgeData(eventBase + "_component_uuid", eventBase + "_analysis_uuid");
-    when(system2.now()).thenReturn(now);
+    when(system2.now()).thenReturn(NOW);
 
     underTest.insert(dbSession, dto, purgeData);
 
@@ -96,7 +95,7 @@ class EventComponentChangeDaoIT {
         dto.getComponentKey(),
         dto.getComponentName(),
         dto.getComponentBranchKey(),
-        now));
+        NOW));
   }
 
   @Test
@@ -114,7 +113,7 @@ class EventComponentChangeDaoIT {
       .setComponentName(rowBase + "_component_name")
       .setComponentBranchKey(rowBase + "_component_branch_key");
     EventPurgeData purgeData = new EventPurgeData(eventBase + "_component_uuid", eventBase + "_analysis_uuid");
-    when(system2.now()).thenReturn(now);
+    when(system2.now()).thenReturn(NOW);
 
     underTest.insert(dbSession, dto, purgeData);
 
@@ -138,7 +137,7 @@ class EventComponentChangeDaoIT {
         dto.getComponentKey(),
         dto.getComponentName(),
         dto.getComponentBranchKey(),
-        now));
+        NOW));
   }
 
   @Test
@@ -156,7 +155,7 @@ class EventComponentChangeDaoIT {
       .setComponentBranchKey(null);
     EventPurgeData purgeData = new EventPurgeData(eventBase + "_component_uuid", eventBase + "_analysis_uuid");
     when(system2.now())
-      .thenReturn(now)
+      .thenReturn(NOW)
       .thenThrow(new IllegalStateException("now should not be called twice"));
 
     underTest.insert(dbSession, dto, purgeData);
@@ -193,11 +192,11 @@ class EventComponentChangeDaoIT {
         .setComponentBranchKey(null))
       .toArray(EventComponentChangeDto[]::new);
     EventPurgeData doesNotMatter = new EventPurgeData(secure().nextAlphabetic(7), secure().nextAlphabetic(8));
-    when(system2.now()).thenReturn(now)
-      .thenReturn(now + 1)
-      .thenReturn(now + 2)
-      .thenReturn(now + 3)
-      .thenReturn(now + 4)
+    when(system2.now()).thenReturn(NOW)
+      .thenReturn(NOW + 1)
+      .thenReturn(NOW + 2)
+      .thenReturn(NOW + 3)
+      .thenReturn(NOW + 4)
       .thenThrow(new IllegalStateException("now should not be called 6 times"));
 
     Arrays.stream(event1Dtos).forEach(dto -> underTest.insert(dbSession, dto, doesNotMatter));
@@ -212,15 +211,15 @@ class EventComponentChangeDaoIT {
         tuple(
           event1Dtos[0].getUuid(),
           eventUuid1,
-          now),
+          NOW),
         tuple(
           event1Dtos[1].getUuid(),
           eventUuid1,
-          now + 1),
+          NOW + 1),
         tuple(
           event1Dtos[2].getUuid(),
           eventUuid1,
-          now + 2));
+          NOW + 2));
     assertThat(underTest.selectByEventUuid(dbSession, eventUuid2))
       .extracting(
         EventComponentChangeDto::getUuid,
@@ -230,11 +229,11 @@ class EventComponentChangeDaoIT {
         tuple(
           event2Dtos[0].getUuid(),
           eventUuid2,
-          now + 3),
+          NOW + 3),
         tuple(
           event2Dtos[1].getUuid(),
           eventUuid2,
-          now + 4));
+          NOW + 4));
   }
 
   @Test
@@ -264,11 +263,11 @@ class EventComponentChangeDaoIT {
         .setComponentBranchKey(null))
       .toArray(EventComponentChangeDto[]::new);
     EventPurgeData doesNotMatter = new EventPurgeData(secure().nextAlphabetic(7), secure().nextAlphabetic(8));
-    when(system2.now()).thenReturn(now)
-      .thenReturn(now + 1)
-      .thenReturn(now + 2)
-      .thenReturn(now + 3)
-      .thenReturn(now + 4)
+    when(system2.now()).thenReturn(NOW)
+      .thenReturn(NOW + 1)
+      .thenReturn(NOW + 2)
+      .thenReturn(NOW + 3)
+      .thenReturn(NOW + 4)
       .thenThrow(new IllegalStateException("now should not be called 6 times"));
 
     Arrays.stream(event1Dtos).forEach(dto -> underTest.insert(dbSession, dto, doesNotMatter));
@@ -283,23 +282,23 @@ class EventComponentChangeDaoIT {
         tuple(
           event1Dtos[0].getUuid(),
           eventUuid1,
-          now),
+          NOW),
         tuple(
           event1Dtos[1].getUuid(),
           eventUuid1,
-          now + 1),
+          NOW + 1),
         tuple(
           event1Dtos[2].getUuid(),
           eventUuid1,
-          now + 2),
+          NOW + 2),
         tuple(
           event2Dtos[0].getUuid(),
           eventUuid2,
-          now + 3),
+          NOW + 3),
         tuple(
           event2Dtos[1].getUuid(),
           eventUuid2,
-          now + 4));
+          NOW + 4));
   }
 
 }

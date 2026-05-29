@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -129,6 +130,7 @@ import static org.sonar.db.webhook.WebhookDeliveryTesting.selectAllDeliveryUuids
 class PurgeDaoIT {
 
   private static final String PROJECT_UUID = "P1";
+  private static final long NOW = 1_704_067_200_000L;
 
   private final Random random = new SecureRandom();
 
@@ -165,12 +167,12 @@ class PurgeDaoIT {
    */
   @Test
   void purge_inactive_branches_should_not_purge_newly_created_branches() {
-    when(system2.now()).thenReturn(new Date().getTime());
+    when(system2.now()).thenReturn(NOW);
     ProjectData project = db.components().insertPublicProject();
 
     // new branch without a snapshot (analysis not processed yet)
     BranchDto pr1 = db.components().insertProjectBranch(project.getProjectDto(), b -> b.setBranchType(BranchType.PULL_REQUEST));
-    underTest.purge(dbSession, newConfigurationWith30Days(System2.INSTANCE, project.getMainBranchComponent().branchUuid(),
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.getMainBranchComponent().branchUuid(),
 project.getProjectDto().getUuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
 
@@ -181,8 +183,8 @@ project.getProjectDto().getUuid()), PurgeListener.EMPTY, new PurgeProfiler());
 
   @Test
   void purge_inactive_branches() {
-    Date date31DaysAgo = DateUtils.addDays(new Date(), -31);
-    when(system2.now()).thenReturn(new Date().getTime());
+    Date date31DaysAgo = DateUtils.addDays(new Date(NOW), -31);
+    when(system2.now()).thenReturn(NOW);
     RuleDto rule = db.rules().insert();
     ProjectData project = db.components().insertPublicProject();
     BranchDto branch1 = db.components().insertProjectBranch(project.getProjectDto());
@@ -249,7 +251,7 @@ project.getProjectDto().getUuid()), PurgeListener.EMPTY, new PurgeProfiler());
 
     // pull request with other components and issues, updated 31 days ago
     BranchDto pullRequest = db.components().insertProjectBranch(project.getProjectDto(), b -> b.setBranchType(BranchType.PULL_REQUEST));
-    db.components().insertSnapshot(pullRequest, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(), -31).getTime()));
+    db.components().insertSnapshot(pullRequest, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(NOW), -31).getTime()));
     ComponentDto pullRequestComponent = db.components().getComponentDto(pullRequest);
     ComponentDto dir = db.components().insertComponent(newDirectory(pullRequestComponent, "path"));
     ComponentDto file = db.components().insertComponent(newFileDto(pullRequestComponent, dir));
@@ -274,18 +276,18 @@ project.getProjectDto().getUuid()), PurgeListener.EMPTY, new PurgeProfiler());
 
     // branch updated 31 days ago
     BranchDto branch1 = db.components().insertProjectBranch(project.getProjectDto(), b -> b.setBranchType(BranchType.BRANCH));
-    db.components().insertSnapshot(branch1, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(), -31).getTime()));
+    db.components().insertSnapshot(branch1, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(NOW), -31).getTime()));
 
     // branches with other components and issues, updated 31 days ago
     BranchDto branch2 = db.components().insertProjectBranch(project.getProjectDto(), b -> b.setBranchType(BranchType.PULL_REQUEST));
-    db.components().insertSnapshot(branch2, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(), -31).getTime()));
+    db.components().insertSnapshot(branch2, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(NOW), -31).getTime()));
 
     ComponentDto branch2Component = db.components().getComponentDto(branch2);
     ComponentDto file = db.components().insertComponent(newFileDto(branch2Component));
     db.issues().insert(rule, branch2Component, file);
 
     BranchDto branch3 = db.components().insertProjectBranch(project.getProjectDto(), b -> b.setBranchType(BranchType.BRANCH));
-    db.components().insertSnapshot(branch3, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(), -31).getTime()));
+    db.components().insertSnapshot(branch3, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(NOW), -31).getTime()));
 
     // analysing branch1
     underTest.purge(dbSession, newConfigurationWith30Days(System2.INSTANCE, branch1.getUuid(), project.getProjectDto().getUuid()),
@@ -639,11 +641,11 @@ project.getProjectDto().getUuid()), PurgeListener.EMPTY, new PurgeProfiler());
     ProjectData project = db.components().insertPrivateProject();
     ComponentDto directory = db.components().insertComponent(newDirectory(project.getMainBranchComponent(), "a/b"));
     ComponentDto file = db.components().insertComponent(newFileDto(directory));
-    SnapshotDto analysis = db.components().insertSnapshot(project.getMainBranchDto());
+    db.components().insertSnapshot(project.getMainBranchDto());
     IssueDto issue1 = db.issues().insert(rule, project.getMainBranchComponent(), file);
-    IssueChangeDto issueChange1 = db.issues().insertChange(issue1);
-    IssueDto issue2 = db.issues().insert(rule, project.getMainBranchComponent(), file);
-    FileSourceDto fileSource = db.fileSources().insertFileSource(file);
+    db.issues().insertChange(issue1);
+    db.issues().insert(rule, project.getMainBranchComponent(), file);
+    db.fileSources().insertFileSource(file);
     db.issues().insertNewCodeReferenceIssue(newCodeReferenceIssue(issue1));
 
     ProjectData otherProject = db.components().insertPrivateProject();
@@ -821,7 +823,7 @@ otherApp.getProjectDto().getUuid());
     ComponentDto anotherLivingProject = ComponentTesting.newPrivateProjectDto();
     insertComponents(List.of(anotherLivingProject), List.of(projectToBeDeleted));
     // Insert 2 rows in CE_ACTIVITY : one for the project that will be deleted, and one on another project
-    CeActivityDto toBeDeletedActivity = insertCeActivity(projectToBeDeleted, projectToBeDeleted.uuid());
+    insertCeActivity(projectToBeDeleted, projectToBeDeleted.uuid());
     CeActivityDto notDeletedActivity = insertCeActivity(anotherLivingProject, anotherLivingProject.uuid());
     dbSession.commit();
 
@@ -1296,7 +1298,7 @@ project.getProjectDto().getKey());
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto subView = db.components().insertComponent(newSubPortfolio(view));
-    ComponentDto projectCopy = db.components().insertComponent(newProjectCopy(project, subView));
+    db.components().insertComponent(newProjectCopy(project, subView));
     ComponentDto otherView = db.components().insertPrivatePortfolio();
     ComponentDto otherSubView = db.components().insertComponent(newSubPortfolio(otherView));
     ComponentDto otherProjectCopy = db.components().insertComponent(newProjectCopy(project, otherSubView));
@@ -1313,13 +1315,13 @@ project.getProjectDto().getKey());
     RuleDto rule = db.rules().insert();
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
-    ComponentDto otherProject = db.components().insertPublicProject().getMainBranchComponent();
+    db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto dir = db.components().insertComponent(newDirectory(mainBranch, "path"));
     ComponentDto file = db.components().insertComponent(newFileDto(mainBranch, dir));
 
     IssueDto issue1 = db.issues().insert(rule, mainBranch, file, issue -> issue.replaceAllImpacts(Collections.emptyList()));
     IssueDto orphanIssue = db.issues().insert(rule, mainBranch, file, issue -> issue.setComponentUuid("nonExisting"));
-    IssueChangeDto orphanIssueChange = db.issues().insertChange(orphanIssue);
+    db.issues().insertChange(orphanIssue);
     db.issues().insertNewCodeReferenceIssue(orphanIssue);
 
     underTest.purge(dbSession, newConfigurationWith30Days(system2, mainBranch.uuid(), projectData.projectUuid()), PurgeListener.EMPTY,
@@ -1344,19 +1346,19 @@ project.getProjectDto().getKey());
 
     IssueDto oldClosed = db.issues().insert(rule, mainBranch, file, issue -> {
       issue.setStatus("CLOSED");
-      issue.setIssueCloseDate(DateUtils.addDays(new Date(), -31));
+      issue.setIssueCloseDate(DateUtils.addDays(new Date(NOW), -31));
     });
     db.issues().insertNewCodeReferenceIssue(newCodeReferenceIssue(oldClosed));
 
     IssueDto notOldEnoughClosed = db.issues().insert(rule, mainBranch, file, issue -> {
       issue.setStatus("CLOSED");
-      issue.setIssueCloseDate(new Date());
+      issue.setIssueCloseDate(new Date(NOW));
     });
     db.issues().insertNewCodeReferenceIssue(newCodeReferenceIssue(notOldEnoughClosed));
     IssueDto notClosed = db.issues().insert(rule, mainBranch, file);
     db.issues().insertNewCodeReferenceIssue(newCodeReferenceIssue(notClosed));
 
-    when(system2.now()).thenReturn(new Date().getTime());
+    when(system2.now()).thenReturn(NOW);
     underTest.purge(dbSession, newConfigurationWith30Days(system2, mainBranch.uuid(), projectData.projectUuid()), listener,
      new PurgeProfiler());
     dbSession.commit();
@@ -1391,21 +1393,22 @@ project.getProjectDto().getKey());
     ComponentDto disabledFileWithoutIssues = db.components().insertComponent(newFileDto(mainBranch).setEnabled(false));
 
     RuleDto rule = db.rules().insert();
-    IssueDto closed1 = db.issues().insert(rule, mainBranch, enabledFileWithIssues, issue -> {
+    db.issues().insert(rule, mainBranch, enabledFileWithIssues, issue -> {
       issue.setStatus("CLOSED");
       issue.setResolution(Issue.RESOLUTION_FIXED);
-      issue.setIssueCloseDate(new Date());
+      issue.setIssueCloseDate(new Date(NOW));
     });
-    IssueDto closed2 = db.issues().insert(rule, mainBranch, disabledFileWithIssues, issue -> {
+    db.issues().insert(rule, mainBranch, disabledFileWithIssues, issue -> {
       issue.setStatus("CLOSED");
       issue.setResolution(Issue.RESOLUTION_FIXED);
-      issue.setIssueCloseDate(new Date());
+      issue.setIssueCloseDate(new Date(NOW));
     });
     PurgeListener purgeListener = mock(PurgeListener.class);
 
+    when(system2.now()).thenReturn(NOW);
     Set<String> disabledComponentUuids = ImmutableSet.of(disabledFileWithIssues.uuid(), disabledFileWithoutIssues.uuid());
     underTest.purge(dbSession,
-      newConfigurationWith30Days(System2.INSTANCE, mainBranch.uuid(), projectData.projectUuid(), disabledComponentUuids),
+      newConfigurationWith30Days(system2, mainBranch.uuid(), projectData.projectUuid(), disabledComponentUuids),
       purgeListener, new PurgeProfiler());
 
     assertThat(db.getDbClient().componentDao().selectByBranchUuid(mainBranch.uuid(), dbSession))
@@ -1416,7 +1419,7 @@ project.getProjectDto().getKey());
 
   @Test
   void delete_ce_analysis_older_than_180_and_scanner_context_older_than_40_days_of_specified_project_when_purging_project() {
-    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+    LocalDateTime now = LocalDateTime.of(2024, Month.JANUARY.getValue(), 1, 0, 0, 0);
     ProjectData projectData1 = db.components().insertPublicProject();
     ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
     Consumer<CeQueueDto> belongsToProject1 = t -> t.setEntityUuid(projectData1.projectUuid()).setComponentUuid(mainBranch1.uuid());
@@ -1476,7 +1479,7 @@ project.getProjectDto().getKey());
 
   @Test
   void delete_ce_analysis_older_than_180_and_scanner_context_older_than_40_days_of_project_and_branches_when_purging_project() {
-    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+    LocalDateTime now = LocalDateTime.of(2024, Month.JANUARY.getValue(), 1, 0, 0, 0);
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto mainBranch1 = projectData.getMainBranchComponent();
     ComponentDto branch1 = db.components().insertProjectBranch(mainBranch1, b -> b.setExcludeFromPurge(true));
@@ -1535,7 +1538,7 @@ project.getProjectDto().getKey());
 
   @Test
   void delete_ce_analysis_of_branch_older_than_180_and_scanner_context_older_than_40_days_when_purging_branch() {
-    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+    LocalDateTime now = LocalDateTime.of(2024, Month.JANUARY.getValue(), 1, 0, 0, 0);
     ProjectData projectData1 = db.components().insertPublicProject();
     ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
     ComponentDto branch1 = db.components().insertProjectBranch(mainBranch1);
@@ -1703,11 +1706,11 @@ project.getProjectDto().getKey());
 
   @Test
   void deleteNonRootComponents_has_no_effect_when_parameter_is_empty() {
-    DbSession dbSession = mock(DbSession.class);
+    DbSession localDbSession = mock(DbSession.class);
 
-    underTest.deleteNonRootComponentsInView(dbSession, Collections.emptyList());
+    underTest.deleteNonRootComponentsInView(localDbSession, Collections.emptyList());
 
-    verifyNoInteractions(dbSession);
+    verifyNoInteractions(localDbSession);
   }
 
   @Test
@@ -1744,14 +1747,14 @@ project.getProjectDto().getKey());
   }
 
   private void verifyNoEffect(ComponentDto firstRoot, ComponentDto... otherRoots) {
-    DbSession dbSession = mock(DbSession.class);
+    DbSession localDbSession = mock(DbSession.class);
 
     List<ComponentDto> componentDtos =
       Stream.concat(Stream.of(firstRoot), Arrays.stream(otherRoots)).collect(Collectors.toCollection(ArrayList::new));
     Collections.shuffle(componentDtos); // order of collection must not matter
-    underTest.deleteNonRootComponentsInView(dbSession, componentDtos);
+    underTest.deleteNonRootComponentsInView(localDbSession, componentDtos);
 
-    verifyNoInteractions(dbSession);
+    verifyNoInteractions(localDbSession);
   }
 
   @Test
@@ -1902,7 +1905,7 @@ projects[2].getMainBranchComponent().uuid(),
 
   @Test
   void purgeCeActivities_deletes_activity_older_than_180_days_and_their_scanner_context() {
-    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+    LocalDateTime now = LocalDateTime.of(2024, Month.JANUARY.getValue(), 1, 0, 0, 0);
     insertCeActivityAndChildDataWithDate("VERY_OLD", now.minusDays(180).minusMonths(10));
     insertCeActivityAndChildDataWithDate("JUST_OLD_ENOUGH", now.minusDays(180).minusDays(1));
     insertCeActivityAndChildDataWithDate("NOT_OLD_ENOUGH", now.minusDays(180));
@@ -1934,7 +1937,7 @@ projects[2].getMainBranchComponent().uuid(),
 
   @Test
   void purgeCeScannerContexts_deletes_ce_scanner_context_older_than_28_days() {
-    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+    LocalDateTime now = LocalDateTime.of(2024, Month.JANUARY.getValue(), 1, 0, 0, 0);
     insertCeActivityAndChildDataWithDate("VERY_OLD", now.minusDays(28).minusMonths(12));
     insertCeActivityAndChildDataWithDate("JUST_OLD_ENOUGH", now.minusDays(28).minusDays(1));
     insertCeActivityAndChildDataWithDate("NOT_OLD_ENOUGH", now.minusDays(28));
@@ -1954,15 +1957,16 @@ projects[2].getMainBranchComponent().uuid(),
     ProjectData project = db.components().insertPrivateProject();
 
     //dates at the boundary of the deletion threshold set to 30 days
-    Date okCreationDate = DateUtils.addDays(new Date(), -29);
-    Date oldCreationDate = DateUtils.addDays(new Date(), -31);
+    Date okCreationDate = DateUtils.addDays(new Date(NOW), -29);
+    Date oldCreationDate = DateUtils.addDays(new Date(NOW), -31);
 
     dbClient.anticipatedTransitionDao().insert(dbSession, getAnticipatedTransitionsDto("okTransition", project.projectUuid(),
       okCreationDate));
     dbClient.anticipatedTransitionDao().insert(dbSession, getAnticipatedTransitionsDto("oldTransition", project.projectUuid(),
 oldCreationDate));
 
-    underTest.purge(dbSession, newConfigurationWith30Days(System2.INSTANCE, project.getMainBranchComponent().uuid(),
+    when(system2.now()).thenReturn(NOW);
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.getMainBranchComponent().uuid(),
      project.projectUuid()), PurgeListener.EMPTY,
       new PurgeProfiler());
     dbSession.commit();
@@ -2357,7 +2361,7 @@ Set<String> disabledComponentUuids) {
   }
 
   private void addComponentsSnapshotsAndIssuesToBranch(ComponentDto branch, RuleDto rule, int branchAge) {
-    db.components().insertSnapshot(branch, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(), -branchAge).getTime()));
+    db.components().insertSnapshot(branch, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(NOW), -branchAge).getTime()));
     ComponentDto dir = db.components().insertComponent(newDirectory(branch, "path"));
     ComponentDto file = db.components().insertComponent(newFileDto(branch, dir));
     db.issues().insert(rule, branch, file);

@@ -149,7 +149,7 @@ public class LoadChangedIssuesStepTest {
       .setProjectKey("projectKey")
       .setSeverity(BLOCKER)
       .setStatus(STATUS_OPEN)
-      .setCreationDate(new Date())
+      .setCreationDate(new Date(1_704_067_200_000L))
       .setSelectedAt(1L)
       .addImpact(SoftwareQuality.SECURITY, Severity.MEDIUM);
   }

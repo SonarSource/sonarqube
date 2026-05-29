@@ -515,7 +515,7 @@ public class SearchActionIT {
   @Test
   public void search_whenFilteringConnectionDate_shouldApplyFilter() {
     userSession.logIn().setSystemAdministrator();
-    final Instant lastConnection = Instant.now();
+    final Instant lastConnection = Instant.ofEpochMilli(1_704_067_200_000L);
     UserDto user = db.users().insertUser(u -> u
       .setLogin("user-%_%-login")
       .setName("user-name")
@@ -548,7 +548,7 @@ public class SearchActionIT {
   @Test
   public void search_whenNoLastConnection_shouldReturnForBeforeOnly() {
     userSession.logIn().setSystemAdministrator();
-    final Instant lastConnection = Instant.now();
+    final Instant lastConnection = Instant.ofEpochMilli(1_704_067_200_000L);
     UserDto user = db.users().insertUser(u -> u
       .setLogin("user-%_%-login")
       .setName("user-name")
@@ -569,7 +569,7 @@ public class SearchActionIT {
 
     Stream.of(SearchAction.LAST_CONNECTION_DATE_FROM, SearchAction.LAST_CONNECTION_DATE_TO,
       SearchAction.SONAR_LINT_LAST_CONNECTION_DATE_FROM, SearchAction.SONAR_LINT_LAST_CONNECTION_DATE_TO)
-      .map(param -> ws.newRequest().setParam(param, formatDateTime(OffsetDateTime.now(ZoneOffset.UTC))))
+      .map(param -> ws.newRequest().setParam(param, formatDateTime(OffsetDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC))))
       .forEach(SearchActionIT::assertForbiddenException);
   }
 

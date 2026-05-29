@@ -169,7 +169,7 @@ public class RegisterQualityGatesIT {
       .setName("Sonar way")
       .setUuid(Uuids.createFast())
       .setBuiltIn(false)
-      .setCreatedAt(new Date()));
+      .setCreatedAt(new Date(1_704_067_200_000L)));
     dbSession.commit();
     createBuiltInConditions(qualityGate);
     dbSession.commit();

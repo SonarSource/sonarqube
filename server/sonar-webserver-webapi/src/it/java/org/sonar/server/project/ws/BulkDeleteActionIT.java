@@ -292,7 +292,7 @@ public class BulkDeleteActionIT {
   public void should_throw_IAE_when_providing_future_date_as_analyzed_before_date() {
     userSession.logIn().addPermission(ADMINISTER);
 
-    Date now = new Date();
+    Date now = new Date(1_704_067_200_000L);
     Date futureDate = new DateTime(now).plusDays(random.nextInt(1, Integer.MAX_VALUE)).toDate();
     ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
     db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(project1).setCreatedAt(now.getTime()));

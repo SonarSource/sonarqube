@@ -58,6 +58,7 @@ import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builde
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 public class SiblingsIssueMergerIT {
+  private static final long NOW = 1_704_067_200_000L;
   private final IssueLifecycle issueLifecycle = mock(IssueLifecycle.class);
   private final Branch branch = mock(Branch.class);
 
@@ -126,7 +127,7 @@ public class SiblingsIssueMergerIT {
 
   @Test
   public void do_nothing_if_no_match() {
-    DefaultIssue i = createIssue("issue1", rule.getKey(), Issue.STATUS_CONFIRMED, new Date());
+    DefaultIssue i = createIssue("issue1", rule.getKey(), Issue.STATUS_CONFIRMED, new Date(NOW));
     copier.tryMerge(FILE_1, Collections.singleton(i));
 
     verifyNoInteractions(issueLifecycle);
@@ -143,7 +144,7 @@ public class SiblingsIssueMergerIT {
   @Test
   public void merge_confirmed_issues() {
     db.issues().insert(IssueTesting.newIssue(rule, branch1Dto, fileOnBranch1Dto).setKee("issue1").setStatus(Issue.STATUS_CONFIRMED).setLine(1).setChecksum("checksum"));
-    DefaultIssue newIssue = createIssue("issue2", rule.getKey(), Issue.STATUS_OPEN, new Date());
+    DefaultIssue newIssue = createIssue("issue2", rule.getKey(), Issue.STATUS_OPEN, new Date(NOW));
 
     copier.tryMerge(FILE_1, Collections.singleton(newIssue));
 
@@ -155,14 +156,14 @@ public class SiblingsIssueMergerIT {
 
   @Test
   public void prefer_more_recently_updated_issues() {
-    Instant now = Instant.now();
+    Instant now = Instant.ofEpochMilli(1_704_067_200_000L);
     db.issues().insert(IssueTesting.newIssue(rule, branch1Dto, fileOnBranch1Dto).setKee("issue1").setStatus(Issue.STATUS_REOPENED).setLine(1).setChecksum("checksum")
       .setIssueUpdateDate(Date.from(now.plus(2, ChronoUnit.SECONDS))));
     db.issues().insert(IssueTesting.newIssue(rule, branch2Dto, fileOnBranch2Dto).setKee("issue2").setStatus(Issue.STATUS_OPEN).setLine(1).setChecksum("checksum")
       .setIssueUpdateDate(Date.from(now.plus(1, ChronoUnit.SECONDS))));
     db.issues().insert(IssueTesting.newIssue(rule, branch3Dto, fileOnBranch3Dto).setKee("issue3").setStatus(Issue.STATUS_OPEN).setLine(1).setChecksum("checksum")
       .setIssueUpdateDate(Date.from(now)));
-    DefaultIssue newIssue = createIssue("newIssue", rule.getKey(), Issue.STATUS_OPEN, new Date());
+    DefaultIssue newIssue = createIssue("newIssue", rule.getKey(), Issue.STATUS_OPEN, new Date(NOW));
 
     copier.tryMerge(FILE_1, Collections.singleton(newIssue));
 
@@ -178,8 +179,8 @@ public class SiblingsIssueMergerIT {
     IssueDto issue = db.issues()
       .insert(IssueTesting.newIssue(rule, branch2Dto, fileOnBranch2Dto).setKee("issue").setStatus(Issue.STATUS_CONFIRMED).setLine(1).setChecksum("checksum"));
     db.issues().insertComment(issue, user, "A comment 2");
-    db.issues().insertFieldDiffs(issue, FieldDiffs.parse("severity=BLOCKER|MINOR,assignee=foo|bar").setCreationDate(new Date()));
-    DefaultIssue newIssue = createIssue("newIssue", rule.getKey(), Issue.STATUS_OPEN, new Date());
+    db.issues().insertFieldDiffs(issue, FieldDiffs.parse("severity=BLOCKER|MINOR,assignee=foo|bar").setCreationDate(new Date(NOW)));
+    DefaultIssue newIssue = createIssue("newIssue", rule.getKey(), Issue.STATUS_OPEN, new Date(NOW));
 
     copier.tryMerge(FILE_1, Collections.singleton(newIssue));
 

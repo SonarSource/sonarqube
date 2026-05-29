@@ -47,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class DatabaseMigrationsControllerTest {
 
-  private static final Instant SOME_DATE = Instant.now();
+  private static final Instant SOME_DATE = Instant.ofEpochMilli(1_704_067_200_000L);
   private static final String SOME_DATE_STRING = DateTimeFormatter.ISO_DATE_TIME.format(SOME_DATE.atZone(ZoneOffset.UTC));
   private final DatabaseVersion databaseVersion = mock();
   private final DatabaseMigrationStateImpl migrationState = mock();

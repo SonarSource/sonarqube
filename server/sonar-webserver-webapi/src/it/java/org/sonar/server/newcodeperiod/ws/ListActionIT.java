@@ -19,7 +19,6 @@
  */
 package org.sonar.server.newcodeperiod.ws;
 
-import java.time.Instant;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
@@ -352,7 +351,7 @@ public class ListActionIT {
 
     SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(projectData.getMainBranchComponent())
       .setUuid("A1")
-      .setCreatedAt(Instant.now().toEpochMilli())
+      .setCreatedAt(1_704_067_200_000L)
       .setProjectVersion("1.2")
       .setBuildString("1.2.0.322")
       .setRevision("bfe36592eb7f9f2708b5d358b5b5f33ed535c8cf")
@@ -360,7 +359,7 @@ public class ListActionIT {
 
     db.components().insertSnapshot(newAnalysis(projectData.getMainBranchComponent())
       .setUuid("A2")
-      .setCreatedAt(Instant.now().toEpochMilli())
+      .setCreatedAt(1_704_067_200_000L)
       .setProjectVersion("1.2")
       .setBuildString("1.2.0.322")
       .setRevision("2d6d5d8d5fabe2223f07aa495e794d0401ff4b04")
