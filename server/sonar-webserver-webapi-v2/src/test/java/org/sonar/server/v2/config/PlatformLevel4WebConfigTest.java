@@ -19,32 +19,126 @@
  */
 package org.sonar.server.v2.config;
 
-import java.util.stream.Stream;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.slf4j.event.Level;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.server.monitoring.ServerMonitoringMetrics;
+import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.user.UserSession;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class PlatformLevel4WebConfigTest {
+/**
+ * Wiring test for {@link PlatformLevel4WebConfig#addInterceptors}.
+ *
+ * <p>Unit tests on {@code WebApiV2MetricsInterceptor} and {@code DeprecatedHandler}
+ * prove the interceptor code is correct, not that it is wired into Spring MVC.
+ * SONAR-27755 originally shipped with the interceptor unreachable because the
+ * registration mechanism (a hand-rolled {@code RequestMappingHandlerMapping} bean)
+ * was silently broken; the same trap had hidden a {@code DeprecatedHandler}
+ * regression since Dec 2023. This test fires real requests through Spring's
+ * {@code DispatcherServlet} and asserts the observable side effects.
+ */
+@RunWith(SpringRunner.class)
+@WebAppConfiguration
+@ContextConfiguration(classes = PlatformLevel4WebConfigTest.TestConfig.class)
+public class PlatformLevel4WebConfigTest {
 
-  private static final PlatformLevel4WebConfig platformLevel4WebConfig = new PlatformLevel4WebConfig();
+  @Autowired
+  private WebApplicationContext webApplicationContext;
+  @Autowired
+  private ServerMonitoringMetrics metrics;
 
-  private static Stream<Arguments> components() {
-    return Stream.of(
-      arguments(platformLevel4WebConfig.requestMappingHandlerMapping(mock(UserSession.class), mock(ServerMonitoringMetrics.class), mock(Configuration.class)),
-        RequestMappingHandlerMapping.class));
+  private MockMvc mockMvc;
+
+  @Rule
+  public LogTester logTester = new LogTester().setLevel(Level.WARN);
+
+  @Before
+  public void setUp() {
+    mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
   }
 
-  @ParameterizedTest
-  @MethodSource("components")
-  void custom_components_shouldBeInjectedInPlatformLevel4WebConfig(Object component, Class<?> instanceClass) {
-    assertThat(component).isNotNull().isInstanceOf(instanceClass);
+  @Test
+  public void metricsInterceptor_isInvokedOnV2Request() throws Exception {
+    mockMvc.perform(get("/test-wiring/ok")).andExpect(status().isOk());
+
+    verify(metrics).observeWebApiV2RequestDuration(anyDouble(), eq("/test-wiring/ok"), eq("GET"));
+  }
+
+  @Test
+  public void deprecatedHandler_logsWarningOnDeprecatedV2Endpoint() throws Exception {
+    mockMvc.perform(get("/test-wiring/deprecated")).andExpect(status().isOk());
+
+    assertThat(logTester.logs(Level.WARN))
+      .anyMatch(msg -> msg.contains("Web service is deprecated since test"));
+  }
+
+  @RestController
+  static class TestController {
+    @GetMapping("/test-wiring/ok")
+    public String ok() {
+      return "ok";
+    }
+
+    @Deprecated(since = "test")
+    @GetMapping("/test-wiring/deprecated")
+    public String deprecated() {
+      return "deprecated";
+    }
+  }
+
+  @org.springframework.context.annotation.Configuration
+  @EnableWebMvc
+  static class TestConfig {
+
+    @Bean
+    public ServerMonitoringMetrics serverMonitoringMetrics() {
+      return mock(ServerMonitoringMetrics.class);
+    }
+
+    @Bean
+    @Primary
+    public UserSession userSession() {
+      return new MockUserSession("test").setSystemAdministrator(true);
+    }
+
+    @Bean
+    public Configuration configuration() {
+      return mock(Configuration.class);
+    }
+
+    @Bean
+    public PlatformLevel4WebConfig platformLevel4WebConfig(UserSession userSession,
+      ServerMonitoringMetrics metrics, Configuration config) {
+      return new PlatformLevel4WebConfig(userSession, metrics, config);
+    }
+
+    @Bean
+    public TestController testController() {
+      return new TestController();
+    }
   }
 }

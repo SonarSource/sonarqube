@@ -19,6 +19,8 @@
  */
 package org.sonar.server.v2.config;
 
+import org.sonar.api.config.Configuration;
+import org.sonar.server.monitoring.ServerMonitoringMetrics;
 import org.sonar.server.rule.ActiveRuleService;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.analysis.controller.DefaultActiveRulesController;
@@ -48,17 +50,14 @@ import org.sonar.server.v2.api.system.controller.DefaultLivenessController;
 import org.sonar.server.v2.api.system.controller.HealthController;
 import org.sonar.server.v2.api.user.controller.DefaultUserController;
 import org.sonar.server.v2.api.user.converter.UsersSearchRestResponseGenerator;
-import org.sonar.server.monitoring.ServerMonitoringMetrics;
 import org.sonar.server.v2.common.DeprecatedHandler;
 import org.sonar.server.v2.common.WebApiV2MetricsInterceptor;
 import org.sonar.server.v2.security.WebSecurityConfig;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@Configuration
+@org.springframework.context.annotation.Configuration
 @Import({
   ActiveRulesHandlerImpl.class,
   ActiveRuleService.class,
@@ -92,15 +91,21 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
   DefaultAzureBillingHandler.class,
   DefaultAzureBillingController.class
 })
-public class PlatformLevel4WebConfig {
+public class PlatformLevel4WebConfig implements WebMvcConfigurer {
 
-  @Primary
-  @Bean("org.sonar.server.v2.config.PlatformLevel4WebConfig.requestMappingHandlerMapping")
-  public RequestMappingHandlerMapping requestMappingHandlerMapping(UserSession userSession,
-    ServerMonitoringMetrics metrics, org.sonar.api.config.Configuration config) {
-    RequestMappingHandlerMapping handlerMapping = new RequestMappingHandlerMapping();
-    handlerMapping.setInterceptors(new DeprecatedHandler(userSession), new WebApiV2MetricsInterceptor(metrics, config));
-    return handlerMapping;
+  private final UserSession userSession;
+  private final ServerMonitoringMetrics metrics;
+  private final Configuration config;
+
+  public PlatformLevel4WebConfig(UserSession userSession, ServerMonitoringMetrics metrics, Configuration config) {
+    this.userSession = userSession;
+    this.metrics = metrics;
+    this.config = config;
   }
 
+  @Override
+  public void addInterceptors(InterceptorRegistry registry) {
+    registry.addInterceptor(new DeprecatedHandler(userSession));
+    registry.addInterceptor(new WebApiV2MetricsInterceptor(metrics, config));
+  }
 }
