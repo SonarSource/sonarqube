@@ -298,7 +298,6 @@ import org.sonar.server.setting.SettingsChangeNotifier;
 import org.sonar.server.setting.ws.SettingsWsModule;
 import org.sonar.server.source.ws.SourceWsModule;
 import org.sonar.server.startup.LogServerId;
-import org.sonar.server.startup.SeverityMetricsModeHandler;
 import org.sonar.server.telemetry.TelemetryQualityGateBeforeNcdStartProvider;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ui.WebAnalyticsLoaderImpl;
@@ -372,7 +371,6 @@ public class PlatformLevel4 extends PlatformLevel {
       ComponentTypes.class,
       DefaultComponentTypes.get(),
       SettingsChangeNotifier.class,
-      SeverityMetricsModeHandler.class,
       ServerWs.class,
       IndexDefinitions.class,
       WebAnalyticsLoaderImpl.class,

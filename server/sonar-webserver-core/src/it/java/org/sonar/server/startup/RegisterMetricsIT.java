@@ -48,8 +48,7 @@ class RegisterMetricsIT {
 
   private final UuidFactory uuidFactory = new SequenceUuidFactory();
   private final DbClient dbClient = dbTester.getDbClient();
-  private final SeverityMetricsModeHandler severityMetricsModeHandler = new SeverityMetricsModeHandler(dbClient);
-  private final RegisterMetrics register = new RegisterMetrics(dbClient, uuidFactory, severityMetricsModeHandler);
+  private final RegisterMetrics register = new RegisterMetrics(dbClient, uuidFactory);
 
   /**
    * Insert new metrics, including custom metrics
@@ -151,7 +150,7 @@ class RegisterMetricsIT {
     Metrics plugin1 = new TestMetrics(new Metric.Builder("m1", "In first plugin", Metric.ValueType.FLOAT).create());
     Metrics plugin2 = new TestMetrics(new Metric.Builder("m1", "In second plugin", Metric.ValueType.FLOAT).create());
 
-    assertThatThrownBy(() -> new RegisterMetrics(dbClient, uuidFactory, new Metrics[]{plugin1, plugin2}, severityMetricsModeHandler).start())
+    assertThatThrownBy(() -> new RegisterMetrics(dbClient, uuidFactory, new Metrics[]{plugin1, plugin2}).start())
       .isInstanceOf(IllegalStateException.class);
   }
 
@@ -159,7 +158,7 @@ class RegisterMetricsIT {
   void fail_if_plugin_duplicates_core_metric() {
     Metrics plugin = new TestMetrics(new Metric.Builder("ncloc", "In plugin", Metric.ValueType.FLOAT).create());
 
-    assertThatThrownBy(() -> new RegisterMetrics(dbClient, uuidFactory, new Metrics[]{plugin}, severityMetricsModeHandler).start())
+    assertThatThrownBy(() -> new RegisterMetrics(dbClient, uuidFactory, new Metrics[]{plugin}).start())
       .isInstanceOf(IllegalStateException.class);
   }
 
@@ -189,34 +188,6 @@ class RegisterMetricsIT {
     assertThat(actual.getDescription()).isEqualTo(expected.getDescription());
     assertThat(actual.getDirection()).isEqualTo(expected.getDirection());
     assertThat(actual.isQualitative()).isEqualTo(expected.getQualitative());
-  }
-
-  @Test
-  void in_mqr_mode_standard_severity_metrics_are_disabled() {
-    dbTester.properties().insertProperty("sonar.multi-quality-mode.enabled", "true", null);
-    new RegisterMetrics(dbClient, uuidFactory, severityMetricsModeHandler).start();
-
-    Map<String, MetricDto> metrics = selectAllMetrics();
-    assertThat(metrics.get("new_bugs_severity").isEnabled()).isFalse();
-    assertThat(metrics.get("new_vulnerabilities_severity").isEnabled()).isFalse();
-    assertThat(metrics.get("new_code_smells_severity").isEnabled()).isFalse();
-    assertThat(metrics.get("new_reliability_issue_severity").isEnabled()).isTrue();
-    assertThat(metrics.get("new_security_issue_severity").isEnabled()).isTrue();
-    assertThat(metrics.get("new_maintainability_issue_severity").isEnabled()).isTrue();
-  }
-
-  @Test
-  void in_standard_mode_mqr_severity_metrics_are_disabled() {
-    dbTester.properties().insertProperty("sonar.multi-quality-mode.enabled", "false", null);
-    new RegisterMetrics(dbClient, uuidFactory, severityMetricsModeHandler).start();
-
-    Map<String, MetricDto> metrics = selectAllMetrics();
-    assertThat(metrics.get("new_bugs_severity").isEnabled()).isTrue();
-    assertThat(metrics.get("new_vulnerabilities_severity").isEnabled()).isTrue();
-    assertThat(metrics.get("new_code_smells_severity").isEnabled()).isTrue();
-    assertThat(metrics.get("new_reliability_issue_severity").isEnabled()).isFalse();
-    assertThat(metrics.get("new_security_issue_severity").isEnabled()).isFalse();
-    assertThat(metrics.get("new_maintainability_issue_severity").isEnabled()).isFalse();
   }
 
   private static Metric.Builder builderOf(MetricDto enabledMetric) {

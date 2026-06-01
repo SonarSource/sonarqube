@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.sonar.api.Startable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
@@ -40,8 +39,6 @@ import org.sonar.server.metric.MetricToDto;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_DEFAULT_VALUE;
-import static org.sonar.core.config.MQRModeConstants.MULTI_QUALITY_MODE_ENABLED;
 import static org.sonar.db.metric.RemovedMetricConverter.REMOVED_METRIC;
 
 public class RegisterMetrics implements Startable {
@@ -51,23 +48,20 @@ public class RegisterMetrics implements Startable {
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
   private final Metrics[] metricsRepositories;
-  private final SeverityMetricsModeHandler severityMetricsModeHandler;
 
   @Autowired(required = false)
-  public RegisterMetrics(DbClient dbClient, UuidFactory uuidFactory, Metrics[] metricsRepositories,
-    SeverityMetricsModeHandler severityMetricsModeHandler) {
+  public RegisterMetrics(DbClient dbClient, UuidFactory uuidFactory, Metrics[] metricsRepositories) {
     this.dbClient = dbClient;
     this.uuidFactory = uuidFactory;
     this.metricsRepositories = metricsRepositories;
-    this.severityMetricsModeHandler = severityMetricsModeHandler;
   }
 
   /**
    * Used when no plugin is defining Metrics
    */
   @Autowired(required = false)
-  public RegisterMetrics(DbClient dbClient, UuidFactory uuidFactory, SeverityMetricsModeHandler severityMetricsModeHandler) {
-    this(dbClient, uuidFactory, new Metrics[]{}, severityMetricsModeHandler);
+  public RegisterMetrics(DbClient dbClient, UuidFactory uuidFactory) {
+    this(dbClient, uuidFactory, new Metrics[] {});
   }
 
   @Override
@@ -88,18 +82,10 @@ public class RegisterMetrics implements Startable {
     Profiler profiler = Profiler.create(LOG).startInfo("Register metrics");
     try (DbSession session = dbClient.openSession(true)) {
       save(session, metrics);
-      syncSeverityMetricsWithMode(session);
       sanitizeQualityGates(session);
       session.commit();
     }
     profiler.stopDebug();
-  }
-
-  private void syncSeverityMetricsWithMode(DbSession metricsSession) {
-    boolean mqrModeEnabled = Optional.ofNullable(dbClient.propertiesDao().selectGlobalProperty(metricsSession, MULTI_QUALITY_MODE_ENABLED))
-      .map(p -> Boolean.parseBoolean(p.getValue()))
-      .orElse(MULTI_QUALITY_MODE_DEFAULT_VALUE);
-    severityMetricsModeHandler.updateSeverityMetrics(metricsSession, mqrModeEnabled);
   }
 
   private void sanitizeQualityGates(DbSession session) {

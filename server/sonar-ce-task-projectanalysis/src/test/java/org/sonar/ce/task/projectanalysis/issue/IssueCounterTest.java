@@ -25,13 +25,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.assertj.core.data.MapEntry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
-import org.sonar.core.rule.RuleType;
+import org.sonar.api.measures.SeverityValues;
 import org.sonar.ce.common.scanner.ScannerReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
@@ -41,6 +45,7 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.measure.ValueType;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.measure.ImpactMeasureBuilder;
 
@@ -83,8 +88,6 @@ import static org.sonar.api.measures.CoreMetrics.FALSE_POSITIVE_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.FALSE_POSITIVE_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES_KEY;
-import static org.sonar.server.metric.IssueCountMetrics.ISSUES_IN_SANDBOX;
-import static org.sonar.server.metric.IssueCountMetrics.NEW_ISSUES_IN_SANDBOX;
 import static org.sonar.api.measures.CoreMetrics.INFO_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.MAINTAINABILITY_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.MAJOR_VIOLATIONS;
@@ -96,23 +99,35 @@ import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKER_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKER_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_BUGS;
 import static org.sonar.api.measures.CoreMetrics.NEW_BUGS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_BUGS_SEVERITY;
+import static org.sonar.api.measures.CoreMetrics.NEW_BUGS_SEVERITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_CODE_SMELLS;
 import static org.sonar.api.measures.CoreMetrics.NEW_CODE_SMELLS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_CODE_SMELLS_SEVERITY;
+import static org.sonar.api.measures.CoreMetrics.NEW_CODE_SMELLS_SEVERITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_CRITICAL_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.NEW_CRITICAL_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_INFO_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_ISSUES;
+import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_ISSUE_SEVERITY;
+import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_ISSUE_SEVERITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAJOR_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAJOR_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MINOR_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_ISSUES;
+import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_ISSUE_SEVERITY;
+import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_ISSUE_SEVERITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_ISSUES;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_ISSUE_SEVERITY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_ISSUE_SEVERITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.NEW_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_VULNERABILITIES;
 import static org.sonar.api.measures.CoreMetrics.NEW_VULNERABILITIES_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_VULNERABILITIES_SEVERITY;
+import static org.sonar.api.measures.CoreMetrics.NEW_VULNERABILITIES_SEVERITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.OPEN_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.OPEN_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_ISSUES;
@@ -126,9 +141,7 @@ import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
 import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.MAJOR;
-import static org.sonar.core.rule.RuleType.BUG;
-import static org.sonar.core.rule.RuleType.CODE_SMELL;
-import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
+import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.issue.IssueCounter.IMPACT_TO_JSON_METRIC_KEY;
 import static org.sonar.ce.task.projectanalysis.issue.IssueCounter.IMPACT_TO_NEW_JSON_METRIC_KEY;
@@ -166,6 +179,12 @@ import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RE
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES_KEY;
+import static org.sonar.core.rule.RuleType.BUG;
+import static org.sonar.core.rule.RuleType.CODE_SMELL;
+import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
+import static org.sonar.core.rule.RuleType.VULNERABILITY;
+import static org.sonar.server.metric.IssueCountMetrics.ISSUES_IN_SANDBOX;
+import static org.sonar.server.metric.IssueCountMetrics.NEW_ISSUES_IN_SANDBOX;
 import static org.sonar.test.JsonAssert.assertJson;
 
 class IssueCounterTest {
@@ -233,7 +252,13 @@ class IssueCounterTest {
     .add(SOFTWARE_QUALITY_SECURITY_ISSUES)
     .add(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES)
     .add(NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES)
-    .add(NEW_SOFTWARE_QUALITY_SECURITY_ISSUES);
+    .add(NEW_SOFTWARE_QUALITY_SECURITY_ISSUES)
+    .add(NEW_BUGS_SEVERITY)
+    .add(NEW_VULNERABILITIES_SEVERITY)
+    .add(NEW_CODE_SMELLS_SEVERITY)
+    .add(NEW_RELIABILITY_ISSUE_SEVERITY)
+    .add(NEW_SECURITY_ISSUE_SEVERITY)
+    .add(NEW_MAINTAINABILITY_ISSUE_SEVERITY);
 
   @RegisterExtension
   private final MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
@@ -772,6 +797,156 @@ class IssueCounterTest {
 
   private DefaultIssue createNewSecurityHotspot() {
     return createNewIssue(null, STATUS_OPEN, "MAJOR", SECURITY_HOTSPOT);
+  }
+
+  @ParameterizedTest
+  @MethodSource("standardSeverityCases")
+  void onIssue_shouldComputeMaxNewSeverityByRuleType(RuleType type, String ruleSeverity,
+    RuleType otherType, String metricKey, int expectedValue) {
+    when(newIssueClassifier.isEnabled()).thenReturn(true);
+
+    underTest.beforeComponent(FILE1);
+    underTest.onIssue(FILE1, createNewIssue(null, STATUS_OPEN, ruleSeverity, type));
+    underTest.onIssue(FILE1, createNewIssue(null, STATUS_OPEN, org.sonar.api.rule.Severity.INFO, type));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_FIXED, STATUS_CLOSED, org.sonar.api.rule.Severity.BLOCKER, type));
+    underTest.onIssue(FILE1, createNewIssue(null, STATUS_OPEN, org.sonar.api.rule.Severity.BLOCKER, otherType));
+    underTest.afterComponent(FILE1);
+
+    underTest.beforeComponent(FILE2);
+    underTest.afterComponent(FILE2);
+
+    underTest.beforeComponent(PROJECT);
+    underTest.afterComponent(PROJECT);
+
+    assertIntValue(FILE1, entry(metricKey, expectedValue));
+    assertIntValue(FILE2, entry(metricKey, SeverityValues.NO_ISSUES));
+    assertIntValue(PROJECT, entry(metricKey, expectedValue));
+  }
+
+  private static Stream<Arguments> standardSeverityCases() {
+    return Stream.of(
+      Arguments.of(BUG, org.sonar.api.rule.Severity.INFO,    CODE_SMELL, NEW_BUGS_SEVERITY_KEY, SeverityValues.INFO),
+      Arguments.of(BUG, MINOR,                               CODE_SMELL, NEW_BUGS_SEVERITY_KEY, SeverityValues.LOW),
+      Arguments.of(BUG, MAJOR,                               CODE_SMELL, NEW_BUGS_SEVERITY_KEY, SeverityValues.MEDIUM),
+      Arguments.of(BUG, CRITICAL,                            CODE_SMELL, NEW_BUGS_SEVERITY_KEY, SeverityValues.HIGH),
+      Arguments.of(BUG, org.sonar.api.rule.Severity.BLOCKER, CODE_SMELL, NEW_BUGS_SEVERITY_KEY, SeverityValues.BLOCKER),
+
+      Arguments.of(VULNERABILITY, org.sonar.api.rule.Severity.INFO,    BUG, NEW_VULNERABILITIES_SEVERITY_KEY, SeverityValues.INFO),
+      Arguments.of(VULNERABILITY, MINOR,                               BUG, NEW_VULNERABILITIES_SEVERITY_KEY, SeverityValues.LOW),
+      Arguments.of(VULNERABILITY, MAJOR,                               BUG, NEW_VULNERABILITIES_SEVERITY_KEY, SeverityValues.MEDIUM),
+      Arguments.of(VULNERABILITY, CRITICAL,                            BUG, NEW_VULNERABILITIES_SEVERITY_KEY, SeverityValues.HIGH),
+      Arguments.of(VULNERABILITY, org.sonar.api.rule.Severity.BLOCKER, BUG, NEW_VULNERABILITIES_SEVERITY_KEY, SeverityValues.BLOCKER),
+
+      Arguments.of(CODE_SMELL, org.sonar.api.rule.Severity.INFO,    BUG, NEW_CODE_SMELLS_SEVERITY_KEY, SeverityValues.INFO),
+      Arguments.of(CODE_SMELL, MINOR,                               BUG, NEW_CODE_SMELLS_SEVERITY_KEY, SeverityValues.LOW),
+      Arguments.of(CODE_SMELL, MAJOR,                               BUG, NEW_CODE_SMELLS_SEVERITY_KEY, SeverityValues.MEDIUM),
+      Arguments.of(CODE_SMELL, CRITICAL,                            BUG, NEW_CODE_SMELLS_SEVERITY_KEY, SeverityValues.HIGH),
+      Arguments.of(CODE_SMELL, org.sonar.api.rule.Severity.BLOCKER, BUG, NEW_CODE_SMELLS_SEVERITY_KEY, SeverityValues.BLOCKER));
+  }
+
+  @ParameterizedTest
+  @MethodSource("mqrSeverityCases")
+  void onIssue_shouldComputeMaxNewSeverityBySoftwareQuality(SoftwareQuality quality,
+    Severity impactSeverity, SoftwareQuality otherQuality, String metricKey, int expectedValue) {
+    when(newIssueClassifier.isEnabled()).thenReturn(true);
+
+    underTest.beforeComponent(FILE1);
+    underTest.onIssue(FILE1, createNewIssue(null, STATUS_OPEN, quality, impactSeverity));
+    underTest.onIssue(FILE1, createNewIssue(null, STATUS_OPEN, quality, INFO));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_FIXED, STATUS_RESOLVED, quality, BLOCKER));
+    underTest.onIssue(FILE1, createNewIssue(null, STATUS_OPEN, otherQuality, BLOCKER));
+    underTest.afterComponent(FILE1);
+
+    underTest.beforeComponent(FILE2);
+    underTest.afterComponent(FILE2);
+
+    underTest.beforeComponent(PROJECT);
+    underTest.afterComponent(PROJECT);
+
+    assertIntValue(FILE1, entry(metricKey, expectedValue));
+    assertIntValue(FILE2, entry(metricKey, SeverityValues.NO_ISSUES));
+    assertIntValue(PROJECT, entry(metricKey, expectedValue));
+  }
+
+  private static Stream<Arguments> mqrSeverityCases() {
+    return Stream.of(
+      Arguments.of(RELIABILITY,     INFO,    MAINTAINABILITY, NEW_RELIABILITY_ISSUE_SEVERITY_KEY,     SeverityValues.INFO),
+      Arguments.of(RELIABILITY,     LOW,     MAINTAINABILITY, NEW_RELIABILITY_ISSUE_SEVERITY_KEY,     SeverityValues.LOW),
+      Arguments.of(RELIABILITY,     MEDIUM,  MAINTAINABILITY, NEW_RELIABILITY_ISSUE_SEVERITY_KEY,     SeverityValues.MEDIUM),
+      Arguments.of(RELIABILITY,     HIGH,    MAINTAINABILITY, NEW_RELIABILITY_ISSUE_SEVERITY_KEY,     SeverityValues.HIGH),
+      Arguments.of(RELIABILITY,     BLOCKER, MAINTAINABILITY, NEW_RELIABILITY_ISSUE_SEVERITY_KEY,     SeverityValues.BLOCKER),
+
+      Arguments.of(SECURITY,        INFO,    RELIABILITY,     NEW_SECURITY_ISSUE_SEVERITY_KEY,        SeverityValues.INFO),
+      Arguments.of(SECURITY,        LOW,     RELIABILITY,     NEW_SECURITY_ISSUE_SEVERITY_KEY,        SeverityValues.LOW),
+      Arguments.of(SECURITY,        MEDIUM,  RELIABILITY,     NEW_SECURITY_ISSUE_SEVERITY_KEY,        SeverityValues.MEDIUM),
+      Arguments.of(SECURITY,        HIGH,    RELIABILITY,     NEW_SECURITY_ISSUE_SEVERITY_KEY,        SeverityValues.HIGH),
+      Arguments.of(SECURITY,        BLOCKER, RELIABILITY,     NEW_SECURITY_ISSUE_SEVERITY_KEY,        SeverityValues.BLOCKER),
+
+      Arguments.of(MAINTAINABILITY, INFO,    SECURITY,        NEW_MAINTAINABILITY_ISSUE_SEVERITY_KEY, SeverityValues.INFO),
+      Arguments.of(MAINTAINABILITY, LOW,     SECURITY,        NEW_MAINTAINABILITY_ISSUE_SEVERITY_KEY, SeverityValues.LOW),
+      Arguments.of(MAINTAINABILITY, MEDIUM,  SECURITY,        NEW_MAINTAINABILITY_ISSUE_SEVERITY_KEY, SeverityValues.MEDIUM),
+      Arguments.of(MAINTAINABILITY, HIGH,    SECURITY,        NEW_MAINTAINABILITY_ISSUE_SEVERITY_KEY, SeverityValues.HIGH),
+      Arguments.of(MAINTAINABILITY, BLOCKER, SECURITY,        NEW_MAINTAINABILITY_ISSUE_SEVERITY_KEY, SeverityValues.BLOCKER));
+  }
+
+  @ParameterizedTest
+  @MethodSource("newSeverityMetricKeys")
+  void onIssue_whenNewIssueClassifierDisabled_shouldNotEmitMaxNewSeverityMeasure(String metricKey) {
+    underTest.beforeComponent(FILE1);
+    underTest.onIssue(FILE1, createNewIssue(null, STATUS_OPEN, CRITICAL, BUG));
+    underTest.afterComponent(FILE1);
+
+    underTest.beforeComponent(PROJECT);
+    underTest.afterComponent(PROJECT);
+
+    assertThat(measureRepository.getRawMeasures(FILE1)).doesNotContainKey(metricKey);
+    assertThat(measureRepository.getRawMeasures(PROJECT)).doesNotContainKey(metricKey);
+  }
+
+  private static Stream<Arguments> newSeverityMetricKeys() {
+    return Stream.of(
+      Arguments.of(NEW_BUGS_SEVERITY_KEY),
+      Arguments.of(NEW_VULNERABILITIES_SEVERITY_KEY),
+      Arguments.of(NEW_CODE_SMELLS_SEVERITY_KEY),
+      Arguments.of(NEW_RELIABILITY_ISSUE_SEVERITY_KEY),
+      Arguments.of(NEW_SECURITY_ISSUE_SEVERITY_KEY),
+      Arguments.of(NEW_MAINTAINABILITY_ISSUE_SEVERITY_KEY));
+  }
+
+  @Test
+  void onIssue_whenResolvedOrSandbox_shouldExcludeFromMaxNewQualitySeverity() {
+    when(newIssueClassifier.isEnabled()).thenReturn(true);
+
+    underTest.beforeComponent(FILE1);
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_FIXED, STATUS_RESOLVED, RELIABILITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(null, STATUS_IN_SANDBOX, SECURITY, BLOCKER));
+    underTest.onIssue(FILE1, createNewIssue(null, STATUS_OPEN, MAINTAINABILITY, MEDIUM));
+    underTest.afterComponent(FILE1);
+
+    underTest.beforeComponent(PROJECT);
+    underTest.afterComponent(PROJECT);
+
+    assertIntValue(FILE1, entry(NEW_MAINTAINABILITY_ISSUE_SEVERITY_KEY, SeverityValues.MEDIUM));
+    assertIntValue(FILE1, entry(NEW_RELIABILITY_ISSUE_SEVERITY_KEY, SeverityValues.NO_ISSUES));
+    assertIntValue(FILE1, entry(NEW_SECURITY_ISSUE_SEVERITY_KEY, SeverityValues.NO_ISSUES));
+  }
+
+  @Test
+  void onIssue_whenResolvedOrSandbox_shouldExcludeFromMaxNewSeverity() {
+    when(newIssueClassifier.isEnabled()).thenReturn(true);
+
+    underTest.beforeComponent(FILE1);
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_FIXED, STATUS_RESOLVED, CRITICAL, BUG));
+    underTest.onIssue(FILE1, createNewIssue(null, STATUS_IN_SANDBOX, org.sonar.api.rule.Severity.BLOCKER, VULNERABILITY));
+    underTest.onIssue(FILE1, createNewIssue(null, STATUS_OPEN, MAJOR, CODE_SMELL));
+    underTest.afterComponent(FILE1);
+
+    underTest.beforeComponent(PROJECT);
+    underTest.afterComponent(PROJECT);
+
+    assertIntValue(FILE1, entry(NEW_CODE_SMELLS_SEVERITY_KEY, SeverityValues.MEDIUM));
+    assertIntValue(FILE1, entry(NEW_BUGS_SEVERITY_KEY, SeverityValues.NO_ISSUES));
+    assertIntValue(FILE1, entry(NEW_VULNERABILITIES_SEVERITY_KEY, SeverityValues.NO_ISSUES));
   }
 
   @Test

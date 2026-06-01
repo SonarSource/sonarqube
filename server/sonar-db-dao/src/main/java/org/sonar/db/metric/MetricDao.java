@@ -99,10 +99,6 @@ public class MetricDao implements Dao {
     return mapper(session).disableByKey(key) == 1;
   }
 
-  public boolean enableByKey(DbSession session, String key) {
-    return mapper(session).enableByKey(key) == 1;
-  }
-
   public void update(DbSession session, MetricDto metric) {
     mapper(session).update(metric);
   }
