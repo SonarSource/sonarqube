@@ -19,6 +19,7 @@
  */
 package org.sonar.server.v2.config;
 
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,6 +27,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.event.Level;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.monitoring.ServerMonitoringMetrics;
 import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.user.UserSession;
@@ -47,6 +49,7 @@ import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -127,7 +130,10 @@ public class PlatformLevel4WebConfigTest {
 
     @Bean
     public Configuration configuration() {
-      return mock(Configuration.class);
+      Configuration config = mock(Configuration.class);
+      when(config.getBoolean(ProcessProperties.Property.PERFORMANCE_MONITORING_ENABLED.getKey()))
+        .thenReturn(Optional.of(true));
+      return config;
     }
 
     @Bean

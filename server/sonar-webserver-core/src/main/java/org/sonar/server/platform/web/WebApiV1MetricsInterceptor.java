@@ -59,6 +59,6 @@ public class WebApiV1MetricsInterceptor implements ActionInterceptor {
   }
 
   private boolean isEnabled() {
-    return config.getBoolean(ProcessProperties.Property.PERFORMANCE_MONITORING_ENABLED.getKey()).orElse(true);
+    return config.getBoolean(ProcessProperties.Property.PERFORMANCE_MONITORING_ENABLED.getKey()).orElse(false);
   }
 }

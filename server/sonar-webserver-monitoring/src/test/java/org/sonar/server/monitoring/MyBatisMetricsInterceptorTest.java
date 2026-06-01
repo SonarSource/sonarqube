@@ -116,7 +116,7 @@ public class MyBatisMetricsInterceptorTest {
   }
 
   @Test
-  public void intercept_whenPropertyMissing_defaultsToEnabled() throws Throwable {
+  public void intercept_whenPropertyMissing_defaultsToDisabled() throws Throwable {
     MappedStatement mappedStatement = mock(MappedStatement.class);
     when(mappedStatement.getId()).thenReturn("org.sonar.db.user.UserMapper.selectByUuid");
     Invocation invocation = mock(Invocation.class);
@@ -125,6 +125,6 @@ public class MyBatisMetricsInterceptorTest {
 
     underTest.intercept(invocation);
 
-    verify(metrics, times(1)).observeDbQueryDuration(doubleThat(d -> d >= 0), eq("UserMapper.selectByUuid"));
+    verify(metrics, never()).observeDbQueryDuration(anyDouble(), anyString());
   }
 }

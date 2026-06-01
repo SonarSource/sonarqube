@@ -109,7 +109,7 @@ public class ProcessProperties {
     WEB_ACCESSLOGS_ENABLE("sonar.web.accessLogs.enable"),
     WEB_ACCESSLOGS_PATTERN("sonar.web.accessLogs.pattern"),
 
-    PERFORMANCE_MONITORING_ENABLED("sonar.performanceMonitoring.enabled", Boolean.TRUE.toString()),
+    PERFORMANCE_MONITORING_ENABLED("sonar.performanceMonitoring.enabled", Boolean.FALSE.toString()),
 
     CE_JAVA_OPTS("sonar.ce.javaOpts", "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError"),
     CE_JAVA_ADDITIONAL_OPTS("sonar.ce.javaAdditionalOpts", ""),

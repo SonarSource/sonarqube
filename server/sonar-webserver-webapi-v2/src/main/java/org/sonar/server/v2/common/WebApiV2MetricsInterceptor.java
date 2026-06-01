@@ -51,7 +51,7 @@ public record WebApiV2MetricsInterceptor(ServerMonitoringMetrics metrics, Config
   }
 
   private boolean isEnabled() {
-    return config.getBoolean(ProcessProperties.Property.PERFORMANCE_MONITORING_ENABLED.getKey()).orElse(true);
+    return config.getBoolean(ProcessProperties.Property.PERFORMANCE_MONITORING_ENABLED.getKey()).orElse(false);
   }
 
   private static String getEndpointPattern(HttpServletRequest request) {

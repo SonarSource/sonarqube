@@ -65,7 +65,7 @@ public class MyBatisMetricsInterceptor implements Interceptor {
   }
 
   private boolean isEnabled() {
-    return config.getBoolean(ProcessProperties.Property.PERFORMANCE_MONITORING_ENABLED.getKey()).orElse(true);
+    return config.getBoolean(ProcessProperties.Property.PERFORMANCE_MONITORING_ENABLED.getKey()).orElse(false);
   }
 
   static String shortMapperMethod(String fullyQualifiedId) {

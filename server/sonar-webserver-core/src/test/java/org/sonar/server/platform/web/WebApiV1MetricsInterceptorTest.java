@@ -84,14 +84,14 @@ class WebApiV1MetricsInterceptorTest {
   }
 
   @Test
-  void preAction_postAction_whenPropertyMissing_defaultsToEnabled() {
+  void preAction_postAction_whenPropertyMissing_defaultsToDisabled() {
     WebService.Action action = mockAction("api/issues/search");
     Request request = mock(Request.class);
 
     underTest.preAction(action, request);
     underTest.postAction(action, request);
 
-    verify(metrics, atLeastOnce()).observeWebApiV1RequestDuration(anyDouble(), eq("api/issues/search"));
+    verify(metrics, never()).observeWebApiV1RequestDuration(anyDouble(), anyString());
   }
 
   private static WebService.Action mockAction(String path) {
