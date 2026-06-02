@@ -19,11 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.language;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import org.sonar.api.utils.System2;
@@ -41,7 +39,6 @@ import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.dismissmessage.MessageType;
 
 import static java.lang.String.format;
-import static java.util.Locale.ENGLISH;
 import static org.sonar.core.language.UnanalyzedLanguages.C;
 import static org.sonar.core.language.UnanalyzedLanguages.CPP;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP_KEY;
@@ -58,8 +55,8 @@ public class HandleUnanalyzedLanguagesStep implements ComputationStep {
     " current SonarQube edition. Please consider <a target=\"_blank\" href=\"https://www.sonarsource.com/plans-and-pricing/developer/?referrer=sonarqube-cpp\">upgrading to" +
     " Developer Edition</a> to find Bugs, Code Smells, Vulnerabilities and Security Hotspots in %s.";
 
-  private static final Set<String> C_EXTENSIONS = Set.of("c");
-  private static final Set<String> CPP_EXTENSIONS = Set.of("cpp", "cc", "cxx", "c++");
+  private static final String C_LANGUAGE_KEY = "c";
+  private static final String CPP_LANGUAGE_KEY = "cpp";
 
   private final ScannerReportReader reportReader;
   private final CeTaskMessages ceTaskMessages;
@@ -104,19 +101,16 @@ public class HandleUnanalyzedLanguagesStep implements ComputationStep {
     Map<String, Integer> notAnalyzedindexedFileCountPerType = reportReader.readMetadata().getNotAnalyzedIndexedFileCountPerTypeMap();
     Map<String, Integer> filesPerLanguage = new HashMap<>();
 
-    addFileCountForLanguage(filesPerLanguage, notAnalyzedindexedFileCountPerType, C_EXTENSIONS, C.toString());
-    addFileCountForLanguage(filesPerLanguage, notAnalyzedindexedFileCountPerType, CPP_EXTENSIONS, CPP.toString());
+    addFileCountForLanguage(filesPerLanguage, notAnalyzedindexedFileCountPerType, C_LANGUAGE_KEY, C.toString());
+    addFileCountForLanguage(filesPerLanguage, notAnalyzedindexedFileCountPerType, CPP_LANGUAGE_KEY, CPP.toString());
 
     return filesPerLanguage;
   }
 
-  private static void addFileCountForLanguage(Map<String, Integer> filesPerLanguage, Map<String, Integer> fileCountPerType, Collection<String> extensions, String languageKey) {
-    long count = fileCountPerType.entrySet().stream()
-      .filter(entry -> extensions.contains(entry.getKey().toLowerCase(ENGLISH)))
-      .mapToLong(Map.Entry::getValue)
-      .sum();
+  private static void addFileCountForLanguage(Map<String, Integer> filesPerLanguage, Map<String, Integer> fileCountPerType, String scannerLanguageKey, String displayLabel) {
+    int count = fileCountPerType.getOrDefault(scannerLanguageKey, 0);
     if (count > 0) {
-      filesPerLanguage.put(languageKey, (int) count);
+      filesPerLanguage.put(displayLabel, count);
     }
   }
 

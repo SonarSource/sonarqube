@@ -261,7 +261,7 @@ class SendAnalysisTelemetryStepTest {
   }
 
   @Test
-  void execute_sanitizeExtensionsBeforeSendingToTelemetry() {
+  void execute_sanitizesUnsafeKeysBeforeSendingToTelemetry() {
     ScannerReport.Metadata metadata = ScannerReport.Metadata.newBuilder()
       .putAnalyzedIndexedFileCountPerType("ja!v#a", 150)
       .putAnalyzedIndexedFileCountPerType("pYth-On", 12)

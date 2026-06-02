@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.language;
 
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Rule;
@@ -29,9 +28,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.api.utils.System2;
+import org.sonar.ce.common.scanner.ScannerReportReaderRule;
 import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.log.CeTaskMessages.Message;
-import org.sonar.ce.common.scanner.ScannerReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
@@ -43,7 +42,6 @@ import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
-import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
@@ -94,13 +92,12 @@ public class HandleUnanalyzedLanguagesStepTest {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
     ScannerReport.AnalysisWarning warning1 = ScannerReport.AnalysisWarning.newBuilder().setText("warning 1").build();
     ScannerReport.AnalysisWarning warning2 = ScannerReport.AnalysisWarning.newBuilder().setText("warning 2").build();
-    ImmutableList<ScannerReport.AnalysisWarning> warnings = of(warning1, warning2);
+    List<ScannerReport.AnalysisWarning> warnings = List.of(warning1, warning2);
     reportReader.setAnalysisWarnings(warnings);
     reportReader.setMetadata(ScannerReport.Metadata.newBuilder()
       .putNotAnalyzedIndexedFileCountPerType("c", 10)
-      .putNotAnalyzedIndexedFileCountPerType("cpp", 15)
-      .putNotAnalyzedIndexedFileCountPerType("cc", 5)
-      .putNotAnalyzedIndexedFileCountPerType("unknown", 1000)
+      .putNotAnalyzedIndexedFileCountPerType("cpp", 20)
+      .putNotAnalyzedIndexedFileCountPerType("other", 1000)
       .build());
 
     underTest.execute(new TestComputationStepContext());
@@ -161,7 +158,7 @@ public class HandleUnanalyzedLanguagesStepTest {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
     ScannerReport.AnalysisWarning warning1 = ScannerReport.AnalysisWarning.newBuilder().setText("warning 1").build();
     ScannerReport.AnalysisWarning warning2 = ScannerReport.AnalysisWarning.newBuilder().setText("warning 2").build();
-    ImmutableList<ScannerReport.AnalysisWarning> warnings = of(warning1, warning2);
+    List<ScannerReport.AnalysisWarning> warnings = List.of(warning1, warning2);
     reportReader.setAnalysisWarnings(warnings);
     reportReader.setMetadata(ScannerReport.Metadata.newBuilder().putNotAnalyzedIndexedFileCountPerType("cpp", 0).build());
 
@@ -178,7 +175,7 @@ public class HandleUnanalyzedLanguagesStepTest {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
     ScannerReport.AnalysisWarning warning1 = ScannerReport.AnalysisWarning.newBuilder().setText("warning 1").build();
     ScannerReport.AnalysisWarning warning2 = ScannerReport.AnalysisWarning.newBuilder().setText("warning 2").build();
-    ImmutableList<ScannerReport.AnalysisWarning> warnings = of(warning1, warning2);
+    List<ScannerReport.AnalysisWarning> warnings = List.of(warning1, warning2);
     reportReader.setAnalysisWarnings(warnings);
     reportReader.setMetadata(ScannerReport.Metadata.newBuilder().build());
 
@@ -194,9 +191,9 @@ public class HandleUnanalyzedLanguagesStepTest {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.ENTERPRISE));
     ScannerReport.AnalysisWarning warning1 = ScannerReport.AnalysisWarning.newBuilder().setText("warning 1").build();
     ScannerReport.AnalysisWarning warning2 = ScannerReport.AnalysisWarning.newBuilder().setText("warning 2").build();
-    ImmutableList<ScannerReport.AnalysisWarning> warnings = of(warning1, warning2);
+    List<ScannerReport.AnalysisWarning> warnings = List.of(warning1, warning2);
     reportReader.setAnalysisWarnings(warnings);
-    reportReader.setMetadata(ScannerReport.Metadata.newBuilder().putNotAnalyzedIndexedFileCountPerType("C++", 20).build());
+    reportReader.setMetadata(ScannerReport.Metadata.newBuilder().putNotAnalyzedIndexedFileCountPerType("cpp", 20).build());
 
     underTest.execute(new TestComputationStepContext());
 

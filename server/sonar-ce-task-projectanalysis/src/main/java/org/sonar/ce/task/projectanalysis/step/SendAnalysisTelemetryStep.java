@@ -53,7 +53,7 @@ public class SendAnalysisTelemetryStep implements ComputationStep {
 
   private static final int MAX_METRICS = 1000;
 
-  private static final Pattern EXTENSION_SANITIZE_PATTERN = Pattern.compile("[^a-zA-Z0-9_.]");
+  private static final Pattern KEY_SANITIZE_PATTERN = Pattern.compile("[^a-zA-Z0-9_.]");
 
   protected static final String ANALYZED_LINES_OF_CODE_METRIC_KEY = "analyzed_ncloc";
   protected static final String ANALYZED_LINES_OF_CODE_NOT_SET_VALUE = "NOT_SET";
@@ -137,9 +137,8 @@ public class SendAnalysisTelemetryStep implements ComputationStep {
     Set<Metric> metrics = new HashSet<>();
     ScannerReport.Metadata metadata = scannerReportReader.readMetadata();
 
-    metadata.getNotAnalyzedIndexedFileCountPerTypeMap().forEach((extension, count) -> {
-      // The telemetry key does not support all characters
-      String key = String.format("indexed_files.%s.unanalyzed.total", sanitizeExtension(extension));
+    metadata.getNotAnalyzedIndexedFileCountPerTypeMap().forEach((language, count) -> {
+      String key = String.format("indexed_files.%s.unanalyzed.total", sanitizeKey(language));
       metrics.add(new AnalysisMetric(key, String.valueOf(count), projectUuid, analysisType, analysisUuid));
     });
 
@@ -150,17 +149,19 @@ public class SendAnalysisTelemetryStep implements ComputationStep {
     Set<Metric> metrics = new HashSet<>();
     ScannerReport.Metadata metadata = scannerReportReader.readMetadata();
 
-    metadata.getAnalyzedIndexedFileCountPerTypeMap().forEach((extension, count) -> {
-      // The telemetry key does not support all characters
-      String key = String.format("indexed_files.%s.analyzed.total", sanitizeExtension(extension));
+    metadata.getAnalyzedIndexedFileCountPerTypeMap().forEach((language, count) -> {
+      String key = String.format("indexed_files.%s.analyzed.total", sanitizeKey(language));
       metrics.add(new AnalysisMetric(key, String.valueOf(count), projectUuid, analysisType, analysisUuid));
     });
 
     return metrics;
   }
 
-  private static String sanitizeExtension(String extension) {
-    return EXTENSION_SANITIZE_PATTERN.matcher(extension)
+  // Defensive sanitization: language keys from the scanner are normally already safe (closed list +
+  // plugin language keys), but we strip any non-telemetry-safe characters to be robust against
+  // a misbehaving plugin language key.
+  private static String sanitizeKey(String key) {
+    return KEY_SANITIZE_PATTERN.matcher(key)
       .replaceAll("_")
       .toLowerCase(ENGLISH);
   }
